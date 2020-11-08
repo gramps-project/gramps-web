@@ -1,4 +1,4 @@
-import { css, LitElement } from 'lit-element';
+import { LitElement } from 'lit-element';
 import { sharedStyles } from '../SharedStyles.js';
 
 export class GrampsjsObject extends LitElement {

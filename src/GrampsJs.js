@@ -1,11 +1,20 @@
 import { LitElement, html, css } from 'lit-element';
 
+
+const __APIHOST_DEV__ = "http://localhost:5555"
+
 export class GrampsJs extends LitElement {
   static get properties() {
     return {
-      title: { type: String },
-      page: { type: String },
+      apihost: { type: String },
+      strings: { type: Object },
     };
+  }
+
+  constructor() {
+    super();
+    this.apihost = __APIHOST_DEV__;
+    this.strings = {};
   }
 
   static get styles() {
@@ -30,6 +39,9 @@ export class GrampsJs extends LitElement {
     return html`
       <main>
         <h1>Gramps.js</h1>
+        <p>API host: ${this.apihost}</p>
+      </main>
     `;
   }
+
 }
