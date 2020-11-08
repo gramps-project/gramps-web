@@ -1,10 +1,11 @@
-import { html, css, LitElement } from 'lit-element';
-import { sharedStyles } from '../SharedStyles.js';
+import { html, css } from 'lit-element';
+import { GrampsjsObject } from './GrampsjsObject.js'
 
-export class GrampsjsPerson extends LitElement {
+
+export class GrampsjsPerson extends GrampsjsObject {
   static get styles() {
     return [
-      sharedStyles,
+      super.styles,
       css`
       :host {
         display: block;
@@ -14,59 +15,42 @@ export class GrampsjsPerson extends LitElement {
     `];
   }
 
-  static get properties() {
-    return {
-      data: { type: Object },
-    };
-  }
-
-  constructor() {
-    super();
-    this.data = {};
-  }
-
   render() {
+    if (!this.data || !this.data.profile) {
+      return html``
+    }
     return html`
-    <h1>${this.data.profile.name_surname}, ${this.data.profile.name_given}</h1>
+    <h1>${this._displayName()}</h1>
     <dl>
       <dt>Born</dt>
-      <dl>${this._getBirthday()}</dl>
-      <dt>Born</dt>
-      <dl>${this._getDeath()}</dl>
+      <dd>${this._getProfileEvent('Birth')}</dd>
+      <dt>Died</dt>
+      <dd>${this._getProfileEvent('Death')}</dd>
     </dl>
     `;
   }
 
-  _getProfileEvent(type) {
-    if (!('profile' in this.data)) {
-      return null;
+  _displayName() {
+    if (!this.data.profile) {
+      return ''
     }
-    if (!('events' in this.data.profile)) {
-      return null;
+    const surname = this.data.profile.name_surname || 'NN';
+    const given = this.data.profile.name_given || 'NN';
+    return html`${surname}, ${given}`
+  }
+
+  _getProfileEvent(type) {
+    if (!(this.data.profile && this.data.profile.events)) {
+      return '';
     }
     for (const event of this.data.profile.events) {
       if (event.type === type) {
-        return event
+        return html`${event.date} ${this._('in')} ${event.place}`
       }
     }
-    return null;
+    return '';
   }
 
-  _getBirthday() {
-    const Event = this._getProfileEvent("Birth");
-    if (Event === null) {
-      return 'unknown';
-    }
-    return html`${Event.date} in ${Event.place}`
-  }
-
-  _getDeath() {
-    const Event = this._getProfileEvent("Death");
-    if (Event === null) {
-      return 'unknown';
-    }
-    return html`${Event.date} in ${Event.place}`
-  }
 }
 
 

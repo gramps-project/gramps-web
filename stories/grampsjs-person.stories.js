@@ -9,5 +9,5 @@ const person = [{"address_list": [{"citation_list": ["c140d5aa362797c32d4"], "ci
 
 export const App = () =>
   html`
-    <grampsjs-person .data=${person[0]}></grampsjs-person>
+    <grampsjs-person .data=${person[0]} .strings=${{in: 'dans'}}></grampsjs-person>
   `;
