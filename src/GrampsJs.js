@@ -1,19 +1,17 @@
 import { LitElement, html, css } from 'lit-element';
 
+import './views/GrampsjsViewPerson.js'
 
-const __APIHOST_DEV__ = "http://localhost:5555"
 
 export class GrampsJs extends LitElement {
   static get properties() {
     return {
-      apihost: { type: String },
       strings: { type: Object },
     };
   }
 
   constructor() {
     super();
-    this.apihost = __APIHOST_DEV__;
     this.strings = {};
   }
 
@@ -39,7 +37,8 @@ export class GrampsJs extends LitElement {
     return html`
       <main>
         <h1>Gramps.js</h1>
-        <p>API host: ${this.apihost}</p>
+
+        <grampsjs-view-person grampsId="I0044"></grampsjs-view-person>
       </main>
     `;
   }

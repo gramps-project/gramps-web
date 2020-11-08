@@ -20,7 +20,7 @@ export class GrampsjsPerson extends GrampsjsObject {
       return html``
     }
     return html`
-    <h1>${this._displayName()}</h1>
+    <h2>${this._displayName()}</h2>
     <dl>
       <dt>Born</dt>
       <dd>${this._getProfileEvent('Birth')}</dd>
