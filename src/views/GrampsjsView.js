@@ -9,8 +9,13 @@ export class GrampsjsView extends LitElement {
     ];
   }
 
+  shouldUpdate() {
+    return this.active;
+  }
+
   static get properties() {
     return {
+      active: { type: Boolean },
       strings: { type: Object },
     };
   }
