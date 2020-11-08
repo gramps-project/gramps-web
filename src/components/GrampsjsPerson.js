@@ -1,14 +1,17 @@
 import { html, css, LitElement } from 'lit-element';
+import { sharedStyles } from '../SharedStyles.js';
 
 export class GrampsjsPerson extends LitElement {
   static get styles() {
-    return css`
+    return [
+      sharedStyles,
+      css`
       :host {
         display: block;
         padding: 25px;
         color: var(--grampsjs-person-text-color, #000);
       }
-    `;
+    `];
   }
 
   static get properties() {
