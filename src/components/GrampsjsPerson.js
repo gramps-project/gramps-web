@@ -22,13 +22,47 @@ export class GrampsjsPerson extends LitElement {
     this.data = {};
   }
 
-  // __increment() {
-  // }
-
   render() {
     return html`
-      ${JSON.stringify(this.data)}
+    <h1>${this.data.profile.name_surname}, ${this.data.profile.name_given}</h1>
+    <dl>
+      <dt>Born</dt>
+      <dl>${this._getBirthday()}</dl>
+      <dt>Born</dt>
+      <dl>${this._getDeath()}</dl>
+    </dl>
     `;
+  }
+
+  _getProfileEvent(type) {
+    if (!('profile' in this.data)) {
+      return null;
+    }
+    if (!('events' in this.data.profile)) {
+      return null;
+    }
+    for (const event of this.data.profile.events) {
+      if (event.type === type) {
+        return event
+      }
+    }
+    return null;
+  }
+
+  _getBirthday() {
+    const Event = this._getProfileEvent("Birth");
+    if (Event === null) {
+      return 'unknown';
+    }
+    return html`${Event.date} in ${Event.place}`
+  }
+
+  _getDeath() {
+    const Event = this._getProfileEvent("Death");
+    if (Event === null) {
+      return 'unknown';
+    }
+    return html`${Event.date} in ${Event.place}`
   }
 }
 
