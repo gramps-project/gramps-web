@@ -60,6 +60,15 @@
   "author": "gramps-js",
   "license": "MIT",
   "dependencies": {
+    "@material/mwc-button": "^0.19.1",
+    "@material/mwc-drawer": "^0.19.1",
+    "@material/mwc-icon": "^0.19.1",
+    "@material/mwc-icon-button": "^0.19.1",
+    "@material/mwc-list": "^0.19.1",
+    "@material/mwc-snackbar": "^0.19.1",
+    "@material/mwc-tab": "^0.19.1",
+    "@material/mwc-tab-bar": "^0.19.1",
+    "@material/mwc-top-app-bar": "^0.19.1",
     "lit-element": "^2.0.1",
     "lit-html": "^1.0.0",
     "pwa-helpers": "^0.9.1"
