@@ -1,4 +1,4 @@
-import { LitElement } from 'lit-element';
+import { LitElement, css } from 'lit-element';
 import { sharedStyles } from '../SharedStyles.js';
 
 
@@ -6,12 +6,19 @@ export class GrampsjsView extends LitElement {
   static get styles() {
     return [
       sharedStyles,
+      css`
+
+      :host {
+        padding-top: 25px;
+      }
+
+      `
     ];
   }
 
-  shouldUpdate() {
-    return this.active;
-  }
+  // shouldUpdate() {
+  //   return this.active;
+  // }
 
   static get properties() {
     return {
