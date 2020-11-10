@@ -8,9 +8,6 @@ export class GrampsjsPerson extends GrampsjsObject {
       super.styles,
       css`
       :host {
-        display: block;
-        padding: 25px;
-        color: var(--grampsjs-person-text-color, #000);
       }
     `];
   }

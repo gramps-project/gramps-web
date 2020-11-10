@@ -36,17 +36,11 @@ export class GrampsJs extends LitElement {
       sharedStyles,
       css`
       :host {
-        // min-height: 100vh;
-        // display: flex;
-        // flex-direction: column;
-        // align-items: center;
-        // max-width: 960px;
-        // margin: 0 auto;
-        // text-align: center;
+        min-height: 100vh;
       }
 
       main {
-        // flex-grow: 1;
+        padding: 25px;
       }
 
       .page {
