@@ -20,6 +20,7 @@ export class GrampsjsViewPerson extends GrampsjsView {
     return {
       grampsId: { type: String },
       _data: { type: Object },
+      _loading: {type: Boolean}
     };
   }
 
@@ -32,7 +33,10 @@ export class GrampsjsViewPerson extends GrampsjsView {
 
   render() {
     if (Object.keys(this._data).length === 0) {
-      return html`Loading ...`
+      if (this._loading) {
+        return html`Loading ...`
+      }
+      return html``
     }
     return html`
     Person view ${this.grampsId}:
@@ -50,8 +54,11 @@ export class GrampsjsViewPerson extends GrampsjsView {
 
   _updateData() {
     if (this.grampsId !== undefined) {
+      this._data = {}
+      this._loading = true;
       apiGet(`/api/people/?gramps_id=${this.grampsId}&profile`).then(data => {
         if ('data' in data && data.data.length) {
+          this._loading = false;
           [this._data] = data.data;
         }
       })
