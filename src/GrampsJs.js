@@ -62,6 +62,10 @@ export class GrampsJs extends LitElement {
         flex-grow: 0;
       }
 
+      mwc-drawer[open]:not([type="modal"]) {
+        --mdc-top-app-bar-width: calc(100% - var(--mdc-drawer-width, 256px));
+      }
+
     `
     ]
   }
