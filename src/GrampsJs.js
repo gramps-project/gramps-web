@@ -58,6 +58,12 @@ export class GrampsJs extends LitElement {
         --mdc-typography-button-font-size: 16px;
       }
 
+      mwc-top-app-bar {
+        --mdc-typography-headline6-font-family: Roboto Slab;
+        --mdc-typography-headline6-font-weight: 400;
+        --mdc-typography-headline6-font-size: 19px;
+      }
+
       mwc-tab {
         flex-grow: 0;
       }
@@ -94,10 +100,6 @@ export class GrampsJs extends LitElement {
         <div slot="appContent" id="top-app-bar-parent">
           <mwc-top-app-bar>
             <mwc-icon-button slot="navigationIcon" icon="menu"></mwc-icon-button>
-            <mwc-icon-button icon="home" slot="actionItems" @click="${() => this._handleTab('')}"></mwc-icon-button>
-            <mwc-icon-button icon="list" slot="actionItems" @click="${() => this._handleTab('people')}"></mwc-icon-button>
-            <mwc-icon-button icon="map" slot="actionItems" @click="${() => this._handleTab('map')}"></mwc-icon-button>
-            <mwc-icon-button icon="account_tree" slot="actionItems"></mwc-icon-button>
             <div slot="title">Gramps.js</div>
           </mwc-top-app-bar>
 

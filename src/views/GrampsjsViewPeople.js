@@ -17,6 +17,11 @@ export class GrampsjsViewPeople extends GrampsjsView {
       vaadin-grid {
         max-height: calc(100vh - 190px);
       }
+
+      vaadin-grid {
+        font-family: Roboto;
+        font-weight: 300;
+      }
     `];
   }
 
