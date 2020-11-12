@@ -139,6 +139,8 @@ export class GrampsJs extends LitElement {
     const container = this.shadowRoot.getElementById('top-app-bar-parent');
     this.boundToggleDrawer = this._toggleDrawer.bind(this);
     container.addEventListener('MDCTopAppBar:nav', this.boundToggleDrawer);
+    this.boundHandleNav = this._handleNav.bind(this);
+    container.addEventListener('nav', this.boundHandleNav);
   }
 
   _loadPage(path) {
@@ -155,6 +157,15 @@ export class GrampsJs extends LitElement {
   }
 
   _handleTab(page) {
+    if (page !== this._page) {
+      const href = `/${page}`
+      this._loadPage(href)
+      window.history.pushState({}, '', href)
+    }
+  }
+
+  _handleNav(e) {
+    const {page} = e.detail
     if (page !== this._page) {
       const href = `/${page}`
       this._loadPage(href)

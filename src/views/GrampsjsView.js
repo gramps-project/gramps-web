@@ -9,7 +9,8 @@ export class GrampsjsView extends LitElement {
       css`
 
       :host {
-        padding-top: 25px;
+        margin-top: 25px;
+        background-color: #ffffff;
       }
 
       `

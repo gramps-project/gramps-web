@@ -69,6 +69,7 @@
     "@material/mwc-tab": "^0.19.1",
     "@material/mwc-tab-bar": "^0.19.1",
     "@material/mwc-top-app-bar": "^0.19.1",
+    "@vaadin/vaadin-grid": "^5.7.6",
     "lit-element": "^2.0.1",
     "lit-html": "^1.0.0",
     "pwa-helpers": "^0.9.1"
