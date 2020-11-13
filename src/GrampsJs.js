@@ -89,6 +89,10 @@ export class GrampsJs extends LitElement {
       mwc-linear-progress {
         --mdc-theme-primary: #4FC3F7;
       }
+
+      grampsjs-list-item span {
+        color: #444;
+      }
     `
     ]
   }
