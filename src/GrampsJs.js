@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit-element';
 import { installRouter } from 'pwa-helpers/router.js';
+import { installMediaQueryWatcher } from 'pwa-helpers/media-query.js';
 import '@material/mwc-drawer'
 import '@material/mwc-tab'
 import '@material/mwc-tab-bar'
@@ -19,6 +20,7 @@ export class GrampsJs extends LitElement {
   static get properties() {
     return {
       strings: { type: Object },
+      wide: {type: Boolean},
       _page: { type: String },
       _pageId: { type: String },
     };
@@ -29,6 +31,7 @@ export class GrampsJs extends LitElement {
     this.strings = {};
     this._page = 'home';
     this._pageId = '';
+    this.wide = false;
   }
 
   static get styles() {
@@ -68,9 +71,17 @@ export class GrampsJs extends LitElement {
         flex-grow: 0;
       }
 
+      mwc-drawer {
+        --mdc-drawer-width: 230px;
+        --mdc-typography-headline6-font-family: Roboto Slab;
+        --mdc-typography-headline6-font-weight: 400;
+        --mdc-typography-headline6-font-size: 19px;
+      }
+
       mwc-drawer[open]:not([type="modal"]) {
         --mdc-top-app-bar-width: calc(100% - var(--mdc-drawer-width, 256px));
       }
+
 
     `
     ]
@@ -85,15 +96,31 @@ export class GrampsJs extends LitElement {
     }
 
     return html`
-      <mwc-drawer hasHeader type="dismissible" id="app-drawer">
+      <mwc-drawer hasHeader type="dismissible" id="app-drawer" ?open="${this.wide}">
         <span slot="title">Menu</span>
         <div>
           <mwc-list>
-            <grampsjs-list-item href="/">
-              Home
+            <li divider padded role="separator"></li>
+            <grampsjs-list-item href="/" graphic="icon">
+              <span>Home</span>
+              <mwc-icon slot="graphic">home</mwc-icon>
             </grampsjs-list-item>
-            <grampsjs-list-item href="/people">
-              Lists
+            <grampsjs-list-item href="/people" graphic="icon">
+              <span>Lists</span>
+              <mwc-icon slot="graphic">list</mwc-icon>
+            </grampsjs-list-item>
+            <grampsjs-list-item href="/map" graphic="icon">
+              <span>Map</span>
+              <mwc-icon slot="graphic">map</mwc-icon>
+            </grampsjs-list-item>
+            <grampsjs-list-item href="/tree" graphic="icon">
+              <span>Tree</span>
+              <mwc-icon slot="graphic">account_tree</mwc-icon>
+            </grampsjs-list-item>
+            <li divider padded role="separator"></li>
+            <grampsjs-list-item href="/recent" graphic="icon">
+              <span>History</span>
+              <mwc-icon slot="graphic">history</mwc-icon>
             </grampsjs-list-item>
           </mwc-list>
         </div>
@@ -138,6 +165,7 @@ export class GrampsJs extends LitElement {
 
   firstUpdated() {
     installRouter((location) => this._loadPage(decodeURIComponent(location.pathname)));
+    installMediaQueryWatcher(`(min-width: 768px)`, (matches) => {this.wide = matches});
     const container = this.shadowRoot.getElementById('top-app-bar-parent');
     this.boundToggleDrawer = this._toggleDrawer.bind(this);
     container.addEventListener('MDCTopAppBar:nav', this.boundToggleDrawer);
