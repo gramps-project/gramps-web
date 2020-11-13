@@ -50,11 +50,11 @@ export class GrampsjsViewPeople extends GrampsjsView {
     }
     return html`
     <vaadin-grid .items="${this._data}" @click="${this._handleGridClick}">
-      <vaadin-grid-column path="grampsId" header="Gramps ID"></vaadin-grid-column>
-      <vaadin-grid-column path="surname" header="Surname"></vaadin-grid-column>
-      <vaadin-grid-column path="given" header="Given name"></vaadin-grid-column>
-      <vaadin-grid-column path="birth" header="Birthdate"></vaadin-grid-column>
-      <vaadin-grid-column path="death" header="Death date"></vaadin-grid-column>
+      <vaadin-grid-column path="grampsId" header="${this._('Gramps ID')}"></vaadin-grid-column>
+      <vaadin-grid-column path="surname" header="${this._('Surname')}"></vaadin-grid-column>
+      <vaadin-grid-column path="given" header="${this._('Given name')}"></vaadin-grid-column>
+      <vaadin-grid-column path="birth" header="${this._('Birth Date')}"></vaadin-grid-column>
+      <vaadin-grid-column path="death" header="${this._('Death Date')}"></vaadin-grid-column>
     </vaadin-grid>
     `;
 
