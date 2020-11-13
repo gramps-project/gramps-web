@@ -1,3 +1,8 @@
+/*
+People list view
+*/
+
+
 import { html, css } from 'lit-element';
 
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
@@ -41,7 +46,7 @@ export class GrampsjsViewPeople extends GrampsjsView {
 
   render() {
     if (this._data.length === 0) {
-      return html`Loading ...`
+      return html``
     }
     return html`
     <vaadin-grid .items="${this._data}" @click="${this._handleGridClick}">
@@ -80,7 +85,9 @@ export class GrampsjsViewPeople extends GrampsjsView {
   }
 
   _fetchData() {
+    this.loading = true;
     apiGet(`/api/people/?profile`).then(data => {
+      this.loading = false;
       if ('data' in data && data.data.length) {
         this._data = data.data.map(this._formatRow)
       }

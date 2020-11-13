@@ -9,6 +9,7 @@ import '@material/mwc-icon'
 import '@material/mwc-icon-button'
 import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
+import '@material/mwc-linear-progress'
 import './components/GrampsJsListItem.js'
 
 
@@ -21,6 +22,7 @@ export class GrampsJs extends LitElement {
     return {
       strings: { type: Object },
       wide: {type: Boolean},
+      progress: {type: Boolean},
       _page: { type: String },
       _pageId: { type: String },
     };
@@ -32,6 +34,7 @@ export class GrampsJs extends LitElement {
     this._page = 'home';
     this._pageId = '';
     this.wide = false;
+    this.progress = false;
   }
 
   static get styles() {
@@ -82,7 +85,9 @@ export class GrampsJs extends LitElement {
         --mdc-top-app-bar-width: calc(100% - var(--mdc-drawer-width, 256px));
       }
 
-
+      mwc-linear-progress {
+        --mdc-theme-primary: #4FC3F7;
+      }
     `
     ]
   }
@@ -94,7 +99,6 @@ export class GrampsJs extends LitElement {
       events: 'Events',
       places: 'Places',
     }
-
     return html`
       <mwc-drawer hasHeader type="dismissible" id="app-drawer" ?open="${this.wide}">
         <span slot="title">Menu</span>
@@ -129,8 +133,11 @@ export class GrampsJs extends LitElement {
             <mwc-icon-button slot="navigationIcon" icon="menu"></mwc-icon-button>
             <div slot="title">Gramps.js</div>
           </mwc-top-app-bar>
+          <mwc-linear-progress indeterminate ?closed="${!this.progress}">
+          </mwc-linear-progress>
 
         <main>
+
 
         ${this._tabHtml(tabs)}
 
@@ -171,6 +178,10 @@ export class GrampsJs extends LitElement {
     container.addEventListener('MDCTopAppBar:nav', this.boundToggleDrawer);
     this.boundHandleNav = this._handleNav.bind(this);
     container.addEventListener('nav', this.boundHandleNav);
+    this.boundProgressOn = this._progressOn.bind(this);
+    this.boundProgressOff = this._progressOff.bind(this);
+    container.addEventListener('progress:on', this.boundProgressOn);
+    container.addEventListener('progress:off', this.boundProgressOff);
   }
 
   _loadPage(path) {
@@ -185,6 +196,15 @@ export class GrampsJs extends LitElement {
       this._pageId = pageId || '';
     }
   }
+
+  _progressOn() {
+    this.progress = true
+  }
+
+  _progressOff() {
+    this.progress = false
+  }
+
 
   _handleTab(page) {
     if (page !== this._page) {
