@@ -114,6 +114,10 @@ export class GrampsJs extends LitElement {
               <span>${this._('Home Page')}</span>
               <mwc-icon slot="graphic">home</mwc-icon>
             </grampsjs-list-item>
+            <grampsjs-list-item href="/" graphic="icon">
+              <span>${this._('Blog')}</span>
+              <mwc-icon slot="graphic">rss_feed</mwc-icon>
+            </grampsjs-list-item>
             <grampsjs-list-item href="/people" graphic="icon">
               <span>${this._('Lists')}</span>
               <mwc-icon slot="graphic">list</mwc-icon>

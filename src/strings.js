@@ -6,7 +6,8 @@ export const additionalStrings = {
   "de": {
     "Lists": "Listen",
     "History": "Verlauf",
-    "Menu": "Menü"
+    "Menu": "Menü",
+    "Blog": "Blog"
   }
 }
 
