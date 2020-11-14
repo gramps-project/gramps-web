@@ -2,7 +2,7 @@
 Base class for Gramps views
 */
 
-import { LitElement, css } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import { sharedStyles } from '../SharedStyles.js';
 
 
@@ -29,7 +29,9 @@ export class GrampsjsView extends LitElement {
     return {
       active: { type: Boolean },
       strings: { type: Object },
-      loading: {type: Boolean}
+      loading: {type: Boolean},
+      error: {type: Boolean},
+      _errorMessage: {type: String}
     };
   }
 
@@ -38,6 +40,16 @@ export class GrampsjsView extends LitElement {
     this.strings = {};
     this.active = false;
     this.loading = false;
+    this.error = false;
+    this._errorMessage = ''
+  }
+
+
+  render() {
+    if (this.error) {
+      return html`There was an error: ${this._errorMessage}`
+    }
+    return this.renderContent()
   }
 
   update(changed) {

@@ -76,13 +76,16 @@ export async function apiGet(endpoint)  {
         // logout()
       }
       if (respStatus !== 200) {
-        return 'error'
+        return {'error': `Error ${respStatus}`}
       }
       return resp.json()
     })
     .catch((error) => {
-      return {'error': error};
+      return {'error': error.message};
     });
+  if ('error' in data) {
+    return {'error': data.error}
+  }
   return {'data': data}
 };
 

@@ -30,7 +30,7 @@ export class GrampsjsViewPerson extends GrampsjsView {
   }
 
 
-  render() {
+  renderContent() {
     if (Object.keys(this._data).length === 0) {
       if (this.loading) {
         return html``
@@ -56,9 +56,12 @@ export class GrampsjsViewPerson extends GrampsjsView {
       this._data = {}
       this.loading = true
       apiGet(`/api/people/?gramps_id=${this.grampsId}&profile`).then(data => {
-        if ('data' in data && data.data.length) {
-          this.loading = false;
+        this.loading = false;
+        if ('data' in data) {
           [this._data] = data.data;
+        } else if ('error' in data) {
+          this.error = true
+          this._errorMessage = data.error
         }
       })
     }

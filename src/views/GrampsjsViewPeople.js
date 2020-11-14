@@ -44,7 +44,7 @@ export class GrampsjsViewPeople extends GrampsjsView {
   }
 
 
-  render() {
+  renderContent() {
     if (this._data.length === 0) {
       return html``
     }
@@ -88,8 +88,11 @@ export class GrampsjsViewPeople extends GrampsjsView {
     this.loading = true;
     apiGet(`/api/people/?profile`).then(data => {
       this.loading = false;
-      if ('data' in data && data.data.length) {
+      if ('data' in data) {
         this._data = data.data.map(this._formatRow)
+      } else if ('error' in data) {
+        this.error = true
+        this._errorMessage = data.error
       }
     })
   }
