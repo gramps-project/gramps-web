@@ -61,6 +61,7 @@
   "license": "MIT",
   "dependencies": {
     "@material/mwc-button": "^0.19.1",
+    "@material/mwc-circular-progress": "^0.19.1",
     "@material/mwc-drawer": "^0.19.1",
     "@material/mwc-icon": "^0.19.1",
     "@material/mwc-icon-button": "^0.19.1",

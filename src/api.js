@@ -13,7 +13,6 @@ export function doLogout() {
 export function storeAuthToken(authToken, expires) {
   localStorage.setItem('access_token', authToken);
   localStorage.setItem('access_token_expires', expires);
-  window.dispatchEvent(new CustomEvent("user:loggedin", {bubbles: true, composed: true}))
 }
 
 export function storeRefreshToken(refreshToken) {

@@ -13,6 +13,7 @@ import '@material/mwc-list'
 import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-linear-progress'
+import '@material/mwc-circular-progress'
 import './components/GrampsJsListItem.js'
 import { apiGetTokens, apiGet, doLogout } from './api.js'
 import { grampsStrings, additionalStrings } from './strings.js'
@@ -124,17 +125,18 @@ export class GrampsJs extends LitElement {
       #user-menu mwc-button {
         margin: 0.5em 1em;
       }
+
+      #person-button {
+        margin-top: 10px;
+      }
+      mwc-circular-progress {
+        --mdc-theme-primary: white;
+      }
     `
     ]
   }
 
   render() {
-
-    const tabs = {
-      people: this._('People'),
-      events: this._('Events'),
-      places: this._('Places'),
-    }
     if (this._notAuthorized) {
       window.history.pushState({}, '', 'login')
       return html`
@@ -142,10 +144,20 @@ export class GrampsJs extends LitElement {
         <form id="login-form" action="/">
           <mwc-textfield outlined id="username" label="User"></mwc-textfield>
           <mwc-textfield outlined id="password" label="Password" type="password"></mwc-textfield>
-          <mwc-button raised label="submit" type="submit" @click="${this._submitLogin}"></mwc-button>
+          <mwc-button raised label="submit" type="submit" @click="${this._submitLogin}">
+            <span slot="trailingIcon" style="display:none;">
+              <mwc-circular-progress indeterminate density="-7" closed id="login-progress">
+              </mwc-circular-progress>
+            </span>
+          </mwc-button>
         </form>
       </div>
       `
+    }
+    const tabs = {
+      people: this._('People'),
+      events: this._('Events'),
+      places: this._('Places'),
     }
     if (Object.keys(this.strings).length === 0) {
       this._loadStrings(grampsStrings, 'de');
@@ -155,7 +167,7 @@ export class GrampsJs extends LitElement {
         <span slot="title" style="position: relative;">
           <mwc-icon-button icon="person" id="person-button" @click="${this._openUserMenu}"></mwc-icon-button>
           <mwc-menu absolute x="0" y="18" id="user-menu">
-            <mwc-button raised @click=${this._logoutClicked}>Logout</mwc-button>
+            <mwc-list-item @click=${this._logoutClicked} graphic="icon"><mwc-icon slot="graphic">home</mwc-icon>Logout</mwc-list-item>
           </mwc-menu>
         </span>
         <div>
@@ -245,7 +257,6 @@ export class GrampsJs extends LitElement {
     this.boundProgressOff = this._progressOff.bind(this);
     container.addEventListener('progress:on', this.boundProgressOn);
     container.addEventListener('progress:off', this.boundProgressOff);
-    window.addEventListener('user:loggedin', () => {this._notAuthorized = false});
     window.addEventListener('user:loggedout', () => {this._notAuthorized = true});
   }
 
@@ -301,10 +312,14 @@ export class GrampsJs extends LitElement {
       })
   }
 
-  _submitLogin() {
+  async _submitLogin() {
     const userField = this.shadowRoot.getElementById('username')
     const pwField = this.shadowRoot.getElementById('password')
+    const submitProgress = this.shadowRoot.getElementById('login-progress')
+    submitProgress.parentElement.style.display = 'block';
+    submitProgress.closed = false;
     apiGetTokens(userField.value, pwField.value)
+      .then(() => {document.location.href = '/'})
   }
 
   _openUserMenu() {
