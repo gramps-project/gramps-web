@@ -3,21 +3,26 @@ const __APIHOST__ = "http://localhost:5555"
 
 
 
-export function doLougout() {
-  // do logout
+export function doLogout() {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('access_token_expires');
+  localStorage.removeItem('refresh_token');
+  window.dispatchEvent(new CustomEvent("user:loggedout", {bubbles: true, composed: true}))
 }
 
-export function storeAuthToken(authToken) {
-  // store token
+export function storeAuthToken(authToken, expires) {
+  localStorage.setItem('access_token', authToken);
+  localStorage.setItem('access_token_expires', expires);
+  window.dispatchEvent(new CustomEvent("user:loggedin", {bubbles: true, composed: true}))
 }
 
 export function storeRefreshToken(refreshToken) {
-  // store token
+  localStorage.setItem('refresh_token', refreshToken);
 }
 
 
-export async function apiGetAuthToken(username, password)  {
-  const data = await fetch(`${__APIHOST__}/api/login`, {
+export async function apiGetTokens(username, password)  {
+  const data = await fetch(`${__APIHOST__}/api/login/`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -26,15 +31,30 @@ export async function apiGetAuthToken(username, password)  {
       body: JSON.stringify({'username': username, 'password': password})
     })
     .then(resp => resp.json())
+    .then(resp => {
+      if (resp.access_token === undefined) {
+        return {'error': 'Access token missing in response'}
+      }
+      if (resp.refresh_token === undefined) {
+        return {'error': 'Refresh token missing in response'}
+      }
+      const expires = Date.now() + 15 * 60 * 1000;
+      storeAuthToken(resp.access_token, expires)
+      storeRefreshToken(resp.refresh_token)
+      return {}
+    })
     .catch((error) => {
       return {'error': error};
     });
-  return {'data': data}
+    if ('error' in data) {
+      return {'error': data.error}
+    }
+    return {}
 };
 
 
 export async function apiRefreshAuthToken(refreshToken)  {
-  const data = await fetch(`${__APIHOST__}/api/login`, {
+  const data = await fetch(`${__APIHOST__}/api/refresh/`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${refreshToken}`,
@@ -45,47 +65,60 @@ export async function apiRefreshAuthToken(refreshToken)  {
     .then(resp => {
       const respStatus = resp.status;
       if (respStatus === 403 || respStatus === 422) {
-        // logout
+        doLogout()
       }
       return resp.json();
+    })
+    .then(resp => {
+      if (resp.access_token === undefined) {
+        return {'error': 'Access token missing in response'}
+      }
+      const expires = Date.now() + 15 * 60 * 1000;
+      storeAuthToken(resp.access_token, expires)
+      return {}
     })
     .catch((error) => {
       return {'error': error};
     });
-  return {'data': data}
+    if ('error' in data) {
+      return {'error': data.error}
+    }
+    return {}
   };
 
 
 
 export async function apiGet(endpoint)  {
-  // const accessToken = localStorage.getItem('access_token');
-  const accessToken = 1
-  const data = await fetch(`${__APIHOST__}${endpoint}`, {
+  const accessToken = localStorage.getItem('access_token');
+  const resp = await fetch(`${__APIHOST__}${endpoint}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
       })
-    .then(resp => {
-      const respStatus = resp.status;
-      if (respStatus === 401) {
-        // const refreshToken = localStorage.getItem('refresh_token');
-        // refresh!
-        return {};
-      } if (respStatus === 403 || respStatus === 422) {
-        // logout()
+  try {
+    if (resp.status === 401) {
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (refreshToken === undefined) {
+        doLogout()
+        return {'error': 'Missing refresh token'}
       }
-      if (respStatus !== 200) {
-        return {'error': `Error ${respStatus}`}
+      const refreshResp = await apiRefreshAuthToken()
+      if ('error' in refreshResp) {
+        return refreshResp
       }
-      return resp.json()
-    })
-    .catch((error) => {
-      return {'error': error.message};
-    });
-  if ('error' in data) {
-    return {'error': data.error}
+    }
+    if (resp.status === 403 || resp.status === 422) {
+        doLogout()
+        return {'error': 'Authorization error'}
+    }
+    if (resp.status !== 200) {
+      return {'error': `Error ${resp.status}`}
+    }
+    return {'data': await resp.json()}
   }
-  return {'data': data}
+  catch (error)  {
+    return {'error': error.message};
+  }
 };
 

@@ -6,16 +6,21 @@ import '@material/mwc-tab'
 import '@material/mwc-tab-bar'
 import '@material/mwc-top-app-bar'
 import '@material/mwc-icon'
+import '@material/mwc-button'
+import '@material/mwc-textfield'
 import '@material/mwc-icon-button'
 import '@material/mwc-list'
+import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-linear-progress'
 import './components/GrampsJsListItem.js'
-import { apiGet } from './api.js'
+import { apiGetTokens, apiGet, doLogout } from './api.js'
 import { grampsStrings, additionalStrings } from './strings.js'
 
-import './views/GrampsjsViewPerson.js'
 import './views/GrampsjsViewPeople.js'
+import './views/GrampsjsViewEvents.js'
+import './views/GrampsjsViewPerson.js'
+import './views/GrampsjsViewEvent.js'
 import { sharedStyles } from './SharedStyles.js';
 
 export class GrampsJs extends LitElement {
@@ -26,6 +31,7 @@ export class GrampsJs extends LitElement {
       progress: {type: Boolean},
       _page: { type: String },
       _pageId: { type: String },
+      _notAuthorized: {type: Boolean},
     };
   }
 
@@ -36,6 +42,7 @@ export class GrampsJs extends LitElement {
     this._pageId = '';
     this.wide = false;
     this.progress = false;
+    this._notAuthorized = false;
   }
 
   static get styles() {
@@ -93,6 +100,30 @@ export class GrampsJs extends LitElement {
       grampsjs-list-item span {
         color: #444;
       }
+
+      #login-container {
+        margin: auto;
+        height: 100%;
+        max-width: 20em;
+      }
+
+      #login-form {
+        height: 100%;
+        position: relative;
+        top: 25vh;
+      }
+
+      #login-form mwc-textfield {
+        width: 100%;
+        margin-bottom: 0.7em;
+      }
+
+      #login-form mwc-button {
+      }
+
+      #user-menu mwc-button {
+        margin: 0.5em 1em;
+      }
     `
     ]
   }
@@ -104,9 +135,29 @@ export class GrampsJs extends LitElement {
       events: this._('Events'),
       places: this._('Places'),
     }
+    if (this._notAuthorized) {
+      window.history.pushState({}, '', 'login')
+      return html`
+      <div id="login-container">
+        <form id="login-form" action="/">
+          <mwc-textfield outlined id="username" label="User"></mwc-textfield>
+          <mwc-textfield outlined id="password" label="Password" type="password"></mwc-textfield>
+          <mwc-button raised label="submit" type="submit" @click="${this._submitLogin}"></mwc-button>
+        </form>
+      </div>
+      `
+    }
+    if (Object.keys(this.strings).length === 0) {
+      this._loadStrings(grampsStrings, 'de');
+    }
     return html`
       <mwc-drawer hasHeader type="dismissible" id="app-drawer" ?open="${this.wide}">
-        <span slot="title">${this._('Menu')}</span>
+        <span slot="title" style="position: relative;">
+          <mwc-icon-button icon="person" id="person-button" @click="${this._openUserMenu}"></mwc-icon-button>
+          <mwc-menu absolute x="0" y="18" id="user-menu">
+            <mwc-button raised @click=${this._logoutClicked}>Logout</mwc-button>
+          </mwc-menu>
+        </span>
         <div>
           <mwc-list>
             <li divider padded role="separator"></li>
@@ -151,7 +202,10 @@ export class GrampsJs extends LitElement {
         ${this._tabHtml(tabs)}
 
         <grampsjs-view-people class="page" ?active=${this._page === 'people'} .strings="${this.strings}"></grampsjs-view-people>
+        <grampsjs-view-events class="page" ?active=${this._page === 'events'} .strings="${this.strings}"></grampsjs-view-events>
+
         <grampsjs-view-person class="page" ?active=${this._page === 'person'} grampsId="${this._pageId}" .strings="${this.strings}"></grampsjs-view-person>
+        <grampsjs-view-event class="page" ?active=${this._page === 'event'} grampsId="${this._pageId}" .strings="${this.strings}"></grampsjs-view-event>
 
         </main>
 
@@ -191,14 +245,15 @@ export class GrampsJs extends LitElement {
     this.boundProgressOff = this._progressOff.bind(this);
     container.addEventListener('progress:on', this.boundProgressOn);
     container.addEventListener('progress:off', this.boundProgressOff);
-    this._loadStrings(grampsStrings, 'de');
+    window.addEventListener('user:loggedin', () => {this._notAuthorized = false});
+    window.addEventListener('user:loggedout', () => {this._notAuthorized = true});
   }
 
   _loadPage(path) {
     if (path === "/") {
       this._page = 'home';
       this._pageId = '';
-    } else{
+    } else {
       const pathId = path.slice(1);
       const page = pathId.split('/')[0]
       const pageId = pathId.split('/')[1]
@@ -225,9 +280,10 @@ export class GrampsJs extends LitElement {
   }
 
   _handleNav(e) {
-    const {page} = e.detail
+    const {path} = e.detail
+    const page = path.split('/')[0]
     if (page !== this._page) {
-      const href = `/${page}`
+      const href = `/${path}`
       this._loadPage(href)
       window.history.pushState({}, '', href)
     }
@@ -243,6 +299,22 @@ export class GrampsJs extends LitElement {
           }
         }
       })
+  }
+
+  _submitLogin() {
+    const userField = this.shadowRoot.getElementById('username')
+    const pwField = this.shadowRoot.getElementById('password')
+    apiGetTokens(userField.value, pwField.value)
+  }
+
+  _openUserMenu() {
+    const userMenu = this.shadowRoot.getElementById('user-menu')
+    userMenu.open = true
+  }
+
+  _logoutClicked() {
+    doLogout();
+    this._notAuthorized = true;
   }
 
   _(s) {
