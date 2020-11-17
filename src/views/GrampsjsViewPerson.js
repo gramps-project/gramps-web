@@ -46,7 +46,7 @@ export class GrampsjsViewPerson extends GrampsjsView {
 
   update(changed) {
     super.update(changed);
-    if (changed.has('grampsId')) {
+    if (this.active && changed.has('grampsId')) {
         this._updateData()
     }
   }

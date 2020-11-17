@@ -68,7 +68,7 @@ export class GrampsjsViewPeople extends GrampsjsView {
     const grid = e.currentTarget;
     const {item} = grid.getEventContext(e);
     if (item.grampsId){
-      this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {page: `person/${item.grampsId}`}}));
+      this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: `person/${item.grampsId}`}}));
     }
   }
 
@@ -86,10 +86,10 @@ export class GrampsjsViewPeople extends GrampsjsView {
 
   _fetchData() {
     this.loading = true;
-    apiGet(`/api/people/?profile`).then(data => {
+    apiGet(`/api/people/?profile&keys=gramps_id,profile`).then(data => {
       this.loading = false;
       if ('data' in data) {
-        this._data = data.data.map(this._formatRow)
+        this._data = data.data.map((row) => this._formatRow(row))
       } else if ('error' in data) {
         this.error = true
         this._errorMessage = data.error
