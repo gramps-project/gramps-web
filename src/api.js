@@ -108,7 +108,6 @@ export async function apiGet(endpoint)  {
       }
     }
     if (resp.status === 403 || resp.status === 422) {
-        doLogout()
         return {'error': 'Authorization error'}
     }
     if (resp.status !== 200) {

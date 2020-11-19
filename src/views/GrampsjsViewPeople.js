@@ -86,7 +86,7 @@ export class GrampsjsViewPeople extends GrampsjsView {
 
   _fetchData() {
     this.loading = true;
-    apiGet(`/api/people/?profile&keys=gramps_id,profile`).then(data => {
+    apiGet(`/api/people/?profile=self,events&keys=gramps_id,profile`).then(data => {
       this.loading = false;
       if ('data' in data) {
         this._data = data.data.map((row) => this._formatRow(row))

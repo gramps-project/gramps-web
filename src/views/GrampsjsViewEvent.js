@@ -44,7 +44,7 @@ export class GrampsjsViewEvent extends GrampsjsView {
 
   update(changed) {
     super.update(changed);
-    if (changed.has('grampsId')) {
+    if (this.active && changed.has('grampsId')) {
         this._updateData()
     }
   }
@@ -53,7 +53,7 @@ export class GrampsjsViewEvent extends GrampsjsView {
     if (this.grampsId !== undefined && this.grampsId) {
       this._data = {}
       this.loading = true
-      apiGet(`/api/events/?gramps_id=${this.grampsId}&profile`).then(data => {
+      apiGet(`/api/events/?gramps_id=${this.grampsId}&profile=self`).then(data => {
         this.loading = false;
         if ('data' in data) {
           [this._data] = data.data;

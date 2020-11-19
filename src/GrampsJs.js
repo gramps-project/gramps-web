@@ -33,6 +33,7 @@ export class GrampsJs extends LitElement {
       _page: { type: String },
       _pageId: { type: String },
       _notAuthorized: {type: Boolean},
+      _loginError: { type: String },
     };
   }
 
@@ -44,6 +45,7 @@ export class GrampsJs extends LitElement {
     this.wide = false;
     this.progress = false;
     this._notAuthorized = false;
+    this._loginError = '';
   }
 
   static get styles() {
@@ -128,6 +130,9 @@ export class GrampsJs extends LitElement {
 
       #person-button {
         margin-top: 10px;
+        background-color: #ddd;
+        color: #555;
+        border-radius: 50%;
       }
       mwc-circular-progress {
         --mdc-theme-primary: white;
@@ -151,6 +156,8 @@ export class GrampsJs extends LitElement {
             </span>
           </mwc-button>
         </form>
+
+        ${this._loginError ? html`{<p>${this._loginError}}</p>` : html` `}
       </div>
       `
     }
@@ -167,7 +174,7 @@ export class GrampsJs extends LitElement {
         <span slot="title" style="position: relative;">
           <mwc-icon-button icon="person" id="person-button" @click="${this._openUserMenu}"></mwc-icon-button>
           <mwc-menu absolute x="0" y="18" id="user-menu">
-            <mwc-list-item @click=${this._logoutClicked} graphic="icon"><mwc-icon slot="graphic">home</mwc-icon>Logout</mwc-list-item>
+            <mwc-list-item @click=${this._logoutClicked} graphic="icon"><mwc-icon slot="graphic">exit_to_app</mwc-icon>Logout</mwc-list-item>
           </mwc-menu>
         </span>
         <div>
@@ -319,7 +326,13 @@ export class GrampsJs extends LitElement {
     submitProgress.parentElement.style.display = 'block';
     submitProgress.closed = false;
     apiGetTokens(userField.value, pwField.value)
-      .then(() => {document.location.href = '/'})
+      .then((res) => {
+        if ('error' in res) {
+          this._loginError = res.error
+        } else {
+          document.location.href = '/'
+        }
+      })
   }
 
   _openUserMenu() {

@@ -55,7 +55,7 @@ export class GrampsjsViewPerson extends GrampsjsView {
     if (this.grampsId !== undefined && this.grampsId) {
       this._data = {}
       this.loading = true
-      apiGet(`/api/people/?gramps_id=${this.grampsId}&profile`).then(data => {
+      apiGet(`/api/people/?gramps_id=${this.grampsId}&profile=self,events`).then(data => {
         this.loading = false;
         if ('data' in data) {
           [this._data] = data.data;
