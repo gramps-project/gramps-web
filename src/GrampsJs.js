@@ -14,6 +14,7 @@ import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-linear-progress'
 import '@material/mwc-circular-progress'
+import '@material/mwc-snackbar'
 import './components/GrampsJsListItem.js'
 import { apiGetTokens, apiGet, doLogout } from './api.js'
 import { grampsStrings, additionalStrings } from './strings.js'
@@ -24,28 +25,37 @@ import './views/GrampsjsViewPerson.js'
 import './views/GrampsjsViewEvent.js'
 import { sharedStyles } from './SharedStyles.js';
 
+
+const LOADING_STATE_INITIAL = 0
+const LOADING_STATE_UNAUTHORIZED = 1
+const LOADING_STATE_UNAUTHORIZED_NOCONNECTION = 2
+const LOADING_STATE_READY = 4
+
+
 export class GrampsJs extends LitElement {
   static get properties() {
     return {
-      strings: { type: Object },
       wide: {type: Boolean},
       progress: {type: Boolean},
+      loadingState: {type: Number},
+      language: {type: String},
+      _strings: { type: Object },
+      _dbInfo: { type: Object },
       _page: { type: String },
       _pageId: { type: String },
-      _notAuthorized: {type: Boolean},
-      _loginError: { type: String },
     };
   }
 
   constructor() {
     super();
-    this.strings = {};
-    this._page = 'home';
-    this._pageId = '';
     this.wide = false;
     this.progress = false;
-    this._notAuthorized = false;
-    this._loginError = '';
+    this.loadingState = LOADING_STATE_INITIAL;
+    this.language = '';
+    this._strings = {};
+    this._dbInfo = {};
+    this._page = 'home';
+    this._pageId = '';
   }
 
   static get styles() {
@@ -142,7 +152,13 @@ export class GrampsJs extends LitElement {
   }
 
   render() {
-    if (this._notAuthorized) {
+    if (this.loadingState === LOADING_STATE_INITIAL) {
+      return html`Loading ...`
+    }
+    if (this.loadingState === LOADING_STATE_UNAUTHORIZED_NOCONNECTION) {
+      return html`No connection`
+    }
+    if (this.loadingState === LOADING_STATE_UNAUTHORIZED) {
       window.history.pushState({}, '', 'login')
       return html`
       <div id="login-container">
@@ -157,7 +173,6 @@ export class GrampsJs extends LitElement {
           </mwc-button>
         </form>
 
-        ${this._loginError ? html`{<p>${this._loginError}}</p>` : html` `}
       </div>
       `
     }
@@ -166,8 +181,11 @@ export class GrampsJs extends LitElement {
       events: this._('Events'),
       places: this._('Places'),
     }
-    if (Object.keys(this.strings).length === 0) {
-      this._loadStrings(grampsStrings, 'de');
+    console.log(this._dbInfo)
+    console.log(this.lang)
+    console.log(this._strings)
+    if (this.lang !== '' && Object.keys(this._strings).length === 0) {
+      this._loadStrings(grampsStrings, this.lang);
     }
     return html`
       <mwc-drawer hasHeader type="dismissible" id="app-drawer" ?open="${this.wide}">
@@ -220,11 +238,11 @@ export class GrampsJs extends LitElement {
 
         ${this._tabHtml(tabs)}
 
-        <grampsjs-view-people class="page" ?active=${this._page === 'people'} .strings="${this.strings}"></grampsjs-view-people>
-        <grampsjs-view-events class="page" ?active=${this._page === 'events'} .strings="${this.strings}"></grampsjs-view-events>
+        <grampsjs-view-people class="page" ?active=${this._page === 'people'} .strings="${this._strings}"></grampsjs-view-people>
+        <grampsjs-view-events class="page" ?active=${this._page === 'events'} .strings="${this._strings}"></grampsjs-view-events>
 
-        <grampsjs-view-person class="page" ?active=${this._page === 'person'} grampsId="${this._pageId}" .strings="${this.strings}"></grampsjs-view-person>
-        <grampsjs-view-event class="page" ?active=${this._page === 'event'} grampsId="${this._pageId}" .strings="${this.strings}"></grampsjs-view-event>
+        <grampsjs-view-person class="page" ?active=${this._page === 'person'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-person>
+        <grampsjs-view-event class="page" ?active=${this._page === 'event'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-event>
 
         </main>
 
@@ -252,6 +270,11 @@ export class GrampsJs extends LitElement {
     drawer.open = !drawer.open;
   }
 
+  connectedCallback() {
+    super.connectedCallback()
+    this._loadDbInfo();
+  }
+
   firstUpdated() {
     installRouter((location) => this._loadPage(decodeURIComponent(location.pathname)));
     installMediaQueryWatcher(`(min-width: 768px)`, (matches) => {this.wide = matches});
@@ -261,11 +284,29 @@ export class GrampsJs extends LitElement {
     this.boundHandleNav = this._handleNav.bind(this);
     container.addEventListener('nav', this.boundHandleNav);
     this.boundProgressOn = this._progressOn.bind(this);
-    this.boundProgressOff = this._progressOff.bind(this);
     container.addEventListener('progress:on', this.boundProgressOn);
+    this.boundProgressOff = this._progressOff.bind(this);
     container.addEventListener('progress:off', this.boundProgressOff);
-    window.addEventListener('user:loggedout', () => {this._notAuthorized = true});
+    window.addEventListener('user:loggedout', () => {this.loadingState = LOADING_STATE_UNAUTHORIZED});
   }
+
+  _loadDbInfo() {
+    apiGet(`/api/metadata/`)
+      .then(data => {
+        if ('error' in data) {
+          this.loadingState = LOADING_STATE_UNAUTHORIZED
+          this._showError(data.error)
+        }
+        if ('data' in data) {
+          this._dbInfo = data.data
+          if (this.lang === '' && this._dbInfo?.locale?.lang !== undefined) {
+            this.lang = this._dbInfo.locale.lang.substring(0, 2)
+          }
+          this.loadingState = LOADING_STATE_READY
+        }
+      })
+  }
+
 
   _loadPage(path) {
     if (path === "/") {
@@ -307,14 +348,17 @@ export class GrampsJs extends LitElement {
     }
   }
 
-  _loadStrings(strings, locale) {
-    apiGet(`/api/translations/${locale}?strings=${JSON.stringify(strings)}`)
+  _loadStrings(strings, lang) {
+    apiGet(`/api/translations/${lang}?strings=${JSON.stringify(strings)}`)
       .then(data => {
         if ('data' in data) {
-          this.strings = data.data.reduce((obj, item) => Object.assign(obj, {[item.original]: item.translation}), {})
-          if (locale in additionalStrings) {
-            this.strings = Object.assign(additionalStrings[locale], this.strings);
+          this._strings = data.data.reduce((obj, item) => Object.assign(obj, {[item.original]: item.translation}), {})
+          if (lang in additionalStrings) {
+            this._strings = Object.assign(additionalStrings[lang], this._strings);
           }
+        }
+        if ('error' in data) {
+          this._showError(data.error)
         }
       })
   }
@@ -328,11 +372,15 @@ export class GrampsJs extends LitElement {
     apiGetTokens(userField.value, pwField.value)
       .then((res) => {
         if ('error' in res) {
-          this._loginError = res.error
+          this._showError(res.error)
         } else {
           document.location.href = '/'
         }
       })
+  }
+
+  _showError(msg) {
+    console.log(`ERROR: ${msg}`)
   }
 
   _openUserMenu() {
@@ -342,12 +390,12 @@ export class GrampsJs extends LitElement {
 
   _logoutClicked() {
     doLogout();
-    this._notAuthorized = true;
+    this.loadingState = LOADING_STATE_UNAUTHORIZED;
   }
 
   _(s) {
-    if (s in this.strings) {
-      return this.strings[s]
+    if (s in this._strings) {
+      return this._strings[s]
     }
     return s
   }
