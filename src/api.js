@@ -21,39 +21,43 @@ export function storeRefreshToken(refreshToken) {
 
 
 export async function apiGetTokens(username, password)  {
-  const data = await fetch(`${__APIHOST__}/api/login/`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({'username': username, 'password': password})
+  try {
+    const resp = await fetch(`${__APIHOST__}/api/login/`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({'username': username, 'password': password})
     })
-    .then(resp => resp.json())
-    .then(resp => {
-      if (resp.access_token === undefined) {
-        return {'error': 'Access token missing in response'}
-      }
-      if (resp.refresh_token === undefined) {
-        return {'error': 'Refresh token missing in response'}
-      }
-      const expires = Date.now() + 15 * 60 * 1000;
-      storeAuthToken(resp.access_token, expires)
-      storeRefreshToken(resp.refresh_token)
-      return {}
-    })
-    .catch((error) => {
-      return {'error': error};
-    });
-    if ('error' in data) {
-      return {'error': data.error}
+    if (resp.status === 401) {
+      throw(new Error('Wrong username or password'))
     }
+    if (resp.status !== 200) {
+      throw(new Error(`Error ${resp.status}`))
+    }
+    const data = await resp.json()
+    if (data.access_token === undefined) {
+      return {'error': 'Access token missing in response'}
+    }
+    if (data.refresh_token === undefined) {
+      return {'error': 'Refresh token missing in response'}
+    }
+    const expires = Date.now() + 15 * 60 * 1000;
+    storeAuthToken(data.access_token, expires)
+    storeRefreshToken(data.refresh_token)
     return {}
+  }
+  catch (error)  {
+    return {'error': error.message};
+  }
 };
 
 
+
 export async function apiRefreshAuthToken(refreshToken)  {
-  const data = await fetch(`${__APIHOST__}/api/refresh/`, {
+  try {
+    const resp = await fetch(`${__APIHOST__}/api/refresh/`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${refreshToken}`,
@@ -61,57 +65,53 @@ export async function apiRefreshAuthToken(refreshToken)  {
         'Content-Type': 'application/json'
       }
     })
-    .then(resp => {
-      const respStatus = resp.status;
-      if (respStatus === 403 || respStatus === 422) {
-        doLogout()
-      }
-      return resp.json();
-    })
-    .then(resp => {
-      if (resp.access_token === undefined) {
-        return {'error': 'Access token missing in response'}
-      }
-      const expires = Date.now() + 15 * 60 * 1000;
-      storeAuthToken(resp.access_token, expires)
-      return {}
-    })
-    .catch((error) => {
-      return {'error': error};
-    });
-    if ('error' in data) {
-      return {'error': data.error}
+    if (resp.status === 403 || resp.status === 422) {
+      doLogout()
+      throw(new Error('Failed refreshing token'))
     }
+    const data = await resp.json()
+    if (data.access_token === undefined) {
+      throw(new Error('Access token missing in response'))
+    }
+    const expires = Date.now() + 15 * 60 * 1000;
+    storeAuthToken(resp.access_token, expires)
     return {}
-  };
+  }
+  catch (error) {
+    return {'error': error.message};
+  }
+};
 
 
 
 export async function apiGet(endpoint)  {
   const accessToken = localStorage.getItem('access_token');
-  const resp = await fetch(`${__APIHOST__}${endpoint}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }
-      })
+  let headers = {}
+  if (accessToken !== null) {
+    headers = {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  }
   try {
+    const resp = await fetch(`${__APIHOST__}${endpoint}`, {
+      method: 'GET',
+      headers
+    })
     if (resp.status === 401) {
       const refreshToken = localStorage.getItem('refresh_token');
-      if (refreshToken === undefined) {
-        doLogout()
-        return {'error': 'Missing refresh token'}
+      if (refreshToken === null) {
+        throw(new Error('Missing refresh token'))
       }
       const refreshResp = await apiRefreshAuthToken()
       if ('error' in refreshResp) {
-        return refreshResp
+        throw(new Error(refreshResp.error))
       }
     }
-    if (resp.status === 403 || resp.status === 422) {
-        return {'error': 'Authorization error'}
+    if (resp.status === 403) {
+      throw(new Error('Authorization error'))
     }
     if (resp.status !== 200) {
-      return {'error': `Error ${resp.status}`}
+      throw(new Error(`Error ${resp.status}`))
     }
     return {'data': await resp.json()}
   }
