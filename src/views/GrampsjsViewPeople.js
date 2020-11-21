@@ -3,73 +3,28 @@ People list view
 */
 
 
-import { html, css } from 'lit-element';
-
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
-import { GrampsjsView } from './GrampsjsView.js'
-import { apiGet } from '../api.js'
+import { GrampsjsViewObjectsBase } from './GrampsjsViewObjectsBase.js'
 
 
-export class GrampsjsViewPeople extends GrampsjsView {
-  static get styles() {
-    return [
-      super.styles,
-      css`
-      :host {
-      }
-
-      vaadin-grid {
-        max-height: calc(100vh - 190px);
-      }
-
-      vaadin-grid {
-        font-family: Roboto;
-        font-weight: 300;
-      }
-    `];
-  }
-
-
-  static get properties() {
-    return {
-      _data: { type: Array },
-    };
-  }
-
+export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
 
   constructor() {
     super();
-    this._data = [];
-  }
-
-
-  renderContent() {
-    if (this._data.length === 0) {
-      return html``
+    this._columns = {
+      grampsId: "Gramps ID",
+      surname: "Surname",
+      given: "Given name",
+      birth: "Birth Date",
+      death: "Death Date",
     }
-    return html`
-    <vaadin-grid .items="${this._data}" @click="${this._handleGridClick}">
-      <vaadin-grid-column path="grampsId" header="${this._('Gramps ID')}"></vaadin-grid-column>
-      <vaadin-grid-column path="surname" header="${this._('Surname')}"></vaadin-grid-column>
-      <vaadin-grid-column path="given" header="${this._('Given name')}"></vaadin-grid-column>
-      <vaadin-grid-column path="birth" header="${this._('Birth Date')}"></vaadin-grid-column>
-      <vaadin-grid-column path="death" header="${this._('Death Date')}"></vaadin-grid-column>
-    </vaadin-grid>
-    `;
-
+    this._fetchUrl = '/api/people/?profile=self,events&keys=gramps_id,profile'
   }
 
-  firstUpdated() {
-    this._fetchData()
-  }
-
-  _handleGridClick(e) {
-    const grid = e.currentTarget;
-    const {item} = grid.getEventContext(e);
-    if (item.grampsId){
-      this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: `person/${item.grampsId}`}}));
-    }
+  // eslint-disable-next-line class-methods-use-this
+  _getItemPath(item) {
+    return `person/${item.grampsId}`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -84,18 +39,6 @@ export class GrampsjsViewPeople extends GrampsjsView {
     return formattedRow
   }
 
-  _fetchData() {
-    this.loading = true;
-    apiGet(`/api/people/?profile=self,events&keys=gramps_id,profile`).then(data => {
-      this.loading = false;
-      if ('data' in data) {
-        this._data = data.data.map((row) => this._formatRow(row))
-      } else if ('error' in data) {
-        this.error = true
-        this._errorMessage = data.error
-      }
-    })
-  }
 }
 
 
