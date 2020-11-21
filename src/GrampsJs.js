@@ -56,6 +56,8 @@ export class GrampsJs extends LitElement {
     this._dbInfo = {};
     this._page = 'home';
     this._pageId = '';
+
+    this.addEventListener('MDCTopAppBar:nav', this._toggleDrawer);
   }
 
   static get styles() {
@@ -139,13 +141,18 @@ export class GrampsJs extends LitElement {
       }
 
       #person-button {
+        margin-left: 60px;
         margin-top: 10px;
-        background-color: #ddd;
-        color: #555;
+        background-color: #D7CCC8;
+        color: #795548;
         border-radius: 50%;
       }
       mwc-circular-progress {
         --mdc-theme-primary: white;
+      }
+
+      #app-title:first-letter {
+        text-transform:capitalize;
       }
     `
     ]
@@ -172,7 +179,6 @@ export class GrampsJs extends LitElement {
             </span>
           </mwc-button>
         </form>
-
       </div>
       `
     }
@@ -181,17 +187,14 @@ export class GrampsJs extends LitElement {
       events: this._('Events'),
       places: this._('Places'),
     }
-    console.log(this._dbInfo)
-    console.log(this.lang)
-    console.log(this._strings)
-    if (this.lang !== '' && Object.keys(this._strings).length === 0) {
-      this._loadStrings(grampsStrings, this.lang);
+    if (this.language !== '' && Object.keys(this._strings).length === 0) {
+      this._loadStrings(grampsStrings, this.language);
     }
     return html`
       <mwc-drawer hasHeader type="dismissible" id="app-drawer" ?open="${this.wide}">
         <span slot="title" style="position: relative;">
           <mwc-icon-button icon="person" id="person-button" @click="${this._openUserMenu}"></mwc-icon-button>
-          <mwc-menu absolute x="0" y="18" id="user-menu">
+          <mwc-menu absolute x="16" y="22" id="user-menu">
             <mwc-list-item @click=${this._logoutClicked} graphic="icon"><mwc-icon slot="graphic">exit_to_app</mwc-icon>Logout</mwc-list-item>
           </mwc-menu>
         </span>
@@ -225,10 +228,10 @@ export class GrampsJs extends LitElement {
             </grampsjs-list-item>
           </mwc-list>
         </div>
-        <div slot="appContent" id="top-app-bar-parent">
+        <div slot="appContent">
           <mwc-top-app-bar>
-            <mwc-icon-button slot="navigationIcon" icon="menu"></mwc-icon-button>
-            <div slot="title">Gramps.js</div>
+            <mwc-icon-button slot="navigationIcon" icon="menu" @click="${this._toggleDrawer}"></mwc-icon-button>
+            <div id="app-title" slot="title">${this._dbInfo?.database?.name || 'Gramps.js'}</div>
           </mwc-top-app-bar>
           <mwc-linear-progress indeterminate ?closed="${!this.progress}">
           </mwc-linear-progress>
@@ -278,16 +281,13 @@ export class GrampsJs extends LitElement {
   firstUpdated() {
     installRouter((location) => this._loadPage(decodeURIComponent(location.pathname)));
     installMediaQueryWatcher(`(min-width: 768px)`, (matches) => {this.wide = matches});
-    const container = this.shadowRoot.getElementById('top-app-bar-parent');
-    this.boundToggleDrawer = this._toggleDrawer.bind(this);
-    container.addEventListener('MDCTopAppBar:nav', this.boundToggleDrawer);
     this.boundHandleNav = this._handleNav.bind(this);
-    container.addEventListener('nav', this.boundHandleNav);
+    this.addEventListener('nav', this.boundHandleNav);
     this.boundProgressOn = this._progressOn.bind(this);
-    container.addEventListener('progress:on', this.boundProgressOn);
+    this.addEventListener('progress:on', this.boundProgressOn);
     this.boundProgressOff = this._progressOff.bind(this);
-    container.addEventListener('progress:off', this.boundProgressOff);
-    window.addEventListener('user:loggedout', () => {this.loadingState = LOADING_STATE_UNAUTHORIZED});
+    this.addEventListener('progress:off', this.boundProgressOff);
+    this.addEventListener('user:loggedout', () => {this.loadingState = LOADING_STATE_UNAUTHORIZED});
   }
 
   _loadDbInfo() {
@@ -299,8 +299,8 @@ export class GrampsJs extends LitElement {
         }
         if ('data' in data) {
           this._dbInfo = data.data
-          if (this.lang === '' && this._dbInfo?.locale?.lang !== undefined) {
-            this.lang = this._dbInfo.locale.lang.substring(0, 2)
+          if (this.language === '' && this._dbInfo?.locale?.language !== undefined) {
+            this.language = this._dbInfo.locale.language
           }
           this.loadingState = LOADING_STATE_READY
         }
