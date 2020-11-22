@@ -80,21 +80,10 @@ export class GrampsJs extends LitElement {
         display: block;
       }
 
-      mwc-tab-bar {
-        --mdc-typography-button-text-transform: none;
-        --mdc-typography-button-font-weight: 400;
-        --mdc-typography-button-letter-spacing: 0px;
-        --mdc-typography-button-font-size: 16px;
-      }
-
       mwc-top-app-bar {
         --mdc-typography-headline6-font-family: Roboto Slab;
         --mdc-typography-headline6-font-weight: 400;
         --mdc-typography-headline6-font-size: 19px;
-      }
-
-      mwc-tab {
-        flex-grow: 0;
       }
 
       mwc-drawer {
@@ -143,8 +132,8 @@ export class GrampsJs extends LitElement {
       #person-button {
         margin-left: 60px;
         margin-top: 10px;
-        background-color: #D7CCC8;
-        color: #795548;
+        background-color: #E0E0E0;
+        color: #444;
         border-radius: 50%;
       }
       mwc-circular-progress {

@@ -2,7 +2,7 @@ import { html, css } from 'lit-element';
 import { GrampsjsObject } from './GrampsjsObject.js'
 
 
-export class GrampsjsPerson extends GrampsjsObject {
+export class GrampsjsPlace extends GrampsjsObject {
   static get styles() {
     return [
       super.styles,
@@ -14,14 +14,6 @@ export class GrampsjsPerson extends GrampsjsObject {
 
   renderProfile() {
     return html`
-    <h2>${this._displayName()}</h2>
-    <dl>
-      <dt>Born</dt>
-      <dd>${this._getProfileEvent(this._('Birth'))}</dd>
-      <dt>Died</dt>
-      <dd>${this._getProfileEvent(this._('Death'))}</dd>
-    </dl>
-
     <pre style="max-width:100%;">${JSON.stringify(this.data, null, 2)}</pre>
     `;
   }
@@ -50,4 +42,4 @@ export class GrampsjsPerson extends GrampsjsObject {
 }
 
 
-window.customElements.define('grampsjs-person', GrampsjsPerson);
+window.customElements.define('grampsjs-place', GrampsjsPlace);
