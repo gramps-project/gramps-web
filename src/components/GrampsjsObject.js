@@ -130,7 +130,7 @@ export class GrampsjsObject extends LitElement {
   }
 
   _getTabs() {
-    return Object.keys(_allTabs).filter(key => key in this.data)
+    return Object.keys(_allTabs).filter(key => key in this.data && Object.keys(this.data[key]).length > 0)
   }
 
   _makeTab(key) {
