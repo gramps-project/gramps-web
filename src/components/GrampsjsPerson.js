@@ -21,8 +21,6 @@ export class GrampsjsPerson extends GrampsjsObject {
       <dt>Died</dt>
       <dd>${this._getProfileEvent(this._('Death'))}</dd>
     </dl>
-
-    <pre style="max-width:100%;">${JSON.stringify(this.data, null, 2)}</pre>
     `;
   }
 

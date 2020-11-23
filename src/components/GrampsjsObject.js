@@ -4,6 +4,7 @@ import '@material/mwc-tab'
 import '@material/mwc-tab-bar'
 
 import { sharedStyles } from '../SharedStyles.js';
+import './GrampsjsTags.js';
 
 const _allTabs = {
   family_list: 'Relationships',
@@ -26,6 +27,10 @@ export class GrampsjsObject extends LitElement {
       sharedStyles,
       css`
       :host {
+      }
+      pre {
+        max-width: 80%;
+        font-size: 11px;
       }
       `
     ];
@@ -55,6 +60,8 @@ export class GrampsjsObject extends LitElement {
     return html`
     ${this.renderProfile()}
 
+    ${this.renderTags()}
+
     ${this.renderTabs()}
 
     ${this.renderTabContent()}
@@ -77,10 +84,40 @@ export class GrampsjsObject extends LitElement {
     `
   }
 
+  renderTags() {
+    if (!('extended' in this.data)) {
+      return html``
+    }
+    if (!('tags' in this.data.extended)) {
+      return html``
+    }
+    return html`<grampsjs-tags .data=${this.data.extended.tags}></grampsjs-tags>`
+  }
+
   renderTabContent() {
-    return html`
-    ${this._currentTab}
-    `
+    switch(this._currentTab) {
+      case("event_ref_list"):
+        return html`<pre>${JSON.stringify(this.data.extended.events, null, 2)}</pre>`
+      case("citation_list"):
+        return html`<pre>${JSON.stringify(this.data.extended.citations, null, 2)}</pre>`
+      case("attribute_list"):
+        return html`<pre>${JSON.stringify(this.data.attribute_list, null, 2)}</pre>`
+      case("address_list"):
+        return html`<pre>${JSON.stringify(this.data.address_list, null, 2)}</pre>`
+      case("note_list"):
+        return html`<pre>${JSON.stringify(this.data.extended.notes, null, 2)}</pre>`
+      case("media_list"):
+        return html`<pre>${JSON.stringify(this.data.extended.media, null, 2)}</pre>`
+      case("urls"):
+        return html`<pre>${JSON.stringify(this.data.urls, null, 2)}</pre>`
+      case("person_ref_list"):
+        return html`<pre>${JSON.stringify(this.data.extended.people, null, 2)}</pre>`
+      case("backlinks"):
+        return html`<pre>${JSON.stringify(this.data.extended.backlinks, null, 2)}</pre>`
+      default:
+        break
+    }
+    return html``
   }
 
   _getTabs() {
