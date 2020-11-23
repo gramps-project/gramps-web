@@ -5,6 +5,20 @@ import '@material/mwc-tab-bar'
 
 import { sharedStyles } from '../SharedStyles.js';
 
+const _allTabs = {
+  family_list: 'Relationships',
+  placeref_list: 'Enclosed by',
+  primary_name: 'Names',
+  event_ref_list: 'Events',
+  citation_list: 'Citations',
+  attribute_list: 'Attributes',
+  address_list: 'Addresses',
+  note_list: 'Notes',
+  media_list: 'Gallery',
+  urls: 'Internet',
+  person_ref_list: 'Associations',
+  backlinks: 'References'
+}
 
 export class GrampsjsObject extends LitElement {
   static get styles() {
@@ -21,6 +35,8 @@ export class GrampsjsObject extends LitElement {
     return {
       data: { type: Object },
       strings: { type: Object },
+      _currentTabId: {type: Number},
+      _currentTab: {type: String},
     };
   }
 
@@ -28,6 +44,7 @@ export class GrampsjsObject extends LitElement {
     super();
     this.data = {};
     this.strings = {};
+    this._currentTabId = 0
   }
 
 
@@ -39,44 +56,55 @@ export class GrampsjsObject extends LitElement {
     ${this.renderProfile()}
 
     ${this.renderTabs()}
+
+    ${this.renderTabContent()}
     `;
   }
 
   renderTabs() {
+    const tabKeys = this._getTabs()
+    if (!tabKeys.includes(this._currentTab)) {
+      [this._currentTab] = tabKeys
+    }
     return html`
-    <mwc-tab-bar>
-      ${this._makeTab('family_list', 'Relationships')}
-      ${this._makeTab('placeref_list', 'Enclosed by')}
-      ${this._makeTab('primary_name', 'Names')}
-      ${this._makeTab('event_ref_list', 'Events')}
-      ${this._makeTab('citation_list', 'Citations')}
-      ${this._makeTab('attribute_list', 'Attributes')}
-      ${this._makeTab('address_list', 'Addresses')}
-      ${this._makeTab('note_list', 'Notes')}
-      ${this._makeTab('media_list', 'Gallery')}
-      ${this._makeTab('urls', 'Internet')}
-      ${this._makeTab('person_ref_list', 'Associations')}
-      ${this._makeTab('backlinks', 'References')}
+    <mwc-tab-bar
+      .activeIndex=${this._currentTabId}
+      @MDCTabBar:activated=${this._handleTabActivated}
+      @MDCTab:interacted=${this._handleTabInteracted}
+      id="tab-bar">
+      ${tabKeys.map(key => this._makeTab(key))}
     </mwc-tab-bar>
     `
   }
 
-  _makeTab(key, label) {
-    if (key in this.data) {
-      return html`
-      <mwc-tab
-        isMinWidthIndicator
-        label="${this._(label)}"
-        @click="${this._handleTabClick}">
-      </mwc-tab>
-      `
-    }
-    return ''
-
+  renderTabContent() {
+    return html`
+    ${this._currentTab}
+    `
   }
 
-  _handleTabClick(event) {
-    console.log(event)
+  _getTabs() {
+    return Object.keys(_allTabs).filter(key => key in this.data)
+  }
+
+  _makeTab(key) {
+    return html`
+    <mwc-tab
+      isMinWidthIndicator
+      id="${key}"
+      label="${this._(_allTabs[key])}"
+      >
+    </mwc-tab>
+    `
+  }
+
+
+  _handleTabActivated (event) {
+    this._currentTabId = event.detail.index
+  }
+
+  _handleTabInteracted (event) {
+    this._currentTab = event.detail.tabId
   }
 
   _(s) {
