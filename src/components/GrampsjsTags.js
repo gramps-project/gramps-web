@@ -17,6 +17,7 @@ export class GrampsjsTags extends LitElement {
         border-radius: 9999px;
         margin: 5px 0px;
         color: white;
+        display: inline-block;
       }
 
       .tags {

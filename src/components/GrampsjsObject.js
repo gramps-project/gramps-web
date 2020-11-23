@@ -39,6 +39,13 @@ export class GrampsjsObject extends LitElement {
       .tab-content {
         margin-top: 25px;
       }
+
+      mwc-tab-bar {
+        border-top: solid #6D4C4133 1px;
+        border-bottom: solid #6D4C4133 1px;
+        margin-top: 15px;
+        --mdc-tab-horizontal-padding: 16px;
+      }
       `
     ];
   }
@@ -136,7 +143,6 @@ export class GrampsjsObject extends LitElement {
   _makeTab(key) {
     return html`
     <mwc-tab
-      isMinWidthIndicator
       id="${key}"
       label="${this._(_allTabs[key])}"
       >
