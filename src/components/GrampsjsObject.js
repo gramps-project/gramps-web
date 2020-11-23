@@ -5,6 +5,8 @@ import '@material/mwc-tab-bar'
 
 import { sharedStyles } from '../SharedStyles.js';
 import './GrampsjsTags.js';
+import './GrampsjsAttributes.js';
+import './GrampsjsAddresses.js';
 
 const _allTabs = {
   family_list: 'Relationships',
@@ -28,9 +30,14 @@ export class GrampsjsObject extends LitElement {
       css`
       :host {
       }
+
       pre {
         max-width: 80%;
         font-size: 11px;
+      }
+
+      .tab-content {
+        margin-top: 25px;
       }
       `
     ];
@@ -64,7 +71,9 @@ export class GrampsjsObject extends LitElement {
 
     ${this.renderTabs()}
 
-    ${this.renderTabContent()}
+    <div class="tab-content">
+      ${this.renderTabContent()}
+    </div>
     `;
   }
 
@@ -101,9 +110,9 @@ export class GrampsjsObject extends LitElement {
       case("citation_list"):
         return html`<pre>${JSON.stringify(this.data.extended.citations, null, 2)}</pre>`
       case("attribute_list"):
-        return html`<pre>${JSON.stringify(this.data.attribute_list, null, 2)}</pre>`
+        return html`<grampsjs-attributes .strings=${this.strings} .data=${this.data.attribute_list}></grampsjs-attributes>`
       case("address_list"):
-        return html`<pre>${JSON.stringify(this.data.address_list, null, 2)}</pre>`
+        return html`<grampsjs-addresses .strings=${this.strings} .data=${this.data.address_list}></grampsjs-addresses>`
       case("note_list"):
         return html`<pre>${JSON.stringify(this.data.extended.notes, null, 2)}</pre>`
       case("media_list"):

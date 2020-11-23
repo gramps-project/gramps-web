@@ -69,7 +69,7 @@ export class GrampsJs extends LitElement {
       }
 
       main {
-        padding: 25px;
+        padding: 10px 25px;
       }
 
       .page {

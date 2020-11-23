@@ -94,6 +94,7 @@ export const grampsStrings = [
   "Town",
   "Type",
   "Unknown",
+  "Value",
   "Village",
   "Zoom"
 ]

@@ -38,7 +38,6 @@ export class GrampsjsViewPerson extends GrampsjsView {
       return html``
     }
     return html`
-    Person view ${this.grampsId}:
     <grampsjs-person .data=${this._data} .strings=${this.strings}></grampsjs-person>
     `;
 
