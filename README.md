@@ -1,30 +1,46 @@
-<p align="center">
-  <img width="200" src="https://open-wc.org/hero.png"></img>
-</p>
+# Gramps.js
 
-## Open-wc Starter App
+A single-page frontend for the <a href="https://gramps-project.org">Gramps</a> Genealogical Research system.
 
-[![Built with open-wc recommendations](https://img.shields.io/badge/built%20with-open--wc-blue.svg)](https://github.com/open-wc)
+## About
 
-## Quickstart
+This is a Javascript web app to browse a Gramps genealogy database that is powered by the <a href="https://github.com/gramps-project/web-api">Gramps REST API</a>. The app is based on <a href="https://open-wc.org/">Open Web Components</a> and <a href="https://lit-element.polymer-project.org/">LitElement</a>.
 
-To get started:
+Its ancestor is the <a href="https://github.com/DavidMStraub/gramps-webapp-frontend">frontend</a> of the legacy <a href="https://github.com/DavidMStraub/gramps-webapp">Gramps web app</a>.
 
-```bash
-npm init @open-wc
-# requires node 10 & npm 6 or higher
+## Project status
+
+The project is in early development and is not yet ready for use in production.
+
+Contributions are welcome, but please open an issue before starting to work on a feature to avoid duplicate work.
+
+Feature requests are premature :)
+
+## Development setup
+
+Install Node.js with [`nvm`](https://www.google.com/search?channel=fs&client=ubuntu&q=nvm):
+
+```
+nvm install 15.1.0
 ```
 
-## Scripts
+Clone the repository and, at its root run
+```
+npm install
+```
+to install dependencies.
 
-- `start` runs your app for development, reloading on file changes
-- `start:build` runs your app after it has been built using the build command
-- `build` builds your app and outputs it in your `dist` directory
-- `test` runs your test suite with Web Test Runner
-- `lint` runs the linter for your project
+A backend can be started with
+```
+python -m gramps_webapi --config path/to/config run --port 5555
+```
+(for details see https://github.com/gramps-project/web-api).
 
-## Tooling configs
-
-For most of the tools, the configuration is in the `package.json` to reduce the amount of files in your project.
-
-If you customize the configuration a lot, you can consider moving them to individual files.
+You can now run the frontend with 
+```
+npm run start
+```
+Storybook (to view individual web components with needing to run a backend) is invoked with
+```
+npm run storybook
+```
