@@ -38,9 +38,9 @@ export class GrampsjsEvents extends GrampsjsTableBase {
     <table>
       <tr>
         <th>${this._("Date")}</th>
-        <th>${this._("Place")}</th>
         <th>${this._("Type")}</th>
         <th>${this._("Description")}</th>
+        <th>${this._("Place")}</th>
       </tr>
     ${this.data.map((obj, i) => html`
       <tr @click=${() => this._handleClick(obj.gramps_id)}>
