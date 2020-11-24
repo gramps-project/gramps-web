@@ -221,6 +221,7 @@ export class GrampsJs extends LitElement {
           <mwc-top-app-bar>
             <mwc-icon-button slot="navigationIcon" icon="menu" @click="${this._toggleDrawer}"></mwc-icon-button>
             <div id="app-title" slot="title">${this._dbInfo?.database?.name || 'Gramps.js'}</div>
+            <mwc-icon-button icon="search" slot="actionItems"></mwc-icon-button>
           </mwc-top-app-bar>
           <mwc-linear-progress indeterminate ?closed="${!this.progress}">
           </mwc-linear-progress>
