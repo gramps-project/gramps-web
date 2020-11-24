@@ -15,12 +15,12 @@ export class GrampsjsPerson extends GrampsjsObject {
   renderProfile() {
     return html`
     <h2>${this._displayName()}</h2>
-    <dl>
+    <!--<dl>
       <dt>Born</dt>
       <dd>${this._getProfileEvent(this._('Birth'))}</dd>
       <dt>Died</dt>
       <dd>${this._getProfileEvent(this._('Death'))}</dd>
-    </dl>
+    </dl>-->
     `;
   }
 

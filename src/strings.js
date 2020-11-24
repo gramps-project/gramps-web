@@ -63,6 +63,7 @@ export const grampsStrings = [
   "Name",
   "Names",
   "Neighborhood",
+  "Nickname",
   "Note",
   "Notes",
   "Number of events",
@@ -73,6 +74,7 @@ export const grampsStrings = [
   "Number",
   "Parents",
   "Parish",
+  "Path",
   "People",
   "Place",
   "Places",
@@ -85,6 +87,7 @@ export const grampsStrings = [
   "Repositories",
   "Repository",
   "Siblings",
+  "Social Security Number",
   "Source",
   "Sources",
   "Spouses",
@@ -96,5 +99,6 @@ export const grampsStrings = [
   "Unknown",
   "Value",
   "Village",
+  "Web Home",
   "Zoom"
 ]

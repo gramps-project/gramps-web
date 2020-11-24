@@ -3,7 +3,7 @@ import { html } from 'lit-element';
 import { GrampsjsTableBase } from './GrampsjsTableBase.js';
 
 
-export class GrampsjsAttributes extends GrampsjsTableBase {
+export class GrampsjsUrls extends GrampsjsTableBase {
   render() {
     if (Object.keys(this.data).length === 0) {
       return html`hae`
@@ -12,12 +12,14 @@ export class GrampsjsAttributes extends GrampsjsTableBase {
     <table>
       <tr>
         <th>${this._("Type")}</th>
-        <th>${this._("Value")}</th>
+        <th>${this._("Path")}</th>
+        <th>${this._("Description")}</th>
       </tr>
     ${this.data.map(obj => html`
       <tr>
         <td>${this._(obj.type)}</td>
-        <td>${obj.value}</td>
+        <td><a href="${obj.path}">${obj.path}</a></td>
+        <td>${obj.desc}</td>
       </tr>
     `)}
     </table>
@@ -26,6 +28,6 @@ export class GrampsjsAttributes extends GrampsjsTableBase {
 }
 
 
-window.customElements.define('grampsjs-attributes', GrampsjsAttributes);
+window.customElements.define('grampsjs-urls', GrampsjsUrls);
 
 

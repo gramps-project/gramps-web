@@ -16,7 +16,8 @@ export class GrampsjsTags extends LitElement {
         padding: 6px 12px;
         border-radius: 9999px;
         margin: 5px 0px;
-        color: white;
+        border-width: 1px;
+        border-style: solid;
         display: inline-block;
       }
 
@@ -48,7 +49,7 @@ export class GrampsjsTags extends LitElement {
     ${this.data.map(obj => html`
       <span
         class="chip"
-        style="background-color:${hex12ToCss(obj.color, 0.75)};"
+        style="border-color:${hex12ToCss(obj.color, 0.9)};color:${hex12ToCss(obj.color, 0.9)};"
         >${obj.name}</span>
     `)}
     </div>

@@ -9,20 +9,23 @@ export class GrampsjsTableBase extends LitElement {
       sharedStyles,
       css`
       table {
-        font-size: 18px;
+        font-size: 16px;
         margin-top: 20px;
+        border-collapse: collapse;
+        border-spacing: 0;
       }
 
       th {
-        font-size: 16px;
+        font-size: 14px;
         color: #666;
         font-weight: 400;
       }
 
       th, td {
-        padding: 8px 12px;
+        padding: 12px 12px;
         border-bottom: 1px solid #e0e0e0;
         text-align: left;
+        margin: 0;
       }
       `
     ];

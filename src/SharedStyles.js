@@ -2,7 +2,7 @@ import { css } from 'lit-element';
 
 export const sharedStyles = css`
   :host {
-    font-size: 20px;
+    font-size: 18px;
     font-family: Roboto;
     font-weight: 300;
     --mdc-theme-primary: #6D4C41;
@@ -31,4 +31,13 @@ export const sharedStyles = css`
     margin-bottom: 10px;
   }
 
+  a:link, a:visited {
+    color: #1976D2;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #64B5F6;
+    text-decoration: underline;
+  }
 `;

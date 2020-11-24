@@ -4,9 +4,12 @@ import '@material/mwc-tab'
 import '@material/mwc-tab-bar'
 
 import { sharedStyles } from '../SharedStyles.js';
-import './GrampsjsTags.js';
-import './GrampsjsAttributes.js';
 import './GrampsjsAddresses.js';
+import './GrampsjsAttributes.js';
+import './GrampsjsEvents.js';
+import './GrampsjsReferences.js';
+import './GrampsjsTags.js';
+import './GrampsjsUrls.js';
 
 const _allTabs = {
   family_list: 'Relationships',
@@ -113,11 +116,11 @@ export class GrampsjsObject extends LitElement {
   renderTabContent() {
     switch(this._currentTab) {
       case("event_ref_list"):
-        return html`<pre>${JSON.stringify(this.data.extended.events, null, 2)}</pre>`
+        return html`<grampsjs-events .strings=${this.strings} .data=${this.data?.extended?.events} .profile=${this.data?.profile?.events}></grampsjs-events>`
       case("citation_list"):
         return html`<pre>${JSON.stringify(this.data.extended.citations, null, 2)}</pre>`
       case("attribute_list"):
-        return html`<grampsjs-attributes .strings=${this.strings} .data=${this.data.attribute_list}></grampsjs-attributes>`
+      return html`<grampsjs-attributes .strings=${this.strings} .data=${this.data.attribute_list}></grampsjs-attributes>`
       case("address_list"):
         return html`<grampsjs-addresses .strings=${this.strings} .data=${this.data.address_list}></grampsjs-addresses>`
       case("note_list"):
@@ -125,11 +128,11 @@ export class GrampsjsObject extends LitElement {
       case("media_list"):
         return html`<pre>${JSON.stringify(this.data.extended.media, null, 2)}</pre>`
       case("urls"):
-        return html`<pre>${JSON.stringify(this.data.urls, null, 2)}</pre>`
+        return html`<grampsjs-urls .strings=${this.strings} .data=${this.data.urls}></grampsjs-urls>`
       case("person_ref_list"):
         return html`<pre>${JSON.stringify(this.data.extended.people, null, 2)}</pre>`
       case("backlinks"):
-        return html`<pre>${JSON.stringify(this.data.extended.backlinks, null, 2)}</pre>`
+        return html`<grampsjs-references .strings=${this.strings} .data=${this.data.extended.backlinks.family}></grampsjs-references>`
       default:
         break
     }
