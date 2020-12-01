@@ -31,13 +31,17 @@ export const sharedStyles = css`
     margin-bottom: 10px;
   }
 
-  a:link, a:visited {
+  a:link, a:visited, span.link {
     color: #1976D2;
     text-decoration: none;
   }
 
-  a:hover {
+  a:hover, span.link:hover {
     color: #64B5F6;
     text-decoration: underline;
+  }
+
+  span.link {
+    cursor: pointer;
   }
 `;

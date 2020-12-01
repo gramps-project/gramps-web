@@ -16,7 +16,7 @@ import '@material/mwc-linear-progress'
 import '@material/mwc-circular-progress'
 import '@material/mwc-snackbar'
 import './components/GrampsJsListItem.js'
-import { apiGetTokens, apiGet, doLogout } from './api.js'
+import { apiGetTokens, apiGet, doLogout, apiResetPassword } from './api.js'
 import { grampsStrings, additionalStrings } from './strings.js'
 
 import './views/GrampsjsViewPeople.js'
@@ -29,6 +29,7 @@ import { sharedStyles } from './SharedStyles.js';
 const LOADING_STATE_INITIAL = 0
 const LOADING_STATE_UNAUTHORIZED = 1
 const LOADING_STATE_UNAUTHORIZED_NOCONNECTION = 2
+const LOADING_STATE_UNAUTHORIZED_RESET_PW = 3
 const LOADING_STATE_READY = 4
 
 
@@ -143,6 +144,21 @@ export class GrampsJs extends LitElement {
       #app-title:first-letter {
         text-transform:capitalize;
       }
+
+      p.reset-link {
+        padding-top: 1em;
+        font-size: 0.9em;
+      }
+
+      p.success {
+        padding-top: 1em;
+        color: #4CAF50;
+        font-size: 1.2em;
+        font-weight: 400;
+        --mdc-icon-size: 1.6em;
+        line-height: 1.4em;
+        text-align: center;
+      }
     `
     ]
   }
@@ -158,8 +174,8 @@ export class GrampsJs extends LitElement {
       window.history.pushState({}, '', 'login')
       return html`
       <div id="login-container">
-        <form id="login-form" action="/">
-          <mwc-textfield outlined id="username" label="User"></mwc-textfield>
+        <form id="login-form" action="/" @keydown="${this._handleLoginKey}">
+          <mwc-textfield outlined id="username" label="Username"></mwc-textfield>
           <mwc-textfield outlined id="password" label="Password" type="password"></mwc-textfield>
           <mwc-button raised label="submit" type="submit" @click="${this._submitLogin}">
             <span slot="trailingIcon" style="display:none;">
@@ -167,8 +183,39 @@ export class GrampsJs extends LitElement {
               </mwc-circular-progress>
             </span>
           </mwc-button>
+          <p class="reset-link">
+            <span class="link" @click="${() => this.loadingState = LOADING_STATE_UNAUTHORIZED_RESET_PW}"
+            >Lost password?</span>
+          </p>
         </form>
       </div>
+      <mwc-snackbar id="error-snackbar"></mwc-snackbar>
+      `
+    }
+    if (this.loadingState === LOADING_STATE_UNAUTHORIZED_RESET_PW) {
+      return html`
+      <div id="login-container">
+        <form id="login-form" action="/">
+          <div id="inner-form">
+            <mwc-textfield outlined id="username" label="Username" type="text"></mwc-textfield>
+            <mwc-button raised label="reset password" type="submit" @click="${this._resetPw}">
+              <span slot="trailingIcon" style="display:none;">
+                <mwc-circular-progress indeterminate density="-7" closed id="login-progress">
+                </mwc-circular-progress>
+              </span>
+            </mwc-button>
+          </div>
+          <p class="success" id="reset-success" style="display:none;">
+            <mwc-icon>check_circle</mwc-icon><br>
+            A password reset link has been sent by e-mail.
+          </p>
+          <p class="reset-link">
+            <span class="link" @click="${() => this.loadingState = LOADING_STATE_UNAUTHORIZED}"
+            >Back</span>
+          </p>
+        </form>
+      </div>
+      <mwc-snackbar id="error-snackbar"></mwc-snackbar>
       `
     }
     const tabs = {
@@ -338,6 +385,12 @@ export class GrampsJs extends LitElement {
     }
   }
 
+  _handleLoginKey(event) {
+    if(event.code == 'Enter') {
+      this._submitLogin()
+    }
+  }
+
   _loadStrings(strings, lang) {
     apiGet(`/api/translations/${lang}?strings=${JSON.stringify(strings)}`)
       .then(data => {
@@ -362,6 +415,8 @@ export class GrampsJs extends LitElement {
     apiGetTokens(userField.value, pwField.value)
       .then((res) => {
         if ('error' in res) {
+          submitProgress.parentElement.style.display = 'none';
+          submitProgress.closed = true;
           this._showError(res.error)
         } else {
           document.location.href = '/'
@@ -369,8 +424,28 @@ export class GrampsJs extends LitElement {
       })
   }
 
+  async _resetPw() {
+    const userField = this.shadowRoot.getElementById('username')
+    if (userField.value === '') {
+      this._showError("Username must not be empty.")
+      return
+    }
+    const res = await apiResetPassword(userField.value)
+    const innerForm = this.shadowRoot.getElementById('inner-form')
+    const divSuccess = this.shadowRoot.getElementById('reset-success')
+    if ('error' in res) {
+      this._showError(res.error)
+    } else {
+      divSuccess.style.display = 'block';
+      innerForm.style.display = 'none';
+    }
+  }
+
+
   _showError(msg) {
-    console.log(`ERROR: ${msg}`)
+    const snackbar = this.shadowRoot.getElementById('error-snackbar')
+    snackbar.labelText = `Error: ${msg}`
+    snackbar.show()
   }
 
   _openUserMenu() {

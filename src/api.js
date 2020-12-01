@@ -20,6 +20,32 @@ export function storeRefreshToken(refreshToken) {
 }
 
 
+export async function apiResetPassword(username)  {
+  try {
+    const resp = await fetch(`${__APIHOST__}/api/user/password/reset/trigger/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({'username': username})
+    })
+    if (resp.status === 404) {
+      throw(new Error('User not found.'))
+    }
+    if (resp.status === 500) {
+      throw(new Error('The server encountered an error while trying to send the e-mail.'))
+    }
+    if (resp.status !== 201) {
+      throw(new Error(`Error ${resp.status}`))
+    }
+    return {}
+  }
+  catch (error)  {
+    return {'error': error.message};
+  }
+};
+
+
 export async function apiGetTokens(username, password)  {
   try {
     const resp = await fetch(`${__APIHOST__}/api/login/`, {
@@ -30,7 +56,7 @@ export async function apiGetTokens(username, password)  {
         },
         body: JSON.stringify({'username': username, 'password': password})
     })
-    if (resp.status === 401) {
+    if (resp.status === 401 || resp.status === 403) {
       throw(new Error('Wrong username or password'))
     }
     if (resp.status !== 200) {
