@@ -139,7 +139,7 @@ export async function apiGet(endpoint)  {
     if (resp.status !== 200) {
       throw(new Error(`Error ${resp.status}`))
     }
-    return {'data': await resp.json()}
+    return {'data': await resp.json(), 'total_count': resp.headers.get('X-Total-Count')}
   }
   catch (error)  {
     return {'error': error.message};
