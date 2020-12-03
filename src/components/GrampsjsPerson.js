@@ -1,5 +1,9 @@
 import { html, css } from 'lit-element';
+
+import '@material/mwc-icon'
+
 import { GrampsjsObject } from './GrampsjsObject.js'
+import { asteriskIcon, crossIcon } from '../icons.js'
 import './GrampsJsImage.js'
 
 
@@ -8,12 +12,17 @@ export class GrampsjsPerson extends GrampsjsObject {
     return [
       super.styles,
       css`
+      .event {
+        margin-right: 1.5em;
+      }
     `];
   }
 
   renderProfile() {
     return html`
     <h2>${this._displayName()}</h2>
+    ${this._renderBirth()}
+    ${this._renderDeath()}
     `;
   }
 
@@ -26,7 +35,7 @@ export class GrampsjsPerson extends GrampsjsObject {
     return html`
       <grampsjs-img
         handle="${obj.handle}"
-        size="175"
+        size="200"
       .rect="${ref.rect || []}"
         square
         circle
@@ -42,6 +51,36 @@ export class GrampsjsPerson extends GrampsjsObject {
     const surname = this.data.profile.name_surname || html`&hellip;`
     const given = this.data.profile.name_given || html`&hellip;`
     return html`${given} ${surname}`
+  }
+
+  _renderBirth() {
+    const obj = this.data.profile.birth
+    if (Object.keys(obj).length === 0) {
+      return ''
+    }
+    return html`
+    <span class="event">
+      <i>${asteriskIcon}</i>
+      ${obj.date || ''}
+      ${obj.place ? this._('in') : ''}
+      ${obj.place || ''}
+    </span>
+    `
+  }
+
+  _renderDeath() {
+    const obj = this.data.profile.death
+    if (Object.keys(obj).length === 0) {
+      return ''
+    }
+    return html`
+    <span class="event">
+    <i>${crossIcon}</i>
+    ${obj.date || ''}
+      ${obj.place ? this._('in') : ''}
+      ${obj.place || ''}
+    </event>
+    `
   }
 
   _getProfileEvent(type) {

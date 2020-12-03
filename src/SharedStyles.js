@@ -31,7 +31,7 @@ export const sharedStyles = css`
   h2 {
     font-size: 32px;
     margin-top: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
   }
 
   a:link, a:visited, span.link {
@@ -46,5 +46,14 @@ export const sharedStyles = css`
 
   span.link {
     cursor: pointer;
+  }
+
+  i svg {
+    height: 1em;
+    top: .125em;
+    position: relative;
+  }
+  i svg path {
+    fill: #999;
   }
 `;

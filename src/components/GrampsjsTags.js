@@ -22,7 +22,7 @@ export class GrampsjsTags extends LitElement {
       }
 
       .tags {
-        margin: 10px 0px;
+        margin: 20px 0px;
       }
       `
     ];
