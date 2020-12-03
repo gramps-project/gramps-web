@@ -23,10 +23,13 @@ export const sharedStyles = css`
     flex-grow: 0;
   }
 
-  h2 {
+  h2, h3, h4 {
     font-weight: 300;
-    font-size: 32px;
     font-family: Roboto Slab;
+  }
+
+  h2 {
+    font-size: 32px;
     margin-top: 10px;
     margin-bottom: 10px;
   }

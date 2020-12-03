@@ -23,6 +23,7 @@ import './views/GrampsjsViewPeople.js'
 import './views/GrampsjsViewEvents.js'
 import './views/GrampsjsViewPerson.js'
 import './views/GrampsjsViewEvent.js'
+import './views/GrampsjsViewSearch.js'
 import { sharedStyles } from './SharedStyles.js';
 
 
@@ -268,7 +269,7 @@ export class GrampsJs extends LitElement {
           <mwc-top-app-bar>
             <mwc-icon-button slot="navigationIcon" icon="menu" @click="${this._toggleDrawer}"></mwc-icon-button>
             <div id="app-title" slot="title">${this._dbInfo?.database?.name || 'Gramps.js'}</div>
-            <mwc-icon-button icon="search" slot="actionItems"></mwc-icon-button>
+            <mwc-icon-button icon="search" slot="actionItems" @click="${() => this._handleTab('search')}"></mwc-icon-button>
           </mwc-top-app-bar>
           <mwc-linear-progress indeterminate ?closed="${!this.progress}">
           </mwc-linear-progress>
@@ -283,6 +284,8 @@ export class GrampsJs extends LitElement {
 
         <grampsjs-view-person class="page" ?active=${this._page === 'person'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-person>
         <grampsjs-view-event class="page" ?active=${this._page === 'event'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-event>
+
+        <grampsjs-view-search class="page" ?active=${this._page === 'search'} .strings="${this._strings}"></grampsjs-view-search>
 
         </main>
 
