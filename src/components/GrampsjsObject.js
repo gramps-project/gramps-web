@@ -43,11 +43,21 @@ export class GrampsjsObject extends LitElement {
         margin-top: 25px;
       }
 
+      #tabs {
+        clear: both;
+      }
+
       mwc-tab-bar {
         border-top: solid #6D4C4133 1px;
         border-bottom: solid #6D4C4133 1px;
         margin-top: 15px;
         --mdc-tab-horizontal-padding: 16px;
+      }
+
+      #picture {
+        float: right;
+        margin-bottom: 20px;
+        margin-left: 40px;
       }
       `
     ];
@@ -75,16 +85,26 @@ export class GrampsjsObject extends LitElement {
       return html``
     }
     return html`
+    <div id="picture">
+    ${this.renderPicture()}
+    </div>
+
     ${this.renderProfile()}
 
     ${this.renderTags()}
 
+    <div id="tabs">
     ${this.renderTabs()}
+    </div>
 
     <div class="tab-content">
       ${this.renderTabContent()}
     </div>
     `;
+  }
+
+  renderPicture() {
+    return html``
   }
 
   renderTabs() {
