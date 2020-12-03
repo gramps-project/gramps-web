@@ -146,3 +146,28 @@ export async function apiGet(endpoint)  {
   }
 };
 
+export function getMediaUrl(handle) {
+  const jwt = localStorage.getItem('access_token');
+  if (jwt === null) { return '' }
+  return `${__APIHOST__}/media/${handle}/file?jwt=${jwt}`
+}
+
+export function getMediaUrlCropped(handle, rect) {
+  const jwt = localStorage.getItem('access_token');
+  if (jwt === null) { return '' }
+  [x1, y1, x2, y2] = rect
+  return `${__APIHOST__}/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}?jwt=${jwt}`
+}
+
+export function getThumbnailUrl(handle, size) {
+  const jet = localStorage.getItem('access_token');
+  if (jwt === null) { return '' }
+  return `${__APIHOST__}/media/${handle}/thumbnail/${size}?jwt=${jwt}`
+}
+
+export function getThumbnailUrlCropped(handle, rect, size) {
+  const jwt = localStorage.getItem('access_token');
+  if (jwt === null) { return '' }
+  [x1, y1, x2, y2] = rect
+  return `${__APIHOST__}/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?jwt=${jwt}`
+}
