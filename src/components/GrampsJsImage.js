@@ -13,7 +13,6 @@ class GrampsjsImg extends LitElement {
     return [
       sharedStyles,
       css`
-
       img {
         max-height:100vh;
       }
@@ -34,7 +33,8 @@ class GrampsjsImg extends LitElement {
       circle: { type: Boolean },
       square: { type: Boolean },
       nolink: { type: Boolean },
-      mime: {type: String}
+      mime: {type: String},
+      displayHeight: {type: Number},
   }
 }
 
@@ -45,9 +45,11 @@ class GrampsjsImg extends LitElement {
     this.square = false;
     this.nolink = false;
     this.mime = '';
+    this.displayHeight = 0;
   }
 
   _renderImage() {
+    const height = this.displayHeight || '';
     return html`
       <img
       srcset="${getThumbnailUrl(this.handle, this.size, this.square)},
@@ -55,20 +57,21 @@ class GrampsjsImg extends LitElement {
       ${getThumbnailUrl(this.handle, 2 * this.size, this.square)} 2x"
       src="${getThumbnailUrl(this.handle, 2 * this.size, this.square)}"
       class="${this.circle ? 'round' : ''}"
-      @error=${this._errorHandler} alt="">
+      @error=${this._errorHandler}
+      alt="" height="${height}"
+      >
       `
   }
 
   _renderImageCropped() {
-    return html`
-    <img
-    srcset="${getThumbnailUrlCropped(this.handle, this.size, this.square)},
-    ${getThumbnailUrl(this.handle, 1.5 * this.size, this.square)} 1.5x
-    ${getThumbnailUrl(this.handle, 2 * this.size, this.square)} 2x"
-    src="${getThumbnailUrl(this.handle, 2 * this.size, this.square)}"
+    const height = this.displayHeight || '';
+    return html`<img
+    srcset="${getThumbnailUrlCropped(this.handle, this.rect, this.size, this.square)},
+    ${getThumbnailUrlCropped(this.handle, this.rect, 1.5 * this.size, this.square)} 1.5x
+    ${getThumbnailUrlCropped(this.handle, this.rect, 2 * this.size, this.square)} 2x"
+    src="${getThumbnailUrlCropped(this.handle, this.rect, 2 * this.size, this.square)}"
     class="${this.circle ? 'round' : ''}"
-    @error=${this._errorHandler} alt="">
-    `
+    @error=${this._errorHandler} alt="" height="${height}">`
   }
 
   render() {

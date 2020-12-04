@@ -10,17 +10,18 @@ import './GrampsjsEvents.js';
 import './GrampsjsReferences.js';
 import './GrampsjsTags.js';
 import './GrampsjsUrls.js';
+import './GrampsjsGallery.js';
 
 const _allTabs = {
   family_list: 'Relationships',
   placeref_list: 'Enclosed by',
-  primary_name: 'Names',
   event_ref_list: 'Events',
+  primary_name: 'Names',
+  media_list: 'Gallery',
+  note_list: 'Notes',
   citation_list: 'Citations',
   attribute_list: 'Attributes',
   address_list: 'Addresses',
-  note_list: 'Notes',
-  media_list: 'Gallery',
   urls: 'Internet',
   person_ref_list: 'Associations',
   backlinks: 'References'
@@ -146,7 +147,7 @@ export class GrampsjsObject extends LitElement {
       case("note_list"):
         return html`<pre>${JSON.stringify(this.data.extended.notes, null, 2)}</pre>`
       case("media_list"):
-        return html`<pre>${JSON.stringify(this.data.extended.media, null, 2)}</pre>`
+        return html`<grampsjs-gallery .strings=${this.strings} .media=${this.data?.extended?.media} .mediaRef=${this.data?.media_list}></grampsjs-gallery>`
       case("urls"):
         return html`<grampsjs-urls .strings=${this.strings} .data=${this.data.urls}></grampsjs-urls>`
       case("person_ref_list"):
