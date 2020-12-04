@@ -25,8 +25,15 @@ export class GrampsjsViewSearch extends GrampsjsView {
         margin: 30px auto;
       }
 
-      :host i {
-        color: rgba(1, 0, 0, 0.2);
+      .paging {
+        text-align: center;
+        padding-right: 1em;
+        line-height: 48px;
+      }
+
+      .paging span {
+        color: rgba(0, 0, 0, 0.9);
+        padding: 0 0.5em;
       }
 
     `];
@@ -36,7 +43,10 @@ export class GrampsjsViewSearch extends GrampsjsView {
   static get properties() {
     return {
       _data: { type: Array },
-      _totalCount: {type: Number }
+      _totalCount: {type: Number },
+      _page: {type: Number},
+      _pages: {type: Number}
+
     };
   }
 
@@ -44,7 +54,9 @@ export class GrampsjsViewSearch extends GrampsjsView {
   constructor() {
     super();
     this._data = [];
-    this._totalCount = 0;
+    this._totalCount = -1;
+    this._page = 1;
+    this._pages = -1;
   }
 
 
@@ -62,9 +74,17 @@ export class GrampsjsViewSearch extends GrampsjsView {
       .strings="${this.strings}"
       total="${this._totalCount}"
     ></grampsjs-search-results>
+
+    ${this._totalCount > 0 ? html`
+    <div class="paging">
+      <mwc-icon-button icon="first_page" ?disabled=${this._page === 1} @click="${this._pageFirst}"></mwc-icon-button>
+      <mwc-icon-button icon="navigate_before" ?disabled=${this._page === 1} @click="${this._pagePrev}"></mwc-icon-button>
+      <span>Page ${this._page} / ${this._pages}</span>
+      <mwc-icon-button icon="navigate_next" ?disabled=${this._page === this._pages} @click="${this._pageNext}"></mwc-icon-button>
+      <mwc-icon-button icon="last_page" ?disabled=${this._page === this._pages} @click="${this._pageLast}"></mwc-icon-button>
+    <div>
+    ` : ''}
     `
-
-
   }
 
   firstUpdated() {
@@ -89,48 +109,68 @@ export class GrampsjsViewSearch extends GrampsjsView {
   _clearAll() {
     this._clearBox()
     this._data = []
-    this._totalCount = 0;
+    this._totalCount = -1;
+  }
+
+  _clearPage() {
+    this._data = []
   }
 
   update(changed) {
     super.update(changed);
     if (changed.has('active')) {
-        this._focus()
-
-        this._clearAll()
+      this._focus()
     }
-  }
+    if (changed.has('_page') && this._totalCount > 0) {
+      this.loading = true;
+      this._executeSearch(this._page)
+    }
+}
 
   _handleSearchKey(event) {
-    if(event.code == 'Enter') {
+    if(event.code === 'Enter') {
       this._executeSearch()
     }
-    if(event.code == 'Escape') {
+    if(event.code === 'Escape') {
       this._clearBox()
     }
   }
 
-  _executeSearch() {
+  _executeSearch(page=1) {
     const query = this.shadowRoot.getElementById('search-field').value
     if (query === '') {
-      this._data = []
+      this._clearAll()
       return
     }
     this.loading = true;
-    this._fetchData(query)
+    this._fetchData(query, page)
   }
 
-  async _fetchData(query) {
-    const data = await apiGet(`/api/search/?query=${query}`);
+  _pageFirst() {
+    this._page = 1;
+  }
+  _pagePrev() {
+    this._page -= 1;
+  }
+  _pageNext() {
+    this._page += 1;
+  }
+  _pageLast() {
+    this._page = this._pages;
+  }
+
+  async _fetchData(query, page) {
+    const data = await apiGet(`/api/search/?query=${query}&profile=self&page=${page}&pagesize=20`);
     this.loading = false;
     if ('data' in data) {
       this._data = data.data;
       this._totalCount = data.total_count;
+      this._pages = Math.ceil(this._totalCount / 20);
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
     }
-}
+  }
 
 }
 
