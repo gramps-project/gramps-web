@@ -6,6 +6,10 @@ import '../components/GrampsjsEvent.js'
 
 export class GrampsjsViewEvent extends GrampsjsViewObject {
 
+  constructor() {
+    super()
+    this._className = 'event'
+  }
 
   getUrl() {
     return `/api/events/?gramps_id=${this.grampsId}&profile=all&backlinks=true&extend=all`

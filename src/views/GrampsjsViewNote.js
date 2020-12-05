@@ -6,6 +6,10 @@ import '../components/GrampsjsNote.js'
 
 export class GrampsjsViewNote extends GrampsjsViewObject {
 
+  constructor() {
+    super()
+    this._className = 'note'
+  }
 
   getUrl() {
     return `/api/notes/?gramps_id=${this.grampsId}&profile=all&backlinks=true&extend=all`

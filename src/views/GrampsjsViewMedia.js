@@ -6,6 +6,10 @@ import '../components/GrampsjsMediaObject.js'
 
 export class GrampsjsViewMedia extends GrampsjsViewObject {
 
+  constructor() {
+    super()
+    this._className = 'mediaobject'
+  }
 
   getUrl() {
     return `/api/media/?gramps_id=${this.grampsId}&backlinks=true&extend=all`

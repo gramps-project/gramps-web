@@ -6,6 +6,10 @@ import '../components/GrampsjsCitation.js'
 
 export class GrampsjsViewCitation extends GrampsjsViewObject {
 
+  constructor() {
+    super()
+    this._className = 'citation'
+  }
 
   getUrl() {
     return `/api/citations/?gramps_id=${this.grampsId}&profile=all&backlinks=true&extend=all`

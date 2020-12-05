@@ -6,6 +6,10 @@ import '../components/GrampsjsFamily.js'
 
 export class GrampsjsViewFamily extends GrampsjsViewObject {
 
+  constructor() {
+    super()
+    this._className = 'family'
+  }
 
   getUrl() {
     return `/api/families/?gramps_id=${this.grampsId}&profile=all&backlinks=true&extend=all`

@@ -19,13 +19,15 @@ export class GrampsjsViewObject extends GrampsjsView {
     return {
       grampsId: { type: String },
       _data: { type: Object },
+      _className: { type: String }
     };
   }
 
 
   constructor() {
-    super();
-    this._data = {};
+    super()
+    this._data = {}
+    this._className = ''
   }
 
   getUrl() {
@@ -65,6 +67,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         this.loading = false;
         if ('data' in data) {
           [this._data] = data.data;
+          this.dispatchEvent(new CustomEvent('object:loaded', {bubbles: true, composed: true, detail: {grampsId: this.grampsId, className: this._className}}));
         } else if ('error' in data) {
           this.error = true
           this._errorMessage = data.error

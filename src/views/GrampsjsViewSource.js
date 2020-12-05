@@ -6,6 +6,10 @@ import '../components/GrampsjsSource.js'
 
 export class GrampsjsViewSource extends GrampsjsViewObject {
 
+  constructor() {
+    super()
+    this._className = 'source'
+  }
 
   getUrl() {
     return `/api/sources/?gramps_id=${this.grampsId}&profile=all&backlinks=true&extend=all`

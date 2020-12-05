@@ -6,6 +6,11 @@ import '../components/GrampsjsPlace.js'
 
 export class GrampsjsViewPlace extends GrampsjsViewObject {
 
+  constructor() {
+    super()
+    this._className = 'place'
+  }
+
   getUrl() {
     return `/api/places/?gramps_id=${this.grampsId}&backlinks=true&extend=all`
   }

@@ -37,6 +37,7 @@ import './views/GrampsjsViewRepository.js'
 import './views/GrampsjsViewNote.js'
 import './views/GrampsjsViewMedia.js'
 import './views/GrampsjsViewSearch.js'
+import './views/GrampsjsViewRecent.js'
 import { sharedStyles } from './SharedStyles.js';
 
 
@@ -318,6 +319,7 @@ export class GrampsJs extends LitElement {
         <grampsjs-view-note class="page" ?active=${this._page === 'note'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-note>
         <grampsjs-view-media class="page" ?active=${this._page === 'mediaobject'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-media>
         <grampsjs-view-search class="page" ?active=${this._page === 'search'} .strings="${this._strings}"></grampsjs-view-search>
+        <grampsjs-view-recent class="page" ?active=${this._page === 'recent'} .strings="${this._strings}"></grampsjs-view-recent>
 
         </main>
 
