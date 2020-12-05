@@ -66,6 +66,7 @@ export const grampsStrings = [
   "Marriage Date",
   "Married",
   "Media Note",
+  "Media Objects",
   "Media Reference Note",
   "Media",
   "Mother",

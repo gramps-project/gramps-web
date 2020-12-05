@@ -14,7 +14,6 @@ export class GrampsjsMediaObject extends GrampsjsObject {
 
   renderProfile() {
     return html`
-    hallo
     <pre style="max-width:100%;">${JSON.stringify(this.data, null, 2)}</pre>
     `;
   }

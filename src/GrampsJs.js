@@ -315,9 +315,8 @@ export class GrampsJs extends LitElement {
         <grampsjs-view-source class="page" ?active=${this._page === 'source'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-source>
         <grampsjs-view-citation class="page" ?active=${this._page === 'citation'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-citation>
         <grampsjs-view-repository class="page" ?active=${this._page === 'repository'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-repository>
-        <grampsjs-view-note class="page" ?active=${this._page === 'note'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-repository>
+        <grampsjs-view-note class="page" ?active=${this._page === 'note'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-note>
         <grampsjs-view-media class="page" ?active=${this._page === 'mediaobject'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-media>
-
         <grampsjs-view-search class="page" ?active=${this._page === 'search'} .strings="${this._strings}"></grampsjs-view-search>
 
         </main>
