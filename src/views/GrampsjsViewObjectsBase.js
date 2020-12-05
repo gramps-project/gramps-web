@@ -76,7 +76,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     apiGet(this._fetchUrl).then(data => {
       this.loading = false;
       if ('data' in data) {
-        this._data = data.data.map((row) => this._formatRow(row))
+        this._data = data.data.map((row) => this._formatRow(row, this))
       } else if ('error' in data) {
         this.error = true
         this._errorMessage = data.error

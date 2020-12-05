@@ -1,70 +1,23 @@
-import { html, css } from 'lit-element';
+import { html } from 'lit-element';
 
-import { GrampsjsView } from './GrampsjsView.js'
-import { apiGet } from '../api.js'
+import { GrampsjsViewObject } from './GrampsjsViewObject.js'
+import '../components/GrampsjsEvent.js'
 
 
-export class GrampsjsViewEvent extends GrampsjsView {
-  static get styles() {
-    return [
-      super.styles,
-      css`
-      :host {
-      }
-    `];
+export class GrampsjsViewEvent extends GrampsjsViewObject {
+
+
+  getUrl() {
+    return `/api/events/?gramps_id=${this.grampsId}&profile=all&backlinks=true&extend=all`
   }
 
-
-  static get properties() {
-    return {
-      grampsId: { type: String },
-      _data: { type: Object },
-    };
-  }
-
-
-  constructor() {
-    super();
-    this._data = {};
-  }
-
-
-  renderContent() {
-    if (Object.keys(this._data).length === 0) {
-      if (this.loading) {
-        return html``
-      }
-      return html``
-    }
+  renderElement() {
     return html`
-    Event view ${this.grampsId}
-    `;
-
+    <grampsjs-event .data=${this._data} .strings=${this.strings}></grampsjs-event>
+    `
   }
 
-  update(changed) {
-    super.update(changed);
-    if (this.active && changed.has('grampsId')) {
-        this._updateData()
-    }
-  }
-
-  _updateData() {
-    if (this.grampsId !== undefined && this.grampsId) {
-      this._data = {}
-      this.loading = true
-      apiGet(`/api/events/?gramps_id=${this.grampsId}&profile=self`).then(data => {
-        this.loading = false;
-        if ('data' in data) {
-          [this._data] = data.data;
-        } else if ('error' in data) {
-          this.error = true
-          this._errorMessage = data.error
-        }
-      })
-    }
-  }
 }
 
 
-window.customElements.define('grampsjs-view-event', GrampsjsViewEvent);
+window.customElements.define('grampsjs-view-event', GrampsjsViewEvent)

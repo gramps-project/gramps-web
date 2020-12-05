@@ -1,41 +1,41 @@
 /*
-Events list view
+Notes list view
 */
+
 
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
 import { GrampsjsViewObjectsBase } from './GrampsjsViewObjectsBase.js'
 
 
-export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
+export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
 
   constructor() {
     super();
     this._columns = {
       grampsId: "Gramps ID",
-      type: "Event Type",
-      date: "Date",
-      place: "Place",
+      type: "Type",
+      text: "Text",
     }
-    this._fetchUrl = '/api/events/?profile=self&keys=gramps_id,profile'
+    this._fetchUrl = '/api/notes/?keys=gramps_id,type,text'
   }
 
   // eslint-disable-next-line class-methods-use-this
   _getItemPath(item) {
-    return `event/${item.grampsId}`
+    return `note/${item.grampsId}`
   }
 
   // eslint-disable-next-line class-methods-use-this
   _formatRow(row, obj) {
     const formattedRow = {
       grampsId: row.gramps_id,
-      type: row?.profile?.type,
-      date: row?.profile?.date,
-      place: row?.profile?.place
+      type: obj._(row.type),
+      text: row?.text?.string
     }
     return formattedRow
   }
+
 }
 
 
-window.customElements.define('grampsjs-view-events', GrampsjsViewEvents);
+window.customElements.define('grampsjs-view-notes', GrampsjsViewNotes);

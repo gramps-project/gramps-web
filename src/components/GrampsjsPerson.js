@@ -26,24 +26,6 @@ export class GrampsjsPerson extends GrampsjsObject {
     `;
   }
 
-  renderPicture() {
-    if (!this.data?.media_list?.length) {
-      return html``
-    }
-    const ref = this.data.media_list[0]
-    const obj = this.data.extended.media[0]
-    return html`
-      <grampsjs-img
-        handle="${obj.handle}"
-        size="200"
-      .rect="${ref.rect || []}"
-        square
-        circle
-        mime="${obj.mime}"
-      ></grampsjs-img>
-    `
-  }
-
   _displayName() {
     if (!this.data.profile) {
       return ''
@@ -81,18 +63,6 @@ export class GrampsjsPerson extends GrampsjsObject {
       ${obj.place || ''}
     </event>
     `
-  }
-
-  _getProfileEvent(type) {
-    if (!(this.data.profile && this.data.profile.events)) {
-      return '';
-    }
-    for (const event of this.data.profile.events) {
-      if (event.type === type) {
-        return html`${event.date} ${this._('in')} ${event.place}`
-      }
-    }
-    return '';
   }
 
 }

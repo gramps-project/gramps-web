@@ -104,9 +104,26 @@ export class GrampsjsObject extends LitElement {
     `;
   }
 
+
   renderPicture() {
-    return html``
+    if (!this.data?.media_list?.length) {
+      return html``
+    }
+    const ref = this.data.media_list[0]
+    const obj = this.data.extended.media[0]
+    return html`
+      <grampsjs-img
+        handle="${obj.handle}"
+        size="200"
+        displayHeight="200"
+      .rect="${ref.rect || []}"
+        square
+        circle
+        mime="${obj.mime}"
+      ></grampsjs-img>
+    `
   }
+
 
   renderTabs() {
     const tabKeys = this._getTabs()
@@ -153,7 +170,7 @@ export class GrampsjsObject extends LitElement {
       case("person_ref_list"):
         return html`<pre>${JSON.stringify(this.data.extended.people, null, 2)}</pre>`
       case("backlinks"):
-        return html`<grampsjs-references .strings=${this.strings} .data=${this.data.extended.backlinks.family}></grampsjs-references>`
+        return html`<grampsjs-references .strings=${this.strings} .data=${[]}></grampsjs-references>`
       default:
         break
     }

@@ -20,9 +20,22 @@ import { apiGetTokens, apiGet, doLogout, apiResetPassword } from './api.js'
 import { grampsStrings, additionalStrings } from './strings.js'
 
 import './views/GrampsjsViewPeople.js'
+import './views/GrampsjsViewFamilies.js'
+import './views/GrampsjsViewPlaces.js'
 import './views/GrampsjsViewEvents.js'
+import './views/GrampsjsViewSources.js'
+import './views/GrampsjsViewCitations.js'
+import './views/GrampsjsViewNotes.js'
+import './views/GrampsjsViewMediaObjects.js'
 import './views/GrampsjsViewPerson.js'
+import './views/GrampsjsViewFamily.js'
+import './views/GrampsjsViewPlace.js'
 import './views/GrampsjsViewEvent.js'
+import './views/GrampsjsViewSource.js'
+import './views/GrampsjsViewCitation.js'
+import './views/GrampsjsViewRepository.js'
+import './views/GrampsjsViewNote.js'
+import './views/GrampsjsViewMedia.js'
 import './views/GrampsjsViewSearch.js'
 import { sharedStyles } from './SharedStyles.js';
 
@@ -221,8 +234,14 @@ export class GrampsJs extends LitElement {
     }
     const tabs = {
       people: this._('People'),
+      families: this._('Families'),
       events: this._('Events'),
       places: this._('Places'),
+      sources: this._('Sources'),
+      citations: this._('Citations'),
+      repositories: this._('Repositories'),
+      notes: this._('Notes'),
+      media: this._('Media Objects')
     }
     if (this.language !== '' && Object.keys(this._strings).length === 0) {
       this._loadStrings(grampsStrings, this.language);
@@ -280,10 +299,24 @@ export class GrampsJs extends LitElement {
         ${this._tabHtml(tabs)}
 
         <grampsjs-view-people class="page" ?active=${this._page === 'people'} .strings="${this._strings}"></grampsjs-view-people>
+        <grampsjs-view-families class="page" ?active=${this._page === 'families'} .strings="${this._strings}"></grampsjs-view-families>
         <grampsjs-view-events class="page" ?active=${this._page === 'events'} .strings="${this._strings}"></grampsjs-view-events>
+        <grampsjs-view-places class="page" ?active=${this._page === 'places'} .strings="${this._strings}"></grampsjs-view-places>
+        <grampsjs-view-sources class="page" ?active=${this._page === 'sources'} .strings="${this._strings}"></grampsjs-view-sources>
+        <grampsjs-view-citations class="page" ?active=${this._page === 'citations'} .strings="${this._strings}"></grampsjs-view-citations>
+        <grampsjs-view-repositories class="page" ?active=${this._page === 'repositories'} .strings="${this._strings}"></grampsjs-view-repositories>
+        <grampsjs-view-notes class="page" ?active=${this._page === 'notes'} .strings="${this._strings}"></grampsjs-view-notes>
+        <grampsjs-view-media-objects class="page" ?active=${this._page === 'media'} .strings="${this._strings}"></grampsjs-view-media-objects>
 
         <grampsjs-view-person class="page" ?active=${this._page === 'person'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-person>
+        <grampsjs-view-family class="page" ?active=${this._page === 'family'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-family>
         <grampsjs-view-event class="page" ?active=${this._page === 'event'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-event>
+        <grampsjs-view-place class="page" ?active=${this._page === 'place'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-place>
+        <grampsjs-view-source class="page" ?active=${this._page === 'source'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-source>
+        <grampsjs-view-citation class="page" ?active=${this._page === 'citation'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-citation>
+        <grampsjs-view-repository class="page" ?active=${this._page === 'repository'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-repository>
+        <grampsjs-view-note class="page" ?active=${this._page === 'note'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-repository>
+        <grampsjs-view-media class="page" ?active=${this._page === 'mediaobject'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-media>
 
         <grampsjs-view-search class="page" ?active=${this._page === 'search'} .strings="${this._strings}"></grampsjs-view-search>
 

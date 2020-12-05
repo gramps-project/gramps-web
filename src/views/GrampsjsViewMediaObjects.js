@@ -1,41 +1,41 @@
 /*
-Events list view
+Medias list view
 */
+
 
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
 import { GrampsjsViewObjectsBase } from './GrampsjsViewObjectsBase.js'
 
 
-export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
+export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
 
   constructor() {
     super();
     this._columns = {
       grampsId: "Gramps ID",
-      type: "Event Type",
-      date: "Date",
-      place: "Place",
+      mime: "Type",
+      desc: "Description"
     }
-    this._fetchUrl = '/api/events/?profile=self&keys=gramps_id,profile'
+    this._fetchUrl = '/api/media/?keys=gramps_id,mime,desc'
   }
 
   // eslint-disable-next-line class-methods-use-this
   _getItemPath(item) {
-    return `event/${item.grampsId}`
+    return `mediaobject/${item.grampsId}`
   }
 
   // eslint-disable-next-line class-methods-use-this
   _formatRow(row, obj) {
     const formattedRow = {
       grampsId: row.gramps_id,
-      type: row?.profile?.type,
-      date: row?.profile?.date,
-      place: row?.profile?.place
+      mime: row.mime,
+      desc: row.desc
     }
     return formattedRow
   }
+
 }
 
 
-window.customElements.define('grampsjs-view-events', GrampsjsViewEvents);
+window.customElements.define('grampsjs-view-media-objects', GrampsjsViewMediaObjects);

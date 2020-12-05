@@ -2,7 +2,7 @@ import { html, css } from 'lit-element';
 import { GrampsjsObject } from './GrampsjsObject.js'
 
 
-export class GrampsjsPlace extends GrampsjsObject {
+export class GrampsjsSource extends GrampsjsObject {
   static get styles() {
     return [
       super.styles,
@@ -14,7 +14,6 @@ export class GrampsjsPlace extends GrampsjsObject {
 
   renderProfile() {
     return html`
-    <h2>${this.data.title}</h2>
     <pre style="max-width:100%;">${JSON.stringify(this.data, null, 2)}</pre>
     `;
   }
@@ -22,4 +21,4 @@ export class GrampsjsPlace extends GrampsjsObject {
 }
 
 
-window.customElements.define('grampsjs-place', GrampsjsPlace);
+window.customElements.define('grampsjs-source', GrampsjsSource);
