@@ -44,6 +44,7 @@ export class GrampsjsObject extends LitElement {
 
       .tab-content {
         margin-top: 25px;
+        padding-bottom: 3em;
       }
 
       #tabs {
