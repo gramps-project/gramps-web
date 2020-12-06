@@ -12,11 +12,18 @@ export class GrampsjsCitation extends GrampsjsObject {
     `];
   }
 
+
   renderProfile() {
     return html`
-    <pre style="max-width:100%;">${JSON.stringify(this.data, null, 2)}</pre>
+    ${this.data?.extended?.source?.title ? html`<p><span class="md">${this._("Source")}:</span> ${this.data.extended.source.title}</p>` : ''}
+    ${this.data?.page ? html`<p><span class="md">${this._("Page")}:</span> ${this.data.page}</p>` : ''}
     `;
   }
+
+  renderPicture() {
+    return ''
+  }
+
 
 }
 

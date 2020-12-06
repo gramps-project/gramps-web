@@ -14,8 +14,15 @@ export class GrampsjsSource extends GrampsjsObject {
 
   renderProfile() {
     return html`
-    <pre style="max-width:100%;">${JSON.stringify(this.data, null, 2)}</pre>
+    <h2>${this.data.title}</h2>
+    ${this.data?.abbrev ? html`<p><span class="md">${this._("Abbreviation")}:</span> ${this.data.abbrev}</p>` : ''}
+    ${this.data?.author ? html`<p><span class="md">${this._("Author")}:</span> ${this.data.author}</p>` : ''}
+    ${this.data?.pubinfo ? html`<p><span class="md">${this._("Publication info")}:</span> ${this.data.pubinfo}</p>` : ''}
     `;
+  }
+
+  renderPicture() {
+    return ''
   }
 
 }
