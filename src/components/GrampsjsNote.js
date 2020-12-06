@@ -1,5 +1,7 @@
-import { html, css } from 'lit-element';
+import { html, css } from 'lit-element'
+
 import { GrampsjsObject } from './GrampsjsObject.js'
+import './GrampsjsNoteContent.js'
 
 
 export class GrampsjsNote extends GrampsjsObject {
@@ -14,8 +16,14 @@ export class GrampsjsNote extends GrampsjsObject {
 
   renderProfile() {
     return html`
-    <pre style="max-width:100%;">${JSON.stringify(this.data, null, 2)}</pre>
-    `;
+    <h2>${this.data.name}</h2>
+    ${this.data?.type ? html`<p><span class="md">${this._("Type")}:</span> ${this._(this.data.type)}</p>` : ''}
+
+    <grampsjs-note-content
+      grampsId="${this.data.gramps_id}"
+      content="${this.data?.formatted?.html || this.data?.text?.string || 'Error loading note'}"
+      ></grampsjs-note-content>
+    `
   }
 
 }

@@ -12,7 +12,7 @@ export class GrampsjsViewNote extends GrampsjsViewObject {
   }
 
   getUrl() {
-    return `/api/notes/?gramps_id=${this.grampsId}&profile=all&backlinks=true&extend=all`
+    return `/api/notes/?gramps_id=${this.grampsId}&profile=all&backlinks=true&extend=all&formats=html`
   }
 
   renderElement() {
