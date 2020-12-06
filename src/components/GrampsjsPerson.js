@@ -12,9 +12,6 @@ export class GrampsjsPerson extends GrampsjsObject {
     return [
       super.styles,
       css`
-      .event {
-        margin-right: 1.5em;
-      }
     `];
   }
 
@@ -36,8 +33,8 @@ export class GrampsjsPerson extends GrampsjsObject {
   }
 
   _renderBirth() {
-    const obj = this.data.profile.birth
-    if (Object.keys(obj).length === 0) {
+    const obj = this.data?.profile?.birth
+    if (obj === undefined || Object.keys(obj).length === 0) {
       return ''
     }
     return html`
@@ -51,8 +48,8 @@ export class GrampsjsPerson extends GrampsjsObject {
   }
 
   _renderDeath() {
-    const obj = this.data.profile.death
-    if (Object.keys(obj).length === 0) {
+    const obj = this.data?.profile?.death
+    if (obj === undefined || Object.keys(obj).length === 0) {
       return ''
     }
     return html`

@@ -8,6 +8,8 @@ export const sharedStyles = css`
     --mdc-theme-primary: #6D4C41;
     --mdc-theme-on-primary: #EFEBE9;
     --mdc-typography-font-family: Roboto;
+    --color-boy: #64B5F6;
+    --color-girl: #EF9A9A;
   }
 
   mwc-tab-bar {
@@ -52,8 +54,5 @@ export const sharedStyles = css`
     height: 1em;
     top: .125em;
     position: relative;
-  }
-  i svg path {
-    fill: #999;
   }
 `;

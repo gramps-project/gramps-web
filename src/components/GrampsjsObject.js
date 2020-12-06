@@ -7,6 +7,7 @@ import { sharedStyles } from '../SharedStyles.js';
 import './GrampsjsAddresses.js';
 import './GrampsjsAttributes.js';
 import './GrampsjsEvents.js';
+import './GrampsjsChildren.js';
 import './GrampsjsReferences.js';
 import './GrampsjsTags.js';
 import './GrampsjsUrls.js';
@@ -14,6 +15,7 @@ import './GrampsjsGallery.js';
 
 const _allTabs = {
   family_list: 'Relationships',
+  child_ref_list: 'Children',
   placeref_list: 'Enclosed by',
   event_ref_list: 'Events',
   primary_name: 'Names',
@@ -46,6 +48,7 @@ export class GrampsjsObject extends LitElement {
 
       #tabs {
         clear: both;
+        margin-top: 30px;
       }
 
       mwc-tab-bar {
@@ -59,6 +62,10 @@ export class GrampsjsObject extends LitElement {
         float: right;
         margin-bottom: 20px;
         margin-left: 40px;
+      }
+
+      .event {
+        margin-right: 1.5em;
       }
       `
     ];
@@ -155,6 +162,8 @@ export class GrampsjsObject extends LitElement {
     switch(this._currentTab) {
       case("event_ref_list"):
         return html`<grampsjs-events .strings=${this.strings} .data=${this.data?.extended?.events} .profile=${this.data?.profile?.events}></grampsjs-events>`
+      case("child_ref_list"):
+        return html`<grampsjs-children .strings=${this.strings} .data=${this.data?.child_ref_list} .profile=${this.data?.profile?.children}></grampsjs-children>`
       case("citation_list"):
         return html`<pre>${JSON.stringify(this.data.extended.citations, null, 2)}</pre>`
       case("attribute_list"):
@@ -174,7 +183,7 @@ export class GrampsjsObject extends LitElement {
       default:
         break
     }
-    return html``
+    return html`Missing: ${this._currentTab}`
   }
 
   _getTabs() {

@@ -29,8 +29,8 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
   _formatRow(row, obj) {
     const formattedRow = {
       grampsId: row.gramps_id,
-      father: `${row?.profile?.father?.name_surname || '…'}, ${row?.profile?.father?.name_given || '&hellip;'}`,
-      mother: `${row?.profile?.mother?.name_surname || '…'}, ${row?.profile?.mother?.name_given || '&hellip;'}`
+      father: `${row?.profile?.father?.name_surname || '…'}, ${row?.profile?.father?.name_given || '…'}`,
+      mother: `${row?.profile?.mother?.name_surname || '…'}, ${row?.profile?.mother?.name_given || '…'}`
     }
     return formattedRow
   }

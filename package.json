@@ -73,6 +73,7 @@
     "@material/mwc-tab-bar": "^0.19.1",
     "@material/mwc-textfield": "^0.19.1",
     "@material/mwc-top-app-bar": "^0.19.1",
+    "@mdi/js": "^5.8.55",
     "@vaadin/vaadin-grid": "^5.7.6",
     "lit-element": "^2.0.1",
     "lit-html": "^1.0.0",

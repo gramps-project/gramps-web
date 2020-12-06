@@ -15,6 +15,7 @@ export const additionalStrings = {
 export const grampsStrings = [
   "Address Note",
   "Addresses",
+  "Age at death",
   "and",
   "Association Note",
   "Associations",
@@ -98,6 +99,7 @@ export const grampsStrings = [
   "Publication info",
   "References",
   "Region",
+  "Relationship type:",
   "Relationships",
   "Repositories",
   "Repository Note",
