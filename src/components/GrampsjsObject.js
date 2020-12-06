@@ -52,9 +52,9 @@ export class GrampsjsObject extends LitElement {
       }
 
       mwc-tab-bar {
-        border-top: solid #6D4C4133 1px;
         border-bottom: solid #6D4C4133 1px;
-        margin-top: 15px;
+        margin-top: 36px;
+        margin-bottom: 36px;
         --mdc-tab-horizontal-padding: 16px;
       }
 
@@ -65,7 +65,11 @@ export class GrampsjsObject extends LitElement {
       }
 
       .event {
-        margin-right: 1.5em;
+        margin-right: 1em;
+      }
+
+      .event i svg path {
+        fill: #999999;
       }
       `
     ];

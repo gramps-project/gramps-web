@@ -55,4 +55,13 @@ export const sharedStyles = css`
     top: .125em;
     position: relative;
   }
+
+  .md {
+    font-weight: 400;
+  }
+
+  p {
+    margin-top: 1.2em;
+    margin-bottom: 1.2em;
+  }
 `;

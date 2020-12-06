@@ -1,6 +1,18 @@
 import { html, css } from 'lit-element';
 import { GrampsjsObject } from './GrampsjsObject.js'
-import { ringsIcon } from '../icons.js'
+import { asteriskIcon, crossIcon, ringsIcon } from '../icons.js'
+
+
+function _renderPerson(obj) {
+  return html`
+  <span class="event">
+  ${obj.name_given || '…'}
+  ${obj.name_surname || '…'}
+  </span>
+  ${obj?.birth?.date ? html`<span class="event"><i>${asteriskIcon}</i> ${obj.birth.date}` : ''}
+  ${obj?.death?.date ? html`<span class="event"><i>${crossIcon}</i> ${obj.death.date}` : ''}
+  `
+}
 
 
 export class GrampsjsFamily extends GrampsjsObject {
@@ -15,14 +27,16 @@ export class GrampsjsFamily extends GrampsjsObject {
 
   renderProfile() {
     return html`
-    <h2>${this._displayName()}</h2>
+    <h2>${this._renderTitle()}</h2>
+    ${this._renderFather()}
+    ${this._renderMother()}</p>
     ${this._renderRelType()}
     ${this._renderMarriage()}
     ${this._renderDivorce()}
     `
   }
 
-  _displayName() {
+  _renderTitle() {
     return html`
     ${this.data?.profile?.father?.name_given || '…'}
     ${this.data?.profile?.father?.name_surname || '…'}
@@ -38,7 +52,25 @@ export class GrampsjsFamily extends GrampsjsObject {
     }
     return html`
     <p>
-    ${this._("Relationship type:")} ${this.data.profile.relationship}
+    <span class="md">${this._("Relationship type:")}</span>
+    ${this.data.profile.relationship}
+    </p>
+    `
+  }
+
+
+  _renderFather() {
+    return html`
+    <p><span class="md">${this._("Father")}:</span>
+    ${_renderPerson(this.data?.profile?.father || {})}
+    </p>
+    `
+  }
+
+  _renderMother() {
+    return html`
+    <p><span class="md">${this._("Mother")}:</span>
+    ${_renderPerson(this.data?.profile?.mother || {})}
     </p>
     `
   }
