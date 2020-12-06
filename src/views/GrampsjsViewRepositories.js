@@ -30,7 +30,7 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
     const formattedRow = {
       grampsId: row.gramps_id,
       name: row.name,
-      type: row.type
+      type: this._(row.type)
     }
     return formattedRow
   }

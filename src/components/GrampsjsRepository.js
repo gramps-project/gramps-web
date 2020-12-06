@@ -14,7 +14,8 @@ export class GrampsjsRepository extends GrampsjsObject {
 
   renderProfile() {
     return html`
-    <pre style="max-width:100%;">${JSON.stringify(this.data, null, 2)}</pre>
+    <h2>${this.data.name}</h2>
+    ${this.data?.type ? html`<p><span class="md">${this._("Type")}:</span> ${this._(this.data.type)}</p>` : ''}
     `;
   }
 
