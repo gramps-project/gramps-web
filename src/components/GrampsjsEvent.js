@@ -14,7 +14,12 @@ export class GrampsjsEvent extends GrampsjsObject {
 
   renderProfile() {
     return html`
-    <pre style="max-width:100%;">${JSON.stringify(this.data, null, 2)}</pre>
+    <h2>${this.data.description}</h2>
+    ${this.data?.profile?.type ? html`<p>${this.data.profile.type}</p>` : ''}
+    <p>
+      ${this.data?.profile?.date ? html`${this.data.profile.date}` : ''}
+      ${this.data?.profile?.place ? html`${this._("in")} ${this.data.profile.place}` : ''}
+    </p>
     `;
   }
 
