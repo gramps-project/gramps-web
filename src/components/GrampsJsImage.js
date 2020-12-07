@@ -5,7 +5,7 @@ An Image thumbnail element.
 import { html, css, LitElement } from 'lit-element';
 
 import { sharedStyles } from '../SharedStyles.js';
-import { getThumbnailUrl, getThumbnailUrlCropped } from '../api.js'
+import { getMediaUrl, getThumbnailUrl, getThumbnailUrlCropped } from '../api.js'
 
 
 class GrampsjsImg extends LitElement {
@@ -48,6 +48,19 @@ class GrampsjsImg extends LitElement {
     this.displayHeight = 0;
   }
 
+
+  _renderImageFull() {
+    const height = this.displayHeight || '';
+    return html`
+      <img
+      src="${getMediaUrl(this.handle)}"
+      class="${this.circle ? 'round' : ''}"
+      @error=${this._errorHandler}
+      alt="" height="${height}"
+      >
+      `
+  }
+
   _renderImage() {
     const height = this.displayHeight || '';
     return html`
@@ -75,8 +88,16 @@ class GrampsjsImg extends LitElement {
   }
 
   render() {
-    const img = (this.rect.length === 0) ? this._renderImage() : this._renderImageCropped()
+    const img = (this.size === 0) ? this._renderFull() : this._renderThumb()
     return this.nolink ? img : html`<span @click="${this._clickHandler}" class="link">${img}</span>`
+  }
+
+  _renderThumb() {
+    return (this.rect.length === 0) ? this._renderImage() : this._renderImageCropped()
+  }
+
+  _renderFull() {
+    return (this.rect.length === 0) ? this._renderImageFull() : this._renderImageFull()
   }
 
   _clickHandler() {

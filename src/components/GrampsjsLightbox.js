@@ -1,7 +1,7 @@
 import { html, css, LitElement } from 'lit-element';
 
 import { sharedStyles } from '../SharedStyles.js';
-import { closeIcon } from '../icons.js';
+import { chevronLeftIcon, chevronRightIcon, closeIcon } from '../icons.js';
 
 
 class GrampsjsLightbox extends LitElement {
@@ -32,7 +32,6 @@ class GrampsjsLightbox extends LitElement {
         display: flex;
         justify-content: center;
         align-items: center;
-        pointer-events: none;
       }
 
       #text {
@@ -42,7 +41,7 @@ class GrampsjsLightbox extends LitElement {
         top: calc(100vh - 70px);
         left: 0;
         background-color: white;
-        z-index: 10001;
+        z-index: 10002;
         min-height: 70px;
         overflow-x: hidden;
         padding: 20px;
@@ -74,16 +73,20 @@ class GrampsjsLightbox extends LitElement {
         clear: right;
       }
 
-      #close-lightbox svg {
+      .lightbox-nav {
+        z-index: 10001;
+      }
+
+      .lightbox-nav svg {
         height: 2em;
         width: 2em;
       }
 
-      #close-lightbox:hover svg path {
+      .lightbox-nav:hover svg path {
         fill: #ffffff;
       }
 
-      #close-lightbox svg path {
+      .lightbox-nav svg path {
         fill: #aaaaaa;
       }
 
@@ -92,19 +95,41 @@ class GrampsjsLightbox extends LitElement {
         right: 1.5em;
         top: 1.5em;
       }
+
+      .arrow {
+        position: fixed;
+        top: calc(50vh - 45px);
+      }
+
+      .arrow-left {
+        left: 5vw;
+      }
+
+      .arrow-right {
+        right: 5vw;
+      }
+
+      #media-container {
+        position: absolute;
+        width:100%;
+        height:100%;
+        text-align: center;
+      }
       `
     ]
   }
 
   static get properties() {
     return {
-      open: { type: Boolean }
+      open: { type: Boolean },
+      _translateX: { type: Number }
     }
   }
 
   constructor() {
     super();
     this.open = false;
+    this._translateX = 0;
   }
 
   render() {
@@ -113,10 +138,20 @@ class GrampsjsLightbox extends LitElement {
     }
     return html`
     <div id="lightbox-container" @keydown="${this._handleKeyPress}">
-      <div id="close-lightbox" tabindex="0">
-        <span @click="${this._close}" class="link">${closeIcon}</span>
+      <div class="lightbox-nav" id="close-lightbox" tabindex="0">
+        <span @click="${this._close}" class="link" @keydown="">${closeIcon}</span>
       </div>
-      <div id="lightbox" tabindex="0">
+      <div class="lightbox-nav arrow arrow-left">
+        <span @click="${this._handleLeft}" class="link" @keydown="">${chevronLeftIcon}</span>
+      </div>
+      <div class="lightbox-nav arrow arrow-right">
+        <span @click="${this._handleRight}" class="link" @keydown="">${chevronRightIcon}</span>
+      </div>
+      <div id="lightbox" tabindex="0"
+        style="transform: translateX(${this._translateX}px);"
+        @touchstart="${this._handleTouchStart}"
+        @touchmove="${this._handleTouchMove}"
+        @touchend="${this._handleTouchEnd}">
         <slot name="image"></slot>
       </div>
       <div id="text" tabindex="0">
@@ -138,9 +173,49 @@ class GrampsjsLightbox extends LitElement {
     this.open = false;
   }
 
+  _handleLeft() {
+    this.dispatchEvent(new CustomEvent(
+      'lightbox:left',
+      {bubbles: true, composed: true, detail: {id: this.id}}
+      )
+    );
+  }
+
+  _handleRight() {
+    this.dispatchEvent(new CustomEvent(
+      'lightbox:right',
+      {bubbles: true, composed: true, detail: {id: this.id}}
+      )
+    );
+  }
+
   _handleKeyPress(event) {
-    if(event.code === 'Escape') {
+    if (event.code === 'Escape') {
         this._close()
+    } else if (event.key === "ArrowRight" || event.key === "Right") {
+      this._handleRight();
+    } else if (event.key === "ArrowLeft" || event.key === "Left") {
+      this._handleLeft();
+    }
+  }
+
+  _handleTouchStart(e) {
+    this._touchStartX = e.touches[0].pageX;
+    this._touchMoveX = this._touchStartX;
+  }
+
+  _handleTouchMove(e) {
+    this._touchMoveX = e.touches[0].pageX;
+    this._translateX = this._touchMoveX - this._touchStartX;
+  }
+
+  _handleTouchEnd() {
+    this._translateX = 0;
+    const movedX = this._touchMoveX - this._touchStartX;
+    if (movedX < -10) {
+      this._handleRight();
+    } else if (movedX > 10) {
+      this._handleLeft();
     }
   }
 
