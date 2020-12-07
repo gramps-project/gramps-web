@@ -184,7 +184,7 @@ export class GrampsjsObject extends LitElement {
       case("person_ref_list"):
         return html`<pre>${JSON.stringify(this.data.extended.people, null, 2)}</pre>`
       case("backlinks"):
-        return html`<grampsjs-references .strings=${this.strings} .data=${[]}></grampsjs-references>`
+        return html`<grampsjs-references .strings=${this.strings} .data=${[this.data?.extended?.backlinks]}></grampsjs-references>`
       default:
         break
     }
