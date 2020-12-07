@@ -64,4 +64,11 @@ export const sharedStyles = css`
     margin-top: 1.2em;
     margin-bottom: 1.2em;
   }
+
+  h2 mwc-icon {
+    color: rgba(0, 0, 0, 0.2);
+    font-size: 1.05em;
+    position: relative;
+    top: 0.15em;
+  }
 `;

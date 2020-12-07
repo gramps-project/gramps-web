@@ -49,6 +49,7 @@ class GrampsjsLightbox extends LitElement {
       }
 
       #description-container {
+        font-family: Roboto Slab;
         height: 70px;
         font-size: 22px;
         line-height: 30px;
@@ -61,12 +62,13 @@ class GrampsjsLightbox extends LitElement {
       #button-container {
         float: right;
         height: 70px;
-        width: 200px;
+        width: 300px;
         font-size: 22px;
         line-height: 30px;
         font-weight: 400;
         overflow: hidden;
         text-overflow: ellipsis;
+        text-align: right;
       }
 
       #detail-container {

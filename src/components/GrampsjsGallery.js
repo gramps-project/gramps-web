@@ -1,4 +1,5 @@
 import { LitElement, css, html } from 'lit-element';
+import '@material/mwc-button'
 
 import { sharedStyles } from '../SharedStyles.js';
 
@@ -57,7 +58,11 @@ export class GrampsjsGallery extends LitElement {
         ${this._renderImage(this._lightboxSelected)}
       </div>
       <span slot="description">${this.media[this._lightboxSelected]?.desc || ''}</span>
-      <span slot="button"></span>
+      <span slot="button">
+        <mwc-button unelevated label="${this._("Show Details")}"
+         @click="${this._handleButtonClick}>
+        </mwc-button>
+      </span>
       <span slot="details"></span>
     </grampsjs-lightbox>
     `
@@ -67,6 +72,15 @@ export class GrampsjsGallery extends LitElement {
     const lightBox = this.shadowRoot.getElementById('gallery-lightbox')
     this._lightboxSelected = i;
     lightBox.open = true;
+  }
+
+  _handleButtonClick() {
+    console.log(`mediaobject/${this.media[this._lightboxSelected]?.gramps_id}`)
+    this.dispatchEvent(new CustomEvent('nav', {
+      bubbles: true, composed: true, detail: {
+        path: `mediaobject/${this.media[this._lightboxSelected]?.gramps_id}`
+      }
+    }));
   }
 
   _handleLeft(event) {
@@ -104,15 +118,12 @@ export class GrampsjsGallery extends LitElement {
 
   _renderImage(i) {
     const mediaObj = this.media[i]
-    const handle = mediaObj.handle
-    const rect = this.mediaRef[i].rect
-    const mime = mediaObj.mime
+    const {handle, mime} = mediaObj
     return html`<div class="tile">
     <grampsjs-img
       handle="${handle}"
       size="0"
       mime="${mime}"
-      @click="${() => this._handleClick(i)}"
     ></grampsjs-img>
     </div>`
   }

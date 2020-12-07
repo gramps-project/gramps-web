@@ -1,5 +1,8 @@
 import { html, css } from 'lit-element';
 import { GrampsjsObject } from './GrampsjsObject.js'
+import './GrampsJsImage.js'
+
+import '@material/mwc-icon'
 
 
 export class GrampsjsMediaObject extends GrampsjsObject {
@@ -9,15 +12,26 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       css`
       :host {
       }
+
+      grampsjs-img {
+        margin: 30px 0;
+      }
     `];
   }
 
   renderProfile() {
     return html`
-    <pre style="max-width:100%;">${JSON.stringify(this.data, null, 2)}</pre>
+    <h2><mwc-icon>photo</mwc-icon>
+    ${this.data.desc || this._("Media Object")}</h2>
+
+    <grampsjs-img
+      handle="${this.data.handle}"
+      size="0"
+      mime="${this.data.mime}"
+    ></grampsjs-img>
+
     `;
   }
-
 }
 
 
