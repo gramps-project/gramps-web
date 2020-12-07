@@ -32,7 +32,6 @@ class GrampsjsImg extends LitElement {
       rect: { type: Array },
       circle: { type: Boolean },
       square: { type: Boolean },
-      nolink: { type: Boolean },
       mime: {type: String},
       displayHeight: {type: Number},
   }
@@ -43,7 +42,6 @@ class GrampsjsImg extends LitElement {
     this.rect = [];
     this.circle = false;
     this.square = false;
-    this.nolink = false;
     this.mime = '';
     this.displayHeight = 0;
   }
@@ -88,8 +86,7 @@ class GrampsjsImg extends LitElement {
   }
 
   render() {
-    const img = (this.size === 0) ? this._renderFull() : this._renderThumb()
-    return this.nolink ? img : html`<span @click="${this._clickHandler}" class="link">${img}</span>`
+    return (this.size === 0) ? this._renderFull() : this._renderThumb()
   }
 
   _renderThumb() {
@@ -100,16 +97,11 @@ class GrampsjsImg extends LitElement {
     return (this.rect.length === 0) ? this._renderImageFull() : this._renderImageFull()
   }
 
-  _clickHandler() {
-    window.dispatchEvent(new CustomEvent("img:clicked",
-      {bubbles: true, composed: true, detail: {handle: this.handle}}))
-  }
 
   _errorHandler() {
     this.dispatchEvent(new CustomEvent('img:error',
       {bubbles: true, composed: true, detail: {handle: this.handle}}));
   }
-
 
 }
 

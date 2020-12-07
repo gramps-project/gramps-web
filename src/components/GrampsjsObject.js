@@ -132,10 +132,19 @@ export class GrampsjsObject extends LitElement {
         square
         circle
         mime="${obj.mime}"
+        @click="${() => this._handleImgClick(obj.gramps_id)}"
+        class="link"
       ></grampsjs-img>
     `
   }
 
+  _handleImgClick(grampsId) {
+    this.dispatchEvent(new CustomEvent('nav', {
+      bubbles: true, composed: true, detail: {
+        path: `mediaobject/${grampsId}`
+      }
+    }))
+  }
 
   renderTabs() {
     const tabKeys = this._getTabs()
