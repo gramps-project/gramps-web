@@ -7,7 +7,8 @@ export const additionalStrings = {
     "Lists": "Listen",
     "History": "Verlauf",
     "Menu": "Menü",
-    "Blog": "Blog"
+    "Blog": "Blog",
+    "Recently browsed objects": "Kürzlich betrachtete Objekte"
   }
 }
 
@@ -32,6 +33,7 @@ export const grampsStrings = [
   "Citation",
   "Citations",
   "City",
+  "Clear",
   "Collection",
   "Country",
   "County",
@@ -81,6 +83,7 @@ export const grampsStrings = [
   "Names",
   "Neighborhood",
   "Nickname",
+  "No items",
   "Note",
   "Notes",
   "Number of events",
