@@ -107,8 +107,8 @@ export class GrampsjsGallery extends LitElement {
     return html`<div class="tile">
     <grampsjs-img
       handle="${handle}"
-      size="160"
-      displayHeight="160"
+      size="200"
+      displayHeight="200"
       .rect="${rect || []}"
       mime="${mime}"
       @click="${() => this._handleClick(i)}"
