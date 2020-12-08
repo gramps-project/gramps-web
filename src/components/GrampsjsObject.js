@@ -7,6 +7,7 @@ import { sharedStyles } from '../SharedStyles.js';
 import './GrampsjsAddresses.js';
 import './GrampsjsAttributes.js';
 import './GrampsjsEvents.js';
+import './GrampsjsFamilies.js';
 import './GrampsjsChildren.js';
 import './GrampsjsReferences.js';
 import './GrampsjsTags.js';
@@ -174,6 +175,12 @@ export class GrampsjsObject extends LitElement {
 
   renderTabContent() {
     switch(this._currentTab) {
+      case("family_list"):
+        return html`<grampsjs-families
+          .strings=${this.strings}
+          .familyList=${this.data?.extended?.families || []}
+          .families=${this.data?.profile?.families || []}
+          ></grampsjs-families>`
       case("event_ref_list"):
         return html`<grampsjs-events .strings=${this.strings} .data=${this.data?.extended?.events} .profile=${this.data?.profile?.events}></grampsjs-events>`
       case("child_ref_list"):

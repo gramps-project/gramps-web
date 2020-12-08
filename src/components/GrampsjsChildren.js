@@ -30,7 +30,6 @@ export class GrampsjsChildren extends GrampsjsTableBase {
 
   static get properties() {
     return {
-      data: { type: Array },
       profile: { type: Array },
       strings : {type: Object}
     };
@@ -44,7 +43,7 @@ export class GrampsjsChildren extends GrampsjsTableBase {
   }
 
   render() {
-    if (Object.keys(this.data).length === 0) {
+    if (Object.keys(this.profile).length === 0) {
       return html`hae`
     }
     return html`
@@ -56,7 +55,7 @@ export class GrampsjsChildren extends GrampsjsTableBase {
         <th>${this._("Death")}</th>
         <th>${this._("Age at death")}</th>
       </tr>
-    ${this.data.map((obj, i) => html`
+    ${this.profile.map((obj, i) => html`
       <tr @click=${() => this._handleClick(obj.gramps_id)}>
         <td>${genderIcon(this.profile[i]?.sex)}</td>
         <td>${this.profile[i]?.name_given || ''}</td>
