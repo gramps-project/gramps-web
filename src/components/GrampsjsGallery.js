@@ -60,7 +60,7 @@ export class GrampsjsGallery extends LitElement {
       <span slot="description">${this.media[this._lightboxSelected]?.desc || ''}</span>
       <span slot="button">
         <mwc-button unelevated label="${this._("Show Details")}"
-         @click="${this._handleButtonClick}>
+         @click="${this._handleButtonClick}">
         </mwc-button>
       </span>
       <span slot="details"></span>
@@ -75,7 +75,6 @@ export class GrampsjsGallery extends LitElement {
   }
 
   _handleButtonClick() {
-    console.log(`mediaobject/${this.media[this._lightboxSelected]?.gramps_id}`)
     this.dispatchEvent(new CustomEvent('nav', {
       bubbles: true, composed: true, detail: {
         path: `mediaobject/${this.media[this._lightboxSelected]?.gramps_id}`
@@ -101,9 +100,8 @@ export class GrampsjsGallery extends LitElement {
 
   _renderThumbnail(i) {
     const mediaObj = this.media[i]
-    const handle = mediaObj.handle
-    const rect = this.mediaRef[i].rect
-    const mime = mediaObj.mime
+    const {handle, mime} = mediaObj
+    const {rect} = this.mediaRef[i]
     return html`<div class="tile">
     <grampsjs-img
       handle="${handle}"

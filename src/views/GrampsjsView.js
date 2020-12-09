@@ -13,7 +13,7 @@ export class GrampsjsView extends LitElement {
       css`
 
       :host {
-        margin-top: 25px;
+        margin: 10px 25px;
         background-color: #ffffff;
       }
 

@@ -1,7 +1,7 @@
 import { css, html } from 'lit-element';
 
-import { GrampsjsTableBase } from './GrampsjsTableBase.js';
 import { mdiGenderFemale, mdiGenderMale } from '@mdi/js';
+import { GrampsjsTableBase } from './GrampsjsTableBase.js';
 import { renderIcon } from '../icons.js'
 
 

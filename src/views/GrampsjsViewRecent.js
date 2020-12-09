@@ -84,10 +84,11 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     this.loading = false;
     if ('data' in data) {
       const dataObject = data.data.reduce((obj, item) => {
+        // eslint-disable-next-line no-param-reassign
         obj[item?.object?.gramps_id] = item
         return obj
       }, {})
-      this._searchResult = this._data.map(obj => dataObject[obj.grampsId])
+      this._searchResult = this._data.map(obj => dataObject[obj.grampsId]).filter(obj => obj !== undefined)
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error

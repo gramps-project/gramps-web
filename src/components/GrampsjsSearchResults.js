@@ -1,14 +1,14 @@
-import { LitElement, css, html } from 'lit-element';
+import {LitElement, css, html} from 'lit-element';
 
-import { sharedStyles } from '../SharedStyles.js';
+import {sharedStyles} from '../SharedStyles.js';
 
 
 export class GrampsjsSearchResults extends LitElement {
 
-    static get styles() {
-      return [
-        sharedStyles,
-        css`
+  static get styles() {
+    return [
+      sharedStyles,
+      css`
         .search-hit {
           margin-bottom: 1.2em;
         }
@@ -28,12 +28,12 @@ export class GrampsjsSearchResults extends LitElement {
           padding: 0 0.5em;
         }
         `
-      ];
-    }
+    ];
+  }
 
   static get properties() {
     return {
-      data: { type: Array },
+      data: {type: Array},
       strings : {type: Object},
       total: {type: Number},
     };
@@ -59,13 +59,13 @@ export class GrampsjsSearchResults extends LitElement {
     <p>Total: ${this.total}</p>
     <div id="search-results">
     ${this.data.map((obj) => {
-      return html`
+    return html`
         <div class="search-hit">
           ${obj.object.gramps_id}
           <br>
           ${this._renderObj(obj)}
         </div>`
-    }, this)}
+  }, this)}
     </div>
     `
   }
