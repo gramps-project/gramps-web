@@ -2,8 +2,8 @@
 Base class for Gramps views
 */
 
-import { LitElement, html, css } from 'lit-element';
-import { sharedStyles } from '../SharedStyles.js';
+import {LitElement, html, css} from 'lit-element'
+import {sharedStyles} from '../SharedStyles.js'
 
 
 export class GrampsjsView extends LitElement {
@@ -13,12 +13,12 @@ export class GrampsjsView extends LitElement {
       css`
 
       :host {
-        margin: 10px 25px;
+        margin: 25px 40px;
         background-color: #ffffff;
       }
 
       `
-    ];
+    ]
   }
 
   // shouldUpdate() {
@@ -27,20 +27,20 @@ export class GrampsjsView extends LitElement {
 
   static get properties() {
     return {
-      active: { type: Boolean },
-      strings: { type: Object },
+      active: {type: Boolean},
+      strings: {type: Object},
       loading: {type: Boolean},
       error: {type: Boolean},
       _errorMessage: {type: String}
-    };
+    }
   }
 
   constructor() {
-    super();
-    this.strings = {};
-    this.active = false;
-    this.loading = false;
-    this.error = false;
+    super()
+    this.strings = {}
+    this.active = false
+    this.loading = false
+    this.error = false
     this._errorMessage = ''
   }
 
@@ -53,21 +53,21 @@ export class GrampsjsView extends LitElement {
   }
 
   update(changed) {
-    super.update(changed);
+    super.update(changed)
     if (changed.has('loading')) {
       if (this.loading && this.active) {
-        this.dispatchEvent(new CustomEvent("progress:on", {bubbles: true, composed: true}))
+        this.dispatchEvent(new CustomEvent('progress:on', {bubbles: true, composed: true}))
       }
       else if (!this.loading && this.active) {
-        this.dispatchEvent(new CustomEvent("progress:off", {bubbles: true, composed: true}))
+        this.dispatchEvent(new CustomEvent('progress:off', {bubbles: true, composed: true}))
       }
     }
     if (changed.has('active')) {
       if (!this.active) {
-        this.dispatchEvent(new CustomEvent("progress:off", {bubbles: true, composed: true}))
+        this.dispatchEvent(new CustomEvent('progress:off', {bubbles: true, composed: true}))
       }
       else if (this.loading) {
-        this.dispatchEvent(new CustomEvent("progress:on", {bubbles: true, composed: true}))
+        this.dispatchEvent(new CustomEvent('progress:on', {bubbles: true, composed: true}))
       }
     }
   }

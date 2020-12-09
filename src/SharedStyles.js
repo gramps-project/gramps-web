@@ -1,4 +1,4 @@
-import { css } from 'lit-element';
+import {css} from 'lit-element'
 
 export const sharedStyles = css`
   :host {
@@ -71,4 +71,8 @@ export const sharedStyles = css`
     position: relative;
     top: 0.15em;
   }
-`;
+
+  .float-right {
+    float: right;
+  }
+`
