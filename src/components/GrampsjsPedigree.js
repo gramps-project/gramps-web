@@ -85,7 +85,7 @@ class GrampsjsPedigree extends LitElement {
           ">
             <grampsjs-pedigree-card
               .person=${p}
-              @person-selected="${this._personSelected}"
+              @click="${() => this._personSelected(p)}"
             >
             </grampsjs-pedigree-card>
             ${i === 0 ? '' : html`
@@ -177,6 +177,10 @@ class GrampsjsPedigree extends LitElement {
   //   _children = _children.map((id) => state.api.people[id])
   //   return _children
   // }
+
+  _personSelected(person) {
+    this.dispatchEvent(new CustomEvent('pedigree:person-selected', {bubbles: true, composed: true, detail: {grampsId: person.gramps_id}}))
+  }
 }
 
 window.customElements.define('grampsjs-pedigree', GrampsjsPedigree)

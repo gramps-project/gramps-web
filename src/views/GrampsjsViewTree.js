@@ -82,8 +82,7 @@ export class GrampsjsViewTree extends GrampsjsView {
   update(changed) {
     super.update(changed)
     if (changed.has('grampsId') && this.active) {
-      this._data = []
-      this._fetchData()
+      this._fetchData(this.grampsId)
     }
     if (changed.has('_depth')) {
       this.setZoom()
@@ -91,9 +90,21 @@ export class GrampsjsViewTree extends GrampsjsView {
 
   }
 
-  async _fetchData() {
+  async _fetchData(grampsId) {
     this.loading = true
-    const data = await apiGet(`/api/people/?rules={%22rules%22:[{%22name%22:%22IsLessThanNthGenerationAncestorOf%22,%22values%22:[%22${this.grampsId}%22,${this._depth || 1}]}]}&profile=self,families`)
+    const rules = {
+      function: 'or',
+      rules: [
+        {
+          name: 'IsLessThanNthGenerationAncestorOf',
+          values: [grampsId, (this._depth || 1)]
+        },
+        {
+          name: 'IsLessThanNthGenerationDescendantOf',
+          values: [grampsId, 1]
+        },
+      ]}
+    const data = await apiGet(`/api/people/?rules=${encodeURIComponent(JSON.stringify(rules))}&profile=self,families`)
     this.loading = false
     if ('data' in data) {
       this._data = data.data
@@ -137,7 +148,14 @@ export class GrampsjsViewTree extends GrampsjsView {
 
   firstUpdated() {
     window.addEventListener('resize', this._resizeHandler.bind(this))
+    window.addEventListener('pedigree:person-selected', this._selectPerson.bind(this))
     this.setZoom()
+  }
+
+  async _selectPerson(event) {
+    const {grampsId} = event.detail
+    await this._fetchData(grampsId)
+    this.grampsId = grampsId
   }
 
 }

@@ -16,11 +16,14 @@ class GrampsjsPedigreeCard extends LitElement {
         padding: 10px;
         border-radius: 10px;
         font-size: 13px;
+        font-weight: 400;
         line-height: 17.5px;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
         box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        color: rgba(0, 0, 0, 0.9);
+        cursor: pointer;
       }
 
       .card.female {
@@ -39,6 +42,7 @@ class GrampsjsPedigreeCard extends LitElement {
 
       .name {
         font-weight: 500;
+        color: rgba(0, 0, 0, 0.9);
       }
       `
     ]
@@ -68,7 +72,6 @@ class GrampsjsPedigreeCard extends LitElement {
         </div>
         ` : html`
         <div class="card ${this.person.gender === 1 ? 'male' : 'female'}" style="width: ${this.width};">
-          <a @click="${this._personSelected}" href="${this.link  === 'pedigree' ? 'tree' : `person/${this.person.gramps_id}`}">
             <div class="photo">
               ${this.person.media_list.length ? html`
               <grampsjs-img
@@ -96,10 +99,6 @@ class GrampsjsPedigreeCard extends LitElement {
       `
   }
 
-
-  _personSelected() {
-    this.dispatchEvent(new CustomEvent('person-selected', {detail: {gramps_id: this.person.gramps_id}}))
-  }
 }
 
 window.customElements.define('grampsjs-pedigree-card', GrampsjsPedigreeCard)
