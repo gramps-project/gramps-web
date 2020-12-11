@@ -68,7 +68,6 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
       <grampsjs-search-results
         .data="${this._searchResult}"
         .strings="${this.strings}"
-        total="99"
       ></grampsjs-search-results>
     `}`
   }

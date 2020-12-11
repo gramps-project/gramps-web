@@ -69,10 +69,11 @@ export class GrampsjsViewSearch extends GrampsjsView {
       </mwc-textfield>
     </div>
 
+    ${this._totalCount == 0 ? html`<p>No results.</p>` : ''}
+    ${this._totalCount > 0 ? html`<p>Total: ${this._totalCount}</p>` : ''}
     <grampsjs-search-results
       .data="${this._data}"
       .strings="${this.strings}"
-      total="${this._totalCount}"
     ></grampsjs-search-results>
 
     ${this._totalCount > 0 ? html`

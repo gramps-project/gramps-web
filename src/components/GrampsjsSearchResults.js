@@ -35,7 +35,6 @@ export class GrampsjsSearchResults extends LitElement {
     return {
       data: {type: Array},
       strings : {type: Object},
-      total: {type: Number},
     };
   }
 
@@ -43,20 +42,13 @@ export class GrampsjsSearchResults extends LitElement {
     super();
     this.data = [];
     this.strings = {};
-    this.total = -1;
   }
 
   render() {
     if (this.data.length === 0) {
-      if (this.total === -1) {
-        return html``
-      }
-      if (this.total === 0) {
-        return html`No results.`
-      }
+      return html``
     }
     return html`
-    <p>Total: ${this.total}</p>
     <div id="search-results">
     ${this.data.map((obj) => {
     return html`
