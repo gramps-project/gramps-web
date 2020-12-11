@@ -59,23 +59,22 @@ class GrampsjsPedigree extends LitElement {
 
   static get properties() { return {
     grampsId: {type: String},
-    ancestors: {type: Array},
-    _children: {type: Array},
-    depth:  {type: Number}
+    people: {type: Array},
+    depth: {type: Number}
   }}
 
   constructor() {
     super()
-    this.ancestors = []
-    this._children = []  // this._getChildren(state, state.app.activePerson)
+    this.people = []
     this.depth = 4
   }
 
   render() {
-    const people = this._getTree()
+    const ancestors = this._getTree()
+    const children = this._getChildren()
     return html`
       <div id="container" style="height: ${2**(this.depth - 1) * 100}px;">
-      ${people.map((g, i) => i > this.depth - 1 ? '' : html`
+      ${ancestors.map((g, i) => i > this.depth - 1 ? '' : html`
         ${g.map((p, j) => Object.keys(p).length ? html`
           <div
           class="card"
@@ -115,17 +114,17 @@ class GrampsjsPedigree extends LitElement {
           </div>
         ` : '')}
       `)}
-      ${this._children.map((p, i) => Object.keys(p).length ? html`
+      ${children.map((p, i) => Object.keys(p).length ? html`
         <div
         style="
           height:20px;
           left:0px;
-          ${p.families.length ? 'font-weight:bold;' : 'font-weight:normal;'}
+          ${p.family_list.length ? 'font-weight:bold;' : 'font-weight:normal;'}
           font-size:0.8em;
           position: absolute;
           top: ${((2**(this.depth - 0 - 1) ) * (0 + 0.5) - 0.5 + 1) * 100 + i * 20}px;
         ">
-        <a @click="${() => this._selectPerson(p.gramps_id)}" href="tree"><span class="gray">└</span>&nbsp; ${p.name_given}</a>
+        <span class="gray">└</span>&nbsp;<a @click="${() => this._personSelected(p)}" href="tree">${p.profile?.name_given || '…'}</a>
         </div>
       ` : '')}
       </div>
@@ -133,27 +132,27 @@ class GrampsjsPedigree extends LitElement {
   }
 
   _getTree() {
-    const _people = []
-    _people.push([this._getPerson(this.grampsId)])
+    const ancestors = []
+    ancestors.push([this._getPerson(this.grampsId)])
     if (this.depth === 1) {
-      return _people
+      return ancestors
     }
-    _people.push(this._getParents(this.grampsId))
+    ancestors.push(this._getParents(this.grampsId))
     if (this.depth === 2) {
-      return _people
+      return ancestors
     }
     for (let i = 3; i <= this.depth; i += 1){
-      _people.push(_people.slice(-1)[0].map((p) => this._getParents(p.gramps_id)).flat())
+      ancestors.push(ancestors.slice(-1)[0].map((p) => this._getParents(p.gramps_id)).flat())
     }
-    return _people
+    return ancestors
   }
 
   _getPerson(grampsId) {
-    return this.ancestors.find(person => person.gramps_id === grampsId) || {}
+    return this.people.find(person => person.gramps_id === grampsId) || {}
   }
 
   _getPersonByHandle(handle) {
-    return this.ancestors.find(person => person.handle === handle) || {}
+    return this.people.find(person => person.handle === handle) || {}
   }
 
   _getParents(grampsId) {
@@ -165,18 +164,13 @@ class GrampsjsPedigree extends LitElement {
     return [father, mother]
   }
 
-  // _getChildren(state, gramps_id) {
-  //   if (gramps_id == undefined) {
-  //     return []
-  //   }
-  //   const _person = state.api.people[gramps_id]
-  //   if (_person.families == []) {
-  //     return []
-  //   }
-  //   let _children = _person.families.flatMap((f) => state.api.families[f].children)
-  //   _children = _children.map((id) => state.api.people[id])
-  //   return _children
-  // }
+
+  _getChildren() {
+    const person = this._getPerson(this.grampsId)
+    const families = person?.profile?.families || []
+    const childHandles = families.map(family => (family.children || []).map(child => child.handle))
+    return childHandles.flat().filter(h => h !== undefined).map(this._getPersonByHandle, this)
+  }
 
   _personSelected(person) {
     this.dispatchEvent(new CustomEvent('pedigree:person-selected', {bubbles: true, composed: true, detail: {grampsId: person.gramps_id}}))

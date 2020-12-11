@@ -39,7 +39,8 @@ export class GrampsjsViewTree extends GrampsjsView {
     return {
       grampsId: {type: String},
       _data: {type: Array},
-      _depth: {type: Number}
+      _depth: {type: Number},
+      _zoom: {type: Number}
     }
   }
 
@@ -69,7 +70,7 @@ export class GrampsjsViewTree extends GrampsjsView {
       </div>
       <div style="transform: scale(${this._zoom}); transform-origin: top left;" id="pedigree-container">
         <grampsjs-pedigree
-          .ancestors="${this._data}"
+          .people="${this._data}"
           grampsId="${this.grampsId}"
           depth="${this._depth}"
           id="pedigree"
@@ -150,6 +151,7 @@ export class GrampsjsViewTree extends GrampsjsView {
     window.addEventListener('resize', this._resizeHandler.bind(this))
     window.addEventListener('pedigree:person-selected', this._selectPerson.bind(this))
     this.setZoom()
+    this._fetchData(this.grampsId)
   }
 
   async _selectPerson(event) {
