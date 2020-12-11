@@ -1,8 +1,8 @@
-import { css, html } from 'lit-element';
+import {css, html} from 'lit-element'
 
-import { mdiGenderFemale, mdiGenderMale } from '@mdi/js';
-import { GrampsjsTableBase } from './GrampsjsTableBase.js';
-import { renderIcon } from '../icons.js'
+import {mdiGenderFemale, mdiGenderMale} from '@mdi/js'
+import {GrampsjsTableBase} from './GrampsjsTableBase.js'
+import {renderIcon} from '../icons.js'
 
 
 function genderIcon(gender) {
@@ -25,38 +25,52 @@ export class GrampsjsChildren extends GrampsjsTableBase {
         background-color: #f0f0f0;
         cursor: pointer;
       }
-    `];
+
+      tr.highlight td {
+        font-weight: 400;
+      }
+
+      tr.highlight:hover td {
+        background-color: white;
+        cursor: auto;
+      }
+    `]
   }
 
   static get properties() {
     return {
-      profile: { type: Array },
-      strings : {type: Object}
-    };
+      profile: {type: Array},
+      strings: {type: Object},
+      highlightId: {type: String}
+    }
   }
 
   constructor() {
-    super();
-    this.data = [];
-    this.profile = [];
-    this.strings = {};
+    super()
+    this.data = []
+    this.profile = []
+    this.strings = {}
+    this.highlightId = ''
   }
 
   render() {
     if (Object.keys(this.profile).length === 0) {
-      return html`hae`
+      return html``
     }
     return html`
     <table>
       <tr>
         <th></th>
-       <th>${this._("Given name")}</th>
-        <th>${this._("Birth")}</th>
-        <th>${this._("Death")}</th>
-        <th>${this._("Age at death")}</th>
+       <th>${this._('Given name')}</th>
+        <th>${this._('Birth')}</th>
+        <th>${this._('Death')}</th>
+        <th>${this._('Age at death')}</th>
       </tr>
     ${this.profile.map((obj, i) => html`
-      <tr @click=${() => this._handleClick(obj.gramps_id)}>
+      <tr
+      @click=${() => this._handleClick(obj.gramps_id)}
+      class="${obj.gramps_id === this.highlightId ? 'highlight' : ''}"
+      >
         <td>${genderIcon(this.profile[i]?.sex)}</td>
         <td>${this.profile[i]?.name_given || ''}</td>
         <td>${this.profile[i]?.birth?.date || ' '}</td>
@@ -69,7 +83,9 @@ export class GrampsjsChildren extends GrampsjsTableBase {
   }
 
   _handleClick(grampsId) {
-    this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: this._getItemPath(grampsId)}}));
+    if (grampsId !== this.grampsId) {
+      this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: this._getItemPath(grampsId)}}))
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -79,4 +95,4 @@ export class GrampsjsChildren extends GrampsjsTableBase {
 
 }
 
-window.customElements.define('grampsjs-children', GrampsjsChildren);
+window.customElements.define('grampsjs-children', GrampsjsChildren)

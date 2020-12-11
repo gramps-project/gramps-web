@@ -1,20 +1,20 @@
-import {LitElement, css, html} from 'lit-element';
+import {LitElement, css, html} from 'lit-element'
 
 import '@material/mwc-tab'
 import '@material/mwc-tab-bar'
 
-import {sharedStyles} from '../SharedStyles.js';
-import './GrampsjsAddresses.js';
-import './GrampsjsAttributes.js';
-import './GrampsjsEvents.js';
-import './GrampsjsFamilies.js';
-import './GrampsjsChildren.js';
-import './GrampsjsReferences.js';
-import './GrampsjsTags.js';
-import './GrampsjsUrls.js';
-import './GrampsjsGallery.js';
-import './GrampsjsMap.js';
-import './GrampsjsMapMarker.js';
+import {sharedStyles} from '../SharedStyles.js'
+import './GrampsjsAddresses.js'
+import './GrampsjsAttributes.js'
+import './GrampsjsEvents.js'
+import './GrampsjsFamilies.js'
+import './GrampsjsChildren.js'
+import './GrampsjsReferences.js'
+import './GrampsjsTags.js'
+import './GrampsjsUrls.js'
+import './GrampsjsGallery.js'
+import './GrampsjsMap.js'
+import './GrampsjsMapMarker.js'
 
 
 /*
@@ -83,7 +83,7 @@ export class GrampsjsObject extends LitElement {
         fill: #999999;
       }
       `
-    ];
+    ]
   }
 
   static get properties() {
@@ -92,13 +92,13 @@ export class GrampsjsObject extends LitElement {
       strings: {type: Object},
       _currentTabId: {type: Number},
       _currentTab: {type: String},
-    };
+    }
   }
 
   constructor() {
-    super();
-    this.data = {};
-    this.strings = {};
+    super()
+    this.data = {}
+    this.strings = {}
     this._currentTabId = 0
   }
 
@@ -123,7 +123,7 @@ export class GrampsjsObject extends LitElement {
     <div class="tab-content">
       ${this.renderTabContent()}
     </div>
-    `;
+    `
   }
 
 
@@ -186,9 +186,12 @@ export class GrampsjsObject extends LitElement {
     switch(this._currentTab) {
     case('relationships'):
       return html`<grampsjs-families
+          grampsId="${this.data.gramps_id}"
           .strings=${this.strings}
           .familyList=${this.data?.extended?.families || []}
           .families=${this.data?.profile?.families || []}
+          .primaryParentFamily=${this.data?.profile?.primary_parent_family || {}}
+          .otherParentFamilies=${this.data?.profile?.other_parent_families || []}
           ></grampsjs-families>`
     case('map'):
       return html`<grampsjs-map

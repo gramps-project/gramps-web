@@ -23,6 +23,7 @@ export class GrampsjsNote extends GrampsjsObject {
       grampsId="${this.data.gramps_id}"
       content="${this.data?.formatted?.html || this.data?.text?.string || 'Error loading note'}"
       ></grampsjs-note-content>
+    <pre>${JSON.stringify(this.data, null, 2)}</pre>
     `
   }
 

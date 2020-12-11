@@ -420,7 +420,8 @@ export class GrampsJs extends LitElement {
   _handleNav(e) {
     const {path} = e.detail
     const page = path.split('/')[0]
-    if (page !== this._page) {
+    const pageId = path.split('/')[1]
+    if (page !== this._page || pageId !== this._pageId) {
       const href = `/${path}`
       this._loadPage(href)
       window.history.pushState({}, '', href)
@@ -428,7 +429,7 @@ export class GrampsJs extends LitElement {
   }
 
   _handleLoginKey(event) {
-    if(event.code == 'Enter') {
+    if(event.code === 'Enter') {
       this._submitLogin()
     }
   }
