@@ -4,7 +4,7 @@ import '@material/mwc-button'
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsChildren.js'
 
-export class GrampsjsFamilies extends LitElement {
+export class GrampsjsRelationships extends LitElement {
 
   static get styles() {
     return [
@@ -69,4 +69,4 @@ export class GrampsjsFamilies extends LitElement {
   }
 }
 
-window.customElements.define('grampsjs-families', GrampsjsFamilies)
+window.customElements.define('grampsjs-relationships', GrampsjsRelationships)

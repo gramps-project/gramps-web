@@ -7,7 +7,7 @@ import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsAddresses.js'
 import './GrampsjsAttributes.js'
 import './GrampsjsEvents.js'
-import './GrampsjsFamilies.js'
+import './GrampsjsRelationships.js'
 import './GrampsjsChildren.js'
 import './GrampsjsReferences.js'
 import './GrampsjsTags.js'
@@ -185,14 +185,14 @@ export class GrampsjsObject extends LitElement {
   renderTabContent() {
     switch(this._currentTab) {
     case('relationships'):
-      return html`<grampsjs-families
+      return html`<grampsjs-relationships
           grampsId="${this.data.gramps_id}"
           .strings=${this.strings}
           .familyList=${this.data?.extended?.family_list || []}
           .families=${this.data?.profile?.families || []}
           .primaryParentFamily=${this.data?.profile?.primary_parent_family || {}}
           .otherParentFamilies=${this.data?.profile?.other_parent_families || []}
-          ></grampsjs-families>`
+          ></grampsjs-relationships>`
     case('map'):
       return html`<grampsjs-map
           latitude=${this.data.profile.lat}
