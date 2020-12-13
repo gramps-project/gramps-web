@@ -58,10 +58,10 @@ export class GrampsjsRelationships extends LitElement {
     }
     return html`
     <h3>${parentTitle} ${this._renderFamilyBtn(familyProfile.gramps_id)}</h3>
-    ${familyProfile?.father?.gramps_id !== this.grampsId && Object.keys(familyProfile?.father || {}).length === 0 ? '' :  html`
+    ${familyProfile?.father?.gramps_id === this.grampsId || Object.keys(familyProfile?.father || {}).length === 0 ? '' :  html`
       <p>${renderPerson(familyProfile.father)}</p>
     `}
-    ${Object.keys(familyProfile?.mother?.gramps_id !== this.grampsId && familyProfile?.mother || {}).length === 0 ? '' :  html`
+    ${familyProfile?.mother?.gramps_id === this.grampsId || Object.keys(familyProfile?.mother || {}).length === 0 ? '' :  html`
       <p>${renderPerson(familyProfile.mother)}</p>
     `}
     <h3>${childrenTitle}</h3>
