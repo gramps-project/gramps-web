@@ -1,7 +1,7 @@
-import { html, css, LitElement } from 'lit-element';
+import {html, css, LitElement} from 'lit-element'
 
-import { sharedStyles } from '../SharedStyles.js';
-import { chevronLeftIcon, chevronRightIcon, closeIcon } from '../icons.js';
+import {sharedStyles} from '../SharedStyles.js'
+import {chevronLeftIcon, chevronRightIcon, closeIcon} from '../icons.js'
 
 
 class GrampsjsLightbox extends LitElement {
@@ -123,15 +123,15 @@ class GrampsjsLightbox extends LitElement {
 
   static get properties() {
     return {
-      open: { type: Boolean },
-      _translateX: { type: Number }
+      open: {type: Boolean},
+      _translateX: {type: Number}
     }
   }
 
   constructor() {
-    super();
-    this.open = false;
-    this._translateX = 0;
+    super()
+    this.open = false
+    this._translateX = 0
   }
 
   render() {
@@ -172,52 +172,52 @@ class GrampsjsLightbox extends LitElement {
   }
 
   _close() {
-    this.open = false;
+    this.open = false
   }
 
   _handleLeft() {
     this.dispatchEvent(new CustomEvent(
       'lightbox:left',
       {bubbles: true, composed: true, detail: {id: this.id}}
-      )
-    );
+    )
+    )
   }
 
   _handleRight() {
     this.dispatchEvent(new CustomEvent(
       'lightbox:right',
       {bubbles: true, composed: true, detail: {id: this.id}}
-      )
-    );
+    )
+    )
   }
 
   _handleKeyPress(event) {
     if (event.code === 'Escape') {
-        this._close()
-    } else if (event.key === "ArrowRight" || event.key === "Right") {
-      this._handleRight();
-    } else if (event.key === "ArrowLeft" || event.key === "Left") {
-      this._handleLeft();
+      this._close()
+    } else if (event.key === 'ArrowRight' || event.key === 'Right') {
+      this._handleRight()
+    } else if (event.key === 'ArrowLeft' || event.key === 'Left') {
+      this._handleLeft()
     }
   }
 
   _handleTouchStart(e) {
-    this._touchStartX = e.touches[0].pageX;
-    this._touchMoveX = this._touchStartX;
+    this._touchStartX = e.touches[0].pageX
+    this._touchMoveX = this._touchStartX
   }
 
   _handleTouchMove(e) {
-    this._touchMoveX = e.touches[0].pageX;
-    this._translateX = this._touchMoveX - this._touchStartX;
+    this._touchMoveX = e.touches[0].pageX
+    this._translateX = this._touchMoveX - this._touchStartX
   }
 
   _handleTouchEnd() {
-    this._translateX = 0;
-    const movedX = this._touchMoveX - this._touchStartX;
+    this._translateX = 0
+    const movedX = this._touchMoveX - this._touchStartX
     if (movedX < -10) {
-      this._handleRight();
+      this._handleRight()
     } else if (movedX > 10) {
-      this._handleLeft();
+      this._handleLeft()
     }
   }
 
@@ -231,7 +231,6 @@ class GrampsjsLightbox extends LitElement {
   updated() {
     this._focus()
   }
-
 }
 
-window.customElements.define('grampsjs-lightbox', GrampsjsLightbox);
+window.customElements.define('grampsjs-lightbox', GrampsjsLightbox)

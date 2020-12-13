@@ -1,10 +1,11 @@
-import { LitElement, css, html } from 'lit-element';
+import {LitElement, css, html} from 'lit-element'
 import '@material/mwc-button'
 
-import { sharedStyles } from '../SharedStyles.js';
+import {sharedStyles} from '../SharedStyles.js'
 
 import './GrampsJsImage.js'
 import './GrampsjsLightbox.js'
+import '../views/GrampsjsViewMediaLightbox.js'
 
 
 export class GrampsjsGallery extends LitElement {
@@ -16,6 +17,7 @@ export class GrampsjsGallery extends LitElement {
       .tile {
         margin: 3px;
         float: left;
+        cursor: pointer;
       }
 
       .clear {
@@ -23,7 +25,7 @@ export class GrampsjsGallery extends LitElement {
         padding-bottom: 2em;
       }
       `
-    ];
+    ]
   }
 
   static get properties() {
@@ -32,15 +34,15 @@ export class GrampsjsGallery extends LitElement {
       media: {type: Array},
       strings: {type: Object},
       _lightboxSelected: {type: Number},
-    };
+    }
   }
 
   constructor() {
-    super();
-    this.mediaRef = [];
-    this.media = [];
-    this.strings = {};
-    this._lightboxSelected = 0;
+    super()
+    this.mediaRef = []
+    this.media = []
+    this.strings = {}
+    this._lightboxSelected = 0
   }
 
   render() {
@@ -49,37 +51,28 @@ export class GrampsjsGallery extends LitElement {
 
     <div class="clear"></div>
 
-    <grampsjs-lightbox
-      id="gallery-lightbox"
+    <grampsjs-view-media-lightbox
+      id="gallery-lightbox-view"
       @lightbox:left="${this._handleLeft}"
       @lightbox:right="${this._handleRight}"
+      @rect:clicked="${this._handleRectClick}"
+      handle="${this.media[this._lightboxSelected]?.handle}"
       >
-      <div slot="image">
-        ${this._renderImage(this._lightboxSelected)}
-      </div>
-      <span slot="description">${this.media[this._lightboxSelected]?.desc || ''}</span>
-      <span slot="button">
-        <mwc-button unelevated label="${this._("Show Details")}"
-         @click="${this._handleButtonClick}">
-        </mwc-button>
-      </span>
-      <span slot="details"></span>
-    </grampsjs-lightbox>
+    </grampsjs-view-media-lightbox>
     `
   }
 
-  _handleClick(i) {
-    const lightBox = this.shadowRoot.getElementById('gallery-lightbox')
-    this._lightboxSelected = i;
-    lightBox.open = true;
+  _handleRectClick(event) {
+    this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: event.detail.target}}))
   }
 
-  _handleButtonClick() {
-    this.dispatchEvent(new CustomEvent('nav', {
-      bubbles: true, composed: true, detail: {
-        path: `mediaobject/${this.media[this._lightboxSelected]?.gramps_id}`
-      }
-    }));
+  _handleClick(i) {
+    const lightBoxView = this.shadowRoot.getElementById('gallery-lightbox-view')
+    const lightBox = lightBoxView.shadowRoot.getElementById('gallery-lightbox')
+    if (lightBox) {
+      this._lightboxSelected = i
+      lightBox.open = true
+    }
   }
 
   _handleLeft(event) {
@@ -114,18 +107,6 @@ export class GrampsjsGallery extends LitElement {
     </div>`
   }
 
-  _renderImage(i) {
-    const mediaObj = this.media[i]
-    const {handle, mime} = mediaObj
-    return html`<div class="tile">
-    <grampsjs-img
-      handle="${handle}"
-      size="0"
-      mime="${mime}"
-    ></grampsjs-img>
-    </div>`
-  }
-
   _(s) {
     if (s in this.strings) {
       return this.strings[s]
@@ -135,4 +116,4 @@ export class GrampsjsGallery extends LitElement {
 
 }
 
-window.customElements.define('grampsjs-gallery', GrampsjsGallery);
+window.customElements.define('grampsjs-gallery', GrampsjsGallery)
