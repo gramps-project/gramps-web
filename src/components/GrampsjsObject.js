@@ -74,14 +74,6 @@ export class GrampsjsObject extends LitElement {
         margin-bottom: 20px;
         margin-left: 40px;
       }
-
-      .event {
-        margin-right: 1em;
-      }
-
-      .event i svg path {
-        fill: #999999;
-      }
       `
     ]
   }

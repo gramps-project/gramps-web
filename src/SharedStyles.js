@@ -36,6 +36,12 @@ export const sharedStyles = css`
     margin-bottom: 20px;
   }
 
+  h3 {
+    font-size: 26px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+  }
+
   a:link, a:visited, span.link {
     color: #1976D2;
     text-decoration: none;
@@ -75,4 +81,30 @@ export const sharedStyles = css`
   .float-right {
     float: right;
   }
-`
+
+  mwc-icon.inline {
+    vertical-align: middle;
+    size: 0.8em;
+    padding-right: 0.2em;
+    position: relative;
+    bottom: auto;
+    top: auto;
+    color: rgba(0, 0, 0, 0.35);
+  }
+
+  mwc-icon.male {
+    color: var(--color-boy);
+  }
+
+  mwc-icon.female {
+    color: var(--color-girl);
+  }
+
+  .event {
+    margin-right: 1em;
+  }
+
+  .event i svg path {
+    fill: #999999;
+  }
+  `

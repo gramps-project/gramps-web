@@ -95,6 +95,7 @@ export const grampsStrings = [
   "Parents",
   "Parish",
   "Page",
+  "Partner",
   "Path",
   "People",
   "Person",

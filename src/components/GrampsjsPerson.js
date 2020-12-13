@@ -1,9 +1,9 @@
-import { html, css } from 'lit-element';
+import {html, css} from 'lit-element'
 
 import '@material/mwc-icon'
 
-import { GrampsjsObject } from './GrampsjsObject.js'
-import { asteriskIcon, crossIcon } from '../icons.js'
+import {GrampsjsObject} from './GrampsjsObject.js'
+import {asteriskIcon, crossIcon} from '../icons.js'
 import './GrampsJsImage.js'
 
 
@@ -12,15 +12,15 @@ export class GrampsjsPerson extends GrampsjsObject {
     return [
       super.styles,
       css`
-    `];
+    `]
   }
 
   renderProfile() {
     return html`
-    <h2>${this._displayName()}</h2>
+    <h2><mwc-icon class="inline ${this.data.gender === 1 ? 'male' : 'female'}">person</mwc-icon> ${this._displayName()}</h2>
     ${this._renderBirth()}
     ${this._renderDeath()}
-    `;
+    `
   }
 
   _displayName() {
@@ -65,4 +65,4 @@ export class GrampsjsPerson extends GrampsjsObject {
 }
 
 
-window.customElements.define('grampsjs-person', GrampsjsPerson);
+window.customElements.define('grampsjs-person', GrampsjsPerson)
