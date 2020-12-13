@@ -2,10 +2,10 @@
 An Image thumbnail element.
 */
 
-import { html, css, LitElement } from 'lit-element';
+import {html, css, LitElement} from 'lit-element'
 
-import { sharedStyles } from '../SharedStyles.js';
-import { getMediaUrl, getThumbnailUrl, getThumbnailUrlCropped } from '../api.js'
+import {sharedStyles} from '../SharedStyles.js'
+import {getMediaUrl, getThumbnailUrl, getThumbnailUrlCropped} from '../api.js'
 
 
 class GrampsjsImg extends LitElement {
@@ -22,33 +22,33 @@ class GrampsjsImg extends LitElement {
       }
 
       `
-    ];
+    ]
   }
 
   static get properties() {
     return {
-      handle: { type: String },
-      size: { type: Number },
-      rect: { type: Array },
-      circle: { type: Boolean },
-      square: { type: Boolean },
+      handle: {type: String},
+      size: {type: Number},
+      rect: {type: Array},
+      circle: {type: Boolean},
+      square: {type: Boolean},
       mime: {type: String},
       displayHeight: {type: Number},
+    }
   }
-}
 
   constructor() {
     super()
-    this.rect = [];
-    this.circle = false;
-    this.square = false;
-    this.mime = '';
-    this.displayHeight = 0;
+    this.rect = []
+    this.circle = false
+    this.square = false
+    this.mime = ''
+    this.displayHeight = 0
   }
 
 
   _renderImageFull() {
-    const height = this.displayHeight || '';
+    const height = this.displayHeight || ''
     return html`
       <img
       src="${getMediaUrl(this.handle)}"
@@ -60,7 +60,7 @@ class GrampsjsImg extends LitElement {
   }
 
   _renderImage() {
-    const height = this.displayHeight || '';
+    const height = this.displayHeight || ''
     return html`
       <img
       srcset="${getThumbnailUrl(this.handle, this.size, this.square)},
@@ -75,7 +75,7 @@ class GrampsjsImg extends LitElement {
   }
 
   _renderImageCropped() {
-    const height = this.displayHeight || '';
+    const height = this.displayHeight || ''
     return html`<img
     srcset="${getThumbnailUrlCropped(this.handle, this.rect, this.size, this.square)},
     ${getThumbnailUrlCropped(this.handle, this.rect, 1.5 * this.size, this.square)} 1.5x
@@ -99,10 +99,10 @@ class GrampsjsImg extends LitElement {
 
 
   _errorHandler() {
-    this.dispatchEvent(new CustomEvent('img:error',
-      {bubbles: true, composed: true, detail: {handle: this.handle}}));
+    this.dispatchEvent(new CustomEvent('grampsjs:error',
+      {bubbles: true, composed: true, detail: {message: 'Error loading image'}}))
   }
 
 }
 
-window.customElements.define('grampsjs-img', GrampsjsImg);
+window.customElements.define('grampsjs-img', GrampsjsImg)

@@ -47,7 +47,8 @@ export class GrampsjsView extends LitElement {
 
   render() {
     if (this.error) {
-      return html`There was an error: ${this._errorMessage}`
+      this.dispatchEvent(new CustomEvent('grampsjs:error', {bubbles: true, composed: true, detail: {message: this._errorMessage}}))
+      return html``
     }
     return this.renderContent()
   }

@@ -382,7 +382,7 @@ export class GrampsJs extends LitElement {
     installRouter((location) => this._loadPage(decodeURIComponent(location.pathname)))
     installMediaQueryWatcher('(min-width: 768px)', (matches) => {this.wide = matches})
     this.addEventListener('nav', this._handleNav.bind(this))
-    this.addEventListener('error', this._handleError.bind(this))
+    this.addEventListener('grampsjs:error', this._handleError.bind(this))
     this.addEventListener('progress:on', this._progressOn.bind(this))
     this.addEventListener('progress:off', this._progressOff.bind(this))
     this.addEventListener('user:loggedout', () => {this.loadingState = LOADING_STATE_UNAUTHORIZED})
