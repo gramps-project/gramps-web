@@ -32,9 +32,8 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
 
   _handleStorage() {
     const recentObjects = JSON.parse(window.localStorage.getItem('recentObjects'))
-    if (recentObjects !== undefined) {
+    if (recentObjects !== undefined && recentObjects !== null) {
       this._data = recentObjects
-
       this._fetchData()
     }
   }
