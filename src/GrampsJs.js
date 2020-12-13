@@ -182,59 +182,80 @@ export class GrampsJs extends LitElement {
   }
 
   render() {
-    if (this.loadingState === LOADING_STATE_INITIAL) {
-      return html`Loading ...`
-    }
-    if (this.loadingState === LOADING_STATE_UNAUTHORIZED_NOCONNECTION) {
-      return html`No connection`
-    }
-    if (this.loadingState === LOADING_STATE_UNAUTHORIZED) {
-      window.history.pushState({}, '', 'login')
-      return html`
-      <div id="login-container">
-        <form id="login-form" action="/" @keydown="${this._handleLoginKey}">
-          <mwc-textfield outlined id="username" label="Username"></mwc-textfield>
-          <mwc-textfield outlined id="password" label="Password" type="password"></mwc-textfield>
-          <mwc-button raised label="submit" type="submit" @click="${this._submitLogin}">
+    return html`
+    ${this.renderContent()}
+    <mwc-snackbar id="error-snackbar"></mwc-snackbar>
+    `
+  }
+
+  _renderInitial() {
+    return html`Loading ...`
+  }
+
+  _renderNoConn() {
+    return html`No connection`
+  }
+
+  _renderLogin() {
+    return html`
+    <div id="login-container">
+      <form id="login-form" action="/" @keydown="${this._handleLoginKey}">
+        <mwc-textfield outlined id="username" label="Username"></mwc-textfield>
+        <mwc-textfield outlined id="password" label="Password" type="password"></mwc-textfield>
+        <mwc-button raised label="submit" type="submit" @click="${this._submitLogin}">
+          <span slot="trailingIcon" style="display:none;">
+            <mwc-circular-progress indeterminate density="-7" closed id="login-progress">
+            </mwc-circular-progress>
+          </span>
+        </mwc-button>
+        <p class="reset-link">
+          <span class="link" @click="${() => this.loadingState = LOADING_STATE_UNAUTHORIZED_RESET_PW}"
+          >Lost password?</span>
+        </p>
+      </form>
+    </div>
+    `
+  }
+
+  _renderResetPw() {
+    return html`
+    <div id="login-container">
+      <form id="login-form" action="/">
+        <div id="inner-form">
+          <mwc-textfield outlined id="username" label="Username" type="text"></mwc-textfield>
+          <mwc-button raised label="reset password" type="submit" @click="${this._resetPw}">
             <span slot="trailingIcon" style="display:none;">
               <mwc-circular-progress indeterminate density="-7" closed id="login-progress">
               </mwc-circular-progress>
             </span>
           </mwc-button>
-          <p class="reset-link">
-            <span class="link" @click="${() => this.loadingState = LOADING_STATE_UNAUTHORIZED_RESET_PW}"
-            >Lost password?</span>
-          </p>
-        </form>
-      </div>
-      <mwc-snackbar id="error-snackbar"></mwc-snackbar>
-      `
+        </div>
+        <p class="success" id="reset-success" style="display:none;">
+          <mwc-icon>check_circle</mwc-icon><br>
+          A password reset link has been sent by e-mail.
+        </p>
+        <p class="reset-link">
+          <span class="link" @click="${() => this.loadingState = LOADING_STATE_UNAUTHORIZED}"
+          >Back</span>
+        </p>
+      </form>
+    </div>
+    `
+  }
+
+  renderContent() {
+    if (this.loadingState === LOADING_STATE_INITIAL) {
+      return this._renderInitial()
+    }
+    if (this.loadingState === LOADING_STATE_UNAUTHORIZED_NOCONNECTION) {
+      return this._renderNoConn()
+    }
+    if (this.loadingState === LOADING_STATE_UNAUTHORIZED) {
+      window.history.pushState({}, '', 'login')
+      return this._renderLogin()
     }
     if (this.loadingState === LOADING_STATE_UNAUTHORIZED_RESET_PW) {
-      return html`
-      <div id="login-container">
-        <form id="login-form" action="/">
-          <div id="inner-form">
-            <mwc-textfield outlined id="username" label="Username" type="text"></mwc-textfield>
-            <mwc-button raised label="reset password" type="submit" @click="${this._resetPw}">
-              <span slot="trailingIcon" style="display:none;">
-                <mwc-circular-progress indeterminate density="-7" closed id="login-progress">
-                </mwc-circular-progress>
-              </span>
-            </mwc-button>
-          </div>
-          <p class="success" id="reset-success" style="display:none;">
-            <mwc-icon>check_circle</mwc-icon><br>
-            A password reset link has been sent by e-mail.
-          </p>
-          <p class="reset-link">
-            <span class="link" @click="${() => this.loadingState = LOADING_STATE_UNAUTHORIZED}"
-            >Back</span>
-          </p>
-        </form>
-      </div>
-      <mwc-snackbar id="error-snackbar"></mwc-snackbar>
-      `
+      return this._renderResetPw()
     }
     const tabs = {
       people: this._('People'),
@@ -360,12 +381,10 @@ export class GrampsJs extends LitElement {
   firstUpdated() {
     installRouter((location) => this._loadPage(decodeURIComponent(location.pathname)))
     installMediaQueryWatcher('(min-width: 768px)', (matches) => {this.wide = matches})
-    this.boundHandleNav = this._handleNav.bind(this)
-    this.addEventListener('nav', this.boundHandleNav)
-    this.boundProgressOn = this._progressOn.bind(this)
-    this.addEventListener('progress:on', this.boundProgressOn)
-    this.boundProgressOff = this._progressOff.bind(this)
-    this.addEventListener('progress:off', this.boundProgressOff)
+    this.addEventListener('nav', this._handleNav.bind(this))
+    this.addEventListener('error', this._handleError.bind(this))
+    this.addEventListener('progress:on', this._progressOn.bind(this))
+    this.addEventListener('progress:off', this._progressOff.bind(this))
     this.addEventListener('user:loggedout', () => {this.loadingState = LOADING_STATE_UNAUTHORIZED})
   }
 
@@ -426,6 +445,11 @@ export class GrampsJs extends LitElement {
       this._loadPage(href)
       window.history.pushState({}, '', href)
     }
+  }
+
+  _handleError(e) {
+    const {message} = e.detail
+    this._showError(message)
   }
 
   _handleLoginKey(event) {
