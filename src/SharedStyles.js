@@ -107,4 +107,10 @@ export const sharedStyles = css`
   .event i svg path {
     fill: #999999;
   }
+
+  .event i svg {
+    height: 16px;
+    width: auto;
+  }
+
   `
