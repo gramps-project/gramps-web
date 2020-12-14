@@ -1,6 +1,6 @@
-import { css, html } from 'lit-element';
+import {css, html} from 'lit-element'
 
-import { GrampsjsTableBase } from './GrampsjsTableBase.js';
+import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 
 
 export class GrampsjsEvents extends GrampsjsTableBase {
@@ -12,22 +12,22 @@ export class GrampsjsEvents extends GrampsjsTableBase {
         background-color: #f0f0f0;
         cursor: pointer;
       }
-    `];
+    `]
   }
 
   static get properties() {
     return {
-      data: { type: Array },
-      profile: { type: Array },
-      strings : {type: Object}
-    };
+      data: {type: Array},
+      profile: {type: Array},
+      strings: {type: Object}
+    }
   }
 
   constructor() {
-    super();
-    this.data = [];
-    this.profile = [];
-    this.strings = {};
+    super()
+    this.data = []
+    this.profile = []
+    this.strings = {}
   }
 
   render() {
@@ -37,10 +37,11 @@ export class GrampsjsEvents extends GrampsjsTableBase {
     return html`
     <table>
       <tr>
-        <th>${this._("Date")}</th>
-        <th>${this._("Type")}</th>
-        <th>${this._("Description")}</th>
-        <th>${this._("Place")}</th>
+        <th>${this._('Date')}</th>
+        <th>${this._('Type')}</th>
+        <th>${this._('Description')}</th>
+        <th>${this._('Place')}</th>
+        <th></th>
       </tr>
     ${this.data.map((obj, i) => html`
       <tr @click=${() => this._handleClick(obj.gramps_id)}>
@@ -48,6 +49,11 @@ export class GrampsjsEvents extends GrampsjsTableBase {
         <td>${this.profile[i].type}</td>
         <td>${obj.description}</td>
         <td>${this.profile[i].place}</td>
+        <td>${obj?.media_list?.length > 0 ? html`
+        <mwc-icon class="inline">photo</mwc-icon>` : ''}
+            ${obj?.note_list?.length > 0 > 0 ? html`
+        <mwc-icon class="inline">sticky_note_2</mwc-icon>` : ''}</td>
+
       </tr>
     `)}
     </table>
@@ -55,7 +61,7 @@ export class GrampsjsEvents extends GrampsjsTableBase {
   }
 
   _handleClick(grampsId) {
-    this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: this._getItemPath(grampsId)}}));
+    this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: this._getItemPath(grampsId)}}))
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -65,6 +71,6 @@ export class GrampsjsEvents extends GrampsjsTableBase {
 
 }
 
-window.customElements.define('grampsjs-events', GrampsjsEvents);
+window.customElements.define('grampsjs-events', GrampsjsEvents)
 
 

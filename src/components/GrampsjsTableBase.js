@@ -1,6 +1,6 @@
-import { LitElement, css } from 'lit-element';
+import {LitElement, css} from 'lit-element'
 
-import { sharedStyles } from '../SharedStyles.js';
+import {sharedStyles} from '../SharedStyles.js'
 
 
 export class GrampsjsTableBase extends LitElement {
@@ -42,21 +42,26 @@ export class GrampsjsTableBase extends LitElement {
         cursor: auto;
       }
 
+      td mwc-icon.inline {
+        color: rgba(0, 0, 0, 0.25);
+        font-size: 16px;
+      }
+
       `
-    ];
+    ]
   }
 
   static get properties() {
     return {
-      data: { type: Array },
-      strings : {type: Object}
-    };
+      data: {type: Array},
+      strings: {type: Object}
+    }
   }
 
   constructor() {
-    super();
-    this.data = [];
-    this.strings = {};
+    super()
+    this.data = []
+    this.strings = {}
   }
 
   _(s) {

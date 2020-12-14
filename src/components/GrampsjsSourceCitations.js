@@ -8,19 +8,6 @@ import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 export class GrampsjsSourceCitations extends GrampsjsTableBase {
 
 
-  static get styles() {
-    return [
-      super.styles,
-      css`
-      td mwc-icon.inline {
-        color: rgba(0, 0, 0, 0.25);
-        font-size: 16px;
-      }
-      `
-    ]
-  }
-
-
   render() {
     if (Object.keys(this.data).length === 0) {
       return html``
