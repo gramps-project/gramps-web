@@ -4,7 +4,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import {apiGet} from '../api.js'
 
 
-export class GrampsjsViewObject extends GrampsjsView {
+export class GrampsjsViewObjectsDetail extends GrampsjsView {
   static get styles() {
     return [
       super.styles,
@@ -17,17 +17,16 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   static get properties() {
     return {
-      grampsId: {type: String},
-      _data: {type: Object},
-      _className: {type: String}
+      grampsIds: {type: Array},
+      _data: {type: Array},
     }
   }
 
 
   constructor() {
     super()
-    this._data = {}
-    this._className = ''
+    this.grampsIds = []
+    this._data = []
   }
 
   getUrl() {
@@ -36,22 +35,22 @@ export class GrampsjsViewObject extends GrampsjsView {
 
 
   renderContent() {
-    if (Object.keys(this._data).length === 0) {
+    if (this._data.length === 0) {
       if (this.loading) {
         return html``
       }
       return html``
     }
-    return this.renderElement()
+    return this.renderElements()
   }
 
-  renderElement() {
+  renderElements() {
     return html``
   }
 
   update(changed) {
     super.update(changed)
-    if (this.active && changed.has('grampsId')) {
+    if (this.active && changed.has('grampsIds')) {
       this._updateData()
     }
   }
@@ -60,16 +59,13 @@ export class GrampsjsViewObject extends GrampsjsView {
     if (this._url === '') {
       return
     }
-    if (this.grampsId !== undefined && this.grampsId) {
-      this._data = {}
+    if (this.grampsIds.length !== 0) {
+      this._data = []
       this.loading = true
       apiGet(this.getUrl()).then(data => {
         this.loading = false
         if ('data' in data) {
-          [this._data] = data.data
-          if (this._className !== '') {
-            this.dispatchEvent(new CustomEvent('object:loaded', {bubbles: true, composed: true, detail: {grampsId: this.grampsId, className: this._className}}))
-          }
+          this._data = data.data
         } else if ('error' in data) {
           this.error = true
           this._errorMessage = data.error

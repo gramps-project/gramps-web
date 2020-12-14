@@ -15,6 +15,7 @@ import './GrampsjsUrls.js'
 import './GrampsjsGallery.js'
 import './GrampsjsMap.js'
 import './GrampsjsMapMarker.js'
+import '../views/GrampsjsViewSourceCitations.js'
 
 
 /*
@@ -31,12 +32,12 @@ const _allTabs = {
   names: {title: 'Names', condition: (data) => (data?.primary_name?.length > 0)},
   gallery: {title: 'Gallery', condition: (data) => (data?.media_list?.length > 0)},
   notes: {title: 'Notes', condition: (data) => (data?.note_list?.length > 0)},
-  citations: {title: 'Citations', condition: (data) => (data?.citation_list?.length > 0)},
+  citations: {title: 'Sources', condition: (data) => (data?.citation_list?.length > 0)},
   attributes: {title: 'Attributes', condition: (data) => (data?.attribute_list?.length > 0)},
   addresses: {title: 'Addresses', condition: (data) => (data?.address_list?.length > 0)},
   internet: {title: 'Internet', condition: (data) => (data?.urls?.length > 0)},
   associations: {title: 'Associations', condition: (data) => (data?.person_ref_list?.length > 0)},
-  references: {title: 'References', condition: (data) => (data?.backlinks?.length > 0)}
+  references: {title: 'References', condition: (data) => (Object.keys(data?.backlinks)?.length > 0)}
 }
 
 export class GrampsjsObject extends LitElement {
@@ -201,7 +202,7 @@ export class GrampsjsObject extends LitElement {
     case('children'):
       return html`<grampsjs-children .strings=${this.strings} .data=${this.data?.child_ref_list} .profile=${this.data?.profile?.children}></grampsjs-children>`
     case('citations'):
-      return html`<pre>${JSON.stringify(this.data.extended.citations, null, 2)}</pre>`
+      return html`<grampsjs-view-source-citations active .strings=${this.strings} .grampsIds=${(this.data?.extended?.citations || []).map(obj => obj.gramps_id).filter(obj => Boolean(obj))}></grampsjs-view-source-citations>`
     case('attributes'):
       return html`<grampsjs-attributes .strings=${this.strings} .data=${this.data.attribute_list}></grampsjs-attributes>`
     case('addresses'):

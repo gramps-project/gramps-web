@@ -27,6 +27,21 @@ export class GrampsjsTableBase extends LitElement {
         text-align: left;
         margin: 0;
       }
+
+      table.linked tr:hover td {
+        background-color: #f0f0f0;
+        cursor: pointer;
+      }
+
+      table.linked tr.highlight td {
+        font-weight: 400;
+      }
+
+      table.linked tr.highlight:hover td {
+        background-color: white;
+        cursor: auto;
+      }
+
       `
     ];
   }

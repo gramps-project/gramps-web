@@ -209,7 +209,7 @@ export class GrampsJs extends LitElement {
           </span>
         </mwc-button>
         <p class="reset-link">
-          <span class="link" @click="${() => this.loadingState = LOADING_STATE_UNAUTHORIZED_RESET_PW}"
+          <span class="link" @click="${() => {this.loadingState = LOADING_STATE_UNAUTHORIZED_RESET_PW}}"
           >Lost password?</span>
         </p>
       </form>
@@ -235,7 +235,7 @@ export class GrampsJs extends LitElement {
           A password reset link has been sent by e-mail.
         </p>
         <p class="reset-link">
-          <span class="link" @click="${() => this.loadingState = LOADING_STATE_UNAUTHORIZED}"
+          <span class="link" @click="${() => {this.loadingState = LOADING_STATE_UNAUTHORIZED}}"
           >Back</span>
         </p>
       </form>

@@ -17,25 +17,6 @@ function genderIcon(gender) {
 
 
 export class GrampsjsChildren extends GrampsjsTableBase {
-  static get styles() {
-    return [
-      super.styles,
-      css`
-      tr:hover td {
-        background-color: #f0f0f0;
-        cursor: pointer;
-      }
-
-      tr.highlight td {
-        font-weight: 400;
-      }
-
-      tr.highlight:hover td {
-        background-color: white;
-        cursor: auto;
-      }
-    `]
-  }
 
   static get properties() {
     return {
@@ -58,7 +39,7 @@ export class GrampsjsChildren extends GrampsjsTableBase {
       return html``
     }
     return html`
-    <table>
+    <table class="linked">
       <tr>
         <th></th>
        <th>${this._('Given name')}</th>
