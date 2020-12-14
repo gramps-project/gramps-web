@@ -15,6 +15,11 @@ export class GrampsjsRelationships extends LitElement {
       .familybtn {
         margin-left: 1.5em;
       }
+
+      .number {
+        color: rgba(0, 0, 0, 0.35);
+        font-size: 22px;
+      }
       `
     ]
   }
@@ -47,7 +52,7 @@ export class GrampsjsRelationships extends LitElement {
     return this._renderFamily(familyProfile, `${this._('Parents')} #${i + 2}`, this._('Siblings'))
   }, this)}
     ${this.families.map((familyProfile, i) => {
-    return this._renderFamily(familyProfile, `${this._('Partner')} ${this.families.length < 2 ? '' : `#${i + 1}`}`, this._('Children'))
+    return this._renderFamily(familyProfile, html`${this._('Partner')} ${this.families.length < 2 ? '' : html`<span class="number">${i + 1}</span>`}`, this._('Children'))
   }, this)}
         `
   }
@@ -64,8 +69,7 @@ export class GrampsjsRelationships extends LitElement {
     ${familyProfile?.mother?.gramps_id === this.grampsId || Object.keys(familyProfile?.mother || {}).length === 0 ? '' :  html`
       <p>${renderPerson(familyProfile.mother)}</p>
     `}
-    <h3>${childrenTitle}</h3>
-    ${this._renderChildren(familyProfile)}
+    ${this._renderChildren(familyProfile, childrenTitle)}
   `
   }
 
@@ -87,10 +91,11 @@ export class GrampsjsRelationships extends LitElement {
     }))
   }
 
-  _renderChildren(obj) {
+  _renderChildren(obj, childrenTitle) {
     return html`
 
     ${obj?.children?.length ? html`
+    <h3>${childrenTitle}</h3>
     <grampsjs-children
       .profile=${obj?.children || []}
       .strings=${this.strings}

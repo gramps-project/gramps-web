@@ -21,10 +21,12 @@ export class GrampsjsFamily extends GrampsjsObject {
     return html`
     <h2><mwc-icon class="person">people</mwc-icon> ${this._renderTitle()}</h2>
     ${this._renderFather()}
-    ${this._renderMother()}</p>
-    ${this._renderRelType()}
-    ${this._renderMarriage()}
-    ${this._renderDivorce()}
+    ${this._renderMother()}
+    <p>
+      ${this._renderRelType()}
+      ${this._renderMarriage()}
+      ${this._renderDivorce()}
+    </p>
     `
   }
 
@@ -43,10 +45,10 @@ export class GrampsjsFamily extends GrampsjsObject {
       return ''
     }
     return html`
-    <p>
+    <span class="event">
     ${this._('Relationship type:')}
     ${this.data.profile.relationship}
-    </p>
+    </span>
     `
   }
 
@@ -69,7 +71,7 @@ export class GrampsjsFamily extends GrampsjsObject {
 
   _renderMarriage() {
     const obj = this.data?.profile?.marriage
-    if (obj === undefined || Object.keys(obj).length === 0) {
+    if (!obj?.date && !obj?.place) {
       return ''
     }
     return html`
