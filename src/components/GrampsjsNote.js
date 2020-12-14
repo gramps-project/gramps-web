@@ -1,6 +1,6 @@
-import { html, css } from 'lit-element'
+import {html, css} from 'lit-element'
 
-import { GrampsjsObject } from './GrampsjsObject.js'
+import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsNoteContent.js'
 
 
@@ -11,13 +11,13 @@ export class GrampsjsNote extends GrampsjsObject {
       css`
       :host {
       }
-    `];
+    `]
   }
 
   renderProfile() {
     return html`
     <h2>${this.data.name}</h2>
-    ${this.data?.type ? html`<p><span class="md">${this._("Type")}:</span> ${this._(this.data.type)}</p>` : ''}
+    ${this.data?.type ? html`<p><span class="md">${this._('Type')}:</span> ${this._(this.data.type)}</p>` : ''}
 
     <grampsjs-note-content
       grampsId="${this.data.gramps_id}"
@@ -30,4 +30,4 @@ export class GrampsjsNote extends GrampsjsObject {
 }
 
 
-window.customElements.define('grampsjs-note', GrampsjsNote);
+window.customElements.define('grampsjs-note', GrampsjsNote)

@@ -43,8 +43,8 @@ export class GrampsjsNoteContent extends LitElement {
   }
 
   render() {
+    // <p>${this.grampsId}</p>
     return html`
-    <p>${this.grampsId}</p>
     <div class="note" id="note-content"></div>
   `
   }
