@@ -43,13 +43,14 @@ export const sharedStyles = css`
   }
 
   a:link, a:visited, span.link {
-    color: #1976D2;
+    color: #0D47A1;
     text-decoration: none;
   }
 
   a:hover, span.link:hover {
-    color: #64B5F6;
+    color: #1976D2;
     text-decoration: underline;
+    text-decoration-thickness: 0.5px;
   }
 
   span.link {
