@@ -1,5 +1,8 @@
-import { html, css } from 'lit-element';
-import { GrampsjsObject } from './GrampsjsObject.js'
+import {html, css} from 'lit-element'
+
+import '@material/mwc-icon'
+
+import {GrampsjsObject} from './GrampsjsObject.js'
 
 
 export class GrampsjsCitation extends GrampsjsObject {
@@ -9,15 +12,45 @@ export class GrampsjsCitation extends GrampsjsObject {
       css`
       :host {
       }
-    `];
+    `]
   }
 
 
   renderProfile() {
     return html`
-    ${this.data?.extended?.source?.title ? html`<p><span class="md">${this._("Source")}:</span> ${this.data.extended.source.title}</p>` : ''}
-    ${this.data?.page ? html`<p><span class="md">${this._("Page")}:</span> ${this.data.page}</p>` : ''}
-    `;
+    <h2><mwc-icon class="person">bookmark</mwc-icon> ${this._('Citation')}</h2>
+
+    <dl>
+    ${this.data?.profile?.date ? html`
+    <div>
+      <dt>
+        ${this._('Date')}
+      </dt>
+      <dd>
+      ${this.data.profile.date}
+      </dd>
+    </div>
+    ` : ''}
+    <div>
+      <dt>
+        ${this._('Source')}
+      </dt>
+      <dd>
+        <a href="/source/${this.data.extended.source.gramps_id}">${this.data.extended.source.title || this.data.extended.source.gramps_id}</a>
+      </dd>
+    </div>
+    ${this.data?.page ? html`
+    <div>
+      <dt>
+        ${this._('Page')}
+      </dt>
+      <dd>
+      ${this.data.page}
+      </dd>
+    </div>
+    ` : ''}
+    </dl>
+    `
   }
 
   renderPicture() {
@@ -28,4 +61,4 @@ export class GrampsjsCitation extends GrampsjsObject {
 }
 
 
-window.customElements.define('grampsjs-citation', GrampsjsCitation);
+window.customElements.define('grampsjs-citation', GrampsjsCitation)

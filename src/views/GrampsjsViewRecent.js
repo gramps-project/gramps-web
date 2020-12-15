@@ -1,8 +1,8 @@
-import { html } from 'lit-element';
+import {html} from 'lit-element'
 import '@material/mwc-button'
 
-import { GrampsjsView } from './GrampsjsView.js'
-import { apiGet } from '../api.js'
+import {GrampsjsView} from './GrampsjsView.js'
+import {apiGet} from '../api.js'
 import '../components/GrampsjsSearchResults.js'
 
 
@@ -10,15 +10,15 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
 
   static get properties() {
     return {
-      _data: { type: Array },
-      _searchResult: { type: Array },
-    };
+      _data: {type: Array},
+      _searchResult: {type: Array},
+    }
   }
 
   constructor() {
-    super();
+    super()
     this._searchResult = []
-    this._data = [];
+    this._data = []
   }
 
   connectedCallback() {
@@ -39,6 +39,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
   }
 
   _handleEvent(event) {
+    this._data = this._data.filter((obj) => (obj.grampsId !== event.detail.grampsId || obj.className !== event.detail.className))
     this._data.push(event.detail)
     this._data = this._data.slice(-10)
     window.localStorage.setItem('recentObjects', JSON.stringify(this._data))
@@ -65,7 +66,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
       <p>${this._('No items')}.</p>
       ` : html`
       <grampsjs-search-results
-        .data="${this._searchResult}"
+        .data="${this._searchResult.slice().reverse()}"
         .strings="${this.strings}"
       ></grampsjs-search-results>
     `}`
@@ -76,10 +77,10 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
       this._searchResult = []
       return
     }
-    this.loading = true;
+    this.loading = true
     const query = this._data.map(obj => obj.grampsId).filter(grampsId => grampsId !== undefined).join(' OR ')
-    const data = await apiGet(`/api/search/?query=${query}&profile=self&page=1&pagesize=100`);
-    this.loading = false;
+    const data = await apiGet(`/api/search/?query=${query}&profile=self&page=1&pagesize=100`)
+    this.loading = false
     if ('data' in data) {
       const dataObject = data.data.reduce((obj, item) => {
         // eslint-disable-next-line no-param-reassign
@@ -99,4 +100,4 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
 }
 
 
-window.customElements.define('grampsjs-view-recent', GrampsjsViewRecentObject);
+window.customElements.define('grampsjs-view-recent', GrampsjsViewRecentObject)

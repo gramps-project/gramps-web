@@ -67,6 +67,23 @@ export const sharedStyles = css`
     font-weight: 400;
   }
 
+  dt {
+    font-size: 14px;
+    color: #666;
+    font-weight: 400;
+    margin-bottom: 0.2em;
+  }
+
+  dd {
+    margin: 0;
+    padding: 0 0 1em 0;
+  }
+
+  dl div {
+    float: left;
+    margin-right: 3rem;
+  }
+
   p {
     margin-top: 1.2em;
     margin-bottom: 1.2em;

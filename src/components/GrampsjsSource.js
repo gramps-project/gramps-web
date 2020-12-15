@@ -1,5 +1,8 @@
-import { html, css } from 'lit-element';
-import { GrampsjsObject } from './GrampsjsObject.js'
+import {html, css} from 'lit-element'
+
+import '@material/mwc-icon'
+
+import {GrampsjsObject} from './GrampsjsObject.js'
 
 
 export class GrampsjsSource extends GrampsjsObject {
@@ -9,16 +12,33 @@ export class GrampsjsSource extends GrampsjsObject {
       css`
       :host {
       }
-    `];
+    `]
   }
 
   renderProfile() {
     return html`
-    <h2>${this.data.title}</h2>
-    ${this.data?.abbrev ? html`<p><span class="md">${this._("Abbreviation")}:</span> ${this.data.abbrev}</p>` : ''}
-    ${this.data?.author ? html`<p><span class="md">${this._("Author")}:</span> ${this.data.author}</p>` : ''}
-    ${this.data?.pubinfo ? html`<p><span class="md">${this._("Publication info")}:</span> ${this.data.pubinfo}</p>` : ''}
-    `;
+    <h2><mwc-icon class="person">bookmarks</mwc-icon> ${this.data.title}</h2>
+    <dl>
+    ${this.data?.abbrev ? html`
+      <div>
+        <dt>${this._('Abbreviation')}</dt>
+        <dd>${this.data.abbrev}</dd>
+      </div>
+      ` : ''}
+    ${this.data?.author ? html`
+      <div>
+        <dt>${this._('Author')}</dt>
+        <dd>${this.data.author}</dd>
+      </div>
+      ` : ''}
+    ${this.data?.pubinfo ? html`
+      <div>
+        <dt>${this._('Publication info')}</dt>
+        <dd>${this.data.pubinfo}</dd>
+      </div>
+      ` : ''}
+    </dl>
+    `
   }
 
   renderPicture() {
@@ -28,4 +48,4 @@ export class GrampsjsSource extends GrampsjsObject {
 }
 
 
-window.customElements.define('grampsjs-source', GrampsjsSource);
+window.customElements.define('grampsjs-source', GrampsjsSource)

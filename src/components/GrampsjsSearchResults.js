@@ -1,6 +1,7 @@
-import {LitElement, css, html} from 'lit-element';
+import {LitElement, css, html} from 'lit-element'
 
-import {sharedStyles} from '../SharedStyles.js';
+import {sharedStyles} from '../SharedStyles.js'
+import {showObject} from '../util.js'
 
 
 export class GrampsjsSearchResults extends LitElement {
@@ -28,20 +29,20 @@ export class GrampsjsSearchResults extends LitElement {
           padding: 0 0.5em;
         }
         `
-    ];
+    ]
   }
 
   static get properties() {
     return {
       data: {type: Array},
-      strings : {type: Object},
-    };
+      strings: {type: Object},
+    }
   }
 
   constructor() {
-    super();
-    this.data = [];
-    this.strings = {};
+    super()
+    this.data = []
+    this.strings = {}
   }
 
   render() {
@@ -53,9 +54,7 @@ export class GrampsjsSearchResults extends LitElement {
     ${this.data.map((obj) => {
     return html`
         <div class="search-hit">
-          ${obj.object.gramps_id}
-          <br>
-          ${this._renderObj(obj)}
+          ${showObject(obj.object_type, obj.object)}
         </div>`
   }, this)}
     </div>
@@ -103,4 +102,4 @@ export class GrampsjsSearchResults extends LitElement {
 }
 
 
-window.customElements.define('grampsjs-search-results', GrampsjsSearchResults);
+window.customElements.define('grampsjs-search-results', GrampsjsSearchResults)

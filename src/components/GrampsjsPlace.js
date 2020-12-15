@@ -1,4 +1,4 @@
-import {html, css} from 'lit-element'
+import {html} from 'lit-element'
 
 import '@material/mwc-icon'
 
@@ -9,8 +9,22 @@ export class GrampsjsPlace extends GrampsjsObject {
 
   renderProfile() {
     return html`
-    <h2><mwc-icon class="person">place</mwc-icon> ${this.data.title}</h2>
-    <pre style="max-width:100%;">${JSON.stringify(this.data, null, 2)}</pre>
+    <h2><mwc-icon class="person">place</mwc-icon> ${this.data.title || this._('Place')}</h2>
+
+    ${this.data?.profile?.parent_places.length > 0 ? html`
+    <dl>
+      ${this.data.profile.parent_places.map((obj) => html`
+      <div>
+        <dt>
+          ${obj.type}
+        </dt>
+        <dd>
+          <a href="/place/${obj.gramps_id}">${obj.name}</a>
+        </dd>
+      </div>
+`)}
+    </dl>
+    ` : ''}
     `
   }
 

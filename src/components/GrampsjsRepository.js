@@ -1,5 +1,5 @@
-import { html, css } from 'lit-element';
-import { GrampsjsObject } from './GrampsjsObject.js'
+import {html, css} from 'lit-element'
+import {GrampsjsObject} from './GrampsjsObject.js'
 
 
 export class GrampsjsRepository extends GrampsjsObject {
@@ -9,17 +9,21 @@ export class GrampsjsRepository extends GrampsjsObject {
       css`
       :host {
       }
-    `];
+    `]
   }
 
   renderProfile() {
     return html`
-    <h2>${this.data.name}</h2>
-    ${this.data?.type ? html`<p><span class="md">${this._("Type")}:</span> ${this._(this.data.type)}</p>` : ''}
-    `;
+    <h2><mwc-icon class="person">account_balance</mwc-icon> ${this.data.name}</h2>
+    <dl>
+    ${this.data?.type ? html`
+      <dt>${this._('Type')}</dt>
+      <dd>${this._(this.data.type)}</dd>
+    </dl>` : ''}
+    `
   }
 
 }
 
 
-window.customElements.define('grampsjs-repository', GrampsjsRepository);
+window.customElements.define('grampsjs-repository', GrampsjsRepository)

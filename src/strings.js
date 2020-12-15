@@ -122,6 +122,7 @@ export const grampsStrings = [
   'Source: Author',
   'Source: Title',
   'Source',
+  'Source text',
   'Sources',
   'Spouses',
   'State',
