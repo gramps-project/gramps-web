@@ -41,7 +41,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
   _handleEvent(event) {
     this._data = this._data.filter((obj) => (obj.grampsId !== event.detail.grampsId || obj.className !== event.detail.className))
     this._data.push(event.detail)
-    this._data = this._data.slice(-10)
+    this._data = this._data.slice(-20)
     window.localStorage.setItem('recentObjects', JSON.stringify(this._data))
     this._fetchData()
   }
