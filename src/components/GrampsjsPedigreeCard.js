@@ -1,6 +1,8 @@
 
 import {html, css, LitElement} from 'lit-element'
 
+import '@material/mwc-icon-button'
+
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsJsImage.js'
 
@@ -44,6 +46,17 @@ class GrampsjsPedigreeCard extends LitElement {
         font-weight: 500;
         color: rgba(0, 0, 0, 0.9);
       }
+
+      .more {
+        position: absolute;
+        top: -6px;
+        right: -10px;
+        color: rgba(0, 0, 0, 0.2);
+      }
+
+      .more mwc-icon-button {
+        --mdc-icon-size: 16px;
+      }
       `
     ]
   }
@@ -72,31 +85,35 @@ class GrampsjsPedigreeCard extends LitElement {
         </div>
         ` : html`
         <div class="card ${this.person.gender === 1 ? 'male' : 'female'}" style="width: ${this.width};">
-            <div class="photo">
-              ${this.person.media_list.length ? html`
-              <grampsjs-img
-                token="${this.token}"
-                handle="${this.person.media_list[0].ref}"
-                size="70"
-                circle
-                square
-                .rect="${this.person.media_list[0].rect}">
-              </grampsjs-img>
-              ` : ''}
-            </div>
-            <span class="name">${this.person.profile.name_surname},
-              <br>
-              ${this.person.profile.name_given}</span>
-              <br>
-              <span class="dates">
-              ${this.person?.profile?.birth?.date ? html`* ${this.person.profile.birth.date}` : ''}
-              <br>
-              ${this.person?.profile?.death?.date ? html`† ${this.person.profile.death.date}` : ''}
-            </span>
-          </a>
+          <div class="photo">
+            ${this.person.media_list.length ? html`
+            <grampsjs-img
+              token="${this.token}"
+              handle="${this.person.media_list[0].ref}"
+              size="70"
+              circle
+              square
+              .rect="${this.person.media_list[0].rect}">
+            </grampsjs-img>
+            ` : ''}
+          </div>
+          <span class="name">${this.person.profile.name_surname},
+            <br>
+            ${this.person.profile.name_given}</span>
+            <br>
+            <span class="dates">
+            ${this.person?.profile?.birth?.date ? html`* ${this.person.profile.birth.date}` : ''}
+            <br>
+            ${this.person?.profile?.death?.date ? html`† ${this.person.profile.death.date}` : ''}
+          </span>
+          <div class="more" @click="${this._handleClick}"><mwc-icon-button icon="more_vert"></mwc-icon-button></div>
         </div>
       `}
       `
+  }
+
+  _handleClick(event) {
+    event.stopPropagation()
   }
 
 }
