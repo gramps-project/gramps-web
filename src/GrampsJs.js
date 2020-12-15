@@ -84,7 +84,7 @@ export class GrampsJs extends LitElement {
       sharedStyles,
       css`
       :host {
-        min-height: 100vh;
+        height: 100%;
       }
 
       main {
@@ -177,6 +177,20 @@ export class GrampsJs extends LitElement {
         line-height: 1.4em;
         text-align: center;
       }
+
+      .center-xy {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+        height: 100vh;
+      }
+
+      .center-xy  div {
+        display: block;
+        width: 20%;
+      }
+
     `
     ]
   }
@@ -188,8 +202,14 @@ export class GrampsJs extends LitElement {
     `
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _renderInitial() {
-    return html`Loading ...`
+    return html`<div class="center-xy">
+      <div>
+        <mwc-linear-progress indeterminate></mwc-linear-progress>
+      </div>
+    </div>
+`
   }
 
   _renderNoConn() {
