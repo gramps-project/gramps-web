@@ -16,8 +16,11 @@ import '@material/mwc-linear-progress'
 import '@material/mwc-circular-progress'
 import '@material/mwc-snackbar'
 import './components/GrampsJsListItem.js'
+import {mdiFamilyTree} from '@mdi/js'
+import {renderIcon} from './icons.js'
 import {apiGetTokens, apiGet, doLogout, apiResetPassword} from './api.js'
 import {grampsStrings, additionalStrings} from './strings.js'
+
 
 import './views/GrampsjsViewPeople.js'
 import './views/GrampsjsViewFamilies.js'
@@ -320,7 +323,8 @@ export class GrampsJs extends LitElement {
             </grampsjs-list-item>
             <grampsjs-list-item href="/tree" graphic="icon">
               <span>${this._('Family Tree')}</span>
-              <mwc-icon slot="graphic">account_tree</mwc-icon>
+
+              <mwc-icon slot="graphic">${renderIcon(mdiFamilyTree)}</mwc-icon>
             </grampsjs-list-item>
             <li divider padded role="separator"></li>
             <grampsjs-list-item href="/recent" graphic="icon">
