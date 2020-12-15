@@ -20,6 +20,7 @@ export class GrampsjsPerson extends GrampsjsObject {
     <h2><mwc-icon class="inline ${this.data.gender === 1 ? 'male' : 'female'}">person</mwc-icon> ${this._displayName()}</h2>
     ${this._renderBirth()}
     ${this._renderDeath()}
+    ${this._renderTreeBtn()}
     `
   }
 
@@ -61,6 +62,23 @@ export class GrampsjsPerson extends GrampsjsObject {
     </event>
     `
   }
+
+  _renderTreeBtn() {
+    return html`
+    <p>
+    <mwc-button
+      outlined
+      label="${this._('Show in tree')}"
+      @click="${this._handleButtonClick}">
+    </mwc-button>
+    </p>`
+  }
+
+  _handleButtonClick() {
+    this.dispatchEvent(new CustomEvent('pedigree:person-selected', {bubbles: true, composed: true, detail: {grampsId: this.data.gramps_id}}))
+    this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: 'tree'}}))
+  }
+
 
 }
 

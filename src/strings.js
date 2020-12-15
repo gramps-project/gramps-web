@@ -8,7 +8,8 @@ export const additionalStrings = {
     'History': 'Verlauf',
     'Menu': 'Menü',
     'Blog': 'Blog',
-    'Recently browsed objects': 'Kürzlich betrachtete Objekte'
+    'Recently browsed objects': 'Kürzlich betrachtete Objekte',
+    'Show in tree': 'Im Stammbaum anzeigen'
   }
 }
 

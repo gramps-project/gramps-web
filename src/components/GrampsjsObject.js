@@ -188,12 +188,14 @@ export class GrampsjsObject extends LitElement {
           ></grampsjs-relationships>`
     case('map'):
       return html`<grampsjs-map
-          latitude=${this.data.profile.lat}
-          longitude=${this.data.profile.long}
+          latitude="${this.data.profile.lat}"
+          longitude="${this.data.profile.long}"
+          mapid="place-map"
           >
             <grampsjs-map-marker>
-            latitude=${this.data.profile.lat}
-            longitude=${this.data.profile.long}
+            latitude="${this.data.profile.lat}"
+            longitude="${this.data.profile.long}"
+            popup="Hallo"
             >
             </grampsjs-map-marker>
           </grampsjs-map>`

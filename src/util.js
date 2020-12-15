@@ -25,7 +25,7 @@ export function getName(obj, type) {
   case 'person':
     return obj?.primary_name?.first_name
   case 'event':
-    return obj.description
+    return obj.type
   case 'family':
     return ''
   case 'place':
