@@ -1,33 +1,50 @@
 
-const __APIHOST__ = "http://localhost:5555"
+const __APIHOST__ = 'http://localhost:5555'
 
 
 
 export function doLogout() {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('access_token_expires');
-  localStorage.removeItem('refresh_token');
-  window.dispatchEvent(new CustomEvent("user:loggedout", {bubbles: true, composed: true}))
+  localStorage.removeItem('access_token')
+  localStorage.removeItem('access_token_expires')
+  localStorage.removeItem('refresh_token')
+  window.dispatchEvent(new CustomEvent('user:loggedout', {bubbles: true, composed: true}))
 }
 
 export function storeAuthToken(authToken, expires) {
-  localStorage.setItem('access_token', authToken);
-  localStorage.setItem('access_token_expires', expires);
+  localStorage.setItem('access_token', authToken)
+  localStorage.setItem('access_token_expires', expires)
 }
 
 export function storeRefreshToken(refreshToken) {
-  localStorage.setItem('refresh_token', refreshToken);
+  localStorage.setItem('refresh_token', refreshToken)
+}
+
+export function getSettings() {
+  try {
+    const settingString = localStorage.getItem('grampsjs_settings')
+    return JSON.parse(settingString) || {}
+  }
+  catch(e) {
+    return {}
+  }
+}
+
+export function updateSettings(settings) {
+  const existingSettings = getSettings()
+  const finalSettings = {...existingSettings, ...settings}
+  localStorage.setItem('grampsjs_settings', JSON.stringify(finalSettings))
+  window.dispatchEvent(new CustomEvent('settings:changed', {bubbles: true, composed: true}))
 }
 
 
 export async function apiResetPassword(username)  {
   try {
     const resp = await fetch(`${__APIHOST__}/api/user/password/reset/trigger/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({'username': username})
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({'username': username})
     })
     if (resp.status === 404) {
       throw(new Error('User not found.'))
@@ -41,7 +58,7 @@ export async function apiResetPassword(username)  {
     return {}
   }
   catch (error)  {
-    return {'error': error.message};
+    return {'error': error.message}
   }
 };
 
@@ -49,12 +66,12 @@ export async function apiResetPassword(username)  {
 export async function apiGetTokens(username, password)  {
   try {
     const resp = await fetch(`${__APIHOST__}/api/login/`, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({'username': username, 'password': password})
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({'username': username, 'password': password})
     })
     if (resp.status === 401 || resp.status === 403) {
       throw(new Error('Wrong username or password'))
@@ -69,13 +86,13 @@ export async function apiGetTokens(username, password)  {
     if (data.refresh_token === undefined) {
       return {'error': 'Refresh token missing in response'}
     }
-    const expires = Date.now() + 15 * 60 * 1000;
+    const expires = Date.now() + 15 * 60 * 1000
     storeAuthToken(data.access_token, expires)
     storeRefreshToken(data.refresh_token)
     return {}
   }
   catch (error)  {
-    return {'error': error.message};
+    return {'error': error.message}
   }
 };
 
@@ -99,19 +116,19 @@ export async function apiRefreshAuthToken(refreshToken)  {
     if (data.access_token === undefined) {
       throw(new Error('Access token missing in response'))
     }
-    const expires = Date.now() + 15 * 60 * 1000;
+    const expires = Date.now() + 15 * 60 * 1000
     storeAuthToken(resp.access_token, expires)
     return {}
   }
   catch (error) {
-    return {'error': error.message};
+    return {'error': error.message}
   }
 };
 
 
 
 export async function apiGet(endpoint)  {
-  const accessToken = localStorage.getItem('access_token');
+  const accessToken = localStorage.getItem('access_token')
   let headers = {}
   if (accessToken !== null) {
     headers = {
@@ -124,7 +141,7 @@ export async function apiGet(endpoint)  {
       headers
     })
     if (resp.status === 401) {
-      const refreshToken = localStorage.getItem('refresh_token');
+      const refreshToken = localStorage.getItem('refresh_token')
       if (refreshToken === null) {
         throw(new Error('Missing refresh token'))
       }
@@ -142,12 +159,12 @@ export async function apiGet(endpoint)  {
     return {'data': await resp.json(), 'total_count': resp.headers.get('X-Total-Count')}
   }
   catch (error)  {
-    return {'error': error.message};
+    return {'error': error.message}
   }
 };
 
 export function getMediaUrl(handle) {
-  const jwt = localStorage.getItem('access_token');
+  const jwt = localStorage.getItem('access_token')
   if (jwt === null) { return '' }
   return `${__APIHOST__}/api/media/${handle}/file?jwt=${jwt}`
 }
@@ -162,13 +179,13 @@ export function getMediaUrlCropped(handle, rect) {
 }
 
 export function getThumbnailUrl(handle, size, square=false) {
-  const jwt = localStorage.getItem('access_token');
+  const jwt = localStorage.getItem('access_token')
   if (jwt === null) { return '' }
   return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?jwt=${jwt}&square=${square}`
 }
 
 export function getThumbnailUrlCropped(handle, rect, size, square=false) {
-  const jwt = localStorage.getItem('access_token');
+  const jwt = localStorage.getItem('access_token')
   if (jwt === null) { return '' }
   const [x1, y1, x2, y2] = rect
   return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?jwt=${jwt}&square=${square}`
