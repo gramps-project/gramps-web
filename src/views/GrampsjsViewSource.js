@@ -1,6 +1,6 @@
-import { html } from 'lit-element';
+import {html} from 'lit-element'
 
-import { GrampsjsViewObject } from './GrampsjsViewObject.js'
+import {GrampsjsViewObject} from './GrampsjsViewObject.js'
 import '../components/GrampsjsSource.js'
 
 
