@@ -2,9 +2,12 @@
 import {html, css, LitElement} from 'lit-element'
 
 import '@material/mwc-icon-button'
+import '@material/mwc-menu'
+import '@material/mwc-list/mwc-list-item'
 
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsJsImage.js'
+import './GrampsJsListItem.js'
 
 
 class GrampsjsPedigreeCard extends LitElement {
@@ -106,7 +109,15 @@ class GrampsjsPedigreeCard extends LitElement {
             <br>
             ${this.person?.profile?.death?.date ? html`† ${this.person.profile.death.date}` : ''}
           </span>
-          <div class="more" @click="${this._handleClick}"><mwc-icon-button icon="more_vert"></mwc-icon-button></div>
+          <div class="more"><mwc-icon-button icon="more_vert" @click="${this._handleClick}"></mwc-icon-button>
+            <div class="position: relative;">
+              <mwc-menu absolute x="20" y="2" id="menu">
+                <grampsjs-list-item
+                  href="/person/${this.person.gramps_id}"
+                  >Details</grampsjs-list-item>
+              </mwc-menu>
+            </div>
+          </div>
         </div>
       `}
       `
@@ -114,6 +125,8 @@ class GrampsjsPedigreeCard extends LitElement {
 
   _handleClick(event) {
     event.stopPropagation()
+    const menu = this.shadowRoot.getElementById('menu')
+    menu.open = true
   }
 
 }

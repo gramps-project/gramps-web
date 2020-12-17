@@ -46,12 +46,19 @@ export class GrampsjsViewTree extends GrampsjsView {
 
   constructor() {
     super()
+    this.grampsId = ''
     this._data = []
     this._depth = 4
     this._zoom = 1
   }
 
   renderContent() {
+    if (this.grampsId === '') {
+      // This should actually never happen, so don't bother translating!
+      return html`
+      No home person selected. <a href="/settings">Settings</a>
+      `
+    }
     if (this._data.length === 0) {
       return html``
     }
@@ -65,6 +72,7 @@ export class GrampsjsViewTree extends GrampsjsView {
             max="6"
             step="1"
             @change="${this._updateDepth}"
+            id="slider"
             pin
             ></mwc-slider></span>
       </div>
@@ -82,11 +90,18 @@ export class GrampsjsViewTree extends GrampsjsView {
 
   update(changed) {
     super.update(changed)
-    if (changed.has('grampsId') && this.active) {
+    if (changed.has('grampsId')) {
       this._fetchData(this.grampsId)
     }
     if (changed.has('_depth')) {
       this.setZoom()
+    }
+    if (changed.has('active')) {
+      this.setZoom()
+      const slider = this.shadowRoot.getElementById('slider')
+      if (slider){
+        slider.layout()
+      }
     }
 
   }
