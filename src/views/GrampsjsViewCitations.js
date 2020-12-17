@@ -5,18 +5,20 @@ Citations list view
 
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
-import { GrampsjsViewObjectsBase } from './GrampsjsViewObjectsBase.js'
+import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 
 
 export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
 
   constructor() {
-    super();
+    super()
     this._columns = {
-      grampsId: "Gramps ID",
-      sourceTitle: "Source: Title",
+      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
+      sourceTitle: {title: 'Source: Title', sort: ''},
+      change: {title: 'Last changed', sort: 'change'},
+
     }
-    this._fetchUrl = '/api/citations/?extend=source_handle&keys=gramps_id,extended'
+    this._fetchUrl = '/api/citations/?extend=source_handle&keys=gramps_id,extended,change'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -28,7 +30,8 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
   _formatRow(row, obj) {
     const formattedRow = {
       grampsId: row.gramps_id,
-      sourceTitle: row.extended.source?.title
+      sourceTitle: row.extended.source?.title,
+      change: row.change
     }
     return formattedRow
   }
@@ -36,4 +39,4 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
 }
 
 
-window.customElements.define('grampsjs-view-citations', GrampsjsViewCitations);
+window.customElements.define('grampsjs-view-citations', GrampsjsViewCitations)

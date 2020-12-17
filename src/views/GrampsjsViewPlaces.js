@@ -5,18 +5,19 @@ Places list view
 
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
-import { GrampsjsViewObjectsBase } from './GrampsjsViewObjectsBase.js'
+import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 
 
 export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
 
   constructor() {
-    super();
+    super()
     this._columns = {
-      grampsId: "Gramps ID",
-      title: "Title",
+      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
+      title: {tite: 'Title', sort: 'title'},
+      change: {title: 'Last changed', sort: 'change'},
     }
-    this._fetchUrl = '/api/places/?keys=gramps_id,title'
+    this._fetchUrl = '/api/places/?keys=gramps_id,title,change'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -28,7 +29,8 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
   _formatRow(row, obj) {
     const formattedRow = {
       grampsId: row.gramps_id,
-      title: row.title
+      title: row.title,
+      change: row.change
     }
     return formattedRow
   }
@@ -36,4 +38,4 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
 }
 
 
-window.customElements.define('grampsjs-view-places', GrampsjsViewPlaces);
+window.customElements.define('grampsjs-view-places', GrampsjsViewPlaces)

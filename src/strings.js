@@ -9,7 +9,9 @@ export const additionalStrings = {
     'Menu': 'Menü',
     'Blog': 'Blog',
     'Recently browsed objects': 'Kürzlich betrachtete Objekte',
-    'Show in tree': 'Im Stammbaum anzeigen'
+    'Show in tree': 'Im Stammbaum anzeigen',
+    'User settings': 'Benutzer-Einstellungen',
+    'Select language': 'Sprache auswählen'
   }
 }
 
@@ -36,6 +38,7 @@ export const grampsStrings = [
   'City',
   'Clear',
   'Collection',
+  'Complete',
   'Country',
   'County',
   'Custom',
@@ -65,9 +68,13 @@ export const grampsStrings = [
   'Gramps ID',
   'Hamlet',
   'Home Page',
+  'Home Person',
   'in',
+  'Language',
+  'Last changed',
   'LDS Note',
   'Library',
+  'Loading...',
   'Locality',
   'Map',
   'Marriage Date',
@@ -116,6 +123,7 @@ export const grampsStrings = [
   'Repository Reference Note',
   'Repository',
   'Show Details',
+  'Set _Home Person',
   'Siblings',
   'Social Security Number',
   'Source Note',
@@ -130,6 +138,7 @@ export const grampsStrings = [
   'Street',
   'Surname',
   'Text',
+  'Title',
   'Town',
   'Type',
   'Unknown',

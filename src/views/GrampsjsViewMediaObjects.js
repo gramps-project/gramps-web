@@ -5,19 +5,21 @@ Medias list view
 
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
-import { GrampsjsViewObjectsBase } from './GrampsjsViewObjectsBase.js'
+import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 
 
 export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
 
   constructor() {
-    super();
+    super()
     this._columns = {
-      grampsId: "Gramps ID",
-      mime: "Type",
-      desc: "Description"
+      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
+      mime: {title: 'Type', sort: 'mime'},
+      desc: {title: 'Description', sort: 'title'},
+      change: {title: 'Last changed', sort: 'change'}
+
     }
-    this._fetchUrl = '/api/media/?keys=gramps_id,mime,desc'
+    this._fetchUrl = '/api/media/?keys=gramps_id,mime,desc,change'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -30,7 +32,8 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     const formattedRow = {
       grampsId: row.gramps_id,
       mime: row.mime,
-      desc: row.desc
+      desc: row.desc,
+      change: row.change
     }
     return formattedRow
   }
@@ -38,4 +41,4 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
 }
 
 
-window.customElements.define('grampsjs-view-media-objects', GrampsjsViewMediaObjects);
+window.customElements.define('grampsjs-view-media-objects', GrampsjsViewMediaObjects)

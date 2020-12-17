@@ -5,21 +5,22 @@ People list view
 
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
-import { GrampsjsViewObjectsBase } from './GrampsjsViewObjectsBase.js'
+import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 
 
 export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
 
   constructor() {
-    super();
+    super()
     this._columns = {
-      grampsId: "Gramps ID",
-      surname: "Surname",
-      given: "Given name",
-      birth: "Birth Date",
-      death: "Death Date",
+      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
+      surname: {title: 'Surname', sort: 'surname'},
+      given: {title: 'Given name', sort: ''},
+      birth: {title: 'Birth Date', sort: 'birth'},
+      death: {title: 'Death Date', sort: 'death'},
+      change: {title: 'Last changed', sort: 'change'},
     }
-    this._fetchUrl = '/api/people/?profile=self,events&keys=gramps_id,profile'
+    this._fetchUrl = '/api/people/?profile=self&keys=gramps_id,profile,change'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -35,6 +36,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       given: row?.profile?.name_given,
       birth: row?.profile?.birth?.date,
       death: row?.profile?.death?.date,
+      change: row?.change
     }
     return formattedRow
   }
@@ -42,4 +44,4 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
 }
 
 
-window.customElements.define('grampsjs-view-people', GrampsjsViewPeople);
+window.customElements.define('grampsjs-view-people', GrampsjsViewPeople)

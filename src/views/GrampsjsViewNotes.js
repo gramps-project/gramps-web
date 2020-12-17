@@ -5,19 +5,21 @@ Notes list view
 
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
-import { GrampsjsViewObjectsBase } from './GrampsjsViewObjectsBase.js'
+import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 
 
 export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
 
   constructor() {
-    super();
+    super()
     this._columns = {
-      grampsId: "Gramps ID",
-      type: "Type",
-      text: "Text",
+      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
+      type: {title: 'Type', sort: 'type'},
+      text: {title: 'Text', sort: 'text'},
+      change: {title: 'Last changed', sort: 'change'}
+
     }
-    this._fetchUrl = '/api/notes/?keys=gramps_id,type,text'
+    this._fetchUrl = '/api/notes/?keys=gramps_id,type,text,change'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -30,7 +32,8 @@ export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
     const formattedRow = {
       grampsId: row.gramps_id,
       type: obj._(row.type),
-      text: row?.text?.string
+      text: row?.text?.string,
+      change: row.change
     }
     return formattedRow
   }
@@ -38,4 +41,4 @@ export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
 }
 
 
-window.customElements.define('grampsjs-view-notes', GrampsjsViewNotes);
+window.customElements.define('grampsjs-view-notes', GrampsjsViewNotes)

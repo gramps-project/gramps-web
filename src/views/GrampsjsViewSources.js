@@ -5,20 +5,21 @@ Sources list view
 
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
-import { GrampsjsViewObjectsBase } from './GrampsjsViewObjectsBase.js'
+import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 
 
 export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
 
   constructor() {
-    super();
+    super()
     this._columns = {
-      grampsId: "Gramps ID",
-      title: "Title",
-      author: "Author",
-      pubinfo: "Publication info"
+      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
+      title: {title: 'Title', sort: 'title'},
+      author: {title: 'Author', sort: 'author'},
+      pubinfo: {title: 'Publication info', sort: 'pubinfo'},
+      change: {title: 'Last changed', sort: 'change'},
     }
-    this._fetchUrl = '/api/sources/?keys=gramps_id,title,author,pubinfo'
+    this._fetchUrl = '/api/sources/?keys=gramps_id,title,author,pubinfo,change'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -32,7 +33,8 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
       grampsId: row.gramps_id,
       title: row.title,
       author: row.author,
-      pubinfo: row.pubinfo
+      pubinfo: row.pubinfo,
+      change: row.change
     }
     return formattedRow
   }
@@ -40,4 +42,4 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
 }
 
 
-window.customElements.define('grampsjs-view-sources', GrampsjsViewSources);
+window.customElements.define('grampsjs-view-sources', GrampsjsViewSources)

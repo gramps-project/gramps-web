@@ -18,7 +18,7 @@ import '@material/mwc-snackbar'
 import './components/GrampsJsListItem.js'
 import {mdiFamilyTree} from '@mdi/js'
 import {renderIcon} from './icons.js'
-import {apiGetTokens, apiGet, doLogout, apiResetPassword} from './api.js'
+import {apiGetTokens, apiGet, getSettings, apiResetPassword} from './api.js'
 import {grampsStrings, additionalStrings} from './strings.js'
 
 
@@ -41,6 +41,8 @@ import './views/GrampsjsViewRepository.js'
 import './views/GrampsjsViewNote.js'
 import './views/GrampsjsViewMedia.js'
 import './views/GrampsjsViewSearch.js'
+import './views/GrampsjsViewSettings.js'
+import './views/GrampsjsViewSettingsOnboarding.js'
 import './views/GrampsjsViewRecent.js'
 import './views/GrampsjsViewMap.js'
 import './views/GrampsjsViewTree.js'
@@ -51,7 +53,8 @@ const LOADING_STATE_INITIAL = 0
 const LOADING_STATE_UNAUTHORIZED = 1
 const LOADING_STATE_UNAUTHORIZED_NOCONNECTION = 2
 const LOADING_STATE_UNAUTHORIZED_RESET_PW = 3
-const LOADING_STATE_READY = 4
+const LOADING_STATE_MISSING_SETTINGS = 4
+const LOADING_STATE_READY = 10
 
 
 export class GrampsJs extends LitElement {
@@ -60,7 +63,8 @@ export class GrampsJs extends LitElement {
       wide: {type: Boolean},
       progress: {type: Boolean},
       loadingState: {type: Number},
-      language: {type: String},
+      settings: {type: Object},
+      _lang: {type: String},
       _strings: {type: Object},
       _dbInfo: {type: Object},
       _page: {type: String},
@@ -73,7 +77,8 @@ export class GrampsJs extends LitElement {
     this.wide = false
     this.progress = false
     this.loadingState = LOADING_STATE_INITIAL
-    this.language = ''
+    this.settings = getSettings()
+    this._lang = ''
     this._strings = {}
     this._dbInfo = {}
     this._page = 'home'
@@ -194,6 +199,35 @@ export class GrampsJs extends LitElement {
         width: 20%;
       }
 
+      .menu-bottom {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        border-top: 1px solid #e0e0e0;
+        background-color: white;
+      }
+
+      mwc-list {
+        --mdc-list-item-graphic-margin: 20px;
+        --mdc-list-side-padding: 20px;
+      }
+
+      #main-menu {
+      }
+
+      #onboarding {
+        width: 100%;
+        max-width: 30em;
+      }
+
+      grampsjs-view-settings-onboarding {
+        width: 100%;
+      }
+
+      mwc-tab-bar {
+        margin: 20px;
+      }
+
     `
     ]
   }
@@ -266,6 +300,19 @@ export class GrampsJs extends LitElement {
     `
   }
 
+  _renderOnboarding() {
+    return html`
+    <div class="center-xy" id="onboarding">
+      <grampsjs-view-settings-onboarding
+        @onboarding:completed="${() => {this.loadingState = LOADING_STATE_READY}}"
+        class="page"
+        active
+        .strings="${this._strings}"
+      ></grampsjs-view-settings-onboarding>
+    </div>
+    `
+  }
+
   renderContent() {
     if (this.loadingState === LOADING_STATE_INITIAL) {
       return this._renderInitial()
@@ -280,6 +327,15 @@ export class GrampsJs extends LitElement {
     if (this.loadingState === LOADING_STATE_UNAUTHORIZED_RESET_PW) {
       return this._renderResetPw()
     }
+    if (!getSettings().lang || !getSettings().homePerson) {
+      this.loadingState = LOADING_STATE_MISSING_SETTINGS
+    }
+    if (this.loadingState === LOADING_STATE_MISSING_SETTINGS) {
+      return this._renderOnboarding()
+    }
+    if (this.settings.lang && Object.keys(this._strings).length === 0) {
+      this._loadStrings(grampsStrings, this.settings.lang)
+    }
     const tabs = {
       people: this._('People'),
       families: this._('Families'),
@@ -291,20 +347,10 @@ export class GrampsJs extends LitElement {
       notes: this._('Notes'),
       media: this._('Media Objects')
     }
-    if (this.language !== '' && Object.keys(this._strings).length === 0) {
-      this._loadStrings(grampsStrings, this.language)
-    }
     return html`
-      <mwc-drawer hasHeader type="dismissible" id="app-drawer" ?open="${this.wide}">
-        <span slot="title" style="position: relative;">
-          <mwc-icon-button icon="person" id="person-button" @click="${this._openUserMenu}"></mwc-icon-button>
-          <mwc-menu absolute x="16" y="22" id="user-menu">
-            <mwc-list-item @click=${this._logoutClicked} graphic="icon"><mwc-icon slot="graphic">exit_to_app</mwc-icon>Logout</mwc-list-item>
-          </mwc-menu>
-        </span>
-        <div>
+      <mwc-drawer type="dismissible" id="app-drawer" ?open="${this.wide}">
+        <div id="main-menu">
           <mwc-list>
-            <li divider padded role="separator"></li>
             <grampsjs-list-item href="/" graphic="icon">
               <span>${this._('Home Page')}</span>
               <mwc-icon slot="graphic">home</mwc-icon>
@@ -323,7 +369,6 @@ export class GrampsJs extends LitElement {
             </grampsjs-list-item>
             <grampsjs-list-item href="/tree" graphic="icon">
               <span>${this._('Family Tree')}</span>
-
               <mwc-icon slot="graphic">${renderIcon(mdiFamilyTree)}</mwc-icon>
             </grampsjs-list-item>
             <li divider padded role="separator"></li>
@@ -337,6 +382,7 @@ export class GrampsJs extends LitElement {
           <mwc-top-app-bar>
             <mwc-icon-button slot="navigationIcon" icon="menu" @click="${this._toggleDrawer}"></mwc-icon-button>
             <div id="app-title" slot="title">${this._dbInfo?.database?.name || 'Gramps.js'}</div>
+            <mwc-icon-button icon="account_circle" slot="actionItems" @click="${() => this._handleTab('settings')}"></mwc-icon-button>
             <mwc-icon-button icon="search" slot="actionItems" @click="${() => this._handleTab('search')}"></mwc-icon-button>
           </mwc-top-app-bar>
           <mwc-linear-progress indeterminate ?closed="${!this.progress}">
@@ -357,7 +403,7 @@ export class GrampsJs extends LitElement {
         <grampsjs-view-notes class="page" ?active=${this._page === 'notes'} .strings="${this._strings}"></grampsjs-view-notes>
         <grampsjs-view-media-objects class="page" ?active=${this._page === 'media'} .strings="${this._strings}"></grampsjs-view-media-objects>
         <grampsjs-view-map class="page" ?active=${this._page === 'map'} .strings="${this._strings}"></grampsjs-view-map>
-        <grampsjs-view-tree class="page" ?active=${this._page === 'tree'} grampsId="I0044"></grampsjs-view-tree>
+        <grampsjs-view-tree class="page" ?active=${this._page === 'tree'} grampsId="${this.settings.homePerson}" .strings="${this._strings}"></grampsjs-view-tree>
 
         <grampsjs-view-person class="page" ?active=${this._page === 'person'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-person>
         <grampsjs-view-family class="page" ?active=${this._page === 'family'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-family>
@@ -371,6 +417,7 @@ export class GrampsJs extends LitElement {
         <grampsjs-view-search class="page" ?active=${this._page === 'search'} .strings="${this._strings}"></grampsjs-view-search>
         <grampsjs-view-recent class="page" ?active=${this._page === 'recent'} .strings="${this._strings}"></grampsjs-view-recent>
 
+        <grampsjs-view-settings class="page" ?active=${this._page === 'settings'} .strings="${this._strings}"></grampsjs-view-settings>
         </main>
 
       </div>
@@ -385,9 +432,7 @@ export class GrampsJs extends LitElement {
     }
     return html`
     <mwc-tab-bar activeIndex="${Object.keys(tabs).indexOf(this._page)}">
-    ${Object.keys(tabs).map(key => {
-    return html`<mwc-tab isMinWidthIndicator label="${tabs[key]}" @click="${() => this._handleTab(key)}"></mwc-tab>`
-  })}
+    ${Object.keys(tabs).map(key => html`<mwc-tab isMinWidthIndicator label="${tabs[key]}" @click="${() => this._handleTab(key)}"></mwc-tab>`)}
     </mwc-tab-bar>
   `
   }
@@ -409,7 +454,8 @@ export class GrampsJs extends LitElement {
     this.addEventListener('grampsjs:error', this._handleError.bind(this))
     this.addEventListener('progress:on', this._progressOn.bind(this))
     this.addEventListener('progress:off', this._progressOff.bind(this))
-    this.addEventListener('user:loggedout', () => {this.loadingState = LOADING_STATE_UNAUTHORIZED})
+    window.addEventListener('user:loggedout', this._handleLogout.bind(this))
+    window.addEventListener('settings:changed', this._handleSettings.bind(this))
   }
 
   _loadDbInfo() {
@@ -482,6 +528,15 @@ export class GrampsJs extends LitElement {
     }
   }
 
+  update(changed) {
+    super.update(changed)
+    if (changed.has('settings')) {
+      if (this.settings.lang && this.settings.lang !== this._lang) {
+        this._loadStrings(grampsStrings, this.settings.lang)
+      }
+    }
+  }
+
   _loadStrings(strings, lang) {
     apiGet(`/api/translations/${lang}?strings=${JSON.stringify(strings)}`)
       .then(data => {
@@ -490,6 +545,7 @@ export class GrampsJs extends LitElement {
           if (lang in additionalStrings) {
             this._strings = Object.assign(additionalStrings[lang], this._strings)
           }
+          this._lang = lang
         }
         if ('error' in data) {
           this._showError(data.error)
@@ -544,9 +600,12 @@ export class GrampsJs extends LitElement {
     userMenu.open = true
   }
 
-  _logoutClicked() {
-    doLogout()
+  _handleLogout() {
     this.loadingState = LOADING_STATE_UNAUTHORIZED
+  }
+
+  _handleSettings() {
+    this.settings = getSettings()
   }
 
   _(s) {
