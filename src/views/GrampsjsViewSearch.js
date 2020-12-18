@@ -2,7 +2,7 @@ import {html, css} from 'lit-element'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsSearchResults.js'
-import '../components/GrampsjsPaging.js'
+import '../components/GrampsjsPagination.js'
 import {apiGet} from '../api.js'
 import '@material/mwc-textfield'
 
@@ -20,7 +20,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
         --mdc-shape-small: 28px;
         --mdc-typography-subtitle1-font-size: 22px;
         --mdc-typography-subtitle1-font-weight: 300;
-        --mdc-text-field-idle-line-color 	rgba(0, 0, 0, 0.2);
+        --mdc-text-field-idle-line-color:	rgba(0, 0, 0, 0.2);
         max-width: 100%;
         min-width: 80%;
         margin: 30px auto;
@@ -66,11 +66,11 @@ export class GrampsjsViewSearch extends GrampsjsView {
     ></grampsjs-search-results>
 
     ${this._totalCount > 0 ? html`
-    <grampsjs-paging
+    <grampsjs-pagination
       page="${this._page}"
       pages="${this._pages}"
       @page:changed="${this._handlePageChanged}"
-      ></grampsjs-paging>
+      ></grampsjs-pagination>
     ` : ''}
     `
   }
