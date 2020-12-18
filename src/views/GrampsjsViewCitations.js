@@ -6,6 +6,7 @@ Citations list view
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
+import {prettyTimeDiffTimestamp} from '../util.js'
 
 
 export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
@@ -31,7 +32,7 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
     const formattedRow = {
       grampsId: row.gramps_id,
       sourceTitle: row.extended.source?.title,
-      change: row.change
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
     }
     return formattedRow
   }

@@ -5,6 +5,7 @@ Events list view
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
+import {prettyTimeDiffTimestamp} from '../util.js'
 
 
 export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
@@ -33,7 +34,7 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
       type: row?.profile?.type,
       date: row?.profile?.date,
       place: row?.profile?.place,
-      change: row?.change
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
     }
     return formattedRow
   }

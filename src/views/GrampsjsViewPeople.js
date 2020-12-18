@@ -6,7 +6,7 @@ People list view
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-
+import {prettyTimeDiffTimestamp} from '../util.js'
 
 export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
 
@@ -36,7 +36,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       given: row?.profile?.name_given,
       birth: row?.profile?.birth?.date,
       death: row?.profile?.death?.date,
-      change: row?.change
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
     }
     return formattedRow
   }

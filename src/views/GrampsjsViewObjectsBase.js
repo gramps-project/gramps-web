@@ -4,10 +4,10 @@ Base view for lists of Gramps objects, e.g. people, events, ...
 
 
 import {html, css} from 'lit-element'
-
 import {mdiSort, mdiSortAscending, mdiSortDescending} from '@mdi/js'
+
 import {GrampsjsView} from './GrampsjsView.js'
-import '../components/GrampsjsPaging.js'
+import '../components/GrampsjsPagination.js'
 import {apiGet} from '../api.js'
 import {renderIcon} from '../icons.js'
 
@@ -123,7 +123,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     <table class="linked">
       <tr>
         ${Object.keys(this._columns).map((column) => html`
-          <th>${this._columns[column].title} ${this._renderSortBtn(column)}</th>
+          <th>${this._(this._columns[column].title)} ${this._renderSortBtn(column)}</th>
         `, this)}
       </tr>
     ${this._data.map((obj) => html`
@@ -137,11 +137,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
           `)}
     </table>
 
-    <grampsjs-paging
+    <grampsjs-pagination
       page="${this._page}"
       pages="${this._pages}"
       @page:changed="${this._handlePageChanged}"
-      ></grampsjs-paging>
+      ></grampsjs-pagination>
     `
   }
 
@@ -201,7 +201,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
 
   update(changed) {
     super.update(changed)
-    if (changed.has('_page') || changed.has('_sort') || changed.has('_pageSize')) {
+    if (changed.has('_page') || changed.has('_sort') || changed.has('_pageSize') || changed.has('strings')) {
       this._fetchData()
     }
   }

@@ -74,6 +74,9 @@ export class GrampsjsView extends LitElement {
   }
 
   _(s) {
+    if (s === undefined) {
+      return ''
+    }
     if (s in this.strings) {
       return this.strings[s].replace('_', '')
     }

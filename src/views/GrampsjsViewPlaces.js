@@ -6,6 +6,7 @@ Places list view
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
+import {prettyTimeDiffTimestamp} from '../util.js'
 
 
 export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
@@ -30,7 +31,7 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
     const formattedRow = {
       grampsId: row.gramps_id,
       title: row.title,
-      change: row.change
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
     }
     return formattedRow
   }

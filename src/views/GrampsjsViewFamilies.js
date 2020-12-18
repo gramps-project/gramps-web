@@ -6,6 +6,7 @@ Families list view
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
+import {prettyTimeDiffTimestamp} from '../util.js'
 
 
 export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
@@ -32,7 +33,7 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
       grampsId: row.gramps_id,
       father: `${row?.profile?.father?.name_surname || '…'}, ${row?.profile?.father?.name_given || '…'}`,
       mother: `${row?.profile?.mother?.name_surname || '…'}, ${row?.profile?.mother?.name_given || '…'}`,
-      change: row?.change
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
     }
     return formattedRow
   }

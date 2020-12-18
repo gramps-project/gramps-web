@@ -1,8 +1,12 @@
 import {html} from 'lit-element'
-
 import '@material/mwc-icon'
+import dayjs from 'dayjs/esm'
+import relativeTime from 'dayjs/esm/plugin/relativeTime'
 
 import {asteriskIcon, crossIcon, ringsIcon} from './icons.js'
+
+
+dayjs.extend(relativeTime)
 
 
 export function renderPerson(personProfile) {
@@ -113,4 +117,10 @@ export function showObject(type, obj) {
   default:
     return `unknown type: ${type}`
   }
+}
+
+
+export function prettyTimeDiffTimestamp(timestamp, locale) {
+  dayjs.locale(locale)
+  return dayjs.unix(timestamp).fromNow()
 }

@@ -545,12 +545,14 @@ export class GrampsJs extends LitElement {
           if (lang in additionalStrings) {
             this._strings = Object.assign(additionalStrings[lang], this._strings)
           }
+          this._strings.__lang__ = lang
           this._lang = lang
         }
         if ('error' in data) {
           this._showError(data.error)
         }
       })
+    import(`dayjs/esm/locale/${this.settings.lang}.js`).catch()
   }
 
   async _submitLogin() {

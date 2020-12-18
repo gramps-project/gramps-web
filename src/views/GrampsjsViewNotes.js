@@ -6,6 +6,7 @@ Notes list view
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
+import {prettyTimeDiffTimestamp} from '../util.js'
 
 
 export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
@@ -33,7 +34,7 @@ export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
       grampsId: row.gramps_id,
       type: obj._(row.type),
       text: row?.text?.string,
-      change: row.change
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
     }
     return formattedRow
   }
