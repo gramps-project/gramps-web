@@ -6,6 +6,7 @@ Sources list view
 import '@vaadin/vaadin-grid/theme/material/vaadin-grid.js'
 
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
+import {prettyTimeDiffTimestamp} from '../util.js'
 
 
 export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
@@ -34,7 +35,7 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
       title: row.title,
       author: row.author,
       pubinfo: row.pubinfo,
-      change: row.change
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
     }
     return formattedRow
   }
