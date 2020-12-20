@@ -110,7 +110,7 @@ export function showObject(type, obj) {
   case 'media':
     return html`
         <mwc-icon class="inline">photo</mwc-icon>
-        <a href="/mediaobject/${obj.gramps_id}"
+        <a href="/media/${obj.gramps_id}"
         >${getName(obj, type) || type}
         </a>
         `
