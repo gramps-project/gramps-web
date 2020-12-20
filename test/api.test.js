@@ -7,7 +7,7 @@ import { apiGetAuthToken, apiGet } from '../src/api.js'
 describe('API', () => {
   beforeEach(() => {
     fetchMock.get('http://myapi:1234/api/my-endpoint', {hello: 'world'})
-    fetchMock.post('http://myapi:1234/api/login', {token: 'world'})
+    fetchMock.post('http://myapi:1234/api/token/', {token: 'world'})
   })
 
   afterEach(() => {

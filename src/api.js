@@ -65,7 +65,7 @@ export async function apiResetPassword(username)  {
 
 export async function apiGetTokens(username, password)  {
   try {
-    const resp = await fetch(`${__APIHOST__}/api/login/`, {
+    const resp = await fetch(`${__APIHOST__}/api/token/`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -100,7 +100,7 @@ export async function apiGetTokens(username, password)  {
 
 export async function apiRefreshAuthToken(refreshToken)  {
   try {
-    const resp = await fetch(`${__APIHOST__}/api/refresh/`, {
+    const resp = await fetch(`${__APIHOST__}/api/token/refresh/`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${refreshToken}`,
