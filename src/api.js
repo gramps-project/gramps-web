@@ -39,12 +39,11 @@ export function updateSettings(settings) {
 
 export async function apiResetPassword(username)  {
   try {
-    const resp = await fetch(`${__APIHOST__}/api/user/password/reset/trigger/`, {
+    const resp = await fetch(`${__APIHOST__}/api/users/${username}/password/reset/trigger/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({'username': username})
+      }
     })
     if (resp.status === 404) {
       throw(new Error('User not found.'))
