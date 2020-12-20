@@ -148,7 +148,7 @@ export class GrampsjsObject extends LitElement {
   _handleImgClick(grampsId) {
     this.dispatchEvent(new CustomEvent('nav', {
       bubbles: true, composed: true, detail: {
-        path: `mediaobject/${grampsId}`
+        path: `media/${grampsId}`
       }
     }))
   }

@@ -25,7 +25,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
 
   // eslint-disable-next-line class-methods-use-this
   _getItemPath(item) {
-    return `mediaobject/${item.grampsId}`
+    return `media/${item.grampsId}`
   }
 
   // eslint-disable-next-line class-methods-use-this

@@ -31,10 +31,8 @@ export class GrampsjsReferences extends GrampsjsTableBase {
   }
 
   _handleClick(type, grampsId) {
-    // only for media, page is not = type
-    const page = type === 'media' ? 'mediaobject' : type
     this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {
-      path: this._getItemPath(page, grampsId)
+      path: this._getItemPath(type, grampsId)
     }}))
   }
 

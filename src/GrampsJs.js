@@ -346,7 +346,7 @@ export class GrampsJs extends LitElement {
       citations: this._('Citations'),
       repositories: this._('Repositories'),
       notes: this._('Notes'),
-      media: this._('Media Objects')
+      medialist: this._('Media Objects')
     }
     return html`
       <mwc-drawer type="dismissible" id="app-drawer" ?open="${this.wide}">
@@ -402,7 +402,7 @@ export class GrampsJs extends LitElement {
         <grampsjs-view-citations class="page" ?active=${this._page === 'citations'} .strings="${this._strings}"></grampsjs-view-citations>
         <grampsjs-view-repositories class="page" ?active=${this._page === 'repositories'} .strings="${this._strings}"></grampsjs-view-repositories>
         <grampsjs-view-notes class="page" ?active=${this._page === 'notes'} .strings="${this._strings}"></grampsjs-view-notes>
-        <grampsjs-view-media-objects class="page" ?active=${this._page === 'media'} .strings="${this._strings}"></grampsjs-view-media-objects>
+        <grampsjs-view-media-objects class="page" ?active=${this._page === 'medialist'} .strings="${this._strings}"></grampsjs-view-media-objects>
         <grampsjs-view-map class="page" ?active=${this._page === 'map'} .strings="${this._strings}"></grampsjs-view-map>
         <grampsjs-view-tree class="page" ?active=${this._page === 'tree'} grampsId="${this.settings.homePerson}" .strings="${this._strings}"></grampsjs-view-tree>
 
@@ -414,7 +414,7 @@ export class GrampsJs extends LitElement {
         <grampsjs-view-citation class="page" ?active=${this._page === 'citation'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-citation>
         <grampsjs-view-repository class="page" ?active=${this._page === 'repository'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-repository>
         <grampsjs-view-note class="page" ?active=${this._page === 'note'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-note>
-        <grampsjs-view-media class="page" ?active=${this._page === 'mediaobject'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-media>
+        <grampsjs-view-media class="page" ?active=${this._page === 'media'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-media>
         <grampsjs-view-search class="page" ?active=${this._page === 'search'} .strings="${this._strings}"></grampsjs-view-search>
         <grampsjs-view-recent class="page" ?active=${this._page === 'recent'} .strings="${this._strings}"></grampsjs-view-recent>
 

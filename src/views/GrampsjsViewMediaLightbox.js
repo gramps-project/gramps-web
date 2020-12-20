@@ -78,7 +78,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   _handleButtonClick() {
     this.dispatchEvent(new CustomEvent('nav', {
       bubbles: true, composed: true, detail: {
-        path: `mediaobject/${this._data?.gramps_id}`
+        path: `media/${this._data?.gramps_id}`
       }
     }))
   }

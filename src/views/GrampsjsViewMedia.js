@@ -8,7 +8,7 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
 
   constructor() {
     super()
-    this._className = 'mediaobject'
+    this._className = 'media'
   }
 
   getUrl() {
