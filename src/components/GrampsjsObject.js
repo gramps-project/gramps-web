@@ -37,7 +37,11 @@ const _allTabs = {
   addresses: {title: 'Addresses', condition: (data) => (data?.address_list?.length > 0)},
   internet: {title: 'Internet', condition: (data) => (data?.urls?.length > 0)},
   associations: {title: 'Associations', condition: (data) => (data?.person_ref_list?.length > 0)},
-  references: {title: 'References', condition: (data) => (Object.keys(data?.backlinks)?.length > 0)}
+  references: {title: 'References', condition: (data) => (
+    Object.keys(data?.backlinks)?.length > 0
+    && !data.primary_name // don't show references for person
+    && !data.child_ref_list // don't show references for family
+  )}
 }
 
 export class GrampsjsObject extends LitElement {
