@@ -25,16 +25,16 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
   getUrl() {
     const rules = {
       function: 'or',
-      rules: this.grampsIds.map(grampsId =>{
-        return {
-          name: 'HasIdOf',
-          values: [grampsId]
-        }
-      }
-
+      rules: this.grampsIds.map(grampsId =>({
+        name: 'HasIdOf',
+        values: [grampsId]
+      })
       )
     }
-    return `/api/notes/?profile=all&extend=all&formats=html&rules=${encodeURIComponent(JSON.stringify(rules))}`
+    const options = {
+      link_format: '/{obj_class}/{gramps_id}'
+    }
+    return `/api/notes/?profile=all&extend=all&formats=html&rules=${encodeURIComponent(JSON.stringify(rules))}&format_options=${encodeURIComponent(JSON.stringify(options))}`
   }
 
   renderElements() {
