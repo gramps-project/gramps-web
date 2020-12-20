@@ -20,6 +20,7 @@ import {mdiFamilyTree} from '@mdi/js'
 import {renderIcon} from './icons.js'
 import {apiGetTokens, apiGet, getSettings, apiResetPassword} from './api.js'
 import {grampsStrings, additionalStrings} from './strings.js'
+import './dayjs_locales.js'
 
 
 import './views/GrampsjsViewPeople.js'
@@ -552,7 +553,6 @@ export class GrampsJs extends LitElement {
           this._showError(data.error)
         }
       })
-    import(`dayjs/esm/locale/${this.settings.lang}.js`).catch()
   }
 
   async _submitLogin() {
