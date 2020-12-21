@@ -1,4 +1,4 @@
-import {html, css} from 'lit-element';
+import {html, css} from 'lit-element'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsMap.js'
@@ -17,7 +17,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         margin-top: -4px;
       }
 
-    `];
+    `]
   }
 
   static get properties() {
@@ -25,20 +25,20 @@ export class GrampsjsViewMap extends GrampsjsView {
       _data: {type: Array},
       _selected: {type: String},
 
-    };
+    }
   }
 
   constructor() {
-    super();
-    this._data = [];
-    this._selected = '';
+    super()
+    this._data = []
+    this._selected = ''
   }
 
   renderContent() {
     if (this._data.length === 0) {
       return html``
     }
-    const center = this._getMapCenter();
+    const center = this._getMapCenter()
     return html`
     <grampsjs-map
       width="100%"
@@ -53,11 +53,11 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   update(changed) {
-    super.update(changed);
+    super.update(changed)
     if (changed.has('active') && this.active) {
-      const mapel = this.shadowRoot.getElementById('map');
+      const mapel = this.shadowRoot.getElementById('map')
       if (mapel !== null) {
-        mapel._map.invalidateSize(false);
+        mapel._map.invalidateSize(false)
       }
     }
   }
@@ -67,7 +67,8 @@ export class GrampsjsViewMap extends GrampsjsView {
       if( obj?.profile?.lat === null
           || obj?.profile?.lat === undefined
           || obj?.profile?.long === null
-          || obj?.profile?.long === undefined) {
+          || obj?.profile?.long === undefined
+          || (obj?.profile?.lat === 0 && obj?.profile?.long === 0)) {
         return html``
       }
       return html`
@@ -84,10 +85,10 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   async _fetchData() {
-    const data = await apiGet('/api/places/?profile=all');
-    this.loading = false;
+    const data = await apiGet('/api/places/?profile=all')
+    this.loading = false
     if ('data' in data) {
-      this._data = data.data;
+      this._data = data.data
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
@@ -97,14 +98,14 @@ export class GrampsjsViewMap extends GrampsjsView {
 
   _getMapCenter() {
     if (this._data.length === 0) {
-      return [0, 0];
+      return [0, 0]
     }
-    let x = 0;
-    let y = 0;
-    let n = 0;
+    let x = 0
+    let y = 0
+    let n = 0
     for (let i =0; i < this._data.length; i += 1) {
       const p =  this._data[i]
-      if (p?.profile?.lat !== undefined && p?.profile?.lat !== null) {
+      if (p?.profile?.lat !== undefined && p?.profile?.lat !== null && (p?.profile?.lat !== 0 || p?.profile?.long !== 0)) {
         x += p.profile.lat
         y += p.profile.long
         n += 1
@@ -119,4 +120,4 @@ export class GrampsjsViewMap extends GrampsjsView {
 }
 
 
-window.customElements.define('grampsjs-view-map', GrampsjsViewMap);
+window.customElements.define('grampsjs-view-map', GrampsjsViewMap)

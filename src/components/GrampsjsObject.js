@@ -27,7 +27,7 @@ Define all tabs in the object view, their details, and when to display them
 
 const _allTabs = {
   relationships: {title: 'Relationships', condition: (data) => (data.family_list?.length > 0 || data.parent_family_list?.length > 0)},
-  map: {title: 'Map', condition: (data) => (data?.profile?.lat !== undefined && data?.profile?.lat !== null)},
+  map: {title: 'Map', condition: (data) => (data?.profile?.lat !== undefined && data?.profile?.lat !== null &&(data?.profile?.lat !== 0 || data?.profile?.long !== 0))},
   children: {title: 'Children', condition: (data) => (data.child_ref_list?.length > 0)},
   events: {title: 'Events', condition: (data) => (data?.event_ref_list?.length > 0)},
   names: {title: 'Names', condition: (data) => (data?.primary_name?.length > 0)},
