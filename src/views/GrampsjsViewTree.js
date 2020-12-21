@@ -1,5 +1,7 @@
 import {html, css} from 'lit-element'
 import '@material/mwc-slider'
+import '@material/mwc-button'
+import '@material/mwc-icon'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPedigree.js'
@@ -21,6 +23,18 @@ export class GrampsjsViewTree extends GrampsjsView {
 
       #slider-block {
         line-height: 48px;
+        float: left;
+        margin-right: 20px;
+      }
+
+      #button-block {
+        float: left;
+        position: relative;
+        top: 10px;
+      }
+
+      #pedigree-container {
+        clear: left;
       }
 
       #slider-block span {
@@ -32,6 +46,11 @@ export class GrampsjsViewTree extends GrampsjsView {
       .slider-container {
         height: 48px;
       }
+
+      mwc-button {
+        --mdc-ripple-focus-opacity: 0;
+        --mdc-theme-primary: rgba(0, 0, 0, 0.7);
+      }
     `]
   }
 
@@ -40,7 +59,8 @@ export class GrampsjsViewTree extends GrampsjsView {
       grampsId: {type: String},
       _data: {type: Array},
       _depth: {type: Number},
-      _zoom: {type: Number}
+      _zoom: {type: Number},
+      _history: {type: Array}
     }
   }
 
@@ -50,6 +70,7 @@ export class GrampsjsViewTree extends GrampsjsView {
     this._data = []
     this._depth = 4
     this._zoom = 1
+    this._history = []
   }
 
   renderContent() {
@@ -64,7 +85,8 @@ export class GrampsjsViewTree extends GrampsjsView {
     }
     return html`
     <section id="pedigree-section">
-      <div id="slider-block">
+
+    <div id="slider-block">
         <span class="label">${this._('Number of generations:')}</span>
         <span class="slider-container"><mwc-slider
             value="${this._depth}"
@@ -75,6 +97,17 @@ export class GrampsjsViewTree extends GrampsjsView {
             id="slider"
             pin
             ></mwc-slider></span>
+      </div>
+      <div id="button-block">
+        <mwc-button outlined
+          id="btn-back"
+          @click="${this._prevPerson}"
+          ?disabled="${this._history.length < 2}"
+          icon="undo"></mwc-button>
+        <mwc-button outlined id="btn-home"
+          @click="${this._backToHomePerson}"
+          ?disabled="${this.grampsId === this.settings.homePerson}"
+          >${this._('Home Person')}</mwc-button>
       </div>
       <div style="transform: scale(${this._zoom}); transform-origin: top left;" id="pedigree-container">
         <grampsjs-pedigree
@@ -88,10 +121,22 @@ export class GrampsjsViewTree extends GrampsjsView {
   `
   }
 
+  _prevPerson() {
+    this._history.pop()
+    this.grampsId = this._history.pop()
+  }
+
+  _backToHomePerson() {
+    this.grampsId = this.settings.homePerson
+  }
+
   update(changed) {
     super.update(changed)
     if (changed.has('grampsId')) {
       this._fetchData(this.grampsId)
+      this._history.push(this.grampsId)
+      // limit history to 100 people
+      this._history = this._history.slice(-100)
     }
     if (changed.has('_depth')) {
       this.setZoom()
