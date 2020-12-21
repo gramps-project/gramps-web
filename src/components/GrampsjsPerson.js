@@ -15,6 +15,11 @@ export class GrampsjsPerson extends GrampsjsObject {
     `]
   }
 
+  constructor() {
+    super()
+    this._showReferences = false
+  }
+
   renderProfile() {
     return html`
     <h2><mwc-icon class="inline ${this.data.gender === 1 ? 'male' : 'female'}">person</mwc-icon> ${this._displayName()}</h2>

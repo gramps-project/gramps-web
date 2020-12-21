@@ -31,6 +31,7 @@ export class GrampsjsView extends LitElement {
       strings: {type: Object},
       loading: {type: Boolean},
       error: {type: Boolean},
+      settings: {type: Object},
       _errorMessage: {type: String}
     }
   }
@@ -41,6 +42,7 @@ export class GrampsjsView extends LitElement {
     this.active = false
     this.loading = false
     this.error = false
+    this.settings = {}
     this._errorMessage = ''
   }
 

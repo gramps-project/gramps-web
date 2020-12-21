@@ -4,19 +4,20 @@ import '@material/mwc-tab'
 import '@material/mwc-tab-bar'
 
 import {sharedStyles} from '../SharedStyles.js'
+import '../views/GrampsjsViewObjectNotes.js'
+import '../views/GrampsjsViewSourceCitations.js'
 import './GrampsjsAddresses.js'
 import './GrampsjsAttributes.js'
-import './GrampsjsEvents.js'
-import './GrampsjsRelationships.js'
 import './GrampsjsChildren.js'
-import './GrampsjsReferences.js'
-import './GrampsjsTags.js'
-import './GrampsjsUrls.js'
+import './GrampsjsEvents.js'
 import './GrampsjsGallery.js'
 import './GrampsjsMap.js'
 import './GrampsjsMapMarker.js'
-import '../views/GrampsjsViewSourceCitations.js'
-import '../views/GrampsjsViewObjectNotes.js'
+import './GrampsjsParticipants.js'
+import './GrampsjsReferences.js'
+import './GrampsjsRelationships.js'
+import './GrampsjsTags.js'
+import './GrampsjsUrls.js'
 
 
 /*
@@ -30,6 +31,7 @@ const _allTabs = {
   children: {title: 'Children', condition: (data) => (data.child_ref_list?.length > 0)},
   events: {title: 'Events', condition: (data) => (data?.event_ref_list?.length > 0)},
   names: {title: 'Names', condition: (data) => (data?.primary_name?.length > 0)},
+  participants: {title: 'Participants', condition: (data) => (data?.profile?.participants?.people?.length || data?.profile?.participants?.families?.length)},
   gallery: {title: 'Gallery', condition: (data) => (data?.media_list?.length > 0)},
   notes: {title: 'Notes', condition: (data) => (data?.note_list?.length > 0)},
   citations: {title: 'Sources', condition: (data) => (data?.citation_list?.length > 0)},
@@ -37,11 +39,7 @@ const _allTabs = {
   addresses: {title: 'Addresses', condition: (data) => (data?.address_list?.length > 0)},
   internet: {title: 'Internet', condition: (data) => (data?.urls?.length > 0)},
   associations: {title: 'Associations', condition: (data) => (data?.person_ref_list?.length > 0)},
-  references: {title: 'References', condition: (data) => (
-    Object.keys(data?.backlinks)?.length > 0
-    && !data.primary_name // don't show references for person
-    && !data.child_ref_list // don't show references for family
-  )}
+  references: {title: 'References', condition: (data) => (Object.keys(data?.backlinks)?.length > 0)}
 }
 
 export class GrampsjsObject extends LitElement {
@@ -89,6 +87,7 @@ export class GrampsjsObject extends LitElement {
       strings: {type: Object},
       _currentTabId: {type: Number},
       _currentTab: {type: String},
+      _showReferences: {type: Boolean}
     }
   }
 
@@ -97,6 +96,7 @@ export class GrampsjsObject extends LitElement {
     this.data = {}
     this.strings = {}
     this._currentTabId = 0
+    this._showReferences = true
   }
 
 
@@ -221,6 +221,8 @@ export class GrampsjsObject extends LitElement {
       return html`<grampsjs-urls .strings=${this.strings} .data=${this.data.urls}></grampsjs-urls>`
     case('associations'):
       return html`<pre>${JSON.stringify(this.data.extended.people, null, 2)}</pre>`
+    case('participants'):
+      return html`<grampsjs-participants .strings=${this.strings} .data=${[this.data?.profile?.participants]}></grampsjs-participants>`
     case('references'):
       return html`<grampsjs-references .strings=${this.strings} .data=${[this.data?.extended?.backlinks]}></grampsjs-references>`
     default:
@@ -230,7 +232,7 @@ export class GrampsjsObject extends LitElement {
   }
 
   _getTabs() {
-    return Object.keys(_allTabs).filter(key => _allTabs[key].condition(this.data))
+    return Object.keys(_allTabs).filter(key => (_allTabs[key].condition(this.data) && (this._showReferences || key !== 'references')))
   }
 
   _makeTab(key) {

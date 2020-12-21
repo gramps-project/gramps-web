@@ -9,6 +9,45 @@ import {asteriskIcon, crossIcon, ringsIcon} from './icons.js'
 dayjs.extend(relativeTime)
 
 
+
+export function translate(strings, s) {
+  if (s === undefined) {
+    return ''
+  }
+  if (s in strings) {
+    return strings[s].replace('_', '')
+  }
+  return s.replace('_', '')
+}
+
+
+export function personTitleFromProfile(personProfile) {
+  return `${personProfile.name_given || '…'} ${personProfile.name_surname || '…'}`
+}
+
+
+export function familyTitleFromProfile(familyProfile) {
+  return `${personTitleFromProfile(familyProfile.father || {})} & ${personTitleFromProfile(familyProfile.mother || {})}`
+}
+
+
+export function citationTitleFromProfile(citationProfile) {
+  return `${citationProfile.source?.title || ''}
+          ${citationProfile.page ? ` (${citationProfile.page})` : ''}`
+}
+
+
+export function eventTitleFromProfile(eventProfile, strings) {
+  const primary = translate(strings, 'Primary')
+  const family = translate(strings, 'Family')
+  const people = eventProfile?.participants?.people.filter((obj) => obj.role === primary) || []
+  const families = eventProfile?.participants?.families.filter((obj) => obj.role === family) || []
+  const primaryPeople = `${people.map((obj) => personTitleFromProfile(obj.person)).join(', ')}
+          ${families.map((obj) => familyTitleFromProfile(obj.family)).join(', ')}`
+  return html`${eventProfile.type}: ${primaryPeople || '?'}`
+}
+
+
 export function renderPerson(personProfile) {
   return html`
   <span class="event">
@@ -48,7 +87,7 @@ export function getName(obj, type) {
 }
 
 
-export function showObject(type, obj) {
+export function showObject(type, obj, strings) {
   switch(type) {
   case 'person':
     return html`
@@ -62,14 +101,14 @@ export function showObject(type, obj) {
     return html`
       <mwc-icon class="inline">people</mwc-icon>
       <a href="/${type}/${obj.gramps_id}"
-      >${getName(obj, type) || type}
+      >${familyTitleFromProfile(obj.profile || {}) || type}
       </a>
     `
   case 'event':
     return html`
       <mwc-icon class="inline">event</mwc-icon>
       <a href="/${type}/${obj.gramps_id}"
-      >${getName(obj, type) || type}
+      >${eventTitleFromProfile(obj.profile || {}, strings) || obj.type}
       </a>
     `
   case 'place':
@@ -90,7 +129,7 @@ export function showObject(type, obj) {
     return html`
       <mwc-icon class="inline">bookmark</mwc-icon>
       <a href="/${type}/${obj.gramps_id}"
-      >${getName(obj, type) || type}
+      >${citationTitleFromProfile(obj.profile || {}) || type}
       </a>
     `
   case 'repository':
@@ -104,7 +143,7 @@ export function showObject(type, obj) {
     return html`
         <mwc-icon class="inline">sticky_note_2</mwc-icon>
         <a href="/${type}/${obj.gramps_id}"
-        >${getName(obj, type) || type}
+        >${translate(strings, obj.type) || type}
         </a>
       `
   case 'media':
@@ -121,6 +160,21 @@ export function showObject(type, obj) {
 
 
 export function prettyTimeDiffTimestamp(timestamp, locale) {
-  dayjs.locale(locale)
+  // pt_PT is the only locale we have to rename
+  const dayjsLocale = locale === 'pt_PT' ? 'pt' : locale
+  dayjs.locale(dayjsLocale.toLowerCase().replace('_', '-'))
   return dayjs.unix(timestamp).fromNow()
+}
+
+
+export function debounce (func, wait)  {
+  let timeout
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout)
+      func(...args)
+    }
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+  }
 }

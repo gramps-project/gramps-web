@@ -17,6 +17,11 @@ export class GrampsjsFamily extends GrampsjsObject {
     `]
   }
 
+  constructor() {
+    super()
+    this._showReferences = false
+  }
+
   renderProfile() {
     return html`
     <h2><mwc-icon class="person">people</mwc-icon> ${this._renderTitle()}</h2>

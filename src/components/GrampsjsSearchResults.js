@@ -51,54 +51,13 @@ export class GrampsjsSearchResults extends LitElement {
     }
     return html`
     <div id="search-results">
-    ${this.data.map((obj) => {
-    return html`
+    ${this.data.map((obj) =>  html`
         <div class="search-hit">
-          ${showObject(obj.object_type, obj.object)}
-        </div>`
-  }, this)}
+          ${showObject(obj.object_type, obj.object, this.strings)}
+        </div>`, this)}
     </div>
     `
   }
-
-
-  _renderObj(obj) {
-    if (obj.object_type === 'person') {
-      return this._renderPerson(obj.object)
-    }
-    if (obj.object_type === 'event') {
-      return this._renderEvent(obj.object)
-    }
-    if (obj.object_type === 'place') {
-      return this._renderPlace(obj.object)
-    }
-    return html`
-    ${obj.object_type}
-
-    <pre>${JSON.stringify(obj.object, null, 2)}</pre>
-    `
-  }
-
-  _renderPerson(obj) {
-    return html`
-    <a href="/person/${obj.gramps_id}">${obj.profile.name_given} ${obj.profile.name_surname}</a>
-    ${Object.keys(obj.profile.birth).length ? html`
-    <br><span class="small">* ${obj.profile.birth.date}</span>` : ''}
-    `
-  }
-
-  _renderEvent(obj) {
-    return html`
-    <a href="/event/${obj.gramps_id}">${obj.description}</a>
-    ${obj.profile.date ? html`
-    <br><span class="small">${obj.profile.date}</span>` : ''}`
-  }
-
-  _renderPlace(obj) {
-    return html`
-    <a href="/place/${obj.gramps_id}">${obj.title}</a>`
-  }
-
 }
 
 

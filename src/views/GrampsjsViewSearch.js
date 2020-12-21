@@ -155,7 +155,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
   }
 
   async _fetchData(query, page) {
-    const data = await apiGet(`/api/search/?query=${query}&profile=self&page=${page}&pagesize=20`)
+    const data = await apiGet(`/api/search/?query=${query}&profile=all&page=${page}&pagesize=20`)
     this.loading = false
     if ('data' in data) {
       this._data = data.data

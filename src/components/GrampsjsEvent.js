@@ -15,6 +15,11 @@ export class GrampsjsEvent extends GrampsjsObject {
     `]
   }
 
+  constructor() {
+    super()
+    this._showReferences = false
+  }
+
   renderProfile() {
     return html`
     <h2><mwc-icon class="person">event</mwc-icon> ${this._renderTitle()}</h2>

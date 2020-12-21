@@ -46,7 +46,9 @@ export class GrampsjsEvents extends GrampsjsTableBase {
     ${this.data.map((obj, i) => html`
       <tr @click=${() => this._handleClick(obj.gramps_id)}>
         <td>${this.profile[i].date}</td>
-        <td>${this.profile[i].type}</td>
+        <td>${this.profile[i].type}
+        ${!this.profile[i]?.role || [this._('Primary'), this._('Family')].includes(this.profile[i]?.role) ? ''
+    : `(${this.profile[i]?.role})`} </td>
         <td>${obj.description}</td>
         <td>${this.profile[i].place}</td>
         <td>${obj?.media_list?.length > 0 ? html`
@@ -55,7 +57,7 @@ export class GrampsjsEvents extends GrampsjsTableBase {
         <mwc-icon class="inline">sticky_note_2</mwc-icon>` : ''}</td>
 
       </tr>
-    `)}
+    `, this)}
     </table>
     `
   }
