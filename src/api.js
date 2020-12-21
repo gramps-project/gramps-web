@@ -189,3 +189,51 @@ export function getThumbnailUrlCropped(handle, rect, size, square=false) {
   const [x1, y1, x2, y2] = rect
   return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?jwt=${jwt}&square=${square}`
 }
+
+
+export async function changeOwnPassword(oldPw, newPw) {
+  try {
+    const resp = await fetch(`${__APIHOST__}/api/users/-/password/change/`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({'old_password': oldPw, 'new_password': newPw})
+    })
+    if (resp.status === 400 || resp.status === 401 || resp.status === 403) {
+      throw(new Error('Wrong password'))
+    }
+    if (resp.status !== 201) {
+      throw(new Error(`Error ${resp.status}`))
+    }
+    return {}
+  }
+  catch (error)  {
+    return {'error': error.message}
+  }
+}
+
+
+export async function changeOwnDetails(payload) {
+  try {
+    const resp = await fetch(`${__APIHOST__}/api/users/-/`, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    if (resp.status === 400 || resp.status === 401 || resp.status === 403) {
+      throw(new Error('Not allowed'))
+    }
+    if (resp.status !== 201) {
+      throw(new Error(`Error ${resp.status}`))
+    }
+    return {}
+  }
+  catch (error)  {
+    return {'error': error.message}
+  }
+}

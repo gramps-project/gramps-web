@@ -1,7 +1,7 @@
 import {html} from 'lit-element'
 
 import {GrampsjsViewSettingsOnboarding} from './GrampsjsViewSettingsOnboarding.js'
-import {doLogout} from '../api.js'
+import {doLogout, changeOwnDetails, changeOwnPassword} from '../api.js'
 import '@material/mwc-textfield'
 import '@material/mwc-button'
 import '@material/mwc-select'
@@ -87,9 +87,35 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
 
   _changeEmail() {
     const form = this.shadowRoot.getElementById('change-email')
-    alert(form.value)
+    if (!form.value) {
+      return
+    }
+    this.loading = true
+    changeOwnDetails({email: form.value}).then(data => {
+      this.loading = false
+      if ('error' in data) {
+        this.error = true
+        this._errorMessage = data.error
+      }
+    })
   }
-}
 
+  _changePw() {
+    const formOldPw = this.shadowRoot.getElementById('old-pw')
+    const formNewPw = this.shadowRoot.getElementById('new-pw')
+    if (!formOldPw.value || !formNewPw.value) {
+      return
+    }
+    this.loading = true
+    changeOwnPassword(formOldPw.value, formNewPw.value).then(data => {
+      this.loading = false
+      if ('error' in data) {
+        this.error = true
+        this._errorMessage = data.error
+      }
+    })
+  }
+
+}
 
 window.customElements.define('grampsjs-view-settings', GrampsjsViewSettings)
