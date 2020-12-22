@@ -18,9 +18,6 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         margin: 0px;
       }
 
-      grampsjs-img {
-        max-height:100vh;
-      }
       `
     ]
   }
@@ -73,7 +70,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     return html`
     <grampsjs-img
       handle="${handle}"
-      size="0"
+      size="2000"
       mime="${mime}"
     ></grampsjs-img>
     `

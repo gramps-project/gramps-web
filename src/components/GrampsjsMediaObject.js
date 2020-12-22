@@ -26,7 +26,8 @@ export class GrampsjsMediaObject extends GrampsjsObject {
 
     <grampsjs-img
       handle="${this.data.handle}"
-      size="0"
+      size="1000"
+      border
       mime="${this.data.mime}"
     ></grampsjs-img>
 

@@ -92,6 +92,7 @@ export const grampsStrings = [
   'Media Objects',
   'Media Reference Note',
   'Media',
+  'Military Service',
   'Mother',
   'Municipality',
   'Name Note',

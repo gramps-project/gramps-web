@@ -3,6 +3,7 @@ An Image thumbnail element.
 */
 
 import {html, css, LitElement} from 'lit-element'
+import { classMap } from 'lit-html/directives/class-map'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {getMediaUrl, getThumbnailUrl, getThumbnailUrlCropped} from '../api.js'
@@ -14,12 +15,16 @@ class GrampsjsImg extends LitElement {
       sharedStyles,
       css`
       img {
-        /* max-height:100vh; */
         max-width: 100%;
+        max-height: 100vh;
       }
 
       .round {
         border-radius: 50%;
+      }
+
+      .bordered {
+        box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.2);
       }
       `
     ]
@@ -34,6 +39,7 @@ class GrampsjsImg extends LitElement {
       square: {type: Boolean},
       mime: {type: String},
       displayHeight: {type: Number},
+      border: {type: Boolean}
     }
   }
 
@@ -44,6 +50,7 @@ class GrampsjsImg extends LitElement {
     this.square = false
     this.mime = ''
     this.displayHeight = 0
+    this.border = false
   }
 
 
@@ -52,7 +59,7 @@ class GrampsjsImg extends LitElement {
     return html`
       <img
       src="${getMediaUrl(this.handle)}"
-      class="${this.circle ? 'round' : ''}"
+      class=${classMap({round: this.circle, bordered: this.border})}
       @error=${this._errorHandler}
       alt="" height="${height}"
       >
@@ -67,7 +74,7 @@ class GrampsjsImg extends LitElement {
       ${getThumbnailUrl(this.handle, 1.5 * this.size, this.square)} 1.5x
       ${getThumbnailUrl(this.handle, 2 * this.size, this.square)} 2x"
       src="${getThumbnailUrl(this.handle, 2 * this.size, this.square)}"
-      class="${this.circle ? 'round' : ''}"
+      class=${classMap({round: this.circle, bordered: this.border})}
       @error=${this._errorHandler}
       alt="" height="${height}"
       >
