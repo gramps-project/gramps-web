@@ -15,7 +15,7 @@ export class GrampsjsViewNote extends GrampsjsViewObject {
     const options = {
       link_format: '/{obj_class}/{gramps_id}'
     }
-    return `/api/notes/?gramps_id=${this.grampsId}&profile=all&backlinks=true&extend=all&formats=html&format_options=${encodeURIComponent(JSON.stringify(options))}`
+    return `/api/notes/?gramps_id=${this.grampsId}&locale=${this.strings?.__lang__ || 'en'}&profile=all&backlinks=true&extend=all&formats=html&format_options=${encodeURIComponent(JSON.stringify(options))}`
   }
 
   renderElement() {

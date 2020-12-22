@@ -105,7 +105,7 @@ export class GrampsjsViewBlog extends GrampsjsView {
     const options = {
       link_format: '/{obj_class}/{gramps_id}'
     }
-    return `/api/notes/?profile=all&extend=all&formats=html&rules=${encodeURIComponent(JSON.stringify(rules))}&format_options=${encodeURIComponent(JSON.stringify(options))}`
+    return `/api/notes/?locale=${this.strings?.__lang__ || 'en'}&profile=all&extend=all&formats=html&rules=${encodeURIComponent(JSON.stringify(rules))}&format_options=${encodeURIComponent(JSON.stringify(options))}`
   }
 
 
@@ -119,7 +119,7 @@ export class GrampsjsViewBlog extends GrampsjsView {
         }
       ]
     }
-    const uri = `/api/sources/?rules=${encodeURIComponent(JSON.stringify(rules))}&page=${this._page}&pagesize=${this._pageSize}&sort=-change&profile=all&extend=all`
+    const uri = `/api/sources/?rules=${encodeURIComponent(JSON.stringify(rules))}&page=${this._page}&pagesize=${this._pageSize}&sort=-change&locale=${this.strings?.__lang__ || 'en'}&profile=all&extend=all`
     await apiGet(uri).then(data => {
       if ('data' in data) {
         this._dataSources = data.data

@@ -12,7 +12,7 @@ export class GrampsjsViewCitation extends GrampsjsViewObject {
   }
 
   getUrl() {
-    return `/api/citations/?gramps_id=${this.grampsId}&profile=all&backlinks=true&extend=all`
+    return `/api/citations/?gramps_id=${this.grampsId}&locale=${this.strings?.__lang__ || 'en'}&profile=all&backlinks=true&extend=all`
   }
 
   renderElement() {

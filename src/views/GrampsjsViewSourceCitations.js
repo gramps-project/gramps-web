@@ -30,7 +30,7 @@ export class GrampsjsViewSourceCitations extends GrampsjsViewObjectsDetail {
 
       )
     }
-    return `/api/citations/?profile=all&extend=all&rules=${encodeURIComponent(JSON.stringify(rules))}`
+    return `/api/citations/?locale=${this.strings?.__lang__ || 'en'}&profile=all&extend=all&rules=${encodeURIComponent(JSON.stringify(rules))}`
   }
 
   renderElements() {

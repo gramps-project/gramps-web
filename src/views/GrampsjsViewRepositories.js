@@ -18,8 +18,12 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
       type: {title: 'Type', sort: 'type'},
       change: {title: 'Last changed', sort: 'change'},
     }
-    this._fetchUrl = '/api/repositories/?keys=gramps_id,name,type,change'
   }
+
+  get _fetchUrl() {
+    return '/api/repositories/?keys=gramps_id,name,type,change'
+  }
+
 
   // eslint-disable-next-line class-methods-use-this
   _getItemPath(item) {

@@ -20,7 +20,10 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
       pubinfo: {title: 'Publication info', sort: 'pubinfo'},
       change: {title: 'Last changed', sort: 'change'},
     }
-    this._fetchUrl = '/api/sources/?keys=gramps_id,title,author,pubinfo,change'
+  }
+
+  get _fetchUrl() {
+    return '/api/sources/?keys=gramps_id,title,author,pubinfo,change'
   }
 
   // eslint-disable-next-line class-methods-use-this

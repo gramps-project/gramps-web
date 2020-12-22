@@ -19,7 +19,10 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
       mother: {title: 'Mother', sort: ''},
       change: {title: 'Last changed', sort: 'change'},
     }
-    this._fetchUrl = '/api/families/?profile=self&keys=gramps_id,profile,change'
+  }
+
+  get _fetchUrl() {
+    return `/api/families/?locale=${this.strings?.__lang__ || 'en'}&profile=self&keys=gramps_id,profile,change`
   }
 
   // eslint-disable-next-line class-methods-use-this

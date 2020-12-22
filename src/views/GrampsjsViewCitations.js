@@ -19,7 +19,10 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
       change: {title: 'Last changed', sort: 'change'},
 
     }
-    this._fetchUrl = '/api/citations/?extend=source_handle&keys=gramps_id,extended,change'
+  }
+
+  get _fetchUrl() {
+    return '/api/citations/?extend=source_handle&keys=gramps_id,extended,change'
   }
 
   // eslint-disable-next-line class-methods-use-this

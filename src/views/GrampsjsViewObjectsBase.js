@@ -96,7 +96,6 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     return {
       _data: {type: Array},
       _columns: {type: Object},
-      _fetchUrl: {type: String},
       _totalCount: {type: Number},
       _page: {type: Number},
       _pages: {type: Number},

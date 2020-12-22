@@ -93,7 +93,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   }
 
   getUrl() {
-    return `/api/media/${this.handle}?profile=all&backlinks=true&extend=all`
+    return `/api/media/${this.handle}?locale=${this.strings?.__lang__ || 'en'}&profile=all&backlinks=true&extend=all`
   }
 
   _updateData() {

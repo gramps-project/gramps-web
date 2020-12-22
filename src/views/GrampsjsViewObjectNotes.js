@@ -34,7 +34,7 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
     const options = {
       link_format: '/{obj_class}/{gramps_id}'
     }
-    return `/api/notes/?profile=all&extend=all&formats=html&rules=${encodeURIComponent(JSON.stringify(rules))}&format_options=${encodeURIComponent(JSON.stringify(options))}`
+    return `/api/notes/?locale=${this.strings?.__lang__ || 'en'}&profile=all&extend=all&formats=html&rules=${encodeURIComponent(JSON.stringify(rules))}&format_options=${encodeURIComponent(JSON.stringify(options))}`
   }
 
   renderElements() {

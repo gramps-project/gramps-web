@@ -19,7 +19,10 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
       place: {title: 'Place', sort: 'place'},
       change: {title: 'Last changed', sort: 'change'},
     }
-    this._fetchUrl = '/api/events/?profile=self&keys=gramps_id,profile,change'
+  }
+
+  get _fetchUrl() {
+    return `/api/events/?locale=${this.strings?.__lang__ || 'en'}&profile=self&keys=gramps_id,profile,change`
   }
 
   // eslint-disable-next-line class-methods-use-this

@@ -174,7 +174,7 @@ export class GrampsjsViewTree extends GrampsjsView {
           values: [grampsId, 1]
         },
       ]}
-    const data = await apiGet(`/api/people/?rules=${encodeURIComponent(JSON.stringify(rules))}&profile=self,families`)
+    const data = await apiGet(`/api/people/?rules=${encodeURIComponent(JSON.stringify(rules))}&locale=${this.strings?.__lang__ || 'en'}&profile=self,families`)
     this.loading = false
     if ('data' in data) {
       this._data = data.data

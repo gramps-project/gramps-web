@@ -209,7 +209,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
     this.loading = true
     this._peopleLoading = true
     const seachPhrase = this._settings.homePerson? `(${textField.value} OR ${this._settings.homePerson})` : textField.value
-    const dataPeople = await apiGet(`/api/search/?profile=self&query=${encodeURIComponent(`${seachPhrase} AND type:person)`)}`)
+    const dataPeople = await apiGet(`/api/search/?locale=${this.strings?.__lang__ || 'en'}&profile=self&query=${encodeURIComponent(`${seachPhrase} AND type:person)`)}`)
     if ('data' in dataPeople) {
       this._people = dataPeople.data.map(obj =>({
         gramps_id: obj.object.gramps_id,

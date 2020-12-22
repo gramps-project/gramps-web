@@ -12,7 +12,7 @@ export class GrampsjsViewPerson extends GrampsjsViewObject {
   }
 
   getUrl() {
-    return `/api/people/?gramps_id=${this.grampsId}&profile=all&backlinks=true&extend=all`
+    return `/api/people/?gramps_id=${this.grampsId}&locale=${this.strings?.__lang__ || 'en'}&profile=all&backlinks=true&extend=all`
   }
 
   renderElement() {

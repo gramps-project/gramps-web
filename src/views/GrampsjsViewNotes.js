@@ -20,7 +20,10 @@ export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
       change: {title: 'Last changed', sort: 'change'}
 
     }
-    this._fetchUrl = '/api/notes/?keys=gramps_id,type,text,change'
+  }
+
+  get _fetchUrl() {
+    return '/api/notes/?keys=gramps_id,type,text,change'
   }
 
   // eslint-disable-next-line class-methods-use-this

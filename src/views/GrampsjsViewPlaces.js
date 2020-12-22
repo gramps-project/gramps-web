@@ -18,7 +18,10 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
       title: {tite: 'Title', sort: 'title'},
       change: {title: 'Last changed', sort: 'change'},
     }
-    this._fetchUrl = '/api/places/?keys=gramps_id,title,change'
+  }
+
+  get _fetchUrl() {
+    return '/api/places/?keys=gramps_id,title,change'
   }
 
   // eslint-disable-next-line class-methods-use-this

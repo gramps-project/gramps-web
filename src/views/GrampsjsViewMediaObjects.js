@@ -20,7 +20,10 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
       change: {title: 'Last changed', sort: 'change'}
 
     }
-    this._fetchUrl = '/api/media/?keys=gramps_id,mime,desc,change'
+  }
+
+  get _fetchUrl() {
+    return '/api/media/?keys=gramps_id,mime,desc,change'
   }
 
   // eslint-disable-next-line class-methods-use-this

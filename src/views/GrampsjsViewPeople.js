@@ -20,7 +20,10 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       death: {title: 'Death Date', sort: 'death'},
       change: {title: 'Last changed', sort: 'change'},
     }
-    this._fetchUrl = '/api/people/?profile=self&keys=gramps_id,profile,change'
+  }
+
+  get _fetchUrl(){
+    return `/api/people/?locale=${this.strings?.__lang__ || 'en'}&profile=self&keys=gramps_id,profile,change`
   }
 
   // eslint-disable-next-line class-methods-use-this

@@ -79,7 +79,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     }
     this.loading = true
     const query = this._data.map(obj => obj.grampsId).filter(grampsId => grampsId && grampsId.trim()).join(' OR ')
-    const data = await apiGet(`/api/search/?query=${query}&profile=all&page=1&pagesize=100`)
+    const data = await apiGet(`/api/search/?query=${query}&locale=${this.strings?.__lang__ || 'en'}&profile=all&page=1&pagesize=100`)
     this.loading = false
     if ('data' in data) {
       const dataObject = data.data.reduce((obj, item) => {
