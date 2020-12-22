@@ -5,7 +5,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsLightbox.js'
 import '../components/GrampsjsRectContainer.js'
 import '../components/GrampsjsRect.js'
-import {apiGet} from '../api.js'
+import {apiGet, getMediaUrl} from '../api.js'
 import {getNameFromProfile} from '../util.js'
 
 export class GrampsjsViewMediaLightbox extends GrampsjsView {
@@ -26,29 +26,26 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     return {
       handle: {type: String},
       _data: {type: Object},
+      hideLeftArrow: {type: Boolean},
+      hideRightArrow: {type: Boolean}
     }
   }
 
   constructor() {
     super()
     this._data = {}
+    this.hideLeftArrow = false
+    this.hideRightArrow = false
   }
 
   renderContent() {
     return html`
-    <grampsjs-lightbox id="gallery-lightbox">
+    <grampsjs-lightbox id="gallery-lightbox"
+      ?hideLeftArrow=${this.hideLeftArrow}
+      ?hideRightArrow=${this.hideRightArrow}
+      >
       <div slot="image">
-        <grampsjs-rect-container>
-          ${this._renderImage()}
-          ${this._getRectangles().map(obj => html`
-          <grampsjs-rect
-            .rect="${obj.rect}"
-            label="${obj.label}"
-            target="${obj.type}/${obj.grampsId}"
-          >
-          </grampsjs-rect>
-          `)}
-        <grampsjs-rect-container>
+        ${this._innerContainerContent()}
       </div>
       <span slot="description">${this._data?.desc || ''}</span>
       <span slot="button">
@@ -62,10 +59,62 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   }
 
 
-  _renderImage() {
+  _innerContainerContent() {
     if (Object.keys(this._data).length === 0) {
       return html``
     }
+    const {mime} = this._data
+    if (mime.startsWith('image/')) {
+      return this._innerContainerContentImage()
+    }
+    if (mime === 'application/pdf') {
+      return this._innerContainerContentPdf()
+    }
+    return this._innerContainerContentFile(mime)
+
+  }
+
+  _innerContainerContentPdf() {
+    return html`
+    <object
+      data="${getMediaUrl(this._data.handle)}"
+      type="application/pdf"
+      style="width: 80vw; height: 90vh;"
+      @error=${this._pdfErrorHandler}
+    >
+      ${this._innerContainerContentFile('application/pdf')}
+    </object>`
+  }
+
+
+  _pdfErrorHandler() {
+    this.dispatchEvent(new CustomEvent('grampsjs:error',
+      {bubbles: true, composed: true, detail: {message: 'Failed loading PDF file'}}))
+  }
+
+  _innerContainerContentFile() {
+    const {mime} = this._data
+    return html`
+      ${mime}
+    `
+  }
+
+  _innerContainerContentImage() {
+    return html`<grampsjs-rect-container>
+    ${this._renderImage()}
+    ${this._getRectangles().map((obj) => html`
+    <grampsjs-rect
+      .rect="${obj.rect}"
+      label="${obj.label}"
+      target="${obj.type}/${obj.grampsId}"
+    >
+    </grampsjs-rect>
+    `)}
+  <grampsjs-rect-container>`
+
+  }
+
+  _renderImage() {
     const {handle, mime} = this._data
     return html`
     <grampsjs-img
@@ -77,6 +126,8 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   }
 
   _handleButtonClick() {
+    const lightBox = this.shadowRoot.getElementById('gallery-lightbox')
+    lightBox.open = false
     this.dispatchEvent(new CustomEvent('nav', {
       bubbles: true, composed: true, detail: {
         path: `media/${this._data?.gramps_id}`

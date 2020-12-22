@@ -124,7 +124,9 @@ class GrampsjsLightbox extends LitElement {
   static get properties() {
     return {
       open: {type: Boolean},
-      _translateX: {type: Number}
+      _translateX: {type: Number},
+      hideLeftArrow: {type: Boolean},
+      hideRightArrow: {type: Boolean}
     }
   }
 
@@ -132,6 +134,8 @@ class GrampsjsLightbox extends LitElement {
     super()
     this.open = false
     this._translateX = 0
+    this.hideLeftArrow = false
+    this.hideRightArrow = false
   }
 
   render() {
@@ -143,12 +147,16 @@ class GrampsjsLightbox extends LitElement {
       <div class="lightbox-nav" id="close-lightbox" tabindex="0">
         <span @click="${this._close}" class="link" @keydown="">${closeIcon}</span>
       </div>
+      ${!this.hideLeftArrow ? html`
       <div class="lightbox-nav arrow arrow-left">
         <span @click="${this._handleLeft}" class="link" @keydown="">${chevronLeftIcon}</span>
       </div>
+      ` : ''}
+      ${!this.hideRightArrow ? html`
       <div class="lightbox-nav arrow arrow-right">
         <span @click="${this._handleRight}" class="link" @keydown="">${chevronRightIcon}</span>
       </div>
+      ` : ''}
       <div id="lightbox" tabindex="0"
         style="transform: translateX(${this._translateX}px);"
         @touchstart="${this._handleTouchStart}"

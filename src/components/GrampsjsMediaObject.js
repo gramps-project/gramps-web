@@ -27,11 +27,34 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     <grampsjs-img
       handle="${this.data.handle}"
       size="1000"
+      class="link"
       border
       mime="${this.data.mime}"
+      @click=${this._handleClick}
     ></grampsjs-img>
 
+
+    <grampsjs-view-media-lightbox
+      id="obj-lightbox-view"
+      @rect:clicked="${this._handleRectClick}"
+      handle="${this.data.handle}"
+      hideLeftArrow
+      hideRightArrow
+      >
+    </grampsjs-view-media-lightbox>
+
     `
+  }
+
+
+  _handleClick() {
+    const lightBoxView = this.shadowRoot.getElementById('obj-lightbox-view')
+    const lightBox = lightBoxView.shadowRoot.getElementById('gallery-lightbox')
+    lightBox.open = true
+  }
+
+  _handleRectClick(event) {
+    this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: event.detail.target}}))
   }
 }
 

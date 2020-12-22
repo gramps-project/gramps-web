@@ -57,6 +57,8 @@ export class GrampsjsGallery extends LitElement {
       @lightbox:right="${this._handleRight}"
       @rect:clicked="${this._handleRectClick}"
       handle="${this.media[this._lightboxSelected]?.handle}"
+      ?hideLeftArrow="${this._lightboxSelected === 0}"
+      ?hideRightArrow="${this._lightboxSelected === this.media.length - 1}"
       >
     </grampsjs-view-media-lightbox>
     `

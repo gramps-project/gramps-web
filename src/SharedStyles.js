@@ -53,7 +53,7 @@ export const sharedStyles = css`
     text-decoration-thickness: 0.5px;
   }
 
-  span.link {
+  .link {
     cursor: pointer;
   }
 
