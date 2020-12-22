@@ -1,7 +1,7 @@
-import { LitElement, css, html } from 'lit-element';
+import {LitElement, css, html} from 'lit-element'
 
-import { hex12ToCss } from '../color.js';
-import { sharedStyles } from '../SharedStyles.js';
+import {hex12ToCss} from '../color.js'
+import {sharedStyles} from '../SharedStyles.js'
 
 
 export class GrampsjsTags extends LitElement {
@@ -22,21 +22,22 @@ export class GrampsjsTags extends LitElement {
       }
 
       .tags {
+        clear: left;
         margin: 20px 0px;
       }
       `
-    ];
+    ]
   }
 
   static get properties() {
     return {
-      data: { type: Array },
-    };
+      data: {type: Array},
+    }
   }
 
   constructor() {
-    super();
-    this.data = [];
+    super()
+    this.data = []
   }
 
 
@@ -59,6 +60,6 @@ export class GrampsjsTags extends LitElement {
 }
 
 
-window.customElements.define('grampsjs-tags', GrampsjsTags);
+window.customElements.define('grampsjs-tags', GrampsjsTags)
 
 

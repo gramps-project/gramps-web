@@ -44,7 +44,7 @@ export function eventTitleFromProfile(eventProfile, strings) {
   const families = eventProfile?.participants?.families.filter((obj) => obj.role === family) || []
   const primaryPeople = `${people.map((obj) => personTitleFromProfile(obj.person)).join(', ')}
           ${families.map((obj) => familyTitleFromProfile(obj.family)).join(', ')}`
-  return html`${eventProfile.type}: ${primaryPeople || '?'}`
+  return html`${eventProfile.type}${primaryPeople.trim() ? `: ${primaryPeople}` : ''}${eventProfile.date ? ` (${eventProfile.date})` : ''}`
 }
 
 
@@ -115,7 +115,7 @@ export function showObject(type, obj, strings) {
     return html`
       <mwc-icon class="inline">place</mwc-icon>
       <a href="/${type}/${obj.gramps_id}"
-      >${getName(obj, type) || type}
+      >${obj?.profile?.name || obj.title || type}
       </a>
     `
   case 'source':
@@ -176,5 +176,29 @@ export function debounce (func, wait)  {
     }
     clearTimeout(timeout)
     timeout = setTimeout(later, wait)
+  }
+}
+
+
+export function getNameFromProfile(obj, type, strings) {
+  switch(type) {
+  case 'person':
+    return personTitleFromProfile(obj)
+  case 'event':
+    return eventTitleFromProfile(obj, strings)
+  case 'family':
+    return familyTitleFromProfile(obj)
+  case 'place':
+    return obj.title
+  case 'source':
+    return obj.title
+  case 'repository':
+    return obj.name
+  case 'citation':
+    return citationTitleFromProfile(obj)
+  case 'media':
+    return obj.desc
+  default:
+    return ''
   }
 }

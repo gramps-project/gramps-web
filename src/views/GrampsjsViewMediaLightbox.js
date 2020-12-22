@@ -6,7 +6,7 @@ import '../components/GrampsjsLightbox.js'
 import '../components/GrampsjsRectContainer.js'
 import '../components/GrampsjsRect.js'
 import {apiGet} from '../api.js'
-
+import {getNameFromProfile} from '../util.js'
 
 export class GrampsjsViewMediaLightbox extends GrampsjsView {
   static get styles() {
@@ -16,6 +16,10 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
 
       :host {
         margin: 0px;
+      }
+
+      grampsjs-img {
+        max-height:100vh;
       }
       `
     ]
@@ -42,7 +46,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
           ${this._getRectangles().map(obj => html`
           <grampsjs-rect
             .rect="${obj.rect}"
-            label="..."
+            label="${obj.label}"
             target="${obj.type}/${obj.grampsId}"
           >
           </grampsjs-rect>
@@ -109,16 +113,19 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _getRectangles() {
     const backlinks = this._data?.extended?.backlinks || {}
+    const references = this._data?.profile?.references || {}
     if (Object.keys(backlinks).length === 0) {
       return []
     }
-    return Object.keys(backlinks).map(key => backlinks[key].map(obj => {
+    return Object.keys(backlinks).map(key => backlinks[key].map((obj, index) => {
+      const refs = key in references ? references[key] : []
+      const label = refs.length >= index ? getNameFromProfile(refs[index] || {}, key, this.strings) : '...'
       return {
         rect: obj.media_list.find(mobj => mobj.ref === this._data.handle)?.rect,
         type: key,
+        label,
         grampsId: obj.gramps_id
       }
     })

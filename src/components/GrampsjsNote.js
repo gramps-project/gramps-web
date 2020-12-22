@@ -21,6 +21,7 @@ export class GrampsjsNote extends GrampsjsObject {
     <h2><mwc-icon class="person">sticky_note_2</mwc-icon> ${this._(this.data?.type || 'Note')}</h2>
 
     <grampsjs-note-content
+      framed
       grampsId="${this.data.gramps_id}"
       content="${this.data?.formatted?.html || this.data?.text?.string || 'Error loading note'}"
       ></grampsjs-note-content>

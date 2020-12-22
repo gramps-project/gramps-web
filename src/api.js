@@ -97,7 +97,11 @@ export async function apiGetTokens(username, password)  {
 
 
 
-export async function apiRefreshAuthToken(refreshToken)  {
+export async function apiRefreshAuthToken()  {
+  const refreshToken = localStorage.getItem('refresh_token')
+  if (refreshToken === null) {
+    return {error: 'No refresh token found!'}
+  }
   try {
     const resp = await fetch(`${__APIHOST__}/api/token/refresh/`, {
       method: 'POST',
@@ -116,7 +120,7 @@ export async function apiRefreshAuthToken(refreshToken)  {
       throw(new Error('Access token missing in response'))
     }
     const expires = Date.now() + 15 * 60 * 1000
-    storeAuthToken(resp.access_token, expires)
+    storeAuthToken(data.access_token, expires)
     return {}
   }
   catch (error) {
@@ -162,6 +166,56 @@ export async function apiGet(endpoint)  {
   }
 };
 
+async function apiPutPost(method, endpoint, payload)  {
+  const accessToken = localStorage.getItem('access_token')
+  let headers = {}
+  if (accessToken !== null) {
+    headers = {
+      'Authorization': `Bearer ${accessToken}`,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  }
+  try {
+    const resp = await fetch(`${__APIHOST__}${endpoint}`, {
+      method,
+      headers,
+      body: JSON.stringify(payload)
+    })
+    if (resp.status === 401) {
+      const refreshToken = localStorage.getItem('refresh_token')
+      if (refreshToken === null) {
+        throw(new Error('Missing refresh token'))
+      }
+      const refreshResp = await apiRefreshAuthToken()
+      if ('error' in refreshResp) {
+        throw(new Error(refreshResp.error))
+      }
+    }
+    if (resp.status === 400 || resp.status === 401 || resp.status === 403) {
+      throw(new Error('Authorization error'))
+    }
+    if (resp.status !== 201) {
+      throw(new Error(`Error ${resp.status}`))
+    }
+    return {}
+  }
+  catch (error)  {
+    return {'error': error.message}
+  }
+};
+
+
+export async function apiPut(endpoint, payload)  {
+  return apiPutPost('PUT', endpoint, payload)
+}
+
+
+export async function apiPost(endpoint, payload)  {
+  return apiPutPost('POST', endpoint, payload)
+}
+
+
 export function getMediaUrl(handle) {
   const jwt = localStorage.getItem('access_token')
   if (jwt === null) { return '' }
@@ -188,52 +242,4 @@ export function getThumbnailUrlCropped(handle, rect, size, square=false) {
   if (jwt === null) { return '' }
   const [x1, y1, x2, y2] = rect
   return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?jwt=${jwt}&square=${square}`
-}
-
-
-export async function changeOwnPassword(oldPw, newPw) {
-  try {
-    const resp = await fetch(`${__APIHOST__}/api/users/-/password/change/`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({'old_password': oldPw, 'new_password': newPw})
-    })
-    if (resp.status === 400 || resp.status === 401 || resp.status === 403) {
-      throw(new Error('Wrong password'))
-    }
-    if (resp.status !== 201) {
-      throw(new Error(`Error ${resp.status}`))
-    }
-    return {}
-  }
-  catch (error)  {
-    return {'error': error.message}
-  }
-}
-
-
-export async function changeOwnDetails(payload) {
-  try {
-    const resp = await fetch(`${__APIHOST__}/api/users/-/`, {
-      method: 'PUT',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    })
-    if (resp.status === 400 || resp.status === 401 || resp.status === 403) {
-      throw(new Error('Not allowed'))
-    }
-    if (resp.status !== 201) {
-      throw(new Error(`Error ${resp.status}`))
-    }
-    return {}
-  }
-  catch (error)  {
-    return {'error': error.message}
-  }
 }

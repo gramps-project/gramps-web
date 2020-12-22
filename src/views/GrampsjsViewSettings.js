@@ -1,7 +1,7 @@
 import {html} from 'lit-element'
 
 import {GrampsjsViewSettingsOnboarding} from './GrampsjsViewSettingsOnboarding.js'
-import {doLogout, changeOwnDetails, changeOwnPassword} from '../api.js'
+import {doLogout, apiPost, apiPut} from '../api.js'
 import '@material/mwc-textfield'
 import '@material/mwc-button'
 import '@material/mwc-select'
@@ -91,11 +91,15 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       return
     }
     this.loading = true
-    changeOwnDetails({email: form.value}).then(data => {
+    const payload = {email: form.value}
+    apiPut('/api/users/-/', payload).then(data => {
       this.loading = false
       if ('error' in data) {
         this.error = true
         this._errorMessage = data.error
+      } else{
+        this.dispatchEvent(new CustomEvent('grampsjs:notification', {bubbles: true, composed: true, detail: {message: 'E-mail successfully updated'}}))
+        form.value = ''
       }
     })
   }
@@ -107,11 +111,16 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       return
     }
     this.loading = true
-    changeOwnPassword(formOldPw.value, formNewPw.value).then(data => {
+    const payload = {old_password: formOldPw.value, new_password: formNewPw.value}
+    apiPost('/api/users/-/password/change', payload).then(data => {
       this.loading = false
       if ('error' in data) {
         this.error = true
         this._errorMessage = data.error
+      } else {
+        this.dispatchEvent(new CustomEvent('grampsjs:notification', {bubbles: true, composed: true, detail: {message: 'Password successfully updated'}}))
+        formOldPw.value = ''
+        formNewPw.value = ''
       }
     })
   }

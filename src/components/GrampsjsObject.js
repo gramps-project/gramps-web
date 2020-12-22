@@ -195,11 +195,11 @@ export class GrampsjsObject extends LitElement {
           latitude="${this.data.profile.lat}"
           longitude="${this.data.profile.long}"
           mapid="place-map"
+          id="map"
           >
-            <grampsjs-map-marker>
+            <grampsjs-map-marker
             latitude="${this.data.profile.lat}"
             longitude="${this.data.profile.long}"
-            popup="Hallo"
             >
             </grampsjs-map-marker>
           </grampsjs-map>`
@@ -224,11 +224,11 @@ export class GrampsjsObject extends LitElement {
     case('participants'):
       return html`<grampsjs-participants .strings=${this.strings} .data=${[this.data?.profile?.participants]}></grampsjs-participants>`
     case('references'):
-      return html`<grampsjs-references .strings=${this.strings} .data=${[this.data?.extended?.backlinks]}></grampsjs-references>`
+      return html`<grampsjs-references .strings=${this.strings} .data=${[this.data?.extended?.backlinks]} .profile=${this.data?.profile?.references || {}}></grampsjs-references>`
     default:
       break
     }
-    return html`Missing: ${this._currentTab}`
+    return html``
   }
 
   _getTabs() {

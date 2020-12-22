@@ -47,6 +47,7 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
   renderNote(obj) {
     return html`
     <grampsjs-note-content
+      framed
       grampsId="${obj.gramps_id}"
       content="${obj?.formatted?.html || obj?.text?.string}"
       ></grampsjs-note-content>

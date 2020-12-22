@@ -14,13 +14,13 @@ class GrampsjsImg extends LitElement {
       sharedStyles,
       css`
       img {
-        max-height:100vh;
+        /* max-height:100vh; */
+        max-width: 100%;
       }
 
       .round {
         border-radius: 50%;
       }
-
       `
     ]
   }

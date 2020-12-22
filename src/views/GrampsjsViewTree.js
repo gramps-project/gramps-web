@@ -51,6 +51,11 @@ export class GrampsjsViewTree extends GrampsjsView {
         --mdc-ripple-focus-opacity: 0;
         --mdc-theme-primary: rgba(0, 0, 0, 0.7);
       }
+
+      #outer-container {
+        clear: left;
+        padding-top: 30px;
+      }
     `]
   }
 
@@ -68,7 +73,7 @@ export class GrampsjsViewTree extends GrampsjsView {
     super()
     this.grampsId = ''
     this._data = []
-    this._depth = 4
+    this._depth = 3
     this._zoom = 1
     this._history = []
   }
@@ -86,36 +91,40 @@ export class GrampsjsViewTree extends GrampsjsView {
     return html`
     <section id="pedigree-section">
 
-    <div id="slider-block">
-        <span class="label">${this._('Number of generations:')}</span>
-        <span class="slider-container"><mwc-slider
-            value="${this._depth}"
-            min="2"
-            max="6"
-            step="1"
-            @change="${this._updateDepth}"
-            id="slider"
-            pin
-            ></mwc-slider></span>
+      <div id="controls">
+        <div id="slider-block">
+          <span class="label">${this._('Number of generations:')}</span>
+          <span class="slider-container"><mwc-slider
+              value="${this._depth}"
+              min="2"
+              max="6"
+              step="1"
+              @change="${this._updateDepth}"
+              id="slider"
+              pin
+              ></mwc-slider></span>
+        </div>
+        <div id="button-block">
+          <mwc-button outlined
+            id="btn-back"
+            @click="${this._prevPerson}"
+            ?disabled="${this._history.length < 2}"
+            icon="undo"></mwc-button>
+          <mwc-button outlined id="btn-home"
+            @click="${this._backToHomePerson}"
+            ?disabled="${this.grampsId === this.settings.homePerson}"
+            >${this._('Home Person')}</mwc-button>
+        </div>
       </div>
-      <div id="button-block">
-        <mwc-button outlined
-          id="btn-back"
-          @click="${this._prevPerson}"
-          ?disabled="${this._history.length < 2}"
-          icon="undo"></mwc-button>
-        <mwc-button outlined id="btn-home"
-          @click="${this._backToHomePerson}"
-          ?disabled="${this.grampsId === this.settings.homePerson}"
-          >${this._('Home Person')}</mwc-button>
-      </div>
-      <div style="transform: scale(${this._zoom}); transform-origin: top left;" id="pedigree-container">
-        <grampsjs-pedigree
-          .people="${this._data}"
-          grampsId="${this.grampsId}"
-          depth="${this._depth}"
-          id="pedigree"
-          ></grampsjs-pedigree>
+      <div id="outer-container">
+        <div style="transform: scale(${this._zoom}); transform-origin: top left;" id="pedigree-container">
+          <grampsjs-pedigree
+            .people="${this._data}"
+            grampsId="${this.grampsId}"
+            depth="${this._depth}"
+            id="pedigree"
+            ></grampsjs-pedigree>
+        </div>
       </div>
     </section>
   `

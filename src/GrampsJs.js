@@ -37,7 +37,9 @@ import './views/GrampsjsViewFamily.js'
 import './views/GrampsjsViewPlace.js'
 import './views/GrampsjsViewEvent.js'
 import './views/GrampsjsViewSource.js'
+import './views/GrampsjsViewBlog.js'
 import './views/GrampsjsViewCitation.js'
+import './views/GrampsjsViewDashboard.js'
 import './views/GrampsjsViewRepository.js'
 import './views/GrampsjsViewNote.js'
 import './views/GrampsjsViewMedia.js'
@@ -236,7 +238,8 @@ export class GrampsJs extends LitElement {
   render() {
     return html`
     ${this.renderContent()}
-    <mwc-snackbar id="error-snackbar"></mwc-snackbar>
+    <mwc-snackbar id="error-snackbar" leading></mwc-snackbar>
+    <mwc-snackbar id="notification-snackbar" leading></mwc-snackbar>
     `
   }
 
@@ -356,7 +359,7 @@ export class GrampsJs extends LitElement {
               <span>${this._('Home Page')}</span>
               <mwc-icon slot="graphic">home</mwc-icon>
             </grampsjs-list-item>
-            <grampsjs-list-item href="/" graphic="icon">
+            <grampsjs-list-item href="/blog" graphic="icon">
               <span>${this._('Blog')}</span>
               <mwc-icon slot="graphic">rss_feed</mwc-icon>
             </grampsjs-list-item>
@@ -393,6 +396,9 @@ export class GrampsJs extends LitElement {
 
 
         ${this._tabHtml(tabs)}
+
+        <grampsjs-view-dashboard class="page" ?active=${this._page === 'home'} .strings="${this._strings}"></grampsjs-view-dashboard>
+        <grampsjs-view-blog class="page" ?active=${this._page === 'blog'} .strings="${this._strings}"></grampsjs-view-blog>
 
         <grampsjs-view-people class="page" ?active=${this._page === 'people'} .strings="${this._strings}"></grampsjs-view-people>
         <grampsjs-view-families class="page" ?active=${this._page === 'families'} .strings="${this._strings}"></grampsjs-view-families>
@@ -453,6 +459,7 @@ export class GrampsJs extends LitElement {
     installMediaQueryWatcher('(min-width: 768px)', (matches) => {this.wide = matches})
     this.addEventListener('nav', this._handleNav.bind(this))
     this.addEventListener('grampsjs:error', this._handleError.bind(this))
+    this.addEventListener('grampsjs:notification', this._handleNotification.bind(this))
     this.addEventListener('progress:on', this._progressOn.bind(this))
     this.addEventListener('progress:off', this._progressOff.bind(this))
     window.addEventListener('user:loggedout', this._handleLogout.bind(this))
@@ -521,6 +528,11 @@ export class GrampsJs extends LitElement {
   _handleError(e) {
     const {message} = e.detail
     this._showError(message)
+  }
+
+  _handleNotification(e) {
+    const {message} = e.detail
+    this._showToast(message)
   }
 
   _handleLoginKey(event) {
@@ -594,6 +606,12 @@ export class GrampsJs extends LitElement {
   _showError(msg) {
     const snackbar = this.shadowRoot.getElementById('error-snackbar')
     snackbar.labelText = `Error: ${msg}`
+    snackbar.show()
+  }
+
+  _showToast(msg) {
+    const snackbar = this.shadowRoot.getElementById('notification-snackbar')
+    snackbar.labelText = msg
     snackbar.show()
   }
 
