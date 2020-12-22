@@ -3,7 +3,8 @@ An Image thumbnail element.
 */
 
 import {html, css, LitElement} from 'lit-element'
-import { classMap } from 'lit-html/directives/class-map'
+import {classMap} from 'lit-html/directives/class-map'
+import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {getMediaUrl, getThumbnailUrl, getThumbnailUrlCropped} from '../api.js'
@@ -25,6 +26,17 @@ class GrampsjsImg extends LitElement {
 
       .bordered {
         box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.2);
+      }
+
+      .file-placeholder {
+        width: 150px;
+        height: 150px;
+        background-color: rgba(200, 200, 200, 0.5);
+        color: rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        --mdc-icon-size: 100px;
       }
       `
     ]
@@ -93,6 +105,12 @@ class GrampsjsImg extends LitElement {
   }
 
   render() {
+    if (!this.mime.startsWith('image') && this.mime !== 'application/pdf') {
+      return html`
+      <div class="file-placeholder">
+        <mwc-icon>insert_drive_file<mwc-icon>
+      </div>`
+    }
     return (this.size === 0) ? this._renderFull() : this._renderThumb()
   }
 

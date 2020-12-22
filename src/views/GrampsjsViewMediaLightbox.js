@@ -70,7 +70,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     if (mime === 'application/pdf') {
       return this._innerContainerContentPdf()
     }
-    return this._innerContainerContentFile(mime)
+    return this._innerContainerContentFile()
 
   }
 
@@ -93,10 +93,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   }
 
   _innerContainerContentFile() {
-    const {mime} = this._data
-    return html`
-      ${mime}
-    `
+    return this._renderImage()
   }
 
   _innerContainerContentImage() {
