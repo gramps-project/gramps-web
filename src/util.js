@@ -153,6 +153,8 @@ export function showObject(type, obj, strings) {
         >${getName(obj, type) || type}
         </a>
         `
+  case 'tag':
+    return html``
   default:
     return `unknown type: ${type}`
   }

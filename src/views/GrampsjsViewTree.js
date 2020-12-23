@@ -149,6 +149,7 @@ export class GrampsjsViewTree extends GrampsjsView {
     }
     if (changed.has('_depth')) {
       this.setZoom()
+      this._fetchData(this.grampsId)
     }
     if (changed.has('active')) {
       this.setZoom()

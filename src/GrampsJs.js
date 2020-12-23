@@ -22,7 +22,6 @@ import {apiGetTokens, apiGet, getSettings, apiResetPassword} from './api.js'
 import {grampsStrings, additionalStrings} from './strings.js'
 import './dayjs_locales.js'
 
-
 import './views/GrampsjsViewPeople.js'
 import './views/GrampsjsViewFamilies.js'
 import './views/GrampsjsViewPlaces.js'
@@ -397,7 +396,7 @@ export class GrampsJs extends LitElement {
 
         ${this._tabHtml(tabs)}
 
-        <grampsjs-view-dashboard class="page" ?active=${this._page === 'home'} .strings="${this._strings}"></grampsjs-view-dashboard>
+        <grampsjs-view-dashboard class="page" ?active=${this._page === 'home'} .strings="${this._strings}" .dbInfo="${this._dbInfo}"></grampsjs-view-dashboard>
         <grampsjs-view-blog class="page" ?active=${this._page === 'blog'} .strings="${this._strings}"></grampsjs-view-blog>
 
         <grampsjs-view-people class="page" ?active=${this._page === 'people'} .strings="${this._strings}"></grampsjs-view-people>
