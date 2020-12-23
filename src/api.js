@@ -151,6 +151,8 @@ export async function apiGet(endpoint)  {
       const refreshResp = await apiRefreshAuthToken()
       if ('error' in refreshResp) {
         throw(new Error(refreshResp.error))
+      } else {
+        return apiGet(endpoint)
       }
     }
     if (resp.status === 403) {

@@ -23,6 +23,9 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
 
   // eslint-disable-next-line class-methods-use-this
   getUrl() {
+    if (this.grampsIds.length === 0) {
+      return ''
+    }
     const rules = {
       function: 'or',
       rules: this.grampsIds.map(grampsId =>({

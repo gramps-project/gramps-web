@@ -94,6 +94,9 @@ export class GrampsjsViewBlog extends GrampsjsView {
 
   _getNotesUrl() {
     const grampsIds = this._dataSources.map(obj => obj?.extended?.notes[0]?.gramps_id).filter(obj => obj)
+    if (grampsIds.length === 0) {
+      return ''
+    }
     const rules = {
       function: 'or',
       rules: grampsIds.map(grampsId =>({
@@ -131,20 +134,22 @@ export class GrampsjsViewBlog extends GrampsjsView {
       }
     })
     const uriNotes = this._getNotesUrl()
-    await apiGet(uriNotes).then(data => {
-      if ('data' in data) {
-        this._dataNotes = this._dataSources.map(obj => {
-          const noteGrampsId = obj?.extended?.notes[0]?.gramps_id
-          if (!noteGrampsId) {
-            return {}
-          }
-          return data.data.find(note => note.gramps_id === noteGrampsId) || {}
-        })
-      } else if ('error' in data) {
-        this.error = true
-        this._errorMessage = data.error
-      }
-    })
+    if (uriNotes) {
+      await apiGet(uriNotes).then(data => {
+        if ('data' in data) {
+          this._dataNotes = this._dataSources.map(obj => {
+            const noteGrampsId = obj?.extended?.notes[0]?.gramps_id
+            if (!noteGrampsId) {
+              return {}
+            }
+            return data.data.find(note => note.gramps_id === noteGrampsId) || {}
+          })
+        } else if ('error' in data) {
+          this.error = true
+          this._errorMessage = data.error
+        }
+      })
+    }
     this.loading = false
     this._firstLoaded = true
 
