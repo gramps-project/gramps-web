@@ -105,7 +105,7 @@ class GrampsjsImg extends LitElement {
   }
 
   render() {
-    if (!this.mime.startsWith('image') && this.mime !== 'application/pdf') {
+    if (!this.mime ==='' && !this.mime.startsWith('image') && this.mime !== 'application/pdf') {
       return html`
       <div class="file-placeholder">
         <mwc-icon>insert_drive_file<mwc-icon>

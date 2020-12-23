@@ -96,6 +96,7 @@ class GrampsjsPedigreeCard extends LitElement {
               size="70"
               circle
               square
+              mime="${this.person.media_list[0].mime}"
               .rect="${this.person.media_list[0].rect}">
             </grampsjs-img>
             ` : ''}
