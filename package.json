@@ -55,10 +55,10 @@
     ]
   },
   "name": "gramps-js",
-  "version": "0.0.0",
-  "description": "Webcomponent gramps-js following open-wc recommendations",
-  "author": "gramps-js",
-  "license": "MIT",
+  "version": "0.1.0",
+  "description": "Single-page app serving as frontend to the Gramps genealogical research system.",
+  "author": "David M. Straub",
+  "license": "AGPL",
   "dependencies": {
     "@material/mwc-button": "^0.20.0",
     "@material/mwc-circular-progress": "^0.20.0",
@@ -77,7 +77,6 @@
     "@material/mwc-top-app-bar": "^0.20.0",
     "@mdi/js": "^5.8.55",
     "@types/leaflet": "^1.5.19",
-    "@vaadin/vaadin-grid": "^5.7.7",
     "dayjs": "^1.8.36",
     "leaflet": "^1.7.1",
     "lit-element": "^2.4.0",
