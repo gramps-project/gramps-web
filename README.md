@@ -4,17 +4,15 @@ A single-page frontend for the <a href="https://gramps-project.org">Gramps</a> G
 
 ## About
 
-This is a Javascript web app to browse a Gramps genealogy database that is powered by the <a href="https://github.com/gramps-project/web-api">Gramps REST API</a>. The app is based on <a href="https://open-wc.org/">Open Web Components</a> and <a href="https://lit-element.polymer-project.org/">LitElement</a>.
+This is a Javascript web app to browse a Gramps genealogy database that is powered by the <a href="https://github.com/gramps-project/gramps-webapi">Gramps Web API</a>. The app is based on <a href="https://open-wc.org/">Open Web Components</a> and <a href="https://lit-element.polymer-project.org/">LitElement</a>.
 
-Its ancestor is the <a href="https://github.com/DavidMStraub/gramps-webapp-frontend">frontend</a> of the legacy <a href="https://github.com/DavidMStraub/gramps-webapp">Gramps web app</a>.
+(Its ancestor is the <a href="https://github.com/DavidMStraub/gramps-webapp-frontend">frontend</a> of the legacy <a href="https://github.com/DavidMStraub/gramps-webapp">Gramps web app</a>.)
 
 ## Project status
 
-The project is in early development and is not yet ready for use in production.
+The project is in active development but can already be used.
 
-Contributions are welcome, but please open an issue before starting to work on a feature to avoid duplicate work.
-
-Feature requests are premature :)
+Please use [Github issues](https://github.com/DavidMStraub/Gramps.js/issues) for bug reports and feature requests. Contributions are welcome.
 
 ## Development setup
 
@@ -34,7 +32,7 @@ A backend can be started with
 ```
 python -m gramps_webapi --config path/to/config run --port 5555
 ```
-(for details see https://github.com/gramps-project/web-api).
+(for details see https://github.com/gramps-project/gramps-webapi).
 
 You can now run the frontend with 
 ```
@@ -44,3 +42,18 @@ Storybook (to view individual web components with needing to run a backend) is i
 ```
 npm run storybook
 ```
+
+To build the frontend for deployment, run
+```
+npm run build
+```
+
+## Deployment
+
+To deploy this app, you need a running [Gramps Web API instance](https://github.com/gramps-project/gramps-webapi).
+
+There are two options for running the app:
+
+- Put the distribution (downloaded from a release or built following the above instrutions) on the server running the API and point the API's `STATIC_PATH` config option to the directory containing the distribution
+
+- Change the `__APIHOST__` variable in the frontend distribution to the base URL of your API instance, build the frontend and host it on a separate web server. For this to work, it requires CORS to be enabled in the API.
