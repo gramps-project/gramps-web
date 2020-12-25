@@ -140,6 +140,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       page="${this._page}"
       pages="${this._pages}"
       @page:changed="${this._handlePageChanged}"
+      .strings="${this.strings}"
       ></grampsjs-pagination>
     `
   }

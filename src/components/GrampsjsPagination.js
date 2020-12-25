@@ -47,13 +47,15 @@ class GrampsjsPagination extends LitElement {
   static get properties() { return {
     page: {type: Number},
     pages: {type: Number},
-    link: {type: String}
+    link: {type: String},
+    strings: {type: Object}
   }}
 
   constructor() {
     super()
     this.page = 1
     this.pages = -1
+    this.strings = {}
   }
 
   render() {
@@ -96,7 +98,7 @@ class GrampsjsPagination extends LitElement {
       icon="navigate_before"
       ?disabled=${this.page === 1}
       @click="${() => this._changePage(this.page - 1)}"
-      label="Previous">
+      label="${this._('Previous')}">
     </mwc-button>
     `
   }
@@ -107,7 +109,7 @@ class GrampsjsPagination extends LitElement {
       icon="navigate_next"
       ?disabled=${this.page === this.pages}
       @click="${() => this._changePage(this.page + 1)}"
-      label="Next"
+      label="${this._('Next')}"
       trailingIcon>
     </mwc-button>
     `
@@ -124,7 +126,15 @@ class GrampsjsPagination extends LitElement {
     this.dispatchEvent(new CustomEvent('page:changed', {bubbles: true, composed: true, detail: {page: this.page}}))
   }
 
-
+  _(s) {
+    if (s === undefined) {
+      return ''
+    }
+    if (s in this.strings) {
+      return this.strings[s].replace('_', '')
+    }
+    return s.replace('_', '')
+  }
 }
 
 window.customElements.define('grampsjs-pagination', GrampsjsPagination)

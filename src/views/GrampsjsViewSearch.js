@@ -69,6 +69,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
     <grampsjs-pagination
       page="${this._page}"
       pages="${this._pages}"
+      .strings="${this.strings}"
       @page:changed="${this._handlePageChanged}"
       ></grampsjs-pagination>
     ` : ''}

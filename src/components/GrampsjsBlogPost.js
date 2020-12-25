@@ -53,7 +53,7 @@ export class GrampsjsBlogPost extends LitElement {
       grampsjs-note-content {
         --grampsjs-note-line-height: 1.7em;
         --grampsjs-note-font-size: 18px;
-        --grampsjs-note-font-family: Roboto Slab;
+        --grampsjs-note-font-family: EB Garamond;
         --grampsjs-note-color: #333;
       }
 
@@ -67,7 +67,7 @@ export class GrampsjsBlogPost extends LitElement {
         }
 
         grampsjs-note-content {
-          --grampsjs-note-font-size: 22px;
+          --grampsjs-note-font-size: 23px;
         }
       }
 
