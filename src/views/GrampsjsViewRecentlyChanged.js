@@ -46,7 +46,7 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsView {
 
   async _fetchData() {
     this.loading = true
-    const query = 'changed:\'-1 year to now\''
+    const query = 'change:\'-1 year to tomorrow\''
     const data = await apiGet(`/api/search/?sort=-change&query=${query}&locale=${this.strings?.__lang__ || 'en'}&profile=all&page=1&pagesize=10`)
     this.loading = false
     if ('data' in data) {
