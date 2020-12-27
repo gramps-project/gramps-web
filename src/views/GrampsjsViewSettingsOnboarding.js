@@ -37,7 +37,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
 
   static get properties() {
     return {
-      _translations: {type: Object},
+      _translations: {type: Array},
       _settings: {type: Object},
       _people: {type: Array},
       _langLoading: {type: Boolean},
@@ -47,7 +47,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
 
   constructor() {
     super()
-    this._translations = {}
+    this._translations = []
     this._people = []
     this._settings = getSettings()
     this._langLoading = false
@@ -132,11 +132,11 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
       label="${this._langLoading ? this._('Loading items...') : this._('Language')}"
       @selected="${this._handleLangSelected}"
       ?disabled="${this._langLoading}">
-    ${Object.keys(this._translations).map(key => html`
+    ${this._translations.map(langObj => html`
       <mwc-list-item
-        value="${key}"
-        ?selected="${key === this._settings.lang}"
-        >${this._translations[key]}</mwc-list-item>
+        value="${langObj.language}"
+        ?selected="${langObj.language === this._settings.lang}"
+        >${langObj.native}</mwc-list-item>
       `, this)}
     </mwc-select>
   `
@@ -144,8 +144,8 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
 
   _handleLangSelected(event) {
     const i = event.detail.index
-    if (i !== null && i !== undefined) {
-      const key = Object.keys(this._translations)[i]
+    if (i !== null && i !== undefined && i < this._translations.length) {
+      const key = this._translations[i].language
       updateSettings({lang: key})
       this._handleStorage()
     }
@@ -181,7 +181,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
   update(changed) {
     super.update(changed)
     if (changed.has('active') && this.active) {
-      if(!this._langLoading && Object.keys(this._translations).length === 0) {
+      if(!this._langLoading && this._translations.length === 0) {
         this._fetchDataLang()
       }
     }
