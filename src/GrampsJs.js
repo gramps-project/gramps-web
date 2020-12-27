@@ -445,7 +445,16 @@ export class GrampsJs extends LitElement {
 
   _toggleDrawer() {
     const drawer = this.shadowRoot.getElementById('app-drawer')
-    drawer.open = !drawer.open
+    if (drawer !== null) {
+      drawer.open = !drawer.open
+    }
+  }
+
+  _closeDrawer() {
+    const drawer = this.shadowRoot.getElementById('app-drawer')
+    if (drawer !== null && drawer.open) {
+      drawer.open = false
+    }
   }
 
   connectedCallback() {
@@ -493,6 +502,9 @@ export class GrampsJs extends LitElement {
       const pageId = pathId.split('/')[1]
       this._page = page
       this._pageId = pageId || ''
+    }
+    if (!this.wide) {
+      this._closeDrawer()
     }
   }
 
