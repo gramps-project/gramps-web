@@ -14,6 +14,11 @@ export class GrampsjsViewSearch extends GrampsjsView {
       css`
       #search-field-container {
         text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        max-width: 100%;
+        min-width: 80%;
       }
 
       mwc-textfield#search-field {
@@ -21,10 +26,19 @@ export class GrampsjsViewSearch extends GrampsjsView {
         --mdc-typography-subtitle1-font-size: 22px;
         --mdc-typography-subtitle1-font-weight: 300;
         --mdc-text-field-idle-line-color:	rgba(0, 0, 0, 0.2);
-        max-width: 100%;
-        min-width: 80%;
+        width: calc(100% - 70px);
         margin: 30px auto;
       }
+
+      #search-field-container mwc-icon-button {
+        color: rgba(0, 0, 0, 0.5);
+        --mdc-icon-size: 26px;
+        --mdc-icon-button-size: 55px;
+        position: relative;
+        top: -2px;
+
+      }
+
     `]
   }
 
@@ -56,6 +70,8 @@ export class GrampsjsViewSearch extends GrampsjsView {
     <div id="search-field-container">
       <mwc-textfield id="search-field" outlined icon="search" @keydown="${this._handleSearchKey}">
       </mwc-textfield>
+      <mwc-icon-button icon="search" @click="${() => this._executeSearch()}">
+      </mwc-icon-button>
     </div>
 
     ${this._totalCount === 0 ? html`<p>No results.</p>` : ''}
