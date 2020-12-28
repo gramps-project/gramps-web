@@ -40,6 +40,7 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsView {
       <grampsjs-search-results
         .data="${this._searchResult}"
         .strings="${this.strings}"
+        date
       ></grampsjs-search-results>
     `}`
   }
@@ -47,7 +48,7 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsView {
   async _fetchData() {
     this.loading = true
     const query = 'change:\'-1 year to tomorrow\''
-    const data = await apiGet(`/api/search/?sort=-change&query=${query}&locale=${this.strings?.__lang__ || 'en'}&profile=all&page=1&pagesize=10`)
+    const data = await apiGet(`/api/search/?sort=-change&query=${query}&locale=${this.strings?.__lang__ || 'en'}&profile=all&page=1&pagesize=8`)
     this.loading = false
     if ('data' in data) {
       this._searchResult = data.data

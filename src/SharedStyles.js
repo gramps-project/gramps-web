@@ -33,7 +33,7 @@ export const sharedStyles = css`
   h2 {
     font-size: 32px;
     margin-top: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
 
   h3 {

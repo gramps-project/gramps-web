@@ -1,7 +1,7 @@
 import {LitElement, css, html} from 'lit-element'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {showObject} from '../util.js'
+import {showObject, prettyTimeDiffTimestamp} from '../util.js'
 
 
 export class GrampsjsSearchResults extends LitElement {
@@ -28,6 +28,13 @@ export class GrampsjsSearchResults extends LitElement {
           color: rgba(0, 0, 0, 0.9);
           padding: 0 0.5em;
         }
+
+        .change {
+          font-size: 0.8em;
+          color: rgba(0, 0, 0, 0.5);
+          margin-top: 0.2em;
+          margin-left: 33px;
+        }
         `
     ]
   }
@@ -36,6 +43,7 @@ export class GrampsjsSearchResults extends LitElement {
     return {
       data: {type: Array},
       strings: {type: Object},
+      date: {type: Boolean}
     }
   }
 
@@ -43,6 +51,7 @@ export class GrampsjsSearchResults extends LitElement {
     super()
     this.data = []
     this.strings = {}
+    this.date = false
   }
 
   render() {
@@ -54,6 +63,7 @@ export class GrampsjsSearchResults extends LitElement {
     ${this.data.map((obj) =>  html`
         <div class="search-hit">
           ${showObject(obj.object_type, obj.object, this.strings)}
+          ${this.date ? html`<div class="change">${prettyTimeDiffTimestamp(obj.object.change, this.strings.__lang__)}</div>` : ''}
         </div>`, this)}
     </div>
     `
