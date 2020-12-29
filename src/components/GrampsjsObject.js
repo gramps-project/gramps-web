@@ -6,6 +6,7 @@ import '@material/mwc-tab-bar'
 import {sharedStyles} from '../SharedStyles.js'
 import '../views/GrampsjsViewObjectNotes.js'
 import '../views/GrampsjsViewSourceCitations.js'
+import '../views/GrampsjsViewPersonTimeline.js'
 import './GrampsjsAddresses.js'
 import './GrampsjsAttributes.js'
 import './GrampsjsChildren.js'
@@ -30,6 +31,7 @@ const _allTabs = {
   map: {title: 'Map', condition: (data) => (data?.profile?.lat !== undefined && data?.profile?.lat !== null &&(data?.profile?.lat !== 0 || data?.profile?.long !== 0))},
   children: {title: 'Children', condition: (data) => (data.child_ref_list?.length > 0)},
   events: {title: 'Events', condition: (data) => (data?.event_ref_list?.length > 0)},
+  timeline: {title: 'Timeline', condition: (data) => (data?.event_ref_list?.length > 0)},
   names: {title: 'Names', condition: (data) => (data?.primary_name?.length > 0)},
   participants: {title: 'Participants', condition: (data) => (data?.profile?.participants?.people?.length || data?.profile?.participants?.families?.length)},
   gallery: {title: 'Gallery', condition: (data) => (data?.media_list?.length > 0)},
@@ -205,6 +207,8 @@ export class GrampsjsObject extends LitElement {
           </grampsjs-map>`
     case('events'):
       return html`<grampsjs-events .strings=${this.strings} .data=${this.data?.extended?.events} .profile=${this.data?.profile?.events}></grampsjs-events>`
+    case('timeline'):
+      return html`<grampsjs-view-person-timeline active .strings=${this.strings} handle=${this.data.handle}></grampsjs-view-person-timeline>`
     case('children'):
       return html`<grampsjs-children .strings=${this.strings} .data=${this.data?.child_ref_list} .profile=${this.data?.profile?.children}></grampsjs-children>`
     case('citations'):

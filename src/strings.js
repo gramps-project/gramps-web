@@ -162,6 +162,7 @@ export const grampsStrings = [
   'Street',
   'Surname',
   'Text',
+  'Timeline',
   'Title',
   'Town',
   'Type',
