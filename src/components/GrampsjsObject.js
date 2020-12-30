@@ -89,7 +89,9 @@ export class GrampsjsObject extends LitElement {
       strings: {type: Object},
       _currentTabId: {type: Number},
       _currentTab: {type: String},
-      _showReferences: {type: Boolean}
+      _showReferences: {type: Boolean},
+      _showPersonTimeline: {type: Boolean},
+      _showFamilyTimeline: {type: Boolean}
     }
   }
 
@@ -99,6 +101,8 @@ export class GrampsjsObject extends LitElement {
     this.strings = {}
     this._currentTabId = 0
     this._showReferences = true
+    this._showPersonTimeline = false
+    this._showFamilyTimeline = false
   }
 
 
@@ -208,7 +212,9 @@ export class GrampsjsObject extends LitElement {
     case('events'):
       return html`<grampsjs-events .strings=${this.strings} .data=${this.data?.extended?.events} .profile=${this.data?.profile?.events}></grampsjs-events>`
     case('timeline'):
-      return html`<grampsjs-view-person-timeline active .strings=${this.strings} handle=${this.data.handle}></grampsjs-view-person-timeline>`
+      if (this._showPersonTimeline) {
+        return html`<grampsjs-view-person-timeline active .strings=${this.strings} handle=${this.data.handle}></grampsjs-view-person-timeline>`
+      }
     case('children'):
       return html`<grampsjs-children .strings=${this.strings} .data=${this.data?.child_ref_list} .profile=${this.data?.profile?.children}></grampsjs-children>`
     case('citations'):
@@ -236,7 +242,7 @@ export class GrampsjsObject extends LitElement {
   }
 
   _getTabs() {
-    return Object.keys(_allTabs).filter(key => (_allTabs[key].condition(this.data) && (this._showReferences || key !== 'references')))
+    return Object.keys(_allTabs).filter(key => (_allTabs[key].condition(this.data) && (this._showReferences || key !== 'references') && (this._showFamilyTimeline || this._showPersonTimeline || key !== 'timeline')))
   }
 
   _makeTab(key) {

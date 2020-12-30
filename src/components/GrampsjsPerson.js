@@ -18,6 +18,7 @@ export class GrampsjsPerson extends GrampsjsObject {
   constructor() {
     super()
     this._showReferences = false
+    this._showPersonTimeline = true
   }
 
   renderProfile() {
