@@ -83,23 +83,26 @@ export class GrampsjsPersonTimeline extends LitElement {
         visibility: visible;
       }
 
-      @media (min-width: 768px) {
-      }
-
-      #container {
-        display: grid;
-        grid-gap: 8px;
-        grid-auto-columns: 1fr;
-        grid-auto-flow: column;
-      }
-
       #timeline {
       }
 
       #map {
-        height: calc(100vh - 64px);
-        position: sticky;
-        top: 64px;
+        display: none;
+      }
+
+      @media (min-width: 768px) {
+        #map {
+          height: calc(100vh - 64px);
+          position: sticky;
+          top: 64px;
+          display: block;
+        }
+
+        #container {
+          display: grid;
+          grid-gap: 8px;
+          grid-template-columns: 420px 1fr;
+        }
       }
       `
     ]
@@ -187,8 +190,9 @@ export class GrampsjsPersonTimeline extends LitElement {
     <div
     id="event-${obj.gramps_id}"
     class=${classMap({'timeline-event': true, highlighted: obj.gramps_id === this.highlightedId})}
-    @mouseover="${() => this._handleMouseOver(obj.gramps_id, obj?.place?.lat, obj?.place?.long)}"
-    @focus="${() => this._handleMouseOver(obj.gramps_id, obj?.place?.lat, obj?.place?.long)}"
+    @mouseover="${() => this._handleMouseOver(obj)}"
+    @focus="${() => this._handleMouseOver(obj)}"
+    @touchstart="${() => this._handleMouseOver(obj)}"
     >
       <div class="timeline-date-age">
         <span class="timeline-date">${obj.date}</span>
@@ -219,7 +223,10 @@ export class GrampsjsPersonTimeline extends LitElement {
     `
   }
 
-  _handleMouseOver(grampsId, lat, long) {
+  _handleMouseOver(obj) {
+    const grampsId = obj.gramps_id
+    const lat = obj?.place?.lat
+    const long = obj?.place?.long
     this.highlightedId = grampsId
     if (lat || long) {
       const map = this.shadowRoot.getElementById('timeline-map')
