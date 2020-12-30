@@ -59,7 +59,7 @@ export class GrampsjsViewPersonTimeline extends GrampsjsView {
 
   _updateData() {
     if (this.handle) {
-      const url = `/api/people/${this.handle}/timeline`
+      const url = `/api/people/${this.handle}/timeline?locale=${this.strings.__lang__ || 'en'}`
       this._data = []
       this.loading = true
       apiGet(url).then(data => {
