@@ -66,6 +66,10 @@ class GrampsjsMap extends LitElement {
     this._map.invalidateSize(false)
   }
 
+  panTo(latitude, longitude) {
+    this._map.panTo(new LatLng(latitude, longitude))
+  }
+
   updated() {
     if (this._map !== undefined) {
       if (this.latMin === 0 && this.latMax === 0) {
