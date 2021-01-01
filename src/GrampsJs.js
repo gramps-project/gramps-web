@@ -479,7 +479,6 @@ export class GrampsJs extends LitElement {
       .then(data => {
         if ('error' in data) {
           this.loadingState = LOADING_STATE_UNAUTHORIZED
-          this._showError(data.error)
         }
         if ('data' in data) {
           this._dbInfo = data.data
