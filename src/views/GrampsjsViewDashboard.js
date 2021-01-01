@@ -26,6 +26,7 @@ export class GrampsjsViewDashboard extends GrampsjsView {
       .column {
         float: left;
         width: 50%;
+        overflow-x: hidden;
       }
 
       @media screen and (max-width: 768px) {
