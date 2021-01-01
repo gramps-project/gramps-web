@@ -12,7 +12,7 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
   }
 
   getUrl() {
-    return `/api/media/?gramps_id=${this.grampsId}&backlinks=true&extend=all`
+    return `/api/media/?gramps_id=${this.grampsId}&backlinks=true&extend=all&profile=all`
   }
 
   renderElement() {

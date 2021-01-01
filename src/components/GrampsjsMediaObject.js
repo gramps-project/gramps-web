@@ -16,6 +16,12 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       grampsjs-img {
         margin: 30px 0;
       }
+
+      dl::after {
+        content: "";
+        display: block;
+        clear: both;
+      }
     `]
   }
 
@@ -23,6 +29,19 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     return html`
     <h2><mwc-icon>photo</mwc-icon>
     ${this.data.desc || this._('Media Object')}</h2>
+
+    <dl>
+    ${this.data?.profile?.date ? html`
+    <div>
+      <dt>
+        ${this._('Date')}
+      </dt>
+      <dd>
+      ${this.data.profile.date}
+      </dd>
+    </div>
+    ` : ''}
+    </dl>
 
     <grampsjs-img
       handle="${this.data.handle}"
