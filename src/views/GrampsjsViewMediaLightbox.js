@@ -18,6 +18,14 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         margin: 0px;
       }
 
+      .date {
+        font-size: 0.85em;
+        font-weight: 300;
+        font-family: Roboto;
+        color: rgba(0, 0, 0, 0.8);
+        padding-left: 0.8em;
+      }
+
       `
     ]
   }
@@ -47,7 +55,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
       <div slot="image">
         ${this._innerContainerContent()}
       </div>
-      <span slot="description">${this._data?.desc || ''}</span>
+      <span slot="description">${this._data?.desc || ''} ${this._data?.profile?.date ? html`<span class="date">${this._data?.profile?.date}</span>` : ''}</span>
       <span slot="button">
         <mwc-button unelevated label="${this._('Show Details')}"
          @click="${this._handleButtonClick}">
