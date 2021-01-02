@@ -15,6 +15,7 @@ jobs:
       - name: Install and Build
         env:
           API_URL: https://gramps-webapi-demo.herokuapp.com
+          BASE_DIR: Gramps.js/
         run: |
           npm install
           npm run build
