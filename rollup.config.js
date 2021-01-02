@@ -9,6 +9,11 @@ const baseConfig = createSpaConfig({
 })
 
 
+const API_URL = (process.env.API_URL === undefined)
+  ? ''
+  : process.env.API_URL
+
+
 export default merge(baseConfig, {
   input: './index.html',
   plugins: [
@@ -19,7 +24,7 @@ export default merge(baseConfig, {
       ]
     }),
     replace({
-      'http://localhost:5555': ''
+      'http://localhost:5555': API_URL
     })
   ]
 })
