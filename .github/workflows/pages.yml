@@ -2,7 +2,7 @@ name: Build and Deploy to Pages
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -13,6 +13,8 @@ jobs:
           persist-credentials: false
 
       - name: Install and Build
+        env:
+          API_URL: https://gramps-webapi-demo.herokuapp.com
         run: |
           npm install
           npm run build
