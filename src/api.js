@@ -220,28 +220,32 @@ export async function apiPost(endpoint, payload)  {
 
 export function getMediaUrl(handle) {
   const jwt = localStorage.getItem('access_token')
-  if (jwt === null) { return '' }
+  if (jwt === null) { return `${__APIHOST__}/api/media/${handle}/file` }
   return `${__APIHOST__}/api/media/${handle}/file?jwt=${jwt}`
 }
 
 export function getMediaUrlCropped(handle, rect) {
   const jwt = localStorage.getItem('access_token')
-  if (jwt === null) {
-    return ''
-  }
   const [x1, y1, x2, y2] = rect
+  if (jwt === null) {
+    return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}`
+  }
   return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}?jwt=${jwt}`
 }
 
 export function getThumbnailUrl(handle, size, square=false) {
   const jwt = localStorage.getItem('access_token')
-  if (jwt === null) { return '' }
+  if (jwt === null) {
+    return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?square=${square}`
+  }
   return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?jwt=${jwt}&square=${square}`
 }
 
 export function getThumbnailUrlCropped(handle, rect, size, square=false) {
   const jwt = localStorage.getItem('access_token')
-  if (jwt === null) { return '' }
   const [x1, y1, x2, y2] = rect
+  if (jwt === null) {
+    return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?square=${square}`
+  }
   return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?jwt=${jwt}&square=${square}`
 }
