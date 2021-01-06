@@ -51,6 +51,7 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsView {
     const data = await apiGet(`/api/search/?sort=-change&query=${query}&locale=${this.strings?.__lang__ || 'en'}&profile=all&page=1&pagesize=8`)
     this.loading = false
     if ('data' in data) {
+      this.error = false
       this._searchResult = data.data
     } else if ('error' in data) {
       this.error = true

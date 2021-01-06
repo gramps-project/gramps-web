@@ -67,6 +67,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         this.loading = false
         if ('data' in data) {
           [this._data] = data.data
+          this.error = false
           if (this._className !== '') {
             this.dispatchEvent(new CustomEvent('object:loaded', {bubbles: true, composed: true, detail: {grampsId: this.grampsId, className: this._className}}))
           }

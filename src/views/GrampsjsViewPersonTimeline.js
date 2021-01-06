@@ -65,6 +65,7 @@ export class GrampsjsViewPersonTimeline extends GrampsjsView {
       apiGet(url).then(data => {
         this.loading = false
         if ('data' in data) {
+          this.error = false
           this._data = data.data
         } else if ('error' in data) {
           this.error = true

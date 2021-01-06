@@ -82,6 +82,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     const data = await apiGet(`/api/search/?query=${query}&locale=${this.strings?.__lang__ || 'en'}&profile=all&page=1&pagesize=100`)
     this.loading = false
     if ('data' in data) {
+      this.error = false
       const dataObject = data.data.reduce((obj, item) => {
         // eslint-disable-next-line no-param-reassign
         obj[item?.object?.gramps_id] = item

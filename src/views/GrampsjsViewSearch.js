@@ -175,6 +175,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
     const data = await apiGet(`/api/search/?query=${query}&locale=${this.strings?.__lang__ || 'en'}&profile=all&page=${page}&pagesize=20`)
     this.loading = false
     if ('data' in data) {
+      this.error = false
       this._data = data.data
       this._totalCount = data.total_count
       this._pages = Math.ceil(this._totalCount / 20)

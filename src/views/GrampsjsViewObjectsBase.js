@@ -211,6 +211,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     apiGet(this._fullUrl).then(data => {
       this.loading = false
       if ('data' in data) {
+        this.error = false
         this._data = data.data.map((row) => this._formatRow(row, this))
         this._totalCount = data.total_count
         this._pages = Math.ceil(this._totalCount / this._pageSize)

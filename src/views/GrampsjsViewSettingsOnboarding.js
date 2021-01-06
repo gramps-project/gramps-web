@@ -192,6 +192,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
     this._langLoading = true
     const dataTrans = await apiGet('/api/translations/')
     if ('data' in dataTrans) {
+      this.error = false
       this._translations = dataTrans.data
     } else if ('error' in dataTrans) {
       this.error = true
@@ -211,6 +212,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
     const seachPhrase = this._settings.homePerson? `(${textField.value} OR ${this._settings.homePerson})` : textField.value
     const dataPeople = await apiGet(`/api/search/?locale=${this.strings?.__lang__ || 'en'}&profile=self&query=${encodeURIComponent(`${seachPhrase} AND type:person`)}`)
     if ('data' in dataPeople) {
+      this.error = false
       this._people = dataPeople.data.map(obj =>({
         gramps_id: obj.object.gramps_id,
         string: `${obj.object.profile.name_given || '...'} ${obj.object.profile.name_surname || '...'}${obj.object.profile?.birth?.date ? ` * ${obj.object.profile?.birth?.date}` : ''}`

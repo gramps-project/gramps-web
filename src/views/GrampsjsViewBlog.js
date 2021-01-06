@@ -126,6 +126,7 @@ export class GrampsjsViewBlog extends GrampsjsView {
     const uri = `/api/sources/?rules=${encodeURIComponent(JSON.stringify(rules))}&page=${this._page}&pagesize=${this._pageSize}&sort=-change&locale=${this.strings?.__lang__ || 'en'}&profile=all&extend=all`
     await apiGet(uri).then(data => {
       if ('data' in data) {
+        this.error = false
         this._dataSources = data.data
         this._totalCount = data.total_count
         this._pages = Math.ceil(this._totalCount / this._pageSize)
@@ -138,6 +139,7 @@ export class GrampsjsViewBlog extends GrampsjsView {
     if (uriNotes) {
       await apiGet(uriNotes).then(data => {
         if ('data' in data) {
+          this.error = false
           this._dataNotes = this._dataSources.map(obj => {
             const noteGrampsId = obj?.extended?.notes[0]?.gramps_id
             if (!noteGrampsId) {

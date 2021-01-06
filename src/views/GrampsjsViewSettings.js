@@ -95,6 +95,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     apiPut('/api/users/-/', payload).then(data => {
       this.loading = false
       if ('error' in data) {
+        this.error = false
         this.error = true
         this._errorMessage = data.error
       } else{
@@ -118,6 +119,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
         this.error = true
         this._errorMessage = data.error
       } else {
+        this.error = false
         this.dispatchEvent(new CustomEvent('grampsjs:notification', {bubbles: true, composed: true, detail: {message: 'Password successfully updated'}}))
         formOldPw.value = ''
         formNewPw.value = ''

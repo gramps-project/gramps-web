@@ -178,6 +178,7 @@ export class GrampsjsViewTree extends GrampsjsView {
     const data = await apiGet(`/api/people/?rules=${encodeURIComponent(JSON.stringify(rules))}&locale=${this.strings?.__lang__ || 'en'}&profile=self,families`)
     this.loading = false
     if ('data' in data) {
+      this.error = false
       this._data = data.data
     } else if ('error' in data) {
       this.error = true
