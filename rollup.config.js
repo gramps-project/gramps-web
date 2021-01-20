@@ -18,7 +18,7 @@ const baseConfig = createSpaConfig({
   developmentMode: process.env.ROLLUP_WATCH === 'true',
   injectServiceWorker: true,
   workbox: {
-    navigateFallbackWhitelist: [ '/^(?!/api/)/.*' ]
+    navigateFallbackDenylist: [/^\/api.*/],
   },
   html: {
     transform: [
