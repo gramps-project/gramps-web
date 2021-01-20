@@ -17,6 +17,9 @@ const BASE_DIR = (process.env.BASE_DIR === undefined)
 const baseConfig = createSpaConfig({
   developmentMode: process.env.ROLLUP_WATCH === 'true',
   injectServiceWorker: true,
+  workbox: {
+    navigateFallbackWhitelist: [ '/^(?!/api/)/.*' ]
+  },
   html: {
     transform: [
       (html) =>
