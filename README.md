@@ -8,6 +8,10 @@ This is a Javascript web app to browse a Gramps genealogy database that is power
 
 (Its ancestor is the <a href="https://github.com/DavidMStraub/gramps-webapp-frontend">frontend</a> of the legacy <a href="https://github.com/DavidMStraub/gramps-webapp">Gramps web app</a>.)
 
+## Demo
+
+A demo deployment based on the Gramps example family tree is available at https://davidmstraub.github.io/Gramps.js/.
+
 ## Project status
 
 The project is in active development but can already be used.
