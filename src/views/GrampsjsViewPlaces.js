@@ -14,7 +14,7 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
     super()
     this._columns = {
       grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      title: {tite: 'Title', sort: 'title'},
+      title: {title: 'Title', sort: 'title'},
       change: {title: 'Last changed', sort: 'change'},
     }
   }
