@@ -1,4 +1,4 @@
-import {html} from 'lit-html'
+import {html} from 'lit'
 import '../src/components/GrampsjsPedigree.js'
 
 export default {

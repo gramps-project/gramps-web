@@ -1,4 +1,4 @@
-import { LitElement, css, html } from 'lit-element';
+import { LitElement, css, html } from 'lit';
 
 import { sharedStyles } from '../SharedStyles.js';
 import { GrampsjsTableBase } from './GrampsjsTableBase.js';

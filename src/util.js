@@ -1,4 +1,4 @@
-import {html} from 'lit-element'
+import {html} from 'lit'
 import '@material/mwc-icon'
 import dayjs from 'dayjs/esm'
 import relativeTime from 'dayjs/esm/plugin/relativeTime'

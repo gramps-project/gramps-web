@@ -1,4 +1,4 @@
-import {html} from 'lit-html'
+import {html} from 'lit'
 import '../src/components/GrampsjsRectContainer.js'
 import '../src/components/GrampsjsRect.js'
 

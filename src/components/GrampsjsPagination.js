@@ -1,5 +1,5 @@
 
-import {html, css, LitElement} from 'lit-element'
+import {html, css, LitElement} from 'lit'
 
 import '@material/mwc-icon'
 import '@material/mwc-button'

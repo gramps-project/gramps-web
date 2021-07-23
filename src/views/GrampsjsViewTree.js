@@ -1,4 +1,4 @@
-import {html, css} from 'lit-element'
+import {html, css} from 'lit'
 import '@material/mwc-slider'
 import '@material/mwc-button'
 import '@material/mwc-icon'

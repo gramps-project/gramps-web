@@ -1,4 +1,4 @@
-import {html, css} from 'lit-element'
+import {html, css} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import {apiGet, getSettings, updateSettings} from '../api.js'

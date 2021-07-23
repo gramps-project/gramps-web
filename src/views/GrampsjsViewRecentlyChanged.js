@@ -1,4 +1,4 @@
-import {html, css} from 'lit-element'
+import {html, css} from 'lit'
 import '@material/mwc-button'
 
 import {GrampsjsView} from './GrampsjsView.js'

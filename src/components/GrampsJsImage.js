@@ -2,8 +2,8 @@
 An Image thumbnail element.
 */
 
-import {html, css, LitElement} from 'lit-element'
-import {classMap} from 'lit-html/directives/class-map'
+import {html, css, LitElement} from 'lit'
+import {classMap} from 'lit/directives/class-map'
 import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'

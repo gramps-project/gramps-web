@@ -1,4 +1,4 @@
-import {html, css, LitElement} from 'lit-element'
+import {html, css, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import '@material/mwc-button'
 

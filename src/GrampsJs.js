@@ -1,4 +1,4 @@
-import {LitElement, html, css} from 'lit-element'
+import {LitElement, html, css} from 'lit'
 import {installRouter} from 'pwa-helpers/router.js'
 import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
 import '@material/mwc-drawer'

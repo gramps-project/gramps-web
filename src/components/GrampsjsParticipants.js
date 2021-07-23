@@ -1,4 +1,4 @@
-import {html} from 'lit-element'
+import {html} from 'lit'
 
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 import {getName, personTitleFromProfile, familyTitleFromProfile} from '../util.js'

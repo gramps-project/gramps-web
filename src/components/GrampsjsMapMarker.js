@@ -1,4 +1,4 @@
-import {html, LitElement} from 'lit-element'
+import {html, LitElement} from 'lit'
 import {Marker, Icon} from '../../node_modules/leaflet/dist/leaflet-src.esm.js'
 
 class GrampsjsMapMarker extends LitElement {

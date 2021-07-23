@@ -1,4 +1,4 @@
-import {html, css} from 'lit-element'
+import {html, css} from 'lit'
 
 import {GrampsjsViewObjectsDetail} from './GrampsjsViewObjectsDetail.js'
 import '../components/GrampsjsNoteContent.js'

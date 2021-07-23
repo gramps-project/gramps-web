@@ -1,4 +1,4 @@
-import { html } from 'lit-element';
+import { html } from 'lit';
 
 import { GrampsjsViewObject } from './GrampsjsViewObject.js'
 import '../components/GrampsjsMediaObject.js'

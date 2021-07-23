@@ -1,5 +1,5 @@
 
-import {html, css} from 'lit-element'
+import {html, css} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsLightbox.js'

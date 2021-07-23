@@ -1,4 +1,4 @@
-import {css, html} from 'lit-element'
+import {css, html} from 'lit'
 
 import {mdiGenderFemale, mdiGenderMale} from '@mdi/js'
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'

@@ -1,4 +1,4 @@
-import {LitElement, css, html} from 'lit-element'
+import {LitElement, css, html} from 'lit'
 
 import {hex12ToCss} from '../color.js'
 import {sharedStyles} from '../SharedStyles.js'

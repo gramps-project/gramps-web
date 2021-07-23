@@ -3,7 +3,7 @@ Base view for lists of Gramps objects, e.g. people, events, ...
 */
 
 
-import {html, css} from 'lit-element'
+import {html, css} from 'lit'
 import {mdiSort, mdiSortAscending, mdiSortDescending} from '@mdi/js'
 
 import {GrampsjsView} from './GrampsjsView.js'

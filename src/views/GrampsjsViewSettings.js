@@ -1,4 +1,4 @@
-import {html} from 'lit-element'
+import {html} from 'lit'
 
 import {GrampsjsViewSettingsOnboarding} from './GrampsjsViewSettingsOnboarding.js'
 import {doLogout, apiPost, apiPut} from '../api.js'
