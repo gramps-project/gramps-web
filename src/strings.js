@@ -32,6 +32,7 @@ export const grampsStrings = [
   'Archive',
   'Association Note',
   'Associations',
+  'Association',
   'Attribute Note',
   'Attributes',
   'Author',

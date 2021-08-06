@@ -8,6 +8,7 @@ import '../views/GrampsjsViewObjectNotes.js'
 import '../views/GrampsjsViewSourceCitations.js'
 import '../views/GrampsjsViewPersonTimeline.js'
 import './GrampsjsAddresses.js'
+import './GrampsjsAssociations.js'
 import './GrampsjsAttributes.js'
 import './GrampsjsChildren.js'
 import './GrampsjsEvents.js'
@@ -230,7 +231,7 @@ export class GrampsjsObject extends LitElement {
     case('internet'):
       return html`<grampsjs-urls .strings=${this.strings} .data=${this.data.urls}></grampsjs-urls>`
     case('associations'):
-      return html`<pre>${JSON.stringify(this.data.extended.people, null, 2)}</pre>`
+      return html`<grampsjs-associations .strings=${this.strings} .data=${this.data?.person_ref_list || []} .extended=${this.data?.extended?.people || []}></grampsjs-associations>`
     case('participants'):
       return html`<grampsjs-participants .strings=${this.strings} .data=${[this.data?.profile?.participants]}></grampsjs-participants>`
     case('references'):
