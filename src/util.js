@@ -72,7 +72,7 @@ export function getName(obj, type) {
   case 'family':
     return ''
   case 'place':
-    return obj.title
+    return obj?.name?.value || obj.title
   case 'source':
     return obj.title
   case 'repository':
@@ -115,7 +115,7 @@ export function showObject(type, obj, strings) {
     return html`
       <mwc-icon class="inline">place</mwc-icon>
       <a href="/${type}/${obj.gramps_id}"
-      >${obj?.profile?.name || obj.title || type}
+      >${obj?.profile?.name || obj?.name?.value || obj.title || type}
       </a>
     `
   case 'source':
@@ -191,7 +191,7 @@ export function getNameFromProfile(obj, type, strings) {
   case 'family':
     return familyTitleFromProfile(obj)
   case 'place':
-    return obj.title
+    return obj.name
   case 'source':
     return obj.title
   case 'repository':

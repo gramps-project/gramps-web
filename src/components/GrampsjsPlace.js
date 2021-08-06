@@ -9,7 +9,7 @@ export class GrampsjsPlace extends GrampsjsObject {
 
   renderProfile() {
     return html`
-    <h2><mwc-icon class="person">place</mwc-icon> ${this.data.title || this._('Place')}</h2>
+    <h2><mwc-icon class="person">place</mwc-icon> ${this.data?.name?.value || this.data.title || this._('Place')}</h2>
 
     ${this.data?.profile?.parent_places.length > 0 ? html`
     <dl>
