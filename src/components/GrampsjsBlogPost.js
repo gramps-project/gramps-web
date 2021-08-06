@@ -3,6 +3,8 @@ import {sharedStyles} from '../SharedStyles.js'
 import '@material/mwc-button'
 
 import './GrampsJsImage.js'
+import './GrampsjsGallery.js'
+import './GrampsjsNoteContent.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
 
 
@@ -109,6 +111,10 @@ export class GrampsjsBlogPost extends LitElement {
           content="${this.note?.formatted?.html || this.note?.text?.string || 'Error loading note'}"
           >
           </grampsjs-note-content>
+
+          ${this.source?.media_list?.length > 1 ? html`
+            <grampsjs-gallery .strings=${this.strings} .media=${this.source?.extended?.media} .mediaRef=${this.source?.media_list}></grampsjs-gallery>
+          ` : ''}
 
           <mwc-button id="btn-details" @click="${() => this._clickDetails(this.source.gramps_id)}">Details</mwc-button>
         </div>
