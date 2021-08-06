@@ -57,8 +57,10 @@ class GrampsjsMap extends LitElement {
     } else {
       this._map = new Map(mapel, {zoomControl: false}).fitBounds([[this.latMin, this.longMin], [this.latMax, this.longMax]])
     }
-    new TileLayer('https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    const __tileUrl__ = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+    const __tileAttribution__ = '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors; <a href="https://carto.com/attributions">CARTO</a>'
+    new TileLayer(__tileUrl__, {
+      attribution: __tileAttribution__,
       maxZoom: 19,
       zoomControl: false
     }).addTo(this._map)
