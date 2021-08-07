@@ -14,13 +14,13 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
     super()
     this._columns = {
       grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      title: {title: 'Title', sort: 'title'},
+      title: {title: 'Name', sort: 'title'},
       change: {title: 'Last changed', sort: 'change'},
     }
   }
 
   get _fetchUrl() {
-    return '/api/places/?keys=gramps_id,title,change'
+    return '/api/places/?keys=gramps_id,name,change'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -32,7 +32,7 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
   _formatRow(row, obj) {
     const formattedRow = {
       grampsId: row.gramps_id,
-      title: row.title,
+      title: row.name.value,
       change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
     }
     return formattedRow
