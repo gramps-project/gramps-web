@@ -71,7 +71,8 @@ export class GrampsJs extends LitElement {
       _strings: {type: Object},
       _dbInfo: {type: Object},
       _page: {type: String},
-      _pageId: {type: String}
+      _pageId: {type: String},
+      baseDir: {type: String}
     }
   }
 
@@ -86,6 +87,7 @@ export class GrampsJs extends LitElement {
     this._dbInfo = {}
     this._page = 'home'
     this._pageId = ''
+    this.baseDir = BASE_DIR
 
     this.addEventListener('MDCTopAppBar:nav', this._toggleDrawer)
   }
@@ -493,17 +495,17 @@ export class GrampsJs extends LitElement {
 
 
   _loadPage(path) {
-    if (path === '/' || path === `${BASE_DIR}/`) {
+    if (path === '/' || path === `${this.baseDir}/`) {
       this._page = 'home'
       this._pageId = ''
     } else {
       const pathId = path.slice(1)
-      if (BASE_DIR === '') {
+      if (this.baseDir === '') {
         const page = pathId.split('/')[0]
         const pageId = pathId.split('/')[1]
         this._page = page
         this._pageId = pageId || ''
-      } else if (pathId.split('/')[0] === BASE_DIR) {
+      } else if (pathId.split('/')[0] === this.baseDir) {
         const page = pathId.split('/')[1]
         const pageId = pathId.split('/')[2]
         this._page = page
