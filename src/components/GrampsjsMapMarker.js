@@ -34,7 +34,7 @@ class GrampsjsMapMarker extends LitElement {
   }
 
   firstUpdated() {
-    Icon.Default.imagePath = '/images/'
+    Icon.Default.imagePath = 'images/'
     this._map = this.parentElement._map
     this.addMarker()
   }
