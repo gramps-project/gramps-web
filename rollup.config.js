@@ -44,6 +44,7 @@ export default merge(baseConfig, {
     }),
     replace({
       'http://localhost:5555': API_URL,
+      'BASE_DIR': BASE_DIR,
       preventAssignment: true
     })
   ]
