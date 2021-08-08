@@ -9,6 +9,7 @@ import {sharedStyles} from '../SharedStyles.js'
 import './GrampsJsImage.js'
 import './GrampsJsListItem.js'
 
+const BASE_DIR = ''
 
 class GrampsjsPedigreeCard extends LitElement {
 
@@ -114,7 +115,7 @@ class GrampsjsPedigreeCard extends LitElement {
             <div class="position: relative;">
               <mwc-menu absolute x="20" y="2" id="menu">
                 <grampsjs-list-item
-                  href="/person/${this.person.gramps_id}"
+                  href="${BASE_DIR}/person/${this.person.gramps_id}"
                   >Details</grampsjs-list-item>
               </mwc-menu>
             </div>

@@ -4,6 +4,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsBlogPost.js'
 import {apiGet} from '../api.js'
 
+const BASE_DIR = ''
 
 export class GrampsjsViewBlog extends GrampsjsView {
   static get styles() {
@@ -107,7 +108,7 @@ export class GrampsjsViewBlog extends GrampsjsView {
       )
     }
     const options = {
-      link_format: '/{obj_class}/{gramps_id}'
+      link_format: `${BASE_DIR}/{obj_class}/{gramps_id}`
     }
     return `/api/notes/?locale=${this.strings?.__lang__ || 'en'}&profile=all&extend=all&formats=html&rules=${encodeURIComponent(JSON.stringify(rules))}&format_options=${encodeURIComponent(JSON.stringify(options))}`
   }

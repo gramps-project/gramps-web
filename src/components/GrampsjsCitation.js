@@ -4,6 +4,7 @@ import '@material/mwc-icon'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
 
+const BASE_DIR = ''
 
 export class GrampsjsCitation extends GrampsjsObject {
   static get styles() {
@@ -36,7 +37,7 @@ export class GrampsjsCitation extends GrampsjsObject {
         ${this._('Source')}
       </dt>
       <dd>
-        <a href="/source/${this.data.extended.source.gramps_id}">${this.data.extended.source.title || this.data.extended.source.gramps_id}</a>
+        <a href="${BASE_DIR}/source/${this.data.extended.source.gramps_id}">${this.data.extended.source.title || this.data.extended.source.gramps_id}</a>
       </dd>
     </div>
     ${this.data?.page ? html`

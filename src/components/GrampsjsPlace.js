@@ -4,6 +4,7 @@ import '@material/mwc-icon'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
 
+const BASE_DIR = ''
 
 export class GrampsjsPlace extends GrampsjsObject {
 
@@ -19,7 +20,7 @@ export class GrampsjsPlace extends GrampsjsObject {
           ${obj.type}
         </dt>
         <dd>
-          <a href="/place/${obj.gramps_id}">${obj.name}</a>
+          <a href="${BASE_DIR}/place/${obj.gramps_id}">${obj.name}</a>
         </dd>
       </div>
 `)}

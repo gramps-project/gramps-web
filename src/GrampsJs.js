@@ -71,8 +71,7 @@ export class GrampsJs extends LitElement {
       _strings: {type: Object},
       _dbInfo: {type: Object},
       _page: {type: String},
-      _pageId: {type: String},
-      baseDir: {type: String}
+      _pageId: {type: String}
     }
   }
 
@@ -87,7 +86,6 @@ export class GrampsJs extends LitElement {
     this._dbInfo = {}
     this._page = 'home'
     this._pageId = ''
-    this.baseDir = BASE_DIR
 
     this.addEventListener('MDCTopAppBar:nav', this._toggleDrawer)
   }
@@ -262,7 +260,7 @@ export class GrampsJs extends LitElement {
   _renderLogin() {
     return html`
     <div id="login-container">
-      <form id="login-form" action="${this.baseDir}/" @keydown="${this._handleLoginKey}">
+      <form id="login-form" action="${BASE_DIR}/" @keydown="${this._handleLoginKey}">
         <mwc-textfield outlined id="username" label="Username"></mwc-textfield>
         <mwc-textfield outlined id="password" label="Password" type="password"></mwc-textfield>
         <mwc-button raised label="submit" type="submit" @click="${this._submitLogin}">
@@ -283,7 +281,7 @@ export class GrampsJs extends LitElement {
   _renderResetPw() {
     return html`
     <div id="login-container">
-      <form id="login-form" action="${this.baseDir}/">
+      <form id="login-form" action="${BASE_DIR}/">
         <div id="inner-form">
           <mwc-textfield outlined id="username" label="Username" type="text"></mwc-textfield>
           <mwc-button raised label="reset password" type="submit" @click="${this._resetPw}">
@@ -357,28 +355,28 @@ export class GrampsJs extends LitElement {
       <mwc-drawer type="dismissible" id="app-drawer" ?open="${this.wide}">
         <div id="main-menu">
           <mwc-list>
-            <grampsjs-list-item href="${this.baseDir}/" graphic="icon">
+            <grampsjs-list-item href="${BASE_DIR}/" graphic="icon">
               <span>${this._('Home Page')}</span>
               <mwc-icon slot="graphic">home</mwc-icon>
             </grampsjs-list-item>
-            <grampsjs-list-item href="${this.baseDir}/blog" graphic="icon">
+            <grampsjs-list-item href="${BASE_DIR}/blog" graphic="icon">
               <span>${this._('Blog')}</span>
               <mwc-icon slot="graphic">rss_feed</mwc-icon>
             </grampsjs-list-item>
-            <grampsjs-list-item href="${this.baseDir}/people" graphic="icon">
+            <grampsjs-list-item href="${BASE_DIR}/people" graphic="icon">
               <span>${this._('Lists')}</span>
               <mwc-icon slot="graphic">list</mwc-icon>
             </grampsjs-list-item>
-            <grampsjs-list-item href="${this.baseDir}/map" graphic="icon">
+            <grampsjs-list-item href="${BASE_DIR}/map" graphic="icon">
               <span>${this._('Map')}</span>
               <mwc-icon slot="graphic">map</mwc-icon>
             </grampsjs-list-item>
-            <grampsjs-list-item href="${this.baseDir}/tree" graphic="icon">
+            <grampsjs-list-item href="${BASE_DIR}/tree" graphic="icon">
               <span>${this._('Family Tree')}</span>
               <mwc-icon slot="graphic">${renderIcon(mdiFamilyTree)}</mwc-icon>
             </grampsjs-list-item>
             <li divider padded role="separator"></li>
-            <grampsjs-list-item href="${this.baseDir}/recent" graphic="icon">
+            <grampsjs-list-item href="${BASE_DIR}/recent" graphic="icon">
               <span>${this._('History')}</span>
               <mwc-icon slot="graphic">history</mwc-icon>
             </grampsjs-list-item>
@@ -495,16 +493,16 @@ export class GrampsJs extends LitElement {
 
 
   _loadPage(path) {
-    if (path === '/' || path === `${this.baseDir}/`) {
+    if (path === '/' || path === `${BASE_DIR}/`) {
       this._page = 'home'
       this._pageId = ''
-    } else if (this.baseDir === '') {
+    } else if (BASE_DIR === '') {
       const pathId = path.slice(1)
       const page = pathId.split('/')[0]
       const pageId = pathId.split('/')[1]
       this._page = page
       this._pageId = pageId || ''
-    } else if (path.split('/')[0] === this.baseDir.split('/')[0]) {
+    } else if (path.split('/')[0] === BASE_DIR.split('/')[0]) {
       const pathId = path.slice(1)
       const page = pathId.split('/')[1]
       const pageId = pathId.split('/')[2]
@@ -528,7 +526,7 @@ export class GrampsJs extends LitElement {
 
   _handleTab(page) {
     if (page !== this._page) {
-      const href = `/${page}`
+      const href = `${BASE_DIR}/${page}`
       this._loadPage(href)
       window.history.pushState({}, '', href)
     }
@@ -539,7 +537,7 @@ export class GrampsJs extends LitElement {
     const page = path.split('/')[0]
     const pageId = path.split('/')[1]
     if (page !== this._page || pageId !== this._pageId) {
-      const href = `/${path}`
+      const href = `${BASE_DIR}/${path}`
       this._loadPage(href)
       window.history.pushState({}, '', href)
     }

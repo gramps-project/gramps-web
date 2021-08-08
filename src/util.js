@@ -8,7 +8,7 @@ import {asteriskIcon, crossIcon, ringsIcon} from './icons.js'
 
 dayjs.extend(relativeTime)
 
-
+const BASE_DIR = ''
 
 export function translate(strings, s) {
   if (s === undefined) {
@@ -52,7 +52,7 @@ export function renderPerson(personProfile) {
   return html`
   <span class="event">
   <mwc-icon class="inline ${personProfile.sex === 'M' ? 'male' : 'female'}">person</mwc-icon>
-  <a href="/person/${personProfile.gramps_id}">${personProfile.name_given || '…'}
+  <a href="${BASE_DIR}/person/${personProfile.gramps_id}">${personProfile.name_given || '…'}
   ${personProfile.name_surname || '…'}</a>
   </span>
   ${personProfile?.birth?.date ? html`
@@ -92,7 +92,7 @@ export function showObject(type, obj, strings) {
   case 'person':
     return html`
       <mwc-icon class="inline ${obj.gender === 1 ? 'male' : 'female'}">person</mwc-icon>
-      <a href="/${type}/${obj.gramps_id}"
+      <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
       >${obj?.profile?.name_given || html`&hellip;`}
       ${obj?.profile?.name_surname || html`&hellip;`}
       </a>
@@ -100,56 +100,56 @@ export function showObject(type, obj, strings) {
   case 'family':
     return html`
       <mwc-icon class="inline">people</mwc-icon>
-      <a href="/${type}/${obj.gramps_id}"
+      <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
       >${familyTitleFromProfile(obj.profile || {}) || type}
       </a>
     `
   case 'event':
     return html`
       <mwc-icon class="inline">event</mwc-icon>
-      <a href="/${type}/${obj.gramps_id}"
+      <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
       >${eventTitleFromProfile(obj.profile || {}, strings) || obj.type}
       </a>
     `
   case 'place':
     return html`
       <mwc-icon class="inline">place</mwc-icon>
-      <a href="/${type}/${obj.gramps_id}"
+      <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
       >${obj?.profile?.name || obj?.name?.value || obj.title || type}
       </a>
     `
   case 'source':
     return html`
       <mwc-icon class="inline">bookmarks</mwc-icon>
-      <a href="/${type}/${obj.gramps_id}"
+      <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
       >${getName(obj, type) || type}
       </a>
     `
   case 'citation':
     return html`
       <mwc-icon class="inline">bookmark</mwc-icon>
-      <a href="/${type}/${obj.gramps_id}"
+      <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
       >${citationTitleFromProfile(obj.profile || {}) || type}
       </a>
     `
   case 'repository':
     return html`
       <mwc-icon class="inline">account_balance</mwc-icon>
-      <a href="/${type}/${obj.gramps_id}"
+      <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
       >${getName(obj, type) || type}
       </a>
     `
   case 'note':
     return html`
         <mwc-icon class="inline">sticky_note_2</mwc-icon>
-        <a href="/${type}/${obj.gramps_id}"
+        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
         >${translate(strings, obj.type) || type}
         </a>
       `
   case 'media':
     return html`
         <mwc-icon class="inline">photo</mwc-icon>
-        <a href="/media/${obj.gramps_id}"
+        <a href="${BASE_DIR}/media/${obj.gramps_id}"
         >${getName(obj, type) || type}
         </a>
         `

@@ -7,6 +7,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPedigree.js'
 import {apiGet} from '../api.js'
 
+const BASE_DIR = ''
 
 export class GrampsjsViewTree extends GrampsjsView {
   static get styles() {
@@ -82,7 +83,7 @@ export class GrampsjsViewTree extends GrampsjsView {
     if (this.grampsId === '') {
       // This should actually never happen, so don't bother translating!
       return html`
-      No home person selected. <a href="/settings">Settings</a>
+      No home person selected. <a href="${BASE_DIR}/settings">Settings</a>
       `
     }
     if (this._data.length === 0) {
