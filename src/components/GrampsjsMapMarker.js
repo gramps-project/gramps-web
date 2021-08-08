@@ -4,7 +4,7 @@ import {Marker, Icon} from '../../node_modules/leaflet/dist/leaflet-src.esm.js'
 class GrampsjsMapMarker extends LitElement {
   render() {
     return html`
-      <link rel="stylesheet" href="/leaflet.css">
+      <link rel="stylesheet" href="leaflet.css">
       `
   }
 

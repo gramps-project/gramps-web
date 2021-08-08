@@ -4,7 +4,7 @@ import {Map, TileLayer, LatLng, control} from '../../node_modules/leaflet/dist/l
 class GrampsjsMap extends LitElement {
   render() {
     return html`
-      <link rel="stylesheet" href="/leaflet.css">
+      <link rel="stylesheet" href="leaflet.css">
 
       <div class="mapcontainer" style="width:${this.width}; height:${this.height};">
         <div id="${this.mapid}" style="z-index: 0; width: 100%; height: 100%;">
