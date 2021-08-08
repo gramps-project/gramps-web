@@ -357,7 +357,7 @@ export class GrampsJs extends LitElement {
       <mwc-drawer type="dismissible" id="app-drawer" ?open="${this.wide}">
         <div id="main-menu">
           <mwc-list>
-            <grampsjs-list-item href="${this.baseDir}" graphic="icon">
+            <grampsjs-list-item href="${this.baseDir}/" graphic="icon">
               <span>${this._('Home Page')}</span>
               <mwc-icon slot="graphic">home</mwc-icon>
             </grampsjs-list-item>
