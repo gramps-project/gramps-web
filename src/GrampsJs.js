@@ -511,7 +511,7 @@ export class GrampsJs extends LitElement {
       this._page = page
       this._pageId = pageId || ''
     }
-    }
+
     if (!this.wide) {
       this._closeDrawer()
     }
