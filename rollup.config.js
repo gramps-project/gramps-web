@@ -25,7 +25,7 @@ const baseConfig = createSpaConfig({
       (html) =>
         html.replace(
           '<base href="/">',
-          `<base href="/${BASE_DIR}">`
+          `<base href="${BASE_DIR}/">`
         ),
     ],
   },
@@ -43,7 +43,8 @@ export default merge(baseConfig, {
       ]
     }),
     replace({
-      'http://localhost:5555': API_URL
+      'http://localhost:5555': API_URL,
+      preventAssignment: true
     })
   ]
 })

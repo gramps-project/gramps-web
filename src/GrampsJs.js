@@ -58,6 +58,7 @@ const LOADING_STATE_UNAUTHORIZED_RESET_PW = 3
 const LOADING_STATE_MISSING_SETTINGS = 4
 const LOADING_STATE_READY = 10
 
+const BASE_DIR = ''
 
 export class GrampsJs extends LitElement {
   static get properties() {
@@ -70,7 +71,7 @@ export class GrampsJs extends LitElement {
       _strings: {type: Object},
       _dbInfo: {type: Object},
       _page: {type: String},
-      _pageId: {type: String},
+      _pageId: {type: String}
     }
   }
 
@@ -492,15 +493,22 @@ export class GrampsJs extends LitElement {
 
 
   _loadPage(path) {
-    if (path === '/') {
+    if (path === '/' || path === `${BASE_DIR}/`) {
       this._page = 'home'
       this._pageId = ''
     } else {
       const pathId = path.slice(1)
-      const page = pathId.split('/')[0]
-      const pageId = pathId.split('/')[1]
-      this._page = page
-      this._pageId = pageId || ''
+      if (BASE_DIR === '') {
+        const page = pathId.split('/')[0]
+        const pageId = pathId.split('/')[1]
+        this._page = page
+        this._pageId = pageId || ''
+      } else if (pathId.split('/')[0] === BASE_DIR) {
+        const page = pathId.split('/')[1]
+        const pageId = pathId.split('/')[2]
+        this._page = page
+        this._pageId = pageId || ''
+      }
     }
     if (!this.wide) {
       this._closeDrawer()
