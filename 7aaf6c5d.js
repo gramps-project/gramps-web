@@ -2466,7 +2466,7 @@ const t=window.ShadowRoot&&(void 0===window.ShadyCSS||window.ShadyCSS.nativeShad
       <mwc-drawer type="dismissible" id="app-drawer" ?open="${0}">
         <div id="main-menu">
           <mwc-list>
-            <grampsjs-list-item href="${0}" graphic="icon">
+            <grampsjs-list-item href="${0}/" graphic="icon">
               <span>${0}</span>
               <mwc-icon slot="graphic">home</mwc-icon>
             </grampsjs-list-item>
