@@ -2310,7 +2310,7 @@ const t=window.ShadowRoot&&(void 0===window.ShadyCSS||window.ShadyCSS.nativeShad
         text-align: right;
       }
 
-      `))]}static get properties(){return{data:{type:Object},types:{type:Array},typesLocale:{type:Array},loadingTypes:{type:Boolean}}}constructor(){super(),this.data={_class:"Note",text:{_class:"StyledText",string:""}},this.types=[],this.typesLocale=[],this.loadingTypes=!1}render(){return D(Sw||(Sw=kw`
+      `))]}static get properties(){return{data:{type:Object},types:{type:Array},typesLocale:{type:Array},loadingTypes:{type:Boolean}}}constructor(){super(),this.data={_class:"Note",text:{_class:"StyledText",string:""}},this.types=[],this.typesLocale=[],this.loadingTypes=!1}renderContent(){return D(Sw||(Sw=kw`
 
     <h2>${0}</h2>
 
