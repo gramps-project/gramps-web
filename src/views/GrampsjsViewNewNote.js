@@ -56,7 +56,7 @@ export class GrampsjsViewNewNote extends GrampsjsView {
     this.loadingTypes = false
   }
 
-  render() {
+  renderContent() {
     return html`
 
     <h2>${this._('New Note')}</h2>
