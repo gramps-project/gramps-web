@@ -62,6 +62,12 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsView {
   firstUpdated() {
     this._fetchData()
   }
+
+  connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('db:changed', () => this._fetchData())
+  }
+
 }
 
 

@@ -165,6 +165,9 @@ export class GrampsjsObject extends LitElement {
     if (!tabKeys.includes(this._currentTab)) {
       [this._currentTab] = tabKeys
     }
+    if (tabKeys.length === 0) {
+      return html``
+    }
     return html`
     <mwc-tab-bar
       .activeIndex=${this._currentTabId}

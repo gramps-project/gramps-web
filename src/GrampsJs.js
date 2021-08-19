@@ -15,13 +15,14 @@ import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-linear-progress'
 import '@material/mwc-circular-progress'
 import '@material/mwc-snackbar'
-import './components/GrampsJsListItem.js'
 import {mdiFamilyTree} from '@mdi/js'
 import {renderIcon} from './icons.js'
-import {apiGetTokens, apiGet, getSettings, apiResetPassword} from './api.js'
+import {apiGetTokens, apiGet, getSettings, apiResetPassword, getPermissions} from './api.js'
 import {grampsStrings, additionalStrings} from './strings.js'
 import './dayjs_locales.js'
 
+import './components/GrampsjsAddMenu.js'
+import './components/GrampsJsListItem.js'
 import './views/GrampsjsViewPeople.js'
 import './views/GrampsjsViewFamilies.js'
 import './views/GrampsjsViewPlaces.js'
@@ -48,8 +49,8 @@ import './views/GrampsjsViewSettingsOnboarding.js'
 import './views/GrampsjsViewRecent.js'
 import './views/GrampsjsViewMap.js'
 import './views/GrampsjsViewTree.js'
+import './views/GrampsjsViewNewNote.js'
 import {sharedStyles} from './SharedStyles.js'
-
 
 const LOADING_STATE_INITIAL = 0
 const LOADING_STATE_UNAUTHORIZED = 1
@@ -67,6 +68,8 @@ export class GrampsJs extends LitElement {
       progress: {type: Boolean},
       loadingState: {type: Number},
       settings: {type: Object},
+      add: {type: Boolean},
+      edit: {type: Boolean},
       _lang: {type: String},
       _strings: {type: Object},
       _dbInfo: {type: Object},
@@ -81,6 +84,8 @@ export class GrampsJs extends LitElement {
     this.progress = false
     this.loadingState = LOADING_STATE_INITIAL
     this.settings = getSettings()
+    this.add = false
+    this.edit = false
     this._lang = ''
     this._strings = {}
     this._dbInfo = {}
@@ -274,6 +279,12 @@ export class GrampsJs extends LitElement {
           >Lost password?</span>
         </p>
       </form>
+      <grampsjs-password-manager-polyfill
+        .step=${this._step}
+        .stepData=${this._stepData}
+        @form-submitted=${this._submitLogin}
+        @value-changed=${this._loginFormChanged}
+      ></grampsjs-password-manager-polyfill>
     </div>
     `
   }
@@ -308,7 +319,7 @@ export class GrampsJs extends LitElement {
     return html`
     <div class="center-xy" id="onboarding">
       <grampsjs-view-settings-onboarding
-        @onboarding:completed="${() => {this.loadingState = LOADING_STATE_READY}}"
+        @onboarding:completed="${this._setReady}"
         class="page"
         active
         .strings="${this._strings}"
@@ -386,6 +397,9 @@ export class GrampsJs extends LitElement {
           <mwc-top-app-bar>
             <mwc-icon-button slot="navigationIcon" icon="menu" @click="${this._toggleDrawer}"></mwc-icon-button>
             <div id="app-title" slot="title">${this._dbInfo?.database?.name || 'Gramps.js'}</div>
+            ${this.add ? html`
+              <grampsjs-add-menu slot="actionItems" .strings="${this._strings}"></grampsjs-add-menu>
+            ` : ''}
             <mwc-icon-button icon="account_circle" slot="actionItems" @click="${() => this._handleTab('settings')}"></mwc-icon-button>
             <mwc-icon-button icon="search" slot="actionItems" @click="${() => this._handleTab('search')}"></mwc-icon-button>
           </mwc-top-app-bar>
@@ -425,6 +439,9 @@ export class GrampsJs extends LitElement {
         <grampsjs-view-recent class="page" ?active=${this._page === 'recent'} .strings="${this._strings}"></grampsjs-view-recent>
 
         <grampsjs-view-settings class="page" ?active=${this._page === 'settings'} .strings="${this._strings}"></grampsjs-view-settings>
+
+        <grampsjs-view-new-note class="page" ?active=${this._page === 'new_note'} .strings="${this._strings}"></grampsjs-view-new-note>
+
         </main>
 
       </div>
@@ -461,6 +478,7 @@ export class GrampsJs extends LitElement {
   connectedCallback() {
     super.connectedCallback()
     this._loadDbInfo()
+    window.addEventListener('db:changed', () => this._loadDbInfo())
   }
 
   firstUpdated() {
@@ -486,9 +504,14 @@ export class GrampsJs extends LitElement {
           if (this.language === '' && this._dbInfo?.locale?.language !== undefined) {
             this.language = this._dbInfo.locale.language
           }
-          this.loadingState = LOADING_STATE_READY
+          this._setReady()
         }
       })
+  }
+
+  _setReady() {
+    this.loadingState = LOADING_STATE_READY
+    this.setPermissions()
   }
 
 
@@ -646,11 +669,27 @@ export class GrampsJs extends LitElement {
     this.settings = getSettings()
   }
 
+  setPermissions() {
+    const permissions = getPermissions()
+    // If permissions is null, authorization is disabled and anything goes
+    if (permissions === null) {
+      this.add = true
+      this.edit = true
+    }
+    this.add = permissions.includes('AddObject')
+    this.edit = permissions.includes('EditObject')
+  }
+
   _(s) {
     if (s in this._strings) {
       return this._strings[s]
     }
     return s
+  }
+
+  _loginFormChanged(ev) {
+    user = ev.detail.username
+    pw = ev.detail.password
   }
 
 }

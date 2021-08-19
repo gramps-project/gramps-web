@@ -1,3 +1,5 @@
+import jwt_decode from 'jwt-decode'
+
 
 const __APIHOST__ = 'http://localhost:5555'
 
@@ -17,6 +19,20 @@ export function storeAuthToken(authToken, expires) {
 
 export function storeRefreshToken(refreshToken) {
   localStorage.setItem('refresh_token', refreshToken)
+}
+
+export function getPermissions() {
+  const accessToken = localStorage.getItem('access_token')
+  if (!accessToken) {
+    return null
+  }
+  try {
+    const claims = jwt_decode(accessToken) || {}
+    return claims.permissions || {}
+  }
+  catch(e) {
+    return {}
+  }
 }
 
 export function getSettings() {
@@ -197,10 +213,11 @@ async function apiPutPost(method, endpoint, payload)  {
     if (resp.status === 400 || resp.status === 401 || resp.status === 403) {
       throw(new Error('Authorization error'))
     }
-    if (resp.status !== 201) {
+    if (resp.status !== 201 && resp.status !== 200) {
       throw(new Error(`Error ${resp.status}`))
     }
-    return {}
+    window.dispatchEvent(new CustomEvent('db:changed', {bubbles: true, composed: true}))
+    return {'data': await resp.json(), 'total_count': resp.headers.get('X-Total-Count')}
   }
   catch (error)  {
     return {'error': error.message}
