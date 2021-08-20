@@ -8,6 +8,7 @@ import '@material/mwc-button'
 import '@material/mwc-circular-progress'
 
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
+import '../components/GrampsjsFormSelectObject.js'
 import '../components/GrampsjsFormSelectType.js'
 import '../components/GrampsjsFormPrivate.js'
 
@@ -48,8 +49,10 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
     >
     </grampsjs-form-select-type>
 
+
+
     <div class="spacer"></div>
-    <grampsjs-form-private id="private"></grampsjs-form-private>
+    <grampsjs-form-private id="private" .strings="${this.strings}"></grampsjs-form-private>
 
     ${this.renderButtons()}
     `
@@ -63,10 +66,11 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
 
   _handleFormData(e) {
     this.checkFormValidity()
-    if (e.originalTarget.id === 'select-place-type') {
+    const originalTarget = e.composedPath()[0]
+    if (originalTarget.id === 'select-place-type') {
       this.data = {...this.data, place_type: {_class: 'PlaceType', string: e.detail.data}}
     }
-    if (e.originalTarget.id === 'private') {
+    if (originalTarget.id === 'private') {
       this.data = {...this.data, private: e.detail.checked}
     }
   }

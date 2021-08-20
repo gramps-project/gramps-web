@@ -49,7 +49,7 @@ export class GrampsjsViewNewNote extends GrampsjsViewNewObject {
     </grampsjs-form-select-type>
 
     <div class="spacer"></div>
-    <grampsjs-form-private id="private"></grampsjs-form-private>
+    <grampsjs-form-private id="private" .strings="${this.strings}"></grampsjs-form-private>
 
     ${this.renderButtons()}
     `
@@ -69,10 +69,11 @@ export class GrampsjsViewNewNote extends GrampsjsViewNewObject {
 
   _handleFormData(e) {
     this.checkFormValidity()
-    if (e.originalTarget.id === 'select-note-type') {
+    const originalTarget = e.composedPath()[0]
+    if (originalTarget.id === 'select-note-type') {
       this.data = {...this.data, type: {_class: 'NoteType', string: e.detail.data}}
     }
-    if (e.originalTarget.id === 'private') {
+    if (originalTarget.id === 'private') {
       this.data = {...this.data, private: e.detail.checked}
     }
   }
