@@ -41,10 +41,8 @@ export class GrampsjsViewNewObject extends GrampsjsView {
   static get properties() {
     return {
       data: {type: Object},
-      defaultTypes: {type: Object},
-      defaultTypesLocale: {type: Object},
-      customTypes: {type: Object},
-      customTypesLocale: {type: Object},
+      types: {type: Object},
+      typesLocale: {type: Object},
       loadingTypes: {type: Boolean},
       postUrl: {type: String},
       itemPath: {type: String},
@@ -55,10 +53,8 @@ export class GrampsjsViewNewObject extends GrampsjsView {
   constructor() {
     super()
     this.data = {}
-    this.defaultTypes = {}
-    this.defaultTypesLocale = {}
-    this.customTypes = {}
-    this.customTypesLocale = {}
+    this.types = {}
+    this.typesLocale = {}
     this.loadingTypes = false
     this.postUrl = ''
     this.itemPath = ''
@@ -100,8 +96,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
     apiGet('/api/types/').then(data => {
       this.loading = false
       if ('data' in data) {
-        this.defaultTypes = data.data?.default || {}
-        this.customTypes = data.data?.custom || {}
+        this.types = data.data || {}
         this.error = false
       } else if ('error' in data) {
         this.error = true
@@ -113,8 +108,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
         this.loading = false
         this.loadingTypes = false
         if ('data' in data) {
-          this.defaultTypesLocale = data.data?.default || {}
-          this.customTypesLocale = data.data?.custom || {}
+          this.typesLocale = data.data || {}
           this.error = false
         } else if ('error' in data) {
           this.error = true
@@ -123,5 +117,16 @@ export class GrampsjsViewNewObject extends GrampsjsView {
       })
     })
   }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this.addEventListener('formdata:changed', this._handleFormData.bind(this))
+  }
+
+  disconnectedCallback() {
+    this.removeEventListener('formdata:changed', this._handleFormData.bind(this))
+    super.disconnectedCallback()
+  }
+
 
 }

@@ -9,6 +9,8 @@ import '@material/mwc-button'
 import '@material/mwc-circular-progress'
 
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
+import '../components/GrampsjsFormSelectType.js'
+import '../components/GrampsjsFormPrivate.js'
 
 
 export class GrampsjsViewNewNote extends GrampsjsViewNewObject {
@@ -21,12 +23,12 @@ export class GrampsjsViewNewNote extends GrampsjsViewNewObject {
   }
 
   renderContent() {
-    const defaultTypesLocale = this.defaultTypesLocale?.note_types || []
-    const customTypesLocale = this.customTypesLocale?.note_types || []
-    const typesLocale = defaultTypesLocale.concat(customTypesLocale)
-    const defaultTypes = this.defaultTypes?.note_types || []
-    const customTypes = this.customTypes?.note_types || []
-    const types = defaultTypes.concat(customTypes)
+    // const defaultTypesLocale = this.defaultTypesLocale?.note_types || []
+    // const customTypesLocale = this.customTypesLocale?.note_types || []
+    // const typesLocale = defaultTypesLocale.concat(customTypesLocale)
+    // const defaultTypes = this.defaultTypes?.note_types || []
+    // const customTypes = this.customTypes?.note_types || []
+    // const types = defaultTypes.concat(customTypes)
     return html`
 
     <h2>${this._('New Note')}</h2>
@@ -42,27 +44,20 @@ export class GrampsjsViewNewNote extends GrampsjsViewNewObject {
       ></mwc-textarea>
     </p>
 
-    <h4 class="label">${this._('Type')}</h4>
-    <p>
-      <mwc-select
-        @change="${this.handleType}"
-        style="width:100%"
-        ?disabled="${this.loadingTypes}"
-        label="${this.loadingTypes ? this._('Loading items...') : ''}"
-        id="note-type"
-      >
-          ${this.loadingTypes ? '' : types.map((obj, i) => html`
-          <mwc-list-item value="${typesLocale[i]}" ?selected="${obj === 'General'}">${this._(obj)}</mwc-list-item>
-          `)}
-      </mwc-select>
-    </p>
+    <grampsjs-form-select-type
+      id="select-note-type"
+      .strings="${this.strings}"
+      ?loadingTypes="${this.loadingTypes}"
+      ?disabled="${this.loadingTypes}"
+      typeName="note_types"
+      defaultTypeName="General"
+      .types="${this.types}"
+      .typesLocale="${this.typesLocale}"
+    >
+    </grampsjs-form-select-type>
 
     <div class="spacer"></div>
-    <p>
-      <mwc-formfield label="${this._('Private')}" id="switch-private">
-        <mwc-switch @change="${this.handlePrivate}"></mwc-switch>
-      </mwc-formfield>
-    </p>
+    <grampsjs-form-private id="private"></grampsjs-form-private>
 
     <div class="spacer"></div>
     <p class="right">
@@ -84,31 +79,24 @@ export class GrampsjsViewNewNote extends GrampsjsViewNewObject {
     this.data = {...this.data, text: {_class: 'StyledText', string: e.target.value.trim()}}
   }
 
-  handleType(e) {
-    this.data = {...this.data, type: {_class: 'NoteType', string: e.target.value}}
-  }
-
-  handlePrivate(e) {
-    this.data = {...this.data, private: e.target.checked}
+  _handleFormData(e) {
+    if (e.originalTarget.id === 'select-note-type') {
+      this.data = {...this.data, type: {_class: 'NoteType', string: e.detail.data}}
+    }
+    if (e.originalTarget.id === 'private') {
+      this.data = {...this.data, private: e.detail.checked}
+    }
   }
 
   _reset() {
     const text = this.shadowRoot.getElementById('note-text')
     text.value = ''
-    const noteType = this.shadowRoot.getElementById('note-type')
-    const defaultTypes = this.defaultTypes?.note_types || []
-    const customTypes = this.customTypes?.note_types || []
-    const types = defaultTypes.concat(customTypes)
-    const defaultTypesLocale = this.defaultTypesLocale?.note_types || []
-    const customTypesLocale = this.customTypesLocale?.note_types || []
-    const typesLocale = defaultTypesLocale.concat(customTypesLocale)
-    const ind = types.indexOf('General')
-    noteType.value = ind === -1 ? null : typesLocale[ind]
+    const noteType = this.shadowRoot.getElementById('select-note-type')
+    noteType.reset()
+    const priv = this.shadowRoot.getElementById('private')
+    priv.reset()
     this.data = {_class: 'Note', text: {_class: 'StyledText', string: ''}}
   }
-
-
 }
-
 
 window.customElements.define('grampsjs-view-new-note', GrampsjsViewNewNote)
