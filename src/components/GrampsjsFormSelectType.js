@@ -14,6 +14,11 @@ class GrampsjsFormSelectType extends LitElement {
     return [
       sharedStyles,
       css`
+      h4.label {
+        font-size: 18px;
+        font-family: Roboto;
+        font-weight: 300;
+      }
       `
     ]
   }
@@ -28,6 +33,7 @@ class GrampsjsFormSelectType extends LitElement {
       typesLocale: {type: Object},
       disabled: {type: Boolean},
       loadingTypes: {type: Boolean},
+      required: {type: Boolean}
     }
   }
 
@@ -40,6 +46,7 @@ class GrampsjsFormSelectType extends LitElement {
     this.typeName = ''
     this.defaultTypeName = 'General'
     this.loadingTypes = false
+    this.required = false
   }
 
   getTypes(types) {
@@ -58,12 +65,15 @@ class GrampsjsFormSelectType extends LitElement {
     <p>
       <mwc-select
         style="width:100%"
+        ?required="${this.required}"
+        validationMessage="${this._('This field is mandatory')}"
         @change="${this.handleChange}"
         ?disabled="${this.disabled}"
         label="${this.loadingTypes ? this._('Loading items...') : ''}"
-        id="note-type"
+        id="select-type"
       >
-          ${this.loadingTypes ? '' : types.map((obj, i) => html`
+        ${types.includes(this.defaultTypeName) ? '' : html`<mwc-list-item value="" selected></mwc-list-item>`}
+        ${this.loadingTypes ? '' : types.map((obj, i) => html`
           <mwc-list-item
             value="${typesLocale[i]}"
             ?selected="${obj === this.defaultTypeName}"
@@ -78,13 +88,18 @@ class GrampsjsFormSelectType extends LitElement {
     const types = this.getTypes(this.types)
     const typesLocale = this.getTypes(this.typesLocale)
     const ind = types.indexOf('General')
-    const noteType = this.shadowRoot.getElementById('note-type')
-    noteType.value = ind === -1 ? null : typesLocale[ind]
+    const selectType = this.shadowRoot.getElementById('select-type')
+    selectType.value = ind === -1 ? null : typesLocale[ind]
   }
 
   handleChange(e) {
     const data = e.target.value
     this.dispatchEvent(new CustomEvent('formdata:changed', {bubbles: true, composed: true, detail: {data}}))
+  }
+
+  isValid() {
+    const selectType = this.shadowRoot.getElementById('select-type')
+    return selectType.validity.valid
   }
 
   _(s) {

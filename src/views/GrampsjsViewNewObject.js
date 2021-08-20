@@ -46,6 +46,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
       loadingTypes: {type: Boolean},
       postUrl: {type: String},
       itemPath: {type: String},
+      isFormValid: {type: Boolean}
     }
   }
 
@@ -58,6 +59,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
     this.loadingTypes = false
     this.postUrl = ''
     this.itemPath = ''
+    this.isFormValid = false
   }
 
   update(changed) {
@@ -88,6 +90,35 @@ export class GrampsjsViewNewObject extends GrampsjsView {
   // eslint-disable-next-line class-methods-use-this
   _getItemPath(grampsId) {
     return `${this.itemPath}/${grampsId}`
+  }
+
+  renderButtons() {
+    return html`
+    <div class="spacer"></div>
+    <p class="right">
+      <mwc-button
+        outlined
+        label="${this._('Cancel')}"
+        type="reset"
+        @click="${this._reset}"
+        icon="cancel"
+      >
+      </mwc-button>
+      <mwc-button
+        raised
+        label="${this._('Add')}"
+        type="submit"
+        @click="${this._submit}"
+        icon="save"
+        ?disabled=${!this.isFormValid}
+      >
+        <span slot="trailingIcon" style="display:none;">
+          <mwc-circular-progress indeterminate density="-7" closed id="login-progress">
+          </mwc-circular-progress>
+        </span>
+      </mwc-button>
+    </p>
+    `
   }
 
   _updateData() {

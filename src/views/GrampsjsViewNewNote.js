@@ -3,7 +3,6 @@ import {html} from 'lit'
 import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-textarea'
-import '@material/mwc-switch'
 import '@material/mwc-formfield'
 import '@material/mwc-button'
 import '@material/mwc-circular-progress'
@@ -23,14 +22,7 @@ export class GrampsjsViewNewNote extends GrampsjsViewNewObject {
   }
 
   renderContent() {
-    // const defaultTypesLocale = this.defaultTypesLocale?.note_types || []
-    // const customTypesLocale = this.customTypesLocale?.note_types || []
-    // const typesLocale = defaultTypesLocale.concat(customTypesLocale)
-    // const defaultTypes = this.defaultTypes?.note_types || []
-    // const customTypes = this.customTypes?.note_types || []
-    // const types = defaultTypes.concat(customTypes)
     return html`
-
     <h2>${this._('New Note')}</h2>
 
     <h4 class="label">${this._('Note')}</h4>
@@ -59,27 +51,24 @@ export class GrampsjsViewNewNote extends GrampsjsViewNewObject {
     <div class="spacer"></div>
     <grampsjs-form-private id="private"></grampsjs-form-private>
 
-    <div class="spacer"></div>
-    <p class="right">
-      <mwc-button outlined label="${this._('Cancel')}" type="reset" @click="${this._reset}" icon="cancel">
-      </mwc-button>
-      <mwc-button raised label="${this._('Add')}" type="submit" @click="${this._submit}" icon="save">
-        <span slot="trailingIcon" style="display:none;">
-          <mwc-circular-progress indeterminate density="-7" closed id="login-progress">
-          </mwc-circular-progress>
-        </span>
-      </mwc-button>
-    </p>
+    ${this.renderButtons()}
     `
     // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
 
 
+  checkFormValidity() {
+    const noteText = this.shadowRoot.getElementById('note-text')
+    this.isFormValid = (noteText.value.trim() !== '')
+  }
+
   handleText(e) {
+    this.checkFormValidity()
     this.data = {...this.data, text: {_class: 'StyledText', string: e.target.value.trim()}}
   }
 
   _handleFormData(e) {
+    this.checkFormValidity()
     if (e.originalTarget.id === 'select-note-type') {
       this.data = {...this.data, type: {_class: 'NoteType', string: e.detail.data}}
     }
