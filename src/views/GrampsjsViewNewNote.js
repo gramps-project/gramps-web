@@ -1,4 +1,4 @@
-import {html, css} from 'lit'
+import {html} from 'lit'
 
 import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
@@ -8,55 +8,25 @@ import '@material/mwc-formfield'
 import '@material/mwc-button'
 import '@material/mwc-circular-progress'
 
-import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet, apiPost} from '../api.js'
+import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 
 
-export class GrampsjsViewNewNote extends GrampsjsView {
-  static get styles() {
-    return [
-      super.styles,
-      css`
-      :host {
-      }
-
-      h4.label {
-        font-size: 18px;
-        font-family: Roboto;
-        font-weight: 300;
-      }
-
-      div.spacer {
-        margin-top: 2em;
-      }
-
-      p.right {
-        text-align: right;
-      }
-
-      `]
-  }
-
-
-  static get properties() {
-    return {
-      data: {type: Object},
-      types: {type: Array},
-      typesLocale: {type: Array},
-      loadingTypes: {type: Boolean}
-    }
-  }
-
+export class GrampsjsViewNewNote extends GrampsjsViewNewObject {
 
   constructor() {
     super()
     this.data = {_class: 'Note', text: {_class: 'StyledText', string: ''}}
-    this.types = []
-    this.typesLocale = []
-    this.loadingTypes = false
+    this.postUrl = '/api/notes/'
+    this.itemPath = 'note'
   }
 
   renderContent() {
+    const defaultTypesLocale = this.defaultTypesLocale?.note_types || []
+    const customTypesLocale = this.customTypesLocale?.note_types || []
+    const typesLocale = defaultTypesLocale.concat(customTypesLocale)
+    const defaultTypes = this.defaultTypes?.note_types || []
+    const customTypes = this.customTypes?.note_types || []
+    const types = defaultTypes.concat(customTypes)
     return html`
 
     <h2>${this._('New Note')}</h2>
@@ -81,8 +51,8 @@ export class GrampsjsViewNewNote extends GrampsjsView {
         label="${this.loadingTypes ? this._('Loading items...') : ''}"
         id="note-type"
       >
-          ${this.loadingTypes ? '' : this.types.map((obj, i) => html`
-          <mwc-list-item value="${this.typesLocale[i]}" ?selected="${obj === 'General'}">${this._(obj)}</mwc-list-item>
+          ${this.loadingTypes ? '' : types.map((obj, i) => html`
+          <mwc-list-item value="${typesLocale[i]}" ?selected="${obj === 'General'}">${this._(obj)}</mwc-list-item>
           `)}
       </mwc-select>
     </p>
@@ -109,12 +79,6 @@ export class GrampsjsViewNewNote extends GrampsjsView {
     // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
 
-  update(changed) {
-    super.update(changed)
-    if (changed.has('active')) {
-      this._updateData()
-    }
-  }
 
   handleText(e) {
     this.data = {...this.data, text: {_class: 'StyledText', string: e.target.value.trim()}}
@@ -132,61 +96,17 @@ export class GrampsjsViewNewNote extends GrampsjsView {
     const text = this.shadowRoot.getElementById('note-text')
     text.value = ''
     const noteType = this.shadowRoot.getElementById('note-type')
-    const ind = this.types.indexOf('General')
-    noteType.value = ind === -1 ? null : this.typesLocale[ind]
+    const defaultTypes = this.defaultTypes?.note_types || []
+    const customTypes = this.customTypes?.note_types || []
+    const types = defaultTypes.concat(customTypes)
+    const defaultTypesLocale = this.defaultTypesLocale?.note_types || []
+    const customTypesLocale = this.customTypesLocale?.note_types || []
+    const typesLocale = defaultTypesLocale.concat(customTypesLocale)
+    const ind = types.indexOf('General')
+    noteType.value = ind === -1 ? null : typesLocale[ind]
     this.data = {_class: 'Note', text: {_class: 'StyledText', string: ''}}
   }
 
-  _submit() {
-    apiPost('/api/notes/', this.data).then(data => {
-      if ('data' in data) {
-        this.error = false
-        const grampsId = data.data[0]?.new?.gramps_id
-        this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: this._getItemPath(grampsId)}}))
-        this._reset()
-      } else if ('error' in data) {
-        this.error = true
-        this._errorMessage = data.error
-      }
-    })
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _getItemPath(grampsId) {
-    return `note/${grampsId}`
-  }
-
-  _updateData() {
-    this.loading = true
-    this.loadingTypes = true
-    apiGet('/api/types/').then(data => {
-      this.loading = false
-      if ('data' in data) {
-        const defaultTypes = data.data?.default?.note_types || []
-        const customTypes = data.data?.custom?.note_types || []
-        this.types = defaultTypes.concat(customTypes)
-        this.error = false
-      } else if ('error' in data) {
-        this.error = true
-        this._errorMessage = data.error
-      }
-    }).then(() => {
-      this.loading = true
-      apiGet('/api/types/?locale=1').then(data => {
-        this.loading = false
-        this.loadingTypes = false
-        if ('data' in data) {
-          const defaultTypes = data.data?.default?.note_types || []
-          const customTypes = data.data?.custom?.note_types || []
-          this.typesLocale = defaultTypes.concat(customTypes)
-          this.error = false
-        } else if ('error' in data) {
-          this.error = true
-          this._errorMessage = data.error
-        }
-      })
-    })
-  }
 
 }
 
