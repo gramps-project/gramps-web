@@ -138,9 +138,9 @@ class GrampsjsFormSelectObject extends LitElement {
     const url = (
       textField.value
         ?
-        `/api/search/?locale=${this.strings?.__lang__ || 'en'}&profile=self&query=${encodeURIComponent(`${textField.value} AND type:${this.objectType}`)}&profile=all&page=1&pagesize=20`
+        `/api/search/?locale=${this.strings?.__lang__ || 'en'}&profile=all&query=${encodeURIComponent(`${textField.value} AND type:${this.objectType}`)}&profile=all&page=1&pagesize=20`
         :
-        `/api/search/?sort=-change&locale=${this.strings?.__lang__ || 'en'}&profile=self&query=${encodeURIComponent(`type:${this.objectType}`)}&profile=all&page=1&pagesize=20`
+        `/api/search/?sort=-change&locale=${this.strings?.__lang__ || 'en'}&profile=all&query=${encodeURIComponent(`type:${this.objectType}`)}&profile=all&page=1&pagesize=20`
     )
     const data = await apiGet(url)
     if ('data' in data) {

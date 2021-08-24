@@ -4,7 +4,7 @@ import '@material/mwc-icon-button'
 import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
 
-import {objectDescription, objectIcon, translate, fireEvent} from '../util.js'
+import {objectDescription, objectIcon, translate, fireEvent, objectDetail} from '../util.js'
 
 
 export class GrampsjsSearchResultList extends LitElement {
@@ -47,18 +47,22 @@ export class GrampsjsSearchResultList extends LitElement {
           <span>${this.textEmpty}</span>
         </mwc-list-item>
     `: ''}
-    ${this.data.map((obj, i, arr) =>  html`
+    ${this.data.map((obj, i, arr) =>  {
+    const desc = objectDescription(obj.object_type, obj.object, this.strings)
+    const detail = objectDetail(obj.object_type, obj.object, this.strings)
+    return html`
         <mwc-list-item
           twoline
           graphic="icon"
           @click="${() => this._handleClick(obj)}"
         >
           <mwc-icon slot="graphic">${objectIcon[obj.object_type]}</mwc-icon>
-          <span>${objectDescription(obj.object_type, obj.object, this.strings)}</span>
-          <span slot="secondary">${obj.object.gramps_id}</span>
+          <span>${desc}</span>
+          <span slot="secondary">${obj.object.gramps_id}${detail.trim().length !== 0 ? html` | ${detail}` : ''}</span>
         </mwc-list-item>
         ${arr.length - 1 !== i ? html`<li divider inset padded role="separator"></li>` : ''}
-        `, this)}
+        `
+  }, this)}
     </mwc-list>
     `
   }

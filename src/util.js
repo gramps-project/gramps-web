@@ -202,6 +202,45 @@ export function objectDescription(type, obj, strings) {
   }
 }
 
+export function objectDetail(type, obj, strings) {
+  switch(type) {
+  case 'person':
+    return `
+    ${obj?.profile?.birth?.date ? `* ${obj.profile.birth.date}` : ''}
+    ${obj?.profile?.birth?.place && obj?.profile?.birth?.date ? ', ' : ''}
+    ${obj?.profile?.birth?.place || ''}
+    `
+  // case 'family':
+  //   return ''
+  case 'event':
+    return `
+    ${obj?.profile?.date || ''}
+    ${obj?.profile?.place && obj?.profile?.date ? ', ' : ''}
+    ${obj?.profile?.place || ''}
+    `
+  case 'place':
+    return `
+    ${obj?.profile?.type ? obj.profile.type : ''}
+    `
+  // case 'source':
+  //   return ''
+  // case 'citation':
+  //   return ''
+  case 'repository':
+    return `
+    ${obj.type ? translate(strings, obj.type) : ''}
+    `
+  // case 'note':
+  //   return ''
+  // case 'media':
+  //   return ''
+  // case 'tag':
+  //   return ''
+  default:
+    return ''
+  }
+}
+
 
 export function prettyTimeDiffTimestamp(timestamp, locale) {
   // pt_PT is the only locale we have to rename
