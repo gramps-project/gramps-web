@@ -12,6 +12,8 @@ export class GrampsjsPlace extends GrampsjsObject {
     return html`
     <h2><mwc-icon class="person">place</mwc-icon> ${this.data?.name?.value || this.data.title || this._('Place')}</h2>
 
+    ${this.data?.profile?.type ? html`<p>${this.data?.profile?.type}</p>` : ''}
+
     ${this.data?.profile?.parent_places.length > 0 ? html`
     <dl>
       ${this.data.profile.parent_places.map((obj) => html`

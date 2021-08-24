@@ -21,7 +21,7 @@ const menuItems = [
   ['Place', '/new_place', 'place'],
   // ['Source', '/new_source', 'bookmarks'],
   // ['Citation', '/new_citation', 'bookmark'],
-  // ['Repository', '/new_repository', 'account_balance'],
+  ['Repository', '/new_repository', 'account_balance'],
   ['Note', '/new_note', 'sticky_note_2'],
   // ['Media Object', '/new_media', 'photo']
 ]
