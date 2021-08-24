@@ -55,7 +55,7 @@ export class GrampsjsSearchResultList extends LitElement {
         >
           <mwc-icon slot="graphic">${objectIcon[obj.object_type]}</mwc-icon>
           <span>${objectDescription(obj.object_type, obj.object, this.strings)}</span>
-          <span slot="secondary">Secondary line</span>
+          <span slot="secondary">${obj.object.gramps_id}</span>
         </mwc-list-item>
         ${arr.length - 1 !== i ? html`<li divider inset padded role="separator"></li>` : ''}
         `, this)}
