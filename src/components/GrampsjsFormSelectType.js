@@ -99,7 +99,14 @@ class GrampsjsFormSelectType extends LitElement {
 
   isValid() {
     const selectType = this.shadowRoot.getElementById('select-type')
-    return selectType.validity.valid
+    if (selectType === null) {
+      return false
+    }
+    try {
+      return selectType?.validity?.valid
+    } catch {
+      return false
+    }
   }
 
   _(s) {

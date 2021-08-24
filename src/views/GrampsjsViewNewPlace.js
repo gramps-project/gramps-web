@@ -9,6 +9,7 @@ import '@material/mwc-circular-progress'
 
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 import '../components/GrampsjsFormSelectObject.js'
+import '../components/GrampsjsFormObjectList.js'
 import '../components/GrampsjsFormSelectType.js'
 import '../components/GrampsjsFormPrivate.js'
 
@@ -50,11 +51,28 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
     </grampsjs-form-select-type>
 
 
+    <h4 class="label">${this._('Enclosed By')}</h4>
+    <p>
+      <grampsjs-form-object-list
+        @object-list:changed="${this._handlePlaceListChanged}"
+        id="enclosed-list"
+        .strings="${this.strings}"
+      ></grampsjs-form-object-list>
+    </p>
+    <p>
+      <grampsjs-form-select-object
+        @select-object:changed="${this._handleSelectPlacesChanged}"
+        objectType="place"
+        .strings="${this.strings}"
+        id="enclosed"
+      ></grampsjs-form-select-object>
+    </p>
 
     <div class="spacer"></div>
     <grampsjs-form-private id="private" .strings="${this.strings}"></grampsjs-form-private>
 
     ${this.renderButtons()}
+    <pre>${JSON.stringify(this.data, null, 2)}</pre>
     `
     // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
@@ -64,11 +82,25 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
     this.data = {...this.data, name: {_class: 'PlaceName', value: e.target.value.trim()}}
   }
 
+  _handleSelectPlacesChanged(e) {
+    const objList = this.shadowRoot.querySelector('grampsjs-form-object-list')
+    objList.objects = e.detail.objects
+  }
+
+  _handlePlaceListChanged(e) {
+    const selectObject = this.shadowRoot.querySelector('grampsjs-form-select-object')
+    selectObject.objects = e.detail.objects
+  }
+
   _handleFormData(e) {
     this.checkFormValidity()
     const originalTarget = e.composedPath()[0]
     if (originalTarget.id === 'select-place-type') {
       this.data = {...this.data, place_type: {_class: 'PlaceType', string: e.detail.data}}
+    }
+    if (originalTarget.id === 'enclosed-list') {
+      const handles = e.detail.data
+      this.data = {...this.data, placeref_list: handles.map(handle => ({_class: 'PlaceRef', ref: handle}))}
     }
     if (originalTarget.id === 'private') {
       this.data = {...this.data, private: e.detail.checked}
@@ -77,9 +109,13 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
 
   checkFormValidity() {
     const selectType = this.shadowRoot.querySelector('grampsjs-form-select-type')
-    this.isFormValid = selectType.isValid()
+    this.isFormValid = selectType === null ? true : selectType.isValid()
     const placeName = this.shadowRoot.getElementById('place-name')
-    this.isFormValid = this.isFormValid && placeName.validity.valid
+    try {
+      this.isFormValid = this.isFormValid && placeName?.validity?.valid
+    } catch {
+      this.isFormValid = false
+    }
   }
 
   _reset() {
@@ -89,6 +125,10 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
     placeType.reset()
     const priv = this.shadowRoot.getElementById('private')
     priv.reset()
+    const placeRefList = this.shadowRoot.getElementById('enclosed-list')
+    placeRefList.reset()
+    const placeRef = this.shadowRoot.getElementById('enclosed')
+    placeRef.reset()
     this.data = {_class: 'Place'}
   }
 }

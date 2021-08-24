@@ -160,6 +160,48 @@ export function showObject(type, obj, strings) {
   }
 }
 
+export const objectIcon = {
+  person: 'person',
+  family: 'people',
+  event: 'event',
+  place: 'place',
+  source: 'bookmarks',
+  citation: 'bookmark',
+  repository: 'account_balance',
+  note: 'sticky_note_2',
+  media: 'photo',
+  tag: 'label'
+}
+
+
+export function objectDescription(type, obj, strings) {
+  switch(type) {
+  case 'person':
+    return html`${obj?.profile?.name_given || html`&hellip;`}
+                ${obj?.profile?.name_surname || html`&hellip;`}`
+  case 'family':
+    return html`${familyTitleFromProfile(obj.profile || {}) || type}`
+  case 'event':
+    return html`${eventTitleFromProfile(obj.profile || {}, strings) || obj.type}`
+  case 'place':
+    return html`${obj?.profile?.name || obj?.name?.value || obj.title || type}`
+  case 'source':
+    return html`${getName(obj, type) || type}`
+  case 'citation':
+    return html`${citationTitleFromProfile(obj.profile || {}) || type}`
+  case 'repository':
+    return html`${getName(obj, type) || type}`
+  case 'note':
+    return html`${translate(strings, obj.type) || type}`
+  case 'media':
+    return html`${getName(obj, type) || type}`
+  case 'tag':
+    return html`${obj.name}`
+  default:
+    return `unknown type: ${type}`
+  }
+}
+
 
 export function prettyTimeDiffTimestamp(timestamp, locale) {
   // pt_PT is the only locale we have to rename
@@ -203,4 +245,11 @@ export function getNameFromProfile(obj, type, strings) {
   default:
     return ''
   }
+}
+
+
+export function fireEvent(target, name, detail) {
+  target.dispatchEvent(new CustomEvent(
+    name, {bubbles: true, composed: true, detail})
+  )
 }
