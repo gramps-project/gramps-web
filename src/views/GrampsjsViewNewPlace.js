@@ -118,16 +118,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
   }
 
   _reset() {
-    const placeName = this.shadowRoot.getElementById('place-name')
-    placeName.value = ''
-    const placeType = this.shadowRoot.getElementById('select-place-type')
-    placeType.reset()
-    const priv = this.shadowRoot.getElementById('private')
-    priv.reset()
-    const placeRefList = this.shadowRoot.getElementById('enclosed-list')
-    placeRefList.reset()
-    const placeRef = this.shadowRoot.getElementById('enclosed')
-    placeRef.reset()
+    super._reset()
     this.data = {_class: 'Place'}
   }
 }

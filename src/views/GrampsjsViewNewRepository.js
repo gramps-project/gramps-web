@@ -47,11 +47,14 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
       typeName="repository_types"
       .types="${this.types}"
       .typesLocale="${this.typesLocale}"
-    >
+      >
     </grampsjs-form-select-type>
 
     <div class="spacer"></div>
-    <grampsjs-form-private id="private" .strings="${this.strings}"></grampsjs-form-private>
+    <grampsjs-form-private
+      id="private"
+      .strings="${this.strings}"
+    ></grampsjs-form-private>
 
     ${this.renderButtons()}
     `
@@ -86,12 +89,7 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
   }
 
   _reset() {
-    const repoName = this.shadowRoot.getElementById('repository-name')
-    repoName.value = ''
-    const repoType = this.shadowRoot.getElementById('select-repository-type')
-    repoType.reset()
-    const priv = this.shadowRoot.getElementById('private')
-    priv.reset()
+    super._reset()
     this.data = {_class: 'Repository'}
   }
 }
