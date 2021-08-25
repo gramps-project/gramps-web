@@ -1,6 +1,8 @@
 import {LitElement, html, css} from 'lit'
 import {installRouter} from 'pwa-helpers/router.js'
 import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
+import {addPwaUpdateListener} from 'pwa-helper-components'
+import 'pwa-helper-components/pwa-update-available.js'
 import '@material/mwc-drawer'
 import '@material/mwc-tab'
 import '@material/mwc-tab-bar'
@@ -72,6 +74,7 @@ export class GrampsJs extends LitElement {
       settings: {type: Object},
       add: {type: Boolean},
       edit: {type: Boolean},
+      updateAvailable: {type: Boolean},
       _lang: {type: String},
       _strings: {type: Object},
       _dbInfo: {type: Object},
@@ -88,6 +91,7 @@ export class GrampsJs extends LitElement {
     this.settings = getSettings()
     this.add = false
     this.edit = false
+    this.updateAvailable = false
     this._lang = ''
     this._strings = {}
     this._dbInfo = {}
@@ -247,6 +251,16 @@ export class GrampsJs extends LitElement {
     ${this.renderContent()}
     <mwc-snackbar id="error-snackbar" leading></mwc-snackbar>
     <mwc-snackbar id="notification-snackbar" leading></mwc-snackbar>
+    <pwa-update-available>
+      <mwc-snackbar
+        leading
+        timeoutMs="-1"
+        open="${this.updateAvailable}"
+        labelText="${this._('A new version of the app is available.')}"
+      >
+        <mwc-button slot="action">${this._('Refresh')}</mwc-button>
+      </mwc-snackbar>
+    </pwa-update-available>
     `
   }
 
@@ -483,6 +497,9 @@ export class GrampsJs extends LitElement {
     super.connectedCallback()
     this._loadDbInfo()
     window.addEventListener('db:changed', () => this._loadDbInfo())
+    addPwaUpdateListener((updateAvailable) => {
+      this.updateAvailable = updateAvailable
+    })
   }
 
   firstUpdated() {

@@ -85,6 +85,7 @@
     "jwt-decode": "^3.1.2",
     "leaflet": "^1.7.1",
     "lit": "^2.0.0-rc.2",
+    "pwa-helper-components": "^0.2.10",
     "pwa-helpers": "^0.9.1",
     "rollup-plugin-copy": "^3.3.0"
   }

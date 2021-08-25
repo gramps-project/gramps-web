@@ -18,7 +18,8 @@ export const additionalStrings = {
     'Change password': 'Passwort ändern',
     'Old password': 'Altes Passwort',
     'New password': 'Neues Passwort',
-    'New E-mail': 'Neue E-Mail-Adresse'
+    'New E-mail': 'Neue E-Mail-Adresse',
+    'A new version of the app is available.': 'Eine neue Version der App ist verfügbar.'
   }
 }
 
@@ -144,6 +145,7 @@ export const grampsStrings = [
   'Province',
   'Publication info',
   'References',
+  'Refresh',
   'Region',
   'Relationship type:',
   'Relationships',
