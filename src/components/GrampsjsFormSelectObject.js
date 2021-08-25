@@ -55,7 +55,7 @@ class GrampsjsFormSelectObject extends LitElement {
   constructor() {
     super()
     this.strings = {}
-    this.objectType = false
+    this.objectType = ''
     this.objects = []
     this.data = []
   }

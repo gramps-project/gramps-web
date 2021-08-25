@@ -72,7 +72,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
   // eslint-disable-next-line class-methods-use-this
   _reset() {
     this.shadowRoot.querySelectorAll(
-      'grampsjs-form-select-type, grampsjs-form-private, grampsjs-form-object-list, grampsjs-form-select-object'
+      'grampsjs-form-select-type, grampsjs-form-private, grampsjs-form-object-list, grampsjs-form-select-object, grampsjs-form-select-object-list'
     ).forEach(element => element.reset())
     this.shadowRoot.querySelectorAll('mwc-textfield').forEach(element => {
       // eslint-disable-next-line no-param-reassign

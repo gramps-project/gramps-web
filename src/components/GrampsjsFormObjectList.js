@@ -33,7 +33,6 @@ class GrampsjsFormObjectList extends LitElement {
   static get properties() {
     return {
       strings: {type: Object},
-      objectType: {type: String},
       objects: {type: Array},
       selectedIndex: {type: Number}
     }
@@ -43,7 +42,6 @@ class GrampsjsFormObjectList extends LitElement {
   constructor() {
     super()
     this.strings = {}
-    this.objectType = false
     this.objects = []
     this.selectedIndex = -1
   }

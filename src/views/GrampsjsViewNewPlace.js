@@ -8,8 +8,7 @@ import '@material/mwc-button'
 import '@material/mwc-circular-progress'
 
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
-import '../components/GrampsjsFormSelectObject.js'
-import '../components/GrampsjsFormObjectList.js'
+import '../components/GrampsjsFormSelectObjectList.js'
 import '../components/GrampsjsFormSelectType.js'
 import '../components/GrampsjsFormPrivate.js'
 
@@ -52,20 +51,10 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
 
 
     <h4 class="label">${this._('Enclosed By')}</h4>
-    <p>
-      <grampsjs-form-object-list
-        @object-list:changed="${this._handlePlaceListChanged}"
-        id="enclosed-list"
-        .strings="${this.strings}"
-      ></grampsjs-form-object-list>
-    </p>
-    <p>
-      <grampsjs-form-select-object
-        @select-object:changed="${this._handleSelectPlacesChanged}"
+      <grampsjs-form-select-object-list
         objectType="place"
         .strings="${this.strings}"
-        id="enclosed"
-      ></grampsjs-form-select-object>
+      ></grampsjs-form-select-object-list>
     </p>
 
     <div class="spacer"></div>
@@ -97,7 +86,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
     if (originalTarget.id === 'select-place-type') {
       this.data = {...this.data, place_type: {_class: 'PlaceType', string: e.detail.data}}
     }
-    if (originalTarget.id === 'enclosed-list') {
+    if (originalTarget.id === 'place-list') {
       const handles = e.detail.data
       this.data = {...this.data, placeref_list: handles.map(handle => ({_class: 'PlaceRef', ref: handle}))}
     }
