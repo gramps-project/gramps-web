@@ -696,9 +696,10 @@ export class GrampsJs extends LitElement {
     if (permissions === null) {
       this.add = true
       this.edit = true
+    } else {
+      this.add = permissions.includes('AddObject')
+      this.edit = permissions.includes('EditObject')
     }
-    this.add = permissions.includes('AddObject')
-    this.edit = permissions.includes('EditObject')
   }
 
   _(s) {
