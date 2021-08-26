@@ -70,16 +70,6 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
     this.data = {...this.data, name: {_class: 'PlaceName', value: e.target.value.trim()}}
   }
 
-  _handleSelectPlacesChanged(e) {
-    const objList = this.shadowRoot.querySelector('grampsjs-form-object-list')
-    objList.objects = e.detail.objects
-  }
-
-  _handlePlaceListChanged(e) {
-    const selectObject = this.shadowRoot.querySelector('grampsjs-form-select-object')
-    selectObject.objects = e.detail.objects
-  }
-
   _handleFormData(e) {
     this.checkFormValidity()
     const originalTarget = e.composedPath()[0]
