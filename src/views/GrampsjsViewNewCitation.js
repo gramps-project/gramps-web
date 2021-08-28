@@ -6,12 +6,19 @@ import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 import '../components/GrampsjsFormString.js'
 import '../components/GrampsjsFormPrivate.js'
 
+const confidence = {
+  0: 'Very Low',
+  1: 'Low',
+  2: 'Normal',
+  3: 'High',
+  4: 'Very High'
+}
 
 export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
 
   constructor() {
     super()
-    this.data = {_class: 'Citation'}
+    this.data = {_class: 'Citation', confidence: 2}
     this.postUrl = '/api/citations/'
     this.itemPath = 'citation'
   }
@@ -43,6 +50,18 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
       </grampsjs-form-select-date>
     </p>
 
+    <h4 class="label">${this._('Con_fidence')}</h4>
+    <mwc-select
+      id="select-confidence"
+      @change="${this.handleConfidence}"
+    >
+      ${Object.keys(confidence).map(conf => html`
+      <mwc-list-item
+        value="${conf}"
+        ?selected="${conf == this.data.confidence}"
+      >${this._(confidence[conf])}</mwc-list-item>
+      `)}
+    </mwc-select>
 
     <div class="spacer"></div>
     <grampsjs-form-private
@@ -51,12 +70,17 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
     ></grampsjs-form-private>
 
     ${this.renderButtons()}
+    <pre>${JSON.stringify(this.data, null, 2)}</pre>
     `
     // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
 
   checkFormValidity() {
     this.isFormValid = !!this.data?.source_handle
+  }
+
+  handleConfidence(e) {
+    this.data = {...this.data, confidence: parseInt(e.target.value, 10)}
   }
 
   _handleFormData(e) {
@@ -74,7 +98,7 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
   _reset() {
     super._reset()
     this.isFormValid = false
-    this.data = {_class: 'Citation'}
+    this.data = {_class: 'Citation', confidence: 2}
   }
 }
 
