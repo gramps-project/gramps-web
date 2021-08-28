@@ -54,6 +54,7 @@ import './views/GrampsjsViewTree.js'
 import './views/GrampsjsViewNewEvent.js'
 import './views/GrampsjsViewNewPlace.js'
 import './views/GrampsjsViewNewSource.js'
+import './views/GrampsjsViewNewCitation.js'
 import './views/GrampsjsViewNewRepository.js'
 import './views/GrampsjsViewNewNote.js'
 import {sharedStyles} from './SharedStyles.js'
@@ -461,6 +462,7 @@ export class GrampsJs extends LitElement {
         <grampsjs-view-new-event class="page" ?active=${this._page === 'new_event'} .strings="${this._strings}"></grampsjs-view-new-event>
         <grampsjs-view-new-place class="page" ?active=${this._page === 'new_place'} .strings="${this._strings}"></grampsjs-view-new-place>
         <grampsjs-view-new-source class="page" ?active=${this._page === 'new_source'} .strings="${this._strings}"></grampsjs-view-new-source>
+        <grampsjs-view-new-citation class="page" ?active=${this._page === 'new_citation'} .strings="${this._strings}"></grampsjs-view-new-citation>
         <grampsjs-view-new-repository class="page" ?active=${this._page === 'new_repository'} .strings="${this._strings}"></grampsjs-view-new-repository>
         <grampsjs-view-new-note class="page" ?active=${this._page === 'new_note'} .strings="${this._strings}"></grampsjs-view-new-note>
 

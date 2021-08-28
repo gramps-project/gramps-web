@@ -19,7 +19,8 @@ import './GrampsjsSearchResultList.js'
 
 // labels for button
 const btnLabel = {
-  place: 'Select an existing place'
+  place: 'Select an existing place',
+  source: 'Select an existing source'
 }
 
 class GrampsjsFormSelectObject extends LitElement {

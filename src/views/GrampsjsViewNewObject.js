@@ -166,7 +166,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
       this.data = {...this.data, private: e.detail.checked}
     }
     if ([
-      'author', 'pubinfo', 'abbrev'
+      'author', 'pubinfo', 'abbrev', 'page'
     ].includes(originalTarget.id)) {
       this.data = {...this.data, [originalTarget.id]: e.detail.data}
     }
