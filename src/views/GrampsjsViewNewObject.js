@@ -66,7 +66,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
   // eslint-disable-next-line class-methods-use-this
   _reset() {
     this.shadowRoot.querySelectorAll(
-      'grampsjs-form-select-type, grampsjs-form-private, grampsjs-form-object-list, grampsjs-form-select-object, grampsjs-form-select-object-list, grampsjs-form-select-date'
+      'grampsjs-form-select-type, grampsjs-form-private, grampsjs-form-object-list, grampsjs-form-select-object, grampsjs-form-select-object-list, grampsjs-form-select-date, grampsjs-form-string'
     ).forEach(element => element.reset())
     this.shadowRoot.querySelectorAll('mwc-textfield').forEach(element => {
       // eslint-disable-next-line no-param-reassign
@@ -158,6 +158,18 @@ export class GrampsjsViewNewObject extends GrampsjsView {
   disconnectedCallback() {
     this.removeEventListener('formdata:changed', this._handleFormData.bind(this))
     super.disconnectedCallback()
+  }
+
+  _handleFormData(e) {
+    const originalTarget = e.composedPath()[0]
+    if (originalTarget.id === 'private') {
+      this.data = {...this.data, private: e.detail.checked}
+    }
+    if ([
+      'author', 'pubinfo', 'abbrev'
+    ].includes(originalTarget.id)) {
+      this.data = {...this.data, [originalTarget.id]: e.detail.data}
+    }
   }
 
 

@@ -114,6 +114,8 @@ export const grampsStrings = [
   'New Event',
   'New Note',
   'New Place',
+  'New Repository',
+  'New Source',
   'Next',
   'Nickname',
   'No items',
