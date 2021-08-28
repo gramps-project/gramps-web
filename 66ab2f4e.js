@@ -2721,13 +2721,12 @@ const t=window.ShadowRoot&&(void 0===window.ShadyCSS||window.ShadyCSS.nativeShad
     ></grampsjs-form-private>
 
     ${0}
-    <pre>${0}</pre>
     `),this._("New Citation"),this._("Source"),this.strings,this._("Page"),this._("Date"),this.strings,this._("Con_fidence"),this.handleConfidence,Object.keys(Zk).map((t=>D(Vk||(Vk=Uk`
       <mwc-list-item
         value="${0}"
         ?selected="${0}"
       >${0}</mwc-list-item>
-      `),t,t==this.data.confidence,this._(Zk[t])))),this.strings,this.renderButtons(),JSON.stringify(this.data,null,2))}checkFormValidity(){var t;this.isFormValid=!(null===(t=this.data)||void 0===t||!t.source_handle)}handleConfidence(t){this.data={...this.data,confidence:parseInt(t.target.value,10)}}_handleFormData(t){super._handleFormData(t);const e=t.composedPath()[0];"source-list"===e.id&&(this.data={...this.data,source_handle:t.detail.data[0]}),"date"===e.id&&(this.data={...this.data,date:t.detail.data}),this.checkFormValidity()}_reset(){super._reset(),this.isFormValid=!1,this.data={_class:"Citation",confidence:2}}});let Wk,Gk=t=>t;window.customElements.define("grampsjs-view-new-repository",class extends Uw{constructor(){super(),this.data={_class:"Repository"},this.postUrl="/api/repositories/",this.itemPath="repository"}renderContent(){return D(Wk||(Wk=Gk`
+      `),t,t==this.data.confidence,this._(Zk[t])))),this.strings,this.renderButtons())}checkFormValidity(){var t;this.isFormValid=!(null===(t=this.data)||void 0===t||!t.source_handle)}handleConfidence(t){this.data={...this.data,confidence:parseInt(t.target.value,10)}}_handleFormData(t){super._handleFormData(t);const e=t.composedPath()[0];"source-list"===e.id&&(this.data={...this.data,source_handle:t.detail.data[0]}),"date"===e.id&&(this.data={...this.data,date:t.detail.data}),this.checkFormValidity()}_reset(){super._reset(),this.isFormValid=!1,this.data={_class:"Citation",confidence:2}}});let Wk,Gk=t=>t;window.customElements.define("grampsjs-view-new-repository",class extends Uw{constructor(){super(),this.data={_class:"Repository"},this.postUrl="/api/repositories/",this.itemPath="repository"}renderContent(){return D(Wk||(Wk=Gk`
     <h2>${0}</h2>
 
     <h4 class="label">${0}</h4>
