@@ -51,6 +51,7 @@ import './views/GrampsjsViewSettingsOnboarding.js'
 import './views/GrampsjsViewRecent.js'
 import './views/GrampsjsViewMap.js'
 import './views/GrampsjsViewTree.js'
+import './views/GrampsjsViewNewEvent.js'
 import './views/GrampsjsViewNewPlace.js'
 import './views/GrampsjsViewNewRepository.js'
 import './views/GrampsjsViewNewNote.js'
@@ -456,6 +457,7 @@ export class GrampsJs extends LitElement {
 
         <grampsjs-view-settings class="page" ?active=${this._page === 'settings'} .strings="${this._strings}"></grampsjs-view-settings>
 
+        <grampsjs-view-new-event class="page" ?active=${this._page === 'new_event'} .strings="${this._strings}"></grampsjs-view-new-event>
         <grampsjs-view-new-place class="page" ?active=${this._page === 'new_place'} .strings="${this._strings}"></grampsjs-view-new-place>
         <grampsjs-view-new-repository class="page" ?active=${this._page === 'new_repository'} .strings="${this._strings}"></grampsjs-view-new-repository>
         <grampsjs-view-new-note class="page" ?active=${this._page === 'new_note'} .strings="${this._strings}"></grampsjs-view-new-note>

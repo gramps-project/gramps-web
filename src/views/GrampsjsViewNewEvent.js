@@ -8,52 +8,58 @@ import '@material/mwc-button'
 import '@material/mwc-circular-progress'
 
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
+import '../components/GrampsjsFormSelectDate.js'
 import '../components/GrampsjsFormSelectObjectList.js'
 import '../components/GrampsjsFormSelectType.js'
 import '../components/GrampsjsFormPrivate.js'
 
 
-export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
+export class GrampsjsViewNewEvent extends GrampsjsViewNewObject {
 
   constructor() {
     super()
-    this.data = {_class: 'Place'}
-    this.postUrl = '/api/places/'
-    this.itemPath = 'place'
+    this.data = {_class: 'Event'}
+    this.postUrl = '/api/events/'
+    this.itemPath = 'event'
   }
 
   renderContent() {
     return html`
-    <h2>${this._('New Place')}</h2>
-
-    <h4 class="label">${this._('Name')}</h4>
-    <p>
-      <mwc-textfield
-        required
-        validationMessage="${this._('This field is mandatory')}"
-        style="width:100%;"
-        @input="${this.handleName}"
-        id="place-name"
-      ></mwc-textfield>
-    </p>
+    <h2>${this._('New Event')}</h2>
 
     <grampsjs-form-select-type
       required
-      id="select-place-type"
+      id="select-type"
       .strings="${this.strings}"
       ?loadingTypes="${this.loadingTypes}"
       ?disabled="${this.loadingTypes}"
-      typeName="place_types"
+      typeName="event_types"
       .types="${this.types}"
       .typesLocale="${this.typesLocale}"
     >
     </grampsjs-form-select-type>
 
+    <h4 class="label">${this._('Date')}</h4>
+    <p>
+      <grampsjs-form-select-date
+        id="date"
+        .strings="${this.strings}"
+      >
+      </grampsjs-form-select-date>
+    </p>
 
-    <h4 class="label">${this._('Enclosed By')}</h4>
+    <h4 class="label">${this._('Description')}</h4>
+    <p>
+      <mwc-textfield
+        style="width:100%;"
+        @input="${this.handleDesc}"
+        id="desc"
+      ></mwc-textfield>
+    </p>
+
+    <h4 class="label">${this._('Place')}</h4>
     <grampsjs-form-select-object-list
-      id="enclosed"
-      multiple
+      id="place"
       objectType="place"
       .strings="${this.strings}"
     ></grampsjs-form-select-object-list>
@@ -62,24 +68,27 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
     <grampsjs-form-private id="private" .strings="${this.strings}"></grampsjs-form-private>
 
     ${this.renderButtons()}
+    <pre>${JSON.stringify(this.data, null, 2)}</pre>
     `
     // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
 
-  handleName(e) {
-    this.checkFormValidity()
-    this.data = {...this.data, name: {_class: 'PlaceName', value: e.target.value.trim()}}
+  handleDesc(e) {
+    this.data = {...this.data, description: e.target.value.trim()}
   }
+
 
   _handleFormData(e) {
     this.checkFormValidity()
     const originalTarget = e.composedPath()[0]
-    if (originalTarget.id === 'select-place-type') {
-      this.data = {...this.data, place_type: {_class: 'PlaceType', string: e.detail.data}}
+    if (originalTarget.id === 'select-type') {
+      this.data = {...this.data, type: {_class: 'EventType', string: e.detail.data}}
     }
-    if (originalTarget.id === 'enclosed-list') {
-      const handles = e.detail.data
-      this.data = {...this.data, placeref_list: handles.map(handle => ({_class: 'PlaceRef', ref: handle}))}
+    if (originalTarget.id === 'place-list') {
+      this.data = {...this.data, place: e.detail.data[0]}
+    }
+    if (originalTarget.id === 'date') {
+      this.data = {...this.data, date: e.detail.data}
     }
     if (originalTarget.id === 'private') {
       this.data = {...this.data, private: e.detail.checked}
@@ -89,19 +98,13 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
   checkFormValidity() {
     const selectType = this.shadowRoot.querySelector('grampsjs-form-select-type')
     this.isFormValid = selectType === null ? true : selectType.isValid()
-    const placeName = this.shadowRoot.getElementById('place-name')
-    try {
-      this.isFormValid = this.isFormValid && placeName?.validity?.valid
-    } catch {
-      this.isFormValid = false
-    }
   }
 
   _reset() {
     super._reset()
-    this.data = {_class: 'Place'}
+    //this.data = {_class: 'Event'}
   }
 }
 
 
-window.customElements.define('grampsjs-view-new-place', GrampsjsViewNewPlace)
+window.customElements.define('grampsjs-view-new-event', GrampsjsViewNewEvent)

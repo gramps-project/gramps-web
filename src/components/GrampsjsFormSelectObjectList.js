@@ -19,7 +19,8 @@ class GrampsjsFormSelectObjectList extends LitElement {
   static get properties() {
     return {
       strings: {type: Object},
-      objectType: {type: String}
+      objectType: {type: String},
+      multiple: {type: Boolean}
     }
   }
 
@@ -28,6 +29,7 @@ class GrampsjsFormSelectObjectList extends LitElement {
     super()
     this.strings = {}
     this.objectType = ''
+    this.multiple = false
   }
 
   render() {
@@ -36,7 +38,8 @@ class GrampsjsFormSelectObjectList extends LitElement {
       <grampsjs-form-object-list
         @object-list:changed="${this._handleObjectListChanged}"
         .strings="${this.strings}"
-        id="${this.objectType}-list"
+        id="${this.id}-list"
+        ?reorder="${this.multiple}"
       ></grampsjs-form-object-list>
     </p>
     <p>
@@ -44,7 +47,8 @@ class GrampsjsFormSelectObjectList extends LitElement {
         @select-object:changed="${this._handleSelectObjectsChanged}"
         objectType="${this.objectType}"
         .strings="${this.strings}"
-        id="select-${this.objectType}"
+        id="${this.id}-select"
+        ?multiple="${this.multiple}"
       ></grampsjs-form-select-object>
     </p>
 `

@@ -47,7 +47,8 @@ class GrampsjsFormSelectObject extends LitElement {
       strings: {type: Object},
       objectType: {type: String},
       objects: {type: Array},
-      data: {type: Array}
+      data: {type: Array},
+      multiple: {type: Boolean}
     }
   }
 
@@ -58,6 +59,7 @@ class GrampsjsFormSelectObject extends LitElement {
     this.objectType = ''
     this.objects = []
     this.data = []
+    this.multiple = false
   }
 
   render() {
@@ -114,7 +116,12 @@ class GrampsjsFormSelectObject extends LitElement {
   _handleSelected(e) {
     const obj = e.detail
     const handles = this._handleList()
-    if (!handles.includes(obj.handle)) {
+    if (!this.multiple) {
+      this.objects = [obj]
+      this._closeMenu()
+      fireEvent(this, 'select-object:changed', {objects: this.objects})
+    }
+    else if (!handles.includes(obj.handle)) {
       this.objects = [...this.objects, obj]
       this._closeMenu()
       fireEvent(this, 'select-object:changed', {objects: this.objects})

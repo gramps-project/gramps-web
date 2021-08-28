@@ -7,6 +7,8 @@ export const sharedStyles = css`
     font-weight: 300;
     --mdc-theme-primary: #6D4C41;
     --mdc-theme-on-primary: #EFEBE9;
+    --mdc-theme-secondary: #29b6f6;
+    --mdc-theme-on-secondary: #e1f5fe;
     --mdc-typography-font-family: Roboto;
     --color-boy: #64B5F6;
     --color-girl: #EF9A9A;
@@ -40,6 +42,15 @@ export const sharedStyles = css`
     font-size: 26px;
     margin-top: 30px;
     margin-bottom: 20px;
+  }
+
+  h4 {
+    font-size: 20px;
+  }
+
+  h4.label {
+    font-family: Roboto;
+    font-size: 18px;
   }
 
   a:link, a:visited, span.link {

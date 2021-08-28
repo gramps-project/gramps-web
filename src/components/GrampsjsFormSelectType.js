@@ -12,14 +12,7 @@ import {sharedStyles} from '../SharedStyles.js'
 class GrampsjsFormSelectType extends LitElement {
   static get styles() {
     return [
-      sharedStyles,
-      css`
-      h4.label {
-        font-size: 18px;
-        font-family: Roboto;
-        font-weight: 300;
-      }
-      `
+      sharedStyles
     ]
   }
 

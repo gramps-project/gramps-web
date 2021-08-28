@@ -20,12 +20,6 @@ export class GrampsjsViewNewObject extends GrampsjsView {
       :host {
       }
 
-      h4.label {
-        font-size: 18px;
-        font-family: Roboto;
-        font-weight: 300;
-      }
-
       div.spacer {
         margin-top: 2em;
       }
@@ -72,7 +66,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
   // eslint-disable-next-line class-methods-use-this
   _reset() {
     this.shadowRoot.querySelectorAll(
-      'grampsjs-form-select-type, grampsjs-form-private, grampsjs-form-object-list, grampsjs-form-select-object, grampsjs-form-select-object-list'
+      'grampsjs-form-select-type, grampsjs-form-private, grampsjs-form-object-list, grampsjs-form-select-object, grampsjs-form-select-object-list, grampsjs-form-select-date'
     ).forEach(element => element.reset())
     this.shadowRoot.querySelectorAll('mwc-textfield').forEach(element => {
       // eslint-disable-next-line no-param-reassign
