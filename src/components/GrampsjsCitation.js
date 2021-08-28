@@ -6,6 +6,14 @@ import {GrampsjsObject} from './GrampsjsObject.js'
 
 const BASE_DIR = ''
 
+const confidence = {
+  0: 'Very Low',
+  1: 'Low',
+  2: 'Normal',
+  3: 'High',
+  4: 'Very High'
+}
+
 export class GrampsjsCitation extends GrampsjsObject {
   static get styles() {
     return [
@@ -50,6 +58,14 @@ export class GrampsjsCitation extends GrampsjsObject {
       </dd>
     </div>
     ` : ''}
+    <div>
+      <dt>
+        ${this._('Con_fidence')}
+      </dt>
+      <dd>
+      ${this._(confidence[this.data.confidence])}
+      </dd>
+    </div>
     </dl>
     `
   }
