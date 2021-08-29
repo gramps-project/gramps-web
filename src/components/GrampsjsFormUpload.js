@@ -1,0 +1,122 @@
+/*
+Element for selecting a Gramps type
+*/
+
+import {html, css, LitElement} from 'lit'
+import '@material/mwc-button'
+
+import {sharedStyles} from '../SharedStyles.js'
+import {fireEvent} from '../util.js'
+
+
+class GrampsjsFormUpload extends LitElement {
+  static get styles() {
+    return [
+      sharedStyles,
+      css`
+      div#preview {
+        margin-top: 25px;
+      }
+
+      img.img-preview {
+        max-width: 300px;
+        max-height: 300px;
+      }
+      `
+    ]
+  }
+
+  static get properties() {
+    return {
+      strings: {type: Object},
+      file: {type: Object},
+      imageUrl: {type: String}
+    }
+  }
+
+
+  constructor() {
+    super()
+    this.strings = {}
+    this.file = {}
+    this.imageUrl = ''
+  }
+
+  render() {
+    return html`
+    <input
+      id="input-upload"
+      type="file"
+      hidden
+      @change="${this._handleInputChange}"
+    >
+    <mwc-button
+      raised
+      icon="upload"
+      @click="${this._handleClickUpload}"
+    >
+      ${this._('Select a file')}
+    </mwc-button>
+
+    ${this.renderPreview()}
+    `
+  }
+
+  renderPreview() {
+    if (!this.file.name) {
+      return ''
+    }
+    return html`
+    <div id="preview">
+    ${this.file.type.startsWith('image') ? this.renderImage() : ''}
+    </div>
+    `
+  }
+
+  renderImage() {
+    if (!this.imageUrl) {
+      return ''
+    }
+    return html`
+    <img src="${this.imageUrl}" alt="" class="img-preview"/>
+    `
+  }
+
+  _handleClickUpload() {
+    const input = this.shadowRoot.getElementById('input-upload')
+    input.click()
+  }
+
+  _handleInputChange(e) {
+    const input = this.shadowRoot.getElementById('input-upload')
+    if (input?.files?.length) {
+      this.imageUrl = '';
+      [this.file] = input.files
+      const reader = new FileReader()
+      reader.onload = () => {
+        this.imageUrl = reader.result
+      }
+      reader.readAsDataURL(this.file)
+      this.handleChange()
+    }
+  }
+
+  reset() {
+    this.file = {}
+    this.imageUrl = ''
+  }
+
+  handleChange() {
+    fireEvent(this, 'formdata:changed', {data: this.file})
+  }
+
+
+  _(s) {
+    if (s in this.strings) {
+      return this.strings[s]
+    }
+    return s
+  }
+}
+
+window.customElements.define('grampsjs-form-upload', GrampsjsFormUpload)

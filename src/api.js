@@ -177,28 +177,34 @@ export async function apiGet(endpoint)  {
     if (resp.status !== 200) {
       throw(new Error(`Error ${resp.status}`))
     }
-    return {'data': await resp.json(), 'total_count': resp.headers.get('X-Total-Count')}
+    return {
+      'data': await resp.json(),
+      'total_count': resp.headers.get('X-Total-Count'),
+      'etag': resp.headers.get('ETag')
+    }
   }
   catch (error)  {
     return {'error': error.message}
   }
 };
 
-async function apiPutPost(method, endpoint, payload)  {
+async function apiPutPost(method, endpoint, payload, isJson=true)  {
   const accessToken = localStorage.getItem('access_token')
   let headers = {}
   if (accessToken !== null) {
     headers = {
       'Authorization': `Bearer ${accessToken}`,
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Accept': 'application/json'
+    }
+    if (isJson) {
+      headers['Content-Type'] = 'application/json'
     }
   }
   try {
     const resp = await fetch(`${__APIHOST__}${endpoint}`, {
       method,
       headers,
-      body: JSON.stringify(payload)
+      body: (isJson ? JSON.stringify(payload) : payload)
     })
     if (resp.status === 401) {
       const refreshToken = localStorage.getItem('refresh_token')
@@ -217,7 +223,11 @@ async function apiPutPost(method, endpoint, payload)  {
       throw(new Error(`Error ${resp.status}`))
     }
     window.dispatchEvent(new CustomEvent('db:changed', {bubbles: true, composed: true}))
-    return {'data': await resp.json(), 'total_count': resp.headers.get('X-Total-Count')}
+    return {
+      'data': await resp.json(),
+      'total_count': resp.headers.get('X-Total-Count'),
+      'etag': resp.headers.get('ETag')
+    }
   }
   catch (error)  {
     return {'error': error.message}
@@ -230,8 +240,8 @@ export async function apiPut(endpoint, payload)  {
 }
 
 
-export async function apiPost(endpoint, payload)  {
-  return apiPutPost('POST', endpoint, payload)
+export async function apiPost(endpoint, payload, isJson=true)  {
+  return apiPutPost('POST', endpoint, payload, isJson)
 }
 
 

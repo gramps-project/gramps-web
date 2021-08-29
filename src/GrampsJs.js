@@ -57,6 +57,7 @@ import './views/GrampsjsViewNewSource.js'
 import './views/GrampsjsViewNewCitation.js'
 import './views/GrampsjsViewNewRepository.js'
 import './views/GrampsjsViewNewNote.js'
+import './views/GrampsjsViewNewMedia.js'
 import {sharedStyles} from './SharedStyles.js'
 
 const LOADING_STATE_INITIAL = 0
@@ -465,6 +466,7 @@ export class GrampsJs extends LitElement {
         <grampsjs-view-new-citation class="page" ?active=${this._page === 'new_citation'} .strings="${this._strings}"></grampsjs-view-new-citation>
         <grampsjs-view-new-repository class="page" ?active=${this._page === 'new_repository'} .strings="${this._strings}"></grampsjs-view-new-repository>
         <grampsjs-view-new-note class="page" ?active=${this._page === 'new_note'} .strings="${this._strings}"></grampsjs-view-new-note>
+        <grampsjs-view-new-media class="page" ?active=${this._page === 'new_media'} .strings="${this._strings}"></grampsjs-view-new-media>
 
         </main>
 

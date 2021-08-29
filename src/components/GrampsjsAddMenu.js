@@ -23,7 +23,7 @@ const menuItems = [
   ['Citation', '/new_citation', 'bookmark'],
   ['Repository', '/new_repository', 'account_balance'],
   ['Note', '/new_note', 'sticky_note_2'],
-  // ['Media Object', '/new_media', 'photo']
+  ['Media Object', '/new_media', 'photo']
 ]
 
 class GrampsjsAddMenu extends LitElement {

@@ -24,7 +24,7 @@ class GrampsjsFormString extends LitElement {
   static get properties() {
     return {
       strings: {type: Object},
-      value: {type: Object},
+      value: {type: String},
       label: {type: String},
       disabled: {type: Boolean},
       fullwidth: {type: Boolean},
@@ -48,6 +48,8 @@ class GrampsjsFormString extends LitElement {
     <mwc-textfield
       @input="${this.handleChange}"
       label="${this.label}"
+      value="${this.value}"
+      ?disabled="${this.disabled}"
       class="${this.fullwidth ? 'fullwidth' : ''}"
     ></mwc-textfield>
     `
