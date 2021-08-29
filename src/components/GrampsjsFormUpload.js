@@ -4,6 +4,7 @@ Element for selecting a Gramps type
 
 import {html, css, LitElement} from 'lit'
 import '@material/mwc-button'
+import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
@@ -21,6 +22,11 @@ class GrampsjsFormUpload extends LitElement {
       img.img-preview {
         max-width: 300px;
         max-height: 300px;
+      }
+
+      .file-icon {
+        color: rgba(0, 0, 0, 0.6);
+        --mdc-icon-size: 100px;
       }
       `
     ]
@@ -68,7 +74,7 @@ class GrampsjsFormUpload extends LitElement {
     }
     return html`
     <div id="preview">
-    ${this.file.type.startsWith('image') ? this.renderImage() : ''}
+    ${this.file.type.startsWith('image') ? this.renderImage() : this.renderIcon()}
     </div>
     `
   }
@@ -79,6 +85,13 @@ class GrampsjsFormUpload extends LitElement {
     }
     return html`
     <img src="${this.imageUrl}" alt="" class="img-preview"/>
+    `
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  renderIcon() {
+    return html`
+    <mwc-icon class="file-icon">insert_drive_file</mwc-icon>
     `
   }
 
