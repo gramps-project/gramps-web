@@ -8,6 +8,7 @@ import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
 
 import {sharedStyles} from '../SharedStyles.js'
+import {getSortval} from '../util.js'
 
 const modifiers = {
   0: 'Regular',
@@ -30,10 +31,11 @@ const dataDefault = {
   calendar: 0,
   modifier: 0,
   quality: 0,
-  dateval: [0, 0, 0, false]
+  dateval: [0, 0, 0, false],
+  sortval: 0
 }
 
-function parseDate(s) {
+function parseDate (s) {
   if (!s) {
     return [0, 0, 0]
   }
@@ -43,9 +45,8 @@ function parseDate(s) {
   return [y, m, d]
 }
 
-
 class GrampsjsFormSelectDate extends LitElement {
-  static get styles() {
+  static get styles () {
     return [
       sharedStyles,
       css`
@@ -53,7 +54,7 @@ class GrampsjsFormSelectDate extends LitElement {
     ]
   }
 
-  static get properties() {
+  static get properties () {
     return {
       strings: {type: Object},
       data: {type: Object},
@@ -61,15 +62,14 @@ class GrampsjsFormSelectDate extends LitElement {
     }
   }
 
-
-  constructor() {
+  constructor () {
     super()
     this.strings = {}
     this.data = dataDefault
     this.disabled = false
   }
 
-  render() {
+  render () {
     return html`
     <mwc-select
       id="select-modifier"
@@ -117,8 +117,7 @@ class GrampsjsFormSelectDate extends LitElement {
     `
   }
 
-
-  _getMinDate() {
+  _getMinDate () {
     const el = this.shadowRoot.getElementById('date1')
     if (el !== null) {
       return el.value
@@ -126,11 +125,11 @@ class GrampsjsFormSelectDate extends LitElement {
     return ''
   }
 
-  _hasSecondDate() {
+  _hasSecondDate () {
     return this.data?.modifier >= 4
   }
 
-  reset() {
+  reset () {
     this.data = dataDefault
     const date1 = this.shadowRoot.getElementById('date1')
     date1.value = ''
@@ -139,7 +138,7 @@ class GrampsjsFormSelectDate extends LitElement {
     date2.min = ''
   }
 
-  handleType(e) {
+  handleType (e) {
     this.data = {...this.data, modifier: parseInt(e.target.value, 10)}
     // remove second date from dateval if necessary
     if (!this._hasSecondDate() && 'dateval' in this.data) {
@@ -149,36 +148,39 @@ class GrampsjsFormSelectDate extends LitElement {
     this.handleChange()
   }
 
-  handleQuality(e) {
+  handleQuality (e) {
     this.data = {...this.data, quality: parseInt(e.target.value, 10)}
     this.handleChange()
   }
 
-  handleDate1(e) {
+  handleDate1 (e) {
     const [y, m, d] = parseDate(e.target.value)
     const oldval = this.data?.dateval || []
-    this.data = {...this.data, dateval: [d, m, y, false, ...oldval.slice(4)]}
+    this.data = {
+      ...this.data,
+      dateval: [d, m, y, false, ...oldval.slice(4)],
+      sortval: getSortval(y, m, d)
+    }
     this.handleChange()
   }
 
-  handleDate2(e) {
+  handleDate2 (e) {
     const [y, m, d] = parseDate(e.target.value)
     const oldval = this.data?.dateval || []
     this.data = {...this.data, dateval: [...oldval.slice(0, 4), d, m, y, false]}
     this.handleChange()
   }
 
-  handleChange() {
+  handleChange () {
     this.dispatchEvent(new CustomEvent('formdata:changed', {bubbles: true, composed: true, detail: {data: this.data}}))
   }
 
-  _(s) {
+  _ (s) {
     if (s in this.strings) {
       return this.strings[s]
     }
     return s
   }
-
 }
 
 window.customElements.define('grampsjs-form-select-date', GrampsjsFormSelectDate)
