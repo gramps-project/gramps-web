@@ -20,17 +20,25 @@
     "@open-wc/eslint-config": "^4.0.1",
     "@open-wc/testing": "^2.5.32",
     "@rollup/plugin-replace": "^2.3.4",
-    "@web/dev-server": "^0.0.29",
+    "@types/uuid": "^8.3.1",
+    "@web/dev-server": "^0.1.22",
     "@web/test-runner": "^0.10.2",
     "deepmerge": "^4.2.2",
-    "eslint": "^7.15.0",
+    "eslint": "^7.32.0",
     "eslint-config-prettier": "^7.0.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0",
     "fetch-mock": "^9.11.0",
     "husky": "^4.3.6",
     "lint-staged": "^10.5.3",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.35.1"
+  },
+  "browser": {
+    "crypto": false
   },
   "eslintConfig": {
     "extends": [
@@ -84,9 +92,10 @@
     "dayjs": "^1.8.36",
     "jwt-decode": "^3.1.2",
     "leaflet": "^1.7.1",
-    "lit": "^2.0.0-rc.2",
+    "lit": "^2.0.0-rc.3",
     "pwa-helper-components": "^0.2.10",
     "pwa-helpers": "^0.9.1",
-    "rollup-plugin-copy": "^3.3.0"
+    "rollup-plugin-copy": "^3.3.0",
+    "uuid": "^8.3.2"
   }
 }
