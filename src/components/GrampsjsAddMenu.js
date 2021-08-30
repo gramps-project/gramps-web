@@ -15,7 +15,7 @@ import {sharedStyles} from '../SharedStyles.js'
 const BASE_DIR = ''
 
 const menuItems = [
-  // ['Person', '/new_person', 'person'],
+  ['Person', '/new_person', 'person'],
   // ['Family', '/new_family', 'people'],
   ['Event', '/new_event', 'event'],
   ['Place', '/new_place', 'place'],

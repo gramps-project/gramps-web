@@ -11,9 +11,8 @@ import '@material/mwc-circular-progress'
 import {GrampsjsView} from './GrampsjsView.js'
 import {apiGet, apiPost} from '../api.js'
 
-
 export class GrampsjsViewNewObject extends GrampsjsView {
-  static get styles() {
+  static get styles () {
     return [
       super.styles,
       css`
@@ -31,8 +30,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
       `]
   }
 
-
-  static get properties() {
+  static get properties () {
     return {
       data: {type: Object},
       types: {type: Object},
@@ -44,8 +42,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
     }
   }
 
-
-  constructor() {
+  constructor () {
     super()
     this.data = {}
     this.types = {}
@@ -56,7 +53,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
     this.isFormValid = false
   }
 
-  update(changed) {
+  update (changed) {
     super.update(changed)
     if (changed.has('active')) {
       this._updateData()
@@ -64,7 +61,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _reset() {
+  _reset () {
     this.shadowRoot.querySelectorAll(
       [
         'grampsjs-form-select-type',
@@ -74,7 +71,8 @@ export class GrampsjsViewNewObject extends GrampsjsView {
         'grampsjs-form-select-object-list',
         'grampsjs-form-select-date',
         'grampsjs-form-string',
-        'grampsjs-form-upload'
+        'grampsjs-form-upload',
+        'grampsjs-form-name'
       ].join(', ')
     ).forEach(element => element.reset())
     this.shadowRoot.querySelectorAll('mwc-textfield').forEach(element => {
@@ -83,7 +81,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
     })
   }
 
-  _submit() {
+  _submit () {
     apiPost(this.postUrl, this.data).then(data => {
       if ('data' in data) {
         this.error = false
@@ -98,11 +96,11 @@ export class GrampsjsViewNewObject extends GrampsjsView {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getItemPath(grampsId) {
+  _getItemPath (grampsId) {
     return `${this.itemPath}/${grampsId}`
   }
 
-  renderButtons() {
+  renderButtons () {
     return html`
     <div class="spacer"></div>
     <p class="right">
@@ -131,7 +129,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
     `
   }
 
-  _updateData() {
+  _updateData () {
     this.loading = true
     this.loadingTypes = true
     apiGet('/api/types/').then(data => {
@@ -159,17 +157,27 @@ export class GrampsjsViewNewObject extends GrampsjsView {
     })
   }
 
-  connectedCallback() {
+  translateTypeName (isCustom, typeKey, string) {
+    const types = (this.types[isCustom ? 'custom' : 'default'] || {})[typeKey] || []
+    const ind = types.indexOf(string)
+    try {
+      return this.typesLocale[isCustom ? 'custom' : 'default'][typeKey][ind]
+    } catch {
+      return string
+    }
+  }
+
+  connectedCallback () {
     super.connectedCallback()
     this.addEventListener('formdata:changed', this._handleFormData.bind(this))
   }
 
-  disconnectedCallback() {
+  disconnectedCallback () {
     this.removeEventListener('formdata:changed', this._handleFormData.bind(this))
     super.disconnectedCallback()
   }
 
-  _handleFormData(e) {
+  _handleFormData (e) {
     const originalTarget = e.composedPath()[0]
     if (originalTarget.id === 'private') {
       this.data = {...this.data, private: e.detail.checked}
@@ -180,6 +188,4 @@ export class GrampsjsViewNewObject extends GrampsjsView {
       this.data = {...this.data, [originalTarget.id]: e.detail.data}
     }
   }
-
-
 }
