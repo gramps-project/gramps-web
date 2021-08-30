@@ -3,7 +3,7 @@ An Image thumbnail element.
 */
 
 import {html, css, LitElement} from 'lit'
-import {classMap} from 'lit/directives/class-map'
+import {classMap} from 'lit/directives/class-map.js'
 import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'

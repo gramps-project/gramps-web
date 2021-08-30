@@ -1,5 +1,5 @@
 import {html, css, LitElement} from 'lit'
-import {classMap} from 'lit/directives/class-map'
+import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
 import '@material/mwc-button'
 import '@material/mwc-icon'
