@@ -49,7 +49,8 @@ class GrampsjsFormSelectObject extends LitElement {
       objectType: {type: String},
       objects: {type: Array},
       data: {type: Array},
-      multiple: {type: Boolean}
+      multiple: {type: Boolean},
+      label: {type: String}
     }
   }
 
@@ -61,6 +62,7 @@ class GrampsjsFormSelectObject extends LitElement {
     this.objects = []
     this.data = []
     this.multiple = false
+    this.label = ''
   }
 
   render() {
@@ -68,7 +70,7 @@ class GrampsjsFormSelectObject extends LitElement {
     <div style="position:relative;">
       <mwc-button
         raised
-        label="${this._(btnLabel[this.objectType])}"
+        label="${this.label || this._(btnLabel[this.objectType])}"
         id="button"
         @click="${this._handleBtnClick}"
         icon="add_link"

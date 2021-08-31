@@ -20,6 +20,7 @@ class GrampsjsFormSelectObjectList extends LitElement {
     return {
       strings: {type: Object},
       objectType: {type: String},
+      label: {type: String},
       multiple: {type: Boolean}
     }
   }
@@ -29,6 +30,7 @@ class GrampsjsFormSelectObjectList extends LitElement {
     super()
     this.strings = {}
     this.objectType = ''
+    this.label = ''
     this.multiple = false
   }
 
@@ -48,6 +50,7 @@ class GrampsjsFormSelectObjectList extends LitElement {
         objectType="${this.objectType}"
         .strings="${this.strings}"
         id="${this.id}-select"
+        label="${this.label}"
         ?multiple="${this.multiple}"
       ></grampsjs-form-select-object>
     </p>

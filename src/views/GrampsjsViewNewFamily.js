@@ -24,6 +24,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
     <grampsjs-form-select-object-list
       id="father"
       objectType="person"
+      label="${this._('Select a person as the father')}"
       .strings="${this.strings}"
     ></grampsjs-form-select-object-list>
 
@@ -33,6 +34,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
     <grampsjs-form-select-object-list
       id="mother"
       objectType="person"
+      label="${this._('Select a person as the mother')}"
       .strings="${this.strings}"
     ></grampsjs-form-select-object-list>
 
@@ -43,6 +45,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
       multiple
       id="children"
       objectType="person"
+      label="${this._('Add an existing person as a child of the family')}"
       .strings="${this.strings}"
     ></grampsjs-form-select-object-list>
 
