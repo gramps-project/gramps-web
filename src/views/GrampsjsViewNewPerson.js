@@ -21,6 +21,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
     this.data = dataDefault
     this.postUrl = '/api/objects/'
     this.itemPath = 'person'
+    this.objClass = 'Person'
   }
 
   renderContent () {

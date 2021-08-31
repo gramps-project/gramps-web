@@ -19,6 +19,7 @@ export class GrampsjsViewNewNote extends GrampsjsViewNewObject {
     this.data = {_class: 'Note', text: {_class: 'StyledText', string: ''}}
     this.postUrl = '/api/notes/'
     this.itemPath = 'note'
+    this.objClass = 'Note'
   }
 
   renderContent() {

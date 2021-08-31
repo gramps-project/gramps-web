@@ -21,6 +21,7 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
     this.data = {_class: 'Repository'}
     this.postUrl = '/api/repositories/'
     this.itemPath = 'repository'
+    this.objClass = 'Repository'
   }
 
   renderContent() {

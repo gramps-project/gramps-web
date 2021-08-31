@@ -21,6 +21,7 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
     this.data = {_class: 'Citation', confidence: 2}
     this.postUrl = '/api/citations/'
     this.itemPath = 'citation'
+    this.objClass = 'Citation'
   }
 
   renderContent() {

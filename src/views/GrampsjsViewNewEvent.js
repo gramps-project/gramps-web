@@ -21,6 +21,7 @@ export class GrampsjsViewNewEvent extends GrampsjsViewNewObject {
     this.data = {_class: 'Event'}
     this.postUrl = '/api/events/'
     this.itemPath = 'event'
+    this.objClass = 'Event'
   }
 
   renderContent() {

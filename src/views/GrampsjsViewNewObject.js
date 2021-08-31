@@ -38,6 +38,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
       loadingTypes: {type: Boolean},
       postUrl: {type: String},
       itemPath: {type: String},
+      objClass: {type: String},
       isFormValid: {type: Boolean}
     }
   }
@@ -50,6 +51,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
     this.loadingTypes = false
     this.postUrl = ''
     this.itemPath = ''
+    this.objClass = ''
     this.isFormValid = false
   }
 
@@ -85,7 +87,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
     apiPost(this.postUrl, this.data).then(data => {
       if ('data' in data) {
         this.error = false
-        const grampsId = data.data[0]?.new?.gramps_id
+        const grampsId = data.data.filter(obj => obj.new._class === this.objClass)[0].new.gramps_id
         this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: this._getItemPath(grampsId)}}))
         this._reset()
       } else if ('error' in data) {

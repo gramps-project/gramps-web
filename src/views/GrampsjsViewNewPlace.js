@@ -20,6 +20,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
     this.data = {_class: 'Place'}
     this.postUrl = '/api/places/'
     this.itemPath = 'place'
+    this.objClass = 'Place'
   }
 
   renderContent() {

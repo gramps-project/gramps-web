@@ -16,7 +16,7 @@ const BASE_DIR = ''
 
 const menuItems = [
   ['Person', '/new_person', 'person'],
-  // ['Family', '/new_family', 'people'],
+  ['Family', '/new_family', 'people'],
   ['Event', '/new_event', 'event'],
   ['Place', '/new_place', 'place'],
   ['Source', '/new_source', 'bookmarks'],

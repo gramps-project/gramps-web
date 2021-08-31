@@ -17,6 +17,7 @@ export class GrampsjsViewNewMedia extends GrampsjsViewNewObject {
     this.data = {_class: 'Media'}
     this.postUrl = '/api/media/'
     this.itemPath = 'media'
+    this.objClass = 'Media'
   }
 
   renderContent() {

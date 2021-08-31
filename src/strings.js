@@ -3,11 +3,11 @@ All strings that need to be translated
 */
 
 export const additionalStrings = {
-  'de': {
-    'Lists': 'Listen',
-    'History': 'Verlauf',
-    'Menu': 'Menü',
-    'Blog': 'Blog',
+  de: {
+    Lists: 'Listen',
+    History: 'Verlauf',
+    Menu: 'Menü',
+    Blog: 'Blog',
     'Recently browsed objects': 'Kürzlich betrachtete Objekte',
     'Recently changed objects': 'Kürzlich geänderte Objekte',
     'Show in tree': 'Im Stammbaum anzeigen',
@@ -23,11 +23,11 @@ export const additionalStrings = {
   }
 }
 
-
 export const grampsStrings = [
   'Abbreviation',
   'About',
   'Add',
+  'Add an existing person as a child of the family',
   'Address Note',
   'Addresses',
   'After',
@@ -123,6 +123,7 @@ export const grampsStrings = [
   'Neighborhood',
   'New Citation',
   'New Event',
+  'New Family',
   'New Media',
   'New Note',
   'New Person',
@@ -184,6 +185,8 @@ export const grampsStrings = [
   'Research',
   'Role',
   'Second date',
+  'Select a person as the father',
+  'Select a person as the mother',
   'Select an existing place',
   'Select an existing source',
   'Select...',
@@ -223,5 +226,5 @@ export const grampsStrings = [
   'Very Low',
   'Village',
   'Web Home',
-  'Zoom',
+  'Zoom'
 ]

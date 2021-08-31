@@ -14,6 +14,7 @@ export class GrampsjsViewNewSource extends GrampsjsViewNewObject {
     this.data = {_class: 'Source'}
     this.postUrl = '/api/sources/'
     this.itemPath = 'source'
+    this.objClass = 'Source'
   }
 
   renderContent() {
