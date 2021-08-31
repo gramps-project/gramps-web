@@ -51,7 +51,6 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
     <grampsjs-form-private id="private" .strings="${this.strings}"></grampsjs-form-private>
 
     ${this.renderButtons()}
-    <pre>${JSON.stringify(this.data, null, 2)}</pre>
     `
     // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
