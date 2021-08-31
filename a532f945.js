@@ -2490,7 +2490,7 @@ import t from"crypto";const e=window.ShadowRoot&&(void 0===window.ShadyCSS||wind
       mwc-textfield.rounded {
         --mdc-shape-small: 28px;
       }
-      `))]}static get properties(){return{strings:{type:Object},objectType:{type:String},objects:{type:Array},data:{type:Array},multiple:{type:Boolean}}}constructor(){super(),this.strings={},this.objectType="",this.objects=[],this.data=[],this.multiple=!1}render(){return j(Ck||(Ck=Ik`
+      `))]}static get properties(){return{strings:{type:Object},objectType:{type:String},objects:{type:Array},data:{type:Array},multiple:{type:Boolean},label:{type:String}}}constructor(){super(),this.strings={},this.objectType="",this.objects=[],this.data=[],this.multiple=!1,this.label=""}render(){return j(Ck||(Ck=Ik`
     <div style="position:relative;">
       <mwc-button
         raised
@@ -2523,7 +2523,7 @@ import t from"crypto";const e=window.ShadowRoot&&(void 0===window.ShadyCSS||wind
        ></grampsjs-search-result-list>
       </mwc-menu>
     </div>
-`),this._(Ak[this.objectType]),this._handleBtnClick,Ih((()=>this._handleInput()),500),this.data,this.strings,this._handleSelected)}reset(){this.objects=[],this._clearBox(),this.data=[]}_handleInput(){this._fetchData()}_handleList(){return this.objects.map((t=>t.handle))}_handleSelected(t){const e=t.detail,i=this._handleList();this.multiple?i.includes(e.handle)||(this.objects=[...this.objects,e],this._closeMenu(),$h(this,"select-object:changed",{objects:this.objects})):(this.objects=[e],this._closeMenu(),$h(this,"select-object:changed",{objects:this.objects}))}async _handleBtnClick(){this._fetchData(),this.shadowRoot.getElementById("menu-search-results").open=!0;const t=this.shadowRoot.getElementById("textfield");t.value="",t.disabled=!1,await t.updateComplete,t.focus()}async _fetchData(){var t,e;const i=this.shadowRoot.getElementById("textfield"),n=this.shadowRoot.querySelector("grampsjs-search-result-list");n.textEmpty=j(Lk||(Lk=Ik`<mwc-circular-progress indeterminate density="-3"></mwc-circular-progress>`));const r=i.value?`/api/search/?locale=${(null===(t=this.strings)||void 0===t?void 0:t.__lang__)||"en"}&profile=all&query=${encodeURIComponent(`${i.value} AND type:${this.objectType}`)}&profile=all&page=1&pagesize=20`:`/api/search/?sort=-change&locale=${(null===(e=this.strings)||void 0===e?void 0:e.__lang__)||"en"}&profile=all&query=${encodeURIComponent(`type:${this.objectType}`)}&profile=all&page=1&pagesize=20`,o=await sd(r);"data"in o?(this.data=o.data.filter((t=>!this._handleList().includes(t.handle))),this.shadowRoot.getElementById("menu-search-results").open=!0,n.textEmpty=this._("Not found")):"error"in o&&(this.data=[],n.textEmpty=this._("Error"))}firstUpdated(){const t=this.shadowRoot.getElementById("button");this.shadowRoot.getElementById("menu-search-results").anchor=t}_closeMenu(){this.shadowRoot.getElementById("menu-search-results").open=!1}_clearBox(){this.shadowRoot.getElementById("textfield").value=""}_(t){return t in this.strings?this.strings[t]:t}});let $k,Rk,Ok,Pk,jk=t=>t;window.customElements.define("grampsjs-form-object-list",class extends it{static get styles(){return[pc,o($k||($k=jk`
+`),this.label||this._(Ak[this.objectType]),this._handleBtnClick,Ih((()=>this._handleInput()),500),this.data,this.strings,this._handleSelected)}reset(){this.objects=[],this._clearBox(),this.data=[]}_handleInput(){this._fetchData()}_handleList(){return this.objects.map((t=>t.handle))}_handleSelected(t){const e=t.detail,i=this._handleList();this.multiple?i.includes(e.handle)||(this.objects=[...this.objects,e],this._closeMenu(),$h(this,"select-object:changed",{objects:this.objects})):(this.objects=[e],this._closeMenu(),$h(this,"select-object:changed",{objects:this.objects}))}async _handleBtnClick(){this._fetchData(),this.shadowRoot.getElementById("menu-search-results").open=!0;const t=this.shadowRoot.getElementById("textfield");t.value="",t.disabled=!1,await t.updateComplete,t.focus()}async _fetchData(){var t,e;const i=this.shadowRoot.getElementById("textfield"),n=this.shadowRoot.querySelector("grampsjs-search-result-list");n.textEmpty=j(Lk||(Lk=Ik`<mwc-circular-progress indeterminate density="-3"></mwc-circular-progress>`));const r=i.value?`/api/search/?locale=${(null===(t=this.strings)||void 0===t?void 0:t.__lang__)||"en"}&profile=all&query=${encodeURIComponent(`${i.value} AND type:${this.objectType}`)}&profile=all&page=1&pagesize=20`:`/api/search/?sort=-change&locale=${(null===(e=this.strings)||void 0===e?void 0:e.__lang__)||"en"}&profile=all&query=${encodeURIComponent(`type:${this.objectType}`)}&profile=all&page=1&pagesize=20`,o=await sd(r);"data"in o?(this.data=o.data.filter((t=>!this._handleList().includes(t.handle))),this.shadowRoot.getElementById("menu-search-results").open=!0,n.textEmpty=this._("Not found")):"error"in o&&(this.data=[],n.textEmpty=this._("Error"))}firstUpdated(){const t=this.shadowRoot.getElementById("button");this.shadowRoot.getElementById("menu-search-results").anchor=t}_closeMenu(){this.shadowRoot.getElementById("menu-search-results").open=!1}_clearBox(){this.shadowRoot.getElementById("textfield").value=""}_(t){return t in this.strings?this.strings[t]:t}});let $k,Rk,Ok,Pk,jk=t=>t;window.customElements.define("grampsjs-form-object-list",class extends it{static get styles(){return[pc,o($k||($k=jk`
       mwc-icon-button {
         vertical-align: middle;
         color: rgba(0, 0, 0, 0.4);
@@ -2553,7 +2553,7 @@ import t from"crypto";const e=window.ShadowRoot&&(void 0===window.ShadyCSS||wind
           icon="arrow_downward"
           ?disabled="${0}"
           @click="${0}"
-        ></mwc-icon-button>`),i||e||0===this.selectedIndex,this._handleUp,i||e||this.selectedIndex===this.objects.length-1,this._handleDown):"",this._handleSelected,this.objects,this.strings)}_handleSelected(t){this.selectedIndex=t.detail.index}_handleDelete(){this.objects=[...this.objects].filter(((t,e)=>e!==this.selectedIndex)),this.selectedIndex+1>this.objects.length&&(this.selectedIndex=-1),this._handleChange()}_handleUp(){const t=this.selectedIndex;1===t?this.objects=[this.objects[1],this.objects[0],...this.objects.slice(2)]:t>1&&(this.objects=[...this.objects.slice(0,t-1),this.objects[t],this.objects[t-1],...this.objects.slice(t+1)]),this._handleChange()}_handleDown(){const t=this.objects.length,e=this.selectedIndex;0===e?this.objects=[this.objects[1],this.objects[0],...this.objects.slice(2)]:e<t-1&&(this.objects=[...this.objects.slice(0,e),this.objects[e+1],this.objects[e],...this.objects.slice(e+2)])}_handleChange(){$h(this,"object-list:changed",{objects:this.objects})}reset(){this.objects=[]}_handleList(){return this.objects.map((t=>t.handle))}update(t){super.update(t),t.has("objects")&&$h(this,"formdata:changed",{data:this._handleList()})}_(t){return t in this.strings?this.strings[t]:t}});let Dk,zk=t=>t;window.customElements.define("grampsjs-form-select-object-list",class extends it{static get styles(){return[pc]}static get properties(){return{strings:{type:Object},objectType:{type:String},multiple:{type:Boolean}}}constructor(){super(),this.strings={},this.objectType="",this.multiple=!1}render(){return j(Dk||(Dk=zk`
+        ></mwc-icon-button>`),i||e||0===this.selectedIndex,this._handleUp,i||e||this.selectedIndex===this.objects.length-1,this._handleDown):"",this._handleSelected,this.objects,this.strings)}_handleSelected(t){this.selectedIndex=t.detail.index}_handleDelete(){this.objects=[...this.objects].filter(((t,e)=>e!==this.selectedIndex)),this.selectedIndex+1>this.objects.length&&(this.selectedIndex=-1),this._handleChange()}_handleUp(){const t=this.selectedIndex;1===t?this.objects=[this.objects[1],this.objects[0],...this.objects.slice(2)]:t>1&&(this.objects=[...this.objects.slice(0,t-1),this.objects[t],this.objects[t-1],...this.objects.slice(t+1)]),this._handleChange()}_handleDown(){const t=this.objects.length,e=this.selectedIndex;0===e?this.objects=[this.objects[1],this.objects[0],...this.objects.slice(2)]:e<t-1&&(this.objects=[...this.objects.slice(0,e),this.objects[e+1],this.objects[e],...this.objects.slice(e+2)])}_handleChange(){$h(this,"object-list:changed",{objects:this.objects})}reset(){this.objects=[]}_handleList(){return this.objects.map((t=>t.handle))}update(t){super.update(t),t.has("objects")&&$h(this,"formdata:changed",{data:this._handleList()})}_(t){return t in this.strings?this.strings[t]:t}});let Dk,zk=t=>t;window.customElements.define("grampsjs-form-select-object-list",class extends it{static get styles(){return[pc]}static get properties(){return{strings:{type:Object},objectType:{type:String},label:{type:String},multiple:{type:Boolean}}}constructor(){super(),this.strings={},this.objectType="",this.label="",this.multiple=!1}render(){return j(Dk||(Dk=zk`
     <p>
       <grampsjs-form-object-list
         @object-list:changed="${0}"
@@ -2568,10 +2568,11 @@ import t from"crypto";const e=window.ShadowRoot&&(void 0===window.ShadyCSS||wind
         objectType="${0}"
         .strings="${0}"
         id="${0}-select"
+        label="${0}"
         ?multiple="${0}"
       ></grampsjs-form-select-object>
     </p>
-`),this._handleObjectListChanged,this.strings,this.id,this.multiple,this._handleSelectObjectsChanged,this.objectType,this.strings,this.id,this.multiple)}_handleSelectObjectsChanged(t){this.shadowRoot.querySelector("grampsjs-form-object-list").objects=t.detail.objects}_handleObjectListChanged(t){this.shadowRoot.querySelector("grampsjs-form-select-object").objects=t.detail.objects}reset(){this.shadowRoot.querySelectorAll("grampsjs-form-object-list, grampsjs-form-select-object").forEach((t=>t.reset()))}});let Nk,Hk,Yk=t=>t;const Fk={2:"Unknown",1:"Male",0:"Female"},Bk={_class:"Person",gender:2};window.customElements.define("grampsjs-view-new-person",class extends ik{constructor(){super(),this.data=Bk,this.postUrl="/api/objects/",this.itemPath="person",this.objClass="Person"}renderContent(){return j(Nk||(Nk=Yk`
+`),this._handleObjectListChanged,this.strings,this.id,this.multiple,this._handleSelectObjectsChanged,this.objectType,this.strings,this.id,this.label,this.multiple)}_handleSelectObjectsChanged(t){this.shadowRoot.querySelector("grampsjs-form-object-list").objects=t.detail.objects}_handleObjectListChanged(t){this.shadowRoot.querySelector("grampsjs-form-select-object").objects=t.detail.objects}reset(){this.shadowRoot.querySelectorAll("grampsjs-form-object-list, grampsjs-form-select-object").forEach((t=>t.reset()))}});let Nk,Hk,Yk=t=>t;const Fk={2:"Unknown",1:"Male",0:"Female"},Bk={_class:"Person",gender:2};window.customElements.define("grampsjs-view-new-person",class extends ik{constructor(){super(),this.data=Bk,this.postUrl="/api/objects/",this.itemPath="person",this.objClass="Person"}renderContent(){return j(Nk||(Nk=Yk`
     <h2>${0}</h2>
 
     <h4 class="label">${0}</h4>
@@ -2643,6 +2644,7 @@ import t from"crypto";const e=window.ShadowRoot&&(void 0===window.ShadyCSS||wind
     <grampsjs-form-select-object-list
       id="father"
       objectType="person"
+      label="${0}"
       .strings="${0}"
     ></grampsjs-form-select-object-list>
 
@@ -2652,6 +2654,7 @@ import t from"crypto";const e=window.ShadowRoot&&(void 0===window.ShadyCSS||wind
     <grampsjs-form-select-object-list
       id="mother"
       objectType="person"
+      label="${0}"
       .strings="${0}"
     ></grampsjs-form-select-object-list>
 
@@ -2662,6 +2665,7 @@ import t from"crypto";const e=window.ShadowRoot&&(void 0===window.ShadyCSS||wind
       multiple
       id="children"
       objectType="person"
+      label="${0}"
       .strings="${0}"
     ></grampsjs-form-select-object-list>
 
@@ -2670,7 +2674,7 @@ import t from"crypto";const e=window.ShadowRoot&&(void 0===window.ShadyCSS||wind
     <grampsjs-form-private id="private" .strings="${0}"></grampsjs-form-private>
 
     ${0}
-    `),this._("New Family"),this._("Father"),this.strings,this._("Mother"),this.strings,this._("Children"),this.strings,this.strings,this.renderButtons())}handleGender(t){this.data={...this.data,gender:parseInt(t.target.value,10)}}_handleFormData(t){super._handleFormData(t);const e=t.composedPath()[0];"father-list"===e.id&&(this.data={...this.data,father_handle:t.detail.data[0]}),"mother-list"===e.id&&(this.data={...this.data,mother_handle:t.detail.data[0]}),"children-list"===e.id&&(this.data={...this.data,child_ref_list:t.detail.data.map((t=>({_class:"ChildRef",ref:t})))}),this.checkFormValidity()}checkFormValidity(){this.isFormValid=!0}_reset(){super._reset(),this.data=Zk}});let Wk,Gk,Xk,qk,Kk=t=>t;const Jk={0:"Regular",1:"Before",2:"After",3:"About",4:"Range",5:"Span"},Qk={0:"Regular",1:"Estimated",2:"Calculated"},tE={_class:"Date",calendar:0,modifier:0,quality:0,dateval:[0,0,0,!1],sortval:0};function eE(t){if(!t)return[0,0,0];return[parseInt(t.substr(0,4),10),parseInt(t.substr(5,2),10),parseInt(t.substr(8,2),10)]}window.customElements.define("grampsjs-form-select-date",class extends it{static get styles(){return[pc,o(Wk||(Wk=Kk`
+    `),this._("New Family"),this._("Father"),this._("Select a person as the father"),this.strings,this._("Mother"),this._("Select a person as the mother"),this.strings,this._("Children"),this._("Add an existing person as a child of the family"),this.strings,this.strings,this.renderButtons())}handleGender(t){this.data={...this.data,gender:parseInt(t.target.value,10)}}_handleFormData(t){super._handleFormData(t);const e=t.composedPath()[0];"father-list"===e.id&&(this.data={...this.data,father_handle:t.detail.data[0]}),"mother-list"===e.id&&(this.data={...this.data,mother_handle:t.detail.data[0]}),"children-list"===e.id&&(this.data={...this.data,child_ref_list:t.detail.data.map((t=>({_class:"ChildRef",ref:t})))}),this.checkFormValidity()}checkFormValidity(){this.isFormValid=!0}_reset(){super._reset(),this.data=Zk}});let Wk,Gk,Xk,qk,Kk=t=>t;const Jk={0:"Regular",1:"Before",2:"After",3:"About",4:"Range",5:"Span"},Qk={0:"Regular",1:"Estimated",2:"Calculated"},tE={_class:"Date",calendar:0,modifier:0,quality:0,dateval:[0,0,0,!1],sortval:0};function eE(t){if(!t)return[0,0,0];return[parseInt(t.substr(0,4),10),parseInt(t.substr(5,2),10),parseInt(t.substr(8,2),10)]}window.customElements.define("grampsjs-form-select-date",class extends it{static get styles(){return[pc,o(Wk||(Wk=Kk`
       `))]}static get properties(){return{strings:{type:Object},data:{type:Object},disabled:{type:Boolean}}}constructor(){super(),this.strings={},this.data=tE,this.disabled=!1}render(){return j(Gk||(Gk=Kk`
     <mwc-select
       id="select-modifier"
