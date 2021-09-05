@@ -21,9 +21,10 @@ import {mdiFamilyTree} from '@mdi/js'
 import {renderIcon} from './icons.js'
 import {apiGetTokens, apiGet, getSettings, apiResetPassword, getPermissions} from './api.js'
 import {grampsStrings, additionalStrings} from './strings.js'
+import {fireEvent} from './util.js'
 import './dayjs_locales.js'
 
-import './components/GrampsjsAddMenu.js'
+import './components/GrampsjsAppBar.js'
 import './components/GrampsJsListItem.js'
 import './views/GrampsjsViewPeople.js'
 import './views/GrampsjsViewFamilies.js'
@@ -78,8 +79,8 @@ export class GrampsJs extends LitElement {
       progress: {type: Boolean},
       loadingState: {type: Number},
       settings: {type: Object},
-      add: {type: Boolean},
-      edit: {type: Boolean},
+      canAdd: {type: Boolean},
+      canEdit: {type: Boolean},
       updateAvailable: {type: Boolean},
       _lang: {type: String},
       _strings: {type: Object},
@@ -95,16 +96,14 @@ export class GrampsJs extends LitElement {
     this.progress = false
     this.loadingState = LOADING_STATE_INITIAL
     this.settings = getSettings()
-    this.add = false
-    this.edit = false
+    this.canAdd = false
+    this.canEdit = false
     this.updateAvailable = false
     this._lang = ''
     this._strings = {}
     this._dbInfo = {}
     this._page = 'home'
     this._pageId = ''
-
-    this.addEventListener('MDCTopAppBar:nav', this._toggleDrawer)
   }
 
   static get styles() {
@@ -125,12 +124,6 @@ export class GrampsJs extends LitElement {
 
       .page[active] {
         display: block;
-      }
-
-      mwc-top-app-bar {
-        --mdc-typography-headline6-font-family: Roboto Slab;
-        --mdc-typography-headline6-font-weight: 400;
-        --mdc-typography-headline6-font-size: 19px;
       }
 
       mwc-drawer {
@@ -416,15 +409,10 @@ export class GrampsJs extends LitElement {
           </mwc-list>
         </div>
         <div slot="appContent">
-          <mwc-top-app-bar>
-            <mwc-icon-button slot="navigationIcon" icon="menu" @click="${this._toggleDrawer}"></mwc-icon-button>
-            <div id="app-title" slot="title">${this._dbInfo?.database?.name || 'Gramps.js'}</div>
-            ${this.add ? html`
-              <grampsjs-add-menu slot="actionItems" .strings="${this._strings}"></grampsjs-add-menu>
-            ` : ''}
-            <mwc-icon-button icon="account_circle" slot="actionItems" @click="${() => this._handleTab('settings')}"></mwc-icon-button>
-            <mwc-icon-button icon="search" slot="actionItems" @click="${() => this._handleTab('search')}"></mwc-icon-button>
-          </mwc-top-app-bar>
+          <grampsjs-app-bar
+            ?add="${this.canAdd}"
+            .strings="${this._strings}"
+          ></grampsjs-app-bar>
           <mwc-linear-progress indeterminate ?closed="${!this.progress}">
           </mwc-linear-progress>
 
@@ -448,18 +436,18 @@ export class GrampsJs extends LitElement {
         <grampsjs-view-map class="page" ?active=${this._page === 'map'} .strings="${this._strings}"></grampsjs-view-map>
         <grampsjs-view-tree class="page" ?active=${this._page === 'tree'} grampsId="${this.settings.homePerson}" .strings="${this._strings}" .settings="${this.settings}"></grampsjs-view-tree>
 
-        <grampsjs-view-person class="page" ?active=${this._page === 'person'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-person>
-        <grampsjs-view-family class="page" ?active=${this._page === 'family'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-family>
-        <grampsjs-view-event class="page" ?active=${this._page === 'event'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-event>
-        <grampsjs-view-place class="page" ?active=${this._page === 'place'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-place>
-        <grampsjs-view-source class="page" ?active=${this._page === 'source'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-source>
-        <grampsjs-view-citation class="page" ?active=${this._page === 'citation'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-citation>
-        <grampsjs-view-repository class="page" ?active=${this._page === 'repository'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-repository>
-        <grampsjs-view-note class="page" ?active=${this._page === 'note'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-note>
-        <grampsjs-view-media class="page" ?active=${this._page === 'media'} grampsId="${this._pageId}" .strings="${this._strings}"></grampsjs-view-media>
+        <grampsjs-view-person class="page" ?active=${this._page === 'person'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-person>
+        <grampsjs-view-family class="page" ?active=${this._page === 'family'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-family>
+        <grampsjs-view-event class="page" ?active=${this._page === 'event'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-event>
+        <grampsjs-view-place class="page" ?active=${this._page === 'place'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-place>
+        <grampsjs-view-source class="page" ?active=${this._page === 'source'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-source>
+        <grampsjs-view-citation class="page" ?active=${this._page === 'citation'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-citation>
+        <grampsjs-view-repository class="page" ?active=${this._page === 'repository'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-repository>
+        <grampsjs-view-note class="page" ?active=${this._page === 'note'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-note>
+        <grampsjs-view-media class="page" ?active=${this._page === 'media'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-media>
+
         <grampsjs-view-search class="page" ?active=${this._page === 'search'} .strings="${this._strings}"></grampsjs-view-search>
         <grampsjs-view-recent class="page" ?active=${this._page === 'recent'} .strings="${this._strings}"></grampsjs-view-recent>
-
         <grampsjs-view-settings class="page" ?active=${this._page === 'settings'} .strings="${this._strings}"></grampsjs-view-settings>
 
         <grampsjs-view-new-person class="page" ?active=${this._page === 'new_person'} .strings="${this._strings}"></grampsjs-view-new-person>
@@ -509,6 +497,7 @@ export class GrampsJs extends LitElement {
     super.connectedCallback()
     this._loadDbInfo()
     window.addEventListener('db:changed', () => this._loadDbInfo())
+    this.addEventListener('drawer:toggle', this._toggleDrawer)
     addPwaUpdateListener((updateAvailable) => {
       this.updateAvailable = updateAvailable
     })
@@ -549,6 +538,7 @@ export class GrampsJs extends LitElement {
 
 
   _loadPage(path) {
+    this._disableEditMode()
     if (path === '/' || path === `${BASE_DIR}/`) {
       this._page = 'home'
       this._pageId = ''
@@ -585,6 +575,7 @@ export class GrampsJs extends LitElement {
       const href = `${BASE_DIR}/${page}`
       this._loadPage(href)
       window.history.pushState({}, '', href)
+      this._disableEditMode()
     }
   }
 
@@ -596,7 +587,12 @@ export class GrampsJs extends LitElement {
       const href = `${BASE_DIR}/${path}`
       this._loadPage(href)
       window.history.pushState({}, '', href)
+      this._disableEditMode()
     }
+  }
+
+  _disableEditMode () {
+    fireEvent(this, 'edit-mode:off', {})
   }
 
   _handleError(e) {
@@ -706,11 +702,11 @@ export class GrampsJs extends LitElement {
     const permissions = getPermissions()
     // If permissions is null, authorization is disabled and anything goes
     if (permissions === null) {
-      this.add = true
-      this.edit = true
+      this.canAdd = true
+      this.canEdit = true
     } else {
-      this.add = permissions.includes('AddObject')
-      this.edit = permissions.includes('EditObject')
+      this.canAdd = permissions.includes('AddObject')
+      this.canEdit = permissions.includes('EditObject')
     }
   }
 

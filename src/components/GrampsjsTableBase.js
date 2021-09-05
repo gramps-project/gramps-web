@@ -47,6 +47,12 @@ export class GrampsjsTableBase extends LitElement {
         font-size: 16px;
       }
 
+      td mwc-icon-button {
+        --mdc-icon-size: 20px;
+        --mdc-icon-button-size: 36px;
+        margin: -2px 0px;
+      }
+
       `
     ]
   }

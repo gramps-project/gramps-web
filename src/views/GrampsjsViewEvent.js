@@ -1,27 +1,27 @@
-import { html } from 'lit';
+import {html} from 'lit'
 
-import { GrampsjsViewObject } from './GrampsjsViewObject.js'
+import {GrampsjsViewObject} from './GrampsjsViewObject.js'
 import '../components/GrampsjsEvent.js'
 
-
 export class GrampsjsViewEvent extends GrampsjsViewObject {
-
-  constructor() {
+  constructor () {
     super()
     this._className = 'event'
   }
 
-  getUrl() {
+  getUrl () {
     return `/api/events/?gramps_id=${this.grampsId}&locale=${this.strings?.__lang__ || 'en'}&profile=all&backlinks=true&extend=all`
   }
 
-  renderElement() {
+  renderElement () {
     return html`
-    <grampsjs-event .data=${this._data} .strings=${this.strings}></grampsjs-event>
+    <grampsjs-event
+      .data=${this._data}
+      .strings=${this.strings}
+      ?edit="${this.edit}"
+    ></grampsjs-event>
     `
   }
-
 }
-
 
 window.customElements.define('grampsjs-view-event', GrampsjsViewEvent)

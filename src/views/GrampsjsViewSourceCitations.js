@@ -37,6 +37,7 @@ export class GrampsjsViewSourceCitations extends GrampsjsViewObjectsDetail {
     return html`
       <grampsjs-source-citations
         .data="${this._data}"
+        ?edit="${this.edit}"
         .strings="${this.strings}">
       </grampsjs-source-citations>
       `

@@ -170,6 +170,19 @@ export const objectIcon = {
   tag: 'label'
 }
 
+export const objectTypeToEndpoint = {
+  person: 'people',
+  family: 'families',
+  event: 'events',
+  place: 'places',
+  source: 'sources',
+  citation: 'citations',
+  repository: 'repositories',
+  note: 'notes',
+  media: 'media',
+  tag: 'tags'
+}
+
 export function objectDescription (type, obj, strings) {
   switch (type) {
   case 'person':

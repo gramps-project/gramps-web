@@ -19,6 +19,7 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
     return {
       grampsIds: {type: Array},
       _data: {type: Array},
+      edit: {type: Boolean}
     }
   }
 
@@ -27,6 +28,7 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
     super()
     this.grampsIds = []
     this._data = []
+    this.edit = false
   }
 
   getUrl() {
@@ -66,7 +68,7 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
         this.loading = false
         if ('data' in data) {
           this.error = false
-          this._data = data.data
+          this._data = data.data.sort((a, b) => this.grampsIds.indexOf(a.gramps_id) - this.grampsIds.indexOf(b.gramps_id))
         } else if ('error' in data) {
           this.error = true
           this._errorMessage = data.error

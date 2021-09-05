@@ -72,6 +72,7 @@
     "@material/mwc-checkbox": "^0.22.1",
     "@material/mwc-circular-progress": "^0.22.1",
     "@material/mwc-drawer": "^0.22.1",
+    "@material/mwc-fab": "^0.22.1",
     "@material/mwc-formfield": "^0.22.1",
     "@material/mwc-icon": "^0.22.1",
     "@material/mwc-icon-button": "^0.22.1",

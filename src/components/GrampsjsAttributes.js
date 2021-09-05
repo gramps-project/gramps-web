@@ -6,7 +6,7 @@ import { GrampsjsTableBase } from './GrampsjsTableBase.js';
 export class GrampsjsAttributes extends GrampsjsTableBase {
   render() {
     if (Object.keys(this.data).length === 0) {
-      return html`hae`
+      return ''
     }
     return html`
     <table>
