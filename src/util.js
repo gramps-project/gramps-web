@@ -303,8 +303,6 @@ function uuidv4 () {
   )
 }
 
-console.log(uuidv4())
-
 export function makeHandle () {
   return uuidv4()
 }
