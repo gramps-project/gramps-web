@@ -35,7 +35,8 @@
     "lint-staged": "^10.5.3",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
-    "rollup": "^2.35.1"
+    "rollup": "^2.35.1",
+    "rollup-plugin-polyfill-node": "^0.7.0"
   },
   "browser": {
     "crypto": false
@@ -71,6 +72,7 @@
     "@material/mwc-button": "^0.22.1",
     "@material/mwc-checkbox": "^0.22.1",
     "@material/mwc-circular-progress": "^0.22.1",
+    "@material/mwc-dialog": "^0.22.1",
     "@material/mwc-drawer": "^0.22.1",
     "@material/mwc-fab": "^0.22.1",
     "@material/mwc-formfield": "^0.22.1",
