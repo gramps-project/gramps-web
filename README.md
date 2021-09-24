@@ -10,13 +10,7 @@ This is a Javascript web app to browse a Gramps genealogy database that is power
 
 ## Demo
 
-A demo deployment based on the Gramps example family tree is available at https://davidmstraub.github.io/Gramps.js/.
-
-## Project status
-
-The project is in active development but can already be used.
-
-Please use [Github issues](https://github.com/DavidMStraub/Gramps.js/issues) for bug reports and feature requests. Contributions are welcome.
+A demo deployment based on the Gramps example family tree is available at https://grampsjs-demo.herokuapp.com.
 
 ## Development setup
 
