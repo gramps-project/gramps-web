@@ -39,6 +39,7 @@ export default merge(baseConfig, {
     copy({
       targets: [
         {src: './leaflet.css', dest: 'dist/'},
+        {src: './manifest.json', dest: 'dist/'},
         {src: './images/**/*', dest: 'dist/images'}
       ]
     }),
