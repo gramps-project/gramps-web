@@ -196,11 +196,11 @@ async function apiPutPost(method, endpoint, payload, isJson=true)  {
       'Authorization': `Bearer ${accessToken}`,
       'Accept': 'application/json'
     }
-    if (isJson) {
-      headers['Content-Type'] = 'application/json'
-    }
   }
-  try {
+  if (isJson) {
+    headers['Content-Type'] = 'application/json'
+  }
+try {
     const resp = await fetch(`${__APIHOST__}${endpoint}`, {
       method,
       headers,
