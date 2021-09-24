@@ -10,15 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-      - name: Install and Build
-        env:
-          API_URL: https://grampsjs-demo.herokuapp.com
-        run: |
-          npm install
-          npm run build
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+    - name: Install and Build
+      env:
+        API_URL: https://grampsjs-demo.herokuapp.com
+      run: |
+        npm install
+        npm run build
     - uses: akhileshns/heroku-deploy@v3.8.8
       with:
         heroku_api_key: ${{secrets.HEROKU_API_KEY}}
