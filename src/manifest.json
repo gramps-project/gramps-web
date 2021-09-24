@@ -1,0 +1,21 @@
+{
+  "name": "Gramps",
+  "short_name": "Gramps",
+  "lang": "en",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#6D4C41",
+  "background_color" : "#fff",
+  "icons": [
+    {
+      "src": "images/icon192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/icon512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
