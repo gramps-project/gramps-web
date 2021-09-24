@@ -3,7 +3,7 @@ FROM dmstraub/gramps-webapi:latest-devel
 # copy config file
 COPY config.cfg /app/config/
 # copy static frontend
-ADD ../dist /app/static/
+ADD dist /app/static/
 
 # extract & use Gramps example tree
 ENV GRAMPS_RESOURCES /usr/share/

@@ -19,6 +19,8 @@ jobs:
         run: |
           npm install
           npm run build
+      - name: Move files
+        run: mv dist docker/
       - uses: akhileshns/heroku-deploy@v3.8.8
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
