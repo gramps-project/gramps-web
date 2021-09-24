@@ -190,17 +190,14 @@ export async function apiGet(endpoint)  {
 
 async function apiPutPost(method, endpoint, payload, isJson=true)  {
   const accessToken = localStorage.getItem('access_token')
-  let headers = {}
+  const headers = {Accept: 'application/json'}
   if (accessToken !== null) {
-    headers = {
-      'Authorization': `Bearer ${accessToken}`,
-      'Accept': 'application/json'
-    }
+    headers.Authorization = `Bearer ${accessToken}`
   }
   if (isJson) {
     headers['Content-Type'] = 'application/json'
   }
-try {
+  try {
     const resp = await fetch(`${__APIHOST__}${endpoint}`, {
       method,
       headers,
