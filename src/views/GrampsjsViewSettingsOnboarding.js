@@ -3,13 +3,12 @@ import {html, css} from 'lit'
 import {GrampsjsView} from './GrampsjsView.js'
 import {apiGet, getSettings, updateSettings} from '../api.js'
 import {debounce} from '../util.js'
-import '@material/mwc-textfield'
 import '@material/mwc-button'
 import '@material/mwc-menu'
-
+import '../components/GrampsjsFormSelectObjectList.js'
 
 export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
-  static get styles() {
+  static get styles () {
     return [
       super.styles,
       css`
@@ -18,7 +17,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
         --mdc-theme-primary: #C62828;
       }
 
-      mwc-select, mwc-textfield {
+      mwc-select {
         width: 100%;
         max-width: 30em;
         margin-bottom: 10px;
@@ -27,35 +26,29 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
       #complete-button {
         margin-top: 25px;
       }
-
-      #home-person-menu {
-        max-height: 5em;
-      }
     `]
   }
 
-
-  static get properties() {
+  static get properties () {
     return {
+      homePersonDetails: {type: Object},
       _translations: {type: Array},
       _settings: {type: Object},
-      _people: {type: Array},
       _langLoading: {type: Boolean},
       _peopleLoading: {type: Boolean}
     }
   }
 
-  constructor() {
+  constructor () {
     super()
+    this.homePersonDetails = {}
     this._translations = []
-    this._people = []
     this._settings = getSettings()
     this._langLoading = false
     this._peopleLoading = false
   }
 
-
-  renderContent() {
+  renderContent () {
     return html`
 
     <h3>${this._('Select language')}</h3>
@@ -78,7 +71,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
     `
   }
 
-  _isCompleted() {
+  _isCompleted () {
     if (this._settings.homePerson && this._settings.lang) {
       return true
     }
@@ -86,46 +79,44 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _doSubmit() {
+  _doSubmit () {
     this.dispatchEvent(new CustomEvent('onboarding:completed', {bubbles: true, composed: true}))
   }
 
-  renderPersonSelect() {
+  renderPersonSelect () {
     return html`
-    <div style="position: relative;">
-      <mwc-textfield
-        iconTrailing="keyboard"
-        id="select-person"
-        label="${this._('Select...')}"
-        @input="${debounce(() => this._fetchDataPeople(), 500)}"
-        >
-      </mwc-textfield>
-      <p>${this._settings.homePerson && this._people.length ?
-    `${this._('Selected')}: ${this._people.filter(obj => obj.gramps_id === this._settings.homePerson)[0].string}` : ''}
-      </p>
-      <mwc-menu id="home-person-menu" style="position: relative;">
-      ${this._people.map(obj => html`
-        <mwc-list-item
-          value="${obj.gramps_id}"
-          @click="${() => this._handlePersonSelected(obj.gramps_id)}"
-          >${obj.string}</mwc-list-item>
-        `, this)}
-      </mwc-menu>
-    </div>
+    <p>
+      <grampsjs-form-object-list
+        .strings="${this.strings}"
+        .objects=${this.homePersonDetails.handle ? [this.homePersonDetails] : []}
+        id="homeperson-list"
+      ></grampsjs-form-object-list>
+    </p>
+    <p>
+      <grampsjs-form-select-object
+        @select-object:changed="${this._handleHomePerson}"
+        objectType="person"
+        .strings="${this.strings}"
+        id="homeperson-select"
+        label="${this._('Select')}"
+        ?disabled="${this._peopleLoading}"
+      ></grampsjs-form-select-object>
+    </p>
   `
   }
 
-  _openMenu() {
-    const textField = this.shadowRoot.getElementById('select-person')
-    if (textField.value && this._people.length) {
-      const menu = this.shadowRoot.getElementById('home-person-menu')
-      menu.anchor = textField
-      menu.open = true
+  _handleHomePerson (e) {
+    const obj = e.detail.objects[0]
+    if (obj.object?.gramps_id) {
+      updateSettings({homePerson: obj.object.gramps_id})
+      this._handleStorage()
+      this.homePersonDetails = obj
     }
+    e.preventDefault()
+    e.stopPropagation()
   }
 
-
-  renderLangSelect() {
+  renderLangSelect () {
     return html`
     <mwc-select
       id="select-language"
@@ -142,7 +133,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
   `
   }
 
-  _handleLangSelected(event) {
+  _handleLangSelected (event) {
     const i = event.detail.index
     if (i !== null && i !== undefined && i < this._translations.length) {
       const key = this._translations[i].language
@@ -151,43 +142,36 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
     }
   }
 
-  _handlePersonSelected(grampsId) {
-    if (grampsId) {
-      updateSettings({homePerson: grampsId})
-      this._handleStorage()
-    }
-  }
-
-  connectedCallback() {
+  connectedCallback () {
     super.connectedCallback()
     window.addEventListener('storage', this._handleStorage.bind(this))
   }
 
-  _handleStorage() {
+  _handleStorage () {
     this._settings = getSettings()
     window.dispatchEvent(new CustomEvent('settings:changed', {bubbles: true, composed: true}))
   }
 
-  firstUpdated() {
+  firstUpdated () {
     if (this.active) {
       this._fetchDataLang()
-      this._fetchDataPeople()
+      this._fetchDataHomePerson()
     }
-    const textField = this.shadowRoot.getElementById('select-person')
-    const menu = this.shadowRoot.getElementById('home-person-menu')
-    menu.anchor = textField
   }
 
-  update(changed) {
+  update (changed) {
     super.update(changed)
     if (changed.has('active') && this.active) {
-      if(!this._langLoading && this._translations.length === 0) {
+      if (!this._langLoading && this._translations.length === 0) {
         this._fetchDataLang()
+      }
+      if (!this._peopleLoading && (this.homePersonDetails?.object?.grampd_id !== this._settings.homePerson)) {
+        this._fetchDataHomePerson()
       }
     }
   }
 
-  async _fetchDataLang() {
+  async _fetchDataLang () {
     this.loading = true
     this._langLoading = true
     const dataTrans = await apiGet('/api/translations/')
@@ -205,32 +189,26 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
     }
   }
 
-  async _fetchDataPeople() {
-    const textField = this.shadowRoot.getElementById('select-person')
-    this.loading = true
-    this._peopleLoading = true
-    const seachPhrase = this._settings.homePerson? `(${textField.value} OR ${this._settings.homePerson})` : textField.value
-    const dataPeople = await apiGet(`/api/search/?locale=${this.strings?.__lang__ || 'en'}&profile=self&query=${encodeURIComponent(`${seachPhrase} AND type:person`)}`)
-    if ('data' in dataPeople) {
-      this.error = false
-      this._people = dataPeople.data.map(obj =>({
-        gramps_id: obj.object.gramps_id,
-        string: `${obj.object.profile.name_given || '...'} ${obj.object.profile.name_surname || '...'}${obj.object.profile?.birth?.date ? ` * ${obj.object.profile?.birth?.date}` : ''}`
-      })).sort((a, b) => a.string > b.string)
-    } else if ('error' in dataPeople) {
-      this.error = true
-      this._errorMessage = dataPeople.error
-      return
-    }
-    this._openMenu()
-    this._peopleLoading = false
-    if (!this._langLoading) {
-      this.loading = false
+  async _fetchDataHomePerson () {
+    if (this._settings.homePerson && (this.homePersonDetails?.object?.grampd_id !== this._settings.homePerson)) {
+      this.loading = true
+      this._peopleLoading = true
+      const seachPhrase = `${this._settings.homePerson}`
+      const dataPeople = await apiGet(`/api/search/?locale=${this.strings?.__lang__ || 'en'}&profile=self&query=${encodeURIComponent(`${seachPhrase} AND type:person`)}`)
+      if ('data' in dataPeople) {
+        this.error = false;
+        [this.homePersonDetails] = dataPeople.data.filter(obj => obj.object?.gramps_id === this._settings.homePerson)
+      } else if ('error' in dataPeople) {
+        this.error = true
+        this._errorMessage = dataPeople.error
+        return
+      }
+      this._peopleLoading = false
+      if (!this._langLoading) {
+        this.loading = false
+      }
     }
   }
-
-
 }
-
 
 window.customElements.define('grampsjs-view-settings-onboarding', GrampsjsViewSettingsOnboarding)
