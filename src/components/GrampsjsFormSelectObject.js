@@ -20,11 +20,13 @@ import './GrampsjsSearchResultList.js'
 // labels for button
 const btnLabel = {
   place: 'Select an existing place',
-  source: 'Select an existing source'
+  source: 'Select an existing source',
+  media: 'Select an existing media object',
+  event: 'Share an existing event'
 }
 
 class GrampsjsFormSelectObject extends LitElement {
-  static get styles() {
+  static get styles () {
     return [
       sharedStyles,
       css`
@@ -43,29 +45,30 @@ class GrampsjsFormSelectObject extends LitElement {
     ]
   }
 
-  static get properties() {
+  static get properties () {
     return {
       strings: {type: Object},
       objectType: {type: String},
       objects: {type: Array},
       data: {type: Array},
       multiple: {type: Boolean},
+      fixedMenuPosition: {type: Boolean},
       label: {type: String}
     }
   }
 
-
-  constructor() {
+  constructor () {
     super()
     this.strings = {}
     this.objectType = ''
     this.objects = []
     this.data = []
     this.multiple = false
+    this.fixedMenuPosition = false
     this.label = ''
   }
 
-  render() {
+  render () {
     return html`
     <div style="position:relative;">
       <mwc-button
@@ -77,6 +80,7 @@ class GrampsjsFormSelectObject extends LitElement {
       ></mwc-button>
 
       <mwc-menu
+        ?fixed="${this.fixedMenuPosition}"
         id="menu-search-results"
         corner="BOTTOM_LEFT"
         menuCorner="START" x="0" y="0"
@@ -93,6 +97,7 @@ class GrampsjsFormSelectObject extends LitElement {
             ></mwc-textfield>
           </div>
         <grampsjs-search-result-list
+          selectable
           .data="${this.data}"
           .strings="${this.strings}"
           @search-result:clicked="${this._handleSelected}"
@@ -102,36 +107,35 @@ class GrampsjsFormSelectObject extends LitElement {
 `
   }
 
-  reset() {
+  reset () {
     this.objects = []
     this._clearBox()
     this.data = []
   }
 
-  _handleInput() {
+  _handleInput () {
     this._fetchData()
   }
 
-  _handleList() {
+  _handleList () {
     return this.objects.map(_obj => _obj.handle)
   }
 
-  _handleSelected(e) {
+  _handleSelected (e) {
     const obj = e.detail
     const handles = this._handleList()
     if (!this.multiple) {
       this.objects = [obj]
       this._closeMenu()
       fireEvent(this, 'select-object:changed', {objects: this.objects})
-    }
-    else if (!handles.includes(obj.handle)) {
+    } else if (!handles.includes(obj.handle)) {
       this.objects = [...this.objects, obj]
       this._closeMenu()
       fireEvent(this, 'select-object:changed', {objects: this.objects})
     }
   }
 
-  async _handleBtnClick() {
+  async _handleBtnClick () {
     this._fetchData()
     this.shadowRoot.getElementById('menu-search-results').open = true
     const textField = this.shadowRoot.getElementById('textfield')
@@ -141,16 +145,14 @@ class GrampsjsFormSelectObject extends LitElement {
     textField.focus()
   }
 
-  async _fetchData() {
+  async _fetchData () {
     const textField = this.shadowRoot.getElementById('textfield')
     const resultList = this.shadowRoot.querySelector('grampsjs-search-result-list')
     resultList.textEmpty = html`<mwc-circular-progress indeterminate density="-3"></mwc-circular-progress>`
     const url = (
       textField.value
-        ?
-        `/api/search/?locale=${this.strings?.__lang__ || 'en'}&profile=all&query=${encodeURIComponent(`${textField.value} AND type:${this.objectType}`)}&profile=all&page=1&pagesize=20`
-        :
-        `/api/search/?sort=-change&locale=${this.strings?.__lang__ || 'en'}&profile=all&query=${encodeURIComponent(`type:${this.objectType}`)}&profile=all&page=1&pagesize=20`
+        ? `/api/search/?locale=${this.strings?.__lang__ || 'en'}&profile=all&query=${encodeURIComponent(`${textField.value} AND type:${this.objectType}`)}&profile=all&page=1&pagesize=20`
+        : `/api/search/?sort=-change&locale=${this.strings?.__lang__ || 'en'}&profile=all&query=${encodeURIComponent(`type:${this.objectType}`)}&profile=all&page=1&pagesize=20`
     )
     const data = await apiGet(url)
     if ('data' in data) {
@@ -163,28 +165,26 @@ class GrampsjsFormSelectObject extends LitElement {
     }
   }
 
-  firstUpdated() {
+  firstUpdated () {
     const btn = this.shadowRoot.getElementById('button')
     const menu = this.shadowRoot.getElementById('menu-search-results')
     menu.anchor = btn
   }
 
-  _closeMenu() {
+  _closeMenu () {
     this.shadowRoot.getElementById('menu-search-results').open = false
   }
 
-  _clearBox() {
+  _clearBox () {
     this.shadowRoot.getElementById('textfield').value = ''
   }
 
-
-  _(s) {
+  _ (s) {
     if (s in this.strings) {
       return this.strings[s]
     }
     return s
   }
-
 }
 
 window.customElements.define('grampsjs-form-select-object', GrampsjsFormSelectObject)

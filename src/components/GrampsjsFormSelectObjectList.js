@@ -21,7 +21,8 @@ class GrampsjsFormSelectObjectList extends LitElement {
       strings: {type: Object},
       objectType: {type: String},
       label: {type: String},
-      multiple: {type: Boolean}
+      multiple: {type: Boolean},
+      fixedMenuPosition: {type: Boolean}
     }
   }
 
@@ -32,6 +33,7 @@ class GrampsjsFormSelectObjectList extends LitElement {
     this.objectType = ''
     this.label = ''
     this.multiple = false
+    this.fixedMenuPosition = false
   }
 
   render() {
@@ -42,10 +44,12 @@ class GrampsjsFormSelectObjectList extends LitElement {
         .strings="${this.strings}"
         id="${this.id}-list"
         ?reorder="${this.multiple}"
+        deletable
       ></grampsjs-form-object-list>
     </p>
     <p>
       <grampsjs-form-select-object
+        ?fixedMenuPosition="${this.fixedMenuPosition}"
         @select-object:changed="${this._handleSelectObjectsChanged}"
         objectType="${this.objectType}"
         .strings="${this.strings}"

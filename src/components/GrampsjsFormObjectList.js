@@ -35,7 +35,8 @@ class GrampsjsFormObjectList extends LitElement {
       strings: {type: Object},
       objects: {type: Array},
       selectedIndex: {type: Number},
-      reorder: {type: Boolean}
+      reorder: {type: Boolean},
+      deletable: {type: Boolean}
     }
   }
 
@@ -47,7 +48,7 @@ class GrampsjsFormObjectList extends LitElement {
     this.objects = []
     this.selectedIndex = -1
     this.reorder = false
-
+    this.deletable = false
   }
 
   render() {
@@ -59,11 +60,13 @@ class GrampsjsFormObjectList extends LitElement {
     }
     return html`
       <div class="buttons">
+      ${this.deletable ? html`
         <mwc-icon-button
           icon="delete"
           ?disabled="${unselected}"
           @click="${this._handleDelete}"
         ></mwc-icon-button>
+        ` : ''}
         ${this.reorder ? html`<mwc-icon-button
           icon="arrow_upward"
           ?disabled="${unselected || one || this.selectedIndex === 0}"
@@ -76,7 +79,8 @@ class GrampsjsFormObjectList extends LitElement {
         ></mwc-icon-button>` : ''}
       </div>
       <grampsjs-search-result-list
-        activatable
+        ?activatable="${this.deletable || this.reorder}"
+        ?selectable="${this.deletable || this.reorder}"
         @action="${this._handleSelected}"
         .data="${this.objects}"
         .strings="${this.strings}"

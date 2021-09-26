@@ -24,7 +24,8 @@ export class GrampsjsSearchResultList extends LitElement {
       data: {type: Array},
       strings: {type: Object},
       textEmpty: {type: String},
-      activatable: {type: Boolean}
+      activatable: {type: Boolean},
+      selectable: {type: Boolean}
     }
   }
 
@@ -34,6 +35,7 @@ export class GrampsjsSearchResultList extends LitElement {
     this.strings = {}
     this.textEmpty = ''
     this.activatable = false
+    this.selectable = false
   }
 
   render() {
@@ -52,6 +54,7 @@ export class GrampsjsSearchResultList extends LitElement {
     const detail = objectDetail(obj.object_type, obj.object, this.strings)
     return html`
         <mwc-list-item
+          ?noninteractive="${!this.selectable}"
           twoline
           graphic="icon"
           @click="${() => this._handleClick(obj)}"
