@@ -19,7 +19,8 @@ export const additionalStrings = {
     'Old password': 'Altes Passwort',
     'New password': 'Neues Passwort',
     'New E-mail': 'Neue E-Mail-Adresse',
-    'A new version of the app is available.': 'Eine neue Version der App ist verfügbar.'
+    'A new version of the app is available.': 'Eine neue Version der App ist verfügbar.',
+    'Manage users': 'Benutzer verwalten'
   }
 }
 
@@ -97,6 +98,7 @@ export const grampsStrings = [
   'Father',
   'Female',
   'File',
+  'Full Name',
   'Gallery',
   'Gender',
   'General',
@@ -165,6 +167,7 @@ export const grampsStrings = [
   'Parish',
   'Participants',
   'Partner',
+  'Password:',
   'Path',
   'People',
   'Person Note',
@@ -193,15 +196,19 @@ export const grampsStrings = [
   'Repository',
   'Research',
   'Role',
+  '_Save',
   'Second date',
   'Select a person as the father',
   'Select a person as the mother',
+  'Select an existing media object',
   'Select an existing place',
   'Select an existing source',
+  'Select',
   'Select...',
   'Selected',
   'Select a file',
   'Set _Home Person',
+  'Share an existing event',
   'Show Details',
   'Siblings',
   'Social Security Number',
@@ -230,6 +237,7 @@ export const grampsStrings = [
   'Transcript',
   'Type',
   'Unknown',
+  'Username: ',
   'Value',
   'Very High',
   'Very Low',

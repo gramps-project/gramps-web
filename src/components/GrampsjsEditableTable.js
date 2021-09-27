@@ -44,7 +44,13 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
       </tr>
     ${this.data.map((obj, i, arr) => this.row(obj, i, arr))}
     </table>
+
+    ${this.renderAfterTable()}
     `
+  }
+
+  renderAfterTable () {
+    return ''
   }
 
   row (obj, i, arr) {

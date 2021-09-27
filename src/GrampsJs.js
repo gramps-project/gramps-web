@@ -80,6 +80,7 @@ export class GrampsJs extends LitElement {
       settings: {type: Object},
       canAdd: {type: Boolean},
       canEdit: {type: Boolean},
+      canManageUsers: {type: Boolean},
       updateAvailable: {type: Boolean},
       _lang: {type: String},
       _strings: {type: Object},
@@ -97,6 +98,7 @@ export class GrampsJs extends LitElement {
     this.settings = getSettings()
     this.canAdd = false
     this.canEdit = false
+    this.canManageUsers = false
     this.updateAvailable = false
     this._lang = ''
     this._strings = {}
@@ -359,7 +361,7 @@ export class GrampsJs extends LitElement {
 
         <grampsjs-view-search class="page" ?active=${this._page === 'search'} .strings="${this._strings}"></grampsjs-view-search>
         <grampsjs-view-recent class="page" ?active=${this._page === 'recent'} .strings="${this._strings}"></grampsjs-view-recent>
-        <grampsjs-view-settings class="page" ?active=${this._page === 'settings'} .strings="${this._strings}"></grampsjs-view-settings>
+        <grampsjs-view-settings class="page" ?active=${this._page === 'settings'} .strings="${this._strings}" ?users="${this.canManageUsers}></grampsjs-view-settings>
 
         <grampsjs-view-new-person class="page" ?active=${this._page === 'new_person'} .strings="${this._strings}"></grampsjs-view-new-person>
         <grampsjs-view-new-family class="page" ?active=${this._page === 'new_family'} .strings="${this._strings}"></grampsjs-view-new-family>
@@ -573,9 +575,12 @@ export class GrampsJs extends LitElement {
     if (permissions === null) {
       this.canAdd = true
       this.canEdit = true
+      // managing users not meaningful in this case
+      this.canManageUsers = false
     } else {
       this.canAdd = permissions.includes('AddObject')
       this.canEdit = permissions.includes('EditObject')
+      this.canManageUsers = permissions.includes('EditOtherUser')
     }
   }
 

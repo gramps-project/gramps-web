@@ -144,5 +144,7 @@ export const sharedStyles = css`
 
   .edit {
     color: var(--mdc-theme-secondary);
+    --mdc-theme-primary: var(--mdc-theme-secondary);
+    --mdc-theme-on-primary: var(--mdc-theme-on-secondary);
   }
   `

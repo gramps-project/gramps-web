@@ -226,10 +226,15 @@ async function apiPutPost (method, endpoint, payload, isJson = true) {
       throw (new Error(`Error ${resp.status}`))
     }
     window.dispatchEvent(new CustomEvent('db:changed', {bubbles: true, composed: true}))
-    return {
-      data: await resp.json(),
-      total_count: resp.headers.get('X-Total-Count'),
-      etag: resp.headers.get('ETag')
+    try {
+      return {
+        data: await resp.json(),
+        total_count: resp.headers.get('X-Total-Count'),
+        etag: resp.headers.get('ETag')
+      }
+    } catch (error) {
+      // if JSON parsing fails, return empty response
+      return {}
     }
   } catch (error) {
     return {error: error.message}
