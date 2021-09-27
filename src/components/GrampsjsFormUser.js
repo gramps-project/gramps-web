@@ -53,7 +53,7 @@ class GrampsjsFormUser extends LitElement {
   constructor () {
     super()
     this.strings = {}
-    this.data = {_class: 'Name'}
+    this.data = {}
     this.isFormValid = false
     this.newUser = false
   }
