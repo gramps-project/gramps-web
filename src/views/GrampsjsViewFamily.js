@@ -17,7 +17,11 @@ export class GrampsjsViewFamily extends GrampsjsViewObject {
 
   renderElement() {
     return html`
-    <grampsjs-family .data=${this._data} .strings=${this.strings}></grampsjs-family>
+    <grampsjs-family
+      .data=${this._data}
+      .strings=${this.strings}
+      ?edit="${this.edit}"
+    ></grampsjs-family>
     `
   }
 

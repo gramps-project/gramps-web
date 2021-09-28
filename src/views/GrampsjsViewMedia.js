@@ -17,7 +17,7 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
 
   renderElement() {
     return html`
-    <grampsjs-media-object .data=${this._data} .strings=${this.strings}></grampsjs-media-object>
+    <grampsjs-media-object .data=${this._data} .strings=${this.strings} ?edit="${this.edit}"></grampsjs-media-object>
     `
   }
 

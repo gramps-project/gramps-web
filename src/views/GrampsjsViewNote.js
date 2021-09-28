@@ -21,7 +21,7 @@ export class GrampsjsViewNote extends GrampsjsViewObject {
 
   renderElement() {
     return html`
-    <grampsjs-note .data=${this._data} .strings=${this.strings}></grampsjs-note>
+    <grampsjs-note .data=${this._data} .strings=${this.strings} ?edit="${this.edit}"></grampsjs-note>
     `
   }
 

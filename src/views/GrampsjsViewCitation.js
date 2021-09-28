@@ -17,7 +17,7 @@ export class GrampsjsViewCitation extends GrampsjsViewObject {
 
   renderElement() {
     return html`
-    <grampsjs-citation .data=${this._data} .strings=${this.strings}></grampsjs-citation>
+    <grampsjs-citation .data=${this._data} .strings=${this.strings} ?edit="${this.edit}"></grampsjs-citation>
     `
   }
 
