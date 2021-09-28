@@ -136,6 +136,12 @@ export class GrampsjsViewObject extends GrampsjsView {
   handleEditAction (e) {
     if (e.detail.action === 'delEvent') {
       this.delEvent(e.detail.handle, this._data, this._className)
+    } else if (e.detail.action === 'addEventRef') {
+      this.addObject(e.detail.data, this._data, this._className, 'event_ref_list')
+    } else if (e.detail.action === 'addNoteRef') {
+      this.addHandle(e.detail.data.data[0], this._data, this._className, 'note_list')
+    } else if (e.detail.action === 'delNoteRef') {
+      this.delHandle(e.detail.handle, this._data, this._className, 'note_list')
     } else if (e.detail.action === 'delCitation') {
       this.delHandle(e.detail.handle, this._data, this._className, 'citation_list')
     } else if (e.detail.action === 'upEvent') {
@@ -173,6 +179,24 @@ export class GrampsjsViewObject extends GrampsjsView {
       } else if (upDown === 'down') {
         _obj.event_ref_list = moveDown(_obj.event_ref_list, i)
       }
+      return _obj
+    })
+  }
+
+  // add an object to a list of objects
+  // e.g. an event references to the event_ref_list
+  addObject (data, obj, objType, prop) {
+    return this._updateObject(obj, objType, (_obj) => {
+      _obj[prop] = [..._obj[prop], data]
+      return _obj
+    })
+  }
+
+  // add a handle to a list of handle
+  // e.g. an note handle to the note_list
+  addHandle (handle, obj, objType, prop) {
+    return this._updateObject(obj, objType, (_obj) => {
+      _obj[prop] = [..._obj[prop], handle]
       return _obj
     })
   }

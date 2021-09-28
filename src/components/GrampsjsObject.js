@@ -300,7 +300,13 @@ export class GrampsjsObject extends LitElement {
     case ('addresses'):
       return html`<grampsjs-addresses .strings=${this.strings} .data=${this.data.address_list}></grampsjs-addresses>`
     case ('notes'):
-      return html`<grampsjs-view-object-notes active .strings=${this.strings} .grampsIds=${(this.data?.extended?.notes || []).map(obj => obj.gramps_id).filter(obj => Boolean(obj))}></grampsjs-view-object-notes>`
+      return html`
+      <grampsjs-view-object-notes
+        active
+        .strings=${this.strings}
+        .grampsIds=${(this.data?.extended?.notes || []).map(obj => obj.gramps_id).filter(obj => Boolean(obj))}
+        ?edit="${this.edit}"
+      ></grampsjs-view-object-notes>`
     case ('gallery'):
       return html`<grampsjs-gallery .strings=${this.strings} .media=${this.data?.extended?.media} .mediaRef=${this.data?.media_list}></grampsjs-gallery>`
     case ('internet'):

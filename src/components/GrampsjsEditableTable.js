@@ -20,6 +20,8 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
     return {
       edit: {type: Boolean},
       objType: {type: String},
+      dialogContent: {type: String},
+      dialogTitle: {type: String},
       _columns: {type: Array}
     }
   }
@@ -28,14 +30,16 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
     super()
     this.edit = false
     this.objType = ''
+    this.dialogContent = ''
+    this.dialogTitle = ''
     this._columns = []
   }
 
   render () {
-    if (Object.keys(this.data).length === 0) {
-      return ''
-    }
     return html`
+    ${Object.keys(this.data).length === 0
+    ? ''
+    : html`
     <table>
       <tr>
       ${this._columns.map(column => html`
@@ -44,9 +48,10 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
       </tr>
     ${this.data.map((obj, i, arr) => this.row(obj, i, arr))}
     </table>
+    `}
 
     ${this.renderAfterTable()}
-    `
+`
   }
 
   renderAfterTable () {

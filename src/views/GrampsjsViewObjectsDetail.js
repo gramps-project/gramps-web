@@ -3,9 +3,8 @@ import {html, css} from 'lit'
 import {GrampsjsView} from './GrampsjsView.js'
 import {apiGet} from '../api.js'
 
-
 export class GrampsjsViewObjectsDetail extends GrampsjsView {
-  static get styles() {
+  static get styles () {
     return [
       super.styles,
       css`
@@ -14,54 +13,58 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
     `]
   }
 
-
-  static get properties() {
+  static get properties () {
     return {
       grampsIds: {type: Array},
+      dialogContent: {type: String},
       _data: {type: Array},
       edit: {type: Boolean}
     }
   }
 
-
-  constructor() {
+  constructor () {
     super()
     this.grampsIds = []
+    this.dialogContent = ''
     this._data = []
     this.edit = false
   }
 
-  getUrl() {
+  getUrl () {
     return ''
   }
 
-
-  renderContent() {
+  renderContent () {
     if (this._data.length === 0) {
-      if (this.loading) {
-        return html``
-      }
-      return html``
+      return html`${this.edit ? this.renderEdit() : ''}`
     }
-    return this.renderElements()
+    return html`
+    ${this.renderElements()}
+
+    ${this.edit ? this.renderEdit() : ''}
+
+    ${this.dialogContent}
+    `
   }
 
-  renderElements() {
+  renderElements () {
     return html``
   }
 
-  update(changed) {
+  update (changed) {
     super.update(changed)
     if (this.active && changed.has('grampsIds')) {
       this._updateData()
     }
   }
 
-  _updateData() {
+  _updateData () {
     if (this._url === '') {
       return
     }
-    if (this.grampsIds.length !== 0) {
+    if (this.grampsIds.length === 0) {
+      this._data = []
+    } else {
       this._data = []
       this.loading = true
       apiGet(this.getUrl()).then(data => {

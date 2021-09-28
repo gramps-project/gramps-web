@@ -361,7 +361,7 @@ export class GrampsJs extends LitElement {
 
         <grampsjs-view-search class="page" ?active=${this._page === 'search'} .strings="${this._strings}"></grampsjs-view-search>
         <grampsjs-view-recent class="page" ?active=${this._page === 'recent'} .strings="${this._strings}"></grampsjs-view-recent>
-        <grampsjs-view-settings class="page" ?active=${this._page === 'settings'} .strings="${this._strings}" ?users="${this.canManageUsers}></grampsjs-view-settings>
+        <grampsjs-view-settings class="page" ?active=${this._page === 'settings'} .strings="${this._strings}" ?users="${this.canManageUsers}"></grampsjs-view-settings>
 
         <grampsjs-view-new-person class="page" ?active=${this._page === 'new_person'} .strings="${this._strings}"></grampsjs-view-new-person>
         <grampsjs-view-new-family class="page" ?active=${this._page === 'new_family'} .strings="${this._strings}"></grampsjs-view-new-family>

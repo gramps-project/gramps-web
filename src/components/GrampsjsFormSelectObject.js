@@ -22,7 +22,8 @@ const btnLabel = {
   place: 'Select an existing place',
   source: 'Select an existing source',
   media: 'Select an existing media object',
-  event: 'Share an existing event'
+  event: 'Share an existing event',
+  note: 'Select an existing note'
 }
 
 class GrampsjsFormSelectObject extends LitElement {

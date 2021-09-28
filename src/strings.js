@@ -201,6 +201,7 @@ export const grampsStrings = [
   'Select a person as the father',
   'Select a person as the mother',
   'Select an existing media object',
+  'Select an existing note',
   'Select an existing place',
   'Select an existing source',
   'Select',
