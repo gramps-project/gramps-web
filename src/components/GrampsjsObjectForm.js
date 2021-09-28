@@ -9,7 +9,7 @@ import '@material/mwc-formfield'
 import '@material/mwc-button'
 import '@material/mwc-circular-progress'
 
-import {apiGet, apiPost} from '../api.js'
+import {apiGet} from '../api.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent, translate} from '../util.js'
 
@@ -180,7 +180,9 @@ export class GrampsjsObjectForm extends LitElement {
     ].includes(originalTarget.id)) {
       this.data = {...this.data, [originalTarget.id]: e.detail.data}
     }
-    if (originalTarget.id === 'event-select-list') {
+    if ([
+      'event-select-list', 'media-select-list'
+    ].includes(originalTarget.id)) {
       const [handle] = e.detail.data
       if (handle) {
         this.data = {...this.data, ref: handle}

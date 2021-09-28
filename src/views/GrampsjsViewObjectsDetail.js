@@ -47,6 +47,10 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
     `
   }
 
+  renderEdit () {
+
+  }
+
   renderElements () {
     return html``
   }

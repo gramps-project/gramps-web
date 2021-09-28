@@ -308,7 +308,13 @@ export class GrampsjsObject extends LitElement {
         ?edit="${this.edit}"
       ></grampsjs-view-object-notes>`
     case ('gallery'):
-      return html`<grampsjs-gallery .strings=${this.strings} .media=${this.data?.extended?.media} .mediaRef=${this.data?.media_list}></grampsjs-gallery>`
+      return html`
+        <grampsjs-gallery
+          .strings=${this.strings}
+          .media=${this.data?.extended?.media}
+          .mediaRef=${this.data?.media_list}
+          ?edit="${this.edit}"
+          ></grampsjs-gallery>`
     case ('internet'):
       return html`<grampsjs-urls .strings=${this.strings} .data=${this.data.urls}></grampsjs-urls>`
     case ('associations'):
