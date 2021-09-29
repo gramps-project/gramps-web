@@ -191,6 +191,12 @@ export class GrampsjsObjectForm extends LitElement {
         this.data = rest
       }
     }
+    if (originalTarget.id === 'source-list') {
+      this.data = {...this.data, source_handle: e.detail.data[0]}
+    }
+    if (originalTarget.id === 'date') {
+      this.data = {...this.data, date: e.detail.data}
+    }
     if (originalTarget.id === 'event-role-type') {
       this.data = {...this.data, role: {_class: 'EventRoleType', string: e.detail.data}}
     }

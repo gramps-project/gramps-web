@@ -4,7 +4,7 @@ import '@material/mwc-fab'
 import '@material/mwc-icon'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet, apiPut} from '../api.js'
+import {apiGet, apiPut, apiPost} from '../api.js'
 import {fireEvent, objectTypeToEndpoint} from '../util.js'
 
 const editTitle = {
@@ -140,6 +140,12 @@ export class GrampsjsViewObject extends GrampsjsView {
       this.addObject(e.detail.data, this._data, this._className, 'event_ref_list')
     } else if (e.detail.action === 'addNoteRef') {
       this.addHandle(e.detail.data.data[0], this._data, this._className, 'note_list')
+    } else if (e.detail.action === 'addCitation') {
+      this._postObject(e.detail.data, 'citation').then((data) => {
+        if ('data' in data) {
+          this.addHandle(e.detail.data.handle, this._data, this._className, 'citation_list')
+        }
+      })
     } else if (e.detail.action === 'addMediaRef') {
       this.addObject(e.detail.data, this._data, this._className, 'media_list')
     } else if (e.detail.action === 'delNoteRef') {
@@ -223,6 +229,11 @@ export class GrampsjsViewObject extends GrampsjsView {
       }
       return _obj
     })
+  }
+
+  async _postObject (obj, objType) {
+    const url = `/api/${objectTypeToEndpoint[objType]}/`
+    return apiPost(url, obj)
   }
 
   _updateObject (obj, objType, updateFunc) {

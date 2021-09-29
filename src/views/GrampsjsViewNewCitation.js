@@ -15,8 +15,7 @@ const confidence = {
 }
 
 export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
-
-  constructor() {
+  constructor () {
     super()
     this.data = {_class: 'Citation', confidence: 2}
     this.postUrl = '/api/citations/'
@@ -24,7 +23,7 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
     this.objClass = 'Citation'
   }
 
-  renderContent() {
+  renderContent () {
     return html`
     <h2>${this._('New Citation')}</h2>
 
@@ -75,15 +74,15 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
     // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
 
-  checkFormValidity() {
+  checkFormValidity () {
     this.isFormValid = !!this.data?.source_handle
   }
 
-  handleConfidence(e) {
+  handleConfidence (e) {
     this.data = {...this.data, confidence: parseInt(e.target.value, 10)}
   }
 
-  _handleFormData(e) {
+  _handleFormData (e) {
     super._handleFormData(e)
     const originalTarget = e.composedPath()[0]
     if (originalTarget.id === 'source-list') {
@@ -95,7 +94,7 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
     this.checkFormValidity()
   }
 
-  _reset() {
+  _reset () {
     super._reset()
     this.isFormValid = false
     this.data = {_class: 'Citation', confidence: 2}
