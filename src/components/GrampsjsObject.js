@@ -35,7 +35,7 @@ const _allTabs = {
   map: {
     title: 'Map',
     condition: (data) => (data?.profile?.lat !== undefined && data?.profile?.lat !== null && (data?.profile?.lat !== 0 || data?.profile?.long !== 0)),
-    conditionEdit: (data) => 'lat' in data
+    conditionEdit: (data) => false // 'lat' in data // FIXME editable in principle but UI not implemented
   },
   children: {
     title: 'Children',
@@ -80,22 +80,22 @@ const _allTabs = {
   attributes: {
     title: 'Attributes',
     condition: (data) => (data?.attribute_list?.length > 0),
-    conditionEdit: (data) => 'attribute_list' in data
+    conditionEdit: (data) => false // 'attribute_list' in data // FIXME editable in principle but UI not implemented
   },
   addresses: {
     title: 'Addresses',
     condition: (data) => (data?.address_list?.length > 0),
-    conditionEdit: (data) => 'address_list' in data
+    conditionEdit: (data) => false // 'address_list' in data // FIXME editable in principle but UI not implemented
   },
   internet: {
     title: 'Internet',
     condition: (data) => (data?.urls?.length > 0),
-    conditionEdit: (data) => 'urls' in data
+    conditionEdit: (data) => false // 'urls' in data // FIXME editable in principle but UI not implemented
   },
   associations: {
     title: 'Associations',
     condition: (data) => (data?.person_ref_list?.length > 0),
-    conditionEdit: (data) => 'person_ref_list' in data
+    conditionEdit: (data) => false // 'person_ref_list' in data // FIXME editable in principle but UI not implemented
   },
   references: {
     title: 'References',
@@ -222,7 +222,7 @@ export class GrampsjsObject extends LitElement {
   }
 
   renderTabs () {
-    const tabKeys = this._getTabs()
+    const tabKeys = this._getTabs(this.edit)
     if (!tabKeys.includes(this._currentTab)) {
       [this._currentTab] = tabKeys
     }
@@ -329,8 +329,8 @@ export class GrampsjsObject extends LitElement {
     return html``
   }
 
-  _getTabs () {
-    if (this.edit) {
+  _getTabs (edit) {
+    if (edit) {
       return Object.keys(_allTabs).filter(key => (
         _allTabs[key].conditionEdit(this.data)
       ))
@@ -350,6 +350,19 @@ export class GrampsjsObject extends LitElement {
       >
     </mwc-tab>
     `
+  }
+
+  updated (changed) {
+    if (changed.has('edit')) {
+      this._updateTabIndicator(changed.get('  '))
+    }
+  }
+
+  _updateTabIndicator (edit) {
+    const tabKeys = this._getTabs(!edit)
+    if (tabKeys.includes(this._currentTab) && tabKeys.indexOf(this._currentTab) !== this._currentTabId) {
+      this._currentTabId = tabKeys.indexOf(this._currentTab)
+    }
   }
 
   _handleTabActivated (event) {
