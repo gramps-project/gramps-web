@@ -221,7 +221,6 @@ export class GrampsjsViewObject extends GrampsjsView {
   moveHandle (handle, obj, objType, prop, upDown) {
     return this._updateObject(obj, objType, (_obj) => {
       const i = (_obj[prop] || []).indexOf(handle)
-      alert(i)
       if (upDown === 'up') {
         _obj[prop] = moveUp(_obj[prop], i)
       } else if (upDown === 'down') {
