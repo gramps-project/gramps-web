@@ -1,11 +1,15 @@
-import {css, html} from 'lit'
+import {html} from 'lit'
 
 import {mdiGenderFemale, mdiGenderMale} from '@mdi/js'
-import {GrampsjsTableBase} from './GrampsjsTableBase.js'
+import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
+import './GrampsjsFormChildRef.js'
 import {renderIcon} from '../icons.js'
+import {fireEvent} from '../util.js'
 
+import '@material/mwc-icon-button'
+import '@material/mwc-button'
 
-function genderIcon(gender) {
+function genderIcon (gender) {
   if (gender === 'M') {
     return renderIcon(mdiGenderMale, 'var(--color-boy)')
   }
@@ -15,65 +19,88 @@ function genderIcon(gender) {
   return ''
 }
 
-
-export class GrampsjsChildren extends GrampsjsTableBase {
-
-  static get properties() {
+export class GrampsjsChildren extends GrampsjsEditableTable {
+  static get properties () {
     return {
       profile: {type: Array},
-      strings: {type: Object},
       highlightId: {type: String}
     }
   }
 
-  constructor() {
+  constructor () {
     super()
-    this.data = []
     this.profile = []
-    this.strings = {}
     this.highlightId = ''
+    this._columns = ['', 'Given name', 'Birth', 'Death', 'Age at death', '']
+    this.objType = 'ChildRef'
   }
 
-  render() {
-    if (Object.keys(this.profile).length === 0) {
-      return html``
-    }
+  row (obj, i, arr) {
     return html`
-    <table class="linked">
-      <tr>
-        <th></th>
-       <th>${this._('Given name')}</th>
-        <th>${this._('Birth')}</th>
-        <th>${this._('Death')}</th>
-        <th>${this._('Age at death')}</th>
-      </tr>
-    ${this.profile.map((obj, i) => html`
-      <tr
-      @click=${() => this._handleClick(obj.gramps_id)}
-      class="${obj.gramps_id === this.highlightId ? 'highlight' : ''}"
-      >
-        <td>${genderIcon(this.profile[i]?.sex)}</td>
-        <td>${this.profile[i]?.name_given || ''}</td>
-        <td>${this.profile[i]?.birth?.date || ' '}</td>
-        <td>${this.profile[i]?.death?.date || ''}</td>
-        <td>${this.profile[i]?.death?.age || ''}</td>
-      </tr>
-    `)}
-    </table>
+    <tr
+    @click=${() => this._handleClick(obj.gramps_id)}
+    class="${obj.gramps_id === this.highlightId ? 'highlight' : ''}"
+    >
+      <td>${genderIcon(this.profile[i]?.sex)}</td>
+      <td>${this.profile[i]?.name_given || ''}</td>
+      <td>${this.profile[i]?.birth?.date || ' '}</td>
+      <td>${this.profile[i]?.death?.date || ''}</td>
+      <td>${this.profile[i]?.death?.age || ''}</td>
+      <td>${this.edit
+    ? this._renderActionBtns(obj.ref, i === 0, i === arr.length - 1)
+    : ''}</td>
+    </tr>
     `
   }
 
-  _handleClick(grampsId) {
-    if (grampsId !== this.grampsId) {
+  renderAfterTable () {
+    return this.edit
+      ? html`
+      <mwc-icon-button
+        class="edit large"
+        icon="add_circle"
+        @click="${this._handleAddClick}"
+      ></mwc-icon-button>
+      ${this.dialogContent}
+    `
+      : ''
+  }
+
+  _handleAddClick () {
+    this.dialogContent = html`
+    <grampsjs-form-childref
+      new
+      @object:save="${this._handleChildRefSave}"
+      @object:cancel="${this._handleChildRefCancel}"
+      .strings="${this.strings}"
+      objType="${this.objType}"
+      dialogTitle = ${this._('Share an existing event')}
+    >
+    </grampsjs-form-childref>
+    `
+  }
+
+  _handleChildRefSave (e) {
+    fireEvent(this, 'edit:action', {action: 'addChildRef', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleChildRefCancel () {
+    this.dialogContent = ''
+  }
+
+  _handleClick (grampsId) {
+    if (!this.edit & grampsId !== this.grampsId) {
       this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: this._getItemPath(grampsId)}}))
     }
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getItemPath(grampsId) {
+  _getItemPath (grampsId) {
     return `person/${grampsId}`
   }
-
 }
 
 window.customElements.define('grampsjs-children', GrampsjsChildren)

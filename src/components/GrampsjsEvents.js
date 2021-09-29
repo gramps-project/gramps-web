@@ -89,7 +89,9 @@ export class GrampsjsEvents extends GrampsjsEditableTable {
   }
 
   _handleClick (grampsId) {
-    fireEvent(this, 'nav', {path: this._getItemPath(grampsId)})
+    if (!this.edit) {
+      fireEvent(this, 'nav', {path: this._getItemPath(grampsId)})
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this

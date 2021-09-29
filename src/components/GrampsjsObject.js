@@ -287,7 +287,7 @@ export class GrampsjsObject extends LitElement {
         return html`<grampsjs-view-person-timeline active .strings=${this.strings} handle=${this.data.handle}></grampsjs-view-person-timeline>`
       }
     case ('children'):
-      return html`<grampsjs-children .strings=${this.strings} .data=${this.data?.child_ref_list} .profile=${this.data?.profile?.children}></grampsjs-children>`
+      return html`<grampsjs-children .strings=${this.strings} .data=${this.data?.child_ref_list} .profile=${this.data?.profile?.children} ?edit="${this.edit}"></grampsjs-children>`
     case ('citations'):
       return html`<grampsjs-view-source-citations
         active

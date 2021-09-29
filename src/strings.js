@@ -188,6 +188,8 @@ export const grampsStrings = [
   'Region',
   'Regular',
   'Regular',
+  'Relationship to _Father:',
+  'Relationship to _Mother:',
   'Relationship type:',
   'Relationships',
   'Repositories',

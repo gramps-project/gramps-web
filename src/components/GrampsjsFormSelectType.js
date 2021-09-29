@@ -20,6 +20,7 @@ class GrampsjsFormSelectType extends LitElement {
   static get properties() {
     return {
       strings: {type: Object},
+      heading: {type: String},
       typeName: {type: String},
       defaultTypeName: {type: String},
       types: {type: Object},
@@ -37,6 +38,7 @@ class GrampsjsFormSelectType extends LitElement {
     this.typesLocale = {}
     this.disabled = false
     this.typeName = ''
+    this.heading = ''
     this.defaultTypeName = 'General'
     this.loadingTypes = false
     this.required = false
@@ -54,7 +56,7 @@ class GrampsjsFormSelectType extends LitElement {
     const types = this.getTypes(this.types)
     const typesLocale = this.getTypes(this.typesLocale)
     return html`
-    <h4 class="label">${this._('Type')}</h4>
+    <h4 class="label">${this.heading || this._('Type')}</h4>
     <p>
       <mwc-select
         style="width:100%"
