@@ -153,7 +153,7 @@ export async function apiRefreshAuthToken () {
   }
 };
 
-export async function apiGet (endpoint) {
+export async function apiGet (endpoint, isJson = true) {
   const accessToken = localStorage.getItem('access_token')
   let headers = {}
   if (accessToken !== null) {
@@ -184,10 +184,16 @@ export async function apiGet (endpoint) {
     if (resp.status !== 200) {
       throw (new Error(`Error ${resp.status}`))
     }
-    return {
-      data: await resp.json(),
-      total_count: resp.headers.get('X-Total-Count'),
-      etag: resp.headers.get('ETag')
+    if (isJson) {
+      return {
+        data: await resp.json(),
+        total_count: resp.headers.get('X-Total-Count'),
+        etag: resp.headers.get('ETag')
+      }
+    } else {
+      return {
+        data: await resp.text()
+      }
     }
   } catch (error) {
     return {error: error.message}
