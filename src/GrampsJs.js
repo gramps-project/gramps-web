@@ -81,7 +81,6 @@ export class GrampsJs extends LitElement {
       canAdd: {type: Boolean},
       canEdit: {type: Boolean},
       canManageUsers: {type: Boolean},
-      updateAvailable: {type: Boolean},
       _lang: {type: String},
       _strings: {type: Object},
       _dbInfo: {type: Object},
@@ -99,7 +98,6 @@ export class GrampsJs extends LitElement {
     this.canAdd = false
     this.canEdit = false
     this.canManageUsers = false
-    this.updateAvailable = false
     this._lang = ''
     this._strings = {}
     this._dbInfo = {}
@@ -416,9 +414,6 @@ export class GrampsJs extends LitElement {
     this._loadDbInfo()
     window.addEventListener('db:changed', () => this._loadDbInfo())
     this.addEventListener('drawer:toggle', this._toggleDrawer)
-    addPwaUpdateListener((updateAvailable) => {
-      this.updateAvailable = updateAvailable
-    })
   }
 
   firstUpdated () {
