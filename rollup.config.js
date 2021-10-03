@@ -17,7 +17,7 @@ const baseConfig = createSpaConfig({
   workbox: {
     navigateFallbackDenylist: [/^\/api.*/],
     skipWaiting: false,
-    clientsCliam: false
+    clientsClaim: false
   },
   html: {
     transform: [
