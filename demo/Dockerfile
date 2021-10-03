@@ -12,9 +12,6 @@ RUN gunzip example.gramps.gz
 RUN gramps -C Example -i example.gramps --config=database.backend:sqlite --config=database.path:/app/.gramps/grampsdb
 RUN rm -rf appcache
 
-# install graphviz
-RUN python3 -m pip install graphviz
-
 ENV HOME /app
 
 # build full-text search index
