@@ -21,9 +21,9 @@ export class GrampsjsView extends LitElement {
     ]
   }
 
-  // shouldUpdate() {
-  //   return this.active;
-  // }
+  shouldUpdate() {
+    return this.active
+  }
 
   static get properties() {
     return {
