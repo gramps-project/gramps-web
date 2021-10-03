@@ -1,4 +1,4 @@
-import {PwaUpdateAvailable} from 'pwa-helper-components/pwa-update-available.js'
+import {PwaUpdateAvailable} from 'pwa-helper-components/pwa-update-available/PwaUpdateAvailable.js'
 
 import '@material/mwc-snackbar'
 import '@material/mwc-button'
