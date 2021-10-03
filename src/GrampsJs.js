@@ -1,8 +1,6 @@
 import {LitElement, html, css} from 'lit'
 import {installRouter} from 'pwa-helpers/router.js'
 import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
-import {addPwaUpdateListener} from 'pwa-helper-components'
-import 'pwa-helper-components/pwa-update-available.js'
 import '@material/mwc-drawer'
 import '@material/mwc-tab'
 import '@material/mwc-tab-bar'
@@ -26,6 +24,7 @@ import './dayjs_locales.js'
 import './components/GrampsjsAppBar.js'
 import './components/GrampsJsListItem.js'
 import './components/GrampsjsLogin.js'
+import './components/GrampsjsUpdateAvailable.js'
 import './views/GrampsjsViewPeople.js'
 import './views/GrampsjsViewFamilies.js'
 import './views/GrampsjsViewPlaces.js'
@@ -73,7 +72,7 @@ const LOADING_STATE_READY = 10
 const BASE_DIR = ''
 
 export class GrampsJs extends LitElement {
-  static get properties() {
+  static get properties () {
     return {
       wide: {type: Boolean},
       progress: {type: Boolean},
@@ -91,7 +90,7 @@ export class GrampsJs extends LitElement {
     }
   }
 
-  constructor() {
+  constructor () {
     super()
     this.wide = false
     this.progress = false
@@ -108,7 +107,7 @@ export class GrampsJs extends LitElement {
     this._pageId = ''
   }
 
-  static get styles() {
+  static get styles () {
     return [
       sharedStyles,
       css`
@@ -209,26 +208,30 @@ export class GrampsJs extends LitElement {
     ]
   }
 
-  render() {
+  render () {
     return html`
     ${this.renderContent()}
     <mwc-snackbar id="error-snackbar" leading></mwc-snackbar>
     <mwc-snackbar id="notification-snackbar" leading></mwc-snackbar>
-    <pwa-update-available>
+    <grampsjs-update-available>
       <mwc-snackbar
         leading
+        open
         timeoutMs="-1"
-        open="${this.updateAvailable}"
         labelText="${this._('A new version of the app is available.')}"
       >
-        <mwc-button slot="action">${this._('Refresh')}</mwc-button>
+        <mwc-button slot="action" @click=${this._postUpdateMessage}>${this._('Refresh')}</mwc-button>
       </mwc-snackbar>
-    </pwa-update-available>
+    </grampsjs-update-available>
     `
   }
 
+  _postUpdateMessage () {
+    fireEvent(this, 'update:reload')
+  }
+
   // eslint-disable-next-line class-methods-use-this
-  _renderInitial() {
+  _renderInitial () {
     return html`<div class="center-xy">
       <div>
         <mwc-linear-progress indeterminate></mwc-linear-progress>
@@ -237,17 +240,17 @@ export class GrampsJs extends LitElement {
 `
   }
 
-  _renderNoConn() {
+  _renderNoConn () {
     return html`No connection`
   }
 
-  _renderLogin() {
+  _renderLogin () {
     return html`
     <grampsjs-login .strings="${this.strings}"></grampsjs-login>
     `
   }
 
-  _renderOnboarding() {
+  _renderOnboarding () {
     return html`
     <div class="center-xy" id="onboarding">
       <grampsjs-view-settings-onboarding
@@ -260,7 +263,7 @@ export class GrampsJs extends LitElement {
     `
   }
 
-  renderContent() {
+  renderContent () {
     if (this.loadingState === LOADING_STATE_INITIAL) {
       return this._renderInitial()
     }
@@ -383,7 +386,7 @@ export class GrampsJs extends LitElement {
     `
   }
 
-  _tabHtml(tabs) {
+  _tabHtml (tabs) {
     if (!(this._page in tabs)) {
       return ''
     }
@@ -394,21 +397,21 @@ export class GrampsJs extends LitElement {
   `
   }
 
-  _toggleDrawer() {
+  _toggleDrawer () {
     const drawer = this.shadowRoot.getElementById('app-drawer')
     if (drawer !== null) {
       drawer.open = !drawer.open
     }
   }
 
-  _closeDrawer() {
+  _closeDrawer () {
     const drawer = this.shadowRoot.getElementById('app-drawer')
     if (drawer !== null && drawer.open) {
       drawer.open = false
     }
   }
 
-  connectedCallback() {
+  connectedCallback () {
     super.connectedCallback()
     this._loadDbInfo()
     window.addEventListener('db:changed', () => this._loadDbInfo())
@@ -418,9 +421,9 @@ export class GrampsJs extends LitElement {
     })
   }
 
-  firstUpdated() {
+  firstUpdated () {
     installRouter((location) => this._loadPage(decodeURIComponent(location.pathname)))
-    installMediaQueryWatcher('(min-width: 768px)', (matches) => {this.wide = matches})
+    installMediaQueryWatcher('(min-width: 768px)', (matches) => { this.wide = matches })
     this.addEventListener('nav', this._handleNav.bind(this))
     this.addEventListener('grampsjs:error', this._handleError.bind(this))
     this.addEventListener('grampsjs:notification', this._handleNotification.bind(this))
@@ -430,7 +433,7 @@ export class GrampsJs extends LitElement {
     window.addEventListener('settings:changed', this._handleSettings.bind(this))
   }
 
-  _loadDbInfo() {
+  _loadDbInfo () {
     apiGet('/api/metadata/')
       .then(data => {
         if ('error' in data) {
@@ -446,13 +449,12 @@ export class GrampsJs extends LitElement {
       })
   }
 
-  _setReady() {
+  _setReady () {
     this.loadingState = LOADING_STATE_READY
     this.setPermissions()
   }
 
-
-  _loadPage(path) {
+  _loadPage (path) {
     this._disableEditMode()
     if (path === '/' || path === `${BASE_DIR}/`) {
       this._page = 'home'
@@ -476,16 +478,15 @@ export class GrampsJs extends LitElement {
     }
   }
 
-  _progressOn() {
+  _progressOn () {
     this.progress = true
   }
 
-  _progressOff() {
+  _progressOff () {
     this.progress = false
   }
 
-
-  _handleTab(page) {
+  _handleTab (page) {
     if (page !== this._page) {
       const href = `${BASE_DIR}/${page}`
       this._loadPage(href)
@@ -494,7 +495,7 @@ export class GrampsJs extends LitElement {
     }
   }
 
-  _handleNav(e) {
+  _handleNav (e) {
     const {path} = e.detail
     const page = path.split('/')[0]
     const pageId = path.split('/')[1]
@@ -510,17 +511,17 @@ export class GrampsJs extends LitElement {
     fireEvent(this, 'edit-mode:off', {})
   }
 
-  _handleError(e) {
+  _handleError (e) {
     const {message} = e.detail
     this._showError(message)
   }
 
-  _handleNotification(e) {
+  _handleNotification (e) {
     const {message} = e.detail
     this._showToast(message)
   }
 
-  update(changed) {
+  update (changed) {
     super.update(changed)
     if (changed.has('settings')) {
       if (this.settings.lang && this.settings.lang !== this._lang) {
@@ -529,7 +530,7 @@ export class GrampsJs extends LitElement {
     }
   }
 
-  _loadStrings(strings, lang) {
+  _loadStrings (strings, lang) {
     apiGet(`/api/translations/${lang}?strings=${JSON.stringify(strings)}`)
       .then(data => {
         if ('data' in data) {
@@ -546,32 +547,32 @@ export class GrampsJs extends LitElement {
       })
   }
 
-  _showError(msg) {
+  _showError (msg) {
     const snackbar = this.shadowRoot.getElementById('error-snackbar')
     snackbar.labelText = `Error: ${msg}`
     snackbar.show()
   }
 
-  _showToast(msg) {
+  _showToast (msg) {
     const snackbar = this.shadowRoot.getElementById('notification-snackbar')
     snackbar.labelText = msg
     snackbar.show()
   }
 
-  _openUserMenu() {
+  _openUserMenu () {
     const userMenu = this.shadowRoot.getElementById('user-menu')
     userMenu.open = true
   }
 
-  _handleLogout() {
+  _handleLogout () {
     this.loadingState = LOADING_STATE_UNAUTHORIZED
   }
 
-  _handleSettings() {
+  _handleSettings () {
     this.settings = getSettings()
   }
 
-  setPermissions() {
+  setPermissions () {
     const permissions = getPermissions()
     // If permissions is null, authorization is disabled and anything goes
     if (permissions === null) {
@@ -586,12 +587,10 @@ export class GrampsJs extends LitElement {
     }
   }
 
-  _(s) {
+  _ (s) {
     if (s in this._strings) {
       return this._strings[s]
     }
     return s
   }
-
-
 }
