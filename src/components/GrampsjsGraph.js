@@ -68,6 +68,7 @@ class GrampsjsGraph extends LitElement {
         position: relative;
         left: 0;
         top: 0;
+        touch-action: none;
       }
 
       #graph svg .edge path {
