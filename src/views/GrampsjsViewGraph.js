@@ -12,6 +12,7 @@ export class GrampsjsViewGraph extends GrampsjsView {
       css`
       :host {
         margin: 0;
+        margin-top: -4px;
       }
 
       #outer-container {
@@ -48,10 +49,6 @@ export class GrampsjsViewGraph extends GrampsjsView {
       No home person selected. <a href="/settings">Settings</a>
       `
     }
-    if (this._graph === '') {
-      return html``
-    }
-    console.log(this._history.length)
     return html`
     <div id="outer-container">
       <grampsjs-graph
@@ -76,6 +73,9 @@ export class GrampsjsViewGraph extends GrampsjsView {
   }
 
   _backToHomePerson () {
+    if ((this.grampsId === this.settings.homePerson) && !this.loading && !this._graph) {
+      this._fetchData(this.settings.homePerson)
+    }
     this.grampsId = this.settings.homePerson
   }
 
@@ -117,7 +117,9 @@ export class GrampsjsViewGraph extends GrampsjsView {
       colorfemales: '#EF9A9A',
       colorfamilies: '#000000',
       roundcorners: 'True',
-      papers: 'A0'
+      papers: 'A0',
+      arrow: '',
+      // ranksep: '0.3'
     }
     const data = await apiGet(`/api/reports/hourglass_graph/file?options=${encodeURIComponent(JSON.stringify(options))}`, false)
     this.loading = false
@@ -126,6 +128,7 @@ export class GrampsjsViewGraph extends GrampsjsView {
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
+      this._graph = ''
     }
   }
 

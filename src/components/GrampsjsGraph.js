@@ -56,6 +56,7 @@ class GrampsjsGraph extends LitElement {
         width: 100%;
         height: 100%;
         overflow: hidden;
+        background-color: rgb(230, 230, 230);
       }
 
       #graph svg text {
@@ -72,18 +73,22 @@ class GrampsjsGraph extends LitElement {
       }
 
       #graph svg .edge path {
-        stroke-width: 1px;
-        stroke: #ccc;
+        stroke-width: 1.5px;
+        stroke: #666;
       }
 
       #graph svg .edge polygon {
-        fill: #ccc;
-        stroke: #ccc;
+        fill: #666;
+        stroke: #666;
         stroke-width: 0;
       }
 
-      g.node polygon, g.node path {
+      g.node polygon, g.node path, g.node ellipse {
         fill: #ffffff;
+      }
+
+      g.node ellipse {
+        stroke: none;
       }
 
       g#node1 polygon {
@@ -92,10 +97,6 @@ class GrampsjsGraph extends LitElement {
 
       g#node1 path {
         fill: #EF9A9A;
-      }
-
-      svg ellipse {
-        stroke: #999;
       }
 
       g.node text {
@@ -110,6 +111,11 @@ class GrampsjsGraph extends LitElement {
 
       g.node polygon, g.node path, g.node text {
         cursor: pointer;
+      }
+
+
+      g.node polygon, g.node path, g.node ellipse {
+        stroke-width: 1.5px;
       }
 
       svg {
@@ -318,6 +324,7 @@ class GrampsjsGraph extends LitElement {
       if (this._svg === null) {
         return
       }
+      this._svg.querySelector('polygon[fill="white"]').style.fill = 'none'
       // use arrow functions to bind correct 'this'
       this._svg.addEventListener('pointerup', (e) => this._pUp(e))
       this._svg.addEventListener('pointerleave', (e) => this._pUp(e))
