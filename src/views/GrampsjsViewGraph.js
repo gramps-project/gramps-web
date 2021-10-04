@@ -24,10 +24,9 @@ export class GrampsjsViewGraph extends GrampsjsView {
   static get properties () {
     return {
       grampsId: {type: String},
+      disableBack: {type: Boolean},
+      disableHome: {type: Boolean},
       _data: {type: Array},
-      // _depth: {type: Number},
-      // _zoom: {type: Number},
-      _history: {type: Array},
       _graph: {type: String}
     }
   }
@@ -36,9 +35,8 @@ export class GrampsjsViewGraph extends GrampsjsView {
     super()
     this.grampsId = ''
     this._data = []
-    // this._depth = 3
-    // this._zoom = 1
-    this._history = []
+    this.disableBack = false
+    this.disableHome = false
     this._graph = ''
   }
 
@@ -53,10 +51,8 @@ export class GrampsjsViewGraph extends GrampsjsView {
     <div id="outer-container">
       <grampsjs-graph
         src="${this._graph}"
-        @graph:back="${this._prevPerson}"
-        @graph:person="${this._goToPerson}"
-        @graph:home="${this._backToHomePerson}"
-        ?disableBack="${this._history.length <= 1}"
+        ?disableBack="${this.disableBack}"
+        ?disableHome="${this.disableHome}"
       >
       </grampsjs-graph>
     </div>
@@ -67,36 +63,10 @@ export class GrampsjsViewGraph extends GrampsjsView {
     fireEvent(this, 'nav', {path: `person/${this.grampsId}`})
   }
 
-  _prevPerson () {
-    this._history.pop()
-    this.grampsId = this._history.pop()
-  }
-
-  _backToHomePerson () {
-    if ((this.grampsId === this.settings.homePerson) && !this.loading && !this._graph) {
-      this._fetchData(this.settings.homePerson)
-    }
-    this.grampsId = this.settings.homePerson
-  }
-
   update (changed) {
     super.update(changed)
     if (changed.has('grampsId')) {
       this._fetchData(this.grampsId)
-      this._history.push(this.grampsId)
-      // limit history to 100 people
-      this._history = this._history.slice(-100)
-    }
-    // if (changed.has('_depth')) {
-    //   this.setZoom()
-    //   this._fetchData(this.grampsId)
-    // }
-    if (changed.has('active')) {
-      // this.setZoom()
-      // const slider = this.shadowRoot.getElementById('slider')
-      // if (slider) {
-      //   slider.layout()
-      // }
     }
   }
 
@@ -118,7 +88,7 @@ export class GrampsjsViewGraph extends GrampsjsView {
       colorfamilies: '#000000',
       roundcorners: 'True',
       papers: 'A0',
-      arrow: '',
+      arrow: ''
       // ranksep: '0.3'
     }
     const data = await apiGet(`/api/reports/hourglass_graph/file?options=${encodeURIComponent(JSON.stringify(options))}`, false)
@@ -132,32 +102,13 @@ export class GrampsjsViewGraph extends GrampsjsView {
     }
   }
 
-  // _updateDepth (event) {
-  //   if (event.detail.value) {
-  //     this._depth = event.detail.value
-  //   }
-  // }
-
-  // setZoom () {
-  //   this._zoom = this.getZoom()
-  // }
-
   _resizeHandler () {
     clearTimeout(this._resizeTimer)
-    // this._resizeTimer = setTimeout(this.setZoom.bind(this), 250)
   }
 
   firstUpdated () {
     window.addEventListener('resize', this._resizeHandler.bind(this))
-    window.addEventListener('pedigree:person-selected', this._selectPerson.bind(this))
-    // this.setZoom()
     this._fetchData(this.grampsId)
-  }
-
-  async _selectPerson (event) {
-    const {grampsId} = event.detail
-    await this._fetchData(grampsId)
-    this.grampsId = grampsId
   }
 }
 

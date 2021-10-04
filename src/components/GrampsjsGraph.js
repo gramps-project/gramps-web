@@ -130,6 +130,7 @@ class GrampsjsGraph extends LitElement {
       src: {type: String},
       scale: {type: Number},
       disableBack: {type: Boolean},
+      disableHome: {type: Boolean},
       _svg: {type: Object},
       _svgPointerDown: {type: Boolean},
       _zoomInPointerDown: {type: Boolean},
@@ -144,6 +145,7 @@ class GrampsjsGraph extends LitElement {
     this.src = ''
     this.scale = _zoomDefault
     this.disableBack = true
+    this.disableHome = false
     this._svgPointerDown = false
     this._zoomInPointerDown = false
     this._zoomOutPointerDown = false
@@ -183,7 +185,7 @@ class GrampsjsGraph extends LitElement {
         <mwc-icon-button icon="crop_free" @click=${this._resetZoom} style="margin-bottom:-10px;"></mwc-icon-button>
       </div>
       <div>
-        <mwc-icon-button icon="home" @click=${this._backToHomePerson} style="margin-bottom:-10px;"></mwc-icon-button>
+        <mwc-icon-button icon="home" @click=${this._backToHomePerson} style="margin-bottom:-10px;" ?disabled=${this.disableHome}></mwc-icon-button>
       </div>
       <div>
         <mwc-icon-button
@@ -197,34 +199,18 @@ class GrampsjsGraph extends LitElement {
         <mwc-icon-button icon="person" @click=${this._goToPerson}></mwc-icon-button>
       </div>
       `
-    // <div>
-    //   <mwc-icon-button icon="settings" id="btn-controls" @click=${this._openMenuControls}></mwc-icon-button>
-    //   <mwc-menu
-    //     id="menu-controls"
-    //     corner="TOP_LEFT"
-    //     menuCorner="START" x="0" y="0"
-    //     defaultFocus="NONE"
-    //     >
-    //     <mwc-list-item graphic="icon">
-    //       <mwc-icon slot="graphic">check</mwc-icon>
-    //     </mwc-list-item>
-    //     <mwc-list-item>Item 1</mwc-list-item>
-    //     <mwc-list-item>Item 2</mwc-list-item>
-    //     <mwc-list-item>Item 3</mwc-list-item>
-    //   </mwc-menu>
-    // </div>
   }
 
   _backToHomePerson () {
-    fireEvent(this, 'graph:home')
+    fireEvent(this, 'tree:home')
   }
 
   _goToPerson () {
-    fireEvent(this, 'graph:person')
+    fireEvent(this, 'tree:person')
   }
 
   _handleBack () {
-    fireEvent(this, 'graph:back')
+    fireEvent(this, 'tree:back')
   }
 
   _zoomIn (f) {
@@ -411,12 +397,6 @@ class GrampsjsGraph extends LitElement {
     const menu = this.shadowRoot.getElementById('menu-controls')
     menu.open = true
   }
-
-  // firstUpdated () {
-  //   const btn = this.shadowRoot.getElementById('btn-controls')
-  //   const menu = this.shadowRoot.getElementById('menu-controls')
-  //   menu.anchor = btn
-  // }
 
   _handleResize () {
     this.scaleSvg(this.scale)

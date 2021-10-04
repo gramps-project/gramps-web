@@ -6,6 +6,7 @@ import '@material/mwc-icon'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPedigree.js'
 import {apiGet} from '../api.js'
+import {fireEvent} from '../util.js'
 
 const BASE_DIR = ''
 
@@ -36,6 +37,7 @@ export class GrampsjsViewPedigree extends GrampsjsView {
       #outer-container {
         clear: left;
         padding-top: 30px;
+        padding-left: 30px;
       }
 
 
@@ -72,6 +74,8 @@ export class GrampsjsViewPedigree extends GrampsjsView {
   static get properties () {
     return {
       grampsId: {type: String},
+      disableBack: {type: Boolean},
+      disableHome: {type: Boolean},
       _data: {type: Array},
       _depth: {type: Number},
       _zoom: {type: Number},
@@ -82,6 +86,8 @@ export class GrampsjsViewPedigree extends GrampsjsView {
   constructor () {
     super()
     this.grampsId = ''
+    this.disableBack = false
+    this.disableHome = false
     this._data = []
     this._depth = 3
     this._zoom = 1
@@ -104,7 +110,6 @@ export class GrampsjsViewPedigree extends GrampsjsView {
     }
     return html`
     <section id="pedigree-section">
-
       <div id="outer-container">
         <div style="transform: scale(${this._zoom}); transform-origin: top left;" id="pedigree-container">
           <grampsjs-pedigree
@@ -128,7 +133,7 @@ export class GrampsjsViewPedigree extends GrampsjsView {
       <div>
         <mwc-icon-button icon="home"
         @click=${this._backToHomePerson}
-          ?disabled="${this.grampsId === this.settings.homePerson}"
+          ?disabled="${this.disableHome}"
           style="margin-bottom:-10px;"
         ></mwc-icon-button>
       </div>
@@ -136,7 +141,7 @@ export class GrampsjsViewPedigree extends GrampsjsView {
         <mwc-icon-button
           icon="arrow_back"
           @click=${this._prevPerson}
-          ?disabled=${this._history.length < 2}
+          ?disabled=${this.disableBack}
           style="margin-bottom:-10px;"
         ></mwc-icon-button>
       </div>
@@ -171,22 +176,21 @@ export class GrampsjsViewPedigree extends GrampsjsView {
     menu.open = true
   }
 
-  _prevPerson () {
-    this._history.pop()
-    this.grampsId = this._history.pop()
+  _backToHomePerson () {
+    fireEvent(this, 'tree:home')
   }
 
-  _backToHomePerson () {
-    this.grampsId = this.settings.homePerson
+  _prevPerson () {
+    fireEvent(this, 'tree:back')
   }
 
   update (changed) {
     super.update(changed)
     if (changed.has('grampsId')) {
       this._fetchData(this.grampsId)
-      this._history.push(this.grampsId)
+      // this._history.push(this.grampsId)
       // limit history to 100 people
-      this._history = this._history.slice(-100)
+      // this._history = this._history.slice(-100)
     }
     if (changed.has('_depth')) {
       this.setZoom()
@@ -261,7 +265,7 @@ export class GrampsjsViewPedigree extends GrampsjsView {
 
   firstUpdated () {
     window.addEventListener('resize', this._resizeHandler.bind(this))
-    window.addEventListener('pedigree:person-selected', this._selectPerson.bind(this))
+    // window.addEventListener('pedigree:person-selected', this._selectPerson.bind(this))
     this.setZoom()
     this._fetchData(this.grampsId)
     const btn = this.shadowRoot.getElementById('btn-controls')
