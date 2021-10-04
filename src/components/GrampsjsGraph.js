@@ -144,7 +144,7 @@ class GrampsjsGraph extends LitElement {
     super()
     this.src = ''
     this.scale = _zoomDefault
-    this.disableBack = true
+    this.disableBack = false
     this.disableHome = false
     this._svgPointerDown = false
     this._zoomInPointerDown = false

@@ -1,5 +1,8 @@
 import {css, html} from 'lit'
 
+import '@material/mwc-icon-button'
+import '@material/mwc-icon'
+
 import {GrampsjsView} from './GrampsjsView.js'
 import '../views/GrampsjsViewGraph.js'
 import '../views/GrampsjsViewPedigree.js'
@@ -17,6 +20,18 @@ export class GrampsjsViewTree extends GrampsjsView {
 
       #outer-container {
         height: calc(100vh - 68px);
+      }
+
+      #select {
+        z-index: 1;
+        position: absolute;
+        top: 85px;
+        right: 25px;
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.9);
+        color: #b1b1b1;
+        --mdc-theme-text-disabled-on-light: #666;
+        --mdc-icon-size: 32px;
       }
     `]
   }
@@ -40,6 +55,25 @@ export class GrampsjsViewTree extends GrampsjsView {
     return html`
     ${this.view === 'pedigree' ? this._renderPedigree() : ''}
     ${this.view === 'graph' ? this._renderGraph() : ''}
+    ${this._renderSelect()}
+    `
+  }
+
+  _renderSelect () {
+    return html`
+    <div id="select">
+      <mwc-icon-button
+        ?disabled=${this.view === 'pedigree'}
+        @click=${() => { this.view = 'pedigree' }}
+        icon="text_rotation_none"
+        style="margin-left: -5px;"
+      ></mwc-icon-button>
+      <mwc-icon-button
+        ?disabled=${this.view === 'graph'}
+        @click=${() => { this.view = 'graph' }}
+        icon="text_rotate_vertical"
+        ></mwc-icon-button>
+    </div>
     `
   }
 
@@ -75,6 +109,14 @@ export class GrampsjsViewTree extends GrampsjsView {
     >
     </grampsjs-view-graph>
     `
+  }
+
+  _handleSelect (event) {
+    if (event.detail.index === 0) {
+      this.view = 'pedigree'
+    } else if (event.detail.index === 1) {
+      this.view = 'graph'
+    }
   }
 
   _prevPerson () {
