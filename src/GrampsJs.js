@@ -518,8 +518,9 @@ export class GrampsJs extends LitElement {
 
   update (changed) {
     super.update(changed)
-    if (changed.has('settings')) {
+    if (changed.has('settings') && this.loadingState > LOADING_STATE_UNAUTHORIZED_NOCONNECTION) {
       if (this.settings.lang && this.settings.lang !== this._lang) {
+        console.log(this.loadingState)
         this._loadStrings(grampsStrings, this.settings.lang)
       }
     }
