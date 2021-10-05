@@ -20,7 +20,7 @@ export function storeRefreshToken (refreshToken) {
 
 export function getPermissions () {
   const accessToken = localStorage.getItem('access_token')
-  if (!accessToken) {
+  if (!accessToken || accessToken === '1') {
     return null
   }
   try {
