@@ -48,7 +48,7 @@ export class GrampsjsViewTree extends GrampsjsView {
     super()
     this.grampsId = ''
     this.view = 'pedigree'
-    this._history = []
+    this._history = this.grampsId ? [this.grampsId] : []
   }
 
   renderContent () {

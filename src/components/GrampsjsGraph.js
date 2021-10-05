@@ -136,7 +136,9 @@ class GrampsjsGraph extends LitElement {
       _zoomInPointerDown: {type: Boolean},
       _zoomOutPointerDown: {type: Boolean},
       _pointerOrigin: {type: Object},
-      _interval: {type: Object}
+      _interval: {type: Object},
+      _evcache: {type: Array},
+      _prevDiff: {type: Number}
     }
   }
 
@@ -149,6 +151,8 @@ class GrampsjsGraph extends LitElement {
     this._svgPointerDown = false
     this._zoomInPointerDown = false
     this._zoomOutPointerDown = false
+    this._evCache = []
+    this._prevDiff = -1
   }
 
   render () {
@@ -316,9 +320,22 @@ class GrampsjsGraph extends LitElement {
       this._svg.addEventListener('pointerleave', (e) => this._pUp(e))
       this._svg.addEventListener('pointerdown', (e) => this._pDown(e))
       this._svg.addEventListener('pointermove', (e) => this._pMove(e))
+      this._svg.addEventListener('wheel', (e) => this._wheel(e))
+      this._svg.addEventListener('dblclick', (e) => this._dblclick(e))
       this.scaleSvg(this.scale)
       this.centerSvg()
     })
+  }
+
+  _dblclick (e) {
+    this._zoomIn(1.3)
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  // wheel zoom
+  _wheel (event) {
+    this.scale *= 1 - event.deltaY / 500
   }
 
   // start panning
@@ -329,24 +346,71 @@ class GrampsjsGraph extends LitElement {
     this._svgPointerDown = true
     this._pointerOrigin = getPointFromEvent(this._svg, event)
     this._svg.style.cursor = 'grabbing'
+    // event cache for pinch zoom
+    this._evCache.push(event)
   }
 
-  // pan
   _pMove (event) {
     if (!this._svgPointerDown) {
       return
     }
+    // code for panning
     event.preventDefault()
     const pointerPosition = getPointFromEvent(this._svg, event)
     const viewBox = this._svg.viewBox.baseVal
     viewBox.x -= (pointerPosition.x - this._pointerOrigin.x)
     viewBox.y -= (pointerPosition.y - this._pointerOrigin.y)
+    // code for pich zoom
+    for (let i = 0; i < this._evCache.length; i++) {
+      if (event.pointerId === this._evCache[i].pointerId) {
+        this._evCache[i] = event
+        break
+      }
+    }
+    // If two pointers are down, check for pinch gestures
+    if (this._evCache.length === 2) {
+      // Calculate the distance between the two pointers
+      const curDiff = Math.hypot(
+        this._evCache[0].clientX - this._evCache[1].clientX,
+        this._evCache[0].clientY - this._evCache[1].clientY
+      )
+
+      if (this._prevDiff > 0) {
+        const oldScale = this.scale
+        if (curDiff > this._prevDiff) {
+          // The distance between the two pointers has increased
+        }
+        if (curDiff < this._prevDiff) {
+          // The distance between the two pointers has decreased
+        }
+        this.scale = oldScale * curDiff / this._prevDiff
+      }
+      // Cache the distance for the next move event
+      this._prevDiff = curDiff
+    }
+  }
+
+  removeEvent (ev) {
+    // Remove this event from the target's cache
+    for (let i = 0; i < this._evCache.length; i++) {
+      if (this._evCache[i].pointerId === ev.pointerId) {
+        this._evCache.splice(i, 1)
+        break
+      }
+    }
   }
 
   // stop panning
   _pUp (event) {
     this._svgPointerDown = false
     this._svg.style.cursor = 'grab'
+    // Remove this pointer from the cache and reset the target's
+    // background and border
+    this.removeEvent(event)
+    // If the number of pointers down is less than two then reset diff tracker
+    if (this._evCache.length < 2) {
+      this._prevDiff = -1
+    }
   }
 
   scaleSvg (s) {
