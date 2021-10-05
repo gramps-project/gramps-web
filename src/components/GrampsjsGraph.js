@@ -356,10 +356,6 @@ class GrampsjsGraph extends LitElement {
     }
     // code for panning
     event.preventDefault()
-    const pointerPosition = getPointFromEvent(this._svg, event)
-    const viewBox = this._svg.viewBox.baseVal
-    viewBox.x -= (pointerPosition.x - this._pointerOrigin.x)
-    viewBox.y -= (pointerPosition.y - this._pointerOrigin.y)
     // code for pich zoom
     for (let i = 0; i < this._evCache.length; i++) {
       if (event.pointerId === this._evCache[i].pointerId) {
@@ -387,6 +383,12 @@ class GrampsjsGraph extends LitElement {
       }
       // Cache the distance for the next move event
       this._prevDiff = curDiff
+    } else {
+      // code for panning
+      const pointerPosition = getPointFromEvent(this._svg, event)
+      const viewBox = this._svg.viewBox.baseVal
+      viewBox.x -= (pointerPosition.x - this._pointerOrigin.x)
+      viewBox.y -= (pointerPosition.y - this._pointerOrigin.y)
     }
   }
 
