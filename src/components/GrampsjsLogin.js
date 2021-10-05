@@ -6,10 +6,10 @@ import '@material/mwc-button'
 import '@material/mwc-textfield'
 import '@material/mwc-circular-progress'
 
+import './GrampsjsPasswordManagerPolyfill'
 import {sharedStyles} from '../SharedStyles.js'
 import {apiGetTokens, apiResetPassword, apiRegisterUser} from '../api.js'
 import {fireEvent} from '../util.js'
-
 
 const BASE_DIR = ''
 
@@ -66,7 +66,8 @@ class GrampsjsLogin extends LitElement {
       resetpw: {type: Boolean},
       register: {type: Boolean},
       strings: {type: Object},
-      isFormValid: {type: Boolean}
+      isFormValid: {type: Boolean},
+      credentials: {type: Object}
     }
   }
 
@@ -75,6 +76,7 @@ class GrampsjsLogin extends LitElement {
     this.resetpw = false
     this.register = false
     this.isFormValid = false
+    this.credentials = {}
   }
 
   render () {
@@ -91,8 +93,21 @@ class GrampsjsLogin extends LitElement {
     return html`
     <div id="login-container">
       <form id="login-form" action="${BASE_DIR}/" @keydown="${this._handleLoginKey}">
-        <mwc-textfield outlined id="username" label="Username"></mwc-textfield>
-        <mwc-textfield outlined id="password" label="Password" type="password"></mwc-textfield>
+        <mwc-textfield
+          outlined
+          id="username"
+          label="Username"
+          @input="${this._credChanged}"
+          value="${this.credentials.username || ''}"
+        ></mwc-textfield>
+        <mwc-textfield
+          outlined
+          id="password"
+          label="Password"
+          type="password"
+          @input="${this._credChanged}"
+          value="${this.credentials.password || ''}"
+        ></mwc-textfield>
         <mwc-button raised label="submit" type="submit" @click="${this._submitLogin}">
           <span slot="trailingIcon" style="display:none;">
             <mwc-circular-progress indeterminate density="-7" closed id="login-progress">
@@ -109,13 +124,23 @@ class GrampsjsLogin extends LitElement {
         </p>
       </form>
       <grampsjs-password-manager-polyfill
-        .step=${this._step}
-        .stepData=${this._stepData}
+        .credentials=${this.credentials}
         @form-submitted=${this._submitLogin}
         @value-changed=${this._loginFormChanged}
       ></grampsjs-password-manager-polyfill>
     </div>
     `
+  }
+
+  firstUpdated () {
+    const pf = this.shadowRoot.querySelector('grampsjs-password-manager-polyfill')
+    if (pf !== null) {
+      pf.boundingRect = this.getBoundingClientRect()
+    }
+  }
+
+  _credChanged (e) {
+    this.credentials = {...this.credentials, [e.target.id]: e.target.value}
   }
 
   _renderResetPw () {
@@ -189,12 +214,10 @@ class GrampsjsLogin extends LitElement {
   }
 
   async _submitLogin () {
-    const userField = this.shadowRoot.getElementById('username')
-    const pwField = this.shadowRoot.getElementById('password')
     const submitProgress = this.shadowRoot.getElementById('login-progress')
     submitProgress.parentElement.style.display = 'block'
     submitProgress.closed = false
-    apiGetTokens(userField.value, pwField.value)
+    apiGetTokens(this.credentials.username, this.credentials.password)
       .then((res) => {
         if ('error' in res) {
           submitProgress.parentElement.style.display = 'none'
@@ -207,8 +230,7 @@ class GrampsjsLogin extends LitElement {
   }
 
   _loginFormChanged (ev) {
-    // user = ev.detail.username
-    // pw = ev.detail.password
+    this.credentials = {...this.credentials, ...ev.detail.value}
   }
 
   async _resetPw () {
