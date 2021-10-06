@@ -31,6 +31,11 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
   }
 
   // eslint-disable-next-line class-methods-use-this
+  _getAddPath (item) {
+    return 'new_person'
+  }
+
+  // eslint-disable-next-line class-methods-use-this
   _formatRow(row, obj) {
     const formattedRow = {
       grampsId: row.gramps_id,

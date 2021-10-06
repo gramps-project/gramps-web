@@ -29,6 +29,12 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
     return `repository/${item.grampsId}`
   }
 
+
+  // eslint-disable-next-line class-methods-use-this
+  _getAddPath (item) {
+    return 'new_repository'
+  }
+
   // eslint-disable-next-line class-methods-use-this
   _formatRow(row, obj) {
     const formattedRow = {

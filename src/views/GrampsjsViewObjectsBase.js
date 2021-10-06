@@ -6,9 +6,12 @@ Base view for lists of Gramps objects, e.g. people, events, ...
 import {html, css} from 'lit'
 import {mdiSort, mdiSortAscending, mdiSortDescending} from '@mdi/js'
 
+import '@material/mwc-fab'
+
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPagination.js'
 import {apiGet} from '../api.js'
+import {fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
 
 export class GrampsjsViewObjectsBase extends GrampsjsView {
@@ -87,6 +90,12 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
         position: relative;
         top: -4px;
       }
+
+      mwc-fab {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+      }
       `
     ]
   }
@@ -100,7 +109,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       _page: {type: Number},
       _pages: {type: Number},
       _pageSize: {type: Number},
-      _sort: {type: String}
+      _sort: {type: String},
+      canAdd: {type: Boolean}
     }
   }
 
@@ -112,6 +122,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     this._pages = -1
     this._pageSize = 20
     this._sort = ''
+    this.canAdd = false
   }
 
   renderContent() {
@@ -142,6 +153,15 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       @page:changed="${this._handlePageChanged}"
       .strings="${this.strings}"
       ></grampsjs-pagination>
+
+    ${this.canAdd ? this.renderFab() : ''}
+    `
+  }
+
+
+  renderFab () {
+    return html`
+    <mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab>
     `
   }
 
@@ -155,7 +175,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
 
 
   _handleClick(obj) {
-    this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: this._getItemPath(obj)}}))
+    fireEvent(this, 'nav', {path: this._getItemPath(obj)})
+  }
+
+  _handleClickAdd () {
+    fireEvent(this, 'nav', {path: this._getAddPath()})
   }
 
   _renderSortBtn(column) {
@@ -229,6 +253,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
 
   // eslint-disable-next-line class-methods-use-this
   _getItemPath(item) {
+    return ''
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _getAddPath(item) {
     return ''
   }
 

@@ -339,15 +339,16 @@ export class GrampsJs extends LitElement {
         <grampsjs-view-dashboard class="page" ?active=${this._page === 'home'} .strings="${this._strings}" .dbInfo="${this._dbInfo}"></grampsjs-view-dashboard>
         <grampsjs-view-blog class="page" ?active=${this._page === 'blog'} .strings="${this._strings}"></grampsjs-view-blog>
 
-        <grampsjs-view-people class="page" ?active=${this._page === 'people'} .strings="${this._strings}"></grampsjs-view-people>
-        <grampsjs-view-families class="page" ?active=${this._page === 'families'} .strings="${this._strings}"></grampsjs-view-families>
-        <grampsjs-view-events class="page" ?active=${this._page === 'events'} .strings="${this._strings}"></grampsjs-view-events>
-        <grampsjs-view-places class="page" ?active=${this._page === 'places'} .strings="${this._strings}"></grampsjs-view-places>
-        <grampsjs-view-sources class="page" ?active=${this._page === 'sources'} .strings="${this._strings}"></grampsjs-view-sources>
-        <grampsjs-view-citations class="page" ?active=${this._page === 'citations'} .strings="${this._strings}"></grampsjs-view-citations>
-        <grampsjs-view-repositories class="page" ?active=${this._page === 'repositories'} .strings="${this._strings}"></grampsjs-view-repositories>
-        <grampsjs-view-notes class="page" ?active=${this._page === 'notes'} .strings="${this._strings}"></grampsjs-view-notes>
-        <grampsjs-view-media-objects class="page" ?active=${this._page === 'medialist'} .strings="${this._strings}"></grampsjs-view-media-objects>
+        <grampsjs-view-people class="page" ?active=${this._page === 'people'} .strings="${this._strings}" ?canAdd=${this.canAdd}></grampsjs-view-people>
+        <grampsjs-view-families class="page" ?active=${this._page === 'families'} .strings="${this._strings}" ?canAdd=${this.canAdd && this.canEdit}></grampsjs-view-families>
+        <grampsjs-view-events class="page" ?active=${this._page === 'events'} .strings="${this._strings}" ?canAdd=${this.canAdd}></grampsjs-view-events>
+        <grampsjs-view-places class="page" ?active=${this._page === 'places'} .strings="${this._strings}" ?canAdd=${this.canAdd}></grampsjs-view-places>
+        <grampsjs-view-sources class="page" ?active=${this._page === 'sources'} .strings="${this._strings}" ?canAdd=${this.canAdd}></grampsjs-view-sources>
+        <grampsjs-view-citations class="page" ?active=${this._page === 'citations'} .strings="${this._strings}" ?canAdd=${this.canAdd}></grampsjs-view-citations>
+        <grampsjs-view-repositories class="page" ?active=${this._page === 'repositories'} .strings="${this._strings}" ?canAdd=${this.canAdd}></grampsjs-view-repositories>
+        <grampsjs-view-notes class="page" ?active=${this._page === 'notes'} .strings="${this._strings}" ?canAdd=${this.canAdd}></grampsjs-view-notes>
+        <grampsjs-view-media-objects class="page" ?active=${this._page === 'medialist'} .strings="${this._strings}" ?canAdd=${this.canAdd && this.canEdit}></grampsjs-view-media-objects>
+
         <grampsjs-view-map class="page" ?active=${this._page === 'map'} .strings="${this._strings}"></grampsjs-view-map>
         <grampsjs-view-tree class="page" ?active=${this._page === 'tree'} grampsId="${this.settings.homePerson}" .strings="${this._strings}" .settings="${this.settings}"></grampsjs-view-tree>
         <grampsjs-view-graph class="page" ?active=${this._page === 'graph'} grampsId="${this.settings.homePerson}" .strings="${this._strings}" .settings="${this.settings}"></grampsjs-view-graph>
