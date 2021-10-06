@@ -32,7 +32,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
 
   // eslint-disable-next-line class-methods-use-this
   _getAddPath (item) {
-    return 'new_citation'
+    return 'new_media'
   }
 
   // eslint-disable-next-line class-methods-use-this
