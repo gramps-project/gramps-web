@@ -104,8 +104,6 @@ export class GrampsjsObjectForm extends LitElement {
         ${this.renderForm()}
       </div>
 
-      // <pre>${JSON.stringify(this.data, null, 2)}</pre>
-
       <mwc-button slot="primaryAction" dialogAction="ok" @click="${this._handleDialogSave}">
         ${this._('_Save')}
       </mwc-button>
