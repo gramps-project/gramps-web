@@ -26,6 +26,8 @@ export class GrampsjsViewGraph extends GrampsjsView {
       grampsId: {type: String},
       disableBack: {type: Boolean},
       disableHome: {type: Boolean},
+      nAnc: {type: Number},
+      nDesc: {type: Number},
       _data: {type: Array},
       _graph: {type: String}
     }
@@ -35,6 +37,8 @@ export class GrampsjsViewGraph extends GrampsjsView {
     super()
     this.grampsId = ''
     this._data = []
+    this.nAnc = 3
+    this.nDesc = 1
     this.disableBack = false
     this.disableHome = false
     this._graph = ''
@@ -51,12 +55,47 @@ export class GrampsjsViewGraph extends GrampsjsView {
     <div id="outer-container">
       <grampsjs-graph
         src="${this._graph}"
+        nAnc="${this.nAnc}"
+        nDesc="${this.nDesc}"
         ?disableBack="${this.disableBack}"
         ?disableHome="${this.disableHome}"
+        .strings="${this.strings}"
+        @tree:increaseNAnc=${() => this._changeNAnc(1)}
+        @tree:decreaseNAnc=${() => this._changeNAnc(-1)}
+        @tree:increaseNDesc=${() => this._changeNDesc(1)}
+        @tree:decreaseNDesc=${() => this._changeNDesc(-1)}
+        @tree:setNAnc=${this._setNAnc}
+        @tree:setNDesc=${this._setNDesc}
       >
       </grampsjs-graph>
     </div>
   `
+  }
+
+  _changeNAnc (n) {
+    if ((n === 0) || this.nAnc + n < 0) {
+      return
+    }
+    this.nAnc += n
+    this._fetchData(this.grampsId)
+  }
+
+  _setNAnc (event) {
+    this.nAnc = event.detail.data
+    this._fetchData(this.grampsId)
+  }
+
+  _changeNDesc (n) {
+    if ((n === 0) || this.nDesc + n < 0) {
+      return
+    }
+    this.nDesc += n
+    this._fetchData(this.grampsId)
+  }
+
+  _setNDesc (event) {
+    this.nDesc = event.detail.data
+    this._fetchData(this.grampsId)
   }
 
   _goToPerson () {
@@ -80,8 +119,8 @@ export class GrampsjsViewGraph extends GrampsjsView {
       paperml: '0',
       papermr: '0',
       pid: grampsId,
-      maxascend: '4',
-      maxdescend: '1',
+      maxascend: `${this.nAnc}`,
+      maxdescend: `${this.nDesc}`,
       color: 'colored',
       colormales: '#64B5F6',
       colorfemales: '#EF9A9A',

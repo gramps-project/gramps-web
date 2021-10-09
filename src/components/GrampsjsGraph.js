@@ -2,12 +2,13 @@ import {html, css, LitElement} from 'lit'
 
 import * as hpccWasm from '@hpcc-js/wasm'
 
+import '@material/mwc-dialog'
 import '@material/mwc-icon'
 import '@material/mwc-icon-button'
 import '@material/mwc-list/mwc-list-item'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {fireEvent} from '../util.js'
+import {translate, fireEvent} from '../util.js'
 
 // transform 2D coordinates (x, y) to SVG coordinates.
 // element can be the SVG itself or an element within it
@@ -121,6 +122,10 @@ class GrampsjsGraph extends LitElement {
       svg {
         cursor: grab;
       }
+
+      mwc-dialog mwc-icon-button {
+        vertical-align: middle;
+      }
       `
     ]
   }
@@ -131,6 +136,9 @@ class GrampsjsGraph extends LitElement {
       scale: {type: Number},
       disableBack: {type: Boolean},
       disableHome: {type: Boolean},
+      strings: {type: Object},
+      nAnc: {type: Number},
+      nDesc: {type: Number},
       _svg: {type: Object},
       _svgPointerDown: {type: Boolean},
       _zoomInPointerDown: {type: Boolean},
@@ -148,6 +156,7 @@ class GrampsjsGraph extends LitElement {
     this.scale = _zoomDefault
     this.disableBack = false
     this.disableHome = false
+    this.strings = {}
     this._svgPointerDown = false
     this._zoomInPointerDown = false
     this._zoomOutPointerDown = false
@@ -202,8 +211,60 @@ class GrampsjsGraph extends LitElement {
       <div>
         <mwc-icon-button icon="person" @click=${this._goToPerson}></mwc-icon-button>
       </div>
+      <div>
+        <mwc-icon-button icon="settings" id="btn-controls" @click=${this._openMenuControls}></mwc-icon-button>
+        <mwc-dialog
+          id="menu-controls"
+        >
+        <p>
+          <span>${this._('Max Ancestor Generations')}:
+          <b style="margin: 1em 0;">${this.nAnc}</b>
+          </span>
+          <mwc-icon-button icon="add" @click=${this._increaseNAnc} style="margin-right: -6px;"></mwc-icon-button>
+          <mwc-icon-button icon="remove" @click=${this._decreaseNAnc} ?disabled=${this.nAnc === 0}></mwc-icon-button>
+        </p>
+        <p>
+          <span>${this._('Max descendant Generations')}:
+          <b style="margin: 1em 0;">${this.nDesc}</b>
+          </span>
+          <mwc-icon-button icon="add" @click=${this._increaseNDesc} style="margin-right: -6px;"></mwc-icon-button>
+          <mwc-icon-button icon="remove" @click=${this._decreaseNDesc} ?disabled=${this.nDesc === 0}></mwc-icon-button>
+        </p>
+        <mwc-button
+          slot="primaryAction"
+          dialogAction="close"
+        >${this._('done')}</mwc-button>
+        <mwc-button
+          slot="secondaryAction"
+          @click="${this._resetLevels}"
+        >${this._('Reset')}</mwc-button>
+        </mwc-dialog>
+      </div>
       `
   }
+
+  _resetLevels () {
+    fireEvent(this, 'tree:setNAnc', {data: 3})
+    fireEvent(this, 'tree:setNDesc', {data: 1})
+  }
+
+  _increaseNAnc () {
+    fireEvent(this, 'tree:increaseNAnc')
+  }
+
+  _decreaseNAnc () {
+    fireEvent(this, 'tree:decreaseNAnc')
+  }
+
+  _increaseNDesc () {
+    fireEvent(this, 'tree:increaseNDesc')
+  }
+
+
+  _decreaseNDesc () {
+    fireEvent(this, 'tree:decreaseNDesc')
+  }
+
 
   _backToHomePerson () {
     fireEvent(this, 'tree:home')
@@ -480,6 +541,10 @@ class GrampsjsGraph extends LitElement {
 
   _personSelected (grampsId) {
     this.dispatchEvent(new CustomEvent('pedigree:person-selected', {bubbles: true, composed: true, detail: {grampsId}}))
+  }
+
+  _ (s) {
+    return translate(this.strings, s)
   }
 }
 
