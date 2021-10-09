@@ -66,6 +66,7 @@ export class GrampsjsGallery extends LitElement {
     <div class="clear"></div>
 
     <grampsjs-view-media-lightbox
+      active
       id="gallery-lightbox-view"
       @lightbox:left="${this._handleLeft}"
       @lightbox:right="${this._handleRight}"
@@ -96,10 +97,9 @@ export class GrampsjsGallery extends LitElement {
   _handleClick (i) {
     if (!this.edit) {
       const lightBoxView = this.shadowRoot.getElementById('gallery-lightbox-view')
-      const lightBox = lightBoxView.shadowRoot.getElementById('gallery-lightbox')
-      if (lightBox) {
+      if (lightBoxView) {
         this._lightboxSelected = i
-        lightBox.open = true
+        lightBoxView.open()
       }
     }
   }

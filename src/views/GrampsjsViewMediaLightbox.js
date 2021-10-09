@@ -66,6 +66,13 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     `
   }
 
+  open () {
+    const lightBox = this.shadowRoot.getElementById('gallery-lightbox')
+    if (lightBox) {
+      lightBox.open = true
+    }
+  }
+
 
   _innerContainerContent() {
     if (Object.keys(this._data).length === 0) {
