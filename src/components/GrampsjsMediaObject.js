@@ -59,6 +59,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       handle="${this.data.handle}"
       hideLeftArrow
       hideRightArrow
+      active
       >
     </grampsjs-view-media-lightbox>
 
@@ -68,8 +69,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
 
   _handleClick() {
     const lightBoxView = this.shadowRoot.getElementById('obj-lightbox-view')
-    const lightBox = lightBoxView.shadowRoot.getElementById('gallery-lightbox')
-    lightBox.open = true
+    lightBoxView.open()
   }
 
   _handleRectClick(event) {
