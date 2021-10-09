@@ -175,7 +175,7 @@ export async function apiGet (endpoint, isJson = true) {
       if ('error' in refreshResp) {
         throw (new Error(refreshResp.error))
       } else {
-        return apiGet(endpoint)
+        return apiGet(endpoint, isJson)
       }
     }
     if (resp.status === 403) {
