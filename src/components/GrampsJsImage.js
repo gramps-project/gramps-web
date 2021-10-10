@@ -100,7 +100,7 @@ class GrampsjsImg extends LitElement {
     srcset="${getThumbnailUrlCropped(this.handle, this.rect, this.size, this.square)},
     ${getThumbnailUrlCropped(this.handle, this.rect, 1.5 * this.size, this.square)} 1.5x,
     ${getThumbnailUrlCropped(this.handle, this.rect, 2 * this.size, this.square)} 2x,
-    ${getThumbnailUrlCropped(this.handle, this.rect, 3 * this.size, this.square)} 3x,
+    ${getThumbnailUrlCropped(this.handle, this.rect, 3 * this.size, this.square)} 3x
     "
     src="${getThumbnailUrlCropped(this.handle, this.rect, 3 * this.size, this.square)}"
     class="${this.circle ? 'round' : ''}"
