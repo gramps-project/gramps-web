@@ -83,9 +83,10 @@ class GrampsjsImg extends LitElement {
     return html`
       <img
       srcset="${getThumbnailUrl(this.handle, this.size, this.square)},
-      ${getThumbnailUrl(this.handle, 1.5 * this.size, this.square)} 1.5x
-      ${getThumbnailUrl(this.handle, 2 * this.size, this.square)} 2x"
-      src="${getThumbnailUrl(this.handle, 2 * this.size, this.square)}"
+      ${getThumbnailUrl(this.handle, 1.5 * this.size, this.square)} 1.5x,
+      ${getThumbnailUrl(this.handle, 2 * this.size, this.square)} 2x,
+      ${getThumbnailUrl(this.handle, 3 * this.size, this.square)} 3x"
+      src="${getThumbnailUrl(this.handle, 3 * this.size, this.square)}"
       class=${classMap({round: this.circle, bordered: this.border})}
       @error=${this._errorHandler}
       alt="" height="${height}"
@@ -97,9 +98,11 @@ class GrampsjsImg extends LitElement {
     const height = this.displayHeight || ''
     return html`<img
     srcset="${getThumbnailUrlCropped(this.handle, this.rect, this.size, this.square)},
-    ${getThumbnailUrlCropped(this.handle, this.rect, 1.5 * this.size, this.square)} 1.5x
-    ${getThumbnailUrlCropped(this.handle, this.rect, 2 * this.size, this.square)} 2x"
-    src="${getThumbnailUrlCropped(this.handle, this.rect, 2 * this.size, this.square)}"
+    ${getThumbnailUrlCropped(this.handle, this.rect, 1.5 * this.size, this.square)} 1.5x,
+    ${getThumbnailUrlCropped(this.handle, this.rect, 2 * this.size, this.square)} 2x,
+    ${getThumbnailUrlCropped(this.handle, this.rect, 3 * this.size, this.square)} 3x,
+    "
+    src="${getThumbnailUrlCropped(this.handle, this.rect, 3 * this.size, this.square)}"
     class="${this.circle ? 'round' : ''}"
     @error=${this._errorHandler} alt="" height="${height}">`
   }
