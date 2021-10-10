@@ -7,8 +7,7 @@ import {renderPerson} from '../util.js'
 import './GrampsjsChildren.js'
 
 export class GrampsjsRelationships extends LitElement {
-
-  static get styles() {
+  static get styles () {
     return [
       sharedStyles,
       css`
@@ -24,28 +23,30 @@ export class GrampsjsRelationships extends LitElement {
     ]
   }
 
-  static get properties() {
+  static get properties () {
     return {
       grampsId: {type: String},
       familyList: {type: Array},
       families: {type: Array},
+      parentFamilies: {type: Array},
       primaryParentFamily: {type: Object},
       otherParentFamilies: {type: Array},
       strings: {type: Object}
     }
   }
 
-  constructor() {
+  constructor () {
     super()
     this.grampsId = ''
     this.familyList = []
+    this.parentFamilyList = []
     this.families = []
     this.otherParentFamilies = []
     this.primaryParentFamily = {}
     this.strings = {}
   }
 
-  render() {
+  render () {
     return html`
     ${this._renderFamily(this.primaryParentFamily, this._('Parents'), this._('Siblings'))}
     ${this.otherParentFamilies.map((familyProfile, i) => {
@@ -57,23 +58,27 @@ export class GrampsjsRelationships extends LitElement {
         `
   }
 
-  _renderFamily(familyProfile, parentTitle, childrenTitle) {
+  _renderFamily (familyProfile, parentTitle, childrenTitle) {
     if (Object.keys(familyProfile).length === 0) {
       return html``
     }
     return html`
     <h3>${parentTitle} ${this._renderFamilyBtn(familyProfile.gramps_id)}</h3>
-    ${familyProfile?.father?.gramps_id === this.grampsId || Object.keys(familyProfile?.father || {}).length === 0 ? '' :  html`
+    ${familyProfile?.father?.gramps_id === this.grampsId || Object.keys(familyProfile?.father || {}).length === 0
+    ? ''
+    : html`
       <p>${renderPerson(familyProfile.father)}</p>
     `}
-    ${familyProfile?.mother?.gramps_id === this.grampsId || Object.keys(familyProfile?.mother || {}).length === 0 ? '' :  html`
+    ${familyProfile?.mother?.gramps_id === this.grampsId || Object.keys(familyProfile?.mother || {}).length === 0
+    ? ''
+    : html`
       <p>${renderPerson(familyProfile.mother)}</p>
     `}
     ${this._renderChildren(familyProfile, childrenTitle)}
   `
   }
 
-  _renderFamilyBtn(grampsId) {
+  _renderFamilyBtn (grampsId) {
     return html`
     <mwc-button
       class="familybtn"
@@ -83,30 +88,37 @@ export class GrampsjsRelationships extends LitElement {
     </mwc-button>`
   }
 
-  _handleButtonClick(grampsId) {
+  _handleButtonClick (grampsId) {
     this.dispatchEvent(new CustomEvent('nav', {
-      bubbles: true, composed: true, detail: {
+      bubbles: true,
+      composed: true,
+      detail: {
         path: `family/${grampsId}`
       }
     }))
   }
 
-  _renderChildren(obj, childrenTitle) {
+  _renderChildren (profile, childrenTitle) {
+    const allFamilies = [...this.familyList, ...this.parentFamilyList]
+    const [family] = allFamilies.filter(obj => obj.handle === profile.handle)
     return html`
 
-    ${obj?.children?.length ? html`
+    ${profile?.children?.length
+    ? html`
     <h3>${childrenTitle}</h3>
     <grampsjs-children
-      .profile=${obj?.children || []}
+      .profile=${profile?.children || []}
+      .data=${family.child_ref_list}
       .strings=${this.strings}
       highlightId="${this.grampsId}"
       >
     </grampsjs-children>
-    ` : ''}
+    `
+    : ''}
     `
   }
 
-  _(s) {
+  _ (s) {
     if (s in this.strings) {
       return this.strings[s]
     }

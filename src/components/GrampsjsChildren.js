@@ -38,7 +38,7 @@ export class GrampsjsChildren extends GrampsjsEditableTable {
   row (obj, i, arr) {
     return html`
     <tr
-    @click=${() => this._handleClick(obj.gramps_id)}
+    @click=${() => this._handleClick(this.profile[i].gramps_id)}
     class="${obj.gramps_id === this.highlightId ? 'highlight' : ''}"
     >
       <td>${genderIcon(this.profile[i]?.sex)}</td>

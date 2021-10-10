@@ -257,7 +257,8 @@ export class GrampsjsObject extends LitElement {
           grampsId="${this.data.gramps_id}"
           .strings=${this.strings}
           ?edit=${this.edit}
-          .familyList=${this.data?.extended?.family_list || []}
+          .familyList=${this.data?.extended?.families || []}
+          .parentFamilyList=${this.data?.extended?.parent_families || []}
           .families=${this.data?.profile?.families || []}
           .primaryParentFamily=${this.data?.profile?.primary_parent_family || {}}
           .otherParentFamilies=${this.data?.profile?.other_parent_families || []}
