@@ -28,7 +28,6 @@ class GrampsjsFormEditTitle extends GrampsjsObjectForm {
       label="${this._('Title')}"
       value="${this.data[this.prop] || ''}">
     </grampsjs-form-string>
-    <pre>${JSON.stringify(this.data, null, 2)}</pre<y
     `
   }
 }
