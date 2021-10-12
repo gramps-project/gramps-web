@@ -174,7 +174,7 @@ export class GrampsjsObjectForm extends LitElement {
       this.data = {...this.data, private: e.detail.checked}
     }
     if ([
-      'author', 'pubinfo', 'abbrev', 'page', 'desc'
+      'author', 'pubinfo', 'abbrev', 'page', 'desc', 'title', 'desc'
     ].includes(originalTarget.id)) {
       this.data = {...this.data, [originalTarget.id]: e.detail.data}
     }

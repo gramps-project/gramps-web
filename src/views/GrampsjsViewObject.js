@@ -170,6 +170,8 @@ export class GrampsjsViewObject extends GrampsjsView {
       this.moveHandle(e.detail.handle, this._data, this._className, 'citation_list', 'up')
     } else if (e.detail.action === 'downCitation') {
       this.moveHandle(e.detail.handle, this._data, this._className, 'citation_list', 'down')
+    } else if (e.detail.action === 'updateProp') {
+      this.updateProp(this._data, this._className, e.detail.data)
     } else {
       alert(JSON.stringify(e.detail))
     }
@@ -222,6 +224,13 @@ export class GrampsjsViewObject extends GrampsjsView {
   addHandle (handle, obj, objType, prop) {
     return this._updateObject(obj, objType, (_obj) => {
       _obj[prop] = [..._obj[prop], handle]
+      return _obj
+    })
+  }
+
+  updateProp (obj, objType, objNew) {
+    return this._updateObject(obj, objType, (_obj) => {
+      _obj = {..._obj, ...objNew}
       return _obj
     })
   }

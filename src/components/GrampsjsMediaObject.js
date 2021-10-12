@@ -1,12 +1,15 @@
 import {html, css} from 'lit'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsJsImage.js'
+import './GrampsjsFormEditTitle.js'
+import {fireEvent} from '../util.js'
 
+import '@material/mwc-dialog'
 import '@material/mwc-icon'
-
+import '@material/mwc-icon-button'
 
 export class GrampsjsMediaObject extends GrampsjsObject {
-  static get styles() {
+  static get styles () {
     return [
       super.styles,
       css`
@@ -25,13 +28,20 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     `]
   }
 
-  renderProfile() {
+  renderProfile () {
     return html`
     <h2><mwc-icon>photo</mwc-icon>
-    ${this.data.desc || this._('Media Object')}</h2>
+    ${this.data.desc || this._('Media Object')}
+    ${this.edit
+    ? html`
+    <mwc-icon-button icon="edit" class="edit" @click="${this._handleEditTitle}"></mwc-icon-button>
+    `
+    : ''}
+    </h2>
 
     <dl>
-    ${this.data?.profile?.date ? html`
+    ${this.data?.profile?.date
+    ? html`
     <div>
       <dt>
         ${this._('Date')}
@@ -40,7 +50,8 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       ${this.data.profile.date}
       </dd>
     </div>
-    ` : ''}
+    `
+    : ''}
     </dl>
 
     <grampsjs-img
@@ -66,16 +77,34 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     `
   }
 
+  _handleEditTitle () {
+    this.dialogContent = html`
+    <grampsjs-form-edit-title
+      @object:save="${this._handleSaveTitle}"
+      @object:cancel="${this._handleCancelDialog}"
+      .strings=${this.strings}
+      .data=${{desc: this.data?.desc || ''}}
+      prop="desc"
+    >
+    </grampsjs-form-edit-title>
+    `
+  }
 
-  _handleClick() {
+  _handleSaveTitle (e) {
+    fireEvent(this, 'edit:action', {action: 'updateProp', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleClick () {
     const lightBoxView = this.shadowRoot.getElementById('obj-lightbox-view')
     lightBoxView.open()
   }
 
-  _handleRectClick(event) {
+  _handleRectClick (event) {
     this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: event.detail.target}}))
   }
 }
-
 
 window.customElements.define('grampsjs-media-object', GrampsjsMediaObject)

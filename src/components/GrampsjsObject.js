@@ -148,6 +148,7 @@ export class GrampsjsObject extends LitElement {
       data: {type: Object},
       strings: {type: Object},
       edit: {type: Boolean},
+      dialogContent: {type: String},
       _currentTabId: {type: Number},
       _currentTab: {type: String},
       _showReferences: {type: Boolean},
@@ -161,6 +162,7 @@ export class GrampsjsObject extends LitElement {
     this.data = {}
     this.strings = {}
     this.edit = false
+    this.dialogContent = ''
     this._currentTabId = 0
     this._showReferences = true
     this._showPersonTimeline = false
@@ -187,6 +189,8 @@ export class GrampsjsObject extends LitElement {
     <div class="tab-content">
       ${this.renderTabContent()}
     </div>
+
+    ${this.dialogContent}
     `
   }
 
@@ -372,6 +376,10 @@ export class GrampsjsObject extends LitElement {
 
   _handleTabInteracted (event) {
     this._currentTab = event.detail.tabId
+  }
+
+  _handleCancelDialog () {
+    this.dialogContent = ''
   }
 
   _ (s) {
