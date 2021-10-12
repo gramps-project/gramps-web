@@ -89,6 +89,7 @@ class GrampsjsFormSelectDate extends LitElement {
       id="date1"
       label="${this._('Date')}"
       type="date"
+      value="${this._getValue1()}"
       iconTrailing="event"
     ></mwc-textfield>
 
@@ -115,6 +116,15 @@ class GrampsjsFormSelectDate extends LitElement {
     `)}
   </mwc-select>
     `
+  }
+
+  _getValue1 () {
+    const val = this.data.dateval
+    if (val === null || val === undefined) {
+      return
+    }
+    const [d, m, y] = val.slice(0, 3)
+    return `${y}-${`${m}`.padStart(2, '0')}-${`${d}`.padStart(2, '0')}`
   }
 
   _getMinDate () {
@@ -159,7 +169,8 @@ class GrampsjsFormSelectDate extends LitElement {
     this.data = {
       ...this.data,
       dateval: [d, m, y, false, ...oldval.slice(4)],
-      sortval: getSortval(y, m, d)
+      sortval: getSortval(y, m, d),
+      year: y
     }
     this.handleChange()
   }

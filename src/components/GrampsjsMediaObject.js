@@ -1,6 +1,7 @@
 import {html, css} from 'lit'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsJsImage.js'
+import './GrampsjsFormEditDate.js'
 import './GrampsjsFormEditTitle.js'
 import {fireEvent} from '../util.js'
 
@@ -40,7 +41,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     </h2>
 
     <dl>
-    ${this.data?.profile?.date
+    ${this.data?.profile?.date || this.edit
     ? html`
     <div>
       <dt>
@@ -50,6 +51,12 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       ${this.data.profile.date}
       </dd>
     </div>
+    ${this.edit
+    ? html`
+      <mwc-icon-button icon="edit" class="edit" @click="${this._handleEditDate}"></mwc-icon-button>
+      `
+    : ''}
+
     `
     : ''}
     </dl>
@@ -90,7 +97,26 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     `
   }
 
+  _handleEditDate () {
+    this.dialogContent = html`
+    <grampsjs-form-edit-date
+      @object:save="${this._handleSaveDate}"
+      @object:cancel="${this._handleCancelDialog}"
+      .strings=${this.strings}
+      .data=${{date: this.data.date}}
+    >
+    </grampsjs-form-edit-title>
+    `
+  }
+
   _handleSaveTitle (e) {
+    fireEvent(this, 'edit:action', {action: 'updateProp', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleSaveDate (e) {
     fireEvent(this, 'edit:action', {action: 'updateProp', data: e.detail.data})
     e.preventDefault()
     e.stopPropagation()

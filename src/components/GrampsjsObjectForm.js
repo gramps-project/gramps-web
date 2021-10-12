@@ -133,6 +133,10 @@ export class GrampsjsObjectForm extends LitElement {
     }
   }
 
+  open () {
+    this._openDialog()
+  }
+
   updateTypeData () {
     this.loadingTypes = true
     apiGet('/api/types/').then(data => {
