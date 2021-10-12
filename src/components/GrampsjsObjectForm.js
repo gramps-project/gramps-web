@@ -98,7 +98,12 @@ export class GrampsjsObjectForm extends LitElement {
   render () {
     return html`
 
-    <mwc-dialog scrimClickAction="" heading="${this.dialogTitle}" open>
+    <mwc-dialog
+      scrimClickAction=""
+      heading="${this.dialogTitle}"
+      open
+      @closed="${this._handleDialogCancel}"
+    >
 
       <div @formdata:changed="${this._handleFormData}">
         ${this.renderForm()}
