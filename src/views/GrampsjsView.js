@@ -17,6 +17,12 @@ export class GrampsjsView extends LitElement {
         background-color: #ffffff;
       }
 
+      @media (max-width: 768px) {
+        :host {
+          margin: 25px 25px;
+        }
+      }
+
       `
     ]
   }

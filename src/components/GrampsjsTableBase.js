@@ -53,6 +53,29 @@ export class GrampsjsTableBase extends LitElement {
         margin: -2px 0px;
       }
 
+      @media (max-width: 768px) {
+        table {
+          font-size: 14px;
+        }
+
+        th {
+          font-size: 12px;
+        }
+
+        th, td {
+          padding: 10px 8px;
+        }
+
+        td mwc-icon.inline {
+          font-size: 15px;
+        }
+
+        td mwc-icon-button {
+          --mdc-icon-size: 18px;
+          --mdc-icon-button-size: 33px;
+        }
+      }
+
       `
     ]
   }

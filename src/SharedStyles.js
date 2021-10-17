@@ -151,4 +151,23 @@ export const sharedStyles = css`
   mwc-icon-button.large {
     --mdc-icon-size: 32px;
   }
+
+  @media (max-width: 768px) {
+    :host {
+      font-size: 16px;
+    }
+
+    h2 {
+      font-size: 24px;
+    }
+
+    h3 {
+      font-size: 20px;
+    }
+
+    h4 {
+      font-size: 18px;
+    }
+
+  }
   `
