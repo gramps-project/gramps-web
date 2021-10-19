@@ -4,22 +4,19 @@ import {GrampsjsView} from './GrampsjsView.js'
 import './GrampsjsViewRecentlyChanged.js'
 import '../components/GrampsjsStatistics.js'
 
-
 export class GrampsjsViewDashboard extends GrampsjsView {
-
-
-  static get properties() {
+  static get properties () {
     return {
-      dbInfo: {type: Object},
+      dbInfo: {type: Object}
     }
   }
 
-  constructor() {
+  constructor () {
     super()
     this.dbInfo = {}
   }
 
-  static get styles() {
+  static get styles () {
     return [
       super.styles,
       css`
@@ -38,16 +35,8 @@ export class GrampsjsViewDashboard extends GrampsjsView {
     ]
   }
 
-
-  renderContent() {
+  renderContent () {
     return html`
-    <div class="column">
-      <grampsjs-statistics
-        .data="${this.dbInfo?.object_counts || {}}"
-        id="statistics"
-        .strings="${this.strings}">
-      </grampsjs-statistics>
-    </div>
     <div class="column">
       <grampsjs-view-recently-changed
         active
@@ -55,10 +44,15 @@ export class GrampsjsViewDashboard extends GrampsjsView {
         .strings="${this.strings}">
       </grampsjs-view-recently-changed>
     </div>
-      `
+    <div class="column">
+      <grampsjs-statistics
+        .data="${this.dbInfo?.object_counts || {}}"
+        id="statistics"
+        .strings="${this.strings}">
+      </grampsjs-statistics>
+    </div>
+    `
   }
-
 }
-
 
 window.customElements.define('grampsjs-view-dashboard', GrampsjsViewDashboard)
