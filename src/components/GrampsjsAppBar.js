@@ -7,6 +7,7 @@ import {classMap} from 'lit/directives/class-map.js'
 import '@material/mwc-top-app-bar'
 import '@material/mwc-icon-button'
 import '@material/mwc-icon'
+import '@material/mwc-dialog'
 
 import './GrampsjsAddMenu.js'
 
@@ -37,7 +38,9 @@ class GrampsjsAppBar extends LitElement {
       add: {type: Boolean},
       editMode: {type: Boolean},
       editTitle: {type: String},
-      strings: {type: Object}
+      editDialogContent: {type: String},
+      strings: {type: Object},
+      saveButton: {type: Boolean}
     }
   }
 
@@ -46,7 +49,9 @@ class GrampsjsAppBar extends LitElement {
     this.add = false
     this.editMode = false
     this.editTitle = ''
+    this.editDialogContent = ''
     this.strings = {}
+    this.saveButton = false
   }
 
   render () {
@@ -64,7 +69,11 @@ class GrampsjsAppBar extends LitElement {
     </div>
     ${
   this.editMode
-    ? ''
+    ? this.saveButton
+      ? html`
+    <mwc-icon-button icon="save" slot="actionItems" @click="${this._handleSaveIcon}"></mwc-icon-button>
+    `
+      : ''
     : html`
     ${this.add
     ? html`
@@ -75,6 +84,7 @@ class GrampsjsAppBar extends LitElement {
     <mwc-icon-button icon="search" slot="actionItems" @click="${() => this._handleNav('search')}"></mwc-icon-button>
     `}
   </mwc-top-app-bar>
+  ${this.editDialogContent}
 
 `
   }
@@ -88,7 +98,43 @@ class GrampsjsAppBar extends LitElement {
   }
 
   _handleCloseIcon () {
+    if (this.saveButton) {
+      this.editDialogContent = html`
+        <mwc-dialog
+          open
+          @closed="${this._handleDialog}"
+        >
+          <div>${this._('Abort changes?')}</div>
+          <mwc-button
+              slot="primaryAction"
+              dialogAction="discard">
+            ${this._('Discard')}
+          </mwc-button>
+          <mwc-button
+              slot="secondaryAction"
+              dialogAction="cancel">
+            ${this._('Cancel')}
+          </mwc-button>
+        </mwc-dialog>
+        `
+    } else {
+      this._editModeOff()
+    }
+  }
+
+  _handleDialog (e) {
+    if (e.detail.action === 'discard') {
+      this._editModeOff()
+    }
+    this.editDialogContent = ''
+  }
+
+  _editModeOff () {
     fireEvent(this, 'edit-mode:off', {})
+  }
+
+  _handleSaveIcon (e) {
+    fireEvent(this, 'edit-mode:save')
   }
 
   _disableEditMode () {
@@ -98,6 +144,7 @@ class GrampsjsAppBar extends LitElement {
   _enableEditMode (e) {
     this.editMode = true
     this.editTitle = e.detail.title
+    this.saveButton = e.detail?.saveButton || false
   }
 
   connectedCallback () {

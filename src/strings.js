@@ -4,6 +4,7 @@ All strings that need to be translated
 
 export const additionalStrings = {
   de: {
+    Discard: 'Verwerfen',
     Lists: 'Listen',
     History: 'Verlauf',
     Menu: 'Menü',
@@ -28,6 +29,7 @@ export const grampsStrings = [
   '_Names',
   '_Save',
   'Abbreviation',
+  'Abort changes?',
   'About',
   'Add an existing person as a child of the family',
   'Add',

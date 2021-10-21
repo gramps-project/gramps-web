@@ -40,8 +40,10 @@ export class GrampsjsViewObject extends GrampsjsView {
       grampsId: {type: String},
       canEdit: {type: Boolean},
       edit: {type: Boolean},
+      editDialogContent: {type: String},
       _data: {type: Object},
-      _className: {type: String}
+      _className: {type: String},
+      _saveButton: {type: Boolean}
     }
   }
 
@@ -49,8 +51,11 @@ export class GrampsjsViewObject extends GrampsjsView {
     super()
     this.canEdit = false
     this.edit = false
+    this.editDialogContent = ''
     this._data = {}
     this._className = ''
+    this._saveButton = false
+    this._boundDisableEditMode = this._disableEditMode.bind(this)
   }
 
   getUrl () {
@@ -67,6 +72,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     return html`
     ${this.renderElement()}
     ${this.canEdit && !this.edit ? this.renderFab() : ''}
+    ${this.editDialogContent}
     `
   }
 
@@ -78,7 +84,10 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   _handleFab () {
     this.edit = true
-    fireEvent(this, 'edit-mode:on', {title: this._(editTitle[this._className] || 'Edit')})
+    fireEvent(this, 'edit-mode:on', {
+      title: this._(editTitle[this._className] || 'Edit'),
+      saveButton: this._saveButton
+    })
   }
 
   _disableEditMode () {
@@ -91,13 +100,13 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   connectedCallback () {
     super.connectedCallback()
-    window.addEventListener('edit-mode:off', this._disableEditMode.bind(this))
+    window.addEventListener('edit-mode:off', this._boundDisableEditMode)
     this.addEventListener('edit:action', this.handleEditAction.bind(this))
   }
 
   disconnectedCallback () {
     this.removeEventListener('edit:action', this.handleEditAction.bind(this))
-    window.removeEventListener('edit-mode:off', this._disableEditMode.bind(this))
+    window.removeEventListener('edit-mode:off', this._boundDisableEditMode)
     super.disconnectedCallback()
   }
 
@@ -132,6 +141,7 @@ export class GrampsjsViewObject extends GrampsjsView {
       })
     }
   }
+
 
   handleEditAction (e) {
     if (e.detail.action === 'delEvent') {
@@ -253,7 +263,8 @@ export class GrampsjsViewObject extends GrampsjsView {
   }
 
   _updateObject (obj, objType, updateFunc) {
-    let {extended, profile, backlinks, ...objNew} = obj
+    // remove extended, profile, backlinks, formatted keys from object
+    let {extended, profile, backlinks, formatted, ...objNew} = obj
     objNew = {_class: capitalize(objType), ...objNew}
     const url = `/api/${objectTypeToEndpoint[objType]}/${obj.handle}`
     apiPut(url, updateFunc(objNew)).then(() => this._updateData(false))
