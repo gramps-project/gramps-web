@@ -10,11 +10,10 @@ import '@material/mwc-circular-progress'
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 import '../components/GrampsjsFormSelectType.js'
 import '../components/GrampsjsFormPrivate.js'
-
+import '../components/GrampsjsEditor.js'
 
 export class GrampsjsViewNewNote extends GrampsjsViewNewObject {
-
-  constructor() {
+  constructor () {
     super()
     this.data = {_class: 'Note', text: {_class: 'StyledText', string: ''}}
     this.postUrl = '/api/notes/'
@@ -22,19 +21,15 @@ export class GrampsjsViewNewNote extends GrampsjsViewNewObject {
     this.objClass = 'Note'
   }
 
-  renderContent() {
+  renderContent () {
     return html`
     <h2>${this._('New Note')}</h2>
 
-    <h4 class="label">${this._('Note')}</h4>
     <p>
-      <mwc-textarea
-        outlined
-        rows="6"
-        style="width:100%;"
-        @input="${this.handleText}"
-        id="note-text"
-      ></mwc-textarea>
+      <grampsjs-editor
+        @formdata:changed="${this.handleEditor}"
+        id="note-editor"
+      ></grampsjs-editor>
     </p>
 
     <grampsjs-form-select-type
@@ -57,18 +52,17 @@ export class GrampsjsViewNewNote extends GrampsjsViewNewObject {
     // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
 
-
-  checkFormValidity() {
-    const noteText = this.shadowRoot.getElementById('note-text')
-    this.isFormValid = (noteText.value.trim() !== '')
+  checkFormValidity () {
+    const noteText = this.shadowRoot.querySelector('grampsjs-editor')
+    this.isFormValid = (noteText.data.string.trim() !== '')
   }
 
-  handleText(e) {
+  handleEditor (e) {
     this.checkFormValidity()
-    this.data = {...this.data, text: {_class: 'StyledText', string: e.target.value.trim()}}
+    this.data = {...this.data, text: e.detail.data}
   }
 
-  _handleFormData(e) {
+  _handleFormData (e) {
     this.checkFormValidity()
     const originalTarget = e.composedPath()[0]
     if (originalTarget.id === 'select-note-type') {
@@ -79,9 +73,9 @@ export class GrampsjsViewNewNote extends GrampsjsViewNewObject {
     }
   }
 
-  _reset() {
-    const text = this.shadowRoot.getElementById('note-text')
-    text.value = ''
+  _reset () {
+    const text = this.shadowRoot.querySelector('grampsjs-editor')
+    text.reset()
     const noteType = this.shadowRoot.getElementById('select-note-type')
     noteType.reset()
     const priv = this.shadowRoot.getElementById('private')

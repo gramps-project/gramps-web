@@ -1,6 +1,3 @@
-// TO
-// - Save handler (PUT)
-
 import {html, css, LitElement} from 'lit'
 
 import '@material/mwc-icon'
@@ -141,7 +138,12 @@ class GrampsjsEditor extends LitElement {
 
   constructor () {
     super()
-    this.data = {}
+    this.data = {_class: 'StyledText', string: '', tags: []}
+    this.cursorPosition = [0]
+  }
+
+  reset () {
+    this.data = {_class: 'StyledText', string: '', tags: []}
     this.cursorPosition = [0]
   }
 
@@ -191,6 +193,7 @@ class GrampsjsEditor extends LitElement {
     } else {
       console.log(e)
     }
+    this.handleChange()
   }
 
   _handleFormat (type) {
@@ -206,6 +209,11 @@ class GrampsjsEditor extends LitElement {
       this._insertTag(type, pos)
     }
     this.cursorPosition = pos
+    this.handleChange()
+  }
+
+  handleChange () {
+    fireEvent(this, 'formdata:changed', {data: this.data})
   }
 
   _insertTag (tagname, range) {
@@ -422,10 +430,6 @@ class GrampsjsEditor extends LitElement {
     range.setStart(nodeStart, offsetStart)
     range.setEnd(nodeEnd, offsetEnd)
     selection.addRange(range)
-  }
-
-  _renderString () {
-    return this.data.string
   }
 
   _getTagArray () {
