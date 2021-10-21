@@ -21,10 +21,10 @@ The compiled Gramps.js is a static frontend that can be easily used with an exis
 
 The app is based on <a href="https://open-wc.org/">Open Web Components</a> and <a href="https://lit.dev/">Lit</a>.
 
-To get started with development, install Node.js with [`nvm`](https://www.google.com/search?channel=fs&client=ubuntu&q=nvm):
+To get started with development, install Node.js with [`nvm`](https://github.com/nvm-sh/nvm):
 
 ```
-nvm install 15.1.0
+nvm install node
 ```
 
 Clone the repository and, at its root, run
