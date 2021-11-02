@@ -5,11 +5,10 @@ import '@material/mwc-button'
 import './GrampsJsImage.js'
 import './GrampsjsGallery.js'
 import './GrampsjsNoteContent.js'
-import {prettyTimeDiffTimestamp} from '../util.js'
-
+import './GrampsjsTimedelta.js'
 
 export class GrampsjsBlogPost extends LitElement {
-  static get styles() {
+  static get styles () {
     return [
       sharedStyles,
       css`
@@ -77,29 +76,34 @@ export class GrampsjsBlogPost extends LitElement {
     ]
   }
 
-  static get properties() {
+  static get properties () {
     return {
       source: {type: Object},
       note: {type: Object},
-      strings: {type: Object},
+      strings: {type: Object}
     }
   }
 
-  constructor() {
+  constructor () {
     super()
     this.source = {}
     this.note = {}
     this.strings = {}
   }
 
-  render() {
+  render () {
     if (Object.keys(this.source).length === 0) {
       return html``
     }
     return html`
     <div class="blog-preview">
       <h2>${this.source.title}</h2>
-      <h3 class="author">${this.source.author} ~ ${this.strings.__lang__ ? prettyTimeDiffTimestamp(this.source.change, this.strings.__lang__) : ''}</h3>
+      <h3 class="author">${this.source.author} ~ ${this.strings.__lang__
+  ? html`<grampsjs-timedelta
+      timestamp="${this.source.change}"
+      locale="${this.strings.__lang__}"
+    ></grampsjs-timedelta>`
+  : ''}</h3>
       <div id="image">
         ${this.source?.media_list?.length ? this._renderImage() : ''}
       </div>
@@ -112,9 +116,11 @@ export class GrampsjsBlogPost extends LitElement {
           >
           </grampsjs-note-content>
 
-          ${this.source?.media_list?.length > 1 ? html`
+          ${this.source?.media_list?.length > 1
+    ? html`
             <grampsjs-gallery .strings=${this.strings} .media=${this.source?.extended?.media} .mediaRef=${this.source?.media_list}></grampsjs-gallery>
-          ` : ''}
+          `
+    : ''}
 
           <mwc-button id="btn-details" @click="${() => this._clickDetails(this.source.gramps_id)}">Details</mwc-button>
         </div>
@@ -123,12 +129,15 @@ export class GrampsjsBlogPost extends LitElement {
     `
   }
 
-  _clickDetails(grampsId) {
-    this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {
-      path: `source/${grampsId}`}}))
+  _clickDetails (grampsId) {
+    this.dispatchEvent(new CustomEvent('nav', {
+      bubbles: true,
+      composed: true,
+      detail: {path: `source/${grampsId}`}
+    }))
   }
 
-  _renderImage() {
+  _renderImage () {
     const ref = this.source.media_list[0]
     const obj = this.source.extended.media[0]
     return html`
@@ -142,8 +151,6 @@ export class GrampsjsBlogPost extends LitElement {
     </div>
     `
   }
-
 }
-
 
 window.customElements.define('grampsjs-blog-post', GrampsjsBlogPost)

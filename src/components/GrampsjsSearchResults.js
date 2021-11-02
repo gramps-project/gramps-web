@@ -1,12 +1,11 @@
 import {LitElement, css, html} from 'lit'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {showObject, prettyTimeDiffTimestamp} from '../util.js'
-
+import {showObject} from '../util.js'
+import './GrampsjsTimedelta.js'
 
 export class GrampsjsSearchResults extends LitElement {
-
-  static get styles() {
+  static get styles () {
     return [
       sharedStyles,
       css`
@@ -39,7 +38,7 @@ export class GrampsjsSearchResults extends LitElement {
     ]
   }
 
-  static get properties() {
+  static get properties () {
     return {
       data: {type: Array},
       strings: {type: Object},
@@ -47,28 +46,32 @@ export class GrampsjsSearchResults extends LitElement {
     }
   }
 
-  constructor() {
+  constructor () {
     super()
     this.data = []
     this.strings = {}
     this.date = false
   }
 
-  render() {
+  render () {
     if (this.data.length === 0) {
       return html``
     }
     return html`
     <div id="search-results">
-    ${this.data.map((obj) =>  html`
+    ${this.data.map((obj) => html`
         <div class="search-hit">
           ${showObject(obj.object_type, obj.object, this.strings)}
-          ${this.date ? html`<div class="change">${prettyTimeDiffTimestamp(obj.object.change, this.strings.__lang__)}</div>` : ''}
+          ${this.date
+    ? html`<div class="change"><grampsjs-timedelta
+            timestamp="${obj.object.change}"
+            locale="${this.strings.__lang__}"
+          ></grampsjs-timedelta></div>`
+    : ''}
         </div>`, this)}
     </div>
     `
   }
 }
-
 
 window.customElements.define('grampsjs-search-results', GrampsjsSearchResults)
