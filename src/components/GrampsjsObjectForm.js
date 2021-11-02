@@ -101,7 +101,6 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
       scrimClickAction=""
       heading="${this.dialogTitle}"
       open
-      @closed="${this._handleDialogCancel}"
     >
 
       <div @formdata:changed="${this._handleFormData}">
