@@ -4,6 +4,7 @@ All strings that need to be translated
 
 export const additionalStrings = {
   de: {
+    Anniversaries: 'Jahrestage',
     Discard: 'Verwerfen',
     Lists: 'Listen',
     History: 'Verlauf',
