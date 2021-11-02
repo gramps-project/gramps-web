@@ -16,6 +16,7 @@ import {sharedStyles} from '../SharedStyles.js'
 import {apiGet} from '../api.js'
 import {debounce, fireEvent} from '../util.js'
 import './GrampsjsSearchResultList.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 // labels for button
 const btnLabel = {
@@ -26,7 +27,7 @@ const btnLabel = {
   note: 'Select an existing note'
 }
 
-class GrampsjsFormSelectObject extends LitElement {
+class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -48,7 +49,6 @@ class GrampsjsFormSelectObject extends LitElement {
 
   static get properties () {
     return {
-      strings: {type: Object},
       objectType: {type: String},
       objects: {type: Array},
       data: {type: Array},
@@ -61,7 +61,6 @@ class GrampsjsFormSelectObject extends LitElement {
 
   constructor () {
     super()
-    this.strings = {}
     this.objectType = ''
     this.objects = []
     this.data = []
@@ -181,13 +180,6 @@ class GrampsjsFormSelectObject extends LitElement {
 
   _clearBox () {
     this.shadowRoot.getElementById('textfield').value = ''
-  }
-
-  _ (s) {
-    if (s in this.strings) {
-      return this.strings[s]
-    }
-    return s
   }
 }
 

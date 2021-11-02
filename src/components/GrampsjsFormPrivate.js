@@ -6,9 +6,10 @@ import {html, css, LitElement} from 'lit'
 import '@material/mwc-checkbox'
 
 import {sharedStyles} from '../SharedStyles.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 
-class GrampsjsFormPrivate extends LitElement {
+class GrampsjsFormPrivate extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -19,7 +20,6 @@ class GrampsjsFormPrivate extends LitElement {
 
   static get properties() {
     return {
-      strings: {type: Object},
       checked: {type: Boolean},
       disabled: {type: Boolean}
     }
@@ -28,7 +28,6 @@ class GrampsjsFormPrivate extends LitElement {
 
   constructor() {
     super()
-    this.strings = {}
     this.checked = false
     this.disabled = false
   }
@@ -57,14 +56,6 @@ class GrampsjsFormPrivate extends LitElement {
     this.checked = e.target.checked
     this.dispatchEvent(new CustomEvent('formdata:changed', {bubbles: true, composed: true, detail: {checked: this.checked}}))
   }
-
-  _(s) {
-    if (s in this.strings) {
-      return this.strings[s]
-    }
-    return s
-  }
-
 }
 
 window.customElements.define('grampsjs-form-private', GrampsjsFormPrivate)

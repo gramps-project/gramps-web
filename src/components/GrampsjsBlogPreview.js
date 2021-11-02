@@ -1,29 +1,26 @@
-import {html, css, LitElement} from 'lit'
+import {html, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 
 import './GrampsJsImage.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 
-export class GrampsjsBlogPreview extends LitElement {
+export class GrampsjsBlogPreview extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
-      sharedStyles,
-      css`
-      `
+      sharedStyles
     ]
   }
 
   static get properties() {
     return {
-      data: {type: Object},
-      strings: {type: Object},
+      data: {type: Object}
     }
   }
 
   constructor() {
     super()
     this.data = {}
-    this.strings = {}
   }
 
   render() {

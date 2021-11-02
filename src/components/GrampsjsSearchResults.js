@@ -3,8 +3,9 @@ import {LitElement, css, html} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import {showObject} from '../util.js'
 import './GrampsjsTimedelta.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-export class GrampsjsSearchResults extends LitElement {
+export class GrampsjsSearchResults extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -41,7 +42,6 @@ export class GrampsjsSearchResults extends LitElement {
   static get properties () {
     return {
       data: {type: Array},
-      strings: {type: Object},
       date: {type: Boolean}
     }
   }
@@ -49,7 +49,6 @@ export class GrampsjsSearchResults extends LitElement {
   constructor () {
     super()
     this.data = []
-    this.strings = {}
     this.date = false
   }
 

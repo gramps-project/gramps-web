@@ -5,8 +5,9 @@ import '@material/mwc-icon'
 import {sharedStyles} from '../SharedStyles.js'
 import {renderPerson} from '../util.js'
 import './GrampsjsChildren.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-export class GrampsjsRelationships extends LitElement {
+export class GrampsjsRelationships extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -31,7 +32,6 @@ export class GrampsjsRelationships extends LitElement {
       parentFamilies: {type: Array},
       primaryParentFamily: {type: Object},
       otherParentFamilies: {type: Array},
-      strings: {type: Object}
     }
   }
 
@@ -43,7 +43,6 @@ export class GrampsjsRelationships extends LitElement {
     this.families = []
     this.otherParentFamilies = []
     this.primaryParentFamily = {}
-    this.strings = {}
   }
 
   render () {
@@ -116,13 +115,6 @@ export class GrampsjsRelationships extends LitElement {
     `
     : ''}
     `
-  }
-
-  _ (s) {
-    if (s in this.strings) {
-      return this.strings[s]
-    }
-    return s
   }
 }
 

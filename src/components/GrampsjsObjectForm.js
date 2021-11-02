@@ -11,9 +11,10 @@ import '@material/mwc-circular-progress'
 
 import {apiGet} from '../api.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {fireEvent, translate} from '../util.js'
+import {fireEvent} from '../util.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-export class GrampsjsObjectForm extends LitElement {
+export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -49,7 +50,6 @@ export class GrampsjsObjectForm extends LitElement {
       types: {type: Object},
       typesLocale: {type: Object},
       loadingTypes: {type: Boolean},
-      strings: {type: Object},
       // postUrl: {type: String},
       // itemPath: {type: String},
       // objClass: {type: String},
@@ -62,7 +62,6 @@ export class GrampsjsObjectForm extends LitElement {
   constructor () {
     super()
     this.data = {}
-    this.strings = {}
     this.types = {}
     this.typesLocale = {}
     this.loadingTypes = false
@@ -218,9 +217,5 @@ export class GrampsjsObjectForm extends LitElement {
     }
     e.preventDefault()
     e.stopPropagation()
-  }
-
-  _ (s) {
-    return translate(this.strings, s)
   }
 }

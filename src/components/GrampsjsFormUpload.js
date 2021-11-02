@@ -8,9 +8,10 @@ import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 
-class GrampsjsFormUpload extends LitElement {
+class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -34,7 +35,6 @@ class GrampsjsFormUpload extends LitElement {
 
   static get properties() {
     return {
-      strings: {type: Object},
       file: {type: Object},
       imageUrl: {type: String}
     }
@@ -43,7 +43,6 @@ class GrampsjsFormUpload extends LitElement {
 
   constructor() {
     super()
-    this.strings = {}
     this.file = {}
     this.imageUrl = ''
   }
@@ -121,14 +120,6 @@ class GrampsjsFormUpload extends LitElement {
 
   handleChange() {
     fireEvent(this, 'formdata:changed', {data: this.file})
-  }
-
-
-  _(s) {
-    if (s in this.strings) {
-      return this.strings[s]
-    }
-    return s
   }
 }
 

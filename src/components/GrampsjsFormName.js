@@ -8,11 +8,12 @@ import '@material/mwc-icon-button'
 import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {translate, fireEvent} from '../util.js'
+import {fireEvent} from '../util.js'
 import './GrampsjsFormString.js'
 import {classMap} from 'lit/directives/class-map.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-class GrampsjsFormName extends LitElement {
+class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -34,7 +35,6 @@ class GrampsjsFormName extends LitElement {
 
   static get properties () {
     return {
-      strings: {type: Object},
       data: {type: Object},
       showMore: {type: Boolean}
     }
@@ -42,7 +42,6 @@ class GrampsjsFormName extends LitElement {
 
   constructor () {
     super()
-    this.strings = {}
     this.data = {_class: 'Name'}
     this.showMore = false
   }
@@ -127,10 +126,6 @@ class GrampsjsFormName extends LitElement {
 
   handleChange () {
     fireEvent(this, 'formdata:changed', {data: this.data})
-  }
-
-  _ (s) {
-    return translate(this.strings, s)
   }
 
   _handleFormData (e) {

@@ -9,6 +9,7 @@ import '@material/mwc-list/mwc-list-item'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {getSortval} from '../util.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 const modifiers = {
   0: 'Regular',
@@ -45,7 +46,7 @@ function parseDate (s) {
   return [y, m, d]
 }
 
-class GrampsjsFormSelectDate extends LitElement {
+class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -56,7 +57,6 @@ class GrampsjsFormSelectDate extends LitElement {
 
   static get properties () {
     return {
-      strings: {type: Object},
       data: {type: Object},
       disabled: {type: Boolean}
     }
@@ -64,7 +64,6 @@ class GrampsjsFormSelectDate extends LitElement {
 
   constructor () {
     super()
-    this.strings = {}
     this.data = dataDefault
     this.disabled = false
   }
@@ -184,13 +183,6 @@ class GrampsjsFormSelectDate extends LitElement {
 
   handleChange () {
     this.dispatchEvent(new CustomEvent('formdata:changed', {bubbles: true, composed: true, detail: {data: this.data}}))
-  }
-
-  _ (s) {
-    if (s in this.strings) {
-      return this.strings[s]
-    }
-    return s
   }
 }
 

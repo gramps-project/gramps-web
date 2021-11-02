@@ -8,7 +8,8 @@ import '@material/mwc-icon-button'
 import '@material/mwc-list/mwc-list-item'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {translate, fireEvent} from '../util.js'
+import {fireEvent} from '../util.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 // transform 2D coordinates (x, y) to SVG coordinates.
 // element can be the SVG itself or an element within it
@@ -28,7 +29,7 @@ function getPointFromEvent (svg, event) {
 
 const _zoomDefault = 0.7
 
-class GrampsjsGraph extends LitElement {
+class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -136,7 +137,6 @@ class GrampsjsGraph extends LitElement {
       scale: {type: Number},
       disableBack: {type: Boolean},
       disableHome: {type: Boolean},
-      strings: {type: Object},
       nAnc: {type: Number},
       nDesc: {type: Number},
       _svg: {type: Object},
@@ -156,7 +156,6 @@ class GrampsjsGraph extends LitElement {
     this.scale = _zoomDefault
     this.disableBack = false
     this.disableHome = false
-    this.strings = {}
     this._svgPointerDown = false
     this._zoomInPointerDown = false
     this._zoomOutPointerDown = false
@@ -541,10 +540,6 @@ class GrampsjsGraph extends LitElement {
 
   _personSelected (grampsId) {
     this.dispatchEvent(new CustomEvent('pedigree:person-selected', {bubbles: true, composed: true, detail: {grampsId}}))
-  }
-
-  _ (s) {
-    return translate(this.strings, s)
   }
 }
 

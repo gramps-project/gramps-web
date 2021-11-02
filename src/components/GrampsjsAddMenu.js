@@ -11,6 +11,7 @@ import '@material/mwc-list/mwc-list-item'
 import './GrampsJsListItem.js'
 
 import {sharedStyles} from '../SharedStyles.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 const BASE_DIR = ''
 
@@ -26,7 +27,7 @@ const menuItems = [
   ['Media Object', '/new_media', 'photo']
 ]
 
-class GrampsjsAddMenu extends LitElement {
+class GrampsjsAddMenu extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -42,13 +43,6 @@ class GrampsjsAddMenu extends LitElement {
       }
       `
     ]
-  }
-
-
-  static get properties() {
-    return {
-      strings: {type: Object}
-    }
   }
 
   render() {
@@ -82,13 +76,6 @@ class GrampsjsAddMenu extends LitElement {
   _handleClickAdd() {
     const menu = this.shadowRoot.getElementById('menu_add')
     menu.open = !menu.open
-  }
-
-  _(s) {
-    if (s in this.strings) {
-      return this.strings[s]
-    }
-    return s
   }
 
 }

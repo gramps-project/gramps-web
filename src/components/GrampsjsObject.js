@@ -20,6 +20,8 @@ import './GrampsjsReferences.js'
 import './GrampsjsRelationships.js'
 import './GrampsjsTags.js'
 import './GrampsjsUrls.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+
 
 /*
 Define all tabs in the object view, their details, and when to display them
@@ -104,7 +106,7 @@ const _allTabs = {
   }
 }
 
-export class GrampsjsObject extends LitElement {
+export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -146,7 +148,6 @@ export class GrampsjsObject extends LitElement {
   static get properties () {
     return {
       data: {type: Object},
-      strings: {type: Object},
       edit: {type: Boolean},
       dialogContent: {type: String},
       _currentTabId: {type: Number},
@@ -160,7 +161,6 @@ export class GrampsjsObject extends LitElement {
   constructor () {
     super()
     this.data = {}
-    this.strings = {}
     this.edit = false
     this.dialogContent = ''
     this._currentTabId = 0
@@ -380,12 +380,5 @@ export class GrampsjsObject extends LitElement {
 
   _handleCancelDialog () {
     this.dialogContent = ''
-  }
-
-  _ (s) {
-    if (s in this.strings) {
-      return this.strings[s].replace('_', '')
-    }
-    return s.replace('_', '')
   }
 }

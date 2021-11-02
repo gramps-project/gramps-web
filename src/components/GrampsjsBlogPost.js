@@ -6,8 +6,9 @@ import './GrampsJsImage.js'
 import './GrampsjsGallery.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsTimedelta.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-export class GrampsjsBlogPost extends LitElement {
+export class GrampsjsBlogPost extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -80,7 +81,6 @@ export class GrampsjsBlogPost extends LitElement {
     return {
       source: {type: Object},
       note: {type: Object},
-      strings: {type: Object}
     }
   }
 
@@ -88,7 +88,6 @@ export class GrampsjsBlogPost extends LitElement {
     super()
     this.source = {}
     this.note = {}
-    this.strings = {}
   }
 
   render () {

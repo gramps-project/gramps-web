@@ -13,8 +13,9 @@ import './GrampsjsAddMenu.js'
 
 import {fireEvent} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-class GrampsjsAppBar extends LitElement {
+class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -39,7 +40,6 @@ class GrampsjsAppBar extends LitElement {
       editMode: {type: Boolean},
       editTitle: {type: String},
       editDialogContent: {type: String},
-      strings: {type: Object},
       saveButton: {type: Boolean}
     }
   }
@@ -50,7 +50,6 @@ class GrampsjsAppBar extends LitElement {
     this.editMode = false
     this.editTitle = ''
     this.editDialogContent = ''
-    this.strings = {}
     this.saveButton = false
   }
 
@@ -151,13 +150,6 @@ class GrampsjsAppBar extends LitElement {
     super.connectedCallback()
     window.addEventListener('edit-mode:on', (e) => this._enableEditMode(e))
     window.addEventListener('edit-mode:off', (e) => this._disableEditMode(e))
-  }
-
-  _ (s) {
-    if (s in this.strings) {
-      return this.strings[s]
-    }
-    return s
   }
 }
 

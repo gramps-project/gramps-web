@@ -10,10 +10,11 @@ import './GrampsjsPasswordManagerPolyfill'
 import {sharedStyles} from '../SharedStyles.js'
 import {apiGetTokens, apiResetPassword, apiRegisterUser} from '../api.js'
 import {fireEvent} from '../util.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 const BASE_DIR = ''
 
-class GrampsjsLogin extends LitElement {
+class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -65,7 +66,6 @@ class GrampsjsLogin extends LitElement {
     return {
       resetpw: {type: Boolean},
       register: {type: Boolean},
-      strings: {type: Object},
       isFormValid: {type: Boolean},
       credentials: {type: Object}
     }
@@ -268,16 +268,6 @@ class GrampsjsLogin extends LitElement {
 
   _showError (message) {
     fireEvent(this, 'grampsjs:error', {message})
-  }
-
-  _ (s) {
-    if (s === undefined) {
-      return ''
-    }
-    if (s in this.strings) {
-      return this.strings[s].replace('_', '')
-    }
-    return s.replace('_', '')
   }
 }
 

@@ -6,9 +6,10 @@ import '@material/mwc-icon'
 
 import './GrampsjsMap.js'
 import './GrampsjsMapMarker.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 
-export class GrampsjsPersonTimeline extends LitElement {
+export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -111,7 +112,6 @@ export class GrampsjsPersonTimeline extends LitElement {
   static get properties() {
     return {
       data: {type: Array},
-      strings: {type: Object},
       highlightedId: {type: String}
     }
   }
@@ -119,7 +119,6 @@ export class GrampsjsPersonTimeline extends LitElement {
   constructor() {
     super()
     this.data = []
-    this.strings = {}
     this.highlightedId = ''
   }
 
@@ -261,16 +260,6 @@ export class GrampsjsPersonTimeline extends LitElement {
       return
     }
     ele.scrollIntoView({behavior: 'smooth', block: 'center'})
-  }
-
-  _(s) {
-    if (s === undefined) {
-      return ''
-    }
-    if (s in this.strings) {
-      return this.strings[s].replace('_', '')
-    }
-    return s.replace('_', '')
   }
 }
 

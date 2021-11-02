@@ -1,9 +1,10 @@
 import {LitElement, css} from 'lit'
 
 import {sharedStyles} from '../SharedStyles.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 
-export class GrampsjsTableBase extends LitElement {
+export class GrampsjsTableBase extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -82,22 +83,13 @@ export class GrampsjsTableBase extends LitElement {
 
   static get properties() {
     return {
-      data: {type: Array},
-      strings: {type: Object}
+      data: {type: Array}
     }
   }
 
   constructor() {
     super()
     this.data = []
-    this.strings = {}
-  }
-
-  _(s) {
-    if (s in this.strings) {
-      return this.strings[s].replace('_', '')
-    }
-    return s.replace('_', '')
   }
 }
 

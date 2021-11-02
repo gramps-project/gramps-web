@@ -8,8 +8,9 @@ import '@material/mwc-icon-button'
 import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {translate, fireEvent} from '../util.js'
+import {fireEvent} from '../util.js'
 import './GrampsjsFormString.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 export const userRoles = {
   '-2': 'unconfirmed',
@@ -21,7 +22,7 @@ export const userRoles = {
   4: 'Owner'
 }
 
-class GrampsjsFormUser extends LitElement {
+class GrampsjsFormUser extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -43,7 +44,6 @@ class GrampsjsFormUser extends LitElement {
 
   static get properties () {
     return {
-      strings: {type: Object},
       data: {type: Object},
       isFormValid: {type: Boolean},
       newUser: {type: Boolean}
@@ -52,7 +52,6 @@ class GrampsjsFormUser extends LitElement {
 
   constructor () {
     super()
-    this.strings = {}
     this.data = {}
     this.isFormValid = false
     this.newUser = false
@@ -127,10 +126,6 @@ class GrampsjsFormUser extends LitElement {
 
   reset () {
     this.shadowRoot.querySelectorAll('grampsjs-form-string').forEach(element => element.reset())
-  }
-
-  _ (s) {
-    return translate(this.strings, s)
   }
 
   _handleFormData (e) {

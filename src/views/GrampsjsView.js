@@ -4,9 +4,10 @@ Base class for Gramps views
 
 import {LitElement, html, css} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 
-export class GrampsjsView extends LitElement {
+export class GrampsjsView extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -34,7 +35,6 @@ export class GrampsjsView extends LitElement {
   static get properties() {
     return {
       active: {type: Boolean},
-      strings: {type: Object},
       loading: {type: Boolean},
       error: {type: Boolean},
       settings: {type: Object},
@@ -44,7 +44,6 @@ export class GrampsjsView extends LitElement {
 
   constructor() {
     super()
-    this.strings = {}
     this.active = false
     this.loading = false
     this.error = false
@@ -78,16 +77,6 @@ export class GrampsjsView extends LitElement {
         this.dispatchEvent(new CustomEvent('progress:on', {bubbles: true, composed: true}))
       }
     }
-  }
-
-  _(s) {
-    if (s === undefined) {
-      return ''
-    }
-    if (s in this.strings) {
-      return this.strings[s].replace('_', '')
-    }
-    return s.replace('_', '')
   }
 
 }

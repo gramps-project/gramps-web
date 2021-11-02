@@ -5,9 +5,10 @@ import '@material/mwc-icon'
 import '@material/mwc-button'
 
 import {sharedStyles} from '../SharedStyles.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 
-class GrampsjsPagination extends LitElement {
+class GrampsjsPagination extends GrampsjsTranslateMixin(LitElement) {
 
   static get styles() {
     return [
@@ -47,15 +48,13 @@ class GrampsjsPagination extends LitElement {
   static get properties() { return {
     page: {type: Number},
     pages: {type: Number},
-    link: {type: String},
-    strings: {type: Object}
+    link: {type: String}
   }}
 
   constructor() {
     super()
     this.page = 1
     this.pages = -1
-    this.strings = {}
   }
 
   render() {
@@ -124,16 +123,6 @@ class GrampsjsPagination extends LitElement {
 
   _fireEvent() {
     this.dispatchEvent(new CustomEvent('page:changed', {bubbles: true, composed: true, detail: {page: this.page}}))
-  }
-
-  _(s) {
-    if (s === undefined) {
-      return ''
-    }
-    if (s in this.strings) {
-      return this.strings[s].replace('_', '')
-    }
-    return s.replace('_', '')
   }
 }
 

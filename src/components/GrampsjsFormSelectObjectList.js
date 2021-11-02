@@ -7,9 +7,10 @@ import {html, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormObjectList.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 
-class GrampsjsFormSelectObjectList extends LitElement {
+class GrampsjsFormSelectObjectList extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles
@@ -18,7 +19,6 @@ class GrampsjsFormSelectObjectList extends LitElement {
 
   static get properties() {
     return {
-      strings: {type: Object},
       objectType: {type: String},
       label: {type: String},
       multiple: {type: Boolean},
@@ -29,7 +29,6 @@ class GrampsjsFormSelectObjectList extends LitElement {
 
   constructor() {
     super()
-    this.strings = {}
     this.objectType = ''
     this.label = ''
     this.multiple = false

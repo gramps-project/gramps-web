@@ -10,8 +10,9 @@ import './GrampsjsLightbox.js'
 import '../views/GrampsjsViewMediaLightbox.js'
 import './GrampsjsFormMediaRef.js'
 import {fireEvent} from '../util.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-export class GrampsjsGallery extends LitElement {
+export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -42,7 +43,6 @@ export class GrampsjsGallery extends LitElement {
     return {
       mediaRef: {type: Array},
       media: {type: Array},
-      strings: {type: Object},
       dialogContent: {type: String},
       edit: {type: Boolean},
       _lightboxSelected: {type: Number}
@@ -53,7 +53,6 @@ export class GrampsjsGallery extends LitElement {
     super()
     this.mediaRef = []
     this.media = []
-    this.strings = {}
     this.edit = false
     this.dialogContent = ''
     this._lightboxSelected = 0
@@ -174,13 +173,6 @@ export class GrampsjsGallery extends LitElement {
 
   _handleMediaRefCancel () {
     this.dialogContent = ''
-  }
-
-  _ (s) {
-    if (s in this.strings) {
-      return this.strings[s]
-    }
-    return s
   }
 }
 

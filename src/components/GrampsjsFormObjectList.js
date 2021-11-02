@@ -14,9 +14,10 @@ import '@material/mwc-icon-button'
 import {fireEvent} from '../util.js'
 import './GrampsjsSearchResultList.js'
 import {sharedStyles} from '../SharedStyles.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 
-class GrampsjsFormObjectList extends LitElement {
+class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -32,7 +33,6 @@ class GrampsjsFormObjectList extends LitElement {
 
   static get properties() {
     return {
-      strings: {type: Object},
       objects: {type: Array},
       selectedIndex: {type: Number},
       reorder: {type: Boolean},
@@ -43,7 +43,6 @@ class GrampsjsFormObjectList extends LitElement {
 
   constructor() {
     super()
-    this.strings = {}
     this.objectType = false
     this.objects = []
     this.selectedIndex = -1
@@ -159,14 +158,6 @@ class GrampsjsFormObjectList extends LitElement {
       fireEvent(this, 'formdata:changed', {data: this._handleList()})
     }
   }
-
-  _(s) {
-    if (s in this.strings) {
-      return this.strings[s]
-    }
-    return s
-  }
-
 }
 
 window.customElements.define('grampsjs-form-object-list', GrampsjsFormObjectList)

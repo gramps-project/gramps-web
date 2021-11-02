@@ -7,9 +7,10 @@ import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
 
 import {sharedStyles} from '../SharedStyles.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 
-class GrampsjsFormSelectType extends LitElement {
+class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles
@@ -19,7 +20,6 @@ class GrampsjsFormSelectType extends LitElement {
 
   static get properties() {
     return {
-      strings: {type: Object},
       heading: {type: String},
       typeName: {type: String},
       defaultTypeName: {type: String},
@@ -103,14 +103,6 @@ class GrampsjsFormSelectType extends LitElement {
       return false
     }
   }
-
-  _(s) {
-    if (s in this.strings) {
-      return this.strings[s]
-    }
-    return s
-  }
-
 }
 
 window.customElements.define('grampsjs-form-select-type', GrampsjsFormSelectType)

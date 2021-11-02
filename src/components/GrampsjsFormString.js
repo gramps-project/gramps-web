@@ -7,8 +7,9 @@ import '@material/mwc-textfield'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-class GrampsjsFormString extends LitElement {
+class GrampsjsFormString extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -22,7 +23,6 @@ class GrampsjsFormString extends LitElement {
 
   static get properties () {
     return {
-      strings: {type: Object},
       value: {type: String},
       label: {type: String},
       disabled: {type: Boolean},
@@ -34,7 +34,6 @@ class GrampsjsFormString extends LitElement {
 
   constructor () {
     super()
-    this.strings = {}
     this.value = ''
     this.label = ''
     this.disabled = false

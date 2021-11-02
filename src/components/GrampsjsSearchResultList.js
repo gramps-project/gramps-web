@@ -4,10 +4,11 @@ import '@material/mwc-icon-button'
 import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
 
-import {objectDescription, objectIcon, translate, fireEvent, objectDetail} from '../util.js'
+import {objectDescription, objectIcon, fireEvent, objectDetail} from '../util.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 
-export class GrampsjsSearchResultList extends LitElement {
+export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(LitElement) {
 
   static get styles() {
     return [
@@ -22,7 +23,6 @@ export class GrampsjsSearchResultList extends LitElement {
   static get properties() {
     return {
       data: {type: Array},
-      strings: {type: Object},
       textEmpty: {type: String},
       activatable: {type: Boolean},
       selectable: {type: Boolean}
@@ -32,7 +32,6 @@ export class GrampsjsSearchResultList extends LitElement {
   constructor() {
     super()
     this.data = []
-    this.strings = {}
     this.textEmpty = ''
     this.activatable = false
     this.selectable = false
@@ -72,10 +71,6 @@ export class GrampsjsSearchResultList extends LitElement {
 
   _handleClick(obj) {
     fireEvent(this, 'search-result:clicked', obj)
-  }
-
-  _(s) {
-    return translate(this.strings, s)
   }
 }
 
