@@ -17,11 +17,12 @@ export class GrampsjsViewAnniversaries extends GrampsjsView {
 
       .date {
         font-size: 0.9em;
-        color: rgba(0, 0, 0, 0.7);
+        color: rgba(0, 0, 0, 0.5);
       }
 
       .title {
         margin-top: 0.4em;
+        margin-bottom: 0.7em;
       }
       `
     ]
@@ -70,7 +71,7 @@ export class GrampsjsViewAnniversaries extends GrampsjsView {
     const now = new Date()
     const m = now.getMonth() + 1
     const d = now.getDate()
-    const data = await apiGet(`/api/events/?dates=*/${m}/${d}&profile=all`)
+    const data = await apiGet(`/api/events/?dates=*/${m}/${d}&profile=all&sort=-date`)
     this.loading = false
     if ('data' in data) {
       this.error = false
