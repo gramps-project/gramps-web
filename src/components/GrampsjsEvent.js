@@ -3,11 +3,13 @@ import {html, css} from 'lit'
 import '@material/mwc-icon'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
+import './GrampsjsFormEditEventDetails.js'
+import {fireEvent} from '../util.js'
 
 const BASE_DIR = ''
 
 export class GrampsjsEvent extends GrampsjsObject {
-  static get styles() {
+  static get styles () {
     return [
       super.styles,
       css`
@@ -16,34 +18,50 @@ export class GrampsjsEvent extends GrampsjsObject {
     `]
   }
 
-  constructor() {
+  constructor () {
     super()
     this._showReferences = false
   }
 
-  renderProfile() {
+  renderProfile () {
     return html`
     <h2><mwc-icon class="person">event</mwc-icon> ${this._renderTitle()}</h2>
     ${this.data.description ? html`<p>${this.data.description}</p>` : ''}
+
+
     <dl>
-      ${this.data?.profile?.date ? html`
-      <div>
-        <dt>${this._('Date')}</dt>
-        <dd>${this.data.profile.date}</dd>
+    ${this.data?.profile?.date || this.edit
+    ? html`
+    <div>
+      <dt>
+        ${this._('Date')}
+      </dt>
+      <dd>
+      ${this.data.profile.date}
+      </dd>
       </div>
-      ` : ''}
-      ${this.data?.profile?.place ? html`
+      `
+    : ''}
+      ${this.data?.profile?.place || this.edit
+    ? html`
       <div>
         <dt>${this._('Place')}</dt>
         <dd><a href="${BASE_DIR}/place/${this.data.extended.place.gramps_id}">${this.data.profile.place}</a></dd>
       </div>
-      ` : ''}
+      `
+    : ''}
     </dl>
+    ${this.edit
+    ? html`
+      <mwc-icon-button icon="edit" class="edit" @click="${this._handleEditDetails}"></mwc-icon-button>
+      `
+    : ''}
+
     `
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _renderPerson(obj) {
+  _renderPerson (obj) {
     if (obj === undefined) {
       return ''
     }
@@ -51,15 +69,14 @@ export class GrampsjsEvent extends GrampsjsObject {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _renderFamily(obj) {
+  _renderFamily (obj) {
     if (obj === undefined) {
       return ''
     }
     return `${this._renderPerson(obj.family?.father)} & ${this._renderPerson(obj.family?.mother)}`
   }
 
-
-  _renderPrimaryPeople() {
+  _renderPrimaryPeople () {
     const primary = this._('Primary')
     const family = this._('Family')
     const people = this.data?.profile?.participants?.people.filter((obj) => obj.role === primary) || []
@@ -68,11 +85,34 @@ export class GrampsjsEvent extends GrampsjsObject {
             ${families.map((obj) => this._renderFamily(obj), this).join(', ')}`
   }
 
-
-  _renderTitle() {
+  _renderTitle () {
     return html`${this.data.profile.type}: ${this._renderPrimaryPeople()}`
   }
-}
 
+  _handleEditDetails () {
+    const data = {date: this.data.date}
+    if (this.data.place) {
+      data.place = this.data.place
+    }
+    const place = this.data?.extended?.place
+    this.dialogContent = html`
+    <grampsjs-form-edit-event-details
+      @object:save="${this._handleSaveDetails}"
+      @object:cancel="${this._handleCancelDialog}"
+      .strings=${this.strings}
+      .data=${data}
+      .place=${place}
+    >
+    </grampsjs-form-edit-event-details>
+    `
+  }
+
+  _handleSaveDetails (e) {
+    fireEvent(this, 'edit:action', {action: 'updateProp', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+}
 
 window.customElements.define('grampsjs-event', GrampsjsEvent)

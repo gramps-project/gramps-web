@@ -16,9 +16,8 @@ import './GrampsjsSearchResultList.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-
 class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
-  static get styles() {
+  static get styles () {
     return [
       sharedStyles,
       css`
@@ -31,7 +30,7 @@ class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
     ]
   }
 
-  static get properties() {
+  static get properties () {
     return {
       objects: {type: Array},
       selectedIndex: {type: Number},
@@ -40,8 +39,7 @@ class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
-
-  constructor() {
+  constructor () {
     super()
     this.objectType = false
     this.objects = []
@@ -50,7 +48,7 @@ class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
     this.deletable = false
   }
 
-  render() {
+  render () {
     const empty = this.objects.length === 0
     const one = this.objects.length === 1
     const unselected = this.selectedIndex < 0
@@ -59,14 +57,17 @@ class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
     }
     return html`
       <div class="buttons">
-      ${this.deletable ? html`
+      ${this.deletable
+    ? html`
         <mwc-icon-button
           icon="delete"
           ?disabled="${unselected}"
           @click="${this._handleDelete}"
         ></mwc-icon-button>
-        ` : ''}
-        ${this.reorder ? html`<mwc-icon-button
+        `
+    : ''}
+        ${this.reorder
+    ? html`<mwc-icon-button
           icon="arrow_upward"
           ?disabled="${unselected || one || this.selectedIndex === 0}"
           @click="${this._handleUp}"
@@ -75,7 +76,8 @@ class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
           icon="arrow_downward"
           ?disabled="${unselected || one || this.selectedIndex === this.objects.length - 1}"
           @click="${this._handleDown}"
-        ></mwc-icon-button>` : ''}
+        ></mwc-icon-button>`
+    : ''}
       </div>
       <grampsjs-search-result-list
         ?activatable="${this.deletable || this.reorder}"
@@ -87,11 +89,11 @@ class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
       `
   }
 
-  _handleSelected(e) {
+  _handleSelected (e) {
     this.selectedIndex = e.detail.index
   }
 
-  _handleDelete() {
+  _handleDelete () {
     this.objects = [...this.objects].filter((obj, i) => i !== this.selectedIndex)
     if (this.selectedIndex + 1 > this.objects.length) {
       this.selectedIndex = -1
@@ -99,7 +101,7 @@ class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
     this._handleChange()
   }
 
-  _handleUp() {
+  _handleUp () {
     const i = this.selectedIndex
     if (i === 1) {
       this.objects = [
@@ -107,8 +109,7 @@ class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
         this.objects[0],
         ...this.objects.slice(2)
       ]
-    }
-    else if (i > 1) {
+    } else if (i > 1) {
       this.objects = [
         ...this.objects.slice(0, i - 1),
         this.objects[i],
@@ -119,7 +120,7 @@ class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
     this._handleChange()
   }
 
-  _handleDown() {
+  _handleDown () {
     const L = this.objects.length
     const i = this.selectedIndex
     if (i === 0) {
@@ -128,8 +129,7 @@ class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
         this.objects[0],
         ...this.objects.slice(2)
       ]
-    }
-    else if (i < L - 1) {
+    } else if (i < L - 1) {
       this.objects = [
         ...this.objects.slice(0, i),
         this.objects[i + 1],
@@ -137,22 +137,21 @@ class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
         ...this.objects.slice(i + 2)
       ]
     }
-
   }
 
-  _handleChange() {
+  _handleChange () {
     fireEvent(this, 'object-list:changed', {objects: this.objects})
   }
 
-  reset() {
+  reset () {
     this.objects = []
   }
 
-  _handleList() {
+  _handleList () {
     return this.objects.map(_obj => _obj.handle)
   }
 
-  update(changed) {
+  update (changed) {
     super.update(changed)
     if (changed.has('objects')) {
       fireEvent(this, 'formdata:changed', {data: this._handleList()})
