@@ -244,7 +244,7 @@ export class GrampsJs extends LitElement {
 
   _renderLogin () {
     return html`
-    <grampsjs-login .strings="${this.strings}"></grampsjs-login>
+    <grampsjs-login .strings="${this._strings}"></grampsjs-login>
     `
   }
 
@@ -536,6 +536,7 @@ export class GrampsJs extends LitElement {
           }
           this._strings.__lang__ = lang
           this._lang = lang
+          fireEvent(this, 'language:changed', {lang: lang})
         }
         if ('error' in data) {
           this._showError(data.error)

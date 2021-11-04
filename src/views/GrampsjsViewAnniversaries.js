@@ -66,12 +66,12 @@ export class GrampsjsViewAnniversaries extends GrampsjsView {
     </div>`
   }
 
-  async _fetchData () {
+  async _fetchData (lang) {
     this.loading = true
     const now = new Date()
     const m = now.getMonth() + 1
     const d = now.getDate()
-    const data = await apiGet(`/api/events/?dates=*/${m}/${d}&profile=all&sort=-date`)
+    const data = await apiGet(`/api/events/?dates=*/${m}/${d}&profile=all&sort=-date&locale=${lang || 'en'}`)
     this.loading = false
     if ('data' in data) {
       this.error = false
@@ -82,8 +82,15 @@ export class GrampsjsViewAnniversaries extends GrampsjsView {
     }
   }
 
+  connectedCallback () {
+    super.connectedCallback()
+    window.addEventListener('language:changed', (e) => this._fetchData(e.detail.lang))
+  }
+
   firstUpdated () {
-    this._fetchData()
+    if ('__lang__' in this.strings) { // don't load before we have strings
+      this._fetchData(this.strings.__lang__)
+    }
   }
 }
 

@@ -35,8 +35,8 @@ export function citationTitleFromProfile (citationProfile) {
 export function eventTitleFromProfile (eventProfile, strings) {
   const primary = translate(strings, 'Primary')
   const family = translate(strings, 'Family')
-  const people = eventProfile?.participants?.people.filter((obj) => obj.role === primary) || []
-  const families = eventProfile?.participants?.families.filter((obj) => obj.role === family) || []
+  const people = eventProfile?.participants?.people.filter((obj) => (obj.role === primary) || (obj.role === 'Primary')) || []
+  const families = eventProfile?.participants?.families.filter((obj) => (obj.role === family) || (obj.role === 'Family')) || []
   const primaryPeople = `${people.map((obj) => personTitleFromProfile(obj.person)).join(', ')}
           ${families.map((obj) => familyTitleFromProfile(obj.family)).join(', ')}`
   return html`${eventProfile.type}${primaryPeople.trim() ? `: ${primaryPeople}` : ''}${eventProfile.date ? ` (${eventProfile.date})` : ''}`

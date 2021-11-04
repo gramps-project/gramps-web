@@ -30,7 +30,7 @@ export class GrampsjsEvents extends GrampsjsEditableTable {
       <tr @click=${() => this._handleClick(obj.gramps_id)}>
         <td>${this.profile[i].date}</td>
         <td>${this.profile[i].type}
-        ${!this.profile[i]?.role || [this._('Primary'), this._('Family')].includes(this.profile[i]?.role)
+        ${!this.profile[i]?.role || ['Primary', 'Family', this._('Primary'), this._('Family')].includes(this.profile[i]?.role)
     ? ''
     : `(${this.profile[i]?.role})`} </td>
         <td>${obj.description}</td>

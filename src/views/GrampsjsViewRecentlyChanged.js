@@ -5,11 +5,8 @@ import {GrampsjsView} from './GrampsjsView.js'
 import {apiGet} from '../api.js'
 import '../components/GrampsjsSearchResults.js'
 
-
 export class GrampsjsViewRecentlyChanged extends GrampsjsView {
-
-
-  static get styles() {
+  static get styles () {
     return [
       super.styles,
       css`
@@ -20,23 +17,25 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsView {
     ]
   }
 
-  static get properties() {
+  static get properties () {
     return {
       _searchResult: {type: Array}
     }
   }
 
-  constructor() {
+  constructor () {
     super()
     this._searchResult = []
   }
 
-  renderContent() {
+  renderContent () {
     return html`
     <h2>${this._('Recently changed objects')}</h2>
-    ${!this.loading && this._searchResult.length === 0 ? html`
+    ${!this.loading && this._searchResult.length === 0
+    ? html`
       <p>${this._('No items')}.</p>
-      ` : html`
+      `
+    : html`
       <grampsjs-search-results
         .data="${this._searchResult}"
         .strings="${this.strings}"
@@ -45,10 +44,10 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsView {
     `}`
   }
 
-  async _fetchData() {
+  async _fetchData (lang) {
     this.loading = true
     const query = 'change:\'-1 year to tomorrow\''
-    const data = await apiGet(`/api/search/?sort=-change&query=${query}&locale=${this.strings?.__lang__ || 'en'}&profile=all&page=1&pagesize=8`)
+    const data = await apiGet(`/api/search/?sort=-change&query=${query}&locale=${lang || 'en'}&profile=all&page=1&pagesize=8`)
     this.loading = false
     if ('data' in data) {
       this.error = false
@@ -59,16 +58,17 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsView {
     }
   }
 
-  firstUpdated() {
-    this._fetchData()
+  firstUpdated () {
+    if ('__lang__' in this.strings) { // don't load before we have strings
+      this._fetchData(this.strings.__lang__)
+    }
   }
 
-  connectedCallback() {
+  connectedCallback () {
     super.connectedCallback()
-    window.addEventListener('db:changed', () => this._fetchData())
+    window.addEventListener('language:changed', (e) => this._fetchData(e.detail.lang))
+    window.addEventListener('db:changed', () => this._fetchData(this.strings.__lang__))
   }
-
 }
-
 
 window.customElements.define('grampsjs-view-recently-changed', GrampsjsViewRecentlyChanged)

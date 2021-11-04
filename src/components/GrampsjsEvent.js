@@ -94,8 +94,8 @@ export class GrampsjsEvent extends GrampsjsObject {
   _renderPrimaryPeople () {
     const primary = this._('Primary')
     const family = this._('Family')
-    const people = this.data?.profile?.participants?.people.filter((obj) => obj.role === primary) || []
-    const families = this.data?.profile?.participants?.families.filter((obj) => obj.role === family) || []
+    const people = this.data?.profile?.participants?.people.filter((obj) => (obj.role === primary) || (obj.role === 'Primary')) || []
+    const families = this.data?.profile?.participants?.families.filter((obj) => (obj.role === family) || (obj.role === 'Family')) || []
     return `${people.map((obj) => this._renderPerson(obj.person), this).join(', ')}
             ${families.map((obj) => this._renderFamily(obj), this).join(', ')}`
   }
@@ -143,7 +143,6 @@ export class GrampsjsEvent extends GrampsjsObject {
   }
 
   _handleSaveDesc (e) {
-    console.log(e.detail)
     fireEvent(this, 'edit:action', {action: 'updateProp', data: e.detail.data})
     e.preventDefault()
     e.stopPropagation()
