@@ -48,7 +48,6 @@ class GrampsjsFormEditEventDetails extends GrampsjsObjectForm {
         class="edit"
       ></grampsjs-form-select-object-list>
     </p>
-    <pre>${JSON.stringify(this.data, null, 2)}</pre>
 `
   }
 }

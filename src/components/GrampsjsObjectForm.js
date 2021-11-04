@@ -181,7 +181,7 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
       this.data = {...this.data, private: e.detail.checked}
     }
     if ([
-      'author', 'pubinfo', 'abbrev', 'page', 'desc', 'title', 'desc'
+      'author', 'pubinfo', 'abbrev', 'page', 'desc', 'title', 'description'
     ].includes(originalTarget.id)) {
       this.data = {...this.data, [originalTarget.id]: e.detail.data}
     }

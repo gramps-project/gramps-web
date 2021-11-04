@@ -4,6 +4,7 @@ import '@material/mwc-icon'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditEventDetails.js'
+import './GrampsjsFormEditTitle.js'
 import {fireEvent} from '../util.js'
 
 const BASE_DIR = ''
@@ -26,19 +27,33 @@ export class GrampsjsEvent extends GrampsjsObject {
   renderProfile () {
     return html`
     <h2><mwc-icon class="person">event</mwc-icon> ${this._renderTitle()}</h2>
-    ${this.data.description ? html`<p>${this.data.description}</p>` : ''}
-
-
+    ${this.data.description || this.edit
+    ? html`
     <dl>
+      <div>
+        <dt>${this._('Description')}</dt>
+        <dd>${this.data.description}</dd>
+      </div>
+    </dl>`
+    : ''}
+    ${this.edit
+    ? html`
+        <mwc-icon-button icon="edit" class="edit" @click="${this._handleEditDesc}"></mwc-icon-button>
+        `
+    : ''}
+
+
+
+    <dl style="clear:left;">
     ${this.data?.profile?.date || this.edit
     ? html`
-    <div>
-      <dt>
-        ${this._('Date')}
-      </dt>
-      <dd>
-      ${this.data.profile.date}
-      </dd>
+      <div>
+        <dt>
+          ${this._('Date')}
+        </dt>
+        <dd>
+        ${this.data.profile.date}
+        </dd>
       </div>
       `
     : ''}
@@ -108,6 +123,27 @@ export class GrampsjsEvent extends GrampsjsObject {
   }
 
   _handleSaveDetails (e) {
+    fireEvent(this, 'edit:action', {action: 'updateProp', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleEditDesc () {
+    this.dialogContent = html`
+    <grampsjs-form-edit-title
+      @object:save="${this._handleSaveDesc}"
+      @object:cancel="${this._handleCancelDialog}"
+      .strings=${this.strings}
+      .data=${{description: this.data?.description || ''}}
+      prop="description"
+    >
+    </grampsjs-form-edit-title>
+    `
+  }
+
+  _handleSaveDesc (e) {
+    console.log(e.detail)
     fireEvent(this, 'edit:action', {action: 'updateProp', data: e.detail.data})
     e.preventDefault()
     e.stopPropagation()
