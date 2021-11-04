@@ -37,7 +37,7 @@ class GrampsjsTimedelta extends LitElement {
   connectedCallback () {
     super.connectedCallback()
     this._updateString()
-    this._timerInterval = setInterval(() => this._updateString(), 1000)
+    this._timerInterval = setInterval(() => this._updateString(), 10000)
   }
 
   disconnectedCallback () {
