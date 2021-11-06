@@ -54,7 +54,6 @@ export class GrampsjsViewAnniversaries extends GrampsjsView {
     let date = new Date()
     date = new Date(event.date.year, date.getMonth(), date.getDay())
     const timestamp = date.getTime() / 1000
-    console.log([date, timestamp])
     return html`
     <div class="event">
       <div class="date">
