@@ -125,7 +125,7 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
     fireEvent(this, 'object:save', {data: this.data})
   }
 
-  _handleDialogCancel () {
+  _handleDialogCancel (e) {
     fireEvent(this, 'object:cancel')
   }
 
@@ -181,7 +181,7 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
       this.data = {...this.data, private: e.detail.checked}
     }
     if ([
-      'author', 'pubinfo', 'abbrev', 'page', 'desc', 'title', 'description'
+      'author', 'pubinfo', 'abbrev', 'page', 'desc', 'title', 'description', 'lat', 'long'
     ].includes(originalTarget.id)) {
       this.data = {...this.data, [originalTarget.id]: e.detail.data}
     }

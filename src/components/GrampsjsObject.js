@@ -37,7 +37,7 @@ const _allTabs = {
   map: {
     title: 'Map',
     condition: (data) => (data?.profile?.lat !== undefined && data?.profile?.lat !== null && (data?.profile?.lat !== 0 || data?.profile?.long !== 0)),
-    conditionEdit: (data) => false // 'lat' in data // FIXME editable in principle but UI not implemented
+    conditionEdit: (data) => 'lat' in data
   },
   children: {
     title: 'Children',
@@ -268,7 +268,15 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           .otherParentFamilies=${this.data?.profile?.other_parent_families || []}
           ></grampsjs-relationships>`
     case ('map'):
-      return html`<grampsjs-map
+      return html`
+      ${this.edit
+        ? html`
+            <p>
+              <mwc-button icon="edit" class="edit" @click="${this._handleEditGeo}">${this._('Edit coordinates')}</mwc-button>
+            </p>
+            `
+        : ''}
+        <grampsjs-map
           latitude="${this.data.profile.lat}"
           longitude="${this.data.profile.long}"
           mapid="place-map"

@@ -286,3 +286,20 @@ export function getThumbnailUrlCropped (handle, rect, size, square = false) {
   }
   return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?jwt=${jwt}&square=${square}`
 }
+
+export async function queryNominatim (q) {
+  const url = `https://nominatim.openstreetmap.org/search?q=${q}&format=jsonv2`
+  try {
+    const resp = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    if (resp.status !== 200) {
+      throw (new Error(`Error ${resp.statusText}`))
+    }
+    return {data: await resp.json()}
+  } catch (error) {
+    return {error: error.message}
+  }
+}
