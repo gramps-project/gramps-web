@@ -10,6 +10,7 @@ export const additionalStrings = {
     History: 'Verlauf',
     Menu: 'Menü',
     Blog: 'Blog',
+    'Edit coordinates': 'Koordinaten bearbeiten',
     'Recently browsed objects': 'Kürzlich betrachtete Objekte',
     'Recently changed objects': 'Kürzlich geänderte Objekte',
     'Show in tree': 'Im Stammbaum anzeigen',
@@ -22,7 +23,8 @@ export const additionalStrings = {
     'New password': 'Neues Passwort',
     'New E-mail': 'Neue E-Mail-Adresse',
     'A new version of the app is available.': 'Eine neue Version der App ist verfügbar.',
-    'Manage users': 'Benutzer verwalten'
+    'Manage users': 'Benutzer verwalten',
+    'Search %s': '%s durchsuchen'
   }
 }
 
@@ -118,10 +120,12 @@ export const grampsStrings = [
   'in',
   'Language',
   'Last changed',
+  'Latitude',
   'LDS Note',
   'Library',
   'Loading items...',
   'Locality',
+  'Longitude',
   'Low',
   'Male',
   'Map',

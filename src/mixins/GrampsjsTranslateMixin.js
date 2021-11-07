@@ -18,9 +18,14 @@ export const GrampsjsTranslateMixin = (superClass) => class extends superClass {
     if (s === undefined) {
       return ''
     }
+    let t = s
     if (s in this.strings) {
-      return this.strings[s].replace('_', '')
+      t = this.strings[s]
     }
-    return s.replace('_', '')
+    t = t.replace('_', '')
+    for (let i = 1; i < arguments.length; i++) {
+      t = t.replace('%s', arguments[i])
+    }
+    return t
   }
 }
