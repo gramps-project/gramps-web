@@ -100,17 +100,21 @@ class GrampsjsFormEditLatLong extends GrampsjsObjectForm {
     ${this._renderSearchResults()}
   <p>
     <grampsjs-map
-      latitude="${parseFloat(this.data.lat)}"
-      longitude="${parseFloat(this.data.long)}"
+      latitude="${this.data.lat ? parseFloat(this.data.lat) : 0}"
+      longitude="${this.data.long ? parseFloat(this.data.long) : 0}"
       mapid="edit-latlong-map"
       id="map"
       @click="${this._handleMapClick}"
     >
+      ${this.data.lat && this.data.long
+    ? html`
       <grampsjs-map-marker
         latitude="${parseFloat(this.data.lat)}"
         longitude="${parseFloat(this.data.long)}"
       >
       </grampsjs-map-marker>
+      `
+    : ''}
     </grampsjs-map>
   </p>
 `

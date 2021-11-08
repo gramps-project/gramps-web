@@ -276,6 +276,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
             </p>
             `
         : ''}
+        ${this.data.lat && this.data.long ? html`
         <grampsjs-map
           latitude="${this.data.profile.lat}"
           longitude="${this.data.profile.long}"
@@ -288,6 +289,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
             >
             </grampsjs-map-marker>
           </grampsjs-map>`
+          : ''}`
     case ('events'):
       return html`<grampsjs-events
         .strings=${this.strings}
