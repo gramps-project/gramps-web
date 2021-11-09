@@ -23,7 +23,7 @@ export class GrampsjsTags extends LitElement {
 
       .tags {
         clear: left;
-        margin: 20px 0px;
+        margin: 15px 0px;
       }
       `
     ]

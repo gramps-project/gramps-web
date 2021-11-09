@@ -16,6 +16,7 @@ import './GrampsjsGallery.js'
 import './GrampsjsMap.js'
 import './GrampsjsMapMarker.js'
 import './GrampsjsParticipants.js'
+import './GrampsjsPrivacy.js'
 import './GrampsjsReferences.js'
 import './GrampsjsRelationships.js'
 import './GrampsjsTags.js'
@@ -131,7 +132,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
 
       mwc-tab-bar {
         border-bottom: solid #6D4C4133 1px;
-        margin-top: 36px;
+        margin-top: 28px;
         margin-bottom: 36px;
         --mdc-tab-horizontal-padding: 16px;
       }
@@ -140,6 +141,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         float: right;
         margin-bottom: 20px;
         margin-left: 40px;
+        text-align: right;
       }
       `
     ]
@@ -176,6 +178,9 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     return html`
     <div id="picture">
     ${this.renderPicture()}
+    <div style="clear:both;margin-top:15px;">
+    ${this.renderPrivacy()}
+    </div>
     </div>
 
     ${this.renderProfile()}
@@ -245,13 +250,15 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
   }
 
   renderTags () {
-    if (!('extended' in this.data)) {
-      return html``
-    }
-    if (!('tags' in this.data.extended)) {
-      return html``
-    }
-    return html`<grampsjs-tags .data=${this.data.extended.tags}></grampsjs-tags>`
+    return html`<grampsjs-tags .data=${this.data?.extended?.tags || []}></grampsjs-tags>`
+  }
+
+  renderPrivacy () {
+    return html`
+    <grampsjs-privacy
+      ?private="${this.data.private}"
+      ?edit="${this.edit}"
+    ></grampsjs-privacy>`
   }
 
   renderTabContent () {
