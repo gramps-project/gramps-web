@@ -153,6 +153,7 @@ export const grampsStrings = [
   'New Place',
   'New Repository',
   'New Source',
+  'New Tag',
   'Next',
   'Nick name',
   'Nickname',

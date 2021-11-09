@@ -23,6 +23,7 @@ import './GrampsjsTags.js'
 import './GrampsjsUrls.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
+import {fireEvent} from '../util.js'
 
 /*
 Define all tabs in the object view, their details, and when to display them
@@ -250,7 +251,12 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
   }
 
   renderTags () {
-    return html`<grampsjs-tags .data=${this.data?.extended?.tags || []}></grampsjs-tags>`
+    return html`
+    <grampsjs-tags
+      .data=${this.data?.extended?.tags || []}
+      ?edit="${this.edit}"
+      @tag:new="${this._handleNewTag}"
+    ></grampsjs-tags>`
   }
 
   renderPrivacy () {
@@ -277,13 +283,14 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     case ('map'):
       return html`
       ${this.edit
-        ? html`
+    ? html`
             <p>
               <mwc-button icon="edit" class="edit" @click="${this._handleEditGeo}">${this._('Edit coordinates')}</mwc-button>
             </p>
             `
-        : ''}
-        ${this.data.lat && this.data.long ? html`
+    : ''}
+        ${this.data.lat && this.data.long
+    ? html`
         <grampsjs-map
           latitude="${this.data.profile.lat}"
           longitude="${this.data.profile.long}"
@@ -296,7 +303,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
             >
             </grampsjs-map-marker>
           </grampsjs-map>`
-          : ''}`
+    : ''}`
     case ('events'):
       return html`<grampsjs-events
         .strings=${this.strings}
@@ -396,6 +403,24 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _handleCancelDialog () {
+    this.dialogContent = ''
+  }
+
+  _handleNewTag () {
+    this.dialogContent = html`
+    <grampsjs-form-new-tag
+      .data="${this.data.tag_list}"
+      @object:save="${this._handleSaveTag}"
+      @object:cancel="${this._handleCancelDialog}"
+    >
+    </grampsjs-form-new-tag>
+    `
+  }
+
+  _handleSaveTag (e) {
+    fireEvent(this, 'edit:action', {action: 'updateProp', data: {tag_list: e.detail.data}})
+    e.preventDefault()
+    e.stopPropagation()
     this.dialogContent = ''
   }
 }
