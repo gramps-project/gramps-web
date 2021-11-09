@@ -186,6 +186,8 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
 
     ${this.renderProfile()}
 
+    <div style="clear:left;"></div>
+
     ${this.renderTags()}
 
     <div id="tabs">
