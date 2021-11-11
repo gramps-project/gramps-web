@@ -33,9 +33,6 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
 
   renderForm () {
     return html`
-    <pre>${JSON.stringify(this.data, null, 2)}</pre>
-    <pre>${JSON.stringify(this._tagName, null, 2)}</pre>
-    <pre>${JSON.stringify(this._tagColor, null, 2)}</pre>
     <grampsjs-form-string
       @formdata:changed="${this._handleString}"
       ?disabled="${this.disableString}"
