@@ -1,5 +1,7 @@
 import {html, LitElement} from 'lit'
 import {Map, TileLayer, LatLng, control} from '../../node_modules/leaflet/dist/leaflet-src.esm.js'
+import './GrampsjsMapOverlay.js'
+import './GrampsjsMapMarker.js'
 
 class GrampsjsMap extends LitElement {
   render() {
