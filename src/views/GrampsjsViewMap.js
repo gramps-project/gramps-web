@@ -99,6 +99,11 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._fetchDataLayers()
   }
 
+  _fetchDataAll () {
+    this._fetchData()
+    this._fetchDataLayers()
+  }
+
   async _fetchData () {
     const data = await apiGet(`/api/places/?locale=${this.strings?.__lang__ || 'en'}&profile=all`)
     this.loading = false
@@ -148,6 +153,11 @@ export class GrampsjsViewMap extends GrampsjsView {
     x /= n
     y /= n
     return [x, y]
+  }
+
+  connectedCallback () {
+    super.connectedCallback()
+    window.addEventListener('db:changed', () => this._fetchDataAll())
   }
 }
 
