@@ -13,6 +13,7 @@ class GrampsjsMapOverlay extends LitElement {
       url: {type: String},
       bounds: {type: Array},
       opacity: {type: Number},
+      title: {type: String},
       _overlay: {type: Object, attribute: false}
     }
   }
@@ -21,6 +22,7 @@ class GrampsjsMapOverlay extends LitElement {
     super()
     this.url = ''
     this.opacity = 1
+    this.title = ''
     this.bounds = []
   }
 
@@ -32,9 +34,15 @@ class GrampsjsMapOverlay extends LitElement {
   addOverlay () {
     // eslint-disable-next-line new-cap
     this._overlay = new imageOverlay(this.url, this.bounds)
+    this.parentElement._layercontrol.addOverlay(this._overlay, this.title || 'image')
     this._overlay.addTo(this._map)
     this._overlay.bringToFront()
     this._overlay.setOpacity(this.opacity)
+  }
+
+  removeOverlay () {
+    this._map.removeLayer(this._overlay)
+    this.parentElement._layercontrol.removeLayer(this._overlay)
   }
 
   disconnectedCallback () {
@@ -54,7 +62,7 @@ class GrampsjsMapOverlay extends LitElement {
 
   updateOverlay () {
     if (this._overlay) {
-      this._map.removeLayer(this._overlay)
+      this.removeOverlay()
       this.addOverlay()
     }
   }

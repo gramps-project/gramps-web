@@ -34,8 +34,9 @@ class GrampsjsMap extends LitElement {
       latMax: {type: Number},
       longMin: {type: Number},
       longMax: {type: Number},
+      layerSwitcher: {type: Boolean},
       _map: {type: Object},
-      _layers: {type: Array}
+      _layercontrol: {type: Object}
     }
   }
 
@@ -51,7 +52,7 @@ class GrampsjsMap extends LitElement {
     this.latMax = 0
     this.longMin = 0
     this.longMax = 0
-    this._layers = []
+    this.layerSwitcher = false
   }
 
   firstUpdated() {
@@ -70,6 +71,10 @@ class GrampsjsMap extends LitElement {
     })
     tileLayer.addTo(this._map)
     this._map.addControl(control.zoom({position: 'bottomright'}))
+    this._layercontrol = control.layers({OpenStreetMap: tileLayer})
+    if (this.layerSwitcher) {
+      this._map.addControl(this._layercontrol)
+    }
     this._map.invalidateSize(false)
   }
 

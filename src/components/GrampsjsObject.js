@@ -317,8 +317,9 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       id="map"
       >
         <grampsjs-map-overlay
-        url="${getMediaUrl(this.data.handle)}"
-        bounds="${mapBounds[0].value}"
+          url="${getMediaUrl(this.data.handle)}"
+          bounds="${mapBounds[0].value}"
+          title="${this.data.desc}"
         >
         </grampsjs-map-overlay>
       </grampsjs-map>`

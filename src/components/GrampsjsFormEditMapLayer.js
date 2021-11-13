@@ -140,9 +140,10 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
       ${this._getBounds().length === 2
     ? html`
       <grampsjs-map-overlay
-      url="${getMediaUrl(this.data.handle)}"
-      opacity="${this.opacity}"
-      .bounds="${this._getBounds()}"
+        url="${getMediaUrl(this.data.handle)}"
+        opacity="${this.opacity}"
+        title="${this.data.desc}"
+        .bounds="${this._getBounds()}"
       >`
     : ''}
       ${this.pinCoordinates.length === 2

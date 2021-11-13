@@ -42,6 +42,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     const center = this._getMapCenter()
     return html`
     <grampsjs-map
+      layerSwitcher
       width="100%"
       height="calc(100vh - 64px)"
       latitude="${center[0]}"
@@ -68,6 +69,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     ${this._dataLayers.map(obj => html`
     <grampsjs-map-overlay
       url="${getMediaUrl(obj.handle)}"
+      title="${obj.desc}"
       bounds="${obj.attribute_list.filter(attr => attr.type === 'map:bounds')[0].value}"
     ></grampsjs-map-overlay>
     `)}
