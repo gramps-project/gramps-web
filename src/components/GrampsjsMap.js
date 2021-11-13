@@ -1,6 +1,6 @@
 import {html, LitElement} from 'lit'
 import {Map, TileLayer, LatLng, control} from '../../node_modules/leaflet/dist/leaflet-src.esm.js'
-// import './GrampsjsMapOverlay.js'
+import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
 
 class GrampsjsMap extends LitElement {
@@ -35,6 +35,7 @@ class GrampsjsMap extends LitElement {
       longMin: {type: Number},
       longMax: {type: Number},
       _map: {type: Object},
+      _layers: {type: Array}
     }
   }
 
@@ -50,6 +51,7 @@ class GrampsjsMap extends LitElement {
     this.latMax = 0
     this.longMin = 0
     this.longMax = 0
+    this._layers = []
   }
 
   firstUpdated() {
@@ -61,24 +63,27 @@ class GrampsjsMap extends LitElement {
     }
     const __tileUrl__ = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
     const __tileAttribution__ = '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors; <a href="https://carto.com/attributions">CARTO</a>'
-    new TileLayer(__tileUrl__, {
+    const tileLayer = new TileLayer(__tileUrl__, {
       attribution: __tileAttribution__,
       maxZoom: 19,
       zoomControl: false
-    }).addTo(this._map)
+    })
+    tileLayer.addTo(this._map)
     this._map.addControl(control.zoom({position: 'bottomright'}))
     this._map.invalidateSize(false)
   }
 
   panTo(latitude, longitude) {
-    this._map.panTo(new LatLng(latitude, longitude))
+    if (this._map !== undefined) {
+      this._map.panTo(new LatLng(latitude, longitude))
+    }
   }
 
   updated() {
     if (this._map !== undefined) {
       if (this.latMin === 0 && this.latMax === 0) {
-        this._map.panTo(new LatLng(this.latitude, this.longitude))
         this._map.setZoom(this.zoom)
+        this._map.panTo(new LatLng(this.latitude, this.longitude))
       } else {
         this._map.fitBounds([[this.latMin, this.longMin], [this.latMax, this.longMax]])
       }

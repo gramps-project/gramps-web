@@ -3,6 +3,7 @@ import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsJsImage.js'
 import './GrampsjsFormEditDate.js'
 import './GrampsjsFormEditTitle.js'
+import './GrampsjsFormEditMapLayer.js'
 import {fireEvent} from '../util.js'
 
 import '@material/mwc-dialog'
@@ -118,6 +119,27 @@ export class GrampsjsMediaObject extends GrampsjsObject {
 
   _handleSaveDate (e) {
     fireEvent(this, 'edit:action', {action: 'updateProp', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleEditGeo () {
+    this.dialogContent = html`
+    <grampsjs-form-edit-map-layer
+      @object:save="${this._handleSaveMap}"
+      @object:cancel="${this._handleCancelDialog}"
+      .strings="${this.strings}"
+      .data="${this.data}"
+    ></grampsjs-form-edit-map-layer>
+    `
+  }
+
+  _handleSaveMap (e) {
+    const attrs = e.detail?.data?.attribute_list || []
+    if (attrs.length > 0) {
+      fireEvent(this, 'edit:action', {action: 'updateProp', data: {attribute_list: attrs}})
+    }
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''

@@ -24,6 +24,7 @@ import './GrampsjsUrls.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 import {fireEvent} from '../util.js'
+import {getMediaUrl} from '../api.js'
 
 /*
 Define all tabs in the object view, their details, and when to display them
@@ -38,8 +39,8 @@ const _allTabs = {
   },
   map: {
     title: 'Map',
-    condition: (data) => (data?.profile?.lat !== undefined && data?.profile?.lat !== null && (data?.profile?.lat !== 0 || data?.profile?.long !== 0)),
-    conditionEdit: (data) => 'lat' in data
+    condition: (data) => (data?.profile?.lat !== undefined && data?.profile?.lat !== null && (data?.profile?.lat !== 0 || data?.profile?.long !== 0)) || (data.attribute_list || []).filter(attr => attr.type === 'map:bounds').length > 0,
+    conditionEdit: (data) => 'lat' in data || ('mime' in data && data.mime.startsWith('image'))
   },
   children: {
     title: 'Children',
@@ -270,6 +271,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
   }
 
   renderTabContent () {
+    const mapBounds = (this.data.attribute_list || []).filter(attr => attr.type === 'map:bounds')
     switch (this._currentTab) {
     case ('relationships'):
       return html`<grampsjs-relationships
@@ -305,7 +307,22 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
             >
             </grampsjs-map-marker>
           </grampsjs-map>`
-    : ''}`
+    : mapBounds.length > 0
+      ? html`
+    <grampsjs-map
+      latitude="${(JSON.parse(mapBounds[0].value)[0][0] + JSON.parse(mapBounds[0].value)[1][0]) / 2}"
+      longitude="${(JSON.parse(mapBounds[0].value)[0][1] + JSON.parse(mapBounds[0].value)[1][1]) / 2}"
+      zoom="${this._getZoomFromBounds(JSON.parse(mapBounds[0].value))}"
+      mapid="media-map"
+      id="map"
+      >
+        <grampsjs-map-overlay
+        url="${getMediaUrl(this.data.handle)}"
+        bounds="${mapBounds[0].value}"
+        >
+        </grampsjs-map-overlay>
+      </grampsjs-map>`
+      : ''}`
     case ('events'):
       return html`<grampsjs-events
         .strings=${this.strings}
@@ -424,5 +441,16 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''
+  }
+
+  _getZoomFromBounds (bounds) {
+    const xMin = bounds[0][0]
+    const yMin = bounds[0][1]
+    const xMax = bounds[1][0]
+    const yMax = bounds[1][1]
+    const Lx = xMax - xMin
+    const Ly = yMax - yMin
+    const L = Math.max(Lx, Ly)
+    return Math.round(Math.log2(360 / L))
   }
 }
