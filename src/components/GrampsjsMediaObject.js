@@ -79,6 +79,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       hideLeftArrow
       hideRightArrow
       active
+      .strings="${this.strings}"
       >
     </grampsjs-view-media-lightbox>
 
