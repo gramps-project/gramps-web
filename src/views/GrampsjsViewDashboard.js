@@ -2,6 +2,7 @@ import {html, css} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import './GrampsjsViewRecentlyChanged.js'
+import './GrampsjsViewRecentBlogPosts.js'
 import './GrampsjsViewAnniversaries.js'
 import '../components/GrampsjsStatistics.js'
 
@@ -59,11 +60,20 @@ export class GrampsjsViewDashboard extends GrampsjsView {
       </div>
     </div>
     <div class="column">
-      <grampsjs-statistics
-        .data="${this.dbInfo?.object_counts || {}}"
-        id="statistics"
-        .strings="${this.strings}">
-      </grampsjs-statistics>
+      <div>
+        <grampsjs-view-recent-blog-posts
+          ?active=${this.active}
+          id="recent-blog"
+          .strings="${this.strings}">
+        </grampsjs-view-recent-blog-posts>
+      </div>
+      <div>
+        <grampsjs-statistics
+          .data="${this.dbInfo?.object_counts || {}}"
+          id="statistics"
+          .strings="${this.strings}">
+        </grampsjs-statistics>
+      </div>
     </div>
     `
   }

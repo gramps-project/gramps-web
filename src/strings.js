@@ -24,7 +24,8 @@ export const additionalStrings = {
     'New E-mail': 'Neue E-Mail-Adresse',
     'A new version of the app is available.': 'Eine neue Version der App ist verfügbar.',
     'Manage users': 'Benutzer verwalten',
-    'Search %s': '%s durchsuchen'
+    'Search %s': '%s durchsuchen',
+    'Latest Blog Post': 'Neuester Blogeintrag'
   }
 }
 
