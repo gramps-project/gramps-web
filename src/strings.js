@@ -25,7 +25,9 @@ export const additionalStrings = {
     'A new version of the app is available.': 'Eine neue Version der App ist verfügbar.',
     'Manage users': 'Benutzer verwalten',
     'Search %s': '%s durchsuchen',
-    'Latest Blog Post': 'Neuester Blogeintrag'
+    'Latest Blog Post': 'Neuester Blogeintrag',
+    'Align the image': 'Bild ausrichten',
+    'Select a point on the map': 'Einen Punkt auf der Karte wählen'
   }
 }
 
