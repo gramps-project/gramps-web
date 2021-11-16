@@ -100,7 +100,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
     Scale<br/>
     <mwc-slider
       value="${this._getLogWidth()}"
-      min="${Math.log(0.01)}"
+      min="${Math.log(0.001)}"
       max="${Math.log(180)}"
       @input="${this._handleScaleSlider}"
     ></mwc-slider>
@@ -117,7 +117,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
         icon="pin_drop"
         ?unelevated="${this.state === 'placeMarker'}"
         @click="${this._handleClickPinBtn}"
-      >Select a point on the map</mwc-button>
+      >${this._('Select a point on the map')}</mwc-button>
       ${this.pinCoordinates.length === 2
     ? html`
       <mwc-button
@@ -125,7 +125,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
         icon="pin_drop"
         ?unelevated="${this.state === 'alignImage'}"
         @click="${this._handleClickAlignBtn}"
-      >Align the image</mwc-button>
+      >${this._('Align the image')}</mwc-button>
       `
     : ''}
     </p>
