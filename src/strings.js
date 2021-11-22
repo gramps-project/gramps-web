@@ -69,6 +69,7 @@ export const grampsStrings = [
   'Collection',
   'Complete',
   'Confidence',
+  'Confidence:',
   'Con_fidence',
   'Country',
   'County',

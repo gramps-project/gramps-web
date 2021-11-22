@@ -22,6 +22,7 @@ class GrampsjsFormSelectObjectList extends GrampsjsTranslateMixin(LitElement) {
       objectsInitial: {type: Array},
       label: {type: String},
       multiple: {type: Boolean},
+      notDeletable: {type: Boolean},
       fixedMenuPosition: {type: Boolean}
     }
   }
@@ -32,6 +33,7 @@ class GrampsjsFormSelectObjectList extends GrampsjsTranslateMixin(LitElement) {
     this.objectsInitial = []
     this.label = ''
     this.multiple = false
+    this.notDeletable = false
     this.fixedMenuPosition = false
   }
 
@@ -43,7 +45,7 @@ class GrampsjsFormSelectObjectList extends GrampsjsTranslateMixin(LitElement) {
         .strings="${this.strings}"
         id="${this.id}-list"
         ?reorder="${this.multiple}"
-        deletable
+        ?deletable="${!this.notDeletable}"
       ></grampsjs-form-object-list>
     </p>
     <p>

@@ -6,7 +6,7 @@ import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 import '../components/GrampsjsFormString.js'
 import '../components/GrampsjsFormPrivate.js'
 
-const confidence = {
+export const confidence = {
   0: 'Very Low',
   1: 'Low',
   2: 'Normal',

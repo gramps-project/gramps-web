@@ -3,6 +3,8 @@ import {html, css} from 'lit'
 import '@material/mwc-icon'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
+import './GrampsjsFormEditCitationDetails.js'
+import {fireEvent} from '../util.js'
 
 const BASE_DIR = ''
 
@@ -15,7 +17,7 @@ const confidence = {
 }
 
 export class GrampsjsCitation extends GrampsjsObject {
-  static get styles() {
+  static get styles () {
     return [
       super.styles,
       css`
@@ -24,13 +26,13 @@ export class GrampsjsCitation extends GrampsjsObject {
     `]
   }
 
-
-  renderProfile() {
+  renderProfile () {
     return html`
     <h2><mwc-icon class="person">bookmark</mwc-icon> ${this._('Citation')}</h2>
 
     <dl>
-    ${this.data?.profile?.date ? html`
+    ${this.data?.profile?.date
+    ? html`
     <div>
       <dt>
         ${this._('Date')}
@@ -39,7 +41,8 @@ export class GrampsjsCitation extends GrampsjsObject {
       ${this.data.profile.date}
       </dd>
     </div>
-    ` : ''}
+    `
+    : ''}
     <div>
       <dt>
         ${this._('Source')}
@@ -48,7 +51,8 @@ export class GrampsjsCitation extends GrampsjsObject {
         <a href="${BASE_DIR}/source/${this.data.extended.source.gramps_id}">${this.data.extended.source.title || this.data.extended.source.gramps_id}</a>
       </dd>
     </div>
-    ${this.data?.page ? html`
+    ${this.data?.page
+    ? html`
     <div>
       <dt>
         ${this._('Page')}
@@ -57,7 +61,8 @@ export class GrampsjsCitation extends GrampsjsObject {
       ${this.data.page}
       </dd>
     </div>
-    ` : ''}
+    `
+    : ''}
     <div>
       <dt>
         ${this._('Con_fidence')}
@@ -67,15 +72,44 @@ export class GrampsjsCitation extends GrampsjsObject {
       </dd>
     </div>
     </dl>
-    `
+    ${this.edit
+    ? html`
+        <mwc-icon-button icon="edit" class="edit" @click="${this._handleEditDetails}"></mwc-icon-button>
+        `
+    : ''}
+      `
   }
 
-  renderPicture() {
+  renderPicture () {
     return ''
   }
 
+  _handleEditDetails () {
+    const data = {
+      date: this.data.date,
+      confidence: this.data.confidence,
+      source_handle: this.data.source_handle,
+      page: this.data.page
+    }
+    const source = this.data?.extended?.source
+    this.dialogContent = html`
+    <grampsjs-form-edit-citation-details
+      @object:save="${this._handleSaveDetails}"
+      @object:cancel="${this._handleCancelDialog}"
+      .strings=${this.strings}
+      .data=${data}
+      .source=${source}
+    >
+    </grampsjs-form-edit-citation-details>
+    `
+  }
 
+  _handleSaveDetails (e) {
+    fireEvent(this, 'edit:action', {action: 'updateProp', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
 }
-
 
 window.customElements.define('grampsjs-citation', GrampsjsCitation)
