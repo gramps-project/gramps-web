@@ -41,7 +41,7 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsView {
     }
     return html`
     <h2>${this._('Latest Blog Post')}</h2>
-    ${this.data.map(obj => this._renderPost(obj))}
+    ${this.data.slice(0, 1).map(obj => this._renderPost(obj))}
     `
   }
 
