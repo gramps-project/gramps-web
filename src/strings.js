@@ -27,7 +27,8 @@ export const additionalStrings = {
     'Search %s': '%s durchsuchen',
     'Latest Blog Post': 'Neuester Blogeintrag',
     'Align the image': 'Bild ausrichten',
-    'Select a point on the map': 'Einen Punkt auf der Karte wählen'
+    'Select a point on the map': 'Einen Punkt auf der Karte wählen',
+    'Select an existing citation': 'Eine existierende Fundstelle auswählen'
   }
 }
 
