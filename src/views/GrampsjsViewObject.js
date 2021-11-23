@@ -166,6 +166,10 @@ export class GrampsjsViewObject extends GrampsjsView {
       this.delHandle(e.detail.handle, this._data, this._className, 'note_list')
     } else if (e.detail.action === 'delMediaRef') {
       this.delObject(e.detail.handle, this._data, this._className, 'media_list')
+    } else if (e.detail.action === 'upMediaRef') {
+      this.moveObject(e.detail.handle, this._data, this._className, 'media_list', 'up')
+    } else if (e.detail.action === 'downMediaRef') {
+      this.moveObject(e.detail.handle, this._data, this._className, 'media_list', 'down')
     } else if (e.detail.action === 'delChildRef') {
       this.delObject(e.detail.handle, this._data, this._className, 'child_ref_list')
     } else if (e.detail.action === 'delCitation') {

@@ -60,7 +60,7 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
 
   render () {
     return html`
-    ${this.media.map((mediaObj, index) => this._renderThumbnail(index))}
+    ${this.media.map((mediaObj, i, arr) => this._renderThumbnail(i, arr.length))}
 
     <div class="clear"></div>
 
@@ -120,7 +120,7 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
-  _renderThumbnail (i) {
+  _renderThumbnail (i, length) {
     const mediaObj = this.media[i]
     const {handle, mime} = mediaObj
     const {rect} = this.mediaRef[i]
@@ -136,12 +136,30 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
     ${this.edit
     ? html`
     <div class="delbtn">
+      ${i === 0
+    ? ''
+    : html`
+      <mwc-icon-button
+        class="edit"
+        icon="arrow_back"
+        @click="${() => this._handleMediaRefLeft(this.mediaRef[i].ref)}"
+      ></mwc-icon-button>
+      `}
+      ${i === length - 1
+    ? ''
+    : html`
+          <mwc-icon-button
+        class="edit"
+        icon="arrow_forward"
+        @click="${() => this._handleMediaRefRight(this.mediaRef[i].ref)}"
+      ></mwc-icon-button>`
+}
       <mwc-icon-button
         class="edit"
         icon="delete"
         @click="${() => this._handleMediaRefDel(this.mediaRef[i].ref)}"
-        ></mwc-icon-button>
-    </div>
+      ></mwc-icon-button>
+  </div>
     `
     : ''}
     </div>`
@@ -149,6 +167,14 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
 
   _handleMediaRefDel (handle) {
     fireEvent(this, 'edit:action', {action: 'delMediaRef', handle: handle})
+  }
+
+  _handleMediaRefLeft (handle) {
+    fireEvent(this, 'edit:action', {action: 'upMediaRef', handle: handle})
+  }
+
+  _handleMediaRefRight (handle) {
+    fireEvent(this, 'edit:action', {action: 'downMediaRef', handle: handle})
   }
 
   _handleAddClick () {
