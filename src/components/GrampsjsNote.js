@@ -22,7 +22,10 @@ export class GrampsjsNote extends GrampsjsObject {
 
       ${this.edit
     ? html`
-      <grampsjs-editor .data=${this.data.text}></grampsjs-editor>`
+      <grampsjs-editor
+        .data=${this.data.text}
+        .strings=${this.strings}
+      ></grampsjs-editor>`
     : html`
       <grampsjs-note-content
       framed

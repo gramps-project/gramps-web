@@ -1,11 +1,14 @@
 import {html, css, LitElement} from 'lit'
 
+import '@material/mwc-dialog'
+import '@material/mwc-textfield'
 import '@material/mwc-icon'
 import '@material/mwc-button'
 import '@material/mwc-icon-button'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 function _applyTag (str, tag) {
   const [name, value] = tag
@@ -99,7 +102,7 @@ function getNodeAtNumChar (parent, num) {
   return node
 }
 
-class GrampsjsEditor extends LitElement {
+class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
   static get styles () {
     return [
       sharedStyles,
@@ -125,6 +128,10 @@ class GrampsjsEditor extends LitElement {
       #controls {
         margin: 0.7em 0;
       }
+
+      a {
+        pointer-events: none;
+      }
       `
     ]
   }
@@ -132,7 +139,8 @@ class GrampsjsEditor extends LitElement {
   static get properties () {
     return {
       data: {type: Object},
-      cursorPosition: {type: Array}
+      cursorPosition: {type: Array},
+      _dialogContent: {type: String}
     }
   }
 
@@ -140,6 +148,7 @@ class GrampsjsEditor extends LitElement {
     super()
     this.data = {_class: 'StyledText', string: '', tags: []}
     this.cursorPosition = [0]
+    this._dialogContent = ''
   }
 
   reset () {
@@ -153,12 +162,14 @@ class GrampsjsEditor extends LitElement {
       <mwc-icon-button icon="format_bold" @click="${() => this._handleFormat('bold')}"></mwc-icon-button>
       <mwc-icon-button icon="format_italic" @click="${() => this._handleFormat('italic')}"></mwc-icon-button>
       <mwc-icon-button icon="format_underlined" @click="${() => this._handleFormat('underline')}"></mwc-icon-button>
+      <mwc-icon-button icon="link" @click="${() => this._handleFormat('link')}"></mwc-icon-button>
     </div>
     <div
       class="note framed"
       contenteditable="true"
       @beforeinput="${this._handleBeforeInput}"
     >${this._getHtml()}</div>
+    ${this._renderLinkDialog()}
     `
   }
 
@@ -196,17 +207,72 @@ class GrampsjsEditor extends LitElement {
     this.handleChange()
   }
 
+  _handleLink (pos) {
+    this._dialogContent = html`
+    <p>
+      <mwc-textfield id="linkurl" label="URL" style="width:100%"></mwc-textfield>
+    </p>
+    <mwc-button slot="primaryAction" dialogAction="ok" @click="${() => this._handleDialogSave(pos)}">
+      ${this._('_Save')}
+    </mwc-button>
+    <mwc-button
+      slot="secondaryAction"
+      dialogAction="cancel"
+      @click="${this._handleDialogCancel}"
+    >
+      ${this._('Cancel')}
+    </mwc-button>
+    `
+    this._openDialog()
+  }
+
+  _handleDialogSave (pos) {
+    const url = this.shadowRoot.querySelector('#linkurl')
+    if (url === null) {
+      return null
+    }
+    const value = url.value
+    // first remove, then add, to prevent overlapping tags
+    this._removeTag('link', pos)
+    this._insertTag('link', pos, value)
+    this.handleChange()
+  }
+
+  _renderLinkDialog () {
+    return html`
+    <mwc-dialog>
+    ${this._dialogContent}
+    </mwc-dialog>
+    `
+  }
+
+  _openDialog () {
+    const dialog = this.shadowRoot.querySelector('mwc-dialog')
+    if (dialog !== null) {
+      dialog.open = true
+    }
+  }
+
   _handleFormat (type) {
     const div = this.shadowRoot.querySelector('div.note')
     const range = document.getSelection().getRangeAt(0)
     const nCharBefore1 = getNumCharBeforeNode(range.startContainer, div)[0]
     const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
     const pos = [nCharBefore1 + range.startOffset, nCharBefore2 + range.endOffset]
-    if (isBooleanTag(type) && this._hasTag(type, pos)) {
-      // if it's a boolean tag and already selected in the whole range, remove it
-      this._removeTag(type, pos)
-    } else {
-      this._insertTag(type, pos)
+    if (isBooleanTag(type)) {
+      if (this._hasTag(type, pos)) {
+        // if it's a boolean tag and already selected in the whole range, remove it
+        this._removeTag(type, pos)
+      } else {
+        this._insertTag(type, pos)
+      }
+    } else if (type === 'link') {
+      if (this._hasTag(type, pos)) {
+        // if there already is a link in the whole range, remove it
+        this._removeTag(type, pos)
+      } else {
+        this._handleLink(pos)
+      }
     }
     this.cursorPosition = pos
     this.handleChange()
@@ -216,10 +282,10 @@ class GrampsjsEditor extends LitElement {
     fireEvent(this, 'formdata:changed', {data: this.data})
   }
 
-  _insertTag (tagname, range) {
+  _insertTag (tagname, range, value = null) {
     this.data = {
       ...this.data,
-      tags: this._cleanTags([...this.data.tags, {name: tagname, ranges: [range], value: null}])
+      tags: this._cleanTags([...this.data.tags, {name: tagname, ranges: [range], value: value}])
     }
   }
 
@@ -346,9 +412,12 @@ class GrampsjsEditor extends LitElement {
     return [{name: name, ranges: ranges, value: null}]
   }
 
-  // FIXME
   _cleanTagsNonBool (tags) {
-    return tags
+    if (tags.length === 0) {
+      return []
+    }
+    // just remove tags that don't have ranges
+    return tags.filter(tag => tag.ranges.length > 0)
   }
 
   // insert string at position
