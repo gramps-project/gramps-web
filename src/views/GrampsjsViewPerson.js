@@ -19,6 +19,7 @@ export class GrampsjsViewPerson extends GrampsjsViewObject {
       .data=${this._data}
       .strings=${this.strings}
       ?edit="${this.edit}"
+      ?canEdit="${this.canEdit}"
     ></grampsjs-person>
     `
   }

@@ -17,7 +17,7 @@ export class GrampsjsViewSource extends GrampsjsViewObject {
 
   renderElement() {
     return html`
-    <grampsjs-source .data=${this._data} .strings=${this.strings} ?edit="${this.edit}"></grampsjs-source>
+    <grampsjs-source .data=${this._data} .strings=${this.strings} ?edit="${this.edit}" ?canEdit="${this.canEdit}"></grampsjs-source>
     `
   }
 

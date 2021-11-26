@@ -78,6 +78,14 @@ class GrampsjsImg extends LitElement {
       `
   }
 
+  getBBox () {
+    const img = this.shadowRoot.querySelector('img')
+    if (img === null) {
+      return null
+    }
+    return img.getBoundingClientRect()
+  }
+
   _renderImage() {
     const height = this.displayHeight || ''
     return html`

@@ -21,6 +21,7 @@ export class GrampsjsViewFamily extends GrampsjsViewObject {
       .data=${this._data}
       .strings=${this.strings}
       ?edit="${this.edit}"
+      ?canEdit="${this.canEdit}"
     ></grampsjs-family>
     `
   }

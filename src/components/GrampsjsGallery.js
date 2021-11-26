@@ -45,6 +45,7 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
       media: {type: Array},
       dialogContent: {type: String},
       edit: {type: Boolean},
+      editRect: {type: Boolean},
       _lightboxSelected: {type: Number}
     }
   }
@@ -54,6 +55,7 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
     this.mediaRef = []
     this.media = []
     this.edit = false
+    this.editRect = false
     this.dialogContent = ''
     this._lightboxSelected = 0
   }
@@ -66,6 +68,7 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
 
     <grampsjs-view-media-lightbox
       active
+      ?editRect="${this.editRect}"
       id="gallery-lightbox-view"
       @lightbox:left="${this._handleLeft}"
       @lightbox:right="${this._handleRight}"

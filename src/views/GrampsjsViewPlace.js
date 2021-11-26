@@ -17,7 +17,7 @@ export class GrampsjsViewPlace extends GrampsjsViewObject {
 
   renderElement() {
     return html`
-    <grampsjs-place .data=${this._data} .strings=${this.strings} ?edit="${this.edit}"></grampsjs-place>
+    <grampsjs-place .data=${this._data} .strings=${this.strings} ?edit="${this.edit}" ?canEdit="${this.canEdit}"></grampsjs-place>
     `
   }
 

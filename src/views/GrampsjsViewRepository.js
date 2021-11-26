@@ -17,7 +17,7 @@ export class GrampsjsViewRepository extends GrampsjsViewObject {
 
   renderElement() {
     return html`
-    <grampsjs-repository .data=${this._data} .strings=${this.strings} ?edit="${this.edit}"></grampsjs-repository>
+    <grampsjs-repository .data=${this._data} .strings=${this.strings} ?edit="${this.edit}" ?canEdit="${this.canEdit}"></grampsjs-repository>
     `
   }
 

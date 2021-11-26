@@ -6,10 +6,10 @@ import '../components/GrampsjsLightbox.js'
 import '../components/GrampsjsRectContainer.js'
 import '../components/GrampsjsRect.js'
 import {apiGet, getMediaUrl} from '../api.js'
-import {getNameFromProfile} from '../util.js'
+import {fireEvent, getNameFromProfile} from '../util.js'
 
 export class GrampsjsViewMediaLightbox extends GrampsjsView {
-  static get styles() {
+  static get styles () {
     return [
       sharedStyles,
       css`
@@ -30,23 +30,25 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     ]
   }
 
-  static get properties() {
+  static get properties () {
     return {
       handle: {type: String},
       _data: {type: Object},
       hideLeftArrow: {type: Boolean},
-      hideRightArrow: {type: Boolean}
+      hideRightArrow: {type: Boolean},
+      editRect: {type: Boolean}
     }
   }
 
-  constructor() {
+  constructor () {
     super()
     this._data = {}
     this.hideLeftArrow = false
     this.hideRightArrow = false
+    this.editRect = false
   }
 
-  renderContent() {
+  renderContent () {
     return html`
     <grampsjs-lightbox id="gallery-lightbox"
       ?hideLeftArrow=${this.hideLeftArrow}
@@ -73,8 +75,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     }
   }
 
-
-  _innerContainerContent() {
+  _innerContainerContent () {
     if (Object.keys(this._data).length === 0) {
       return html``
     }
@@ -86,10 +87,9 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
       return this._innerContainerContentPdf()
     }
     return this._innerContainerContentFile()
-
   }
 
-  _innerContainerContentPdf() {
+  _innerContainerContentPdf () {
     return html`
     <object
       data="${getMediaUrl(this._data.handle)}"
@@ -101,18 +101,22 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     </object>`
   }
 
-
-  _pdfErrorHandler() {
+  _pdfErrorHandler () {
     this.dispatchEvent(new CustomEvent('grampsjs:error',
       {bubbles: true, composed: true, detail: {message: 'Failed loading PDF file'}}))
   }
 
-  _innerContainerContentFile() {
+  _innerContainerContentFile () {
     return this._renderImage()
   }
 
-  _innerContainerContentImage() {
-    return html`<grampsjs-rect-container>
+  _innerContainerContentImage () {
+    return html`
+      <grampsjs-rect-container
+        ?edit="${this.editRect}"
+        .strings="${this.strings}"
+        @rect:save="${this._handleSaveRect}"
+      >
     ${this._renderImage()}
     ${this._getRectangles().map((obj) => html`
     <grampsjs-rect
@@ -122,44 +126,69 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     >
     </grampsjs-rect>
     `)}
-  <grampsjs-rect-container>`
-
+  </grampsjs-rect-container>`
   }
 
-  _renderImage() {
+  _renderImage () {
     const {handle, mime} = this._data
     return html`
     <grampsjs-img
       handle="${handle}"
       size="2000"
       mime="${mime}"
+      slot="image"
     ></grampsjs-img>
     `
   }
 
-  _handleButtonClick() {
+  _handleButtonClick () {
     const lightBox = this.shadowRoot.getElementById('gallery-lightbox')
     lightBox.open = false
     this.dispatchEvent(new CustomEvent('nav', {
-      bubbles: true, composed: true, detail: {
+      bubbles: true,
+      composed: true,
+      detail: {
         path: `media/${this._data?.gramps_id}`
       }
     }))
   }
 
+  _handleSaveRect (e) {
+    const img = this.shadowRoot.querySelector('grampsjs-img')
+    if (img === null) {
+      return null
+    }
+    const imgBBox = img.getBBox()
+    const refBBox = e.detail.bbox
+    const left = Math.max(0, (refBBox.left - imgBBox.left) / imgBBox.width)
+    const right = Math.min(1, (refBBox.right - imgBBox.left) / imgBBox.width)
+    const top = Math.max(0, (refBBox.top - imgBBox.top) / imgBBox.height)
+    const bottom = Math.min(1, (refBBox.bottom - imgBBox.top) / imgBBox.height)
+    const rect = [
+      Math.round(100 * left),
+      Math.round(100 * top),
+      Math.round(100 * right),
+      Math.round(100 * bottom)
+    ]
+    // make sure the rounded rectangle does not vanish
+    if ((rect[2] - rect[0]) * (rect[3] - rect[1]) > 0) {
+      const data = {ref: this.handle, rect: rect}
+      fireEvent(this, 'edit:action', {action: 'updateMediaRef', data: data})
+    }
+  }
 
-  update(changed) {
+  update (changed) {
     super.update(changed)
     if (changed.has('handle')) {
       this._updateData()
     }
   }
 
-  getUrl() {
+  getUrl () {
     return `/api/media/${this.handle}?locale=${this.strings?.__lang__ || 'en'}&profile=all&backlinks=true&extend=all`
   }
 
-  _updateData() {
+  _updateData () {
     if (this.handle !== undefined && this.handle) {
       this._data = {}
       apiGet(this.getUrl()).then(data => {
@@ -174,7 +203,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     }
   }
 
-  _getRectangles() {
+  _getRectangles () {
     const backlinks = this._data?.extended?.backlinks || {}
     const references = this._data?.profile?.references || {}
     if (Object.keys(backlinks).length === 0) {
@@ -193,6 +222,10 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     ).flat().filter(obj => obj.rect.length > 0)
   }
 
+  connectedCallback () {
+    super.connectedCallback()
+    window.addEventListener('db:changed', () => this._updateData())
+  }
 }
 
 window.customElements.define('grampsjs-view-media-lightbox', GrampsjsViewMediaLightbox)

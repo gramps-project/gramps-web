@@ -153,6 +153,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     return {
       data: {type: Object},
       edit: {type: Boolean},
+      canEdit: {type: Boolean},
       dialogContent: {type: String},
       _currentTabId: {type: Number},
       _currentTab: {type: String},
@@ -166,6 +167,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     super()
     this.data = {}
     this.edit = false
+    this.canEdit = false
     this.dialogContent = ''
     this._currentTabId = 0
     this._showReferences = true
@@ -363,6 +365,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           .media=${this.data?.extended?.media}
           .mediaRef=${this.data?.media_list}
           ?edit="${this.edit}"
+          ?editRect="${this.canEdit}"
           ></grampsjs-gallery>`
     case ('internet'):
       return html`<grampsjs-urls .strings=${this.strings} .data=${this.data.urls}></grampsjs-urls>`

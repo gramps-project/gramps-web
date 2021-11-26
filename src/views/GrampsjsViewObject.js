@@ -142,7 +142,6 @@ export class GrampsjsViewObject extends GrampsjsView {
     }
   }
 
-
   handleEditAction (e) {
     if (e.detail.action === 'delEvent') {
       this.delEvent(e.detail.handle, this._data, this._className)
@@ -162,6 +161,8 @@ export class GrampsjsViewObject extends GrampsjsView {
       this.addHandle(e.detail.data.data[0], this._data, this._className, 'citation_list')
     } else if (e.detail.action === 'addMediaRef') {
       this.addObject(e.detail.data, this._data, this._className, 'media_list')
+    } else if (e.detail.action === 'updateMediaRef') {
+      this.updateObject(e.detail.data, this._data, this._className, 'media_list')
     } else if (e.detail.action === 'delNoteRef') {
       this.delHandle(e.detail.handle, this._data, this._className, 'note_list')
     } else if (e.detail.action === 'delMediaRef') {
@@ -231,6 +232,26 @@ export class GrampsjsViewObject extends GrampsjsView {
   addObject (data, obj, objType, prop) {
     return this._updateObject(obj, objType, (_obj) => {
       _obj[prop] = [..._obj[prop], data]
+      return _obj
+    })
+  }
+
+  // update an object in a list of objects
+  // e.g. an event references to the event_ref_list
+  updateObject (data, obj, objType, prop) {
+    return this._updateObject(obj, objType, (_obj) => {
+      // find first index
+      const firstIdx = _obj[prop].map((el, i) => ({ref: el.ref, index: i})).filter(el => el.ref === data.ref)
+      if (firstIdx.length === 0) {
+        return _obj
+      }
+      _obj[prop] = _obj[prop].map((el, i) => {
+        if (i === firstIdx[0].index) {
+          return {...el, ...data}
+        } else {
+          return el
+        }
+      })
       return _obj
     })
   }
