@@ -76,7 +76,7 @@ class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
       <mwc-button
         raised
         ?disabled="${this.disabled}"
-        label="${this.label || this._(btnLabel[this.objectType])}"
+        label="${this.label || this._(btnLabel[this.objectType]) || this._('Select')}"
         id="button"
         @click="${this._handleBtnClick}"
         icon="add_link"
@@ -154,8 +154,8 @@ class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
     resultList.textEmpty = html`<mwc-circular-progress indeterminate density="-3"></mwc-circular-progress>`
     const url = (
       textField.value
-        ? `/api/search/?locale=${this.strings?.__lang__ || 'en'}&profile=all&query=${encodeURIComponent(`${textField.value}* AND type:${this.objectType}`)}&profile=all&page=1&pagesize=20`
-        : `/api/search/?sort=-change&locale=${this.strings?.__lang__ || 'en'}&profile=all&query=${encodeURIComponent(`type:${this.objectType}`)}&profile=all&page=1&pagesize=20`
+        ? `/api/search/?locale=${this.strings?.__lang__ || 'en'}&profile=all&query=${encodeURIComponent(`${textField.value}* AND type:${this.objectType || '*'}`)}&profile=all&page=1&pagesize=20`
+        : `/api/search/?sort=-change&locale=${this.strings?.__lang__ || 'en'}&profile=all&query=${encodeURIComponent(`type:${this.objectType || '*'}`)}&profile=all&page=1&pagesize=20`
     )
     const data = await apiGet(url)
     if ('data' in data) {

@@ -9,6 +9,7 @@ import '@material/mwc-icon-button'
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import './GrampsjsFormSelectObject.js'
 
 function _applyTag (str, tag) {
   const [name, value] = tag
@@ -212,6 +213,16 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     <p>
       <mwc-textfield id="linkurl" label="URL" style="width:100%"></mwc-textfield>
     </p>
+    <p>
+      <grampsjs-form-select-object
+        fixedMenuPosition
+        @select-object:changed="${this._handleSelectObjectsChanged}"
+        .strings="${this.strings}"
+        id="link-select"
+        label="${this._('Select')}"
+      ></grampsjs-form-select-object>
+    </p>
+
     <mwc-button slot="primaryAction" dialogAction="ok" @click="${() => this._handleDialogSave(pos)}">
       ${this._('_Save')}
     </mwc-button>
@@ -224,6 +235,17 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     </mwc-button>
     `
     this._openDialog()
+  }
+
+  _handleSelectObjectsChanged (e) {
+    const url = this.shadowRoot.querySelector('#linkurl')
+    if (url === null) {
+      return null
+    }
+    const [obj] = e.detail.objects
+    if (obj.handle) {
+      url.value = `gramps://${capitalize(obj.object_type)}/handle/${obj.handle}`
+    }
   }
 
   _handleDialogSave (pos) {
@@ -547,6 +569,10 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     window.removeEventListener('edit-mode:save', this._handleSaveButton.bind(this))
     super.disconnectedCallback()
   }
+}
+
+function capitalize (string) {
+  return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
 }
 
 window.customElements.define('grampsjs-editor', GrampsjsEditor)
