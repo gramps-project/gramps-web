@@ -20,7 +20,6 @@ class GrampsjsFormCitation extends GrampsjsObjectForm {
         label="${this._('Select')}"
         class="edit"
       ></grampsjs-form-select-object-list>
-      <pre>${JSON.stringify(this.data, null, 2)}</pre>
     `
   }
 }
