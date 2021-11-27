@@ -277,7 +277,14 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
 
   _handleFormat (type) {
     const div = this.shadowRoot.querySelector('div.note')
-    const range = document.getSelection().getRangeAt(0)
+    // workaround for Chrome & Firefox
+    const range = (
+      this.shadowRoot.getSelection
+        // Chrome
+        ? this.shadowRoot.getSelection().getRangeAt(0)
+        // Firefox
+        : document.getSelection().getRangeAt(0)
+    )
     const nCharBefore1 = getNumCharBeforeNode(range.startContainer, div)[0]
     const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
     const pos = [nCharBefore1 + range.startOffset, nCharBefore2 + range.endOffset]
