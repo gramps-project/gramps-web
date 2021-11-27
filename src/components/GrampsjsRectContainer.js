@@ -87,6 +87,7 @@ class GrampsjsRectContainer extends GrampsjsTranslateMixin(LitElement) {
 
   _clickHandler () {
     this.draw = true
+    fireEvent(this, 'rect:draw-start')
     const box = this.shadowRoot.querySelector('#box')
     if (box) {
       resizedrag(box, box, null, (target, x, y) => this._endBox(target, x, y))
@@ -102,6 +103,7 @@ class GrampsjsRectContainer extends GrampsjsTranslateMixin(LitElement) {
 
   _saveHandler () {
     this.draw = false
+    fireEvent(this, 'rect:draw-end')
     fireEvent(this, 'rect:save', {bbox: this.bbox})
   }
 

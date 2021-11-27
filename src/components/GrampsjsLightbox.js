@@ -3,9 +3,8 @@ import {html, css, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import {chevronLeftIcon, chevronRightIcon, closeIcon} from '../icons.js'
 
-
 class GrampsjsLightbox extends LitElement {
-  static get styles() {
+  static get styles () {
     return [
       sharedStyles,
       css`
@@ -121,24 +120,26 @@ class GrampsjsLightbox extends LitElement {
     ]
   }
 
-  static get properties() {
+  static get properties () {
     return {
       open: {type: Boolean},
       _translateX: {type: Number},
       hideLeftArrow: {type: Boolean},
-      hideRightArrow: {type: Boolean}
+      hideRightArrow: {type: Boolean},
+      disableTouch: {type: Boolean}
     }
   }
 
-  constructor() {
+  constructor () {
     super()
     this.open = false
     this._translateX = 0
     this.hideLeftArrow = false
     this.hideRightArrow = false
+    this.disableTouch = false
   }
 
-  render() {
+  render () {
     if (!this.open) {
       return html``
     }
@@ -147,22 +148,30 @@ class GrampsjsLightbox extends LitElement {
       <div class="lightbox-nav" id="close-lightbox" tabindex="0">
         <span @click="${this._close}" class="link" @keydown="">${closeIcon}</span>
       </div>
-      ${!this.hideLeftArrow ? html`
+      ${!this.hideLeftArrow
+    ? html`
       <div class="lightbox-nav arrow arrow-left">
         <span @click="${this._handleLeft}" class="link" @keydown="">${chevronLeftIcon}</span>
       </div>
-      ` : ''}
-      ${!this.hideRightArrow ? html`
+      `
+    : ''}
+      ${!this.hideRightArrow
+    ? html`
       <div class="lightbox-nav arrow arrow-right">
         <span @click="${this._handleRight}" class="link" @keydown="">${chevronRightIcon}</span>
       </div>
-      ` : ''}
+      `
+    : ''}
       <div id="lightbox" tabindex="0"
         style="transform: translateX(${this._translateX}px);"
         @touchstart="${this._handleTouchStart}"
         @touchmove="${this._handleTouchMove}"
         @touchend="${this._handleTouchEnd}">
-        <slot name="image"></slot>
+        <slot
+          name="image"
+          @rect:draw-start="${this._handleRectStart}"
+          @rect:draw-end="${this._handleRectEnd}"
+        ></slot>
       </div>
       <div id="text" tabindex="0">
         <div id="button-container">
@@ -179,11 +188,11 @@ class GrampsjsLightbox extends LitElement {
           `
   }
 
-  _close() {
+  _close () {
     this.open = false
   }
 
-  _handleLeft() {
+  _handleLeft () {
     this.dispatchEvent(new CustomEvent(
       'lightbox:left',
       {bubbles: true, composed: true, detail: {id: this.id}}
@@ -191,7 +200,7 @@ class GrampsjsLightbox extends LitElement {
     )
   }
 
-  _handleRight() {
+  _handleRight () {
     this.dispatchEvent(new CustomEvent(
       'lightbox:right',
       {bubbles: true, composed: true, detail: {id: this.id}}
@@ -199,7 +208,7 @@ class GrampsjsLightbox extends LitElement {
     )
   }
 
-  _handleKeyPress(event) {
+  _handleKeyPress (event) {
     if (event.code === 'Escape') {
       this._close()
     } else if (event.key === 'ArrowRight' || event.key === 'Right') {
@@ -209,34 +218,52 @@ class GrampsjsLightbox extends LitElement {
     }
   }
 
-  _handleTouchStart(e) {
-    this._touchStartX = e.touches[0].pageX
-    this._touchMoveX = this._touchStartX
+  _handleRectStart (e) {
+    this.disableTouch = true
+    e.preventDefault()
+    e.stopPropagation()
   }
 
-  _handleTouchMove(e) {
-    this._touchMoveX = e.touches[0].pageX
-    this._translateX = this._touchMoveX - this._touchStartX
+  _handleRectEnd (e) {
+    this.disableTouch = false
+    e.preventDefault()
+    e.stopPropagation()
   }
 
-  _handleTouchEnd() {
-    this._translateX = 0
-    const movedX = this._touchMoveX - this._touchStartX
-    if (movedX < -10) {
-      this._handleRight()
-    } else if (movedX > 10) {
-      this._handleLeft()
+  _handleTouchStart (e) {
+    if (!this.disableTouch) {
+      this._touchStartX = e.touches[0].pageX
+      this._touchMoveX = this._touchStartX
     }
   }
 
-  _focus() {
+  _handleTouchMove (e) {
+    if (!this.disableTouch) {
+      this._touchMoveX = e.touches[0].pageX
+      this._translateX = this._touchMoveX - this._touchStartX
+    }
+  }
+
+  _handleTouchEnd () {
+    if (!this.disableTouch) {
+      this._translateX = 0
+      const movedX = this._touchMoveX - this._touchStartX
+      if (movedX < -10) {
+        this._handleRight()
+      } else if (movedX > 10) {
+        this._handleLeft()
+      }
+    }
+  }
+
+  _focus () {
     if (this.open) {
       const lightBox = this.shadowRoot.getElementById('lightbox')
       lightBox.focus()
     }
   }
 
-  updated() {
+  updated () {
     this._focus()
   }
 }
