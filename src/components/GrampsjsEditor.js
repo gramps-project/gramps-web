@@ -254,10 +254,17 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
       return null
     }
     const value = url.value
-    // first remove, then add, to prevent overlapping tags
-    this._removeTag('link', pos)
-    this._insertTag('link', pos, value)
-    this.handleChange()
+    if (value) {
+      // first remove, then add, to prevent overlapping tags
+      this._removeTag('link', pos)
+      this._insertTag('link', pos, value)
+      this.handleChange()
+    }
+    this._dialogContent = ''
+  }
+
+  _handleDialogCancel () {
+    this._dialogContent = ''
   }
 
   _renderLinkDialog () {
@@ -318,12 +325,14 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
+  // FIXME
   _hasTag (tagname, range) {
-    const [tag] = this._cleanTags(this.data.tags).filter(tag => tag.name === tagname)
-    if (tag === undefined) {
+    const tags = this._cleanTags(this.data.tags).filter(tag => tag.name === tagname)
+    if (tags === undefined || tags.length === 0) {
       return false
     }
-    const ranges = (tag.ranges || []).sort((r1, r2) => r1[0] - r2[0])
+    const ranges = [].concat.apply([], tags.map(tag => tag.ranges || [])).sort((r1, r2) => r1[0] - r2[0])
+    console.log(ranges)
     let charCovered = 0
     for (let i = 0; i < ranges.length; i++) {
       if (ranges[i][1] <= range[0]) {
