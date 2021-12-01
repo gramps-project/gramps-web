@@ -132,7 +132,8 @@ export class GrampsjsViewTree extends GrampsjsView {
     fireEvent(this, 'nav', {path: `person/${this.grampsId}`})
   }
 
-  firstUpdated () {
+  connectedCallback () {
+    super.connectedCallback()
     window.addEventListener('pedigree:person-selected', this._selectPerson.bind(this))
   }
 
