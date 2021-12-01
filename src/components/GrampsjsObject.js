@@ -12,6 +12,7 @@ import './GrampsjsAssociations.js'
 import './GrampsjsAttributes.js'
 import './GrampsjsChildren.js'
 import './GrampsjsEvents.js'
+import './GrampsjsPlaces.js'
 import './GrampsjsGallery.js'
 import './GrampsjsMap.js'
 import './GrampsjsMapMarker.js'
@@ -36,6 +37,11 @@ const _allTabs = {
     title: 'Relationships',
     condition: (data) => (data.family_list?.length > 0 || data.parent_family_list?.length > 0),
     conditionEdit: () => false
+  },
+  enclosed: {
+    title: 'Enclosed By',
+    condition: (data) => (data.placeref_list?.length > 0),
+    conditionEdit: (data) => 'placeref_list' in data
   },
   map: {
     title: 'Map',
@@ -286,6 +292,14 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           .primaryParentFamily=${this.data?.profile?.primary_parent_family || {}}
           .otherParentFamilies=${this.data?.profile?.other_parent_families || []}
           ></grampsjs-relationships>`
+    case ('enclosed'):
+      return html`
+        <grampsjs-places
+          .strings=${this.strings}
+          .data=${this.data?.placeref_list}
+          .profile=${this.data?.profile?.parent_places}
+          ?edit="${this.edit}"
+        ></grampsjs-places>`
     case ('map'):
       return html`
       ${this.edit
