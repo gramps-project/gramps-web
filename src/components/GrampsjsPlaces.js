@@ -20,7 +20,7 @@ export class GrampsjsPlaces extends GrampsjsEditableTable {
     super()
     this.profile = []
     this.objType = 'Place'
-    this._columns = ['Name', 'Type', 'Date', '']
+    this._columns = ['Name', 'Type', '']
     this.dialogContent = ''
   }
 
@@ -30,7 +30,6 @@ export class GrampsjsPlaces extends GrampsjsEditableTable {
       <tr @click=${() => this._handleClick(prof.gramps_id)}>
         <td>${prof.name}</td>
         <td>${prof.type}</td>
-        <td>${prof.date || ''}</td>
         <td></td>
       </tr>
     `
