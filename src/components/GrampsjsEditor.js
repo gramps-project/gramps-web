@@ -332,7 +332,6 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
       return false
     }
     const ranges = [].concat.apply([], tags.map(tag => tag.ranges || [])).sort((r1, r2) => r1[0] - r2[0])
-    console.log(ranges)
     let charCovered = 0
     for (let i = 0; i < ranges.length; i++) {
       if (ranges[i][1] <= range[0]) {
