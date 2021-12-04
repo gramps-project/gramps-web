@@ -12,6 +12,7 @@ import './GrampsjsAssociations.js'
 import './GrampsjsAttributes.js'
 import './GrampsjsChildren.js'
 import './GrampsjsEvents.js'
+import './GrampsjsNames.js'
 import './GrampsjsPlaceRefs.js'
 import './GrampsjsGallery.js'
 import './GrampsjsMap.js'
@@ -38,6 +39,11 @@ const _allTabs = {
     condition: (data) => (data.family_list?.length > 0 || data.parent_family_list?.length > 0),
     conditionEdit: () => false
   },
+  names: {
+    title: '_Names',
+    condition: (data) => 'primary_name' in data,
+    conditionEdit: (data) => 'primary_name' in data
+  },
   enclosed: {
     title: 'Enclosed By',
     condition: (data) => (data.placeref_list?.length > 0),
@@ -62,11 +68,6 @@ const _allTabs = {
     title: 'Timeline',
     condition: (data) => (data?.event_ref_list?.length > 0),
     conditionEdit: () => false
-  },
-  names: {
-    title: '_Names',
-    condition: (data) => (data?.primary_name?.length > 0),
-    conditionEdit: (data) => 'primary_name' in data
   },
   participants: {
     title: 'Participants',
@@ -197,6 +198,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
 
     <div style="clear:left;"></div>
 
+    ${this.renderBeforeTags()}
     ${this.renderTags()}
 
     <div id="tabs">
@@ -261,6 +263,10 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     `
   }
 
+  renderBeforeTags () {
+    return ''
+  }
+
   renderTags () {
     return html`
     <grampsjs-tags
@@ -292,6 +298,13 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           .primaryParentFamily=${this.data?.profile?.primary_parent_family || {}}
           .otherParentFamilies=${this.data?.profile?.other_parent_families || []}
           ></grampsjs-relationships>`
+    case ('names'):
+      return html`
+      <grampsjs-names
+        .strings="${this.strings}"
+        .data="${[this.data.primary_name, ...this.data.alternate_names]}"
+      ></grampsjs-names>
+      `
     case ('enclosed'):
       return html`
         <grampsjs-place-refs

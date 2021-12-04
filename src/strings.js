@@ -247,6 +247,7 @@ export const grampsStrings = [
   'Street',
   'Suffix',
   'Surname',
+  'Surnames',
   'Tag',
   'Tags',
   'Text',
