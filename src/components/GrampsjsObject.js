@@ -12,7 +12,7 @@ import './GrampsjsAssociations.js'
 import './GrampsjsAttributes.js'
 import './GrampsjsChildren.js'
 import './GrampsjsEvents.js'
-import './GrampsjsPlaces.js'
+import './GrampsjsPlaceRefs.js'
 import './GrampsjsGallery.js'
 import './GrampsjsMap.js'
 import './GrampsjsMapMarker.js'
@@ -294,12 +294,11 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           ></grampsjs-relationships>`
     case ('enclosed'):
       return html`
-        <grampsjs-places
-          .strings=${this.strings}
-          .data=${this.data?.placeref_list}
-          .profile=${this.data?.profile?.parent_places}
+        <grampsjs-place-refs
+          .strings="${this.strings}"
+          .data="${this.data?.placeref_list}"
           ?edit="${this.edit}"
-        ></grampsjs-places>`
+        ></grampsjs-place-refs>`
     case ('map'):
       return html`
       ${this.edit

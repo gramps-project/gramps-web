@@ -147,6 +147,8 @@ export class GrampsjsViewObject extends GrampsjsView {
       this.delEvent(e.detail.handle, this._data, this._className)
     } else if (e.detail.action === 'addEventRef') {
       this.addObject(e.detail.data, this._data, this._className, 'event_ref_list')
+    } else if (e.detail.action === 'addPlaceRef') {
+      this.addObject(e.detail.data, this._data, this._className, 'placeref_list')
     } else if (e.detail.action === 'addChildRef') {
       this.addObject(e.detail.data, this._data, this._className, 'child_ref_list')
     } else if (e.detail.action === 'addNoteRef') {
@@ -167,6 +169,8 @@ export class GrampsjsViewObject extends GrampsjsView {
       this.delHandle(e.detail.handle, this._data, this._className, 'note_list')
     } else if (e.detail.action === 'delMediaRef') {
       this.delObject(e.detail.handle, this._data, this._className, 'media_list')
+    } else if (e.detail.action === 'delPlace') {
+      this.delObject(e.detail.handle, this._data, this._className, 'placeref_list')
     } else if (e.detail.action === 'upMediaRef') {
       this.moveObject(e.detail.handle, this._data, this._className, 'media_list', 'up')
     } else if (e.detail.action === 'downMediaRef') {
@@ -179,6 +183,10 @@ export class GrampsjsViewObject extends GrampsjsView {
       this.moveObject(e.detail.handle, this._data, this._className, 'event_ref_list', 'up')
     } else if (e.detail.action === 'downEvent') {
       this.moveObject(e.detail.handle, this._data, this._className, 'event_ref_list', 'down')
+    } else if (e.detail.action === 'upPlace') {
+      this.moveObject(e.detail.handle, this._data, this._className, 'placeref_list', 'up')
+    } else if (e.detail.action === 'downPlace') {
+      this.moveObject(e.detail.handle, this._data, this._className, 'placeref_list', 'down')
     } else if (e.detail.action === 'upChildRef') {
       this.moveObject(e.detail.handle, this._data, this._className, 'child_ref_list', 'up')
     } else if (e.detail.action === 'downChildRef') {

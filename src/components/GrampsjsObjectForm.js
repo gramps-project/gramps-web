@@ -186,7 +186,7 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
       this.data = {...this.data, [originalTarget.id]: e.detail.data}
     }
     if ([
-      'event-select-list', 'media-select-list', 'child-select-list'
+      'event-select-list', 'media-select-list', 'child-select-list', 'place-select-list'
     ].includes(originalTarget.id)) {
       const [handle] = e.detail.data
       if (handle) {

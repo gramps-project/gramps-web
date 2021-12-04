@@ -62,7 +62,7 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
     return ''
   }
 
-  _renderActionBtns (handle, first, last) {
+  _renderActionBtns (handle, first, last, edit = false) {
     return html`
     <mwc-icon-button
       class="edit"
@@ -87,6 +87,15 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
       @click="${(e) => this._handleActionClick(e, `down${this.objType}`, handle)}"
     ></mwc-icon-button>
     `}
+  ${edit
+    ? html`
+      <mwc-icon-button
+        class="edit"
+        icon="edit"
+        @click="${(e) => this._handleEditClick(handle)}"
+      ></mwc-icon-button>
+      `
+    : ''}
     `
   }
 
