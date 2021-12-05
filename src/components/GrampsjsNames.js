@@ -24,7 +24,7 @@ export class GrampsjsNames extends GrampsjsEditableTable {
   constructor () {
     super()
     this.objType = 'Name'
-    this._columns = ['', 'Title', 'Given name', 'Surname', 'Suffix', 'Call name', 'Nickname', '']
+    this._columns = ['', 'Title', 'Given name', 'Surname', 'Suffix', 'Call name', 'Nickname', 'Type', '']
   }
 
   row (obj, i, arr) {
@@ -37,8 +37,9 @@ export class GrampsjsNames extends GrampsjsEditableTable {
         <td>${obj.suffix}</td>
         <td>${obj.call}</td>
         <td>${obj.nick}</td>
+        <td>${this._(obj.type)}</td>
         <td>${this.edit
-    ? this._renderActionBtns(i, i === 0, i === arr.length - 1, false, false)
+    ? this._renderActionBtns(i, i === 0, i === arr.length - 1, true, false)
     : ''}</td>
 
       </tr>
@@ -62,7 +63,7 @@ export class GrampsjsNames extends GrampsjsEditableTable {
     this.dialogContent = html`
     <grampsjs-form-edit-name
       id="name"
-      @object:save="${this._handleNameSave}"
+      @object:save="${this._handleNameAdd}"
       @object:cancel="${this._handleNameCancel}"
       .strings="${this.strings}"
     >
@@ -70,8 +71,28 @@ export class GrampsjsNames extends GrampsjsEditableTable {
     `
   }
 
-  _handleNameSave (e) {
+  _handleEditClick (handle) {
+    this.dialogContent = html`
+    <grampsjs-form-edit-name
+      id="name"
+      @object:save="${(e) => this._handleNameSave(handle, e)}"
+      @object:cancel="${this._handleNameCancel}"
+      .strings="${this.strings}"
+      .data="${this.data[handle]}"
+    >
+    </grampsjs-form-edit-name>
+    `
+  }
+
+  _handleNameAdd (e) {
     fireEvent(this, 'edit:action', {action: 'addName', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleNameSave (handle, e) {
+    fireEvent(this, 'edit:action', {action: 'updateName', data: {index: handle, name: e.detail.data}})
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''

@@ -53,6 +53,7 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
         @formdata:changed="${this._handleFormData}"
         fullwidth
         id="title"
+        value="${this.data.title || ''}"
         label="${this._('Title')}"
       ></grampsjs-form-string>
     </p>
@@ -61,6 +62,7 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
         @formdata:changed="${this._handleFormData}"
         fullwidth
         id="first_name"
+        value="${this.data.first_name || ''}"
         label="${this._('Given name')}"
       ></grampsjs-form-string>
     </p>
@@ -69,6 +71,7 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
         @formdata:changed="${this._handleFormData}"
         fullwidth
         id="suffix"
+        value="${this.data.suffix || ''}"
         label="${this._('Suffix')}"
       ></grampsjs-form-string>
     </p>
@@ -77,6 +80,7 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
       @formdata:changed="${this._handleFormData}"
       fullwidth
       id="prefix"
+      value="${(this.data?.surname_list || [])[0]?.prefix || ''}"
       label="${this._('Prefix')}"
     ></grampsjs-form-string>
     </p>
@@ -85,6 +89,7 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
       @formdata:changed="${this._handleFormData}"
       fullwidth
       id="surname"
+      value="${(this.data?.surname_list || [])[0]?.surname || ''}"
       label="${this._('Surname')}"
     ></grampsjs-form-string>
     </p>
@@ -93,6 +98,7 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
       @formdata:changed="${this._handleFormData}"
       fullwidth
       id="call"
+      value="${this.data.call || ''}"
       label="${this._('Call name')}"
     ></grampsjs-form-string>
     </p>
@@ -101,6 +107,7 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
       @formdata:changed="${this._handleFormData}"
       fullwidth
       id="nick"
+      value="${this.data.nick || ''}"
       label="${this._('Nick name')}"
     ></grampsjs-form-string>
     </p>

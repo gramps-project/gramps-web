@@ -183,6 +183,8 @@ export class GrampsjsViewObject extends GrampsjsView {
       this.delName(e.detail.handle, this._data)
     } else if (e.detail.action === 'addName') {
       this.addObject(e.detail.data, this._data, this._className, 'alternate_names')
+    } else if (e.detail.action === 'updateName') {
+      this.updateName(e.detail.data, this._data)
     } else if (e.detail.action === 'delChildRef') {
       this.delObject(e.detail.handle, this._data, this._className, 'child_ref_list')
     } else if (e.detail.action === 'delCitation') {
@@ -266,10 +268,34 @@ export class GrampsjsViewObject extends GrampsjsView {
   // since names don't have handles!
   delName (handle, obj) {
     return this._updateObject(obj, 'person', (_obj) => {
-      if (handle > 0) {
+      if (handle === 1) {
+        _obj.alternate_names = [
+          ..._obj.alternate_names.slice(1)
+        ]
+      } else if (handle > 1) {
         _obj.alternate_names = [
           ..._obj.alternate_names.slice(0, handle - 1),
-          ..._obj.alternate_names.slice(handle + 1)
+          ..._obj.alternate_names.slice(handle)
+        ]
+      }
+      return _obj
+    })
+  }
+
+  updateName (data, obj) {
+    return this._updateObject(obj, 'person', (_obj) => {
+      if (data.index === 0) {
+        _obj.primary_name = data.name
+      } else if (data.index === 1) {
+        _obj.alternate_names = [
+          data.name,
+          ..._obj.alternate_names.slice(1)
+        ]
+      } else {
+        _obj.alternate_names = [
+          ..._obj.alternate_names.slice(0, data.index - 1),
+          data.name,
+          ..._obj.alternate_names.slice(data.index)
         ]
       }
       return _obj

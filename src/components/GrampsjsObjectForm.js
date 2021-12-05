@@ -208,6 +208,9 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
     if (originalTarget.id === 'event-role-type') {
       this.data = {...this.data, role: {_class: 'EventRoleType', string: e.detail.data}}
     }
+    if (originalTarget.id === 'name-type') {
+      this.data = {...this.data, type: {_class: 'NameType', string: e.detail.data}}
+    }
     if (originalTarget.id === 'child-frel') {
       this.data = {...this.data, frel: {_class: 'ChildRefType', string: e.detail.data}}
     }

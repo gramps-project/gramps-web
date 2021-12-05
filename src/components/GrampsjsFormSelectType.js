@@ -9,16 +9,14 @@ import '@material/mwc-list/mwc-list-item'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-
 class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
-  static get styles() {
+  static get styles () {
     return [
       sharedStyles
     ]
   }
 
-
-  static get properties() {
+  static get properties () {
     return {
       heading: {type: String},
       typeName: {type: String},
@@ -27,12 +25,12 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       typesLocale: {type: Object},
       disabled: {type: Boolean},
       loadingTypes: {type: Boolean},
-      required: {type: Boolean}
+      required: {type: Boolean},
+      initialValue: {type: String}
     }
   }
 
-
-  constructor() {
+  constructor () {
     super()
     this.types = {}
     this.typesLocale = {}
@@ -42,9 +40,10 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
     this.defaultTypeName = 'General'
     this.loadingTypes = false
     this.required = false
+    this.initialValue = ''
   }
 
-  getTypes(types) {
+  getTypes (types) {
     const defaultTypesAll = types?.default || {}
     const customTypesAll = types?.custom || {}
     const defaultTypes = this.typeName in defaultTypesAll ? defaultTypesAll[this.typeName] : []
@@ -52,7 +51,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
     return defaultTypes.concat(customTypes)
   }
 
-  render() {
+  render () {
     const types = this.getTypes(this.types)
     const typesLocale = this.getTypes(this.typesLocale)
     return html`
@@ -67,11 +66,13 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
         label="${this.loadingTypes ? this._('Loading items...') : ''}"
         id="select-type"
       >
-        ${types.includes(this.defaultTypeName) ? '' : html`<mwc-list-item value="" selected></mwc-list-item>`}
-        ${this.loadingTypes ? '' : types.map((obj, i) => html`
+        ${types.includes(this.defaultTypeName) || types.includes(this.initialValue) ? '' : html`<mwc-list-item value="" selected></mwc-list-item>`}
+        ${this.loadingTypes
+    ? ''
+    : types.map((obj, i) => html`
           <mwc-list-item
             value="${typesLocale[i]}"
-            ?selected="${obj === this.defaultTypeName}"
+            ?selected="${(this.initialValue && obj === this.initialValue) || obj === this.defaultTypeName}"
           >${this._(obj)}</mwc-list-item>
           `)}
       </mwc-select>
@@ -79,7 +80,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
 `
   }
 
-  reset() {
+  reset () {
     const types = this.getTypes(this.types)
     const typesLocale = this.getTypes(this.typesLocale)
     const ind = types.indexOf('General')
@@ -87,12 +88,12 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
     selectType.value = ind === -1 ? null : typesLocale[ind]
   }
 
-  handleChange(e) {
+  handleChange (e) {
     const data = e.target.value
     this.dispatchEvent(new CustomEvent('formdata:changed', {bubbles: true, composed: true, detail: {data}}))
   }
 
-  isValid() {
+  isValid () {
     const selectType = this.shadowRoot.getElementById('select-type')
     if (selectType === null) {
       return false
