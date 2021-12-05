@@ -62,13 +62,17 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
     return ''
   }
 
-  _renderActionBtns (handle, first, last, edit = false) {
+  _renderActionBtns (handle, first, last, edit = false, deleteFirst = true) {
     return html`
+    ${first && (!deleteFirst)
+    ? ''
+    : html`
     <mwc-icon-button
       class="edit"
       icon="delete"
       @click="${(e) => this._handleActionClick(e, `del${this.objType}`, handle)}"
     ></mwc-icon-button>
+    `}
     ${first
     ? ''
     : html`

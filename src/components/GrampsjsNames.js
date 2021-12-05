@@ -2,7 +2,7 @@ import {css, html} from 'lit'
 
 import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
 import './GrampsjsFormSelectObject.js'
-import './GrampsjsFormEventRef.js'
+import './GrampsjsFormEditName.js'
 import './GrampsjsObjectForm.js'
 import {fireEvent} from '../util.js'
 import '@material/mwc-icon-button'
@@ -23,7 +23,8 @@ export class GrampsjsNames extends GrampsjsEditableTable {
 
   constructor () {
     super()
-    this._columns = ['', 'Title', 'Given name', 'Surname', 'Suffix', '']
+    this.objType = 'Name'
+    this._columns = ['', 'Title', 'Given name', 'Surname', 'Suffix', 'Call name', 'Nickname', '']
   }
 
   row (obj, i, arr) {
@@ -34,51 +35,51 @@ export class GrampsjsNames extends GrampsjsEditableTable {
         <td>${obj.first_name}</td>
         <td>${obj.surname_list.map(surname => html` ${surname.prefix} ${surname.surname}`)}</td>
         <td>${obj.suffix}</td>
+        <td>${obj.call}</td>
+        <td>${obj.nick}</td>
         <td>${this.edit
-    ? this._renderActionBtns(obj.handle, i === 0, i === arr.length - 1)
+    ? this._renderActionBtns(i, i === 0, i === arr.length - 1, false, false)
     : ''}</td>
 
       </tr>
     `
   }
 
-  // renderAfterTable () {
-  //   return this.edit
-  //     ? html`
-  //     <mwc-icon-button
-  //       class="edit large"
-  //       icon="add_circle"
-  //       @click="${this._handleAddClick}"
-  //     ></mwc-icon-button>
-  //     ${this.dialogContent}
-  //   `
-  //     : ''
-  // }
+  renderAfterTable () {
+    return this.edit
+      ? html`
+      <mwc-icon-button
+        class="edit large"
+        icon="add_circle"
+        @click="${this._handleAddClick}"
+      ></mwc-icon-button>
+      ${this.dialogContent}
+    `
+      : ''
+  }
 
-  // _handleAddClick () {
-  //   this.dialogContent = html`
-  //   <grampsjs-form-eventref
-  //     new
-  //     @object:save="${this._handleEventRefSave}"
-  //     @object:cancel="${this._handleEventRefCancel}"
-  //     .strings="${this.strings}"
-  //     objType="${this.objType}"
-  //     dialogTitle = ${this._('Share an existing event')}
-  //   >
-  //   </grampsjs-form-eventref>
-  //   `
-  // }
+  _handleAddClick () {
+    this.dialogContent = html`
+    <grampsjs-form-edit-name
+      id="name"
+      @object:save="${this._handleNameSave}"
+      @object:cancel="${this._handleNameCancel}"
+      .strings="${this.strings}"
+    >
+    </grampsjs-form-edit-name>
+    `
+  }
 
-  // _handleEventRefSave (e) {
-  //   fireEvent(this, 'edit:action', {action: 'addEventRef', data: e.detail.data})
-  //   e.preventDefault()
-  //   e.stopPropagation()
-  //   this.dialogContent = ''
-  // }
+  _handleNameSave (e) {
+    fireEvent(this, 'edit:action', {action: 'addName', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
 
-  // _handleEventRefCancel () {
-  //   this.dialogContent = ''
-  // }
+  _handleNameCancel () {
+    this.dialogContent = ''
+  }
 }
 
 window.customElements.define('grampsjs-names', GrampsjsNames)

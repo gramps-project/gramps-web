@@ -303,6 +303,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       <grampsjs-names
         .strings="${this.strings}"
         .data="${[this.data.primary_name, ...this.data.alternate_names]}"
+        ?edit=${this.edit}
       ></grampsjs-names>
       `
     case ('enclosed'):

@@ -175,6 +175,14 @@ export class GrampsjsViewObject extends GrampsjsView {
       this.moveObject(e.detail.handle, this._data, this._className, 'media_list', 'up')
     } else if (e.detail.action === 'downMediaRef') {
       this.moveObject(e.detail.handle, this._data, this._className, 'media_list', 'down')
+    } else if (e.detail.action === 'upName') {
+      this.moveName(e.detail.handle, this._data, 'up')
+    } else if (e.detail.action === 'downName') {
+      this.moveName(e.detail.handle, this._data, 'down')
+    } else if (e.detail.action === 'delName') {
+      this.delName(e.detail.handle, this._data)
+    } else if (e.detail.action === 'addName') {
+      this.addObject(e.detail.data, this._data, this._className, 'alternate_names')
     } else if (e.detail.action === 'delChildRef') {
       this.delObject(e.detail.handle, this._data, this._className, 'child_ref_list')
     } else if (e.detail.action === 'delCitation') {
@@ -230,6 +238,39 @@ export class GrampsjsViewObject extends GrampsjsView {
         _obj[prop] = moveUp(_obj[prop], i)
       } else if (upDown === 'down') {
         _obj[prop] = moveDown(_obj[prop], i)
+      }
+      return _obj
+    })
+  }
+
+  // for this method, 'handle' is the integer index
+  // since names don't have handles!
+  moveName (handle, obj, upDown) {
+    return this._updateObject(obj, 'person', (_obj) => {
+      if (((handle === 0) && (upDown === 'down')) || ((handle === 1) && (upDown === 'up'))) {
+        const primaryName = _obj.primary_name
+        _obj.primary_name = _obj.alternate_names[0]
+        _obj.alternate_names = [primaryName, ..._obj.alternate_names.slice(1)]
+      } else if (handle >= 1) {
+        if (upDown === 'up') {
+          _obj.alternate_names = moveUp(_obj.alternate_names, handle - 1)
+        } else if (upDown === 'down') {
+          _obj.alternate_names = moveDown(_obj.alternate_names, handle - 1)
+        }
+      }
+      return _obj
+    })
+  }
+
+  // for this method, 'handle' is the integer index
+  // since names don't have handles!
+  delName (handle, obj) {
+    return this._updateObject(obj, 'person', (_obj) => {
+      if (handle > 0) {
+        _obj.alternate_names = [
+          ..._obj.alternate_names.slice(0, handle - 1),
+          ..._obj.alternate_names.slice(handle + 1)
+        ]
       }
       return _obj
     })
