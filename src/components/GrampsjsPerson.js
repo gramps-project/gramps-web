@@ -5,6 +5,7 @@ import '@material/mwc-icon'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import {asteriskIcon, crossIcon} from '../icons.js'
 import './GrampsJsImage.js'
+import './GrampsjsEditGender.js'
 
 
 export class GrampsjsPerson extends GrampsjsObject {
@@ -23,7 +24,9 @@ export class GrampsjsPerson extends GrampsjsObject {
 
   renderProfile() {
     return html`
-    <h2><mwc-icon class="inline ${this.data.gender === 1 ? 'male' : 'female'}">person</mwc-icon> ${this._displayName()}</h2>
+    <h2><mwc-icon class="inline ${this.data.gender === 1 ? 'male' : this.data.gender === 0 ? 'female' : ''}">person</mwc-icon>
+    <grampsjs-edit-gender ?edit="${this.edit}" gender="${this.data.gender}"></grampsjs-edit-gender>
+    ${this._displayName()}</h2>
     ${this._renderBirth()}
     ${this._renderDeath()}
     ${this._renderTreeBtn()}
