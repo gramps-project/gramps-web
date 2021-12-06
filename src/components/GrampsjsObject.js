@@ -21,6 +21,7 @@ import './GrampsjsParticipants.js'
 import './GrampsjsPrivacy.js'
 import './GrampsjsReferences.js'
 import './GrampsjsRelationships.js'
+import './GrampsjsRepositories.js'
 import './GrampsjsTags.js'
 import './GrampsjsUrls.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
@@ -108,6 +109,11 @@ const _allTabs = {
     title: 'Associations',
     condition: (data) => (data?.person_ref_list?.length > 0),
     conditionEdit: (data) => false // 'person_ref_list' in data // FIXME editable in principle but UI not implemented
+  },
+  repositories: {
+    title: 'Repositories',
+    condition: (data) => (data?.reporef_list?.length > 0),
+    conditionEdit: (data) => 'reporef_list' in data
   },
   references: {
     title: 'References',
@@ -400,6 +406,14 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       return html`<grampsjs-associations .strings=${this.strings} .data=${this.data?.person_ref_list || []} .extended=${this.data?.extended?.people || []}></grampsjs-associations>`
     case ('participants'):
       return html`<grampsjs-participants .strings=${this.strings} .data=${[this.data?.profile?.participants]}></grampsjs-participants>`
+    case ('repositories'):
+      return html`
+      <grampsjs-repositories
+        .strings=${this.strings}
+        .data=${this.data?.reporef_list}
+        .extended=${this.data?.extended?.repositories}
+        ?edit=${this.edit}
+      ></grampsjs-repositories>`
     case ('references'):
       return html`<grampsjs-references .strings=${this.strings} .data=${[this.data?.extended?.backlinks]} .profile=${this.data?.profile?.references || {}}></grampsjs-references>`
     default:
