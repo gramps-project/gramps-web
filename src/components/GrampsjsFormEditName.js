@@ -33,8 +33,6 @@ class GrampsjsFormEditName extends GrampsjsObjectForm {
       @formdata:changed="${this._handleFormData}"
     >
     </grampsjs-form-select-type>
-
-    <pre>${JSON.stringify(this.data, null, 2)}</pre>
 `
   }
 }
