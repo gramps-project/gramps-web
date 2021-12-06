@@ -161,6 +161,14 @@ export class GrampsjsViewObject extends GrampsjsView {
       })
     } else if (e.detail.action === 'addCitation') {
       this.addHandle(e.detail.data.data[0], this._data, this._className, 'citation_list')
+    } else if (e.detail.action === 'delRepository') {
+      this.delObject(e.detail.handle, this._data, this._className, 'reporef_list')
+    } else if (e.detail.action === 'addRepoRef') {
+      this.addObject(e.detail.data, this._data, this._className, 'reporef_list')
+    } else if (e.detail.action === 'upRepository') {
+      this.moveObject(e.detail.handle, this._data, this._className, 'reporef_list', 'up')
+    } else if (e.detail.action === 'downRepository') {
+      this.moveObject(e.detail.handle, this._data, this._className, 'reporef_list', 'down')
     } else if (e.detail.action === 'addMediaRef') {
       this.addObject(e.detail.data, this._data, this._className, 'media_list')
     } else if (e.detail.action === 'updateMediaRef') {

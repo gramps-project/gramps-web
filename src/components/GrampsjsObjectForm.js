@@ -181,12 +181,12 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
       this.data = {...this.data, private: e.detail.checked}
     }
     if ([
-      'author', 'pubinfo', 'abbrev', 'page', 'desc', 'title', 'description', 'lat', 'long'
+      'author', 'pubinfo', 'abbrev', 'page', 'desc', 'title', 'description', 'lat', 'long', 'call_number'
     ].includes(originalTarget.id)) {
       this.data = {...this.data, [originalTarget.id]: e.detail.data}
     }
     if ([
-      'event-select-list', 'media-select-list', 'child-select-list', 'place-select-list'
+      'event-select-list', 'media-select-list', 'child-select-list', 'place-select-list', 'repository-select-list'
     ].includes(originalTarget.id)) {
       const [handle] = e.detail.data
       if (handle) {
@@ -208,11 +208,17 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
     if (originalTarget.id === 'event-role-type') {
       this.data = {...this.data, role: {_class: 'EventRoleType', string: e.detail.data}}
     }
+    if (originalTarget.id === 'source-media-type') {
+      this.data = {...this.data, media_type: {_class: 'SourceMediaType', string: e.detail.data}}
+    }
     if (originalTarget.id === 'name-type') {
       this.data = {...this.data, type: {_class: 'NameType', string: e.detail.data}}
     }
     if (originalTarget.id === 'child-frel') {
       this.data = {...this.data, frel: {_class: 'ChildRefType', string: e.detail.data}}
+    }
+    if (originalTarget.id === 'child-mrel') {
+      this.data = {...this.data, mrel: {_class: 'ChildRefType', string: e.detail.data}}
     }
     if (originalTarget.id === 'child-mrel') {
       this.data = {...this.data, mrel: {_class: 'ChildRefType', string: e.detail.data}}

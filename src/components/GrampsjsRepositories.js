@@ -1,8 +1,8 @@
 import {html} from 'lit'
 
 import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
-import './GrampsjsFormSelectObject.js'
 import './GrampsjsObjectForm.js'
+import './GrampsjsFormRepoRef.js'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsRepositories extends GrampsjsEditableTable {
@@ -15,8 +15,8 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
   constructor () {
     super()
     this.extended = []
-    this.objType = 'Event'
-    this._columns = ['Title', 'Call Number', 'Media Type', '']
+    this.objType = 'Repository'
+    this._columns = ['Title', 'Call Number', '_Media Type:', '']
     this.dialogContent = ''
   }
 
@@ -25,50 +25,55 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
       <tr @click=${() => this._handleClick(this.extended[i].gramps_id)}>
         <td>${this.extended[i].name}</td>
         <td>${obj.call_number}</td>
-        <td>${obj.media_type}</td>
-        <td></td>
+        <td>${this._(obj.media_type)}</td>
+        <td>${this.edit
+    ? this._renderActionBtns(obj.ref, i === 0, i === arr.length - 1)
+    : ''}
+      </td>
 
       </tr>
     `
   }
 
-  // renderAfterTable () {
-  //   return this.edit
-  //     ? html`
-  //     <mwc-icon-button
-  //       class="edit large"
-  //       icon="add_circle"
-  //       @click="${this._handleAddClick}"
-  //     ></mwc-icon-button>
-  //     ${this.dialogContent}
-  //   `
-  //     : ''
-  // }
+  renderAfterTable () {
+    return this.edit
+      ? html`
+      <mwc-icon-button
+        class="edit large"
+        icon="add_circle"
+        @click="${this._handleAddClick}"
+      ></mwc-icon-button>
+      ${this.dialogContent}
+    `
+      : ''
+  }
 
-  // _handleAddClick () {
-  //   this.dialogContent = html`
-  //   <grampsjs-form-eventref
-  //     new
-  //     @object:save="${this._handleEventRefSave}"
-  //     @object:cancel="${this._handleEventRefCancel}"
-  //     .strings="${this.strings}"
-  //     objType="${this.objType}"
-  //     dialogTitle = ${this._('Share an existing event')}
-  //   >
-  //   </grampsjs-form-eventref>
-  //   `
-  // }
+  _handleAddClick () {
+    this.dialogContent = html`
+    <grampsjs-form-reporef
+      new
+      @object:save="${this._handleRepoRefAdd}"
+      @object:cancel="${this._handleRepoRefCancel}"
+      .strings="${this.strings}"
+      objType="${this.objType}"
+      dialogTitle = ${this._('Add an existing repository')}
+    >
+    </grampsjs-form-reporef>
+    `
+  }
 
-  // _handleEventRefSave (e) {
-  //   fireEvent(this, 'edit:action', {action: 'addEventRef', data: e.detail.data})
-  //   e.preventDefault()
-  //   e.stopPropagation()
-  //   this.dialogContent = ''
-  // }
+  _handleRepoRefAdd (e) {
+    if (e.detail.data.ref) {
+      fireEvent(this, 'edit:action', {action: 'addRepoRef', data: e.detail.data})
+    }
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
 
-  // _handleEventRefCancel () {
-  //   this.dialogContent = ''
-  // }
+  _handleRepoRefCancel () {
+    this.dialogContent = ''
+  }
 
   _handleClick (grampsId) {
     if (!this.edit) {
