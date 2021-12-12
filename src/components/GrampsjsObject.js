@@ -153,11 +153,20 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       }
 
       #picture {
-        float: right;
         margin-bottom: 20px;
-        margin-left: 40px;
-        text-align: right;
+        position: relative;
+        text-align: center;
       }
+
+      @media (min-width: 768px) {
+        #picture {
+          float: right;
+          text-align: right;
+          margin-left: 40px;
+          margin-right: 0px;
+        }
+      }
+
       `
     ]
   }
@@ -195,9 +204,9 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     return html`
     <div id="picture">
     ${this.renderPicture()}
-    <div style="clear:both;margin-top:15px;">
-    ${this.renderPrivacy()}
-    </div>
+      <div id="privacy">
+      ${this.renderPrivacy()}
+      </div>
     </div>
 
     ${this.renderProfile()}
@@ -283,6 +292,9 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
   }
 
   renderPrivacy () {
+    if (!this.edit) {
+      return ''
+    }
     return html`
     <grampsjs-privacy
       ?private="${this.data.private}"
