@@ -63,7 +63,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
     <div id="app-title" slot="title">${
   this.editMode && this.editTitle
     ? this.editTitle
-    : (this._dbInfo?.database?.name || 'Gramps.js')
+    : (this._dbInfo?.database?.name || 'Gramps')
 }
     </div>
     ${
