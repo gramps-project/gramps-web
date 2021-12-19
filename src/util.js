@@ -33,6 +33,10 @@ export function citationTitleFromProfile (citationProfile) {
 }
 
 export function eventTitleFromProfile (eventProfile, strings) {
+  if (eventProfile.summary) {
+    return html`${eventProfile.summary}${eventProfile.date ? ` (${eventProfile.date})` : ''}`
+  }
+  // the code below is only kept for backward compatibility
   const primary = translate(strings, 'Primary')
   const family = translate(strings, 'Family')
   const people = eventProfile?.participants?.people.filter((obj) => (obj.role === primary) || (obj.role === 'Primary')) || []
