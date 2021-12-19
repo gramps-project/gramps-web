@@ -1,9 +1,9 @@
-name: build image
+name: Build Docker image
 
 on:
   push:
     branches:
-      - master
+      - main
   release:
     types:
       - created
