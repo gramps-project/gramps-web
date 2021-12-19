@@ -15,7 +15,7 @@ jobs:
           node-version: "16"
       - name: Install and Build
         env:
-          API_URL: https://grampsjs-demo.herokuapp.com
+          API_URL: https://grampsweb-demo.herokuapp.com
         run: |
           npm install
           npm run build
@@ -24,7 +24,7 @@ jobs:
       - uses: akhileshns/heroku-deploy@v3.8.8
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: grampsjs-demo
+          heroku_app_name: grampsweb-demo
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           usedocker: true
           appdir: demo
