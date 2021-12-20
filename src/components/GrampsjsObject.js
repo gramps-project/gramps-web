@@ -122,7 +122,7 @@ const _allTabs = {
   },
   references: {
     title: 'References',
-    condition: (data) => (Object.keys(data?.backlinks)?.length > 0),
+    condition: (data) => (Object.keys(data?.backlinks)?.length > 0 && !('placeref_list' in data)),
     conditionEdit: (data) => false
   }
 }
