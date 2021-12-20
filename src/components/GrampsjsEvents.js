@@ -13,7 +13,9 @@ export class GrampsjsEvents extends GrampsjsEditableTable {
   static get properties () {
     return {
       profile: {type: Array},
-      dialogContent: {type: String}
+      dialogContent: {type: String},
+      useSummary: {type: Boolean},
+      sorted: {type: Boolean}
     }
   }
 
@@ -23,18 +25,22 @@ export class GrampsjsEvents extends GrampsjsEditableTable {
     this.objType = 'Event'
     this._columns = ['Date', 'Type', 'Description', 'Place', '']
     this.dialogContent = ''
+    this.useSummary = false
+    this.sorted = false
   }
 
   row (obj, i, arr) {
+    const j = this.data.indexOf(obj)
+    const prof = this.profile[j]
     return html`
       <tr @click=${() => this._handleClick(obj.gramps_id)}>
-        <td>${this.profile[i].date}</td>
-        <td>${this.profile[i].type}
-        ${!this.profile[i]?.role || ['Primary', 'Family', this._('Primary'), this._('Family')].includes(this.profile[i]?.role)
+        <td>${prof.date}</td>
+        <td>${prof.type}
+        ${!prof?.role || ['Primary', 'Family', this._('Primary'), this._('Family')].includes(prof?.role)
     ? ''
-    : `(${this.profile[i]?.role})`} </td>
-        <td>${obj.description}</td>
-        <td>${this.profile[i].place}</td>
+    : `(${prof?.role})`} </td>
+        <td>${this.useSummary ? prof.summary : obj.description}</td>
+        <td>${prof.place}</td>
         <td>${this.edit
     ? this._renderActionBtns(obj.handle, i === 0, i === arr.length - 1)
     : html`${obj?.media_list?.length > 0
@@ -48,6 +54,13 @@ export class GrampsjsEvents extends GrampsjsEditableTable {
 
       </tr>
     `
+  }
+
+  sortData (dataCopy) {
+    if (!this.sorted) {
+      return dataCopy
+    }
+    return dataCopy.sort((a, b) => (a?.date?.sortval || 0) - (b?.date?.sortval || 0))
   }
 
   renderAfterTable () {

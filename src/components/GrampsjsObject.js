@@ -332,12 +332,16 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       `
     case ('enclosed'):
       return html`
+      ${this.data.placeref_list?.length
+    ? html`
       <h4>${this._('Enclosed By')}</h3>
         <grampsjs-place-refs
           .strings="${this.strings}"
           .data="${this.data?.placeref_list}"
           ?edit="${this.edit}"
         ></grampsjs-place-refs>
+        `
+    : ''}
 
       ${this.data?.backlinks?.place?.length
     ? html`<h4>${this._('Encloses')}</h3>
@@ -397,6 +401,8 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       ></grampsjs-events>`
     case ('placeEvents'):
       return html`<grampsjs-events
+        useSummary
+        sorted
         .strings=${this.strings}
         .data=${this.data?.extended?.backlinks?.event}
         .profile=${this.data?.profile?.references?.event}

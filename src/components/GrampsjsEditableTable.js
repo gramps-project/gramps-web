@@ -46,12 +46,17 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
         <th>${this._(column)}</th>
       `)}
       </tr>
-    ${this.data.map((obj, i, arr) => this.row(obj, i, arr))}
+    ${this.sortData([...this.data]).map((obj, i, arr) => this.row(obj, i, arr))}
     </table>
     `}
 
     ${this.renderAfterTable()}
 `
+  }
+
+  // function to sort the data, if necessary
+  sortData (dataCopy) {
+    return dataCopy
   }
 
   renderAfterTable () {
