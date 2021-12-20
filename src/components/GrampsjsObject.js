@@ -13,6 +13,7 @@ import './GrampsjsAttributes.js'
 import './GrampsjsChildren.js'
 import './GrampsjsEvents.js'
 import './GrampsjsNames.js'
+import './GrampsjsPlaceChildren.js'
 import './GrampsjsPlaceRefs.js'
 import './GrampsjsGallery.js'
 import './GrampsjsMap.js'
@@ -340,11 +341,11 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
 
       ${this.data?.backlinks?.place?.length
     ? html`<h4>${this._('Encloses')}</h3>
-        <grampsjs-place-refs
+        <grampsjs-place-children
           .strings="${this.strings}"
-          .data="${(this.data?.backlinks?.place || []).map(handle => ({ref: handle}))}"
+          .data="${this.data?.profile?.references?.place || []}"
           ?edit="false"
-        ></grampsjs-place-refs>
+        ></grampsjs-place-children>
         `
     : ''}`
     case ('map'):
