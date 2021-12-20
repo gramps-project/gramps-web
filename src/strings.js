@@ -28,7 +28,8 @@ export const additionalStrings = {
     'Latest Blog Post': 'Neuester Blogeintrag',
     'Align the image': 'Bild ausrichten',
     'Select a point on the map': 'Einen Punkt auf der Karte wählen',
-    'Select an existing citation': 'Eine existierende Fundstelle auswählen'
+    'Select an existing citation': 'Eine existierende Fundstelle auswählen',
+    'Place Hierarchy': 'Ortshierarchie'
   }
 }
 
@@ -102,6 +103,7 @@ export const grampsStrings = [
   'Edit Repository',
   'Edit Source',
   'Enclosed By',
+  'Encloses',
   'Error',
   'Estimated',
   'Event Note',

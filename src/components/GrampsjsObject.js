@@ -46,8 +46,8 @@ const _allTabs = {
     conditionEdit: (data) => 'primary_name' in data
   },
   enclosed: {
-    title: 'Enclosed By',
-    condition: (data) => (data.placeref_list?.length > 0),
+    title: 'Place Hierarchy',
+    condition: (data) => (data.placeref_list?.length > 0 || data?.backlinks?.place?.length >= 0),
     conditionEdit: (data) => 'placeref_list' in data
   },
   map: {
@@ -64,6 +64,11 @@ const _allTabs = {
     title: 'Events',
     condition: (data) => (data?.event_ref_list?.length > 0),
     conditionEdit: (data) => 'event_ref_list' in data
+  },
+  placeEvents: {
+    title: 'Events',
+    condition: (data) => ('placeref_list' in data && data?.backlinks?.event?.length > 0),
+    conditionEdit: (data) => false
   },
   timeline: {
     title: 'Timeline',
@@ -326,11 +331,22 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       `
     case ('enclosed'):
       return html`
+      <h4>${this._('Enclosed By')}</h3>
         <grampsjs-place-refs
           .strings="${this.strings}"
           .data="${this.data?.placeref_list}"
           ?edit="${this.edit}"
-        ></grampsjs-place-refs>`
+        ></grampsjs-place-refs>
+
+      ${this.data?.backlinks?.place?.length
+    ? html`<h4>${this._('Encloses')}</h3>
+        <grampsjs-place-refs
+          .strings="${this.strings}"
+          .data="${(this.data?.backlinks?.place || []).map(handle => ({ref: handle}))}"
+          ?edit="false"
+        ></grampsjs-place-refs>
+        `
+    : ''}`
     case ('map'):
       return html`
       ${this.edit
@@ -376,6 +392,13 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         .strings=${this.strings}
         .data=${this.data?.extended?.events}
         .profile=${this.data?.profile?.events}
+        ?edit="${this.edit}"
+      ></grampsjs-events>`
+    case ('placeEvents'):
+      return html`<grampsjs-events
+        .strings=${this.strings}
+        .data=${this.data?.extended?.backlinks?.event}
+        .profile=${this.data?.profile?.references?.event}
         ?edit="${this.edit}"
       ></grampsjs-events>`
     case ('timeline'):
