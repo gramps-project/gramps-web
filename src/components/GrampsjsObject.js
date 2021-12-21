@@ -11,6 +11,7 @@ import './GrampsjsAddresses.js'
 import './GrampsjsAssociations.js'
 import './GrampsjsAttributes.js'
 import './GrampsjsChildren.js'
+import './GrampsjsCitations.js'
 import './GrampsjsEvents.js'
 import './GrampsjsNames.js'
 import './GrampsjsPlaceChildren.js'
@@ -23,6 +24,7 @@ import './GrampsjsPrivacy.js'
 import './GrampsjsReferences.js'
 import './GrampsjsRelationships.js'
 import './GrampsjsRepositories.js'
+import './GrampsjsSources.js'
 import './GrampsjsTags.js'
 import './GrampsjsUrls.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
@@ -61,6 +63,11 @@ const _allTabs = {
     condition: (data) => (data.child_ref_list?.length > 0),
     conditionEdit: (data) => 'child_ref_list' in data
   },
+  sources: {
+    title: 'Sources',
+    condition: (data) => (data?.backlinks?.source?.length > 0 && 'name' in data),
+    conditionEdit: (data) => false
+  },
   events: {
     title: 'Events',
     condition: (data) => (data?.event_ref_list?.length > 0),
@@ -91,10 +98,15 @@ const _allTabs = {
     condition: (data) => (data?.note_list?.length > 0),
     conditionEdit: (data) => 'note_list' in data
   },
-  citations: {
+  sourceCitations: {
     title: 'Sources',
     condition: (data) => (data?.citation_list?.length > 0),
     conditionEdit: (data) => 'citation_list' in data
+  },
+  citations: {
+    title: 'Citations',
+    condition: (data) => (data?.backlinks?.citation?.length > 0 && 'abbrev' in data),
+    conditionEdit: (data) => false
   },
   attributes: {
     title: 'Attributes',
@@ -123,7 +135,7 @@ const _allTabs = {
   },
   references: {
     title: 'References',
-    condition: (data) => (Object.keys(data?.backlinks)?.length > 0 && !('placeref_list' in data)),
+    condition: (data) => Object.keys(data?.backlinks)?.length > 0,
     conditionEdit: (data) => false
   }
 }
@@ -412,9 +424,13 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       if (this._showPersonTimeline) {
         return html`<grampsjs-view-person-timeline active .strings=${this.strings} handle=${this.data.handle}></grampsjs-view-person-timeline>`
       }
+    case ('sources'):
+      return html`<grampsjs-sources .strings=${this.strings} .data=${this.data?.extended?.backlinks?.source || []}></grampsjs-sources>`
+    case ('citations'):
+      return html`<grampsjs-citations .strings=${this.strings} .data=${this.data?.profile?.references?.citation || []}></grampsjs-citations>`
     case ('children'):
       return html`<grampsjs-children .strings=${this.strings} .data=${this.data?.child_ref_list} .profile=${this.data?.profile?.children} ?edit="${this.edit}"></grampsjs-children>`
-    case ('citations'):
+    case ('sourceCitations'):
       return html`<grampsjs-view-source-citations
         active
         .strings=${this.strings}

@@ -16,6 +16,11 @@ export class GrampsjsSource extends GrampsjsObject {
     `]
   }
 
+  constructor () {
+    super()
+    this._showReferences = false
+  }
+
   renderProfile () {
     return html`
     <h2><mwc-icon class="person">bookmarks</mwc-icon>

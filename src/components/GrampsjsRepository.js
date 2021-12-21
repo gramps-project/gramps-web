@@ -12,6 +12,11 @@ export class GrampsjsRepository extends GrampsjsObject {
     `]
   }
 
+  constructor () {
+    super()
+    this._showReferences = false
+  }
+
   renderProfile() {
     return html`
     <h2><mwc-icon class="person">account_balance</mwc-icon> ${this.data.name}</h2>

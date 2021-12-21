@@ -9,6 +9,11 @@ import {fireEvent} from '../util.js'
 const BASE_DIR = ''
 
 export class GrampsjsPlace extends GrampsjsObject {
+  constructor () {
+    super()
+    this._showReferences = false
+  }
+
   renderProfile () {
     return html`
     <h2><mwc-icon class="person">place</mwc-icon> ${this.data?.name?.value || this.data.title || this._('Place')}</h2>
