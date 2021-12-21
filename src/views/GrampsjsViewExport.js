@@ -57,7 +57,7 @@ export class GrampsjsViewExport extends GrampsjsView {
         ?disabled="${!this._formData.exporter}"
       >${this._('Download')}</mwc-button>
       <a
-        download="gramps.${this._formData.exporter || ''}.gz"
+        download="gramps.${this._formData.exporter || ''}"
         href="${this._queryUrl}"
         id="submitanchor"
       ></a>
