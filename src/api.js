@@ -255,6 +255,13 @@ export async function apiPost (endpoint, payload, isJson = true) {
   return apiPutPost('POST', endpoint, payload, isJson)
 }
 
+export function getExporterUrl (id, options) {
+  const jwt = localStorage.getItem('access_token')
+  const queryParam = new URLSearchParams(options).toString()
+  if (jwt === null) { return `${__APIHOST__}/api/exporters/${id}/file?${queryParam}` }
+  return `${__APIHOST__}/api/exporters/${id}/file?jwt=${jwt}&${queryParam}`
+}
+
 export function getMediaUrl (handle) {
   const jwt = localStorage.getItem('access_token')
   if (jwt === null) { return `${__APIHOST__}/api/media/${handle}/file` }

@@ -34,6 +34,7 @@ import './views/GrampsjsViewCitations.js'
 import './views/GrampsjsViewRepositories.js'
 import './views/GrampsjsViewNotes.js'
 import './views/GrampsjsViewMediaObjects.js'
+import './views/GrampsjsViewExport.js'
 import './views/GrampsjsViewPerson.js'
 import './views/GrampsjsViewFamily.js'
 import './views/GrampsjsViewPlace.js'
@@ -321,6 +322,10 @@ export class GrampsJs extends LitElement {
               <span>${this._('History')}</span>
               <mwc-icon slot="graphic">history</mwc-icon>
             </grampsjs-list-item>
+            <grampsjs-list-item href="${BASE_DIR}/export" graphic="icon">
+              <span>${this._('Export')}</span>
+              <mwc-icon slot="graphic">download_file</mwc-icon>
+            </grampsjs-list-item>
           </mwc-list>
         </div>
         <div slot="appContent">
@@ -363,6 +368,7 @@ export class GrampsJs extends LitElement {
         <grampsjs-view-note class="page" ?active=${this._page === 'note'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-note>
         <grampsjs-view-media class="page" ?active=${this._page === 'media'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-media>
 
+        <grampsjs-view-export class="page" ?active=${this._page === 'export'} .strings="${this._strings}"></grampsjs-view-export>
         <grampsjs-view-search class="page" ?active=${this._page === 'search'} .strings="${this._strings}"></grampsjs-view-search>
         <grampsjs-view-recent class="page" ?active=${this._page === 'recent'} .strings="${this._strings}"></grampsjs-view-recent>
         <grampsjs-view-settings class="page" ?active=${this._page === 'settings'} .strings="${this._strings}" ?users="${this.canManageUsers}"></grampsjs-view-settings>
