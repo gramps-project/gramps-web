@@ -42,7 +42,8 @@ jobs:
         run: |
           docker build --push \
             --tag ghcr.io/gramps-project/grampsweb:latest-devel \
-            --platform linux/amd64,linux/arm/v7,linux/arm64 .
+            --platform linux/amd64,linux/arm/v7,linux/arm64 \
+            -f Dockerfile.devel .
       - name: tag and push release image
         if: github.event_name == 'release'
         run: |
