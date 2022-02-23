@@ -50,7 +50,7 @@ const _allTabs = {
   },
   enclosed: {
     title: 'Place Hierarchy',
-    condition: (data) => (data.placeref_list?.length > 0 || data?.backlinks?.place?.length >= 0),
+    condition: (data) => (data.placeref_list?.length > 0 || ('placeref_list' in data && data?.backlinks?.place?.length >= 0)),
     conditionEdit: (data) => 'placeref_list' in data
   },
   map: {
