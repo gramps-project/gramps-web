@@ -74,7 +74,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
   }
 
   _getUrl (handle) {
-    return `/api/places/${handle}?profile=self`
+    return `/api/places/${handle}?locale=${this.strings?.__lang__ || 'en'}&profile=self`
   }
 
   _handleAddClick () {
