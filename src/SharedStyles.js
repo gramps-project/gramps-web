@@ -152,6 +152,11 @@ export const sharedStyles = css`
     --mdc-icon-size: 32px;
   }
 
+  h2 .given-name {
+    text-decoration: underline rgba(0, 0, 0, 0.6);
+    text-underline-offset: 0.15em;
+  }
+
   @media (max-width: 768px) {
     :host {
       font-size: 16px;

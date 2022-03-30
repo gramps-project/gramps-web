@@ -7,22 +7,21 @@ import {asteriskIcon, crossIcon} from '../icons.js'
 import './GrampsJsImage.js'
 import './GrampsjsEditGender.js'
 
-
 export class GrampsjsPerson extends GrampsjsObject {
-  static get styles() {
+  static get styles () {
     return [
       super.styles,
       css`
     `]
   }
 
-  constructor() {
+  constructor () {
     super()
     this._showReferences = false
     this._showPersonTimeline = true
   }
 
-  renderProfile() {
+  renderProfile () {
     return html`
     <h2><mwc-icon class="inline ${this.data.gender === 1 ? 'male' : this.data.gender === 0 ? 'female' : ''}">person</mwc-icon>
     <grampsjs-edit-gender ?edit="${this.edit}" gender="${this.data.gender}"></grampsjs-edit-gender>
@@ -33,16 +32,21 @@ export class GrampsjsPerson extends GrampsjsObject {
     `
   }
 
-  _displayName() {
+  _displayName () {
     if (!this.data.profile) {
       return ''
     }
     const surname = this.data.profile.name_surname || html`&hellip;`
-    const given = this.data.profile.name_given || html`&hellip;`
+    let given = this.data.profile.name_given || html`&hellip;`
+    const call = this.data?.primary_name?.call
+    const callIndex = call ? given.search(call) : -1
+    given = callIndex > -1
+      ? html`${given.substr(0, callIndex)}<span class="given-name">${given.substr(callIndex, call.length)}</span>${given.substr(callIndex + call.length)}`
+      : given
     return html`${given} ${surname}`
   }
 
-  _renderBirth() {
+  _renderBirth () {
     const obj = this.data?.profile?.birth
     if (obj === undefined || Object.keys(obj).length === 0) {
       return ''
@@ -57,7 +61,7 @@ export class GrampsjsPerson extends GrampsjsObject {
     `
   }
 
-  _renderDeath() {
+  _renderDeath () {
     const obj = this.data?.profile?.death
     if (obj === undefined || Object.keys(obj).length === 0) {
       return ''
@@ -72,7 +76,7 @@ export class GrampsjsPerson extends GrampsjsObject {
     `
   }
 
-  _renderTreeBtn() {
+  _renderTreeBtn () {
     return html`
     <p>
     <mwc-button
@@ -83,13 +87,10 @@ export class GrampsjsPerson extends GrampsjsObject {
     </p>`
   }
 
-  _handleButtonClick() {
+  _handleButtonClick () {
     this.dispatchEvent(new CustomEvent('pedigree:person-selected', {bubbles: true, composed: true, detail: {grampsId: this.data.gramps_id}}))
     this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: 'tree'}}))
   }
-
-
 }
-
 
 window.customElements.define('grampsjs-person', GrampsjsPerson)
