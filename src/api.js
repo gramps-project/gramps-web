@@ -196,6 +196,9 @@ export async function apiGet (endpoint, isJson = true) {
       }
     }
   } catch (error) {
+    if (error instanceof TypeError) {
+      return {error: 'Network error'}
+    }
     return {error: error.message}
   }
 };
