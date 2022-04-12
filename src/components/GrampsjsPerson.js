@@ -6,6 +6,7 @@ import {GrampsjsObject} from './GrampsjsObject.js'
 import {asteriskIcon, crossIcon} from '../icons.js'
 import './GrampsJsImage.js'
 import './GrampsjsEditGender.js'
+import './GrampsjsPersonRelationship.js'
 
 export class GrampsjsPerson extends GrampsjsObject {
   static get styles () {
@@ -15,8 +16,15 @@ export class GrampsjsPerson extends GrampsjsObject {
     `]
   }
 
+  static get properties () {
+    return {
+      homePersonDetails: {type: Object}
+    }
+  }
+
   constructor () {
     super()
+    this.homePersonDetails = {}
     this._showReferences = false
     this._showPersonTimeline = true
   }
@@ -28,6 +36,7 @@ export class GrampsjsPerson extends GrampsjsObject {
     ${this._displayName()}</h2>
     ${this._renderBirth()}
     ${this._renderDeath()}
+    ${this._renderRelation()}
     ${this._renderTreeBtn()}
     `
   }
@@ -75,6 +84,24 @@ export class GrampsjsPerson extends GrampsjsObject {
     </event>
     `
   }
+
+  _renderRelation () {
+    return html`
+    <dl>
+      <dt>
+          ${this._('Relationship to home person')}
+      </dt>
+      <dd>
+        <grampsjs-person-relationship
+          person1="${this.homePersonDetails.handle}"
+          person2="${this.data.handle}"
+          .strings="${this.strings}"
+        ></grampsjs-person-relationship>
+      </dd>
+    </dl>
+    `
+  }
+
 
   _renderTreeBtn () {
     return html`

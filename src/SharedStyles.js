@@ -157,6 +157,22 @@ export const sharedStyles = css`
     text-underline-offset: 0.15em;
   }
 
+  span.skeleton {
+    display: inline-block;
+    background: #eee;
+    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+    opacity: 0.8;
+    border-radius: 3px;
+    background-size: 200% 100%;
+    animation: 1.5s shine linear infinite;
+  }
+
+  @keyframes shine {
+    to {
+      background-position-x: -200%;
+    }
+  }
+
   @media (max-width: 768px) {
     :host {
       font-size: 16px;

@@ -3,9 +3,17 @@ import {html} from 'lit'
 import {GrampsjsViewObject} from './GrampsjsViewObject.js'
 import '../components/GrampsjsPerson.js'
 
+
 export class GrampsjsViewPerson extends GrampsjsViewObject {
+  static get properties () {
+    return {
+      homePersonDetails: {type: Object}
+    }
+  }
+
   constructor () {
     super()
+    this.homePersonDetails = {}
     this._className = 'person'
   }
 
@@ -18,6 +26,7 @@ export class GrampsjsViewPerson extends GrampsjsViewObject {
     <grampsjs-person
       .data=${this._data}
       .strings=${this.strings}
+      .homePersonDetails=${this.homePersonDetails}
       ?edit="${this.edit}"
       ?canEdit="${this.canEdit}"
     ></grampsjs-person>

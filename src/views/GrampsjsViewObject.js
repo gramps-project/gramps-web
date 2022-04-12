@@ -123,7 +123,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     }
     if (this.grampsId !== undefined && this.grampsId) {
       if (clearData) {
-        this._data = {}
+        this._clearData()
       }
       this.loading = true
       apiGet(this.getUrl()).then(data => {
@@ -133,6 +133,7 @@ export class GrampsjsViewObject extends GrampsjsView {
           this.error = false
           if (this._className !== '') {
             this.dispatchEvent(new CustomEvent('object:loaded', {bubbles: true, composed: true, detail: {grampsId: this.grampsId, className: this._className}}))
+            this._handleObjectLoaded(this._data)
           }
         } else if ('error' in data) {
           this.error = true
@@ -140,6 +141,14 @@ export class GrampsjsViewObject extends GrampsjsView {
         }
       })
     }
+  }
+
+  _clearData () {
+    this._data = {}
+  }
+
+  _handleObjectLoaded (data) {
+
   }
 
   handleEditAction (e) {
