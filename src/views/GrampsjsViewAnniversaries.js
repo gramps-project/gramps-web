@@ -1,20 +1,15 @@
 import {html, css} from 'lit'
 import '@material/mwc-button'
 
-import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet} from '../api.js'
 import '../components/GrampsjsTimedelta.js'
+import {GrampsjsConnectedComponent} from '../components/GrampsjsConnectedComponent.js'
 import {eventTitleFromProfile} from '../util.js'
 
-export class GrampsjsViewAnniversaries extends GrampsjsView {
+export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
   static get styles () {
     return [
       super.styles,
       css`
-      :host {
-        margin: 0;
-      }
-
       .date {
         font-size: 0.9em;
         color: rgba(0, 0, 0, 0.5);
@@ -28,25 +23,14 @@ export class GrampsjsViewAnniversaries extends GrampsjsView {
     ]
   }
 
-  static get properties () {
-    return {
-      data: {type: Array}
-    }
-  }
-
-  constructor () {
-    super()
-    this.data = []
+  renderLoading () {
+    return ''
   }
 
   renderContent () {
-    if (this.data.length === 0) {
-      return html``
-    }
     return html`<h2>${this._('Anniversaries')}</h2>
 
-    ${this.data.map(event => this._renderEvent(event))}
-
+    ${this._data.data.map(event => this._renderEvent(event))}
     `
   }
 
@@ -68,31 +52,11 @@ export class GrampsjsViewAnniversaries extends GrampsjsView {
     </div>`
   }
 
-  async _fetchData (lang) {
-    this.loading = true
+  getUrl () {
     const now = new Date()
     const m = now.getMonth() + 1
     const d = now.getDate()
-    const data = await apiGet(`/api/events/?dates=*/${m}/${d}&profile=all&sort=-date&locale=${lang || 'en'}`)
-    this.loading = false
-    if ('data' in data) {
-      this.error = false
-      this.data = data.data
-    } else if ('error' in data) {
-      this.error = true
-      this._errorMessage = data.error
-    }
-  }
-
-  connectedCallback () {
-    super.connectedCallback()
-    window.addEventListener('language:changed', (e) => this._fetchData(e.detail.lang))
-  }
-
-  firstUpdated () {
-    if ('__lang__' in this.strings) { // don't load before we have strings
-      this._fetchData(this.strings.__lang__)
-    }
+    return `/api/events/?dates=*/${m}/${d}&profile=all&sort=-date&locale=${this.strings.__lang__ || 'en'}`
   }
 }
 
