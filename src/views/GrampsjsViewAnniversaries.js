@@ -24,7 +24,24 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
   }
 
   renderLoading () {
-    return ''
+    return html`<h2>${this._('Anniversaries')}</h2>
+    <div class="event">
+      <div class="date">
+        <span class="skeleton" style="width:7em;">&nbsp;</span>
+      </div>
+      <div class="title">
+        <span class="skeleton" style="width:15em;">&nbsp;</span>
+      </div>
+    </div>
+    <div class="event">
+      <div class="date">
+        <span class="skeleton" style="width:7em;">&nbsp;</span>
+      </div>
+      <div class="title">
+        <span class="skeleton" style="width:15em;">&nbsp;</span>
+      </div>
+    </div>
+    `
   }
 
   renderContent () {
