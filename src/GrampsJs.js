@@ -82,6 +82,7 @@ export class GrampsJs extends LitElement {
       canAdd: {type: Boolean},
       canEdit: {type: Boolean},
       canManageUsers: {type: Boolean},
+      _homePersonDetails: {type: Object},
       _lang: {type: String},
       _strings: {type: Object},
       _dbInfo: {type: Object},
@@ -99,6 +100,7 @@ export class GrampsJs extends LitElement {
     this.canAdd = false
     this.canEdit = false
     this.canManageUsers = false
+    this._homePersonDetails = {}
     this._lang = ''
     this._strings = {}
     this._dbInfo = {}
@@ -240,7 +242,13 @@ export class GrampsJs extends LitElement {
   }
 
   _renderNoConn () {
-    return html`No connection`
+    return html`<div class="center-xy">
+      <div>
+        No connection<br/><br/>
+        <mwc-button raised @click=${this._handleReload}>Reload</mwc-button>
+      </div>
+    </div>
+`
   }
 
   _renderLogin () {
@@ -358,7 +366,7 @@ export class GrampsJs extends LitElement {
         <grampsjs-view-tree class="page" ?active=${this._page === 'tree'} grampsId="${this.settings.homePerson}" .strings="${this._strings}" .settings="${this.settings}"></grampsjs-view-tree>
         <grampsjs-view-graph class="page" ?active=${this._page === 'graph'} grampsId="${this.settings.homePerson}" .strings="${this._strings}" .settings="${this.settings}"></grampsjs-view-graph>
 
-        <grampsjs-view-person class="page" ?active=${this._page === 'person'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-person>
+        <grampsjs-view-person class="page" ?active=${this._page === 'person'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}" .homePersonDetails=${this._homePersonDetails}></grampsjs-view-person>
         <grampsjs-view-family class="page" ?active=${this._page === 'family'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-family>
         <grampsjs-view-event class="page" ?active=${this._page === 'event'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-event>
         <grampsjs-view-place class="page" ?active=${this._page === 'place'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-place>
@@ -416,6 +424,11 @@ export class GrampsJs extends LitElement {
     }
   }
 
+  _handleReload () {
+    this.loadingState = LOADING_STATE_INITIAL
+    this._loadDbInfo()
+  }
+
   connectedCallback () {
     super.connectedCallback()
     this._loadDbInfo()
@@ -447,6 +460,22 @@ export class GrampsJs extends LitElement {
             this.language = this._dbInfo.locale.language
           }
           this._setReady()
+        }
+      })
+    this._loadHomePersonInfo()
+  }
+
+  _loadHomePersonInfo () {
+    const grampsId = this.settings.homePerson
+    if (!grampsId) {
+      return null
+    }
+    apiGet(`/api/people/?gramps_id=${grampsId}`)
+      .then(data => {
+        if ('data' in data) {
+          [this._homePersonDetails] = data.data
+        } else if ('error' in data) {
+          this._showError(data.error)
         }
       })
   }
@@ -573,6 +602,13 @@ export class GrampsJs extends LitElement {
 
   _handleSettings () {
     this.settings = getSettings()
+    if (
+      this.settings?.homePerson &&
+      this._homePersonDetails?.gramps_id &&
+      (this.settings.homePerson !== this._homePersonDetails.gramps_id)
+    ) {
+      this._loadHomePersonInfo()
+    }
   }
 
   setPermissions () {
