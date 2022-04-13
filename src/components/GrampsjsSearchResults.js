@@ -42,7 +42,8 @@ export class GrampsjsSearchResults extends GrampsjsTranslateMixin(LitElement) {
   static get properties () {
     return {
       data: {type: Array},
-      date: {type: Boolean}
+      date: {type: Boolean},
+      loading: {type: Boolean}
     }
   }
 
@@ -50,10 +51,21 @@ export class GrampsjsSearchResults extends GrampsjsTranslateMixin(LitElement) {
     super()
     this.data = []
     this.date = false
+    this.loading = false
   }
 
   render () {
-    if (this.data.length === 0) {
+    if (this.loading) {
+      return html`
+      <div id="search-results">
+      ${[1, 2].map((obj) => html`
+          <div class="search-hit">
+            <span class="skeleton" style="width:15em;">&nbsp;</span>
+            <div class="change"><span class="skeleton" style="width:7em;">&nbsp;</span></div>
+          </div>`, this)}
+      </div>
+      `
+    } else if (this.data.length === 0) {
       return html``
     }
     return html`

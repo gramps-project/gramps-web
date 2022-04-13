@@ -46,14 +46,12 @@ export class GrampsjsViewDashboard extends GrampsjsView {
     <div class="column">
       <div>
         <grampsjs-view-anniversaries
-          ?active=${this.active}
           id="anniversaries"
           .strings="${this.strings}">
         </grampsjs-view-anniversaries>
       </div>
       <div>
         <grampsjs-view-recently-changed
-          active
           id="recently-changed"
           .strings="${this.strings}">
         </grampsjs-view-recently-changed>

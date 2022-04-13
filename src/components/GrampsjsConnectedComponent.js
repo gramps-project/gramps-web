@@ -30,16 +30,13 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(LitElemen
     this.error = false
     this.loadWithoutLocale = false
     this._errorMessage = ''
-    this.data = {}
+    this._data = {}
   }
 
   render () {
     if (this.error) {
       this.dispatchEvent(new CustomEvent('grampsjs:error', {bubbles: true, composed: true, detail: {message: this._errorMessage}}))
       return ''
-    }
-    if (!('__lang__' in this.strings)) {
-      return 'LANG'
     }
     if (this.loading) {
       return this.renderLoading()
