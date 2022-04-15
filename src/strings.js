@@ -324,6 +324,7 @@ export const grampsStrings = [
   'Select...',
   'Select',
   'Selected',
+  'self',
   'Set _Home Person',
   'Share an existing event',
   'Show Details',

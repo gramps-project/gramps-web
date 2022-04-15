@@ -29,6 +29,9 @@ export class GrampsjsPersonRelationship extends GrampsjsConnectedComponent {
 
   renderContent () {
     const relation = this._data?.data?.relationship_string
+    if (this.person1 === this.person2) {
+      return html`${this._('self')}`
+    }
     if (relation === undefined) {
       return html`&nbsp;`
     }
