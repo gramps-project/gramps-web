@@ -74,7 +74,7 @@ export class GrampsjsChildren extends GrampsjsEditableTable {
       @object:cancel="${this._handleChildRefCancel}"
       .strings="${this.strings}"
       objType="${this.objType}"
-      dialogTitle = ${this._('Share an existing event')}
+      dialogTitle = ${this._('Add existing child to family')}
     >
     </grampsjs-form-childref>
     `
