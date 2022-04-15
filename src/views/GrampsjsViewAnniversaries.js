@@ -46,8 +46,9 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
 
   renderContent () {
     return html`<h2>${this._('Anniversaries')}</h2>
-
-    ${this._data.data.map(event => this._renderEvent(event))}
+    ${this._data.data.length === 0
+    ? html`<p>${this._('No items')}.</p>`
+    : this._data.data.map(event => this._renderEvent(event))}
     `
   }
 
