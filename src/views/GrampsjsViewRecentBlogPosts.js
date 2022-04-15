@@ -1,20 +1,16 @@
 import {html, css} from 'lit'
 
-import {GrampsjsView} from './GrampsjsView.js'
+import {GrampsjsConnectedComponent} from '../components/GrampsjsConnectedComponent.js'
+import '../components/GrampsjsSearchResults.js'
 import '../components/GrampsjsTimedelta'
-import {apiGet} from '../api.js'
 
 const BASE_DIR = ''
 
-export class GrampsjsViewRecentBlogPosts extends GrampsjsView {
+export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
   static get styles () {
     return [
       super.styles,
       css`
-      :host {
-        margin: 0;
-      }
-
       .change {
         font-size: 0.8em;
         color: rgba(0, 0, 0, 0.5);
@@ -24,24 +20,25 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsView {
     ]
   }
 
-  static get properties () {
-    return {
-      data: {type: Array}
-    }
-  }
-
-  constructor () {
-    super()
-    this.data = []
-  }
-
   renderContent () {
-    if (this.data.length === 0) {
-      return ''
+    if (!this._data?.data?.length) {
+      return html`
+      <h2>${this._('Latest Blog Post')}</h2>
+      <p>${this._('No items')}.</p>
+      `
     }
     return html`
     <h2>${this._('Latest Blog Post')}</h2>
-    ${this.data.slice(0, 1).map(obj => this._renderPost(obj))}
+    ${this._data.data.slice(0, 1).map(obj => this._renderPost(obj))}
+    `
+  }
+
+  renderLoading () {
+    return html`
+    <h2>${this._('Latest Blog Post')}</h2>
+    <span class="skeleton" style="width:7em;">&nbsp;</span><br>
+      <div class="change"
+        ><span class="skeleton" style="width:7em;">&nbsp;</span></div>
     `
   }
 
@@ -56,8 +53,7 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsView {
     `
   }
 
-  async _fetchData (lang) {
-    this.loading = true
+  getUrl () {
     const rules = {
       rules: [
         {
@@ -66,29 +62,7 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsView {
         }
       ]
     }
-    const uri = `/api/sources/?rules=${encodeURIComponent(JSON.stringify(rules))}&pagesize=1&sort=-change&locale=${lang || 'en'}&profile=all&extend=all`
-    await apiGet(uri).then(data => {
-      if ('data' in data) {
-        this.error = false
-        this.data = data.data
-      } else if ('error' in data) {
-        this.error = true
-        this._errorMessage = data.error
-      }
-    })
-    this.loading = false
-  }
-
-  firstUpdated () {
-    if ('__lang__' in this.strings) { // don't load before we have strings
-      this._fetchData(this.strings.__lang__)
-    }
-  }
-
-  connectedCallback () {
-    super.connectedCallback()
-    window.addEventListener('language:changed', (e) => this._fetchData(e.detail.lang))
-    window.addEventListener('db:changed', () => this._fetchData(this.strings.__lang__))
+    return `/api/sources/?rules=${encodeURIComponent(JSON.stringify(rules))}&pagesize=1&sort=-change&locale=${this.strings.__lang__ || 'en'}&profile=all&extend=all`
   }
 }
 
