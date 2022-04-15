@@ -101,6 +101,7 @@ export class GrampsjsViewObject extends GrampsjsView {
   connectedCallback () {
     super.connectedCallback()
     window.addEventListener('edit-mode:off', this._boundDisableEditMode)
+    window.addEventListener('language:changed', this._handleLangChange.bind(this))
     this.addEventListener('edit:action', this.handleEditAction.bind(this))
   }
 
@@ -140,6 +141,12 @@ export class GrampsjsViewObject extends GrampsjsView {
           this._errorMessage = data.error
         }
       })
+    }
+  }
+
+  _handleLangChange (e) {
+    if (this.active && e.detail.lang === this.strings.__lang__) {
+      this._updateData(false)
     }
   }
 
