@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  gramps-proxy:
+    image: nginx
+    volumes:
+      - ./dev/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "5555:80"
+  gramps-api:
+    build: 
+      context: ./dev
+      dockerfile: Dockerfile.api
+  gramps-frontend:
+    build: 
+      context: .
+      dockerfile: ./dev/Dockerfile.frontend
+    volumes:
+      - ./:/app
