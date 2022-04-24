@@ -74,7 +74,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
       </mwc-icon-button>
     </div>
 
-    ${this._totalCount === 0 ? html`<p>No results.</p>` : ''}
+    ${this._totalCount === 0 ? html`<p>${this._('No items')}</p>` : ''}
     ${this._totalCount > 0 ? html`<p>Total: ${this._totalCount}</p>` : ''}
     <grampsjs-search-results
       .data="${this._data}"
@@ -100,13 +100,28 @@ export class GrampsjsViewSearch extends GrampsjsView {
     this._focus()
   }
 
-  _focus() {
+  _focus(retry = true) {
     if (this.active) {
       const el = this.shadowRoot.getElementById('search-field')
       try {
         el.focus()
       }
       catch(e) {
+        // retry once
+        window.setTimeout(() => this._focus(false), 100)
+      }
+    }
+  }
+
+  _unfocus() {
+    if (this.active) {
+      const el = this.shadowRoot.getElementById('search-field')
+      try {
+        el.blur()
+      }
+      catch(e) {
+        // retry once
+        window.setTimeout(() => this._blur(false), 100)
       }
     }
   }
@@ -141,7 +156,12 @@ export class GrampsjsViewSearch extends GrampsjsView {
       this._executeSearch()
     }
     if(event.code === 'Escape') {
-      this._clearBox()
+      const query = this.shadowRoot.getElementById('search-field').value
+      if (query === '') {
+        this._unfocus()
+      } else {
+        this._clearBox()
+      }
     }
   }
 
@@ -177,7 +197,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
     if ('data' in data) {
       this.error = false
       this._data = data.data
-      this._totalCount = data.total_count
+      this._totalCount = parseInt(data.total_count)
       this._pages = Math.ceil(this._totalCount / 20)
     } else if ('error' in data) {
       this.error = true
@@ -185,6 +205,17 @@ export class GrampsjsViewSearch extends GrampsjsView {
     }
   }
 
+  connectedCallback () {
+    super.connectedCallback()
+    window.addEventListener('nav', (event) => this._handleNav(event))
+  }
+
+  _handleNav (event) {
+    if (event.detail.path !== 'search') {
+      return null
+    }
+    this._focus()
+  }
 }
 
 
