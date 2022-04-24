@@ -87,7 +87,9 @@ export class GrampsJs extends LitElement {
       _strings: {type: Object},
       _dbInfo: {type: Object},
       _page: {type: String},
-      _pageId: {type: String}
+      _pageId: {type: String},
+      _showShortcuts: {type: Boolean},
+      _shortcutPressed: {type: String}
     }
   }
 
@@ -106,6 +108,8 @@ export class GrampsJs extends LitElement {
     this._dbInfo = {}
     this._page = 'home'
     this._pageId = ''
+    this._showShortcuts = false
+    this._shortcutPressed = ''
   }
 
   static get styles () {
@@ -205,6 +209,81 @@ export class GrampsJs extends LitElement {
         margin: 20px;
       }
 
+      #shortcut-overlay-container {
+        background-color: rgba(0, 0, 0, 0.1);
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        min-height: 100vh;
+        width: 100vw;
+        z-index: 10001;
+        overflow:hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #shortcut-overlay {
+        font-size: 16px;
+        background-color: white;
+        padding: 0.5em 1.5em;
+        position: absolute;
+        top: 15vh;
+        overflow-y:auto;
+        max-width: 100vw;
+        max-height: 75vh;
+        border-radius: 8px;
+      }
+
+      #shortcut-overlay section {
+        display: flex;
+        flex-direction: row;
+        gap: 24px;
+      }
+
+      #shortcut-overlay h3 {
+        margin-top: 0.5em;
+        font-size: 1.3em;
+        font-weight: 400;
+      }
+
+      #shortcut-overlay h4 {
+        margin-top: 0.5em;
+        font-weight: 400;
+        font-size: 1em;
+      }
+
+      #shortcut-overlay dl {
+        display: grid;
+        grid-template-columns: max-content auto;
+        margin: 0.5em 0em;
+      }
+
+      #shortcut-overlay dt {
+        grid-column-start: 1;
+        margin-right: 1.2em;
+      }
+
+      #shortcut-overlay dt span {
+        font-family: 'Roboto Slab';
+        font-size: 11px;
+        font-weight: 400;
+        display: inline-block;
+        min-width: .75em;
+        padding: 4px 6px;
+        text-align: center;
+        border: 1px solid #ccc;
+        color: #555;
+        border-radius: 6px;
+        margin-bottom: 4px;
+      }
+
+      #shortcut-overlay dd {
+        grid-column-start: 2;
+        padding: 0;
+      }
     `
     ]
   }
@@ -212,6 +291,7 @@ export class GrampsJs extends LitElement {
   render () {
     return html`
     ${this.renderContent()}
+    ${this._renderKeyboardShortcuts()}
     <mwc-snackbar id="error-snackbar" leading></mwc-snackbar>
     <mwc-snackbar id="notification-snackbar" leading></mwc-snackbar>
     <grampsjs-update-available>
@@ -225,6 +305,45 @@ export class GrampsJs extends LitElement {
       </mwc-snackbar>
     </grampsjs-update-available>
     `
+  }
+
+  _renderKeyboardShortcuts () {
+    if (!this._showShortcuts) {
+      return ''
+    }
+    return html`
+    <div id="shortcut-overlay-container">
+      <div id="shortcut-overlay">
+        <h3>${this._('Keyboard Shortcuts')}</h3>
+        <section>
+          <div>
+            <h4>${this._('Global')}</h4>
+            <dl>
+              <dt><span>?</span></dt>
+              <dd>${this._('Show this dialog')}</dd>
+              <dt><span>s</span></dt>
+              <dd>${this._('Search')}</dd>
+            </dl>
+          </div>
+          <div>
+            <h4>${this._('Navigation')}</h4>
+            <dl>
+              <dt><span>g</span> <span>h</span></dt>
+              <dd>${this._('Home Page')}</dd>
+              <dt><span>g</span> <span>b</span></dt>
+              <dd>${this._('Blog')}</dd>
+              <dt><span>g</span> <span>m</span></dt>
+              <dd>${this._('Map')}</dd>
+              <dt><span>g</span> <span>t</span></dt>
+              <dd>${this._('Family Tree')}</dd>
+              <dt><span>g</span> <span>r</span></dt>
+              <dd>${this._('History')}</dd>
+            </dl>
+          </div>
+        </section>
+      </div>
+    </div>
+      `
   }
 
   _postUpdateMessage () {
@@ -434,6 +553,7 @@ export class GrampsJs extends LitElement {
     this._loadDbInfo()
     window.addEventListener('db:changed', () => this._loadDbInfo())
     this.addEventListener('drawer:toggle', this._toggleDrawer)
+    window.addEventListener('keydown', (event) => this._handleKey(event))
   }
 
   firstUpdated () {
@@ -609,6 +729,42 @@ export class GrampsJs extends LitElement {
     ) {
       this._loadHomePersonInfo()
     }
+  }
+
+  _handleKey (e) {
+    const target = e.composedPath()[0]
+    if (['input', 'textarea'].includes(target.tagName.toLowerCase())) {
+      return null
+    }
+    if (this._showShortcuts) {
+      this._showShortcuts = false
+    }
+    if (this._shortcutPressed) {
+      if (e.key === 'h') {
+        fireEvent(this, 'nav', {path: ''})
+      } else if (e.key === 'b') {
+        fireEvent(this, 'nav', {path: 'blog'})
+      } else if (e.key === 'm') {
+        fireEvent(this, 'nav', {path: 'map'})
+      } else if (e.key === 't') {
+        fireEvent(this, 'nav', {path: 'tree'})
+      } else if (e.key === 'r') {
+        fireEvent(this, 'nav', {path: 'recent'})
+      }
+      this._shortcutPressed = ''
+    } else {
+      if (e.key === 'g') {
+        this._shortcutPressed = 'g'
+      } else if (e.key === 's') {
+        fireEvent(this, 'nav', {path: 'search'})
+      } else if (e.key === '?') {
+        this._showShortcuts = true
+      } else {
+        return null
+      }
+    }
+    e.preventDefault()
+    e.stopPropagation()
   }
 
   setPermissions () {

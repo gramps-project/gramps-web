@@ -11,6 +11,9 @@ export const additionalStrings = {
     Menu: 'Menü',
     Blog: 'Blog',
     Export: 'Exportieren',
+    Search: 'Suche',
+    Navigation: 'Navigation',
+    Global: 'Global',
     'Edit coordinates': 'Koordinaten bearbeiten',
     'Recently browsed objects': 'Kürzlich betrachtete Objekte',
     'Recently changed objects': 'Kürzlich geänderte Objekte',
@@ -30,7 +33,9 @@ export const additionalStrings = {
     'Align the image': 'Bild ausrichten',
     'Select a point on the map': 'Einen Punkt auf der Karte wählen',
     'Select an existing citation': 'Eine existierende Fundstelle auswählen',
-    'Place Hierarchy': 'Ortshierarchie'
+    'Place Hierarchy': 'Ortshierarchie',
+    'Keyboard Shortcuts': 'Tastenkombinationen',
+    'Show this dialog': 'Diesen Dialog anzeigen'
   }
 }
 
