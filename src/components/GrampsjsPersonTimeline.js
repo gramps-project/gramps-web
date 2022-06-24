@@ -8,9 +8,8 @@ import './GrampsjsMap.js'
 import './GrampsjsMapMarker.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-
 export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
-  static get styles() {
+  static get styles () {
     return [
       sharedStyles,
       css`
@@ -109,20 +108,20 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
     ]
   }
 
-  static get properties() {
+  static get properties () {
     return {
       data: {type: Array},
       highlightedId: {type: String}
     }
   }
 
-  constructor() {
+  constructor () {
     super()
     this.data = []
     this.highlightedId = ''
   }
 
-  render() {
+  render () {
     if (this.data.length === 0) {
       return html``
     }
@@ -132,15 +131,17 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
         ${this.data.map(this.renderEvent, this)}
       </div>
       <div id="map">
-      ${this.data.map(obj => obj.place?.lat || obj.place?.long).filter(Boolean).length > 0 ? html`
+      ${this.data.map(obj => obj.place?.lat || obj.place?.long).filter(Boolean).length > 0
+    ? html`
       ${this.renderMap()}
-      `: ''}
+      `
+    : ''}
       </div>
     </div>
     `
   }
 
-  renderMap() {
+  renderMap () {
     const mapCorners = this._getMapCorners()
     return html`
     <grampsjs-map
@@ -164,12 +165,13 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
         opacity="${obj.gramps_id === this.highlightedId ? 1.0 : 0.5}"
         >
         </grampsjs-map-marker>
-        `}, this)}
+        `
+  }, this)}
       </grampsjs-map>
     `
   }
 
-  _getMapCorners() {
+  _getMapCorners () {
     if (this.data.length === 0) {
       return [0, 0]
     }
@@ -184,7 +186,7 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  renderEvent(obj) {
+  renderEvent (obj) {
     return html`
     <div
     id="event-${obj.gramps_id}"
@@ -199,16 +201,27 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
       </div>
       <div class="timeline-detail">
         <span class="timeline-label">${obj.label}
+        ${// if role is not primary/family, show role
+  obj.role && ![this._('Family'), this._('Primary')].includes(obj.role)
+    ? html`(${obj.role})`
+    : ''
+}
       </span>
-        ${obj.description ? html`
+        ${obj.description
+    ? html`
         <span class="timeline-description">${obj.description}</span>
-        ` : ''}
-        ${obj.place?.name ? html`
+        `
+    : ''}
+        ${obj.place?.name
+    ? html`
         <span class="timeline-place"><mwc-icon class="person">place</mwc-icon> ${obj.place.name}</span>
-        ` : ''}
-        ${obj.person?.name_given || obj.person?.name_surname  ? html`
+        `
+    : ''}
+        ${obj.person?.name_given || obj.person?.name_surname
+    ? html`
         <span class="timeline-person"><mwc-icon class="person">person</mwc-icon> ${obj.person?.name_given || html`&hellip;`} ${obj.person?.name_surname || html`&hellip;`}</span>
-        ` : ''}
+        `
+    : ''}
 
         <span class="timeline-button">
           <mwc-button
@@ -222,7 +235,7 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
     `
   }
 
-  _handleMouseOver(obj) {
+  _handleMouseOver (obj) {
     const grampsId = obj.gramps_id
     const lat = obj?.place?.lat
     const long = obj?.place?.long
@@ -233,7 +246,7 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
-  _handleMapClick(e) {
+  _handleMapClick (e) {
     if (e.detail?.markerId) {
       this.highlightedId = e.detail.markerId
       this._scrollToId(`event-${e.detail.markerId}`)
@@ -246,15 +259,17 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
-  _handleButtonClick(grampsId) {
+  _handleButtonClick (grampsId) {
     this.dispatchEvent(new CustomEvent('nav', {
-      bubbles: true, composed: true, detail: {
+      bubbles: true,
+      composed: true,
+      detail: {
         path: `event/${grampsId}`
       }
     }))
   }
 
-  _scrollToId(eleId) {
+  _scrollToId (eleId) {
     const ele = this.shadowRoot.getElementById(eleId)
     if (!ele) {
       return
@@ -262,6 +277,5 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
     ele.scrollIntoView({behavior: 'smooth', block: 'center'})
   }
 }
-
 
 window.customElements.define('grampsjs-person-timeline', GrampsjsPersonTimeline)
