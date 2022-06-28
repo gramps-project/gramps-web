@@ -572,7 +572,12 @@ export class GrampsJs extends LitElement {
     apiGet('/api/metadata/')
       .then(data => {
         if ('error' in data) {
-          this.loadingState = LOADING_STATE_UNAUTHORIZED
+          if (data.error === 'Network error') {
+            this.loadingState = LOADING_STATE_UNAUTHORIZED_NOCONNECTION
+          } else {
+            this.loadingState = LOADING_STATE_UNAUTHORIZED
+          }
+          return
         }
         if ('data' in data) {
           this._dbInfo = data.data
