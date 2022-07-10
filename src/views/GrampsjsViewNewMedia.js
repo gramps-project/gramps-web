@@ -27,6 +27,7 @@ export class GrampsjsViewNewMedia extends GrampsjsViewNewObject {
     <h4 class="label">${this._('File')}</h4>
     <p>
       <grampsjs-form-upload
+        preview
         id="upload"
         .strings="${this.strings}"
       ></grampsjs-form-upload>

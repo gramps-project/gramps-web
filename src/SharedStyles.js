@@ -32,6 +32,12 @@ export const sharedStyles = css`
     font-family: Roboto Slab;
   }
 
+  h1 {
+    font-weight: 400;
+    font-family: Roboto Slab;
+    font-size: 34px;
+  }
+
   h2 {
     font-size: 32px;
     margin-top: 10px;
@@ -176,6 +182,10 @@ export const sharedStyles = css`
   @media (max-width: 768px) {
     :host {
       font-size: 16px;
+    }
+
+    h1 {
+      font-size: 24px;
     }
 
     h2 {

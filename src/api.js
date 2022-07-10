@@ -1,6 +1,6 @@
 import jwt_decode from 'jwt-decode'
 
-const __APIHOST__ = 'http://localhost:5555'
+export const __APIHOST__ = 'http://localhost:5555'
 
 export function doLogout () {
   localStorage.removeItem('access_token')

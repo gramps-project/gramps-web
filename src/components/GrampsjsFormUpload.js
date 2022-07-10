@@ -29,6 +29,12 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
         color: rgba(0, 0, 0, 0.6);
         --mdc-icon-size: 100px;
       }
+
+      span.filename {
+        font-size: 0.8em;
+        line-height: 36px;
+        margin-left: 1em;
+      }
       `
     ]
   }
@@ -36,7 +42,10 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
   static get properties() {
     return {
       file: {type: Object},
-      imageUrl: {type: String}
+      imageUrl: {type: String},
+      preview: {type: Boolean},
+      filename: {type: Boolean},
+      disabled: {type: Boolean}
     }
   }
 
@@ -45,6 +54,9 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
     super()
     this.file = {}
     this.imageUrl = ''
+    this.preview = false
+    this.filename = false
+    this.disabled = false
   }
 
   render() {
@@ -57,13 +69,15 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
     >
     <mwc-button
       raised
+      ?disabled="${this.disabled}"
       icon="upload"
       @click="${this._handleClickUpload}"
     >
       ${this._('Select a file')}
     </mwc-button>
+    ${this.filename ? this.renderFileName() : ''}
 
-    ${this.renderPreview()}
+    ${this.preview ? this.renderPreview() : ''}
     `
   }
 
@@ -76,6 +90,10 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
     ${this.file.type.startsWith('image') ? this.renderImage() : this.renderIcon()}
     </div>
     `
+  }
+
+  renderFileName() {
+    return html`<span class="filename">${this.file.name}</span>`
   }
 
   renderImage() {

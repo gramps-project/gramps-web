@@ -23,6 +23,7 @@ import './dayjs_locales.js'
 
 import './components/GrampsjsAppBar.js'
 import './components/GrampsJsListItem.js'
+import './components/GrampsjsFirstRun.js'
 import './components/GrampsjsLogin.js'
 import './components/GrampsjsUpdateAvailable.js'
 import './views/GrampsjsViewPeople.js'
@@ -67,7 +68,9 @@ import {sharedStyles} from './SharedStyles.js'
 const LOADING_STATE_INITIAL = 0
 const LOADING_STATE_UNAUTHORIZED = 1
 const LOADING_STATE_UNAUTHORIZED_NOCONNECTION = 2
-const LOADING_STATE_MISSING_SETTINGS = 4
+const LOADING_STATE_NO_OWNER = 3
+const LOADING_STATE_NO_TREE = 4
+const LOADING_STATE_MISSING_SETTINGS = 5
 const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
@@ -89,7 +92,8 @@ export class GrampsJs extends LitElement {
       _page: {type: String},
       _pageId: {type: String},
       _showShortcuts: {type: Boolean},
-      _shortcutPressed: {type: String}
+      _shortcutPressed: {type: String},
+      _firstRunToken: {type: String}
     }
   }
 
@@ -110,6 +114,7 @@ export class GrampsJs extends LitElement {
     this._pageId = ''
     this._showShortcuts = false
     this._shortcutPressed = ''
+    this._firstRunToken = ''
   }
 
   static get styles () {
@@ -376,6 +381,16 @@ export class GrampsJs extends LitElement {
     `
   }
 
+  _renderFirstRun () {
+    return html`
+    <grampsjs-first-run
+      .strings="${this._strings}"
+      token="${this._firstRunToken}"
+      @firstrun:done="${this._firstRunDone}"
+    ></grampsjs-first-run>
+    `
+  }
+
   _renderOnboarding () {
     return html`
     <div class="center-xy" id="onboarding">
@@ -399,6 +414,10 @@ export class GrampsJs extends LitElement {
     if (this.loadingState === LOADING_STATE_UNAUTHORIZED) {
       window.history.pushState({}, '', 'login')
       return this._renderLogin()
+    }
+    if (this.loadingState === LOADING_STATE_NO_OWNER) {
+      window.history.pushState({}, '', 'firstrun')
+      return this._renderFirstRun()
     }
     if (!getSettings().lang || !getSettings().homePerson) {
       this.loadingState = LOADING_STATE_MISSING_SETTINGS
@@ -548,10 +567,14 @@ export class GrampsJs extends LitElement {
     this._loadDbInfo()
   }
 
+  _firstRunDone () {
+    document.location.href = '/'
+  }
+
   connectedCallback () {
     super.connectedCallback()
     this._loadDbInfo()
-    window.addEventListener('db:changed', () => this._loadDbInfo())
+    window.addEventListener('db:changed', () => this._loadDbInfo(false))
     this.addEventListener('drawer:toggle', this._toggleDrawer)
     window.addEventListener('keydown', (event) => this._handleKey(event))
   }
@@ -568,14 +591,14 @@ export class GrampsJs extends LitElement {
     window.addEventListener('settings:changed', this._handleSettings.bind(this))
   }
 
-  _loadDbInfo () {
+  _loadDbInfo (setReady = true) {
     apiGet('/api/metadata/')
       .then(data => {
         if ('error' in data) {
           if (data.error === 'Network error') {
             this.loadingState = LOADING_STATE_UNAUTHORIZED_NOCONNECTION
           } else {
-            this.loadingState = LOADING_STATE_UNAUTHORIZED
+            this._fetchOnboardingToken()
           }
           return
         }
@@ -584,10 +607,24 @@ export class GrampsJs extends LitElement {
           if (this.language === '' && this._dbInfo?.locale?.language !== undefined) {
             this.language = this._dbInfo.locale.language
           }
-          this._setReady()
+          if (setReady) {
+            this._setReady()
+          }
+          this._loadHomePersonInfo()
         }
       })
-    this._loadHomePersonInfo()
+  }
+
+  _fetchOnboardingToken () {
+    apiGet('/api/token/create_owner/')
+      .then(data => {
+        if (!('error' in data) && (data?.data?.access_token)) {
+          this.loadingState = LOADING_STATE_NO_OWNER
+          this._firstRunToken = data?.data?.access_token
+        } else {
+          this.loadingState = LOADING_STATE_UNAUTHORIZED
+        }
+      })
   }
 
   _loadHomePersonInfo () {
