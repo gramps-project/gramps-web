@@ -9,9 +9,8 @@ import '@material/mwc-icon'
 import {sharedStyles} from '../SharedStyles.js'
 import {getMediaUrl, getThumbnailUrl, getThumbnailUrlCropped} from '../api.js'
 
-
 class GrampsjsImg extends LitElement {
-  static get styles() {
+  static get styles () {
     return [
       sharedStyles,
       css`
@@ -29,20 +28,20 @@ class GrampsjsImg extends LitElement {
       }
 
       .file-placeholder {
-        width: 150px;
-        height: 150px;
+        width: 200px;
+        height: 200px;
         background-color: rgba(200, 200, 200, 0.5);
         color: rgba(0, 0, 0, 0.3);
         display: flex;
         align-items: center;
         justify-content: center;
-        --mdc-icon-size: 100px;
+        --mdc-icon-size: 130px;
       }
       `
     ]
   }
 
-  static get properties() {
+  static get properties () {
     return {
       handle: {type: String},
       size: {type: Number},
@@ -55,7 +54,7 @@ class GrampsjsImg extends LitElement {
     }
   }
 
-  constructor() {
+  constructor () {
     super()
     this.rect = []
     this.circle = false
@@ -65,8 +64,7 @@ class GrampsjsImg extends LitElement {
     this.border = false
   }
 
-
-  _renderImageFull() {
+  _renderImageFull () {
     const height = this.displayHeight || ''
     return html`
       <img
@@ -86,7 +84,7 @@ class GrampsjsImg extends LitElement {
     return img.getBoundingClientRect()
   }
 
-  _renderImage() {
+  _renderImage () {
     const height = this.displayHeight || ''
     return html`
       <img
@@ -102,7 +100,7 @@ class GrampsjsImg extends LitElement {
       `
   }
 
-  _renderImageCropped() {
+  _renderImageCropped () {
     const height = this.displayHeight || ''
     return html`<img
     srcset="${getThumbnailUrlCropped(this.handle, this.rect, this.size, this.square)},
@@ -115,7 +113,19 @@ class GrampsjsImg extends LitElement {
     @error=${this._errorHandler} alt="" height="${height}">`
   }
 
-  render() {
+  render () {
+    if (this.mime.startsWith('audio')) {
+      if (this.displayHeight > 0) {
+        return html`
+        <div class="file-placeholder">
+          <mwc-icon>audio_file<mwc-icon>
+        </div>`
+      }
+      return this._renderAudio()
+    }
+    if (this.mime.startsWith('video')) {
+      return this._renderVideo()
+    }
     if (this.mime !== '' && !this.mime.startsWith('image') && this.mime !== 'application/pdf') {
       return html`
       <div class="file-placeholder">
@@ -125,20 +135,36 @@ class GrampsjsImg extends LitElement {
     return (this.size === 0) ? this._renderFull() : this._renderThumb()
   }
 
-  _renderThumb() {
+  _renderAudio () {
+    return html`
+    <audio controls>
+      <source src="${getMediaUrl(this.handle)}" type="${this.mime}">
+      Your browser does not support the audio element.
+    </audio>
+    `
+  }
+
+  _renderVideo () {
+    return html`
+    <video ?controls=${this.displayHeight === 0} height="${this.displayHeight > 0 ? this.displayHeight : 'auto'}">
+      <source src="${getMediaUrl(this.handle)}" type="${this.mime}">
+      Your browser does not support the video element.
+    </video>
+    `
+  }
+
+  _renderThumb () {
     return (this.rect.length === 0) ? this._renderImage() : this._renderImageCropped()
   }
 
-  _renderFull() {
+  _renderFull () {
     return (this.rect.length === 0) ? this._renderImageFull() : this._renderImageFull()
   }
 
-
-  _errorHandler() {
+  _errorHandler () {
     this.dispatchEvent(new CustomEvent('grampsjs:error',
       {bubbles: true, composed: true, detail: {message: 'Error loading image'}}))
   }
-
 }
 
 window.customElements.define('grampsjs-img', GrampsjsImg)
