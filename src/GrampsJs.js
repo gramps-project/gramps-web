@@ -419,7 +419,11 @@ export class GrampsJs extends LitElement {
       window.history.pushState({}, '', 'firstrun')
       return this._renderFirstRun()
     }
-    if (!getSettings().lang || !getSettings().homePerson) {
+    if (!getSettings().lang) {
+      this.loadingState = LOADING_STATE_MISSING_SETTINGS
+    }
+    if (!getSettings().homePerson && this._dbInfo?.object_counts?.people) {
+      // show settings dialog for missing home person only if the db is not empty!
       this.loadingState = LOADING_STATE_MISSING_SETTINGS
     }
     if (this.loadingState === LOADING_STATE_MISSING_SETTINGS) {
