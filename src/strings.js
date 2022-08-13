@@ -247,6 +247,7 @@ export const grampsStrings = [
   'Nick name',
   'Nickname',
   'No items',
+  'No Home Person set.',
   'Nobility Title',
   'None',
   'Normal',
