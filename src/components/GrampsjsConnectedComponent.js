@@ -2,97 +2,103 @@
 Base class for Components that fetch data when first loaded
 */
 
-import {LitElement} from 'lit'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
-import {sharedStyles} from '../SharedStyles.js'
-import {apiGet} from '../api.js'
+import { LitElement } from 'lit';
+import { GrampsjsTranslateMixin } from '../mixins/GrampsjsTranslateMixin.js';
+import { sharedStyles } from '../SharedStyles.js';
+import { apiGet } from '../api.js';
 
-export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(LitElement) {
-  static get styles () {
-    return [
-      sharedStyles
-    ]
+export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
+  LitElement
+) {
+  static get styles() {
+    return [sharedStyles];
   }
 
-  static get properties () {
+  static get properties() {
     return {
-      loading: {type: Boolean},
-      error: {type: Boolean},
-      loadWithoutLocale: {type: Boolean},
-      _errorMessage: {type: String},
-      _data: {type: Object}
-    }
+      loading: { type: Boolean },
+      error: { type: Boolean },
+      loadWithoutLocale: { type: Boolean },
+      _errorMessage: { type: String },
+      _data: { type: Object },
+    };
   }
 
-  constructor () {
-    super()
-    this.loading = true
-    this.error = false
-    this.loadWithoutLocale = false
-    this._errorMessage = ''
-    this._data = {}
+  constructor() {
+    super();
+    this.loading = true;
+    this.error = false;
+    this.loadWithoutLocale = false;
+    this._errorMessage = '';
+    this._data = {};
   }
 
-  render () {
+  render() {
     if (this.error) {
-      this.dispatchEvent(new CustomEvent('grampsjs:error', {bubbles: true, composed: true, detail: {message: this._errorMessage}}))
-      return ''
+      this.dispatchEvent(
+        new CustomEvent('grampsjs:error', {
+          bubbles: true,
+          composed: true,
+          detail: { message: this._errorMessage },
+        })
+      );
+      return '';
     }
     if (this.loading) {
-      return this.renderLoading()
+      return this.renderLoading();
     }
-    return this.renderContent()
+    return this.renderContent();
   }
 
-  renderLoading () {
-    return ''
+  renderLoading() {
+    return '';
   }
 
-  getUrl () {
-    return ''
+  getUrl() {
+    return '';
   }
 
-  update (changed) {
-    super.update(changed)
+  update(changed) {
+    super.update(changed);
     if (changed.has('strings') && '__lang__' in this.strings) {
-      this._updateData()
+      this._updateData();
     }
   }
 
-  _updateData (clearData = true) {
-    const url = this.getUrl()
+  _updateData(clearData = true) {
+    const url = this.getUrl();
     if (url === '') {
-      return
+      return;
     }
     if (clearData) {
-      this._clearData()
+      this._clearData();
     }
-    this.loading = true
+    this.loading = true;
     apiGet(url).then(data => {
-      this.loading = false
+      this.loading = false;
       if ('data' in data) {
-        this._data = {data: data.data}
-        this.error = false
+        this._data = { data: data.data };
+        this.error = false;
       } else if ('error' in data) {
-        this.error = true
-        this._errorMessage = data.error
+        this.error = true;
+        this._errorMessage = data.error;
       }
-    })
+    });
   }
 
-  _clearData () {
-    this._data = {}
+  _clearData() {
+    this._data = {};
   }
 
-  _handleOnline () {
+  _handleOnline() {
     if (this.error) {
-      this._updateData()
+      this._updateData();
     }
   }
 
-  connectedCallback () {
-    super.connectedCallback()
-    window.addEventListener('db:changed', () => this._updateData())
-    window.addEventListener('online', this._handleOnline.bind(this))
+  connectedCallback() {
+    super.connectedCallback();
+    window.addEventListener('db:changed', () => this._updateData());
+    window.addEventListener('online', this._handleOnline.bind(this));
   }
 }

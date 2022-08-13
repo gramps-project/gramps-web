@@ -2,37 +2,32 @@
 Repositories list view
 */
 
-
-import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp} from '../util.js'
-
+import { GrampsjsViewObjectsBase } from './GrampsjsViewObjectsBase.js';
+import { prettyTimeDiffTimestamp } from '../util.js';
 
 export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
-
   constructor() {
-    super()
+    super();
     this._columns = {
-      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      name: {title: 'Name', sort: 'name'},
-      type: {title: 'Type', sort: 'type'},
-      change: {title: 'Last changed', sort: 'change'},
-    }
+      grampsId: { title: 'Gramps ID', sort: 'gramps_id' },
+      name: { title: 'Name', sort: 'name' },
+      type: { title: 'Type', sort: 'type' },
+      change: { title: 'Last changed', sort: 'change' },
+    };
   }
 
   get _fetchUrl() {
-    return '/api/repositories/?keys=gramps_id,name,type,change'
+    return '/api/repositories/?keys=gramps_id,name,type,change';
   }
-
 
   // eslint-disable-next-line class-methods-use-this
   _getItemPath(item) {
-    return `repository/${item.grampsId}`
+    return `repository/${item.grampsId}`;
   }
 
-
   // eslint-disable-next-line class-methods-use-this
-  _getAddPath (item) {
-    return 'new_repository'
+  _getAddPath(item) {
+    return 'new_repository';
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -41,12 +36,13 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
       grampsId: row.gramps_id,
       name: row.name,
       type: this._(row.type),
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
-    }
-    return formattedRow
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+    };
+    return formattedRow;
   }
-
 }
 
-
-window.customElements.define('grampsjs-view-repositories', GrampsjsViewRepositories)
+window.customElements.define(
+  'grampsjs-view-repositories',
+  GrampsjsViewRepositories
+);

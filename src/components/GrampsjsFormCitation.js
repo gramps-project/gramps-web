@@ -2,13 +2,13 @@
 Form for adding a new event reference
 */
 
-import {html} from 'lit'
+import { html } from 'lit';
 
-import './GrampsjsFormSelectObjectList.js'
-import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
+import './GrampsjsFormSelectObjectList.js';
+import { GrampsjsObjectForm } from './GrampsjsObjectForm.js';
 
 class GrampsjsFormCitation extends GrampsjsObjectForm {
-  renderForm () {
+  renderForm() {
     return html`
       <grampsjs-form-select-object-list
         notDeletable
@@ -20,8 +20,8 @@ class GrampsjsFormCitation extends GrampsjsObjectForm {
         label="${this._('Select')}"
         class="edit"
       ></grampsjs-form-select-object-list>
-    `
+    `;
   }
 }
 
-window.customElements.define('grampsjs-form-citation', GrampsjsFormCitation)
+window.customElements.define('grampsjs-form-citation', GrampsjsFormCitation);

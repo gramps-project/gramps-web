@@ -1,79 +1,87 @@
-import {html, css} from 'lit'
+import { html, css } from 'lit';
 
-import '@material/mwc-icon'
+import '@material/mwc-icon';
 
-import {GrampsjsObject} from './GrampsjsObject.js'
-import {asteriskIcon, crossIcon} from '../icons.js'
-import './GrampsJsImage.js'
-import './GrampsjsEditGender.js'
-import './GrampsjsPersonRelationship.js'
+import { GrampsjsObject } from './GrampsjsObject.js';
+import { asteriskIcon, crossIcon } from '../icons.js';
+import './GrampsJsImage.js';
+import './GrampsjsEditGender.js';
+import './GrampsjsPersonRelationship.js';
 
 export class GrampsjsPerson extends GrampsjsObject {
-  static get styles () {
-    return [
-      super.styles,
-      css`
-    `]
+  static get styles() {
+    return [super.styles, css``];
   }
 
-  static get properties () {
+  static get properties() {
     return {
-      homePersonDetails: {type: Object}
-    }
+      homePersonDetails: { type: Object },
+    };
   }
 
-  constructor () {
-    super()
-    this.homePersonDetails = {}
-    this._showReferences = false
-    this._showPersonTimeline = true
+  constructor() {
+    super();
+    this.homePersonDetails = {};
+    this._showReferences = false;
+    this._showPersonTimeline = true;
   }
 
-  renderProfile () {
+  renderProfile() {
     return html`
-    <h2><mwc-icon class="inline ${this.data.gender === 1 ? 'male' : this.data.gender === 0 ? 'female' : ''}">person</mwc-icon>
-    <grampsjs-edit-gender ?edit="${this.edit}" gender="${this.data.gender}"></grampsjs-edit-gender>
-    ${this._displayName()}</h2>
-    ${this._renderBirth()}
-    ${this._renderDeath()}
-    ${this._renderRelation()}
-    ${this._renderTreeBtn()}
-    `
+      <h2>
+        <mwc-icon
+          class="inline ${this.data.gender === 1
+            ? 'male'
+            : this.data.gender === 0
+            ? 'female'
+            : ''}"
+          >person</mwc-icon
+        >
+        <grampsjs-edit-gender
+          ?edit="${this.edit}"
+          gender="${this.data.gender}"
+        ></grampsjs-edit-gender>
+        ${this._displayName()}
+      </h2>
+      ${this._renderBirth()} ${this._renderDeath()} ${this._renderRelation()}
+      ${this._renderTreeBtn()}
+    `;
   }
 
-  _displayName () {
+  _displayName() {
     if (!this.data.profile) {
-      return ''
+      return '';
     }
-    const surname = this.data.profile.name_surname || html`&hellip;`
-    let given = this.data.profile.name_given || html`&hellip;`
-    const call = this.data?.primary_name?.call
-    const callIndex = call ? given.search(call) : -1
-    given = callIndex > -1
-      ? html`${given.substr(0, callIndex)}<span class="given-name">${given.substr(callIndex, call.length)}</span>${given.substr(callIndex + call.length)}`
-      : given
-    return html`${given} ${surname}`
+    const surname = this.data.profile.name_surname || html`&hellip;`;
+    let given = this.data.profile.name_given || html`&hellip;`;
+    const call = this.data?.primary_name?.call;
+    const callIndex = call ? given.search(call) : -1;
+    given =
+      callIndex > -1
+        ? html`${given.substr(0, callIndex)}<span class="given-name"
+              >${given.substr(callIndex, call.length)}</span
+            >${given.substr(callIndex + call.length)}`
+        : given;
+    return html`${given} ${surname}`;
   }
 
-  _renderBirth () {
-    const obj = this.data?.profile?.birth
+  _renderBirth() {
+    const obj = this.data?.profile?.birth;
     if (obj === undefined || Object.keys(obj).length === 0) {
-      return ''
+      return '';
     }
     return html`
-    <span class="event">
-      <i>${asteriskIcon}</i>
-      ${obj.date || ''}
-      ${obj.place ? this._('in') : ''}
-      ${obj.place || ''}
-    </span>
-    `
+      <span class="event">
+        <i>${asteriskIcon}</i>
+        ${obj.date || ''} ${obj.place ? this._('in') : ''} ${obj.place || ''}
+      </span>
+    `;
   }
 
-  _renderDeath () {
-    const obj = this.data?.profile?.death
+  _renderDeath() {
+    const obj = this.data?.profile?.death;
     if (obj === undefined || Object.keys(obj).length === 0) {
-      return ''
+      return '';
     }
     return html`
     <span class="event">
@@ -82,42 +90,51 @@ export class GrampsjsPerson extends GrampsjsObject {
       ${obj.place ? this._('in') : ''}
       ${obj.place || ''}
     </event>
-    `
+    `;
   }
 
-  _renderRelation () {
+  _renderRelation() {
     return html`
-    <dl>
-      <dt>
-          ${this._('Relationship to home person')}
-      </dt>
-      <dd>
-        <grampsjs-person-relationship
-          person1="${this.homePersonDetails.handle}"
-          person2="${this.data.handle}"
-          .strings="${this.strings}"
-        ></grampsjs-person-relationship>
-      </dd>
-    </dl>
-    `
+      <dl>
+        <dt>${this._('Relationship to home person')}</dt>
+        <dd>
+          <grampsjs-person-relationship
+            person1="${this.homePersonDetails.handle}"
+            person2="${this.data.handle}"
+            .strings="${this.strings}"
+          ></grampsjs-person-relationship>
+        </dd>
+      </dl>
+    `;
   }
 
-
-  _renderTreeBtn () {
-    return html`
-    <p>
-    <mwc-button
-      outlined
-      label="${this._('Show in tree')}"
-      @click="${this._handleButtonClick}">
-    </mwc-button>
-    </p>`
+  _renderTreeBtn() {
+    return html` <p>
+      <mwc-button
+        outlined
+        label="${this._('Show in tree')}"
+        @click="${this._handleButtonClick}"
+      >
+      </mwc-button>
+    </p>`;
   }
 
-  _handleButtonClick () {
-    this.dispatchEvent(new CustomEvent('pedigree:person-selected', {bubbles: true, composed: true, detail: {grampsId: this.data.gramps_id}}))
-    this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: 'tree'}}))
+  _handleButtonClick() {
+    this.dispatchEvent(
+      new CustomEvent('pedigree:person-selected', {
+        bubbles: true,
+        composed: true,
+        detail: { grampsId: this.data.gramps_id },
+      })
+    );
+    this.dispatchEvent(
+      new CustomEvent('nav', {
+        bubbles: true,
+        composed: true,
+        detail: { path: 'tree' },
+      })
+    );
   }
 }
 
-window.customElements.define('grampsjs-person', GrampsjsPerson)
+window.customElements.define('grampsjs-person', GrampsjsPerson);

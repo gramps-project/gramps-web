@@ -1,86 +1,86 @@
-import {html, css} from 'lit'
+import { html, css } from 'lit';
 
-import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet} from '../api.js'
+import { GrampsjsView } from './GrampsjsView.js';
+import { apiGet } from '../api.js';
 
 export class GrampsjsViewObjectsDetail extends GrampsjsView {
-  static get styles () {
+  static get styles() {
     return [
       super.styles,
       css`
-      :host {
-      }
-    `]
+        :host {
+        }
+      `,
+    ];
   }
 
-  static get properties () {
+  static get properties() {
     return {
-      grampsIds: {type: Array},
-      dialogContent: {type: String},
-      _data: {type: Array},
-      edit: {type: Boolean}
-    }
+      grampsIds: { type: Array },
+      dialogContent: { type: String },
+      _data: { type: Array },
+      edit: { type: Boolean },
+    };
   }
 
-  constructor () {
-    super()
-    this.grampsIds = []
-    this.dialogContent = ''
-    this._data = []
-    this.edit = false
+  constructor() {
+    super();
+    this.grampsIds = [];
+    this.dialogContent = '';
+    this._data = [];
+    this.edit = false;
   }
 
-  getUrl () {
-    return ''
+  getUrl() {
+    return '';
   }
 
-  renderContent () {
+  renderContent() {
     if (this._data.length === 0) {
-      return html`${this.edit ? this.renderEdit() : ''}`
+      return html`${this.edit ? this.renderEdit() : ''}`;
     }
     return html`
-    ${this.renderElements()}
-
-    ${this.edit ? this.renderEdit() : ''}
-
-    ${this.dialogContent}
-    `
+      ${this.renderElements()} ${this.edit ? this.renderEdit() : ''}
+      ${this.dialogContent}
+    `;
   }
 
-  renderEdit () {
+  renderEdit() {}
 
+  renderElements() {
+    return html``;
   }
 
-  renderElements () {
-    return html``
-  }
-
-  update (changed) {
-    super.update(changed)
+  update(changed) {
+    super.update(changed);
     if (this.active && changed.has('grampsIds')) {
-      this._updateData()
+      this._updateData();
     }
   }
 
-  _updateData () {
+  _updateData() {
     if (this._url === '') {
-      return
+      return;
     }
     if (this.grampsIds.length === 0) {
-      this._data = []
+      this._data = [];
     } else {
-      this._data = []
-      this.loading = true
+      this._data = [];
+      this.loading = true;
       apiGet(this.getUrl()).then(data => {
-        this.loading = false
+        this.loading = false;
         if ('data' in data) {
-          this.error = false
-          this._data = data.data.sort((a, b) => this.grampsIds.indexOf(a.gramps_id) - this.grampsIds.indexOf(b.gramps_id))
+          this.error = false;
+          this._data = data.data.sort(
+            (a, b) =>
+              this.grampsIds.indexOf(a.gramps_id) -
+              this.grampsIds.indexOf(b.gramps_id)
+          );
         } else if ('error' in data) {
-          this.error = true
-          this._errorMessage = data.error
+          this.error = true;
+          this._errorMessage = data.error;
         }
-      })
+      });
     }
   }
 }

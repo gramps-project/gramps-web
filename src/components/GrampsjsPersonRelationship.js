@@ -2,44 +2,49 @@
 Component showing the relationship string for two people by handle
 */
 
-import {html} from 'lit'
-import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
+import { html } from 'lit';
+import { GrampsjsConnectedComponent } from './GrampsjsConnectedComponent.js';
 
 export class GrampsjsPersonRelationship extends GrampsjsConnectedComponent {
-  static get properties () {
+  static get properties() {
     return {
-      person1: {type: String},
-      person2: {type: String}
-    }
+      person1: { type: String },
+      person2: { type: String },
+    };
   }
 
-  constructor () {
-    super()
-    this.person1 = ''
-    this.person2 = ''
+  constructor() {
+    super();
+    this.person1 = '';
+    this.person2 = '';
   }
 
-  getUrl () {
-    return `/api/relations/${this.person1}/${this.person2}?locale=${this.strings?.__lang__ || 'en'}`
+  getUrl() {
+    return `/api/relations/${this.person1}/${this.person2}?locale=${
+      this.strings?.__lang__ || 'en'
+    }`;
   }
 
-  renderLoading () {
-    return html`<span class="skeleton" style="width:7em;">&nbsp;</span>`
+  renderLoading() {
+    return html`<span class="skeleton" style="width:7em;">&nbsp;</span>`;
   }
 
-  renderContent () {
-    const relation = this._data?.data?.relationship_string
+  renderContent() {
+    const relation = this._data?.data?.relationship_string;
     if (this.person1 === this.person2) {
-      return html`${this._('self')}`
+      return html`${this._('self')}`;
     }
     if (relation === undefined) {
-      return html`&nbsp;`
+      return html`&nbsp;`;
     }
     if (relation === '') {
-      return html`${this._('Not Related')}`
+      return html`${this._('Not Related')}`;
     }
-    return html`${relation}`
+    return html`${relation}`;
   }
 }
 
-window.customElements.define('grampsjs-person-relationship', GrampsjsPersonRelationship)
+window.customElements.define(
+  'grampsjs-person-relationship',
+  GrampsjsPersonRelationship
+);

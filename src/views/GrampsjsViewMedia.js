@@ -1,27 +1,27 @@
 import { html } from 'lit';
 
-import { GrampsjsViewObject } from './GrampsjsViewObject.js'
-import '../components/GrampsjsMediaObject.js'
-
+import { GrampsjsViewObject } from './GrampsjsViewObject.js';
+import '../components/GrampsjsMediaObject.js';
 
 export class GrampsjsViewMedia extends GrampsjsViewObject {
-
   constructor() {
-    super()
-    this._className = 'media'
+    super();
+    this._className = 'media';
   }
 
   getUrl() {
-    return `/api/media/?gramps_id=${this.grampsId}&backlinks=true&extend=all&profile=all`
+    return `/api/media/?gramps_id=${this.grampsId}&backlinks=true&extend=all&profile=all`;
   }
 
   renderElement() {
     return html`
-    <grampsjs-media-object .data=${this._data} .strings=${this.strings} ?edit="${this.edit}"></grampsjs-media-object>
-    `
+      <grampsjs-media-object
+        .data=${this._data}
+        .strings=${this.strings}
+        ?edit="${this.edit}"
+      ></grampsjs-media-object>
+    `;
   }
-
 }
 
-
-window.customElements.define('grampsjs-view-media', GrampsjsViewMedia)
+window.customElements.define('grampsjs-view-media', GrampsjsViewMedia);

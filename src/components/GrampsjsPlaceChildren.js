@@ -1,34 +1,34 @@
-import {html} from 'lit'
+import { html } from 'lit';
 
-import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
-import {fireEvent} from '../util.js'
+import { GrampsjsEditableTable } from './GrampsjsEditableTable.js';
+import { fireEvent } from '../util.js';
 
 export class GrampsjsPlaceChildren extends GrampsjsEditableTable {
-  constructor () {
-    super()
-    this.objType = 'Place'
-    this._columns = ['Name', 'Type']
+  constructor() {
+    super();
+    this.objType = 'Place';
+    this._columns = ['Name', 'Type'];
   }
 
-  row (obj, i, arr) {
+  row(obj, i, arr) {
     return html`
       <tr @click=${() => this._handleClick(obj.gramps_id)}>
         <td>${obj.name}</td>
         <td>${obj.type}</td>
       </tr>
-    `
+    `;
   }
 
-  _handleClick (grampsId) {
+  _handleClick(grampsId) {
     if (!this.edit) {
-      fireEvent(this, 'nav', {path: this._getItemPath(grampsId)})
+      fireEvent(this, 'nav', { path: this._getItemPath(grampsId) });
     }
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getItemPath (grampsId) {
-    return `place/${grampsId}`
+  _getItemPath(grampsId) {
+    return `place/${grampsId}`;
   }
 }
 
-window.customElements.define('grampsjs-place-children', GrampsjsPlaceChildren)
+window.customElements.define('grampsjs-place-children', GrampsjsPlaceChildren);

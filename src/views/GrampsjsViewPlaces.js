@@ -2,35 +2,31 @@
 Places list view
 */
 
-
-
-import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp} from '../util.js'
-
+import { GrampsjsViewObjectsBase } from './GrampsjsViewObjectsBase.js';
+import { prettyTimeDiffTimestamp } from '../util.js';
 
 export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
-
   constructor() {
-    super()
+    super();
     this._columns = {
-      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      title: {title: 'Name', sort: 'title'},
-      change: {title: 'Last changed', sort: 'change'},
-    }
+      grampsId: { title: 'Gramps ID', sort: 'gramps_id' },
+      title: { title: 'Name', sort: 'title' },
+      change: { title: 'Last changed', sort: 'change' },
+    };
   }
 
   get _fetchUrl() {
-    return '/api/places/?keys=gramps_id,name,change'
+    return '/api/places/?keys=gramps_id,name,change';
   }
 
   // eslint-disable-next-line class-methods-use-this
   _getItemPath(item) {
-    return `place/${item.grampsId}`
+    return `place/${item.grampsId}`;
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getAddPath (item) {
-    return 'new_place'
+  _getAddPath(item) {
+    return 'new_place';
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -38,12 +34,10 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
     const formattedRow = {
       grampsId: row.gramps_id,
       title: row.name.value,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
-    }
-    return formattedRow
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+    };
+    return formattedRow;
   }
-
 }
 
-
-window.customElements.define('grampsjs-view-places', GrampsjsViewPlaces)
+window.customElements.define('grampsjs-view-places', GrampsjsViewPlaces);

@@ -1,116 +1,121 @@
-import {css, html} from 'lit'
+import { css, html } from 'lit';
 
-import {GrampsjsTableBase} from './GrampsjsTableBase.js'
-import {fireEvent} from '../util.js'
-import '@material/mwc-icon-button'
+import { GrampsjsTableBase } from './GrampsjsTableBase.js';
+import { fireEvent } from '../util.js';
+import '@material/mwc-icon-button';
 
 export class GrampsjsEditableTable extends GrampsjsTableBase {
-  static get styles () {
+  static get styles() {
     return [
       super.styles,
       css`
-      tr:hover td {
-        background-color: #f0f0f0;
-        cursor: pointer;
-      }
-    `]
+        tr:hover td {
+          background-color: #f0f0f0;
+          cursor: pointer;
+        }
+      `,
+    ];
   }
 
-  static get properties () {
+  static get properties() {
     return {
-      edit: {type: Boolean},
-      objType: {type: String},
-      dialogContent: {type: String},
-      dialogTitle: {type: String},
-      _columns: {type: Array}
-    }
+      edit: { type: Boolean },
+      objType: { type: String },
+      dialogContent: { type: String },
+      dialogTitle: { type: String },
+      _columns: { type: Array },
+    };
   }
 
-  constructor () {
-    super()
-    this.edit = false
-    this.objType = ''
-    this.dialogContent = ''
-    this.dialogTitle = ''
-    this._columns = []
+  constructor() {
+    super();
+    this.edit = false;
+    this.objType = '';
+    this.dialogContent = '';
+    this.dialogTitle = '';
+    this._columns = [];
   }
 
-  render () {
+  render() {
     return html`
-    ${Object.keys(this.data).length === 0
-    ? ''
-    : html`
-    <table>
-      <tr>
-      ${this._columns.map(column => html`
-        <th>${this._(column)}</th>
-      `)}
-      </tr>
-    ${this.sortData([...this.data]).map((obj, i, arr) => this.row(obj, i, arr))}
-    </table>
-    `}
-
-    ${this.renderAfterTable()}
-`
+      ${Object.keys(this.data).length === 0
+        ? ''
+        : html`
+            <table>
+              <tr>
+                ${this._columns.map(
+                  column => html` <th>${this._(column)}</th> `
+                )}
+              </tr>
+              ${this.sortData([...this.data]).map((obj, i, arr) =>
+                this.row(obj, i, arr)
+              )}
+            </table>
+          `}
+      ${this.renderAfterTable()}
+    `;
   }
 
   // function to sort the data, if necessary
-  sortData (dataCopy) {
-    return dataCopy
+  sortData(dataCopy) {
+    return dataCopy;
   }
 
-  renderAfterTable () {
-    return ''
+  renderAfterTable() {
+    return '';
   }
 
-  row (obj, i, arr) {
-    return ''
+  row(obj, i, arr) {
+    return '';
   }
 
-  _renderActionBtns (handle, first, last, edit = false, deleteFirst = true) {
+  _renderActionBtns(handle, first, last, edit = false, deleteFirst = true) {
     return html`
-    ${first && (!deleteFirst)
-    ? ''
-    : html`
-    <mwc-icon-button
-      class="edit"
-      icon="delete"
-      @click="${(e) => this._handleActionClick(e, `del${this.objType}`, handle)}"
-    ></mwc-icon-button>
-    `}
-    ${first
-    ? ''
-    : html`
-    <mwc-icon-button
-      class="edit"
-      icon="arrow_upward"
-      @click="${(e) => this._handleActionClick(e, `up${this.objType}`, handle)}"
-    ></mwc-icon-button>
-  `}
-  ${last
-    ? ''
-    : html`
-    <mwc-icon-button
-      class="edit"
-      icon="arrow_downward"
-      @click="${(e) => this._handleActionClick(e, `down${this.objType}`, handle)}"
-    ></mwc-icon-button>
-    `}
-  ${edit
-    ? html`
-      <mwc-icon-button
-        class="edit"
-        icon="edit"
-        @click="${(e) => this._handleEditClick(handle)}"
-      ></mwc-icon-button>
-      `
-    : ''}
-    `
+      ${first && !deleteFirst
+        ? ''
+        : html`
+            <mwc-icon-button
+              class="edit"
+              icon="delete"
+              @click="${e =>
+                this._handleActionClick(e, `del${this.objType}`, handle)}"
+            ></mwc-icon-button>
+          `}
+      ${first
+        ? ''
+        : html`
+            <mwc-icon-button
+              class="edit"
+              icon="arrow_upward"
+              @click="${e =>
+                this._handleActionClick(e, `up${this.objType}`, handle)}"
+            ></mwc-icon-button>
+          `}
+      ${last
+        ? ''
+        : html`
+            <mwc-icon-button
+              class="edit"
+              icon="arrow_downward"
+              @click="${e =>
+                this._handleActionClick(e, `down${this.objType}`, handle)}"
+            ></mwc-icon-button>
+          `}
+      ${edit
+        ? html`
+            <mwc-icon-button
+              class="edit"
+              icon="edit"
+              @click="${e => this._handleEditClick(handle)}"
+            ></mwc-icon-button>
+          `
+        : ''}
+    `;
   }
 
-  _handleActionClick (e, action, handle) {
-    fireEvent(this, 'edit:action', {action: action, handle: handle})
-    e.preventDefault()
-    e.stopPropagation()
+  _handleActionClick(e, action, handle) {
+    fireEvent(this, 'edit:action', { action: action, handle: handle });
+    e.preventDefault();
+    e.stopPropagation();
   }
 }

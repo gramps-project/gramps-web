@@ -1,16 +1,16 @@
 // Adopted from the Home Assistant project
 
-import {html, LitElement} from 'lit'
+import { html, LitElement } from 'lit';
 
-import {fireEvent} from '../util.js'
+import { fireEvent } from '../util.js';
 
 export class GrampsjsPasswordManagerPolyfill extends LitElement {
-  createRenderRoot () {
+  createRenderRoot() {
     // Add under document body so the element isn't placed inside any shadow roots
-    return document.body
+    return document.body;
   }
 
-  styles () {
+  styles() {
     return `
     .password-manager-polyfill {
       position: absolute;
@@ -30,22 +30,22 @@ export class GrampsjsPasswordManagerPolyfill extends LitElement {
       width: 0;
       height: 0;
     }
-  `
+  `;
   }
 
-  static get properties () {
+  static get properties() {
     return {
-      credentials: {type: Object},
-      boundingRect: {type: Object}
-    }
+      credentials: { type: Object },
+      boundingRect: { type: Object },
+    };
   }
 
-  constructor () {
-    super()
-    this.credentials = {}
+  constructor() {
+    super();
+    this.credentials = {};
   }
 
-  render () {
+  render() {
     return html`
       <form
         class="password-manager-polyfill"
@@ -71,18 +71,21 @@ export class GrampsjsPasswordManagerPolyfill extends LitElement {
           ${this.styles()}
         </style>
       </form>
-      `
+    `;
   }
 
-  _handleSubmit (ev) {
-    ev.preventDefault()
-    fireEvent(this, 'form-submitted')
+  _handleSubmit(ev) {
+    ev.preventDefault();
+    fireEvent(this, 'form-submitted');
   }
 
-  _valueChanged (e) {
-    this.credentials = {...this.credentials, [e.target.id]: e.target.value}
-    fireEvent(this, 'value-changed', {value: this.credentials})
+  _valueChanged(e) {
+    this.credentials = { ...this.credentials, [e.target.id]: e.target.value };
+    fireEvent(this, 'value-changed', { value: this.credentials });
   }
 }
 
-window.customElements.define('grampsjs-password-manager-polyfill', GrampsjsPasswordManagerPolyfill)
+window.customElements.define(
+  'grampsjs-password-manager-polyfill',
+  GrampsjsPasswordManagerPolyfill
+);

@@ -2,37 +2,32 @@
 Notes list view
 */
 
-
-
-import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp} from '../util.js'
-
+import { GrampsjsViewObjectsBase } from './GrampsjsViewObjectsBase.js';
+import { prettyTimeDiffTimestamp } from '../util.js';
 
 export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
-
   constructor() {
-    super()
+    super();
     this._columns = {
-      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      type: {title: 'Type', sort: 'type'},
-      text: {title: 'Text', sort: 'text'},
-      change: {title: 'Last changed', sort: 'change'}
-
-    }
+      grampsId: { title: 'Gramps ID', sort: 'gramps_id' },
+      type: { title: 'Type', sort: 'type' },
+      text: { title: 'Text', sort: 'text' },
+      change: { title: 'Last changed', sort: 'change' },
+    };
   }
 
   get _fetchUrl() {
-    return '/api/notes/?keys=gramps_id,type,text,change'
+    return '/api/notes/?keys=gramps_id,type,text,change';
   }
 
   // eslint-disable-next-line class-methods-use-this
   _getItemPath(item) {
-    return `note/${item.grampsId}`
+    return `note/${item.grampsId}`;
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getAddPath (item) {
-    return 'new_note'
+  _getAddPath(item) {
+    return 'new_note';
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -41,12 +36,10 @@ export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
       grampsId: row.gramps_id,
       type: obj._(row.type),
       text: row?.text?.string,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
-    }
-    return formattedRow
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+    };
+    return formattedRow;
   }
-
 }
 
-
-window.customElements.define('grampsjs-view-notes', GrampsjsViewNotes)
+window.customElements.define('grampsjs-view-notes', GrampsjsViewNotes);

@@ -2,34 +2,35 @@
 Form for adding a new event reference
 */
 
-import {html} from 'lit'
+import { html } from 'lit';
 
-import './GrampsjsFormString.js'
-import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
+import './GrampsjsFormString.js';
+import { GrampsjsObjectForm } from './GrampsjsObjectForm.js';
 
 class GrampsjsFormEditTitle extends GrampsjsObjectForm {
-  static get properties () {
+  static get properties() {
     return {
-      prop: {type: String}
-    }
+      prop: { type: String },
+    };
   }
 
-  constructor () {
-    super()
-    this.prop = 'title'
+  constructor() {
+    super();
+    this.prop = 'title';
   }
 
-  renderForm () {
+  renderForm() {
     return html`
-    <grampsjs-form-string
-      @formdata:changed="${this._handleFormData}"
-      fullwidth
-      id="${this.prop}"
-      label="${this._('Title')}"
-      value="${this.data[this.prop] || ''}">
-    </grampsjs-form-string>
-    `
+      <grampsjs-form-string
+        @formdata:changed="${this._handleFormData}"
+        fullwidth
+        id="${this.prop}"
+        label="${this._('Title')}"
+        value="${this.data[this.prop] || ''}"
+      >
+      </grampsjs-form-string>
+    `;
   }
 }
 
-window.customElements.define('grampsjs-form-edit-title', GrampsjsFormEditTitle)
+window.customElements.define('grampsjs-form-edit-title', GrampsjsFormEditTitle);

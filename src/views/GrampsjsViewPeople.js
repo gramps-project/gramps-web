@@ -2,37 +2,36 @@
 People list view
 */
 
-
-
-import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp} from '../util.js'
+import { GrampsjsViewObjectsBase } from './GrampsjsViewObjectsBase.js';
+import { prettyTimeDiffTimestamp } from '../util.js';
 
 export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
-
   constructor() {
-    super()
+    super();
     this._columns = {
-      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      surname: {title: 'Surname', sort: 'surname'},
-      given: {title: 'Given name', sort: ''},
-      birth: {title: 'Birth Date', sort: 'birth'},
-      death: {title: 'Death Date', sort: 'death'},
-      change: {title: 'Last changed', sort: 'change'},
-    }
+      grampsId: { title: 'Gramps ID', sort: 'gramps_id' },
+      surname: { title: 'Surname', sort: 'surname' },
+      given: { title: 'Given name', sort: '' },
+      birth: { title: 'Birth Date', sort: 'birth' },
+      death: { title: 'Death Date', sort: 'death' },
+      change: { title: 'Last changed', sort: 'change' },
+    };
   }
 
-  get _fetchUrl(){
-    return `/api/people/?locale=${this.strings?.__lang__ || 'en'}&profile=self&keys=gramps_id,profile,change`
+  get _fetchUrl() {
+    return `/api/people/?locale=${
+      this.strings?.__lang__ || 'en'
+    }&profile=self&keys=gramps_id,profile,change`;
   }
 
   // eslint-disable-next-line class-methods-use-this
   _getItemPath(item) {
-    return `person/${item.grampsId}`
+    return `person/${item.grampsId}`;
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getAddPath (item) {
-    return 'new_person'
+  _getAddPath(item) {
+    return 'new_person';
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -43,12 +42,10 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       given: row?.profile?.name_given,
       birth: row?.profile?.birth?.date,
       death: row?.profile?.death?.date,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
-    }
-    return formattedRow
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+    };
+    return formattedRow;
   }
-
 }
 
-
-window.customElements.define('grampsjs-view-people', GrampsjsViewPeople)
+window.customElements.define('grampsjs-view-people', GrampsjsViewPeople);

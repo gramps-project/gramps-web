@@ -1,34 +1,37 @@
-import {html, css} from 'lit'
-import {GrampsjsObject} from './GrampsjsObject.js'
-
+import { html, css } from 'lit';
+import { GrampsjsObject } from './GrampsjsObject.js';
 
 export class GrampsjsRepository extends GrampsjsObject {
   static get styles() {
     return [
       super.styles,
       css`
-      :host {
-      }
-    `]
+        :host {
+        }
+      `,
+    ];
   }
 
-  constructor () {
-    super()
-    this._showReferences = false
+  constructor() {
+    super();
+    this._showReferences = false;
   }
 
   renderProfile() {
     return html`
-    <h2><mwc-icon class="person">account_balance</mwc-icon> ${this.data.name}</h2>
-    <dl>
-    ${this.data?.type ? html`
+      <h2>
+        <mwc-icon class="person">account_balance</mwc-icon> ${this.data.name}
+      </h2>
+      <dl>
+        ${this.data?.type
+          ? html`
       <dt>${this._('Type')}</dt>
       <dd>${this._(this.data.type)}</dd>
-    </dl>` : ''}
-    `
+    </dl>`
+          : ''}
+      </dl>
+    `;
   }
-
 }
 
-
-window.customElements.define('grampsjs-repository', GrampsjsRepository)
+window.customElements.define('grampsjs-repository', GrampsjsRepository);

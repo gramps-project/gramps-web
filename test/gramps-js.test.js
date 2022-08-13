@@ -5,9 +5,7 @@ import '../src/gramps-js.js';
 describe('GrampsJs', () => {
   let element;
   beforeEach(async () => {
-    element = await fixture(html`
-      <gramps-js></gramps-js>
-    `);
+    element = await fixture(html` <gramps-js></gramps-js> `);
   });
 
   it('passes the a11y audit', async () => {

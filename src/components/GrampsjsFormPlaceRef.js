@@ -2,25 +2,25 @@
 Form for adding a new place reference
 */
 
-import {html} from 'lit'
+import { html } from 'lit';
 
-import './GrampsjsFormSelectDate.js'
-import './GrampsjsFormSelectObjectList.js'
-import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
+import './GrampsjsFormSelectDate.js';
+import './GrampsjsFormSelectObjectList.js';
+import { GrampsjsObjectForm } from './GrampsjsObjectForm.js';
 
 class GrampsjsFormPlaceRef extends GrampsjsObjectForm {
-  static get properties () {
+  static get properties() {
     return {
-      place: {type: Object}
-    }
+      place: { type: Object },
+    };
   }
 
-  constructor () {
-    super()
-    this.place = {}
+  constructor() {
+    super();
+    this.place = {};
   }
 
-  renderForm () {
+  renderForm() {
     return html`
       <h4 class="label">${this._('Place')}</h4>
       <p>
@@ -29,7 +29,15 @@ class GrampsjsFormPlaceRef extends GrampsjsObjectForm {
           notDeletable
           style="min-height: 300px;"
           objectType="place"
-          .objectsInitial="${this.data.ref ? [{object_type: 'place', object: this.place, handle: this.data.ref}] : []}"
+          .objectsInitial="${this.data.ref
+            ? [
+                {
+                  object_type: 'place',
+                  object: this.place,
+                  handle: this.data.ref,
+                },
+              ]
+            : []}"
           .strings="${this.strings}"
           id="place-select"
           label="${this._('Select')}"
@@ -39,30 +47,29 @@ class GrampsjsFormPlaceRef extends GrampsjsObjectForm {
 
       <h4 class="label">${this._('Date')}</h4>
       <p>
-      ${this.data?.date
-    ? html`
-        <grampsjs-form-select-date
-          fullwidth
-          id="date"
-          @formdata:changed="${this._handleFormData}"
-          .strings="${this.strings}"
-          .data="${this.data.date}"
-          >
-        </grampsjs-form-select-date>
-        `
-    : html`
-      <grampsjs-form-select-date
-        fullwidth
-        id="date"
-        @formdata:changed="${this._handleFormData}"
-        .strings="${this.strings}"
-      >
-      </grampsjs-form-select-date>
-    `
-}
+        ${this.data?.date
+          ? html`
+              <grampsjs-form-select-date
+                fullwidth
+                id="date"
+                @formdata:changed="${this._handleFormData}"
+                .strings="${this.strings}"
+                .data="${this.data.date}"
+              >
+              </grampsjs-form-select-date>
+            `
+          : html`
+              <grampsjs-form-select-date
+                fullwidth
+                id="date"
+                @formdata:changed="${this._handleFormData}"
+                .strings="${this.strings}"
+              >
+              </grampsjs-form-select-date>
+            `}
       </p>
-    `
+    `;
   }
 }
 
-window.customElements.define('grampsjs-form-placeref', GrampsjsFormPlaceRef)
+window.customElements.define('grampsjs-form-placeref', GrampsjsFormPlaceRef);

@@ -2,18 +2,18 @@
 The dropdown menu for adding objects in the top app bar
 */
 
-import {html, css, LitElement} from 'lit'
-import '@material/mwc-icon'
-import '@material/mwc-icon-button'
-import '@material/mwc-list'
-import '@material/mwc-list/mwc-list-item'
+import { html, css, LitElement } from 'lit';
+import '@material/mwc-icon';
+import '@material/mwc-icon-button';
+import '@material/mwc-list';
+import '@material/mwc-list/mwc-list-item';
 
-import './GrampsJsListItem.js'
+import './GrampsJsListItem.js';
 
-import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import { sharedStyles } from '../SharedStyles.js';
+import { GrampsjsTranslateMixin } from '../mixins/GrampsjsTranslateMixin.js';
 
-const BASE_DIR = ''
+const BASE_DIR = '';
 
 const menuItems = [
   ['Person', '/new_person', 'person'],
@@ -24,60 +24,71 @@ const menuItems = [
   ['Citation', '/new_citation', 'bookmark'],
   ['Repository', '/new_repository', 'account_balance'],
   ['Note', '/new_note', 'sticky_note_2'],
-  ['Media Object', '/new_media', 'photo']
-]
+  ['Media Object', '/new_media', 'photo'],
+];
 
 class GrampsjsAddMenu extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
-      mwc-menu {
-        --mdc-list-item-graphic-margin: 16px;
-      }
+        mwc-menu {
+          --mdc-list-item-graphic-margin: 16px;
+        }
 
-      mwc-list-item.header {
-        font-size: 14px;
-        color: #666;
-        font-weight: 400;
-      }
-      `
-    ]
+        mwc-list-item.header {
+          font-size: 14px;
+          color: #666;
+          font-weight: 400;
+        }
+      `,
+    ];
   }
 
   render() {
     return html`
-  <div style="position: relative;">
-    <mwc-icon-button icon="add" @click="${this._handleClickAdd}" id="button_add"></mwc-icon-button>
-    <mwc-menu id="menu_add" corner="BOTTOM_RIGHT" menuCorner="END" x="0" y="0">
-      <mwc-list-item noninteractive class="header">${this._('Add')}</mwc-list-item>
-      <li divider role="separator"></li>
-      ${menuItems.map(menuItem => this._menuItem(...menuItem))}
-    </mwc-menu>
-  </div>
-`
+      <div style="position: relative;">
+        <mwc-icon-button
+          icon="add"
+          @click="${this._handleClickAdd}"
+          id="button_add"
+        ></mwc-icon-button>
+        <mwc-menu
+          id="menu_add"
+          corner="BOTTOM_RIGHT"
+          menuCorner="END"
+          x="0"
+          y="0"
+        >
+          <mwc-list-item noninteractive class="header"
+            >${this._('Add')}</mwc-list-item
+          >
+          <li divider role="separator"></li>
+          ${menuItems.map(menuItem => this._menuItem(...menuItem))}
+        </mwc-menu>
+      </div>
+    `;
   }
 
   _menuItem(title, url, icon) {
     return html`
-    <grampsjs-list-item href="${BASE_DIR}${url}" graphic="icon">
-      <span>${this._(title)}</span>
-      <mwc-icon slot="graphic">${icon}</mwc-icon>
-    </grampsjs-list-item>
-    `
+      <grampsjs-list-item href="${BASE_DIR}${url}" graphic="icon">
+        <span>${this._(title)}</span>
+        <mwc-icon slot="graphic">${icon}</mwc-icon>
+      </grampsjs-list-item>
+    `;
   }
 
   firstUpdated() {
-    const btn = this.shadowRoot.getElementById('button_add')
-    const menu = this.shadowRoot.getElementById('menu_add')
-    menu.anchor = btn
+    const btn = this.shadowRoot.getElementById('button_add');
+    const menu = this.shadowRoot.getElementById('menu_add');
+    menu.anchor = btn;
   }
 
   _handleClickAdd() {
-    const menu = this.shadowRoot.getElementById('menu_add')
-    menu.open = !menu.open
+    const menu = this.shadowRoot.getElementById('menu_add');
+    menu.open = !menu.open;
   }
-
 }
 
-window.customElements.define('grampsjs-add-menu', GrampsjsAddMenu)
+window.customElements.define('grampsjs-add-menu', GrampsjsAddMenu);

@@ -2,13 +2,13 @@
 Form for adding a new event reference
 */
 
-import {html} from 'lit'
+import { html } from 'lit';
 
-import './GrampsjsFormSelectObjectList.js'
-import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
+import './GrampsjsFormSelectObjectList.js';
+import { GrampsjsObjectForm } from './GrampsjsObjectForm.js';
 
 class GrampsjsFormMediaRef extends GrampsjsObjectForm {
-  renderForm () {
+  renderForm() {
     return html`
       <grampsjs-form-select-object-list
         fixedMenuPosition
@@ -19,8 +19,8 @@ class GrampsjsFormMediaRef extends GrampsjsObjectForm {
         label="${this._('Select')}"
         class="edit"
       ></grampsjs-form-select-object-list>
-    `
+    `;
   }
 }
 
-window.customElements.define('grampsjs-form-mediaref', GrampsjsFormMediaRef)
+window.customElements.define('grampsjs-form-mediaref', GrampsjsFormMediaRef);

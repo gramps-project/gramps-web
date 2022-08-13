@@ -1,593 +1,655 @@
-import {html, css, LitElement} from 'lit'
+import { html, css, LitElement } from 'lit';
 
-import '@material/mwc-dialog'
-import '@material/mwc-textfield'
-import '@material/mwc-icon'
-import '@material/mwc-button'
-import '@material/mwc-icon-button'
+import '@material/mwc-dialog';
+import '@material/mwc-textfield';
+import '@material/mwc-icon';
+import '@material/mwc-button';
+import '@material/mwc-icon-button';
 
-import {sharedStyles} from '../SharedStyles.js'
-import {fireEvent} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
-import './GrampsjsFormSelectObject.js'
+import { sharedStyles } from '../SharedStyles.js';
+import { fireEvent } from '../util.js';
+import { GrampsjsTranslateMixin } from '../mixins/GrampsjsTranslateMixin.js';
+import './GrampsjsFormSelectObject.js';
 
-function _applyTag (str, tag) {
-  const [name, value] = tag
+function _applyTag(str, tag) {
+  const [name, value] = tag;
   if (name === 'bold') {
-    return html`<b>${str}</b>`
+    return html`<b>${str}</b>`;
   }
   if (name === 'italic') {
-    return html`<i>${str}</i>`
+    return html`<i>${str}</i>`;
   }
   if (name === 'underline') {
-    return html`<u>${str}</u>`
+    return html`<u>${str}</u>`;
   }
   if (name === 'fontface') {
-    return html`<span style="font-family:${value}">${str}</span>`
+    return html`<span style="font-family:${value}">${str}</span>`;
   }
   if (name === 'fontsize') {
-    return html`<span style="font-size:${value}px;">${str}</span>`
+    return html`<span style="font-size:${value}px;">${str}</span>`;
   }
   if (name === 'fontcolor') {
-    return html`<span style="color:${value}">${str}</span>`
+    return html`<span style="color:${value}">${str}</span>`;
   }
   if (name === 'highlight') {
-    return html`<span style="background-color:${value}">${str}</span>`
+    return html`<span style="background-color:${value}">${str}</span>`;
   }
   if (name === 'superscript') {
-    return html`<sup>${str}</sup>`
+    return html`<sup>${str}</sup>`;
   }
   if (name === 'link') {
-    return html`<a href="${value}">${str}</a>`
+    return html`<a href="${value}">${str}</a>`;
   }
-  return html`[${name} ${value}]${str}[/${name}]`
+  return html`[${name} ${value}]${str}[/${name}]`;
 }
 
 // check if tag name is a boolean tag
-function isBooleanTag (tagName) {
-  const namesBool = ['bold', 'italic', 'underline', 'superscript']
+function isBooleanTag(tagName) {
+  const namesBool = ['bold', 'italic', 'underline', 'superscript'];
   if (namesBool.includes(tagName)) {
-    return true
+    return true;
   }
-  return false
+  return false;
 }
 
-function _applyTags (str, tags) {
-  let tstr = html`${str}`
-  tags.forEach((tag) => {
-    tstr = _applyTag(tstr, tag)
-  })
-  return tstr
+function _applyTags(str, tags) {
+  let tstr = html`${str}`;
+  tags.forEach(tag => {
+    tstr = _applyTag(tstr, tag);
+  });
+  return tstr;
 }
 
 // get the number of text characters before a node in a parent
-function getNumCharBeforeNode (node, parent) {
-  let n = 0
-  let found = false
+function getNumCharBeforeNode(node, parent) {
+  let n = 0;
+  let found = false;
   parent.childNodes.forEach(childNode => {
     if (childNode === node) {
-      found = true
+      found = true;
     }
     if (!found) {
       if (childNode.hasChildNodes()) {
-        const [nChild, foundChild] = getNumCharBeforeNode(node, childNode)
-        n += nChild
-        found = foundChild
+        const [nChild, foundChild] = getNumCharBeforeNode(node, childNode);
+        n += nChild;
+        found = foundChild;
       } else if (childNode.nodeType !== Node.COMMENT_NODE) {
-        n += childNode.textContent.length
+        n += childNode.textContent.length;
       }
     }
-  })
-  return [n, found]
+  });
+  return [n, found];
 }
 
 // get the node at the number of characters in a parent
-function getNodeAtNumChar (parent, num) {
-  let n = 0
-  let found = false
-  let node = null
+function getNodeAtNumChar(parent, num) {
+  let n = 0;
+  let found = false;
+  let node = null;
   parent.childNodes.forEach(childNode => {
     if (!found) {
       if (childNode.nodeType !== Node.COMMENT_NODE) {
-        n += childNode.textContent.length
+        n += childNode.textContent.length;
         if (n >= num) {
-          found = true
-          node = childNode
+          found = true;
+          node = childNode;
         }
       }
     }
-  })
+  });
   if (node !== null && node.hasChildNodes()) {
-    return getNodeAtNumChar(node, num - (n - node.textContent.length))
+    return getNodeAtNumChar(node, num - (n - node.textContent.length));
   }
-  return node
+  return node;
 }
 
 class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
-  static get styles () {
+  static get styles() {
     return [
       sharedStyles,
       css`
-      .note {
-        font-family: var(--grampsjs-note-font-family, Roboto Slab);
-        font-size: var(--grampsjs-note-font-size, 20px);
-        line-height: var(--grampsjs-note-line-height, 1.5em);
-        color: var(--grampsjs-note-color, #000000);
-        white-space: pre-wrap;
-      }
+        .note {
+          font-family: var(--grampsjs-note-font-family, Roboto Slab);
+          font-size: var(--grampsjs-note-font-size, 20px);
+          line-height: var(--grampsjs-note-line-height, 1.5em);
+          color: var(--grampsjs-note-color, #000000);
+          white-space: pre-wrap;
+        }
 
-      .framed {
-        border: 1px solid var(--mdc-theme-secondary);
-        border-radius: 8px;
-        padding: 20px 25px;
-      }
+        .framed {
+          border: 1px solid var(--mdc-theme-secondary);
+          border-radius: 8px;
+          padding: 20px 25px;
+        }
 
-      mwc-icon-button {
-        color: rgba(0, 0, 0, 0.5);
-      }
+        mwc-icon-button {
+          color: rgba(0, 0, 0, 0.5);
+        }
 
-      #controls {
-        margin: 0.7em 0;
-      }
+        #controls {
+          margin: 0.7em 0;
+        }
 
-      a {
-        pointer-events: none;
-      }
-      `
-    ]
+        a {
+          pointer-events: none;
+        }
+      `,
+    ];
   }
 
-  static get properties () {
+  static get properties() {
     return {
-      data: {type: Object},
-      cursorPosition: {type: Array},
-      _dialogContent: {type: String}
-    }
+      data: { type: Object },
+      cursorPosition: { type: Array },
+      _dialogContent: { type: String },
+    };
   }
 
-  constructor () {
-    super()
-    this.data = {_class: 'StyledText', string: '', tags: []}
-    this.cursorPosition = [0]
-    this._dialogContent = ''
+  constructor() {
+    super();
+    this.data = { _class: 'StyledText', string: '', tags: [] };
+    this.cursorPosition = [0];
+    this._dialogContent = '';
   }
 
-  reset () {
-    this.data = {_class: 'StyledText', string: '', tags: []}
-    this.cursorPosition = [0]
+  reset() {
+    this.data = { _class: 'StyledText', string: '', tags: [] };
+    this.cursorPosition = [0];
   }
 
-  render () {
+  render() {
     return html`
-    <div id="controls">
-      <mwc-icon-button icon="format_bold" @click="${() => this._handleFormat('bold')}"></mwc-icon-button>
-      <mwc-icon-button icon="format_italic" @click="${() => this._handleFormat('italic')}"></mwc-icon-button>
-      <mwc-icon-button icon="format_underlined" @click="${() => this._handleFormat('underline')}"></mwc-icon-button>
-      <mwc-icon-button icon="link" @click="${() => this._handleFormat('link')}"></mwc-icon-button>
-    </div>
-    <div
-      class="note framed"
-      contenteditable="true"
-      @beforeinput="${this._handleBeforeInput}"
-    >${this._getHtml()}</div>
-    ${this._renderLinkDialog()}
-    `
+      <div id="controls">
+        <mwc-icon-button
+          icon="format_bold"
+          @click="${() => this._handleFormat('bold')}"
+        ></mwc-icon-button>
+        <mwc-icon-button
+          icon="format_italic"
+          @click="${() => this._handleFormat('italic')}"
+        ></mwc-icon-button>
+        <mwc-icon-button
+          icon="format_underlined"
+          @click="${() => this._handleFormat('underline')}"
+        ></mwc-icon-button>
+        <mwc-icon-button
+          icon="link"
+          @click="${() => this._handleFormat('link')}"
+        ></mwc-icon-button>
+      </div>
+      <div
+        class="note framed"
+        contenteditable="true"
+        @beforeinput="${this._handleBeforeInput}"
+      >
+        ${this._getHtml()}
+      </div>
+      ${this._renderLinkDialog()}
+    `;
   }
 
   // handle input actions by modifying the data object
   // (and cancelling the browser default behaviour)
-  _handleBeforeInput (e) {
-    e.preventDefault()
-    e.stopPropagation()
-    if (['insertText', 'insertParagraph', 'insertLineBreak', 'deleteContentBackward', 'deleteContentForward', 'insertFromPaste'].includes(e.inputType)) {
-      const div = this.shadowRoot.querySelector('div.note')
-      const [range] = e.getTargetRanges()
-      const nCharBefore1 = getNumCharBeforeNode(range.startContainer, div)[0]
+  _handleBeforeInput(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (
+      [
+        'insertText',
+        'insertParagraph',
+        'insertLineBreak',
+        'deleteContentBackward',
+        'deleteContentForward',
+        'insertFromPaste',
+      ].includes(e.inputType)
+    ) {
+      const div = this.shadowRoot.querySelector('div.note');
+      const [range] = e.getTargetRanges();
+      const nCharBefore1 = getNumCharBeforeNode(range.startContainer, div)[0];
       if (e.inputType === 'insertText') {
-        this._insertText(e.data, nCharBefore1 + range.startOffset)
-        this.cursorPosition = [nCharBefore1 + range.startOffset + e.data.length]
+        this._insertText(e.data, nCharBefore1 + range.startOffset);
+        this.cursorPosition = [
+          nCharBefore1 + range.startOffset + e.data.length,
+        ];
       }
       if (e.inputType === 'insertFromPaste') {
-        const data = e.dataTransfer.getData('text/plain')
-        this._insertText(data, nCharBefore1 + range.startOffset)
-        this.cursorPosition = [nCharBefore1 + range.startOffset + data.length]
+        const data = e.dataTransfer.getData('text/plain');
+        this._insertText(data, nCharBefore1 + range.startOffset);
+        this.cursorPosition = [nCharBefore1 + range.startOffset + data.length];
       } else if (e.inputType === 'insertParagraph') {
-        this._insertText('\n\n', nCharBefore1 + range.startOffset)
-        this.cursorPosition = [nCharBefore1 + range.startOffset + 2]
+        this._insertText('\n\n', nCharBefore1 + range.startOffset);
+        this.cursorPosition = [nCharBefore1 + range.startOffset + 2];
       } else if (e.inputType === 'insertLineBreak') {
-        this._insertText('\n', nCharBefore1 + range.startOffset)
-        this.cursorPosition = [nCharBefore1 + range.startOffset + 1]
-      } else if (['deleteContentBackward', 'deleteContentForward'].includes(e.inputType)) {
-        const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
-        this._deleteText(nCharBefore1 + range.startOffset, nCharBefore2 + range.endOffset)
-        this.cursorPosition = [nCharBefore1 + range.startOffset]
+        this._insertText('\n', nCharBefore1 + range.startOffset);
+        this.cursorPosition = [nCharBefore1 + range.startOffset + 1];
+      } else if (
+        ['deleteContentBackward', 'deleteContentForward'].includes(e.inputType)
+      ) {
+        const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0];
+        this._deleteText(
+          nCharBefore1 + range.startOffset,
+          nCharBefore2 + range.endOffset
+        );
+        this.cursorPosition = [nCharBefore1 + range.startOffset];
       }
     } else {
-      console.log(e)
+      console.log(e);
     }
-    this.handleChange()
+    this.handleChange();
   }
 
-  _handleLink (pos) {
+  _handleLink(pos) {
     this._dialogContent = html`
-    <p>
-      <mwc-textfield id="linkurl" label="URL" style="width:100%"></mwc-textfield>
-    </p>
-    <p>
-      <grampsjs-form-select-object
-        fixedMenuPosition
-        @select-object:changed="${this._handleSelectObjectsChanged}"
-        .strings="${this.strings}"
-        id="link-select"
-        label="${this._('Select')}"
-      ></grampsjs-form-select-object>
-    </p>
+      <p>
+        <mwc-textfield
+          id="linkurl"
+          label="URL"
+          style="width:100%"
+        ></mwc-textfield>
+      </p>
+      <p>
+        <grampsjs-form-select-object
+          fixedMenuPosition
+          @select-object:changed="${this._handleSelectObjectsChanged}"
+          .strings="${this.strings}"
+          id="link-select"
+          label="${this._('Select')}"
+        ></grampsjs-form-select-object>
+      </p>
 
-    <mwc-button slot="primaryAction" dialogAction="ok" @click="${() => this._handleDialogSave(pos)}">
-      ${this._('_Save')}
-    </mwc-button>
-    <mwc-button
-      slot="secondaryAction"
-      dialogAction="cancel"
-      @click="${this._handleDialogCancel}"
-    >
-      ${this._('Cancel')}
-    </mwc-button>
-    `
-    this._openDialog()
+      <mwc-button
+        slot="primaryAction"
+        dialogAction="ok"
+        @click="${() => this._handleDialogSave(pos)}"
+      >
+        ${this._('_Save')}
+      </mwc-button>
+      <mwc-button
+        slot="secondaryAction"
+        dialogAction="cancel"
+        @click="${this._handleDialogCancel}"
+      >
+        ${this._('Cancel')}
+      </mwc-button>
+    `;
+    this._openDialog();
   }
 
-  _handleSelectObjectsChanged (e) {
-    const url = this.shadowRoot.querySelector('#linkurl')
+  _handleSelectObjectsChanged(e) {
+    const url = this.shadowRoot.querySelector('#linkurl');
     if (url === null) {
-      return null
+      return null;
     }
-    const [obj] = e.detail.objects
+    const [obj] = e.detail.objects;
     if (obj.handle) {
-      url.value = `gramps://${capitalize(obj.object_type)}/handle/${obj.handle}`
+      url.value = `gramps://${capitalize(obj.object_type)}/handle/${
+        obj.handle
+      }`;
     }
   }
 
-  _handleDialogSave (pos) {
-    const url = this.shadowRoot.querySelector('#linkurl')
+  _handleDialogSave(pos) {
+    const url = this.shadowRoot.querySelector('#linkurl');
     if (url === null) {
-      return null
+      return null;
     }
-    const value = url.value
+    const value = url.value;
     if (value) {
       // first remove, then add, to prevent overlapping tags
-      this._removeTag('link', pos)
-      this._insertTag('link', pos, value)
-      this.handleChange()
+      this._removeTag('link', pos);
+      this._insertTag('link', pos, value);
+      this.handleChange();
     }
-    this._dialogContent = ''
+    this._dialogContent = '';
   }
 
-  _handleDialogCancel () {
-    this._dialogContent = ''
+  _handleDialogCancel() {
+    this._dialogContent = '';
   }
 
-  _renderLinkDialog () {
-    return html`
-    <mwc-dialog>
-    ${this._dialogContent}
-    </mwc-dialog>
-    `
+  _renderLinkDialog() {
+    return html` <mwc-dialog> ${this._dialogContent} </mwc-dialog> `;
   }
 
-  _openDialog () {
-    const dialog = this.shadowRoot.querySelector('mwc-dialog')
+  _openDialog() {
+    const dialog = this.shadowRoot.querySelector('mwc-dialog');
     if (dialog !== null) {
-      dialog.open = true
+      dialog.open = true;
     }
   }
 
-  _handleFormat (type) {
-    const div = this.shadowRoot.querySelector('div.note')
+  _handleFormat(type) {
+    const div = this.shadowRoot.querySelector('div.note');
     // workaround for Chrome & Firefox
-    const range = (
-      this.shadowRoot.getSelection
-        // Chrome
-        ? this.shadowRoot.getSelection().getRangeAt(0)
-        // Firefox
-        : document.getSelection().getRangeAt(0)
-    )
-    const nCharBefore1 = getNumCharBeforeNode(range.startContainer, div)[0]
-    const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
-    const pos = [nCharBefore1 + range.startOffset, nCharBefore2 + range.endOffset]
+    const range = this.shadowRoot.getSelection
+      ? // Chrome
+        this.shadowRoot.getSelection().getRangeAt(0)
+      : // Firefox
+        document.getSelection().getRangeAt(0);
+    const nCharBefore1 = getNumCharBeforeNode(range.startContainer, div)[0];
+    const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0];
+    const pos = [
+      nCharBefore1 + range.startOffset,
+      nCharBefore2 + range.endOffset,
+    ];
     if (isBooleanTag(type)) {
       if (this._hasTag(type, pos)) {
         // if it's a boolean tag and already selected in the whole range, remove it
-        this._removeTag(type, pos)
+        this._removeTag(type, pos);
       } else {
-        this._insertTag(type, pos)
+        this._insertTag(type, pos);
       }
     } else if (type === 'link') {
       if (this._hasTag(type, pos)) {
         // if there already is a link in the whole range, remove it
-        this._removeTag(type, pos)
+        this._removeTag(type, pos);
       } else {
-        this._handleLink(pos)
+        this._handleLink(pos);
       }
     }
-    this.cursorPosition = pos
-    this.handleChange()
+    this.cursorPosition = pos;
+    this.handleChange();
   }
 
-  handleChange () {
-    fireEvent(this, 'formdata:changed', {data: this.data})
+  handleChange() {
+    fireEvent(this, 'formdata:changed', { data: this.data });
   }
 
-  _insertTag (tagname, range, value = null) {
+  _insertTag(tagname, range, value = null) {
     this.data = {
       ...this.data,
-      tags: this._cleanTags([...this.data.tags, {name: tagname, ranges: [range], value: value}])
-    }
+      tags: this._cleanTags([
+        ...this.data.tags,
+        { name: tagname, ranges: [range], value: value },
+      ]),
+    };
   }
 
   // FIXME
-  _hasTag (tagname, range) {
-    const tags = this._cleanTags(this.data.tags).filter(tag => tag.name === tagname)
+  _hasTag(tagname, range) {
+    const tags = this._cleanTags(this.data.tags).filter(
+      tag => tag.name === tagname
+    );
     if (tags === undefined || tags.length === 0) {
-      return false
+      return false;
     }
-    const ranges = [].concat.apply([], tags.map(tag => tag.ranges || [])).sort((r1, r2) => r1[0] - r2[0])
-    let charCovered = 0
+    const ranges = [].concat
+      .apply(
+        [],
+        tags.map(tag => tag.ranges || [])
+      )
+      .sort((r1, r2) => r1[0] - r2[0]);
+    let charCovered = 0;
     for (let i = 0; i < ranges.length; i++) {
       if (ranges[i][1] <= range[0]) {
         // not there yet
-        continue
+        continue;
       }
       // number of overlapping characters
-      charCovered += Math.max(0, Math.min(ranges[i][1], range[1]) - Math.max(ranges[i][0], range[0]))
+      charCovered += Math.max(
+        0,
+        Math.min(ranges[i][1], range[1]) - Math.max(ranges[i][0], range[0])
+      );
       if (ranges[i][0] >= range[1]) {
         // already passed
-        break
+        break;
       }
     }
     // true if all characters overlapped
     if (charCovered === range[1] - range[0]) {
-      return true
+      return true;
     }
-    return false
+    return false;
   }
 
-  _removeTag (tagname, range) {
+  _removeTag(tagname, range) {
     if (range[1] <= range[0]) {
-      return
+      return;
     }
     this.data = {
       ...this.data,
-      tags: this._cleanTags(
-        [
-          // tags of different type: don't touch
-          ...this.data.tags.filter(tag => tag.name !== tagname),
-          // tags of our type: change ranges
-          ...this.data.tags.filter(tag => tag.name === tagname)
-            .map(tag => ({
-              ...tag,
-              ranges: tag.ranges.reduce((rangesNew, tagRange, i) => {
-                // no overlap
-                if ((tagRange[0] >= range[1]) || (tagRange[1] <= range[0])) {
-                  // just append
-                  return [...rangesNew, tagRange]
-                }
-                // inside
-                if ((tagRange[0] >= range[0]) && (tagRange[1] <= range[1])) {
-                  // don't append
-                  return rangesNew
-                }
-                // contains
-                if ((tagRange[0] < range[0]) && (tagRange[1] > range[1])) {
-                  // appent two parts
-                  return [...rangesNew, [tagRange[0], range[0]], [range[1], tagRange[1]]]
-                }
-                // overlaps right
-                if (tagRange[0] >= range[0]) {
-                  // cut at range[1]
-                  return [...rangesNew, [range[1], tagRange[1]]]
-                }
-                // overlaps left
-                if (tagRange[1] <= range[1]) {
-                  // cut at range[0]
-                  return [...rangesNew, [tagRange[0], range[0]]]
-                }
-                return rangesNew
-              },
-              [])
-            })
-            )
-        ]
-      )
-    }
+      tags: this._cleanTags([
+        // tags of different type: don't touch
+        ...this.data.tags.filter(tag => tag.name !== tagname),
+        // tags of our type: change ranges
+        ...this.data.tags
+          .filter(tag => tag.name === tagname)
+          .map(tag => ({
+            ...tag,
+            ranges: tag.ranges.reduce((rangesNew, tagRange, i) => {
+              // no overlap
+              if (tagRange[0] >= range[1] || tagRange[1] <= range[0]) {
+                // just append
+                return [...rangesNew, tagRange];
+              }
+              // inside
+              if (tagRange[0] >= range[0] && tagRange[1] <= range[1]) {
+                // don't append
+                return rangesNew;
+              }
+              // contains
+              if (tagRange[0] < range[0] && tagRange[1] > range[1]) {
+                // appent two parts
+                return [
+                  ...rangesNew,
+                  [tagRange[0], range[0]],
+                  [range[1], tagRange[1]],
+                ];
+              }
+              // overlaps right
+              if (tagRange[0] >= range[0]) {
+                // cut at range[1]
+                return [...rangesNew, [range[1], tagRange[1]]];
+              }
+              // overlaps left
+              if (tagRange[1] <= range[1]) {
+                // cut at range[0]
+                return [...rangesNew, [tagRange[0], range[0]]];
+              }
+              return rangesNew;
+            }, []),
+          })),
+      ]),
+    };
   }
 
   // sort, combine, and clean up tags
-  _cleanTags (tags) {
+  _cleanTags(tags) {
     // get unique tag names
-    let tagsClean = []
+    let tagsClean = [];
     // names corresponding to boolean tags
-    const names = [...new Set(tags.map(tag => tag.name))]
+    const names = [...new Set(tags.map(tag => tag.name))];
     names.forEach(tagname => {
-      const nameTags = tags.filter(tag => tag.name === tagname)
+      const nameTags = tags.filter(tag => tag.name === tagname);
       if (isBooleanTag(tagname)) {
-        tagsClean = [...tagsClean, ...this._cleanTagsBool(nameTags)]
+        tagsClean = [...tagsClean, ...this._cleanTagsBool(nameTags)];
       } else {
-        tagsClean = [...tagsClean, ...this._cleanTagsNonBool(nameTags)]
+        tagsClean = [...tagsClean, ...this._cleanTagsNonBool(nameTags)];
       }
-    })
-    return tagsClean
+    });
+    return tagsClean;
   }
 
-  _cleanTagsBool (tags) {
+  _cleanTagsBool(tags) {
     if (tags.length === 0) {
-      return []
+      return [];
     }
-    const name = tags[0].name
-    const ranges = (
-      tags
-        // combine all ranges
-        .reduce((arr, tag, i) => {
-          return [...arr, ...tag.ranges]
-        }, [])
-        // sort by start index
-        .sort((r1, r2) => r1[0] - r2[0])
-        // drop vanishing ranges
-        .filter(r => r[1] > r[0])
-        .reduce((rangesNew, range) => {
-          const L = rangesNew.length
-          if (L > 0 && range[0] <= rangesNew[L - 1][1]) {
-            // if range has overlap with previous, merge them
-            const rangeMerged = [rangesNew[L - 1][0], Math.max(range[1], rangesNew[L - 1][1])]
-            return [...rangesNew.slice(0, -1), rangeMerged]
-          } else {
-            // default: just append
-            return [...rangesNew, range]
-          }
-        }, [])
-    )
-    return [{name: name, ranges: ranges, value: null}]
+    const name = tags[0].name;
+    const ranges = tags
+      // combine all ranges
+      .reduce((arr, tag, i) => {
+        return [...arr, ...tag.ranges];
+      }, [])
+      // sort by start index
+      .sort((r1, r2) => r1[0] - r2[0])
+      // drop vanishing ranges
+      .filter(r => r[1] > r[0])
+      .reduce((rangesNew, range) => {
+        const L = rangesNew.length;
+        if (L > 0 && range[0] <= rangesNew[L - 1][1]) {
+          // if range has overlap with previous, merge them
+          const rangeMerged = [
+            rangesNew[L - 1][0],
+            Math.max(range[1], rangesNew[L - 1][1]),
+          ];
+          return [...rangesNew.slice(0, -1), rangeMerged];
+        } else {
+          // default: just append
+          return [...rangesNew, range];
+        }
+      }, []);
+    return [{ name: name, ranges: ranges, value: null }];
   }
 
-  _cleanTagsNonBool (tags) {
+  _cleanTagsNonBool(tags) {
     if (tags.length === 0) {
-      return []
+      return [];
     }
     // just remove tags that don't have ranges
-    return tags.filter(tag => tag.ranges.length > 0)
+    return tags.filter(tag => tag.ranges.length > 0);
   }
 
   // insert string at position
-  _insertText (str, position) {
+  _insertText(str, position) {
     this.data = {
       ...this.data,
       // string is old data with str inserted in between
-      string: (
+      string:
         this.data.string.slice(0, position) +
         str +
-        this.data.string.slice(position)
-      ),
+        this.data.string.slice(position),
       // for tags, need to shift by str.length all values after position
       tags: this.data.tags.map(tag => ({
         ...tag,
-        ranges: tag.ranges.map(range => range.map(x => x < position ? x : x + str.length))
-      })
-      )
-    }
+        ranges: tag.ranges.map(range =>
+          range.map(x => (x < position ? x : x + str.length))
+        ),
+      })),
+    };
   }
 
   // remove string between positions
-  _deleteText (posStart, posEnd) {
-    const d = posEnd - posStart
+  _deleteText(posStart, posEnd) {
+    const d = posEnd - posStart;
     if (d <= 0) {
-      return
+      return;
     }
     this.data = {
       ...this.data,
       // string is old data with str inserted in between
-      string: (
-        this.data.string.slice(0, posStart) +
-        this.data.string.slice(posEnd)
-      ),
+      string:
+        this.data.string.slice(0, posStart) + this.data.string.slice(posEnd),
       // for tags, need to shift by str.length all values after position
       tags: this.data.tags.map(tag => ({
         ...tag,
-        ranges: tag.ranges.map(range => range.map(x => x < posStart ? x : x > posEnd ? x - d : posStart))
-      })
-      )
-    }
+        ranges: tag.ranges.map(range =>
+          range.map(x => (x < posStart ? x : x > posEnd ? x - d : posStart))
+        ),
+      })),
+    };
   }
 
-  updated (changed) {
+  updated(changed) {
     // set selection
-    const div = this.shadowRoot.querySelector('div.note')
-    const nodeStart = getNodeAtNumChar(div, this.cursorPosition[0])
+    const div = this.shadowRoot.querySelector('div.note');
+    const nodeStart = getNodeAtNumChar(div, this.cursorPosition[0]);
     if (nodeStart !== null) {
-      const offsetStart = getNumCharBeforeNode(nodeStart, div)[0]
+      const offsetStart = getNumCharBeforeNode(nodeStart, div)[0];
       // no selection but only cursor
       if (this.cursorPosition.length === 1) {
-        this._setCursor(nodeStart, this.cursorPosition[0] - offsetStart)
+        this._setCursor(nodeStart, this.cursorPosition[0] - offsetStart);
       } else {
         // set selection range
-        const nodeEnd = getNodeAtNumChar(div, this.cursorPosition[1])
+        const nodeEnd = getNodeAtNumChar(div, this.cursorPosition[1]);
         if (nodeEnd !== null) {
-          const offsetEnd = getNumCharBeforeNode(nodeEnd, div)[0]
+          const offsetEnd = getNumCharBeforeNode(nodeEnd, div)[0];
           this._setSelection(
             nodeStart,
             this.cursorPosition[0] - offsetStart,
             nodeEnd,
             this.cursorPosition[1] - offsetEnd
-          )
+          );
         }
       }
     }
   }
 
-  _setCursor (node, offset) {
-    document.getSelection().collapse(node, offset)
+  _setCursor(node, offset) {
+    document.getSelection().collapse(node, offset);
   }
 
-  _setSelection (nodeStart, offsetStart, nodeEnd, offsetEnd) {
-    const selection = window.getSelection()
+  _setSelection(nodeStart, offsetStart, nodeEnd, offsetEnd) {
+    const selection = window.getSelection();
     if (selection.rangeCount > 0) {
-      selection.removeAllRanges()
+      selection.removeAllRanges();
     }
-    const range = document.createRange()
-    range.setStart(nodeStart, offsetStart)
-    range.setEnd(nodeEnd, offsetEnd)
-    selection.addRange(range)
+    const range = document.createRange();
+    range.setStart(nodeStart, offsetStart);
+    range.setEnd(nodeEnd, offsetEnd);
+    selection.addRange(range);
   }
 
-  _getTagArray () {
-    const tags = this.data.tags || []
-    const tagsNew = []
-    tags.forEach((tag) => {
-      tag.ranges.forEach((range) => {
-        tagsNew.push([range[0], 'start', tag.name, tag.value])
-        tagsNew.push([range[1], 'end', tag.name, tag.value])
-      })
-    })
-    tagsNew.sort((a, b) => a[0] - b[0])
-    return tagsNew
-  }
-
-  _getHtml () {
-    let str = html``
-    const tags = this._getTagArray()
-    let activeTags = []
-    let i = 0
+  _getTagArray() {
+    const tags = this.data.tags || [];
+    const tagsNew = [];
     tags.forEach(tag => {
-      const [j, t, name, value] = tag
-      str = html`${str}${j > i ? _applyTags(this.data.string.slice(i, j), activeTags) : ''}`
+      tag.ranges.forEach(range => {
+        tagsNew.push([range[0], 'start', tag.name, tag.value]);
+        tagsNew.push([range[1], 'end', tag.name, tag.value]);
+      });
+    });
+    tagsNew.sort((a, b) => a[0] - b[0]);
+    return tagsNew;
+  }
+
+  _getHtml() {
+    let str = html``;
+    const tags = this._getTagArray();
+    let activeTags = [];
+    let i = 0;
+    tags.forEach(tag => {
+      const [j, t, name, value] = tag;
+      str = html`${str}${j > i
+        ? _applyTags(this.data.string.slice(i, j), activeTags)
+        : ''}`;
       if (t === 'start') {
-        activeTags.push([name, value])
+        activeTags.push([name, value]);
       } else {
-        activeTags = activeTags.filter(_tag => _tag[0] !== name)
+        activeTags = activeTags.filter(_tag => _tag[0] !== name);
       }
-      i = j
-    })
-    str = html`${str}${_applyTags(this.data.string.slice(i), activeTags)}`
-    return str
+      i = j;
+    });
+    str = html`${str}${_applyTags(this.data.string.slice(i), activeTags)}`;
+    return str;
   }
 
-  _handleSaveButton () {
-    fireEvent(this, 'edit:action', {action: 'updateProp', data: {text: this.data}})
-    fireEvent(this, 'edit-mode:off')
+  _handleSaveButton() {
+    fireEvent(this, 'edit:action', {
+      action: 'updateProp',
+      data: { text: this.data },
+    });
+    fireEvent(this, 'edit-mode:off');
   }
 
-  connectedCallback () {
-    super.connectedCallback()
-    window.addEventListener('edit-mode:save', this._handleSaveButton.bind(this))
+  connectedCallback() {
+    super.connectedCallback();
+    window.addEventListener(
+      'edit-mode:save',
+      this._handleSaveButton.bind(this)
+    );
   }
 
-  disconnectedCallback () {
-    window.removeEventListener('edit-mode:save', this._handleSaveButton.bind(this))
-    super.disconnectedCallback()
+  disconnectedCallback() {
+    window.removeEventListener(
+      'edit-mode:save',
+      this._handleSaveButton.bind(this)
+    );
+    super.disconnectedCallback();
   }
 }
 
-function capitalize (string) {
-  return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
+function capitalize(string) {
+  return `${string.charAt(0).toUpperCase()}${string.slice(1)}`;
 }
 
-window.customElements.define('grampsjs-editor', GrampsjsEditor)
+window.customElements.define('grampsjs-editor', GrampsjsEditor);

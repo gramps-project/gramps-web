@@ -2,36 +2,31 @@
 Citations list view
 */
 
-
-
-import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp} from '../util.js'
-
+import { GrampsjsViewObjectsBase } from './GrampsjsViewObjectsBase.js';
+import { prettyTimeDiffTimestamp } from '../util.js';
 
 export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
-
   constructor() {
-    super()
+    super();
     this._columns = {
-      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      sourceTitle: {title: 'Source: Title', sort: ''},
-      change: {title: 'Last changed', sort: 'change'},
-
-    }
+      grampsId: { title: 'Gramps ID', sort: 'gramps_id' },
+      sourceTitle: { title: 'Source: Title', sort: '' },
+      change: { title: 'Last changed', sort: 'change' },
+    };
   }
 
   get _fetchUrl() {
-    return '/api/citations/?extend=source_handle&keys=gramps_id,extended,change'
+    return '/api/citations/?extend=source_handle&keys=gramps_id,extended,change';
   }
 
   // eslint-disable-next-line class-methods-use-this
   _getItemPath(item) {
-    return `citation/${item.grampsId}`
+    return `citation/${item.grampsId}`;
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getAddPath (item) {
-    return 'new_citation'
+  _getAddPath(item) {
+    return 'new_citation';
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -39,12 +34,10 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
     const formattedRow = {
       grampsId: row.gramps_id,
       sourceTitle: row.extended.source?.title,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
-    }
-    return formattedRow
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+    };
+    return formattedRow;
   }
-
 }
 
-
-window.customElements.define('grampsjs-view-citations', GrampsjsViewCitations)
+window.customElements.define('grampsjs-view-citations', GrampsjsViewCitations);

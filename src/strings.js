@@ -26,7 +26,8 @@ export const additionalStrings = {
     'Old password': 'Altes Passwort',
     'New password': 'Neues Passwort',
     'New E-mail': 'Neue E-Mail-Adresse',
-    'A new version of the app is available.': 'Eine neue Version der App ist verfügbar.',
+    'A new version of the app is available.':
+      'Eine neue Version der App ist verfügbar.',
     'Manage users': 'Benutzer verwalten',
     'Search %s': '%s durchsuchen',
     'Latest Blog Post': 'Neuester Blogeintrag',
@@ -35,9 +36,9 @@ export const additionalStrings = {
     'Select an existing citation': 'Eine existierende Fundstelle auswählen',
     'Place Hierarchy': 'Ortshierarchie',
     'Keyboard Shortcuts': 'Tastenkombinationen',
-    'Show this dialog': 'Diesen Dialog anzeigen'
-  }
-}
+    'Show this dialog': 'Diesen Dialog anzeigen',
+  },
+};
 
 export const grampsStrings = [
   '_Media Type:',
@@ -382,5 +383,5 @@ export const grampsStrings = [
   'Wife',
   'Will',
   'Witness',
-  'Zoom'
-]
+  'Zoom',
+];
