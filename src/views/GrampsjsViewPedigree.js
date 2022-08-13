@@ -95,14 +95,6 @@ export class GrampsjsViewPedigree extends GrampsjsView {
   }
 
   renderContent () {
-    if (this.grampsId === '') {
-      // This should actually never happen, so don't bother translating!
-      return html`
-      No home person selected. <a href="${BASE_DIR}/settings">Settings</a>
-      ${this._renderControls()}
-
-      `
-    }
     if (this._data.length === 0) {
       return html`
       ${this._renderControls()}

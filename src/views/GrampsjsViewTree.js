@@ -18,6 +18,10 @@ export class GrampsjsViewTree extends GrampsjsView {
         margin-top: -4px;
       }
 
+      .with-margin {
+        margin: 25px 40px;
+      }
+
       #outer-container {
         height: calc(100vh - 68px);
       }
@@ -52,6 +56,14 @@ export class GrampsjsViewTree extends GrampsjsView {
   }
 
   renderContent () {
+    if (this.grampsId === '') {
+      // This should actually never happen, so don't bother translating!
+      return html`
+      <div class="with-margin">
+        <p>${this._('No Home Person set.')} <a href="/settings">${this._('User settings')}</a></p>
+      </div>
+      `
+    }
     return html`
     ${this.view === 'pedigree' ? this._renderPedigree() : ''}
     ${this.view === 'graph' ? this._renderGraph() : ''}

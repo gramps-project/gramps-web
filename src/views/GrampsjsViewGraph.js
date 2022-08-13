@@ -45,12 +45,6 @@ export class GrampsjsViewGraph extends GrampsjsView {
   }
 
   renderContent () {
-    if (this.grampsId === '') {
-      // This should actually never happen, so don't bother translating!
-      return html`
-      No home person selected. <a href="/settings">Settings</a>
-      `
-    }
     return html`
     <div id="outer-container">
       <grampsjs-graph

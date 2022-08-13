@@ -86,6 +86,10 @@ export class GrampsjsPerson extends GrampsjsObject {
   }
 
   _renderRelation () {
+    if (!this.homePersonDetails.handle) {
+      // no home person set
+      return ''
+    }
     return html`
     <dl>
       <dt>
