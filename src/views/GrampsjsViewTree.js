@@ -57,7 +57,6 @@ export class GrampsjsViewTree extends GrampsjsView {
 
   renderContent () {
     if (this.grampsId === '') {
-      // This should actually never happen, so don't bother translating!
       return html`
       <div class="with-margin">
         <p>${this._('No Home Person set.')} <a href="/settings">${this._('User settings')}</a></p>
