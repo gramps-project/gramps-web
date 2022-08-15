@@ -32,6 +32,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
   static get properties () {
     return {
       homePersonDetails: {type: Object},
+      requireHomePerson: {type: Boolean},
       _translations: {type: Array},
       _settings: {type: Object},
       _langLoading: {type: Boolean},
@@ -42,6 +43,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
   constructor () {
     super()
     this.homePersonDetails = {}
+    this.requireHomePerson = false
     this._translations = []
     this._settings = getSettings()
     this._langLoading = false
@@ -72,7 +74,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
   }
 
   _isCompleted () {
-    if (this._settings.homePerson && this._settings.lang) {
+    if ((!this.requireHomePerson || this._settings.homePerson) && this._settings.lang) {
       return true
     }
     return false

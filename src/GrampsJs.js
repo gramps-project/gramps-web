@@ -399,6 +399,7 @@ export class GrampsJs extends LitElement {
         class="page"
         active
         .strings="${this._strings}"
+        ?requireHomePerson="${!!this._dbInfo?.object_counts?.people}"
       ></grampsjs-view-settings-onboarding>
     </div>
     `
