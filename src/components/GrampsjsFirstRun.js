@@ -128,9 +128,9 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     return html`
     <div class="container">
       <div class="form">
-        <h1>Welcome to Gramps Web</h1>
+        <h1>${this._('Welcome to Gramps Web')}</h1>
 
-        <h3>Create an admin account
+        <h3>${this._('Create an admin account')}
         ${this.stateUser !== STATE_INITIAL
     ? html`
           <span class="icon">
@@ -140,7 +140,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     : ''}
         </h3>
 
-        <p>Enter the details for the admin user.</p>
+        <p>${this._('Enter the details for the admin user.')}</p>
 
         <mwc-textfield @input="${this.checkValidity}" outlined required id="username" label="Username" type="text"></mwc-textfield>
         <mwc-textfield @input="${this.checkValidity}" outlined required id="password" label="Password" type="password"></mwc-textfield>
@@ -157,16 +157,16 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     : ''}
         </h3>
 
-        <p>Optionally, enter existing IMAP credentials to enable e-mail notifications required e.g. for user registration.</p>
+        <p>${this._('Optionally, enter existing IMAP credentials to enable e-mail notifications required e.g. for user registration.')}</p>
 
-        <mwc-textfield @input="${this.checkValidity}" outlined id="email_host" label="SMTP host" type="text"></mwc-textfield>
-        <mwc-textfield @input="${this.checkValidity}" outlined id="email_port" label="SMTP port" type="text" pattern="[0-9]+"></mwc-textfield>
-        <mwc-textfield @input="${this.checkValidity}" outlined id="email_user" label="SMTP user" type="text"></mwc-textfield>
-        <mwc-textfield @input="${this.checkValidity}" outlined id="email_pw" label="SMTP password" type="password"></mwc-textfield>
-        <mwc-textfield @input="${this.checkValidity}" outlined id="email_from" label="From address" type="email"></mwc-textfield>
-        <mwc-textfield @input="${this.checkValidity}" outlined id="base_url" label="Gramps Web base URL" type="url" placeholder="https://grampsweb.mydomain.com"></mwc-textfield>
+        <mwc-textfield @input="${this.checkValidity}" outlined id="email_host" label="${this._('SMTP host')}" type="text"></mwc-textfield>
+        <mwc-textfield @input="${this.checkValidity}" outlined id="email_port" label="${this._('SMTP port')}" type="text" pattern="[0-9]+"></mwc-textfield>
+        <mwc-textfield @input="${this.checkValidity}" outlined id="email_user" label="${this._('SMTP user')}" type="text"></mwc-textfield>
+        <mwc-textfield @input="${this.checkValidity}" outlined id="email_pw" label="${this._('SMTP password')}" type="password"></mwc-textfield>
+        <mwc-textfield @input="${this.checkValidity}" outlined id="email_from" label="${this._('From address')}" type="email"></mwc-textfield>
+        <mwc-textfield @input="${this.checkValidity}" outlined id="base_url" label="${this._('Gramps Web base URL')}" type="url" placeholder="https://grampsweb.mydomain.com"></mwc-textfield>
 
-        <h3>Upload family tree
+        <h3>${this._('Upload family tree')}
         ${this.stateTree !== STATE_INITIAL
     ? html`
                 <span class="icon">
@@ -176,7 +176,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     : ''}
         </h3>
 
-        <p>Optionally, upload existing family tree data.</p>
+        <p>${this._('Optionally, upload existing family tree data.')}</p>
 
         <p>
           <grampsjs-form-upload
@@ -187,9 +187,9 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
         </p>
         ${this._uploadHint ? html`${this._uploadHint}` : ''}
 
-        <p style="margin-top: 2em;">Need help? Check out <a href="https://gramps-project.github.io/web/Deployment/">the documentation</a>.</p>
+        <p style="margin-top: 2em;">${this._('Need help? Check out ')}<a href="https://gramps-project.github.io/web/Deployment/">${this._('the documentation')}</a>.</p>
 
-        <h3>Submit</h3>
+        <h3>${this._('Submit')}</h3>
 
         <mwc-button
           raised
@@ -286,7 +286,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     try {
       const resp = await fetch(`${__APIHOST__}/api/users/${username}/create_owner/`, {
         method: 'POST',
-        headers: {Accept: 'application/json', Authorization: `Bearer ${this.token}`, 'Content-Type': 'application/json'},
+        headers: { Accept: 'application/json', Authorization: `Bearer ${this.token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           password: password,
           email: email,
@@ -297,7 +297,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
         this.stateUser = STATE_DONE
         const btn = this.shadowRoot.querySelector('#start-btn')
         if (btn) {
-          btn.scrollIntoView({block: 'start', behavior: 'smooth'})
+          btn.scrollIntoView({ block: 'start', behavior: 'smooth' })
         }
         return
       } else {
@@ -359,18 +359,17 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
 
     const ext = uploadForm.file.name.split('.').pop().toLowerCase()
     if (!['gpkg', 'gramps', 'gw', 'def', 'vcf', 'csv', 'ged'].includes(ext)) {
-      this._uploadHint = html`<p class="alert error">Unsupported format</p>`
+      this._uploadHint = html`<p class="alert error">${this._('Unsupported format')}</p>`
       this.stateTree = STATE_INITIAL
       return
     }
     if (ext === 'gpkg') {
-      this._uploadHint = html`<p class="alert error">The Gramps package format (.gpkg) is currently not supported.
-        Please upload a file in Gramps XML (.gramps) format without media files.</p>`
+      this._uploadHint = html`<p class="alert error">${this._('The Gramps package format (.gpkg) is currently not supported.')}
+        ${this._('Please upload a file in Gramps XML (.gramps) format without media files.')}</p>`
       this.stateTree = STATE_INITIAL
       return
     } else if (ext !== 'gramps') {
-      this._uploadHint = html`<p class="alert warn">If you intend to synchronize an existing Gramps database with Gramps Web,
-      use the Gramps XML (.gramps) format instead.</p>`
+      this._uploadHint = html`<p class="alert warn">${this._('If you intend to synchronize an existing Gramps database with Gramps Web, use the Gramps XML (.gramps) format instead.')}</p>`
     } else {
       this._uploadHint = ''
     }
