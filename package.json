@@ -35,7 +35,7 @@
     "lint-staged": "^10.5.3",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
-    "rollup": "^2.35.1",
+    "rollup": "^2.60.2",
     "rollup-plugin-import-assertions": "^0.3.0"
   },
   "browser": {
