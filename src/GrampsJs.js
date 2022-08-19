@@ -16,9 +16,9 @@ import '@material/mwc-linear-progress'
 import '@material/mwc-snackbar'
 import {mdiFamilyTree} from '@mdi/js'
 import {renderIcon} from './icons.js'
-import {apiGet, getSettings, getPermissions} from './api.js'
 import {grampsStrings, additionalStrings} from './strings.js'
 import {fireEvent} from './util.js'
+import { apiGet, getSettings, getPermissions, updateSettings } from './api.js'
 import './dayjs_locales.js'
 
 import './components/GrampsjsAppBar.js'
@@ -102,7 +102,6 @@ export class GrampsJs extends LitElement {
     this.wide = false
     this.progress = false
     this.loadingState = LOADING_STATE_INITIAL
-    this.settings = getSettings()
     this.canAdd = false
     this.canEdit = false
     this.canManageUsers = false
@@ -115,6 +114,13 @@ export class GrampsJs extends LitElement {
     this._showShortcuts = false
     this._shortcutPressed = ''
     this._firstRunToken = ''
+
+    // determine browser language and set it as the default language
+    const browserLang = navigator.language.split('-')[0] || navigator.userLanguage.split('-')[0] || 'en'
+    console.log('Browser Language:', browserLang)
+    updateSettings({ lang: browserLang })
+    this.settings = getSettings()
+    this._loadStrings(grampsStrings, this.settings.lang)
   }
 
   static get styles () {
@@ -420,18 +426,12 @@ export class GrampsJs extends LitElement {
       window.history.pushState({}, '', 'firstrun')
       return this._renderFirstRun()
     }
-    if (!getSettings().lang) {
-      this.loadingState = LOADING_STATE_MISSING_SETTINGS
-    }
     if (!getSettings().homePerson && this._dbInfo?.object_counts?.people) {
       // show settings dialog for missing home person only if the db is not empty!
       this.loadingState = LOADING_STATE_MISSING_SETTINGS
     }
     if (this.loadingState === LOADING_STATE_MISSING_SETTINGS) {
       return this._renderOnboarding()
-    }
-    if (this.settings.lang && Object.keys(this._strings).length === 0) {
-      this._loadStrings(grampsStrings, this.settings.lang)
     }
     const tabs = {
       people: this._('People'),
@@ -729,6 +729,14 @@ export class GrampsJs extends LitElement {
   }
 
   _loadStrings (strings, lang) {
+    // First load the strings for the current language
+    if (lang in additionalStrings) {
+      this._strings = additionalStrings[lang]
+      this._strings.__lang__ = lang
+      this._lang = lang
+    }
+
+    // Then load the strings from the server and merge them with the current language strings
     apiGet(`/api/translations/${lang}?strings=${JSON.stringify(strings)}`)
       .then(data => {
         if ('data' in data) {
