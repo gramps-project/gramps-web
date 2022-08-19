@@ -50,7 +50,7 @@ export class GrampsjsViewBlog extends GrampsjsView {
     if (this._firstLoaded && this._dataSources.length === 0) {
       return html`
       <h2>${this._('Blog')}</h2>
-      <p class="muted">To start using the blog, add a source with tag 'Blog'.</p>
+      <p class="muted">${this._("To start using the blog, add a source with tag 'Blog'.")}</p>
       `
     }
     if (this.loading) {

@@ -1,6 +1,7 @@
 import merge from 'deepmerge'
 import copy from 'rollup-plugin-copy'
 import {createSpaConfig} from '@open-wc/building-rollup'
+import importAssertions from 'rollup-plugin-import-assertions'
 import replace from '@rollup/plugin-replace'
 
 const API_URL = (process.env.API_URL === undefined)
@@ -56,6 +57,7 @@ export default merge(baseConfig, {
       'http://localhost:5555': API_URL,
       BASE_DIR: JSON.stringify(BASE_DIR),
       preventAssignment: true
-    })
+    }),
+    importAssertions()
   ]
 })

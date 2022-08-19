@@ -1,43 +1,9 @@
+import translations from './lang/index.js'
 /*
 All strings that need to be translated
 */
 
-export const additionalStrings = {
-  de: {
-    Anniversaries: 'Jahrestage',
-    Discard: 'Verwerfen',
-    Lists: 'Listen',
-    History: 'Verlauf',
-    Menu: 'Menü',
-    Blog: 'Blog',
-    Export: 'Exportieren',
-    Search: 'Suche',
-    Navigation: 'Navigation',
-    Global: 'Global',
-    'Edit coordinates': 'Koordinaten bearbeiten',
-    'Recently browsed objects': 'Kürzlich betrachtete Objekte',
-    'Recently changed objects': 'Kürzlich geänderte Objekte',
-    'Show in tree': 'Im Stammbaum anzeigen',
-    'User settings': 'Benutzer-Einstellungen',
-    'Select language': 'Sprache auswählen',
-    'Home Person': 'Hauptperson',
-    'Change E-mail': 'E-Mail-Adresse ändern',
-    'Change password': 'Passwort ändern',
-    'Old password': 'Altes Passwort',
-    'New password': 'Neues Passwort',
-    'New E-mail': 'Neue E-Mail-Adresse',
-    'A new version of the app is available.': 'Eine neue Version der App ist verfügbar.',
-    'Manage users': 'Benutzer verwalten',
-    'Search %s': '%s durchsuchen',
-    'Latest Blog Post': 'Neuester Blogeintrag',
-    'Align the image': 'Bild ausrichten',
-    'Select a point on the map': 'Einen Punkt auf der Karte wählen',
-    'Select an existing citation': 'Eine existierende Fundstelle auswählen',
-    'Place Hierarchy': 'Ortshierarchie',
-    'Keyboard Shortcuts': 'Tastenkombinationen',
-    'Show this dialog': 'Diesen Dialog anzeigen'
-  }
-}
+export const additionalStrings = translations
 
 export const grampsStrings = [
   '_Media Type:',
