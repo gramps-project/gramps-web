@@ -5,7 +5,7 @@ import '../components/GrampsjsSearchResults.js'
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsButtonToggle.js'
 import {apiGet} from '../api.js'
-import {objectTypeToEndpoint, objectIcon} from '../util.js'
+import {objectTypeToEndpoint, objectIcon, debounce} from '../util.js'
 import '@material/mwc-textfield'
 
 export class GrampsjsViewSearch extends GrampsjsView {
@@ -83,8 +83,13 @@ export class GrampsjsViewSearch extends GrampsjsView {
     </div>
 
     ${this.renderFilters()}
-    ${this._totalCount === 0 ? html`<p>${this._('No items')}</p>` : ''}
-    ${this._totalCount > 0 ? html`<p>Total: ${this._totalCount}</p>` : ''}
+    ${(this._totalCount === -1 && !Object.values(this._objectTypes).some(Boolean))
+    ? html`<p>${this._('Select at least one object type')}</p>`
+    : ''}
+      ${this._totalCount === 0
+    ? html`<p>${this._('No items')}</p>`
+    : ''}
+          ${this._totalCount > 0 ? html`<p>Total: ${this._totalCount}</p>` : ''}
     <grampsjs-search-results
       .data="${this._data}"
       .strings="${this.strings}"
@@ -122,7 +127,6 @@ export class GrampsjsViewSearch extends GrampsjsView {
       </grampsjs-button-toggle>`
   )}
     </div>
-    <pre>${JSON.stringify(this._objectTypes, null, 2)}</pre>
   `
   }
 
@@ -135,6 +139,8 @@ export class GrampsjsViewSearch extends GrampsjsView {
     } else {
       this._objectTypes = {...this._objectTypes, [key]: e.detail.checked}
     }
+    this._page = 1
+    debounce(() => this._executeSearch(), 500)()
   }
 
   _handlePageChanged (event) {
@@ -209,13 +215,29 @@ export class GrampsjsViewSearch extends GrampsjsView {
   }
 
   _executeSearch (page = 1) {
-    const query = this.shadowRoot.getElementById('search-field').value
+    let query = this.shadowRoot.getElementById('search-field').value
     if (query === '') {
       this._clearAll()
       return
     }
+    // apply object type filter if necessary
+    if (!Object.values(this._objectTypes).every(Boolean)) {
+      if (!Object.values(this._objectTypes).some(Boolean)) {
+        // all deselected - do nothing
+        this._data = []
+        this._totalCount = -1
+        return
+      } else {
+        query = this._filterQueryByObjectType(query)
+      }
+    }
     this.loading = true
     this._fetchData(query, page)
+  }
+
+  _filterQueryByObjectType (query) {
+    const objectTypes = Object.keys(this._objectTypes).filter(key => this._objectTypes[key])
+    return `${query} (${objectTypes.map(key => `type:${key}`).join(' OR ')})`
   }
 
   _pageFirst () {
