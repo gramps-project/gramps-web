@@ -114,13 +114,6 @@ export class GrampsJs extends LitElement {
     this._showShortcuts = false
     this._shortcutPressed = ''
     this._firstRunToken = ''
-
-    // determine browser language and set it as the default language
-    const browserLang = navigator.language.split('-')[0] || navigator.userLanguage.split('-')[0] || 'en'
-    console.log('Browser Language:', browserLang)
-    updateSettings({ lang: browserLang })
-    this.settings = getSettings()
-    this._loadStrings(grampsStrings, this.settings.lang)
   }
 
   static get styles () {
@@ -582,6 +575,13 @@ export class GrampsJs extends LitElement {
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
     this.addEventListener('drawer:toggle', this._toggleDrawer)
     window.addEventListener('keydown', (event) => this._handleKey(event))
+
+    const browserLang = this._getBrowserLanguage()
+    if (browserLang) {
+      updateSettings({ lang: browserLang })
+      this.settings = getSettings()
+      this._loadStrings(grampsStrings, this.settings.lang)
+    }
   }
 
   firstUpdated () {
@@ -594,6 +594,17 @@ export class GrampsJs extends LitElement {
     this.addEventListener('progress:off', this._progressOff.bind(this))
     window.addEventListener('user:loggedout', this._handleLogout.bind(this))
     window.addEventListener('settings:changed', this._handleSettings.bind(this))
+  }
+
+  _getBrowserLanguage () {
+    // get browser language and replace all '-' with '_'
+    // since the strings from backend comes with underscore
+    const browserLang = navigator.language.replaceAll('-', '_')
+    if (browserLang in additionalStrings) {
+      return browserLang
+    } else {
+      return null
+    }
   }
 
   _loadDbInfo (setReady = true) {
