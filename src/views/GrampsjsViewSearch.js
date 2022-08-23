@@ -67,7 +67,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
     this._page = 1
     this._pages = -1
     this._objectTypes = Object.fromEntries(
-      Object.keys(objectTypeToEndpoint).map(key => [key, true])
+      Object.keys(objectTypeToEndpoint).filter(key => key !== 'tag').map(key => [key, true])
     )
   }
 
@@ -118,7 +118,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
       >
         ${this._('All')}
       </grampsjs-button-toggle>
-      ${Object.keys(objectTypeToEndpoint).map(key => html`<grampsjs-button-toggle
+      ${Object.keys(this._objectTypes).map(key => html`<grampsjs-button-toggle
         ?checked="${this._objectTypes[key]}"
         icon="${objectIcon[key]}"
         id="toggle-${key}"
