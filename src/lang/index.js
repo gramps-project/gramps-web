@@ -4,6 +4,7 @@ import de from './de.json' assert {type: 'json'}
 import en_GB from './en_GB.json' assert {type: 'json'}
 import pt_PT from './pt_PT.json' assert {type: 'json'}
 import nb from './nb.json' assert {type: 'json'}
+import sv from './sv.json' assert {type: 'json'}
 
 const languages = {
   en: en,
@@ -11,7 +12,8 @@ const languages = {
   de: de,
   en_GB: en_GB,
   pt_PT: pt_PT,
-  nb: nb
+  nb: nb,
+  sv: sv
 }
 
 const translations = languages
