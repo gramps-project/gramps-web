@@ -13,4 +13,12 @@ RUN rm -rf appcache
 ENV HOME /app
 
 # build full-text search index
-RUN python3 -m gramps_webapi  --config /app/config/config.cfg search index-full
+RUN python3 -m gramps_webapi --config /app/config/config.cfg search index-full
+
+# add user accounts
+RUN python3 -m gramps_webapi --config /app/config/config.cfg user add --role 4 owner owner
+RUN python3 -m gramps_webapi --config /app/config/config.cfg user add --role 3 editor editor
+RUN python3 -m gramps_webapi --config /app/config/config.cfg user add --role 2 contributor contributor
+RUN python3 -m gramps_webapi --config /app/config/config.cfg user add --role 1 member member
+RUN python3 -m gramps_webapi --config /app/config/config.cfg user add --role 0 guest guest
+RUN python3 -m gramps_webapi --config /app/config/config.cfg user add --role -1 disabled disabled
