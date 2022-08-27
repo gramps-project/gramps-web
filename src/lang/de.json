@@ -49,5 +49,10 @@
   "Unsupported format": "Nicht unterstütztes Format",
   "The Gramps package format (.gpkg) is currently not supported.": "Das Gramps-Paketformat (.gpkg) wird derzeit nicht unterstützt.",
   "Please upload a file in Gramps XML (.gramps) format without media files.": "Bitte eine Datei im Gramps XML (.gramps) Format ohne Mediendateien hochladen.",
-  "If you intend to synchronize an existing Gramps database with Gramps Web, use the Gramps XML (.gramps) format instead.": "Wenn Sie eine bestehende Gramps-Datenbank mit Gramps Web synchronisieren möchten, verwenden Sie stattdessen das Gramps-XML-Format (.gramps)."
+  "If you intend to synchronize an existing Gramps database with Gramps Web, use the Gramps XML (.gramps) format instead.": "Wenn Sie eine bestehende Gramps-Datenbank mit Gramps Web synchronisieren möchten, verwenden Sie stattdessen das Gramps-XML-Format (.gramps).",
+  "Username": "Benutzername",
+  "Password": "Passwort",
+  "login": "einloggen",
+  "Lost password?": "Passwort vergessen?",
+  "Register new account": "Neues Konto registrieren"
 }
