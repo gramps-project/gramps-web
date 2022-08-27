@@ -102,6 +102,7 @@ export class GrampsJs extends LitElement {
     this.wide = false
     this.progress = false
     this.loadingState = LOADING_STATE_INITIAL
+    this.settings = getSettings()
     this.canAdd = false
     this.canEdit = false
     this.canManageUsers = false
