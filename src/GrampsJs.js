@@ -16,9 +16,9 @@ import '@material/mwc-linear-progress'
 import '@material/mwc-snackbar'
 import {mdiFamilyTree} from '@mdi/js'
 import {renderIcon} from './icons.js'
-import {apiGet, getSettings, getPermissions} from './api.js'
-import {grampsStrings, additionalStrings} from './strings.js'
-import {fireEvent} from './util.js'
+import { apiGet, getSettings, getPermissions, updateSettings } from './api.js'
+import { grampsStrings, additionalStrings } from './strings.js'
+import { fireEvent, getBrowserLanguage } from './util.js'
 import './dayjs_locales.js'
 
 import './components/GrampsjsAppBar.js'
@@ -582,6 +582,14 @@ export class GrampsJs extends LitElement {
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
     this.addEventListener('drawer:toggle', this._toggleDrawer)
     window.addEventListener('keydown', (event) => this._handleKey(event))
+
+    const browserLang = getBrowserLanguage()
+    if (browserLang && !this.settings.lang) {
+      updateSettings({ lang: browserLang })
+    }
+    if (this.settings.lang) {
+      this._loadFrontendStrings(browserLang)
+    }
   }
 
   firstUpdated () {
@@ -594,6 +602,12 @@ export class GrampsJs extends LitElement {
     this.addEventListener('progress:off', this._progressOff.bind(this))
     window.addEventListener('user:loggedout', this._handleLogout.bind(this))
     window.addEventListener('settings:changed', this._handleSettings.bind(this))
+  }
+
+  _loadFrontendStrings (lang) {
+    this._strings = additionalStrings[lang]
+    this._strings.__lang__ = lang
+    this._lang = lang
   }
 
   _loadDbInfo (setReady = true) {
