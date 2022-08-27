@@ -54,5 +54,7 @@
   "Password": "Password",
   "login": "login",
   "Lost password?": "Lost password?",
-  "Register new account": "Register new account"
+  "Register new account": "Register new account",
+  "All": "All",
+  "Select at least one object type": "Select at least one object type"
 }
