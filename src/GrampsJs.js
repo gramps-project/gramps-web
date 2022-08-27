@@ -18,6 +18,7 @@ import {mdiFamilyTree} from '@mdi/js'
 import {renderIcon} from './icons.js'
 import {grampsStrings, additionalStrings} from './strings.js'
 import {fireEvent} from './util.js'
+import { fireEvent, getBrowserLanguage } from './util.js'
 import { apiGet, getSettings, getPermissions, updateSettings } from './api.js'
 import './dayjs_locales.js'
 
@@ -579,11 +580,12 @@ export class GrampsJs extends LitElement {
     this.addEventListener('drawer:toggle', this._toggleDrawer)
     window.addEventListener('keydown', (event) => this._handleKey(event))
 
-    const browserLang = this._getBrowserLanguage()
-    if (browserLang) {
+    const browserLang = getBrowserLanguage()
+    if (browserLang && !this.settings.lang) {
       updateSettings({ lang: browserLang })
-      this.settings = getSettings()
-      this._loadStrings(grampsStrings, this.settings.lang)
+    }
+    if (this.settings.lang) {
+      this._loadFrontendStrings(browserLang)
     }
   }
 
@@ -599,15 +601,10 @@ export class GrampsJs extends LitElement {
     window.addEventListener('settings:changed', this._handleSettings.bind(this))
   }
 
-  _getBrowserLanguage () {
-    // get browser language and replace all '-' with '_'
-    // since the strings from backend comes with underscore
-    const browserLang = navigator.language.replaceAll('-', '_')
-    if (browserLang in additionalStrings) {
-      return browserLang
-    } else {
-      return null
-    }
+  _loadFrontendStrings (lang) {
+    this._strings = additionalStrings[lang]
+    this._strings.__lang__ = lang
+    this._lang = lang
   }
 
   _loadDbInfo (setReady = true) {

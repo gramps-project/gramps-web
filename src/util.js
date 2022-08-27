@@ -315,3 +315,16 @@ export function makeHandle () {
 export function getSortval (year, month, day) {
   return Math.ceil(2440587.5 + Date.UTC(year, month - 1, day) / 86400000)
 }
+
+export function getBrowserLanguage () {
+  // get browser language and replace all '-' with '_'
+  // since the strings from backend comes with underscore
+  const browserLang = navigator.language.replaceAll('-', '_')
+  if (browserLang in additionalStrings) {
+    return browserLang
+  } else if (browserLang.split('_')[0] in additionalStrings) {
+    return browserLang.split('_')[0]
+  } else {
+    return null
+  }
+}
