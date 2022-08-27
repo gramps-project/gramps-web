@@ -740,7 +740,6 @@ export class GrampsJs extends LitElement {
   }
 
   _loadStrings (strings, lang) {
-    // Then load the strings from the server and merge them with the current language strings
     apiGet(`/api/translations/${lang}?strings=${JSON.stringify(strings)}`)
       .then(data => {
         if ('data' in data) {
