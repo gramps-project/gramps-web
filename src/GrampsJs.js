@@ -430,7 +430,7 @@ export class GrampsJs extends LitElement {
     if (this.loadingState === LOADING_STATE_MISSING_SETTINGS) {
       return this._renderOnboarding()
     }
-    if (this.settings.lang && Object.keys(this._strings).length === 0) {
+    if (this.settings.lang && !this._backendStringsLoaded()) {
       this._loadStrings(grampsStrings, this.settings.lang)
     }
     const tabs = {
@@ -740,6 +740,12 @@ export class GrampsJs extends LitElement {
         this._loadStrings(grampsStrings, this.settings.lang)
       }
     }
+  }
+
+  _backendStringsLoaded () {
+    // to find out if we have already fetched the translations
+    // from the backend, we just check for the first string
+    return Boolean(grampsStrings[0] in this._strings)
   }
 
   _loadStrings (strings, lang) {
