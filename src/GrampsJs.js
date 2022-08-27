@@ -430,6 +430,9 @@ export class GrampsJs extends LitElement {
     if (this.loadingState === LOADING_STATE_MISSING_SETTINGS) {
       return this._renderOnboarding()
     }
+    if (this.settings.lang && Object.keys(this._strings).length === 0) {
+      this._loadStrings(grampsStrings, this.settings.lang)
+    }
     const tabs = {
       people: this._('People'),
       families: this._('Families'),
