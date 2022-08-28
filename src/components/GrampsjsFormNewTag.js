@@ -11,18 +11,18 @@ import {apiGet, apiPost} from '../api.js'
 import {makeHandle} from '../util.js'
 
 class GrampsjsFormNewTag extends GrampsjsObjectForm {
-  static get properties () {
+  static get properties() {
     return {
       searchRes: {type: Array},
       disableString: {type: Boolean},
       disableField: {type: Boolean},
       _selectedTag: {type: String},
       _tagName: {type: String},
-      _tagColor: {type: String}
+      _tagColor: {type: String},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.searchRes = []
     this.disableString = false
@@ -31,37 +31,35 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
     this._tagColor = ''
   }
 
-  renderForm () {
+  renderForm() {
     return html`
-    <grampsjs-form-string
-      @formdata:changed="${this._handleString}"
-      ?disabled="${this.disableString}"
-      fullwidth
-      id="create"
-      label="${this._('New Tag')}"
-    >
-    </grampsjs-form-string>
-    <input
-      type="color"
-      id="color"
-      @change="${this._handleColor}"
-    >
-    <grampsjs-search-result-list
-      selectable
-      activatable
-      .data="${this.searchRes}"
-      .strings="${this.strings}"
-      @search-result:clicked="${this._handleSelected}"
-    ></grampsjs-search-result-list>
+      <grampsjs-form-string
+        @formdata:changed="${this._handleString}"
+        ?disabled="${this.disableString}"
+        fullwidth
+        id="create"
+        label="${this._('New Tag')}"
+      >
+      </grampsjs-form-string>
+      <input type="color" id="color" @change="${this._handleColor}" />
+      <grampsjs-search-result-list
+        selectable
+        activatable
+        .data="${this.searchRes}"
+        .strings="${this.strings}"
+        @search-result:clicked="${this._handleSelected}"
+      ></grampsjs-search-result-list>
     `
   }
 
-  firstUpdated () {
+  firstUpdated() {
     this._fetchData()
   }
 
-  async _fetchData () {
-    const url = `/api/search/?locale=${this.strings?.__lang__ || 'en'}&profile=all&query=type:tag`
+  async _fetchData() {
+    const url = `/api/search/?locale=${
+      this.strings?.__lang__ || 'en'
+    }&profile=all&query=type:tag`
     const data = await apiGet(url)
     if ('data' in data) {
       this.searchRes = data.data.filter(obj => !this.data.includes(obj.handle))
@@ -70,16 +68,16 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
     }
   }
 
-  _handleString (e) {
+  _handleString(e) {
     this._tagName = e.detail.data
   }
 
-  _handleColor () {
+  _handleColor() {
     const el = this.shadowRoot.getElementById('color')
     this._tagColor = el.value
   }
 
-  async _handleDialogSave () {
+  async _handleDialogSave() {
     if (!this.disableString && this._tagName) {
       const handle = await this._createNewTag()
       this.data = [...this.data, handle]
@@ -89,11 +87,11 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
     super._handleDialogSave()
   }
 
-  async _createNewTag () {
+  async _createNewTag() {
     const obj = {
       _class: 'Tag',
       handle: makeHandle(),
-      name: this._tagName
+      name: this._tagName,
     }
     if (this._tagColor) {
       obj.color = this._tagColor
@@ -102,7 +100,7 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
     return obj.handle
   }
 
-  _handleSelected (e) {
+  _handleSelected(e) {
     this.disableString = true
     const obj = e.detail
     this._selectedTag = obj.handle

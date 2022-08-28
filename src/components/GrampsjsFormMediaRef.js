@@ -8,7 +8,7 @@ import './GrampsjsFormSelectObjectList.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 class GrampsjsFormMediaRef extends GrampsjsObjectForm {
-  renderForm () {
+  renderForm() {
     return html`
       <grampsjs-form-select-object-list
         fixedMenuPosition

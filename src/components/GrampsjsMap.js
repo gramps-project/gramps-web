@@ -1,25 +1,31 @@
 import {html, LitElement} from 'lit'
-import {Map, TileLayer, LatLng, control} from '../../node_modules/leaflet/dist/leaflet-src.esm.js'
+import {
+  Map,
+  TileLayer,
+  LatLng,
+  control,
+} from '../../node_modules/leaflet/dist/leaflet-src.esm.js'
 import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
 
 class GrampsjsMap extends LitElement {
   render() {
     return html`
-      <link rel="stylesheet" href="leaflet.css">
+      <link rel="stylesheet" href="leaflet.css" />
 
-      <div class="mapcontainer" style="width:${this.width}; height:${this.height};">
+      <div
+        class="mapcontainer"
+        style="width:${this.width}; height:${this.height};"
+      >
         <div id="${this.mapid}" style="z-index: 0; width: 100%; height: 100%;">
-          <slot>
-          </slot>
+          <slot> </slot>
         </div>
       </div>
-      `
+    `
   }
 
   static get styles() {
-    return [
-    ]
+    return []
   }
 
   static get properties() {
@@ -36,7 +42,7 @@ class GrampsjsMap extends LitElement {
       longMax: {type: Number},
       layerSwitcher: {type: Boolean},
       _map: {type: Object},
-      _layercontrol: {type: Object}
+      _layercontrol: {type: Object},
     }
   }
 
@@ -58,16 +64,24 @@ class GrampsjsMap extends LitElement {
   firstUpdated() {
     const mapel = this.shadowRoot.getElementById(this.mapid)
     if (this.latMin === 0 && this.latMax === 0) {
-      this._map = new Map(mapel, {zoomControl: false}).setView([this.latitude, this.longitude], this.zoom)
+      this._map = new Map(mapel, {zoomControl: false}).setView(
+        [this.latitude, this.longitude],
+        this.zoom
+      )
     } else {
-      this._map = new Map(mapel, {zoomControl: false}).fitBounds([[this.latMin, this.longMin], [this.latMax, this.longMax]])
+      this._map = new Map(mapel, {zoomControl: false}).fitBounds([
+        [this.latMin, this.longMin],
+        [this.latMax, this.longMax],
+      ])
     }
-    const __tileUrl__ = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
-    const __tileAttribution__ = '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors; <a href="https://carto.com/attributions">CARTO</a>'
+    const __tileUrl__ =
+      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+    const __tileAttribution__ =
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors; <a href="https://carto.com/attributions">CARTO</a>'
     const tileLayer = new TileLayer(__tileUrl__, {
       attribution: __tileAttribution__,
       maxZoom: 19,
-      zoomControl: false
+      zoomControl: false,
     })
     tileLayer.addTo(this._map)
     this._map.addControl(control.zoom({position: 'bottomright'}))
@@ -90,7 +104,10 @@ class GrampsjsMap extends LitElement {
         this._map.setZoom(this.zoom)
         this._map.panTo(new LatLng(this.latitude, this.longitude))
       } else {
-        this._map.fitBounds([[this.latMin, this.longMin], [this.latMax, this.longMax]])
+        this._map.fitBounds([
+          [this.latMin, this.longMin],
+          [this.latMax, this.longMax],
+        ])
       }
       this._map.invalidateSize(false)
     }

@@ -14,7 +14,7 @@ import './GrampsjsFormString.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 class GrampsjsFormRepoRef extends GrampsjsObjectForm {
-  renderForm () {
+  renderForm() {
     return html`
       <grampsjs-form-select-object-list
         fixedMenuPosition
@@ -28,7 +28,11 @@ class GrampsjsFormRepoRef extends GrampsjsObjectForm {
 
       <h4 class="label">${this._('Call Number')}</h4>
       <p>
-        <grampsjs-form-string fullwidth id="call_number" value="${this.data.call_number}"></grampsjs-form-string>
+        <grampsjs-form-string
+          fullwidth
+          id="call_number"
+          value="${this.data.call_number}"
+        ></grampsjs-form-string>
       </p>
 
       <grampsjs-form-select-type

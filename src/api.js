@@ -2,23 +2,25 @@ import jwtDecode from 'jwt-decode'
 
 export const __APIHOST__ = 'http://localhost:5555'
 
-export function doLogout () {
+export function doLogout() {
   localStorage.removeItem('access_token')
   localStorage.removeItem('access_token_expires')
   localStorage.removeItem('refresh_token')
-  window.dispatchEvent(new CustomEvent('user:loggedout', {bubbles: true, composed: true}))
+  window.dispatchEvent(
+    new CustomEvent('user:loggedout', {bubbles: true, composed: true})
+  )
 }
 
-export function storeAuthToken (authToken, expires) {
+export function storeAuthToken(authToken, expires) {
   localStorage.setItem('access_token', authToken)
   localStorage.setItem('access_token_expires', expires)
 }
 
-export function storeRefreshToken (refreshToken) {
+export function storeRefreshToken(refreshToken) {
   localStorage.setItem('refresh_token', refreshToken)
 }
 
-export function getPermissions () {
+export function getPermissions() {
   const accessToken = localStorage.getItem('access_token')
   if (!accessToken || accessToken === '1') {
     return null
@@ -31,7 +33,7 @@ export function getPermissions () {
   }
 }
 
-export function getSettings () {
+export function getSettings() {
   try {
     const settingString = localStorage.getItem('grampsjs_settings')
     return JSON.parse(settingString) || {}
@@ -40,72 +42,79 @@ export function getSettings () {
   }
 }
 
-export function updateSettings (settings) {
+export function updateSettings(settings) {
   const existingSettings = getSettings()
   const finalSettings = {...existingSettings, ...settings}
   localStorage.setItem('grampsjs_settings', JSON.stringify(finalSettings))
-  window.dispatchEvent(new CustomEvent('settings:changed', {bubbles: true, composed: true}))
+  window.dispatchEvent(
+    new CustomEvent('settings:changed', {bubbles: true, composed: true})
+  )
 }
 
-export async function apiResetPassword (username) {
+export async function apiResetPassword(username) {
   try {
-    const resp = await fetch(`${__APIHOST__}/api/users/${username}/password/reset/trigger/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
+    const resp = await fetch(
+      `${__APIHOST__}/api/users/${username}/password/reset/trigger/`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       }
-    })
+    )
     if (resp.status === 404) {
-      throw (new Error('User not found.'))
+      throw new Error('User not found.')
     }
     if (resp.status === 500) {
-      throw (new Error('The server encountered an error while trying to send the e-mail.'))
+      throw new Error(
+        'The server encountered an error while trying to send the e-mail.'
+      )
     }
     if (resp.status !== 201) {
-      throw (new Error(`Error ${resp.status}`))
+      throw new Error(`Error ${resp.status}`)
     }
     return {}
   } catch (error) {
     return {error: error.message}
   }
-};
+}
 
-export async function apiRegisterUser (username, password, email, fullname) {
+export async function apiRegisterUser(username, password, email, fullname) {
   try {
     const resp = await fetch(`${__APIHOST__}/api/users/${username}/register/`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({password, email, full_name: fullname})
+      body: JSON.stringify({password, email, full_name: fullname}),
     })
     if (resp.status === 409) {
-      throw (new Error('Username or e-mail already taken.'))
+      throw new Error('Username or e-mail already taken.')
     }
     if (resp.status !== 201) {
-      throw (new Error(`Error ${resp.status}`))
+      throw new Error(`Error ${resp.status}`)
     }
     return {}
   } catch (error) {
     return {error: error.message}
   }
-};
+}
 
-export async function apiGetTokens (username, password) {
+export async function apiGetTokens(username, password) {
   try {
     const resp = await fetch(`${__APIHOST__}/api/token/`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({username, password})
+      body: JSON.stringify({username, password}),
     })
     if (resp.status === 401 || resp.status === 403) {
-      throw (new Error('Wrong username or password'))
+      throw new Error('Wrong username or password')
     }
     if (resp.status !== 200) {
-      throw (new Error(`Error ${resp.status}`))
+      throw new Error(`Error ${resp.status}`)
     }
     const data = await resp.json()
     if (data.access_token === undefined) {
@@ -121,9 +130,9 @@ export async function apiGetTokens (username, password) {
   } catch (error) {
     return {error: error.message}
   }
-};
+}
 
-export async function apiRefreshAuthToken () {
+export async function apiRefreshAuthToken() {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken === null) {
     return {error: 'No refresh token found!'}
@@ -134,16 +143,16 @@ export async function apiRefreshAuthToken () {
       headers: {
         Authorization: `Bearer ${refreshToken}`,
         Accept: 'application/json',
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     })
     if (resp.status === 403 || resp.status === 422) {
       doLogout()
-      throw (new Error('Failed refreshing token'))
+      throw new Error('Failed refreshing token')
     }
     const data = await resp.json()
     if (data.access_token === undefined) {
-      throw (new Error('Access token missing in response'))
+      throw new Error('Access token missing in response')
     }
     const expires = Date.now() + 15 * 60 * 1000
     storeAuthToken(data.access_token, expires)
@@ -151,59 +160,58 @@ export async function apiRefreshAuthToken () {
   } catch (error) {
     return {error: error.message}
   }
-};
+}
 
-export async function apiGet (endpoint, isJson = true) {
+export async function apiGet(endpoint, isJson = true) {
   const accessToken = localStorage.getItem('access_token')
   let headers = {}
   if (accessToken !== null) {
     headers = {
-      Authorization: `Bearer ${accessToken}`
+      Authorization: `Bearer ${accessToken}`,
     }
   }
   try {
     const resp = await fetch(`${__APIHOST__}${endpoint}`, {
       method: 'GET',
-      headers
+      headers,
     })
     if (resp.status === 401) {
       const refreshToken = localStorage.getItem('refresh_token')
       if (refreshToken === null) {
-        throw (new Error('Missing refresh token'))
+        throw new Error('Missing refresh token')
       }
       const refreshResp = await apiRefreshAuthToken()
       if ('error' in refreshResp) {
-        throw (new Error(refreshResp.error))
+        throw new Error(refreshResp.error)
       } else {
         return apiGet(endpoint, isJson)
       }
     }
     if (resp.status === 403) {
-      throw (new Error('Authorization error'))
+      throw new Error('Authorization error')
     }
     if (resp.status !== 200) {
-      throw (new Error(`Error ${resp.status}`))
+      throw new Error(`Error ${resp.status}`)
     }
     if (isJson) {
       return {
         data: await resp.json(),
         total_count: resp.headers.get('X-Total-Count'),
-        etag: resp.headers.get('ETag')
+        etag: resp.headers.get('ETag'),
       }
     }
     return {
-      data: await resp.text()
+      data: await resp.text(),
     }
-
   } catch (error) {
     if (error instanceof TypeError) {
       return {error: 'Network error'}
     }
     return {error: error.message}
   }
-};
+}
 
-async function apiPutPost (method, endpoint, payload, isJson = true) {
+async function apiPutPost(method, endpoint, payload, isJson = true) {
   const accessToken = localStorage.getItem('access_token')
   const headers = {Accept: 'application/json'}
   if (accessToken !== null) {
@@ -216,30 +224,32 @@ async function apiPutPost (method, endpoint, payload, isJson = true) {
     const resp = await fetch(`${__APIHOST__}${endpoint}`, {
       method,
       headers,
-      body: (isJson ? JSON.stringify(payload) : payload)
+      body: isJson ? JSON.stringify(payload) : payload,
     })
     if (resp.status === 401) {
       const refreshToken = localStorage.getItem('refresh_token')
       if (refreshToken === null) {
-        throw (new Error('Missing refresh token'))
+        throw new Error('Missing refresh token')
       }
       const refreshResp = await apiRefreshAuthToken()
       if ('error' in refreshResp) {
-        throw (new Error(refreshResp.error))
+        throw new Error(refreshResp.error)
       }
     }
     if (resp.status === 400 || resp.status === 401 || resp.status === 403) {
-      throw (new Error('Authorization error'))
+      throw new Error('Authorization error')
     }
     if (resp.status !== 201 && resp.status !== 200) {
-      throw (new Error(`Error ${resp.status}`))
+      throw new Error(`Error ${resp.status}`)
     }
-    window.dispatchEvent(new CustomEvent('db:changed', {bubbles: true, composed: true}))
+    window.dispatchEvent(
+      new CustomEvent('db:changed', {bubbles: true, composed: true})
+    )
     try {
       return {
         data: await resp.json(),
         total_count: resp.headers.get('X-Total-Count'),
-        etag: resp.headers.get('ETag')
+        etag: resp.headers.get('ETag'),
       }
     } catch (error) {
       // if JSON parsing fails, return empty response
@@ -248,30 +258,34 @@ async function apiPutPost (method, endpoint, payload, isJson = true) {
   } catch (error) {
     return {error: error.message}
   }
-};
+}
 
-export async function apiPut (endpoint, payload) {
+export async function apiPut(endpoint, payload) {
   return apiPutPost('PUT', endpoint, payload)
 }
 
-export async function apiPost (endpoint, payload, isJson = true) {
+export async function apiPost(endpoint, payload, isJson = true) {
   return apiPutPost('POST', endpoint, payload, isJson)
 }
 
-export function getExporterUrl (id, options) {
+export function getExporterUrl(id, options) {
   const jwt = localStorage.getItem('access_token')
   const queryParam = new URLSearchParams(options).toString()
-  if (jwt === null) { return `${__APIHOST__}/api/exporters/${id}/file?${queryParam}` }
+  if (jwt === null) {
+    return `${__APIHOST__}/api/exporters/${id}/file?${queryParam}`
+  }
   return `${__APIHOST__}/api/exporters/${id}/file?jwt=${jwt}&${queryParam}`
 }
 
-export function getMediaUrl (handle) {
+export function getMediaUrl(handle) {
   const jwt = localStorage.getItem('access_token')
-  if (jwt === null) { return `${__APIHOST__}/api/media/${handle}/file` }
+  if (jwt === null) {
+    return `${__APIHOST__}/api/media/${handle}/file`
+  }
   return `${__APIHOST__}/api/media/${handle}/file?jwt=${jwt}`
 }
 
-export function getMediaUrlCropped (handle, rect) {
+export function getMediaUrlCropped(handle, rect) {
   const jwt = localStorage.getItem('access_token')
   const [x1, y1, x2, y2] = rect
   if (jwt === null) {
@@ -280,7 +294,7 @@ export function getMediaUrlCropped (handle, rect) {
   return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}?jwt=${jwt}`
 }
 
-export function getThumbnailUrl (handle, size, square = false) {
+export function getThumbnailUrl(handle, size, square = false) {
   const jwt = localStorage.getItem('access_token')
   if (jwt === null) {
     return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?square=${square}`
@@ -288,7 +302,7 @@ export function getThumbnailUrl (handle, size, square = false) {
   return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?jwt=${jwt}&square=${square}`
 }
 
-export function getThumbnailUrlCropped (handle, rect, size, square = false) {
+export function getThumbnailUrlCropped(handle, rect, size, square = false) {
   const jwt = localStorage.getItem('access_token')
   const [x1, y1, x2, y2] = rect
   if (jwt === null) {
@@ -297,16 +311,16 @@ export function getThumbnailUrlCropped (handle, rect, size, square = false) {
   return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?jwt=${jwt}&square=${square}`
 }
 
-export async function queryNominatim (q) {
+export async function queryNominatim(q) {
   const url = `https://nominatim.openstreetmap.org/search?q=${q}&format=jsonv2`
   try {
     const resp = await fetch(url, {
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     })
     if (resp.status !== 200) {
-      throw (new Error(`Error ${resp.statusText}`))
+      throw new Error(`Error ${resp.statusText}`)
     }
     return {data: await resp.json()}
   } catch (error) {

@@ -1,25 +1,24 @@
 import {html} from 'lit'
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 
-
 export class GrampsjsAddresses extends GrampsjsTableBase {
-
   render() {
     if (Object.keys(this.data).length === 0) {
       return ''
     }
     return html`
-    <table>
-      <tr>
-        <th>${this._('Date')}</th>
-        <th>${this._('Street')}</th>
-        <th>${this._('Locality')}</th>
-        <th>${this._('City')}</th>
-        <th>${this._('County')}</th>
-        <th>${this._('State')}</th>
-        <th>${this._('Country')}</th>
-      </tr>
-    ${this.data.map(obj => html`
+      <table>
+        <tr>
+          <th>${this._('Date')}</th>
+          <th>${this._('Street')}</th>
+          <th>${this._('Locality')}</th>
+          <th>${this._('City')}</th>
+          <th>${this._('County')}</th>
+          <th>${this._('State')}</th>
+          <th>${this._('Country')}</th>
+        </tr>
+        ${this.data.map(
+          obj => html`
       <tr>
         <td>${this._toDate(obj?.date?.dateval)}</td>
         <td>${obj.street}</td>
@@ -30,7 +29,9 @@ export class GrampsjsAddresses extends GrampsjsTableBase {
         <td>${obj.country}</td>
       </tr>
     </table>
-    `)}
+    `
+        )}
+      </table>
     `
   }
 
@@ -44,7 +45,4 @@ export class GrampsjsAddresses extends GrampsjsTableBase {
   }
 }
 
-
 window.customElements.define('grampsjs-addresses', GrampsjsAddresses)
-
-

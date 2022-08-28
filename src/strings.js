@@ -349,5 +349,5 @@ export const grampsStrings = [
   'Wife',
   'Will',
   'Witness',
-  'Zoom'
+  'Zoom',
 ]

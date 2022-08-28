@@ -9,233 +9,255 @@ import './GrampsjsMapMarker.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
-  static get styles () {
+  static get styles() {
     return [
       sharedStyles,
       css`
-      .timeline-event {
-        padding: 0.8em;
-        display: grid;
-        grid-gap: 15px;
-        grid-template-columns: 150px minmax(150px, 1fr);
-        background-color: #fff;
-        color: #444;
-      }
-
-      .timeline-event.highlighted {
-        background-color: #EFEBE9;
-        border-radius: 6px;
-      }
-
-      .timeline-date-age {
-        text-align: right;
-        opacity: 0.75;
-      }
-
-      .timeline-age {
-        font-weight: 400;
-      }
-
-      .timeline-detail {
-      }
-
-      span {
-        display: block;
-        margin-bottom: 0.2em;
-        vertical-align: middle;
-      }
-
-      .timeline-label, .timeline-date {
-        font-family: Roboto Slab;
-        font-weight: 400;
-        font-size: 18px;
-        color: rgba(0, 0, 0, 0.8);
-        margin-bottom: 0.4em;
-      }
-
-
-      .timeline-place, .timeline-description, .timeline-person, .timeline-age {
-        display: block;
-        font-family: Roboto;
-        font-size: 17px;
-      }
-
-
-      .timeline-place, .timeline-description, .timeline-person {
-        font-weight: 300;
-      }
-
-
-      .timeline-detail mwc-icon {
-        --mdc-icon-size: 1em;
-        color: rgba(0, 0, 0, 0.25);
-        margin-right: 0.2em;
-        position: relative;
-        top: 0.13em;
-      }
-
-      .timeline-button {
-        margin-top: 0.5em;
-        visibility: hidden;
-      }
-
-      .timeline-event.highlighted .timeline-button {
-        visibility: visible;
-      }
-
-      #timeline {
-      }
-
-      #map {
-        display: none;
-      }
-
-      @media (min-width: 768px) {
-        #map {
-          height: calc(100vh - 64px);
-          position: sticky;
-          top: 64px;
-          display: block;
-        }
-
-        #container {
+        .timeline-event {
+          padding: 0.8em;
           display: grid;
-          grid-gap: 8px;
-          grid-template-columns: 420px 1fr;
+          grid-gap: 15px;
+          grid-template-columns: 150px minmax(150px, 1fr);
+          background-color: #fff;
+          color: #444;
         }
-      }
-      `
+
+        .timeline-event.highlighted {
+          background-color: #efebe9;
+          border-radius: 6px;
+        }
+
+        .timeline-date-age {
+          text-align: right;
+          opacity: 0.75;
+        }
+
+        .timeline-age {
+          font-weight: 400;
+        }
+
+        .timeline-detail {
+        }
+
+        span {
+          display: block;
+          margin-bottom: 0.2em;
+          vertical-align: middle;
+        }
+
+        .timeline-label,
+        .timeline-date {
+          font-family: Roboto Slab;
+          font-weight: 400;
+          font-size: 18px;
+          color: rgba(0, 0, 0, 0.8);
+          margin-bottom: 0.4em;
+        }
+
+        .timeline-place,
+        .timeline-description,
+        .timeline-person,
+        .timeline-age {
+          display: block;
+          font-family: Roboto;
+          font-size: 17px;
+        }
+
+        .timeline-place,
+        .timeline-description,
+        .timeline-person {
+          font-weight: 300;
+        }
+
+        .timeline-detail mwc-icon {
+          --mdc-icon-size: 1em;
+          color: rgba(0, 0, 0, 0.25);
+          margin-right: 0.2em;
+          position: relative;
+          top: 0.13em;
+        }
+
+        .timeline-button {
+          margin-top: 0.5em;
+          visibility: hidden;
+        }
+
+        .timeline-event.highlighted .timeline-button {
+          visibility: visible;
+        }
+
+        #timeline {
+        }
+
+        #map {
+          display: none;
+        }
+
+        @media (min-width: 768px) {
+          #map {
+            height: calc(100vh - 64px);
+            position: sticky;
+            top: 64px;
+            display: block;
+          }
+
+          #container {
+            display: grid;
+            grid-gap: 8px;
+            grid-template-columns: 420px 1fr;
+          }
+        }
+      `,
     ]
   }
 
-  static get properties () {
+  static get properties() {
     return {
       data: {type: Array},
-      highlightedId: {type: String}
+      highlightedId: {type: String},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.data = []
     this.highlightedId = ''
   }
 
-  render () {
+  render() {
     if (this.data.length === 0) {
       return html``
     }
     return html`
-    <div id="container">
-      <div id="timeline">
-        ${this.data.map(this.renderEvent, this)}
+      <div id="container">
+        <div id="timeline">${this.data.map(this.renderEvent, this)}</div>
+        <div id="map">
+          ${this.data
+            .map(obj => obj.place?.lat || obj.place?.long)
+            .filter(Boolean).length > 0
+            ? html` ${this.renderMap()} `
+            : ''}
+        </div>
       </div>
-      <div id="map">
-      ${this.data.map(obj => obj.place?.lat || obj.place?.long).filter(Boolean).length > 0
-    ? html`
-      ${this.renderMap()}
-      `
-    : ''}
-      </div>
-    </div>
     `
   }
 
-  renderMap () {
+  renderMap() {
     const mapCorners = this._getMapCorners()
     return html`
-    <grampsjs-map
-      latMin="${mapCorners[0][0]}"
-      longMin="${mapCorners[0][1]}"
-      latMax="${mapCorners[1][0]}"
-      longMax="${mapCorners[1][1]}"
-      mapid="timeline-map"
-      id="timeline-map"
-      @marker:clicked="${this._handleMapClick}"
+      <grampsjs-map
+        latMin="${mapCorners[0][0]}"
+        longMin="${mapCorners[0][1]}"
+        latMax="${mapCorners[1][0]}"
+        longMax="${mapCorners[1][1]}"
+        mapid="timeline-map"
+        id="timeline-map"
+        @marker:clicked="${this._handleMapClick}"
       >
         ${this.data.map(obj => {
-    if (!obj.place?.lat || !obj.place?.long) {
-      return ''
-    }
-    return html`
-        <grampsjs-map-marker
-        latitude="${obj.place.lat}"
-        longitude="${obj.place.long}"
-        markerId="${obj.gramps_id}"
-        opacity="${obj.gramps_id === this.highlightedId ? 1.0 : 0.5}"
-        >
-        </grampsjs-map-marker>
-        `
-  }, this)}
+          if (!obj.place?.lat || !obj.place?.long) {
+            return ''
+          }
+          return html`
+            <grampsjs-map-marker
+              latitude="${obj.place.lat}"
+              longitude="${obj.place.long}"
+              markerId="${obj.gramps_id}"
+              opacity="${obj.gramps_id === this.highlightedId ? 1.0 : 0.5}"
+            >
+            </grampsjs-map-marker>
+          `
+        }, this)}
       </grampsjs-map>
     `
   }
 
-  _getMapCorners () {
+  _getMapCorners() {
     if (this.data.length === 0) {
       return [0, 0]
     }
     const places = this.data.filter(obj => obj?.place?.lat || obj?.place?.lat)
     if (places.length === 0) {
       // this should never happen
-      return [[0, 0], [0, 0]]
+      return [
+        [0, 0],
+        [0, 0],
+      ]
     }
     const lats = places.map(obj => obj.place.lat || 0)
     const longs = places.map(obj => obj.place.long || 0)
-    return [[Math.min(...lats), Math.min(...longs)], [Math.max(...lats), Math.max(...longs)]]
+    return [
+      [Math.min(...lats), Math.min(...longs)],
+      [Math.max(...lats), Math.max(...longs)],
+    ]
   }
 
   // eslint-disable-next-line class-methods-use-this
-  renderEvent (obj) {
+  renderEvent(obj) {
     return html`
-    <div
-    id="event-${obj.gramps_id}"
-    class=${classMap({'timeline-event': true, highlighted: obj.gramps_id === this.highlightedId})}
-    @mouseover="${() => this._handleMouseOver(obj)}"
-    @focus="${() => this._handleMouseOver(obj)}"
-    @touchstart="${() => this._handleMouseOver(obj)}"
-    >
-      <div class="timeline-date-age">
-        <span class="timeline-date">${obj.date}</span>
-        <span class="timeline-age">${obj.age}</span>
-      </div>
-      <div class="timeline-detail">
-        <span class="timeline-label">${obj.label}
-        ${// if role is not primary/family, show role
-  obj.role && ![this._('Family'), this._('Primary')].includes(obj.role)
-    ? html`(${obj.role})`
-    : ''
-}
-      </span>
-        ${obj.description
-    ? html`
-        <span class="timeline-description">${obj.description}</span>
-        `
-    : ''}
-        ${obj.place?.name
-    ? html`
-        <span class="timeline-place"><mwc-icon class="person">place</mwc-icon> ${obj.place.name}</span>
-        `
-    : ''}
-        ${obj.person?.name_given || obj.person?.name_surname
-    ? html`
-        <span class="timeline-person"><mwc-icon class="person">person</mwc-icon> ${obj.person?.name_given || html`&hellip;`} ${obj.person?.name_surname || html`&hellip;`}</span>
-        `
-    : ''}
+      <div
+        id="event-${obj.gramps_id}"
+        class=${classMap({
+          'timeline-event': true,
+          highlighted: obj.gramps_id === this.highlightedId,
+        })}
+        @mouseover="${() => this._handleMouseOver(obj)}"
+        @focus="${() => this._handleMouseOver(obj)}"
+        @touchstart="${() => this._handleMouseOver(obj)}"
+      >
+        <div class="timeline-date-age">
+          <span class="timeline-date">${obj.date}</span>
+          <span class="timeline-age">${obj.age}</span>
+        </div>
+        <div class="timeline-detail">
+          <span class="timeline-label"
+            >${obj.label}
+            ${
+              // if role is not primary/family, show role
+              obj.role &&
+              ![this._('Family'), this._('Primary')].includes(obj.role)
+                ? html`(${obj.role})`
+                : ''
+            }
+          </span>
+          ${obj.description
+            ? html`
+                <span class="timeline-description">${obj.description}</span>
+              `
+            : ''}
+          ${obj.place?.name
+            ? html`
+                <span class="timeline-place"
+                  ><mwc-icon class="person">place</mwc-icon> ${obj.place
+                    .name}</span
+                >
+              `
+            : ''}
+          ${obj.person?.name_given || obj.person?.name_surname
+            ? html`
+                <span class="timeline-person"
+                  ><mwc-icon class="person">person</mwc-icon> ${obj.person
+                    ?.name_given || html`&hellip;`}
+                  ${obj.person?.name_surname || html`&hellip;`}</span
+                >
+              `
+            : ''}
 
-        <span class="timeline-button">
-          <mwc-button
-            dense outlined
-            label="${this._('Details')}"
-            @click="${() => this._handleButtonClick(obj.gramps_id)}">
-          </mwc-button>
-        </span>
+          <span class="timeline-button">
+            <mwc-button
+              dense
+              outlined
+              label="${this._('Details')}"
+              @click="${() => this._handleButtonClick(obj.gramps_id)}"
+            >
+            </mwc-button>
+          </span>
+        </div>
       </div>
-    </div>
     `
   }
 
-  _handleMouseOver (obj) {
+  _handleMouseOver(obj) {
     const grampsId = obj.gramps_id
     const lat = obj?.place?.lat
     const long = obj?.place?.long
@@ -246,7 +268,7 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
-  _handleMapClick (e) {
+  _handleMapClick(e) {
     if (e.detail?.markerId) {
       this.highlightedId = e.detail.markerId
       this._scrollToId(`event-${e.detail.markerId}`)
@@ -259,17 +281,19 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
-  _handleButtonClick (grampsId) {
-    this.dispatchEvent(new CustomEvent('nav', {
-      bubbles: true,
-      composed: true,
-      detail: {
-        path: `event/${grampsId}`
-      }
-    }))
+  _handleButtonClick(grampsId) {
+    this.dispatchEvent(
+      new CustomEvent('nav', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          path: `event/${grampsId}`,
+        },
+      })
+    )
   }
 
-  _scrollToId (eleId) {
+  _scrollToId(eleId) {
     const ele = this.shadowRoot.getElementById(eleId)
     if (!ele) {
       return

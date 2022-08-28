@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 import {html} from 'lit'
 import '@material/mwc-icon'
 import dayjs from 'dayjs/esm'
@@ -57,9 +58,7 @@ export function eventTitleFromProfile(eventProfile, strings) {
   const primaryPeople = `${people
     .map(obj => personTitleFromProfile(obj.person))
     .join(', ')}
-          ${families
-    .map(obj => familyTitleFromProfile(obj.family))
-    .join(', ')}`
+          ${families.map(obj => familyTitleFromProfile(obj.family)).join(', ')}`
   return html`${eventProfile.type}${primaryPeople.trim()
     ? `: ${primaryPeople}`
     : ''}${eventProfile.date ? ` (${eventProfile.date})` : ''}`
@@ -77,45 +76,45 @@ export function renderPerson(personProfile) {
       >
     </span>
     ${personProfile?.birth?.date
-    ? html` <span class="event"
+      ? html` <span class="event"
           ><i>${asteriskIcon}</i> ${personProfile.birth.date}</span
         >`
-    : ''}
+      : ''}
     ${personProfile?.death?.date
-    ? html` <span class="event"
+      ? html` <span class="event"
           ><i>${crossIcon}</i> ${personProfile.death.date}</span
         >`
-    : ''}
+      : ''}
   `
 }
 
 export function getName(obj, type) {
   switch (type) {
-  case 'person':
-    return obj?.primary_name?.first_name
-  case 'event':
-    return obj.type
-  case 'family':
-    return ''
-  case 'place':
-    return obj?.name?.value || obj.title
-  case 'source':
-    return obj.title
-  case 'repository':
-    return obj.name
-  case 'citation':
-    return obj.page
-  case 'media':
-    return obj.desc
-  default:
-    return ''
+    case 'person':
+      return obj?.primary_name?.first_name
+    case 'event':
+      return obj.type
+    case 'family':
+      return ''
+    case 'place':
+      return obj?.name?.value || obj.title
+    case 'source':
+      return obj.title
+    case 'repository':
+      return obj.name
+    case 'citation':
+      return obj.page
+    case 'media':
+      return obj.desc
+    default:
+      return ''
   }
 }
 
 export function showObject(type, obj, strings) {
   switch (type) {
-  case 'person':
-    return html`
+    case 'person':
+      return html`
         <mwc-icon class="inline ${obj.gender === 1 ? 'male' : 'female'}"
           >person</mwc-icon
         >
@@ -124,66 +123,66 @@ export function showObject(type, obj, strings) {
           ${obj?.profile?.name_surname || html`&hellip;`}
         </a>
       `
-  case 'family':
-    return html`
+    case 'family':
+      return html`
         <mwc-icon class="inline">people</mwc-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
           >${familyTitleFromProfile(obj.profile || {}) || type}
         </a>
       `
-  case 'event':
-    return html`
+    case 'event':
+      return html`
         <mwc-icon class="inline">event</mwc-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
           >${eventTitleFromProfile(obj.profile || {}, strings) || obj.type}
         </a>
       `
-  case 'place':
-    return html`
+    case 'place':
+      return html`
         <mwc-icon class="inline">place</mwc-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
           >${obj?.profile?.name || obj?.name?.value || obj.title || type}
         </a>
       `
-  case 'source':
-    return html`
+    case 'source':
+      return html`
         <mwc-icon class="inline">bookmarks</mwc-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
           >${getName(obj, type) || type}
         </a>
       `
-  case 'citation':
-    return html`
+    case 'citation':
+      return html`
         <mwc-icon class="inline">bookmark</mwc-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
           >${citationTitleFromProfile(obj.profile || {}) || type}
         </a>
       `
-  case 'repository':
-    return html`
+    case 'repository':
+      return html`
         <mwc-icon class="inline">account_balance</mwc-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
           >${getName(obj, type) || type}
         </a>
       `
-  case 'note':
-    return html`
+    case 'note':
+      return html`
         <mwc-icon class="inline">sticky_note_2</mwc-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
           >${translate(strings, obj.type) || type}
         </a>
       `
-  case 'media':
-    return html`
+    case 'media':
+      return html`
         <mwc-icon class="inline">photo</mwc-icon>
         <a href="${BASE_DIR}/media/${obj.gramps_id}"
           >${getName(obj, type) || type}
         </a>
       `
-  case 'tag':
-    return html``
-  default:
-    return `unknown type: ${type}`
+    case 'tag':
+      return html``
+    default:
+      return `unknown type: ${type}`
   }
 }
 
@@ -215,62 +214,62 @@ export const objectTypeToEndpoint = {
 
 export function objectDescription(type, obj, strings) {
   switch (type) {
-  case 'person':
-    return html`${obj?.profile?.name_given || html`&hellip;`}
+    case 'person':
+      return html`${obj?.profile?.name_given || html`&hellip;`}
       ${obj?.profile?.name_surname || html`&hellip;`}`
-  case 'family':
-    return html`${familyTitleFromProfile(obj.profile || {}) || type}`
-  case 'event':
-    return html`${eventTitleFromProfile(obj.profile || {}, strings) ||
+    case 'family':
+      return html`${familyTitleFromProfile(obj.profile || {}) || type}`
+    case 'event':
+      return html`${eventTitleFromProfile(obj.profile || {}, strings) ||
       obj.type}`
-  case 'place':
-    return html`${obj?.profile?.name ||
+    case 'place':
+      return html`${obj?.profile?.name ||
       obj?.name?.value ||
       obj.title ||
       type}`
-  case 'source':
-    return html`${getName(obj, type) || type}`
-  case 'citation':
-    return html`${citationTitleFromProfile(obj.profile || {}) || type}`
-  case 'repository':
-    return html`${getName(obj, type) || type}`
-  case 'note':
-    return html`${translate(strings, obj.type) || type}`
-  case 'media':
-    return html`${getName(obj, type) || type}`
-  case 'tag':
-    return html`${obj.name}`
-  default:
-    return `unknown type: ${type}`
+    case 'source':
+      return html`${getName(obj, type) || type}`
+    case 'citation':
+      return html`${citationTitleFromProfile(obj.profile || {}) || type}`
+    case 'repository':
+      return html`${getName(obj, type) || type}`
+    case 'note':
+      return html`${translate(strings, obj.type) || type}`
+    case 'media':
+      return html`${getName(obj, type) || type}`
+    case 'tag':
+      return html`${obj.name}`
+    default:
+      return `unknown type: ${type}`
   }
 }
 
 export function objectDetail(type, obj, strings) {
   switch (type) {
-  case 'person':
-    return `
+    case 'person':
+      return `
     ${obj?.profile?.birth?.date ? `* ${obj.profile.birth.date}` : ''}
     ${obj?.profile?.birth?.place && obj?.profile?.birth?.date ? ', ' : ''}
     ${obj?.profile?.birth?.place || ''}
     `
     // case 'family':
     //   return ''
-  case 'event':
-    return `
+    case 'event':
+      return `
     ${obj?.profile?.date || ''}
     ${obj?.profile?.place && obj?.profile?.date ? ', ' : ''}
     ${obj?.profile?.place || ''}
     `
-  case 'place':
-    return `
+    case 'place':
+      return `
     ${obj?.profile?.type ? obj.profile.type : ''}
     `
     // case 'source':
     //   return ''
     // case 'citation':
     //   return ''
-  case 'repository':
-    return `
+    case 'repository':
+      return `
     ${obj.type ? translate(strings, obj.type) : ''}
     `
     // case 'note':
@@ -279,8 +278,8 @@ export function objectDetail(type, obj, strings) {
     //   return ''
     // case 'tag':
     //   return ''
-  default:
-    return ''
+    default:
+      return ''
   }
 }
 
@@ -305,24 +304,24 @@ export function debounce(func, wait) {
 
 export function getNameFromProfile(obj, type, strings) {
   switch (type) {
-  case 'person':
-    return personTitleFromProfile(obj)
-  case 'event':
-    return eventTitleFromProfile(obj, strings)
-  case 'family':
-    return familyTitleFromProfile(obj)
-  case 'place':
-    return obj.name
-  case 'source':
-    return obj.title
-  case 'repository':
-    return obj.name
-  case 'citation':
-    return citationTitleFromProfile(obj)
-  case 'media':
-    return obj.desc
-  default:
-    return ''
+    case 'person':
+      return personTitleFromProfile(obj)
+    case 'event':
+      return eventTitleFromProfile(obj, strings)
+    case 'family':
+      return familyTitleFromProfile(obj)
+    case 'place':
+      return obj.name
+    case 'source':
+      return obj.title
+    case 'repository':
+      return obj.name
+    case 'citation':
+      return citationTitleFromProfile(obj)
+    case 'media':
+      return obj.desc
+    default:
+      return ''
   }
 }
 
@@ -335,9 +334,7 @@ export function fireEvent(target, name, detail) {
 function uuidv4() {
   return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
     (
-      // eslint-disable-next-line no-bitwise
       c ^
-      // eslint-disable-next-line no-bitwise
       (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
     ).toString(16)
   )
@@ -358,7 +355,8 @@ export function getBrowserLanguage() {
   const browserLang = navigator.language.replaceAll('-', '_')
   if (browserLang in additionalStrings) {
     return browserLang
-  } if (browserLang.split('_')[0] in additionalStrings) {
+  }
+  if (browserLang.split('_')[0] in additionalStrings) {
     return browserLang.split('_')[0]
   }
   return null

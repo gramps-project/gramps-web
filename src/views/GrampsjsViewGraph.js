@@ -6,22 +6,23 @@ import {apiGet} from '../api.js'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsViewGraph extends GrampsjsView {
-  static get styles () {
+  static get styles() {
     return [
       super.styles,
       css`
-      :host {
-        margin: 0;
-        margin-top: -4px;
-      }
+        :host {
+          margin: 0;
+          margin-top: -4px;
+        }
 
-      #outer-container {
-        height: calc(100vh - 68px);
-      }
-    `]
+        #outer-container {
+          height: calc(100vh - 68px);
+        }
+      `,
+    ]
   }
 
-  static get properties () {
+  static get properties() {
     return {
       grampsId: {type: String},
       disableBack: {type: Boolean},
@@ -29,11 +30,11 @@ export class GrampsjsViewGraph extends GrampsjsView {
       nAnc: {type: Number},
       nDesc: {type: Number},
       _data: {type: Array},
-      _graph: {type: String}
+      _graph: {type: String},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.grampsId = ''
     this._data = []
@@ -44,66 +45,66 @@ export class GrampsjsViewGraph extends GrampsjsView {
     this._graph = ''
   }
 
-  renderContent () {
+  renderContent() {
     return html`
-    <div id="outer-container">
-      <grampsjs-graph
-        src="${this._graph}"
-        nAnc="${this.nAnc}"
-        nDesc="${this.nDesc}"
-        ?disableBack="${this.disableBack}"
-        ?disableHome="${this.disableHome}"
-        .strings="${this.strings}"
-        @tree:increaseNAnc=${() => this._changeNAnc(1)}
-        @tree:decreaseNAnc=${() => this._changeNAnc(-1)}
-        @tree:increaseNDesc=${() => this._changeNDesc(1)}
-        @tree:decreaseNDesc=${() => this._changeNDesc(-1)}
-        @tree:setNAnc=${this._setNAnc}
-        @tree:setNDesc=${this._setNDesc}
-      >
-      </grampsjs-graph>
-    </div>
-  `
+      <div id="outer-container">
+        <grampsjs-graph
+          src="${this._graph}"
+          nAnc="${this.nAnc}"
+          nDesc="${this.nDesc}"
+          ?disableBack="${this.disableBack}"
+          ?disableHome="${this.disableHome}"
+          .strings="${this.strings}"
+          @tree:increaseNAnc=${() => this._changeNAnc(1)}
+          @tree:decreaseNAnc=${() => this._changeNAnc(-1)}
+          @tree:increaseNDesc=${() => this._changeNDesc(1)}
+          @tree:decreaseNDesc=${() => this._changeNDesc(-1)}
+          @tree:setNAnc=${this._setNAnc}
+          @tree:setNDesc=${this._setNDesc}
+        >
+        </grampsjs-graph>
+      </div>
+    `
   }
 
-  _changeNAnc (n) {
-    if ((n === 0) || this.nAnc + n < 0) {
+  _changeNAnc(n) {
+    if (n === 0 || this.nAnc + n < 0) {
       return
     }
     this.nAnc += n
     this._fetchData(this.grampsId)
   }
 
-  _setNAnc (event) {
+  _setNAnc(event) {
     this.nAnc = event.detail.data
     this._fetchData(this.grampsId)
   }
 
-  _changeNDesc (n) {
-    if ((n === 0) || this.nDesc + n < 0) {
+  _changeNDesc(n) {
+    if (n === 0 || this.nDesc + n < 0) {
       return
     }
     this.nDesc += n
     this._fetchData(this.grampsId)
   }
 
-  _setNDesc (event) {
+  _setNDesc(event) {
     this.nDesc = event.detail.data
     this._fetchData(this.grampsId)
   }
 
-  _goToPerson () {
+  _goToPerson() {
     fireEvent(this, 'nav', {path: `person/${this.grampsId}`})
   }
 
-  update (changed) {
+  update(changed) {
     super.update(changed)
     if (changed.has('grampsId')) {
       this._fetchData(this.grampsId)
     }
   }
 
-  async _fetchData (grampsId) {
+  async _fetchData(grampsId) {
     this.loading = true
     const options = {
       off: 'dot',
@@ -121,10 +122,15 @@ export class GrampsjsViewGraph extends GrampsjsView {
       colorfamilies: '#000000',
       roundcorners: 'True',
       papers: 'A0',
-      arrow: ''
+      arrow: '',
       // ranksep: '0.3'
     }
-    const data = await apiGet(`/api/reports/hourglass_graph/file?options=${encodeURIComponent(JSON.stringify(options))}`, false)
+    const data = await apiGet(
+      `/api/reports/hourglass_graph/file?options=${encodeURIComponent(
+        JSON.stringify(options)
+      )}`,
+      false
+    )
     this.loading = false
     if ('data' in data) {
       this._graph = data.data.replace('()', '')
@@ -135,11 +141,11 @@ export class GrampsjsViewGraph extends GrampsjsView {
     }
   }
 
-  _resizeHandler () {
+  _resizeHandler() {
     clearTimeout(this._resizeTimer)
   }
 
-  firstUpdated () {
+  firstUpdated() {
     window.addEventListener('resize', this._resizeHandler.bind(this))
     this._fetchData(this.grampsId)
   }

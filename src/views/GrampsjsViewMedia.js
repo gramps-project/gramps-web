@@ -1,11 +1,9 @@
-import { html } from 'lit';
+import {html} from 'lit'
 
-import { GrampsjsViewObject } from './GrampsjsViewObject.js'
+import {GrampsjsViewObject} from './GrampsjsViewObject.js'
 import '../components/GrampsjsMediaObject.js'
 
-
 export class GrampsjsViewMedia extends GrampsjsViewObject {
-
   constructor() {
     super()
     this._className = 'media'
@@ -17,11 +15,13 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
 
   renderElement() {
     return html`
-    <grampsjs-media-object .data=${this._data} .strings=${this.strings} ?edit="${this.edit}"></grampsjs-media-object>
+      <grampsjs-media-object
+        .data=${this._data}
+        .strings=${this.strings}
+        ?edit="${this.edit}"
+      ></grampsjs-media-object>
     `
   }
-
 }
-
 
 window.customElements.define('grampsjs-view-media', GrampsjsViewMedia)

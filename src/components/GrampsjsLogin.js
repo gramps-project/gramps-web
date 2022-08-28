@@ -130,8 +130,8 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             <span
               class="link"
               @click="${() => {
-    this.resetpw = true
-  }}"
+                this.resetpw = true
+              }}"
               >${this._('Lost password?')}</span
             >
           </p>
@@ -139,8 +139,8 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             <span
               class="link"
               @click="${() => {
-    this.register = true
-  }}"
+                this.register = true
+              }}"
               >${this._('Register new account')}</span
             >
           </p>
@@ -203,8 +203,8 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             <span
               class="link"
               @click="${() => {
-    this.resetpw = false
-  }}"
+                this.resetpw = false
+              }}"
               >Back</span
             >
           </p>
@@ -280,8 +280,8 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             <span
               class="link"
               @click="${() => {
-    this.register = false
-  }}"
+                this.register = false
+              }}"
               >Login</span
             >
           </p>
@@ -291,9 +291,7 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _checkFormValid() {
-    const fields = Array.from(
-      this.shadowRoot.querySelectorAll('mwc-textfield')
-    )
+    const fields = Array.from(this.shadowRoot.querySelectorAll('mwc-textfield'))
     this.isFormValid = fields.every(el => el?.validity?.valid)
   }
 

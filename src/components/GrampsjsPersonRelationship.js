@@ -6,29 +6,31 @@ import {html} from 'lit'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 
 export class GrampsjsPersonRelationship extends GrampsjsConnectedComponent {
-  static get properties () {
+  static get properties() {
     return {
       person1: {type: String},
-      person2: {type: String}
+      person2: {type: String},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.person1 = ''
     this.person2 = ''
   }
 
-  getUrl () {
-    return `/api/relations/${this.person1}/${this.person2}?locale=${this.strings?.__lang__ || 'en'}`
+  getUrl() {
+    return `/api/relations/${this.person1}/${this.person2}?locale=${
+      this.strings?.__lang__ || 'en'
+    }`
   }
 
   // eslint-disable-next-line class-methods-use-this
-  renderLoading () {
+  renderLoading() {
     return html`<span class="skeleton" style="width:7em;">&nbsp;</span>`
   }
 
-  renderContent () {
+  renderContent() {
     const relation = this._data?.data?.relationship_string
     if (this.person1 === this.person2) {
       return html`${this._('self')}`
@@ -43,4 +45,7 @@ export class GrampsjsPersonRelationship extends GrampsjsConnectedComponent {
   }
 }
 
-window.customElements.define('grampsjs-person-relationship', GrampsjsPersonRelationship)
+window.customElements.define(
+  'grampsjs-person-relationship',
+  GrampsjsPersonRelationship
+)

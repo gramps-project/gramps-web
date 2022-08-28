@@ -8,23 +8,17 @@ import '@material/mwc-checkbox'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-
 class GrampsjsFormPrivate extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
-    return [
-      sharedStyles,
-      css`
-      `
-    ]
+    return [sharedStyles, css``]
   }
 
   static get properties() {
     return {
       checked: {type: Boolean},
-      disabled: {type: Boolean}
+      disabled: {type: Boolean},
     }
   }
-
 
   constructor() {
     super()
@@ -34,18 +28,17 @@ class GrampsjsFormPrivate extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-    <p>
-      <mwc-formfield label="${this._('Private')}" id="switch-private">
-        <mwc-checkbox
-          id="private-checkbox"
-          @change="${this.handleChange}"
-          ?checked="${this.checked}"
-          ?disabled="${this.disabled}"
-        ></mwc-checkbox>
-      </mwc-formfield>
-    </p>
-
-`
+      <p>
+        <mwc-formfield label="${this._('Private')}" id="switch-private">
+          <mwc-checkbox
+            id="private-checkbox"
+            @change="${this.handleChange}"
+            ?checked="${this.checked}"
+            ?disabled="${this.disabled}"
+          ></mwc-checkbox>
+        </mwc-formfield>
+      </p>
+    `
   }
 
   reset() {
@@ -54,7 +47,13 @@ class GrampsjsFormPrivate extends GrampsjsTranslateMixin(LitElement) {
 
   handleChange(e) {
     this.checked = e.target.checked
-    this.dispatchEvent(new CustomEvent('formdata:changed', {bubbles: true, composed: true, detail: {checked: this.checked}}))
+    this.dispatchEvent(
+      new CustomEvent('formdata:changed', {
+        bubbles: true,
+        composed: true,
+        detail: {checked: this.checked},
+      })
+    )
   }
 }
 

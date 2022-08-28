@@ -1,7 +1,6 @@
-import { html } from 'lit';
+import {html} from 'lit'
 
-import { GrampsjsTableBase } from './GrampsjsTableBase.js';
-
+import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 
 export class GrampsjsUrls extends GrampsjsTableBase {
   render() {
@@ -9,25 +8,24 @@ export class GrampsjsUrls extends GrampsjsTableBase {
       return ''
     }
     return html`
-    <table>
-      <tr>
-        <th>${this._("Type")}</th>
-        <th>${this._("Path")}</th>
-        <th>${this._("Description")}</th>
-      </tr>
-    ${this.data.map(obj => html`
-      <tr>
-        <td>${this._(obj.type)}</td>
-        <td><a href="${obj.path}">${obj.path}</a></td>
-        <td>${obj.desc}</td>
-      </tr>
-    `)}
-    </table>
+      <table>
+        <tr>
+          <th>${this._('Type')}</th>
+          <th>${this._('Path')}</th>
+          <th>${this._('Description')}</th>
+        </tr>
+        ${this.data.map(
+          obj => html`
+            <tr>
+              <td>${this._(obj.type)}</td>
+              <td><a href="${obj.path}">${obj.path}</a></td>
+              <td>${obj.desc}</td>
+            </tr>
+          `
+        )}
+      </table>
     `
   }
 }
 
-
-window.customElements.define('grampsjs-urls', GrampsjsUrls);
-
-
+window.customElements.define('grampsjs-urls', GrampsjsUrls)

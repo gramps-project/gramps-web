@@ -13,9 +13,7 @@ import '../components/GrampsjsFormSelectObjectList.js'
 import '../components/GrampsjsFormSelectType.js'
 import '../components/GrampsjsFormPrivate.js'
 
-
 export class GrampsjsViewNewEvent extends GrampsjsViewNewObject {
-
   constructor() {
     super()
     this.data = {_class: 'Event'}
@@ -26,49 +24,49 @@ export class GrampsjsViewNewEvent extends GrampsjsViewNewObject {
 
   renderContent() {
     return html`
-    <h2>${this._('New Event')}</h2>
+      <h2>${this._('New Event')}</h2>
 
-    <grampsjs-form-select-type
-      required
-      id="select-type"
-      .strings="${this.strings}"
-      ?loadingTypes="${this.loadingTypes}"
-      ?disabled="${this.loadingTypes}"
-      typeName="event_types"
-      .types="${this.types}"
-      .typesLocale="${this.typesLocale}"
-    >
-    </grampsjs-form-select-type>
-
-    <h4 class="label">${this._('Date')}</h4>
-    <p>
-      <grampsjs-form-select-date
-        id="date"
+      <grampsjs-form-select-type
+        required
+        id="select-type"
         .strings="${this.strings}"
+        ?loadingTypes="${this.loadingTypes}"
+        ?disabled="${this.loadingTypes}"
+        typeName="event_types"
+        .types="${this.types}"
+        .typesLocale="${this.typesLocale}"
       >
-      </grampsjs-form-select-date>
-    </p>
+      </grampsjs-form-select-type>
 
-    <h4 class="label">${this._('Description')}</h4>
-    <p>
-      <mwc-textfield
-        style="width:100%;"
-        @input="${this.handleDesc}"
-        id="desc"
-      ></mwc-textfield>
-    </p>
+      <h4 class="label">${this._('Date')}</h4>
+      <p>
+        <grampsjs-form-select-date id="date" .strings="${this.strings}">
+        </grampsjs-form-select-date>
+      </p>
 
-    <h4 class="label">${this._('Place')}</h4>
-    <grampsjs-form-select-object-list
-      id="place"
-      objectType="place"
-      .strings="${this.strings}"
-    ></grampsjs-form-select-object-list>
+      <h4 class="label">${this._('Description')}</h4>
+      <p>
+        <mwc-textfield
+          style="width:100%;"
+          @input="${this.handleDesc}"
+          id="desc"
+        ></mwc-textfield>
+      </p>
 
-    <div class="spacer"></div>
-    <grampsjs-form-private id="private" .strings="${this.strings}"></grampsjs-form-private>
+      <h4 class="label">${this._('Place')}</h4>
+      <grampsjs-form-select-object-list
+        id="place"
+        objectType="place"
+        .strings="${this.strings}"
+      ></grampsjs-form-select-object-list>
 
-    ${this.renderButtons()}
+      <div class="spacer"></div>
+      <grampsjs-form-private
+        id="private"
+        .strings="${this.strings}"
+      ></grampsjs-form-private>
+
+      ${this.renderButtons()}
     `
     // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
@@ -77,12 +75,14 @@ export class GrampsjsViewNewEvent extends GrampsjsViewNewObject {
     this.data = {...this.data, description: e.target.value.trim()}
   }
 
-
   _handleFormData(e) {
     this.checkFormValidity()
     const originalTarget = e.composedPath()[0]
     if (originalTarget.id === 'select-type') {
-      this.data = {...this.data, type: {_class: 'EventType', string: e.detail.data}}
+      this.data = {
+        ...this.data,
+        type: {_class: 'EventType', string: e.detail.data},
+      }
     }
     if (originalTarget.id === 'place-list') {
       this.data = {...this.data, place: e.detail.data[0]}
@@ -96,7 +96,9 @@ export class GrampsjsViewNewEvent extends GrampsjsViewNewObject {
   }
 
   checkFormValidity() {
-    const selectType = this.shadowRoot.querySelector('grampsjs-form-select-type')
+    const selectType = this.shadowRoot.querySelector(
+      'grampsjs-form-select-type'
+    )
     this.isFormValid = selectType === null ? true : selectType.isValid()
   }
 
@@ -105,6 +107,5 @@ export class GrampsjsViewNewEvent extends GrampsjsViewNewObject {
     // this.data = {_class: 'Event'}
   }
 }
-
 
 window.customElements.define('grampsjs-view-new-event', GrampsjsViewNewEvent)

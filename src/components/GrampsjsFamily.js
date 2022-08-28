@@ -6,15 +6,15 @@ import {GrampsjsObject} from './GrampsjsObject.js'
 import {ringsIcon} from '../icons.js'
 import {renderPerson} from '../util.js'
 
-
 export class GrampsjsFamily extends GrampsjsObject {
   static get styles() {
     return [
       super.styles,
       css`
-      :host {
-      }
-    `]
+        :host {
+        }
+      `,
+    ]
   }
 
   constructor() {
@@ -24,24 +24,21 @@ export class GrampsjsFamily extends GrampsjsObject {
 
   renderProfile() {
     return html`
-    <h2><mwc-icon class="person">people</mwc-icon> ${this._renderTitle()}</h2>
-    ${this._renderFather()}
-    ${this._renderMother()}
-    <p>
-      ${this._renderRelType()}
-      ${this._renderMarriage()}
-      ${this._renderDivorce()}
-    </p>
+      <h2><mwc-icon class="person">people</mwc-icon> ${this._renderTitle()}</h2>
+      ${this._renderFather()} ${this._renderMother()}
+      <p>
+        ${this._renderRelType()} ${this._renderMarriage()}
+        ${this._renderDivorce()}
+      </p>
     `
   }
 
   _renderTitle() {
     return html`
-    ${this.data?.profile?.father?.name_given || '…'}
-    ${this.data?.profile?.father?.name_surname || '…'}
-    &amp;
-    ${this.data?.profile?.mother?.name_given || '…'}
-    ${this.data?.profile?.mother?.name_surname || '…'}
+      ${this.data?.profile?.father?.name_given || '…'}
+      ${this.data?.profile?.father?.name_surname || '…'} &amp;
+      ${this.data?.profile?.mother?.name_given || '…'}
+      ${this.data?.profile?.mother?.name_surname || '…'}
     `
   }
 
@@ -50,28 +47,18 @@ export class GrampsjsFamily extends GrampsjsObject {
       return ''
     }
     return html`
-    <span class="event">
-    ${this._('Relationship type:')}
-    ${this.data.profile.relationship}
-    </span>
+      <span class="event">
+        ${this._('Relationship type:')} ${this.data.profile.relationship}
+      </span>
     `
   }
 
-
   _renderFather() {
-    return html`
-    <p>
-    ${renderPerson(this.data?.profile?.father || {})}
-    </p>
-    `
+    return html` <p>${renderPerson(this.data?.profile?.father || {})}</p> `
   }
 
   _renderMother() {
-    return html`
-    <p>
-    ${renderPerson(this.data?.profile?.mother || {})}
-    </p>
-    `
+    return html` <p>${renderPerson(this.data?.profile?.mother || {})}</p> `
   }
 
   _renderMarriage() {
@@ -80,12 +67,10 @@ export class GrampsjsFamily extends GrampsjsObject {
       return ''
     }
     return html`
-    <span class="event">
-      <i>${ringsIcon}</i>
-      ${obj.date || ''}
-      ${obj.place ? this._('in') : ''}
-      ${obj.place || ''}
-    </span>
+      <span class="event">
+        <i>${ringsIcon}</i>
+        ${obj.date || ''} ${obj.place ? this._('in') : ''} ${obj.place || ''}
+      </span>
     `
   }
 
@@ -95,16 +80,12 @@ export class GrampsjsFamily extends GrampsjsObject {
       return ''
     }
     return html`
-    <span class="event">
-      <i>oo</i>
-      ${obj.date || ''}
-      ${obj.place ? this._('in') : ''}
-      ${obj.place || ''}
-    </span>
+      <span class="event">
+        <i>oo</i>
+        ${obj.date || ''} ${obj.place ? this._('in') : ''} ${obj.place || ''}
+      </span>
     `
   }
-
 }
-
 
 window.customElements.define('grampsjs-family', GrampsjsFamily)

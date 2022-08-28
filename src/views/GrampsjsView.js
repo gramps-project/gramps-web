@@ -6,25 +6,22 @@ import {LitElement, css} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-
 export class GrampsjsView extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
-
-      :host {
-        margin: 25px 40px;
-        background-color: #ffffff;
-      }
-
-      @media (max-width: 768px) {
         :host {
-          margin: 25px 25px;
+          margin: 25px 40px;
+          background-color: #ffffff;
         }
-      }
 
-      `
+        @media (max-width: 768px) {
+          :host {
+            margin: 25px 25px;
+          }
+        }
+      `,
     ]
   }
 
@@ -38,7 +35,7 @@ export class GrampsjsView extends GrampsjsTranslateMixin(LitElement) {
       loading: {type: Boolean},
       error: {type: Boolean},
       settings: {type: Object},
-      _errorMessage: {type: String}
+      _errorMessage: {type: String},
     }
   }
 
@@ -51,10 +48,15 @@ export class GrampsjsView extends GrampsjsTranslateMixin(LitElement) {
     this._errorMessage = ''
   }
 
-
   render() {
     if (this.error) {
-      this.dispatchEvent(new CustomEvent('grampsjs:error', {bubbles: true, composed: true, detail: {message: this._errorMessage}}))
+      this.dispatchEvent(
+        new CustomEvent('grampsjs:error', {
+          bubbles: true,
+          composed: true,
+          detail: {message: this._errorMessage},
+        })
+      )
     }
     return this.renderContent()
   }
@@ -63,20 +65,25 @@ export class GrampsjsView extends GrampsjsTranslateMixin(LitElement) {
     super.update(changed)
     if (changed.has('loading')) {
       if (this.loading && this.active) {
-        this.dispatchEvent(new CustomEvent('progress:on', {bubbles: true, composed: true}))
-      }
-      else if (!this.loading && this.active) {
-        this.dispatchEvent(new CustomEvent('progress:off', {bubbles: true, composed: true}))
+        this.dispatchEvent(
+          new CustomEvent('progress:on', {bubbles: true, composed: true})
+        )
+      } else if (!this.loading && this.active) {
+        this.dispatchEvent(
+          new CustomEvent('progress:off', {bubbles: true, composed: true})
+        )
       }
     }
     if (changed.has('active')) {
       if (!this.active) {
-        this.dispatchEvent(new CustomEvent('progress:off', {bubbles: true, composed: true}))
-      }
-      else if (this.loading) {
-        this.dispatchEvent(new CustomEvent('progress:on', {bubbles: true, composed: true}))
+        this.dispatchEvent(
+          new CustomEvent('progress:off', {bubbles: true, composed: true})
+        )
+      } else if (this.loading) {
+        this.dispatchEvent(
+          new CustomEvent('progress:on', {bubbles: true, composed: true})
+        )
       }
     }
   }
-
 }

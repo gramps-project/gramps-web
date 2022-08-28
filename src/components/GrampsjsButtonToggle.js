@@ -7,47 +7,47 @@ import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsButtonToggle extends GrampsjsTranslateMixin(LitElement) {
-  static get styles () {
+  static get styles() {
     return [
       sharedStyles,
       css`
-      mwc-button {
-      --mdc-typography-button-text-transform: none;
-      --mdc-typography-button-font-weight: 400;
-      --mdc-typography-button-letter-spacing: 0px;
-      --mdc-typography-button-font-size: 13px;
-      }
-      `
+        mwc-button {
+          --mdc-typography-button-text-transform: none;
+          --mdc-typography-button-font-weight: 400;
+          --mdc-typography-button-letter-spacing: 0px;
+          --mdc-typography-button-font-size: 13px;
+        }
+      `,
     ]
   }
 
-  static get properties () {
+  static get properties() {
     return {
       icon: {type: String},
-      checked: {type: Boolean}
+      checked: {type: Boolean},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.icon = ''
     this.checked = false
   }
 
-  render () {
+  render() {
     return html`
-    <mwc-button
-      dense
-      ?unelevated="${this.checked}"
-      icon="${this.icon}"
-      @click="${this.toggle}"
-    >
-      <slot></slot>
-    </mwc-button>
+      <mwc-button
+        dense
+        ?unelevated="${this.checked}"
+        icon="${this.icon}"
+        @click="${this.toggle}"
+      >
+        <slot></slot>
+      </mwc-button>
     `
   }
 
-  toggle () {
+  toggle() {
     this.checked = !this.checked
     fireEvent(this, 'grampsjs-button-toggle:toggle', {checked: this.checked})
   }

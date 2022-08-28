@@ -1,7 +1,6 @@
-import { html } from 'lit';
+import {html} from 'lit'
 
-import { GrampsjsTableBase } from './GrampsjsTableBase.js';
-
+import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 
 export class GrampsjsAttributes extends GrampsjsTableBase {
   render() {
@@ -9,23 +8,22 @@ export class GrampsjsAttributes extends GrampsjsTableBase {
       return ''
     }
     return html`
-    <table>
-      <tr>
-        <th>${this._("Type")}</th>
-        <th>${this._("Value")}</th>
-      </tr>
-    ${this.data.map(obj => html`
-      <tr>
-        <td>${this._(obj.type)}</td>
-        <td>${obj.value}</td>
-      </tr>
-    `)}
-    </table>
+      <table>
+        <tr>
+          <th>${this._('Type')}</th>
+          <th>${this._('Value')}</th>
+        </tr>
+        ${this.data.map(
+          obj => html`
+            <tr>
+              <td>${this._(obj.type)}</td>
+              <td>${obj.value}</td>
+            </tr>
+          `
+        )}
+      </table>
     `
   }
 }
 
-
-window.customElements.define('grampsjs-attributes', GrampsjsAttributes);
-
-
+window.customElements.define('grampsjs-attributes', GrampsjsAttributes)

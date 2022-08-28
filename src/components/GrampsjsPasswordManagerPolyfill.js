@@ -5,12 +5,12 @@ import {html, LitElement} from 'lit'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsPasswordManagerPolyfill extends LitElement {
-  createRenderRoot () {
+  createRenderRoot() {
     // Add under document body so the element isn't placed inside any shadow roots
     return document.body
   }
 
-  styles () {
+  styles() {
     return `
     .password-manager-polyfill {
       position: absolute;
@@ -33,19 +33,19 @@ export class GrampsjsPasswordManagerPolyfill extends LitElement {
   `
   }
 
-  static get properties () {
+  static get properties() {
     return {
       credentials: {type: Object},
-      boundingRect: {type: Object}
+      boundingRect: {type: Object},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.credentials = {}
   }
 
-  render () {
+  render() {
     return html`
       <form
         class="password-manager-polyfill"
@@ -71,18 +71,21 @@ export class GrampsjsPasswordManagerPolyfill extends LitElement {
           ${this.styles()}
         </style>
       </form>
-      `
+    `
   }
 
-  _handleSubmit (ev) {
+  _handleSubmit(ev) {
     ev.preventDefault()
     fireEvent(this, 'form-submitted')
   }
 
-  _valueChanged (e) {
+  _valueChanged(e) {
     this.credentials = {...this.credentials, [e.target.id]: e.target.value}
     fireEvent(this, 'value-changed', {value: this.credentials})
   }
 }
 
-window.customElements.define('grampsjs-password-manager-polyfill', GrampsjsPasswordManagerPolyfill)
+window.customElements.define(
+  'grampsjs-password-manager-polyfill',
+  GrampsjsPasswordManagerPolyfill
+)

@@ -1,3 +1,3 @@
-import { GrampsJs } from './GrampsJs.js';
+import {GrampsJs} from './GrampsJs.js'
 
-customElements.define('gramps-js', GrampsJs);
+customElements.define('gramps-js', GrampsJs)

@@ -6,9 +6,7 @@ import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 import '../components/GrampsjsFormString.js'
 import '../components/GrampsjsFormPrivate.js'
 
-
 export class GrampsjsViewNewSource extends GrampsjsViewNewObject {
-
   constructor() {
     super()
     this.data = {_class: 'Source'}
@@ -19,41 +17,41 @@ export class GrampsjsViewNewSource extends GrampsjsViewNewObject {
 
   renderContent() {
     return html`
-    <h2>${this._('New Source')}</h2>
+      <h2>${this._('New Source')}</h2>
 
-    <h4 class="label">${this._('Title')}</h4>
-    <p>
-      <mwc-textfield
-        required
-        validationMessage="${this._('This field is mandatory')}"
-        style="width:100%;"
-        @input="${this.handleName}"
-        id="source-name"
-      ></mwc-textfield>
-    </p>
+      <h4 class="label">${this._('Title')}</h4>
+      <p>
+        <mwc-textfield
+          required
+          validationMessage="${this._('This field is mandatory')}"
+          style="width:100%;"
+          @input="${this.handleName}"
+          id="source-name"
+        ></mwc-textfield>
+      </p>
 
-    <h4 class="label">${this._('Author')}</h4>
-    <p>
-      <grampsjs-form-string fullwidth id="author"></grampsjs-form-string>
-    </p>
+      <h4 class="label">${this._('Author')}</h4>
+      <p>
+        <grampsjs-form-string fullwidth id="author"></grampsjs-form-string>
+      </p>
 
-    <h4 class="label">${this._('Publication info')}</h4>
-    <p>
-      <grampsjs-form-string fullwidth id="pubinfo"></grampsjs-form-string>
-    </p>
+      <h4 class="label">${this._('Publication info')}</h4>
+      <p>
+        <grampsjs-form-string fullwidth id="pubinfo"></grampsjs-form-string>
+      </p>
 
-    <h4 class="label">${this._('Abbreviation')}</h4>
-    <p>
-      <grampsjs-form-string fullwidth id="abbrev"></grampsjs-form-string>
-    </p>
+      <h4 class="label">${this._('Abbreviation')}</h4>
+      <p>
+        <grampsjs-form-string fullwidth id="abbrev"></grampsjs-form-string>
+      </p>
 
-    <div class="spacer"></div>
-    <grampsjs-form-private
-      id="private"
-      .strings="${this.strings}"
-    ></grampsjs-form-private>
+      <div class="spacer"></div>
+      <grampsjs-form-private
+        id="private"
+        .strings="${this.strings}"
+      ></grampsjs-form-private>
 
-    ${this.renderButtons()}
+      ${this.renderButtons()}
     `
     // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
@@ -84,6 +82,5 @@ export class GrampsjsViewNewSource extends GrampsjsViewNewObject {
     this.data = {_class: 'Source'}
   }
 }
-
 
 window.customElements.define('grampsjs-view-new-source', GrampsjsViewNewSource)
