@@ -1,4 +1,5 @@
-import jwtDecode from 'jwt-decode'
+// eslint-disable-next-line camelcase
+import jwt_decode from 'jwt-decode'
 
 export const __APIHOST__ = 'http://localhost:5555'
 
@@ -26,7 +27,7 @@ export function getPermissions() {
     return null
   }
   try {
-    const claims = jwtDecode(accessToken) || {}
+    const claims = jwt_decode(accessToken) || {}
     return claims.permissions || {}
   } catch (e) {
     return {}
