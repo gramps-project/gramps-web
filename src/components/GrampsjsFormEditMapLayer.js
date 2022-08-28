@@ -13,7 +13,6 @@ import './GrampsjsMap.js'
 import './GrampsjsFormSelectDate.js'
 import './GrampsjsFormSelectObjectList.js'
 
-import { mdiLaptopMac } from '@mdi/js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import {getMediaUrl} from '../api.js'
 
@@ -48,7 +47,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
   }
 
   _getBounds () {
-    const [attr] = (this.data.attribute_list || []).filter(attr => attr.type === 'map:bounds')
+    const [attr] = (this.data.attribute_list || []).filter(attr_ => attr_.type === 'map:bounds')
     if (attr === undefined) {
       return []
     }
@@ -159,7 +158,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
   `
   }
 
-  _handleClickPinBtn (e) {
+  _handleClickPinBtn () {
     if (this.state !== 'placeMarker') {
       this.state = 'placeMarker'
     } else {
@@ -167,7 +166,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
     }
   }
 
-  _handleClickAlignBtn (e) {
+  _handleClickAlignBtn () {
     if (this.state !== 'alignImage') {
       this.state = 'alignImage'
     } else {
@@ -275,12 +274,12 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
   }
 
   _setBounds (bounds) {
-    let [attr] = (this.data.attribute_list || []).filter(attr => attr.type === 'map:bounds')
+    let [attr] = (this.data.attribute_list || []).filter(attr_ => attr_.type === 'map:bounds')
     if (!attr) { attr = {} }
     this.data = {
       ...this.data,
       attribute_list: [
-        ...(this.data.attribute_list || []).filter(attr => attr.type !== 'map:bounds'),
+        ...(this.data.attribute_list || []).filter(attr_ => attr_.type !== 'map:bounds'),
         {...attr, type: 'map:bounds', value: JSON.stringify(bounds)}
       ]
     }

@@ -79,7 +79,7 @@ class GrampsjsImg extends LitElement {
   getBBox () {
     const img = this.shadowRoot.querySelector('img')
     if (img === null) {
-      return
+      return null
     }
     return img.getBoundingClientRect()
   }

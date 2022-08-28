@@ -7,10 +7,10 @@ import '@material/mwc-textfield'
 import '@material/mwc-icon-button'
 import '@material/mwc-icon'
 
+import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
 import './GrampsjsFormString.js'
-import {classMap} from 'lit/directives/class-map.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {

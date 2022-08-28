@@ -120,7 +120,7 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
   _getValue1 () {
     const val = this.data.dateval
     if (val === null || val === undefined) {
-      return
+      return null
     }
     const [d, m, y] = val.slice(0, 3)
     return `${y}-${`${m}`.padStart(2, '0')}-${`${d}`.padStart(2, '0')}`

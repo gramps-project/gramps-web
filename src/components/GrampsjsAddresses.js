@@ -1,7 +1,5 @@
-import { LitElement, css, html } from 'lit';
-
-import { sharedStyles } from '../SharedStyles.js';
-import { GrampsjsTableBase } from './GrampsjsTableBase.js';
+import {html} from 'lit'
+import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 
 
 export class GrampsjsAddresses extends GrampsjsTableBase {
@@ -13,13 +11,13 @@ export class GrampsjsAddresses extends GrampsjsTableBase {
     return html`
     <table>
       <tr>
-        <th>${this._("Date")}</th>
-        <th>${this._("Street")}</th>
-        <th>${this._("Locality")}</th>
-        <th>${this._("City")}</th>
-        <th>${this._("County")}</th>
-        <th>${this._("State")}</th>
-        <th>${this._("Country")}</th>
+        <th>${this._('Date')}</th>
+        <th>${this._('Street')}</th>
+        <th>${this._('Locality')}</th>
+        <th>${this._('City')}</th>
+        <th>${this._('County')}</th>
+        <th>${this._('State')}</th>
+        <th>${this._('Country')}</th>
       </tr>
     ${this.data.map(obj => html`
       <tr>
@@ -47,6 +45,6 @@ export class GrampsjsAddresses extends GrampsjsTableBase {
 }
 
 
-window.customElements.define('grampsjs-addresses', GrampsjsAddresses);
+window.customElements.define('grampsjs-addresses', GrampsjsAddresses)
 
 

@@ -50,7 +50,7 @@ export class GrampsjsEditGender extends LitElement {
     `
   }
 
-  _handleClick (e) {
+  _handleClick () {
     fireEvent(this, 'edit:action', {
       action: 'updateProp',
       data: {gender: newGender[this.gender]}

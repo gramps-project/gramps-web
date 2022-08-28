@@ -12,7 +12,7 @@ export function hex12ToCss (hex, a = 1) {
     return `rgb(${r}, ${g}, ${b}, ${a})`
   }
 
-  return
+  return null
 }
 
 /* Convert #RRGGBB to rgb() */
@@ -25,7 +25,7 @@ export function hex6ToCss (hex, a = 1) {
     return `rgb(${r}, ${g}, ${b}, ${a})`
   }
 
-  return
+  return null
 }
 
 /* Convert #rrggbb to #RRRRGGGGBBBB */
@@ -35,9 +35,7 @@ export function hex6ToHex12 (hex6) {
     const r = parseInt(result[1], 16) * 255
     const g = parseInt(result[2], 16) * 255
     const b = parseInt(result[3], 16) * 255
-    const res = `#${r.toString(32).padStart(4, '0')}${g.toString(32).padStart(4, '0')}${b.toString(32).padStart(4, '0')}`
     return `#${r.toString(32).padStart(4, '0')}${g.toString(32).padStart(4, '0')}${b.toString(32).padStart(4, '0')}`
   }
-
-  return
+  return null
 }

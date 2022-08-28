@@ -67,6 +67,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
 }
     </div>
     ${
+  // eslint-disable-next-line no-nested-ternary
   this.editMode
     ? this.saveButton
       ? html`
@@ -132,7 +133,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
     fireEvent(this, 'edit-mode:off', {})
   }
 
-  _handleSaveIcon (e) {
+  _handleSaveIcon () {
     fireEvent(this, 'edit-mode:save')
   }
 

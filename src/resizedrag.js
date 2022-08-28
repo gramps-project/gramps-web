@@ -30,7 +30,7 @@ const resizedrag = function(target, handler, onStart, onEnd) {
             c = e.touches[0];
             }
             // On mouse move, dispatch the coords to all registered callbacks.
-            for (let i = 0; i < _callbacks.length; i++) {
+            for (let i = 0; i < _callbacks.length; i += 1) {
                 _callbacks[i](c.clientX, c.clientY);
             }
         },

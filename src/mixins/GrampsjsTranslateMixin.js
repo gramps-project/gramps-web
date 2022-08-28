@@ -23,7 +23,7 @@ export const GrampsjsTranslateMixin = (superClass) => class extends superClass {
       t = this.strings[s]
     }
     t = t.replace('_', '')
-    for (let i = 1; i < arguments.length; i++) {
+    for (let i = 1; i < arguments.length; i += 1) {
       t = t.replace('%s', arguments[i])
     }
     return t

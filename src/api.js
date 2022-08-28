@@ -1,4 +1,4 @@
-import jwt_decode from 'jwt-decode'
+import jwtDecode from 'jwt-decode'
 
 export const __APIHOST__ = 'http://localhost:5555'
 
@@ -21,10 +21,10 @@ export function storeRefreshToken (refreshToken) {
 export function getPermissions () {
   const accessToken = localStorage.getItem('access_token')
   if (!accessToken || accessToken === '1') {
-    return
+    return null
   }
   try {
-    const claims = jwt_decode(accessToken) || {}
+    const claims = jwtDecode(accessToken) || {}
     return claims.permissions || {}
   } catch (e) {
     return {}
@@ -191,9 +191,9 @@ export async function apiGet (endpoint, isJson = true) {
         etag: resp.headers.get('ETag')
       }
     }
-      return {
-        data: await resp.text()
-      }
+    return {
+      data: await resp.text()
+    }
 
   } catch (error) {
     if (error instanceof TypeError) {

@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable class-methods-use-this */
 import {css, html} from 'lit'
 
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'

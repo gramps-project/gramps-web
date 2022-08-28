@@ -92,7 +92,7 @@ export class GrampsjsChildren extends GrampsjsEditableTable {
   }
 
   _handleClick (grampsId) {
-    if (!this.edit & grampsId !== this.grampsId) {
+    if (!this.edit && grampsId !== this.grampsId) {
       this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: this._getItemPath(grampsId)}}))
     }
   }

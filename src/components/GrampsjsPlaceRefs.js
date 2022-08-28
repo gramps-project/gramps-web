@@ -65,7 +65,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
       const _places = []
       this.loading = true
       const handles = this.data.map(obj => obj.ref)
-      for (let i = 0; i < handles.length; i++) {
+      for (let i = 0; i < handles.length; i += 1) {
         const data = await apiGet(this._getUrl(handles[i]))
         _places.push(data?.data || {})
       }

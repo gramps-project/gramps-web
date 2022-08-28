@@ -2,7 +2,7 @@
 Element for selecting a Gramps type
 */
 
-import {html, css, LitElement} from 'lit'
+import {html, LitElement} from 'lit'
 import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
 

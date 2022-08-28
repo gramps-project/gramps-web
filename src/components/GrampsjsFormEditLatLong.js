@@ -1,3 +1,4 @@
+/* eslint-disable lit-a11y/click-events-have-key-events */
 /*
 Form for editing a location's geographic coordinates
 */
@@ -132,7 +133,7 @@ class GrampsjsFormEditLatLong extends GrampsjsObjectForm {
     }
   }
 
-  async _executeSearch (e) {
+  async _executeSearch () {
     if (this._searchFieldValue) {
       this.searchResLoading = true
       const res = await queryNominatim(this._searchFieldValue)
@@ -165,7 +166,7 @@ class GrampsjsFormEditLatLong extends GrampsjsObjectForm {
     <div class="search-results">
     ${this.searchRes.slice(0, this.showMore ? this.searchRes.length : 3).map(res => html`
     <div class="search-result">
-      <span class="link" @click=${() => this._handleResClick(res)}>${res.display_name}</span>
+    <span class="link" @click=${() => this._handleResClick(res)}>${res.display_name}</span>
     </div>
     `)}
     ${this.showMore || (this.searchRes.length <= 3)

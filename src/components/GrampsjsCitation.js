@@ -80,6 +80,7 @@ export class GrampsjsCitation extends GrampsjsObject {
       `
   }
 
+  // eslint-disable-next-line class-methods-use-this
   renderPicture () {
     return ''
   }

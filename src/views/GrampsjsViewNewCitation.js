@@ -58,7 +58,8 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
       ${Object.keys(confidence).map(conf => html`
       <mwc-list-item
         value="${conf}"
-        ?selected="${conf == this.data.confidence}"
+        ?selected="${// eslint-disable-next-line eqeqeq
+  conf == this.data.confidence}"
       >${this._(confidence[conf])}</mwc-list-item>
       `)}
     </mwc-select>

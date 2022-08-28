@@ -417,7 +417,7 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
     // code for panning
     event.preventDefault()
     // code for pich zoom
-    for (let i = 0; i < this._evCache.length; i++) {
+    for (let i = 0; i < this._evCache.length; i += 1) {
       if (event.pointerId === this._evCache[i].pointerId) {
         this._evCache[i] = event
         break
@@ -454,7 +454,7 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
 
   removeEvent (ev) {
     // Remove this event from the target's cache
-    for (let i = 0; i < this._evCache.length; i++) {
+    for (let i = 0; i < this._evCache.length; i += 1) {
       if (this._evCache[i].pointerId === ev.pointerId) {
         this._evCache.splice(i, 1)
         break

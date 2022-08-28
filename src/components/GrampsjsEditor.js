@@ -11,6 +11,10 @@ import {fireEvent} from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import './GrampsjsFormSelectObject.js'
 
+function capitalize (string) {
+  return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
+}
+
 function _applyTag (str, tag) {
   const [name, value] = tag
   if (name === 'bold') {
@@ -203,6 +207,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
         this.cursorPosition = [nCharBefore1 + range.startOffset]
       }
     } else {
+      // eslint-disable-next-line no-console
       console.log(e)
     }
     this.handleChange()
@@ -331,18 +336,19 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     if (tags === undefined || tags.length === 0) {
       return false
     }
+    // eslint-disable-next-line prefer-spread
     const ranges = [].concat.apply([], tags.map(tag => tag.ranges || [])).sort((r1, r2) => r1[0] - r2[0])
     let charCovered = 0
-    for (let i = 0; i < ranges.length; i++) {
+    for (let i = 0; i < ranges.length; i += 1) {
       if (ranges[i][1] <= range[0]) {
         // not there yet
-        continue
-      }
+      } else {
       // number of overlapping characters
-      charCovered += Math.max(0, Math.min(ranges[i][1], range[1]) - Math.max(ranges[i][0], range[0]))
-      if (ranges[i][0] >= range[1]) {
+        charCovered += Math.max(0, Math.min(ranges[i][1], range[1]) - Math.max(ranges[i][0], range[0]))
+        if (ranges[i][0] >= range[1]) {
         // already passed
-        break
+          break
+        }
       }
     }
     // true if all characters overlapped
@@ -366,7 +372,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
           ...this.data.tags.filter(tag => tag.name === tagname)
             .map(tag => ({
               ...tag,
-              ranges: tag.ranges.reduce((rangesNew, tagRange, i) => {
+              ranges: tag.ranges.reduce((rangesNew, tagRange) => {
                 // no overlap
                 if ((tagRange[0] >= range[1]) || (tagRange[1] <= range[0])) {
                   // just append
@@ -419,6 +425,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     return tagsClean
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _cleanTagsBool (tags) {
     if (tags.length === 0) {
       return []
@@ -427,7 +434,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     const ranges = (
       tags
         // combine all ranges
-        .reduce((arr, tag, i) => [...arr, ...tag.ranges], [])
+        .reduce((arr, tag) => [...arr, ...tag.ranges], [])
         // sort by start index
         .sort((r1, r2) => r1[0] - r2[0])
         // drop vanishing ranges
@@ -439,14 +446,15 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
             const rangeMerged = [rangesNew[L - 1][0], Math.max(range[1], rangesNew[L - 1][1])]
             return [...rangesNew.slice(0, -1), rangeMerged]
           }
-            // default: just append
-            return [...rangesNew, range]
+          // default: just append
+          return [...rangesNew, range]
 
         }, [])
     )
     return [{name, ranges, value: null}]
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _cleanTagsNonBool (tags) {
     if (tags.length === 0) {
       return []
@@ -490,13 +498,14 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
       // for tags, need to shift by str.length all values after position
       tags: this.data.tags.map(tag => ({
         ...tag,
+        // eslint-disable-next-line no-nested-ternary
         ranges: tag.ranges.map(range => range.map(x => x < posStart ? x : x > posEnd ? x - d : posStart))
       })
       )
     }
   }
 
-  updated (changed) {
+  updated () {
     // set selection
     const div = this.shadowRoot.querySelector('div.note')
     const nodeStart = getNodeAtNumChar(div, this.cursorPosition[0])
@@ -521,10 +530,12 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _setCursor (node, offset) {
     document.getSelection().collapse(node, offset)
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _setSelection (nodeStart, offsetStart, nodeEnd, offsetEnd) {
     const selection = window.getSelection()
     if (selection.rangeCount > 0) {
@@ -582,10 +593,6 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     window.removeEventListener('edit-mode:save', this._handleSaveButton.bind(this))
     super.disconnectedCallback()
   }
-}
-
-function capitalize (string) {
-  return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
 }
 
 window.customElements.define('grampsjs-editor', GrampsjsEditor)

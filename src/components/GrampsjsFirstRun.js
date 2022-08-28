@@ -6,7 +6,7 @@ import '@material/mwc-button'
 import '@material/mwc-textfield'
 import '@material/mwc-circular-progress'
 
-import './GrampsjsPasswordManagerPolyfill'
+import './GrampsjsPasswordManagerPolyfill.js'
 import {mdiCheckCircle, mdiCloseCircle} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {__APIHOST__, apiGetTokens, apiPut, apiPost} from '../api.js'
@@ -222,6 +222,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     `
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _showProgress (text, status) {
     if (status === STATE_PROGRESS) {
       return html`
@@ -261,13 +262,13 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     await this._submitUser(username, password, email, fullName)
     if (this.stateUser === STATE_ERROR) {
       return
-    } 
-      const resp = await apiGetTokens(username, password)
-      if ('error' in resp) {
-        this.stateUser = STATE_ERROR
-        return
-      }
-    
+    }
+    const resp = await apiGetTokens(username, password)
+    if ('error' in resp) {
+      this.stateUser = STATE_ERROR
+      return
+    }
+
     if (this.stateConfig === STATE_READY) {
       await this._submitConfig()
       if (this.stateConfig !== STATE_ERROR) {
@@ -286,7 +287,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     try {
       const resp = await fetch(`${__APIHOST__}/api/users/${username}/create_owner/`, {
         method: 'POST',
-        headers: { Accept: 'application/json', Authorization: `Bearer ${this.token}`, 'Content-Type': 'application/json' },
+        headers: {Accept: 'application/json', Authorization: `Bearer ${this.token}`, 'Content-Type': 'application/json'},
         body: JSON.stringify({
           password,
           email,
@@ -297,12 +298,12 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
         this.stateUser = STATE_DONE
         const btn = this.shadowRoot.querySelector('#start-btn')
         if (btn) {
-          btn.scrollIntoView({ block: 'start', behavior: 'smooth' })
+          btn.scrollIntoView({block: 'start', behavior: 'smooth'})
         }
         return
-      } 
-        throw (new Error(`Error ${resp.status}`))
-      
+      }
+      throw (new Error(`Error ${resp.status}`))
+
     } catch (error) {
       this.stateUser = STATE_ERROR
     }
@@ -314,6 +315,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
       const key = CONFIG_KEYS[elId]
       const value = this.shadowRoot.querySelector(elId)
       if (value && value?.value) {
+        // eslint-disable-next-line no-await-in-loop
         await this._submitConfigSingle(key, value.value)
       }
     }

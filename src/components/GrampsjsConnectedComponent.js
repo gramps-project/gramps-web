@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /*
 Base class for Components that fetch data when first loaded
 */

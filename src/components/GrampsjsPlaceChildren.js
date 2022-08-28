@@ -10,6 +10,7 @@ export class GrampsjsPlaceChildren extends GrampsjsEditableTable {
     this._columns = ['Name', 'Type']
   }
 
+  // eslint-disable-next-line no-unused-vars
   row (obj, i, arr) {
     return html`
       <tr @click=${() => this._handleClick(obj.gramps_id)}>
