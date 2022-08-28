@@ -125,7 +125,7 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
     fireEvent(this, 'object:save', {data: this.data})
   }
 
-  _handleDialogCancel (e) {
+  _handleDialogCancel () {
     fireEvent(this, 'object:cancel')
   }
 

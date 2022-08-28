@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable class-methods-use-this */
 import {html, css} from 'lit'
 
 import '@material/mwc-fab'
@@ -17,6 +19,37 @@ const editTitle = {
   repository: 'Edit Repository',
   media: 'Edit Media Object',
   note: 'Edit Note'
+}
+
+
+function capitalize (string) {
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
+// move up the element with index i in the array
+function moveUp (array, i) {
+  if (i <= 0) {
+    return array
+  }
+  return [
+    ...array.slice(0, i - 1),
+    array[i],
+    array[i - 1],
+    ...array.slice(i + 1)
+  ]
+}
+
+// move down the element with index i in the array
+function moveDown (array, i) {
+  if (i >= array.length - 1) {
+    return array
+  }
+  return [
+    ...array.slice(0, i),
+    array[i + 1],
+    array[i],
+    ...array.slice(i + 2)
+  ]
 }
 
 export class GrampsjsViewObject extends GrampsjsView {
@@ -154,8 +187,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     this._data = {}
   }
 
-  _handleObjectLoaded (data) {
-
+  _handleObjectLoaded () {
   }
 
   handleEditAction (e) {
@@ -232,11 +264,12 @@ export class GrampsjsViewObject extends GrampsjsView {
     } else if (e.detail.action === 'updateProp') {
       this.updateProp(this._data, this._className, e.detail.data)
     } else {
+      // eslint-disable-next-line no-alert
       alert(JSON.stringify(e.detail))
     }
   }
 
-  delEvent (handle, obj, objType, prop) {
+  delEvent (handle, obj, objType) {
     return this._updateObject(obj, objType, (_obj) => {
       _obj.event_ref_list = _obj.event_ref_list.filter(eventRef => eventRef.ref !== handle)
       return _obj
@@ -274,8 +307,8 @@ export class GrampsjsViewObject extends GrampsjsView {
   moveName (handle, obj, upDown) {
     return this._updateObject(obj, 'person', (_obj) => {
       if (((handle === 0) && (upDown === 'down')) || ((handle === 1) && (upDown === 'up'))) {
-        const primaryName = _obj.primary_name
-        _obj.primary_name = _obj.alternate_names[0]
+        const primaryName = _obj.primary_name;
+        [_obj.primary_name] = _obj.alternate_names
         _obj.alternate_names = [primaryName, ..._obj.alternate_names.slice(1)]
       } else if (handle >= 1) {
         if (upDown === 'up') {
@@ -347,9 +380,9 @@ export class GrampsjsViewObject extends GrampsjsView {
       _obj[prop] = _obj[prop].map((el, i) => {
         if (i === firstIdx[0].index) {
           return {...el, ...data}
-        } 
-          return el
-        
+        }
+        return el
+
       })
       return _obj
     })
@@ -365,10 +398,7 @@ export class GrampsjsViewObject extends GrampsjsView {
   }
 
   updateProp (obj, objType, objNew) {
-    return this._updateObject(obj, objType, (_obj) => {
-      _obj = {..._obj, ...objNew}
-      return _obj
-    })
+    return this._updateObject(obj, objType, (_obj) => ({..._obj, ...objNew}))
   }
 
   moveHandle (handle, obj, objType, prop, upDown) {
@@ -390,39 +420,10 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   _updateObject (obj, objType, updateFunc) {
     // remove extended, profile, backlinks, formatted keys from object
+    // eslint-disable-next-line prefer-const
     let {extended, profile, backlinks, formatted, ...objNew} = obj
     objNew = {_class: capitalize(objType), ...objNew}
     const url = `/api/${objectTypeToEndpoint[objType]}/${obj.handle}`
     apiPut(url, updateFunc(objNew)).then(() => this._updateData(false))
   }
-}
-
-function capitalize (string) {
-  return string.charAt(0).toUpperCase() + string.slice(1)
-}
-
-// move up the element with index i in the array
-function moveUp (array, i) {
-  if (i <= 0) {
-    return array
-  }
-  return [
-    ...array.slice(0, i - 1),
-    array[i],
-    array[i - 1],
-    ...array.slice(i + 1)
-  ]
-}
-
-// move down the element with index i in the array
-function moveDown (array, i) {
-  if (i >= array.length - 1) {
-    return array
-  }
-  return [
-    ...array.slice(0, i),
-    array[i + 1],
-    array[i],
-    ...array.slice(i + 2)
-  ]
 }

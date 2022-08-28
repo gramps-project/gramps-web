@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Adapted from https://github.com/MurugappanVR/resizedrag.js/
 // MIT licensed
 // Copyright (c) 2021 Murugappan VR

@@ -8,7 +8,6 @@ import '@material/mwc-icon-button'
 import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {fireEvent} from '../util.js'
 import './GrampsjsFormString.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 

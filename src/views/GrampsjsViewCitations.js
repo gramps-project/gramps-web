@@ -20,6 +20,7 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
     return '/api/citations/?extend=source_handle&keys=gramps_id,extended,change'
   }
@@ -30,12 +31,12 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getAddPath (item) {
+  _getAddPath () {
     return 'new_citation'
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _formatRow(row, obj) {
+  _formatRow(row) {
     const formattedRow = {
       grampsId: row.gramps_id,
       sourceTitle: row.extended.source?.title,

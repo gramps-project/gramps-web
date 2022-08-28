@@ -23,6 +23,7 @@ export class GrampsjsPersonRelationship extends GrampsjsConnectedComponent {
     return `/api/relations/${this.person1}/${this.person2}?locale=${this.strings?.__lang__ || 'en'}`
   }
 
+  // eslint-disable-next-line class-methods-use-this
   renderLoading () {
     return html`<span class="skeleton" style="width:7em;">&nbsp;</span>`
   }

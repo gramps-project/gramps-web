@@ -1,6 +1,6 @@
 import {LitElement, css, html} from 'lit'
 
-import {hex12ToCss, hex6ToCss} from '../color.js'
+import {hex6ToCss} from '../color.js'
 import {sharedStyles} from '../SharedStyles.js'
 import '@material/mwc-icon-button'
 

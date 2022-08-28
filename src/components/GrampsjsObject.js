@@ -1,3 +1,5 @@
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-unused-vars */
 import {LitElement, css, html} from 'lit'
 
 import '@material/mwc-tab'
@@ -373,7 +375,8 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
             </p>
             `
     : ''}
-        ${this.data.lat && this.data.long
+        ${// eslint-disable-next-line no-nested-ternary
+  this.data.lat && this.data.long
     ? html`
         <grampsjs-map
           latitude="${this.data.profile.lat}"

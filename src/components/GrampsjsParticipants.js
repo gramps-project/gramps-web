@@ -1,7 +1,7 @@
 import {html} from 'lit'
 
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'
-import {getName, personTitleFromProfile, familyTitleFromProfile} from '../util.js'
+import {personTitleFromProfile, familyTitleFromProfile} from '../util.js'
 
 
 export class GrampsjsParticipants extends GrampsjsTableBase {

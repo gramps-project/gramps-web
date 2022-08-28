@@ -1,17 +1,18 @@
-import { html, css, LitElement } from 'lit';
+/* eslint-disable lit-a11y/click-events-have-key-events */
+import {html, css, LitElement} from 'lit'
 
-import '@material/mwc-icon';
-import '@material/mwc-button';
-import '@material/mwc-textfield';
-import '@material/mwc-circular-progress';
+import '@material/mwc-icon'
+import '@material/mwc-button'
+import '@material/mwc-textfield'
+import '@material/mwc-circular-progress'
 
-import './GrampsjsPasswordManagerPolyfill';
-import { sharedStyles } from '../SharedStyles.js';
-import { apiGetTokens, apiResetPassword, apiRegisterUser } from '../api.js';
-import { fireEvent } from '../util.js';
-import { GrampsjsTranslateMixin } from '../mixins/GrampsjsTranslateMixin.js';
+import './GrampsjsPasswordManagerPolyfill.js'
+import {sharedStyles} from '../SharedStyles.js'
+import {apiGetTokens, apiResetPassword, apiRegisterUser} from '../api.js'
+import {fireEvent} from '../util.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-const BASE_DIR = '';
+const BASE_DIR = ''
 
 class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
@@ -56,34 +57,34 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
           --mdc-theme-primary: white;
         }
       `,
-    ];
+    ]
   }
 
   static get properties() {
     return {
-      resetpw: { type: Boolean },
-      register: { type: Boolean },
-      isFormValid: { type: Boolean },
-      credentials: { type: Object },
-    };
+      resetpw: {type: Boolean},
+      register: {type: Boolean},
+      isFormValid: {type: Boolean},
+      credentials: {type: Object},
+    }
   }
 
   constructor() {
-    super();
-    this.resetpw = false;
-    this.register = false;
-    this.isFormValid = false;
-    this.credentials = {};
+    super()
+    this.resetpw = false
+    this.register = false
+    this.isFormValid = false
+    this.credentials = {}
   }
 
   render() {
     if (this.resetpw) {
-      return this._renderResetPw();
+      return this._renderResetPw()
     }
     if (this.register) {
-      return this._renderRegister();
+      return this._renderRegister()
     }
-    return this._renderLogin();
+    return this._renderLogin()
   }
 
   _renderLogin() {
@@ -129,8 +130,8 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             <span
               class="link"
               @click="${() => {
-                this.resetpw = true;
-              }}"
+    this.resetpw = true
+  }}"
               >${this._('Lost password?')}</span
             >
           </p>
@@ -138,8 +139,8 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             <span
               class="link"
               @click="${() => {
-                this.register = true;
-              }}"
+    this.register = true
+  }}"
               >${this._('Register new account')}</span
             >
           </p>
@@ -150,20 +151,20 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
           @value-changed=${this._loginFormChanged}
         ></grampsjs-password-manager-polyfill>
       </div>
-    `;
+    `
   }
 
   firstUpdated() {
     const pf = this.shadowRoot.querySelector(
       'grampsjs-password-manager-polyfill'
-    );
+    )
     if (pf !== null) {
-      pf.boundingRect = this.getBoundingClientRect();
+      pf.boundingRect = this.getBoundingClientRect()
     }
   }
 
   _credChanged(e) {
-    this.credentials = { ...this.credentials, [e.target.id]: e.target.value };
+    this.credentials = {...this.credentials, [e.target.id]: e.target.value}
   }
 
   _renderResetPw() {
@@ -202,14 +203,14 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             <span
               class="link"
               @click="${() => {
-                this.resetpw = false;
-              }}"
+    this.resetpw = false
+  }}"
               >Back</span
             >
           </p>
         </form>
       </div>
-    `;
+    `
   }
 
   _renderRegister() {
@@ -279,91 +280,91 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             <span
               class="link"
               @click="${() => {
-                this.register = false;
-              }}"
+    this.register = false
+  }}"
               >Login</span
             >
           </p>
         </form>
       </div>
-    `;
+    `
   }
 
   _checkFormValid() {
     const fields = Array.from(
       this.shadowRoot.querySelectorAll('mwc-textfield')
-    );
-    this.isFormValid = fields.every(el => el?.validity?.valid);
+    )
+    this.isFormValid = fields.every(el => el?.validity?.valid)
   }
 
   _handleLoginKey(event) {
     if (event.code === 'Enter') {
-      this._submitLogin();
+      this._submitLogin()
     }
   }
 
   async _submitLogin() {
-    const submitProgress = this.shadowRoot.getElementById('login-progress');
-    submitProgress.parentElement.style.display = 'block';
-    submitProgress.closed = false;
+    const submitProgress = this.shadowRoot.getElementById('login-progress')
+    submitProgress.parentElement.style.display = 'block'
+    submitProgress.closed = false
     apiGetTokens(this.credentials.username, this.credentials.password).then(
       res => {
         if ('error' in res) {
-          submitProgress.parentElement.style.display = 'none';
-          submitProgress.closed = true;
-          this._showError(res.error);
+          submitProgress.parentElement.style.display = 'none'
+          submitProgress.closed = true
+          this._showError(res.error)
         } else {
-          document.location.href = '/';
+          document.location.href = '/'
         }
       }
-    );
+    )
   }
 
   _loginFormChanged(ev) {
-    this.credentials = { ...this.credentials, ...ev.detail.value };
+    this.credentials = {...this.credentials, ...ev.detail.value}
   }
 
   async _resetPw() {
-    const userField = this.shadowRoot.getElementById('username');
+    const userField = this.shadowRoot.getElementById('username')
     if (userField.value === '') {
-      this._showError('Username must not be empty.');
-      return;
+      this._showError('Username must not be empty.')
+      return
     }
-    const res = await apiResetPassword(userField.value);
-    const innerForm = this.shadowRoot.getElementById('inner-form');
-    const divSuccess = this.shadowRoot.getElementById('reset-success');
+    const res = await apiResetPassword(userField.value)
+    const innerForm = this.shadowRoot.getElementById('inner-form')
+    const divSuccess = this.shadowRoot.getElementById('reset-success')
     if ('error' in res) {
-      this._showError(res.error);
+      this._showError(res.error)
     } else {
-      divSuccess.style.display = 'block';
-      innerForm.style.display = 'none';
+      divSuccess.style.display = 'block'
+      innerForm.style.display = 'none'
     }
   }
 
   async _register() {
-    const userField = this.shadowRoot.getElementById('username');
-    const pwField = this.shadowRoot.getElementById('password');
-    const emailField = this.shadowRoot.getElementById('email');
-    const nameField = this.shadowRoot.getElementById('fullname');
+    const userField = this.shadowRoot.getElementById('username')
+    const pwField = this.shadowRoot.getElementById('password')
+    const emailField = this.shadowRoot.getElementById('email')
+    const nameField = this.shadowRoot.getElementById('fullname')
     const res = await apiRegisterUser(
       userField.value,
       pwField.value,
       emailField.value,
       nameField.value
-    );
-    const innerForm = this.shadowRoot.getElementById('inner-form');
-    const divSuccess = this.shadowRoot.getElementById('register-success');
+    )
+    const innerForm = this.shadowRoot.getElementById('inner-form')
+    const divSuccess = this.shadowRoot.getElementById('register-success')
     if ('error' in res) {
-      this._showError(res.error);
+      this._showError(res.error)
     } else {
-      divSuccess.style.display = 'block';
-      innerForm.style.display = 'none';
+      divSuccess.style.display = 'block'
+      innerForm.style.display = 'none'
     }
   }
 
   _showError(message) {
-    fireEvent(this, 'grampsjs:error', { message });
+    fireEvent(this, 'grampsjs:error', {message})
   }
 }
 
-window.customElements.define('grampsjs-login', GrampsjsLogin);
+window.customElements.define('grampsjs-login', GrampsjsLogin)

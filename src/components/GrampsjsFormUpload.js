@@ -117,7 +117,7 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
     input.click()
   }
 
-  _handleInputChange(e) {
+  _handleInputChange() {
     const input = this.shadowRoot.getElementById('input-upload')
     if (input?.files?.length) {
       this.imageUrl = '';

@@ -101,7 +101,7 @@ export class GrampsjsViewExport extends GrampsjsView {
     this._updateQueryUrl()
   }
 
-  async _fetchData (lang) {
+  async _fetchData () {
     this.loading = true
     const data = await apiGet('/api/exporters/')
     this.loading = false

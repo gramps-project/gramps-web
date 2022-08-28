@@ -345,7 +345,7 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
         return this._personSelected(title.innerHTML)
       }
     }
-    return
+    return null
   }
 
   update (changed) {

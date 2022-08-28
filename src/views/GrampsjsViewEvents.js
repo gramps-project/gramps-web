@@ -30,12 +30,12 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getAddPath (item) {
+  _getAddPath () {
     return 'new_event'
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _formatRow(row, obj) {
+  _formatRow(row) {
     const formattedRow = {
       grampsId: row.gramps_id,
       type: row?.profile?.type,

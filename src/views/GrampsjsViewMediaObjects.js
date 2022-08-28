@@ -21,6 +21,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
     return '/api/media/?keys=gramps_id,mime,desc,change'
   }
@@ -31,12 +32,12 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getAddPath (item) {
+  _getAddPath () {
     return 'new_media'
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _formatRow(row, obj) {
+  _formatRow(row) {
     const formattedRow = {
       grampsId: row.gramps_id,
       mime: row.mime,

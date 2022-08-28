@@ -1,4 +1,4 @@
-import {html, css} from 'lit'
+import {html} from 'lit'
 
 import '@material/mwc-icon'
 

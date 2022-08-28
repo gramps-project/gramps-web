@@ -107,7 +107,7 @@ class GrampsjsRectContainer extends GrampsjsTranslateMixin(LitElement) {
     fireEvent(this, 'rect:save', {bbox: this.bbox})
   }
 
-  _endBox (target, x, y) {
+  _endBox (target) {
     this.bbox = target.getBoundingClientRect()
   }
 }

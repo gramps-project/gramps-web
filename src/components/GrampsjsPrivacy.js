@@ -36,7 +36,7 @@ export class GrampsjsPrivacy extends LitElement {
     `
   }
 
-  _handleClick (e) {
+  _handleClick () {
     fireEvent(this, 'edit:action', {
       action: 'updateProp',
       data: {private: !this.private}

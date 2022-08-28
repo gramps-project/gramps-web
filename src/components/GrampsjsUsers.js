@@ -33,7 +33,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
        <th>${this._('Role')}</th>
        <th></th>
       </tr>
-    ${this.data.map((obj, i) => html`
+    ${this.data.map((obj) => html`
       <tr>
         <td>${obj.name}</td>
         <td>${obj.full_name}</td>
@@ -105,6 +105,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     `
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _renderDialog () {
     return html`
     `

@@ -58,7 +58,7 @@ export class GrampsjsSearchResults extends GrampsjsTranslateMixin(LitElement) {
     if (this.loading) {
       return html`
       <div id="search-results">
-      ${[1, 2].map((obj) => html`
+      ${[1, 2].map(() => html`
           <div class="search-hit">
             <span class="skeleton" style="width:15em;">&nbsp;</span>
             <div class="change"><span class="skeleton" style="width:7em;">&nbsp;</span></div>

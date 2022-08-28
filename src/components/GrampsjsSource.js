@@ -61,6 +61,7 @@ export class GrampsjsSource extends GrampsjsObject {
     `
   }
 
+  // eslint-disable-next-line class-methods-use-this
   renderPicture () {
     return ''
   }

@@ -2,7 +2,7 @@
 Base class for Gramps views
 */
 
-import {LitElement, html, css} from 'lit'
+import {LitElement, css} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
