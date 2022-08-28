@@ -278,7 +278,7 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _zoomIn (f) {
-    this.scale = this.scale * f
+    this.scale *= f
   }
 
   // zoom in when mouse clicked/touch starts
@@ -304,7 +304,7 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _zoomOut (f) {
-    this.scale = this.scale / f
+    this.scale /= f
   }
 
   // zoom out when mouse clicked/touch starts

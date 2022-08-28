@@ -7,13 +7,13 @@ import '@material/mwc-textfield'
 import '@material/mwc-circular-progress'
 
 import './GrampsjsPasswordManagerPolyfill'
+import {mdiCheckCircle, mdiCloseCircle} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {__APIHOST__, apiGetTokens, apiPut, apiPost} from '../api.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import './GrampsjsFormUpload.js'
 import {renderIcon} from '../icons.js'
-import {mdiCheckCircle, mdiCloseCircle} from '@mdi/js'
 
 const STATE_ERROR = -1
 const STATE_INITIAL = 0
@@ -261,13 +261,13 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     await this._submitUser(username, password, email, fullName)
     if (this.stateUser === STATE_ERROR) {
       return
-    } else {
+    } 
       const resp = await apiGetTokens(username, password)
       if ('error' in resp) {
         this.stateUser = STATE_ERROR
         return
       }
-    }
+    
     if (this.stateConfig === STATE_READY) {
       await this._submitConfig()
       if (this.stateConfig !== STATE_ERROR) {
@@ -288,8 +288,8 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
         method: 'POST',
         headers: { Accept: 'application/json', Authorization: `Bearer ${this.token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          password: password,
-          email: email,
+          password,
+          email,
           full_name: fullName
         })
       })
@@ -300,9 +300,9 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
           btn.scrollIntoView({ block: 'start', behavior: 'smooth' })
         }
         return
-      } else {
+      } 
         throw (new Error(`Error ${resp.status}`))
-      }
+      
     } catch (error) {
       this.stateUser = STATE_ERROR
     }
@@ -323,7 +323,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     const res = await apiPut(
       `/api/config/${key}/`,
       {
-        value: value
+        value
       }
     )
     if ('error' in res) {
@@ -368,7 +368,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
         ${this._('Please upload a file in Gramps XML (.gramps) format without media files.')}</p>`
       this.stateTree = STATE_INITIAL
       return
-    } else if (ext !== 'gramps') {
+    } if (ext !== 'gramps') {
       this._uploadHint = html`<p class="alert warn">${this._('If you intend to synchronize an existing Gramps database with Gramps Web, use the Gramps XML (.gramps) format instead.')}</p>`
     } else {
       this._uploadHint = ''

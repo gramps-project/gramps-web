@@ -24,12 +24,10 @@ export class GrampsjsViewSourceCitations extends GrampsjsViewObjectsDetail {
   getUrl () {
     const rules = {
       function: 'or',
-      rules: this.grampsIds.map(grampsId => {
-        return {
+      rules: this.grampsIds.map(grampsId => ({
           name: 'HasIdOf',
           values: [grampsId]
-        }
-      }
+        })
 
       )
     }

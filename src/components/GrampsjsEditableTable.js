@@ -109,7 +109,7 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
   }
 
   _handleActionClick (e, action, handle) {
-    fireEvent(this, 'edit:action', {action: action, handle: handle})
+    fireEvent(this, 'edit:action', {action, handle})
     e.preventDefault()
     e.stopPropagation()
   }

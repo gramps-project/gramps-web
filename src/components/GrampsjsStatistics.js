@@ -1,8 +1,8 @@
 import {html, css} from 'lit'
 
+import {classMap} from 'lit/directives/class-map.js'
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 import {fireEvent} from '../util.js'
-import {classMap} from 'lit/directives/class-map.js'
 
 const _classes = [
   'people',
@@ -56,7 +56,7 @@ export class GrampsjsStatistics extends GrampsjsTableBase {
     if (key !== 'tags') { // we don't have a tag list
       // media is the only case that needs special treatment
       const path = key === 'media' ? 'medialist' : key
-      fireEvent(this, 'nav', {path: path})
+      fireEvent(this, 'nav', {path})
     }
   }
 }

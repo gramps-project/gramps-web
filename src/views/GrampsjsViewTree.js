@@ -4,8 +4,8 @@ import '@material/mwc-icon-button'
 import '@material/mwc-icon'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import '../views/GrampsjsViewGraph.js'
-import '../views/GrampsjsViewPedigree.js'
+import "./GrampsjsViewGraph.js"
+import "./GrampsjsViewPedigree.js"
 import {fireEvent} from '../util.js'
 
 export class GrampsjsViewTree extends GrampsjsView {

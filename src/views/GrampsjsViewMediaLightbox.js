@@ -172,8 +172,8 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     ]
     // make sure the rounded rectangle does not vanish
     if ((rect[2] - rect[0]) * (rect[3] - rect[1]) > 0) {
-      const data = {ref: this.handle, rect: rect}
-      fireEvent(this, 'edit:action', {action: 'updateMediaRef', data: data})
+      const data = {ref: this.handle, rect}
+      fireEvent(this, 'edit:action', {action: 'updateMediaRef', data})
     }
   }
 

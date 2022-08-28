@@ -253,7 +253,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     if (url === null) {
       return null
     }
-    const value = url.value
+    const {value} = url
     if (value) {
       // first remove, then add, to prevent overlapping tags
       this._removeTag('link', pos)
@@ -321,7 +321,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
   _insertTag (tagname, range, value = null) {
     this.data = {
       ...this.data,
-      tags: this._cleanTags([...this.data.tags, {name: tagname, ranges: [range], value: value}])
+      tags: this._cleanTags([...this.data.tags, {name: tagname, ranges: [range], value}])
     }
   }
 
@@ -423,13 +423,11 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     if (tags.length === 0) {
       return []
     }
-    const name = tags[0].name
+    const {name} = tags[0]
     const ranges = (
       tags
         // combine all ranges
-        .reduce((arr, tag, i) => {
-          return [...arr, ...tag.ranges]
-        }, [])
+        .reduce((arr, tag, i) => [...arr, ...tag.ranges], [])
         // sort by start index
         .sort((r1, r2) => r1[0] - r2[0])
         // drop vanishing ranges
@@ -440,13 +438,13 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
             // if range has overlap with previous, merge them
             const rangeMerged = [rangesNew[L - 1][0], Math.max(range[1], rangesNew[L - 1][1])]
             return [...rangesNew.slice(0, -1), rangeMerged]
-          } else {
+          } 
             // default: just append
             return [...rangesNew, range]
-          }
+          
         }, [])
     )
-    return [{name: name, ranges: ranges, value: null}]
+    return [{name, ranges, value: null}]
   }
 
   _cleanTagsNonBool (tags) {

@@ -102,7 +102,7 @@ export class GrampsjsViewNewEvent extends GrampsjsViewNewObject {
 
   _reset() {
     super._reset()
-    //this.data = {_class: 'Event'}
+    // this.data = {_class: 'Event'}
   }
 }
 

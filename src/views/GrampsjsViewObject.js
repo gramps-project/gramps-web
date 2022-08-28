@@ -347,9 +347,9 @@ export class GrampsjsViewObject extends GrampsjsView {
       _obj[prop] = _obj[prop].map((el, i) => {
         if (i === firstIdx[0].index) {
           return {...el, ...data}
-        } else {
+        } 
           return el
-        }
+        
       })
       return _obj
     })

@@ -77,7 +77,7 @@ export async function apiRegisterUser (username, password, email, fullname) {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({password: password, email: email, full_name: fullname})
+      body: JSON.stringify({password, email, full_name: fullname})
     })
     if (resp.status === 409) {
       throw (new Error('Username or e-mail already taken.'))
@@ -99,7 +99,7 @@ export async function apiGetTokens (username, password) {
         Accept: 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({username: username, password: password})
+      body: JSON.stringify({username, password})
     })
     if (resp.status === 401 || resp.status === 403) {
       throw (new Error('Wrong username or password'))
@@ -190,11 +190,11 @@ export async function apiGet (endpoint, isJson = true) {
         total_count: resp.headers.get('X-Total-Count'),
         etag: resp.headers.get('ETag')
       }
-    } else {
+    } 
       return {
         data: await resp.text()
       }
-    }
+    
   } catch (error) {
     if (error instanceof TypeError) {
       return {error: 'Network error'}

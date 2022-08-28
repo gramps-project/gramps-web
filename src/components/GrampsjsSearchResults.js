@@ -65,7 +65,7 @@ export class GrampsjsSearchResults extends GrampsjsTranslateMixin(LitElement) {
           </div>`, this)}
       </div>
       `
-    } else if (this.data.length === 0) {
+    } if (this.data.length === 0) {
       return html``
     }
     return html`

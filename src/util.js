@@ -356,9 +356,9 @@ export function getBrowserLanguage() {
   const browserLang = navigator.language.replaceAll('-', '_');
   if (browserLang in additionalStrings) {
     return browserLang;
-  } else if (browserLang.split('_')[0] in additionalStrings) {
+  } if (browserLang.split('_')[0] in additionalStrings) {
     return browserLang.split('_')[0];
-  } else {
+  } 
     return null;
-  }
+  
 }

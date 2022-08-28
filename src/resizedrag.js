@@ -3,10 +3,10 @@
 // Copyright (c) 2021 Murugappan VR
 
 let _loaded = false;
-let _callbacks = [];
+const _callbacks = [];
 const _isTouch = window.ontouchstart !== undefined;
 const resizedrag = function(target, handler, onStart, onEnd) {
-    let config = {
+    const config = {
         dragEnabled : target.dataset.rdDragEnabled !== "false",
         resizeEnabled : target.dataset.rdResizeEnabled !== "false",
         dragBorderEnabled : target.dataset.rdDragBorderEnabled !== "false",
@@ -14,27 +14,27 @@ const resizedrag = function(target, handler, onStart, onEnd) {
         minWidth : target.dataset.rdMinWidth ? target.dataset.rdMinWidth : 5 ,
         minHeight : target.dataset.rdMinHeight ? target.dataset.rdMinHeight : 5
     }
-    let MARGINS = 4;
-    let edges = {
+    const MARGINS = 4;
+    const edges = {
         top : false,
         bottom : false,
         left : false,
         right : false,
     }
-    let targetElement = target;
+    const targetElement = target;
     let clickedInstance ;
-    let eventHandlers  = {
-        mousemove : function(e) {
+    const eventHandlers  = {
+        mousemove(e) {
             let c = e;
             if(e.touches) {
             c = e.touches[0];
             }
             // On mouse move, dispatch the coords to all registered callbacks.
-            for (var i = 0; i < _callbacks.length; i++) {
+            for (let i = 0; i < _callbacks.length; i++) {
                 _callbacks[i](c.clientX, c.clientY);
             }
         },
-        mousedown : function(e) {
+        mousedown(e) {
             e.stopPropagation();
             e.preventDefault();
             if (!config.dragEnabled && !config.resizeEnabled) {
@@ -46,7 +46,7 @@ const resizedrag = function(target, handler, onStart, onEnd) {
                 c = e.touches[0];
             }
             isMoving = true;
-            let bObj = attachResizeDragCursorStyle(c.clientX,c.clientY);
+            const bObj = attachResizeDragCursorStyle(c.clientX,c.clientY);
             clickedInstance = {
                 cx : c.clientX,
                 cy : c.clientY,
@@ -62,16 +62,16 @@ const resizedrag = function(target, handler, onStart, onEnd) {
             startX = target.offsetLeft - c.clientX;
             startY = target.offsetTop - c.clientY;
         },
-        mouseup : function(e) {
+        mouseup(e) {
             if (onEnd && hasStarted) {
                 onEnd(target, parseInt(target.style.left), parseInt(target.style.top));
             }
-            let c = e;
+            const c = e;
             attachResizeDragCursorStyle(c.clientX,c.clientY);
             isResizing = false;
             isMoving = false;
             hasStarted = false;
-            target.style["border"]="none";
+            target.style.border="none";
         }
     }
   // Register a global event to capture mouse moves (once).
@@ -80,8 +80,8 @@ const resizedrag = function(target, handler, onStart, onEnd) {
   }
 
   _loaded = true;
-  let isMoving = false, hasStarted = false, isResizing = false;
-  let startX = 0, startY = 0, lastX = 0, lastY = 0;
+  let isMoving = false; let hasStarted = false; let isResizing = false;
+  let startX = 0; let startY = 0; let lastX = 0; let lastY = 0;
 
   // On the first click and hold, record the offset of the pointer in relation
   // to the point of click inside the element.
@@ -91,7 +91,7 @@ const resizedrag = function(target, handler, onStart, onEnd) {
   document.addEventListener(_isTouch ? "touchend" : "mouseup", eventHandlers.mouseup);
 
   // Register mouse-move callback to move the element.
-  _callbacks.push(function move(x, y) {
+  _callbacks.push((x, y) => {
     if(targetElement && !isResizing){
         attachResizeDragCursorStyle(x,y);
     }
@@ -119,42 +119,40 @@ const resizedrag = function(target, handler, onStart, onEnd) {
     }
     if(isMoving){
         if(!isResizing && config.dragEnabled){
-            target.style.left = lastX + "px";
-            target.style.top = lastY + "px";
-        }else{
-            if(config.resizeEnabled){
-                let b = target.getBoundingClientRect();
-                let bx = x - b.left;
-                let by = y - b.top;
+            target.style.left = `${lastX  }px`;
+            target.style.top = `${lastY  }px`;
+        }else if(config.resizeEnabled){
+                const b = target.getBoundingClientRect();
+                const bx = x - b.left;
+                const by = y - b.top;
                 if (edges.right) {
-                    target.style.width = Math.max(bx, config.minWidth) + 'px';
+                    target.style.width = `${Math.max(bx, config.minWidth)  }px`;
                 }
                 if (edges.bottom) {
-                    target.style.height = Math.max(by, config.minHeight) + 'px';
+                    target.style.height = `${Math.max(by, config.minHeight)  }px`;
                 }
                 if (edges.left) {
-                    var currentWidth = Math.max(clickedInstance.cx - x  + clickedInstance.w, config.minWidth);
+                    const currentWidth = Math.max(clickedInstance.cx - x  + clickedInstance.w, config.minWidth);
                     if (currentWidth > config.minWidth) {
-                        target.style.width = currentWidth + 'px';
-                        target.style.left = x + 'px';
+                        target.style.width = `${currentWidth  }px`;
+                        target.style.left = `${x  }px`;
                     }
                 }
                 if (edges.top) {
-                    var currentHeight = Math.max(clickedInstance.cy - y  + clickedInstance.h, config.minHeight);
+                    const currentHeight = Math.max(clickedInstance.cy - y  + clickedInstance.h, config.minHeight);
                     if (currentHeight > config.minHeight) {
-                        targetElement.style.height = currentHeight + 'px';
-                        targetElement.style.top = y + 'px';
+                        targetElement.style.height = `${currentHeight  }px`;
+                        targetElement.style.top = `${y  }px`;
                     }
                 }
             }
-        }
     }
   });
 
   let attachResizeDragCursorStyle = function(x,y){
-    let b = target.getBoundingClientRect();
-    let eX = x - b.left;
-    let eY = y - b.top;
+    const b = target.getBoundingClientRect();
+    const eX = x - b.left;
+    const eY = y - b.top;
     edges.top = eY < MARGINS;
     edges.left = eX < MARGINS;
     edges.right = eX >= b.width - MARGINS;
@@ -173,8 +171,8 @@ const resizedrag = function(target, handler, onStart, onEnd) {
     }else {
         targetElement.style.cursor = 'default';
     }
-    let boundaryObj = {
-        b:b, bX : eX, bY : eY
+    const boundaryObj = {
+        b, bX : eX, bY : eY
     }
     return boundaryObj
   }

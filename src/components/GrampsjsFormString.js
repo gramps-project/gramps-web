@@ -72,9 +72,9 @@ class GrampsjsFormString extends GrampsjsTranslateMixin(LitElement) {
     if (el !== null) {
       if (el?.validity?.valid) {
         return true
-      } else {
+      } 
         return false
-      }
+      
     }
     return true
   }

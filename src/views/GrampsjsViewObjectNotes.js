@@ -105,7 +105,7 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
   }
 
   _handleNoteRefDel (handle) {
-    fireEvent(this, 'edit:action', {action: 'delNoteRef', handle: handle})
+    fireEvent(this, 'edit:action', {action: 'delNoteRef', handle})
   }
 
   _handleNoteRefSave (e) {

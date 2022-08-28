@@ -169,15 +169,15 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _handleMediaRefDel (handle) {
-    fireEvent(this, 'edit:action', {action: 'delMediaRef', handle: handle})
+    fireEvent(this, 'edit:action', {action: 'delMediaRef', handle})
   }
 
   _handleMediaRefLeft (handle) {
-    fireEvent(this, 'edit:action', {action: 'upMediaRef', handle: handle})
+    fireEvent(this, 'edit:action', {action: 'upMediaRef', handle})
   }
 
   _handleMediaRefRight (handle) {
-    fireEvent(this, 'edit:action', {action: 'downMediaRef', handle: handle})
+    fireEvent(this, 'edit:action', {action: 'downMediaRef', handle})
   }
 
   _handleAddClick () {

@@ -13,9 +13,9 @@ import './GrampsjsMap.js'
 import './GrampsjsFormSelectDate.js'
 import './GrampsjsFormSelectObjectList.js'
 
+import { mdiLaptopMac } from '@mdi/js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import {getMediaUrl} from '../api.js'
-import { mdiLaptopMac } from '@mdi/js'
 
 class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
   static get styles () {

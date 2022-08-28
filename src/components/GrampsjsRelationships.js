@@ -48,12 +48,8 @@ export class GrampsjsRelationships extends GrampsjsTranslateMixin(LitElement) {
   render () {
     return html`
     ${this._renderFamily(this.primaryParentFamily, this._('Parents'), this._('Siblings'))}
-    ${this.otherParentFamilies.map((familyProfile, i) => {
-    return this._renderFamily(familyProfile, `${this._('Parents')} #${i + 2}`, this._('Siblings'))
-  }, this)}
-    ${this.families.map((familyProfile, i) => {
-    return this._renderFamily(familyProfile, html`${this._('Partner')} ${this.families.length < 2 ? '' : html`<span class="number">${i + 1}</span>`}`, this._('Children'))
-  }, this)}
+    ${this.otherParentFamilies.map((familyProfile, i) => this._renderFamily(familyProfile, `${this._('Parents')} #${i + 2}`, this._('Siblings')), this)}
+    ${this.families.map((familyProfile, i) => this._renderFamily(familyProfile, html`${this._('Partner')} ${this.families.length < 2 ? '' : html`<span class="number">${i + 1}</span>`}`, this._('Children')), this)}
         `
   }
 

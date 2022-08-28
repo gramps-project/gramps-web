@@ -758,7 +758,7 @@ export class GrampsJs extends LitElement {
           }
           this._strings.__lang__ = lang
           this._lang = lang
-          fireEvent(this, 'language:changed', {lang: lang})
+          fireEvent(this, 'language:changed', {lang})
         }
         if ('error' in data) {
           this._showError(data.error)
@@ -819,8 +819,7 @@ export class GrampsJs extends LitElement {
         fireEvent(this, 'nav', {path: 'recent'})
       }
       this._shortcutPressed = ''
-    } else {
-      if (e.key === 'g') {
+    } else if (e.key === 'g') {
         this._shortcutPressed = 'g'
       } else if (e.key === 's') {
         fireEvent(this, 'nav', {path: 'search'})
@@ -829,7 +828,6 @@ export class GrampsJs extends LitElement {
       } else {
         return null
       }
-    }
     e.preventDefault()
     e.stopPropagation()
   }

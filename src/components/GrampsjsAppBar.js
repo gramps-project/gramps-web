@@ -93,7 +93,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _handleNav (path) {
-    fireEvent(this, 'nav', {path: path})
+    fireEvent(this, 'nav', {path})
   }
 
   _handleCloseIcon () {
