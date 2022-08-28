@@ -1,11 +1,11 @@
-import { html } from 'lit';
+import { html } from 'lit'
 
-import { GrampsjsViewSettingsOnboarding } from './GrampsjsViewSettingsOnboarding.js';
-import '../components/GrampsjsUsers.js';
-import { doLogout, apiPost, apiPut, apiGet } from '../api.js';
-import '@material/mwc-textfield';
-import '@material/mwc-button';
-import '@material/mwc-select';
+import { GrampsjsViewSettingsOnboarding } from './GrampsjsViewSettingsOnboarding.js'
+import '../components/GrampsjsUsers.js'
+import { doLogout, apiPost, apiPut, apiGet } from '../api.js'
+import '@material/mwc-textfield'
+import '@material/mwc-button'
+import '@material/mwc-select'
 
 function renderLogoutButton() {
   return html`
@@ -16,7 +16,7 @@ function renderLogoutButton() {
       icon="exit_to_app"
       @click=${() => doLogout()}
     ></mwc-button>
-  `;
+  `
 }
 
 export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
@@ -24,13 +24,13 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     return {
       users: { type: Boolean },
       userData: { type: Array },
-    };
+    }
   }
 
   constructor() {
-    super();
-    this.users = false;
-    this.userData = [];
+    super()
+    this.users = false
+    this.userData = []
   }
 
   renderContent() {
@@ -67,7 +67,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
             </grampsjs-users>
           `
         : ''}
-    `;
+    `
   }
 
   renderChangeEmail() {
@@ -83,7 +83,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
           @click="${this._changeEmail}"
         ></mwc-button>
       </p>
-    `;
+    `
   }
 
   renderChangePw() {
@@ -109,85 +109,85 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
           @click="${this._changePw}"
         ></mwc-button>
       </p>
-    `;
+    `
   }
 
   firstUpdated() {
     if (this.users) {
-      this._fetchUserData();
+      this._fetchUserData()
     }
   }
 
   _handleUserChanged(e) {
-    const data = e.detail;
+    const data = e.detail
     this._updateUser(e.detail.name, {
       role: data.role,
       email: data.email,
       full_name: data.full_name,
-    });
+    })
   }
 
   _handleUserAdded(e) {
-    const data = e.detail;
+    const data = e.detail
     this._addUser(e.detail.name, {
       role: data.role,
       email: data.email,
       full_name: data.full_name,
       password: data.password,
-    });
+    })
   }
 
   _updateUser(username, payload) {
     apiPut(`/api/users/${username}/`, payload).then(data => {
       if ('error' in data) {
-        this.error = true;
-        this._errorMessage = data.error;
+        this.error = true
+        this._errorMessage = data.error
       } else {
-        this.error = false;
-        this._fetchUserData();
+        this.error = false
+        this._fetchUserData()
       }
-    });
+    })
   }
 
   _addUser(username, payload) {
     apiPost(`/api/users/${username}/`, payload).then(data => {
       if ('error' in data) {
-        this.error = true;
-        this._errorMessage = data.error;
+        this.error = true
+        this._errorMessage = data.error
       } else {
-        this.error = false;
-        this._fetchUserData();
+        this.error = false
+        this._fetchUserData()
       }
-    });
+    })
   }
 
   _fetchUserData() {
-    this.loading = true;
+    this.loading = true
     apiGet('/api/users/').then(data => {
       if ('data' in data) {
-        this.error = false;
-        this.userData = data.data;
+        this.error = false
+        this.userData = data.data
       } else if ('error' in data) {
-        this.error = true;
-        this._errorMessage = data.error;
+        this.error = true
+        this._errorMessage = data.error
       }
-      this.loading = false;
-    });
+      this.loading = false
+    })
   }
 
   _changeEmail() {
-    const form = this.shadowRoot.getElementById('change-email');
+    const form = this.shadowRoot.getElementById('change-email')
     if (!form.value) {
-      return;
+      return
     }
-    this.loading = true;
-    const payload = { email: form.value };
+    this.loading = true
+    const payload = { email: form.value }
     apiPut('/api/users/-/', payload).then(data => {
-      this.loading = false;
+      this.loading = false
       if ('error' in data) {
-        this.error = false;
-        this.error = true;
-        this._errorMessage = data.error;
+        this.error = false
+        this.error = true
+        this._errorMessage = data.error
       } else {
         this.dispatchEvent(
           new CustomEvent('grampsjs:notification', {
@@ -195,42 +195,42 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
             composed: true,
             detail: { message: 'E-mail successfully updated' },
           })
-        );
-        form.value = '';
+        )
+        form.value = ''
       }
-    });
+    })
   }
 
   _changePw() {
-    const formOldPw = this.shadowRoot.getElementById('old-pw');
-    const formNewPw = this.shadowRoot.getElementById('new-pw');
+    const formOldPw = this.shadowRoot.getElementById('old-pw')
+    const formNewPw = this.shadowRoot.getElementById('new-pw')
     if (!formOldPw.value || !formNewPw.value) {
-      return;
+      return
     }
-    this.loading = true;
+    this.loading = true
     const payload = {
       old_password: formOldPw.value,
       new_password: formNewPw.value,
-    };
+    }
     apiPost('/api/users/-/password/change', payload).then(data => {
-      this.loading = false;
+      this.loading = false
       if ('error' in data) {
-        this.error = true;
-        this._errorMessage = data.error;
+        this.error = true
+        this._errorMessage = data.error
       } else {
-        this.error = false;
+        this.error = false
         this.dispatchEvent(
           new CustomEvent('grampsjs:notification', {
             bubbles: true,
             composed: true,
             detail: { message: 'Password successfully updated' },
           })
-        );
-        formOldPw.value = '';
-        formNewPw.value = '';
+        )
+        formOldPw.value = ''
+        formNewPw.value = ''
       }
-    });
+    })
   }
 }
 
-window.customElements.define('grampsjs-view-settings', GrampsjsViewSettings);
+window.customElements.define('grampsjs-view-settings', GrampsjsViewSettings)
