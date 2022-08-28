@@ -2,14 +2,10 @@
 Families list view
 */
 
-
-
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
 
-
 export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
-
   constructor() {
     super()
     this._columns = {
@@ -21,7 +17,9 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
   }
 
   get _fetchUrl() {
-    return `/api/families/?locale=${this.strings?.__lang__ || 'en'}&profile=self&keys=gramps_id,profile,change`
+    return `/api/families/?locale=${
+      this.strings?.__lang__ || 'en'
+    }&profile=self&keys=gramps_id,profile,change`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -30,22 +28,24 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getAddPath (item) {
+  _getAddPath() {
     return 'new_family'
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _formatRow(row, obj) {
+  _formatRow(row) {
     const formattedRow = {
       grampsId: row.gramps_id,
-      father: `${row?.profile?.father?.name_surname || '…'}, ${row?.profile?.father?.name_given || '…'}`,
-      mother: `${row?.profile?.mother?.name_surname || '…'}, ${row?.profile?.mother?.name_given || '…'}`,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
+      father: `${row?.profile?.father?.name_surname || '…'}, ${
+        row?.profile?.father?.name_given || '…'
+      }`,
+      mother: `${row?.profile?.mother?.name_surname || '…'}, ${
+        row?.profile?.mother?.name_given || '…'
+      }`,
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
     }
     return formattedRow
   }
-
 }
-
 
 window.customElements.define('grampsjs-view-families', GrampsjsViewFamilies)

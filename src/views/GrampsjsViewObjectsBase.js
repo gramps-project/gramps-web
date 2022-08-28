@@ -2,7 +2,6 @@
 Base view for lists of Gramps objects, e.g. people, events, ...
 */
 
-
 import {html, css} from 'lit'
 import {mdiSort, mdiSortAscending, mdiSortDescending} from '@mdi/js'
 
@@ -19,87 +18,86 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     return [
       super.styles,
       css`
-      table {
-        border-collapse: collapse;
-        border-spacing: 0;
-        font-size: 14px;
-        margin-top: 20px;
-        width: 100%;
-      }
+        table {
+          border-collapse: collapse;
+          border-spacing: 0;
+          font-size: 14px;
+          margin-top: 20px;
+          width: 100%;
+        }
 
-      th {
-        padding: 12px 20px;
-        font-size: 13px;
-        color: #666;
-        font-weight: 400;
-        vertical-align: top;
-        line-height: 24px;
-      }
+        th {
+          padding: 12px 20px;
+          font-size: 13px;
+          color: #666;
+          font-weight: 400;
+          vertical-align: top;
+          line-height: 24px;
+        }
 
-      td {
-        padding: 12px 20px;
-        height: 17px;
-        line-height: 17px;
-      }
+        td {
+          padding: 12px 20px;
+          height: 17px;
+          line-height: 17px;
+        }
 
+        td > div {
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
 
-      td > div {
-        width: 100%;
-        height: 100%;
-        overflow:hidden;
-      }
+        th,
+        td {
+          border-bottom: 1px solid #e0e0e0;
+          text-align: left;
+          margin: 0;
+        }
 
-      th, td {
-        border-bottom: 1px solid #e0e0e0;
-        text-align: left;
-        margin: 0;
-      }
+        table.linked tr:hover td {
+          background-color: #f0f0f0;
+          cursor: pointer;
+        }
 
-      table.linked tr:hover td {
-        background-color: #f0f0f0;
-        cursor: pointer;
-      }
+        table.linked tr.highlight td {
+          font-weight: 400;
+        }
 
-      table.linked tr.highlight td {
-        font-weight: 400;
-      }
+        table.linked tr.highlight:hover td {
+          background-color: white;
+          cursor: auto;
+        }
 
-      table.linked tr.highlight:hover td {
-        background-color: white;
-        cursor: auto;
-      }
+        td mwc-icon.inline {
+          color: rgba(0, 0, 0, 0.25);
+          font-size: 16px;
+        }
 
-      td mwc-icon.inline {
-        color: rgba(0, 0, 0, 0.25);
-        font-size: 16px;
-      }
+        .sortbtn {
+          margin-left: 1em;
+          display: inline-block;
+        }
 
-      .sortbtn {
-        margin-left: 1em;
-        display: inline-block;
-      }
+        .sortbtn mwc-icon-button {
+          --mdc-icon-button-size: 32px;
+          position: relative;
+          top: -4px;
+        }
 
-      .sortbtn mwc-icon-button {
-        --mdc-icon-button-size: 32px;
-        position: relative;
-        top: -4px;
-      }
+        .sortbtn mwc-icon-button svg {
+          height: 20px;
+          position: relative;
+          top: -4px;
+        }
 
-      .sortbtn mwc-icon-button svg {
-        height: 20px;
-        position: relative;
-        top: -4px;
-      }
-
-      mwc-fab {
-        position: fixed;
-        bottom: 32px;
-        right: 32px;
-      }
-      `
+        mwc-fab {
+          position: fixed;
+          bottom: 32px;
+          right: 32px;
+        }
+      `,
     ]
   }
-
 
   static get properties() {
     return {
@@ -110,7 +108,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       _pages: {type: Number},
       _pageSize: {type: Number},
       _sort: {type: String},
-      canAdd: {type: Boolean}
+      canAdd: {type: Boolean},
     }
   }
 
@@ -130,39 +128,43 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       return html``
     }
     return html`
-    <table class="linked">
-      <tr>
-        ${Object.keys(this._columns).map((column) => html`
-          <th>${this._(this._columns[column].title)} ${this._renderSortBtn(column)}</th>
-        `, this)}
-      </tr>
-    ${this._data.map((obj) => html`
-    <tr @click=${() => this._handleClick(obj)}>
-    ${
-  Object.keys(this._columns).map((column) => html`
-      <td><div>${obj[column]}</div></td>
-    `, this)
-}
+      <table class="linked">
+        <tr>
+          ${Object.keys(this._columns).map(
+            column => html`
+              <th>
+                ${this._(this._columns[column].title)}
+                ${this._renderSortBtn(column)}
+              </th>
+            `,
+            this
+          )}
         </tr>
-          `)}
-    </table>
+        ${this._data.map(
+          obj => html`
+            <tr @click=${() => this._handleClick(obj)}>
+              ${Object.keys(this._columns).map(
+                column => html` <td><div>${obj[column]}</div></td> `,
+                this
+              )}
+            </tr>
+          `
+        )}
+      </table>
 
-    <grampsjs-pagination
-      page="${this._page}"
-      pages="${this._pages}"
-      @page:changed="${this._handlePageChanged}"
-      .strings="${this.strings}"
+      <grampsjs-pagination
+        page="${this._page}"
+        pages="${this._pages}"
+        @page:changed="${this._handlePageChanged}"
+        .strings="${this.strings}"
       ></grampsjs-pagination>
 
-    ${this.canAdd ? this.renderFab() : ''}
+      ${this.canAdd ? this.renderFab() : ''}
     `
   }
 
-
-  renderFab () {
-    return html`
-    <mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab>
-    `
+  renderFab() {
+    return html` <mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab> `
   }
 
   firstUpdated() {
@@ -173,12 +175,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     this._page = event.detail.page
   }
 
-
   _handleClick(obj) {
     fireEvent(this, 'nav', {path: this._getItemPath(obj)})
   }
 
-  _handleClickAdd () {
+  _handleClickAdd() {
     fireEvent(this, 'nav', {path: this._getAddPath()})
   }
 
@@ -189,13 +190,12 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     }
     const isCurrent = this._sort.substring(1) === sortKey
     const isAscending = isCurrent && this._sort.substring(0, 1) === '+'
-    return html`
-    <div class="sortbtn ${isCurrent ? 'current-sort' : ''}">
+    return html` <div class="sortbtn ${isCurrent ? 'current-sort' : ''}">
       <mwc-icon-button
         @click="${() => this._toggleSort(sortKey, isCurrent, isAscending)}"
-        >
+      >
         ${this._renderSortIcon(isCurrent, isAscending)}
-        </mwc-icon-button>
+      </mwc-icon-button>
     </div>`
   }
 
@@ -222,10 +222,14 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     return url
   }
 
-
   update(changed) {
     super.update(changed)
-    if (changed.has('_page') || changed.has('_sort') || changed.has('_pageSize') || changed.has('strings')) {
+    if (
+      changed.has('_page') ||
+      changed.has('_sort') ||
+      changed.has('_pageSize') ||
+      changed.has('strings')
+    ) {
       this._fetchData()
     }
   }
@@ -236,7 +240,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       this.loading = false
       if ('data' in data) {
         this.error = false
-        this._data = data.data.map((row) => this._formatRow(row, this))
+        this._data = data.data.map(row => this._formatRow(row, this))
         this._totalCount = data.total_count
         this._pages = Math.ceil(this._totalCount / this._pageSize)
       } else if ('error' in data) {
@@ -252,13 +256,12 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getItemPath(item) {
+  _getItemPath() {
     return ''
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getAddPath(item) {
+  _getAddPath() {
     return ''
   }
-
 }
