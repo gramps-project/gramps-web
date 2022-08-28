@@ -227,9 +227,9 @@ export class GrampsjsViewSearch extends GrampsjsView {
         this._data = []
         this._totalCount = -1
         return
-      } 
+      }
         query = this._filterQueryByObjectType(query)
-      
+
     }
     this.loading = true
     this._fetchData(query, page)
@@ -277,7 +277,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
   _handleNav (event) {
     if (event.detail.path !== 'search') {
-      return null
+      return
     }
     this._focus()
   }

@@ -186,7 +186,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
   _setScale (w) {
     const boundsOld = this._getBounds()
     if (boundsOld.length !== 2) {
-      return null
+      return
     }
     const wOld = boundsOld[1][1] - boundsOld[0][1]
     const latTop = boundsOld[1][0]
@@ -251,7 +251,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
   _setTopLeft (lat, long) {
     const boundsOld = this._getBounds()
     if (boundsOld.length !== 2) {
-      return null
+      return
     }
     const h = boundsOld[1][0] - boundsOld[0][0]
     const w = boundsOld[1][1] - boundsOld[0][1]
@@ -261,7 +261,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
 
   _alignToPin (lat, long) {
     if (this.pinCoordinates.length !== 2) {
-      return null
+      return
     }
     const [latPin, longPin] = this.pinCoordinates
     const boundsOld = this._getBounds()

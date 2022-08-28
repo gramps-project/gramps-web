@@ -156,7 +156,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   _handleSaveRect (e) {
     const img = this.shadowRoot.querySelector('grampsjs-img')
     if (img === null) {
-      return null
+      return
     }
     const imgBBox = img.getBBox()
     const refBBox = e.detail.bbox

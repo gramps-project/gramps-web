@@ -21,7 +21,7 @@ export function storeRefreshToken (refreshToken) {
 export function getPermissions () {
   const accessToken = localStorage.getItem('access_token')
   if (!accessToken || accessToken === '1') {
-    return null
+    return
   }
   try {
     const claims = jwt_decode(accessToken) || {}
@@ -190,11 +190,11 @@ export async function apiGet (endpoint, isJson = true) {
         total_count: resp.headers.get('X-Total-Count'),
         etag: resp.headers.get('ETag')
       }
-    } 
+    }
       return {
         data: await resp.text()
       }
-    
+
   } catch (error) {
     if (error instanceof TypeError) {
       return {error: 'Network error'}

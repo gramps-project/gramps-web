@@ -358,7 +358,7 @@ export function getBrowserLanguage() {
     return browserLang;
   } if (browserLang.split('_')[0] in additionalStrings) {
     return browserLang.split('_')[0];
-  } 
-    return null;
-  
+  }
+    return;
+
 }

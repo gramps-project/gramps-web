@@ -16,9 +16,9 @@ import '@material/mwc-linear-progress'
 import '@material/mwc-snackbar'
 import {mdiFamilyTree} from '@mdi/js'
 import {renderIcon} from './icons.js'
-import { apiGet, getSettings, getPermissions, updateSettings } from './api.js'
-import { grampsStrings, additionalStrings } from './strings.js'
-import { fireEvent, getBrowserLanguage } from './util.js'
+import {apiGet, getSettings, getPermissions, updateSettings} from './api.js'
+import {grampsStrings, additionalStrings} from './strings.js'
+import {fireEvent, getBrowserLanguage} from './util.js'
 import './dayjs_locales.js'
 
 import './components/GrampsjsAppBar.js'
@@ -69,7 +69,7 @@ const LOADING_STATE_INITIAL = 0
 const LOADING_STATE_UNAUTHORIZED = 1
 const LOADING_STATE_UNAUTHORIZED_NOCONNECTION = 2
 const LOADING_STATE_NO_OWNER = 3
-const LOADING_STATE_NO_TREE = 4
+// const LOADING_STATE_NO_TREE = 4
 const LOADING_STATE_MISSING_SETTINGS = 5
 const LOADING_STATE_READY = 10
 
@@ -572,6 +572,7 @@ export class GrampsJs extends LitElement {
     this._loadDbInfo()
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _firstRunDone () {
     document.location.href = '/'
   }
@@ -585,7 +586,7 @@ export class GrampsJs extends LitElement {
 
     const browserLang = getBrowserLanguage()
     if (browserLang && !this.settings.lang) {
-      updateSettings({ lang: browserLang })
+      updateSettings({lang: browserLang})
     }
     if (this.settings.lang) {
       this._loadFrontendStrings(browserLang)
@@ -649,7 +650,7 @@ export class GrampsJs extends LitElement {
   _loadHomePersonInfo () {
     const grampsId = this.settings.homePerson
     if (!grampsId) {
-      return null
+      return
     }
     apiGet(`/api/people/?gramps_id=${grampsId}`)
       .then(data => {
@@ -801,7 +802,7 @@ export class GrampsJs extends LitElement {
   _handleKey (e) {
     const target = e.composedPath()[0]
     if (['input', 'textarea', 'select', 'option', 'mwc-list-item'].includes(target.tagName.toLowerCase()) || target.getAttribute('contenteditable')) {
-      return null
+      return
     }
     if (this._showShortcuts) {
       this._showShortcuts = false
@@ -820,14 +821,14 @@ export class GrampsJs extends LitElement {
       }
       this._shortcutPressed = ''
     } else if (e.key === 'g') {
-        this._shortcutPressed = 'g'
-      } else if (e.key === 's') {
-        fireEvent(this, 'nav', {path: 'search'})
-      } else if (e.key === '?') {
-        this._showShortcuts = true
-      } else {
-        return null
-      }
+      this._shortcutPressed = 'g'
+    } else if (e.key === 's') {
+      fireEvent(this, 'nav', {path: 'search'})
+    } else if (e.key === '?') {
+      this._showShortcuts = true
+    } else {
+      return
+    }
     e.preventDefault()
     e.stopPropagation()
   }

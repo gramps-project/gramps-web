@@ -240,7 +240,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
   _handleSelectObjectsChanged (e) {
     const url = this.shadowRoot.querySelector('#linkurl')
     if (url === null) {
-      return null
+      return
     }
     const [obj] = e.detail.objects
     if (obj.handle) {
@@ -251,7 +251,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
   _handleDialogSave (pos) {
     const url = this.shadowRoot.querySelector('#linkurl')
     if (url === null) {
-      return null
+      return
     }
     const {value} = url
     if (value) {
@@ -438,10 +438,10 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
             // if range has overlap with previous, merge them
             const rangeMerged = [rangesNew[L - 1][0], Math.max(range[1], rangesNew[L - 1][1])]
             return [...rangesNew.slice(0, -1), rangeMerged]
-          } 
+          }
             // default: just append
             return [...rangesNew, range]
-          
+
         }, [])
     )
     return [{name, ranges, value: null}]
