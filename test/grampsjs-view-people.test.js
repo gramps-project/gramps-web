@@ -1,7 +1,7 @@
-import fetchMock from 'fetch-mock/esm/client';
-import { html, fixture, expect } from '@open-wc/testing';
+import fetchMock from 'fetch-mock/esm/client'
+import {html, fixture, expect} from '@open-wc/testing'
 
-import '../src/views/GrampsjsViewPeople.js';
+import '../src/views/GrampsjsViewPeople.js'
 
 describe('GrampsjsViewPeople', () => {
   beforeEach(() => {
@@ -72,24 +72,24 @@ describe('GrampsjsViewPeople', () => {
         tag_list: [],
         urls: [],
       },
-    ]);
-  });
+    ])
+  })
 
   afterEach(() => {
-    fetchMock.restore();
-  });
+    fetchMock.restore()
+  })
 
   it('test people view', async () => {
     await fixture(html`
       <grampsjs-view-people class="page"></grampsjs-view-people>
-    `);
-  });
+    `)
+  })
 
   it('passes the a11y audit', async () => {
     const el = await fixture(html`
       <grampsjs-view-people class="page"></grampsjs-view-people>
-    `);
+    `)
 
-    await expect(el).shadowDom.to.be.accessible();
-  });
-});
+    await expect(el).shadowDom.to.be.accessible()
+  })
+})
