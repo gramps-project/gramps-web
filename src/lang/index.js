@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import en from './en.json' assert {type: 'json'}
 import ru from './ru.json' assert {type: 'json'}
 import de from './de.json' assert {type: 'json'}
@@ -7,13 +8,13 @@ import nb from './nb.json' assert {type: 'json'}
 import sv from './sv.json' assert {type: 'json'}
 
 const languages = {
-  en: en,
-  ru: ru,
-  de: de,
-  en_GB: en_GB,
-  pt_PT: pt_PT,
-  nb: nb,
-  sv: sv
+  en,
+  ru,
+  de,
+  en_GB,
+  pt_PT,
+  nb,
+  sv,
 }
 
 const translations = languages
