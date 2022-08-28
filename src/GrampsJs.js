@@ -790,7 +790,7 @@ export class GrampsJs extends LitElement {
   }
 
   _loadFrontendStrings(lang) {
-    this._strings = additionalStrings[lang]
+    this._strings = {...this._strings, ...additionalStrings[lang]}
     this._strings.__lang__ = lang
     this._lang = lang
   }
