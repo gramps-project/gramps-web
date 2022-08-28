@@ -8,70 +8,68 @@ import '../components/GrampsjsPedigree.js'
 import {apiGet} from '../api.js'
 import {fireEvent} from '../util.js'
 
-const BASE_DIR = ''
-
 export class GrampsjsViewPedigree extends GrampsjsView {
-  static get styles () {
+  static get styles() {
     return [
       super.styles,
       css`
-      mwc-slider {
-        --mdc-theme-secondary: #4FC3F7;
-      }
+        mwc-slider {
+          --mdc-theme-secondary: #4fc3f7;
+        }
 
-      #button-block {
-        float: left;
-        position: relative;
-        top: 10px;
-      }
+        #button-block {
+          float: left;
+          position: relative;
+          top: 10px;
+        }
 
-      #pedigree-container {
-        clear: left;
-      }
+        #pedigree-container {
+          clear: left;
+        }
 
-      mwc-button {
-        --mdc-ripple-focus-opacity: 0;
-        --mdc-theme-primary: rgba(0, 0, 0, 0.7);
-      }
+        mwc-button {
+          --mdc-ripple-focus-opacity: 0;
+          --mdc-theme-primary: rgba(0, 0, 0, 0.7);
+        }
 
-      #outer-container {
-        clear: left;
-        padding-top: 30px;
-        padding-left: 30px;
-      }
+        #outer-container {
+          clear: left;
+          padding-top: 30px;
+          padding-left: 30px;
+        }
 
+        #controls {
+          z-index: 1;
+          position: absolute;
+          top: 85px;
+          left: 15px;
+          border-radius: 5px;
+          background-color: rgba(255, 255, 255, 0.9);
+        }
 
-      #controls {
-        z-index: 1;
-        position: absolute;
-        top: 85px;
-        left: 15px;
-        border-radius: 5px;
-        background-color: rgba(255, 255, 255, 0.9);
-      }
+        #controls mwc-icon-button {
+          color: rgba(0, 0, 0, 0.3);
+          --mdc-icon-size: 26px;
+          --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.1);
+        }
 
-      #controls mwc-icon-button {
-        color: rgba(0, 0, 0, 0.3);
-        --mdc-icon-size: 26px;
-        --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.1);
-      }
+        #menu-controls mwc-list-item {
+          --mdc-ripple-color: transparent;
+        }
 
-      #menu-controls mwc-list-item {
-        --mdc-ripple-color: transparent;
-      }
+        mwc-slider {
+          padding: 15px;
+          padding-top: 50px;
+        }
 
-      mwc-slider {
-        padding: 15px;
-        padding-top: 50px;
-      }
-
-      mwc-list-item.slider {
-        --mdc-menu-item-height: 70px;
-      }
-    `]
+        mwc-list-item.slider {
+          --mdc-menu-item-height: 70px;
+        }
+      `,
+    ]
   }
 
-  static get properties () {
+  static get properties() {
     return {
       grampsId: {type: String},
       disableBack: {type: Boolean},
@@ -79,11 +77,11 @@ export class GrampsjsViewPedigree extends GrampsjsView {
       _data: {type: Array},
       _depth: {type: Number},
       _zoom: {type: Number},
-      _history: {type: Array}
+      _history: {type: Array},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.grampsId = ''
     this.disableBack = false
@@ -94,37 +92,37 @@ export class GrampsjsViewPedigree extends GrampsjsView {
     this._history = []
   }
 
-  renderContent () {
+  renderContent() {
     if (this._data.length === 0) {
-      return html`
-      ${this._renderControls()}
-      `
+      return html` ${this._renderControls()} `
     }
     return html`
-    <section id="pedigree-section">
-      <div id="outer-container">
-        <div style="transform: scale(${this._zoom}); transform-origin: top left;" id="pedigree-container">
-          <grampsjs-pedigree
-            .people="${this._data}"
-            grampsId="${this.grampsId}"
-            depth="${this._depth}"
-            id="pedigree"
+      <section id="pedigree-section">
+        <div id="outer-container">
+          <div
+            style="transform: scale(${this._zoom}); transform-origin: top left;"
+            id="pedigree-container"
+          >
+            <grampsjs-pedigree
+              .people="${this._data}"
+              grampsId="${this.grampsId}"
+              depth="${this._depth}"
+              id="pedigree"
             ></grampsjs-pedigree>
+          </div>
         </div>
-      </div>
 
-      ${this._renderControls()}
-
-    </section>
-  `
+        ${this._renderControls()}
+      </section>
+    `
   }
 
-  _renderControls () {
-    return html`
-    <div id="controls">
+  _renderControls() {
+    return html` <div id="controls">
       <div>
-        <mwc-icon-button icon="home"
-        @click=${this._backToHomePerson}
+        <mwc-icon-button
+          icon="home"
+          @click=${this._backToHomePerson}
           ?disabled="${this.disableHome}"
           style="margin-bottom:-10px;"
         ></mwc-icon-button>
@@ -138,13 +136,17 @@ export class GrampsjsViewPedigree extends GrampsjsView {
         ></mwc-icon-button>
       </div>
       <div>
-        <mwc-icon-button icon="settings" id="btn-controls" @click=${this._openMenuControls}></mwc-icon-button>
+        <mwc-icon-button
+          icon="settings"
+          id="btn-controls"
+          @click=${this._openMenuControls}
+        ></mwc-icon-button>
         <mwc-menu
           id="menu-controls"
           corner="BOTTOM_RIGHT"
           menuCorner="START"
           defaultFocus="NONE"
-          >
+        >
           <mwc-list-item noninteractive>
             ${this._('Number of generations:')}
           </mwc-list-item>
@@ -163,20 +165,20 @@ export class GrampsjsViewPedigree extends GrampsjsView {
     </div>`
   }
 
-  _openMenuControls () {
+  _openMenuControls() {
     const menu = this.shadowRoot.getElementById('menu-controls')
     menu.open = true
   }
 
-  _backToHomePerson () {
+  _backToHomePerson() {
     fireEvent(this, 'tree:home')
   }
 
-  _prevPerson () {
+  _prevPerson() {
     fireEvent(this, 'tree:back')
   }
 
-  update (changed) {
+  update(changed) {
     super.update(changed)
     if (changed.has('grampsId')) {
       this._fetchData(this.grampsId)
@@ -197,22 +199,26 @@ export class GrampsjsViewPedigree extends GrampsjsView {
     }
   }
 
-  async _fetchData (grampsId) {
+  async _fetchData(grampsId) {
     this.loading = true
     const rules = {
       function: 'or',
       rules: [
         {
           name: 'IsLessThanNthGenerationAncestorOf',
-          values: [grampsId, (this._depth || 1)]
+          values: [grampsId, this._depth || 1],
         },
         {
           name: 'IsLessThanNthGenerationDescendantOf',
-          values: [grampsId, 1]
-        }
-      ]
+          values: [grampsId, 1],
+        },
+      ],
     }
-    const data = await apiGet(`/api/people/?rules=${encodeURIComponent(JSON.stringify(rules))}&locale=${this.strings?.__lang__ || 'en'}&profile=self,families`)
+    const data = await apiGet(
+      `/api/people/?rules=${encodeURIComponent(JSON.stringify(rules))}&locale=${
+        this.strings?.__lang__ || 'en'
+      }&profile=self,families`
+    )
     this.loading = false
     if ('data' in data) {
       this.error = false
@@ -223,20 +229,20 @@ export class GrampsjsViewPedigree extends GrampsjsView {
     }
   }
 
-  _updateDepth (event) {
+  _updateDepth(event) {
     if (event.detail.value) {
       this._depth = event.detail.value
     }
   }
 
-  getZoom () {
+  getZoom() {
     const sec = this.shadowRoot.getElementById('pedigree-section')
     if (sec === null) {
       return 1
     }
     const secWidth = sec.offsetWidth
     const treeWidth = this._depth * 230 * this._zoom
-    const newZoom = (secWidth - 24) / treeWidth * this._zoom
+    const newZoom = ((secWidth - 24) / treeWidth) * this._zoom
     if (newZoom > 1) {
       return 1
     }
@@ -246,16 +252,16 @@ export class GrampsjsViewPedigree extends GrampsjsView {
     return newZoom
   }
 
-  setZoom () {
+  setZoom() {
     this._zoom = this.getZoom()
   }
 
-  _resizeHandler () {
+  _resizeHandler() {
     clearTimeout(this._resizeTimer)
     this._resizeTimer = setTimeout(this.setZoom.bind(this), 250)
   }
 
-  firstUpdated () {
+  firstUpdated() {
     window.addEventListener('resize', this._resizeHandler.bind(this))
     // window.addEventListener('pedigree:person-selected', this._selectPerson.bind(this))
     this.setZoom()
@@ -265,7 +271,7 @@ export class GrampsjsViewPedigree extends GrampsjsView {
     menu.anchor = btn
   }
 
-  async _selectPerson (event) {
+  async _selectPerson(event) {
     const {grampsId} = event.detail
     await this._fetchData(grampsId)
     this.grampsId = grampsId
