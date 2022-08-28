@@ -1,8 +1,8 @@
-import { html } from 'lit'
+import {html} from 'lit'
 
-import { GrampsjsViewSettingsOnboarding } from './GrampsjsViewSettingsOnboarding.js'
+import {GrampsjsViewSettingsOnboarding} from './GrampsjsViewSettingsOnboarding.js'
 import '../components/GrampsjsUsers.js'
-import { doLogout, apiPost, apiPut, apiGet } from '../api.js'
+import {doLogout, apiPost, apiPut, apiGet} from '../api.js'
 import '@material/mwc-textfield'
 import '@material/mwc-button'
 import '@material/mwc-select'
@@ -22,8 +22,8 @@ function renderLogoutButton() {
 export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
   static get properties() {
     return {
-      users: { type: Boolean },
-      userData: { type: Array },
+      users: {type: Boolean},
+      userData: {type: Array},
     }
   }
 
@@ -181,7 +181,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       return
     }
     this.loading = true
-    const payload = { email: form.value }
+    const payload = {email: form.value}
     apiPut('/api/users/-/', payload).then(data => {
       this.loading = false
       if ('error' in data) {
@@ -193,7 +193,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
           new CustomEvent('grampsjs:notification', {
             bubbles: true,
             composed: true,
-            detail: { message: 'E-mail successfully updated' },
+            detail: {message: 'E-mail successfully updated'},
           })
         )
         form.value = ''
@@ -223,7 +223,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
           new CustomEvent('grampsjs:notification', {
             bubbles: true,
             composed: true,
-            detail: { message: 'Password successfully updated' },
+            detail: {message: 'Password successfully updated'},
           })
         )
         formOldPw.value = ''
