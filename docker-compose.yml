@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  gramps-proxy:
+    image: nginx
+    container_name: gramps-proxy-dev
+    volumes:
+      - ./dev/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "5555:80"
+  gramps-api:
+    container_name: gramps-api-dev
+    build:
+      context: ./dev
+      dockerfile: Dockerfile.api
+    volumes:
+      - gramps_users:/app/users  # persist user database
+      - gramps_db:/root/.gramps/grampsdb  # persist Gramps database
+  gramps-frontend:
+    container_name: gramps-frontend-dev
+    build:
+      context: .
+      dockerfile: ./dev/Dockerfile.frontend
+    volumes:
+      - ./:/app
+
+volumes:
+  gramps_users:
+  gramps_db:
