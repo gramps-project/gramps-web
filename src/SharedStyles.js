@@ -5,13 +5,13 @@ export const sharedStyles = css`
     font-size: 18px;
     font-family: Roboto;
     font-weight: 300;
-    --mdc-theme-primary: #6D4C41;
+    --mdc-theme-primary: #6d4c41;
     --mdc-theme-on-primary: rgba(255, 255, 255, 0.95);
     --mdc-theme-secondary: #0277bd;
     --mdc-theme-on-secondary: rgba(255, 255, 255, 0.95);
     --mdc-typography-font-family: Roboto;
-    --color-boy: #64B5F6;
-    --color-girl: #EF9A9A;
+    --color-boy: #64b5f6;
+    --color-girl: #ef9a9a;
   }
 
   mwc-tab-bar {
@@ -19,15 +19,16 @@ export const sharedStyles = css`
     --mdc-typography-button-font-weight: 400;
     --mdc-typography-button-letter-spacing: 0px;
     --mdc-typography-button-font-size: 16px;
-    --mdc-tab-text-label-color-default: #6D4C41;
+    --mdc-tab-text-label-color-default: #6d4c41;
   }
-
 
   mwc-tab {
     flex-grow: 0;
   }
 
-  h2, h3, h4 {
+  h2,
+  h3,
+  h4 {
     font-weight: 300;
     font-family: Roboto Slab;
   }
@@ -59,13 +60,16 @@ export const sharedStyles = css`
     font-size: 18px;
   }
 
-  a:link, a:visited, span.link {
-    color: #0D47A1;
+  a:link,
+  a:visited,
+  span.link {
+    color: #0d47a1;
     text-decoration: none;
   }
 
-  a:hover, span.link:hover {
-    color: #1976D2;
+  a:hover,
+  span.link:hover {
+    color: #1976d2;
     text-decoration: underline;
     text-decoration-thickness: 0.5px;
   }
@@ -76,7 +80,7 @@ export const sharedStyles = css`
 
   i svg {
     height: 1em;
-    top: .125em;
+    top: 0.125em;
     position: relative;
   }
 
@@ -199,6 +203,5 @@ export const sharedStyles = css`
     h4 {
       font-size: 18px;
     }
-
   }
-  `
+`

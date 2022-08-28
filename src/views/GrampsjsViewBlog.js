@@ -11,10 +11,10 @@ export class GrampsjsViewBlog extends GrampsjsView {
     return [
       super.styles,
       css`
-      .muted {
-        opacity: 0.4;
-      }
-      `
+        .muted {
+          opacity: 0.4;
+        }
+      `,
     ]
   }
 
@@ -24,7 +24,7 @@ export class GrampsjsViewBlog extends GrampsjsView {
       _dataNotes: {type: Array},
       _totalCount: {type: Number},
       _page: {type: Number},
-      _pages: {type: Number}
+      _pages: {type: Number},
     }
   }
 
@@ -41,53 +41,56 @@ export class GrampsjsViewBlog extends GrampsjsView {
 
   renderContent() {
     return html`
-    ${this.renderPosts()}
-    ${this._totalCount > 0 ? this.renderPagination() : ''}
+      ${this.renderPosts()}
+      ${this._totalCount > 0 ? this.renderPagination() : ''}
     `
   }
 
   renderPosts() {
     if (this._firstLoaded && this._dataSources.length === 0) {
       return html`
-      <h2>${this._('Blog')}</h2>
-      <p class="muted">${this._("To start using the blog, add a source with tag 'Blog'.")}</p>
+        <h2>${this._('Blog')}</h2>
+        <p class="muted">
+          ${this._("To start using the blog, add a source with tag 'Blog'.")}
+        </p>
       `
     }
     if (this.loading) {
       return html``
     }
     return html`
-    ${this._dataSources.map((source, i) => this.renderPost(source, this._dataNotes[i]), this)}
+      ${this._dataSources.map(
+        (source, i) => this.renderPost(source, this._dataNotes[i]),
+        this
+      )}
     `
   }
 
   renderPagination() {
     return html`
-    <grampsjs-pagination
-      page="${this._page}"
-      pages="${this._pages}"
-      @page:changed="${this._handlePageChanged}"
-      .strings="${this.strings}"
+      <grampsjs-pagination
+        page="${this._page}"
+        pages="${this._pages}"
+        @page:changed="${this._handlePageChanged}"
+        .strings="${this.strings}"
       ></grampsjs-pagination>
     `
   }
-
 
   _handlePageChanged(event) {
     this._page = event.detail.page
     this._fetchData()
   }
 
-
   // eslint-disable-next-line no-dupe-class-members
   renderPost(source, note) {
     return html`
-    <grampsjs-blog-post
-    .source="${source}"
-    .note="${note}"
-    .strings="${this.strings}"
-    ></grampsjs-blog-post>
-  `
+      <grampsjs-blog-post
+        .source="${source}"
+        .note="${note}"
+        .strings="${this.strings}"
+      ></grampsjs-blog-post>
+    `
   }
 
   firstUpdated() {
@@ -95,24 +98,28 @@ export class GrampsjsViewBlog extends GrampsjsView {
   }
 
   _getNotesUrl() {
-    const grampsIds = this._dataSources.map(obj => obj?.extended?.notes[0]?.gramps_id).filter(obj => obj)
+    const grampsIds = this._dataSources
+      .map(obj => obj?.extended?.notes[0]?.gramps_id)
+      .filter(obj => obj)
     if (grampsIds.length === 0) {
       return ''
     }
     const rules = {
       function: 'or',
-      rules: grampsIds.map(grampsId =>({
+      rules: grampsIds.map(grampsId => ({
         name: 'HasIdOf',
-        values: [grampsId]
-      })
-      )
+        values: [grampsId],
+      })),
     }
     const options = {
-      link_format: `${BASE_DIR}/{obj_class}/{gramps_id}`
+      link_format: `${BASE_DIR}/{obj_class}/{gramps_id}`,
     }
-    return `/api/notes/?locale=${this.strings?.__lang__ || 'en'}&profile=all&extend=all&formats=html&rules=${encodeURIComponent(JSON.stringify(rules))}&format_options=${encodeURIComponent(JSON.stringify(options))}`
+    return `/api/notes/?locale=${
+      this.strings?.__lang__ || 'en'
+    }&profile=all&extend=all&formats=html&rules=${encodeURIComponent(
+      JSON.stringify(rules)
+    )}&format_options=${encodeURIComponent(JSON.stringify(options))}`
   }
-
 
   async _fetchData() {
     this.loading = true
@@ -120,11 +127,15 @@ export class GrampsjsViewBlog extends GrampsjsView {
       rules: [
         {
           name: 'HasTag',
-          values: ['Blog']
-        }
-      ]
+          values: ['Blog'],
+        },
+      ],
     }
-    const uri = `/api/sources/?rules=${encodeURIComponent(JSON.stringify(rules))}&page=${this._page}&pagesize=${this._pageSize}&sort=-change&locale=${this.strings?.__lang__ || 'en'}&profile=all&extend=all`
+    const uri = `/api/sources/?rules=${encodeURIComponent(
+      JSON.stringify(rules)
+    )}&page=${this._page}&pagesize=${this._pageSize}&sort=-change&locale=${
+      this.strings?.__lang__ || 'en'
+    }&profile=all&extend=all`
     await apiGet(uri).then(data => {
       if ('data' in data) {
         this.error = false
@@ -156,10 +167,7 @@ export class GrampsjsViewBlog extends GrampsjsView {
     }
     this.loading = false
     this._firstLoaded = true
-
   }
-
 }
-
 
 window.customElements.define('grampsjs-view-blog', GrampsjsViewBlog)

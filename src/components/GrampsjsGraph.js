@@ -1,3 +1,4 @@
+/* eslint-disable lit-a11y/click-events-have-key-events */
 import {html, css, LitElement} from 'lit'
 
 import * as hpccWasm from '@hpcc-js/wasm'
@@ -14,7 +15,7 @@ import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 // transform 2D coordinates (x, y) to SVG coordinates.
 // element can be the SVG itself or an element within it
 // (possibly transformed)
-function transformSvgCoords (svg, element, x, y) {
+function transformSvgCoords(svg, element, x, y) {
   const point = svg.createSVGPoint()
   point.x = x
   point.y = y
@@ -23,115 +24,120 @@ function transformSvgCoords (svg, element, x, y) {
 }
 
 // get a point in SVG coordinates from an event
-function getPointFromEvent (svg, event) {
+function getPointFromEvent(svg, event) {
   return transformSvgCoords(svg, svg, event.clientX, event.clientY)
 }
 
 const _zoomDefault = 0.7
 
 class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
-  static get styles () {
+  static get styles() {
     return [
       sharedStyles,
       css`
-      :host {
-        width: 100%;
-        height: 100%;
-      }
+        :host {
+          width: 100%;
+          height: 100%;
+        }
 
-      #controls {
-        z-index: 1;
-        position: absolute;
-        top: 85px;
-        left: 15px;
-        border-radius: 5px;
-        background-color: rgba(255, 255, 255, 0.9);
-      }
+        #controls {
+          z-index: 1;
+          position: absolute;
+          top: 85px;
+          left: 15px;
+          border-radius: 5px;
+          background-color: rgba(255, 255, 255, 0.9);
+        }
 
-      #controls mwc-icon-button {
-        color: rgba(0, 0, 0, 0.3);
-        --mdc-icon-size: 26px;
-        --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.1);
-      }
+        #controls mwc-icon-button {
+          color: rgba(0, 0, 0, 0.3);
+          --mdc-icon-size: 26px;
+          --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.1);
+        }
 
-      #graph {
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        background-color: rgb(230, 230, 230);
-      }
+        #graph {
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          background-color: rgb(230, 230, 230);
+        }
 
-      #graph svg text {
-        font-family: Roboto;
-      }
+        #graph svg text {
+          font-family: Roboto;
+        }
 
-      #graph svg {
-        height: 100%;
-        width: 100%;
-        position: relative;
-        left: 0;
-        top: 0;
-        touch-action: none;
-      }
+        #graph svg {
+          height: 100%;
+          width: 100%;
+          position: relative;
+          left: 0;
+          top: 0;
+          touch-action: none;
+        }
 
-      #graph svg .edge path {
-        stroke-width: 1.5px;
-        stroke: #666;
-      }
+        #graph svg .edge path {
+          stroke-width: 1.5px;
+          stroke: #666;
+        }
 
-      #graph svg .edge polygon {
-        fill: #666;
-        stroke: #666;
-        stroke-width: 0;
-      }
+        #graph svg .edge polygon {
+          fill: #666;
+          stroke: #666;
+          stroke-width: 0;
+        }
 
-      g.node polygon, g.node path, g.node ellipse {
-        fill: #ffffff;
-      }
+        g.node polygon,
+        g.node path,
+        g.node ellipse {
+          fill: #ffffff;
+        }
 
-      g.node ellipse {
-        stroke: none;
-      }
+        g.node ellipse {
+          stroke: none;
+        }
 
-      g#node1 polygon {
-        fill: #64B5F6;
-      }
+        g#node1 polygon {
+          fill: #64b5f6;
+        }
 
-      g#node1 path {
-        fill: #EF9A9A;
-      }
+        g#node1 path {
+          fill: #ef9a9a;
+        }
 
-      g.node text {
-        font-weight: 400;
-        font-size: 13px;
-      }
+        g.node text {
+          font-weight: 400;
+          font-size: 13px;
+        }
 
-      g.node text:last-of-type {
-        font-weight: 300;
-        font-size: 12px;
-      }
+        g.node text:last-of-type {
+          font-weight: 300;
+          font-size: 12px;
+        }
 
-      g.node polygon, g.node path, g.node text {
-        cursor: pointer;
-      }
+        g.node polygon,
+        g.node path,
+        g.node text {
+          cursor: pointer;
+        }
 
+        g.node polygon,
+        g.node path,
+        g.node ellipse {
+          stroke-width: 1.5px;
+        }
 
-      g.node polygon, g.node path, g.node ellipse {
-        stroke-width: 1.5px;
-      }
+        svg {
+          cursor: grab;
+        }
 
-      svg {
-        cursor: grab;
-      }
-
-      mwc-dialog mwc-icon-button {
-        vertical-align: middle;
-      }
-      `
+        mwc-dialog mwc-icon-button {
+          vertical-align: middle;
+        }
+      `,
     ]
   }
 
-  static get properties () {
+  static get properties() {
     return {
       src: {type: String},
       scale: {type: Number},
@@ -146,11 +152,11 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
       _pointerOrigin: {type: Object},
       _interval: {type: Object},
       _evcache: {type: Array},
-      _prevDiff: {type: Number}
+      _prevDiff: {type: Number},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.src = ''
     this.scale = _zoomDefault
@@ -163,17 +169,14 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
     this._prevDiff = -1
   }
 
-  render () {
+  render() {
     return html`
-    <div id="graph" @click=${this._handleClick}>
-    </div>
-    <div id="controls">
-      ${this._renderControls()}
-    </div>
-  `
+      <div id="graph" @click=${this._handleClick}></div>
+      <div id="controls">${this._renderControls()}</div>
+    `
   }
 
-  _renderControls () {
+  _renderControls() {
     return html`
       <div>
         <mwc-icon-button
@@ -185,19 +188,28 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
         ></mwc-icon-button>
       </div>
       <div>
-      <mwc-icon-button
-      icon="zoom_out"
-      style="margin-bottom:-10px;"
-      @pointerdown=${this._zoomOutDown}
-      @pointerup=${this._zoomOutUp}
-      @pointerleave=${this._zoomOutUp}
-    ></mwc-icon-button>
+        <mwc-icon-button
+          icon="zoom_out"
+          style="margin-bottom:-10px;"
+          @pointerdown=${this._zoomOutDown}
+          @pointerup=${this._zoomOutUp}
+          @pointerleave=${this._zoomOutUp}
+        ></mwc-icon-button>
       </div>
       <div>
-        <mwc-icon-button icon="crop_free" @click=${this._resetZoom} style="margin-bottom:-10px;"></mwc-icon-button>
+        <mwc-icon-button
+          icon="crop_free"
+          @click=${this._resetZoom}
+          style="margin-bottom:-10px;"
+        ></mwc-icon-button>
       </div>
       <div>
-        <mwc-icon-button icon="home" @click=${this._backToHomePerson} style="margin-bottom:-10px;" ?disabled=${this.disableHome}></mwc-icon-button>
+        <mwc-icon-button
+          icon="home"
+          @click=${this._backToHomePerson}
+          style="margin-bottom:-10px;"
+          ?disabled=${this.disableHome}
+        ></mwc-icon-button>
       </div>
       <div>
         <mwc-icon-button
@@ -208,81 +220,100 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
         ></mwc-icon-button>
       </div>
       <div>
-        <mwc-icon-button icon="person" @click=${this._goToPerson}></mwc-icon-button>
+        <mwc-icon-button
+          icon="person"
+          @click=${this._goToPerson}
+        ></mwc-icon-button>
       </div>
       <div>
-        <mwc-icon-button icon="settings" id="btn-controls" @click=${this._openMenuControls}></mwc-icon-button>
-        <mwc-dialog
-          id="menu-controls"
-        >
-        <p>
-          <span>${this._('Max Ancestor Generations')}:
-          <b style="margin: 1em 0;">${this.nAnc}</b>
-          </span>
-          <mwc-icon-button icon="add" @click=${this._increaseNAnc} style="margin-right: -6px;"></mwc-icon-button>
-          <mwc-icon-button icon="remove" @click=${this._decreaseNAnc} ?disabled=${this.nAnc === 0}></mwc-icon-button>
-        </p>
-        <p>
-          <span>${this._('Max descendant Generations')}:
-          <b style="margin: 1em 0;">${this.nDesc}</b>
-          </span>
-          <mwc-icon-button icon="add" @click=${this._increaseNDesc} style="margin-right: -6px;"></mwc-icon-button>
-          <mwc-icon-button icon="remove" @click=${this._decreaseNDesc} ?disabled=${this.nDesc === 0}></mwc-icon-button>
-        </p>
-        <mwc-button
-          slot="primaryAction"
-          dialogAction="close"
-        >${this._('done')}</mwc-button>
-        <mwc-button
-          slot="secondaryAction"
-          @click="${this._resetLevels}"
-        >${this._('Reset')}</mwc-button>
+        <mwc-icon-button
+          icon="settings"
+          id="btn-controls"
+          @click=${this._openMenuControls}
+        ></mwc-icon-button>
+        <mwc-dialog id="menu-controls">
+          <p>
+            <span
+              >${this._('Max Ancestor Generations')}:
+              <b style="margin: 1em 0;">${this.nAnc}</b>
+            </span>
+            <mwc-icon-button
+              icon="add"
+              @click=${this._increaseNAnc}
+              style="margin-right: -6px;"
+            ></mwc-icon-button>
+            <mwc-icon-button
+              icon="remove"
+              @click=${this._decreaseNAnc}
+              ?disabled=${this.nAnc === 0}
+            ></mwc-icon-button>
+          </p>
+          <p>
+            <span
+              >${this._('Max descendant Generations')}:
+              <b style="margin: 1em 0;">${this.nDesc}</b>
+            </span>
+            <mwc-icon-button
+              icon="add"
+              @click=${this._increaseNDesc}
+              style="margin-right: -6px;"
+            ></mwc-icon-button>
+            <mwc-icon-button
+              icon="remove"
+              @click=${this._decreaseNDesc}
+              ?disabled=${this.nDesc === 0}
+            ></mwc-icon-button>
+          </p>
+          <mwc-button slot="primaryAction" dialogAction="close"
+            >${this._('done')}</mwc-button
+          >
+          <mwc-button slot="secondaryAction" @click="${this._resetLevels}"
+            >${this._('Reset')}</mwc-button
+          >
         </mwc-dialog>
       </div>
-      `
+    `
   }
 
-  _resetLevels () {
+  _resetLevels() {
     fireEvent(this, 'tree:setNAnc', {data: 3})
     fireEvent(this, 'tree:setNDesc', {data: 1})
   }
 
-  _increaseNAnc () {
+  _increaseNAnc() {
     fireEvent(this, 'tree:increaseNAnc')
   }
 
-  _decreaseNAnc () {
+  _decreaseNAnc() {
     fireEvent(this, 'tree:decreaseNAnc')
   }
 
-  _increaseNDesc () {
+  _increaseNDesc() {
     fireEvent(this, 'tree:increaseNDesc')
   }
 
-
-  _decreaseNDesc () {
+  _decreaseNDesc() {
     fireEvent(this, 'tree:decreaseNDesc')
   }
 
-
-  _backToHomePerson () {
+  _backToHomePerson() {
     fireEvent(this, 'tree:home')
   }
 
-  _goToPerson () {
+  _goToPerson() {
     fireEvent(this, 'tree:person')
   }
 
-  _handleBack () {
+  _handleBack() {
     fireEvent(this, 'tree:back')
   }
 
-  _zoomIn (f) {
-    this.scale = this.scale * f
+  _zoomIn(f) {
+    this.scale *= f
   }
 
   // zoom in when mouse clicked/touch starts
-  _zoomInDown () {
+  _zoomInDown() {
     this._zoomIn(1.1)
     this._zoomInPointerDown = true
     setTimeout(() => {
@@ -291,24 +322,23 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
           if (this._zoomInPointerDown) {
             this._zoomIn(1.04)
           }
-        },
-        20)
+        }, 20)
       }
     }, 700)
   }
 
   // stop zooming in
-  _zoomInUp () {
+  _zoomInUp() {
     this._zoomInPointerDown = false
     clearInterval(this._interval)
   }
 
-  _zoomOut (f) {
-    this.scale = this.scale / f
+  _zoomOut(f) {
+    this.scale /= f
   }
 
   // zoom out when mouse clicked/touch starts
-  _zoomOutDown () {
+  _zoomOutDown() {
     this._zoomOut(1.1)
     this._zoomOutPointerDown = true
     setTimeout(() => {
@@ -317,26 +347,25 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
           if (this._zoomOutPointerDown) {
             this._zoomOut(1.04)
           }
-        },
-        20)
+        }, 20)
       }
     }, 700)
   }
 
   // stop zooming out
-  _zoomOutUp () {
+  _zoomOutUp() {
     this._zoomOutPointerDown = false
     clearInterval(this._interval)
   }
 
-  _resetZoom () {
+  _resetZoom() {
     this.scaleSvg(_zoomDefault)
     this.centerSvg()
     this.scale = _zoomDefault
   }
 
   // click: find out if it is a person node: has title and no ellipse
-  _handleClick (event) {
+  _handleClick(event) {
     const g = event.target.closest('g')
     if (g !== null) {
       const title = g.querySelector('title')
@@ -348,14 +377,14 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
     return null
   }
 
-  update (changed) {
+  update(changed) {
     super.update(changed)
     if (changed.has('src')) {
       this._renderGraph()
     }
   }
 
-  updated (changed) {
+  updated(changed) {
     if (changed.has('scale')) {
       if (this._svg !== undefined) {
         this.scaleSvg(this.scale)
@@ -363,7 +392,7 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
-  _renderGraph () {
+  _renderGraph() {
     hpccWasm.graphvizSync().then(graphviz => {
       const div = this.shadowRoot.getElementById('graph')
       if (div === null) {
@@ -376,30 +405,30 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
       }
       this._svg.querySelector('polygon[fill="white"]').style.fill = 'none'
       // use arrow functions to bind correct 'this'
-      this._svg.addEventListener('pointerup', (e) => this._pUp(e))
-      this._svg.addEventListener('pointerleave', (e) => this._pUp(e))
-      this._svg.addEventListener('pointerdown', (e) => this._pDown(e))
-      this._svg.addEventListener('pointermove', (e) => this._pMove(e))
-      this._svg.addEventListener('wheel', (e) => this._wheel(e))
-      this._svg.addEventListener('dblclick', (e) => this._dblclick(e))
+      this._svg.addEventListener('pointerup', e => this._pUp(e))
+      this._svg.addEventListener('pointerleave', e => this._pUp(e))
+      this._svg.addEventListener('pointerdown', e => this._pDown(e))
+      this._svg.addEventListener('pointermove', e => this._pMove(e))
+      this._svg.addEventListener('wheel', e => this._wheel(e))
+      this._svg.addEventListener('dblclick', e => this._dblclick(e))
       this.scaleSvg(this.scale)
       this.centerSvg()
     })
   }
 
-  _dblclick (e) {
+  _dblclick(e) {
     this._zoomIn(1.3)
     e.preventDefault()
     e.stopPropagation()
   }
 
   // wheel zoom
-  _wheel (event) {
+  _wheel(event) {
     this.scale *= 1 - event.deltaY / 500
   }
 
   // start panning
-  _pDown (event) {
+  _pDown(event) {
     if (this._svg === undefined) {
       return
     }
@@ -410,14 +439,14 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
     this._evCache.push(event)
   }
 
-  _pMove (event) {
+  _pMove(event) {
     if (!this._svgPointerDown) {
       return
     }
     // code for panning
     event.preventDefault()
     // code for pich zoom
-    for (let i = 0; i < this._evCache.length; i++) {
+    for (let i = 0; i < this._evCache.length; i += 1) {
       if (event.pointerId === this._evCache[i].pointerId) {
         this._evCache[i] = event
         break
@@ -439,7 +468,7 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
         if (curDiff < this._prevDiff) {
           // The distance between the two pointers has decreased
         }
-        this.scale = oldScale * curDiff / this._prevDiff
+        this.scale = (oldScale * curDiff) / this._prevDiff
       }
       // Cache the distance for the next move event
       this._prevDiff = curDiff
@@ -447,14 +476,14 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
       // code for panning
       const pointerPosition = getPointFromEvent(this._svg, event)
       const viewBox = this._svg.viewBox.baseVal
-      viewBox.x -= (pointerPosition.x - this._pointerOrigin.x)
-      viewBox.y -= (pointerPosition.y - this._pointerOrigin.y)
+      viewBox.x -= pointerPosition.x - this._pointerOrigin.x
+      viewBox.y -= pointerPosition.y - this._pointerOrigin.y
     }
   }
 
-  removeEvent (ev) {
+  removeEvent(ev) {
     // Remove this event from the target's cache
-    for (let i = 0; i < this._evCache.length; i++) {
+    for (let i = 0; i < this._evCache.length; i += 1) {
       if (this._evCache[i].pointerId === ev.pointerId) {
         this._evCache.splice(i, 1)
         break
@@ -463,7 +492,7 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
   }
 
   // stop panning
-  _pUp (event) {
+  _pUp(event) {
     this._svgPointerDown = false
     this._svg.style.cursor = 'grab'
     // Remove this pointer from the cache and reset the target's
@@ -475,7 +504,7 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
-  scaleSvg (s) {
+  scaleSvg(s) {
     const viewBox = this._svg.viewBox.baseVal
     const container = this.shadowRoot.querySelector('#graph')
     const bb = container.getBoundingClientRect()
@@ -489,16 +518,16 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
     viewBox.y += (hOld - viewBox.height) / 2
   }
 
-  centerSvg () {
+  centerSvg() {
     const bbox = this._svg.getBBox()
     const viewBox = this._svg.viewBox.baseVal
-    viewBox.x = (bbox.x + bbox.width / 2) - viewBox.width / 2
-    viewBox.y = (bbox.y + bbox.height / 2) - viewBox.height / 2
+    viewBox.x = bbox.x + bbox.width / 2 - viewBox.width / 2
+    viewBox.y = bbox.y + bbox.height / 2 - viewBox.height / 2
   }
 
   // center the element given by selector in the center of the parent
   // container
-  centerSvgOn (selectorString) {
+  centerSvgOn(selectorString) {
     const el = this.shadowRoot.querySelector(selectorString)
     const cont = this.shadowRoot.querySelector('#graph')
     if (el === null) {
@@ -508,10 +537,20 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
     const bbCont = cont.getBoundingClientRect()
     const xCenterPxOld = bbTarget.left + bbTarget.width / 2
     const yCenterPxOld = bbTarget.bottom + bbTarget.height / 2
-    const pointOld = transformSvgCoords(this._svg, this._svg, xCenterPxOld, yCenterPxOld)
+    const pointOld = transformSvgCoords(
+      this._svg,
+      this._svg,
+      xCenterPxOld,
+      yCenterPxOld
+    )
     const xCenterPxNew = bbCont.left + bbCont.width / 2
     const yCenterPxNew = bbCont.top + bbCont.height / 2
-    const pointNew = transformSvgCoords(this._svg, this._svg, xCenterPxNew, yCenterPxNew)
+    const pointNew = transformSvgCoords(
+      this._svg,
+      this._svg,
+      xCenterPxNew,
+      yCenterPxNew
+    )
     const dx = pointNew.x - pointOld.x
     const dy = pointNew.y - pointOld.y
     const viewBox = this._svg.viewBox.baseVal
@@ -519,27 +558,33 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
     viewBox.y += -dy
   }
 
-  _openMenuControls () {
+  _openMenuControls() {
     const menu = this.shadowRoot.getElementById('menu-controls')
     menu.open = true
   }
 
-  _handleResize () {
+  _handleResize() {
     this.scaleSvg(this.scale)
   }
 
-  connectedCallback () {
+  connectedCallback() {
     super.connectedCallback()
     window.addEventListener('resize', () => this._handleResize())
   }
 
-  disconnectedCallback () {
+  disconnectedCallback() {
     window.removeEventListener('resize', () => this._handleResize())
     super.disconnectedCallback()
   }
 
-  _personSelected (grampsId) {
-    this.dispatchEvent(new CustomEvent('pedigree:person-selected', {bubbles: true, composed: true, detail: {grampsId}}))
+  _personSelected(grampsId) {
+    this.dispatchEvent(
+      new CustomEvent('pedigree:person-selected', {
+        bubbles: true,
+        composed: true,
+        detail: {grampsId},
+      })
+    )
   }
 }
 

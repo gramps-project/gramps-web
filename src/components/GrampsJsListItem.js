@@ -1,9 +1,7 @@
 import {html, css} from 'lit'
 import {ListItem} from '@material/mwc-list/mwc-list-item'
 
-
 export class GrampsjsListItem extends ListItem {
-
   static get properties() {
     return {
       href: {type: String},
@@ -29,11 +27,8 @@ export class GrampsjsListItem extends ListItem {
     const href = this.href ? `${this.href}` : ''
 
     return html` ${this.renderRipple()}
-      <a href=${href}>
-        ${r}
-      </a>`
+      <a href=${href}> ${r} </a>`
   }
 }
-
 
 window.customElements.define('grampsjs-list-item', GrampsjsListItem)

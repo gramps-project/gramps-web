@@ -14,7 +14,7 @@ import './GrampsjsFormString.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 class GrampsjsFormEventRef extends GrampsjsObjectForm {
-  renderForm () {
+  renderForm() {
     return html`
       <grampsjs-form-select-object-list
         fixedMenuPosition
@@ -33,7 +33,7 @@ class GrampsjsFormEventRef extends GrampsjsObjectForm {
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
       >
-    </grampsjs-form-select-type>
+      </grampsjs-form-select-type>
     `
   }
 }

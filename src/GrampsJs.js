@@ -16,9 +16,9 @@ import '@material/mwc-linear-progress'
 import '@material/mwc-snackbar'
 import {mdiFamilyTree} from '@mdi/js'
 import {renderIcon} from './icons.js'
-import { apiGet, getSettings, getPermissions, updateSettings } from './api.js'
-import { grampsStrings, additionalStrings } from './strings.js'
-import { fireEvent, getBrowserLanguage } from './util.js'
+import {apiGet, getSettings, getPermissions, updateSettings} from './api.js'
+import {grampsStrings, additionalStrings} from './strings.js'
+import {fireEvent, getBrowserLanguage} from './util.js'
 import './dayjs_locales.js'
 
 import './components/GrampsjsAppBar.js'
@@ -69,14 +69,14 @@ const LOADING_STATE_INITIAL = 0
 const LOADING_STATE_UNAUTHORIZED = 1
 const LOADING_STATE_UNAUTHORIZED_NOCONNECTION = 2
 const LOADING_STATE_NO_OWNER = 3
-const LOADING_STATE_NO_TREE = 4
+// const LOADING_STATE_NO_TREE = 4
 const LOADING_STATE_MISSING_SETTINGS = 5
 const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
 
 export class GrampsJs extends LitElement {
-  static get properties () {
+  static get properties() {
     return {
       wide: {type: Boolean},
       progress: {type: Boolean},
@@ -93,11 +93,11 @@ export class GrampsJs extends LitElement {
       _pageId: {type: String},
       _showShortcuts: {type: Boolean},
       _shortcutPressed: {type: String},
-      _firstRunToken: {type: String}
+      _firstRunToken: {type: String},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.wide = false
     this.progress = false
@@ -117,295 +117,292 @@ export class GrampsJs extends LitElement {
     this._firstRunToken = ''
   }
 
-  static get styles () {
+  static get styles() {
     return [
       sharedStyles,
       css`
-      :host {
-        height: 100%;
-      }
+        :host {
+          height: 100%;
+        }
 
-      main {
-        padding: 0;
-      }
+        main {
+          padding: 0;
+        }
 
-      .page {
-        display: none;
-      }
+        .page {
+          display: none;
+        }
 
-      .page[active] {
-        display: block;
-      }
+        .page[active] {
+          display: block;
+        }
 
-      mwc-drawer {
-        --mdc-drawer-width: 230px;
-        --mdc-typography-headline6-font-family: Roboto Slab;
-        --mdc-typography-headline6-font-weight: 400;
-        --mdc-typography-headline6-font-size: 19px;
-      }
+        mwc-drawer {
+          --mdc-drawer-width: 230px;
+          --mdc-typography-headline6-font-family: Roboto Slab;
+          --mdc-typography-headline6-font-weight: 400;
+          --mdc-typography-headline6-font-size: 19px;
+        }
 
-      mwc-drawer[open]:not([type="modal"]) {
-        --mdc-top-app-bar-width: calc(100% - var(--mdc-drawer-width, 256px));
-      }
+        mwc-drawer[open]:not([type='modal']) {
+          --mdc-top-app-bar-width: calc(100% - var(--mdc-drawer-width, 256px));
+        }
 
-      mwc-linear-progress {
-        --mdc-theme-primary: #4FC3F7;
-      }
+        mwc-linear-progress {
+          --mdc-theme-primary: #4fc3f7;
+        }
 
-      grampsjs-list-item span {
-        color: #444;
-      }
+        grampsjs-list-item span {
+          color: #444;
+        }
 
-      #user-menu mwc-button {
-        margin: 0.5em 1em;
-      }
+        #user-menu mwc-button {
+          margin: 0.5em 1em;
+        }
 
-      #person-button {
-        margin-left: 60px;
-        margin-top: 10px;
-        background-color: #E0E0E0;
-        color: #444;
-        border-radius: 50%;
-      }
+        #person-button {
+          margin-left: 60px;
+          margin-top: 10px;
+          background-color: #e0e0e0;
+          color: #444;
+          border-radius: 50%;
+        }
 
-      #app-title:first-letter {
-        text-transform:capitalize;
-      }
+        #app-title:first-letter {
+          text-transform: capitalize;
+        }
 
-      .center-xy {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 0 auto;
-        height: 100vh;
-      }
+        .center-xy {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin: 0 auto;
+          height: 100vh;
+        }
 
-      .center-xy  div {
-        display: block;
-        width: 20%;
-      }
+        .center-xy div {
+          display: block;
+          width: 20%;
+        }
 
-      .menu-bottom {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        border-top: 1px solid #e0e0e0;
-        background-color: white;
-      }
+        .menu-bottom {
+          position: absolute;
+          bottom: 0;
+          width: 100%;
+          border-top: 1px solid #e0e0e0;
+          background-color: white;
+        }
 
-      mwc-list {
-        --mdc-list-item-graphic-margin: 20px;
-        --mdc-list-side-padding: 20px;
-      }
+        mwc-list {
+          --mdc-list-item-graphic-margin: 20px;
+          --mdc-list-side-padding: 20px;
+        }
 
-      #main-menu {
-      }
+        #main-menu {
+        }
 
-      #onboarding {
-        width: 100%;
-        max-width: 30em;
-      }
+        #onboarding {
+          width: 100%;
+          max-width: 30em;
+        }
 
-      grampsjs-view-settings-onboarding {
-        width: 100%;
-      }
+        grampsjs-view-settings-onboarding {
+          width: 100%;
+        }
 
-      mwc-tab-bar {
-        margin: 20px;
-      }
+        mwc-tab-bar {
+          margin: 20px;
+        }
 
-      #shortcut-overlay-container {
-        background-color: rgba(0, 0, 0, 0.1);
-        position: fixed;
-        left: 0;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        min-height: 100vh;
-        width: 100vw;
-        z-index: 10001;
-        overflow:hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
+        #shortcut-overlay-container {
+          background-color: rgba(0, 0, 0, 0.1);
+          position: fixed;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          min-height: 100vh;
+          width: 100vw;
+          z-index: 10001;
+          overflow: hidden;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
 
-      #shortcut-overlay {
-        font-size: 16px;
-        background-color: white;
-        padding: 0.5em 1.5em;
-        position: absolute;
-        top: 15vh;
-        overflow-y:auto;
-        max-width: 100vw;
-        max-height: 75vh;
-        border-radius: 8px;
-      }
+        #shortcut-overlay {
+          font-size: 16px;
+          background-color: white;
+          padding: 0.5em 1.5em;
+          position: absolute;
+          top: 15vh;
+          overflow-y: auto;
+          max-width: 100vw;
+          max-height: 75vh;
+          border-radius: 8px;
+        }
 
-      #shortcut-overlay section {
-        display: flex;
-        flex-direction: row;
-        gap: 24px;
-      }
+        #shortcut-overlay section {
+          display: flex;
+          flex-direction: row;
+          gap: 24px;
+        }
 
-      #shortcut-overlay h3 {
-        margin-top: 0.5em;
-        font-size: 1.3em;
-        font-weight: 400;
-      }
+        #shortcut-overlay h3 {
+          margin-top: 0.5em;
+          font-size: 1.3em;
+          font-weight: 400;
+        }
 
-      #shortcut-overlay h4 {
-        margin-top: 0.5em;
-        font-weight: 400;
-        font-size: 1em;
-      }
+        #shortcut-overlay h4 {
+          margin-top: 0.5em;
+          font-weight: 400;
+          font-size: 1em;
+        }
 
-      #shortcut-overlay dl {
-        display: grid;
-        grid-template-columns: max-content auto;
-        margin: 0.5em 0em;
-      }
+        #shortcut-overlay dl {
+          display: grid;
+          grid-template-columns: max-content auto;
+          margin: 0.5em 0em;
+        }
 
-      #shortcut-overlay dt {
-        grid-column-start: 1;
-        margin-right: 1.2em;
-      }
+        #shortcut-overlay dt {
+          grid-column-start: 1;
+          margin-right: 1.2em;
+        }
 
-      #shortcut-overlay dt span {
-        font-family: 'Roboto Slab';
-        font-size: 11px;
-        font-weight: 400;
-        display: inline-block;
-        min-width: .75em;
-        padding: 4px 6px;
-        text-align: center;
-        border: 1px solid #ccc;
-        color: #555;
-        border-radius: 6px;
-        margin-bottom: 4px;
-      }
+        #shortcut-overlay dt span {
+          font-family: 'Roboto Slab';
+          font-size: 11px;
+          font-weight: 400;
+          display: inline-block;
+          min-width: 0.75em;
+          padding: 4px 6px;
+          text-align: center;
+          border: 1px solid #ccc;
+          color: #555;
+          border-radius: 6px;
+          margin-bottom: 4px;
+        }
 
-      #shortcut-overlay dd {
-        grid-column-start: 2;
-        padding: 0;
-      }
-    `
+        #shortcut-overlay dd {
+          grid-column-start: 2;
+          padding: 0;
+        }
+      `,
     ]
   }
 
-  render () {
+  render() {
     return html`
-    ${this.renderContent()}
-    ${this._renderKeyboardShortcuts()}
-    <mwc-snackbar id="error-snackbar" leading></mwc-snackbar>
-    <mwc-snackbar id="notification-snackbar" leading></mwc-snackbar>
-    <grampsjs-update-available>
-      <mwc-snackbar
-        leading
-        open
-        timeoutMs="-1"
-        labelText="${this._('A new version of the app is available.')}"
-      >
-        <mwc-button slot="action" @click=${this._postUpdateMessage}>${this._('Refresh')}</mwc-button>
-      </mwc-snackbar>
-    </grampsjs-update-available>
+      ${this.renderContent()} ${this._renderKeyboardShortcuts()}
+      <mwc-snackbar id="error-snackbar" leading></mwc-snackbar>
+      <mwc-snackbar id="notification-snackbar" leading></mwc-snackbar>
+      <grampsjs-update-available>
+        <mwc-snackbar
+          leading
+          open
+          timeoutMs="-1"
+          labelText="${this._('A new version of the app is available.')}"
+        >
+          <mwc-button slot="action" @click=${this._postUpdateMessage}
+            >${this._('Refresh')}</mwc-button
+          >
+        </mwc-snackbar>
+      </grampsjs-update-available>
     `
   }
 
-  _renderKeyboardShortcuts () {
+  _renderKeyboardShortcuts() {
     if (!this._showShortcuts) {
       return ''
     }
     return html`
-    <div id="shortcut-overlay-container">
-      <div id="shortcut-overlay">
-        <h3>${this._('Keyboard Shortcuts')}</h3>
-        <section>
-          <div>
-            <h4>${this._('Global')}</h4>
-            <dl>
-              <dt><span>?</span></dt>
-              <dd>${this._('Show this dialog')}</dd>
-              <dt><span>s</span></dt>
-              <dd>${this._('Search')}</dd>
-            </dl>
-          </div>
-          <div>
-            <h4>${this._('Navigation')}</h4>
-            <dl>
-              <dt><span>g</span> <span>h</span></dt>
-              <dd>${this._('Home Page')}</dd>
-              <dt><span>g</span> <span>b</span></dt>
-              <dd>${this._('Blog')}</dd>
-              <dt><span>g</span> <span>m</span></dt>
-              <dd>${this._('Map')}</dd>
-              <dt><span>g</span> <span>t</span></dt>
-              <dd>${this._('Family Tree')}</dd>
-              <dt><span>g</span> <span>r</span></dt>
-              <dd>${this._('History')}</dd>
-            </dl>
-          </div>
-        </section>
+      <div id="shortcut-overlay-container">
+        <div id="shortcut-overlay">
+          <h3>${this._('Keyboard Shortcuts')}</h3>
+          <section>
+            <div>
+              <h4>${this._('Global')}</h4>
+              <dl>
+                <dt><span>?</span></dt>
+                <dd>${this._('Show this dialog')}</dd>
+                <dt><span>s</span></dt>
+                <dd>${this._('Search')}</dd>
+              </dl>
+            </div>
+            <div>
+              <h4>${this._('Navigation')}</h4>
+              <dl>
+                <dt><span>g</span> <span>h</span></dt>
+                <dd>${this._('Home Page')}</dd>
+                <dt><span>g</span> <span>b</span></dt>
+                <dd>${this._('Blog')}</dd>
+                <dt><span>g</span> <span>m</span></dt>
+                <dd>${this._('Map')}</dd>
+                <dt><span>g</span> <span>t</span></dt>
+                <dd>${this._('Family Tree')}</dd>
+                <dt><span>g</span> <span>r</span></dt>
+                <dd>${this._('History')}</dd>
+              </dl>
+            </div>
+          </section>
+        </div>
       </div>
-    </div>
-      `
+    `
   }
 
-  _postUpdateMessage () {
+  _postUpdateMessage() {
     fireEvent(this, 'update:reload')
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _renderInitial () {
+  _renderInitial() {
     return html`<div class="center-xy">
       <div>
         <mwc-linear-progress indeterminate></mwc-linear-progress>
       </div>
-    </div>
-`
+    </div> `
   }
 
-  _renderNoConn () {
+  _renderNoConn() {
     return html`<div class="center-xy">
       <div>
-        No connection<br/><br/>
+        No connection<br /><br />
         <mwc-button raised @click=${this._handleReload}>Reload</mwc-button>
       </div>
-    </div>
-`
+    </div> `
   }
 
-  _renderLogin () {
-    return html`
-    <grampsjs-login .strings="${this._strings}"></grampsjs-login>
-    `
+  _renderLogin() {
+    return html` <grampsjs-login .strings="${this._strings}"></grampsjs-login> `
   }
 
-  _renderFirstRun () {
+  _renderFirstRun() {
     return html`
-    <grampsjs-first-run
-      .strings="${this._strings}"
-      token="${this._firstRunToken}"
-      @firstrun:done="${this._firstRunDone}"
-    ></grampsjs-first-run>
-    `
-  }
-
-  _renderOnboarding () {
-    return html`
-    <div class="center-xy" id="onboarding">
-      <grampsjs-view-settings-onboarding
-        @onboarding:completed="${this._setReady}"
-        class="page"
-        active
+      <grampsjs-first-run
         .strings="${this._strings}"
-        ?requireHomePerson="${!!this._dbInfo?.object_counts?.people}"
-      ></grampsjs-view-settings-onboarding>
-    </div>
+        token="${this._firstRunToken}"
+        @firstrun:done="${this._firstRunDone}"
+      ></grampsjs-first-run>
     `
   }
 
-  renderContent () {
+  _renderOnboarding() {
+    return html`
+      <div class="center-xy" id="onboarding">
+        <grampsjs-view-settings-onboarding
+          @onboarding:completed="${this._setReady}"
+          class="page"
+          active
+          .strings="${this._strings}"
+          ?requireHomePerson="${!!this._dbInfo?.object_counts?.people}"
+        ></grampsjs-view-settings-onboarding>
+      </div>
+    `
+  }
+
+  renderContent() {
     if (this.loadingState === LOADING_STATE_INITIAL) {
       return this._renderInitial()
     }
@@ -442,7 +439,7 @@ export class GrampsJs extends LitElement {
       citations: this._('Citations'),
       repositories: this._('Repositories'),
       notes: this._('Notes'),
-      medialist: this._('Media Objects')
+      medialist: this._('Media Objects'),
     }
     return html`
       <mwc-drawer type="dismissible" id="app-drawer" ?open="${this.wide}">
@@ -487,186 +484,374 @@ export class GrampsJs extends LitElement {
           <mwc-linear-progress indeterminate ?closed="${!this.progress}">
           </mwc-linear-progress>
 
-        <main>
+          <main>
+            ${this._tabHtml(tabs)}
 
+            <grampsjs-view-dashboard
+              class="page"
+              ?active=${this._page === 'home'}
+              .strings="${this._strings}"
+              .dbInfo="${this._dbInfo}"
+            ></grampsjs-view-dashboard>
+            <grampsjs-view-blog
+              class="page"
+              ?active=${this._page === 'blog'}
+              .strings="${this._strings}"
+            ></grampsjs-view-blog>
 
-        ${this._tabHtml(tabs)}
+            <grampsjs-view-people
+              class="page"
+              ?active=${this._page === 'people'}
+              .strings="${this._strings}"
+              ?canAdd=${this.canAdd}
+            ></grampsjs-view-people>
+            <grampsjs-view-families
+              class="page"
+              ?active=${this._page === 'families'}
+              .strings="${this._strings}"
+              ?canAdd=${this.canAdd && this.canEdit}
+            ></grampsjs-view-families>
+            <grampsjs-view-events
+              class="page"
+              ?active=${this._page === 'events'}
+              .strings="${this._strings}"
+              ?canAdd=${this.canAdd}
+            ></grampsjs-view-events>
+            <grampsjs-view-places
+              class="page"
+              ?active=${this._page === 'places'}
+              .strings="${this._strings}"
+              ?canAdd=${this.canAdd}
+            ></grampsjs-view-places>
+            <grampsjs-view-sources
+              class="page"
+              ?active=${this._page === 'sources'}
+              .strings="${this._strings}"
+              ?canAdd=${this.canAdd}
+            ></grampsjs-view-sources>
+            <grampsjs-view-citations
+              class="page"
+              ?active=${this._page === 'citations'}
+              .strings="${this._strings}"
+              ?canAdd=${this.canAdd}
+            ></grampsjs-view-citations>
+            <grampsjs-view-repositories
+              class="page"
+              ?active=${this._page === 'repositories'}
+              .strings="${this._strings}"
+              ?canAdd=${this.canAdd}
+            ></grampsjs-view-repositories>
+            <grampsjs-view-notes
+              class="page"
+              ?active=${this._page === 'notes'}
+              .strings="${this._strings}"
+              ?canAdd=${this.canAdd}
+            ></grampsjs-view-notes>
+            <grampsjs-view-media-objects
+              class="page"
+              ?active=${this._page === 'medialist'}
+              .strings="${this._strings}"
+              ?canAdd=${this.canAdd && this.canEdit}
+            ></grampsjs-view-media-objects>
 
-        <grampsjs-view-dashboard class="page" ?active=${this._page === 'home'} .strings="${this._strings}" .dbInfo="${this._dbInfo}"></grampsjs-view-dashboard>
-        <grampsjs-view-blog class="page" ?active=${this._page === 'blog'} .strings="${this._strings}"></grampsjs-view-blog>
+            <grampsjs-view-map
+              class="page"
+              ?active=${this._page === 'map'}
+              .strings="${this._strings}"
+            ></grampsjs-view-map>
+            <grampsjs-view-tree
+              class="page"
+              ?active=${this._page === 'tree'}
+              grampsId="${this.settings.homePerson}"
+              .strings="${this._strings}"
+              .settings="${this.settings}"
+            ></grampsjs-view-tree>
+            <grampsjs-view-graph
+              class="page"
+              ?active=${this._page === 'graph'}
+              grampsId="${this.settings.homePerson}"
+              .strings="${this._strings}"
+              .settings="${this.settings}"
+            ></grampsjs-view-graph>
 
-        <grampsjs-view-people class="page" ?active=${this._page === 'people'} .strings="${this._strings}" ?canAdd=${this.canAdd}></grampsjs-view-people>
-        <grampsjs-view-families class="page" ?active=${this._page === 'families'} .strings="${this._strings}" ?canAdd=${this.canAdd && this.canEdit}></grampsjs-view-families>
-        <grampsjs-view-events class="page" ?active=${this._page === 'events'} .strings="${this._strings}" ?canAdd=${this.canAdd}></grampsjs-view-events>
-        <grampsjs-view-places class="page" ?active=${this._page === 'places'} .strings="${this._strings}" ?canAdd=${this.canAdd}></grampsjs-view-places>
-        <grampsjs-view-sources class="page" ?active=${this._page === 'sources'} .strings="${this._strings}" ?canAdd=${this.canAdd}></grampsjs-view-sources>
-        <grampsjs-view-citations class="page" ?active=${this._page === 'citations'} .strings="${this._strings}" ?canAdd=${this.canAdd}></grampsjs-view-citations>
-        <grampsjs-view-repositories class="page" ?active=${this._page === 'repositories'} .strings="${this._strings}" ?canAdd=${this.canAdd}></grampsjs-view-repositories>
-        <grampsjs-view-notes class="page" ?active=${this._page === 'notes'} .strings="${this._strings}" ?canAdd=${this.canAdd}></grampsjs-view-notes>
-        <grampsjs-view-media-objects class="page" ?active=${this._page === 'medialist'} .strings="${this._strings}" ?canAdd=${this.canAdd && this.canEdit}></grampsjs-view-media-objects>
+            <grampsjs-view-person
+              class="page"
+              ?active=${this._page === 'person'}
+              grampsId="${this._pageId}"
+              .strings="${this._strings}"
+              ?canEdit="${this.canEdit}"
+              .homePersonDetails=${this._homePersonDetails}
+            ></grampsjs-view-person>
+            <grampsjs-view-family
+              class="page"
+              ?active=${this._page === 'family'}
+              grampsId="${this._pageId}"
+              .strings="${this._strings}"
+              ?canEdit="${this.canEdit}"
+            ></grampsjs-view-family>
+            <grampsjs-view-event
+              class="page"
+              ?active=${this._page === 'event'}
+              grampsId="${this._pageId}"
+              .strings="${this._strings}"
+              ?canEdit="${this.canEdit}"
+            ></grampsjs-view-event>
+            <grampsjs-view-place
+              class="page"
+              ?active=${this._page === 'place'}
+              grampsId="${this._pageId}"
+              .strings="${this._strings}"
+              ?canEdit="${this.canEdit}"
+            ></grampsjs-view-place>
+            <grampsjs-view-source
+              class="page"
+              ?active=${this._page === 'source'}
+              grampsId="${this._pageId}"
+              .strings="${this._strings}"
+              ?canEdit="${this.canEdit}"
+            ></grampsjs-view-source>
+            <grampsjs-view-citation
+              class="page"
+              ?active=${this._page === 'citation'}
+              grampsId="${this._pageId}"
+              .strings="${this._strings}"
+              ?canEdit="${this.canEdit}"
+            ></grampsjs-view-citation>
+            <grampsjs-view-repository
+              class="page"
+              ?active=${this._page === 'repository'}
+              grampsId="${this._pageId}"
+              .strings="${this._strings}"
+              ?canEdit="${this.canEdit}"
+            ></grampsjs-view-repository>
+            <grampsjs-view-note
+              class="page"
+              ?active=${this._page === 'note'}
+              grampsId="${this._pageId}"
+              .strings="${this._strings}"
+              ?canEdit="${this.canEdit}"
+            ></grampsjs-view-note>
+            <grampsjs-view-media
+              class="page"
+              ?active=${this._page === 'media'}
+              grampsId="${this._pageId}"
+              .strings="${this._strings}"
+              ?canEdit="${this.canEdit}"
+            ></grampsjs-view-media>
 
-        <grampsjs-view-map class="page" ?active=${this._page === 'map'} .strings="${this._strings}"></grampsjs-view-map>
-        <grampsjs-view-tree class="page" ?active=${this._page === 'tree'} grampsId="${this.settings.homePerson}" .strings="${this._strings}" .settings="${this.settings}"></grampsjs-view-tree>
-        <grampsjs-view-graph class="page" ?active=${this._page === 'graph'} grampsId="${this.settings.homePerson}" .strings="${this._strings}" .settings="${this.settings}"></grampsjs-view-graph>
+            <grampsjs-view-export
+              class="page"
+              ?active=${this._page === 'export'}
+              .strings="${this._strings}"
+            ></grampsjs-view-export>
+            <grampsjs-view-search
+              class="page"
+              ?active=${this._page === 'search'}
+              .strings="${this._strings}"
+            ></grampsjs-view-search>
+            <grampsjs-view-recent
+              class="page"
+              ?active=${this._page === 'recent'}
+              .strings="${this._strings}"
+            ></grampsjs-view-recent>
+            <grampsjs-view-settings
+              class="page"
+              ?active=${this._page === 'settings'}
+              .strings="${this._strings}"
+              ?users="${this.canManageUsers}"
+            ></grampsjs-view-settings>
 
-        <grampsjs-view-person class="page" ?active=${this._page === 'person'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}" .homePersonDetails=${this._homePersonDetails}></grampsjs-view-person>
-        <grampsjs-view-family class="page" ?active=${this._page === 'family'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-family>
-        <grampsjs-view-event class="page" ?active=${this._page === 'event'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-event>
-        <grampsjs-view-place class="page" ?active=${this._page === 'place'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-place>
-        <grampsjs-view-source class="page" ?active=${this._page === 'source'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-source>
-        <grampsjs-view-citation class="page" ?active=${this._page === 'citation'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-citation>
-        <grampsjs-view-repository class="page" ?active=${this._page === 'repository'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-repository>
-        <grampsjs-view-note class="page" ?active=${this._page === 'note'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-note>
-        <grampsjs-view-media class="page" ?active=${this._page === 'media'} grampsId="${this._pageId}" .strings="${this._strings}" ?canEdit="${this.canEdit}"></grampsjs-view-media>
-
-        <grampsjs-view-export class="page" ?active=${this._page === 'export'} .strings="${this._strings}"></grampsjs-view-export>
-        <grampsjs-view-search class="page" ?active=${this._page === 'search'} .strings="${this._strings}"></grampsjs-view-search>
-        <grampsjs-view-recent class="page" ?active=${this._page === 'recent'} .strings="${this._strings}"></grampsjs-view-recent>
-        <grampsjs-view-settings class="page" ?active=${this._page === 'settings'} .strings="${this._strings}" ?users="${this.canManageUsers}"></grampsjs-view-settings>
-
-        <grampsjs-view-new-person class="page" ?active=${this._page === 'new_person'} .strings="${this._strings}"></grampsjs-view-new-person>
-        <grampsjs-view-new-family class="page" ?active=${this._page === 'new_family'} .strings="${this._strings}"></grampsjs-view-new-family>
-        <grampsjs-view-new-event class="page" ?active=${this._page === 'new_event'} .strings="${this._strings}"></grampsjs-view-new-event>
-        <grampsjs-view-new-place class="page" ?active=${this._page === 'new_place'} .strings="${this._strings}"></grampsjs-view-new-place>
-        <grampsjs-view-new-source class="page" ?active=${this._page === 'new_source'} .strings="${this._strings}"></grampsjs-view-new-source>
-        <grampsjs-view-new-citation class="page" ?active=${this._page === 'new_citation'} .strings="${this._strings}"></grampsjs-view-new-citation>
-        <grampsjs-view-new-repository class="page" ?active=${this._page === 'new_repository'} .strings="${this._strings}"></grampsjs-view-new-repository>
-        <grampsjs-view-new-note class="page" ?active=${this._page === 'new_note'} .strings="${this._strings}"></grampsjs-view-new-note>
-        <grampsjs-view-new-media class="page" ?active=${this._page === 'new_media'} .strings="${this._strings}"></grampsjs-view-new-media>
-
-        </main>
-
-      </div>
+            <grampsjs-view-new-person
+              class="page"
+              ?active=${this._page === 'new_person'}
+              .strings="${this._strings}"
+            ></grampsjs-view-new-person>
+            <grampsjs-view-new-family
+              class="page"
+              ?active=${this._page === 'new_family'}
+              .strings="${this._strings}"
+            ></grampsjs-view-new-family>
+            <grampsjs-view-new-event
+              class="page"
+              ?active=${this._page === 'new_event'}
+              .strings="${this._strings}"
+            ></grampsjs-view-new-event>
+            <grampsjs-view-new-place
+              class="page"
+              ?active=${this._page === 'new_place'}
+              .strings="${this._strings}"
+            ></grampsjs-view-new-place>
+            <grampsjs-view-new-source
+              class="page"
+              ?active=${this._page === 'new_source'}
+              .strings="${this._strings}"
+            ></grampsjs-view-new-source>
+            <grampsjs-view-new-citation
+              class="page"
+              ?active=${this._page === 'new_citation'}
+              .strings="${this._strings}"
+            ></grampsjs-view-new-citation>
+            <grampsjs-view-new-repository
+              class="page"
+              ?active=${this._page === 'new_repository'}
+              .strings="${this._strings}"
+            ></grampsjs-view-new-repository>
+            <grampsjs-view-new-note
+              class="page"
+              ?active=${this._page === 'new_note'}
+              .strings="${this._strings}"
+            ></grampsjs-view-new-note>
+            <grampsjs-view-new-media
+              class="page"
+              ?active=${this._page === 'new_media'}
+              .strings="${this._strings}"
+            ></grampsjs-view-new-media>
+          </main>
+        </div>
       </mwc-drawer>
-
     `
   }
 
-  _tabHtml (tabs) {
+  _tabHtml(tabs) {
     if (!(this._page in tabs)) {
       return ''
     }
     return html`
-    <mwc-tab-bar activeIndex="${Object.keys(tabs).indexOf(this._page)}">
-    ${Object.keys(tabs).map(key => html`<mwc-tab isMinWidthIndicator label="${tabs[key]}" @click="${() => this._handleTab(key)}"></mwc-tab>`)}
-    </mwc-tab-bar>
-  `
+      <mwc-tab-bar activeIndex="${Object.keys(tabs).indexOf(this._page)}">
+        ${Object.keys(tabs).map(
+          key =>
+            html`<mwc-tab
+              isMinWidthIndicator
+              label="${tabs[key]}"
+              @click="${() => this._handleTab(key)}"
+            ></mwc-tab>`
+        )}
+      </mwc-tab-bar>
+    `
   }
 
-  _toggleDrawer () {
+  _toggleDrawer() {
     const drawer = this.shadowRoot.getElementById('app-drawer')
     if (drawer !== null) {
       drawer.open = !drawer.open
     }
   }
 
-  _closeDrawer () {
+  _closeDrawer() {
     const drawer = this.shadowRoot.getElementById('app-drawer')
     if (drawer !== null && drawer.open) {
       drawer.open = false
     }
   }
 
-  _handleReload () {
+  _handleReload() {
     this.loadingState = LOADING_STATE_INITIAL
     this._loadDbInfo()
   }
 
-  _firstRunDone () {
+  // eslint-disable-next-line class-methods-use-this
+  _firstRunDone() {
     document.location.href = '/'
   }
 
-  connectedCallback () {
+  connectedCallback() {
     super.connectedCallback()
     this._loadDbInfo()
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
     this.addEventListener('drawer:toggle', this._toggleDrawer)
-    window.addEventListener('keydown', (event) => this._handleKey(event))
+    window.addEventListener('keydown', event => this._handleKey(event))
 
     const browserLang = getBrowserLanguage()
     if (browserLang && !this.settings.lang) {
-      updateSettings({ lang: browserLang })
+      updateSettings({lang: browserLang})
     }
     if (this.settings.lang) {
       this._loadFrontendStrings(browserLang)
     }
   }
 
-  firstUpdated () {
-    installRouter((location) => this._loadPage(decodeURIComponent(location.pathname)))
-    installMediaQueryWatcher('(min-width: 768px)', (matches) => { this.wide = matches })
+  firstUpdated() {
+    installRouter(location =>
+      this._loadPage(decodeURIComponent(location.pathname))
+    )
+    installMediaQueryWatcher('(min-width: 768px)', matches => {
+      this.wide = matches
+    })
     this.addEventListener('nav', this._handleNav.bind(this))
     this.addEventListener('grampsjs:error', this._handleError.bind(this))
-    this.addEventListener('grampsjs:notification', this._handleNotification.bind(this))
+    this.addEventListener(
+      'grampsjs:notification',
+      this._handleNotification.bind(this)
+    )
     this.addEventListener('progress:on', this._progressOn.bind(this))
     this.addEventListener('progress:off', this._progressOff.bind(this))
     window.addEventListener('user:loggedout', this._handleLogout.bind(this))
     window.addEventListener('settings:changed', this._handleSettings.bind(this))
   }
 
-  _loadFrontendStrings (lang) {
+  _loadFrontendStrings(lang) {
     this._strings = additionalStrings[lang]
     this._strings.__lang__ = lang
     this._lang = lang
   }
 
-  _loadDbInfo (setReady = true) {
-    apiGet('/api/metadata/')
-      .then(data => {
-        if ('error' in data) {
-          if (data.error === 'Network error') {
-            this.loadingState = LOADING_STATE_UNAUTHORIZED_NOCONNECTION
-          } else {
-            this._fetchOnboardingToken()
-          }
-          return
-        }
-        if ('data' in data) {
-          this._dbInfo = data.data
-          if (this.language === '' && this._dbInfo?.locale?.language !== undefined) {
-            this.language = this._dbInfo.locale.language
-          }
-          if (setReady) {
-            this._setReady()
-          }
-          this._loadHomePersonInfo()
-        }
-      })
-  }
-
-  _fetchOnboardingToken () {
-    apiGet('/api/token/create_owner/')
-      .then(data => {
-        if (!('error' in data) && (data?.data?.access_token)) {
-          this.loadingState = LOADING_STATE_NO_OWNER
-          this._firstRunToken = data?.data?.access_token
+  _loadDbInfo(setReady = true) {
+    apiGet('/api/metadata/').then(data => {
+      if ('error' in data) {
+        if (data.error === 'Network error') {
+          this.loadingState = LOADING_STATE_UNAUTHORIZED_NOCONNECTION
         } else {
-          this.loadingState = LOADING_STATE_UNAUTHORIZED
+          this._fetchOnboardingToken()
         }
-      })
+        return
+      }
+      if ('data' in data) {
+        this._dbInfo = data.data
+        if (
+          this.language === '' &&
+          this._dbInfo?.locale?.language !== undefined
+        ) {
+          this.language = this._dbInfo.locale.language
+        }
+        if (setReady) {
+          this._setReady()
+        }
+        this._loadHomePersonInfo()
+      }
+    })
   }
 
-  _loadHomePersonInfo () {
+  _fetchOnboardingToken() {
+    apiGet('/api/token/create_owner/').then(data => {
+      if (!('error' in data) && data?.data?.access_token) {
+        this.loadingState = LOADING_STATE_NO_OWNER
+        this._firstRunToken = data?.data?.access_token
+      } else {
+        this.loadingState = LOADING_STATE_UNAUTHORIZED
+      }
+    })
+  }
+
+  _loadHomePersonInfo() {
     const grampsId = this.settings.homePerson
     if (!grampsId) {
-      return null
+      return
     }
-    apiGet(`/api/people/?gramps_id=${grampsId}`)
-      .then(data => {
-        if ('data' in data) {
-          [this._homePersonDetails] = data.data
-        } else if ('error' in data) {
-          this._showError(data.error)
-        }
-      })
+    apiGet(`/api/people/?gramps_id=${grampsId}`).then(data => {
+      if ('data' in data) {
+        ;[this._homePersonDetails] = data.data
+      } else if ('error' in data) {
+        this._showError(data.error)
+      }
+    })
   }
 
-  _setReady () {
+  _setReady() {
     this.loadingState = LOADING_STATE_READY
     this.setPermissions()
   }
 
-  _loadPage (path) {
+  _loadPage(path) {
     this._disableEditMode()
     if (path === '/' || path === `${BASE_DIR}/`) {
       this._page = 'home'
@@ -690,15 +875,15 @@ export class GrampsJs extends LitElement {
     }
   }
 
-  _progressOn () {
+  _progressOn() {
     this.progress = true
   }
 
-  _progressOff () {
+  _progressOff() {
     this.progress = false
   }
 
-  _handleTab (page) {
+  _handleTab(page) {
     if (page !== this._page) {
       const href = `${BASE_DIR}/${page}`
       this._loadPage(href)
@@ -707,7 +892,7 @@ export class GrampsJs extends LitElement {
     }
   }
 
-  _handleNav (e) {
+  _handleNav(e) {
     const {path} = e.detail
     const page = path.split('/')[0]
     const pageId = path.split('/')[1]
@@ -719,89 +904,105 @@ export class GrampsJs extends LitElement {
     }
   }
 
-  _disableEditMode () {
+  _disableEditMode() {
     fireEvent(this, 'edit-mode:off', {})
   }
 
-  _handleError (e) {
+  _handleError(e) {
     const {message} = e.detail
     this._showError(message)
   }
 
-  _handleNotification (e) {
+  _handleNotification(e) {
     const {message} = e.detail
     this._showToast(message)
   }
 
-  update (changed) {
+  update(changed) {
     super.update(changed)
-    if (changed.has('settings') && this.loadingState > LOADING_STATE_UNAUTHORIZED_NOCONNECTION) {
+    if (
+      changed.has('settings') &&
+      this.loadingState > LOADING_STATE_UNAUTHORIZED_NOCONNECTION
+    ) {
       if (this.settings.lang && this.settings.lang !== this._lang) {
         this._loadStrings(grampsStrings, this.settings.lang)
       }
     }
   }
 
-  _backendStringsLoaded () {
+  _backendStringsLoaded() {
     // to find out if we have already fetched the translations
     // from the backend, we just check for the first string
     return Boolean(grampsStrings[0] in this._strings)
   }
 
-  _loadStrings (strings, lang) {
-    apiGet(`/api/translations/${lang}?strings=${JSON.stringify(strings)}`)
-      .then(data => {
+  _loadStrings(strings, lang) {
+    apiGet(`/api/translations/${lang}?strings=${JSON.stringify(strings)}`).then(
+      data => {
         if ('data' in data) {
-          this._strings = data.data.reduce((obj, item) => Object.assign(obj, {[item.original]: item.translation}), {})
+          this._strings = data.data.reduce(
+            (obj, item) =>
+              Object.assign(obj, {[item.original]: item.translation}),
+            {}
+          )
           if (lang in additionalStrings) {
-            this._strings = Object.assign(additionalStrings[lang], this._strings)
+            this._strings = Object.assign(
+              additionalStrings[lang],
+              this._strings
+            )
           }
           this._strings.__lang__ = lang
           this._lang = lang
-          fireEvent(this, 'language:changed', {lang: lang})
+          fireEvent(this, 'language:changed', {lang})
         }
         if ('error' in data) {
           this._showError(data.error)
         }
-      })
+      }
+    )
   }
 
-  _showError (msg) {
+  _showError(msg) {
     const snackbar = this.shadowRoot.getElementById('error-snackbar')
     snackbar.labelText = `Error: ${msg}`
     snackbar.show()
   }
 
-  _showToast (msg) {
+  _showToast(msg) {
     const snackbar = this.shadowRoot.getElementById('notification-snackbar')
     snackbar.labelText = msg
     snackbar.show()
   }
 
-  _openUserMenu () {
+  _openUserMenu() {
     const userMenu = this.shadowRoot.getElementById('user-menu')
     userMenu.open = true
   }
 
-  _handleLogout () {
+  _handleLogout() {
     this.loadingState = LOADING_STATE_UNAUTHORIZED
   }
 
-  _handleSettings () {
+  _handleSettings() {
     this.settings = getSettings()
     if (
       this.settings?.homePerson &&
       this._homePersonDetails?.gramps_id &&
-      (this.settings.homePerson !== this._homePersonDetails.gramps_id)
+      this.settings.homePerson !== this._homePersonDetails.gramps_id
     ) {
       this._loadHomePersonInfo()
     }
   }
 
-  _handleKey (e) {
+  _handleKey(e) {
     const target = e.composedPath()[0]
-    if (['input', 'textarea', 'select', 'option', 'mwc-list-item'].includes(target.tagName.toLowerCase()) || target.getAttribute('contenteditable')) {
-      return null
+    if (
+      ['input', 'textarea', 'select', 'option', 'mwc-list-item'].includes(
+        target.tagName.toLowerCase()
+      ) ||
+      target.getAttribute('contenteditable')
+    ) {
+      return
     }
     if (this._showShortcuts) {
       this._showShortcuts = false
@@ -819,22 +1020,20 @@ export class GrampsJs extends LitElement {
         fireEvent(this, 'nav', {path: 'recent'})
       }
       this._shortcutPressed = ''
+    } else if (e.key === 'g') {
+      this._shortcutPressed = 'g'
+    } else if (e.key === 's') {
+      fireEvent(this, 'nav', {path: 'search'})
+    } else if (e.key === '?') {
+      this._showShortcuts = true
     } else {
-      if (e.key === 'g') {
-        this._shortcutPressed = 'g'
-      } else if (e.key === 's') {
-        fireEvent(this, 'nav', {path: 'search'})
-      } else if (e.key === '?') {
-        this._showShortcuts = true
-      } else {
-        return null
-      }
+      return
     }
     e.preventDefault()
     e.stopPropagation()
   }
 
-  setPermissions () {
+  setPermissions() {
     const permissions = getPermissions()
     // If permissions is null, authorization is disabled and anything goes
     if (permissions === null) {
@@ -849,7 +1048,7 @@ export class GrampsJs extends LitElement {
     }
   }
 
-  _ (s) {
+  _(s) {
     if (s in this._strings) {
       return this._strings[s]
     }

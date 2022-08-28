@@ -18,16 +18,16 @@ const confidence = {
   1: 'Low',
   2: 'Normal',
   3: 'High',
-  4: 'Very High'
+  4: 'Very High',
 }
 
 class GrampsjsFormNewCitation extends GrampsjsObjectForm {
-  constructor () {
+  constructor() {
     super()
     this.data = {_class: 'Citation', confidence: 2}
   }
 
-  renderForm () {
+  renderForm() {
     return html`
       <h4 class="label">${this._('Source')}</h4>
       <grampsjs-form-select-object-list
@@ -38,33 +38,31 @@ class GrampsjsFormNewCitation extends GrampsjsObjectForm {
         .strings="${this.strings}"
       ></grampsjs-form-select-object-list>
 
-
       <h4 class="label">${this._('Page')}</h4>
       <p>
         <grampsjs-form-string fullwidth id="page"></grampsjs-form-string>
       </p>
 
-
       <h4 class="label">${this._('Date')}</h4>
       <p>
-        <grampsjs-form-select-date
-          id="date"
-          .strings="${this.strings}"
-        >
+        <grampsjs-form-select-date id="date" .strings="${this.strings}">
         </grampsjs-form-select-date>
       </p>
 
       <h4 class="label">${this._('Con_fidence')}</h4>
-      <mwc-select
-        id="select-confidence"
-        @change="${this.handleConfidence}"
-      >
-        ${Object.keys(confidence).map(conf => html`
-        <mwc-list-item
-          value="${conf}"
-          ?selected="${conf == this.data.confidence}"
-        >${this._(confidence[conf])}</mwc-list-item>
-        `)}
+      <mwc-select id="select-confidence" @change="${this.handleConfidence}">
+        ${Object.keys(confidence).map(
+          conf => html`
+            <mwc-list-item
+              value="${conf}"
+              ?selected="${
+                // eslint-disable-next-line eqeqeq
+                conf == this.data.confidence
+              }"
+              >${this._(confidence[conf])}</mwc-list-item
+            >
+          `
+        )}
       </mwc-select>
 
       <div class="spacer"></div>
@@ -72,13 +70,15 @@ class GrampsjsFormNewCitation extends GrampsjsObjectForm {
         id="private"
         .strings="${this.strings}"
       ></grampsjs-form-private>
-
     `
   }
 
-  handleConfidence (e) {
+  handleConfidence(e) {
     this.data = {...this.data, confidence: parseInt(e.target.value, 10)}
   }
 }
 
-window.customElements.define('grampsjs-form-new-citation', GrampsjsFormNewCitation)
+window.customElements.define(
+  'grampsjs-form-new-citation',
+  GrampsjsFormNewCitation
+)

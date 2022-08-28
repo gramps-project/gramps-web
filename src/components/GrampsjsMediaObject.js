@@ -11,95 +11,98 @@ import '@material/mwc-icon'
 import '@material/mwc-icon-button'
 
 export class GrampsjsMediaObject extends GrampsjsObject {
-  static get styles () {
+  static get styles() {
     return [
       super.styles,
       css`
-      :host {
-      }
+        :host {
+        }
 
-      grampsjs-img {
-        margin: 30px 0;
-      }
+        grampsjs-img {
+          margin: 30px 0;
+        }
 
-      dl::after {
-        content: "";
-        display: block;
-        clear: both;
-      }
-    `]
+        dl::after {
+          content: '';
+          display: block;
+          clear: both;
+        }
+      `,
+    ]
   }
 
-  renderProfile () {
+  renderProfile() {
     return html`
-    <h2><mwc-icon>photo</mwc-icon>
-    ${this.data.desc || this._('Media Object')}
-    ${this.edit
-    ? html`
-    <mwc-icon-button icon="edit" class="edit" @click="${this._handleEditTitle}"></mwc-icon-button>
-    `
-    : ''}
-    </h2>
+      <h2>
+        <mwc-icon>photo</mwc-icon>
+        ${this.data.desc || this._('Media Object')}
+        ${this.edit
+          ? html`
+              <mwc-icon-button
+                icon="edit"
+                class="edit"
+                @click="${this._handleEditTitle}"
+              ></mwc-icon-button>
+            `
+          : ''}
+      </h2>
 
-    <dl>
-    ${this.data?.profile?.date || this.edit
-    ? html`
-    <div>
-      <dt>
-        ${this._('Date')}
-      </dt>
-      <dd>
-      ${this.data.profile.date}
-      </dd>
-    </div>
-    ${this.edit
-    ? html`
-      <mwc-icon-button icon="edit" class="edit" @click="${this._handleEditDate}"></mwc-icon-button>
-      `
-    : ''}
+      <dl>
+        ${this.data?.profile?.date || this.edit
+          ? html`
+              <div>
+                <dt>${this._('Date')}</dt>
+                <dd>${this.data.profile.date}</dd>
+              </div>
+              ${this.edit
+                ? html`
+                    <mwc-icon-button
+                      icon="edit"
+                      class="edit"
+                      @click="${this._handleEditDate}"
+                    ></mwc-icon-button>
+                  `
+                : ''}
+            `
+          : ''}
+      </dl>
 
-    `
-    : ''}
-    </dl>
+      <grampsjs-img
+        handle="${this.data.handle}"
+        size="1000"
+        class="link"
+        border
+        mime="${this.data.mime}"
+        @click=${this._handleClick}
+      ></grampsjs-img>
 
-    <grampsjs-img
-      handle="${this.data.handle}"
-      size="1000"
-      class="link"
-      border
-      mime="${this.data.mime}"
-      @click=${this._handleClick}
-    ></grampsjs-img>
-
-
-    <grampsjs-view-media-lightbox
-      id="obj-lightbox-view"
-      @rect:clicked="${this._handleRectClick}"
-      handle="${this.data.handle}"
-      hideLeftArrow
-      hideRightArrow
-      active
-      .strings="${this.strings}"
+      <grampsjs-view-media-lightbox
+        id="obj-lightbox-view"
+        @rect:clicked="${this._handleRectClick}"
+        handle="${this.data.handle}"
+        hideLeftArrow
+        hideRightArrow
+        active
+        .strings="${this.strings}"
       >
-    </grampsjs-view-media-lightbox>
-
+      </grampsjs-view-media-lightbox>
     `
   }
 
-  _handleEditTitle () {
+  _handleEditTitle() {
     this.dialogContent = html`
-    <grampsjs-form-edit-title
-      @object:save="${this._handleSaveTitle}"
-      @object:cancel="${this._handleCancelDialog}"
-      .strings=${this.strings}
-      .data=${{desc: this.data?.desc || ''}}
-      prop="desc"
-    >
-    </grampsjs-form-edit-title>
+      <grampsjs-form-edit-title
+        @object:save="${this._handleSaveTitle}"
+        @object:cancel="${this._handleCancelDialog}"
+        .strings=${this.strings}
+        .data=${{desc: this.data?.desc || ''}}
+        prop="desc"
+      >
+      </grampsjs-form-edit-title>
     `
   }
 
-  _handleEditDate () {
+  _handleEditDate() {
     this.dialogContent = html`
     <grampsjs-form-edit-date
       @object:save="${this._handleSaveDate}"
@@ -111,48 +114,57 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     `
   }
 
-  _handleSaveTitle (e) {
+  _handleSaveTitle(e) {
     fireEvent(this, 'edit:action', {action: 'updateProp', data: e.detail.data})
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''
   }
 
-  _handleSaveDate (e) {
+  _handleSaveDate(e) {
     fireEvent(this, 'edit:action', {action: 'updateProp', data: e.detail.data})
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''
   }
 
-  _handleEditGeo () {
+  _handleEditGeo() {
     this.dialogContent = html`
-    <grampsjs-form-edit-map-layer
-      @object:save="${this._handleSaveMap}"
-      @object:cancel="${this._handleCancelDialog}"
-      .strings="${this.strings}"
-      .data="${this.data}"
-    ></grampsjs-form-edit-map-layer>
+      <grampsjs-form-edit-map-layer
+        @object:save="${this._handleSaveMap}"
+        @object:cancel="${this._handleCancelDialog}"
+        .strings="${this.strings}"
+        .data="${this.data}"
+      ></grampsjs-form-edit-map-layer>
     `
   }
 
-  _handleSaveMap (e) {
+  _handleSaveMap(e) {
     const attrs = e.detail?.data?.attribute_list || []
     if (attrs.length > 0) {
-      fireEvent(this, 'edit:action', {action: 'updateProp', data: {attribute_list: attrs}})
+      fireEvent(this, 'edit:action', {
+        action: 'updateProp',
+        data: {attribute_list: attrs},
+      })
     }
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''
   }
 
-  _handleClick () {
+  _handleClick() {
     const lightBoxView = this.shadowRoot.getElementById('obj-lightbox-view')
     lightBoxView.open()
   }
 
-  _handleRectClick (event) {
-    this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: event.detail.target}}))
+  _handleRectClick(event) {
+    this.dispatchEvent(
+      new CustomEvent('nav', {
+        bubbles: true,
+        composed: true,
+        detail: {path: event.detail.target},
+      })
+    )
   }
 }
 

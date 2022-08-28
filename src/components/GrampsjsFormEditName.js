@@ -10,30 +10,30 @@ import './GrampsjsFormSelectType.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 class GrampsjsFormEditName extends GrampsjsObjectForm {
-  renderForm () {
+  renderForm() {
     return html`
-    <grampsjs-form-name
-      showMore
-      id="name"
-      @formdata:changed="${this._handleFormData}"
-      .strings="${this.strings}"
-      .data="${this.data}"
-    >
-    </grampsjs-form-name>
+      <grampsjs-form-name
+        showMore
+        id="name"
+        @formdata:changed="${this._handleFormData}"
+        .strings="${this.strings}"
+        .data="${this.data}"
+      >
+      </grampsjs-form-name>
 
-    <grampsjs-form-select-type
-      required
-      id="name-type"
-      .strings="${this.strings}"
-      typeName="name_types"
-      defaultTypeName="Birth Name"
-      initialValue=${this.data?.type || ''}
-      .types="${this.types}"
-      .typesLocale="${this.typesLocale}"
-      @formdata:changed="${this._handleFormData}"
-    >
-    </grampsjs-form-select-type>
-`
+      <grampsjs-form-select-type
+        required
+        id="name-type"
+        .strings="${this.strings}"
+        typeName="name_types"
+        defaultTypeName="Birth Name"
+        initialValue=${this.data?.type || ''}
+        .types="${this.types}"
+        .typesLocale="${this.typesLocale}"
+        @formdata:changed="${this._handleFormData}"
+      >
+      </grampsjs-form-select-type>
+    `
   }
 }
 

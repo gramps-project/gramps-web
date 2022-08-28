@@ -8,52 +8,50 @@ import {fireEvent} from '../util.js'
 const icons = {
   0: 'female',
   1: 'male',
-  2: 'question_mark'
+  2: 'question_mark',
 }
 
 const newGender = {
   0: 1,
   1: 2,
-  2: 0
+  2: 0,
 }
 
 export class GrampsjsEditGender extends LitElement {
-  static get styles () {
-    return [
-      sharedStyles
-    ]
+  static get styles() {
+    return [sharedStyles]
   }
 
-  static get properties () {
+  static get properties() {
     return {
       gender: {type: Number},
-      edit: {type: Boolean}
+      edit: {type: Boolean},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.gender = 2 // unkown
     this.edit = false
   }
 
-  render () {
+  render() {
     if (!this.edit) {
       return ''
     }
     return html`
-    <mwc-icon-button
-      icon="${icons[this.gender]}"
-      @click="${this._handleClick}"
-      class="edit"
-    ></mwc-icon-button>
+      <mwc-icon-button
+        icon="${icons[this.gender]}"
+        @click="${this._handleClick}"
+        class="edit"
+      ></mwc-icon-button>
     `
   }
 
-  _handleClick (e) {
+  _handleClick() {
     fireEvent(this, 'edit:action', {
       action: 'updateProp',
-      data: {gender: newGender[this.gender]}
+      data: {gender: newGender[this.gender]},
     })
   }
 }

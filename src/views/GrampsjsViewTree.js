@@ -4,125 +4,133 @@ import '@material/mwc-icon-button'
 import '@material/mwc-icon'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import '../views/GrampsjsViewGraph.js'
-import '../views/GrampsjsViewPedigree.js'
+import './GrampsjsViewGraph.js'
+import './GrampsjsViewPedigree.js'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsViewTree extends GrampsjsView {
-  static get styles () {
+  static get styles() {
     return [
       super.styles,
       css`
-      :host {
-        margin: 0;
-        margin-top: -4px;
-      }
+        :host {
+          margin: 0;
+          margin-top: -4px;
+        }
 
-      .with-margin {
-        margin: 25px 40px;
-      }
+        .with-margin {
+          margin: 25px 40px;
+        }
 
-      #outer-container {
-        height: calc(100vh - 68px);
-      }
+        #outer-container {
+          height: calc(100vh - 68px);
+        }
 
-      #select {
-        z-index: 1;
-        position: absolute;
-        top: 85px;
-        right: 25px;
-        border-radius: 5px;
-        background-color: rgba(255, 255, 255, 0.9);
-        color: #b1b1b1;
-        --mdc-theme-text-disabled-on-light: #666;
-        --mdc-icon-size: 32px;
-      }
-    `]
+        #select {
+          z-index: 1;
+          position: absolute;
+          top: 85px;
+          right: 25px;
+          border-radius: 5px;
+          background-color: rgba(255, 255, 255, 0.9);
+          color: #b1b1b1;
+          --mdc-theme-text-disabled-on-light: #666;
+          --mdc-icon-size: 32px;
+        }
+      `,
+    ]
   }
 
-  static get properties () {
+  static get properties() {
     return {
       grampsId: {type: String},
       view: {type: String},
-      _history: {type: Array}
+      _history: {type: Array},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.grampsId = ''
     this.view = 'pedigree'
     this._history = this.grampsId ? [this.grampsId] : []
   }
 
-  renderContent () {
+  renderContent() {
     if (this.grampsId === '') {
       return html`
-      <div class="with-margin">
-        <p>${this._('No Home Person set.')} <a href="/settings">${this._('User settings')}</a></p>
-      </div>
+        <div class="with-margin">
+          <p>
+            ${this._('No Home Person set.')}
+            <a href="/settings">${this._('User settings')}</a>
+          </p>
+        </div>
       `
     }
     return html`
-    ${this.view === 'pedigree' ? this._renderPedigree() : ''}
-    ${this.view === 'graph' ? this._renderGraph() : ''}
-    ${this._renderSelect()}
+      ${this.view === 'pedigree' ? this._renderPedigree() : ''}
+      ${this.view === 'graph' ? this._renderGraph() : ''}
+      ${this._renderSelect()}
     `
   }
 
-  _renderSelect () {
+  _renderSelect() {
     return html`
-    <div id="select">
-      <mwc-icon-button
-        ?disabled=${this.view === 'pedigree'}
-        @click=${() => { this.view = 'pedigree' }}
-        icon="text_rotation_none"
-        style="margin-left: -5px;"
-      ></mwc-icon-button>
-      <mwc-icon-button
-        ?disabled=${this.view === 'graph'}
-        @click=${() => { this.view = 'graph' }}
-        icon="text_rotate_vertical"
+      <div id="select">
+        <mwc-icon-button
+          ?disabled=${this.view === 'pedigree'}
+          @click=${() => {
+            this.view = 'pedigree'
+          }}
+          icon="text_rotation_none"
+          style="margin-left: -5px;"
         ></mwc-icon-button>
-    </div>
+        <mwc-icon-button
+          ?disabled=${this.view === 'graph'}
+          @click=${() => {
+            this.view = 'graph'
+          }}
+          icon="text_rotate_vertical"
+        ></mwc-icon-button>
+      </div>
     `
   }
 
-  _renderPedigree () {
+  _renderPedigree() {
     return html`
-    <grampsjs-view-pedigree
-      @tree:back="${this._prevPerson}"
-      @tree:person="${this._goToPerson}"
-      @tree:home="${this._backToHomePerson}"
-      grampsId=${this.grampsId}
-      ?active=${this.active}
-      .strings=${this.strings}
-      .settings=${this.settings}
-      ?disableBack=${this._history.length < 2}
-      ?disableHome=${this.grampsId === this.settings.homePerson}
-    >
-    </grampsjs-view-pedigree>
+      <grampsjs-view-pedigree
+        @tree:back="${this._prevPerson}"
+        @tree:person="${this._goToPerson}"
+        @tree:home="${this._backToHomePerson}"
+        grampsId=${this.grampsId}
+        ?active=${this.active}
+        .strings=${this.strings}
+        .settings=${this.settings}
+        ?disableBack=${this._history.length < 2}
+        ?disableHome=${this.grampsId === this.settings.homePerson}
+      >
+      </grampsjs-view-pedigree>
     `
   }
 
-  _renderGraph () {
+  _renderGraph() {
     return html`
-    <grampsjs-view-graph
-      @tree:back="${this._prevPerson}"
-      @tree:person="${this._goToPerson}"
-      @tree:home="${this._backToHomePerson}"
-      grampsId=${this.grampsId}
-      ?active=${this.active}
-      .strings=${this.strings}
-      .settings=${this.settings}
-      ?disableBack=${this._history.length < 2}
-      ?disableHome=${this.grampsId === this.settings.homePerson}
-    >
-    </grampsjs-view-graph>
+      <grampsjs-view-graph
+        @tree:back="${this._prevPerson}"
+        @tree:person="${this._goToPerson}"
+        @tree:home="${this._backToHomePerson}"
+        grampsId=${this.grampsId}
+        ?active=${this.active}
+        .strings=${this.strings}
+        .settings=${this.settings}
+        ?disableBack=${this._history.length < 2}
+        ?disableHome=${this.grampsId === this.settings.homePerson}
+      >
+      </grampsjs-view-graph>
     `
   }
 
-  _handleSelect (event) {
+  _handleSelect(event) {
     if (event.detail.index === 0) {
       this.view = 'pedigree'
     } else if (event.detail.index === 1) {
@@ -130,25 +138,28 @@ export class GrampsjsViewTree extends GrampsjsView {
     }
   }
 
-  _prevPerson () {
+  _prevPerson() {
     this._history.pop()
     this.grampsId = this._history.pop()
   }
 
-  _backToHomePerson () {
+  _backToHomePerson() {
     this.grampsId = this.settings.homePerson
   }
 
-  _goToPerson () {
+  _goToPerson() {
     fireEvent(this, 'nav', {path: `person/${this.grampsId}`})
   }
 
-  connectedCallback () {
+  connectedCallback() {
     super.connectedCallback()
-    window.addEventListener('pedigree:person-selected', this._selectPerson.bind(this))
+    window.addEventListener(
+      'pedigree:person-selected',
+      this._selectPerson.bind(this)
+    )
   }
 
-  update (changed) {
+  update(changed) {
     super.update(changed)
     if (changed.has('grampsId')) {
       this._history.push(this.grampsId)
@@ -157,7 +168,7 @@ export class GrampsjsViewTree extends GrampsjsView {
     }
   }
 
-  async _selectPerson (event) {
+  async _selectPerson(event) {
     const {grampsId} = event.detail
     this.grampsId = grampsId
   }

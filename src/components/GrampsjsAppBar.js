@@ -16,35 +16,35 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
-  static get styles () {
+  static get styles() {
     return [
       sharedStyles,
       css`
-      mwc-top-app-bar {
-        --mdc-typography-headline6-font-family: Roboto Slab;
-        --mdc-typography-headline6-font-weight: 400;
-        --mdc-typography-headline6-font-size: 19px;
-      }
+        mwc-top-app-bar {
+          --mdc-typography-headline6-font-family: Roboto Slab;
+          --mdc-typography-headline6-font-weight: 400;
+          --mdc-typography-headline6-font-size: 19px;
+        }
 
-      mwc-top-app-bar.edit {
-        --mdc-theme-primary: var(--mdc-theme-secondary);
-        --mdc-theme-on-primary: var(--mdc-theme-on-secondary);
-      }
-      `
+        mwc-top-app-bar.edit {
+          --mdc-theme-primary: var(--mdc-theme-secondary);
+          --mdc-theme-on-primary: var(--mdc-theme-on-secondary);
+        }
+      `,
     ]
   }
 
-  static get properties () {
+  static get properties() {
     return {
       add: {type: Boolean},
       editMode: {type: Boolean},
       editTitle: {type: String},
       editDialogContent: {type: String},
-      saveButton: {type: Boolean}
+      saveButton: {type: Boolean},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.add = false
     this.editMode = false
@@ -53,103 +53,118 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
     this.saveButton = false
   }
 
-  render () {
+  render() {
     return html`
-    <mwc-top-app-bar class="${classMap({edit: this.editMode})}">
-    ${this.editMode
-    ? html`<mwc-icon-button slot="navigationIcon" icon="close" @click="${this._handleCloseIcon}"></mwc-icon-button>`
-    : html`<mwc-icon-button slot="navigationIcon" icon="menu" @click="${this._toggleDrawer}"></mwc-icon-button>`
-}
-    <div id="app-title" slot="title">${
-  this.editMode && this.editTitle
-    ? this.editTitle
-    : (this._dbInfo?.database?.name || 'Gramps')
-}
-    </div>
-    ${
-  this.editMode
-    ? this.saveButton
-      ? html`
-    <mwc-icon-button icon="save" slot="actionItems" @click="${this._handleSaveIcon}"></mwc-icon-button>
+      <mwc-top-app-bar class="${classMap({edit: this.editMode})}">
+        ${this.editMode
+          ? html`<mwc-icon-button
+              slot="navigationIcon"
+              icon="close"
+              @click="${this._handleCloseIcon}"
+            ></mwc-icon-button>`
+          : html`<mwc-icon-button
+              slot="navigationIcon"
+              icon="menu"
+              @click="${this._toggleDrawer}"
+            ></mwc-icon-button>`}
+        <div id="app-title" slot="title">
+          ${this.editMode && this.editTitle
+            ? this.editTitle
+            : this._dbInfo?.database?.name || 'Gramps'}
+        </div>
+        ${
+          // eslint-disable-next-line no-nested-ternary
+          this.editMode
+            ? this.saveButton
+              ? html`
+                  <mwc-icon-button
+                    icon="save"
+                    slot="actionItems"
+                    @click="${this._handleSaveIcon}"
+                  ></mwc-icon-button>
+                `
+              : ''
+            : html`
+                ${this.add
+                  ? html`
+                      <grampsjs-add-menu
+                        slot="actionItems"
+                        .strings="${this.strings}"
+                      ></grampsjs-add-menu>
+                    `
+                  : ''}
+                <mwc-icon-button
+                  icon="account_circle"
+                  slot="actionItems"
+                  @click="${() => this._handleNav('settings')}"
+                ></mwc-icon-button>
+                <mwc-icon-button
+                  icon="search"
+                  slot="actionItems"
+                  @click="${() => this._handleNav('search')}"
+                ></mwc-icon-button>
+              `
+        }
+      </mwc-top-app-bar>
+      ${this.editDialogContent}
     `
-      : ''
-    : html`
-    ${this.add
-    ? html`
-        <grampsjs-add-menu slot="actionItems" .strings="${this.strings}"></grampsjs-add-menu>
-      `
-    : ''}
-      <mwc-icon-button icon="account_circle" slot="actionItems" @click="${() => this._handleNav('settings')}"></mwc-icon-button>
-    <mwc-icon-button icon="search" slot="actionItems" @click="${() => this._handleNav('search')}"></mwc-icon-button>
-    `}
-  </mwc-top-app-bar>
-  ${this.editDialogContent}
-
-`
   }
 
-  _toggleDrawer () {
+  _toggleDrawer() {
     fireEvent(this, 'drawer:toggle')
   }
 
-  _handleNav (path) {
-    fireEvent(this, 'nav', {path: path})
+  _handleNav(path) {
+    fireEvent(this, 'nav', {path})
   }
 
-  _handleCloseIcon () {
+  _handleCloseIcon() {
     if (this.saveButton) {
       this.editDialogContent = html`
-        <mwc-dialog
-          open
-          @closed="${this._handleDialog}"
-        >
+        <mwc-dialog open @closed="${this._handleDialog}">
           <div>${this._('Abort changes?')}</div>
-          <mwc-button
-              slot="primaryAction"
-              dialogAction="discard">
+          <mwc-button slot="primaryAction" dialogAction="discard">
             ${this._('Discard')}
           </mwc-button>
-          <mwc-button
-              slot="secondaryAction"
-              dialogAction="cancel">
+          <mwc-button slot="secondaryAction" dialogAction="cancel">
             ${this._('Cancel')}
           </mwc-button>
         </mwc-dialog>
-        `
+      `
     } else {
       this._editModeOff()
     }
   }
 
-  _handleDialog (e) {
+  _handleDialog(e) {
     if (e.detail.action === 'discard') {
       this._editModeOff()
     }
     this.editDialogContent = ''
   }
 
-  _editModeOff () {
+  _editModeOff() {
     fireEvent(this, 'edit-mode:off', {})
   }
 
-  _handleSaveIcon (e) {
+  _handleSaveIcon() {
     fireEvent(this, 'edit-mode:save')
   }
 
-  _disableEditMode () {
+  _disableEditMode() {
     this.editMode = false
   }
 
-  _enableEditMode (e) {
+  _enableEditMode(e) {
     this.editMode = true
     this.editTitle = e.detail.title
     this.saveButton = e.detail?.saveButton || false
   }
 
-  connectedCallback () {
+  connectedCallback() {
     super.connectedCallback()
-    window.addEventListener('edit-mode:on', (e) => this._enableEditMode(e))
-    window.addEventListener('edit-mode:off', (e) => this._disableEditMode(e))
+    window.addEventListener('edit-mode:on', e => this._enableEditMode(e))
+    window.addEventListener('edit-mode:off', e => this._disableEditMode(e))
   }
 }
 

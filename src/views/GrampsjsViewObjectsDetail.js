@@ -1,28 +1,30 @@
+/* eslint-disable class-methods-use-this */
 import {html, css} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import {apiGet} from '../api.js'
 
 export class GrampsjsViewObjectsDetail extends GrampsjsView {
-  static get styles () {
+  static get styles() {
     return [
       super.styles,
       css`
-      :host {
-      }
-    `]
+        :host {
+        }
+      `,
+    ]
   }
 
-  static get properties () {
+  static get properties() {
     return {
       grampsIds: {type: Array},
       dialogContent: {type: String},
       _data: {type: Array},
-      edit: {type: Boolean}
+      edit: {type: Boolean},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.grampsIds = []
     this.dialogContent = ''
@@ -30,39 +32,34 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
     this.edit = false
   }
 
-  getUrl () {
+  getUrl() {
     return ''
   }
 
-  renderContent () {
+  renderContent() {
     if (this._data.length === 0) {
       return html`${this.edit ? this.renderEdit() : ''}`
     }
     return html`
-    ${this.renderElements()}
-
-    ${this.edit ? this.renderEdit() : ''}
-
-    ${this.dialogContent}
+      ${this.renderElements()} ${this.edit ? this.renderEdit() : ''}
+      ${this.dialogContent}
     `
   }
 
-  renderEdit () {
+  renderEdit() {}
 
-  }
-
-  renderElements () {
+  renderElements() {
     return html``
   }
 
-  update (changed) {
+  update(changed) {
     super.update(changed)
     if (this.active && changed.has('grampsIds')) {
       this._updateData()
     }
   }
 
-  _updateData () {
+  _updateData() {
     if (this._url === '') {
       return
     }
@@ -75,7 +72,11 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
         this.loading = false
         if ('data' in data) {
           this.error = false
-          this._data = data.data.sort((a, b) => this.grampsIds.indexOf(a.gramps_id) - this.grampsIds.indexOf(b.gramps_id))
+          this._data = data.data.sort(
+            (a, b) =>
+              this.grampsIds.indexOf(a.gramps_id) -
+              this.grampsIds.indexOf(b.gramps_id)
+          )
         } else if ('error' in data) {
           this.error = true
           this._errorMessage = data.error

@@ -9,44 +9,43 @@ import '../components/GrampsjsFormNewCitation.js'
 import {fireEvent, makeHandle} from '../util.js'
 
 export class GrampsjsViewSourceCitations extends GrampsjsViewObjectsDetail {
-  static get styles () {
+  static get styles() {
     return [
       super.styles,
       css`
-      :host {
-        margin: 0;
-      }
-      `
+        :host {
+          margin: 0;
+        }
+      `,
     ]
   }
 
   // eslint-disable-next-line class-methods-use-this
-  getUrl () {
+  getUrl() {
     const rules = {
       function: 'or',
-      rules: this.grampsIds.map(grampsId => {
-        return {
-          name: 'HasIdOf',
-          values: [grampsId]
-        }
-      }
-
-      )
+      rules: this.grampsIds.map(grampsId => ({
+        name: 'HasIdOf',
+        values: [grampsId],
+      })),
     }
-    return `/api/citations/?locale=${this.strings?.__lang__ || 'en'}&profile=all&extend=all&rules=${encodeURIComponent(JSON.stringify(rules))}`
+    return `/api/citations/?locale=${
+      this.strings?.__lang__ || 'en'
+    }&profile=all&extend=all&rules=${encodeURIComponent(JSON.stringify(rules))}`
   }
 
-  renderElements () {
+  renderElements() {
     return html`
       <grampsjs-source-citations
         .data="${this._data}"
         ?edit="${this.edit}"
-        .strings="${this.strings}">
+        .strings="${this.strings}"
+      >
       </grampsjs-source-citations>
-      `
+    `
   }
 
-  renderEdit () {
+  renderEdit() {
     return html`
       <div>
         <mwc-icon-button
@@ -61,10 +60,10 @@ export class GrampsjsViewSourceCitations extends GrampsjsViewObjectsDetail {
         ></mwc-icon-button>
         ${this.dialogContent}
       </div>
-      `
+    `
   }
 
-  _handleAddClick () {
+  _handleAddClick() {
     this.dialogContent = html`
       <grampsjs-form-new-citation
         new
@@ -74,10 +73,10 @@ export class GrampsjsViewSourceCitations extends GrampsjsViewObjectsDetail {
         dialogTitle=${this._('New Citation')}
       >
       </grampsjs-form-new-citation>
-      `
+    `
   }
 
-  _handleShareClick () {
+  _handleShareClick() {
     this.dialogContent = html`
       <grampsjs-form-citation
         new
@@ -87,27 +86,33 @@ export class GrampsjsViewSourceCitations extends GrampsjsViewObjectsDetail {
         dialogTitle=${this._('Select an existing citation')}
       >
       </grampsjs-form-citation>
-      `
+    `
   }
 
-  _handleCitSave (e) {
+  _handleCitSave(e) {
     const handle = makeHandle()
-    fireEvent(this, 'edit:action', {action: 'newCitation', data: {handle, ...e.detail.data}})
+    fireEvent(this, 'edit:action', {
+      action: 'newCitation',
+      data: {handle, ...e.detail.data},
+    })
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''
   }
 
-  _handleShareCitSave (e) {
+  _handleShareCitSave(e) {
     fireEvent(this, 'edit:action', {action: 'addCitation', data: e.detail.data})
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''
   }
 
-  _handleCitCancel () {
+  _handleCitCancel() {
     this.dialogContent = ''
   }
 }
 
-window.customElements.define('grampsjs-view-source-citations', GrampsjsViewSourceCitations)
+window.customElements.define(
+  'grampsjs-view-source-citations',
+  GrampsjsViewSourceCitations
+)

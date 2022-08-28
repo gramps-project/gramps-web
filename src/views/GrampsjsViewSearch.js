@@ -8,133 +8,142 @@ import {apiGet} from '../api.js'
 import {objectTypeToEndpoint, objectIcon, debounce} from '../util.js'
 import '@material/mwc-textfield'
 
+function capitalize(string) {
+  return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
+}
+
 export class GrampsjsViewSearch extends GrampsjsView {
-  static get styles () {
+  static get styles() {
     return [
       super.styles,
       css`
-      #search-field-container {
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        max-width: 100%;
-        min-width: 80%;
-      }
+        #search-field-container {
+          text-align: center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          max-width: 100%;
+          min-width: 80%;
+        }
 
-      mwc-textfield#search-field {
-        --mdc-shape-small: 28px;
-        --mdc-typography-subtitle1-font-size: 22px;
-        --mdc-typography-subtitle1-font-weight: 300;
-        --mdc-text-field-idle-line-color:	rgba(0, 0, 0, 0.2);
-        width: calc(100% - 70px);
-        margin: 30px auto;
-      }
+        mwc-textfield#search-field {
+          --mdc-shape-small: 28px;
+          --mdc-typography-subtitle1-font-size: 22px;
+          --mdc-typography-subtitle1-font-weight: 300;
+          --mdc-text-field-idle-line-color: rgba(0, 0, 0, 0.2);
+          width: calc(100% - 70px);
+          margin: 30px auto;
+        }
 
-      #search-field-container mwc-icon-button {
-        color: rgba(0, 0, 0, 0.5);
-        --mdc-icon-size: 26px;
-        --mdc-icon-button-size: 55px;
-        position: relative;
-        top: -2px;
+        #search-field-container mwc-icon-button {
+          color: rgba(0, 0, 0, 0.5);
+          --mdc-icon-size: 26px;
+          --mdc-icon-button-size: 55px;
+          position: relative;
+          top: -2px;
+        }
 
-      }
-
-      grampsjs-button-toggle {
-        margin-right: 0.35em;
-        margin-bottom: 0.35em;
-        display: inline-block;
-      }
-
-    `]
+        grampsjs-button-toggle {
+          margin-right: 0.35em;
+          margin-bottom: 0.35em;
+          display: inline-block;
+        }
+      `,
+    ]
   }
 
-  static get properties () {
+  static get properties() {
     return {
       _data: {type: Array},
       _totalCount: {type: Number},
       _page: {type: Number},
       _pages: {type: Number},
-      _objectTypes: {type: Object}
-
+      _objectTypes: {type: Object},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this._data = []
     this._totalCount = -1
     this._page = 1
     this._pages = -1
     this._objectTypes = Object.fromEntries(
-      Object.keys(objectTypeToEndpoint).filter(key => key !== 'tag').map(key => [key, true])
+      Object.keys(objectTypeToEndpoint)
+        .filter(key => key !== 'tag')
+        .map(key => [key, true])
     )
   }
 
-  renderContent () {
+  renderContent() {
     return html`
-    <h2>Search</h2>
+      <h2>Search</h2>
 
-    <div id="search-field-container">
-      <mwc-textfield id="search-field" outlined icon="search" @keydown="${this._handleSearchKey}">
-      </mwc-textfield>
-      <mwc-icon-button icon="search" @click="${() => this._executeSearch()}">
-      </mwc-icon-button>
-    </div>
+      <div id="search-field-container">
+        <mwc-textfield
+          id="search-field"
+          outlined
+          icon="search"
+          @keydown="${this._handleSearchKey}"
+        >
+        </mwc-textfield>
+        <mwc-icon-button icon="search" @click="${() => this._executeSearch()}">
+        </mwc-icon-button>
+      </div>
 
-    ${this.renderFilters()}
-    ${(this._totalCount === -1 && !Object.values(this._objectTypes).some(Boolean))
-    ? html`<p>${this._('Select at least one object type')}</p>`
-    : ''}
-      ${this._totalCount === 0
-    ? html`<p>${this._('No items')}</p>`
-    : ''}
-          ${this._totalCount > 0 ? html`<p>Total: ${this._totalCount}</p>` : ''}
-    <grampsjs-search-results
-      .data="${this._data}"
-      .strings="${this.strings}"
-    ></grampsjs-search-results>
+      ${this.renderFilters()}
+      ${this._totalCount === -1 &&
+      !Object.values(this._objectTypes).some(Boolean)
+        ? html`<p>${this._('Select at least one object type')}</p>`
+        : ''}
+      ${this._totalCount === 0 ? html`<p>${this._('No items')}</p>` : ''}
+      ${this._totalCount > 0 ? html`<p>Total: ${this._totalCount}</p>` : ''}
+      <grampsjs-search-results
+        .data="${this._data}"
+        .strings="${this.strings}"
+      ></grampsjs-search-results>
 
-    ${this._totalCount > 0
-    ? html`
-    <grampsjs-pagination
-      page="${this._page}"
-      pages="${this._pages}"
-      .strings="${this.strings}"
-      @page:changed="${this._handlePageChanged}"
-      ></grampsjs-pagination>
-    `
-    : ''}
+      ${this._totalCount > 0
+        ? html`
+            <grampsjs-pagination
+              page="${this._page}"
+              pages="${this._pages}"
+              .strings="${this.strings}"
+              @page:changed="${this._handlePageChanged}"
+            ></grampsjs-pagination>
+          `
+        : ''}
     `
   }
 
-  renderFilters () {
+  renderFilters() {
     return html`
-    <div @grampsjs-button-toggle:toggle="${this._handleFilterToggle}">
-      <grampsjs-button-toggle
-        ?checked="${Object.values(this._objectTypes).every(Boolean)}"
-        icon=""
-        id="toggle-all"
-      >
-        ${this._('All')}
-      </grampsjs-button-toggle>
-      ${Object.keys(this._objectTypes).map(key => html`<grampsjs-button-toggle
-        ?checked="${this._objectTypes[key]}"
-        icon="${objectIcon[key]}"
-        id="toggle-${key}"
-      >
-        ${this._(capitalize(objectTypeToEndpoint[key]))}
-      </grampsjs-button-toggle>`
-  )}
-    </div>
-  `
+      <div @grampsjs-button-toggle:toggle="${this._handleFilterToggle}">
+        <grampsjs-button-toggle
+          ?checked="${Object.values(this._objectTypes).every(Boolean)}"
+          icon=""
+          id="toggle-all"
+        >
+          ${this._('All')}
+        </grampsjs-button-toggle>
+        ${Object.keys(this._objectTypes).map(
+          key => html`<grampsjs-button-toggle
+            ?checked="${this._objectTypes[key]}"
+            icon="${objectIcon[key]}"
+            id="toggle-${key}"
+          >
+            ${this._(capitalize(objectTypeToEndpoint[key]))}
+          </grampsjs-button-toggle>`
+        )}
+      </div>
+    `
   }
 
-  _handleFilterToggle (e) {
+  _handleFilterToggle(e) {
     const key = e.target.id.split('-', 2)[1]
     if (key === 'all') {
       this._objectTypes = Object.fromEntries(
-        Object.keys(this._objectTypes).map(key => [key, e.detail.checked])
+        Object.keys(this._objectTypes).map(key_ => [key_, e.detail.checked])
       )
     } else {
       this._objectTypes = {...this._objectTypes, [key]: e.detail.checked}
@@ -143,27 +152,29 @@ export class GrampsjsViewSearch extends GrampsjsView {
     debounce(() => this._executeSearch(), 500)()
   }
 
-  _handlePageChanged (event) {
+  _handlePageChanged(event) {
     this._page = event.detail.page
   }
 
-  firstUpdated () {
+  firstUpdated() {
     this._focus()
   }
 
-  _focus (retry = true) {
+  _focus(retry = true) {
     if (this.active) {
       const el = this.shadowRoot.getElementById('search-field')
       try {
         el.focus()
       } catch (e) {
         // retry once
-        window.setTimeout(() => this._focus(false), 100)
+        if (retry) {
+          window.setTimeout(() => this._focus(false), 100)
+        }
       }
     }
   }
 
-  _unfocus () {
+  _unfocus() {
     if (this.active) {
       const el = this.shadowRoot.getElementById('search-field')
       try {
@@ -175,21 +186,21 @@ export class GrampsjsViewSearch extends GrampsjsView {
     }
   }
 
-  _clearBox () {
+  _clearBox() {
     this.shadowRoot.getElementById('search-field').value = ''
   }
 
-  _clearAll () {
+  _clearAll() {
     this._clearBox()
     this._data = []
     this._totalCount = -1
   }
 
-  _clearPage () {
+  _clearPage() {
     this._data = []
   }
 
-  update (changed) {
+  update(changed) {
     super.update(changed)
     if (changed.has('active')) {
       this._focus()
@@ -200,7 +211,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
     }
   }
 
-  _handleSearchKey (event) {
+  _handleSearchKey(event) {
     if (event.code === 'Enter') {
       this._executeSearch()
     }
@@ -214,7 +225,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
     }
   }
 
-  _executeSearch (page = 1) {
+  _executeSearch(page = 1) {
     let query = this.shadowRoot.getElementById('search-field').value
     if (query === '') {
       this._clearAll()
@@ -227,42 +238,47 @@ export class GrampsjsViewSearch extends GrampsjsView {
         this._data = []
         this._totalCount = -1
         return
-      } else {
-        query = this._filterQueryByObjectType(query)
       }
+      query = this._filterQueryByObjectType(query)
     }
     this.loading = true
     this._fetchData(query, page)
   }
 
-  _filterQueryByObjectType (query) {
-    const objectTypes = Object.keys(this._objectTypes).filter(key => this._objectTypes[key])
+  _filterQueryByObjectType(query) {
+    const objectTypes = Object.keys(this._objectTypes).filter(
+      key => this._objectTypes[key]
+    )
     return `${query} (${objectTypes.map(key => `type:${key}`).join(' OR ')})`
   }
 
-  _pageFirst () {
+  _pageFirst() {
     this._page = 1
   }
 
-  _pagePrev () {
+  _pagePrev() {
     this._page -= 1
   }
 
-  _pageNext () {
+  _pageNext() {
     this._page += 1
   }
 
-  _pageLast () {
+  _pageLast() {
     this._page = this._pages
   }
 
-  async _fetchData (query, page) {
-    const data = await apiGet(`/api/search/?query=${query}&locale=${this.strings?.__lang__ || 'en'}&profile=all&page=${page}&pagesize=20`)
+  async _fetchData(query, page) {
+    const data = await apiGet(
+      `/api/search/?query=${query}&locale=${
+        this.strings?.__lang__ || 'en'
+      }&profile=all&page=${page}&pagesize=20`
+    )
     this.loading = false
     if ('data' in data) {
       this.error = false
       this._data = data.data
-      this._totalCount = parseInt(data.total_count)
+      this._totalCount = parseInt(data.total_count, 10)
       this._pages = Math.ceil(this._totalCount / 20)
     } else if ('error' in data) {
       this.error = true
@@ -270,21 +286,17 @@ export class GrampsjsViewSearch extends GrampsjsView {
     }
   }
 
-  connectedCallback () {
+  connectedCallback() {
     super.connectedCallback()
-    window.addEventListener('nav', (event) => this._handleNav(event))
+    window.addEventListener('nav', event => this._handleNav(event))
   }
 
-  _handleNav (event) {
+  _handleNav(event) {
     if (event.detail.path !== 'search') {
-      return null
+      return
     }
     this._focus()
   }
-}
-
-function capitalize (string) {
-  return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
 }
 
 window.customElements.define('grampsjs-view-search', GrampsjsViewSearch)

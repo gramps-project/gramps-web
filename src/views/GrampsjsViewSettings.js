@@ -7,127 +7,138 @@ import '@material/mwc-textfield'
 import '@material/mwc-button'
 import '@material/mwc-select'
 
-function renderLogoutButton () {
+function renderLogoutButton() {
   return html`
     <mwc-button
-    outlined
-    class="red"
-    label="logout"
-    icon="exit_to_app"
-    @click=${() => doLogout()}
-  ></mwc-button>
-`
+      outlined
+      class="red"
+      label="logout"
+      icon="exit_to_app"
+      @click=${() => doLogout()}
+    ></mwc-button>
+  `
 }
 
 export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
-  static get properties () {
+  static get properties() {
     return {
       users: {type: Boolean},
-      userData: {type: Array}
+      userData: {type: Array},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.users = false
     this.userData = []
   }
 
-  renderContent () {
+  renderContent() {
     return html`
-    <h2>${this._('User settings')}</h2>
+      <h2>${this._('User settings')}</h2>
 
-    ${renderLogoutButton()}
+      ${renderLogoutButton()}
 
-    <h3>${this._('Select language')}</h3>
+      <h3>${this._('Select language')}</h3>
 
-    ${this.renderLangSelect()}
+      ${this.renderLangSelect()}
 
-    <h3>${this._('Set _Home Person')}</h3>
+      <h3>${this._('Set _Home Person')}</h3>
 
-    ${this.renderPersonSelect()}
+      ${this.renderPersonSelect()}
 
-    <h3>${this._('Change E-mail')}</h3>
+      <h3>${this._('Change E-mail')}</h3>
 
-    ${this.renderChangeEmail()}
+      ${this.renderChangeEmail()}
 
+      <h3>${this._('Change password')}</h3>
 
-    <h3>${this._('Change password')}</h3>
+      ${this.renderChangePw()}
+      ${this.users
+        ? html`
+            <h2>${this._('Manage users')}</h2>
 
-    ${this.renderChangePw()}
-
-    ${this.users
-    ? html`
-    <h2>${this._('Manage users')}</h2>
-
-    <grampsjs-users
-      .strings="${this.strings}"
-      .data="${this.userData}"
-      @user:updated="${this._handleUserChanged}"
-      @user:added="${this._handleUserAdded}"
-    >
-    </grampsjs-users>
-    `
-    : ''}
-
+            <grampsjs-users
+              .strings="${this.strings}"
+              .data="${this.userData}"
+              @user:updated="${this._handleUserChanged}"
+              @user:added="${this._handleUserAdded}"
+            >
+            </grampsjs-users>
+          `
+        : ''}
     `
   }
 
-  renderChangeEmail () {
+  renderChangeEmail() {
     return html`
-    <p>
-      <mwc-textfield
-        id="change-email"
-        label="${this._('New E-mail')}"
-        >
-      </mwc-textfield>
-    </p>
-    <p>
-      <mwc-button outlined label="submit" @click="${this._changeEmail}"></mwc-button>
-    </p>
+      <p>
+        <mwc-textfield id="change-email" label="${this._('New E-mail')}">
+        </mwc-textfield>
+      </p>
+      <p>
+        <mwc-button
+          outlined
+          label="submit"
+          @click="${this._changeEmail}"
+        ></mwc-button>
+      </p>
     `
   }
 
-  renderChangePw () {
+  renderChangePw() {
     return html`
-    <p>
-      <mwc-textfield
-        id="old-pw"
-        label="${this._('Old password')}"
-        type="password"
+      <p>
+        <mwc-textfield
+          id="old-pw"
+          label="${this._('Old password')}"
+          type="password"
         >
-      </mwc-textfield>
-      <mwc-textfield
-        id="new-pw"
-        label="${this._('New password')}"
-        type="password"
+        </mwc-textfield>
+        <mwc-textfield
+          id="new-pw"
+          label="${this._('New password')}"
+          type="password"
         >
-      </mwc-textfield>
-    </p>
-    <p>
-      <mwc-button outlined label="submit" @click="${this._changePw}"></mwc-button>
-    </p>
+        </mwc-textfield>
+      </p>
+      <p>
+        <mwc-button
+          outlined
+          label="submit"
+          @click="${this._changePw}"
+        ></mwc-button>
+      </p>
     `
   }
 
-  firstUpdated () {
+  firstUpdated() {
     if (this.users) {
       this._fetchUserData()
     }
   }
 
-  _handleUserChanged (e) {
+  _handleUserChanged(e) {
     const data = e.detail
-    this._updateUser(e.detail.name, {role: data.role, email: data.email, full_name: data.full_name})
+    this._updateUser(e.detail.name, {
+      role: data.role,
+      email: data.email,
+      full_name: data.full_name,
+    })
   }
 
-  _handleUserAdded (e) {
+  _handleUserAdded(e) {
     const data = e.detail
-    this._addUser(e.detail.name, {role: data.role, email: data.email, full_name: data.full_name, password: data.password})
+    this._addUser(e.detail.name, {
+      role: data.role,
+      email: data.email,
+      full_name: data.full_name,
+      password: data.password,
+    })
   }
 
-  _updateUser (username, data) {
-    apiPut(`/api/users/${username}/`, data).then(data => {
+  _updateUser(username, payload) {
+    apiPut(`/api/users/${username}/`, payload).then(data => {
       if ('error' in data) {
         this.error = true
         this._errorMessage = data.error
@@ -138,8 +149,8 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     })
   }
 
-  _addUser (username, data) {
-    apiPost(`/api/users/${username}/`, data).then(data => {
+  _addUser(username, payload) {
+    apiPost(`/api/users/${username}/`, payload).then(data => {
       if ('error' in data) {
         this.error = true
         this._errorMessage = data.error
@@ -150,7 +161,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     })
   }
 
-  _fetchUserData () {
+  _fetchUserData() {
     this.loading = true
     apiGet('/api/users/').then(data => {
       if ('data' in data) {
@@ -164,7 +175,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     })
   }
 
-  _changeEmail () {
+  _changeEmail() {
     const form = this.shadowRoot.getElementById('change-email')
     if (!form.value) {
       return
@@ -178,20 +189,29 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
         this.error = true
         this._errorMessage = data.error
       } else {
-        this.dispatchEvent(new CustomEvent('grampsjs:notification', {bubbles: true, composed: true, detail: {message: 'E-mail successfully updated'}}))
+        this.dispatchEvent(
+          new CustomEvent('grampsjs:notification', {
+            bubbles: true,
+            composed: true,
+            detail: {message: 'E-mail successfully updated'},
+          })
+        )
         form.value = ''
       }
     })
   }
 
-  _changePw () {
+  _changePw() {
     const formOldPw = this.shadowRoot.getElementById('old-pw')
     const formNewPw = this.shadowRoot.getElementById('new-pw')
     if (!formOldPw.value || !formNewPw.value) {
       return
     }
     this.loading = true
-    const payload = {old_password: formOldPw.value, new_password: formNewPw.value}
+    const payload = {
+      old_password: formOldPw.value,
+      new_password: formNewPw.value,
+    }
     apiPost('/api/users/-/password/change', payload).then(data => {
       this.loading = false
       if ('error' in data) {
@@ -199,7 +219,13 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
         this._errorMessage = data.error
       } else {
         this.error = false
-        this.dispatchEvent(new CustomEvent('grampsjs:notification', {bubbles: true, composed: true, detail: {message: 'Password successfully updated'}}))
+        this.dispatchEvent(
+          new CustomEvent('grampsjs:notification', {
+            bubbles: true,
+            composed: true,
+            detail: {message: 'Password successfully updated'},
+          })
+        )
         formOldPw.value = ''
         formNewPw.value = ''
       }

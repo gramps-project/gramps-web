@@ -9,9 +9,7 @@ import '../components/GrampsjsFormUpload.js'
 
 import {apiPost, apiPut} from '../api.js'
 
-
 export class GrampsjsViewNewMedia extends GrampsjsViewNewObject {
-
   constructor() {
     super()
     this.data = {_class: 'Media'}
@@ -22,43 +20,40 @@ export class GrampsjsViewNewMedia extends GrampsjsViewNewObject {
 
   renderContent() {
     return html`
-    <h2>${this._('New Media')}</h2>
+      <h2>${this._('New Media')}</h2>
 
-    <h4 class="label">${this._('File')}</h4>
-    <p>
-      <grampsjs-form-upload
-        preview
-        id="upload"
+      <h4 class="label">${this._('File')}</h4>
+      <p>
+        <grampsjs-form-upload
+          preview
+          id="upload"
+          .strings="${this.strings}"
+        ></grampsjs-form-upload>
+      </p>
+
+      <h4 class="label">${this._('Title')}</h4>
+      <p>
+        <grampsjs-form-string
+          ?disabled="${!this.isFormValid}"
+          value="${this.data.desc}"
+          fullwidth
+          id="desc"
+        ></grampsjs-form-string>
+      </p>
+
+      <h4 class="label">${this._('Date')}</h4>
+      <p>
+        <grampsjs-form-select-date id="date" .strings="${this.strings}">
+        </grampsjs-form-select-date>
+      </p>
+
+      <div class="spacer"></div>
+      <grampsjs-form-private
+        id="private"
         .strings="${this.strings}"
-      ></grampsjs-form-upload>
-    </p>
+      ></grampsjs-form-private>
 
-    <h4 class="label">${this._('Title')}</h4>
-    <p>
-      <grampsjs-form-string
-        ?disabled="${!this.isFormValid}"
-        value="${this.data.desc}"
-        fullwidth id="desc"
-      ></grampsjs-form-string>
-    </p>
-
-
-    <h4 class="label">${this._('Date')}</h4>
-    <p>
-      <grampsjs-form-select-date
-        id="date"
-        .strings="${this.strings}"
-      >
-      </grampsjs-form-select-date>
-    </p>
-
-    <div class="spacer"></div>
-    <grampsjs-form-private
-      id="private"
-      .strings="${this.strings}"
-    ></grampsjs-form-private>
-
-    ${this.renderButtons()}
+      ${this.renderButtons()}
     `
     // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
@@ -75,7 +70,10 @@ export class GrampsjsViewNewMedia extends GrampsjsViewNewObject {
       this.data = {...this.data, date: e.detail.data}
     }
     if (originalTarget.id === 'upload') {
-      this.data = {...this.data, desc: e.detail.data.name.replace(/\.[^/.]+$/, '')}
+      this.data = {
+        ...this.data,
+        desc: e.detail.data.name.replace(/\.[^/.]+$/, ''),
+      }
     }
     this.checkFormValidity()
   }
@@ -86,32 +84,38 @@ export class GrampsjsViewNewMedia extends GrampsjsViewNewObject {
     this.data = {_class: 'Media'}
   }
 
-
   _submit() {
     const upload = this.shadowRoot.getElementById('upload')
-    apiPost(this.postUrl, upload.file, false).then(data => {
-      if ('data' in data) {
-        this.error = false
-        this.data = {...data.data[0].new, ...this.data}
-      } else if ('error' in data) {
-        this.error = true
-        this._errorMessage = data.error
-      }
-    }).then(() => {
-      const updateUrl = `/api/media/${this.data.handle}`
-      apiPut(updateUrl, this.data).then(data => {
+    apiPost(this.postUrl, upload.file, false)
+      .then(data => {
         if ('data' in data) {
           this.error = false
-          this.dispatchEvent(new CustomEvent('nav', {bubbles: true, composed: true, detail: {path: this._getItemPath(this.data.gramps_id)}}))
-          this._reset()
+          this.data = {...data.data[0].new, ...this.data}
         } else if ('error' in data) {
           this.error = true
           this._errorMessage = data.error
         }
       })
-    })
+      .then(() => {
+        const updateUrl = `/api/media/${this.data.handle}`
+        apiPut(updateUrl, this.data).then(data => {
+          if ('data' in data) {
+            this.error = false
+            this.dispatchEvent(
+              new CustomEvent('nav', {
+                bubbles: true,
+                composed: true,
+                detail: {path: this._getItemPath(this.data.gramps_id)},
+              })
+            )
+            this._reset()
+          } else if ('error' in data) {
+            this.error = true
+            this._errorMessage = data.error
+          }
+        })
+      })
   }
-
 }
 
 window.customElements.define('grampsjs-view-new-media', GrampsjsViewNewMedia)

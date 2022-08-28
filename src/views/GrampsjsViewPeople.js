@@ -2,13 +2,10 @@
 People list view
 */
 
-
-
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
 
 export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
-
   constructor() {
     super()
     this._columns = {
@@ -21,8 +18,10 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
     }
   }
 
-  get _fetchUrl(){
-    return `/api/people/?locale=${this.strings?.__lang__ || 'en'}&profile=self&keys=gramps_id,profile,change`
+  get _fetchUrl() {
+    return `/api/people/?locale=${
+      this.strings?.__lang__ || 'en'
+    }&profile=self&keys=gramps_id,profile,change`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -31,24 +30,22 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getAddPath (item) {
+  _getAddPath() {
     return 'new_person'
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _formatRow(row, obj) {
+  _formatRow(row) {
     const formattedRow = {
       grampsId: row.gramps_id,
       surname: row?.profile?.name_surname,
       given: row?.profile?.name_given,
       birth: row?.profile?.birth?.date,
       death: row?.profile?.death?.date,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
     }
     return formattedRow
   }
-
 }
-
 
 window.customElements.define('grampsjs-view-people', GrampsjsViewPeople)

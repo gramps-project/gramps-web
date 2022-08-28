@@ -6,40 +6,38 @@ import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsPrivacy extends LitElement {
-  static get styles () {
-    return [
-      sharedStyles
-    ]
+  static get styles() {
+    return [sharedStyles]
   }
 
-  static get properties () {
+  static get properties() {
     return {
       private: {type: Boolean},
-      edit: {type: Boolean}
+      edit: {type: Boolean},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.private = false
     this.edit = false
   }
 
-  render () {
+  render() {
     return html`
-    <mwc-icon-button
-      icon="${this.private ? 'lock' : 'lock_open'}"
-      ?disabled="${!this.edit}"
-      @click="${this._handleClick}"
-      class="edit"
-    ></mwc-icon-button>
+      <mwc-icon-button
+        icon="${this.private ? 'lock' : 'lock_open'}"
+        ?disabled="${!this.edit}"
+        @click="${this._handleClick}"
+        class="edit"
+      ></mwc-icon-button>
     `
   }
 
-  _handleClick (e) {
+  _handleClick() {
     fireEvent(this, 'edit:action', {
       action: 'updateProp',
-      data: {private: !this.private}
+      data: {private: !this.private},
     })
   }
 }

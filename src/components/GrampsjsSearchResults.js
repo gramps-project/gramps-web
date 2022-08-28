@@ -6,7 +6,7 @@ import './GrampsjsTimedelta.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 export class GrampsjsSearchResults extends GrampsjsTranslateMixin(LitElement) {
-  static get styles () {
+  static get styles() {
     return [
       sharedStyles,
       css`
@@ -35,52 +35,61 @@ export class GrampsjsSearchResults extends GrampsjsTranslateMixin(LitElement) {
           margin-top: 0.2em;
           margin-left: 33px;
         }
-        `
+      `,
     ]
   }
 
-  static get properties () {
+  static get properties() {
     return {
       data: {type: Array},
       date: {type: Boolean},
-      loading: {type: Boolean}
+      loading: {type: Boolean},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.data = []
     this.date = false
     this.loading = false
   }
 
-  render () {
+  render() {
     if (this.loading) {
       return html`
-      <div id="search-results">
-      ${[1, 2].map((obj) => html`
-          <div class="search-hit">
-            <span class="skeleton" style="width:15em;">&nbsp;</span>
-            <div class="change"><span class="skeleton" style="width:7em;">&nbsp;</span></div>
-          </div>`, this)}
-      </div>
+        <div id="search-results">
+          ${[1, 2].map(
+            () => html` <div class="search-hit">
+              <span class="skeleton" style="width:15em;">&nbsp;</span>
+              <div class="change">
+                <span class="skeleton" style="width:7em;">&nbsp;</span>
+              </div>
+            </div>`,
+            this
+          )}
+        </div>
       `
-    } else if (this.data.length === 0) {
+    }
+    if (this.data.length === 0) {
       return html``
     }
     return html`
-    <div id="search-results">
-    ${this.data.map((obj) => html`
-        <div class="search-hit">
-          ${showObject(obj.object_type, obj.object, this.strings)}
-          ${this.date
-    ? html`<div class="change"><grampsjs-timedelta
-            timestamp="${obj.object.change}"
-            locale="${this.strings.__lang__}"
-          ></grampsjs-timedelta></div>`
-    : ''}
-        </div>`, this)}
-    </div>
+      <div id="search-results">
+        ${this.data.map(
+          obj => html` <div class="search-hit">
+            ${showObject(obj.object_type, obj.object, this.strings)}
+            ${this.date
+              ? html`<div class="change">
+                  <grampsjs-timedelta
+                    timestamp="${obj.object.change}"
+                    locale="${this.strings.__lang__}"
+                  ></grampsjs-timedelta>
+                </div>`
+              : ''}
+          </div>`,
+          this
+        )}
+      </div>
     `
   }
 }

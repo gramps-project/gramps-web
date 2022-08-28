@@ -4,34 +4,30 @@ import {GrampsjsView} from './GrampsjsView.js'
 import {apiGet} from '../api.js'
 import '../components/GrampsjsPersonTimeline.js'
 
-
 export class GrampsjsViewPersonTimeline extends GrampsjsView {
-
   static get styles() {
     return [
       super.styles,
       css`
-      :host {
-        margin: 0;
-      }
-      `
+        :host {
+          margin: 0;
+        }
+      `,
     ]
   }
 
   static get properties() {
     return {
       handle: {type: String},
-      _data: {type: Array}
+      _data: {type: Array},
     }
   }
-
 
   constructor() {
     super()
     this.handle = ''
     this._data = []
   }
-
 
   renderContent() {
     if (this._data.length === 0) {
@@ -45,7 +41,10 @@ export class GrampsjsViewPersonTimeline extends GrampsjsView {
 
   renderElements() {
     return html`
-      <grampsjs-person-timeline .data="${this._data}" .strings="${this.strings}">
+      <grampsjs-person-timeline
+        .data="${this._data}"
+        .strings="${this.strings}"
+      >
       </grampsjs-person-timeline>
     `
   }
@@ -59,7 +58,9 @@ export class GrampsjsViewPersonTimeline extends GrampsjsView {
 
   _updateData() {
     if (this.handle) {
-      const url = `/api/people/${this.handle}/timeline?locale=${this.strings.__lang__ || 'en'}`
+      const url = `/api/people/${this.handle}/timeline?locale=${
+        this.strings.__lang__ || 'en'
+      }`
       this._data = []
       this.loading = true
       apiGet(url).then(data => {
@@ -76,5 +77,7 @@ export class GrampsjsViewPersonTimeline extends GrampsjsView {
   }
 }
 
-
-window.customElements.define('grampsjs-view-person-timeline', GrampsjsViewPersonTimeline)
+window.customElements.define(
+  'grampsjs-view-person-timeline',
+  GrampsjsViewPersonTimeline
+)

@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /*
 Base class for Components that fetch data when first loaded
 */
@@ -7,24 +8,24 @@ import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {apiGet} from '../api.js'
 
-export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(LitElement) {
-  static get styles () {
-    return [
-      sharedStyles
-    ]
+export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
+  LitElement
+) {
+  static get styles() {
+    return [sharedStyles]
   }
 
-  static get properties () {
+  static get properties() {
     return {
       loading: {type: Boolean},
       error: {type: Boolean},
       loadWithoutLocale: {type: Boolean},
       _errorMessage: {type: String},
-      _data: {type: Object}
+      _data: {type: Object},
     }
   }
 
-  constructor () {
+  constructor() {
     super()
     this.loading = true
     this.error = false
@@ -33,9 +34,15 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(LitElemen
     this._data = {}
   }
 
-  render () {
+  render() {
     if (this.error) {
-      this.dispatchEvent(new CustomEvent('grampsjs:error', {bubbles: true, composed: true, detail: {message: this._errorMessage}}))
+      this.dispatchEvent(
+        new CustomEvent('grampsjs:error', {
+          bubbles: true,
+          composed: true,
+          detail: {message: this._errorMessage},
+        })
+      )
       return ''
     }
     if (this.loading) {
@@ -44,22 +51,22 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(LitElemen
     return this.renderContent()
   }
 
-  renderLoading () {
+  renderLoading() {
     return ''
   }
 
-  getUrl () {
+  getUrl() {
     return ''
   }
 
-  update (changed) {
+  update(changed) {
     super.update(changed)
     if (changed.has('strings') && '__lang__' in this.strings) {
       this._updateData()
     }
   }
 
-  _updateData (clearData = true) {
+  _updateData(clearData = true) {
     const url = this.getUrl()
     if (url === '') {
       return
@@ -80,17 +87,17 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(LitElemen
     })
   }
 
-  _clearData () {
+  _clearData() {
     this._data = {}
   }
 
-  _handleOnline () {
+  _handleOnline() {
     if (this.error) {
       this._updateData()
     }
   }
 
-  connectedCallback () {
+  connectedCallback() {
     super.connectedCallback()
     window.addEventListener('db:changed', () => this._updateData())
     window.addEventListener('online', this._handleOnline.bind(this))

@@ -2,13 +2,10 @@
 Events list view
 */
 
-
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
 
-
 export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
-
   constructor() {
     super()
     this._columns = {
@@ -21,7 +18,9 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
   }
 
   get _fetchUrl() {
-    return `/api/events/?locale=${this.strings?.__lang__ || 'en'}&profile=self&keys=gramps_id,profile,change`
+    return `/api/events/?locale=${
+      this.strings?.__lang__ || 'en'
+    }&profile=self&keys=gramps_id,profile,change`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -30,22 +29,21 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _getAddPath (item) {
+  _getAddPath() {
     return 'new_event'
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _formatRow(row, obj) {
+  _formatRow(row) {
     const formattedRow = {
       grampsId: row.gramps_id,
       type: row?.profile?.type,
       date: row?.profile?.date,
       place: row?.profile?.place,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__)
+      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
     }
     return formattedRow
   }
 }
-
 
 window.customElements.define('grampsjs-view-events', GrampsjsViewEvents)
