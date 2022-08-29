@@ -1,3 +1,7 @@
+# docker-compose file for frontend development
+# do not use in production!
+# https://gramps-project.github.io/web/dev-frontend/setup/
+
 version: "3.8"
 
 services:
@@ -14,8 +18,8 @@ services:
       context: ./dev
       dockerfile: Dockerfile.api
     volumes:
-      - gramps_users:/app/users  # persist user database
-      - gramps_db:/root/.gramps/grampsdb  # persist Gramps database
+      - gramps_users:/app/users # persist user database
+      - gramps_db:/root/.gramps/grampsdb # persist Gramps database
   gramps-frontend:
     container_name: gramps-frontend-dev
     build:
