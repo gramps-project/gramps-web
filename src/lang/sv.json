@@ -50,5 +50,12 @@
     "To start using the blog, add a source with tag 'Blog'.": "För att börja använda bloggen, lägg till en källa med taggen 'Blogg'.",
     "Submit": "Skicka in",
     "Unsupported format": "Format som inte stöds",
-    "Please upload a file in Gramps XML (.gramps) format without media files.": "Ladda upp en fil i Gramps XML-format (.gramps) utan mediafiler."
+    "Please upload a file in Gramps XML (.gramps) format without media files.": "Ladda upp en fil i Gramps XML-format (.gramps) utan mediafiler.",
+    "Password": "Lösenord",
+    "login": "logga in",
+    "Lost password?": "Glömt lösenord?",
+    "All": "Allt",
+    "Select at least one object type": "Välj minst en objekttyp",
+    "Username": "Användarnamn",
+    "Register new account": "Registrera nytt konto"
 }
