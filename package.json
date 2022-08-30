@@ -73,7 +73,7 @@
     ]
   },
   "name": "gramps-js",
-  "version": "0.13.3",
+  "version": "0.14.0",
   "description": "Single-page app serving as frontend to the Gramps genealogical research system.",
   "author": "David M. Straub",
   "license": "AGPL",
