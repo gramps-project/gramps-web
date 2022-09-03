@@ -100,7 +100,7 @@ export class GrampsjsFilterYears extends GrampsjsTranslateMixin(LitElement) {
         ? dateSpanLocal(year1, year2, 'de')
         : `from ${year1} until ${year2}`
       const rules = [{name: 'HasBirth', values: [date, '', '']}]
-      fireEvent(this, 'filter:changed', {filters: {rules}})
+      fireEvent(this, 'filter:changed', {filters: {rules}, replace: 'HasBirth'})
     }
   }
 

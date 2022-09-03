@@ -20,14 +20,14 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
 
   static get properties() {
     return {
-      filters: {type: Object},
+      filters: {type: Array},
       open: {type: Boolean},
     }
   }
 
   constructor() {
     super()
-    this.filters = {}
+    this.filters = []
     this.open = false
   }
 
@@ -50,9 +50,12 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
 
   _handleFilterChanged(e) {
     const rules = e.detail?.filters?.rules
-    const data = rules.reduce((obj, rule) => ({...obj, [rule.name]: rule}), {})
+    const replace = e.detail?.replace
+    const oldFilters = replace
+      ? this.filters.filter(f => f.name !== replace)
+      : this.filters
     if (rules) {
-      this.filters = {...this.filters, ...data}
+      this.filters = [...oldFilters, ...rules]
       e.preventDefault()
       e.stopPropagation()
       fireEvent(this, 'filters:changed', {filters: this.filters})
