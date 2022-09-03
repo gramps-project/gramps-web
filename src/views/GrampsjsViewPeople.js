@@ -2,8 +2,10 @@
 People list view
 */
 
+import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
+import '../components/GrampsjsFilterYears.js'
 
 export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
   constructor() {
@@ -45,6 +47,13 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
     }
     return formattedRow
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  renderFilters() {
+    return html`<grampsjs-filter-years
+      .strings="${this.strings}"
+    ></grampsjs-filter-years>`
   }
 }
 

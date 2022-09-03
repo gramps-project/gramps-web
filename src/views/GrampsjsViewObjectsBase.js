@@ -9,6 +9,7 @@ import '@material/mwc-fab'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPagination.js'
+import '../components/GrampsjsFilters.js'
 import {apiGet} from '../api.js'
 import {fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
@@ -108,6 +109,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       _pages: {type: Number},
       _pageSize: {type: Number},
       _sort: {type: String},
+      _filters: {type: Array},
       canAdd: {type: Boolean},
     }
   }
@@ -120,14 +122,13 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     this._pages = -1
     this._pageSize = 20
     this._sort = ''
+    this._filters = []
     this.canAdd = false
   }
 
   renderContent() {
-    if (this._data.length === 0) {
-      return html``
-    }
     return html`
+      ${this._renderFilter()}
       <table class="linked">
         <tr>
           ${Object.keys(this._columns).map(
@@ -163,12 +164,34 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     `
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  _renderFilter() {
+    return html` <grampsjs-filters
+      .strings="${this.strings}"
+      @filters:changed="${this._handleFiltersChanged}"
+      >${this.renderFilters()}</grampsjs-filters
+    >`
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  renderFilters() {
+    return html`SLOT`
+  }
+
   renderFab() {
     return html` <mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab> `
   }
 
   firstUpdated() {
     this._fetchData()
+  }
+
+  _handleFiltersChanged(event) {
+    const ruleObj = event.detail?.filters
+    if (ruleObj) {
+      this._filters = Object.values(ruleObj)
+      this._fetchData()
+    }
   }
 
   _handlePageChanged(event) {
@@ -218,6 +241,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     let url = `${this._fetchUrl}&page=${this._page}&pagesize=${this._pageSize}`
     if (this._sort) {
       url = `${url}&sort=${this._sort}`
+    }
+    if (this._filters.length > 0) {
+      url = `${url}&rules=${encodeURIComponent(
+        JSON.stringify({rules: this._filters})
+      )}`
     }
     return url
   }

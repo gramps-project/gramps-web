@@ -807,11 +807,8 @@ export class GrampsJs extends LitElement {
       }
       if ('data' in data) {
         this._dbInfo = data.data
-        if (
-          this.language === '' &&
-          this._dbInfo?.locale?.language !== undefined
-        ) {
-          this.language = this._dbInfo.locale.language
+        if (this._dbInfo?.locale?.language !== undefined) {
+          updateSettings({serverLang: this._dbInfo.locale.language})
         }
         if (setReady) {
           this._setReady()
