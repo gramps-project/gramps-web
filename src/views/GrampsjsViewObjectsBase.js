@@ -17,10 +17,6 @@ import {apiGet} from '../api.js'
 import {fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
 
-function ruleToLabel(rule) {
-  return JSON.stringify(rule)
-}
-
 export class GrampsjsViewObjectsBase extends GrampsjsView {
   static get styles() {
     return [
@@ -221,11 +217,18 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     `
   }
 
+  ruleToLabel(rule) {
+    if (rule.name === 'HasTag') {
+      return `${this._('Tag')}: ${rule.values[0]}`
+    }
+    return JSON.stringify(rule)
+  }
+
   _renderFilterChips() {
     return this.filters.map(
       (rule, i) => html`
         <grampsjs-filter-chip
-          label=${ruleToLabel(rule)}
+          label="${this.ruleToLabel(rule)}"
           @filter-chip:clear="${() => this._clearFilter(i)}"
         ></grampsjs-filter-chip>
       `
@@ -332,6 +335,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
 
   update(changed) {
     super.update(changed)
+    if (changed.has('active')) {
+      this.filterOpen = false
+    }
     if (
       changed.has('_page') ||
       changed.has('_sort') ||
