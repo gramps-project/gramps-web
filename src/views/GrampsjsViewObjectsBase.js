@@ -247,6 +247,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
 
   _clearFilter(i) {
     this.filters = [...this.filters.slice(0, i), ...this.filters.slice(i + 1)]
+    this._fetchData()
   }
 
   _handleFilterButton() {
@@ -255,6 +256,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
 
   _handleFilterOff() {
     this.filters = []
+    this._fetchData()
   }
 
   _handleFilterChanged(e) {
