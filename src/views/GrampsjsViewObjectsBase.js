@@ -9,7 +9,6 @@ import '@material/mwc-fab'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPagination.js'
-import '../components/GrampsjsFilters.js'
 import {apiGet} from '../api.js'
 import {fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
@@ -111,6 +110,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       _sort: {type: String},
       _filters: {type: Array},
       canAdd: {type: Boolean},
+      filters: {type: Array},
+      filterOpen: {type: Boolean},
     }
   }
 
@@ -124,6 +125,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     this._sort = ''
     this._filters = []
     this.canAdd = false
+    this.filters = []
+    this.filterOpen = false
   }
 
   renderContent() {
@@ -166,11 +169,16 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
 
   // eslint-disable-next-line class-methods-use-this
   _renderFilter() {
-    return html` <grampsjs-filters
-      .strings="${this.strings}"
-      @filters:changed="${this._handleFiltersChanged}"
-      >${this.renderFilters()}</grampsjs-filters
-    >`
+    return html` <pre>${JSON.stringify(this.filters, null, 2)}</pre>
+      <mwc-button
+        icon="filter_list"
+        ?unelevated="${this.filterOpen}"
+        @click="${this._handleFilterButton}"
+        >${this._('filter')}</mwc-button
+      >
+      <div id="container" @filter:changed="${this._handleFilterChanged}">
+        ${this.filterOpen ? html`${this.renderFilters()}` : ''}
+      </div>`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -186,10 +194,20 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     this._fetchData()
   }
 
-  _handleFiltersChanged(event) {
-    const ruleObj = event.detail?.filters
-    if (ruleObj) {
-      this._filters = Object.values(ruleObj)
+  _handleFilterButton() {
+    this.filterOpen = !this.filterOpen
+  }
+
+  _handleFilterChanged(e) {
+    const rules = e.detail?.filters?.rules
+    const replace = e.detail?.replace
+    const oldFilters = replace
+      ? this.filters.filter(f => f.name !== replace)
+      : this.filters
+    if (rules) {
+      this.filters = [...oldFilters, ...rules]
+      e.preventDefault()
+      e.stopPropagation()
       this._fetchData()
     }
   }
@@ -242,9 +260,10 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     if (this._sort) {
       url = `${url}&sort=${this._sort}`
     }
-    if (this._filters.length > 0) {
+    const filters = Object.values(this.filters)
+    if (filters.length > 0) {
       url = `${url}&rules=${encodeURIComponent(
-        JSON.stringify({rules: this._filters})
+        JSON.stringify({rules: filters})
       )}`
     }
     return url
