@@ -6,13 +6,20 @@ import {html, css} from 'lit'
 import {mdiSort, mdiSortAscending, mdiSortDescending} from '@mdi/js'
 
 import '@material/mwc-fab'
+import '@material/mwc-icon-button'
+import '@material/mwc-icon'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPagination.js'
+import '../components/GrampsjsFilterChip.js'
 import {apiGet} from '../api.js'
 import {fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
+
+function ruleToLabel(rule) {
+  return JSON.stringify(rule)
+}
 
 export class GrampsjsViewObjectsBase extends GrampsjsView {
   static get styles() {
@@ -100,6 +107,21 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
         .hidden {
           display: none;
         }
+
+        .filtermenu {
+          display: inline;
+        }
+
+        .filtermenu > * {
+          vertical-align: middle;
+        }
+
+        #filteroff {
+          --mdc-icon-size: 20px;
+          color: var(--mdc-theme-primary);
+          margin-left: 10px;
+          margin-right: 10px;
+        }
       `,
     ]
   }
@@ -174,19 +196,40 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
 
   // eslint-disable-next-line class-methods-use-this
   _renderFilter() {
-    return html` <pre>${JSON.stringify(this.filters, null, 2)}</pre>
-      <mwc-button
-        icon="filter_list"
-        ?unelevated="${this.filterOpen}"
-        @click="${this._handleFilterButton}"
-        >${this._('filter')}</mwc-button
-      >
+    return html`
+      <div class="filtermenu">
+        <mwc-button
+          icon="filter_list"
+          ?unelevated="${this.filterOpen}"
+          @click="${this._handleFilterButton}"
+          >${this._('filter')}</mwc-button
+        >
+        <mwc-icon-button
+          id="filteroff"
+          ?disabled="${this.filters.length === 0}"
+          icon="filter_list_off"
+          @click="${this._handleFilterOff}"
+        ></mwc-icon-button>
+        ${this._renderFilterChips()}
+      </div>
       <div
-        @filter:changed="${this._handleFilterChanged}"
         class="${classMap({hidden: !this.filterOpen})}"
+        @filter:changed="${this._handleFilterChanged}"
       >
         ${this.renderFilters()}
-      </div>`
+      </div>
+    `
+  }
+
+  _renderFilterChips() {
+    return this.filters.map(
+      (rule, i) => html`
+        <grampsjs-filter-chip
+          label=${ruleToLabel(rule)}
+          @filter-chip:clear="${() => this._clearFilter(i)}"
+        ></grampsjs-filter-chip>
+      `
+    )
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -202,8 +245,16 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     this._fetchData()
   }
 
+  _clearFilter(i) {
+    this.filters = [...this.filters.slice(0, i), ...this.filters.slice(i + 1)]
+  }
+
   _handleFilterButton() {
     this.filterOpen = !this.filterOpen
+  }
+
+  _handleFilterOff() {
+    this.filters = []
   }
 
   _handleFilterChanged(e) {
