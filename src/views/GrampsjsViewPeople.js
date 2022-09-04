@@ -55,7 +55,10 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
     return html`
       <grampsjs-filter-years .strings="${this.strings}"></grampsjs-filter-years>
 
-      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
+      <grampsjs-filter-tags
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+      ></grampsjs-filter-tags>
     `
   }
 }

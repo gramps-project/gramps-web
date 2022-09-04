@@ -6,6 +6,7 @@ import {html, css} from 'lit'
 import {mdiSort, mdiSortAscending, mdiSortDescending} from '@mdi/js'
 
 import '@material/mwc-fab'
+import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPagination.js'
@@ -95,6 +96,10 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
           bottom: 32px;
           right: 32px;
         }
+
+        .hidden {
+          display: none;
+        }
       `,
     ]
   }
@@ -176,8 +181,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
         @click="${this._handleFilterButton}"
         >${this._('filter')}</mwc-button
       >
-      <div id="container" @filter:changed="${this._handleFilterChanged}">
-        ${this.filterOpen ? html`${this.renderFilters()}` : ''}
+      <div
+        @filter:changed="${this._handleFilterChanged}"
+        class="${classMap({hidden: !this.filterOpen})}"
+      >
+        ${this.renderFilters()}
       </div>`
   }
 

@@ -23,6 +23,17 @@ export class GrampsjsFilterTags extends GrampsjsConnectedComponent {
     ]
   }
 
+  static get properties() {
+    return {
+      filters: {type: Array},
+    }
+  }
+
+  constructor() {
+    super()
+    this.filters = []
+  }
+
   renderContent() {
     return html`
       <h3>${this._('Tags')}</h3>
@@ -32,6 +43,9 @@ export class GrampsjsFilterTags extends GrampsjsConnectedComponent {
             <mwc-checkbox
               id="${tag.handle}"
               @change="${this._handleChange}"
+              ?checked="${this.filters
+                .filter(rule => rule.name === 'HasTag')
+                .filter(rule => rule.values[0] === tag.name).length > 0}"
             ></mwc-checkbox>
           </mwc-formfield>
         `
