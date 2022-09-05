@@ -221,6 +221,15 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     if (rule.name === 'HasTag') {
       return `${this._('Tag')}: ${rule.values[0]}`
     }
+    if (rule.name === 'HasBirth' && rule.values[0] !== '') {
+      const match = rule.values[0].match(/(\d+)[^\d]+(\d+)/)
+      if (match.length === 3) {
+        if (match[1] === match[2]) {
+          return `${this._('Birth year')}: ${match[1]}`
+        }
+        return `${this._('Birth year')}: ${match[1]}-${match[2]}`
+      }
+    }
     return JSON.stringify(rule)
   }
 
