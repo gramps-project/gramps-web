@@ -14,7 +14,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsFilterChip.js'
 import {apiGet} from '../api.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, personFilter} from '../util.js'
 import {renderIcon} from '../icons.js'
 
 export class GrampsjsViewObjectsBase extends GrampsjsView {
@@ -230,6 +230,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
         return `${this._('Birth year')}: ${match[1]}-${match[2]}`
       }
     }
+    if (rule.name in personFilter) {
+      return this._(personFilter[rule.name])
+    }
     return JSON.stringify(rule)
   }
 
@@ -244,9 +247,13 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     )
   }
 
-  // eslint-disable-next-line class-methods-use-this
   renderFilters() {
-    return html`SLOT`
+    return html`
+      <grampsjs-filter-tags
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+      ></grampsjs-filter-tags>
+    `
   }
 
   renderFab() {

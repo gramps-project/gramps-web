@@ -411,3 +411,24 @@ export function dateSpanLocal(date1, date2, lang) {
   }
   return str.replace('1111', date1).replace('2222', date2)
 }
+
+export const personFilter = {
+  IsFemale: 'Females',
+  HasUnknownGender: 'People with unknown gender',
+  IsMale: 'Males',
+  HasAlternateName: 'People with an alternate name',
+  HasNickname: 'People with a nickname',
+  HaveAltFamilies: 'Adopted people',
+  HaveChildren: 'People with children',
+  IncompleteNames: 'People with incomplete names',
+  NeverMarried: 'People with no marriage records',
+  MultipleMarriages: 'People with multiple marriage records',
+  NoBirthdate: 'People without a known birth date',
+  NoDeathdate: 'People without a known death date',
+  PersonWithIncompleteEvent: 'People with incomplete events',
+  FamilyWithIncompleteEvent: 'Families with incomplete events',
+  PeoplePrivate: 'People marked private',
+  PeoplePublic: 'People not marked private',
+  MissingParent: 'People missing parents',
+  Disconnected: 'Disconnected people',
+}
