@@ -118,6 +118,14 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
           margin-left: 10px;
           margin-right: 10px;
         }
+
+        .viewbtn {
+          float: right;
+        }
+
+        .viewbtn mwc-icon-button {
+          color: var(--mdc-theme-primary);
+        }
       `,
     ]
   }
@@ -125,6 +133,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
   static get properties() {
     return {
       _data: {type: Array},
+      _rawData: {type: Array},
       _columns: {type: Object},
       _totalCount: {type: Number},
       _page: {type: Number},
@@ -136,12 +145,14 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       filters: {type: Array},
       filterOpen: {type: Boolean},
       _objectsName: {type: String},
+      altView: {type: Boolean},
     }
   }
 
   constructor() {
     super()
     this._data = []
+    this._rawData = []
     this._totalCount = -1
     this._page = 1
     this._pages = -1
@@ -152,35 +163,39 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     this.filters = []
     this.filterOpen = false
     this._objectsName = ''
+    this.altView = false
   }
 
   renderContent() {
     return html`
       ${this._renderFilter()}
-      <table class="linked">
-        <tr>
-          ${Object.keys(this._columns).map(
-            column => html`
-              <th>
-                ${this._(this._columns[column].title)}
-                ${this._renderSortBtn(column)}
-              </th>
-            `,
-            this
-          )}
-        </tr>
-        ${this._data.map(
-          obj => html`
-            <tr @click=${() => this._handleClick(obj)}>
-              ${Object.keys(this._columns).map(
-                column => html` <td><div>${obj[column]}</div></td> `,
-                this
+      ${this.altView
+        ? this.renderAltView()
+        : html`
+            <table class="linked">
+              <tr>
+                ${Object.keys(this._columns).map(
+                  column => html`
+                    <th>
+                      ${this._(this._columns[column].title)}
+                      ${this._renderSortBtn(column)}
+                    </th>
+                  `,
+                  this
+                )}
+              </tr>
+              ${this._data.map(
+                obj => html`
+                  <tr @click=${() => this._handleClick(obj)}>
+                    ${Object.keys(this._columns).map(
+                      column => html` <td><div>${obj[column]}</div></td> `,
+                      this
+                    )}
+                  </tr>
+                `
               )}
-            </tr>
-          `
-        )}
-      </table>
-
+            </table>
+          `}
       <grampsjs-pagination
         page="${this._page}"
         pages="${this._pages}"
@@ -190,6 +205,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
 
       ${this.canAdd ? this.renderFab() : ''}
     `
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  renderAltView() {
+    return ''
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -209,6 +229,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
           @click="${this._handleFilterOff}"
         ></mwc-icon-button>
         ${this._renderFilterChips()}
+        <div class="viewbtn">${this._renderViewButton()}</div>
       </div>
       <div
         class="${classMap({hidden: !this.filterOpen})}"
@@ -261,6 +282,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
         ></grampsjs-filter-chip>
       `
     )
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _renderViewButton() {
+    return ''
   }
 
   renderFilters() {
@@ -386,6 +412,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       this.loading = false
       if ('data' in data) {
         this.error = false
+        this._rawData = data.data
         this._data = data.data.map(row => this._formatRow(row, this))
         this._totalCount = data.total_count
         this._pages = Math.ceil(this._totalCount / this._pageSize)
