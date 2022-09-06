@@ -2,8 +2,11 @@
 Citations list view
 */
 
+import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp} from '../util.js'
+import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
+import '../components/GrampsjsFilterProperties.js'
+import '../components/GrampsjsFilterTags.js'
 
 export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
   constructor() {
@@ -13,6 +16,7 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
       sourceTitle: {title: 'Source: Title', sort: ''},
       change: {title: 'Last changed', sort: 'change'},
     }
+    this._objectsName = 'citations'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -28,6 +32,23 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
   // eslint-disable-next-line class-methods-use-this
   _getAddPath() {
     return 'new_citation'
+  }
+
+  renderFilters() {
+    return html`
+      <grampsjs-filter-properties
+        hasCount
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+        .props="${filterCounts.citations}"
+        label="${this._('Associations')}"
+      ></grampsjs-filter-properties>
+
+      <grampsjs-filter-tags
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+      ></grampsjs-filter-tags>
+    `
   }
 
   // eslint-disable-next-line class-methods-use-this

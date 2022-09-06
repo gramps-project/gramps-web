@@ -2,8 +2,11 @@
 Medias list view
 */
 
+import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp} from '../util.js'
+import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
+import '../components/GrampsjsFilterProperties.js'
+import '../components/GrampsjsFilterTags.js'
 
 export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
   constructor() {
@@ -14,6 +17,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
       desc: {title: 'Description', sort: 'title'},
       change: {title: 'Last changed', sort: 'change'},
     }
+    this._objectsName = 'media'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -29,6 +33,23 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
   // eslint-disable-next-line class-methods-use-this
   _getAddPath() {
     return 'new_media'
+  }
+
+  renderFilters() {
+    return html`
+      <grampsjs-filter-properties
+        hasCount
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+        .props="${filterCounts.media}"
+        label="${this._('Associations')}"
+      ></grampsjs-filter-properties>
+
+      <grampsjs-filter-tags
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+      ></grampsjs-filter-tags>
+    `
   }
 
   // eslint-disable-next-line class-methods-use-this
