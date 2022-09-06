@@ -14,7 +14,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsFilterChip.js'
 import {apiGet} from '../api.js'
-import {fireEvent, personFilter, filterCounts} from '../util.js'
+import {fireEvent, personFilter, filterCounts, filterMime} from '../util.js'
 import {renderIcon} from '../icons.js'
 
 export class GrampsjsViewObjectsBase extends GrampsjsView {
@@ -243,6 +243,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
   ruleToLabel(rule) {
     if (rule.name === 'HasTag') {
       return `${this._('Tag')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'HasMedia' && rule.values[1] !== '') {
+      return `${this._('_Media Type:').replace(':', '')}: ${this._(
+        filterMime[rule.values[1]]
+      )}`
     }
     if (rule.name === 'HasBirth' && rule.values[0] !== '') {
       return this._ruleToLabelSpan(rule, 'Birth year')

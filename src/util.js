@@ -469,3 +469,11 @@ export const filterCounts = {
     HasRepository: 'Sources with <count> Repository references',
   },
 }
+
+export const filterMime = {
+  'image/': 'Image',
+  'audio/': 'Audio',
+  'video/': 'Video',
+  'text/': 'Text',
+  'application/pdf': 'PDF',
+}

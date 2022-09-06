@@ -6,6 +6,7 @@ import {html, css} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {fireEvent, prettyTimeDiffTimestamp, filterCounts} from '../util.js'
 import '../components/GrampsjsFilterProperties.js'
+import '../components/GrampsjsFilterMime.js'
 import '../components/GrampsjsFilterTags.js'
 
 export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
@@ -72,6 +73,11 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
+      <grampsjs-filter-mime
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+      ></grampsjs-filter-mime>
+
       <grampsjs-filter-properties
         hasCount
         .strings="${this.strings}"
