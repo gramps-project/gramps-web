@@ -222,16 +222,24 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       return `${this._('Tag')}: ${rule.values[0]}`
     }
     if (rule.name === 'HasBirth' && rule.values[0] !== '') {
-      const match = rule.values[0].match(/(\d+)[^\d]+(\d+)/)
-      if (match.length === 3) {
-        if (match[1] === match[2]) {
-          return `${this._('Birth year')}: ${match[1]}`
-        }
-        return `${this._('Birth year')}: ${match[1]}-${match[2]}`
-      }
+      return this._ruleToLabelSpan(rule, 'Birth year')
+    }
+    if (rule.name === 'HasDeath' && rule.values[0] !== '') {
+      return this._ruleToLabelSpan(rule, 'Death year')
     }
     if (rule.name in personFilter) {
       return this._(personFilter[rule.name])
+    }
+    return JSON.stringify(rule)
+  }
+
+  _ruleToLabelSpan(rule, label) {
+    const match = rule.values[0].match(/(\d+)[^\d]+(\d+)/)
+    if (match.length === 3) {
+      if (match[1] === match[2]) {
+        return `${this._(label)}: ${match[1]}`
+      }
+      return `${this._(label)}: ${match[1]}-${match[2]}`
     }
     return JSON.stringify(rule)
   }

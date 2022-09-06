@@ -92,6 +92,7 @@ export const grampsStrings = [
   'Date',
   'Death Date',
   'Death Place',
+  'Death year',
   'Death',
   'Degree',
   'Department',

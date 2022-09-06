@@ -53,7 +53,18 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
-      <grampsjs-filter-years .strings="${this.strings}"></grampsjs-filter-years>
+      <grampsjs-filter-years
+        .strings="${this.strings}"
+        label="Birth year"
+        rule="HasBirth"
+      >
+      </grampsjs-filter-years>
+      <grampsjs-filter-years
+        .strings="${this.strings}"
+        label="Death year"
+        rule="HasDeath"
+      >
+      </grampsjs-filter-years>
 
       <grampsjs-filter-properties
         .strings="${this.strings}"

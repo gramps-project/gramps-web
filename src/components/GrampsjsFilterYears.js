@@ -30,6 +30,8 @@ export class GrampsjsFilterYears extends GrampsjsTranslateMixin(LitElement) {
     return {
       filters: {type: Object},
       open: {type: Boolean},
+      label: {type: String},
+      rule: {type: String},
       _yearFrom: {type: String},
       _yearUntil: {type: String},
       _serverLang: {type: String},
@@ -39,6 +41,8 @@ export class GrampsjsFilterYears extends GrampsjsTranslateMixin(LitElement) {
   constructor() {
     super()
     this.filters = []
+    this.label = ''
+    this.rule = ''
     this.open = false
     this._yearFrom = null
     this._yearUntil = new Date().getFullYear()
@@ -47,7 +51,7 @@ export class GrampsjsFilterYears extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-      <h3>${this._('Birth year')}</h3>
+      <h3>${this._(this.label)}</h3>
       <mwc-textfield
         type="number"
         max="${new Date().getFullYear()}"
@@ -99,8 +103,8 @@ export class GrampsjsFilterYears extends GrampsjsTranslateMixin(LitElement) {
       const date = this._serverLang
         ? dateSpanLocal(year1, year2, 'de')
         : `from ${year1} until ${year2}`
-      const rules = [{name: 'HasBirth', values: [date, '', '']}]
-      fireEvent(this, 'filter:changed', {filters: {rules}, replace: 'HasBirth'})
+      const rules = [{name: this.rule, values: [date, '', '']}]
+      fireEvent(this, 'filter:changed', {filters: {rules}, replace: this.rule})
     }
   }
 
