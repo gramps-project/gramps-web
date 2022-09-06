@@ -4,7 +4,7 @@ People list view
 
 import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp, personFilter} from '../util.js'
+import {prettyTimeDiffTimestamp, personFilter, filterCounts} from '../util.js'
 import '../components/GrampsjsFilterYears.js'
 import '../components/GrampsjsFilterProperties.js'
 import '../components/GrampsjsFilterTags.js'
@@ -20,6 +20,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       death: {title: 'Death Date', sort: 'death'},
       change: {title: 'Last changed', sort: 'change'},
     }
+    this._objectsName = 'people'
   }
 
   get _fetchUrl() {
@@ -70,6 +71,13 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
         .strings="${this.strings}"
         .filters="${this.filters}"
         .props="${personFilter}"
+      ></grampsjs-filter-properties>
+
+      <grampsjs-filter-properties
+        hasCount
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+        .props="${filterCounts.people}"
       ></grampsjs-filter-properties>
 
       <grampsjs-filter-tags

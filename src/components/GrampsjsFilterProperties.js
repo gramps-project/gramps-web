@@ -29,6 +29,8 @@ export class GrampsjsFilterProperties extends GrampsjsTranslateMixin(
     return {
       filters: {type: Array},
       props: {type: Object},
+      hasCount: {type: Boolean},
+      label: {type: String},
     }
   }
 
@@ -36,14 +38,18 @@ export class GrampsjsFilterProperties extends GrampsjsTranslateMixin(
     super()
     this.filters = []
     this.props = {}
+    this.hasCount = false
+    this.label = 'Properties'
   }
 
   render() {
     return html`
-      <h3>${this._('Properties')}</h3>
+      <h3>${this._(this.label)}</h3>
       ${Object.keys(this.props).map(
         key => html`
-          <mwc-formfield label="${this._(this.props[key] || '')}">
+          <mwc-formfield
+            label="${this._(this.props[key] || '').replace(/<[^>]+>/, '')}"
+          >
             <mwc-checkbox
               id="${key}"
               @change="${this._handleChange}"
@@ -58,7 +64,8 @@ export class GrampsjsFilterProperties extends GrampsjsTranslateMixin(
 
   _handleChange(event) {
     const name = event.target.id
-    const rules = event.target.checked ? [{name}] : []
+    const rule = this.hasCount ? {name, values: ['0', 'greater than']} : {name}
+    const rules = event.target.checked ? [rule] : []
     fireEvent(this, 'filter:changed', {filters: {rules}, replace: name})
   }
 }

@@ -14,7 +14,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsFilterChip.js'
 import {apiGet} from '../api.js'
-import {fireEvent, personFilter} from '../util.js'
+import {fireEvent, personFilter, filterCounts} from '../util.js'
 import {renderIcon} from '../icons.js'
 
 export class GrampsjsViewObjectsBase extends GrampsjsView {
@@ -135,6 +135,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       canAdd: {type: Boolean},
       filters: {type: Array},
       filterOpen: {type: Boolean},
+      _objectsName: {type: String},
     }
   }
 
@@ -150,6 +151,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     this.canAdd = false
     this.filters = []
     this.filterOpen = false
+    this._objectsName = ''
   }
 
   renderContent() {
@@ -229,6 +231,12 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     }
     if (rule.name in personFilter) {
       return this._(personFilter[rule.name])
+    }
+    if (rule.name in filterCounts[this._objectsName]) {
+      return this._(filterCounts[this._objectsName][rule.name]).replace(
+        /<[^>]+>/,
+        ''
+      )
     }
     return JSON.stringify(rule)
   }

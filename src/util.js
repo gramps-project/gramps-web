@@ -432,3 +432,40 @@ export const personFilter = {
   MissingParent: 'People missing parents',
   Disconnected: 'Disconnected people',
 }
+
+export const filterCounts = {
+  citations: {
+    HasGallery: 'Citations with <count> media',
+    HasNote: 'Citations having <count> notes',
+  },
+  events: {
+    HasGallery: 'Events with <count> media',
+    HasNote: 'Events having <count> notes',
+    HasSourceCount: 'Events with <count> sources',
+  },
+  families: {
+    HasGallery: 'Families with <count> media',
+    HasNote: 'Families having <count> notes',
+    HasSourceCount: 'Families with <count> sources',
+  },
+  media: {HasSourceCount: 'Media with <count> sources'},
+  notes: {},
+  people: {
+    HavePhotos: 'People with <count> media',
+    HasNote: 'People having <count> notes',
+    HasSourceCount: 'People with <count> sources',
+    HasAddress: 'People with <count> addresses',
+    HasAssociation: 'People with <count> associations',
+  },
+  places: {
+    HasGallery: 'Places with <count> media',
+    HasNote: 'Places having <count> notes',
+    HasSourceCount: 'Place with <count> sources',
+  },
+  repositories: {},
+  sources: {
+    HasGallery: 'Sources with <count> media',
+    HasNote: 'Sources having <count> notes',
+    HasRepository: 'Sources with <count> Repository references',
+  },
+}
