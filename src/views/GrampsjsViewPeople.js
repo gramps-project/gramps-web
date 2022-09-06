@@ -78,6 +78,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
         .strings="${this.strings}"
         .filters="${this.filters}"
         .props="${filterCounts.people}"
+        label="${this._('Associations')}"
       ></grampsjs-filter-properties>
 
       <grampsjs-filter-tags
