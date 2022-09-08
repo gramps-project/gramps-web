@@ -2,8 +2,11 @@
 Sources list view
 */
 
+import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp} from '../util.js'
+import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
+import '../components/GrampsjsFilterProperties.js'
+import '../components/GrampsjsFilterTags.js'
 
 export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
   constructor() {
@@ -15,6 +18,7 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
       pubinfo: {title: 'Publication info', sort: 'pubinfo'},
       change: {title: 'Last changed', sort: 'change'},
     }
+    this._objectsName = 'sources'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -30,6 +34,23 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
   // eslint-disable-next-line class-methods-use-this
   _getAddPath() {
     return 'new_source'
+  }
+
+  renderFilters() {
+    return html`
+      <grampsjs-filter-properties
+        hasCount
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+        .props="${filterCounts.sources}"
+        label="${this._('Associations')}"
+      ></grampsjs-filter-properties>
+
+      <grampsjs-filter-tags
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+      ></grampsjs-filter-tags>
+    `
   }
 
   // eslint-disable-next-line class-methods-use-this

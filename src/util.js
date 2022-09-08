@@ -361,3 +361,119 @@ export function getBrowserLanguage() {
   }
   return null
 }
+
+// return translated date span
+export function dateSpanLocal(date1, date2, lang) {
+  const localStrings = {
+    ar: 'بين 1111 و 2222',
+    bg: 'между 1111 и 2222',
+    ca: 'entre 1111 i 2222',
+    cs: 'mezi 1111 a 2222',
+    da: 'mellem 1111 og 2222',
+    de: 'zwischen 1111 und 2222',
+    el: 'μεταξύ 1111 και 2222',
+    en: 'between 1111 and 2222',
+    en_GB: 'between 1111 and 2222',
+    es: 'entre 1111 y 2222',
+    fi: '1111 ja 2222 välillä',
+    fr: 'entre 1111 et 2222',
+    hr: 'između 1111 i 2222',
+    hu: '1111 és 2222 között',
+    is: 'milli 1111 og 2222',
+    it: 'tra 1111 e 2222',
+    ja: '1111と2222の間',
+    lt: 'tarp 1111 ir 2222',
+    nb: 'mellom 1111 og 2222',
+    nl: 'tussen 1111 en 2222',
+    nn: 'mellom 1111 og 2222',
+    pl: 'między 1111 a 2222',
+    pt_BR: 'entre 1111 e 2222',
+    pt_PT: 'entre 1111 e 2222',
+    ru: 'между 1111 и 2222',
+    sk: 'medzi 1111 a 2222',
+    sl: 'med 1111 in 2222',
+    sr: 'између 1111 и 2222',
+    sv: 'mellan 1111 och 2222',
+    uk: 'між 1111 та 2222',
+    zh_CN: ' 介于 1111 与 2222 之间',
+    zh_HK: ' 介于 1111 与 2222 之间',
+    zh_TW: ' 介于 1111 与 2222 之间',
+  }
+  let str = localStrings[lang]
+  if (!str) {
+    const candidates = Object.keys(localStrings).filter(key =>
+      key.startsWith(lang)
+    )
+    if (candidates.length === 0) {
+      return null
+    }
+    str = localStrings[candidates[0]]
+  }
+  return str.replace('1111', date1).replace('2222', date2)
+}
+
+export const personFilter = {
+  IsFemale: 'Females',
+  HasUnknownGender: 'People with unknown gender',
+  IsMale: 'Males',
+  HasAlternateName: 'People with an alternate name',
+  HasNickname: 'People with a nickname',
+  HaveAltFamilies: 'Adopted people',
+  HaveChildren: 'People with children',
+  IncompleteNames: 'People with incomplete names',
+  NeverMarried: 'People with no marriage records',
+  MultipleMarriages: 'People with multiple marriage records',
+  NoBirthdate: 'People without a known birth date',
+  NoDeathdate: 'People without a known death date',
+  PersonWithIncompleteEvent: 'People with incomplete events',
+  FamilyWithIncompleteEvent: 'Families with incomplete events',
+  PeoplePrivate: 'People marked private',
+  PeoplePublic: 'People not marked private',
+  MissingParent: 'People missing parents',
+  Disconnected: 'Disconnected people',
+}
+
+export const filterCounts = {
+  citations: {
+    HasGallery: 'Citations with <count> media',
+    HasNote: 'Citations having <count> notes',
+  },
+  events: {
+    HasGallery: 'Events with <count> media',
+    HasNote: 'Events having <count> notes',
+    HasSourceCount: 'Events with <count> sources',
+  },
+  families: {
+    HasGallery: 'Families with <count> media',
+    HasNote: 'Families having <count> notes',
+    HasSourceCount: 'Families with <count> sources',
+  },
+  media: {HasSourceCount: 'Media with <count> sources'},
+  notes: {},
+  people: {
+    HavePhotos: 'People with <count> media',
+    HasNote: 'People having <count> notes',
+    HasSourceCount: 'People with <count> sources',
+    HasAddress: 'People with <count> addresses',
+    HasAssociation: 'People with <count> associations',
+  },
+  places: {
+    HasGallery: 'Places with <count> media',
+    HasNote: 'Places having <count> notes',
+    HasSourceCount: 'Place with <count> sources',
+  },
+  repositories: {},
+  sources: {
+    HasGallery: 'Sources with <count> media',
+    HasNote: 'Sources having <count> notes',
+    HasRepository: 'Sources with <count> Repository references',
+  },
+}
+
+export const filterMime = {
+  'image/': 'Image',
+  'audio/': 'Audio',
+  'video/': 'Video',
+  'text/': 'Text',
+  'application/pdf': 'PDF',
+}

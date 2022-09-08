@@ -2,8 +2,9 @@
 Events list view
 */
 
+import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp} from '../util.js'
+import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
 
 export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
   constructor() {
@@ -15,6 +16,7 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
       place: {title: 'Place', sort: 'place'},
       change: {title: 'Last changed', sort: 'change'},
     }
+    this._objectsName = 'events'
   }
 
   get _fetchUrl() {
@@ -31,6 +33,23 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
   // eslint-disable-next-line class-methods-use-this
   _getAddPath() {
     return 'new_event'
+  }
+
+  renderFilters() {
+    return html`
+      <grampsjs-filter-properties
+        hasCount
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+        .props="${filterCounts.events}"
+        label="${this._('Associations')}"
+      ></grampsjs-filter-properties>
+
+      <grampsjs-filter-tags
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+      ></grampsjs-filter-tags>
+    `
   }
 
   // eslint-disable-next-line class-methods-use-this

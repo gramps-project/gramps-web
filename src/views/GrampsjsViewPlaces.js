@@ -2,8 +2,9 @@
 Places list view
 */
 
+import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp} from '../util.js'
+import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
 
 export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
   constructor() {
@@ -13,6 +14,7 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
       title: {title: 'Name', sort: 'title'},
       change: {title: 'Last changed', sort: 'change'},
     }
+    this._objectsName = 'places'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -28,6 +30,23 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
   // eslint-disable-next-line class-methods-use-this
   _getAddPath() {
     return 'new_place'
+  }
+
+  renderFilters() {
+    return html`
+      <grampsjs-filter-properties
+        hasCount
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+        .props="${filterCounts.places}"
+        label="${this._('Associations')}"
+      ></grampsjs-filter-properties>
+
+      <grampsjs-filter-tags
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+      ></grampsjs-filter-tags>
+    `
   }
 
   // eslint-disable-next-line class-methods-use-this

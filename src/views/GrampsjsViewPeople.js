@@ -2,8 +2,12 @@
 People list view
 */
 
+import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp} from '../util.js'
+import {prettyTimeDiffTimestamp, personFilter, filterCounts} from '../util.js'
+import '../components/GrampsjsFilterYears.js'
+import '../components/GrampsjsFilterProperties.js'
+import '../components/GrampsjsFilterTags.js'
 
 export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
   constructor() {
@@ -16,6 +20,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       death: {title: 'Death Date', sort: 'death'},
       change: {title: 'Last changed', sort: 'change'},
     }
+    this._objectsName = 'people'
   }
 
   get _fetchUrl() {
@@ -45,6 +50,42 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
     }
     return formattedRow
+  }
+
+  renderFilters() {
+    return html`
+      <grampsjs-filter-years
+        .strings="${this.strings}"
+        label="Birth year"
+        rule="HasBirth"
+      >
+      </grampsjs-filter-years>
+      <grampsjs-filter-years
+        .strings="${this.strings}"
+        label="Death year"
+        rule="HasDeath"
+      >
+      </grampsjs-filter-years>
+
+      <grampsjs-filter-properties
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+        .props="${personFilter}"
+      ></grampsjs-filter-properties>
+
+      <grampsjs-filter-properties
+        hasCount
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+        .props="${filterCounts.people}"
+        label="${this._('Associations')}"
+      ></grampsjs-filter-properties>
+
+      <grampsjs-filter-tags
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+      ></grampsjs-filter-tags>
+    `
   }
 }
 

@@ -2,10 +2,49 @@
 Medias list view
 */
 
+import {html, css} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp} from '../util.js'
+import {fireEvent, prettyTimeDiffTimestamp, filterCounts} from '../util.js'
+import '../components/GrampsjsFilterProperties.js'
+import '../components/GrampsjsFilterMime.js'
+import '../components/GrampsjsFilterTags.js'
 
 export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        .tile {
+          margin: 15px 5px;
+          float: left;
+          cursor: pointer;
+          padding: 5px;
+          width: 200px;
+          height: 230px;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .clear {
+          clear: both;
+          padding-bottom: 2em;
+        }
+
+        .tile span {
+          color: #666;
+          font-size: 15px;
+          position: absolute;
+          bottom: 0px;
+          width: 200px;
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
+      `,
+    ]
+  }
+
   constructor() {
     super()
     this._columns = {
@@ -14,11 +53,12 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
       desc: {title: 'Description', sort: 'title'},
       change: {title: 'Last changed', sort: 'change'},
     }
+    this._objectsName = 'media'
   }
 
   // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
-    return '/api/media/?keys=gramps_id,mime,desc,change'
+    return '/api/media/?keys=gramps_id,mime,desc,change,handle'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -29,6 +69,70 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
   // eslint-disable-next-line class-methods-use-this
   _getAddPath() {
     return 'new_media'
+  }
+
+  renderFilters() {
+    return html`
+      <grampsjs-filter-mime
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+      ></grampsjs-filter-mime>
+
+      <grampsjs-filter-properties
+        hasCount
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+        .props="${filterCounts.media}"
+        label="${this._('Associations')}"
+      ></grampsjs-filter-properties>
+
+      <grampsjs-filter-tags
+        .strings="${this.strings}"
+        .filters="${this.filters}"
+      ></grampsjs-filter-tags>
+    `
+  }
+
+  renderAltView() {
+    return html`
+      <div class="clear"></div>
+      ${this._rawData.map(row => this._renderTile(row))}
+      <div class="clear"></div>
+    `
+  }
+
+  _renderTile(row) {
+    if (!row) {
+      return ''
+    }
+    return html`<div class="tile">
+      <grampsjs-img
+        handle="${row.handle}"
+        size="200"
+        displayHeight="200"
+        square
+        mime="${row.mime}"
+        @click="${() => this._handleImageClick(row)}"
+      ></grampsjs-img
+      ><br /><span>${row.desc}</span>
+    </div>`
+  }
+
+  _handleImageClick(row) {
+    fireEvent(this, 'nav', {path: `media/${row.gramps_id}`})
+  }
+
+  _renderViewButton() {
+    return html`
+      <mwc-icon-button
+        icon="${this.altView ? 'list' : 'grid_view'}"
+        @click="${this._handleViewBtn}"
+      ></mwc-icon-button>
+    `
+  }
+
+  _handleViewBtn() {
+    this.altView = !this.altView
   }
 
   // eslint-disable-next-line class-methods-use-this
