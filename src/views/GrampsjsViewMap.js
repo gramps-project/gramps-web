@@ -112,7 +112,7 @@ export class GrampsjsViewMap extends GrampsjsView {
 
   async _fetchData() {
     const data = await apiGet(
-      `/api/places/?locale=${this.strings?.__lang__ || 'en'}&profile=all`
+      `/api/places/?locale=${this.strings?.__lang__ || 'en'}&profile=self`
     )
     this.loading = false
     if ('data' in data) {
