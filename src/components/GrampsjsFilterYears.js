@@ -101,7 +101,7 @@ export class GrampsjsFilterYears extends GrampsjsTranslateMixin(LitElement) {
     if (year1 && year2) {
       // need to translate the date span if the server locale is not English
       const date = this._serverLang
-        ? dateSpanLocal(year1, year2, 'de')
+        ? dateSpanLocal(year1, year2, this._serverLang)
         : `from ${year1} until ${year2}`
       const rules = [{name: this.rule, values: [date, '', '']}]
       fireEvent(this, 'filter:changed', {filters: {rules}, replace: this.rule})
