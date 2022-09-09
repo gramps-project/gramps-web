@@ -56,5 +56,7 @@
     "login": "se connecter",
     "Lost password?": "Mot de passe oublié ?",
     "Register new account": "Créer un nouveau compte",
-    "All": "Tout"
+    "All": "Tout",
+    "filter": "filtrer",
+    "Properties": "Propriétés"
 }
