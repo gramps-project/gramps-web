@@ -23,6 +23,13 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
           color: rgba(0, 0, 0, 0.8);
           padding-left: 0.8em;
         }
+
+        mwc-icon-button.download {
+          color: var(--mdc-theme-primary);
+          position: relative;
+          bottom: 5px;
+          margin-right: 10px;
+        }
       `,
     ]
   }
@@ -60,6 +67,11 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
             : ''}</span
         >
         <span slot="button">
+          <mwc-icon-button
+            icon="download"
+            class="download"
+            @click="${this._handleDownload}"
+          ></mwc-icon-button>
           <mwc-button
             unelevated
             label="${this._('Show Details')}"
@@ -148,6 +160,10 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         slot="image"
       ></grampsjs-img>
     `
+  }
+
+  _handleDownload() {
+    window.location.assign(getMediaUrl(this._data.handle, true))
   }
 
   _handleButtonClick() {

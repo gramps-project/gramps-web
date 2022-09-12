@@ -278,12 +278,14 @@ export function getExporterUrl(id, options) {
   return `${__APIHOST__}/api/exporters/${id}/file?jwt=${jwt}&${queryParam}`
 }
 
-export function getMediaUrl(handle) {
+export function getMediaUrl(handle, download = false) {
   const jwt = localStorage.getItem('access_token')
   if (jwt === null) {
-    return `${__APIHOST__}/api/media/${handle}/file`
+    const url = `${__APIHOST__}/api/media/${handle}/file`
+    return download ? `${url}?download=1` : url
   }
-  return `${__APIHOST__}/api/media/${handle}/file?jwt=${jwt}`
+  const url = `${__APIHOST__}/api/media/${handle}/file?jwt=${jwt}`
+  return download ? `${url}&download=1` : url
 }
 
 export function getMediaUrlCropped(handle, rect) {

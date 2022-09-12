@@ -43,7 +43,6 @@ class GrampsjsLightbox extends LitElement {
           z-index: 10002;
           min-height: 70px;
           overflow-x: hidden;
-          padding: 20px;
           margin: 0;
         }
 
@@ -54,6 +53,7 @@ class GrampsjsLightbox extends LitElement {
           line-height: 30px;
           font-weight: 400;
           overflow: hidden;
+          padding: 20px;
           text-overflow: ellipsis;
         }
 
@@ -65,6 +65,7 @@ class GrampsjsLightbox extends LitElement {
           line-height: 30px;
           font-weight: 400;
           overflow: hidden;
+          padding: 20px;
           text-overflow: ellipsis;
           text-align: right;
         }
