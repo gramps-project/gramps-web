@@ -47,6 +47,9 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
       edit: {type: Boolean},
       editRect: {type: Boolean},
       _lightboxSelected: {type: Number},
+      radius: {type: Number},
+      size: {type: Number},
+      square: {type: Boolean},
     }
   }
 
@@ -58,13 +61,18 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
     this.editRect = false
     this.dialogContent = ''
     this._lightboxSelected = 0
+    this.radius = 0
+    this.size = 200
+    this.square = false
   }
 
   render() {
     return html`
-      ${this.media.map((mediaObj, i, arr) =>
-        this._renderThumbnail(i, arr.length)
-      )}
+      <div class="tiles">
+        ${this.media.map((mediaObj, i, arr) =>
+          this._renderThumbnail(i, arr.length)
+        )}
+      </div>
 
       <div class="clear"></div>
 
@@ -139,9 +147,11 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
     const {rect} = this.mediaRef[i]
     return html`<div class="tile">
       <grampsjs-img
+        ?square="${this.square}"
+        radius="${this.radius}"
         handle="${handle}"
         size="300"
-        displayHeight="200"
+        displayHeight="${this.size}"
         .rect="${rect || []}"
         mime="${mime}"
         @click="${() => this._handleClick(i)}"

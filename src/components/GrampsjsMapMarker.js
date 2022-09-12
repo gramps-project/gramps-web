@@ -1,5 +1,7 @@
 import {html, LitElement} from 'lit'
+import {mdiMapMarker} from '@mdi/js'
 import {Marker, Icon} from '../../node_modules/leaflet/dist/leaflet-src.esm.js'
+import {iconDataUrl} from '../icons.js'
 
 class GrampsjsMapMarker extends LitElement {
   render() {
@@ -10,9 +12,10 @@ class GrampsjsMapMarker extends LitElement {
     return {
       latitude: {type: Number},
       longitude: {type: Number},
-      popup: {type: String},
+      popupLabel: {type: String},
       markerId: {type: String},
       opacity: {type: Number},
+      size: {type: Number},
       _marker: {type: Object, attribute: false},
       _map: {type: Object, attribute: false},
     }
@@ -20,9 +23,10 @@ class GrampsjsMapMarker extends LitElement {
 
   constructor() {
     super()
-    this.popup = ''
+    this.popupLabel = ''
     this.markerId = ''
     this.opacity = 1
+    this.size = 32
   }
 
   attributeChangedCallback(name, oldval, newval) {
@@ -31,19 +35,25 @@ class GrampsjsMapMarker extends LitElement {
   }
 
   firstUpdated() {
-    Icon.Default.imagePath = 'images/'
     this._map = this.parentElement._map
     this.addMarker()
   }
 
   addMarker() {
+    const icon = new Icon({
+      iconUrl: iconDataUrl(mdiMapMarker, '#EA4335'),
+      iconSize: [this.size, this.size],
+      iconAnchor: [this.size / 2, this.size],
+      popupAnchor: [0, -this.size],
+    })
     this._marker = new Marker([this.latitude, this.longitude], {
       opacity: this.opacity,
+      icon,
     })
     this._marker.addTo(this._map)
     this._marker.on('click', this.clickHandler.bind(this))
-    if (this.popup !== '') {
-      this._marker.bindPopup(this.popup)
+    if (this.popupLabel !== '') {
+      this._marker.bindPopup(this.popupLabel)
     }
   }
 

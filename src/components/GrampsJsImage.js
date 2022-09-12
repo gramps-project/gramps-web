@@ -51,6 +51,7 @@ class GrampsjsImg extends LitElement {
       mime: {type: String},
       displayHeight: {type: Number},
       border: {type: Boolean},
+      radius: {type: Number},
     }
   }
 
@@ -62,6 +63,7 @@ class GrampsjsImg extends LitElement {
     this.mime = ''
     this.displayHeight = 0
     this.border = false
+    this.radius = 0
   }
 
   _renderImageFull() {
@@ -73,6 +75,7 @@ class GrampsjsImg extends LitElement {
         @error=${this._errorHandler}
         alt=""
         height="${height}"
+        style="${this.circle ? '' : `border-radius:${this.radius}px`}"
       />
     `
   }
@@ -99,6 +102,7 @@ class GrampsjsImg extends LitElement {
         class=${classMap({round: this.circle, bordered: this.border})}
         @error=${this._errorHandler}
         alt=""
+        style="${this.circle ? '' : `border-radius:${this.radius}px`}"
         height="${height}"
       />
     `
@@ -140,6 +144,7 @@ class GrampsjsImg extends LitElement {
         this.square
       )}"
       class="${this.circle ? 'round' : ''}"
+      style="${this.circle ? '' : `border-radius:${this.radius}px`}"
       @error=${this._errorHandler}
       alt=""
       height="${height}"
