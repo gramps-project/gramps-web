@@ -59,6 +59,13 @@ export class GrampsjsConnectedGallery extends GrampsjsConnectedComponent {
       ></grampsjs-gallery>
     `
   }
+
+  update(changed) {
+    super.update(changed)
+    if (changed.has('handle')) {
+      this._updateData()
+    }
+  }
 }
 
 window.customElements.define(
