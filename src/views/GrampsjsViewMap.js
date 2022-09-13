@@ -123,8 +123,8 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._valueSearch = object.profile.name
     this._handlesHighlight = [object.handle]
     if (object.lat && object.long) {
-      this.latitude = parseFloat(object.lat)
-      this.longitude = parseFloat(object.long)
+      this.latitude = object.profile.lat
+      this.longitude = object.profile.long
       this.panTo(this.latitude, this.longitude)
     }
   }
