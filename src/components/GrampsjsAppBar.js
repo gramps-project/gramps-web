@@ -70,7 +70,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
         <div id="app-title" slot="title">
           ${this.editMode && this.editTitle
             ? this.editTitle
-            : this._dbInfo?.database?.name || 'Gramps'}
+            : this._dbInfo?.database?.name || 'Gramps Web'}
         </div>
         ${
           // eslint-disable-next-line no-nested-ternary
