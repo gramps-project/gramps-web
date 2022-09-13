@@ -477,3 +477,13 @@ export const filterMime = {
   'text/': 'Text',
   'application/pdf': 'PDF',
 }
+
+export const reportCategoryIcon = {
+  0: 'description', // text
+  1: 'pie_chart', // draw
+  // 2: '',  // code
+  // 3: '',  // web
+  // 4: '',  // book
+  5: 'account_tree', // graphviz
+  // 6: '',  // tree
+}
