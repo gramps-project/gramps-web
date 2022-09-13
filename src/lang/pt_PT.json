@@ -49,5 +49,14 @@
     "Optionally, enter existing IMAP credentials to enable e-mail notifications required e.g. for user registration.": "Opcionalmente, insira credenciais IMAP existentes para activar notificações electrónicas, necessárias para, e.g., registo de utilizadores.",
     "Latest Blog Post": "Última entrada no blogue",
     "Enter the details for the admin user.": "Insira os detalhes do administrador.",
-    "If you intend to synchronize an existing Gramps database with Gramps Web, use the Gramps XML (.gramps) format instead.": "Se pretende sincronizar uma base de dados Gramps existente com o Gramps Web, use antes o formato Gramps XML (.gramps)."
+    "If you intend to synchronize an existing Gramps database with Gramps Web, use the Gramps XML (.gramps) format instead.": "Se pretende sincronizar uma base de dados Gramps existente com o Gramps Web, use antes o formato Gramps XML (.gramps).",
+    "Properties": "Propriedades",
+    "filter": "filtro",
+    "Username": "Utilizador",
+    "Password": "Senha",
+    "login": "iniciar",
+    "Lost password?": "Esqueceu-se da senha?",
+    "Register new account": "Criar uma conta",
+    "All": "Tudo",
+    "Select at least one object type": "Seleccione pelo menos um tipo de objecto"
 }

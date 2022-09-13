@@ -56,5 +56,7 @@
     "The Gramps package format (.gpkg) is currently not supported.": "Gramps paket biçimi (.gpkg) şu anda desteklenmemektedir.",
     "Lost password?": "Şifremi unuttum?",
     "SMTP user": "SMTP kullanıcısı",
-    "From address": "Adresten"
+    "From address": "Adresten",
+    "filter": "süzgeç",
+    "Properties": "Özellikler"
 }

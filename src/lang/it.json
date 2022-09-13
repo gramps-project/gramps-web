@@ -56,5 +56,7 @@
     "Password": "Password",
     "Lost password?": "Password dimenticata?",
     "All": "Tutto",
-    "Select at least one object type": "Seleziona almeno un tipo di oggetto"
+    "Select at least one object type": "Seleziona almeno un tipo di oggetto",
+    "filter": "filtra",
+    "Properties": "Proprietà"
 }

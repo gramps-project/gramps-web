@@ -57,5 +57,7 @@
     "All": "Allt",
     "Select at least one object type": "Välj minst en objekttyp",
     "Username": "Användarnamn",
-    "Register new account": "Registrera nytt konto"
+    "Register new account": "Registrera nytt konto",
+    "filter": "filtrera",
+    "Properties": "Egenskaper"
 }
