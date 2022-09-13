@@ -30,6 +30,7 @@ export class GrampsjsViewMap extends GrampsjsView {
       _dataLayers: {type: Array},
       _selected: {type: String},
       _valueSearch: {type: String},
+      _bounds: {type: Object},
     }
   }
 
@@ -41,6 +42,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._dataLayers = []
     this._selected = ''
     this._valueSearch = ''
+    this._bounds = {}
   }
 
   renderContent() {
@@ -56,6 +58,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         latitude="${center[0]}"
         longitude="${center[1]}"
         mapid="map-mapview"
+        @map:moveend="${this._handleMoveEnd}"
         id="map"
         zoom="6"
         >${this._renderMarkers()}${this._renderLayers()}</grampsjs-map
@@ -135,19 +138,45 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   _renderLayers() {
+    return html` ${this._dataLayers.map(obj => this._renderMapLayer(obj))} `
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _renderMapLayer(obj) {
+    const bounds = obj.attribute_list.filter(
+      attr => attr.type === 'map:bounds'
+    )[0].value
     return html`
-      ${this._dataLayers.map(
-        obj => html`
-          <grampsjs-map-overlay
-            url="${getMediaUrl(obj.handle)}"
-            title="${obj.desc}"
-            bounds="${obj.attribute_list.filter(
-              attr => attr.type === 'map:bounds'
-            )[0].value}"
-          ></grampsjs-map-overlay>
-        `
-      )}
+      <grampsjs-map-overlay
+        url="${getMediaUrl(obj.handle)}"
+        title="${obj.desc}"
+        bounds="${bounds}"
+        ?hidden="${!this._isLayerVisible(JSON.parse(bounds))}"
+      ></grampsjs-map-overlay>
     `
+  }
+
+  _isLayerVisible(bounds) {
+    if (Object.keys(this._bounds).length === 0) {
+      return false
+    }
+    const mapBounds = [
+      [this._bounds._southWest.lat, this._bounds._southWest.lng],
+      [this._bounds._northEast.lat, this._bounds._northEast.lng],
+    ]
+    if (
+      bounds[0][0] < mapBounds[1][0] &&
+      bounds[1][0] > mapBounds[0][0] &&
+      bounds[0][1] < mapBounds[1][1] &&
+      bounds[1][1] > mapBounds[0][1]
+    ) {
+      return true
+    }
+    return false
+  }
+
+  _handleMoveEnd(e) {
+    this._bounds = e.detail.bounds
   }
 
   _renderMarkers() {

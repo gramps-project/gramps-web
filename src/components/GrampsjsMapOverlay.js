@@ -12,6 +12,7 @@ class GrampsjsMapOverlay extends LitElement {
       bounds: {type: Array},
       opacity: {type: Number},
       title: {type: String},
+      hidden: {type: Boolean},
       _overlay: {type: Object, attribute: false},
     }
   }
@@ -21,12 +22,15 @@ class GrampsjsMapOverlay extends LitElement {
     this.url = ''
     this.opacity = 1
     this.title = ''
+    this.hidden = false
     this.bounds = []
   }
 
   firstUpdated() {
     this._map = this.parentElement._map
-    this.addOverlay()
+    if (!this.hidden) {
+      this.addOverlay()
+    }
   }
 
   addOverlay() {
@@ -54,6 +58,13 @@ class GrampsjsMapOverlay extends LitElement {
   updated(changed) {
     if (changed.has('bounds') || changed.has('opacity') || changed.has('url')) {
       this.updateOverlay()
+    }
+    if (changed.has('hidden')) {
+      if (this.hidden) {
+        this.removeOverlay()
+      } else {
+        this.addOverlay()
+      }
     }
   }
 

@@ -7,6 +7,7 @@ import {
 } from '../../node_modules/leaflet/dist/leaflet-src.esm.js'
 import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
+import {fireEvent} from '../util.js'
 
 class GrampsjsMap extends LitElement {
   render() {
@@ -90,6 +91,11 @@ class GrampsjsMap extends LitElement {
       this._map.addControl(this._layercontrol)
     }
     this._map.invalidateSize(false)
+    this._map.on('moveend', e => this._handleMoveEnd(e))
+  }
+
+  _handleMoveEnd(e) {
+    fireEvent(this, 'map:moveend', {bounds: e.target.getBounds()})
   }
 
   panTo(latitude, longitude) {
