@@ -128,7 +128,9 @@ export class GrampsjsViewMap extends GrampsjsView {
     if (object.lat && object.long) {
       this.latitude = object.profile.lat
       this.longitude = object.profile.long
-      this.setZoom(14)
+      if (this.getZoom() < 14) {
+        this.setZoom(14)
+      }
       this.panTo(this.latitude, this.longitude)
     }
   }
@@ -141,6 +143,11 @@ export class GrampsjsViewMap extends GrampsjsView {
   setZoom(zoom) {
     const map = this.renderRoot.querySelector('grampsjs-map')
     map._map.setZoom(zoom)
+  }
+
+  getZoom() {
+    const map = this.renderRoot.querySelector('grampsjs-map')
+    return map._map.getZoom()
   }
 
   _renderLayers() {
