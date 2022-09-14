@@ -16,7 +16,13 @@ import '@material/mwc-linear-progress'
 import '@material/mwc-snackbar'
 import {mdiFamilyTree} from '@mdi/js'
 import {renderIcon} from './icons.js'
-import {apiGet, getSettings, getPermissions, updateSettings} from './api.js'
+import {
+  apiGet,
+  getSettings,
+  getPermissions,
+  updateSettings,
+  apiRefreshAuthToken,
+} from './api.js'
 import {grampsStrings, additionalStrings} from './strings.js'
 import {fireEvent, getBrowserLanguage} from './util.js'
 import './dayjs_locales.js'
@@ -760,6 +766,8 @@ export class GrampsJs extends LitElement {
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
     this.addEventListener('drawer:toggle', this._toggleDrawer)
     window.addEventListener('keydown', event => this._handleKey(event))
+    document.addEventListener('visibilitychange', this._handleVisibilityChange)
+    window.addEventListener('online', this._handleOnline)
 
     const browserLang = getBrowserLanguage()
     if (browserLang && !this.settings.lang) {
@@ -913,6 +921,19 @@ export class GrampsJs extends LitElement {
   _handleNotification(e) {
     const {message} = e.detail
     this._showToast(message)
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _handleVisibilityChange() {
+    if (document.visibilityState === 'visible') {
+      // refresh auth token when app becomes visible again
+      apiRefreshAuthToken()
+    }
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _handleOnline() {
+    apiRefreshAuthToken()
   }
 
   update(changed) {
