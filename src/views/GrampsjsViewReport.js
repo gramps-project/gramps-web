@@ -48,12 +48,12 @@ export class GrampsjsViewReport extends GrampsjsView {
           icon="arrow_back"
           @click="${this._handleBack}"
         ></mwc-icon-button>
-        ${this.data.name}
+        ${this._(this.data.name)}
       </h2>
       <dl style="clear:left;">
         <div>
           <dt>${this._('Description')}</dt>
-          <dd>${this.data.description}</dd>
+          <dd>${this._(this.data.description)}</dd>
         </div>
         <div>
           <dt>${this._('Author')}</dt>
@@ -72,12 +72,15 @@ export class GrampsjsViewReport extends GrampsjsView {
         .optionsDict="${this.data.options_dict}"
         .optionsHelp="${this.data.options_help}"
         @report-options:changed="${this._handleOptionsChanged}"
+        .strings="${this.strings}"
       ></grampsjs-report-options>
 
       <mwc-button unelevated @click="${this._handleSubmit}"
         >${this._('_Generate').replace('_', '')}</mwc-button
       >
-      <a download="report" href="${this._queryUrl}" id="submitanchor">&nbsp;</a>
+      <a download href="${this._queryUrl}" id="submitanchor" target="_blank"
+        >&nbsp;</a
+      >
     `
   }
 

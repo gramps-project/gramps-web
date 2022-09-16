@@ -87,7 +87,7 @@ export class GrampsjsReportOptions extends GrampsjsTranslateMixin(LitElement) {
   _renderBooleanOption(key) {
     return html`
       <div class="option">
-        <span class="label">${this.optionsHelp[key][1]}</span>
+        <span class="label">${this._(this.optionsHelp[key][1]) || key}</span>
         <span class="form">
           <mwc-switch
             id="${key}"
@@ -103,7 +103,7 @@ export class GrampsjsReportOptions extends GrampsjsTranslateMixin(LitElement) {
   _renderArrayOption(key) {
     return html`
       <div class="option">
-        <span class="label">${this.optionsHelp[key][1]}</span>
+        <span class="label">${this._(this.optionsHelp[key][1]) || key}</span>
         <span class="form">
           <mwc-select id="${key}" @change="${this._handleSelect}">
             ${this.optionsHelp[key][2].map(item =>
@@ -116,7 +116,7 @@ export class GrampsjsReportOptions extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _renderStringOption(key) {
-    const label = this.optionsHelp[key][1]
+    const label = this._(this.optionsHelp[key][1]) || key
     const helper = this.optionsHelp[key][2]
     return html`
       <div class="option">

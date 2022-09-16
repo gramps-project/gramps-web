@@ -57,8 +57,8 @@ export class GrampsjsViewReports extends GrampsjsView {
         <mwc-icon slot="graphic"
           >${reportCategoryIcon[report.category] || 'menu_book'}</mwc-icon
         >
-        <span>${report.name}</span>
-        <span slot="secondary">${report.description}</span>
+        <span>${this._(report.name)}</span>
+        <span slot="secondary">${this._(report.description)}</span>
       </mwc-list-item>
     `
   }
