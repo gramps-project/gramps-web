@@ -81,6 +81,8 @@ const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
 
+const MINIMUM_API_VERSION = '0.4.1'
+
 export class GrampsJs extends LitElement {
   static get properties() {
     return {
@@ -815,6 +817,7 @@ export class GrampsJs extends LitElement {
       }
       if ('data' in data) {
         this._dbInfo = data.data
+        this._checkApiVersion()
         if (this._dbInfo?.locale?.language !== undefined) {
           updateSettings({serverLang: this._dbInfo.locale.language})
         }
@@ -824,6 +827,26 @@ export class GrampsJs extends LitElement {
         this._loadHomePersonInfo()
       }
     })
+  }
+
+  _checkApiVersion() {
+    const apiVersion = this._dbInfo?.gramps_webapi?.version
+    if (!apiVersion) {
+      return
+    }
+    const apiVersionParts = apiVersion.split('.')
+    const minApiVersionParts = MINIMUM_API_VERSION.split('.')
+    const len = Math.min(minApiVersionParts.length, apiVersionParts.length)
+    for (let i = 0; i < len; i += 1) {
+      if (apiVersionParts[i] > minApiVersionParts[i]) {
+        // API has higher version: no action right now
+        return
+      }
+      if (apiVersionParts[i] < minApiVersionParts[i]) {
+        // API has lower version
+        this._showError(`${this._('outdated backend')} (${apiVersion})`)
+      }
+    }
   }
 
   _fetchOnboardingToken() {
@@ -982,7 +1005,7 @@ export class GrampsJs extends LitElement {
 
   _showError(msg) {
     const snackbar = this.shadowRoot.getElementById('error-snackbar')
-    snackbar.labelText = `Error: ${msg}`
+    snackbar.labelText = `${this._('Error')}: ${msg}`
     snackbar.show()
   }
 
