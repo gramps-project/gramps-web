@@ -125,7 +125,7 @@ export class GrampsjsReportOptions extends GrampsjsTranslateMixin(LitElement) {
           <mwc-textfield
             @input="${this._handleText}"
             id="${key}"
-            helper="${helper}"
+            helper="${this._(helper)}"
             helperPersistent
             type="${helper.includes('A number') ? 'number' : 'text'}"
           ></mwc-textfield>
@@ -137,11 +137,10 @@ export class GrampsjsReportOptions extends GrampsjsTranslateMixin(LitElement) {
   // eslint-disable-next-line class-methods-use-this
   _renderSelectItem(key, value) {
     const splt = key.split('\t')
+    const selected = splt[0] === `${value}` || splt[0] === 'pdf'
     return html`
-      <mwc-list-item
-        value="${splt[0]}"
-        ?selected=${splt[0] === `${value}` || splt[0] === 'pdf'}
-        >${splt[splt.length - 1]}</mwc-list-item
+      <mwc-list-item value="${splt[0]}" ?selected=${selected}
+        >${this._(splt.length === 1 ? splt[0] : splt[1])}</mwc-list-item
       >
     `
   }
