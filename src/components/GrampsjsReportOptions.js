@@ -149,7 +149,7 @@ export class GrampsjsReportOptions extends GrampsjsTranslateMixin(LitElement) {
   _handleSwitch(e) {
     this._options = {
       ...this._options,
-      [e.target.id]: e.target.selected,
+      [e.target.id]: e.target.selected ? 'True' : 'False',
     }
     fireEvent(this, 'report-options:changed', this._options)
   }
