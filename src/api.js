@@ -278,6 +278,15 @@ export function getExporterUrl(id, options) {
   return `${__APIHOST__}/api/exporters/${id}/file?jwt=${jwt}&${queryParam}`
 }
 
+export function getReportUrl(id, options) {
+  const jwt = localStorage.getItem('access_token')
+  const queryParam = `options=${encodeURIComponent(JSON.stringify(options))}`
+  if (jwt === null) {
+    return `${__APIHOST__}/api/reports/${id}/file?${queryParam}`
+  }
+  return `${__APIHOST__}/api/reports/${id}/file?jwt=${jwt}&${queryParam}`
+}
+
 export function getMediaUrl(handle, download = false) {
   const jwt = localStorage.getItem('access_token')
   if (jwt === null) {

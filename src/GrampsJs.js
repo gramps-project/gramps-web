@@ -36,6 +36,8 @@ import './views/GrampsjsViewPeople.js'
 import './views/GrampsjsViewFamilies.js'
 import './views/GrampsjsViewPlaces.js'
 import './views/GrampsjsViewEvents.js'
+import './views/GrampsjsViewReport.js'
+import './views/GrampsjsViewReports.js'
 import './views/GrampsjsViewSources.js'
 import './views/GrampsjsViewCitations.js'
 import './views/GrampsjsViewRepositories.js'
@@ -482,6 +484,10 @@ export class GrampsJs extends LitElement {
               <span>${this._('Export')}</span>
               <mwc-icon slot="graphic">download_file</mwc-icon>
             </grampsjs-list-item>
+            <grampsjs-list-item href="${BASE_DIR}/reports" graphic="icon">
+              <span>${this._('_Reports').replace('_', '')}</span>
+              <mwc-icon slot="graphic">menu_book</mwc-icon>
+            </grampsjs-list-item>
           </mwc-list>
         </div>
         <div slot="appContent">
@@ -652,6 +658,11 @@ export class GrampsJs extends LitElement {
               ?active=${this._page === 'export'}
               .strings="${this._strings}"
             ></grampsjs-view-export>
+            <grampsjs-view-reports
+              class="page"
+              ?active=${this._page === 'reports'}
+              .strings="${this._strings}"
+            ></grampsjs-view-reports>
             <grampsjs-view-search
               class="page"
               ?active=${this._page === 'search'}
@@ -668,6 +679,12 @@ export class GrampsJs extends LitElement {
               .strings="${this._strings}"
               ?users="${this.canManageUsers}"
             ></grampsjs-view-settings>
+            <grampsjs-view-report
+              class="page"
+              ?active=${this._page === 'report'}
+              .strings="${this._strings}"
+              reportId="${this._pageId}"
+            ></grampsjs-view-report>
 
             <grampsjs-view-new-person
               class="page"
