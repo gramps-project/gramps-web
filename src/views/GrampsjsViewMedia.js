@@ -10,7 +10,9 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
   }
 
   getUrl() {
-    return `/api/media/?gramps_id=${this.grampsId}&backlinks=true&extend=all&profile=all`
+    return `/api/media/?gramps_id=${this.grampsId}&locale=${
+      this.strings?.__lang__ || 'en'
+    }&backlinks=true&extend=all&profile=all`
   }
 
   renderElement() {
