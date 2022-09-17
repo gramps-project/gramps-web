@@ -376,6 +376,7 @@ export const grampsStrings = [
   'Produces statistical bar and pie charts of the people in the database',
   'Provides a summary of the current database',
   'Records Report',
+  'References',
   'Relationship Graph',
   'Repositories',
   'Repository Note',
