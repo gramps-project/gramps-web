@@ -18,6 +18,7 @@ import {mdiFamilyTree} from '@mdi/js'
 import {renderIcon} from './icons.js'
 import {
   apiGet,
+  apiPost,
   getSettings,
   getPermissions,
   updateSettings,
@@ -998,29 +999,24 @@ export class GrampsJs extends LitElement {
   }
 
   _loadStrings(strings, lang) {
-    apiGet(`/api/translations/${lang}?strings=${JSON.stringify(strings)}`).then(
-      data => {
-        if ('data' in data) {
-          this._strings = data.data.reduce(
-            (obj, item) =>
-              Object.assign(obj, {[item.original]: item.translation}),
-            {}
-          )
-          if (lang in additionalStrings) {
-            this._strings = Object.assign(
-              additionalStrings[lang],
-              this._strings
-            )
-          }
-          this._strings.__lang__ = lang
-          this._lang = lang
-          fireEvent(this, 'language:changed', {lang})
+    apiPost(`/api/translations/${lang}`, {strings}).then(data => {
+      if ('data' in data) {
+        this._strings = data.data.reduce(
+          (obj, item) =>
+            Object.assign(obj, {[item.original]: item.translation}),
+          {}
+        )
+        if (lang in additionalStrings) {
+          this._strings = Object.assign(additionalStrings[lang], this._strings)
         }
-        if ('error' in data) {
-          this._showError(data.error)
-        }
+        this._strings.__lang__ = lang
+        this._lang = lang
+        fireEvent(this, 'language:changed', {lang})
       }
-    )
+      if ('error' in data) {
+        this._showError(data.error)
+      }
+    })
   }
 
   _showError(msg) {
