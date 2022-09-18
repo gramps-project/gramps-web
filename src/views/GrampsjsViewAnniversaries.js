@@ -24,7 +24,7 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
   }
 
   renderLoading() {
-    return html`<h2>${this._('Anniversaries')}</h2>
+    return html`<h3>${this._('Anniversaries')}</h3>
       <div class="event">
         <div class="date">
           <span class="skeleton" style="width:7em;">&nbsp;</span>
@@ -44,7 +44,7 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
   }
 
   renderContent() {
-    return html`<h2>${this._('Anniversaries')}</h2>
+    return html`<h3>${this._('Anniversaries')}</h3>
       ${this._data.data.length === 0
         ? html`<p>${this._('No items')}.</p>`
         : this._data.data.map(event => this._renderEvent(event))} `
