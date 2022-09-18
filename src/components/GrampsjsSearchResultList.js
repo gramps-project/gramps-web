@@ -118,8 +118,8 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
 
   // eslint-disable-next-line class-methods-use-this
   _renderIcon(obj) {
-    if (obj.object?.media_list?.length) {
-      const handle = obj.object.media_list[0].ref
+    const handle = this._getMediaHandle(obj)
+    if (handle) {
       return html`<grampsjs-img
         handle="${handle}"
         slot="graphic"
@@ -131,6 +131,17 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
     return html`<mwc-icon slot="graphic"
       >${objectIcon[obj.object_type]}</mwc-icon
     >`
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _getMediaHandle(obj) {
+    if (obj.object_type === 'media') {
+      return obj.object.handle
+    }
+    if (obj.object?.media_list?.length) {
+      return obj.object.media_list[0].ref
+    }
+    return ''
   }
 
   _handleMetaClick(e, obj) {

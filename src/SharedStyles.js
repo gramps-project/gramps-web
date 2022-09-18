@@ -11,7 +11,8 @@ export const sharedStyles = css`
     --mdc-theme-on-primary: rgba(255, 255, 255, 0.95);
     --mdc-theme-secondary: #0277bd;
     --mdc-theme-on-secondary: rgba(255, 255, 255, 0.95);
-    --mdc-theme-text-primary-on-background: #333;
+    --mdc-theme-text-primary-on-background: rgba(0, 0, 0, 0.8);
+    --mdc-theme-text-secondary-on-background: rgba(0, 0, 0, 0.45);
     --mdc-typography-font-family: var(--grampsjs-body-font-family);
     --color-boy: #64b5f6;
     --color-girl: #ef9a9a;

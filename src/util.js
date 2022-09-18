@@ -272,10 +272,22 @@ export function objectDetail(type, obj, strings) {
       return `
     ${obj.type ? translate(strings, obj.type) : ''}
     `
-    // case 'note':
-    //   return ''
-    // case 'media':
-    //   return ''
+    case 'note':
+      return obj?.text?.string || ''
+    case 'media':
+      if (obj.mime.startsWith('audio')) {
+        return translate(strings, 'Audio')
+      }
+      if (obj.mime.startsWith('video')) {
+        return translate(strings, 'Video')
+      }
+      if (obj.mime.startsWith('image')) {
+        return translate(strings, 'Image')
+      }
+      if (obj.mime === 'application/pdf') {
+        return translate(strings, 'PDF')
+      }
+      return obj.mime || ''
     // case 'tag':
     //   return ''
     default:
