@@ -4,18 +4,21 @@ import {GrampsjsView} from './GrampsjsView.js'
 import './GrampsjsViewRecentlyChanged.js'
 import './GrampsjsViewRecentBlogPosts.js'
 import './GrampsjsViewAnniversaries.js'
+import '../components/GrampsjsHomePerson.js'
 import '../components/GrampsjsStatistics.js'
 
 export class GrampsjsViewDashboard extends GrampsjsView {
   static get properties() {
     return {
       dbInfo: {type: Object},
+      homePersonDetails: {type: Object},
     }
   }
 
   constructor() {
     super()
     this.dbInfo = {}
+    this.homePersonDetails = {}
   }
 
   static get styles() {
@@ -44,8 +47,16 @@ export class GrampsjsViewDashboard extends GrampsjsView {
   renderContent() {
     return html`
       <div class="column">
+      <div>
+          <grampsjs-home-person
+            id="homeperson"
+            .strings="${this.strings}"
+            .homePersonDetails=${this.homePersonDetails}
+            >
+          </grampsjs-home-person>
+        </div>
         <div>
-          <grampsjs-view-anniversaries
+          <grampsjs-anniversaries
             id="anniversaries"
             .strings="${this.strings}"
           >

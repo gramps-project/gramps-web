@@ -506,6 +506,7 @@ export class GrampsJs extends LitElement {
               ?active=${this._page === 'home'}
               .strings="${this._strings}"
               .dbInfo="${this._dbInfo}"
+              .homePersonDetails=${this._homePersonDetails}
             ></grampsjs-view-dashboard>
             <grampsjs-view-blog
               class="page"
@@ -882,7 +883,7 @@ export class GrampsJs extends LitElement {
     if (!grampsId) {
       return
     }
-    apiGet(`/api/people/?gramps_id=${grampsId}`).then(data => {
+    apiGet(`/api/people/?gramps_id=${grampsId}&profile=self`).then(data => {
       if ('data' in data) {
         ;[this._homePersonDetails] = data.data
       } else if ('error' in data) {

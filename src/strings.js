@@ -203,6 +203,7 @@ export const grampsStrings = [
   'Hamlet',
   'High',
   'Home Page',
+  'Home Person',
   'Hourglass Graph',
   'How to handle living people',
   'Html code',

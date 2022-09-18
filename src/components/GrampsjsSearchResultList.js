@@ -11,6 +11,7 @@ import {
   objectDetail,
 } from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import './GrampsJsImage.js'
 
 export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
   LitElement
@@ -20,6 +21,13 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
       css`
         mwc-list {
           --mdc-list-item-graphic-margin: 16px;
+        }
+
+        mwc-icon-button {
+          position: relative;
+          top: -14px;
+          left: -16px;
+          --mdc-icon-size: 20px;
         }
       `,
     ]
@@ -31,6 +39,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
       textEmpty: {type: String},
       activatable: {type: Boolean},
       selectable: {type: Boolean},
+      metaIcon: {type: String},
     }
   }
 
@@ -40,6 +49,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
     this.textEmpty = ''
     this.activatable = false
     this.selectable = false
+    this.metaIcon = ''
   }
 
   render() {
@@ -63,15 +73,21 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
             <mwc-list-item
               ?noninteractive="${!this.selectable}"
               twoline
-              graphic="icon"
+              graphic="avatar"
               @click="${() => this._handleClick(obj)}"
+              ?hasMeta=${this.metaIcon !== ''}
             >
-              <mwc-icon slot="graphic">${objectIcon[obj.object_type]}</mwc-icon>
+              ${this._renderIcon(obj)}
+              <mwc-icon-button
+                @click="${e => this._handleMetaClick(e, obj)}"
+                icon="${this.metaIcon}"
+                slot="meta"
+              ></mwc-icon-button>
               <span>${desc}</span>
               <span slot="secondary"
-                >${obj.object.gramps_id}${detail.trim().length !== 0
-                  ? html` | ${detail}`
-                  : ''}</span
+                >${detail.trim().length !== 0
+                  ? detail
+                  : obj.object.gramps_id}</span
               >
             </mwc-list-item>
             ${arr.length - 1 !== i
@@ -81,6 +97,29 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
         }, this)}
       </mwc-list>
     `
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _renderIcon(obj) {
+    if (obj.object.media_list.length > 0) {
+      const handle = obj.object.media_list[0].ref
+      return html`<grampsjs-img
+        handle="${handle}"
+        slot="graphic"
+        circle
+        square
+        size="70"
+      ></grampsjs-img>`
+    }
+    return html`<mwc-icon slot="graphic"
+      >${objectIcon[obj.object_type]}</mwc-icon
+    >`
+  }
+
+  _handleMetaClick(e, obj) {
+    e.preventDefault()
+    e.stopPropagation()
+    fireEvent(this, 'search-result:metaClicked', obj)
   }
 
   _handleClick(obj) {
