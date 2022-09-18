@@ -47,7 +47,7 @@ class GrampsjsLightbox extends LitElement {
         }
 
         #description-container {
-          font-family: Roboto Slab;
+          font-family: var(--grampsjs-heading-font-family);
           height: 70px;
           font-size: 22px;
           line-height: 30px;

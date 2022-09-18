@@ -63,7 +63,7 @@ class GrampsjsGraph extends GrampsjsTranslateMixin(LitElement) {
         }
 
         #graph svg text {
-          font-family: Roboto;
+          font-family: var(--grampsjs-body-font-family);
         }
 
         #graph svg {

@@ -19,7 +19,7 @@ export class GrampsjsFilterChip extends GrampsjsTranslateMixin(LitElement) {
         .chip {
           font-size: 13px;
           font-weight: 400;
-          font-family: Roboto;
+          font-family: var(--grampsjs-body-font-family);
           padding: 6px 14px;
           border-radius: 9999px;
           margin: 5px 5px;

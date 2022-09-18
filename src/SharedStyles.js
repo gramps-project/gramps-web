@@ -2,14 +2,16 @@ import {css} from 'lit'
 
 export const sharedStyles = css`
   :host {
+    --grampsjs-body-font-family: Roboto;
+    --grampsjs-heading-font-family: 'Roboto Slab';
     font-size: 18px;
-    font-family: Roboto;
+    font-family: var(--grampsjs-body-font-family);
     font-weight: 300;
     --mdc-theme-primary: #6d4c41;
     --mdc-theme-on-primary: rgba(255, 255, 255, 0.95);
     --mdc-theme-secondary: #0277bd;
     --mdc-theme-on-secondary: rgba(255, 255, 255, 0.95);
-    --mdc-typography-font-family: Roboto;
+    --mdc-typography-font-family: var(--grampsjs-body-font-family);
     --color-boy: #64b5f6;
     --color-girl: #ef9a9a;
   }
@@ -30,12 +32,12 @@ export const sharedStyles = css`
   h3,
   h4 {
     font-weight: 300;
-    font-family: Roboto Slab;
+    font-family: var(--grampsjs-heading-font-family);
   }
 
   h1 {
     font-weight: 400;
-    font-family: Roboto Slab;
+    font-family: var(--grampsjs-heading-font-family);
     font-size: 34px;
   }
 
@@ -56,7 +58,7 @@ export const sharedStyles = css`
   }
 
   h4.label {
-    font-family: Roboto;
+    font-family: var(--grampsjs-body-font-family);
     font-size: 18px;
   }
 

@@ -17,7 +17,7 @@ export class GrampsjsPlaceBox extends GrampsjsTranslateMixin(LitElement) {
         h2,
         h3,
         h4 {
-          font-family: Roboto;
+          font-family: var(--grampsjs-body-font-family);
         }
 
         h2 {

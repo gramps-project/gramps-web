@@ -15,7 +15,7 @@ export class GrampsjsFilterProperties extends GrampsjsTranslateMixin(
         h3 {
           font-size: 14px;
           text-transform: uppercase;
-          font-family: Roboto;
+          font-family: var(--grampsjs-body-font-family);
           font-weight: 500;
           color: var(--mdc-theme-primary);
           border-color: var(--mdc-theme-primary);

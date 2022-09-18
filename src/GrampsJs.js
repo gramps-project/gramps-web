@@ -149,7 +149,9 @@ export class GrampsJs extends LitElement {
 
         mwc-drawer {
           --mdc-drawer-width: 230px;
-          --mdc-typography-headline6-font-family: Roboto Slab;
+          --mdc-typography-headline6-font-family: var(
+            --grampsjs-heading-font-family
+          );
           --mdc-typography-headline6-font-weight: 400;
           --mdc-typography-headline6-font-size: 19px;
         }
@@ -282,7 +284,7 @@ export class GrampsJs extends LitElement {
         }
 
         #shortcut-overlay dt span {
-          font-family: 'Roboto Slab';
+          font-family: var(--grampsjs-heading-font-family);
           font-size: 11px;
           font-weight: 400;
           display: inline-block;

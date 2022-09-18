@@ -47,7 +47,7 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
 
         .timeline-label,
         .timeline-date {
-          font-family: Roboto Slab;
+          font-family: var(--grampsjs-heading-font-family);
           font-weight: 400;
           font-size: 18px;
           color: rgba(0, 0, 0, 0.8);
@@ -59,7 +59,7 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
         .timeline-person,
         .timeline-age {
           display: block;
-          font-family: Roboto;
+          font-family: var(--grampsjs-body-font-family);
           font-size: 17px;
         }
 

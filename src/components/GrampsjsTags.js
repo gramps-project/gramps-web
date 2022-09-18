@@ -15,7 +15,7 @@ export class GrampsjsTags extends LitElement {
         .chip {
           font-size: 14px;
           font-weight: 400;
-          font-family: Roboto;
+          font-family: var(--grampsjs-body-font-family);
           padding: 6px 12px;
           border-radius: 9999px;
           margin: 5px 5px;

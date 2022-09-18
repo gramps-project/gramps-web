@@ -25,7 +25,7 @@ export class GrampsjsBlogPost extends GrampsjsTranslateMixin(LitElement) {
         }
 
         h3.author {
-          font-family: Roboto;
+          font-family: var(--grampsjs-body-font-family);
           font-size: 16px;
           text-transform: uppercase;
           letter-spacing: 0.15em;
