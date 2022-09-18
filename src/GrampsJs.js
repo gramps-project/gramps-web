@@ -886,7 +886,9 @@ export class GrampsJs extends LitElement {
     if (!grampsId) {
       return
     }
-    apiGet(`/api/people/?gramps_id=${grampsId}&profile=self`).then(data => {
+    apiGet(
+      `/api/people/?gramps_id=${grampsId}&profile=self&extend=media_list`
+    ).then(data => {
       if ('data' in data) {
         ;[this._homePersonDetails] = data.data
       } else if ('error' in data) {

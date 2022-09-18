@@ -119,6 +119,8 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
   // eslint-disable-next-line class-methods-use-this
   _renderIcon(obj) {
     const handle = this._getMediaHandle(obj)
+    const rect = this._getMediaRect(obj)
+    const mime = this._getMediaMime(obj)
     if (handle) {
       return html`<grampsjs-img
         handle="${handle}"
@@ -126,6 +128,8 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
         circle
         square
         size="70"
+        .rect="${rect}"
+        .mime="${mime}"
       ></grampsjs-img>`
     }
     return html`<mwc-icon slot="graphic"
@@ -140,6 +144,25 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
     }
     if (obj.object?.media_list?.length) {
       return obj.object.media_list[0].ref
+    }
+    return ''
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _getMediaRect(obj) {
+    if (obj.object?.media_list?.length) {
+      return obj.object.media_list[0].rect
+    }
+    return []
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _getMediaMime(obj) {
+    if (obj.object_type === 'media') {
+      return obj.object.mime
+    }
+    if (obj.object?.extended?.media_list?.length) {
+      return obj.object.extended.media_list[0].mime
     }
     return ''
   }
