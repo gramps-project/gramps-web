@@ -248,17 +248,17 @@ export function objectDetail(type, obj, strings) {
   switch (type) {
     case 'person':
       return `
-    ${obj?.profile?.birth?.date ? `* ${obj.profile.birth.date}` : ''}
-    ${obj?.profile?.birth?.place && obj?.profile?.birth?.date ? ', ' : ''}
-    ${obj?.profile?.birth?.place || ''}
+    ${obj?.profile?.birth?.date ? `* ${obj.profile.birth.date}` : ''}${
+        obj?.profile?.birth?.place && obj?.profile?.birth?.date ? ', ' : ''
+      }${obj?.profile?.birth?.place || ''}
     `
     // case 'family':
     //   return ''
     case 'event':
       return `
-    ${obj?.profile?.date || ''}
-    ${obj?.profile?.place && obj?.profile?.date ? ', ' : ''}
-    ${obj?.profile?.place || ''}
+    ${obj?.profile?.date || ''}${
+        obj?.profile?.place && obj?.profile?.date ? ', ' : ''
+      }${obj?.profile?.place || ''}
     `
     case 'place':
       return `
