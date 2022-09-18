@@ -40,6 +40,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
       activatable: {type: Boolean},
       selectable: {type: Boolean},
       metaIcon: {type: String},
+      date: {type: Boolean},
       noSep: {type: Boolean},
     }
   }
@@ -51,7 +52,8 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
     this.activatable = false
     this.selectable = false
     this.metaIcon = ''
-    this.noSep = true
+    this.date = false
+    this.noSep = false
   }
 
   render() {
@@ -70,7 +72,6 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
             obj.object,
             this.strings
           )
-          const detail = objectDetail(obj.object_type, obj.object, this.strings)
           return html`
             <mwc-list-item
               ?noninteractive="${!this.selectable}"
@@ -86,11 +87,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
                 slot="meta"
               ></mwc-icon-button>
               <span>${desc}</span>
-              <span slot="secondary"
-                >${detail.trim().length !== 0
-                  ? detail
-                  : obj.object.gramps_id}</span
-              >
+              <span slot="secondary">${this._renderSecondary(obj)}</span>
             </mwc-list-item>
             ${!this.noSep && arr.length - 1 !== i
               ? html`<li divider padded role="separator"></li>`
@@ -99,6 +96,24 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
         }, this)}
       </mwc-list>
     `
+  }
+
+  _renderSecondary(obj) {
+    if (this.date) {
+      return html`<grampsjs-timedelta
+        timestamp="${obj.object.change}"
+        locale="${this.strings.__lang__}"
+      ></grampsjs-timedelta>`
+    }
+    const detail = objectDetail(
+      obj.object_type,
+      obj.object,
+      this.strings
+    ).trim()
+    if (detail?.length) {
+      return detail
+    }
+    return obj.object.gramps_id
   }
 
   // eslint-disable-next-line class-methods-use-this
