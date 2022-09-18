@@ -31,7 +31,7 @@ export class GrampsjsStatistics extends GrampsjsTableBase {
 
   render() {
     return html`
-      <h2>${this._('Statistics')}</h2>
+      <h3>${this._('Statistics')}</h3>
       <table>
         ${_classes.map(key => {
           if (!(key in this.data)) {

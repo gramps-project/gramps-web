@@ -23,19 +23,19 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
   renderContent() {
     if (!this._data?.data?.length) {
       return html`
-        <h2>${this._('Latest Blog Post')}</h2>
+        <h3>${this._('Latest Blog Post')}</h3>
         <p>${this._('No items')}.</p>
       `
     }
     return html`
-      <h2>${this._('Latest Blog Post')}</h2>
+      <h3>${this._('Latest Blog Post')}</h3>
       ${this._data.data.slice(0, 1).map(obj => this._renderPost(obj))}
     `
   }
 
   renderLoading() {
     return html`
-      <h2>${this._('Latest Blog Post')}</h2>
+      <h3>${this._('Latest Blog Post')}</h3>
       <span class="skeleton" style="width:7em;">&nbsp;</span><br />
       <div class="change">
         <span class="skeleton" style="width:7em;">&nbsp;</span>

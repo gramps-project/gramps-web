@@ -14,7 +14,7 @@ export class GrampsjsHomePerson extends GrampsjsTranslateMixin(LitElement) {
           padding-right: 20px;
         }
 
-        h2 {
+        h3 {
           margin-bottom: 15px;
         }
       `,
@@ -34,7 +34,7 @@ export class GrampsjsHomePerson extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-      <h2>${this._('Home Person')}</h2>
+      <h3>${this._('Home Person')}</h3>
 
       <div class="content">
         <grampsjs-search-result-list
