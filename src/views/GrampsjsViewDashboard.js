@@ -47,16 +47,16 @@ export class GrampsjsViewDashboard extends GrampsjsView {
   renderContent() {
     return html`
       <div class="column">
-      <div>
+        <div>
           <grampsjs-home-person
             id="homeperson"
             .strings="${this.strings}"
             .homePersonDetails=${this.homePersonDetails}
-            >
+          >
           </grampsjs-home-person>
         </div>
         <div>
-          <grampsjs-anniversaries
+          <grampsjs-view-anniversaries
             id="anniversaries"
             .strings="${this.strings}"
           >
