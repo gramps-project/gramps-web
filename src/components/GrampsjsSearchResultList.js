@@ -40,6 +40,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
       activatable: {type: Boolean},
       selectable: {type: Boolean},
       metaIcon: {type: String},
+      noSep: {type: Boolean},
     }
   }
 
@@ -50,6 +51,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
     this.activatable = false
     this.selectable = false
     this.metaIcon = ''
+    this.noSep = true
   }
 
   render() {
@@ -90,8 +92,8 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
                   : obj.object.gramps_id}</span
               >
             </mwc-list-item>
-            ${arr.length - 1 !== i
-              ? html`<li divider inset padded role="separator"></li>`
+            ${!this.noSep && arr.length - 1 !== i
+              ? html`<li divider padded role="separator"></li>`
               : ''}
           `
         }, this)}
@@ -101,7 +103,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
 
   // eslint-disable-next-line class-methods-use-this
   _renderIcon(obj) {
-    if (obj.object.media_list.length > 0) {
+    if (obj.object?.media_list?.length) {
       const handle = obj.object.media_list[0].ref
       return html`<grampsjs-img
         handle="${handle}"
