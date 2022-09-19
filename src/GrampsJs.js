@@ -1008,7 +1008,8 @@ export class GrampsJs extends LitElement {
 
   _loadStrings(strings, lang) {
     this._loadingStrings = true
-    apiPost(`/api/translations/${lang}`, {strings}).then(data => {
+    apiPost(`/api/translations/${lang}`, {strings}, true, false).then(data => {
+      this._loadingStrings = false
       if ('data' in data) {
         this._strings = data.data.reduce(
           (obj, item) =>
@@ -1026,7 +1027,6 @@ export class GrampsJs extends LitElement {
         this._showError(data.error)
       }
     })
-    this._loadingStrings = false
   }
 
   _showError(msg) {

@@ -61,7 +61,11 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
 
   update(changed) {
     super.update(changed)
-    if (changed.has('strings') && '__lang__' in this.strings) {
+    if (
+      changed.has('strings') &&
+      '__lang__' in this.strings &&
+      changed.get('strings')?.__lang__ !== this.strings?.__lang__
+    ) {
       this._updateData()
     }
   }

@@ -36,6 +36,7 @@ export class GrampsjsView extends GrampsjsTranslateMixin(LitElement) {
       error: {type: Boolean},
       settings: {type: Object},
       _errorMessage: {type: String},
+      _hasFirstUpdated: {type: Boolean},
     }
   }
 
@@ -46,6 +47,7 @@ export class GrampsjsView extends GrampsjsTranslateMixin(LitElement) {
     this.error = false
     this.settings = {}
     this._errorMessage = ''
+    this._hasFirstUpdated = false
   }
 
   render() {
@@ -59,6 +61,10 @@ export class GrampsjsView extends GrampsjsTranslateMixin(LitElement) {
       )
     }
     return this.renderContent()
+  }
+
+  firstUpdated() {
+    this._hasFirstUpdated = true
   }
 
   update(changed) {

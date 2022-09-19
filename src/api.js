@@ -212,7 +212,13 @@ export async function apiGet(endpoint, isJson = true) {
   }
 }
 
-async function apiPutPost(method, endpoint, payload, isJson = true) {
+async function apiPutPost(
+  method,
+  endpoint,
+  payload,
+  isJson = true,
+  dbChanged = true
+) {
   const accessToken = localStorage.getItem('access_token')
   const headers = {Accept: 'application/json'}
   if (accessToken !== null) {
@@ -243,9 +249,11 @@ async function apiPutPost(method, endpoint, payload, isJson = true) {
     if (resp.status !== 201 && resp.status !== 200) {
       throw new Error(`Error ${resp.status}`)
     }
-    window.dispatchEvent(
-      new CustomEvent('db:changed', {bubbles: true, composed: true})
-    )
+    if (dbChanged) {
+      window.dispatchEvent(
+        new CustomEvent('db:changed', {bubbles: true, composed: true})
+      )
+    }
     try {
       return {
         data: await resp.json(),
@@ -265,8 +273,13 @@ export async function apiPut(endpoint, payload) {
   return apiPutPost('PUT', endpoint, payload)
 }
 
-export async function apiPost(endpoint, payload, isJson = true) {
-  return apiPutPost('POST', endpoint, payload, isJson)
+export async function apiPost(
+  endpoint,
+  payload,
+  isJson = true,
+  dbChanged = true
+) {
+  return apiPutPost('POST', endpoint, payload, isJson, dbChanged)
 }
 
 export function getExporterUrl(id, options) {

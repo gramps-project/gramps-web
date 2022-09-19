@@ -27,8 +27,14 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     window.addEventListener('storage', this._boundStorageHandler)
     this._handleStorage()
     window.addEventListener('language:changed', e =>
-      this._fetchData(e.detail.lang)
+      this._handleLanguageChanged(e)
     )
+  }
+
+  _handleLanguageChanged(e) {
+    if (this._hasFirstUpdated) {
+      this._fetchData(e.detail.lang)
+    }
   }
 
   _handleStorage() {
@@ -37,7 +43,9 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     )
     if (recentObjects !== undefined && recentObjects !== null) {
       this._data = recentObjects
-      this._fetchData(this.strings.__lang__)
+      if (this._hasFirstUpdated) {
+        this._fetchData(this.strings.__lang__)
+      }
     }
   }
 

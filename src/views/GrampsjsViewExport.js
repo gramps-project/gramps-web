@@ -132,8 +132,14 @@ export class GrampsjsViewExport extends GrampsjsView {
   connectedCallback() {
     super.connectedCallback()
     window.addEventListener('language:changed', e =>
-      this._fetchData(e.detail.lang)
+      this._handleLanguageChanged(e)
     )
+  }
+
+  _handleLanguageChanged(e) {
+    if (this._hasFirstUpdated) {
+      this._fetchData(e.detail.lang)
+    }
   }
 }
 
