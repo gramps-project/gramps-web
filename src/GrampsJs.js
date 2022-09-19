@@ -105,6 +105,7 @@ export class GrampsJs extends LitElement {
       _showShortcuts: {type: Boolean},
       _shortcutPressed: {type: String},
       _firstRunToken: {type: String},
+      _loadingStrings: {type: Boolean},
     }
   }
 
@@ -126,6 +127,7 @@ export class GrampsJs extends LitElement {
     this._showShortcuts = false
     this._shortcutPressed = ''
     this._firstRunToken = ''
+    this._loadingStrings = false
   }
 
   static get styles() {
@@ -440,7 +442,11 @@ export class GrampsJs extends LitElement {
     if (this.loadingState === LOADING_STATE_MISSING_SETTINGS) {
       return this._renderOnboarding()
     }
-    if (this.settings.lang && !this._backendStringsLoaded()) {
+    if (
+      this.settings.lang &&
+      !this._backendStringsLoaded() &&
+      !this._loadingStrings
+    ) {
       this._loadStrings(grampsStrings, this.settings.lang)
     }
     const tabs = {
@@ -1001,6 +1007,7 @@ export class GrampsJs extends LitElement {
   }
 
   _loadStrings(strings, lang) {
+    this._loadingStrings = true
     apiPost(`/api/translations/${lang}`, {strings}).then(data => {
       if ('data' in data) {
         this._strings = data.data.reduce(
@@ -1019,6 +1026,7 @@ export class GrampsJs extends LitElement {
         this._showError(data.error)
       }
     })
+    this._loadingStrings = false
   }
 
   _showError(msg) {
