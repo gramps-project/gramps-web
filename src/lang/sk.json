@@ -56,5 +56,7 @@
     "Lost password?": "Stratené heslo?",
     "Register new account": "Registrácia nového účtu",
     "All": "Všetko",
-    "Select at least one object type": "Vyberte aspoň jeden typ objektu"
+    "Select at least one object type": "Vyberte aspoň jeden typ objektu",
+    "Properties": "Vlastnosti",
+    "filter": "filtrovať"
 }
