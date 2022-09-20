@@ -241,9 +241,11 @@ async function apiPutPost(
       const refreshResp = await apiRefreshAuthToken()
       if ('error' in refreshResp) {
         throw new Error(refreshResp.error)
+      } else {
+        return apiPutPost(method, endpoint, payload, isJson, dbChanged)
       }
     }
-    if (resp.status === 400 || resp.status === 401 || resp.status === 403) {
+    if (resp.status === 400 || resp.status === 403) {
       throw new Error('Authorization error')
     }
     if (resp.status !== 201 && resp.status !== 200) {
