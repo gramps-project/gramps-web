@@ -19,11 +19,13 @@ jobs:
         run: |
           npm install
           npm run build
+      - name: Move files
+        run: mv dist demo/
       - name: Build image
         run: |
-          docker build . \
+          cd demo && docker build . \
             --tag gcr.io/gramps-web-demo/gcp-api:latest \
-            -f demo/Dockerfile
+            -f Dockerfile
   deploy:
     runs-on: ubuntu-latest
     needs: build
