@@ -6,12 +6,10 @@ Gramps.js is the responsive Javascript frontend of <a href="https://gramps-proje
 
 ![](screenshot.png)
 
-
 ## Demo
 
-A demo deployment based on the Gramps example family tree is available at https://grampsweb-demo.herokuapp.com.
+A demo deployment based on the Gramps example family tree is available [here](https://gcp-api-puqt5dnf3a-uc.a.run.app/).
 
 ## Documentation
 
 The documentation for using or developing Gramps.js can be found on the [Gramps Web documentation site](https://gramps-project.github.io/web/).
-
