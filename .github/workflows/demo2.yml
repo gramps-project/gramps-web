@@ -26,6 +26,7 @@ jobs:
             -f demo/Dockerfile
   deploy:
     runs-on: ubuntu-latest
+    needs: build
     permissions:
       contents: "read"
       id-token: "write"
@@ -37,5 +38,5 @@ jobs:
       - id: "deploy"
         uses: "google-github-actions/deploy-cloudrun@v0"
         with:
-          service: "gramps-web-demo"
+          service: "gcp-api"
           image: "gcr.io/gramps-web-demo/gcp-api:latest"
