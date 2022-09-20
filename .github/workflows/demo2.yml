@@ -1,6 +1,7 @@
 name: Deploy demo
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -20,7 +21,7 @@ jobs:
           npm run build
       - name: Build image
         run: |
-          docker build .
+          docker build . \
             --tag gcr.io/gramps-web-demo/gcp-api:latest \
             -f demo/Dockerfile
   deploy:
