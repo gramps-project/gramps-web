@@ -1,0 +1,40 @@
+name: Deploy demo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+      - name: Install and Build
+        run: |
+          npm install
+          npm run build
+      - name: Build image
+        run: |
+          docker build .
+            --tag gcr.io/gramps-web-demo/gcp-api:latest \
+            -f demo/Dockerfile
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
+    steps:
+      - id: "auth"
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
+      - id: "deploy"
+        uses: "google-github-actions/deploy-cloudrun@v0"
+        with:
+          service: "gramps-web-demo"
+          image: "gcr.io/gramps-web-demo/gcp-api:latest"
