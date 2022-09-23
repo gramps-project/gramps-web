@@ -499,3 +499,7 @@ export const reportCategoryIcon = {
   5: 'account_tree', // graphviz
   // 6: '',  // tree
 }
+
+export function arrayEqual(A, B) {
+  return A.length > 0 && B.length > 0 && A.every(e => B.includes(e))
+}

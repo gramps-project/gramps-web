@@ -271,8 +271,13 @@ async function apiPutPost(
   }
 }
 
-export async function apiPut(endpoint, payload) {
-  return apiPutPost('PUT', endpoint, payload)
+export async function apiPut(
+  endpoint,
+  payload,
+  isJson = true,
+  dbChanged = true
+) {
+  return apiPutPost('PUT', endpoint, payload, isJson, dbChanged)
 }
 
 export async function apiPost(

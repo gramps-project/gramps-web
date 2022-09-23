@@ -68,6 +68,12 @@ export function renderIcon(path, color = '#999999') {
   ></i>`
 }
 
+export function renderIconSvg(path, color = '#999999') {
+  return html`<svg height="24" width="24" viewBox="0 0 24 24">
+    <path fill="${color}" d="${path}" />
+  </svg>`
+}
+
 export function iconDataUrl(path, color = '#999999') {
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' height='24' width='24' viewBox='0 0 24 24'><path fill='${color}' d='${path}' /></svg>`
   return `data:image/svg+xml,${encodeURIComponent(svg)}`

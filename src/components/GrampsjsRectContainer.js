@@ -1,9 +1,10 @@
+/* eslint-disable lit-a11y/click-events-have-key-events */
 import {html, css, LitElement} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 
 import '@material/mwc-icon-button'
 import '@material/mwc-dialog'
 
-import {resizedrag} from '../resizedrag.js'
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsFormSelectObjectList.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
@@ -17,27 +18,11 @@ class GrampsjsRectContainer extends GrampsjsTranslateMixin(LitElement) {
         #rect-container {
           display: inline-block;
           position: relative;
+          overflow: hidden;
         }
 
-        #btn {
-          position: absolute;
-          bottom: 48px;
-          right: 10px;
-          border-radius: 50%;
-          background-color: rgba(255, 255, 255, 0.1);
-          height: 48px;
-          width: 48px;
-        }
-
-        #box {
-          position: fixed;
-          left: 45%;
-          top: 40%;
-          width: 10%;
-          height: 20%;
-          border-radius: 3px;
-          box-shadow: inset 0px 0px 1px 2px white,
-            0px 0px 1px 2px var(--mdc-theme-secondary);
+        .draw {
+          cursor: crosshair;
         }
       `,
     ]
@@ -46,70 +31,76 @@ class GrampsjsRectContainer extends GrampsjsTranslateMixin(LitElement) {
   static get properties() {
     return {
       draw: {type: Boolean},
-      edit: {type: Boolean},
-      bbox: {type: Object},
+      _drawActive: {type: Boolean},
+      _drawStart: {type: Array},
+      _drawEnd: {type: Array},
     }
   }
 
   constructor() {
     super()
     this.draw = false
-    this.edit = false
-    this.bbox = {}
+    this._drawActive = false
+    this._drawStart = []
+    this._drawEnd = []
   }
 
   render() {
     return html`
-      <div id="rect-container">
+      <div
+        id="rect-container"
+        class="${classMap({draw: this.draw})}"
+        @pointerdown="${this._handleDown}"
+        @pointerup="${this._handleUp}"
+        @pointermove="${this._handleMove}"
+        @pointerleave="${this._handleUp}"
+      >
         <slot name="image"></slot>
-        ${this.edit && this.draw ? '' : html`<slot></slot>`}
-        ${this.edit
-          ? html`<div id="btn">
-              ${this.draw
-                ? html`
-        <mwc-icon-button icon="save" class="edit" @click="${this._saveHandler}"></mwc-icon>
-    `
-                : html`
-        <mwc-icon-button icon="tag_faces" class="edit" @click="${this._clickHandler}"></mwc-icon>
-        `}
-            </div>`
-          : ''}
-        ${this.edit
-          ? html`
-              <div
-                id="box"
-                style="display:${this.draw ? 'block' : 'none'};"
-              ></div>
-            `
-          : ''}
+        ${this.draw ? '' : html`<slot></slot>`}
       </div>
     `
   }
 
-  _clickHandler() {
-    this.draw = true
-    fireEvent(this, 'rect:draw-start')
-    const box = this.shadowRoot.querySelector('#box')
-    if (box) {
-      resizedrag(box, box, null, (target, x, y) => this._endBox(target, x, y))
+  _handleDown(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    this._drawActive = true
+    this._drawStart = this._getRelativeCoords(e)
+  }
+
+  _handleUp() {
+    if (!this._drawActive) {
+      return
+    }
+    this._drawActive = false
+  }
+
+  _handleMove(e) {
+    if (!this._drawActive) {
+      return
+    }
+    const coords = this._getRelativeCoords(e)
+    if (coords && this._drawStart) {
+      const [x1, y1] = coords
+      const [x0, y0] = this._drawStart
+      const left = Math.round(Math.max(0, Math.min(x0, x1)))
+      const right = Math.round(Math.min(Math.max(x0, x1), 100))
+      const top = Math.round(Math.max(0, Math.min(y0, y1)))
+      const bottom = Math.round(Math.min(Math.max(y0, y1), 100))
+      fireEvent(this, 'rect:draw', {rect: [left, top, right, bottom]})
     }
   }
 
-  _handleFormData(e) {
-    const [handle] = e.detail.data
-    if (handle) {
-      this._person = handle
+  // eslint-disable-next-line class-methods-use-this
+  _getRelativeCoords(e) {
+    const img = this.renderRoot.querySelector('#rect-container')
+    if (img) {
+      const rect = img.getBoundingClientRect()
+      const x = ((e.clientX - rect.left) / rect.width) * 100
+      const y = ((e.clientY - rect.top) / rect.height) * 100
+      return [x, y]
     }
-  }
-
-  _saveHandler() {
-    this.draw = false
-    fireEvent(this, 'rect:draw-end')
-    fireEvent(this, 'rect:save', {bbox: this.bbox})
-  }
-
-  _endBox(target) {
-    this.bbox = target.getBoundingClientRect()
+    return null
   }
 }
 
