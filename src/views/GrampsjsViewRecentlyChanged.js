@@ -1,7 +1,7 @@
 import {html} from 'lit'
 
 import {GrampsjsConnectedComponent} from '../components/GrampsjsConnectedComponent.js'
-import '../components/GrampsjsSearchResults.js'
+import '../components/GrampsjsSearchResultList.js'
 
 export class GrampsjsViewRecentlyChanged extends GrampsjsConnectedComponent {
   renderContent() {
@@ -9,23 +9,27 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsConnectedComponent {
       ${this._data.data.length === 0
         ? html` <p>${this._('No items')}.</p> `
         : html`
-            <grampsjs-search-results
+            <grampsjs-search-result-list
+              linked
+              large
               .data="${this._data.data}"
               .strings="${this.strings}"
               date
-            ></grampsjs-search-results>
+              noSep
+            ></grampsjs-search-results-list>
           `}`
   }
 
   renderLoading() {
     return html`
       <h3>${this._('Recently changed objects')}</h3>
-      <grampsjs-search-results
+      <grampsjs-search-result-list
         .data="${this._data.data}"
         .strings="${this.strings}"
         loading
-        date
-      ></grampsjs-search-results>
+        numberLoading="8"
+        noSep
+      ></grampsjs-search-result-list>
     `
   }
 

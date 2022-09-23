@@ -121,6 +121,22 @@ export const sharedStyles = css`
     top: 0.15em;
   }
 
+  mwc-list {
+    --mdc-list-item-graphic-margin: 16px;
+  }
+
+  mwc-list.large {
+    --mdc-typography-subtitle1-color: rgba(0, 0, 0, 1);
+    --mdc-typography-subtitle1-font-size: 18px;
+    --mdc-typography-subtitle1-font-weight: 300;
+  }
+
+  .avatar.skeleton {
+    width: 44px;
+    height: 44px;
+    border-radius: 22px;
+  }
+
   .float-right {
     float: right;
   }

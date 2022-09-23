@@ -38,24 +38,16 @@ export class GrampsjsHomePerson extends GrampsjsTranslateMixin(LitElement) {
 
       <div class="content">
         <grampsjs-search-result-list
-          selectable
+          large
+          linked
           metaIcon="edit"
           .strings=${this.strings}
           .data=${[{object: this.homePersonDetails, object_type: 'person'}]}
-          @search-result:clicked="${this._handleClick}"
           @search-result:metaClicked="${this._handleMetaClick}"
         >
         </grampsjs-search-result-list>
       </div>
     `
-  }
-
-  _handleClick() {
-    if (this.homePersonDetails.gramps_id) {
-      fireEvent(this, 'nav', {
-        path: `person/${this.homePersonDetails.gramps_id}`,
-      })
-    }
   }
 
   _handleMetaClick() {

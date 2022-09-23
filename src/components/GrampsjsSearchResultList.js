@@ -1,4 +1,6 @@
 import {LitElement, css, html} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
+
 import '@material/mwc-icon'
 import '@material/mwc-icon-button'
 import '@material/mwc-list'
@@ -12,17 +14,15 @@ import {
 } from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import './GrampsJsImage.js'
+import {sharedStyles} from '../SharedStyles.js'
 
 export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
   LitElement
 ) {
   static get styles() {
     return [
+      sharedStyles,
       css`
-        mwc-list {
-          --mdc-list-item-graphic-margin: 16px;
-        }
-
         mwc-icon-button {
           position: relative;
           top: -14px;
@@ -39,9 +39,13 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
       textEmpty: {type: String},
       activatable: {type: Boolean},
       selectable: {type: Boolean},
+      linked: {type: Boolean},
       metaIcon: {type: String},
       date: {type: Boolean},
       noSep: {type: Boolean},
+      loading: {type: Boolean},
+      numberLoading: {type: Number},
+      large: {type: Boolean},
     }
   }
 
@@ -51,14 +55,25 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
     this.textEmpty = ''
     this.activatable = false
     this.selectable = false
+    this.linked = false
     this.metaIcon = ''
     this.date = false
     this.noSep = false
+    this.loading = false
+    this.numberLoading = 2
+    this.large = false
   }
 
   render() {
+    if (this.loading) {
+      return this.renderLoading()
+    }
     return html`
-      <mwc-list id="search-results" ?activatable="${this.activatable}">
+      <mwc-list
+        id="search-results"
+        ?activatable="${this.activatable}"
+        class="${classMap({large: this.large})}"
+      >
         ${this.data.length === 0 && this.textEmpty
           ? html`
               <mwc-list-item noninteractive>
@@ -74,7 +89,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
           )
           return html`
             <mwc-list-item
-              ?noninteractive="${!this.selectable}"
+              ?noninteractive="${!this.selectable && !this.linked}"
               twoline
               graphic="avatar"
               @click="${() => this._handleClick(obj)}"
@@ -96,6 +111,22 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
         }, this)}
       </mwc-list>
     `
+  }
+
+  renderLoading() {
+    return html` <mwc-list>
+      ${Array(this.numberLoading).fill(
+        html`
+          <mwc-list-item noninteractive twoline graphic="avatar">
+            <span class="skeleton" style="width:15em;">&nbsp;</span>
+            <span slot="secondary" class="skeleton" style="width:10em;"
+              >&nbsp;</span
+            >
+            <span slot="graphic" class="skeleton avatar">&nbsp;</span>
+          </mwc-list-item>
+        `
+      )}
+    </mwc-list>`
   }
 
   _renderSecondary(obj) {
@@ -174,6 +205,10 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
   }
 
   _handleClick(obj) {
+    if (this.linked && obj.object_type && obj.object?.gramps_id) {
+      const path = `${obj.object_type}/${obj.object?.gramps_id}`
+      fireEvent(this, 'nav', {path})
+    }
     fireEvent(this, 'search-result:clicked', obj)
   }
 }

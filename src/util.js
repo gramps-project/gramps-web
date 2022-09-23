@@ -38,9 +38,9 @@ export function citationTitleFromProfile(citationProfile) {
           ${citationProfile.page ? ` (${citationProfile.page})` : ''}`
 }
 
-export function eventTitleFromProfile(eventProfile, strings) {
+export function eventTitleFromProfile(eventProfile, strings, date = true) {
   if (eventProfile.summary) {
-    return html`${eventProfile.summary}${eventProfile.date
+    return html`${eventProfile.summary}${date && eventProfile.date
       ? ` (${eventProfile.date})`
       : ''}`
   }
@@ -220,7 +220,7 @@ export function objectDescription(type, obj, strings) {
     case 'family':
       return html`${familyTitleFromProfile(obj.profile || {}) || type}`
     case 'event':
-      return html`${eventTitleFromProfile(obj.profile || {}, strings) ||
+      return html`${eventTitleFromProfile(obj.profile || {}, strings, false) ||
       obj.type}`
     case 'place':
       return html`${obj?.profile?.name ||
