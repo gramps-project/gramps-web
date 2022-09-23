@@ -31,6 +31,11 @@ export class GrampsjsViewDashboard extends GrampsjsView {
           overflow-x: hidden;
         }
 
+        .column:first-child {
+          width: calc(50% - 2em);
+          padding-right: 2em;
+        }
+
         .column > div {
           margin-bottom: 1.5em;
         }
@@ -38,6 +43,7 @@ export class GrampsjsViewDashboard extends GrampsjsView {
         @media screen and (max-width: 768px) {
           .column {
             width: 100%;
+            padding-right: 0;
           }
         }
       `,

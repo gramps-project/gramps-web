@@ -10,10 +10,6 @@ export class GrampsjsHomePerson extends GrampsjsTranslateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        .content {
-          padding-right: 20px;
-        }
-
         h3 {
           margin-bottom: 15px;
         }

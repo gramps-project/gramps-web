@@ -14,11 +14,13 @@ export class GrampsjsView extends GrampsjsTranslateMixin(LitElement) {
         :host {
           margin: 25px 40px;
           background-color: #ffffff;
+          --mdc-list-side-padding: 16px;
         }
 
         @media (max-width: 768px) {
           :host {
             margin: 25px 25px;
+            --mdc-list-side-padding: 8px;
           }
         }
       `,
