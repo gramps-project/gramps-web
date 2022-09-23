@@ -29,6 +29,18 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
           left: -16px;
           --mdc-icon-size: 20px;
         }
+
+        mwc-icon {
+          background-color: rgba(0, 0, 0, 0.25);
+          color: white;
+        }
+
+        mwc-icon.placeholder {
+          width: 40px;
+          height: 40px;
+          line-height: 40px;
+          border-radius: 50%;
+        }
       `,
     ]
   }
@@ -93,6 +105,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
               twoline
               graphic="avatar"
               @click="${() => this._handleClick(obj)}"
+              @keydown="${this._handleKeyDown}"
               ?hasMeta=${this.metaIcon !== ''}
             >
               ${this._renderIcon(obj)}
@@ -151,7 +164,6 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
   _renderIcon(obj) {
     const handle = this._getMediaHandle(obj)
     const rect = this._getMediaRect(obj)
-    const mime = this._getMediaMime(obj)
     if (handle) {
       return html`<grampsjs-img
         handle="${handle}"
@@ -160,8 +172,11 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
         square
         size="70"
         .rect="${rect}"
-        .mime="${mime}"
-      ></grampsjs-img>`
+        .mime=""
+        ><mwc-icon class="placeholder"
+          >${objectIcon[obj.object_type]}</mwc-icon
+        ></grampsjs-img
+      >`
     }
     return html`<mwc-icon slot="graphic"
       >${objectIcon[obj.object_type]}</mwc-icon
@@ -210,6 +225,15 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
       fireEvent(this, 'nav', {path})
     }
     fireEvent(this, 'search-result:clicked', obj)
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _handleKeyDown(event) {
+    if (event.code === 'Enter') {
+      event.target.click()
+      event.preventDefault()
+      event.stopPropagation()
+    }
   }
 }
 

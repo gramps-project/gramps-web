@@ -1,7 +1,7 @@
 import {html, css} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import '../components/GrampsjsSearchResults.js'
+import '../components/GrampsjsSearchResultList.js'
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsButtonToggle.js'
 import {apiGet} from '../api.js'
@@ -98,10 +98,13 @@ export class GrampsjsViewSearch extends GrampsjsView {
         : ''}
       ${this._totalCount === 0 ? html`<p>${this._('No items')}</p>` : ''}
       ${this._totalCount > 0 ? html`<p>Total: ${this._totalCount}</p>` : ''}
-      <grampsjs-search-results
+      <grampsjs-search-result-list
         .data="${this._data}"
         .strings="${this.strings}"
-      ></grampsjs-search-results>
+        large
+        noSep
+        linked
+      ></grampsjs-search-result-list>
 
       ${this._totalCount > 0
         ? html`

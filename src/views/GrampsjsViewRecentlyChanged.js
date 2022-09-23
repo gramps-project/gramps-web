@@ -16,7 +16,7 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsConnectedComponent {
               .strings="${this.strings}"
               date
               noSep
-            ></grampsjs-search-results-list>
+            ></grampsjs-search-result-list>
           `}`
   }
 

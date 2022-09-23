@@ -3,7 +3,7 @@ import '@material/mwc-button'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import {apiGet} from '../api.js'
-import '../components/GrampsjsSearchResults.js'
+import '../components/GrampsjsSearchResultList.js'
 
 export class GrampsjsViewRecentObject extends GrampsjsView {
   static get properties() {
@@ -79,10 +79,13 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
       ${this._data.length === 0
         ? html` <p>${this._('No items')}.</p> `
         : html`
-            <grampsjs-search-results
+            <grampsjs-search-result-list
               .data="${this._searchResult.slice().reverse()}"
               .strings="${this.strings}"
-            ></grampsjs-search-results>
+              large
+              noSep
+              linked
+            ></grampsjs-search-result-list>
           `}`
   }
 

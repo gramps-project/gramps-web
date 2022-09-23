@@ -43,8 +43,8 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
         date
         noSep
       >
-      ${this._data.data.slice(0, 1).map(obj => this._renderPost(obj))}
-      </grampsjs-search-results-list>
+        ${this._data.data.slice(0, 1).map(obj => this._renderPost(obj))}
+      </grampsjs-search-result-list>
     `
   }
 

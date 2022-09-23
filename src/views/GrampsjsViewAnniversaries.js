@@ -80,6 +80,7 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
         twoline
         graphic="avatar"
         @click="${() => this._handleClick(event)}"
+        @keydown="${this._handleKeyDown}"
       >
         <span
           >${eventTitleFromProfile(event.profile, this.strings, false)}</span
@@ -99,6 +100,15 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
   _handleClick(event) {
     const path = `event/${event.gramps_id}`
     fireEvent(this, 'nav', {path})
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _handleKeyDown(event) {
+    if (event.code === 'Enter') {
+      event.target.click()
+      event.preventDefault()
+      event.stopPropagation()
+    }
   }
 
   getUrl() {

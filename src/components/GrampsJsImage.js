@@ -52,6 +52,7 @@ class GrampsjsImg extends LitElement {
       displayHeight: {type: Number},
       border: {type: Boolean},
       radius: {type: Number},
+      _error: {type: Boolean},
     }
   }
 
@@ -64,6 +65,7 @@ class GrampsjsImg extends LitElement {
     this.displayHeight = 0
     this.border = false
     this.radius = 0
+    this._error = false
   }
 
   _renderImageFull() {
@@ -152,6 +154,9 @@ class GrampsjsImg extends LitElement {
   }
 
   render() {
+    if (this._error) {
+      return html`<slot></slot>`
+    }
     if (this.mime.startsWith('audio')) {
       if (this.displayHeight > 0) {
         return html`
@@ -211,13 +216,7 @@ class GrampsjsImg extends LitElement {
   }
 
   _errorHandler() {
-    this.dispatchEvent(
-      new CustomEvent('grampsjs:error', {
-        bubbles: true,
-        composed: true,
-        detail: {message: 'Error loading image'},
-      })
-    )
+    this._error = true
   }
 }
 
