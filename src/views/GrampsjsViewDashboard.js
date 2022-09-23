@@ -41,7 +41,8 @@ export class GrampsjsViewDashboard extends GrampsjsView {
         }
 
         @media screen and (max-width: 768px) {
-          .column {
+          .column,
+          .column:first-child {
             width: 100%;
             padding-right: 0;
           }
