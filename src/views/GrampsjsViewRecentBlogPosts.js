@@ -2,8 +2,7 @@ import {html, css} from 'lit'
 
 import {GrampsjsConnectedComponent} from '../components/GrampsjsConnectedComponent.js'
 import '../components/GrampsjsSearchResultList.js'
-
-const BASE_DIR = ''
+import {fireEvent} from '../util.js'
 
 export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
   static get styles() {
@@ -34,7 +33,8 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
       <h3>${this._('Latest Blog Post')}</h3>
       <grampsjs-search-result-list
         large
-        linked
+        selectable
+        @search-result:clicked="${this._handleClick}"
         .data="${this._data.data.slice(0, 1).map(obj => ({
           object: obj,
           object_type: 'source',
@@ -43,7 +43,6 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
         date
         noSep
       >
-        ${this._data.data.slice(0, 1).map(obj => this._renderPost(obj))}
       </grampsjs-search-result-list>
     `
   }
@@ -61,16 +60,8 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
     `
   }
 
-  _renderPost(obj) {
-    return html`
-      <a href="${BASE_DIR}/blog/">${obj.title}</a><br />
-      <div class="change">
-        <grampsjs-timedelta
-          timestamp="${obj.change}"
-          locale="${this.strings.__lang__}"
-        ></grampsjs-timedelta>
-      </div>
-    `
+  _handleClick() {
+    fireEvent(this, 'nav', {path: 'blog'})
   }
 
   getUrl() {
