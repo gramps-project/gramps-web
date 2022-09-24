@@ -146,7 +146,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
             outlined
             required
             id="username"
-            label="Username"
+            label="${this._('Username')}"
             type="text"
           ></mwc-textfield>
           <mwc-textfield
@@ -154,7 +154,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
             outlined
             required
             id="password"
-            label="Password"
+            label="${this._('Password')}"
             type="password"
           ></mwc-textfield>
           <mwc-textfield
@@ -162,14 +162,14 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
             outlined
             required
             id="email"
-            label="E-mail"
+            label="${this._('E-mail')}"
             type="email"
           ></mwc-textfield>
           <mwc-textfield
             @input="${this.checkValidity}"
             outlined
             id="full_name"
-            label="Full name"
+            label="${this._('Full Name')}"
             type="text"
           ></mwc-textfield>
 
@@ -268,7 +268,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
 
           <mwc-button
             raised
-            label="submit"
+            label="${this._('Submit')}"
             type="submit"
             @click="${this._submit}"
             ?disabled=${this.stateUser !== STATE_READY}
