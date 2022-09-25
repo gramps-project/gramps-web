@@ -56,5 +56,7 @@
     "Lost password?": "Wachtwoord vergeten?",
     "Register new account": "Nieuw account aanmelden",
     "All": "Alle",
-    "Select at least one object type": "Selecteer ten minste één objecttype"
+    "Select at least one object type": "Selecteer ten minste één objecttype",
+    "Properties": "Eigenschappen",
+    "filter": "filteren"
 }
