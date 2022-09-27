@@ -27,7 +27,9 @@ services:
       dockerfile: ./dev/Dockerfile.frontend
     volumes:
       - ./:/app
+      - node_modules:/app/node_modules
 
 volumes:
   gramps_users:
   gramps_db:
+  node_modules:
