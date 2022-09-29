@@ -54,5 +54,8 @@
     "Unsupported format": "Ei-tuettu muoto",
     "SMTP user": "SMTP-käyttäjätunnus",
     "From address": "Lähettäjäosoite",
-    "Upload family tree": "Tuo perhepuu"
+    "Upload family tree": "Tuo perhepuu",
+    "Please upload a file in Gramps XML (.gramps) format without media files.": "Tuo tiedosto Gramps XML (.gramps) -muodossa ilman mediatiedostoja.",
+    "Place Hierarchy": "Paikkahierarkia",
+    "If you intend to synchronize an existing Gramps database with Gramps Web, use the Gramps XML (.gramps) format instead.": "Jos aiot synkronisoida olemassaolevan Gramps-tietokannan Gramps Webiin, käytä Gramps XML (.gramps) -muotoa tämän sijaan."
 }
