@@ -56,5 +56,7 @@
     "Lost password?": "Забыли пароль?",
     "Register new account": "Зарегистрировать учётную запись",
     "All": "Все",
-    "Select at least one object type": "Выберите хотя бы один тип объекта"
+    "Select at least one object type": "Выберите хотя бы один тип объекта",
+    "filter": "фильтр",
+    "Properties": "Свойства"
 }
