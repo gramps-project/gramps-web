@@ -131,7 +131,10 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
       return null
     }
     const [d, m, y] = val.slice(0, 3)
-    return `${y}-${`${m}`.padStart(2, '0')}-${`${d}`.padStart(2, '0')}`
+    return `${`${y}`.padStart(4, '0')}-${`${m}`.padStart(
+      2,
+      '0'
+    )}-${`${d}`.padStart(2, '0')}`
   }
 
   _getMinDate() {
@@ -171,6 +174,7 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
   }
 
   handleDate1(e) {
+    console.log(e.target.value)
     const [y, m, d] = parseDate(e.target.value)
     const oldval = this.data?.dateval || []
     this.data = {
