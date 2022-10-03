@@ -174,7 +174,6 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
   }
 
   handleDate1(e) {
-    console.log(e.target.value)
     const [y, m, d] = parseDate(e.target.value)
     const oldval = this.data?.dateval || []
     this.data = {
