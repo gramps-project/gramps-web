@@ -184,13 +184,13 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
           @click="${() => this._handleFormat('link')}"
         ></mwc-icon-button>
       </div>
+      <!-- display: inline -->
       <div
         class="note framed"
         contenteditable="true"
         @beforeinput="${this._handleBeforeInput}"
+        >${this._getHtml()}</div
       >
-        ${this._getHtml()}
-      </div>
       ${this._renderLinkDialog()}
     `
   }
@@ -200,6 +200,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
   _handleBeforeInput(e) {
     e.preventDefault()
     e.stopPropagation()
+    console.log(e)
     if (
       [
         'insertText',
