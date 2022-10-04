@@ -1,0 +1,64 @@
+
+@font-face {
+  font-family: 'Inter var';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('Inter-roman.var.woff2?v=3.19') format('woff2');
+  font-named-instance: 'Regular';
+}
+
+@font-face {
+  font-family: 'Inter var';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('Inter-italic.var.woff2?v=3.19') format('woff2');
+  font-named-instance: 'Italic';
+}
+
+@font-face {
+  font-style: normal;
+  font-family: 'EB Garamond x';
+  font-display: swap;
+  src: url('EBGaramond12-Regular.woff') format('woff');
+}
+
+@font-face {
+  font-style: italic;
+  font-family: 'EB Garamond x';
+  font-display: swap;
+  src: url('EBGaramond12-Italic.woff') format('woff');
+}
+
+@font-face {
+  font-style: normal;
+  font-family: 'Zilla Slab';
+  font-weight: 400;
+  font-display: swap;
+  src: url('ZillaSlab-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-style: italic;
+  font-family: 'Zilla Slab';
+  font-weight: 400;
+  font-display: swap;
+  src: url('ZillaSlab-Italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-style: normal;
+  font-family: 'Zilla Slab';
+  font-weight: 300;
+  font-display: swap;
+  src: url('ZillaSlab-Light.woff2') format('woff2');
+}
+
+@font-face {
+  font-style: normal;
+  font-family: 'Zilla Slab';
+  font-weight: 600;
+  font-display: swap;
+  src: url('ZillaSlab-SemiBold.woff2') format('woff2');
+}
