@@ -49,5 +49,13 @@
     "Optionally, upload existing family tree data.": "Alternativt kan du laste opp eksisterende familietredata.",
     "the documentation": "dokumentasjonen",
     "Submit": "Send inn",
-    "To start using the blog, add a source with tag 'Blog'.": "Legg til en kilde med etiketten «Blog» hvis du vil begynne å bruke bloggen."
+    "To start using the blog, add a source with tag 'Blog'.": "Legg til en kilde med etiketten «Blog» hvis du vil begynne å bruke bloggen.",
+    "filter": "filter",
+    "Properties": "Egenskaper",
+    "Username": "Brukernavn",
+    "login": "logg inn",
+    "Lost password?": "Glemt passord?",
+    "Register new account": "Registrer ny konto",
+    "Password": "Passord",
+    "Select at least one object type": "Velg minst én objekttype"
 }
