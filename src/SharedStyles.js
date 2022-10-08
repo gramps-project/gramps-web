@@ -3,7 +3,7 @@ import {css} from 'lit'
 export const sharedStyles = css`
   :host {
     --grampsjs-body-font-family: 'Inter var', sans-serif;
-    --grampsjs-heading-font-family: 'Zilla Slab', serif;
+    --grampsjs-heading-font-family: 'Inter var', serif;
     font-size: 18px;
     font-family: var(--grampsjs-body-font-family);
     font-weight: 300;
@@ -33,7 +33,9 @@ export const sharedStyles = css`
   h2,
   h3,
   h4 {
-    font-weight: 300;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: rgba(0, 0, 0, 0.8);
     font-family: var(--grampsjs-heading-font-family);
   }
 
@@ -50,7 +52,7 @@ export const sharedStyles = css`
   }
 
   h3 {
-    font-size: 26px;
+    font-size: 20px;
     margin-top: 30px;
     margin-bottom: 20px;
   }
