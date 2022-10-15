@@ -233,6 +233,17 @@ export class GrampsjsViewObject extends GrampsjsView {
           )
         }
       })
+    } else if (e.detail.action === 'newNote') {
+      this._postObject(e.detail.data, 'note').then(data => {
+        if ('data' in data) {
+          this.addHandle(
+            e.detail.data.handle,
+            this._data,
+            this._className,
+            'note_list'
+          )
+        }
+      })
     } else if (e.detail.action === 'addCitation') {
       this.addHandle(
         e.detail.data.data[0],

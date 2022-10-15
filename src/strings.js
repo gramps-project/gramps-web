@@ -100,6 +100,7 @@ export const grampsStrings = [
   'Country',
   'Counts number of ancestors of selected person',
   'County',
+  'Create and add a new note',
   'Cremation',
   'CSS filename to use, html format only',
   'Custom',

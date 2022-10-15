@@ -5,7 +5,8 @@ import '@material/mwc-icon-button'
 import {GrampsjsViewObjectsDetail} from './GrampsjsViewObjectsDetail.js'
 import '../components/GrampsjsNoteContent.js'
 import '../components/GrampsjsFormNoteRef.js'
-import {fireEvent} from '../util.js'
+import '../components/GrampsjsFormNewNote.js'
+import {fireEvent, makeHandle} from '../util.js'
 
 const BASE_DIR = ''
 
@@ -56,8 +57,13 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
     return html`
       <div>
         <mwc-icon-button
-          class="edit large"
-          icon="add_circle"
+          class="edit"
+          icon="add_link"
+          @click="${this._handleShareClick}"
+        ></mwc-icon-button>
+        <mwc-icon-button
+          class="edit"
+          icon="add"
           @click="${this._handleAddClick}"
         ></mwc-icon-button>
         ${this.dialogContent}
@@ -67,10 +73,22 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
 
   _handleAddClick() {
     this.dialogContent = html`
+      <grampsjs-form-new-note
+        @object:save="${this._handleNewNoteSave}"
+        @object:cancel="${this._handleNoteCancel}"
+        .strings="${this.strings}"
+        dialogTitle="${this._('Create and add a new note')}"
+      >
+      </grampsjs-form-new-note>
+    `
+  }
+
+  _handleShareClick() {
+    this.dialogContent = html`
       <grampsjs-form-noteref
         new
         @object:save="${this._handleNoteRefSave}"
-        @object:cancel="${this._handleNoteRefCancel}"
+        @object:cancel="${this._handleNoteCancel}"
         .strings="${this.strings}"
         objType="${this.objType}"
         dialogTitle=${this._('Select an existing note')}
@@ -109,6 +127,17 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
     fireEvent(this, 'edit:action', {action: 'delNoteRef', handle})
   }
 
+  _handleNewNoteSave(e) {
+    const handle = makeHandle()
+    fireEvent(this, 'edit:action', {
+      action: 'newNote',
+      data: {handle, ...e.detail.data},
+    })
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
   _handleNoteRefSave(e) {
     fireEvent(this, 'edit:action', {action: 'addNoteRef', ...e.detail})
     e.preventDefault()
@@ -116,7 +145,7 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
     this.dialogContent = ''
   }
 
-  _handleNoteRefCancel() {
+  _handleNoteCancel() {
     this.dialogContent = ''
   }
 

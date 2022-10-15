@@ -41,7 +41,7 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
       return html`${this.edit ? this.renderEdit() : ''}`
     }
     return html`
-      ${this.renderElements()} ${this.edit ? this.renderEdit() : ''}
+      ${this.edit ? this.renderEdit() : ''} ${this.renderElements()}
       ${this.dialogContent}
     `
   }
