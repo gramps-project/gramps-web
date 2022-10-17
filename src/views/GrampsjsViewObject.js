@@ -251,6 +251,13 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._className,
         'citation_list'
       )
+    } else if (e.detail.action === 'addAttribute') {
+      this.addObject(
+        e.detail.data,
+        this._data,
+        this._className,
+        'attribute_list'
+      )
     } else if (e.detail.action === 'delRepository') {
       this.delObject(
         e.detail.handle,
@@ -285,6 +292,14 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._className,
         'media_list'
       )
+    } else if (e.detail.action === 'updateAttribute') {
+      this.updateObjectByIndex(
+        e.detail.index,
+        e.detail.data,
+        this._data,
+        this._className,
+        'attribute_list'
+      )
     } else if (e.detail.action === 'delNoteRef') {
       this.delHandle(e.detail.handle, this._data, this._className, 'note_list')
     } else if (e.detail.action === 'delMediaRef') {
@@ -295,6 +310,13 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._data,
         this._className,
         'placeref_list'
+      )
+    } else if (e.detail.action === 'delAttr') {
+      this.delObjectByIndex(
+        e.detail.index,
+        this._data,
+        this._className,
+        'attribute_list'
       )
     } else if (e.detail.action === 'upMediaRef') {
       this.moveObject(
@@ -429,6 +451,13 @@ export class GrampsjsViewObject extends GrampsjsView {
     })
   }
 
+  delObjectByIndex(index, obj, objType, prop) {
+    return this._updateObject(obj, objType, _obj => {
+      _obj[prop] = _obj[prop].filter((_el, ind) => ind !== index)
+      return _obj
+    })
+  }
+
   delHandle(handle, obj, objType, prop) {
     return this._updateObject(obj, objType, _obj => {
       _obj[prop] = _obj[prop].filter(_handle => _handle !== handle)
@@ -525,6 +554,19 @@ export class GrampsjsViewObject extends GrampsjsView {
       }
       _obj[prop] = _obj[prop].map((el, i) => {
         if (i === firstIdx[0].index) {
+          return {...el, ...data}
+        }
+        return el
+      })
+      return _obj
+    })
+  }
+
+  // update an object in a list of objects by list index
+  updateObjectByIndex(index, data, obj, objType, prop) {
+    return this._updateObject(obj, objType, _obj => {
+      _obj[prop] = _obj[prop].map((el, i) => {
+        if (i === index) {
           return {...el, ...data}
         }
         return el

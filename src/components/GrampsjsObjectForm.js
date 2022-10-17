@@ -270,6 +270,18 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
     if (originalTarget.id === 'name') {
       this.data = e.detail.data
     }
+    if (originalTarget.id === 'attrtype') {
+      this.data = {
+        ...this.data,
+        type: {_class: 'AttributeType', string: e.detail.data},
+      }
+    }
+    if (originalTarget.id === 'attrvalue') {
+      this.data = {
+        ...this.data,
+        value: e.detail.data,
+      }
+    }
     e.preventDefault()
     e.stopPropagation()
   }

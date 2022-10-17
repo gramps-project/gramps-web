@@ -126,7 +126,7 @@ const _allTabs = {
   attributes: {
     title: 'Attributes',
     condition: data => data?.attribute_list?.length > 0,
-    conditionEdit: data => false, // 'attribute_list' in data // FIXME editable in principle but UI not implemented
+    conditionEdit: data => 'attribute_list' in data, // 'attribute_list' in data // FIXME editable in principle but UI not implemented
   },
   addresses: {
     title: 'Addresses',
@@ -479,6 +479,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       case 'attributes':
         return html`<grampsjs-attributes
           .strings=${this.strings}
+          ?edit="${this.edit}"
           .data=${this.data.attribute_list}
         ></grampsjs-attributes>`
       case 'addresses':

@@ -1,5 +1,5 @@
 /*
-Element for selecting a Gramps type
+element for editing a name
 */
 
 import {html, css, LitElement} from 'lit'
