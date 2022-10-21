@@ -3,7 +3,7 @@ import {css} from 'lit'
 export const sharedStyles = css`
   :host {
     --grampsjs-body-font-family: 'Inter var', sans-serif;
-    --grampsjs-heading-font-family: 'Zilla Slab', serif;
+    --grampsjs-heading-font-family: 'Roboto Slab', serif;
     font-size: 18px;
     font-family: var(--grampsjs-body-font-family);
     font-weight: 300;
