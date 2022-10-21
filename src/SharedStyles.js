@@ -82,6 +82,10 @@ export const sharedStyles = css`
     cursor: pointer;
   }
 
+  .nopointer {
+    pointer-events: none;
+  }
+
   i svg {
     height: 1em;
     top: 0.125em;

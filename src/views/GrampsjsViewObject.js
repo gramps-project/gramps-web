@@ -258,6 +258,8 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._className,
         'attribute_list'
       )
+    } else if (e.detail.action === 'addURL') {
+      this.addObject(e.detail.data, this._data, this._className, 'urls')
     } else if (e.detail.action === 'delRepository') {
       this.delObject(
         e.detail.handle,
@@ -300,6 +302,14 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._className,
         'attribute_list'
       )
+    } else if (e.detail.action === 'updateURL') {
+      this.updateObjectByIndex(
+        e.detail.index,
+        e.detail.data,
+        this._data,
+        this._className,
+        'urls'
+      )
     } else if (e.detail.action === 'delNoteRef') {
       this.delHandle(e.detail.handle, this._data, this._className, 'note_list')
     } else if (e.detail.action === 'delMediaRef') {
@@ -318,6 +328,8 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._className,
         'attribute_list'
       )
+    } else if (e.detail.action === 'delURL') {
+      this.delObjectByIndex(e.detail.index, this._data, this._className, 'urls')
     } else if (e.detail.action === 'upMediaRef') {
       this.moveObject(
         e.detail.handle,

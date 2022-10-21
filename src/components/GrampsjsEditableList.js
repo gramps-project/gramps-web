@@ -15,7 +15,8 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        mwc-list {
+        mwc-list,
+        mwc-list > * {
           --mdc-ripple-color: tranparent;
         }
 
@@ -23,25 +24,25 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
           transition: background-color 0.1s, color 0.1s;
         }
 
-        mwc-list [selected] {
+        mwc-list[activatable] [selected] {
           background-color: rgba(2, 119, 189, 0.5);
         }
 
-        mwc-list [mwc-list-item]:not([selected]):hover,
-        mwc-list [mwc-list-item]:not([selected]):focus {
+        mwc-list[activatable] [mwc-list-item]:not([selected]):hover,
+        mwc-list[activatable] [mwc-list-item]:not([selected]):focus {
           background-color: rgba(2, 119, 189, 0.1);
         }
 
-        mwc-list [mwc-list-item]:not([selected]):active {
+        mwc-list[activatable] [mwc-list-item]:not([selected]):active {
           background-color: rgba(2, 119, 189, 0.2);
         }
 
-        mwc-list [mwc-list-item][selected]:hover,
-        mwc-list [mwc-list-item][selected]:focus {
+        mwc-list[activatable] [mwc-list-item][selected]:hover,
+        mwc-list[activatable] [mwc-list-item][selected]:focus {
           background-color: rgba(2, 119, 189, 0.4);
         }
 
-        mwc-list [mwc-list-item][selected]:active {
+        mwc-list[activatable] [mwc-list-item][selected]:active {
           background-color: rgba(2, 119, 189, 0.3);
         }
 
@@ -79,7 +80,10 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
         ? ''
         : html`
             ${this.edit ? this._renderActionBtns() : ''}
-            <mwc-list @action="${this._handleSelected}">
+            <mwc-list
+              ?activatable="${this.edit}"
+              @action="${this._handleSelected}"
+            >
               ${this.sortData([...this.data]).map((obj, i, arr) =>
                 this.row(obj, i, arr)
               )}

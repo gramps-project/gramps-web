@@ -126,7 +126,7 @@ const _allTabs = {
   attributes: {
     title: 'Attributes',
     condition: data => data?.attribute_list?.length > 0,
-    conditionEdit: data => 'attribute_list' in data, // 'attribute_list' in data // FIXME editable in principle but UI not implemented
+    conditionEdit: data => 'attribute_list' in data,
   },
   addresses: {
     title: 'Addresses',
@@ -136,7 +136,7 @@ const _allTabs = {
   internet: {
     title: 'Internet',
     condition: data => data?.urls?.length > 0,
-    conditionEdit: data => false, // 'urls' in data // FIXME editable in principle but UI not implemented
+    conditionEdit: data => 'urls' in data,
   },
   associations: {
     title: 'Associations',
@@ -508,6 +508,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         return html`<grampsjs-urls
           .strings=${this.strings}
           .data=${this.data.urls}
+          ?edit="${this.edit}"
         ></grampsjs-urls>`
       case 'associations':
         return html`<grampsjs-associations

@@ -192,6 +192,8 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
         'desc',
         'title',
         'description',
+        'path',
+        'value',
         'lat',
         'long',
         'call_number',
@@ -274,6 +276,12 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
       this.data = {
         ...this.data,
         type: {_class: 'AttributeType', string: e.detail.data},
+      }
+    }
+    if (originalTarget.id === 'urltype') {
+      this.data = {
+        ...this.data,
+        type: {_class: 'UrlType', string: e.detail.data},
       }
     }
     if (originalTarget.id === 'attrvalue') {
