@@ -27,6 +27,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       required: {type: Boolean},
       initialValue: {type: String},
       noheading: {type: Boolean},
+      _hasCustomType: {type: Boolean} //adding _hasCustomType prop
     }
   }
 
@@ -43,6 +44,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
     this.required = false
     this.initialValue = ''
     this.noheading = false
+    this._hasCustomType = false //this will be false as no custom type is entered initially
   }
 
   getTypes(types) {
@@ -65,7 +67,8 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       <p>
         <mwc-select
           style="width:100%"
-          ?required="${this.required}"
+          ?required=${!this._hasCustomType}
+          ?disabled=${this._hasCustomType}
           validationMessage="${this._('This field is mandatory')}"
           @change="${this.handleChange}"
           ?disabled="${this.disabled}"
@@ -91,7 +94,45 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
               )}
         </mwc-select>
       </p>
+
+      <mwc-button
+        @click="${this.switchTypeInput}"
+      >
+        Enter custom type instead
+      </mwc-button>
+
+      ${this._hasCustomType === false
+        ? html``
+        : html`
+          <h4 class="label">${this.heading || this._('Custom Type')}</h4>
+          <p>
+          <mwc-textfield
+            style="width:100%"
+            ?required=${this._hasCustomType}
+            validationMessage="${this._('This field is mandatory')}"
+            @change="${this.handleChange}"
+            id="custom-type"
+          >
+          ${types.map(
+                  (obj, i) => html`
+                    <mwc-list-item
+                      value="${typesLocale[i]}"
+                      ?selected="${(this.initialValue &&
+                        obj === this.initialValue) ||
+                      obj === this.defaultTypeName}"
+                      >${this._(obj)}</mwc-list-item
+                    >
+                  `
+                )}
+            </mwc-textfield>
+          </p>
+        `
+      }
     `
+  }
+
+  switchTypeInput(){
+    this._hasCustomType = true
   }
 
   reset() {
@@ -115,7 +156,8 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
 
   isValid() {
     const selectType = this.shadowRoot.getElementById('select-type')
-    if (selectType === null) {
+    const customType = this.shadowRoot.getElementById('custom-type') //adding query for custom-type id
+    if (selectType === null && customType === null) { //checking if both types null then return false
       return false
     }
     try {
