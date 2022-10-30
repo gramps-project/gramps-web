@@ -65,5 +65,7 @@
   "Member": "Member",
   "Contributor": "Contributor",
   "Editor": "Editor",
-  "Owner": "Owner"
+  "Owner": "Owner",
+  "Switch to custom type": "Switch to custom type",
+  "Custom type": "Custom type"
 }

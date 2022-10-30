@@ -2,12 +2,12 @@
 Element for selecting a Gramps type
 */
 
-import {html, LitElement} from 'lit'
+import { html, LitElement } from 'lit'
 import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
 
-import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import { sharedStyles } from '../SharedStyles.js'
+import { GrampsjsTranslateMixin } from '../mixins/GrampsjsTranslateMixin.js'
 
 class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
@@ -76,35 +76,35 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
           id="select-type"
         >
           ${types.includes(this.defaultTypeName) ||
-          types.includes(this.initialValue)
-            ? ''
-            : html`<mwc-list-item value="" selected></mwc-list-item>`}
+        types.includes(this.initialValue)
+        ? ''
+        : html`<mwc-list-item value="" selected></mwc-list-item>`}
           ${this.loadingTypes
-            ? ''
-            : types.map(
-                (obj, i) => html`
+        ? ''
+        : types.map(
+          (obj, i) => html`
                   <mwc-list-item
                     value="${typesLocale[i]}"
                     ?selected="${(this.initialValue &&
-                      obj === this.initialValue) ||
-                    obj === this.defaultTypeName}"
+              obj === this.initialValue) ||
+            obj === this.defaultTypeName}"
                     >${this._(obj)}</mwc-list-item
                   >
                 `
-              )}
+        )}
         </mwc-select>
       </p>
 
       <mwc-button
         @click="${this.switchTypeInput}"
       >
-        Enter custom type instead
+        ${this._('Switch to custom type')}
       </mwc-button>
 
-      ${this._hasCustomType === false
+  ${!this._hasCustomType
         ? html``
         : html`
-          <h4 class="label">${this.heading || this._('Custom Type')}</h4>
+          <h4 class="label">${this._('Custom Type')}</h4>
           <p>
           <mwc-textfield
             style="width:100%"
@@ -113,25 +113,15 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
             @change="${this.handleChange}"
             id="custom-type"
           >
-          ${types.map(
-                  (obj, i) => html`
-                    <mwc-list-item
-                      value="${typesLocale[i]}"
-                      ?selected="${(this.initialValue &&
-                        obj === this.initialValue) ||
-                      obj === this.defaultTypeName}"
-                      >${this._(obj)}</mwc-list-item
-                    >
-                  `
-                )}
-            </mwc-textfield>
+            ${this.types}
+          </mwc-textfield>
           </p>
         `
       }
-    `
+`
   }
 
-  switchTypeInput(){
+  switchTypeInput() {
     this._hasCustomType = true
   }
 
@@ -149,7 +139,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       new CustomEvent('formdata:changed', {
         bubbles: true,
         composed: true,
-        detail: {data},
+        detail: { data },
       })
     )
   }
