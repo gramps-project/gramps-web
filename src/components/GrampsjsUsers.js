@@ -39,7 +39,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
               <td>${obj.name}</td>
               <td>${obj.full_name}</td>
               <td>${obj.email}</td>
-              <td>${userRoles[obj.role]}</td>
+              <td>${this._(userRoles[obj.role])}</td>
               <td>
                 <mwc-icon-button
                   class="edit"

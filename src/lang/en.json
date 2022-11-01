@@ -58,5 +58,12 @@
   "All": "All",
   "Select at least one object type": "Select at least one object type",
   "filter": "filter",
-  "Properties": "Properties"
+  "Properties": "Properties",
+  "unconfirmed": "unconfirmed",
+  "disabled": "disabled",
+  "Guest": "Guest",
+  "Member": "Member",
+  "Contributor": "Contributor",
+  "Editor": "Editor",
+  "Owner": "Owner"
 }

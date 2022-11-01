@@ -121,7 +121,7 @@ class GrampsjsFormUser extends GrampsjsTranslateMixin(LitElement) {
                   ?selected="${this.data.role === undefined
                     ? role === 0
                     : role === this.data.role}"
-                  >${userRoles[role]}
+                  >${this._(userRoles[role])}
                 </mwc-list-item>
               `
             )}
