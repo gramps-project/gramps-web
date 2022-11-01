@@ -58,5 +58,12 @@
     "Password": "Пароль",
     "login": "логін",
     "Lost password?": "Забули пароль?",
-    "Register new account": "Зареєструвати обліковий запис"
+    "Register new account": "Зареєструвати обліковий запис",
+    "Member": "Учасник",
+    "Contributor": "Дописувач",
+    "Editor": "Редактор",
+    "Guest": "Гість",
+    "unconfirmed": "не підтверджено",
+    "Owner": "Власник",
+    "disabled": "вимкнено"
 }
