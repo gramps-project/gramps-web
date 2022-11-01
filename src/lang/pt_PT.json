@@ -58,5 +58,12 @@
     "Lost password?": "Esqueceu-se da senha?",
     "Register new account": "Criar uma conta",
     "All": "Tudo",
-    "Select at least one object type": "Seleccione pelo menos um tipo de objecto"
+    "Select at least one object type": "Seleccione pelo menos um tipo de objecto",
+    "disabled": "desactivado",
+    "Contributor": "Contribuinte",
+    "Owner": "Proprietário",
+    "unconfirmed": "não confirmado",
+    "Guest": "Convidado",
+    "Member": "Membro",
+    "Editor": "Editor"
 }
