@@ -58,5 +58,12 @@
     "All": "Alles",
     "Select at least one object type": "Wähle mindestens eine Objektart",
     "filter": "Filter",
-    "Properties": "Eigenschaften"
+    "Properties": "Eigenschaften",
+    "Owner": "Besitzer",
+    "disabled": "deaktiviert",
+    "Guest": "Gast",
+    "Member": "Mitglied",
+    "Contributor": "Beitragender",
+    "Editor": "Redakteur",
+    "unconfirmed": "unbestätigt"
 }
