@@ -64,6 +64,11 @@ export const sharedStyles = css`
     font-size: 18px;
   }
 
+  b,
+  strong {
+    font-weight: 600;
+  }
+
   a:link,
   a:visited,
   span.link {
