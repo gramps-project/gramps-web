@@ -15,6 +15,7 @@ export const grampsStrings = [
   'Abort changes?',
   'About',
   'Above the name',
+  'Add a new media object',
   'Add an existing person as a child of the family',
   'Add an existing repository',
   'Add existing child to family',

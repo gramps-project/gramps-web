@@ -9,6 +9,7 @@ import './GrampsJsImage.js'
 import './GrampsjsLightbox.js'
 import '../views/GrampsjsViewMediaLightbox.js'
 import './GrampsjsFormMediaRef.js'
+import './GrampsjsFormNewMedia.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
@@ -92,12 +93,19 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
 
       ${this.edit
         ? html`
-            <mwc-icon-button
-              class="edit large"
-              icon="add_circle"
-              @click="${this._handleAddClick}"
-            ></mwc-icon-button>
-            ${this.dialogContent}
+            <div>
+              <mwc-icon-button
+                class="edit"
+                icon="add_link"
+                @click="${this._handleShareClick}"
+              ></mwc-icon-button>
+              <mwc-icon-button
+                class="edit"
+                icon="add"
+                @click="${this._handleAddClick}"
+              ></mwc-icon-button>
+              ${this.dialogContent}
+            </div>
           `
         : ''}
     `
@@ -202,6 +210,18 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
 
   _handleAddClick() {
     this.dialogContent = html`
+      <grampsjs-form-new-media
+        @object:save="${this._handleNewMediaSave}"
+        @object:cancel="${this._handleMediaRefCancel}"
+        .strings="${this.strings}"
+        dialogTitle="${this._('Add a new media object')}"
+      >
+      </grampsjs-form-new-media>
+    `
+  }
+
+  _handleShareClick() {
+    this.dialogContent = html`
       <grampsjs-form-mediaref
         new
         @object:save="${this._handleMediaRefSave}"
@@ -212,6 +232,21 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
       >
       </grampsjs-form-mediaref>
     `
+  }
+
+  _handleNewMediaSave(e) {
+    const uploadForm = this.renderRoot.querySelector('grampsjs-form-new-media')
+    uploadForm.upload(false).then(data => {
+      if ('data' in data) {
+        fireEvent(this, 'edit:action', {
+          action: 'addMediaRef',
+          data: {ref: data.data.handle},
+        })
+      }
+      this.dialogContent = ''
+    })
+    e.preventDefault()
+    e.stopPropagation()
   }
 
   _handleMediaRefSave(e) {

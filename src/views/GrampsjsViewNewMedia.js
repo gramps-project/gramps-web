@@ -2,14 +2,15 @@ import {html} from 'lit'
 
 import '@material/mwc-textfield'
 
+import {GrampsjsNewMediaMixin} from '../mixins/GrampsjsNewMediaMixin.js'
+
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
-import '../components/GrampsjsFormString.js'
-import '../components/GrampsjsFormPrivate.js'
-import '../components/GrampsjsFormUpload.js'
 
 import {apiPost, apiPut} from '../api.js'
 
-export class GrampsjsViewNewMedia extends GrampsjsViewNewObject {
+export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
+  GrampsjsViewNewObject
+) {
   constructor() {
     super()
     this.data = {_class: 'Media'}
@@ -22,38 +23,7 @@ export class GrampsjsViewNewMedia extends GrampsjsViewNewObject {
     return html`
       <h2>${this._('New Media')}</h2>
 
-      <h4 class="label">${this._('File')}</h4>
-      <p>
-        <grampsjs-form-upload
-          preview
-          id="upload"
-          .strings="${this.strings}"
-        ></grampsjs-form-upload>
-      </p>
-
-      <h4 class="label">${this._('Title')}</h4>
-      <p>
-        <grampsjs-form-string
-          ?disabled="${!this.isFormValid}"
-          value="${this.data.desc}"
-          fullwidth
-          id="desc"
-        ></grampsjs-form-string>
-      </p>
-
-      <h4 class="label">${this._('Date')}</h4>
-      <p>
-        <grampsjs-form-select-date id="date" .strings="${this.strings}">
-        </grampsjs-form-select-date>
-      </p>
-
-      <div class="spacer"></div>
-      <grampsjs-form-private
-        id="private"
-        .strings="${this.strings}"
-      ></grampsjs-form-private>
-
-      ${this.renderButtons()}
+      ${this.renderForm()} ${this.renderButtons()}
     `
     // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
@@ -86,7 +56,7 @@ export class GrampsjsViewNewMedia extends GrampsjsViewNewObject {
 
   _submit() {
     const upload = this.shadowRoot.getElementById('upload')
-    apiPost(this.postUrl, upload.file, false)
+    apiPost(this.postUrl, upload.file, false, false)
       .then(data => {
         if ('data' in data) {
           this.error = false
