@@ -113,7 +113,6 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
             @change="${this.handleChange}"
             id="custom-type"
           >
-            ${this.types}
           </mwc-textfield>
           </p>
         `
