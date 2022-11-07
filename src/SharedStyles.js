@@ -96,9 +96,15 @@ export const sharedStyles = css`
     font-weight: 400;
   }
 
+  hr {
+    border: 0;
+    height: 0.5px;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
   dt {
     font-size: 14px;
-    color: #666;
+    color: rgba(0, 0, 0, 0.5);
     font-weight: 400;
     margin-bottom: 0.2em;
   }

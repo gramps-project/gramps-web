@@ -11,6 +11,7 @@ import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
 import './GrampsjsFormString.js'
+import './GrampsjsFormSurname.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
@@ -37,6 +38,9 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
     return {
       data: {type: Object},
       showMore: {type: Boolean},
+      types: {type: Object},
+      typesLocale: {type: Object},
+      origintype: {type: Boolean},
     }
   }
 
@@ -44,6 +48,9 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
     super()
     this.data = {_class: 'Name'}
     this.showMore = false
+    this.types = {}
+    this.typesLocale = {}
+    this.origintype = false
   }
 
   render() {
@@ -79,24 +86,6 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
         <grampsjs-form-string
           @formdata:changed="${this._handleFormData}"
           fullwidth
-          id="prefix"
-          value="${(this.data?.surname_list || [])[0]?.prefix || ''}"
-          label="${this._('Prefix')}"
-        ></grampsjs-form-string>
-      </p>
-      <p>
-        <grampsjs-form-string
-          @formdata:changed="${this._handleFormData}"
-          fullwidth
-          id="surname"
-          value="${(this.data?.surname_list || [])[0]?.surname || ''}"
-          label="${this._('Surname')}"
-        ></grampsjs-form-string>
-      </p>
-      <p class="${classMap({hide: !this.showMore})}">
-        <grampsjs-form-string
-          @formdata:changed="${this._handleFormData}"
-          fullwidth
           id="call"
           value="${this.data.call || ''}"
           label="${this._('Call name')}"
@@ -111,14 +100,55 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
           label="${this._('Nick name')}"
         ></grampsjs-form-string>
       </p>
-      ${this.showMore
-        ? ''
-        : html`
+      <p class="${classMap({hide: !this.showMore})}">
+        <grampsjs-form-string
+          @formdata:changed="${this._handleFormData}"
+          fullwidth
+          id="famnick"
+          value="${this.data.famnick || ''}"
+          label="${this._('Family nick name')}"
+        ></grampsjs-form-string>
+      </p>
+
+      <h4 class="label ${classMap({hide: !this.showMore})}">${this._(
+      'Surnames'
+    )}</h4>
+
+      ${(this.data.surname_list || [{}]).map(
+        (obj, i, arr) => html`
+          <grampsjs-form-surname
+            ?origintype="${this.origintype}"
+            ?showMore="${this.showMore}"
+            id="surnames${i}"
+            idx="${i}"
+            @formdata:changed="${this._handleFormData}"
+            .strings="${this.strings}"
+            .data="${obj}"
+            .types="${this.types}"
+            .typesLocale="${this.typesLocale}"
+          >
+          </grampsjs-form-surname>
+
+          ${i < arr.length - 1 ? html`<hr />` : ''}
+        `
+      )}
+      <p class="${classMap({hide: !this.showMore})}">
+        <mwc-icon-button
+          @click="${this._handleAddSurname}"
+          icon="add"
+        ></mwc-button>
+      </p>
+
+      ${
+        this.showMore
+          ? ''
+          : html`
     <mwc-icon-button
       @click="${this._handleShowMore}"
       icon="more_horiz"
     ></mwc-button>
-  `}
+  `
+      }
     `
   }
 
@@ -130,37 +160,40 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
     this.shadowRoot
       .querySelectorAll('grampsjs-form-string')
       .forEach(element => element.reset())
+    this.shadowRoot.querySelector('grampsjs-form-surname').reset()
     this.showMore = false
+    this.data = {_class: 'Name'}
   }
 
   handleChange() {
     fireEvent(this, 'formdata:changed', {data: this.data})
   }
 
+  _handleAddSurname() {
+    this.data = {
+      ...this.data,
+      surname_list: [...(this.data.surname_list || [{}]), {}],
+    }
+  }
+
   _handleFormData(e) {
     const originalTarget = e.composedPath()[0]
     if (
-      ['first_name', 'call', 'nick', 'title', 'suffix'].includes(
+      ['first_name', 'call', 'nick', 'famnick', 'title', 'suffix'].includes(
         originalTarget.id
       )
     ) {
       this.data = {...this.data, [originalTarget.id]: e.detail.data}
-    }
-    const surnameList = this.data?.surname_list || []
-    const surname =
-      surnameList.length === 0
-        ? {_class: 'Surname', primary: true}
-        : surnameList[0]
-    if (originalTarget.id === 'prefix') {
+    } else if (originalTarget.id.startsWith('surnames')) {
+      const i = e.detail.idx
+      const surnameList = this.data.surname_list || []
       this.data = {
         ...this.data,
-        surname_list: [{...surname, prefix: e.detail.data}],
-      }
-    }
-    if (originalTarget.id === 'surname') {
-      this.data = {
-        ...this.data,
-        surname_list: [{...surname, surname: e.detail.data}],
+        surname_list: [
+          ...surnameList.slice(0, i),
+          e.detail.data,
+          ...surnameList.slice(i + 1),
+        ],
       }
     }
     e.stopPropagation()

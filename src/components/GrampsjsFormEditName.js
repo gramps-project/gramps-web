@@ -12,18 +12,11 @@ import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 class GrampsjsFormEditName extends GrampsjsObjectForm {
   renderForm() {
     return html`
-      <grampsjs-form-name
-        showMore
-        id="name"
-        @formdata:changed="${this._handleFormData}"
-        .strings="${this.strings}"
-        .data="${this.data}"
-      >
-      </grampsjs-form-name>
-
       <grampsjs-form-select-type
         required
         id="name-type"
+        noheading
+        label="${this._('Name type')}"
         .strings="${this.strings}"
         typeName="name_types"
         defaultTypeName="Birth Name"
@@ -33,6 +26,18 @@ class GrampsjsFormEditName extends GrampsjsObjectForm {
         @formdata:changed="${this._handleFormData}"
       >
       </grampsjs-form-select-type>
+
+      <grampsjs-form-name
+        origintype
+        showMore
+        id="name"
+        @formdata:changed="${this._handleFormData}"
+        .strings="${this.strings}"
+        .data="${this.data}"
+        .types="${this.types}"
+        .typesLocale="${this.typesLocale}"
+      >
+      </grampsjs-form-name>
     `
   }
 }

@@ -1,84 +1,81 @@
-import {css, html} from 'lit'
+import {css, html, LitElement} from 'lit'
 
-import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormEditName.js'
 import './GrampsjsObjectForm.js'
+import './GrampsjsName.js'
 import {fireEvent} from '../util.js'
 import '@material/mwc-icon-button'
 import '@material/mwc-dialog'
 import '@material/mwc-button'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {sharedStyles} from '../SharedStyles.js'
 
-export class GrampsjsNames extends GrampsjsEditableTable {
+export class GrampsjsNames extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
-      super.styles,
+      sharedStyles,
       css`
-        tr:hover td {
-          background-color: #ffffff;
-          cursor: auto;
+        .clear {
+          clear: left;
         }
       `,
     ]
   }
 
-  constructor() {
-    super()
-    this.objType = 'Name'
-    this._columns = [
-      '',
-      'Title',
-      'Given name',
-      'Surname',
-      'Suffix',
-      'Call name',
-      'Nickname',
-      'Type',
-      '',
-    ]
+  static get properties() {
+    return {
+      data: {type: Array},
+      edit: {type: Boolean},
+      dialogContent: {type: String},
+      dialogTitle: {type: String},
+    }
   }
 
-  row(obj, i, arr) {
+  constructor() {
+    super()
+    this.data = []
+    this.edit = false
+    this.dialogContent = ''
+    this.dialogTitle = ''
+  }
+
+  render() {
     return html`
-      <tr>
-        <th><span>${i === 0 ? this._('Primary') : ''}</span></th>
-        <td>${obj.title}</td>
-        <td>${obj.first_name}</td>
-        <td>
-          ${obj.surname_list.map(
-            surname => html` ${surname.prefix} ${surname.surname}`
-          )}
-        </td>
-        <td>${obj.suffix}</td>
-        <td>${obj.call}</td>
-        <td>${obj.nick}</td>
-        <td>${this._(obj.type)}</td>
-        <td>
-          ${this.edit
-            ? this._renderActionBtns(
-                i,
-                i === 0,
-                i === arr.length - 1,
-                true,
-                false
-              )
-            : ''}
-        </td>
-      </tr>
+      ${this.edit ? this._renderAddBtn() : ''}
+      ${this.data.map(
+        (obj, i) => html`
+          <div class="name">
+            <grampsjs-name .strings="${this.strings}" .data="${obj}">
+            </grampsjs-name>
+            <div class="clear">
+              ${this.edit ? this._renderActionBtns(i) : ''}
+            </div>
+          </div>
+        `
+      )}
+      ${this.dialogContent}
     `
   }
 
-  renderAfterTable() {
-    return this.edit
-      ? html`
-          <mwc-icon-button
-            class="edit large"
-            icon="add_circle"
-            @click="${this._handleAddClick}"
-          ></mwc-icon-button>
-          ${this.dialogContent}
-        `
-      : ''
+  _renderAddBtn() {
+    return html`
+      <mwc-icon-button
+        class="edit"
+        icon="add"
+        @click="${this._handleAddClick}"
+      ></mwc-icon-button>
+    `
+  }
+
+  _renderActionBtns(i) {
+    return html`
+      <mwc-icon-button
+        class="edit"
+        icon="edit"
+        @click="${() => this._handleEditClick(i)}"
+      ></mwc-icon-button>
+    `
   }
 
   _handleAddClick() {

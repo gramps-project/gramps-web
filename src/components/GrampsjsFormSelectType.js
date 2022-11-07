@@ -17,6 +17,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
   static get properties() {
     return {
       heading: {type: String},
+      label: {type: String},
       typeName: {type: String},
       defaultTypeName: {type: String},
       types: {type: Object},
@@ -25,6 +26,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       loadingTypes: {type: Boolean},
       required: {type: Boolean},
       initialValue: {type: String},
+      noheading: {type: Boolean},
     }
   }
 
@@ -35,10 +37,12 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
     this.disabled = false
     this.typeName = ''
     this.heading = ''
+    this.label = ''
     this.defaultTypeName = 'General'
     this.loadingTypes = false
     this.required = false
     this.initialValue = ''
+    this.noheading = false
   }
 
   getTypes(types) {
@@ -55,7 +59,9 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
     const types = this.getTypes(this.types)
     const typesLocale = this.getTypes(this.typesLocale)
     return html`
-      <h4 class="label">${this.heading || this._('Type')}</h4>
+      ${this.noheading
+        ? ''
+        : html`<h4 class="label">${this.heading || this._('Type')}</h4>`}
       <p>
         <mwc-select
           style="width:100%"
@@ -63,7 +69,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
           validationMessage="${this._('This field is mandatory')}"
           @change="${this.handleChange}"
           ?disabled="${this.disabled}"
-          label="${this.loadingTypes ? this._('Loading items...') : ''}"
+          label="${this.loadingTypes ? this._('Loading items...') : this.label}"
           id="select-type"
         >
           ${types.includes(this.defaultTypeName) ||
