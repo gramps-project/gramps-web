@@ -76,7 +76,7 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-      ${Object.keys(this.data).length === 0
+      ${Object.keys(this.data).length === 0 && !this.edit
         ? ''
         : html`
             ${this.edit ? this._renderActionBtns() : ''}
