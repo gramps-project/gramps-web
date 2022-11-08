@@ -59,5 +59,12 @@
     "Username": "Användarnamn",
     "Register new account": "Registrera nytt konto",
     "filter": "filtrera",
-    "Properties": "Egenskaper"
+    "Properties": "Egenskaper",
+    "unconfirmed": "obekräftad",
+    "disabled": "avaktiverad",
+    "Guest": "Gäst",
+    "Member": "Medlem",
+    "Contributor": "Bidragsgivare",
+    "Editor": "Redaktör",
+    "Owner": "Ägare"
 }
