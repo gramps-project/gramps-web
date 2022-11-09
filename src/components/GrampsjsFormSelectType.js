@@ -71,7 +71,6 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
           ?disabled=${this._hasCustomType}
           validationMessage="${this._('This field is mandatory')}"
           @change="${this.handleChange}"
-          ?disabled="${this.disabled}"
           label="${this.loadingTypes ? this._('Loading items...') : this.label}"
           id="select-type"
         >
