@@ -8,9 +8,9 @@ import '@material/mwc-list/mwc-list-item'
 
 import {
   objectDescription,
-  objectIcon,
   fireEvent,
   objectDetail,
+  renderIcon,
 } from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import './GrampsJsImage.js'
@@ -108,7 +108,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
               @keydown="${this._handleKeyDown}"
               ?hasMeta=${this.metaIcon !== ''}
             >
-              ${this._renderIcon(obj)}
+              ${renderIcon(obj)}
               <mwc-icon-button
                 @click="${e => this._handleMetaClick(e, obj)}"
                 icon="${this.metaIcon}"
@@ -158,59 +158,6 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
       return detail
     }
     return obj.object.gramps_id
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _renderIcon(obj) {
-    const handle = this._getMediaHandle(obj)
-    const rect = this._getMediaRect(obj)
-    if (handle) {
-      return html`<grampsjs-img
-        handle="${handle}"
-        slot="graphic"
-        circle
-        square
-        size="70"
-        .rect="${rect}"
-        .mime=""
-        ><mwc-icon class="placeholder"
-          >${objectIcon[obj.object_type]}</mwc-icon
-        ></grampsjs-img
-      >`
-    }
-    return html`<mwc-icon slot="graphic"
-      >${objectIcon[obj.object_type]}</mwc-icon
-    >`
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _getMediaHandle(obj) {
-    if (obj.object_type === 'media') {
-      return obj.object.handle
-    }
-    if (obj.object?.media_list?.length) {
-      return obj.object.media_list[0].ref
-    }
-    return ''
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _getMediaRect(obj) {
-    if (obj.object?.media_list?.length) {
-      return obj.object.media_list[0].rect
-    }
-    return []
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _getMediaMime(obj) {
-    if (obj.object_type === 'media') {
-      return obj.object.mime
-    }
-    if (obj.object?.extended?.media_list?.length) {
-      return obj.object.extended.media_list[0].mime
-    }
-    return ''
   }
 
   _handleMetaClick(e, obj) {
