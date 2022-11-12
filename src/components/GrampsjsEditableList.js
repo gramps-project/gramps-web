@@ -49,6 +49,18 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
         mwc-icon-button {
           --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.25);
         }
+
+        mwc-icon {
+          background-color: rgba(0, 0, 0, 0.25);
+          color: white;
+        }
+
+        mwc-icon.placeholder {
+          width: 40px;
+          height: 40px;
+          line-height: 40px;
+          border-radius: 50%;
+        }
       `,
     ]
   }
