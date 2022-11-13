@@ -40,6 +40,11 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
         mwc-icon-button {
           color: rgba(0, 0, 0, 0.5);
         }
+
+        mwc-dialog {
+          --mdc-dialog-max-width: 100vw;
+          --mdc-dialog-min-width: 50vw;
+        }
       `,
     ]
   }
