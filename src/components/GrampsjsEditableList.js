@@ -40,6 +40,7 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
         mwc-list[activatable] [mwc-list-item][selected]:hover,
         mwc-list[activatable] [mwc-list-item][selected]:focus {
           background-color: rgba(2, 119, 189, 0.4);
+          color: rgba(0, 0, 0, 0.9);
         }
 
         mwc-list[activatable] [mwc-list-item][selected]:active {
