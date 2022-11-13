@@ -2,12 +2,12 @@
 Element for selecting a Gramps type
 */
 
-import { html, LitElement } from 'lit'
+import {html, LitElement} from 'lit'
 import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
 
-import { sharedStyles } from '../SharedStyles.js'
-import { GrampsjsTranslateMixin } from '../mixins/GrampsjsTranslateMixin.js'
+import {sharedStyles} from '../SharedStyles.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
@@ -27,7 +27,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       required: {type: Boolean},
       initialValue: {type: String},
       noheading: {type: Boolean},
-      _hasCustomType: {type: Boolean} //adding _hasCustomType prop
+      _hasCustomType: {type: Boolean}, // adding _hasCustomType prop
     }
   }
 
@@ -44,7 +44,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
     this.required = false
     this.initialValue = ''
     this.noheading = false
-    this._hasCustomType = false //this will be false as no custom type is entered initially
+    this._hasCustomType = false // this will be false as no custom type is entered initially
   }
 
   getTypes(types) {
@@ -75,48 +75,45 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
           id="select-type"
         >
           ${types.includes(this.defaultTypeName) ||
-        types.includes(this.initialValue)
-        ? ''
-        : html`<mwc-list-item value="" selected></mwc-list-item>`}
+          types.includes(this.initialValue)
+            ? ''
+            : html`<mwc-list-item value="" selected></mwc-list-item>`}
           ${this.loadingTypes
-        ? ''
-        : types.map(
-          (obj, i) => html`
+            ? ''
+            : types.map(
+                (obj, i) => html`
                   <mwc-list-item
                     value="${typesLocale[i]}"
                     ?selected="${(this.initialValue &&
-              obj === this.initialValue) ||
-            obj === this.defaultTypeName}"
+                      obj === this.initialValue) ||
+                    obj === this.defaultTypeName}"
                     >${this._(obj)}</mwc-list-item
                   >
                 `
-        )}
+              )}
         </mwc-select>
       </p>
 
-      <mwc-button
-        @click="${this.switchTypeInput}"
-      >
+      <mwc-button @click="${this.switchTypeInput}">
         ${this._('Switch to custom type')}
       </mwc-button>
 
-  ${!this._hasCustomType
+      ${!this._hasCustomType
         ? html``
         : html`
-          <h4 class="label">${this._('Custom Type')}</h4>
-          <p>
-          <mwc-textfield
-            style="width:100%"
-            ?required=${this._hasCustomType}
-            validationMessage="${this._('This field is mandatory')}"
-            @change="${this.handleChange}"
-            id="custom-type"
-          >
-          </mwc-textfield>
-          </p>
-        `
-      }
-`
+            <h4 class="label">${this._('Custom Type')}</h4>
+            <p>
+              <mwc-textfield
+                style="width:100%"
+                ?required=${this._hasCustomType}
+                validationMessage="${this._('This field is mandatory')}"
+                @change="${this.handleChange}"
+                id="custom-type"
+              >
+              </mwc-textfield>
+            </p>
+          `}
+    `
   }
 
   switchTypeInput() {
@@ -129,6 +126,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
     const ind = types.indexOf('General')
     const selectType = this.shadowRoot.getElementById('select-type')
     selectType.value = ind === -1 ? null : typesLocale[ind]
+    this._hasCustomType = false
   }
 
   handleChange(e) {
@@ -137,15 +135,16 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       new CustomEvent('formdata:changed', {
         bubbles: true,
         composed: true,
-        detail: { data },
+        detail: {data},
       })
     )
   }
 
   isValid() {
     const selectType = this.shadowRoot.getElementById('select-type')
-    const customType = this.shadowRoot.getElementById('custom-type') //adding query for custom-type id
-    if (selectType === null && customType === null) { //checking if both types null then return false
+    const customType = this.shadowRoot.getElementById('custom-type') // adding query for custom-type id
+    if (selectType === null && customType === null) {
+      // checking if both types null then return false
       return false
     }
     try {
