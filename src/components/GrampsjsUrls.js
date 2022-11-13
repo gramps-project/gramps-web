@@ -14,7 +14,7 @@ export class GrampsjsUrls extends GrampsjsEditableList {
     return html`
       <mwc-list-item
         twoline
-        graphic="icon"
+        graphic="avatar"
         ?hasMeta="${this.edit}"
         @click="${() => this._handleClick(obj)}"
       >
