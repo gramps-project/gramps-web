@@ -65,5 +65,8 @@
     "Member": "Mitglied",
     "Contributor": "Beitragender",
     "Editor": "Redakteur",
-    "unconfirmed": "unbestätigt"
+    "unconfirmed": "unbestätigt",
+    "Switch to default type": "Zu Standard-Art wechseln",
+    "Custom type": "Benutzerdefinierte Art",
+    "Switch to custom type": "Zu benutzerdefinierter Art wechseln"
 }
