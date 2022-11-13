@@ -486,6 +486,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         ></grampsjs-view-source-citations>`
       case 'attributes':
         return html`<grampsjs-attributes
+          hasEdit
           .strings=${this.strings}
           ?edit="${this.edit}"
           .data=${this.data.attribute_list}
@@ -514,6 +515,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         ></grampsjs-gallery>`
       case 'internet':
         return html`<grampsjs-urls
+          hasEdit
           .strings=${this.strings}
           .data=${this.data.urls}
           ?edit="${this.edit}"

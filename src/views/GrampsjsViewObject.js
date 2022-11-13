@@ -369,8 +369,8 @@ export class GrampsjsViewObject extends GrampsjsView {
         'child_ref_list'
       )
     } else if (e.detail.action === 'delCitation') {
-      this.delHandle(
-        e.detail.handle,
+      this.delObjectByIndex(
+        e.detail.index,
         this._data,
         this._className,
         'citation_list'

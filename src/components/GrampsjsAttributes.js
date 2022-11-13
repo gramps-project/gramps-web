@@ -14,7 +14,7 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
     return html`
       <mwc-list-item
         twoline
-        graphic="icon"
+        graphic="avatar"
         ?noninteractive="${!this.edit}"
         ?hasMeta="${this.edit}"
       >

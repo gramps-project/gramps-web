@@ -1,44 +1,37 @@
 import {html} from 'lit'
 
-import '@material/mwc-icon'
+import {GrampsjsEditableList} from './GrampsjsEditableList.js'
+import {fireEvent, renderIcon, makeHandle} from '../util.js'
+import './GrampsjsFormCitation.js'
+import './GrampsjsFormNewCitation.js'
 
-import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
+import '@material/mwc-icon-button'
+import '@material/mwc-list'
+import '@material/mwc-list/mwc-list-item'
 
-export class GrampsjsSourceCitations extends GrampsjsEditableTable {
+export class GrampsjsSourceCitations extends GrampsjsEditableList {
   constructor() {
     super()
     this.objType = 'Citation'
-    this._columns = ['Page', 'Source: Title', 'Source: Author', '']
   }
 
-  row(obj, i, arr) {
+  row(obj) {
     return html`
-      <tr @click=${() => this._handleClick(obj.gramps_id)}>
-        <td>${obj.profile?.page || ''}</td>
-        <td>${obj.profile?.source?.title || ''}</td>
-        <td>${obj.profile?.source?.author || ''}</td>
-        <td>
-          ${this.edit
-            ? this._renderActionBtns(obj.handle, i === 0, i === arr.length - 1)
-            : html`
-        ${
-          obj?.media_list?.length > 0 || obj?.extended?.source?.media_list > 0
-            ? html` <mwc-icon class="inline">photo</mwc-icon>`
-            : ''
-        }
-      ${
-        obj?.note_list?.length > 0 || obj?.extended?.source?.note_list > 0
-          ? html` <mwc-icon class="inline">sticky_note_2</mwc-icon>`
-          : ''
-      }</td>
-      </tr>`}
-        </td>
-      </tr>
+      <mwc-list-item
+        twoline
+        graphic="avatar"
+        ?hasMeta="${this.edit}"
+        @click="${() => this._handleClick(obj.gramps_id)}"
+      >
+        ${obj?.profile?.source?.title || this._('Source')}
+        <span slot="secondary"> ${obj.page || obj.gramps_id} </span>
+        ${renderIcon({object: obj, object_type: 'citation'})}
+      </mwc-list-item>
     `
   }
 
   _handleClick(grampsId) {
-    if (grampsId !== this.grampsId) {
+    if (!this.edit && grampsId !== this.grampsId) {
       this.dispatchEvent(
         new CustomEvent('nav', {
           bubbles: true,
@@ -52,6 +45,63 @@ export class GrampsjsSourceCitations extends GrampsjsEditableTable {
   // eslint-disable-next-line class-methods-use-this
   _getItemPath(grampsId) {
     return `citation/${grampsId}`
+  }
+
+  _handleAdd() {
+    this.dialogContent = html`
+      <grampsjs-form-new-citation
+        new
+        @object:save="${this._handleCitSave}"
+        @object:cancel="${this._handleCitCancel}"
+        .strings="${this.strings}"
+        dialogTitle=${this._('New Citation')}
+      >
+      </grampsjs-form-new-citation>
+    `
+  }
+
+  _handleShare() {
+    this.dialogContent = html`
+      <grampsjs-form-citation
+        new
+        @object:save="${this._handleShareCitSave}"
+        @object:cancel="${this._handleCitCancel}"
+        .strings="${this.strings}"
+        dialogTitle=${this._('Select an existing citation')}
+      >
+      </grampsjs-form-citation>
+    `
+  }
+
+  _handleCitSave(e) {
+    const handle = makeHandle()
+    fireEvent(this, 'edit:action', {
+      action: 'newCitation',
+      data: {handle, ...e.detail.data},
+    })
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleShareCitSave(e) {
+    fireEvent(this, 'edit:action', {action: 'addCitation', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleDelete(e) {
+    fireEvent(this, 'edit:action', {
+      action: 'delCitation',
+      index: this._selectedIndex,
+    })
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  _handleCitCancel() {
+    this.dialogContent = ''
   }
 }
 

@@ -72,6 +72,8 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
       objType: {type: String},
       dialogContent: {type: String},
       dialogTitle: {type: String},
+      hasShare: {type: Boolean},
+      hasEdit: {type: Boolean},
       _selectedIndex: {type: Number},
     }
   }
@@ -83,6 +85,8 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
     this.objType = ''
     this.dialogContent = ''
     this.dialogTitle = ''
+    this.hasShare = false
+    this.hasEdit = false
     this._selectedIndex = -1
   }
 
@@ -120,17 +124,30 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
 
   _renderActionBtns() {
     return html`
+      ${this.hasShare
+        ? html`
+            <mwc-icon-button
+              class="edit"
+              icon="add_link"
+              @click="${this._handleShare}"
+            ></mwc-icon-button>
+          `
+        : ''}
       <mwc-icon-button
         class="edit"
         icon="add"
         @click="${this._handleAdd}"
       ></mwc-icon-button>
-      <mwc-icon-button
-        ?disabled="${this._selectedIndex === -1}"
-        class="edit"
-        icon="edit"
-        @click="${this._handleEdit}"
-      ></mwc-icon-button>
+      ${this.hasEdit
+        ? html`
+            <mwc-icon-button
+              ?disabled="${this._selectedIndex === -1}"
+              class="edit"
+              icon="edit"
+              @click="${this._handleEdit}"
+            ></mwc-icon-button>
+          `
+        : ''}
       <mwc-icon-button
         ?disabled="${this._selectedIndex === -1}"
         class="edit"
