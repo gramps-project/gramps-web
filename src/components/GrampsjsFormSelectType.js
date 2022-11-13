@@ -95,7 +95,9 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       </p>
 
       <mwc-button @click="${this.switchTypeInput}">
-        ${this._('Switch to custom type')}
+        ${this._hasCustomType
+          ? this._('Switch to default type')
+          : this._('Switch to custom type')}
       </mwc-button>
 
       ${!this._hasCustomType
@@ -117,7 +119,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
   }
 
   switchTypeInput() {
-    this._hasCustomType = true
+    this._hasCustomType = !this._hasCustomType
   }
 
   reset() {
