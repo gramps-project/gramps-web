@@ -31,6 +31,7 @@ export default merge(baseConfig, {
         {src: './leaflet.css', dest: 'dist/'},
         {src: './manifest.json', dest: 'dist/'},
         {src: './images/**/*', dest: 'dist/images'},
+        {src: './fonts/**/*', dest: 'dist/fonts'},
         {
           src: 'node_modules/@hpcc-js/wasm/dist/graphvizlib.wasm',
           dest: 'dist/',
