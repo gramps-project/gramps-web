@@ -65,5 +65,8 @@
     "unconfirmed": "não confirmado",
     "Guest": "Convidado",
     "Member": "Membro",
-    "Editor": "Editor"
+    "Editor": "Editor",
+    "Switch to custom type": "Mudar para tipo personalizado",
+    "Custom type": "Tipo personalizado",
+    "Switch to default type": "Mudar para tipo pré-definido"
 }
