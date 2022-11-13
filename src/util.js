@@ -503,3 +503,42 @@ export const reportCategoryIcon = {
 export function arrayEqual(A, B) {
   return A.length > 0 && B.length > 0 && A.every(e => B.includes(e))
 }
+
+function _getMediaHandle(obj) {
+  if (obj.object_type === 'media') {
+    return obj.object.handle
+  }
+  if (obj.object?.media_list?.length) {
+    return obj.object.media_list[0].ref
+  }
+  return ''
+}
+
+function _getMediaRect(obj) {
+  if (obj.object?.media_list?.length) {
+    return obj.object.media_list[0].rect
+  }
+  return []
+}
+
+export function renderIcon(obj) {
+  const handle = _getMediaHandle(obj)
+  const rect = _getMediaRect(obj)
+  if (handle) {
+    return html`<grampsjs-img
+      handle="${handle}"
+      slot="graphic"
+      circle
+      square
+      size="70"
+      .rect="${rect}"
+      .mime=""
+      ><mwc-icon class="placeholder"
+        >${objectIcon[obj.object_type]}</mwc-icon
+      ></grampsjs-img
+    >`
+  }
+  return html`<mwc-icon slot="graphic"
+    >${objectIcon[obj.object_type]}</mwc-icon
+  >`
+}

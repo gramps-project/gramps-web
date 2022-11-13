@@ -27,6 +27,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       required: {type: Boolean},
       initialValue: {type: String},
       noheading: {type: Boolean},
+      _hasCustomType: {type: Boolean}, // adding _hasCustomType prop
     }
   }
 
@@ -43,6 +44,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
     this.required = false
     this.initialValue = ''
     this.noheading = false
+    this._hasCustomType = false // this will be false as no custom type is entered initially
   }
 
   getTypes(types) {
@@ -65,10 +67,10 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       <p>
         <mwc-select
           style="width:100%"
-          ?required="${this.required}"
+          ?required=${!this._hasCustomType}
+          ?disabled=${this._hasCustomType}
           validationMessage="${this._('This field is mandatory')}"
           @change="${this.handleChange}"
-          ?disabled="${this.disabled}"
           label="${this.loadingTypes ? this._('Loading items...') : this.label}"
           id="select-type"
         >
@@ -91,7 +93,33 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
               )}
         </mwc-select>
       </p>
+
+      <mwc-button @click="${this.switchTypeInput}">
+        ${this._hasCustomType
+          ? this._('Switch to default type')
+          : this._('Switch to custom type')}
+      </mwc-button>
+
+      ${!this._hasCustomType
+        ? html``
+        : html`
+            <h4 class="label">${this._('Custom Type')}</h4>
+            <p>
+              <mwc-textfield
+                style="width:100%"
+                ?required=${this._hasCustomType}
+                validationMessage="${this._('This field is mandatory')}"
+                @change="${this.handleChange}"
+                id="custom-type"
+              >
+              </mwc-textfield>
+            </p>
+          `}
     `
+  }
+
+  switchTypeInput() {
+    this._hasCustomType = !this._hasCustomType
   }
 
   reset() {
@@ -100,6 +128,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
     const ind = types.indexOf('General')
     const selectType = this.shadowRoot.getElementById('select-type')
     selectType.value = ind === -1 ? null : typesLocale[ind]
+    this._hasCustomType = false
   }
 
   handleChange(e) {
@@ -115,7 +144,9 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
 
   isValid() {
     const selectType = this.shadowRoot.getElementById('select-type')
-    if (selectType === null) {
+    const customType = this.shadowRoot.getElementById('custom-type') // adding query for custom-type id
+    if (selectType === null && customType === null) {
+      // checking if both types null then return false
       return false
     }
     try {

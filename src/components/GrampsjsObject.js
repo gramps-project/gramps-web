@@ -455,11 +455,19 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           .strings=${this.strings}
           .data=${this.data?.extended?.backlinks?.source || []}
         ></grampsjs-sources>`
-      case 'citations':
+      case 'citations': {
+        let data = this.data?.profile?.references?.citation || []
+        if (data.length > 0) {
+          data = data.map((cit, i) => ({
+            ...cit,
+            media_list: this.data?.extended?.backlinks?.citation[i]?.media_list,
+          }))
+        }
         return html`<grampsjs-citations
           .strings=${this.strings}
-          .data=${this.data?.profile?.references?.citation || []}
+          .data=${data}
         ></grampsjs-citations>`
+      }
       case 'children':
         return html`<grampsjs-children
           .strings=${this.strings}
@@ -478,6 +486,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         ></grampsjs-view-source-citations>`
       case 'attributes':
         return html`<grampsjs-attributes
+          hasEdit
           .strings=${this.strings}
           ?edit="${this.edit}"
           .data=${this.data.attribute_list}
@@ -506,6 +515,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         ></grampsjs-gallery>`
       case 'internet':
         return html`<grampsjs-urls
+          hasEdit
           .strings=${this.strings}
           .data=${this.data.urls}
           ?edit="${this.edit}"

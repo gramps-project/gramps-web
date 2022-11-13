@@ -40,6 +40,7 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
         mwc-list[activatable] [mwc-list-item][selected]:hover,
         mwc-list[activatable] [mwc-list-item][selected]:focus {
           background-color: rgba(2, 119, 189, 0.4);
+          color: rgba(0, 0, 0, 0.9);
         }
 
         mwc-list[activatable] [mwc-list-item][selected]:active {
@@ -48,6 +49,18 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
 
         mwc-icon-button {
           --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.25);
+        }
+
+        mwc-icon {
+          background-color: rgba(0, 0, 0, 0.25);
+          color: white;
+        }
+
+        mwc-icon.placeholder {
+          width: 40px;
+          height: 40px;
+          line-height: 40px;
+          border-radius: 50%;
         }
       `,
     ]
@@ -60,6 +73,8 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
       objType: {type: String},
       dialogContent: {type: String},
       dialogTitle: {type: String},
+      hasShare: {type: Boolean},
+      hasEdit: {type: Boolean},
       _selectedIndex: {type: Number},
     }
   }
@@ -71,6 +86,8 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
     this.objType = ''
     this.dialogContent = ''
     this.dialogTitle = ''
+    this.hasShare = false
+    this.hasEdit = false
     this._selectedIndex = -1
   }
 
@@ -108,17 +125,30 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
 
   _renderActionBtns() {
     return html`
+      ${this.hasShare
+        ? html`
+            <mwc-icon-button
+              class="edit"
+              icon="add_link"
+              @click="${this._handleShare}"
+            ></mwc-icon-button>
+          `
+        : ''}
       <mwc-icon-button
         class="edit"
         icon="add"
         @click="${this._handleAdd}"
       ></mwc-icon-button>
-      <mwc-icon-button
-        ?disabled="${this._selectedIndex === -1}"
-        class="edit"
-        icon="edit"
-        @click="${this._handleEdit}"
-      ></mwc-icon-button>
+      ${this.hasEdit
+        ? html`
+            <mwc-icon-button
+              ?disabled="${this._selectedIndex === -1}"
+              class="edit"
+              icon="edit"
+              @click="${this._handleEdit}"
+            ></mwc-icon-button>
+          `
+        : ''}
       <mwc-icon-button
         ?disabled="${this._selectedIndex === -1}"
         class="edit"

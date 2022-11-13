@@ -1,22 +1,29 @@
 import {html} from 'lit'
 
-import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
-import {fireEvent} from '../util.js'
+import {GrampsjsEditableList} from './GrampsjsEditableList.js'
+import {fireEvent, renderIcon} from '../util.js'
 
-export class GrampsjsCitations extends GrampsjsEditableTable {
+import '@material/mwc-icon-button'
+import '@material/mwc-list'
+import '@material/mwc-list/mwc-list-item'
+
+export class GrampsjsCitations extends GrampsjsEditableList {
   constructor() {
     super()
     this.objType = 'Citation'
-    this._columns = ['Page', 'Date']
   }
 
-  // eslint-disable-next-line no-unused-vars
-  row(obj, i, arr) {
+  row(obj) {
     return html`
-      <tr @click=${() => this._handleClick(obj.gramps_id)}>
-        <td>${obj.page}</td>
-        <td>${obj.date}</td>
-      </tr>
+      <mwc-list-item
+        twoline
+        graphic="avatar"
+        @click="${() => this._handleClick(obj.gramps_id)}"
+      >
+        ${obj.page || this._('Citation')}
+        <span slot="secondary"> ${obj.gramps_id} </span>
+        ${renderIcon({object: obj, object_type: 'citation'})}
+      </mwc-list-item>
     `
   }
 
