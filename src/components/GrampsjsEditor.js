@@ -115,7 +115,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
         .note {
           font-family: var(
             --grampsjs-note-font-family,
-            var(--grampsjs-heading-font-family)
+            var(--grampsjs-body-font-family)
           );
           font-size: var(--grampsjs-note-font-size, 20px);
           line-height: var(--grampsjs-note-line-height, 1.5em);

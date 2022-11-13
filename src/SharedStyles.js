@@ -2,8 +2,8 @@ import {css} from 'lit'
 
 export const sharedStyles = css`
   :host {
-    --grampsjs-body-font-family: Roboto;
-    --grampsjs-heading-font-family: 'Roboto Slab';
+    --grampsjs-body-font-family: 'Inter var', sans-serif;
+    --grampsjs-heading-font-family: 'Roboto Slab', serif;
     font-size: 18px;
     font-family: var(--grampsjs-body-font-family);
     font-weight: 300;
@@ -62,6 +62,11 @@ export const sharedStyles = css`
   h4.label {
     font-family: var(--grampsjs-body-font-family);
     font-size: 18px;
+  }
+
+  b,
+  strong {
+    font-weight: 600;
   }
 
   a:link,
@@ -139,6 +144,7 @@ export const sharedStyles = css`
     --mdc-typography-subtitle1-color: rgba(0, 0, 0, 1);
     --mdc-typography-subtitle1-font-size: 18px;
     --mdc-typography-subtitle1-font-weight: 300;
+    --mdc-typography-subtitle1-letter-spacing: -0.01em;
   }
 
   .avatar.skeleton {

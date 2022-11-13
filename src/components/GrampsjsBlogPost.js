@@ -55,7 +55,7 @@ export class GrampsjsBlogPost extends GrampsjsTranslateMixin(LitElement) {
         grampsjs-note-content {
           --grampsjs-note-line-height: 1.7em;
           --grampsjs-note-font-size: 18px;
-          --grampsjs-note-font-family: EB Garamond;
+          --grampsjs-note-font-family: 'EB Garamond x';
           --grampsjs-note-color: #333;
         }
 
