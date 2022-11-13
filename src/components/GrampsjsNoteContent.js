@@ -21,13 +21,15 @@ export class GrampsjsNoteContent extends LitElement {
             --grampsjs-note-font-family,
             var(--grampsjs-body-font-family)
           );
-          font-size: var(--grampsjs-note-font-size, 18px);
+          font-size: var(--grampsjs-note-font-size, 17px);
           line-height: var(--grampsjs-note-line-height, 1.5em);
           color: var(--grampsjs-note-color, #000000);
         }
 
         .note {
           font-weight: 300;
+          column-width: 30em;
+          column-gap: 2em;
         }
 
         .note.frame {
