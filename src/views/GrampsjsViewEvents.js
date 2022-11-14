@@ -51,6 +51,7 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
       <grampsjs-filter-type
         .strings="${this.strings}"
         label="${this._('Event Type')}"
+        typeName="event_types"
       ></grampsjs-filter-type>
 
       <grampsjs-filter-properties

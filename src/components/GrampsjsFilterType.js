@@ -30,6 +30,7 @@ export class GrampsjsFilterType extends GrampsjsTranslateMixin(LitElement) {
       label: {type: String},
       types: {type: Object},
       typesLocale: {type: Object},
+      typeName: {type: String},
     }
   }
 
@@ -39,6 +40,7 @@ export class GrampsjsFilterType extends GrampsjsTranslateMixin(LitElement) {
     this.label = ''
     this.types = {}
     this.typesLocale = {}
+    this.typeName = ''
   }
 
   render() {
@@ -51,7 +53,7 @@ export class GrampsjsFilterType extends GrampsjsTranslateMixin(LitElement) {
         valueNonLocal
         label="${this.label || this._('Type')}"
         .strings="${this.strings}"
-        typeName="event_types"
+        typeName="${this.typeName}"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
         @formdata:changed="${this._handleChange}"

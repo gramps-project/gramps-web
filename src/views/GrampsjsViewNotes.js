@@ -2,8 +2,10 @@
 Notes list view
 */
 
+import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
+import '../components/GrampsjsFilterType.js'
 
 export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
   constructor() {
@@ -40,6 +42,16 @@ export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
       change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
     }
     return formattedRow
+  }
+
+  renderFilters() {
+    return html`
+      <grampsjs-filter-type
+        .strings="${this.strings}"
+        label="${this._('Note type:').replace(':', '')}"
+        typeName="note_types"
+      ></grampsjs-filter-type>
+    `
   }
 }
 

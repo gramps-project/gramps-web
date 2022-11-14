@@ -70,7 +70,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       <p>
         <mwc-select
           style="width:100%"
-          ?required=${!this._hasCustomType}
+          ?required=${!this._hasCustomType && !this.nocustom}
           ?disabled=${this._hasCustomType}
           validationMessage="${this._('This field is mandatory')}"
           @change="${this.handleChange}"

@@ -289,6 +289,7 @@ export const grampsStrings = [
   'Not Related',
   'Note Link Report',
   'Note',
+  'Note type:',
   'Notes',
   'Number of Ancestors Report',
   'Number of Children',
