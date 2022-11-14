@@ -56,6 +56,7 @@ export class GrampsjsFilterType extends GrampsjsTranslateMixin(LitElement) {
         label="${this.label || this._('Type')}"
         .strings="${this.strings}"
         typeName="${this.typeName}"
+        defaultTypeName=""
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
         @formdata:changed="${this._handleChange}"
