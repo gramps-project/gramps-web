@@ -65,5 +65,8 @@
     "Guest": "Гість",
     "unconfirmed": "не підтверджено",
     "Owner": "Власник",
-    "disabled": "вимкнено"
+    "disabled": "вимкнено",
+    "Switch to custom type": "Перехід на користувацький тип",
+    "Switch to default type": "Перехід на типовий тип",
+    "Custom type": "Користувацький тип"
 }
