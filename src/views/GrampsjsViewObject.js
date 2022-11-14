@@ -193,7 +193,12 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   handleEditAction(e) {
     if (e.detail.action === 'delEvent') {
-      this.delEvent(e.detail.handle, this._data, this._className)
+      this.delObjectByIndex(
+        e.detail.index,
+        this._data,
+        this._className,
+        'event_ref_list'
+      )
     } else if (e.detail.action === 'addEventRef') {
       this.addObject(
         e.detail.data,
@@ -445,15 +450,6 @@ export class GrampsjsViewObject extends GrampsjsView {
       // eslint-disable-next-line no-alert
       alert(JSON.stringify(e.detail))
     }
-  }
-
-  delEvent(handle, obj, objType) {
-    return this._updateObject(obj, objType, _obj => {
-      _obj.event_ref_list = _obj.event_ref_list.filter(
-        eventRef => eventRef.ref !== handle
-      )
-      return _obj
-    })
   }
 
   delObject(handle, obj, objType, prop) {

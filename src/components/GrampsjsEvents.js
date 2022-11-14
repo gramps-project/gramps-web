@@ -1,15 +1,15 @@
 import {html} from 'lit'
 
-import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
+import {GrampsjsEditableList} from './GrampsjsEditableList.js'
+import {fireEvent, renderIcon, objectDetail} from '../util.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormEventRef.js'
 import './GrampsjsObjectForm.js'
-import {fireEvent} from '../util.js'
 import '@material/mwc-icon-button'
 import '@material/mwc-dialog'
 import '@material/mwc-button'
 
-export class GrampsjsEvents extends GrampsjsEditableTable {
+export class GrampsjsEvents extends GrampsjsEditableList {
   static get properties() {
     return {
       profile: {type: Array},
@@ -23,42 +23,79 @@ export class GrampsjsEvents extends GrampsjsEditableTable {
     super()
     this.profile = []
     this.objType = 'Event'
-    this._columns = ['Date', 'Type', 'Description', 'Place', '']
-    this.dialogContent = ''
     this.useSummary = false
     this.sorted = false
+    this.hasAdd = false
+    this.hasShare = true
   }
 
-  row(obj, i, arr) {
-    const j = this.data.indexOf(obj)
-    const prof = this.profile[j]
+  row(obj, i) {
+    const objProfile = {...obj, profile: this.profile[i]}
     return html`
-      <tr @click=${() => this._handleClick(obj.gramps_id)}>
-        <td>${prof.date}</td>
-        <td>
-          ${prof.type}
-          ${!prof?.role ||
-          ['Primary', 'Family', this._('Primary'), this._('Family')].includes(
-            prof?.role
-          )
-            ? ''
-            : `(${prof?.role})`}
-        </td>
-        <td>${this.useSummary ? prof.summary : obj.description}</td>
-        <td>${prof.place}</td>
-        <td>
-          ${this.edit
-            ? this._renderActionBtns(obj.handle, i === 0, i === arr.length - 1)
-            : html`${obj?.media_list?.length > 0
-                ? html` <mwc-icon class="inline">photo</mwc-icon>`
-                : ''}
-              ${obj?.note_list?.length > 0 > 0
-                ? html` <mwc-icon class="inline">sticky_note_2</mwc-icon>`
-                : ''}`}
-        </td>
-      </tr>
+      <mwc-list-item
+        twoline
+        graphic="avatar"
+        @click="${() => this._handleClick(obj.gramps_id)}"
+      >
+        ${this._getPrimaryText(objProfile)}
+        <span slot="secondary">${this._getSecondaryText(objProfile)}</span>
+        ${renderIcon({object: obj, object_type: 'event'})}
+      </mwc-list-item>
     `
   }
+
+  _getPrimaryText(obj) {
+    if (this.useSummary) {
+      return obj.profile.summary
+    }
+    return html`
+      ${obj.profile.type}
+      ${!obj.profile?.role ||
+      ['Primary', 'Family', this._('Primary'), this._('Family')].includes(
+        obj.profile?.role
+      )
+        ? ''
+        : `(${obj.profile?.role})`}
+    `
+  }
+
+  _getSecondaryText(obj) {
+    return html`
+      ${objectDetail('event', obj, this.strings)}
+      ${obj.description ? html` &ndash; ${obj.description}` : ''}
+    `
+  }
+
+  // row(obj, i, arr) {
+  //   const j = this.data.indexOf(obj)
+  //   const prof = this.profile[j]
+  //   return html`
+  //     <tr @click=${() => this._handleClick(obj.gramps_id)}>
+  //       <td>${prof.date}</td>
+  //       <td>
+  //         ${prof.type}
+  //         ${!prof?.role ||
+  //         ['Primary', 'Family', this._('Primary'), this._('Family')].includes(
+  //           prof?.role
+  //         )
+  //           ? ''
+  //           : `(${prof?.role})`}
+  //       </td>
+  //       <td>${this.useSummary ? prof.summary : obj.description}</td>
+  //       <td>${prof.place}</td>
+  //       <td>
+  //         ${this.edit
+  //           ? this._renderActionBtns(obj.handle, i === 0, i === arr.length - 1)
+  //           : html`${obj?.media_list?.length > 0
+  //               ? html` <mwc-icon class="inline">photo</mwc-icon>`
+  //               : ''}
+  //             ${obj?.note_list?.length > 0 > 0
+  //               ? html` <mwc-icon class="inline">sticky_note_2</mwc-icon>`
+  //               : ''}`}
+  //       </td>
+  //     </tr>
+  //   `
+  // }
 
   sortData(dataCopy) {
     if (!this.sorted) {
@@ -69,20 +106,7 @@ export class GrampsjsEvents extends GrampsjsEditableTable {
     )
   }
 
-  renderAfterTable() {
-    return this.edit
-      ? html`
-          <mwc-icon-button
-            class="edit large"
-            icon="add_circle"
-            @click="${this._handleAddClick}"
-          ></mwc-icon-button>
-          ${this.dialogContent}
-        `
-      : ''
-  }
-
-  _handleAddClick() {
+  _handleShare() {
     this.dialogContent = html`
       <grampsjs-form-eventref
         new
@@ -105,6 +129,13 @@ export class GrampsjsEvents extends GrampsjsEditableTable {
 
   _handleEventRefCancel() {
     this.dialogContent = ''
+  }
+
+  _handleDelete() {
+    fireEvent(this, 'edit:action', {
+      action: 'delEvent',
+      index: this._selectedIndex,
+    })
   }
 
   _handleClick(grampsId) {
