@@ -103,7 +103,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       ${!this._hasCustomType
         ? html``
         : html`
-            <h4 class="label">${this._('Custom Type')}</h4>
+            <h4 class="label">${this._('Custom type')}</h4>
             <p>
               <mwc-textfield
                 style="width:100%"
