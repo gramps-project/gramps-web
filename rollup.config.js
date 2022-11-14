@@ -28,6 +28,7 @@ export default merge(baseConfig, {
   plugins: [
     copy({
       targets: [
+        {src: './L.Control.Locate.min.css', dest: 'dist/'},
         {src: './leaflet.css', dest: 'dist/'},
         {src: './manifest.json', dest: 'dist/'},
         {src: './images/**/*', dest: 'dist/images'},
