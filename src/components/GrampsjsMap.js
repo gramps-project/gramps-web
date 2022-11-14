@@ -8,11 +8,13 @@ import {
 import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
 import {fireEvent} from '../util.js'
+import '../LocateControl.js'
 
 class GrampsjsMap extends LitElement {
   render() {
     return html`
       <link rel="stylesheet" href="leaflet.css" />
+      <link rel="stylesheet" href="L.Control.Locate.min.css" />
 
       <div
         class="mapcontainer"
@@ -42,6 +44,7 @@ class GrampsjsMap extends LitElement {
       longMin: {type: Number},
       longMax: {type: Number},
       layerSwitcher: {type: Boolean},
+      locateControl: {type: Boolean},
       _map: {type: Object},
       _layercontrol: {type: Object},
     }
@@ -86,6 +89,11 @@ class GrampsjsMap extends LitElement {
     })
     tileLayer.addTo(this._map)
     this._map.addControl(control.zoom({position: 'bottomright'}))
+    if (this.locateControl) {
+      this._map.addControl(
+        control.locate({position: 'bottomright', drawCircle: false})
+      )
+    }
     this._layercontrol = control.layers({OpenStreetMap: tileLayer})
     if (this.layerSwitcher) {
       this._map.addControl(this._layercontrol)

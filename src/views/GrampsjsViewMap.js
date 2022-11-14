@@ -53,6 +53,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     return html`
       <grampsjs-map
         layerSwitcher
+        locateControl
         width="100%"
         height="calc(100vh - 64px)"
         latitude="${center[0]}"
