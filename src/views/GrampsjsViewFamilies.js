@@ -38,6 +38,13 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
+      <grampsjs-filter-type
+        .strings="${this.strings}"
+        label="${this._('Relationship type:').replace(':', '')}"
+        typeName="family_relation_types"
+        rule="HasRelType"
+      ></grampsjs-filter-type>
+
       <grampsjs-filter-properties
         hasCount
         .strings="${this.strings}"

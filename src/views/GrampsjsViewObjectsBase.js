@@ -261,6 +261,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     if (rule.name === 'HasType') {
       return `${this._('Type')}: ${this._(rule.values[0])}`
     }
+    if (rule.name === 'HasRelType') {
+      return `${this._('Relationship type:')} ${this._(rule.values[0])}`
+    }
     if (rule.name in personFilter) {
       return this._(personFilter[rule.name])
     }

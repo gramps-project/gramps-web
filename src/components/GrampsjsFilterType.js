@@ -31,6 +31,7 @@ export class GrampsjsFilterType extends GrampsjsTranslateMixin(LitElement) {
       types: {type: Object},
       typesLocale: {type: Object},
       typeName: {type: String},
+      rule: {type: String},
     }
   }
 
@@ -41,6 +42,7 @@ export class GrampsjsFilterType extends GrampsjsTranslateMixin(LitElement) {
     this.types = {}
     this.typesLocale = {}
     this.typeName = ''
+    this.rule = 'HasType'
   }
 
   render() {
@@ -91,8 +93,8 @@ export class GrampsjsFilterType extends GrampsjsTranslateMixin(LitElement) {
 
   _handleChange(event) {
     const type = event.detail.data
-    const rules = [{name: 'HasType', values: [type]}]
-    fireEvent(this, 'filter:changed', {filters: {rules}, replace: 'HasType'})
+    const rules = [{name: this.rule, values: [type]}]
+    fireEvent(this, 'filter:changed', {filters: {rules}, replace: this.rule})
   }
 }
 
