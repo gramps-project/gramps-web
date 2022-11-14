@@ -113,10 +113,6 @@ export class GrampsjsFilterYears extends GrampsjsTranslateMixin(LitElement) {
       fireEvent(this, 'filter:changed', {filters: {rules}, replace: this.rule})
     }
   }
-
-  connectedCallback() {
-    super.connectedCallback()
-  }
 }
 
 window.customElements.define('grampsjs-filter-years', GrampsjsFilterYears)

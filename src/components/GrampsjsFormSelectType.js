@@ -27,6 +27,8 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       required: {type: Boolean},
       initialValue: {type: String},
       noheading: {type: Boolean},
+      nocustom: {type: Boolean},
+      valueNonLocal: {type: Boolean},
       _hasCustomType: {type: Boolean}, // adding _hasCustomType prop
     }
   }
@@ -44,6 +46,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
     this.required = false
     this.initialValue = ''
     this.noheading = false
+    this.nocustom = false
     this._hasCustomType = false // this will be false as no custom type is entered initially
   }
 
@@ -83,7 +86,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
             : types.map(
                 (obj, i) => html`
                   <mwc-list-item
-                    value="${typesLocale[i]}"
+                    value="${this.valueNonLocal ? types[i] : typesLocale[i]}"
                     ?selected="${(this.initialValue &&
                       obj === this.initialValue) ||
                     obj === this.defaultTypeName}"
@@ -94,14 +97,17 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
         </mwc-select>
       </p>
 
-      <mwc-button @click="${this.switchTypeInput}">
-        ${this._hasCustomType
-          ? this._('Switch to default type')
-          : this._('Switch to custom type')}
-      </mwc-button>
-
-      ${!this._hasCustomType
-        ? html``
+      ${this.nocustom
+        ? ''
+        : html`
+            <mwc-button @click="${this.switchTypeInput}">
+              ${this._hasCustomType
+                ? this._('Switch to default type')
+                : this._('Switch to custom type')}
+            </mwc-button>
+          `}
+      ${this.nocustom || !this._hasCustomType
+        ? ''
         : html`
             <h4 class="label">${this._('Custom type')}</h4>
             <p>
@@ -127,7 +133,8 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
     const typesLocale = this.getTypes(this.typesLocale)
     const ind = types.indexOf('General')
     const selectType = this.shadowRoot.getElementById('select-type')
-    selectType.value = ind === -1 ? null : typesLocale[ind]
+    const typeInd = this.valueNonLocal ? types[ind] : typesLocale[ind]
+    selectType.value = ind === -1 ? null : typeInd
     this._hasCustomType = false
   }
 

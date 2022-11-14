@@ -258,6 +258,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     if (rule.name === 'HasData' && rule.values[1] !== '') {
       return this._ruleToLabelSpan(rule, 'Date', 1)
     }
+    if (rule.name === 'HasType') {
+      return `${this._('Type')}: ${this._(rule.values[0])}`
+    }
     if (rule.name in personFilter) {
       return this._(personFilter[rule.name])
     }
