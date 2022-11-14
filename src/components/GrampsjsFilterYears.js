@@ -32,6 +32,8 @@ export class GrampsjsFilterYears extends GrampsjsTranslateMixin(LitElement) {
       open: {type: Boolean},
       label: {type: String},
       rule: {type: String},
+      dateIndex: {type: Number},
+      numArgs: {type: Number},
       _yearFrom: {type: String},
       _yearUntil: {type: String},
       _serverLang: {type: String},
@@ -44,6 +46,8 @@ export class GrampsjsFilterYears extends GrampsjsTranslateMixin(LitElement) {
     this.label = ''
     this.rule = ''
     this.open = false
+    this.dateIndex = 0
+    this.numArgs = 3
     this._yearFrom = null
     this._yearUntil = new Date().getFullYear()
     this._serverLang = getSettings().serverLang
@@ -103,7 +107,9 @@ export class GrampsjsFilterYears extends GrampsjsTranslateMixin(LitElement) {
       const date = this._serverLang
         ? dateSpanLocal(year1, year2, this._serverLang)
         : `from ${year1} until ${year2}`
-      const rules = [{name: this.rule, values: [date, '', '']}]
+      const values = Array(this.numArgs).fill('')
+      values[this.dateIndex] = date
+      const rules = [{name: this.rule, values}]
       fireEvent(this, 'filter:changed', {filters: {rules}, replace: this.rule})
     }
   }

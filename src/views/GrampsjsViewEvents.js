@@ -37,6 +37,13 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
+      <grampsjs-filter-years
+        .strings="${this.strings}"
+        dateIndex="1"
+        numArgs="4"
+        label="Event year"
+        rule="HasData"
+      ></grampsjs-filter-years>
       <grampsjs-filter-properties
         hasCount
         .strings="${this.strings}"

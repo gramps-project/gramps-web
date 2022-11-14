@@ -250,10 +250,13 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       )}`
     }
     if (rule.name === 'HasBirth' && rule.values[0] !== '') {
-      return this._ruleToLabelSpan(rule, 'Birth year')
+      return this._ruleToLabelSpan(rule, 'Birth year', 0)
     }
     if (rule.name === 'HasDeath' && rule.values[0] !== '') {
-      return this._ruleToLabelSpan(rule, 'Death year')
+      return this._ruleToLabelSpan(rule, 'Death year', 0)
+    }
+    if (rule.name === 'HasData' && rule.values[1] !== '') {
+      return this._ruleToLabelSpan(rule, 'Date', 1)
     }
     if (rule.name in personFilter) {
       return this._(personFilter[rule.name])
@@ -267,8 +270,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     return JSON.stringify(rule)
   }
 
-  _ruleToLabelSpan(rule, label) {
-    const match = rule.values[0].match(/(\d+)[^\d]+(\d+)/)
+  _ruleToLabelSpan(rule, label, index) {
+    const match = rule.values[index].match(/(\d+)[^\d]+(\d+)/)
     if (match.length === 3) {
       if (match[1] === match[2]) {
         return `${this._(label)}: ${match[1]}`
