@@ -439,7 +439,6 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           .strings=${this.strings}
           .data=${this.data?.extended?.backlinks?.event}
           .profile=${this.data?.profile?.references?.event}
-          ?edit="${this.edit}"
         ></grampsjs-events>`
       case 'timeline':
         if (this._showPersonTimeline) {

@@ -29,8 +29,9 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     this.hasShare = true
   }
 
-  row(obj, i) {
-    const objProfile = {...obj, profile: this.profile[i]}
+  row(obj) {
+    const j = this.data.indexOf(obj)
+    const objProfile = {...obj, profile: this.profile[j]}
     return html`
       <mwc-list-item
         twoline
