@@ -58,5 +58,15 @@
     "All": "Všechno",
     "Select at least one object type": "Výběr alespoň jednoho typu objektu",
     "filter": "filtrovat",
-    "Properties": "Vlastnosti"
+    "Properties": "Vlastnosti",
+    "Switch to custom type": "Přepnout na vlastní typ",
+    "Switch to default type": "Přepnout na výchozí typ",
+    "Custom type": "Vlastní typ",
+    "unconfirmed": "nepotvrzené",
+    "disabled": "deaktivované",
+    "Guest": "Host",
+    "Member": "Člen",
+    "Contributor": "Přispěvatel",
+    "Editor": "Editor",
+    "Owner": "Majitel"
 }
