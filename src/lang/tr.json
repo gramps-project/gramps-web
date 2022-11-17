@@ -58,5 +58,15 @@
     "SMTP user": "SMTP kullanıcısı",
     "From address": "Adresten",
     "filter": "süzgeç",
-    "Properties": "Özellikler"
+    "Properties": "Özellikler",
+    "Switch to custom type": "Özel türe geç",
+    "Switch to default type": "Varsayılan türe geç",
+    "Custom type": "Özel tür",
+    "unconfirmed": "doğrulanmamış",
+    "Guest": "Misafir",
+    "Member": "Üye",
+    "Contributor": "Katkıda Bulunan",
+    "Editor": "Editör",
+    "Owner": "Sahibi",
+    "disabled": "devre dışı"
 }
