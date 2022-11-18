@@ -10,7 +10,6 @@ import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 class GrampsjsFormEditPlaceName extends GrampsjsObjectForm {
   renderForm() {
     return html`
-      <pre>${JSON.stringify(this.data, null, 2)}</pre>
       <grampsjs-form-string
         @formdata:changed="${this._handleFormData}"
         fullwidth
