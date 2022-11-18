@@ -4,6 +4,7 @@ import '@material/mwc-icon'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditLatLong.js'
+import './GrampsjsFormEditPlaceName.js'
 import {fireEvent} from '../util.js'
 
 const BASE_DIR = ''
@@ -20,6 +21,15 @@ export class GrampsjsPlace extends GrampsjsObject {
         <mwc-icon class="person">place</mwc-icon> ${this.data?.name?.value ||
         this.data.title ||
         this._('Place')}
+        ${this.edit
+          ? html`
+              <mwc-icon-button
+                icon="edit"
+                class="edit"
+                @click="${this._handleEditName}"
+              ></mwc-icon-button>
+            `
+          : ''}
       </h2>
 
       ${this.data?.profile?.type
@@ -59,6 +69,29 @@ export class GrampsjsPlace extends GrampsjsObject {
         .data="${data}"
       ></grampsjs-form-edit-lat-long>
     `
+  }
+
+  _handleEditName() {
+    this.dialogContent = html`
+      <grampsjs-form-edit-placename
+        @object:save="${this._handleSaveName}"
+        @object:cancel="${this._handleCancelDialog}"
+        .strings=${this.strings}
+        .data=${this.data?.name || {}}
+        prop="value"
+      >
+      </grampsjs-form-edit-placename>
+    `
+  }
+
+  _handleSaveName(e) {
+    fireEvent(this, 'edit:action', {
+      action: 'updateProp',
+      data: {name: e.detail.data},
+    })
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
   }
 
   _handleSaveLatLong(e) {
