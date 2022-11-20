@@ -58,5 +58,11 @@
     "All": "Tutto",
     "Select at least one object type": "Seleziona almeno un tipo di oggetto",
     "filter": "filtra",
-    "Properties": "Proprietà"
+    "Properties": "Proprietà",
+    "disabled": "disattivato",
+    "Guest": "Ospite",
+    "Editor": "Redattore",
+    "Contributor": "Collaboratore",
+    "Member": "Membro",
+    "Owner": "Proprietario"
 }
