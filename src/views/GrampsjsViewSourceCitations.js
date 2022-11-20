@@ -42,6 +42,13 @@ export class GrampsjsViewSourceCitations extends GrampsjsViewObjectsDetail {
       </grampsjs-source-citations>
     `
   }
+
+  renderEdit() {
+    if (this._data.length === 0) {
+      return this.renderElements()
+    }
+    return ''
+  }
 }
 
 window.customElements.define(
