@@ -65,5 +65,8 @@
     "Guest": "Gost",
     "Contributor": "Doprinositelj",
     "Editor": "Urednik",
-    "Owner": "Vlasnik"
+    "Owner": "Vlasnik",
+    "Switch to custom type": "Promijeni na prilagođenu vrstu",
+    "Switch to default type": "Promijeni na zadanu vrstu",
+    "Custom type": "Prilagođena vrsta"
 }
