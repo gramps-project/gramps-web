@@ -103,7 +103,12 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-      <mwc-dialog scrimClickAction="" heading="${this.dialogTitle}" open>
+      <mwc-dialog
+        scrimClickAction=""
+        escapeKeyAction=""
+        heading="${this.dialogTitle}"
+        open
+      >
         <div @formdata:changed="${this._handleFormData}">
           ${this.renderForm()}
         </div>
