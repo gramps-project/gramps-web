@@ -380,7 +380,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
   _renderSortIcon(isCurrent, isAscending) {
     if (isCurrent) {
       if (isAscending) {
-        renderIcon(mdiSortAscending, 'rgba(0, 0, 0, 0.6)')
+        return renderIcon(mdiSortAscending, 'rgba(0, 0, 0, 0.6)')
       }
       return renderIcon(mdiSortDescending, 'rgba(0, 0, 0, 0.6)')
     }
