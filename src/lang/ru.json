@@ -58,5 +58,14 @@
     "All": "Все",
     "Select at least one object type": "Выберите хотя бы один тип объекта",
     "filter": "фильтр",
-    "Properties": "Свойства"
+    "Properties": "Свойства",
+    "Switch to custom type": "Переключить на пользовательский тип",
+    "Switch to default type": "Переключить на тип по умолчанию",
+    "Custom type": "Пользовательский тип",
+    "unconfirmed": "неподтверждено",
+    "Guest": "Гость",
+    "Member": "Член",
+    "Editor": "Редактор",
+    "Owner": "Владелец",
+    "disabled": "отключено"
 }
