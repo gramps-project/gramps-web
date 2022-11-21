@@ -67,5 +67,6 @@
     "Member": "Член",
     "Editor": "Редактор",
     "Owner": "Владелец",
-    "disabled": "отключено"
+    "disabled": "отключено",
+    "Contributor": "Сотрудник"
 }
