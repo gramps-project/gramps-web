@@ -198,7 +198,6 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
   }
 
   _handleOpacitySlider(e) {
-    console.log(e.detail)
     this.opacity = e.detail.value
   }
 
