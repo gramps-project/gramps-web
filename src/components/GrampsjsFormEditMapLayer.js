@@ -91,10 +91,10 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
   _getLogWidth() {
     const bounds = this._getBounds()
     if (bounds.length !== 2) {
-      return Math.log(0.1)
+      return Math.round(Math.log(0.1) * 10) / 10
     }
     const w = bounds[1][1] - bounds[0][1]
-    return Math.log(w)
+    return Math.round(Math.log(w) * 10) / 10
   }
 
   renderForm() {
@@ -102,15 +102,17 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
     Scale<br/>
     <mwc-slider
       value="${this._getLogWidth()}"
-      min="${Math.log(0.001)}"
-      max="${Math.log(180)}"
+      min="-6.9"
+      max="5.2"
+      step="0.1"
       @input="${this._handleScaleSlider}"
     ></mwc-slider>
     Opacity<br/>
     <mwc-slider
-      value=0.8
-      min=0
-      max=1
+      value="0.8"
+      min="0.0"
+      max="1.0"
+      step="0.05"
       @input="${this._handleOpacitySlider}"
     ></mwc-slider>
     <p>
@@ -196,6 +198,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
   }
 
   _handleOpacitySlider(e) {
+    console.log(e.detail)
     this.opacity = e.detail.value
   }
 
