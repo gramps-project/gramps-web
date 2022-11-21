@@ -100,6 +100,7 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
         label="${this._('Second date')}"
         min="${this._getMinDate()}"
         type="date"
+        value="${this._getValue2()}"
         ?disabled="${!this._hasSecondDate()}"
         iconTrailing="event"
       ></mwc-textfield>
@@ -131,6 +132,18 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
       return null
     }
     const [d, m, y] = val.slice(0, 3)
+    return `${`${y}`.padStart(4, '0')}-${`${m}`.padStart(
+      2,
+      '0'
+    )}-${`${d}`.padStart(2, '0')}`
+  }
+
+  _getValue2() {
+    const val = this.data.dateval
+    if (val === null || val === undefined || val.length < 6) {
+      return null
+    }
+    const [d, m, y] = val.slice(4, 7)
     return `${`${y}`.padStart(4, '0')}-${`${m}`.padStart(
       2,
       '0'
