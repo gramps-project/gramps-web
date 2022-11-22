@@ -58,5 +58,15 @@
     "All": "Alle",
     "Select at least one object type": "Selecteer ten minste één objecttype",
     "Properties": "Eigenschappen",
-    "filter": "filteren"
+    "filter": "filteren",
+    "Switch to custom type": "Schakelen naar aangepast type",
+    "Switch to default type": "Schakelen naar standaardtype",
+    "Custom type": "Aangepast types",
+    "unconfirmed": "onbevestigd",
+    "Guest": "Gast",
+    "Member": "Lid",
+    "disabled": "uitgeschakeld",
+    "Contributor": "Bijdrager",
+    "Editor": "Editor",
+    "Owner": "Eigenaar"
 }
