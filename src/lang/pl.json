@@ -54,5 +54,19 @@
     "Lost password?": "Zapomniałeś hasła?",
     "Register new account": "Zarejestruj nowe konto",
     "Select at least one object type": "Wybierz co najmniej jeden typ objektu",
-    "All": "Wszystkie"
+    "All": "Wszystkie",
+    "Switch to custom type": "Przełącz na typ niestandardowy",
+    "Switch to default type": "Przełącz na typ domyślny",
+    "Custom type": "Typ niestandardowy",
+    "Place Hierarchy": "Hierarchia miejsc",
+    "filter": "filtr",
+    "Properties": "Właściwości",
+    "Search %s": "Wyszukaj %s",
+    "unconfirmed": "niepotwierdzony",
+    "disabled": "wyłączony",
+    "Guest": "Gość",
+    "Member": "Członek",
+    "Contributor": "Współautor",
+    "Owner": "Właściciel",
+    "Editor": "Redaktor"
 }
