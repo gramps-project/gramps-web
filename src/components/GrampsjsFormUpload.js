@@ -45,6 +45,7 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
       preview: {type: Boolean},
       filename: {type: Boolean},
       disabled: {type: Boolean},
+      label: {type: String},
     }
   }
 
@@ -55,6 +56,7 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
     this.preview = false
     this.filename = false
     this.disabled = false
+    this.label = ''
   }
 
   render() {
@@ -71,7 +73,7 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
         icon="upload"
         @click="${this._handleClickUpload}"
       >
-        ${this._('Select a file')}
+        ${this.label || this._('Select a file')}
       </mwc-button>
       ${this.filename ? this.renderFileName() : ''}
       ${this.preview ? this.renderPreview() : ''}
