@@ -25,6 +25,7 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
         ?edit="${this.edit}"
         @facetag:add="${this._handleFacePerson}"
         @rect:delete="${this._handleDeleteRect}"
+        @file:replace="${this._handleUploadFile}"
       ></grampsjs-media-object>
     `
   }
@@ -110,6 +111,26 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
     if (reload) {
       this._updateData(false)
     }
+  }
+
+  _handleUploadFile(e) {
+    const putUrl = `/api/media/${e.detail.handle}/file`
+    apiPut(putUrl, e.detail.data, false).then(data => {
+      if ('data' in data) {
+        this.error = false
+        this._updateData()
+        this._reloadImage()
+      } else if ('error' in data) {
+        this.error = true
+        this._errorMessage = data.error
+      }
+    })
+  }
+
+  _reloadImage() {
+    this.renderRoot
+      .querySelectorAll(`grampsjs-media-object`)
+      .forEach(obj => obj.reloadImage())
   }
 }
 

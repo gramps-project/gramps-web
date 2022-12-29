@@ -216,7 +216,28 @@ export class GrampsjsMediaObject extends GrampsjsObject {
             `
             )}
       </grampsjs-rect-container>
+
+      <p>
+        <grampsjs-form-upload
+          @formdata:changed="${this._handleFormData}"
+          preview
+          id="upload"
+          label="${this._('Replace file')}"
+          class="edit"
+          .strings="${this.strings}"
+        ></grampsjs-form-upload>
+      </p>
     `
+  }
+
+  _handleFormData(e) {
+    fireEvent(this, 'file:replace', {...e.detail, handle: this.data.handle})
+    e.stopPropagation()
+    e.preventDefault()
+    const upload = this.renderRoot.getElementById('upload')
+    if (upload) {
+      upload.reset()
+    }
   }
 
   _renderNoImage() {
@@ -423,6 +444,12 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         detail: {path: event.detail.target},
       })
     )
+  }
+
+  reloadImage() {
+    this.renderRoot
+      .querySelectorAll(`grampsjs-img`)
+      .forEach(img => img.reload())
   }
 
   updated(changed) {

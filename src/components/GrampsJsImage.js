@@ -82,6 +82,25 @@ class GrampsjsImg extends LitElement {
     `
   }
 
+  async reload() {
+    if (this.mime.startsWith('image')) {
+      // reload full image if present
+      this._reloadImageUrl(getMediaUrl(this.handle))
+      // reload thumbnail if present
+      this._reloadImageUrl(
+        getThumbnailUrl(this.handle, 3 * this.size, this.square)
+      )
+    }
+  }
+
+  async _reloadImageUrl(url) {
+    await fetch(url, {cache: 'reload', mode: 'no-cors'})
+    this.renderRoot.querySelectorAll(`img[src='${url}']`).forEach(img => {
+      // eslint-disable-next-line no-param-reassign
+      img.src = url
+    })
+  }
+
   getBBox() {
     const img = this.shadowRoot.querySelector('img')
     if (img === null) {
