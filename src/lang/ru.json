@@ -68,5 +68,6 @@
     "Editor": "Редактор",
     "Owner": "Владелец",
     "disabled": "отключено",
-    "Contributor": "Сотрудник"
+    "Contributor": "Сотрудник",
+    "Replace file": "Заменить файл"
 }
