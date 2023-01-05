@@ -38,6 +38,7 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
     return {
       data: {type: Object},
       showMore: {type: Boolean},
+      loadingTypes: {type: Boolean},
       types: {type: Object},
       typesLocale: {type: Object},
       origintype: {type: Boolean},
@@ -50,6 +51,7 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
     this.showMore = false
     this.types = {}
     this.typesLocale = {}
+    this.loadingTypes = false
     this.origintype = false
   }
 
@@ -110,9 +112,9 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
         ></grampsjs-form-string>
       </p>
 
-      <h4 class="label ${classMap({hide: !this.showMore})}">${this._(
-      'Surnames'
-    )}</h4>
+      <h4 class="label ${classMap({hide: !this.showMore})}">
+        ${this._('Surnames')}
+      </h4>
 
       ${(this.data.surname_list || [{}]).map(
         (obj, i, arr) => html`
@@ -125,6 +127,7 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
             .strings="${this.strings}"
             .data="${obj}"
             .types="${this.types}"
+            ?loadingTypes=${this.loadingTypes}
             .typesLocale="${this.typesLocale}"
           >
           </grampsjs-form-surname>
@@ -136,19 +139,17 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
         <mwc-icon-button
           @click="${this._handleAddSurname}"
           icon="add"
-        ></mwc-button>
+        ></mwc-icon-button>
       </p>
 
-      ${
-        this.showMore
-          ? ''
-          : html`
-    <mwc-icon-button
-      @click="${this._handleShowMore}"
-      icon="more_horiz"
-    ></mwc-button>
-  `
-      }
+      ${this.showMore
+        ? ''
+        : html`
+            <mwc-icon-button
+              @click="${this._handleShowMore}"
+              icon="more_horiz"
+            ></mwc-icon-button>
+          `}
     `
   }
 

@@ -19,6 +19,7 @@ class GrampsjsFormEditName extends GrampsjsObjectForm {
         label="${this._('Name type')}"
         .strings="${this.strings}"
         typeName="name_types"
+        ?loadingTypes=${this.loadingTypes}
         defaultTypeName="Birth Name"
         initialValue=${this.data?.type || ''}
         .types="${this.types}"
@@ -32,6 +33,7 @@ class GrampsjsFormEditName extends GrampsjsObjectForm {
         showMore
         id="name"
         @formdata:changed="${this._handleFormData}"
+        ?loadingTypes=${this.loadingTypes}
         .strings="${this.strings}"
         .data="${this.data}"
         .types="${this.types}"

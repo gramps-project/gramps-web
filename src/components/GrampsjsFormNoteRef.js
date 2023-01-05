@@ -25,7 +25,6 @@ class GrampsjsFormNoteRef extends GrampsjsObjectForm {
         label="${this._('Select')}"
         class="edit"
       ></grampsjs-form-select-object-list>
-    </grampsjs-form-select-type>
     `
   }
 }

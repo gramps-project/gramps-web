@@ -30,6 +30,7 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
         id="child-frel"
         heading="${this._('Relationship to _Father:').replace(':', '')}"
         .strings="${this.strings}"
+        ?loadingTypes=${this.loadingTypes}
         typeName="child_reference_types"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
@@ -40,6 +41,7 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
         id="child-mrel"
         heading="${this._('Relationship to _Mother:').replace(':', '')}"
         .strings="${this.strings}"
+        ?loadingTypes=${this.loadingTypes}
         typeName="child_reference_types"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"

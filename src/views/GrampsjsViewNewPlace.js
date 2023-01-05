@@ -41,7 +41,6 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
         id="select-place-type"
         .strings="${this.strings}"
         ?loadingTypes="${this.loadingTypes}"
-        ?disabled="${this.loadingTypes}"
         typeName="place_types"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"

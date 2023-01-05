@@ -29,6 +29,7 @@ export class GrampsjsFilterType extends GrampsjsTranslateMixin(LitElement) {
       filters: {type: Array},
       label: {type: String},
       types: {type: Object},
+      loadingTypes: {type: Boolean},
       typesLocale: {type: Object},
       typeName: {type: String},
       rule: {type: String},
@@ -42,6 +43,7 @@ export class GrampsjsFilterType extends GrampsjsTranslateMixin(LitElement) {
     this.types = {}
     this.typesLocale = {}
     this.typeName = ''
+    this.loadingTypes = false
     this.rule = 'HasType'
   }
 
@@ -57,6 +59,7 @@ export class GrampsjsFilterType extends GrampsjsTranslateMixin(LitElement) {
         .strings="${this.strings}"
         typeName="${this.typeName}"
         defaultTypeName=""
+        ?loadingTypes=${this.loadingTypes}
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
         @formdata:changed="${this._handleChange}"

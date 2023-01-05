@@ -30,6 +30,7 @@ class GrampsjsFormEventRef extends GrampsjsObjectForm {
         id="event-role-type"
         .strings="${this.strings}"
         typeName="event_role_types"
+        ?loadingTypes=${this.loadingTypes}
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
       >

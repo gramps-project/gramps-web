@@ -41,6 +41,7 @@ class GrampsjsFormRepoRef extends GrampsjsObjectForm {
         heading="${this._('Type')}"
         .strings="${this.strings}"
         typeName="source_media_types"
+        ?loadingTypes=${this.loadingTypes}
         defaultTypeName="Book"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"

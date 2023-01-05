@@ -40,6 +40,7 @@ class GrampsjsFormSurname extends GrampsjsTranslateMixin(LitElement) {
       idx: {type: Number},
       types: {type: Object},
       typesLocale: {type: Object},
+      loadingTypes: {type: Boolean},
       origintype: {type: Boolean},
     }
   }
@@ -51,6 +52,7 @@ class GrampsjsFormSurname extends GrampsjsTranslateMixin(LitElement) {
     this.idx = 0
     this.types = {}
     this.typesLocale = {}
+    this.loadingTypes = false
     this.origintype = false
   }
 
@@ -70,6 +72,7 @@ class GrampsjsFormSurname extends GrampsjsTranslateMixin(LitElement) {
                 initialValue=${this.data?.origintype || ''}
                 .types="${this.types}"
                 .typesLocale="${this.typesLocale}"
+                ?loadingTypes=${this.loadingTypes}
                 @formdata:changed="${this._handleFormData}"
               >
               </grampsjs-form-select-type>

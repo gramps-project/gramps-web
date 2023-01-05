@@ -19,7 +19,6 @@ export const GrampsjsNewNoteMixin = superClass =>
           id="select-note-type"
           .strings="${this.strings}"
           ?loadingTypes="${this.loadingTypes}"
-          ?disabled="${this.loadingTypes}"
           typeName="note_types"
           defaultTypeName="General"
           .types="${this.types}"
