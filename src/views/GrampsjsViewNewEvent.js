@@ -31,7 +31,6 @@ export class GrampsjsViewNewEvent extends GrampsjsViewNewObject {
         id="select-type"
         .strings="${this.strings}"
         ?loadingTypes="${this.loadingTypes}"
-        ?disabled="${this.loadingTypes}"
         typeName="event_types"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"

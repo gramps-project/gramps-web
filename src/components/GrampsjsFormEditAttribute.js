@@ -18,6 +18,7 @@ class GrampsjsFormEditAttribute extends GrampsjsObjectForm {
         heading="${this._('Type')}"
         .strings="${this.strings}"
         typeName="attribute_types"
+        ?loadingTypes=${this.loadingTypes}
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
         .data="${this.data}"

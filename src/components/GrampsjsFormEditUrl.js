@@ -19,6 +19,7 @@ class GrampsjsFormEditUrl extends GrampsjsObjectForm {
           heading="${this._('Type')}"
           .strings="${this.strings}"
           typeName="url_types"
+          ?loadingTypes=${this.loadingTypes}
           .types="${this.types}"
           .typesLocale="${this.typesLocale}"
           .data="${this.data}"

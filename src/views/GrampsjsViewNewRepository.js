@@ -42,7 +42,6 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
         id="select-repository-type"
         .strings="${this.strings}"
         ?loadingTypes="${this.loadingTypes}"
-        ?disabled="${this.loadingTypes}"
         typeName="repository_types"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
