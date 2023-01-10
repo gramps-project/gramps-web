@@ -73,7 +73,14 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
   }
 
   checkFormValidity() {
-    this.isFormValid = !!this.data?.source_handle
+    let valid = !!this.data?.source_handle
+    const selectDate = this.shadowRoot.querySelector(
+      'grampsjs-form-select-date'
+    )
+    if (!selectDate !== null && !selectDate.isValid()) {
+      valid = false
+    }
+    this.isFormValid = valid
   }
 
   handleConfidence(e) {

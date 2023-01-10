@@ -358,6 +358,10 @@ export function makeHandle() {
 
 // Gregorian date to Julian day needed for Date.sortval
 export function getSortval(year, month, day) {
+  if (year === 0 && month === 0 && day === 0) {
+    // we're assuming that this is an invalid/empty date!
+    return 0
+  }
   return Math.ceil(2440587.5 + Date.UTC(year, month - 1, day) / 86400000)
 }
 

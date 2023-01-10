@@ -48,7 +48,19 @@ function parseDate(s) {
 
 class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
-    return [sharedStyles, css``]
+    return [
+      sharedStyles,
+      css`
+        p {
+          margin: 7px 0;
+        }
+
+        mwc-icon-button {
+          color: rgba(0, 0, 0, 0.5);
+          --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.25);
+        }
+      `,
+    ]
   }
 
   static get properties() {
@@ -66,6 +78,8 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
+
+    <p>
       <mwc-select
         id="select-modifier"
         label="${this._('Type')}"
@@ -85,25 +99,142 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
         )}
       </mwc-select>
 
-      <mwc-textfield
-        @change="${this.handleDate1}"
-        id="date1"
-        label="${this._('Date')}"
-        type="date"
-        value="${this._getValue1()}"
-        iconTrailing="event"
-      ></mwc-textfield>
+    </p>
+    <p>
 
       <mwc-textfield
-        @change="${this.handleDate2}"
-        id="date2"
-        label="${this._('Second date')}"
-        min="${this._getMinDate()}"
-        type="date"
-        value="${this._getValue2()}"
-        ?disabled="${!this._hasSecondDate()}"
-        iconTrailing="event"
+        @change="${this.handleYear1}"
+        id="year1"
+        label="${this._('Year')}"
+        type="number"
+        style="width: 6em;"
+        value="${this.data.dateval[2] || ''}"
       ></mwc-textfield>
+      <mwc-select
+        @change="${this.handleMonth1}"
+        id="month1"
+        label="${this._('Month')}"
+        style="width: 6em;"
+      >${[...Array(13).keys()].map(
+        idx => html`
+          <mwc-list-item
+            value="${idx}"
+            ?selected="${
+              // eslint-disable-next-line eqeqeq
+              idx == (this.data.dateval[1] || 0)
+            }"
+          >
+            ${idx === 0 ? '' : idx}
+          </mwc-list-item>
+        `
+      )}
+      </mwc-select>
+      <mwc-select
+        @change="${this.handleDay1}"
+        id="day1"
+        label="${this._('Day')}"
+        style="width: 6em;"
+      >${[...Array(32).keys()].map(
+        idx => html`
+          <mwc-list-item
+            value="${idx}"
+            ?selected="${
+              // eslint-disable-next-line eqeqeq
+              idx == (this.data.dateval[0] || 0)
+            }"
+          >
+            ${idx === 0 ? '' : idx}
+          </mwc-list-item>
+        `
+      )}
+      </mwc-select>
+
+      <input
+        type="date"
+        id="input-date1"
+        style="visibility: hidden; position: absolute;"
+        @change="${this.handleDate1}"
+      >
+      </input>
+
+      <mwc-icon-button
+        icon="event"
+        ?disabled="${this.data.calendar !== 0}"
+        @click=${this._openDatePicker1}
+      ></mwc-icon-button>
+    </p>
+
+      ${
+        this._hasSecondDate()
+          ? html`
+      <p>&nbsp;&ndash;</p>
+      <p>
+
+      <mwc-textfield
+        @change="${this.handleYear2}"
+        id="year2"
+        label="${this._('Year')}"
+        type="number"
+        style="width: 6em;"
+        value="${this.data.dateval[6] || ''}"
+      ></mwc-textfield>
+      <mwc-select
+        @change="${this.handleMonth2}"
+        id="month2"
+        label="${this._('Month')}"
+        style="width: 6em;"
+      >${[...Array(13).keys()].map(
+        idx => html`
+          <mwc-list-item
+            value="${idx}"
+            ?selected="${
+              // eslint-disable-next-line eqeqeq
+              idx == (this.data.dateval[5] || 0)
+            }"
+          >
+            ${idx === 0 ? '' : idx}
+          </mwc-list-item>
+        `
+      )}
+      </mwc-select>
+      <mwc-select
+        @change="${this.handleDay2}"
+        id="day2"
+        label="${this._('Day')}"
+        style="width: 6em;"
+      >${[...Array(32).keys()].map(
+        idx => html`
+          <mwc-list-item
+            value="${idx}"
+            ?selected="${
+              // eslint-disable-next-line eqeqeq
+              idx == (this.data.dateval[4] || 0)
+            }"
+          >
+            ${idx === 0 ? '' : idx}
+          </mwc-list-item>
+        `
+      )}
+      </mwc-select>
+
+      <input
+        type="date"
+        id="input-date2"
+        style="visibility: hidden; position: absolute;"
+        @change="${this.handleDate2}"
+      >
+      </input>
+
+      <mwc-icon-button
+        ?disabled="${this.data.calendar !== 0}"
+        icon="event"
+        @click=${this._openDatePicker2}
+      ></mwc-icon-button>
+    </p>
+      `
+          : ''
+      }
+
 
       <mwc-select
         id="select-quality"
@@ -123,39 +254,8 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
           `
         )}
       </mwc-select>
-    `
-  }
-
-  _getValue1() {
-    const val = this.data.dateval
-    if (val === null || val === undefined) {
-      return null
-    }
-    const [d, m, y] = val.slice(0, 3)
-    return `${`${y}`.padStart(4, '0')}-${`${m}`.padStart(
-      2,
-      '0'
-    )}-${`${d}`.padStart(2, '0')}`
-  }
-
-  _getValue2() {
-    const val = this.data.dateval
-    if (val === null || val === undefined || val.length < 6) {
-      return null
-    }
-    const [d, m, y] = val.slice(4, 7)
-    return `${`${y}`.padStart(4, '0')}-${`${m}`.padStart(
-      2,
-      '0'
-    )}-${`${d}`.padStart(2, '0')}`
-  }
-
-  _getMinDate() {
-    const el = this.shadowRoot.getElementById('date1')
-    if (el !== null) {
-      return el.value
-    }
-    return ''
+    </p>
+      `
   }
 
   _hasSecondDate() {
@@ -164,18 +264,20 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
 
   reset() {
     this.data = dataDefault
-    const date1 = this.shadowRoot.getElementById('date1')
-    date1.value = ''
-    const date2 = this.shadowRoot.getElementById('date2')
-    date2.value = ''
-    date2.min = ''
+    this.shadowRoot.querySelectorAll('mwc-textfield').forEach(element => {
+      // eslint-disable-next-line no-param-reassign
+      element.value = ''
+    })
+    this.shadowRoot.querySelectorAll('mwc-select').forEach(element => {
+      // eslint-disable-next-line no-param-reassign
+      element.value = 0
+    })
   }
 
   handleType(e) {
     this.data = {...this.data, modifier: parseInt(e.target.value, 10)}
     // remove second date from dateval if necessary
     if (!this._hasSecondDate() && 'dateval' in this.data) {
-      this.shadowRoot.getElementById('date2').value = ''
       this.data = {...this.data, dateval: this.data.dateval.slice(0, 4)}
     }
     this.handleChange()
@@ -205,6 +307,110 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
     this.handleChange()
   }
 
+  _getValue1() {
+    const val = this.data.dateval
+    if (val === null || val === undefined) {
+      return null
+    }
+    const [d, m, y] = val.slice(0, 3)
+    return `${`${y}`.padStart(4, '0')}-${`${m}`.padStart(
+      2,
+      '0'
+    )}-${`${d}`.padStart(2, '0')}`
+  }
+
+  _getValue2() {
+    const val = this.data.dateval
+    if (val === null || val === undefined || val.length < 6) {
+      return null
+    }
+    const [d, m, y] = val.slice(4, 7)
+    return `${`${y}`.padStart(4, '0')}-${`${m}`.padStart(
+      2,
+      '0'
+    )}-${`${d}`.padStart(2, '0')}`
+  }
+
+  handleYear1(e) {
+    const y = parseInt(e.target.value, 10)
+    const dateval = this.data?.dateval || [0, 0, 0, false]
+    dateval[2] = y
+    const m = dateval[1]
+    const d = dateval[0]
+    this.data = {
+      ...this.data,
+      dateval,
+      sortval: getSortval(y, m, d),
+      year: y,
+    }
+    this.handleChange()
+  }
+
+  handleMonth1(e) {
+    const m = parseInt(e.target.value, 10)
+    const dateval = this.data?.dateval || [0, 0, 0, false]
+    dateval[1] = m
+    const y = dateval[2]
+    const d = dateval[0]
+    this.data = {
+      ...this.data,
+      dateval,
+      sortval: getSortval(y, m, d),
+    }
+    this.handleChange()
+  }
+
+  handleDay1(e) {
+    const d = parseInt(e.target.value, 10)
+    const dateval = this.data?.dateval || [0, 0, 0, false]
+    dateval[0] = d
+    const y = dateval[2]
+    const m = dateval[1]
+    this.data = {
+      ...this.data,
+      dateval,
+      sortval: getSortval(y, m, d),
+    }
+    this.handleChange()
+  }
+
+  handleYear2(e) {
+    const y = parseInt(e.target.value, 10)
+    const dateval =
+      this.data.dateval && this.data.dateval.length > 4
+        ? this.data.dateval.slice(4)
+        : [0, 0, 0, false]
+    dateval[2] = y
+    const oldval = this.data?.dateval || [0, 0, 0, false]
+    this.data = {...this.data, dateval: [...oldval.slice(0, 4), ...dateval]}
+    this.handleChange()
+  }
+
+  handleDay2(e) {
+    const d = parseInt(e.target.value, 10)
+    const dateval =
+      this.data.dateval && this.data.dateval.length > 4
+        ? this.data.dateval.slice(4)
+        : [0, 0, 0, false]
+    dateval[0] = d
+    const oldval = this.data?.dateval || [0, 0, 0, false]
+    this.data = {...this.data, dateval: [...oldval.slice(0, 4), ...dateval]}
+    this.handleChange()
+  }
+
+  handleMonth2(e) {
+    const m = parseInt(e.target.value, 10)
+    const dateval =
+      this.data.dateval && this.data.dateval.length > 4
+        ? this.data.dateval.slice(4)
+        : [0, 0, 0, false]
+    dateval[1] = m
+    const oldval = this.data?.dateval || [0, 0, 0, false]
+    this.data = {...this.data, dateval: [...oldval.slice(0, 4), ...dateval]}
+    this.handleChange()
+    this.handleChange()
+  }
+
   handleChange() {
     this.dispatchEvent(
       new CustomEvent('formdata:changed', {
@@ -213,6 +419,68 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
         detail: {data: this.data},
       })
     )
+    this.renderRoot.getElementById('year1').reportValidity()
+    const input1 = this.renderRoot.getElementById('input-date1')
+    if (input1) {
+      input1.value = this._getValue1()
+    }
+    const input2 = this.renderRoot.getElementById('input-date2')
+    if (input2) {
+      input2.value = this._getValue2()
+    }
+  }
+
+  isValid() {
+    // no dateval: invalid
+    if (!this.data.dateval) {
+      return false
+    }
+    // empty date: OK
+    if (
+      !this._hasSecondDate() &&
+      this.data.dateval[0] === 0 &&
+      this.data.dateval[1] === 0 &&
+      this.data.dateval[2] === 0
+    ) {
+      return true
+    }
+    // second date > first date
+    if (this._hasSecondDate()) {
+      if (this.data.dateval.length < 8) {
+        return false
+      }
+      // year 2 > year 1
+      if (this.data.dateval[6] > this.data.dateval[2]) {
+        return true
+      }
+      // year 2 < year 1
+      if (this.data.dateval[6] < this.data.dateval[2]) {
+        return false
+      }
+      // year 2 == year 1
+      // month 2 > month 1
+      if (this.data.dateval[5] > this.data.dateval[1]) {
+        return true
+      }
+      // month 2 < month 1
+      if (this.data.dateval[5] < this.data.dateval[1]) {
+        return false
+      }
+      // month 2 == month 1
+      // day 2 <= day 1
+      if (this.data.dateval[4] <= this.data.dateval[0]) {
+        return false
+      }
+    }
+    return true
+  }
+
+  _openDatePicker1() {
+    this.renderRoot.getElementById('input-date1').showPicker()
+  }
+
+  _openDatePicker2() {
+    this.renderRoot.getElementById('input-date2').showPicker()
   }
 }
 

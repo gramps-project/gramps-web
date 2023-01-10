@@ -30,7 +30,14 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
 
   checkFormValidity() {
     const upload = this.shadowRoot.getElementById('upload')
-    this.isFormValid = !!upload.file.name
+    let valid = !!upload.file.name
+    const selectDate = this.shadowRoot.querySelector(
+      'grampsjs-form-select-date'
+    )
+    if (!selectDate !== null && !selectDate.isValid()) {
+      valid = false
+    }
+    this.isFormValid = valid
   }
 
   _handleFormData(e) {
