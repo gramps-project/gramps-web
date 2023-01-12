@@ -56,5 +56,18 @@
     "Need help? Check out ": "זקוקים לעזרה? נא לבדוק את ",
     "Username": "שם משתמש",
     "All": "הכול",
-    "Select at least one object type": "נא לבחור לפחות סוג עצם אחד"
+    "Select at least one object type": "נא לבחור לפחות סוג עצם אחד",
+    "Switch to custom type": "החלפה לסוג מותאם אישית",
+    "Switch to default type": "החלפה לסוג ברירת מחדל",
+    "Custom type": "סוג מותאם אישית",
+    "filter": "מסנן",
+    "Properties": "תכונות",
+    "unconfirmed": "לא מאומת",
+    "disabled": "מושבת",
+    "Guest": "אורח",
+    "Member": "חבר",
+    "Contributor": "תוֹרֵם",
+    "Editor": "עורך",
+    "Owner": "בעלים",
+    "Replace file": "החלפת קובץ"
 }
