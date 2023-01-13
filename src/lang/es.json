@@ -69,5 +69,8 @@
     "Member": "Miembro",
     "Editor": "Editor",
     "Owner": "Propietario",
-    "Replace file": "Sustituir archivo"
+    "Replace file": "Sustituir archivo",
+    "Year": "Año",
+    "Month": "Mes",
+    "Day": "Día"
 }
