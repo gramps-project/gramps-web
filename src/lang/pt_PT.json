@@ -69,5 +69,8 @@
     "Switch to custom type": "Mudar para tipo personalizado",
     "Custom type": "Tipo personalizado",
     "Switch to default type": "Mudar para tipo pré-definido",
-    "Replace file": "Substituir ficheiro"
+    "Replace file": "Substituir ficheiro",
+    "Year": "Ano",
+    "Month": "Mês",
+    "Day": "Dia"
 }
