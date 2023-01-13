@@ -221,7 +221,15 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
   }
 
   checkFormValidity() {
-    this.isFormValid = true
+    let valid = true
+    this.shadowRoot
+      .querySelectorAll('grampsjs-form-select-date')
+      .forEach(element => {
+        if (!element.isValid()) {
+          valid = false
+        }
+      })
+    this.isFormValid = valid
   }
 
   _reset() {
