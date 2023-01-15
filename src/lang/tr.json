@@ -69,5 +69,8 @@
     "Editor": "Editör",
     "Owner": "Sahibi",
     "disabled": "devre dışı",
-    "Replace file": "Dosyayı değiştir"
+    "Replace file": "Dosyayı değiştir",
+    "Year": "Yıl",
+    "Month": "Ay",
+    "Day": "Gün"
 }
