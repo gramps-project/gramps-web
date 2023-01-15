@@ -68,5 +68,9 @@
     "Member": "Membre",
     "Contributor": "Col·laborador",
     "Editor": "Editor",
-    "Owner": "Propietari"
+    "Owner": "Propietari",
+    "Year": "Any",
+    "Month": "Mes",
+    "Day": "Dia",
+    "Replace file": "Substituir el fitxer"
 }
