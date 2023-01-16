@@ -70,5 +70,8 @@
     "Switch to custom type": "Byt till anpassad typ",
     "Switch to default type": "Byt till standardtyp",
     "Custom type": "Anpassad typ",
-    "Replace file": "Byt ut fil"
+    "Replace file": "Byt ut fil",
+    "Year": "År",
+    "Month": "Månad",
+    "Day": "Dag"
 }
