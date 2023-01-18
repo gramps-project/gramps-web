@@ -69,5 +69,8 @@
     "Owner": "Владелец",
     "disabled": "отключено",
     "Contributor": "Сотрудник",
-    "Replace file": "Заменить файл"
+    "Replace file": "Заменить файл",
+    "Year": "Год",
+    "Month": "Месяц",
+    "Day": "День"
 }
