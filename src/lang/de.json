@@ -69,5 +69,8 @@
     "Switch to default type": "Zu Standardart wechseln",
     "Custom type": "Benutzerdefinierte Art",
     "Switch to custom type": "Zu benutzerdefinierter Art wechseln",
-    "Replace file": "Datei ersetzen"
+    "Replace file": "Datei ersetzen",
+    "Year": "Jahr",
+    "Month": "Monat",
+    "Day": "Tag"
 }
