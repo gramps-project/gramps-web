@@ -145,6 +145,14 @@ export class GrampsjsViewObject extends GrampsjsView {
     if (this.active && changed.has('grampsId')) {
       this._updateData()
     }
+    if (
+      changed.has('active') &&
+      this.active &&
+      Object.keys(this._data).length === 0 &&
+      !this.loading
+    ) {
+      this._updateData()
+    }
   }
 
   _updateData(clearData = true) {

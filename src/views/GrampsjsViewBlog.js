@@ -1,10 +1,9 @@
 import {css, html} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import '../components/GrampsjsBlogPost.js'
+import '../components/GrampsjsBlogPostPreview.js'
 import {apiGet} from '../api.js'
-
-const BASE_DIR = ''
+import {fireEvent, clickKeyHandler} from '../util.js'
 
 export class GrampsjsViewBlog extends GrampsjsView {
   static get styles() {
@@ -13,6 +12,33 @@ export class GrampsjsViewBlog extends GrampsjsView {
       css`
         .muted {
           opacity: 0.4;
+        }
+
+        #posts {
+          display: grid;
+          gap: 1em;
+          grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+        }
+
+        .post {
+          padding: 0.8em 1em;
+          cursor: pointer;
+          outline: 2px solid rgba(0, 0, 0, 0);
+          transition: outline-color 0.3s ease-in;
+        }
+
+        .post:focus,
+        .post:focus-within {
+          outline: 2px solid rgba(0, 0, 0, 0.1);
+          border-radius: 5px;
+        }
+
+        .post > div {
+        }
+
+        @media (max-width: 768px) {
+          #posts {
+          }
         }
       `,
     ]
@@ -33,7 +59,7 @@ export class GrampsjsViewBlog extends GrampsjsView {
     this._dataSources = []
     this._dataNotes = []
     this._page = 1
-    this._pageSize = 1
+    this._pageSize = 6
     this._firstLoaded = false
     this._totalCount = -1
     this._pages = -1
@@ -59,10 +85,12 @@ export class GrampsjsViewBlog extends GrampsjsView {
       return html``
     }
     return html`
-      ${this._dataSources.map(
-        (source, i) => this.renderPost(source, this._dataNotes[i]),
-        this
-      )}
+      <div id="posts">
+        ${this._dataSources.map(
+          (source, i) => this.renderPost(source, this._dataNotes[i]),
+          this
+        )}
+      </div>
     `
   }
 
@@ -83,13 +111,21 @@ export class GrampsjsViewBlog extends GrampsjsView {
   }
 
   // eslint-disable-next-line no-dupe-class-members
-  renderPost(source, note) {
+  renderPost(source) {
     return html`
-      <grampsjs-blog-post
-        .source="${source}"
-        .note="${note}"
-        .strings="${this.strings}"
-      ></grampsjs-blog-post>
+      <div
+        class="post"
+        tabindex="0"
+        @click="${() => this._handlePreviewClick(source.gramps_id)}"
+        @keydown="${clickKeyHandler}"
+      >
+        <div>
+          <grampsjs-blog-post-preview
+            .data="${source}"
+            .strings="${this.strings}"
+          ></grampsjs-blog-post-preview>
+        </div>
+      </div>
     `
   }
 
@@ -97,28 +133,8 @@ export class GrampsjsViewBlog extends GrampsjsView {
     this._fetchData()
   }
 
-  _getNotesUrl() {
-    const grampsIds = this._dataSources
-      .map(obj => obj?.extended?.notes[0]?.gramps_id)
-      .filter(obj => obj)
-    if (grampsIds.length === 0) {
-      return ''
-    }
-    const rules = {
-      function: 'or',
-      rules: grampsIds.map(grampsId => ({
-        name: 'HasIdOf',
-        values: [grampsId],
-      })),
-    }
-    const options = {
-      link_format: `${BASE_DIR}/{obj_class}/{gramps_id}`,
-    }
-    return `/api/notes/?locale=${
-      this.strings?.__lang__ || 'en'
-    }&profile=all&extend=all&formats=html&rules=${encodeURIComponent(
-      JSON.stringify(rules)
-    )}&format_options=${encodeURIComponent(JSON.stringify(options))}`
+  _handlePreviewClick(grampsId) {
+    fireEvent(this, 'nav', {path: `blog/${grampsId}`})
   }
 
   async _fetchData() {
@@ -147,24 +163,6 @@ export class GrampsjsViewBlog extends GrampsjsView {
         this._errorMessage = data.error
       }
     })
-    const uriNotes = this._getNotesUrl()
-    if (uriNotes) {
-      await apiGet(uriNotes).then(data => {
-        if ('data' in data) {
-          this.error = false
-          this._dataNotes = this._dataSources.map(obj => {
-            const noteGrampsId = obj?.extended?.notes[0]?.gramps_id
-            if (!noteGrampsId) {
-              return {}
-            }
-            return data.data.find(note => note.gramps_id === noteGrampsId) || {}
-          })
-        } else if ('error' in data) {
-          this.error = true
-          this._errorMessage = data.error
-        }
-      })
-    }
     this.loading = false
     this._firstLoaded = true
   }

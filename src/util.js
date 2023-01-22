@@ -546,3 +546,11 @@ export function renderIcon(obj) {
     >${objectIcon[obj.object_type]}</mwc-icon
   >`
 }
+
+export function clickKeyHandler(event) {
+  if (event.code === 'Enter' || event.code === 'Space') {
+    event.target.click()
+    event.preventDefault()
+    event.stopPropagation()
+  }
+}

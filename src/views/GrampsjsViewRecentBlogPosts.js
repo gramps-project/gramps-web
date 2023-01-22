@@ -60,8 +60,11 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
     `
   }
 
-  _handleClick() {
-    fireEvent(this, 'nav', {path: 'blog'})
+  _handleClick(event) {
+    const grampsId = event?.detail?.object?.gramps_id
+    if (grampsId) {
+      fireEvent(this, 'nav', {path: `blog/${grampsId}`})
+    }
   }
 
   getUrl() {

@@ -1,6 +1,7 @@
 import {html, css} from 'lit'
 
 import '@material/mwc-icon'
+import '@material/mwc-button'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditTitle.js'
@@ -64,12 +65,28 @@ export class GrampsjsSource extends GrampsjsObject {
             `
           : ''}
       </dl>
+      ${this._renderBlogBtn()}
     `
   }
 
   // eslint-disable-next-line class-methods-use-this
   renderPicture() {
     return ''
+  }
+
+  _renderBlogBtn() {
+    return html` <p style="clear: both; margin-top: 1em;">
+      <mwc-button
+        outlined
+        label="${this._('Show in blog')}"
+        @click="${this._handleButtonClick}"
+      >
+      </mwc-button>
+    </p>`
+  }
+
+  _handleButtonClick() {
+    fireEvent(this, 'nav', {path: `blog/${this.data.gramps_id}`})
   }
 
   _handleEditTitle() {

@@ -51,6 +51,7 @@ import './views/GrampsjsViewPlace.js'
 import './views/GrampsjsViewEvent.js'
 import './views/GrampsjsViewSource.js'
 import './views/GrampsjsViewBlog.js'
+import './views/GrampsjsViewBlogPost.js'
 import './views/GrampsjsViewCitation.js'
 import './views/GrampsjsViewDashboard.js'
 import './views/GrampsjsViewRepository.js'
@@ -519,9 +520,15 @@ export class GrampsJs extends LitElement {
             ></grampsjs-view-dashboard>
             <grampsjs-view-blog
               class="page"
-              ?active=${this._page === 'blog'}
+              ?active=${this._page === 'blog' && !this._pageId}
               .strings="${this._strings}"
             ></grampsjs-view-blog>
+            <grampsjs-view-blog-post
+              class="page"
+              ?active=${this._page === 'blog' && this._pageId}
+              grampsId="${this._pageId}"
+              .strings="${this._strings}"
+            ></grampsjs-view-blog-post>
 
             <grampsjs-view-people
               class="page"
