@@ -69,5 +69,8 @@
     "Contributor": "Współautor",
     "Owner": "Właściciel",
     "Editor": "Redaktor",
-    "Replace file": "Zastąp plik"
+    "Replace file": "Zastąp plik",
+    "Year": "Rok",
+    "Month": "Miesiąc",
+    "Day": "Dzień"
 }
