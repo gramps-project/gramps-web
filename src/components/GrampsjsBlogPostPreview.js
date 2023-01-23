@@ -55,6 +55,12 @@ export class GrampsjsBlogPostPreview extends GrampsjsTranslateMixin(
         #content {
           display: flex;
         }
+
+        @media (max-width: 500px) {
+          #image {
+            display: none;
+          }
+        }
       `,
     ]
   }

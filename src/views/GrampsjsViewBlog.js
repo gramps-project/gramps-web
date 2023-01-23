@@ -17,7 +17,10 @@ export class GrampsjsViewBlog extends GrampsjsView {
         #posts {
           display: grid;
           gap: 1em;
-          grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+          grid-template-columns: repeat(
+            auto-fill,
+            minmax(min(420px, 100%), 1fr)
+          );
         }
 
         .post {
@@ -34,11 +37,6 @@ export class GrampsjsViewBlog extends GrampsjsView {
         }
 
         .post > div {
-        }
-
-        @media (max-width: 768px) {
-          #posts {
-          }
         }
       `,
     ]
