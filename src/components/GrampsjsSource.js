@@ -75,6 +75,10 @@ export class GrampsjsSource extends GrampsjsObject {
   }
 
   _renderBlogBtn() {
+    const tags = this.data?.extended?.tags || []
+    if (!tags.filter(tag => tag.name === 'Blog').length > 0) {
+      return ''
+    }
     return html` <p style="clear: both; margin-top: 1em;">
       <mwc-button
         outlined
