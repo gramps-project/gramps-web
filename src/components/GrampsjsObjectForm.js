@@ -133,10 +133,12 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
 
   _handleDialogSave() {
     fireEvent(this, 'object:save', {data: this.data})
+    this._reset()
   }
 
   _handleDialogCancel() {
     fireEvent(this, 'object:cancel')
+    this._reset()
   }
 
   _openDialog() {
