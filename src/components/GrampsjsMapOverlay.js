@@ -58,8 +58,7 @@ class GrampsjsMapOverlay extends LitElement {
   updated(changed) {
     if (changed.has('bounds') || changed.has('opacity') || changed.has('url')) {
       this.updateOverlay()
-    }
-    if (changed.has('hidden')) {
+    } else if (changed.has('hidden')) {
       if (this.hidden) {
         this.removeOverlay()
       } else {
