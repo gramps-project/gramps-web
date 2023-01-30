@@ -69,5 +69,8 @@
     "Switch to custom type": "Перехід на користувацький тип",
     "Switch to default type": "Перехід на типовий тип",
     "Custom type": "Користувацький тип",
-    "Replace file": "Замінити файл"
+    "Replace file": "Замінити файл",
+    "Year": "Рік",
+    "Month": "Місяць",
+    "Day": "День"
 }
