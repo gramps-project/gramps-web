@@ -60,7 +60,7 @@
     "If you intend to synchronize an existing Gramps database with Gramps Web, use the Gramps XML (.gramps) format instead.": "Jos aiot synkronisoida olemassaolevan Gramps-tietokannan Gramps Webiin, käytä Gramps XML (.gramps) -muotoa tämän sijaan.",
     "Owner": "Omistaja",
     "Switch to custom type": "Vaihda mukautettuun tyyppiin",
-    "Switch to default type": "Vaihda oletus tyyppiin",
+    "Switch to default type": "Vaihda oletustyyppiin",
     "Custom type": "Mukautettu",
     "Global": "Globaali",
     "Year": "Vuosi",
@@ -70,7 +70,7 @@
     "disabled": "käytöstä poistettu",
     "Guest": "Vieras",
     "Member": "Jäsen",
-    "Contributor": "Edistäjä",
+    "Contributor": "Osallistuja",
     "Editor": "Muokkaaja",
     "Replace file": "Vaihda tiedosto"
 }
