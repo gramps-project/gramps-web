@@ -1,9 +1,10 @@
 import {html} from 'lit'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
-import {fireEvent, renderIcon, objectDetail} from '../util.js'
+import {fireEvent, renderIcon, objectDetail, makeHandle} from '../util.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormEventRef.js'
+import './GrampsjsFormNewEvent.js'
 import './GrampsjsObjectForm.js'
 import '@material/mwc-icon-button'
 import '@material/mwc-dialog'
@@ -112,13 +113,36 @@ export class GrampsjsEvents extends GrampsjsEditableList {
       <grampsjs-form-eventref
         new
         @object:save="${this._handleEventRefSave}"
-        @object:cancel="${this._handleEventRefCancel}"
+        @object:cancel="${this._handleDialogCancel}"
         .strings="${this.strings}"
         objType="${this.objType}"
         dialogTitle=${this._('Share an existing event')}
       >
       </grampsjs-form-eventref>
     `
+  }
+
+  _handleAdd() {
+    this.dialogContent = html`
+      <grampsjs-form-new-event
+        @object:save="${this._handleNewEventSave}"
+        @object:cancel="${this._handleDialogCancel}"
+        .strings="${this.strings}"
+        dialogTitle="${this._('Add a new event')}"
+      >
+      </grampsjs-form-new-event>
+    `
+  }
+
+  _handleNewEventSave(e) {
+    const handle = makeHandle()
+    fireEvent(this, 'edit:action', {
+      action: 'newEvent',
+      data: {handle, ...e.detail.data},
+    })
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
   }
 
   _handleEventRefSave(e) {
@@ -128,7 +152,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     this.dialogContent = ''
   }
 
-  _handleEventRefCancel() {
+  _handleDialogCancel() {
     this.dialogContent = ''
   }
 

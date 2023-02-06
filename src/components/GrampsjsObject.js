@@ -427,6 +427,8 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         }`
       case 'events':
         return html`<grampsjs-events
+          hasShare
+          hasAdd
           .strings=${this.strings}
           .data=${this.data?.extended?.events}
           .profile=${this.data?.profile?.events}

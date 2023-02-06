@@ -258,6 +258,23 @@ export class GrampsjsViewObject extends GrampsjsView {
           )
         }
       })
+    } else if (e.detail.action === 'newEvent') {
+      const {role, ...eventData} = e.detail.data
+      this._postObject(eventData, 'event').then(data => {
+        if ('data' in data) {
+          const eventRefData = {
+            _class: 'EventRef',
+            ref: e.detail.data.handle,
+            role,
+          }
+          this.addObject(
+            eventRefData,
+            this._data,
+            this._className,
+            'event_ref_list'
+          )
+        }
+      })
     } else if (e.detail.action === 'addCitation') {
       this.addHandle(
         e.detail.data.data[0],

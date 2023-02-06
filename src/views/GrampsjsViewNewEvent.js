@@ -8,12 +8,15 @@ import '@material/mwc-button'
 import '@material/mwc-circular-progress'
 
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
+import {GrampsjsNewEventMixin} from '../mixins/GrampsjsNewEventMixin.js'
 import '../components/GrampsjsFormSelectDate.js'
 import '../components/GrampsjsFormSelectObjectList.js'
 import '../components/GrampsjsFormSelectType.js'
 import '../components/GrampsjsFormPrivate.js'
 
-export class GrampsjsViewNewEvent extends GrampsjsViewNewObject {
+export class GrampsjsViewNewEvent extends GrampsjsNewEventMixin(
+  GrampsjsViewNewObject
+) {
   constructor() {
     super()
     this.data = {_class: 'Event'}
@@ -26,48 +29,8 @@ export class GrampsjsViewNewEvent extends GrampsjsViewNewObject {
     return html`
       <h2>${this._('New Event')}</h2>
 
-      <grampsjs-form-select-type
-        required
-        id="select-type"
-        .strings="${this.strings}"
-        ?loadingTypes="${this.loadingTypes}"
-        typeName="event_types"
-        .types="${this.types}"
-        .typesLocale="${this.typesLocale}"
-      >
-      </grampsjs-form-select-type>
-
-      <h4 class="label">${this._('Date')}</h4>
-      <p>
-        <grampsjs-form-select-date id="date" .strings="${this.strings}">
-        </grampsjs-form-select-date>
-      </p>
-
-      <h4 class="label">${this._('Description')}</h4>
-      <p>
-        <mwc-textfield
-          style="width:100%;"
-          @input="${this.handleDesc}"
-          id="desc"
-        ></mwc-textfield>
-      </p>
-
-      <h4 class="label">${this._('Place')}</h4>
-      <grampsjs-form-select-object-list
-        id="place"
-        objectType="place"
-        .strings="${this.strings}"
-      ></grampsjs-form-select-object-list>
-
-      <div class="spacer"></div>
-      <grampsjs-form-private
-        id="private"
-        .strings="${this.strings}"
-      ></grampsjs-form-private>
-
-      ${this.renderButtons()}
+      ${this.renderForm()} ${this.renderButtons()}
     `
-    // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
 
   handleDesc(e) {
@@ -77,7 +40,7 @@ export class GrampsjsViewNewEvent extends GrampsjsViewNewObject {
   _handleFormData(e) {
     this.checkFormValidity()
     const originalTarget = e.composedPath()[0]
-    if (originalTarget.id === 'select-type') {
+    if (originalTarget.id === 'event-type') {
       this.data = {
         ...this.data,
         type: {_class: 'EventType', string: e.detail.data},
