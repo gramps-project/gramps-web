@@ -141,26 +141,30 @@ export class GrampsjsViewPedigree extends GrampsjsView {
           id="btn-controls"
           @click=${this._openMenuControls}
         ></mwc-icon-button>
-        <mwc-menu
-          id="menu-controls"
-          corner="BOTTOM_RIGHT"
-          menuCorner="START"
-          defaultFocus="NONE"
-        >
-          <mwc-list-item noninteractive>
-            ${this._('Number of generations:')}
-          </mwc-list-item>
-          <mwc-list-item class="slider">
-            <mwc-slider
-              value="${this._depth}"
-              min="2"
-              max="6"
-              step="1"
-              @change="${this._updateDepth}"
-              pin
-            ></mwc-slider>
-          </mwc-list-item>
-        </mwc-menu>
+        <mwc-dialog id="menu-controls">
+          <p>
+            <span
+              >${this._('Max Ancestor Generations')}:
+              <b style="margin: 1em 0;">${this._depth}</b>
+            </span>
+            <mwc-icon-button
+              icon="add"
+              @click=${this._increaseDepth}
+              style="margin-right: -6px;"
+            ></mwc-icon-button>
+            <mwc-icon-button
+              icon="remove"
+              @click=${this._decreaseDepth}
+              ?disabled=${this.nAnc === 0}
+            ></mwc-icon-button>
+          </p>
+          <mwc-button slot="primaryAction" dialogAction="close"
+            >${this._('done')}</mwc-button
+          >
+          <mwc-button slot="secondaryAction" @click="${this._resetLevels}"
+            >${this._('Reset')}</mwc-button
+          >
+        </mwc-dialog>
       </div>
     </div>`
   }
@@ -229,10 +233,16 @@ export class GrampsjsViewPedigree extends GrampsjsView {
     }
   }
 
-  _updateDepth(event) {
-    if (event.detail.value) {
-      this._depth = event.detail.value
-    }
+  _increaseDepth() {
+    this._depth += 1
+  }
+
+  _decreaseDepth() {
+    this._depth -= 1
+  }
+
+  _resetLevels() {
+    this._depth = 3
   }
 
   getZoom() {
