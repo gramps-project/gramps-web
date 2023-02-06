@@ -133,7 +133,7 @@ export async function apiGetTokens(username, password) {
   }
 }
 
-export async function apiRefreshAuthToken() {
+export async function apiRefreshAuthToken(attempts = 3) {
   const refreshToken = localStorage.getItem('refresh_token')
   if (refreshToken === null) {
     return {error: 'No refresh token found!'}
@@ -150,6 +150,12 @@ export async function apiRefreshAuthToken() {
     if (resp.status === 403 || resp.status === 422) {
       doLogout()
       throw new Error('Failed refreshing token')
+    }
+    // handle 429 too-many-attempts
+    if (resp.status === 429 && attempts > 0) {
+      // retry after 1s
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      return apiRefreshAuthToken(attempts - 1)
     }
     const data = await resp.json()
     if (data.access_token === undefined) {
