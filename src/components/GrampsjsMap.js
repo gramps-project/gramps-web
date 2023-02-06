@@ -94,7 +94,9 @@ class GrampsjsMap extends LitElement {
         control.locate({position: 'bottomright', drawCircle: false})
       )
     }
-    this._layercontrol = control.layers({OpenStreetMap: tileLayer})
+    this._layercontrol = control.layers({OpenStreetMap: tileLayer}, null, {
+      position: 'bottomleft',
+    })
     if (this.layerSwitcher) {
       this._map.addControl(this._layercontrol)
     }
