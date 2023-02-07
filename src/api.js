@@ -71,7 +71,7 @@ export async function apiResetPassword(username) {
         'The server encountered an error while trying to send the e-mail.'
       )
     }
-    if (resp.status !== 201) {
+    if (resp.status !== 201 && resp.status !== 202) {
       throw new Error(`Error ${resp.status}`)
     }
     return {}
@@ -254,7 +254,7 @@ async function apiPutPost(
     if (resp.status === 400 || resp.status === 403) {
       throw new Error('Authorization error')
     }
-    if (resp.status !== 201 && resp.status !== 200) {
+    if (resp.status !== 201 && resp.status !== 200 && resp.status !== 202) {
       throw new Error(`Error ${resp.status}`)
     }
     if (dbChanged) {
