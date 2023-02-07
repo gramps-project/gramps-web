@@ -355,7 +355,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           ></grampsjs-names>
         `
       case 'enclosed':
-        return html` ${this.data.placeref_list?.length
+        return html` ${this.data.placeref_list?.length || this.edit
           ? html`
       <h4>${this._('Enclosed By')}</h3>
         <grampsjs-place-refs
