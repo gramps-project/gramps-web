@@ -262,15 +262,20 @@ async function apiPutPost(
         new CustomEvent('db:changed', {bubbles: true, composed: true})
       )
     }
+    let resJson
     try {
-      return {
-        data: await resp.json(),
-        total_count: resp.headers.get('X-Total-Count'),
-        etag: resp.headers.get('ETag'),
-      }
+      resJson = await resp.json()
     } catch (error) {
       // if JSON parsing fails, return empty response
       return {}
+    }
+    if (resp.status === 202 && 'task' in resJson) {
+      return resJson
+    }
+    return {
+      data: resJson,
+      total_count: resp.headers.get('X-Total-Count'),
+      etag: resp.headers.get('ETag'),
     }
   } catch (error) {
     return {error: error.message}
@@ -363,5 +368,29 @@ export async function queryNominatim(q) {
     return {data: await resp.json()}
   } catch (error) {
     return {error: error.message}
+  }
+}
+
+async function fetchStatus(taskId) {
+  const res = await apiGet(`/api/tasks/${taskId}`)
+  return res.data
+}
+
+export async function updateTaskStatus(
+  taskId,
+  statusCallback,
+  maxPolls = Infinity
+) {
+  const doneStates = ['FAILURE', 'REVOKED', 'SUCCESS']
+  let i = 0
+  let status = {}
+  while (!doneStates.includes(status.state) && i < maxPolls) {
+    // eslint-disable-next-line no-await-in-loop
+    status = await fetchStatus(taskId)
+    statusCallback(status)
+    // wait for 1s
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    i += 1
   }
 }

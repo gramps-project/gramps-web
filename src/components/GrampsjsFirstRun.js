@@ -6,13 +6,20 @@ import '@material/mwc-textfield'
 import '@material/mwc-circular-progress'
 
 import './GrampsjsPasswordManagerPolyfill.js'
-import {mdiCheckCircle, mdiCloseCircle} from '@mdi/js'
+import {mdiCheckCircle} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
-import {__APIHOST__, apiGetTokens, apiPut, apiPost} from '../api.js'
+import {
+  __APIHOST__,
+  apiGetTokens,
+  apiPut,
+  apiPost,
+  updateTaskStatus,
+} from '../api.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import './GrampsjsFormUpload.js'
 import {renderIcon} from '../icons.js'
+import './GrampsjsProgressIndicator.js'
 
 const STATE_ERROR = -1
 const STATE_INITIAL = 0
@@ -58,24 +65,10 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
           line-height: 1.6;
         }
 
-        .icon {
+        .progress {
           position: relative;
-          top: 2px;
-          opacity: 0.85;
-          font-size: 1.2em;
-          padding-left: 0.5em;
-        }
-
-        .success {
-          color: #41ad49;
-        }
-
-        .error {
-          color: #bf360c;
-        }
-
-        .warn {
-          color: #f9a825;
+          top: 0.2em;
+          margin-left: 0.5em;
         }
 
         .alert {
@@ -304,37 +297,18 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
 
   // eslint-disable-next-line class-methods-use-this
   _showProgress(text, status) {
-    if (status === STATE_PROGRESS) {
-      return html`
-        <br />
-        ${text}
-        <span class="icon">
-          <mwc-circular-progress
-            indeterminate
-            density="-7"
-          ></mwc-circular-progress>
-        </span>
-      `
-    }
-    if (status === STATE_DONE) {
-      return html`
-      <br>
-      <span class="success">${text}</a>
-      <span class="icon">
-        ${renderIcon(mdiCheckCircle, '#41AD49')}
+    const progress = status === STATE_DONE ? 1 : -1
+    return html`
+      <br />
+      ${text}
+      <span class="progress">
+        <grampsjs-progress-indicator
+          ?open="${status !== STATE_INITIAL && status !== STATE_READY}"
+          ?error="${status === STATE_ERROR}"
+          progress="${progress}"
+        ></grampsjs-progress-indicator>
       </span>
-      `
-    }
-    if (status === STATE_ERROR) {
-      return html`
-      <br>
-      <span class="error">${text}</a>
-      <span class="icon">
-        ${renderIcon(mdiCloseCircle, '#BF360C')}
-      </span>
-      `
-    }
-    return ''
+    `
   }
 
   async _submit() {
@@ -424,6 +398,14 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     const res = await apiPost(`/api/importers/${ext}/file`, file, false)
     if ('error' in res) {
       this.stateTree = STATE_ERROR
+    } else if ('task' in res) {
+      updateTaskStatus(res.task.id, status => {
+        if (status.state === 'SUCCESS') {
+          this.stateTree = STATE_DONE
+        } else if (status.state === 'FAILURE' || status.state === 'REVOKED') {
+          this.stateTree = STATE_ERROR
+        }
+      })
     } else {
       this.stateTree = STATE_DONE
     }
