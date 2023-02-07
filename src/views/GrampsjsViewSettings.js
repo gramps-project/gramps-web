@@ -1,4 +1,4 @@
-import {html} from 'lit'
+import {css, html} from 'lit'
 
 import {GrampsjsViewSettingsOnboarding} from './GrampsjsViewSettingsOnboarding.js'
 import '../components/GrampsjsUsers.js'
@@ -6,6 +6,8 @@ import {doLogout, apiPost, apiPut, apiGet} from '../api.js'
 import '@material/mwc-textfield'
 import '@material/mwc-button'
 import '@material/mwc-select'
+import '@material/mwc-tab'
+import '@material/mwc-tab-bar'
 
 function renderLogoutButton() {
   return html`
@@ -20,10 +22,25 @@ function renderLogoutButton() {
 }
 
 export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        :host {
+        }
+
+        mwc-tab-bar {
+          margin-bottom: 30px;
+        }
+      `,
+    ]
+  }
+
   static get properties() {
     return {
       users: {type: Boolean},
       userData: {type: Array},
+      page: {type: String},
     }
   }
 
@@ -31,12 +48,56 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     super()
     this.users = false
     this.userData = []
+    this.page = 'user'
   }
 
   renderContent() {
     return html`
-      <h2>${this._('User settings')}</h2>
+      <mwc-tab-bar>
+        <mwc-tab
+          label="${this._('User settings')}"
+          ?active="${this.page === 'user'}"
+          @click=${() => {
+            this.page = 'user'
+          }}
+        ></mwc-tab>
+        ${this.users
+          ? html`
+              <mwc-tab
+                label="${this._('Administration')}"
+                ?active="${this.page === 'admin'}"
+                @click=${() => {
+                  this.page = 'admin'
+                }}
+              ></mwc-tab>
+            `
+          : ''}
+      </mwc-tab-bar>
+      ${this.page === 'user' ? this.renderUserSettings() : ''}
+      ${this.page === 'admin' && this.users ? this.renderAdminSettings() : ''}
+    `
+  }
 
+  renderAdminSettings() {
+    return html`
+      ${this.users
+        ? html`
+            <h3>${this._('Manage users')}</h3>
+
+            <grampsjs-users
+              .strings="${this.strings}"
+              .data="${this.userData}"
+              @user:updated="${this._handleUserChanged}"
+              @user:added="${this._handleUserAdded}"
+            >
+            </grampsjs-users>
+          `
+        : ''}
+    `
+  }
+
+  renderUserSettings() {
+    return html`
       ${renderLogoutButton()}
 
       <h3>${this._('Select language')}</h3>
@@ -54,19 +115,6 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       <h3>${this._('Change password')}</h3>
 
       ${this.renderChangePw()}
-      ${this.users
-        ? html`
-            <h2>${this._('Manage users')}</h2>
-
-            <grampsjs-users
-              .strings="${this.strings}"
-              .data="${this.userData}"
-              @user:updated="${this._handleUserChanged}"
-              @user:added="${this._handleUserAdded}"
-            >
-            </grampsjs-users>
-          `
-        : ''}
     `
   }
 
