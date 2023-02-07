@@ -45,7 +45,7 @@
     "Optionally, upload existing family tree data.": "Optional kannst du vorhandene Stammbaumdaten hochladen.",
     "Need help? Check out ": "Brauchst du Hilfe? Siehe unter ",
     "the documentation": "die Dokumentation",
-    "Submit": "Einreichen",
+    "Submit": "Absenden",
     "Unsupported format": "Nicht unterstütztes Format",
     "The Gramps package format (.gpkg) is currently not supported.": "Das Gramps-Paketformat (.gpkg) wird derzeit nicht unterstützt.",
     "Please upload a file in Gramps XML (.gramps) format without media files.": "Bitte lade eine Datei im Gramps XML (.gramps) Format ohne Mediendateien hoch.",
