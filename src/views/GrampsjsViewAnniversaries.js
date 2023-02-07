@@ -117,7 +117,7 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
     const d = now.getDate()
     return `/api/events/?dates=*/${m}/${d}&profile=all&sort=-date&locale=${
       this.strings.__lang__ || 'en'
-    }`
+    }&pagesize=10&page=1`
   }
 }
 
