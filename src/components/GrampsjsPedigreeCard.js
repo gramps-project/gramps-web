@@ -115,11 +115,17 @@ class GrampsjsPedigreeCard extends LitElement {
               <br />
               <span class="dates">
                 ${this.person?.profile?.birth?.date
-                  ? html`* ${this.person.profile.birth.date}`
+                  ? html`*
+                    ${new Date(
+                      Date.parse(this.person.profile.birth.date)
+                    ).toLocaleDateString()}`
                   : ''}
                 <br />
                 ${this.person?.profile?.death?.date
-                  ? html`† ${this.person.profile.death.date}`
+                  ? html`†
+                    ${new Date(
+                      Date.parse(this.person.profile.death.date)
+                    ).toLocaleDateString()}`
                   : ''}
               </span>
               <div class="more">
