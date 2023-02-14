@@ -33,18 +33,6 @@ export default merge(baseConfig, {
         {src: './manifest.json', dest: 'dist/'},
         {src: './images/**/*', dest: 'dist/images'},
         {src: './fonts/**/*', dest: 'dist/fonts'},
-        {
-          src: 'node_modules/@hpcc-js/wasm/dist/graphvizlib.wasm',
-          dest: 'dist/',
-        },
-        {
-          src: 'node_modules/@hpcc-js/wasm/dist/graphvizlib.wasm',
-          dest: 'dist/@hpcc-js/wasm',
-        },
-        {
-          src: 'node_modules/@hpcc-js/wasm/dist/index.min.js',
-          dest: 'dist/@hpcc-js/wasm',
-        },
       ],
     }),
     replace({

@@ -63,7 +63,6 @@ import './views/GrampsjsViewSettingsOnboarding.js'
 import './views/GrampsjsViewRecent.js'
 import './views/GrampsjsViewMap.js'
 import './views/GrampsjsViewTree.js'
-import './views/GrampsjsViewGraph.js'
 import './views/GrampsjsViewNewPerson.js'
 import './views/GrampsjsViewNewFamily.js'
 import './views/GrampsjsViewNewEvent.js'
@@ -597,14 +596,6 @@ export class GrampsJs extends LitElement {
               .strings="${this._strings}"
               .settings="${this.settings}"
             ></grampsjs-view-tree>
-            <grampsjs-view-graph
-              class="page"
-              ?active=${this._page === 'graph'}
-              grampsId="${this.settings.homePerson}"
-              .strings="${this._strings}"
-              .settings="${this.settings}"
-            ></grampsjs-view-graph>
-
             <grampsjs-view-person
               class="page"
               ?active=${this._page === 'person'}
