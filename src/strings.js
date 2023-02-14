@@ -248,7 +248,7 @@ export const grampsStrings = [
   'Matrilineal',
   'Matronymic',
   'Max Ancestor Generations',
-  'Max descendant Generations',
+  'Max Descendant Generations',
   'Media Note',
   'Media Object',
   'Media Objects',

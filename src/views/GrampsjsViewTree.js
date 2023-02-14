@@ -2,20 +2,23 @@ import {css, html} from 'lit'
 
 import '@material/mwc-icon-button'
 import '@material/mwc-icon'
+import '@material/mwc-tab-bar'
+import '@material/mwc-tab'
 
+import {mdiFamilyTree} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
-import './GrampsjsViewGraph.js'
-import './GrampsjsViewPedigree.js'
+import './GrampsjsViewTreeChart.js'
+import './GrampsjsViewFanChart.js'
 import {fireEvent} from '../util.js'
+import {chartFanIconPath, renderIconSvg} from '../icons.js'
 
 export class GrampsjsViewTree extends GrampsjsView {
   static get styles() {
     return [
       super.styles,
       css`
-        :host {
-          margin: 0;
-          margin-top: -4px;
+        mwc-tab-bar {
+          margin-bottom: 20px;
         }
 
         .with-margin {
@@ -37,6 +40,14 @@ export class GrampsjsViewTree extends GrampsjsView {
           --mdc-theme-text-disabled-on-light: #666;
           --mdc-icon-size: 32px;
         }
+
+        mwc-tab {
+          opacity: 0.8;
+        }
+
+        mwc-tab[active] {
+          opacity: 1;
+        }
       `,
     ]
   }
@@ -46,14 +57,16 @@ export class GrampsjsViewTree extends GrampsjsView {
       grampsId: {type: String},
       view: {type: String},
       _history: {type: Array},
+      _currentTabId: {type: Number},
     }
   }
 
   constructor() {
     super()
     this.grampsId = ''
-    this.view = 'pedigree'
+    this.view = 'ancestor'
     this._history = this.grampsId ? [this.grampsId] : []
+    this._currentTabId = 0
   }
 
   renderContent() {
@@ -68,37 +81,66 @@ export class GrampsjsViewTree extends GrampsjsView {
       `
     }
     return html`
-      ${this.view === 'pedigree' ? this._renderPedigree() : ''}
-      ${this.view === 'graph' ? this._renderGraph() : ''}
-      ${this._renderSelect()}
+      ${this.renderTabs()}
+      ${this._currentTabId === 0 ? this._renderPedigree() : ''}
+      ${this._currentTabId === 1 ? this._renderFan() : ''}
     `
   }
 
-  _renderSelect() {
+  renderTabs() {
     return html`
-      <div id="select">
-        <mwc-icon-button
-          ?disabled=${this.view === 'pedigree'}
+      <mwc-tab-bar
+        .activeIndex=${this._currentTabId}
+        @MDCTabBar:activated=${this._handleTabActivated}
+        @MDCTab:interacted=${this._handleTabInteracted}
+      >
+        <mwc-tab
           @click=${() => {
-            this.view = 'pedigree'
+            this._currentTabId = 0
           }}
-          icon="text_rotation_none"
-          style="margin-left: -5px;"
-        ></mwc-icon-button>
-        <mwc-icon-button
-          ?disabled=${this.view === 'graph'}
+          hasImageIcon
+          label="${this._('Ancestor Tree')}"
+          ><span slot="icon"
+            >${renderIconSvg(mdiFamilyTree, 'var(--mdc-theme-primary)')}</span
+          >
+        </mwc-tab>
+        <mwc-tab
           @click=${() => {
-            this.view = 'graph'
+            this._currentTabId = 1
           }}
-          icon="text_rotate_vertical"
-        ></mwc-icon-button>
-      </div>
+          hasImageIcon
+          label="${this._('Fan Chart')}"
+          ><span slot="icon"
+            >${renderIconSvg(
+              chartFanIconPath,
+              'var(--mdc-theme-primary)'
+            )}</span
+          >
+        </mwc-tab>
+      </mwc-tab-bar>
+    `
+  }
+
+  _renderFan() {
+    return html`
+      <grampsjs-view-fan-chart
+        @tree:back="${this._prevPerson}"
+        @tree:person="${this._goToPerson}"
+        @tree:home="${this._backToHomePerson}"
+        grampsId=${this.grampsId}
+        ?active=${this.active}
+        .strings=${this.strings}
+        .settings=${this.settings}
+        ?disableBack=${this._history.length < 2}
+        ?disableHome=${this.grampsId === this.settings.homePerson}
+      >
+      </grampsjs-view-fan-chart>
     `
   }
 
   _renderPedigree() {
     return html`
-      <grampsjs-view-pedigree
+      <grampsjs-view-tree-chart
         @tree:back="${this._prevPerson}"
         @tree:person="${this._goToPerson}"
         @tree:home="${this._backToHomePerson}"
@@ -109,33 +151,8 @@ export class GrampsjsViewTree extends GrampsjsView {
         ?disableBack=${this._history.length < 2}
         ?disableHome=${this.grampsId === this.settings.homePerson}
       >
-      </grampsjs-view-pedigree>
+      </grampsjs-view-tree-chart>
     `
-  }
-
-  _renderGraph() {
-    return html`
-      <grampsjs-view-graph
-        @tree:back="${this._prevPerson}"
-        @tree:person="${this._goToPerson}"
-        @tree:home="${this._backToHomePerson}"
-        grampsId=${this.grampsId}
-        ?active=${this.active}
-        .strings=${this.strings}
-        .settings=${this.settings}
-        ?disableBack=${this._history.length < 2}
-        ?disableHome=${this.grampsId === this.settings.homePerson}
-      >
-      </grampsjs-view-graph>
-    `
-  }
-
-  _handleSelect(event) {
-    if (event.detail.index === 0) {
-      this.view = 'pedigree'
-    } else if (event.detail.index === 1) {
-      this.view = 'graph'
-    }
   }
 
   _prevPerson() {
@@ -171,6 +188,14 @@ export class GrampsjsViewTree extends GrampsjsView {
   async _selectPerson(event) {
     const {grampsId} = event.detail
     this.grampsId = grampsId
+  }
+
+  _handleTabActivated(event) {
+    this._currentTabId = event.detail.index
+  }
+
+  _handleTabInteracted(event) {
+    this._currentTab = event.detail.tabId
   }
 }
 
