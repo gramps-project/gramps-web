@@ -206,14 +206,12 @@ export class GrampsjsViewMap extends GrampsjsView {
       }
       const highlighted = this._handlesHighlight.includes(obj.handle)
       return html` <grampsjs-map-marker
-        latitude="${obj.profile.lat}"
-        longitude="${obj.profile.long}"
+        .placeData="${obj}"
+        .strings=${this.strings}
         size="${highlighted ? 48 : 32}"
         opacity="${!highlighted && this._handlesHighlight.length > 0
           ? 0.55
           : 0.9}"
-        popupLabel="<a href='place/${obj.profile.gramps_id}'>${obj.profile
-          .name}</a>"
         @marker:clicked="${() => this._handleMarkerClick(obj)}"
       ></grampsjs-map-marker>`
     })
