@@ -2,6 +2,31 @@ import {create} from 'd3-selection'
 import {hierarchy, tree} from 'd3-hierarchy'
 import {curveBumpX, link, symbolTriangle, symbol} from 'd3-shape'
 
+// Returns the total depth of the tree
+function countDepthOfTree(treeData) {
+  if (treeData == null) {
+    return 0
+  }
+  return (
+    1 +
+    Math.max(
+      countDepthOfTree(treeData?.children?.[0]),
+      countDepthOfTree(treeData?.children?.[1])
+    )
+  )
+}
+// Returns the approximate number of nodes tall the tree is
+function countHeightOfTree(treeData) {
+  if (treeData == null) {
+    return 0
+  }
+  return Math.max(
+    1,
+    countHeightOfTree(treeData?.children?.[0]) +
+      countHeightOfTree(treeData?.children?.[1])
+  )
+}
+
 export function TreeChart(
   data,
   {
@@ -27,6 +52,17 @@ export function TreeChart(
 
   const descendants = root.descendants()
 
+  // The true depth of the tree may be less than the passed in "depth" if the tree just doesn't
+  // go that far back
+  const trueDepth = Math.min(countDepthOfTree(data), depth)
+  // Count the node height above the home node
+  const approxNodesAboveHome = countHeightOfTree(data?.children?.[0])
+  // and the total node height
+  const approxVerticalNodeCount = Math.max(
+    1,
+    approxNodesAboveHome + countHeightOfTree(data?.children?.[1])
+  )
+
   tree()
     .nodeSize([boxHeight + gapY, boxWidth + gapX])
     .separation((a, b) => (a.parent === b.parent ? 1 : 1))(root)
@@ -44,12 +80,14 @@ export function TreeChart(
 
   // Use the required curve
   if (typeof curve !== 'function') throw new Error('Unsupported curve')
-
-  const width = depth * boxWidth + (depth - 1) * gapX + 2 * padding
-  const height = boxHeight * 2 ** (depth - 1) + (2 ** (depth - 1) - 1) * gapY
+  const width = trueDepth * boxWidth + (trueDepth - 1) * gapX + 2 * padding
+  // add a boxHeight padding to top and bottom of the tree
+  const height = (boxHeight + gapY) * (approxVerticalNodeCount + 2)
+  // offset the SVG by the approximate height of the nodes above the home
+  const yOffset = -(boxHeight + gapY) * (approxNodesAboveHome + 1)
 
   const svg = create('svg')
-    .attr('viewBox', [-boxWidth / 2 - padding, -height / 2, width, height])
+    .attr('viewBox', [-boxWidth / 2 - padding, yOffset, width, height])
     .attr('width', width)
     .attr('height', height)
     .attr('style', 'max-width: 100%; height: auto; height: intrinsic;')
