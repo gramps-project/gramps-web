@@ -51,15 +51,12 @@ class GrampsjsFanChart extends GrampsjsTranslateMixin(LitElement) {
       return ''
     }
     const data = getTree(this.data, handle, this.depth)
-    const radius = this.depth * 60
-    const margin = 5
+    const arcRadius = 60
     return html`
       <div id="container">
         ${FanChart(data, {
-          margin,
-          radius,
-          width: 2 * radius + margin,
-          height: 2 * radius + margin,
+          depth: this.depth,
+          arcRadius,
         })}
       </div>
     `
