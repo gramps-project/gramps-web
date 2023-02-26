@@ -11,30 +11,82 @@ function defaultColor(d) {
   return schemePaired[ind]
 }
 
+// Finds the bounding rectangle of a list of rectangles
+function unionBounds(...bounds) {
+  return {
+    minX: Math.min(...bounds.map(({minX}) => minX)),
+    minY: Math.min(...bounds.map(({minY}) => minY)),
+    maxX: Math.max(...bounds.map(({maxX}) => maxX)),
+    maxY: Math.max(...bounds.map(({maxY}) => maxY)),
+  }
+}
+
+// Puts the cartesian coordinates of a polar coordinate into the format of a bounding box
+function angleBounds(radius, theta) {
+  const x1 = radius * Math.cos(theta)
+  const y1 = radius * Math.sin(theta)
+  return {minX: x1, minY: y1, maxX: x1, maxY: y1}
+}
+// Returns true if the treeData contains a real person
+function isRealPerson(treeData) {
+  return treeData != null && Object.keys(treeData.person).length > 0
+}
+// Finds the bounding box of the series of arcs that are used to represent the ancestry treeData
+function getArcBounds(
+  treeData,
+  radius,
+  // Level of ancestor out from the home person (starting because of math at -1)
+  arcLevel = -1,
+  // Index into the 2^arcLevel divisions that are made at each level of ancestor
+  arcCount = 0,
+  currentBounds = {minX: -radius, minY: -radius, maxX: radius, maxY: radius}
+) {
+  if (!isRealPerson(treeData)) {
+    return currentBounds
+  }
+  if (treeData?.children?.some(isRealPerson)) {
+    return unionBounds(
+      ...treeData.children.map((child, index) =>
+        getArcBounds(
+          child,
+          radius,
+          arcLevel + 1,
+          arcCount * 2 + index,
+          currentBounds
+        )
+      )
+    )
+  }
+  // the angle over which this tree arcs, e.g. PI or 180º for the zeroth level, PI / 2 for the first level, etc
+  const arcSweep = Math.PI / 2 ** arcLevel
+
+  const minAngle = arcSweep * arcCount - Math.PI
+  // check on the begining, middle, and end of the arc
+  const anglesToCheck = [minAngle, minAngle + arcSweep / 2, minAngle + arcSweep]
+  return unionBounds(
+    currentBounds,
+    ...anglesToCheck.map(theta => angleBounds(radius * (arcLevel + 2), theta))
+  )
+}
+
 export function FanChart(
   data,
   {
-    width = 600, // outer width, in pixels
-    height = 600, // outer height, in pixels
-    margin = 1, // shorthand for margins
-    marginTop = margin, // top margin, in pixels
-    marginRight = margin, // right margin, in pixels
-    marginBottom = margin, // bottom margin, in pixels
-    marginLeft = margin, // left margin, in pixels
+    depth = 5,
+    arcRadius = 60,
     padding = 3, // separation between arcs
     color = defaultColor,
-    radius = Math.min(
-      width - marginLeft - marginRight,
-      height - marginTop - marginBottom
-    ) / 2, // outer radius
   } = {}
 ) {
   // Create a hierarchical data structure based on the input data
   const root = hierarchy(data)
-
+  const {minX, minY, maxX, maxY} = getArcBounds(data, arcRadius)
+  const width = maxX - minX
+  const height = maxY - minY
   // Compute the value of each node in the hierarchy
   root.count()
-
+  // Maximum possible radius of the chart
+  const radius = depth * arcRadius
   // Create a partition layout and apply it to the root node to produce a radial layout
   // (polar coordinates: x is angle, y is radius)
   partition().size([2 * Math.PI, radius])(root)
@@ -58,12 +110,7 @@ export function FanChart(
     .outerRadius(d => d.y0 + 3)
 
   const svg = create('svg')
-    .attr('viewBox', [
-      marginRight - marginLeft - width / 2,
-      marginBottom - marginTop - height / 2,
-      width,
-      height,
-    ])
+    .attr('viewBox', [minX, minY, width, height])
     .attr('width', width)
     .attr('height', height)
     .attr('style', 'max-width: 100%; height: auto; height: intrinsic;')
@@ -93,7 +140,6 @@ export function FanChart(
     .attr('fill', d =>
       d.data.id.slice(-1) === 'm' ? 'var(--color-girl)' : 'var(--color-boy)'
     )
-
   function clicked(event, d) {
     dispatchEvent(
       new CustomEvent('pedigree:person-selected', {
