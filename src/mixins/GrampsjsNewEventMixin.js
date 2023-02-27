@@ -11,7 +11,6 @@ export const GrampsjsNewEventMixin = superClass =>
   class extends superClass {
     renderForm() {
       return html`
-        <pre>${JSON.stringify(this.data, null, 2)}</pre>
         <grampsjs-form-select-type
           required
           id="event-type"
