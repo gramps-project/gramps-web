@@ -78,8 +78,6 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-    <pre>${JSON.stringify(this.data, null, 2)}</pre>
-
     <p>
       <mwc-select
         id="select-modifier"
