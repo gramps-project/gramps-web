@@ -60,7 +60,7 @@ export class GrampsjsCitation extends GrampsjsObject {
             `
           : ''}
         <div>
-          <dt>${this._('Con_fidence')}</dt>
+          <dt>${this._('Confidence')}</dt>
           <dd>${this._(confidence[this.data.confidence])}</dd>
         </div>
       </dl>

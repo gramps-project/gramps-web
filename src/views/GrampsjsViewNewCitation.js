@@ -45,7 +45,7 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
         </grampsjs-form-select-date>
       </p>
 
-      <h4 class="label">${this._('Con_fidence')}</h4>
+      <h4 class="label">${this._('Confidence')}</h4>
       <mwc-select id="select-confidence" @change="${this.handleConfidence}">
         ${Object.keys(confidence).map(
           conf => html`
