@@ -76,6 +76,7 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
       hasAdd: {type: Boolean},
       hasShare: {type: Boolean},
       hasEdit: {type: Boolean},
+      hasReorder: {type: Boolean},
       _selectedIndex: {type: Number},
     }
   }
@@ -90,6 +91,7 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
     this.hasAdd = true
     this.hasShare = false
     this.hasEdit = false
+    this.hasReorder = false
     this._selectedIndex = -1
   }
 
@@ -152,6 +154,24 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
               class="edit"
               icon="edit"
               @click="${this._handleEdit}"
+            ></mwc-icon-button>
+          `
+        : ''}
+      ${this.hasReorder
+        ? html`
+            <mwc-icon-button
+              ?disabled="${this._selectedIndex === -1 ||
+              this._selectedIndex === 0}"
+              class="edit"
+              icon="arrow_upward"
+              @click="${this._handleUp}"
+            ></mwc-icon-button>
+            <mwc-icon-button
+              ?disabled="${this._selectedIndex === -1 ||
+              this._selectedIndex === this.data.length - 1}"
+              class="edit"
+              icon="arrow_downward"
+              @click="${this._handleDown}"
             ></mwc-icon-button>
           `
         : ''}
