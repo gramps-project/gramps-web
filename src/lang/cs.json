@@ -68,5 +68,10 @@
     "Member": "Člen",
     "Contributor": "Přispěvatel",
     "Editor": "Editor",
-    "Owner": "Majitel"
+    "Owner": "Majitel",
+    "Year": "Rok",
+    "Month": "Měsíc",
+    "Day": "Den",
+    "Administration": "Administrace",
+    "Replace file": "Nahradit soubor"
 }
