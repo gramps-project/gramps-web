@@ -70,5 +70,8 @@
     "unconfirmed": "nepotvrdené",
     "disabled": "vypnuté",
     "Year": "Rok",
-    "Replace file": "Nahradiť súbor"
+    "Replace file": "Nahradiť súbor",
+    "Month": "Mesiac",
+    "Day": "Deň",
+    "Administration": "Administrácia"
 }
