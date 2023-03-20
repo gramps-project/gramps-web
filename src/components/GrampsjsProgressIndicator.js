@@ -36,6 +36,7 @@ export class GrampsjsProgressIndicator extends LitElement {
       size: {type: Number},
       error: {type: Boolean},
       open: {type: Boolean},
+      _errorMessage: {type: String},
     }
   }
 
@@ -45,6 +46,13 @@ export class GrampsjsProgressIndicator extends LitElement {
     this.size = 24
     this.error = false
     this.open = false
+    this._errorMessage = ''
+  }
+
+  reset() {
+    this.progress = -1
+    this.error = false
+    this._errorMessage = ''
   }
 
   render() {

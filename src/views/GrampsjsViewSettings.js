@@ -2,12 +2,15 @@ import {css, html} from 'lit'
 
 import {GrampsjsViewSettingsOnboarding} from './GrampsjsViewSettingsOnboarding.js'
 import '../components/GrampsjsUsers.js'
+import '../components/GrampsjsTaskProgressIndicator.js'
 import {doLogout, apiPost, apiPut, apiGet} from '../api.js'
 import '@material/mwc-textfield'
 import '@material/mwc-button'
 import '@material/mwc-select'
 import '@material/mwc-tab'
 import '@material/mwc-tab-bar'
+
+import {clickKeyHandler} from '../util.js'
 
 function renderLogoutButton() {
   return html`
@@ -31,6 +34,12 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
 
         mwc-tab-bar {
           margin-bottom: 30px;
+        }
+
+        grampsjs-task-progress-indicator {
+          position: relative;
+          top: 6px;
+          left: 10px;
         }
       `,
     ]
@@ -82,6 +91,24 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     return html`
       ${this.users
         ? html`
+            <h3>${this._('Manage search index')}</h3>
+
+            <p>
+              ${this._(
+                'Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.'
+              )}
+            </p>
+            <mwc-button
+              outlined
+              @click="${this._updateSearch}"
+              @keydown="${clickKeyHandler}"
+              >${this._('Update search index')}</mwc-button
+            >
+            <grampsjs-task-progress-indicator
+              id="progress-update-search"
+              size="20"
+            ></grampsjs-task-progress-indicator>
+
             <h3>${this._('Manage users')}</h3>
 
             <grampsjs-users
@@ -278,6 +305,21 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
         formNewPw.value = ''
       }
     })
+  }
+
+  async _updateSearch() {
+    const prog = this.renderRoot.querySelector('#progress-update-search')
+    prog.reset()
+    prog.open = true
+    const data = await apiPost('/api/search/index/?full=1')
+    if ('error' in data) {
+      prog.setError()
+      prog._errorMessage = data.error
+    } else if ('task' in data) {
+      prog.taskId = data.task?.id || ''
+    } else {
+      prog.setComplete()
+    }
   }
 }
 

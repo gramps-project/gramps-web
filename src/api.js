@@ -379,6 +379,7 @@ async function fetchStatus(taskId) {
 export async function updateTaskStatus(
   taskId,
   statusCallback,
+  pollInterval = 1000,
   maxPolls = Infinity
 ) {
   const doneStates = ['FAILURE', 'REVOKED', 'SUCCESS']
@@ -390,7 +391,7 @@ export async function updateTaskStatus(
     statusCallback(status)
     // wait for 1s
     // eslint-disable-next-line no-await-in-loop
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, pollInterval))
     i += 1
   }
 }

@@ -73,5 +73,7 @@
   "Year": "Year",
   "Month": "Month",
   "Day": "Day",
-  "Administration": "Administration"
+  "Administration": "Administration",
+  "Update search index": "Update search index",
+  "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade."
 }
