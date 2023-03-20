@@ -73,5 +73,7 @@
     "Year": "Año",
     "Month": "Mes",
     "Day": "Día",
-    "Administration": "Administración"
+    "Administration": "Administración",
+    "Update search index": "Actualizar el índice de búsqueda",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Normalmente no es necesario actualizar manualmente el índice de búsqueda, pero puede serlo tras una actualización."
 }
