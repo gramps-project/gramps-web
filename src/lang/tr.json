@@ -73,5 +73,7 @@
     "Year": "Yıl",
     "Month": "Ay",
     "Day": "Gün",
-    "Administration": "Yönetim"
+    "Administration": "Yönetim",
+    "Update search index": "Arama dizinini güncelle",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Arama dizininin el ile güncellenmesi genellikle gereksizdir, ancak yükseltmeden sonra gerekli olabilir."
 }
