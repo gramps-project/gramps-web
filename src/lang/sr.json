@@ -73,5 +73,7 @@
     "Contributor": "Сарадник",
     "Editor": "Уредник",
     "Owner": "Власник",
-    "Replace file": "Замени датотеку"
+    "Replace file": "Замени датотеку",
+    "Update search index": "Ажурирај индекс претраге",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Ручно ажурирање индекса претраге углавном није потребно, али може бити након надоградње."
 }
