@@ -73,5 +73,7 @@
     "Year": "שנה",
     "Month": "חודש",
     "Day": "יום",
-    "Administration": "ניהול"
+    "Administration": "ניהול",
+    "Update search index": "עדכון מפתח החיפוש",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "עדכון מפתח החיפוש ידנית היא בדרך כלל פעולה בלתי נחוצה אך כנראה שיש לבצע אותה לאחר שדרוג."
 }
