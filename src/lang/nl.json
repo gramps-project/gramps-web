@@ -73,5 +73,7 @@
     "Year": "Jaar",
     "Month": "Maand",
     "Day": "Dag",
-    "Administration": "Administratie"
+    "Administration": "Administratie",
+    "Update search index": "Zoekindex bijwerken",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Het handmatig bijwerken van de zoekindex is meestal niet nodig, maar kan nodig zijn na een upgrade."
 }
