@@ -73,5 +73,7 @@
     "Year": "Godina",
     "Month": "Mjesec",
     "Day": "Dan",
-    "Administration": "Administracija"
+    "Administration": "Administracija",
+    "Update search index": "Aktualiziraj indeks pretrage",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Ručno aktualiziranje indeksa pretrage uglavnom nije potrebno, ali je možda potrebno nakon nadogradnje."
 }
