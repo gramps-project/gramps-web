@@ -73,5 +73,7 @@
     "Replace file": "Nahradiť súbor",
     "Month": "Mesiac",
     "Day": "Deň",
-    "Administration": "Administrácia"
+    "Administration": "Administrácia",
+    "Update search index": "Aktualizovať index vyhľadávania",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Ručná aktualizácia indexu vyhľadávania je zvyčajne zbytočná, ale po aktualizácii môže byť potrebná."
 }
