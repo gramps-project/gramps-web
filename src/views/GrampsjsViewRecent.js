@@ -2,7 +2,7 @@ import {html} from 'lit'
 import '@material/mwc-button'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet} from '../api.js'
+import {apiGet, getRecentObjects, setRecentObjects} from '../api.js'
 import '../components/GrampsjsSearchResultList.js'
 
 export class GrampsjsViewRecentObject extends GrampsjsView {
@@ -38,9 +38,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
   }
 
   _handleStorage() {
-    const recentObjects = JSON.parse(
-      window.localStorage.getItem('recentObjects')
-    )
+    const recentObjects = getRecentObjects()
     if (recentObjects !== undefined && recentObjects !== null) {
       this._data = recentObjects
       if (this._hasFirstUpdated) {
@@ -57,13 +55,13 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     )
     this._data.push(event.detail)
     this._data = this._data.slice(-20)
-    window.localStorage.setItem('recentObjects', JSON.stringify(this._data))
+    setRecentObjects(this._data)
     this._fetchData(this.strings.__lang__)
   }
 
   _handleClear() {
     this._data = []
-    window.localStorage.setItem('recentObjects', JSON.stringify(this._data))
+    setRecentObjects(this._data)
   }
 
   render() {

@@ -21,6 +21,12 @@ export function storeRefreshToken(refreshToken) {
   localStorage.setItem('refresh_token', refreshToken)
 }
 
+export function getTree() {
+  const accessToken = localStorage.getItem('access_token')
+  const claims = jwt_decode(accessToken) || {}
+  return claims.tree
+}
+
 export function getPermissions() {
   const accessToken = localStorage.getItem('access_token')
   if (!accessToken || accessToken === '1') {
@@ -34,22 +40,60 @@ export function getPermissions() {
   }
 }
 
+// grampsjs_settings are tree-independent settings
+// grampsjs_settings_tree are tree-dependendent settings
+// this function returns all of them without distinguishing
 export function getSettings() {
   try {
     const settingString = localStorage.getItem('grampsjs_settings')
-    return JSON.parse(settingString) || {}
+    const settings = JSON.parse(settingString) || {}
+    const settingStringTree = localStorage.getItem('grampsjs_settings_tree')
+    const treeId = getTree() || 'unknown'
+    const settingsTree = JSON.parse(settingStringTree)?.[treeId] || {}
+    return {...settings, ...settingsTree}
   } catch (e) {
     return {}
   }
 }
 
-export function updateSettings(settings) {
-  const existingSettings = getSettings()
+// update the settings; if `tree` is true, update the tree-dependent settings
+// otherwise the tree-independent ones
+export function updateSettings(settings, tree = false) {
+  const key = tree ? 'grampsjs_settings_tree' : 'grampsjs_settings'
+  const settingString = localStorage.getItem(key)
+  const parsedSettings = JSON.parse(settingString) || {}
+  const treeId = getTree() || 'unknown'
+  const existingSettings = tree ? parsedSettings?.[treeId] : parsedSettings
   const finalSettings = {...existingSettings, ...settings}
-  localStorage.setItem('grampsjs_settings', JSON.stringify(finalSettings))
+  const data = tree ? {[treeId]: finalSettings} : finalSettings
+  localStorage.setItem(key, JSON.stringify(data))
   window.dispatchEvent(
     new CustomEvent('settings:changed', {bubbles: true, composed: true})
   )
+}
+
+export function getRecentObjects() {
+  try {
+    const string = localStorage.getItem('recentObjects')
+    const data = JSON.parse(string)
+    if (Array.isArray(data)) {
+      return data
+    }
+    const tree = getTree()
+    if (tree) {
+      return data[tree]
+    }
+    return []
+  } catch (e) {
+    return []
+  }
+}
+
+export function setRecentObjects(data) {
+  const tree = getTree()
+  const objectData = tree ? {[tree]: data} : data
+  const stringData = JSON.stringify(objectData)
+  localStorage.setItem('recentObjects', stringData)
 }
 
 export async function apiResetPassword(username) {

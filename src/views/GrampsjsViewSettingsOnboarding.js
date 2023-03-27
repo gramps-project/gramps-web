@@ -115,7 +115,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
   _handleHomePerson(e) {
     const obj = e.detail.objects[0]
     if (obj.object?.gramps_id) {
-      updateSettings({homePerson: obj.object.gramps_id})
+      updateSettings({homePerson: obj.object.gramps_id}, true)
       this._handleStorage()
       this.homePersonDetails = obj
     }
