@@ -74,5 +74,6 @@
     "Day": "Den",
     "Administration": "Administrace",
     "Replace file": "Nahradit soubor",
-    "Update search index": "Aktualizovat index vyhledávání"
+    "Update search index": "Aktualizovat index vyhledávání",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Ruční aktualizace indexu vyhledávání je obvykle zbytečná, ale po upgradu může být nezbytná."
 }
