@@ -68,7 +68,6 @@ export class GrampsjsViewExport extends GrampsjsView {
           id="downloadanchor"
           >&nbsp;</a
         >
-        ${this._downloadUrl ? getExporterDownloadUrl(this._downloadUrl) : ''}
       </p>
     `
   }
