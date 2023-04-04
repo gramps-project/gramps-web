@@ -72,5 +72,8 @@
     "Member": "Jäsen",
     "Contributor": "Osallistuja",
     "Editor": "Muokkaaja",
-    "Replace file": "Vaihda tiedosto"
+    "Replace file": "Vaihda tiedosto",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Hakuindeksin päivittäminen on tarpeellista lähinnä vain joidenkin päivitysten jälkeen, ei muulloin.",
+    "Update search index": "Päivitä hakuindeksi",
+    "Administration": "Ylläpito"
 }
