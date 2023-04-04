@@ -1,10 +1,9 @@
 import {css, html} from 'lit'
 import '@material/mwc-select'
-import '@material/mwc-checkbox'
 import '@material/mwc-button'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet, getExporterUrl} from '../api.js'
+import {apiGet, apiPost, getExporterDownloadUrl} from '../api.js'
 
 export class GrampsjsViewExport extends GrampsjsView {
   static get styles() {
@@ -22,15 +21,15 @@ export class GrampsjsViewExport extends GrampsjsView {
     return {
       data: {type: Array},
       _formData: {type: Object},
-      _queryUrl: {type: String},
+      _downloadUrl: {type: String},
     }
   }
 
   constructor() {
     super()
     this.data = []
-    this._formData = {exporter: 'gramps', options: {compress: true}}
-    this._queryUrl = ''
+    this._formData = {exporter: 'gramps', options: {}}
+    this._downloadUrl = ''
   }
 
   renderContent() {
@@ -50,25 +49,37 @@ export class GrampsjsViewExport extends GrampsjsView {
       </mwc-select>
       ${this._getDescription()}
       <p>
-        <mwc-formfield label="${this._('Use Compression')}">
-          <mwc-checkbox @change=${this._handleCompress} checked></mwc-checkbox>
-        </mwc-formfield>
-      </p>
-      <p>
         <mwc-button
           raised
-          @click="${this._handleSubmit}"
+          @click="${this._generateExport}"
           ?disabled="${!this._formData.exporter}"
-          >${this._('Download')}</mwc-button
+          >${this._('_Generate')}</mwc-button
         >
+        <grampsjs-task-progress-indicator
+          class="button"
+          size="20"
+          @task:complete="${this._handleTaskComplete}"
+        ></grampsjs-task-progress-indicator>
         <a
-          download="gramps.${this._formData.exporter || ''}"
-          href="${this._queryUrl}"
-          id="submitanchor"
+          download="${this._getFileName()}"
+          href="${this._downloadUrl
+            ? getExporterDownloadUrl(this._downloadUrl)
+            : ''}"
+          id="downloadanchor"
           >&nbsp;</a
         >
+        ${this._downloadUrl ? getExporterDownloadUrl(this._downloadUrl) : ''}
       </p>
     `
+  }
+
+  _getFileName() {
+    const id = this._formData.exporter
+    if (!id) {
+      // this shouldn't happen
+      return 'file'
+    }
+    return `grampsweb-export.${id}`
   }
 
   _getDescription() {
@@ -86,27 +97,47 @@ export class GrampsjsViewExport extends GrampsjsView {
 
   _handleSelect(e) {
     this._formData = {...this._formData, exporter: e.target.value}
-    this._updateQueryUrl()
   }
 
-  _updateQueryUrl() {
+  _startDownload() {
+    this.shadowRoot.querySelector('#downloadanchor').click()
+  }
+
+  _getQueryUrl() {
     const id = this._formData.exporter
-    this._queryUrl = getExporterUrl(id, this._formData.options || {})
+    const options = this._formData.options || {}
+    const queryParam = new URLSearchParams(options).toString()
+    return `/api/exporters/${id}/file?${queryParam}`
   }
 
-  _handleSubmit() {
-    this.shadowRoot.querySelector('#submitanchor').click()
-  }
-
-  _handleCompress(e) {
-    this._formData = {
-      ...this._formData,
-      options: {
-        ...this._formData.options,
-        compress: e.target.checked,
-      },
+  async _generateExport() {
+    this._downloadUrl = ''
+    const prog = this.renderRoot.querySelector(
+      'grampsjs-task-progress-indicator'
+    )
+    prog.reset()
+    prog.open = true
+    const url = this._getQueryUrl()
+    const data = await apiPost(url)
+    if ('error' in data) {
+      prog.setError()
+      prog._errorMessage = data.error
+    } else if ('task' in data) {
+      // queued task
+      prog.taskId = data.task?.id || ''
+    } else {
+      // eagerly executed task
+      this._downloadUrl = data?.data?.url || ''
+      prog.setComplete()
+      this._startDownload()
     }
-    this._updateQueryUrl()
+  }
+
+  _handleTaskComplete(e) {
+    const {status} = e.detail
+    const result = JSON.parse(status.result || {})
+    this._downloadUrl = result?.url || ''
+    this._startDownload()
   }
 
   async _fetchData() {

@@ -35,12 +35,6 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
         mwc-tab-bar {
           margin-bottom: 30px;
         }
-
-        grampsjs-task-progress-indicator {
-          position: relative;
-          top: 6px;
-          left: 10px;
-        }
       `,
     ]
   }
@@ -105,6 +99,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
               >${this._('Update search index')}</mwc-button
             >
             <grampsjs-task-progress-indicator
+              class="button"
               id="progress-update-search"
               size="20"
             ></grampsjs-task-progress-indicator>

@@ -347,10 +347,12 @@ export async function apiPost(
 export function getExporterUrl(id, options) {
   const jwt = localStorage.getItem('access_token')
   const queryParam = new URLSearchParams(options).toString()
-  if (jwt === null) {
-    return `${__APIHOST__}/api/exporters/${id}/file?${queryParam}`
-  }
   return `${__APIHOST__}/api/exporters/${id}/file?jwt=${jwt}&${queryParam}`
+}
+
+export function getExporterDownloadUrl(url) {
+  const jwt = localStorage.getItem('access_token')
+  return `${__APIHOST__}${url}?jwt=${jwt}`
 }
 
 export function getReportUrl(id, options) {
