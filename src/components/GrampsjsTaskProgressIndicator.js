@@ -2,6 +2,7 @@ import '@material/mwc-circular-progress'
 import '@material/mwc-icon'
 
 import {updateTaskStatus} from '../api.js'
+import {fireEvent} from '../util.js'
 import {GrampsjsProgressIndicator} from './GrampsjsProgressIndicator.js'
 
 export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
@@ -9,6 +10,8 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
     return {
       taskId: {type: String},
       pollInterval: {type: Number},
+      hideAfter: {type: Number},
+      status: {type: Object},
     }
   }
 
@@ -17,6 +20,7 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
     this.taskId = ''
     this.pollInterval = 1 // seconds
     this.hideAfter = 10 // seconds
+    this.status = {}
   }
 
   firstUpdated() {
@@ -40,6 +44,7 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
     updateTaskStatus(
       this.taskId,
       status => {
+        this.status = status
         if (status.state === 'SUCCESS') {
           this.setComplete()
         } else if (status.state === 'FAILURE' || status.state === 'REVOKED') {
@@ -53,6 +58,7 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
   setComplete() {
     this.progress = 1
     this.closeAfter()
+    fireEvent(this, 'task:complete', {status: this.status})
   }
 
   setError() {
@@ -61,9 +67,11 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
   }
 
   closeAfter() {
-    setTimeout(() => {
-      this.open = false
-    }, this.hideAfter * 1000)
+    if (this.hideAfter > 0) {
+      setTimeout(() => {
+        this.open = false
+      }, this.hideAfter * 1000)
+    }
   }
 }
 
