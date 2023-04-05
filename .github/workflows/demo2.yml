@@ -23,7 +23,7 @@ jobs:
         run: mv dist demo/
       - name: Build image
         run: |
-          cd demo && docker build . \
+          cd demo && docker build . --push \
             --tag gcr.io/gramps-web-demo/gcp-api:latest \
             -f Dockerfile
   deploy:
