@@ -44,7 +44,7 @@ jobs:
     permissions:
       contents: "read"
       id-token: "write"
-      steps:
+    steps:
       - id: "auth"
         uses: "google-github-actions/auth@v0"
         with:
