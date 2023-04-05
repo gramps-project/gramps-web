@@ -68,5 +68,12 @@
     "Member": "Medlem",
     "Contributor": "Bidragsyter",
     "Editor": "Tekstmedarbeider",
-    "Owner": "Eier"
+    "Owner": "Eier",
+    "Clear all filters": "Tøm alle filtre",
+    "Update search index": "Oppdater søkeindeks",
+    "Year": "År",
+    "Month": "Måned",
+    "Day": "Dag",
+    "Administration": "Administrasjon",
+    "Replace file": "Erstatt fil"
 }
