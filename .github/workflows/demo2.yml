@@ -31,7 +31,7 @@ jobs:
         with:
           credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
       - name: Set up Google Cloud
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@v1
+        uses: 'google-github-actions/setup-gcloud@v1'
         with:
           version: '>= 363.0.0'
           project_id: gramps-web-demo
