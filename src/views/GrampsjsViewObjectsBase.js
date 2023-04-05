@@ -228,6 +228,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
           icon="filter_list_off"
           @click="${this._handleFilterOff}"
         ></mwc-icon-button>
+        <grampsjs-tooltip for="filteroff" .strings="${this.strings}"
+          >${this._('Clear all filters')}</grampsjs-tooltip
+        >
         ${this._renderFilterChips()}
         <div class="viewbtn">${this._renderViewButton()}</div>
       </div>
@@ -370,9 +373,13 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     return html` <div class="sortbtn ${isCurrent ? 'current-sort' : ''}">
       <mwc-icon-button
         @click="${() => this._toggleSort(sortKey, isCurrent, isAscending)}"
+        id="btn-sort-${column}"
       >
         ${this._renderSortIcon(isCurrent, isAscending)}
       </mwc-icon-button>
+      <grampsjs-tooltip for="btn-sort-${column}" .strings="${this.strings}"
+        >${this._('Sort')}</grampsjs-tooltip
+      >
     </div>`
   }
 

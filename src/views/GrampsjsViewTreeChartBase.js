@@ -4,6 +4,7 @@ import '@material/mwc-textfield'
 
 import {mdiAccountDetails, mdiHomeAccount} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
+import '../components/GrampsjsTooltip.js'
 import {apiGet} from '../api.js'
 import {fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
@@ -71,25 +72,48 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
           @click=${this._backToHomePerson}
           style="margin-bottom:-10px;"
           ?disabled=${this.disableHome}
+          id="button-home"
           >${renderIcon(
             mdiHomeAccount,
             this.disableHome ? 'var(--mdc-theme-text-disabled-on-light)' : ''
           )}</mwc-icon-button>
+          <grampsjs-tooltip
+            for="button-home"
+            .strings="${this.strings}"
+            >${this._('Home Person')}</grampsjs-tooltip
+          >
+
         <mwc-icon-button
           icon="arrow_back"
           @click=${this._handleBack}
           ?disabled=${this.disableBack}
           style="margin-bottom:-10px;"
+          id="btn-back"
         ></mwc-icon-button>
+        <grampsjs-tooltip
+          for="btn-back"
+          .strings="${this.strings}"
+        >${this._('_Back')}</grampsjs-tooltip
+        >
         <mwc-icon-button
           @click=${this._goToPerson}
+          id="btn-person"
         >${renderIcon(mdiAccountDetails)}</mwc-icon-button>
-        <mwc-icon-button
+        <grampsjs-tooltip
+          for="btn-person"
+          .strings="${this.strings}"
+        >${this._('Person Details')}</grampsjs-tooltip
+        >        <mwc-icon-button
           icon="settings"
           id="btn-controls"
           @click=${this._openMenuControls}
         ></mwc-icon-button>
-        <mwc-dialog id="menu-controls">
+        <grampsjs-tooltip
+          for="btn-controls"
+          .strings="${this.strings}"
+        >${this._('Preferences')}</grampsjs-tooltip
+      >
+    <mwc-dialog id="menu-controls">
           <table>
             <tr>
               <td>${this._('Max Ancestor Generations')}</td>
