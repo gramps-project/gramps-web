@@ -26,20 +26,29 @@ jobs:
           cd demo && docker build . \
             --tag gcr.io/gramps-web-demo/gcp-api:latest \
             -f Dockerfile
+      - id: "auth"
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
+      - name: Set up Google Cloud
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@v1
+        with:
+          version: '>= 363.0.0'
+          project_id: gramps-web-demo
+      - name: Push image to container registry
+        run: docker push gcr.io/gramps-web-demo/gcp-api:latest
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
     permissions:
       contents: "read"
       id-token: "write"
-    steps:
+      steps:
       - id: "auth"
         uses: "google-github-actions/auth@v0"
         with:
           credentials_json: "${{ secrets.GOOGLE_CREDENTIALS }}"
-      - run: gcloud config set project gramps-web-demo
-      - run: gcloud auth configure-docker
-      - run: docker push gcr.io/gramps-web-demo/gcp-api:latest
       - id: "deploy"
         uses: "google-github-actions/deploy-cloudrun@v0"
         with:
