@@ -35,6 +35,9 @@ jobs:
         with:
           version: '>= 363.0.0'
           project_id: gramps-web-demo
+      - name: Setup Docker
+        run: |
+          gcloud auth configure-docker
       - name: Push image to container registry
         run: docker push gcr.io/gramps-web-demo/gcp-api:latest
 
