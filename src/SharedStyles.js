@@ -80,7 +80,8 @@ export const sharedStyles = css`
   span.link:hover {
     color: #1976d2;
     text-decoration: underline;
-    text-decoration-thickness: 0.5px;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
   }
 
   .link {

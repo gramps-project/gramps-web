@@ -10,6 +10,7 @@ import '@material/mwc-icon'
 import '@material/mwc-dialog'
 
 import './GrampsjsAddMenu.js'
+import './GrampsjsTooltip.js'
 
 import {fireEvent} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
@@ -60,10 +61,14 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       <mwc-top-app-bar class="${classMap({edit: this.editMode})}">
         ${this.editMode
           ? html`<mwc-icon-button
-              slot="navigationIcon"
-              icon="close"
-              @click="${this._handleCloseIcon}"
-            ></mwc-icon-button>`
+                slot="navigationIcon"
+                icon="close"
+                id="button-close"
+                @click="${this._handleCloseIcon}"
+              ></mwc-icon-button>
+              <grampsjs-tooltip for="button-close" .strings="${this.strings}"
+                >${this._('Stop editing')}</grampsjs-tooltip
+              > `
           : html`<mwc-icon-button
               slot="navigationIcon"
               icon="menu"
@@ -92,19 +97,35 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
                       <grampsjs-add-menu
                         slot="actionItems"
                         .strings="${this.strings}"
+                        id="button-add"
                       ></grampsjs-add-menu>
+                      <grampsjs-tooltip
+                        for="button-add"
+                        .strings="${this.strings}"
+                        >${this._('Add')}</grampsjs-tooltip
+                      >
                     `
                   : ''}
                 <mwc-icon-button
                   icon="account_circle"
                   slot="actionItems"
                   @click="${() => this._handleNav('settings')}"
+                  id="button-settings"
                 ></mwc-icon-button>
+                <grampsjs-tooltip
+                  for="button-settings"
+                  .strings="${this.strings}"
+                  >${this._('Preferences')}</grampsjs-tooltip
+                >
                 <mwc-icon-button
                   icon="search"
                   slot="actionItems"
+                  id="button-search"
                   @click="${() => this._handleNav('search')}"
                 ></mwc-icon-button>
+                <grampsjs-tooltip for="button-search" .strings="${this.strings}"
+                  >${this._('Search')}</grampsjs-tooltip
+                >
               `
         }
       </mwc-top-app-bar>

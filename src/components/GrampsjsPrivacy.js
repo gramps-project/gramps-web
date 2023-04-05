@@ -4,8 +4,10 @@ import '@material/mwc-icon-button'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import './GrampsjsTooltip.js'
 
-export class GrampsjsPrivacy extends LitElement {
+export class GrampsjsPrivacy extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [sharedStyles]
   }
@@ -30,7 +32,14 @@ export class GrampsjsPrivacy extends LitElement {
         ?disabled="${!this.edit}"
         @click="${this._handleClick}"
         class="edit"
+        id="btn-private"
       ></mwc-icon-button>
+      <grampsjs-tooltip
+        for="btn-private"
+        content="${this.private
+          ? this._('Record is private')
+          : this._('Record is public')}"
+      ></grampsjs-tooltip>
     `
   }
 

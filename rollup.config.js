@@ -39,6 +39,7 @@ export default merge(baseConfig, {
       'http://localhost:5555': API_URL,
       BASE_DIR: JSON.stringify(BASE_DIR),
       preventAssignment: true,
+      'process.env.NODE_ENV': JSON.stringify('production'),
     }),
     importAssertions(),
   ],

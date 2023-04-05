@@ -168,21 +168,37 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     return html`
       <div id="controls">
         <mwc-icon-button
+          id="btn-bold"
           icon="format_bold"
           @click="${() => this._handleFormat('bold')}"
         ></mwc-icon-button>
+        <grampsjs-tooltip for="btn-bold" .strings="${this.strings}"
+          >${this._('Bold')}</grampsjs-tooltip
+        >
         <mwc-icon-button
+          id="btn-italic"
           icon="format_italic"
           @click="${() => this._handleFormat('italic')}"
         ></mwc-icon-button>
+        <grampsjs-tooltip for="btn-italic" .strings="${this.strings}"
+          >${this._('Italic')}</grampsjs-tooltip
+        >
         <mwc-icon-button
+          id="btn-underline"
           icon="format_underlined"
           @click="${() => this._handleFormat('underline')}"
         ></mwc-icon-button>
+        <grampsjs-tooltip for="btn-underline" .strings="${this.strings}"
+          >${this._('Underline')}</grampsjs-tooltip
+        >
         <mwc-icon-button
+          id="btn-link"
           icon="link"
           @click="${() => this._handleFormat('link')}"
         ></mwc-icon-button>
+        <grampsjs-tooltip for="btn-link" .strings="${this.strings}"
+          >${this._('Link')}</grampsjs-tooltip
+        >
       </div>
       <!-- display: inline -->
       <div

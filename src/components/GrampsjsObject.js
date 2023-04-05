@@ -314,6 +314,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     return html` <grampsjs-tags
       .data=${this.data?.extended?.tags || []}
       ?edit="${this.edit}"
+      .strings="${this.strings}"
       @tag:new="${this._handleNewTag}"
     ></grampsjs-tags>`
   }
@@ -325,6 +326,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     return html` <grampsjs-privacy
       ?private="${this.data.private}"
       ?edit="${this.edit}"
+      .strings="${this.strings}"
     ></grampsjs-privacy>`
   }
 
