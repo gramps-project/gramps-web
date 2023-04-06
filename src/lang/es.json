@@ -75,5 +75,9 @@
     "Day": "Día",
     "Administration": "Administración",
     "Update search index": "Actualizar el índice de búsqueda",
-    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Normalmente no es necesario actualizar manualmente el índice de búsqueda, pero puede serlo tras una actualización."
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Normalmente no es necesario actualizar manualmente el índice de búsqueda, pero puede serlo tras una actualización.",
+    "Stop editing": "Deja de editar",
+    "Clear all filters": "Borrar todos los filtros",
+    "Sort": "Ordenar por",
+    "Add Tag": "Añadir una etiqueta"
 }
