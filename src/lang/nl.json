@@ -75,5 +75,9 @@
     "Day": "Dag",
     "Administration": "Administratie",
     "Update search index": "Zoekindex bijwerken",
-    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Het handmatig bijwerken van de zoekindex is meestal niet nodig, maar kan nodig zijn na een upgrade."
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Het handmatig bijwerken van de zoekindex is meestal niet nodig, maar kan nodig zijn na een upgrade.",
+    "Sort": "Sortering",
+    "Stop editing": "Bewerking stoppen",
+    "Clear all filters": "Alle filters wissen",
+    "Add Tag": "Label toevoegen"
 }
