@@ -6,9 +6,14 @@ const replace = fromRollup(rollupReplace)
 export default {
   plugins: [
     replace({
-      include: ['node_modules/**/*.ts'],
+      include: [
+        'node_modules/@popperjs/**/*.js',
+        'node_modules/@popperjs/**/*.ts',
+        'node_modules/tippy.js/**/*.ts',
+        'node_modules/tippy.js/**/*.js'
+      ],
       preventAssignment: true,
-      'process.env.NODE_ENV': '"development"'
+      'process.env.NODE_ENV': '"production"'
     })
   ]
 }
