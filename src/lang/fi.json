@@ -75,5 +75,9 @@
     "Replace file": "Vaihda tiedosto",
     "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Hakuindeksin päivittäminen on tarpeellista lähinnä vain joidenkin päivitysten jälkeen, ei muulloin.",
     "Update search index": "Päivitä hakuindeksi",
-    "Administration": "Ylläpito"
+    "Administration": "Ylläpito",
+    "Clear all filters": "Tyhjennä kaikki suodattimet",
+    "Sort": "Järjestä",
+    "Add Tag": "Lisää tunniste",
+    "Stop editing": "Lopeta muokkaus"
 }
