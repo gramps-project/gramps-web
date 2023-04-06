@@ -75,5 +75,9 @@
     "Day": "Tag",
     "Administration": "Verwaltung",
     "Update search index": "Suchindex aktualisieren",
-    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Eine manuelle Aktualisierung des Suchindexes ist in der Regel nicht erforderlich, kann aber nach einem Upgrade notwendig werden."
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Eine manuelle Aktualisierung des Suchindexes ist in der Regel nicht erforderlich, kann aber nach einem Upgrade notwendig werden.",
+    "Sort": "Sortieren",
+    "Add Tag": "Markierung hinzufügen",
+    "Clear all filters": "Alle Filter löschen",
+    "Stop editing": "Bearbeitung beenden"
 }
