@@ -75,5 +75,9 @@
     "Day": "יום",
     "Administration": "ניהול",
     "Update search index": "עדכון מפתח החיפוש",
-    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "עדכון מפתח החיפוש ידנית היא בדרך כלל פעולה בלתי נחוצה אך כנראה שיש לבצע אותה לאחר שדרוג."
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "עדכון מפתח החיפוש ידנית היא בדרך כלל פעולה בלתי נחוצה אך כנראה שיש לבצע אותה לאחר שדרוג.",
+    "Stop editing": "עצירת עריכה",
+    "Sort": "מיון",
+    "Add Tag": "הוספת תגית",
+    "Clear all filters": "מחיקת כל המסננים"
 }
