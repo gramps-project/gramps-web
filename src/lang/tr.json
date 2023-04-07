@@ -75,5 +75,9 @@
     "Day": "Gün",
     "Administration": "Yönetim",
     "Update search index": "Arama dizinini güncelle",
-    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Arama dizininin el ile güncellenmesi genellikle gereksizdir, ancak yükseltmeden sonra gerekli olabilir."
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Arama dizininin el ile güncellenmesi genellikle gereksizdir, ancak yükseltmeden sonra gerekli olabilir.",
+    "Sort": "Sırala",
+    "Add Tag": "Etiket Ekle",
+    "Stop editing": "Düzenlemeyi durdur",
+    "Clear all filters": "Tüm süzgeçleri temizle"
 }
