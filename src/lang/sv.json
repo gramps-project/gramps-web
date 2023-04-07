@@ -76,5 +76,9 @@
     "Day": "Dag",
     "Administration": "Administrering",
     "Update search index": "Uppdatera sökindex",
-    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Att manuellt uppdatera sökindexet är vanligtvis onödigt, men det kan bli nödvändigt efter en uppgradering."
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Att manuellt uppdatera sökindexet är vanligtvis onödigt, men det kan bli nödvändigt efter en uppgradering.",
+    "Clear all filters": "Rensa alla filter",
+    "Sort": "Sortera",
+    "Add Tag": "Lägg till tagg",
+    "Stop editing": "Sluta redigera"
 }
