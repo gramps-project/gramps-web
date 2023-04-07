@@ -73,5 +73,11 @@
     "Year": "Rok",
     "Month": "Miesiąc",
     "Day": "Dzień",
-    "Administration": "Administracja"
+    "Administration": "Administracja",
+    "Clear all filters": "Wyczyść wszystkie filtry",
+    "Stop editing": "Zakończ edycję",
+    "Add Tag": "Dodaj tag",
+    "Sort": "Sortuj",
+    "Update search index": "Aktualizowanie indeksu wyszukiwania",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Ręczne aktualizowanie indeksu wyszukiwania jest zwykle zbędne, ale może być konieczne po uaktualnieniu."
 }
