@@ -73,5 +73,11 @@
     "Year": "Year",
     "Administration": "Administration",
     "Month": "Month",
-    "Day": "Day"
+    "Day": "Day",
+    "Stop editing": "Stop editing",
+    "Clear all filters": "Clear all filters",
+    "Update search index": "Update search index",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.",
+    "Sort": "Sort",
+    "Add Tag": "Add Tag"
 }
