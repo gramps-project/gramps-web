@@ -75,5 +75,9 @@
     "Day": "Deň",
     "Administration": "Administrácia",
     "Update search index": "Aktualizovať index vyhľadávania",
-    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Ručná aktualizácia indexu vyhľadávania je zvyčajne zbytočná, ale po aktualizácii môže byť potrebná."
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Ručná aktualizácia indexu vyhľadávania je zvyčajne zbytočná, ale po aktualizácii môže byť potrebná.",
+    "Clear all filters": "Vymazať všetky filtre",
+    "Sort": "Usporiadať",
+    "Stop editing": "Zastaviť úpravy",
+    "Add Tag": "Pridať značku"
 }
