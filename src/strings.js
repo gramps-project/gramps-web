@@ -324,7 +324,7 @@ export const grampsStrings = [
   'Parish',
   'Participants',
   'Partner',
-  'Password:',
+  'Password: ',
   'Path',
   'Patrilineal',
   'Patronymic',

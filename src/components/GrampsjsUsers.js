@@ -83,7 +83,10 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     const [user] = this.data.filter(el => el.name === username)
     return html`
       <mwc-dialog open>
-        <grampsjs-form-user .data="${user}"></grampsjs-form-user>
+        <grampsjs-form-user
+          .data="${user}"
+          .strings="${this.strings}"
+        ></grampsjs-form-user>
         <mwc-button
           slot="primaryAction"
           dialogAction="ok"
@@ -98,7 +101,10 @@ export class GrampsjsUsers extends GrampsjsTableBase {
   _addUserDialog() {
     return html`
       <mwc-dialog open>
-        <grampsjs-form-user newUser></grampsjs-form-user>
+        <grampsjs-form-user
+          newUser
+          .strings="${this.strings}"
+        ></grampsjs-form-user>
         <mwc-button
           slot="primaryAction"
           dialogAction="ok"

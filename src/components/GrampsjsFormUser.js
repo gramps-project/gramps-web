@@ -78,7 +78,7 @@ class GrampsjsFormUser extends GrampsjsTranslateMixin(LitElement) {
                 fullwidth
                 id="password"
                 type="password"
-                label="${this._('Password:').replace(':', '')}"
+                label="${this._('Password: ').replace(':', '')}"
                 value="${this.data.password || ''}"
               ></grampsjs-form-string>
             </p>
