@@ -128,7 +128,6 @@ export const sharedStyles = css`
   p {
     margin-top: 1.2em;
     margin-bottom: 1.2em;
-    line-height: 1.6em;
   }
 
   h2 mwc-icon {
