@@ -10,6 +10,15 @@ import './GrampsjsMapMarker.js'
 import {fireEvent} from '../util.js'
 import '../LocateControl.js'
 
+const defaultConfig = {
+  leafletTileUrl:
+    'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  leafletTileAttribution:
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors; <a href="https://carto.com/attributions">CARTO</a>',
+  leafletTileSize: 256,
+  leafletZoomOffset: 0,
+}
+
 class GrampsjsMap extends LitElement {
   render() {
     return html`
@@ -78,12 +87,11 @@ class GrampsjsMap extends LitElement {
         [this.latMax, this.longMax],
       ])
     }
-    const __tileUrl__ =
-      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
-    const __tileAttribution__ =
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors; <a href="https://carto.com/attributions">CARTO</a>'
-    const tileLayer = new TileLayer(__tileUrl__, {
-      attribution: __tileAttribution__,
+    const config = {...defaultConfig, ...window.grampsjsConfig}
+    const tileLayer = new TileLayer(config.leafletTileUrl, {
+      attribution: config.leafletTileAttribution,
+      tileSize: config.leafletTileSize,
+      zoomOffset: config.leafletZoomOffset,
       maxZoom: 19,
       zoomControl: false,
     })
