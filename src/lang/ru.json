@@ -72,5 +72,12 @@
     "Replace file": "Заменить файл",
     "Year": "Год",
     "Month": "Месяц",
-    "Day": "День"
+    "Day": "День",
+    "Stop editing": "Прекратить редактирование",
+    "Clear all filters": "Очистить все фильтры",
+    "Update search index": "Обновить поисковый индекс",
+    "Sort": "Сортировка",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Ручное обновление поискового индекса обычно не требуется, но оно может стать необходимым после обновления.",
+    "Add Tag": "Добавить тег",
+    "Administration": "Администратор"
 }

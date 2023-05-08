@@ -75,5 +75,9 @@
     "Month": "Måned",
     "Day": "Dag",
     "Administration": "Administrasjon",
-    "Replace file": "Erstatt fil"
+    "Replace file": "Erstatt fil",
+    "Add Tag": "Legg til merke",
+    "Stop editing": "Stopp redigering",
+    "Sort": "Sortering",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Manuell oppdatering av søkeindeksen er vanligvis unødvendig, men kan trenges etter en oppgradering."
 }
