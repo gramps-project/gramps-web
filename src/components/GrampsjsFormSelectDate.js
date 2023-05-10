@@ -289,7 +289,7 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
 
   handleDate1(e) {
     const [y, m, d] = parseDate(e.target.value)
-    const oldval = this.data?.dateval || []
+    const oldval = [...this.data?.dateval]
     this.data = {
       ...this.data,
       dateval: [d, m, y, false, ...oldval.slice(4)],
@@ -301,13 +301,13 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
 
   handleDate2(e) {
     const [y, m, d] = parseDate(e.target.value)
-    const oldval = this.data?.dateval || []
+    const oldval = [...this.data?.dateval]
     this.data = {...this.data, dateval: [...oldval.slice(0, 4), d, m, y, false]}
     this.handleChange()
   }
 
   _getValue1() {
-    const val = this.data.dateval
+    const val = [...this.data.dateval]
     if (val === null || val === undefined) {
       return null
     }
@@ -319,7 +319,7 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _getValue2() {
-    const val = this.data.dateval
+    const val = [...this.data.dateval]
     if (val === null || val === undefined || val.length < 6) {
       return null
     }
@@ -332,7 +332,9 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
 
   handleYear1(e) {
     const y = parseInt(e.target.value, 10) || 0
-    const dateval = this.data?.dateval || [0, 0, 0, false]
+    const dateval = this.data?.dateval
+      ? [...this.data.dateval]
+      : [0, 0, 0, false]
     dateval[2] = y
     const m = dateval[1]
     const d = dateval[0]
@@ -347,7 +349,9 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
 
   handleMonth1(e) {
     const m = parseInt(e.target.value, 10) || 0
-    const dateval = this.data?.dateval || [0, 0, 0, false]
+    const dateval = this.data?.dateval
+      ? [...this.data.dateval]
+      : [0, 0, 0, false]
     dateval[1] = m
     const y = dateval[2]
     const d = dateval[0]
@@ -361,7 +365,9 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
 
   handleDay1(e) {
     const d = parseInt(e.target.value, 10) || 0
-    const dateval = this.data?.dateval || [0, 0, 0, false]
+    const dateval = this.data?.dateval
+      ? [...this.data.dateval]
+      : [0, 0, 0, false]
     dateval[0] = d
     const y = dateval[2]
     const m = dateval[1]
@@ -404,7 +410,9 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
         ? this.data.dateval.slice(4)
         : [0, 0, 0, false]
     dateval[1] = m
-    const oldval = this.data?.dateval || [0, 0, 0, false]
+    const oldval = this.data?.dateval
+      ? [...this.data.dateval]
+      : [0, 0, 0, false]
     this.data = {...this.data, dateval: [...oldval.slice(0, 4), ...dateval]}
     this.handleChange()
     this.handleChange()
