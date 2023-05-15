@@ -75,5 +75,10 @@
     "Administration": "Administrace",
     "Replace file": "Nahradit soubor",
     "Update search index": "Aktualizovat index vyhledávání",
-    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Ruční aktualizace indexu vyhledávání je obvykle zbytečná, ale po upgradu může být nezbytná."
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Ruční aktualizace indexu vyhledávání je obvykle zbytečná, ale po upgradu může být nezbytná.",
+    "Stop editing": "Ukončit editaci",
+    "Clear all filters": "Vyčistit všechny filtry",
+    "Sort": "Seřadit",
+    "Add Tag": "Přidat štítek",
+    "Manage search index": "Spravovat index vyhledávání"
 }
