@@ -1,0 +1,5 @@
+FROM nginx
+COPY dist /usr/share/nginx/html
+COPY ./nginx-backend.template /etc/nginx/templates/
+LABEL org.opencontainers.image.source="https://github.com/gramps-project/Gramps.js"
+CMD ["nginx", "-g", "daemon off;"]
