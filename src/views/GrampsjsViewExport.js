@@ -128,7 +128,6 @@ export class GrampsjsViewExport extends GrampsjsView {
       // eagerly executed task
       this._downloadUrl = data?.data?.url || ''
       prog.setComplete()
-      this._startDownload()
     }
   }
 
@@ -136,7 +135,6 @@ export class GrampsjsViewExport extends GrampsjsView {
     const {status} = e.detail
     const result = JSON.parse(status.result || {})
     this._downloadUrl = result?.url || ''
-    this._startDownload()
   }
 
   async _fetchData() {
@@ -156,6 +154,12 @@ export class GrampsjsViewExport extends GrampsjsView {
     if ('__lang__' in this.strings) {
       // don't load before we have strings
       this._fetchData(this.strings.__lang__)
+    }
+  }
+
+  updated(changed) {
+    if (changed.has('_downloadUrl') && this._downloadUrl) {
+      this._startDownload()
     }
   }
 
