@@ -3,7 +3,7 @@ client_max_body_size 500m;
 server {
   listen 80;
 
-  resolver 127.0.0.11 valid=30s ipv6=off;
+  resolver ${NAME_SERVER} valid=30s ipv6=off;
   resolver_timeout 5s;
 
   location / {
