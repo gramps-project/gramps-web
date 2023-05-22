@@ -6,6 +6,10 @@ server {
   resolver 127.0.0.11 valid=30s ipv6=off;
   resolver_timeout 5s;
 
+  location / {
+      try_files $uri $uri/ $uri.html /index.html;
+  }
+
   location /api {
       add_header       "Access-Control-Allow-Origin" $http_origin;
       proxy_redirect   off;
