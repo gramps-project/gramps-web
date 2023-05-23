@@ -1,3 +1,4 @@
+
 client_max_body_size 500m;
 
 server {
@@ -5,6 +6,8 @@ server {
 
   resolver ${NAME_SERVER} valid=30s ipv6=off;
   resolver_timeout 5s;
+
+  root   /usr/share/nginx/html;
 
   location / {
       try_files $uri $uri/ $uri.html /index.html;
