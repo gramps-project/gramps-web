@@ -80,5 +80,9 @@
   "Clear all filters": "Clear all filters",
   "Sort": "Sort",
   "Add Tag": "Add Tag",
-  "Manage search index": "Manage search index"
+  "Manage search index": "Manage search index",
+  "Add a new user": "Add a new user",
+  "Edit user": "Edit user",
+  "Import user accounts": "Import user accounts",
+  "Export user details": "Export user details"
 }

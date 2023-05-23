@@ -7,17 +7,22 @@ import '@material/mwc-list/mwc-list-item'
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 import {userRoles} from './GrampsjsFormUser.js'
 import {fireEvent} from '../util.js'
+import {apiGet} from '../api.js'
+
+import './GrampsjsTooltip.js'
 
 export class GrampsjsUsers extends GrampsjsTableBase {
   static get properties() {
     return {
       dialogContent: {type: String},
+      _downloadUrl: {type: String},
     }
   }
 
   constructor() {
     super()
     this.dialogContent = ''
+    this._downloadUrl = ''
   }
 
   render() {
@@ -25,6 +30,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
       return html``
     }
     return html`
+      ${this._renderButtons()}
       <table>
         <tr>
           <th>${this._('Username: ').replace(':', '')}</th>
@@ -34,7 +40,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
           <th></th>
         </tr>
         ${this.data.map(
-          obj => html`
+          (obj, index) => html`
             <tr>
               <td>${obj.name}</td>
               <td>${obj.full_name}</td>
@@ -45,20 +51,49 @@ export class GrampsjsUsers extends GrampsjsTableBase {
                   class="edit"
                   icon="edit"
                   @click="${e => this._handleEditClick(e, obj.name)}"
+                  id="button-edit-${index}"
                 ></mwc-icon-button>
+                <grampsjs-tooltip for="button-edit-${index}">
+                  ${this._('Edit user')}
+                </grampsjs-tooltip>
               </td>
             </tr>
           `
         )}
       </table>
-
-      <mwc-icon-button
-        class="edit"
-        icon="add_circle"
-        @click="${this._handleAddClick}"
-      ></mwc-icon-button>
-
       ${this.dialogContent}
+    `
+  }
+
+  _renderButtons() {
+    return html`
+      <p>
+        <mwc-icon-button
+          class="edit"
+          icon="person_add"
+          @click="${this._handleAddClick}"
+          id="button-add"
+        ></mwc-icon-button>
+        <grampsjs-tooltip for="button-add">
+          ${this._('Add a new user')}
+        </grampsjs-tooltip>
+
+        <mwc-icon-button
+          class="edit"
+          icon="file_download"
+          id="button-export"
+          @click="${this._handleExportClick}"
+        ></mwc-icon-button>
+        <grampsjs-tooltip for="button-export">
+          ${this._('Export user details')}
+        </grampsjs-tooltip>
+        <a
+          download="grampsweb-export-users.json"
+          href="${this._downloadUrl}"
+          id="downloadanchor"
+          >&nbsp;</a
+        >
+      </p>
     `
   }
 
@@ -79,10 +114,30 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     }
   }
 
+  _handleImportClick() {
+    this.dialogContent = this._importUsersDialog()
+    this._openDialog()
+  }
+
+  async _handleExportClick() {
+    this._downloadUrl = ''
+    const data = await apiGet('/api/users/')
+    const blob = new Blob([JSON.stringify(data.data)], {
+      type: 'application/json',
+    })
+    this._downloadUrl = URL.createObjectURL(blob)
+  }
+
+  _startDownload() {
+    this.shadowRoot.querySelector('#downloadanchor').click()
+    URL.revokeObjectURL(this._downloadUrl)
+    this._downloadUrl = ''
+  }
+
   _editUserDialog(username) {
     const [user] = this.data.filter(el => el.name === username)
     return html`
-      <mwc-dialog open>
+      <mwc-dialog open heading="${this._('Edit user')} &ndash; ${username}">
         <grampsjs-form-user
           .data="${user}"
           .strings="${this.strings}"
@@ -100,7 +155,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
 
   _addUserDialog() {
     return html`
-      <mwc-dialog open>
+      <mwc-dialog open heading="${this._('Add a new user')}">
         <grampsjs-form-user
           newUser
           .strings="${this.strings}"
@@ -116,11 +171,6 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  _renderDialog() {
-    return html``
-  }
-
   _handleSave() {
     const form = this.shadowRoot.querySelector('grampsjs-form-user')
     if (form !== null) {
@@ -129,6 +179,12 @@ export class GrampsjsUsers extends GrampsjsTableBase {
         .includes(form.data.name)
       fireEvent(this, existingUser ? 'user:updated' : 'user:added', form.data)
       this.dialogContent = ''
+    }
+  }
+
+  updated(changed) {
+    if (changed.has('_downloadUrl') && this._downloadUrl) {
+      this._startDownload()
     }
   }
 }
