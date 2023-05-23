@@ -80,5 +80,9 @@
     "Sort": "Ravrstaj",
     "Add Tag": "Dodaj oznaku",
     "Stop editing": "Prekini uređivanje",
-    "Manage search index": "Upravljaj indeksom pretrage"
+    "Manage search index": "Upravljaj indeksom pretrage",
+    "Add a new user": "Dodaj novog korisnika",
+    "Edit user": "Uredi korisnika",
+    "Import user accounts": "Uvezi račune korisnika",
+    "Export user details": "Izvezi detalje korisnika"
 }
