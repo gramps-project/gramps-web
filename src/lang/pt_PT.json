@@ -80,5 +80,9 @@
     "Sort": "Ordenar",
     "Add Tag": "Adicionar etiqueta",
     "Stop editing": "Parar a edição",
-    "Manage search index": "Gerir índice de procura"
+    "Manage search index": "Gerir índice de procura",
+    "Edit user": "Editar utilizador",
+    "Import user accounts": "Importar contas de utilizadores",
+    "Add a new user": "Adicionar utilizador",
+    "Export user details": "Exportar detalhes do utilizador"
 }
