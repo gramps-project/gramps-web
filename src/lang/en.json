@@ -84,5 +84,8 @@
   "Add a new user": "Add a new user",
   "Edit user": "Edit user",
   "Import user accounts": "Import user accounts",
-  "Export user details": "Export user details"
+  "Export user details": "Export user details",
+  "Export your family tree": "Export your family tree",
+  "Export your media files": "Export your media files",
+  "Generate a ZIP archive with all media files.": "Generate a ZIP archive with all media files."
 }
