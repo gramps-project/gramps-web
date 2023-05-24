@@ -79,5 +79,10 @@
     "Sort": "Sortieren",
     "Add Tag": "Markierung hinzufügen",
     "Clear all filters": "Alle Filter löschen",
-    "Stop editing": "Bearbeitung beenden"
+    "Stop editing": "Bearbeitung beenden",
+    "Manage search index": "Suchindex verwalten",
+    "Edit user": "Benutzer bearbeiten",
+    "Export user details": "Benutzerdetails exportieren",
+    "Add a new user": "Einen neuen Benutzer hinzufügen",
+    "Import user accounts": "Benutzerkonten importieren"
 }
