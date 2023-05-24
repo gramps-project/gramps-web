@@ -80,5 +80,9 @@
     "Stop editing": "Bewerking stoppen",
     "Clear all filters": "Alle filters wissen",
     "Add Tag": "Label toevoegen",
-    "Manage search index": "Zoekindex beheren"
+    "Manage search index": "Zoekindex beheren",
+    "Export user details": "Gebruikersgegevens exporteren",
+    "Add a new user": "Een nieuwe gebruiker toevoegen",
+    "Edit user": "Gebruiker bewerken",
+    "Import user accounts": "Gebruikersaccounts importeren"
 }
