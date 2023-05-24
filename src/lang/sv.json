@@ -81,5 +81,9 @@
     "Sort": "Sortera",
     "Add Tag": "Lägg till tagg",
     "Stop editing": "Sluta redigera",
-    "Manage search index": "Hantera sökindex"
+    "Manage search index": "Hantera sökindex",
+    "Edit user": "Redigera användare",
+    "Import user accounts": "Importera användarkonton",
+    "Export user details": "Exportera användarinformation",
+    "Add a new user": "Lägg till en ny användare"
 }
