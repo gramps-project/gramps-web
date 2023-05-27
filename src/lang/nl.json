@@ -84,5 +84,8 @@
     "Export user details": "Gebruikersgegevens exporteren",
     "Add a new user": "Een nieuwe gebruiker toevoegen",
     "Edit user": "Gebruiker bewerken",
-    "Import user accounts": "Gebruikersaccounts importeren"
+    "Import user accounts": "Gebruikersaccounts importeren",
+    "Generate a ZIP archive with all media files.": "Maak een zip-bestand aan met alle media bestanden.",
+    "Export your family tree": "Uw stamboom exporteren",
+    "Export your media files": "Uw mediabestanden exporteren"
 }
