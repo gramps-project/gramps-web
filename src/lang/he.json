@@ -80,5 +80,12 @@
     "Sort": "מיון",
     "Add Tag": "הוספת תגית",
     "Clear all filters": "מחיקת כל המסננים",
-    "Manage search index": "ניהול מפתח חיפוש"
+    "Manage search index": "ניהול מפתח חיפוש",
+    "Add a new user": "הוספת משתמש חדש",
+    "Import user accounts": "ייבוא חשבונות משתמשים",
+    "Export your family tree": "ייצוא אילן־היוחסין שלך",
+    "Edit user": "עריכת משתמש",
+    "Generate a ZIP archive with all media files.": "יצירת ארכיון ZIP עם כל קובצי המדיה שלך.",
+    "Export your media files": "ייצוא קובצי המדיה שלך",
+    "Export user details": "ייצוא פרטי משתמשים"
 }
