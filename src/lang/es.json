@@ -84,5 +84,8 @@
     "Add a new user": "Añadir un nuevo usuario",
     "Import user accounts": "Importar las cuentas del usuario",
     "Export user details": "Exportar los datos del usuario",
-    "Edit user": "Editar usuario"
+    "Edit user": "Editar usuario",
+    "Export your family tree": "Exportar el árbol genealógico",
+    "Export your media files": "Exporta tus archivos multimedia",
+    "Generate a ZIP archive with all media files.": "Generar un archivo ZIP con todos los archivos multimedia."
 }
