@@ -7,7 +7,6 @@ import '@material/mwc-list/mwc-list-item'
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 import {userRoles} from './GrampsjsFormUser.js'
 import {fireEvent} from '../util.js'
-import {apiGet} from '../api.js'
 
 import './GrampsjsTooltip.js'
 
@@ -16,6 +15,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     return {
       dialogContent: {type: String},
       _downloadUrl: {type: String},
+      _userData: {type: Array},
     }
   }
 
@@ -23,6 +23,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     super()
     this.dialogContent = ''
     this._downloadUrl = ''
+    this._userData = []
   }
 
   render() {
@@ -80,6 +81,16 @@ export class GrampsjsUsers extends GrampsjsTableBase {
 
         <mwc-icon-button
           class="edit"
+          icon="group_add"
+          id="button-import"
+          @click="${this._handleImportClick}"
+        ></mwc-icon-button>
+        <grampsjs-tooltip for="button-import">
+          ${this._('Import user accounts')}
+        </grampsjs-tooltip>
+
+        <mwc-icon-button
+          class="edit"
           icon="file_download"
           id="button-export"
           @click="${this._handleExportClick}"
@@ -115,17 +126,88 @@ export class GrampsjsUsers extends GrampsjsTableBase {
   }
 
   _handleImportClick() {
+    this._userData = []
     this.dialogContent = this._importUsersDialog()
     this._openDialog()
   }
 
   async _handleExportClick() {
     this._downloadUrl = ''
-    const data = await apiGet('/api/users/')
-    const blob = new Blob([JSON.stringify(data.data)], {
+    const blob = new Blob([JSON.stringify(this.data)], {
       type: 'application/json',
     })
     this._downloadUrl = URL.createObjectURL(blob)
+  }
+
+  _importUsersDialog() {
+    return html`
+      <mwc-dialog
+        scrimClickAction=""
+        escapeKeyAction=""
+        open
+        heading="${this._('Import user accounts')}"
+      >
+        <grampsjs-form-upload
+          accept=".json"
+          filename
+          @formdata:changed="${this._handleUploadChanged}"
+        ></grampsjs-form-upload>
+
+        <mwc-button
+          slot="primaryAction"
+          dialogAction="ok"
+          ?disabled="${this._userData.length === 0}"
+          @click="${this._handleUpload}"
+        >
+          ${this._('Import')}
+        </mwc-button>
+        <mwc-button
+          slot="secondaryAction"
+          dialogAction="cancel"
+          @click="${this._handleDialogCancel}"
+        >
+          ${this._('Cancel')}
+        </mwc-button>
+      </mwc-dialog>
+    `
+  }
+
+  async _handleUploadChanged() {
+    const uploadForm = this.shadowRoot.querySelector('grampsjs-form-upload')
+    try {
+      const data = await uploadForm.readAsJson()
+      this._processUserData(data)
+    } catch {
+      uploadForm.reset()
+      fireEvent(this, 'grampsjs:error', {
+        message: this._('Error parsing JSON file'),
+      })
+      return
+    }
+    this.dialogContent = this._importUsersDialog()
+  }
+
+  _processUserData(data) {
+    const processedData = data
+      .map(user => ({
+        name: user.name,
+        full_name: user.full_name,
+        email: user.email,
+        role: user.role,
+      }))
+      .filter(user => !!user.name)
+    this._userData = processedData
+  }
+
+  async _handleUpload() {
+    const uploadForm = this.shadowRoot.querySelector('grampsjs-form-upload')
+    fireEvent(this, 'user:added-multiple', this._userData)
+    uploadForm.reset()
+  }
+
+  _handleDialogCancel() {
+    const uploadForm = this.shadowRoot.querySelector('grampsjs-form-upload')
+    uploadForm.reset()
   }
 
   _startDownload() {
@@ -137,7 +219,12 @@ export class GrampsjsUsers extends GrampsjsTableBase {
   _editUserDialog(username) {
     const [user] = this.data.filter(el => el.name === username)
     return html`
-      <mwc-dialog open heading="${this._('Edit user')} &ndash; ${username}">
+      <mwc-dialog
+        scrimClickAction=""
+        escapeKeyAction=""
+        open
+        heading="${this._('Edit user')} &ndash; ${username}"
+      >
         <grampsjs-form-user
           .data="${user}"
           .strings="${this.strings}"
@@ -149,13 +236,21 @@ export class GrampsjsUsers extends GrampsjsTableBase {
         >
           ${this._('_Save')}
         </mwc-button>
+        <mwc-button slot="secondaryAction" dialogAction="cancel">
+          ${this._('Cancel')}
+        </mwc-button>
       </mwc-dialog>
     `
   }
 
   _addUserDialog() {
     return html`
-      <mwc-dialog open heading="${this._('Add a new user')}">
+      <mwc-dialog
+        scrimClickAction=""
+        escapeKeyAction=""
+        open
+        heading="${this._('Add a new user')}"
+      >
         <grampsjs-form-user
           newUser
           .strings="${this.strings}"
@@ -166,6 +261,9 @@ export class GrampsjsUsers extends GrampsjsTableBase {
           @click="${this._handleSave}"
         >
           ${this._('_Save')}
+        </mwc-button>
+        <mwc-button slot="secondaryAction" dialogAction="cancel">
+          ${this._('Cancel')}
         </mwc-button>
       </mwc-dialog>
     `
