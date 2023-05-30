@@ -80,5 +80,12 @@
     "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.",
     "Sort": "Sort",
     "Add Tag": "Add Tag",
-    "Manage search index": "Manage search index"
+    "Manage search index": "Manage search index",
+    "Export your media files": "Export your media files",
+    "Export user details": "Export user details",
+    "Add a new user": "Add a new user",
+    "Edit user": "Edit user",
+    "Import user accounts": "Import user accounts",
+    "Export your family tree": "Export your family tree",
+    "Generate a ZIP archive with all media files.": "Generate a ZIP archive with all media files."
 }
