@@ -84,5 +84,8 @@
     "Edit user": "Benutzer bearbeiten",
     "Export user details": "Benutzerdetails exportieren",
     "Add a new user": "Einen neuen Benutzer hinzufügen",
-    "Import user accounts": "Benutzerkonten importieren"
+    "Import user accounts": "Benutzerkonten importieren",
+    "Generate a ZIP archive with all media files.": "Erzeuge ein ZIP-Archiv mit allen Mediendateien.",
+    "Export your family tree": "Exportiere deinen Stammbaum",
+    "Export your media files": "Exportiere deine Mediendateien"
 }
