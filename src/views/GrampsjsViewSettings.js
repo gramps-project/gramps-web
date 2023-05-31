@@ -111,6 +111,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
               .data="${this.userData}"
               @user:updated="${this._handleUserChanged}"
               @user:added="${this._handleUserAdded}"
+              @user:added-multiple="${this._handleUsersAdded}"
             >
             </grampsjs-users>
           `
@@ -205,6 +206,17 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       full_name: data.full_name,
       password: data.password,
     })
+  }
+
+  async _handleUsersAdded(e) {
+    const res = await apiPost('/api/users/', e.detail)
+    if ('error' in res) {
+      this.error = true
+      this._errorMessage = res.error
+    } else {
+      this.error = false
+      this._fetchUserData()
+    }
   }
 
   _updateUser(username, payload) {

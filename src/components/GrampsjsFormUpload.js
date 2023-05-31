@@ -10,6 +10,22 @@ import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
+async function parseJsonFile(file) {
+  return new Promise((resolve, reject) => {
+    const fileReader = new FileReader()
+    fileReader.onload = event => {
+      try {
+        const parsedJson = JSON.parse(event.target.result)
+        resolve(parsedJson)
+      } catch (error) {
+        reject(error)
+      }
+    }
+    fileReader.onerror = error => reject(error)
+    fileReader.readAsText(file)
+  })
+}
+
 class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
@@ -46,6 +62,7 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
       filename: {type: Boolean},
       disabled: {type: Boolean},
       label: {type: String},
+      accept: {type: String},
     }
   }
 
@@ -57,6 +74,7 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
     this.filename = false
     this.disabled = false
     this.label = ''
+    this.accept = undefined
   }
 
   render() {
@@ -64,6 +82,7 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
       <input
         id="input-upload"
         type="file"
+        accept="${this.accept}"
         hidden
         @change="${this._handleInputChange}"
       />
@@ -126,6 +145,11 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
       reader.readAsDataURL(this.file)
       this.handleChange()
     }
+  }
+
+  async readAsJson() {
+    const json = await parseJsonFile(this.file)
+    return json
   }
 
   reset() {

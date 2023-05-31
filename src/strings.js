@@ -216,6 +216,7 @@ export const grampsStrings = [
   'Identification Number',
   'Image',
   'Immigration',
+  'Import',
   'in',
   'Informant',
   'Inherited',
