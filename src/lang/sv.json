@@ -88,5 +88,6 @@
     "Add a new user": "Lägg till en ny användare",
     "Export your media files": "Exportera dina mediefiler",
     "Generate a ZIP archive with all media files.": "Skapa ett ZIP-arkiv med alla mediafiler.",
-    "Export your family tree": "Exportera ditt släktträd"
+    "Export your family tree": "Exportera ditt släktträd",
+    "Error parsing JSON file": "Fel vid analys av JSON-fil"
 }
