@@ -87,5 +87,6 @@
     "Export user details": "Exportar detalhes do utilizador",
     "Export your family tree": "Exportar a sua árvore",
     "Export your media files": "Exportar a sua multimédia",
-    "Generate a ZIP archive with all media files.": "Gerar um ficheiro com a multimédia comprimida."
+    "Generate a ZIP archive with all media files.": "Gerar um ficheiro com a multimédia comprimida.",
+    "Error parsing JSON file": "Erro ao analisar o ficheiro JSON"
 }
