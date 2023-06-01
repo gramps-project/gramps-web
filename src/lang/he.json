@@ -87,5 +87,6 @@
     "Edit user": "עריכת משתמש",
     "Generate a ZIP archive with all media files.": "יצירת ארכיון ZIP עם כל קובצי המדיה שלך.",
     "Export your media files": "ייצוא קובצי המדיה שלך",
-    "Export user details": "ייצוא פרטי משתמשים"
+    "Export user details": "ייצוא פרטי משתמשים",
+    "Error parsing JSON file": "שגיאה בפענוח קובץ JSON"
 }
