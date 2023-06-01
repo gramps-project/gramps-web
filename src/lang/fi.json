@@ -79,5 +79,14 @@
     "Clear all filters": "Tyhjennä kaikki suodattimet",
     "Sort": "Järjestä",
     "Add Tag": "Lisää tunniste",
-    "Stop editing": "Lopeta muokkaus"
+    "Stop editing": "Lopeta muokkaus",
+    "Error parsing JSON file": "Virhe jäsennettäessä JSON-tiedostoa",
+    "Manage search index": "Hallitse hakuindeksiä",
+    "Add a new user": "Lisää uusi käyttäjä",
+    "Edit user": "Muokkaa käyttäjää",
+    "Import user accounts": "Tuo käyttäjätilejä",
+    "Export user details": "Vie käyttäjätietoja",
+    "Export your family tree": "Vie sukupuusi",
+    "Export your media files": "Vie mediatiedostosi",
+    "Generate a ZIP archive with all media files.": "Luo kaikki mediatiedostot sisältävä ZIP-paketti."
 }
