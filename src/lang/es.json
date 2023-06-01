@@ -87,5 +87,6 @@
     "Edit user": "Editar usuario",
     "Export your family tree": "Exportar el árbol genealógico",
     "Export your media files": "Exporta tus archivos multimedia",
-    "Generate a ZIP archive with all media files.": "Generar un archivo ZIP con todos los archivos multimedia."
+    "Generate a ZIP archive with all media files.": "Generar un archivo ZIP con todos los archivos multimedia.",
+    "Error parsing JSON file": "Error al analizar el archivo JSON"
 }
