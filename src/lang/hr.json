@@ -84,5 +84,9 @@
     "Add a new user": "Dodaj novog korisnika",
     "Edit user": "Uredi korisnika",
     "Import user accounts": "Uvezi račune korisnika",
-    "Export user details": "Izvezi detalje korisnika"
+    "Export user details": "Izvezi detalje korisnika",
+    "Error parsing JSON file": "Greška tijekom analiziranja JSON datoteke",
+    "Export your family tree": "Izvezi rodoslov",
+    "Export your media files": "Izvezi medijske datoteke",
+    "Generate a ZIP archive with all media files.": "Generiraj ZIP arhivu sa svim medijskim datotekama."
 }
