@@ -70,28 +70,6 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
           top: 0.2em;
           margin-left: 0.5em;
         }
-
-        .alert {
-          background-color: rgba(109, 76, 65, 0.15);
-          border-left: 4px solid rgba(109, 76, 65, 0.7);
-          border-radius: 5px;
-          padding: 0.8em 1em;
-          font-size: 0.8em;
-          color: rgba(0, 0, 0, 0.8);
-          margin: 1.5em 0;
-        }
-
-        .alert.error {
-          color: #bf360c;
-          background-color: rgba(191, 54, 12, 0.2);
-          border-left-color: rgba(191, 54, 12, 0.7);
-        }
-
-        .alert.warn {
-          color: rgba(0, 0, 0, 0.5);
-          background-color: rgba(251, 192, 45, 0.2);
-          border-left-color: rgba(251, 192, 45, 0.7);
-        }
       `,
     ]
   }
@@ -243,6 +221,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
 
           <p>
             <grampsjs-form-upload
+              .strings="${this.strings}"
               filename
               @formdata:changed="${this._handleUploadChanged}"
               ?disabled="${this.stateUser === STATE_DONE}"

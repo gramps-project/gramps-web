@@ -44,6 +44,7 @@ import './views/GrampsjsViewCitations.js'
 import './views/GrampsjsViewRepositories.js'
 import './views/GrampsjsViewNotes.js'
 import './views/GrampsjsViewMediaObjects.js'
+import './views/GrampsjsViewImport.js'
 import './views/GrampsjsViewExport.js'
 import './views/GrampsjsViewPerson.js'
 import './views/GrampsjsViewFamily.js'
@@ -489,6 +490,14 @@ export class GrampsJs extends LitElement {
               <span>${this._('History')}</span>
               <mwc-icon slot="graphic">history</mwc-icon>
             </grampsjs-list-item>
+            ${this.canEdit && this.canAdd
+              ? html`
+                  <grampsjs-list-item href="${BASE_DIR}/import" graphic="icon">
+                    <span>${this._('Import')}</span>
+                    <mwc-icon slot="graphic">upload</mwc-icon>
+                  </grampsjs-list-item>
+                `
+              : ''}
             <grampsjs-list-item href="${BASE_DIR}/export" graphic="icon">
               <span>${this._('Export')}</span>
               <mwc-icon slot="graphic">download_file</mwc-icon>
@@ -661,6 +670,11 @@ export class GrampsJs extends LitElement {
               ?canEdit="${this.canEdit}"
             ></grampsjs-view-media>
 
+            <grampsjs-view-import
+              class="page"
+              ?active=${this._page === 'import'}
+              .strings="${this._strings}"
+            ></grampsjs-view-import>
             <grampsjs-view-export
               class="page"
               ?active=${this._page === 'export'}
