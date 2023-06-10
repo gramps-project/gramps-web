@@ -72,5 +72,21 @@
     "Replace file": "Замінити файл",
     "Year": "Рік",
     "Month": "Місяць",
-    "Day": "День"
+    "Day": "День",
+    "Stop editing": "Припинення редагування",
+    "Clear all filters": "Очистити всі фільтри",
+    "Sort": "Упорядкування",
+    "Add Tag": "Додати тег",
+    "Error parsing JSON file": "Помилка аналізу JSON файлу",
+    "Update search index": "Оновлення пошукового індексу",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Ручне оновлення пошукового індексу зазвичай не потрібне, але може стати необхідним після оновлення.",
+    "Add a new user": "Додавання нового користувача",
+    "Export user details": "Експорт даних користувача",
+    "Import user accounts": "Імпорт облікових записів користувачів",
+    "Administration": "Адміністрування",
+    "Manage search index": "Керування пошуковим індексом",
+    "Edit user": "Редагування користувача",
+    "Generate a ZIP archive with all media files.": "Створення архіву ZIP з усіма медіа файлами.",
+    "Export your family tree": "Експорт сімейного дерева",
+    "Export your media files": "Експорт медіафайлів"
 }
