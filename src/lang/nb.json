@@ -78,6 +78,15 @@
     "Replace file": "Erstatt fil",
     "Add Tag": "Legg til merke",
     "Stop editing": "Stopp redigering",
-    "Sort": "Sortering",
-    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Manuell oppdatering av søkeindeksen er vanligvis unødvendig, men kan trenges etter en oppgradering."
+    "Sort": "Sortér",
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Manuell oppdatering av søkeindeksen er vanligvis unødvendig, men kan trenges etter en oppgradering.",
+    "Manage search index": "Behandle søkeindeks",
+    "Export your family tree": "Eksporter ditt familietre",
+    "Error parsing JSON file": "Feil ved analyse av JSON-fil",
+    "Add a new user": "Legg til en ny bruker",
+    "Edit user": "Rediger bruker",
+    "Import user accounts": "Importer brukerkontoer",
+    "Export user details": "Eksporter brukerdetaljer",
+    "Export your media files": "Eksporter dine mediafiler",
+    "Generate a ZIP archive with all media files.": "Generer et ZIP-arkiv med alle mediafiler."
 }
