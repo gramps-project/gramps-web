@@ -23,7 +23,17 @@ export function storeRefreshToken(refreshToken) {
 
 export function getTree() {
   const accessToken = localStorage.getItem('access_token')
-  const claims = jwt_decode(accessToken) || {}
+  let claims = {}
+  try {
+    claims = jwt_decode(accessToken) || {}
+  } catch {
+    claims = {}
+  }
+  return claims.tree
+}
+
+export function getTreeFromToken(token) {
+  const claims = jwt_decode(token) || {}
   return claims.tree
 }
 
