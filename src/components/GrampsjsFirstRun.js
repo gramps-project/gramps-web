@@ -14,6 +14,7 @@ import {
   apiPut,
   apiPost,
   updateTaskStatus,
+  getTreeFromToken,
 } from '../api.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
@@ -81,6 +82,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
       stateConfig: {type: Number},
       stateTree: {type: Number},
       _uploadHint: {type: String},
+      _tree: {type: String},
     }
   }
 
@@ -91,6 +93,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     this.stateConfig = STATE_INITIAL
     this.stateTree = STATE_INITIAL
     this._uploadHint = ''
+    this._tree = ''
   }
 
   render() {
@@ -144,67 +147,71 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
             type="text"
           ></mwc-textfield>
 
-          <h3>
-            E-mail settings
-            ${this.stateConfig !== STATE_INITIAL
-              ? html`
-                  <span class="icon">
-                    ${renderIcon(mdiCheckCircle, '#41AD49')}
-                  </span>
-                `
-              : ''}
-          </h3>
+          ${this._tree
+            ? ''
+            : html`
+                <h3>
+                  ${this._('E-mail settings')}
+                  ${this.stateConfig !== STATE_INITIAL
+                    ? html`
+                        <span class="icon">
+                          ${renderIcon(mdiCheckCircle, '#41AD49')}
+                        </span>
+                      `
+                    : ''}
+                </h3>
 
-          <p>
-            ${this._(
-              'Optionally, enter existing IMAP credentials to enable e-mail notifications required e.g. for user registration.'
-            )}
-          </p>
+                <p>
+                  ${this._(
+                    'Optionally, enter existing IMAP credentials to enable e-mail notifications required e.g. for user registration.'
+                  )}
+                </p>
 
-          <mwc-textfield
-            @input="${this.checkValidity}"
-            outlined
-            id="email_host"
-            label="${this._('SMTP host')}"
-            type="text"
-          ></mwc-textfield>
-          <mwc-textfield
-            @input="${this.checkValidity}"
-            outlined
-            id="email_port"
-            label="${this._('SMTP port')}"
-            type="text"
-            pattern="[0-9]+"
-          ></mwc-textfield>
-          <mwc-textfield
-            @input="${this.checkValidity}"
-            outlined
-            id="email_user"
-            label="${this._('SMTP user')}"
-            type="text"
-          ></mwc-textfield>
-          <mwc-textfield
-            @input="${this.checkValidity}"
-            outlined
-            id="email_pw"
-            label="${this._('SMTP password')}"
-            type="password"
-          ></mwc-textfield>
-          <mwc-textfield
-            @input="${this.checkValidity}"
-            outlined
-            id="email_from"
-            label="${this._('From address')}"
-            type="email"
-          ></mwc-textfield>
-          <mwc-textfield
-            @input="${this.checkValidity}"
-            outlined
-            id="base_url"
-            label="${this._('Gramps Web base URL')}"
-            type="url"
-            placeholder="https://grampsweb.mydomain.com"
-          ></mwc-textfield>
+                <mwc-textfield
+                  @input="${this.checkValidity}"
+                  outlined
+                  id="email_host"
+                  label="${this._('SMTP host')}"
+                  type="text"
+                ></mwc-textfield>
+                <mwc-textfield
+                  @input="${this.checkValidity}"
+                  outlined
+                  id="email_port"
+                  label="${this._('SMTP port')}"
+                  type="text"
+                  pattern="[0-9]+"
+                ></mwc-textfield>
+                <mwc-textfield
+                  @input="${this.checkValidity}"
+                  outlined
+                  id="email_user"
+                  label="${this._('SMTP user')}"
+                  type="text"
+                ></mwc-textfield>
+                <mwc-textfield
+                  @input="${this.checkValidity}"
+                  outlined
+                  id="email_pw"
+                  label="${this._('SMTP password')}"
+                  type="password"
+                ></mwc-textfield>
+                <mwc-textfield
+                  @input="${this.checkValidity}"
+                  outlined
+                  id="email_from"
+                  label="${this._('From address')}"
+                  type="email"
+                ></mwc-textfield>
+                <mwc-textfield
+                  @input="${this.checkValidity}"
+                  outlined
+                  id="base_url"
+                  label="${this._('Gramps Web base URL')}"
+                  type="url"
+                  placeholder="https://grampsweb.mydomain.com"
+                ></mwc-textfield>
+              `}
 
           <h3>
             ${this._('Upload family tree')}
@@ -248,9 +255,20 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
           </mwc-button>
 
           <p>
-            ${this._showProgress('Creating owner account', this.stateUser)}
-            ${this._showProgress('Storing configuration', this.stateConfig)}
-            ${this._showProgress('Importing family tree', this.stateTree)}
+            ${this._showProgress(
+              this._('Creating owner account'),
+              this.stateUser
+            )}
+            ${this._tree
+              ? ''
+              : this._showProgress(
+                  this._('Storing configuration'),
+                  this.stateConfig
+                )}
+            ${this._showProgress(
+              this._('Importing family tree'),
+              this.stateTree
+            )}
           </p>
 
           <div
@@ -486,6 +504,12 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
         url?.value) ||
       false
     )
+  }
+
+  updated(changed) {
+    if (changed.has('token')) {
+      this._tree = getTreeFromToken(this.token) || ''
+    }
   }
 }
 
