@@ -88,5 +88,9 @@
     "Generate a ZIP archive with all media files.": "Maak een zip-bestand aan met alle media bestanden.",
     "Export your family tree": "Uw stamboom exporteren",
     "Export your media files": "Uw mediabestanden exporteren",
-    "Error parsing JSON file": "Fout bij verwerking JSON-bestand"
+    "Error parsing JSON file": "Fout bij verwerking JSON-bestand",
+    "Storing configuration": "Configuratie opslaan",
+    "Importing family tree": "Stamboom importeren",
+    "E-mail settings": "E-mailinstellingen",
+    "Creating owner account": "Eigenaar-account aanmaken"
 }
