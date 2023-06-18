@@ -89,5 +89,9 @@
     "Export your media files": "Exportera dina mediefiler",
     "Generate a ZIP archive with all media files.": "Skapa ett ZIP-arkiv med alla mediafiler.",
     "Export your family tree": "Exportera ditt släktträd",
-    "Error parsing JSON file": "Fel vid analys av JSON-fil"
+    "Error parsing JSON file": "Fel vid analys av JSON-fil",
+    "Creating owner account": "Skapar ägarkonto",
+    "Importing family tree": "Importera släktträd",
+    "E-mail settings": "E-postinställningar",
+    "Storing configuration": "Lagrar konfiguration"
 }
