@@ -88,5 +88,9 @@
     "Generate a ZIP archive with all media files.": "יצירת ארכיון ZIP עם כל קובצי המדיה שלך.",
     "Export your media files": "ייצוא קובצי המדיה שלך",
     "Export user details": "ייצוא פרטי משתמשים",
-    "Error parsing JSON file": "שגיאה בפענוח קובץ JSON"
+    "Error parsing JSON file": "שגיאה בפענוח קובץ JSON",
+    "Creating owner account": "יצירת חשבון בעלות",
+    "Storing configuration": "ההגדרות מאוחסנות",
+    "Importing family tree": "עץ השפות מיובא",
+    "E-mail settings": "הגדרות דוא״ל"
 }
