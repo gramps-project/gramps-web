@@ -88,5 +88,9 @@
     "Generate a ZIP archive with all media files.": "Erzeuge ein ZIP-Archiv mit allen Mediendateien.",
     "Export your family tree": "Exportiere deinen Stammbaum",
     "Export your media files": "Exportiere deine Mediendateien",
-    "Error parsing JSON file": "Fehler beim Parsen der JSON-Datei"
+    "Error parsing JSON file": "Fehler beim Parsen der JSON-Datei",
+    "Storing configuration": "Speichern der Konfiguration",
+    "Creating owner account": "Erstellen eines Eigentümerkontos",
+    "Importing family tree": "Importieren des Stammbaums",
+    "E-mail settings": "E-Mail-Einstellungen"
 }
