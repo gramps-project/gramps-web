@@ -88,5 +88,9 @@
     "Export your family tree": "Exportar a sua árvore",
     "Export your media files": "Exportar a sua multimédia",
     "Generate a ZIP archive with all media files.": "Gerar um ficheiro com a multimédia comprimida.",
-    "Error parsing JSON file": "Erro ao analisar o ficheiro JSON"
+    "Error parsing JSON file": "Erro ao analisar o ficheiro JSON",
+    "Importing family tree": "A importar a árvore",
+    "Creating owner account": "A criar conta de utilizador",
+    "E-mail settings": "Definições de correio",
+    "Storing configuration": "A armazenar a configuração"
 }
