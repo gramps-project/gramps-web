@@ -88,5 +88,9 @@
     "Import user accounts": "Import user accounts",
     "Export your family tree": "Export your family tree",
     "Generate a ZIP archive with all media files.": "Generate a ZIP archive with all media files.",
-    "Error parsing JSON file": "Error parsing JSON file"
+    "Error parsing JSON file": "Error parsing JSON file",
+    "E-mail settings": "E-mail settings",
+    "Creating owner account": "Creating owner account",
+    "Importing family tree": "Importing family tree",
+    "Storing configuration": "Storing configuration"
 }
