@@ -79,5 +79,18 @@
     "Add Tag": "Dodaj tag",
     "Sort": "Sortuj",
     "Update search index": "Aktualizowanie indeksu wyszukiwania",
-    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Ręczne aktualizowanie indeksu wyszukiwania jest zwykle zbędne, ale może być konieczne po uaktualnieniu."
+    "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Ręczne aktualizowanie indeksu wyszukiwania jest zwykle zbędne, ale może być konieczne po uaktualnieniu.",
+    "Error parsing JSON file": "Błąd podczas analizowania pliku JSON",
+    "E-mail settings": "Ustawienia poczty e-mail",
+    "Storing configuration": "Zapisywanie konfiguracji",
+    "Creating owner account": "Tworzenie konta właściciela",
+    "Importing family tree": "Importowanie drzewa genealogicznego",
+    "Import user accounts": "Importuj konta użytkowników",
+    "Export user details": "Eksportuj dane użytkownika",
+    "Generate a ZIP archive with all media files.": "Wygeneruj archiwum ZIP ze wszystkimi plikami multimedialnymi.",
+    "Manage search index": "Zarządzanie indeksem wyszukiwania",
+    "Add a new user": "Dodaj nowego użytkownika",
+    "Edit user": "Edytuj użytkownika",
+    "Export your family tree": "Eksportuj drzewo genealogiczne",
+    "Export your media files": "Eksportuj pliki multimedialne"
 }
