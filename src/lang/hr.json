@@ -88,5 +88,9 @@
     "Error parsing JSON file": "Greška tijekom analiziranja JSON datoteke",
     "Export your family tree": "Izvezi rodoslov",
     "Export your media files": "Izvezi medijske datoteke",
-    "Generate a ZIP archive with all media files.": "Generiraj ZIP arhivu sa svim medijskim datotekama."
+    "Generate a ZIP archive with all media files.": "Generiraj ZIP arhivu sa svim medijskim datotekama.",
+    "Storing configuration": "Spremanje konfiguracije",
+    "Importing family tree": "Učitavanje rodoslova",
+    "E-mail settings": "E-mail postavke",
+    "Creating owner account": "Stvaranje računa vlasnika"
 }
