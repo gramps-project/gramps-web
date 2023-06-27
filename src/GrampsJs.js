@@ -85,7 +85,7 @@ const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
 
-const MINIMUM_API_VERSION = '0.7.0'
+const MINIMUM_API_VERSION = '1.0.0'
 
 export class GrampsJs extends LitElement {
   static get properties() {
@@ -891,7 +891,7 @@ export class GrampsJs extends LitElement {
   _fetchOnboardingToken() {
     const hasTree = this._page === 'firstrun' && this._pageId
     const url = '/api/token/create_owner/'
-    const payload = hasTree ? {tree: this._pageId} : null
+    const payload = hasTree ? {tree: this._pageId} : {}
     apiPost(url, payload, true, false).then(data => {
       if (!('error' in data) && data?.data?.access_token) {
         this.loadingState = LOADING_STATE_NO_OWNER
