@@ -3,6 +3,7 @@ import {css, html} from 'lit'
 import {GrampsjsViewSettingsOnboarding} from './GrampsjsViewSettingsOnboarding.js'
 import '../components/GrampsjsUsers.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
+import '../components/GrampsjsSysinfo.js'
 import {doLogout, apiPost, apiPut, apiGet} from '../api.js'
 import '@material/mwc-textfield'
 import '@material/mwc-button'
@@ -44,6 +45,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       users: {type: Boolean},
       userData: {type: Array},
       page: {type: String},
+      dbInfo: {type: Object},
     }
   }
 
@@ -52,6 +54,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     this.users = false
     this.userData = []
     this.page = 'user'
+    this.dbInfo = {}
   }
 
   renderContent() {
@@ -75,9 +78,17 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
               ></mwc-tab>
             `
           : ''}
+        <mwc-tab
+          label="${this._('System Information')}"
+          ?active="${this.page === 'info'}"
+          @click=${() => {
+            this.page = 'info'
+          }}
+        ></mwc-tab>
       </mwc-tab-bar>
       ${this.page === 'user' ? this.renderUserSettings() : ''}
       ${this.page === 'admin' && this.users ? this.renderAdminSettings() : ''}
+      ${this.page === 'info' ? this.renderSysInfo() : ''}
     `
   }
 
@@ -138,6 +149,17 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       <h3>${this._('Change password')}</h3>
 
       ${this.renderChangePw()}
+    `
+  }
+
+  renderSysInfo() {
+    return html`
+      <h3>${this._('System Information')}</h3>
+
+      <grampsjs-sysinfo
+        .data="${this.dbInfo}"
+        .strings="${this.strings}"
+      ></grampsjs-sysinfo>
     `
   }
 

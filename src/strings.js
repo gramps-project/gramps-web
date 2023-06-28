@@ -472,6 +472,7 @@ export const grampsStrings = [
   'Surname',
   'Surnames',
   'Surname origin type:',
+  'System Information',
   'Tag Report',
   'Tag',
   'Tags',

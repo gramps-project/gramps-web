@@ -698,6 +698,7 @@ export class GrampsJs extends LitElement {
             <grampsjs-view-settings
               class="page"
               ?active=${this._page === 'settings'}
+              .dbInfo="${this._dbInfo}"
               .strings="${this._strings}"
               ?users="${this.canManageUsers}"
             ></grampsjs-view-settings>

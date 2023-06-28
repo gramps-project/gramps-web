@@ -3,6 +3,7 @@ import copy from 'rollup-plugin-copy'
 import {createSpaConfig} from '@open-wc/building-rollup'
 import importAssertions from 'rollup-plugin-import-assertions'
 import replace from '@rollup/plugin-replace'
+import versionInjector from 'rollup-plugin-version-injector'
 
 const API_URL = process.env.API_URL === undefined ? '' : process.env.API_URL
 
@@ -45,5 +46,6 @@ export default merge(baseConfig, {
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),
     importAssertions(),
+    versionInjector(),
   ],
 })
