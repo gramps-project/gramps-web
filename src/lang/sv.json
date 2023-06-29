@@ -93,5 +93,6 @@
     "Creating owner account": "Skapar ägarkonto",
     "Importing family tree": "Importera släktträd",
     "E-mail settings": "E-postinställningar",
-    "Storing configuration": "Lagrar konfiguration"
+    "Storing configuration": "Lagrar konfiguration",
+    "Copy to clipboard": "Kopiera till urklipp"
 }
