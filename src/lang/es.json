@@ -92,5 +92,6 @@
     "E-mail settings": "Configuración del correo electrónico",
     "Creating owner account": "Crear una cuenta de propietario",
     "Storing configuration": "Guardar la configuración",
-    "Importing family tree": "Importar el árbol genealógico"
+    "Importing family tree": "Importar el árbol genealógico",
+    "Copy to clipboard": "Copiar al portapapeles"
 }
