@@ -103,6 +103,7 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
 
   connectedCallback() {
     super.connectedCallback()
+    this._updateData()
     window.addEventListener('db:changed', () => this._updateData())
     window.addEventListener('online', this._handleOnline.bind(this))
   }

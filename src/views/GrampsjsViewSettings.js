@@ -4,6 +4,7 @@ import {GrampsjsViewSettingsOnboarding} from './GrampsjsViewSettingsOnboarding.j
 import '../components/GrampsjsUsers.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsSysinfo.js'
+import '../components/GrampsjsTreeQuotas.js'
 import {doLogout, apiPost, apiPut, apiGet} from '../api.js'
 import '@material/mwc-textfield'
 import '@material/mwc-button'
@@ -96,6 +97,12 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     return html`
       ${this.users
         ? html`
+            <h3>${this._('Usage quotas')}</h3>
+
+            <grampsjs-tree-quotas
+              .strings="${this.strings}"
+            ></grampsjs-tree-quotas>
+
             <h3>${this._('Manage search index')}</h3>
 
             <p>

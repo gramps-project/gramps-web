@@ -492,6 +492,7 @@ export const grampsStrings = [
   'Tombstone',
   'Top Left',
   'Top paper margin',
+  'Total size of media objects',
   'Town',
   'Transcript',
   'Type',
