@@ -88,3 +88,23 @@
   padding: 5px 9px;
   z-index: 1
 }
+
+.tippy-box[data-theme~='error'] {
+  background-color: #BF360C;
+}
+
+.tippy-box[data-theme~='error'][data-placement^='top']>.tippy-arrow::before {
+  border-top-color: #BF360C;
+}
+
+.tippy-box[data-theme~='error'][data-placement^='bottom']>.tippy-arrow::before {
+  border-bottom-color: #BF360C;
+}
+
+.tippy-box[data-theme~='error'][data-placement^='left']>.tippy-arrow::before {
+  border-left-color: #BF360C;
+}
+
+.tippy-box[data-theme~='error'][data-placement^='right']>.tippy-arrow::before {
+  border-right-color: #BF360C;
+}

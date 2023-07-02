@@ -293,6 +293,12 @@ async function apiPutPost(
       headers,
       body: isJson ? JSON.stringify(payload) : payload,
     })
+    let resJson
+    try {
+      resJson = await resp.json()
+    } catch (error) {
+      resJson = {}
+    }
     if (resp.status === 401) {
       const refreshToken = localStorage.getItem('refresh_token')
       if (refreshToken === null) {
@@ -305,23 +311,16 @@ async function apiPutPost(
         return apiPutPost(method, endpoint, payload, isJson, dbChanged)
       }
     }
-    if (resp.status === 400 || resp.status === 403) {
-      throw new Error('Authorization error')
+    if (resp.status === 403) {
+      throw new Error('Not authorized')
     }
     if (resp.status !== 201 && resp.status !== 200 && resp.status !== 202) {
-      throw new Error(`Error ${resp.status}`)
+      throw new Error(resJson?.error?.message || `Error ${resp.status}`)
     }
     if (dbChanged) {
       window.dispatchEvent(
         new CustomEvent('db:changed', {bubbles: true, composed: true})
       )
-    }
-    let resJson
-    try {
-      resJson = await resp.json()
-    } catch (error) {
-      // if JSON parsing fails, return empty response
-      return {}
     }
     if (resp.status === 202 && 'task' in resJson) {
       return resJson

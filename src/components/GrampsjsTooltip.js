@@ -19,6 +19,7 @@ export class GrampsjsTooltip extends LitElement {
       target: {type: Object, attribute: false},
       content: {type: String},
       strings: {type: Object},
+      theme: {type: String},
       _tippy: {type: Object},
     }
   }
@@ -28,8 +29,9 @@ export class GrampsjsTooltip extends LitElement {
     this.for = ''
     this.target = {}
     this.content = ''
-    this._tippy = {}
     this.strings = {}
+    this.theme = ''
+    this._tippy = {}
   }
 
   _getTarget() {
@@ -63,10 +65,14 @@ export class GrampsjsTooltip extends LitElement {
   }
 
   _initTippy() {
-    this._tippy = tippy(this.target, {
+    const options = {
       content: this.innerHTML,
       allowHTML: true,
-    })
+    }
+    if (this.theme) {
+      options.theme = this.theme
+    }
+    this._tippy = tippy(this.target, options)
   }
 
   render() {

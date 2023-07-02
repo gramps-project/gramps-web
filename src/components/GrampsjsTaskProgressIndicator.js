@@ -63,6 +63,7 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
 
   setError() {
     this.error = true
+    this._errorMessage = this.status?.info || ''
     this.closeAfter()
     fireEvent(this, 'task:error', {status: this.status})
   }

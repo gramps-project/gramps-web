@@ -109,9 +109,19 @@ export class GrampsjsProgressIndicator extends LitElement {
 
   renderError() {
     return html`
-      <mwc-icon style="--mdc-icon-size: ${this.size}px;" class="error"
+      <mwc-icon
+        id="error-icon"
+        style="--mdc-icon-size: ${this.size}px;"
+        class="error"
         >cancel</mwc-icon
       >
+      ${this._errorMessage
+        ? html`
+            <grampsjs-tooltip for="error-icon" theme="error"
+              >${this._errorMessage}</grampsjs-tooltip
+            >
+          `
+        : ''}
     `
   }
 
