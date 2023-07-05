@@ -80,5 +80,19 @@
     "Sort": "Usporiadať",
     "Stop editing": "Zastaviť úpravy",
     "Add Tag": "Pridať značku",
-    "Manage search index": "Spravovať index vyhľadávania"
+    "Manage search index": "Spravovať index vyhľadávania",
+    "Error parsing JSON file": "Chyba pri analýze súboru JSON",
+    "E-mail settings": "Nastavenia e-mailu",
+    "Storing configuration": "Ukladanie konfigurácie",
+    "Importing family tree": "Importovanie rodinného stromu",
+    "Copy to clipboard": "Skopírovať do schránky",
+    "Import user accounts": "Importovať používateľské účty",
+    "Creating owner account": "Vytvorenie účtu majiteľa",
+    "Add a new user": "Pridať nového používateľa",
+    "Edit user": "Upraviť používateľa",
+    "Export user details": "Exportovať údaje o používateľovi",
+    "Usage quotas": "Kvóty používania",
+    "Export your family tree": "Exportovať rodinný strom",
+    "Export your media files": "Exportovať mediálne súbory",
+    "Generate a ZIP archive with all media files.": "Vytvoriť archív ZIP so všetkými mediálnymi súbormi."
 }
