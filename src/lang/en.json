@@ -95,5 +95,7 @@
   "Importing family tree": "Importing family tree",
   "Copy to clipboard": "Copy to clipboard",
   "Usage quotas": "Usage quotas",
-  "Not authorized": "Not authorized"
+  "Not authorized": "Not authorized",
+  "This e-mail address is already in use": "This e-mail address is already in use",
+  "This user name is already in use": "This user name is already in use"
 }

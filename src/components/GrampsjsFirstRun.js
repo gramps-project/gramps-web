@@ -81,6 +81,9 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
       stateUser: {type: Number},
       stateConfig: {type: Number},
       stateTree: {type: Number},
+      _errorUser: {type: String},
+      _errorConfig: {type: String},
+      _errorTree: {type: String},
       _uploadHint: {type: String},
       _tree: {type: String},
     }
@@ -92,6 +95,9 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     this.stateUser = STATE_INITIAL
     this.stateConfig = STATE_INITIAL
     this.stateTree = STATE_INITIAL
+    this._errorUser = ''
+    this._errorConfig = ''
+    this._errorTree = ''
     this._uploadHint = ''
     this._tree = ''
   }
@@ -250,24 +256,28 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
             label="${this._('Submit')}"
             type="submit"
             @click="${this._submit}"
-            ?disabled=${this.stateUser !== STATE_READY}
+            ?disabled=${this.stateUser !== STATE_READY &&
+            this.stateUser !== STATE_ERROR}
           >
           </mwc-button>
 
           <p>
             ${this._showProgress(
               this._('Creating owner account'),
-              this.stateUser
+              this.stateUser,
+              this._errorUser
             )}
             ${this._tree
               ? ''
               : this._showProgress(
                   this._('Storing configuration'),
-                  this.stateConfig
+                  this.stateConfig,
+                  this._errorConfig
                 )}
             ${this._showProgress(
               this._('Importing family tree'),
-              this.stateTree
+              this.stateTree,
+              this._errorTree
             )}
           </p>
 
@@ -293,7 +303,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  _showProgress(text, status) {
+  _showProgress(text, status, message) {
     const progress = status === STATE_DONE ? 1 : -1
     return html`
       <br />
@@ -302,6 +312,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
         <grampsjs-progress-indicator
           ?open="${status !== STATE_INITIAL && status !== STATE_READY}"
           ?error="${status === STATE_ERROR}"
+          errorMessage="${status === STATE_ERROR ? message : ''}"
           progress="${progress}"
         ></grampsjs-progress-indicator>
       </span>
@@ -320,6 +331,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     const resp = await apiGetTokens(username, password)
     if ('error' in resp) {
       this.stateUser = STATE_ERROR
+      this._errorUser = resp.error || ''
       return
     }
 
@@ -363,9 +375,21 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
         }
         return
       }
-      throw new Error(`Error ${resp.status}`)
+      const data = await resp.json()
+      this.stateUser = STATE_ERROR
+      if (resp.status === 409) {
+        const msg = data?.error?.message || ''
+        if (msg.toLowerCase().includes('mail')) {
+          this._errorUser = this._('This e-mail address is already in use')
+        } else {
+          this._errorUser = this._('This user name is already in use')
+        }
+      } else {
+        this._errorUser = data?.error?.message || ''
+      }
     } catch (error) {
       this.stateUser = STATE_ERROR
+      this._errorUser = `${error}` || ''
     }
   }
 
@@ -387,6 +411,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     })
     if ('error' in res) {
       this.stateConfig = STATE_ERROR
+      this._errorConfig = res.error || ''
     }
   }
 
@@ -395,12 +420,14 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     const res = await apiPost(`/api/importers/${ext}/file`, file, false)
     if ('error' in res) {
       this.stateTree = STATE_ERROR
+      this._errorTree = res.error || ''
     } else if ('task' in res) {
       updateTaskStatus(res.task.id, status => {
         if (status.state === 'SUCCESS') {
           this.stateTree = STATE_DONE
         } else if (status.state === 'FAILURE' || status.state === 'REVOKED') {
           this.stateTree = STATE_ERROR
+          this._errorTree = status.state
         }
       })
     } else {

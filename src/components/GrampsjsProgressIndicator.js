@@ -36,7 +36,7 @@ export class GrampsjsProgressIndicator extends LitElement {
       size: {type: Number},
       error: {type: Boolean},
       open: {type: Boolean},
-      _errorMessage: {type: String},
+      errorMessage: {type: String},
     }
   }
 
@@ -46,13 +46,13 @@ export class GrampsjsProgressIndicator extends LitElement {
     this.size = 24
     this.error = false
     this.open = false
-    this._errorMessage = ''
+    this.errorMessage = ''
   }
 
   reset() {
     this.progress = -1
     this.error = false
-    this._errorMessage = ''
+    this.errorMessage = ''
   }
 
   render() {
@@ -115,10 +115,10 @@ export class GrampsjsProgressIndicator extends LitElement {
         class="error"
         >cancel</mwc-icon
       >
-      ${this._errorMessage
+      ${this.errorMessage
         ? html`
             <grampsjs-tooltip for="error-icon" theme="error"
-              >${this._errorMessage}</grampsjs-tooltip
+              >${this.errorMessage}</grampsjs-tooltip
             >
           `
         : ''}
