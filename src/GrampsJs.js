@@ -426,6 +426,10 @@ export class GrampsJs extends LitElement {
       return this._renderNoConn()
     }
     if (this.loadingState === LOADING_STATE_UNAUTHORIZED) {
+      const {loginRedirect} = window.grampsjsConfig
+      if (loginRedirect && this._page !== 'login') {
+        window.location.href = loginRedirect
+      }
       window.history.pushState({}, '', 'login')
       return this._renderLogin()
     }
@@ -442,6 +446,10 @@ export class GrampsJs extends LitElement {
     }
     if (this.loadingState === LOADING_STATE_MISSING_SETTINGS) {
       return this._renderOnboarding()
+    }
+    if (this._page === 'login') {
+      window.history.pushState({}, '', '')
+      this._page = 'home'
     }
     if (
       this.settings.lang &&
