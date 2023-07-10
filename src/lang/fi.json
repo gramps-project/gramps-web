@@ -88,5 +88,12 @@
     "Export user details": "Vie käyttäjätietoja",
     "Export your family tree": "Vie sukupuusi",
     "Export your media files": "Vie mediatiedostosi",
-    "Generate a ZIP archive with all media files.": "Luo kaikki mediatiedostot sisältävä ZIP-paketti."
+    "Generate a ZIP archive with all media files.": "Luo kaikki mediatiedostot sisältävä ZIP-paketti.",
+    "E-mail settings": "Sähköpostiasetukset",
+    "Creating owner account": "Luodaan omistajatiliä",
+    "Storing configuration": "Määritysten säilytys",
+    "Importing family tree": "Sukupuun tuonti",
+    "Copy to clipboard": "Kopioi leikepäydälle",
+    "Usage quotas": "Käyttökiintiöt",
+    "Not authorized": "Ei käyttöoikeutta"
 }
