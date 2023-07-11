@@ -95,5 +95,7 @@
     "Storing configuration": "A armazenar a configuração",
     "Copy to clipboard": "Copiar para a prancheta",
     "Usage quotas": "Quotas de uso",
-    "Not authorized": "Não autorizado"
+    "Not authorized": "Não autorizado",
+    "This user name is already in use": "Este utilizador já existe",
+    "This e-mail address is already in use": "Este endereço electrónico já está em uso"
 }
