@@ -95,5 +95,7 @@
     "Importing family tree": "Sukupuun tuonti",
     "Copy to clipboard": "Kopioi leikepäydälle",
     "Usage quotas": "Käyttökiintiöt",
-    "Not authorized": "Ei käyttöoikeutta"
+    "Not authorized": "Ei käyttöoikeutta",
+    "This e-mail address is already in use": "Sähköpostiosoite on jo käytössä",
+    "This user name is already in use": "Käyttäjätunnus on jo käytössä"
 }
