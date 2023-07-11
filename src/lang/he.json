@@ -95,5 +95,7 @@
     "E-mail settings": "הגדרות דוא״ל",
     "Copy to clipboard": "העתקה ללוח הגזירים",
     "Usage quotas": "מכסות ניצולת",
-    "Not authorized": "אין הרשאה"
+    "Not authorized": "אין הרשאה",
+    "This e-mail address is already in use": "כתובת הדוא״ל הזו כבר בשימוש",
+    "This user name is already in use": "שם המשתמש הזה כבר בשימוש"
 }
