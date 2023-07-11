@@ -95,5 +95,7 @@
     "E-mail settings": "E-Mail-Einstellungen",
     "Copy to clipboard": "In die Zwischenablage kopieren",
     "Usage quotas": "Nutzungskontingente",
-    "Not authorized": "Nicht autorisiert"
+    "Not authorized": "Nicht autorisiert",
+    "This user name is already in use": "Dieser Benutzername wird bereits verwendet",
+    "This e-mail address is already in use": "Diese E-Mail-Adresse wird bereits verwendet"
 }
