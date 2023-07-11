@@ -96,5 +96,7 @@
     "Storing configuration": "Lagrar konfiguration",
     "Copy to clipboard": "Kopiera till urklipp",
     "Usage quotas": "Användningskvoter",
-    "Not authorized": "Inte auktoriserad"
+    "Not authorized": "Inte auktoriserad",
+    "This user name is already in use": "Det här användarnamnet används redan",
+    "This e-mail address is already in use": "Den här mailadressen är redan i bruk"
 }
