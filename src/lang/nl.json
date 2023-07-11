@@ -95,5 +95,7 @@
     "Creating owner account": "Eigenaar-account aanmaken",
     "Copy to clipboard": "Kopieer naar klembord",
     "Usage quotas": "Gebruiksquota",
-    "Not authorized": "Niet geautoriseerd"
+    "Not authorized": "Niet geautoriseerd",
+    "This e-mail address is already in use": "Dit e-mailadres is al in gebruik",
+    "This user name is already in use": "Deze gebruikersnaam is al in gebruik"
 }
