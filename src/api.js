@@ -134,20 +134,34 @@ export async function apiResetPassword(username) {
   }
 }
 
-export async function apiRegisterUser(username, password, email, fullname) {
+export async function apiRegisterUser(
+  username,
+  password,
+  email,
+  fullname,
+  tree
+) {
   try {
+    let payload = {password, email, full_name: fullname}
+    payload = tree ? {...payload, tree} : payload
     const resp = await fetch(`${__APIHOST__}/api/users/${username}/register/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({password, email, full_name: fullname}),
+      body: JSON.stringify(payload),
     })
+    let resJson
+    try {
+      resJson = await resp.json()
+    } catch (error) {
+      resJson = {}
+    }
     if (resp.status === 409) {
       throw new Error('Username or e-mail already taken.')
     }
     if (resp.status !== 201) {
-      throw new Error(`Error ${resp.status}`)
+      throw new Error(resJson?.error?.message || `Error ${resp.status}`)
     }
     return {}
   } catch (error) {

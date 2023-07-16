@@ -390,8 +390,13 @@ export class GrampsJs extends LitElement {
     </div> `
   }
 
-  _renderLogin() {
-    return html` <grampsjs-login .strings="${this._strings}"></grampsjs-login> `
+  _renderLogin(register) {
+    return html`${this._dbInfo?.server?.multi_tree}
+      <grampsjs-login
+        ?register="${register}"
+        .strings="${this._strings}"
+        tree="${this._pageId || ''}"
+      ></grampsjs-login> `
   }
 
   _renderFirstRun() {
@@ -427,11 +432,19 @@ export class GrampsJs extends LitElement {
     }
     if (this.loadingState === LOADING_STATE_UNAUTHORIZED) {
       const {loginRedirect} = window.grampsjsConfig
-      if (loginRedirect && this._page !== 'login') {
+      if (
+        loginRedirect &&
+        this._page !== 'login' &&
+        this._page !== 'register'
+      ) {
         window.location.href = loginRedirect
       }
+      if (this._page === 'register') {
+        window.history.pushState({}, '', 'register')
+        return this._renderLogin(true)
+      }
       window.history.pushState({}, '', 'login')
-      return this._renderLogin()
+      return this._renderLogin(false)
     }
     if (this.loadingState === LOADING_STATE_NO_OWNER) {
       window.history.pushState({}, '', 'firstrun')

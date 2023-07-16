@@ -66,6 +66,7 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
       register: {type: Boolean},
       isFormValid: {type: Boolean},
       credentials: {type: Object},
+      tree: {type: String},
     }
   }
 
@@ -75,6 +76,7 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
     this.register = false
     this.isFormValid = false
     this.credentials = {}
+    this.tree = ''
   }
 
   render() {
@@ -135,15 +137,19 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
               >${this._('Lost password?')}</span
             >
           </p>
-          <p class="reset-link">
-            <span
-              class="link"
-              @click="${() => {
-                this.register = true
-              }}"
-              >${this._('Register new account')}</span
-            >
-          </p>
+          ${window.grampsjsConfig.hideRegisterLink
+            ? ''
+            : html`
+                <p class="reset-link">
+                  <span
+                    class="link"
+                    @click="${() => {
+                      this.register = true
+                    }}"
+                    >${this._('Register new account')}</span
+                  >
+                </p>
+              `}
         </form>
         <grampsjs-password-manager-polyfill
           .credentials=${this.credentials}
@@ -270,10 +276,11 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
           </div>
           <p class="success" id="register-success" style="display:none;">
             <mwc-icon>check_circle</mwc-icon><br />
-            New account registered successfully.
-            <br />Please confirm your e-mail address by clicking the link in the
-            e-mail you received and then wait for the site owner to activate
-            your account.
+            ${this._('New account registered successfully.')}
+            <br />
+            ${this._(
+              'Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.'
+            )}
           </p>
           <p class="reset-link">
             ${this._('Already have an account?')}
@@ -344,11 +351,13 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
     const pwField = this.shadowRoot.getElementById('password')
     const emailField = this.shadowRoot.getElementById('email')
     const nameField = this.shadowRoot.getElementById('fullname')
+    const tree = this.tree || ''
     const res = await apiRegisterUser(
       userField.value,
       pwField.value,
       emailField.value,
-      nameField.value
+      nameField.value,
+      tree
     )
     const innerForm = this.shadowRoot.getElementById('inner-form')
     const divSuccess = this.shadowRoot.getElementById('register-success')
