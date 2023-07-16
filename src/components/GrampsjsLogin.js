@@ -175,12 +175,12 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             <mwc-textfield
               outlined
               id="username"
-              label="Username"
+              label="${this._('Username')}"
               type="text"
             ></mwc-textfield>
             <mwc-button
               raised
-              label="reset password"
+              label="${this._('reset password')}"
               type="submit"
               @click="${this._resetPw}"
             >
@@ -197,7 +197,7 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
           </div>
           <p class="success" id="reset-success" style="display:none;">
             <mwc-icon>check_circle</mwc-icon><br />
-            A password reset link has been sent by e-mail.
+            ${this._('A password reset link has been sent by e-mail.')}
           </p>
           <p class="reset-link">
             <span
@@ -205,7 +205,7 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
               @click="${() => {
                 this.resetpw = false
               }}"
-              >Back</span
+              >${this._('_Back')}</span
             >
           </p>
         </form>
@@ -226,33 +226,33 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
               required
               outlined
               id="username"
-              label="Username"
+              label="${this._('Username')}"
               type="text"
             ></mwc-textfield>
             <mwc-textfield
               required
               outlined
               id="password"
-              label="Password"
+              label="${this._('Password')}"
               type="password"
             ></mwc-textfield>
             <mwc-textfield
               required
               outlined
               id="email"
-              label="E-mail"
+              label="${this._('E-mail')}"
               type="email"
             ></mwc-textfield>
             <mwc-textfield
               required
               outlined
               id="fullname"
-              label="Full name"
+              label="${this._('Full Name')}"
               type="text"
             ></mwc-textfield>
             <mwc-button
               raised
-              label="submit"
+              label="${this._('Submit')}"
               type="submit"
               @click="${this._register}"
               ?disabled="${!this.isFormValid}"
@@ -276,13 +276,13 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             your account.
           </p>
           <p class="reset-link">
-            Already have an account?
+            ${this._('Already have an account?')}
             <span
               class="link"
               @click="${() => {
                 this.register = false
               }}"
-              >Login</span
+              >${this._('login')}</span
             >
           </p>
         </form>
