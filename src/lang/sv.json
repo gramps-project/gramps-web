@@ -98,5 +98,7 @@
     "Usage quotas": "Användningskvoter",
     "Not authorized": "Inte auktoriserad",
     "This user name is already in use": "Det här användarnamnet används redan",
-    "This e-mail address is already in use": "Den här mailadressen är redan i bruk"
+    "This e-mail address is already in use": "Den här mailadressen är redan i bruk",
+    "reset password": "återställ lösenord",
+    "Already have an account?": "Har du redan ett konto?"
 }
