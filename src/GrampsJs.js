@@ -391,12 +391,13 @@ export class GrampsJs extends LitElement {
   }
 
   _renderLogin(register) {
-    return html`${this._dbInfo?.server?.multi_tree}
+    return html`
       <grampsjs-login
         ?register="${register}"
         .strings="${this._strings}"
         tree="${this._pageId || ''}"
-      ></grampsjs-login> `
+      ></grampsjs-login>
+    `
   }
 
   _renderFirstRun() {
