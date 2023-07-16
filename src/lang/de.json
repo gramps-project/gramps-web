@@ -98,5 +98,9 @@
     "Not authorized": "Nicht autorisiert",
     "This user name is already in use": "Dieser Benutzername wird bereits verwendet",
     "This e-mail address is already in use": "Diese E-Mail-Adresse wird bereits verwendet",
-    "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Bitte bestätige deine E-Mail-Adresse, indem du auf den Link in der E-Mail klickst, die du erhalten hast, und warte dann darauf, dass der Baumbesitzer dein Konto aktiviert."
+    "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Bitte bestätige deine E-Mail-Adresse, indem du auf den Link in der E-Mail klickst, die du erhalten hast, und warte dann darauf, dass der Baumbesitzer dein Konto aktiviert.",
+    "Already have an account?": "Du hast bereits ein Konto?",
+    "New account registered successfully.": "Neues Konto erfolgreich registriert.",
+    "reset password": "Kennwort zurücksetzen",
+    "A password reset link has been sent by e-mail.": "Ein Link zum Zurücksetzen des Kennworts wurde als E-Mail versendet."
 }
