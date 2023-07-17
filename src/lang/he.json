@@ -97,5 +97,10 @@
     "Usage quotas": "מכסות ניצולת",
     "Not authorized": "אין הרשאה",
     "This e-mail address is already in use": "כתובת הדוא״ל הזו כבר בשימוש",
-    "This user name is already in use": "שם המשתמש הזה כבר בשימוש"
+    "This user name is already in use": "שם המשתמש הזה כבר בשימוש",
+    "reset password": "איפוס סיסמה",
+    "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "נא לאמת את כתובת הדוא״ל שלך בלחיצה על הקישור בהודעה שקיבלת ואז להמתין להפעלת החשבון שלך על ידי בעלי העץ.",
+    "Already have an account?": "כבר יש לך חשבון?",
+    "New account registered successfully.": "חשבון חדש נרשם בהצלחה.",
+    "A password reset link has been sent by e-mail.": "קישור לאיפוס סיסמה נשלח בדוא״ל."
 }
