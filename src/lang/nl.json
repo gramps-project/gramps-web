@@ -97,5 +97,10 @@
     "Usage quotas": "Gebruiksquota",
     "Not authorized": "Niet geautoriseerd",
     "This e-mail address is already in use": "Dit e-mailadres is al in gebruik",
-    "This user name is already in use": "Deze gebruikersnaam is al in gebruik"
+    "This user name is already in use": "Deze gebruikersnaam is al in gebruik",
+    "Already have an account?": "Heeft u al een account?",
+    "reset password": "wachtwoord opnieuw instellen",
+    "New account registered successfully.": "Nieuw account succesvol geregistreerd.",
+    "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Bevestig uw e-mailadres door op de link in de e-mail te klikken die u heeft ontvangen en wacht vervolgens tot de eigenaar van de stamboom uw account activeert.",
+    "A password reset link has been sent by e-mail.": "Een link voor het opnieuw instellen van uw wachtwoord is per e-mail verzonden."
 }
