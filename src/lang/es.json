@@ -97,5 +97,10 @@
     "Usage quotas": "Cuotas de uso",
     "Not authorized": "No autorizado",
     "This e-mail address is already in use": "Esta dirección de correo electrónico ya está en uso",
-    "This user name is already in use": "Este nombre de usuario ya está en uso"
+    "This user name is already in use": "Este nombre de usuario ya está en uso",
+    "Already have an account?": "¿Ya tienes una cuenta?",
+    "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Por favor, verifica tu dirección de correo electrónico haciendo clic en el enlace del correo electrónico que recibió y luego espera a que el propietario del árbol active tu cuenta.",
+    "reset password": "restablecer la contraseña",
+    "New account registered successfully.": "Nueva cuenta registrada con éxito.",
+    "A password reset link has been sent by e-mail.": "Se ha enviado un enlace de restablecimiento de contraseña por correo electrónico."
 }
