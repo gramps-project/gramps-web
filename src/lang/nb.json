@@ -88,5 +88,19 @@
     "Import user accounts": "Importer brukerkontoer",
     "Export user details": "Eksporter brukerdetaljer",
     "Export your media files": "Eksporter dine mediafiler",
-    "Generate a ZIP archive with all media files.": "Generer et ZIP-arkiv med alle mediafiler."
+    "Generate a ZIP archive with all media files.": "Generer et ZIP-arkiv med alle mediafiler.",
+    "Already have an account?": "Har du allerede en konto?",
+    "reset password": "nullstill passord",
+    "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Vennligst bekreft din e-postadresse ved å klikke på lenken i e-posten du mottok. Vent så på at tre-eier aktiverer kontoen din.",
+    "E-mail settings": "E-postinnstillinger",
+    "Creating owner account": "Oppretter eierkonto",
+    "Storing configuration": "Lagrer konfigurasjon",
+    "Importing family tree": "Importerer familietre",
+    "Copy to clipboard": "Kopier til utklippstavle",
+    "New account registered successfully.": "Ny konto er registrert.",
+    "A password reset link has been sent by e-mail.": "En lenke for å nullstille passordet er sendt på e-post.",
+    "Usage quotas": "Brukerkvoter",
+    "Not authorized": "Ikke autorisert",
+    "This e-mail address is already in use": "Denne e-postadressen er allerede i bruk",
+    "This user name is already in use": "Dette brukernavnet er allerede i bruk"
 }
