@@ -94,5 +94,13 @@
     "Importing family tree": "Importing family tree",
     "Storing configuration": "Storing configuration",
     "Copy to clipboard": "Copy to clipboard",
-    "Usage quotas": "Usage quotas"
+    "Usage quotas": "Usage quotas",
+    "reset password": "reset password",
+    "Already have an account?": "Already have an account?",
+    "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.",
+    "New account registered successfully.": "New account registered successfully.",
+    "A password reset link has been sent by e-mail.": "A password reset link has been sent by e-mail.",
+    "Not authorized": "Not authorised",
+    "This e-mail address is already in use": "This e-mail address is already in use",
+    "This user name is already in use": "This user name is already in use"
 }
