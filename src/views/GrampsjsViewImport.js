@@ -134,7 +134,7 @@ export class GrampsjsViewImport extends GrampsjsView {
     const res = await apiPost(`/api/importers/${ext}/file`, file, false, false)
     if ('error' in res) {
       prog.setError()
-      prog._errorMessage = this._(res.error)
+      prog.errorMessage = this._(res.error)
       this._handleCompleted(STATE_ERROR)
     } else if ('task' in res) {
       prog.taskId = res.task?.id || ''
@@ -158,7 +158,8 @@ export class GrampsjsViewImport extends GrampsjsView {
     )
     if ('error' in res) {
       prog.setError()
-      prog._errorMessage = this._(res.error)
+      prog.errorMessage = this._(res.error)
+      console.log([res.error, this._(res.error)])
       this._handleCompletedMedia(STATE_ERROR)
     } else if ('task' in res) {
       prog.taskId = res.task?.id || ''

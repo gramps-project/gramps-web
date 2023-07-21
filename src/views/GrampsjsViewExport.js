@@ -181,7 +181,7 @@ export class GrampsjsViewExport extends GrampsjsView {
     const data = await apiPost(url)
     if ('error' in data) {
       prog.setError()
-      prog._errorMessage = data.error
+      prog.errorMessage = data.error
     } else if ('task' in data) {
       // queued task
       prog.taskId = data.task?.id || ''
@@ -201,7 +201,7 @@ export class GrampsjsViewExport extends GrampsjsView {
     const data = await apiPost(url)
     if ('error' in data) {
       prog.setError()
-      prog._errorMessage = data.error
+      prog.errorMessage = data.error
     } else if ('task' in data) {
       // queued task
       prog.taskId = data.task?.id || ''

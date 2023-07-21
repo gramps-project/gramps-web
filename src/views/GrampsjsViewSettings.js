@@ -350,7 +350,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     const data = await apiPost('/api/search/index/?full=1')
     if ('error' in data) {
       prog.setError()
-      prog._errorMessage = data.error
+      prog.errorMessage = data.error
     } else if ('task' in data) {
       prog.taskId = data.task?.id || ''
     } else {
