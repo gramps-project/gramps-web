@@ -81,13 +81,17 @@ export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
       return html`${this._('Error')}`
     }
     const usagePeople =
-      'usage_people' in data ? data.usage_people : this._('unknown')
+      data.usage_people === undefined || data.usage_people === null
+        ? this._('unknown')
+        : data.usage_people
     const quotaPeople =
       'quota_people' in data
         ? data.quota_people || html`&infin;`
         : this._('unknown')
     const usageMedia =
-      'usage_media' in data ? formatBytes(data.usage_media) : this._('unknown')
+      data.usage_media === undefined || data.usage_media === null
+        ? this._('unknown')
+        : formatBytes(data.usage_media)
     const quotaMedia =
       'quota_media' in data
         ? formatBytes(data.quota_media) || html`&infin;`
