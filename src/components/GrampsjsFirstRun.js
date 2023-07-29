@@ -244,7 +244,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
 
           <p style="margin-top: 2em;">
             ${this._('Need help? Check out ')}<a
-              href="https://gramps-project.github.io/web/Deployment/"
+              href="https://www.grampsweb.org/Deployment/"
               >${this._('the documentation')}</a
             >.
           </p>
