@@ -1,6 +1,6 @@
 # docker-compose file for frontend development
 # do not use in production!
-# https://gramps-project.github.io/web/dev-frontend/setup/
+# https://www.grampsweb.org/dev-frontend/setup/
 
 version: "3.8"
 
