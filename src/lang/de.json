@@ -102,5 +102,6 @@
     "Already have an account?": "Du hast bereits ein Konto?",
     "New account registered successfully.": "Neues Konto erfolgreich registriert.",
     "reset password": "Kennwort zurücksetzen",
-    "A password reset link has been sent by e-mail.": "Ein Link zum Zurücksetzen des Kennworts wurde als E-Mail versendet."
+    "A password reset link has been sent by e-mail.": "Ein Link zum Zurücksetzen des Kennworts wurde als E-Mail versendet.",
+    "Copy URL": "URL kopieren"
 }
