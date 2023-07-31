@@ -202,6 +202,7 @@ export const sharedStyles = css`
   h2 .given-name {
     text-decoration: underline rgba(0, 0, 0, 0.6);
     text-underline-offset: 0.15em;
+    text-decoration-thickness: 0.1rem;
   }
 
   span.skeleton {
