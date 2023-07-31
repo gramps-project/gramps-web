@@ -159,7 +159,6 @@ export class GrampsjsViewImport extends GrampsjsView {
     if ('error' in res) {
       prog.setError()
       prog.errorMessage = this._(res.error)
-      console.log([res.error, this._(res.error)])
       this._handleCompletedMedia(STATE_ERROR)
     } else if ('task' in res) {
       prog.taskId = res.task?.id || ''
