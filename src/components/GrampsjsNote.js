@@ -19,12 +19,16 @@ export class GrampsjsNote extends GrampsjsObject {
     ]
   }
 
+  constructor() {
+    super()
+    this._objectsName = 'Notes'
+    this._objectIcon = 'sticky_note_2'
+  }
+
   renderProfile() {
     return html`
       <h2>
-        <mwc-icon class="person">sticky_note_2</mwc-icon> ${this._(
-          this.data?.type || 'Note'
-        )}
+        ${this._(this.data?.type || 'Note')}
         ${this.edit
           ? html`
               <mwc-icon-button

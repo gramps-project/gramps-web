@@ -61,6 +61,8 @@ export class GrampsjsMediaObject extends GrampsjsObject {
 
   constructor() {
     super()
+    this._objectsName = 'Media Objects'
+    this._objectIcon = 'photo'
     this.selectedRect = {}
     this.deletedRects = []
     this.bbox = {}
@@ -70,7 +72,6 @@ export class GrampsjsMediaObject extends GrampsjsObject {
   renderProfile() {
     return html`
       <h2>
-        <mwc-icon>photo</mwc-icon>
         ${this.data.desc || this._('Media Object')}
         ${this.edit
           ? html`

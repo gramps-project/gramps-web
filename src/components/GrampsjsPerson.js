@@ -22,6 +22,8 @@ export class GrampsjsPerson extends GrampsjsObject {
   constructor() {
     super()
     this.homePersonDetails = {}
+    this._objectsName = 'People'
+    this._objectIcon = 'person'
     this._showReferences = false
     this._showPersonTimeline = true
   }
@@ -29,17 +31,6 @@ export class GrampsjsPerson extends GrampsjsObject {
   renderProfile() {
     return html`
       <h2>
-        <mwc-icon
-          class="inline ${
-            // eslint-disable-next-line no-nested-ternary
-            this.data.gender === 1
-              ? 'male'
-              : this.data.gender === 0
-              ? 'female'
-              : ''
-          }"
-          >person</mwc-icon
-        >
         <grampsjs-edit-gender
           ?edit="${this.edit}"
           gender="${this.data.gender}"

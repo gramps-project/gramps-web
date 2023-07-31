@@ -15,13 +15,13 @@ export class GrampsjsRepository extends GrampsjsObject {
   constructor() {
     super()
     this._showReferences = false
+    this._objectsName = 'Repositories'
+    this._objectIcon = 'account_balance'
   }
 
   renderProfile() {
     return html`
-      <h2>
-        <mwc-icon class="person">account_balance</mwc-icon> ${this.data.name}
-      </h2>
+      <h2>${this.data.name}</h2>
       <dl>
         ${this.data?.type
           ? html`

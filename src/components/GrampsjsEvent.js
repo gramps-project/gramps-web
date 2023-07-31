@@ -22,12 +22,14 @@ export class GrampsjsEvent extends GrampsjsObject {
 
   constructor() {
     super()
+    this._objectsName = 'Events'
+    this._objectIcon = 'event'
     this._showReferences = false
   }
 
   renderProfile() {
     return html`
-      <h2><mwc-icon class="person">event</mwc-icon> ${this._renderTitle()}</h2>
+      <h2>${this._renderTitle()}</h2>
       ${this.data.description || this.edit
         ? html` <dl>
             <div>

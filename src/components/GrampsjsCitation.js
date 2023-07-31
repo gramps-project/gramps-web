@@ -27,11 +27,15 @@ export class GrampsjsCitation extends GrampsjsObject {
     ]
   }
 
+  constructor() {
+    super()
+    this._objectsName = 'Citations'
+    this._objectIcon = 'bookmark'
+  }
+
   renderProfile() {
     return html`
-      <h2>
-        <mwc-icon class="person">bookmark</mwc-icon> ${this._('Citation')}
-      </h2>
+      <h2>${this._('Citation')}</h2>
 
       <dl>
         ${this.data?.profile?.date

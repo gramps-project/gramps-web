@@ -13,14 +13,14 @@ export class GrampsjsPlace extends GrampsjsObject {
   constructor() {
     super()
     this._showReferences = false
+    this._objectsName = 'Places'
+    this._objectIcon = 'place'
   }
 
   renderProfile() {
     return html`
       <h2>
-        <mwc-icon class="person">place</mwc-icon> ${this.data?.name?.value ||
-        this.data.title ||
-        this._('Place')}
+        ${this.data?.name?.value || this.data.title || this._('Place')}
         ${this.edit
           ? html`
               <mwc-icon-button

@@ -102,5 +102,6 @@
   "reset password": "reset password",
   "New account registered successfully.": "New account registered successfully.",
   "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.",
-  "A password reset link has been sent by e-mail.": "A password reset link has been sent by e-mail."
+  "A password reset link has been sent by e-mail.": "A password reset link has been sent by e-mail.",
+  "Copy URL": "Copy URL"
 }

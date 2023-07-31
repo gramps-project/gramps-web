@@ -21,12 +21,13 @@ export class GrampsjsSource extends GrampsjsObject {
   constructor() {
     super()
     this._showReferences = false
+    this._objectsName = 'Sources'
+    this._objectIcon = 'bookmarks'
   }
 
   renderProfile() {
     return html`
       <h2>
-        <mwc-icon class="person">bookmarks</mwc-icon>
         ${this.data.title || this._('Media Object')}
         ${this.edit
           ? html`

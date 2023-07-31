@@ -20,11 +20,13 @@ export class GrampsjsFamily extends GrampsjsObject {
   constructor() {
     super()
     this._showReferences = false
+    this._objectsName = 'Families'
+    this._objectIcon = 'people'
   }
 
   renderProfile() {
     return html`
-      <h2><mwc-icon class="person">people</mwc-icon> ${this._renderTitle()}</h2>
+      <h2>${this._renderTitle()}</h2>
       ${this._renderFather()} ${this._renderMother()}
       <p>
         ${this._renderRelType()} ${this._renderMarriage()}

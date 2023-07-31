@@ -12,6 +12,7 @@ import '../views/GrampsjsViewPersonTimeline.js'
 import './GrampsjsAddresses.js'
 import './GrampsjsAssociations.js'
 import './GrampsjsAttributes.js'
+import './GrampsjsBreadcrumbs.js'
 import './GrampsjsChildren.js'
 import './GrampsjsCitations.js'
 import './GrampsjsEvents.js'
@@ -22,7 +23,6 @@ import './GrampsjsGallery.js'
 import './GrampsjsMap.js'
 import './GrampsjsMapMarker.js'
 import './GrampsjsParticipants.js'
-import './GrampsjsPrivacy.js'
 import './GrampsjsReferences.js'
 import './GrampsjsRelationships.js'
 import './GrampsjsRepositories.js'
@@ -209,6 +209,8 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       edit: {type: Boolean},
       canEdit: {type: Boolean},
       dialogContent: {type: String},
+      _objectsName: {type: String},
+      _objectIcon: {type: String},
       _currentTabId: {type: Number},
       _currentTab: {type: String},
       _showReferences: {type: Boolean},
@@ -223,6 +225,8 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     this.edit = false
     this.canEdit = false
     this.dialogContent = ''
+    this._objectsName = 'Objects'
+    this._objectIcon = ''
     this._currentTabId = 0
     this._showReferences = true
     this._showPersonTimeline = false
@@ -234,10 +238,9 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       return html``
     }
     return html`
-      <div id="picture">
-        ${this.renderPicture()}
-        <div id="privacy">${this.renderPrivacy()}</div>
-      </div>
+      ${this.renderHeader()}
+
+      <div id="picture">${this.renderPicture()}</div>
 
       ${this.renderProfile()}
 
@@ -250,6 +253,18 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       <div class="tab-content">${this.renderTabContent()}</div>
 
       ${this.dialogContent}
+    `
+  }
+
+  renderHeader() {
+    return html`
+      <grampsjs-breadcrumbs
+        .data="${this.data}"
+        .strings="${this.strings}"
+        ?edit="${this.edit}"
+        objectsName="${this._objectsName}"
+        objectIcon="${this._objectIcon}"
+      ></grampsjs-breadcrumbs>
     `
   }
 
@@ -317,17 +332,6 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       .strings="${this.strings}"
       @tag:new="${this._handleNewTag}"
     ></grampsjs-tags>`
-  }
-
-  renderPrivacy() {
-    if (!this.edit) {
-      return ''
-    }
-    return html` <grampsjs-privacy
-      ?private="${this.data.private}"
-      ?edit="${this.edit}"
-      .strings="${this.strings}"
-    ></grampsjs-privacy>`
   }
 
   renderTabContent() {
