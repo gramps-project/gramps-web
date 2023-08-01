@@ -55,6 +55,7 @@ export class GrampsjsPasswordManagerPolyfill extends LitElement {
         <input
           tabindex="-1"
           id="username"
+          autocapitalize="off"
           type="text"
           .value="${this.credentials.username || ''}"
           @input=${this._valueChanged}
@@ -63,6 +64,7 @@ export class GrampsjsPasswordManagerPolyfill extends LitElement {
           tabindex="-1"
           id="password"
           type="password"
+          autocapitalize="off"
           .value="${this.credentials.password || ''}"
           @input=${this._valueChanged}
         />

@@ -125,6 +125,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
             @input="${this.checkValidity}"
             outlined
             required
+            autocapitalize="off"
             id="username"
             label="${this._('Username')}"
             type="text"
@@ -133,6 +134,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
             @input="${this.checkValidity}"
             outlined
             required
+            autocapitalize="off"
             id="password"
             label="${this._('Password')}"
             type="password"
@@ -141,6 +143,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
             @input="${this.checkValidity}"
             outlined
             required
+            autocapitalize="off"
             id="email"
             label="${this._('E-mail')}"
             type="email"

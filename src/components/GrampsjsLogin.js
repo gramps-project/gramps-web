@@ -99,6 +99,7 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
         >
           <mwc-textfield
             outlined
+            autocapitalize="off"
             id="username"
             label="${this._('Username')}"
             @input="${this._credChanged}"
@@ -106,6 +107,7 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
           ></mwc-textfield>
           <mwc-textfield
             outlined
+            autocapitalize="off"
             id="password"
             label="${this._('Password')}"
             type="password"
@@ -180,6 +182,7 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
           <div id="inner-form">
             <mwc-textfield
               outlined
+              autocapitalize="off"
               id="username"
               label="${this._('Username')}"
               type="text"
@@ -231,6 +234,7 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             <mwc-textfield
               required
               outlined
+              autocapitalize="off"
               id="username"
               label="${this._('Username')}"
               type="text"
@@ -238,6 +242,7 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             <mwc-textfield
               required
               outlined
+              autocapitalize="off"
               id="password"
               label="${this._('Password')}"
               type="password"
@@ -245,6 +250,7 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             <mwc-textfield
               required
               outlined
+              autocapitalize="off"
               id="email"
               label="${this._('E-mail')}"
               type="email"
