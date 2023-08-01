@@ -103,5 +103,7 @@
     "Already have an account?": "האם קיים כבר חשבון?",
     "New account registered successfully.": "רישום חשבון חדש צלח.",
     "A password reset link has been sent by e-mail.": "קישור לשיצוב ססמה נשלח בדוא״ל.",
-    "Copy URL": "העתקת מען־URL"
+    "Copy URL": "העתקת מען־URL",
+    "Upload a ZIP archive with files for existing media objects.": "העלאת ארכיון ZIP עם קבצים לעצמי מדיה קיימים.",
+    "Import Media Files": "ייבוא קובצי מדיה"
 }
