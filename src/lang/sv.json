@@ -103,5 +103,6 @@
     "Already have an account?": "Har du redan ett konto?",
     "A password reset link has been sent by e-mail.": "En länk för återställning av lösenord har skickats via e-post.",
     "New account registered successfully.": "Nytt konto har registrerats framgångsrikt.",
-    "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Vänligen bekräfta din e-postadress genom att klicka på länken i e-postmeddelandet du fick och vänta sedan på att trädägaren ska aktivera ditt konto."
+    "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Vänligen bekräfta din e-postadress genom att klicka på länken i e-postmeddelandet du fick och vänta sedan på att trädägaren ska aktivera ditt konto.",
+    "Copy URL": "Kopiera URL"
 }
