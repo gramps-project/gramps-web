@@ -9,6 +9,24 @@ import {fireEvent} from '../util.js'
 import '@material/mwc-icon'
 import '@material/mwc-list/mwc-list-item'
 
+function isValidEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return re.test(email)
+}
+
+function fixUrl(input) {
+  let url = input
+  try {
+    url = new URL(input)
+  } catch (error) {
+    if (isValidEmail(input)) {
+      return `mailto:${input}`
+    }
+    return `https://${input}`
+  }
+  return url
+}
+
 export class GrampsjsUrls extends GrampsjsEditableList {
   row(obj) {
     return html`
@@ -19,7 +37,7 @@ export class GrampsjsUrls extends GrampsjsEditableList {
         @click="${() => this._handleClick(obj)}"
       >
         <a
-          href="${obj.path}"
+          href="${fixUrl(obj.path)}"
           target="_blank"
           class="${classMap({nopointer: this.edit})}"
           >${obj.path}</a
