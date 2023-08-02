@@ -103,5 +103,7 @@
     "New account registered successfully.": "Neues Konto erfolgreich registriert.",
     "reset password": "Kennwort zurücksetzen",
     "A password reset link has been sent by e-mail.": "Ein Link zum Zurücksetzen des Kennworts wurde als E-Mail versendet.",
-    "Copy URL": "URL kopieren"
+    "Copy URL": "URL kopieren",
+    "Upload a ZIP archive with files for existing media objects.": "Lade ein ZIP-Archiv mit Dateien für vorhandene Medienobjekte hoch.",
+    "Import Media Files": "Mediendateien importieren"
 }
