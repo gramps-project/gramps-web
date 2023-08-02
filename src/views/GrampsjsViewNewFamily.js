@@ -47,6 +47,18 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
         .strings="${this.strings}"
       ></grampsjs-form-select-object-list>
 
+      <grampsjs-form-select-type
+        id="family-rel-type"
+        heading="${this._('Relationship type:').replace(':', '')}"
+        .strings="${this.strings}"
+        ?loadingTypes="${this.loadingTypes}"
+        typeName="family_relation_types"
+        defaultTypeName="Unknown"
+        .types="${this.types}"
+        .typesLocale="${this.typesLocale}"
+      >
+      </grampsjs-form-select-type>
+
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"
@@ -78,6 +90,12 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
           _class: 'ChildRef',
           ref: handle,
         })),
+      }
+    }
+    if (originalTarget.id === 'family-rel-type') {
+      this.data = {
+        ...this.data,
+        type: {_class: 'FamilyRelType', string: e.detail.data},
       }
     }
     this.checkFormValidity()
