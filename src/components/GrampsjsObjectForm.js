@@ -236,6 +236,12 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
     if (originalTarget.id === 'place-list') {
       this.data = {...this.data, place: e.detail.data[0]}
     }
+    if (originalTarget.id === 'father-list') {
+      this.data = {...this.data, father_handle: e.detail.data[0]}
+    }
+    if (originalTarget.id === 'mother-list') {
+      this.data = {...this.data, mother_handle: e.detail.data[0]}
+    }
     if (originalTarget.id === 'date') {
       this.data = {...this.data, date: e.detail.data}
     }
@@ -300,6 +306,12 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
       this.data = {
         ...this.data,
         type: {_class: 'AttributeType', string: e.detail.data},
+      }
+    }
+    if (originalTarget.id === 'family-rel-type') {
+      this.data = {
+        ...this.data,
+        type: {_class: 'FamilyRelType', string: e.detail.data},
       }
     }
     if (originalTarget.id === 'urltype') {

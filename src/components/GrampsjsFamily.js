@@ -4,7 +4,8 @@ import '@material/mwc-icon'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
 import {ringsIcon} from '../icons.js'
-import {renderPerson} from '../util.js'
+import {renderPerson, fireEvent} from '../util.js'
+import './GrampsjsFormEditFamily.js'
 
 export class GrampsjsFamily extends GrampsjsObject {
   static get styles() {
@@ -28,6 +29,15 @@ export class GrampsjsFamily extends GrampsjsObject {
     return html`
       <h2>${this._renderTitle()}</h2>
       ${this._renderFather()} ${this._renderMother()}
+      ${this.edit
+        ? html`
+            <mwc-icon-button
+              icon="edit"
+              class="edit"
+              @click="${this._handleEditFamily}"
+            ></mwc-icon-button>
+          `
+        : ''}
       <p>
         ${this._renderRelType()} ${this._renderMarriage()}
         ${this._renderDivorce()}
@@ -87,6 +97,39 @@ export class GrampsjsFamily extends GrampsjsObject {
         ${obj.date || ''} ${obj.place ? this._('in') : ''} ${obj.place || ''}
       </span>
     `
+  }
+
+  _handleEditFamily() {
+    const data = {
+      father_handle: this.data.father_handle,
+      mother_handle: this.data.mother_handle,
+      type: this.data?.type?.string || this.data.type,
+    }
+    const father = this.data?.extended?.father
+    const mother = this.data?.extended?.mother
+    const fatherProfile = this.data?.profile?.father
+    const motherProfile = this.data?.profile?.mother
+
+    this.dialogContent = html`
+      <grampsjs-form-edit-family
+        @object:save="${this._handleSaveDetails}"
+        @object:cancel="${this._handleCancelDialog}"
+        .strings=${this.strings}
+        .data=${data}
+        .father=${father}
+        .mother=${mother}
+        .fatherProfile=${fatherProfile}
+        .motherProfile=${motherProfile}
+      >
+      </grampsjs-form-edit-family>
+    `
+  }
+
+  _handleSaveDetails(e) {
+    fireEvent(this, 'edit:action', {action: 'updateProp', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
   }
 }
 
