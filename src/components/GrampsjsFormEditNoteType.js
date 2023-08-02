@@ -22,8 +22,6 @@ class GrampsjsFormEditNoteType extends GrampsjsObjectForm {
         initialValue="${this.data?.type || ''}"
       >
       </grampsjs-form-select-type>
-
-      </p>
     `
   }
 }
