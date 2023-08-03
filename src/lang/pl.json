@@ -102,5 +102,8 @@
     "Usage quotas": "Przydziały użycia",
     "Not authorized": "Nieautoryzowany",
     "This e-mail address is already in use": "Ten adres e-mail jest już w użyciu",
-    "This user name is already in use": "Nazwa użytkownika jest zajęta"
+    "This user name is already in use": "Nazwa użytkownika jest zajęta",
+    "Copy URL": "Kopiuj URL",
+    "Upload a ZIP archive with files for existing media objects.": "Prześlij archiwum ZIP z plikami dla istniejących obiektów multimedialnych.",
+    "Import Media Files": "Importuj pliki multimedialne"
 }
