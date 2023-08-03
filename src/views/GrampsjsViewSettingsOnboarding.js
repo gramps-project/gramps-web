@@ -93,7 +93,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
       <p>
         <grampsjs-form-object-list
           .strings="${this.strings}"
-          .objects=${this.homePersonDetails.handle
+          .objects=${this.homePersonDetails?.handle
             ? [this.homePersonDetails]
             : []}
           id="homeperson-list"
@@ -225,9 +225,10 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
       )
       if ('data' in dataPeople) {
         this.error = false
-        ;[this.homePersonDetails] = dataPeople.data.filter(
+        const [details] = dataPeople.data.filter(
           obj => obj.object?.gramps_id === this._settings.homePerson
         )
+        this.homePersonDetails = details || {}
       } else if ('error' in dataPeople) {
         this.error = true
         this._errorMessage = dataPeople.error
