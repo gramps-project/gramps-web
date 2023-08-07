@@ -97,5 +97,13 @@
     "Export your media files": "Экспорт мультимедийных файлов",
     "Generate a ZIP archive with all media files.": "Создать ZIP-архив со всеми медиафайлами.",
     "Export user details": "Экспорт сведений о пользователях",
-    "This user name is already in use": "Это имя пользователя уже используется"
+    "This user name is already in use": "Это имя пользователя уже используется",
+    "Already have an account?": "Уже есть учётная запись?",
+    "A password reset link has been sent by e-mail.": "Ссылка для сброса пароля отправлена на вашу эл. почту.",
+    "reset password": "сброс пароля",
+    "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Подтвердите свой адрес эл. почты, нажав на ссылку в полученном письме, а потом дождитесь, когда владелец древа активирует вашу учётную запись.",
+    "New account registered successfully.": "Новая учётная запись зарегистрирована успешно.",
+    "Copy URL": "Копировать адрес URL",
+    "Upload a ZIP archive with files for existing media objects.": "Загрузить ZIP-архив с файлами для уже созданных медиа-объектов.",
+    "Import Media Files": "Импортировать медиа-файлы"
 }
