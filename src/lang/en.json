@@ -105,5 +105,7 @@
   "A password reset link has been sent by e-mail.": "A password reset link has been sent by e-mail.",
   "Copy URL": "Copy URL",
   "Upload a ZIP archive with files for existing media objects.": "Upload a ZIP archive with files for existing media objects.",
-  "Import Media Files": "Import Media Files"
+  "Import Media Files": "Import Media Files",
+  "Delete this object?": "Delete this object?",
+  "Object %s deleted.": "Object %s deleted."
 }

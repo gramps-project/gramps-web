@@ -33,6 +33,7 @@ import './components/GrampsJsListItem.js'
 import './components/GrampsjsFirstRun.js'
 import './components/GrampsjsLogin.js'
 import './components/GrampsjsUpdateAvailable.js'
+import './components/GrampsjsUndoTransaction.js'
 import './views/GrampsjsViewPeople.js'
 import './views/GrampsjsViewFamilies.js'
 import './views/GrampsjsViewPlaces.js'
@@ -314,6 +315,7 @@ export class GrampsJs extends LitElement {
       ${this.renderContent()} ${this._renderKeyboardShortcuts()}
       <mwc-snackbar id="error-snackbar" leading></mwc-snackbar>
       <mwc-snackbar id="notification-snackbar" leading></mwc-snackbar>
+      <grampsjs-undo-transaction></grampsjs-undo-transaction>
       <grampsjs-update-available>
         <mwc-snackbar
           leading

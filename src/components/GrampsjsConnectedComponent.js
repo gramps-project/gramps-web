@@ -32,6 +32,8 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
     this.loadWithoutLocale = false
     this._errorMessage = ''
     this._data = {}
+    this._boundUpdateData = this._updateData.bind(this)
+    this._boundsHandleOnline = this._handleOnline.bind(this)
   }
 
   render() {
@@ -104,7 +106,13 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
   connectedCallback() {
     super.connectedCallback()
     this._updateData()
-    window.addEventListener('db:changed', () => this._updateData())
-    window.addEventListener('online', this._handleOnline.bind(this))
+    window.addEventListener('db:changed', this._boundUpdateData)
+    window.addEventListener('online', this._boundHandleOnline)
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('online', this._boundHandleOnline)
+    window.removeEventListener('db:changed', this._boundUpdateData)
+    super.disconnectedCallback()
   }
 }

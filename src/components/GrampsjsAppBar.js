@@ -82,15 +82,32 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
         ${
           // eslint-disable-next-line no-nested-ternary
           this.editMode
-            ? this.saveButton
-              ? html`
-                  <mwc-icon-button
-                    icon="save"
-                    slot="actionItems"
-                    @click="${this._handleSaveIcon}"
-                  ></mwc-icon-button>
-                `
-              : ''
+            ? html`
+                ${this.saveButton
+                  ? html`
+                      <mwc-icon-button
+                        icon="save"
+                        slot="actionItems"
+                        id="button-save"
+                        @click="${this._handleSaveIcon}"
+                      ></mwc-icon-button>
+                      <grampsjs-tooltip
+                        for="button-save"
+                        .strings="${this.strings}"
+                        >${this._('_Save')}</grampsjs-tooltip
+                      >
+                    `
+                  : ''}
+                <mwc-icon-button
+                  icon="delete"
+                  slot="actionItems"
+                  id="button-delete"
+                  @click="${this._handleDeleteIcon}"
+                ></mwc-icon-button>
+                <grampsjs-tooltip for="button-delete" .strings="${this.strings}"
+                  >${this._('_Delete')}</grampsjs-tooltip
+                >
+              `
             : html`
                 ${this.add
                   ? html`
@@ -159,10 +176,27 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
+  _handleDeleteIcon() {
+    this.editDialogContent = html`
+      <mwc-dialog open @closed="${this._handleDialog}">
+        <div>${this._('Delete this object?')}</div>
+        <mwc-button slot="primaryAction" dialogAction="delete">
+          ${this._('_Delete')}
+        </mwc-button>
+        <mwc-button slot="secondaryAction" dialogAction="cancel">
+          ${this._('Cancel')}
+        </mwc-button>
+      </mwc-dialog>
+    `
+  }
+
   _handleDialog(e) {
     if (e.detail.action === 'discard') {
       this._editModeOff()
+    } else if (e.detail.action === 'delete') {
+      this._deleteObject()
     }
+
     this.editDialogContent = ''
   }
 
@@ -182,6 +216,10 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
     this.editMode = true
     this.editTitle = e.detail.title
     this.saveButton = e.detail?.saveButton || false
+  }
+
+  _deleteObject() {
+    fireEvent(this, 'edit-mode:delete')
   }
 
   connectedCallback() {

@@ -367,6 +367,10 @@ export async function apiPost(
   return apiPutPost('POST', endpoint, payload, isJson, dbChanged)
 }
 
+export async function apiDelete(endpoint, dbChanged = true) {
+  return apiPutPost('DELETE', endpoint, null, false, dbChanged)
+}
+
 export function getExporterUrl(id, options) {
   const jwt = localStorage.getItem('access_token')
   const queryParam = new URLSearchParams(options).toString()

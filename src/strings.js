@@ -7,6 +7,7 @@ export const additionalStrings = translations
 
 export const grampsStrings = [
   '_Back',
+  '_Delete',
   '_Generate',
   '_Media Type:',
   '_Names',
@@ -497,6 +498,7 @@ export const grampsStrings = [
   'Transcript',
   'Type',
   'Underline',
+  'Undo',
   'Unknown ',
   'Unknown',
   'Unmarried',

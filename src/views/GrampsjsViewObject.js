@@ -6,7 +6,7 @@ import '@material/mwc-fab'
 import '@material/mwc-icon'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet, apiPut, apiPost} from '../api.js'
+import {apiGet, apiPut, apiPost, apiDelete} from '../api.js'
 import {fireEvent, objectTypeToEndpoint} from '../util.js'
 
 const editTitle = {
@@ -84,6 +84,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     this._className = ''
     this._saveButton = false
     this._boundDisableEditMode = this._disableEditMode.bind(this)
+    this._boundDeleteSelf = this._deleteSelf.bind(this)
   }
 
   getUrl() {
@@ -127,6 +128,7 @@ export class GrampsjsViewObject extends GrampsjsView {
   connectedCallback() {
     super.connectedCallback()
     window.addEventListener('edit-mode:off', this._boundDisableEditMode)
+    window.addEventListener('edit-mode:delete', this._boundDeleteSelf)
     window.addEventListener(
       'language:changed',
       this._handleLangChange.bind(this)
@@ -137,6 +139,7 @@ export class GrampsjsViewObject extends GrampsjsView {
   disconnectedCallback() {
     this.removeEventListener('edit:action', this.handleEditAction.bind(this))
     window.removeEventListener('edit-mode:off', this._boundDisableEditMode)
+    window.removeEventListener('edit-mode:delete', this._boundDeleteSelf)
     super.disconnectedCallback()
   }
 
@@ -199,6 +202,29 @@ export class GrampsjsViewObject extends GrampsjsView {
   }
 
   _handleObjectLoaded() {}
+
+  async _deleteSelf() {
+    const {handle} = this._data
+    const grampsId = this._data.gramps_id
+    const endpoint = objectTypeToEndpoint[this._className]
+    if (this.active && endpoint && handle) {
+      const url = `/api/${endpoint}/${handle}`
+      const data = await apiDelete(url, false)
+      if ('data' in data) {
+        this.grampsId = ''
+        this._data = {}
+        fireEvent(this, 'db:changed')
+        fireEvent(this, 'nav', {path: ''})
+        fireEvent(this, 'transaction:undo', {
+          message: this._('Object %s deleted.', grampsId),
+          transaction: data.data,
+          redirect: `${this._className}/${grampsId}`,
+        })
+      } else if ('error' in data) {
+        fireEvent(this, 'grampsjs:error', {message: data.error})
+      }
+    }
+  }
 
   handleEditAction(e) {
     if (e.detail.action === 'delEvent') {
