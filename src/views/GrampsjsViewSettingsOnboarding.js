@@ -215,24 +215,24 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
     ) {
       this.loading = true
       this._peopleLoading = true
-      const seachPhrase = `${this._settings.homePerson}`
       const dataPeople = await apiGet(
-        `/api/search/?locale=${
-          this.strings?.__lang__ || 'en'
-        }&profile=self&query=${encodeURIComponent(
-          `${seachPhrase} AND type:person`
-        )}`
+        `/api/people/?locale=${this.strings?.__lang__ || 'en'}&gramps_id=${
+          this._settings.homePerson
+        }&profile=self&extend=media_list`
       )
       if ('data' in dataPeople) {
         this.error = false
-        const [details] = dataPeople.data.filter(
-          obj => obj.object?.gramps_id === this._settings.homePerson
-        )
-        this.homePersonDetails = details || {}
+        const [details] = dataPeople.data
+        if (details !== undefined) {
+          this.homePersonDetails = {
+            object_type: 'person',
+            object: details,
+            handle: details.handle,
+          }
+        }
       } else if ('error' in dataPeople) {
         this.error = true
         this._errorMessage = dataPeople.error
-        return
       }
       this._peopleLoading = false
       if (!this._langLoading) {

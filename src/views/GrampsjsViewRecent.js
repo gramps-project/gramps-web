@@ -94,7 +94,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     }
     this.loading = true
     const query = this._data
-      .map(obj => obj.grampsId)
+      .map(obj => obj.grampsId.trim().replace(/\s\s+/g, ' OR '))
       .filter(grampsId => grampsId && grampsId.trim())
       .join(' OR ')
     const data = await apiGet(
