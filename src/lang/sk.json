@@ -55,7 +55,7 @@
     "login": "Prihlásenie",
     "Lost password?": "Stratené heslo?",
     "Register new account": "Registrácia nového účtu",
-    "All": "Všetko",
+    "All": "Všetky",
     "Select at least one object type": "Vyberte aspoň jeden typ objektu",
     "Properties": "Vlastnosti",
     "filter": "filtrovať",
@@ -94,5 +94,18 @@
     "Usage quotas": "Kvóty používania",
     "Export your family tree": "Exportovať rodinný strom",
     "Export your media files": "Exportovať mediálne súbory",
-    "Generate a ZIP archive with all media files.": "Vytvoriť archív ZIP so všetkými mediálnymi súbormi."
+    "Generate a ZIP archive with all media files.": "Vytvoriť archív ZIP so všetkými mediálnymi súbormi.",
+    "reset password": "obnoviť heslo",
+    "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Potvrďte svoju e-mailovú adresu kliknutím na odkaz v doručenom e-maile a potom počkajte, kým vlastník stromu aktivuje váš účet.",
+    "Delete this object?": "Vymazať tento objekt?",
+    "Object %s deleted.": "Objekt %s bol vymazaný.",
+    "Upload a ZIP archive with files for existing media objects.": "Nahrať archív ZIP so súbormi pre existujúce mediálne objekty.",
+    "Already have an account?": "Už máte účet?",
+    "New account registered successfully.": "Nový účet je úspešne zaregistrovaný.",
+    "A password reset link has been sent by e-mail.": "Odkaz na obnovenie hesla bol odoslaný e-mailom.",
+    "Copy URL": "Kopírovať URL",
+    "Not authorized": "Neautorizovaný",
+    "This e-mail address is already in use": "Táto e-mailová adresa ss už používa",
+    "This user name is already in use": "Toto používateľské meno je už zadané",
+    "Import Media Files": "Importovať mediálne súbory"
 }
