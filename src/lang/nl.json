@@ -105,5 +105,7 @@
     "A password reset link has been sent by e-mail.": "Een link voor het opnieuw instellen van uw wachtwoord is per e-mail verzonden.",
     "Copy URL": "URL kopiëren",
     "Import Media Files": "Mediabestanden importeren",
-    "Upload a ZIP archive with files for existing media objects.": "Upload een ZIP-archief met bestanden voor bestaande media-objecten."
+    "Upload a ZIP archive with files for existing media objects.": "Upload een ZIP-archief met bestanden voor bestaande media-objecten.",
+    "Delete this object?": "Dit object verwijderen?",
+    "Object %s deleted.": "Object %s is verwijderd."
 }
