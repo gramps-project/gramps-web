@@ -105,5 +105,7 @@
     "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Por favor, confirme o endereço electrónico, clicando na ligação recebida por correio. Em seguida, aguarde que o proprietário da árvore active a sua conta.",
     "Copy URL": "Copiar URL",
     "Import Media Files": "Importar ficheiros multimédia",
-    "Upload a ZIP archive with files for existing media objects.": "Enviar um arquivo ZIP com os objectos multimédia existentes."
+    "Upload a ZIP archive with files for existing media objects.": "Enviar um arquivo ZIP com os objectos multimédia existentes.",
+    "Delete this object?": "Eliminar este objecto?",
+    "Object %s deleted.": "Objecto %s eliminado."
 }
