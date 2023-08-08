@@ -105,5 +105,7 @@
     "A password reset link has been sent by e-mail.": "קישור לשיצוב ססמה נשלח בדוא״ל.",
     "Copy URL": "העתקת מען־URL",
     "Upload a ZIP archive with files for existing media objects.": "העלאת ארכיון ZIP עם קבצים לעצמי מדיה קיימים.",
-    "Import Media Files": "ייבוא קובצי מדיה"
+    "Import Media Files": "ייבוא קובצי מדיה",
+    "Object %s deleted.": "העצם %s נמחק.",
+    "Delete this object?": "למחוק את העצם הזה?"
 }
