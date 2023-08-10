@@ -103,5 +103,9 @@
     "reset password": "restablecer la contraseña",
     "New account registered successfully.": "Nueva cuenta registrada con éxito.",
     "A password reset link has been sent by e-mail.": "Se ha enviado un enlace de restablecimiento de contraseña por correo electrónico.",
-    "Copy URL": "Copiar la url"
+    "Copy URL": "Copiar la url",
+    "Object %s deleted.": "%s Objeto borrado.",
+    "Delete this object?": "¿Borrar este objeto?",
+    "Upload a ZIP archive with files for existing media objects.": "Carga un archivo ZIP con los archivos de los objetos multimedia existentes.",
+    "Import Media Files": "Importar los archivos multimedia"
 }
