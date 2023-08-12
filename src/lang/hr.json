@@ -92,5 +92,20 @@
     "Storing configuration": "Spremanje konfiguracije",
     "Importing family tree": "Učitavanje rodoslova",
     "E-mail settings": "E-mail postavke",
-    "Creating owner account": "Stvaranje računa vlasnika"
+    "Creating owner account": "Stvaranje računa vlasnika",
+    "Delete this object?": "Izbrisati ovaj objekt?",
+    "Object %s deleted.": "Objekt %s je izbrisan.",
+    "Copy to clipboard": "Kopiraj u međuspremnik",
+    "reset password": "resetiraj lozinku",
+    "New account registered successfully.": "Novi račun je uspješno registriran.",
+    "Already have an account?": "Već imaš račun?",
+    "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Potvrdi svoju e-mail adresu klikom na poveznicu u zaprimljenom e-mailu i zatim pričekaj da vlasnik stabla aktivira tvoj račun.",
+    "A password reset link has been sent by e-mail.": "Poveznica za resetiranje lozinke je poslana e-poštom.",
+    "Usage quotas": "Kvote korištenja",
+    "Copy URL": "Kopiraj URL",
+    "Not authorized": "Nije autorizirano",
+    "This e-mail address is already in use": "Ova se e-mail adresa već koristi",
+    "This user name is already in use": "Ovo se korisničko ime već koristi",
+    "Upload a ZIP archive with files for existing media objects.": "Prenesi ZIP arhivu s datotekama za postojeće medijske objekte.",
+    "Import Media Files": "Uvezi medijske datoteke"
 }
