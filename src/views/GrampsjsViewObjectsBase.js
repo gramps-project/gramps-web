@@ -146,6 +146,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       filterOpen: {type: Boolean},
       _objectsName: {type: String},
       altView: {type: Boolean},
+      _oldUrl: {type: String},
     }
   }
 
@@ -164,6 +165,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     this.filterOpen = false
     this._objectsName = ''
     this.altView = false
+    this._oldUrl = ''
   }
 
   renderContent() {
@@ -319,10 +321,6 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     return html` <mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab> `
   }
 
-  firstUpdated() {
-    this._fetchData()
-  }
-
   _clearFilter(i) {
     this.filters = [...this.filters.slice(0, i), ...this.filters.slice(i + 1)]
     this._fetchData()
@@ -417,19 +415,16 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     if (changed.has('active')) {
       this.filterOpen = false
     }
-    if (
-      changed.has('_page') ||
-      changed.has('_sort') ||
-      changed.has('_pageSize') ||
-      changed.has('strings')
-    ) {
+    if (this._fullUrl !== this._oldUrl) {
       this._fetchData()
     }
   }
 
   _fetchData() {
     this.loading = true
-    apiGet(this._fullUrl).then(data => {
+    const url = this._fullUrl
+    this._oldUrl = url
+    apiGet(url).then(data => {
       this.loading = false
       if ('data' in data) {
         this.error = false
