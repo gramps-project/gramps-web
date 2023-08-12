@@ -22,6 +22,7 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
       loadWithoutLocale: {type: Boolean},
       _errorMessage: {type: String},
       _data: {type: Object},
+      _oldUrl: {type: String},
     }
   }
 
@@ -32,6 +33,7 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
     this.loadWithoutLocale = false
     this._errorMessage = ''
     this._data = {}
+    this._oldUrl = ''
     this._boundUpdateData = this._updateData.bind(this)
     this._boundsHandleOnline = this._handleOnline.bind(this)
   }
@@ -63,17 +65,14 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
 
   update(changed) {
     super.update(changed)
-    if (
-      changed.has('strings') &&
-      '__lang__' in this.strings &&
-      changed.get('strings')?.__lang__ !== this.strings?.__lang__
-    ) {
+    if (this.getUrl() !== this._oldUrl) {
       this._updateData()
     }
   }
 
   _updateData(clearData = true) {
     const url = this.getUrl()
+    this._oldUrl = url
     if (url === '') {
       return
     }
@@ -105,7 +104,6 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
 
   connectedCallback() {
     super.connectedCallback()
-    this._updateData()
     window.addEventListener('db:changed', this._boundUpdateData)
     window.addEventListener('online', this._boundHandleOnline)
   }
