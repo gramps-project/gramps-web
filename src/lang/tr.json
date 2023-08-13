@@ -93,7 +93,7 @@
     "Already have an account?": "Zaten bir hesabınız var mı?",
     "reset password": "şifreyi sıfırla",
     "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Lütfen size gelen e-postadaki bağlantıya tıklayarak e-posta adresinizi onaylayın ve ardından ağaç sahibinin hesabınızı etkinleştirmesini bekleyin.",
-    "Add a new user": "Yeni bir kullanıcı ekle",
+    "Add a new user": "Yeni kullanıcı ekle",
     "Edit user": "Kullanıcıyı düzenle",
     "Import user accounts": "Kullanıcı hesaplarını içe aktar",
     "Export user details": "Kullanıcı ayrıntılarını dışa aktar",
@@ -105,5 +105,8 @@
     "Import Media Files": "Medya Dosyalarını İçe Aktar",
     "Export your family tree": "Aile ağacınızı dışa aktarın",
     "Export your media files": "Medya dosyalarınızı dışa aktarın",
-    "Generate a ZIP archive with all media files.": "Tüm medya dosyalarını içeren bir ZIP arşivi oluşturun."
+    "Generate a ZIP archive with all media files.": "Tüm medya dosyalarını içeren bir ZIP arşivi oluşturun.",
+    "Delete this object?": "Bu nesne silinsin mi?",
+    "Object %s deleted.": "%s nesnesi silindi.",
+    "Registration link": "Kayıt ilişimi"
 }
