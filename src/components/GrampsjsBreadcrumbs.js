@@ -129,26 +129,6 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
       data: {private: !this.data.private},
     })
   }
-
-  _handleShareClick() {
-    const url = document.URL
-    if (navigator.share) {
-      navigator.share({url})
-    } else {
-      const input = document.createElement('input')
-      input.value = url
-      document.body.appendChild(input)
-      input.select()
-      navigator.clipboard.writeText(url).finally(() => {
-        document.body.removeChild(input)
-      })
-      const btn = this.renderRoot.getElementById('share-icon')
-      btn.icon = 'done'
-      setTimeout(() => {
-        btn.icon = 'share'
-      }, 1000)
-    }
-  }
 }
 
 window.customElements.define('grampsjs-breadcrumbs', GrampsjsBreadcrumbs)
