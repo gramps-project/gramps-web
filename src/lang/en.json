@@ -107,5 +107,6 @@
   "Upload a ZIP archive with files for existing media objects.": "Upload a ZIP archive with files for existing media objects.",
   "Import Media Files": "Import Media Files",
   "Delete this object?": "Delete this object?",
-  "Object %s deleted.": "Object %s deleted."
+  "Object %s deleted.": "Object %s deleted.",
+  "Registration link": "Registration link"
 }

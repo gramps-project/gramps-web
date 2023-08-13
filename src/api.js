@@ -21,7 +21,7 @@ export function storeRefreshToken(refreshToken) {
   localStorage.setItem('refresh_token', refreshToken)
 }
 
-export function getTree() {
+export function getTreeId() {
   const accessToken = localStorage.getItem('access_token')
   let claims = {}
   try {
@@ -58,7 +58,7 @@ export function getSettings() {
     const settingString = localStorage.getItem('grampsjs_settings')
     const settings = JSON.parse(settingString) || {}
     const settingStringTree = localStorage.getItem('grampsjs_settings_tree')
-    const treeId = getTree() || 'unknown'
+    const treeId = getTreeId() || 'unknown'
     const settingsTree = JSON.parse(settingStringTree)?.[treeId] || {}
     return {...settings, ...settingsTree}
   } catch (e) {
@@ -72,7 +72,7 @@ export function updateSettings(settings, tree = false) {
   const key = tree ? 'grampsjs_settings_tree' : 'grampsjs_settings'
   const settingString = localStorage.getItem(key)
   const parsedSettings = JSON.parse(settingString) || {}
-  const treeId = getTree() || 'unknown'
+  const treeId = getTreeId() || 'unknown'
   const existingSettings = tree ? parsedSettings?.[treeId] : parsedSettings
   const finalSettings = {...existingSettings, ...settings}
   const data = tree ? {[treeId]: finalSettings} : finalSettings
@@ -89,7 +89,7 @@ export function getRecentObjects() {
     if (Array.isArray(data)) {
       return data
     }
-    const tree = getTree()
+    const tree = getTreeId()
     if (tree) {
       return data[tree]
     }
@@ -100,7 +100,7 @@ export function getRecentObjects() {
 }
 
 export function setRecentObjects(data) {
-  const tree = getTree()
+  const tree = getTreeId()
   const objectData = tree ? {[tree]: data} : data
   const stringData = JSON.stringify(objectData)
   localStorage.setItem('recentObjects', stringData)

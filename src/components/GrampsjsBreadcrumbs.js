@@ -6,6 +6,7 @@ import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent, clickKeyHandler} from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import './GrampsjsTooltip.js'
+import './GrampsjsShareUrl.js'
 
 export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
@@ -49,6 +50,13 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
         }
 
         .breadcrumb .action-buttons mwc-icon-button {
+          --mdc-icon-size: 16px;
+          --mdc-icon-button-size: 28px;
+          position: relative;
+          top: -3px;
+        }
+
+        .breadcrumb .action-buttons grampsjs-share-url {
           --mdc-icon-size: 16px;
           --mdc-icon-button-size: 28px;
           position: relative;
@@ -100,16 +108,7 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
               ? this._('Record is private')
               : this._('Record is public')}"
           ></grampsjs-tooltip>
-
-          <mwc-icon-button
-            id="share-icon"
-            icon="share"
-            @click="${this._handleShareClick}"
-            @keydown="${clickKeyHandler}"
-          ></mwc-icon-button>
-          <grampsjs-tooltip for="share-icon"
-            >${this._('Copy URL')}</grampsjs-tooltip
-          >
+          <grampsjs-share-url href="${document.URL}"></grampsjs-share-url>
         </span>
       </div>
     `

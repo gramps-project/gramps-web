@@ -3,9 +3,10 @@ import {css, html} from 'lit'
 import {GrampsjsViewSettingsOnboarding} from './GrampsjsViewSettingsOnboarding.js'
 import '../components/GrampsjsUsers.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
+import '../components/GrampsjsShareUrl.js'
 import '../components/GrampsjsSysinfo.js'
 import '../components/GrampsjsTreeQuotas.js'
-import {doLogout, apiPost, apiPut, apiGet} from '../api.js'
+import {doLogout, apiPost, apiPut, apiGet, getTreeId} from '../api.js'
 import '@material/mwc-textfield'
 import '@material/mwc-button'
 import '@material/mwc-select'
@@ -36,6 +37,22 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
 
         mwc-tab-bar {
           margin-bottom: 30px;
+        }
+
+        grampsjs-share-url {
+          --mdc-icon-size: 18px;
+          --mdc-icon-button-size: 32px;
+          position: relative;
+          top: -5px;
+          color: rgba(0, 0, 0, 0.4);
+        }
+
+        span.url {
+          border-radius: 5px;
+          border: 1px solid #ddd;
+          font-size: 13px;
+          padding: 6px 6px;
+          color: #444;
         }
       `,
     ]
@@ -93,6 +110,13 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     `
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  get _registerUrl() {
+    const url = new URL(document.URL)
+    const tree = getTreeId()
+    return `${url.origin}/register/${tree}`
+  }
+
   renderAdminSettings() {
     return html`
       ${this.users
@@ -123,6 +147,16 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
             ></grampsjs-task-progress-indicator>
 
             <h3>${this._('Manage users')}</h3>
+
+            ${this.dbInfo?.server?.multi_tree
+              ? html` <p>
+                  ${this._('Registration link')}:
+                  <span class="url">${this._registerUrl}</span>
+                  <grampsjs-share-url
+                    href="${this._registerUrl}"
+                  ></grampsjs-share-url>
+                </p>`
+              : ''}
 
             <grampsjs-users
               .strings="${this.strings}"
