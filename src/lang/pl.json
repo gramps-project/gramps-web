@@ -105,5 +105,8 @@
     "This user name is already in use": "Nazwa użytkownika jest zajęta",
     "Copy URL": "Kopiuj URL",
     "Upload a ZIP archive with files for existing media objects.": "Prześlij archiwum ZIP z plikami dla istniejących obiektów multimedialnych.",
-    "Import Media Files": "Importuj pliki multimedialne"
+    "Import Media Files": "Importuj pliki multimedialne",
+    "Delete this object?": "Usunąć ten obiekt?",
+    "Object %s deleted.": "Obiekt %s usunięty.",
+    "Registration link": "Link do rejestracji"
 }
