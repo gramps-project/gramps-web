@@ -107,5 +107,6 @@
     "Import Media Files": "Importar ficheiros multimédia",
     "Upload a ZIP archive with files for existing media objects.": "Enviar um arquivo ZIP com os objectos multimédia existentes.",
     "Delete this object?": "Eliminar este objecto?",
-    "Object %s deleted.": "Objecto %s eliminado."
+    "Object %s deleted.": "Objecto %s eliminado.",
+    "Registration link": "Ligação de registo"
 }
