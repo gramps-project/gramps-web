@@ -107,5 +107,6 @@
     "This e-mail address is already in use": "Ova se e-mail adresa već koristi",
     "This user name is already in use": "Ovo se korisničko ime već koristi",
     "Upload a ZIP archive with files for existing media objects.": "Prenesi ZIP arhivu s datotekama za postojeće medijske objekte.",
-    "Import Media Files": "Uvezi medijske datoteke"
+    "Import Media Files": "Uvezi medijske datoteke",
+    "Registration link": "Poveznica za registraciju"
 }
