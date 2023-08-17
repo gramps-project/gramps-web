@@ -107,5 +107,6 @@
     "Import Media Files": "Mediabestanden importeren",
     "Upload a ZIP archive with files for existing media objects.": "Upload een ZIP-archief met bestanden voor bestaande media-objecten.",
     "Delete this object?": "Dit object verwijderen?",
-    "Object %s deleted.": "Object %s is verwijderd."
+    "Object %s deleted.": "Object %s is verwijderd.",
+    "Registration link": "Registratiekoppeling"
 }
