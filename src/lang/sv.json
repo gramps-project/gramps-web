@@ -108,5 +108,6 @@
     "Import Media Files": "Importera mediefiler",
     "Upload a ZIP archive with files for existing media objects.": "Ladda upp ett ZIP-arkiv med filer för befintliga medieobjekt.",
     "Object %s deleted.": "Objekt %s raderat.",
-    "Delete this object?": "Ta bort det här objektet?"
+    "Delete this object?": "Ta bort det här objektet?",
+    "Registration link": "Registreringslänk"
 }
