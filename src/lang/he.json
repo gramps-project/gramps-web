@@ -107,5 +107,6 @@
     "Upload a ZIP archive with files for existing media objects.": "העלאת ארכיון ZIP עם קבצים לעצמי מדיה קיימים.",
     "Import Media Files": "ייבוא קובצי מדיה",
     "Object %s deleted.": "העצם %s נמחק.",
-    "Delete this object?": "למחוק את העצם הזה?"
+    "Delete this object?": "למחוק את העצם הזה?",
+    "Registration link": "קישור לרישום"
 }
