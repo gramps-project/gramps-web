@@ -52,6 +52,8 @@ import './views/GrampsjsViewFamily.js'
 import './views/GrampsjsViewPlace.js'
 import './views/GrampsjsViewEvent.js'
 import './views/GrampsjsViewSource.js'
+import './views/GrampsjsViewTask.js'
+import './views/GrampsjsViewTasks.js'
 import './views/GrampsjsViewBlog.js'
 import './views/GrampsjsViewBlogPost.js'
 import './views/GrampsjsViewCitation.js'
@@ -74,6 +76,7 @@ import './views/GrampsjsViewNewCitation.js'
 import './views/GrampsjsViewNewRepository.js'
 import './views/GrampsjsViewNewNote.js'
 import './views/GrampsjsViewNewMedia.js'
+import './views/GrampsjsViewNewTask.js'
 import {sharedStyles} from './SharedStyles.js'
 
 const LOADING_STATE_INITIAL = 0
@@ -510,6 +513,10 @@ export class GrampsJs extends LitElement {
               <span>${this._('History')}</span>
               <mwc-icon slot="graphic">history</mwc-icon>
             </grampsjs-list-item>
+            <grampsjs-list-item href="${BASE_DIR}/tasks" graphic="icon">
+              <span>${this._('Tasks')}</span>
+              <mwc-icon slot="graphic">checklist</mwc-icon>
+            </grampsjs-list-item>
             ${this.canEdit && this.canAdd
               ? html`
                   <grampsjs-list-item href="${BASE_DIR}/import" graphic="icon">
@@ -715,6 +722,13 @@ export class GrampsJs extends LitElement {
               ?active=${this._page === 'recent'}
               .strings="${this._strings}"
             ></grampsjs-view-recent>
+            <grampsjs-view-tasks
+              class="page"
+              ?active=${this._page === 'tasks'}
+              .strings="${this._strings}"
+              ?canEdit="${this.canEdit}"
+              ?canAdd="${this.canAdd}"
+            ></grampsjs-view-tasks>
             <grampsjs-view-settings
               class="page"
               ?active=${this._page === 'settings'}
@@ -774,6 +788,18 @@ export class GrampsJs extends LitElement {
               ?active=${this._page === 'new_media'}
               .strings="${this._strings}"
             ></grampsjs-view-new-media>
+            <grampsjs-view-new-task
+              class="page"
+              ?active=${this._page === 'new_task'}
+              .strings="${this._strings}"
+            ></grampsjs-view-new-task>
+            <grampsjs-view-task
+              class="page"
+              ?active=${this._page === 'task'}
+              grampsId="${this._pageId}"
+              .strings="${this._strings}"
+              ?canEdit="${this.canEdit}"
+            ></grampsjs-view-task>
           </main>
         </div>
       </mwc-drawer>

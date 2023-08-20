@@ -610,6 +610,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
   _handleNewTag() {
     this.dialogContent = html`
       <grampsjs-form-new-tag
+        .strings="${this.strings}"
         .data="${this.data.tag_list}"
         @object:save="${this._handleSaveTag}"
         @object:cancel="${this._handleCancelDialog}"

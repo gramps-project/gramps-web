@@ -108,5 +108,15 @@
   "Import Media Files": "Import Media Files",
   "Delete this object?": "Delete this object?",
   "Object %s deleted.": "Object %s deleted.",
-  "Registration link": "Registration link"
+  "Registration link": "Registration link",
+  "Task": "Task",
+  "Tasks": "Tasks",
+  "New Task": "New Task",
+  "Show in blog": "Show in blog",
+  "Set Priority": "Set Priority",
+  "Set Status": "Set Status",
+  "Done": "Done",
+  "In Progress": "In Progress",
+  "Open": "Open",
+  "Attachments": "Attachments"
 }
