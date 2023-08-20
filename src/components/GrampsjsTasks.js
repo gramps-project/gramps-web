@@ -312,6 +312,7 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
         left
         hasMeta
         ?selected="${this._selected.includes(i)}"
+        @keydown="${e => this._handleListKeyDown(e, obj.gramps_id)}"
       >
         ${this._statusIcon(status, obj.handle)}
         <span
@@ -330,6 +331,12 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
   _handleTitleClick(e, grampsId) {
     fireEvent(this, 'nav', {path: `task/${grampsId}`})
     e.stopPropagation()
+  }
+
+  _handleListKeyDown(e, grampsId) {
+    if (e.key === 'ArrowRight') {
+      fireEvent(this, 'nav', {path: `task/${grampsId}`})
+    }
   }
 
   async _updateAttributes(indices, key, value) {

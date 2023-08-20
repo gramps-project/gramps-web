@@ -361,10 +361,16 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Blog')}</dd>
                 <dt><span>g</span> <span>m</span></dt>
                 <dd>${this._('Map')}</dd>
-                <dt><span>g</span> <span>t</span></dt>
+                <dt><span>g</span> <span>c</span></dt>
                 <dd>${this._('Family Tree')}</dd>
                 <dt><span>g</span> <span>r</span></dt>
                 <dd>${this._('History')}</dd>
+                <dt><span>g</span> <span>t</span></dt>
+                <dd>${this._('Tasks')}</dd>
+                <dt><span>g</span> <span>i</span></dt>
+                <dd>${this._('Import')}</dd>
+                <dt><span>g</span> <span>e</span></dt>
+                <dd>${this._('Export')}</dd>
               </dl>
             </div>
           </section>
@@ -1143,10 +1149,16 @@ export class GrampsJs extends LitElement {
         fireEvent(this, 'nav', {path: 'blog'})
       } else if (e.key === 'm') {
         fireEvent(this, 'nav', {path: 'map'})
-      } else if (e.key === 't') {
+      } else if (e.key === 'c') {
         fireEvent(this, 'nav', {path: 'tree'})
       } else if (e.key === 'r') {
         fireEvent(this, 'nav', {path: 'recent'})
+      } else if (e.key === 't') {
+        fireEvent(this, 'nav', {path: 'tasks'})
+      } else if (e.key === 'i') {
+        fireEvent(this, 'nav', {path: 'import'})
+      } else if (e.key === 'e') {
+        fireEvent(this, 'nav', {path: 'export'})
       }
       this._shortcutPressed = ''
     } else if (e.key === 'g') {
