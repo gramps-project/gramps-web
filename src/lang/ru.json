@@ -105,5 +105,8 @@
     "New account registered successfully.": "Новая учётная запись зарегистрирована успешно.",
     "Copy URL": "Копировать адрес URL",
     "Upload a ZIP archive with files for existing media objects.": "Загрузить ZIP-архив с файлами для уже созданных медиа-объектов.",
-    "Import Media Files": "Импортировать медиа-файлы"
+    "Import Media Files": "Импортировать медиа-файлы",
+    "Delete this object?": "Удалить этот объект?",
+    "Object %s deleted.": "Объект %s удалён.",
+    "Registration link": "Ссылка на регистрацию"
 }
