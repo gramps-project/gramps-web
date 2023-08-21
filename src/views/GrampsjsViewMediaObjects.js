@@ -73,23 +73,16 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
-      <grampsjs-filter-mime
-        .strings="${this.strings}"
-        .filters="${this.filters}"
-      ></grampsjs-filter-mime>
+      <grampsjs-filter-mime .strings="${this.strings}"></grampsjs-filter-mime>
 
       <grampsjs-filter-properties
         hasCount
         .strings="${this.strings}"
-        .filters="${this.filters}"
         .props="${filterCounts.media}"
         label="${this._('Associations')}"
       ></grampsjs-filter-properties>
 
-      <grampsjs-filter-tags
-        .strings="${this.strings}"
-        .filters="${this.filters}"
-      ></grampsjs-filter-tags>
+      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
     `
   }
 

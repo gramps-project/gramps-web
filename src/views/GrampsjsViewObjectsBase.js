@@ -13,8 +13,9 @@ import {classMap} from 'lit/directives/class-map.js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsFilterChip.js'
+import '../components/GrampsjsFilters.js'
 import {apiGet} from '../api.js'
-import {fireEvent, personFilter, filterCounts, filterMime} from '../util.js'
+import {fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
 
 export class GrampsjsViewObjectsBase extends GrampsjsView {
@@ -104,21 +105,6 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
           display: none;
         }
 
-        .filtermenu {
-          display: inline;
-        }
-
-        .filtermenu > * {
-          vertical-align: middle;
-        }
-
-        #filteroff {
-          --mdc-icon-size: 20px;
-          color: var(--mdc-theme-primary);
-          margin-left: 10px;
-          margin-right: 10px;
-        }
-
         .viewbtn {
           float: right;
         }
@@ -140,10 +126,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       _pages: {type: Number},
       _pageSize: {type: Number},
       _sort: {type: String},
-      _filters: {type: Array},
       canAdd: {type: Boolean},
-      filters: {type: Array},
-      filterOpen: {type: Boolean},
       _objectsName: {type: String},
       altView: {type: Boolean},
       _oldUrl: {type: String},
@@ -159,10 +142,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     this._pages = -1
     this._pageSize = 20
     this._sort = ''
-    this._filters = []
     this.canAdd = false
-    this.filters = []
-    this.filterOpen = false
     this._objectsName = ''
     this.altView = false
     this._oldUrl = ''
@@ -217,90 +197,20 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
   // eslint-disable-next-line class-methods-use-this
   _renderFilter() {
     return html`
-      <div class="filtermenu">
-        <mwc-button
-          icon="filter_list"
-          ?unelevated="${this.filterOpen}"
-          @click="${this._handleFilterButton}"
-          >${this._('filter')}</mwc-button
-        >
-        <mwc-icon-button
-          id="filteroff"
-          ?disabled="${this.filters.length === 0}"
-          icon="filter_list_off"
-          @click="${this._handleFilterOff}"
-        ></mwc-icon-button>
-        <grampsjs-tooltip for="filteroff" .strings="${this.strings}"
-          >${this._('Clear all filters')}</grampsjs-tooltip
-        >
-        ${this._renderFilterChips()}
-        <div class="viewbtn">${this._renderViewButton()}</div>
-      </div>
+      <grampsjs-filters
+        @filters:changed="${this._handleFiltersChanged}"
+        .strings="${this.strings}"
+        objectType="${this._objectsName}"
+      >
+        ${this.renderFilters()}
+      </grampsjs-filters>
+      <div class="viewbtn">${this._renderViewButton()}</div>
+
       <div
         class="${classMap({hidden: !this.filterOpen})}"
         @filter:changed="${this._handleFilterChanged}"
-      >
-        ${this.renderFilters()}
-      </div>
+      ></div>
     `
-  }
-
-  ruleToLabel(rule) {
-    if (rule.name === 'HasTag') {
-      return `${this._('Tag')}: ${rule.values[0]}`
-    }
-    if (rule.name === 'HasMedia' && rule.values[1] !== '') {
-      return `${this._('_Media Type:').replace(':', '')}: ${this._(
-        filterMime[rule.values[1]]
-      )}`
-    }
-    if (rule.name === 'HasBirth' && rule.values[0] !== '') {
-      return this._ruleToLabelSpan(rule, 'Birth year', 0)
-    }
-    if (rule.name === 'HasDeath' && rule.values[0] !== '') {
-      return this._ruleToLabelSpan(rule, 'Death year', 0)
-    }
-    if (rule.name === 'HasData' && rule.values[1] !== '') {
-      return this._ruleToLabelSpan(rule, 'Date', 1)
-    }
-    if (rule.name === 'HasType') {
-      return `${this._('Type')}: ${this._(rule.values[0])}`
-    }
-    if (rule.name === 'HasRelType') {
-      return `${this._('Relationship type:')} ${this._(rule.values[0])}`
-    }
-    if (rule.name in personFilter) {
-      return this._(personFilter[rule.name])
-    }
-    if (rule.name in filterCounts[this._objectsName]) {
-      return this._(filterCounts[this._objectsName][rule.name]).replace(
-        /<[^>]+>/,
-        ''
-      )
-    }
-    return JSON.stringify(rule)
-  }
-
-  _ruleToLabelSpan(rule, label, index) {
-    const match = rule.values[index].match(/(\d+)[^\d]+(\d+)/)
-    if (match.length === 3) {
-      if (match[1] === match[2]) {
-        return `${this._(label)}: ${match[1]}`
-      }
-      return `${this._(label)}: ${match[1]}-${match[2]}`
-    }
-    return JSON.stringify(rule)
-  }
-
-  _renderFilterChips() {
-    return this.filters.map(
-      (rule, i) => html`
-        <grampsjs-filter-chip
-          label="${this.ruleToLabel(rule)}"
-          @filter-chip:clear="${() => this._clearFilter(i)}"
-        ></grampsjs-filter-chip>
-      `
-    )
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -310,10 +220,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
 
   renderFilters() {
     return html`
-      <grampsjs-filter-tags
-        .strings="${this.strings}"
-        .filters="${this.filters}"
-      ></grampsjs-filter-tags>
+      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
     `
   }
 
@@ -321,32 +228,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     return html` <mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab> `
   }
 
-  _clearFilter(i) {
-    this.filters = [...this.filters.slice(0, i), ...this.filters.slice(i + 1)]
+  _handleFiltersChanged() {
     this._fetchData()
-  }
-
-  _handleFilterButton() {
-    this.filterOpen = !this.filterOpen
-  }
-
-  _handleFilterOff() {
-    this.filters = []
-    this._fetchData()
-  }
-
-  _handleFilterChanged(e) {
-    const rules = e.detail?.filters?.rules
-    const replace = e.detail?.replace
-    const oldFilters = replace
-      ? this.filters.filter(f => f.name !== replace)
-      : this.filters
-    if (rules) {
-      this.filters = [...oldFilters, ...rules]
-      e.preventDefault()
-      e.stopPropagation()
-      this._fetchData()
-    }
   }
 
   _handlePageChanged(event) {
@@ -396,12 +279,16 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     this._sort = isCurrent && isAscending ? `-${sortKey}` : `+${sortKey}`
   }
 
+  get _filters() {
+    return this.renderRoot.querySelector('grampsjs-filters').filters
+  }
+
   get _fullUrl() {
     let url = `${this._fetchUrl}&page=${this._page}&pagesize=${this._pageSize}`
     if (this._sort) {
       url = `${url}&sort=${this._sort}`
     }
-    const filters = Object.values(this.filters)
+    const filters = Object.values(this._filters)
     if (filters.length > 0) {
       url = `${url}&rules=${encodeURIComponent(
         JSON.stringify({rules: filters})

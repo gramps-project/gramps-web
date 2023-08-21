@@ -41,15 +41,11 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
       <grampsjs-filter-properties
         hasCount
         .strings="${this.strings}"
-        .filters="${this.filters}"
         .props="${filterCounts.sources}"
         label="${this._('Associations')}"
       ></grampsjs-filter-properties>
 
-      <grampsjs-filter-tags
-        .strings="${this.strings}"
-        .filters="${this.filters}"
-      ></grampsjs-filter-tags>
+      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
     `
   }
 
