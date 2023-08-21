@@ -58,6 +58,10 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
           margin-right: 8px;
         }
 
+        .filters {
+          margin-bottom: 32px;
+        }
+
         .taskbar {
           padding-left: 10px;
           display: flex;
@@ -135,6 +139,14 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
 
   _renderTaskBar() {
     return html`
+      <div class="filters">
+        <grampsjs-filters .strings="${this.strings}" objectType="source">
+          <grampsjs-filter-tags
+            .strings="${this.strings}"
+          ></grampsjs-filter-tags>
+        </grampsjs-filters>
+      </div>
+
       <div class="taskbar">
         <mwc-checkbox
           id="select-all"

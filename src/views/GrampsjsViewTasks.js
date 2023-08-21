@@ -24,6 +24,7 @@ export class GrampsjsViewTasks extends GrampsjsView {
       _data: {type: Array},
       canAdd: {type: Boolean},
       canEdit: {type: Boolean},
+      _filters: {type: Array},
       _todoTagHandle: {type: String},
     }
   }
@@ -34,6 +35,7 @@ export class GrampsjsViewTasks extends GrampsjsView {
     this.canEdit = false
     this._data = []
     this._todoTagHandle = ''
+    this._filters = []
     this._boundFetchData = this._fetchData.bind(this)
   }
 
@@ -45,6 +47,7 @@ export class GrampsjsViewTasks extends GrampsjsView {
         .strings="${this.strings}"
         .data="${this._data}"
         @tasks:update-attribute="${this._handleUpdateAttribute}"
+        @filters:changed="${this._handleFiltersChanged}"
         ?canEdit="${this.canEdit}"
       ></grampsjs-tasks>
 
@@ -72,6 +75,7 @@ export class GrampsjsViewTasks extends GrampsjsView {
           name: 'HasTag',
           values: ['ToDo'],
         },
+        ...this._filters,
       ],
     }
     const uri = `/api/sources/?rules=${encodeURIComponent(
@@ -109,6 +113,13 @@ export class GrampsjsViewTasks extends GrampsjsView {
       await apiPut(`/api/sources/${object.handle}`, rest, true, false)
     }
     fireEvent(this, 'db:changed')
+  }
+
+  _handleFiltersChanged(e) {
+    this._filters = e.detail.filters
+    e.preventDefault()
+    e.stopPropagation()
+    this._fetchData()
   }
 
   firstUpdated() {
