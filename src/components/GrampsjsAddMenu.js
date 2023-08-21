@@ -25,6 +25,7 @@ const menuItems = [
   ['Repository', '/new_repository', 'account_balance'],
   ['Note', '/new_note', 'sticky_note_2'],
   ['Media Object', '/new_media', 'photo'],
+  ['Task', '/new_task', 'task_alt'],
 ]
 
 class GrampsjsAddMenu extends GrampsjsTranslateMixin(LitElement) {

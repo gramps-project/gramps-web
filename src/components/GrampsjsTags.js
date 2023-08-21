@@ -49,6 +49,7 @@ export class GrampsjsTags extends GrampsjsTranslateMixin(LitElement) {
     return {
       data: {type: Array},
       edit: {type: Boolean},
+      hideTags: {type: Array},
     }
   }
 
@@ -56,6 +57,7 @@ export class GrampsjsTags extends GrampsjsTranslateMixin(LitElement) {
     super()
     this.data = []
     this.edit = false
+    this.hideTags = []
   }
 
   render() {
@@ -64,23 +66,25 @@ export class GrampsjsTags extends GrampsjsTranslateMixin(LitElement) {
     }
     return html`
       <div class="tags">
-        ${this.data.map(
-          obj => html`
-            <span
-              class="chip"
-              style="border-color:${hex6ToCss(
-                obj.color,
-                0.9
-              )};color:${hex6ToCss(obj.color, 0.9)};"
-              >${obj.name}${this.edit
-                ? html` <mwc-icon-button
-                    icon="clear"
-                    @click=${() => this._handleClear(obj.handle)}
-                  ></mwc-icon-button>`
-                : ''}</span
-            >
-          `
-        )}
+        ${this.data
+          .filter(obj => !this.hideTags.includes(obj.name))
+          .map(
+            obj => html`
+              <span
+                class="chip"
+                style="border-color:${hex6ToCss(
+                  obj.color,
+                  0.9
+                )};color:${hex6ToCss(obj.color, 0.9)};"
+                >${obj.name}${this.edit
+                  ? html` <mwc-icon-button
+                      icon="clear"
+                      @click=${() => this._handleClear(obj.handle)}
+                    ></mwc-icon-button>`
+                  : ''}</span
+              >
+            `
+          )}
         ${this.edit
           ? html` <span class="newtag">
               <mwc-icon-button
