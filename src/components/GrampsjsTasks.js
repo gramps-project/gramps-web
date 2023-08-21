@@ -13,6 +13,8 @@ import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-list/mwc-check-list-item'
 
+import './GrampsjsFilters.js'
+import './GrampsjsFilterTags.js'
 import './GrampsjsTagsSmall.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
@@ -140,7 +142,7 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
   _renderTaskBar() {
     return html`
       <div class="filters">
-        <grampsjs-filters .strings="${this.strings}" objectType="source">
+        <grampsjs-filters .strings="${this.strings}" objectType="sources">
           <grampsjs-filter-tags
             .strings="${this.strings}"
           ></grampsjs-filter-tags>
