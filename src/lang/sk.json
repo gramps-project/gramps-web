@@ -107,5 +107,16 @@
     "Not authorized": "Neautorizovaný",
     "This e-mail address is already in use": "Táto e-mailová adresa ss už používa",
     "This user name is already in use": "Toto používateľské meno je už zadané",
-    "Import Media Files": "Importovať mediálne súbory"
+    "Import Media Files": "Importovať mediálne súbory",
+    "Set Status": "Nastaviť status",
+    "Done": "Hotovo",
+    "In Progress": "Prebieha",
+    "Open": "Otvoriť",
+    "Attachments": "Prílohy",
+    "Show in blog": "Zobraziť na blogu",
+    "Registration link": "Link na registráciu",
+    "Task": "Úloha",
+    "Tasks": "Úlohy",
+    "New Task": "Nová úloha",
+    "Set Priority": "Nastaviť prioritu"
 }
