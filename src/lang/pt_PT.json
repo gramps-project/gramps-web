@@ -108,5 +108,15 @@
     "Upload a ZIP archive with files for existing media objects.": "Enviar um arquivo ZIP com os objectos multimédia existentes.",
     "Delete this object?": "Eliminar este objecto?",
     "Object %s deleted.": "Objecto %s eliminado.",
-    "Registration link": "Ligação de registo"
+    "Registration link": "Ligação de registo",
+    "Task": "Tarefa",
+    "Tasks": "Tarefas",
+    "New Task": "Nova tarefa",
+    "Show in blog": "Mostrar no blogue",
+    "Set Priority": "Definir prioridade",
+    "Set Status": "Definir estado",
+    "Done": "Feito",
+    "Open": "Abrir",
+    "Attachments": "Anexos",
+    "In Progress": "em curso"
 }
