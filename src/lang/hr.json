@@ -108,5 +108,15 @@
     "This user name is already in use": "Ovo se korisničko ime već koristi",
     "Upload a ZIP archive with files for existing media objects.": "Prenesi ZIP arhivu s datotekama za postojeće medijske objekte.",
     "Import Media Files": "Uvezi medijske datoteke",
-    "Registration link": "Poveznica za registraciju"
+    "Registration link": "Poveznica za registraciju",
+    "Task": "Zadatak",
+    "Tasks": "Zadaci",
+    "New Task": "Novi zadatak",
+    "Show in blog": "Pokaži u blogu",
+    "Set Priority": "Postavi prioritet",
+    "Set Status": "Postavi stanje",
+    "Done": "Obavljeno",
+    "Open": "Otvori",
+    "In Progress": "Obavljanje u tijeku",
+    "Attachments": "Prilozi"
 }
