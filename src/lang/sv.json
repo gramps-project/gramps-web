@@ -109,5 +109,15 @@
     "Upload a ZIP archive with files for existing media objects.": "Ladda upp ett ZIP-arkiv med filer för befintliga medieobjekt.",
     "Object %s deleted.": "Objekt %s raderat.",
     "Delete this object?": "Ta bort det här objektet?",
-    "Registration link": "Registreringslänk"
+    "Registration link": "Registreringslänk",
+    "Tasks": "Uppgifter",
+    "New Task": "Ny uppgift",
+    "Task": "Uppgift",
+    "Show in blog": "Visa i bloggen",
+    "Set Priority": "Ställ in prioritet",
+    "Set Status": "Ställ in status",
+    "In Progress": "Pågående",
+    "Done": "Gjort",
+    "Open": "Öppna",
+    "Attachments": "Bilagor"
 }
