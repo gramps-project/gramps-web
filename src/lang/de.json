@@ -57,7 +57,7 @@
     "Register new account": "Neues Konto registrieren",
     "All": "Alles",
     "Select at least one object type": "Wähle mindestens eine Objektart",
-    "filter": "filtern",
+    "filter": "Filter",
     "Properties": "Eigenschaften",
     "Owner": "Eigentümer",
     "disabled": "deaktiviert",
@@ -108,5 +108,15 @@
     "Import Media Files": "Mediendateien importieren",
     "Delete this object?": "Dieses Objekt löschen?",
     "Object %s deleted.": "Objekt % gelöscht.",
-    "Registration link": "Link zur Registrierung"
+    "Registration link": "Link zur Registrierung",
+    "In Progress": "In Arbeit",
+    "Open": "Offen",
+    "Attachments": "Anhänge",
+    "Done": "Erledigt",
+    "Task": "Aufgabe",
+    "Tasks": "Aufgaben",
+    "New Task": "Neue Aufgabe",
+    "Show in blog": "Im Blog anzeigen",
+    "Set Priority": "Priorität festlegen",
+    "Set Status": "Status setzen"
 }
