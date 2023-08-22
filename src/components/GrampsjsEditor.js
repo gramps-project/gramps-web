@@ -149,6 +149,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
       data: {type: Object},
       cursorPosition: {type: Array},
       _dialogContent: {type: String},
+      _html: {type: String},
     }
   }
 
@@ -157,6 +158,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     this.data = {_class: 'StyledText', string: '', tags: []}
     this.cursorPosition = [0]
     this._dialogContent = ''
+    this._html = ''
   }
 
   reset() {
@@ -202,13 +204,19 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
       </div>
       <!-- display: inline -->
       <div
+        id="editor-content"
         class="note framed"
         contenteditable="true"
         @beforeinput="${this._handleBeforeInput}"
-        >${this._getHtml()}</div
+        @compositionend="${this._handleCompositionEnd}"
+        >${this._html}</div
       >
       ${this._renderLinkDialog()}
     `
+  }
+
+  get _editorDiv() {
+    return this.renderRoot.getElementById('editor-content')
   }
 
   // handle input actions by modifying the data object
@@ -216,7 +224,6 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
   _handleBeforeInput(e) {
     e.preventDefault()
     e.stopPropagation()
-    console.log(e)
     if (
       [
         'insertText',
@@ -259,6 +266,21 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
       console.log(e)
     }
     this.handleChange()
+  }
+
+  // also handle composition events
+  _handleCompositionEnd(e) {
+    const range = this.shadowRoot.getSelection
+      ? // Chrome
+        this.shadowRoot.getSelection().getRangeAt(0)
+      : // Firefox
+        document.getSelection().getRangeAt(0)
+    const nCharBefore1 = getNumCharBeforeNode(
+      range.startContainer,
+      this._editorDiv
+    )[0]
+    this._insertText(e.data, nCharBefore1 + range.startOffset)
+    this.cursorPosition = [nCharBefore1 + range.startOffset]
   }
 
   _handleLink(pos) {
@@ -571,7 +593,10 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
-  updated() {
+  updated(changed) {
+    if (changed.has('data')) {
+      this._html = this._getHtml()
+    }
     // set selection
     const div = this.shadowRoot.querySelector('div.note')
     const nodeStart = getNodeAtNumChar(div, this.cursorPosition[0])
