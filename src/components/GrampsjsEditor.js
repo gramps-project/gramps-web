@@ -1,4 +1,5 @@
 import {html, css, LitElement} from 'lit'
+import {live} from 'lit/directives/live.js'
 
 import '@material/mwc-dialog'
 import '@material/mwc-textfield'
@@ -18,33 +19,33 @@ function capitalize(string) {
 function _applyTag(str, tag) {
   const [name, value] = tag
   if (name === 'bold') {
-    return html`<b>${str}</b>`
+    return `<b>${str}</b>`
   }
   if (name === 'italic') {
-    return html`<i>${str}</i>`
+    return `<i>${str}</i>`
   }
   if (name === 'underline') {
-    return html`<u>${str}</u>`
+    return `<u>${str}</u>`
   }
   if (name === 'fontface') {
-    return html`<span style="font-family:${value}">${str}</span>`
+    return `<span style="font-family:${value}">${str}</span>`
   }
   if (name === 'fontsize') {
-    return html`<span style="font-size:${value}px;">${str}</span>`
+    return `<span style="font-size:${value}px;">${str}</span>`
   }
   if (name === 'fontcolor') {
-    return html`<span style="color:${value}">${str}</span>`
+    return `<span style="color:${value}">${str}</span>`
   }
   if (name === 'highlight') {
-    return html`<span style="background-color:${value}">${str}</span>`
+    return `<span style="background-color:${value}">${str}</span>`
   }
   if (name === 'superscript') {
-    return html`<sup>${str}</sup>`
+    return `<sup>${str}</sup>`
   }
   if (name === 'link') {
-    return html`<a href="${value}">${str}</a>`
+    return `<a href="${value}">${str}</a>`
   }
-  return html`[${name} ${value}]${str}[/${name}]`
+  return `[${name} ${value}]${str}[/${name}]`
 }
 
 // check if tag name is a boolean tag
@@ -57,7 +58,7 @@ function isBooleanTag(tagName) {
 }
 
 function _applyTags(str, tags) {
-  let tstr = html`${str}`
+  let tstr = `${str}`
   tags.forEach(tag => {
     tstr = _applyTag(tstr, tag)
   })
@@ -209,8 +210,8 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
         contenteditable="true"
         @beforeinput="${this._handleBeforeInput}"
         @compositionend="${this._handleCompositionEnd}"
-        >${this._html}</div
-      >
+        .innerHTML="${live(this._html)}"
+      ></div>
       ${this._renderLinkDialog()}
     `
   }
@@ -270,6 +271,8 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
 
   // also handle composition events
   _handleCompositionEnd(e) {
+    e.preventDefault()
+    e.stopPropagation()
     const range = this.shadowRoot.getSelection
       ? // Chrome
         this.shadowRoot.getSelection().getRangeAt(0)
@@ -652,15 +655,15 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _getHtml() {
-    let str = html``
+    let str = ''
     const tags = this._getTagArray()
     let activeTags = []
     let i = 0
     tags.forEach(tag => {
       const [j, t, name, value] = tag
-      str = html`${str}${j > i
-        ? _applyTags(this.data.string.slice(i, j), activeTags)
-        : ''}`
+      str = `${str}${
+        j > i ? _applyTags(this.data.string.slice(i, j), activeTags) : ''
+      }`
       if (t === 'start') {
         activeTags.push([name, value])
       } else {
@@ -668,7 +671,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
       }
       i = j
     })
-    str = html`${str}${_applyTags(this.data.string.slice(i), activeTags)}`
+    str = `${str}${_applyTags(this.data.string.slice(i), activeTags)}`
     return str
   }
 
