@@ -32,6 +32,8 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
 
         mwc-check-list-item {
           border-top: 1px solid rgba(0, 0, 0, 0.1);
+          height: auto;
+          width: 100%;
         }
 
         mwc-check-list-item:last-child {
@@ -48,8 +50,7 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
 
         span.link {
           color: var(--mdc-theme-text-primary-on-background);
-          display: inline-block;
-          padding: 20px 0;
+          padding: 0;
         }
 
         span.link:hover {
@@ -57,13 +58,34 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
           text-decoration: none;
         }
 
-        .list-content {
-          padding-left: 8px;
+        .item-content {
+          padding: 16px 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
-        .list-content mwc-icon {
-          position: relative;
-          top: 5px;
+        .status-icon {
+          width: 32px;
+        }
+
+        .title {
+          white-space: normal;
+          overflow-wrap: break-word;
+          height: 100%;
+          width: 100%;
+          background-color: rgba(0, 0, 0, 255, 0.1) !important;
+          padding-right: 8px;
+          flex: auto;
+          word-wrap: break-word;
+          hyphens: auto;
+        }
+
+        .tags {
+          flex: auto;
+          white-space: normal;
+          overflow-wrap: break-word;
+          word-wrap: break-word;
         }
 
         mwc-checkbox#select-all {
@@ -125,6 +147,10 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
           padding-left: 8px;
           position: relative;
           top: 2px;
+        }
+
+        grampsjs-tags-small {
+          margin-left: 1em;
         }
       `,
     ]
@@ -342,21 +368,22 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
         ?selected="${this._selected.includes(i)}"
         @keydown="${e => this._handleListKeyDown(e, obj.gramps_id)}"
       >
-        <div class="list-content">
-          ${this._statusIcon(status, obj.handle)}
-          <span
-            class="${classMap({
-              link: true,
-              title: true,
-              strike: status === 'Done',
-            })}"
-            @click="${e => this._handleTitleClick(e, obj.gramps_id)}"
-            @keydown="${clickKeyHandler}"
-            >${obj.title}</span
-          >
-          <grampsjs-tags-small
-            .data="${obj.extended.tags.filter(tag => tag.name !== 'ToDo')}"
-          ></grampsjs-tags-small>
+        <div class="item-content">
+          <div class="status-icon">${this._statusIcon(status, obj.handle)}</div>
+          <div class="title">
+            <span
+              class="${classMap({
+                link: true,
+                strike: status === 'Done',
+              })}"
+              @click="${e => this._handleTitleClick(e, obj.gramps_id)}"
+              @keydown="${clickKeyHandler}"
+              >${obj.title}</span
+            >
+            <grampsjs-tags-small
+              .data="${obj.extended.tags.filter(tag => tag.name !== 'ToDo')}"
+            ></grampsjs-tags-small>
+          </div>
         </div>
         <div slot="meta">
           <span class="prio-icon"

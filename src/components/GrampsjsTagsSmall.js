@@ -19,16 +19,9 @@ export class GrampsjsTagsSmall extends GrampsjsTranslateMixin(LitElement) {
           font-family: var(--grampsjs-body-font-family);
           padding: 0px 12px;
           border-radius: 6px;
-          margin: 0 6px;
+          margin: 0 3px;
           height: 24px;
-        }
-
-        .tags {
-          clear: left;
-          margin: 5px 0px;
-          align-items: center;
-          display: inline-flex;
-          padding: 5px;
+          display: inline-block;
         }
 
         .chip mwc-icon-button {
@@ -55,20 +48,18 @@ export class GrampsjsTagsSmall extends GrampsjsTranslateMixin(LitElement) {
       return html``
     }
     return html`
-      <div class="tags">
-        ${this.data.map(obj => {
-          let color =
-            obj.color?.length > 7
-              ? hex12ToCss(obj.color, 0.8)
-              : hex6ToCss(obj.color, 0.8)
-          color = color || 'rgba(0, 0, 0, 0.6)'
-          return html`
-            <span class="chip" style="background-color:${color};color:white;"
-              >${obj.name}</span
-            >
-          `
-        })}
-      </div>
+      ${this.data.map(obj => {
+        let color =
+          obj.color?.length > 7
+            ? hex12ToCss(obj.color, 0.8)
+            : hex6ToCss(obj.color, 0.8)
+        color = color || 'rgba(0, 0, 0, 0.6)'
+        return html`<span
+          class="chip"
+          style="background-color:${color};color:white;"
+          >${obj.name}</span
+        >`
+      })}
     `
   }
 
