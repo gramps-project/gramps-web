@@ -59,7 +59,7 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
         }
 
         .item-content {
-          padding: 16px 8px;
+          padding: 14px 6px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -106,9 +106,12 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
         mwc-check-list-item mwc-icon {
           color: rgba(0, 0, 0, 0.3);
           --mdc-icon-size: 20px;
+        }
+
+        .status-icon mwc-icon {
+          margin-right: 12px;
           position: relative;
-          top: 4px;
-          margin-right: 8px;
+          top: 3px;
         }
 
         .success {
