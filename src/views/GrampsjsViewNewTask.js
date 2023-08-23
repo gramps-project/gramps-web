@@ -12,7 +12,7 @@ import {makeHandle, fireEvent} from '../util.js'
 
 const dataDefault = {
   _class: 'Source',
-  attribute_list: [{_class: 'SrcAttribute', type: 'Priority', value: '4'}],
+  attribute_list: [{_class: 'SrcAttribute', type: 'Priority', value: '5'}],
 }
 
 export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
