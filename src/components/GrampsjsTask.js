@@ -52,6 +52,7 @@ export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
 
         .dropdowns mwc-select {
           margin-right: 12px;
+          margin-bottom: 18px;
         }
 
         h3 {
@@ -98,7 +99,7 @@ export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
       <grampsjs-breadcrumbs
         .data="${this.source}"
         .strings="${this.strings}"
-        objectsName="${this._('Tasks')}"
+        objectsName="Tasks"
         objectIcon="checklist"
       ></grampsjs-breadcrumbs>
       <h2

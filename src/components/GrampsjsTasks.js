@@ -27,6 +27,7 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
       css`
         mwc-list {
           --mdc-typography-subtitle1-font-size: 15px;
+          margin-bottom: 85px;
         }
 
         mwc-check-list-item {
@@ -54,6 +55,15 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
         span.link:hover {
           color: #1976d2;
           text-decoration: none;
+        }
+
+        .list-content {
+          padding-left: 8px;
+        }
+
+        .list-content mwc-icon {
+          position: relative;
+          top: 5px;
         }
 
         mwc-checkbox#select-all {
@@ -107,11 +117,14 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
           text-decoration: line-through !important;
         }
 
-        .priority-label {
-        }
-
         .taskbar mwc-button {
           margin-right: 8px;
+        }
+
+        .prio-icon mwc-icon {
+          padding-left: 8px;
+          position: relative;
+          top: 2px;
         }
       `,
     ]
@@ -325,19 +338,31 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
       <mwc-check-list-item
         left
         hasMeta
+        graphic=""
         ?selected="${this._selected.includes(i)}"
         @keydown="${e => this._handleListKeyDown(e, obj.gramps_id)}"
       >
-        ${this._statusIcon(status, obj.handle)}
-        <span
-          class="${classMap({link: true, strike: status === 'Done'})}"
-          @click="${e => this._handleTitleClick(e, obj.gramps_id)}"
-          @keydown="${clickKeyHandler}"
-          >${obj.title}</span
-        ><grampsjs-tags-small
-          .data="${obj.extended.tags.filter(tag => tag.name !== 'ToDo')}"
-        ></grampsjs-tags-small>
-        <div slot="meta">${this._priorityIcon(priority, obj.handle)}</div>
+        <div class="list-content">
+          ${this._statusIcon(status, obj.handle)}
+          <span
+            class="${classMap({
+              link: true,
+              title: true,
+              strike: status === 'Done',
+            })}"
+            @click="${e => this._handleTitleClick(e, obj.gramps_id)}"
+            @keydown="${clickKeyHandler}"
+            >${obj.title}</span
+          >
+          <grampsjs-tags-small
+            .data="${obj.extended.tags.filter(tag => tag.name !== 'ToDo')}"
+          ></grampsjs-tags-small>
+        </div>
+        <div slot="meta">
+          <span class="prio-icon"
+            >${this._priorityIcon(priority, obj.handle)}</span
+          >
+        </div>
       </mwc-check-list-item>
     `
   }
