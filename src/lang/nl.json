@@ -108,5 +108,15 @@
     "Upload a ZIP archive with files for existing media objects.": "Upload een ZIP-archief met bestanden voor bestaande media-objecten.",
     "Delete this object?": "Dit object verwijderen?",
     "Object %s deleted.": "Object %s is verwijderd.",
-    "Registration link": "Registratiekoppeling"
+    "Registration link": "Registratiekoppeling",
+    "Done": "Voltooid",
+    "Set Status": "Status instellen",
+    "In Progress": "In afhandeling",
+    "Open": "Open",
+    "Attachments": "Bijlagen",
+    "Task": "Taak",
+    "Tasks": "Taken",
+    "New Task": "Nieuwe taak",
+    "Show in blog": "In Blog weergeven",
+    "Set Priority": "Prioriteit instellen"
 }
