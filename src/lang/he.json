@@ -108,5 +108,15 @@
     "Import Media Files": "ייבוא קובצי מדיה",
     "Object %s deleted.": "העצם %s נמחק.",
     "Delete this object?": "למחוק את העצם הזה?",
-    "Registration link": "קישור לרישום"
+    "Registration link": "קישור לרישום",
+    "In Progress": "בתהליך",
+    "Attachments": "צרופות",
+    "Task": "משימה",
+    "Tasks": "משימות",
+    "New Task": "משימה חדשה",
+    "Show in blog": "הצגה ביומן הרשת",
+    "Set Priority": "הגדרת עדיפות",
+    "Set Status": "הגדרת מצב",
+    "Done": "בוצע",
+    "Open": "פתיחה"
 }
