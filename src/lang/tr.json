@@ -108,5 +108,15 @@
     "Generate a ZIP archive with all media files.": "Tüm medya dosyalarını içeren bir ZIP arşivi oluşturun.",
     "Delete this object?": "Bu nesne silinsin mi?",
     "Object %s deleted.": "%s nesnesi silindi.",
-    "Registration link": "Kayıt ilişimi"
+    "Registration link": "Kayıt ilişimi",
+    "Task": "Görev",
+    "Tasks": "Görevler",
+    "New Task": "Yeni görev",
+    "Show in blog": "Blogda göster",
+    "Set Priority": "Önceliği Ayarla",
+    "Set Status": "Durumu Ayarla",
+    "Done": "Tamam",
+    "In Progress": "Devam ediyor",
+    "Open": "Aç",
+    "Attachments": "Ekler"
 }
