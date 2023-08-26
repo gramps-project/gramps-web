@@ -233,6 +233,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
         'deleteContentBackward',
         'deleteContentForward',
         'insertFromPaste',
+        'deleteByCut',
       ].includes(e.inputType)
     ) {
       const div = this.shadowRoot.querySelector('div.note')
@@ -253,7 +254,11 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
         this._insertText('\n', nCharBefore1 + range.startOffset)
         this.cursorPosition = [nCharBefore1 + range.startOffset + 1]
       } else if (
-        ['deleteContentBackward', 'deleteContentForward'].includes(e.inputType)
+        [
+          'deleteContentBackward',
+          'deleteContentForward',
+          'deleteByCut',
+        ].includes(e.inputType)
       ) {
         const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
         this._deleteText(
