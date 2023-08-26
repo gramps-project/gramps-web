@@ -44,7 +44,7 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
         .strings="${this.strings}"
         dateIndex="1"
         numArgs="4"
-        label="Event year"
+        label="${this._('Event Year')}"
         rule="HasData"
       ></grampsjs-filter-years>
 
