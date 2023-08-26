@@ -1,9 +1,24 @@
+import {css} from 'lit'
+
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import {GrampsjsNewNoteMixin} from '../mixins/GrampsjsNewNoteMixin.js'
 
 export class GrampsjsFormNewNote extends GrampsjsNewNoteMixin(
   GrampsjsObjectForm
 ) {
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        mwc-dialog {
+          --mdc-dialog-max-width: min(1200px, 95vw);
+          --mdc-dialog-min-width: min(1200px, 95vw);
+          --mdc-dialog-max-height: 95vh;
+        }
+      `,
+    ]
+  }
+
   constructor() {
     super()
     this.data = {_class: 'Note', text: {_class: 'StyledText', string: ''}}
