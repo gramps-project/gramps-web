@@ -108,5 +108,16 @@
     "Import Media Files": "Importuj pliki multimedialne",
     "Delete this object?": "Usunąć ten obiekt?",
     "Object %s deleted.": "Obiekt %s usunięty.",
-    "Registration link": "Link do rejestracji"
+    "Registration link": "Link do rejestracji",
+    "Event Year": "Rok wydarzenia",
+    "Task": "Zadanie",
+    "Tasks": "Zadania",
+    "New Task": "Nowe zadanie",
+    "Show in blog": "Pokaż na blogu",
+    "Set Priority": "Ustaw priorytet",
+    "Set Status": "Ustaw status",
+    "Done": "Gotowe",
+    "In Progress": "Postęp",
+    "Open": "Otwórz",
+    "Attachments": "Załączniki"
 }
