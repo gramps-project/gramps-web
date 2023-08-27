@@ -234,6 +234,9 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
         'deleteContentForward',
         'insertFromPaste',
         'deleteByCut',
+        'formatBold',
+        'formatItalic',
+        'formatUnderline',
       ].includes(e.inputType)
     ) {
       const div = this.shadowRoot.querySelector('div.note')
@@ -266,6 +269,12 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
           nCharBefore2 + range.endOffset
         )
         this.cursorPosition = [nCharBefore1 + range.startOffset]
+      } else if (e.inputType === 'formatBold') {
+        this._handleFormat('bold')
+      } else if (e.inputType === 'formatItalic') {
+        this._handleFormat('italic')
+      } else if (e.inputType === 'formatUnderline') {
+        this._handleFormat('underline')
       }
     } else {
       // eslint-disable-next-line no-console
