@@ -120,7 +120,7 @@ export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
           id="select-status"
           @change="${this._handleStatusChange}"
         >
-          ${['Open', 'In Progress', 'Done'].map(
+          ${['Open', 'In Progress', 'Blocked', 'Done'].map(
             status => html`
               <mwc-list-item
                 value="${status}"

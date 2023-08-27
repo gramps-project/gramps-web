@@ -130,7 +130,8 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
           color: #007bff;
         }
 
-        .error {
+        .error,
+        .blocked {
           color: #bf360c;
         }
 
@@ -236,6 +237,7 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
           >
             <mwc-list-item>${this._('Open')}</mwc-list-item>
             <mwc-list-item>${this._('In Progress')}</mwc-list-item>
+            <mwc-list-item>${this._('Blocked')}</mwc-list-item>
             <mwc-list-item>${this._('Done')}</mwc-list-item>
           </mwc-menu>
         </div>
@@ -268,7 +270,7 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
 
   _handleStatusSet(e) {
     this.renderRoot.getElementById('prio-menu').select(null)
-    const values = {0: 'Open', 1: 'In Progress', 2: 'Done'}
+    const values = {0: 'Open', 1: 'In Progress', 2: 'Blocked', 3: 'Done'}
     const value = values[e.detail.index]
     if (value) {
       this._updateAttributes(this._selected, 'Status', value)
@@ -308,6 +310,9 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
       >`,
       'In Progress': html`<mwc-icon class="progress" id="${id}"
         >timelapse</mwc-icon
+      >`,
+      Blocked: html`<mwc-icon class="blocked" id="${id}"
+        >remove_circle</mwc-icon
       >`,
       Done: html`<mwc-icon class="done" id="${id}">check_circle</mwc-icon>`,
       unknown: html`<mwc-icon class="" id="${id}">help</mwc-icon>`,

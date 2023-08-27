@@ -86,7 +86,13 @@ export class GrampsjsViewTasks extends GrampsjsView {
     if ('data' in data) {
       this.error = false
       // sort
-      const labelOrder = {Open: 1, 'In Progress': 2, other: 3, Done: 4}
+      const labelOrder = {
+        Open: 1,
+        'In Progress': 2,
+        Blocked: 3,
+        other: 4,
+        Done: 5,
+      }
       this._data = data.data.sort(
         (a, b) =>
           labelOrder[this._getAttribute(a, 'Status') || 'other'] -
