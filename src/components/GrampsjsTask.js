@@ -271,12 +271,13 @@ export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
   _handleSaveNote() {
     const editor = this.renderRoot.querySelector('grampsjs-editor')
     const text = editor.data
+    const type = {_class: 'NoteType', string: 'To Do'}
     if (this.source.note_list.length > 0) {
       const note = this.source.extended.notes[0]
-      const data = {...note, text}
+      const data = {...note, text, type}
       fireEvent(this, 'task:update-note-text', data)
     } else {
-      const data = {text}
+      const data = {text, type}
       if (text.string.trim() !== '') {
         fireEvent(this, 'task:add-note-text', data)
       }
