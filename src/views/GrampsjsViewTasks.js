@@ -25,7 +25,6 @@ export class GrampsjsViewTasks extends GrampsjsView {
       canAdd: {type: Boolean},
       canEdit: {type: Boolean},
       _filters: {type: Array},
-      _todoTagHandle: {type: String},
     }
   }
 
@@ -34,7 +33,6 @@ export class GrampsjsViewTasks extends GrampsjsView {
     this.canAdd = false
     this.canEdit = false
     this._data = []
-    this._todoTagHandle = ''
     this._filters = []
     this._boundFetchData = this._fetchData.bind(this)
   }
@@ -42,7 +40,6 @@ export class GrampsjsViewTasks extends GrampsjsView {
   render() {
     return html`<h2>${this._('Tasks')}</h2>
 
-      ${this._todoTagHandle}
       <grampsjs-tasks
         .strings="${this.strings}"
         .data="${this._data}"
