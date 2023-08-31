@@ -6,6 +6,7 @@ import relativeTime from 'dayjs/esm/plugin/relativeTime'
 
 import {asteriskIcon, crossIcon} from './icons.js'
 import {additionalStrings} from './strings.js'
+import {hex6ToCss, hex12ToCss} from './color.js'
 
 dayjs.extend(relativeTime)
 
@@ -540,6 +541,15 @@ export function renderIcon(obj) {
       ><mwc-icon class="placeholder"
         >${objectIcon[obj.object_type]}</mwc-icon
       ></grampsjs-img
+    >`
+  }
+  if (obj.object_type === 'tag') {
+    const color =
+      obj.object?.color?.length > 7
+        ? hex12ToCss(obj.object.color, 0.6)
+        : hex6ToCss(obj.object.color, 0.6)
+    return html`<mwc-icon slot="graphic" style="background-color:${color};"
+      >${objectIcon[obj.object_type]}</mwc-icon
     >`
   }
   return html`<mwc-icon slot="graphic"
