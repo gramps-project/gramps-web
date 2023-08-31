@@ -41,7 +41,24 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
         label="${this._('New Tag')}"
       >
       </grampsjs-form-string>
-      <input type="color" id="color" @change="${this._handleColor}" />
+      <input
+        type="color"
+        id="color"
+        @change="${this._handleColor}"
+        list="presetColors"
+      />
+      <datalist id="presetColors">
+        <option>#1f77b4</option>
+        <option>#ff7f0e</option>
+        <option>#2ca02c</option>
+        <option>#d62728</option>
+        <option>#9467bd</option>
+        <option>#8c564b</option>
+        <option>#e377c2</option>
+        <option>#7f7f7f</option>
+        <option>#bcbd22</option>
+        <option>#17becf</option>
+      </datalist>
       <grampsjs-search-result-list
         selectable
         activatable
@@ -59,7 +76,7 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
   async _fetchData() {
     const url = `/api/search/?locale=${
       this.strings?.__lang__ || 'en'
-    }&profile=all&query=type:tag`
+    }&profile=all&query=type:tag&pagesize=100`
     const data = await apiGet(url)
     if ('data' in data) {
       this.searchRes = data.data.filter(obj => !this.data.includes(obj.handle))
