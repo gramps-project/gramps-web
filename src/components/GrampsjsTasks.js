@@ -177,12 +177,12 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-      ${this.canEdit ? this._renderTaskBar() : ''}
+      ${this._renderFilters()} ${this.canEdit ? this._renderTaskBar() : ''}
       ${this._renderTaskList(this.data)}
     `
   }
 
-  _renderTaskBar() {
+  _renderFilters() {
     return html`
       <div class="filters">
         <grampsjs-filters .strings="${this.strings}" objectType="sources">
@@ -191,7 +191,11 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
           ></grampsjs-filter-tags>
         </grampsjs-filters>
       </div>
+    `
+  }
 
+  _renderTaskBar() {
+    return html`
       <div class="taskbar">
         <mwc-checkbox
           id="select-all"
