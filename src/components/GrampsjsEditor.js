@@ -565,8 +565,13 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
     if (tags.length === 0) {
       return []
     }
-    // just remove tags that don't have ranges
-    return tags.filter(tag => tag.ranges.length > 0)
+    // remove collapsed ranges, then tags that don't have ranges
+    return tags
+      .map(tag => ({
+        ...tag,
+        ranges: tag.ranges.filter(r => r[0] < r[1]),
+      }))
+      .filter(tag => tag.ranges.length > 0)
   }
 
   // insert string at position
@@ -579,12 +584,14 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
         str +
         this.data.string.slice(position),
       // for tags, need to shift by str.length all values after position
-      tags: this.data.tags.map(tag => ({
-        ...tag,
-        ranges: tag.ranges.map(range =>
-          range.map(x => (x < position ? x : x + str.length))
-        ),
-      })),
+      tags: this._cleanTags(
+        this.data.tags.map(tag => ({
+          ...tag,
+          ranges: tag.ranges.map(range =>
+            range.map(x => (x < position ? x : x + str.length))
+          ),
+        }))
+      ),
     }
   }
 
@@ -600,13 +607,15 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
       string:
         this.data.string.slice(0, posStart) + this.data.string.slice(posEnd),
       // for tags, need to shift by str.length all values after position
-      tags: this.data.tags.map(tag => ({
-        ...tag,
-        ranges: tag.ranges.map(range =>
-          // eslint-disable-next-line no-nested-ternary
-          range.map(x => (x < posStart ? x : x > posEnd ? x - d : posStart))
-        ),
-      })),
+      tags: this._cleanTags(
+        this.data.tags.map(tag => ({
+          ...tag,
+          ranges: tag.ranges.map(range =>
+            // eslint-disable-next-line no-nested-ternary
+            range.map(x => (x < posStart ? x : x > posEnd ? x - d : posStart))
+          ),
+        }))
+      ),
     }
   }
 
