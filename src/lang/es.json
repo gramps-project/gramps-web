@@ -107,5 +107,17 @@
     "Object %s deleted.": "%s Objeto borrado.",
     "Delete this object?": "¿Borrar este objeto?",
     "Upload a ZIP archive with files for existing media objects.": "Carga un archivo ZIP con los archivos de los objetos multimedia existentes.",
-    "Import Media Files": "Importar los archivos multimedia"
+    "Import Media Files": "Importar los archivos multimedia",
+    "Set Status": "Configurar el estado",
+    "New Task": "Tarea nueva",
+    "Show in blog": "Mostrar en el blog",
+    "Set Priority": "Fijar la prioridad",
+    "Open": "Abrir",
+    "Registration link": "Enlace para inscribirte",
+    "Event Year": "Año del evento",
+    "Done": "Realizado",
+    "Tasks": "Tareas",
+    "In Progress": "En curso",
+    "Attachments": "Archivos adjuntos",
+    "Task": "Tarea"
 }
