@@ -75,6 +75,9 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
     date = new Date(event.date.year, date.getMonth(), date.getDate())
     const timestamp = date.getTime() / 1000
     const years = new Date().getFullYear() - date.getFullYear()
+    if (years < 1) {
+      return ''
+    }
     return html`
       <mwc-list-item
         twoline
