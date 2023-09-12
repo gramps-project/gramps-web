@@ -216,8 +216,12 @@ export const objectTypeToEndpoint = {
 export function objectDescription(type, obj, strings) {
   switch (type) {
     case 'person':
-      return html`${obj?.profile?.name_given || html`&hellip;`}
-      ${obj?.profile?.name_surname || html`&hellip;`}`
+      return html`${obj?.profile?.name_given ||
+      obj?.primary_name?.first_name ||
+      html`&hellip;`}
+      ${obj?.profile?.name_surname ||
+      obj?.primary_name?.surname_list?.[0]?.surname ||
+      html`&hellip;`}`
     case 'family':
       return html`${familyTitleFromProfile(obj.profile || {}) || type}`
     case 'event':

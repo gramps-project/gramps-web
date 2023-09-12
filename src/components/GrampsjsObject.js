@@ -141,7 +141,7 @@ const _allTabs = {
   associations: {
     title: 'Associations',
     condition: data => data?.person_ref_list?.length > 0,
-    conditionEdit: data => false, // 'person_ref_list' in data // FIXME editable in principle but UI not implemented
+    conditionEdit: data => 'person_ref_list' in data,
   },
   repositories: {
     title: 'Repositories',
@@ -529,9 +529,11 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         ></grampsjs-urls>`
       case 'associations':
         return html`<grampsjs-associations
+          hasEdit
           .strings=${this.strings}
           .data=${this.data?.person_ref_list || []}
           .extended=${this.data?.extended?.people || []}
+          ?edit="${this.edit}"
         ></grampsjs-associations>`
       case 'participants':
         return html`<grampsjs-participants

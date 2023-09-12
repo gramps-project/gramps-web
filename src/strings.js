@@ -205,6 +205,7 @@ export const grampsStrings = [
   'Generates documents in plain text format (.txt).',
   'Given name',
   'Given',
+  'Godfather',
   'Graduation',
   'Gramps ID',
   'Groom',

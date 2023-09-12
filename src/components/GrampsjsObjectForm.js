@@ -101,6 +101,11 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
     })
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  get isValid() {
+    return true
+  }
+
   render() {
     return html`
       <mwc-dialog
@@ -116,6 +121,7 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
         <mwc-button
           slot="primaryAction"
           dialogAction="ok"
+          ?disabled="${!this.isValid}"
           @click="${this._handleDialogSave}"
         >
           ${this._('_Save')}
@@ -209,6 +215,7 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
         'lat',
         'long',
         'call_number',
+        'rel',
       ].includes(originalTarget.id)
     ) {
       this.data = {...this.data, [originalTarget.id]: e.detail.data}
@@ -219,6 +226,7 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
         'media-select-list',
         'child-select-list',
         'place-select-list',
+        'person-select-list',
         'repository-select-list',
       ].includes(originalTarget.id)
     ) {
