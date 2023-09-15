@@ -75,7 +75,7 @@
     ]
   },
   "name": "gramps-js",
-  "version": "23.9.0",
+  "version": "23.9.1",
   "description": "The frontend for the Gramps Web genealogical research system.",
   "author": "David M. Straub",
   "license": "AGPL",
@@ -105,7 +105,9 @@
     "@mdi/js": "^5.8.55",
     "@types/leaflet": "^1.5.19",
     "d3": "^7.8.2",
+    "d3-axis": "^3.0.0",
     "d3-hierarchy": "^3.1.2",
+    "d3-scale": "^4.0.2",
     "d3-scale-chromatic": "^3.0.0",
     "d3-selection": "^3.0.0",
     "d3-shape": "^3.2.0",
