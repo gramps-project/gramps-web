@@ -118,5 +118,8 @@
     "Import Media Files": "Importovat mediální soubory",
     "Export your media files": "Exportovat mediální soubory",
     "Generate a ZIP archive with all media files.": "Vygenerovat ZIP archiv se všemi mediálními soubory.",
-    "Task": "Úkol"
+    "Task": "Úkol",
+    "Common ancestors": "Společní předkové",
+    "Blocked": "Blokováno",
+    "Event Year": "Událost Rok"
 }
