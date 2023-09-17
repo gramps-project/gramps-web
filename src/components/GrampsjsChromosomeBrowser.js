@@ -93,7 +93,7 @@ class GrampsjsChromosomeBrowser extends GrampsjsTranslateMixin(LitElement) {
     let {data} = this
     if (this.selected >= 0) {
       data = data.map((obj, index) =>
-        index === this.selected ? obj : {segments: []}
+        index === this.selected ? obj : {segments: [], handle: obj.handle}
       )
     }
     return html`
