@@ -105,7 +105,7 @@
     "A password reset link has been sent by e-mail.": "Odkaz na obnovenie hesla bol odoslaný e-mailom.",
     "Copy URL": "Kopírovať URL",
     "Not authorized": "Neautorizovaný",
-    "This e-mail address is already in use": "Táto e-mailová adresa ss už používa",
+    "This e-mail address is already in use": "Táto e-mailová adresa sa už používa",
     "This user name is already in use": "Toto používateľské meno je už zadané",
     "Import Media Files": "Importovať mediálne súbory",
     "Set Status": "Nastaviť status",
@@ -119,5 +119,7 @@
     "Tasks": "Úlohy",
     "New Task": "Nová úloha",
     "Set Priority": "Nastaviť prioritu",
-    "Event Year": "Udalosť Rok"
+    "Event Year": "Udalosť Rok",
+    "Common ancestors": "Spoloční predkovia",
+    "Blocked": "Blokované"
 }
