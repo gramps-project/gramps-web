@@ -9,6 +9,7 @@ import {sharedStyles} from '../SharedStyles.js'
 import '../views/GrampsjsViewObjectNotes.js'
 import '../views/GrampsjsViewSourceCitations.js'
 import '../views/GrampsjsViewPersonTimeline.js'
+import '../views/GrampsjsViewPersonDna.js'
 import './GrampsjsAddresses.js'
 import './GrampsjsAssociations.js'
 import './GrampsjsAttributes.js'
@@ -142,6 +143,12 @@ const _allTabs = {
     title: 'Associations',
     condition: data => data?.person_ref_list?.length > 0,
     conditionEdit: data => 'person_ref_list' in data,
+  },
+  dna: {
+    title: 'DNA',
+    condition: data =>
+      (data?.person_ref_list || []).filter(ref => ref.rel === 'DNA').length > 0,
+    conditionEdit: data => false,
   },
   repositories: {
     title: 'Repositories',
@@ -535,6 +542,13 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           .extended=${this.data?.extended?.people || []}
           ?edit="${this.edit}"
         ></grampsjs-associations>`
+      case 'dna':
+        return html`<grampsjs-view-person-dna
+          active
+          .strings=${this.strings}
+          handle="${this.data.handle || ''}"
+          .person="${this.data}"
+        ></grampsjs-view-person-dna>`
       case 'participants':
         return html`<grampsjs-participants
           .strings=${this.strings}
