@@ -213,7 +213,7 @@ class GrampsjsChromosomeBrowser extends GrampsjsTranslateMixin(LitElement) {
 
   handleResize() {
     const container = this.renderRoot.getElementById('container')
-    this.width = container.offsetWidth
+    this.width = container.offsetWidth - 45
   }
 }
 
