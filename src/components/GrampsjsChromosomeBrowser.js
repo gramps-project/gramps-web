@@ -61,6 +61,22 @@ class GrampsjsChromosomeBrowser extends GrampsjsTranslateMixin(LitElement) {
           margin-right: 8px;
           opacity: 0.9;
         }
+
+        @keyframes pulse {
+          0% {
+            opacity: 0.1;
+          }
+          50% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0.1;
+          }
+        }
+
+        div.loading svg {
+          animation: pulse 1.5s linear infinite;
+        }
       `,
     ]
   }
@@ -71,6 +87,7 @@ class GrampsjsChromosomeBrowser extends GrampsjsTranslateMixin(LitElement) {
       width: {type: String},
       selected: {type: Number},
       person: {type: Object},
+      loading: {type: Boolean},
     }
   }
 
@@ -80,12 +97,10 @@ class GrampsjsChromosomeBrowser extends GrampsjsTranslateMixin(LitElement) {
     this.width = 600
     this.selected = -1
     this.person = {}
+    this.loading = false
   }
 
   render() {
-    if (this.data.length === 0) {
-      return ''
-    }
     return html`${this.renderChart()} `
   }
 
@@ -97,7 +112,9 @@ class GrampsjsChromosomeBrowser extends GrampsjsTranslateMixin(LitElement) {
       )
     }
     return html`
-      <div id="container">${ChromosomeBrowser(data, {width: this.width})}</div>
+      <div id="container" class="${classMap({loading: this.loading})}">
+        ${ChromosomeBrowser(data, {width: this.width})}
+      </div>
       <div id="legend">${this.renderLegend()}</div>
     `
   }

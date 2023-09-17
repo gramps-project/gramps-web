@@ -32,12 +32,6 @@ export class GrampsjsViewPersonDna extends GrampsjsView {
   }
 
   renderContent() {
-    if (this._data.length === 0) {
-      if (this.loading) {
-        return ''
-      }
-      return ''
-    }
     return this.renderElements()
   }
 
@@ -47,6 +41,7 @@ export class GrampsjsViewPersonDna extends GrampsjsView {
         .data="${this._data}"
         .strings="${this.strings}"
         .person="${this.person}"
+        ?loading="${this.loading}"
       ></grampsjs-chromosome-browser>
     `
   }
