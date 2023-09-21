@@ -22,6 +22,7 @@ import is from './is.json' assert {type: 'json'}
 import it from './it.json' assert {type: 'json'}
 import ja from './ja.json' assert {type: 'json'}
 import lt from './lt.json' assert {type: 'json'}
+import lv from './lv.json' assert {type: 'json'}
 import mk from './mk.json' assert {type: 'json'}
 import nb from './nb.json' assert {type: 'json'}
 import nl from './nl.json' assert {type: 'json'}
@@ -82,6 +83,7 @@ const languages = {
   hr,
   is,
   lt,
+  lv,
   nl,
   pt_BR,
   ru,
