@@ -70,6 +70,13 @@ class GrampsjsFormPlaceRef extends GrampsjsObjectForm {
       </p>
     `
   }
+
+  get isValid() {
+    if (!this.data.ref) {
+      return false
+    }
+    return this._areDateSelectValid()
+  }
 }
 
 window.customElements.define('grampsjs-form-placeref', GrampsjsFormPlaceRef)

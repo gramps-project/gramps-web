@@ -58,6 +58,10 @@ class GrampsjsFormEditEventDetails extends GrampsjsObjectForm {
       </p>
     `
   }
+
+  get isValid() {
+    return this._areDateSelectValid()
+  }
 }
 
 window.customElements.define(

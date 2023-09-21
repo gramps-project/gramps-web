@@ -80,6 +80,13 @@ class GrampsjsFormEditCitationDetails extends GrampsjsObjectForm {
     `
   }
 
+  get isValid() {
+    if (!this.data.source_handle) {
+      return false
+    }
+    return this._areDateSelectValid()
+  }
+
   handleConfidence(e) {
     this.data = {...this.data, confidence: parseInt(e.target.value, 10)}
   }

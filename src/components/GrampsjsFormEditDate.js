@@ -31,6 +31,10 @@ class GrampsjsFormEditDate extends GrampsjsObjectForm {
       </grampsjs-form-select-date>
     `
   }
+
+  get isValid() {
+    return this._areDateSelectValid()
+  }
 }
 
 window.customElements.define('grampsjs-form-edit-date', GrampsjsFormEditDate)

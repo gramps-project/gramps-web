@@ -276,6 +276,16 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
   handleType(e) {
     this.data = {...this.data, modifier: parseInt(e.target.value, 10) || 0}
     // remove second date from dateval if necessary
+    if (
+      this._hasSecondDate() &&
+      'dateval' in this.data &&
+      this.data.dateval.length < 8
+    ) {
+      this.data = {
+        ...this.data,
+        dateval: [...this.data.dateval.slice(0, 4), 0, 0, 0, false],
+      }
+    }
     if (!this._hasSecondDate() && 'dateval' in this.data) {
       this.data = {...this.data, dateval: this.data.dateval.slice(0, 4)}
     }
@@ -478,6 +488,8 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
       if (this.data.dateval[4] <= this.data.dateval[0]) {
         return false
       }
+    } else if (this.data.dateval.length > 4) {
+      return false
     }
     return true
   }

@@ -76,6 +76,13 @@ class GrampsjsFormNewCitation extends GrampsjsObjectForm {
   handleConfidence(e) {
     this.data = {...this.data, confidence: parseInt(e.target.value, 10)}
   }
+
+  get isValid() {
+    if (!this.data.source_handle) {
+      return false
+    }
+    return this._areDateSelectValid()
+  }
 }
 
 window.customElements.define(

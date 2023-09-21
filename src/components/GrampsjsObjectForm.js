@@ -106,6 +106,18 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
     return true
   }
 
+  _areDateSelectValid() {
+    let valid = true
+    this.shadowRoot
+      .querySelectorAll('grampsjs-form-select-date')
+      .forEach(element => {
+        if (!element.isValid()) {
+          valid = false
+        }
+      })
+    return valid
+  }
+
   render() {
     return html`
       <mwc-dialog
