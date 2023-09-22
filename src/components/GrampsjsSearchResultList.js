@@ -143,7 +143,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
   }
 
   _renderSecondary(obj) {
-    if (this.date) {
+    if (this.date && obj.object?.change) {
       return html`<grampsjs-timedelta
         timestamp="${obj.object.change}"
         locale="${this.strings.__lang__}"
@@ -157,7 +157,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
     if (detail?.length) {
       return detail
     }
-    return obj.object.gramps_id
+    return obj.object?.gramps_id || '...'
   }
 
   _handleMetaClick(e, obj) {

@@ -8,6 +8,8 @@ import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormObjectList.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {apiGet} from '../api.js'
+import {objectTypeToEndpoint} from '../util.js'
 
 class GrampsjsFormSelectObjectList extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
@@ -62,8 +64,35 @@ class GrampsjsFormSelectObjectList extends GrampsjsTranslateMixin(LitElement) {
 
   firstUpdated() {
     const objList = this.shadowRoot.querySelector('grampsjs-form-object-list')
+    const objSelect = this.shadowRoot.querySelector(
+      'grampsjs-form-select-object'
+    )
     if (this.objectsInitial.length > 0) {
       objList.objects = this.objectsInitial
+      objSelect.objects = this.objectsInitial
+      this.objectsInitial.map((obj, i) => this._fetchObjectIfNeeded(obj, i))
+    }
+  }
+
+  async _fetchObjectIfNeeded(obj, i) {
+    if (!obj.object || !Object.keys(obj.object).length) {
+      const url = `/api/${objectTypeToEndpoint[this.objectType]}/${
+        obj.handle
+      }?extend=all&profile=all&locale=${this.strings?.__lang__ || 'en'}`
+      apiGet(url).then(data => {
+        if ('data' in data) {
+          const objList = this.shadowRoot.querySelector(
+            'grampsjs-form-object-list'
+          )
+          const objSelect = this.shadowRoot.querySelector(
+            'grampsjs-form-select-object'
+          )
+          const objects = [...objList.objects]
+          objects[i] = {...obj, object: data.data}
+          objList.objects = [...objects]
+          objSelect.objects = [...objects]
+        }
+      })
     }
   }
 
