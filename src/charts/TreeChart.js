@@ -1,3 +1,4 @@
+import {min, max} from 'd3-array'
 import {create} from 'd3-selection'
 import {hierarchy, tree} from 'd3-hierarchy'
 import {curveBumpX, link, symbolTriangle, symbol} from 'd3-shape'
@@ -15,16 +16,12 @@ function countDepthOfTree(treeData) {
     )
   )
 }
-// Returns the approximate number of nodes tall the tree is
-function countHeightOfTree(treeData) {
-  if (treeData == null) {
-    return 0
-  }
-  return Math.max(
-    1,
-    countHeightOfTree(treeData?.children?.[0]) +
-      countHeightOfTree(treeData?.children?.[1])
-  )
+
+function getMinMaxX(descendants) {
+  const xValues = descendants.map(d => d.x)
+  const maxX = max(xValues)
+  const minX = min(xValues)
+  return maxX - minX
 }
 
 export function TreeChart(
@@ -55,13 +52,6 @@ export function TreeChart(
   // The true depth of the tree may be less than the passed in "depth" if the tree just doesn't
   // go that far back
   const trueDepth = Math.min(countDepthOfTree(data), depth)
-  // Count the node height above the home node
-  const approxNodesAboveHome = countHeightOfTree(data?.children?.[0])
-  // and the total node height
-  const approxVerticalNodeCount = Math.max(
-    1,
-    approxNodesAboveHome + countHeightOfTree(data?.children?.[1])
-  )
 
   tree()
     .nodeSize([boxHeight + gapY, boxWidth + gapX])
@@ -75,16 +65,11 @@ export function TreeChart(
     if (d.x < x0) x0 = d.x
   })
 
-  // Compute the default height.
-  // if (height === undefined) height = x1 - x0 + dx * 2;
-
   // Use the required curve
   if (typeof curve !== 'function') throw new Error('Unsupported curve')
   const width = trueDepth * boxWidth + (trueDepth - 1) * gapX + 2 * padding
-  // add a boxHeight padding to top and bottom of the tree
-  const height = (boxHeight + gapY) * (approxVerticalNodeCount + 2)
-  // offset the SVG by the approximate height of the nodes above the home
-  const yOffset = -(boxHeight + gapY) * (approxNodesAboveHome + 1)
+  const height = getMinMaxX(descendants) + boxHeight
+  const yOffset = -height / 2
 
   const svg = create('svg')
     .attr('viewBox', [-boxWidth / 2 - padding, yOffset, width, height])
