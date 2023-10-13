@@ -119,5 +119,7 @@
     "Tasks": "Tareas",
     "In Progress": "En curso",
     "Attachments": "Archivos adjuntos",
-    "Task": "Tarea"
+    "Task": "Tarea",
+    "Common ancestors": "Antepasados comunes",
+    "Blocked": "Bloqueado"
 }
