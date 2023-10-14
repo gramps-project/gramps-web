@@ -442,6 +442,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         return html`<grampsjs-events
           hasShare
           hasAdd
+          defaultRole=${this._objectsName === 'Families' ? 'Family' : 'Primary'}
           .strings=${this.strings}
           .data=${this.data?.extended?.events}
           .profile=${this.data?.profile?.events}

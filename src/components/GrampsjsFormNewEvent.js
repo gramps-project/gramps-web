@@ -7,9 +7,16 @@ import {GrampsjsNewEventMixin} from '../mixins/GrampsjsNewEventMixin.js'
 export class GrampsjsFormNewEvent extends GrampsjsNewEventMixin(
   GrampsjsObjectForm
 ) {
+  static get properties() {
+    return {
+      defaultRole: {type: String},
+    }
+  }
+
   constructor() {
     super()
     this.data = {_class: 'Event'}
+    this.defaultRole = 'Primary'
   }
 
   renderForm() {
@@ -19,6 +26,8 @@ export class GrampsjsFormNewEvent extends GrampsjsNewEventMixin(
       <grampsjs-form-select-type
         required
         id="event-role-type"
+        defaultTypeName="${this.defaultRole}"
+        heading="${this._('Role')}"
         .strings="${this.strings}"
         typeName="event_role_types"
         ?loadingTypes=${this.loadingTypes}

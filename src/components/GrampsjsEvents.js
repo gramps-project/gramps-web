@@ -17,6 +17,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
       dialogContent: {type: String},
       useSummary: {type: Boolean},
       sorted: {type: Boolean},
+      defaultRole: {type: String},
     }
   }
 
@@ -29,6 +30,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     this.hasAdd = false
     this.hasShare = true
     this.hasReorder = true
+    this.defaultRole = 'Primary'
   }
 
   row(obj) {
@@ -63,9 +65,10 @@ export class GrampsjsEvents extends GrampsjsEditableList {
   }
 
   _getSecondaryText(obj) {
+    const detail = objectDetail('event', obj, this.strings) || ''
     return html`
-      ${objectDetail('event', obj, this.strings)}
-      ${obj.description ? html` &ndash; ${obj.description}` : ''}
+      ${detail} ${obj.description && detail.trim() ? html` &ndash; ` : ''}
+      ${obj.description || ''}
     `
   }
 
@@ -113,6 +116,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     this.dialogContent = html`
       <grampsjs-form-eventref
         new
+        defaultRole="${this.defaultRole}"
         @object:save="${this._handleEventRefSave}"
         @object:cancel="${this._handleDialogCancel}"
         .strings="${this.strings}"
@@ -126,6 +130,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
   _handleAdd() {
     this.dialogContent = html`
       <grampsjs-form-new-event
+        defaultRole="${this.defaultRole}"
         @object:save="${this._handleNewEventSave}"
         @object:cancel="${this._handleDialogCancel}"
         .strings="${this.strings}"

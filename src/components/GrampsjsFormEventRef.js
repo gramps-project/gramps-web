@@ -14,6 +14,17 @@ import './GrampsjsFormString.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 class GrampsjsFormEventRef extends GrampsjsObjectForm {
+  static get properties() {
+    return {
+      defaultRole: {type: String},
+    }
+  }
+
+  constructor() {
+    super()
+    this.defaultRole = 'Primary'
+  }
+
   renderForm() {
     return html`
       <grampsjs-form-select-object-list
@@ -28,6 +39,8 @@ class GrampsjsFormEventRef extends GrampsjsObjectForm {
       <grampsjs-form-select-type
         required
         id="event-role-type"
+        defaultTypeName="${this.defaultRole}"
+        heading="${this._('Role')}"
         .strings="${this.strings}"
         typeName="event_role_types"
         ?loadingTypes=${this.loadingTypes}
