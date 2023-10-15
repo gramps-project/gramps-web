@@ -21,7 +21,7 @@ function getMinMaxX(descendants) {
   const xValues = descendants.map(d => d.x)
   const maxX = max(xValues)
   const minX = min(xValues)
-  return maxX - minX
+  return [minX, maxX]
 }
 
 export function TreeChart(
@@ -68,8 +68,9 @@ export function TreeChart(
   // Use the required curve
   if (typeof curve !== 'function') throw new Error('Unsupported curve')
   const width = trueDepth * boxWidth + (trueDepth - 1) * gapX + 2 * padding
-  const height = getMinMaxX(descendants) + boxHeight
-  const yOffset = -height / 2
+  const [minX, maxX] = getMinMaxX(descendants)
+  const height = maxX - minX + boxHeight
+  const yOffset = minX - boxHeight / 2
 
   const svg = create('svg')
     .attr('viewBox', [-boxWidth / 2 - padding, yOffset, width, height])
