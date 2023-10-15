@@ -87,7 +87,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
                     value="${this.valueNonLocal ? types[i] : typesLocale[i]}"
                     ?selected="${(this.initialValue &&
                       obj === this.initialValue) ||
-                    obj === this.defaultTypeName}"
+                    (!this.initialValue && obj === this.defaultTypeName)}"
                     >${this._(obj)}</mwc-list-item
                   >
                 `

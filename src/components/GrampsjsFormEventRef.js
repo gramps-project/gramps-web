@@ -27,15 +27,20 @@ class GrampsjsFormEventRef extends GrampsjsObjectForm {
 
   renderForm() {
     return html`
-      <grampsjs-form-select-object-list
-        fixedMenuPosition
-        style="min-height: 300px;"
-        objectType="event"
-        .strings="${this.strings}"
-        id="event-select"
-        label="${this._('Select')}"
-        class="edit"
-      ></grampsjs-form-select-object-list>
+      ${!this.new // select event shown only for new event ref
+        ? ''
+        : html`
+            <grampsjs-form-select-object-list
+              fixedMenuPosition
+              style="min-height: 300px;"
+              objectType="event"
+              .strings="${this.strings}"
+              id="event-select"
+              label="${this._('Select')}"
+              class="edit"
+              .data="${this.data}"
+            ></grampsjs-form-select-object-list>
+          `}
       <grampsjs-form-select-type
         required
         id="event-role-type"
@@ -46,6 +51,7 @@ class GrampsjsFormEventRef extends GrampsjsObjectForm {
         ?loadingTypes=${this.loadingTypes}
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
+        initialValue="${this.data?.role?.string || this.data?.role || ''}"
       >
       </grampsjs-form-select-type>
     `

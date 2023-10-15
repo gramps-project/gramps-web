@@ -14,6 +14,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
   static get properties() {
     return {
       profile: {type: Array},
+      eventRef: {type: Array},
       dialogContent: {type: String},
       useSummary: {type: Boolean},
       sorted: {type: Boolean},
@@ -24,6 +25,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
   constructor() {
     super()
     this.profile = []
+    this.eventRef = []
     this.objType = 'Event'
     this.useSummary = false
     this.sorted = false
@@ -116,12 +118,29 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     this.dialogContent = html`
       <grampsjs-form-eventref
         new
+        id="share-event-ref"
         defaultRole="${this.defaultRole}"
         @object:save="${this._handleEventRefSave}"
         @object:cancel="${this._handleDialogCancel}"
         .strings="${this.strings}"
         objType="${this.objType}"
         dialogTitle=${this._('Share an existing event')}
+      >
+      </grampsjs-form-eventref>
+    `
+  }
+
+  _handleEdit() {
+    const data = this.eventRef[this._selectedIndex]
+    this.dialogContent = html`
+      <grampsjs-form-eventref
+        id="edit-event-ref"
+        @object:save="${this._handleEventRefSaveEdit}"
+        @object:cancel="${this._handleDialogCancel}"
+        .strings="${this.strings}"
+        objType="${this.objType}"
+        .data="${data}"
+        dialogTitle=${this._('Event Reference Editor')}
       >
       </grampsjs-form-eventref>
     `
@@ -153,6 +172,17 @@ export class GrampsjsEvents extends GrampsjsEditableList {
 
   _handleEventRefSave(e) {
     fireEvent(this, 'edit:action', {action: 'addEventRef', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleEventRefSaveEdit(e) {
+    fireEvent(this, 'edit:action', {
+      action: 'updateEventRef',
+      data: e.detail.data,
+      index: this._selectedIndex,
+    })
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''

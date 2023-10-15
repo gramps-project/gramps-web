@@ -162,6 +162,7 @@ export const grampsStrings = [
   'Error',
   'Estimated',
   'Event Note',
+  'Event Reference Editor',
   'Event Reference Note',
   'Event Type',
   'Event',

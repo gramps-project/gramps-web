@@ -241,6 +241,14 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._className,
         'event_ref_list'
       )
+    } else if (e.detail.action === 'updateEventRef') {
+      this.updateObjectByIndex(
+        e.detail.index,
+        e.detail.data,
+        this._data,
+        this._className,
+        'event_ref_list'
+      )
     } else if (e.detail.action === 'addPlaceRef') {
       this.addObject(
         e.detail.data,
