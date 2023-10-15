@@ -10,7 +10,7 @@ import {schemeSet1} from 'd3-scale-chromatic'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import {ChromosomeBrowser} from '../charts/ChromosomeBrowser.js'
-import {clickKeyHandler} from '../util.js'
+import {clickKeyHandler, personDisplayName} from '../util.js'
 
 class GrampsjsChromosomeBrowser extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
@@ -127,8 +127,7 @@ class GrampsjsChromosomeBrowser extends GrampsjsTranslateMixin(LitElement) {
     }
     // eslint-disable-next-line prefer-destructuring
     person = person[0]
-    return `${person?.primary_name?.first_name || '...'}
-    ${person?.primary_name?.surname_list?.[0]?.surname || '...'}`
+    return personDisplayName(person)
   }
 
   renderLegend() {

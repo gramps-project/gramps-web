@@ -25,7 +25,21 @@ export function translate(strings, s) {
 export function personTitleFromProfile(personProfile) {
   return `${personProfile.name_given || '…'} ${
     personProfile.name_surname || '…'
-  }`
+  } ${personProfile.name_suffix || ''}`.trim()
+}
+
+function displaySurname(surname) {
+  return `${surname.prefix} ${surname.surname} ${surname.connector}`.trim()
+}
+
+export function personDisplayName(person, options = {givenfirst: true}) {
+  const suffix = person.primary_name?.suffix ?? ''
+  const given = person.primary_name?.first_name ?? '…'
+  const surname =
+    person.primary_name.surname_list?.map(displaySurname)?.join(' ') ?? '…'
+  return options.givenfirst
+    ? `${given} ${surname} ${suffix}`.trim()
+    : `${surname}, ${given} ${suffix}`.trim()
 }
 
 export function familyTitleFromProfile(familyProfile) {
@@ -216,12 +230,7 @@ export const objectTypeToEndpoint = {
 export function objectDescription(type, obj, strings) {
   switch (type) {
     case 'person':
-      return html`${obj?.profile?.name_given ||
-      obj?.primary_name?.first_name ||
-      html`&hellip;`}
-      ${obj?.profile?.name_surname ||
-      obj?.primary_name?.surname_list?.[0]?.surname ||
-      html`&hellip;`}`
+      return personDisplayName(obj)
     case 'family':
       return html`${familyTitleFromProfile(obj.profile || {}) || type}`
     case 'event':

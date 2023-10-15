@@ -3,17 +3,10 @@ import {html} from 'lit'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditAssociation.js'
 
-import {fireEvent} from '../util.js'
+import {personDisplayName, fireEvent} from '../util.js'
 
 import '@material/mwc-icon'
 import '@material/mwc-list/mwc-list-item'
-
-function _formatName(person) {
-  const first = person?.primary_name?.first_name || ''
-  const surnameList = person?.primary_name?.surname_list || []
-  const last = surnameList.length === 0 ? '' : surnameList[0]?.surname || ''
-  return `${first} ${last}`
-}
 
 export class GrampsjsAssociations extends GrampsjsEditableList {
   static get properties() {
@@ -29,7 +22,7 @@ export class GrampsjsAssociations extends GrampsjsEditableList {
         graphic="avatar"
         ?hasMeta="${this.edit}"
         @click="${() => this._handleClick(this.extended[i])}"
-        >${_formatName(this.extended[i])}
+        >${personDisplayName(this.extended[i])}
         <span slot="secondary">${this._(obj.rel)}</span>
         <mwc-icon slot="graphic">group</mwc-icon>
       </mwc-list-item>
