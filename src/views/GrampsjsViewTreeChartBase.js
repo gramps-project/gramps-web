@@ -115,34 +115,37 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
       >
     <mwc-dialog id="menu-controls">
           <table>
+          ${
+            this._setAnc
+              ? html` <tr>
+                  <td>${this._('Max Ancestor Generations')}</td>
+                  <td>
+                    <mwc-textfield
+                      value=${this.nAnc}
+                      type="number"
+                      min="1"
+                      @change=${this._handleChangeAnc}
+                    ></mwc-textfield>
+                  </td>
+                </tr>`
+              : ''
+          }${
+      this._setDesc
+        ? html`
             <tr>
-              <td>${this._('Max Ancestor Generations')}</td>
+              <td>${this._('Max Descendant Generations')}</td>
               <td>
                 <mwc-textfield
-                  value=${this.nAnc}
+                  value=${this.nDesc}
                   type="number"
-                  min="1"
-                  @change=${this._handleChangeAnc}
+                  min="0"
+                  @change=${this._handleChangeDesc}
                 ></mwc-textfield>
               </td>
             </tr>
-            ${
-              this._setDesc
-                ? html`
-                    <tr>
-                      <td>${this._('Max Descendant Generations')}</td>
-                      <td>
-                        <mwc-textfield
-                          value=${this.nDesc}
-                          type="number"
-                          min="0"
-                          @change=${this._handleChangeDesc}
-                        ></mwc-textfield>
-                      </td>
-                    </tr>
-                  `
-                : ''
-            }
+          `
+        : ''
+    }
           </table>
           <mwc-button slot="primaryAction" dialogAction="close"
             >${this._('done')}</mwc-button

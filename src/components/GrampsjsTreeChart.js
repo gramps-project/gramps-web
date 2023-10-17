@@ -42,6 +42,8 @@ class GrampsjsTreeChart extends GrampsjsTranslateMixin(LitElement) {
       grampsId: {type: String},
       depth: {type: Number},
       data: {type: Array},
+      descendants: {type: Boolean},
+      gapX: {type: Number},
     }
   }
 
@@ -50,6 +52,7 @@ class GrampsjsTreeChart extends GrampsjsTranslateMixin(LitElement) {
     this.grampsId = ''
     this.depth = 5
     this.data = []
+    this.gapX = 30
   }
 
   render() {
@@ -71,13 +74,18 @@ class GrampsjsTreeChart extends GrampsjsTranslateMixin(LitElement) {
     if (!handle) {
       return ''
     }
-    const data = getTree(this.data, handle, this.depth, false)
+
+    const data = this.descendants
+      ? getDescendantTree(this.data, handle, this.depth)
+      : getTree(this.data, handle, this.depth, false)
     return html`
       <div id="container">
         ${TreeChart(data, {
           depth: this.depth,
           childrenTriangle: this._hasChildren(),
           getImageUrl: d => getImageUrl(d?.data?.person || {}, 200),
+          orientation: this.descendants ? 'RTL' : 'LTR',
+          gapX: this.gapX,
         })}
       </div>
     `
@@ -94,7 +102,9 @@ class GrampsjsTreeChart extends GrampsjsTranslateMixin(LitElement) {
 
   renderChildrenMenu() {
     const {handle} = getPersonByGrampsId(this.data, this.grampsId)
-    const data = getDescendantTree(this.data, handle, 2)
+    const data = this.descendants
+      ? getTree(this.data, handle, 2, false)
+      : getDescendantTree(this.data, handle, 2)
     const {children} = data
     if (!children || !children.length) {
       return ''

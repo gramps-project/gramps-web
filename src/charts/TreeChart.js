@@ -29,7 +29,7 @@ export function TreeChart(
   {
     depth = 3,
     padding = 20, // horizontal padding for first and last column
-    gapX = 20, // horizontal gap between boxes
+    gapX = 30, // horizontal gap between boxes
     gapY = 5, // vertical gap between boxes
     stroke = '#555', // stroke for links
     strokeWidth = 1, // stroke width for links
@@ -42,6 +42,7 @@ export function TreeChart(
     imgPadding = 10,
     childrenTriangle = true,
     getImageUrl = null,
+    orientation = 'LTR',
   } = {}
 ) {
   // Create a hierarchical data structure based on the input data
@@ -65,15 +66,25 @@ export function TreeChart(
     if (d.x < x0) x0 = d.x
   })
 
+  if (orientation === 'RTL') {
+    descendants.forEach(d => {
+      // eslint-disable-next-line no-param-reassign
+      d.y = -d.y
+    })
+  }
   // Use the required curve
   if (typeof curve !== 'function') throw new Error('Unsupported curve')
   const width = trueDepth * boxWidth + (trueDepth - 1) * gapX + 2 * padding
   const [minX, maxX] = getMinMaxX(descendants)
   const height = maxX - minX + boxHeight
   const yOffset = minX - boxHeight / 2
+  const xOffset =
+    orientation === 'RTL'
+      ? boxWidth / 2 + padding - width
+      : -boxWidth / 2 - padding
 
   const svg = create('svg')
-    .attr('viewBox', [-boxWidth / 2 - padding, yOffset, width, height])
+    .attr('viewBox', [xOffset, yOffset, width, height])
     .attr('width', width)
     .attr('height', height)
     .attr('style', 'max-width: 100%; height: auto; height: intrinsic;')
@@ -91,12 +102,25 @@ export function TreeChart(
     .selectAll('path')
     .data(root.links())
     .join('path')
-    .attr(
-      'd',
-      link(curve)
-        .x(d => d.y)
-        .y(d => d.x)
-    )
+    .attr('d', d => {
+      const sourceX = d.source.x
+      const sourceY =
+        orientation === 'LTR'
+          ? d.source.y + boxWidth / 2 - 10
+          : d.source.y - boxWidth / 2 + 10
+      const targetX = d.target.x
+      const targetY =
+        orientation === 'LTR'
+          ? d.target.y - boxWidth / 2 + 10
+          : d.target.y + boxWidth / 2 - 10
+
+      return link(curve)
+        .x(dd => dd.y)
+        .y(dd => dd.x)({
+        source: {x: sourceX, y: sourceY},
+        target: {x: targetX, y: targetY},
+      })
+    })
 
   const node = svg
     .append('g')
@@ -154,8 +178,16 @@ export function TreeChart(
     e.preventDefault()
   }
 
+  function yPos(d) {
+    return orientation === 'LTR'
+      ? d.y - boxWidth / 2 - 12
+      : d.y + boxWidth / 2 + 12
+  }
+
   if (childrenTriangle) {
     const triangle = symbol().type(symbolTriangle).size(200)
+
+    const angle = orientation === 'LTR' ? -90 : 90
 
     node
       .append('path')
@@ -163,10 +195,7 @@ export function TreeChart(
       .attr('d', triangle)
       .attr(
         'transform',
-        d =>
-          `translate(${d.y - boxWidth / 2 - 12},${
-            d.x
-          }) rotate(-90) scale(-1, 0.5)`
+        d => `translate(${yPos(d)},${d.x}) rotate(${angle}) scale(-1, 0.5)`
       )
       .attr('fill', '#bbb')
       .attr('id', 'triangle-children')

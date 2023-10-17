@@ -7,6 +7,7 @@ import '@material/mwc-tab'
 
 import {mdiFamilyTree} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
+import './GrampsjsViewDescendantChart.js'
 import './GrampsjsViewTreeChart.js'
 import './GrampsjsViewFanChart.js'
 import {fireEvent} from '../util.js'
@@ -83,7 +84,8 @@ export class GrampsjsViewTree extends GrampsjsView {
     return html`
       ${this.renderTabs()}
       ${this._currentTabId === 0 ? this._renderPedigree() : ''}
-      ${this._currentTabId === 1 ? this._renderFan() : ''}
+      ${this._currentTabId === 1 ? this._renderDescendantTree() : ''}
+      ${this._currentTabId === 2 ? this._renderFan() : ''}
     `
   }
 
@@ -101,12 +103,30 @@ export class GrampsjsViewTree extends GrampsjsView {
           hasImageIcon
           label="${this._('Ancestor Tree')}"
           ><span slot="icon"
-            >${renderIconSvg(mdiFamilyTree, 'var(--mdc-theme-primary)')}</span
+            >${renderIconSvg(
+              mdiFamilyTree,
+              'var(--mdc-theme-primary)',
+              -90
+            )}</span
           >
         </mwc-tab>
         <mwc-tab
           @click=${() => {
             this._currentTabId = 1
+          }}
+          hasImageIcon
+          label="${this._('Descendant Tree')}"
+          ><span slot="icon"
+            >${renderIconSvg(
+              mdiFamilyTree,
+              'var(--mdc-theme-primary)',
+              90
+            )}</span
+          >
+        </mwc-tab>
+        <mwc-tab
+          @click=${() => {
+            this._currentTabId = 2
           }}
           hasImageIcon
           label="${this._('Fan Chart')}"
@@ -152,6 +172,23 @@ export class GrampsjsViewTree extends GrampsjsView {
         ?disableHome=${this.grampsId === this.settings.homePerson}
       >
       </grampsjs-view-tree-chart>
+    `
+  }
+
+  _renderDescendantTree() {
+    return html`
+      <grampsjs-view-descendant-chart
+        @tree:back="${this._prevPerson}"
+        @tree:person="${this._goToPerson}"
+        @tree:home="${this._backToHomePerson}"
+        grampsId=${this.grampsId}
+        ?active=${this.active}
+        .strings=${this.strings}
+        .settings=${this.settings}
+        ?disableBack=${this._history.length < 2}
+        ?disableHome=${this.grampsId === this.settings.homePerson}
+      >
+      </grampsjs-view-descendant-chart>
     `
   }
 

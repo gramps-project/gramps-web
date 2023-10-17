@@ -74,11 +74,19 @@ export const getDescendantTree = (data, handle, depth, i = 0, label = 'p') => {
   if (depth === 1) {
     return tree
   }
-  const childHandles = (person?.extended?.families || [])
-    .flatMap(fam => fam.child_ref_list)
-    .map(cref => cref.ref)
+  const childHandles =
+    (person?.extended?.families || [])
+      .flatMap(fam => fam.child_ref_list)
+      .filter(childRef => childRef.frel === 'Birth')
+      .map(cref => cref.ref) ?? []
   tree.children = childHandles.map((childHandle, childInd) =>
-    getTree(data, childHandle, depth - 1, false, i + 1, `${label}c${childInd}`)
+    getDescendantTree(
+      data,
+      childHandle,
+      depth - 1,
+      i + 1,
+      `${label}c${childInd}`
+    )
   )
   return tree
 }
