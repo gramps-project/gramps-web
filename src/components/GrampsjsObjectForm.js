@@ -289,6 +289,12 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
         type: {_class: 'NoteType', string: e.detail.data},
       }
     }
+    if (originalTarget.id === 'place-type') {
+      this.data = {
+        ...this.data,
+        place_type: {_class: 'PlaceType', string: e.detail.data},
+      }
+    }
     if (originalTarget.id === 'event-type') {
       this.data = {
         ...this.data,

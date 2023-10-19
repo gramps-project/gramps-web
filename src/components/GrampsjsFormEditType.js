@@ -8,14 +8,27 @@ import './GrampsjsFormSelectType.js'
 
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
-class GrampsjsFormEditNoteType extends GrampsjsObjectForm {
+class GrampsjsFormEditType extends GrampsjsObjectForm {
+  static get properties() {
+    return {
+      formId: {type: String},
+      typeName: {type: String},
+    }
+  }
+
+  constructor() {
+    super()
+    this.formId = ''
+    this.typeName = ''
+  }
+
   renderForm() {
     return html`
       <grampsjs-form-select-type
-        id="note-type"
+        id="${this.formId}"
         .strings="${this.strings}"
         ?loadingTypes="${this.loadingTypes}"
-        typeName="note_types"
+        typeName="${this.typeName}"
         defaultTypeName="General"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
@@ -26,7 +39,4 @@ class GrampsjsFormEditNoteType extends GrampsjsObjectForm {
   }
 }
 
-window.customElements.define(
-  'grampsjs-form-edit-note-type',
-  GrampsjsFormEditNoteType
-)
+window.customElements.define('grampsjs-form-edit-type', GrampsjsFormEditType)

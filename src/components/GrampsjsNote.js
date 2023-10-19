@@ -5,7 +5,7 @@ import '@material/mwc-icon'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsEditor.js'
-import './GrampsjsFormEditNoteType.js'
+import './GrampsjsFormEditType.js'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsNote extends GrampsjsObject {
@@ -57,14 +57,16 @@ export class GrampsjsNote extends GrampsjsObject {
 
   _handleEditType() {
     this.dialogContent = html`
-      <grampsjs-form-edit-note-type
+      <grampsjs-form-edit-type
+        formId="note-type"
+        typeName="note_types"
         @object:save="${this._handleSaveType}"
         @object:cancel="${this._handleCancelDialog}"
         .strings=${this.strings}
         .data=${{type: this.data?.type || ''}}
         prop="value"
       >
-      </grampsjs-form-edit-note-type>
+      </grampsjs-form-edit-type>
     `
   }
 

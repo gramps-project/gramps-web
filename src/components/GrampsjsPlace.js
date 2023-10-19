@@ -1,4 +1,4 @@
-import {html} from 'lit'
+import {css, html} from 'lit'
 
 import '@material/mwc-icon'
 
@@ -10,6 +10,20 @@ import {fireEvent} from '../util.js'
 const BASE_DIR = ''
 
 export class GrampsjsPlace extends GrampsjsObject {
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        :host {
+        }
+
+        #btn-edit-type {
+          vertical-align: middle;
+        }
+      `,
+    ]
+  }
+
   constructor() {
     super()
     this._showReferences = false
@@ -33,7 +47,19 @@ export class GrampsjsPlace extends GrampsjsObject {
       </h2>
 
       ${this.data?.profile?.type
-        ? html`<p>${this.data?.profile?.type}</p>`
+        ? html`<p>
+            ${this.data?.profile?.type}
+            ${this.edit
+              ? html`
+                  <mwc-icon-button
+                    id="btn-edit-type"
+                    icon="edit"
+                    class="edit"
+                    @click="${this._handleEditType}"
+                  ></mwc-icon-button>
+                `
+              : ''}
+          </p>`
         : ''}
       ${this.data?.profile?.parent_places.length > 0
         ? html`
@@ -82,6 +108,33 @@ export class GrampsjsPlace extends GrampsjsObject {
       >
       </grampsjs-form-edit-placename>
     `
+  }
+
+  _handleEditType() {
+    this.dialogContent = html`
+      <grampsjs-form-edit-type
+        formId="place-type"
+        typeName="place_types"
+        @object:save="${this._handleSaveType}"
+        @object:cancel="${this._handleCancelDialog}"
+        .strings=${this.strings}
+        .data=${{
+          type: this.data?.place_type?.string || this.data?.place_type || '',
+        }}
+        prop="value"
+      >
+      </grampsjs-form-edit-type>
+    `
+  }
+
+  _handleSaveType(e) {
+    fireEvent(this, 'edit:action', {
+      action: 'updateProp',
+      data: e.detail.data,
+    })
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
   }
 
   _handleSaveName(e) {
