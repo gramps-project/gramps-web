@@ -4,7 +4,7 @@ import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 import '../components/GrampsjsFormName.js'
 import '../components/GrampsjsFormPrivate.js'
 import '../components/GrampsjsFormSelectObjectList.js'
-import {makeHandle} from '../util.js'
+import {makeHandle, dateIsEmpty} from '../util.js'
 import {apiPost} from '../api.js'
 
 const gender = {
@@ -135,8 +135,8 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
     const birthString = this.translateTypeName(false, 'event_types', 'Birth')
     const deathString = this.translateTypeName(false, 'event_types', 'Death')
     const {birth, death, ...person} = this.data
-    const hasBirth = birth.place || birth?.date?._class
-    const hasDeath = death.place || death?.date?._class
+    const hasBirth = birth.place || (birth?.date && !dateIsEmpty(birth.date))
+    const hasDeath = death.place || (death?.date && !dateIsEmpty(birth.date))
     if (!hasBirth && !hasDeath) {
       return [person]
     }

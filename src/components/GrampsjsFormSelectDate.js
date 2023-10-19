@@ -8,7 +8,7 @@ import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {getSortval} from '../util.js'
+import {getSortval, dateIsEmpty} from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 const modifiers = {
@@ -492,6 +492,10 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
       return false
     }
     return true
+  }
+
+  isEmpty() {
+    return dateIsEmpty(this.data)
   }
 
   _openDatePicker1() {

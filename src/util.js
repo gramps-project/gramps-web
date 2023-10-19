@@ -577,3 +577,20 @@ export function clickKeyHandler(event) {
     event.stopPropagation()
   }
 }
+
+export function dateIsEmpty(date) {
+  if (date.modifier === 6) {
+    // Text Only Date is never empty
+    return false
+  }
+  if (JSON.stringify(date.dateval.slice(0, 4)) !== '[0,0,0,false]') {
+    return false
+  }
+  if (
+    date.dateval.len > 4 &&
+    JSON.stringify(date.dateval.slice(4)) !== '[0,0,0,false]'
+  ) {
+    return false
+  }
+  return true
+}
