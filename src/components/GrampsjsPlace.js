@@ -113,6 +113,7 @@ export class GrampsjsPlace extends GrampsjsObject {
   _handleEditType() {
     this.dialogContent = html`
       <grampsjs-form-edit-type
+        dialogTitle="${this._('Edit place type')}"
         formId="place-type"
         typeName="place_types"
         @object:save="${this._handleSaveType}"
@@ -125,16 +126,6 @@ export class GrampsjsPlace extends GrampsjsObject {
       >
       </grampsjs-form-edit-type>
     `
-  }
-
-  _handleSaveType(e) {
-    fireEvent(this, 'edit:action', {
-      action: 'updateProp',
-      data: e.detail.data,
-    })
-    e.preventDefault()
-    e.stopPropagation()
-    this.dialogContent = ''
   }
 
   _handleSaveName(e) {

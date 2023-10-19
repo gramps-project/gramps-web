@@ -5,6 +5,7 @@ import '@material/mwc-icon'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditEventDetails.js'
 import './GrampsjsFormEditTitle.js'
+import './GrampsjsTooltip.js'
 import {fireEvent} from '../util.js'
 
 const BASE_DIR = ''
@@ -29,7 +30,22 @@ export class GrampsjsEvent extends GrampsjsObject {
 
   renderProfile() {
     return html`
-      <h2>${this._renderTitle()}</h2>
+      <h2>
+        ${this._renderTitle()}
+        ${this.edit
+          ? html`
+              <mwc-icon-button
+                id="btn-edit-type"
+                icon="edit"
+                class="edit"
+                @click="${this._handleEditType}"
+              ></mwc-icon-button>
+              <grampsjs-tooltip for="btn-edit-type"
+                >${this._('Edit event type')}</grampsjs-tooltip
+              >
+            `
+          : ''}
+      </h2>
       ${this.data.description || this.edit
         ? html` <dl>
             <div>
@@ -166,6 +182,24 @@ export class GrampsjsEvent extends GrampsjsObject {
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''
+  }
+
+  _handleEditType() {
+    this.dialogContent = html`
+      <grampsjs-form-edit-type
+        dialogTitle="${this._('Edit event type')}"
+        formId="event-type"
+        typeName="event_types"
+        @object:save="${this._handleSaveType}"
+        @object:cancel="${this._handleCancelDialog}"
+        .strings=${this.strings}
+        .data=${{
+          type: this.data?.type?.string || this.data?.type || '',
+        }}
+        prop="value"
+      >
+      </grampsjs-form-edit-type>
+    `
   }
 }
 

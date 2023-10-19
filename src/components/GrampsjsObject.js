@@ -648,6 +648,16 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     this.dialogContent = ''
   }
 
+  _handleSaveType(e) {
+    fireEvent(this, 'edit:action', {
+      action: 'updateProp',
+      data: e.detail.data,
+    })
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
   _getZoomFromBounds(bounds) {
     const xMin = bounds[0][0]
     const yMin = bounds[0][1]

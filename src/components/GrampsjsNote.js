@@ -6,7 +6,6 @@ import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsEditor.js'
 import './GrampsjsFormEditType.js'
-import {fireEvent} from '../util.js'
 
 export class GrampsjsNote extends GrampsjsObject {
   static get styles() {
@@ -68,16 +67,6 @@ export class GrampsjsNote extends GrampsjsObject {
       >
       </grampsjs-form-edit-type>
     `
-  }
-
-  _handleSaveType(e) {
-    fireEvent(this, 'edit:action', {
-      action: 'updateProp',
-      data: e.detail.data,
-    })
-    e.preventDefault()
-    e.stopPropagation()
-    this.dialogContent = ''
   }
 }
 
