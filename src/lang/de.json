@@ -121,5 +121,7 @@
     "Set Status": "Status setzen",
     "Event Year": "Ereignisjahr",
     "Common ancestors": "Gemeinsame Vorfahren",
-    "Blocked": "Blockiert"
+    "Blocked": "Blockiert",
+    "Edit place type": "Ortsart bearbeiten",
+    "Edit event type": "Ereignisart bearbeiten"
 }
