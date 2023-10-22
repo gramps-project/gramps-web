@@ -121,5 +121,7 @@
     "In Progress": "em curso",
     "Event Year": "Ano do evento",
     "Common ancestors": "Ascendentes comuns",
-    "Blocked": "Bloqueado"
+    "Blocked": "Bloqueado",
+    "Edit place type": "Editar o tipo de local",
+    "Edit event type": "Editar o tipo de evento"
 }
