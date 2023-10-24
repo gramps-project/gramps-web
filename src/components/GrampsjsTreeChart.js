@@ -82,7 +82,9 @@ class GrampsjsTreeChart extends GrampsjsTranslateMixin(LitElement) {
       <div id="container">
         ${TreeChart(data, {
           depth: this.depth,
-          childrenTriangle: this._hasChildren(),
+          childrenTriangle: this.descendants
+            ? this._hasParents()
+            : this._hasChildren(),
           getImageUrl: d => getImageUrl(d?.data?.person || {}, 200),
           orientation: this.descendants ? 'RTL' : 'LTR',
           gapX: this.gapX,
@@ -94,6 +96,15 @@ class GrampsjsTreeChart extends GrampsjsTranslateMixin(LitElement) {
   _hasChildren() {
     const {handle} = getPersonByGrampsId(this.data, this.grampsId)
     const data = getDescendantTree(this.data, handle, 2)
+    if (data.children && data.children.length) {
+      return true
+    }
+    return false
+  }
+
+  _hasParents() {
+    const {handle} = getPersonByGrampsId(this.data, this.grampsId)
+    const data = getTree(this.data, handle, 2, false)
     if (data.children && data.children.length) {
       return true
     }
