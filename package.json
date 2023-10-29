@@ -115,7 +115,7 @@
     "d3-shape": "^3.2.0",
     "dayjs": "^1.8.36",
     "jwt-decode": "^3.1.2",
-    "leaflet": "^1.7.1",
+    "leaflet": "^1.9.4",
     "lit": "^2.1.1",
     "pwa-helper-components": "^0.2.10",
     "pwa-helpers": "^0.9.1",
