@@ -36,7 +36,7 @@ export function personDisplayName(person, options = {givenfirst: true}) {
   const suffix = person.primary_name?.suffix ?? ''
   const given = person.primary_name?.first_name ?? '…'
   const surname =
-    person.primary_name.surname_list?.map(displaySurname)?.join(' ') ?? '…'
+    person.primary_name?.surname_list?.map(displaySurname)?.join(' ') ?? '…'
   return options.givenfirst
     ? `${given} ${surname} ${suffix}`.trim()
     : `${surname}, ${given} ${suffix}`.trim()
