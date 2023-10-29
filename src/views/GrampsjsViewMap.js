@@ -133,7 +133,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     super.update(changed)
     if (changed.has('active') && this.active) {
       const mapel = this.shadowRoot.getElementById('map')
-      if (mapel !== null) {
+      if (mapel !== null && mapel._map !== undefined) {
         mapel._map.invalidateSize(false)
       }
       const searchbox = this.shadowRoot.querySelector('grampsjs-map-searchbox')
