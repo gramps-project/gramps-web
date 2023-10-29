@@ -40,7 +40,8 @@
     "rimraf": "^3.0.2",
     "rollup": "^2.60.2",
     "rollup-plugin-import-assertions": "^0.3.0",
-    "rollup-plugin-version-injector": "^1.3.3"
+    "rollup-plugin-version-injector": "^1.3.3",
+    "rollup-plugin-copy": "^3.3.0"
   },
   "browser": {
     "crypto": false
@@ -118,7 +119,6 @@
     "lit": "^2.1.1",
     "pwa-helper-components": "^0.2.10",
     "pwa-helpers": "^0.9.1",
-    "rollup-plugin-copy": "^3.3.0",
     "tippy.js": "^6.3.7"
   }
 }
