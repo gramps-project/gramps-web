@@ -22,6 +22,9 @@ function formatBytes(bytes) {
   if (bytes === null) {
     return null
   }
+  if (bytes === 0) {
+    return '0 B'
+  }
   const prefixes = ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y']
   const base = 1000
   const exponent = Math.floor(Math.log10(bytes) / Math.log10(base))
