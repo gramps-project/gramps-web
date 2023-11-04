@@ -701,6 +701,7 @@ export class GrampsJs extends LitElement {
               grampsId="${this._pageId}"
               .strings="${this._strings}"
               ?canEdit="${this.canEdit}"
+              .dbInfo="${this._dbInfo}"
             ></grampsjs-view-media>
 
             <grampsjs-view-import

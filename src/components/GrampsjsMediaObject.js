@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 import {html, css} from 'lit'
 
-import {mdiSelectDrag} from '@mdi/js'
+import {mdiSelectDrag, mdiTextRecognition} from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsJsImage.js'
 import './GrampsjsFormEditDate.js'
@@ -9,6 +9,7 @@ import './GrampsjsFormEditTitle.js'
 import './GrampsjsFormEditMapLayer.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFaces.js'
+import './GrampsjsTextRecognition.js'
 import {arrayEqual, fireEvent, getNameFromProfile} from '../util.js'
 import {renderIconSvg} from '../icons.js'
 
@@ -46,6 +47,20 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           display: inline-block;
           margin-left: 0.6em;
         }
+
+        .ocr {
+          padding: 1em 1em;
+          border-radius: 16px;
+          background-color: rgba(109, 76, 65, 0.12);
+        }
+
+        .close-icon {
+          float: right;
+          size: 12px;
+          margin-right: -0.5em;
+          margin-top: -0.5em;
+          color: var(--mdc-theme-primary);
+        }
       `,
     ]
   }
@@ -55,7 +70,10 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       selectedRect: {type: Object},
       deletedRects: {type: Array},
       bbox: {type: Object},
+      dbInfo: {type: Object},
+      canEdit: {type: Boolean},
       _drawing: {type: Boolean},
+      _ocr: {type: Boolean},
     }
   }
 
@@ -66,7 +84,10 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     this.selectedRect = {}
     this.deletedRects = []
     this.bbox = {}
+    this.dbInfo = {}
+    this.canEdit = false
     this._drawing = false
+    this._ocr = false
   }
 
   renderProfile() {
@@ -109,6 +130,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         : this.edit
         ? this._renderImageEdit()
         : this._renderImageNoEdit()}
+      ${this._ocr ? this._renderOcr() : ''}
 
       <grampsjs-view-media-lightbox
         id="obj-lightbox-view"
@@ -280,7 +302,48 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           `
         )}
       </grampsjs-rect-container>
+
+      ${this.dbInfo?.server?.ocr
+        ? html`
+            <p>
+              <mwc-button raised @click="${this._handleOcrClick}"
+                >${renderIconSvg(
+                  mdiTextRecognition,
+                  'var(--mdc-theme-on-primary)',
+                  0,
+                  'icon'
+                )}
+                ${this._('Text Recognition')}</mwc-button
+              >
+            </p>
+          `
+        : ''}
     `
+  }
+
+  _handleOcrClick() {
+    this._ocr = true
+  }
+
+  _handleCloseOcrClick() {
+    this._ocr = false
+  }
+
+  _renderOcr() {
+    return html` <div class="ocr">
+      <span class="close-icon">
+        <mwc-icon-button
+          icon="close"
+          @click="${this._handleCloseOcrClick}"
+        ></mwc-icon-button>
+      </span>
+      <grampsjs-text-recognition
+        ?canEdit="${this.canEdit}"
+        .languages="${this.dbInfo?.server?.ocr_languages ?? []}"
+        handle="${this.data.handle ?? ''}"
+        .strings="${this.strings}"
+      ></grampsjs-text-recognition>
+    </div>`
   }
 
   _handleFaceDeselect(e) {
