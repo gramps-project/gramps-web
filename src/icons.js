@@ -70,11 +70,12 @@ export function renderIcon(path, color = '#999999') {
   ></i>`
 }
 
-export function renderIconSvg(path, color = '#999999', rotate = 0) {
+export function renderIconSvg(path, color = '#999999', rotate = 0, slot = '') {
   return html`<svg
     height="24"
     width="24"
     viewBox="0 0 24 24"
+    slot="${slot}"
     transform="rotate(${rotate})"
   >
     <path fill="${color}" d="${path}" />

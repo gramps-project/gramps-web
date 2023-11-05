@@ -534,4 +534,5 @@ export const grampsStrings = [
   'Zoom',
   "Don't use call name",
   "Wives use husband's surname (from first family listed)",
+  'Run',
 ]
