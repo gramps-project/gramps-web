@@ -140,10 +140,12 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
           <div>
             <dt>${this._('Shared DNA')}</dt>
             <dd>
-              ${match.segments.reduce(
-                (accumulator, currentValue) => accumulator + currentValue.cM,
-                0
-              )}
+              ${match.segments
+                .reduce(
+                  (accumulator, currentValue) => accumulator + currentValue.cM,
+                  0
+                )
+                .toFixed(1)}
               cM
             </dd>
           </div>
@@ -154,11 +156,13 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
           <div>
             <dt>${this._('Largest Segment')}</dt>
             <dd>
-              ${match.segments.reduce(
-                (accumulator, currentValue) =>
-                  Math.max(accumulator, currentValue.cM),
-                0
-              )}
+              ${match.segments
+                .reduce(
+                  (accumulator, currentValue) =>
+                    Math.max(accumulator, currentValue.cM),
+                  0
+                )
+                .toFixed(1)}
               cM
             </dd>
           </div>
