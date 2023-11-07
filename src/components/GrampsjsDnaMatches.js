@@ -49,6 +49,7 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
     return {
       data: {type: Array},
       person: {type: Object},
+      loading: {type: Boolean},
     }
   }
 
@@ -56,14 +57,67 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
     super()
     this.data = []
     this.person = {}
+    this.loading = false
   }
 
   render() {
+    if (this.loading) {
+      return this.renderLoading()
+    }
     return html`
       <table>
         ${this.data
           .filter(match => match.segments && match.segments.length > 0)
           .map(match => this._personCard(match))}
+      </table>
+    `
+  }
+
+  renderLoading() {
+    const numRows =
+      this.person?.person_ref_list?.filter(ref => ref.rel === 'DNA')?.length ??
+      1
+    return html`
+      <table>
+        ${[...Array(numRows).keys()].map(
+          () => html`
+            <div class="match">
+              <div class="head">
+                <span class="name">
+                  <span class="skeleton" style="width: 7em; height: 1.2em;"
+                    >&nbsp;</span
+                  >
+                </span>
+              </div>
+              <dl>
+                <div>
+                  <dt>${this._('Relationship')}</dt>
+                  <dd>
+                    <span class="skeleton" style="width: 7em;">&nbsp;</span>
+                  </dd>
+                </div>
+                <div>
+                  <dt>${this._('Shared DNA')}</dt>
+                  <dd>
+                    <span class="skeleton" style="width: 3em;">&nbsp;</span>
+                  </dd>
+                </div>
+                <div>
+                  <dt>${this._('Shared Segments')}</dt>
+                  <dd>
+                    <span class="skeleton" style="width: 2em;">&nbsp;</span>
+                  </dd>
+                </div>
+                <div>
+                  <dt>${this._('Largest Segment')}</dt>
+                  <dd>
+                    <span class="skeleton" style="width: 3em;">&nbsp;</span>
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          `
+        )}
       </table>
     `
   }

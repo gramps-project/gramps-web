@@ -47,6 +47,7 @@ export class GrampsjsViewPersonDna extends GrampsjsView {
         .data="${this._data}"
         .strings="${this.strings}"
         .person="${this.person}"
+        ?loading="${this.loading}"
       ></grampsjs-dna-matches>
       <h3>${this._('Chromosome Browser')}</h3>
       <grampsjs-chromosome-browser
