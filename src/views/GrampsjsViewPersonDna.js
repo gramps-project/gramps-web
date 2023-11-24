@@ -3,6 +3,7 @@ import {html, css} from 'lit'
 import {GrampsjsView} from './GrampsjsView.js'
 import {apiGet} from '../api.js'
 import '../components/GrampsjsChromosomeBrowser.js'
+import '../components/GrampsjsDnaMatches.js'
 
 export class GrampsjsViewPersonDna extends GrampsjsView {
   static get styles() {
@@ -11,6 +12,10 @@ export class GrampsjsViewPersonDna extends GrampsjsView {
       css`
         :host {
           margin: 0;
+        }
+
+        h3 {
+          margin: 1.2em 0;
         }
       `,
     ]
@@ -37,6 +42,14 @@ export class GrampsjsViewPersonDna extends GrampsjsView {
 
   renderElements() {
     return html`
+      <h3>${this._('Matches')}</h3>
+      <grampsjs-dna-matches
+        .data="${this._data}"
+        .strings="${this.strings}"
+        .person="${this.person}"
+        ?loading="${this.loading}"
+      ></grampsjs-dna-matches>
+      <h3>${this._('Chromosome Browser')}</h3>
       <grampsjs-chromosome-browser
         .data="${this._data}"
         .strings="${this.strings}"

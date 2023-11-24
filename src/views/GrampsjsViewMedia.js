@@ -6,8 +6,15 @@ import {apiGet, apiPut} from '../api.js'
 import {objectTypeToEndpoint, arrayEqual} from '../util.js'
 
 export class GrampsjsViewMedia extends GrampsjsViewObject {
+  static get properties() {
+    return {
+      dbInfo: {type: Object},
+    }
+  }
+
   constructor() {
     super()
+    this.dbInfo = {}
     this._className = 'media'
   }
 
@@ -22,6 +29,8 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
       <grampsjs-media-object
         .data=${this._data}
         .strings=${this.strings}
+        .dbInfo=${this.dbInfo}
+        ?canEdit="${this.canEdit}"
         ?edit="${this.edit}"
         @facetag:add="${this._handleFacePerson}"
         @rect:delete="${this._handleDeleteRect}"

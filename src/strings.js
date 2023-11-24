@@ -185,7 +185,7 @@ export const grampsStrings = [
   'Family',
   'Fan Chart',
   'Farm',
-  'Father Age',
+  "Father's Age",
   'Father',
   'Female',
   'Females',
@@ -267,7 +267,7 @@ export const grampsStrings = [
   'Medical Information',
   'Medium',
   'Military Service',
-  'Mother Age',
+  "Mother's Age",
   'Mother',
   'Municipality',
   'Name Note',
@@ -534,4 +534,5 @@ export const grampsStrings = [
   'Zoom',
   "Don't use call name",
   "Wives use husband's surname (from first family listed)",
+  'Run',
 ]

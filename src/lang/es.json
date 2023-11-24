@@ -121,5 +121,15 @@
     "Attachments": "Archivos adjuntos",
     "Task": "Tarea",
     "Common ancestors": "Antepasados comunes",
-    "Blocked": "Bloqueado"
+    "Blocked": "Bloqueado",
+    "Edit place type": "Editar tipo de la ubicación",
+    "Edit event type": "Editar el tipo del evento",
+    "Text Recognition": "Reconocimiento del texto",
+    "Save as Note": "Guardar como una nota",
+    "Shared DNA": "ADN compartido",
+    "Largest Segment": "El mayor segmento",
+    "Chromosome Browser": "Navegador genómico",
+    "Shared Segments": "Segmentos compartidos",
+    "DNA": "ADN",
+    "Matches": "Emparejar"
 }
