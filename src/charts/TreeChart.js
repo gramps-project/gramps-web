@@ -2,6 +2,7 @@ import {min, max} from 'd3-array'
 import {create} from 'd3-selection'
 import {hierarchy, tree} from 'd3-hierarchy'
 import {curveBumpX, link, symbolTriangle, symbol} from 'd3-shape'
+import {zoom} from 'd3-zoom'
 
 // Returns the total depth of the tree
 function countDepthOfTree(treeData) {
@@ -84,14 +85,16 @@ export function TreeChart(
       : -boxWidth / 2 - padding
 
   const svg = create('svg')
-    .attr('viewBox', [xOffset, yOffset, width, height])
-    .attr('width', width)
-    .attr('height', height)
-    .attr('style', 'max-width: 100%; height: auto; height: intrinsic;')
+    .attr('viewBox', [xOffset - 0.1*width, yOffset, width*1.2, height*1.2])
+    .call(zoom().on("zoom", e => svg.select('#chart-content').attr('transform',e.transform) ))
     .attr('font-family', 'Inter var')
     .attr('font-size', 13)
 
-  svg
+  const chart = svg
+    .append('g')
+    .attr('id','chart-content')
+
+  chart
     .append('g')
     .attr('fill', 'none')
     .attr('stroke', stroke)
@@ -122,7 +125,7 @@ export function TreeChart(
       })
     })
 
-  const node = svg
+  const node = chart
     .append('g')
     .selectAll('a')
     .data(descendants)
@@ -167,7 +170,7 @@ export function TreeChart(
     .attr('id', d => d.data.id) // Unique id for each slice
 
   function triangleClicked(e) {
-    svg.node().dispatchEvent(
+    chart.node().dispatchEvent(
       new CustomEvent('pedigree:show-children', {
         bubbles: true,
         composed: true,
