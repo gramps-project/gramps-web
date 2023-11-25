@@ -110,9 +110,11 @@ export function FanChart(
     .innerRadius(d => d.y0)
     .outerRadius(d => d.y0 + 3)
 
+  // scale viewport to match more or less the resolution of the window
+  const svp = window.innerWidth / (width-minX)
   const svg = create('svg')
-    .attr('viewBox', [minX - 0.2*width, minY, width*1.4, height*1.4])
-    .call(zoom().on("zoom", e => svg.select('#chart-content').attr('transform',e.transform) ))    //.attr('width', width)
+    .attr('viewBox', [minX*svp, minY, width*svp, height*svp])
+    .call(zoom().on("zoom", e => svg.select('#chart-content').attr('transform',e.transform) ))
     .attr('style', 'max-width: 100%; height: auto; height: intrinsic;')
     .attr('font-family', 'Inter var')
     .attr('font-size', 12)

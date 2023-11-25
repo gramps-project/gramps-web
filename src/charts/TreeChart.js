@@ -84,8 +84,10 @@ export function TreeChart(
       ? boxWidth / 2 + padding - width
       : -boxWidth / 2 - padding
 
+  // scale viewport to match more or less the resolution of the window
+  const svp = window.innerWidth / (width-xOffset)
   const svg = create('svg')
-    .attr('viewBox', [xOffset - 0.1*width, yOffset, width*1.2, height*1.2])
+    .attr('viewBox', [xOffset*svp, yOffset, width*svp, height*svp])
     .call(zoom().on("zoom", e => svg.select('#chart-content').attr('transform',e.transform) ))
     .attr('font-family', 'Inter var')
     .attr('font-size', 13)
