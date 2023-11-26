@@ -14,10 +14,15 @@ class GrampsjsFanChart extends GrampsjsTranslateMixin(LitElement) {
           text-decoration: none !important;
         }
 
+        svg {
+          width: 100%;
+          height: calc(100vh - 64px);
+        }
+
         div#container {
           display: flex;
-          justify-content: center;
-          align-items: center;
+          margin-left: -40px;
+          margin-right: -40px;
         }
       `,
     ]

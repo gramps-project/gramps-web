@@ -2,6 +2,7 @@ import {arc as d3arc} from 'd3-shape'
 import {create} from 'd3-selection'
 import {hierarchy, partition} from 'd3-hierarchy'
 import {schemePaired} from 'd3-scale-chromatic'
+import {zoom} from 'd3-zoom'
 
 function defaultColor(d) {
   if (d.depth === 0) {
@@ -109,16 +110,23 @@ export function FanChart(
     .innerRadius(d => d.y0)
     .outerRadius(d => d.y0 + 3)
 
+  // scale viewport to match more or less the resolution of the window
+  const svp = window.innerWidth / (width - minX)
   const svg = create('svg')
-    .attr('viewBox', [minX, minY, width, height])
-    .attr('width', width)
-    .attr('height', height)
+    .attr('viewBox', [minX * svp, minY, width * svp, height * svp])
+    .call(
+      zoom().on('zoom', e =>
+        svg.select('#chart-content').attr('transform', e.transform)
+      )
+    )
     .attr('style', 'max-width: 100%; height: auto; height: intrinsic;')
     .attr('font-family', 'Inter var')
     .attr('font-size', 12)
     .attr('text-anchor', 'middle')
 
-  const cell = svg.selectAll('a').data(root.descendants()).join('a')
+  const chart = svg.append('g').attr('id', 'chart-content')
+
+  const cell = chart.selectAll('a').data(root.descendants()).join('a')
 
   function arcVisible(d) {
     return d.name_given !== null
