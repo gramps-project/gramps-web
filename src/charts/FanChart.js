@@ -111,18 +111,20 @@ export function FanChart(
     .outerRadius(d => d.y0 + 3)
 
   // scale viewport to match more or less the resolution of the window
-  const svp = window.innerWidth / (width-minX)
+  const svp = window.innerWidth / (width - minX)
   const svg = create('svg')
-    .attr('viewBox', [minX*svp, minY, width*svp, height*svp])
-    .call(zoom().on("zoom", e => svg.select('#chart-content').attr('transform',e.transform) ))
+    .attr('viewBox', [minX * svp, minY, width * svp, height * svp])
+    .call(
+      zoom().on('zoom', e =>
+        svg.select('#chart-content').attr('transform', e.transform)
+      )
+    )
     .attr('style', 'max-width: 100%; height: auto; height: intrinsic;')
     .attr('font-family', 'Inter var')
     .attr('font-size', 12)
     .attr('text-anchor', 'middle')
 
-  const chart = svg
-    .append('g')
-    .attr('id','chart-content')
+  const chart = svg.append('g').attr('id', 'chart-content')
 
   const cell = chart.selectAll('a').data(root.descendants()).join('a')
 
