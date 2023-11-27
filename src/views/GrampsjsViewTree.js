@@ -49,6 +49,10 @@ export class GrampsjsViewTree extends GrampsjsView {
         mwc-tab[active] {
           opacity: 1;
         }
+
+        #tabs {
+          height: 71px;
+        }
       `,
     ]
   }
@@ -82,7 +86,7 @@ export class GrampsjsViewTree extends GrampsjsView {
       `
     }
     return html`
-      ${this.renderTabs()}
+      <div id="tabs">${this.renderTabs()}</div>
       ${this._currentTabId === 0 ? this._renderPedigree() : ''}
       ${this._currentTabId === 1 ? this._renderDescendantTree() : ''}
       ${this._currentTabId === 2 ? this._renderFan() : ''}
