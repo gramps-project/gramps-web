@@ -17,6 +17,21 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
         :host {
           margin: 0;
           margin-top: -4px;
+          margin-bottom: -25px;
+        }
+
+        #controls {
+          position: absolute;
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 16px;
+          z-index: 1;
+        }
+
+        #chart {
+          height: calc(100vh - 165px);
+          margin-left: -40px;
+          margin-right: -40px;
+          margin-bottom: -25px;
         }
 
         #controls mwc-icon-button {
@@ -58,12 +73,10 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
   }
 
   renderContent() {
-    return html`
-      <div style="position: relative;">
-        <div id="controls">${this.renderControls()}</div>
-        <div id="chart">${this.renderChart()}</div>
-      </div>
-    `
+    return html`<div style="position: relative;">
+      <div id="controls">${this.renderControls()}</div>
+      <div id="chart">${this.renderChart()}</div>
+    </div>`
   }
 
   renderControls() {

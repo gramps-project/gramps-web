@@ -2,8 +2,6 @@
 
 **Users of _Gramps Web_, please see the [Gramps Web documentation site](https://www.grampsweb.org/) for details on setup, usage, where to get help, and how to contribute.**
 
-<!--  -->
-
 ## Description
 
 Gramps.js is the responsive Javascript frontend of <a href="https://www.grampsweb.org/">Gramps Web</a>, a modern web app that allows to browse and collaboratively edit a genealogical database, based on and interoperable with the <a href="https://gramps-project.org">Gramps</a> desktop application. See <a href="https://github.com/gramps-project/gramps-webapi">Gramps Web API</a> for the Python backend repository.

@@ -44,6 +44,8 @@ export function TreeChart(
     childrenTriangle = true,
     getImageUrl = null,
     orientation = 'LTR',
+    bboxWidth = 800,
+    bboxHeight = 800,
   } = {}
 ) {
   // Create a hierarchical data structure based on the input data
@@ -78,16 +80,21 @@ export function TreeChart(
   const width = trueDepth * boxWidth + (trueDepth - 1) * gapX + 2 * padding
   const [minX, maxX] = getMinMaxX(descendants)
   const height = maxX - minX + boxHeight
-  const yOffset = minX - boxHeight / 2
-  const xOffset =
+  let yOffset = minX - boxHeight / 2
+  let xOffset =
     orientation === 'RTL'
       ? boxWidth / 2 + padding - width
       : -boxWidth / 2 - padding
-
-  // scale viewport to match more or less the resolution of the window
-  const svp = window.innerWidth / (width - xOffset)
+  if (bboxWidth > width) {
+    // center
+    xOffset -= (bboxWidth - width) / 2
+  }
+  if (bboxHeight > height) {
+    // center
+    yOffset -= (bboxHeight - height) / 2
+  }
   const svg = create('svg')
-    .attr('viewBox', [xOffset * svp, yOffset, width * svp, height * svp])
+    .attr('viewBox', [xOffset, yOffset, bboxWidth, bboxHeight])
     .call(
       zoom().on('zoom', e =>
         svg.select('#chart-content').attr('transform', e.transform)

@@ -77,6 +77,8 @@ export function FanChart(
     arcRadius = 60,
     padding = 3, // separation between arcs
     color = defaultColor,
+    bboxWidth = 800,
+    bboxHeight = 800,
   } = {}
 ) {
   // Create a hierarchical data structure based on the input data
@@ -110,10 +112,12 @@ export function FanChart(
     .innerRadius(d => d.y0)
     .outerRadius(d => d.y0 + 3)
 
-  // scale viewport to match more or less the resolution of the window
-  const svp = window.innerWidth / (width - minX)
+  // center
+  const xOffset = -(bboxWidth - width) / 2
+  const yOffset = -(bboxHeight - height) / 2
+
   const svg = create('svg')
-    .attr('viewBox', [minX * svp, minY, width * svp, height * svp])
+    .attr('viewBox', [minX + xOffset, minY + yOffset, bboxWidth, bboxHeight])
     .call(
       zoom().on('zoom', e =>
         svg.select('#chart-content').attr('transform', e.transform)
