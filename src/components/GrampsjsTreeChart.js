@@ -34,6 +34,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     return {
       grampsId: {type: String},
       depth: {type: Number},
+      ancestors: {type: Boolean},
       descendants: {type: Boolean},
       gapX: {type: Number},
     }
@@ -67,15 +68,26 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       return ''
     }
 
-    const data = this.descendants
+    const dataDescendants = this.descendants
       ? getDescendantTree(this.data, handle, this.depth)
-      : getTree(this.data, handle, this.depth, false)
+      : false
+
+    const dataAncestors = this.ancestors
+      ? getTree(this.data, handle, this.depth, false)
+      : false
+
+    let childrenTriangle = false
+    if (this.descendants && this.ancestors) {
+      childrenTriangle = false
+    } else if (this.descendants) {
+      childrenTriangle = this._hasParents()
+    } else {
+      childrenTriangle = this._hasChildren()
+    }
     return html`
-      ${TreeChart(data, {
+      ${TreeChart(dataDescendants, dataAncestors, {
         depth: this.depth,
-        childrenTriangle: this.descendants
-          ? this._hasParents()
-          : this._hasChildren(),
+        childrenTriangle,
         getImageUrl: d => getImageUrl(d?.data?.person || {}, 200),
         orientation: this.descendants ? 'RTL' : 'LTR',
         gapX: this.gapX,

@@ -3,25 +3,27 @@ import {html} from 'lit'
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
 import '../components/GrampsjsTreeChart.js'
 
-export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
+export class GrampsjsViewHourglassChart extends GrampsjsViewTreeChartBase {
   constructor() {
     super()
-    this.nAnc = 3
+    this.nAnc = 1
     this.nDesc = 1
-    this._setDesc = false
+    this._setAnc = false
   }
 
   _resetLevels() {
-    this.nAnc = 3
+    this.nDesc = 1
   }
 
   renderChart() {
     return html`
       <grampsjs-tree-chart
         ancestors
+        descendants
         grampsId=${this.grampsId}
-        depth=${this.nAnc + 1}
+        depth=${this.nDesc + 1}
         .data=${this._data}
+        gapX="60"
         .strings=${this.strings}
       >
       </grampsjs-tree-chart>
@@ -29,4 +31,7 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
   }
 }
 
-window.customElements.define('grampsjs-view-tree-chart', GrampsjsViewTreeChart)
+window.customElements.define(
+  'grampsjs-view-hourglass-chart',
+  GrampsjsViewHourglassChart
+)

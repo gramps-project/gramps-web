@@ -25,7 +25,8 @@ function getMinMaxX(descendants) {
   return [minX, maxX]
 }
 
-export function TreeChart(
+function TreeChartCore(
+  svgParent,
   data,
   {
     depth = 3,
@@ -44,8 +45,6 @@ export function TreeChart(
     childrenTriangle = true,
     getImageUrl = null,
     orientation = 'LTR',
-    bboxWidth = 800,
-    bboxHeight = 800,
   } = {}
 ) {
   // Create a hierarchical data structure based on the input data
@@ -80,30 +79,15 @@ export function TreeChart(
   const width = trueDepth * boxWidth + (trueDepth - 1) * gapX + 2 * padding
   const [minX, maxX] = getMinMaxX(descendants)
   const height = maxX - minX + boxHeight
-  let yOffset = minX - boxHeight / 2
-  let xOffset =
+  const yOffset = minX - boxHeight / 2
+  const xOffset =
     orientation === 'RTL'
       ? boxWidth / 2 + padding - width
       : -boxWidth / 2 - padding
-  if (bboxWidth > width) {
-    // center
-    xOffset -= (bboxWidth - width) / 2
-  }
-  if (bboxHeight > height) {
-    // center
-    yOffset -= (bboxHeight - height) / 2
-  }
-  const svg = create('svg')
-    .attr('viewBox', [xOffset, yOffset, bboxWidth, bboxHeight])
-    .call(
-      zoom().on('zoom', e =>
-        svg.select('#chart-content').attr('transform', e.transform)
-      )
-    )
-    .attr('font-family', 'Inter var')
-    .attr('font-size', 13)
 
-  const chart = svg.append('g').attr('id', 'chart-content')
+  const chart = svgParent
+    .append('g')
+    .attr('transform', `translate(${-xOffset},${0})`)
 
   chart
     .append('g')
@@ -297,7 +281,7 @@ export function TreeChart(
     .attr('cx', -boxWidth / 2 + imgRadius + imgPadding)
     .attr('fill', d => `url(#imgpattern-${d.data.id})`)
 
-  const defs = svg.append('defs')
+  const defs = svgParent.append('defs')
 
   const imgPattern = defs
     .selectAll('.imgpattern')
@@ -320,5 +304,69 @@ export function TreeChart(
 
   node.style('cursor', 'pointer').on('click', clicked)
 
+  return [xOffset, yOffset, width, height, boxWidth + 2 * padding]
+}
+
+export function TreeChart(dataDescendants, dataAncestors, chartsettings) {
+  const svg = create('svg')
+    .call(
+      zoom().on('zoom', e =>
+        svg.select('#chart-content').attr('transform', e.transform)
+      )
+    )
+    .attr('font-family', 'Inter var')
+    .attr('font-size', 13)
+
+  const chartContent = svg.append('g').attr('id', 'chart-content')
+
+  let width = 0
+  let height = 0
+  let xMin = 0
+  let yMin = 0
+  let yMax = 0
+  let xOffset = 0
+  let yOffset = 0
+
+  if (dataDescendants) {
+    const chartD = chartContent.append('g')
+    const [xD, yD, widthD, heightD, overlap] = TreeChartCore(
+      chartD,
+      dataDescendants,
+      {...chartsettings, orientation: 'RTL'}
+    )
+    chartD.attr('transform', `translate(${-widthD + overlap},0)`)
+    yMin = Math.min(yMin, yD)
+    yMax = Math.max(yMax, yD + heightD)
+    xMin = Math.min(xMin, xD)
+    width += widthD - overlap
+  }
+  if (dataAncestors) {
+    const chartA = chartContent.append('g')
+    const [xA, yA, widthA, heightA] = TreeChartCore(chartA, dataAncestors, {
+      ...chartsettings,
+      orientation: 'LTR',
+    })
+    chartA.attr('transform', 'translate(0,0)')
+    yMin = Math.min(yMin, yA)
+    yMax = Math.max(yMax, yA + heightA)
+    xMin = Math.min(xMin, xA)
+    width += widthA
+  }
+
+  xOffset = xMin
+  height = yMax - yMin
+  if (chartsettings.bboxWidth > width) {
+    xOffset -= (chartsettings.bboxWidth - width) / 2
+  }
+  yOffset = yMin
+  if (chartsettings.bboxHeight > height) {
+    yOffset -= (chartsettings.bboxHeight - height) / 2
+  }
+  svg.attr('viewBox', [
+    xOffset,
+    yOffset,
+    chartsettings.bboxWidth,
+    chartsettings.bboxHeight,
+  ])
   return svg.node()
 }
