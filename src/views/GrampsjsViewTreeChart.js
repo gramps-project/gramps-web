@@ -20,7 +20,8 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
       <grampsjs-tree-chart
         ancestors
         grampsId=${this.grampsId}
-        depth=${this.nAnc + 1}
+        nAnc=${this.nAnc + 1}
+        nDesc=${this.nDesc + 1}
         .data=${this._data}
         .strings=${this.strings}
       >

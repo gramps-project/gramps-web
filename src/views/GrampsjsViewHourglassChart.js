@@ -6,12 +6,12 @@ import '../components/GrampsjsTreeChart.js'
 export class GrampsjsViewHourglassChart extends GrampsjsViewTreeChartBase {
   constructor() {
     super()
-    this.nAnc = 1
-    this.nDesc = 1
-    this._setAnc = false
+    this.nAnc = 2
+    this.nDesc = 2
   }
 
   _resetLevels() {
+    this.nAnc = 1
     this.nDesc = 1
   }
 
@@ -21,7 +21,8 @@ export class GrampsjsViewHourglassChart extends GrampsjsViewTreeChartBase {
         ancestors
         descendants
         grampsId=${this.grampsId}
-        depth=${this.nDesc + 1}
+        nAnc=${this.nAnc + 1}
+        nDesc=${this.nDesc + 1}
         .data=${this._data}
         gapX="60"
         .strings=${this.strings}

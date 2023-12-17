@@ -12,7 +12,7 @@ import './GrampsjsViewTreeChart.js'
 import './GrampsjsViewHourglassChart.js'
 import './GrampsjsViewFanChart.js'
 import {fireEvent} from '../util.js'
-import {chartFanIconPath, renderIconSvg} from '../icons.js'
+import {chartFanIconPath, hourglassIconPath, renderIconSvg} from '../icons.js'
 
 export class GrampsjsViewTree extends GrampsjsView {
   static get styles() {
@@ -138,9 +138,8 @@ export class GrampsjsViewTree extends GrampsjsView {
           label="${this._('Hourglass Tree')}"
           ><span slot="icon"
             >${renderIconSvg(
-              mdiFamilyTree,
-              'var(--mdc-theme-primary)',
-              -90
+              hourglassIconPath,
+              'var(--mdc-theme-primary)'
             )}</span
           >
         </mwc-tab>

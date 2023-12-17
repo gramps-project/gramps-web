@@ -332,7 +332,7 @@ export function TreeChart(dataDescendants, dataAncestors, chartsettings) {
     const [xD, yD, widthD, heightD, overlap] = TreeChartCore(
       chartD,
       dataDescendants,
-      {...chartsettings, orientation: 'RTL'}
+      {...chartsettings, orientation: 'RTL', depth: chartsettings.nDesc}
     )
     chartD.attr('transform', `translate(${-widthD + overlap},0)`)
     yMin = Math.min(yMin, yD)
@@ -345,6 +345,7 @@ export function TreeChart(dataDescendants, dataAncestors, chartsettings) {
     const [xA, yA, widthA, heightA] = TreeChartCore(chartA, dataAncestors, {
       ...chartsettings,
       orientation: 'LTR',
+      depth: chartsettings.nAnc,
     })
     chartA.attr('transform', 'translate(0,0)')
     yMin = Math.min(yMin, yA)
