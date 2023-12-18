@@ -7,11 +7,11 @@ export class GrampsjsViewHourglassChart extends GrampsjsViewTreeChartBase {
   constructor() {
     super()
     this.nAnc = 2
-    this.nDesc = 2
+    this.nDesc = 1
   }
 
   _resetLevels() {
-    this.nAnc = 1
+    this.nAnc = 2
     this.nDesc = 1
   }
 
