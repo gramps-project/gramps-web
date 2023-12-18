@@ -135,7 +135,7 @@ export class GrampsjsViewTree extends GrampsjsView {
             this._currentTabId = 2
           }}
           hasImageIcon
-          label="${this._('Hourglass Tree')}"
+          label="${this._('Hourglass Graph')}"
           ><span slot="icon"
             >${renderIconSvg(
               hourglassIconPath,
