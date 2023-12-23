@@ -74,6 +74,7 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
 
         .breadcrumb .action-buttons grampsjs-bookmark-button {
           --mdc-icon-size: 17px;
+          top: -2px;
         }
       `,
     ]
@@ -122,15 +123,15 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
               ? this._('Record is private')
               : this._('Record is public')}"
           ></grampsjs-tooltip>
-          <grampsjs-share-url
-            href="${document.URL}"
-            .strings="${this.strings}"
-          ></grampsjs-share-url>
           <grampsjs-bookmark-button
             .strings="${this.strings}"
             handle="${this.data.handle}"
             endpoint="${this.objectEndpoint}"
           ></grampsjs-bookmark-button>
+          <grampsjs-share-url
+            href="${document.URL}"
+            .strings="${this.strings}"
+          ></grampsjs-share-url>
         </span>
       </div>
     `
