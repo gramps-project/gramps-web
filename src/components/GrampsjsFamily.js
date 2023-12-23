@@ -22,6 +22,7 @@ export class GrampsjsFamily extends GrampsjsObject {
     super()
     this._showReferences = false
     this._objectsName = 'Families'
+    this._objectEndpoint = 'families'
     this._objectIcon = 'people'
   }
 

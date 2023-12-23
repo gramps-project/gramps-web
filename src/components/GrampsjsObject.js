@@ -217,6 +217,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       canEdit: {type: Boolean},
       dialogContent: {type: String},
       _objectsName: {type: String},
+      _objectEndpoint: {type: String},
       _objectIcon: {type: String},
       _currentTabId: {type: Number},
       _currentTab: {type: String},
@@ -271,6 +272,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         ?edit="${this.edit}"
         objectsName="${this._objectsName}"
         objectIcon="${this._objectIcon}"
+        objectEndpoint="${this._objectEndpoint}"
       ></grampsjs-breadcrumbs>
     `
   }

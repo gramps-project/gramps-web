@@ -22,6 +22,7 @@ export class GrampsjsSource extends GrampsjsObject {
     super()
     this._showReferences = false
     this._objectsName = 'Sources'
+    this._objectEndpoint = 'sources'
     this._objectIcon = 'bookmarks'
   }
 
