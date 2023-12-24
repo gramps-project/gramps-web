@@ -65,6 +65,7 @@ import './views/GrampsjsViewSearch.js'
 import './views/GrampsjsViewSettings.js'
 import './views/GrampsjsViewSettingsOnboarding.js'
 import './views/GrampsjsViewRecent.js'
+import './views/GrampsjsViewBookmarks.js'
 import './views/GrampsjsViewMap.js'
 import './views/GrampsjsViewTree.js'
 import './views/GrampsjsViewNewPerson.js'
@@ -365,6 +366,8 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Family Tree')}</dd>
                 <dt><span>g</span> <span>r</span></dt>
                 <dd>${this._('History')}</dd>
+                <dt><span>g</span> <span>f</span></dt>
+                <dd>${this._('_Bookmarks')}</dd>
                 <dt><span>g</span> <span>t</span></dt>
                 <dd>${this._('Tasks')}</dd>
                 <dt><span>g</span> <span>i</span></dt>
@@ -518,6 +521,10 @@ export class GrampsJs extends LitElement {
             <grampsjs-list-item href="${BASE_DIR}/recent" graphic="icon">
               <span>${this._('History')}</span>
               <mwc-icon slot="graphic">history</mwc-icon>
+            </grampsjs-list-item>
+            <grampsjs-list-item href="${BASE_DIR}/bookmarks" graphic="icon">
+              <span>${this._('_Bookmarks')}</span>
+              <mwc-icon slot="graphic">bookmark</mwc-icon>
             </grampsjs-list-item>
             <grampsjs-list-item href="${BASE_DIR}/tasks" graphic="icon">
               <span>${this._('Tasks')}</span>
@@ -729,6 +736,11 @@ export class GrampsJs extends LitElement {
               ?active=${this._page === 'recent'}
               .strings="${this._strings}"
             ></grampsjs-view-recent>
+            <grampsjs-view-bookmarks
+              class="page"
+              ?active=${this._page === 'bookmarks'}
+              .strings="${this._strings}"
+            ></grampsjs-view-bookmarks>
             <grampsjs-view-tasks
               class="page"
               ?active=${this._page === 'tasks'}
@@ -1154,6 +1166,8 @@ export class GrampsJs extends LitElement {
         fireEvent(this, 'nav', {path: 'tree'})
       } else if (e.key === 'r') {
         fireEvent(this, 'nav', {path: 'recent'})
+      } else if (e.key === 'f') {
+        fireEvent(this, 'nav', {path: 'bookmarks'})
       } else if (e.key === 't') {
         fireEvent(this, 'nav', {path: 'tasks'})
       } else if (e.key === 'i') {
@@ -1191,9 +1205,11 @@ export class GrampsJs extends LitElement {
   }
 
   _(s) {
-    if (s in this._strings) {
-      return this._strings[s]
+    let t = s
+    if (t in this._strings) {
+      t = this._strings[t]
     }
-    return s
+    t = t.replace('_', '')
+    return t
   }
 }
