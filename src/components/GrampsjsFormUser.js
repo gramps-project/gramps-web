@@ -107,6 +107,7 @@ class GrampsjsFormUser extends GrampsjsTranslateMixin(LitElement) {
       </p>
       <p>
         <mwc-select
+          fixedMenuPosition
           @selected="${this._handleRoleChange}"
           id="role"
           style="width: 100%;"
