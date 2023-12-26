@@ -32,10 +32,8 @@ export class GrampsjsViewBookmarks extends GrampsjsView {
 
   _handleStorage() {
     const bookmarks = getTreeBookmarks()
-    console.log(bookmarks.people)
     if (bookmarks !== undefined && bookmarks !== null) {
       this._data = bookmarks
-      console.log([this._hasFirstUpdated, this.active])
       if (this._hasFirstUpdated) {
         if (this.active) {
           this._fetchData(this.strings.__lang__)

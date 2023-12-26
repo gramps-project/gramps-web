@@ -71,7 +71,6 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
   }
 
   render() {
-    console.log(this._hasFirstUpdated)
     return html` <mwc-button
         raised
         label="${this._('Clear')}"
