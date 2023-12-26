@@ -58,7 +58,11 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     this._data.push(event.detail)
     this._data = this._data.slice(-20)
     setRecentObjects(this._data)
-    this._isStale = true
+    if (this.active) {
+      this._fetchData(this.strings.__lang__)
+    } else {
+      this._isStale = true
+    }
   }
 
   _handleClear() {
@@ -67,6 +71,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
   }
 
   render() {
+    console.log(this._hasFirstUpdated)
     return html` <mwc-button
         raised
         label="${this._('Clear')}"
@@ -122,6 +127,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
   }
 
   firstUpdated() {
+    this._hasFirstUpdated = true
     if ('__lang__' in this.strings) {
       // don't load before we have strings
       this._fetchData(this.strings.__lang__)

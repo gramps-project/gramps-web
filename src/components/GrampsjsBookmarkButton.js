@@ -3,7 +3,7 @@ import {LitElement, html} from 'lit'
 import '@material/mwc-icon-button'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {clickKeyHandler} from '../util.js'
+import {clickKeyHandler, fireEvent} from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import './GrampsjsTooltip.js'
 import {addBookmark, deleteBookmark, hasBookmark} from '../api.js'
@@ -50,11 +50,13 @@ export class GrampsjsBookmarkButton extends GrampsjsTranslateMixin(LitElement) {
 
   _handleUnmark() {
     deleteBookmark(this.endpoint, this.handle)
+    fireEvent(this, 'bookmark:changed')
     this.bookmarked = false
   }
 
   _handleMark() {
     addBookmark(this.endpoint, this.handle)
+    fireEvent(this, 'bookmark:changed')
     this.bookmarked = true
   }
 

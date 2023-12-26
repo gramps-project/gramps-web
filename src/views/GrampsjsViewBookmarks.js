@@ -11,6 +11,7 @@ export class GrampsjsViewBookmarks extends GrampsjsView {
     return {
       _data: {type: Array},
       _searchResult: {type: Array},
+      _isStale: {type: Boolean},
     }
   }
 
@@ -18,21 +19,29 @@ export class GrampsjsViewBookmarks extends GrampsjsView {
     super()
     this._searchResult = []
     this._data = []
+    this._isStale = false
   }
 
   connectedCallback() {
     super.connectedCallback()
     this._boundStorageHandler = this._handleStorage.bind(this)
+    window.addEventListener('bookmark:changed', this._boundStorageHandler)
     window.addEventListener('storage', this._boundStorageHandler)
     this._handleStorage()
   }
 
   _handleStorage() {
     const bookmarks = getTreeBookmarks()
+    console.log(bookmarks.people)
     if (bookmarks !== undefined && bookmarks !== null) {
       this._data = bookmarks
+      console.log([this._hasFirstUpdated, this.active])
       if (this._hasFirstUpdated) {
-        this._fetchData(this.strings.__lang__)
+        if (this.active) {
+          this._fetchData(this.strings.__lang__)
+        } else {
+          this._isStale = true
+        }
       }
     }
   }
@@ -85,9 +94,18 @@ export class GrampsjsViewBookmarks extends GrampsjsView {
   }
 
   firstUpdated() {
+    this._hasFirstUpdated = true
     if ('__lang__' in this.strings) {
       // don't load before we have strings
       this._fetchData(this.strings.__lang__)
+    }
+  }
+
+  update(changed) {
+    super.update(changed)
+    if (changed.has('active') && this.active && this._isStale) {
+      this._fetchData(this.strings.__lang__)
+      this._isStale = false
     }
   }
 }
