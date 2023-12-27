@@ -25,6 +25,7 @@ export class GrampsjsEvent extends GrampsjsObject {
     super()
     this._objectsName = 'Events'
     this._objectIcon = 'event'
+    this._objectEndpoint = 'events'
     this._showReferences = false
   }
 

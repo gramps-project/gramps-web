@@ -250,7 +250,7 @@ export function objectDescription(type, obj, strings) {
     case 'note':
       return html`${translate(strings, obj.type) || type}`
     case 'media':
-      return html`${getName(obj, type) || type}`
+      return html`${getName(obj, type) || translate(strings, 'Media Object')}`
     case 'tag':
       return html`${obj.name}`
     default:
@@ -289,13 +289,13 @@ export function objectDetail(type, obj, strings) {
     case 'note':
       return obj?.text?.string || ''
     case 'media':
-      if (obj.mime.startsWith('audio')) {
+      if (obj.mime?.startsWith('audio')) {
         return translate(strings, 'Audio')
       }
-      if (obj.mime.startsWith('video')) {
+      if (obj.mime?.startsWith('video')) {
         return translate(strings, 'Video')
       }
-      if (obj.mime.startsWith('image')) {
+      if (obj.mime?.startsWith('image')) {
         return translate(strings, 'Image')
       }
       if (obj.mime === 'application/pdf') {

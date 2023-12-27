@@ -7,6 +7,7 @@ export const additionalStrings = translations
 
 export const grampsStrings = [
   '_Back',
+  '_Bookmarks',
   '_Delete',
   '_Generate',
   '_Media Type:',

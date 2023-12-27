@@ -80,6 +80,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
   constructor() {
     super()
     this._objectsName = 'Media Objects'
+    this._objectEndpoint = 'media'
     this._objectIcon = 'photo'
     this.selectedRect = {}
     this.deletedRects = []

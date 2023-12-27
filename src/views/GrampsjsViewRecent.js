@@ -10,6 +10,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     return {
       _data: {type: Array},
       _searchResult: {type: Array},
+      _isStale: {type: Boolean},
     }
   }
 
@@ -17,6 +18,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     super()
     this._searchResult = []
     this._data = []
+    this._isStale = false
   }
 
   connectedCallback() {
@@ -56,7 +58,11 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     this._data.push(event.detail)
     this._data = this._data.slice(-20)
     setRecentObjects(this._data)
-    this._fetchData(this.strings.__lang__)
+    if (this.active) {
+      this._fetchData(this.strings.__lang__)
+    } else {
+      this._isStale = true
+    }
   }
 
   _handleClear() {
@@ -120,9 +126,18 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
   }
 
   firstUpdated() {
+    this._hasFirstUpdated = true
     if ('__lang__' in this.strings) {
       // don't load before we have strings
       this._fetchData(this.strings.__lang__)
+    }
+  }
+
+  update(changed) {
+    super.update(changed)
+    if (changed.has('active') && this.active && this._isStale) {
+      this._fetchData(this.strings.__lang__)
+      this._isStale = false
     }
   }
 }

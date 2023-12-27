@@ -114,8 +114,19 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
                 icon="${this.metaIcon}"
                 slot="meta"
               ></mwc-icon-button>
-              <span>${desc}</span>
-              <span slot="secondary">${this._renderSecondary(obj)}</span>
+              ${obj.loading
+                ? html`<span style="width:10em;" class="skeleton">&nbsp;</span>`
+                : html`<span>${desc}</span>`}
+              ${obj.loading
+                ? html`<span
+                    slot="secondary"
+                    style="width:10em;"
+                    class="skeleton"
+                    >&nbsp;</span
+                  >`
+                : html`<span slot="secondary"
+                    >${this._renderSecondary(obj)}</span
+                  >`}
             </mwc-list-item>
             ${!this.noSep && arr.length - 1 !== i
               ? html`<li divider padded role="separator"></li>`

@@ -16,6 +16,7 @@ export class GrampsjsRepository extends GrampsjsObject {
     super()
     this._showReferences = false
     this._objectsName = 'Repositories'
+    this._objectEndpoint = 'repositories'
     this._objectIcon = 'account_balance'
   }
 

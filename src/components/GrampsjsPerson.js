@@ -23,6 +23,7 @@ export class GrampsjsPerson extends GrampsjsObject {
     super()
     this.homePersonDetails = {}
     this._objectsName = 'People'
+    this._objectEndpoint = 'people'
     this._objectIcon = 'person'
     this._showReferences = false
     this._showPersonTimeline = true

@@ -21,6 +21,7 @@ export class GrampsjsNote extends GrampsjsObject {
   constructor() {
     super()
     this._objectsName = 'Notes'
+    this._objectEndpoint = 'notes'
     this._objectIcon = 'sticky_note_2'
   }
 

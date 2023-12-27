@@ -30,6 +30,7 @@ export class GrampsjsCitation extends GrampsjsObject {
   constructor() {
     super()
     this._objectsName = 'Citations'
+    this._objectEndpoint = 'citations'
     this._objectIcon = 'bookmark'
   }
 

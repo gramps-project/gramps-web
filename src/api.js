@@ -468,3 +468,59 @@ export async function updateTaskStatus(
     i += 1
   }
 }
+
+export function getTreeBookmarks() {
+  try {
+    const string = localStorage.getItem('bookmarks')
+    const data = JSON.parse(string)
+    const tree = getTreeId()
+    if (tree) {
+      return data[tree]
+    }
+    return {}
+  } catch (e) {
+    return {}
+  }
+}
+
+export function getAllBookmarks() {
+  try {
+    const string = localStorage.getItem('bookmarks')
+    const data = JSON.parse(string) ?? {}
+    return data
+  } catch (e) {
+    return {}
+  }
+}
+
+export function hasBookmark(endpoint, handle) {
+  const data = getTreeBookmarks()
+  return !!data?.[endpoint]?.includes(handle)
+}
+
+export function addBookmark(endpoint, handle) {
+  const tree = getTreeId()
+  const data = getAllBookmarks()
+  if (!Object.hasOwn(data, tree)) {
+    data[tree] = {[endpoint]: [handle]}
+  } else if (!Object.hasOwn(data[tree], endpoint)) {
+    data[tree] = {...data[tree], [endpoint]: [handle]}
+  } else {
+    data[tree][endpoint] = [
+      ...data[tree][endpoint].filter(h => h !== handle),
+      handle,
+    ]
+  }
+  const stringData = JSON.stringify(data)
+  localStorage.setItem('bookmarks', stringData)
+}
+
+export function deleteBookmark(endpoint, handle) {
+  const tree = getTreeId()
+  const data = getAllBookmarks()
+  if (data?.[tree]?.[endpoint]) {
+    data[tree][endpoint] = [...data[tree][endpoint].filter(h => h !== handle)]
+    const stringData = JSON.stringify(data)
+    localStorage.setItem('bookmarks', stringData)
+  }
+}

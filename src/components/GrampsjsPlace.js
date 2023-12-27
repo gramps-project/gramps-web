@@ -28,6 +28,7 @@ export class GrampsjsPlace extends GrampsjsObject {
     super()
     this._showReferences = false
     this._objectsName = 'Places'
+    this._objectEndpoint = 'places'
     this._objectIcon = 'place'
   }
 

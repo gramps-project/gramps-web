@@ -7,6 +7,7 @@ import {fireEvent, clickKeyHandler} from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import './GrampsjsTooltip.js'
 import './GrampsjsShareUrl.js'
+import './GrampsjsBookmarkButton.js'
 
 export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
@@ -46,7 +47,6 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
 
         .breadcrumb .action-buttons {
           margin-left: 1rem;
-          // float: right;
         }
 
         .breadcrumb .action-buttons mwc-icon-button {
@@ -54,13 +54,27 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
           --mdc-icon-button-size: 28px;
           position: relative;
           top: -3px;
+          color: rgba(0, 0, 0, 0.4);
         }
 
-        .breadcrumb .action-buttons grampsjs-share-url {
+        .breadcrumb .action-buttons mwc-icon-button#btn-star {
+          --mdc-icon-size: 20px;
+          --mdc-icon-button-size: 28px;
+          position: relative;
+          top: -3px;
+        }
+
+        .breadcrumb .action-buttons grampsjs-share-url,
+        .breadcrumb .action-buttons grampsjs-bookmark-button {
           --mdc-icon-size: 16px;
           --mdc-icon-button-size: 28px;
           position: relative;
           top: -3px;
+        }
+
+        .breadcrumb .action-buttons grampsjs-bookmark-button {
+          --mdc-icon-size: 17px;
+          top: -2px;
         }
       `,
     ]
@@ -71,6 +85,7 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
       data: {type: Object},
       edit: {type: Boolean},
       objectsName: {type: String},
+      objectEndpoint: {type: String},
       objectIcon: {type: String},
     }
   }
@@ -80,6 +95,7 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
     this.data = {}
     this.edit = false
     this.objectsName = ''
+    this.objectEndpoint = ''
     this.objectIcon = ''
   }
 
@@ -101,14 +117,21 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
               id="btn-private"
             ></mwc-icon-button>
           </span>
-
           <grampsjs-tooltip
             for="wrap-btn-private"
             content="${this.data.private
               ? this._('Record is private')
               : this._('Record is public')}"
           ></grampsjs-tooltip>
-          <grampsjs-share-url href="${document.URL}"></grampsjs-share-url>
+          <grampsjs-bookmark-button
+            .strings="${this.strings}"
+            handle="${this.data.handle}"
+            endpoint="${this.objectEndpoint}"
+          ></grampsjs-bookmark-button>
+          <grampsjs-share-url
+            href="${document.URL}"
+            .strings="${this.strings}"
+          ></grampsjs-share-url>
         </span>
       </div>
     `
