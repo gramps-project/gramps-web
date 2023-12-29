@@ -319,7 +319,9 @@ export class GrampsJs extends LitElement {
       ${this.renderContent()} ${this._renderKeyboardShortcuts()}
       <mwc-snackbar id="error-snackbar" leading></mwc-snackbar>
       <mwc-snackbar id="notification-snackbar" leading></mwc-snackbar>
-      <grampsjs-undo-transaction></grampsjs-undo-transaction>
+      <grampsjs-undo-transaction
+        .strings="${this._strings}"
+      ></grampsjs-undo-transaction>
       <grampsjs-update-available>
         <mwc-snackbar
           leading
