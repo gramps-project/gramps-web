@@ -19,6 +19,19 @@ export class GrampsjsFormNewEvent extends GrampsjsNewEventMixin(
     this.defaultRole = 'Primary'
   }
 
+  _renderCitationForm() {
+    return html`
+      <h4 class="label">${this._('Citation')}</h4>
+
+      <grampsjs-form-select-object-list
+        multiple
+        id="object-citation"
+        objectType="citation"
+        .strings="${this.strings}"
+      ></grampsjs-form-select-object-list>
+    `
+  }
+
   renderForm() {
     return html`
       ${super.renderForm()}

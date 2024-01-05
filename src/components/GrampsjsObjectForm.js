@@ -322,6 +322,12 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
     if (originalTarget.id === 'note-select-list') {
       this.data = e.detail
     }
+    if (originalTarget.id === 'object-citation-list') {
+      this.data = {
+        ...this.data,
+        citation_list: e.detail.data ?? [],
+      }
+    }
     if (originalTarget.id === 'citation-select-list') {
       this.data = e.detail
     }
