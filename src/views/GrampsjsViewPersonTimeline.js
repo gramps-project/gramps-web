@@ -34,7 +34,7 @@ export class GrampsjsViewPersonTimeline extends GrampsjsView {
       if (this.loading) {
         return html``
       }
-      return html`Failed`
+      return html``
     }
     return this.renderElements()
   }
