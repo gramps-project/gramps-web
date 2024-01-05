@@ -36,7 +36,12 @@ export class GrampsjsBookmarkButton extends GrampsjsTranslateMixin(LitElement) {
         @keydown="${clickKeyHandler}"
         id="btn-star"
       ></mwc-icon-button>
-      <grampsjs-tooltip for="btn-star">${this._('Bookmark')}</grampsjs-tooltip>
+      <grampsjs-tooltip
+        for="btn-star"
+        content="${this.bookmarked
+          ? this._('Remove bookmark')
+          : this._('Bookmark this')}"
+      ></grampsjs-tooltip>
     `
   }
 
