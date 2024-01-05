@@ -59,6 +59,14 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
           color: rgba(0, 0, 0, 0.5);
           --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.25);
         }
+
+        span.dateform {
+          white-space: nowrap;
+        }
+
+        span.dateform mwc-textfield {
+          margin-bottom: 10px;
+        }
       `,
     ]
   }
@@ -98,9 +106,27 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
         )}
       </mwc-select>
 
+      <mwc-select
+        id="select-quality"
+        label="${this._('Quality')}"
+        @change="${this.handleQuality}"
+      >
+        ${Object.keys(qualifiers).map(
+          qualifier => html`
+            <mwc-list-item
+              value="${qualifier}"
+              ?selected="${
+                // eslint-disable-next-line eqeqeq
+                qualifier == (this.data.quality || 0)
+              }"
+              >${this._(qualifiers[qualifier])}</mwc-list-item
+            >
+          `
+        )}
+      </mwc-select>
     </p>
     <p>
-
+    <span class="dateform">
       <mwc-textfield
         @change="${this.handleYear1}"
         id="year1"
@@ -161,13 +187,13 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
         ?disabled="${this.data.calendar !== 0}"
         @click=${this._openDatePicker1}
       ></mwc-icon-button>
-    </p>
+      </span>
 
       ${
         this._hasSecondDate()
           ? html`
-      <p>&nbsp;&ndash;</p>
-      <p>
+      <span class="dateform">
+      &nbsp;&nbsp;&ndash;&nbsp;&nbsp;
 
       <mwc-textfield
         @change="${this.handleYear2}"
@@ -229,31 +255,12 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
         icon="event"
         @click=${this._openDatePicker2}
       ></mwc-icon-button>
+      </span>
     </p>
       `
           : ''
       }
 
-
-      <mwc-select
-        id="select-quality"
-        label="${this._('Quality')}"
-        @change="${this.handleQuality}"
-      >
-        ${Object.keys(qualifiers).map(
-          qualifier => html`
-            <mwc-list-item
-              value="${qualifier}"
-              ?selected="${
-                // eslint-disable-next-line eqeqeq
-                qualifier == (this.data.quality || 0)
-              }"
-              >${this._(qualifiers[qualifier])}</mwc-list-item
-            >
-          `
-        )}
-      </mwc-select>
-    </p>
       `
   }
 
