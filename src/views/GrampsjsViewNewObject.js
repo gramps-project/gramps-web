@@ -146,6 +146,19 @@ export class GrampsjsViewNewObject extends GrampsjsView {
     `
   }
 
+  _renderCitationForm() {
+    return html`
+      <h4 class="label">${this._('Citation')}</h4>
+
+      <grampsjs-form-select-object-list
+        multiple
+        id="object-citation"
+        objectType="citation"
+        .strings="${this.strings}"
+      ></grampsjs-form-select-object-list>
+    `
+  }
+
   _updateData() {
     this.loading = true
     this.loadingTypes = true
@@ -206,11 +219,17 @@ export class GrampsjsViewNewObject extends GrampsjsView {
       this.data = {...this.data, private: e.detail.checked}
     }
     if (
-      ['author', 'pubinfo', 'abbrev', 'page', 'desc'].includes(
+      ['author', 'pubinfo', 'abbrev', 'page', 'desc', 'description'].includes(
         originalTarget.id
       )
     ) {
       this.data = {...this.data, [originalTarget.id]: e.detail.data}
+    }
+    if (originalTarget.id === 'object-citation-list') {
+      this.data = {
+        ...this.data,
+        citation_list: e.detail.data ?? [],
+      }
     }
   }
 }

@@ -38,6 +38,7 @@ export class GrampsjsViewNewEvent extends GrampsjsNewEventMixin(
   }
 
   _handleFormData(e) {
+    super._handleFormData(e)
     this.checkFormValidity()
     const originalTarget = e.composedPath()[0]
     if (originalTarget.id === 'event-type') {

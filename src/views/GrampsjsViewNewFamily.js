@@ -59,6 +59,8 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
       >
       </grampsjs-form-select-type>
 
+      ${this._renderCitationForm()}
+
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"

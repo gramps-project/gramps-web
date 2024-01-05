@@ -13,7 +13,7 @@ const gender = {
   0: 'Female',
 }
 
-const dataDefault = {_class: 'Person', gender: 2}
+const dataDefault = {_class: 'Person', gender: 2, citation_list: []}
 
 export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
   constructor() {
@@ -79,6 +79,8 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
         objectType="place"
         .strings="${this.strings}"
       ></grampsjs-form-select-object-list>
+
+      ${this._renderCitationForm()}
 
       <div class="spacer"></div>
       <grampsjs-form-private
@@ -153,6 +155,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
           _class: 'Event',
           handle: handleBirth,
           type: {_class: 'EventType', string: birthString},
+          citation_list: person.citation_list ?? [],
         },
       ]
     }
@@ -169,6 +172,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
           _class: 'Event',
           handle: handleDeath,
           type: {_class: 'EventType', string: deathString},
+          citation_list: person.citation_list ?? [],
         },
       ]
     }
@@ -188,12 +192,14 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
         _class: 'Event',
         handle: handleBirth,
         type: {_class: 'EventType', string: birthString},
+        citation_list: person.citation_list ?? [],
       },
       {
         ...death,
         _class: 'Event',
         handle: handleDeath,
         type: {_class: 'EventType', string: deathString},
+        citation_list: person.citation_list ?? [],
       },
     ]
   }

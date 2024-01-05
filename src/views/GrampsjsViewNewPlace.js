@@ -55,6 +55,8 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
         .strings="${this.strings}"
       ></grampsjs-form-select-object-list>
 
+      ${this._renderCitationForm()}
+
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"
