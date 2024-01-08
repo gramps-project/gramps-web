@@ -4,6 +4,7 @@ export const sharedStyles = css`
   :host {
     --grampsjs-body-font-family: 'Inter var', sans-serif;
     --grampsjs-heading-font-family: 'Roboto Slab', serif;
+    --md-ref-typeface-plain: 'Inter var', sans-serif;
     font-size: 18px;
     font-family: var(--grampsjs-body-font-family);
     font-weight: 300;
@@ -16,6 +17,55 @@ export const sharedStyles = css`
     --mdc-typography-font-family: var(--grampsjs-body-font-family);
     --color-boy: #64b5f6;
     --color-girl: #ef9a9a;
+    --md-sys-color-primary: rgb(109 76 65);
+    --md-sys-color-surface-tint: rgb(109 76 65);
+    --md-sys-color-on-primary: rgb(255 255 255);
+    --md-sys-color-primary-container: rgb(255 219 207);
+    --md-sys-color-on-primary-container: rgb(57 12 0);
+    --md-sys-color-secondary: rgb(49 98 141);
+    --md-sys-color-on-secondary: rgb(255 255 255);
+    --md-sys-color-secondary-container: rgb(207 229 255);
+    --md-sys-color-on-secondary-container: rgb(0 29 52);
+    --md-sys-color-tertiary: rgb(106 94 47);
+    --md-sys-color-on-tertiary: rgb(255 255 255);
+    --md-sys-color-tertiary-container: rgb(243 226 167);
+    --md-sys-color-on-tertiary-container: rgb(34 27 0);
+    --md-sys-color-error: rgb(186 26 26);
+    --md-sys-color-on-error: rgb(255 255 255);
+    --md-sys-color-error-container: rgb(255 218 214);
+    --md-sys-color-on-error-container: rgb(65 0 2);
+    --md-sys-color-background: rgb(255 248 246);
+    --md-sys-color-on-background: rgb(35 25 23);
+    --md-sys-color-surface: rgb(255 248 246);
+    --md-sys-color-on-surface: rgb(35 25 23);
+    --md-sys-color-surface-variant: rgb(245 222 215);
+    --md-sys-color-on-surface-variant: rgb(83 67 63);
+    --md-sys-color-outline: rgb(133 115 110);
+    --md-sys-color-outline-variant: rgb(216 194 187);
+    --md-sys-color-shadow: rgb(0 0 0);
+    --md-sys-color-scrim: rgb(0 0 0);
+    --md-sys-color-inverse-surface: rgb(57 46 43);
+    --md-sys-color-inverse-on-surface: rgb(255 237 232);
+    --md-sys-color-inverse-primary: rgb(255 181 156);
+    --md-sys-color-primary-fixed: rgb(255 219 207);
+    --md-sys-color-on-primary-fixed: rgb(57 12 0);
+    --md-sys-color-primary-fixed-dim: rgb(255 181 156);
+    --md-sys-color-on-primary-fixed-variant: rgb(114 53 32);
+    --md-sys-color-secondary-fixed: rgb(207 229 255);
+    --md-sys-color-on-secondary-fixed: rgb(0 29 52);
+    --md-sys-color-secondary-fixed-dim: rgb(157 203 251);
+    --md-sys-color-on-secondary-fixed-variant: rgb(18 74 115);
+    --md-sys-color-tertiary-fixed: rgb(243 226 167);
+    --md-sys-color-on-tertiary-fixed: rgb(34 27 0);
+    --md-sys-color-tertiary-fixed-dim: rgb(214 198 141);
+    --md-sys-color-on-tertiary-fixed-variant: rgb(81 70 26);
+    --md-sys-color-surface-dim: rgb(232 214 209);
+    --md-sys-color-surface-bright: rgb(255 248 246);
+    --md-sys-color-surface-container-lowest: rgb(255 255 255);
+    --md-sys-color-surface-container-low: rgb(255 241 237);
+    --md-sys-color-surface-container: rgb(252 234 229);
+    --md-sys-color-surface-container-high: rgb(247 228 223);
+    --md-sys-color-surface-container-highest: rgb(241 223 217);
   }
 
   mwc-tab-bar {
@@ -28,6 +78,15 @@ export const sharedStyles = css`
 
   mwc-tab {
     flex-grow: 0;
+  }
+
+  label {
+    display: inline-flex;
+    place-items: center;
+    gap: 12px;
+    font-size: 15px;
+    font-weight: 350;
+    color: var(--md-sys-color-on-background, #000);
   }
 
   h2,

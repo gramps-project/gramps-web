@@ -4,7 +4,9 @@ Element for selecting a Gramps type
 
 import {html, css, LitElement} from 'lit'
 import '@material/mwc-checkbox'
+import '@material/web/switch/switch.js'
 
+import {mdiLock, mdiLockOpen} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
@@ -28,16 +30,22 @@ class GrampsjsFormPrivate extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-      <p>
-        <mwc-formfield label="${this._('Private')}" id="switch-private">
-          <mwc-checkbox
-            id="private-checkbox"
-            @change="${this.handleChange}"
-            ?checked="${this.checked}"
-            ?disabled="${this.disabled}"
-          ></mwc-checkbox>
-        </mwc-formfield>
-      </p>
+      <label>
+        ${this._('Private')}
+        <md-switch
+          icons
+          @change="${this.handleChange}"
+          ?selected="${this.checked}"
+          ?disabled="${this.disabled}"
+        >
+          <svg viewBox="0 0 24 24" slot="on-icon">
+            <path d="${mdiLock}" />
+          </svg>
+          <svg viewBox="0 0 24 24" slot="off-icon">
+            <path d="${mdiLockOpen}" />
+          </svg>
+        </md-switch>
+      </label>
     `
   }
 
@@ -46,7 +54,7 @@ class GrampsjsFormPrivate extends GrampsjsTranslateMixin(LitElement) {
   }
 
   handleChange(e) {
-    this.checked = e.target.checked
+    this.checked = e.target.selected
     this.dispatchEvent(
       new CustomEvent('formdata:changed', {
         bubbles: true,
