@@ -57,6 +57,10 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
           color: rgba(0, 0, 0, 0.4);
         }
 
+        .breadcrumb .action-buttons mwc-icon-button.edit {
+          color: var(--mdc-theme-secondary);
+        }
+
         .breadcrumb .action-buttons mwc-icon-button#btn-star {
           --mdc-icon-size: 20px;
           --mdc-icon-button-size: 28px;
