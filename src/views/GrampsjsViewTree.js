@@ -96,7 +96,7 @@ export class GrampsjsViewTree extends GrampsjsView {
 
   renderTabs() {
     return html`
-      <md-tabs .activeIndex=${this._currentTabId}>
+      <md-tabs .activeTabIndex=${this._currentTabId}>
         <md-primary-tab
           @click=${() => {
             this._currentTabId = 0

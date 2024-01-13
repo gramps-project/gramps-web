@@ -97,6 +97,7 @@ export const grampsStrings = [
   'Clear',
   'Clergy',
   'Collection',
+  'Color',
   'Complete Individual Report',
   'Complete',
   'Con_fidence',

@@ -20,6 +20,7 @@ class GrampsjsFanChart extends GrampsjsChartBase {
     return {
       grampsId: {type: String},
       depth: {type: Number},
+      color: {type: String},
     }
   }
 
@@ -27,6 +28,7 @@ class GrampsjsFanChart extends GrampsjsChartBase {
     super()
     this.grampsId = ''
     this.depth = 5
+    this.color = ''
   }
 
   renderChart() {
@@ -43,8 +45,10 @@ class GrampsjsFanChart extends GrampsjsChartBase {
       ${FanChart(data, {
         depth: this.depth,
         arcRadius,
+        color: this.color || 'default',
         bboxWidth: this.containerWidth,
         bboxHeight: this.containerHeight,
+        strings: this.strings,
       })}
     `
   }
