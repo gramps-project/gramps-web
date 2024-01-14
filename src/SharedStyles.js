@@ -36,7 +36,7 @@ export const sharedStyles = css`
     --md-sys-color-on-error-container: rgb(65 0 2);
     --md-sys-color-background: rgb(255 248 246);
     --md-sys-color-on-background: rgb(35 25 23);
-    --md-sys-color-surface: rgb(255 248 246);
+    --md-sys-color-surface: #fff;
     --md-sys-color-on-surface: rgb(35 25 23);
     --md-sys-color-surface-variant: rgb(245 222 215);
     --md-sys-color-on-surface-variant: rgb(83 67 63);
@@ -63,9 +63,11 @@ export const sharedStyles = css`
     --md-sys-color-surface-bright: rgb(255 248 246);
     --md-sys-color-surface-container-lowest: rgb(255 255 255);
     --md-sys-color-surface-container-low: rgb(255 241 237);
-    --md-sys-color-surface-container: rgb(252 234 229);
+    --md-sys-color-surface-container: #fff;
     --md-sys-color-surface-container-high: rgb(247 228 223);
     --md-sys-color-surface-container-highest: rgb(241 223 217);
+    --md-primary-tab-label-text-weight: 425;
+    --md-primary-tab-label-text-size: 16px;
   }
 
   mwc-tab-bar {

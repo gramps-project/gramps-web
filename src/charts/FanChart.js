@@ -1,15 +1,125 @@
 import {arc as d3arc} from 'd3-shape'
 import {create} from 'd3-selection'
 import {hierarchy, partition} from 'd3-hierarchy'
-import {schemePaired} from 'd3-scale-chromatic'
+import {
+  schemePaired,
+  interpolateWarm,
+  schemeYlOrRd,
+  schemeCategory10,
+} from 'd3-scale-chromatic'
 import {zoom} from 'd3-zoom'
+import {LegendCategorical, LegendColorBar} from './util.js'
 
-function defaultColor(d) {
-  if (d.depth === 0) {
-    return 'rgb(120, 120, 120)'
+const colorFunctions = {
+  default: {
+    fct: d => {
+      if (d.depth === 0) {
+        return 'rgb(120, 120, 120)'
+      }
+      const ind = Math.min(Math.max(0, Math.floor((d.x0 / Math.PI / 2) * 8)), 8)
+      return schemePaired[ind]
+    },
+  },
+  nEvents: {
+    type: 'count',
+    fct: person => person?.event_ref_list?.length,
+  },
+  nNotes: {
+    type: 'count',
+    fct: person => person?.note_list?.length,
+  },
+  birthYear: {
+    type: 'number',
+    fct: person =>
+      person?.extended?.events?.[person?.birth_ref_index]?.date?.year ||
+      undefined,
+  },
+  deathYear: {
+    type: 'number',
+    fct: person =>
+      person?.extended?.events?.[person?.death_ref_index]?.date?.year ||
+      undefined,
+  },
+  age: {
+    type: 'number',
+    fct: person => {
+      const dBirth =
+        person?.extended?.events?.[person?.birth_ref_index]?.date?.sortval ||
+        undefined
+      const dDeath =
+        person?.extended?.events?.[person?.death_ref_index]?.date?.sortval ||
+        undefined
+      if (dBirth === undefined || dDeath === undefined) {
+        return undefined
+      }
+      return (dDeath - dBirth) / 365.25
+    },
+  },
+  surname: {
+    type: 'category',
+    fct: person => {
+      const surname = person?.primary_name?.surname_list?.[0]
+      if (surname === undefined) {
+        return undefined
+      }
+      return `${surname.prefix} ${surname.surname}`.trim()
+    },
+  },
+  religion: {
+    type: 'category',
+    fct: person =>
+      person?.extended?.events?.filter(event => event?.type === 'Religion')?.[0]
+        ?.description,
+  },
+}
+
+function getMinMaxNumber(numbers) {
+  const filteredNumbers = numbers.filter(x => x !== undefined)
+  const min = Math.min(...filteredNumbers)
+  const max = Math.max(...filteredNumbers)
+  return [min, max]
+}
+
+function colorFunctionNumber(d, callback, min, max) {
+  const x = callback(d?.data?.person)
+  if (x === undefined) {
+    return 'rgb(220, 220, 220)'
   }
-  const ind = Math.min(Math.max(0, Math.floor((d.x0 / Math.PI / 2) * 8)), 8)
-  return schemePaired[ind]
+  const p = max === min ? 0.5 : (x - min) / (max - min)
+  return interpolateWarm(p)
+}
+
+function colorFunctionCount(d, callback) {
+  const count = callback(d?.data?.person)
+  if (count === undefined || count === 0) {
+    return 'rgb(220, 220, 220)'
+  }
+  return schemeYlOrRd[9][count > 8 ? 8 : count]
+  // const p = (count - 1) / 8
+  // return interpolateWarm(p > 1 ? 1 : p)
+}
+
+function getLegendCategories(categories) {
+  const counter = categories
+    .filter(cat => cat !== undefined)
+    .reduce((acc, value) => {
+      acc[value] = (acc[value] || 0) + 1
+      return acc
+    }, {})
+  const sortedCounter = Object.entries(counter).sort((a, b) => b[1] - a[1])
+  return sortedCounter.map(([cat]) => cat)
+}
+
+function colorFunctionCategory(d, callback, categories) {
+  const category = callback(d?.data?.person)
+  if (category === undefined) {
+    return 'rgb(220, 220, 220)'
+  }
+  const index = categories.findIndex(cat => cat === category)
+  if (index === -1 || index >= 9) {
+    return schemeCategory10[9]
+  }
+  return schemeCategory10[index]
 }
 
 // Finds the bounding rectangle of a list of rectangles
@@ -70,17 +180,73 @@ function getArcBounds(
   )
 }
 
+function mapPersons(data, callback) {
+  return (data.person ? [callback(data.person)] : []).concat(
+    (data.children || []).reduce(
+      (acc, child) => acc.concat(mapPersons(child, callback)),
+      []
+    )
+  )
+}
+
 export function FanChart(
   data,
   {
     depth = 5,
     arcRadius = 60,
     padding = 3, // separation between arcs
-    color = defaultColor,
+    color = '',
     bboxWidth = 800,
     bboxHeight = 800,
+    strings = {},
   } = {}
 ) {
+  // determine function for coloring people
+  const colorFunctionInfo = colorFunctions?.[color] ?? null
+  let legendFunction = () => null
+  let colorFunction
+  let colorOpacity = 0.2
+  if (colorFunctionInfo.type === 'number') {
+    const numberFunction = colorFunctionInfo.fct
+    const numbers = mapPersons(data, person => numberFunction(person))
+    const [min, max] = getMinMaxNumber(numbers)
+    colorFunction = d => colorFunctionNumber(d, numberFunction, min, max)
+    colorOpacity = 0.5
+    legendFunction = le =>
+      LegendColorBar(le, {opacity: 0.5, maxColorValue: max, minColorValue: min})
+  } else if (colorFunctionInfo.type === 'count') {
+    const numberFunction = colorFunctionInfo.fct
+    colorFunction = d => colorFunctionCount(d, numberFunction)
+    colorOpacity = 0.5
+    const legendData = [...Array(8).keys()].slice(0, 8).map(i => ({
+      label: i,
+      color: schemeYlOrRd[9][i],
+    }))
+    legendData.push({label: '≥ 8', color: schemeYlOrRd[9][8]})
+    legendData[0].color = 'rgb(220, 220, 220)'
+    legendFunction = le => LegendCategorical(le, legendData, {opacity: 0.5})
+  } else if (colorFunctionInfo.type === 'category') {
+    const catFunction = colorFunctionInfo.fct
+    const categories = getLegendCategories(
+      mapPersons(data, person => catFunction(person))
+    )
+    colorFunction = d => colorFunctionCategory(d, catFunction, categories)
+    colorOpacity = 0.3
+    const legendData = categories.slice(0, 9).map((cat, i) => ({
+      label: cat,
+      color: schemeCategory10[i],
+    }))
+    if (categories.length > 9) {
+      legendData.push({
+        label: strings.Other ?? 'Other',
+        color: schemeCategory10[9],
+      })
+    }
+    legendFunction = le => LegendCategorical(le, legendData, {opacity: 0.4})
+  } else {
+    colorFunction = colorFunctionInfo.fct
+  }
+
   // Create a hierarchical data structure based on the input data
   const root = hierarchy(data)
   const {minX, minY, maxX, maxY} = getArcBounds(data, arcRadius)
@@ -140,8 +306,10 @@ export function FanChart(
     .filter(d => arcVisible(d.data))
     .append('path')
     .attr('d', arc)
-    .attr('fill', d => (color === null ? 'rgb(150, 150, 150)' : color(d)))
-    .attr('fill-opacity', 0.2)
+    .attr('fill', d =>
+      colorFunction === null ? 'rgb(200, 200, 200)' : colorFunction(d)
+    )
+    .attr('fill-opacity', colorOpacity)
     .attr('id', d => d.data.id) // Unique id for each slice
 
   cell
@@ -239,5 +407,15 @@ export function FanChart(
       // .slice(0, Math.floor(d.y1 * (d.x1 - d.x0) / 10))
     )
 
+  // add legend
+  svg
+    .append('g')
+    .attr('id', 'legend')
+    .attr(
+      'transform',
+      `translate(${minX + xOffset + 60}, ${minY + yOffset + 70})`
+    )
+
+  svg.select('#legend').call(legendFunction)
   return svg.node()
 }

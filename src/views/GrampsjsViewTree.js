@@ -1,9 +1,7 @@
 import {css, html} from 'lit'
 
-import '@material/mwc-icon-button'
-import '@material/mwc-icon'
-import '@material/mwc-tab-bar'
-import '@material/mwc-tab'
+import '@material/web/tabs/tabs'
+import '@material/web/tabs/primary-tab'
 
 import {mdiFamilyTree} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
@@ -19,10 +17,6 @@ export class GrampsjsViewTree extends GrampsjsView {
     return [
       super.styles,
       css`
-        mwc-tab-bar {
-          margin-bottom: 20px;
-        }
-
         .with-margin {
           margin: 25px 40px;
         }
@@ -43,16 +37,21 @@ export class GrampsjsViewTree extends GrampsjsView {
           --mdc-icon-size: 32px;
         }
 
-        mwc-tab {
+        md-primary-tab {
           opacity: 0.8;
         }
 
-        mwc-tab[active] {
+        md-primary-tab[active] {
           opacity: 1;
         }
 
         #tabs {
-          height: 71px;
+          height: 85px;
+        }
+
+        md-tabs {
+          --md-divider-thickness: 0px;
+          width: fit-content;
         }
       `,
     ]
@@ -97,66 +96,59 @@ export class GrampsjsViewTree extends GrampsjsView {
 
   renderTabs() {
     return html`
-      <mwc-tab-bar
-        .activeIndex=${this._currentTabId}
-        @MDCTabBar:activated=${this._handleTabActivated}
-        @MDCTab:interacted=${this._handleTabInteracted}
-      >
-        <mwc-tab
+      <md-tabs .activeTabIndex=${this._currentTabId}>
+        <md-primary-tab
           @click=${() => {
             this._currentTabId = 0
           }}
-          hasImageIcon
-          label="${this._('Ancestor Tree')}"
-          ><span slot="icon"
+          has-icon
+          inline-icon
+          >${this._('Ancestor Tree')}
+          <span slot="icon"
             >${renderIconSvg(
               mdiFamilyTree,
-              'var(--mdc-theme-primary)',
+              '--md-sys-color-primary',
               -90
             )}</span
           >
-        </mwc-tab>
-        <mwc-tab
+        </md-primary-tab>
+        <md-primary-tab
           @click=${() => {
             this._currentTabId = 1
           }}
-          hasImageIcon
-          label="${this._('Descendant Tree')}"
-          ><span slot="icon"
-            >${renderIconSvg(
-              mdiFamilyTree,
-              'var(--mdc-theme-primary)',
-              90
-            )}</span
+          has-icon
+          inline-icon
+        >
+          ${this._('Descendant Tree')}
+          <span slot="icon"
+            >${renderIconSvg(mdiFamilyTree, '--md-sys-color-primary', 90)}</span
           >
-        </mwc-tab>
-        <mwc-tab
+        </md-primary-tab>
+        <md-primary-tab
           @click=${() => {
             this._currentTabId = 2
           }}
-          hasImageIcon
-          label="${this._('Hourglass Graph')}"
-          ><span slot="icon"
-            >${renderIconSvg(
-              hourglassIconPath,
-              'var(--mdc-theme-primary)'
-            )}</span
+          has-icon
+          inline-icon
+        >
+          ${this._('Hourglass Graph')}
+          <span slot="icon"
+            >${renderIconSvg(hourglassIconPath, '--md-sys-color-primary')}</span
           >
-        </mwc-tab>
-        <mwc-tab
+        </md-primary-tab>
+        <md-primary-tab
           @click=${() => {
             this._currentTabId = 3
           }}
-          hasImageIcon
-          label="${this._('Fan Chart')}"
-          ><span slot="icon"
-            >${renderIconSvg(
-              chartFanIconPath,
-              'var(--mdc-theme-primary)'
-            )}</span
+          has-icon
+          inline-icon
+        >
+          ${this._('Fan Chart')}
+          <span slot="icon"
+            >${renderIconSvg(chartFanIconPath, '--md-sys-color-primary')}</span
           >
-        </mwc-tab>
-      </mwc-tab-bar>
+        </md-primary-tab>
+      </md-tabs>
     `
   }
 
@@ -261,14 +253,6 @@ export class GrampsjsViewTree extends GrampsjsView {
   async _selectPerson(event) {
     const {grampsId} = event.detail
     this.grampsId = grampsId
-  }
-
-  _handleTabActivated(event) {
-    this._currentTabId = event.detail.index
-  }
-
-  _handleTabInteracted(event) {
-    this._currentTab = event.detail.tabId
   }
 }
 

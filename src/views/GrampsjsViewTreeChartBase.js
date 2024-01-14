@@ -25,6 +25,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
           background: rgba(255, 255, 255, 0.9);
           border-radius: 16px;
           z-index: 1;
+          padding: 0 10px;
         }
 
         #chart {
@@ -221,7 +222,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     const data = await apiGet(
       `/api/people/?rules=${encodeURIComponent(JSON.stringify(rules))}&locale=${
         this.strings?.__lang__ || 'en'
-      }&profile=self&extend=primary_parent_family,family_list`
+      }&profile=self&extend=event_ref_list,primary_parent_family,family_list`
     )
     this.loading = false
     if ('data' in data) {
