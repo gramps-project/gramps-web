@@ -147,6 +147,14 @@ export const LegendColorBar = (
 ) => {
   const numColorTicks = 5 // Number of legend ticks
 
+  if (
+    minColorValue === Infinity ||
+    maxColorValue === -Infinity ||
+    minColorValue === maxColorValue
+  ) {
+    return
+  }
+
   // Create a color scale
   const colorScale = scaleSequential(interpolateWarm).domain([
     maxColorValue,
