@@ -37,6 +37,7 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
           position: relative;
           top: 8px;
           margin-left: 10px;
+          margin-bottom: 0px;
         }
 
         md-menu {
@@ -102,14 +103,16 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
       </span>
       ${this.color && colors[this.color]
         ? html`
-            <md-input-chip
-              label="${this._(colors[this.color])}"
-              @remove="${() => this._handleColorClick('')}"
-            >
-              <svg viewBox="0 0 24 24" slot="icon">
-                <path d="${mdiPalette}" />
-              </svg>
-            </md-input-chip>
+            <div style="display: inline-block; height: 50px;">
+              <md-input-chip
+                label="${this._(colors[this.color])}"
+                @remove="${() => this._handleColorClick('')}"
+              >
+                <svg viewBox="0 0 24 24" slot="icon">
+                  <path d="${mdiPalette}" />
+                </svg>
+              </md-input-chip>
+            </div>
           `
         : ''}
     `
