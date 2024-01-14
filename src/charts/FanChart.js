@@ -115,6 +115,14 @@ function getLegendCategories(categories) {
   return sortedCounter.map(([cat]) => cat)
 }
 
+// change the order of category10 so the last one is gray
+const schemeCategorical = [
+  ...schemeCategory10.slice(0, 7),
+  schemeCategory10[9],
+  schemeCategory10[8],
+  schemeCategory10[7],
+]
+
 function colorFunctionCategory(d, callback, categories) {
   const category = callback(d?.data?.person)
   if (category === undefined) {
@@ -122,9 +130,9 @@ function colorFunctionCategory(d, callback, categories) {
   }
   const index = categories.findIndex(cat => cat === category)
   if (index === -1 || index >= 9) {
-    return schemeCategory10[9]
+    return schemeCategorical[9]
   }
-  return schemeCategory10[index]
+  return schemeCategorical[index]
 }
 
 // Finds the bounding rectangle of a list of rectangles
@@ -239,12 +247,12 @@ export function FanChart(
     colorOpacity = 0.3
     const legendData = categories.slice(0, 9).map((cat, i) => ({
       label: cat,
-      color: schemeCategory10[i],
+      color: schemeCategorical[i],
     }))
     if (categories.length > 9) {
       legendData.push({
         label: strings.Other ?? 'Other',
-        color: schemeCategory10[9],
+        color: schemeCategorical[9],
       })
     }
     legendFunction = le => LegendCategorical(le, legendData, {opacity: 0.4})
