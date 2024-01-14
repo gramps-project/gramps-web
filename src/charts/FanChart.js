@@ -43,12 +43,17 @@ const colorFunctions = {
   age: {
     type: 'number',
     fct: person => {
-      const dBirth =
-        person?.extended?.events?.[person?.birth_ref_index]?.date?.sortval ||
-        undefined
-      const dDeath =
-        person?.extended?.events?.[person?.death_ref_index]?.date?.sortval ||
-        undefined
+      let dBirth = person?.extended?.events?.[person?.birth_ref_index]?.date
+      dBirth =
+        // only normal dates, no spans etc., quality not estimated
+        dBirth !== undefined && dBirth.modifier === 0 && dBirth.quality !== 1
+          ? dBirth.sortval || undefined
+          : undefined
+      let dDeath = person?.extended?.events?.[person?.death_ref_index]?.date
+      dDeath =
+        dDeath !== undefined && dDeath.modifier === 0 && dDeath.quality !== 1
+          ? dDeath.sortval || undefined
+          : undefined
       if (dBirth === undefined || dDeath === undefined) {
         return undefined
       }
