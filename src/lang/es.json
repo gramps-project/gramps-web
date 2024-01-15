@@ -133,5 +133,7 @@
     "DNA": "ADN",
     "Matches": "Emparejar",
     "Bookmark this": "Añadir a favoritos",
-    "Remove bookmark": "Eliminar favorito"
+    "Remove bookmark": "Eliminar favorito",
+    "Administrator": "Administrador",
+    "Ancestor frequency": "Frecuencia de los antepasados"
 }
