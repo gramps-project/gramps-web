@@ -17,6 +17,7 @@ const colors = {
   age: 'Age',
   surname: 'Surname',
   religion: 'Religion',
+  nPaths: 'Ancestor frequency',
 }
 
 export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {

@@ -28,6 +28,9 @@ const colorFunctions = {
     type: 'count',
     fct: person => person?.note_list?.length,
   },
+  nPaths: {
+    type: 'multiplicity',
+  },
   birthYear: {
     type: 'number',
     fct: person =>
@@ -202,6 +205,17 @@ function mapPersons(data, callback) {
   )
 }
 
+function countPersonMultiplicity(data) {
+  const handleCounter = {}
+  function countHandleOccurrences(person) {
+    if (person.handle) {
+      handleCounter[person.handle] = (handleCounter[person.handle] || 0) + 1
+    }
+  }
+  mapPersons(data, countHandleOccurrences)
+  return handleCounter
+}
+
 export function FanChart(
   data,
   {
@@ -230,6 +244,20 @@ export function FanChart(
   } else if (colorFunctionInfo.type === 'count') {
     const numberFunction = colorFunctionInfo.fct
     colorFunction = d => colorFunctionCount(d, numberFunction)
+    colorOpacity = 0.5
+    const legendData = [...Array(8).keys()].slice(0, 8).map(i => ({
+      label: i,
+      color: schemeYlOrRd[9][i],
+    }))
+    legendData.push({label: '≥ 8', color: schemeYlOrRd[9][8]})
+    legendData[0].color = 'rgb(220, 220, 220)'
+    legendFunction = le => LegendCategorical(le, legendData, {opacity: 0.5})
+  } else if (colorFunctionInfo.type === 'multiplicity') {
+    const multiplicities = countPersonMultiplicity(data)
+    colorFunction = d =>
+      d.depth === 0
+        ? 'rgb(220, 220, 220)'
+        : colorFunctionCount(d, person => multiplicities?.[person?.handle] ?? 0)
     colorOpacity = 0.5
     const legendData = [...Array(8).keys()].slice(0, 8).map(i => ({
       label: i,
