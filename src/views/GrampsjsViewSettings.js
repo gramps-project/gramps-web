@@ -161,6 +161,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
             <grampsjs-users
               .strings="${this.strings}"
               .data="${this.userData}"
+              ?ismulti="${!!this.dbInfo?.server?.multi_tree}"
               @user:updated="${this._handleUserChanged}"
               @user:added="${this._handleUserAdded}"
               @user:added-multiple="${this._handleUsersAdded}"

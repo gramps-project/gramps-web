@@ -19,6 +19,7 @@ export const userRoles = {
   2: 'Contributor',
   3: 'Editor',
   4: 'Owner',
+  5: 'Administrator',
 }
 
 class GrampsjsFormUser extends GrampsjsTranslateMixin(LitElement) {
@@ -44,6 +45,7 @@ class GrampsjsFormUser extends GrampsjsTranslateMixin(LitElement) {
   static get properties() {
     return {
       data: {type: Object},
+      ismulti: {type: Boolean},
       isFormValid: {type: Boolean},
       newUser: {type: Boolean},
     }
@@ -52,6 +54,7 @@ class GrampsjsFormUser extends GrampsjsTranslateMixin(LitElement) {
   constructor() {
     super()
     this.data = {}
+    this.ismulti = false
     this.isFormValid = false
     this.newUser = false
   }
@@ -115,6 +118,7 @@ class GrampsjsFormUser extends GrampsjsTranslateMixin(LitElement) {
           ${Object.keys(userRoles)
             .map(Number)
             .sort((a, b) => a - b)
+            .filter(x => x <= 4 || this.ismulti)
             .map(
               role => html`
                 <mwc-list-item
