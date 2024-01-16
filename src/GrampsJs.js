@@ -378,6 +378,31 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Export')}</dd>
               </dl>
             </div>
+            <div>
+              <h4>${this._('New')}</h4>
+              <dl>
+                <dt><span>n</span> <span>p</span></dt>
+                <dd>${this._('Person')}</dd>
+                <dt><span>n</span> <span>f</span></dt>
+                <dd>${this._('Family')}</dd>
+                <dt><span>n</span> <span>e</span></dt>
+                <dd>${this._('Event')}</dd>
+                <dt><span>n</span> <span>l</span></dt>
+                <dd>${this._('Place')}</dd>
+                <dt><span>n</span> <span>s</span></dt>
+                <dd>${this._('Source')}</dd>
+                <dt><span>n</span> <span>c</span></dt>
+                <dd>${this._('Citation')}</dd>
+                <dt><span>n</span> <span>r</span></dt>
+                <dd>${this._('Repository')}</dd>
+                <dt><span>n</span> <span>n</span></dt>
+                <dd>${this._('Note')}</dd>
+                <dt><span>n</span> <span>m</span></dt>
+                <dd>${this._('Media Object')}</dd>
+                <dt><span>n</span> <span>t</span></dt>
+                <dd>${this._('Task')}</dd>
+              </dl>
+            </div>
           </section>
         </div>
       </div>
@@ -1157,7 +1182,7 @@ export class GrampsJs extends LitElement {
     if (this._showShortcuts) {
       this._showShortcuts = false
     }
-    if (this._shortcutPressed) {
+    if (this._shortcutPressed === 'g') {
       if (e.key === 'h') {
         fireEvent(this, 'nav', {path: ''})
       } else if (e.key === 'b') {
@@ -1178,8 +1203,33 @@ export class GrampsJs extends LitElement {
         fireEvent(this, 'nav', {path: 'export'})
       }
       this._shortcutPressed = ''
+    } else if (this._shortcutPressed === 'n') {
+      if (e.key === 'p') {
+        fireEvent(this, 'nav', {path: 'new_person'})
+      } else if (e.key === 'f') {
+        fireEvent(this, 'nav', {path: 'new_family'})
+      } else if (e.key === 'e') {
+        fireEvent(this, 'nav', {path: 'new_event'})
+      } else if (e.key === 'l') {
+        fireEvent(this, 'nav', {path: 'new_place'})
+      } else if (e.key === 's') {
+        fireEvent(this, 'nav', {path: 'new_source'})
+      } else if (e.key === 'c') {
+        fireEvent(this, 'nav', {path: 'new_citation'})
+      } else if (e.key === 'r') {
+        fireEvent(this, 'nav', {path: 'new_repository'})
+      } else if (e.key === 'n') {
+        fireEvent(this, 'nav', {path: 'new_note'})
+      } else if (e.key === 'm') {
+        fireEvent(this, 'nav', {path: 'new_media'})
+      } else if (e.key === 't') {
+        fireEvent(this, 'nav', {path: 'new_task'})
+      }
+      this._shortcutPressed = ''
     } else if (e.key === 'g') {
       this._shortcutPressed = 'g'
+    } else if (e.key === 'n') {
+      this._shortcutPressed = 'n'
     } else if (e.key === 's') {
       fireEvent(this, 'nav', {path: 'search'})
     } else if (e.key === '?') {
