@@ -1,5 +1,5 @@
 FROM nginx
 COPY dist /usr/share/nginx/html
 COPY ./default.conf.template /etc/nginx/templates/
-LABEL org.opencontainers.image.source="https://github.com/gramps-project/Gramps.js"
+LABEL org.opencontainers.image.source="https://github.com/gramps-project/gramps-web"
 CMD ["nginx", "-g", "daemon off;"]

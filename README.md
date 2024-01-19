@@ -1,10 +1,8 @@
-# Gramps.js &ndash; the Gramps Web frontend
+# Gramps Web &ndash; Frontend
 
-**Users of _Gramps Web_, please see the [Gramps Web documentation site](https://www.grampsweb.org/) for details on setup, usage, where to get help, and how to contribute.**
+This is the repository for the frontend of [Gramps Web](https://www.grampsweb.org/), a modern web app that allows to browse and collaboratively edit a genealogical database, based on and interoperable with the <a href="https://gramps-project.org">Gramps</a> desktop application.
 
-## Description
-
-Gramps.js is the responsive Javascript frontend of <a href="https://www.grampsweb.org/">Gramps Web</a>, a modern web app that allows to browse and collaboratively edit a genealogical database, based on and interoperable with the <a href="https://gramps-project.org">Gramps</a> desktop application. See <a href="https://github.com/gramps-project/gramps-webapi">Gramps Web API</a> for the Python backend repository.
+Gramps Web is composed of three building blocks: at its core, the [Gramps](https://github.com/gramps-project/gramps) Python library that also powers the desktop application, secondly [Gramps Web API](https://github.com/gramps-project/gramps-web-api), a Python REST API server that makes a Gramps database accessible over the web, and finally the Javascript web interface, or frontend, that is developed in this repository.
 
 ## Screenshot
 
@@ -14,10 +12,8 @@ Gramps.js is the responsive Javascript frontend of <a href="https://www.grampswe
 
 A demo deployment based on the Gramps example family tree is available [here](https://gcp-api-puqt5dnf3a-uc.a.run.app/).
 
-## User documentation
+## Documentation
 
-The documentation for using or developing Gramps.js can be found on the [Gramps Web documentation site](https://www.grampsweb.org/).
-
-## Developer documentation
-
-The developer documentation can be found at https://www.grampsweb.org/dev-frontend/.
+- The user documentation for Gramps Web can be found at https://www.grampsweb.org/
+- The developer documentation for the frontend can be found at https://www.grampsweb.org/dev-frontend/
+- For reporting issues or giving feedback, please see https://www.grampsweb.org/help/
