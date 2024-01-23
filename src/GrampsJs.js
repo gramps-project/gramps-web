@@ -45,7 +45,6 @@ import './views/GrampsjsViewCitations.js'
 import './views/GrampsjsViewRepositories.js'
 import './views/GrampsjsViewNotes.js'
 import './views/GrampsjsViewMediaObjects.js'
-import './views/GrampsjsViewImport.js'
 import './views/GrampsjsViewExport.js'
 import './views/GrampsjsViewPerson.js'
 import './views/GrampsjsViewFamily.js'
@@ -372,8 +371,6 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('_Bookmarks')}</dd>
                 <dt><span>g</span> <span>t</span></dt>
                 <dd>${this._('Tasks')}</dd>
-                <dt><span>g</span> <span>i</span></dt>
-                <dd>${this._('Import')}</dd>
                 <dt><span>g</span> <span>e</span></dt>
                 <dd>${this._('Export')}</dd>
               </dl>
@@ -557,14 +554,6 @@ export class GrampsJs extends LitElement {
               <span>${this._('Tasks')}</span>
               <mwc-icon slot="graphic">checklist</mwc-icon>
             </grampsjs-list-item>
-            ${this.canEdit && this.canAdd
-              ? html`
-                  <grampsjs-list-item href="${BASE_DIR}/import" graphic="icon">
-                    <span>${this._('Import')}</span>
-                    <mwc-icon slot="graphic">upload</mwc-icon>
-                  </grampsjs-list-item>
-                `
-              : ''}
             <grampsjs-list-item href="${BASE_DIR}/export" graphic="icon">
               <span>${this._('Export')}</span>
               <mwc-icon slot="graphic">download_file</mwc-icon>
@@ -738,11 +727,6 @@ export class GrampsJs extends LitElement {
               .dbInfo="${this._dbInfo}"
             ></grampsjs-view-media>
 
-            <grampsjs-view-import
-              class="page"
-              ?active=${this._page === 'import'}
-              .strings="${this._strings}"
-            ></grampsjs-view-import>
             <grampsjs-view-export
               class="page"
               ?active=${this._page === 'export'}
@@ -780,7 +764,7 @@ export class GrampsJs extends LitElement {
               ?active=${this._page === 'settings'}
               .dbInfo="${this._dbInfo}"
               .strings="${this._strings}"
-              ?users="${this.canManageUsers}"
+              ?owner="${this.canManageUsers}"
             ></grampsjs-view-settings>
             <grampsjs-view-report
               class="page"
@@ -1197,8 +1181,6 @@ export class GrampsJs extends LitElement {
         fireEvent(this, 'nav', {path: 'bookmarks'})
       } else if (e.key === 't') {
         fireEvent(this, 'nav', {path: 'tasks'})
-      } else if (e.key === 'i') {
-        fireEvent(this, 'nav', {path: 'import'})
       } else if (e.key === 'e') {
         fireEvent(this, 'nav', {path: 'export'})
       }

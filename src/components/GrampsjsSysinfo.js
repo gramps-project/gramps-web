@@ -53,7 +53,7 @@ export class GrampsjsSysinfo extends GrampsjsTranslateMixin(LitElement) {
         >
         Gramps ${this.data?.gramps?.version || '?'}<br />
         Gramps Web API ${this.data?.gramps_webapi?.version || '?'}<br />
-        Gramps.js ${version}<br />
+        Gramps Web Frontend ${version}<br />
         locale: ${this.data?.locale?.language}<br />
         multi-tree: ${this.data?.server?.multi_tree}<br />
         task queue: ${this.data?.server?.task_queue}

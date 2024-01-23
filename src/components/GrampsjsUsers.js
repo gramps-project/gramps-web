@@ -14,6 +14,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
   static get properties() {
     return {
       dialogContent: {type: String},
+      ismulti: {type: Boolean},
       _downloadUrl: {type: String},
       _userData: {type: Array},
     }
@@ -22,6 +23,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
   constructor() {
     super()
     this.dialogContent = ''
+    this.ismulti = false
     this._downloadUrl = ''
     this._userData = []
   }
@@ -228,6 +230,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
         <grampsjs-form-user
           .data="${user}"
           .strings="${this.strings}"
+          ?ismulti="${this.ismulti}"
         ></grampsjs-form-user>
         <mwc-button
           slot="primaryAction"
@@ -254,6 +257,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
         <grampsjs-form-user
           newUser
           .strings="${this.strings}"
+          ?ismulti="${this.ismulti}"
         ></grampsjs-form-user>
         <mwc-button
           slot="primaryAction"

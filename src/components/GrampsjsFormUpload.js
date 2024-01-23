@@ -61,6 +61,7 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
       preview: {type: Boolean},
       filename: {type: Boolean},
       disabled: {type: Boolean},
+      outlined: {type: Boolean},
       label: {type: String},
       accept: {type: String},
     }
@@ -73,6 +74,7 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
     this.preview = false
     this.filename = false
     this.disabled = false
+    this.outlined = false
     this.label = ''
     this.accept = undefined
   }
@@ -87,7 +89,8 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
         @change="${this._handleInputChange}"
       />
       <mwc-button
-        raised
+        ?raised="${!this.outlined}"
+        ?outlined="${this.outlined}"
         ?disabled="${this.disabled}"
         icon="upload"
         @click="${this._handleClickUpload}"
