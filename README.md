@@ -10,7 +10,7 @@ Gramps Web is composed of three building blocks: at its core, the [Gramps](https
 
 ## Demo
 
-A demo deployment based on the Gramps example family tree is available [here](https://gcp-api-puqt5dnf3a-uc.a.run.app/).
+A demo deployment based on the Gramps example family tree is available at https://demo.grampsweb.org/. Use `owner`, `editor`, `contributor`, or `member` as username and the same as password.
 
 ## Documentation
 
