@@ -243,6 +243,14 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
       const [range] = e.getTargetRanges()
       const nCharBefore1 = getNumCharBeforeNode(range.startContainer, div)[0]
       if (e.inputType === 'insertText') {
+        if (range.startOffset !== range.endOffset) {
+          const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
+          this._deleteText(
+            nCharBefore1 + range.startOffset,
+            nCharBefore2 + range.endOffset
+          )
+          this.cursorPosition = [nCharBefore1 + range.startOffset]
+        }
         this._insertText(e.data, nCharBefore1 + range.startOffset)
         this.cursorPosition = [nCharBefore1 + range.startOffset + e.data.length]
       }
