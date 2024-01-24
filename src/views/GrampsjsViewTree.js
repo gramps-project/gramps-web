@@ -9,6 +9,7 @@ import './GrampsjsViewDescendantChart.js'
 import './GrampsjsViewTreeChart.js'
 import './GrampsjsViewHourglassChart.js'
 import './GrampsjsViewFanChart.js'
+import './GrampsjsViewRelationshipChart.js'
 import {fireEvent} from '../util.js'
 import {chartFanIconPath, hourglassIconPath, renderIconSvg} from '../icons.js'
 
@@ -90,7 +91,8 @@ export class GrampsjsViewTree extends GrampsjsView {
       ${this._currentTabId === 0 ? this._renderPedigree() : ''}
       ${this._currentTabId === 1 ? this._renderDescendantTree() : ''}
       ${this._currentTabId === 2 ? this._renderHourglassTree() : ''}
-      ${this._currentTabId === 3 ? this._renderFan() : ''}
+      ${this._currentTabId === 3 ? this._renderRelationshipChart() : ''}
+      ${this._currentTabId === 4 ? this._renderFan() : ''}
     `
   }
 
@@ -143,6 +145,18 @@ export class GrampsjsViewTree extends GrampsjsView {
           has-icon
           inline-icon
         >
+          ${this._('Relationship Chart')}
+          <span slot="icon"
+            >${renderIconSvg(hourglassIconPath, '--md-sys-color-primary')}</span
+          >
+        </md-primary-tab>
+        <md-primary-tab
+          @click=${() => {
+            this._currentTabId = 4
+          }}
+          has-icon
+          inline-icon
+        >
           ${this._('Fan Chart')}
           <span slot="icon"
             >${renderIconSvg(chartFanIconPath, '--md-sys-color-primary')}</span
@@ -166,6 +180,23 @@ export class GrampsjsViewTree extends GrampsjsView {
         ?disableHome=${this.grampsId === this.settings.homePerson}
       >
       </grampsjs-view-fan-chart>
+    `
+  }
+
+  _renderRelationshipChart() {
+    return html`
+      <grampsjs-view-relationship-chart
+        @tree:back="${this._prevPerson}"
+        @tree:person="${this._goToPerson}"
+        @tree:home="${this._backToHomePerson}"
+        grampsId=${this.grampsId}
+        ?active=${this.active}
+        .strings=${this.strings}
+        .settings=${this.settings}
+        ?disableBack=${this._history.length < 2}
+        ?disableHome=${this.grampsId === this.settings.homePerson}
+      >
+      </grampsjs-view-relationship-chart>
     `
   }
 
