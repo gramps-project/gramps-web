@@ -3,6 +3,8 @@ import {css, html} from 'lit'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsImport.js'
 import '../components/GrampsjsImportMedia.js'
+import '../components/GrampsjsMediaFileStatus.js'
+import '../components/GrampsjsMediaStatus.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
 import {apiPost} from '../api.js'
@@ -41,6 +43,13 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
 
       <grampsjs-tree-quotas .strings="${this.strings}"></grampsjs-tree-quotas>
 
+      <grampsjs-media-status .strings="${this.strings}"></grampsjs-media-status>
+      ${this.dbInfo?.object_counts?.media
+        ? html`<grampsjs-media-file-status
+            .strings="${this.strings}"
+          ></grampsjs-media-file-status>`
+        : ''}
+
       <grampsjs-import .strings="${this.strings}"></grampsjs-import>
 
       <grampsjs-import-media .strings="${this.strings}"></grampsjs-import-media>
@@ -64,10 +73,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         size="20"
       ></grampsjs-task-progress-indicator>
     `
-  }
-
-  firstUpdated() {
-    this._fetchUserData()
   }
 
   async _updateSearch() {

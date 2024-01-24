@@ -4,6 +4,7 @@ import '@material/mwc-button'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import {apiPost} from '../api.js'
+import {fireEvent} from '../util.js'
 import './GrampsjsFormUpload.js'
 import './GrampsjsTaskProgressIndicator.js'
 
@@ -110,6 +111,7 @@ export class GrampsjsImportMedia extends GrampsjsTranslateMixin(LitElement) {
 
   _handleSuccessMedia() {
     this._handleCompletedMedia(STATE_DONE)
+    fireEvent(this, 'media:uploaded')
   }
 
   _handleCompletedMedia(state) {
