@@ -581,6 +581,7 @@ export class GrampsJs extends LitElement {
               .strings="${this._strings}"
               .dbInfo="${this._dbInfo}"
               .homePersonDetails=${this._homePersonDetails}
+              .homePersonGrampsId=${this.settings.homePerson ?? ''}
             ></grampsjs-view-dashboard>
             <grampsjs-view-blog
               class="page"
@@ -1146,7 +1147,6 @@ export class GrampsJs extends LitElement {
     this.settings = getSettings()
     if (
       this.settings?.homePerson &&
-      this._homePersonDetails?.gramps_id &&
       this.settings.homePerson !== this._homePersonDetails.gramps_id
     ) {
       this._loadHomePersonInfo()

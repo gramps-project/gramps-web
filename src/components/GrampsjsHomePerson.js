@@ -1,5 +1,8 @@
 import {LitElement, css, html} from 'lit'
 
+import '@material/web/button/text-button'
+import {mdiPencil} from '@mdi/js'
+
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsSearchResultList.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
@@ -20,29 +23,42 @@ export class GrampsjsHomePerson extends GrampsjsTranslateMixin(LitElement) {
   static get properties() {
     return {
       homePersonDetails: {type: Object},
+      homePersonGrampsId: {type: String},
     }
   }
 
   constructor() {
     super()
     this.homePersonDetails = {}
+    this.homePersonGrampsId = ''
   }
 
   render() {
     return html`
       <h3>${this._('Home Person')}</h3>
 
-      <div class="content">
-        <grampsjs-search-result-list
-          large
-          linked
-          metaIcon="edit"
-          .strings=${this.strings}
-          .data=${[{object: this.homePersonDetails, object_type: 'person'}]}
-          @search-result:metaClicked="${this._handleMetaClick}"
-        >
-        </grampsjs-search-result-list>
-      </div>
+      ${this.homePersonGrampsId
+        ? html`
+            <div class="content">
+              <grampsjs-search-result-list
+                large
+                linked
+                metaIcon="edit"
+                .strings=${this.strings}
+                .data=${[
+                  {object: this.homePersonDetails, object_type: 'person'},
+                ]}
+                @search-result:metaClicked="${this._handleMetaClick}"
+              >
+              </grampsjs-search-result-list>
+            </div>
+          `
+        : html` <md-text-button trailing-icon @click="${this._handleMetaClick}">
+            ${this._('Set _Home Person')}
+            <svg viewBox="0 0 24 24" slot="icon">
+              <path d="${mdiPencil}" />
+            </svg>
+          </md-text-button>`}
     `
   }
 

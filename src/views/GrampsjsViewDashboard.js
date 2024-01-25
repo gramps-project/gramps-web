@@ -1,5 +1,7 @@
 import {html, css} from 'lit'
 
+import '@material/web/button/text-button'
+
 import {GrampsjsView} from './GrampsjsView.js'
 import './GrampsjsViewRecentlyChanged.js'
 import './GrampsjsViewRecentBlogPosts.js'
@@ -12,6 +14,7 @@ export class GrampsjsViewDashboard extends GrampsjsView {
     return {
       dbInfo: {type: Object},
       homePersonDetails: {type: Object},
+      homePersonGrampsId: {type: String},
     }
   }
 
@@ -19,6 +22,7 @@ export class GrampsjsViewDashboard extends GrampsjsView {
     super()
     this.dbInfo = {}
     this.homePersonDetails = {}
+    this.homePersonGrampsId = ''
   }
 
   static get styles() {
@@ -59,6 +63,7 @@ export class GrampsjsViewDashboard extends GrampsjsView {
             id="homeperson"
             .strings="${this.strings}"
             .homePersonDetails=${this.homePersonDetails}
+            .homePersonGrampsId=${this.homePersonGrampsId}
           >
           </grampsjs-home-person>
         </div>
