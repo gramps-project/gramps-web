@@ -109,6 +109,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         @mapsearch:clear="${this._handleSearchClear}"
         @mapsearch:selected="${this._handleSearchSelected}"
         .data="${this._dataSearch}"
+        .strings="${this.strings}"
         value="${this._valueSearch}"
         >${this._renderPlaceDetails()}</grampsjs-map-searchbox
       >
@@ -238,8 +239,10 @@ export class GrampsjsViewMap extends GrampsjsView {
       if (
         obj?.profile?.lat === null ||
         obj?.profile?.lat === undefined ||
+        Number.isNaN(parseFloat(obj?.profile?.lat)) ||
         obj?.profile?.long === null ||
         obj?.profile?.long === undefined ||
+        Number.isNaN(parseFloat(obj?.profile?.long)) ||
         (obj?.profile?.lat === 0 && obj?.profile?.long === 0)
       ) {
         return html``
