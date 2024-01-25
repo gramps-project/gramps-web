@@ -9,6 +9,10 @@ import '@material/mwc-icon'
 import {sharedStyles} from '../SharedStyles.js'
 import {getMediaUrl, getThumbnailUrl, getThumbnailUrlCropped} from '../api.js'
 
+// base64 encoded broken image icon
+const brokenIcon =
+  'PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgcng9IjAiIHJ5PSIwIiBmaWxsLW9wYWNpdHk9Ii4xIiBmaWxsPSIjMDAwIi8+PHBhdGggZD0ibTE4Ljg4IDYuNjQ4OHY1LjAzNzdsLTIuMjkzNC0yLjMwMS0zLjA1NzggMy4wNjU1LTMuMDU3OC0zLjA1NzgtMy4wNTc4IDMuMDU3OC0yLjI5MzQtMi4zMDF2LTMuNTAxMmExLjUyODkgMS41Mjg5IDAgMCAxIDEuNTI4OS0xLjUyODloMTAuNzAyYTEuNTI4OSAxLjUyODkgMCAwIDEgMS41Mjg5IDEuNTI4OW0tMi4yOTM0IDQuOTA3OCAyLjI5MzQgMi4zMDF2My40OTM1YTEuNTI4OSAxLjUyODkgMCAwIDEtMS41Mjg5IDEuNTI4OWgtMTAuNzAyYTEuNTI4OSAxLjUyODkgMCAwIDEtMS41Mjg5LTEuNTI4OXYtNS4wMzAxbDIuMjkzNCAyLjI4NTcgMy4wNTc4LTMuMDU3OCAzLjA1NzggMy4wNTc4IiBmaWxsLW9wYWNpdHk9Ii4yNSIgIGZpbGw9IiMwMDAiLz48L3N2Zz4K'
+
 class GrampsjsImg extends LitElement {
   static get styles() {
     return [
@@ -172,9 +176,19 @@ class GrampsjsImg extends LitElement {
     />`
   }
 
+  renderBrokenImage() {
+    return html`<img
+      class=${classMap({round: this.circle, bordered: this.border})}
+      height="${this.displayHeight || ''}"
+      style="${this.circle ? '' : `border-radius:${this.radius}px`}"
+      src="data:image/svg+xml;base64,${brokenIcon}"
+      alt="Error"
+    /> `
+  }
+
   render() {
     if (this._error) {
-      return html`<slot></slot>`
+      return this.renderBrokenImage()
     }
     if (this.mime.startsWith('audio')) {
       if (this.displayHeight > 0) {
