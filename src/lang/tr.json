@@ -135,5 +135,7 @@
     "Ancestor frequency": "Ata sıklığı",
     "Bookmark this": "Bunu yer imlerine ekle",
     "Remove bookmark": "Yer imini kaldır",
-    "Administrator": "Yönetici"
+    "Administrator": "Yönetici",
+    "%s media objects with missing file": "Dosyası eksik olan %s ortam nesnesi",
+    "%s media objects with missing checksum": "Sağlaması eksik olan %s ortam nesnesi"
 }
