@@ -136,5 +136,7 @@
     "Remove bookmark": "Ta bort bokmärke",
     "Bookmark this": "Bokmärk detta",
     "Ancestor frequency": "Förfäders frekvens",
-    "Administrator": "Administratör"
+    "Administrator": "Administratör",
+    "%s media objects with missing file": "%s mediaobjekt med saknad fil",
+    "%s media objects with missing checksum": "%s medieobjekt med saknad checksumma"
 }
