@@ -289,7 +289,7 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
       if (query === '') {
         this.unfocus()
       } else {
-        this._clear()
+        this.clear()
       }
     }
   }
@@ -298,7 +298,7 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
     const searchbox = this.shadowRoot.getElementById('searchfield')
     const {value} = searchbox
     if (value === '') {
-      this._clear()
+      this.clear()
     } else {
       this._showClearButton = true
       if (value.length >= 2) {
@@ -326,7 +326,7 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
     filter.open = true
   }
 
-  _clear() {
+  clear() {
     fireEvent(this, 'mapsearch:clear')
     this.detailsOpen = false
     this.resultsOpen = false
