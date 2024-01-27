@@ -131,5 +131,11 @@
     "Chromosome Browser": "Chromosome Browser",
     "Shared Segments": "Shared Segments",
     "DNA": "DNA",
-    "Matches": "Matches"
+    "Matches": "Matches",
+    "Ancestor frequency": "Ancestor frequency",
+    "Bookmark this": "Bookmark this",
+    "Remove bookmark": "Remove bookmark",
+    "Administrator": "Administrator",
+    "%s media objects with missing file": "%s media objects with missing file",
+    "%s media objects with missing checksum": "%s media objects with missing checksum"
 }
