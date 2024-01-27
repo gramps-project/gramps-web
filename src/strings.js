@@ -328,6 +328,7 @@ export const grampsStrings = [
   'Other',
   'Output file format.',
   'Output file name. MANDATORY',
+  'OK',
   'Page',
   'Paper orientation number.',
   'Paper size name.',

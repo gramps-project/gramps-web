@@ -68,24 +68,28 @@ export class GrampsjsViewMap extends GrampsjsView {
   static get properties() {
     return {
       _data: {type: Array},
+      _filteredPlaces: {type: Array},
       _handlesHighlight: {type: Array},
       _dataSearch: {type: Array},
       _dataLayers: {type: Array},
       _selected: {type: String},
       _valueSearch: {type: String},
       _bounds: {type: Object},
+      _placeFilters: {type: Object},
     }
   }
 
   constructor() {
     super()
     this._data = []
+    this._filteredPlaces = []
     this._handlesHighlight = []
     this._dataSearch = []
     this._dataLayers = []
     this._selected = ''
     this._valueSearch = ''
     this._bounds = {}
+    this._placeFilters = {}
   }
 
   renderContent() {
@@ -108,8 +112,10 @@ export class GrampsjsViewMap extends GrampsjsView {
         @mapsearch:input="${this._handleSearchInput}"
         @mapsearch:clear="${this._handleSearchClear}"
         @mapsearch:selected="${this._handleSearchSelected}"
+        @placefilter:changed="${this._handlePlaceFilterChanged}"
         .data="${this._dataSearch}"
         .strings="${this.strings}"
+        .placeFilters="${this._placeFilters}"
         value="${this._valueSearch}"
         >${this._renderPlaceDetails()}</grampsjs-map-searchbox
       >
@@ -121,7 +127,11 @@ export class GrampsjsViewMap extends GrampsjsView {
       return ''
     }
     const [handle] = this._handlesHighlight
-    const [object] = this._data.filter(obj => obj.handle === handle)
+    const [object] = this._filteredPlaces.filter(obj => obj.handle === handle)
+    if (object === undefined) {
+      this._clearSearchBox()
+      return ''
+    }
     return html`
       <grampsjs-place-box
         .data="${object}"
@@ -144,6 +154,11 @@ export class GrampsjsViewMap extends GrampsjsView {
     }
   }
 
+  _handlePlaceFilterChanged(event) {
+    this._placeFilters = {...event.detail}
+    this._applyPlaceFilter()
+  }
+
   _handleSearchInput(event) {
     this._fetchDataSearch(event.detail.value)
   }
@@ -152,6 +167,13 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._dataSearch = []
     this._valueSearch = ''
     this._handlesHighlight = []
+  }
+
+  _clearSearchBox() {
+    const box = this.renderRoot.querySelector('grampsjs-map-searchbox')
+    if (box !== undefined) {
+      box.clear()
+    }
   }
 
   _handleSearchSelected(event) {
@@ -235,7 +257,7 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   _renderMarkers() {
-    return this._data.map(obj => {
+    return this._filteredPlaces.map(obj => {
       if (
         obj?.profile?.lat === null ||
         obj?.profile?.lat === undefined ||
@@ -260,6 +282,21 @@ export class GrampsjsViewMap extends GrampsjsView {
         @marker:clicked="${() => this._handleMarkerClick(obj)}"
       ></grampsjs-map-marker>`
     })
+  }
+
+  _applyPlaceFilter() {
+    const enabledFilters = Object.keys(this._placeFilters).filter(
+      key => !!this._placeFilters[key]
+    )
+    const filterFunction = place => {
+      if (enabledFilters.includes('hasEvent')) {
+        return place?.backlinks?.event?.length ?? false
+      }
+      return true
+    }
+    this._filteredPlaces = [
+      ...this._data.filter(place => filterFunction(place)),
+    ]
   }
 
   firstUpdated() {
@@ -290,12 +327,15 @@ export class GrampsjsViewMap extends GrampsjsView {
 
   async _fetchData() {
     const data = await apiGet(
-      `/api/places/?locale=${this.strings?.__lang__ || 'en'}&profile=self`
+      `/api/places/?locale=${
+        this.strings?.__lang__ || 'en'
+      }&profile=self&backlinks=1`
     )
     this.loading = false
     if ('data' in data) {
       this.error = false
       this._data = data.data
+      this._applyPlaceFilter()
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error

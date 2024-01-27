@@ -64,8 +64,8 @@ export const sharedStyles = css`
     --md-sys-color-surface-container-lowest: rgb(255 255 255);
     --md-sys-color-surface-container-low: rgb(255 241 237);
     --md-sys-color-surface-container: #fff;
-    --md-sys-color-surface-container-high: rgb(247 228 223);
-    --md-sys-color-surface-container-highest: rgb(241 223 217);
+    --md-sys-color-surface-container-high: #fff;
+    --md-sys-color-surface-container-highest: #fff;
     --md-primary-tab-label-text-weight: 425;
     --md-primary-tab-label-text-size: 16px;
   }

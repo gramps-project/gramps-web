@@ -1,9 +1,13 @@
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-textfield'
 import '@material/mwc-icon'
 import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-icon-button'
+import '@material/web/textfield/outlined-text-field'
+import '@material/web/dialog/dialog'
+import '@material/web/button/text-button'
+import '@material/web/switch/switch'
+
 import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
@@ -16,7 +20,8 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
       css`
         #details,
         #searchbox,
-        #searchresult {
+        #searchresult,
+        #filter {
           z-index: 999;
           position: absolute;
           left: 20px;
@@ -35,23 +40,13 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
           --mdc-text-field-outlined-disabled-border-color: rgba(0, 0, 0, 0.06);
         }
 
-        #searchbox mwc-textfield {
-          width: 100%;
-        }
-
-        #searchbutton {
-          z-index: 1000;
-          position: absolute;
-          right: 10px;
-          top: 5px;
-        }
-
-        #searchbutton {
-          color: rgba(0, 0, 0, 0.4);
+        md-outlined-text-field mwc-icon-button {
+          color: rgba(0, 0, 0, 0.5);
         }
 
         #details,
-        #searchresult {
+        #searchresult,
+        #filter {
           width: 350px;
           font-size: 14px;
           line-height: 20px;
@@ -60,12 +55,14 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
           scrollbar-width: thin;
         }
 
-        #details-content {
+        #details-content,
+        #filter-content {
           padding-left: 20px;
           padding-right: 20px;
         }
 
-        #details {
+        #details,
+        #filter {
           top: 155px;
           padding-top: 15px;
           padding-bottom: 15px;
@@ -132,6 +129,7 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
       data: {type: Array},
       resultsOpen: {type: Boolean},
       detailsOpen: {type: Boolean},
+      placeFilters: {type: Object},
       _showClearButton: {type: Boolean},
     }
   }
@@ -142,38 +140,59 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
     this.data = []
     this.resultsOpen = false
     this.detailsOpen = false
+    this.placeFilters = {}
     this._showClearButton = false
   }
 
   render() {
+    const filterHasBadge = Object.values(this.placeFilters).some(value => value)
     return html`
       <div id="container">
         <div id="searchbox">
-          <mwc-textfield
+          <md-outlined-text-field
             id="searchfield"
-            outlined
+            placeholder="${this._('Search')}"
             @keydown="${this._handleKeyDown}"
             @input="${debounce(() => this._handleInput(), 500)}"
             value="${this.value}"
-          ></mwc-textfield>
-          <div id="searchbutton">
-            ${this._showClearButton
-              ? html`
-                  <mwc-icon-button
-                    icon="clear"
-                    @click="${this._handleClear}"
-                  ></mwc-icon-button>
-                `
-              : html`
-                  <mwc-icon-button
-                    icon="search"
-                    @click="${this._handleInput}"
-                  ></mwc-icon-button>
-                `}
-          </div>
+          >
+            <div slot="trailing-icon">
+              ${this._showClearButton
+                ? html`
+                    <mwc-icon-button
+                      icon="clear"
+                      @click="${this._handleClear}"
+                    ></mwc-icon-button>
+                  `
+                : html`
+                    <mwc-icon-button
+                      icon="search"
+                      @click="${this._handleInput}"
+                    ></mwc-icon-button>
+                  `}
+              <div style="position: relative; display: inline-block;">
+                ${filterHasBadge
+                  ? html`
+                      <svg
+                        width="20"
+                        height="20"
+                        xmlns="http://www.w3.org/2000/svg"
+                        style="position: absolute; top: 7px; right: 7px;"
+                      >
+                        <circle cx="15" cy="5" r="5" fill="#BA1B1B" />
+                      </svg>
+                    `
+                  : ''}
+                <mwc-icon-button
+                  icon="filter_alt"
+                  @click="${this._handleFilter}"
+                ></mwc-icon-button>
+              </div>
+            </div>
+          </md-outlined-text-field>
         </div>
         ${this.resultsOpen ? this._renderResults() : ''}
-        ${this._renderDetails()}
+        ${this._renderDetails()} ${this._renderFilter()}
       </div>
     `
   }
@@ -205,7 +224,6 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _renderDetails() {
     return html`
       <div id="details" class="${classMap({hidden: !this.detailsOpen})}">
@@ -215,6 +233,36 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
       </div>
     </div>
     `
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _renderFilter() {
+    return html`
+      <md-dialog id="filter-dialog">
+        <div slot="headline">${this._('Filter')}</div>
+
+        <form slot="content" id="form-id" method="dialog">
+          <label>
+            ${this._('Only places related to events')}
+            <md-switch
+              @change="${e => this.toggleFilter(e, 'hasEvent')}"
+              ?selected="${!!this.placeFilters.hasEvent}"
+            ></md-switch>
+          </label>
+        </form>
+
+        <div slot="actions">
+          <md-text-button form="form-id" value="apply"
+            >${this._('OK')}</md-text-button
+          >
+        </div>
+      </md-dialog>
+    `
+  }
+
+  toggleFilter(e, filter) {
+    this.placeFilters[filter] = e.target.selected
+    fireEvent(this, 'placefilter:changed', this.placeFilters)
   }
 
   _handleSlotchange(e) {
@@ -234,6 +282,8 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
       if (lst) {
         lst.focus()
       }
+      event.preventDefault()
+      event.stopPropagation()
     } else if (event.code === 'Escape') {
       const query = this.shadowRoot.getElementById('searchfield').value
       if (query === '') {
@@ -241,11 +291,7 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
       } else {
         this._clear()
       }
-    } else {
-      return
     }
-    event.preventDefault()
-    event.stopPropagation()
   }
 
   _handleInput() {
@@ -271,8 +317,13 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _handleClear() {
-    this._clear()
+    this.clear()
     this.focus()
+  }
+
+  _handleFilter() {
+    const filter = this.renderRoot.querySelector('#filter-dialog')
+    filter.open = true
   }
 
   _clear() {
