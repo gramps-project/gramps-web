@@ -135,5 +135,7 @@
     "Bookmark this": "Añadir a favoritos",
     "Remove bookmark": "Eliminar favorito",
     "Administrator": "Administrador",
-    "Ancestor frequency": "Frecuencia de los antepasados"
+    "Ancestor frequency": "Frecuencia de los antepasados",
+    "%s media objects with missing file": "%s objetos multimedia con archivo perdido",
+    "%s media objects with missing checksum": "%s objetos multimedia a los que les falta la suma de comprobación"
 }
