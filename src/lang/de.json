@@ -135,5 +135,7 @@
     "Bookmark this": "Lesezeichen setzen",
     "Remove bookmark": "Lesezeichen entfernen",
     "Ancestor frequency": "Ahnenhäufigkeit",
-    "Administrator": "Administrator"
+    "Administrator": "Administrator",
+    "%s media objects with missing file": "%s Medienobjekte mit fehlender Datei",
+    "%s media objects with missing checksum": "%s Medienobjekte mit fehlender Prüfsumme"
 }
