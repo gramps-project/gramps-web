@@ -135,5 +135,7 @@
     "Remove bookmark": "Odstranit záložku",
     "Bookmark this": "Vytvořit záložku",
     "Administrator": "Správce",
-    "Ancestor frequency": "Frekvence předků"
+    "Ancestor frequency": "Frekvence předků",
+    "%s media objects with missing checksum": "%s mediálních objektů s chybějícím kontrolním součtem",
+    "%s media objects with missing file": "%s mediálních objektů s chybějícím souborem"
 }
