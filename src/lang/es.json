@@ -137,5 +137,7 @@
     "Administrator": "Administrador",
     "Ancestor frequency": "Frecuencia de los antepasados",
     "%s media objects with missing file": "%s objetos multimedia con archivo perdido",
-    "%s media objects with missing checksum": "%s objetos multimedia a los que les falta la suma de comprobación"
+    "%s media objects with missing checksum": "%s objetos multimedia a los que les falta la suma de comprobación",
+    "Media file status": "Estado del archivo multimedia",
+    "Only places related to events": "Sólo lugares relacionados con eventos"
 }
