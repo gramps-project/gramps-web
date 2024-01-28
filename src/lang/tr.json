@@ -137,5 +137,6 @@
     "Remove bookmark": "Yer imini kaldır",
     "Administrator": "Yönetici",
     "%s media objects with missing file": "Dosyası eksik olan %s ortam nesnesi",
-    "%s media objects with missing checksum": "Sağlaması eksik olan %s ortam nesnesi"
+    "%s media objects with missing checksum": "Sağlaması eksik olan %s ortam nesnesi",
+    "Only places related to events": "Yalnızca etkinliklerle ilgili yerler"
 }
