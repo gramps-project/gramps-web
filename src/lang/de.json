@@ -137,5 +137,6 @@
     "Ancestor frequency": "Ahnenhäufigkeit",
     "Administrator": "Administrator",
     "%s media objects with missing file": "%s Medienobjekte mit fehlender Datei",
-    "%s media objects with missing checksum": "%s Medienobjekte mit fehlender Prüfsumme"
+    "%s media objects with missing checksum": "%s Medienobjekte mit fehlender Prüfsumme",
+    "Only places related to events": "Nur Orte im Zusammenhang mit Ereignissen"
 }
