@@ -135,5 +135,9 @@
     "Remove bookmark": "Bladwijzer verwijderen",
     "Bookmark this": "Bladwijzer aanmaken",
     "Ancestor frequency": "Voorouderfrequentie",
-    "Administrator": "Administrator"
+    "Administrator": "Administrator",
+    "%s media objects with missing file": "%s media-objecten met ontbrekend bestand",
+    "%s media objects with missing checksum": "%s media-objecten met ontbrekend controlegetal",
+    "Only places related to events": "Alleen plaatsen met betrekking tot evenementen",
+    "Media file status": "Status mediabestand"
 }
