@@ -40,6 +40,10 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
           --mdc-text-field-outlined-disabled-border-color: rgba(0, 0, 0, 0.06);
         }
 
+        md-outlined-text-field {
+          width: 100%;
+        }
+
         md-outlined-text-field mwc-icon-button {
           color: rgba(0, 0, 0, 0.5);
         }
