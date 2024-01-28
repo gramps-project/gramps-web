@@ -135,5 +135,7 @@
     "Bookmark this": "Spremi ovo u knjižne oznake",
     "Remove bookmark": "Ukloni knjižnu oznaku",
     "Ancestor frequency": "Učestalost predaka",
-    "Administrator": "Administrator"
+    "Administrator": "Administrator",
+    "Only places related to events": "Samo mjesta povezana s događajem",
+    "Media file status": "Stanje medijskih datoteka"
 }
