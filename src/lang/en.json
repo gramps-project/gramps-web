@@ -137,5 +137,6 @@
   "Ancestor frequency": "Ancestor frequency",
   "Administrator": "Administrator",
   "%s media objects with missing file": "%s media objects with missing file",
-  "%s media objects with missing checksum": "%s media objects with missing checksum"
+  "%s media objects with missing checksum": "%s media objects with missing checksum",
+  "Only places related to events": "Only places related to events"
 }
