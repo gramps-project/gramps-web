@@ -137,5 +137,7 @@
     "Administrator": "Správca",
     "Ancestor frequency": "Frekvencia predkov",
     "%s media objects with missing file": "%s mediálnych objektov s chýbajúcim súborom",
-    "%s media objects with missing checksum": "%s mediálnych objektov s chýbajúcim kontrolným súčtom"
+    "%s media objects with missing checksum": "%s mediálnych objektov s chýbajúcim kontrolným súčtom",
+    "Only places related to events": "Len miesta súvisiace s udalosťami",
+    "Media file status": "Stav mediálneho súboru"
 }
