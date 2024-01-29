@@ -138,5 +138,7 @@
     "Ancestor frequency": "Förfäders frekvens",
     "Administrator": "Administratör",
     "%s media objects with missing file": "%s mediaobjekt med saknad fil",
-    "%s media objects with missing checksum": "%s medieobjekt med saknad checksumma"
+    "%s media objects with missing checksum": "%s medieobjekt med saknad checksumma",
+    "Only places related to events": "Endast platser relaterade till händelser",
+    "Media file status": "Mediafilstatus"
 }
