@@ -137,5 +137,7 @@
     "Ancestor frequency": "Učestalost predaka",
     "Administrator": "Administrator",
     "Only places related to events": "Samo mjesta povezana s događajem",
-    "Media file status": "Stanje medijskih datoteka"
+    "Media file status": "Stanje medijskih datoteka",
+    "%s media objects with missing checksum": "%s medijska objekta s nedostajućom kontrolnom sumom",
+    "%s media objects with missing file": "%s medijska objekta s nedostajućom datotekom"
 }
