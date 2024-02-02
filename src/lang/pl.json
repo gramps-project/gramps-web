@@ -123,5 +123,21 @@
     "Common ancestors": "Wspólni przodkowie",
     "Blocked": "Zablokowano",
     "Edit place type": "Edytowanie typu miejsca",
-    "Edit event type": "Edytowanie typu zdarzenia"
+    "Edit event type": "Edytowanie typu zdarzenia",
+    "Ancestor frequency": "Częstotliwość występowania przodków",
+    "Bookmark this": "Dodaj do zakładek",
+    "Remove bookmark": "Usuń zakładkę",
+    "Administrator": "Administrator",
+    "Text Recognition": "Rozpoznawanie tekstu",
+    "Save as Note": "Zapisz jako notatkę",
+    "DNA": "DNA",
+    "Matches": "Dopasowania",
+    "Chromosome Browser": "Przeglądarka chromosomów",
+    "Shared DNA": "Wspólne DNA",
+    "Shared Segments": "Wspólne segmenty",
+    "Largest Segment": "Największy segment",
+    "%s media objects with missing file": "%s obiektów multimedialnych z brakującym plikiem",
+    "%s media objects with missing checksum": "%s obiektów multimedialnych z brakującą sumą kontrolną",
+    "Only places related to events": "Tylko miejsca powiązane z wydarzeniami",
+    "Media file status": "Status pliku multimedialnego"
 }
