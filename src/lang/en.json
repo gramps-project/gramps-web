@@ -139,5 +139,6 @@
   "%s media objects with missing file": "%s media objects with missing file",
   "%s media objects with missing checksum": "%s media objects with missing checksum",
   "Only places related to events": "Only places related to events",
-  "Media file status": "Media file status"
+  "Media file status": "Media file status",
+  "This tool checks the database for integrity problems, fixing the problems it can.": "This tool checks the database for integrity problems, fixing the problems it can."
 }

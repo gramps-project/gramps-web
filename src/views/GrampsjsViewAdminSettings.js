@@ -20,6 +20,16 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         :host {
           margin: 0;
         }
+
+        .card {
+          padding: 1em 1em;
+          border-radius: 16px;
+          background-color: rgba(109, 76, 65, 0.12);
+        }
+
+        .pre {
+          white-space: pre-line;
+        }
       `,
     ]
   }
@@ -28,6 +38,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     return {
       userData: {type: Array},
       dbInfo: {type: Object},
+      _repairResults: {type: Object},
     }
   }
 
@@ -35,6 +46,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     super()
     this.userData = []
     this.dbInfo = {}
+    this._repairResults = {}
   }
 
   renderContent() {
@@ -72,6 +84,36 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         id="progress-update-search"
         size="20"
       ></grampsjs-task-progress-indicator>
+
+      <h3>${this._('Check and Repair Database')}</h3>
+
+      <p>
+        ${this._(
+          'This tool checks the database for integrity problems, fixing the problems it can.'
+        )}
+      </p>
+      <mwc-button
+        outlined
+        @click="${this._checkRepair}"
+        @keydown="${clickKeyHandler}"
+        >${this._('Check and Repair')}</mwc-button
+      >
+      <grampsjs-task-progress-indicator
+        class="button"
+        id="progress-repair"
+        size="20"
+        @task:complete="${this._handleRepairComplete}"
+      ></grampsjs-task-progress-indicator>
+
+      ${this._repairResults?.num_errors !== undefined
+        ? html`<p class="card">
+            ${this._repairResults.num_errors === 0
+              ? this._(
+                  'No errors were found: the database has passed internal checks.'
+                )
+              : html`<span class="pre">${this._repairResults.message}</span>`}
+          </p>`
+        : ''}
     `
   }
 
@@ -87,6 +129,29 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.taskId = data.task?.id || ''
     } else {
       prog.setComplete()
+    }
+  }
+
+  async _checkRepair() {
+    this._repairResults = {}
+    const prog = this.renderRoot.querySelector('#progress-repair')
+    prog.reset()
+    prog.open = true
+    const data = await apiPost('/api/trees/-/repair')
+    if ('error' in data) {
+      prog.setError()
+      prog.errorMessage = data.error
+    } else if ('task' in data) {
+      prog.taskId = data.task?.id || ''
+    } else {
+      prog.setComplete()
+    }
+  }
+
+  _handleRepairComplete(e) {
+    const info = e.detail?.status?.info
+    if (info !== undefined) {
+      this._repairResults = JSON.parse(info)
     }
   }
 }
