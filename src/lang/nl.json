@@ -139,5 +139,6 @@
     "%s media objects with missing file": "%s media-objecten met ontbrekend bestand",
     "%s media objects with missing checksum": "%s media-objecten met ontbrekend controlegetal",
     "Only places related to events": "Alleen plaatsen met betrekking tot evenementen",
-    "Media file status": "Status mediabestand"
+    "Media file status": "Status mediabestand",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Dit hulpmiddel controleert de database op integriteitsproblemen en lost deze zo mogelijk op."
 }
