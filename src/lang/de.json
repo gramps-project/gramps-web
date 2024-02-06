@@ -139,5 +139,6 @@
     "%s media objects with missing file": "%s Medienobjekte mit fehlender Datei",
     "%s media objects with missing checksum": "%s Medienobjekte mit fehlender Prüfsumme",
     "Only places related to events": "Nur Orte im Zusammenhang mit Ereignissen",
-    "Media file status": "Status der Mediendateien"
+    "Media file status": "Status der Mediendateien",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Dieses Werkzeug überprüft die Datenbank auf Integritätsprobleme und behebt die Probleme, die es finden kann."
 }
