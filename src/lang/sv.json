@@ -140,5 +140,6 @@
     "%s media objects with missing file": "%s mediaobjekt med saknad fil",
     "%s media objects with missing checksum": "%s medieobjekt med saknad checksumma",
     "Only places related to events": "Endast platser relaterade till händelser",
-    "Media file status": "Mediafilstatus"
+    "Media file status": "Mediafilstatus",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Det här verktyget kontrollerar databasen för integritetsproblem och åtgärdar de problem det kan."
 }
