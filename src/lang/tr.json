@@ -139,5 +139,6 @@
     "%s media objects with missing file": "Dosyası eksik olan %s ortam nesnesi",
     "%s media objects with missing checksum": "Sağlaması eksik olan %s ortam nesnesi",
     "Only places related to events": "Yalnızca etkinliklerle ilgili yerler",
-    "Media file status": "Ortam dosyası durumu"
+    "Media file status": "Ortam dosyası durumu",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Bu araç veri tabanında bütünlük sorunları olup olmadığını denetler ve çözebildiği sorunları çözer."
 }
