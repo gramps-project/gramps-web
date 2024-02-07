@@ -139,5 +139,6 @@
     "%s media objects with missing file": "%s mediálnych objektov s chýbajúcim súborom",
     "%s media objects with missing checksum": "%s mediálnych objektov s chýbajúcim kontrolným súčtom",
     "Only places related to events": "Len miesta súvisiace s udalosťami",
-    "Media file status": "Stav mediálneho súboru"
+    "Media file status": "Stav mediálneho súboru",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Tento nástroj kontroluje databázu na problémy s integritou a opravuje možné problémy."
 }
