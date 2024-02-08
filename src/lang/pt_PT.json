@@ -133,5 +133,12 @@
     "DNA": "ADN",
     "Matches": "Comparar",
     "Bookmark this": "Adicionar aos favoritos",
-    "Remove bookmark": "Eliminar favorito"
+    "Remove bookmark": "Eliminar favorito",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Esta ferramenta verifica a integridade da base de dados, reparando aquilo que for possível.",
+    "Ancestor frequency": "Frequência dos ascendentes",
+    "Administrator": "Administrador",
+    "%s media objects with missing file": "%s objectos multimédia com ficheiros em falta",
+    "%s media objects with missing checksum": "%s objectos multimédia com checksum em falta",
+    "Only places related to events": "Só locais relacionados com eventos",
+    "Media file status": "Estado do ficheiro multimédia"
 }
