@@ -46,7 +46,7 @@ jobs:
             --platform linux/amd64,linux/arm/v7,linux/arm64 \
             -f Dockerfile.devel .
       - name: Clean up dangling images
-        run: docker image prune -f
+        run: docker image prune -f -a
       - name: tag and push release image
         if: github.event_name == 'release'
         run: |
@@ -55,7 +55,7 @@ jobs:
             --tag ghcr.io/gramps-project/grampsweb:latest \
             --platform linux/amd64,linux/arm/v7,linux/arm64 .
       - name: Clean up dangling images
-        run: docker image prune -f
+        run: docker image prune -f -a
       - name: tag and push devel nginx image
         run: |
           docker build --push \
@@ -63,7 +63,7 @@ jobs:
             --platform linux/amd64,linux/arm/v7,linux/arm64 \
             -f Dockerfile.nginx .
       - name: Clean up dangling images
-        run: docker image prune -f
+        run: docker image prune -f -a
       - name: tag and push release nginx image
         if: github.event_name == 'release'
         run: |
