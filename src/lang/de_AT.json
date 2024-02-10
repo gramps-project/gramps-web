@@ -135,5 +135,10 @@
     "Open": "Offen",
     "Attachments": "Anhänge",
     "Common ancestors": "Gemeinsame Vorfahren",
-    "Blocked": "Blockiert"
+    "Blocked": "Blockiert",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Dieses Werkzeug überprüft die Datenbank auf Integritätsprobleme und behebt die Probleme, die es lösen kann.",
+    "%s media objects with missing file": "%s Medienobjekte mit abgehender Datei",
+    "%s media objects with missing checksum": "%s Medienobjekte mit abgehender Prüfsumme",
+    "Only places related to events": "Nur Orte in Zusammenhang mit Ereignissen",
+    "Media file status": "Status der Mediendateien"
 }
