@@ -123,5 +123,12 @@
     "Copy URL": "Copier l'URL",
     "Stop editing": "Arrêter de modifier",
     "Task": "Tâche",
-    "Copy to clipboard": "Copier dans le presse-papier"
+    "Copy to clipboard": "Copier dans le presse-papier",
+    "Administrator": "Administrateur",
+    "Text Recognition": "Reconnaissance de texte",
+    "Save as Note": "Enregistrer en tant que note",
+    "DNA": "ADN",
+    "Matches": "Correspondances",
+    "Shared Segments": "Segments partagés",
+    "Shared DNA": "ADN partagé"
 }
