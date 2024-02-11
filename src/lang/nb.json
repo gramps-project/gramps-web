@@ -129,5 +129,16 @@
     "Attachments": "Vedlegg",
     "DNA": "DNA",
     "Matches": "Treff",
-    "Task": "Oppgave"
+    "Task": "Oppgave",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Dette verktøyet kontrollerer databasen for integritetsproblemer, og løser problemene den kan.",
+    "Ancestor frequency": "Herkomstfrekvens",
+    "Bookmark this": "Bokmerke denne",
+    "Remove bookmark": "Fjern bokmerke",
+    "Administrator": "Administrator",
+    "Chromosome Browser": "Chromosome nettleser",
+    "%s media objects with missing file": "%s mediaobjekter med manglende fil",
+    "%s media objects with missing checksum": "%s mediaobjekter med manglende sjekksum",
+    "Only places related to events": "Bare steder relatert til hendelser",
+    "Show in blog": "Vis i blogg",
+    "Media file status": "Mediafil status"
 }
