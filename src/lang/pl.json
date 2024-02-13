@@ -139,5 +139,6 @@
     "%s media objects with missing file": "%s obiektów multimedialnych z brakującym plikiem",
     "%s media objects with missing checksum": "%s obiektów multimedialnych z brakującą sumą kontrolną",
     "Only places related to events": "Tylko miejsca powiązane z wydarzeniami",
-    "Media file status": "Status pliku multimedialnego"
+    "Media file status": "Status pliku multimedialnego",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Narzędzie to sprawdza bazę danych pod kątem problemów z integralnością, naprawiając je."
 }
