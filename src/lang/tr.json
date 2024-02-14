@@ -140,5 +140,7 @@
     "%s media objects with missing checksum": "Sağlaması eksik olan %s ortam nesnesi",
     "Only places related to events": "Yalnızca etkinliklerle ilgili yerler",
     "Media file status": "Ortam dosyası durumu",
-    "This tool checks the database for integrity problems, fixing the problems it can.": "Bu araç veri tabanında bütünlük sorunları olup olmadığını denetler ve çözebildiği sorunları çözer."
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Bu araç veri tabanında bütünlük sorunları olup olmadığını denetler ve çözebildiği sorunları çözer.",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Yüklemeye çalıştığınız Soyağacı, Gramps Web'in bu sürümü tarafından desteklenmeyen bir şema sürümündedir. Bu nedenle, şemasını yükseltmeden bu Soyağacını yükleyemezsiniz. Bu işlem geri alınamaz.",
+    "Upgrade database": "Veri tabanını yükselt"
 }
