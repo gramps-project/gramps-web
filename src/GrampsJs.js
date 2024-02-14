@@ -33,6 +33,7 @@ import './components/GrampsJsListItem.js'
 import './components/GrampsjsFirstRun.js'
 import './components/GrampsjsLogin.js'
 import './components/GrampsjsUpdateAvailable.js'
+import './components/GrampsjsUpgradeDb.js'
 import './components/GrampsjsUndoTransaction.js'
 import './views/GrampsjsViewPeople.js'
 import './views/GrampsjsViewFamilies.js'
@@ -83,7 +84,7 @@ const LOADING_STATE_INITIAL = 0
 const LOADING_STATE_UNAUTHORIZED = 1
 const LOADING_STATE_UNAUTHORIZED_NOCONNECTION = 2
 const LOADING_STATE_NO_OWNER = 3
-// const LOADING_STATE_NO_TREE = 4
+const LOADING_STATE_DB_SCHEMA_MISMATCH = 4
 const LOADING_STATE_MISSING_SETTINGS = 5
 const LOADING_STATE_READY = 10
 
@@ -203,6 +204,7 @@ export class GrampsJs extends LitElement {
         .center-xy div {
           display: block;
           width: 20%;
+          text-align: center;
         }
 
         .menu-bottom {
@@ -428,6 +430,14 @@ export class GrampsJs extends LitElement {
     </div> `
   }
 
+  _renderSchemaMismatch() {
+    return html`<grampsjs-upgrade-db
+      .dbInfo="${this._dbInfo}"
+      .strings="${this._strings}"
+      @dbupgrade:complete="${this._handleDbUpgradeComplete}"
+    ></grampsjs-upgrade-db>`
+  }
+
   _renderLogin(register) {
     return html`
       <grampsjs-login
@@ -491,6 +501,9 @@ export class GrampsJs extends LitElement {
     }
     if (!getSettings().lang) {
       this.loadingState = LOADING_STATE_MISSING_SETTINGS
+    }
+    if (this.loadingState === LOADING_STATE_DB_SCHEMA_MISMATCH) {
+      return this._renderSchemaMismatch()
     }
     if (this.loadingState === LOADING_STATE_MISSING_SETTINGS) {
       return this._renderOnboarding()
@@ -935,6 +948,9 @@ export class GrampsJs extends LitElement {
       if ('data' in data) {
         this._dbInfo = data.data
         this._checkApiVersion()
+        if (!this._checkDbSchema()) {
+          return
+        }
         if (this._dbInfo?.locale?.language !== undefined) {
           updateSettings({serverLang: this._dbInfo.locale.language})
         }
@@ -964,6 +980,21 @@ export class GrampsJs extends LitElement {
         this._showError(`${this._('outdated backend')} (${apiVersion})`)
       }
     }
+  }
+
+  _checkDbSchema() {
+    if (this._dbInfo?.database?.actual_schema) {
+      const actualSchema = parseInt(this._dbInfo.database.actual_schema, 10)
+      const requiredSchema = parseInt(
+        this._dbInfo.database.schema.split('.')[0],
+        10
+      )
+      if (actualSchema < requiredSchema) {
+        this.loadingState = LOADING_STATE_DB_SCHEMA_MISMATCH
+        return false
+      }
+    }
+    return true
   }
 
   _fetchOnboardingToken() {
@@ -1066,6 +1097,10 @@ export class GrampsJs extends LitElement {
   _handleNotification(e) {
     const {message} = e.detail
     this._showToast(message)
+  }
+
+  _handleDbUpgradeComplete() {
+    this._handleReload()
   }
 
   // eslint-disable-next-line class-methods-use-this
