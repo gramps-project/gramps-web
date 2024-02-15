@@ -140,5 +140,7 @@
     "%s media objects with missing checksum": "%s Medienobjekte mit fehlender Prüfsumme",
     "Only places related to events": "Nur Orte im Zusammenhang mit Ereignissen",
     "Media file status": "Status der Mediendateien",
-    "This tool checks the database for integrity problems, fixing the problems it can.": "Dieses Werkzeug überprüft die Datenbank auf Integritätsprobleme und behebt die Probleme, die es lösen kann."
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Dieses Werkzeug überprüft die Datenbank auf Integritätsprobleme und behebt die Probleme, die es lösen kann.",
+    "Upgrade database": "Datenbank aktualisieren",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Der Stammbaum, den du zu laden versuchst, ist in einer Schemaversion, die von dieser Version von Gramps Web nicht unterstützt wird. Daher kannst du diesen Stammbaum nicht laden, ohne sein Schema zu aktualisieren. Diese Aktion kann nicht rückgängig gemacht werden."
 }
