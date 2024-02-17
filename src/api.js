@@ -126,7 +126,7 @@ export async function apiResetPassword(username) {
       )
     }
     if (resp.status !== 201 && resp.status !== 202) {
-      throw new Error(`Error ${resp.status}`)
+      throw new Error(resp.statusText || `Error ${resp.status}`)
     }
     return {}
   } catch (error) {
@@ -181,9 +181,8 @@ export async function apiGetTokens(username, password) {
     })
     if (resp.status === 401 || resp.status === 403) {
       throw new Error('Wrong username or password')
-    }
-    if (resp.status !== 200) {
-      throw new Error(`Error ${resp.status}`)
+    } else if (resp.status !== 200) {
+      throw new Error(resp.statusText || `Error ${resp.status}`)
     }
     const data = await resp.json()
     if (data.access_token === undefined) {
@@ -266,7 +265,7 @@ export async function apiGet(endpoint, isJson = true) {
       throw new Error('Authorization error')
     }
     if (resp.status !== 200) {
-      throw new Error(`Error ${resp.status}`)
+      throw new Error(resp.statusText || `Error ${resp.status}`)
     }
     if (isJson) {
       return {
@@ -329,7 +328,9 @@ async function apiPutPost(
       throw new Error('Not authorized')
     }
     if (resp.status !== 201 && resp.status !== 200 && resp.status !== 202) {
-      throw new Error(resJson?.error?.message || `Error ${resp.status}`)
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
     }
     if (dbChanged) {
       window.dispatchEvent(
