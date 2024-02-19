@@ -133,5 +133,12 @@
     "DNA": "DNA",
     "Matches": "Corrispondenze",
     "Bookmark this": "Aggiungi ai preferiti",
-    "Remove bookmark": "Rimuovi dai preferiti"
+    "Remove bookmark": "Rimuovi dai preferiti",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Questo strumento verifica i problemi di integrità nel database, cercando di risolverli.",
+    "Administrator": "Amministratore",
+    "%s media objects with missing file": "%s oggetti multimediali con file mancante",
+    "%s media objects with missing checksum": "%s oggetti multimediali con verifica di controllo mancante",
+    "Only places related to events": "Solo luoghi collegati ad eventi",
+    "Media file status": "Stati del file multimediale",
+    "Upgrade database": "Aggiornamento database"
 }
