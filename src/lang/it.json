@@ -140,5 +140,7 @@
     "%s media objects with missing checksum": "%s oggetti multimediali con verifica di controllo mancante",
     "Only places related to events": "Solo luoghi collegati ad eventi",
     "Media file status": "Stati del file multimediale",
-    "Upgrade database": "Aggiornamento database"
+    "Upgrade database": "Aggiornamento database",
+    "Ancestor frequency": "Frequenza antenati",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "L'albero genealogico che stai tentando di caricare è in una versione dello schema non supportata da questa versione di Gramps Web. Pertanto non è possibile caricare questo albero genealogico senza aggiornare il suo schema. Questa azione non può essere annullata."
 }
