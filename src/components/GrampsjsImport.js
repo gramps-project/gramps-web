@@ -69,6 +69,7 @@ export class GrampsjsImport extends GrampsjsTranslateMixin(LitElement) {
           class="button"
           size="20"
           hideAfter="0"
+          pollInterval="0.2"
           @task:complete="${this._handleSuccess}"
           @task:error="${() => this._handleCompleted(STATE_ERROR)}"
         ></grampsjs-task-progress-indicator>

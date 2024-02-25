@@ -71,6 +71,7 @@ export class GrampsjsImportMedia extends GrampsjsTranslateMixin(LitElement) {
           class="button"
           size="20"
           hideAfter="0"
+          pollInterval="0.2"
           @task:complete="${this._handleSuccessMedia}"
           @task:error="${() => this._handleCompletedMedia(STATE_ERROR)}"
         ></grampsjs-task-progress-indicator>

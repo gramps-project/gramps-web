@@ -49,6 +49,13 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
           this.setComplete()
         } else if (status.state === 'FAILURE' || status.state === 'REVOKED') {
           this.setError()
+        } else if (status.state === 'PROGRESS') {
+          this.progress = status.result_object?.progress ?? -1
+          this.infoMessage = `${status.result_object?.title ?? ''}
+          ${status.result_object?.title ? '<br>' : ''}
+          ${status.result_object?.message ?? ''}
+          ${status.result_object?.message ? '<br>' : ''}
+          ${Math.floor(100 * this.progress)}%`
         }
       },
       this.pollInterval * 1000
@@ -59,6 +66,7 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
     this.progress = 1
     this.closeAfter()
     fireEvent(this, 'task:complete', {status: this.status})
+    this.infoMessage = ''
   }
 
   setError() {
@@ -66,6 +74,7 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
     this.errorMessage = this.status?.info || ''
     this.closeAfter()
     fireEvent(this, 'task:error', {status: this.status})
+    this.infoMessage = ''
   }
 
   closeAfter() {
