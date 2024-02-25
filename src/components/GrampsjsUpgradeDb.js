@@ -54,6 +54,7 @@ class GrampsjsUpgradeDb extends GrampsjsTranslateMixin(LitElement) {
         <grampsjs-task-progress-indicator
           class="button"
           size="20"
+          pollInterval="0.2"
           @task:complete="${this._handleUpgradeComplete}"
         ></grampsjs-task-progress-indicator>
       </div>
