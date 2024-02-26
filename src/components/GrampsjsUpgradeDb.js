@@ -3,8 +3,20 @@ import {html, css, LitElement} from 'lit'
 
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {apiPost} from '../api.js'
+import {apiPost, doLogout, getPermissions} from '../api.js'
 import {clickKeyHandler, fireEvent} from '../util.js'
+import '@material/mwc-button'
+
+function renderLogoutButton() {
+  return html`
+    <mwc-button
+      outlined
+      label="logout"
+      icon="exit_to_app"
+      @click=${() => doLogout()}
+    ></mwc-button>
+  `
+}
 
 class GrampsjsUpgradeDb extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
@@ -31,15 +43,35 @@ class GrampsjsUpgradeDb extends GrampsjsTranslateMixin(LitElement) {
   static get properties() {
     return {
       dbInfo: {type: Object},
+      permissions: {type: Array},
     }
   }
 
   constructor() {
     super()
     this.dbInfo = {}
+    this.permissons = []
   }
 
   render() {
+    if (this.permissions.includes('AddObject')) {
+      return this.renderOwner()
+    }
+    return this.renderNonOwner()
+  }
+
+  renderNonOwner() {
+    return html`<div class="center-xy">
+      <div>
+        ${this._(
+          'The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.'
+        )}<br /><br />
+        ${renderLogoutButton()}
+      </div>
+    </div>`
+  }
+
+  renderOwner() {
     return html`<div class="center-xy">
       <div>
         ${this._(
@@ -57,6 +89,8 @@ class GrampsjsUpgradeDb extends GrampsjsTranslateMixin(LitElement) {
           pollInterval="0.2"
           @task:complete="${this._handleUpgradeComplete}"
         ></grampsjs-task-progress-indicator>
+        <br /><br />
+        ${renderLogoutButton()}
       </div>
     </div>`
   }
@@ -76,6 +110,11 @@ class GrampsjsUpgradeDb extends GrampsjsTranslateMixin(LitElement) {
     } else {
       prog.setComplete()
     }
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this.permissions = getPermissions()
   }
 
   _handleUpgradeComplete() {
