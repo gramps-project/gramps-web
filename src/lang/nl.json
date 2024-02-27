@@ -86,7 +86,7 @@
     "Edit user": "Gebruiker bewerken",
     "Import user accounts": "Gebruikersaccounts importeren",
     "Generate a ZIP archive with all media files.": "Maak een zip-bestand aan met alle mediabestanden.",
-    "Export your family tree": "Uw stamboom exporteren",
+    "Export your family tree": "Stamboom exporteren",
     "Export your media files": "Uw mediabestanden exporteren",
     "Error parsing JSON file": "Fout bij verwerking JSON-bestand",
     "Storing configuration": "Configuratie opslaan",
@@ -142,5 +142,6 @@
     "Media file status": "Status mediabestand",
     "This tool checks the database for integrity problems, fixing the problems it can.": "Dit hulpmiddel controleert de database op integriteitsproblemen en lost deze zo mogelijk op.",
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "De stamboom die u probeert te laden, is in een schemaversie die niet wordt ondersteund door deze versie van Gramps Web. Daarom kunt u deze stamboom niet laden zonder het schema te upgraden. Deze actie kan niet ongedaan worden gemaakt.",
-    "Upgrade database": "Database bijwerken"
+    "Upgrade database": "Database bijwerken",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "De stamboom die u probeert te laden, is in een schemaversie die niet wordt ondersteund door deze versie van Gramps Web. Daarom kunt u deze stamboom niet laden totdat de boombeheerder zijn schema heeft geüpgraded."
 }
