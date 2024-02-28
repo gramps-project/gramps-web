@@ -84,6 +84,7 @@ class GrampsjsUpgradeDb extends GrampsjsTranslateMixin(LitElement) {
           >${this._('Upgrade Family Tree')}</mwc-button
         >
         <grampsjs-task-progress-indicator
+          taskName="upgradeDb"
           class="button"
           size="20"
           pollInterval="0.2"

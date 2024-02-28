@@ -82,6 +82,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       <grampsjs-task-progress-indicator
         class="button"
         id="progress-update-search"
+        taskName="searchReindexFull"
         size="20"
         pollInterval="0.2"
       ></grampsjs-task-progress-indicator>
@@ -102,6 +103,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       <grampsjs-task-progress-indicator
         class="button"
         id="progress-repair"
+        taskName="repairDb"
         size="20"
         pollInterval="0.2"
         @task:complete="${this._handleRepairComplete}"

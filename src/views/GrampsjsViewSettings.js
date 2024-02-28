@@ -59,7 +59,6 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       <mwc-tab-bar>
         <mwc-tab
           label="${this._('User settings')}"
-          ?active="${this.page === 'user'}"
           @click=${() => {
             this.page = 'user'
           }}
@@ -68,14 +67,12 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
           ? html`
               <mwc-tab
                 label="${this._('Administration')}"
-                ?active="${this.page === 'admin'}"
                 @click=${() => {
                   this.page = 'admin'
                 }}
               ></mwc-tab>
               <mwc-tab
                 label="${this._('Manage users')}"
-                ?active="${this.page === 'users'}"
                 @click=${() => {
                   this.page = 'users'
                 }}
@@ -84,7 +81,6 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
           : ''}
         <mwc-tab
           label="${this._('System Information')}"
-          ?active="${this.page === 'info'}"
           @click=${() => {
             this.page = 'info'
           }}
