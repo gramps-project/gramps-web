@@ -143,5 +143,6 @@
     "Media file status": "Mediafilstatus",
     "This tool checks the database for integrity problems, fixing the problems it can.": "Det här verktyget kontrollerar databasen för integritetsproblem och åtgärdar de problem det kan.",
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Släktträdet du försöker ladda är i en schemaversion som inte stöds av den här versionen av Gramps Web. Därför kan du inte ladda detta släktträd utan att uppgradera dess schema. Denna åtgärd kan inte ångras.",
-    "Upgrade database": "Uppgradera databas"
+    "Upgrade database": "Uppgradera databas",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Släktträdet du försöker ladda är i en schemaversion som inte stöds av den här versionen av Gramps Web. Därför kan du inte ladda detta släktträd förrän trädadministratören har uppgraderat sitt schema."
 }
