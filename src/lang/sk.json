@@ -142,5 +142,6 @@
     "Media file status": "Stav mediálneho súboru",
     "This tool checks the database for integrity problems, fixing the problems it can.": "Tento nástroj kontroluje databázu na problémy s integritou a opravuje možné problémy.",
     "Upgrade database": "Aktualizovať databázu",
-    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Rodinný strom, ktorý sa pokúšate načítať, je vo verzii schémy, ktorú táto verzia Gramps Web nepodporuje. Preto tento rodinný strom nemôžete načítať bez aktualizácie jeho schémy. Túto akciu nemožno vrátiť späť."
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Rodinný strom, ktorý sa pokúšate načítať, je vo verzii schémy, ktorú táto verzia Gramps Web nepodporuje. Preto tento rodinný strom nemôžete načítať bez aktualizácie jeho schémy. Túto akciu nemožno vrátiť späť.",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Rodinný strom, ktorý sa pokúšate načítať, je vo verzii schémy, ktorú táto verzia Gramps Web nepodporuje. Preto tento rodinný strom nemôžete načítať, kým správca stromu neaktualizuje jeho schému."
 }
