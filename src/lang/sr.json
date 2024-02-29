@@ -142,5 +142,6 @@
     "%s media objects with missing checksum": "%s медијских објеката којима недостаје контролни збир",
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Породично стабло које покушавате да учитате има шематску верзију која није подржана од стране ове верзије Веб Грампса. Стога не можете учитати ово породично стабло пре надоградње њене шеме. Ова акција се не може поништити.",
     "Media file status": "Стање медијске датотеке",
-    "Upgrade database": "Надоградња базе података"
+    "Upgrade database": "Надоградња базе података",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Породично стабло које покушавате да учитате има шематску верзију која није подржана од стране ове верзије Веб Грампса. Стога не можете учитати ово породично стабло пре него што администратор ажурира њену шематску верзију."
 }
