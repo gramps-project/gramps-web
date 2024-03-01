@@ -129,5 +129,19 @@
     "Text Recognition": "זיהוי כתב",
     "Chromosome Browser": "דפדפן הכרומוזומים",
     "Shared Segments": "מקטעים משותפים",
-    "Save as Note": "שמירה כהערה"
+    "Save as Note": "שמירה כהערה",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "כלי זה בודק את מסד הנתונים לאיתור בעיות שלמות ומתקן את הבעיות ככול שהוא יכול.",
+    "Ancestor frequency": "תדירות אב־קדמון",
+    "Bookmark this": "הוספה לסמניות",
+    "Remove bookmark": "הסרת סימניה",
+    "Administrator": "מנהלן",
+    "DNA": "DNA",
+    "Matches": "התאמות",
+    "%s media objects with missing file": "עצם מדיה %s ללא קובץ",
+    "%s media objects with missing checksum": "עצם מדיה %s ללא סיכום ביקורת",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "נעשה נסיון לטעינת אילן־היוחסין בגרסת סכימת מסד־נתונים שאינה נתמכת על ידי גרסה זו של Gramps Web. לכן לא ניתן לטעון את אילן־היוחסין הזה מבלי שמנהלן אילן־היוחסין ישדרג את הסכיממסד־הנתונים תחילה.פעולה זו לא ניתנת לבטל.",
+    "Only places related to events": "מקומות משויכים לאירועים בלבד",
+    "Media file status": "מצב קובצי מדיה",
+    "Upgrade database": "נא לשדרג מסד־נתונים",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "נעשה נסיון לטעינת אילן־היוחסין בגרסת סכימת מסד־נתונים שאינה נתמכת על ידי גרסה זו של Gramps Web. לכן לא ניתן לטעון את אילן־היוחסין הזה מבלי לשדרג את הסכיממסד־הנתונים תחילה.פעולה זו לא ניתנת לבטל."
 }
