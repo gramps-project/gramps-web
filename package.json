@@ -81,6 +81,7 @@
   "author": "David M. Straub",
   "license": "AGPL",
   "dependencies": {
+    "@hpcc-js/wasm": "^2.16.0",
     "@material/mwc-button": "^0.27.0",
     "@material/mwc-checkbox": "^0.27.0",
     "@material/mwc-circular-progress": "^0.27.0",

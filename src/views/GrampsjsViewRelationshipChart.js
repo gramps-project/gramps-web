@@ -1,6 +1,7 @@
 import {html, css} from 'lit'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
+import '../components/GrampsjsRelationshipChart.js'
 
 export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
   static get styles() {
@@ -38,8 +39,14 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
   }
 
   renderChart() {
-    return html`${this._data.length}
-      <pre>${JSON.stringify(this._data, null, 2)}</pre> `
+    return html`
+      <grampsjs-relationship-chart
+        grampsId=${this.grampsId}
+        nAnc=${this.nAnc + 1}
+        .data=${this._data}
+      >
+      </grampsjs-relationship-chart>
+    `
   }
 }
 
