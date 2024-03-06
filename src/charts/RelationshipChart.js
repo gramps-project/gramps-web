@@ -1,6 +1,6 @@
-import { create, select } from 'd3-selection'
-import { zoom } from 'd3-zoom'
-import { Graphviz } from '@hpcc-js/wasm'
+import {create, select} from 'd3-selection'
+import {zoom} from 'd3-zoom'
+import {Graphviz} from '@hpcc-js/wasm'
 
 class Relgraph {
   constructor() {
@@ -63,9 +63,9 @@ class Relgraph {
     // const sourcefamily = sourcefamily ? sourcefamily : `p_${sourceperson}`
     const key = `${sourcefamily}__${sourceperson}__${targetperson}`
     this.edges[key] = {
-      "sourcefamily": sourcefamily,
-      "sourceperson": sourceperson,
-      "targetperson": targetperson,
+      sourcefamily: sourcefamily,
+      sourceperson: sourceperson,
+      targetperson: targetperson,
     }
   }
 
