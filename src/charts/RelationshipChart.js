@@ -2,80 +2,8 @@ import {create, select} from 'd3-selection'
 import {zoom} from 'd3-zoom'
 import {Graphviz} from '@hpcc-js/wasm'
 
-class Relgraph {
-  constructor() {
-    this.nodes = {}
-    this.edges = {}
-    this.edge_seen = {}
-    this.person_node_map = {}
-    this.persons = {}
-  }
-
-  addPerson(p) {
-    const me = p.handle
-    this.persons[me] = {
-      handle: me,
-    }
-  }
-
-  known(me) {
-    return this.persons[me] || false
-  }
-
-  addNode(family, father, mother) {
-    const n = {
-      handle: family,
-    }
-    if (father && this.known(father)) {
-      n.father = father
-      // remember in which nodes these person can be found
-      this.person_node_map[father] = this.person_node_map[father] ?? {}
-      this.person_node_map[father][family] = true
-      // map persondata into node
-      n.fatherdata = this.known(father)
-    }
-    if (mother && this.known(mother)) {
-      n.mother = mother
-      // remember in which nodes these person can be found
-      this.person_node_map[mother] = this.person_node_map[mother] ?? {}
-      this.person_node_map[mother][family] = true
-      // map persondata into node
-      n.motherdata = this.known(mother)
-    }
-    if (n.father || n.mother) {
-      this.nodes[family] = n
-    }
-  }
-
-  getNodes() {
-    return Object.values(this.nodes)
-  }
-
-  getNodesOfPerson(me) {
-    if (this.person_node_map[me]) {
-      const x = Object.keys(this.person_node_map[me])
-      return x
-    }
-    return []
-  }
-
-  addEdge(sourcefamily, sourceperson, targetperson) {
-    // const sourcefamily = sourcefamily ? sourcefamily : `p_${sourceperson}`
-    const key = `${sourcefamily}__${sourceperson}__${targetperson}`
-    this.edges[key] = {
-      sourcefamily: sourcefamily,
-      sourceperson: sourceperson,
-      targetperson: targetperson,
-    }
-  }
-
-  getEdges() {
-    return Object.values(this.edges)
-  }
-}
-
-function createGraph(data) {
-  const graph = new Relgraph()
+function createGraph(graph) {
+  const data = graph.getData()
 
   // step 1: collect all persons to be shown
   for (const p of data) {
@@ -85,14 +13,11 @@ function createGraph(data) {
   // step 2: create nodes for relevant families
   for (const p of data) {
     for (const f of p.extended.families) {
-      graph.addNode(f.handle, f.father_handle, f.mother_handle)
+      graph.addNode(f, f.handle, f.father_handle, f.mother_handle)
     }
-    if (
-      p.extended.primary_parent_family &&
-      p.extended.primary_parent_family.handle
-    ) {
+    if (p.extended?.primary_parent_family?.handle) {
       const f = p.extended.primary_parent_family
-      graph.addNode(f.handle, f.father_handle, f.mother_handle)
+      graph.addNode(f, f.handle, f.father_handle, f.mother_handle)
     }
   }
 
@@ -100,10 +25,7 @@ function createGraph(data) {
   for (const p of data) {
     const nnodes = graph.getNodesOfPerson(p.handle).length
     if (nnodes < 1) {
-      graph.addNode(`p_${p.handle}`, p.handle, false)
-      console.log(
-        `add node for ${p.profile.name_surname}, ${p.profile.name_given}`
-      )
+      graph.addNode(undefined, `p_${p.handle}`, p.handle, false)
     }
   }
 
@@ -119,31 +41,23 @@ function createGraph(data) {
       graph.addEdge(f.handle, father, me)
     } else if (graph.known(mother)) {
       graph.addEdge(f.handle, mother, me)
-    } else {
-      console.log(
-        `No parent family found for ${p.profile.name_surname}, ${p.profile.name_given}`
-      )
     }
   }
-
-  return graph
 }
 
-function generateDot(data, boxWidth, boxHeight) {
-  const graph = createGraph(data)
+function generateDot(graph) {
   let dot = ''
   // nodes
   for (const n of graph.getNodes()) {
     const pf = n.father
     const pm = n.mother
-    const widthInches = boxWidth / 66
-    const heightInches = boxHeight / 66
+    const widthInches = graph.boxWidth / 66
+    const heightInches = graph.boxHeight / 66
     if (pf && pm) {
       dot += `
       subgraph cluster_${n.handle} {
         cluster=true
         color=white
-        //labelloc="b"
         margin="50,0"
         node_${n.handle}x${pf} [
           class="person_${pf}"
@@ -155,7 +69,8 @@ function generateDot(data, boxWidth, boxHeight) {
           label=<->
         ]
         node_${n.handle} [
-          label=""
+          class="family_${n.handle}"
+          label=<.>
           shape="none"
           margin=0
           fixedsize=true
@@ -163,7 +78,7 @@ function generateDot(data, boxWidth, boxHeight) {
           height=${heightInches}
         ]
         node_${n.handle}x${pm} [
-          class="person_${pf}"
+          class="person_${pm}"
           margin=0.25
           shape="none"
           fixedsize=true
@@ -216,11 +131,116 @@ function generateDot(data, boxWidth, boxHeight) {
       charset="UTF-8"
       pad=2
       splines=polyline
+      //splines=ortho
+      //splines=spline
       nodesep=0
       ${dot}
     }
   `
   return dot
+}
+
+class Relgraph {
+  constructor(data, boxWidth, boxHeight, grampsId) {
+    this.data = data
+    this.boxWidth = boxWidth
+    this.boxHeight = boxHeight
+    this.rootPersonGrampsId = grampsId
+    this.rootPerson = undefined
+    this.nodes = {}
+    this.edges = {}
+    this.edge_seen = {}
+    this.person_node_map = {}
+    this.persons = {}
+    this.dot = undefined
+    createGraph(this)
+  }
+
+  getData() {
+    return this.data
+  }
+
+  getDot() {
+    if (!this.dot) {
+      this.dot = generateDot(this)
+    }
+    return this.dot
+  }
+
+  addPerson(p) {
+    const me = p.handle
+    this.persons[me] = {
+      handle: me,
+      profile: p.profile,
+    }
+    if (p.gramps_id === this.rootPersonGrampsId) {
+      this.rootPerson = this.persons[me]
+    }
+  }
+
+  getRootPerson() {
+    return this.rootPerson
+  }
+
+  getPersons() {
+    return Object.values(this.persons)
+  }
+
+  known(me) {
+    return this.persons[me] || false
+  }
+
+  addNode(fdata, family, father, mother) {
+    const n = {
+      handle: family,
+      type: fdata?.type,
+    }
+    if (father && this.known(father)) {
+      n.father = father
+      // remember in which nodes these person can be found
+      this.person_node_map[father] = this.person_node_map[father] ?? {}
+      this.person_node_map[father][family] = true
+      // map persondata into node
+      n.fatherdata = this.known(father)
+    }
+    if (mother && this.known(mother)) {
+      n.mother = mother
+      // remember in which nodes these person can be found
+      this.person_node_map[mother] = this.person_node_map[mother] ?? {}
+      this.person_node_map[mother][family] = true
+      // map persondata into node
+      n.motherdata = this.known(mother)
+    }
+    if (n.father || n.mother) {
+      this.nodes[family] = n
+    }
+  }
+
+  getNodes() {
+    return Object.values(this.nodes)
+  }
+
+  getNodesOfPerson(me) {
+    if (this.person_node_map[me]) {
+      const x = Object.keys(this.person_node_map[me])
+      return x
+    }
+    return []
+  }
+
+  addEdge(sourcefamily, sourceperson, targetperson) {
+    // const sourcefamily = sourcefamily ? sourcefamily : `p_${sourceperson}`
+    const key = `${sourcefamily}__${sourceperson}__${targetperson}`
+    this.edges[key] = {
+      sourcefamily: sourcefamily,
+      sourceperson: sourceperson,
+      targetperson: targetperson,
+    }
+  }
+
+  getEdges() {
+    return Object.values(this.edges)
+  }
 }
 
 const clipString = (s, length) => {
@@ -238,7 +258,7 @@ const clipString = (s, length) => {
   return `${s.slice(0, nChar - 2)}…`
 }
 
-function remasterChart(divhidden, targetsvg, data, boxWidth, boxHeight) {
+function remasterChart(divhidden, targetsvg, graph, boxWidth, boxHeight) {
   const gvchart = {}
   const gvchartx = divhidden.select('svg')
   gvchart.width = gvchartx.attr('width')
@@ -246,15 +266,20 @@ function remasterChart(divhidden, targetsvg, data, boxWidth, boxHeight) {
   gvchart.chart = gvchartx.html()
   gvchartx.remove()
   targetsvg.html(gvchart.chart)
-  for (const p of data) {
+  targetsvg.selectAll('title').remove()
+  targetsvg.selectAll('g.cluster').remove()
+  targetsvg.selectAll('g.graph').attr('transform', null)
+  // add person data and style person nodes
+  for (const p of graph.getPersons()) {
     targetsvg.selectAll(`.person_${p.handle}`).each(function () {
       const e = select(this)
       e.selectAll('text').attr('font-family', null)
       const textElement = e.select('text')
       const offsetX = textElement.attr('x') - boxWidth / 2 + 2
       const offsetY = textElement.attr('y') - boxHeight / 2
-      e.select('title').remove()
       e.attr('transform', `translate(${offsetX} ${offsetY})`)
+      e.attr('data-x', offsetX + boxWidth / 2)
+      e.attr('data-y', offsetY + boxWidth / 2)
       e.selectAll('text').remove()
 
       e.append('rect')
@@ -322,6 +347,27 @@ function remasterChart(divhidden, targetsvg, data, boxWidth, boxHeight) {
       }
     })
   }
+  // add family data
+  for (const f of graph.getNodes()) {
+    if (f.type === 'Married') {
+      targetsvg.selectAll(`.family_${f.handle}`).each(function () {
+        const e = select(this)
+        const textElement = e.select('text')
+        const offsetX = textElement.attr('x')
+        const offsetY = textElement.attr('y')
+        e.attr('transform', `translate(${offsetX} ${offsetY})`)
+        e.attr('data-x', offsetX)
+        e.attr('data-y', offsetY)
+        e.selectAll('text').remove()
+        e.append('circle').attr('r', 5).attr('class', 'married')
+      })
+    }
+  }
+  // move root person to center
+  const rootPersonHandle = graph.rootPerson?.handle
+  const e = targetsvg.select(`.person_${rootPersonHandle}`)
+  const rpc = {x: -1 * e.attr('data-x'), y: -1 * e.attr('data-y')}
+  targetsvg.attr('transform', `translate(${rpc.x} ${rpc.y})`)
 }
 
 export function RelationshipChart(
@@ -331,6 +377,7 @@ export function RelationshipChart(
     bboxHeight = 150,
     boxWidth = 190,
     boxHeight = 90,
+    grampsId = 0,
     // orientation = 'LTR',
   }
 ) {
@@ -347,16 +394,26 @@ export function RelationshipChart(
     .attr('font-size', 13)
 
   const chartContent = svg.append('g').attr('id', 'chart-content')
-  const dot = generateDot(data, boxWidth, boxHeight)
+  const graph = new Relgraph(data, boxWidth, boxHeight, grampsId)
+  const dot = graph.getDot()
   Graphviz.load().then(graphviz => {
     graphviz.dot(dot)
     divhidden.html(graphviz.layout(dot, 'svg', 'dot'))
-    remasterChart(divhidden, chartContent, data, boxWidth, boxHeight)
+    remasterChart(
+      divhidden,
+      chartContent.append('g'),
+      graph,
+      boxWidth,
+      boxHeight,
+      grampsId
+    )
+    svg.attr('viewBox', [
+      -bboxWidth / 2,
+      -bboxHeight / 2,
+      bboxWidth,
+      bboxHeight,
+    ])
   })
-
-  const w = 230
-  const h = 150
-  svg.attr('viewBox', [-w / 2, -h / 2, bboxWidth, bboxHeight])
 
   return resultnode.node()
 }

@@ -18,6 +18,10 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
         svg .personBox {
           fill: #e6e6e6;
         }
+        svg .married {
+          fill: #ffffff;
+          stroke: #000000;
+        }
 
         mwc-menu {
           --mdc-typography-subtitle1-font-size: 13px;
@@ -53,6 +57,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     return html`
       ${RelationshipChart(this.data, {
         nAnc: this.nAnc,
+        grampsId: this.grampsId,
         getImageUrl: d => getImageUrl(d?.data?.person || {}, 200),
         gapX: this.gapX,
         bboxWidth: this.containerWidth,
