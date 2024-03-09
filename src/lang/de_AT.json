@@ -140,5 +140,8 @@
     "%s media objects with missing file": "%s Medienobjekte mit abgehender Datei",
     "%s media objects with missing checksum": "%s Medienobjekte mit abgehender Prüfsumme",
     "Only places related to events": "Nur Orte in Zusammenhang mit Ereignissen",
-    "Media file status": "Status der Mediendateien"
+    "Media file status": "Status der Mediendateien",
+    "Upgrade database": "Datenbank aktualisieren",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Das Datenbankschema des Stammbaums, den du zu laden versuchst, ist in einer Version, die von dieser Version von Gramps Web nicht unterstützt wird. Daher kannst du diesen Stammbaum nicht laden ohne sein Schema zu aktualisieren. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Der Stammbaum, den du laden möchtest, liegt in einer Schemaversion vor, die von dieser Version von Gramps Web nicht unterstützt wird. Daher kannst du diesen Stammbaum erst laden, wenn der Baum-Administrator sein Schema aktualisiert hat."
 }

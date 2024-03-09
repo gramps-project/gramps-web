@@ -126,7 +126,7 @@ export async function apiResetPassword(username) {
       )
     }
     if (resp.status !== 201 && resp.status !== 202) {
-      throw new Error(`Error ${resp.status}`)
+      throw new Error(resp.statusText || `Error ${resp.status}`)
     }
     return {}
   } catch (error) {
@@ -181,9 +181,8 @@ export async function apiGetTokens(username, password) {
     })
     if (resp.status === 401 || resp.status === 403) {
       throw new Error('Wrong username or password')
-    }
-    if (resp.status !== 200) {
-      throw new Error(`Error ${resp.status}`)
+    } else if (resp.status !== 200) {
+      throw new Error(resp.statusText || `Error ${resp.status}`)
     }
     const data = await resp.json()
     if (data.access_token === undefined) {
@@ -266,7 +265,7 @@ export async function apiGet(endpoint, isJson = true) {
       throw new Error('Authorization error')
     }
     if (resp.status !== 200) {
-      throw new Error(`Error ${resp.status}`)
+      throw new Error(resp.statusText || `Error ${resp.status}`)
     }
     if (isJson) {
       return {
@@ -329,7 +328,9 @@ async function apiPutPost(
       throw new Error('Not authorized')
     }
     if (resp.status !== 201 && resp.status !== 200 && resp.status !== 202) {
-      throw new Error(resJson?.error?.message || `Error ${resp.status}`)
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
     }
     if (dbChanged) {
       window.dispatchEvent(
@@ -522,5 +523,51 @@ export function deleteBookmark(endpoint, handle) {
     data[tree][endpoint] = [...data[tree][endpoint].filter(h => h !== handle)]
     const stringData = JSON.stringify(data)
     localStorage.setItem('bookmarks', stringData)
+  }
+}
+
+export function getTaskIds() {
+  try {
+    const string = localStorage.getItem('tasks')
+    const data = JSON.parse(string) ?? {}
+    const tree = getTreeId()
+    if (tree) {
+      return data[tree]
+    }
+    return {}
+  } catch (e) {
+    return {}
+  }
+}
+
+export function getAllTaskIds() {
+  try {
+    const string = localStorage.getItem('tasks')
+    const data = JSON.parse(string) ?? {}
+    return data
+  } catch (e) {
+    return {}
+  }
+}
+
+export function addTaskId(taskName, taskId) {
+  const tree = getTreeId()
+  const data = getAllTaskIds()
+  if (!Object.hasOwn(data, tree)) {
+    data[tree] = {[taskName]: taskId}
+  } else {
+    data[tree][taskName] = taskId
+  }
+  const stringData = JSON.stringify(data)
+  localStorage.setItem('tasks', stringData)
+}
+
+export function deleteTaskId(taskName, taskId) {
+  const tree = getTreeId()
+  const data = getAllTaskIds()
+  if (data?.[tree]?.[taskName] === taskId) {
+    delete data[tree][taskName]
+    const stringData = JSON.stringify(data)
+    localStorage.setItem('tasks', stringData)
   }
 }

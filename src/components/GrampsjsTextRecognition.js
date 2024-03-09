@@ -248,6 +248,7 @@ export class GrampsjsTextRecognition extends GrampsjsTranslateMixin(
         >
         <grampsjs-task-progress-indicator
           id="indicator-ocr"
+          taskName="runOcr"
           class="button"
           size="20"
           hideAfter="10"

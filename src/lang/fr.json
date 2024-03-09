@@ -130,5 +130,18 @@
     "DNA": "ADN",
     "Matches": "Correspondances",
     "Shared Segments": "Segments partagés",
-    "Shared DNA": "ADN partagé"
+    "Shared DNA": "ADN partagé",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Cet outil vérifie l’intégrité de la base de données, résolvant les problèmes qu’il peut.",
+    "Ancestor frequency": "Fréquence d’ascendant",
+    "Bookmark this": "Ajouter aux favoris",
+    "Remove bookmark": "Retirer des favoris",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "L’arbre généalogique que vous essayez de charger est dans une version du schéma qui n’est pas supportée par cette version de Gramps Web. Ainsi vous ne pouvez pas charger cet arbre généalogique jusqu’à ce que l’administrateur ait mis à niveau son schéma.",
+    "Media file status": "État du fichier médium",
+    "Chromosome Browser": "Navigateur de chromosome",
+    "Largest Segment": "Plus grand segment",
+    "%s media objects with missing file": "%s objets avec un fichier manquant",
+    "%s media objects with missing checksum": "%s objets média avec une somme de contrôle manquante",
+    "Only places related to events": "Seulement les lieux liés aux évènements",
+    "Upgrade database": "Mettre à niveau la base de données",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "L’arbre généalogique que vous essayez de charger est dans une version du schéma qui n’est pas supportée par cette version de Gramps Web. Ainsi vous ne pouvez pas charger cet arbre généalogique sans mettre à niveau son schéma. Cette action est irréversible."
 }

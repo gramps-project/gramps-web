@@ -133,5 +133,15 @@
     "Matches": "Подударања",
     "Task": "Задатак",
     "Bookmark this": "Обележи ово",
-    "Remove bookmark": "Уклони обележивач"
+    "Remove bookmark": "Уклони обележивач",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Овај алат тражи проблеме интегритета у бази података, успут поправљајући проблеме које може.",
+    "Ancestor frequency": "Учесталост предака",
+    "Administrator": "Администратор",
+    "%s media objects with missing file": "%s медијских објеката без датотеке",
+    "Only places related to events": "Само места у вези са догађајима",
+    "%s media objects with missing checksum": "%s медијских објеката којима недостаје контролни збир",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Породично стабло које покушавате да учитате има шематску верзију која није подржана од стране ове верзије Веб Грампса. Стога не можете учитати ово породично стабло пре надоградње њене шеме. Ова акција се не може поништити.",
+    "Media file status": "Стање медијске датотеке",
+    "Upgrade database": "Надоградња базе података",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Породично стабло које покушавате да учитате има шематску верзију која није подржана од стране ове верзије Веб Грампса. Стога не можете учитати ово породично стабло пре него што администратор ажурира њену шематску верзију."
 }
