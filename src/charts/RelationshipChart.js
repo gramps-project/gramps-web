@@ -110,13 +110,13 @@ function generateDot(graph) {
   }
   // edges
   for (const e of graph.getEdges()) {
-    for (const targetnode of graph.getNodesOfPerson(e.targetperson)) {
-      if (e.sourceperson) {
+    for (const targetnode of graph.getNodesOfPerson(e.targetPerson)) {
+      if (e.sourcePerson) {
         // one-person node as source
-        dot += `node_${e.sourcefamily}x${e.sourceperson} -> node_${targetnode}x${e.targetperson} [ label=""]
+        dot += `node_${e.sourceFamily}x${e.sourcePerson} -> node_${targetnode}x${e.targetPerson} [ label=""]
       `
       } else {
-        dot += `node_${e.sourcefamily} -> node_${targetnode}x${e.targetperson} [ltail=node_${e.sourcefamily}, label=""]
+        dot += `node_${e.sourceFamily} -> node_${targetnode}x${e.targetPerson} [ltail=node_${e.sourceFamily}, label=""]
       `
       }
     }
@@ -232,9 +232,9 @@ class Relgraph {
     // const sourcefamily = sourcefamily ? sourcefamily : `p_${sourceperson}`
     const key = `${sourcefamily}__${sourceperson}__${targetperson}`
     this.edges[key] = {
-      sourcefamily: sourcefamily,
-      sourceperson: sourceperson,
-      targetperson: targetperson,
+      sourceFamily: sourcefamily,
+      sourcePerson: sourceperson,
+      targetPerson: targetperson,
     }
   }
 
