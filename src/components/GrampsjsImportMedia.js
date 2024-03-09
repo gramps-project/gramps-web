@@ -66,11 +66,13 @@ export class GrampsjsImportMedia extends GrampsjsTranslateMixin(LitElement) {
         ></mwc-button>
         <grampsjs-task-progress-indicator
           id="progress-media"
+          taskName="importMedia"
           ?open="${this._mediaState !== STATE_INITIAL &&
           this._mediaState !== STATE_READY}"
           class="button"
           size="20"
           hideAfter="0"
+          pollInterval="0.2"
           @task:complete="${this._handleSuccessMedia}"
           @task:error="${() => this._handleCompletedMedia(STATE_ERROR)}"
         ></grampsjs-task-progress-indicator>

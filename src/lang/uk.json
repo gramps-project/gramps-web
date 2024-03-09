@@ -131,5 +131,9 @@
     "DNA": "ДНК",
     "Matches": "Збіги",
     "Task": "Завдання",
-    "Copy to clipboard": "Копіювати до буфера обміну"
+    "Copy to clipboard": "Копіювати до буфера обміну",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Цей інструмент перевіряє бази даних на проблеми цілісності й усуває ті з них, які можливо.",
+    "Bookmark this": "Додати до закладок",
+    "Remove bookmark": "Вилучити закладку",
+    "Administrator": "Адміністратор"
 }

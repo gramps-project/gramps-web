@@ -139,5 +139,9 @@
     "Only places related to events": "Samo mjesta povezana s događajem",
     "Media file status": "Stanje medijskih datoteka",
     "%s media objects with missing checksum": "%s medijska objekta s nedostajućom kontrolnom sumom",
-    "%s media objects with missing file": "%s medijska objekta s nedostajućom datotekom"
+    "%s media objects with missing file": "%s medijska objekta s nedostajućom datotekom",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Ovaj alat provjerava integritet baze podataka i rješava probleme koje može.",
+    "Upgrade database": "Nadogradi bazu podataka",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Ova verzija Gramps Weba ne podržava rodoslov koji pokušavaš učitati. Stoga ne možeš učitati ovaj rodoslov bez nadogradnje. Ova se radnja ne može poništiti.",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Rodoslov koji pokušavaš učitati je u verziji sheme koju ova Gramps web verzija ne podržava. Stoga ne možeš učitati ovaj rodoslov dok administrator rodoslova ne nadogradi njegovu shemu."
 }

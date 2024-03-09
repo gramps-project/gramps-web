@@ -64,11 +64,13 @@ export class GrampsjsImport extends GrampsjsTranslateMixin(LitElement) {
         ></mwc-button>
         <grampsjs-task-progress-indicator
           id="progress-tree"
+          taskName="importFile"
           ?open="${this._state !== STATE_INITIAL &&
           this._state !== STATE_READY}"
           class="button"
           size="20"
           hideAfter="0"
+          pollInterval="0.2"
           @task:complete="${this._handleSuccess}"
           @task:error="${() => this._handleCompleted(STATE_ERROR)}"
         ></grampsjs-task-progress-indicator>

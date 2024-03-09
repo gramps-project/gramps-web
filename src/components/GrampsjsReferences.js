@@ -41,7 +41,9 @@ export class GrampsjsReferences extends GrampsjsTableBase {
                           this.profile[type][index] || {},
                           type,
                           this.strings
-                        ) || ''
+                        ) ||
+                        getName(obj, type) ||
+                        ''
                       : getName(obj, type)}
                   </td>
                 </tr>

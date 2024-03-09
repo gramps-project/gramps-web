@@ -11,10 +11,6 @@ export class GrampsjsProgressIndicator extends LitElement {
     return [
       sharedStyles,
       css`
-        mwc-circular-progress {
-          --mdc-theme-primary: rgba(0, 0, 0, 0.5);
-        }
-
         .success {
           color: #41ad49;
         }
@@ -37,6 +33,7 @@ export class GrampsjsProgressIndicator extends LitElement {
       error: {type: Boolean},
       open: {type: Boolean},
       errorMessage: {type: String},
+      infoMessage: {type: String},
     }
   }
 
@@ -47,12 +44,14 @@ export class GrampsjsProgressIndicator extends LitElement {
     this.error = false
     this.open = false
     this.errorMessage = ''
+    this.infoMessage = ''
   }
 
   reset() {
     this.progress = -1
     this.error = false
     this.errorMessage = ''
+    this.infoMessage = ''
   }
 
   render() {
@@ -84,7 +83,11 @@ export class GrampsjsProgressIndicator extends LitElement {
 
   renderIndeterminate() {
     return html`
-      <mwc-circular-progress indeterminate density="${this._getDensity()}">
+      <mwc-circular-progress
+        indeterminate
+        style="--mdc-theme-primary: rgba(0, 0, 0, 0.5);"
+        density="${this._getDensity()}"
+      >
       </mwc-circular-progress>
     `
   }
@@ -94,8 +97,15 @@ export class GrampsjsProgressIndicator extends LitElement {
       <mwc-circular-progress
         progress="${Math.max(this.progress, 0.05)}"
         density="${this._getDensity()}"
+        id="progress-determinate"
       >
       </mwc-circular-progress>
+      ${this.infoMessage
+        ? html` <grampsjs-tooltip
+            for="progress-determinate"
+            content="${this.infoMessage}"
+          ></grampsjs-tooltip>`
+        : ''}
     `
   }
 
