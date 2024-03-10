@@ -131,7 +131,7 @@ function TreeChartCore(
     .append('rect')
     .filter(d => d.data.person)
     .attr('fill', d =>
-      d.data.id.slice(-1) === 'm' ? 'var(--color-girl)' : 'var(--color-boy)'
+      d.data?.person?.gender === 0 ? 'var(--color-girl)' : 'var(--color-boy)'
     )
     .attr('width', 24)
     .attr('height', boxHeight - 1)

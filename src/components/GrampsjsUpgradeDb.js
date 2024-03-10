@@ -81,7 +81,7 @@ class GrampsjsUpgradeDb extends GrampsjsTranslateMixin(LitElement) {
           raised
           @click="${this._upgradeDb}"
           @keydown="${clickKeyHandler}"
-          >${this._('Upgrade Family Tree')}</mwc-button
+          >${this._('Upgrade database')}</mwc-button
         >
         <grampsjs-task-progress-indicator
           taskName="upgradeDb"
