@@ -133,6 +133,8 @@ function generateDot(graph) {
       splines=polyline
       //splines=ortho
       //splines=spline
+      // this controls the number of iterations = nslimit * no_nodes
+      nslimit=2.0
       nodesep=0
       ${dot}
     }
