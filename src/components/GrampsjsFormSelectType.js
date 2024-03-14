@@ -129,6 +129,10 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
   }
 
   switchTypeInput() {
+    if (!this._hasCustomType) {
+      const selectType = this.shadowRoot.getElementById('select-type')
+      selectType.value = null
+    }
     this._hasCustomType = !this._hasCustomType
   }
 
@@ -143,9 +147,6 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
   }
 
   handleChange(e) {
-    if (e.target.disabled) {
-      return
-    }
     const data = e.target.value
     this.dispatchEvent(
       new CustomEvent('formdata:changed', {
@@ -158,13 +159,14 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
 
   isValid() {
     const selectType = this.shadowRoot.getElementById('select-type')
-    const customType = this.shadowRoot.getElementById('custom-type') // adding query for custom-type id
-    if (selectType === null && customType === null) {
-      // checking if both types null then return false
+    const customType = this.shadowRoot.getElementById('custom-type')
+    if (selectType === null || (this._hasCustomType && customType === null)) {
       return false
     }
     try {
-      return selectType?.validity?.valid
+      return this._hasCustomType
+        ? customType?.validity?.valid
+        : selectType?.validity?.valid
     } catch {
       return false
     }
