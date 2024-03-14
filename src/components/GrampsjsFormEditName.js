@@ -10,6 +10,17 @@ import './GrampsjsFormSelectType.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 class GrampsjsFormEditName extends GrampsjsObjectForm {
+  static get properties() {
+    return {
+      isFormValid: {type: Boolean},
+    }
+  }
+
+  constructor() {
+    super()
+    this.isFormValid = false
+  }
+
   renderForm() {
     return html`
       <grampsjs-form-select-type
@@ -21,7 +32,7 @@ class GrampsjsFormEditName extends GrampsjsObjectForm {
         typeName="name_types"
         ?loadingTypes=${this.loadingTypes}
         defaultTypeName="Birth Name"
-        initialValue=${this.data?.type?.string || this.data?.type || ''}
+        initialValue=${this.data?.type?.string || this.data?.type || null}
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
         @formdata:changed="${this._handleFormData}"
@@ -41,6 +52,22 @@ class GrampsjsFormEditName extends GrampsjsObjectForm {
       >
       </grampsjs-form-name>
     `
+  }
+
+  _handleFormData(e) {
+    super._handleFormData(e)
+    this.checkFormValidity()
+  }
+
+  checkFormValidity() {
+    const selectType = this.shadowRoot.querySelector(
+      'grampsjs-form-select-type'
+    )
+    this.isFormValid = selectType === null ? true : selectType.isValid()
+  }
+
+  get isValid() {
+    return this.isFormValid
   }
 }
 
