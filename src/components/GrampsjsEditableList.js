@@ -17,7 +17,7 @@ export class GrampsjsEditableList extends GrampsjsTranslateMixin(LitElement) {
       css`
         mwc-list,
         mwc-list > * {
-          --mdc-ripple-color: tranparent;
+          --mdc-ripple-color: transparent;
         }
 
         mwc-list > * {
