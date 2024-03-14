@@ -143,6 +143,9 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
   }
 
   handleChange(e) {
+    if (e.target.disabled) {
+      return
+    }
     const data = e.target.value
     this.dispatchEvent(
       new CustomEvent('formdata:changed', {
