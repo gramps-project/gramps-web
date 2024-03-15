@@ -41,7 +41,6 @@ class GrampsjsFormEditName extends GrampsjsObjectForm {
 
       <grampsjs-form-name
         origintype
-        showMore
         id="name"
         @formdata:changed="${this._handleFormData}"
         ?loadingTypes=${this.loadingTypes}
