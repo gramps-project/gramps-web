@@ -58,27 +58,6 @@ class GrampsjsFormSurname extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-      ${this.origintype
-        ? html`
-            <p class="${classMap({hide: !this.showMore})}">
-              <grampsjs-form-select-type
-                required
-                noheading
-                label="${this._('Surname origin type:').replace(':', '')}"
-                id="surname-origin-type"
-                .strings="${this.strings}"
-                typeName="name_origin_types"
-                defaultTypeName=""
-                initialValue=${this.data?.origintype || ''}
-                .types="${this.types}"
-                .typesLocale="${this.typesLocale}"
-                ?loadingTypes=${this.loadingTypes}
-                @formdata:changed="${this._handleFormData}"
-              >
-              </grampsjs-form-select-type>
-            </p>
-          `
-        : ''}
       <p class="${classMap({hide: !this.showMore})}">
         <grampsjs-form-string
           @formdata:changed="${this._handleFormData}"
@@ -106,6 +85,26 @@ class GrampsjsFormSurname extends GrampsjsTranslateMixin(LitElement) {
           label="${this._('Surname')}"
         ></grampsjs-form-string>
       </p>
+      ${this.origintype
+        ? html`
+            <p class="${classMap({hide: !this.showMore})}">
+              <grampsjs-form-select-type
+                noheading
+                label="${this._('Surname origin type:').replace(':', '')}"
+                id="surname-origin-type"
+                .strings="${this.strings}"
+                typeName="name_origin_types"
+                defaultTypeName=""
+                initialValue=${this.data?.origintype || ''}
+                .types="${this.types}"
+                .typesLocale="${this.typesLocale}"
+                ?loadingTypes=${this.loadingTypes}
+                @formdata:changed="${this._handleFormData}"
+              >
+              </grampsjs-form-select-type>
+            </p>
+          `
+        : ''}
     `
   }
 

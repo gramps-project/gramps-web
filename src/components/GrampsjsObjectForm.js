@@ -131,6 +131,7 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
         </div>
 
         <mwc-button
+          raised
           slot="primaryAction"
           dialogAction="ok"
           ?disabled="${!this.isValid}"

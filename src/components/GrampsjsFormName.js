@@ -23,6 +23,11 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
           width: 100%;
         }
 
+        .clear {
+          clear: both;
+          margin-bottom: 2.5em;
+        }
+
         .hide {
           display: none;
         }
@@ -111,6 +116,8 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
           label="${this._('Family nick name')}"
         ></grampsjs-form-string>
       </p>
+
+      <div class="clear"></div>
 
       <h4 class="label ${classMap({hide: !this.showMore})}">
         ${this._('Surnames')}
