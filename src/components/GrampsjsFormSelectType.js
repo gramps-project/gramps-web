@@ -67,9 +67,9 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       ${this.noheading
         ? ''
         : html`<h4 class="label">${this.heading || this._('Type')}</h4>`}
-      <p>
+      <p style="display: flex">
         <mwc-select
-          style="width:100%"
+          style="width:100%; ${this._hasCustomType ? 'display: none' : ''}"
           ?required=${this.required && !this._hasCustomType && !this.nocustom}
           ?disabled=${this.loadingTypes || this._hasCustomType || this.disabled}
           validationMessage="${this._('This field is mandatory')}"
@@ -95,36 +95,41 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
                 `
               )}
         </mwc-select>
-      </p>
-
-      ${this.nocustom
-        ? ''
-        : html`
-            <mwc-button
-              @click="${this.switchTypeInput}"
-              ?disabled="${this.disabled}"
-            >
-              ${this._hasCustomType
-                ? this._('Switch to default type')
-                : this._('Switch to custom type')}
-            </mwc-button>
-          `}
-      ${this.nocustom || !this._hasCustomType
-        ? ''
-        : html`
-            <h4 class="label">${this._('Custom type')}</h4>
-            <p>
+        ${this.nocustom || !this._hasCustomType
+          ? ''
+          : html`
               <mwc-textfield
                 ?disabled="${this.disabled}"
                 style="width:100%"
-                ?required=${this._hasCustomType}
+                ?required=${this.required}
                 validationMessage="${this._('This field is mandatory')}"
-                @change="${this.handleChange}"
+                @input="${this.handleChange}"
+                label="${this.loadingTypes
+                  ? this._('Loading items...')
+                  : `${this.label} ${this._('Custom')}`}"
                 id="custom-type"
               >
               </mwc-textfield>
-            </p>
-          `}
+            `}
+        ${this.nocustom
+          ? ''
+          : html`
+              <mwc-icon-button
+                style="margin-left: 8px"
+                icon="${this._hasCustomType ? 'remove' : 'add'}"
+                id="button-switch-type"
+                @click="${this.switchTypeInput}"
+                ?disabled="${this.disabled}"
+              ></mwc-icon-button>
+              <grampsjs-tooltip
+                for="button-switch-type"
+                content="${this._hasCustomType
+                  ? this._('Switch to default type')
+                  : this._('Add custom type')}"
+                .strings="${this.strings}"
+              ></grampsjs-tooltip>
+            `}
+      </p>
     `
   }
 

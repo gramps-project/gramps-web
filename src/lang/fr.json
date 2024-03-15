@@ -61,7 +61,7 @@
     "Properties": "Propriétés",
     "Update search index": "Mettre à jour l'index de recherche",
     "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "La mise à jour manuelle de l'index de recherche est généralement inutile, mais cela peut devenir nécessaire après une mise à niveau.",
-    "Switch to custom type": "Changer pour un type personnalisé",
+    "Add custom type": "Ajouter un type personnalisé",
     "Switch to default type": "Changer pour un type par défaut",
     "Year": "Année",
     "Month": "Mois",
