@@ -2,16 +2,24 @@
 Element for selecting a Gramps type
 */
 
-import {html, LitElement} from 'lit'
+import {css, html, LitElement} from 'lit'
 import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
 
+import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
-    return [sharedStyles]
+    return [
+      sharedStyles,
+      css`
+        .hide {
+          display: none;
+        }
+      `,
+    ]
   }
 
   static get properties() {
@@ -69,7 +77,8 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
         : html`<h4 class="label">${this.heading || this._('Type')}</h4>`}
       <p style="display: flex">
         <mwc-select
-          style="width:100%; ${this._hasCustomType ? 'display: none' : ''}"
+          style="width:100%"
+          class="${classMap({hide: this._hasCustomType})}"
           ?required=${this.required && !this._hasCustomType && !this.nocustom}
           ?disabled=${this.loadingTypes || this._hasCustomType || this.disabled}
           validationMessage="${this._('This field is mandatory')}"
