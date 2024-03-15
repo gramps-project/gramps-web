@@ -49,16 +49,17 @@ export class GrampsjsPerson extends GrampsjsObject {
     }
     const surname = this.data.profile.name_surname || html`&hellip;`
     const suffix = this.data.profile.name_suffix || ''
+    const nick = this.data?.primary_name?.nick
     let given = this.data.profile.name_given || html`&hellip;`
     const call = this.data?.primary_name?.call
     const callIndex = call ? given.search(call) : -1
     given =
       callIndex > -1
-        ? html`${given.substr(0, callIndex)}<span class="given-name"
-              >${given.substr(callIndex, call.length)}</span
-            >${given.substr(callIndex + call.length)}`
+        ? html`${given.substring(0, callIndex)}<span class="given-name"
+              >${given.substring(callIndex, call.length)}</span
+            >${given.substring(callIndex + call.length)}`
         : given
-    return html`${given} ${surname} ${suffix}`
+    return html`${given} ${nick ? `"${nick}" ` : ''}${surname} ${suffix}`
   }
 
   _renderBirth() {

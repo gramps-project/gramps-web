@@ -166,7 +166,6 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
       <p class="${classMap({hide: !this.showMore})}">
         <mwc-icon-button
           @click="${this._handleAddSurname}"
-          class="edit"
           icon="add"
         ></mwc-icon-button>
       </p>
