@@ -8,7 +8,8 @@ import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsShareUrl.js'
 import '../components/GrampsjsSysinfo.js'
 import '../components/GrampsjsTreeQuotas.js'
-import {doLogout, apiPost, apiPut, getTreeId} from '../api.js'
+import {doLogout, apiGet, apiPost, apiPut, getTreeId} from '../api.js'
+import {fireEvent} from '../util.js'
 import '@material/mwc-textfield'
 import '@material/mwc-button'
 import '@material/mwc-select'
@@ -44,6 +45,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       owner: {type: Boolean},
       page: {type: String},
       dbInfo: {type: Object},
+      _userInfo: {type: Object},
     }
   }
 
@@ -52,6 +54,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     this.owner = false
     this.page = 'user'
     this.dbInfo = {}
+    this._userInfo = {}
   }
 
   renderContent() {
@@ -106,6 +109,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
         active
         .strings="${this.strings}"
         .dbInfo="${this.dbInfo}"
+        .userInfo="${this._userInfo}"
       >
       </grampsjs-view-admin-settings>
     `
@@ -158,13 +162,17 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
   renderChangeEmail() {
     return html`
       <p>
-        <mwc-textfield id="change-email" label="${this._('New E-mail')}">
+        <mwc-textfield
+          id="change-email"
+          label="${this._('New E-mail')}"
+          value="${this._userInfo?.email ? this._userInfo.email : ''}"
+        >
         </mwc-textfield>
       </p>
       <p>
         <mwc-button
           outlined
-          label="submit"
+          label="${this._('Submit')}"
           @click="${this._changeEmail}"
         ></mwc-button>
       </p>
@@ -190,37 +198,37 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       <p>
         <mwc-button
           outlined
-          label="submit"
+          label="${this._('Submit')}"
           @click="${this._changePw}"
         ></mwc-button>
       </p>
     `
   }
 
-  _changeEmail() {
+  async _changeEmail() {
     const form = this.shadowRoot.getElementById('change-email')
     if (!form.value) {
       return
     }
     this.loading = true
     const payload = {email: form.value}
-    apiPut('/api/users/-/', payload).then(data => {
-      this.loading = false
-      if ('error' in data) {
-        this.error = false
-        this.error = true
-        this._errorMessage = data.error
-      } else {
-        this.dispatchEvent(
-          new CustomEvent('grampsjs:notification', {
-            bubbles: true,
-            composed: true,
-            detail: {message: 'E-mail successfully updated'},
-          })
-        )
-        form.value = ''
-      }
+    const data = await apiPut('/api/users/-/', payload)
+
+    this.loading = false
+    if ('error' in data) {
+      this.error = false
+      this.error = true
+      this._errorMessage = data.error
+      return
+    }
+    fireEvent(this, 'grampsjs:notification', {
+      message: 'E-mail successfully updated',
     })
+
+    form.value = ''
+
+    await this._fetchOwnUserDetails()
+    form.value = this._userInfo.email
   }
 
   _changePw() {
@@ -241,17 +249,29 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
         this._errorMessage = data.error
       } else {
         this.error = false
-        this.dispatchEvent(
-          new CustomEvent('grampsjs:notification', {
-            bubbles: true,
-            composed: true,
-            detail: {message: 'Password successfully updated'},
-          })
-        )
+        fireEvent(this, 'grampsjs:notification', {
+          message: 'Password successfully updated',
+        })
         formOldPw.value = ''
         formNewPw.value = ''
       }
     })
+  }
+
+  async _fetchOwnUserDetails() {
+    const data = await apiGet('/api/users/-/')
+    if ('error' in data) {
+      this.error = true
+      this._errorMessage = data.error
+    } else {
+      this.error = false
+      this._userInfo = data.data
+    }
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this._fetchOwnUserDetails()
   }
 }
 
