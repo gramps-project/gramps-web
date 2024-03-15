@@ -122,9 +122,31 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
       <h4 class="label ${classMap({hide: !this.showMore})}">
         ${this._('Surnames')}
       </h4>
-
       ${(this.data.surname_list || [{}]).map(
-        (obj, i, arr) => html`
+        (obj, i) => html`
+          <mwc-icon-button
+            ?disabled="${!this.data?.surname_list ||
+            this.data?.surname_list?.length === 1}"
+            class="edit"
+            icon="delete"
+            @click="${() => this._handleDeleteSurname(i)}"
+          ></mwc-icon-button>
+
+          <mwc-icon-button
+            ?disabled="${!this.data?.surname_list || i === 0}"
+            class="edit"
+            icon="arrow_upward"
+            @click="${() => this._handleUpSurname(i)}"
+          ></mwc-icon-button>
+
+          <mwc-icon-button
+            ?disabled="${!this.data?.surname_list ||
+            i === this.data?.surname_list?.length - 1}"
+            class="edit"
+            icon="arrow_downward"
+            @click="${() => this._handleDownSurname(i)}"
+          ></mwc-icon-button>
+
           <grampsjs-form-surname
             ?origintype="${this.origintype}"
             ?showMore="${this.showMore}"
@@ -138,13 +160,13 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
             .typesLocale="${this.typesLocale}"
           >
           </grampsjs-form-surname>
-
-          ${i < arr.length - 1 ? html`<hr />` : ''}
+          <hr />
         `
       )}
       <p class="${classMap({hide: !this.showMore})}">
         <mwc-icon-button
           @click="${this._handleAddSurname}"
+          class="edit"
           icon="add"
         ></mwc-icon-button>
       </p>
@@ -153,6 +175,7 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
         ? ''
         : html`
             <mwc-icon-button
+              class="edit"
               id="button-show-more"
               @click="${this._handleShowMore}"
               icon="more_horiz"
@@ -188,6 +211,28 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
+  _handleDeleteSurname(i) {
+    this.data.surname_list.splice(i, 1)
+    this.data = {
+      ...this.data,
+      surname_list: [...this.data.surname_list],
+    }
+  }
+
+  _handleUpSurname(i) {
+    this.data = {
+      ...this.data,
+      surname_list: [...this.moveItem(this.data.surname_list, i, i - 1)],
+    }
+  }
+
+  _handleDownSurname(i) {
+    this.data = {
+      ...this.data,
+      surname_list: [...this.moveItem(this.data.surname_list, i, i + 1)],
+    }
+  }
+
   _handleFormData(e) {
     const originalTarget = e.composedPath()[0]
     if (
@@ -210,6 +255,13 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
     }
     e.stopPropagation()
     this.handleChange()
+  }
+
+  moveItem = (array, from, to) => {
+    const item = array[from]
+    array.splice(from, 1)
+    array.splice(to, 0, item)
+    return array
   }
 }
 
