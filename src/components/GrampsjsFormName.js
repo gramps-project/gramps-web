@@ -153,9 +153,13 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
         ? ''
         : html`
             <mwc-icon-button
+              id="button-show-more"
               @click="${this._handleShowMore}"
               icon="more_horiz"
             ></mwc-icon-button>
+            <grampsjs-tooltip for="button-show-more" .strings="${this.strings}"
+              >${this._('Show more')}</grampsjs-tooltip
+            >
           `}
     `
   }
