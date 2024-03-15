@@ -5,12 +5,13 @@ import '../components/GrampsjsImport.js'
 import '../components/GrampsjsImportMedia.js'
 import '../components/GrampsjsMediaFileStatus.js'
 import '../components/GrampsjsMediaStatus.js'
+import '../components/GrampsjsDeleteAll.js'
+import '../components/GrampsjsRelogin.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
-import {apiPost} from '../api.js'
+import {apiPost, isTokenFresh} from '../api.js'
+import {fireEvent, clickKeyHandler} from '../util.js'
 import '@material/mwc-button'
-
-import {clickKeyHandler} from '../util.js'
 
 export class GrampsjsViewAdminSettings extends GrampsjsView {
   static get styles() {
@@ -30,6 +31,36 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         .pre {
           white-space: pre-line;
         }
+
+        .danger-zone {
+          font-size: 16px;
+          padding: 0.8em 1.4em;
+          border: 1px solid #bf360c;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .danger-zone div.text {
+          order: 1;
+          display: inline-block;
+        }
+
+        .danger-zone div.button {
+          float: right;
+          order: 2;
+          --mdc-button-outline-color: #bf360c;
+          --mdc-theme-primary: #bf360c;
+        }
+
+        .danger-zone p {
+          margin: 0.4em 0;
+        }
+
+        .bold {
+          font-weight: 500;
+        }
       `,
     ]
   }
@@ -38,6 +69,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     return {
       userData: {type: Array},
       dbInfo: {type: Object},
+      userInfo: {type: Object},
       _repairResults: {type: Object},
     }
   }
@@ -46,6 +78,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     super()
     this.userData = []
     this.dbInfo = {}
+    this.userInfo = {}
     this._repairResults = {}
   }
 
@@ -118,7 +151,71 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
               : html`<span class="pre">${this._repairResults.message}</span>`}
           </p>`
         : ''}
+      <h3>${this._('Danger Zone')}</h3>
+      <div class="danger-zone">
+        <div class="text">
+          <p class="bold">${this._('Delete all objects')}</p>
+          <p>
+            ${this._(
+              'Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.'
+            )}
+          </p>
+        </div>
+        <div class="button">
+          <grampsjs-task-progress-indicator
+            class="button-left"
+            id="progress-delete-all"
+            taskName="deleteObjects"
+            size="20"
+            pollInterval="0.2"
+          ></grampsjs-task-progress-indicator>
+          <mwc-button
+            outlined
+            @click="${this._openDeleteAll}"
+            @keydown="${clickKeyHandler}"
+            icon="delete_forever"
+            >${this._('Delete')}</mwc-button
+          >
+        </div>
+      </div>
+      <grampsjs-delete-all
+        .strings="${this.strings}"
+        @delete-objects="${this._handleDeleteAll}"
+      ></grampsjs-delete-all>
+      <grampsjs-relogin
+        .strings="${this.strings}"
+        @relogin="${this._openDeleteAll}"
+        username="${this.userInfo?.name || ''}"
+      ></grampsjs-relogin>
     `
+  }
+
+  _openDeleteAll() {
+    if (isTokenFresh()) {
+      this.renderRoot.querySelector('grampsjs-delete-all').show()
+    } else {
+      this.renderRoot.querySelector('grampsjs-relogin').show()
+    }
+  }
+
+  async _handleDeleteAll(e) {
+    const prog = this.renderRoot.querySelector('#progress-delete-all')
+    prog.reset()
+    prog.open = true
+    const querypar = e.detail.namespaces
+      ? `?namespaces=${e.detail.namespaces}`
+      : ''
+    const url = `/api/objects/delete/${querypar}`
+    const data = await apiPost(url, null, true, true, true)
+    if ('error' in data) {
+      prog.setError()
+      prog.errorMessage = data.error
+    } else if ('task' in data) {
+      prog.taskId = data.task?.id || ''
+    } else {
+      prog.setComplete()
+      fireEvent(this, 'db:changed')
+    }
   }
 
   async _updateSearch() {

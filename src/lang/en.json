@@ -143,5 +143,13 @@
   "This tool checks the database for integrity problems, fixing the problems it can.": "This tool checks the database for integrity problems, fixing the problems it can.",
   "Upgrade database": "Upgrade database",
   "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.",
-  "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema."
+  "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.",
+  "Wrong username or password": "Wrong username or password",
+  "Password successfully updated": "Password successfully updated",
+  "E-mail successfully updated": "E-mail successfully updated",
+  "Danger Zone": "Danger Zone",
+  "Password is required": "Password is required",
+  "Delete all objects": "Delete all objects",
+  "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.",
+  "Please re-enter your password to continue.": "Please re-enter your password to continue."
 }
