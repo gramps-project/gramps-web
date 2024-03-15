@@ -85,7 +85,7 @@
     "Update search index": "Suchindex aktualisieren",
     "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Eine manuelle Aktualisierung des Suchindexes ist in der Regel nicht erforderlich, kann aber nach einem Upgrade notwendig werden.",
     "Event Year": "Ereignisjahr",
-    "Switch to custom type": "Wechseln zu benutzerdefinierter Art",
+    "Add custom type": "Benutzerdefinierte Art hinzufügen",
     "Switch to default type": "Wechseln zu Standard-Art",
     "Custom type": "Benutzerdefinierte Art",
     "New account registered successfully.": "Neues Konto erfolgreich registriert.",
