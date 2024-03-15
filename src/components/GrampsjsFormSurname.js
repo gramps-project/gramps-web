@@ -67,15 +67,6 @@ class GrampsjsFormSurname extends GrampsjsTranslateMixin(LitElement) {
           label="${this._('Prefix')}"
         ></grampsjs-form-string>
       </p>
-      <p class="${classMap({hide: !this.showMore})}">
-        <grampsjs-form-string
-          @formdata:changed="${this._handleFormData}"
-          fullwidth
-          id="connector"
-          value="${this.data.connector || ''}"
-          label="${this._('Connector')}"
-        ></grampsjs-form-string>
-      </p>
       <p>
         <grampsjs-form-string
           @formdata:changed="${this._handleFormData}"
@@ -83,6 +74,15 @@ class GrampsjsFormSurname extends GrampsjsTranslateMixin(LitElement) {
           id="surname"
           value="${this.data.surname || ''}"
           label="${this._('Surname')}"
+        ></grampsjs-form-string>
+      </p>
+      <p class="${classMap({hide: !this.showMore})}">
+        <grampsjs-form-string
+          @formdata:changed="${this._handleFormData}"
+          fullwidth
+          id="connector"
+          value="${this.data.connector || ''}"
+          label="${this._('Connector')}"
         ></grampsjs-form-string>
       </p>
       ${this.origintype
