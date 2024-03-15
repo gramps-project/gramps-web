@@ -124,7 +124,6 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
           ? ''
           : html`
               <mwc-icon-button
-                class="edit"
                 style="margin-left: 8px"
                 icon="${this._hasCustomType ? 'remove' : 'add'}"
                 id="button-switch-type"
