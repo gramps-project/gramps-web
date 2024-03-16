@@ -45,6 +45,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         .danger-zone div.text {
           order: 1;
           display: inline-block;
+          padding-right: 1.2em;
         }
 
         .danger-zone div.button {
