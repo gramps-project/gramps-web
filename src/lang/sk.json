@@ -147,5 +147,9 @@
     "Wrong username or password": "Nesprávne používateľské meno alebo heslo",
     "E-mail successfully updated": "E-mail bol úspešne aktualizovaný",
     "Password successfully updated": "Heslo bolo úspešne aktualizované",
-    "Danger Zone": "Nebezpečná zóna"
+    "Danger Zone": "Nebezpečná zóna",
+    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Vyčistiť rodinný strom odstránením všetkých existujúcich objektov. Voliteľne môžete vybrať konkrétne typy objektov na odstránenie.",
+    "Password is required": "Je nutné heslo",
+    "Delete all objects": "Odstrániť všetky objekty",
+    "Please re-enter your password to continue.": "Ak chcete pokračovať, zadajte znova svoje heslo."
 }
