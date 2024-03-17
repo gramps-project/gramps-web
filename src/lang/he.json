@@ -143,5 +143,13 @@
     "Only places related to events": "מקומות משויכים לאירועים בלבד",
     "Media file status": "מצב קובצי מדיה",
     "Upgrade database": "נא לשדרג מסד־נתונים",
-    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "נעשה נסיון לטעינת אילן־היוחסין בגרסת סכימת מסד־נתונים שאינה נתמכת על ידי גרסה זו של Gramps Web. לכן לא ניתן לטעון את אילן־היוחסין הזה מבלי לשדרג את הסכיממסד־הנתונים תחילה.פעולה זו לא ניתנת לבטל."
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "נעשה נסיון לטעינת אילן־היוחסין בגרסת סכימת מסד־נתונים שאינה נתמכת על ידי גרסה זו של Gramps Web. לכן לא ניתן לטעון את אילן־היוחסין הזה מבלי לשדרג את הסכיממסד־הנתונים תחילה.פעולה זו לא ניתנת לבטל.",
+    "Wrong username or password": "שם משתמש או ססמה שגויים",
+    "Password successfully updated": "ססמה עודכנה בהצלחה",
+    "Please re-enter your password to continue.": "להמשך, נא להזין ססמה שוב.",
+    "E-mail successfully updated": "כתובת דוא\"ל עודכן בהצלחה",
+    "Danger Zone": "אזור סכנה",
+    "Password is required": "נדרשת ססמה",
+    "Delete all objects": "מחיקת כל העצמים",
+    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "ניקוי אילן־היוחסין על ידי הסרת כל העצמים הקיימים. לחלופין, נא לבחור סוגי עצמים מסוימים למחיקה."
 }
