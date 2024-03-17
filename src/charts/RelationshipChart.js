@@ -59,6 +59,7 @@ function generateDot(graph) {
         cluster=true
         color=white
         margin="50,0"
+        label="."
         node_${n.handle}x${pf} [
           class="person_${pf}"
           margin=0
@@ -94,7 +95,7 @@ function generateDot(graph) {
       subgraph cluster_${n.handle} {
         cluster=true
         color=white
-        labelloc="b"
+        label="."
         node_${n.handle}x${p} [
           class="person_${p}"
           margin=0.25
@@ -218,6 +219,10 @@ class Relgraph {
     }
   }
 
+  getNode(family) {
+    return this.nodes[family] || false
+  }
+
   getNodes() {
     return Object.values(this.nodes)
   }
@@ -231,7 +236,6 @@ class Relgraph {
   }
 
   addEdge(sourcefamily, sourceperson, targetperson) {
-    // const sourcefamily = sourcefamily ? sourcefamily : `p_${sourceperson}`
     const key = `${sourcefamily}__${sourceperson}__${targetperson}`
     this.edges[key] = {
       sourceFamily: sourcefamily,
@@ -260,116 +264,156 @@ const clipString = (s, length) => {
   return `${s.slice(0, nChar - 2)}…`
 }
 
-function remasterChart(divhidden, targetsvg, graph, boxWidth, boxHeight) {
-  const gvchart = {}
-  const gvchartx = divhidden.select('svg')
-  gvchart.width = gvchartx.attr('width')
-  gvchart.height = gvchartx.attr('height')
-  gvchart.chart = gvchartx.html()
-  gvchartx.remove()
-  targetsvg.html(gvchart.chart)
-  targetsvg.selectAll('title').remove()
-  targetsvg.selectAll('g.cluster').remove()
-  targetsvg.selectAll('g.graph').attr('transform', null)
-  // add person data and style person nodes
-  for (const p of graph.getPersons()) {
-    targetsvg.selectAll(`.person_${p.handle}`).each(function () {
-      const e = select(this)
-      e.selectAll('text').attr('font-family', null)
-      const textElement = e.select('text')
-      const offsetX = textElement.attr('x') - boxWidth / 2 + 2
-      const offsetY = textElement.attr('y') - boxHeight / 2
-      e.attr('transform', `translate(${offsetX} ${offsetY})`)
-      e.attr('data-x', offsetX + boxWidth / 2)
-      e.attr('data-y', offsetY + boxWidth / 2)
-      e.selectAll('text').remove()
-
-      e.append('rect')
-        .attr(
-          'fill',
-          p.profile?.sex === 'F' ? 'var(--color-girl)' : 'var(--color-boy)'
-        )
-        .attr('width', 24)
-        .attr('height', boxHeight - 1)
-        .attr('x', -4)
-        .attr('y', 0)
-        .attr('rx', 12)
-        .attr('ry', 12)
-
-      e.append('rect', ':first-child')
-        .attr('width', boxWidth)
-        .attr('height', boxHeight)
-        .attr('class', 'personBox')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('rx', 8)
-        .attr('ry', 8)
-
-      e.append('text')
-        .attr('text-anchor', 'start')
-        .attr('font-weight', '500')
-        .attr('fill', 'rgba(0, 0, 0, 0.9)')
-        .attr('paint-order', 'stroke')
-        .attr('x', 20)
-        .attr('y', 25)
-        .text(clipString(`${p.profile.name_surname},`, boxWidth))
-
-      if (p.profile?.name_given) {
-        e.append('text')
-          .attr('text-anchor', 'start')
-          .attr('font-weight', '500')
-          .attr('fill', 'rgba(0, 0, 0, 0.9)')
-          .attr('paint-order', 'stroke')
-          .attr('text-overflow', 'ellipsis')
-          .attr('overflow', 'hidden')
-          .attr('x', 20)
-          .attr('y', 25 + 17)
-          .text(clipString(p.profile.name_given, boxWidth))
-      }
-      if (p.profile?.birth?.date) {
-        e.append('text')
-          .attr('text-anchor', 'start')
-          .attr('font-weight', '350')
-          .attr('fill', 'rgba(0, 0, 0, 0.9)')
-          .attr('paint-order', 'stroke')
-          .attr('x', 20)
-          .attr('y', 25 + 17 * 2)
-          .text(clipString(`*${p.profile.birth.date}`, boxWidth))
-      }
-
-      if (p.profile?.death?.date) {
-        e.append('text')
-          .attr('text-anchor', 'start')
-          .attr('font-weight', '350')
-          .attr('fill', 'rgba(0, 0, 0, 0.9)')
-          .attr('paint-order', 'stroke')
-          .attr('x', 20)
-          .attr('y', 25 + 17 * 3)
-          .text(clipString(`†${p.profile.death.date}`, boxWidth))
-      }
+function clicked(event, d) {
+  dispatchEvent(
+    new CustomEvent('pedigree:person-selected', {
+      bubbles: true,
+      composed: true,
+      detail: {grampsId: d.profile?.gramps_id},
     })
-  }
-  // add family data
-  for (const f of graph.getNodes()) {
-    if (f.type === 'Married') {
-      targetsvg.selectAll(`.family_${f.handle}`).each(function () {
-        const e = select(this)
-        const textElement = e.select('text')
-        const offsetX = textElement.attr('x')
-        const offsetY = textElement.attr('y')
-        e.attr('transform', `translate(${offsetX} ${offsetY})`)
-        e.attr('data-x', offsetX)
-        e.attr('data-y', offsetY)
-        e.selectAll('text').remove()
-        e.append('circle').attr('r', 5).attr('class', 'married')
+  )
+}
+function remasterChart(divhidden, targetsvg, graph, boxWidth, boxHeight) {
+  const gvchartx = divhidden.select('svg')
+  const nodedata = []
+  gvchartx.selectAll('title').remove()
+  // based on graphviz created nodes build array containing node data to be bound to d3 nodes
+  gvchartx.selectAll('.node').each(function () {
+    const e = select(this)
+    const textElement = e.select('text')
+    const x = textElement.attr('x')
+    const y = textElement.attr('y')
+    const c = e.attr('class')
+    const found = c.match(/(?<handletype>family|person)_(?<handle>\S+)/)
+    if (found.groups.handletype === 'person') {
+      const d = graph.known(found.groups.handle)
+      nodedata.push({
+        nodetype: 'person',
+        xCoord: x - boxWidth / 2 + 4,
+        yCoord: y - boxHeight / 2,
+        profile: d.profile,
+        handle: found.groups.handle,
+      })
+    } else if (found.groups.handletype === 'family') {
+      const d = graph.getNode(found.groups.handle)
+      nodedata.push({
+        nodetype: 'family',
+        xCoord: x,
+        yCoord: y,
+        type: d.type,
+        handle: found.groups.handle,
       })
     }
-  }
+  })
+  // build d3 based nodes with data bound to them
+  const nodes = targetsvg
+    .selectAll('.node')
+    .data(nodedata)
+    .enter()
+    .append('g')
+    .attr('transform', d => `translate(${d.xCoord} ${d.yCoord})`)
+    .attr('class', d => `node ${d.nodetype}`)
+
+  nodes
+    .filter(d => d.nodetype === 'person')
+    .append('rect')
+    .attr('fill', d =>
+      d.profile?.sex === 'F' ? 'var(--color-girl)' : 'var(--color-boy)'
+    )
+    .attr('width', 24)
+    .attr('height', boxHeight - 1)
+    .attr('x', -4)
+    .attr('y', 0)
+    .attr('rx', 12)
+    .attr('ry', 12)
+
+  nodes
+    .filter(d => d.nodetype === 'person')
+    .append('rect', ':first-child')
+    .attr('width', boxWidth)
+    .attr('height', boxHeight)
+    .attr('class', 'personBox')
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr('rx', 8)
+    .attr('ry', 8)
+
+  nodes
+    .filter(d => d.nodetype === 'person')
+    .append('text')
+    .attr('text-anchor', 'start')
+    .attr('font-weight', '500')
+    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('paint-order', 'stroke')
+    .attr('x', 20)
+    .attr('y', 25)
+    .text(d => clipString(`${d.profile.name_surname},`, boxWidth))
+
+  nodes
+    .filter(d => d.profile?.name_given && d.nodetype === 'person')
+    .append('text')
+    .attr('text-anchor', 'start')
+    .attr('font-weight', '500')
+    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('paint-order', 'stroke')
+    .attr('text-overflow', 'ellipsis')
+    .attr('overflow', 'hidden')
+    .attr('x', 20)
+    .attr('y', 25 + 17)
+    .text(d => clipString(d.profile.name_given, boxWidth))
+
+  nodes
+    .filter(d => d.profile?.birth?.date && d.nodetype === 'person')
+    .append('text')
+    .attr('text-anchor', 'start')
+    .attr('font-weight', '350')
+    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('paint-order', 'stroke')
+    .attr('x', 20)
+    .attr('y', 25 + 17 * 2)
+    .text(d => clipString(`*${d.profile.birth.date}`, boxWidth))
+
+  nodes
+    .filter(d => d.profile?.death?.date && d.nodetype === 'person')
+    .append('text')
+    .attr('text-anchor', 'start')
+    .attr('font-weight', '350')
+    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('paint-order', 'stroke')
+    .attr('x', 20)
+    .attr('y', 25 + 17 * 3)
+    .text(d => clipString(`†${d.profile.death.date}`, boxWidth))
+
+  nodes
+    .filter(d => d.type === 'Married' && d.nodetype === 'family')
+    .append('circle')
+    .attr('r', 5)
+    .attr('class', 'married')
+
+  nodes
+    .filter(d => d.nodetype === 'person')
+    .style('cursor', 'pointer')
+    .on('click', clicked)
+
+  // copy edges
+  const edges = targetsvg.append('g').attr('class', 'edges')
+  gvchartx.selectAll('.edge').each(function () {
+    edges.append('g').attr('class', 'edge').html(select(this).html())
+  })
+
   // move root person to center
-  const rootPersonHandle = graph.rootPerson?.handle
-  const e = targetsvg.select(`.person_${rootPersonHandle}`)
-  const rpc = {x: -1 * e.attr('data-x'), y: -1 * e.attr('data-y')}
-  targetsvg.attr('transform', `translate(${rpc.x} ${rpc.y})`)
+  nodes
+    .filter(d => d.handle === graph.rootPerson?.handle)
+    .each(d => {
+      const rpc = {
+        x: -1 * d.xCoord - boxWidth / 2,
+        y: -1 * d.yCoord - boxHeight / 2,
+      }
+      targetsvg.attr('transform', `translate(${rpc.x} ${rpc.y})`)
+    })
+
+  // kill hidden graphviz generated svg
+  gvchartx.remove()
 }
 
 export function RelationshipChart(
