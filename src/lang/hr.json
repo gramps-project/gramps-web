@@ -143,5 +143,13 @@
     "This tool checks the database for integrity problems, fixing the problems it can.": "Ovaj alat provjerava integritet baze podataka i rješava probleme koje može.",
     "Upgrade database": "Nadogradi bazu podataka",
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Ova verzija Gramps Weba ne podržava rodoslov koji pokušavaš učitati. Stoga ne možeš učitati ovaj rodoslov bez nadogradnje. Ova se radnja ne može poništiti.",
-    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Rodoslov koji pokušavaš učitati je u verziji sheme koju ova Gramps web verzija ne podržava. Stoga ne možeš učitati ovaj rodoslov dok administrator rodoslova ne nadogradi njegovu shemu."
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Rodoslov koji pokušavaš učitati je u verziji sheme koju ova Gramps web verzija ne podržava. Stoga ne možeš učitati ovaj rodoslov dok administrator rodoslova ne nadogradi njegovu shemu.",
+    "E-mail successfully updated": "E-mail adresa je uspješno aktualizirana",
+    "Danger Zone": "Opasno područje",
+    "Wrong username or password": "Krivo korisničko ime ili lozinka",
+    "Password successfully updated": "Lozinka je uspješno aktualizirana",
+    "Password is required": "Lozinka se mora zadati",
+    "Delete all objects": "Izbriši sve objekte",
+    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Isprazni rodoslov uklanjanjem svih postojećih objekata. Opcinalno odaberi određene vrste objekata za brisanje.",
+    "Please re-enter your password to continue.": "Za nastavljanje ponovo upiši lozinku."
 }
