@@ -134,7 +134,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
                 for="button-switch-type"
                 content="${this._hasCustomType
                   ? this._('Switch to default type')
-                  : this._('Add custom type')}"
+                  : this._('Switch to custom type')}"
                 .strings="${this.strings}"
               ></grampsjs-tooltip>
             `}
