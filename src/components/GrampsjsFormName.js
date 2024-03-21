@@ -180,7 +180,7 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
               icon="more_horiz"
             ></mwc-icon-button>
             <grampsjs-tooltip for="button-show-more" .strings="${this.strings}"
-              >${this._('Show Details')}</grampsjs-tooltip
+              >${this._('Show more')}</grampsjs-tooltip
             >
           `}
     `
