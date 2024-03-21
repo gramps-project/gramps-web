@@ -143,5 +143,13 @@
     "Media file status": "Status der Mediendateien",
     "Upgrade database": "Datenbank aktualisieren",
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Das Datenbankschema des Stammbaums, den du zu laden versuchst, ist in einer Version, die von dieser Version von Gramps Web nicht unterstützt wird. Daher kannst du diesen Stammbaum nicht laden ohne sein Schema zu aktualisieren. Diese Aktion kann nicht rückgängig gemacht werden.",
-    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Der Stammbaum, den du laden möchtest, liegt in einer Schemaversion vor, die von dieser Version von Gramps Web nicht unterstützt wird. Daher kannst du diesen Stammbaum erst laden, wenn der Baum-Administrator sein Schema aktualisiert hat."
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Der Stammbaum, den du laden möchtest, liegt in einer Schemaversion vor, die von dieser Version von Gramps Web nicht unterstützt wird. Daher kannst du diesen Stammbaum erst laden, wenn der Baum-Administrator sein Schema aktualisiert hat.",
+    "Password is required": "Passwort erforderlich",
+    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Leere den Stammbaum durch Löschen aller vorhandenen Objekte. Optional können bestimmte Objektarten zur Löschung ausgewählt werden.",
+    "Wrong username or password": "Benutzername oder Passwort falsch",
+    "Password successfully updated": "Passwort erfolgreich geändert",
+    "E-mail successfully updated": "Emailadresse erfolgreich geändert",
+    "Danger Zone": "Gefahrenbereich",
+    "Delete all objects": "Alle Objekte löschen",
+    "Please re-enter your password to continue.": "Bitte gib das Passwort zum Fortfahren erneut ein."
 }
