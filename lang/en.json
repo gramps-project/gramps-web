@@ -167,5 +167,8 @@
   "Delete Tag": "Delete Tag",
   "Edit Tag": "Edit Tag",
   "Revision History": "Revision History",
-  "simple": "simple"
+  "simple": "simple",
+  "Are you sure?": "Are you sure?",
+  "This action cannot be undone.": "This action cannot be undone.",
+  "Yes": "Yes"
 }
