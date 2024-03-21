@@ -143,5 +143,13 @@
     "This tool checks the database for integrity problems, fixing the problems it can.": "Esta herramienta comprueba la base de datos en busca de problemas de integridad, arreglando los problemas que puede.",
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "El árbol genealógico que está intentando cargar tiene un esquema que no es compatible con esta versión de Gramps Web. Por lo tanto, no puede cargar este árbol genealógico sin actualizar su esquema. Esta acción no se puede deshacer.",
     "Upgrade database": "Actualizar base de datos",
-    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "El Árbol Genealógico que está intentando cargar está en una versión de esquema no soportada por esta versión de Gramps Web. Por lo tanto no puede cargar este Árbol Genealógico hasta que el administrador del árbol haya actualizado su esquema."
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "El Árbol Genealógico que está intentando cargar está en una versión de esquema no soportada por esta versión de Gramps Web. Por lo tanto no puede cargar este Árbol Genealógico hasta que el administrador del árbol haya actualizado su esquema.",
+    "Wrong username or password": "Nombre de usuario o contraseña incorrectos",
+    "Password successfully updated": "Contraseña actualizada correctamente",
+    "E-mail successfully updated": "Correo electrónico actualizado correctamente",
+    "Danger Zone": "Zona peligrosa",
+    "Password is required": "La contraseña es obligatoria",
+    "Delete all objects": "Borrar todos los objetos",
+    "Please re-enter your password to continue.": "Por favor, vuelva a introducir su contraseña para continuar.",
+    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Borre el árbol genealógico eliminando todos los objetos existentes. Opcionalmente, seleccione tipos específicos de objetos para su eliminación."
 }

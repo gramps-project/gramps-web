@@ -50,6 +50,15 @@ export function getPermissions() {
   }
 }
 
+export function isTokenFresh() {
+  const accessToken = localStorage.getItem('access_token')
+  if (!accessToken || accessToken === '1') {
+    return false
+  }
+  const claims = jwt_decode(accessToken) || {}
+  return !!claims.fresh
+}
+
 // grampsjs_settings are tree-independent settings
 // grampsjs_settings_tree are tree-dependendent settings
 // this function returns all of them without distinguishing
@@ -290,7 +299,8 @@ async function apiPutPost(
   endpoint,
   payload,
   isJson = true,
-  dbChanged = true
+  dbChanged = true,
+  requireFresh = false
 ) {
   const accessToken = localStorage.getItem('access_token')
   const headers = {Accept: 'application/json'}
@@ -313,6 +323,9 @@ async function apiPutPost(
       resJson = {}
     }
     if (resp.status === 401) {
+      if (requireFresh) {
+        throw new Error(resJson.message)
+      }
       const refreshToken = localStorage.getItem('refresh_token')
       if (refreshToken === null) {
         throw new Error('Missing refresh token')
@@ -363,9 +376,10 @@ export async function apiPost(
   endpoint,
   payload,
   isJson = true,
-  dbChanged = true
+  dbChanged = true,
+  requireFresh = false
 ) {
-  return apiPutPost('POST', endpoint, payload, isJson, dbChanged)
+  return apiPutPost('POST', endpoint, payload, isJson, dbChanged, requireFresh)
 }
 
 export async function apiDelete(endpoint, dbChanged = true) {

@@ -126,6 +126,7 @@ export const grampsStrings = [
   'default',
   'Default',
   'Degree',
+  'Delete',
   'Department',
   'Descendant Report',
   'Descendant Tree',

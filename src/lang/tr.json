@@ -143,5 +143,13 @@
     "This tool checks the database for integrity problems, fixing the problems it can.": "Bu araç veri tabanında bütünlük sorunları olup olmadığını denetler ve çözebildiği sorunları çözer.",
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Yüklemeye çalıştığınız Soyağacı, Gramps Web'in bu sürümü tarafından desteklenmeyen bir şema sürümündedir. Bu nedenle, şemasını yükseltmeden bu Soyağacını yükleyemezsiniz. Bu işlem geri alınamaz.",
     "Upgrade database": "Veri tabanını yükselt",
-    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Yüklemeye çalıştığınız Soyağacı, Gramps Web'in bu sürümü tarafından desteklenmeyen bir şema sürümündedir. Bu nedenle, ağaç yöneticisi şemasını yükseltene kadar bu Soyağacını yükleyemezsiniz."
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Yüklemeye çalıştığınız Soyağacı, Gramps Web'in bu sürümü tarafından desteklenmeyen bir şema sürümündedir. Bu nedenle, ağaç yöneticisi şemasını yükseltene kadar bu Soyağacını yükleyemezsiniz.",
+    "Wrong username or password": "Yanlış kullanıcı adı veya parola",
+    "Password successfully updated": "Parola başarıyla güncellendi",
+    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Var olan tüm nesneleri kaldırarak soyağacını temizleyin. İsteğe bağlı olarak, silmek için belirli nesne türlerini seçin.",
+    "E-mail successfully updated": "E-posta başarıyla güncellendi",
+    "Danger Zone": "Tehlike Bölgesi",
+    "Password is required": "Parola gerekli",
+    "Delete all objects": "Tüm nesneleri sil",
+    "Please re-enter your password to continue.": "Devam etmek için lütfen parolanızı tekrar girin."
 }

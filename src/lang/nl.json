@@ -143,5 +143,13 @@
     "This tool checks the database for integrity problems, fixing the problems it can.": "Dit hulpmiddel controleert de database op integriteitsproblemen en lost deze zo mogelijk op.",
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "De stamboom die u probeert te laden, is in een schemaversie die niet wordt ondersteund door deze versie van Gramps Web. Daarom kunt u deze stamboom niet laden zonder het schema te upgraden. Deze actie kan niet ongedaan worden gemaakt.",
     "Upgrade database": "Database bijwerken",
-    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "De stamboom die u probeert te laden, is in een schemaversie die niet wordt ondersteund door deze versie van Gramps Web. Daarom kunt u deze stamboom niet laden totdat de boombeheerder zijn schema heeft geüpgraded."
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "De stamboom die u probeert te laden, is in een schemaversie die niet wordt ondersteund door deze versie van Gramps Web. Daarom kunt u deze stamboom niet laden totdat de boombeheerder zijn schema heeft geüpgraded.",
+    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Wis de stamboom door alle bestaande objecten te verwijderen. Selecteer optioneel specifieke soorten objecten om te verwijderen.",
+    "Password successfully updated": "Wachtwoord succesvol bijgewerkt",
+    "Wrong username or password": "Verkeerde gebruikersnaam of wachtwoord",
+    "E-mail successfully updated": "E-mail succesvol bijgewerkt",
+    "Danger Zone": "Gevarenzone",
+    "Password is required": "Wachtwoord is vereist",
+    "Delete all objects": "Alle objecten verwijderen",
+    "Please re-enter your password to continue.": "Wachtwoord opnieuw invoeren om door te gaan."
 }
