@@ -140,5 +140,14 @@
     "%s media objects with missing checksum": "%s obiektów multimedialnych z brakującą sumą kontrolną",
     "Only places related to events": "Tylko miejsca powiązane z wydarzeniami",
     "Media file status": "Status pliku multimedialnego",
-    "This tool checks the database for integrity problems, fixing the problems it can.": "Narzędzie to sprawdza bazę danych pod kątem problemów z integralnością, naprawiając je."
+    "This tool checks the database for integrity problems, fixing the problems it can.": "Narzędzie to sprawdza bazę danych pod kątem problemów z integralnością, naprawiając je.",
+    "Wrong username or password": "Nieprawidłowa nazwa użytkownika lub hasło",
+    "Password successfully updated": "Hasło zostało pomyślnie zaktualizowane",
+    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Wyczyść drzewo genealogiczne, usuwając wszystkie istniejące obiekty. Opcjonalnie można wybrać określone typy obiektów do usunięcia.",
+    "E-mail successfully updated": "E-mail został pomyślnie zaktualizowany",
+    "Danger Zone": "Niebezpieczna strefa",
+    "Password is required": "Hasło jest wymagane",
+    "Delete all objects": "Usuń wszystkie obiekty",
+    "Please re-enter your password to continue.": "Wprowadź ponownie hasło, aby kontynuować.",
+    "Upgrade database": "Aktualizacja bazy danych"
 }
