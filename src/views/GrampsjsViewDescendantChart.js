@@ -8,7 +8,7 @@ export class GrampsjsViewDescendantChart extends GrampsjsViewTreeChartBase {
     super()
     this.nAnc = 1
     this.nDesc = 1
-    this._setAnc = false
+    this._setDesc = true
   }
 
   _resetLevels() {

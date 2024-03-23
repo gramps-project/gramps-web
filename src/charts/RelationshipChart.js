@@ -114,10 +114,10 @@ function generateDot(graph) {
     for (const targetnode of graph.getNodesOfPerson(e.targetPerson)) {
       if (e.sourcePerson) {
         // one-person node as source
-        dot += `node_${e.sourceFamily}x${e.sourcePerson} -> node_${targetnode}x${e.targetPerson} [ label=""]
+        dot += `node_${e.sourceFamily}x${e.sourcePerson} -> node_${targetnode}x${e.targetPerson} [label="", arrowhead=none, color="#555"]
       `
       } else {
-        dot += `node_${e.sourceFamily} -> node_${targetnode}x${e.targetPerson} [ltail=node_${e.sourceFamily}, label=""]
+        dot += `node_${e.sourceFamily} -> node_${targetnode}x${e.targetPerson} [ltail=node_${e.sourceFamily}, label="", arrowhead=none, color="#555"]
       `
       }
     }
@@ -400,6 +400,7 @@ function remasterChart(divhidden, targetsvg, graph, boxWidth, boxHeight) {
   gvchartx.selectAll('.edge').each(function () {
     edges.append('g').attr('class', 'edge').html(select(this).html())
   })
+  edges.selectAll('path').attr('stroke-opacity', '0.4')
 
   // move root person to center
   nodes

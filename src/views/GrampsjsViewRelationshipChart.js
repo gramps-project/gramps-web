@@ -18,7 +18,7 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
   constructor() {
     super()
     this.nAnc = 1
-    this._setDesc = false
+    this._setSep = true
     this.color = ''
   }
 

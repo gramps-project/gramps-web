@@ -42,7 +42,6 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
   constructor() {
     super()
     this.grampsId = ''
-    this.nAnc = 5
     this.gapX = 30
   }
 
