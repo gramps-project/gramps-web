@@ -310,6 +310,12 @@ export const sharedStyles = css`
     left: 10px;
   }
 
+  grampsjs-task-progress-indicator.button-left {
+    position: relative;
+    top: 6px;
+    right: 10px;
+  }
+
   @media (max-width: 768px) {
     :host {
       font-size: 16px;

@@ -142,5 +142,14 @@
     "Only places related to events": "Pouze místa související s událostmi",
     "This tool checks the database for integrity problems, fixing the problems it can.": "Tento nástroj kontroluje v databázi problémy s integritou a opravuje problémy, které může.",
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Rodokmen, který se pokoušíte načíst, je ve verzi schématu, která není podporována touto verzí Gramps Web. Proto nelze tento rodokmen načíst bez aktualizace jeho schématu. Tuto akci nelze vrátit zpět.",
-    "Upgrade database": "Aktualizovat databázi"
+    "Upgrade database": "Aktualizovat databázi",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Rodokmen, který se pokoušíte načíst, je ve verzi schématu, která není podporována touto verzí Gramps Web. Proto nelze tento rodokmen načíst, dokud správce rodokmenu neaktualizuje jeho schéma.",
+    "Wrong username or password": "Nesprávné uživatelské jméno nebo heslo",
+    "Password successfully updated": "Heslo bylo úspěšně aktualizováno",
+    "E-mail successfully updated": "E-mail byl úspěšně aktualizován",
+    "Danger Zone": "Nebezpečná zóna",
+    "Password is required": "Vyžaduje se heslo",
+    "Delete all objects": "Odstranit všechny objekty",
+    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Vyčistit rodokmen odstraněním všech existujících objektů. Volitelně můžete vybrat konkrétní typy objektů k odstranění.",
+    "Please re-enter your password to continue.": "Pro pokračování zadejte znovu své heslo."
 }

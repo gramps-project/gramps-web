@@ -103,6 +103,7 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             id="username"
             label="${this._('Username')}"
             @input="${this._credChanged}"
+            @change="${this._credChanged}"
             value="${this.credentials.username || ''}"
           ></mwc-textfield>
           <mwc-textfield
@@ -112,6 +113,7 @@ class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
             label="${this._('Password')}"
             type="password"
             @input="${this._credChanged}"
+            @change="${this._credChanged}"
             value="${this.credentials.password || ''}"
           ></mwc-textfield>
           <mwc-button

@@ -143,5 +143,13 @@
     "This tool checks the database for integrity problems, fixing the problems it can.": "Dieses Werkzeug überprüft die Datenbank auf Integritätsprobleme und behebt die Probleme, die es lösen kann.",
     "Upgrade database": "Datenbank aktualisieren",
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Der Stammbaum, den du zu laden versuchst, ist in einer Schemaversion, die von dieser Version von Gramps Web nicht unterstützt wird. Daher kannst du diesen Stammbaum nicht laden, ohne sein Schema zu aktualisieren. Diese Aktion kann nicht rückgängig gemacht werden.",
-    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Der Stammbaum, den du laden möchtest, liegt in einer Schemaversion vor, die von dieser Version von Gramps Web nicht unterstützt wird. Daher kannst du diesen Stammbaum erst laden, wenn der Baum Administrator sein Schema aktualisiert hat."
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Der Stammbaum, den du laden möchtest, liegt in einer Schemaversion vor, die von dieser Version von Gramps Web nicht unterstützt wird. Daher kannst du diesen Stammbaum erst laden, wenn der Baum Administrator sein Schema aktualisiert hat.",
+    "E-mail successfully updated": "E-Mail-Adresse erfolgreich aktualisiert",
+    "Danger Zone": "Gefahrenbereich",
+    "Password is required": "Das Kennwort wird benötigt",
+    "Please re-enter your password to continue.": "Bitte gib dein Kennwort erneut ein, um fortzufahren.",
+    "Wrong username or password": "Falscher Benutzername oder Kennwort",
+    "Password successfully updated": "Kennwort erfolgreich aktualisiert",
+    "Delete all objects": "Alle Objekte löschen",
+    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Leere den Stammbaum, indem du alle vorhandenen Objekte löschst. Wahlweise kannst du auch nur bestimmte Objektarten zur Löschung auswählen."
 }
