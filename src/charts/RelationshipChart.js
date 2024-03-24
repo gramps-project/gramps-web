@@ -13,7 +13,9 @@ function createGraph(graph) {
   // step 2: create nodes for relevant families
   for (const p of data) {
     for (const f of p.extended.families) {
-      graph.addNode(f, f.handle, f.father_handle, f.mother_handle)
+      if (graph.known(f.father_handle) && graph.known(f.mother_handle)) {
+        graph.addNode(f, f.handle, f.father_handle, f.mother_handle)
+      }
     }
     if (p.extended?.primary_parent_family?.handle) {
       const f = p.extended.primary_parent_family
@@ -43,6 +45,47 @@ function createGraph(graph) {
       graph.addEdge(f.handle, mother, me)
     }
   }
+
+  // step 5: connect unconnected couples (no parents and more than one family)
+  for (const p of data) {
+    const fp = p.extended?.primary_parent_family
+    // no parents?
+    if (
+      (!fp?.father_handle || !graph.known(fp?.father_handle)) &&
+      (!fp?.mother_handle || !graph.known(fp?.mother_handle))
+    ) {
+      let np = 0
+      for (const f of p.extended.families) {
+        let ck = 0
+        for (const c of f.child_ref_list) {
+          if (graph.known(c.ref)) {
+            ck += 1
+          }
+        }
+        if (
+          (graph.known(f?.father_handle) && graph.known(f?.mother_handle)) ||
+          ck > 0
+        ) {
+          np += 1
+        }
+      }
+      // occurs more than one time and needs to be connected by fake parent
+      if (np > 1) {
+        const fakeHandle = `fakeparent${p.handle}`
+        graph.addPerson({
+          handle: fakeHandle,
+          gramps_id: '',
+          profile: {
+            fake: true,
+            name_given: 'FAKE',
+            name_surname: p.profile.name_surname,
+          },
+        })
+        graph.addNode({fake: true}, `p_${fakeHandle}`, fakeHandle, false)
+        graph.addEdge(`p_${fakeHandle}`, fakeHandle, p.handle)
+      }
+    }
+  }
 }
 
 function generateDot(graph) {
@@ -51,8 +94,8 @@ function generateDot(graph) {
   for (const n of graph.getNodes()) {
     const pf = n.father
     const pm = n.mother
-    const widthInches = graph.boxWidth / 66
-    const heightInches = graph.boxHeight / 66
+    const widthInches = n.fake ? 0 : graph.boxWidth / 66
+    const heightInches = n.fake ? 0 : graph.boxHeight / 66 - 0.3
     if (pf && pm) {
       dot += `
       subgraph cluster_${n.handle} {
@@ -197,6 +240,7 @@ class Relgraph {
     const n = {
       handle: family,
       type: fdata?.type,
+      fake: fdata?.fake,
     }
     if (father && this.known(father)) {
       n.father = father
@@ -288,7 +332,7 @@ function remasterChart(divhidden, targetsvg, graph, boxWidth, boxHeight) {
     if (found.groups.handletype === 'person') {
       const d = graph.known(found.groups.handle)
       nodedata.push({
-        nodetype: 'person',
+        nodetype: d.profile.fake ? 'fake' : 'person',
         xCoord: x - boxWidth / 2 + 4,
         yCoord: y - boxHeight / 2,
         profile: d.profile,
@@ -305,6 +349,9 @@ function remasterChart(divhidden, targetsvg, graph, boxWidth, boxHeight) {
       })
     }
   })
+  // container for edges
+  const edges = targetsvg.append('g').attr('class', 'edges')
+
   // build d3 based nodes with data bound to them
   const nodes = targetsvg
     .selectAll('.node')
@@ -396,7 +443,6 @@ function remasterChart(divhidden, targetsvg, graph, boxWidth, boxHeight) {
     .on('click', clicked)
 
   // copy edges
-  const edges = targetsvg.append('g').attr('class', 'edges')
   gvchartx.selectAll('.edge').each(function () {
     edges.append('g').attr('class', 'edge').html(select(this).html())
   })
