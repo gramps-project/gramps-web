@@ -69,8 +69,9 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     this.disableBack = false
     this.disableHome = false
     this._data = []
-    this._setAnc = true
-    this._setDesc = true
+    this._setAnc = false
+    this._setDesc = false
+    this._setSep = false
   }
 
   renderContent() {
@@ -154,6 +155,22 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
                   type="number"
                   min="0"
                   @change=${this._handleChangeDesc}
+                ></mwc-textfield>
+              </td>
+            </tr>
+          `
+        : ''
+    }${
+      this._setSep
+        ? html`
+            <tr>
+              <td>${this._('Max Degree of Separation')}</td>
+              <td>
+                <mwc-textfield
+                  value=${this.nAnc}
+                  type="number"
+                  min="0"
+                  @change=${this._handleChangeAnc}
                 ></mwc-textfield>
               </td>
             </tr>
