@@ -2,16 +2,24 @@
 Element for selecting a Gramps type
 */
 
-import {html, LitElement} from 'lit'
+import {css, html, LitElement} from 'lit'
 import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
 
+import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
-    return [sharedStyles]
+    return [
+      sharedStyles,
+      css`
+        .hide {
+          display: none;
+        }
+      `,
+    ]
   }
 
   static get properties() {
@@ -67,9 +75,10 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
       ${this.noheading
         ? ''
         : html`<h4 class="label">${this.heading || this._('Type')}</h4>`}
-      <p>
+      <p style="display: flex">
         <mwc-select
           style="width:100%"
+          class="${classMap({hide: this._hasCustomType})}"
           ?required=${this.required && !this._hasCustomType && !this.nocustom}
           ?disabled=${this.loadingTypes || this._hasCustomType || this.disabled}
           validationMessage="${this._('This field is mandatory')}"
@@ -95,40 +104,49 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
                 `
               )}
         </mwc-select>
-      </p>
-
-      ${this.nocustom
-        ? ''
-        : html`
-            <mwc-button
-              @click="${this.switchTypeInput}"
-              ?disabled="${this.disabled}"
-            >
-              ${this._hasCustomType
-                ? this._('Switch to default type')
-                : this._('Switch to custom type')}
-            </mwc-button>
-          `}
-      ${this.nocustom || !this._hasCustomType
-        ? ''
-        : html`
-            <h4 class="label">${this._('Custom type')}</h4>
-            <p>
+        ${this.nocustom || !this._hasCustomType
+          ? ''
+          : html`
               <mwc-textfield
                 ?disabled="${this.disabled}"
                 style="width:100%"
-                ?required=${this._hasCustomType}
+                ?required=${this.required}
                 validationMessage="${this._('This field is mandatory')}"
-                @change="${this.handleChange}"
+                @input="${this.handleChange}"
+                label="${this.loadingTypes
+                  ? this._('Loading items...')
+                  : `${this.label} ${this._('Custom')}`}"
                 id="custom-type"
               >
               </mwc-textfield>
-            </p>
-          `}
+            `}
+        ${this.nocustom
+          ? ''
+          : html`
+              <mwc-icon-button
+                style="margin-left: 8px"
+                icon="${this._hasCustomType ? 'remove' : 'add'}"
+                id="button-switch-type"
+                @click="${this.switchTypeInput}"
+                ?disabled="${this.disabled}"
+              ></mwc-icon-button>
+              <grampsjs-tooltip
+                for="button-switch-type"
+                content="${this._hasCustomType
+                  ? this._('Switch to default type')
+                  : this._('Add custom type')}"
+                .strings="${this.strings}"
+              ></grampsjs-tooltip>
+            `}
+      </p>
     `
   }
 
   switchTypeInput() {
+    if (!this._hasCustomType) {
+      const selectType = this.shadowRoot.getElementById('select-type')
+      selectType.value = null
+    }
     this._hasCustomType = !this._hasCustomType
   }
 
@@ -155,13 +173,14 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
 
   isValid() {
     const selectType = this.shadowRoot.getElementById('select-type')
-    const customType = this.shadowRoot.getElementById('custom-type') // adding query for custom-type id
-    if (selectType === null && customType === null) {
-      // checking if both types null then return false
+    const customType = this.shadowRoot.getElementById('custom-type')
+    if (selectType === null || (this._hasCustomType && customType === null)) {
       return false
     }
     try {
-      return selectType?.validity?.valid
+      return this._hasCustomType
+        ? customType?.validity?.valid
+        : selectType?.validity?.valid
     } catch {
       return false
     }

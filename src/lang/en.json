@@ -151,5 +151,10 @@
   "Password is required": "Password is required",
   "Delete all objects": "Delete all objects",
   "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.",
-  "Please re-enter your password to continue.": "Please re-enter your password to continue."
+  "Please re-enter your password to continue.": "Please re-enter your password to continue.",
+  "Add custom type": "Add custom type",
+  "Are you sure?": "Are you sure?",
+  "Show more": "Show more",
+  "This action cannot be undone.": "This action cannot be undone.",
+  "Yes": "Yes"
 }

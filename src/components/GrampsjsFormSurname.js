@@ -58,11 +58,37 @@ class GrampsjsFormSurname extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
+      <p class="${classMap({hide: !this.showMore})}">
+        <grampsjs-form-string
+          @formdata:changed="${this._handleFormData}"
+          fullwidth
+          id="prefix"
+          value="${this.data.prefix || ''}"
+          label="${this._('Prefix')}"
+        ></grampsjs-form-string>
+      </p>
+      <p>
+        <grampsjs-form-string
+          @formdata:changed="${this._handleFormData}"
+          fullwidth
+          id="surname"
+          value="${this.data.surname || ''}"
+          label="${this._('Surname')}"
+        ></grampsjs-form-string>
+      </p>
+      <p class="${classMap({hide: !this.showMore})}">
+        <grampsjs-form-string
+          @formdata:changed="${this._handleFormData}"
+          fullwidth
+          id="connector"
+          value="${this.data.connector || ''}"
+          label="${this._('Connector')}"
+        ></grampsjs-form-string>
+      </p>
       ${this.origintype
         ? html`
             <p class="${classMap({hide: !this.showMore})}">
               <grampsjs-form-select-type
-                required
                 noheading
                 label="${this._('Surname origin type:').replace(':', '')}"
                 id="surname-origin-type"
@@ -79,33 +105,6 @@ class GrampsjsFormSurname extends GrampsjsTranslateMixin(LitElement) {
             </p>
           `
         : ''}
-      <p class="${classMap({hide: !this.showMore})}">
-        <grampsjs-form-string
-          @formdata:changed="${this._handleFormData}"
-          fullwidth
-          id="prefix"
-          value="${this.data.prefix || ''}"
-          label="${this._('Prefix')}"
-        ></grampsjs-form-string>
-      </p>
-      <p class="${classMap({hide: !this.showMore})}">
-        <grampsjs-form-string
-          @formdata:changed="${this._handleFormData}"
-          fullwidth
-          id="connector"
-          value="${this.data.connector || ''}"
-          label="${this._('Connector')}"
-        ></grampsjs-form-string>
-      </p>
-      <p>
-        <grampsjs-form-string
-          @formdata:changed="${this._handleFormData}"
-          fullwidth
-          id="surname"
-          value="${this.data.surname || ''}"
-          label="${this._('Surname')}"
-        ></grampsjs-form-string>
-      </p>
     `
   }
 

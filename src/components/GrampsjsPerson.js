@@ -54,9 +54,13 @@ export class GrampsjsPerson extends GrampsjsObject {
     const callIndex = call ? given.search(call) : -1
     given =
       callIndex > -1
-        ? html`${given.substr(0, callIndex)}<span class="given-name"
-              >${given.substr(callIndex, call.length)}</span
-            >${given.substr(callIndex + call.length)}`
+        ? html`
+            ${given.substring(0, callIndex)}
+            <span class="given-name"
+              >${given.substring(callIndex, callIndex + call.length)}</span
+            >
+            ${given.substring(callIndex + call.length)}
+          `
         : given
     return html`${given} ${surname} ${suffix}`
   }
