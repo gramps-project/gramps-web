@@ -11,7 +11,12 @@ import './GrampsjsViewHourglassChart.js'
 import './GrampsjsViewFanChart.js'
 import './GrampsjsViewRelationshipChart.js'
 import {fireEvent} from '../util.js'
-import {chartFanIconPath, hourglassIconPath, renderIconSvg} from '../icons.js'
+import {
+  chartFanIconPath,
+  hourglassIconPath,
+  renderIconSvg,
+  relationshipGraphIconPath,
+} from '../icons.js'
 
 export class GrampsjsViewTree extends GrampsjsView {
   static get styles() {
@@ -52,7 +57,6 @@ export class GrampsjsViewTree extends GrampsjsView {
 
         md-tabs {
           --md-divider-thickness: 0px;
-          width: fit-content;
         }
       `,
     ]
@@ -104,7 +108,6 @@ export class GrampsjsViewTree extends GrampsjsView {
             this._currentTabId = 0
           }}
           has-icon
-          inline-icon
           >${this._('Ancestor Tree')}
           <span slot="icon"
             >${renderIconSvg(
@@ -119,7 +122,6 @@ export class GrampsjsViewTree extends GrampsjsView {
             this._currentTabId = 1
           }}
           has-icon
-          inline-icon
         >
           ${this._('Descendant Tree')}
           <span slot="icon"
@@ -131,7 +133,6 @@ export class GrampsjsViewTree extends GrampsjsView {
             this._currentTabId = 2
           }}
           has-icon
-          inline-icon
         >
           ${this._('Hourglass Graph')}
           <span slot="icon"
@@ -143,11 +144,13 @@ export class GrampsjsViewTree extends GrampsjsView {
             this._currentTabId = 3
           }}
           has-icon
-          inline-icon
         >
           ${this._('Relationship Chart')}
           <span slot="icon"
-            >${renderIconSvg(hourglassIconPath, '--md-sys-color-primary')}</span
+            >${renderIconSvg(
+              relationshipGraphIconPath,
+              '--md-sys-color-primary'
+            )}</span
           >
         </md-primary-tab>
         <md-primary-tab
@@ -155,7 +158,6 @@ export class GrampsjsViewTree extends GrampsjsView {
             this._currentTabId = 4
           }}
           has-icon
-          inline-icon
         >
           ${this._('Fan Chart')}
           <span slot="icon"
