@@ -145,7 +145,7 @@ export class GrampsjsViewTree extends GrampsjsView {
           }}
           has-icon
         >
-          ${this._('Relationship Chart')}
+          ${this._('Relationship Graph')}
           <span slot="icon"
             >${renderIconSvg(
               relationshipGraphIconPath,
