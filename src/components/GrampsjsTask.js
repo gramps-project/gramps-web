@@ -101,6 +101,8 @@ export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
         .strings="${this.strings}"
         objectsName="Tasks"
         objectIcon="checklist"
+        hideBookmark
+        hideLock
       ></grampsjs-breadcrumbs>
       <h2
         id="title"

@@ -61,7 +61,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           margin-top: -0.5em;
           color: var(--mdc-theme-primary);
         }
-      `,
+      `
     ]
   }
 
@@ -73,7 +73,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       dbInfo: {type: Object},
       canEdit: {type: Boolean},
       _drawing: {type: Boolean},
-      _ocr: {type: Boolean},
+      _ocr: {type: Boolean}
     }
   }
 
@@ -197,7 +197,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           .selectedRect="${this.selectedRect?.rect || []}"
           .deletedRects="${[
             ...this.deletedRects,
-            ...this._getRectangles().map(obj => obj.rect),
+            ...this._getRectangles().map(obj => obj.rect)
           ]}"
           .strings="${this.strings}"
           @rect:selected="${this._handleRectSelected}"
@@ -373,7 +373,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         objHandle: this.selectedRect.handle,
         objType: this.selectedRect.type,
         mediaHandle: this.data.handle,
-        rect: this.selectedRect.rect,
+        rect: this.selectedRect.rect
       })
     }
     this.selectedRect = {}
@@ -399,7 +399,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       mediaHandle: this.data.handle,
       rect: this.selectedRect.rect,
       oldHandle: this.selectedRect.handle,
-      oldType: this.selectedRect.type,
+      oldType: this.selectedRect.type
     }
     fireEvent(this, 'facetag:add', data)
     this.selectedRect = {}
@@ -475,12 +475,12 @@ export class GrampsjsMediaObject extends GrampsjsObject {
             type: key,
             label,
             grampsId: obj.gramps_id,
-            handle: obj.handle,
+            handle: obj.handle
           }
         })
       )
       .flat()
-      .filter(obj => obj.rect?.length > 0)
+      .filter(obj => obj?.rect?.length > 0)
   }
 
   _handleSaveMap(e) {
@@ -488,7 +488,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     if (attrs.length > 0) {
       fireEvent(this, 'edit:action', {
         action: 'updateProp',
-        data: {attribute_list: attrs},
+        data: {attribute_list: attrs}
       })
     }
     e.preventDefault()
@@ -506,7 +506,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       new CustomEvent('nav', {
         bubbles: true,
         composed: true,
-        detail: {path: event.detail.target},
+        detail: {path: event.detail.target}
       })
     )
   }
