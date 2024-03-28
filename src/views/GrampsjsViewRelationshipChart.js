@@ -32,7 +32,7 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
       rules: [
         {
           name: 'DegreesOfSeparation',
-          values: [grampsId, this.nAnc + 1],
+          values: [grampsId, this.nAnc],
         },
       ],
     }
