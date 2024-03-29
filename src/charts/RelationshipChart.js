@@ -98,12 +98,12 @@ function generateDot(graph) {
     const heightInches = n.fake ? 0 : graph.boxHeight / 66 - 0.3
     if (pf && pm) {
       dot += `
-      subgraph cluster_${n.handle} {
+      subgraph "cluster_${n.handle}" {
         cluster=true
         color=white
         margin="50,0"
         label="."
-        node_${n.handle}x${pf} [
+        "node_${n.handle}x${pf}" [
           class="person_${pf}"
           margin=0
           shape="none"
@@ -112,7 +112,7 @@ function generateDot(graph) {
           height=${heightInches}
           label=<->
         ]
-        node_${n.handle} [
+        "node_${n.handle}" [
           class="family_${n.handle}"
           label=<.>
           shape="none"
@@ -121,7 +121,7 @@ function generateDot(graph) {
           width=0.1
           height=${heightInches}
         ]
-        node_${n.handle}x${pm} [
+        "node_${n.handle}x${pm}" [
           class="person_${pm}"
           margin=0.25
           shape="none"
@@ -135,11 +135,11 @@ function generateDot(graph) {
     } else {
       const p = pf || pm
       dot += `
-      subgraph cluster_${n.handle} {
+      subgraph "cluster_${n.handle}" {
         cluster=true
         color=white
         label="."
-        node_${n.handle}x${p} [
+        "node_${n.handle}x${p}" [
           class="person_${p}"
           margin=0.25
           shape="none"
@@ -157,10 +157,10 @@ function generateDot(graph) {
     for (const targetnode of graph.getNodesOfPerson(e.targetPerson)) {
       if (e.sourcePerson) {
         // one-person node as source
-        dot += `node_${e.sourceFamily}x${e.sourcePerson} -> node_${targetnode}x${e.targetPerson} [label="", arrowhead=none, color="#555"]
+        dot += `"node_${e.sourceFamily}x${e.sourcePerson}" -> "node_${targetnode}x${e.targetPerson}" [label="", arrowhead=none, color="#555"]
       `
       } else {
-        dot += `node_${e.sourceFamily} -> node_${targetnode}x${e.targetPerson} [ltail=node_${e.sourceFamily}, label="", arrowhead=none, color="#555"]
+        dot += `"node_${e.sourceFamily}" -> "node_${targetnode}x${e.targetPerson}" [ltail="node_${e.sourceFamily}", label="", arrowhead=none, color="#555"]
       `
       }
     }
