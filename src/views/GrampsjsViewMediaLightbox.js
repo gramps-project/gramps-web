@@ -247,7 +247,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
               ? getNameFromProfile(refs[index] || {}, key, this.strings)
               : '...'
           return {
-            rect: obj.media_list.find(mobj => mobj.ref === this._data.handle)
+            rect: obj?.media_list?.find(mobj => mobj.ref === this._data.handle)
               ?.rect,
             type: key,
             label,
@@ -256,7 +256,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         })
       )
       .flat()
-      .filter(obj => obj.rect.length > 0)
+      .filter(obj => obj.rect?.length > 0)
   }
 
   connectedCallback() {

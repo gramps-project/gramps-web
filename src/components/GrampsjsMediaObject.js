@@ -470,7 +470,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
               ? getNameFromProfile(refs[index] || {}, key, this.strings)
               : '...'
           return {
-            rect: obj.media_list.find(mobj => mobj.ref === this.data.handle)
+            rect: obj?.media_list?.find(mobj => mobj.ref === this.data.handle)
               ?.rect,
             type: key,
             label,
@@ -480,7 +480,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         })
       )
       .flat()
-      .filter(obj => obj.rect.length > 0)
+      .filter(obj => obj.rect?.length > 0)
   }
 
   _handleSaveMap(e) {
