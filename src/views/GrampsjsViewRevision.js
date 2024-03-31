@@ -219,7 +219,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
   async _fetchData() {
     this.loading = true
     const data = await apiGet(
-      `/api/transactions/history/${this.transactionId}?old=1&new=1&patch=1`
+      `/api/transactions/history/${this.transactionId}?old=1&new=1`
     )
     this.loading = false
     if ('data' in data) {
