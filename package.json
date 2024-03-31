@@ -15,9 +15,9 @@
     "start": "web-dev-server --app-index index.html --host 0.0.0.0 --node-resolve --open --watch"
   },
   "devDependencies": {
-    "@babel/core": "^7.18.13",
-    "@babel/eslint-parser": "^7.18.9",
-    "@babel/plugin-syntax-import-assertions": "^7.18.6",
+    "@babel/core": "^7.24.1",
+    "@babel/eslint-parser": "^7.24.1",
+    "@babel/plugin-syntax-import-attributes": "^7.24.1",
     "@open-wc/building-rollup": "^1.9.4",
     "@open-wc/demoing-storybook": "^2.4.6",
     "@open-wc/eslint-config": "^4.3.0",
@@ -71,7 +71,7 @@
   },
   "babel": {
     "plugins": [
-      "@babel/plugin-syntax-import-assertions"
+      "@babel/syntax-import-attributes"
     ]
   },
   "name": "gramps-js",
