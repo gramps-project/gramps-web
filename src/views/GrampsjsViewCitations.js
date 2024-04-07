@@ -14,6 +14,7 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
     this._columns = {
       grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
       sourceTitle: {title: 'Source: Title', sort: ''},
+      page: {title: 'Page', sort: ''},
       change: {title: 'Last changed', sort: 'change'},
     }
     this._objectsName = 'citations'
@@ -21,7 +22,7 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
 
   // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
-    return '/api/citations/?extend=source_handle&keys=gramps_id,extended,change'
+    return '/api/citations/?extend=source_handle&keys=gramps_id,extended,page,change'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -52,6 +53,7 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
     const formattedRow = {
       grampsId: row.gramps_id,
       sourceTitle: row.extended.source?.title,
+      page: row.page,
       change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
     }
     return formattedRow
