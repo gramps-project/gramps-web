@@ -36,6 +36,7 @@ import {
   mdiFileDocumentMinus,
 } from '@mdi/js'
 
+import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsTimedelta.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
@@ -129,12 +130,18 @@ export class GrampsjsViewRevisions extends GrampsjsView {
   static get properties() {
     return {
       _data: {type: Array},
+      _page: {type: Number},
+      _pages: {type: Number},
+      _pageSize: {type: Number},
     }
   }
 
   constructor() {
     super()
     this._data = []
+    this._page = 1
+    this._pages = -1
+    this._pageSize = 20
   }
 
   render() {
@@ -145,12 +152,15 @@ export class GrampsjsViewRevisions extends GrampsjsView {
         <md-divider></md-divider>
         ${this._data.map(txn => this._renderTransaction(txn))}
       </md-list>
+
+      <grampsjs-pagination
+        page="${this._page}"
+        pages="${this._pages}"
+        @page:changed="${this._handlePageChanged}"
+        .strings="${this.strings}"
+      ></grampsjs-pagination>
     `
   }
-
-  // <pre>
-  // ${JSON.stringify(this._data, null, 2)}
-  // </pre>
 
   _renderTransaction(txn) {
     // eslint-disable-next-line camelcase
@@ -205,21 +215,33 @@ export class GrampsjsViewRevisions extends GrampsjsView {
 
   async _fetchData() {
     this.loading = true
-    const data = await apiGet(
-      '/api/transactions/history/?sort=-id&page=1&pagesize=100'
-    )
+    const url = `/api/transactions/history/?sort=-id&page=${this._page}&pagesize=${this._pageSize}`
+    const data = await apiGet(url)
     this.loading = false
     if ('data' in data) {
       this.error = false
       this._data = data.data
+      this._totalCount = data.total_count
+      this._pages = Math.ceil(this._totalCount / this._pageSize)
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
     }
   }
 
+  _handlePageChanged(event) {
+    this._page = event.detail.page
+  }
+
   firstUpdated() {
     this._fetchData()
+  }
+
+  update(changed) {
+    super.update(changed)
+    if (changed.has('_page') && changed._page !== this._page) {
+      this._fetchData()
+    }
   }
 
   connectedCallback() {
