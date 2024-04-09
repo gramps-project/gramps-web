@@ -74,6 +74,15 @@ export class GrampsjsViewRevision extends GrampsjsView {
             margin-top: 0px;
           }
         }
+
+        p.user-time {
+          font-size: 0.95em;
+          color: rgba(0, 0, 0, 0.6);
+        }
+
+        span.user {
+          font-weight: 440;
+        }
       `,
     ]
   }
@@ -81,7 +90,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
   static get properties() {
     return {
       transactionId: {type: Number},
-      _data: {type: Array},
+      _data: {type: Object},
       _detailId: {type: Number},
     }
   }
@@ -89,7 +98,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
   constructor() {
     super()
     this.transactionId = -1
-    this._data = []
+    this._data = {}
     this._detailId = -1
   }
 
@@ -102,6 +111,9 @@ export class GrampsjsViewRevision extends GrampsjsView {
   }
 
   render() {
+    if (!this._data.id) {
+      return ''
+    }
     return html`
       <grampsjs-breadcrumbs
         hideLock
@@ -113,6 +125,21 @@ export class GrampsjsViewRevision extends GrampsjsView {
       ></grampsjs-breadcrumbs>
 
       <h2>${this._(this._data.description)}</h2>
+
+      <p class="user-time">
+        <span class="user">
+          ${this._data.connection?.user
+            ? this._renderUser(this._data.connection?.user)
+            : this._('Unknown')},
+        </span>
+        <span class="time">
+          <grampsjs-timedelta
+            timestamp="${this._data.timestamp}"
+            locale="${this.strings.__lang__}"
+          ></grampsjs-timedelta>
+        </span>
+      </p>
+
       <div id="left" class="${classMap({hidden: this._detailId > 0})}">
         ${this._getChanges(0).length > 0
           ? html`<h3>${this._('Added')}</h3>
