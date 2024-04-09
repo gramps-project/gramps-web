@@ -48,7 +48,7 @@ const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
 
-const MINIMUM_API_VERSION = '1.6.0'
+const MINIMUM_API_VERSION = '2.0.0'
 
 export class GrampsJs extends LitElement {
   static get properties() {
@@ -59,6 +59,7 @@ export class GrampsJs extends LitElement {
       settings: {type: Object},
       canAdd: {type: Boolean},
       canEdit: {type: Boolean},
+      canViewPrivate: {type: Boolean},
       canManageUsers: {type: Boolean},
       _homePersonDetails: {type: Object},
       _lang: {type: String},
@@ -81,6 +82,7 @@ export class GrampsJs extends LitElement {
     this.settings = getSettings()
     this.canAdd = false
     this.canEdit = false
+    this.canViewPrivate = false
     this.canManageUsers = false
     this._homePersonDetails = {}
     this._lang = ''
@@ -484,7 +486,10 @@ export class GrampsJs extends LitElement {
     return html`
       <mwc-drawer type="dismissible" id="app-drawer" ?open="${this.wide}">
         <div>
-          <grampsjs-main-menu .strings="${this._strings}"></grampsjs-main-menu>
+          <grampsjs-main-menu
+            .strings="${this._strings}"
+            ?canViewPrivate="${this.canViewPrivate}"
+          ></grampsjs-main-menu>
         </div>
         <div slot="appContent">
           <grampsjs-app-bar
@@ -505,6 +510,7 @@ export class GrampsJs extends LitElement {
               .pageId="${this._pageId}"
               .canAdd="${this.canAdd}"
               .canEdit="${this.canEdit}"
+              .canViewPrivate="${this.canViewPrivate}"
               .canManageUsers="${this.canManageUsers}"
             >
             </grampsjs-pages>
@@ -928,11 +934,13 @@ export class GrampsJs extends LitElement {
     if (permissions === null) {
       this.canAdd = true
       this.canEdit = true
+      this.canViewPrivate = true
       // managing users not meaningful in this case
       this.canManageUsers = false
     } else {
       this.canAdd = permissions.includes('AddObject')
       this.canEdit = permissions.includes('EditObject')
+      this.canViewPrivate = permissions.includes('ViewPrivate')
       this.canManageUsers = permissions.includes('EditOtherUser')
     }
   }

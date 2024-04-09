@@ -73,6 +73,7 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
       canAdd: {type: Boolean},
       canEdit: {type: Boolean},
       canManageUsers: {type: Boolean},
+      canViewPrivate: {type: Boolean},
       homePersonDetails: {type: Object},
       strings: {type: Object},
       dbInfo: {type: Object},
@@ -294,11 +295,15 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
         .strings="${this.strings}"
         reportId="${this.pageId}"
       ></grampsjs-view-report>
-      <grampsjs-view-revisions
-        class="page"
-        ?active=${this.page === 'revisions'}
-        .strings="${this.strings}"
-      ></grampsjs-view-revisions>
+      ${this.canViewPrivate
+        ? html`
+            <grampsjs-view-revisions
+              class="page"
+              ?active=${this.page === 'revisions'}
+              .strings="${this.strings}"
+            ></grampsjs-view-revisions>
+          `
+        : ''}
       <grampsjs-view-revision
         class="page"
         transactionId="${this.pageId}"

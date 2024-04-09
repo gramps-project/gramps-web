@@ -33,6 +33,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       editTitle: {type: String},
       editDialogContent: {type: String},
       saveButton: {type: Boolean},
+      canViewPrivate: {type: Boolean},
     }
   }
 
@@ -43,6 +44,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
     this.editTitle = ''
     this.editDialogContent = ''
     this.saveButton = false
+    this.canViewPrivate = false
   }
 
   render() {
@@ -88,10 +90,14 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
         <span>${this._('_Reports').replace('_', '')}</span>
         <mwc-icon slot="graphic">menu_book</mwc-icon>
       </grampsjs-list-item>
-      <grampsjs-list-item href="${BASE_DIR}/revisions" graphic="icon">
-        <span>${this._('Revisions')}</span>
-        <mwc-icon slot="graphic">commit</mwc-icon>
-      </grampsjs-list-item>
+      ${this.canViewPrivate
+        ? html`
+            <grampsjs-list-item href="${BASE_DIR}/revisions" graphic="icon">
+              <span>${this._('Revisions')}</span>
+              <mwc-icon slot="graphic">commit</mwc-icon>
+            </grampsjs-list-item>
+          `
+        : ''}
     </mwc-list>`
   }
 }
