@@ -68,6 +68,7 @@ import './views/GrampsjsViewRecent.js'
 import './views/GrampsjsViewBookmarks.js'
 import './views/GrampsjsViewMap.js'
 import './views/GrampsjsViewTree.js'
+import './views/GrampsjsViewTopola.js'
 import './views/GrampsjsViewNewPerson.js'
 import './views/GrampsjsViewNewFamily.js'
 import './views/GrampsjsViewNewEvent.js'
@@ -554,6 +555,10 @@ export class GrampsJs extends LitElement {
               <span>${this._('Family Tree')}</span>
               <mwc-icon slot="graphic">${renderIcon(mdiFamilyTree)}</mwc-icon>
             </grampsjs-list-item>
+            <grampsjs-list-item href="${BASE_DIR}/topola" graphic="icon">
+              <span>${this._('Interactive Tree')}</span>
+              <mwc-icon slot="graphic">${renderIcon(mdiFamilyTree)}</mwc-icon>
+            </grampsjs-list-item>
             <li divider padded role="separator"></li>
             <grampsjs-list-item href="${BASE_DIR}/recent" graphic="icon">
               <span>${this._('History')}</span>
@@ -675,6 +680,13 @@ export class GrampsJs extends LitElement {
               .strings="${this._strings}"
               .settings="${this.settings}"
             ></grampsjs-view-tree>
+            <grampsjs-view-topola
+              class="page"
+              ?active=${this._page === 'topola'}
+              grampsId="${this.settings.homePerson}"
+              .strings="${this._strings}"
+              .settings="${this.settings}"
+            ></grampsjs-view-topola>
             <grampsjs-view-person
               class="page"
               ?active=${this._page === 'person'}
