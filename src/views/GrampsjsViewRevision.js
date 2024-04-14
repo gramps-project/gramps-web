@@ -262,11 +262,6 @@ export class GrampsjsViewRevision extends GrampsjsView {
     this._fetchData()
   }
 
-  connectedCallback() {
-    super.connectedCallback()
-    window.addEventListener('db:changed', () => this._fetchData())
-  }
-
   update(changed) {
     super.update(changed)
     if (this.active && changed.has('transactionId')) {

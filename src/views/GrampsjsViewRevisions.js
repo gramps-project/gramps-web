@@ -34,6 +34,7 @@ import {
   mdiImageMinus,
   mdiMapMarkerMinus,
   mdiFileDocumentMinus,
+  mdiTimelineQuestionOutline,
 } from '@mdi/js'
 
 import '../components/GrampsjsPagination.js'
@@ -76,15 +77,6 @@ const changeIcons = {
   Media_2: mdiImageMinus,
 }
 
-const colors = {
-  10: '#4caf50',
-  11: 'var(--mdc-theme-secondary)',
-  12: '#bf360c',
-  0: 'rgba(0, 0, 0, 0.45)',
-  1: 'rgba(0, 0, 0, 0.45)',
-  2: 'rgba(0, 0, 0, 0.45)',
-}
-
 export class GrampsjsViewRevisions extends GrampsjsView {
   static get styles() {
     return [
@@ -95,6 +87,10 @@ export class GrampsjsViewRevisions extends GrampsjsView {
           --md-list-item-label-text-size: 17px;
           --md-list-item-supporting-text-color: rgba(0, 0, 0, 0.5);
           --md-list-item-trailing-supporting-text-color: rgba(0, 0, 0, 0.8);
+        }
+
+        md-list-item[type='text'] {
+          --md-list-item-label-text-color: rgba(0, 0, 0, 0.48);
         }
 
         svg[slot='end'] {
@@ -172,25 +168,34 @@ export class GrampsjsViewRevisions extends GrampsjsView {
     }, {})
 
     return html`<md-list-item
-        interactive
-        type="link"
-        href="/revision/${txn.id}"
+        ?interactive="${!!txn.changes?.length}"
+        type="${txn.changes?.length ? 'link' : 'text'}"
+        href="${txn.changes?.length ? `/revision/${txn.id}` : ''}"
       >
         <div slot="headline">${this._(txn.description)}</div>
         ${renderIconSvg(mdiSourceCommit, '#777777', 0, 'start')}
-        ${Object.keys(counts).map(key =>
-          changeIcons[key]
-            ? html`
-                ${renderIconSvg(
-                  changeIcons[key],
-                  colors[key.split('_')[1]],
-                  0,
-                  'end'
-                )}
-                <span slot="end" class="counter">${counts[key]}</span>
-              `
-            : ''
-        )}
+        ${txn.changes?.length
+          ? Object.keys(counts).map(key =>
+              changeIcons[key]
+                ? html`
+                      ${
+                        renderIconSvg(
+                          changeIcons[key],
+                          'rgba(0, 0, 0, 0.45)',
+                          0,
+                          'end'
+                        )
+                        // <span slot="end" class="counter">${counts[key]}</span>
+                      } </span
+                    > `
+                : ''
+            )
+          : renderIconSvg(
+              mdiTimelineQuestionOutline,
+              'rgba(0, 0, 0, 0.45)',
+              0,
+              'end'
+            )}
         <div slot="supporting-text">
           <span class="user">
             ${txn.connection?.user
