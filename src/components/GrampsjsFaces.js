@@ -37,6 +37,9 @@ export class GrampsjsFaces extends GrampsjsConnectedComponent {
 
   // slightly grow rectangles and make them rectangular
   _getFaces() {
+    if (!this._data.data) {
+      return []
+    }
     return this._data.data.map(rect => {
       const [left, top, right, bottom] = rect
       const width = right - left
@@ -65,6 +68,7 @@ export class GrampsjsFaces extends GrampsjsConnectedComponent {
     this.selectedRect = []
     this.deletedRects = []
     this.rectHidden = false
+    this.renderOnError = true // render even if face detection fails
   }
 
   getUrl() {
