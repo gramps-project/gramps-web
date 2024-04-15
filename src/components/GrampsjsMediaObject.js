@@ -480,7 +480,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         })
       )
       .flat()
-      .filter(obj => obj.rect?.length > 0)
+      .filter(obj => obj?.rect?.length > 0)
   }
 
   _handleSaveMap(e) {

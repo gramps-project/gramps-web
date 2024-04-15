@@ -108,7 +108,7 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
 
   _restoreState() {
     const taskIds = getTaskIds()
-    if (this.taskName && taskIds[this.taskName]) {
+    if (this.taskName && taskIds?.[this.taskName]) {
       this.taskId = taskIds[this.taskName]
     }
   }

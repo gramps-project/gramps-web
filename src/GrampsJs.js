@@ -14,8 +14,6 @@ import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-linear-progress'
 import '@material/mwc-snackbar'
-import {mdiFamilyTree} from '@mdi/js'
-import {renderIcon} from './icons.js'
 import {
   apiGet,
   apiPost,
@@ -32,52 +30,12 @@ import './components/GrampsjsAppBar.js'
 import './components/GrampsJsListItem.js'
 import './components/GrampsjsFirstRun.js'
 import './components/GrampsjsLogin.js'
+import './components/GrampsjsMainMenu.js'
+import './components/GrampsjsPages.js'
 import './components/GrampsjsUpdateAvailable.js'
 import './components/GrampsjsUpgradeDb.js'
 import './components/GrampsjsUndoTransaction.js'
-import './views/GrampsjsViewPeople.js'
-import './views/GrampsjsViewFamilies.js'
-import './views/GrampsjsViewPlaces.js'
-import './views/GrampsjsViewEvents.js'
-import './views/GrampsjsViewReport.js'
-import './views/GrampsjsViewReports.js'
-import './views/GrampsjsViewSources.js'
-import './views/GrampsjsViewCitations.js'
-import './views/GrampsjsViewRepositories.js'
-import './views/GrampsjsViewNotes.js'
-import './views/GrampsjsViewMediaObjects.js'
-import './views/GrampsjsViewExport.js'
-import './views/GrampsjsViewPerson.js'
-import './views/GrampsjsViewFamily.js'
-import './views/GrampsjsViewPlace.js'
-import './views/GrampsjsViewEvent.js'
-import './views/GrampsjsViewSource.js'
-import './views/GrampsjsViewTask.js'
-import './views/GrampsjsViewTasks.js'
-import './views/GrampsjsViewBlog.js'
-import './views/GrampsjsViewBlogPost.js'
-import './views/GrampsjsViewCitation.js'
-import './views/GrampsjsViewDashboard.js'
-import './views/GrampsjsViewRepository.js'
-import './views/GrampsjsViewNote.js'
-import './views/GrampsjsViewMedia.js'
-import './views/GrampsjsViewSearch.js'
-import './views/GrampsjsViewSettings.js'
 import './views/GrampsjsViewSettingsOnboarding.js'
-import './views/GrampsjsViewRecent.js'
-import './views/GrampsjsViewBookmarks.js'
-import './views/GrampsjsViewMap.js'
-import './views/GrampsjsViewTree.js'
-import './views/GrampsjsViewNewPerson.js'
-import './views/GrampsjsViewNewFamily.js'
-import './views/GrampsjsViewNewEvent.js'
-import './views/GrampsjsViewNewPlace.js'
-import './views/GrampsjsViewNewSource.js'
-import './views/GrampsjsViewNewCitation.js'
-import './views/GrampsjsViewNewRepository.js'
-import './views/GrampsjsViewNewNote.js'
-import './views/GrampsjsViewNewMedia.js'
-import './views/GrampsjsViewNewTask.js'
 import {sharedStyles} from './SharedStyles.js'
 
 const LOADING_STATE_INITIAL = 0
@@ -90,7 +48,7 @@ const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
 
-const MINIMUM_API_VERSION = '1.6.0'
+const MINIMUM_API_VERSION = '2.0.0'
 
 export class GrampsJs extends LitElement {
   static get properties() {
@@ -101,6 +59,7 @@ export class GrampsJs extends LitElement {
       settings: {type: Object},
       canAdd: {type: Boolean},
       canEdit: {type: Boolean},
+      canViewPrivate: {type: Boolean},
       canManageUsers: {type: Boolean},
       _homePersonDetails: {type: Object},
       _lang: {type: String},
@@ -123,6 +82,7 @@ export class GrampsJs extends LitElement {
     this.settings = getSettings()
     this.canAdd = false
     this.canEdit = false
+    this.canViewPrivate = false
     this.canManageUsers = false
     this._homePersonDetails = {}
     this._lang = ''
@@ -173,10 +133,6 @@ export class GrampsJs extends LitElement {
           --mdc-theme-primary: #4fc3f7;
         }
 
-        grampsjs-list-item span {
-          color: #444;
-        }
-
         #user-menu mwc-button {
           margin: 0.5em 1em;
         }
@@ -218,9 +174,6 @@ export class GrampsJs extends LitElement {
         mwc-list {
           --mdc-list-item-graphic-margin: 20px;
           --mdc-list-side-padding: 20px;
-        }
-
-        #main-menu {
         }
 
         #onboarding {
@@ -532,50 +485,11 @@ export class GrampsJs extends LitElement {
     }
     return html`
       <mwc-drawer type="dismissible" id="app-drawer" ?open="${this.wide}">
-        <div id="main-menu">
-          <mwc-list>
-            <grampsjs-list-item href="${BASE_DIR}/" graphic="icon">
-              <span>${this._('Home Page')}</span>
-              <mwc-icon slot="graphic">home</mwc-icon>
-            </grampsjs-list-item>
-            <grampsjs-list-item href="${BASE_DIR}/blog" graphic="icon">
-              <span>${this._('Blog')}</span>
-              <mwc-icon slot="graphic">rss_feed</mwc-icon>
-            </grampsjs-list-item>
-            <grampsjs-list-item href="${BASE_DIR}/people" graphic="icon">
-              <span>${this._('Lists')}</span>
-              <mwc-icon slot="graphic">list</mwc-icon>
-            </grampsjs-list-item>
-            <grampsjs-list-item href="${BASE_DIR}/map" graphic="icon">
-              <span>${this._('Map')}</span>
-              <mwc-icon slot="graphic">map</mwc-icon>
-            </grampsjs-list-item>
-            <grampsjs-list-item href="${BASE_DIR}/tree" graphic="icon">
-              <span>${this._('Family Tree')}</span>
-              <mwc-icon slot="graphic">${renderIcon(mdiFamilyTree)}</mwc-icon>
-            </grampsjs-list-item>
-            <li divider padded role="separator"></li>
-            <grampsjs-list-item href="${BASE_DIR}/recent" graphic="icon">
-              <span>${this._('History')}</span>
-              <mwc-icon slot="graphic">history</mwc-icon>
-            </grampsjs-list-item>
-            <grampsjs-list-item href="${BASE_DIR}/bookmarks" graphic="icon">
-              <span>${this._('_Bookmarks')}</span>
-              <mwc-icon slot="graphic">bookmark</mwc-icon>
-            </grampsjs-list-item>
-            <grampsjs-list-item href="${BASE_DIR}/tasks" graphic="icon">
-              <span>${this._('Tasks')}</span>
-              <mwc-icon slot="graphic">checklist</mwc-icon>
-            </grampsjs-list-item>
-            <grampsjs-list-item href="${BASE_DIR}/export" graphic="icon">
-              <span>${this._('Export')}</span>
-              <mwc-icon slot="graphic">download_file</mwc-icon>
-            </grampsjs-list-item>
-            <grampsjs-list-item href="${BASE_DIR}/reports" graphic="icon">
-              <span>${this._('_Reports').replace('_', '')}</span>
-              <mwc-icon slot="graphic">menu_book</mwc-icon>
-            </grampsjs-list-item>
-          </mwc-list>
+        <div>
+          <grampsjs-main-menu
+            .strings="${this._strings}"
+            ?canViewPrivate="${this.canViewPrivate}"
+          ></grampsjs-main-menu>
         </div>
         <div slot="appContent">
           <grampsjs-app-bar
@@ -587,263 +501,19 @@ export class GrampsJs extends LitElement {
 
           <main>
             ${this._tabHtml(tabs)}
-
-            <grampsjs-view-dashboard
-              class="page"
-              ?active=${this._page === 'home'}
+            <grampsjs-pages
               .strings="${this._strings}"
               .dbInfo="${this._dbInfo}"
               .homePersonDetails=${this._homePersonDetails}
-              .homePersonGrampsId=${this.settings.homePerson ?? ''}
-            ></grampsjs-view-dashboard>
-            <grampsjs-view-blog
-              class="page"
-              ?active=${this._page === 'blog' && !this._pageId}
-              .strings="${this._strings}"
-            ></grampsjs-view-blog>
-            <grampsjs-view-blog-post
-              class="page"
-              ?active=${this._page === 'blog' && this._pageId}
-              grampsId="${this._pageId}"
-              .strings="${this._strings}"
-            ></grampsjs-view-blog-post>
-
-            <grampsjs-view-people
-              class="page"
-              ?active=${this._page === 'people'}
-              .strings="${this._strings}"
-              ?canAdd=${this.canAdd}
-            ></grampsjs-view-people>
-            <grampsjs-view-families
-              class="page"
-              ?active=${this._page === 'families'}
-              .strings="${this._strings}"
-              ?canAdd=${this.canAdd && this.canEdit}
-            ></grampsjs-view-families>
-            <grampsjs-view-events
-              class="page"
-              ?active=${this._page === 'events'}
-              .strings="${this._strings}"
-              ?canAdd=${this.canAdd}
-            ></grampsjs-view-events>
-            <grampsjs-view-places
-              class="page"
-              ?active=${this._page === 'places'}
-              .strings="${this._strings}"
-              ?canAdd=${this.canAdd}
-            ></grampsjs-view-places>
-            <grampsjs-view-sources
-              class="page"
-              ?active=${this._page === 'sources'}
-              .strings="${this._strings}"
-              ?canAdd=${this.canAdd}
-            ></grampsjs-view-sources>
-            <grampsjs-view-citations
-              class="page"
-              ?active=${this._page === 'citations'}
-              .strings="${this._strings}"
-              ?canAdd=${this.canAdd}
-            ></grampsjs-view-citations>
-            <grampsjs-view-repositories
-              class="page"
-              ?active=${this._page === 'repositories'}
-              .strings="${this._strings}"
-              ?canAdd=${this.canAdd}
-            ></grampsjs-view-repositories>
-            <grampsjs-view-notes
-              class="page"
-              ?active=${this._page === 'notes'}
-              .strings="${this._strings}"
-              ?canAdd=${this.canAdd}
-            ></grampsjs-view-notes>
-            <grampsjs-view-media-objects
-              class="page"
-              ?active=${this._page === 'medialist'}
-              .strings="${this._strings}"
-              ?canAdd=${this.canAdd && this.canEdit}
-            ></grampsjs-view-media-objects>
-
-            <grampsjs-view-map
-              class="page"
-              ?active=${this._page === 'map'}
-              .strings="${this._strings}"
-            ></grampsjs-view-map>
-            <grampsjs-view-tree
-              class="page"
-              ?active=${this._page === 'tree'}
-              grampsId="${this.settings.homePerson}"
-              .strings="${this._strings}"
               .settings="${this.settings}"
-            ></grampsjs-view-tree>
-            <grampsjs-view-person
-              class="page"
-              ?active=${this._page === 'person'}
-              grampsId="${this._pageId}"
-              .strings="${this._strings}"
-              ?canEdit="${this.canEdit}"
-              .homePersonDetails=${this._homePersonDetails}
-            ></grampsjs-view-person>
-            <grampsjs-view-family
-              class="page"
-              ?active=${this._page === 'family'}
-              grampsId="${this._pageId}"
-              .strings="${this._strings}"
-              ?canEdit="${this.canEdit}"
-            ></grampsjs-view-family>
-            <grampsjs-view-event
-              class="page"
-              ?active=${this._page === 'event'}
-              grampsId="${this._pageId}"
-              .strings="${this._strings}"
-              ?canEdit="${this.canEdit}"
-            ></grampsjs-view-event>
-            <grampsjs-view-place
-              class="page"
-              ?active=${this._page === 'place'}
-              grampsId="${this._pageId}"
-              .strings="${this._strings}"
-              ?canEdit="${this.canEdit}"
-            ></grampsjs-view-place>
-            <grampsjs-view-source
-              class="page"
-              ?active=${this._page === 'source'}
-              grampsId="${this._pageId}"
-              .strings="${this._strings}"
-              ?canEdit="${this.canEdit}"
-            ></grampsjs-view-source>
-            <grampsjs-view-citation
-              class="page"
-              ?active=${this._page === 'citation'}
-              grampsId="${this._pageId}"
-              .strings="${this._strings}"
-              ?canEdit="${this.canEdit}"
-            ></grampsjs-view-citation>
-            <grampsjs-view-repository
-              class="page"
-              ?active=${this._page === 'repository'}
-              grampsId="${this._pageId}"
-              .strings="${this._strings}"
-              ?canEdit="${this.canEdit}"
-            ></grampsjs-view-repository>
-            <grampsjs-view-note
-              class="page"
-              ?active=${this._page === 'note'}
-              grampsId="${this._pageId}"
-              .strings="${this._strings}"
-              ?canEdit="${this.canEdit}"
-            ></grampsjs-view-note>
-            <grampsjs-view-media
-              class="page"
-              ?active=${this._page === 'media'}
-              grampsId="${this._pageId}"
-              .strings="${this._strings}"
-              ?canEdit="${this.canEdit}"
-              .dbInfo="${this._dbInfo}"
-            ></grampsjs-view-media>
-
-            <grampsjs-view-export
-              class="page"
-              ?active=${this._page === 'export'}
-              .strings="${this._strings}"
-            ></grampsjs-view-export>
-            <grampsjs-view-reports
-              class="page"
-              ?active=${this._page === 'reports'}
-              .strings="${this._strings}"
-            ></grampsjs-view-reports>
-            <grampsjs-view-search
-              class="page"
-              ?active=${this._page === 'search'}
-              .strings="${this._strings}"
-            ></grampsjs-view-search>
-            <grampsjs-view-recent
-              class="page"
-              ?active=${this._page === 'recent'}
-              .strings="${this._strings}"
-            ></grampsjs-view-recent>
-            <grampsjs-view-bookmarks
-              class="page"
-              ?active=${this._page === 'bookmarks'}
-              .strings="${this._strings}"
-            ></grampsjs-view-bookmarks>
-            <grampsjs-view-tasks
-              class="page"
-              ?active=${this._page === 'tasks'}
-              .strings="${this._strings}"
-              ?canEdit="${this.canEdit}"
-              ?canAdd="${this.canAdd}"
-            ></grampsjs-view-tasks>
-            <grampsjs-view-settings
-              class="page"
-              ?active=${this._page === 'settings'}
-              .dbInfo="${this._dbInfo}"
-              .strings="${this._strings}"
-              ?owner="${this.canManageUsers}"
-            ></grampsjs-view-settings>
-            <grampsjs-view-report
-              class="page"
-              ?active=${this._page === 'report'}
-              .strings="${this._strings}"
-              reportId="${this._pageId}"
-            ></grampsjs-view-report>
-
-            <grampsjs-view-new-person
-              class="page"
-              ?active=${this._page === 'new_person'}
-              .strings="${this._strings}"
-            ></grampsjs-view-new-person>
-            <grampsjs-view-new-family
-              class="page"
-              ?active=${this._page === 'new_family'}
-              .strings="${this._strings}"
-            ></grampsjs-view-new-family>
-            <grampsjs-view-new-event
-              class="page"
-              ?active=${this._page === 'new_event'}
-              .strings="${this._strings}"
-            ></grampsjs-view-new-event>
-            <grampsjs-view-new-place
-              class="page"
-              ?active=${this._page === 'new_place'}
-              .strings="${this._strings}"
-            ></grampsjs-view-new-place>
-            <grampsjs-view-new-source
-              class="page"
-              ?active=${this._page === 'new_source'}
-              .strings="${this._strings}"
-            ></grampsjs-view-new-source>
-            <grampsjs-view-new-citation
-              class="page"
-              ?active=${this._page === 'new_citation'}
-              .strings="${this._strings}"
-            ></grampsjs-view-new-citation>
-            <grampsjs-view-new-repository
-              class="page"
-              ?active=${this._page === 'new_repository'}
-              .strings="${this._strings}"
-            ></grampsjs-view-new-repository>
-            <grampsjs-view-new-note
-              class="page"
-              ?active=${this._page === 'new_note'}
-              .strings="${this._strings}"
-            ></grampsjs-view-new-note>
-            <grampsjs-view-new-media
-              class="page"
-              ?active=${this._page === 'new_media'}
-              .strings="${this._strings}"
-            ></grampsjs-view-new-media>
-            <grampsjs-view-new-task
-              class="page"
-              ?active=${this._page === 'new_task'}
-              .strings="${this._strings}"
-            ></grampsjs-view-new-task>
-            <grampsjs-view-task
-              class="page"
-              ?active=${this._page === 'task'}
-              grampsId="${this._pageId}"
-              .strings="${this._strings}"
-              ?canEdit="${this.canEdit}"
-            ></grampsjs-view-task>
+              .page="${this._page}"
+              .pageId="${this._pageId}"
+              .canAdd="${this.canAdd}"
+              .canEdit="${this.canEdit}"
+              .canViewPrivate="${this.canViewPrivate}"
+              .canManageUsers="${this.canManageUsers}"
+            >
+            </grampsjs-pages>
           </main>
         </div>
       </mwc-drawer>
@@ -1264,11 +934,13 @@ export class GrampsJs extends LitElement {
     if (permissions === null) {
       this.canAdd = true
       this.canEdit = true
+      this.canViewPrivate = true
       // managing users not meaningful in this case
       this.canManageUsers = false
     } else {
       this.canAdd = permissions.includes('AddObject')
       this.canEdit = permissions.includes('EditObject')
+      this.canViewPrivate = permissions.includes('ViewPrivate')
       this.canManageUsers = permissions.includes('EditOtherUser')
     }
   }

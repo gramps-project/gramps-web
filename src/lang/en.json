@@ -151,5 +151,18 @@
   "Password is required": "Password is required",
   "Delete all objects": "Delete all objects",
   "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.",
-  "Please re-enter your password to continue.": "Please re-enter your password to continue."
+  "Please re-enter your password to continue.": "Please re-enter your password to continue.",
+  "Revisions": "Revisions",
+  "Add multiple objects": "Add multiple objects",
+  "Delete Person": "Delete Person",
+  "Delete Family": "Delete Family",
+  "Delete Event": "Delete Event",
+  "Delete Place": "Delete Place",
+  "Delete Source": "Delete Source",
+  "Delete Citation": "Delete Citation",
+  "Delete Repository": "Delete Repository",
+  "Delete Note": "Delete Note",
+  "Delete Media": "Delete Media",
+  "Delete Tag": "Delete Tag",
+  "Edit Tag": "Edit Tag"
 }
