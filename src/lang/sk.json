@@ -151,5 +151,19 @@
     "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Vyčistiť rodinný strom odstránením všetkých existujúcich objektov. Voliteľne môžete vybrať konkrétne typy objektov na odstránenie.",
     "Password is required": "Je nutné heslo",
     "Delete all objects": "Odstrániť všetky objekty",
-    "Please re-enter your password to continue.": "Ak chcete pokračovať, zadajte znova svoje heslo."
+    "Please re-enter your password to continue.": "Ak chcete pokračovať, zadajte znova svoje heslo.",
+    "Add multiple objects": "Pridať viacero objektov",
+    "Delete Person": "Vymazať osobu",
+    "Delete Event": "Vymazať udalosť",
+    "Delete Place": "Vymazať miesto",
+    "Delete Family": "Vymazať rodinu",
+    "Delete Citation": "Vymazať citáciu",
+    "Delete Repository": "Vymazať archív",
+    "Delete Note": "Vymazať poznámku",
+    "Delete Media": "Vymazať médium",
+    "Delete Tag": "Vymazať značku",
+    "Edit Tag": "Upraviť značku",
+    "Revision History": "História revízie",
+    "Revisions": "Revízie",
+    "Delete Source": "Vymazať zdroj"
 }
