@@ -151,5 +151,19 @@
     "Password is required": "Vyžaduje se heslo",
     "Delete all objects": "Odstranit všechny objekty",
     "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Vyčistit rodokmen odstraněním všech existujících objektů. Volitelně můžete vybrat konkrétní typy objektů k odstranění.",
-    "Please re-enter your password to continue.": "Pro pokračování zadejte znovu své heslo."
+    "Please re-enter your password to continue.": "Pro pokračování zadejte znovu své heslo.",
+    "Revisions": "Revize",
+    "Add multiple objects": "Přidat více objektů",
+    "Delete Person": "Smazat osobu",
+    "Delete Event": "Smazat událost",
+    "Delete Place": "Smazat místo",
+    "Delete Citation": "Smazat citaci",
+    "Delete Repository": "Smazat archiv",
+    "Delete Note": "Smazat poznámku",
+    "Delete Media": "Smazat média",
+    "Delete Tag": "Smazat štítek",
+    "Edit Tag": "Upravit štítek",
+    "Delete Source": "Smazat zdroj",
+    "Revision History": "Historie revize",
+    "Delete Family": "Smazat rodinu"
 }
