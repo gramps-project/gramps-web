@@ -151,5 +151,19 @@
     "Password is required": "La contraseña es obligatoria",
     "Delete all objects": "Borrar todos los objetos",
     "Please re-enter your password to continue.": "Por favor, vuelva a introducir su contraseña para continuar.",
-    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Borre el árbol genealógico eliminando todos los objetos existentes. Opcionalmente, seleccione tipos específicos de objetos para su eliminación."
+    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Borre el árbol genealógico eliminando todos los objetos existentes. Opcionalmente, seleccione tipos específicos de objetos para su eliminación.",
+    "Delete Person": "Borrar una persona",
+    "Delete Family": "Borrar una familia",
+    "Delete Event": "Borrar un evento",
+    "Delete Source": "Borrar una fuente",
+    "Delete Citation": "Borrar una cita",
+    "Delete Repository": "Borrar un repositorio",
+    "Delete Note": "Borrar una nota",
+    "Revision History": "Historial de revisiones",
+    "Revisions": "Revisiones",
+    "Add multiple objects": "Añadir varios objetos",
+    "Delete Place": "Borrar un lugar",
+    "Delete Media": "Borrar un medio",
+    "Delete Tag": "Eliminar una etiqueta",
+    "Edit Tag": "Editar una etiqueta"
 }
