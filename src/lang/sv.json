@@ -152,5 +152,19 @@
     "Password is required": "Lösenord krävs",
     "Delete all objects": "Radera alla objekt",
     "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Rensa släktträdet genom att ta bort alla befintliga objekt. Välj eventuellt specifika typer av objekt för radering.",
-    "Please re-enter your password to continue.": "Vänligen ange ditt lösenord igen för att fortsätta."
+    "Please re-enter your password to continue.": "Vänligen ange ditt lösenord igen för att fortsätta.",
+    "Delete Person": "Ta bort person",
+    "Delete Family": "Ta bort familj",
+    "Delete Event": "Ta bort händelse",
+    "Delete Place": "Ta bort plats",
+    "Delete Source": "Ta bort källa",
+    "Delete Citation": "Ta bort citering",
+    "Delete Repository": "Ta bort arkivplats",
+    "Delete Media": "Ta bort media",
+    "Edit Tag": "Redigera tagg",
+    "Revision History": "Revisionshistorik",
+    "Delete Note": "Ta bort anteckning",
+    "Delete Tag": "Ta bort tagg",
+    "Revisions": "Revisioner",
+    "Add multiple objects": "Lägg till flera objekt"
 }
