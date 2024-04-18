@@ -154,5 +154,16 @@
     "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Leere den Stammbaum, indem du alle vorhandenen Objekte löschst. Wahlweise kannst du auch nur bestimmte Objektarten zur Löschung auswählen.",
     "Add multiple objects": "Mehrere Objekte hinzufügen",
     "Revisions": "Änderungen",
-    "Revision History": "Änderungsverlauf"
+    "Revision History": "Änderungsverlauf",
+    "Delete Person": "Person löschen",
+    "Delete Family": "Familie löschen",
+    "Delete Event": "Ereignis löschen",
+    "Delete Place": "Ort löschen",
+    "Delete Source": "Quelle löschen",
+    "Delete Citation": "Fundstelle löschen",
+    "Delete Repository": "Aufbewahrungsort löschen",
+    "Delete Note": "Notiz löschen",
+    "Delete Media": "Medium löschen",
+    "Delete Tag": "Etikett löschen",
+    "Edit Tag": "Etikett bearbeiten"
 }
