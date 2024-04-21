@@ -151,5 +151,19 @@
     "Danger Zone": "Tehlike Bölgesi",
     "Password is required": "Parola gerekli",
     "Delete all objects": "Tüm nesneleri sil",
-    "Please re-enter your password to continue.": "Devam etmek için lütfen parolanızı tekrar girin."
+    "Please re-enter your password to continue.": "Devam etmek için lütfen parolanızı tekrar girin.",
+    "Delete Place": "Yer Sil",
+    "Revisions": "Değişiklikler",
+    "Add multiple objects": "Birden fazla nesne ekle",
+    "Delete Person": "Kişi Sil",
+    "Delete Family": "Aile Sil",
+    "Delete Event": "Etkinlik Sil",
+    "Delete Source": "Kaynak Sil",
+    "Delete Citation": "Alıntı Sil",
+    "Delete Repository": "Depo Sil",
+    "Delete Note": "Not Sil",
+    "Delete Media": "Ortam Sil",
+    "Delete Tag": "Etiket Sil",
+    "Edit Tag": "Etiketi Düzenle",
+    "Revision History": "Değişiklik Geçmişi"
 }
