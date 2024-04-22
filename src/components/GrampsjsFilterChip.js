@@ -1,4 +1,5 @@
 import {LitElement, css, html} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import '@material/mwc-icon-button'
@@ -16,6 +17,7 @@ export class GrampsjsFilterChip extends GrampsjsTranslateMixin(LitElement) {
           align-items: center;
           display: inline-flex;
         }
+
         .chip {
           font-size: 13px;
           font-weight: 400;
@@ -33,6 +35,10 @@ export class GrampsjsFilterChip extends GrampsjsTranslateMixin(LitElement) {
           --mdc-icon-size: 14px;
           --mdc-icon-button-size: 18px;
         }
+
+        .monospace {
+          font-family: 'Commit Mono';
+        }
       `,
     ]
   }
@@ -40,22 +46,35 @@ export class GrampsjsFilterChip extends GrampsjsTranslateMixin(LitElement) {
   static get properties() {
     return {
       label: {type: String},
+      monospace: {type: Boolean},
     }
   }
 
   constructor() {
     super()
     this.label = ''
+    this.monospace = false
   }
 
   render() {
     return html`
-      <span class="chip"
-        >${this.label}<mwc-icon-button
+      <span
+        class="${classMap({monospace: this.monospace, chip: true})}"
+        id="filter-label"
+        >${this.monospace && this.label.length > 20
+          ? html`${this.label.substring(0, 20)}&hellip;`
+          : this.label}<mwc-icon-button
           icon="clear"
           @click=${this._handleClear}
         ></mwc-icon-button
       ></span>
+      ${this.monospace
+        ? html`<grampsjs-tooltip
+            for="filter-label"
+            content="${this.label}"
+            theme="monospace"
+          ></grampsjs-tooltip>`
+        : ''}
     `
   }
 

@@ -201,6 +201,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
         @filters:changed="${this._handleFiltersChanged}"
         .strings="${this.strings}"
         objectType="${this._objectsName}"
+        ?errorGql="${this.error}"
       >
         ${this.renderFilters()}
       </grampsjs-filters>
@@ -280,7 +281,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
   }
 
   get _filters() {
-    return this.renderRoot.querySelector('grampsjs-filters').filters
+    return this.renderRoot.querySelector('grampsjs-filters')
   }
 
   get _fullUrl() {
@@ -288,11 +289,15 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     if (this._sort) {
       url = `${url}&sort=${this._sort}`
     }
-    const filters = Object.values(this._filters)
+    const filters = Object.values(this._filters.filters)
     if (filters.length > 0) {
       url = `${url}&rules=${encodeURIComponent(
         JSON.stringify({rules: filters})
       )}`
+    }
+    const gql = this._filters.query
+    if (gql) {
+      url = `${url}&gql=${encodeURIComponent(gql)}`
     }
     return url
   }
@@ -314,6 +319,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     apiGet(url).then(data => {
       this.loading = false
       if ('data' in data) {
+        this._errorMessage = ''
         this.error = false
         this._rawData = data.data
         this._data = data.data.map(row => this._formatRow(row, this))

@@ -1,22 +1,28 @@
 import {LitElement, css, html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
+import {mdiAlertCircleOutline} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import '@material/mwc-icon-button'
 import '@material/mwc-button'
+import '@material/web/textfield/outlined-text-field'
+import '@material/web/button/filled-button'
 
+import {renderIconSvg} from '../icons.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
-import {fireEvent, personFilter, filterCounts, filterMime} from '../util.js'
+import {
+  fireEvent,
+  clickKeyHandler,
+  personFilter,
+  filterCounts,
+  filterMime,
+} from '../util.js'
 
 export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
-        .hidden {
-          display: none;
-        }
-
         .filtermenu {
           display: inline;
         }
@@ -31,6 +37,54 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
           margin-left: 10px;
           margin-right: 10px;
         }
+
+        #filter-type-buttons {
+          --mdc-typography-button-font-size: 12px;
+          margin: 12px 0;
+        }
+
+        #filter-type-buttons div {
+          border: 1px solid var(--mdc-theme-primary);
+          opacity: 0.9;
+          border-radius: 8px;
+          display: inline-block;
+          padding: 4px;
+        }
+
+        #input-gql-container {
+          align-items: center;
+          margin: 20px 0 30px 0;
+          width: 100%;
+        }
+
+        #input-gql {
+          --md-sys-color-surface-container-highest: #f5f5f5;
+          --md-outlined-text-field-input-text-font: 'Commit Mono';
+          --md-outlined-text-field-input-text-size: 15px;
+          --md-outlined-text-field-container-shape: 8px;
+          --md-outlined-text-field-top-space: 9px;
+          --md-outlined-text-field-bottom-space: 9px;
+          flex: 1;
+          margin-right: 12px;
+        }
+
+        #input-gql-container span {
+          align-self: flex-start;
+          display: flex;
+          align-items: center;
+        }
+
+        #input-gql-container md-filled-button {
+          --md-filled-button-container-shape: 8px;
+        }
+
+        .hidden {
+          display: none;
+        }
+
+        .flex {
+          display: flex;
+        }
       `,
     ]
   }
@@ -40,14 +94,20 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
       filters: {type: Array},
       open: {type: Boolean},
       objectType: {type: String},
+      query: {type: String},
+      useGql: {type: Boolean},
+      errorGql: {type: Boolean},
     }
   }
 
   constructor() {
     super()
     this.filters = []
-    this.open = false
+    this.open = true
     this.objectType = ''
+    this.query = ''
+    this.useGql = true
+    this.errorGql = false
   }
 
   render() {
@@ -61,7 +121,7 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
         >
         <mwc-icon-button
           id="filteroff"
-          ?disabled="${this.filters.length === 0}"
+          ?disabled="${this.filters.length === 0 && this.query === ''}"
           icon="filter_list_off"
           @click="${this._handleFilterOff}"
         ></mwc-icon-button>
@@ -74,12 +134,47 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
         class="${classMap({hidden: !this.open})}"
         @filter:changed="${this._handleFilterChanged}"
       >
-        <slot></slot>
+        <div id="filter-type-buttons">
+          <div>
+            <mwc-button
+              dense
+              ?unelevated="${!this.useGql}"
+              @click="${this._handleGqlClick}"
+              >${this._('simple')}</mwc-button
+            >
+            <mwc-button
+              dense
+              ?unelevated="${this.useGql}"
+              @click="${this._handleGqlClick}"
+              >GQL</mwc-button
+            >
+          </div>
+        </div>
+
+        <div
+          class="${classMap({hidden: !this.useGql, flex: this.useGql})}"
+          id="input-gql-container"
+        >
+          ${this._renderGql()}
+        </div>
+
+        <div class="${classMap({hidden: this.useGql})}">
+          <slot></slot>
+        </div>
       </div>
     `
   }
 
   _renderFilterChips() {
+    if (this.query) {
+      return html`
+        <grampsjs-filter-chip
+          @filter-chip:clear="${this._handleFilterOff}"
+          monospace
+          label="${this.query}"
+        ></grampsjs-filter-chip>
+      `
+    }
     return this.filters.map(
       (rule, i) => html`
         <grampsjs-filter-chip
@@ -88,6 +183,53 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
         ></grampsjs-filter-chip>
       `
     )
+  }
+
+  _renderGql() {
+    return html`
+      <md-outlined-text-field
+        id="input-gql"
+        @keydown="${this._handleGqlKey}"
+        @input="${this._handleGqlChange}"
+        value="${this.query}"
+        ?error="${this.errorGql}"
+      >
+        ${this.errorGql
+          ? renderIconSvg(mdiAlertCircleOutline, null, 0, 'trailing-icon')
+          : ''}
+        ></md-outlined-text-field
+      >
+      <span
+        ><md-filled-button
+          @click="${this._applyGql}"
+          @keydown="${clickKeyHandler}"
+          >${this._('Apply')}</md-filled-button
+        ></span
+      >
+    `
+  }
+
+  _handleGqlKey(event) {
+    if (event.code === 'Enter') {
+      this._applyGql()
+    }
+  }
+
+  _handleGqlChange() {
+    this._clearGqlError()
+  }
+
+  _applyGql() {
+    this._clearGqlError()
+    const input = this.renderRoot.querySelector('#input-gql')
+    if (input !== null) {
+      this.query = input.value
+      this._fireFiltersChanged()
+    }
+  }
+
+  _clearGqlError() {
+    this.errorGql = false
   }
 
   _clearFilter(i) {
@@ -101,12 +243,16 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
 
   _handleFilterOff() {
     this.filters = []
-    this.open = false
+    this.query = ''
+    this._clearGqlError()
     this._fireFiltersChanged()
   }
 
   _fireFiltersChanged() {
-    fireEvent(this, 'filters:changed', {filters: this.filters})
+    fireEvent(this, 'filters:changed', {
+      filters: this.filters,
+      query: this.query,
+    })
   }
 
   updated(changed) {
@@ -117,6 +263,9 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
 
   get _slottedChildren() {
     const slot = this.shadowRoot.querySelector('slot')
+    if (!slot) {
+      return []
+    }
 
     return slot.assignedElements({flatten: true})
   }
@@ -126,6 +275,21 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
       const el = child
       el.filters = this.filters
     })
+  }
+
+  async _handleGqlClick() {
+    this.useGql = !this.useGql
+    if (this.filters.length || this.query) {
+      this.filters = []
+      this.query = ''
+      this._fireFiltersChanged()
+    }
+    this.filters = []
+    this.query = ''
+    if (this.useGql) {
+      await this.updateComplete
+      this.renderRoot.getElementById('input-gql').focus()
+    }
   }
 
   _handleFilterChanged(e) {
