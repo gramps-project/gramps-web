@@ -103,10 +103,10 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
   constructor() {
     super()
     this.filters = []
-    this.open = true
+    this.open = false
     this.objectType = ''
     this.query = ''
-    this.useGql = true
+    this.useGql = false
     this.errorGql = false
   }
 
