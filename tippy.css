@@ -108,3 +108,7 @@
 .tippy-box[data-theme~='error'][data-placement^='right']>.tippy-arrow::before {
   border-right-color: #BF360C;
 }
+
+.tippy-box[data-theme~='monospace'] {
+  font-family: 'Commit Mono';
+}
