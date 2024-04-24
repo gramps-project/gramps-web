@@ -143,5 +143,14 @@
     "%s media objects with missing checksum": "%s objets média avec une somme de contrôle manquante",
     "Only places related to events": "Seulement les lieux liés aux évènements",
     "Upgrade database": "Mettre à niveau la base de données",
-    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "L’arbre généalogique que vous essayez de charger est dans une version du schéma qui n’est pas supportée par cette version de Gramps Web. Ainsi vous ne pouvez pas charger cet arbre généalogique sans mettre à niveau son schéma. Cette action est irréversible."
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "L’arbre généalogique que vous essayez de charger est dans une version du schéma qui n’est pas supportée par cette version de Gramps Web. Ainsi vous ne pouvez pas charger cet arbre généalogique sans mettre à niveau son schéma. Cette action est irréversible.",
+    "Add multiple objects": "Ajouter plusieurs objets",
+    "Delete Person": "Supprimer la personne",
+    "Delete Family": "Supprimer la famille",
+    "Delete Event": "Supprimer l'événement",
+    "Delete Source": "Supprimer la source",
+    "Delete Citation": "Supprimer la citation",
+    "Delete Note": "Supprimer la note",
+    "Delete Tag": "Supprimer le tag",
+    "Edit Tag": "Editer le tag"
 }
