@@ -212,6 +212,16 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
   _handleGqlKey(event) {
     if (event.code === 'Enter') {
       this._applyGql()
+    } else if (event.code === 'Escape') {
+      this._clearGqlForm()
+      this._clearGqlError()
+    }
+  }
+
+  _clearGqlForm() {
+    const input = this.renderRoot.querySelector('#input-gql')
+    if (input !== null) {
+      input.value = ''
     }
   }
 
