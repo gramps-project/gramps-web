@@ -58,7 +58,7 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
     super()
     this.nAnc = 4
     this.nDesc = 1
-    this._setDesc = false
+    this._setAnc = true
     this.color = ''
   }
 
