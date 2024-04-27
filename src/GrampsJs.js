@@ -316,6 +316,8 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Home Page')}</dd>
                 <dt><span>g</span> <span>b</span></dt>
                 <dd>${this._('Blog')}</dd>
+                <dt><span>g</span> <span>l</span></dt>
+                <dd>${this._('Lists')}</dd>
                 <dt><span>g</span> <span>m</span></dt>
                 <dd>${this._('Map')}</dd>
                 <dt><span>g</span> <span>c</span></dt>
@@ -876,6 +878,8 @@ export class GrampsJs extends LitElement {
         fireEvent(this, 'nav', {path: ''})
       } else if (e.key === 'b') {
         fireEvent(this, 'nav', {path: 'blog'})
+      } else if (e.key === 'l') {
+        fireEvent(this, 'nav', {path: 'people'})
       } else if (e.key === 'm') {
         fireEvent(this, 'nav', {path: 'map'})
       } else if (e.key === 'c') {
