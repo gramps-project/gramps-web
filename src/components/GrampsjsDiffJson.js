@@ -28,14 +28,14 @@ export class GrampsjsDiffJson extends GrampsjsTranslateMixin(LitElement) {
         }
 
         .jsondiffpatch-delta {
-          font-family: monospace;
+          font-family: 'Commit Mono';
           font-size: 14px;
           margin: 0;
           padding: 0 0 0 14px;
           display: inline-block;
         }
         .jsondiffpatch-delta pre {
-          font-family: monospace;
+          font-family: 'Commit Mono';
           font-size: 14px;
           margin: 0;
           padding: 0;

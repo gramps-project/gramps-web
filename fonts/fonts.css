@@ -1,4 +1,3 @@
-
 @font-face {
   font-family: 'Inter var';
   font-style: normal;
@@ -36,7 +35,7 @@
   font-style: normal;
   font-weight: 300;
   src: local(''),
-       url('../fonts/roboto-slab-v24-vietnamese_latin-ext_latin_greek-ext_greek_cyrillic-ext_cyrillic-300.woff2') format('woff2');
+    url('../fonts/roboto-slab-v24-vietnamese_latin-ext_latin_greek-ext_greek_cyrillic-ext_cyrillic-300.woff2') format('woff2');
 }
 
 @font-face {
@@ -44,7 +43,7 @@
   font-style: normal;
   font-weight: 400;
   src: local(''),
-       url('../fonts/roboto-slab-v24-vietnamese_latin-ext_latin_greek-ext_greek_cyrillic-ext_cyrillic-regular.woff2') format('woff2');
+    url('../fonts/roboto-slab-v24-vietnamese_latin-ext_latin_greek-ext_greek_cyrillic-ext_cyrillic-regular.woff2') format('woff2');
 }
 
 @font-face {
@@ -52,7 +51,7 @@
   font-style: normal;
   font-weight: 500;
   src: local(''),
-       url('../fonts/roboto-slab-v24-vietnamese_latin-ext_latin_greek-ext_greek_cyrillic-ext_cyrillic-500.woff2') format('woff2');
+    url('../fonts/roboto-slab-v24-vietnamese_latin-ext_latin_greek-ext_greek_cyrillic-ext_cyrillic-500.woff2') format('woff2');
 }
 
 @font-face {
@@ -77,4 +76,12 @@
   direction: ltr;
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
+}
+
+@font-face {
+  font-family: 'Commit Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('CommitMono VariableFont.woff2') format('woff2');
 }
