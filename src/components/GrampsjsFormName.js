@@ -127,14 +127,14 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
           <mwc-icon-button
             ?disabled="${!this.data?.surname_list ||
             this.data?.surname_list?.length === 1}"
-            class="edit"
+            class="edit ${classMap({hide: !this.showMore})}"
             icon="delete"
             @click="${() => this._handleDeleteSurname(i)}"
           ></mwc-icon-button>
 
           <mwc-icon-button
             ?disabled="${!this.data?.surname_list || i === 0}"
-            class="edit"
+            class="edit ${classMap({hide: !this.showMore})}"
             icon="arrow_upward"
             @click="${() => this._handleUpSurname(i)}"
           ></mwc-icon-button>
@@ -142,7 +142,7 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
           <mwc-icon-button
             ?disabled="${!this.data?.surname_list ||
             i === this.data?.surname_list?.length - 1}"
-            class="edit"
+            class="edit ${classMap({hide: !this.showMore})}"
             icon="arrow_downward"
             @click="${() => this._handleDownSurname(i)}"
           ></mwc-icon-button>
