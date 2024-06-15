@@ -218,6 +218,7 @@ class Relgraph {
     this.persons[me] = {
       handle: me,
       profile: p.profile,
+      data: p,
     }
     if (p.gramps_id === this.rootPersonGrampsId) {
       this.rootPerson = this.persons[me]
@@ -317,11 +318,24 @@ function clicked(event, d) {
     })
   )
 }
-function remasterChart(divhidden, targetsvg, graph, boxWidth, boxHeight) {
+function remasterChart(
+  divhidden,
+  targetsvg,
+  graph,
+  boxWidth,
+  boxHeight,
+  imgPadding,
+  getImageUrl,
+  maxImages
+) {
   const gvchartx = divhidden.select('svg')
   const nodedata = []
+  const imgRadius = (boxHeight - imgPadding * 2) / 2
+  const textPadding = d =>
+    d.imageUrl ? 2 * imgRadius + 2 * imgPadding : 2 * imgPadding
   gvchartx.selectAll('title').remove()
   // based on graphviz created nodes build array containing node data to be bound to d3 nodes
+  let imageCount = 0
   gvchartx.selectAll('.node').each(function () {
     const e = select(this)
     const textElement = e.select('text')
@@ -331,11 +345,16 @@ function remasterChart(divhidden, targetsvg, graph, boxWidth, boxHeight) {
     const found = c.match(/(?<handletype>family|person)_(?<handle>\S+)/)
     if (found.groups.handletype === 'person') {
       const d = graph.known(found.groups.handle)
+      const imageUrl = getImageUrl(d)
+      if (imageUrl) {
+        imageCount += 1
+      }
       nodedata.push({
         nodetype: d.profile.fake ? 'fake' : 'person',
         xCoord: x - boxWidth / 2 + 4,
         yCoord: y - boxHeight / 2,
         profile: d.profile,
+        imageUrl: imageCount > maxImages ? '' : imageUrl,
         handle: found.groups.handle,
       })
     } else if (found.groups.handletype === 'family') {
@@ -392,7 +411,7 @@ function remasterChart(divhidden, targetsvg, graph, boxWidth, boxHeight) {
     .attr('font-weight', '500')
     .attr('fill', 'rgba(0, 0, 0, 0.9)')
     .attr('paint-order', 'stroke')
-    .attr('x', 20)
+    .attr('x', d => textPadding(d))
     .attr('y', 25)
     .text(d => clipString(`${d.profile.name_surname},`, boxWidth))
 
@@ -405,7 +424,7 @@ function remasterChart(divhidden, targetsvg, graph, boxWidth, boxHeight) {
     .attr('paint-order', 'stroke')
     .attr('text-overflow', 'ellipsis')
     .attr('overflow', 'hidden')
-    .attr('x', 20)
+    .attr('x', d => textPadding(d))
     .attr('y', 25 + 17)
     .text(d => clipString(d.profile.name_given, boxWidth))
 
@@ -416,7 +435,7 @@ function remasterChart(divhidden, targetsvg, graph, boxWidth, boxHeight) {
     .attr('font-weight', '350')
     .attr('fill', 'rgba(0, 0, 0, 0.9)')
     .attr('paint-order', 'stroke')
-    .attr('x', 20)
+    .attr('x', d => textPadding(d))
     .attr('y', 25 + 17 * 2)
     .text(d => clipString(`*${d.profile.birth.date}`, boxWidth))
 
@@ -427,9 +446,39 @@ function remasterChart(divhidden, targetsvg, graph, boxWidth, boxHeight) {
     .attr('font-weight', '350')
     .attr('fill', 'rgba(0, 0, 0, 0.9)')
     .attr('paint-order', 'stroke')
-    .attr('x', 20)
+    .attr('x', d => textPadding(d))
     .attr('y', 25 + 17 * 3)
     .text(d => clipString(`†${d.profile.death.date}`, boxWidth))
+
+  // images
+  nodes
+    .filter(d => d.imageUrl)
+    .append('circle')
+    .attr('r', imgRadius)
+    .attr('cy', imgRadius + imgPadding)
+    .attr('cx', imgRadius + imgPadding)
+    .attr('fill', d => `url(#imgpattern-${d.handle})`)
+
+  const defs = targetsvg.append('defs')
+  const imgPattern = defs
+    .selectAll('.imgpattern')
+    .data(nodedata)
+    .enter()
+    .filter(d => d.nodetype === 'person' && d.imageUrl)
+    .append('pattern')
+    .attr('id', d => `imgpattern-${d.handle}`)
+    .attr('height', 1)
+    .attr('width', 1)
+    .attr('x', '0')
+    .attr('y', '0')
+
+  imgPattern
+    .append('image')
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr('height', 70)
+    .attr('width', 70)
+    .attr('xlink:href', d => d.imageUrl)
 
   nodes
     .filter(d => d.type === 'Married' && d.nodetype === 'family')
@@ -470,7 +519,10 @@ export function RelationshipChart(
     bboxHeight = 150,
     boxWidth = 190,
     boxHeight = 90,
+    imgPadding = 10,
+    getImageUrl = null,
     grampsId = 0,
+    maxImages = 50,
     // orientation = 'LTR',
   }
 ) {
@@ -498,6 +550,9 @@ export function RelationshipChart(
       graph,
       boxWidth,
       boxHeight,
+      imgPadding,
+      getImageUrl,
+      maxImages,
       grampsId
     )
     svg.attr('viewBox', [
