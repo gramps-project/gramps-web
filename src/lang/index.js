@@ -1,49 +1,49 @@
 /* eslint-disable camelcase */
-import ar from './ar.json' with { type: 'json' }
-import bg from './bg.json' with { type: 'json' }
-import br from './br.json' with { type: 'json' }
-import ca from './ca.json' with { type: 'json' }
-import cs from './cs.json' with { type: 'json' }
-import da from './da.json' with { type: 'json' }
-import de_AT from './de_AT.json' with { type: 'json' }
-import de from './de.json' with { type: 'json' }
-import el from './el.json' with { type: 'json' }
-import en_GB from './en_GB.json' with { type: 'json' }
-import en from './en.json' with { type: 'json' }
-import eo from './eo.json' with { type: 'json' }
-import es from './es.json' with { type: 'json' }
-import fi from './fi.json' with { type: 'json' }
-import fr from './fr.json' with { type: 'json' }
-import ga from './ga.json' with { type: 'json' }
-import he from './he.json' with { type: 'json' }
-import hr from './hr.json' with { type: 'json' }
-import hu from './hu.json' with { type: 'json' }
-import is from './is.json' with { type: 'json' }
-import it from './it.json' with { type: 'json' }
-import ja from './ja.json' with { type: 'json' }
-import lt from './lt.json' with { type: 'json' }
-import lv from './lv.json' with { type: 'json' }
-import mk from './mk.json' with { type: 'json' }
-import nb from './nb.json' with { type: 'json' }
-import nl from './nl.json' with { type: 'json' }
-import nn from './nn.json' with { type: 'json' }
-import pl from './pl.json' with { type: 'json' }
-import pt_BR from './pt_BR.json' with { type: 'json' }
-import pt_PT from './pt_PT.json' with { type: 'json' }
-import ro from './ro.json' with { type: 'json' }
-import ru from './ru.json' with { type: 'json' }
-import sk from './sk.json' with { type: 'json' }
-import sl from './sl.json' with { type: 'json' }
-import sq from './sq.json' with { type: 'json' }
-import sr from './sr.json' with { type: 'json' }
-import sv from './sv.json' with { type: 'json' }
-import ta from './ta.json' with { type: 'json' }
-import tr from './tr.json' with { type: 'json' }
-import uk from './uk.json' with { type: 'json' }
-import vi from './vi.json' with { type: 'json' }
-import zh_CN from './zh_CN.json' with { type: 'json' }
-import zh_HK from './zh_HK.json' with { type: 'json' }
-import zh_TW from './zh_TW.json' with { type: 'json' }
+import ar from './ar.js'
+import bg from './bg.js'
+import br from './br.js'
+import ca from './ca.js'
+import cs from './cs.js'
+import da from './da.js'
+import de_AT from './de_AT.js'
+import de from './de.js'
+import el from './el.js'
+import en_GB from './en_GB.js'
+import en from './en.js'
+import eo from './eo.js'
+import es from './es.js'
+import fi from './fi.js'
+import fr from './fr.js'
+import ga from './ga.js'
+import he from './he.js'
+import hr from './hr.js'
+import hu from './hu.js'
+import is from './is.js'
+import it from './it.js'
+import ja from './ja.js'
+import lt from './lt.js'
+import lv from './lv.js'
+import mk from './mk.js'
+import nb from './nb.js'
+import nl from './nl.js'
+import nn from './nn.js'
+import pl from './pl.js'
+import pt_BR from './pt_BR.js'
+import pt_PT from './pt_PT.js'
+import ro from './ro.js'
+import ru from './ru.js'
+import sk from './sk.js'
+import sl from './sl.js'
+import sq from './sq.js'
+import sr from './sr.js'
+import sv from './sv.js'
+import ta from './ta.js'
+import tr from './tr.js'
+import uk from './uk.js'
+import vi from './vi.js'
+import zh_CN from './zh_CN.js'
+import zh_HK from './zh_HK.js'
+import zh_TW from './zh_TW.js'
 
 const languages = {
   ar,
