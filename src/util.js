@@ -43,40 +43,29 @@ export function personDisplayName(person, options = {givenfirst: true}) {
 }
 
 export function familyTitleFromProfile(familyProfile) {
+  if (!familyProfile.father && !familyProfile.mother) {
+    return ''
+  }
   return `${personTitleFromProfile(
     familyProfile.father || {}
   )} & ${personTitleFromProfile(familyProfile.mother || {})}`
 }
 
 export function citationTitleFromProfile(citationProfile) {
+  if (!citationProfile.source?.title) {
+    return ''
+  }
   return `${citationProfile.source?.title || ''}
           ${citationProfile.page ? ` (${citationProfile.page})` : ''}`
 }
 
-export function eventTitleFromProfile(eventProfile, strings, date = true) {
+export function eventTitleFromProfile(eventProfile, date = true) {
   if (eventProfile.summary) {
     return html`${eventProfile.summary}${date && eventProfile.date
       ? ` (${eventProfile.date})`
       : ''}`
   }
-  // the code below is only kept for backward compatibility
-  const primary = translate(strings, 'Primary')
-  const family = translate(strings, 'Family')
-  const people =
-    eventProfile?.participants?.people.filter(
-      obj => obj.role === primary || obj.role === 'Primary'
-    ) || []
-  const families =
-    eventProfile?.participants?.families.filter(
-      obj => obj.role === family || obj.role === 'Family'
-    ) || []
-  const primaryPeople = `${people
-    .map(obj => personTitleFromProfile(obj.person))
-    .join(', ')}
-          ${families.map(obj => familyTitleFromProfile(obj.family)).join(', ')}`
-  return html`${eventProfile.type}${primaryPeople.trim()
-    ? `: ${primaryPeople}`
-    : ''}${eventProfile.date ? ` (${eventProfile.date})` : ''}`
+  return ''
 }
 
 export function renderPerson(personProfile) {
@@ -232,10 +221,11 @@ export function objectDescription(type, obj, strings) {
     case 'person':
       return personDisplayName(obj)
     case 'family':
-      return html`${familyTitleFromProfile(obj.profile || {}) || type}`
+      return html`${familyTitleFromProfile(obj.profile || {}) ||
+      translate(strings, 'Family')}`
     case 'event':
       return html`${eventTitleFromProfile(obj.profile || {}, strings, false) ||
-      obj.type}`
+      translate(strings, obj.type.string ?? obj.type)}`
     case 'place':
       return html`${obj?.profile?.name ||
       obj?.name?.value ||
@@ -244,11 +234,12 @@ export function objectDescription(type, obj, strings) {
     case 'source':
       return html`${getName(obj, type) || type}`
     case 'citation':
-      return html`${citationTitleFromProfile(obj.profile || {}) || type}`
+      return html`${citationTitleFromProfile(obj.profile || {}) ||
+      translate(strings, 'Citation')}`
     case 'repository':
       return html`${getName(obj, type) || type}`
     case 'note':
-      return html`${translate(strings, obj.type) || type}`
+      return html`${translate(strings, obj.type.string ?? obj.type) || type}`
     case 'media':
       return html`${getName(obj, type) || translate(strings, 'Media Object')}`
     case 'tag':
@@ -579,6 +570,9 @@ export function clickKeyHandler(event) {
 }
 
 export function dateIsEmpty(date) {
+  if (date === undefined) {
+    return true
+  }
   if (date.modifier === 6) {
     // Text Only Date is never empty
     return false

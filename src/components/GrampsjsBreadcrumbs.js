@@ -91,6 +91,8 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
       objectsName: {type: String},
       objectEndpoint: {type: String},
       objectIcon: {type: String},
+      hideBookmark: {type: Boolean},
+      hideLock: {type: Boolean},
     }
   }
 
@@ -101,6 +103,8 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
     this.objectsName = ''
     this.objectEndpoint = ''
     this.objectIcon = ''
+    this.hideBookmark = false
+    this.hideLock = false
   }
 
   render() {
@@ -111,27 +115,35 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
         <mwc-icon>chevron_right</mwc-icon>
         <span class="dark">${this.data.gramps_id}</span>
         <span class="action-buttons">
-          <span id="wrap-btn-private">
-            <mwc-icon-button
-              icon="${this.data.private ? 'lock_outline' : 'lock_open'}"
-              ?disabled="${!this.edit}"
-              @click="${this._handlePrivacyClick}"
-              @keydown="${clickKeyHandler}"
-              class="edit"
-              id="btn-private"
-            ></mwc-icon-button>
-          </span>
-          <grampsjs-tooltip
-            for="wrap-btn-private"
-            content="${this.data.private
-              ? this._('Record is private')
-              : this._('Record is public')}"
-          ></grampsjs-tooltip>
-          <grampsjs-bookmark-button
-            .strings="${this.strings}"
-            handle="${this.data.handle}"
-            endpoint="${this.objectEndpoint}"
-          ></grampsjs-bookmark-button>
+          ${this.hideLock
+            ? ''
+            : html`
+                <span id="wrap-btn-private">
+                  <mwc-icon-button
+                    icon="${this.data.private ? 'lock_outline' : 'lock_open'}"
+                    ?disabled="${!this.edit}"
+                    @click="${this._handlePrivacyClick}"
+                    @keydown="${clickKeyHandler}"
+                    class="edit"
+                    id="btn-private"
+                  ></mwc-icon-button>
+                </span>
+                <grampsjs-tooltip
+                  for="wrap-btn-private"
+                  content="${this.data.private
+                    ? this._('Record is private')
+                    : this._('Record is public')}"
+                ></grampsjs-tooltip>
+              `}
+          ${this.hideBookmark
+            ? ''
+            : html`
+                <grampsjs-bookmark-button
+                  .strings="${this.strings}"
+                  handle="${this.data.handle}"
+                  endpoint="${this.objectEndpoint}"
+                ></grampsjs-bookmark-button>
+              `}
           <grampsjs-share-url
             href="${document.URL}"
             .strings="${this.strings}"

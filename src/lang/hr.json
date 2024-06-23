@@ -151,5 +151,20 @@
     "Password is required": "Lozinka se mora zadati",
     "Delete all objects": "Izbriši sve objekte",
     "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Isprazni rodoslov uklanjanjem svih postojećih objekata. Opcinalno odaberi određene vrste objekata za brisanje.",
-    "Please re-enter your password to continue.": "Za nastavljanje ponovo upiši lozinku."
+    "Please re-enter your password to continue.": "Za nastavljanje ponovo upiši lozinku.",
+    "Add multiple objects": "Dodaj više objekata",
+    "Delete Family": "Izbriši obitelj",
+    "Delete Event": "Izbriši događaj",
+    "Delete Source": "Izbriši izvor",
+    "Delete Citation": "Izbriši citat",
+    "Delete Repository": "Izbriši repozitorij",
+    "Delete Note": "Izbriši zabilješku",
+    "Delete Person": "Izbriši osobu",
+    "Delete Place": "Izbriši mjesto",
+    "Delete Media": "Izbriši medij",
+    "Delete Tag": "Izbriši oznaku",
+    "Edit Tag": "Uredi oznaku",
+    "Revision History": "Povijest revizija",
+    "Revisions": "Revizije",
+    "simple": "jednostavno"
 }

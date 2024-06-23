@@ -151,5 +151,20 @@
     "Danger Zone": "Gevarenzone",
     "Password is required": "Wachtwoord is vereist",
     "Delete all objects": "Alle objecten verwijderen",
-    "Please re-enter your password to continue.": "Wachtwoord opnieuw invoeren om door te gaan."
+    "Please re-enter your password to continue.": "Wachtwoord opnieuw invoeren om door te gaan.",
+    "Add multiple objects": "Meerdere objecten toevoegen",
+    "Delete Person": "Persoon verwijderen",
+    "Delete Family": "Familie verwijderen",
+    "Delete Place": "Plaats verwijderen",
+    "Delete Source": "Bron verwijderen",
+    "Delete Note": "Notitie verwijderen",
+    "Delete Tag": "Label verwijderen",
+    "Edit Tag": "Label bewerken",
+    "Delete Citation": "Citaat verwijderen",
+    "Delete Repository": "Opslagplaats verwijderen",
+    "Revision History": "Revisiegeschiedenis",
+    "Delete Event": "Gebeurtenis verwijderen",
+    "Revisions": "Revisies",
+    "Delete Media": "Media verwijderen",
+    "simple": "eenvoudig"
 }

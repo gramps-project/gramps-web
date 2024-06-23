@@ -30,6 +30,7 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
     super()
     this.loading = true
     this.error = false
+    this.renderOnError = false
     this.loadWithoutLocale = false
     this._errorMessage = ''
     this._data = {}
@@ -47,7 +48,9 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
           detail: {message: this._errorMessage},
         })
       )
-      return ''
+      if (!this.renderOnError) {
+        return ''
+      }
     }
     if (this.loading) {
       return this.renderLoading()

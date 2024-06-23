@@ -151,5 +151,20 @@
     "Danger Zone": "אזור סכנה",
     "Password is required": "נדרשת ססמה",
     "Delete all objects": "מחיקת כל העצמים",
-    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "ניקוי אילן־היוחסין על ידי הסרת כל העצמים הקיימים. לחלופין, נא לבחור סוגי עצמים מסוימים למחיקה."
+    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "ניקוי אילן־היוחסין על ידי הסרת כל העצמים הקיימים. לחלופין, נא לבחור סוגי עצמים מסוימים למחיקה.",
+    "Delete Family": "מחיקת משפחה",
+    "Delete Place": "מחיקת מקום",
+    "Delete Source": "מחיקת מקור",
+    "Delete Note": "מחיקת הערה",
+    "Add multiple objects": "הוספת עצמים מרובים",
+    "Delete Person": "מחיקת אדם",
+    "Delete Event": "מחיקת אירוע",
+    "Revisions": "תיקון",
+    "Delete Citation": "מחיקת מובאה",
+    "Delete Repository": "מחיקת מאגר",
+    "Delete Media": "מחיקת מדיה",
+    "Delete Tag": "מחיקת תג",
+    "Edit Tag": "עריכת תג",
+    "Revision History": "היסטורית תיקונים",
+    "simple": "פשוט"
 }

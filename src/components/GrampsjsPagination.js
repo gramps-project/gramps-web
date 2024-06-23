@@ -56,7 +56,7 @@ class GrampsjsPagination extends GrampsjsTranslateMixin(LitElement) {
   }
 
   render() {
-    if (this.pages === -1) {
+    if (this.pages <= 0) {
       return html``
     }
     return html`
