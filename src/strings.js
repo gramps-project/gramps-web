@@ -1,9 +1,69 @@
-import translations from './lang/index.js'
 /*
 All strings that need to be translated
 */
 
-export const additionalStrings = translations
+// existing languages for frontend strings
+export const frontendLanguages = [
+  'ar',
+  'ca',
+  'de_AT',
+  'en_GB',
+  'es',
+  'ga',
+  'hu',
+  'it',
+  'mk',
+  'nn',
+  'pt_PT',
+  'sk',
+  'sr',
+  'tr',
+  'zh_CN',
+  'bg',
+  'cs',
+  'de',
+  'en',
+  'fi',
+  'he',
+  'ja',
+  'nb',
+  'pl',
+  'ro',
+  'sl',
+  'sv',
+  'uk',
+  'zh_HK',
+  'br',
+  'da',
+  'el',
+  'eo',
+  'fr',
+  'hr',
+  'is',
+  'lt',
+  'lv',
+  'nl',
+  'pt_BR',
+  'ru',
+  'sq',
+  'ta',
+  'vi',
+  'zh_TW',
+]
+
+// will hold the frontend strings by language code
+const frontendStrings = {}
+
+export async function getFrontendStrings(lang) {
+  if (!(lang in frontendStrings) && frontendLanguages.includes(lang)) {
+    const resp = await fetch(`/lang/${lang}.json`)
+    try {
+      frontendStrings[lang] = await resp.json()
+      // eslint-disable-next-line no-empty
+    } catch {}
+  }
+  return frontendStrings[lang] ?? {}
+}
 
 export const grampsStrings = [
   '_Back',
