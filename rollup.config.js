@@ -37,6 +37,7 @@ export default merge(baseConfig, {
         {src: './manifest.json', dest: 'dist/'},
         {src: './images/**/*', dest: 'dist/images'},
         {src: './fonts/**/*', dest: 'dist/fonts'},
+        {src: './lang/*', dest: 'dist/lang'},
       ],
     }),
     replace({
