@@ -66,7 +66,7 @@
   "Contributor": "Contributor",
   "Editor": "Editor",
   "Owner": "Owner",
-  "Switch to custom type": "Switch to custom type",
+  "Add custom type": "Add custom type",
   "Switch to default type": "Switch to default type",
   "Custom type": "Custom type",
   "Replace file": "Replace file",
@@ -113,6 +113,7 @@
   "Tasks": "Tasks",
   "New Task": "New Task",
   "Show in blog": "Show in blog",
+  "Show more": "Show more",
   "Set Priority": "Set Priority",
   "Set Status": "Set Status",
   "Done": "Done",
@@ -166,5 +167,8 @@
   "Delete Tag": "Delete Tag",
   "Edit Tag": "Edit Tag",
   "Revision History": "Revision History",
-  "simple": "simple"
+  "simple": "simple",
+  "Are you sure?": "Are you sure?",
+  "This action cannot be undone.": "This action cannot be undone.",
+  "Yes": "Yes"
 }

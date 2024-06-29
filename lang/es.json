@@ -8,7 +8,7 @@
     "To start using the blog, add a source with tag 'Blog'.": "Para empezar a utilizar el blog, añada una fuente con la etiqueta 'Blog'.",
     "Optionally, enter existing IMAP credentials to enable e-mail notifications required e.g. for user registration.": "Opcionalmente, introduzca las credenciales IMAP existentes para habilitar las notificaciones por correo electrónico necesarias, por ejemplo, para el registro de usuarios.",
     "SMTP user": "Usuario SMTP",
-    "Switch to custom type": "Cambiar a un tipo personalizado",
+    "Add custom typee": "Añadir un tipo personalizado",
     "Switch to default type": "Cambiar al tipo por defecto",
     "Custom type": "Tipo personalizado",
     "Blog": "Blog",

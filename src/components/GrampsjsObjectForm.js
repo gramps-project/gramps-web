@@ -131,6 +131,9 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
         </div>
 
         <mwc-button
+          raised
+          class="edit"
+          style="margin:8px 16px 8px 8px"
           slot="primaryAction"
           dialogAction="ok"
           ?disabled="${!this.isValid}"
@@ -139,6 +142,8 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
           ${this._('_Save')}
         </mwc-button>
         <mwc-button
+          class="edit"
+          style="margin:8px"
           slot="secondaryAction"
           dialogAction="cancel"
           @click="${this._handleDialogCancel}"

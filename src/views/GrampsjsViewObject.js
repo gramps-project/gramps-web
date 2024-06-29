@@ -438,7 +438,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     } else if (e.detail.action === 'downName') {
       this.moveName(e.detail.handle, this._data, 'down')
     } else if (e.detail.action === 'delName') {
-      this.delName(e.detail.handle, this._data)
+      this.delName(e.detail.data, this._data)
     } else if (e.detail.action === 'addName') {
       this.addObject(
         e.detail.data,
@@ -591,14 +591,20 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   // for this method, 'handle' is the integer index
   // since names don't have handles!
-  delName(handle, obj) {
+  delName(data, obj) {
+    const {index} = data
     return this._updateObject(obj, 'person', _obj => {
-      if (handle === 1) {
+      if (index === 0) {
+        // keep the entry but delete everything except the name type
+        Object.keys(_obj.primary_name)
+          .filter(key => key !== 'type')
+          .forEach(key => delete _obj.primary_name[key])
+      } else if (index === 1) {
         _obj.alternate_names = [..._obj.alternate_names.slice(1)]
-      } else if (handle > 1) {
+      } else if (index > 1) {
         _obj.alternate_names = [
-          ..._obj.alternate_names.slice(0, handle - 1),
-          ..._obj.alternate_names.slice(handle),
+          ..._obj.alternate_names.slice(0, index - 1),
+          ..._obj.alternate_names.slice(index),
         ]
       }
       return _obj

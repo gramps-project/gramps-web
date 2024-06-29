@@ -1,4 +1,4 @@
-import {css, html, LitElement} from 'lit'
+import {html} from 'lit'
 
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormEditName.js'
@@ -8,21 +8,9 @@ import {fireEvent} from '../util.js'
 import '@material/mwc-icon-button'
 import '@material/mwc-dialog'
 import '@material/mwc-button'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
-import {sharedStyles} from '../SharedStyles.js'
+import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 
-export class GrampsjsNames extends GrampsjsTranslateMixin(LitElement) {
-  static get styles() {
-    return [
-      sharedStyles,
-      css`
-        .clear {
-          clear: left;
-        }
-      `,
-    ]
-  }
-
+export class GrampsjsNames extends GrampsjsEditableList {
   static get properties() {
     return {
       data: {type: Array},
@@ -38,47 +26,23 @@ export class GrampsjsNames extends GrampsjsTranslateMixin(LitElement) {
     this.edit = false
     this.dialogContent = ''
     this.dialogTitle = ''
+    this.hasEdit = true
   }
 
-  render() {
-    return html`
-      ${this.edit ? this._renderAddBtn() : ''}
-      ${this.data.map(
-        (obj, i) => html`
-          <div class="name">
-            <grampsjs-name .strings="${this.strings}" .data="${obj}">
-            </grampsjs-name>
-            <div class="clear">
-              ${this.edit ? this._renderActionBtns(i) : ''}
-            </div>
-          </div>
-        `
-      )}
-      ${this.dialogContent}
-    `
+  row(obj) {
+    return html` ${!obj
+      ? ''
+      : html`
+          <mwc-list-item style="height: auto">
+            <grampsjs-name
+              .strings="${this.strings}"
+              .data="${obj}"
+            ></grampsjs-name>
+          </mwc-list-item>
+        `}`
   }
 
-  _renderAddBtn() {
-    return html`
-      <mwc-icon-button
-        class="edit"
-        icon="add"
-        @click="${this._handleAddClick}"
-      ></mwc-icon-button>
-    `
-  }
-
-  _renderActionBtns(i) {
-    return html`
-      <mwc-icon-button
-        class="edit"
-        icon="edit"
-        @click="${() => this._handleEditClick(i)}"
-      ></mwc-icon-button>
-    `
-  }
-
-  _handleAddClick() {
+  _handleAdd() {
     this.dialogContent = html`
       <grampsjs-form-edit-name
         id="name"
@@ -90,7 +54,27 @@ export class GrampsjsNames extends GrampsjsTranslateMixin(LitElement) {
     `
   }
 
-  _handleEditClick(handle) {
+  _handleDelete() {
+    const handle = this._selectedIndex
+    this.dialogContent = html`
+      <mwc-dialog
+        open
+        @closed="${e => this._handleDialog(handle, e)}"
+        heading="${this._('Are you sure?')}"
+      >
+        <div>${this._('This action cannot be undone.')}</div>
+        <mwc-button slot="primaryAction" dialogAction="confirm">
+          ${this._('Yes')}
+        </mwc-button>
+        <mwc-button slot="secondaryAction" dialogAction="cancel">
+          ${this._('Cancel')}
+        </mwc-button>
+      </mwc-dialog>
+    `
+  }
+
+  _handleEdit() {
+    const handle = this._selectedIndex
     this.dialogContent = html`
       <grampsjs-form-edit-name
         id="name"
@@ -103,8 +87,26 @@ export class GrampsjsNames extends GrampsjsTranslateMixin(LitElement) {
     `
   }
 
+  _handleDialog(handle, e) {
+    if (e.detail.action === 'confirm') {
+      this._handleNameDelete(handle, e)
+    } else if (e.detail.action === 'cancel') {
+      this._handleNameCancel()
+    }
+  }
+
   _handleNameAdd(e) {
     fireEvent(this, 'edit:action', {action: 'addName', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleNameDelete(handle, e) {
+    fireEvent(this, 'edit:action', {
+      action: 'delName',
+      data: {index: handle},
+    })
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''
