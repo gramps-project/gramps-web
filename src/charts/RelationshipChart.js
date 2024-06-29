@@ -333,6 +333,8 @@ function remasterChart(
   const imgRadius = (boxHeight - imgPadding * 2) / 2
   const textPadding = d =>
     d.imageUrl ? 2 * imgRadius + 2 * imgPadding : 2 * imgPadding
+  const boxWidthTotal = d =>
+    d.imageUrl ? boxWidth - 2 * imgRadius - 10 : boxWidth
   gvchartx.selectAll('title').remove()
   // based on graphviz created nodes build array containing node data to be bound to d3 nodes
   let imageCount = 0
@@ -411,9 +413,11 @@ function remasterChart(
     .attr('font-weight', '500')
     .attr('fill', 'rgba(0, 0, 0, 0.9)')
     .attr('paint-order', 'stroke')
+    .attr('text-overflow', 'ellipsis')
+    .attr('overflow', 'hidden')
     .attr('x', d => textPadding(d))
     .attr('y', 25)
-    .text(d => clipString(`${d.profile.name_surname},`, boxWidth))
+    .text(d => clipString(`${d.profile.name_surname},`, boxWidthTotal(d)))
 
   nodes
     .filter(d => d.profile?.name_given && d.nodetype === 'person')
@@ -426,7 +430,7 @@ function remasterChart(
     .attr('overflow', 'hidden')
     .attr('x', d => textPadding(d))
     .attr('y', 25 + 17)
-    .text(d => clipString(d.profile.name_given, boxWidth))
+    .text(d => clipString(d.profile.name_given, boxWidthTotal(d)))
 
   nodes
     .filter(d => d.profile?.birth?.date && d.nodetype === 'person')
@@ -437,7 +441,7 @@ function remasterChart(
     .attr('paint-order', 'stroke')
     .attr('x', d => textPadding(d))
     .attr('y', 25 + 17 * 2)
-    .text(d => clipString(`*${d.profile.birth.date}`, boxWidth))
+    .text(d => clipString(`*${d.profile.birth.date}`, boxWidthTotal(d)))
 
   nodes
     .filter(d => d.profile?.death?.date && d.nodetype === 'person')
@@ -448,7 +452,7 @@ function remasterChart(
     .attr('paint-order', 'stroke')
     .attr('x', d => textPadding(d))
     .attr('y', 25 + 17 * 3)
-    .text(d => clipString(`†${d.profile.death.date}`, boxWidth))
+    .text(d => clipString(`†${d.profile.death.date}`, boxWidthTotal(d)))
 
   // images
   nodes
