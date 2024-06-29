@@ -166,5 +166,9 @@
     "Delete Tag": "Etiket Sil",
     "Edit Tag": "Etiketi Düzenle",
     "Revision History": "Değişiklik Geçmişi",
-    "simple": "basit"
+    "simple": "basit",
+    "Show more": "Daha fazla göster",
+    "This action cannot be undone.": "Bu eylem geri alınamaz.",
+    "Are you sure?": "Emin misiniz?",
+    "Yes": "Evet"
 }
