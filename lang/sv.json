@@ -67,7 +67,7 @@
     "Contributor": "Bidragsgivare",
     "Editor": "Redaktör",
     "Owner": "Ägare",
-    "Add custom type": "Byt till anpassad typ",
+    "Add custom type": "Lägg till anpassad typ",
     "Switch to default type": "Byt till standardtyp",
     "Custom type": "Anpassad typ",
     "Replace file": "Byt ut fil",
@@ -167,5 +167,9 @@
     "Delete Tag": "Ta bort tagg",
     "Revisions": "Revisioner",
     "Add multiple objects": "Lägg till flera objekt",
-    "simple": "enkel"
+    "simple": "enkel",
+    "This action cannot be undone.": "Denna åtgärd kan inte ångras.",
+    "Yes": "Ja",
+    "Show more": "Visa mer",
+    "Are you sure?": "Är du säker?"
 }
