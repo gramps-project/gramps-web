@@ -5,7 +5,7 @@ import dayjs from 'dayjs/esm'
 import relativeTime from 'dayjs/esm/plugin/relativeTime'
 
 import {asteriskIcon, crossIcon} from './icons.js'
-import {additionalStrings} from './strings.js'
+import {frontendLanguages} from './strings.js'
 import {hex6ToCss, hex12ToCss} from './color.js'
 
 dayjs.extend(relativeTime)
@@ -374,10 +374,10 @@ export function getBrowserLanguage() {
   // get browser language and replace all '-' with '_'
   // since the strings from backend comes with underscore
   const browserLang = navigator.language.replaceAll('-', '_')
-  if (browserLang in additionalStrings) {
+  if (frontendLanguages.includes(browserLang)) {
     return browserLang
   }
-  if (browserLang.split('_')[0] in additionalStrings) {
+  if (frontendLanguages.includes(browserLang.split('_')[0])) {
     return browserLang.split('_')[0]
   }
   return null

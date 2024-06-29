@@ -22,7 +22,11 @@ import {
   updateSettings,
   apiRefreshAuthToken,
 } from './api.js'
-import {grampsStrings, additionalStrings} from './strings.js'
+import {
+  grampsStrings,
+  getFrontendStrings,
+  frontendLanguages,
+} from './strings.js'
 import {fireEvent, getBrowserLanguage} from './util.js'
 import './dayjs_locales.js'
 
@@ -601,8 +605,9 @@ export class GrampsJs extends LitElement {
     window.addEventListener('settings:changed', this._handleSettings.bind(this))
   }
 
-  _loadFrontendStrings(lang) {
-    this._strings = {...this._strings, ...additionalStrings[lang]}
+  async _loadFrontendStrings(lang) {
+    const additionalStrings = await getFrontendStrings(lang)
+    this._strings = {...this._strings, ...additionalStrings}
     this._strings.__lang__ = lang
     this._lang = lang
   }
@@ -806,27 +811,31 @@ export class GrampsJs extends LitElement {
     return Boolean(grampsStrings[0] in this._strings)
   }
 
-  _loadStrings(strings, lang) {
+  async _loadStrings(strings, lang) {
     this._loadingStrings = true
-    apiPost(`/api/translations/${lang}`, {strings}, true, false).then(data => {
-      this._loadingStrings = false
-      if ('data' in data) {
-        this._strings = data.data.reduce(
-          (obj, item) =>
-            Object.assign(obj, {[item.original]: item.translation}),
-          {}
-        )
-        if (lang in additionalStrings) {
-          this._strings = Object.assign(additionalStrings[lang], this._strings)
-        }
-        this._strings.__lang__ = lang
-        this._lang = lang
-        fireEvent(this, 'language:changed', {lang})
+    const data = await apiPost(
+      `/api/translations/${lang}`,
+      {strings},
+      true,
+      false
+    )
+    this._loadingStrings = false
+    if ('data' in data) {
+      this._strings = data.data.reduce(
+        (obj, item) => Object.assign(obj, {[item.original]: item.translation}),
+        {}
+      )
+      if (frontendLanguages.includes(lang)) {
+        const additionalStrings = await getFrontendStrings(lang)
+        this._strings = Object.assign(additionalStrings, this._strings)
       }
-      if ('error' in data) {
-        this._showError(data.error)
-      }
-    })
+      this._strings.__lang__ = lang
+      this._lang = lang
+      fireEvent(this, 'language:changed', {lang})
+    }
+    if ('error' in data) {
+      this._showError(data.error)
+    }
   }
 
   _showError(msg) {
