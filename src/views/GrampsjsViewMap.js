@@ -5,6 +5,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsMap.js'
 import '../components/GrampsjsMapMarker.js'
 import '../components/GrampsjsMapSearchbox.js'
+import '../components/GrampsjsMapTimeSlider.js'
 import '../components/GrampsjsPlaceBox.js'
 import {apiGet, getMediaUrl} from '../api.js'
 import '@material/mwc-textfield'
@@ -76,6 +77,8 @@ export class GrampsjsViewMap extends GrampsjsView {
       _valueSearch: {type: String},
       _bounds: {type: Object},
       _placeFilters: {type: Object},
+      _dateRangeStart: {type: Number},
+      _dateRangeEnd: {type: Number},
     }
   }
 
@@ -90,6 +93,8 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._valueSearch = ''
     this._bounds = {}
     this._placeFilters = {}
+    this._dateRangeStart = -1
+    this._dateRangeEnd = -1
   }
 
   renderContent() {
@@ -119,6 +124,10 @@ export class GrampsjsViewMap extends GrampsjsView {
         value="${this._valueSearch}"
         >${this._renderPlaceDetails()}</grampsjs-map-searchbox
       >
+      <grampsjs-map-time-slider
+        @timeslider:change="${this._handleTimeSliderChange}"
+        .strings="${this.strings}"
+      ></grampsjs-map-time-slider>
     `
   }
 
@@ -152,6 +161,11 @@ export class GrampsjsViewMap extends GrampsjsView {
         searchbox.focus()
       }
     }
+  }
+
+  _handleTimeSliderChange(event) {
+    this._dateRangeStart = event.detail.start
+    this._dateRangeEnd = event.detail.end
   }
 
   _handlePlaceFilterChanged(event) {
