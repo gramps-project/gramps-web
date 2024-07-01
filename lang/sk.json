@@ -166,5 +166,9 @@
     "Revision History": "História revízie",
     "Revisions": "Revízie",
     "Delete Source": "Vymazať zdroj",
-    "simple": "jednoduchý"
+    "simple": "jednoduchý",
+    "Yes": "Áno",
+    "This action cannot be undone.": "Túto akciu nie je možné vrátiť späť.",
+    "Are you sure?": "Ste si istí?",
+    "Show more": "Zobraziť viac"
 }
