@@ -166,5 +166,9 @@
     "Delete Source": "Smazat zdroj",
     "Revision History": "Historie revize",
     "Delete Family": "Smazat rodinu",
-    "simple": "jednoduchý"
+    "simple": "jednoduchý",
+    "Are you sure?": "Jste si jistí?",
+    "Yes": "Ano",
+    "Show more": "Zobrazit více",
+    "This action cannot be undone.": "Tuto akci nelze vrátit zpět."
 }
