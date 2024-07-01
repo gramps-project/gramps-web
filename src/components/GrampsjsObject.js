@@ -408,6 +408,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
             ? html` <grampsjs-map
                 latitude="${this.data.profile.lat}"
                 longitude="${this.data.profile.long}"
+                layerSwitcher
                 mapid="place-map"
                 id="map"
               >
@@ -428,6 +429,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
                 zoom="${this._getZoomFromBounds(
                   JSON.parse(mapBounds[0].value)
                 )}"
+                layerSwitcher
                 mapid="media-map"
                 id="map"
               >

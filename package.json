@@ -81,6 +81,7 @@
   "license": "AGPL",
   "dependencies": {
     "@hpcc-js/wasm": "^2.16.0",
+    "@maplibre/maplibre-gl-leaflet": "0.0.21",
     "@material/mwc-button": "^0.27.0",
     "@material/mwc-checkbox": "^0.27.0",
     "@material/mwc-circular-progress": "^0.27.0",
@@ -105,7 +106,7 @@
     "@material/mwc-top-app-bar": "^0.27.0",
     "@material/web": "^1.4.0",
     "@mdi/js": "^7.4.47",
-    "@types/leaflet": "^1.5.19",
+    "@types/leaflet": "^1.9.12",
     "d3": "^7.8.2",
     "d3-array": "^3.2.4",
     "d3-axis": "^3.0.0",
@@ -120,6 +121,7 @@
     "jwt-decode": "^3.1.2",
     "leaflet": "^1.9.4",
     "lit": "^2.1.1",
+    "maplibre-gl": "^4.4.1",
     "pwa-helper-components": "^0.2.10",
     "pwa-helpers": "^0.9.1",
     "tippy.js": "^6.3.7"

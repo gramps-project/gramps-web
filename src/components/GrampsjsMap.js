@@ -1,14 +1,13 @@
 import {html, LitElement} from 'lit'
-import {
-  Map,
-  TileLayer,
-  LatLng,
-  control,
-} from '../../node_modules/leaflet/dist/leaflet-src.esm.js'
+import 'leaflet'
+import 'maplibre-gl'
+import '@maplibre/maplibre-gl-leaflet'
 import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
 import {fireEvent} from '../util.js'
 import '../LocateControl.js'
+
+const {L} = window
 
 const defaultConfig = {
   leafletTileUrl:
@@ -17,6 +16,7 @@ const defaultConfig = {
     '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors; <a href="https://carto.com/attributions">CARTO</a>',
   leafletTileSize: 256,
   leafletZoomOffset: 0,
+  glStyle: 'https://www.openhistoricalmap.org/map-styles/main/main.json',
 }
 
 class GrampsjsMap extends LitElement {
@@ -77,18 +77,18 @@ class GrampsjsMap extends LitElement {
   firstUpdated() {
     const mapel = this.shadowRoot.getElementById(this.mapid)
     if (this.latMin === 0 && this.latMax === 0) {
-      this._map = new Map(mapel, {zoomControl: false}).setView(
+      this._map = new L.Map(mapel, {zoomControl: false}).setView(
         [this.latitude, this.longitude],
         this.zoom
       )
     } else {
-      this._map = new Map(mapel, {zoomControl: false}).fitBounds([
+      this._map = new L.Map(mapel, {zoomControl: false}).fitBounds([
         [this.latMin, this.longMin],
         [this.latMax, this.longMax],
       ])
     }
     const config = {...defaultConfig, ...window.grampsjsConfig}
-    const tileLayer = new TileLayer(config.leafletTileUrl, {
+    const tileLayer = new L.TileLayer(config.leafletTileUrl, {
       attribution: config.leafletTileAttribution,
       tileSize: config.leafletTileSize,
       zoomOffset: config.leafletZoomOffset,
@@ -96,15 +96,25 @@ class GrampsjsMap extends LitElement {
       zoomControl: false,
     })
     tileLayer.addTo(this._map)
-    this._map.addControl(control.zoom({position: 'bottomright'}))
+    const gl = L.maplibreGL({
+      style: config.glStyle,
+    }).addTo(this._map)
+    this._map.addControl(L.control.zoom({position: 'bottomright'}))
     if (this.locateControl) {
       this._map.addControl(
-        control.locate({position: 'bottomright', drawCircle: false})
+        L.control.locate({position: 'bottomright', drawCircle: false})
       )
     }
-    this._layercontrol = control.layers({OpenStreetMap: tileLayer}, null, {
-      position: 'bottomleft',
-    })
+    this._layercontrol = L.control.layers(
+      {
+        OpenHistoricalMap: gl,
+        OpenStreetMap: tileLayer,
+      },
+      null,
+      {
+        position: 'bottomleft',
+      }
+    )
     if (this.layerSwitcher) {
       this._map.addControl(this._layercontrol)
     }
@@ -118,7 +128,8 @@ class GrampsjsMap extends LitElement {
 
   panTo(latitude, longitude) {
     if (this._map !== undefined) {
-      this._map.panTo(new LatLng(latitude, longitude))
+      // eslint-disable-next-line new-cap
+      this._map.panTo(new L.latLng(latitude, longitude))
     }
   }
 
@@ -126,7 +137,8 @@ class GrampsjsMap extends LitElement {
     if (this._map !== undefined) {
       if (this.latMin === 0 && this.latMax === 0) {
         this._map.setZoom(this.zoom)
-        this._map.panTo(new LatLng(this.latitude, this.longitude))
+        // eslint-disable-next-line new-cap
+        this._map.panTo(new L.latLng(this.latitude, this.longitude))
       } else {
         this._map.fitBounds([
           [this.latMin, this.longMin],

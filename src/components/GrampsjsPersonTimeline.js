@@ -150,6 +150,7 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
         longMin="${mapCorners[0][1]}"
         latMax="${mapCorners[1][0]}"
         longMax="${mapCorners[1][1]}"
+        layerSwitcher
         mapid="timeline-map"
         id="timeline-map"
         @marker:clicked="${this._handleMapClick}"

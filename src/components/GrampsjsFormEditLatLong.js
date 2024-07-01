@@ -114,6 +114,7 @@ class GrampsjsFormEditLatLong extends GrampsjsObjectForm {
         <grampsjs-map
           latitude="${this.data.lat ? parseFloat(this.data.lat) : 0}"
           longitude="${this.data.long ? parseFloat(this.data.long) : 0}"
+          layerSwitcher
           mapid="edit-latlong-map"
           id="map"
           @click="${this._handleMapClick}"

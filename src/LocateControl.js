@@ -1,16 +1,5 @@
 /* eslint-disable */
-import {
-  control,
-  Control,
-  Marker,
-  DomUtil,
-  divIcon,
-  Util,
-  LayerGroup,
-  extend,
-  DomEvent,
-  circle,
-} from '../node_modules/leaflet/dist/leaflet-src.esm.js'
+import 'leaflet'
 
 /*!
 Copyright (c) 2016 Dominik Moritz
@@ -22,7 +11,7 @@ You can find the project at: https://github.com/domoritz/leaflet-locatecontrol
 const LDomUtilApplyClassesMethod = (method, element, classNames) => {
   classNames = classNames.split(' ')
   classNames.forEach(function (className) {
-    DomUtil[method].call(this, element, className)
+    L.DomUtil[method].call(this, element, className)
   })
 }
 
@@ -34,7 +23,7 @@ const removeClasses = (el, names) =>
 /**
  * Compatible with L.Circle but a true marker instead of a path
  */
-const LocationMarker = Marker.extend({
+const LocationMarker = L.Marker.extend({
   initialize(latlng, options) {
     Util.setOptions(this, options)
     this._latlng = latlng
@@ -67,7 +56,7 @@ const LocationMarker = Marker.extend({
 
     const icon = this._getIconSVG(opt, style)
 
-    this._locationIcon = divIcon({
+    this._locationIcon = L.divIcon({
       className: icon.className,
       html: icon.svg,
       iconSize: [icon.w, icon.h],
@@ -103,14 +92,14 @@ const LocationMarker = Marker.extend({
   },
 
   setStyle(style) {
-    Util.setOptions(this, style)
+    L.Util.setOptions(this, style)
     this.createIcon()
   },
 })
 
 const CompassMarker = LocationMarker.extend({
   initialize(latlng, heading, options) {
-    Util.setOptions(this, options)
+    L.Util.setOptions(this, options)
     this._latlng = latlng
     this._heading = heading
     this.createIcon()
@@ -148,7 +137,7 @@ const CompassMarker = LocationMarker.extend({
   },
 })
 
-export const LocateControl = Control.extend({
+export const LocateControl = L.Control.extend({
   options: {
     /** Position of the control */
     position: 'topleft',
@@ -286,7 +275,7 @@ export const LocateControl = Control.extend({
      * This function should return an object with HtmlElement for the button (link property) and the icon (icon property).
      */
     createButtonCallback(container, options) {
-      const link = DomUtil.create(
+      const link = L.DomUtil.create(
         'a',
         'leaflet-bar-part leaflet-bar-part-single',
         container
@@ -294,10 +283,10 @@ export const LocateControl = Control.extend({
       link.title = options.strings.title
       link.href = '#'
       link.setAttribute('role', 'button')
-      const icon = DomUtil.create(options.iconElementTag, options.icon, link)
+      const icon = L.DomUtil.create(options.iconElementTag, options.icon, link)
 
       if (options.strings.text !== undefined) {
-        const text = DomUtil.create(
+        const text = L.DomUtil.create(
           options.textElementTag,
           'leaflet-locate-text',
           link
@@ -346,24 +335,24 @@ export const LocateControl = Control.extend({
     // set default options if nothing is set (merge one step deep)
     for (const i in options) {
       if (typeof this.options[i] === 'object') {
-        extend(this.options[i], options[i])
+        L.extend(this.options[i], options[i])
       } else {
         this.options[i] = options[i]
       }
     }
 
     // extend the follow marker style and circle from the normal style
-    this.options.followMarkerStyle = extend(
+    this.options.followMarkerStyle = L.extend(
       {},
       this.options.markerStyle,
       this.options.followMarkerStyle
     )
-    this.options.followCircleStyle = extend(
+    this.options.followCircleStyle = L.extend(
       {},
       this.options.circleStyle,
       this.options.followCircleStyle
     )
-    this.options.followCompassStyle = extend(
+    this.options.followCompassStyle = L.extend(
       {},
       this.options.compassStyle,
       this.options.followCompassStyle
@@ -374,13 +363,13 @@ export const LocateControl = Control.extend({
    * Add control to map. Returns the container for the control.
    */
   onAdd(map) {
-    const container = DomUtil.create(
+    const container = L.DomUtil.create(
       'div',
       'leaflet-control-locate leaflet-bar leaflet-control'
     )
     this._container = container
     this._map = map
-    this._layer = this.options.layer || new LayerGroup()
+    this._layer = this.options.layer || new L.LayerGroup()
     this._layer.addTo(map)
     this._event = undefined
     this._compassHeading = null
@@ -393,16 +382,16 @@ export const LocateControl = Control.extend({
     this._link = linkAndIcon.link
     this._icon = linkAndIcon.icon
 
-    DomEvent.on(
+    L.DomEvent.on(
       this._link,
       'click',
       function (ev) {
-        DomEvent.stopPropagation(ev)
-        DomEvent.preventDefault(ev)
+        L.DomEvent.stopPropagation(ev)
+        L.DomEvent.preventDefault(ev)
         this._onClick()
       },
       this
-    ).on(this._link, 'dblclick', DomEvent.stopPropagation)
+    ).on(this._link, 'dblclick', L.DomEvent.stopPropagation)
 
     this._resetVariables()
 
@@ -530,7 +519,7 @@ export const LocateControl = Control.extend({
         if (oriAbs || 'ondeviceorientation' in window) {
           const _this = this
           const deviceorientation = function () {
-            DomEvent.on(
+            L.DomEvent.on(
               window,
               oriAbs ? 'deviceorientationabsolute' : 'deviceorientation',
               _this._onDeviceOrientation,
@@ -579,14 +568,14 @@ export const LocateControl = Control.extend({
     if (this.options.showCompass) {
       this._compassHeading = null
       if ('ondeviceorientationabsolute' in window) {
-        DomEvent.off(
+        L.DomEvent.off(
           window,
           'deviceorientationabsolute',
           this._onDeviceOrientation,
           this
         )
       } else if ('ondeviceorientation' in window) {
-        DomEvent.off(
+        L.DomEvent.off(
           window,
           'deviceorientation',
           this._onDeviceOrientation,
@@ -623,7 +612,7 @@ export const LocateControl = Control.extend({
           maxZoom:
             this.options.initialZoomLevel || this.options.locateOptions.maxZoom,
         })
-        Util.requestAnimFrame(function () {
+        L.Util.requestAnimFrame(function () {
           // Wait until after the next animFrame because the flyTo can be async
           this._ignoreEvent = false
         }, this)
@@ -690,7 +679,7 @@ export const LocateControl = Control.extend({
         : this.options.circleStyle
 
       if (!this._circle) {
-        this._circle = circle(latlng, radius, style).addTo(this._layer)
+        this._circle = L.circle(latlng, radius, style).addTo(this._layer)
       } else {
         this._circle.setLatLng(latlng).setRadius(radius).setStyle(style)
       }
@@ -729,7 +718,7 @@ export const LocateControl = Control.extend({
     const t = this.options.strings.popup
     function getPopupText() {
       if (typeof t === 'string') {
-        return Util.template(t, {distance, unit})
+        return L.Util.template(t, {distance, unit})
       } else if (typeof t === 'function') {
         return t({distance, unit})
       } else {
@@ -770,7 +759,7 @@ export const LocateControl = Control.extend({
       angle = Math.round(angle)
 
       this._compassHeading = angle
-      Util.requestAnimFrame(this._drawCompass, this)
+      L.Util.requestAnimFrame(this._drawCompass, this)
     } else {
       this._compassHeading = null
     }
@@ -988,9 +977,9 @@ export const LocateControl = Control.extend({
    * Removes all classes from button.
    */
   _cleanClasses() {
-    DomUtil.removeClass(this._container, 'requesting')
-    DomUtil.removeClass(this._container, 'active')
-    DomUtil.removeClass(this._container, 'following')
+    L.DomUtil.removeClass(this._container, 'requesting')
+    L.DomUtil.removeClass(this._container, 'active')
+    L.DomUtil.removeClass(this._container, 'following')
 
     removeClasses(this._icon, this.options.iconLoading)
     addClasses(this._icon, this.options.icon)
@@ -1015,4 +1004,4 @@ export const LocateControl = Control.extend({
   },
 })
 
-control.locate = options => new LocateControl(options)
+L.control.locate = options => new LocateControl(options)
