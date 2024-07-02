@@ -66,7 +66,7 @@ class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
           @change="${this._handleInput}"
           labeled
           min="1500"
-          max="2024"
+          max="${new Date().getFullYear()}"
           value="${this.value}"
         ></md-slider>
         <div class="date">
