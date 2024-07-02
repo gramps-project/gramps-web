@@ -28,8 +28,35 @@ class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
         md-slider {
           width: 100%;
         }
+
+        div.date {
+          display: inline-block;
+          font-size: 13px;
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.6);
+          white-space: nowrap;
+          margin-left: 4px;
+          margin-right: 14px;
+          line-height: 22px;
+          height: 22px;
+        }
+
+        .date .year {
+          font-weight: 600;
+        }
       `,
     ]
+  }
+
+  static get properties() {
+    return {
+      value: {type: Number},
+    }
+  }
+
+  constructor() {
+    super()
+    this.value = 2024
   }
 
   render() {
@@ -37,20 +64,23 @@ class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
       <div id="container">
         <md-slider
           @change="${this._handleInput}"
-          range
           labeled
           min="1500"
           max="2024"
-          value-start="1924"
-          value-end="2024"
+          value="${this.value}"
         ></md-slider>
+        <div class="date">
+          <span class="year">${this.value}</span> &pm;
+          <span class="tolerance">10</span>
+        </div>
       </div>
     `
   }
 
   _handleInput() {
     const slider = this.renderRoot.querySelector('md-slider')
-    const detail = {start: slider.valueStart, end: slider.valueEnd}
+    const detail = {value: slider.value}
+    this.value = slider.value
     fireEvent(this, 'timeslider:change', detail)
   }
 }

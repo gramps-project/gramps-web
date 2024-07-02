@@ -77,8 +77,7 @@ export class GrampsjsViewMap extends GrampsjsView {
       _valueSearch: {type: String},
       _bounds: {type: Object},
       _placeFilters: {type: Object},
-      _dateRangeStart: {type: Number},
-      _dateRangeEnd: {type: Number},
+      _year: {type: Number},
     }
   }
 
@@ -93,8 +92,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._valueSearch = ''
     this._bounds = {}
     this._placeFilters = {}
-    this._dateRangeStart = -1
-    this._dateRangeEnd = -1
+    this._year = -1
   }
 
   renderContent() {
@@ -107,6 +105,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         height="calc(100vh - 64px)"
         latitude="${center[0]}"
         longitude="${center[1]}"
+        year="${this._year}"
         mapid="map-mapview"
         @map:moveend="${this._handleMoveEnd}"
         id="map"
@@ -164,8 +163,7 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   _handleTimeSliderChange(event) {
-    this._dateRangeStart = event.detail.start
-    this._dateRangeEnd = event.detail.end
+    this._year = event.detail.value
   }
 
   _handlePlaceFilterChanged(event) {
