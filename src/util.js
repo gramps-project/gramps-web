@@ -647,10 +647,10 @@ function constrainFilterByDate(filter, decimalYear) {
   if (filter && filter[0] === 'all' && filter[1] && filter[1][0] === 'any') {
     if (
       filter[1][2] &&
-      filter[1][2][0] === '<=' &&
+      filter[1][2][0] === '<' &&
       filter[1][2][1] === 'start_decdate'
     ) {
-      newFilter[1][2][2] = decimalYear
+      newFilter[1][2][2] = decimalYear + 1
     }
     if (
       newFilter[2][2] &&
@@ -664,7 +664,7 @@ function constrainFilterByDate(filter, decimalYear) {
 
   const dateFilter = [
     'all',
-    ['any', ['!has', 'start_decdate'], ['<=', 'start_decdate', decimalYear]],
+    ['any', ['!has', 'start_decdate'], ['<', 'start_decdate', decimalYear + 1]],
     ['any', ['!has', 'end_decdate'], ['>=', 'end_decdate', decimalYear]],
   ]
   if (filter) {
