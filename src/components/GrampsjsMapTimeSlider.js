@@ -56,7 +56,7 @@ class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
 
   constructor() {
     super()
-    this.value = 2024
+    this.value = new Date().getFullYear() - 100
   }
 
   render() {
