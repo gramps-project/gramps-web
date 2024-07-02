@@ -166,5 +166,9 @@
     "Upgrade database": "Oppgrader database",
     "simple": "enkel",
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Familietreet du forsøker å laste er i en skjemaversjon som ikke støttes av denne versjonen av Gramps Web. På grunn av dette kan du ikke laste inn dette familietreet uten å oppgradere dets skjema. Denne handlingen kan ikke omgjøres.",
-    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Slett dette familietreet ved å fjerne alle eksisterende objekter. Alternativt kan du velge spesifikke typer objekter som skal slettes."
+    "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Slett dette familietreet ved å fjerne alle eksisterende objekter. Alternativt kan du velge spesifikke typer objekter som skal slettes.",
+    "Are you sure?": "Er du sikker?",
+    "This action cannot be undone.": "Denne handlingen kan ikke endres.",
+    "Show more": "Vis mer",
+    "Yes": "Ja"
 }

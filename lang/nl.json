@@ -38,7 +38,7 @@
     "Select an existing citation": "Selecteer een bestaand citaat",
     "Place Hierarchy": "Plaats-hiërarchie",
     "Keyboard Shortcuts": "Sneltoetsen",
-    "Show this dialog": "Toon deze dialoog",
+    "Show this dialog": "Deze dialoog weergeven",
     "To start using the blog, add a source with tag 'Blog'.": "Voeg een bron toe met label 'Blog' om de blog te gebruiken.",
     "Enter the details for the admin user.": "Voer de gegevens in voor de beheerder.",
     "SMTP port": "SMTP-poort",
@@ -87,7 +87,7 @@
     "Import user accounts": "Gebruikersaccounts importeren",
     "Generate a ZIP archive with all media files.": "Maak een zip-bestand aan met alle mediabestanden.",
     "Export your family tree": "Stamboom exporteren",
-    "Export your media files": "Uw mediabestanden exporteren",
+    "Export your media files": "Mediabestanden exporteren",
     "Error parsing JSON file": "Fout bij verwerking JSON-bestand",
     "Storing configuration": "Configuratie opslaan",
     "Importing family tree": "Stamboom importeren",
@@ -166,5 +166,9 @@
     "Delete Event": "Gebeurtenis verwijderen",
     "Revisions": "Revisies",
     "Delete Media": "Media verwijderen",
-    "simple": "eenvoudig"
+    "simple": "eenvoudig",
+    "Show more": "Meer weergeven",
+    "Are you sure?": "Weet u het zeker?",
+    "Yes": "Ja",
+    "This action cannot be undone.": "Deze actie kan niet ongedaan worden gemaakt."
 }
