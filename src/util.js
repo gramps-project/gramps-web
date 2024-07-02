@@ -684,7 +684,7 @@ export function filterByDecimalYear(map, decimalYear) {
   map.getStyle().layers.map(layer => {
     if (!('source-layer' in layer)) return
 
-    const filter = constrainFilterByDate(layer.filter, decimalYear)
+    const filter = constrainFilterByDate(map.getFilter(layer.id), decimalYear)
     map.setFilter(layer.id, filter)
   })
 }
