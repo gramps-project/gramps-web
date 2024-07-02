@@ -5,6 +5,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsMap.js'
 import '../components/GrampsjsMapMarker.js'
 import '../components/GrampsjsMapSearchbox.js'
+import '../components/GrampsjsMapTimeSlider.js'
 import '../components/GrampsjsPlaceBox.js'
 import {apiGet, getMediaUrl} from '../api.js'
 import '@material/mwc-textfield'
@@ -76,6 +77,7 @@ export class GrampsjsViewMap extends GrampsjsView {
       _valueSearch: {type: String},
       _bounds: {type: Object},
       _placeFilters: {type: Object},
+      _year: {type: Number},
     }
   }
 
@@ -90,6 +92,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._valueSearch = ''
     this._bounds = {}
     this._placeFilters = {}
+    this._year = -1
   }
 
   renderContent() {
@@ -102,6 +105,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         height="calc(100vh - 64px)"
         latitude="${center[0]}"
         longitude="${center[1]}"
+        year="${this._year}"
         mapid="map-mapview"
         @map:moveend="${this._handleMoveEnd}"
         id="map"
@@ -119,6 +123,10 @@ export class GrampsjsViewMap extends GrampsjsView {
         value="${this._valueSearch}"
         >${this._renderPlaceDetails()}</grampsjs-map-searchbox
       >
+      <grampsjs-map-time-slider
+        @timeslider:change="${this._handleTimeSliderChange}"
+        .strings="${this.strings}"
+      ></grampsjs-map-time-slider>
     `
   }
 
@@ -152,6 +160,10 @@ export class GrampsjsViewMap extends GrampsjsView {
         searchbox.focus()
       }
     }
+  }
+
+  _handleTimeSliderChange(event) {
+    this._year = event.detail.value
   }
 
   _handlePlaceFilterChanged(event) {

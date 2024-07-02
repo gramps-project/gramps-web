@@ -4,7 +4,7 @@ import 'maplibre-gl'
 import '@maplibre/maplibre-gl-leaflet'
 import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, filterByDecimalYear} from '../util.js'
 import '../LocateControl.js'
 
 const {L} = window
@@ -46,6 +46,7 @@ class GrampsjsMap extends LitElement {
       width: {type: String},
       latitude: {type: Number},
       longitude: {type: Number},
+      year: {type: Number},
       mapid: {type: String},
       zoom: {type: Number},
       latMin: {type: Number},
@@ -55,6 +56,7 @@ class GrampsjsMap extends LitElement {
       layerSwitcher: {type: Boolean},
       locateControl: {type: Boolean},
       _map: {type: Object},
+      _glMap: {type: Object},
       _layercontrol: {type: Object},
     }
   }
@@ -67,6 +69,7 @@ class GrampsjsMap extends LitElement {
     this.mapid = 'mapid'
     this.latitude = 0
     this.longitude = 0
+    this.year = -1
     this.latMin = 0
     this.latMax = 0
     this.longMin = 0
@@ -115,6 +118,7 @@ class GrampsjsMap extends LitElement {
         position: 'bottomleft',
       }
     )
+    this._glMap = gl
     if (this.layerSwitcher) {
       this._map.addControl(this._layercontrol)
     }
@@ -133,7 +137,11 @@ class GrampsjsMap extends LitElement {
     }
   }
 
-  updated() {
+  updated(changed) {
+    if (changed.has('year') && this.year > 0) {
+      filterByDecimalYear(this._glMap._glMap, this.year)
+      return
+    }
     if (this._map !== undefined) {
       if (this.latMin === 0 && this.latMax === 0) {
         this._map.setZoom(this.zoom)
