@@ -166,5 +166,9 @@
     "Delete Tag": "מחיקת תג",
     "Edit Tag": "עריכת תג",
     "Revision History": "היסטורית תיקונים",
-    "simple": "פשוט"
+    "simple": "פשוט",
+    "Show more": "להציג עוד",
+    "Are you sure?": "האם לבצע?",
+    "This action cannot be undone.": "לא ניתן פעולה זו.",
+    "Yes": "כן"
 }
