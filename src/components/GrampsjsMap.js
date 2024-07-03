@@ -17,6 +17,8 @@ const defaultConfig = {
   leafletTileSize: 256,
   leafletZoomOffset: 0,
   glStyle: 'https://www.openhistoricalmap.org/map-styles/main/main.json',
+  glAttribution:
+    '<a href="https://www.openhistoricalmap.org/copyright">OpenHistoricalMap</a>',
 }
 
 class GrampsjsMap extends LitElement {
@@ -103,6 +105,7 @@ class GrampsjsMap extends LitElement {
     tileLayer.addTo(this._map)
     this._gl = L.maplibreGL({
       style: config.glStyle,
+      attribution: config.glAttribution,
     })
     this._map.addControl(L.control.zoom({position: 'bottomright'}))
     if (this.locateControl) {
