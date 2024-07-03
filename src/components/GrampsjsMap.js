@@ -130,6 +130,12 @@ class GrampsjsMap extends LitElement {
 
   _handleBaseLayerChange(e) {
     this._currentLayer = e.name
+    if (this._currentLayer === 'OpenHistoricalMap') {
+      const mapLibreMap = this._gl.getMaplibreMap()
+      mapLibreMap.on('styledata', () =>
+        filterByDecimalYear(mapLibreMap, this.year)
+      )
+    }
     fireEvent(this, 'map:layerchange', {layer: this._currentLayer})
   }
 
@@ -150,7 +156,7 @@ class GrampsjsMap extends LitElement {
       this.year > 0 &&
       this._currentLayer === 'OpenHistoricalMap'
     ) {
-      filterByDecimalYear(this._gl._glMap, this.year)
+      filterByDecimalYear(this._gl.getMaplibreMap(), this.year)
       return
     }
     if (this._map !== undefined) {
