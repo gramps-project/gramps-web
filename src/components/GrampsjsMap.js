@@ -18,7 +18,7 @@ const defaultConfig = {
   leafletZoomOffset: 0,
   glStyle: 'https://www.openhistoricalmap.org/map-styles/main/main.json',
   glAttribution:
-    '<a href="https://www.openhistoricalmap.org/copyright">OpenHistoricalMap</a>',
+    '<a href="https://www.openhistoricalmap.org/">OpenHistoricalMap</a>',
 }
 
 class GrampsjsMap extends LitElement {
