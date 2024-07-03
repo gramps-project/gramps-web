@@ -705,3 +705,35 @@ export function filterByDate(map, dateP) {
 
   filterByDecimalYear(map, decimalYear)
 }
+
+export function isDateBetweenYears(date, yearMin, yearMax) {
+  const MOD_BEFORE = 1
+  const MOD_AFTER = 2
+  const MOD_ABOUT = 3
+  const MOD_TEXTONLY = 6
+  const MOD_FROM = 7
+  const MOD_TO = 8
+
+  const RANGE_ABOUT = 50
+  const RANGE_BEFORE = 50
+  const RANGE_AFTER = 50
+
+  if (dateIsEmpty(date) || date.modifier === MOD_TEXTONLY) {
+    return false
+  }
+
+  let year1 = date.dateval[2]
+  let year2 = date.dateval[6] ?? year1
+
+  if (date.modifier === MOD_BEFORE || date.modifier === MOD_TO) {
+    year1 -= RANGE_BEFORE
+  }
+  if (date.modifier === MOD_AFTER || date.modifier === MOD_FROM) {
+    year2 += RANGE_AFTER
+  }
+  if (date.modifier === MOD_ABOUT) {
+    year1 -= RANGE_ABOUT
+    year2 += RANGE_ABOUT
+  }
+  return yearMin <= year2 && year1 <= yearMax
+}

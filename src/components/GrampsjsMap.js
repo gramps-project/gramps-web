@@ -58,6 +58,7 @@ class GrampsjsMap extends LitElement {
       _map: {type: Object},
       _glMap: {type: Object},
       _layercontrol: {type: Object},
+      _currentLayer: {type: String},
     }
   }
 
@@ -75,6 +76,7 @@ class GrampsjsMap extends LitElement {
     this.longMin = 0
     this.longMax = 0
     this.layerSwitcher = false
+    this._currentLayer = 'OpenStreetMap'
   }
 
   firstUpdated() {
@@ -99,9 +101,9 @@ class GrampsjsMap extends LitElement {
       zoomControl: false,
     })
     tileLayer.addTo(this._map)
-    const gl = L.maplibreGL({
+    this._gl = L.maplibreGL({
       style: config.glStyle,
-    }).addTo(this._map)
+    })
     this._map.addControl(L.control.zoom({position: 'bottomright'}))
     if (this.locateControl) {
       this._map.addControl(
@@ -110,7 +112,7 @@ class GrampsjsMap extends LitElement {
     }
     this._layercontrol = L.control.layers(
       {
-        OpenHistoricalMap: gl,
+        OpenHistoricalMap: this._gl,
         OpenStreetMap: tileLayer,
       },
       null,
@@ -118,12 +120,17 @@ class GrampsjsMap extends LitElement {
         position: 'bottomleft',
       }
     )
-    this._glMap = gl
     if (this.layerSwitcher) {
       this._map.addControl(this._layercontrol)
     }
+    this._map.on('baselayerchange', e => this._handleBaseLayerChange(e))
     this._map.invalidateSize(false)
     this._map.on('moveend', e => this._handleMoveEnd(e))
+  }
+
+  _handleBaseLayerChange(e) {
+    this._currentLayer = e.name
+    fireEvent(this, 'map:layerchange', {layer: this._currentLayer})
   }
 
   _handleMoveEnd(e) {
@@ -138,8 +145,12 @@ class GrampsjsMap extends LitElement {
   }
 
   updated(changed) {
-    if (changed.has('year') && this.year > 0) {
-      filterByDecimalYear(this._glMap._glMap, this.year)
+    if (
+      changed.has('year') &&
+      this.year > 0 &&
+      this._currentLayer === 'OpenHistoricalMap'
+    ) {
+      filterByDecimalYear(this._gl._glMap, this.year)
       return
     }
     if (this._map !== undefined) {
