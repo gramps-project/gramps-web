@@ -167,5 +167,8 @@
     "Delete Media": "Medium löschen",
     "Delete Tag": "Etikett löschen",
     "Edit Tag": "Etikett bearbeiten",
-    "simple": "einfach"
+    "simple": "einfach",
+    "Are you sure?": "Bist du dir sicher?",
+    "This action cannot be undone.": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "Yes": "Ja"
 }
