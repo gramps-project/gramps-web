@@ -167,5 +167,8 @@
     "Delete all objects": "Delete all objects",
     "Please re-enter your password to continue.": "Please re-enter your password to continue.",
     "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.",
-    "simple": "simple"
+    "simple": "simple",
+    "Yes": "Yes",
+    "Are you sure?": "Are you sure?",
+    "This action cannot be undone.": "This action cannot be undone."
 }
