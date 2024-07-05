@@ -5,8 +5,10 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsMap.js'
 import '../components/GrampsjsMapMarker.js'
 import '../components/GrampsjsMapSearchbox.js'
+import '../components/GrampsjsMapTimeSlider.js'
 import '../components/GrampsjsPlaceBox.js'
 import {apiGet, getMediaUrl} from '../api.js'
+import {isDateBetweenYears, getGregorianYears} from '../util.js'
 import '@material/mwc-textfield'
 
 // This is used for initial map center in absence of places
@@ -67,7 +69,8 @@ export class GrampsjsViewMap extends GrampsjsView {
 
   static get properties() {
     return {
-      _data: {type: Array},
+      _dataPlaces: {type: Array},
+      _dataEvents: {type: Array},
       _filteredPlaces: {type: Array},
       _handlesHighlight: {type: Array},
       _dataSearch: {type: Array},
@@ -76,12 +79,17 @@ export class GrampsjsViewMap extends GrampsjsView {
       _valueSearch: {type: String},
       _bounds: {type: Object},
       _placeFilters: {type: Object},
+      _year: {type: Number},
+      _yearSpan: {type: Number},
+      _currentLayer: {type: String},
+      _minYear: {type: Number},
     }
   }
 
   constructor() {
     super()
-    this._data = []
+    this._dataPlaces = []
+    this._dataEvents = []
     this._filteredPlaces = []
     this._handlesHighlight = []
     this._dataSearch = []
@@ -90,6 +98,10 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._valueSearch = ''
     this._bounds = {}
     this._placeFilters = {}
+    this._year = -1
+    this._yearSpan = -1
+    this._currentLayer = ''
+    this._minYear = 1500
   }
 
   renderContent() {
@@ -102,7 +114,9 @@ export class GrampsjsViewMap extends GrampsjsView {
         height="calc(100vh - 64px)"
         latitude="${center[0]}"
         longitude="${center[1]}"
+        year="${this._year}"
         mapid="map-mapview"
+        @map:layerchange="${this._handleLayerChange}"
         @map:moveend="${this._handleMoveEnd}"
         id="map"
         zoom="6"
@@ -119,6 +133,12 @@ export class GrampsjsViewMap extends GrampsjsView {
         value="${this._valueSearch}"
         >${this._renderPlaceDetails()}</grampsjs-map-searchbox
       >
+      <grampsjs-map-time-slider
+        min="${this._minYear}"
+        ?filterMap="${this._currentLayer === 'OpenHistoricalMap'}"
+        @timeslider:change="${this._handleTimeSliderChange}"
+        .strings="${this.strings}"
+      ></grampsjs-map-time-slider>
     `
   }
 
@@ -140,6 +160,10 @@ export class GrampsjsViewMap extends GrampsjsView {
     `
   }
 
+  _handleLayerChange(e) {
+    this._currentLayer = e.detail.layer
+  }
+
   update(changed) {
     super.update(changed)
     if (changed.has('active') && this.active) {
@@ -152,6 +176,12 @@ export class GrampsjsViewMap extends GrampsjsView {
         searchbox.focus()
       }
     }
+  }
+
+  _handleTimeSliderChange(event) {
+    this._year = event.detail.value
+    this._yearSpan = event.detail.span
+    this._applyPlaceFilter()
   }
 
   _handlePlaceFilterChanged(event) {
@@ -290,23 +320,37 @@ export class GrampsjsViewMap extends GrampsjsView {
     )
     const filterFunction = place => {
       if (enabledFilters.includes('hasEvent')) {
-        return place?.backlinks?.event?.length ?? false
+        if (place?.backlinks?.event?.length === undefined) return false
+      }
+      if (this._year > 0 && this._yearSpan > 0) {
+        const placeEvents =
+          place?.backlinks?.event?.map(handle =>
+            this._dataEvents?.find(event => event.handle === handle)
+          ) ?? []
+        if (placeEvents.length === 0) return false
+        const yearMin = this._year - this._yearSpan
+        const yearMax = this._year + this._yearSpan
+        return placeEvents.some(event =>
+          isDateBetweenYears(event.date, yearMin, yearMax)
+        )
       }
       return true
     }
     this._filteredPlaces = [
-      ...this._data.filter(place => filterFunction(place)),
+      ...this._dataPlaces.filter(place => filterFunction(place)),
     ]
   }
 
   firstUpdated() {
-    this._fetchData()
+    this._fetchPlaces()
     this._fetchDataLayers()
+    this._fetchEvents()
   }
 
   _fetchDataAll() {
-    this._fetchData()
+    this._fetchPlaces()
     this._fetchDataLayers()
+    this._fetchEvents()
   }
 
   async _fetchDataSearch(value) {
@@ -325,7 +369,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     }
   }
 
-  async _fetchData() {
+  async _fetchPlaces() {
     const data = await apiGet(
       `/api/places/?locale=${
         this.strings?.__lang__ || 'en'
@@ -334,12 +378,37 @@ export class GrampsjsViewMap extends GrampsjsView {
     this.loading = false
     if ('data' in data) {
       this.error = false
-      this._data = data.data
+      this._dataPlaces = data.data
       this._applyPlaceFilter()
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
     }
+  }
+
+  async _fetchEvents() {
+    const data = await apiGet('/api/events/?keys=date,handle,place')
+    this.loading = false
+    if ('data' in data) {
+      this.error = false
+      this._dataEvents = data.data.filter(event => event.place)
+      this._minYear = this._getMinYear()
+    } else if ('error' in data) {
+      this.error = true
+      this._errorMessage = data.error
+    }
+  }
+
+  _getMinYear() {
+    const years = this._dataEvents
+      ?.filter(event => event.place)
+      ?.map(event => getGregorianYears(event.date)?.[0])
+      ?.filter(y => y !== undefined)
+    let minYear = Math.min(...years)
+    const lastYear = new Date().getFullYear() - 1
+    minYear = Math.min(minYear, lastYear)
+    minYear = Math.max(minYear, 1) // disallow negative
+    return minYear
   }
 
   async _fetchDataLayers() {
@@ -366,15 +435,15 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   _getMapCenter() {
-    if (this._data.length === 0) {
+    if (this._dataPlaces.length === 0) {
       const locale = this.strings?.__lang__ || 'en'
       return languageCoordinates[locale] || [0, 0]
     }
     let x = 0
     let y = 0
     let n = 0
-    for (let i = 0; i < this._data.length; i += 1) {
-      const p = this._data[i]
+    for (let i = 0; i < this._dataPlaces.length; i += 1) {
+      const p = this._dataPlaces[i]
       if (
         p?.profile?.lat !== undefined &&
         p?.profile?.lat !== null &&

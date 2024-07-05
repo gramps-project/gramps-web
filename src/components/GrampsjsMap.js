@@ -1,14 +1,13 @@
 import {html, LitElement} from 'lit'
-import {
-  Map,
-  TileLayer,
-  LatLng,
-  control,
-} from '../../node_modules/leaflet/dist/leaflet-src.esm.js'
+import 'leaflet'
+import 'maplibre-gl'
+import '@maplibre/maplibre-gl-leaflet'
 import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, filterByDecimalYear} from '../util.js'
 import '../LocateControl.js'
+
+const {L} = window
 
 const defaultConfig = {
   leafletTileUrl:
@@ -17,6 +16,9 @@ const defaultConfig = {
     '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors; <a href="https://carto.com/attributions">CARTO</a>',
   leafletTileSize: 256,
   leafletZoomOffset: 0,
+  glStyle: 'https://www.openhistoricalmap.org/map-styles/main/main.json',
+  glAttribution:
+    '<a href="https://www.openhistoricalmap.org/">OpenHistoricalMap</a>',
 }
 
 class GrampsjsMap extends LitElement {
@@ -46,6 +48,7 @@ class GrampsjsMap extends LitElement {
       width: {type: String},
       latitude: {type: Number},
       longitude: {type: Number},
+      year: {type: Number},
       mapid: {type: String},
       zoom: {type: Number},
       latMin: {type: Number},
@@ -55,7 +58,9 @@ class GrampsjsMap extends LitElement {
       layerSwitcher: {type: Boolean},
       locateControl: {type: Boolean},
       _map: {type: Object},
+      _glMap: {type: Object},
       _layercontrol: {type: Object},
+      _currentLayer: {type: String},
     }
   }
 
@@ -67,28 +72,30 @@ class GrampsjsMap extends LitElement {
     this.mapid = 'mapid'
     this.latitude = 0
     this.longitude = 0
+    this.year = -1
     this.latMin = 0
     this.latMax = 0
     this.longMin = 0
     this.longMax = 0
     this.layerSwitcher = false
+    this._currentLayer = 'OpenStreetMap'
   }
 
   firstUpdated() {
     const mapel = this.shadowRoot.getElementById(this.mapid)
     if (this.latMin === 0 && this.latMax === 0) {
-      this._map = new Map(mapel, {zoomControl: false}).setView(
+      this._map = new L.Map(mapel, {zoomControl: false}).setView(
         [this.latitude, this.longitude],
         this.zoom
       )
     } else {
-      this._map = new Map(mapel, {zoomControl: false}).fitBounds([
+      this._map = new L.Map(mapel, {zoomControl: false}).fitBounds([
         [this.latMin, this.longMin],
         [this.latMax, this.longMax],
       ])
     }
     const config = {...defaultConfig, ...window.grampsjsConfig}
-    const tileLayer = new TileLayer(config.leafletTileUrl, {
+    const tileLayer = new L.TileLayer(config.leafletTileUrl, {
       attribution: config.leafletTileAttribution,
       tileSize: config.leafletTileSize,
       zoomOffset: config.leafletZoomOffset,
@@ -96,20 +103,43 @@ class GrampsjsMap extends LitElement {
       zoomControl: false,
     })
     tileLayer.addTo(this._map)
-    this._map.addControl(control.zoom({position: 'bottomright'}))
+    this._gl = L.maplibreGL({
+      style: config.glStyle,
+      attribution: config.glAttribution,
+    })
+    this._map.addControl(L.control.zoom({position: 'bottomright'}))
     if (this.locateControl) {
       this._map.addControl(
-        control.locate({position: 'bottomright', drawCircle: false})
+        L.control.locate({position: 'bottomright', drawCircle: false})
       )
     }
-    this._layercontrol = control.layers({OpenStreetMap: tileLayer}, null, {
-      position: 'bottomleft',
-    })
+    this._layercontrol = L.control.layers(
+      {
+        OpenHistoricalMap: this._gl,
+        OpenStreetMap: tileLayer,
+      },
+      null,
+      {
+        position: 'bottomleft',
+      }
+    )
     if (this.layerSwitcher) {
       this._map.addControl(this._layercontrol)
     }
+    this._map.on('baselayerchange', e => this._handleBaseLayerChange(e))
     this._map.invalidateSize(false)
     this._map.on('moveend', e => this._handleMoveEnd(e))
+  }
+
+  _handleBaseLayerChange(e) {
+    this._currentLayer = e.name
+    if (this._currentLayer === 'OpenHistoricalMap') {
+      const mapLibreMap = this._gl.getMaplibreMap()
+      mapLibreMap.on('styledata', () =>
+        filterByDecimalYear(mapLibreMap, this.year)
+      )
+    }
+    fireEvent(this, 'map:layerchange', {layer: this._currentLayer})
   }
 
   _handleMoveEnd(e) {
@@ -118,15 +148,31 @@ class GrampsjsMap extends LitElement {
 
   panTo(latitude, longitude) {
     if (this._map !== undefined) {
-      this._map.panTo(new LatLng(latitude, longitude))
+      // eslint-disable-next-line new-cap
+      this._map.panTo(new L.latLng(latitude, longitude))
     }
   }
 
-  updated() {
-    if (this._map !== undefined) {
+  updated(changed) {
+    if (
+      changed.has('year') &&
+      this.year > 0 &&
+      this._currentLayer === 'OpenHistoricalMap'
+    ) {
+      filterByDecimalYear(this._gl.getMaplibreMap(), this.year)
+      return
+    }
+    if (
+      this._map !== undefined &&
+      (changed.has('latitude') ||
+        changed.has('longitude') ||
+        changed.has('mapid') ||
+        changed.has('zoom'))
+    ) {
       if (this.latMin === 0 && this.latMax === 0) {
         this._map.setZoom(this.zoom)
-        this._map.panTo(new LatLng(this.latitude, this.longitude))
+        // eslint-disable-next-line new-cap
+        this._map.panTo(new L.latLng(this.latitude, this.longitude))
       } else {
         this._map.fitBounds([
           [this.latMin, this.longMin],

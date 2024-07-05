@@ -588,3 +588,186 @@ export function dateIsEmpty(date) {
   }
   return true
 }
+
+// OpenHistoricalMap functions
+
+/**
+ * Returns a `Date` object representing the given UTC date components.
+ *
+ * @param year A one-based year in the proleptic Gregorian calendar.
+ * @param month A zero-based month.
+ * @param day A one-based day.
+ * @returns A date object.
+ */
+function dateFromUTC(year, month, day) {
+  const date = new Date(Date.UTC(year, month, day))
+  // Date.UTC() treats a two-digit year as an offset from 1900.
+  date.setUTCFullYear(year)
+  return date
+}
+
+/**
+ * Converts the given ISO 8601-1 date to a decimal year.
+ *
+ * @param isoDate A date string in ISO 8601-1 format.
+ * @returns A floating point number of years since year 0.
+ */
+function decimalYearFromISODate(isoDate) {
+  // Require a valid YYYY, YYYY-MM, or YYYY-MM-DD date, but allow the year
+  // to be a variable number of digits or negative, unlike ISO 8601-1.
+  if (!isoDate || !/^-?\d{1,4}(?:-\d\d){0,2}$/.test(isoDate)) return undefined
+
+  const ymd = isoDate.split('-')
+  // A negative year results in an extra element at the beginning.
+  if (ymd[0] === '') {
+    ymd.shift()
+    ymd[0] *= -1
+  }
+  const year = +ymd[0]
+  const date = dateFromUTC(year, +ymd[1] - 1, +ymd[2])
+  if (Number.isNaN(date)) return undefined
+
+  // Add the year and the fraction of the date between two New Year’s Days.
+  const nextNewYear = dateFromUTC(year + 1, 0, 1).getTime()
+  const lastNewYear = dateFromUTC(year, 0, 1).getTime()
+  return year + (date.getTime() - lastNewYear) / (nextNewYear - lastNewYear)
+}
+
+/**
+ * Returns a modified version of the given filter that only evaluates to
+ * true if the feature coincides with the given decimal year.
+ *
+ * @param filter The original layer filter.
+ * @param decimalYear The decimal year to filter by.
+ * @returns A filter similar to the given filter, but with added conditions
+ *	that require the feature to coincide with the decimal year.
+ */
+function constrainFilterByDate(filter, decimalYear) {
+  const newFilter = filter
+  if (filter && filter[0] === 'all' && filter[1] && filter[1][0] === 'any') {
+    if (
+      filter[1][2] &&
+      filter[1][2][0] === '<' &&
+      filter[1][2][1] === 'start_decdate'
+    ) {
+      newFilter[1][2][2] = decimalYear + 1
+    }
+    if (
+      newFilter[2][2] &&
+      newFilter[2][2][0] === '>=' &&
+      newFilter[2][2][1] === 'end_decdate'
+    ) {
+      newFilter[2][2][2] = decimalYear
+    }
+    return newFilter
+  }
+
+  const dateFilter = [
+    'all',
+    ['any', ['!has', 'start_decdate'], ['<', 'start_decdate', decimalYear + 1]],
+    ['any', ['!has', 'end_decdate'], ['>=', 'end_decdate', decimalYear]],
+  ]
+  if (filter) {
+    dateFilter.push(filter)
+  }
+  return dateFilter
+}
+
+/**
+ * Filters the map’s features by the `date` data attribute.
+ *
+ * @param map The MapboxGL map object to filter the style of.
+ * @param year The numeric ear to filter by
+ */
+export function filterByDecimalYear(map, decimalYear) {
+  // eslint-disable-next-line array-callback-return
+  map.getStyle().layers.map(layer => {
+    if (!('source-layer' in layer)) return
+
+    const filter = constrainFilterByDate(map.getFilter(layer.id), decimalYear)
+    map.setFilter(layer.id, filter)
+  })
+}
+
+/**
+ * Filters the map’s features by the `date` data attribute.
+ *
+ * @param map The MapboxGL map object to filter the style of.
+ * @param date The date to filter by in YYYY-MM-DD format.
+ */
+export function filterByDate(map, dateP) {
+  let date = dateP
+  if (date === null || date === '') {
+    ;[date] = new Date().toISOString().split('T')
+  }
+  const decimalYear = date && decimalYearFromISODate(date)
+  if (!decimalYear) return
+
+  filterByDecimalYear(map, decimalYear)
+}
+
+export function getGregorianYears(date) {
+  if (date === undefined || dateIsEmpty(date)) {
+    return [undefined, undefined]
+  }
+
+  let year1 = date.dateval[2]
+  let year2 = date.dateval[6] ?? year1
+
+  // handle different calendars.
+  // we appoximate to +/- 1 year, so we ignore the difference
+  // between Gregorian, Julian, and Swedish, and use simple
+  // linear approximations to the Islamic, Persian, and Hebrew calendars.
+  const CAL_HEBREW = 2
+  const CAL_FRENCH = 3
+  const CAL_PERSIAN = 4
+  const CAL_ISLAMIC = 5
+  if (date.calendar === CAL_HEBREW) {
+    year1 -= 3760
+    year2 -= 3760
+  } else if (date.calendar === CAL_FRENCH) {
+    year1 += 1791
+    year2 += 1791
+  } else if (date.calendar === CAL_PERSIAN) {
+    year1 += 621
+    year2 += 621
+  } else if (date.calendar === CAL_ISLAMIC) {
+    year1 = Math.floor(0.97022 * year1 + 621.565)
+    year2 = Math.floor(0.97022 * year2 + 621.565)
+  }
+  return [year1, year2]
+}
+
+export function isDateBetweenYears(date, yearMin, yearMax) {
+  const MOD_BEFORE = 1
+  const MOD_AFTER = 2
+  const MOD_ABOUT = 3
+  const MOD_TEXTONLY = 6
+  const MOD_FROM = 7
+  const MOD_TO = 8
+
+  const RANGE_ABOUT = 50
+  const RANGE_BEFORE = 50
+  const RANGE_AFTER = 50
+
+  if (dateIsEmpty(date) || date.modifier === MOD_TEXTONLY) {
+    return false
+  }
+
+  let [year1, year2] = getGregorianYears(date)
+  if (year1 === undefined) {
+    return false
+  }
+
+  if (date.modifier === MOD_BEFORE || date.modifier === MOD_TO) {
+    year1 -= RANGE_BEFORE
+  }
+  if (date.modifier === MOD_AFTER || date.modifier === MOD_FROM) {
+    year2 += RANGE_AFTER
+  }
+  if (date.modifier === MOD_ABOUT) {
+    year1 -= RANGE_ABOUT
+    year2 += RANGE_ABOUT
+  }
+  return yearMin <= year2 && year1 <= yearMax
+}
