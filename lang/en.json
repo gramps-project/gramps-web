@@ -170,5 +170,6 @@
   "simple": "simple",
   "Are you sure?": "Are you sure?",
   "This action cannot be undone.": "This action cannot be undone.",
-  "Yes": "Yes"
+  "Yes": "Yes",
+  "Toggle time filter for places": "Toggle time filter for places"
 }

@@ -11,6 +11,7 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import {fireEvent} from '../util.js'
 import {renderIconSvg} from '../icons.js'
+import './GrampsjsTooltip.js'
 
 class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
@@ -118,15 +119,22 @@ class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
             @click="${this._handleSpanClick}"
             ?disabled="${this.span < 0}"
           >
+            <grampsjs-tooltip for="span-button" .strings="${this.strings}"
+              >${this._('Span')}</grampsjs-tooltip
+            >
             <md-icon
               >${renderIconSvg(mdiCog, 'var(--md-sys-color-primary)')}</md-icon
             >
           </md-icon-button>
         </div>
         <md-switch
+          id="filter-switch"
           @input="${this._handleSwitch}"
           ?selected="${this.span > 0}"
         ></md-switch>
+        <grampsjs-tooltip for="filter-switch" .strings="${this.strings}"
+          >${this._('Toggle time filter for places')}</grampsjs-tooltip
+        >
       </div>
       <md-menu
         positioning="fixed"
