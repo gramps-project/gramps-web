@@ -149,6 +149,14 @@ export const sharedStyles = css`
     cursor: pointer;
   }
 
+  .linkicon {
+    --md-icon-size: 15px;
+    margin-right: 8px;
+    position: relative;
+    bottom: -1px;
+    opacity: 0.7;
+  }
+
   .nopointer {
     pointer-events: none;
   }

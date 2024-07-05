@@ -4,7 +4,7 @@ import '@material/mwc-icon'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditCitationDetails.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, linkUrls} from '../util.js'
 
 const BASE_DIR = ''
 
@@ -60,7 +60,7 @@ export class GrampsjsCitation extends GrampsjsObject {
           ? html`
               <div>
                 <dt>${this._('Page')}</dt>
-                <dd>${this.data.page}</dd>
+                <dd>${linkUrls(this.data.page, false)}</dd>
               </div>
             `
           : ''}
