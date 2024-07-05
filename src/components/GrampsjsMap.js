@@ -162,7 +162,13 @@ class GrampsjsMap extends LitElement {
       filterByDecimalYear(this._gl.getMaplibreMap(), this.year)
       return
     }
-    if (this._map !== undefined) {
+    if (
+      this._map !== undefined &&
+      (changed.has('latitude') ||
+        changed.has('longitude') ||
+        changed.has('mapid') ||
+        changed.has('zoom'))
+    ) {
       if (this.latMin === 0 && this.latMax === 0) {
         this._map.setZoom(this.zoom)
         // eslint-disable-next-line new-cap

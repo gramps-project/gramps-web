@@ -8,7 +8,7 @@ import '../components/GrampsjsMapSearchbox.js'
 import '../components/GrampsjsMapTimeSlider.js'
 import '../components/GrampsjsPlaceBox.js'
 import {apiGet, getMediaUrl} from '../api.js'
-import {isDateBetweenYears} from '../util.js'
+import {isDateBetweenYears, getGregorianYears} from '../util.js'
 import '@material/mwc-textfield'
 
 // This is used for initial map center in absence of places
@@ -82,6 +82,7 @@ export class GrampsjsViewMap extends GrampsjsView {
       _year: {type: Number},
       _yearSpan: {type: Number},
       _currentLayer: {type: String},
+      _minYear: {type: Number},
     }
   }
 
@@ -100,6 +101,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._year = -1
     this._yearSpan = -1
     this._currentLayer = ''
+    this._minYear = 1500
   }
 
   renderContent() {
@@ -132,6 +134,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         >${this._renderPlaceDetails()}</grampsjs-map-searchbox
       >
       <grampsjs-map-time-slider
+        min="${this._minYear}"
         ?filterMap="${this._currentLayer === 'OpenHistoricalMap'}"
         @timeslider:change="${this._handleTimeSliderChange}"
         .strings="${this.strings}"
@@ -389,10 +392,23 @@ export class GrampsjsViewMap extends GrampsjsView {
     if ('data' in data) {
       this.error = false
       this._dataEvents = data.data.filter(event => event.place)
+      this._minYear = this._getMinYear()
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
     }
+  }
+
+  _getMinYear() {
+    const years = this._dataEvents
+      ?.filter(event => event.place)
+      ?.map(event => getGregorianYears(event.date)?.[0])
+      ?.filter(y => y !== undefined)
+    let minYear = Math.min(...years)
+    const lastYear = new Date().getFullYear() - 1
+    minYear = Math.min(minYear, lastYear)
+    minYear = Math.max(minYear, 1) // disallow negative
+    return minYear
   }
 
   async _fetchDataLayers() {

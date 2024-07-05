@@ -80,12 +80,14 @@ class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
     return {
       value: {type: Number},
       span: {type: Number},
+      min: {type: Number},
       filterMap: {type: Boolean},
     }
   }
 
   constructor() {
     super()
+    this.min = 1500
     this.value = new Date().getFullYear() - 50
     this.span = 50
     this.filterMap = false
@@ -98,7 +100,7 @@ class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
           @input="${this._handleInput}"
           ?disabled="${!this.filterMap && this.span < 0}"
           labeled
-          min="1500"
+          min="${this.min}"
           max="${new Date().getFullYear()}"
           value="${this.value}"
         ></md-slider>
@@ -132,7 +134,7 @@ class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
         anchor="span-button"
         skip-restore-focus
       >
-        ${[0, 10, 25, 50, 100].map(
+        ${[1, 10, 25, 50, 100].map(
           years => html`
             <md-menu-item @click="${() => this._handleSpanYearsClick(years)}">
               <div slot="headline">&pm;&nbsp;${years}</div>

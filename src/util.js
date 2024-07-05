@@ -706,6 +706,38 @@ export function filterByDate(map, dateP) {
   filterByDecimalYear(map, decimalYear)
 }
 
+export function getGregorianYears(date) {
+  if (date === undefined || dateIsEmpty(date)) {
+    return [undefined, undefined]
+  }
+
+  let year1 = date.dateval[2]
+  let year2 = date.dateval[6] ?? year1
+
+  // handle different calendars.
+  // we appoximate to +/- 1 year, so we ignore the difference
+  // between Gregorian, Julian, and Swedish, and use simple
+  // linear approximations to the Islamic, Persian, and Hebrew calendars.
+  const CAL_HEBREW = 2
+  const CAL_FRENCH = 3
+  const CAL_PERSIAN = 4
+  const CAL_ISLAMIC = 5
+  if (date.calendar === CAL_HEBREW) {
+    year1 -= 3760
+    year2 -= 3760
+  } else if (date.calendar === CAL_FRENCH) {
+    year1 += 1791
+    year2 += 1791
+  } else if (date.calendar === CAL_PERSIAN) {
+    year1 += 621
+    year2 += 621
+  } else if (date.calendar === CAL_ISLAMIC) {
+    year1 = Math.floor(0.97022 * year1 + 621.565)
+    year2 = Math.floor(0.97022 * year2 + 621.565)
+  }
+  return [year1, year2]
+}
+
 export function isDateBetweenYears(date, yearMin, yearMax) {
   const MOD_BEFORE = 1
   const MOD_AFTER = 2
@@ -722,8 +754,10 @@ export function isDateBetweenYears(date, yearMin, yearMax) {
     return false
   }
 
-  let year1 = date.dateval[2]
-  let year2 = date.dateval[6] ?? year1
+  let [year1, year2] = getGregorianYears(date)
+  if (year1 === undefined) {
+    return false
+  }
 
   if (date.modifier === MOD_BEFORE || date.modifier === MOD_TO) {
     year1 -= RANGE_BEFORE
