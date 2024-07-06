@@ -10,11 +10,22 @@ import './GrampsjsFormSelectType.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 class GrampsjsFormEditAttribute extends GrampsjsObjectForm {
+  static get properties() {
+    return {
+      source: {type: Boolean},
+    }
+  }
+
+  constructor() {
+    super()
+    this.source = false
+  }
+
   renderForm() {
     return html`
       <grampsjs-form-select-type
         required
-        id="attrtype"
+        id="${this.source ? 'srcattrtype' : 'attrtype'}"
         heading="${this._('Type')}"
         .strings="${this.strings}"
         typeName="attribute_types"

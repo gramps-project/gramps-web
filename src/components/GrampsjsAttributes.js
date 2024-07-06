@@ -10,6 +10,17 @@ import '@material/mwc-list/mwc-list-item'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsAttributes extends GrampsjsEditableList {
+  static get properties() {
+    return {
+      source: {type: Boolean},
+    }
+  }
+
+  constructor() {
+    super()
+    this.source = false
+  }
+
   row(obj) {
     return html`
       <mwc-list-item
@@ -28,6 +39,7 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
   _handleAdd() {
     this.dialogContent = html`
       <grampsjs-form-edit-attribute
+        ?source="${this.source}"
         new
         @object:save="${this._handleAttrSave}"
         @object:cancel="${this._handleAttrCancel}"
@@ -40,11 +52,15 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
   _handleEdit() {
     const attr = this.data[this._selectedIndex]
     const data = {
-      type: {_class: 'AttributeType', string: attr.type || ''},
+      type: {
+        _class: this.source ? 'SrcAttributeType' : 'AttributeType',
+        string: attr.type || '',
+      },
       value: attr.value || '',
     }
     this.dialogContent = html`
       <grampsjs-form-edit-attribute
+        ?source="${this.source}"
         @object:save="${this._handleAttrSaveEdit}"
         @object:cancel="${this._handleAttrCancel}"
         .strings="${this.strings}"
