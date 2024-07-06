@@ -1,15 +1,6 @@
 import {html, css, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
-
-const urlRegex =
-  /((?:^|\s)https?:\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/gi
-
-function linkUrls(text) {
-  return text.replace(
-    urlRegex,
-    url => `<a href="${url}" target="_blank">${url}</a>`
-  )
-}
+import {linkUrls} from '../util.js'
 
 export class GrampsjsNoteContent extends LitElement {
   static get styles() {

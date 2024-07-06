@@ -4,7 +4,8 @@ import '@material/mwc-icon'
 import dayjs from 'dayjs/esm'
 import relativeTime from 'dayjs/esm/plugin/relativeTime'
 
-import {asteriskIcon, crossIcon} from './icons.js'
+import {mdiOpenInNew} from '@mdi/js'
+import {asteriskIcon, crossIcon, renderIconSvg} from './icons.js'
 import {frontendLanguages} from './strings.js'
 import {hex6ToCss, hex12ToCss} from './color.js'
 
@@ -587,6 +588,27 @@ export function dateIsEmpty(date) {
     return false
   }
   return true
+}
+
+const urlRegex =
+  /((?:^|\s)https?:\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/gi
+
+export function linkUrls(text, textOnly = true) {
+  if (textOnly) {
+    return text.replace(
+      urlRegex,
+      url => `<a href="${url}" target="_blank">${url}</a>`
+    )
+  }
+  const parts = text.split(urlRegex)
+  return html`${parts.map(part =>
+    part.match(urlRegex)
+      ? html`<a href="${part}" target="_blank">${part}</a>
+          <md-icon class="linkicon"
+            >${renderIconSvg(mdiOpenInNew, '#0d47a1')}</md-icon
+          > `
+      : part
+  )}`
 }
 
 // OpenHistoricalMap functions
