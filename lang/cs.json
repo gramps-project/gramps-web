@@ -170,5 +170,6 @@
     "Are you sure?": "Jste si jistí?",
     "Yes": "Ano",
     "Show more": "Zobrazit více",
-    "This action cannot be undone.": "Tuto akci nelze vrátit zpět."
+    "This action cannot be undone.": "Tuto akci nelze vrátit zpět.",
+    "Toggle time filter for places": "Přepnout časový filtr pro místa"
 }
