@@ -1,4 +1,4 @@
-import {html} from 'lit'
+import {html, css} from 'lit'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditAttribute.js'
@@ -10,6 +10,21 @@ import '@material/mwc-list/mwc-list-item'
 import {fireEvent, linkUrls} from '../util.js'
 
 export class GrampsjsAttributes extends GrampsjsEditableList {
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        mwc-list-item {
+          cursor: default;
+        }
+
+        mwc-list-item[hasMeta] {
+          cursor: pointer;
+        }
+      `,
+    ]
+  }
+
   static get properties() {
     return {
       source: {type: Boolean},
@@ -23,13 +38,8 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
 
   row(obj) {
     return html`
-      <mwc-list-item
-        twoline
-        graphic="avatar"
-        ?noninteractive="${!this.edit}"
-        ?hasMeta="${this.edit}"
-      >
-        ${linkUrls(obj.value)}
+      <mwc-list-item twoline graphic="avatar" ?hasMeta="${this.edit}">
+        ${this.edit ? obj.value : linkUrls(obj.value, false)}
         <span slot="secondary">${this._(obj.type)}</span>
         <mwc-icon slot="graphic">info</mwc-icon>
       </mwc-list-item>
