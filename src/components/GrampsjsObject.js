@@ -511,6 +511,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           .strings=${this.strings}
           ?edit="${this.edit}"
           .data=${this.data.attribute_list}
+          ?source="${this._objectsName === 'Sources'}"
         ></grampsjs-attributes>`
       case 'addresses':
         return html`<grampsjs-addresses
