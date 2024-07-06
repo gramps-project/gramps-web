@@ -19,15 +19,12 @@ class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
       sharedStyles,
       css`
         #container {
-          z-index: 999;
           background-color: #ffffff;
           border-radius: 14px;
-          width: calc(100% - 150px);
+          width: 100%;
           position: absolute;
-          bottom: 25px;
-          height: 28px;
-          left: 50%;
-          transform: translateX(-50%);
+          bottom: 8px;
+          height: 24px;
           display: flex;
           justify-content: center;
           align-items: center;
