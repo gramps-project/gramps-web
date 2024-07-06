@@ -707,7 +707,12 @@ export function filterByDate(map, dateP) {
 }
 
 export function getGregorianYears(date) {
-  if (date === undefined || dateIsEmpty(date)) {
+  const MOD_TEXTONLY = 6
+  if (
+    date === undefined ||
+    dateIsEmpty(date) ||
+    date.modifier === MOD_TEXTONLY
+  ) {
     return [undefined, undefined]
   }
 
