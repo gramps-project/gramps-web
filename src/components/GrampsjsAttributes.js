@@ -7,7 +7,7 @@ import '@material/mwc-icon-button'
 import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
 
-import {fireEvent} from '../util.js'
+import {fireEvent, linkUrls} from '../util.js'
 
 export class GrampsjsAttributes extends GrampsjsEditableList {
   static get properties() {
@@ -29,7 +29,7 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
         ?noninteractive="${!this.edit}"
         ?hasMeta="${this.edit}"
       >
-        ${obj.value}
+        ${linkUrls(obj.value)}
         <span slot="secondary">${this._(obj.type)}</span>
         <mwc-icon slot="graphic">info</mwc-icon>
       </mwc-list-item>

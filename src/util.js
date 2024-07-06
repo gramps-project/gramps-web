@@ -611,7 +611,6 @@ export function linkUrls(text, textOnly = true) {
   )}`
 }
 
-
 // OpenHistoricalMap functions
 
 /**
@@ -798,3 +797,4 @@ export function isDateBetweenYears(date, yearMin, yearMax) {
     year2 += RANGE_ABOUT
   }
   return yearMin <= year2 && year1 <= yearMax
+}
