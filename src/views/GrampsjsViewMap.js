@@ -393,6 +393,7 @@ export class GrampsjsViewMap extends GrampsjsView {
       this.error = false
       this._dataEvents = data.data.filter(event => event.place)
       this._minYear = this._getMinYear()
+      this._applyPlaceFilter()
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
