@@ -170,5 +170,6 @@
     "Show more": "Daha fazla göster",
     "This action cannot be undone.": "Bu eylem geri alınamaz.",
     "Are you sure?": "Emin misiniz?",
-    "Yes": "Evet"
+    "Yes": "Evet",
+    "Toggle time filter for places": "Yerler için zaman süzgecini aç/kapat"
 }
