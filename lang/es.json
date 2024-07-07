@@ -166,5 +166,11 @@
     "Delete Media": "Borrar un medio",
     "Delete Tag": "Eliminar una etiqueta",
     "Edit Tag": "Editar una etiqueta",
-    "simple": "simple"
+    "simple": "simple",
+    "Toggle time filter for places": "Alternar el filtro de tiempo para lugares",
+    "Add custom type": "Añadir tipo personalizado",
+    "Show more": "Mostrar más",
+    "Are you sure?": "¿Estás seguro?",
+    "This action cannot be undone.": "Esta acción no puede anularse.",
+    "Yes": "Sí"
 }
