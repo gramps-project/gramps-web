@@ -777,7 +777,11 @@ export function isDateBetweenYears(date, yearMin, yearMax) {
   const RANGE_BEFORE = 50
   const RANGE_AFTER = 50
 
-  if (dateIsEmpty(date) || date.modifier === MOD_TEXTONLY) {
+  if (
+    date === undefined ||
+    dateIsEmpty(date) ||
+    date.modifier === MOD_TEXTONLY
+  ) {
     return false
   }
 

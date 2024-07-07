@@ -331,7 +331,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         const yearMin = this._year - this._yearSpan
         const yearMax = this._year + this._yearSpan
         return placeEvents.some(event =>
-          isDateBetweenYears(event.date, yearMin, yearMax)
+          isDateBetweenYears(event?.date, yearMin, yearMax)
         )
       }
       return true
