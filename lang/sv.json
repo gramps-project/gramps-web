@@ -171,5 +171,6 @@
     "This action cannot be undone.": "Denna åtgärd kan inte ångras.",
     "Yes": "Ja",
     "Show more": "Visa mer",
-    "Are you sure?": "Är du säker?"
+    "Are you sure?": "Är du säker?",
+    "Toggle time filter for places": "Växla tidsfilter för platser"
 }
