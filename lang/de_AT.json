@@ -167,5 +167,9 @@
     "Delete Repository": "Aufbewahrungsort löschen",
     "Delete Note": "Notiz löschen",
     "Delete Tag": "Markierung löschen",
-    "Edit Tag": "Markierung bearbeiten"
+    "Edit Tag": "Markierung bearbeiten",
+    "Toggle time filter for places": "Zeitfilter für Orte ein-/ausschalten",
+    "Are you sure?": "Bist du sicher?",
+    "This action cannot be undone.": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "Yes": "Ja"
 }
