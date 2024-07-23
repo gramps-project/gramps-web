@@ -130,7 +130,7 @@
     "Chromosome Browser": "דפדפן כרומוזומים",
     "Shared Segments": "מקטעים משותפים",
     "Save as Note": "שמירה כהערה",
-    "This tool checks the database for integrity problems, fixing the problems it can.": "כלי זה בודק את מסד הנתונים לאיתור בעיות שלמות ומתקן את הבעיות ככול שהוא יכול.",
+    "This tool checks the database for integrity problems, fixing the problems it can.": "כלי לבדיקת מסד הנתונים לאיתור בעיות שלמות ותקןן בעיות ככול שניתן.",
     "Ancestor frequency": "תדירות אב־קדמון",
     "Bookmark this": "הוספה לסמניות",
     "Remove bookmark": "הסרת סימניה",
@@ -170,5 +170,6 @@
     "Show more": "להציג עוד",
     "Are you sure?": "האם לבצע?",
     "This action cannot be undone.": "לא ניתן פעולה זו.",
-    "Yes": "כן"
+    "Yes": "כן",
+    "Toggle time filter for places": "מיתוג מסנן זמן למקומות"
 }
