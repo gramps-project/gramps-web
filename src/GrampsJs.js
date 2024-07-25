@@ -52,7 +52,7 @@ const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
 
-const MINIMUM_API_VERSION = '2.2.0'
+const MINIMUM_API_VERSION = '2.3.0'
 
 export class GrampsJs extends LitElement {
   static get properties() {
