@@ -58,6 +58,14 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
   }
 
   renderContent() {
+    if (['#user', '#admin', '#users', '#info'].includes(window.location.hash)) {
+      this.page = window.location.hash.substring(1)
+      window.history.pushState(
+        '',
+        document.title,
+        window.location.pathname + window.location.search
+      )
+    }
     return html`
       <mwc-tab-bar>
         <mwc-tab

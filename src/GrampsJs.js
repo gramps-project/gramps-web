@@ -75,6 +75,7 @@ export class GrampsJs extends LitElement {
       _shortcutPressed: {type: String},
       _firstRunToken: {type: String},
       _loadingStrings: {type: Boolean},
+      reindexNeeded: {type: Boolean},
     }
   }
 
@@ -98,6 +99,7 @@ export class GrampsJs extends LitElement {
     this._shortcutPressed = ''
     this._firstRunToken = ''
     this._loadingStrings = false
+    this._reindexNeeded = false
   }
 
   static get styles() {
@@ -277,6 +279,7 @@ export class GrampsJs extends LitElement {
       ${this.renderContent()} ${this._renderKeyboardShortcuts()}
       <mwc-snackbar id="error-snackbar" leading></mwc-snackbar>
       <mwc-snackbar id="notification-snackbar" leading></mwc-snackbar>
+      ${this._reindexNeeded ? this._renderReindexSnackbar() : ''}
       <grampsjs-undo-transaction
         .strings="${this._strings}"
       ></grampsjs-undo-transaction>
@@ -293,6 +296,28 @@ export class GrampsJs extends LitElement {
         </mwc-snackbar>
       </grampsjs-update-available>
     `
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _renderReindexSnackbar() {
+    return html`<mwc-snackbar
+      id="reindex-snackbar"
+      leading
+      open
+      timeoutMs="-1"
+      labelText="${this._('The search index needs to be rebuilt.')}"
+    >
+      <mwc-button slot="action" @click="${this._handleReindexButton}"
+        >${this._('Settings')}</mwc-button
+      >
+      ></mwc-snackbar
+    >`
+  }
+
+  _handleReindexButton(e) {
+    fireEvent(this, 'nav', {path: 'settings'})
+    e.preventDefault()
+    e.stopPropagation()
   }
 
   _renderKeyboardShortcuts() {
@@ -624,6 +649,7 @@ export class GrampsJs extends LitElement {
       }
       if ('data' in data) {
         this._dbInfo = data.data
+        this._checkSearch()
         this._checkApiVersion()
         if (!this._checkDbSchema()) {
           return
@@ -656,6 +682,26 @@ export class GrampsJs extends LitElement {
         // API has lower version
         this._showError(`${this._('outdated backend')} (${apiVersion})`)
       }
+    }
+  }
+
+  _checkSearch() {
+    const searchVersion = this._dbInfo?.search?.sifts?.version
+    if (searchVersion === undefined) {
+      window._oldSearchBackend = true
+      return
+    }
+    window._oldSearchBackend = false
+    const searchCount = this._dbInfo?.search?.sifts?.count ?? 0
+    const objCounts = this._dbInfo?.object_counts ?? {}
+    const objCount = Object.values(objCounts).reduce(
+      (sum, value) => sum + value,
+      0
+    )
+    if (searchCount === 0 && objCount > 0) {
+      this._reindexNeeded = true
+    } else {
+      this._reindexNeeded = false
     }
   }
 

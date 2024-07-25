@@ -119,6 +119,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         taskName="searchReindexFull"
         size="20"
         pollInterval="0.2"
+        @task:complete="${this._handleSuccessUpdateSearch}"
       ></grampsjs-task-progress-indicator>
 
       <h3>${this._('Check and Repair Database')}</h3>
@@ -231,7 +232,12 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.taskId = data.task?.id || ''
     } else {
       prog.setComplete()
+      this._handleSuccessUpdateSearch()
     }
+  }
+
+  _handleSuccessUpdateSearch() {
+    fireEvent(this, 'db:changed')
   }
 
   async _checkRepair() {

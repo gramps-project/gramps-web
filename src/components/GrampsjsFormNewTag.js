@@ -74,7 +74,6 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
   }
 
   async _fetchData() {
-    // window._oldSearchBackend for backward compatibility with Web API <v2.4
     const url = `/api/tags/?locale=${
       this.strings?.__lang__ || 'en'
     }&profile=all&pagesize=100`
