@@ -34,8 +34,16 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsConnectedComponent {
   }
 
   getUrl() {
-    const query = "change:'-1 year to tomorrow'"
-    return `/api/search/?sort=-change&query=${query}&locale=${
+    if (window._oldSearchBackend) {
+      const query = "change:'-1 year to tomorrow'"
+      return `/api/search/?sort=-change&query=${query}&locale=${
+        this.strings.__lang__ || 'en'
+      }&profile=all&page=1&pagesize=8`
+    }
+    const ts = Math.floor(Date.now() / 1000) - 365 * 24 * 60 * 60 // ~1 year ago
+    return `/api/search/?sort=-change&query=${encodeURIComponent(
+      '*'
+    )}&change=${encodeURIComponent(`>${ts}`)}&locale=${
       this.strings.__lang__ || 'en'
     }&profile=all&page=1&pagesize=8`
   }

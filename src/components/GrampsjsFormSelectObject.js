@@ -162,17 +162,7 @@ class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
       indeterminate
       density="-3"
     ></mwc-circular-progress>`
-    const url = textField.value
-      ? `/api/search/?locale=${
-          this.strings?.__lang__ || 'en'
-        }&profile=all&query=${encodeURIComponent(
-          `${textField.value}* AND type:${this.objectType || '*'}`
-        )}&profile=all&page=1&pagesize=20`
-      : `/api/search/?sort=-change&locale=${
-          this.strings?.__lang__ || 'en'
-        }&profile=all&query=${encodeURIComponent(
-          `type:${this.objectType || '*'}`
-        )}&profile=all&page=1&pagesize=20`
+    const url = this._getFetchUrl(textField.value)
     const data = await apiGet(url)
     if ('data' in data) {
       this.data = data.data.filter(
@@ -184,6 +174,34 @@ class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
       this.data = []
       resultList.textEmpty = this._('Error')
     }
+  }
+
+  _getFetchUrl(value) {
+    if (window._oldSearchBackend) {
+      return value
+        ? `/api/search/?locale=${
+            this.strings?.__lang__ || 'en'
+          }&profile=all&query=${encodeURIComponent(
+            `${value}* AND type:${this.objectType || '*'}`
+          )}&profile=all&page=1&pagesize=20`
+        : `/api/search/?sort=-change&locale=${
+            this.strings?.__lang__ || 'en'
+          }&profile=all&query=${encodeURIComponent(
+            `type:${this.objectType || '*'}`
+          )}&profile=all&page=1&pagesize=20`
+    }
+    let url = `/api/search/?locale=${
+      this.strings?.__lang__ || 'en'
+    }&profile=all&page=1&pagesize=20`
+    if (value) {
+      url = `${url}&query=${encodeURIComponent(`${value}*`)}`
+    } else {
+      url = `${url}&sort=-change&query=${encodeURIComponent('*')}`
+    }
+    if (this.objectType) {
+      url = `${url}&type=${this.objectType}`
+    }
+    return url
   }
 
   firstUpdated() {
