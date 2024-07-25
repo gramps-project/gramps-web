@@ -363,7 +363,7 @@ export class GrampsjsViewMap extends GrampsjsView {
 
   async _fetchDataSearch(value) {
     const query = encodeURIComponent(
-      `${value}*${window._oldSearchBackend ? 'AND type:place`' : ''}`
+      `${value}*${window._oldSearchBackend ? ' AND type:place`' : ''}`
     )
     const locale = this.strings?.__lang__ || 'en'
     const data = await apiGet(
