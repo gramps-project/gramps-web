@@ -74,12 +74,20 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
   }
 
   async _fetchData() {
-    const url = `/api/search/?locale=${
+    // window._oldSearchBackend for backward compatibility with Web API <v2.4
+    const url = `/api/tags/?locale=${
       this.strings?.__lang__ || 'en'
-    }&profile=all&query=type:tag&pagesize=100`
+    }&profile=all&pagesize=100`
     const data = await apiGet(url)
     if ('data' in data) {
-      this.searchRes = data.data.filter(obj => !this.data.includes(obj.handle))
+      this.searchRes =
+        data.data
+          ?.map(tag => ({
+            object_type: 'tag',
+            object: tag,
+            handle: tag.handle,
+          }))
+          ?.filter(obj => !this.data.includes(obj.handle)) ?? []
     } else if ('error' in data) {
       this.searchRes = []
     }

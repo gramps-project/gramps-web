@@ -168,7 +168,9 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
     if (detail?.length) {
       return detail
     }
-    return obj.object?.gramps_id || '...'
+    return obj.object_type === 'tag'
+      ? this._('Tag')
+      : obj.object?.gramps_id || '...'
   }
 
   _handleMetaClick(e, obj) {
