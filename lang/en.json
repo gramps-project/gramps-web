@@ -171,5 +171,6 @@
   "Are you sure?": "Are you sure?",
   "This action cannot be undone.": "This action cannot be undone.",
   "Yes": "Yes",
-  "Toggle time filter for places": "Toggle time filter for places"
+  "Toggle time filter for places": "Toggle time filter for places",
+  "The search index needs to be rebuilt.": "The search index needs to be rebuilt."
 }
