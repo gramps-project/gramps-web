@@ -147,7 +147,7 @@ export class GrampsjsViewMap extends GrampsjsView {
       return ''
     }
     const [handle] = this._handlesHighlight
-    const [object] = this._filteredPlaces.filter(obj => obj.handle === handle)
+    const [object] = this._dataPlaces.filter(obj => obj.handle === handle)
     if (object === undefined) {
       this._clearSearchBox()
       return ''
@@ -287,7 +287,15 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   _renderMarkers() {
-    return this._filteredPlaces.map(obj => {
+    const filteredHandles = this._filteredPlaces.map(place => place.handle)
+    // places which are highlighted but hidden by a filter: show anyway!
+    const highlightedFilteredPlaces = this._dataPlaces.filter(
+      place =>
+        this._handlesHighlight.includes(place.handle) &&
+        !filteredHandles.includes(place.handle)
+    )
+    const places = [...this._filteredPlaces, ...highlightedFilteredPlaces]
+    return places.map(obj => {
       if (
         obj?.profile?.lat === null ||
         obj?.profile?.lat === undefined ||
@@ -354,10 +362,14 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   async _fetchDataSearch(value) {
-    const query = encodeURIComponent(`${value}* AND type:place`)
+    const query = encodeURIComponent(
+      `${value}*${window._oldSearchBackend ? 'AND type:place`' : ''}`
+    )
     const locale = this.strings?.__lang__ || 'en'
     const data = await apiGet(
-      `/api/search/?query=${query}&locale=${locale}&profile=self&page=1&pagesize=20`
+      `/api/search/?query=${query}&locale=${locale}&profile=self&page=1&pagesize=20${
+        window._oldSearchBackend ? '' : '&type=place'
+      }`
     )
     this.loading = false
     if ('data' in data) {
