@@ -172,5 +172,6 @@
     "Yes": "Ja",
     "Show more": "Visa mer",
     "Are you sure?": "Är du säker?",
-    "Toggle time filter for places": "Växla tidsfilter för platser"
+    "Toggle time filter for places": "Växla tidsfilter för platser",
+    "The search index needs to be rebuilt.": "Sökindexet måste byggas om."
 }
