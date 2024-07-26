@@ -171,5 +171,6 @@
     "Show more": "Mostrar mais",
     "Yes": "Sim",
     "Are you sure?": "De certeza?",
-    "Toggle time filter for places": "Alternar filtro de hora para locais"
+    "Toggle time filter for places": "Alternar filtro de hora para locais",
+    "The search index needs to be rebuilt.": "O índice de procura tem de ser actualizado."
 }
