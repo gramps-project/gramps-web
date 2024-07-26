@@ -242,7 +242,9 @@ export class GrampsjsViewSearch extends GrampsjsView {
         this._totalCount = -1
         return
       }
-      query = this._filterQueryByObjectType(query)
+      if (window._oldSearchBackend) {
+        query = this._filterQueryByObjectType(query)
+      }
     }
     this.loading = true
     this._fetchData(query, page)
@@ -272,11 +274,16 @@ export class GrampsjsViewSearch extends GrampsjsView {
   }
 
   async _fetchData(query, page) {
-    const data = await apiGet(
-      `/api/search/?query=${query}&locale=${
-        this.strings?.__lang__ || 'en'
-      }&profile=all&page=${page}&pagesize=20`
-    )
+    let url = `/api/search/?query=${query}&locale=${
+      this.strings?.__lang__ || 'en'
+    }&profile=all&page=${page}&pagesize=20`
+    if (!window._oldSearchBackend) {
+      const objectTypes = Object.keys(this._objectTypes).filter(
+        key => this._objectTypes[key]
+      )
+      url = `${url}&type=${objectTypes.join(',')}`
+    }
+    const data = await apiGet(url)
     this.loading = false
     if ('data' in data) {
       this.error = false
