@@ -171,5 +171,6 @@
     "Are you sure?": "Weet u het zeker?",
     "Yes": "Ja",
     "This action cannot be undone.": "Deze actie kan niet ongedaan worden gemaakt.",
-    "Toggle time filter for places": "Tijdfilter voor plaatsen wisselen"
+    "Toggle time filter for places": "Tijdfilter voor plaatsen wisselen",
+    "The search index needs to be rebuilt.": "De zoekindex moet opnieuw worden opgebouwd."
 }
