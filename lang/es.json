@@ -172,5 +172,6 @@
     "Show more": "Mostrar más",
     "Are you sure?": "¿Estás seguro?",
     "This action cannot be undone.": "Esta acción no puede anularse.",
-    "Yes": "Sí"
+    "Yes": "Sí",
+    "The search index needs to be rebuilt.": "Es necesario reconstruir el índice de búsqueda."
 }
