@@ -127,7 +127,7 @@ export async function apiResetPassword(username) {
       }
     )
     if (resp.status === 404) {
-      throw new Error('User not found.')
+      throw new Error('User not found or user has no e-mail address.')
     }
     if (resp.status === 500) {
       throw new Error(
