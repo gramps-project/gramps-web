@@ -1,5 +1,8 @@
 import {html, css} from 'lit'
+import {live} from 'lit/directives/live.js'
+import {classMap} from 'lit/directives/class-map.js'
 import {GrampsjsObject} from './GrampsjsObject.js'
+import {debounce, fireEvent} from '../util.js'
 
 export class GrampsjsRepository extends GrampsjsObject {
   static get styles() {
@@ -22,7 +25,15 @@ export class GrampsjsRepository extends GrampsjsObject {
 
   renderProfile() {
     return html`
-      <h2>${this.data.name}</h2>
+      <h2
+        id="name"
+        class="${classMap({editable: this.edit})}"
+        contenteditable="${this.edit}"
+        @input="${debounce(() => this._handleEditName(), 500)}"
+        .innerText="${live(this.data.name)}"
+      >
+        &nbsp;
+      </h2>
       <dl>
         ${this.data?.type
           ? html`
@@ -32,6 +43,18 @@ export class GrampsjsRepository extends GrampsjsObject {
           : ''}
       </dl>
     `
+  }
+
+  _handleEditName() {
+    const element = this.renderRoot.getElementById('name')
+    const name = element.textContent
+      .replace(/(\r\n|\n|\r)/gm, '') // remove line breaks
+      .trim()
+    element.blur()
+    fireEvent(this, 'edit:action', {
+      action: 'updateProp',
+      data: {name},
+    })
   }
 }
 

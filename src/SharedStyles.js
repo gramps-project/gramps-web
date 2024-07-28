@@ -324,6 +324,10 @@ export const sharedStyles = css`
     right: 10px;
   }
 
+  h2.editable:hover {
+    background-color: rgba(2, 119, 189, 0.2);
+  }
+
   @media (max-width: 768px) {
     :host {
       font-size: 16px;
