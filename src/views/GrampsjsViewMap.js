@@ -52,6 +52,7 @@ const languageCoordinates = {
   uk: [49, 31], // Ukrainian - Approximate center of Ukraine
   vi: [16, 106], // Vietnamese - Approximate center of Vietnam
   zh: [35, 105], // Chinese - Approximate center of China
+  ko: [38, 128], // Korean - Approximate center of Korea
 }
 
 export class GrampsjsViewMap extends GrampsjsView {
