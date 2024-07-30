@@ -66,7 +66,7 @@
     "Contributor": "Doprinositelj",
     "Editor": "Urednik",
     "Owner": "Vlasnik",
-    "Add custom type": "Promijeni na prilagođenu vrstu",
+    "Add custom type": "Dodaj prilagođenu vrstu",
     "Switch to default type": "Promijeni na zadanu vrstu",
     "Custom type": "Prilagođena vrsta",
     "Replace file": "Zamijeni datoteku",
@@ -166,5 +166,11 @@
     "Edit Tag": "Uredi oznaku",
     "Revision History": "Povijest revizija",
     "Revisions": "Revizije",
-    "simple": "jednostavno"
+    "simple": "jednostavno",
+    "Show more": "Prikaži više",
+    "Are you sure?": "Sigurno?",
+    "This action cannot be undone.": "Ovo je nepovratna radnja.",
+    "Yes": "Da",
+    "The search index needs to be rebuilt.": "Indeks pretraživanja se mora ponovo izgraditi.",
+    "Toggle time filter for places": "Uključi/Isključi vremenski filtar za mjesta"
 }
