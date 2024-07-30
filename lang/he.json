@@ -57,7 +57,7 @@
     "Username": "שם משתמש",
     "All": "הכול",
     "Select at least one object type": "נא לבחור לפחות סוג עצם אחד",
-    "Add custom type": "החלפה לסוג מותאם אישית",
+    "Add custom type": "הוספת סוג מותאם אישית",
     "Switch to default type": "החלפה לסוג ברירת מחדל",
     "Custom type": "סוג מותאם אישית",
     "filter": "מסנן",
@@ -169,7 +169,8 @@
     "simple": "פשוט",
     "Show more": "להציג עוד",
     "Are you sure?": "האם לבצע?",
-    "This action cannot be undone.": "לא ניתן פעולה זו.",
+    "This action cannot be undone.": "לא ניתן לבטל פעולה זו.",
     "Yes": "כן",
-    "Toggle time filter for places": "מיתוג מסנן זמן למקומות"
+    "Toggle time filter for places": "מיתוג מסנן זמן למקומות",
+    "The search index needs to be rebuilt.": "נדרש לבנות מחדש את מפתח החיפוש."
 }
