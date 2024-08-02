@@ -24,5 +24,14 @@
     "Manage users": "사용자 관리하기",
     "New password": "새 암호",
     "Recently browsed objects": "최근에 본 항목",
-    "Show in tree": "계보에 보이기"
+    "Show in tree": "계보에 보이기",
+    "Select a point on the map": "지도에서 점을 선택하기",
+    "Select an existing citation": "기존 인용을 선택하기",
+    "Place Hierarchy": "장소 계층",
+    "Keyboard Shortcuts": "키보드 단축",
+    "Show this dialog": "대화창 보이기",
+    "To start using the blog, add a source with tag 'Blog'.": "블로그를 사용하려면 '블로그' 태그를 추가하라.",
+    "Create an admin account": "관리자 계정 만들기",
+    "Welcome to Gramps Web": "그람프스 웹에 환영한다",
+    "Enter the details for the admin user.": "관리자 세부 정보 입력하기."
 }
