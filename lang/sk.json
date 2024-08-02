@@ -171,5 +171,6 @@
     "This action cannot be undone.": "Túto akciu nie je možné vrátiť späť.",
     "Are you sure?": "Ste si istí?",
     "Show more": "Zobraziť viac",
-    "Toggle time filter for places": "Prepnúť časový filter pre miesta"
+    "Toggle time filter for places": "Prepnúť časový filter pre miesta",
+    "The search index needs to be rebuilt.": "Index vyhľadávania je potrebné obnoviť."
 }
