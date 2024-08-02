@@ -171,5 +171,6 @@
     "Yes": "Ano",
     "Show more": "Zobrazit více",
     "This action cannot be undone.": "Tuto akci nelze vrátit zpět.",
-    "Toggle time filter for places": "Přepnout časový filtr pro místa"
+    "Toggle time filter for places": "Přepnout časový filtr pro místa",
+    "The search index needs to be rebuilt.": "Index vyhledávání je třeba obnovit."
 }
