@@ -2,9 +2,10 @@ import {html, LitElement} from 'lit'
 import 'leaflet'
 import 'maplibre-gl'
 import '@maplibre/maplibre-gl-leaflet'
+import '@openhistoricalmap/maplibre-gl-dates'
 import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
-import {fireEvent, filterByDecimalYear} from '../util.js'
+import {fireEvent} from '../util.js'
 import '../LocateControl.js'
 
 const {L} = window
@@ -136,7 +137,7 @@ class GrampsjsMap extends LitElement {
     if (this._currentLayer === 'OpenHistoricalMap') {
       const mapLibreMap = this._gl.getMaplibreMap()
       mapLibreMap.on('styledata', () =>
-        filterByDecimalYear(mapLibreMap, this.year)
+        mapLibreMap.filterByDate(`${this.year}`)
       )
     }
     fireEvent(this, 'map:layerchange', {layer: this._currentLayer})
@@ -159,7 +160,7 @@ class GrampsjsMap extends LitElement {
       this.year > 0 &&
       this._currentLayer === 'OpenHistoricalMap'
     ) {
-      filterByDecimalYear(this._gl.getMaplibreMap(), this.year)
+      this._gl.getMaplibreMap().filterByDate(`${this.year}`)
       return
     }
     if (
