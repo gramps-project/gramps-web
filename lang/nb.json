@@ -170,5 +170,7 @@
     "Are you sure?": "Er du sikker?",
     "This action cannot be undone.": "Denne handlingen kan ikke endres.",
     "Show more": "Vis mer",
-    "Yes": "Ja"
+    "Yes": "Ja",
+    "Toggle time filter for places": "Veksle tidsfilter for steder",
+    "The search index needs to be rebuilt.": "Søkeindeksen må gjenoppbygges."
 }
