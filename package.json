@@ -106,7 +106,7 @@
     "@material/mwc-top-app-bar": "^0.27.0",
     "@material/web": "^1.4.0",
     "@mdi/js": "^7.4.47",
-    "@openhistoricalmap/maplibre-gl-dates": "^1.1.0",
+    "@openhistoricalmap/maplibre-gl-dates": "^1.2.0",
     "@types/leaflet": "^1.9.12",
     "d3": "^7.8.2",
     "d3-array": "^3.2.4",
