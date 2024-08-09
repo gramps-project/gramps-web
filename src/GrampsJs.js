@@ -307,9 +307,13 @@ export class GrampsJs extends LitElement {
       timeoutMs="-1"
       labelText="${this._('The search index needs to be rebuilt.')}"
     >
-      <mwc-button slot="action" @click="${this._handleReindexButton}"
-        >${this._('Settings')}</mwc-button
-      >
+      ${this.canManageUsers
+        ? html`
+            <mwc-button slot="action" @click="${this._handleReindexButton}"
+              >${this._('Settings')}</mwc-button
+            >
+          `
+        : ''}
       ></mwc-snackbar
     >`
   }
