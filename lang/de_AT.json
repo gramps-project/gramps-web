@@ -171,5 +171,6 @@
     "Toggle time filter for places": "Zeitfilter für Orte ein-/ausschalten",
     "Are you sure?": "Bist du sicher?",
     "This action cannot be undone.": "Diese Aktion kann nicht rückgängig gemacht werden.",
-    "Yes": "Ja"
+    "Yes": "Ja",
+    "The search index needs to be rebuilt.": "Der Suchindex muss neu aufgebaut werden."
 }
