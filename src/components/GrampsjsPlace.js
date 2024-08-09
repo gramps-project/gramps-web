@@ -47,9 +47,9 @@ export class GrampsjsPlace extends GrampsjsObject {
           : ''}
       </h2>
 
-      ${this.data?.profile?.type
+      ${this.data?.profile?.type || this.edit
         ? html`<p>
-            ${this.data?.profile?.type}
+            ${this.data?.profile?.type || this._('Unknown')}
             ${this.edit
               ? html`
                   <mwc-icon-button
