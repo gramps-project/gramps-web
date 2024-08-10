@@ -23,6 +23,7 @@ class GrampsjsChatPrompt extends GrampsjsTranslateMixin(LitElement) {
         md-outlined-text-field {
           flex: 1;
           --md-outlined-text-field-container-shape: 28px;
+          --md-outlined-text-field-input-text-placeholder-color: #777;
           resize: none;
         }
 
