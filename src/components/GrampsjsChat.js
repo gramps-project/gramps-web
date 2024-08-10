@@ -6,6 +6,10 @@ import './GrampsjsChatPrompt.js'
 import './GrampsjsChatMessage.js'
 import {setChatHistory, getChatHistory} from '../api.js'
 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
@@ -50,12 +54,14 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
   static get properties() {
     return {
       messages: {type: Array},
+      loading: {type: Boolean},
     }
   }
 
   constructor() {
     super()
     this.messages = getChatHistory() || []
+    this.loading = false
   }
 
   render() {
@@ -77,6 +83,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
           </div>
           <div class="prompt">
             <grampsjs-chat-prompt
+              ?loading="${this.loading}"
               @chat:prompt="${this._handlePrompt}"
               .strings="${this.strings}"
             ></grampsjs-chat-prompt>
@@ -86,12 +93,52 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
     `
   }
 
+  async _addMessage(message, maxLength) {
+    if (!message.message) {
+      return
+    }
+    const {messages} = this
+
+    if (message.type === 'ai') {
+      // for AI messages, we display the message word by word
+      // to simulate streaming response (which it's not, but
+      // users may be used to it.)
+      const words = message.message.split(' ')
+      const nWords = words.length
+      for (let end = 1; end <= nWords; end += 1) {
+        this.messages = [
+          ...messages.slice(-(maxLength - 1)),
+          {type: 'ai', message: words.slice(0, end).join(' ')},
+        ]
+        // eslint-disable-next-line no-await-in-loop
+        await delay(Math.ceil(1000 / nWords))
+      }
+    } else {
+      this.messages = [...messages.slice(-(maxLength - 1)), message]
+    }
+  }
+
   _handlePrompt(event) {
     const message = {
       type: 'human',
       message: event.detail.message,
     }
-    this.messages = [...this.messages, message]
+    this._addMessage(message, 7)
+    setChatHistory(this.messages)
+    this._generateResponse()
+  }
+
+  async _generateResponse() {
+    this.loading = true
+    await new Promise(r => setTimeout(r, 1000))
+    this.loading = false
+    const message = {
+      type: 'ai',
+      message: `Response to: ${
+        this.messages?.[this.messages.length - 1]?.message ?? 'nothing'
+      }`,
+    }
+    await this._addMessage(message, 6)
     setChatHistory(this.messages)
   }
 

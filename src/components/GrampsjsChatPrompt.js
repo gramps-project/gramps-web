@@ -64,14 +64,19 @@ class GrampsjsChatPrompt extends GrampsjsTranslateMixin(LitElement) {
       <div class="container">
         <md-outlined-text-field
           type="textarea"
+          ?disabled="${this.loading}"
           rows="${this.nRows}"
-          placeholder="${this._('Ask me anything')}"
+          placeholder="${this._('Ask something about your ancestors')}"
           value="${this.value}"
           @input="${this._handleInput}"
           @keydown="${this._handleKey}"
         >
         </md-outlined-text-field>
-        <md-filled-icon-button @click="${this._handleBtnClick}" class="send">
+        <md-filled-icon-button
+          @click="${this._handleBtnClick}"
+          class="send"
+          ?disabled="${this.loading}"
+        >
           <md-icon>${renderIconSvg(mdiSend, '#ffffff')}</md-icon>
         </md-filled-icon-button>
       </div>
