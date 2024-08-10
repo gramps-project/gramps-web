@@ -17,6 +17,7 @@ import '../views/GrampsjsViewCitations.js'
 import '../views/GrampsjsViewRepositories.js'
 import '../views/GrampsjsViewNotes.js'
 import '../views/GrampsjsViewMediaObjects.js'
+import '../views/GrampsjsViewChat.js'
 import '../views/GrampsjsViewExport.js'
 import '../views/GrampsjsViewPerson.js'
 import '../views/GrampsjsViewFamily.js'
@@ -249,6 +250,12 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
         ?canEdit="${this.canEdit}"
         .dbInfo="${this.dbInfo}"
       ></grampsjs-view-media>
+
+      <grampsjs-view-chat
+        class="page"
+        ?active=${this.page === 'chat'}
+        .strings="${this.strings}"
+      ></grampsjs-view-chat>
 
       <grampsjs-view-export
         class="page"
