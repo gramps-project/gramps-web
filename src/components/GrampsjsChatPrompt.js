@@ -1,19 +1,41 @@
 import {html, css, LitElement} from 'lit'
 import '@material/web/textfield/outlined-text-field'
+import '@material/web/iconbutton/filled-icon-button'
+import '@material/web/icon/icon.js'
 
+import {mdiSend} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import {fireEvent} from '../util.js'
+import {renderIconSvg} from '../icons.js'
 
 class GrampsjsChatPrompt extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
+        .container {
+          display: flex;
+          align-items: end;
+          justify-content: center;
+        }
+
         md-outlined-text-field {
-          width: 100%;
-          --md-outlined-text-field-container-shape: 26px;
+          flex: 1;
+          --md-outlined-text-field-container-shape: 28px;
           resize: none;
+        }
+
+        md-filled-icon-button.send {
+          --md-filled-icon-button-container-color: rgba(109, 76, 65, 0.8);
+          position: relative;
+          margin-left: 16px;
+          margin-top: 9px;
+          margin-bottom: 9px;
+          margin-right: 0;
+          --md-filled-icon-button-icon-size: 22px;
+          --md-filled-icon-button-state-layer-height: 66px;
+          --md-filled-icon-button-state-layer-width: 66px;
         }
       `,
     ]
@@ -38,16 +60,25 @@ class GrampsjsChatPrompt extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-      <md-outlined-text-field
-        type="textarea"
-        rows="${this.nRows}"
-        placeholder="${this._('Ask me anything')}"
-        value="${this.value}"
-        @input="${this._handleInput}"
-        @keydown="${this._handleKey}"
-      >
-      </md-outlined-text-field>
+      <div class="container">
+        <md-outlined-text-field
+          type="textarea"
+          rows="${this.nRows}"
+          placeholder="${this._('Ask me anything')}"
+          value="${this.value}"
+          @input="${this._handleInput}"
+          @keydown="${this._handleKey}"
+        >
+        </md-outlined-text-field>
+        <md-filled-icon-button @click="${this._handleBtnClick}" class="send">
+          <md-icon>${renderIconSvg(mdiSend, '#ffffff')}</md-icon>
+        </md-filled-icon-button>
+      </div>
     `
+  }
+
+  _handleBtnClick() {
+    this._submit()
   }
 
   _handleKey(event) {
@@ -55,7 +86,6 @@ class GrampsjsChatPrompt extends GrampsjsTranslateMixin(LitElement) {
       event.preventDefault()
       event.stopPropagation()
       this._submit()
-      this._clear()
     } else if (event.code === 'Escape') {
       this._clear()
     }
@@ -76,7 +106,10 @@ class GrampsjsChatPrompt extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _submit() {
-    fireEvent(this, 'chat:prompt', {message: this.value})
+    if (this.value.trim()) {
+      fireEvent(this, 'chat:prompt', {message: this.value.trim()})
+      this._clear()
+    }
   }
 
   _updateNRows() {
@@ -87,7 +120,8 @@ class GrampsjsChatPrompt extends GrampsjsTranslateMixin(LitElement) {
   }
 
   focusInput() {
-    this.renderRoot.querySelector('md-outlined-text-field').focus()
+    const textField = this.renderRoot.querySelector('md-outlined-text-field')
+    textField.focus()
   }
 }
 

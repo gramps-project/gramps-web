@@ -16,6 +16,7 @@ class GrampsjsChatMessage extends GrampsjsTranslateMixin(LitElement) {
           font-weight: 340;
           clear: right;
           max-width: 90%;
+          white-space: pre-wrap;
         }
         .container.human {
           background-color: rgba(109, 76, 65, 0.12);
@@ -41,15 +42,14 @@ class GrampsjsChatMessage extends GrampsjsTranslateMixin(LitElement) {
   }
 
   render() {
-    return html`<div
+    return html` <!-- prettier-ignore -->
+      <div
       class="${classMap({
         container: true,
         human: this.type === 'human',
         ai: this.type === 'ai',
       })}"
-    >
-      <slot></slot>
-    </div>`
+    ><slot></slot></div>`
   }
 }
 

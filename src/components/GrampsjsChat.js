@@ -4,6 +4,7 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import './GrampsjsChatPrompt.js'
 import './GrampsjsChatMessage.js'
+import {setChatHistory, getChatHistory} from '../api.js'
 
 class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
@@ -54,32 +55,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
 
   constructor() {
     super()
-    this.messages = [
-      {
-        type: 'human',
-        message:
-          '1 Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.',
-      },
-      {
-        type: 'ai',
-        message:
-          '2 At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
-      },
-      {
-        type: 'human',
-        message:
-          '3 Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.',
-      },
-      {
-        type: 'ai',
-        message:
-          '4 At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
-      },
-      {
-        type: 'human',
-        message: '5 Ok.',
-      },
-    ]
+    this.messages = getChatHistory() || []
   }
 
   render() {
@@ -116,6 +92,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
       message: event.detail.message,
     }
     this.messages = [...this.messages, message]
+    setChatHistory(this.messages)
   }
 
   _scrollToLastMessage() {
@@ -125,12 +102,23 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
-  focusInput() {
+  focusInput(retry = true) {
     const ele = this.renderRoot.querySelector('grampsjs-chat-prompt')
     if (ele !== null) {
       ele.focusInput()
+    } else if (retry) {
+      setTimeout(() => this.focusInput(false), 500)
     }
     this._scrollToLastMessage()
+  }
+
+  _handleStorage() {
+    this.messages = getChatHistory()
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('storage', event => this._handleStorage(event))
   }
 }
 

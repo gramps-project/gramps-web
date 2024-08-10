@@ -21,13 +21,15 @@ export class GrampsjsViewChat extends GrampsjsView {
 
   update(changed) {
     super.update(changed)
-    if (changed.has('active') && this.active) {
+    if (changed.has('active')) {
       this._focus()
     }
   }
 
   _focus() {
-    this.renderRoot.querySelector('grampsjs-chat').focusInput()
+    if (this.active) {
+      this.renderRoot.querySelector('grampsjs-chat').focusInput()
+    }
   }
 
   renderContent() {
@@ -35,9 +37,7 @@ export class GrampsjsViewChat extends GrampsjsView {
   }
 
   firstUpdated() {
-    if (this.active) {
-      this._focus()
-    }
+    this._focus()
   }
 }
 
