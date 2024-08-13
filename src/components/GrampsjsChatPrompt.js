@@ -64,7 +64,6 @@ class GrampsjsChatPrompt extends GrampsjsTranslateMixin(LitElement) {
       <div class="container">
         <md-outlined-text-field
           type="textarea"
-          ?disabled="${this.loading}"
           rows="${this.nRows}"
           placeholder="${this._('Ask something about your ancestors')}"
           value="${this.value}"
@@ -112,7 +111,7 @@ class GrampsjsChatPrompt extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _submit() {
-    if (this.value.trim()) {
+    if (this.value.trim() && !this.loading) {
       fireEvent(this, 'chat:prompt', {message: this.value.trim()})
       this._clear()
     }
@@ -127,7 +126,9 @@ class GrampsjsChatPrompt extends GrampsjsTranslateMixin(LitElement) {
 
   focusInput() {
     const textField = this.renderRoot.querySelector('md-outlined-text-field')
-    textField.focus()
+    if (textField !== null) {
+      textField.focus()
+    }
   }
 }
 

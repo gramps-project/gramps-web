@@ -4,7 +4,7 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import './GrampsjsChatPrompt.js'
 import './GrampsjsChatMessage.js'
-import {setChatHistory, getChatHistory} from '../api.js'
+import {setChatHistory, getChatHistory, apiPost} from '../api.js'
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -131,12 +131,18 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
   async _generateResponse() {
     this.loading = true
     await new Promise(r => setTimeout(r, 1000))
+
+    const data = await apiPost('/api/chat/', {
+      query: this.messages[this.messages.length - 1].message,
+    })
+    if ('error' in data || !data?.data?.response) {
+      // handle error
+    }
+
     this.loading = false
     const message = {
       type: 'ai',
-      message: `Response to: ${
-        this.messages?.[this.messages.length - 1]?.message ?? 'nothing'
-      }`,
+      message: data.data.response,
     }
     await this._addMessage(message, 6)
     setChatHistory(this.messages)
