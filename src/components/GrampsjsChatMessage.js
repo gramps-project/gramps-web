@@ -1,7 +1,7 @@
 import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 import '@material/web/icon/icon.js'
-import {mdiRobotOutline} from '@mdi/js'
+import {mdiFamilyTree} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
@@ -47,7 +47,7 @@ class GrampsjsChatMessage extends GrampsjsTranslateMixin(LitElement) {
         .avatar md-icon {
           --md-icon-size: 20px;
           position: relative;
-          top: 1px;
+          top: 3px;
         }
       `,
     ]
@@ -76,7 +76,7 @@ class GrampsjsChatMessage extends GrampsjsTranslateMixin(LitElement) {
         ${this.type === 'ai'
           ? html`
               <div class="avatar">
-                <md-icon>${renderIconSvg(mdiRobotOutline, '#999')}</md-icon>
+                <md-icon>${renderIconSvg(mdiFamilyTree, '#999', 270)}</md-icon>
               </div>
             `
           : ''}
