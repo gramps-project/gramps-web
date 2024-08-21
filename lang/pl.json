@@ -149,5 +149,14 @@
     "Password is required": "Hasło jest wymagane",
     "Delete all objects": "Usuń wszystkie obiekty",
     "Please re-enter your password to continue.": "Wprowadź ponownie hasło, aby kontynuować.",
-    "Upgrade database": "Aktualizacja bazy danych"
+    "Upgrade database": "Aktualizacja bazy danych",
+    "Show more": "Pokaż więcej",
+    "Revisions": "Rewizja",
+    "Delete Person": "Usuń osobę",
+    "Delete Family": "Usuń rodzinę",
+    "Delete Place": "Usuń miejsce",
+    "Delete Note": "Usuń notatkę",
+    "Delete Repository": "Usuń repozytorium",
+    "Are you sure?": "Czy jesteś pewny?",
+    "Yes": "Tak"
 }
