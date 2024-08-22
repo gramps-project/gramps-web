@@ -158,5 +158,13 @@
     "Delete Note": "Usuń notatkę",
     "Delete Repository": "Usuń repozytorium",
     "Are you sure?": "Czy jesteś pewny?",
-    "Yes": "Tak"
+    "Yes": "Tak",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Drzewo genealogiczne, które próbujesz załadować, jest w wersji schematu nieobsługiwanej przez tę wersję Gramps Web. Dlatego nie można załadować tego drzewa genealogicznego, dopóki administrator drzewa nie zaktualizuje jego schematu.",
+    "Add multiple objects": "Dodawanie wielu obiektów",
+    "Delete Event": "Usuń wydarzenie",
+    "Delete Source": "Usuń źródło",
+    "Delete Citation": "Usuń cytat",
+    "Revision History": "Historia zmian",
+    "This action cannot be undone.": "Tej akcji nie można cofnąć.",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Drzewo genealogiczne, które próbujesz załadować, jest w wersji schematu nieobsługiwanej przez tę wersję Gramps Web. Dlatego nie można załadować tego drzewa genealogicznego bez aktualizacji jego schematu. Czynności tej nie można cofnąć."
 }
