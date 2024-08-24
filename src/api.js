@@ -258,6 +258,12 @@ export async function apiGet(endpoint, isJson = true) {
       method: 'GET',
       headers,
     })
+    let resJson
+    try {
+      resJson = await resp.json()
+    } catch (error) {
+      resJson = {}
+    }
     if (resp.status === 401) {
       const refreshToken = localStorage.getItem('refresh_token')
       if (refreshToken === null) {
@@ -274,11 +280,13 @@ export async function apiGet(endpoint, isJson = true) {
       throw new Error('Authorization error')
     }
     if (resp.status !== 200) {
-      throw new Error(resp.statusText || `Error ${resp.status}`)
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
     }
     if (isJson) {
       return {
-        data: await resp.json(),
+        data: resJson,
         total_count: resp.headers.get('X-Total-Count'),
         etag: resp.headers.get('ETag'),
       }
