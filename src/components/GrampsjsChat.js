@@ -123,7 +123,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
               .map(
                 message => html`
                   <grampsjs-chat-message
-                    type="${message.type}"
+                    type="${message.role}"
                     .strings="${this.strings}"
                     >${renderMarkdownLinks(
                       message.message
@@ -150,7 +150,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
     }
     const {messages} = this
 
-    if (message.type === 'ai') {
+    if (message.role === 'ai') {
       // for AI messages, we display the message word by word
       // to simulate streaming response (which it's not, but
       // users may be used to it.)
@@ -159,7 +159,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
       for (let end = 1; end <= nWords; end += 1) {
         this.messages = [
           ...messages.slice(-(maxLength - 1)),
-          {type: 'ai', message: words.slice(0, end).join(' ')},
+          {role: 'ai', message: words.slice(0, end).join(' ')},
         ]
         // eslint-disable-next-line no-await-in-loop
         await delay(Math.ceil(1000 / nWords))
@@ -171,7 +171,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
 
   _handlePrompt(event) {
     const message = {
-      type: 'human',
+      role: 'human',
       message: event.detail.message,
     }
     this._addMessage(message, 7)
@@ -181,7 +181,6 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
 
   async _generateResponse() {
     this.loading = true
-    // await new Promise(r => setTimeout(r, 1000))
     const payload = {
       query: this.messages[this.messages.length - 1].message,
     }
@@ -195,7 +194,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
 
     this.loading = false
     const message = {
-      type: 'ai',
+      role: 'ai',
       message: data.data.response,
     }
     await this._addMessage(message, 6)
