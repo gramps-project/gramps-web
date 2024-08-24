@@ -5,6 +5,7 @@ import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import './GrampsjsChatPrompt.js'
 import './GrampsjsChatMessage.js'
 import {setChatHistory, getChatHistory, apiPost} from '../api.js'
+import {renderMarkdownLinks} from '../util.js'
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -47,6 +48,43 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
           padding: 10px;
           flex-shrink: 0;
         }
+
+        .loading {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 24px;
+          width: 48px;
+          font-size: 24px;
+        }
+
+        .dot {
+          width: 8px;
+          height: 8px;
+          margin: 0 4px;
+          background-color: #888;
+          border-radius: 50%;
+          animation: flash 1.4s infinite ease-in-out both;
+        }
+
+        .dot:nth-child(1) {
+          animation-delay: -0.32s;
+        }
+
+        .dot:nth-child(2) {
+          animation-delay: -0.16s;
+        }
+
+        @keyframes flash {
+          0%,
+          80%,
+          100% {
+            opacity: 0;
+          }
+          40% {
+            opacity: 1;
+          }
+        }
       `,
     ]
   }
@@ -69,6 +107,17 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
       <div class="outer">
         <div class="container">
           <div class="conversation">
+            ${this.loading
+              ? html` <grampsjs-chat-message
+                  type="ai"
+                  .strings="${this.strings}"
+                >
+                  <div class="loading" slot="no-wrap">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div></div
+                ></grampsjs-chat-message>`
+              : ''}
             ${this.messages
               .toReversed()
               .map(
@@ -76,7 +125,9 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
                   <grampsjs-chat-message
                     type="${message.type}"
                     .strings="${this.strings}"
-                    >${message.message}</grampsjs-chat-message
+                    >${renderMarkdownLinks(
+                      message.message
+                    )}</grampsjs-chat-message
                   >
                 `
               )}
@@ -130,11 +181,14 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
 
   async _generateResponse() {
     this.loading = true
-    await new Promise(r => setTimeout(r, 1000))
-
-    const data = await apiPost('/api/chat/', {
+    // await new Promise(r => setTimeout(r, 1000))
+    const payload = {
       query: this.messages[this.messages.length - 1].message,
-    })
+    }
+    if (this.messages.length > 1) {
+      payload.history = this.messages.slice(0, this.messages.length - 1)
+    }
+    const data = await apiPost('/api/chat/', payload)
     if ('error' in data || !data?.data?.response) {
       // handle error
     }

@@ -80,6 +80,7 @@ class GrampsjsChatMessage extends GrampsjsTranslateMixin(LitElement) {
               </div>
             `
           : ''}
+        <slot name="no-wrap"></slot>
         <!-- prettier-ignore -->
         <div class="slot-wrap"><slot></slot></div>
       </div>
