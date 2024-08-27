@@ -22,6 +22,7 @@ class GrampsjsChatMessage extends GrampsjsTranslateMixin(LitElement) {
           display: flex;
           align-items: flex-start;
         }
+
         .container.human {
           background-color: rgba(109, 76, 65, 0.12);
           color: rgba(27, 19, 16);
@@ -30,6 +31,15 @@ class GrampsjsChatMessage extends GrampsjsTranslateMixin(LitElement) {
           float: right;
           max-width: 70%;
           margin-right: 10px;
+        }
+
+        .container.alert {
+          max-width: 70%;
+          margin-left: auto;
+          margin-right: auto;
+          width: fit-content;
+          border-radius: 16px;
+          border: 0;
         }
 
         .slot-wrap {
@@ -71,6 +81,8 @@ class GrampsjsChatMessage extends GrampsjsTranslateMixin(LitElement) {
           container: true,
           human: this.type === 'human',
           ai: this.type === 'ai',
+          alert: this.type === 'error',
+          error: this.type === 'error',
         })}"
       >
         ${this.type === 'ai'

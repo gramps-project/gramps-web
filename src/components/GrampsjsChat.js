@@ -188,15 +188,20 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
       payload.history = this.messages.slice(0, this.messages.length - 1)
     }
     const data = await apiPost('/api/chat/', payload)
+    let message
     if ('error' in data || !data?.data?.response) {
-      // handle error
+      message = {
+        role: 'error',
+        message: this._(data.error),
+      }
+    } else {
+      message = {
+        role: 'ai',
+        message: data.data.response,
+      }
     }
 
     this.loading = false
-    const message = {
-      role: 'ai',
-      message: data.data.response,
-    }
     await this._addMessage(message, 6)
     setChatHistory(this.messages)
   }
