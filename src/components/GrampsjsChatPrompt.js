@@ -28,7 +28,7 @@ class GrampsjsChatPrompt extends GrampsjsTranslateMixin(LitElement) {
         }
 
         md-filled-icon-button.send {
-          --md-filled-icon-button-container-color: rgba(109, 76, 65, 0.8);
+          --md-filled-icon-button-container-color: rgba(109, 76, 65, 1);
           position: relative;
           margin-left: 16px;
           margin-top: 9px;

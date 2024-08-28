@@ -1,4 +1,5 @@
 import {html, css, LitElement} from 'lit'
+import '@material/mwc-button'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
@@ -34,6 +35,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
           flex-direction: column;
           justify-content: flex-end;
           overflow: hidden;
+          clear: left;
         }
 
         .conversation {
@@ -85,6 +87,14 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
             opacity: 1;
           }
         }
+
+        .clear-btn {
+          position: relative;
+          float: left;
+          top: 20px;
+          left: 0px;
+          margin: 1px solid red;
+        }
       `,
     ]
   }
@@ -104,40 +114,52 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-      <div class="outer">
-        <div class="container">
-          <div class="conversation">
-            ${this.loading
-              ? html` <grampsjs-chat-message
-                  type="ai"
-                  .strings="${this.strings}"
-                >
-                  <div class="loading" slot="no-wrap">
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                    <div class="dot"></div></div
-                ></grampsjs-chat-message>`
-              : ''}
-            ${this.messages
-              .toReversed()
-              .map(
-                message => html`
-                  <grampsjs-chat-message
-                    type="${message.role}"
-                    .strings="${this.strings}"
-                    >${renderMarkdownLinks(
-                      message.message
-                    )}</grampsjs-chat-message
-                  >
-                `
-              )}
-          </div>
-          <div class="prompt">
-            <grampsjs-chat-prompt
-              ?loading="${this.loading}"
-              @chat:prompt="${this._handlePrompt}"
-              .strings="${this.strings}"
-            ></grampsjs-chat-prompt>
+    <div class="clear-btn">
+        <mwc-button
+          raised
+          label="${this._('Clear')}"
+          icon="clear_all"
+          @click="${this._handleClear}"
+          ?disabled=${this.messages.length === 0}
+        ></mwc-button>
+        </div>
+        <div class="outer">
+          <div class="container">
+            <div class="conversation">
+              ${
+                this.loading
+                  ? html` <grampsjs-chat-message
+                      type="ai"
+                      .strings="${this.strings}"
+                    >
+                      <div class="loading" slot="no-wrap">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div></div
+                    ></grampsjs-chat-message>`
+                  : ''
+              }
+              ${this.messages
+                .toReversed()
+                .map(
+                  message => html`
+                    <grampsjs-chat-message
+                      type="${message.role}"
+                      .strings="${this.strings}"
+                      >${renderMarkdownLinks(
+                        message.message
+                      )}</grampsjs-chat-message
+                    >
+                  `
+                )}
+            </div>
+            <div class="prompt">
+              <grampsjs-chat-prompt
+                ?loading="${this.loading}"
+                @chat:prompt="${this._handlePrompt}"
+                .strings="${this.strings}"
+              ></grampsjs-chat-prompt>
+            </div>
           </div>
         </div>
       </div>
@@ -203,6 +225,11 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
 
     this.loading = false
     await this._addMessage(message, 6)
+    setChatHistory(this.messages)
+  }
+
+  _handleClear() {
+    this.messages = []
     setChatHistory(this.messages)
   }
 
