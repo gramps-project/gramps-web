@@ -8,7 +8,7 @@ import '@material/mwc-button'
 import '@material/mwc-icon-button'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, stripHtml} from '../util.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import './GrampsjsFormSelectObject.js'
 
@@ -255,7 +255,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
         this.cursorPosition = [nCharBefore1 + range.startOffset + e.data.length]
       }
       if (e.inputType === 'insertFromPaste') {
-        const data = e.dataTransfer.getData('text/plain')
+        const data = stripHtml(e.dataTransfer.getData('text/plain'))
         this._insertText(data, nCharBefore1 + range.startOffset)
         this.cursorPosition = [nCharBefore1 + range.startOffset + data.length]
       } else if (e.inputType === 'insertParagraph') {

@@ -685,3 +685,9 @@ export function isDateBetweenYears(date, yearMin, yearMax) {
   }
   return yearMin <= year2 && year1 <= yearMax
 }
+
+export function stripHtml(input) {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(input, 'text/html')
+  return doc.body.textContent || ''
+}
