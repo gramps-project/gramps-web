@@ -201,7 +201,7 @@ export const objectIcon = {
   repository: 'account_balance',
   note: 'sticky_note_2',
   media: 'photo',
-  tag: 'label'
+  tag: 'label',
 }
 
 export const objectTypeToEndpoint = {
@@ -214,7 +214,7 @@ export const objectTypeToEndpoint = {
   repository: 'repositories',
   note: 'notes',
   media: 'media',
-  tag: 'tags'
+  tag: 'tags',
 }
 
 export function objectDescription(type, obj, strings) {
@@ -419,7 +419,7 @@ export function dateSpanLocal(date1, date2, lang) {
     uk: 'між 1111 та 2222',
     zh_CN: ' 介于 1111 与 2222 之间',
     zh_HK: ' 介于 1111 与 2222 之间',
-    zh_TW: ' 介于 1111 与 2222 之间'
+    zh_TW: ' 介于 1111 与 2222 之间',
   }
   let str = localStrings[lang]
   if (!str) {
@@ -452,23 +452,23 @@ export const personFilter = {
   PeoplePrivate: 'People marked private',
   PeoplePublic: 'People not marked private',
   MissingParent: 'People missing parents',
-  Disconnected: 'Disconnected people'
+  Disconnected: 'Disconnected people',
 }
 
 export const filterCounts = {
   citations: {
     HasGallery: 'Citations with <count> media',
-    HasNote: 'Citations having <count> notes'
+    HasNote: 'Citations having <count> notes',
   },
   events: {
     HasGallery: 'Events with <count> media',
     HasNote: 'Events having <count> notes',
-    HasSourceCount: 'Events with <count> sources'
+    HasSourceCount: 'Events with <count> sources',
   },
   families: {
     HasGallery: 'Families with <count> media',
     HasNote: 'Families having <count> notes',
-    HasSourceCount: 'Families with <count> sources'
+    HasSourceCount: 'Families with <count> sources',
   },
   media: {HasSourceCount: 'Media with <count> sources'},
   notes: {},
@@ -477,19 +477,19 @@ export const filterCounts = {
     HasNote: 'People having <count> notes',
     HasSourceCount: 'People with <count> sources',
     HasAddress: 'People with <count> addresses',
-    HasAssociation: 'People with <count> associations'
+    HasAssociation: 'People with <count> associations',
   },
   places: {
     HasGallery: 'Places with <count> media',
     HasNote: 'Places having <count> notes',
-    HasSourceCount: 'Place with <count> sources'
+    HasSourceCount: 'Place with <count> sources',
   },
   repositories: {},
   sources: {
     HasGallery: 'Sources with <count> media',
     HasNote: 'Sources having <count> notes',
-    HasRepository: 'Sources with <count> Repository references'
-  }
+    HasRepository: 'Sources with <count> Repository references',
+  },
 }
 
 export const filterMime = {
@@ -497,7 +497,7 @@ export const filterMime = {
   'audio/': 'Audio',
   'video/': 'Video',
   'text/': 'Text',
-  'application/pdf': 'PDF'
+  'application/pdf': 'PDF',
 }
 
 export const reportCategoryIcon = {
@@ -506,7 +506,7 @@ export const reportCategoryIcon = {
   // 2: '',  // code
   // 3: '',  // web
   // 4: '',  // book
-  5: 'account_tree' // graphviz
+  5: 'account_tree', // graphviz
   // 6: '',  // tree
 }
 
@@ -719,3 +719,5 @@ export function stripHtml(input) {
   const doc = parser.parseFromString(input, 'text/html')
   return doc.body.textContent || ''
 }
+
+//
