@@ -34,6 +34,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       editDialogContent: {type: String},
       saveButton: {type: Boolean},
       canViewPrivate: {type: Boolean},
+      canUseChat: {type: Boolean},
     }
   }
 
@@ -45,6 +46,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
     this.editDialogContent = ''
     this.saveButton = false
     this.canViewPrivate = false
+    this.canUseChat = false
   }
 
   render() {
@@ -69,8 +71,15 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
         <span>${this._('Family Tree')}</span>
         <mwc-icon slot="graphic">${renderIcon(mdiFamilyTree)}</mwc-icon>
       </grampsjs-list-item>
-      <grampsjs-list-item href="${BASE_DIR}/chat" graphic="icon">
-        <span>${this._('Chat')}</span>
+      ${
+        this.canUseChat
+          ? html`
+              <grampsjs-list-item href="${BASE_DIR}/chat" graphic="icon">
+                <span>${this._('Chat')}</span>
+              </grampsjs-list-item>
+            `
+          : ''
+      }
         <mwc-icon slot="graphic">${renderIcon(mdiChat)}</mwc-icon>
       </grampsjs-list-item>
       <li divider padded role="separator"></li>
@@ -94,14 +103,16 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
         <span>${this._('_Reports').replace('_', '')}</span>
         <mwc-icon slot="graphic">menu_book</mwc-icon>
       </grampsjs-list-item>
-      ${this.canViewPrivate
-        ? html`
-            <grampsjs-list-item href="${BASE_DIR}/revisions" graphic="icon">
-              <span>${this._('Revisions')}</span>
-              <mwc-icon slot="graphic">commit</mwc-icon>
-            </grampsjs-list-item>
-          `
-        : ''}
+      ${
+        this.canViewPrivate
+          ? html`
+              <grampsjs-list-item href="${BASE_DIR}/revisions" graphic="icon">
+                <span>${this._('Revisions')}</span>
+                <mwc-icon slot="graphic">commit</mwc-icon>
+              </grampsjs-list-item>
+            `
+          : ''
+      }
     </mwc-list>`
   }
 }

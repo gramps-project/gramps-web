@@ -524,6 +524,7 @@ export class GrampsJs extends LitElement {
           <grampsjs-main-menu
             .strings="${this._strings}"
             ?canViewPrivate="${this.canViewPrivate}"
+            ?canUseChat="${this.canUseChat}"
           ></grampsjs-main-menu>
         </div>
         <div slot="appContent">
@@ -547,6 +548,7 @@ export class GrampsJs extends LitElement {
               .canEdit="${this.canEdit}"
               .canViewPrivate="${this.canViewPrivate}"
               .canManageUsers="${this.canManageUsers}"
+              .canUseChat="${this.canUseChat}"
             >
             </grampsjs-pages>
           </main>
@@ -994,18 +996,12 @@ export class GrampsJs extends LitElement {
   setPermissions() {
     const permissions = getPermissions()
     // If permissions is null, authorization is disabled and anything goes
-    if (permissions === null) {
-      this.canAdd = true
-      this.canEdit = true
-      this.canViewPrivate = true
-      // managing users not meaningful in this case
-      this.canManageUsers = false
-    } else {
-      this.canAdd = permissions.includes('AddObject')
-      this.canEdit = permissions.includes('EditObject')
-      this.canViewPrivate = permissions.includes('ViewPrivate')
-      this.canManageUsers = permissions.includes('EditOtherUser')
-    }
+    this.canAdd = permissions.includes('AddObject')
+    this.canEdit = permissions.includes('EditObject')
+    this.canViewPrivate = permissions.includes('ViewPrivate')
+    this.canManageUsers = permissions.includes('EditOtherUser')
+    this.canUseChat =
+      permissions.includes('UseChat') && this._dbInfo?.server?.chat
   }
 
   _(s) {

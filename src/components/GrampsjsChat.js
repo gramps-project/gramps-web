@@ -117,7 +117,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
     <div class="clear-btn">
         <mwc-button
           raised
-          label="${this._('Clear')}"
+          label="${this._('New')}"
           icon="clear_all"
           @click="${this._handleClear}"
           ?disabled=${this.messages.length === 0}
