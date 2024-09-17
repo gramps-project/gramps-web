@@ -606,7 +606,8 @@ export class GrampsJs extends LitElement {
     this.addEventListener('drawer:toggle', this._toggleDrawer)
     window.addEventListener('keydown', event => this._handleKey(event))
     document.addEventListener('visibilitychange', this._handleVisibilityChange)
-    window.addEventListener('online', this._handleOnline)
+    window.addEventListener('online', () => this._handleOnline())
+    window.addEventListener('token:refresh', () => this._handleRefresh())
 
     const browserLang = getBrowserLanguage()
     if (browserLang && !this.settings.lang) {
@@ -836,13 +837,19 @@ export class GrampsJs extends LitElement {
   _handleVisibilityChange() {
     if (document.visibilityState === 'visible') {
       // refresh auth token when app becomes visible again
-      apiRefreshAuthToken()
+      this._handleRefresh()
     }
   }
 
   // eslint-disable-next-line class-methods-use-this
   _handleOnline() {
-    apiRefreshAuthToken()
+    this._handleRefresh()
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async _handleRefresh() {
+    await apiRefreshAuthToken()
+    this.setPermissions()
   }
 
   update(changed) {
