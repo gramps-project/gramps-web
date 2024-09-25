@@ -4,6 +4,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsSearchResultList.js'
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsButtonToggle.js'
+import '../components/GrampsjsButtonGroup.js'
 import {apiGet} from '../api.js'
 import {objectTypeToEndpoint, objectIcon, debounce} from '../util.js'
 import '@material/mwc-textfield'
@@ -24,6 +25,11 @@ export class GrampsjsViewSearch extends GrampsjsView {
           justify-content: center;
           max-width: 100%;
           min-width: 80%;
+          clear: left;
+        }
+
+        .mode-toggle {
+          float: right;
         }
 
         mwc-textfield#search-field {
@@ -54,6 +60,8 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
   static get properties() {
     return {
+      semantic: {type: Boolean},
+      dbInfo: {type: Object},
       _data: {type: Array},
       _totalCount: {type: Number},
       _page: {type: Number},
@@ -64,6 +72,8 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
   constructor() {
     super()
+    this.semantic = false
+    this.dbInfo = {}
     this._data = []
     this._totalCount = -1
     this._page = 1
@@ -77,7 +87,9 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
   renderContent() {
     return html`
-      <h2>Search</h2>
+      ${this._semanticEnabled() ? this._renderModeToggle() : ''}
+
+      <h2>${this._('Search')}</h2>
 
       <div id="search-field-container">
         <mwc-textfield
@@ -119,6 +131,32 @@ export class GrampsjsViewSearch extends GrampsjsView {
     `
   }
 
+  _renderModeToggle() {
+    return html`
+      <div class="mode-toggle">
+        <grampsjs-button-group>
+          <mwc-button
+            dense
+            ?unelevated="${!this.semantic}"
+            @click="${this._handleModeClick}"
+            >${this._('full-text')}</mwc-button
+          >
+          <mwc-button
+            dense
+            ?unelevated="${this.semantic}"
+            @click="${this._handleModeClick}"
+            >${this._('semantic')}</mwc-button
+          >
+        </grampsjs-button-group>
+      </div>
+    `
+  }
+
+  async _handleModeClick() {
+    this.semantic = !this.semantic
+    this._executeSearch()
+  }
+
   renderFilters() {
     return html`
       <div @grampsjs-button-toggle:toggle="${this._handleFilterToggle}">
@@ -140,6 +178,13 @@ export class GrampsjsViewSearch extends GrampsjsView {
         )}
       </div>
     `
+  }
+
+  _semanticEnabled() {
+    return (
+      !!this.dbInfo?.server?.semantic_search &&
+      !!this.dbInfo?.search?.sifts?.count_semantic
+    )
   }
 
   _handleFilterToggle(e) {
@@ -277,6 +322,9 @@ export class GrampsjsViewSearch extends GrampsjsView {
     let url = `/api/search/?query=${query}&locale=${
       this.strings?.__lang__ || 'en'
     }&profile=all&page=${page}&pagesize=20`
+    if (this._semanticEnabled()) {
+      url = `${url}&semantic=${this.semantic ? 1 : 0}`
+    }
     if (!window._oldSearchBackend) {
       const objectTypes = Object.keys(this._objectTypes).filter(
         key => this._objectTypes[key]

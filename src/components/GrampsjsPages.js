@@ -275,6 +275,7 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
         class="page"
         ?active=${this.page === 'search'}
         .strings="${this.strings}"
+        .dbInfo="${this.dbInfo}"
       ></grampsjs-view-search>
       <grampsjs-view-recent
         class="page"
