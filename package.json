@@ -31,6 +31,7 @@
     "eslint-config-prettier": "^7.2.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-lit-a11y": "^4.1.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
     "fetch-mock": "^9.11.0",

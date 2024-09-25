@@ -27,18 +27,6 @@ export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
           position: relative;
         }
 
-        .success {
-          color: #41ad49;
-        }
-
-        .error {
-          color: #bf360c;
-        }
-
-        .warn {
-          color: #f9a825;
-        }
-
         .inline {
           display: inline-block;
           margin-right: 1em;

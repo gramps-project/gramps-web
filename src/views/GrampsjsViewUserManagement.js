@@ -1,8 +1,12 @@
 import {css, html} from 'lit'
 
+import '@material/web/select/filled-select'
+import '@material/web/select/select-option'
+
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsUsers.js'
 import '../components/GrampsjsShareUrl.js'
+import '../components/GrampsjsChatPermissions.js'
 import {apiPost, apiPut, apiGet, getTreeId} from '../api.js'
 
 export class GrampsjsViewUserManagement extends GrampsjsView {
@@ -55,6 +59,11 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
 
   renderContent() {
     return html`
+      ${this.dbInfo?.server?.chat
+        ? html`<grampsjs-chat-permissions
+            .strings=${this.strings}
+          ></grampsjs-chat-permissions>`
+        : ''}
       ${this.dbInfo?.server?.multi_tree
         ? html` <p>
             ${this._('Registration link')}:

@@ -115,6 +115,33 @@ export function setRecentObjects(data) {
   localStorage.setItem('recentObjects', stringData)
 }
 
+export function getChatHistory() {
+  try {
+    const string = localStorage.getItem('chatMessages')
+    const data = JSON.parse(string)
+    const tree = getTreeId()
+    if (tree) {
+      return data[tree]
+    }
+    return []
+  } catch (e) {
+    return []
+  }
+}
+
+export function setChatHistory(data) {
+  const tree = getTreeId()
+  if (!tree) {
+    return
+  }
+  const stringDataAll = localStorage.getItem('chatMessages')
+  const objectDataAll = JSON.parse(stringDataAll)
+  const objectDataNew = {[tree]: data}
+  const objectData = {...objectDataAll, ...objectDataNew}
+  const stringData = JSON.stringify(objectData)
+  localStorage.setItem('chatMessages', stringData)
+}
+
 export async function apiResetPassword(username) {
   try {
     const resp = await fetch(

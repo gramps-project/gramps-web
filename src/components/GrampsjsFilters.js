@@ -8,6 +8,7 @@ import '@material/mwc-button'
 import '@material/web/textfield/outlined-text-field'
 import '@material/web/button/filled-button'
 
+import './GrampsjsButtonGroup.js'
 import {renderIconSvg} from '../icons.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import {
@@ -36,19 +37,6 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
           color: var(--mdc-theme-primary);
           margin-left: 10px;
           margin-right: 10px;
-        }
-
-        #filter-type-buttons {
-          --mdc-typography-button-font-size: 12px;
-          margin: 12px 0;
-        }
-
-        #filter-type-buttons div {
-          border: 1px solid var(--mdc-theme-primary);
-          opacity: 0.9;
-          border-radius: 8px;
-          display: inline-block;
-          padding: 4px;
         }
 
         #input-gql-container {
@@ -134,22 +122,20 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
         class="${classMap({hidden: !this.open})}"
         @filter:changed="${this._handleFilterChanged}"
       >
-        <div id="filter-type-buttons">
-          <div>
-            <mwc-button
-              dense
-              ?unelevated="${!this.useGql}"
-              @click="${this._handleGqlClick}"
-              >${this._('simple')}</mwc-button
-            >
-            <mwc-button
-              dense
-              ?unelevated="${this.useGql}"
-              @click="${this._handleGqlClick}"
-              >GQL</mwc-button
-            >
-          </div>
-        </div>
+        <grampsjs-button-group>
+          <mwc-button
+            dense
+            ?unelevated="${!this.useGql}"
+            @click="${this._handleGqlClick}"
+            >${this._('simple')}</mwc-button
+          >
+          <mwc-button
+            dense
+            ?unelevated="${this.useGql}"
+            @click="${this._handleGqlClick}"
+            >GQL</mwc-button
+          >
+        </grampsjs-button-group>
 
         <div
           class="${classMap({hidden: !this.useGql, flex: this.useGql})}"

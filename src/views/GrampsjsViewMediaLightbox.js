@@ -109,6 +109,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     return html` <object
       data="${getMediaUrl(this._data.handle)}"
       type="application/pdf"
+      title="PDF"
       style="width: 80vw; height: 90vh;"
       @error=${this._pdfErrorHandler}
     >

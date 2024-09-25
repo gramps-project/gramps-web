@@ -306,6 +306,18 @@ export const sharedStyles = css`
     border-left-color: rgba(251, 192, 45, 0.7);
   }
 
+  .success {
+    color: #41ad49;
+  }
+
+  .error {
+    color: #bf360c;
+  }
+
+  .warn {
+    color: #f9a825;
+  }
+
   @keyframes shine {
     to {
       background-position-x: -200%;

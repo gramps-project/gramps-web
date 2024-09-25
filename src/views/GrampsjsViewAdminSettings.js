@@ -62,6 +62,17 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         .bold {
           font-weight: 500;
         }
+
+        mwc-icon.status {
+          font-size: 18px;
+          top: 4px;
+          position: relative;
+          margin-right: 5px;
+        }
+
+        .small {
+          font-size: 16px;
+        }
       `,
     ]
   }
@@ -72,6 +83,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       dbInfo: {type: Object},
       userInfo: {type: Object},
       _repairResults: {type: Object},
+      _buttonUpdateSearchDisabled: {type: Boolean},
+      _buttonUpdateSearchSemanticDisabled: {type: Boolean},
     }
   }
 
@@ -81,6 +94,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this.dbInfo = {}
     this.userInfo = {}
     this._repairResults = {}
+    this._buttonUpdateSearchDisabled = false
+    this._buttonUpdateSearchSemanticDisabled = false
   }
 
   renderContent() {
@@ -102,6 +117,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
 
       <h3>${this._('Manage search index')}</h3>
 
+      ${this._renderSearchStatus()}
+
       <p>
         ${this._(
           'Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.'
@@ -109,7 +126,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       </p>
       <mwc-button
         outlined
-        @click="${this._updateSearch}"
+        ?disabled=${this._buttonUpdateSearchDisabled}
+        @click="${() => this._updateSearch(false)}"
         @keydown="${clickKeyHandler}"
         >${this._('Update search index')}</mwc-button
       >
@@ -122,6 +140,34 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         @task:complete="${this._handleSuccessUpdateSearch}"
       ></grampsjs-task-progress-indicator>
 
+      ${this.dbInfo?.server?.semantic_search
+        ? html`
+            <h3>${this._('Manage semantic search index')}</h3>
+
+            ${this._renderSearchStatus(true)}
+
+            <p>
+              ${this._(
+                'Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.'
+              )}
+            </p>
+            <mwc-button
+              outlined
+              ?disabled=${this._buttonUpdateSearchSemanticDisabled}
+              @click="${() => this._updateSearch(true)}"
+              @keydown="${clickKeyHandler}"
+              >${this._('Update semantic search index')}</mwc-button
+            >
+            <grampsjs-task-progress-indicator
+              class="button"
+              id="progress-update-search-semantic"
+              taskName="searchReindexFullSemantic"
+              size="20"
+              pollInterval="0.2"
+              @task:complete="${this._handleSuccessUpdateSearch}"
+            ></grampsjs-task-progress-indicator>
+          `
+        : ''}
       <h3>${this._('Check and Repair Database')}</h3>
 
       <p>
@@ -192,6 +238,25 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     `
   }
 
+  _renderSearchStatus(semantic = false) {
+    const property = semantic ? 'count_semantic' : 'count'
+    const count = this.dbInfo?.search?.sifts?.[property] ?? -1
+    const objCounts = this.dbInfo?.object_counts ?? {}
+    const objCount = Object.values(objCounts).reduce(
+      (sum, value) => sum + value,
+      0
+    )
+    const iconError = html`<mwc-icon class="error status">error</mwc-icon>`
+    const iconOk = html`<mwc-icon class="success status"
+      >check_circle</mwc-icon
+    >`
+    const icon = objCount === 0 || count / objCount > 0.98 ? iconOk : iconError
+    return html`<p class="small">
+      ${icon} ${this._('Status')}:
+      ${count === -1 ? this._('unknown') : count}/${objCount}
+    </p>`
+  }
+
   _openDeleteAll() {
     if (isTokenFresh()) {
       this.renderRoot.querySelector('grampsjs-delete-all').show()
@@ -220,24 +285,45 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
-  async _updateSearch() {
-    const prog = this.renderRoot.querySelector('#progress-update-search')
+  async _updateSearch(semantic = false) {
+    const id = semantic
+      ? 'progress-update-search-semantic'
+      : 'progress-update-search'
+    const prog = this.renderRoot.querySelector(`#${id}`)
     prog.reset()
     prog.open = true
-    const data = await apiPost('/api/search/index/?full=1')
+    const url = semantic
+      ? '/api/search/index/?full=1&semantic=1'
+      : '/api/search/index/?full=1'
+    if (semantic) {
+      this._buttonUpdateSearchSemanticDisabled = true
+    } else {
+      this._buttonUpdateSearchDisabled = true
+    }
+    const data = await apiPost(url)
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
+      this._doneUpdateSearch(semantic)
     } else if ('task' in data) {
       prog.taskId = data.task?.id || ''
     } else {
       prog.setComplete()
-      this._handleSuccessUpdateSearch()
+      this._handleSuccessUpdateSearch(semantic)
     }
   }
 
-  _handleSuccessUpdateSearch() {
+  _handleSuccessUpdateSearch(semantic = false) {
+    this._doneUpdateSearch(semantic)
     fireEvent(this, 'db:changed')
+  }
+
+  _doneUpdateSearch(semantic = false) {
+    if (semantic) {
+      this._buttonUpdateSearchSemanticDisabled = false
+    } else {
+      this._buttonUpdateSearchDisabled = false
+    }
   }
 
   async _checkRepair() {

@@ -17,6 +17,7 @@ import '../views/GrampsjsViewCitations.js'
 import '../views/GrampsjsViewRepositories.js'
 import '../views/GrampsjsViewNotes.js'
 import '../views/GrampsjsViewMediaObjects.js'
+import '../views/GrampsjsViewChat.js'
 import '../views/GrampsjsViewExport.js'
 import '../views/GrampsjsViewPerson.js'
 import '../views/GrampsjsViewFamily.js'
@@ -74,6 +75,7 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
       canEdit: {type: Boolean},
       canManageUsers: {type: Boolean},
       canViewPrivate: {type: Boolean},
+      canUseChat: {type: Boolean},
       homePersonDetails: {type: Object},
       strings: {type: Object},
       dbInfo: {type: Object},
@@ -88,6 +90,7 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
     this.canAdd = false
     this.canEdit = false
     this.canManageUsers = false
+    this.canUseChat = false
     this.homePersonDetails = {}
     this.strings = {}
     this.dbInfo = {}
@@ -249,7 +252,15 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
         ?canEdit="${this.canEdit}"
         .dbInfo="${this.dbInfo}"
       ></grampsjs-view-media>
-
+      ${this.canUseChat
+        ? html`
+            <grampsjs-view-chat
+              class="page"
+              ?active=${this.page === 'chat'}
+              .strings="${this.strings}"
+            ></grampsjs-view-chat>
+          `
+        : ''}
       <grampsjs-view-export
         class="page"
         ?active=${this.page === 'export'}
@@ -264,6 +275,7 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
         class="page"
         ?active=${this.page === 'search'}
         .strings="${this.strings}"
+        .dbInfo="${this.dbInfo}"
       ></grampsjs-view-search>
       <grampsjs-view-recent
         class="page"

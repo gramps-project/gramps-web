@@ -611,6 +611,34 @@ export function linkUrls(text, textOnly = true) {
   )}`
 }
 
+export function renderMarkdownLinks(markdown) {
+  // Regular expression to match markdown links
+  const markdownLinkPattern = /\[([^\]]+)\]\(([^)]+)\)/g
+
+  // Split the markdown into segments, with text and links separated
+  const segments = []
+  let lastIndex = 0
+  let match
+
+  // eslint-disable-next-line no-cond-assign
+  while ((match = markdownLinkPattern.exec(markdown)) !== null) {
+    // Push the text before the link
+    if (match.index > lastIndex) {
+      segments.push(markdown.substring(lastIndex, match.index))
+    }
+    // Push the link as an HTML node
+    segments.push(html`<a href="${match[2]}">${match[1]}</a>`)
+    lastIndex = markdownLinkPattern.lastIndex
+  }
+
+  // Push the remaining text after the last link
+  if (lastIndex < markdown.length) {
+    segments.push(markdown.substring(lastIndex))
+  }
+
+  return segments
+}
+
 export function getGregorianYears(date) {
   const MOD_TEXTONLY = 6
   if (
@@ -691,3 +719,5 @@ export function stripHtml(input) {
   const doc = parser.parseFromString(input, 'text/html')
   return doc.body.textContent || ''
 }
+
+//

@@ -7,7 +7,7 @@ import '@material/mwc-list'
 
 import './GrampsJsListItem.js'
 
-import {mdiFamilyTree} from '@mdi/js'
+import {mdiFamilyTree, mdiChat} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import {renderIcon} from '../icons.js'
@@ -34,6 +34,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       editDialogContent: {type: String},
       saveButton: {type: Boolean},
       canViewPrivate: {type: Boolean},
+      canUseChat: {type: Boolean},
     }
   }
 
@@ -45,6 +46,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
     this.editDialogContent = ''
     this.saveButton = false
     this.canViewPrivate = false
+    this.canUseChat = false
   }
 
   render() {
@@ -69,6 +71,14 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
         <span>${this._('Family Tree')}</span>
         <mwc-icon slot="graphic">${renderIcon(mdiFamilyTree)}</mwc-icon>
       </grampsjs-list-item>
+      ${this.canUseChat
+        ? html`
+            <grampsjs-list-item href="${BASE_DIR}/chat" graphic="icon">
+              <span>${this._('Chat')}</span>
+              <mwc-icon slot="graphic">${renderIcon(mdiChat)}</mwc-icon>
+            </grampsjs-list-item>
+          `
+        : ''}
       <li divider padded role="separator"></li>
       <grampsjs-list-item href="${BASE_DIR}/recent" graphic="icon">
         <span>${this._('History')}</span>

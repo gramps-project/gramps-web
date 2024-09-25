@@ -99,8 +99,15 @@ export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
       'quota_media' in data
         ? formatBytes(data.quota_media) || html`&infin;`
         : this._('unknown')
+    const usageAi =
+      data.usage_ai === undefined || data.usage_ai === null
+        ? this._('unknown')
+        : data.usage_ai
+    const quotaAi =
+      'quota_ai' in data ? data.quota_ai || html`&infin;` : this._('unknown')
     const progressPeople = _getProgress(data.usage_people, data.quota_people)
     const progressMedia = _getProgress(data.usage_media, data.quota_media)
+    const progressAi = _getProgress(data.usage_ai, data.quota_ai)
     return html`
       <table>
         <tr>
@@ -127,6 +134,22 @@ export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
             (&hairsp;${usageMedia}&thinsp;/&thinsp;${quotaMedia}&hairsp;)
           </td>
         </tr>
+        ${'usage_ai' in data
+          ? html`
+              <tr>
+                <th>${this._('Chat messages')}</th>
+                <td class="progress">
+                  <mwc-linear-progress
+                    progress="${progressAi}"
+                  ></mwc-linear-progress>
+                </td>
+                <td class="numbers">
+                  ${Math.round(100 * progressAi)}%
+                  (&hairsp;${usageAi}&thinsp;/&thinsp;${quotaAi}&hairsp;)
+                </td>
+              </tr>
+            `
+          : ''}
       </table>
     `
   }
