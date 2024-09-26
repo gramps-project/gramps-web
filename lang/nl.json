@@ -172,5 +172,10 @@
     "Yes": "Ja",
     "This action cannot be undone.": "Deze actie kan niet ongedaan worden gemaakt.",
     "Toggle time filter for places": "Tijdfilter voor plaatsen wisselen",
-    "The search index needs to be rebuilt.": "De zoekindex moet opnieuw worden opgebouwd."
+    "The search index needs to be rebuilt.": "De zoekindex moet opnieuw worden opgebouwd.",
+    "Ask something about your ancestors": "Vraag iets over je voorouders",
+    "Manage semantic search index": "Semantische zoekindex beheren",
+    "Update semantic search index": "Semantische zoekindex bijwerken",
+    "Chat messages": "Chatberichten",
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Het bijwerken van de semantische zoekindex vereist veel tijd en rekenbronnen. Voer deze bewerking alleen uit als dat nodig is."
 }
