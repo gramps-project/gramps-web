@@ -172,5 +172,10 @@
     "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Glan an crann teaghlaigh trí gach réad atá ann cheana a bhaint. Roghnach, roghnaigh cineálacha ar leith rudaí le scriosadh.",
     "Please re-enter your password to continue.": "Cuir isteach do phasfhocal arís chun leanúint ar aghaidh.",
     "Upgrade database": "Uasghrádú bunachar sonraí",
-    "simple": "simplí"
+    "simple": "simplí",
+    "Update semantic search index": "Nuashonraigh an t-innéacs cuardaigh shéimeantach",
+    "Ask something about your ancestors": "Iarr rud éigin faoi do sinsear",
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Teastaíonn go leor ama agus acmhainní ríomhaireachta chun an t-innéacs cuardaigh shéimeantach a nuashonrú. Ná déan an oibríocht seo ach amháin nuair is gá.",
+    "Chat messages": "Teachtaireachtaí comhrá",
+    "Manage semantic search index": "Bainistigh innéacs cuardaigh shéimeantach"
 }
