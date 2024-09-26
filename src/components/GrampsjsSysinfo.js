@@ -55,9 +55,12 @@ export class GrampsjsSysinfo extends GrampsjsTranslateMixin(LitElement) {
         Gramps Web API ${this.data?.gramps_webapi?.version || '?'}<br />
         Gramps Web Frontend ${version}<br />
         Gramps QL ${this.data?.gramps_ql?.version || '?'}<br />
+        Sifts ${this.data?.search?.sifts?.version || '?'}<br />
         locale: ${this.data?.locale?.language}<br />
         multi-tree: ${this.data?.server?.multi_tree}<br />
-        task queue: ${this.data?.server?.task_queue}
+        task queue: ${this.data?.server?.task_queue}<br />
+        OCR: ${this.data?.server?.ocr}<br />
+        chat: ${this.data?.server?.chat}<br />
       </div>
     `
   }
