@@ -172,5 +172,10 @@
     "Yes": "Sim",
     "Are you sure?": "De certeza?",
     "Toggle time filter for places": "Alternar filtro de hora para locais",
-    "The search index needs to be rebuilt.": "O índice de procura tem de ser actualizado."
+    "The search index needs to be rebuilt.": "O índice de procura tem de ser actualizado.",
+    "Ask something about your ancestors": "Pergunte algo sobre os seus ascendentes",
+    "Chat messages": "Mensagens de conversas",
+    "Manage semantic search index": "Gerir índice de procura semântico",
+    "Update semantic search index": "Actualizar o índice de pesquisa semântica",
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "A actualização do índice de pesquisa semântica requer tempo e recursos computacionais substanciais. Execute esta operação apenas quando necessário."
 }
