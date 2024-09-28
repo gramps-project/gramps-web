@@ -172,5 +172,10 @@
     "Are you sure?": "Ste si istí?",
     "Show more": "Zobraziť viac",
     "Toggle time filter for places": "Prepnúť časový filter pre miesta",
-    "The search index needs to be rebuilt.": "Index vyhľadávania je potrebné obnoviť."
+    "The search index needs to be rebuilt.": "Index vyhľadávania je potrebné obnoviť.",
+    "Chat messages": "Chatové správy",
+    "Manage semantic search index": "Spravovať index sémantického vyhľadávania",
+    "Ask something about your ancestors": "Spýtajte sa niečo o svojich predkoch",
+    "Update semantic search index": "Aktualizovať index sémantického vyhľadávania",
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Aktualizácia indexu sémantického vyhľadávania si vyžaduje značné časové a výpočtové zdroje. Túto operáciu spúšťajte len v prípade potreby."
 }
