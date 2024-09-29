@@ -173,5 +173,9 @@
     "Are you sure?": "¿Estás seguro?",
     "This action cannot be undone.": "Esta acción no puede anularse.",
     "Yes": "Sí",
-    "The search index needs to be rebuilt.": "Es necesario reconstruir el índice de búsqueda."
+    "The search index needs to be rebuilt.": "Es necesario reconstruir el índice de búsqueda.",
+    "Chat messages": "Mensajes de chat",
+    "Update semantic search index": "Actualizar índice de búsqueda semántica",
+    "Manage semantic search index": "Gestionar índice de búsqueda semántica",
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Actualizar el índice de búsqueda semántica requiere una cantidad considerable de tiempo y recursos computacionales. Ejecute esta operación sólo cuando sea necesario."
 }
