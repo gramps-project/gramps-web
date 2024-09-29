@@ -172,5 +172,10 @@
     "This action cannot be undone.": "לא ניתן לבטל פעולה זו.",
     "Yes": "כן",
     "Toggle time filter for places": "מיתוג מסנן זמן למקומות",
-    "The search index needs to be rebuilt.": "נדרש לבנות מחדש את מפתח החיפוש."
+    "The search index needs to be rebuilt.": "נדרש לבנות מחדש את מפתח החיפוש.",
+    "Ask something about your ancestors": "לשאול משהו על אבות קדמונים",
+    "Update semantic search index": "עדכון מפתח חיפוש סמנטי",
+    "Manage semantic search index": "ניהול מפתח חיפוש סמנטי",
+    "Chat messages": "הודעות שיחוח",
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "עדכון מפתח החיפוש הסמנטי דורש זמן ומשאבים חישוביים משמעותיים. נא להפעיל פעולה זו רק בעת הצורך."
 }
