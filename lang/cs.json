@@ -172,5 +172,10 @@
     "Show more": "Zobrazit více",
     "This action cannot be undone.": "Tuto akci nelze vrátit zpět.",
     "Toggle time filter for places": "Přepnout časový filtr pro místa",
-    "The search index needs to be rebuilt.": "Index vyhledávání je třeba obnovit."
+    "The search index needs to be rebuilt.": "Index vyhledávání je třeba obnovit.",
+    "Chat messages": "Zprávy v chatu",
+    "Update semantic search index": "Aktualizovat index sémantického vyhledávání",
+    "Ask something about your ancestors": "Zeptejte se na něco o svých předcích",
+    "Manage semantic search index": "Spravovat index sémantického vyhledávání",
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Aktualizace indexu sémantického vyhledávání vyžaduje značné časové a výpočetní prostředky. Tuto operaci provádějte pouze v případě potřeby."
 }
