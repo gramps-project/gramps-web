@@ -173,5 +173,10 @@
     "Show more": "Visa mer",
     "Are you sure?": "Är du säker?",
     "Toggle time filter for places": "Växla tidsfilter för platser",
-    "The search index needs to be rebuilt.": "Sökindexet måste byggas om."
+    "The search index needs to be rebuilt.": "Sökindexet måste byggas om.",
+    "Chat messages": "Chattmeddelanden",
+    "Manage semantic search index": "Hantera semantiskt sökindex",
+    "Ask something about your ancestors": "Fråga något om dina förfäder",
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Att uppdatera det semantiska sökindexet kräver avsevärd tid och beräkningsresurser. Kör endast denna operation när det behövs.",
+    "Update semantic search index": "Uppdatera semantiskt sökindex"
 }
