@@ -172,5 +172,10 @@
     "Are you sure?": "Emin misiniz?",
     "Yes": "Evet",
     "Toggle time filter for places": "Yerler için zaman süzgecini aç/kapat",
-    "The search index needs to be rebuilt.": "Arama dizininin yeniden oluşturulması gerekiyor."
+    "The search index needs to be rebuilt.": "Arama dizininin yeniden oluşturulması gerekiyor.",
+    "Ask something about your ancestors": "Atalarınız hakkında bir şeyler sorun",
+    "Chat messages": "Sohbet mesajları",
+    "Manage semantic search index": "Anlamsal arama dizinini yönet",
+    "Update semantic search index": "Anlamsal arama dizinini güncelle",
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Anlamsal arama dizininin güncellenmesi önemli ölçüde zaman ve hesaplama kaynağı gerektirir. Bu işlemi yalnızca gerekli olduğunda çalıştırın."
 }
