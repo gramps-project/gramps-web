@@ -171,6 +171,11 @@
     "Are you sure?": "Sigurno?",
     "This action cannot be undone.": "Ovo je nepovratna radnja.",
     "Yes": "Da",
-    "The search index needs to be rebuilt.": "Indeks pretraživanja se mora ponovo izgraditi.",
-    "Toggle time filter for places": "Uključi/Isključi vremenski filtar za mjesta"
+    "The search index needs to be rebuilt.": "Indeks pretrage se mora ponovo izgraditi.",
+    "Toggle time filter for places": "Uključi/Isključi vremenski filtar za mjesta",
+    "Ask something about your ancestors": "Pitaj nešto o tvojim precima",
+    "Chat messages": "Chat poruke",
+    "Manage semantic search index": "Upravljaj indeksom semantičke pretrage",
+    "Update semantic search index": "Aktualiziraj indeks semantičke pretrage",
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Aktualiziranje indeksa semantičke pretrage zahtijeva puno vremena i računalne resurse. Pokreni ovu operaciju samo kad je potrebno."
 }
