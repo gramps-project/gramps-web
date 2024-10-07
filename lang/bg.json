@@ -91,5 +91,9 @@
     "Create an admin account": "Създайте администраторски акаунт",
     "Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.": "Ръчното актуализиране на индекса за търсене обикновено не е необходимо, но може да стане необходимо след надграждане.",
     "Copy to clipboard": "Копиране в клипборда",
-    "Switch to default type": "Превключване към тип по подразбиране"
+    "Switch to default type": "Превключване към тип по подразбиране",
+    "Welcome to Gramps Web": "Добре дошли в Gramps Web",
+    "The Gramps package format (.gpkg) is currently not supported.": "Gramps пакетния формат (.dpkg) не се поддържа.",
+    "Please upload a file in Gramps XML (.gramps) format without media files.": "Моля, качете файл в Gramps XML (.gramps) формат без медийни файлове.",
+    "If you intend to synchronize an existing Gramps database with Gramps Web, use the Gramps XML (.gramps) format instead.": "Ако смятате да синхронизирате същесвуваща Gramps база данни с Gramps Web, изполползвайте Gramps XML (.gramps) формат."
 }
