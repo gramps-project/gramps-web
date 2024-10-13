@@ -172,5 +172,10 @@
     "This action cannot be undone.": "되돌릴 수 없음.",
     "Yes": "예",
     "Toggle time filter for places": "장소용 시간 여과기 지정",
-    "The search index needs to be rebuilt.": "검색 색인을 다시 설정하라."
+    "The search index needs to be rebuilt.": "검색 색인을 다시 설정하라.",
+    "Ask something about your ancestors": "조상에 대해 질문하기",
+    "Update semantic search index": "시맨틱 검색 색인 갱신하기",
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "시맨틱 검색 색인 갱신하기는 실제로 시간과 컴퓨터 자원이 필요하다. 필요할때만 실행하라.",
+    "Chat messages": "대화 내용",
+    "Manage semantic search index": "시맨틱 검색 색인 관리"
 }
