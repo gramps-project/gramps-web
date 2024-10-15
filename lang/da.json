@@ -165,5 +165,17 @@
     "E-mail successfully updated": "Email er opdateret",
     "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Tøm slægtsbogen ved at fjerne alle objekter. Vælg eventuelt specifikke typer af objekter, der skal slettes.",
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Slægtsbogen som du prøver at indlæse, er i en schemaversion , der ikke understøttes af denne version af Gramps Web. Derfor kan du ikke indelæse denne slægtsbog uden at opdater dens schema. Denne handling kan ikke fortrydes.",
-    "Upgrade database": "Opgrader databasen"
+    "Upgrade database": "Opgrader databasen",
+    "Ask something about your ancestors": "Spørg noget om dine aner",
+    "Chat messages": "Chatbeskeder",
+    "Manage semantic search index": "Administrer semantisk søgeindeks",
+    "Update semantic search index": "Opdater semantisk søgeindeks",
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Opdatering af det semantiske søgeindeks kræver en anseelig tid og regneresourcer. Udfør kun denne operation hvis det er nødvendigt.",
+    "Toggle time filter for places": "Skifter tidsfilter for steder",
+    "Show more": "Vis mere",
+    "Are you sure?": "Er du sikker?",
+    "This action cannot be undone.": "Denne handling kan ikke fortrydes.",
+    "Yes": "Ja",
+    "The search index needs to be rebuilt.": "Søgeindekset skal genopbygges.",
+    "simple": "simpel"
 }
