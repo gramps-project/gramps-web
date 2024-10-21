@@ -177,5 +177,12 @@
   "Chat messages": "Chat messages",
   "Manage semantic search index": "Manage semantic search index",
   "Update semantic search index": "Update semantic search index",
-  "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary."
+  "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.",
+  "User groups allowed to use AI chat:": "User groups allowed to use AI chat:",
+  "Owners and administrators": "Owners and administrators",
+  "Editor and above": "Editor and above",
+  "Contributor and above": "Contributor and above",
+  "Member and above": "Member and above",
+  "Everybody": "Everybody",
+  "Nobody": "Nobody"
 }
