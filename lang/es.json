@@ -178,5 +178,12 @@
     "Update semantic search index": "Actualizar índice de búsqueda semántica",
     "Manage semantic search index": "Gestionar índice de búsqueda semántica",
     "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Actualizar el índice de búsqueda semántica requiere una cantidad considerable de tiempo y recursos computacionales. Ejecute esta operación sólo cuando sea necesario.",
-    "Ask something about your ancestors": "Pregunta algo sobre tus antepasados"
+    "Ask something about your ancestors": "Pregunta algo sobre tus antepasados",
+    "Editor and above": "Editor y superiores",
+    "Contributor and above": "Colaborador y superior",
+    "Member and above": "Miembro y superior",
+    "Everybody": "Todo el mundo",
+    "Nobody": "Nadie",
+    "User groups allowed to use AI chat:": "Grupos de usuarios autorizados a utilizar el chat IA:",
+    "Owners and administrators": "Propietarios y administradores"
 }
