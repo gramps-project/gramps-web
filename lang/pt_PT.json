@@ -177,5 +177,12 @@
     "Chat messages": "Mensagens de conversas",
     "Manage semantic search index": "Gerir índice de procura semântico",
     "Update semantic search index": "Actualizar o índice de pesquisa semântica",
-    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "A actualização do índice de pesquisa semântica requer tempo e recursos computacionais substanciais. Execute esta operação apenas quando necessário."
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "A actualização do índice de pesquisa semântica requer tempo e recursos computacionais substanciais. Execute esta operação apenas quando necessário.",
+    "Owners and administrators": "Donos e administradores",
+    "Member and above": "Membro e superiores",
+    "Editor and above": "Editor e superiores",
+    "User groups allowed to use AI chat:": "Grupos de utilizadores autorizados a usar a IA:",
+    "Contributor and above": "Colaborador e superiores",
+    "Nobody": "Ninguém",
+    "Everybody": "Todos"
 }
