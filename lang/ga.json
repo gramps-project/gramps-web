@@ -177,5 +177,12 @@
     "Ask something about your ancestors": "Iarr rud éigin faoi do sinsear",
     "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Teastaíonn go leor ama agus acmhainní ríomhaireachta chun an t-innéacs cuardaigh shéimeantach a nuashonrú. Ná déan an oibríocht seo ach amháin nuair is gá.",
     "Chat messages": "Teachtaireachtaí comhrá",
-    "Manage semantic search index": "Bainistigh innéacs cuardaigh shéimeantach"
+    "Manage semantic search index": "Bainistigh innéacs cuardaigh shéimeantach",
+    "User groups allowed to use AI chat:": "Ceadaítear do ghrúpaí úsáideoirí comhrá AI a úsáid:",
+    "Member and above": "Ball agus thuas",
+    "Editor and above": "Eagarthóir agus os a chionn",
+    "Owners and administrators": "Úinéirí agus riarthóirí",
+    "Nobody": "Aon duine",
+    "Contributor and above": "Ranníocóir agus os a chionn",
+    "Everybody": "Gach duine"
 }
