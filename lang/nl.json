@@ -177,5 +177,12 @@
     "Manage semantic search index": "Semantische zoekindex beheren",
     "Update semantic search index": "Semantische zoekindex bijwerken",
     "Chat messages": "Chatberichten",
-    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Het bijwerken van de semantische zoekindex vereist veel tijd en rekenkracht. Voer deze bewerking alleen uit als dat nodig is."
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Het bijwerken van de semantische zoekindex vereist veel tijd en rekenkracht. Voer deze bewerking alleen uit als dat nodig is.",
+    "Owners and administrators": "Eigenaren en beheerders",
+    "Contributor and above": "Bijdrager en hoger",
+    "Everybody": "Iedereen",
+    "Nobody": "Niemand",
+    "User groups allowed to use AI chat:": "Gebruikersgroepen die AI-chat mogen gebruiken:",
+    "Editor and above": "Editor en hoger",
+    "Member and above": "Lid en hoger"
 }
