@@ -177,5 +177,12 @@
     "Manage semantic search index": "Spravovať index sémantického vyhľadávania",
     "Ask something about your ancestors": "Spýtajte sa niečo o svojich predkoch",
     "Update semantic search index": "Aktualizovať index sémantického vyhľadávania",
-    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Aktualizácia indexu sémantického vyhľadávania si vyžaduje značné časové a výpočtové zdroje. Túto operáciu spúšťajte len v prípade potreby."
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Aktualizácia indexu sémantického vyhľadávania si vyžaduje značné časové a výpočtové zdroje. Túto operáciu spúšťajte len v prípade potreby.",
+    "User groups allowed to use AI chat:": "Používateľské skupiny, ktoré môžu používať chat s umelou inteligenciou:",
+    "Everybody": "Každý",
+    "Owners and administrators": "Majitelia a správcovia",
+    "Contributor and above": "Prispievateľ a vyššie",
+    "Member and above": "Člen a ďalej",
+    "Nobody": "Nikto",
+    "Editor and above": "Editor a ďalší"
 }
