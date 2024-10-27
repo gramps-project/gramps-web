@@ -177,5 +177,12 @@
     "Toggle time filter for places": "Перемкнути фільтр часу для місць",
     "Update semantic search index": "Оновити індекс семантичного пошуку",
     "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Оновлення індексу семантичного пошуку потребує значного часу та обчислювальних ресурсів. Виконуйте цю операцію лише за необхідності.",
-    "simple": "простий"
+    "simple": "простий",
+    "Owners and administrators": "Власники та адміністратори",
+    "Editor and above": "Редактор і вище",
+    "Contributor and above": "Дописувачі і вище",
+    "Nobody": "Ніхто",
+    "User groups allowed to use AI chat:": "Групи користувачів яким дозволено використовувати AI-чат:",
+    "Member and above": "Учасник і вище",
+    "Everybody": "Всі"
 }
