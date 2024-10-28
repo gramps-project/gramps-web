@@ -177,5 +177,12 @@
     "Chat messages": "Sohbet mesajları",
     "Manage semantic search index": "Anlamsal arama dizinini yönet",
     "Update semantic search index": "Anlamsal arama dizinini güncelle",
-    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Anlamsal arama dizininin güncellenmesi önemli ölçüde zaman ve hesaplama kaynağı gerektirir. Bu işlemi yalnızca gerekli olduğunda çalıştırın."
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Anlamsal arama dizininin güncellenmesi önemli ölçüde zaman ve hesaplama kaynağı gerektirir. Bu işlemi yalnızca gerekli olduğunda çalıştırın.",
+    "Contributor and above": "Katkıda bulunan ve üzeri",
+    "Member and above": "Üye ve üzeri",
+    "User groups allowed to use AI chat:": "YZ sohbetini kullanmasına izin verilen kullanıcı grupları:",
+    "Owners and administrators": "Sahip ve yöneticiler",
+    "Editor and above": "Editör ve üzeri",
+    "Everybody": "Herkes",
+    "Nobody": "Hiç kimse"
 }
