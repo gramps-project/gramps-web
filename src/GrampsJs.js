@@ -605,7 +605,9 @@ export class GrampsJs extends LitElement {
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
     this.addEventListener('drawer:toggle', this._toggleDrawer)
     window.addEventListener('keydown', event => this._handleKey(event))
-    document.addEventListener('visibilitychange', this._handleVisibilityChange)
+    document.addEventListener('visibilitychange', () =>
+      this._handleVisibilityChange()
+    )
     window.addEventListener('online', () => this._handleOnline())
     window.addEventListener('token:refresh', () => this._handleRefresh())
 
