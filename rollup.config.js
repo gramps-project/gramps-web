@@ -12,6 +12,7 @@ const baseConfig = createSpaConfig({
   developmentMode: process.env.ROLLUP_WATCH === 'true',
   injectServiceWorker: true,
   workbox: {
+    globIgnores: ['index.html'],
     navigateFallbackDenylist: [/^\/api.*/],
     skipWaiting: false,
     clientsClaim: false,
