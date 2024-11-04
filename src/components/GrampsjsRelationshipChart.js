@@ -35,6 +35,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     return {
       grampsId: {type: String},
       nAnc: {type: Number},
+      nMaxImages: {type: Number},
       gapX: {type: Number},
     }
   }
@@ -56,6 +57,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     return html`
       ${RelationshipChart(this.data, {
         nAnc: this.nAnc,
+        maxImages: this.nMaxImages,
         grampsId: this.grampsId,
         getImageUrl: d => getImageUrl(d?.data || {}, 200),
         gapX: this.gapX,

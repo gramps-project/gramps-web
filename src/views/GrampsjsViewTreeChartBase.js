@@ -42,7 +42,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
         }
 
         #menu-controls mwc-textfield {
-          width: 4em;
+          width: 6em;
         }
       `,
     ]
@@ -55,9 +55,11 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
       disableHome: {type: Boolean},
       nAnc: {type: Number},
       nDesc: {type: Number},
+      nMaxImages: {type: Number},
       _data: {type: Array},
       _setAnc: {type: Boolean},
       _setDesc: {type: Boolean},
+      _setMaxImages: {type: Boolean},
     }
   }
 
@@ -66,12 +68,14 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     this.grampsId = ''
     this.nAnc = 3
     this.nDesc = 1
+    this.nMaxImages = 50
     this.disableBack = false
     this.disableHome = false
     this._data = []
     this._setAnc = false
     this._setDesc = false
     this._setSep = false
+    this._setMaxImages = false
   }
 
   renderContent() {
@@ -176,6 +180,23 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
             </tr>
           `
         : ''
+    }${
+      this._setMaxImages
+        ? html`
+            <tr>
+              <td>${this._('Max Number of Images displayed')}</td>
+              <td>
+                <mwc-textfield
+                  value=${this.nMaxImages}
+                  type="number"
+                  min="0"
+                  size="5"
+                  @change=${this._handleChangeMaxImages}
+                ></mwc-textfield>
+              </td>
+            </tr>
+          `
+        : ''
     }
           </table>
           <mwc-button slot="primaryAction" dialogAction="close"
@@ -208,7 +229,8 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     if (
       changed.has('grampsId') ||
       changed.has('nAnc') ||
-      changed.has('nDesc')
+      changed.has('nDesc') ||
+      changed.has('nMaxImages')
     ) {
       this._fetchData(this.grampsId)
     }
@@ -265,6 +287,10 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
 
   _handleChangeDesc(e) {
     this.nDesc = parseInt(e.target.value, 10)
+  }
+
+  _handleChangeMaxImages(e) {
+    this.nMaxImages = parseInt(e.target.value, 10)
   }
 
   _openMenuControls() {
