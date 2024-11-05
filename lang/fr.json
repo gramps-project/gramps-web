@@ -171,5 +171,17 @@
     "Delete all objects": "Supprimer tous les objets",
     "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Effacer l'arbre généalogique en supprimant tous les objets existants. En option, vous pouvez sélectionner des types d'objets spécifiques à supprimer.",
     "Please re-enter your password to continue.": "Merci d'entrer à nouveau votre mot de passe pour continuer.",
-    "simple": "simple"
+    "simple": "simple",
+    "Ask something about your ancestors": "Demandez quelque chose à propose de vos ancêtres",
+    "Chat messages": "Messages de discussion",
+    "Manage semantic search index": "Gérer l'index de recherche sémantique",
+    "Update semantic search index": "Mettre à jour l'index de recherche sémantique",
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "La mise à jour de l'index de recherche sémantique nécessite un temps considérable et des ressources de calcul. Exécutez cette opération uniquement si nécessaire.",
+    "User groups allowed to use AI chat:": "Les groupes d'utilisateurs autorisés à utiliser la discussion IA :",
+    "Owners and administrators": "Propriétaires et administrateurs",
+    "Editor and above": "Éditeur et supérieur",
+    "Contributor and above": "Contributeur et supérieur",
+    "Member and above": "Membre et supérieur",
+    "Everybody": "Tout le monde",
+    "Nobody": "Personne"
 }
