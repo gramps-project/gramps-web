@@ -177,5 +177,12 @@
     "Update semantic search index": "עדכון מפתח חיפוש סמנטי",
     "Manage semantic search index": "ניהול מפתח חיפוש סמנטי",
     "Chat messages": "הודעות שיחוח",
-    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "עדכון מפתח החיפוש הסמנטי דורש זמן ומשאבים חישוביים משמעותיים. נא להפעיל פעולה זו רק בעת הצורך."
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "עדכון מפתח החיפוש הסמנטי דורש זמן ומשאבים חישוביים משמעותיים. נא להפעיל פעולה זו רק בעת הצורך.",
+    "Everybody": "כולם",
+    "Editor and above": "עורך וגבוהה יותר",
+    "User groups allowed to use AI chat:": "קבוצות משתמש מורשות לבצע שיחוח AI:",
+    "Owners and administrators": "בעלים ומנהלהנים",
+    "Contributor and above": "תורם וגבוהה יותר",
+    "Member and above": "חבר וגבוהה יותר",
+    "Nobody": "אף אחד"
 }
