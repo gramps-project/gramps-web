@@ -19,6 +19,7 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
     super()
     this.nAnc = 2
     this._setSep = true
+    this._setMaxImages = true
     this.color = ''
   }
 
@@ -43,6 +44,7 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
       <grampsjs-relationship-chart
         grampsId=${this.grampsId}
         nAnc=${this.nAnc + 1}
+        nMaxImages=${this.nMaxImages}
         .data=${this._data}
       >
       </grampsjs-relationship-chart>
