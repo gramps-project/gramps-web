@@ -531,6 +531,7 @@ export class GrampsJs extends LitElement {
           <grampsjs-app-bar
             ?add="${this.canAdd}"
             .strings="${this._strings}"
+            ._dbInfo="${this._dbInfo}"
           ></grampsjs-app-bar>
           <mwc-linear-progress indeterminate ?closed="${!this.progress}">
           </mwc-linear-progress>
