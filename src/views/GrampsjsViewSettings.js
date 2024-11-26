@@ -3,6 +3,7 @@ import {css, html} from 'lit'
 import {GrampsjsViewSettingsOnboarding} from './GrampsjsViewSettingsOnboarding.js'
 import './GrampsjsViewAdminSettings.js'
 import './GrampsjsViewUserManagement.js'
+import {userRoles} from '../components/GrampsjsFormUser.js'
 import '../components/GrampsjsUsers.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsShareUrl.js'
@@ -136,6 +137,10 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
 
   renderUserSettings() {
     return html`
+      <h3>
+        ${this._('Username: ')} ${this._userInfo?.name} ${this._('Role')}:
+        ${this._(userRoles[this._userInfo?.role])}
+      </h3>
       ${renderLogoutButton()}
 
       <h3>${this._('Select language')}</h3>
@@ -163,6 +168,8 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       <grampsjs-sysinfo
         .data="${this.dbInfo}"
         .strings="${this.strings}"
+        .userInfo="${this._userInfo}"
+        .tree="${getTreeId()}"
       ></grampsjs-sysinfo>
     `
   }

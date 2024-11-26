@@ -31,18 +31,20 @@ export class GrampsjsSysinfo extends GrampsjsTranslateMixin(LitElement) {
   static get properties() {
     return {
       data: {type: Object},
+      tree: {type: String},
     }
   }
 
   constructor() {
     super()
     this.data = {}
+    this.tree = ''
   }
 
   render() {
     const version = '[VI]{version}[/VI]'
     return html`
-      <div class="copy" id="copy">
+      <div class="copy">
         <mwc-icon-button
           icon="content_copy"
           id="copy-button"
@@ -51,17 +53,21 @@ export class GrampsjsSysinfo extends GrampsjsTranslateMixin(LitElement) {
         <grampsjs-tooltip for="copy-button" .strings="${this.strings}"
           >${this._('Copy to clipboard')}</grampsjs-tooltip
         >
-        Gramps ${this.data?.gramps?.version || '?'}<br />
-        Gramps Web API ${this.data?.gramps_webapi?.version || '?'}<br />
-        Gramps Web Frontend ${version}<br />
-        Gramps QL ${this.data?.gramps_ql?.version || '?'}<br />
-        Sifts ${this.data?.search?.sifts?.version || '?'}<br />
-        locale: ${this.data?.locale?.language}<br />
-        multi-tree: ${this.data?.server?.multi_tree}<br />
-        task queue: ${this.data?.server?.task_queue}<br />
-        OCR: ${this.data?.server?.ocr}<br />
-        chat: ${this.data?.server?.chat}<br />
+        <span id="copy">
+          Gramps ${this.data?.gramps?.version || '?'}<br />
+          Gramps Web API ${this.data?.gramps_webapi?.version || '?'}<br />
+          Gramps Web Frontend ${version}<br />
+          Gramps QL ${this.data?.gramps_ql?.version || '?'}<br />
+          Sifts ${this.data?.search?.sifts?.version || '?'}<br />
+          locale: ${this.data?.locale?.language}<br />
+          multi-tree: ${this.data?.server?.multi_tree}<br />
+          task queue: ${this.data?.server?.task_queue}<br />
+          OCR: ${this.data?.server?.ocr}<br />
+          chat: ${this.data?.server?.chat}<br />
+        </span>
       </div>
+      <hr />
+      <div class="copy">Tree: ${this.tree}</div>
     `
   }
 
