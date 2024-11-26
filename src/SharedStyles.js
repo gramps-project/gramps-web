@@ -340,6 +340,16 @@ export const sharedStyles = css`
     background-color: rgba(2, 119, 189, 0.2);
   }
 
+  .monospace {
+    font-family: 'Commit Mono';
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 0.3em;
+    font-size: 0.9em;
+    color: rgb(125, 0, 0, 0.8);
+  }
+
   @media (max-width: 768px) {
     :host {
       font-size: 16px;

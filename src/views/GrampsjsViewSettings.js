@@ -37,6 +37,11 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
         mwc-tab-bar {
           margin-bottom: 30px;
         }
+
+        .medium {
+          font-weight: 500;
+          color: rgb(0.05, 0.05, 0.05);
+        }
       `,
     ]
   }
@@ -137,11 +142,20 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
 
   renderUserSettings() {
     return html`
-      <h3>
-        ${this._('Username: ')} ${this._userInfo?.name} ${this._('Role')}:
-        ${this._(userRoles[this._userInfo?.role])}
-      </h3>
       ${renderLogoutButton()}
+
+      <h3>${this._('User Information')}</h3>
+      <dl>
+        <div>
+          <dt><span>${this._('Username: ').replace(':', '')}</span></dt>
+          <dd>${this._userInfo?.name}</dd>
+        </div>
+        <div>
+          <dt><span>${this._('User group')}</span></dt>
+          <dd>${this._(userRoles[this._userInfo?.role])}</dd>
+        </div>
+      </dl>
+      <div style="clear: both;"></div>
 
       <h3>${this._('Select language')}</h3>
 
@@ -169,9 +183,11 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
         .data="${this.dbInfo}"
         .strings="${this.strings}"
         .userInfo="${this._userInfo}"
-        .tree="${getTreeId()}"
       ></grampsjs-sysinfo>
-    `
+      <h3>${this._('Tree Information')}</h3>
+      <p class="small">ID: <span class="monospace">${getTreeId()}</a></p>
+
+      `
   }
 
   renderChangeEmail() {

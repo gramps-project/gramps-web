@@ -31,14 +31,12 @@ export class GrampsjsSysinfo extends GrampsjsTranslateMixin(LitElement) {
   static get properties() {
     return {
       data: {type: Object},
-      tree: {type: String},
     }
   }
 
   constructor() {
     super()
     this.data = {}
-    this.tree = ''
   }
 
   render() {
@@ -66,8 +64,6 @@ export class GrampsjsSysinfo extends GrampsjsTranslateMixin(LitElement) {
           chat: ${this.data?.server?.chat}<br />
         </span>
       </div>
-      <hr />
-      <div class="copy">Tree: ${this.tree}</div>
     `
   }
 
