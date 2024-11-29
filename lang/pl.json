@@ -166,5 +166,13 @@
     "Delete Citation": "Usuń cytat",
     "Revision History": "Historia zmian",
     "This action cannot be undone.": "Tej akcji nie można cofnąć.",
-    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Drzewo genealogiczne, które próbujesz załadować, jest w wersji schematu nieobsługiwanej przez tę wersję Gramps Web. Dlatego nie można załadować tego drzewa genealogicznego bez aktualizacji jego schematu. Czynności tej nie można cofnąć."
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Drzewo genealogiczne, które próbujesz załadować, jest w wersji schematu nieobsługiwanej przez tę wersję Gramps Web. Dlatego nie można załadować tego drzewa genealogicznego bez aktualizacji jego schematu. Czynności tej nie można cofnąć.",
+    "Chat messages": "Wiadomości z czatu",
+    "Manage semantic search index": "Zarządzanie indeksem wyszukiwania semantycznego",
+    "Update semantic search index": "Zaktualizuj indeks wyszukiwania semantycznego",
+    "Toggle time filter for places": "Przełącz filtr czasu dla miejsc",
+    "Delete Media": "Usuń nośnik",
+    "Delete Tag": "Usuń tag",
+    "Edit Tag": "Edytuj Tag",
+    "simple": "prosty"
 }
