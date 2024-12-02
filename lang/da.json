@@ -177,5 +177,15 @@
     "This action cannot be undone.": "Denne handling kan ikke fortrydes.",
     "Yes": "Ja",
     "The search index needs to be rebuilt.": "Søgeindekset skal genopbygges.",
-    "simple": "simpel"
+    "simple": "simpel",
+    "User group": "Brugergruppe",
+    "User Information": "Bruger information",
+    "Tree Information": "Træinformation",
+    "Contributor and above": "Bidragsydere og højere",
+    "Member and above": "Medlem og højere",
+    "Everybody": "Alle",
+    "Nobody": "Ingen",
+    "User groups allowed to use AI chat:": "Brugergrupper, der må benytte AI chat:",
+    "Owners and administrators": "Ejere og administratorer",
+    "Editor and above": "Redaktør og højere"
 }
