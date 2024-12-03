@@ -184,5 +184,8 @@
     "User groups allowed to use AI chat:": "User groups allowed to use AI chat:",
     "Owners and administrators": "Owners and administrators",
     "Everybody": "Everybody",
-    "Nobody": "Nobody"
+    "Nobody": "Nobody",
+    "User Information": "User Information",
+    "Tree Information": "Tree Information",
+    "User group": "User group"
 }
