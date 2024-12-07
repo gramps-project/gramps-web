@@ -1,4 +1,4 @@
-name: Build Docker reöease images
+name: Build Docker release images
 
 on:
   workflow_dispatch:
