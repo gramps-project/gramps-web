@@ -177,5 +177,15 @@
     "Please re-enter your password to continue.": "请重新输入密码以继续。",
     "Password is required": "需要密码",
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "您尝试加载的家谱所在的架构版本不受此版本的Gramps Web支持。因此，如果不升级其架构，则无法加载此家谱。此操作无法撤消。",
-    "simple": "简单的"
+    "simple": "简单的",
+    "Tree Information": "家族树信息",
+    "Owners and administrators": "所有者和管理员",
+    "Editor and above": "编辑及以上",
+    "Contributor and above": "贡献者及以上",
+    "Member and above": "会员及以上",
+    "Everybody": "任何人",
+    "User Information": "用户信息",
+    "User groups allowed to use AI chat:": "允许使用AI聊天的用户群组：",
+    "Nobody": "没人",
+    "User group": "用户组"
 }
