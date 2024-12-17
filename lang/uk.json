@@ -184,5 +184,8 @@
     "Nobody": "Ніхто",
     "User groups allowed to use AI chat:": "Групи користувачів яким дозволено використовувати AI-чат:",
     "Member and above": "Учасник і вище",
-    "Everybody": "Всі"
+    "Everybody": "Всі",
+    "User group": "Група користувача",
+    "User Information": "Інформація користувача",
+    "Tree Information": "Інформація про дерево"
 }
