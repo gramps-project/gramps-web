@@ -187,5 +187,9 @@
     "Everybody": "Jeder",
     "Tree Information": "Bauminformationen",
     "User group": "Benutzergruppe",
-    "User Information": "Benutzerinformationen"
+    "User Information": "Benutzerinformationen",
+    "Regenerate semantic search index": "Index für die semantische Suche neu erstellen",
+    "Settings": "Einstellungen",
+    "Pending": "Ausstehend",
+    "Started": "Gestartet"
 }
