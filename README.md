@@ -1,21 +1,69 @@
 # Gramps Web &ndash; Frontend
 
-This is the repository for the frontend of [Gramps Web](https://www.grampsweb.org/), a modern web app that allows to browse and collaboratively edit a genealogical database, based on and interoperable with the <a href="https://gramps-project.org">Gramps</a> desktop application.
+Welcome to **Gramps Web**, a modern, feature-packed, free & open source web app for browsing and collaboratively editing genealogical databases. Fully interoperable with the [Gramps](https://gramps-project.org) desktop application, Gramps Web brings your family history to the web, making it accessible from anywhere and easy to share.
 
-Gramps Web is composed of three building blocks: at its core, the [Gramps](https://github.com/gramps-project/gramps) Python library that also powers the desktop application, secondly [Gramps Web API](https://github.com/gramps-project/gramps-web-api), a Python REST API server that makes a Gramps database accessible over the web, and finally the Javascript web interface, or frontend, that is developed in this repository.
+
+## What is Gramps Web?
+
+**Gramps Web** is a web based application, ideally suited for collaborating with others to build your family tree together. It can be accessed from any mobile or portable web-enabled device. Gramps Web is free & open source software, with the privacy and control of your data a top priority.
+
+Gramps Web is designed to be a companion to [Gramps Desktop](https://gramps-project.org), the leading open source genealogy desktop application.
+
+Key highlights of Gramps Web include:
+
+- 🌐 **Access Anywhere:** Browse and edit your family tree on any web-enabled device.
+- 🤝 **Collaborative Features:** Share and collaborate with family members in real-time.
+- 🔒 **Privacy First:** Advanced privacy controls ensure your data stays secure.
+- 🗺️ **Interactive Visualizations:** Family tree charts, dynamic maps, and more.
+- 🧩 **Bi-Directional Sync:** Seamlessly sync data between Gramps Web and Gramps Desktop.
+
+[Learn More at grampsweb.org ➡️](https://www.grampsweb.org/)
+
+
+## Features at a Glance
+
+- **Interactive Family Tree Charts:** Explore ancestor, descendant, fan, and hourglass charts with ease.
+- **Powerful Mapping Tools:** Visualize places on interactive maps, including custom overlays for historical maps.
+- **Integrated Blog:** Document your research in story format with images, all stored in the Gramps database.
+- **Advanced Search:** Search all record types with support for wildcards and logical operators.
+- **DNA & Chromosome Tools:** View DNA matches and analyze chromosome data.
+- **AI Chat Assistant:** Chat with your family tree, in your native language, powered by AI.
+- **Full Customization & Internationalization:** Switch between 40+ languages and export your data any time.
+
 
 ## Screenshot
 
-![](screenshot.png)
+![Screenshot of Gramps Web interface](screenshot.png)
 
-## Demo
 
-A demo deployment based on the Gramps example family tree is available at https://demo.grampsweb.org/. Use `owner`, `editor`, `contributor`, or `member` as username and the same as password.
+## Try It Out
+
+### [Live Demo](https://demo.grampsweb.org/)
+Experience Gramps Web with our demo deployment.
+
+Login credentials: `owner`, `editor`, `contributor`, or `member` (same as password).
+
+**Note:** some features (like AI chat) are not available in the demo deployment.
+
 
 ## Documentation
 
-- The user documentation for Gramps Web can be found at https://www.grampsweb.org/
-- The developer documentation for the frontend can be found at https://www.grampsweb.org/development/frontend/
-- For reporting issues or giving feedback, please see https://www.grampsweb.org/help/
+The documentation of Gramps Web is hosted at [www.grampsweb.org](https://www.grampsweb.org/):
 
-&nbsp;
+- **[Features](https://www.grampsweb.org/features/):** Explore the key capabilities of Gramps Web.
+- **[Install/Setup](https://www.grampsweb.org/install_setup/setup/):** Step-by-step guide to setting up Gramps Web.
+- **[Administration](https://www.grampsweb.org/administration/admin/):** Learn how to manage and maintain your Gramps Web instance.
+- **[User Guide](https://www.grampsweb.org/user-guide/):** Detailed instructions for everyday users.
+- **[Developers](https://www.grampsweb.org/development/dev/):** Dive into the codebase and technical details.
+- **[Contribute](https://www.grampsweb.org/contribute/contribute/):** Find out how you can support the project.
+- **[Get Help](https://www.grampsweb.org/help/help/):** Access support resources and FAQs.
+
+
+## Contribute
+
+We'd love your feedback and contributions! Star this repository, fork it, and join us in making family history more accessible to everyone. Check out the [contribution guidelines](https://github.com/gramps-project/gramps-web/blob/main/CONTRIBUTING.md) to get started.
+
+
+## Reporting issues
+
+Note that this Github repository contains the source code of the Gramps Web user interface (frontend). For issues with the server-side code, please see the [Gramps Web API](https://github.com/gramps-project/gramps-web-api) (backend) repository. See [Get Help](https://www.grampsweb.org/help/help/) for more details.
