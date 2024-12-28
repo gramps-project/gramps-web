@@ -136,7 +136,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         id="progress-update-search"
         taskName="searchReindexFull"
         size="20"
-        pollInterval="0.2"
+        pollInterval="0.5"
         @task:complete="${this._handleSuccessUpdateSearch}"
       ></grampsjs-task-progress-indicator>
 
@@ -151,21 +151,40 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                 'Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.'
               )}
             </p>
-            <mwc-button
-              outlined
-              ?disabled=${this._buttonUpdateSearchSemanticDisabled}
-              @click="${() => this._updateSearch(true)}"
-              @keydown="${clickKeyHandler}"
-              >${this._('Update semantic search index')}</mwc-button
-            >
-            <grampsjs-task-progress-indicator
-              class="button"
-              id="progress-update-search-semantic"
-              taskName="searchReindexFullSemantic"
-              size="20"
-              pollInterval="0.2"
-              @task:complete="${this._handleSuccessUpdateSearch}"
-            ></grampsjs-task-progress-indicator>
+            <p>
+              <mwc-button
+                outlined
+                ?disabled=${this._buttonUpdateSearchSemanticDisabled}
+                @click="${() => this._updateSearch(true)}"
+                @keydown="${clickKeyHandler}"
+                >${this._('Regenerate semantic search index')}</mwc-button
+              >
+              <grampsjs-task-progress-indicator
+                class="button"
+                id="progress-update-search-semantic"
+                taskName="searchReindexFullSemantic"
+                size="20"
+                pollInterval="1.0"
+                @task:complete="${this._handleSuccessUpdateSearch}"
+              ></grampsjs-task-progress-indicator>
+            </p>
+            <p>
+              <mwc-button
+                outlined
+                ?disabled=${this._buttonUpdateSearchSemanticDisabled}
+                @click="${() => this._updateSearch(true, true)}"
+                @keydown="${clickKeyHandler}"
+                >${this._('Update semantic search index')}</mwc-button
+              >
+              <grampsjs-task-progress-indicator
+                class="button"
+                id="progress-update-search-semantic-incremental"
+                taskName="searchReindexIncrementalSemantic"
+                size="20"
+                pollInterval="1.0"
+                @task:complete="${this._handleSuccessUpdateSearch}"
+              ></grampsjs-task-progress-indicator>
+            </p>
           `
         : ''}
       <h3>${this._('Check and Repair Database')}</h3>
@@ -285,16 +304,22 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
-  async _updateSearch(semantic = false) {
-    const id = semantic
-      ? 'progress-update-search-semantic'
-      : 'progress-update-search'
+  async _updateSearch(semantic = false, incremental = false) {
+    let id
+    if (semantic) {
+      id = incremental
+        ? 'progress-update-search-semantic-incremental'
+        : 'progress-update-search-semantic'
+    } else {
+      id = 'progress-update-search'
+    }
     const prog = this.renderRoot.querySelector(`#${id}`)
     prog.reset()
     prog.open = true
-    const url = semantic
-      ? '/api/search/index/?full=1&semantic=1'
-      : '/api/search/index/?full=1'
+    const params = new URLSearchParams()
+    if (!incremental) params.append('full', '1')
+    if (semantic) params.append('semantic', '1')
+    const url = `/api/search/index/?${params.toString()}`
     if (semantic) {
       this._buttonUpdateSearchSemanticDisabled = true
     } else {

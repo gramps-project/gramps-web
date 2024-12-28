@@ -55,6 +55,12 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
           this.setComplete()
         } else if (status.state === 'FAILURE' || status.state === 'REVOKED') {
           this.setError()
+        } else if (status.state === 'PENDING') {
+          this.progress = status.result_object?.progress ?? -1
+          this.infoMessage = this._('Pending')
+        } else if (status.state === 'STARTED') {
+          this.progress = status.result_object?.progress ?? -1
+          this.infoMessage = this._('Started')
         } else if (status.state === 'PROGRESS') {
           this.progress = status.result_object?.progress ?? -1
           this.infoMessage = `${status.result_object?.title ?? ''}

@@ -5,8 +5,11 @@ import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
+import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
-export class GrampsjsProgressIndicator extends LitElement {
+export class GrampsjsProgressIndicator extends GrampsjsTranslateMixin(
+  LitElement
+) {
   static get styles() {
     return [
       sharedStyles,
@@ -85,10 +88,17 @@ export class GrampsjsProgressIndicator extends LitElement {
     return html`
       <mwc-circular-progress
         indeterminate
+        id="progress-indeterminate"
         style="--mdc-theme-primary: rgba(0, 0, 0, 0.5);"
         density="${this._getDensity()}"
       >
       </mwc-circular-progress>
+      ${this.infoMessage
+        ? html` <grampsjs-tooltip
+            for="progress-indeterminate"
+            content="${this.infoMessage}"
+          ></grampsjs-tooltip>`
+        : ''}
     `
   }
 

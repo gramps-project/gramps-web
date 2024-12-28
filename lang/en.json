@@ -187,5 +187,9 @@
   "Nobody": "Nobody",
   "User group": "User group",
   "User Information": "User Information",
-  "Tree Information": "Tree Information"
+  "Tree Information": "Tree Information",
+  "Regenerate semantic search index": "Regenerate semantic search index",
+  "Settings": "Settings",
+  "Pending": "Pending",
+  "Started": "Started"
 }
