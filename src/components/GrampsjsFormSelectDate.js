@@ -13,12 +13,14 @@ import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 
 const modifiers = {
   0: 'Regular',
-  1: 'Before',
-  2: 'After',
-  3: 'About',
+  1: 'before',
+  2: 'after',
+  3: 'about',
   4: 'Range',
   5: 'Span',
   //  6: 'Text only'
+  7: 'from',
+  8: 'to',
 }
 
 const qualifiers = {
@@ -265,7 +267,7 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _hasSecondDate() {
-    return this.data?.modifier >= 4
+    return this.data?.modifier === 4 || this.data?.modifier === 5
   }
 
   reset() {
