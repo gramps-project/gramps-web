@@ -18,18 +18,21 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
       sharedStyles,
       css`
         :host {
-          height: 100%;
           display: flex;
+          flex: 1;
+          height: 100%;
           flex-direction: column;
         }
 
         .outer {
+          flex: 1;
           height: 100%;
           display: flex;
           flex-direction: column;
         }
 
         .container {
+          flex: 1;
           height: 100%;
           display: flex;
           flex-direction: column;
@@ -90,10 +93,8 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
 
         .clear-btn {
           position: relative;
-          float: left;
           top: 20px;
           left: 0px;
-          margin: 1px solid red;
         }
       `,
     ]
@@ -114,16 +115,16 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-    <div class="clear-btn">
-        <mwc-button
-          raised
-          label="${this._('New')}"
-          icon="clear_all"
-          @click="${this._handleClear}"
-          ?disabled=${this.messages.length === 0}
-        ></mwc-button>
-        </div>
         <div class="outer">
+          <div class="clear-btn">
+            <mwc-button
+              raised
+              label="${this._('New')}"
+              icon="clear_all"
+              @click="${this._handleClear}"
+              ?disabled=${this.messages.length === 0}
+            ></mwc-button>
+          </div>
           <div class="container">
             <div class="conversation">
               ${
