@@ -188,5 +188,9 @@
     "Everybody": "Alla",
     "User group": "Användargrupp",
     "Tree Information": "Trädinformation",
-    "User Information": "Användarinformation"
+    "User Information": "Användarinformation",
+    "Pending": "Avvaktande",
+    "Started": "Startade",
+    "Regenerate semantic search index": "Återskapa semantiskt sökindex",
+    "Settings": "Inställningar"
 }
