@@ -187,5 +187,9 @@
     "Member and above": "Lid en hoger",
     "User Information": "Informatie gebruiker",
     "User group": "Gebruikersgroep",
-    "Tree Information": "Informatie stamboom"
+    "Tree Information": "Informatie stamboom",
+    "Settings": "Instellingen",
+    "Pending": "Aanhangig",
+    "Started": "Gestart",
+    "Regenerate semantic search index": "Semantische zoekindex opnieuw genereren"
 }
