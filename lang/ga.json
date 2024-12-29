@@ -187,5 +187,9 @@
     "Everybody": "Gach duine",
     "User group": "Grúpa úsáideoirí",
     "User Information": "Eolas Úsáideoir",
-    "Tree Information": "Eolas Crann"
+    "Tree Information": "Eolas Crann",
+    "Pending": "Ar feitheamh",
+    "Started": "Thosaigh",
+    "Regenerate semantic search index": "Innéacs cuardaigh shéimeantach a athghiniúint",
+    "Settings": "Socruithe"
 }
