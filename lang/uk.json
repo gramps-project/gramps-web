@@ -187,5 +187,9 @@
     "Everybody": "Всі",
     "User group": "Група користувача",
     "User Information": "Інформація користувача",
-    "Tree Information": "Інформація про дерево"
+    "Tree Information": "Інформація про дерево",
+    "Regenerate semantic search index": "Регенерувати індекс семантичного пошуку",
+    "Settings": "Налаштування",
+    "Pending": "Очікує",
+    "Started": "Розпочато"
 }
