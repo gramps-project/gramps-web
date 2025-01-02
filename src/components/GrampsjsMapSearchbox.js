@@ -100,6 +100,10 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
           display: none;
         }
 
+        md-outlined-text-field {
+          --md-outlined-text-field-with-trailing-icon-trailing-space: 35px;
+        }
+
         @media (max-width: 512px) {
           #searchbox {
             left: 0;
