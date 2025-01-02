@@ -187,5 +187,9 @@
     "Editor and above": "ஆசிரியர் மற்றும் அதற்கு மேல்",
     "Contributor and above": "பங்களிப்பாளர் மற்றும் அதற்கு மேல்",
     "Member and above": "உறுப்பினர் மற்றும் அதற்கு மேல்",
-    "Nobody": "யாரும்"
+    "Nobody": "யாரும்",
+    "Settings": "அமைப்புகள்",
+    "Regenerate semantic search index": "சொற்பொருள் தேடல் குறியீட்டை மீளுருவாக்கம் செய்யுங்கள்",
+    "Pending": "நிலுவையில் உள்ளது",
+    "Started": "தொடங்கியது"
 }
