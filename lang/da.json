@@ -187,5 +187,9 @@
     "Nobody": "Ingen",
     "User groups allowed to use AI chat:": "Brugergrupper, der må benytte AI chat:",
     "Owners and administrators": "Ejere og administratorer",
-    "Editor and above": "Redaktør og højere"
+    "Editor and above": "Redaktør og højere",
+    "Regenerate semantic search index": "Genskab semantisk søgeindeks",
+    "Pending": "Afventende",
+    "Started": "Begyndte",
+    "Settings": "Indstillinger"
 }
