@@ -22,6 +22,7 @@ import './GrampsjsIcon.js'
 import './GrampsjsNames.js'
 import './GrampsjsPlaceChildren.js'
 import './GrampsjsPlaceRefs.js'
+import './GrampsjsPlaceNames.js'
 import './GrampsjsGallery.js'
 import './GrampsjsMap.js'
 import './GrampsjsMapMarker.js'
@@ -56,6 +57,11 @@ const _allTabs = {
       data.placeref_list?.length > 0 ||
       ('placeref_list' in data && data?.backlinks?.place?.length >= 0),
     conditionEdit: data => 'placeref_list' in data,
+  },
+  placeNames: {
+    title: 'Alternate Names',
+    condition: data => data.alt_names?.length > 0,
+    conditionEdit: data => data.alt_names?.length > 0,
   },
   map: {
     title: 'Map',
@@ -584,6 +590,14 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
             ?edit=${this.edit}
           ></grampsjs-names>
         `
+      case 'placeNames':
+        return html` ${this.data.alt_names?.length > 0
+          ? html` <grampsjs-place-names
+              .strings="${this.strings}"
+              .data="${this.data.alt_names}"
+              ?edit=${false}
+            ></grampsjs-place-names>`
+          : ''}`
       case 'enclosed':
         return html` ${this.data.placeref_list?.length || this.edit
           ? html`
