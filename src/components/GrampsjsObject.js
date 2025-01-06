@@ -60,8 +60,8 @@ const _allTabs = {
   },
   placeNames: {
     title: 'Alternate Names',
-    condition: data => data.alt_names?.length > 0,
-    conditionEdit: data => data.alt_names?.length > 0,
+    condition: data => data?.alt_names?.length > 0,
+    conditionEdit: data => data?.alt_names?.length > 0,
   },
   map: {
     title: 'Map',
