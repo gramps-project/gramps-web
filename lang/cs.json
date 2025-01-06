@@ -187,5 +187,9 @@
     "Nobody": "Nikto",
     "User Information": "Informace o uživateli",
     "User group": "Skupina uživatelů",
-    "Tree Information": "Informace o stromu"
+    "Tree Information": "Informace o stromu",
+    "Regenerate semantic search index": "Regeneruje index sémantického vyhledávání",
+    "Settings": "Nastavení",
+    "Pending": "Čeká",
+    "Started": "Začíná"
 }
