@@ -187,5 +187,9 @@
     "Editor and above": "Editor a ďalší",
     "User group": "Skupina používateľov",
     "User Information": "Informácie o používateľovi",
-    "Tree Information": "Informácie o strome"
+    "Tree Information": "Informácie o strome",
+    "Regenerate semantic search index": "Regenerovať index sémantického vyhľadávania",
+    "Settings": "Nastavenia",
+    "Pending": "Čaká",
+    "Started": "Začína"
 }
