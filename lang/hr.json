@@ -177,5 +177,19 @@
     "Chat messages": "Chat poruke",
     "Manage semantic search index": "Upravljaj indeksom semantičke pretrage",
     "Update semantic search index": "Aktualiziraj indeks semantičke pretrage",
-    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Aktualiziranje indeksa semantičke pretrage zahtijeva puno vremena i računalne resurse. Pokreni ovu operaciju samo kad je potrebno."
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Aktualiziranje indeksa semantičke pretrage zahtijeva puno vremena i računalne resurse. Pokreni ovu operaciju samo kad je potrebno.",
+    "User group": "Grupa korisnika",
+    "User Information": "Podaci korisnika",
+    "Tree Information": "Podaci stabla",
+    "Regenerate semantic search index": "Ponovo generiraj indeks semantičke pretrage",
+    "User groups allowed to use AI chat:": "Grupe korisnika koje smiju koristiti UI chat:",
+    "Owners and administrators": "Vlasnici i administratori",
+    "Editor and above": "Urednik i iznad",
+    "Contributor and above": "Doprinositelj i iznad",
+    "Member and above": "Član i iznad",
+    "Everybody": "Svatko",
+    "Nobody": "Nitko",
+    "Settings": "Postavke",
+    "Pending": "Predstoji",
+    "Started": "Pokrenuto"
 }
