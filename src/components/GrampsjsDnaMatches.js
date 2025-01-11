@@ -3,6 +3,7 @@ import {html, css, LitElement} from 'lit'
 import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 
+import './GrampsjsTable.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import {personDisplayName} from '../util.js'
@@ -60,16 +61,41 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
     this.loading = false
   }
 
+  _computeTableData(data) {
+    return data.map(match => [
+      html`<a href="/person/${this._getGidFromHandle(match.handle)}"
+        >${this._getNameFromHandle(match.handle)}</a
+      >`,
+      match.relation || this._('Unknown'),
+      `${match.segments
+        .reduce((accumulator, currentValue) => accumulator + currentValue.cM, 0)
+        .toFixed(1)} cM`,
+      match.segments.length,
+      `${match.segments
+        .reduce(
+          (accumulator, currentValue) => Math.max(accumulator, currentValue.cM),
+          0
+        )
+        .toFixed(1)} cM`,
+    ])
+  }
+
   render() {
     if (this.loading) {
       return this.renderLoading()
     }
     return html`
-      <table>
-        ${this.data
-          .filter(match => match.segments && match.segments.length > 0)
-          .map(match => this._personCard(match))}
-      </table>
+      <grampsjs-table
+        .columns="${[
+          'Name',
+          'Relationship',
+          'Shared DNA',
+          'Shared Segments',
+          'Largest Segment',
+        ]}"
+        .data="${this._computeTableData(this.data)}"
+        .strings="${this.strings}"
+      ></grampsjs-table>
     `
   }
 
@@ -78,96 +104,24 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
       this.person?.person_ref_list?.filter(ref => ref.rel === 'DNA')?.length ??
       1
     return html`
-      <table>
-        ${[...Array(numRows).keys()].map(
-          () => html`
-            <div class="match">
-              <div class="head">
-                <span class="name">
-                  <span class="skeleton" style="width: 7em; height: 1.2em;"
-                    >&nbsp;</span
-                  >
-                </span>
-              </div>
-              <dl>
-                <div>
-                  <dt>${this._('Relationship')}</dt>
-                  <dd>
-                    <span class="skeleton" style="width: 7em;">&nbsp;</span>
-                  </dd>
-                </div>
-                <div>
-                  <dt>${this._('Shared DNA')}</dt>
-                  <dd>
-                    <span class="skeleton" style="width: 3em;">&nbsp;</span>
-                  </dd>
-                </div>
-                <div>
-                  <dt>${this._('Shared Segments')}</dt>
-                  <dd>
-                    <span class="skeleton" style="width: 2em;">&nbsp;</span>
-                  </dd>
-                </div>
-                <div>
-                  <dt>${this._('Largest Segment')}</dt>
-                  <dd>
-                    <span class="skeleton" style="width: 3em;">&nbsp;</span>
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          `
-        )}
-      </table>
-    `
-  }
-
-  _personCard(match) {
-    return html`
-      <div class="match">
-        <div class="head">
-          <span class="name">
-            <a href="/person/${this._getGidFromHandle(match.handle)}"
-              >${this._getNameFromHandle(match.handle)}</a
-            ></span
-          >
-        </div>
-        <dl>
-          <div>
-            <dt>${this._('Relationship')}</dt>
-            <dd>${match.relation || this._('Unknown')}</dd>
-          </div>
-          <div>
-            <dt>${this._('Shared DNA')}</dt>
-            <dd>
-              ${match.segments
-                .reduce(
-                  (accumulator, currentValue) => accumulator + currentValue.cM,
-                  0
-                )
-                .toFixed(1)}
-              cM
-            </dd>
-          </div>
-          <div>
-            <dt>${this._('Shared Segments')}</dt>
-            <dd>${match.segments.length}</dd>
-          </div>
-          <div>
-            <dt>${this._('Largest Segment')}</dt>
-            <dd>
-              ${match.segments
-                .reduce(
-                  (accumulator, currentValue) =>
-                    Math.max(accumulator, currentValue.cM),
-                  0
-                )
-                .toFixed(1)}
-              cM
-            </dd>
-          </div>
-        </dl>
-      </div>
+      <grampsjs-table
+        loading
+        .columns="${[
+          'Name',
+          'Relationship',
+          'Shared DNA',
+          'Shared Segments',
+          'Largest Segment',
+        ]}"
+        .data="${Array.from({length: numRows}).map(() => [
+          'Name Name',
+          'Father',
+          '10 cM',
+          '5',
+          '10 cM',
+        ])}"
+        .strings="${this.strings}"
+      ></grampsjs-table>
     `
   }
 

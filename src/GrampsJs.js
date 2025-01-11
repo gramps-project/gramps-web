@@ -523,6 +523,8 @@ export class GrampsJs extends LitElement {
         <div>
           <grampsjs-main-menu
             .strings="${this._strings}"
+            .page="${this._page}"
+            .pageId="${this._pageId}"
             ?canViewPrivate="${this.canViewPrivate}"
             ?canUseChat="${this.canUseChat}"
           ></grampsjs-main-menu>
