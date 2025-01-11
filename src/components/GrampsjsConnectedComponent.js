@@ -6,7 +6,8 @@ Base class for Components that fetch data when first loaded
 import {LitElement} from 'lit'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {apiGet} from '../api.js'
+import {apiGet, apiPost} from '../api.js'
+import {fireEvent} from '../util.js'
 
 export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
   LitElement
@@ -23,6 +24,9 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
       _errorMessage: {type: String},
       _data: {type: Object},
       _oldUrl: {type: String},
+      method: {type: String},
+      postData: {type: Object},
+      _oldPostData: {type: Object},
     }
   }
 
@@ -37,6 +41,9 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
     this._oldUrl = ''
     this._boundUpdateData = this._updateData.bind(this)
     this._boundsHandleOnline = this._handleOnline.bind(this)
+    this.method = 'GET'
+    this.postData = {}
+    this._oldPostData = {}
   }
 
   render() {
@@ -68,14 +75,18 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
 
   update(changed) {
     super.update(changed)
-    if (this.getUrl() !== this._oldUrl) {
+    if (this.method !== 'POST' && this.getUrl() !== this._oldUrl) {
+      this._updateData()
+    }
+    if (this.method === 'POST' && this.postData !== this._oldPostData) {
       this._updateData()
     }
   }
 
-  _updateData(clearData = true) {
+  async _updateData(clearData = true) {
     const url = this.getUrl()
     this._oldUrl = url
+    this._oldPostData = this.postData
     if (url === '') {
       return
     }
@@ -83,16 +94,42 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
       this._clearData()
     }
     this.loading = true
-    apiGet(url).then(data => {
-      this.loading = false
-      if ('data' in data) {
-        this._data = {data: data.data}
-        this.error = false
-      } else if ('error' in data) {
-        this.error = true
-        this._errorMessage = data.error
+    if (this.method === 'POST') {
+      if (Object.keys(this.postData).length > 0) {
+        await this._updatePostData(url)
       }
-    })
+    } else {
+      await this._updateGetData(url)
+    }
+    this.loading = false
+  }
+
+  async _updateGetData(url) {
+    const data = await apiGet(url)
+    if ('data' in data) {
+      this._data = {data: data.data}
+      this.error = false
+      this._fireUpdateEvent()
+    } else if ('error' in data) {
+      this.error = true
+      this._errorMessage = data.error
+    }
+  }
+
+  async _updatePostData(url) {
+    const data = await apiPost(url, this.postData, true, false)
+    if ('data' in data) {
+      this._data = {data: data.data}
+      this.error = false
+      this._fireUpdateEvent()
+    } else if ('error' in data) {
+      this.error = true
+      this._errorMessage = data.error
+    }
+  }
+
+  _fireUpdateEvent() {
+    fireEvent(this, 'connected-component:updated', {data: this._data})
   }
 
   _clearData() {

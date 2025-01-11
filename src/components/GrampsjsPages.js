@@ -39,6 +39,7 @@ import '../views/GrampsjsViewRecent.js'
 import '../views/GrampsjsViewRevisions.js'
 import '../views/GrampsjsViewRevision.js'
 import '../views/GrampsjsViewBookmarks.js'
+import '../views/GrampsjsViewDnaMatches.js'
 import '../views/GrampsjsViewMap.js'
 import '../views/GrampsjsViewTree.js'
 import '../views/GrampsjsViewNewPerson.js'
@@ -174,6 +175,16 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
         .strings="${this.strings}"
         ?canAdd=${this.canAdd && this.canEdit}
       ></grampsjs-view-media-objects>
+
+      <grampsjs-view-dna-matches
+        class="page"
+        ?active=${this.page === 'dna'}
+        .strings="${this.strings}"
+        ?canEdit="${this.canEdit}"
+        homePersonHandle="${this.homePersonDetails?.handle ?? ''}"
+        ?matches="${this.pageId !== 'chromosome'}"
+        ?chromosome="${this.pageId === 'chromosome'}"
+      ></grampsjs-view-dna-matches>
 
       <grampsjs-view-map
         class="page"
