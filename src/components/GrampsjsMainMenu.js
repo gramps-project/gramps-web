@@ -54,6 +54,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       canUseChat: {type: Boolean},
       page: {type: String},
       pageId: {type: String},
+      pageId2: {type: String},
     }
   }
 
@@ -68,6 +69,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
     this.canUseChat = false
     this.page = ''
     this.pageId = ''
+    this.pageId2 = ''
   }
 
   render() {
@@ -130,16 +132,18 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
         >
       </grampsjs-list-item>
       <grampsjs-list-item
-        href="${BASE_DIR}/dna/matches"
+        href="${BASE_DIR}/dna-matches"
         graphic="icon"
-        ?selected="${this.page === 'dna'}"
+        ?selected="${['dna-matches', 'dna-chromosome'].includes(this.page)}"
       >
         <span>${this._('DNA')}</span>
         <mwc-icon slot="graphic"
           ><span class="raise"
             >${renderIcon(
               mdiDna,
-              this.page === 'dna' ? selectedColor : defaultColor
+              ['dna-matches', 'dna-chromosome'].includes(this.page)
+                ? selectedColor
+                : defaultColor
             )}</span
           ></mwc-icon
         >

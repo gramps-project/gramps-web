@@ -4,12 +4,14 @@ import '@material/web/tabs/tabs'
 import '@material/web/tabs/primary-tab'
 import '@material/web/select/filled-select'
 
+import {mdiArrowLeft} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsTasks.js'
 import '../components/GrampsjsDnaMatches.js'
 import '../components/GrampsjsFormNewMatch.js'
 import {apiGet, apiPut, apiPost} from '../api.js'
 import {fireEvent, personDisplayName} from '../util.js'
+import {renderIconSvg} from '../icons.js'
 
 export class GrampsjsViewDnaMatches extends GrampsjsView {
   static get styles() {
@@ -45,31 +47,33 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
 
   static get properties() {
     return {
+      canEdit: {type: Boolean},
       chromosome: {type: Boolean},
+      dialogContent: {type: String},
+      grampsId: {type: String},
+      grampsIdMatch: {type: String},
+      homePersonGrampsId: {type: String},
       matches: {type: Boolean},
       _data: {type: Array},
-      canEdit: {type: Boolean},
-      selectedHandle: {type: String},
-      homePersonHandle: {type: String},
       _matchData: {type: Array},
-      _selectDataLoading: {type: Boolean},
       _matchDataLoading: {type: Boolean},
-      dialogContent: {type: String},
+      _selectDataLoading: {type: Boolean},
     }
   }
 
   constructor() {
     super()
-    this.chromosome = false
-    this.matches = false
     this.canEdit = false
-    this._data = []
-    this.selectedHandle = ''
-    this.homePersonHandle = ''
-    this._matchData = []
-    this._selectDataLoading = false
-    this._matchDataLoading = false
+    this.chromosome = false
     this.dialogContent = ''
+    this.grampsId = ''
+    this.grampsIdMatch = ''
+    this.homePersonGrampsId = ''
+    this.matches = false
+    this._data = []
+    this._matchData = []
+    this._matchDataLoading = false
+    this._selectDataLoading = false
   }
 
   render() {
@@ -84,10 +88,22 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
   _renderTabs() {
     return html`
       <md-tabs>
-        <md-primary-tab @click="${() => this._goTo('dna/matches')}"
+        <md-primary-tab
+          @click="${() =>
+            this._goTo(
+              this.grampsId ? `dna-matches/${this.grampsId}` : 'dna-matches'
+            )}"
+          ?active="${this.matches}"
           >${this._('Matches')}</md-primary-tab
         >
-        <md-primary-tab @click="${() => this._goTo('dna/chromosome')}"
+        <md-primary-tab
+          @click="${() =>
+            this._goTo(
+              this.grampsId
+                ? `dna-chromosome/${this.grampsId}`
+                : 'dna-chromosome'
+            )}"
+          ?active="${this.chromosome}"
           >${this._('Chromosome Browser')}</md-primary-tab
         >
       </md-tabs>
@@ -96,6 +112,10 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
 
   _goTo(path) {
     fireEvent(this, 'nav', {path})
+  }
+
+  get page() {
+    return this.matches ? 'dna-matches' : 'dna-chromosome'
   }
 
   _renderSelect() {
@@ -109,8 +129,8 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
         ${this._data.map(
           person => html`
             <md-select-option
-              value="${person.handle}"
-              ?selected="${person.handle === this.selectedHandle}"
+              value="${person.gramps_id}"
+              ?selected="${person.gramps_id === this.grampsId}"
               >${personDisplayName(person)}</md-select-option
             >
           `
@@ -120,18 +140,47 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
   }
 
   _renderMatches() {
+    return this.grampsIdMatch
+      ? this._renderSingleMatch()
+      : this._renderAllMatches()
+  }
+
+  _renderSingleMatch() {
+    return html`
+      <div class="container">
+        <md-icon-button @click="${this.handleBackToAllMatches}">
+          <md-icon>${renderIconSvg(mdiArrowLeft, '#666')}</md-icon>
+        </md-icon-button>
+      </div>
+    `
+  }
+
+  handleBackToAllMatches() {
+    this._goTo(`${this.page}/${this.grampsId}`)
+  }
+
+  _renderAllMatches() {
     return html`
       <div class="container">
         <grampsjs-dna-matches
           .data="${this._matchData}"
           .strings="${this.strings}"
           .person="${this._data.find(
-            person => person.handle === this.selectedHandle
+            person => person.gramps_id === this.grampsId
           )}"
           ?loading="${this._matchDataLoading}"
+          @dna-matches:row-selected="${this._handleRowSelected}"
         ></grampsjs-dna-matches>
       </div>
     `
+  }
+
+  _handleRowSelected(e) {
+    const {rowNumber} = e.detail
+    const handleMatch = this._matchData[rowNumber].handle
+    const match = this._data.find(person => person.handle === handleMatch)
+    const grampsIdMatch = match?.gramps_id
+    this._goTo(`${this.page}/${this.grampsId}/${grampsIdMatch}`)
   }
 
   _renderChromosome() {
@@ -141,7 +190,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
           .data="${this._matchData}"
           .strings="${this.strings}"
           .person="${this._data.find(
-            person => person.handle === this.selectedHandle
+            person => person.gramps_id === this.grampsId
           )}"
           ?loading="${this._matchDataLoading}"
         ></grampsjs-chromosome-browser>
@@ -150,7 +199,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
   }
 
   get selectedPerson() {
-    return this._data.find(person => person.handle === this.selectedHandle)
+    return this._data.find(person => person.gramps_id === this.grampsId)
   }
 
   renderFab() {
@@ -173,11 +222,8 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
   async _handleSaveMatch(e) {
     const sourceHandle = e.detail.data.source_handle
     const targetHandle = e.detail.data.target_handle
-    const personFull = this._data.find(person => person.handle === sourceHandle)
-    if (personFull === undefined) {
-      return
-    }
-    const {extended, profile, ...person} = personFull
+    const personData = await apiGet(`/api/people/${sourceHandle}`)
+    const {extended, profile, ...person} = personData.data
     const noteHandle = await this._createNote(e.detail.data.raw_data)
     const newPersonRef = {
       _class: 'PersonRef',
@@ -223,8 +269,8 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
   }
 
   _handleSelectChange() {
-    this.selectedHandle =
-      this.shadowRoot.querySelector('md-filled-select').value
+    const grampsId = this.renderRoot.querySelector('md-filled-select').value
+    this._goTo(`${this.page}/${grampsId}`)
   }
 
   async _fetchData() {
@@ -249,7 +295,8 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
     if ('data' in data) {
       this.error = false
       this._data = data.data
-      this._setSelectedHandle()
+      await this._fetchMatchDataIfNeeded()
+      this._setGrampsIdIfNeeded()
     }
     if ('error' in data) {
       this.error = true
@@ -257,9 +304,34 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
     }
   }
 
+  get selectedHandle() {
+    return this._data.find(person => person.gramps_id === this.grampsId)?.handle
+  }
+
+  async _fetchMatchDataIfNeeded() {
+    const grampsIdHasMatches = this._data.some(
+      person => person.gramps_id === this.grampsId
+    )
+    const grampsIdHasMatchData = this._matchData.some(
+      match => match.handle && match.handle === this.selectedHandle
+    )
+    if (
+      grampsIdHasMatches &&
+      !grampsIdHasMatchData &&
+      !this._matchDataLoading
+    ) {
+      await this._fetchMatchData()
+    }
+  }
+
   async _fetchMatchData() {
     this.loading = true
     this._matchDataLoading = true
+    if (!this.selectedHandle) {
+      this.loading = false
+      this._matchDataLoading = false
+      return
+    }
     const uri = `/api/people/${this.selectedHandle}/dna/matches?locale=${
       this.strings.__lang__ || 'en'
     }`
@@ -277,31 +349,40 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
   }
 
   updated(changed) {
-    if (changed.has('homePersonHandle') && this.homePersonHandle) {
-      this._setSelectedHandle()
+    if (changed.has('homePersonGrampsId') && this.homePersonGrampsId) {
+      this._setGrampsIdIfNeeded()
     }
-    if (changed.has('selectedHandle') && this.selectedHandle) {
-      this._fetchMatchData()
+    if (changed.has('grampsId')) {
+      if (this.grampsId) {
+        this._fetchMatchData()
+        this._selectPersonByGrampsId()
+      } else {
+        this._setGrampsIdIfNeeded()
+      }
     }
   }
 
-  _setSelectedHandle() {
-    if (
-      this.selectedHandle &&
-      this._data.some(person => person.handle === this.selectedHandle)
-    ) {
+  _selectPersonByGrampsId() {
+    const select = this.shadowRoot.querySelector('md-filled-select')
+    if (select) {
+      select.select(this.grampsId)
+    }
+  }
+
+  _setGrampsIdIfNeeded() {
+    if (this.grampsId) {
       return
     }
     if (
-      !this.selectedHandle &&
-      this.homePersonHandle &&
-      this._data.some(person => person.handle === this.homePersonHandle)
+      !this.grampsId &&
+      this.homePersonGrampsId &&
+      this._data.some(person => person.gramps_id === this.homePersonGrampsId)
     ) {
-      this.selectedHandle = this.homePersonHandle
+      this._goTo(`${this.page}/${this.homePersonGrampsId}`)
       return
     }
     if (this._data.length) {
-      this.selectedHandle = this._data[0].handle
+      this._goTo(`${this.page}/${this._data[0].gramps_id}`)
     }
   }
 

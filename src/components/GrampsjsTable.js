@@ -3,6 +3,7 @@ import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
+import {clickKeyHandler, fireEvent} from '../util.js'
 
 export class GrampsjsTable extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
@@ -49,6 +50,11 @@ export class GrampsjsTable extends GrampsjsTranslateMixin(LitElement) {
           font-weight: 400;
         }
 
+        table.linked tbody tr:hover {
+          background-color: #f0f0f0;
+          cursor: pointer;
+        }
+
         /* Wide table */
 
         table.wide thead {
@@ -91,6 +97,7 @@ export class GrampsjsTable extends GrampsjsTranslateMixin(LitElement) {
       narrow: {type: Boolean},
       breakPoint: {type: Number},
       loading: {type: Boolean},
+      linked: {type: Boolean},
       _containerWidth: {type: Number},
     }
   }
@@ -102,6 +109,7 @@ export class GrampsjsTable extends GrampsjsTranslateMixin(LitElement) {
     this.loading = false
     this.narrow = false
     this.breakPoint = 600
+    this.linked = false
     this._containerWidth = -1
   }
 
@@ -114,6 +122,7 @@ export class GrampsjsTable extends GrampsjsTranslateMixin(LitElement) {
         <table
           class="${classMap({
             wide: this._containerWidth > this.breakPoint && !this.narrow,
+            linked: this.linked,
           })}"
         >
           <thead>
@@ -123,8 +132,11 @@ export class GrampsjsTable extends GrampsjsTranslateMixin(LitElement) {
           </thead>
           <tbody>
             ${this.data.map(
-              row => html`
-                <tr>
+              (row, rowNumber) => html`
+                <tr
+                  @click="${() => this._handleRowClick(rowNumber)}"
+                  @keydown="${clickKeyHandler}"
+                >
                   ${row.map(
                     (cell, index) => html`
                       <td data-label="${this.columns[index]}">
@@ -145,6 +157,10 @@ export class GrampsjsTable extends GrampsjsTranslateMixin(LitElement) {
         </table>
       </div>
     `
+  }
+
+  _handleRowClick(rowNumber) {
+    fireEvent(this, 'table:row-click', {rowNumber})
   }
 
   firstUpdated() {
