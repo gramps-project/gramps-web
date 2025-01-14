@@ -6,7 +6,7 @@ import '@material/mwc-list/mwc-list-item'
 import './GrampsjsTable.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
-import {personDisplayName} from '../util.js'
+import {fireEvent, personDisplayName} from '../util.js'
 
 class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
   static get styles() {
@@ -86,6 +86,7 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
     }
     return html`
       <grampsjs-table
+        linked
         .columns="${[
           'Name',
           'Relationship',
@@ -95,8 +96,15 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
         ]}"
         .data="${this._computeTableData(this.data)}"
         .strings="${this.strings}"
+        @table:row-click="${this._handleRowClick}"
       ></grampsjs-table>
     `
+  }
+
+  _handleRowClick(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    fireEvent(this, 'dna-matches:row-selected', e.detail)
   }
 
   renderLoading() {

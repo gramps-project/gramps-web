@@ -82,6 +82,7 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
       dbInfo: {type: Object},
       page: {type: String},
       pageId: {type: String},
+      pageId2: {type: String},
     }
   }
 
@@ -97,6 +98,7 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
     this.dbInfo = {}
     this.page = ''
     this.pageId = ''
+    this.pageId2 = ''
   }
 
   render() {
@@ -178,12 +180,14 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
 
       <grampsjs-view-dna-matches
         class="page"
-        ?active=${this.page === 'dna'}
+        ?active=${['dna-matches', 'dna-chromosome'].includes(this.page)}
         .strings="${this.strings}"
         ?canEdit="${this.canEdit}"
-        homePersonHandle="${this.homePersonDetails?.handle ?? ''}"
-        ?matches="${this.pageId !== 'chromosome'}"
-        ?chromosome="${this.pageId === 'chromosome'}"
+        homePersonGrampsId="${this.homePersonDetails?.gramps_id ?? ''}"
+        grampsId="${this.pageId}"
+        grampsIdMatch="${this.pageId2}"
+        ?matches="${this.page === 'dna-matches'}"
+        ?chromosome="${this.page === 'dna-chromosome'}"
       ></grampsjs-view-dna-matches>
 
       <grampsjs-view-map
