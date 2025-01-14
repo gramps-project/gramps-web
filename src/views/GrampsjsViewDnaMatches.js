@@ -175,11 +175,22 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
     `
   }
 
+  get _allPeople() {
+    return this._data.reduce((people, person) => {
+      people.push(person)
+      if (person.extended?.people?.length) {
+        people.push(...person.extended.people)
+      }
+      return people
+    }, [])
+  }
+
   _handleRowSelected(e) {
     const {rowNumber} = e.detail
     const handleMatch = this._matchData[rowNumber].handle
-    const match = this._data.find(person => person.handle === handleMatch)
+    const match = this._allPeople.find(person => person.handle === handleMatch)
     const grampsIdMatch = match?.gramps_id
+    console.log('grampsIdMatch', grampsIdMatch)
     this._goTo(`${this.page}/${this.grampsId}/${grampsIdMatch}`)
   }
 
