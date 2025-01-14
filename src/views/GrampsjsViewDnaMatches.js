@@ -190,7 +190,6 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
     const handleMatch = this._matchData[rowNumber].handle
     const match = this._allPeople.find(person => person.handle === handleMatch)
     const grampsIdMatch = match?.gramps_id
-    console.log('grampsIdMatch', grampsIdMatch)
     this._goTo(`${this.page}/${this.grampsId}/${grampsIdMatch}`)
   }
 
