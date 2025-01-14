@@ -187,5 +187,9 @@
     "Nobody": "Niemand",
     "User group": "Benutzergruppe",
     "User Information": "Benutzerinfos",
-    "Tree Information": "Bauminfos"
+    "Tree Information": "Bauminfos",
+    "Regenerate semantic search index": "Neuerstellen von Index für die semantische Suche",
+    "Settings": "Einstellungen",
+    "Pending": "Ausstehend",
+    "Started": "Gestartet"
 }
