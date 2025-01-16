@@ -8,7 +8,9 @@ import {mdiArrowLeft} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsTasks.js'
 import '../components/GrampsjsDnaMatches.js'
+import '../components/GrampsjsDnaMatch.js'
 import '../components/GrampsjsFormNewMatch.js'
+import '../components/GrampsjsChromosomeBrowser.js'
 import {apiGet, apiPut, apiPost} from '../api.js'
 import {fireEvent, personDisplayName} from '../util.js'
 import {renderIconSvg} from '../icons.js'
@@ -152,6 +154,16 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
           <md-icon>${renderIconSvg(mdiArrowLeft, '#666')}</md-icon>
         </md-icon-button>
       </div>
+
+      <grampsjs-dna-match
+        .data="${this._matchData.find(
+          match => match.handle === this._getSelectedMatchHandle()
+        ) ?? {}}"
+        .person="${this._data.find(
+          person => person.gramps_id === this.grampsId
+        ) ?? {}}"
+        .strings="${this.strings}"
+      ></grampsjs-dna-match>
     `
   }
 
@@ -191,6 +203,13 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
     const match = this._allPeople.find(person => person.handle === handleMatch)
     const grampsIdMatch = match?.gramps_id
     this._goTo(`${this.page}/${this.grampsId}/${grampsIdMatch}`)
+  }
+
+  _getSelectedMatchHandle() {
+    const personMatch = this._allPeople.find(
+      person => person.gramps_id === this.grampsIdMatch
+    )
+    return personMatch?.handle
   }
 
   _renderChromosome() {

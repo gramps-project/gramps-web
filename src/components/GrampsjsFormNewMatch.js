@@ -1,6 +1,6 @@
 import {css, html} from 'lit'
 
-import './GrampsjsDnaMatch.js'
+import './GrampsjsConnectedDnaMatchTable.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import {fireEvent} from '../util.js'
 
@@ -97,12 +97,12 @@ export class GrampsjsFormNewMatch extends GrampsjsObjectForm {
       <h4 class="label">${this._('Preview')}</h4>
       ${this.data.raw_data
         ? html`
-            <grampsjs-dna-match
+            <grampsjs-connected-dna-match-table
               .postData="${{string: this.data.raw_data}}"
               .strings="${this.strings}"
               @connected-component:updated="${e =>
                 this._handleMatchTableUpdated(e)}"
-            ></grampsjs-dna-match>
+            ></grampsjs-connected-dna-match-table>
           `
         : html`<p>
             ${this._(
