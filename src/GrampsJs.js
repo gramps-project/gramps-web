@@ -71,6 +71,7 @@ export class GrampsJs extends LitElement {
       _dbInfo: {type: Object},
       _page: {type: String},
       _pageId: {type: String},
+      _pageId2: {type: String},
       _showShortcuts: {type: Boolean},
       _shortcutPressed: {type: String},
       _firstRunToken: {type: String},
@@ -95,6 +96,8 @@ export class GrampsJs extends LitElement {
     this._dbInfo = {}
     this._page = 'home'
     this._pageId = ''
+    this._pageId2 = ''
+
     this._showShortcuts = false
     this._shortcutPressed = ''
     this._firstRunToken = ''
@@ -523,6 +526,9 @@ export class GrampsJs extends LitElement {
         <div>
           <grampsjs-main-menu
             .strings="${this._strings}"
+            .page="${this._page}"
+            .pageId="${this._pageId}"
+            .pageId2="${this._pageId2}"
             ?canViewPrivate="${this.canViewPrivate}"
             ?canUseChat="${this.canUseChat}"
           ></grampsjs-main-menu>
@@ -544,6 +550,7 @@ export class GrampsJs extends LitElement {
               .settings="${this.settings}"
               .page="${this._page}"
               .pageId="${this._pageId}"
+              .pageId2="${this._pageId2}"
               .canAdd="${this.canAdd}"
               .canEdit="${this.canEdit}"
               .canViewPrivate="${this.canViewPrivate}"
@@ -773,14 +780,18 @@ export class GrampsJs extends LitElement {
       const pathId = path.slice(1)
       const page = pathId.split('/')[0]
       const pageId = pathId.split('/')[1]
+      const pageId2 = pathId.split('/')[2]
       this._page = page
       this._pageId = pageId || ''
+      this._pageId2 = pageId2 || ''
     } else if (path.split('/')[0] === BASE_DIR.split('/')[0]) {
       const pathId = path.slice(1)
       const page = pathId.split('/')[1]
       const pageId = pathId.split('/')[2]
+      const pageId2 = pathId.split('/')[3]
       this._page = page
       this._pageId = pageId || ''
+      this._pageId2 = pageId2 || ''
     }
 
     if (!this.wide) {
@@ -809,7 +820,12 @@ export class GrampsJs extends LitElement {
     const {path} = e.detail
     const page = path.split('/')[0]
     const pageId = path.split('/')[1]
-    if (page !== this._page || pageId !== this._pageId) {
+    const pageId2 = path.split('/')[2]
+    if (
+      page !== this._page ||
+      pageId !== this._pageId ||
+      pageId2 !== this._pageId2
+    ) {
       const href = `${BASE_DIR}/${path}`
       this._loadPage(href)
       window.history.pushState({}, '', href)

@@ -54,10 +54,6 @@ export class GrampsjsViewTree extends GrampsjsView {
         #tabs {
           height: 85px;
         }
-
-        md-tabs {
-          --md-divider-thickness: 0px;
-        }
       `,
     ]
   }

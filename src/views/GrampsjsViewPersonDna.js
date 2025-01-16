@@ -67,7 +67,7 @@ export class GrampsjsViewPersonDna extends GrampsjsView {
   }
 
   get _url() {
-    return `/api/people/${this.handle}/dna/matches?locale=${
+    return `/api/people/${this.handle}/dna-matches?locale=${
       this.strings.__lang__ || 'en'
     }`
   }

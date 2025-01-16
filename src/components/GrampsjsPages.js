@@ -39,6 +39,7 @@ import '../views/GrampsjsViewRecent.js'
 import '../views/GrampsjsViewRevisions.js'
 import '../views/GrampsjsViewRevision.js'
 import '../views/GrampsjsViewBookmarks.js'
+import '../views/GrampsjsViewDnaMatches.js'
 import '../views/GrampsjsViewMap.js'
 import '../views/GrampsjsViewTree.js'
 import '../views/GrampsjsViewNewPerson.js'
@@ -81,6 +82,7 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
       dbInfo: {type: Object},
       page: {type: String},
       pageId: {type: String},
+      pageId2: {type: String},
     }
   }
 
@@ -96,6 +98,7 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
     this.dbInfo = {}
     this.page = ''
     this.pageId = ''
+    this.pageId2 = ''
   }
 
   render() {
@@ -174,6 +177,18 @@ class GrampsjsPages extends GrampsjsTranslateMixin(LitElement) {
         .strings="${this.strings}"
         ?canAdd=${this.canAdd && this.canEdit}
       ></grampsjs-view-media-objects>
+
+      <grampsjs-view-dna-matches
+        class="page"
+        ?active=${['dna-matches', 'dna-chromosome'].includes(this.page)}
+        .strings="${this.strings}"
+        ?canEdit="${this.canEdit}"
+        homePersonGrampsId="${this.homePersonDetails?.gramps_id ?? ''}"
+        grampsId="${this.pageId}"
+        grampsIdMatch="${this.pageId2}"
+        ?matches="${this.page === 'dna-matches'}"
+        ?chromosome="${this.page === 'dna-chromosome'}"
+      ></grampsjs-view-dna-matches>
 
       <grampsjs-view-map
         class="page"
