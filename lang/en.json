@@ -201,5 +201,7 @@
   "Paste the raw data in the field above to see the preview.": "Paste the raw data in the field above to see the preview.",
   "SNPs": "SNPs",
   "Side": "Side",
-  "Chromosome": "Chromosome"
+  "Chromosome": "Chromosome",
+  "Start Position": "Start Position",
+  "End Position": "End Position"
 }
