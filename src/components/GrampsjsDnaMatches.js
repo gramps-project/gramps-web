@@ -63,9 +63,7 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
 
   _computeTableData(data) {
     return data.map(match => [
-      html`<a href="/person/${this._getGidFromHandle(match.handle)}"
-        >${this._getNameFromHandle(match.handle)}</a
-      >`,
+      this._getNameFromHandle(match.handle),
       match.relation || this._('Unknown'),
       `${match.segments
         .reduce((accumulator, currentValue) => accumulator + currentValue.cM, 0)

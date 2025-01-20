@@ -4,16 +4,15 @@ import '@material/web/tabs/tabs'
 import '@material/web/tabs/primary-tab'
 import '@material/web/select/filled-select'
 
-import {mdiArrowLeft} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsTasks.js'
 import '../components/GrampsjsDnaMatches.js'
 import '../components/GrampsjsDnaMatch.js'
 import '../components/GrampsjsFormNewMatch.js'
 import '../components/GrampsjsChromosomeBrowser.js'
+import '../components/GrampsjsBreadcrumbs.js'
 import {apiGet, apiPut, apiPost} from '../api.js'
 import {fireEvent, personDisplayName} from '../util.js'
-import {renderIconSvg} from '../icons.js'
 
 export class GrampsjsViewDnaMatches extends GrampsjsView {
   static get styles() {
@@ -38,10 +37,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
 
         md-filled-select {
           --md-filled-select-text-field-input-text-font-size: 24px;
-        }
-
-        .container {
-          margin-top: 40px;
+          margin-bottom: 30px;
         }
       `,
     ]
@@ -149,15 +145,12 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
 
   _renderSingleMatch() {
     return html`
-      <div class="container">
-        <md-icon-button @click="${this.handleBackToAllMatches}">
-          <md-icon>${renderIconSvg(mdiArrowLeft, '#666')}</md-icon>
-        </md-icon-button>
-      </div>
-
       <grampsjs-dna-match
         .data="${this._matchData.find(
           match => match.handle === this._getSelectedMatchHandle()
+        ) ?? {}}"
+        .personMatch="${this._allPeople.find(
+          person => person.gramps_id === this.grampsIdMatch
         ) ?? {}}"
         .person="${this._data.find(
           person => person.gramps_id === this.grampsId
@@ -165,10 +158,6 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
         .strings="${this.strings}"
       ></grampsjs-dna-match>
     `
-  }
-
-  handleBackToAllMatches() {
-    this._goTo(`${this.page}/${this.grampsId}`)
   }
 
   _renderAllMatches() {
@@ -232,7 +221,9 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
   }
 
   renderFab() {
-    return html`<mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab>`
+    return this.grampsIdMatch
+      ? html`<mwc-fab icon="edit" @click=${this._handleClickEdit}></mwc-fab>`
+      : html`<mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab>`
   }
 
   _handleClickAdd() {
@@ -246,6 +237,13 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
       >
       </grampsjs-form-new-match>
     `
+  }
+
+  _handleClickEdit() {
+    fireEvent(this, 'edit-mode:on', {
+      title: 'Edit Match',
+      saveButton: true,
+    })
   }
 
   async _handleSaveMatch(e) {
@@ -427,9 +425,43 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
     this._fetchMatchData()
   }
 
+  async _deleteMatch() {
+    const handle = this.selectedHandle
+    const {grampsId} = this
+    const {grampsIdMatch} = this
+    const handleMatch = this._getSelectedMatchHandle()
+    if (this.active && handle && handleMatch) {
+      const url = `/api/people/${handle}`
+      const personData = await apiGet(url)
+      const person = personData.data
+      if (!person.handle) {
+        return
+      }
+      const payload = {
+        ...person,
+        person_ref_list: person.person_ref_list.filter(
+          ref => ref.ref !== handleMatch
+        ),
+      }
+      const data = await apiPut(url, payload, true, false)
+      if ('data' in data) {
+        fireEvent(this, 'db:changed')
+        this._goTo(`dna-matches/${grampsId}`)
+        fireEvent(this, 'transaction:undo', {
+          message: this._('DNA match with %s deleted.', grampsIdMatch),
+          transaction: data.data,
+          redirect: `dna-matches/${grampsId}`,
+        })
+      } else if ('error' in data) {
+        fireEvent(this, 'grampsjs:error', {message: data.error})
+      }
+    }
+  }
+
   connectedCallback() {
     super.connectedCallback()
     window.addEventListener('db:changed', () => this._fetchAllData())
+    window.addEventListener('edit-mode:delete', () => this._deleteMatch())
   }
 }
 
