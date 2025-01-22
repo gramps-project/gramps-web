@@ -1,10 +1,12 @@
-import {css, html} from 'lit'
+import {html, css} from 'lit'
 
 import './GrampsjsConnectedDnaMatchTable.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
-import {fireEvent} from '../util.js'
+import {GrampsjsEditMatchMixin} from '../mixins/GrampsjsEditMatchMixin.js'
 
-export class GrampsjsFormNewMatch extends GrampsjsObjectForm {
+export class GrampsjsFormNewMatch extends GrampsjsEditMatchMixin(
+  GrampsjsObjectForm
+) {
   static get styles() {
     return [
       super.styles,
@@ -28,22 +30,29 @@ export class GrampsjsFormNewMatch extends GrampsjsObjectForm {
     ]
   }
 
+  _handleFormData(e) {
+    super._handleFormData(e)
+    this.checkFormValidity()
+  }
+
+  get isValid() {
+    return this.isFormValid
+  }
+
   static get properties() {
     return {
       sourcePersonInitial: {type: Object},
-      _parsedDataOk: {type: Boolean},
     }
   }
 
   constructor() {
     super()
-    this.data = {}
     this.sourcePersonInitial = {}
-    this._parsedDataOk = false
   }
 
   renderForm() {
-    return html` <div class="container">
+    return html`
+      <div class="container">
         <div class="box">
           <h4 class="label">${this._('First person')}</h4>
           <p>
@@ -83,67 +92,8 @@ export class GrampsjsFormNewMatch extends GrampsjsObjectForm {
         </div>
       </div>
 
-      <h4 class="label">${this._('Raw match data')}</h4>
-      <p>
-        <md-outlined-text-field
-          type="textarea"
-          rows="5"
-          id="match-data"
-          @input="${this._handleRawData}"
-        >
-        </md-outlined-text-field>
-      </p>
-
-      <h4 class="label">${this._('Preview')}</h4>
-      ${this.data.raw_data
-        ? html`
-            <grampsjs-connected-dna-match-table
-              .postData="${{string: this.data.raw_data}}"
-              .strings="${this.strings}"
-              @connected-component:updated="${e =>
-                this._handleMatchTableUpdated(e)}"
-            ></grampsjs-connected-dna-match-table>
-          `
-        : html`<p>
-            ${this._(
-              'Paste the raw data in the field above to see the preview.'
-            )}
-          </p>`}`
-  }
-
-  _handleMatchTableUpdated(event) {
-    const data = event.detail?.data?.data
-    if (data && data.length) {
-      this._parsedDataOk = true
-    } else {
-      this._parsedDataOk = false
-    }
-    this.checkFormValidity()
-  }
-
-  checkFormValidity() {
-    this.isFormValid =
-      this.data.source_handle &&
-      this.data.target_handle &&
-      this.data.source_handle !== this.data.target_handle &&
-      this.data.raw_data &&
-      this._parsedDataOk
-  }
-
-  get isValid() {
-    return this.isFormValid
-  }
-
-  _handleRawData() {
-    const el = this.shadowRoot.querySelector('md-outlined-text-field')
-    if (el !== null) {
-      fireEvent(el, 'formdata:changed', {data: el.value.trim()})
-    }
-  }
-
-  _handleFormData(e) {
-    super._handleFormData(e)
-    this.checkFormValidity()
+      ${this.renderEditor()} ${this.renderPreview()}
+    `
   }
 }
 

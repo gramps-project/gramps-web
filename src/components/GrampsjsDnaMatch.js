@@ -4,6 +4,7 @@ import {mdiArrowLeft} from '@mdi/js'
 import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsDnaMatchTable.js'
+import './GrampsjsFormEditMatch.js'
 import {personDisplayName, fireEvent} from '../util.js'
 import {renderIconSvg} from '../icons.js'
 
@@ -24,6 +25,7 @@ export class GrampsjsDnaMatch extends GrampsjsTranslateMixin(LitElement) {
       data: {type: Object},
       person: {type: Object},
       personMatch: {type: Object},
+      edit: {type: Boolean},
     }
   }
 
@@ -32,6 +34,7 @@ export class GrampsjsDnaMatch extends GrampsjsTranslateMixin(LitElement) {
     this.data = {}
     this.person = {}
     this.personMatch = {}
+    this.edit = false
   }
 
   render() {
@@ -49,10 +52,22 @@ export class GrampsjsDnaMatch extends GrampsjsTranslateMixin(LitElement) {
           >${personDisplayName(this.personMatch)}</a
         >
       </h4>
-      <grampsjs-dna-match-table
-        .strings="${this.strings}"
-        .segments="${this.data.segments}"
-      ></grampsjs-dna-match-table>
+
+      ${this.edit
+        ? html`
+            <grampsjs-form-edit-match
+              .strings="${this.strings}"
+              @object:save="${this._handleSaveMatch}"
+              .data="${this.data}"
+            ></grampsjs-form-edit-match>
+          `
+        : html`
+            <grampsjs-dna-match-table
+              .strings="${this.strings}"
+              .segments="${this.data.segments}"
+            ></grampsjs-dna-match-table>
+          `}
+
       <div class="container">
         <md-icon-button @click="${this.handleBackToAllMatches}">
           <md-icon>${renderIconSvg(mdiArrowLeft, '#666')}</md-icon>

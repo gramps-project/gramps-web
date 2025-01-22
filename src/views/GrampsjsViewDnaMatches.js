@@ -52,6 +52,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
       grampsIdMatch: {type: String},
       homePersonGrampsId: {type: String},
       matches: {type: Boolean},
+      edit: {type: Boolean},
       _data: {type: Array},
       _matchData: {type: Array},
       _matchDataLoading: {type: Boolean},
@@ -68,6 +69,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
     this.grampsIdMatch = ''
     this.homePersonGrampsId = ''
     this.matches = false
+    this.edit = false
     this._data = []
     this._matchData = []
     this._matchDataLoading = false
@@ -146,6 +148,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
   _renderSingleMatch() {
     return html`
       <grampsjs-dna-match
+        .edit="${this.edit}"
         .data="${this._matchData.find(
           match => match.handle === this._getSelectedMatchHandle()
         ) ?? {}}"
@@ -244,6 +247,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
       title: 'Edit Match',
       saveButton: true,
     })
+    this.edit = true
   }
 
   async _handleSaveMatch(e) {
@@ -251,7 +255,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
     const targetHandle = e.detail.data.target_handle
     const personData = await apiGet(`/api/people/${sourceHandle}`)
     const {extended, profile, ...person} = personData.data
-    const noteHandle = await this._createNote(e.detail.data.raw_data)
+    const noteHandle = await this._createNote(e.detail.data.raw_data[0])
     const newPersonRef = {
       _class: 'PersonRef',
       ref: targetHandle,
@@ -361,7 +365,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
     }
     const uri = `/api/people/${this.selectedHandle}/dna/matches?locale=${
       this.strings.__lang__ || 'en'
-    }`
+    }&raw=1`
     const data = await apiGet(uri)
     this.loading = false
     this._matchDataLoading = false
@@ -458,10 +462,15 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
     }
   }
 
+  _disableEditMode() {
+    this.edit = false
+  }
+
   connectedCallback() {
     super.connectedCallback()
     window.addEventListener('db:changed', () => this._fetchAllData())
     window.addEventListener('edit-mode:delete', () => this._deleteMatch())
+    window.addEventListener('edit-mode:off', () => this._disableEditMode())
   }
 }
 

@@ -286,7 +286,7 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
       this.data = {...this.data, target_handle: e.detail.data[0]}
     }
     if (originalTarget.id === 'match-data') {
-      this.data = {...this.data, raw_data: e.detail.data}
+      this.data = {...this.data, raw_data: [e.detail.data]}
     }
     if (originalTarget.id === 'date') {
       this.data = {...this.data, date: e.detail.data}

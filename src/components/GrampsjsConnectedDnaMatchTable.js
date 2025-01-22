@@ -15,7 +15,7 @@ class GrampsjsConnectedDnaMatchTable extends GrampsjsConnectedComponent {
     return html`
       <grampsjs-dna-match-table
         .strings="${this.strings}"
-        .data="${this._data.data}"
+        .segments="${this._data.data}"
       ></grampsjs-dna-match-table>
     `
   }
