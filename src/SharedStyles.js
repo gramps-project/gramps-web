@@ -264,6 +264,10 @@ export const sharedStyles = css`
     --mdc-theme-on-primary: var(--mdc-theme-on-secondary);
   }
 
+  .delete {
+    color: #bf360c;
+  }
+
   mwc-icon-button.large {
     --mdc-icon-size: 32px;
   }
