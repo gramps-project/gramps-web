@@ -268,7 +268,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
         escapeKeyAction=""
         open
       >
-        <div>${this._('Do you really want to delete user \"%s\"?', username)}</div>
+        <div>${this._('Do you really want to delete user "%s"?', username)}</div>
         <div>${this._('This action cannot be undone.')}</div>
         <mwc-button
           slot="primaryAction"
