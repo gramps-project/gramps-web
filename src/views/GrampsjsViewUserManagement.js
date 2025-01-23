@@ -111,7 +111,6 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
   }
 
   _handleUserDeleted(e) {
-    const data = e.defail
     this._deleteUser(e.detail)
   }
 

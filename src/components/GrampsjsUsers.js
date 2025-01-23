@@ -41,7 +41,6 @@ export class GrampsjsUsers extends GrampsjsTableBase {
           <th>${this._('E-mail')}</th>
           <th>${this._('Role')}</th>
           <th></th>
-          <th></th>
         </tr>
         ${this.data.map(
           (obj, index) => html`
@@ -60,10 +59,8 @@ export class GrampsjsUsers extends GrampsjsTableBase {
                 <grampsjs-tooltip for="button-edit-${index}">
                   ${this._('Edit user')}
                 </grampsjs-tooltip>
-              </td>
-              <td>
                 <mwc-icon-button
-                  class="delete"
+                  class="error"
                   icon="delete_forever"
                   @click="${e => this._handleDeleteClick(e, obj.name)}"
                   id="button-del-${index}"
@@ -265,18 +262,18 @@ export class GrampsjsUsers extends GrampsjsTableBase {
   }
 
   _deleteUserDialog(username) {
-    const [user] = this.data.filter(el => el.name === username)
     return html`
       <mwc-dialog
         scrimClickAction=""
         escapeKeyAction=""
         open
       >
-        <div>${this._('Delete this user?')}</div>
+        <div>${this._('Do you really want to delete user \"%s\"?', username)}</div>
+        <div>${this._('This action cannot be undone.')}</div>
         <mwc-button
           slot="primaryAction"
           dialogAction="delete"
-          @click="${e => this._handleDelete(username)}">
+          @click="${() => this._handleDelete(username)}">
           ${this._('_Delete')}
         </mwc-button>
         <mwc-button
