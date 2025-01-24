@@ -124,7 +124,6 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     this._openDialog()
   }
 
-
   _handleDeleteClick(e, username) {
     this.dialogContent = this._deleteUserDialog(username)
     this._openDialog()
@@ -263,22 +262,19 @@ export class GrampsjsUsers extends GrampsjsTableBase {
 
   _deleteUserDialog(username) {
     return html`
-      <mwc-dialog
-        scrimClickAction=""
-        escapeKeyAction=""
-        open
-      >
-        <div>${this._('Do you really want to delete user "%s"?', username)}</div>
+      <mwc-dialog scrimClickAction="" escapeKeyAction="" open>
+        <div>
+          ${this._('Do you really want to delete user "%s"?', username)}
+        </div>
         <div>${this._('This action cannot be undone.')}</div>
         <mwc-button
           slot="primaryAction"
           dialogAction="delete"
-          @click="${() => this._handleDelete(username)}">
+          @click="${() => this._handleDelete(username)}"
+        >
           ${this._('_Delete')}
         </mwc-button>
-        <mwc-button
-          slot="secondaryAction"
-          dialogAction="cancel">
+        <mwc-button slot="secondaryAction" dialogAction="cancel">
           ${this._('Cancel')}
         </mwc-button>
       </mwc-dialog>
@@ -312,7 +308,6 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     `
   }
 
-
   _handleSave() {
     const form = this.shadowRoot.querySelector('grampsjs-form-user')
     if (form !== null) {
@@ -326,8 +321,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
 
   _handleDelete(username) {
     fireEvent(this, 'user:deleted', username)
-
-}
+  }
 
   updated(changed) {
     if (changed.has('_downloadUrl') && this._downloadUrl) {
