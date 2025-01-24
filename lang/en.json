@@ -191,5 +191,7 @@
   "Regenerate semantic search index": "Regenerate semantic search index",
   "Settings": "Settings",
   "Pending": "Pending",
-  "Started": "Started"
+  "Started": "Started",
+  "Delete user": "Delete user",
+  "Do you really want to delete user \"%s\"?": "Do you really want to delete user \"%s\"?"
 }

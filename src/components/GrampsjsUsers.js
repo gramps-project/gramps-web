@@ -59,6 +59,15 @@ export class GrampsjsUsers extends GrampsjsTableBase {
                 <grampsjs-tooltip for="button-edit-${index}">
                   ${this._('Edit user')}
                 </grampsjs-tooltip>
+                <mwc-icon-button
+                  class="error"
+                  icon="delete_forever"
+                  @click="${e => this._handleDeleteClick(e, obj.name)}"
+                  id="button-del-${index}"
+                ></mwc-icon-button>
+                <grampsjs-tooltip for="button-del-${index}">
+                  ${this._('Delete user')}
+                </grampsjs-tooltip>
               </td>
             </tr>
           `
@@ -112,6 +121,11 @@ export class GrampsjsUsers extends GrampsjsTableBase {
 
   _handleEditClick(e, username) {
     this.dialogContent = this._editUserDialog(username)
+    this._openDialog()
+  }
+
+  _handleDeleteClick(e, username) {
+    this.dialogContent = this._deleteUserDialog(username)
     this._openDialog()
   }
 
@@ -246,6 +260,27 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     `
   }
 
+  _deleteUserDialog(username) {
+    return html`
+      <mwc-dialog scrimClickAction="" escapeKeyAction="" open>
+        <div>
+          ${this._('Do you really want to delete user "%s"?', username)}
+        </div>
+        <div>${this._('This action cannot be undone.')}</div>
+        <mwc-button
+          slot="primaryAction"
+          dialogAction="delete"
+          @click="${() => this._handleDelete(username)}"
+        >
+          ${this._('_Delete')}
+        </mwc-button>
+        <mwc-button slot="secondaryAction" dialogAction="cancel">
+          ${this._('Cancel')}
+        </mwc-button>
+      </mwc-dialog>
+    `
+  }
+
   _addUserDialog() {
     return html`
       <mwc-dialog
@@ -282,6 +317,10 @@ export class GrampsjsUsers extends GrampsjsTableBase {
       fireEvent(this, existingUser ? 'user:updated' : 'user:added', form.data)
       this.dialogContent = ''
     }
+  }
+
+  _handleDelete(username) {
+    fireEvent(this, 'user:deleted', username)
   }
 
   updated(changed) {
