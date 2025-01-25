@@ -351,6 +351,15 @@ export const sharedStyles = css`
     color: rgb(125, 0, 0, 0.8);
   }
 
+  md-outlined-text-field.drag-hover {
+    --md-outlined-text-field-outline-color: var(--mdc-theme-secondary);
+    --md-outlined-text-field-hover-outline-color: var(--mdc-theme-secondary);
+    --md-outlined-text-field-hover-outline-width: var(--mdc-theme-secondary);
+    --md-outlined-text-field-outline-width: var(--mdc-theme-secondary);
+    --md-outlined-text-field-input-text-color: rgba(0, 0, 0, 0.5);
+    --md-outlined-text-field-hover-input-text-color: rgba(0, 0, 0, 0.4);
+  }
+
   @media (max-width: 768px) {
     :host {
       font-size: 16px;

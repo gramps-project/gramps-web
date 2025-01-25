@@ -205,5 +205,6 @@
   "Start Position": "Start Position",
   "End Position": "End Position",
   "DNA Match": "DNA Match",
-  "DNA match with %s deleted.": "DNA match with %s deleted."
+  "DNA match with %s deleted.": "DNA match with %s deleted.",
+  "Paste text or drop a file here": "Paste text or drop a file here"
 }
