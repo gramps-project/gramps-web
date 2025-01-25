@@ -191,5 +191,7 @@
     "Pending": "Pendente",
     "Settings": "Definições",
     "Regenerate semantic search index": "Regenerar índice de procura semântica",
-    "Started": "Iniciado"
+    "Started": "Iniciado",
+    "Delete user": "Eliminar utilizador",
+    "Do you really want to delete user \"%s\"?": "Deseja realmente eliminar o utilizador \"%s\"?"
 }
