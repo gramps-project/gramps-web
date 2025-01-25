@@ -93,6 +93,7 @@ export class GrampsjsTable extends GrampsjsTranslateMixin(LitElement) {
 
   static get properties() {
     return {
+      columns: {type: Array},
       data: {type: Array},
       narrow: {type: Boolean},
       breakPoint: {type: Number},
