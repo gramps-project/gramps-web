@@ -191,5 +191,7 @@
     "Settings": "Instellingen",
     "Pending": "Aanhangig",
     "Started": "Gestart",
-    "Regenerate semantic search index": "Semantische zoekindex opnieuw genereren"
+    "Regenerate semantic search index": "Semantische zoekindex opnieuw genereren",
+    "Delete user": "Gebruiker verwijderen",
+    "Do you really want to delete user \"%s\"?": "Wil je echt gebruiker \"%s\" verwijderen?"
 }
