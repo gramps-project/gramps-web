@@ -79,10 +79,17 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
   render() {
     return html`
       ${this._renderTabs()} ${this._renderSelect()}
+      ${!this._selectDataLoading && !this._data.length
+        ? this._renderNoData()
+        : ''}
       ${this.matches ? this._renderMatches() : ''}
       ${this.chromosome ? this._renderChromosome() : ''}
       ${this.canEdit ? this.renderFab() : ''} ${this.dialogContent}
     `
+  }
+
+  _renderNoData() {
+    return html`<div>${this._('No DNA matches found.')}</div>`
   }
 
   _renderTabs() {
