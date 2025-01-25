@@ -10,7 +10,7 @@ const matchColumns = [
   'End Position',
   'Side',
   'cM',
-  'SNPs',
+  'Number of SNPs',
 ]
 
 function formatSide(side) {
@@ -75,11 +75,11 @@ class GrampsjsDnaMatchTable extends GrampsjsTranslateMixin(LitElement) {
     }
     return data.map(row => [
       row.chromosome,
-      row.start,
-      row.stop,
+      row.start ? row.start.toLocaleString() : row.start,
+      row.stop ? row.stop.toLocaleString() : row.stop,
       this._(formatSide(row.side)),
-      row.cM,
-      row.SNPs,
+      row.cM ? row.cM.toLocaleString() : row.cM,
+      row.SNPs ? row.SNPs.toLocaleString() : row.SNPs,
     ])
   }
 }

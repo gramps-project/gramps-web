@@ -1,6 +1,9 @@
 import {html} from 'lit'
+import '@material/web/iconbutton/icon-button.js'
+import '@material/web/icon/icon.js'
 
 import '../components/GrampsjsConnectedDnaMatchTable.js'
+import '../components/GrampsjsTooltip.js'
 import {fireEvent} from '../util.js'
 
 export const GrampsjsEditMatchMixin = superClass =>

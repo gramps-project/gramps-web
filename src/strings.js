@@ -285,6 +285,7 @@ export const grampsStrings = [
   'Gramps ID',
   'Groom',
   'Hamlet',
+  'Help',
   'High',
   'Home Page',
   'Home Person',
