@@ -244,7 +244,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
         @object:save="${this._handleSaveMatch}"
         @object:cancel="${this._handleCancelDialog}"
         dialogTitle=${this._('Add new DNA match')}
-        .sourcePersonInitial=${this.selectedPerson}
+        .sourcePersonInitial=${this.selectedPerson ?? {}}
       >
       </grampsjs-form-new-match>
     `
