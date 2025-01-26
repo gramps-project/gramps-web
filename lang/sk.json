@@ -193,5 +193,19 @@
     "Pending": "Čaká",
     "Started": "Začína",
     "Delete user": "Odstrániť používateľa",
-    "Do you really want to delete user \"%s\"?": "Naozaj chcete odstrániť používateľa \"%s\"?"
+    "Do you really want to delete user \"%s\"?": "Naozaj chcete odstrániť používateľa \"%s\"?",
+    "Second person": "Druhá osoba",
+    "Raw match data": "Neupravené zhodné údaje",
+    "Chromosome": "Chromozóm",
+    "Start Position": "Počiatočná pozícia",
+    "End Position": "Koncová pozícia",
+    "DNA Match": "Zhoda DNA",
+    "Side": "Strana",
+    "Paste text or drop a file here": "Sem vložte text alebo súbor",
+    "No DNA matches found.": "Zhody DNA neboli nájdené.",
+    "First person": "Prvá osoba",
+    "No DNA matches detected in the data provided.": "DNA zhody neboli zistené v poskytnutých údajoch.",
+    "Paste the raw data in the field above to see the preview.": "Vložte neupravené údaje do poľa vyššie pre zobrazenie náhľadu.",
+    "DNA match with %s deleted.": "Zhoda DNA s %s odstránená.",
+    "Add new DNA match": "Pridať novú zhodu DNA"
 }
