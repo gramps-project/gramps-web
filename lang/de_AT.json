@@ -191,5 +191,22 @@
     "Regenerate semantic search index": "Neuerstellen von Index für die semantische Suche",
     "Settings": "Einstellungen",
     "Pending": "Ausstehend",
-    "Started": "Gestartet"
+    "Started": "Gestartet",
+    "First person": "Erste Person",
+    "Second person": "Zweite Person",
+    "Start Position": "Startposition",
+    "Paste text or drop a file here": "Füge Text ein oder lege eine Datei hier ab",
+    "Number of SNPs": "Zahl der SNPs",
+    "Chromosome": "Chromosom",
+    "DNA Match": "DNA-Übereinstimmung",
+    "Add new DNA match": "Neue DNA-Übereinstimmung hinzufügen",
+    "Raw match data": "Rohdaten der Übereinstimmungen",
+    "Paste the raw data in the field above to see the preview.": "Füge die Rohdaten in das obige Feld ein, um die Vorschau zu sehen.",
+    "Side": "Seite",
+    "End Position": "Endposition",
+    "No DNA matches detected in the data provided.": "Keine DNA-Übereinstimmungen in den eingegebenen Daten gefunden.",
+    "DNA match with %s deleted.": "DNA-Übereinstimmung mit %s gelöscht.",
+    "No DNA matches found.": "Keine DNA-Übereinstimmungen gefunden.",
+    "Delete user": "Benutzer löschen",
+    "Do you really want to delete user \"%s\"?": "Willst du den Benutzer \"%s\" wirklich löschen?"
 }
