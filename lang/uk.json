@@ -191,5 +191,22 @@
     "Regenerate semantic search index": "Регенерувати індекс семантичного пошуку",
     "Settings": "Налаштування",
     "Pending": "Очікує",
-    "Started": "Розпочато"
+    "Started": "Розпочато",
+    "Second person": "Друга особа",
+    "Raw match data": "Необроблені дані збігів",
+    "Add new DNA match": "Додати новий ДНК-збіг",
+    "Number of SNPs": "Кількість однонуклеотидних поліморфізмів (SNP)",
+    "Side": "Гілка (Side)",
+    "Chromosome": "Хромосома",
+    "DNA Match": "ДНК-збіг",
+    "DNA match with %s deleted.": "ДНК-збіг із %s видалено.",
+    "No DNA matches found.": "Збігів ДНК не виявлено.",
+    "No DNA matches detected in the data provided.": "У наданих даних ДНК-збігів не виявлено.",
+    "First person": "Перша особа",
+    "Start Position": "Початкова позиція",
+    "Paste text or drop a file here": "Вставте текст або перетягніть файл сюди",
+    "End Position": "Кінцева позиція",
+    "Paste the raw data in the field above to see the preview.": "Вставте необроблені дані в поле вище, щоб переглянути їхній попередній вигляд.",
+    "Delete user": "Видалити користувача",
+    "Do you really want to delete user \"%s\"?": "Ви дійсно хочете видалити користувача \"%s\"?"
 }
