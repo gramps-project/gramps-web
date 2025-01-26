@@ -191,5 +191,7 @@
     "Regenerate semantic search index": "Regenerovať index sémantického vyhľadávania",
     "Settings": "Nastavenia",
     "Pending": "Čaká",
-    "Started": "Začína"
+    "Started": "Začína",
+    "Delete user": "Odstrániť používateľa",
+    "Do you really want to delete user \"%s\"?": "Naozaj chcete odstrániť používateľa \"%s\"?"
 }
