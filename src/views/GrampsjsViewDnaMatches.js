@@ -28,6 +28,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
         md-tabs {
           margin-bottom: 40px;
           width: max-content;
+          max-width: 100%;
         }
 
         md-primary-tab {
