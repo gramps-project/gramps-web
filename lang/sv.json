@@ -192,5 +192,7 @@
     "Pending": "Avvaktande",
     "Started": "Startade",
     "Regenerate semantic search index": "Återskapa semantiskt sökindex",
-    "Settings": "Inställningar"
+    "Settings": "Inställningar",
+    "Do you really want to delete user \"%s\"?": "Vill du verkligen ta bort användaren \"%s\"?",
+    "Delete user": "Ta bort användare"
 }
