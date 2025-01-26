@@ -68,6 +68,7 @@ export const sharedStyles = css`
     --md-sys-color-surface-container-highest: #fff;
     --md-primary-tab-label-text-weight: 425;
     --md-primary-tab-label-text-size: 16px;
+    --md-divider-thickness: 0px;
   }
 
   mwc-tab-bar {
@@ -348,6 +349,15 @@ export const sharedStyles = css`
     padding: 0.3em;
     font-size: 0.9em;
     color: rgb(125, 0, 0, 0.8);
+  }
+
+  md-outlined-text-field.drag-hover {
+    --md-outlined-text-field-outline-color: var(--mdc-theme-secondary);
+    --md-outlined-text-field-hover-outline-color: var(--mdc-theme-secondary);
+    --md-outlined-text-field-hover-outline-width: var(--mdc-theme-secondary);
+    --md-outlined-text-field-outline-width: var(--mdc-theme-secondary);
+    --md-outlined-text-field-input-text-color: rgba(0, 0, 0, 0.5);
+    --md-outlined-text-field-hover-input-text-color: rgba(0, 0, 0, 0.4);
   }
 
   @media (max-width: 768px) {

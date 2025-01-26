@@ -193,5 +193,20 @@
   "Pending": "Pending",
   "Started": "Started",
   "Delete user": "Delete user",
-  "Do you really want to delete user \"%s\"?": "Do you really want to delete user \"%s\"?"
+  "Do you really want to delete user \"%s\"?": "Do you really want to delete user \"%s\"?",
+  "First person": "First person",
+  "Second person": "Second person",
+  "Raw match data": "Raw match data",
+  "Add new DNA match": "Add new DNA match",
+  "Paste the raw data in the field above to see the preview.": "Paste the raw data in the field above to see the preview.",
+  "Number of SNPs": "Number of SNPs",
+  "Side": "Side",
+  "Chromosome": "Chromosome",
+  "Start Position": "Start Position",
+  "End Position": "End Position",
+  "DNA Match": "DNA Match",
+  "DNA match with %s deleted.": "DNA match with %s deleted.",
+  "Paste text or drop a file here": "Paste text or drop a file here",
+  "No DNA matches found.": "No DNA matches found.",
+  "No DNA matches detected in the data provided.": "No DNA matches detected in the data provided."
 }

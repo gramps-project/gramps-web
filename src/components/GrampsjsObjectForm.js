@@ -18,9 +18,6 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        :host {
-        }
-
         div.spacer {
           margin-top: 2em;
         }
@@ -44,6 +41,9 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
         mwc-dialog {
           --mdc-dialog-max-width: 100vw;
           --mdc-dialog-min-width: 50vw;
+          --mdc-dialog-content-ink-color: var(
+            --mdc-theme-text-primary-on-background
+          );
         }
       `,
     ]
@@ -99,6 +99,18 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
       // eslint-disable-next-line no-param-reassign
       element.value = ''
     })
+    this.shadowRoot
+      .querySelectorAll('md-outlined-text-field')
+      .forEach(element => {
+        // eslint-disable-next-line no-param-reassign
+        element.value = ''
+      })
+    this.shadowRoot
+      .querySelectorAll('md-filled-text-field')
+      .forEach(element => {
+        // eslint-disable-next-line no-param-reassign
+        element.value = ''
+      })
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -266,6 +278,15 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
     }
     if (originalTarget.id === 'mother-list') {
       this.data = {...this.data, mother_handle: e.detail.data[0]}
+    }
+    if (originalTarget.id === 'match-source-list') {
+      this.data = {...this.data, source_handle: e.detail.data[0]}
+    }
+    if (originalTarget.id === 'match-target-list') {
+      this.data = {...this.data, target_handle: e.detail.data[0]}
+    }
+    if (originalTarget.id === 'match-data') {
+      this.data = {...this.data, raw_data: [e.detail.data]}
     }
     if (originalTarget.id === 'date') {
       this.data = {...this.data, date: e.detail.data}
