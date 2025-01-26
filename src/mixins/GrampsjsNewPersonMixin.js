@@ -1,6 +1,8 @@
-import {html} from 'lit'
+import {html, css} from 'lit'
 
 import '@material/mwc-textfield'
+import '@material/mwc-icon'
+import '@material/mwc-switch'
 
 import '../components/GrampsjsFormSelectDate.js'
 import '../components/GrampsjsFormSelectObjectList.js'
@@ -8,7 +10,6 @@ import '../components/GrampsjsFormSelectType.js'
 import '../components/GrampsjsFormPrivate.js'
 
 import {makeHandle, dateIsEmpty} from '../util.js'
-import {apiPost} from '../api.js'
 
 const dataDefault = {_class: 'Person', gender: 2, citation_list: []}
 
@@ -18,14 +19,23 @@ const gender = {
   0: 'Female',
 }
 
-export const GrampsjsNewPersonMixin = superClass =>
+export const GrampsjsNewPersonMixin = (
+  superClass,
+  {allowCreate = true, allowLink = false}
+) =>
   class extends superClass {
+    static get properties() {
+      return {
+        data: {type: Object},
+        showCreate: {type: Boolean},
+      }
+    }
+
     constructor() {
       super()
       this.data = dataDefault
-      this.postUrl = '/api/objects/'
-      this.itemPath = 'person'
-      this.objClass = 'Person'
+      this.showCreate = allowCreate
+      this.showToggle = allowCreate && allowLink
     }
 
     handleGender(e) {
@@ -34,70 +44,106 @@ export const GrampsjsNewPersonMixin = superClass =>
 
     renderForm() {
       return html`
-        <h4 class="label">${this._('Name')}</h4>
-        <grampsjs-form-name
-          id="primary-name"
-          .strings="${this.strings}"
-        ></grampsjs-form-name>
-
-        <h4 class="label">${this._('Gender')}</h4>
-        <mwc-select id="select-confidence" @change="${this.handleGender}">
-          ${Object.keys(gender).map(
-            genderConst => html`
-              <mwc-list-item
-                value="${genderConst}"
-                ?selected="${
-                  // eslint-disable-next-line eqeqeq
-                  genderConst == this.data.gender
-                }"
-                >${this._(gender[genderConst])}</mwc-list-item
-              >
+        ${this.showToggle
+          ? html`
+              <div class="option">
+                <mwc-switch
+                  id="button-show-more"
+                  @click="${this._toggleCreateNew}"
+                  ?selected="${this.showCreate}"
+                ></mwc-switch>
+                <span class="label">Create New Person</span>
+              </div>
             `
-          )}
-        </mwc-select>
+          : ''}
+        ${this.showCreate
+          ? html` <div>
+              <h4 class="label">${this._('Name')}</h4>
+              <grampsjs-form-name
+                id="primary-name"
+                .strings="${this.strings}"
+              ></grampsjs-form-name>
 
-        <h4 class="label">${this._('Birth Date')}</h4>
+              <h4 class="label">${this._('Gender')}</h4>
+              <mwc-select id="select-confidence" @change="${this.handleGender}">
+                ${Object.keys(gender).map(
+                  genderConst => html`
+                    <mwc-list-item
+                      value="${genderConst}"
+                      ?selected="${
+                        // eslint-disable-next-line eqeqeq
+                        genderConst == this.data.gender
+                      }"
+                      >${this._(gender[genderConst])}</mwc-list-item
+                    >
+                  `
+                )}
+              </mwc-select>
 
-        <p>
-          <grampsjs-form-select-date id="birth-date" .strings="${this.strings}">
-          </grampsjs-form-select-date>
-        </p>
+              <h4 class="label">${this._('Birth Date')}</h4>
 
-        <h4 class="label">${this._('Birth Place')}</h4>
+              <p>
+                <grampsjs-form-select-date
+                  id="birth-date"
+                  .strings="${this.strings}"
+                >
+                </grampsjs-form-select-date>
+              </p>
 
-        <grampsjs-form-select-object-list
-          id="birth-place"
-          objectType="place"
-          .strings="${this.strings}"
-        ></grampsjs-form-select-object-list>
+              <h4 class="label">${this._('Birth Place')}</h4>
 
-        <h4 class="label">${this._('Death Date')}</h4>
+              <grampsjs-form-select-object-list
+                id="birth-place"
+                objectType="place"
+                .strings="${this.strings}"
+              ></grampsjs-form-select-object-list>
 
-        <p>
-          <grampsjs-form-select-date id="death-date" .strings="${this.strings}">
-          </grampsjs-form-select-date>
-        </p>
+              <h4 class="label">${this._('Death Date')}</h4>
 
-        <h4 class="label">${this._('Death Place')}</h4>
+              <p>
+                <grampsjs-form-select-date
+                  id="death-date"
+                  .strings="${this.strings}"
+                >
+                </grampsjs-form-select-date>
+              </p>
 
-        <grampsjs-form-select-object-list
-          id="death-place"
-          objectType="place"
-          .strings="${this.strings}"
-        ></grampsjs-form-select-object-list>
+              <h4 class="label">${this._('Death Place')}</h4>
 
-        ${this._renderCitationForm()}
+              <grampsjs-form-select-object-list
+                id="death-place"
+                objectType="place"
+                .strings="${this.strings}"
+              ></grampsjs-form-select-object-list>
 
-        <div class="spacer"></div>
-        <grampsjs-form-private
-          id="private"
-          .strings="${this.strings}"
-        ></grampsjs-form-private>
+              ${this._renderCitationForm()}
+
+              <div class="spacer"></div>
+              <grampsjs-form-private
+                id="private"
+                .strings="${this.strings}"
+              ></grampsjs-form-private>
+            </div>`
+          : html`
+              <grampsjs-form-select-object-list
+                fixedMenuPosition
+                style="min-height: 300px;"
+                objectType="person"
+                .strings="${this.strings}"
+                id="person-select"
+                label="${this._('Select')}"
+                class="edit"
+              ></grampsjs-form-select-object-list>
+            `}
       `
+    }
+    _toggleCreateNew() {
+      this.showCreate = !this.showCreate
     }
 
     _handleFormData(e) {
       super._handleFormData(e)
+      // TODO handle form data depending on link or create
       const originalTarget = e.composedPath()[0]
       if (originalTarget.id === 'primary-name') {
         this.data = {...this.data, primary_name: e.detail.data}
@@ -203,29 +249,6 @@ export const GrampsjsNewPersonMixin = superClass =>
       ]
     }
 
-    _submit() {
-      const processedData = this._processedData()
-      apiPost(this.postUrl, processedData).then(data => {
-        if ('data' in data) {
-          this.error = false
-          const grampsId = data.data.filter(
-            obj => obj.new._class === 'Person'
-          )[0].new.gramps_id
-          this.dispatchEvent(
-            new CustomEvent('nav', {
-              bubbles: true,
-              composed: true,
-              detail: {path: this._getItemPath(grampsId)},
-            })
-          )
-          this._reset()
-        } else if ('error' in data) {
-          this.error = true
-          this._errorMessage = data.error
-        }
-      })
-    }
-
     checkFormValidity() {
       let valid = true
       this.shadowRoot
@@ -240,6 +263,7 @@ export const GrampsjsNewPersonMixin = superClass =>
 
     _reset() {
       super._reset()
+      this.showCreate = false
       this.data = dataDefault
     }
   }
