@@ -194,5 +194,20 @@
     "Regenerate semantic search index": "Återskapa semantiskt sökindex",
     "Settings": "Inställningar",
     "Do you really want to delete user \"%s\"?": "Vill du verkligen ta bort användaren \"%s\"?",
-    "Delete user": "Ta bort användare"
+    "Delete user": "Ta bort användare",
+    "Second person": "Andra person",
+    "Raw match data": "Rå matchningsdata",
+    "Number of SNPs": "Antal SNP:er",
+    "Side": "Sida",
+    "Chromosome": "Kromosom",
+    "Start Position": "Startposition",
+    "End Position": "Slutposition",
+    "DNA Match": "DNA-matchning",
+    "DNA match with %s deleted.": "DNA-matchning med %s raderad.",
+    "Paste text or drop a file here": "Klistra in text eller släpp en fil här",
+    "No DNA matches found.": "Inga DNA-matchningar hittades.",
+    "Add new DNA match": "Lägg till ny DNA-matchning",
+    "Paste the raw data in the field above to see the preview.": "Klistra in rådata i fältet ovan för att se förhandsgranskningen.",
+    "First person": "Första person",
+    "No DNA matches detected in the data provided.": "Inga DNA-matchningar har upptäckts i de angivna uppgifterna."
 }
