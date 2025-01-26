@@ -193,5 +193,20 @@
     "Regenerate semantic search index": "Regenerar índice de procura semântica",
     "Started": "Iniciado",
     "Delete user": "Eliminar utilizador",
-    "Do you really want to delete user \"%s\"?": "Deseja realmente eliminar o utilizador \"%s\"?"
+    "Do you really want to delete user \"%s\"?": "Deseja realmente eliminar o utilizador \"%s\"?",
+    "Raw match data": "Comparar dados em bruto",
+    "Add new DNA match": "Adicionar nova comparação de ADN",
+    "Paste the raw data in the field above to see the preview.": "Colar os dados em bruto no campo acima para antever.",
+    "Start Position": "Posição inicial",
+    "End Position": "Posição final",
+    "DNA Match": "Resultado ADN",
+    "Paste text or drop a file here": "Colar texto ou largar ficheiro",
+    "No DNA matches found.": "Sem resultados de ADN.",
+    "Second person": "Segundo indivíduo",
+    "Chromosome": "Cromossoma",
+    "First person": "Primeiro indivíduo",
+    "Number of SNPs": "Número de SNP",
+    "Side": "Lado",
+    "DNA match with %s deleted.": "Resultado ADN com %s eliminado.",
+    "No DNA matches detected in the data provided.": "Nenhum resultado de ADN detectado nos dados fornecidos."
 }
