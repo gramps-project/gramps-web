@@ -193,5 +193,20 @@
     "Pending": "Ausstehend",
     "Started": "Gestartet",
     "Do you really want to delete user \"%s\"?": "Willst du den Benutzer \"%s\" wirklich löschen?",
-    "Delete user": "Benutzer löschen"
+    "Delete user": "Benutzer löschen",
+    "Raw match data": "Rohe Übereinstimmungs-Daten",
+    "Paste the raw data in the field above to see the preview.": "Füge die Rohdaten in das obige Feld ein, um die Vorschau zu sehen.",
+    "Number of SNPs": "Anzahl SNPs",
+    "Chromosome": "Chromosom",
+    "Start Position": "Startposition",
+    "DNA Match": "DNA-Übereinstimmung",
+    "No DNA matches detected in the data provided.": "Keine DNA-Übereinstimmungen in den eingegebenen Daten gefunden.",
+    "Paste text or drop a file here": "Füge Text ein oder lege eine Datei hier ab",
+    "End Position": "Endposition",
+    "No DNA matches found.": "Keine DNA-Übereinstimmungen gefunden.",
+    "DNA match with %s deleted.": "DNA-Übereinstimmung mit %s gelöscht.",
+    "Side": "Seite",
+    "Add new DNA match": "Neue DNA-Übereinstimmung hinzufügen",
+    "First person": "Erste Person",
+    "Second person": "Zweite Person"
 }
