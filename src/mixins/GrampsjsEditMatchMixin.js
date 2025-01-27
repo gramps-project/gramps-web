@@ -65,6 +65,7 @@ export const GrampsjsEditMatchMixin = superClass =>
 
     _handleDrop(e) {
       e.preventDefault()
+      e.stopPropagation()
       this._handleRemoveDragHover()
       if (e.dataTransfer.files.length > 0) {
         const file = e.dataTransfer.files[0]
