@@ -193,5 +193,20 @@
     "Started": "Gestart",
     "Regenerate semantic search index": "Semantische zoekindex opnieuw genereren",
     "Delete user": "Gebruiker verwijderen",
-    "Do you really want to delete user \"%s\"?": "Wil je echt gebruiker \"%s\" verwijderen?"
+    "Do you really want to delete user \"%s\"?": "Wil je echt gebruiker \"%s\" verwijderen?",
+    "Second person": "Tweede persoon",
+    "Add new DNA match": "Nieuwe dna-overeenkomst toevoegen",
+    "Number of SNPs": "Aantal SNPs",
+    "Side": "Zijde",
+    "Start Position": "Startpositie",
+    "DNA Match": "DNA-overeenkomst",
+    "DNA match with %s deleted.": "DNA-overeenkomst met %s verwijderd.",
+    "Paste text or drop a file here": "Plak hier tekst of plaats een bestand",
+    "End Position": "Eindpositie",
+    "No DNA matches detected in the data provided.": "Er zijn geen dna-overeenkomsten aangetroffen in de verstrekte gegevens.",
+    "First person": "Eerste persoon",
+    "Paste the raw data in the field above to see the preview.": "Plak de onbewerkte gegevens in het bovenstaande veld om het voorbeeld te zien.",
+    "Raw match data": "Ruwe overeenkomst-gegevens",
+    "Chromosome": "Chromosom",
+    "No DNA matches found.": "Geen dna-overeenkomsten aangetroffen."
 }
