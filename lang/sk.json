@@ -204,8 +204,9 @@
     "Paste text or drop a file here": "Sem vložte text alebo súbor",
     "No DNA matches found.": "Zhody DNA neboli nájdené.",
     "First person": "Prvá osoba",
-    "No DNA matches detected in the data provided.": "DNA zhody neboli zistené v poskytnutých údajoch.",
+    "No DNA matches detected in the data provided.": "Zhody DNA neboli zistené v poskytnutých údajoch.",
     "Paste the raw data in the field above to see the preview.": "Vložte neupravené údaje do poľa vyššie pre zobrazenie náhľadu.",
     "DNA match with %s deleted.": "Zhoda DNA s %s odstránená.",
-    "Add new DNA match": "Pridať novú zhodu DNA"
+    "Add new DNA match": "Pridať novú zhodu DNA",
+    "Number of SNPs": "Počet jednonukleotidových polymorfizmov (SNP)"
 }
