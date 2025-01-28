@@ -191,5 +191,22 @@
     "Regenerate semantic search index": "Regeneruje index sémantického vyhledávání",
     "Settings": "Nastavení",
     "Pending": "Čeká",
-    "Started": "Začíná"
+    "Started": "Začíná",
+    "Raw match data": "Neupravená zhodná data",
+    "Paste the raw data in the field above to see the preview.": "Vložte neupravená data do pole výše pro zobrazení náhledu.",
+    "Number of SNPs": "Počet jednonukleotidových polymorfismů (SNP)",
+    "Chromosome": "Chromosom",
+    "Start Position": "Počáteční pozice",
+    "End Position": "Koncová pozice",
+    "Paste text or drop a file here": "Tady vložte text nebo soubor",
+    "No DNA matches found.": "Shody DNA nebyly nalezeny.",
+    "No DNA matches detected in the data provided.": "Shody DNA nebyly v poskytnutých údajích nalezeny.",
+    "Add new DNA match": "Přidat novou zhodu DNA",
+    "First person": "První osoba",
+    "Second person": "Druhá osoba",
+    "Side": "Strana",
+    "DNA Match": "Shoda DNA",
+    "DNA match with %s deleted.": "Shoda DNA s %s odstraněná.",
+    "Delete user": "Odstranit uživatele",
+    "Do you really want to delete user \"%s\"?": "Opravdu chcete odstranit uživatele \"%s\"?"
 }
