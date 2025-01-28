@@ -191,5 +191,22 @@
     "Pending": "Ar feitheamh",
     "Started": "Thosaigh",
     "Regenerate semantic search index": "Innéacs cuardaigh shéimeantach a athghiniúint",
-    "Settings": "Socruithe"
+    "Settings": "Socruithe",
+    "Second person": "An dara duine",
+    "Add new DNA match": "Cuir cluiche DNA nua leis",
+    "Side": "Taobh",
+    "Chromosome": "Crómasóim",
+    "Start Position": "Staid Tosaigh",
+    "End Position": "Staid Deiridh",
+    "DNA Match": "Cluiche DNA",
+    "DNA match with %s deleted.": "Scriosadh meaitseáil DNA le %s.",
+    "Paste text or drop a file here": "Greamaigh téacs nó scaoil comhad anseo",
+    "Paste the raw data in the field above to see the preview.": "Greamaigh na sonraí amh sa réimse thuas chun an réamhamharc a fheiceáil.",
+    "No DNA matches detected in the data provided.": "Níor aimsíodh aon mheaitseálacha DNA sna sonraí a soláthraíodh.",
+    "Do you really want to delete user \"%s\"?": "An bhfuil tú cinnte gur mhaith leat úsáideoir \"%s\" a scriosadh?",
+    "First person": "An chéad duine",
+    "Raw match data": "Sonraí cluiche amh",
+    "Number of SNPs": "Líon na SNPanna",
+    "No DNA matches found.": "Níor aimsíodh aon mhacasamhail DNA.",
+    "Delete user": "Scrios úsáideoir"
 }
