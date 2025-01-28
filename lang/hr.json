@@ -191,5 +191,22 @@
     "Nobody": "Nitko",
     "Settings": "Postavke",
     "Pending": "Predstoji",
-    "Started": "Pokrenuto"
+    "Started": "Pokrenuto",
+    "First person": "Prva osoba",
+    "Second person": "Druga osoba",
+    "Raw match data": "Neobrađeni podaci poklapanja",
+    "Chromosome": "Kromosom",
+    "Side": "Strana",
+    "Start Position": "Pozicija početka",
+    "End Position": "Pozicija kraja",
+    "DNA Match": "DNK poklapanje",
+    "DNA match with %s deleted.": "DNK poklapanje sa %s izbrisano.",
+    "No DNA matches found.": "Nema DNK poklapanja.",
+    "No DNA matches detected in the data provided.": "U pruženim podacima nisu otkrivena DNK poklapanja.",
+    "Number of SNPs": "Broj jednostrukih nukleotidnih polimorfizma (SNP)",
+    "Paste text or drop a file here": "Umetni tekst ili ispusti datoteku ovdje",
+    "Add new DNA match": "Dodaj novo DNK poklapanje",
+    "Paste the raw data in the field above to see the preview.": "Umetni neobrađene podatke u gornje polje za prikaz pregleda.",
+    "Delete user": "Izbriši korisnika",
+    "Do you really want to delete user \"%s\"?": "Stvarno želiš izbrisati korisnkia „%s”?"
 }
