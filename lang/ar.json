@@ -191,5 +191,22 @@
     "Upgrade database": "ترقية قاعدة البيانات",
     "Pending": "قيد الانتظار",
     "Started": "تم البدء",
-    "simple": "بسيط"
+    "simple": "بسيط",
+    "First person": "الشخص الأول",
+    "Second person": "الشخص الثاني",
+    "Raw match data": "بيانات المطابقة الأولية",
+    "Add new DNA match": "إضافة تطابق DNA جديد",
+    "Paste the raw data in the field above to see the preview.": "الصق البيانات الأولية في الحقل أعلاه لرؤية المعاينة.",
+    "Number of SNPs": "عدد الـ SNPs",
+    "Side": "الجانب",
+    "Chromosome": "الكروموسوم",
+    "No DNA matches found.": "لم يتم العثور على تطابقات DNA.",
+    "No DNA matches detected in the data provided.": "لم يتم اكتشاف أي تطابقات DNA في البيانات المقدمة.",
+    "Start Position": "موقع البداية",
+    "End Position": "موقع النهاية",
+    "DNA Match": "تطابق DNA",
+    "DNA match with %s deleted.": "تم حذف تطابق DNA مع %s.",
+    "Paste text or drop a file here": "الصق النص أو أسقط ملفًا هنا",
+    "Delete user": "حذف المستخدم",
+    "Do you really want to delete user \"%s\"?": "هل تريد حقًا حذف المستخدم \"%s\"؟"
 }
