@@ -209,5 +209,7 @@
     "Add new DNA match": "Lägg till ny DNA-matchning",
     "Paste the raw data in the field above to see the preview.": "Klistra in rådata i fältet ovan för att se förhandsgranskningen.",
     "First person": "Första person",
-    "No DNA matches detected in the data provided.": "Inga DNA-matchningar har upptäckts i de angivna uppgifterna."
+    "No DNA matches detected in the data provided.": "Inga DNA-matchningar har upptäckts i de angivna uppgifterna.",
+    "Max Degree of Separation": "Maximal grad av separation",
+    "Max Number of Images displayed": "Max antal bilder som visas"
 }
