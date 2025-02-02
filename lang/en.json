@@ -193,5 +193,7 @@
   "Pending": "Pending",
   "Started": "Started",
   "Delete user": "Delete user",
-  "Do you really want to delete user \"%s\"?": "Do you really want to delete user \"%s\"?"
+  "Do you really want to delete user \"%s\"?": "Do you really want to delete user \"%s\"?",
+  "Max Degree of Separation": "Max Degree of Separation",
+  "Max Number of Images displayed": "Max Number of Images displayed"
 }
