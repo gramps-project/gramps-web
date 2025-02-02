@@ -208,5 +208,7 @@
     "Paste the raw data in the field above to see the preview.": "Plak de onbewerkte gegevens in het bovenstaande veld om het voorbeeld te zien.",
     "Raw match data": "Ruwe overeenkomst-gegevens",
     "Chromosome": "Chromosom",
-    "No DNA matches found.": "Geen dna-overeenkomsten aangetroffen."
+    "No DNA matches found.": "Geen dna-overeenkomsten aangetroffen.",
+    "Max Degree of Separation": "Max. mate van scheiding",
+    "Max Number of Images displayed": "Max. aantal weergegeven afbeeldingen"
 }
