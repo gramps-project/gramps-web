@@ -208,5 +208,7 @@
     "Paste the raw data in the field above to see the preview.": "Vložte neupravené údaje do poľa vyššie pre zobrazenie náhľadu.",
     "DNA match with %s deleted.": "Zhoda DNA s %s odstránená.",
     "Add new DNA match": "Pridať novú zhodu DNA",
-    "Number of SNPs": "Počet jednonukleotidových polymorfizmov (SNP)"
+    "Number of SNPs": "Počet jednonukleotidových polymorfizmov (SNP)",
+    "Max Number of Images displayed": "Maximálny počet zobrazených obrázkov",
+    "Max Degree of Separation": "Maximálny stupeň odlúčenia"
 }
