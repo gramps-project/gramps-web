@@ -208,5 +208,7 @@
     "DNA match with %s deleted.": "DNA-Übereinstimmung mit %s gelöscht.",
     "No DNA matches found.": "Keine DNA-Übereinstimmungen gefunden.",
     "Delete user": "Benutzer löschen",
-    "Do you really want to delete user \"%s\"?": "Willst du den Benutzer \"%s\" wirklich löschen?"
+    "Do you really want to delete user \"%s\"?": "Willst du den Benutzer \"%s\" wirklich löschen?",
+    "Max Number of Images displayed": "Max. Anzahl der angezeigten Bilder",
+    "Max Degree of Separation": "Max. Entfernung des Verwandtschaftsgrades"
 }
