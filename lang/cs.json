@@ -208,5 +208,7 @@
     "DNA Match": "Shoda DNA",
     "DNA match with %s deleted.": "Shoda DNA s %s odstraněná.",
     "Delete user": "Odstranit uživatele",
-    "Do you really want to delete user \"%s\"?": "Opravdu chcete odstranit uživatele \"%s\"?"
+    "Do you really want to delete user \"%s\"?": "Opravdu chcete odstranit uživatele \"%s\"?",
+    "Max Degree of Separation": "Maximální stupeň odloučení",
+    "Max Number of Images displayed": "Maximální počet zobrazených snímků"
 }
