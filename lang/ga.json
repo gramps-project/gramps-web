@@ -208,5 +208,7 @@
     "Raw match data": "Sonraí cluiche amh",
     "Number of SNPs": "Líon na SNPanna",
     "No DNA matches found.": "Níor aimsíodh aon mhacasamhail DNA.",
-    "Delete user": "Scrios úsáideoir"
+    "Delete user": "Scrios úsáideoir",
+    "Max Degree of Separation": "Uasmhéid Idirscartha",
+    "Max Number of Images displayed": "Uaslíon na nÍomhánna ar taispeáint"
 }
