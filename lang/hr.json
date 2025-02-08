@@ -208,5 +208,7 @@
     "Add new DNA match": "Dodaj novo DNK poklapanje",
     "Paste the raw data in the field above to see the preview.": "Umetni neobrađene podatke u gornje polje za prikaz pregleda.",
     "Delete user": "Izbriši korisnika",
-    "Do you really want to delete user \"%s\"?": "Stvarno želiš izbrisati korisnkia „%s”?"
+    "Do you really want to delete user \"%s\"?": "Stvarno želiš izbrisati korisnkia „%s”?",
+    "Max Degree of Separation": "Maks. stupanj rastavljanja",
+    "Max Number of Images displayed": "Maks. broj prikazanih slika"
 }
