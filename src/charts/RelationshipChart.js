@@ -1,5 +1,6 @@
 import {create, select} from 'd3-selection'
 import {zoom} from 'd3-zoom'
+import {linkVertical} from 'd3-shape'
 import {Graphviz} from '@hpcc-js/wasm'
 
 function createGraph(graph) {
@@ -338,7 +339,7 @@ function remasterChart(
   gvchartx.selectAll('title').remove()
   // based on graphviz created nodes build array containing node data to be bound to d3 nodes
   let imageCount = 0
-  gvchartx.selectAll('.node').each(function () {
+  gvchartx.selectAll('.node').each(() => {
     const e = select(this)
     const textElement = e.select('text')
     const x = textElement.attr('x')
@@ -487,19 +488,60 @@ function remasterChart(
   nodes
     .filter(d => d.type === 'Married' && d.nodetype === 'family')
     .append('circle')
-    .attr('r', 5)
     .attr('class', 'married')
+    .attr('r', 6)
+    .attr('cy', boxHeight / 2 - 10)
+    .attr('stroke', '#999')
+    .attr('fill', '#ddd')
+
+  nodes
+    .filter(d => d.type === 'Married' && d.nodetype === 'family')
+    .insert('line', ':first-child')
+    .attr('class', 'married')
+    .attr('x1', -11)
+    .attr('x2', 11)
+    .attr('y1', boxHeight / 2 - 10)
+    .attr('y2', boxHeight / 2 - 10)
+    .attr('stroke', '#999')
+    .attr('stroke-width', 1)
 
   nodes
     .filter(d => d.nodetype === 'person')
     .style('cursor', 'pointer')
     .on('click', clicked)
 
+  const linkGenerator = linkVertical()
+    .x(d => d.x)
+    .y(d => d.y)
   // copy edges
-  gvchartx.selectAll('.edge').each(function () {
-    edges.append('g').attr('class', 'edge').html(select(this).html())
+  gvchartx.selectAll('.edge').each(() => {
+    const path = select(this).select('path')
+    const pathData = path.attr('d')
+    // extract points from path data
+    const points = pathData
+      ?.match(/-?[\d.]+,-?[\d.]+/g) // Find all "x,y" pairs
+      ?.map(d => d.split(',').map(Number)) // Convert to [x, y] arrays
+    // we use only the start and end point
+    const firstAndLastPoint = [points[0], points[points.length - 1]]
+    if (!points) {
+      return
+    }
+    // we replace the polyline with a smooth connector from start to end
+    edges
+      .append('path')
+      .attr('class', 'edge')
+      .attr(
+        'd',
+        linkGenerator({
+          source: {x: firstAndLastPoint[0][0], y: firstAndLastPoint[0][1]},
+          target: {x: firstAndLastPoint[1][0], y: firstAndLastPoint[1][1]},
+        })
+      )
+      .attr('fill', 'none')
+      .attr('stroke', '#999')
+      .attr('stroke-width', 1)
   })
-  edges.selectAll('path').attr('stroke-opacity', '0.4')
+  // edges.selectAll('path').attr('stroke-opacity', '0.4')
 
   // move root person to center
   nodes
