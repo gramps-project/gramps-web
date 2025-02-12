@@ -24,6 +24,7 @@ export const frontendLanguages = [
   'hr',
   'hu',
   'is',
+  'id',
   'it',
   'ja',
   'ko',
@@ -52,7 +53,7 @@ export const frontendLanguages = [
   'zh_TW',
 ]
 
-// will hold the frontend strings by language code
+// will hold the f'ro'ntend strings by language code
 const frontendStrings = {}
 
 export async function getFrontendStrings(lang) {

@@ -30,6 +30,7 @@ const languageCoordinates = {
   he: [32, 35], // Hebrew - Approximate center of Israel
   hr: [45, 16], // Croatian - Approximate center of Croatia
   hu: [47, 19], // Hungarian - Approximate center of Hungary
+  id: [-5, 120], // Indonesian - Approximate center of Indonesia
   is: [65, -18], // Icelandic - Approximate center of Iceland
   it: [42, 12], // Italian - Approximate center of Italy
   ja: [36, 138], // Japanese - Approximate center of Japan
