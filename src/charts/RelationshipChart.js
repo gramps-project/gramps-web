@@ -339,7 +339,7 @@ function remasterChart(
   gvchartx.selectAll('title').remove()
   // based on graphviz created nodes build array containing node data to be bound to d3 nodes
   let imageCount = 0
-  gvchartx.selectAll('.node').each(() => {
+  gvchartx.selectAll('.node').each(function () {
     const e = select(this)
     const textElement = e.select('text')
     const x = textElement.attr('x')
@@ -514,7 +514,7 @@ function remasterChart(
     .x(d => d.x)
     .y(d => d.y)
   // copy edges
-  gvchartx.selectAll('.edge').each(() => {
+  gvchartx.selectAll('.edge').each(function () {
     const path = select(this).select('path')
     const pathData = path.attr('d')
     // extract points from path data
