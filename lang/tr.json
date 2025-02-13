@@ -184,5 +184,12 @@
     "Owners and administrators": "Sahip ve yöneticiler",
     "Editor and above": "Editör ve üzeri",
     "Everybody": "Herkes",
-    "Nobody": "Hiç kimse"
+    "Nobody": "Hiç kimse",
+    "Chromosome": "Kromozom",
+    "Start Position": "Başlangıç konumu",
+    "End Position": "Bitiş konumu",
+    "DNA Match": "DNA Eşleşmesi",
+    "Settings": "Ayarlar",
+    "User Information": "Kullanıcı Bilgileri",
+    "Tree Information": "Ağaç Bilgisi"
 }
