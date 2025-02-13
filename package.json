@@ -80,6 +80,7 @@
   "description": "The frontend for the Gramps Web genealogical research system.",
   "author": "David M. Straub",
   "license": "AGPL",
+  "type": "module",
   "dependencies": {
     "@hpcc-js/wasm": "^2.22.4",
     "@maplibre/maplibre-gl-leaflet": "0.0.22",
