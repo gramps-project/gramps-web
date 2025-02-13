@@ -3,7 +3,7 @@
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
-  src: url('Inter-roman.var.woff2?v=3.19') format('woff2');
+  src: url('../fonts/Inter-roman.var.woff2?v=3.19') format('woff2');
   font-named-instance: 'Regular';
 }
 
@@ -12,7 +12,7 @@
   font-style: italic;
   font-weight: 100 900;
   font-display: swap;
-  src: url('Inter-italic.var.woff2?v=3.19') format('woff2');
+  src: url('../fonts/Inter-italic.var.woff2?v=3.19') format('woff2');
   font-named-instance: 'Italic';
 }
 
@@ -20,14 +20,14 @@
   font-style: normal;
   font-family: 'EB Garamond x';
   font-display: swap;
-  src: url('EBGaramond12-Regular.woff') format('woff');
+  src: url('../fonts/EBGaramond12-Regular.woff') format('woff');
 }
 
 @font-face {
   font-style: italic;
   font-family: 'EB Garamond x';
   font-display: swap;
-  src: url('EBGaramond12-Italic.woff') format('woff');
+  src: url('../fonts/EBGaramond12-Italic.woff') format('woff');
 }
 
 @font-face {
@@ -83,5 +83,5 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('CommitMono VariableFont.woff2') format('woff2');
+  src: url('../fonts/CommitMono VariableFont.woff2') format('woff2');
 }
