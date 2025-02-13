@@ -119,7 +119,10 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
   }
 
   _goTo(path) {
-    fireEvent(this, 'nav', {path})
+    // we don't want this to be triggered when we navigated off the page
+    if (this.active) {
+      fireEvent(this, 'nav', {path})
+    }
   }
 
   get page() {
