@@ -187,5 +187,7 @@
     "Everybody": "Wszyscy",
     "Nobody": "Nikt",
     "Tree Information": "Dane drzewa",
-    "The search index needs to be rebuilt.": "Indeks wyszukiwania musi zostać zbudowany od nowa."
+    "The search index needs to be rebuilt.": "Indeks wyszukiwania musi zostać zbudowany od nowa.",
+    "Regenerate semantic search index": "Regeneracja indeksu wyszukiwania semantycznego",
+    "Settings": "Ustawienia"
 }
