@@ -191,5 +191,19 @@
     "DNA Match": "DNA Eşleşmesi",
     "Settings": "Ayarlar",
     "User Information": "Kullanıcı Bilgileri",
-    "Tree Information": "Ağaç Bilgisi"
+    "Tree Information": "Ağaç Bilgisi",
+    "User group": "Kullanıcı grubu",
+    "First person": "Ana kişi",
+    "Second person": "İkinci kişi",
+    "Raw match data": "Ham eşleşme verileri",
+    "Add new DNA match": "Yeni DNA eşleşmesi ekle",
+    "Number of SNPs": "SNP sayısı",
+    "DNA match with %s deleted.": "%s DNA eşleşmesi silindi.",
+    "Paste text or drop a file here": "Metni yapıştırın veya bir dosyayı buraya bırakın",
+    "No DNA matches found.": "DNA eşleşmesi bulunamadı.",
+    "Max Number of Images displayed": "Görüntülenen en fazla görüntü sayısı",
+    "Delete user": "Kullanıcıyı sil",
+    "Do you really want to delete user \"%s\"?": "\"%s\" kullanıcısını gerçekten silmek istiyor musunuz?",
+    "Regenerate semantic search index": "Anlamsal arama dizinini yenile",
+    "Started": "Başladı"
 }
