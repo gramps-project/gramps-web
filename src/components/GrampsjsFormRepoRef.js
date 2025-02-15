@@ -20,7 +20,7 @@ class GrampsjsFormRepoRef extends GrampsjsObjectForm {
         fixedMenuPosition
         style="min-height: 300px;"
         objectType="repository"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         id="repository-select"
         label="${this._('Select')}"
         class="edit"
@@ -39,7 +39,7 @@ class GrampsjsFormRepoRef extends GrampsjsObjectForm {
         required
         id="source-media-type"
         heading="${this._('Type')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         typeName="source_media_types"
         ?loadingTypes=${this.loadingTypes}
         defaultTypeName="Book"

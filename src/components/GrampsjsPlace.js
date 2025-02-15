@@ -92,7 +92,7 @@ export class GrampsjsPlace extends GrampsjsObject {
       <grampsjs-form-edit-lat-long
         @object:save="${this._handleSaveLatLong}"
         @object:cancel="${this._handleCancelDialog}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${data}"
       ></grampsjs-form-edit-lat-long>
     `
@@ -103,7 +103,7 @@ export class GrampsjsPlace extends GrampsjsObject {
       <grampsjs-form-edit-placename
         @object:save="${this._handleSaveName}"
         @object:cancel="${this._handleCancelDialog}"
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .data=${this.data?.name || {}}
         prop="value"
       >
@@ -119,7 +119,7 @@ export class GrampsjsPlace extends GrampsjsObject {
         typeName="place_types"
         @object:save="${this._handleSaveType}"
         @object:cancel="${this._handleCancelDialog}"
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .data=${{
           type: this.data?.place_type?.string || this.data?.place_type || '',
         }}

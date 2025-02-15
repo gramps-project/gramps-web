@@ -67,7 +67,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
   }
 
   _getSecondaryText(obj) {
-    const detail = objectDetail('event', obj, this.strings) || ''
+    const detail = objectDetail('event', obj, this.appState.i18n.strings) || ''
     return html`
       ${detail} ${obj.description && detail.trim() ? html` &ndash; ` : ''}
       ${obj.description || ''}
@@ -122,7 +122,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
         defaultRole="${this.defaultRole}"
         @object:save="${this._handleEventRefSave}"
         @object:cancel="${this._handleDialogCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         objType="${this.objType}"
         dialogTitle=${this._('Share an existing event')}
       >
@@ -137,7 +137,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
         id="edit-event-ref"
         @object:save="${this._handleEventRefSaveEdit}"
         @object:cancel="${this._handleDialogCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         objType="${this.objType}"
         .data="${data}"
         dialogTitle=${this._('Event Reference Editor')}
@@ -152,7 +152,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
         defaultRole="${this.defaultRole}"
         @object:save="${this._handleNewEventSave}"
         @object:cancel="${this._handleDialogCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         dialogTitle="${this._('Add a new event')}"
       >
       </grampsjs-form-new-event>

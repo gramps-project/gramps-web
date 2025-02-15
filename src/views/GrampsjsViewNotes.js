@@ -39,7 +39,7 @@ export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
       grampsId: row.gramps_id,
       type: obj._(row.type),
       text: row?.text?.string,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+      change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
     return formattedRow
   }
@@ -47,7 +47,7 @@ export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
   renderFilters() {
     return html`
       <grampsjs-filter-type
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         label="${this._('Note type:').replace(':', '')}"
         typeName="note_types"
       ></grampsjs-filter-type>

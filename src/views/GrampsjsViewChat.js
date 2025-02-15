@@ -33,7 +33,7 @@ export class GrampsjsViewChat extends GrampsjsView {
   }
 
   renderContent() {
-    return html` <grampsjs-chat .strings="${this.strings}"></grampsjs-chat> `
+    return html` <grampsjs-chat .appState="${this.appState}"></grampsjs-chat> `
   }
 
   firstUpdated() {

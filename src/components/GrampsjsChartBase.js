@@ -4,9 +4,9 @@ import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsChartBase extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsChartBase extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

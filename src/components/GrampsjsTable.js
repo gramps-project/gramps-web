@@ -1,11 +1,11 @@
 import {css, html, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {clickKeyHandler, fireEvent} from '../util.js'
 
-export class GrampsjsTable extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

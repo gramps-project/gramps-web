@@ -2,7 +2,7 @@ import {css, html} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsBlogPostPreview.js'
-import {apiGet} from '../api.js'
+
 import {fireEvent, clickKeyHandler} from '../util.js'
 
 export class GrampsjsViewBlog extends GrampsjsView {
@@ -98,7 +98,7 @@ export class GrampsjsViewBlog extends GrampsjsView {
         page="${this._page}"
         pages="${this._pages}"
         @page:changed="${this._handlePageChanged}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-pagination>
     `
   }
@@ -120,7 +120,7 @@ export class GrampsjsViewBlog extends GrampsjsView {
         <div>
           <grampsjs-blog-post-preview
             .data="${source}"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
           ></grampsjs-blog-post-preview>
         </div>
       </div>
@@ -148,9 +148,9 @@ export class GrampsjsViewBlog extends GrampsjsView {
     const uri = `/api/sources/?rules=${encodeURIComponent(
       JSON.stringify(rules)
     )}&page=${this._page}&pagesize=${this._pageSize}&sort=-change&locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&extend=all`
-    await apiGet(uri).then(data => {
+    await this.appState.apiGet(uri).then(data => {
       if ('data' in data) {
         this.error = false
         this._dataSources = data.data

@@ -6,9 +6,9 @@ import './GrampsJsImage.js'
 import './GrampsjsGallery.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsTimedelta.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsBlogPost extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -98,10 +98,10 @@ export class GrampsjsBlogPost extends GrampsjsTranslateMixin(LitElement) {
         <h2>${this.source.title}</h2>
         <h3 class="author">
           ${this.source.author} ~
-          ${this.strings.__lang__
+          ${this.appState.i18n.lang
             ? html`<grampsjs-timedelta
                 timestamp="${this.source.change}"
-                locale="${this.strings.__lang__}"
+                locale="${this.appState.i18n.lang}"
               ></grampsjs-timedelta>`
             : ''}
         </h3>
@@ -122,7 +122,7 @@ export class GrampsjsBlogPost extends GrampsjsTranslateMixin(LitElement) {
             ${this.source?.media_list?.length > 1
               ? html`
                   <grampsjs-gallery
-                    .strings=${this.strings}
+                    .appState="${this.appState}"
                     .media=${this.source?.extended?.media}
                     .mediaRef=${this.source?.media_list}
                   ></grampsjs-gallery>

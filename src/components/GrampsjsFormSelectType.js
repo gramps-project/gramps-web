@@ -8,9 +8,9 @@ import '@material/mwc-list/mwc-list-item'
 
 import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -135,7 +135,7 @@ class GrampsjsFormSelectType extends GrampsjsTranslateMixin(LitElement) {
                 content="${this._hasCustomType
                   ? this._('Switch to default type')
                   : this._('Add custom type')}"
-                .strings="${this.strings}"
+                .appState="${this.appState}"
               ></grampsjs-tooltip>
             `}
       </p>

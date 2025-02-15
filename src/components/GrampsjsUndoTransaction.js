@@ -6,12 +6,11 @@ import {html, LitElement} from 'lit'
 import '@material/mwc-snackbar'
 
 import {fireEvent} from '../util.js'
-import {apiPost} from '../api.js'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-class GrampsjsUndoTransaction extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsUndoTransaction extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [sharedStyles]
   }
@@ -43,7 +42,10 @@ class GrampsjsUndoTransaction extends GrampsjsTranslateMixin(LitElement) {
 
   async _handleUndo() {
     if (this.transaction.length > 0) {
-      const res = await apiPost('/api/transactions/?undo=1', this.transaction)
+      const res = await this.appState.apiPost(
+        '/api/transactions/?undo=1',
+        this.transaction
+      )
       if ('data' in res) {
         fireEvent(this, 'nav', {path: this.redirect})
       } else if ('error' in res) {

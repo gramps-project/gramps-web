@@ -11,7 +11,7 @@ export class GrampsjsViewEvent extends GrampsjsViewObject {
 
   getUrl() {
     return `/api/events/?gramps_id=${this.grampsId}&locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&backlinks=true&extend=all`
   }
 
@@ -19,7 +19,7 @@ export class GrampsjsViewEvent extends GrampsjsViewObject {
     return html`
       <grampsjs-event
         .data=${this._data}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         ?edit="${this.edit}"
         ?canEdit="${this.canEdit}"
       ></grampsjs-event>

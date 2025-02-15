@@ -10,11 +10,11 @@ import './GrampsjsPasswordManagerPolyfill.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {apiGetTokens, apiResetPassword, apiRegisterUser} from '../api.js'
 import {fireEvent} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 const BASE_DIR = ''
 
-class GrampsjsLogin extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

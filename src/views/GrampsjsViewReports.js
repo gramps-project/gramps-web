@@ -7,7 +7,7 @@ import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet} from '../api.js'
+
 import {reportCategoryIcon, fireEvent} from '../util.js'
 
 export class GrampsjsViewReports extends GrampsjsView {
@@ -69,7 +69,7 @@ export class GrampsjsViewReports extends GrampsjsView {
 
   async _fetchData() {
     this.loading = true
-    const data = await apiGet('/api/reports/')
+    const data = await this.appState.apiGet('/api/reports/')
     this.loading = false
     if ('data' in data) {
       this.error = false
@@ -81,22 +81,24 @@ export class GrampsjsViewReports extends GrampsjsView {
   }
 
   firstUpdated() {
-    if ('__lang__' in this.strings) {
+    if (this.appState.i18n.lang) {
       // don't load before we have strings
-      this._fetchData(this.strings.__lang__)
+      this._fetchData(this.appState.i18n.lang)
     }
   }
 
-  connectedCallback() {
-    super.connectedCallback()
-    window.addEventListener('language:changed', e =>
-      this._handleLanguageChanged(e)
-    )
+  updated(changed) {
+    if (
+      changed.has('appState') &&
+      changed.get('appState')?.i18n?.lang !== this.appState.i18n.lang
+    ) {
+      this._handleLanguageChanged(this.appState.i18n.lang)
+    }
   }
 
-  _handleLanguageChanged(e) {
+  _handleLanguageChanged(lang) {
     if (this._hasFirstUpdated) {
-      this._fetchData(e.detail.lang)
+      this._fetchData(lang)
     }
   }
 }

@@ -2,11 +2,11 @@ import {LitElement, css, html} from 'lit'
 import '@material/mwc-radio'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
-import {apiGet} from '../api.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+
 import {fireEvent} from '../util.js'
 
-export class GrampsjsFilterType extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsFilterType extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -56,7 +56,7 @@ export class GrampsjsFilterType extends GrampsjsTranslateMixin(LitElement) {
         nocustom
         valueNonLocal
         label="${this.label || this._('Type')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         typeName="${this.typeName}"
         defaultTypeName=""
         ?loadingTypes=${this.loadingTypes}
@@ -70,7 +70,8 @@ export class GrampsjsFilterType extends GrampsjsTranslateMixin(LitElement) {
 
   updateTypeData() {
     this.loadingTypes = true
-    apiGet('/api/types/')
+    this.appState
+      .apiGet('/api/types/')
       .then(data => {
         if ('data' in data) {
           this.types = data.data || {}
@@ -79,7 +80,7 @@ export class GrampsjsFilterType extends GrampsjsTranslateMixin(LitElement) {
         }
       })
       .then(() => {
-        apiGet('/api/types/?locale=1').then(data => {
+        this.appState.apiGet('/api/types/?locale=1').then(data => {
           this.loadingTypes = false
           if ('data' in data) {
             this.typesLocale = data.data || {}

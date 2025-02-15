@@ -4,12 +4,12 @@ import '@material/mwc-icon-button'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent, clickKeyHandler} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsTooltip.js'
 import './GrampsjsShareUrl.js'
 import './GrampsjsBookmarkButton.js'
 
-export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -139,14 +139,14 @@ export class GrampsjsBreadcrumbs extends GrampsjsTranslateMixin(LitElement) {
             ? ''
             : html`
                 <grampsjs-bookmark-button
-                  .strings="${this.strings}"
+                  .appState="${this.appState}"
                   handle="${this.data.handle}"
                   endpoint="${this.objectEndpoint}"
                 ></grampsjs-bookmark-button>
               `}
           <grampsjs-share-url
             href="${document.URL}"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
           ></grampsjs-share-url>
         </span>
       </div>

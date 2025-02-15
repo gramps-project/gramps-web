@@ -3,10 +3,10 @@ import '@material/mwc-button'
 import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
 
-export class GrampsjsButtonToggle extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsButtonToggle extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

@@ -31,7 +31,7 @@ class GrampsjsFormEditEventDetails extends GrampsjsObjectForm {
           id="date"
           label="${this._('Date')}"
           .data="${this.data.date}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
         >
         </grampsjs-form-select-date>
       </p>
@@ -41,7 +41,7 @@ class GrampsjsFormEditEventDetails extends GrampsjsObjectForm {
           fixedMenuPosition
           style="min-height: 300px;"
           objectType="place"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           id="place"
           label="${this._('Select')}"
           .objectsInitial="${this.data.place

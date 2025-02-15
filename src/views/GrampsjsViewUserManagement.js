@@ -7,7 +7,6 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsUsers.js'
 import '../components/GrampsjsShareUrl.js'
 import '../components/GrampsjsChatPermissions.js'
-import {apiPost, apiPut, apiGet, getTreeId, apiDelete} from '../api.js'
 
 export class GrampsjsViewUserManagement extends GrampsjsView {
   static get styles() {
@@ -53,7 +52,7 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
   // eslint-disable-next-line class-methods-use-this
   get _registerUrl() {
     const url = new URL(document.URL)
-    const tree = getTreeId()
+    const {tree} = this.appState.auth.claims
     return `${url.origin}/register/${tree}`
   }
 
@@ -61,7 +60,7 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
     return html`
       ${this.dbInfo?.server?.chat
         ? html`<grampsjs-chat-permissions
-            .strings=${this.strings}
+            .appState="${this.appState}"
           ></grampsjs-chat-permissions>`
         : ''}
       ${this.dbInfo?.server?.multi_tree
@@ -70,12 +69,13 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
             <span class="url">${this._registerUrl}</span>
             <grampsjs-share-url
               href="${this._registerUrl}"
+              .appState="${this.appState}"
             ></grampsjs-share-url>
           </p>`
         : ''}
 
       <grampsjs-users
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${this.userData}"
         ?ismulti="${!!this.dbInfo?.server?.multi_tree}"
         @user:updated="${this._handleUserChanged}"
@@ -115,7 +115,7 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
   }
 
   async _handleUsersAdded(e) {
-    const res = await apiPost('/api/users/', e.detail)
+    const res = await this.appState.apiPost('/api/users/', e.detail)
     if ('error' in res) {
       this.error = true
       this._errorMessage = res.error
@@ -126,7 +126,7 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
   }
 
   _updateUser(username, payload) {
-    apiPut(`/api/users/${username}/`, payload).then(data => {
+    this.appState.apiPut(`/api/users/${username}/`, payload).then(data => {
       if ('error' in data) {
         this.error = true
         this._errorMessage = data.error
@@ -138,7 +138,7 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
   }
 
   _addUser(username, payload) {
-    apiPost(`/api/users/${username}/`, payload).then(data => {
+    this.appState.apiPost(`/api/users/${username}/`, payload).then(data => {
       if ('error' in data) {
         this.error = true
         this._errorMessage = data.error
@@ -150,7 +150,7 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
   }
 
   _deleteUser(username) {
-    apiDelete(`/api/users/${username}/`).then(data => {
+    this.appState.apiDelete(`/api/users/${username}/`).then(data => {
       if ('error' in data) {
         this.error = true
         this._errorMessage = data.error
@@ -163,7 +163,7 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
 
   _fetchUserData() {
     this.loading = true
-    apiGet('/api/users/').then(data => {
+    this.appState.apiGet('/api/users/').then(data => {
       if ('data' in data) {
         this.error = false
         this.userData = data.data

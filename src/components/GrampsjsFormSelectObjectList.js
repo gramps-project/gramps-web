@@ -7,11 +7,11 @@ import {html, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormObjectList.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
-import {apiGet} from '../api.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+
 import {objectTypeToEndpoint} from '../util.js'
 
-class GrampsjsFormSelectObjectList extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFormSelectObjectList extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [sharedStyles]
   }
@@ -42,7 +42,7 @@ class GrampsjsFormSelectObjectList extends GrampsjsTranslateMixin(LitElement) {
       <p>
         <grampsjs-form-object-list
           @object-list:changed="${this._handleObjectListChanged}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           id="${this.id}-list"
           ?reorder="${this.multiple}"
           ?deletable="${!this.notDeletable}"
@@ -53,7 +53,7 @@ class GrampsjsFormSelectObjectList extends GrampsjsTranslateMixin(LitElement) {
           ?fixedMenuPosition="${this.fixedMenuPosition}"
           @select-object:changed="${this._handleSelectObjectsChanged}"
           objectType="${this.objectType}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           id="${this.id}-select"
           label="${this.label}"
           ?multiple="${this.multiple}"
@@ -78,8 +78,8 @@ class GrampsjsFormSelectObjectList extends GrampsjsTranslateMixin(LitElement) {
     if (!obj.object || !Object.keys(obj.object).length) {
       const url = `/api/${objectTypeToEndpoint[this.objectType]}/${
         obj.handle
-      }?extend=all&profile=all&locale=${this.strings?.__lang__ || 'en'}`
-      apiGet(url).then(data => {
+      }?extend=all&profile=all&locale=${this.appState.i18n.lang || 'en'}`
+      this.appState.apiGet(url).then(data => {
         if ('data' in data) {
           const objList = this.shadowRoot.querySelector(
             'grampsjs-form-object-list'

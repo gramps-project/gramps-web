@@ -72,7 +72,7 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
         grampsId=${this.grampsId}
         depth=${this.nAnc + 1}
         .data=${this._data}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         color="${this.color}"
       >
       </grampsjs-fan-chart>
@@ -88,7 +88,7 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
         @click=${this._handleColor}
         id="btn-color"
       ></mwc-icon-button>
-      <grampsjs-tooltip for="btn-color" .strings="${this.strings}"
+      <grampsjs-tooltip for="btn-color" .appState="${this.appState}"
         >${this._('Color')}</grampsjs-tooltip
       >
       <span style="position: relative">

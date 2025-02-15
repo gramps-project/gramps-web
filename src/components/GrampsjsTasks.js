@@ -17,10 +17,10 @@ import './GrampsjsFilters.js'
 import './GrampsjsFilterTags.js'
 import './GrampsjsTagsSmall.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {clickKeyHandler, fireEvent} from '../util.js'
 
-class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -164,7 +164,6 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
     return {
       data: {type: Array},
       _selected: {type: Array},
-      canEdit: {type: Boolean},
     }
   }
 
@@ -172,12 +171,12 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
     super()
     this.data = []
     this._selected = []
-    this.canEdit = false
   }
 
   render() {
     return html`
-      ${this._renderFilters()} ${this.canEdit ? this._renderTaskBar() : ''}
+      ${this._renderFilters()}
+      ${this.appState.permissions.canEdit ? this._renderTaskBar() : ''}
       ${this._renderTaskList(this.data)}
     `
   }
@@ -185,9 +184,9 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
   _renderFilters() {
     return html`
       <div class="filters">
-        <grampsjs-filters .strings="${this.strings}" objectType="sources">
+        <grampsjs-filters .appState="${this.appState}" objectType="sources">
           <grampsjs-filter-tags
-            .strings="${this.strings}"
+            .appState="${this.appState}"
           ></grampsjs-filter-tags>
         </grampsjs-filters>
       </div>
@@ -324,7 +323,7 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
     const icon = icons[status] || icons.unknown
     return html`
       ${icon}
-      <grampsjs-tooltip for="${id}" .strings="${this.strings}"
+      <grampsjs-tooltip for="${id}" .appState="${this.appState}"
         >${this._(status)}</grampsjs-tooltip
       >
     `
@@ -356,7 +355,7 @@ class GrampsjsTasks extends GrampsjsTranslateMixin(LitElement) {
     return html`
       <span class="priority-label">
         ${icon}
-        <grampsjs-tooltip for="${id}" .strings="${this.strings}"
+        <grampsjs-tooltip for="${id}" .appState="${this.appState}"
           >${this._('Priority')}: ${this._(label)}</grampsjs-tooltip
         >
       </span>

@@ -14,9 +14,9 @@ import './GrampsjsTooltip.js'
 
 import {fireEvent} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -39,7 +39,6 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
 
   static get properties() {
     return {
-      add: {type: Boolean},
       editMode: {type: Boolean},
       editTitle: {type: String},
       editDialogContent: {type: String},
@@ -49,7 +48,6 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
 
   constructor() {
     super()
-    this.add = false
     this.editMode = false
     this.editTitle = ''
     this.editDialogContent = ''
@@ -66,7 +64,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
                 id="button-close"
                 @click="${this._handleCloseIcon}"
               ></mwc-icon-button>
-              <grampsjs-tooltip for="button-close" .strings="${this.strings}"
+              <grampsjs-tooltip for="button-close" .appState="${this.appState}"
                 >${this._('Stop editing')}</grampsjs-tooltip
               > `
           : html`<mwc-icon-button
@@ -93,7 +91,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
                       ></mwc-icon-button>
                       <grampsjs-tooltip
                         for="button-save"
-                        .strings="${this.strings}"
+                        .appState="${this.appState}"
                         >${this._('_Save')}</grampsjs-tooltip
                       >
                     `
@@ -104,21 +102,23 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
                   id="button-delete"
                   @click="${this._handleDeleteIcon}"
                 ></mwc-icon-button>
-                <grampsjs-tooltip for="button-delete" .strings="${this.strings}"
+                <grampsjs-tooltip
+                  for="button-delete"
+                  .appState="${this.appState}"
                   >${this._('_Delete')}</grampsjs-tooltip
                 >
               `
             : html`
-                ${this.add
+                ${this.appState.permissions.canAdd
                   ? html`
                       <grampsjs-add-menu
                         slot="actionItems"
-                        .strings="${this.strings}"
+                        .appState="${this.appState}"
                         id="button-add"
                       ></grampsjs-add-menu>
                       <grampsjs-tooltip
                         for="button-add"
-                        .strings="${this.strings}"
+                        .appState="${this.appState}"
                         >${this._('Add')}</grampsjs-tooltip
                       >
                     `
@@ -131,7 +131,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
                 ></mwc-icon-button>
                 <grampsjs-tooltip
                   for="button-settings"
-                  .strings="${this.strings}"
+                  .appState="${this.appState}"
                   >${this._('Preferences')}</grampsjs-tooltip
                 >
                 <mwc-icon-button
@@ -140,7 +140,9 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
                   id="button-search"
                   @click="${() => this._handleNav('search')}"
                 ></mwc-icon-button>
-                <grampsjs-tooltip for="button-search" .strings="${this.strings}"
+                <grampsjs-tooltip
+                  for="button-search"
+                  .appState="${this.appState}"
                   >${this._('Search')}</grampsjs-tooltip
                 >
               `

@@ -102,7 +102,7 @@ export const GrampsjsEditMatchMixin = superClass =>
           ? html`
               <grampsjs-connected-dna-match-table
                 .postData="${{string: this.data.raw_data?.[0]}}"
-                .strings="${this.strings}"
+                .appState="${this.appState}"
                 @connected-component:updated="${e =>
                   this._handleMatchTableUpdated(e)}"
               ></grampsjs-connected-dna-match-table>

@@ -172,7 +172,7 @@ export class GrampsjsViewTree extends GrampsjsView {
         @tree:home="${this._backToHomePerson}"
         grampsId=${this.grampsId}
         ?active=${this.active}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .settings=${this.settings}
         ?disableBack=${this._history.length < 2}
         ?disableHome=${this.grampsId === this.settings.homePerson}
@@ -189,7 +189,7 @@ export class GrampsjsViewTree extends GrampsjsView {
         @tree:home="${this._backToHomePerson}"
         grampsId=${this.grampsId}
         ?active=${this.active}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .settings=${this.settings}
         ?disableBack=${this._history.length < 2}
         ?disableHome=${this.grampsId === this.settings.homePerson}
@@ -206,7 +206,7 @@ export class GrampsjsViewTree extends GrampsjsView {
         @tree:home="${this._backToHomePerson}"
         grampsId=${this.grampsId}
         ?active=${this.active}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .settings=${this.settings}
         ?disableBack=${this._history.length < 2}
         ?disableHome=${this.grampsId === this.settings.homePerson}
@@ -223,7 +223,7 @@ export class GrampsjsViewTree extends GrampsjsView {
         @tree:home="${this._backToHomePerson}"
         grampsId=${this.grampsId}
         ?active=${this.active}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .settings=${this.settings}
         ?disableBack=${this._history.length < 2}
         ?disableHome=${this.grampsId === this.settings.homePerson}
@@ -240,7 +240,7 @@ export class GrampsjsViewTree extends GrampsjsView {
         @tree:home="${this._backToHomePerson}"
         grampsId=${this.grampsId}
         ?active=${this.active}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .settings=${this.settings}
         ?disableBack=${this._history.length < 2}
         ?disableHome=${this.grampsId === this.settings.homePerson}

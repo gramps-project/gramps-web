@@ -38,7 +38,7 @@ class GrampsjsFormPlaceRef extends GrampsjsObjectForm {
                 },
               ]
             : []}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           id="place-select"
           label="${this._('Select')}"
           class="edit"
@@ -53,7 +53,7 @@ class GrampsjsFormPlaceRef extends GrampsjsObjectForm {
                 fullwidth
                 id="date"
                 @formdata:changed="${this._handleFormData}"
-                .strings="${this.strings}"
+                .appState="${this.appState}"
                 .data="${this.data.date}"
               >
               </grampsjs-form-select-date>
@@ -63,7 +63,7 @@ class GrampsjsFormPlaceRef extends GrampsjsObjectForm {
                 fullwidth
                 id="date"
                 @formdata:changed="${this._handleFormData}"
-                .strings="${this.strings}"
+                .appState="${this.appState}"
               >
               </grampsjs-form-select-date>
             `}

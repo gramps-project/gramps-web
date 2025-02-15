@@ -22,7 +22,7 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
 
   get _fetchUrl() {
     return `/api/families/?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=self&keys=gramps_id,profile,change`
   }
 
@@ -39,7 +39,7 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
   renderFilters() {
     return html`
       <grampsjs-filter-type
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         label="${this._('Relationship type:').replace(':', '')}"
         typeName="family_relation_types"
         rule="HasRelType"
@@ -47,13 +47,18 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
 
       <grampsjs-filter-properties
         hasCount
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .props="${filterCounts.families}"
         label="${this._('Associations')}"
       ></grampsjs-filter-properties>
 
-      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
+      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
     `
+  }
+
+  get canAdd() {
+    // to add a family, permissions to edit people is needed too
+    return this.appState.permissions.canAdd && this.appState.permissions.canEdit
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -66,7 +71,7 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
       mother: `${row?.profile?.mother?.name_surname || '…'}, ${
         row?.profile?.mother?.name_given || '…'
       }`,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+      change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
     return formattedRow
   }

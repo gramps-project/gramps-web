@@ -8,12 +8,12 @@ import '@material/web/switch/switch'
 
 import {mdiCog} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
 import {renderIconSvg} from '../icons.js'
 import './GrampsjsTooltip.js'
 
-class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -116,7 +116,7 @@ class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
             @click="${this._handleSpanClick}"
             ?disabled="${this.span < 0}"
           >
-            <grampsjs-tooltip for="span-button" .strings="${this.strings}"
+            <grampsjs-tooltip for="span-button" .appState="${this.appState}"
               >${this._('Span')}</grampsjs-tooltip
             >
             <md-icon
@@ -129,7 +129,7 @@ class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
           @input="${this._handleSwitch}"
           ?selected="${this.span > 0}"
         ></md-switch>
-        <grampsjs-tooltip for="filter-switch" .strings="${this.strings}"
+        <grampsjs-tooltip for="filter-switch" .appState="${this.appState}"
           >${this._('Toggle time filter for places')}</grampsjs-tooltip
         >
       </div>

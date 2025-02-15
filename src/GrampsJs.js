@@ -14,14 +14,7 @@ import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-linear-progress'
 import '@material/mwc-snackbar'
-import {
-  apiGet,
-  apiPost,
-  getSettings,
-  getPermissions,
-  updateSettings,
-  apiRefreshAuthToken,
-} from './api.js'
+import {getSettings, apiRefreshAuthToken} from './api.js'
 import {
   grampsStrings,
   getFrontendStrings,
@@ -41,6 +34,7 @@ import './components/GrampsjsUpgradeDb.js'
 import './components/GrampsjsUndoTransaction.js'
 import './views/GrampsjsViewSettingsOnboarding.js'
 import {sharedStyles} from './SharedStyles.js'
+import {getInitialAppState, appStateUpdatePermissions} from './appState.js'
 
 const LOADING_STATE_INITIAL = 0
 const LOADING_STATE_UNAUTHORIZED = 1
@@ -57,21 +51,11 @@ const MINIMUM_API_VERSION = '2.3.0'
 export class GrampsJs extends LitElement {
   static get properties() {
     return {
+      appState: {type: Object},
       wide: {type: Boolean},
       progress: {type: Boolean},
       loadingState: {type: Number},
-      settings: {type: Object},
-      canAdd: {type: Boolean},
-      canEdit: {type: Boolean},
-      canViewPrivate: {type: Boolean},
-      canManageUsers: {type: Boolean},
       _homePersonDetails: {type: Object},
-      _lang: {type: String},
-      _strings: {type: Object},
-      _dbInfo: {type: Object},
-      _page: {type: String},
-      _pageId: {type: String},
-      _pageId2: {type: String},
       _showShortcuts: {type: Boolean},
       _shortcutPressed: {type: String},
       _firstRunToken: {type: String},
@@ -82,22 +66,11 @@ export class GrampsJs extends LitElement {
 
   constructor() {
     super()
+    this.appState = getInitialAppState()
     this.wide = false
     this.progress = false
     this.loadingState = LOADING_STATE_INITIAL
-    this.settings = getSettings()
-    this.canAdd = false
-    this.canEdit = false
-    this.canViewPrivate = false
-    this.canManageUsers = false
     this._homePersonDetails = {}
-    this._lang = ''
-    this._strings = {}
-    this._dbInfo = {}
-    this._page = 'home'
-    this._pageId = ''
-    this._pageId2 = ''
-
     this._showShortcuts = false
     this._shortcutPressed = ''
     this._firstRunToken = ''
@@ -284,7 +257,7 @@ export class GrampsJs extends LitElement {
       <mwc-snackbar id="notification-snackbar" leading></mwc-snackbar>
       ${this._reindexNeeded ? this._renderReindexSnackbar() : ''}
       <grampsjs-undo-transaction
-        .strings="${this._strings}"
+        .appState="${this.appState}"
       ></grampsjs-undo-transaction>
       <grampsjs-update-available>
         <mwc-snackbar
@@ -310,7 +283,7 @@ export class GrampsJs extends LitElement {
       timeoutMs="-1"
       labelText="${this._('The search index needs to be rebuilt.')}"
     >
-      ${this.canManageUsers
+      ${this.appState.permissions.canManageUsers
         ? html`
             <mwc-button slot="action" @click="${this._handleReindexButton}"
               >${this._('Settings')}</mwc-button
@@ -423,8 +396,7 @@ export class GrampsJs extends LitElement {
 
   _renderSchemaMismatch() {
     return html`<grampsjs-upgrade-db
-      .dbInfo="${this._dbInfo}"
-      .strings="${this._strings}"
+      .appState="${this.appState}"
       @dbupgrade:complete="${this._handleDbUpgradeComplete}"
     ></grampsjs-upgrade-db>`
   }
@@ -433,8 +405,8 @@ export class GrampsJs extends LitElement {
     return html`
       <grampsjs-login
         ?register="${register}"
-        .strings="${this._strings}"
-        tree="${this._pageId || ''}"
+        .appState="${this.appState}"
+        tree="${this.appState.path.pageId}"
       ></grampsjs-login>
     `
   }
@@ -442,7 +414,7 @@ export class GrampsJs extends LitElement {
   _renderFirstRun() {
     return html`
       <grampsjs-first-run
-        .strings="${this._strings}"
+        .appState="${this.appState}"
         token="${this._firstRunToken}"
         @firstrun:done="${this._firstRunDone}"
       ></grampsjs-first-run>
@@ -456,7 +428,7 @@ export class GrampsJs extends LitElement {
           @onboarding:completed="${this._setReady}"
           class="page"
           active
-          .strings="${this._strings}"
+          .appState="${this.appState}"
           ?requireHomePerson="${false}"
         ></grampsjs-view-settings-onboarding>
       </div>
@@ -471,15 +443,15 @@ export class GrampsJs extends LitElement {
       return this._renderNoConn()
     }
     if (this.loadingState === LOADING_STATE_UNAUTHORIZED) {
-      const {loginRedirect} = window.grampsjsConfig
+      const {loginRedirect} = this.appState.frontendConfig
       if (
         loginRedirect &&
-        this._page !== 'login' &&
-        this._page !== 'register'
+        this.appState.path.page !== 'login' &&
+        this.appState.path.page !== 'register'
       ) {
         window.location.href = loginRedirect
       }
-      if (this._page === 'register') {
+      if (this.appState.path.page === 'register') {
         window.history.pushState({}, '', 'register')
         return this._renderLogin(true)
       }
@@ -490,7 +462,7 @@ export class GrampsJs extends LitElement {
       window.history.pushState({}, '', 'firstrun')
       return this._renderFirstRun()
     }
-    if (!getSettings().lang) {
+    if (!this.appState.settings.lang) {
       this.loadingState = LOADING_STATE_MISSING_SETTINGS
     }
     if (this.loadingState === LOADING_STATE_DB_SCHEMA_MISMATCH) {
@@ -499,16 +471,16 @@ export class GrampsJs extends LitElement {
     if (this.loadingState === LOADING_STATE_MISSING_SETTINGS) {
       return this._renderOnboarding()
     }
-    if (this._page === 'login') {
+    if (this.appState.path.page === 'login') {
       window.history.pushState({}, '', '')
-      this._page = 'home'
+      this._updateAppState({path: {page: 'home', pageId: '', pageId2: ''}})
     }
     if (
-      this.settings.lang &&
+      this.appState.settings.lang &&
       !this._backendStringsLoaded() &&
       !this._loadingStrings
     ) {
-      this._loadStrings(grampsStrings, this.settings.lang)
+      this._loadStrings(grampsStrings, this.appState.settings.lang)
     }
     const tabs = {
       people: this._('People'),
@@ -524,38 +496,23 @@ export class GrampsJs extends LitElement {
     return html`
       <mwc-drawer type="dismissible" id="app-drawer" ?open="${this.wide}">
         <div>
-          <grampsjs-main-menu
-            .strings="${this._strings}"
-            .page="${this._page}"
-            .pageId="${this._pageId}"
-            .pageId2="${this._pageId2}"
-            ?canViewPrivate="${this.canViewPrivate}"
-            ?canUseChat="${this.canUseChat}"
-          ></grampsjs-main-menu>
+          <grampsjs-main-menu .appState="${this.appState}"></grampsjs-main-menu>
         </div>
         <div slot="appContent">
-          <grampsjs-app-bar
-            ?add="${this.canAdd}"
-            .strings="${this._strings}"
-          ></grampsjs-app-bar>
+          <grampsjs-app-bar .appState="${this.appState}"></grampsjs-app-bar>
           <mwc-linear-progress indeterminate ?closed="${!this.progress}">
           </mwc-linear-progress>
 
           <main>
             ${this._tabHtml(tabs)}
             <grampsjs-pages
-              .strings="${this._strings}"
-              .dbInfo="${this._dbInfo}"
+              .appState="${this.appState}"
+              .dbInfo="${this.appState.dbInfo}"
               .homePersonDetails=${this._homePersonDetails}
-              .settings="${this.settings}"
-              .page="${this._page}"
-              .pageId="${this._pageId}"
-              .pageId2="${this._pageId2}"
-              .canAdd="${this.canAdd}"
-              .canEdit="${this.canEdit}"
-              .canViewPrivate="${this.canViewPrivate}"
-              .canManageUsers="${this.canManageUsers}"
-              .canUseChat="${this.canUseChat}"
+              .settings="${this.appState.settings}"
+              .page="${this.appState.path.page}"
+              .pageId="${this.appState.path.pageId}"
+              .pageId2="${this.appState.path.pageId2}"
             >
             </grampsjs-pages>
           </main>
@@ -565,11 +522,13 @@ export class GrampsJs extends LitElement {
   }
 
   _tabHtml(tabs) {
-    if (!(this._page in tabs)) {
+    if (!(this.appState.path.page in tabs)) {
       return ''
     }
     return html`
-      <mwc-tab-bar activeIndex="${Object.keys(tabs).indexOf(this._page)}">
+      <mwc-tab-bar
+        activeIndex="${Object.keys(tabs).indexOf(this.appState.path.page)}"
+      >
         ${Object.keys(tabs).map(
           key =>
             html`<mwc-tab
@@ -609,6 +568,8 @@ export class GrampsJs extends LitElement {
   connectedCallback() {
     super.connectedCallback()
     this._loadDbInfo()
+    window.addEventListener('storage', () => this._handleStorage())
+    window.addEventListener('settings:changed', () => this._handleSettings())
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
     this.addEventListener('drawer:toggle', this._toggleDrawer)
     window.addEventListener('keydown', event => this._handleKey(event))
@@ -619,11 +580,11 @@ export class GrampsJs extends LitElement {
     window.addEventListener('token:refresh', () => this._handleRefresh())
 
     const browserLang = getBrowserLanguage()
-    if (browserLang && !this.settings.lang) {
-      updateSettings({lang: browserLang})
-    }
-    if (this.settings.lang) {
+    if (browserLang && !this.appState.settings.lang) {
+      this.appState.updateSettings({lang: browserLang})
       this._loadFrontendStrings(browserLang)
+    } else if (this.appState.settings.lang) {
+      this._loadFrontendStrings(this.appState.settings.lang)
     }
   }
 
@@ -643,18 +604,16 @@ export class GrampsJs extends LitElement {
     this.addEventListener('progress:on', this._progressOn.bind(this))
     this.addEventListener('progress:off', this._progressOff.bind(this))
     window.addEventListener('user:loggedout', this._handleLogout.bind(this))
-    window.addEventListener('settings:changed', this._handleSettings.bind(this))
   }
 
   async _loadFrontendStrings(lang) {
     const additionalStrings = await getFrontendStrings(lang)
-    this._strings = {...this._strings, ...additionalStrings}
-    this._strings.__lang__ = lang
-    this._lang = lang
+    const strings = {...this.appState.i18n.strings, ...additionalStrings}
+    this._updateAppState({i18n: {strings, lang}})
   }
 
   _loadDbInfo(setReady = true) {
-    apiGet('/api/metadata/').then(data => {
+    this.appState.apiGet('/api/metadata/').then(data => {
       if ('error' in data) {
         if (data.error === 'Network error') {
           this.loadingState = LOADING_STATE_UNAUTHORIZED_NOCONNECTION
@@ -664,14 +623,16 @@ export class GrampsJs extends LitElement {
         return
       }
       if ('data' in data) {
-        this._dbInfo = data.data
+        this._updateAppState({dbInfo: data.data})
         this._checkSearch()
         this._checkApiVersion()
         if (!this._checkDbSchema()) {
           return
         }
-        if (this._dbInfo?.locale?.language !== undefined) {
-          updateSettings({serverLang: this._dbInfo.locale.language})
+        if (this.appState.dbInfo?.locale?.language !== undefined) {
+          this.appState.updateSettings({
+            serverLang: this.appState.dbInfo.locale.language,
+          })
         }
         if (setReady) {
           this._setReady()
@@ -682,7 +643,7 @@ export class GrampsJs extends LitElement {
   }
 
   _checkApiVersion() {
-    const apiVersion = this._dbInfo?.gramps_webapi?.version
+    const apiVersion = this.appState.dbInfo?.gramps_webapi?.version
     if (!apiVersion) {
       return
     }
@@ -702,14 +663,14 @@ export class GrampsJs extends LitElement {
   }
 
   _checkSearch() {
-    const searchVersion = this._dbInfo?.search?.sifts?.version
+    const searchVersion = this.appState.dbInfo?.search?.sifts?.version
     if (searchVersion === undefined) {
       window._oldSearchBackend = true
       return
     }
     window._oldSearchBackend = false
-    const searchCount = this._dbInfo?.search?.sifts?.count ?? 0
-    const objCounts = this._dbInfo?.object_counts ?? {}
+    const searchCount = this.appState.dbInfo?.search?.sifts?.count ?? 0
+    const objCounts = this.appState.dbInfo?.object_counts ?? {}
     const objCount = Object.values(objCounts).reduce(
       (sum, value) => sum + value,
       0
@@ -722,10 +683,13 @@ export class GrampsJs extends LitElement {
   }
 
   _checkDbSchema() {
-    if (this._dbInfo?.database?.actual_schema) {
-      const actualSchema = parseInt(this._dbInfo.database.actual_schema, 10)
+    if (this.appState.dbInfo?.database?.actual_schema) {
+      const actualSchema = parseInt(
+        this.appState.dbInfo.database.actual_schema,
+        10
+      )
       const requiredSchema = parseInt(
-        this._dbInfo.database.schema.split('.')[0],
+        this.appState.dbInfo.database.schema.split('.')[0],
         10
       )
       if (actualSchema < requiredSchema) {
@@ -737,10 +701,11 @@ export class GrampsJs extends LitElement {
   }
 
   _fetchOnboardingToken() {
-    const hasTree = this._page === 'firstrun' && this._pageId
+    const hasTree =
+      this.appState.path.page === 'firstrun' && this.appState.path.pageId
     const url = '/api/token/create_owner/'
-    const payload = hasTree ? {tree: this._pageId} : {}
-    apiPost(url, payload, true, false).then(data => {
+    const payload = hasTree ? {tree: this.appState.path.pageId} : {}
+    this.appState.apiPost(url, payload, {dbChanged: false}).then(data => {
       if (!('error' in data) && data?.data?.access_token) {
         this.loadingState = LOADING_STATE_NO_OWNER
         this._firstRunToken = data?.data?.access_token
@@ -751,19 +716,21 @@ export class GrampsJs extends LitElement {
   }
 
   _loadHomePersonInfo() {
-    const grampsId = this.settings.homePerson
+    const grampsId = this.appState.settings.homePerson
     if (!grampsId) {
       return
     }
-    apiGet(
-      `/api/people/?gramps_id=${grampsId}&profile=self&extend=media_list`
-    ).then(data => {
-      if ('data' in data) {
-        ;[this._homePersonDetails] = data.data
-      } else if ('error' in data) {
-        this._showError(data.error)
-      }
-    })
+    this.appState
+      .apiGet(
+        `/api/people/?gramps_id=${grampsId}&profile=self&extend=media_list`
+      )
+      .then(data => {
+        if ('data' in data) {
+          ;[this._homePersonDetails] = data.data
+        } else if ('error' in data) {
+          this._showError(data.error)
+        }
+      })
   }
 
   _setReady() {
@@ -774,24 +741,23 @@ export class GrampsJs extends LitElement {
   _loadPage(path) {
     this._disableEditMode()
     if (path === '/' || path === `${BASE_DIR}/`) {
-      this._page = 'home'
-      this._pageId = ''
+      this._updateAppState({path: {page: 'home', pageId: '', pageId2: ''}})
     } else if (BASE_DIR === '') {
       const pathId = path.slice(1)
       const page = pathId.split('/')[0]
       const pageId = pathId.split('/')[1]
       const pageId2 = pathId.split('/')[2]
-      this._page = page
-      this._pageId = pageId || ''
-      this._pageId2 = pageId2 || ''
+      this._updateAppState({
+        path: {page, pageId: pageId ?? '', pageId2: pageId2 ?? ''},
+      })
     } else if (path.split('/')[0] === BASE_DIR.split('/')[0]) {
       const pathId = path.slice(1)
       const page = pathId.split('/')[1]
       const pageId = pathId.split('/')[2]
       const pageId2 = pathId.split('/')[3]
-      this._page = page
-      this._pageId = pageId || ''
-      this._pageId2 = pageId2 || ''
+      this._updateAppState({
+        path: {page, pageId: pageId ?? '', pageId2: pageId2 ?? ''},
+      })
     }
 
     if (!this.wide) {
@@ -808,7 +774,7 @@ export class GrampsJs extends LitElement {
   }
 
   _handleTab(page) {
-    if (page !== this._page) {
+    if (page !== this.appState.path.page) {
       const href = `${BASE_DIR}/${page}`
       this._loadPage(href)
       window.history.pushState({}, '', href)
@@ -821,10 +787,11 @@ export class GrampsJs extends LitElement {
     const page = path.split('/')[0]
     const pageId = path.split('/')[1]
     const pageId2 = path.split('/')[2]
+    const appPath = this.appState.path
     if (
-      page !== this._page ||
-      pageId !== this._pageId ||
-      pageId2 !== this._pageId2
+      page !== appPath.page ||
+      pageId !== appPath.pageId ||
+      pageId2 !== appPath.pageId2
     ) {
       const href = `${BASE_DIR}/${path}`
       this._loadPage(href)
@@ -870,14 +837,17 @@ export class GrampsJs extends LitElement {
     this.setPermissions()
   }
 
-  update(changed) {
-    super.update(changed)
+  updated(changed) {
+    console.log(this.appState.settings.lang, this.appState.i18n.lang)
     if (
-      changed.has('settings') &&
+      changed.has('appState') &&
       this.loadingState > LOADING_STATE_UNAUTHORIZED_NOCONNECTION
     ) {
-      if (this.settings.lang && this.settings.lang !== this._lang) {
-        this._loadStrings(grampsStrings, this.settings.lang)
+      if (
+        this.appState.settings.lang &&
+        this.appState.settings.lang !== this.appState.i18n.lang
+      ) {
+        this._loadStrings(grampsStrings, this.appState.settings.lang)
       }
     }
   }
@@ -885,31 +855,29 @@ export class GrampsJs extends LitElement {
   _backendStringsLoaded() {
     // to find out if we have already fetched the translations
     // from the backend, we just check for the first string
-    return Boolean(grampsStrings[0] in this._strings)
+    return Boolean(grampsStrings[0] in this.appState.i18n.strings)
   }
 
   async _loadStrings(strings, lang) {
     this._loadingStrings = true
-    const data = await apiPost(
+    const data = await this.appState.apiPost(
       `/api/translations/${lang}`,
       {strings},
-      true,
-      false
+      {dbChanged: false}
     )
-    this._loadingStrings = false
+    let _strings
     if ('data' in data) {
-      this._strings = data.data.reduce(
+      _strings = data.data.reduce(
         (obj, item) => Object.assign(obj, {[item.original]: item.translation}),
         {}
       )
       if (frontendLanguages.includes(lang)) {
         const additionalStrings = await getFrontendStrings(lang)
-        this._strings = Object.assign(additionalStrings, this._strings)
+        _strings = Object.assign(additionalStrings, _strings)
       }
-      this._strings.__lang__ = lang
-      this._lang = lang
-      fireEvent(this, 'language:changed', {lang})
+      this._updateAppState({i18n: {strings: _strings, lang}})
     }
+    this._loadingStrings = false
     if ('error' in data) {
       this._showError(data.error)
     }
@@ -936,11 +904,16 @@ export class GrampsJs extends LitElement {
     this.loadingState = LOADING_STATE_UNAUTHORIZED
   }
 
+  _handleStorage() {
+    this._handleSettings()
+    console.log('storage event')
+  }
+
   _handleSettings() {
-    this.settings = getSettings()
+    this._updateAppState({settings: getSettings()})
     if (
-      this.settings?.homePerson &&
-      this.settings.homePerson !== this._homePersonDetails.gramps_id
+      this.appState.settings?.homePerson &&
+      this.appState.settings.homePerson !== this._homePersonDetails.gramps_id
     ) {
       this._loadHomePersonInfo()
     }
@@ -1019,22 +992,19 @@ export class GrampsJs extends LitElement {
   }
 
   setPermissions() {
-    const permissions = getPermissions()
-    // If permissions is null, authorization is disabled and anything goes
-    this.canAdd = permissions.includes('AddObject')
-    this.canEdit = permissions.includes('EditObject')
-    this.canViewPrivate = permissions.includes('ViewPrivate')
-    this.canManageUsers = permissions.includes('EditOtherUser')
-    this.canUseChat =
-      permissions.includes('UseChat') && this._dbInfo?.server?.chat
+    this.appState = appStateUpdatePermissions(this.appState)
   }
 
   _(s) {
     let t = s
-    if (t in this._strings) {
-      t = this._strings[t]
+    if (t in this.appState.i18n.strings) {
+      t = this.appState.i18n.strings[t]
     }
     t = t.replace('_', '')
     return t
+  }
+
+  _updateAppState(obj) {
+    this.appState = {...this.appState, ...obj}
   }
 }

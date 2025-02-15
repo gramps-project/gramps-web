@@ -3,10 +3,10 @@ import {css, html, LitElement} from 'lit'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormEditName.js'
 import './GrampsjsObjectForm.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 
-export class GrampsjsName extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsName extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

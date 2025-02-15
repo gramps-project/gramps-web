@@ -27,7 +27,7 @@ export class GrampsjsViewHourglassChart extends GrampsjsViewTreeChartBase {
         nDesc=${this.nDesc + 1}
         .data=${this._data}
         gapX="60"
-        .strings=${this.strings}
+        .appState="${this.appState}"
       >
       </grampsjs-tree-chart>
     `

@@ -24,7 +24,7 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
 
   get _fetchUrl() {
     return `/api/events/?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=self&keys=gramps_id,profile,change`
   }
 
@@ -41,7 +41,7 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
   renderFilters() {
     return html`
       <grampsjs-filter-years
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         dateIndex="1"
         numArgs="4"
         label="${this._('Event Year')}"
@@ -49,19 +49,19 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
       ></grampsjs-filter-years>
 
       <grampsjs-filter-type
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         label="${this._('Event Type')}"
         typeName="event_types"
       ></grampsjs-filter-type>
 
       <grampsjs-filter-properties
         hasCount
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .props="${filterCounts.events}"
         label="${this._('Associations')}"
       ></grampsjs-filter-properties>
 
-      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
+      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
     `
   }
 
@@ -72,7 +72,7 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
       type: row?.profile?.type,
       date: row?.profile?.date,
       place: row?.profile?.place,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+      change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
     return formattedRow
   }

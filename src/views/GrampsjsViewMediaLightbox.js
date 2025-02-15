@@ -4,7 +4,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsLightbox.js'
 import '../components/GrampsjsRectContainer.js'
 import '../components/GrampsjsRect.js'
-import {apiGet, getMediaUrl} from '../api.js'
+import {getMediaUrl} from '../api.js'
 import {fireEvent, getNameFromProfile} from '../util.js'
 
 export class GrampsjsViewMediaLightbox extends GrampsjsView {
@@ -134,7 +134,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   _innerContainerContentImage() {
     return html` <grampsjs-rect-container
       ?edit="${this.editRect}"
-      .strings="${this.strings}"
+      .appState="${this.appState}"
       @rect:save="${this._handleSaveRect}"
     >
       ${this._renderImage()}
@@ -214,14 +214,14 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
 
   getUrl() {
     return `/api/media/${this.handle}?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&backlinks=true&extend=all`
   }
 
   _updateData() {
     if (this.handle !== undefined && this.handle) {
       this._data = {}
-      apiGet(this.getUrl()).then(data => {
+      this.appState.apiGet(this.getUrl()).then(data => {
         if ('data' in data) {
           this.error = false
           this._data = data.data
@@ -245,7 +245,11 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
           const refs = key in references ? references[key] : []
           const label =
             refs.length >= index
-              ? getNameFromProfile(refs[index] || {}, key, this.strings)
+              ? getNameFromProfile(
+                  refs[index] || {},
+                  key,
+                  this.appState.i18n.strings
+                )
               : '...'
           return {
             rect: obj?.media_list?.find(mobj => mobj.ref === this._data.handle)

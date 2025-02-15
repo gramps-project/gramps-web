@@ -21,7 +21,7 @@ export class GrampsjsPersonRelationship extends GrampsjsConnectedComponent {
 
   getUrl() {
     return `/api/relations/${this.person1}/${this.person2}?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }`
   }
 

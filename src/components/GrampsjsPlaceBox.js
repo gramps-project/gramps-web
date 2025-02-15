@@ -5,11 +5,11 @@ import '@material/mwc-button'
 
 import './GrampsJsImage.js'
 import './GrampsjsConnectedGallery.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 
-export class GrampsjsPlaceBox extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsPlaceBox extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -94,7 +94,7 @@ export class GrampsjsPlaceBox extends GrampsjsTranslateMixin(LitElement) {
             <h3>${this._('Gallery')}</h3>
 
             <grampsjs-connected-gallery
-              .strings=${this.strings}
+              .appState="${this.appState}"
               handle=${this.data.handle}
               objectType="place"
               square

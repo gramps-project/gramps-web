@@ -13,12 +13,13 @@ export const GrampsjsNewNoteMixin = superClass =>
             @formdata:changed="${this.handleEditor}"
             @keydown="${e => e.stopImmediatePropagation()}"
             id="note-editor"
+            .appState="${this.appState}"
           ></grampsjs-editor>
         </p>
 
         <grampsjs-form-select-type
           id="select-note-type"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           ?loadingTypes="${this.loadingTypes}"
           typeName="note_types"
           defaultTypeName="General"
@@ -30,7 +31,7 @@ export const GrampsjsNewNoteMixin = superClass =>
         <div class="spacer"></div>
         <grampsjs-form-private
           id="private"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
         ></grampsjs-form-private>
       `
     }

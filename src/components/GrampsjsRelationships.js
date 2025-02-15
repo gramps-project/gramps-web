@@ -5,9 +5,9 @@ import '@material/mwc-icon'
 import {sharedStyles} from '../SharedStyles.js'
 import {renderPerson} from '../util.js'
 import './GrampsjsChildren.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsRelationships extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -126,7 +126,7 @@ export class GrampsjsRelationships extends GrampsjsTranslateMixin(LitElement) {
             <grampsjs-children
               .profile=${profile?.children || []}
               .data=${family.child_ref_list}
-              .strings=${this.strings}
+              .appState="${this.appState}"
               highlightId="${this.grampsId}"
             >
             </grampsjs-children>

@@ -5,7 +5,7 @@ import '@material/mwc-textfield'
 import {mdiAccountDetails, mdiHomeAccount} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsTooltip.js'
-import {apiGet} from '../api.js'
+
 import {fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
 
@@ -98,7 +98,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
           )}</mwc-icon-button>
           <grampsjs-tooltip
             for="button-home"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
             >${this._('Home Person')}</grampsjs-tooltip
           >
 
@@ -111,7 +111,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
         ></mwc-icon-button>
         <grampsjs-tooltip
           for="btn-back"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
         >${this._('_Back')}</grampsjs-tooltip
         >
         <mwc-icon-button
@@ -120,7 +120,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
         >${renderIcon(mdiAccountDetails)}</mwc-icon-button>
         <grampsjs-tooltip
           for="btn-person"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
         >${this._('Person Details')}</grampsjs-tooltip
         >        <mwc-icon-button
           icon="settings"
@@ -129,7 +129,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
         ></mwc-icon-button>
         <grampsjs-tooltip
           for="btn-controls"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
         >${this._('Preferences')}</grampsjs-tooltip
       >
     <mwc-dialog id="menu-controls">
@@ -258,9 +258,9 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
   async _fetchData(grampsId) {
     this.loading = true
     const rules = this._getPersonRules(grampsId)
-    const data = await apiGet(
+    const data = await this.appState.apiGet(
       `/api/people/?rules=${encodeURIComponent(JSON.stringify(rules))}&locale=${
-        this.strings?.__lang__ || 'en'
+        this.appState.i18n.lang || 'en'
       }&profile=self&extend=event_ref_list,primary_parent_family,family_list`
     )
     this.loading = false

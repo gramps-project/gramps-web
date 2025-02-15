@@ -53,7 +53,7 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
         new
         @object:save="${this._handleAttrSave}"
         @object:cancel="${this._handleAttrCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-form-edit-attribute>
     `
@@ -73,7 +73,7 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
         ?source="${this.source}"
         @object:save="${this._handleAttrSaveEdit}"
         @object:cancel="${this._handleAttrCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${data}"
       >
       </grampsjs-form-edit-attribute>
