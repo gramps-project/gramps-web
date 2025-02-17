@@ -5,12 +5,12 @@ import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 
 const matchColumns = [
-  'Chromosome',
-  'Start Position',
-  'End Position',
-  'Side',
-  'cM',
-  'Number of SNPs',
+  {name: 'Chromosome'},
+  {name: 'Start Position', format: value => value.toLocaleString()},
+  {name: 'End Position', format: value => value.toLocaleString()},
+  {name: 'Side'},
+  {name: 'Length', unit: 'cM'},
+  {name: 'Number of SNPs', format: value => value.toLocaleString()},
 ]
 
 function formatSide(side) {
@@ -60,9 +60,10 @@ class GrampsjsDnaMatchTable extends GrampsjsAppStateMixin(LitElement) {
     return html`
       <div class="container">
         <grampsjs-table
-          .appState="${this.appState}"
+          sortable
           .data="${this._formatData(this.segments)}"
           .columns="${matchColumns}"
+          .appState="${this.appState}"
         ></grampsjs-table>
       </div>
     `
@@ -75,11 +76,11 @@ class GrampsjsDnaMatchTable extends GrampsjsAppStateMixin(LitElement) {
     }
     return data.map(row => [
       row.chromosome,
-      row.start ? row.start.toLocaleString() : row.start,
-      row.stop ? row.stop.toLocaleString() : row.stop,
+      row.start,
+      row.stop,
       this._(formatSide(row.side)),
-      row.cM ? row.cM.toLocaleString() : row.cM,
-      row.SNPs ? row.SNPs.toLocaleString() : row.SNPs,
+      row.cM,
+      row.SNPs,
     ])
   }
 }
