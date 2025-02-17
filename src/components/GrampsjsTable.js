@@ -242,6 +242,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     }
     return renderIconSvg(mdiSort, 'rgba(0, 0, 0, 0.2)')
   }
+
   _sortedData() {
     if (this.sortable && this.sort >= 0) {
       const sortFunc = this.descending
