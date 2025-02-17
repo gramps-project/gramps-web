@@ -2,7 +2,7 @@ import {html} from 'lit'
 import '@material/mwc-button'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet, getRecentObjects, setRecentObjects} from '../api.js'
+import {getRecentObjects, setRecentObjects} from '../api.js'
 import '../components/GrampsjsSearchResultList.js'
 
 export class GrampsjsViewRecentObject extends GrampsjsView {
@@ -28,14 +28,11 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     this._boundStorageHandler = this._handleStorage.bind(this)
     window.addEventListener('storage', this._boundStorageHandler)
     this._handleStorage()
-    window.addEventListener('language:changed', e =>
-      this._handleLanguageChanged(e)
-    )
   }
 
-  _handleLanguageChanged(e) {
+  _handleLanguageChanged(lang) {
     if (this._hasFirstUpdated) {
-      this._fetchData(e.detail.lang)
+      this._fetchData(lang)
     }
   }
 
@@ -44,7 +41,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     if (recentObjects !== undefined && recentObjects !== null) {
       this._data = recentObjects
       if (this._hasFirstUpdated) {
-        this._fetchData(this.strings.__lang__)
+        this._fetchData(this.appState.i18n.lang)
       }
     }
   }
@@ -59,7 +56,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     this._data = this._data.slice(-20)
     setRecentObjects(this._data)
     if (this.active) {
-      this._fetchData(this.strings.__lang__)
+      this._fetchData(this.appState.i18n.lang)
     } else {
       this._isStale = true
     }
@@ -85,7 +82,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
         : html`
             <grampsjs-search-result-list
               .data="${this._searchResult.slice().reverse()}"
-              .strings="${this.strings}"
+              .appState="${this.appState}"
               large
               noSep
               linked
@@ -103,7 +100,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
       .map(obj => obj.grampsId.trim().replace(/\s\s+/g, ' OR '))
       .filter(grampsId => grampsId && grampsId.trim())
       .join(' OR ')
-    const data = await apiGet(
+    const data = await this.appState.apiGet(
       `/api/search/?query=${query}&locale=${
         lang || 'en'
       }&profile=all&page=1&pagesize=100`
@@ -127,17 +124,22 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
 
   firstUpdated() {
     this._hasFirstUpdated = true
-    if ('__lang__' in this.strings) {
+    if (this.appState.i18n.lang) {
       // don't load before we have strings
-      this._fetchData(this.strings.__lang__)
+      this._fetchData(this.appState.i18n.lang)
     }
   }
 
-  update(changed) {
-    super.update(changed)
+  updated(changed) {
     if (changed.has('active') && this.active && this._isStale) {
-      this._fetchData(this.strings.__lang__)
+      this._fetchData(this.appState.i18n.lang)
       this._isStale = false
+    }
+    if (
+      changed.has('appState') &&
+      changed.get('appState')?.i18n?.lang !== this.appState.i18n.lang
+    ) {
+      this._handleLanguageChanged(this.appState.i18n.lang)
     }
   }
 }

@@ -11,7 +11,7 @@ export class GrampsjsViewRepository extends GrampsjsViewObject {
 
   getUrl() {
     return `/api/repositories/?gramps_id=${this.grampsId}&locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&backlinks=true&extend=all`
   }
 
@@ -19,7 +19,7 @@ export class GrampsjsViewRepository extends GrampsjsViewObject {
     return html`
       <grampsjs-repository
         .data=${this._data}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         ?edit="${this.edit}"
         ?canEdit="${this.canEdit}"
       ></grampsjs-repository>

@@ -3,7 +3,7 @@ import {html} from 'lit'
 import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
 import './GrampsjsFormPlaceRef.js'
 import {fireEvent} from '../util.js'
-import {apiGet} from '../api.js'
+
 import '@material/mwc-icon-button'
 import '@material/mwc-dialog'
 import '@material/mwc-button'
@@ -68,7 +68,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
       const handles = this.data.map(obj => obj.ref)
       for (let i = 0; i < handles.length; i += 1) {
         // eslint-disable-next-line no-await-in-loop
-        const data = await apiGet(this._getUrl(handles[i]))
+        const data = await this.appState.apiGet(this._getUrl(handles[i]))
         _places.push(data?.data || {})
       }
       this.places = [..._places]
@@ -77,7 +77,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
 
   _getUrl(handle) {
     return `/api/places/${handle}?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=self`
   }
 
@@ -87,7 +87,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
         new
         @object:save="${this._handlePlaceRefAdd}"
         @object:cancel="${this._handlePlaceRefCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         dialogTitle=${this._('Share an existing place')}
       >
       </grampsjs-form-placeref>

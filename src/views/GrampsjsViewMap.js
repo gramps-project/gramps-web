@@ -7,7 +7,7 @@ import '../components/GrampsjsMapMarker.js'
 import '../components/GrampsjsMapSearchbox.js'
 import '../components/GrampsjsMapTimeSlider.js'
 import '../components/GrampsjsPlaceBox.js'
-import {apiGet, getMediaUrl} from '../api.js'
+import {getMediaUrl} from '../api.js'
 import {isDateBetweenYears, getGregorianYears} from '../util.js'
 import '@material/mwc-textfield'
 
@@ -130,7 +130,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         @mapsearch:selected="${this._handleSearchSelected}"
         @placefilter:changed="${this._handlePlaceFilterChanged}"
         .data="${this._dataSearch}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .placeFilters="${this._placeFilters}"
         value="${this._valueSearch}"
         >${this._renderPlaceDetails()}</grampsjs-map-searchbox
@@ -139,7 +139,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         min="${this._minYear}"
         ?filterMap="${this._currentLayer === 'OpenHistoricalMap'}"
         @timeslider:change="${this._handleTimeSliderChange}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-map-time-slider>
     `
   }
@@ -157,7 +157,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     return html`
       <grampsjs-place-box
         .data="${object}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-place-box>
     `
   }
@@ -367,8 +367,8 @@ export class GrampsjsViewMap extends GrampsjsView {
     const query = encodeURIComponent(
       `${value}*${window._oldSearchBackend ? ' AND type:place`' : ''}`
     )
-    const locale = this.strings?.__lang__ || 'en'
-    const data = await apiGet(
+    const locale = this.appState.i18n.lang || 'en'
+    const data = await this.appState.apiGet(
       `/api/search/?query=${query}&locale=${locale}&profile=self&page=1&pagesize=20${
         window._oldSearchBackend ? '' : '&type=place'
       }`
@@ -384,9 +384,9 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   async _fetchPlaces() {
-    const data = await apiGet(
+    const data = await this.appState.apiGet(
       `/api/places/?locale=${
-        this.strings?.__lang__ || 'en'
+        this.appState.i18n.lang || 'en'
       }&profile=self&backlinks=1`
     )
     this.loading = false
@@ -401,7 +401,9 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   async _fetchEvents() {
-    const data = await apiGet('/api/events/?keys=date,handle,place')
+    const data = await this.appState.apiGet(
+      '/api/events/?keys=date,handle,place'
+    )
     this.loading = false
     if ('data' in data) {
       this.error = false
@@ -436,7 +438,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         },
       ],
     }
-    const data = await apiGet(
+    const data = await this.appState.apiGet(
       `/api/media/?rules=${encodeURIComponent(JSON.stringify(rules))}`
     )
     this.loading = false
@@ -451,7 +453,7 @@ export class GrampsjsViewMap extends GrampsjsView {
 
   _getMapCenter() {
     if (this._dataPlaces.length === 0) {
-      const locale = this.strings?.__lang__ || 'en'
+      const locale = this.appState.i18n.lang || 'en'
       return languageCoordinates[locale] || [0, 0]
     }
     let x = 0

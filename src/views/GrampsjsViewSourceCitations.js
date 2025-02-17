@@ -27,7 +27,7 @@ export class GrampsjsViewSourceCitations extends GrampsjsViewObjectsDetail {
       })),
     }
     return `/api/citations/?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&extend=all&rules=${encodeURIComponent(JSON.stringify(rules))}`
   }
 
@@ -37,7 +37,7 @@ export class GrampsjsViewSourceCitations extends GrampsjsViewObjectsDetail {
         hasShare
         .data="${this._data}"
         ?edit="${this.edit}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-source-citations>
     `

@@ -9,7 +9,7 @@ import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsShareUrl.js'
 import '../components/GrampsjsSysinfo.js'
 import '../components/GrampsjsTreeQuotas.js'
-import {doLogout, apiGet, apiPost, apiPut, getTreeId} from '../api.js'
+
 import {fireEvent} from '../util.js'
 import '@material/mwc-textfield'
 import '@material/mwc-button'
@@ -17,14 +17,14 @@ import '@material/mwc-select'
 import '@material/mwc-tab'
 import '@material/mwc-tab-bar'
 
-function renderLogoutButton() {
+function renderLogoutButton(appState) {
   return html`
     <mwc-button
       outlined
       class="red"
       label="logout"
       icon="exit_to_app"
-      @click=${() => doLogout()}
+      @click=${() => appState.signout()}
     ></mwc-button>
   `
 }
@@ -48,7 +48,6 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
 
   static get properties() {
     return {
-      owner: {type: Boolean},
       page: {type: String},
       dbInfo: {type: Object},
       _userInfo: {type: Object},
@@ -57,10 +56,13 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
 
   constructor() {
     super()
-    this.owner = false
     this.page = 'user'
     this.dbInfo = {}
     this._userInfo = {}
+  }
+
+  get owner() {
+    return this.appState.permissions.canManageUsers
   }
 
   renderContent() {
@@ -113,7 +115,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
   // eslint-disable-next-line class-methods-use-this
   get _registerUrl() {
     const url = new URL(document.URL)
-    const tree = getTreeId()
+    const {tree} = this.appState.auth.claims
     return `${url.origin}/register/${tree}`
   }
 
@@ -121,7 +123,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     return html`
       <grampsjs-view-admin-settings
         active
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .dbInfo="${this.dbInfo}"
         .userInfo="${this._userInfo}"
       >
@@ -133,7 +135,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     return html`
       <grampsjs-view-user-management
         active
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .dbInfo="${this.dbInfo}"
       >
       </grampsjs-view-user-management>
@@ -142,7 +144,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
 
   renderUserSettings() {
     return html`
-      ${renderLogoutButton()}
+      ${renderLogoutButton(this.appState)}
 
       <h3>${this._('User Information')}</h3>
       <dl>
@@ -181,11 +183,13 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
 
       <grampsjs-sysinfo
         .data="${this.dbInfo}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .userInfo="${this._userInfo}"
       ></grampsjs-sysinfo>
       <h3>${this._('Tree Information')}</h3>
-      <p class="small">ID: <span class="monospace">${getTreeId()}</a></p>
+      <p class="small">ID: <span class="monospace">${
+        this.appState.auth.claims.tree
+      }</a></p>
 
       `
   }
@@ -243,7 +247,7 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     }
     this.loading = true
     const payload = {email: form.value}
-    const data = await apiPut('/api/users/-/', payload)
+    const data = await this.appState.apiPut('/api/users/-/', payload)
 
     this.loading = false
     if ('error' in data) {
@@ -273,24 +277,26 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       old_password: formOldPw.value,
       new_password: formNewPw.value,
     }
-    apiPost('/api/users/-/password/change', payload).then(data => {
-      this.loading = false
-      if ('error' in data) {
-        this.error = true
-        this._errorMessage = data.error
-      } else {
-        this.error = false
-        fireEvent(this, 'grampsjs:notification', {
-          message: 'Password successfully updated',
-        })
-        formOldPw.value = ''
-        formNewPw.value = ''
-      }
-    })
+    this.appState
+      .apiPost('/api/users/-/password/change', payload)
+      .then(data => {
+        this.loading = false
+        if ('error' in data) {
+          this.error = true
+          this._errorMessage = data.error
+        } else {
+          this.error = false
+          fireEvent(this, 'grampsjs:notification', {
+            message: 'Password successfully updated',
+          })
+          formOldPw.value = ''
+          formNewPw.value = ''
+        }
+      })
   }
 
   async _fetchOwnUserDetails() {
-    const data = await apiGet('/api/users/-/')
+    const data = await this.appState.apiGet('/api/users/-/')
     if ('error' in data) {
       this.error = true
       this._errorMessage = data.error

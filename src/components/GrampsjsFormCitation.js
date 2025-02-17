@@ -15,7 +15,7 @@ class GrampsjsFormCitation extends GrampsjsObjectForm {
         fixedMenuPosition
         style="min-height: 300px;"
         objectType="citation"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         id="citation-select"
         label="${this._('Select')}"
         class="edit"

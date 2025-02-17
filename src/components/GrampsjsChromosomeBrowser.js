@@ -8,11 +8,11 @@ import '@material/mwc-list/mwc-list-item'
 
 import {schemeSet1} from 'd3-scale-chromatic'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {ChromosomeBrowser} from '../charts/ChromosomeBrowser.js'
 import {clickKeyHandler, personDisplayName} from '../util.js'
 
-class GrampsjsChromosomeBrowser extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

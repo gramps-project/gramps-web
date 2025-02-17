@@ -2,7 +2,6 @@
 import {html, css} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet} from '../api.js'
 
 export class GrampsjsViewObjectsDetail extends GrampsjsView {
   static get styles() {
@@ -68,7 +67,7 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
     } else {
       this._data = []
       this.loading = true
-      apiGet(this.getUrl()).then(data => {
+      this.appState.apiGet(this.getUrl()).then(data => {
         this.loading = false
         if ('data' in data) {
           this.error = false

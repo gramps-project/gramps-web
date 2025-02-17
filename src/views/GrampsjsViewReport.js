@@ -2,7 +2,7 @@ import {css, html} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsReportOptions.js'
-import {apiGet, getReportUrl} from '../api.js'
+import {getReportUrl} from '../api.js'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsViewReport extends GrampsjsView {
@@ -72,7 +72,7 @@ export class GrampsjsViewReport extends GrampsjsView {
         .optionsDict="${this.data.options_dict}"
         .optionsHelp="${this.data.options_help}"
         @report-options:changed="${this._handleOptionsChanged}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-report-options>
 
       <mwc-button unelevated @click="${this._handleSubmit}"
@@ -86,7 +86,7 @@ export class GrampsjsViewReport extends GrampsjsView {
 
   async _fetchData() {
     this.loading = true
-    const data = await apiGet(`/api/reports/${this.reportId}`)
+    const data = await this.appState.apiGet(`/api/reports/${this.reportId}`)
     this.loading = false
     if ('data' in data) {
       this.error = false
@@ -98,9 +98,9 @@ export class GrampsjsViewReport extends GrampsjsView {
   }
 
   firstUpdated() {
-    if ('__lang__' in this.strings) {
+    if (this.appState.i18n.lang) {
       // don't load before we have strings
-      this._fetchData(this.strings.__lang__)
+      this._fetchData(this.appState.i18n.lang)
     }
     this._updateQueryUrl()
   }

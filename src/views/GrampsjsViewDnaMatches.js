@@ -11,7 +11,7 @@ import '../components/GrampsjsDnaMatch.js'
 import '../components/GrampsjsFormNewMatch.js'
 import '../components/GrampsjsChromosomeBrowser.js'
 import '../components/GrampsjsBreadcrumbs.js'
-import {apiGet, apiPut, apiPost} from '../api.js'
+
 import {fireEvent, personDisplayName} from '../util.js'
 
 export class GrampsjsViewDnaMatches extends GrampsjsView {
@@ -46,7 +46,6 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
 
   static get properties() {
     return {
-      canEdit: {type: Boolean},
       chromosome: {type: Boolean},
       dialogContent: {type: String},
       grampsId: {type: String},
@@ -63,7 +62,6 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
 
   constructor() {
     super()
-    this.canEdit = false
     this.chromosome = false
     this.dialogContent = ''
     this.grampsId = ''
@@ -85,7 +83,8 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
         : ''}
       ${this.matches ? this._renderMatches() : ''}
       ${this.chromosome ? this._renderChromosome() : ''}
-      ${this.canEdit ? this.renderFab() : ''} ${this.dialogContent}
+      ${this.appState.permissions.canEdit ? this.renderFab() : ''}
+      ${this.dialogContent}
     `
   }
 
@@ -169,7 +168,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
         .person="${this._data.find(
           person => person.gramps_id === this.grampsId
         ) ?? {}}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-dna-match>
     `
   }
@@ -179,7 +178,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
       <div class="container">
         <grampsjs-dna-matches
           .data="${this._matchData}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           .person="${this._data.find(
             person => person.gramps_id === this.grampsId
           )}"
@@ -220,7 +219,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
       <div class="container">
         <grampsjs-chromosome-browser
           .data="${this._matchData}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           .person="${this._data.find(
             person => person.gramps_id === this.grampsId
           )}"
@@ -243,7 +242,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
   _handleClickAdd() {
     this.dialogContent = html`
       <grampsjs-form-new-match
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         @object:save="${this._handleSaveMatch}"
         @object:cancel="${this._handleCancelDialog}"
         dialogTitle=${this._('Add new DNA match')}
@@ -264,7 +263,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
   async _handleSaveMatch(e) {
     const sourceHandle = e.detail.data.source_handle
     const targetHandle = e.detail.data.target_handle
-    const personData = await apiGet(`/api/people/${sourceHandle}`)
+    const personData = await this.appState.apiGet(`/api/people/${sourceHandle}`)
     const {extended, profile, ...person} = personData.data
     const noteHandle = await this._createNote(e.detail.data.raw_data[0])
     const newPersonRef = {
@@ -277,7 +276,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
       ...person,
       person_ref_list: [...person.person_ref_list, newPersonRef],
     }
-    await apiPut(`/api/people/${sourceHandle}`, updatedPerson)
+    await this.appState.apiPut(`/api/people/${sourceHandle}`, updatedPerson)
     this.dialogContent = ''
   }
 
@@ -286,7 +285,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
       _class: 'Note',
       text: {_class: 'StyledText', string: noteContent},
     }
-    const data = await apiPost('/api/notes/', note, true, false)
+    const data = await this.appState.apiPost('/api/notes/', note, true, false)
     let noteHandle
     if ('data' in data) {
       this.error = false
@@ -329,9 +328,9 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
     const uri = `/api/people/?rules=${encodeURIComponent(
       JSON.stringify(rules)
     )}&locale=${
-      this.strings.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&sort=name&extend=person_ref_list&profile=references`
-    const data = await apiGet(uri)
+    const data = await this.appState.apiGet(uri)
     this.loading = false
     this._selectDataLoading = false
     if ('data' in data) {
@@ -375,9 +374,9 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
       return
     }
     const uri = `/api/people/${this.selectedHandle}/dna/matches?locale=${
-      this.strings.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&raw=1`
-    const data = await apiGet(uri)
+    const data = await this.appState.apiGet(uri)
     this.loading = false
     this._matchDataLoading = false
     if ('data' in data) {
@@ -429,7 +428,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
   }
 
   firstUpdated() {
-    if ('__lang__' in this.strings) {
+    if (this.appState.i18n.lang) {
       // don't load before we have strings
       this._fetchData()
     }
@@ -447,7 +446,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
     const handleMatch = this._getSelectedMatchHandle()
     if (this.active && handle && handleMatch) {
       const url = `/api/people/${handle}`
-      const personData = await apiGet(url)
+      const personData = await this.appState.apiGet(url)
       const person = personData.data
       if (!person.handle) {
         return
@@ -458,7 +457,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
           ref => ref.ref !== handleMatch
         ),
       }
-      const data = await apiPut(url, payload, true, false)
+      const data = await this.appState.apiPut(url, payload, {dbChanged: false})
       if ('data' in data) {
         fireEvent(this, 'db:changed')
         this._goTo(`dna-matches/${grampsId}`)

@@ -12,9 +12,9 @@ import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
 import './GrampsjsFormString.js'
 import './GrampsjsFormSurname.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFormName extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -153,7 +153,7 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
             id="surnames${i}"
             idx="${i}"
             @formdata:changed="${this._handleFormData}"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
             .data="${obj}"
             .types="${this.types}"
             ?loadingTypes=${this.loadingTypes}
@@ -179,7 +179,9 @@ class GrampsjsFormName extends GrampsjsTranslateMixin(LitElement) {
               @click="${this._handleShowMore}"
               icon="more_horiz"
             ></mwc-icon-button>
-            <grampsjs-tooltip for="button-show-more" .strings="${this.strings}"
+            <grampsjs-tooltip
+              for="button-show-more"
+              .appState="${this.appState}"
               >${this._('Show more')}</grampsjs-tooltip
             >
           `}

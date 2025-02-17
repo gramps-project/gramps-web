@@ -28,7 +28,7 @@ export class GrampsjsConnectedGallery extends GrampsjsConnectedComponent {
   getUrl() {
     return `/api/${objectTypeToEndpoint[this.objectType]}/${
       this.handle
-    }?extend=all&profile=all&locale=${this.strings?.__lang__ || 'en'}`
+    }?extend=all&profile=all&locale=${this.appState.i18n.lang || 'en'}`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -50,7 +50,7 @@ export class GrampsjsConnectedGallery extends GrampsjsConnectedComponent {
     }
     return html`
       <grampsjs-gallery
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .media=${object?.extended?.media}
         .mediaRef=${object?.media_list}
         radius="${this.radius}"

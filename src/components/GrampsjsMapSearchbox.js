@@ -10,10 +10,10 @@ import '@material/web/switch/switch'
 
 import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {debounce, fireEvent} from '../util.js'
 
-class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

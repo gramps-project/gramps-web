@@ -10,7 +10,7 @@ import '@material/web/button/filled-button'
 
 import './GrampsjsButtonGroup.js'
 import {renderIconSvg} from '../icons.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {
   fireEvent,
   clickKeyHandler,
@@ -19,7 +19,7 @@ import {
   filterMime,
 } from '../util.js'
 
-export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -113,7 +113,7 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
           icon="filter_list_off"
           @click="${this._handleFilterOff}"
         ></mwc-icon-button>
-        <grampsjs-tooltip for="filteroff" .strings="${this.strings}"
+        <grampsjs-tooltip for="filteroff" .appState="${this.appState}"
           >${this._('Clear all filters')}</grampsjs-tooltip
         >
         ${this._renderFilterChips()}

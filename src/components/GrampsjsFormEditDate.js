@@ -27,7 +27,7 @@ class GrampsjsFormEditDate extends GrampsjsObjectForm {
         id="${this.prop}"
         label="${this._('Date')}"
         .data="${this.data.date}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-form-select-date>
     `

@@ -4,10 +4,10 @@ import '@material/mwc-icon-button'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {clickKeyHandler} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsTooltip.js'
 
-export class GrampsjsShareUrl extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsShareUrl extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

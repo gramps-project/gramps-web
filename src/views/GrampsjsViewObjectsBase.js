@@ -14,7 +14,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsFilterChip.js'
 import '../components/GrampsjsFilters.js'
-import {apiGet} from '../api.js'
+
 import {fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
 
@@ -126,7 +126,6 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       _pages: {type: Number},
       _pageSize: {type: Number},
       _sort: {type: String},
-      canAdd: {type: Boolean},
       _objectsName: {type: String},
       altView: {type: Boolean},
       _oldUrl: {type: String},
@@ -142,7 +141,6 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     this._pages = -1
     this._pageSize = 20
     this._sort = ''
-    this.canAdd = false
     this._objectsName = ''
     this.altView = false
     this._oldUrl = ''
@@ -182,11 +180,15 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
         page="${this._page}"
         pages="${this._pages}"
         @page:changed="${this._handlePageChanged}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-pagination>
 
       ${this.canAdd ? this.renderFab() : ''}
     `
+  }
+
+  get canAdd() {
+    return this.appState.permissions.canAdd
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -199,7 +201,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     return html`
       <grampsjs-filters
         @filters:changed="${this._handleFiltersChanged}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         objectType="${this._objectsName}"
         ?errorGql="${this.error}"
       >
@@ -221,7 +223,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
 
   renderFilters() {
     return html`
-      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
+      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
     `
   }
 
@@ -259,7 +261,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       >
         ${this._renderSortIcon(isCurrent, isAscending)}
       </mwc-icon-button>
-      <grampsjs-tooltip for="btn-sort-${column}" .strings="${this.strings}"
+      <grampsjs-tooltip for="btn-sort-${column}" .appState="${this.appState}"
         >${this._('Sort')}</grampsjs-tooltip
       >
     </div>`
@@ -316,7 +318,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     this.loading = true
     const url = this._fullUrl
     this._oldUrl = url
-    apiGet(url).then(data => {
+    this.appState.apiGet(url).then(data => {
       this.loading = false
       if ('data' in data) {
         this._errorMessage = ''

@@ -5,7 +5,7 @@ import '@material/web/chips/chip-set'
 import '@material/web/chips/filter-chip'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
 
 const namespaces = {
@@ -21,7 +21,7 @@ const namespaces = {
   tags: 'Tags',
 }
 
-class GrampsjsDeleteAll extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsDeleteAll extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

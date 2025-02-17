@@ -8,12 +8,11 @@ import '@material/mwc-formfield'
 import '@material/mwc-button'
 import '@material/mwc-circular-progress'
 
-import {apiGet} from '../api.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -189,7 +188,8 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
 
   updateTypeData() {
     this.loadingTypes = true
-    apiGet('/api/types/')
+    this.appState
+      .apiGet('/api/types/')
       .then(data => {
         if ('data' in data) {
           this.types = data.data || {}
@@ -198,7 +198,7 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
         }
       })
       .then(() => {
-        apiGet('/api/types/?locale=1').then(data => {
+        this.appState.apiGet('/api/types/?locale=1').then(data => {
           this.loadingTypes = false
           if ('data' in data) {
             this.typesLocale = data.data || {}

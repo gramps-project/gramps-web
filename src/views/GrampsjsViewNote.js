@@ -17,7 +17,7 @@ export class GrampsjsViewNote extends GrampsjsViewObject {
       link_format: `${BASE_DIR}/{obj_class}/{gramps_id}`,
     }
     return `/api/notes/?gramps_id=${this.grampsId}&locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&backlinks=true&extend=all&formats=html&format_options=${encodeURIComponent(
       JSON.stringify(options)
     )}`
@@ -27,7 +27,7 @@ export class GrampsjsViewNote extends GrampsjsViewObject {
     return html`
       <grampsjs-note
         .data=${this._data}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         ?edit="${this.edit}"
       ></grampsjs-note>
     `

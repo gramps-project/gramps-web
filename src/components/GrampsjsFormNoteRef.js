@@ -20,7 +20,7 @@ class GrampsjsFormNoteRef extends GrampsjsObjectForm {
         fixedMenuPosition
         style="min-height: 300px;"
         objectType="note"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         id="note-select"
         label="${this._('Select')}"
         class="edit"

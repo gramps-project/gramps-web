@@ -115,7 +115,7 @@ export class GrampsjsFamily extends GrampsjsObject {
       <grampsjs-form-edit-family
         @object:save="${this._handleSaveDetails}"
         @object:cancel="${this._handleCancelDialog}"
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .data=${data}
         .father=${father}
         .mother=${mother}

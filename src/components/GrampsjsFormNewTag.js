@@ -7,7 +7,7 @@ import {html} from 'lit'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import './GrampsjsSearchResultList.js'
 import './GrampsjsFormString.js'
-import {apiGet, apiPost} from '../api.js'
+
 import {makeHandle} from '../util.js'
 
 class GrampsjsFormNewTag extends GrampsjsObjectForm {
@@ -63,7 +63,7 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
         selectable
         activatable
         .data="${this.searchRes}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         @search-result:clicked="${this._handleSelected}"
       ></grampsjs-search-result-list>
     `
@@ -75,9 +75,9 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
 
   async _fetchData() {
     const url = `/api/tags/?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&pagesize=100`
-    const data = await apiGet(url)
+    const data = await this.appState.apiGet(url)
     if ('data' in data) {
       this.searchRes =
         data.data
@@ -120,7 +120,7 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
     if (this._tagColor) {
       obj.color = this._tagColor
     }
-    await apiPost('/api/tags/', obj)
+    await this.appState.apiPost('/api/tags/', obj)
     return obj.handle
   }
 

@@ -5,10 +5,10 @@ import '@material/mwc-list/mwc-list-item'
 
 import './GrampsjsTable.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent, personDisplayName} from '../util.js'
 
-class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsDnaMatches extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -93,7 +93,7 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
           'Largest Segment',
         ]}"
         .data="${this._computeTableData(this.data)}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         @table:row-click="${this._handleRowClick}"
       ></grampsjs-table>
     `
@@ -126,7 +126,7 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
           '5',
           '10 cM',
         ])}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-table>
     `
   }

@@ -73,16 +73,16 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
-      <grampsjs-filter-mime .strings="${this.strings}"></grampsjs-filter-mime>
+      <grampsjs-filter-mime .appState="${this.appState}"></grampsjs-filter-mime>
 
       <grampsjs-filter-properties
         hasCount
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .props="${filterCounts.media}"
         label="${this._('Associations')}"
       ></grampsjs-filter-properties>
 
-      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
+      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
     `
   }
 
@@ -124,6 +124,12 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     `
   }
 
+  get canAdd() {
+    // to add a media object, we need edit permissions since we first upload a file,
+    // then add metadata
+    return this.appState.permissions.canAdd && this.appState.permissions.canEdit
+  }
+
   _handleViewBtn() {
     this.altView = !this.altView
   }
@@ -134,7 +140,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
       grampsId: row.gramps_id,
       mime: row.mime,
       desc: row.desc,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+      change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
     return formattedRow
   }

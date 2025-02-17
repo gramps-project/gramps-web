@@ -13,7 +13,7 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsConnectedComponent {
               linked
               large
               .data="${this._data.data}"
-              .strings="${this.strings}"
+              .appState="${this.appState}"
               date
               noSep
             ></grampsjs-search-result-list>
@@ -25,7 +25,7 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsConnectedComponent {
       <h3>${this._('Recently changed objects')}</h3>
       <grampsjs-search-result-list
         .data="${[]}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         loading
         numberLoading="8"
         noSep
@@ -37,14 +37,14 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsConnectedComponent {
     if (window._oldSearchBackend) {
       const query = "change:'-1 year to tomorrow'"
       return `/api/search/?sort=-change&query=${query}&locale=${
-        this.strings.__lang__ || 'en'
+        this.appState.i18n.lang || 'en'
       }&profile=all&page=1&pagesize=8`
     }
     const ts = Math.floor(Date.now() / 1000) - 365 * 24 * 60 * 60 // ~1 year ago
     return `/api/search/?sort=-change&query=${encodeURIComponent(
       '*'
     )}&change=${encodeURIComponent(`>${ts}`)}&locale=${
-      this.strings.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&page=1&pagesize=8`
   }
 }

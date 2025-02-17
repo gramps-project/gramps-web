@@ -6,7 +6,7 @@ import '@material/mwc-fab'
 import '@material/mwc-icon'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet, apiPut, apiPost, apiDelete} from '../api.js'
+
 import {fireEvent, objectTypeToEndpoint} from '../util.js'
 
 const editTitle = {
@@ -66,7 +66,6 @@ export class GrampsjsViewObject extends GrampsjsView {
   static get properties() {
     return {
       grampsId: {type: String},
-      canEdit: {type: Boolean},
       edit: {type: Boolean},
       editDialogContent: {type: String},
       _data: {type: Object},
@@ -77,7 +76,6 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   constructor() {
     super()
-    this.canEdit = false
     this.edit = false
     this.editDialogContent = ''
     this._data = {}
@@ -85,6 +83,10 @@ export class GrampsjsViewObject extends GrampsjsView {
     this._saveButton = false
     this._boundDisableEditMode = this._disableEditMode.bind(this)
     this._boundDeleteSelf = this._deleteSelf.bind(this)
+  }
+
+  get canEdit() {
+    return this.appState.permissions.canEdit
   }
 
   getUrl() {
@@ -100,7 +102,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     }
     return html`
       ${this.renderElement()}
-      ${this.canEdit && !this.edit ? this.renderFab() : ''}
+      ${this.appState.permissions.canEdit && !this.edit ? this.renderFab() : ''}
       ${this.editDialogContent}
     `
   }
@@ -129,10 +131,6 @@ export class GrampsjsViewObject extends GrampsjsView {
     super.connectedCallback()
     window.addEventListener('edit-mode:off', this._boundDisableEditMode)
     window.addEventListener('edit-mode:delete', this._boundDeleteSelf)
-    window.addEventListener(
-      'language:changed',
-      this._handleLangChange.bind(this)
-    )
     this.addEventListener('edit:action', this.handleEditAction.bind(this))
   }
 
@@ -157,6 +155,12 @@ export class GrampsjsViewObject extends GrampsjsView {
     ) {
       this._updateData()
     }
+    if (
+      changed.has('appState') &&
+      changed.get('appState')?.i18n?.lang !== this.appState.i18n.lang
+    ) {
+      this._handleLangChange(this.appState.i18n.lang)
+    }
   }
 
   _updateData(clearData = true) {
@@ -168,7 +172,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._clearData()
       }
       this.loading = true
-      apiGet(this.getUrl()).then(data => {
+      this.appState.apiGet(this.getUrl()).then(data => {
         this.loading = false
         if ('data' in data) {
           ;[this._data] = data.data
@@ -191,8 +195,8 @@ export class GrampsjsViewObject extends GrampsjsView {
     }
   }
 
-  _handleLangChange(e) {
-    if (this.active && e.detail.lang === this.strings.__lang__) {
+  _handleLangChange(lang) {
+    if (this.active && lang === this.appState.i18n.lang) {
       this._updateData(false)
     }
   }
@@ -209,7 +213,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     const endpoint = objectTypeToEndpoint[this._className]
     if (this.active && endpoint && handle) {
       const url = `/api/${endpoint}/${handle}`
-      const data = await apiDelete(url, false)
+      const data = await this.appState.apiDelete(url, {dbChanged: false})
       if ('data' in data) {
         this.grampsId = ''
         this._data = {}
@@ -698,7 +702,7 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   async _postObject(obj, objType) {
     const url = `/api/${objectTypeToEndpoint[objType]}/`
-    return apiPost(url, obj)
+    return this.appState.apiPost(url, obj)
   }
 
   _updateObject(obj, objType, updateFunc) {
@@ -707,6 +711,8 @@ export class GrampsjsViewObject extends GrampsjsView {
     let {extended, profile, backlinks, formatted, ...objNew} = obj
     objNew = {_class: capitalize(objType), ...objNew}
     const url = `/api/${objectTypeToEndpoint[objType]}/${obj.handle}`
-    apiPut(url, updateFunc(objNew)).then(() => this._updateData(false))
+    this.appState
+      .apiPut(url, updateFunc(objNew))
+      .then(() => this._updateData(false))
   }
 }

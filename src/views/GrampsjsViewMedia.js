@@ -2,7 +2,7 @@ import {html} from 'lit'
 
 import {GrampsjsViewObject} from './GrampsjsViewObject.js'
 import '../components/GrampsjsMediaObject.js'
-import {apiGet, apiPut} from '../api.js'
+
 import {objectTypeToEndpoint, arrayEqual} from '../util.js'
 
 export class GrampsjsViewMedia extends GrampsjsViewObject {
@@ -20,7 +20,7 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
 
   getUrl() {
     return `/api/media/?gramps_id=${this.grampsId}&locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&backlinks=true&extend=all&profile=all`
   }
 
@@ -28,7 +28,7 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
     return html`
       <grampsjs-media-object
         .data=${this._data}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .dbInfo=${this.dbInfo}
         ?canEdit="${this.canEdit}"
         ?edit="${this.edit}"
@@ -83,7 +83,7 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
     fireChanged = true
   ) {
     const url = `/api/people/${personHandle}`
-    let resp = await apiGet(url)
+    let resp = await this.appState.apiGet(url)
     if ('error' in resp) {
       return
     }
@@ -93,7 +93,7 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
       ...person.media_list.filter(mobj => mobj.ref !== mediaHandle),
       data,
     ]
-    resp = await apiPut(url, person, true, fireChanged)
+    resp = await this.appState.apiPut(url, person, {dbChanged: fireChanged})
     if ('error' in resp) {
       return
     }
@@ -104,7 +104,7 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
 
   async delMediaRef(objHandle, objType, mediaHandle, rect, reload = true) {
     const url = `/api/${objectTypeToEndpoint[objType]}/${objHandle}`
-    let resp = await apiGet(url)
+    let resp = await this.appState.apiGet(url)
     if ('error' in resp) {
       return
     }
@@ -113,7 +113,7 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
       mediaRef =>
         !arrayEqual(mediaRef.rect, rect) || mediaRef.ref !== mediaHandle
     )
-    resp = await apiPut(url, obj)
+    resp = await this.appState.apiPut(url, obj)
     if ('error' in resp) {
       return
     }
@@ -124,7 +124,7 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
 
   _handleUploadFile(e) {
     const putUrl = `/api/media/${e.detail.handle}/file`
-    apiPut(putUrl, e.detail.data, false).then(data => {
+    this.appState.apiPut(putUrl, e.detail.data, {isJson: false}).then(data => {
       if ('data' in data) {
         this.error = false
         this._updateData()

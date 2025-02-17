@@ -1,7 +1,7 @@
 import {css, html, LitElement} from 'lit'
 
 import './GrampsjsTable.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 
 const matchColumns = [
@@ -23,7 +23,7 @@ function formatSide(side) {
   return 'Unknown'
 }
 
-class GrampsjsDnaMatchTable extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsDnaMatchTable extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -60,7 +60,7 @@ class GrampsjsDnaMatchTable extends GrampsjsTranslateMixin(LitElement) {
     return html`
       <div class="container">
         <grampsjs-table
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           .data="${this._formatData(this.segments)}"
           .columns="${matchColumns}"
         ></grampsjs-table>

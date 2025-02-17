@@ -39,7 +39,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
       <grampsjs-form-select-type
         required
         id="select-place-type"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         ?loadingTypes="${this.loadingTypes}"
         typeName="place_types"
         .types="${this.types}"
@@ -52,7 +52,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
         id="enclosed"
         multiple
         objectType="place"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
 
       ${this._renderCitationForm()}
@@ -60,7 +60,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-private>
 
       ${this.renderButtons()}

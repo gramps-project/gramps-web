@@ -9,7 +9,7 @@ import '@material/mwc-icon-button'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent, stripHtml} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsFormSelectObject.js'
 
 function capitalize(string) {
@@ -108,7 +108,7 @@ function getNodeAtNumChar(parent, num) {
   return node
 }
 
-class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -175,7 +175,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
           icon="format_bold"
           @click="${() => this._handleFormat('bold')}"
         ></mwc-icon-button>
-        <grampsjs-tooltip for="btn-bold" .strings="${this.strings}"
+        <grampsjs-tooltip for="btn-bold" .appState="${this.appState}"
           >${this._('Bold')}</grampsjs-tooltip
         >
         <mwc-icon-button
@@ -183,7 +183,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
           icon="format_italic"
           @click="${() => this._handleFormat('italic')}"
         ></mwc-icon-button>
-        <grampsjs-tooltip for="btn-italic" .strings="${this.strings}"
+        <grampsjs-tooltip for="btn-italic" .appState="${this.appState}"
           >${this._('Italic')}</grampsjs-tooltip
         >
         <mwc-icon-button
@@ -191,7 +191,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
           icon="format_underlined"
           @click="${() => this._handleFormat('underline')}"
         ></mwc-icon-button>
-        <grampsjs-tooltip for="btn-underline" .strings="${this.strings}"
+        <grampsjs-tooltip for="btn-underline" .appState="${this.appState}"
           >${this._('Underline')}</grampsjs-tooltip
         >
         <mwc-icon-button
@@ -199,7 +199,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
           icon="link"
           @click="${() => this._handleFormat('link')}"
         ></mwc-icon-button>
-        <grampsjs-tooltip for="btn-link" .strings="${this.strings}"
+        <grampsjs-tooltip for="btn-link" .appState="${this.appState}"
           >${this._('Link')}</grampsjs-tooltip
         >
       </div>
@@ -321,7 +321,7 @@ class GrampsjsEditor extends GrampsjsTranslateMixin(LitElement) {
         <grampsjs-form-select-object
           fixedMenuPosition
           @select-object:changed="${this._handleSelectObjectsChanged}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           id="link-select"
           label="${this._('Select')}"
         ></grampsjs-form-select-object>

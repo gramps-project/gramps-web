@@ -8,9 +8,9 @@ import '@material/web/switch/switch.js'
 
 import {mdiLock, mdiLockOpen} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-class GrampsjsFormPrivate extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFormPrivate extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [sharedStyles, css``]
   }

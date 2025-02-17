@@ -8,7 +8,7 @@ import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 async function parseJsonFile(file) {
   return new Promise((resolve, reject) => {
@@ -26,7 +26,7 @@ async function parseJsonFile(file) {
   })
 }
 
-class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

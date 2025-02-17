@@ -243,7 +243,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
       >
         <grampsjs-form-user
           .data="${user}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           ?ismulti="${this.ismulti}"
         ></grampsjs-form-user>
         <mwc-button
@@ -291,7 +291,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
       >
         <grampsjs-form-user
           newUser
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           ?ismulti="${this.ismulti}"
         ></grampsjs-form-user>
         <mwc-button

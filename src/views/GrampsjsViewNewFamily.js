@@ -25,7 +25,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
         id="father"
         objectType="person"
         label="${this._('Select a person as the father')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
 
       <h4 class="label">${this._('Mother')}</h4>
@@ -34,7 +34,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
         id="mother"
         objectType="person"
         label="${this._('Select a person as the mother')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
 
       <h4 class="label">${this._('Children')}</h4>
@@ -44,13 +44,13 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
         id="children"
         objectType="person"
         label="${this._('Add an existing person as a child of the family')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
 
       <grampsjs-form-select-type
         id="family-rel-type"
         heading="${this._('Relationship type:').replace(':', '')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         ?loadingTypes="${this.loadingTypes}"
         typeName="family_relation_types"
         defaultTypeName="Unknown"
@@ -64,7 +64,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-private>
 
       ${this.renderButtons()}

@@ -5,12 +5,12 @@ import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-switch'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
 
 const _forbiddenOptions = ['css', 'of', 'style']
 
-export class GrampsjsReportOptions extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

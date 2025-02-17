@@ -150,7 +150,7 @@ export class GrampsjsEvent extends GrampsjsObject {
       <grampsjs-form-edit-event-details
         @object:save="${this._handleSaveDetails}"
         @object:cancel="${this._handleCancelDialog}"
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .data=${data}
         .place=${place}
       >
@@ -170,7 +170,7 @@ export class GrampsjsEvent extends GrampsjsObject {
       <grampsjs-form-edit-title
         @object:save="${this._handleSaveDesc}"
         @object:cancel="${this._handleCancelDialog}"
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .data=${{description: this.data?.description || ''}}
         prop="description"
       >
@@ -193,7 +193,7 @@ export class GrampsjsEvent extends GrampsjsObject {
         typeName="event_types"
         @object:save="${this._handleSaveType}"
         @object:cancel="${this._handleCancelDialog}"
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .data=${{
           type: this.data?.type?.string || this.data?.type || '',
         }}

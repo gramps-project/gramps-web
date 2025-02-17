@@ -26,7 +26,7 @@ class GrampsjsFormEditType extends GrampsjsObjectForm {
     return html`
       <grampsjs-form-select-type
         id="${this.formId}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         ?loadingTypes="${this.loadingTypes}"
         typeName="${this.typeName}"
         defaultTypeName="General"

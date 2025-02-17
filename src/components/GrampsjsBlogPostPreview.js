@@ -6,11 +6,9 @@ import './GrampsJsImage.js'
 import './GrampsjsGallery.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsTimedelta.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsBlogPostPreview extends GrampsjsTranslateMixin(
-  LitElement
-) {
+export class GrampsjsBlogPostPreview extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -89,10 +87,10 @@ export class GrampsjsBlogPostPreview extends GrampsjsTranslateMixin(
         </div>
         <div class="clear"></div>
         <div id="date">
-          ${this.strings.__lang__
+          ${this.appState.i18n.lang
             ? html`<grampsjs-timedelta
                 timestamp="${this.data.change}"
-                locale="${this.strings.__lang__}"
+                locale="${this.appState.i18n.lang}"
               ></grampsjs-timedelta>`
             : ''}
         </div>

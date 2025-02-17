@@ -4,9 +4,9 @@ Base class for Gramps views
 
 import {LitElement, css} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsView extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsView extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

@@ -1,8 +1,9 @@
 import tippy from 'tippy.js'
 
 import {html, css, LitElement} from 'lit'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsTooltip extends LitElement {
+export class GrampsjsTooltip extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       css`
@@ -18,7 +19,6 @@ export class GrampsjsTooltip extends LitElement {
       for: {type: String},
       target: {type: Object, attribute: false},
       content: {type: String},
-      strings: {type: Object},
       theme: {type: String},
       _tippy: {type: Object},
     }
@@ -29,7 +29,6 @@ export class GrampsjsTooltip extends LitElement {
     this.for = ''
     this.target = {}
     this.content = ''
-    this.strings = {}
     this.theme = ''
     this._tippy = {}
   }
@@ -59,7 +58,7 @@ export class GrampsjsTooltip extends LitElement {
     if (changedProperties.has('content') && this.content) {
       this._tippy.setContent(this.content)
     }
-    if (changedProperties.has('strings')) {
+    if (changedProperties.has('appState')) {
       this._tippy.setContent(this.content || this.innerHTML)
     }
   }

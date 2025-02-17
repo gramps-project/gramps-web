@@ -27,7 +27,7 @@ class GrampsjsFormEditAttribute extends GrampsjsObjectForm {
         required
         id="${this.source ? 'srcattrtype' : 'attrtype'}"
         heading="${this._('Type')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         typeName="attribute_types"
         ?loadingTypes=${this.loadingTypes}
         .types="${this.types}"
@@ -42,7 +42,7 @@ class GrampsjsFormEditAttribute extends GrampsjsObjectForm {
         id="attrvalue"
         @formdata:changed="${this._handleFormData}"
         label="${this._('Value')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${this.data}"
         value="${this.data?.value || ''}"
       >

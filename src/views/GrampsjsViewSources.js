@@ -40,12 +40,12 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
     return html`
       <grampsjs-filter-properties
         hasCount
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .props="${filterCounts.sources}"
         label="${this._('Associations')}"
       ></grampsjs-filter-properties>
 
-      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
+      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
     `
   }
 
@@ -56,7 +56,7 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
       title: row.title,
       author: row.author,
       pubinfo: row.pubinfo,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+      change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
     return formattedRow
   }

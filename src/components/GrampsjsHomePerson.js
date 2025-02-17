@@ -5,10 +5,10 @@ import {mdiPencil} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsSearchResultList.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
 
-export class GrampsjsHomePerson extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -44,7 +44,7 @@ export class GrampsjsHomePerson extends GrampsjsTranslateMixin(LitElement) {
                 large
                 linked
                 metaIcon="edit"
-                .strings=${this.strings}
+                .appState="${this.appState}"
                 .data=${[
                   {object: this.homePersonDetails, object_type: 'person'},
                 ]}

@@ -48,7 +48,7 @@ class GrampsjsFanChart extends GrampsjsChartBase {
         color: this.color || 'default',
         bboxWidth: this.containerWidth,
         bboxHeight: this.containerHeight,
-        strings: this.strings,
+        strings: this.appState.i18n.strings,
       })}
     `
   }

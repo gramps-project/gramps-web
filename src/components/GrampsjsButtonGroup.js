@@ -3,10 +3,10 @@ import {LitElement, html, css} from 'lit'
 import '@material/mwc-icon-button'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsTooltip.js'
 
-export class GrampsjsButtonGroup extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsButtonGroup extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

@@ -43,7 +43,7 @@ export class GrampsjsNote extends GrampsjsObject {
       ${this.edit
         ? html` <grampsjs-editor
             .data=${this.data.text}
-            .strings=${this.strings}
+            .appState="${this.appState}"
           ></grampsjs-editor>`
         : html` <grampsjs-note-content
             framed
@@ -62,7 +62,7 @@ export class GrampsjsNote extends GrampsjsObject {
         typeName="note_types"
         @object:save="${this._handleSaveType}"
         @object:cancel="${this._handleCancelDialog}"
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .data=${{type: this.data?.type || ''}}
         prop="value"
       >

@@ -4,11 +4,11 @@ import '@material/mwc-icon-button'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {clickKeyHandler, fireEvent} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsTooltip.js'
 import {addBookmark, deleteBookmark, hasBookmark} from '../api.js'
 
-export class GrampsjsBookmarkButton extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsBookmarkButton extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [sharedStyles]
   }

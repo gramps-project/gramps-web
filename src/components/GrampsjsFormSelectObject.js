@@ -13,10 +13,10 @@ import '@material/mwc-icon-button'
 import '@material/mwc-circular-progress'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {apiGet} from '../api.js'
+
 import {debounce, fireEvent} from '../util.js'
 import './GrampsjsSearchResultList.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 // labels for button
 const btnLabel = {
@@ -27,7 +27,7 @@ const btnLabel = {
   note: 'Select an existing note',
 }
 
-class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -107,7 +107,7 @@ class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
           <grampsjs-search-result-list
             selectable
             .data="${this.data}"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
             @search-result:clicked="${this._handleSelected}"
           ></grampsjs-search-result-list>
         </mwc-menu>
@@ -163,7 +163,7 @@ class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
       density="-3"
     ></mwc-circular-progress>`
     const url = this._getFetchUrl(textField.value)
-    const data = await apiGet(url)
+    const data = await this.appState.apiGet(url)
     if ('data' in data) {
       this.data = data.data.filter(
         obj => !this._handleList().includes(obj.handle)
@@ -180,18 +180,18 @@ class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
     if (window._oldSearchBackend) {
       return value
         ? `/api/search/?locale=${
-            this.strings?.__lang__ || 'en'
+            this.appState.i18n.lang || 'en'
           }&profile=all&query=${encodeURIComponent(
             `${value}* AND type:${this.objectType || '*'}`
           )}&profile=all&page=1&pagesize=20`
         : `/api/search/?sort=-change&locale=${
-            this.strings?.__lang__ || 'en'
+            this.appState.i18n.lang || 'en'
           }&profile=all&query=${encodeURIComponent(
             `type:${this.objectType || '*'}`
           )}&profile=all&page=1&pagesize=20`
     }
     let url = `/api/search/?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&page=1&pagesize=20`
     if (value) {
       url = `${url}&query=${encodeURIComponent(`${value}*`)}`

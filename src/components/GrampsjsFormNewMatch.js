@@ -60,7 +60,7 @@ export class GrampsjsFormNewMatch extends GrampsjsEditMatchMixin(
               fixedMenuPosition
               notDeletable
               objectType="person"
-              .strings="${this.strings}"
+              .appState="${this.appState}"
               id="match-source"
               label="${this._('Select')}"
               class="edit"
@@ -83,7 +83,7 @@ export class GrampsjsFormNewMatch extends GrampsjsEditMatchMixin(
               fixedMenuPosition
               notDeletable
               objectType="person"
-              .strings="${this.strings}"
+              .appState="${this.appState}"
               id="match-target"
               label="${this._('Select')}"
               class="edit"

@@ -2,7 +2,6 @@ import {css, html} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsBlogPost.js'
-import {apiGet} from '../api.js'
 
 const BASE_DIR = ''
 
@@ -64,7 +63,7 @@ export class GrampsjsViewBlogPost extends GrampsjsView {
       <grampsjs-blog-post
         .source="${source}"
         .note="${note}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-blog-post>
     `
   }
@@ -82,7 +81,7 @@ export class GrampsjsViewBlogPost extends GrampsjsView {
       link_format: `${BASE_DIR}/{obj_class}/{gramps_id}`,
     }
     return `/api/notes/?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&extend=all&formats=html&gramps_id=${grampsId}&format_options=${encodeURIComponent(
       JSON.stringify(options)
     )}`
@@ -98,9 +97,9 @@ export class GrampsjsViewBlogPost extends GrampsjsView {
   async _fetchData() {
     this.loading = true
     const uri = `/api/sources/?gramps_id=${this.grampsId}&locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&backlinks=true&extend=all`
-    await apiGet(uri).then(data => {
+    await this.appState.apiGet(uri).then(data => {
       if ('data' in data) {
         this.error = false
         this._dataSources = data.data
@@ -111,7 +110,7 @@ export class GrampsjsViewBlogPost extends GrampsjsView {
     })
     const uriNotes = this._getNotesUrl()
     if (uriNotes) {
-      await apiGet(uriNotes).then(data => {
+      await this.appState.apiGet(uriNotes).then(data => {
         if ('data' in data) {
           this.error = false
           this._dataNotes = data.data

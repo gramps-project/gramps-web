@@ -13,7 +13,7 @@ import '../components/GrampsjsBreadcrumbs.js'
 
 import {mdiClose} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet} from '../api.js'
+
 import {renderIconSvg} from '../icons.js'
 
 export class GrampsjsViewRevision extends GrampsjsView {
@@ -119,7 +119,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
         hideLock
         hideBookmark
         .data="${{gramps_id: this.transactionId}}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         objectsName="Revisions"
         objectIcon="commit"
       ></grampsjs-breadcrumbs>
@@ -135,7 +135,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
         <span class="time">
           <grampsjs-timedelta
             timestamp="${this._data.timestamp}"
-            locale="${this.strings.__lang__}"
+            locale="${this.appState.i18n.lang}"
           ></grampsjs-timedelta>
         </span>
       </p>
@@ -176,7 +176,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
       <grampsjs-diff-json
         .left="${change.old_data}"
         .right="${change.new_data}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-diff-json>
     `
   }
@@ -193,7 +193,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
         object_type: change.obj_class?.toLowerCase(),
         object: change.new_data,
       }))}"
-      .strings="${this.strings}"
+      .appState="${this.appState}"
     >
     </grampsjs-search-result-list> `
   }
@@ -207,7 +207,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
           object_type: change.obj_class?.toLowerCase(),
           object: change.old_data,
         }))}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-search-result-list>
     `
@@ -222,7 +222,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
           object_type: change.obj_class?.toLowerCase(),
           object: change.old_data,
         }))}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-search-result-list>
     `
@@ -245,7 +245,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
 
   async _fetchData() {
     this.loading = true
-    const data = await apiGet(
+    const data = await this.appState.apiGet(
       `/api/transactions/history/${this.transactionId}?old=1&new=1`
     )
     this.loading = false
