@@ -168,7 +168,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
                 >
                   ${row.map(
                     (value, index) => html`
-                      <td data-label="${this.columns[index]}">
+                      <td data-label="${this.columns[index].name}">
                         ${this.loading
                           ? html`<span class="skeleton"
                               ><span style="visibility: hidden;"
