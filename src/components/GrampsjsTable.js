@@ -1,8 +1,12 @@
 import {css, html, LitElement} from 'lit'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/icon/icon.js'
+import '@material/web/iconbutton/filled-icon-button'
+import '@material/web/menu/menu'
 import {mdiSort, mdiSortAscending, mdiSortDescending} from '@mdi/js'
 import {classMap} from 'lit/directives/class-map.js'
+
+import './GrampsjsTooltip.js'
 
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
@@ -102,6 +106,18 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           margin-left: 0.5em;
           display: inline-block;
         }
+
+        .mobile-sort {
+          position: relative;
+          margin-top: 5px;
+          margin-bottom: 15px;
+        }
+
+        .mobile-sort md-menu {
+          --md-menu-item-one-line-container-height: 48px;
+          --md-sys-color-on-surface: rgba(0, 0, 0, 0.7);
+          --md-menu-item-selected-container-color: rgba(109, 76, 65, 0.3);
+        }
       `,
     ]
   }
@@ -137,15 +153,21 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     this._containerWidth = -1
   }
 
+  get _isWide() {
+    return this._containerWidth > this.breakPoint && !this.narrow
+  }
+
   render() {
     if (this.data.length === 0) {
       return html`<div class="table-container"></div>`
     }
     return html`
       <div class="table-container">
+        ${this.sortable && !this._isWide ? this._renderMobileSort() : ''}
+
         <table
           class="${classMap({
-            wide: this._containerWidth > this.breakPoint && !this.narrow,
+            wide: this._isWide,
             linked: this.linked,
           })}"
         >
@@ -168,7 +190,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
                 >
                   ${row.map(
                     (value, index) => html`
-                      <td data-label="${this.columns[index].name}">
+                      <td data-label="${this._(this.columns[index].name)}">
                         ${this.loading
                           ? html`<span class="skeleton"
                               ><span style="visibility: hidden;"
@@ -189,6 +211,35 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
         </table>
       </div>
     `
+  }
+
+  _renderMobileSort() {
+    return html`
+      <div class="mobile-sort">
+        <md-icon-button @click="${this._toggleSortMenu}" id="btn-sort-menu">
+          <md-icon
+            >${this._renderSortIcon(this.sort >= 0, !this.descending)}</md-icon
+          >
+        </md-icon-button>
+        <md-menu id="sort-menu" anchor="btn-sort-menu">
+          ${this.columns.map(
+            (column, columnIndex) => html`
+              <md-menu-item
+                @click="${() => this._toggleSort(columnIndex)}"
+                ?selected="${this.sort === columnIndex}"
+              >
+                <div slot="headline">${this._(column.name)}</div>
+              </md-menu-item>
+            `
+          )}
+        </md-menu>
+      </div>
+    `
+  }
+
+  _toggleSortMenu() {
+    const menu = this.renderRoot.querySelector('#sort-menu')
+    menu.open = !menu.open
   }
 
   // eslint-disable-next-line class-methods-use-this
