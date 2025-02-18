@@ -208,5 +208,8 @@
     "End Position": "Кінцева позиція",
     "Paste the raw data in the field above to see the preview.": "Вставте необроблені дані в поле вище, щоб переглянути їхній попередній вигляд.",
     "Delete user": "Видалити користувача",
-    "Do you really want to delete user \"%s\"?": "Ви дійсно хочете видалити користувача \"%s\"?"
+    "Do you really want to delete user \"%s\"?": "Ви дійсно хочете видалити користувача \"%s\"?",
+    "Length": "Довжина",
+    "Max Degree of Separation": "Максимальний ступінь поділу",
+    "Max Number of Images displayed": "Максимальна кількість відображених зображень"
 }
