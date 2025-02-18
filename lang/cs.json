@@ -210,5 +210,6 @@
     "Delete user": "Odstranit uživatele",
     "Do you really want to delete user \"%s\"?": "Opravdu chcete odstranit uživatele \"%s\"?",
     "Max Degree of Separation": "Maximální stupeň odloučení",
-    "Max Number of Images displayed": "Maximální počet zobrazených snímků"
+    "Max Number of Images displayed": "Maximální počet zobrazených snímků",
+    "Length": "Délka"
 }
