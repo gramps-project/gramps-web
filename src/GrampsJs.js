@@ -838,7 +838,6 @@ export class GrampsJs extends LitElement {
   }
 
   updated(changed) {
-    console.log(this.appState.settings.lang, this.appState.i18n.lang)
     if (
       changed.has('appState') &&
       this.loadingState > LOADING_STATE_UNAUTHORIZED_NOCONNECTION
@@ -906,7 +905,6 @@ export class GrampsJs extends LitElement {
 
   _handleStorage() {
     this._handleSettings()
-    console.log('storage event')
   }
 
   _handleSettings() {
