@@ -439,6 +439,14 @@ export class GrampsJs extends LitElement {
     `
   }
 
+  _renderRegister() {
+    return html`
+      <grampsjs-form-register
+        .strings="${this._strings}"
+      ></grampsjs-form-register>
+    `
+  }
+
   _renderFirstRun() {
     return html`
       <grampsjs-first-run
@@ -481,7 +489,7 @@ export class GrampsJs extends LitElement {
       }
       if (this._page === 'register') {
         window.history.pushState({}, '', 'register')
-        return this._renderLogin(true)
+        return this._renderRegister()
       }
       window.history.pushState({}, '', 'login')
       return this._renderLogin(false)
