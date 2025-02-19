@@ -8,7 +8,7 @@ import '@material/mwc-circular-progress'
 
 import './GrampsjsPasswordManagerPolyfill.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {apiGetTokens, apiResetPassword, apiRegisterUser} from '../api.js'
+import {apiGetTokens, apiResetPassword} from '../api.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -33,9 +33,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
         #login-form mwc-textfield {
           width: 100%;
           margin-bottom: 0.7em;
-        }
-
-        #login-form mwc-button {
         }
 
         p.reset-link {
@@ -63,7 +60,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       resetpw: {type: Boolean},
-      register: {type: Boolean},
       isFormValid: {type: Boolean},
       credentials: {type: Object},
       tree: {type: String},
@@ -73,7 +69,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   constructor() {
     super()
     this.resetpw = false
-    this.register = false
     this.isFormValid = false
     this.credentials = {}
     this.tree = ''
@@ -82,9 +77,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   render() {
     if (this.resetpw) {
       return this._renderResetPw()
-    }
-    if (this.register) {
-      return this._renderRegister()
     }
     return this._renderLogin()
   }
@@ -147,9 +139,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                 <p class="reset-link">
                   <span
                     class="link"
-                    @click="${() => {
-                      this.register = true
-                    }}"
+                    @click="${() => this._handleNav('register')}"
                     >${this._('Register new account')}</span
                   >
                 </p>
@@ -171,6 +161,10 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     if (pf !== null) {
       pf.boundingRect = this.getBoundingClientRect()
     }
+  }
+
+  _handleNav(path) {
+    fireEvent(this, 'nav', {path})
   }
 
   _credChanged(e) {
@@ -224,87 +218,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  _renderRegister() {
-    return html`
-      <div id="login-container">
-        <form
-          id="login-form"
-          action="${BASE_DIR}/"
-          @keydown="${this._checkFormValid}"
-        >
-          <div id="inner-form">
-            <mwc-textfield
-              required
-              outlined
-              autocapitalize="off"
-              id="username"
-              label="${this._('Username')}"
-              type="text"
-            ></mwc-textfield>
-            <mwc-textfield
-              required
-              outlined
-              autocapitalize="off"
-              id="password"
-              label="${this._('Password')}"
-              type="password"
-            ></mwc-textfield>
-            <mwc-textfield
-              required
-              outlined
-              autocapitalize="off"
-              id="email"
-              label="${this._('E-mail')}"
-              type="email"
-            ></mwc-textfield>
-            <mwc-textfield
-              required
-              outlined
-              id="fullname"
-              label="${this._('Full Name')}"
-              type="text"
-            ></mwc-textfield>
-            <mwc-button
-              raised
-              label="${this._('Submit')}"
-              type="submit"
-              @click="${this._register}"
-              ?disabled="${!this.isFormValid}"
-            >
-              <span slot="trailingIcon" style="display:none;">
-                <mwc-circular-progress
-                  indeterminate
-                  density="-7"
-                  closed
-                  id="login-progress"
-                >
-                </mwc-circular-progress>
-              </span>
-            </mwc-button>
-          </div>
-          <p class="success" id="register-success" style="display:none;">
-            <mwc-icon>check_circle</mwc-icon><br />
-            ${this._('New account registered successfully.')}
-            <br />
-            ${this._(
-              'Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.'
-            )}
-          </p>
-          <p class="reset-link">
-            ${this._('Already have an account?')}
-            <span
-              class="link"
-              @click="${() => {
-                this.register = false
-              }}"
-              >${this._('login')}</span
-            >
-          </p>
-        </form>
-      </div>
-    `
-  }
-
   _checkFormValid() {
     const fields = Array.from(this.shadowRoot.querySelectorAll('mwc-textfield'))
     this.isFormValid = fields.every(el => el?.validity?.valid)
@@ -346,29 +259,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     const res = await apiResetPassword(userField.value)
     const innerForm = this.shadowRoot.getElementById('inner-form')
     const divSuccess = this.shadowRoot.getElementById('reset-success')
-    if ('error' in res) {
-      this._showError(res.error)
-    } else {
-      divSuccess.style.display = 'block'
-      innerForm.style.display = 'none'
-    }
-  }
-
-  async _register() {
-    const userField = this.shadowRoot.getElementById('username')
-    const pwField = this.shadowRoot.getElementById('password')
-    const emailField = this.shadowRoot.getElementById('email')
-    const nameField = this.shadowRoot.getElementById('fullname')
-    const tree = this.tree || ''
-    const res = await apiRegisterUser(
-      userField.value,
-      pwField.value,
-      emailField.value,
-      nameField.value,
-      tree
-    )
-    const innerForm = this.shadowRoot.getElementById('inner-form')
-    const divSuccess = this.shadowRoot.getElementById('register-success')
     if ('error' in res) {
       this._showError(res.error)
     } else {
