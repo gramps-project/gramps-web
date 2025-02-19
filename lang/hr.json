@@ -210,5 +210,6 @@
     "Delete user": "Izbriši korisnika",
     "Do you really want to delete user \"%s\"?": "Stvarno želiš izbrisati korisnkia „%s”?",
     "Max Degree of Separation": "Maks. stupanj rastavljanja",
-    "Max Number of Images displayed": "Maks. broj prikazanih slika"
+    "Max Number of Images displayed": "Maks. broj prikazanih slika",
+    "Length": "Duljina"
 }
