@@ -1,7 +1,4 @@
-/*
-Element for selecting a Gramps type
-*/
-
+/* eslint-disable lit-a11y/click-events-have-key-events */
 import {html, css, LitElement} from 'lit'
 import '@material/web/textfield/outlined-text-field'
 
@@ -26,7 +23,7 @@ class GrampsjsFormRegister extends GrampsjsTranslateMixin(LitElement) {
 
         #register-form {
           position: relative;
-          top: 25vh;
+          top: 20vh;
         }
 
         #register-form mwc-textfield {
@@ -86,6 +83,7 @@ class GrampsjsFormRegister extends GrampsjsTranslateMixin(LitElement) {
           action="${BASE_DIR}/"
           @keydown="${this._checkFormValid}"
         >
+          <h2>${this._('Register to Gramps Web')}</h2>
           <div id="inner-form">
             <md-outlined-text-field
               required
@@ -134,7 +132,7 @@ class GrampsjsFormRegister extends GrampsjsTranslateMixin(LitElement) {
             ></md-outlined-text-field>
             <mwc-button
               raised
-              label="${this._('Submit')}"
+              label="${this._('Register new account')}"
               type="submit"
               @click="${this._register}"
               ?disabled="${!this.isFormValid}"
@@ -160,11 +158,7 @@ class GrampsjsFormRegister extends GrampsjsTranslateMixin(LitElement) {
           </p>
           <p class="reset-link">
             ${this._('Already have an account?')}
-            <span
-              class="link"
-              @click="${this._handleClickLogin}"
-              @keydown="${this._handleClickLogin}"
-            >
+            <span class="link" @click="${this._handleClickLogin}">
               ${this._('login')}
             </span>
           </p>

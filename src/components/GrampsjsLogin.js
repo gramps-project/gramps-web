@@ -27,7 +27,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
 
         #login-form {
           position: relative;
-          top: 25vh;
+          top: 20vh;
         }
 
         #login-form mwc-textfield {
@@ -94,6 +94,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
           action="${BASE_DIR}/"
           @keydown="${this._handleLoginKey}"
         >
+          <h2>${this._('Login to Gramps Web')}</h2>
           <md-outlined-text-field
             id="username"
             label="${this._('Username')}"
@@ -176,14 +177,13 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     return html`
       <div id="login-container">
         <form id="login-form" action="${BASE_DIR}/">
+          <h2>${this._('reset password')}</h2>
           <div id="inner-form">
-            <mwc-textfield
-              outlined
-              autocapitalize="off"
+            <md-outlined-text-field
               id="username"
               label="${this._('Username')}"
               type="text"
-            ></mwc-textfield>
+            ></md-outlined-text-field>
             <mwc-button
               raised
               label="${this._('reset password')}"
