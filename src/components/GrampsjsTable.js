@@ -128,6 +128,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
       units: {type: Array},
       data: {type: Array},
       narrow: {type: Boolean},
+      naturalWidth: {type: Boolean},
       breakPoint: {type: Number},
       loading: {type: Boolean},
       linked: {type: Boolean},
@@ -145,6 +146,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     this.data = []
     this.loading = false
     this.narrow = false
+    this.naturalWidth = false
     this.breakPoint = 600
     this.linked = false
     this.sortable = false
@@ -170,7 +172,9 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
             wide: this._isWide,
             linked: this.linked,
           })}"
-          style="width: 100%;"
+          style="${this.naturalWidth && this._isWide
+            ? 'width: auto;'
+            : 'width: 100%;'}"
         >
           <thead>
             <tr>
