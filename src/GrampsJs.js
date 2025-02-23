@@ -415,7 +415,7 @@ export class GrampsJs extends LitElement {
   _renderRegister() {
     return html`
       <grampsjs-form-register
-        .strings="${this._strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-register>
     `
   }
