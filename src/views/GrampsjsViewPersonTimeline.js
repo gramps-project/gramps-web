@@ -1,7 +1,7 @@
 import {html, css} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet} from '../api.js'
+
 import '../components/GrampsjsPersonTimeline.js'
 
 export class GrampsjsViewPersonTimeline extends GrampsjsView {
@@ -43,7 +43,7 @@ export class GrampsjsViewPersonTimeline extends GrampsjsView {
     return html`
       <grampsjs-person-timeline
         .data="${this._data}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-person-timeline>
     `
@@ -59,11 +59,11 @@ export class GrampsjsViewPersonTimeline extends GrampsjsView {
   _updateData() {
     if (this.handle) {
       const url = `/api/people/${this.handle}/timeline?locale=${
-        this.strings.__lang__ || 'en'
+        this.appState.i18n.lang || 'en'
       }`
       this._data = []
       this.loading = true
-      apiGet(url).then(data => {
+      this.appState.apiGet(url).then(data => {
         this.loading = false
         if ('data' in data) {
           this.error = false

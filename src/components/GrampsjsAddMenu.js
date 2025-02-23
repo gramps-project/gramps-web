@@ -11,7 +11,7 @@ import '@material/mwc-list/mwc-list-item'
 import './GrampsJsListItem.js'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 const BASE_DIR = ''
 
@@ -28,7 +28,7 @@ const menuItems = [
   ['Task', '/new_task', 'task_alt'],
 ]
 
-class GrampsjsAddMenu extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsAddMenu extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

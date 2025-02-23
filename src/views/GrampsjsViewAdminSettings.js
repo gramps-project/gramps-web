@@ -9,7 +9,7 @@ import '../components/GrampsjsDeleteAll.js'
 import '../components/GrampsjsRelogin.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
-import {apiPost, isTokenFresh} from '../api.js'
+
 import {fireEvent, clickKeyHandler} from '../util.js'
 import '@material/mwc-button'
 
@@ -102,18 +102,22 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     return html`
       <h3>${this._('Usage quotas')}</h3>
 
-      <grampsjs-tree-quotas .strings="${this.strings}"></grampsjs-tree-quotas>
+      <grampsjs-tree-quotas .appState="${this.appState}"></grampsjs-tree-quotas>
 
-      <grampsjs-media-status .strings="${this.strings}"></grampsjs-media-status>
+      <grampsjs-media-status
+        .appState="${this.appState}"
+      ></grampsjs-media-status>
       ${this.dbInfo?.object_counts?.media
         ? html`<grampsjs-media-file-status
-            .strings="${this.strings}"
+            .appState="${this.appState}"
           ></grampsjs-media-file-status>`
         : ''}
 
-      <grampsjs-import .strings="${this.strings}"></grampsjs-import>
+      <grampsjs-import .appState="${this.appState}"></grampsjs-import>
 
-      <grampsjs-import-media .strings="${this.strings}"></grampsjs-import-media>
+      <grampsjs-import-media
+        .appState="${this.appState}"
+      ></grampsjs-import-media>
 
       <h3>${this._('Manage search index')}</h3>
 
@@ -246,11 +250,11 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         </div>
       </div>
       <grampsjs-delete-all
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         @delete-objects="${this._handleDeleteAll}"
       ></grampsjs-delete-all>
       <grampsjs-relogin
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         @relogin="${this._openDeleteAll}"
         username="${this.userInfo?.name || ''}"
       ></grampsjs-relogin>
@@ -277,7 +281,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
   }
 
   _openDeleteAll() {
-    if (isTokenFresh()) {
+    if (this.appState.auth.isTokenFresh()) {
       this.renderRoot.querySelector('grampsjs-delete-all').show()
     } else {
       this.renderRoot.querySelector('grampsjs-relogin').show()
@@ -292,7 +296,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       ? `?namespaces=${e.detail.namespaces}`
       : ''
     const url = `/api/objects/delete/${querypar}`
-    const data = await apiPost(url, null, true, true, true)
+    const data = await this.appState.apiPost(url, null, {requireFresh: true})
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -325,7 +329,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     } else {
       this._buttonUpdateSearchDisabled = true
     }
-    const data = await apiPost(url)
+    const data = await this.appState.apiPost(url)
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -356,7 +360,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     const prog = this.renderRoot.querySelector('#progress-repair')
     prog.reset()
     prog.open = true
-    const data = await apiPost('/api/trees/-/repair')
+    const data = await this.appState.apiPost('/api/trees/-/repair')
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error

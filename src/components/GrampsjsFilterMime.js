@@ -2,10 +2,10 @@ import {LitElement, css, html} from 'lit'
 import '@material/mwc-radio'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent, filterMime} from '../util.js'
 
-export class GrampsjsFilterMime extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsFilterMime extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

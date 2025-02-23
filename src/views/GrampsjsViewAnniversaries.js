@@ -86,13 +86,17 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
         @keydown="${this._handleKeyDown}"
       >
         <span
-          >${eventTitleFromProfile(event.profile, this.strings, false)}</span
+          >${eventTitleFromProfile(
+            event.profile,
+            this.appState.i18n.strings,
+            false
+          )}</span
         >
         <span slot="graphic" class="years">${years}</span>
         <span slot="secondary">
           <grampsjs-timedelta
             timestamp="${timestamp}"
-            locale="${this.strings.__lang__}"
+            locale="${this.appState.i18n.lang}"
           ></grampsjs-timedelta
           >${event?.profile?.place ? html`, ${event.profile.place}` : ''}
         </span>
@@ -119,7 +123,7 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
     const m = now.getMonth() + 1
     const d = now.getDate()
     return `/api/events/?dates=*/${m}/${d}&profile=all&sort=-date&locale=${
-      this.strings.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&pagesize=10&page=1`
   }
 }

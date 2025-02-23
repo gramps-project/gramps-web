@@ -46,7 +46,7 @@ export class GrampsjsAssociations extends GrampsjsEditableList {
         new
         @object:save="${this._handleAssocSave}"
         @object:cancel="${this._handleDialogCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-form-edit-association>
     `
@@ -59,7 +59,7 @@ export class GrampsjsAssociations extends GrampsjsEditableList {
       <grampsjs-form-edit-association
         @object:save="${this._handleAssocSaveEdit}"
         @object:cancel="${this._handleDialogCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${data}"
         .person="${person}"
       >

@@ -6,11 +6,11 @@ import '@material/web/chips/filter-chip'
 import '@material/web/textfield/filled-text-field'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {apiGetTokens} from '../api.js'
 import {fireEvent} from '../util.js'
 
-class GrampsjsRelogin extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

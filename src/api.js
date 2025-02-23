@@ -1,6 +1,8 @@
 // eslint-disable-next-line camelcase
 import jwt_decode from 'jwt-decode'
 
+import {fireEvent} from './util.js'
+
 export const __APIHOST__ = 'http://localhost:5555'
 
 export function doLogout() {
@@ -50,15 +52,6 @@ export function getPermissions() {
   }
 }
 
-export function isTokenFresh() {
-  const accessToken = localStorage.getItem('access_token')
-  if (!accessToken || accessToken === '1') {
-    return false
-  }
-  const claims = jwt_decode(accessToken) || {}
-  return !!claims.fresh
-}
-
 // grampsjs_settings are tree-independent settings
 // grampsjs_settings_tree are tree-dependendent settings
 // this function returns all of them without distinguishing
@@ -86,9 +79,7 @@ export function updateSettings(settings, tree = false) {
   const finalSettings = {...existingSettings, ...settings}
   const data = tree ? {[treeId]: finalSettings} : finalSettings
   localStorage.setItem(key, JSON.stringify(data))
-  window.dispatchEvent(
-    new CustomEvent('settings:changed', {bubbles: true, composed: true})
-  )
+  fireEvent(window, 'settings:changed')
 }
 
 export function getRecentObjects() {
@@ -272,7 +263,7 @@ export async function apiRefreshAuthToken(attempts = 3) {
   }
 }
 
-export async function apiGet(endpoint, isJson = true) {
+export async function apiGet(endpoint) {
   const accessToken = localStorage.getItem('access_token')
   let headers = {}
   if (accessToken !== null) {
@@ -300,7 +291,7 @@ export async function apiGet(endpoint, isJson = true) {
       if ('error' in refreshResp) {
         throw new Error(refreshResp.error)
       } else {
-        return apiGet(endpoint, isJson)
+        return apiGet(endpoint)
       }
     }
     if (resp.status === 403) {
@@ -311,15 +302,10 @@ export async function apiGet(endpoint, isJson = true) {
         resJson?.error?.message || resp.statusText || `Error ${resp.status}`
       )
     }
-    if (isJson) {
-      return {
-        data: resJson,
-        total_count: resp.headers.get('X-Total-Count'),
-        etag: resp.headers.get('ETag'),
-      }
-    }
     return {
-      data: await resp.text(),
+      data: resJson,
+      total_count: resp.headers.get('X-Total-Count'),
+      etag: resp.headers.get('ETag'),
     }
   } catch (error) {
     if (error instanceof TypeError) {
@@ -398,15 +384,6 @@ async function apiPutPost(
   }
 }
 
-export async function apiPut(
-  endpoint,
-  payload,
-  isJson = true,
-  dbChanged = true
-) {
-  return apiPutPost('PUT', endpoint, payload, isJson, dbChanged)
-}
-
 export async function apiPost(
   endpoint,
   payload,
@@ -415,10 +392,6 @@ export async function apiPost(
   requireFresh = false
 ) {
   return apiPutPost('POST', endpoint, payload, isJson, dbChanged, requireFresh)
-}
-
-export async function apiDelete(endpoint, dbChanged = true) {
-  return apiPutPost('DELETE', endpoint, null, false, dbChanged)
 }
 
 export function getExporterUrl(id, options) {
@@ -618,5 +591,186 @@ export function deleteTaskId(taskName, taskId) {
     delete data[tree][taskName]
     const stringData = JSON.stringify(data)
     localStorage.setItem('tasks', stringData)
+  }
+}
+
+export class Auth {
+  constructor() {
+    this._refreshingTokens = null
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get accessToken() {
+    return localStorage.getItem('access_token')
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get refreshToken() {
+    return localStorage.getItem('refresh_token')
+  }
+
+  async getValidAccessToken() {
+    if (this._shouldRefresh(this.accessToken)) {
+      if (this._refreshingTokens) {
+        // If already refreshing, wait for that to finish
+        await this._refreshingTokens
+      } else {
+        // Start the refresh process and store the promise
+        this._refreshingTokens = this.refreshAuthTokens().finally(() => {
+          this._refreshingTokens = null
+        })
+        await this._refreshingTokens
+      }
+    }
+    return this.accessToken
+  }
+
+  _shouldRefresh() {
+    const {claims} = this
+    if (!claims.exp) return true
+    const tolerance = 60 * 1000 // 1 minute tolerance
+    return claims.exp * 1000 < Date.now() + tolerance
+  }
+
+  get claims() {
+    const token = this.accessToken
+    if (!token) return {}
+    return jwt_decode(token)
+  }
+
+  isTokenFresh() {
+    return !!this.claims.fresh
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  signout() {
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('access_token_expires')
+    localStorage.removeItem('refresh_token')
+    fireEvent(window, 'user:loggedout')
+  }
+
+  async refreshAuthTokens(attempts = 3) {
+    if (this.refreshToken === null) {
+      throw new Error('No refresh token found')
+    }
+    const resp = await fetch(`${__APIHOST__}/api/token/refresh/`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.refreshToken}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+    if (resp.status === 403 || resp.status === 422) {
+      this.logout()
+      throw new Error('Failed refreshing token')
+    }
+    // handle 429 too-many-attempts
+    if (resp.status === 429 && attempts > 0) {
+      // retry after 1s
+      const jitter = Math.floor(Math.random() * 1000)
+      await new Promise(resolve => setTimeout(resolve, 1000 + jitter))
+      return apiRefreshAuthToken(attempts - 1)
+    }
+    const data = await resp.json()
+    if (data.access_token === undefined) {
+      throw new Error('Access token missing in response')
+    }
+    localStorage.setItem('access_token', data.access_token)
+    return {}
+  }
+}
+
+export async function apiGetNew(auth, endpoint) {
+  const accessToken = await auth.getValidAccessToken()
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+  }
+  try {
+    const resp = await fetch(`${__APIHOST__}${endpoint}`, {
+      method: 'GET',
+      headers,
+    })
+    let resJson
+    try {
+      resJson = await resp.json()
+    } catch (error) {
+      resJson = {}
+    }
+    if (resp.status === 403) {
+      throw new Error('Authorization error')
+    }
+    if (resp.status !== 200) {
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
+    }
+    return {
+      data: resJson,
+      total_count: resp.headers.get('X-Total-Count'),
+      etag: resp.headers.get('ETag'),
+    }
+  } catch (error) {
+    if (error instanceof TypeError) {
+      return {error: 'Network error'}
+    }
+    return {error: error.message}
+  }
+}
+
+export async function apiPutPostDeleteNew(
+  auth,
+  method,
+  endpoint,
+  payload,
+  {isJson = true, dbChanged = true, requireFresh = false} = {}
+) {
+  const accessToken = await auth.getValidAccessToken()
+  const headers = {
+    Accept: 'application/json',
+    Authorization: `Bearer ${accessToken}`,
+  }
+  if (isJson) {
+    headers['Content-Type'] = 'application/json'
+  }
+  try {
+    const resp = await fetch(`${__APIHOST__}${endpoint}`, {
+      method,
+      headers,
+      body: isJson ? JSON.stringify(payload) : payload,
+    })
+    let resJson
+    try {
+      resJson = await resp.json()
+    } catch (error) {
+      resJson = {}
+    }
+    if (resp.status === 401) {
+      if (requireFresh) {
+        throw new Error(resJson.message)
+      }
+    }
+    if (resp.status === 403) {
+      throw new Error('Not authorized')
+    }
+    if (resp.status !== 201 && resp.status !== 200 && resp.status !== 202) {
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
+    }
+    if (dbChanged) {
+      fireEvent(window, 'db:changed')
+    }
+    if (resp.status === 202 && 'task' in resJson) {
+      return resJson
+    }
+    return {
+      data: resJson,
+      total_count: resp.headers.get('X-Total-Count'),
+      etag: resp.headers.get('ETag'),
+    }
+  } catch (error) {
+    return {error: error.message}
   }
 }

@@ -31,7 +31,7 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
       <grampsjs-form-select-object-list
         id="source"
         objectType="source"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
 
       <h4 class="label">${this._('Page')}</h4>
@@ -41,7 +41,7 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
 
       <h4 class="label">${this._('Date')}</h4>
       <p>
-        <grampsjs-form-select-date id="date" .strings="${this.strings}">
+        <grampsjs-form-select-date id="date" .appState="${this.appState}">
         </grampsjs-form-select-date>
       </p>
 
@@ -64,7 +64,7 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-private>
 
       ${this.renderButtons()}

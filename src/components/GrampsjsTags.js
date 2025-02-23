@@ -7,9 +7,9 @@ import '@material/mwc-icon-button'
 import {fireEvent} from '../util.js'
 import './GrampsjsFormNewTag.js'
 import './GrampsjsTooltip.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsTags extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -93,7 +93,7 @@ export class GrampsjsTags extends GrampsjsTranslateMixin(LitElement) {
                 class="edit"
                 @click="${this._handleNewTag}"
               ></mwc-icon-button>
-              <grampsjs-tooltip for="btn-tag" .strings="${this.strings}"
+              <grampsjs-tooltip for="btn-tag" .appState="${this.appState}"
                 >${this._('Add Tag')}</grampsjs-tooltip
               >
             </span>`

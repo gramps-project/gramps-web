@@ -12,11 +12,11 @@ import {
   objectDetail,
   renderIcon,
 } from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsJsImage.js'
 import {sharedStyles} from '../SharedStyles.js'
 
-export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
+export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
   LitElement
 ) {
   static get styles() {
@@ -97,7 +97,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
           const desc = objectDescription(
             obj.object_type,
             obj.object,
-            this.strings
+            this.appState.i18n.strings
           )
           return html`
             <mwc-list-item
@@ -157,13 +157,13 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
     if (this.date && obj.object?.change) {
       return html`<grampsjs-timedelta
         timestamp="${obj.object.change}"
-        locale="${this.strings.__lang__}"
+        locale="${this.appState.i18n.lang}"
       ></grampsjs-timedelta>`
     }
     const detail = objectDetail(
       obj.object_type,
       obj.object,
-      this.strings
+      this.appState.i18n.strings
     ).trim()
     if (detail?.length) {
       return detail

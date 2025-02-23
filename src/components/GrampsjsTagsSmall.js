@@ -6,9 +6,9 @@ import '@material/mwc-icon-button'
 
 import './GrampsjsFormNewTag.js'
 import './GrampsjsTooltip.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsTagsSmall extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsTagsSmall extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

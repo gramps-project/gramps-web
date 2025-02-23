@@ -5,10 +5,22 @@ import '@material/mwc-list/mwc-list-item'
 
 import './GrampsjsTable.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent, personDisplayName} from '../util.js'
 
-class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
+const columns = [
+  {name: 'Name'},
+  {name: 'Relationship'},
+  {name: 'Shared DNA', unit: 'cM', format: value => value.toLocaleString()},
+  {name: 'Shared Segments', format: value => value.toLocaleString()},
+  {
+    name: 'Largest Segment',
+    unit: 'cM',
+    format: value => value.toLocaleString(),
+  },
+]
+
+class GrampsjsDnaMatches extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -65,16 +77,15 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
     return data.map(match => [
       this._getNameFromHandle(match.handle),
       match.relation || this._('Unknown'),
-      `${match.segments
-        .reduce((accumulator, currentValue) => accumulator + currentValue.cM, 0)
-        .toFixed(1)} cM`,
+      match.segments.reduce(
+        (accumulator, currentValue) => accumulator + currentValue.cM,
+        0
+      ),
       match.segments.length,
-      `${match.segments
-        .reduce(
-          (accumulator, currentValue) => Math.max(accumulator, currentValue.cM),
-          0
-        )
-        .toFixed(1)} cM`,
+      match.segments.reduce(
+        (accumulator, currentValue) => Math.max(accumulator, currentValue.cM),
+        0
+      ),
     ])
   }
 
@@ -85,15 +96,12 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
     return html`
       <grampsjs-table
         linked
-        .columns="${[
-          'Name',
-          'Relationship',
-          'Shared DNA',
-          'Shared Segments',
-          'Largest Segment',
-        ]}"
+        sortable
+        sort="2"
+        descending
+        .columns="${columns}"
         .data="${this._computeTableData(this.data)}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         @table:row-click="${this._handleRowClick}"
       ></grampsjs-table>
     `
@@ -112,13 +120,7 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
     return html`
       <grampsjs-table
         loading
-        .columns="${[
-          'Name',
-          'Relationship',
-          'Shared DNA',
-          'Shared Segments',
-          'Largest Segment',
-        ]}"
+        .columns="${columns}"
         .data="${Array.from({length: numRows}).map(() => [
           'Name Name',
           'Father',
@@ -126,7 +128,7 @@ class GrampsjsDnaMatches extends GrampsjsTranslateMixin(LitElement) {
           '5',
           '10 cM',
         ])}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-table>
     `
   }

@@ -37,7 +37,7 @@ class GrampsjsFormEditCitationDetails extends GrampsjsObjectForm {
               },
             ]
           : []}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         notDeletable
       ></grampsjs-form-select-object-list>
 
@@ -57,7 +57,7 @@ class GrampsjsFormEditCitationDetails extends GrampsjsObjectForm {
           id="date"
           @formdata:changed="${this._handleFormData}"
           .data="${this.data.date}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
         >
         </grampsjs-form-select-date>
       </p>

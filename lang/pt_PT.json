@@ -210,5 +210,6 @@
     "DNA match with %s deleted.": "Resultado ADN com %s eliminado.",
     "No DNA matches detected in the data provided.": "Nenhum resultado de ADN detectado nos dados fornecidos.",
     "Max Number of Images displayed": "Máximo de imagens mostradas",
-    "Max Degree of Separation": "Grau máximo de separação"
+    "Max Degree of Separation": "Grau máximo de separação",
+    "Length": "Tamanho"
 }

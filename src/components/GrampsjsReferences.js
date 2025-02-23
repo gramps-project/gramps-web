@@ -40,7 +40,7 @@ export class GrampsjsReferences extends GrampsjsTableBase {
                       ? getNameFromProfile(
                           this.profile[type][index] || {},
                           type,
-                          this.strings
+                          this.appState.i18n.strings
                         ) ||
                         getName(obj, type) ||
                         ''

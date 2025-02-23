@@ -2,17 +2,17 @@ import {html, css, LitElement} from 'lit'
 import '@material/mwc-button'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsChatPrompt.js'
 import './GrampsjsChatMessage.js'
-import {setChatHistory, getChatHistory, apiPost} from '../api.js'
+import {setChatHistory, getChatHistory} from '../api.js'
 import {renderMarkdownLinks} from '../util.js'
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -131,7 +131,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
                 this.loading
                   ? html` <grampsjs-chat-message
                       type="ai"
-                      .strings="${this.strings}"
+                      .appState="${this.appState}"
                     >
                       <div class="loading" slot="no-wrap">
                         <div class="dot"></div>
@@ -146,7 +146,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
                   message => html`
                     <grampsjs-chat-message
                       type="${message.role}"
-                      .strings="${this.strings}"
+                      .appState="${this.appState}"
                       >${renderMarkdownLinks(
                         message.message
                       )}</grampsjs-chat-message
@@ -158,7 +158,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
               <grampsjs-chat-prompt
                 ?loading="${this.loading}"
                 @chat:prompt="${this._handlePrompt}"
-                .strings="${this.strings}"
+                .appState="${this.appState}"
               ></grampsjs-chat-prompt>
             </div>
           </div>
@@ -210,7 +210,9 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
     if (this.messages.length > 1) {
       payload.history = this.messages.slice(0, this.messages.length - 1)
     }
-    const data = await apiPost('/api/chat/', payload)
+    const data = await this.appState.apiPost('/api/chat/', payload, {
+      dbChanged: false,
+    })
     let message
     if ('error' in data || !data?.data?.response) {
       message = {

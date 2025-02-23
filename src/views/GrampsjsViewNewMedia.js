@@ -6,8 +6,6 @@ import {GrampsjsNewMediaMixin} from '../mixins/GrampsjsNewMediaMixin.js'
 
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 
-import {apiPost, apiPut} from '../api.js'
-
 export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
   GrampsjsViewNewObject
 ) {
@@ -63,7 +61,8 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
 
   _submit() {
     const upload = this.shadowRoot.getElementById('upload')
-    apiPost(this.postUrl, upload.file, false, false)
+    this.appState
+      .apiPost(this.postUrl, upload.file, {isJson: false, dbChanged: false})
       .then(data => {
         if ('data' in data) {
           this.error = false
@@ -75,7 +74,7 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
       })
       .then(() => {
         const updateUrl = `/api/media/${this.data.handle}`
-        apiPut(updateUrl, this.data).then(data => {
+        this.appState.apiPut(updateUrl, this.data).then(data => {
           if ('data' in data) {
             this.error = false
             this.dispatchEvent(

@@ -37,7 +37,7 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
       grampsId: row.gramps_id,
       name: row.name,
       type: this._(row.type),
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+      change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
     return formattedRow
   }

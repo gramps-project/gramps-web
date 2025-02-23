@@ -1,7 +1,6 @@
 import {html, css} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet, getSettings, updateSettings} from '../api.js'
 import '@material/mwc-button'
 import '@material/mwc-menu'
 import '../components/GrampsjsFormSelectObjectList.js'
@@ -34,7 +33,6 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
       homePersonDetails: {type: Object},
       requireHomePerson: {type: Boolean},
       _translations: {type: Array},
-      _settings: {type: Object},
       _langLoading: {type: Boolean},
       _peopleLoading: {type: Boolean},
     }
@@ -45,7 +43,6 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
     this.homePersonDetails = {}
     this.requireHomePerson = false
     this._translations = []
-    this._settings = getSettings()
     this._langLoading = false
     this._peopleLoading = false
   }
@@ -73,8 +70,8 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
 
   _isCompleted() {
     if (
-      (!this.requireHomePerson || this._settings.homePerson) &&
-      this._settings.lang
+      (!this.requireHomePerson || this.appState.settings.homePerson) &&
+      this.appState.settings.lang
     ) {
       return true
     }
@@ -92,7 +89,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
     return html`
       <p>
         <grampsjs-form-object-list
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           .objects=${this.homePersonDetails?.handle
             ? [this.homePersonDetails]
             : []}
@@ -103,7 +100,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
         <grampsjs-form-select-object
           @select-object:changed="${this._handleHomePerson}"
           objectType="person"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           id="homeperson-select"
           label="${this._('Select')}"
           ?disabled="${this._peopleLoading}"
@@ -115,8 +112,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
   _handleHomePerson(e) {
     const obj = e.detail.objects[0]
     if (obj.object?.gramps_id) {
-      updateSettings({homePerson: obj.object.gramps_id}, true)
-      this._handleStorage()
+      this.appState.updateSettings({homePerson: obj.object.gramps_id}, true)
       this.homePersonDetails = obj
     }
     e.preventDefault()
@@ -137,7 +133,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
           langObj => html`
             <mwc-list-item
               value="${langObj.language}"
-              ?selected="${langObj.language === this._settings.lang}"
+              ?selected="${langObj.language === this.appState.settings.lang}"
               >${langObj.native}</mwc-list-item
             >
           `,
@@ -151,21 +147,8 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
     const i = event.detail.index
     if (i !== null && i !== undefined && i < this._translations.length) {
       const key = this._translations[i].language
-      updateSettings({lang: key})
-      this._handleStorage()
+      this.appState.updateSettings({lang: key})
     }
-  }
-
-  connectedCallback() {
-    super.connectedCallback()
-    window.addEventListener('storage', this._handleStorage.bind(this))
-  }
-
-  _handleStorage() {
-    this._settings = getSettings()
-    window.dispatchEvent(
-      new CustomEvent('settings:changed', {bubbles: true, composed: true})
-    )
   }
 
   firstUpdated() {
@@ -183,7 +166,8 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
       }
       if (
         !this._peopleLoading &&
-        this.homePersonDetails?.object?.grampd_id !== this._settings.homePerson
+        this.homePersonDetails?.object?.grampd_id !==
+          this.appState.settings.homePerson
       ) {
         this._fetchDataHomePerson()
       }
@@ -193,7 +177,7 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
   async _fetchDataLang() {
     this.loading = true
     this._langLoading = true
-    const dataTrans = await apiGet('/api/translations/')
+    const dataTrans = await this.appState.apiGet('/api/translations/')
     if ('data' in dataTrans) {
       this.error = false
       this._translations = dataTrans.data
@@ -210,14 +194,15 @@ export class GrampsjsViewSettingsOnboarding extends GrampsjsView {
 
   async _fetchDataHomePerson() {
     if (
-      this._settings.homePerson &&
-      this.homePersonDetails?.object?.grampd_id !== this._settings.homePerson
+      this.appState.settings.homePerson &&
+      this.homePersonDetails?.object?.grampd_id !==
+        this.appState.settings.homePerson
     ) {
       this.loading = true
       this._peopleLoading = true
-      const dataPeople = await apiGet(
-        `/api/people/?locale=${this.strings?.__lang__ || 'en'}&gramps_id=${
-          this._settings.homePerson
+      const dataPeople = await this.appState.apiGet(
+        `/api/people/?locale=${this.appState.i18n.lang || 'en'}&gramps_id=${
+          this.appState.settings.homePerson
         }&profile=self&extend=media_list`
       )
       if ('data' in dataPeople) {

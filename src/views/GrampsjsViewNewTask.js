@@ -7,7 +7,7 @@ import '../components/GrampsjsEditor.js'
 import '../components/GrampsjsFormString.js'
 import '../components/GrampsjsFormPrivate.js'
 import {GrampsjsViewNewSource} from './GrampsjsViewNewSource.js'
-import {apiGet, apiPost} from '../api.js'
+
 import {makeHandle, fireEvent} from '../util.js'
 
 const dataDefault = {
@@ -54,6 +54,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
         <grampsjs-editor
           @formdata:changed="${this.handleEditor}"
           id="note-editor"
+          .appState="${this.appState}"
         ></grampsjs-editor>
       </p>
 
@@ -75,7 +76,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-private>
 
       ${this.renderButtons()}
@@ -167,14 +168,14 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
   }
 
   async _fetchTodoTagHandle(retry = true) {
-    const data = await apiGet('/api/tags/')
+    const data = await this.appState.apiGet('/api/tags/')
     if ('data' in data) {
       const tags = data.data.filter(tag => tag.name === 'ToDo')
       if (tags.length > 0) {
         this._todoTagHandle = tags[0].handle
       } else {
         const newTag = {name: 'ToDo'}
-        await apiPost('/api/tags/', newTag)
+        await this.appState.apiPost('/api/tags/', newTag)
         if (retry) {
           await this._fetchTodoTagHandle(false)
         }
@@ -188,7 +189,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
 
   _submit() {
     const processedData = this._processedData()
-    apiPost(this.postUrl, processedData).then(data => {
+    this.appState.apiPost(this.postUrl, processedData).then(data => {
       if ('data' in data) {
         this.error = false
         fireEvent(this, 'nav', {path: 'tasks'})

@@ -24,7 +24,7 @@ export class GrampsjsConnectedNote extends GrampsjsConnectedComponent {
       link_format: `${BASE_DIR}/{obj_class}/{gramps_id}`,
     }
     return `/api/notes/${this.handle}?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&extend=all&formats=html&format_options=${encodeURIComponent(
       JSON.stringify(options)
     )}`
@@ -34,7 +34,7 @@ export class GrampsjsConnectedNote extends GrampsjsConnectedComponent {
     return html`
       <grampsjs-note-content
         framed
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         grampsId="${this._data.data.gramps_id}"
         content="${this._data?.data?.formatted?.html ||
         this._data?.data?.text?.string}"

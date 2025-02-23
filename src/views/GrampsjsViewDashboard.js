@@ -61,7 +61,7 @@ export class GrampsjsViewDashboard extends GrampsjsView {
         <div>
           <grampsjs-home-person
             id="homeperson"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
             .homePersonDetails=${this.homePersonDetails}
             .homePersonGrampsId=${this.homePersonGrampsId}
           >
@@ -70,14 +70,14 @@ export class GrampsjsViewDashboard extends GrampsjsView {
         <div>
           <grampsjs-view-anniversaries
             id="anniversaries"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
           >
           </grampsjs-view-anniversaries>
         </div>
         <div>
           <grampsjs-view-recently-changed
             id="recently-changed"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
           >
           </grampsjs-view-recently-changed>
         </div>
@@ -87,7 +87,7 @@ export class GrampsjsViewDashboard extends GrampsjsView {
           <grampsjs-view-recent-blog-posts
             ?active=${this.active}
             id="recent-blog"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
           >
           </grampsjs-view-recent-blog-posts>
         </div>
@@ -95,7 +95,7 @@ export class GrampsjsViewDashboard extends GrampsjsView {
           <grampsjs-statistics
             .data="${this.dbInfo?.object_counts || {}}"
             id="statistics"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
           >
           </grampsjs-statistics>
         </div>

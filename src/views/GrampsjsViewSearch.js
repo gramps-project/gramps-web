@@ -5,7 +5,7 @@ import '../components/GrampsjsSearchResultList.js'
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsButtonToggle.js'
 import '../components/GrampsjsButtonGroup.js'
-import {apiGet} from '../api.js'
+
 import {objectTypeToEndpoint, objectIcon, debounce} from '../util.js'
 import '@material/mwc-textfield'
 
@@ -112,7 +112,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
       ${this._totalCount > 0 ? html`<p>Total: ${this._totalCount}</p>` : ''}
       <grampsjs-search-result-list
         .data="${this._data}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         large
         noSep
         linked
@@ -123,7 +123,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
             <grampsjs-pagination
               page="${this._page}"
               pages="${this._pages}"
-              .strings="${this.strings}"
+              .appState="${this.appState}"
               @page:changed="${this._handlePageChanged}"
             ></grampsjs-pagination>
           `
@@ -320,7 +320,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
   async _fetchData(query, page) {
     let url = `/api/search/?query=${query}&locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&page=${page}&pagesize=20`
     if (this._semanticEnabled()) {
       url = `${url}&semantic=${this.semantic ? 1 : 0}`
@@ -331,7 +331,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
       )
       url = `${url}&type=${objectTypes.join(',')}`
     }
-    const data = await apiGet(url)
+    const data = await this.appState.apiGet(url)
     this.loading = false
     if ('data' in data) {
       this.error = false

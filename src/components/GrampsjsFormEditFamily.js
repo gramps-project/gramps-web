@@ -35,7 +35,7 @@ class GrampsjsFormEditFamily extends GrampsjsObjectForm {
         id="father"
         objectType="person"
         label="${this._('Select a person as the father')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .objectsInitial="${this.data.father_handle
           ? [
               {
@@ -57,7 +57,7 @@ class GrampsjsFormEditFamily extends GrampsjsObjectForm {
         id="mother"
         objectType="person"
         label="${this._('Select a person as the mother')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .objectsInitial="${this.data.mother_handle
           ? [
               {
@@ -76,7 +76,7 @@ class GrampsjsFormEditFamily extends GrampsjsObjectForm {
       <grampsjs-form-select-type
         id="family-rel-type"
         heading="${this._('Relationship type:').replace(':', '')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         ?loadingTypes="${this.loadingTypes}"
         typeName="family_relation_types"
         defaultTypeName="Unknown"

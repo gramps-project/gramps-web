@@ -18,11 +18,6 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
         svg .personBox {
           fill: #e6e6e6;
         }
-        svg .married {
-          fill: #ffffff;
-          stroke: #000000;
-        }
-
         mwc-menu {
           --mdc-typography-subtitle1-font-size: 13px;
           --mdc-menu-item-height: 36px;

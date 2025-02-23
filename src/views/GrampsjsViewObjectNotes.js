@@ -43,7 +43,7 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
       link_format: `${BASE_DIR}/{obj_class}/{gramps_id}`,
     }
     return `/api/notes/?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&extend=all&formats=html&rules=${encodeURIComponent(
       JSON.stringify(rules)
     )}&format_options=${encodeURIComponent(JSON.stringify(options))}`
@@ -76,7 +76,7 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
       <grampsjs-form-new-note
         @object:save="${this._handleNewNoteSave}"
         @object:cancel="${this._handleNoteCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         dialogTitle="${this._('Create and add a new note')}"
       >
       </grampsjs-form-new-note>
@@ -89,7 +89,7 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
         new
         @object:save="${this._handleNoteRefSave}"
         @object:cancel="${this._handleNoteCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         objType="${this.objType}"
         dialogTitle=${this._('Select an existing note')}
       >

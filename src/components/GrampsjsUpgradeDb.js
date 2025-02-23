@@ -1,24 +1,24 @@
 /* eslint-disable lit-a11y/click-events-have-key-events */
 import {html, css, LitElement} from 'lit'
 
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {apiPost, doLogout, getPermissions} from '../api.js'
+
 import {clickKeyHandler, fireEvent} from '../util.js'
 import '@material/mwc-button'
 
-function renderLogoutButton() {
+function renderLogoutButton(appState) {
   return html`
     <mwc-button
       outlined
       label="logout"
       icon="exit_to_app"
-      @click=${() => doLogout()}
+      @click=${() => appState.signout()}
     ></mwc-button>
   `
 }
 
-class GrampsjsUpgradeDb extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsUpgradeDb extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -40,21 +40,8 @@ class GrampsjsUpgradeDb extends GrampsjsTranslateMixin(LitElement) {
     ]
   }
 
-  static get properties() {
-    return {
-      dbInfo: {type: Object},
-      permissions: {type: Array},
-    }
-  }
-
-  constructor() {
-    super()
-    this.dbInfo = {}
-    this.permissons = []
-  }
-
   render() {
-    if (this.permissions.includes('AddObject')) {
+    if (this.appState.permissions.canUpgradeTree) {
       return this.renderOwner()
     }
     return this.renderNonOwner()
@@ -66,7 +53,7 @@ class GrampsjsUpgradeDb extends GrampsjsTranslateMixin(LitElement) {
         ${this._(
           'The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.'
         )}<br /><br />
-        ${renderLogoutButton()}
+        ${renderLogoutButton(this.appState)}
       </div>
     </div>`
   }
@@ -91,7 +78,7 @@ class GrampsjsUpgradeDb extends GrampsjsTranslateMixin(LitElement) {
           @task:complete="${this._handleUpgradeComplete}"
         ></grampsjs-task-progress-indicator>
         <br /><br />
-        ${renderLogoutButton()}
+        ${renderLogoutButton(this.appState)}
       </div>
     </div>`
   }
@@ -102,7 +89,7 @@ class GrampsjsUpgradeDb extends GrampsjsTranslateMixin(LitElement) {
     )
     prog.reset()
     prog.open = true
-    const data = await apiPost('/api/trees/-/migrate')
+    const data = await this.appState.apiPost('/api/trees/-/migrate')
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -111,11 +98,6 @@ class GrampsjsUpgradeDb extends GrampsjsTranslateMixin(LitElement) {
     } else {
       prog.setComplete()
     }
-  }
-
-  connectedCallback() {
-    super.connectedCallback()
-    this.permissions = getPermissions()
   }
 
   _handleUpgradeComplete() {

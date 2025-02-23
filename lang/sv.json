@@ -117,7 +117,7 @@
     "Set Priority": "Ställ in prioritet",
     "Set Status": "Ställ in status",
     "In Progress": "Pågående",
-    "Done": "Gjort",
+    "Done": "Klart",
     "Open": "Öppna",
     "Attachments": "Bilagor",
     "Event Year": "Händelseår",
@@ -211,5 +211,6 @@
     "First person": "Första person",
     "No DNA matches detected in the data provided.": "Inga DNA-matchningar har upptäckts i de angivna uppgifterna.",
     "Max Degree of Separation": "Maximal grad av separation",
-    "Max Number of Images displayed": "Max antal bilder som visas"
+    "Max Number of Images displayed": "Max antal bilder som visas",
+    "Length": "Längd"
 }

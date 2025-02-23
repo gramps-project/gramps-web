@@ -40,7 +40,7 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
       <grampsjs-form-select-type
         required
         id="select-repository-type"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         ?loadingTypes="${this.loadingTypes}"
         typeName="repository_types"
         .types="${this.types}"
@@ -51,7 +51,7 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-private>
 
       ${this.renderButtons()}

@@ -13,7 +13,7 @@ export const GrampsjsNewMediaMixin = superClass =>
           <grampsjs-form-upload
             preview
             id="upload"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
           ></grampsjs-form-upload>
         </p>
 
@@ -29,14 +29,14 @@ export const GrampsjsNewMediaMixin = superClass =>
 
         <h4 class="label">${this._('Date')}</h4>
         <p>
-          <grampsjs-form-select-date id="date" .strings="${this.strings}">
+          <grampsjs-form-select-date id="date" .appState="${this.appState}">
           </grampsjs-form-select-date>
         </p>
 
         <div class="spacer"></div>
         <grampsjs-form-private
           id="private"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
         ></grampsjs-form-private>
       `
     }

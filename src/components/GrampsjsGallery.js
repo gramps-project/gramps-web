@@ -11,9 +11,9 @@ import '../views/GrampsjsViewMediaLightbox.js'
 import './GrampsjsFormMediaRef.js'
 import './GrampsjsFormNewMedia.js'
 import {fireEvent} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -87,7 +87,7 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
         handle="${this.media[this._lightboxSelected]?.handle}"
         ?hideLeftArrow="${this._lightboxSelected === 0}"
         ?hideRightArrow="${this._lightboxSelected === this.media.length - 1}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-view-media-lightbox>
 
@@ -213,7 +213,7 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
       <grampsjs-form-new-media
         @object:save="${this._handleNewMediaSave}"
         @object:cancel="${this._handleMediaRefCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         dialogTitle="${this._('Add a new media object')}"
       >
       </grampsjs-form-new-media>
@@ -226,7 +226,7 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
         new
         @object:save="${this._handleMediaRefSave}"
         @object:cancel="${this._handleMediaRefCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         objType="${this.objType}"
         dialogTitle=${this._('Select an existing media object')}
       >

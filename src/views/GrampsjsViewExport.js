@@ -4,12 +4,7 @@ import '@material/mwc-button'
 import '@material/mwc-icon'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {
-  apiGet,
-  apiPost,
-  getExporterDownloadUrl,
-  getPermissions,
-} from '../api.js'
+import {getExporterDownloadUrl, getPermissions} from '../api.js'
 
 export class GrampsjsViewExport extends GrampsjsView {
   static get styles() {
@@ -182,7 +177,7 @@ export class GrampsjsViewExport extends GrampsjsView {
     prog.reset()
     prog.open = true
     const url = this._getQueryUrl()
-    const data = await apiPost(url)
+    const data = await this.appState.apiPost(url)
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -202,7 +197,7 @@ export class GrampsjsViewExport extends GrampsjsView {
     prog.reset()
     prog.open = true
     const url = '/api/media/archive/'
-    const data = await apiPost(url)
+    const data = await this.appState.apiPost(url)
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -230,7 +225,7 @@ export class GrampsjsViewExport extends GrampsjsView {
 
   async _fetchData() {
     this.loading = true
-    const data = await apiGet('/api/exporters/')
+    const data = await this.appState.apiGet('/api/exporters/')
     this.loading = false
     if ('data' in data) {
       this.error = false
@@ -242,9 +237,9 @@ export class GrampsjsViewExport extends GrampsjsView {
   }
 
   firstUpdated() {
-    if ('__lang__' in this.strings) {
+    if (this.appState.i18n.lang) {
       // don't load before we have strings
-      this._fetchData(this.strings.__lang__)
+      this._fetchData(this.appState.i18n.lang)
     }
     const permissions = getPermissions()
     this._viewPrivate = permissions.includes('ViewPrivate')
@@ -257,18 +252,17 @@ export class GrampsjsViewExport extends GrampsjsView {
     if (changed.has('_mediaDownloadUrl') && this._mediaDownloadUrl) {
       this._startMediaDownload()
     }
+    if (
+      changed.has('appState') &&
+      changed.get('appState')?.i18n?.lang !== this.appState.i18n.lang
+    ) {
+      this._handleLanguageChanged(this.appState.i18n.lang)
+    }
   }
 
-  connectedCallback() {
-    super.connectedCallback()
-    window.addEventListener('language:changed', e =>
-      this._handleLanguageChanged(e)
-    )
-  }
-
-  _handleLanguageChanged(e) {
+  _handleLanguageChanged(lang) {
     if (this._hasFirstUpdated) {
-      this._fetchData(e.detail.lang)
+      this._fetchData(lang)
     }
   }
 }

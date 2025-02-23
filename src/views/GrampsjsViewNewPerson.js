@@ -5,7 +5,6 @@ import '../components/GrampsjsFormName.js'
 import '../components/GrampsjsFormPrivate.js'
 import '../components/GrampsjsFormSelectObjectList.js'
 import {makeHandle, dateIsEmpty} from '../util.js'
-import {apiPost} from '../api.js'
 
 const gender = {
   2: 'Unknown',
@@ -31,7 +30,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
       <h4 class="label">${this._('Name')}</h4>
       <grampsjs-form-name
         id="primary-name"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-name>
 
       <h4 class="label">${this._('Gender')}</h4>
@@ -53,7 +52,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
       <h4 class="label">${this._('Birth Date')}</h4>
 
       <p>
-        <grampsjs-form-select-date id="birth-date" .strings="${this.strings}">
+        <grampsjs-form-select-date id="birth-date" .appState="${this.appState}">
         </grampsjs-form-select-date>
       </p>
 
@@ -62,13 +61,13 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
       <grampsjs-form-select-object-list
         id="birth-place"
         objectType="place"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
 
       <h4 class="label">${this._('Death Date')}</h4>
 
       <p>
-        <grampsjs-form-select-date id="death-date" .strings="${this.strings}">
+        <grampsjs-form-select-date id="death-date" .appState="${this.appState}">
         </grampsjs-form-select-date>
       </p>
 
@@ -77,7 +76,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
       <grampsjs-form-select-object-list
         id="death-place"
         objectType="place"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
 
       ${this._renderCitationForm()}
@@ -85,7 +84,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-private>
 
       ${this.renderButtons()}
@@ -206,7 +205,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
 
   _submit() {
     const processedData = this._processedData()
-    apiPost(this.postUrl, processedData).then(data => {
+    this.appState.apiPost(this.postUrl, processedData).then(data => {
       if ('data' in data) {
         this.error = false
         const grampsId = data.data.filter(obj => obj.new._class === 'Person')[0]

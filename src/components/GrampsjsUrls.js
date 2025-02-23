@@ -64,7 +64,7 @@ export class GrampsjsUrls extends GrampsjsEditableList {
         new
         @object:save="${this._handleUrlSave}"
         @object:cancel="${this._handleDialogCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-form-edit-url>
     `
@@ -81,7 +81,7 @@ export class GrampsjsUrls extends GrampsjsEditableList {
       <grampsjs-form-edit-url
         @object:save="${this._handleUrlSaveEdit}"
         @object:cancel="${this._handleDialogCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${data}"
       >
       </grampsjs-form-edit-url>

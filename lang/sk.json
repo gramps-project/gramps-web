@@ -210,5 +210,6 @@
     "Add new DNA match": "Pridať novú zhodu DNA",
     "Number of SNPs": "Počet jednonukleotidových polymorfizmov (SNP)",
     "Max Number of Images displayed": "Maximálny počet zobrazených obrázkov",
-    "Max Degree of Separation": "Maximálny stupeň odlúčenia"
+    "Max Degree of Separation": "Maximálny stupeň odlúčenia",
+    "Length": "Dĺžka"
 }

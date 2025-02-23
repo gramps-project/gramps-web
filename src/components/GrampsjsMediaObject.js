@@ -71,7 +71,6 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       deletedRects: {type: Array},
       bbox: {type: Object},
       dbInfo: {type: Object},
-      canEdit: {type: Boolean},
       _drawing: {type: Boolean},
       _ocr: {type: Boolean},
     }
@@ -86,7 +85,6 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     this.deletedRects = []
     this.bbox = {}
     this.dbInfo = {}
-    this.canEdit = false
     this._drawing = false
     this._ocr = false
   }
@@ -140,7 +138,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         hideLeftArrow
         hideRightArrow
         active
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-view-media-lightbox>
     `
@@ -154,7 +152,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           <grampsjs-form-select-object
             fixedMenuPosition
             objectType="person"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
             id="face-select"
             label="${this._('Person')}"
             ?disabled="${noSelection}"
@@ -187,7 +185,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       </p>
 
       <grampsjs-rect-container
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         ?draw="${this._drawing}"
         @rect:draw="${this._handleDrawRec}"
       >
@@ -199,7 +197,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
             ...this.deletedRects,
             ...this._getRectangles().map(obj => obj.rect),
           ]}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           @rect:selected="${this._handleRectSelected}"
           slot="image"
         >
@@ -248,7 +246,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           id="upload"
           label="${this._('Replace file')}"
           class="edit"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
         ></grampsjs-form-upload>
       </p>
     `
@@ -280,7 +278,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
   _renderImageNoEdit() {
     return html`
       <grampsjs-rect-container
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         @rect:clicked="${this._handleRectClick}"
       >
         <grampsjs-img
@@ -339,10 +337,10 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         ></mwc-icon-button>
       </span>
       <grampsjs-text-recognition
-        ?canEdit="${this.canEdit}"
+        ?canEdit="${this.appState.permissions.canEdit}"
         .languages="${this.dbInfo?.server?.ocr_languages ?? []}"
         handle="${this.data.handle ?? ''}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-text-recognition>
     </div>`
   }
@@ -410,7 +408,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       <grampsjs-form-edit-title
         @object:save="${this._handleSaveTitle}"
         @object:cancel="${this._handleCancelDialog}"
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .data=${{desc: this.data?.desc || ''}}
         prop="desc"
       >
@@ -423,7 +421,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     <grampsjs-form-edit-date
       @object:save="${this._handleSaveDate}"
       @object:cancel="${this._handleCancelDialog}"
-      .strings=${this.strings}
+      .appState="${this.appState}"
       .data=${{date: this.data.date}}
     >
     </grampsjs-form-edit-title>
@@ -449,7 +447,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       <grampsjs-form-edit-map-layer
         @object:save="${this._handleSaveMap}"
         @object:cancel="${this._handleCancelDialog}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${this.data}"
       ></grampsjs-form-edit-map-layer>
     `
@@ -467,7 +465,11 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           const refs = key in references ? references[key] : []
           const label =
             refs.length >= index
-              ? getNameFromProfile(refs[index] || {}, key, this.strings)
+              ? getNameFromProfile(
+                  refs[index] || {},
+                  key,
+                  this.appState.i18n.strings
+                )
               : '...'
           return {
             rect: obj?.media_list?.find(mobj => mobj.ref === this.data.handle)

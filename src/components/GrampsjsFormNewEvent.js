@@ -27,7 +27,7 @@ export class GrampsjsFormNewEvent extends GrampsjsNewEventMixin(
         multiple
         id="object-citation"
         objectType="citation"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
     `
   }
@@ -41,7 +41,7 @@ export class GrampsjsFormNewEvent extends GrampsjsNewEventMixin(
         id="event-role-type"
         defaultTypeName="${this.defaultRole}"
         heading="${this._('Role')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         typeName="event_role_types"
         ?loadingTypes=${this.loadingTypes}
         .types="${this.types}"

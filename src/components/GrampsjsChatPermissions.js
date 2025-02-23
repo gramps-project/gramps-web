@@ -4,7 +4,6 @@ import '@material/mwc-checkbox'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 import {fireEvent} from '../util.js'
-import {apiPut} from '../api.js'
 
 // options for min_role_ai
 const roleAiOptions = {
@@ -75,7 +74,7 @@ export class GrampsjsChatPermissions extends GrampsjsConnectedComponent {
   async _handleChange(event) {
     const minRoleAi = parseInt(event.target.value, 10)
     const payload = {min_role_ai: minRoleAi}
-    const data = await apiPut('/api/trees/-', payload)
+    const data = await this.appState.apiPut('/api/trees/-', payload)
     if ('error' in data) {
       fireEvent(this, 'grampsjs:error', {message: data.error})
     } else {

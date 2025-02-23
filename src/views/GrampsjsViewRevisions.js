@@ -45,7 +45,7 @@ import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsTimedelta.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet} from '../api.js'
+
 import {renderIconSvg} from '../icons.js'
 
 const changeIcons = {
@@ -157,7 +157,7 @@ export class GrampsjsViewRevisions extends GrampsjsView {
         page="${this._page}"
         pages="${this._pages}"
         @page:changed="${this._handlePageChanged}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-pagination>
     `
   }
@@ -209,7 +209,7 @@ export class GrampsjsViewRevisions extends GrampsjsView {
           <span class="time">
             <grampsjs-timedelta
               timestamp="${txn.timestamp}"
-              locale="${this.strings.__lang__}"
+              locale="${this.appState.i18n.lang}"
             ></grampsjs-timedelta>
           </span>
         </div>
@@ -225,7 +225,7 @@ export class GrampsjsViewRevisions extends GrampsjsView {
   async _fetchData() {
     this.loading = true
     const url = `/api/transactions/history/?sort=-id&page=${this._page}&pagesize=${this._pageSize}`
-    const data = await apiGet(url)
+    const data = await this.appState.apiGet(url)
     this.loading = false
     if ('data' in data) {
       this.error = false

@@ -1,7 +1,6 @@
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import {GrampsjsNewMediaMixin} from '../mixins/GrampsjsNewMediaMixin.js'
 
-import {apiPut, apiPost} from '../api.js'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsFormNewMedia extends GrampsjsNewMediaMixin(
@@ -34,7 +33,10 @@ export class GrampsjsFormNewMedia extends GrampsjsNewMediaMixin(
 
   async upload(dbChanged = false) {
     const uploadElement = this.shadowRoot.getElementById('upload')
-    let data = await apiPost('/api/media/', uploadElement.file, false, false)
+    let data = await this.appState.apiPost('/api/media/', uploadElement.file, {
+      isJson: false,
+      dbChanged: false,
+    })
     if ('data' in data) {
       this.data = {...data.data[0].new, ...this.data}
     } else if ('error' in data) {
@@ -42,7 +44,7 @@ export class GrampsjsFormNewMedia extends GrampsjsNewMediaMixin(
       return {error: data.error}
     }
     const updateUrl = `/api/media/${this.data.handle}`
-    data = await apiPut(updateUrl, this.data, true, dbChanged)
+    data = await this.appState.apiPut(updateUrl, this.data, {dbChanged})
     if ('error' in data) {
       fireEvent(this, 'grampsjs:error', {message: data.error})
       return {error: data.error}

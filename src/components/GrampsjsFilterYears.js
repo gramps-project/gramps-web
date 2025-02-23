@@ -4,11 +4,10 @@ import '@material/mwc-icon'
 import '@material/mwc-textfield'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
-import {getSettings} from '../api.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent, dateSpanLocal, debounce} from '../util.js'
 
-export class GrampsjsFilterYears extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsFilterYears extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -36,7 +35,6 @@ export class GrampsjsFilterYears extends GrampsjsTranslateMixin(LitElement) {
       numArgs: {type: Number},
       _yearFrom: {type: String},
       _yearUntil: {type: String},
-      _serverLang: {type: String},
     }
   }
 
@@ -50,7 +48,6 @@ export class GrampsjsFilterYears extends GrampsjsTranslateMixin(LitElement) {
     this.numArgs = 3
     this._yearFrom = null
     this._yearUntil = new Date().getFullYear()
-    this._serverLang = getSettings().serverLang
   }
 
   render() {
@@ -104,8 +101,8 @@ export class GrampsjsFilterYears extends GrampsjsTranslateMixin(LitElement) {
     const year2 = this.renderRoot.querySelector('#year_until')?.value
     if (year1 && year2) {
       // need to translate the date span if the server locale is not English
-      const date = this._serverLang
-        ? dateSpanLocal(year1, year2, this._serverLang)
+      const date = this.appState.settings.serverLang
+        ? dateSpanLocal(year1, year2, this.appState.settings.serverLang)
         : `from ${year1} until ${year2}`
       const values = Array(this.numArgs).fill('')
       values[this.dateIndex] = date

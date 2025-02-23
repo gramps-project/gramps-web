@@ -5,11 +5,11 @@ import '@material/web/icon/icon.js'
 
 import {mdiSend} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
 import {renderIconSvg} from '../icons.js'
 
-class GrampsjsChatPrompt extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsChatPrompt extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

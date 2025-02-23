@@ -29,7 +29,7 @@ import './GrampsjsRepositories.js'
 import './GrampsjsSources.js'
 import './GrampsjsTags.js'
 import './GrampsjsUrls.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 import {fireEvent} from '../util.js'
 import {getMediaUrl} from '../api.js'
@@ -155,7 +155,7 @@ const _allTabs = {
   },
 }
 
-export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -207,7 +207,6 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     return {
       data: {type: Object},
       edit: {type: Boolean},
-      canEdit: {type: Boolean},
       dialogContent: {type: String},
       _objectsName: {type: String},
       _objectEndpoint: {type: String},
@@ -224,7 +223,6 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     super()
     this.data = {}
     this.edit = false
-    this.canEdit = false
     this.dialogContent = ''
     this._objectsName = 'Objects'
     this._objectIcon = ''
@@ -261,7 +259,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     return html`
       <grampsjs-breadcrumbs
         .data="${this.data}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         ?edit="${this.edit}"
         objectsName="${this._objectsName}"
         objectIcon="${this._objectIcon}"
@@ -331,7 +329,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     return html` <grampsjs-tags
       .data=${this.data?.extended?.tags || []}
       ?edit="${this.edit}"
-      .strings="${this.strings}"
+      .appState="${this.appState}"
       @tag:new="${this._handleNewTag}"
     ></grampsjs-tags>`
   }
@@ -344,7 +342,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       case 'relationships':
         return html`<grampsjs-relationships
           grampsId="${this.data.gramps_id}"
-          .strings=${this.strings}
+          .appState="${this.appState}"
           ?edit=${this.edit}
           .familyList=${this.data?.extended?.families || []}
           .parentFamilyList=${this.data?.extended?.parent_families || []}
@@ -357,7 +355,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       case 'names':
         return html`
           <grampsjs-names
-            .strings="${this.strings}"
+            .appState="${this.appState}"
             .data="${[this.data.primary_name, ...this.data.alternate_names]}"
             ?edit=${this.edit}
           ></grampsjs-names>
@@ -367,7 +365,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           ? html`
       <h4>${this._('Enclosed By')}</h3>
         <grampsjs-place-refs
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           .data="${this.data?.placeref_list}"
           ?edit="${this.edit}"
         ></grampsjs-place-refs>
@@ -376,7 +374,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         ${this.data?.backlinks?.place?.length
           ? html`<h4>${this._('Encloses')}</h3>
         <grampsjs-place-children
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           .data="${this.data?.profile?.references?.place || []}"
           ?edit="false"
         ></grampsjs-place-children>
@@ -441,7 +439,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           hasAdd
           hasEdit
           defaultRole=${this._objectsName === 'Families' ? 'Family' : 'Primary'}
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${this.data?.extended?.events}
           .profile=${this.data?.profile?.events}
           .eventRef=${this.data?.event_ref_list}
@@ -451,7 +449,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         return html`<grampsjs-events
           useSummary
           sorted
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${this.data?.extended?.backlinks?.event}
           .profile=${this.data?.profile?.references?.event}
         ></grampsjs-events>`
@@ -459,14 +457,14 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         if (this._showPersonTimeline) {
           return html`<grampsjs-view-person-timeline
             active
-            .strings=${this.strings}
+            .appState="${this.appState}"
             handle=${this.data.handle}
           ></grampsjs-view-person-timeline>`
         }
         return ''
       case 'sources':
         return html`<grampsjs-sources
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${this.data?.extended?.backlinks?.source || []}
         ></grampsjs-sources>`
       case 'citations': {
@@ -478,13 +476,13 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           }))
         }
         return html`<grampsjs-citations
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${data}
         ></grampsjs-citations>`
       }
       case 'children':
         return html`<grampsjs-children
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${this.data?.child_ref_list}
           .profile=${this.data?.profile?.children}
           ?edit="${this.edit}"
@@ -492,7 +490,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       case 'sourceCitations':
         return html`<grampsjs-view-source-citations
           active
-          .strings=${this.strings}
+          .appState="${this.appState}"
           ?edit="${this.edit}"
           .grampsIds=${(this.data?.extended?.citations || [])
             .map(obj => obj.gramps_id)
@@ -501,20 +499,20 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       case 'attributes':
         return html`<grampsjs-attributes
           hasEdit
-          .strings=${this.strings}
+          .appState="${this.appState}"
           ?edit="${this.edit}"
           .data=${this.data.attribute_list}
           ?source="${this._objectsName === 'Sources'}"
         ></grampsjs-attributes>`
       case 'addresses':
         return html`<grampsjs-addresses
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${this.data.address_list}
         ></grampsjs-addresses>`
       case 'notes':
         return html` <grampsjs-view-object-notes
           active
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .grampsIds=${(this.data?.extended?.notes || [])
             .map(obj => obj.gramps_id)
             .filter(obj => Boolean(obj))}
@@ -522,42 +520,42 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         ></grampsjs-view-object-notes>`
       case 'gallery':
         return html` <grampsjs-gallery
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .media=${this.data?.extended?.media}
           .mediaRef=${this.data?.media_list}
           ?edit="${this.edit}"
-          ?editRect="${this.canEdit}"
+          ?editRect="${this.appState.permissions.canEdit}"
         ></grampsjs-gallery>`
       case 'internet':
         return html`<grampsjs-urls
           hasEdit
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${this.data.urls}
           ?edit="${this.edit}"
         ></grampsjs-urls>`
       case 'associations':
         return html`<grampsjs-associations
           hasEdit
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${this.data?.person_ref_list || []}
           .extended=${this.data?.extended?.people || []}
           ?edit="${this.edit}"
         ></grampsjs-associations>`
       case 'participants':
         return html`<grampsjs-participants
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${[this.data?.profile?.participants]}
         ></grampsjs-participants>`
       case 'repositories':
         return html` <grampsjs-repositories
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${this.data?.reporef_list}
           .extended=${this.data?.extended?.repositories}
           ?edit=${this.edit}
         ></grampsjs-repositories>`
       case 'references':
         return html`<grampsjs-references
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${[this.data?.extended?.backlinks]}
           .profile=${this.data?.profile?.references || {}}
         ></grampsjs-references>`
@@ -620,7 +618,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
   _handleNewTag() {
     this.dialogContent = html`
       <grampsjs-form-new-tag
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${this.data.tag_list}"
         @object:save="${this._handleSaveTag}"
         @object:cancel="${this._handleCancelDialog}"

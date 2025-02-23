@@ -2,9 +2,9 @@ import {html, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 
 import './GrampsJsImage.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsBlogPreview extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsBlogPreview extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [sharedStyles]
   }

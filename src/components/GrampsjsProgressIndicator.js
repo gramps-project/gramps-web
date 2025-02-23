@@ -5,9 +5,9 @@ import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsProgressIndicator extends GrampsjsTranslateMixin(
+export class GrampsjsProgressIndicator extends GrampsjsAppStateMixin(
   LitElement
 ) {
   static get styles() {

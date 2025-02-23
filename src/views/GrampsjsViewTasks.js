@@ -2,7 +2,7 @@ import {css, html} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsTasks.js'
-import {apiGet, apiPut} from '../api.js'
+
 import {fireEvent} from '../util.js'
 
 export class GrampsjsViewTasks extends GrampsjsView {
@@ -22,16 +22,12 @@ export class GrampsjsViewTasks extends GrampsjsView {
   static get properties() {
     return {
       _data: {type: Array},
-      canAdd: {type: Boolean},
-      canEdit: {type: Boolean},
       _filters: {type: Array},
     }
   }
 
   constructor() {
     super()
-    this.canAdd = false
-    this.canEdit = false
     this._data = []
     this._filters = []
     this._boundFetchData = this._fetchData.bind(this)
@@ -41,14 +37,14 @@ export class GrampsjsViewTasks extends GrampsjsView {
     return html`<h2>${this._('Tasks')}</h2>
 
       <grampsjs-tasks
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${this._data}"
         @tasks:update-attribute="${this._handleUpdateAttribute}"
         @filters:changed="${this._handleFiltersChanged}"
-        ?canEdit="${this.canEdit}"
+        ?canEdit="${this.appState.permissions.canEdit}"
       ></grampsjs-tasks>
 
-      ${this.canAdd ? this.renderFab() : ''} `
+      ${this.appState.permissions.canAdd ? this.renderFab() : ''} `
   }
 
   renderFab() {
@@ -77,8 +73,10 @@ export class GrampsjsViewTasks extends GrampsjsView {
     }
     const uri = `/api/sources/?rules=${encodeURIComponent(
       JSON.stringify(rules)
-    )}&locale=${this.strings.__lang__ || 'en'}&sort=-gramps_id&extend=tag_list`
-    const data = await apiGet(uri)
+    )}&locale=${
+      this.appState.i18n.lang || 'en'
+    }&sort=-gramps_id&extend=tag_list`
+    const data = await this.appState.apiGet(uri)
     this.loading = false
     if ('data' in data) {
       this.error = false
@@ -113,7 +111,9 @@ export class GrampsjsViewTasks extends GrampsjsView {
         {type: key, value},
       ]
       // eslint-disable-next-line no-await-in-loop
-      await apiPut(`/api/sources/${object.handle}`, rest, true, false)
+      await this.appState.apiPut(`/api/sources/${object.handle}`, rest, {
+        dbChanged: false,
+      })
     }
     fireEvent(this, 'db:changed')
   }
@@ -126,7 +126,7 @@ export class GrampsjsViewTasks extends GrampsjsView {
   }
 
   firstUpdated() {
-    if ('__lang__' in this.strings) {
+    if (this.appState.i18n.lang) {
       // don't load before we have strings
       this._fetchData()
     }

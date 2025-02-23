@@ -210,5 +210,6 @@
     "Max Number of Images displayed": "Max Number of Images displayed",
     "Delete user": "Delete user",
     "Do you really want to delete user \"%s\"?": "Do you really want to delete user \"%s\"?",
-    "Paste the raw data in the field above to see the preview.": "Paste the raw data in the field above to see the preview."
+    "Paste the raw data in the field above to see the preview.": "Paste the raw data in the field above to see the preview.",
+    "Length": "Length"
 }

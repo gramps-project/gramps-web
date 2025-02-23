@@ -20,7 +20,7 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
         fixedMenuPosition
         style="min-height: 300px;"
         objectType="person"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         id="child-select"
         label="${this._('Select')}"
         class="edit"
@@ -29,7 +29,7 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
         required
         id="child-frel"
         heading="${this._('Relationship to _Father:').replace(':', '')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         ?loadingTypes=${this.loadingTypes}
         typeName="child_reference_types"
         defaultTypeName="Birth"
@@ -41,7 +41,7 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
         required
         id="child-mrel"
         heading="${this._('Relationship to _Mother:').replace(':', '')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         ?loadingTypes=${this.loadingTypes}
         typeName="child_reference_types"
         defaultTypeName="Birth"

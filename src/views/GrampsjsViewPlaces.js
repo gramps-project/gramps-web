@@ -36,12 +36,12 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
     return html`
       <grampsjs-filter-properties
         hasCount
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .props="${filterCounts.places}"
         label="${this._('Associations')}"
       ></grampsjs-filter-properties>
 
-      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
+      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
     `
   }
 
@@ -50,7 +50,7 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
     const formattedRow = {
       grampsId: row.gramps_id,
       title: row.name.value,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+      change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
     return formattedRow
   }

@@ -18,7 +18,7 @@ export class GrampsjsViewPerson extends GrampsjsViewObject {
 
   getUrl() {
     return `/api/people/?gramps_id=${this.grampsId}&locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&backlinks=true&extend=all`
   }
 
@@ -26,7 +26,7 @@ export class GrampsjsViewPerson extends GrampsjsViewObject {
     return html`
       <grampsjs-person
         .data=${this._data}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .homePersonDetails=${this.homePersonDetails}
         ?edit="${this.edit}"
         ?canEdit="${this.canEdit}"

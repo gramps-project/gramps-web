@@ -1,14 +1,14 @@
 import {html, LitElement, css} from 'lit'
 import {mdiArrowLeft} from '@mdi/js'
 
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsDnaMatchTable.js'
 import './GrampsjsFormEditMatch.js'
 import {personDisplayName, fireEvent} from '../util.js'
 import {renderIconSvg} from '../icons.js'
 
-export class GrampsjsDnaMatch extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsDnaMatch extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -56,14 +56,14 @@ export class GrampsjsDnaMatch extends GrampsjsTranslateMixin(LitElement) {
       ${this.edit
         ? html`
             <grampsjs-form-edit-match
-              .strings="${this.strings}"
+              .appState="${this.appState}"
               @object:save="${this._handleSaveMatch}"
               .data="${this.data}"
             ></grampsjs-form-edit-match>
           `
         : html`
             <grampsjs-dna-match-table
-              .strings="${this.strings}"
+              .appState="${this.appState}"
               .segments="${this.data.segments}"
             ></grampsjs-dna-match-table>
           `}

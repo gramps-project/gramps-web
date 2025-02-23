@@ -11,13 +11,11 @@ import {sharedStyles} from '../SharedStyles.js'
 import {
   __APIHOST__,
   apiGetTokens,
-  apiPut,
-  apiPost,
   updateTaskStatus,
   getTreeFromToken,
 } from '../api.js'
 import {fireEvent} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsFormUpload.js'
 import {renderIcon} from '../icons.js'
 import './GrampsjsProgressIndicator.js'
@@ -37,7 +35,7 @@ const CONFIG_KEYS = {
   '#base_url': 'BASE_URL',
 }
 
-class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -237,7 +235,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
 
           <p>
             <grampsjs-form-upload
-              .strings="${this.strings}"
+              .appState="${this.appState}"
               filename
               @formdata:changed="${this._handleUploadChanged}"
               ?disabled="${this.stateUser === STATE_DONE}"
@@ -409,7 +407,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
   }
 
   async _submitConfigSingle(key, value) {
-    const res = await apiPut(`/api/config/${key}/`, {
+    const res = await this.appState.apiPut(`/api/config/${key}/`, {
       value,
     })
     if ('error' in res) {
@@ -420,7 +418,13 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
 
   async _submitTree(ext, file) {
     this.stateTree = STATE_PROGRESS
-    const res = await apiPost(`/api/importers/${ext}/file`, file, false)
+    const res = await this.appState.apiPost(
+      `/api/importers/${ext}/file`,
+      file,
+      {
+        isJson: false,
+      }
+    )
     if ('error' in res) {
       this.stateTree = STATE_ERROR
       this._errorTree = res.error || ''

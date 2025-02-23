@@ -4,12 +4,12 @@ Base class for Components that fetch data when first loaded
 */
 
 import {LitElement} from 'lit'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {apiGet, apiPost} from '../api.js'
+
 import {fireEvent} from '../util.js'
 
-export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
+export class GrampsjsConnectedComponent extends GrampsjsAppStateMixin(
   LitElement
 ) {
   static get styles() {
@@ -105,7 +105,7 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
   }
 
   async _updateGetData(url) {
-    const data = await apiGet(url)
+    const data = await this.appState.apiGet(url)
     if ('data' in data) {
       this._data = {data: data.data}
       this.error = false
@@ -117,7 +117,9 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
   }
 
   async _updatePostData(url) {
-    const data = await apiPost(url, this.postData, true, false)
+    const data = await this.appState.apiPost(url, this.postData, {
+      dbChanged: false,
+    })
     if ('data' in data) {
       this._data = {data: data.data}
       this.error = false

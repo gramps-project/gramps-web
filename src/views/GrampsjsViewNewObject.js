@@ -9,7 +9,6 @@ import '@material/mwc-button'
 import '@material/mwc-circular-progress'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet, apiPost} from '../api.js'
 
 export class GrampsjsViewNewObject extends GrampsjsView {
   static get styles() {
@@ -86,7 +85,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
   }
 
   _submit() {
-    apiPost(this.postUrl, this.data).then(data => {
+    this.appState.apiPost(this.postUrl, this.data).then(data => {
       if ('data' in data) {
         this.error = false
         const grampsId = data.data.filter(
@@ -154,7 +153,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
         multiple
         id="object-citation"
         objectType="citation"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
     `
   }
@@ -162,7 +161,8 @@ export class GrampsjsViewNewObject extends GrampsjsView {
   _updateData() {
     this.loading = true
     this.loadingTypes = true
-    apiGet('/api/types/')
+    this.appState
+      .apiGet('/api/types/')
       .then(data => {
         this.loading = false
         if ('data' in data) {
@@ -175,7 +175,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
       })
       .then(() => {
         this.loading = true
-        apiGet('/api/types/?locale=1').then(data => {
+        this.appState.apiGet('/api/types/?locale=1').then(data => {
           this.loading = false
           this.loadingTypes = false
           if ('data' in data) {

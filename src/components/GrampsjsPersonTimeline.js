@@ -6,9 +6,9 @@ import '@material/mwc-icon'
 
 import './GrampsjsMap.js'
 import './GrampsjsMapMarker.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsPersonTimeline extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

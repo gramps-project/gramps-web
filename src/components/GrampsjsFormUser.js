@@ -9,7 +9,7 @@ import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsFormString.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 export const userRoles = {
   '-2': 'unconfirmed',
@@ -22,7 +22,7 @@ export const userRoles = {
   5: 'Administrator',
 }
 
-class GrampsjsFormUser extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFormUser extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

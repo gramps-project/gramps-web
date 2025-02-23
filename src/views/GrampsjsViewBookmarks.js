@@ -2,7 +2,7 @@ import {html} from 'lit'
 import '@material/mwc-button'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet, getTreeBookmarks} from '../api.js'
+import {getTreeBookmarks} from '../api.js'
 import {objectTypeToEndpoint} from '../util.js'
 import '../components/GrampsjsSearchResultList.js'
 
@@ -36,7 +36,7 @@ export class GrampsjsViewBookmarks extends GrampsjsView {
       this._data = bookmarks
       if (this._hasFirstUpdated) {
         if (this.active) {
-          this._fetchData(this.strings.__lang__)
+          this._fetchData(this.appState.i18n.lang)
         } else {
           this._isStale = true
         }
@@ -51,7 +51,7 @@ export class GrampsjsViewBookmarks extends GrampsjsView {
         : html`
             <grampsjs-search-result-list
               .data="${this._searchResult.slice().reverse()}"
-              .strings="${this.strings}"
+              .appState="${this.appState}"
               large
               noSep
               linked
@@ -78,7 +78,7 @@ export class GrampsjsViewBookmarks extends GrampsjsView {
 
   async _fetchDataObject(lang, objectType, handle) {
     const endpoint = objectTypeToEndpoint[objectType]
-    const data = await apiGet(
+    const data = await this.appState.apiGet(
       `/api/${endpoint}/${handle}?locale=${lang || 'en'}&profile=self`
     )
     if ('data' in data) {
@@ -93,16 +93,16 @@ export class GrampsjsViewBookmarks extends GrampsjsView {
 
   firstUpdated() {
     this._hasFirstUpdated = true
-    if ('__lang__' in this.strings) {
+    if (this.appState.i18n.lang) {
       // don't load before we have strings
-      this._fetchData(this.strings.__lang__)
+      this._fetchData(this.appState.i18n.lang)
     }
   }
 
   update(changed) {
     super.update(changed)
     if (changed.has('active') && this.active && this._isStale) {
-      this._fetchData(this.strings.__lang__)
+      this._fetchData(this.appState.i18n.lang)
       this._isStale = false
     }
   }

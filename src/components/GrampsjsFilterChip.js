@@ -3,12 +3,12 @@ import {classMap} from 'lit/directives/class-map.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import '@material/mwc-icon-button'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 import {fireEvent} from '../util.js'
 import './GrampsjsFormNewTag.js'
 
-export class GrampsjsFilterChip extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsFilterChip extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

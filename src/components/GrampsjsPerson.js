@@ -105,7 +105,7 @@ export class GrampsjsPerson extends GrampsjsObject {
           <grampsjs-person-relationship
             person1="${this.homePersonDetails.handle}"
             person2="${this.data.handle}"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
           ></grampsjs-person-relationship>
         </dd>
       </dl>

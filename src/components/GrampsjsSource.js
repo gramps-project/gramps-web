@@ -100,7 +100,7 @@ export class GrampsjsSource extends GrampsjsObject {
       <grampsjs-form-edit-title
         @object:save="${this._handleSaveTitle}"
         @object:cancel="${this._handleCancelDialog}"
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .data=${{title: this.data?.title || ''}}
         prop="title"
       >

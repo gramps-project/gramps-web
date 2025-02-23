@@ -54,7 +54,7 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
         new
         @object:save="${this._handleRepoRefAdd}"
         @object:cancel="${this._handleRepoRefCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         objType="${this.objType}"
         dialogTitle=${this._('Add an existing repository')}
       >

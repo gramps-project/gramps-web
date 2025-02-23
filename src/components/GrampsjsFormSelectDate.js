@@ -9,7 +9,7 @@ import '@material/mwc-list/mwc-list-item'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {getSortval, dateIsEmpty} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 const modifiers = {
   0: 'Regular',
@@ -48,7 +48,7 @@ function parseDate(s) {
   return [y, m, d]
 }
 
-class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

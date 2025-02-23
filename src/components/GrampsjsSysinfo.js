@@ -1,11 +1,11 @@
 import {css, html, LitElement} from 'lit'
 
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsTooltip.js'
 import '@material/mwc-icon-button'
 
-export class GrampsjsSysinfo extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsSysinfo extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -48,7 +48,7 @@ export class GrampsjsSysinfo extends GrampsjsTranslateMixin(LitElement) {
           id="copy-button"
           @click=${this._copyToClipboard}
         ></mwc-icon-button>
-        <grampsjs-tooltip for="copy-button" .strings="${this.strings}"
+        <grampsjs-tooltip for="copy-button" .appState="${this.appState}"
           >${this._('Copy to clipboard')}</grampsjs-tooltip
         >
         <span id="copy">

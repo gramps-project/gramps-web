@@ -8,7 +8,7 @@ import {fireEvent, arrayEqual} from '../util.js'
 export class GrampsjsFaces extends GrampsjsConnectedComponent {
   renderContent() {
     return html`
-      <grampsjs-rect-container .strings="${this.strings}">
+      <grampsjs-rect-container .appState="${this.appState}">
         <slot></slot>
         ${this.rectHidden
           ? ''

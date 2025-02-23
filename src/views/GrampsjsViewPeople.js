@@ -25,7 +25,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
 
   get _fetchUrl() {
     return `/api/people/?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=self&keys=gramps_id,profile,change`
   }
 
@@ -47,7 +47,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       given: row?.profile?.name_given,
       birth: row?.profile?.birth?.date,
       death: row?.profile?.death?.date,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+      change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
     return formattedRow
   }
@@ -55,31 +55,31 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
   renderFilters() {
     return html`
       <grampsjs-filter-years
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         label="Birth year"
         rule="HasBirth"
       >
       </grampsjs-filter-years>
       <grampsjs-filter-years
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         label="Death year"
         rule="HasDeath"
       >
       </grampsjs-filter-years>
 
       <grampsjs-filter-properties
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .props="${personFilter}"
       ></grampsjs-filter-properties>
 
       <grampsjs-filter-properties
         hasCount
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .props="${filterCounts.people}"
         label="${this._('Associations')}"
       ></grampsjs-filter-properties>
 
-      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
+      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
     `
   }
 }

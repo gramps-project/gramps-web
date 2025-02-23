@@ -2,8 +2,8 @@ import {css, html, LitElement} from 'lit'
 import '@material/mwc-button'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
-import {apiPost} from '../api.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+
 import {fireEvent} from '../util.js'
 import './GrampsjsFormUpload.js'
 import './GrampsjsTaskProgressIndicator.js'
@@ -14,7 +14,7 @@ const STATE_READY = 1
 const STATE_PROGRESS = 2
 const STATE_DONE = 3
 
-export class GrampsjsImportMedia extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsImportMedia extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -51,7 +51,7 @@ export class GrampsjsImportMedia extends GrampsjsTranslateMixin(LitElement) {
           outlined
           accept="application/zip"
           id="upload-media"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           filename
           @formdata:changed="${this._handleUploadChangedMedia}"
         ></grampsjs-form-upload>
@@ -93,11 +93,10 @@ export class GrampsjsImportMedia extends GrampsjsTranslateMixin(LitElement) {
     prog.reset()
     prog.open = true
 
-    const res = await apiPost(
+    const res = await this.appState.apiPost(
       '/api/media/archive/upload/zip',
       file,
-      false,
-      false
+      {isJson: false, dbChanged: false}
     )
     if ('error' in res) {
       prog.setError()

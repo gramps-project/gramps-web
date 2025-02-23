@@ -17,7 +17,7 @@ class GrampsjsFormEditUrl extends GrampsjsObjectForm {
           required
           id="urltype"
           heading="${this._('Type')}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           typeName="url_types"
           ?loadingTypes=${this.loadingTypes}
           .types="${this.types}"
@@ -34,7 +34,7 @@ class GrampsjsFormEditUrl extends GrampsjsObjectForm {
           id="path"
           @formdata:changed="${this._handleFormData}"
           label="${this._('Path')}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           .data="${this.data}"
           value="${this.data?.path || ''}"
         >
@@ -46,7 +46,7 @@ class GrampsjsFormEditUrl extends GrampsjsObjectForm {
           id="desc"
           @formdata:changed="${this._handleFormData}"
           label="${this._('Description')}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           .data="${this.data}"
           value="${this.data?.desc || ''}"
         >

@@ -9,7 +9,7 @@ import './GrampsJsListItem.js'
 
 import {mdiFamilyTree, mdiChat, mdiDna} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {renderIcon} from '../icons.js'
 
 const BASE_DIR = ''
@@ -17,7 +17,7 @@ const BASE_DIR = ''
 const selectedColor = '#393939'
 const defaultColor = '#9e9e9e'
 
-class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -45,31 +45,19 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
 
   static get properties() {
     return {
-      add: {type: Boolean},
       editMode: {type: Boolean},
       editTitle: {type: String},
       editDialogContent: {type: String},
       saveButton: {type: Boolean},
-      canViewPrivate: {type: Boolean},
-      canUseChat: {type: Boolean},
-      page: {type: String},
-      pageId: {type: String},
-      pageId2: {type: String},
     }
   }
 
   constructor() {
     super()
-    this.add = false
     this.editMode = false
     this.editTitle = ''
     this.editDialogContent = ''
     this.saveButton = false
-    this.canViewPrivate = false
-    this.canUseChat = false
-    this.page = ''
-    this.pageId = ''
-    this.pageId2 = ''
   }
 
   render() {
@@ -77,7 +65,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       <grampsjs-list-item
         href="${BASE_DIR}/"
         graphic="icon"
-        ?selected="${this.page === 'home'}"
+        ?selected="${this.appState.path.page === 'home'}"
       >
         <span>${this._('Home Page')}</span>
         <mwc-icon slot="graphic">home</mwc-icon>
@@ -85,7 +73,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       <grampsjs-list-item
         href="${BASE_DIR}/blog"
         graphic="icon"
-        ?selected="${this.page === 'blog'}"
+        ?selected="${this.appState.path.page === 'blog'}"
       >
         <span>${this._('Blog')}</span>
         <mwc-icon slot="graphic">rss_feed</mwc-icon>
@@ -103,7 +91,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
           'repositories',
           'notes',
           'medialist',
-        ].includes(this.page)}"
+        ].includes(this.appState.path.page)}"
       >
         <span>${this._('Lists')}</span>
         <mwc-icon slot="graphic">list</mwc-icon>
@@ -111,7 +99,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       <grampsjs-list-item
         href="${BASE_DIR}/map"
         graphic="icon"
-        ?selected="${this.page === 'map'}"
+        ?selected="${this.appState.path.page === 'map'}"
       >
         <span>${this._('Map')}</span>
         <mwc-icon slot="graphic">map</mwc-icon>
@@ -119,14 +107,14 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       <grampsjs-list-item
         href="${BASE_DIR}/tree"
         graphic="icon"
-        ?selected="${this.page === 'tree'}"
+        ?selected="${this.appState.path.page === 'tree'}"
       >
         <span>${this._('Family Tree')}</span>
         <mwc-icon slot="graphic"
           ><span class="raise"
             >${renderIcon(
               mdiFamilyTree,
-              this.page === 'tree' ? selectedColor : defaultColor
+              this.appState.path.page === 'tree' ? selectedColor : defaultColor
             )}</span
           ></mwc-icon
         >
@@ -134,14 +122,18 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       <grampsjs-list-item
         href="${BASE_DIR}/dna-matches"
         graphic="icon"
-        ?selected="${['dna-matches', 'dna-chromosome'].includes(this.page)}"
+        ?selected="${['dna-matches', 'dna-chromosome'].includes(
+          this.appState.path.page
+        )}"
       >
         <span>${this._('DNA')}</span>
         <mwc-icon slot="graphic"
           ><span class="raise"
             >${renderIcon(
               mdiDna,
-              ['dna-matches', 'dna-chromosome'].includes(this.page)
+              ['dna-matches', 'dna-chromosome'].includes(
+                this.appState.path.page
+              )
                 ? selectedColor
                 : defaultColor
             )}</span
@@ -153,14 +145,16 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
             <grampsjs-list-item
               href="${BASE_DIR}/chat"
               graphic="icon"
-              ?selected="${this.page === 'chat'}"
+              ?selected="${this.appState.path.page === 'chat'}"
             >
               <span>${this._('Chat')}</span>
               <mwc-icon slot="graphic"
                 ><span class="raise"
                   >${renderIcon(
                     mdiChat,
-                    this.page === 'chat' ? selectedColor : defaultColor
+                    this.appState.path.page === 'chat'
+                      ? selectedColor
+                      : defaultColor
                   )}</span
                 ></mwc-icon
               >
@@ -171,7 +165,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       <grampsjs-list-item
         href="${BASE_DIR}/recent"
         graphic="icon"
-        ?selected="${this.page === 'recent'}"
+        ?selected="${this.appState.path.page === 'recent'}"
       >
         <span>${this._('History')}</span>
         <mwc-icon slot="graphic">history</mwc-icon>
@@ -179,7 +173,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       <grampsjs-list-item
         href="${BASE_DIR}/bookmarks"
         graphic="icon"
-        ?selected="${this.page === 'bookmarks'}"
+        ?selected="${this.appState.path.page === 'bookmarks'}"
       >
         <span>${this._('_Bookmarks')}</span>
         <mwc-icon slot="graphic">bookmark</mwc-icon>
@@ -187,7 +181,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       <grampsjs-list-item
         href="${BASE_DIR}/tasks"
         graphic="icon"
-        ?selected="${this.page === 'tasks'}"
+        ?selected="${this.appState.path.page === 'tasks'}"
       >
         <span>${this._('Tasks')}</span>
         <mwc-icon slot="graphic">checklist</mwc-icon>
@@ -195,7 +189,7 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       <grampsjs-list-item
         href="${BASE_DIR}/export"
         graphic="icon"
-        ?selected="${this.page === 'export'}"
+        ?selected="${this.appState.path.page === 'export'}"
       >
         <span>${this._('Export')}</span>
         <mwc-icon slot="graphic">download_file</mwc-icon>
@@ -203,17 +197,17 @@ class GrampsjsAppBar extends GrampsjsTranslateMixin(LitElement) {
       <grampsjs-list-item
         href="${BASE_DIR}/reports"
         graphic="icon"
-        ?selected="${this.page === 'reports'}"
+        ?selected="${this.appState.path.page === 'reports'}"
       >
         <span>${this._('_Reports').replace('_', '')}</span>
         <mwc-icon slot="graphic">menu_book</mwc-icon>
       </grampsjs-list-item>
-      ${this.canViewPrivate
+      ${this.appState.permissions.canViewPrivate
         ? html`
             <grampsjs-list-item
               href="${BASE_DIR}/revisions"
               graphic="icon"
-              ?selected="${this.page === 'revisions'}"
+              ?selected="${this.appState.path.page === 'revisions'}"
             >
               <span>${this._('Revisions')}</span>
               <mwc-icon slot="graphic">commit</mwc-icon>

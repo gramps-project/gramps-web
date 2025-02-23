@@ -6,9 +6,9 @@ import * as htmlFormatter from '../../node_modules/jsondiffpatch/lib/formatters/
 
 import {sharedStyles} from '../SharedStyles.js'
 
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsDiffJson extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsDiffJson extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

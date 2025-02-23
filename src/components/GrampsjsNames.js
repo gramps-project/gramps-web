@@ -35,7 +35,7 @@ export class GrampsjsNames extends GrampsjsEditableList {
       : html`
           <mwc-list-item style="height: auto">
             <grampsjs-name
-              .strings="${this.strings}"
+              .appState="${this.appState}"
               .data="${obj}"
             ></grampsjs-name>
           </mwc-list-item>
@@ -48,7 +48,7 @@ export class GrampsjsNames extends GrampsjsEditableList {
         id="name"
         @object:save="${this._handleNameAdd}"
         @object:cancel="${this._handleNameCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-form-edit-name>
     `
@@ -80,7 +80,7 @@ export class GrampsjsNames extends GrampsjsEditableList {
         id="name"
         @object:save="${e => this._handleNameSave(handle, e)}"
         @object:cancel="${this._handleNameCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${this.data[handle]}"
       >
       </grampsjs-form-edit-name>
