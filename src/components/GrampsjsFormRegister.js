@@ -15,7 +15,7 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        #login-container {
+        #register-container {
           margin: auto;
           height: 100%;
           max-width: 20em;
@@ -24,11 +24,6 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
         #register-form {
           position: relative;
           top: 20vh;
-        }
-
-        #register-form mwc-textfield {
-          width: 100%;
-          margin-bottom: 0.7em;
         }
 
         #register-form md-outlined-text-field {
@@ -77,7 +72,7 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     return html`
-      <div id="login-container">
+      <div id="register-container">
         <form
           id="register-form"
           action="${BASE_DIR}/"
