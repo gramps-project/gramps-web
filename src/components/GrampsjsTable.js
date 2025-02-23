@@ -19,9 +19,9 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
       sharedStyles,
       css`
         table {
-          width: 100%;
           border-collapse: collapse;
           font-weight: 300;
+          max-width: 100%;
         }
 
         thead {
@@ -170,6 +170,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
             wide: this._isWide,
             linked: this.linked,
           })}"
+          style="width: 100%;"
         >
           <thead>
             <tr>
@@ -311,7 +312,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
         : (a, b) => (a[this.sort] > b[this.sort] ? 1 : -1)
       return [...this.data]
         .map((item, index) => ({item, index}))
-        .sort((a, b) => sortFunc(a.item[this.sort], b.item[this.sort]))
+        .sort((a, b) => sortFunc(a.item, b.item))
         .map(({index}) => index)
     }
     return this.data.map((_, index) => index)
