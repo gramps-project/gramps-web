@@ -35,6 +35,11 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
           margin-bottom: 0.7em;
         }
 
+        #login-form md-outlined-text-field {
+          width: 100%;
+          margin-bottom: 0.7em;
+        }
+
         p.reset-link {
           padding-top: 1em;
           font-size: 0.9em;
@@ -89,25 +94,21 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
           action="${BASE_DIR}/"
           @keydown="${this._handleLoginKey}"
         >
-          <mwc-textfield
-            outlined
-            autocapitalize="off"
+          <md-outlined-text-field
             id="username"
             label="${this._('Username')}"
             @input="${this._credChanged}"
             @change="${this._credChanged}"
             value="${this.credentials.username || ''}"
-          ></mwc-textfield>
-          <mwc-textfield
-            outlined
-            autocapitalize="off"
+          ></md-outlined-text-field>
+          <md-outlined-text-field
             id="password"
             label="${this._('Password')}"
             type="password"
             @input="${this._credChanged}"
             @change="${this._credChanged}"
             value="${this.credentials.password || ''}"
-          ></mwc-textfield>
+          ></md-outlined-text-field>
           <mwc-button
             raised
             label="${this._('login')}"
