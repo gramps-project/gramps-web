@@ -60,10 +60,12 @@ export class GrampsjsDnaMatch extends GrampsjsAppStateMixin(LitElement) {
       <dl>
         <div>
           <dt>${this._('Shared DNA')}</dt>
-          <dd>${this.data.segments.reduce(
-            (accumulator, currentValue) => accumulator + currentValue.cM,
-            0
-          )} cM</dd>
+          <dd>${this.data.segments
+            .reduce(
+              (accumulator, currentValue) => accumulator + currentValue.cM,
+              0
+            )
+            .toFixed(1)} cM</dd>
         </div>
         <div>
           <dt>${this._('Relationship')}</dt>
