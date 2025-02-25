@@ -285,6 +285,14 @@ export const sharedStyles = css`
     animation: 1.5s shine linear infinite;
   }
 
+  div.skeleton {
+    background: #eee;
+    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+    opacity: 0.8;
+    background-size: 200% 100%;
+    animation: 1.5s shine linear infinite;
+  }
+
   .alert {
     background-color: rgba(109, 76, 65, 0.15);
     border-left: 4px solid rgba(109, 76, 65, 0.7);
