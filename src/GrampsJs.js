@@ -402,10 +402,9 @@ export class GrampsJs extends LitElement {
     ></grampsjs-upgrade-db>`
   }
 
-  _renderLogin(register) {
+  _renderLogin() {
     return html`
       <grampsjs-login
-        ?register="${register}"
         .appState="${this.appState}"
         tree="${this.appState.path.pageId}"
       ></grampsjs-login>
@@ -416,6 +415,7 @@ export class GrampsJs extends LitElement {
     return html`
       <grampsjs-form-register
         .appState="${this.appState}"
+        tree="${this.appState.path.pageId}"
       ></grampsjs-form-register>
     `
   }
@@ -465,7 +465,7 @@ export class GrampsJs extends LitElement {
         return this._renderRegister()
       }
       window.history.pushState({}, '', 'login')
-      return this._renderLogin(false)
+      return this._renderLogin()
     }
     if (this.loadingState === LOADING_STATE_NO_OWNER) {
       window.history.pushState({}, '', 'firstrun')
