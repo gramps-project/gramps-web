@@ -200,6 +200,7 @@ class Relgraph {
     this.person_node_map = {}
     this.persons = {}
     this.dot = undefined
+    this.shrinkToFit = false
     createGraph(this)
   }
 
@@ -569,6 +570,7 @@ export function RelationshipChart(
     getImageUrl = null,
     grampsId = 0,
     maxImages = 50,
+    shrinkToFit = false,
     // orientation = 'LTR',
   }
 ) {
@@ -607,7 +609,16 @@ export function RelationshipChart(
       bboxWidth,
       bboxHeight,
     ])
+    if (shrinkToFit) {
+      const bbox = svg.node().getBBox()
+      if (bbox.height > bboxHeight) {
+        svg
+          .attr('viewBox', [bbox.x, bbox.y - 20, bbox.width, bbox.height + 40])
+          .attr('height', bboxHeight)
+          .attr('width', bboxWidth)
+      }
+    }
   })
 
-  return resultnode.node()
+  return svg.node()
 }
