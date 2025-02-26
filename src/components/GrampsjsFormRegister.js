@@ -59,6 +59,7 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
       email: {type: String},
       emailError: {type: String},
       register: {type: Boolean},
+      tree: {type: String},
     }
   }
 
@@ -68,6 +69,7 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
     this.register = true
     this.email = ''
     this.emailError = ''
+    this.tree = ''
   }
 
   render() {
@@ -199,7 +201,9 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
   }
 
   validateEmail() {
-    const emailPattern = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/
+    // using email pattern from https://emailregex.com/
+    const emailPattern =
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     this.emailError = emailPattern.test(this.email)
       ? ''
       : this._('Invalid e-mail adress')
