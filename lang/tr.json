@@ -205,5 +205,11 @@
     "Delete user": "Kullanıcıyı sil",
     "Do you really want to delete user \"%s\"?": "\"%s\" kullanıcısını gerçekten silmek istiyor musunuz?",
     "Regenerate semantic search index": "Anlamsal arama dizinini yenile",
-    "Started": "Başladı"
+    "Started": "Başladı",
+    "Paste the raw data in the field above to see the preview.": "Ön izlemeyi görmek için yukarıdaki alandaki ham verileri yapıştırın.",
+    "Side": "Yan",
+    "No DNA matches detected in the data provided.": "Sağlanan verilerde hiçbir DNA eşleşmesi tespit edilmemiştir.",
+    "Length": "Uzunluk",
+    "Max Degree of Separation": "Azami bölünme derecesi",
+    "Pending": "Askıda"
 }
