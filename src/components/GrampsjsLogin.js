@@ -94,7 +94,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
           action="${BASE_DIR}/"
           @keydown="${this._handleLoginKey}"
         >
-          <h2>${this._('Login to Gramps Web')}</h2>
+          <h2>${this._('Log in to Gramps Web')}</h2>
           <md-outlined-text-field
             id="username"
             label="${this._('Username')}"
