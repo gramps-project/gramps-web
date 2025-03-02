@@ -206,7 +206,7 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     this.emailError = emailPattern.test(this.email)
       ? ''
-      : this._('Invalid e-mail adress')
+      : this._('Invalid E-mail address')
   }
 
   _checkFormValid() {
