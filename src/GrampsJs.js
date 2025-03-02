@@ -461,10 +461,8 @@ export class GrampsJs extends LitElement {
         window.location.href = loginRedirect
       }
       if (this.appState.path.page === 'register') {
-        window.history.pushState({}, '', 'register')
         return this._renderRegister()
       }
-      window.history.pushState({}, '', 'login')
       return this._renderLogin()
     }
     if (this.loadingState === LOADING_STATE_NO_OWNER) {
