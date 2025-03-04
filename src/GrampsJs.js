@@ -463,6 +463,9 @@ export class GrampsJs extends LitElement {
       if (this.appState.path.page === 'register') {
         return this._renderRegister()
       }
+      if (this.appState.path.page !== 'login') {
+        window.history.pushState({}, '', 'login')
+      }
       return this._renderLogin()
     }
     if (this.loadingState === LOADING_STATE_NO_OWNER) {
