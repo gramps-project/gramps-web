@@ -211,5 +211,10 @@
     "Do you really want to delete user \"%s\"?": "Willst du den Benutzer \"%s\" wirklich löschen?",
     "Max Number of Images displayed": "Max. Anzahl der angezeigten Bilder",
     "Max Degree of Separation": "Max. Entfernung des Verwandtschaftsgrades",
-    "Length": "Länge"
+    "Length": "Länge",
+    "Confirm Password": "Passwort bestätigen",
+    "Log in to Gramps Web": "Bei Gramps Web einloggen",
+    "Invalid E-mail address": "Ungültige E-Mail-Adresse",
+    "Register to Gramps Web": "Bei Gramps Web registrieren",
+    "Passwords do not match.": "Passwörter stimmen nicht überein."
 }
