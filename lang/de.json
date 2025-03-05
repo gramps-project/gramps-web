@@ -216,5 +216,7 @@
     "Confirm Password": "Kennwort bestätigen",
     "Log in to Gramps Web": "Bei Gramps Web einloggen",
     "Passwords do not match.": "Kennwörter stimmen nicht überein.",
-    "Register to Gramps Web": "Bei Gramps Web registrieren"
+    "Register to Gramps Web": "Bei Gramps Web registrieren",
+    "semantic": "semantisch",
+    "full-text": "Volltext"
 }
