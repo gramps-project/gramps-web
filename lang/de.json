@@ -211,5 +211,10 @@
     "Second person": "Zweite Person",
     "Max Degree of Separation": "Maximaler Trennungsgrad",
     "Max Number of Images displayed": "Maximale Anzahl der angezeigten Bilder",
-    "Length": "Länge"
+    "Length": "Länge",
+    "Invalid E-mail address": "Ungültige E-Mail-Adresse",
+    "Confirm Password": "Kennwort bestätigen",
+    "Log in to Gramps Web": "Bei Gramps Web einloggen",
+    "Passwords do not match.": "Kennwörter stimmen nicht überein.",
+    "Register to Gramps Web": "Bei Gramps Web registrieren"
 }
