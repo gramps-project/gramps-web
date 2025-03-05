@@ -170,7 +170,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
       <div id="close-button">
         <md-text-button @click="${this._handleCloseDetail}"
           >${renderIconSvg(mdiClose, '--md-sys-color-primary', 0, 'icon')}
-          Close</md-text-button
+          ${this._('Close')}</md-text-button
         >
       </div>
       <grampsjs-diff-json

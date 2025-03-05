@@ -166,6 +166,7 @@ export const grampsStrings = [
   'Civil Union',
   'Clear',
   'Clergy',
+  'Close',
   'Collection',
   'Color',
   'Complete Individual Report',
