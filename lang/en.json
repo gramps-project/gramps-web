@@ -211,5 +211,10 @@
   "No DNA matches detected in the data provided.": "No DNA matches detected in the data provided.",
   "Max Degree of Separation": "Max Degree of Separation",
   "Max Number of Images displayed": "Max Number of Images displayed",
-  "Length": "Length"
+  "Length": "Length",
+  "Confirm Password": "Confirm Password",
+  "Passwords do not match.": "Passwords do not match.",
+  "Register to Gramps Web": "Register to Gramps Web",
+  "Log in to Gramps Web": "Log in to Gramps Web",
+  "Invalid E-mail address": "Invalid E-mail address"
 }

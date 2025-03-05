@@ -8,7 +8,7 @@ import '@material/mwc-circular-progress'
 
 import './GrampsjsPasswordManagerPolyfill.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {apiGetTokens, apiResetPassword, apiRegisterUser} from '../api.js'
+import {apiGetTokens, apiResetPassword} from '../api.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -27,7 +27,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
 
         #login-form {
           position: relative;
-          top: 25vh;
+          top: 20vh;
         }
 
         #login-form mwc-textfield {
@@ -35,7 +35,9 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
           margin-bottom: 0.7em;
         }
 
-        #login-form mwc-button {
+        #login-form md-outlined-text-field {
+          width: 100%;
+          margin-bottom: 0.7em;
         }
 
         p.reset-link {
@@ -63,7 +65,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       resetpw: {type: Boolean},
-      register: {type: Boolean},
       isFormValid: {type: Boolean},
       credentials: {type: Object},
       tree: {type: String},
@@ -73,7 +74,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   constructor() {
     super()
     this.resetpw = false
-    this.register = false
     this.isFormValid = false
     this.credentials = {}
     this.tree = ''
@@ -82,9 +82,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   render() {
     if (this.resetpw) {
       return this._renderResetPw()
-    }
-    if (this.register) {
-      return this._renderRegister()
     }
     return this._renderLogin()
   }
@@ -97,25 +94,22 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
           action="${BASE_DIR}/"
           @keydown="${this._handleLoginKey}"
         >
-          <mwc-textfield
-            outlined
-            autocapitalize="off"
+          <h2>${this._('Log in to Gramps Web')}</h2>
+          <md-outlined-text-field
             id="username"
             label="${this._('Username')}"
             @input="${this._credChanged}"
             @change="${this._credChanged}"
             value="${this.credentials.username || ''}"
-          ></mwc-textfield>
-          <mwc-textfield
-            outlined
-            autocapitalize="off"
+          ></md-outlined-text-field>
+          <md-outlined-text-field
             id="password"
             label="${this._('Password')}"
             type="password"
             @input="${this._credChanged}"
             @change="${this._credChanged}"
             value="${this.credentials.password || ''}"
-          ></mwc-textfield>
+          ></md-outlined-text-field>
           <mwc-button
             raised
             label="${this._('login')}"
@@ -147,9 +141,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                 <p class="reset-link">
                   <span
                     class="link"
-                    @click="${() => {
-                      this.register = true
-                    }}"
+                    @click="${() => this._handleNav('register')}"
                     >${this._('Register new account')}</span
                   >
                 </p>
@@ -173,6 +165,10 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
+  _handleNav(path) {
+    fireEvent(this, 'nav', {path})
+  }
+
   _credChanged(e) {
     this.credentials = {...this.credentials, [e.target.id]: e.target.value}
   }
@@ -181,14 +177,13 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     return html`
       <div id="login-container">
         <form id="login-form" action="${BASE_DIR}/">
+          <h2>${this._('reset password')}</h2>
           <div id="inner-form">
-            <mwc-textfield
-              outlined
-              autocapitalize="off"
+            <md-outlined-text-field
               id="username"
               label="${this._('Username')}"
               type="text"
-            ></mwc-textfield>
+            ></md-outlined-text-field>
             <mwc-button
               raised
               label="${this._('reset password')}"
@@ -217,87 +212,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                 this.resetpw = false
               }}"
               >${this._('_Back')}</span
-            >
-          </p>
-        </form>
-      </div>
-    `
-  }
-
-  _renderRegister() {
-    return html`
-      <div id="login-container">
-        <form
-          id="login-form"
-          action="${BASE_DIR}/"
-          @keydown="${this._checkFormValid}"
-        >
-          <div id="inner-form">
-            <mwc-textfield
-              required
-              outlined
-              autocapitalize="off"
-              id="username"
-              label="${this._('Username')}"
-              type="text"
-            ></mwc-textfield>
-            <mwc-textfield
-              required
-              outlined
-              autocapitalize="off"
-              id="password"
-              label="${this._('Password')}"
-              type="password"
-            ></mwc-textfield>
-            <mwc-textfield
-              required
-              outlined
-              autocapitalize="off"
-              id="email"
-              label="${this._('E-mail')}"
-              type="email"
-            ></mwc-textfield>
-            <mwc-textfield
-              required
-              outlined
-              id="fullname"
-              label="${this._('Full Name')}"
-              type="text"
-            ></mwc-textfield>
-            <mwc-button
-              raised
-              label="${this._('Submit')}"
-              type="submit"
-              @click="${this._register}"
-              ?disabled="${!this.isFormValid}"
-            >
-              <span slot="trailingIcon" style="display:none;">
-                <mwc-circular-progress
-                  indeterminate
-                  density="-7"
-                  closed
-                  id="login-progress"
-                >
-                </mwc-circular-progress>
-              </span>
-            </mwc-button>
-          </div>
-          <p class="success" id="register-success" style="display:none;">
-            <mwc-icon>check_circle</mwc-icon><br />
-            ${this._('New account registered successfully.')}
-            <br />
-            ${this._(
-              'Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.'
-            )}
-          </p>
-          <p class="reset-link">
-            ${this._('Already have an account?')}
-            <span
-              class="link"
-              @click="${() => {
-                this.register = false
-              }}"
-              >${this._('login')}</span
             >
           </p>
         </form>
@@ -346,29 +260,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     const res = await apiResetPassword(userField.value)
     const innerForm = this.shadowRoot.getElementById('inner-form')
     const divSuccess = this.shadowRoot.getElementById('reset-success')
-    if ('error' in res) {
-      this._showError(res.error)
-    } else {
-      divSuccess.style.display = 'block'
-      innerForm.style.display = 'none'
-    }
-  }
-
-  async _register() {
-    const userField = this.shadowRoot.getElementById('username')
-    const pwField = this.shadowRoot.getElementById('password')
-    const emailField = this.shadowRoot.getElementById('email')
-    const nameField = this.shadowRoot.getElementById('fullname')
-    const tree = this.tree || ''
-    const res = await apiRegisterUser(
-      userField.value,
-      pwField.value,
-      emailField.value,
-      nameField.value,
-      tree
-    )
-    const innerForm = this.shadowRoot.getElementById('inner-form')
-    const divSuccess = this.shadowRoot.getElementById('register-success')
     if ('error' in res) {
       this._showError(res.error)
     } else {

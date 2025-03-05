@@ -27,6 +27,7 @@ import './components/GrampsjsAppBar.js'
 import './components/GrampsJsListItem.js'
 import './components/GrampsjsFirstRun.js'
 import './components/GrampsjsLogin.js'
+import './components/GrampsjsFormRegister.js'
 import './components/GrampsjsMainMenu.js'
 import './components/GrampsjsPages.js'
 import './components/GrampsjsUpdateAvailable.js'
@@ -401,13 +402,21 @@ export class GrampsJs extends LitElement {
     ></grampsjs-upgrade-db>`
   }
 
-  _renderLogin(register) {
+  _renderLogin() {
     return html`
       <grampsjs-login
-        ?register="${register}"
         .appState="${this.appState}"
         tree="${this.appState.path.pageId}"
       ></grampsjs-login>
+    `
+  }
+
+  _renderRegister() {
+    return html`
+      <grampsjs-form-register
+        .appState="${this.appState}"
+        tree="${this.appState.path.pageId}"
+      ></grampsjs-form-register>
     `
   }
 
@@ -452,11 +461,12 @@ export class GrampsJs extends LitElement {
         window.location.href = loginRedirect
       }
       if (this.appState.path.page === 'register') {
-        window.history.pushState({}, '', 'register')
-        return this._renderLogin(true)
+        return this._renderRegister()
       }
-      window.history.pushState({}, '', 'login')
-      return this._renderLogin(false)
+      if (this.appState.path.page !== 'login') {
+        window.history.pushState({}, '', 'login')
+      }
+      return this._renderLogin()
     }
     if (this.loadingState === LOADING_STATE_NO_OWNER) {
       window.history.pushState({}, '', 'firstrun')
