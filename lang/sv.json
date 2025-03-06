@@ -212,5 +212,12 @@
     "No DNA matches detected in the data provided.": "Inga DNA-matchningar har upptäckts i de angivna uppgifterna.",
     "Max Degree of Separation": "Maximal grad av separation",
     "Max Number of Images displayed": "Max antal bilder som visas",
-    "Length": "Längd"
+    "Length": "Längd",
+    "Confirm Password": "Bekräfta lösenord",
+    "Passwords do not match.": "Lösenord stämmer inte överens.",
+    "Register to Gramps Web": "Registrera dig på Gramps Web",
+    "Log in to Gramps Web": "Logga in på Gramps Web",
+    "Invalid E-mail address": "Ogiltig e-postadress",
+    "full-text": "fulltext",
+    "semantic": "semantisk"
 }
