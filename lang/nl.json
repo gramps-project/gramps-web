@@ -211,5 +211,12 @@
     "No DNA matches found.": "Geen dna-overeenkomsten aangetroffen.",
     "Max Degree of Separation": "Max. mate van scheiding",
     "Max Number of Images displayed": "Max. aantal weergegeven afbeeldingen",
-    "Length": "Lengte"
+    "Length": "Lengte",
+    "Confirm Password": "Wachtwoord bevestigen",
+    "Passwords do not match.": "Wachtwoorden komen niet overeen.",
+    "Register to Gramps Web": "Aanmelden bij Gramps Web",
+    "Log in to Gramps Web": "Inloggen bij Gramps Web",
+    "Invalid E-mail address": "Ongeldig e-mailadres",
+    "full-text": "volledige tekst",
+    "semantic": "semantisch"
 }
