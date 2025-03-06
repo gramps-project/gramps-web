@@ -211,5 +211,12 @@
     "No DNA matches detected in the data provided.": "Nenhum resultado de ADN detectado nos dados fornecidos.",
     "Max Number of Images displayed": "Máximo de imagens mostradas",
     "Max Degree of Separation": "Grau máximo de separação",
-    "Length": "Tamanho"
+    "Length": "Tamanho",
+    "Log in to Gramps Web": "Inicie sessão no Gramps Web",
+    "Register to Gramps Web": "Registe-se no Gramps Web",
+    "full-text": "texto completo",
+    "semantic": "semântica",
+    "Confirm Password": "Confirme a senha",
+    "Passwords do not match.": "As senhas não coincidem.",
+    "Invalid E-mail address": "Endereço de correio inválido"
 }
