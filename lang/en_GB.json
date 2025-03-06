@@ -211,5 +211,12 @@
     "Delete user": "Delete user",
     "Do you really want to delete user \"%s\"?": "Do you really want to delete user \"%s\"?",
     "Paste the raw data in the field above to see the preview.": "Paste the raw data in the field above to see the preview.",
-    "Length": "Length"
+    "Length": "Length",
+    "Confirm Password": "Confirm Password",
+    "full-text": "full-text",
+    "semantic": "semantic",
+    "Log in to Gramps Web": "Log in to Gramps Web",
+    "Invalid E-mail address": "Invalid E-mail address",
+    "Passwords do not match.": "Passwords do not match.",
+    "Register to Gramps Web": "Register to Gramps Web"
 }
