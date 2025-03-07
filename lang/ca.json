@@ -211,5 +211,12 @@
     "Settings": "Configuració",
     "Pending": "Pendent",
     "Started": "Començat",
-    "simple": "simple"
+    "simple": "simple",
+    "Confirm Password": "Confirma Contrasenya",
+    "Register to Gramps Web": "Registra a la Web de Gramps",
+    "full-text": "text-sencer",
+    "semantic": "semàntic",
+    "Passwords do not match.": "Les contrasenyes no coincideixen.",
+    "Invalid E-mail address": "Adreça de correu electrònic invàlida",
+    "Log in to Gramps Web": "Entra a la Web de Gramps"
 }
