@@ -211,5 +211,12 @@
     "Number of SNPs": "Počet jednonukleotidových polymorfizmov (SNP)",
     "Max Number of Images displayed": "Maximálny počet zobrazených obrázkov",
     "Max Degree of Separation": "Maximálny stupeň odlúčenia",
-    "Length": "Dĺžka"
+    "Length": "Dĺžka",
+    "Register to Gramps Web": "Zaregistrovať sa na Gramps Web",
+    "Passwords do not match.": "Nesprávne heslo.",
+    "full-text": "plnotextové",
+    "semantic": "významové",
+    "Confirm Password": "Potvrdiť heslo",
+    "Log in to Gramps Web": "Prihlásiť sa na Gramps Web",
+    "Invalid E-mail address": "Nesprávna e-mailová adresa"
 }
