@@ -26,14 +26,14 @@ const baseConfig = createSpaConfig({
 
 export default merge(baseConfig, {
   input: './index.html',
-  external: ['./config.js'],
+  external: './config.js',
   plugins: [
     copy({
       targets: [
         {src: './L.Control.Locate.min.css', dest: 'dist/'},
         {src: './tippy.css', dest: 'dist/'},
         {src: './leaflet.css', dest: 'dist/'},
-        {src: './config.js', dest: 'dist/'},
+        {src: './src/config.js', dest: 'dist/'},
         {src: './manifest.json', dest: 'dist/'},
         {src: './images/**/*', dest: 'dist/images'},
         {src: './fonts/**/*', dest: 'dist/fonts'},
