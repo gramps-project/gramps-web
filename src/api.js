@@ -684,10 +684,12 @@ export class Auth {
 
 export async function apiGetNew(auth, endpoint) {
   try {
-    const accessToken = await auth.getValidAccessToken()
-    const headers = {
-      Authorization: `Bearer ${accessToken}`,
-    }
+    const headers = {}
+    try {
+      const accessToken = await auth.getValidAccessToken()
+      headers.Authorization = `Bearer ${accessToken}`
+      // eslint-disable-next-line no-empty
+    } catch {}
     const resp = await fetch(`${__APIHOST__}${endpoint}`, {
       method: 'GET',
       headers,
@@ -727,11 +729,16 @@ export async function apiPutPostDeleteNew(
   {isJson = true, dbChanged = true, requireFresh = false} = {}
 ) {
   try {
-    const accessToken = await auth.getValidAccessToken()
-    const headers = {
-      Accept: 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    }
+    let headers = {}
+    try {
+      const accessToken = await auth.getValidAccessToken()
+      headers = {
+        ...headers,
+        Accept: 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      }
+      // eslint-disable-next-line no-empty
+    } catch {}
     if (isJson) {
       headers['Content-Type'] = 'application/json'
     }
