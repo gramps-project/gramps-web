@@ -211,5 +211,12 @@
     "Do you really want to delete user \"%s\"?": "Ви дійсно хочете видалити користувача \"%s\"?",
     "Length": "Довжина",
     "Max Degree of Separation": "Максимальний ступінь поділу",
-    "Max Number of Images displayed": "Максимальна кількість відображених зображень"
+    "Max Number of Images displayed": "Максимальна кількість відображених зображень",
+    "Confirm Password": "Підтвердьте пароль",
+    "Passwords do not match.": "Паролі не збігаються.",
+    "Register to Gramps Web": "Зареєструйтеся в Gramps Web",
+    "Invalid E-mail address": "Недійсна адреса електронної пошти",
+    "full-text": "повний текст",
+    "semantic": "семантичний",
+    "Log in to Gramps Web": "Увійдіть до Gramps Web"
 }
