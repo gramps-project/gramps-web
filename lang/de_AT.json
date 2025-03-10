@@ -216,5 +216,7 @@
     "Log in to Gramps Web": "Bei Gramps Web einloggen",
     "Invalid E-mail address": "Ungültige E-Mail-Adresse",
     "Register to Gramps Web": "Bei Gramps Web registrieren",
-    "Passwords do not match.": "Passwörter stimmen nicht überein."
+    "Passwords do not match.": "Passwörter stimmen nicht überein.",
+    "full-text": "Volltext",
+    "semantic": "semantisch"
 }
