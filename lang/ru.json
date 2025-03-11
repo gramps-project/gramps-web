@@ -201,5 +201,10 @@
     "Member and above": "Член и выше",
     "Regenerate semantic search index": "Пересоздать семантический поисковый индекс",
     "Settings": "Настройки",
-    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Обновление семантического поискового индекса требует значительных временных и вычислительных ресурсов. Запускайте эту операцию только при необходимости."
+    "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "Обновление семантического поискового индекса требует значительных временных и вычислительных ресурсов. Запускайте эту операцию только при необходимости.",
+    "Add new DNA match": "Добавить новое совпадение ДНК",
+    "Paste the raw data in the field above to see the preview.": "Вставьте необработанные данные в поле выше для предварительного просмотра.",
+    "Confirm Password": "Подтвердите пароль",
+    "Passwords do not match.": "Пароли не совпадают.",
+    "Invalid E-mail address": "Неверный адрес электронной почты"
 }
