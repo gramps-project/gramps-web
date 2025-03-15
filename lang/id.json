@@ -3,7 +3,7 @@
     "Length": "Panjang",
     "Blocked": "Diblokir",
     "Matches": "Cocok",
-    "Chromosome Browser": "Chromosome Browser",
+    "Chromosome Browser": "Pencarian Kromosom",
     "Delete Person": "Hapus Orang",
     "Delete user": "Hapus pengguna",
     "Please re-enter your password to continue.": "Harap masukan kembali kata sandi Anda untuk melanjutkan.",
@@ -93,7 +93,7 @@
     "disabled": "disabled",
     "Guest": "Tamu",
     "Member": "Anggota",
-    "Contributor": "Contributor",
+    "Contributor": "Kontributor",
     "Editor": "Editor",
     "Owner": "Owner",
     "Add custom type": "Tambahkan tipe kustom",
@@ -211,5 +211,12 @@
     "Max Number of Images displayed": "Jumlah Maksimal Gambar Ditampilkan",
     "Max Degree of Separation": "Jumlah Maksimal Pemisahan Generasi",
     "Open": "Buka",
-    "Task": "Tugas"
+    "Task": "Tugas",
+    "Log in to Gramps Web": "Masuk ke Gramps Web",
+    "Invalid E-mail address": "Alamat E-mail tidak valid",
+    "semantic": "semantik",
+    "Confirm Password": "Konfirmasi Password",
+    "Passwords do not match.": "Password tidak cocok.",
+    "Register to Gramps Web": "Daftar ke Gramps Web",
+    "full-text": "full-teks"
 }
