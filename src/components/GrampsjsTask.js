@@ -164,8 +164,10 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
                   ></grampsjs-editor>
                 `
               : html`
-                  <grampsjs-connected-note handle="${this.source.note_list[0]}">
-                  </grampsjs-connected-note>
+                  <grampsjs-connected-note
+                    handle="${this.source.note_list[0]}"
+                    .appState="${this.appState}"
+                  ></grampsjs-connected-note>
                 `}`
           : html`${this._editingNote
               ? html`<grampsjs-editor
