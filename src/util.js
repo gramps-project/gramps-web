@@ -240,7 +240,7 @@ export function objectDescription(type, obj, strings) {
     case 'repository':
       return html`${getName(obj, type) || type}`
     case 'note':
-      return html`${translate(strings, obj.type.string ?? obj.type) || type}`
+      return html`${translate(strings, obj.type?.string ?? obj.type) || type}`
     case 'media':
       return html`${getName(obj, type) || translate(strings, 'Media Object')}`
     case 'tag':

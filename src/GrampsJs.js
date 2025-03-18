@@ -636,13 +636,14 @@ export class GrampsJs extends LitElement {
         this._updateAppState({dbInfo: data.data})
         this._checkSearch()
         this._checkApiVersion()
-        if (!this._checkDbSchema()) {
-          return
-        }
         if (this.appState.dbInfo?.locale?.language !== undefined) {
           this.appState.updateSettings({
             serverLang: this.appState.dbInfo.locale.language,
           })
+        }
+        if (!this._checkDbSchema()) {
+          this.setPermissions()
+          return
         }
         if (setReady) {
           this._setReady()
