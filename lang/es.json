@@ -213,5 +213,8 @@
     "Do you really want to delete user \"%s\"?": "¿Realmente desea eliminar el usuario \"%s\"?",
     "Regenerate semantic search index": "Regenerar el índice de búsqueda semántica",
     "Settings": "Ajustes",
-    "Pending": "Pendiente"
+    "Pending": "Pendiente",
+    "Side": "Lado",
+    "Length": "Largo",
+    "Started": "Comenzó"
 }
