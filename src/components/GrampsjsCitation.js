@@ -4,7 +4,7 @@ import '@material/mwc-icon'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditCitationDetails.js'
-import {fireEvent, linkUrls} from '../util.js'
+import {fireEvent, linkUrls, emptyDate} from '../util.js'
 
 const BASE_DIR = ''
 
@@ -88,7 +88,7 @@ export class GrampsjsCitation extends GrampsjsObject {
 
   _handleEditDetails() {
     const data = {
-      date: this.data.date,
+      date: this.data.date ?? emptyDate,
       confidence: this.data.confidence,
       source_handle: this.data.source_handle,
       page: this.data.page,

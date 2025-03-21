@@ -9,7 +9,7 @@ import '@material/mwc-button'
 import '@material/mwc-circular-progress'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, emptyDate} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
@@ -289,7 +289,7 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
       this.data = {...this.data, raw_data: [e.detail.data]}
     }
     if (originalTarget.id === 'date') {
-      this.data = {...this.data, date: e.detail.data}
+      this.data = {...this.data, date: e.detail.data ?? emptyDate}
     }
     if (originalTarget.id === 'event-role-type') {
       this.data = {

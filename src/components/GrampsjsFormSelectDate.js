@@ -8,7 +8,7 @@ import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {getSortval, dateIsEmpty} from '../util.js'
+import {getSortval, dateIsEmpty, emptyDate} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 const modifiers = {
@@ -29,14 +29,7 @@ const qualifiers = {
   2: 'Calculated',
 }
 
-const dataDefault = {
-  _class: 'Date',
-  calendar: 0,
-  modifier: 0,
-  quality: 0,
-  dateval: [0, 0, 0, false],
-  sortval: 0,
-}
+const dataDefault = {...emptyDate}
 
 function parseDate(s) {
   if (!s) {

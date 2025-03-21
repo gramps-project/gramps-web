@@ -13,6 +13,15 @@ dayjs.extend(relativeTime)
 
 const BASE_DIR = ''
 
+export const emptyDate = {
+  _class: 'Date',
+  calendar: 0,
+  modifier: 0,
+  quality: 0,
+  dateval: [0, 0, 0, false],
+  sortval: 0,
+}
+
 export function translate(strings, s) {
   if (s === undefined) {
     return ''

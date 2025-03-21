@@ -6,6 +6,8 @@ import {GrampsjsNewMediaMixin} from '../mixins/GrampsjsNewMediaMixin.js'
 
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 
+import {emptyDate} from '../util.js'
+
 export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
   GrampsjsViewNewObject
 ) {
@@ -42,7 +44,7 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
     super._handleFormData(e)
     const originalTarget = e.composedPath()[0]
     if (originalTarget.id === 'date') {
-      this.data = {...this.data, date: e.detail.data}
+      this.data = {...this.data, date: e.detail.data ?? emptyDate}
     }
     if (originalTarget.id === 'upload') {
       this.data = {
