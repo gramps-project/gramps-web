@@ -24,5 +24,14 @@
     "Search": "検索",
     "Navigation": "ナビゲーション",
     "Global": "グローバル",
-    "Align the image": "画像の整列"
+    "Align the image": "画像の整列",
+    "filter": "フィルター",
+    "Properties": "プロパティ",
+    "unconfirmed": "未確認",
+    "disabled": "無効",
+    "Guest": "ゲスト",
+    "Member": "メンバー",
+    "Contributor": "貢献者",
+    "Editor": "編集者",
+    "Owner": "所有者"
 }
