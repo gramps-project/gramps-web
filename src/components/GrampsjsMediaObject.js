@@ -10,7 +10,7 @@ import './GrampsjsFormEditMapLayer.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFaces.js'
 import './GrampsjsTextRecognition.js'
-import {arrayEqual, fireEvent, getNameFromProfile} from '../util.js'
+import {arrayEqual, fireEvent, getNameFromProfile, emptyDate} from '../util.js'
 import {renderIconSvg} from '../icons.js'
 
 import '@material/mwc-dialog'
@@ -422,7 +422,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       @object:save="${this._handleSaveDate}"
       @object:cancel="${this._handleCancelDialog}"
       .appState="${this.appState}"
-      .data=${{date: this.data.date}}
+      .data=${{date: this.data.date ?? emptyDate}}
     >
     </grampsjs-form-edit-title>
     `
