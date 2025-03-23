@@ -205,5 +205,18 @@
     "Everybody": "Alle",
     "Nobody": "Ingen",
     "Started": "Påbegynt",
-    "User groups allowed to use AI chat:": "Brukergrupper med tillatelse til å bruke AI-chat:"
+    "User groups allowed to use AI chat:": "Brukergrupper med tillatelse til å bruke AI-chat:",
+    "Raw match data": "Rå matchdata",
+    "Side": "Side",
+    "Length": "Lengde",
+    "Confirm Password": "Bekreft passord",
+    "Register to Gramps Web": "Registrer deg på Gramps Web",
+    "full-text": "fulltekst",
+    "semantic": "semantisk",
+    "Max Degree of Separation": "Maks grad av separasjon",
+    "Passwords do not match.": "Passordene stemmer ikke overens.",
+    "Invalid E-mail address": "Ugyldig e-postadresse",
+    "Log in to Gramps Web": "Logg inn på Gramps Web",
+    "Max Number of Images displayed": "Maks antall bilder som vises",
+    "Tree Information": "Treinformasjon"
 }
