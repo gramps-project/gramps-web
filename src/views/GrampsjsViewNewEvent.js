@@ -14,6 +14,8 @@ import '../components/GrampsjsFormSelectObjectList.js'
 import '../components/GrampsjsFormSelectType.js'
 import '../components/GrampsjsFormPrivate.js'
 
+import {emptyDate} from '../util.js'
+
 export class GrampsjsViewNewEvent extends GrampsjsNewEventMixin(
   GrampsjsViewNewObject
 ) {
@@ -51,7 +53,7 @@ export class GrampsjsViewNewEvent extends GrampsjsNewEventMixin(
       this.data = {...this.data, place: e.detail.data[0]}
     }
     if (originalTarget.id === 'date') {
-      this.data = {...this.data, date: e.detail.data}
+      this.data = {...this.data, date: e.detail.data ?? emptyDate}
     }
     if (originalTarget.id === 'private') {
       this.data = {...this.data, private: e.detail.checked}

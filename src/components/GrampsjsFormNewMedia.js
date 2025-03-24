@@ -1,7 +1,7 @@
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import {GrampsjsNewMediaMixin} from '../mixins/GrampsjsNewMediaMixin.js'
 
-import {fireEvent} from '../util.js'
+import {fireEvent, emptyDate} from '../util.js'
 
 export class GrampsjsFormNewMedia extends GrampsjsNewMediaMixin(
   GrampsjsObjectForm
@@ -20,7 +20,7 @@ export class GrampsjsFormNewMedia extends GrampsjsNewMediaMixin(
     super._handleFormData(e)
     const originalTarget = e.composedPath()[0]
     if (originalTarget.id === 'date') {
-      this.data = {...this.data, date: e.detail.data}
+      this.data = {...this.data, date: e.detail.data ?? emptyDate}
     }
     if (originalTarget.id === 'upload') {
       this.data = {

@@ -6,7 +6,7 @@ import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditEventDetails.js'
 import './GrampsjsFormEditTitle.js'
 import './GrampsjsTooltip.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, emptyDate} from '../util.js'
 
 const BASE_DIR = ''
 
@@ -141,7 +141,7 @@ export class GrampsjsEvent extends GrampsjsObject {
   }
 
   _handleEditDetails() {
-    const data = {date: this.data.date}
+    const data = {date: this.data.date ?? emptyDate}
     if (this.data.place) {
       data.place = this.data.place
     }

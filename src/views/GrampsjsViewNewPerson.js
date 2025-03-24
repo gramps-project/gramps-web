@@ -4,7 +4,7 @@ import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 import '../components/GrampsjsFormName.js'
 import '../components/GrampsjsFormPrivate.js'
 import '../components/GrampsjsFormSelectObjectList.js'
-import {makeHandle, dateIsEmpty} from '../util.js'
+import {makeHandle, dateIsEmpty, emptyDate} from '../util.js'
 
 const gender = {
   2: 'Unknown',
@@ -105,7 +105,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
     if (originalTarget.id === 'birth-date') {
       this.data = {
         ...this.data,
-        birth: {...this.data.birth, date: e.detail.data},
+        birth: {...this.data.birth, date: e.detail.data ?? emptyDate},
       }
     }
     if (originalTarget.id === 'birth-place-list') {
@@ -117,7 +117,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
     if (originalTarget.id === 'death-date') {
       this.data = {
         ...this.data,
-        death: {...this.data.death, date: e.detail.data},
+        death: {...this.data.death, date: e.detail.data ?? emptyDate},
       }
     }
     if (originalTarget.id === 'death-place-list') {
