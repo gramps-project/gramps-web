@@ -206,5 +206,9 @@
     "Paste the raw data in the field above to see the preview.": "Вставьте необработанные данные в поле выше для предварительного просмотра.",
     "Confirm Password": "Подтвердите пароль",
     "Passwords do not match.": "Пароли не совпадают.",
-    "Invalid E-mail address": "Неверный адрес электронной почты"
+    "Invalid E-mail address": "Неверный адрес электронной почты",
+    "Log in to Gramps Web": "Войти в Gramps Web",
+    "Register to Gramps Web": "Зарегистрироваться в Gramps Web",
+    "full-text": "полнотекстовый",
+    "semantic": "семантический"
 }
