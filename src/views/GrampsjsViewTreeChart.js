@@ -22,6 +22,7 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
         grampsId=${this.grampsId}
         nAnc=${this.nAnc + 1}
         nDesc=${this.nDesc + 1}
+        nameDisplayFormat=${this.nameDisplayFormat}
         .data=${this._data}
         .appState="${this.appState}"
       >

@@ -6,7 +6,7 @@ import {mdiAccountDetails, mdiHomeAccount} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsTooltip.js'
 
-import {fireEvent} from '../util.js'
+import {chartNameDisplayFormat, fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
 
 export class GrampsjsViewTreeChartBase extends GrampsjsView {
@@ -56,6 +56,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
       nAnc: {type: Number},
       nDesc: {type: Number},
       nMaxImages: {type: Number},
+      nameDisplayFormat: {type: String},
       _data: {type: Array},
       _setAnc: {type: Boolean},
       _setDesc: {type: Boolean},
@@ -69,6 +70,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     this.nAnc = 3
     this.nDesc = 1
     this.nMaxImages = 50
+    this.nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
     this.disableBack = false
     this.disableHome = false
     this._data = []

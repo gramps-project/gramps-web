@@ -3,6 +3,8 @@ import {create} from 'd3-selection'
 import {hierarchy, tree} from 'd3-hierarchy'
 import {curveBumpX, link, symbolTriangle, symbol} from 'd3-shape'
 import {zoom} from 'd3-zoom'
+import {choose} from 'lit/directives/choose.js'
+import {chartNameDisplayFormat} from '../util.js'
 
 // Returns the total depth of the tree
 function countDepthOfTree(treeData) {
@@ -45,6 +47,7 @@ function TreeChartCore(
     childrenTriangle = true,
     getImageUrl = null,
     orientation = 'LTR',
+    nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
   } = {}
 ) {
   // Create a hierarchical data structure based on the input data
@@ -226,18 +229,34 @@ function TreeChartCore(
 
   node
     .append('text')
-    .filter(d => d.data.name_surname)
+    .filter(d => d.data.name_given || d.data.name_surname)
     .attr('y', -boxHeight / 2 + 25)
     .attr('x', d => -boxWidth / 2 + textPadding(d))
     .attr('text-anchor', 'start')
     .attr('font-weight', '500')
     .attr('fill', 'rgba(0, 0, 0, 0.9)')
     .attr('paint-order', 'stroke')
-    .text(d => clipString(`${d.data.name_surname},`, textWidth(d)))
+    .text(d =>
+      clipString(
+        `${choose(
+          nameDisplayFormat,
+          [
+            [
+              chartNameDisplayFormat.surnameThenGiven,
+              () => `${d.data.name_surname},`,
+            ],
+            [chartNameDisplayFormat.givenThenSurname, () => d.data.name_given],
+          ],
+          () => ''
+        )}
+  `,
+        textWidth(d)
+      )
+    )
 
   node
     .append('text')
-    .filter(d => d.data.name_given)
+    .filter(d => d.data.name_given || d.data.name_surname)
     .attr('y', -boxHeight / 2 + 25 + 17)
     .attr('x', d => -boxWidth / 2 + textPadding(d))
     .attr('width', 50)
@@ -248,7 +267,23 @@ function TreeChartCore(
     .attr('text-overflow', 'ellipsis')
     .attr('overflow', 'hidden')
     .attr('width', 25)
-    .text(d => clipString(d.data.name_given, textWidth(d)))
+    .text(d =>
+      clipString(
+        `${choose(
+          nameDisplayFormat,
+          [
+            [chartNameDisplayFormat.surnameThenGiven, () => d.data.name_given],
+            [
+              chartNameDisplayFormat.givenThenSurname,
+              () => d.data.name_surname,
+            ],
+          ],
+          () => ''
+        )}
+  `,
+        textWidth(d)
+      )
+    )
 
   node
     .append('text')

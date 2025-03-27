@@ -58,6 +58,7 @@ export class GrampsjsConnectionChart extends GrampsjsResizeContainerMixin(
       bboxWidth: this.containerWidth,
       bboxHeight: this.containerHeight,
       shrinkToFit: true,
+      nameDisplayFormat: this.nameDisplayFormat,
     })
     return html`
       <div id="container" style="height: ${this.initialHeight}px">${chart}</div>
