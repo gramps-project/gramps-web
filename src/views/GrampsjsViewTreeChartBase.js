@@ -206,7 +206,6 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
               <td>
                   <mwc-select
                     id="name-display-format"
-                    @selected="${this.nameDisplayFormat}"
                     @change=${this._handleChangeNameDisplayFormat}
                   >
                     ${map(
