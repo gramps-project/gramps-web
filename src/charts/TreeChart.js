@@ -3,7 +3,6 @@ import {create} from 'd3-selection'
 import {hierarchy, tree} from 'd3-hierarchy'
 import {curveBumpX, link, symbolTriangle, symbol} from 'd3-shape'
 import {zoom} from 'd3-zoom'
-import {choose} from 'lit/directives/choose.js'
 import {chartNameDisplayFormat} from '../util.js'
 
 // Returns the total depth of the tree
@@ -238,18 +237,9 @@ function TreeChartCore(
     .attr('paint-order', 'stroke')
     .text(d =>
       clipString(
-        `${choose(
-          nameDisplayFormat,
-          [
-            [
-              chartNameDisplayFormat.surnameThenGiven,
-              () => `${d.data.name_surname},`,
-            ],
-            [chartNameDisplayFormat.givenThenSurname, () => d.data.name_given],
-          ],
-          () => ''
-        )}
-  `,
+        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+          ? `${d.data.name_surname},`
+          : d.data.name_given,
         textWidth(d)
       )
     )
@@ -269,18 +259,9 @@ function TreeChartCore(
     .attr('width', 25)
     .text(d =>
       clipString(
-        `${choose(
-          nameDisplayFormat,
-          [
-            [chartNameDisplayFormat.surnameThenGiven, () => d.data.name_given],
-            [
-              chartNameDisplayFormat.givenThenSurname,
-              () => d.data.name_surname,
-            ],
-          ],
-          () => ''
-        )}
-  `,
+        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+          ? d.data.name_given
+          : d.data.name_surname,
         textWidth(d)
       )
     )

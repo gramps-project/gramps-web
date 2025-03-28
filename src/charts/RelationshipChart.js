@@ -2,7 +2,6 @@ import {create, select} from 'd3-selection'
 import {zoom} from 'd3-zoom'
 import {linkVertical} from 'd3-shape'
 import {Graphviz} from '@hpcc-js/wasm'
-import {choose} from 'lit/directives/choose.js'
 import {chartNameDisplayFormat} from '../util.js'
 
 function createGraph(graph) {
@@ -428,21 +427,9 @@ function remasterChart(
     .attr('y', 25)
     .text(d =>
       clipString(
-        `${choose(
-          nameDisplayFormat,
-          [
-            [
-              chartNameDisplayFormat.surnameThenGiven,
-              () => `${d.profile.name_surname},`,
-            ],
-            [
-              chartNameDisplayFormat.givenThenSurname,
-              () => d.profile.name_given,
-            ],
-          ],
-          () => ''
-        )}
-      `,
+        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+          ? `${d.profile?.name_surname},`
+          : d.profile?.name_given,
         boxWidthTotal(d)
       )
     )
@@ -464,21 +451,9 @@ function remasterChart(
     .attr('y', 25 + 17)
     .text(d =>
       clipString(
-        `${choose(
-          nameDisplayFormat,
-          [
-            [
-              chartNameDisplayFormat.surnameThenGiven,
-              () => d.profile.name_given,
-            ],
-            [
-              chartNameDisplayFormat.givenThenSurname,
-              () => d.profile.name_surname,
-            ],
-          ],
-          () => ''
-        )}
-  `,
+        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+          ? d.profile?.name_given
+          : d.profile?.name_surname,
         boxWidthTotal(d)
       )
     )
