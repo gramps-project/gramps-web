@@ -729,4 +729,9 @@ export function stripHtml(input) {
   return doc.body.textContent || ''
 }
 
+export const chartNameDisplayFormat = {
+  surnameThenGiven: 'Surname First',
+  givenThenSurname: 'Given Name First',
+}
+
 //

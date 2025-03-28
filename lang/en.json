@@ -218,5 +218,8 @@
   "Log in to Gramps Web": "Log in to Gramps Web",
   "Invalid E-mail address": "Invalid E-mail address",
   "full-text": "full-text",
-  "semantic": "semantic"
+  "semantic": "semantic",
+  "Name Display Format": "Name Display Format",
+  "Surname First": "Surname First",
+  "Given Name First": "Given Name First"
 }

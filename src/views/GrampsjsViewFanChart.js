@@ -74,6 +74,7 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
         .data=${this._data}
         .appState="${this.appState}"
         color="${this.color}"
+        nameDisplayFormat=${this.nameDisplayFormat}
       >
       </grampsjs-fan-chart>
     `

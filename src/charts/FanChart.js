@@ -9,6 +9,7 @@ import {
 } from 'd3-scale-chromatic'
 import {zoom} from 'd3-zoom'
 import {LegendCategorical, LegendColorBar} from './util.js'
+import {chartNameDisplayFormat} from '../util.js'
 
 const colorFunctions = {
   default: {
@@ -225,6 +226,7 @@ export function FanChart(
     color = '',
     bboxWidth = 800,
     bboxHeight = 800,
+    nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
     strings = {},
   } = {}
 ) {
@@ -395,16 +397,42 @@ export function FanChart(
   cell
     .filter(d => d.depth === 0)
     .append('text')
-    .attr('font-weight', '500')
+    .attr(
+      'font-weight',
+      nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+        ? '500'
+        : '300'
+    )
     .attr('dy', '-0.6em')
-    .text(d => clipString(d.data.name_surname, d, true))
+    .text(d =>
+      clipString(
+        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+          ? d.data.name_surname
+          : d.data.name_given,
+        d,
+        true
+      )
+    )
 
   cell
     .filter(d => d.depth === 0)
     .append('text')
-    .attr('font-weight', '300')
+    .attr(
+      'font-weight',
+      nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+        ? '300'
+        : '500'
+    )
     .attr('dy', '0.6em')
-    .text(d => clipString(d.data.name_given, d, true))
+    .text(d =>
+      clipString(
+        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+          ? d.data.name_given
+          : d.data.name_surname,
+        d,
+        true
+      )
+    )
 
   const startOffset = d =>
     d.x0 >= Math.PI
@@ -415,7 +443,12 @@ export function FanChart(
     .filter(d => d.depth > 0)
     .filter(d => ((d.y0 + d.y1) / 2) * (d.x1 - d.x0) > 50)
     .append('text')
-    .attr('font-weight', '500')
+    .attr(
+      'font-weight',
+      nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+        ? '500'
+        : '300'
+    )
     .attr('font-size', fontSize)
     .attr('dy', d => (d.y1 - d.y0) / 2 - 7 + 3)
     // .attr("dx", (dx => 1)
@@ -426,13 +459,25 @@ export function FanChart(
     .style('letter-spacing', d =>
       d.x0 < Math.PI ? `${(1 / d.y1) * 20}em` : `-${(1 / d.y1) * 10}em`
     )
-    .text(d => clipString(d.data.name_surname || '', d))
+    .text(d =>
+      clipString(
+        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+          ? d.data.name_surname || ''
+          : d.data.name_given || '',
+        d
+      )
+    )
 
   cell
     .filter(d => d.depth > 0)
     .filter(d => ((d.y0 + d.y1) / 2) * (d.x1 - d.x0) > 50)
     .append('text')
-    .attr('font-weight', '300')
+    .attr(
+      'font-weight',
+      nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+        ? '300'
+        : '500'
+    )
     .attr('font-size', fontSize)
     .attr('dy', d => (d.y1 - d.y0) / 2 + 7 + 3)
     // .attr("dx", (dx => 1)
@@ -444,7 +489,13 @@ export function FanChart(
       d.x0 < Math.PI ? `${(1 / d.y1) * 40}em` : `-${(1 / d.y1) * 15}em`
     )
     .text(
-      d => clipString(d.data.name_given || '', d)
+      d =>
+        clipString(
+          nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+            ? d.data.name_given || ''
+            : d.data.name_surname || '',
+          d
+        )
       // .slice(0, Math.floor(d.y1 * (d.x1 - d.x0) / 10))
     )
 

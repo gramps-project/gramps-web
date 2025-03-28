@@ -45,6 +45,7 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
         grampsId=${this.grampsId}
         nAnc=${this.nAnc + 1}
         nMaxImages=${this.nMaxImages}
+        nameDisplayFormat=${this.nameDisplayFormat}
         .data=${this._data}
       >
       </grampsjs-relationship-chart>

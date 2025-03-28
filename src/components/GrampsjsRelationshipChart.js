@@ -32,6 +32,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
       nAnc: {type: Number},
       nMaxImages: {type: Number},
       gapX: {type: Number},
+      nameDisplayFormat: {type: String},
     }
   }
 
@@ -58,6 +59,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
         gapX: this.gapX,
         bboxWidth: this.containerWidth,
         bboxHeight: this.containerHeight,
+        nameDisplayFormat: this.nameDisplayFormat,
       })}
     `
   }

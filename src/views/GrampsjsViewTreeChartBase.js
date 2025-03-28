@@ -1,4 +1,5 @@
 import {css, html} from 'lit'
+import {map} from 'lit/directives/map.js'
 
 import '@material/mwc-textfield'
 
@@ -6,7 +7,7 @@ import {mdiAccountDetails, mdiHomeAccount} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsTooltip.js'
 
-import {fireEvent} from '../util.js'
+import {chartNameDisplayFormat, fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
 
 export class GrampsjsViewTreeChartBase extends GrampsjsView {
@@ -56,6 +57,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
       nAnc: {type: Number},
       nDesc: {type: Number},
       nMaxImages: {type: Number},
+      nameDisplayFormat: {type: String},
       _data: {type: Array},
       _setAnc: {type: Boolean},
       _setDesc: {type: Boolean},
@@ -69,6 +71,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     this.nAnc = 3
     this.nDesc = 1
     this.nMaxImages = 50
+    this.nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
     this.disableBack = false
     this.disableHome = false
     this._data = []
@@ -198,6 +201,24 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
           `
         : ''
     }
+            <tr>
+              <td>${this._('Name Display Format')}</td>
+              <td>
+                  <mwc-select
+                    id="name-display-format"
+                    @change=${this._handleChangeNameDisplayFormat}
+                  >
+                    ${map(
+                      Object.values(chartNameDisplayFormat),
+                      i => html` <mwc-list-item
+                        value="${i}"
+                        ?selected="${i === this.nameDisplayFormat}"
+                        >${this._(i)}</mwc-list-item
+                      >`
+                    )}
+                  </mwc-select>
+              </td>
+            </tr>
           </table>
           <mwc-button slot="primaryAction" dialogAction="close"
             >${this._('done')}</mwc-button
@@ -291,6 +312,10 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
 
   _handleChangeMaxImages(e) {
     this.nMaxImages = parseInt(e.target.value, 10)
+  }
+
+  _handleChangeNameDisplayFormat(e) {
+    this.nameDisplayFormat = e.target.value
   }
 
   _openMenuControls() {
