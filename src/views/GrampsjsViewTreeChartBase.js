@@ -1,4 +1,5 @@
 import {css, html} from 'lit'
+import {map} from 'lit/directives/map.js'
 
 import '@material/mwc-textfield'
 
@@ -200,6 +201,25 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
           `
         : ''
     }
+            <tr>
+              <td>${this._('Name Display Format')}</td>
+              <td>
+                  <mwc-select
+                    id="name-display-format"
+                    @selected="${this.nameDisplayFormat}"
+                    @change=${this._handleChangeNameDisplayFormat}
+                  >
+                    ${map(
+                      Object.values(chartNameDisplayFormat),
+                      i => html` <mwc-list-item
+                        value="${i}"
+                        ?selected="${i === this.nameDisplayFormat}"
+                        >${this._(i)}</mwc-list-item
+                      >`
+                    )}
+                  </mwc-select>
+              </td>
+            </tr>
           </table>
           <mwc-button slot="primaryAction" dialogAction="close"
             >${this._('done')}</mwc-button
@@ -293,6 +313,10 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
 
   _handleChangeMaxImages(e) {
     this.nMaxImages = parseInt(e.target.value, 10)
+  }
+
+  _handleChangeNameDisplayFormat(e) {
+    this.nameDisplayFormat = e.target.value
   }
 
   _openMenuControls() {

@@ -730,8 +730,8 @@ export function stripHtml(input) {
 }
 
 export const chartNameDisplayFormat = {
-  surnameThenGiven: 'Surname then Given Name',
-  givenThenSurname: 'Given Name then Surname',
+  surnameThenGiven: 'Surname First',
+  givenThenSurname: 'Given Name First',
 }
 
 //
