@@ -412,7 +412,11 @@ function remasterChart(
     .attr('ry', 8)
 
   nodes
-    .filter(d => d.nodetype === 'person')
+    .filter(
+      d =>
+        (d.profile?.name_given || d.profile?.name_surname) &&
+        d.nodetype === 'person'
+    )
     .append('text')
     .attr('text-anchor', 'start')
     .attr('font-weight', '500')
@@ -446,8 +450,8 @@ function remasterChart(
   nodes
     .filter(
       d =>
-        d.profile?.name_given ||
-        (d.profile?.name_surname && d.nodetype === 'person')
+        (d.profile?.name_given || d.profile?.name_surname) &&
+        d.nodetype === 'person'
     )
     .append('text')
     .attr('text-anchor', 'start')
