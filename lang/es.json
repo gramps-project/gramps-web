@@ -1,5 +1,5 @@
 {
-    "A new version of the app is available.": "Ya está disponible una nueva versión de la aplicación.",
+    "A new version of the app is available.": "Una nueva versión de la aplicación está disponible .",
     "Lists": "Listas",
     "Manage users": "Gestionar usuarios",
     "Recently changed objects": "Objetos modificados recientemente",
@@ -216,5 +216,7 @@
     "Pending": "Pendiente",
     "Side": "Lado",
     "Length": "Largo",
-    "Started": "Comenzó"
+    "Started": "Comenzó",
+    "Number of SNPs": "Número de SNPs",
+    "full-text": "Texto-compteto"
 }
