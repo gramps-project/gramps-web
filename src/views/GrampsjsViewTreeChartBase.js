@@ -205,6 +205,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
               <td>${this._('Name Display Format')}</td>
               <td>
                   <mwc-select
+                    fixedMenuPosition
                     id="name-display-format"
                     @change=${this._handleChangeNameDisplayFormat}
                   >
