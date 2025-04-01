@@ -2,6 +2,7 @@ import {create, select} from 'd3-selection'
 import {zoom} from 'd3-zoom'
 import {linkVertical} from 'd3-shape'
 import {Graphviz} from '@hpcc-js/wasm'
+import {chartNameDisplayFormat} from '../util.js'
 
 function createGraph(graph) {
   const data = graph.getData()
@@ -328,7 +329,8 @@ function remasterChart(
   boxHeight,
   imgPadding,
   getImageUrl,
-  maxImages
+  maxImages,
+  nameDisplayFormat
 ) {
   const gvchartx = divhidden.select('svg')
   const nodedata = []
@@ -409,7 +411,11 @@ function remasterChart(
     .attr('ry', 8)
 
   nodes
-    .filter(d => d.nodetype === 'person')
+    .filter(
+      d =>
+        (d.profile?.name_given || d.profile?.name_surname) &&
+        d.nodetype === 'person'
+    )
     .append('text')
     .attr('text-anchor', 'start')
     .attr('font-weight', '500')
@@ -419,10 +425,21 @@ function remasterChart(
     .attr('overflow', 'hidden')
     .attr('x', d => textPadding(d))
     .attr('y', 25)
-    .text(d => clipString(`${d.profile.name_surname},`, boxWidthTotal(d)))
+    .text(d =>
+      clipString(
+        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+          ? `${d.profile?.name_surname},`
+          : d.profile?.name_given,
+        boxWidthTotal(d)
+      )
+    )
 
   nodes
-    .filter(d => d.profile?.name_given && d.nodetype === 'person')
+    .filter(
+      d =>
+        (d.profile?.name_given || d.profile?.name_surname) &&
+        d.nodetype === 'person'
+    )
     .append('text')
     .attr('text-anchor', 'start')
     .attr('font-weight', '500')
@@ -432,7 +449,14 @@ function remasterChart(
     .attr('overflow', 'hidden')
     .attr('x', d => textPadding(d))
     .attr('y', 25 + 17)
-    .text(d => clipString(d.profile.name_given, boxWidthTotal(d)))
+    .text(d =>
+      clipString(
+        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+          ? d.profile?.name_given
+          : d.profile?.name_surname,
+        boxWidthTotal(d)
+      )
+    )
 
   nodes
     .filter(d => d.profile?.birth?.date && d.nodetype === 'person')
@@ -572,6 +596,7 @@ export function RelationshipChart(
     maxImages = 50,
     shrinkToFit = false,
     // orientation = 'LTR',
+    nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
   }
 ) {
   const resultnode = create('div').style('width', '100%')
@@ -601,7 +626,7 @@ export function RelationshipChart(
       imgPadding,
       getImageUrl,
       maxImages,
-      grampsId
+      nameDisplayFormat
     )
     svg.attr('viewBox', [
       -bboxWidth / 2,

@@ -25,6 +25,7 @@ export class GrampsjsViewHourglassChart extends GrampsjsViewTreeChartBase {
         grampsId=${this.grampsId}
         nAnc=${this.nAnc + 1}
         nDesc=${this.nDesc + 1}
+        nameDisplayFormat=${this.nameDisplayFormat}
         .data=${this._data}
         gapX="60"
         .appState="${this.appState}"
