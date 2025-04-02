@@ -218,5 +218,8 @@
     "semantic": "semântica",
     "Confirm Password": "Confirme a senha",
     "Passwords do not match.": "As senhas não coincidem.",
-    "Invalid E-mail address": "Endereço de correio inválido"
+    "Invalid E-mail address": "Endereço de correio inválido",
+    "Surname First": "Apelido primeiro",
+    "Given Name First": "Nome próprio primeiro",
+    "Name Display Format": "Formato do nome"
 }
