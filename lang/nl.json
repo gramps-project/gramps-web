@@ -218,5 +218,8 @@
     "Log in to Gramps Web": "Inloggen bij Gramps Web",
     "Invalid E-mail address": "Ongeldig e-mailadres",
     "full-text": "volledige tekst",
-    "semantic": "semantisch"
+    "semantic": "semantisch",
+    "Given Name First": "Voornaam eerst",
+    "Name Display Format": "Weergave-indeling van de naam",
+    "Surname First": "Achternaam eerst"
 }
