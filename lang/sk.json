@@ -218,5 +218,8 @@
     "semantic": "významové",
     "Confirm Password": "Potvrdiť heslo",
     "Log in to Gramps Web": "Prihlásiť sa na Gramps Web",
-    "Invalid E-mail address": "Nesprávna e-mailová adresa"
+    "Invalid E-mail address": "Nesprávna e-mailová adresa",
+    "Given Name First": "Najprv dané meno",
+    "Surname First": "Najprv priezvisko",
+    "Name Display Format": "Formát zobrazenia mena"
 }
