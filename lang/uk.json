@@ -218,5 +218,8 @@
     "Invalid E-mail address": "Недійсна адреса електронної пошти",
     "full-text": "повний текст",
     "semantic": "семантичний",
-    "Log in to Gramps Web": "Увійдіть до Gramps Web"
+    "Log in to Gramps Web": "Увійдіть до Gramps Web",
+    "Name Display Format": "Формат відображення імені",
+    "Surname First": "Прізвище Перше",
+    "Given Name First": "Перше ім'я"
 }
