@@ -217,5 +217,7 @@
     "Log in to Gramps Web": "Přihlaste se do Gramps Web",
     "Invalid E-mail address": "Neplatná E-mailová adresa",
     "Passwords do not match.": "Hesla se neshodují.",
-    "Name Display Format": "Formát zobrazení jména"
+    "Name Display Format": "Formát zobrazení jména",
+    "Given Name First": "Nejprve křestní jméno",
+    "Surname First": "Nejprve příjmení"
 }
