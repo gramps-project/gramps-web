@@ -219,5 +219,8 @@
     "Log in to Gramps Web": "Logga in på Gramps Web",
     "Invalid E-mail address": "Ogiltig e-postadress",
     "full-text": "fulltext",
-    "semantic": "semantisk"
+    "semantic": "semantisk",
+    "Surname First": "Efternamn först",
+    "Given Name First": "Förnamn först",
+    "Name Display Format": "Namnvisningsformat"
 }
