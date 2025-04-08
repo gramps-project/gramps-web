@@ -218,5 +218,8 @@
     "semantic": "semàntic",
     "Passwords do not match.": "Les contrasenyes no coincideixen.",
     "Invalid E-mail address": "Adreça de correu electrònic invàlida",
-    "Log in to Gramps Web": "Entra a la Web de Gramps"
+    "Log in to Gramps Web": "Entra a la Web de Gramps",
+    "Name Display Format": "Format de visualització del nom",
+    "Given Name First": "Nom Primer",
+    "Surname First": "Cognom Primer"
 }
