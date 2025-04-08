@@ -218,5 +218,8 @@
     "Confirm Password": "Konfirmasi Password",
     "Passwords do not match.": "Password tidak cocok.",
     "Register to Gramps Web": "Daftar ke Gramps Web",
-    "full-text": "full-teks"
+    "full-text": "full-teks",
+    "Surname First": "Nama Depan Singkat",
+    "Given Name First": "Nama Depan (Lahir)",
+    "Name Display Format": "Format Tampilan Nama"
 }
