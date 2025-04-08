@@ -218,5 +218,8 @@
     "Passwords do not match.": "Ní hionann pasfhocail.",
     "semantic": "shéimeantach",
     "Invalid E-mail address": "Seoladh ríomhphoist neamhbhailí",
-    "Register to Gramps Web": "Cláraigh le Gramps Web"
+    "Register to Gramps Web": "Cláraigh le Gramps Web",
+    "Name Display Format": "Formáid Taispeána Ainm",
+    "Given Name First": "Ainm a thugtar ar dtús",
+    "Surname First": "Sloinne Chéad"
 }
