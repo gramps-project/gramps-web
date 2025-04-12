@@ -218,5 +218,8 @@
     "Register to Gramps Web": "Bei Gramps Web registrieren",
     "Passwords do not match.": "Passwörter stimmen nicht überein.",
     "full-text": "Volltext",
-    "semantic": "semantisch"
+    "semantic": "semantisch",
+    "Name Display Format": "Anzeigeformat für Name",
+    "Surname First": "Nachname zuerst",
+    "Given Name First": "Vorname zuerst"
 }
