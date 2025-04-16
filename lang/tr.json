@@ -216,5 +216,10 @@
     "Register to Gramps Web": "Gramps Web'e kaydol",
     "Log in to Gramps Web": "Gramps Web'e giriş yap",
     "Invalid E-mail address": "Geçersiz E-posta adresi",
-    "full-text": "Tam-metin"
+    "full-text": "Tam-metin",
+    "Name Display Format": "Ad Görünüm Biçimi",
+    "Surname First": "Önce Soyadı",
+    "Given Name First": "Önce Adı",
+    "Confirm Password": "Şifreyi onayla",
+    "semantic": "anlamsal"
 }
