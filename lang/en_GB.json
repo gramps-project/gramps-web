@@ -218,5 +218,8 @@
     "Log in to Gramps Web": "Log in to Gramps Web",
     "Invalid E-mail address": "Invalid E-mail address",
     "Passwords do not match.": "Passwords do not match.",
-    "Register to Gramps Web": "Register to Gramps Web"
+    "Register to Gramps Web": "Register to Gramps Web",
+    "Surname First": "Surname First",
+    "Given Name First": "Given Name First",
+    "Name Display Format": "Name Display Format"
 }
