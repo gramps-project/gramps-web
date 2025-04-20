@@ -25,7 +25,7 @@ const removeClasses = (el, names) =>
  */
 const LocationMarker = L.Marker.extend({
   initialize(latlng, options) {
-    Util.setOptions(this, options)
+    L.Util.setOptions(this, options)
     this._latlng = latlng
     this.createIcon()
   },
