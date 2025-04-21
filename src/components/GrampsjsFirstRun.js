@@ -245,7 +245,7 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
 
           <p style="margin-top: 2em;">
             ${this._('Need help? Check out ')}<a
-              href="https://www.grampsweb.org/Deployment/"
+              href="https://www.grampsweb.org/administration/import/"
               >${this._('the documentation')}</a
             >.
           </p>
