@@ -210,5 +210,8 @@
     "Log in to Gramps Web": "Войти в Gramps Web",
     "Register to Gramps Web": "Зарегистрироваться в Gramps Web",
     "full-text": "полнотекстовый",
-    "semantic": "семантический"
+    "semantic": "семантический",
+    "Name Display Format": "Формат отображения имени",
+    "Surname First": "Сначала фамилия",
+    "Given Name First": "Сначала имя"
 }
