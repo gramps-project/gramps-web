@@ -1,12 +1,13 @@
 import {LitElement, css, html} from 'lit'
 
+import '@material/web/dialog/dialog'
 import '@material/web/button/text-button'
 import {mdiPencil} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsSearchResultList.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {fireEvent} from '../util.js'
+import './GrampsjsFormSelectObjectList.js'
 
 export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -15,6 +16,13 @@ export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
       css`
         h3 {
           margin-bottom: 15px;
+        }
+
+        md-dialog {
+          min-width: 450px;
+          min-height: 450px;
+          max-width: 100vw;
+          max-height: 100vh;
         }
       `,
     ]
@@ -48,22 +56,51 @@ export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
                 .data=${[
                   {object: this.homePersonDetails, object_type: 'person'},
                 ]}
-                @search-result:metaClicked="${this._handleMetaClick}"
+                @search-result:metaClicked="${this._handleEditClick}"
               >
               </grampsjs-search-result-list>
             </div>
           `
-        : html` <md-text-button trailing-icon @click="${this._handleMetaClick}">
+        : html` <md-text-button trailing-icon @click="${this._handleEditClick}">
             ${this._('Set _Home Person')}
             <svg viewBox="0 0 24 24" slot="icon">
               <path d="${mdiPencil}" />
             </svg>
           </md-text-button>`}
+      ${this.renderPersonSelect()}
     `
   }
 
-  _handleMetaClick() {
-    fireEvent(this, 'nav', {path: 'settings'})
+  _handleEditClick() {
+    this.renderRoot.querySelector('md-dialog')?.show()
+  }
+
+  renderPersonSelect() {
+    return html`
+      <md-dialog id="select-home-person-dialog">
+        <div slot="headline">${this._('Set _Home Person')}</div>
+        <div slot="content">
+          <grampsjs-form-select-object
+            @select-object:changed="${this._handleHomePerson}"
+            objectType="person"
+            .appState="${this.appState}"
+            id="homeperson-select"
+            label="${this._('Select')}"
+          ></grampsjs-form-select-object>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  _handleHomePerson(e) {
+    const obj = e.detail.objects[0]
+    if (obj.object?.gramps_id) {
+      this.appState.updateSettings({homePerson: obj.object.gramps_id}, true)
+      this.homePersonDetails = obj
+      this.renderRoot.querySelector('md-dialog')?.close()
+    }
+    e.preventDefault()
+    e.stopPropagation()
   }
 }
 

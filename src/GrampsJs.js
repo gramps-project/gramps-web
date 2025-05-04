@@ -33,7 +33,6 @@ import './components/GrampsjsPages.js'
 import './components/GrampsjsUpdateAvailable.js'
 import './components/GrampsjsUpgradeDb.js'
 import './components/GrampsjsUndoTransaction.js'
-import './views/GrampsjsViewSettingsOnboarding.js'
 import {sharedStyles} from './SharedStyles.js'
 import {getInitialAppState, appStateUpdatePermissions} from './appState.js'
 
@@ -42,7 +41,7 @@ const LOADING_STATE_UNAUTHORIZED = 1
 const LOADING_STATE_UNAUTHORIZED_NOCONNECTION = 2
 const LOADING_STATE_NO_OWNER = 3
 const LOADING_STATE_DB_SCHEMA_MISMATCH = 4
-const LOADING_STATE_MISSING_SETTINGS = 5
+// const LOADING_STATE_MISSING_SETTINGS = 5
 const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
@@ -157,15 +156,6 @@ export class GrampsJs extends LitElement {
         mwc-list {
           --mdc-list-item-graphic-margin: 20px;
           --mdc-list-side-padding: 20px;
-        }
-
-        #onboarding {
-          width: 100%;
-          max-width: 30em;
-        }
-
-        grampsjs-view-settings-onboarding {
-          width: 100%;
         }
 
         mwc-tab-bar {
@@ -430,20 +420,6 @@ export class GrampsJs extends LitElement {
     `
   }
 
-  _renderOnboarding() {
-    return html`
-      <div class="center-xy" id="onboarding">
-        <grampsjs-view-settings-onboarding
-          @onboarding:completed="${this._setReady}"
-          class="page"
-          active
-          .appState="${this.appState}"
-          ?requireHomePerson="${false}"
-        ></grampsjs-view-settings-onboarding>
-      </div>
-    `
-  }
-
   renderContent() {
     if (this.loadingState === LOADING_STATE_INITIAL) {
       return this._renderInitial()
@@ -473,13 +449,15 @@ export class GrampsJs extends LitElement {
       return this._renderFirstRun()
     }
     if (!this.appState.settings.lang) {
-      this.loadingState = LOADING_STATE_MISSING_SETTINGS
+      // this can only happen if the user has not set the language
+      // AND the browser's language was not detected for some reason.
+      // In that case, we fall back to English.
+      this.appState.updateSettings({
+        lang: 'en',
+      })
     }
     if (this.loadingState === LOADING_STATE_DB_SCHEMA_MISMATCH) {
       return this._renderSchemaMismatch()
-    }
-    if (this.loadingState === LOADING_STATE_MISSING_SETTINGS) {
-      return this._renderOnboarding()
     }
     if (this.appState.path.page === 'login') {
       window.history.pushState({}, '', '')

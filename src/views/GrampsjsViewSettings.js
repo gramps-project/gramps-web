@@ -1,21 +1,24 @@
 import {css, html} from 'lit'
 
-import {GrampsjsViewSettingsOnboarding} from './GrampsjsViewSettingsOnboarding.js'
-import './GrampsjsViewAdminSettings.js'
-import './GrampsjsViewUserManagement.js'
-import {userRoles} from '../components/GrampsjsFormUser.js'
-import '../components/GrampsjsUsers.js'
-import '../components/GrampsjsTaskProgressIndicator.js'
-import '../components/GrampsjsShareUrl.js'
-import '../components/GrampsjsSysinfo.js'
-import '../components/GrampsjsTreeQuotas.js'
-
-import {fireEvent} from '../util.js'
+import '@material/mwc-menu'
 import '@material/mwc-textfield'
 import '@material/mwc-button'
 import '@material/mwc-select'
 import '@material/mwc-tab'
 import '@material/mwc-tab-bar'
+
+import '../components/GrampsjsFormSelectObjectList.js'
+import '../components/GrampsjsShareUrl.js'
+import '../components/GrampsjsSysinfo.js'
+import '../components/GrampsjsTaskProgressIndicator.js'
+import '../components/GrampsjsTreeQuotas.js'
+import '../components/GrampsjsUsers.js'
+import './GrampsjsViewAdminSettings.js'
+import './GrampsjsViewUserManagement.js'
+import {GrampsjsView} from './GrampsjsView.js'
+import {userRoles} from '../components/GrampsjsFormUser.js'
+
+import {fireEvent} from '../util.js'
 
 function renderLogoutButton(appState) {
   return html`
@@ -29,11 +32,26 @@ function renderLogoutButton(appState) {
   `
 }
 
-export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
+export class GrampsjsViewSettings extends GrampsjsView {
   static get styles() {
     return [
       super.styles,
       css`
+        .red {
+          --mdc-button-outline-color: #c62828;
+          --mdc-theme-primary: #c62828;
+        }
+
+        mwc-select {
+          width: 100%;
+          max-width: 30em;
+          margin-bottom: 10px;
+        }
+
+        #complete-button {
+          margin-top: 25px;
+        }
+
         mwc-tab-bar {
           margin-bottom: 30px;
         }
@@ -51,6 +69,8 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       page: {type: String},
       dbInfo: {type: Object},
       _userInfo: {type: Object},
+      _translations: {type: Array},
+      _langLoading: {type: Boolean},
     }
   }
 
@@ -59,10 +79,8 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
     this.page = 'user'
     this.dbInfo = {}
     this._userInfo = {}
-  }
-
-  get owner() {
-    return this.appState.permissions.canManageUsers
+    this._translations = []
+    this._langLoading = false
   }
 
   renderContent() {
@@ -110,6 +128,73 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       ${this.page === 'users' && this.owner ? this.renderUserManagement() : ''}
       ${this.page === 'info' ? this.renderSysInfo() : ''}
     `
+  }
+
+  renderLangSelect() {
+    return html`
+      <mwc-select
+        id="select-language"
+        label="${this._langLoading
+          ? this._('Loading items...')
+          : this._('Language')}"
+        @selected="${this._handleLangSelected}"
+        ?disabled="${this._langLoading}"
+      >
+        ${this._translations.map(
+          langObj => html`
+            <mwc-list-item
+              value="${langObj.language}"
+              ?selected="${langObj.language === this.appState.settings.lang}"
+              >${langObj.native}</mwc-list-item
+            >
+          `,
+          this
+        )}
+      </mwc-select>
+    `
+  }
+
+  _handleLangSelected(event) {
+    const i = event.detail.index
+    if (i !== null && i !== undefined && i < this._translations.length) {
+      const key = this._translations[i].language
+      this.appState.updateSettings({lang: key})
+    }
+  }
+
+  firstUpdated() {
+    if (this.active) {
+      this._fetchDataLang()
+    }
+  }
+
+  update(changed) {
+    super.update(changed)
+    if (changed.has('active') && this.active) {
+      if (!this._langLoading && this._translations.length === 0) {
+        this._fetchDataLang()
+      }
+    }
+  }
+
+  async _fetchDataLang() {
+    this.loading = true
+    this._langLoading = true
+    const dataTrans = await this.appState.apiGet('/api/translations/')
+    if ('data' in dataTrans) {
+      this.error = false
+      this._translations = dataTrans.data
+    } else if ('error' in dataTrans) {
+      this.error = true
+      this._errorMessage = dataTrans.error
+      return
+    }
+    this._langLoading = false
+    this.loading = false
+  }
+
+  get owner() {
+    return this.appState.permissions.canManageUsers
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -162,10 +247,6 @@ export class GrampsjsViewSettings extends GrampsjsViewSettingsOnboarding {
       <h3>${this._('Select language')}</h3>
 
       ${this.renderLangSelect()}
-
-      <h3>${this._('Set _Home Person')}</h3>
-
-      ${this.renderPersonSelect()}
 
       <h3>${this._('Change E-mail')}</h3>
 
