@@ -40,7 +40,11 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsConnectedComponent {
         this.appState.i18n.lang || 'en'
       }&profile=all&page=1&pagesize=8`
     }
-    const ts = Math.floor(Date.now() / 1000) - 365 * 24 * 60 * 60 // ~1 year ago
+
+    const now = Math.floor(Date.now() / 1000)
+    // round down to nearest 100k seconds to avoid reloading every second (issue 641)
+    const roundedNow = now - (now % 100000)
+    const ts = roundedNow - 365 * 24 * 60 * 60 // ~1 year ago
     return `/api/search/?sort=-change&query=${encodeURIComponent(
       '*'
     )}&change=${encodeURIComponent(`>${ts}`)}&locale=${
