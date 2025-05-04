@@ -235,7 +235,7 @@ export function objectDescription(type, obj, strings) {
       translate(strings, 'Family')}`
     case 'event':
       return html`${eventTitleFromProfile(obj.profile || {}, strings, false) ||
-      translate(strings, obj.type.string ?? obj.type)}`
+      translate(strings, obj.type.string || obj.type)}`
     case 'place':
       return html`${obj?.profile?.name ||
       obj?.name?.value ||
