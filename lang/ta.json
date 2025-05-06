@@ -191,5 +191,12 @@
     "Settings": "அமைப்புகள்",
     "Regenerate semantic search index": "சொற்பொருள் தேடல் குறியீட்டை மீளுருவாக்கம் செய்யுங்கள்",
     "Pending": "நிலுவையில் உள்ளது",
-    "Started": "தொடங்கியது"
+    "Started": "தொடங்கியது",
+    "First person": "முதல் நபர்",
+    "Second person": "இரண்டாவது நபர்",
+    "Add new DNA match": "புதிய டி.என்.ஏ. பொருந்தலைச் சேர்க்கவும்",
+    "Passwords do not match.": "கடவுச்சொற்கள் பொருந்தவில்லை.",
+    "Confirm Password": "கடவுச்சொல்லை உறுதிப்படுத்தவும்",
+    "Delete user": "பயனரை அழி",
+    "Do you really want to delete user \"%s\"?": "பயனர் %s ஐ நிச்சயமாக நீக்க விரும்புகிறீர்களா?"
 }
