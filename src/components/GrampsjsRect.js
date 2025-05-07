@@ -109,7 +109,11 @@ class GrampsjsRect extends LitElement {
     const height = this.rect[3] - this.rect[1]
     return html`
       <div
-        class="rect ${classMap({selected: this.selected, muted: this.muted, hidden: this.hidden})}"
+        class="rect ${classMap({
+          selected: this.selected,
+          muted: this.muted,
+          hidden: this.hidden,
+        })}"
         @click="${this._handleClick}"
         @keydown=""
         style="left:${left}%;top:${top}%;width:${width}%;height:${height}%;"

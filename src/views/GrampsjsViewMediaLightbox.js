@@ -77,9 +77,9 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
             .icon="${this.rectHidden ? 'person' : 'person_off'}"
             @click="${this._handleToggleRectButtonClick}"
           ></mwc-icon-button>
-          <grampsjs-tooltip
-            for="btn-toggle-rect"
-          >${this._('Toggle person outlines')}</grampsjs-tooltip>
+          <grampsjs-tooltip for="btn-toggle-rect"
+            >${this._('Toggle person outlines')}</grampsjs-tooltip
+          >
           <mwc-icon-button
             icon="download"
             class="download"
