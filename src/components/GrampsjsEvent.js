@@ -137,6 +137,13 @@ export class GrampsjsEvent extends GrampsjsObject {
   }
 
   _renderTitle() {
+    if (
+      !this.data?.profile?.participants?.people?.length &&
+      !this.data?.profile?.participants?.families?.length
+    ) {
+      // event without participants
+      return html`${this.data.profile.type}`
+    }
     return html`${this.data.profile.type}: ${this._renderPrimaryPeople()}`
   }
 
