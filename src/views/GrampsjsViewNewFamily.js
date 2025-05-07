@@ -97,7 +97,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
     if (originalTarget.id === 'family-rel-type') {
       this.data = {
         ...this.data,
-        type: {_class: 'FamilyRelType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     this.checkFormValidity()

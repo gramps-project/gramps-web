@@ -46,7 +46,7 @@ export class GrampsjsViewNewEvent extends GrampsjsNewEventMixin(
     if (originalTarget.id === 'event-type') {
       this.data = {
         ...this.data,
-        type: {_class: 'EventType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'place-list') {

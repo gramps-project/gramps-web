@@ -82,7 +82,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
     if (originalTarget.id === 'select-place-type') {
       this.data = {
         ...this.data,
-        place_type: {_class: 'PlaceType', string: e.detail.data},
+        place_type: e.detail.data,
       }
     }
     if (originalTarget.id === 'enclosed-list') {

@@ -294,55 +294,55 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
     if (originalTarget.id === 'event-role-type') {
       this.data = {
         ...this.data,
-        role: {_class: 'EventRoleType', string: e.detail.data},
+        role: e.detail.data,
       }
     }
     if (originalTarget.id === 'source-media-type') {
       this.data = {
         ...this.data,
-        media_type: {_class: 'SourceMediaType', string: e.detail.data},
+        media_type: e.detail.data,
       }
     }
     if (originalTarget.id === 'name-type') {
       this.data = {
         ...this.data,
-        type: {_class: 'NameType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'note-type') {
       this.data = {
         ...this.data,
-        type: {_class: 'NoteType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'place-type') {
       this.data = {
         ...this.data,
-        place_type: {_class: 'PlaceType', string: e.detail.data},
+        place_type: e.detail.data,
       }
     }
     if (originalTarget.id === 'event-type') {
       this.data = {
         ...this.data,
-        type: {_class: 'EventType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'child-frel') {
       this.data = {
         ...this.data,
-        frel: {_class: 'ChildRefType', string: e.detail.data},
+        frel: e.detail.data,
       }
     }
     if (originalTarget.id === 'child-mrel') {
       this.data = {
         ...this.data,
-        mrel: {_class: 'ChildRefType', string: e.detail.data},
+        mrel: e.detail.data,
       }
     }
     if (originalTarget.id === 'child-mrel') {
       this.data = {
         ...this.data,
-        mrel: {_class: 'ChildRefType', string: e.detail.data},
+        mrel: e.detail.data,
       }
     }
     if (originalTarget.id === 'note-select-list') {
@@ -369,25 +369,25 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
     if (originalTarget.id === 'srcattrtype') {
       this.data = {
         ...this.data,
-        type: {_class: 'SrcAttributeType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'attrtype') {
       this.data = {
         ...this.data,
-        type: {_class: 'AttributeType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'family-rel-type') {
       this.data = {
         ...this.data,
-        type: {_class: 'FamilyRelType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'urltype') {
       this.data = {
         ...this.data,
-        type: {_class: 'UrlType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'place-name-value') {

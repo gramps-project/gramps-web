@@ -62,10 +62,7 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
   _handleEdit() {
     const attr = this.data[this._selectedIndex]
     const data = {
-      type: {
-        _class: this.source ? 'SrcAttributeType' : 'AttributeType',
-        string: attr.type || '',
-      },
+      type: attr.type || '',
       value: attr.value || '',
     }
     this.dialogContent = html`

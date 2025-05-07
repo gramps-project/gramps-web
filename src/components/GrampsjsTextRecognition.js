@@ -317,7 +317,7 @@ export class GrampsjsTextRecognition extends GrampsjsAppStateMixin(LitElement) {
   async _handleSaveAsNote() {
     const note = {
       _class: 'Note',
-      type: {_class: 'NoteType', string: 'Transcript'},
+      type: 'Transcript',
       text: {_class: 'StyledText', string: this._string},
     }
     const data = await this.appState.apiPost('/api/notes/', note)

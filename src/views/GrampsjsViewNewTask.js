@@ -162,7 +162,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
         ...note,
         handle: handleNote,
         tag_list: [this._todoTagHandle],
-        type: {_class: 'NoteType', string: 'To Do'},
+        type: 'To Do',
       },
     ]
   }

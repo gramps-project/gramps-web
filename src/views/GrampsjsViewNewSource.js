@@ -143,7 +143,7 @@ export class GrampsjsViewNewSource extends GrampsjsViewNewObject {
       if (this._hasRepoRef()) {
         const repoRef = {
           ...this.data.reporef_list[0],
-          media_type: {_class: 'SourceMediaType', string: e.detail.data},
+          media_type: e.detail.data,
         }
         this.data = {
           ...this.data,

@@ -277,7 +277,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
   _handleSaveNote() {
     const editor = this.renderRoot.querySelector('grampsjs-editor')
     const text = editor.data
-    const type = {_class: 'NoteType', string: 'To Do'}
+    const type = 'To Do'
     if (this.source.note_list.length > 0) {
       const note = this.source.extended.notes[0]
       const data = {...note, text, type}

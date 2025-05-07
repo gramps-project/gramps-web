@@ -153,7 +153,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
           ...birth,
           _class: 'Event',
           handle: handleBirth,
-          type: {_class: 'EventType', string: birthString},
+          type: birthString,
           citation_list: person.citation_list ?? [],
         },
       ]
@@ -170,7 +170,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
           ...death,
           _class: 'Event',
           handle: handleDeath,
-          type: {_class: 'EventType', string: deathString},
+          type: deathString,
           citation_list: person.citation_list ?? [],
         },
       ]
@@ -190,14 +190,14 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
         ...birth,
         _class: 'Event',
         handle: handleBirth,
-        type: {_class: 'EventType', string: birthString},
+        type: birthString,
         citation_list: person.citation_list ?? [],
       },
       {
         ...death,
         _class: 'Event',
         handle: handleDeath,
-        type: {_class: 'EventType', string: deathString},
+        type: deathString,
         citation_list: person.citation_list ?? [],
       },
     ]

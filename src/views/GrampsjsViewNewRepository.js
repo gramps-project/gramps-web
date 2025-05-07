@@ -70,7 +70,7 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
     if (originalTarget.id === 'select-repository-type') {
       this.data = {
         ...this.data,
-        type: {_class: 'RepositoryType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'private') {

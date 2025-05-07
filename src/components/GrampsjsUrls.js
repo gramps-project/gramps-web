@@ -73,7 +73,7 @@ export class GrampsjsUrls extends GrampsjsEditableList {
   _handleEdit() {
     const url = this.data[this._selectedIndex]
     const data = {
-      type: {_class: 'UrlType', string: url.type || ''},
+      type: url.type || '',
       path: url.path || '',
       desc: url.desc || '',
     }
