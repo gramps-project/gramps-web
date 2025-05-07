@@ -583,7 +583,6 @@ export const grampsStrings = [
   'Title',
   'To Do',
   'to',
-  'Toggle person outlines',
   'Tombstone',
   'Top Left',
   'Top paper margin',

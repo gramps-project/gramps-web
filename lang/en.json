@@ -221,5 +221,6 @@
   "semantic": "semantic",
   "Name Display Format": "Name Display Format",
   "Surname First": "Surname First",
-  "Given Name First": "Given Name First"
+  "Given Name First": "Given Name First",
+  "Toggle person outlines": "Toggle person outlines"
 }
