@@ -221,5 +221,6 @@
     "Invalid E-mail address": "Endereço de correio inválido",
     "Surname First": "Apelido primeiro",
     "Given Name First": "Nome próprio primeiro",
-    "Name Display Format": "Formato do nome"
+    "Name Display Format": "Formato do nome",
+    "Toggle person outlines": "Alternar realces pessoais"
 }
