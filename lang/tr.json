@@ -221,5 +221,6 @@
     "Surname First": "Önce Soyadı",
     "Given Name First": "Önce Adı",
     "Confirm Password": "Şifreyi onayla",
-    "semantic": "anlamsal"
+    "semantic": "anlamsal",
+    "Toggle person outlines": "Kişi sınır çizgilerini göster/gizle"
 }
