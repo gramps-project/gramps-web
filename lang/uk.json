@@ -221,5 +221,6 @@
     "Log in to Gramps Web": "Увійдіть до Gramps Web",
     "Name Display Format": "Формат відображення імені",
     "Surname First": "Прізвище Перше",
-    "Given Name First": "Перше ім'я"
+    "Given Name First": "Перше ім'я",
+    "Toggle person outlines": "Показати/відкрити контури осіб"
 }
