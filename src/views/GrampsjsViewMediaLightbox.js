@@ -4,6 +4,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsLightbox.js'
 import '../components/GrampsjsRectContainer.js'
 import '../components/GrampsjsRect.js'
+import '../components/GrampsjsTooltip.js'
 import {getMediaUrl} from '../api.js'
 import {fireEvent, getNameFromProfile} from '../util.js'
 
@@ -24,6 +25,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
           padding-left: 0.8em;
         }
 
+        mwc-icon-button.toggle-rect,
         mwc-icon-button.download {
           color: var(--mdc-theme-primary);
           position: relative;
@@ -41,6 +43,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
       hideLeftArrow: {type: Boolean},
       hideRightArrow: {type: Boolean},
       editRect: {type: Boolean},
+      rectHidden: {type: Boolean},
     }
   }
 
@@ -50,6 +53,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     this.hideLeftArrow = false
     this.hideRightArrow = false
     this.editRect = false
+    this.rectHidden = false
   }
 
   renderContent() {
@@ -67,6 +71,15 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
             : ''}</span
         >
         <span slot="button">
+          <mwc-icon-button
+            id="btn-toggle-rect"
+            class="toggle-rect"
+            .icon="${this.rectHidden ? 'person' : 'person_off'}"
+            @click="${this._handleToggleRectButtonClick}"
+          ></mwc-icon-button>
+          <grampsjs-tooltip for="btn-toggle-rect"
+            >${this._('Toggle person outlines')}</grampsjs-tooltip
+          >
           <mwc-icon-button
             icon="download"
             class="download"
@@ -142,6 +155,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         obj => html`
           <grampsjs-rect
             .rect="${obj.rect}"
+            .hidden="${this.rectHidden}"
             label="${obj.label}"
             target="${obj.type}/${obj.grampsId}"
           >
@@ -179,6 +193,10 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         },
       })
     )
+  }
+
+  _handleToggleRectButtonClick() {
+    this.rectHidden = !this.rectHidden
   }
 
   _handleSaveRect(e) {

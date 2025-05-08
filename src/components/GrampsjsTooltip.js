@@ -67,6 +67,7 @@ export class GrampsjsTooltip extends GrampsjsAppStateMixin(LitElement) {
     const options = {
       content: this.innerHTML,
       allowHTML: true,
+      zIndex: 19999,
     }
     if (this.theme) {
       options.theme = this.theme

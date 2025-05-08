@@ -42,6 +42,14 @@ class GrampsjsRect extends LitElement {
           box-shadow: None;
         }
 
+        .rect.hidden:not(.selected) {
+          opacity: 0;
+        }
+
+        .rect.hidden:hover {
+          opacity: 1;
+        }
+
         @media (hover: hover) {
           .rect .label {
             background-color: rgba(0.5, 0.5, 0.5, 0.25);
@@ -77,6 +85,7 @@ class GrampsjsRect extends LitElement {
       target: {type: String},
       selected: {type: Boolean},
       muted: {type: Boolean},
+      hidden: {type: Boolean},
     }
   }
 
@@ -87,6 +96,7 @@ class GrampsjsRect extends LitElement {
     this.target = ''
     this.selected = false
     this.muted = false
+    this.hidden = false
   }
 
   render() {
@@ -99,7 +109,11 @@ class GrampsjsRect extends LitElement {
     const height = this.rect[3] - this.rect[1]
     return html`
       <div
-        class="rect ${classMap({selected: this.selected, muted: this.muted})}"
+        class="rect ${classMap({
+          selected: this.selected,
+          muted: this.muted,
+          hidden: this.hidden,
+        })}"
         @click="${this._handleClick}"
         @keydown=""
         style="left:${left}%;top:${top}%;width:${width}%;height:${height}%;"
