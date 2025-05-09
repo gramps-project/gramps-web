@@ -2,8 +2,6 @@ import {LitElement, html, css} from 'lit'
 import {installRouter} from 'pwa-helpers/router.js'
 import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
 import '@material/mwc-drawer'
-import '@material/mwc-tab'
-import '@material/mwc-tab-bar'
 import '@material/mwc-top-app-bar'
 import '@material/mwc-icon'
 import '@material/mwc-button'
@@ -30,6 +28,7 @@ import './components/GrampsjsLogin.js'
 import './components/GrampsjsFormRegister.js'
 import './components/GrampsjsMainMenu.js'
 import './components/GrampsjsPages.js'
+import './components/GrampsjsTabBar.js'
 import './components/GrampsjsUpdateAvailable.js'
 import './components/GrampsjsUpgradeDb.js'
 import './components/GrampsjsUndoTransaction.js'
@@ -156,10 +155,6 @@ export class GrampsJs extends LitElement {
         mwc-list {
           --mdc-list-item-graphic-margin: 20px;
           --mdc-list-side-padding: 20px;
-        }
-
-        mwc-tab-bar {
-          margin: 20px;
         }
 
         #shortcut-overlay-container {
@@ -470,17 +465,6 @@ export class GrampsJs extends LitElement {
     ) {
       this._loadStrings(grampsStrings, this.appState.settings.lang)
     }
-    const tabs = {
-      people: this._('People'),
-      families: this._('Families'),
-      events: this._('Events'),
-      places: this._('Places'),
-      sources: this._('Sources'),
-      citations: this._('Citations'),
-      repositories: this._('Repositories'),
-      notes: this._('Notes'),
-      medialist: this._('Media Objects'),
-    }
     return html`
       <mwc-drawer type="dismissible" id="app-drawer" ?open="${this.wide}">
         <div>
@@ -492,7 +476,7 @@ export class GrampsJs extends LitElement {
           </mwc-linear-progress>
 
           <main>
-            ${this._tabHtml(tabs)}
+            <grampsjs-tab-bar .appState="${this.appState}"></grampsjs-tab-bar>
             <grampsjs-pages
               .appState="${this.appState}"
               .dbInfo="${this.appState.dbInfo}"
@@ -506,26 +490,6 @@ export class GrampsJs extends LitElement {
           </main>
         </div>
       </mwc-drawer>
-    `
-  }
-
-  _tabHtml(tabs) {
-    if (!(this.appState.path.page in tabs)) {
-      return ''
-    }
-    return html`
-      <mwc-tab-bar
-        activeIndex="${Object.keys(tabs).indexOf(this.appState.path.page)}"
-      >
-        ${Object.keys(tabs).map(
-          key =>
-            html`<mwc-tab
-              isMinWidthIndicator
-              label="${tabs[key]}"
-              @click="${() => this._handleTab(key)}"
-            ></mwc-tab>`
-        )}
-      </mwc-tab-bar>
     `
   }
 

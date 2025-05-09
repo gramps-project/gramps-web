@@ -28,19 +28,9 @@ export class GrampsjsSysinfo extends GrampsjsAppStateMixin(LitElement) {
     ]
   }
 
-  static get properties() {
-    return {
-      data: {type: Object},
-    }
-  }
-
-  constructor() {
-    super()
-    this.data = {}
-  }
-
   render() {
     const version = '[VI]{version}[/VI]'
+    const data = this.appState.dbInfo
     return html`
       <div class="copy">
         <mwc-icon-button
@@ -52,16 +42,16 @@ export class GrampsjsSysinfo extends GrampsjsAppStateMixin(LitElement) {
           >${this._('Copy to clipboard')}</grampsjs-tooltip
         >
         <span id="copy">
-          Gramps ${this.data?.gramps?.version || '?'}<br />
-          Gramps Web API ${this.data?.gramps_webapi?.version || '?'}<br />
+          Gramps ${data?.gramps?.version || '?'}<br />
+          Gramps Web API ${data?.gramps_webapi?.version || '?'}<br />
           Gramps Web Frontend ${version}<br />
-          Gramps QL ${this.data?.gramps_ql?.version || '?'}<br />
-          Sifts ${this.data?.search?.sifts?.version || '?'}<br />
-          locale: ${this.data?.locale?.language}<br />
-          multi-tree: ${this.data?.server?.multi_tree}<br />
-          task queue: ${this.data?.server?.task_queue}<br />
-          OCR: ${this.data?.server?.ocr}<br />
-          chat: ${this.data?.server?.chat}<br />
+          Gramps QL ${data?.gramps_ql?.version || '?'}<br />
+          Sifts ${data?.search?.sifts?.version || '?'}<br />
+          locale: ${data?.locale?.language}<br />
+          multi-tree: ${data?.server?.multi_tree}<br />
+          task queue: ${data?.server?.task_queue}<br />
+          OCR: ${data?.server?.ocr}<br />
+          chat: ${data?.server?.chat}<br />
         </span>
       </div>
     `

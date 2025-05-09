@@ -1,4 +1,4 @@
-import {css, html} from 'lit'
+import {html} from 'lit'
 
 import '@material/mwc-menu'
 import '@material/mwc-textfield'
@@ -13,61 +13,14 @@ import '../components/GrampsjsSysinfo.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
 import '../components/GrampsjsUsers.js'
-import './GrampsjsViewAdminSettings.js'
-import './GrampsjsViewUserManagement.js'
 import {GrampsjsView} from './GrampsjsView.js'
 import {userRoles} from '../components/GrampsjsFormUser.js'
 
 import {fireEvent} from '../util.js'
 
-function renderLogoutButton(appState) {
-  return html`
-    <mwc-button
-      outlined
-      class="red"
-      label="logout"
-      icon="exit_to_app"
-      @click=${() => appState.signout()}
-    ></mwc-button>
-  `
-}
-
-export class GrampsjsViewSettings extends GrampsjsView {
-  static get styles() {
-    return [
-      super.styles,
-      css`
-        .red {
-          --mdc-button-outline-color: #c62828;
-          --mdc-theme-primary: #c62828;
-        }
-
-        mwc-select {
-          width: 100%;
-          max-width: 30em;
-          margin-bottom: 10px;
-        }
-
-        #complete-button {
-          margin-top: 25px;
-        }
-
-        mwc-tab-bar {
-          margin-bottom: 30px;
-        }
-
-        .medium {
-          font-weight: 500;
-          color: rgb(0.05, 0.05, 0.05);
-        }
-      `,
-    ]
-  }
-
+export class GrampsjsViewSettingsUser extends GrampsjsView {
   static get properties() {
     return {
-      page: {type: String},
-      dbInfo: {type: Object},
       _userInfo: {type: Object},
       _translations: {type: Array},
       _langLoading: {type: Boolean},
@@ -76,57 +29,37 @@ export class GrampsjsViewSettings extends GrampsjsView {
 
   constructor() {
     super()
-    this.page = 'user'
-    this.dbInfo = {}
     this._userInfo = {}
     this._translations = []
     this._langLoading = false
   }
 
   renderContent() {
-    if (['#user', '#admin', '#users', '#info'].includes(window.location.hash)) {
-      this.page = window.location.hash.substring(1)
-      window.history.pushState(
-        '',
-        document.title,
-        window.location.pathname + window.location.search
-      )
-    }
     return html`
-      <mwc-tab-bar>
-        <mwc-tab
-          label="${this._('User settings')}"
-          @click=${() => {
-            this.page = 'user'
-          }}
-        ></mwc-tab>
-        ${this.owner
-          ? html`
-              <mwc-tab
-                label="${this._('Administration')}"
-                @click=${() => {
-                  this.page = 'admin'
-                }}
-              ></mwc-tab>
-              <mwc-tab
-                label="${this._('Manage users')}"
-                @click=${() => {
-                  this.page = 'users'
-                }}
-              ></mwc-tab>
-            `
-          : ''}
-        <mwc-tab
-          label="${this._('System Information')}"
-          @click=${() => {
-            this.page = 'info'
-          }}
-        ></mwc-tab>
-      </mwc-tab-bar>
-      ${this.page === 'user' ? this.renderUserSettings() : ''}
-      ${this.page === 'admin' && this.owner ? this.renderAdminSettings() : ''}
-      ${this.page === 'users' && this.owner ? this.renderUserManagement() : ''}
-      ${this.page === 'info' ? this.renderSysInfo() : ''}
+      <h3>${this._('User Information')}</h3>
+      <dl>
+        <div>
+          <dt><span>${this._('Username: ').replace(':', '')}</span></dt>
+          <dd>${this._userInfo?.name}</dd>
+        </div>
+        <div>
+          <dt><span>${this._('User group')}</span></dt>
+          <dd>${this._(userRoles[this._userInfo?.role])}</dd>
+        </div>
+      </dl>
+      <div style="clear: both;"></div>
+
+      <h3>${this._('Select language')}</h3>
+
+      ${this.renderLangSelect()}
+
+      <h3>${this._('Change E-mail')}</h3>
+
+      ${this.renderChangeEmail()}
+
+      <h3>${this._('Change password')}</h3>
+
+      ${this.renderChangePw()}
     `
   }
 
@@ -191,88 +124,6 @@ export class GrampsjsViewSettings extends GrampsjsView {
     }
     this._langLoading = false
     this.loading = false
-  }
-
-  get owner() {
-    return this.appState.permissions.canManageUsers
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  get _registerUrl() {
-    const url = new URL(document.URL)
-    const {tree} = this.appState.auth.claims
-    return `${url.origin}/register/${tree}`
-  }
-
-  renderAdminSettings() {
-    return html`
-      <grampsjs-view-admin-settings
-        active
-        .appState="${this.appState}"
-        .dbInfo="${this.dbInfo}"
-        .userInfo="${this._userInfo}"
-      >
-      </grampsjs-view-admin-settings>
-    `
-  }
-
-  renderUserManagement() {
-    return html`
-      <grampsjs-view-user-management
-        active
-        .appState="${this.appState}"
-        .dbInfo="${this.dbInfo}"
-      >
-      </grampsjs-view-user-management>
-    `
-  }
-
-  renderUserSettings() {
-    return html`
-      ${renderLogoutButton(this.appState)}
-
-      <h3>${this._('User Information')}</h3>
-      <dl>
-        <div>
-          <dt><span>${this._('Username: ').replace(':', '')}</span></dt>
-          <dd>${this._userInfo?.name}</dd>
-        </div>
-        <div>
-          <dt><span>${this._('User group')}</span></dt>
-          <dd>${this._(userRoles[this._userInfo?.role])}</dd>
-        </div>
-      </dl>
-      <div style="clear: both;"></div>
-
-      <h3>${this._('Select language')}</h3>
-
-      ${this.renderLangSelect()}
-
-      <h3>${this._('Change E-mail')}</h3>
-
-      ${this.renderChangeEmail()}
-
-      <h3>${this._('Change password')}</h3>
-
-      ${this.renderChangePw()}
-    `
-  }
-
-  renderSysInfo() {
-    return html`
-      <h3>${this._('System Information')}</h3>
-
-      <grampsjs-sysinfo
-        .data="${this.dbInfo}"
-        .appState="${this.appState}"
-        .userInfo="${this._userInfo}"
-      ></grampsjs-sysinfo>
-      <h3>${this._('Tree Information')}</h3>
-      <p class="small">ID: <span class="monospace">${
-        this.appState.auth.claims.tree
-      }</a></p>
-
-      `
   }
 
   renderChangeEmail() {
@@ -393,4 +244,7 @@ export class GrampsjsViewSettings extends GrampsjsView {
   }
 }
 
-window.customElements.define('grampsjs-view-settings', GrampsjsViewSettings)
+window.customElements.define(
+  'grampsjs-view-settings-user',
+  GrampsjsViewSettingsUser
+)

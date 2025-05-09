@@ -34,7 +34,10 @@ import '../views/GrampsjsViewRepository.js'
 import '../views/GrampsjsViewNote.js'
 import '../views/GrampsjsViewMedia.js'
 import '../views/GrampsjsViewSearch.js'
-import '../views/GrampsjsViewSettings.js'
+import '../views/GrampsjsViewSettingsUser.js'
+import '../views/GrampsjsViewSysinfo.js'
+import '../views/GrampsjsViewAdminSettings.js'
+import '../views/GrampsjsViewUserManagement.js'
 import '../views/GrampsjsViewRecent.js'
 import '../views/GrampsjsViewRevisions.js'
 import '../views/GrampsjsViewRevision.js'
@@ -275,12 +278,30 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         ?active=${this.appState.path.page === 'tasks'}
         .appState="${this.appState}"
       ></grampsjs-view-tasks>
-      <grampsjs-view-settings
+      <grampsjs-view-settings-user
         class="page"
-        ?active=${this.appState.path.page === 'settings'}
-        .dbInfo="${this.dbInfo}"
+        ?active=${this.appState.path.page === 'settings' &&
+        (this.appState.path.pageId === 'user' || !this.appState.path.pageId)}
         .appState="${this.appState}"
-      ></grampsjs-view-settings>
+      ></grampsjs-view-settings-user>
+      <grampsjs-view-admin-settings
+        class="page"
+        ?active=${this.appState.path.page === 'settings' &&
+        this.appState.path.pageId === 'administration'}
+        .appState="${this.appState}"
+      ></grampsjs-view-admin-settings>
+      <grampsjs-view-user-management
+        class="page"
+        ?active=${this.appState.path.page === 'settings' &&
+        this.appState.path.pageId === 'users'}
+        .appState="${this.appState}"
+      ></grampsjs-view-user-management>
+      <grampsjs-view-sysinfo
+        class="page"
+        ?active=${this.appState.path.page === 'settings' &&
+        this.appState.path.pageId === 'info'}
+        .appState="${this.appState}"
+      ></grampsjs-view-sysinfo>
       <grampsjs-view-report
         class="page"
         ?active=${this.appState.path.page === 'report'}

@@ -13,10 +13,6 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
     return [
       super.styles,
       css`
-        :host {
-          margin: 0 15px;
-        }
-
         grampsjs-share-url {
           --mdc-icon-size: 18px;
           --mdc-icon-button-size: 32px;

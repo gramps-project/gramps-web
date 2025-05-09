@@ -68,6 +68,7 @@ export const sharedStyles = css`
     --md-sys-color-surface-container-highest: #fff;
     --md-primary-tab-label-text-weight: 425;
     --md-primary-tab-label-text-size: 16px;
+    --md-primary-tab-active-indicator-height: 3px;
     --md-divider-thickness: 0px;
   }
 

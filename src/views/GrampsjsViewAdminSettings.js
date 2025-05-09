@@ -18,10 +18,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     return [
       super.styles,
       css`
-        :host {
-          margin: 0;
-        }
-
         .card {
           padding: 1em 1em;
           border-radius: 16px;
@@ -80,7 +76,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
   static get properties() {
     return {
       userData: {type: Array},
-      dbInfo: {type: Object},
       userInfo: {type: Object},
       _repairResults: {type: Object},
       _buttonUpdateSearchDisabled: {type: Boolean},
@@ -91,7 +86,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
   constructor() {
     super()
     this.userData = []
-    this.dbInfo = {}
     this.userInfo = {}
     this._repairResults = {}
     this._buttonUpdateSearchDisabled = false
@@ -107,7 +101,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       <grampsjs-media-status
         .appState="${this.appState}"
       ></grampsjs-media-status>
-      ${this.dbInfo?.object_counts?.media
+      ${this.appState.dbInfo?.object_counts?.media
         ? html`<grampsjs-media-file-status
             .appState="${this.appState}"
           ></grampsjs-media-file-status>`
@@ -144,7 +138,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         @task:complete="${this._handleSuccessUpdateSearch}"
       ></grampsjs-task-progress-indicator>
 
-      ${this.dbInfo?.server?.semantic_search
+      ${this.appState.dbInfo?.server?.semantic_search
         ? html`
             <h3>${this._('Manage semantic search index')}</h3>
 
@@ -263,8 +257,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
 
   _renderSearchStatus(semantic = false) {
     const property = semantic ? 'count_semantic' : 'count'
-    const count = this.dbInfo?.search?.sifts?.[property] ?? -1
-    const objCounts = this.dbInfo?.object_counts ?? {}
+    const count = this.appState.dbInfo?.search?.sifts?.[property] ?? -1
+    const objCounts = this.appState.dbInfo?.object_counts ?? {}
     const objCount = Object.values(objCounts).reduce(
       (sum, value) => sum + value,
       0

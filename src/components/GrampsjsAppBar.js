@@ -10,6 +10,7 @@ import '@material/mwc-icon'
 import '@material/mwc-dialog'
 
 import './GrampsjsAddMenu.js'
+import './GrampsjsSettingsMenu.js'
 import './GrampsjsTooltip.js'
 
 import {fireEvent} from '../util.js'
@@ -123,12 +124,11 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
                       >
                     `
                   : ''}
-                <mwc-icon-button
-                  icon="account_circle"
+                <grampsjs-settings-menu
                   slot="actionItems"
-                  @click="${() => this._handleNav('settings')}"
+                  .appState="${this.appState}"
                   id="button-settings"
-                ></mwc-icon-button>
+                ></grampsjs-settings-menu>
                 <grampsjs-tooltip
                   for="button-settings"
                   .appState="${this.appState}"
