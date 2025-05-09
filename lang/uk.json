@@ -222,5 +222,6 @@
     "Name Display Format": "Формат відображення імені",
     "Surname First": "Прізвище Перше",
     "Given Name First": "Перше ім'я",
-    "Toggle person outlines": "Показати/відкрити контури осіб"
+    "Toggle person outlines": "Показати/відкрити контури осіб",
+    "Log out": "Вийти"
 }
