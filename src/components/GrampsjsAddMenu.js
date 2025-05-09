@@ -5,10 +5,9 @@ The dropdown menu for adding objects in the top app bar
 import {html, css, LitElement} from 'lit'
 import '@material/mwc-icon'
 import '@material/mwc-icon-button'
-import '@material/mwc-list'
-import '@material/mwc-list/mwc-list-item'
-
-import './GrampsJsListItem.js'
+import '@material/web/menu/menu'
+import '@material/web/menu/menu-item'
+import '@material/web/divider/divider'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -33,14 +32,26 @@ class GrampsjsAddMenu extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        mwc-menu {
-          --mdc-list-item-graphic-margin: 16px;
+        md-menu {
+          --md-divider-thickness: 1px;
+          --md-divider-color: rgba(0, 0, 0, 0.3);
         }
 
-        mwc-list-item.header {
-          font-size: 14px;
-          color: #666;
-          font-weight: 400;
+        md-menu-item {
+          --md-menu-item-top-space: 0px;
+          --md-menu-item-bottom-space: 0px;
+          --md-menu-item-one-line-container-height: 48px;
+        }
+
+        md-menu-item mwc-icon {
+          color: rgba(0, 0, 0, 0.35);
+        }
+
+        md-menu-item.header {
+          --md-menu-item-disabled-opacity: 0.6;
+          --md-menu-item-one-line-container-height: 32px;
+          --md-menu-item-label-text-size: 14px;
+          --md-menu-item-label-text-weight: 400;
         }
       `,
     ]
@@ -54,36 +65,30 @@ class GrampsjsAddMenu extends GrampsjsAppStateMixin(LitElement) {
           @click="${this._handleClickAdd}"
           id="button_add"
         ></mwc-icon-button>
-        <mwc-menu
+
+        <md-menu
           id="menu_add"
-          corner="BOTTOM_RIGHT"
-          menuCorner="END"
-          x="0"
-          y="0"
+          anchor="button_add"
+          anchor-corner="start-end"
+          menu-corner="end-end"
         >
-          <mwc-list-item noninteractive class="header"
-            >${this._('Add')}</mwc-list-item
+          <md-menu-item disabled class="header"
+            ><div slot="headline">${this._('Add')}</div></md-menu-item
           >
-          <li divider role="separator"></li>
+          <md-divider role="separator" tabindex="-1"></md-divider>
           ${menuItems.map(menuItem => this._menuItem(...menuItem))}
-        </mwc-menu>
+        </md-menu>
       </div>
     `
   }
 
   _menuItem(title, url, icon) {
     return html`
-      <grampsjs-list-item href="${BASE_DIR}${url}" graphic="icon">
-        <span>${this._(title)}</span>
-        <mwc-icon slot="graphic">${icon}</mwc-icon>
-      </grampsjs-list-item>
+      <md-menu-item href="${BASE_DIR}${url}" graphic="icon">
+        <span slot="headline">${this._(title)}</span>
+        <mwc-icon slot="start">${icon}</mwc-icon>
+      </md-menu-item>
     `
-  }
-
-  firstUpdated() {
-    const btn = this.shadowRoot.getElementById('button_add')
-    const menu = this.shadowRoot.getElementById('menu_add')
-    menu.anchor = btn
   }
 
   _handleClickAdd() {
