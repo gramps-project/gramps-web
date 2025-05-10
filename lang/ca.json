@@ -221,5 +221,7 @@
     "Log in to Gramps Web": "Entra a la Web de Gramps",
     "Name Display Format": "Format de visualització del nom",
     "Given Name First": "Nom Primer",
-    "Surname First": "Cognom Primer"
+    "Surname First": "Cognom Primer",
+    "Toggle person outlines": "Commuta els contorns de les persones",
+    "Log out": "Tanca la sessió"
 }
