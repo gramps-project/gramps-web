@@ -76,34 +76,36 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
         ? ''
         : html`<h4 class="label">${this.heading || this._('Type')}</h4>`}
       <p style="display: flex">
-        <mwc-select
-          style="width:100%"
-          class="${classMap({hide: this._hasCustomType})}"
-          ?required=${this.required && !this._hasCustomType && !this.nocustom}
-          ?disabled=${this.loadingTypes || this._hasCustomType || this.disabled}
-          validationMessage="${this._('This field is mandatory')}"
-          @change="${this.handleChange}"
-          label="${this.loadingTypes ? this._('Loading items...') : this.label}"
-          id="select-type"
-        >
-          ${types.includes(this.defaultTypeName) ||
-          types.includes(this.initialValue)
-            ? ''
-            : html`<mwc-list-item value="" selected></mwc-list-item>`}
-          ${this.loadingTypes
-            ? ''
-            : types.map(
-                (obj, i) => html`
-                  <mwc-list-item
-                    value="${this.valueNonLocal ? types[i] : typesLocale[i]}"
-                    ?selected="${(this.initialValue &&
-                      obj === this.initialValue) ||
-                    (!this.initialValue && obj === this.defaultTypeName)}"
-                    >${this._(obj)}</mwc-list-item
-                  >
-                `
-              )}
-        </mwc-select>
+        <div style="position: fixed;z-index: 1;">
+          <mwc-select
+            style="width:100%"
+            class="${classMap({hide: this._hasCustomType})}"
+            ?required=${this.required && !this._hasCustomType && !this.nocustom}
+            ?disabled=${this.loadingTypes || this._hasCustomType || this.disabled}
+            validationMessage="${this._('This field is mandatory')}"
+            @change="${this.handleChange}"
+            label="${this.loadingTypes ? this._('Loading items...') : this.label}"
+            id="select-type"
+          >
+            ${types.includes(this.defaultTypeName) ||
+            types.includes(this.initialValue)
+              ? ''
+              : html`<mwc-list-item value="" selected></mwc-list-item>`}
+            ${this.loadingTypes
+              ? ''
+              : types.map(
+                  (obj, i) => html`
+                    <mwc-list-item
+                      value="${this.valueNonLocal ? types[i] : typesLocale[i]}"
+                      ?selected="${(this.initialValue &&
+                        obj === this.initialValue) ||
+                      (!this.initialValue && obj === this.defaultTypeName)}"
+                      >${this._(obj)}</mwc-list-item
+                    >
+                  `
+                )}
+          </mwc-select>
+        </div>
         ${this.nocustom || !this._hasCustomType
           ? ''
           : html`
