@@ -222,5 +222,7 @@
     "semantic": "semantisk",
     "Surname First": "Efternamn först",
     "Given Name First": "Förnamn först",
-    "Name Display Format": "Namnvisningsformat"
+    "Name Display Format": "Namnvisningsformat",
+    "Toggle person outlines": "Växla personkonturer",
+    "Log out": "Logga ut"
 }
