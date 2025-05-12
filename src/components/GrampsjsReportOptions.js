@@ -2,7 +2,7 @@ import {LitElement, css, html} from 'lit'
 import '@material/mwc-select'
 import '@material/mwc-textfield'
 import '@material/mwc-list/mwc-list-item'
-import '@material/mwc-switch'
+import '@material/web/switch/switch'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -37,10 +37,6 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
         mwc-select {
           min-width: 20em;
           max-width: 100%;
-        }
-
-        mwc-switch {
-          --mdc-switch-selected-track-color: rgba(109, 76, 65, 0.3);
         }
       `,
     ]
@@ -89,12 +85,12 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
       <div class="option">
         <span class="label">${this._(this.optionsHelp[key][1]) || key}</span>
         <span class="form">
-          <mwc-switch
+          <md-switch
             id="${key}"
             ?selected="${this.optionsDict[key] === 'true'}"
-            @click="${this._handleSwitch}"
+            @change="${this._handleSwitch}"
           >
-          </mwc-switch>
+          </md-switch>
         </span>
       </div>
     `
@@ -146,6 +142,7 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleSwitch(e) {
+    console.log('Switch', e.target.id, e.target.selected)
     this._options = {
       ...this._options,
       [e.target.id]: e.target.selected ? 'True' : 'False',
