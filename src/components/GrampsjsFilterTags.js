@@ -1,5 +1,5 @@
 import {css, html} from 'lit'
-import '@material/mwc-checkbox'
+import '@material/web/checkbox/checkbox'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
@@ -18,6 +18,10 @@ export class GrampsjsFilterTags extends GrampsjsConnectedComponent {
           color: var(--mdc-theme-primary);
           border-color: var(--mdc-theme-primary);
           border-bottom-width: 1px;
+        }
+
+        label {
+          margin: 0.5em;
         }
       `,
     ]
@@ -39,15 +43,16 @@ export class GrampsjsFilterTags extends GrampsjsConnectedComponent {
       <h3>${this._('Tags')}</h3>
       ${this._data.data.map(
         tag => html`
-          <mwc-formfield label="${tag.name}">
-            <mwc-checkbox
+          <label for="${tag.handle}">
+            <md-checkbox
               id="${tag.handle}"
               @change="${this._handleChange}"
               ?checked="${this.filters
                 .filter(rule => rule.name === 'HasTag')
                 .filter(rule => rule.values[0] === tag.name).length > 0}"
-            ></mwc-checkbox>
-          </mwc-formfield>
+            ></md-checkbox>
+            <span>${tag.name}</span>
+          </label>
         `
       )}
     `

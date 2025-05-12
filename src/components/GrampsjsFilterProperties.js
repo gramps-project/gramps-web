@@ -1,5 +1,5 @@
 import {LitElement, css, html} from 'lit'
-import '@material/mwc-checkbox'
+import '@material/web/checkbox/checkbox'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -20,6 +20,10 @@ export class GrampsjsFilterProperties extends GrampsjsAppStateMixin(
           color: var(--mdc-theme-primary);
           border-color: var(--mdc-theme-primary);
           border-bottom-width: 1px;
+        }
+
+        label {
+          margin: 0.5em;
         }
       `,
     ]
@@ -47,16 +51,15 @@ export class GrampsjsFilterProperties extends GrampsjsAppStateMixin(
       <h3>${this._(this.label)}</h3>
       ${Object.keys(this.props).map(
         key => html`
-          <mwc-formfield
-            label="${this._(this.props[key] || '').replace(/<[^>]+>/, '')}"
-          >
-            <mwc-checkbox
+          <label for="${key}">
+            <md-checkbox
               id="${key}"
               @change="${this._handleChange}"
               ?checked="${this.filters.filter(rule => rule.name === key)
                 .length > 0}"
-            ></mwc-checkbox>
-          </mwc-formfield>
+            ></md-checkbox>
+            <span>${this._(this.props[key] || '').replace(/<[^>]+>/, '')}</span>
+          </label>
         `
       )}
     `
