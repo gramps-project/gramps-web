@@ -132,7 +132,7 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
 
   // eslint-disable-next-line class-methods-use-this
   _renderSelectItem(key, value) {
-    const splt = key.split('\t')
+    const splt = key.split(/\t+/)
     const selected = splt[0] === `${value}` || splt[0] === 'pdf'
     return html`
       <mwc-list-item value="${splt[0]}" ?selected=${selected}
