@@ -1,5 +1,4 @@
 import {css, html} from 'lit'
-import '@material/mwc-checkbox'
 
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 import {RelationshipChart} from '../charts/RelationshipChart.js'

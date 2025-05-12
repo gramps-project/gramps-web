@@ -64,7 +64,7 @@ export class GrampsjsFilterTags extends GrampsjsConnectedComponent {
   }
 
   _handleChange() {
-    const checkboxes = this.renderRoot.querySelectorAll('mwc-checkbox')
+    const checkboxes = this.renderRoot.querySelectorAll('md-checkbox')
     const rules = [...checkboxes]
       .map(box => this._checkboxToTag(box))
       .filter(el => el.checked)

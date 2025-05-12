@@ -1,5 +1,4 @@
 import {css, html} from 'lit'
-import '@material/mwc-checkbox'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'

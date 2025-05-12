@@ -1,6 +1,5 @@
 import {css, html} from 'lit'
 import '@material/mwc-select'
-import '@material/mwc-checkbox'
 import '@material/mwc-button'
 import '@material/mwc-icon'
 import '@material/mwc-list'

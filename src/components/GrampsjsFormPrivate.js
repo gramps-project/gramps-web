@@ -3,7 +3,6 @@ Element for selecting a Gramps type
 */
 
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-checkbox'
 import '@material/web/switch/switch.js'
 
 import {mdiLock, mdiLockOpen} from '@mdi/js'
