@@ -60,7 +60,7 @@ class GrampsjsLightbox extends LitElement {
         #button-container {
           float: right;
           height: 70px;
-          width: 300px;
+          width: 350px;
           font-size: 22px;
           line-height: 30px;
           font-weight: 400;
