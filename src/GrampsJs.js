@@ -281,7 +281,7 @@ export class GrampsJs extends LitElement {
   }
 
   _handleReindexButton(e) {
-    fireEvent(this, 'nav', {path: 'settings'})
+    fireEvent(this, 'nav', {path: 'settings/administration'})
     e.preventDefault()
     e.stopPropagation()
   }
@@ -457,6 +457,13 @@ export class GrampsJs extends LitElement {
     if (this.appState.path.page === 'login') {
       window.history.pushState({}, '', '')
       this._updateAppState({path: {page: 'home', pageId: '', pageId2: ''}})
+    }
+    if (this.appState.path.page === 'settings' && !this.appState.path.pageId) {
+      // needed for backwards compatibility
+      window.history.pushState({}, '', 'settings/user')
+      this._updateAppState({
+        path: {page: 'settings', pageId: 'user', pageId2: ''},
+      })
     }
     if (
       this.appState.settings.lang &&
