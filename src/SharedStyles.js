@@ -17,6 +17,14 @@ export const sharedStyles = css`
     --mdc-typography-font-family: var(--grampsjs-body-font-family);
     --color-boy: #64b5f6;
     --color-girl: #ef9a9a;
+    --md-sys-typescale-headline-small-font: var(--grampsjs-heading-font-family);
+    --md-sys-typescale-headline-medium-font: var(
+      --grampsjs-heading-font-family
+    );
+    --md-sys-typescale-headline-large-font: var(--grampsjs-heading-font-family);
+    --md-sys-typescale-body-small-font: var(--grampsjs-body-font-family);
+    --md-sys-typescale-body-medium-font: var(--grampsjs-body-font-family);
+    --md-sys-typescale-body-large-font: var(--grampsjs-body-font-family);
     --md-sys-color-primary: rgb(109 76 65);
     --md-sys-color-surface-tint: rgb(109 76 65);
     --md-sys-color-on-primary: rgb(255 255 255);
@@ -264,6 +272,12 @@ export const sharedStyles = css`
     color: var(--mdc-theme-secondary);
     --mdc-theme-primary: var(--mdc-theme-secondary);
     --mdc-theme-on-primary: var(--mdc-theme-on-secondary);
+    --md-sys-color-primary: var(--md-sys-color-secondary);
+    --md-sys-color-on-primary: var(--md-sys-color-on-secondary);
+    --md-sys-color-primary-container: var(--md-sys-color-secondary-container);
+    --md-sys-color-on-primary-container: var(
+      --md-sys-color-on-secondary-container
+    );
   }
 
   mwc-icon-button.large {
