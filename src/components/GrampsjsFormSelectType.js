@@ -3,8 +3,8 @@ Element for selecting a Gramps type
 */
 
 import {css, html, LitElement} from 'lit'
-import '@material/mwc-select'
-import '@material/mwc-list/mwc-list-item'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
 
 import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
@@ -76,12 +76,12 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
         ? ''
         : html`<h4 class="label">${this.heading || this._('Type')}</h4>`}
       <p style="display: flex">
-        <mwc-select
+        <md-filled-select
           style="width:100%"
           class="${classMap({hide: this._hasCustomType})}"
           ?required=${this.required && !this._hasCustomType && !this.nocustom}
           ?disabled=${this.loadingTypes || this._hasCustomType || this.disabled}
-          validationMessage="${this._('This field is mandatory')}"
+          error-text="${this._('This field is mandatory')}"
           @change="${this.handleChange}"
           label="${this.loadingTypes ? this._('Loading items...') : this.label}"
           id="select-type"
@@ -89,21 +89,24 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
           ${types.includes(this.defaultTypeName) ||
           types.includes(this.initialValue)
             ? ''
-            : html`<mwc-list-item value="" selected></mwc-list-item>`}
+            : html`<md-select-option value="" selected
+                ><div slot="headline"></div
+              ></md-select-option>`}
           ${this.loadingTypes
             ? ''
             : types.map(
                 (obj, i) => html`
-                  <mwc-list-item
+                  <md-select-option
                     value="${this.valueNonLocal ? types[i] : typesLocale[i]}"
                     ?selected="${(this.initialValue &&
                       obj === this.initialValue) ||
                     (!this.initialValue && obj === this.defaultTypeName)}"
-                    >${this._(obj)}</mwc-list-item
                   >
+                    <div slot="headline">${this._(obj)}</div>
+                  </md-select-option>
                 `
               )}
-        </mwc-select>
+        </md-filled-select>
         ${this.nocustom || !this._hasCustomType
           ? ''
           : html`
