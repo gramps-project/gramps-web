@@ -67,3 +67,7 @@ We'd love your feedback and contributions! Star this repository, fork it, and jo
 ## Reporting issues
 
 Note that this Github repository contains the source code of the Gramps Web user interface (frontend). For issues with the server-side code, please see the [Gramps Web API](https://github.com/gramps-project/gramps-web-api) (backend) repository. See [Get Help](https://www.grampsweb.org/help/help/) for more details.
+
+## Roadmap
+
+Gramps Web does not follow a fixed-date roadmap. However, you can explore prioritized feature requests and ongoing development efforts via our [development board](https://github.com/orgs/gramps-project/projects/1/views/1). This board provides an up-to-date view of what the developers are working on and what's coming next. Note that the roadmap reflects the current priorities of existing developers, not a restriction on what can be contributed.
