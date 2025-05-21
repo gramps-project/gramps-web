@@ -221,5 +221,7 @@
     "semantic": "semantisch",
     "Name Display Format": "Anzeigeformat für Name",
     "Surname First": "Nachname zuerst",
-    "Given Name First": "Vorname zuerst"
+    "Given Name First": "Vorname zuerst",
+    "Toggle person outlines": "Personenumrisse ein-/ausschalten",
+    "Log out": "Abmelden"
 }
