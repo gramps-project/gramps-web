@@ -35,7 +35,9 @@ export class GrampsjsViewSearch extends GrampsjsView {
         mwc-textfield#search-field {
           --mdc-shape-small: 28px;
           --mdc-typography-subtitle1-font-size: 22px;
-          --mdc-typography-subtitle1-font-weight: 300;
+          --mdc-typography-subtitle1-font-weight: var(
+            --grampsjs-body-font-weight
+          );
           --mdc-text-field-idle-line-color: rgba(0, 0, 0, 0.2);
           width: calc(100% - 70px);
           margin: 30px auto;

@@ -3,11 +3,13 @@ import {css} from 'lit'
 export const sharedStyles = css`
   :host {
     --grampsjs-body-font-family: 'Inter var', sans-serif;
-    --grampsjs-heading-font-family: 'Roboto Slab', serif;
+    --grampsjs-heading-font-family: 'Inter var', sans-serif;
     --md-ref-typeface-plain: 'Inter var', sans-serif;
-    font-size: 18px;
+    --grampsjs-body-font-size: 17px;
+    font-size: var(--grampsjs-body-font-size);
     font-family: var(--grampsjs-body-font-family);
-    font-weight: 300;
+    --grampsjs-body-font-weight: 330;
+    font-weight: var(--grampsjs-body-font-weight);
     --mdc-theme-primary: #6d4c41;
     --mdc-theme-on-primary: rgba(255, 255, 255, 0.95);
     --mdc-theme-secondary: #0277bd;
@@ -96,8 +98,9 @@ export const sharedStyles = css`
   h2,
   h3,
   h4 {
-    font-weight: 300;
+    font-weight: 500;
     font-family: var(--grampsjs-heading-font-family);
+    color: rgb(40, 40, 40);
   }
 
   h1 {
@@ -107,24 +110,26 @@ export const sharedStyles = css`
   }
 
   h2 {
-    font-size: 32px;
+    font-weight: 550;
+    font-size: 30px;
     margin-top: 10px;
     margin-bottom: 30px;
   }
 
   h3 {
-    font-size: 26px;
-    margin-top: 30px;
-    margin-bottom: 20px;
+    font-weight: 470;
+    font-size: 18px;
+    margin-top: 35px;
+    margin-bottom: 30px;
   }
 
   h4 {
-    font-size: 20px;
+    font-size: 16px;
   }
 
   h4.label {
     font-family: var(--grampsjs-body-font-family);
-    font-size: 18px;
+    font-size: 16px;
   }
 
   b,
@@ -214,8 +219,8 @@ export const sharedStyles = css`
 
   mwc-list.large {
     --mdc-typography-subtitle1-color: rgba(0, 0, 0, 1);
-    --mdc-typography-subtitle1-font-size: 18px;
-    --mdc-typography-subtitle1-font-weight: 300;
+    --mdc-typography-subtitle1-font-size: var(--grampsjs-body-font-size);
+    --mdc-typography-subtitle1-font-weight: var(--grampsjs-body-font-weight);
     --mdc-typography-subtitle1-letter-spacing: -0.01em;
   }
 
