@@ -49,7 +49,7 @@
     "Unsupported format": "Nepodporovaný formát",
     "The Gramps package format (.gpkg) is currently not supported.": "Formát balíka Gramps (.gpkg) v súčasnosti nie je podporovaný.",
     "If you intend to synchronize an existing Gramps database with Gramps Web, use the Gramps XML (.gramps) format instead.": "Ak máte v úmysle synchronizovať existujúcu databázu Gramps s webom Gramps, použite namiesto nej formát Gramps XML (.gramps).",
-    "Submit": "Odoslanie",
+    "Submit": "Odoslať",
     "Username": "Používateľské meno",
     "Password": "Heslo",
     "login": "Prihlásenie",
