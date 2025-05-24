@@ -81,7 +81,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
       return html``
     }
     return html`
-      <h3>${parentTitle} ${this._renderFamilyBtn(familyProfile.gramps_id)}</h3>
+      <h4>${parentTitle} ${this._renderFamilyBtn(familyProfile.gramps_id)}</h4>
       ${familyProfile?.father?.gramps_id === this.grampsId ||
       Object.keys(familyProfile?.father || {}).length === 0
         ? ''
@@ -122,7 +122,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
     return html`
       ${profile?.children?.length
         ? html`
-            <h3>${childrenTitle}</h3>
+            <h4>${childrenTitle}</h4>
             <grampsjs-children
               .profile=${profile?.children || []}
               .data=${family.child_ref_list}
