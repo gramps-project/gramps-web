@@ -83,6 +83,7 @@ export class GrampsjsViewBlog extends GrampsjsView {
       return html``
     }
     return html`
+      <h2>${this._('Blog')}</h2>
       <div id="posts">
         ${this._dataSources.map(
           (source, i) => this.renderPost(source, this._dataNotes[i]),
