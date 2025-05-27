@@ -1,0 +1,28 @@
+{
+  "name": "Gramps Web Frontend Dev",
+  "build": {
+    "context": "..",
+    "dockerfile": "Dockerfile"
+  },
+  "postCreateCommand": "",
+  "postStartCommand": "",
+  "forwardPorts": [8001],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "runem.lit-plugin",
+        "github.vscode-pull-request-github"
+      ],
+      "settings": {
+        "python.experiments.optOutFrom": ["pythonTestAdapter"],
+        "editor.formatOnSave": true,
+        "files.trimTrailingWhitespace": true,
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        }
+      }
+    }
+  }
+}

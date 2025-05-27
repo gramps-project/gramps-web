@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Serve Frontend",
+      "type": "shell",
+      "command": "npm run start",
+      "isBackground": true,
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "Develop Frontend",
+      "type": "shell",
+      "command": "npm install",
+      "isBackground": true,
+      "group": {
+        "kind": "build"
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    }
+  ]
+}
