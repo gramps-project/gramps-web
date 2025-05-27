@@ -213,5 +213,7 @@
     "semantic": "семантический",
     "Name Display Format": "Формат отображения имени",
     "Surname First": "Сначала фамилия",
-    "Given Name First": "Сначала имя"
+    "Given Name First": "Сначала имя",
+    "Toggle person outlines": "Рамки вокруг людей",
+    "Log out": "Выйти"
 }
