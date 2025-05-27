@@ -299,7 +299,6 @@ export const grampsStrings = [
   'Immigration',
   'Import Family Tree',
   'Import',
-  'in',
   'Informant',
   'Inherited',
   'Italic',
