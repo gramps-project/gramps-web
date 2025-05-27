@@ -25,14 +25,16 @@ class GrampsjsFormEditType extends GrampsjsObjectForm {
   renderForm() {
     return html`
       <grampsjs-form-select-type
+        noheading
+        required
         id="${this.formId}"
         .appState="${this.appState}"
         ?loadingTypes="${this.loadingTypes}"
         typeName="${this.typeName}"
-        defaultTypeName="General"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
-        initialValue="${this.data?.type || ''}"
+        value="${this.data?.type || ''}"
+        label="${this._('Type')}"
       >
       </grampsjs-form-select-type>
     `

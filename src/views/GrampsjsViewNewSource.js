@@ -87,7 +87,7 @@ export class GrampsjsViewNewSource extends GrampsjsViewNewObject {
             .appState="${this.appState}"
             ?loadingTypes="${this.loadingTypes}"
             typeName="source_media_types"
-            defaultTypeName="Unknown"
+            defaultValue="Unknown"
             .types="${this.types}"
             .typesLocale="${this.typesLocale}"
           >

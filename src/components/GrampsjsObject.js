@@ -502,7 +502,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           .appState="${this.appState}"
           ?edit="${this.edit}"
           .data=${this.data.attribute_list}
-          ?source="${this._objectsName === 'Sources'}"
+          attributeCategory="${this._objectsName.toLowerCase()}"
         ></grampsjs-attributes>`
       case 'addresses':
         return html`<grampsjs-addresses

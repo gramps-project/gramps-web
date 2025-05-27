@@ -44,14 +44,14 @@ class GrampsjsFormEventRef extends GrampsjsObjectForm {
       <grampsjs-form-select-type
         required
         id="event-role-type"
-        defaultTypeName="${this.defaultRole}"
+        defaultValue="${this.defaultRole}"
         heading="${this._('Role')}"
         .appState="${this.appState}"
         typeName="event_role_types"
         ?loadingTypes=${this.loadingTypes}
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
-        initialValue="${this.data?.role?.string || this.data?.role || ''}"
+        value="${this.data?.role?.string || this.data?.role || ''}"
       >
       </grampsjs-form-select-type>
     `

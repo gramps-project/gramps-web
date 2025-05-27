@@ -42,7 +42,7 @@ class GrampsjsFormRepoRef extends GrampsjsObjectForm {
         .appState="${this.appState}"
         typeName="source_media_types"
         ?loadingTypes=${this.loadingTypes}
-        defaultTypeName="Book"
+        defaultValue="Book"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
       >
