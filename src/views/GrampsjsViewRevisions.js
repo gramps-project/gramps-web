@@ -86,13 +86,6 @@ export class GrampsjsViewRevisions extends GrampsjsView {
     return [
       super.styles,
       css`
-        md-list-item {
-          --md-list-item-label-text-weight: 350;
-          --md-list-item-label-text-size: 17px;
-          --md-list-item-supporting-text-color: rgba(0, 0, 0, 0.5);
-          --md-list-item-trailing-supporting-text-color: rgba(0, 0, 0, 0.8);
-        }
-
         md-list-item[type='text'] {
           --md-list-item-label-text-color: rgba(0, 0, 0, 0.48);
         }
@@ -107,6 +100,7 @@ export class GrampsjsViewRevisions extends GrampsjsView {
           --md-divider-thickness: 1px;
           --md-divider-color: rgba(0, 0, 0, 0.1);
         }
+
         .counter {
           position: relative;
           color: white;

@@ -74,6 +74,13 @@ export const sharedStyles = css`
     --md-divider-thickness: 0px;
   }
 
+  md-list-item {
+    --md-list-item-label-text-weight: 350;
+    --md-list-item-label-text-size: 17px;
+    --md-list-item-supporting-text-color: rgba(0, 0, 0, 0.5);
+    --md-list-item-trailing-supporting-text-color: rgba(0, 0, 0, 0.8);
+  }
+
   mwc-tab-bar {
     --mdc-typography-button-text-transform: none;
     --mdc-typography-button-font-weight: 400;
