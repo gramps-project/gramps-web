@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Serve Frontend",
+      "label": "Serve Gramps Web Frontend",
       "type": "shell",
       "command": "npm run start",
       "isBackground": true,
@@ -15,7 +15,7 @@
       }
     },
     {
-      "label": "Build Frontend",
+      "label": "Build Gramps Web Frontend",
       "type": "shell",
       "command": "npm run build",
       "isBackground": true,
