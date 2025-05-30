@@ -22,7 +22,6 @@ export const GrampsjsNewNoteMixin = superClass =>
           .appState="${this.appState}"
           ?loadingTypes="${this.loadingTypes}"
           typeName="note_types"
-          defaultTypeName="General"
           .types="${this.types}"
           .typesLocale="${this.typesLocale}"
         >

@@ -57,7 +57,7 @@ export class GrampsjsFilterType extends GrampsjsAppStateMixin(LitElement) {
         label="${this.label || this._('Type')}"
         .appState="${this.appState}"
         typeName="${this.typeName}"
-        defaultTypeName=""
+        defaultValue=""
         ?loadingTypes=${this.loadingTypes}
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"

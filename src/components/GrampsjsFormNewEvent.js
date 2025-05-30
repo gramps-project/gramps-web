@@ -39,7 +39,7 @@ export class GrampsjsFormNewEvent extends GrampsjsNewEventMixin(
       <grampsjs-form-select-type
         required
         id="event-role-type"
-        defaultTypeName="${this.defaultRole}"
+        defaultValue="${this.defaultRole}"
         heading="${this._('Role')}"
         .appState="${this.appState}"
         typeName="event_role_types"
@@ -56,13 +56,13 @@ export class GrampsjsFormNewEvent extends GrampsjsNewEventMixin(
       'grampsjs-form-select-type'
     )
     let valid = true
-    if (!selectType !== null && !selectType.isValid()) {
+    if (selectType !== null && !selectType.isValid()) {
       valid = false
     }
     const selectDate = this.shadowRoot.querySelector(
       'grampsjs-form-select-date'
     )
-    if (!selectDate !== null && !selectDate.isValid()) {
+    if (selectDate !== null && !selectDate.isValid()) {
       valid = false
     }
     this.isFormValid = valid
