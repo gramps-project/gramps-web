@@ -15,9 +15,9 @@
       }
     },
     {
-      "label": "Develop Frontend",
+      "label": "Build Frontend",
       "type": "shell",
-      "command": "npm install",
+      "command": "npm run build",
       "isBackground": true,
       "group": {
         "kind": "build"
