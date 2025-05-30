@@ -142,7 +142,6 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleSwitch(e) {
-    console.log('Switch', e.target.id, e.target.selected)
     this._options = {
       ...this._options,
       [e.target.id]: e.target.selected ? 'True' : 'False',
