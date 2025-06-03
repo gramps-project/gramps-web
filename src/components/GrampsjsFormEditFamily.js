@@ -79,10 +79,10 @@ class GrampsjsFormEditFamily extends GrampsjsObjectForm {
         .appState="${this.appState}"
         ?loadingTypes="${this.loadingTypes}"
         typeName="family_relation_types"
-        defaultTypeName="Unknown"
+        defaultValue="Unknown"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
-        initialValue=${this.data?.type?.string || this.data?.type || ''}
+        value=${this.data?.type?.string || this.data?.type || ''}
       >
       </grampsjs-form-select-type>
     `

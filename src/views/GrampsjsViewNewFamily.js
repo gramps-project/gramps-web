@@ -53,7 +53,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
         .appState="${this.appState}"
         ?loadingTypes="${this.loadingTypes}"
         typeName="family_relation_types"
-        defaultTypeName="Unknown"
+        defaultValue="Unknown"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
       >

@@ -3,10 +3,9 @@ Element for selecting a Gramps type
 */
 
 import {css, html, LitElement} from 'lit'
-import '@material/mwc-select'
-import '@material/mwc-list/mwc-list-item'
-
-import {classMap} from 'lit/directives/class-map.js'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
+import '@material/web/textfield/filled-text-field.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -24,166 +23,201 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
 
   static get properties() {
     return {
+      disabled: {type: Boolean},
+      loadingTypes: {type: Boolean},
+      nocustom: {type: Boolean},
+      noheading: {type: Boolean},
+      required: {type: Boolean},
+      valueNonLocal: {type: Boolean},
+      defaultValue: {type: String},
       heading: {type: String},
       label: {type: String},
       typeName: {type: String},
-      defaultTypeName: {type: String},
+      typeNameCustom: {type: String},
       types: {type: Object},
       typesLocale: {type: Object},
-      disabled: {type: Boolean},
-      loadingTypes: {type: Boolean},
-      required: {type: Boolean},
-      initialValue: {type: String},
-      noheading: {type: Boolean},
-      nocustom: {type: Boolean},
-      valueNonLocal: {type: Boolean},
-      _hasCustomType: {type: Boolean}, // adding _hasCustomType prop
+      value: {type: String},
+      _hasCustomType: {type: Boolean},
+      _touched: {type: Boolean},
     }
   }
 
   constructor() {
     super()
-    this.types = {}
-    this.typesLocale = {}
-    this.typeName = ''
-    this.heading = ''
-    this.label = ''
-    this.defaultTypeName = 'General'
-    this.disabled = false
-    this.loadingTypes = false
-    this.required = false
-    this.initialValue = ''
-    this.noheading = false
-    this.nocustom = false
-    this._hasCustomType = false // this will be false as no custom type is entered initially
+    this.reset()
   }
 
-  getTypes(types) {
+  reset() {
+    this.disabled = false
+    this.loadingTypes = false
+    this.nocustom = false
+    this.noheading = false
+    this.required = false
+    this.valueNonLocal = false
+    this.defaultValue = 'General'
+    this.heading = ''
+    this.label = ''
+    this.typeName = ''
+    this.typeNameCustom = ''
+    this.types = {}
+    this.typesLocale = {}
+    this.value = ''
+    this._hasCustomType = false
+    this._touched = false
+  }
+
+  updated(changed) {
+    if (changed.has('types')) {
+      const types = this.getTypes()
+      if (
+        Array.isArray(types) &&
+        !types.includes(this.value) &&
+        types.includes(this.defaultValue)
+      ) {
+        this.value = this.defaultValue
+      }
+    }
+  }
+
+  isValid() {
+    return !this.required || this.value
+  }
+
+  render() {
+    return html`
+      ${this.noheading ? '' : this.#renderHeading()}
+      <p>
+        ${this.loadingTypes ? this.#renderLoading() : this.#renderInputs()}
+        ${this.nocustom ? '' : this.#renderCustomSwitch()}
+      </p>
+    `
+  }
+
+  #renderHeading() {
+    return html`<h4 class="label">${this.heading || this._('Type')}</h4>`
+  }
+
+  #renderLoading() {
+    return html`
+      <md-filled-select
+        style="width:100%"
+        label="${this._('Loading items...')}"
+        disabled
+      ></md-filled-select>
+    `
+  }
+
+  #renderInputs() {
+    return html`
+      ${!this._hasCustomType
+        ? html`
+            <md-filled-select
+              style="width:100%"
+              ?disabled="${this.disabled}"
+              ?error="${this.#error}"
+              error-text="${this._('This field is mandatory')}"
+              @change="${this.#handleSelectChange}"
+              @closing="${this.#handleSelectClosing}"
+              label="${this.label}"
+              .value="${this.value}"
+              id="select-type"
+            >
+              <md-select-option value="">
+                <div slot="headline"></div>
+              </md-select-option>
+              ${this.getTypes().map(
+                (obj, i) => html`
+                  <md-select-option
+                    value="${this.getTypes(this.valueNonLocal)[i]}"
+                  >
+                    <div slot="headline">${this._(obj)}</div>
+                  </md-select-option>
+                `
+              )}
+            </md-filled-select>
+          `
+        : html`
+            <md-filled-text-field
+              style="width:100%"
+              ?disabled="${this.disabled}"
+              ?error="${this.#error}"
+              error-text="${this._('This field is mandatory')}"
+              @input="${this.#handleTextFieldInput}"
+              @blur="${this.#handleTextFieldBlur}"
+              label="${this.label} ${this._('Custom')}"
+              .value="${this.value}"
+              id="custom-type"
+            >
+            </md-filled-text-field>
+          `}
+    `
+  }
+
+  #renderCustomSwitch() {
+    return html`
+      <md-text-button
+        style="margin-top: 4px;"
+        id="button-switch-type"
+        @click="${this.#toggleCustomType}"
+        ?disabled="${this.disabled || this.loadingTypes}"
+      >
+        ${this._hasCustomType
+          ? this._('Switch to default type')
+          : this._('Add custom type')}
+      </md-text-button>
+    `
+  }
+
+  getTypes(nonLocal = true) {
+    const types = nonLocal ? this.types : this.typesLocale
     const defaultTypesAll = types?.default || {}
     const customTypesAll = types?.custom || {}
     const defaultTypes =
       this.typeName in defaultTypesAll ? defaultTypesAll[this.typeName] : []
     const customTypes =
-      this.typeName in customTypesAll ? customTypesAll[this.typeName] : []
+      this.typeNameCustom || this.typeName in customTypesAll
+        ? customTypesAll[this.typeNameCustom || this.typeName]
+        : []
     return defaultTypes.concat(customTypes)
   }
 
-  render() {
-    const types = this.getTypes(this.types)
-    const typesLocale = this.getTypes(this.typesLocale)
-    return html`
-      ${this.noheading
-        ? ''
-        : html`<h4 class="label">${this.heading || this._('Type')}</h4>`}
-      <p style="display: flex">
-        <mwc-select
-          style="width:100%"
-          class="${classMap({hide: this._hasCustomType})}"
-          ?required=${this.required && !this._hasCustomType && !this.nocustom}
-          ?disabled=${this.loadingTypes || this._hasCustomType || this.disabled}
-          validationMessage="${this._('This field is mandatory')}"
-          @change="${this.handleChange}"
-          label="${this.loadingTypes ? this._('Loading items...') : this.label}"
-          id="select-type"
-        >
-          ${types.includes(this.defaultTypeName) ||
-          types.includes(this.initialValue)
-            ? ''
-            : html`<mwc-list-item value="" selected></mwc-list-item>`}
-          ${this.loadingTypes
-            ? ''
-            : types.map(
-                (obj, i) => html`
-                  <mwc-list-item
-                    value="${this.valueNonLocal ? types[i] : typesLocale[i]}"
-                    ?selected="${(this.initialValue &&
-                      obj === this.initialValue) ||
-                    (!this.initialValue && obj === this.defaultTypeName)}"
-                    >${this._(obj)}</mwc-list-item
-                  >
-                `
-              )}
-        </mwc-select>
-        ${this.nocustom || !this._hasCustomType
-          ? ''
-          : html`
-              <mwc-textfield
-                ?disabled="${this.disabled}"
-                style="width:100%"
-                ?required=${this.required}
-                validationMessage="${this._('This field is mandatory')}"
-                @input="${this.handleChange}"
-                label="${this.loadingTypes
-                  ? this._('Loading items...')
-                  : `${this.label} ${this._('Custom')}`}"
-                id="custom-type"
-              >
-              </mwc-textfield>
-            `}
-        ${this.nocustom
-          ? ''
-          : html`
-              <mwc-icon-button
-                style="margin-left: 8px"
-                icon="${this._hasCustomType ? 'remove' : 'add'}"
-                id="button-switch-type"
-                @click="${this.switchTypeInput}"
-                ?disabled="${this.disabled}"
-              ></mwc-icon-button>
-              <grampsjs-tooltip
-                for="button-switch-type"
-                content="${this._hasCustomType
-                  ? this._('Switch to default type')
-                  : this._('Add custom type')}"
-                .appState="${this.appState}"
-              ></grampsjs-tooltip>
-            `}
-      </p>
-    `
-  }
-
-  switchTypeInput() {
-    if (!this._hasCustomType) {
-      const selectType = this.shadowRoot.getElementById('select-type')
-      selectType.value = null
-    }
+  #toggleCustomType() {
     this._hasCustomType = !this._hasCustomType
+    if (this._hasCustomType) {
+      this._touched = false
+    }
+    this.#setValue('')
   }
 
-  reset() {
-    const types = this.getTypes(this.types)
-    const typesLocale = this.getTypes(this.typesLocale)
-    const ind = types.indexOf('General')
-    const selectType = this.shadowRoot.getElementById('select-type')
-    const typeInd = this.valueNonLocal ? types[ind] : typesLocale[ind]
-    selectType.value = ind === -1 ? null : typeInd
-    this._hasCustomType = false
+  #handleSelectChange(e) {
+    this.#setValue(e.target.value)
   }
 
-  handleChange(e) {
-    const data = e.target.value
+  #handleSelectClosing() {
+    this._touched = true
+  }
+
+  #handleTextFieldInput(e) {
+    this.#setValue(e.target.value)
+  }
+
+  #handleTextFieldBlur() {
+    this._touched = true
+  }
+
+  #setValue(value) {
+    this.value = value
     this.dispatchEvent(
       new CustomEvent('formdata:changed', {
         bubbles: true,
         composed: true,
-        detail: {data},
+        detail: {data: value},
       })
     )
   }
 
-  isValid() {
-    const selectType = this.shadowRoot.getElementById('select-type')
-    const customType = this.shadowRoot.getElementById('custom-type')
-    if (selectType === null || (this._hasCustomType && customType === null)) {
-      return false
-    }
-    try {
-      return this._hasCustomType
-        ? customType?.validity?.valid
-        : selectType?.validity?.valid
-    } catch {
-      return false
-    }
+  get #error() {
+    return this._touched && !this.isValid()
   }
 }
 

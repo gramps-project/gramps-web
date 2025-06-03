@@ -12,28 +12,29 @@ import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 class GrampsjsFormEditAttribute extends GrampsjsObjectForm {
   static get properties() {
     return {
-      source: {type: Boolean},
+      attributeCategory: {type: String},
     }
   }
 
   constructor() {
     super()
-    this.source = false
+    this.attributeCategory = ''
   }
 
   renderForm() {
     return html`
       <grampsjs-form-select-type
+        noheading
         required
-        id="${this.source ? 'srcattrtype' : 'attrtype'}"
-        heading="${this._('Type')}"
-        .appState="${this.appState}"
-        typeName="${this.source ? 'source_attribute_types' : 'attribute_types'}"
         ?loadingTypes=${this.loadingTypes}
+        typeName="${this.#typeNameDefault}"
+        typeNameCustom="${this.#typeNameCustom}"
+        id="${this.source ? 'srcattrtype' : 'attrtype'}"
+        label="${this._('Type')}"
+        value=${this.data?.type ?? ''}
+        .appState="${this.appState}"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
-        .data="${this.data}"
-        initialValue=${this.data?.type?.string || ''}
       >
       </grampsjs-form-select-type>
       <grampsjs-form-string
@@ -48,6 +49,26 @@ class GrampsjsFormEditAttribute extends GrampsjsObjectForm {
       >
       </grampsjs-form-string>
     `
+  }
+
+  get #typeNameDefault() {
+    return (
+      {
+        sources: 'source_attribute_types',
+      }[this.attributeCategory.toLowerCase()] || 'attribute_types'
+    )
+  }
+
+  get #typeNameCustom() {
+    return (
+      {
+        events: 'event_attribute_types',
+        families: 'family_attribute_types',
+        'media objects': 'media_attribute_types',
+        people: 'person_attribute_types',
+        sources: 'source_attribute_types',
+      }[this.attributeCategory] || 'attribute_types'
+    )
   }
 }
 

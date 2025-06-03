@@ -32,7 +32,7 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
         .appState="${this.appState}"
         ?loadingTypes=${this.loadingTypes}
         typeName="child_reference_types"
-        defaultTypeName="Birth"
+        defaultValue="Birth"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
       >
@@ -44,7 +44,7 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
         .appState="${this.appState}"
         ?loadingTypes=${this.loadingTypes}
         typeName="child_reference_types"
-        defaultTypeName="Birth"
+        defaultValue="Birth"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
       >

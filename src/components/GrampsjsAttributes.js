@@ -27,13 +27,13 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
 
   static get properties() {
     return {
-      source: {type: Boolean},
+      attributeCategory: {type: String},
     }
   }
 
   constructor() {
     super()
-    this.source = false
+    this.attributeCategory = ''
   }
 
   row(obj) {
@@ -49,8 +49,8 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
   _handleAdd() {
     this.dialogContent = html`
       <grampsjs-form-edit-attribute
-        ?source="${this.source}"
         new
+        attributeCategory="${this.attributeCategory}"
         @object:save="${this._handleAttrSave}"
         @object:cancel="${this._handleAttrCancel}"
         .appState="${this.appState}"
@@ -67,7 +67,7 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
     }
     this.dialogContent = html`
       <grampsjs-form-edit-attribute
-        ?source="${this.source}"
+        attributeCategory="${this.attributeCategory}"
         @object:save="${this._handleAttrSaveEdit}"
         @object:cancel="${this._handleAttrCancel}"
         .appState="${this.appState}"
