@@ -73,7 +73,7 @@ export const sharedStyles = css`
     --md-sys-color-surface-container-low: rgb(255 241 237);
     --md-sys-color-surface-container: #fff;
     --md-sys-color-surface-container-high: #fff;
-    --md-sys-color-surface-container-highest: #fff;
+    --md-sys-color-surface-container-highest: whitesmoke;
     --md-primary-tab-label-text-weight: 425;
     --md-primary-tab-label-text-size: 16px;
     --md-primary-tab-active-indicator-height: 3px;
