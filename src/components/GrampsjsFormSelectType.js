@@ -86,7 +86,7 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
   render() {
     return html`
       ${this.noheading ? '' : this.#renderHeading()}
-      <p style="display: flex">
+      <p>
         ${this.loadingTypes ? this.#renderLoading() : this.#renderInputs()}
         ${this.nocustom ? '' : this.#renderCustomSwitch()}
       </p>
@@ -155,20 +155,16 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
 
   #renderCustomSwitch() {
     return html`
-      <mwc-icon-button
-        style="margin-left: 8px"
-        icon="${this._hasCustomType ? 'remove' : 'add'}"
+      <md-text-button
+        style="margin-top: 4px;"
         id="button-switch-type"
         @click="${this.#toggleCustomType}"
         ?disabled="${this.disabled || this.loadingTypes}"
-      ></mwc-icon-button>
-      <grampsjs-tooltip
-        for="button-switch-type"
-        content="${this._hasCustomType
+      >
+        ${this._hasCustomType
           ? this._('Switch to default type')
-          : this._('Add custom type')}"
-        .appState="${this.appState}"
-      ></grampsjs-tooltip>
+          : this._('Add custom type')}
+      </md-text-button>
     `
   }
 
