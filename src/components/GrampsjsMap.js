@@ -1,6 +1,5 @@
 import {html, LitElement} from 'lit'
 import 'maplibre-gl'
-import * as maplibregl from 'maplibre-gl'
 import '@openhistoricalmap/maplibre-gl-dates'
 import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
@@ -13,6 +12,8 @@ const defaultConfig = {
   cartoStyle: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
   cartoAttribution: '<a href="https://carto.com/attributions">CARTO</a>',
 }
+
+const {maplibregl} = window
 
 class GrampsjsMap extends LitElement {
   render() {
