@@ -1,39 +1,45 @@
 import {html, LitElement} from 'lit'
-import 'leaflet'
 import 'maplibre-gl'
-import '@maplibre/maplibre-gl-leaflet'
+import * as maplibregl from 'maplibre-gl'
 import '@openhistoricalmap/maplibre-gl-dates'
 import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
 import {fireEvent} from '../util.js'
-import '../LocateControl.js'
-
-const {L} = window
 
 const defaultConfig = {
-  leafletTileUrl:
-    'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-  leafletTileAttribution:
-    '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors; <a href="https://carto.com/attributions">CARTO</a>',
-  leafletTileSize: 256,
-  leafletZoomOffset: 0,
   glStyle: 'https://www.openhistoricalmap.org/map-styles/main/main.json',
   glAttribution:
-    '<a href="https://www.openhistoricalmap.org/">OpenHistoricalMap</a>',
+    '<a href="https://maplibre.org/" target="_blank">MapLibre</a> | <a href="https://www.openhistoricalmap.org/">OpenHistoricalMap</a> contributors',
+  cartoStyle: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+  cartoAttribution: '<a href="https://carto.com/attributions">CARTO</a>',
 }
 
 class GrampsjsMap extends LitElement {
   render() {
     return html`
-      <link rel="stylesheet" href="leaflet.css" />
-      <link rel="stylesheet" href="L.Control.Locate.min.css" />
-
+      <link
+        rel="stylesheet"
+        href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css"
+      />
       <div
         class="mapcontainer"
         style="width:${this.width}; height:${this.height};"
       >
         <div id="${this.mapid}" style="z-index: 0; width: 100%; height: 100%;">
           <slot> </slot>
+        </div>
+        <div
+          style="position: absolute; bottom: 40px; left: 10px; z-index: 10; background: white; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.2); padding: 4px 8px; font-size: 14px;"
+        >
+          <label for="style-switcher">Map Style:</label>
+          <select id="style-switcher" @change="${e => this._onStyleChange(e)}">
+            <option value="ohm" ?selected=${this._currentStyle === 'ohm'}>
+              OpenHistoricalMap
+            </option>
+            <option value="carto" ?selected=${this._currentStyle === 'carto'}>
+              CARTO Positron
+            </option>
+          </select>
         </div>
       </div>
     `
@@ -56,12 +62,8 @@ class GrampsjsMap extends LitElement {
       latMax: {type: Number},
       longMin: {type: Number},
       longMax: {type: Number},
-      layerSwitcher: {type: Boolean},
-      locateControl: {type: Boolean},
       _map: {type: Object},
-      _glMap: {type: Object},
-      _layercontrol: {type: Object},
-      _currentLayer: {type: String},
+      _currentStyle: {type: String},
     }
   }
 
@@ -78,79 +80,56 @@ class GrampsjsMap extends LitElement {
     this.latMax = 0
     this.longMin = 0
     this.longMax = 0
-    this.layerSwitcher = false
-    this._currentLayer = 'OpenStreetMap'
+    this._currentStyle = 'carto'
   }
 
   firstUpdated() {
     const mapel = this.shadowRoot.getElementById(this.mapid)
-    if (this.latMin === 0 && this.latMax === 0) {
-      this._map = new L.Map(mapel, {zoomControl: false}).setView(
-        [this.latitude, this.longitude],
-        this.zoom
-      )
-    } else {
-      this._map = new L.Map(mapel, {zoomControl: false}).fitBounds([
-        [this.latMin, this.longMin],
-        [this.latMax, this.longMax],
-      ])
-    }
     const config = {...defaultConfig, ...window.grampsjsConfig}
-    const tileLayer = new L.TileLayer(config.leafletTileUrl, {
-      attribution: config.leafletTileAttribution,
-      tileSize: config.leafletTileSize,
-      zoomOffset: config.leafletZoomOffset,
-      maxZoom: 19,
-      zoomControl: false,
+    const styleUrl =
+      this._currentStyle === 'carto' ? config.cartoStyle : config.glStyle
+    this._map = new maplibregl.Map({
+      container: mapel,
+      style: styleUrl,
+      center: [this.longitude, this.latitude],
+      zoom: this.zoom,
+      attributionControl: true,
     })
-    tileLayer.addTo(this._map)
-    this._gl = L.maplibreGL({
-      style: config.glStyle,
-      attribution: config.glAttribution,
-    })
-    this._map.addControl(L.control.zoom({position: 'bottomright'}))
-    if (this.locateControl) {
-      this._map.addControl(
-        L.control.locate({position: 'bottomright', drawCircle: false})
-      )
-    }
-    this._layercontrol = L.control.layers(
-      {
-        OpenHistoricalMap: this._gl,
-        OpenStreetMap: tileLayer,
-      },
-      null,
-      {
-        position: 'bottomleft',
-      }
+    this._map.addControl(new maplibregl.NavigationControl(), 'bottom-right')
+    this._map.addControl(
+      new maplibregl.AttributionControl({compact: true}),
+      'bottom-left'
     )
-    if (this.layerSwitcher) {
-      this._map.addControl(this._layercontrol)
-    }
-    this._map.on('baselayerchange', e => this._handleBaseLayerChange(e))
-    this._map.invalidateSize(false)
-    this._map.on('moveend', e => this._handleMoveEnd(e))
-  }
-
-  _handleBaseLayerChange(e) {
-    this._currentLayer = e.name
-    if (this._currentLayer === 'OpenHistoricalMap') {
-      const mapLibreMap = this._gl.getMaplibreMap()
-      mapLibreMap.on('styledata', () =>
-        mapLibreMap.filterByDate(`${this.year}`)
-      )
-    }
-    fireEvent(this, 'map:layerchange', {layer: this._currentLayer})
-  }
-
-  _handleMoveEnd(e) {
-    fireEvent(this, 'map:moveend', {bounds: e.target.getBounds()})
+    // Add geolocate control to the map controller
+    this._map.addControl(
+      new maplibregl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true,
+        },
+        trackUserLocation: true,
+        showUserHeading: true,
+      }),
+      'bottom-right'
+    )
+    this._map.on('load', () => {
+      if (this.year > 0 && this._map.filterByDate) {
+        this._map.filterByDate(`${this.year}`)
+      }
+      if (this.latMin !== 0 || this.latMax !== 0) {
+        this._map.fitBounds([
+          [this.longMin, this.latMin],
+          [this.longMax, this.latMax],
+        ])
+      }
+    })
+    this._map.on('moveend', () => {
+      fireEvent(this, 'map:moveend', {bounds: this._map.getBounds()})
+    })
   }
 
   panTo(latitude, longitude) {
     if (this._map !== undefined) {
-      // eslint-disable-next-line new-cap
-      this._map.panTo(new L.latLng(latitude, longitude))
+      this._map.panTo([longitude, latitude])
     }
   }
 
@@ -158,9 +137,15 @@ class GrampsjsMap extends LitElement {
     if (
       changed.has('year') &&
       this.year > 0 &&
-      this._currentLayer === 'OpenHistoricalMap'
+      this._map &&
+      this._map.isStyleLoaded &&
+      this._map.isStyleLoaded()
     ) {
-      this._gl.getMaplibreMap().filterByDate(`${this.year}`)
+      try {
+        this._map.filterByDate(`${this.year}`)
+      } catch (e) {
+        // Ignore errors if filterByDate fails (e.g. style does not support it)
+      }
       return
     }
     if (
@@ -172,15 +157,48 @@ class GrampsjsMap extends LitElement {
     ) {
       if (this.latMin === 0 && this.latMax === 0) {
         this._map.setZoom(this.zoom)
-        // eslint-disable-next-line new-cap
-        this._map.panTo(new L.latLng(this.latitude, this.longitude))
+        this._map.panTo([this.longitude, this.latitude])
       } else {
         this._map.fitBounds([
-          [this.latMin, this.longMin],
-          [this.latMax, this.longMax],
+          [this.longMin, this.latMin],
+          [this.longMax, this.latMax],
         ])
       }
-      this._map.invalidateSize(false)
+    }
+  }
+
+  _onStyleChange(e) {
+    const config = {...defaultConfig, ...window.grampsjsConfig}
+    const style = e.target.value
+    this._currentStyle = style
+    const styleUrl = style === 'carto' ? config.cartoStyle : config.glStyle
+    this._map.setStyle(styleUrl)
+    // Optionally update attribution
+    // Attribution control will update automatically if style has attribution
+
+    // Update attribution text after style change
+    const attribution =
+      style === 'carto' ? config.cartoAttribution : config.glAttribution
+    try {
+      // Wait for the style to finish loading before updating attribution
+      this._map.once('styledata', () => {
+        const controls = this._map._controls || []
+        for (const ctrl of controls) {
+          if (ctrl && typeof ctrl._updateAttributions === 'function') {
+            if (
+              ctrl._container &&
+              ctrl._container.querySelector('.maplibregl-ctrl-attrib-inner')
+            ) {
+              ctrl._container.querySelector(
+                '.maplibregl-ctrl-attrib-inner'
+              ).innerHTML = attribution
+            }
+            ctrl._updateAttributions()
+          }
+        }
+      })
+    } catch (err) {
+      // Fallback: do nothing if internal API changes
     }
   }
 }
