@@ -183,21 +183,16 @@ class GrampsjsMap extends LitElement {
     try {
       // Wait for the style to finish loading before updating attribution
       this._map.once('styledata', () => {
-        const controls = this._map._controls || []
-        for (const ctrl of controls) {
-          if (ctrl && typeof ctrl._updateAttributions === 'function') {
-            if (
-              ctrl._container &&
-              ctrl._container.querySelector('.maplibregl-ctrl-attrib-inner')
-            ) {
-              ctrl._container.querySelector(
-                '.maplibregl-ctrl-attrib-inner'
-              ).innerHTML = attribution
-            }
-            ctrl._updateAttributions()
+        const attributionControl = this._map.getAttributionControl();
+        if (attributionControl) {
+          const attributionElement = attributionControl._container.querySelector(
+            '.maplibregl-ctrl-attrib-inner'
+          );
+          if (attributionElement) {
+            attributionElement.innerHTML = attribution;
           }
         }
-      })
+      });
     } catch (err) {
       // Fallback: do nothing if internal API changes
     }
