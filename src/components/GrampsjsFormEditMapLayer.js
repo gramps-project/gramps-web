@@ -229,7 +229,6 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
   }
 
   _handleMapClick(e) {
-    console.log('e', e)
     if (e && e.lngLat) {
       const {lat, lng} = e.lngLat
       if (this.state === 'placeMarker') {
