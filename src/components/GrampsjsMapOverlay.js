@@ -44,14 +44,26 @@ class GrampsjsMapOverlay extends LitElement {
       .toString(36)
       .substr(2, 9)}`
     this._overlay = id
+    // MapLibre expects coordinates in order: top-left, top-right, bottom-right, bottom-left
+    // Fix: ensure bounds[0] is top-left (northwest), bounds[1] is bottom-right (southeast)
+    // If bounds are [south, west], [north, east], swap as needed
+    let [[y0, x0], [y1, x1]] = this.bounds
+    // Ensure y0 > y1 (top > bottom)
+    if (y0 < y1) {
+      ;[y0, y1] = [y1, y0]
+    }
+    // Ensure x0 < x1 (left < right)
+    if (x0 > x1) {
+      ;[x0, x1] = [x1, x0]
+    }
     this._map.addSource(id, {
       type: 'image',
       url: this.url,
       coordinates: [
-        [this.bounds[0][1], this.bounds[0][0]], // top left [lng, lat]
-        [this.bounds[1][1], this.bounds[0][0]], // top right
-        [this.bounds[1][1], this.bounds[1][0]], // bottom right
-        [this.bounds[0][1], this.bounds[1][0]], // bottom left
+        [x0, y0], // top left [lng, lat]
+        [x1, y0], // top right
+        [x1, y1], // bottom right
+        [x0, y1], // bottom left
       ],
     })
     this._map.addLayer({

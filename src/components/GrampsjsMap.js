@@ -30,7 +30,7 @@ class GrampsjsMap extends LitElement {
           <slot> </slot>
         </div>
         <div
-          style="position: relative; width: 210px; bottom: 40px; left: 10px; z-index: 1; background: white; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.2); padding: 4px 8px; font-size: 14px;"
+          style="position: relative; width: 220px; bottom: 40px; left: 10px; z-index: 1; background: white; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.2); padding: 4px 8px; font-size: 14px;"
         >
           <label for="style-switcher">Map Style:</label>
           <select id="style-switcher" @change="${e => this._onStyleChange(e)}">
@@ -96,11 +96,11 @@ class GrampsjsMap extends LitElement {
       zoom: this.zoom,
       attributionControl: true,
     })
+    // this._map.addControl(
+    //   new maplibregl.AttributionControl({compact: true,}),
+    //   'bottom-right'
+    // )
     this._map.addControl(new maplibregl.NavigationControl(), 'bottom-right')
-    this._map.addControl(
-      new maplibregl.AttributionControl({compact: true}),
-      'bottom-left'
-    )
     // Add geolocate control to the map controller
     this._map.addControl(
       new maplibregl.GeolocateControl({
