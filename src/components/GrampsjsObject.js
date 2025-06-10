@@ -199,6 +199,12 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
             margin-right: 0px;
           }
         }
+
+        p.button-list {
+          display: flex;
+          gap: 12px;
+          justify-content: flex-start;
+        }
       `,
     ]
   }

@@ -1,23 +1,13 @@
-import {html, css} from 'lit'
+import {html} from 'lit'
 
 import '@material/mwc-icon'
-import '@material/mwc-button'
+import '@material/web/button/outlined-button'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditTitle.js'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsSource extends GrampsjsObject {
-  static get styles() {
-    return [
-      super.styles,
-      css`
-        :host {
-        }
-      `,
-    ]
-  }
-
   constructor() {
     super()
     this._showReferences = false
@@ -81,13 +71,10 @@ export class GrampsjsSource extends GrampsjsObject {
     if (!tags.filter(tag => tag.name === 'Blog').length > 0) {
       return ''
     }
-    return html` <p style="clear: both; margin-top: 1em;">
-      <mwc-button
-        outlined
-        label="${this._('Show in blog')}"
-        @click="${this._handleButtonClick}"
-      >
-      </mwc-button>
+    return html` <p style="clear: both; padding-top: 1em;">
+      <md-outlined-button @click="${this._handleButtonClick}">
+        ${this._('Show in blog')}
+      </md-outlined-button>
     </p>`
   }
 

@@ -1,10 +1,11 @@
 import {LitElement, css, html} from 'lit'
-import '@material/mwc-button'
-import '@material/mwc-icon'
+import '@material/web/button/outlined-button'
+import {mdiAccountMultiple} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {renderPerson} from '../util.js'
 import './GrampsjsChildren.js'
+import './GrampsjsIcon.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
@@ -14,6 +15,13 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
       css`
         .familybtn {
           margin-left: 1.5em;
+          margin-bottom: 0.25em;
+          vertical-align: middle;
+        }
+
+        h4 {
+          display: flex;
+          align-items: center;
         }
 
         .number {
@@ -95,13 +103,17 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _renderFamilyBtn(grampsId) {
-    return html` <mwc-button
+    return html` <md-outlined-button
       class="familybtn"
-      outlined
-      label="${this._('Family')}"
       @click="${() => this._handleButtonClick(grampsId)}"
     >
-    </mwc-button>`
+      <grampsjs-icon
+        path="${mdiAccountMultiple}"
+        color="var(--mdc-theme-primary)"
+        slot="icon"
+      ></grampsjs-icon>
+      ${this._('Family')}
+    </md-outlined-button>`
   }
 
   _handleButtonClick(grampsId) {

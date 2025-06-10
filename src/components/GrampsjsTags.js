@@ -14,23 +14,32 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
+        h4 {
+          font-weight: 400;
+          font-size: 14px;
+          font-family: var(--grampsjs-heading-font-family);
+          color: rgba(0, 0, 0, 0.5);
+          margin-top: 15px;
+          margin-bottom: 7px;
+        }
+
         .chip {
           font-size: 14px;
           font-weight: 400;
           font-family: var(--grampsjs-body-font-family);
-          padding: 6px 12px;
-          border-radius: 9999px;
-          margin: 5px 5px;
+          padding: 8px 12px;
+          border-radius: 8px;
+          margin: 5px 10px 5px 0px;
           border-width: 1px;
           border-style: solid;
         }
 
         .tags {
           clear: left;
-          margin: 15px 0px;
+          margin-bottom: 15px;
           align-items: center;
           display: inline-flex;
-          padding: 5px;
+          padding: 5px 0px;
         }
 
         .chip mwc-icon-button {
@@ -65,6 +74,7 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
       return html``
     }
     return html`
+      <h4>${this._('Tags')}</h4>
       <div class="tags">
         ${this.data
           .filter(obj => !this.hideTags.includes(obj.name))

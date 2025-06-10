@@ -1,12 +1,15 @@
 import {html, css} from 'lit'
 
-import '@material/mwc-icon'
+import '@material/web/button/outlined-button'
+
+import {mdiFamilyTree, mdiDna} from '@mdi/js'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
 import {asteriskIcon, crossIcon} from '../icons.js'
 import './GrampsJsImage.js'
 import './GrampsjsEditGender.js'
 import './GrampsjsPersonRelationship.js'
+import {fireEvent} from '../util.js'
 
 export class GrampsjsPerson extends GrampsjsObject {
   static get styles() {
@@ -39,7 +42,9 @@ export class GrampsjsPerson extends GrampsjsObject {
         ${this._displayName()}
       </h2>
       ${this._renderBirth()} ${this._renderDeath()} ${this._renderRelation()}
-      ${this._renderTreeBtn()}
+      <p class="button-list">
+        ${this._renderTreeBtn()} ${this._renderDnaBtn()}
+      </p>
     `
   }
 
@@ -113,17 +118,40 @@ export class GrampsjsPerson extends GrampsjsObject {
   }
 
   _renderTreeBtn() {
-    return html` <p>
-      <mwc-button
-        outlined
-        label="${this._('Show in tree')}"
-        @click="${this._handleButtonClick}"
-      >
-      </mwc-button>
-    </p>`
+    return html`
+      <md-outlined-button @click="${this._handleTreeButtonClick}">
+        ${this._('Show in tree')}
+        <grampsjs-icon
+          path="${mdiFamilyTree}"
+          color="var(--mdc-theme-primary)"
+          slot="icon"
+        >
+        </grampsjs-icon>
+      </md-outlined-button>
+    `
   }
 
-  _handleButtonClick() {
+  _renderDnaBtn() {
+    if (!this.data?.person_ref_list?.filter(ref => ref.rel === 'DNA').length) {
+      // no DNA data
+      return ''
+    }
+    return html`
+      <md-outlined-button
+        @click="${this._handleDnaButtonClick}"
+        class="dna-btn"
+      >
+        ${this._('DNA matches')}
+        <grampsjs-icon
+          path="${mdiDna}"
+          color="var(--mdc-theme-primary)"
+          slot="icon"
+        ></grampsjs-icon>
+      </md-outlined-button>
+    `
+  }
+
+  _handleTreeButtonClick() {
     this.dispatchEvent(
       new CustomEvent('pedigree:person-selected', {
         bubbles: true,
@@ -131,13 +159,11 @@ export class GrampsjsPerson extends GrampsjsObject {
         detail: {grampsId: this.data.gramps_id},
       })
     )
-    this.dispatchEvent(
-      new CustomEvent('nav', {
-        bubbles: true,
-        composed: true,
-        detail: {path: 'tree'},
-      })
-    )
+    fireEvent(this, 'nav', {path: 'tree'})
+  }
+
+  _handleDnaButtonClick() {
+    fireEvent(this, 'nav', {path: `dna-matches/${this.data.gramps_id}`})
   }
 }
 
