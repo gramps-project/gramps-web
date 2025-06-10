@@ -76,7 +76,7 @@
     ]
   },
   "name": "gramps-js",
-  "version": "25.5.2",
+  "version": "25.6.0",
   "description": "The frontend for the Gramps Web genealogical research system.",
   "author": "David M. Straub",
   "license": "AGPL",
