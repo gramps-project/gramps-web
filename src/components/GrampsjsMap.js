@@ -174,29 +174,7 @@ class GrampsjsMap extends LitElement {
     this._currentStyle = style
     const styleUrl = style === 'carto' ? config.cartoStyle : config.glStyle
     this._map.setStyle(styleUrl)
-    // Optionally update attribution
     // Attribution control will update automatically if style has attribution
-
-    // Update attribution text after style change
-    const attribution =
-      style === 'carto' ? config.cartoAttribution : config.glAttribution
-    try {
-      // Wait for the style to finish loading before updating attribution
-      this._map.once('styledata', () => {
-        const attributionControl = this._map.getAttributionControl()
-        if (attributionControl) {
-          const attributionElement =
-            attributionControl._container.querySelector(
-              '.maplibregl-ctrl-attrib-inner'
-            )
-          if (attributionElement) {
-            attributionElement.innerHTML = attribution
-          }
-        }
-      })
-    } catch (err) {
-      // Fallback: do nothing if internal API changes
-    }
   }
 }
 
