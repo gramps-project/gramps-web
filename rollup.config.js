@@ -32,7 +32,6 @@ export default merge(baseConfig, {
       targets: [
         {src: './L.Control.Locate.min.css', dest: 'dist/'},
         {src: './tippy.css', dest: 'dist/'},
-        {src: './leaflet.css', dest: 'dist/'},
         {src: './src/config.js', dest: 'dist/'},
         {src: './manifest.json', dest: 'dist/'},
         {src: './images/**/*', dest: 'dist/images'},
