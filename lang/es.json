@@ -99,7 +99,7 @@
     "This e-mail address is already in use": "Esta dirección de correo electrónico ya está en uso",
     "This user name is already in use": "Este nombre de usuario ya está en uso",
     "Already have an account?": "¿Ya tienes una cuenta?",
-    "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Por favor, verifica tu dirección de correo electrónico haciendo clic en el enlace del correo electrónico que recibió y luego espera a que el propietario del árbol active tu cuenta.",
+    "Please confirm your e-mail address by clicking the link in the e-mail you received and then wait for the tree owner to activate your account.": "Confirme su dirección de correo electrónico haciendo clic en el enlace del correo electrónico que acaba de recibir y luego espere a que el propietario del árbol active su cuenta.",
     "reset password": "restablecer la contraseña",
     "New account registered successfully.": "Nueva cuenta registrada con éxito.",
     "A password reset link has been sent by e-mail.": "Se ha enviado un enlace de restablecimiento de contraseña por correo electrónico.",
@@ -150,7 +150,7 @@
     "Danger Zone": "Zona peligrosa",
     "Password is required": "La contraseña es obligatoria",
     "Delete all objects": "Borrar todos los objetos",
-    "Please re-enter your password to continue.": "Por favor, vuelva a introducir su contraseña para continuar.",
+    "Please re-enter your password to continue.": "Vuelva a introducir su contraseña para continuar.",
     "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Borre el árbol genealógico eliminando todos los objetos existentes. Opcionalmente, seleccione tipos específicos de objetos para su eliminación.",
     "Delete Person": "Borrar una persona",
     "Delete Family": "Borrar una familia",
@@ -210,7 +210,7 @@
     "Max Degree of Separation": "Grado máximo de separación",
     "Max Number of Images displayed": "Número máximo de imágenes mostradas",
     "Delete user": "Borrar usuario",
-    "Do you really want to delete user \"%s\"?": "¿Realmente desea eliminar el usuario \"%s\"?",
+    "Do you really want to delete user \"%s\"?": "¿Realmente quiere eliminar el usuario «%s»?",
     "Regenerate semantic search index": "Regenerar el índice de búsqueda semántica",
     "Settings": "Ajustes",
     "Pending": "Pendiente",
@@ -218,5 +218,9 @@
     "Length": "Largo",
     "Started": "Comenzó",
     "Number of SNPs": "Número de SNPs",
-    "full-text": "Texto-compteto"
+    "full-text": "Texto-compteto",
+    "Name Display Format": "Formato de visualización de nombres",
+    "Surname First": "Primero los apellidos",
+    "Given Name First": "Primero el nombre de pila",
+    "Log out": "Salir"
 }
