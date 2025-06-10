@@ -357,7 +357,7 @@ export function objectDetail(type, obj, strings) {
       return `
     ${obj?.profile?.birth?.date ? `* ${obj.profile.birth.date}` : ''}${
         obj?.profile?.birth?.place && obj?.profile?.birth?.date ? ', ' : ''
-      }${obj?.profile?.birth?.place || ''}
+      }${obj?.profile?.birth?.place_name || obj?.profile?.birth?.place || ''}
     `
     // case 'family':
     //   return ''
@@ -365,7 +365,7 @@ export function objectDetail(type, obj, strings) {
       return `
     ${obj?.profile?.date || ''}${
         obj?.profile?.place && obj?.profile?.date ? ', ' : ''
-      }${obj?.profile?.place || ''}
+      }${obj?.profile?.place_name || obj?.profile?.place || ''}
     `
     case 'place':
       return `

@@ -82,7 +82,8 @@ export class GrampsjsEvent extends GrampsjsObject {
                   <a
                     href="${BASE_DIR}/place/${this.data.extended.place
                       .gramps_id}"
-                    >${this.data.profile.place}</a
+                    >${this.data.profile.place_name ||
+                    this.data.profile.place}</a
                   >
                 </dd>
               </div>

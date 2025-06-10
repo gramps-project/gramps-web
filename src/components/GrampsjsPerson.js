@@ -73,7 +73,8 @@ export class GrampsjsPerson extends GrampsjsObject {
     return html`
       <span class="event">
         <i>${asteriskIcon}</i>
-        ${obj.date || ''} ${obj.place ? this._('in') : ''} ${obj.place || ''}
+        ${obj.date || ''} ${obj.place ? this._('in') : ''}
+        ${obj.place_name || obj.place || ''}
       </span>
     `
   }
@@ -84,12 +85,11 @@ export class GrampsjsPerson extends GrampsjsObject {
       return ''
     }
     return html`
-    <span class="event">
-    <i>${crossIcon}</i>
-    ${obj.date || ''}
-      ${obj.place ? this._('in') : ''}
-      ${obj.place || ''}
-    </event>
+      <span class="event">
+        <i>${crossIcon}</i>
+        ${obj.date || ''} ${obj.place ? this._('in') : ''}
+        ${obj.place_name || obj.place || ''}
+      </span>
     `
   }
 

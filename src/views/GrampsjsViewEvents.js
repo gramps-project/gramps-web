@@ -71,7 +71,7 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
       grampsId: row.gramps_id,
       type: row?.profile?.type,
       date: row?.profile?.date,
-      place: row?.profile?.place,
+      place: row?.profile?.place_name || row?.profile?.place,
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
     return formattedRow

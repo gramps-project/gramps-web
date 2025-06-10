@@ -98,7 +98,9 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
             timestamp="${timestamp}"
             locale="${this.appState.i18n.lang}"
           ></grampsjs-timedelta
-          >${event?.profile?.place ? html`, ${event.profile.place}` : ''}
+          >${event?.profile?.place
+            ? html`, ${event.profile.place_name || event.profile.place}`
+            : ''}
         </span>
       </mwc-list-item>
     `
