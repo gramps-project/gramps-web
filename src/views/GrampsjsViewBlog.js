@@ -10,6 +10,10 @@ export class GrampsjsViewBlog extends GrampsjsView {
     return [
       super.styles,
       css`
+        h2 {
+          margin-left: 15px;
+        }
+
         .muted {
           opacity: 0.4;
         }
@@ -34,9 +38,6 @@ export class GrampsjsViewBlog extends GrampsjsView {
         .post:focus-within {
           outline: 2px solid rgba(0, 0, 0, 0.1);
           border-radius: 5px;
-        }
-
-        .post > div {
         }
       `,
     ]
