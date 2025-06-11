@@ -15,7 +15,7 @@ export const asteriskIcon = html`<svg
   />
 </svg>`
 export const crossIcon = html`<svg height="24" width="24" viewBox="0 0 24 24">
-  <path fill="#000000" d="M10.5,2H13.5V8H19V11H13.5V22H10.5V11H5V8H10.5V2Z" />
+  <path fill="#000000" d="M10,3H14V10H21V14H14V21H10V14H3V10H10V3Z" />
 </svg>`
 export const ringsIcon = html`<svg height="24" width="24" viewBox="0 0 24 24">
   <path
