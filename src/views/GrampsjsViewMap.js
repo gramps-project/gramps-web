@@ -171,7 +171,8 @@ export class GrampsjsViewMap extends GrampsjsView {
     if (changed.has('active') && this.active) {
       const mapel = this.shadowRoot.getElementById('map')
       if (mapel !== null && mapel._map !== undefined) {
-        mapel._map.invalidateSize(false)
+        // MapLibre GL JS resize method instead of Leaflet's invalidateSize
+        mapel._map.resize()
       }
       const searchbox = this.shadowRoot.querySelector('grampsjs-map-searchbox')
       if (searchbox !== null) {
@@ -221,7 +222,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._dataSearch = []
     this._valueSearch = object.profile.name
     this._handlesHighlight = [object.handle]
-    if (object.lat && object.long) {
+    if (object.profile.lat && object.profile.long) {
       this.latitude = object.profile.lat
       this.longitude = object.profile.long
       if (this.getZoom() < 14) {
@@ -238,11 +239,13 @@ export class GrampsjsViewMap extends GrampsjsView {
 
   setZoom(zoom) {
     const map = this.renderRoot.querySelector('grampsjs-map')
+    // MapLibre GL JS setZoom method
     map._map.setZoom(zoom)
   }
 
   getZoom() {
     const map = this.renderRoot.querySelector('grampsjs-map')
+    // MapLibre GL JS getZoom method
     return map._map.getZoom()
   }
 
@@ -269,15 +272,14 @@ export class GrampsjsViewMap extends GrampsjsView {
     if (Object.keys(this._bounds).length === 0) {
       return false
     }
-    const mapBounds = [
-      [this._bounds._southWest.lat, this._bounds._southWest.lng],
-      [this._bounds._northEast.lat, this._bounds._northEast.lng],
-    ]
+    // MapLibre GL JS bounds format: [west, south, east, north]
+    // Convert bounds format: [[south, west], [north, east]] to standard bounds check
+    const mapBounds = this._bounds
     if (
-      bounds[0][0] < mapBounds[1][0] &&
-      bounds[1][0] > mapBounds[0][0] &&
-      bounds[0][1] < mapBounds[1][1] &&
-      bounds[1][1] > mapBounds[0][1]
+      bounds[0][0] < mapBounds[3] && // south < north
+      bounds[1][0] > mapBounds[1] && // north > south
+      bounds[0][1] < mapBounds[2] && // west < east
+      bounds[1][1] > mapBounds[0] // east > west
     ) {
       return true
     }
@@ -285,6 +287,7 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   _handleMoveEnd(e) {
+    // MapLibre GL JS provides bounds in format [west, south, east, north]
     this._bounds = e.detail.bounds
   }
 

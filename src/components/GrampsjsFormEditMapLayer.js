@@ -229,20 +229,19 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
   }
 
   _handleMapClick(e) {
-    const map = this.shadowRoot.querySelector('grampsjs-map')
-    if (map !== null) {
-      const latlng = map._map.mouseEventToLatLng(e)
+    if (e && e.lngLat) {
+      const {lat, lng} = e.lngLat
       if (this.state === 'placeMarker') {
-        this.pinCoordinates = [latlng.lat, latlng.lng]
+        this.pinCoordinates = [lat, lng]
         this.state = ''
         e.preventDefault()
         e.stopPropagation()
         if (this._getBounds().length === 0) {
-          this._placeImage(latlng.lat, latlng.lng, 0.1)
+          this._placeImage(lat, lng, 0.1)
         }
       }
       if (this.state === 'alignImage') {
-        this._alignToPin(latlng.lat, latlng.lng)
+        this._alignToPin(lat, lng)
         this.state = ''
         e.preventDefault()
         e.stopPropagation()

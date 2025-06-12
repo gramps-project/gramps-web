@@ -1,9 +1,8 @@
 import {html, LitElement} from 'lit'
-import {imageOverlay} from '../../node_modules/leaflet/dist/leaflet-src.esm.js'
 
 class GrampsjsMapOverlay extends LitElement {
   render() {
-    return html` <link rel="stylesheet" href="leaflet.css" /> `
+    return html`` // No need for leaflet.css
   }
 
   static get properties() {
@@ -34,24 +33,78 @@ class GrampsjsMapOverlay extends LitElement {
   }
 
   addOverlay() {
-    // eslint-disable-next-line new-cap
-    this._overlay = new imageOverlay(this.url, this.bounds)
-    this.parentElement._layercontrol.addOverlay(
-      this._overlay,
-      this.title || 'image'
-    )
-    this._overlay.addTo(this._map)
-    this._overlay.bringToFront()
-    this._overlay.setOpacity(this.opacity)
+    if (!this._map || !this.url || !this.bounds || this.bounds.length !== 2)
+      return
+
+    // Remove if already exists
+    if (this._overlay) {
+      this.removeOverlay()
+    }
+
+    // Wait for style to be loaded before adding source/layer
+    const addOverlayWhenReady = () => {
+      // Add as a raster image source/layer
+      const id = `overlay-${this.title || 'image'}-${Math.random()
+        .toString(36)
+        .substr(2, 9)}`
+      this._overlay = id
+      // MapLibre expects coordinates in order: top-left, top-right, bottom-right, bottom-left
+      // Fix: ensure bounds[0] is top-left (northwest), bounds[1] is bottom-right (southeast)
+      // If bounds are [south, west], [north, east], swap as needed
+      let [[y0, x0], [y1, x1]] = this.bounds
+      // Ensure y0 > y1 (top > bottom)
+      if (y0 < y1) {
+        ;[y0, y1] = [y1, y0]
+      }
+      // Ensure x0 < x1 (left < right)
+      if (x0 > x1) {
+        ;[x0, x1] = [x1, x0]
+      }
+      this._map.addSource(id, {
+        type: 'image',
+        url: this.url,
+        coordinates: [
+          [x0, y0], // top left [lng, lat]
+          [x1, y0], // top right
+          [x1, y1], // bottom right
+          [x0, y1], // bottom left
+        ],
+      })
+      this._map.addLayer({
+        id,
+        type: 'raster',
+        source: id,
+        paint: {
+          'raster-opacity': this.opacity,
+        },
+      })
+      // Bring to front
+      this._map.moveLayer(id)
+    }
+
+    // Check if style is already loaded
+    if (this._map.isStyleLoaded()) {
+      addOverlayWhenReady()
+    } else {
+      // Wait for style to load
+      this._map.once('styledata', addOverlayWhenReady)
+    }
   }
 
   removeOverlay() {
-    this._map.removeLayer(this._overlay)
-    this.parentElement._layercontrol.removeLayer(this._overlay)
+    if (this._map && this._overlay) {
+      if (this._map.getLayer(this._overlay)) {
+        this._map.removeLayer(this._overlay)
+      }
+      if (this._map.getSource(this._overlay)) {
+        this._map.removeSource(this._overlay)
+      }
+      this._overlay = null
+    }
   }
 
   disconnectedCallback() {
-    this._map.removeLayer(this._overlay)
+    this.removeOverlay()
     super.disconnectedCallback()
   }
 
@@ -68,10 +121,8 @@ class GrampsjsMapOverlay extends LitElement {
   }
 
   updateOverlay() {
-    if (this._overlay) {
-      this.removeOverlay()
-      this.addOverlay()
-    }
+    this.removeOverlay()
+    this.addOverlay()
   }
 }
 
