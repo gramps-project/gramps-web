@@ -1,11 +1,11 @@
 import {html, LitElement} from 'lit'
 import {mdiMapMarker} from '@mdi/js'
-import {Marker, Icon} from '../../node_modules/leaflet/dist/leaflet-src.esm.js'
-import {iconDataUrl} from '../icons.js'
+
+const {maplibregl} = window
 
 class GrampsjsMapMarker extends LitElement {
   render() {
-    return html` <link rel="stylesheet" href="leaflet.css" /> `
+    return html`` // No need for leaflet.css
   }
 
   static get properties() {
@@ -35,25 +35,37 @@ class GrampsjsMapMarker extends LitElement {
   }
 
   firstUpdated() {
+    // Find the maplibre-gl map instance from the parent
     this._map = this.parentElement._map
     this.addMarker()
   }
 
   addMarker() {
-    const icon = new Icon({
-      iconUrl: iconDataUrl(mdiMapMarker, '#EA4335'),
-      iconSize: [this.size, this.size],
-      iconAnchor: [this.size / 2, this.size],
-      popupAnchor: [0, -this.size],
-    })
-    this._marker = new Marker([this.latitude, this.longitude], {
-      opacity: this.opacity,
-      icon,
-    })
-    this._marker.addTo(this._map)
-    this._marker.on('click', this.clickHandler.bind(this))
-    if (this.popupLabel !== '') {
-      this._marker.bindPopup(this.popupLabel)
+    if (!this._map) return
+    // Create a DOM element for the marker
+    const el = document.createElement('div')
+    el.style.width = `${this.size}px`
+    el.style.height = `${this.size}px`
+    el.style.opacity = this.opacity
+    el.style.cursor = 'pointer'
+    el.innerHTML = `
+      <svg width="${this.size}" height="${this.size}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="${mdiMapMarker}" fill="#EA4335" />
+      </svg>
+    `
+    el.addEventListener('click', this.clickHandler.bind(this))
+    // Add popup if needed
+    if (this.popupLabel) {
+      el.title = this.popupLabel
+    }
+    // Create the marker
+    this._marker = new maplibregl.Marker({element: el})
+      .setLngLat([this.longitude, this.latitude])
+      .addTo(this._map)
+    if (this.popupLabel) {
+      this._marker.setPopup(
+        new maplibregl.Popup({offset: 25}).setHTML(this.popupLabel)
+      )
     }
   }
 
@@ -72,13 +84,15 @@ class GrampsjsMapMarker extends LitElement {
   }
 
   disconnectedCallback() {
-    this._map.removeLayer(this._marker)
+    if (this._marker) {
+      this._marker.remove()
+    }
     super.disconnectedCallback()
   }
 
   updateMarker() {
     if (this._marker) {
-      this._map.removeLayer(this._marker)
+      this._marker.remove()
       this.addMarker()
     }
   }
