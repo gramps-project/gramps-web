@@ -189,5 +189,10 @@
     "Tree Information": "Dane drzewa",
     "The search index needs to be rebuilt.": "Indeks wyszukiwania musi zostać zbudowany od nowa.",
     "Regenerate semantic search index": "Regeneracja indeksu wyszukiwania semantycznego",
-    "Settings": "Ustawienia"
+    "Settings": "Ustawienia",
+    "First person": "Pierwsza osoba",
+    "Delete user": "Usuń użytkownika",
+    "Do you really want to delete user \"%s\"?": "Czy naprawdę chcesz usunąć użytkownika „%s”?",
+    "Started": "Rozpoczęty",
+    "Pending": "Oczekujące"
 }
