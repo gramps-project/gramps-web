@@ -38,8 +38,8 @@
     "New Task": "Tugas Baru",
     "Show in blog": "Tampilkan di blog",
     "Blog": "Blog",
-    "Change E-mail": "Ganti E-mail",
-    "Change password": "Ganti kata sandi",
+    "Change E-mail": "Ubah E-mail",
+    "Change password": "Ubah kata sandi",
     "Discard": "Batalkan",
     "History": "Riwayat",
     "Lists": "Daftar",
@@ -221,5 +221,7 @@
     "full-text": "full-teks",
     "Surname First": "Nama Depan Singkat",
     "Given Name First": "Nama Depan (Lahir)",
-    "Name Display Format": "Format Tampilan Nama"
+    "Name Display Format": "Format Tampilan Nama",
+    "Log out": "Keluar",
+    "DNA matches": "DNA sesuai"
 }
