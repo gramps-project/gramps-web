@@ -211,5 +211,18 @@
     "Passwords do not match.": "Les mots de passe sont différents.",
     "Second person": "Deuxième personne",
     "Confirm Password": "Confirmez le mot de passe",
-    "Invalid E-mail address": "Adresse E-mail invalide"
+    "Invalid E-mail address": "Adresse E-mail invalide",
+    "Name Display Format": "Format d'affichage du nom",
+    "Surname First": "Nom de famille en premier",
+    "Given Name First": "Nom de naissance en premier",
+    "Number of SNPs": "Nombre de SNPs",
+    "DNA match with %s deleted.": "Correspondance ADN avec %s supprimés.",
+    "Register to Gramps Web": "S'inscrire sur Gramps Web",
+    "Log in to Gramps Web": "Se connecter à Gramps Web",
+    "full-text": "texte intégral",
+    "in": "dans",
+    "Log out": "Déconnexion",
+    "DNA matches": "Correspondances ADN",
+    "Toggle time filter for places": "Filtre temporel pour les lieux",
+    "Regenerate semantic search index": "Régénérer l'index de recherche sémantique"
 }
