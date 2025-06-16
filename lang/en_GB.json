@@ -221,5 +221,9 @@
     "Register to Gramps Web": "Register to Gramps Web",
     "Surname First": "Surname First",
     "Given Name First": "Given Name First",
-    "Name Display Format": "Name Display Format"
+    "Name Display Format": "Name Display Format",
+    "Toggle person outlines": "Toggle person outlines",
+    "in": "in",
+    "Log out": "Log out",
+    "DNA matches": "DNA matches"
 }
