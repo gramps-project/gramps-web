@@ -287,7 +287,7 @@ function TreeChartCore(
     .attr('fill', 'rgba(0, 0, 0, 0.9)')
 
     .attr('paint-order', 'stroke')
-    .text(d => clipString(`†${d.data.person.profile.death.date}`, textWidth(d)))
+    .text(d => clipString(`+${d.data.person.profile.death.date}`, textWidth(d)))
 
   node
     .filter(getImageUrl)
