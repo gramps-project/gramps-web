@@ -75,8 +75,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
 
   static get properties() {
     return {
-      userData: {type: Array},
-      userInfo: {type: Object},
+      _userInfo: {type: Object},
       _repairResults: {type: Object},
       _buttonUpdateSearchDisabled: {type: Boolean},
       _buttonUpdateSearchSemanticDisabled: {type: Boolean},
@@ -85,8 +84,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
 
   constructor() {
     super()
-    this.userData = []
-    this.userInfo = {}
+    this._userInfo = {}
     this._repairResults = {}
     this._buttonUpdateSearchDisabled = false
     this._buttonUpdateSearchSemanticDisabled = false
@@ -250,7 +248,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       <grampsjs-relogin
         .appState="${this.appState}"
         @relogin="${this._openDeleteAll}"
-        username="${this.userInfo?.name || ''}"
+        username="${this._userInfo?.name || ''}"
       ></grampsjs-relogin>
     `
   }
@@ -370,6 +368,22 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     if (info !== undefined) {
       this._repairResults = JSON.parse(info)
     }
+  }
+
+  async _fetchOwnUserDetails() {
+    const data = await this.appState.apiGet('/api/users/-/')
+    if ('error' in data) {
+      this.error = true
+      this._errorMessage = data.error
+    } else {
+      this.error = false
+      this._userInfo = data.data
+    }
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this._fetchOwnUserDetails()
   }
 }
 
