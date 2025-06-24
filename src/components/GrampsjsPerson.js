@@ -52,11 +52,11 @@ export class GrampsjsPerson extends GrampsjsObject {
     if (!this.data.profile) {
       return ''
     }
-    const surname = this.data.profile.name_surname || html`&hellip;`
+    const surname = this.data.profile.name_surname || '…'
     const suffix = this.data.profile.name_suffix || ''
-    let given = this.data.profile.name_given || html`&hellip;`
     const call = this.data?.primary_name?.call
-    const callIndex = call ? given.search(call) : -1
+    let given = this.data.profile.name_given || call || '…'
+    const callIndex = call && call !== given ? given.search(call) : -1
     given =
       callIndex > -1
         ? html`
