@@ -403,6 +403,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           // eslint-disable-next-line no-nested-ternary
           this.data.lat && this.data.long
             ? html` <grampsjs-map
+                appState="${this.appState}"
                 latitude="${this.data.profile.lat}"
                 longitude="${this.data.profile.long}"
                 layerSwitcher

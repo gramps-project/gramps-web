@@ -137,6 +137,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
       }
     </p>
     <grampsjs-map
+      appState="${this.appState}"
       latitude="${
         this.pinCoordinates.length === 2
           ? this.pinCoordinates[0]

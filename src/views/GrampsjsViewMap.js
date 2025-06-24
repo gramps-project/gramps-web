@@ -110,6 +110,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     const center = this._getMapCenter()
     return html`
       <grampsjs-map
+        appState="${this.appState}"
         layerSwitcher
         locateControl
         width="100%"

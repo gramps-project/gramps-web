@@ -146,6 +146,7 @@ export class GrampsjsPersonTimeline extends GrampsjsAppStateMixin(LitElement) {
     const mapCorners = this._getMapCorners()
     return html`
       <grampsjs-map
+        appState="${this.appState}"
         latMin="${mapCorners[0][0]}"
         longMin="${mapCorners[0][1]}"
         latMax="${mapCorners[1][0]}"

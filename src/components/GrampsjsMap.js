@@ -3,19 +3,22 @@ import 'maplibre-gl'
 import '@openhistoricalmap/maplibre-gl-dates'
 import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
+import './GrampsjsIcon.js'
+import {mdiLayers} from '@mdi/js'
 import {fireEvent} from '../util.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 const defaultConfig = {
   glStyle: 'https://www.openhistoricalmap.org/map-styles/main/main.json',
   glAttribution:
     '<a href="https://maplibre.org/" target="_blank">MapLibre</a> | <a href="https://www.openhistoricalmap.org/">OpenHistoricalMap</a> contributors',
-  cartoStyle: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-  cartoAttribution: '<a href="https://carto.com/attributions">CARTO</a>',
+  baseStyle: 'https://tiles.openfreemap.org/styles/liberty',
+  baseAttribution: '<a href="https://openfreemap.org">OpenFreeMap</a>',
 }
 
 const {maplibregl} = window
 
-class GrampsjsMap extends LitElement {
+class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   render() {
     return html`
       <link
@@ -30,15 +33,30 @@ class GrampsjsMap extends LitElement {
           <slot> </slot>
         </div>
         <div
-          style="position: relative; width: 230px; bottom: 40px; left: 10px; z-index: 1; background: white; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.2); padding: 4px 8px; font-size: 14px;"
+          class="map-layer-switcher"
+          style="position: relative;
+        width: fit-content;
+        bottom: 40px;
+        left: 10px;
+        z-index: 1;
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        padding: 4px 8px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;"
         >
-          <label for="style-switcher">Map Style:</label>
+          <label for="style-switcher">
+            <grampsjs-icon path="${mdiLayers}" color="#555"></grampsjs-icon>
+          </label>
           <select id="style-switcher" @change="${e => this._onStyleChange(e)}">
             <option value="ohm" ?selected=${this._currentStyle === 'ohm'}>
               OpenHistoricalMap
             </option>
-            <option value="carto" ?selected=${this._currentStyle === 'carto'}>
-              CARTO Positron
+            <option value="base" ?selected=${this._currentStyle === 'base'}>
+              ${this._('Base Map')}
             </option>
           </select>
         </div>
@@ -81,14 +99,14 @@ class GrampsjsMap extends LitElement {
     this.latMax = 0
     this.longMin = 0
     this.longMax = 0
-    this._currentStyle = 'carto'
+    this._currentStyle = 'base'
   }
 
   firstUpdated() {
     const mapel = this.shadowRoot.getElementById(this.mapid)
     const config = {...defaultConfig, ...window.grampsjsConfig}
     const styleUrl =
-      this._currentStyle === 'carto' ? config.cartoStyle : config.glStyle
+      this._currentStyle === 'base' ? config.baseStyle : config.glStyle
     this._map = new maplibregl.Map({
       container: mapel,
       style: styleUrl,
@@ -172,7 +190,7 @@ class GrampsjsMap extends LitElement {
     const config = {...defaultConfig, ...window.grampsjsConfig}
     const style = e.target.value
     this._currentStyle = style
-    const styleUrl = style === 'carto' ? config.cartoStyle : config.glStyle
+    const styleUrl = style === 'base' ? config.baseStyle : config.glStyle
     this._map.setStyle(styleUrl)
     // Attribution control will update automatically if style has attribution
   }
