@@ -159,7 +159,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
           ? html` ${this._editingNote
               ? html`
                   <grampsjs-editor
-                    .data=${this.source.extended.notes[0].text}
+                    .initialData=${this.source.extended.notes[0].text}
                     .appState="${this.appState}"
                   ></grampsjs-editor>
                 `

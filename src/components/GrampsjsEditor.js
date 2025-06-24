@@ -147,6 +147,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
   static get properties() {
     return {
+      initialData: {type: Object},
       data: {type: Object},
       cursorPosition: {type: Array},
       _dialogContent: {type: String},
@@ -156,6 +157,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
   constructor() {
     super()
+    this.initialData = {_class: 'StyledText', string: '', tags: []}
     this.data = {_class: 'StyledText', string: '', tags: []}
     this.cursorPosition = [0]
     this._dialogContent = ''
@@ -163,7 +165,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   }
 
   reset() {
-    this.data = {_class: 'StyledText', string: '', tags: []}
+    this.data = this.initialData
     this.cursorPosition = [0]
   }
 
@@ -214,6 +216,12 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       ></div>
       ${this._renderLinkDialog()}
     `
+  }
+
+  firstUpdated() {
+    // this will set data to initialData (the two are kept separate to avoid changes
+    // being discarded when the state is updated)
+    this.reset()
   }
 
   get _editorDiv() {
