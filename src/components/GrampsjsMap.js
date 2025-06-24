@@ -1,11 +1,17 @@
-import {html, LitElement} from 'lit'
+import {html, css, LitElement} from 'lit'
 import 'maplibre-gl'
 import '@openhistoricalmap/maplibre-gl-dates'
+
+import '@material/web/iconbutton/icon-button.js'
+import '@material/web/menu/menu'
+import '@material/web/menu/menu-item'
+
 import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
 import './GrampsjsIcon.js'
 import {mdiLayers} from '@mdi/js'
 import {fireEvent} from '../util.js'
+import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 const defaultConfig = {
@@ -19,6 +25,19 @@ const defaultConfig = {
 const {maplibregl} = window
 
 class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
+  static get styles() {
+    return [
+      sharedStyles,
+      css`
+        .map-layer-switcher md-icon-button {
+          --md-icon-button-icon-size: 18px;
+          width: 32px;
+          height: 32px;
+        }
+      `,
+    ]
+  }
+
   render() {
     return html`
       <link
@@ -35,37 +54,53 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         <div
           class="map-layer-switcher"
           style="position: relative;
-        width: fit-content;
-        bottom: 40px;
-        left: 10px;
-        z-index: 1;
-        background: white;
-        border-radius: 4px;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-        padding: 4px 8px;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 8px;"
+      width: fit-content;
+      bottom: 46px;
+      left: 10px;
+      z-index: 1;
+      background: white;
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+      padding: 2px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      "
         >
-          <label for="style-switcher">
+          <md-icon-button id="layer-button" @click="${this._handleLayerClick}">
             <grampsjs-icon path="${mdiLayers}" color="#555"></grampsjs-icon>
-          </label>
-          <select id="style-switcher" @change="${e => this._onStyleChange(e)}">
-            <option value="ohm" ?selected=${this._currentStyle === 'ohm'}>
-              OpenHistoricalMap
-            </option>
-            <option value="base" ?selected=${this._currentStyle === 'base'}>
-              ${this._('Base Map')}
-            </option>
-          </select>
+          </md-icon-button>
+
+          <md-menu
+            id="layer-menu"
+            anchor="layer-button"
+            style="z-index: 1; position: relative;"
+          >
+            <md-menu-item
+              value="ohm"
+              ?selected=${this._currentStyle === 'ohm'}
+              @click="${() => this._onStyleChange({target: {value: 'ohm'}})}"
+            >
+              <div slot="headline">OpenHistoricalMap</div>
+            </md-menu-item>
+            <md-menu-item
+              value="base"
+              ?selected=${this._currentStyle === 'base'}
+              @click="${() => this._onStyleChange({target: {value: 'base'}})}"
+            >
+              <div slot="headline">${this._('Base Map')}</div>
+            </md-menu-item>
+          </md-menu>
         </div>
       </div>
     `
   }
 
-  static get styles() {
-    return []
+  _handleLayerClick() {
+    const menu = this.renderRoot.querySelector('#layer-menu')
+    if (menu) {
+      menu.open = !menu.open
+    }
   }
 
   static get properties() {
