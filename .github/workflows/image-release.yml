@@ -38,8 +38,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: tag and push release image
         run: |
+          TAG=${{ github.event.release.tag_name }}
+          VERSION=${TAG#v}
           docker build --push \
-            --tag ghcr.io/gramps-project/grampsweb:${{ github.event.release.tag_name }} \
+            --tag ghcr.io/gramps-project/grampsweb:$VERSION \
             --tag ghcr.io/gramps-project/grampsweb:latest \
             --platform linux/amd64,linux/arm/v7,linux/arm64 .
       - name: Clean up dangling images
