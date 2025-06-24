@@ -34,6 +34,13 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
           width: 32px;
           height: 32px;
         }
+
+        .map-layer-switcher md-menu-item {
+          --md-menu-item-top-space: 0px;
+          --md-menu-item-bottom-space: 0px;
+          --md-menu-item-one-line-container-height: 42px;
+          --md-menu-item-label-text-size: 15px;
+        }
       `,
     ]
   }
