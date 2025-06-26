@@ -418,6 +418,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
               </grampsjs-map>`
             : mapBounds.length > 0
             ? html` <grampsjs-map
+                .appState="${this.appState}"
                 latitude="${(JSON.parse(mapBounds[0].value)[0][0] +
                   JSON.parse(mapBounds[0].value)[1][0]) /
                 2}"

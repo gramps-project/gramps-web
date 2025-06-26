@@ -82,6 +82,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
             id="layer-menu"
             anchor="layer-button"
             style="z-index: 1; position: relative;"
+            positioning="popover"
           >
             <md-menu-item
               value="ohm"
@@ -156,10 +157,17 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       zoom: this.zoom,
       attributionControl: true,
     })
-    // this._map.addControl(
-    //   new maplibregl.AttributionControl({compact: true,}),
-    //   'bottom-right'
-    // )
+    this._map.on('click', e => {
+      const mapContainer = this._map.getContainer()
+
+      const customEvent = new CustomEvent('mapclick', {
+        detail: e,
+        bubbles: true,
+        composed: true,
+      })
+
+      mapContainer.dispatchEvent(customEvent)
+    })
     this._map.addControl(new maplibregl.NavigationControl(), 'bottom-right')
     // Add geolocate control to the map controller
     this._map.addControl(

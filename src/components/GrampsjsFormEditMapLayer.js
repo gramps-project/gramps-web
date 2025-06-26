@@ -21,8 +21,8 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
     return [
       super.styles,
       css`
-        mwc-dialog {
-          --mdc-dialog-min-width: 80vw;
+        md-dialog {
+          min-width: 80vw;
         }
 
         mwc-slider {
@@ -152,7 +152,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
       layerSwitcher
       mapid="media-map"
       id="map"
-      @click="${this._handleMapClick}"
+      @mapclick="${this._handleMapClick}"
     >
       ${
         this._getBounds().length === 2
@@ -230,8 +230,8 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
   }
 
   _handleMapClick(e) {
-    if (e && e.lngLat) {
-      const {lat, lng} = e.lngLat
+    if (e.detail?.lngLat !== undefined) {
+      const {lat, lng} = e.detail.lngLat
       if (this.state === 'placeMarker') {
         this.pinCoordinates = [lat, lng]
         this.state = ''
