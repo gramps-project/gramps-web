@@ -263,10 +263,26 @@ export class GrampsjsViewMap extends GrampsjsView {
       <grampsjs-map-overlay
         url="${getMediaUrl(obj.handle)}"
         title="${obj.desc}"
-        bounds="${bounds}"
+        .bounds="${bounds}"
         ?hidden="${!this._isLayerVisible(JSON.parse(bounds))}"
       ></grampsjs-map-overlay>
     `
+  }
+
+  _getOverlaysForLayerSwitcher() {
+    const visibleLayers = this._dataLayers.filter(obj =>
+      this._isLayerVisible(
+        JSON.parse(
+          obj.attribute_list?.filter(attr => attr.type === 'map:bounds')?.[0]
+            ?.value
+        )
+      )
+    )
+    return visibleLayers.map(obj => ({
+      handle: obj.handle,
+      desc: obj.desc,
+      visible: true,
+    }))
   }
 
   _isLayerVisible(bounds) {

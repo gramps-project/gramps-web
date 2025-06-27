@@ -5,6 +5,7 @@ import '@openhistoricalmap/maplibre-gl-dates'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/menu/menu'
 import '@material/web/menu/menu-item'
+import '@material/web/checkbox/checkbox'
 
 import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
@@ -38,7 +39,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         .map-layer-switcher md-menu-item {
           --md-menu-item-top-space: 0px;
           --md-menu-item-bottom-space: 0px;
-          --md-menu-item-one-line-container-height: 42px;
+          --md-menu-item-one-line-container-height: 40px;
           --md-menu-item-label-text-size: 15px;
         }
       `,
@@ -86,17 +87,32 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
           >
             <md-menu-item
               value="ohm"
+              keepOpen
               ?selected=${this._currentStyle === 'ohm'}
               @click="${() => this._onStyleChange({target: {value: 'ohm'}})}"
             >
-              <div slot="headline">OpenHistoricalMap</div>
+              <div slot="headline">
+                <label
+                  ><md-radio
+                    ?checked="${this._currentStyle === 'ohm'}"
+                  ></md-radio>
+                  OpenHistoricalMap</label
+                >
+              </div>
             </md-menu-item>
             <md-menu-item
               value="base"
               ?selected=${this._currentStyle === 'base'}
               @click="${() => this._onStyleChange({target: {value: 'base'}})}"
             >
-              <div slot="headline">${this._('Base Map')}</div>
+              <div slot="headline">
+                <label
+                  ><md-radio
+                    ?checked="${this._currentStyle === 'base'}"
+                  ></md-radio>
+                  OpenStreetMap</label
+                >
+              </div>
             </md-menu-item>
           </md-menu>
         </div>
@@ -124,6 +140,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       latMax: {type: Number},
       longMin: {type: Number},
       longMax: {type: Number},
+      overlays: {type: Array},
       _map: {type: Object},
       _currentStyle: {type: String},
     }
@@ -142,6 +159,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this.latMax = 0
     this.longMin = 0
     this.longMax = 0
+    this.overlays = []
     this._currentStyle = 'base'
   }
 
