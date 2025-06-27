@@ -119,6 +119,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         longitude="${center[1]}"
         year="${this._year}"
         mapid="map-mapview"
+        .overlays="${this._getOverlaysForLayerSwitcher()}"
         @map:layerchange="${this._handleLayerChange}"
         @map:moveend="${this._handleMoveEnd}"
         id="map"
@@ -289,14 +290,12 @@ export class GrampsjsViewMap extends GrampsjsView {
     if (Object.keys(this._bounds).length === 0) {
       return false
     }
-    // MapLibre GL JS bounds format: [west, south, east, north]
-    // Convert bounds format: [[south, west], [north, east]] to standard bounds check
     const mapBounds = this._bounds
     if (
-      bounds[0][0] < mapBounds[3] && // south < north
-      bounds[1][0] > mapBounds[1] && // north > south
-      bounds[0][1] < mapBounds[2] && // west < east
-      bounds[1][1] > mapBounds[0] // east > west
+      bounds[1][0] > mapBounds._sw.lat && // layer south > map south
+      bounds[0][0] < mapBounds._ne.lat && // layer north < map north
+      bounds[1][1] > mapBounds._sw.lng && // layer east > map west
+      bounds[0][1] < mapBounds._ne.lng // layer west < map east
     ) {
       return true
     }

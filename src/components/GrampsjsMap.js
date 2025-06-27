@@ -42,6 +42,10 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
           --md-menu-item-one-line-container-height: 40px;
           --md-menu-item-label-text-size: 15px;
         }
+
+        .map-layer-switcher md-menu {
+          --md-divider-thickness: 1px;
+        }
       `,
     ]
   }
@@ -101,6 +105,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
               </div>
             </md-menu-item>
             <md-menu-item
+              keepOpen
               value="base"
               ?selected=${this._currentStyle === 'base'}
               @click="${() => this._onStyleChange({target: {value: 'base'}})}"
@@ -110,10 +115,45 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
                   ><md-radio
                     ?checked="${this._currentStyle === 'base'}"
                   ></md-radio>
-                  OpenStreetMap</label
+                  ${this._('Base Map')}</label
                 >
               </div>
             </md-menu-item>
+            ${true // TODO
+              ? ''
+              : html`
+                  <md-divider role="separator" tabindex="-1"></md-divider>
+                  ${this.overlays.map(
+                    overlay => html`
+                      <md-menu-item
+                        keepOpen
+                        value="${overlay.handle}"
+                        ?selected="${overlay.visible}"
+                        @click="${() => {
+                          fireEvent(this, 'map:overlay-toggle', {
+                            overlay: overlay.handle,
+                            visible: overlay.visible,
+                          })
+                        }}"
+                      >
+                        <div slot="headline">
+                          <label>
+                            <md-checkbox
+                              ?checked="${overlay.visible}"
+                              @change="${() => {
+                                fireEvent(this, 'map:overlay-toggle', {
+                                  handle: overlay.handle,
+                                  visible: overlay.visible,
+                                })
+                              }}"
+                            ></md-checkbox>
+                            ${overlay.desc}
+                          </label>
+                        </div>
+                      </md-menu-item>
+                    `
+                  )}
+                `}
           </md-menu>
         </div>
       </div>
@@ -260,7 +300,10 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this._currentStyle = style
     const styleUrl = style === 'base' ? config.baseStyle : config.glStyle
     this._map.setStyle(styleUrl)
-    // Attribution control will update automatically if style has attribution
+    if (this._currentStyle === 'ohm') {
+      this._map.on('styledata', () => this._map.filterByDate(`${this.year}`))
+    }
+    fireEvent(this, 'map:layerchange', {layer: this._currentLayer})
   }
 }
 
