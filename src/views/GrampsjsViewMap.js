@@ -189,9 +189,11 @@ export class GrampsjsViewMap extends GrampsjsView {
   _handleOverlayToggle(event) {
     const {overlay, visible} = event.detail
     if (visible) {
-      this._hiddenOverlaysHandles = this._hiddenOverlaysHandles.filter(
-        handle => handle !== overlay.handle
-      )
+      this._hiddenOverlaysHandles = [
+        ...this._hiddenOverlaysHandles.filter(
+          handle => handle !== overlay.handle
+        ),
+      ]
     } else if (visible === false) {
       this._hiddenOverlaysHandles = [
         ...this._hiddenOverlaysHandles.filter(

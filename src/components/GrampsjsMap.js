@@ -32,10 +32,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     return html`
-      <link
-        rel="stylesheet"
-        href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css"
-      />
+      <link rel="stylesheet" href="maplibre-gl.css" />
       <div
         class="mapcontainer"
         style="width:${this.width}; height:${this.height};"

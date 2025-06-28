@@ -30,6 +30,7 @@ export default merge(baseConfig, {
   plugins: [
     copy({
       targets: [
+        {src: './maplibre-gl.css', dest: 'dist/'},
         {src: './tippy.css', dest: 'dist/'},
         {src: './src/config.js', dest: 'dist/'},
         {src: './manifest.json', dest: 'dist/'},
