@@ -1,4 +1,4 @@
-import {html, css, LitElement} from 'lit'
+import {html, LitElement} from 'lit'
 import 'maplibre-gl'
 import '@openhistoricalmap/maplibre-gl-dates'
 
@@ -9,8 +9,8 @@ import '@material/web/checkbox/checkbox'
 
 import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
+import './GrampsjsMapLayerSwitcher.js'
 import './GrampsjsIcon.js'
-import {mdiLayers} from '@mdi/js'
 import {fireEvent} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -27,27 +27,7 @@ const {maplibregl} = window
 
 class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
-    return [
-      sharedStyles,
-      css`
-        .map-layer-switcher md-icon-button {
-          --md-icon-button-icon-size: 18px;
-          width: 32px;
-          height: 32px;
-        }
-
-        .map-layer-switcher md-menu-item {
-          --md-menu-item-top-space: 0px;
-          --md-menu-item-bottom-space: 0px;
-          --md-menu-item-one-line-container-height: 40px;
-          --md-menu-item-label-text-size: 15px;
-        }
-
-        .map-layer-switcher md-menu {
-          --md-divider-thickness: 1px;
-        }
-      `,
-    ]
+    return [sharedStyles]
   }
 
   render() {
@@ -63,108 +43,15 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         <div id="${this.mapid}" style="z-index: 0; width: 100%; height: 100%;">
           <slot> </slot>
         </div>
-        <div
-          class="map-layer-switcher"
-          style="position: relative;
-      width: fit-content;
-      bottom: 46px;
-      left: 10px;
-      z-index: 1;
-      background: white;
-      border-radius: 4px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-      padding: 2px;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      "
-        >
-          <md-icon-button id="layer-button" @click="${this._handleLayerClick}">
-            <grampsjs-icon path="${mdiLayers}" color="#555"></grampsjs-icon>
-          </md-icon-button>
-
-          <md-menu
-            id="layer-menu"
-            anchor="layer-button"
-            style="z-index: 1; position: relative;"
-            positioning="popover"
-          >
-            <md-menu-item
-              value="ohm"
-              keepOpen
-              ?selected=${this._currentStyle === 'ohm'}
-              @click="${() => this._onStyleChange({target: {value: 'ohm'}})}"
-            >
-              <div slot="headline">
-                <label
-                  ><md-radio
-                    ?checked="${this._currentStyle === 'ohm'}"
-                  ></md-radio>
-                  OpenHistoricalMap</label
-                >
-              </div>
-            </md-menu-item>
-            <md-menu-item
-              keepOpen
-              value="base"
-              ?selected=${this._currentStyle === 'base'}
-              @click="${() => this._onStyleChange({target: {value: 'base'}})}"
-            >
-              <div slot="headline">
-                <label
-                  ><md-radio
-                    ?checked="${this._currentStyle === 'base'}"
-                  ></md-radio>
-                  ${this._('Base Map')}</label
-                >
-              </div>
-            </md-menu-item>
-            ${true // TODO
-              ? ''
-              : html`
-                  <md-divider role="separator" tabindex="-1"></md-divider>
-                  ${this.overlays.map(
-                    overlay => html`
-                      <md-menu-item
-                        keepOpen
-                        value="${overlay.handle}"
-                        ?selected="${overlay.visible}"
-                        @click="${() => {
-                          fireEvent(this, 'map:overlay-toggle', {
-                            overlay: overlay.handle,
-                            visible: overlay.visible,
-                          })
-                        }}"
-                      >
-                        <div slot="headline">
-                          <label>
-                            <md-checkbox
-                              ?checked="${overlay.visible}"
-                              @change="${() => {
-                                fireEvent(this, 'map:overlay-toggle', {
-                                  handle: overlay.handle,
-                                  visible: overlay.visible,
-                                })
-                              }}"
-                            ></md-checkbox>
-                            ${overlay.desc}
-                          </label>
-                        </div>
-                      </md-menu-item>
-                    `
-                  )}
-                `}
-          </md-menu>
-        </div>
+        <grampsjs-map-layer-switcher
+          .appState="${this.appState}"
+          .overlays="${this.overlays}"
+          .currentStyle="${this._currentStyle}"
+          @map:layerchange="${this._onStyleChange}"
+          @map:overlay-toggle="${this._handleOverlayToggle}"
+        ></grampsjs-map-layer-switcher>
       </div>
     `
-  }
-
-  _handleLayerClick() {
-    const menu = this.renderRoot.querySelector('#layer-menu')
-    if (menu) {
-      menu.open = !menu.open
-    }
   }
 
   static get properties() {
@@ -296,14 +183,13 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
 
   _onStyleChange(e) {
     const config = {...defaultConfig, ...window.grampsjsConfig}
-    const style = e.target.value
+    const {style} = e.detail
     this._currentStyle = style
     const styleUrl = style === 'base' ? config.baseStyle : config.glStyle
     this._map.setStyle(styleUrl)
     if (this._currentStyle === 'ohm') {
       this._map.on('styledata', () => this._map.filterByDate(`${this.year}`))
     }
-    fireEvent(this, 'map:layerchange', {layer: this._currentLayer})
   }
 }
 
