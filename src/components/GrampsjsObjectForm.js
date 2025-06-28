@@ -128,7 +128,7 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
       <md-dialog @cancel="${this._handleDialogCancel}" open>
         <div slot="headline">${this.dialogTitle}</div>
         <div slot="content" @formdata:changed="${this._handleFormData}">
-          ${this.renderForm()}
+          ${this.dialogIsOpen ? this.renderForm() : ''}
         </div>
         <div slot="actions">
           <md-text-button class="edit" @click="${this._handleDialogCancel}">
@@ -158,6 +158,10 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
 
   _openDialog() {
     this.renderRoot.querySelector('md-dialog')?.show()
+  }
+
+  get dialogIsOpen() {
+    return this.renderRoot.querySelector('md-dialog')?.open ?? false
   }
 
   open() {

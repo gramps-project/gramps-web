@@ -85,6 +85,7 @@ export class GrampsjsViewMap extends GrampsjsView {
       _yearSpan: {type: Number},
       _currentLayer: {type: String},
       _minYear: {type: Number},
+      _hiddenOverlaysHandles: {type: Array},
     }
   }
 
@@ -96,6 +97,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._handlesHighlight = []
     this._dataSearch = []
     this._dataLayers = []
+    this._hiddenOverlaysHandles = []
     this._selected = ''
     this._valueSearch = ''
     this._bounds = {}
@@ -110,6 +112,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     const center = this._getMapCenter()
     return html`
       <grampsjs-map
+        .appState="${this.appState}"
         layerSwitcher
         locateControl
         width="100%"
@@ -118,8 +121,10 @@ export class GrampsjsViewMap extends GrampsjsView {
         longitude="${center[1]}"
         year="${this._year}"
         mapid="map-mapview"
+        .overlays="${this._getOverlaysForLayerSwitcher()}"
         @map:layerchange="${this._handleLayerChange}"
         @map:moveend="${this._handleMoveEnd}"
+        @map:overlay-toggle="${this._handleOverlayToggle}"
         id="map"
         zoom="6"
         >${this._renderMarkers()}${this._renderLayers()}</grampsjs-map
@@ -171,12 +176,31 @@ export class GrampsjsViewMap extends GrampsjsView {
     if (changed.has('active') && this.active) {
       const mapel = this.shadowRoot.getElementById('map')
       if (mapel !== null && mapel._map !== undefined) {
-        mapel._map.invalidateSize(false)
+        // MapLibre GL JS resize method instead of Leaflet's invalidateSize
+        mapel._map.resize()
       }
       const searchbox = this.shadowRoot.querySelector('grampsjs-map-searchbox')
       if (searchbox !== null) {
         searchbox.focus()
       }
+    }
+  }
+
+  _handleOverlayToggle(event) {
+    const {overlay, visible} = event.detail
+    if (visible) {
+      this._hiddenOverlaysHandles = [
+        ...this._hiddenOverlaysHandles.filter(
+          handle => handle !== overlay.handle
+        ),
+      ]
+    } else if (visible === false) {
+      this._hiddenOverlaysHandles = [
+        ...this._hiddenOverlaysHandles.filter(
+          handle => handle !== overlay.handle
+        ),
+        overlay.handle,
+      ]
     }
   }
 
@@ -221,7 +245,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._dataSearch = []
     this._valueSearch = object.profile.name
     this._handlesHighlight = [object.handle]
-    if (object.lat && object.long) {
+    if (object.profile.lat && object.profile.long) {
       this.latitude = object.profile.lat
       this.longitude = object.profile.long
       if (this.getZoom() < 14) {
@@ -238,16 +262,23 @@ export class GrampsjsViewMap extends GrampsjsView {
 
   setZoom(zoom) {
     const map = this.renderRoot.querySelector('grampsjs-map')
+    // MapLibre GL JS setZoom method
     map._map.setZoom(zoom)
   }
 
   getZoom() {
     const map = this.renderRoot.querySelector('grampsjs-map')
+    // MapLibre GL JS getZoom method
     return map._map.getZoom()
   }
 
   _renderLayers() {
-    return html` ${this._dataLayers.map(obj => this._renderMapLayer(obj))} `
+    return html`
+      ${this._dataLayers
+        // do not show hidden overlays
+        .filter(obj => !this._hiddenOverlaysHandles.includes(obj.handle))
+        .map(obj => this._renderMapLayer(obj))}
+    `
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -265,19 +296,32 @@ export class GrampsjsViewMap extends GrampsjsView {
     `
   }
 
+  _getOverlaysForLayerSwitcher() {
+    const visibleLayers = this._dataLayers.filter(obj =>
+      this._isLayerVisible(
+        JSON.parse(
+          obj.attribute_list?.filter(attr => attr.type === 'map:bounds')?.[0]
+            ?.value
+        )
+      )
+    )
+    return visibleLayers.map(obj => ({
+      handle: obj.handle,
+      desc: obj.desc,
+      visible: !this._hiddenOverlaysHandles.includes(obj.handle),
+    }))
+  }
+
   _isLayerVisible(bounds) {
     if (Object.keys(this._bounds).length === 0) {
       return false
     }
-    const mapBounds = [
-      [this._bounds._southWest.lat, this._bounds._southWest.lng],
-      [this._bounds._northEast.lat, this._bounds._northEast.lng],
-    ]
+    const mapBounds = this._bounds
     if (
-      bounds[0][0] < mapBounds[1][0] &&
-      bounds[1][0] > mapBounds[0][0] &&
-      bounds[0][1] < mapBounds[1][1] &&
-      bounds[1][1] > mapBounds[0][1]
+      bounds[1][0] > mapBounds._sw.lat && // layer south > map south
+      bounds[0][0] < mapBounds._ne.lat && // layer north < map north
+      bounds[1][1] > mapBounds._sw.lng && // layer east > map west
+      bounds[0][1] < mapBounds._ne.lng // layer west < map east
     ) {
       return true
     }
@@ -285,6 +329,7 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   _handleMoveEnd(e) {
+    // MapLibre GL JS provides bounds in format [west, south, east, north]
     this._bounds = e.detail.bounds
   }
 

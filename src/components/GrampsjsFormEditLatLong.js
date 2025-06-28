@@ -21,8 +21,8 @@ class GrampsjsFormEditLatLong extends GrampsjsObjectForm {
     return [
       super.styles,
       css`
-        mwc-dialog {
-          --mdc-dialog-min-width: 80vw;
+        md-dialog {
+          min-width: 80vw;
         }
 
         .search-results {
@@ -112,12 +112,13 @@ class GrampsjsFormEditLatLong extends GrampsjsObjectForm {
       ${this._renderSearchResults()}
       <p>
         <grampsjs-map
+          .appState="${this.appState}"
           latitude="${this.data.lat ? parseFloat(this.data.lat) : 0}"
           longitude="${this.data.long ? parseFloat(this.data.long) : 0}"
           layerSwitcher
           mapid="edit-latlong-map"
           id="map"
-          @click="${this._handleMapClick}"
+          @mapclick="${this._handleMapClick}"
         >
           ${this.data.lat && this.data.long
             ? html`
@@ -208,9 +209,13 @@ class GrampsjsFormEditLatLong extends GrampsjsObjectForm {
 
   _handleMapClick(e) {
     const map = this.shadowRoot.querySelector('grampsjs-map')
-    if (map !== null) {
-      const latlng = map._map.mouseEventToLatLng(e)
-      this._setLatLong(latlng.lat, latlng.lng)
+    const {lngLat} = e.detail
+    if (
+      map !== null &&
+      lngLat?.lat !== undefined &&
+      lngLat?.lng !== undefined
+    ) {
+      this._setLatLong(lngLat.lat, lngLat.lng)
     }
   }
 

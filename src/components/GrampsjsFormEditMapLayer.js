@@ -21,8 +21,8 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
     return [
       super.styles,
       css`
-        mwc-dialog {
-          --mdc-dialog-min-width: 80vw;
+        md-dialog {
+          min-width: 80vw;
         }
 
         mwc-slider {
@@ -137,6 +137,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
       }
     </p>
     <grampsjs-map
+      .appState="${this.appState}"
       latitude="${
         this.pinCoordinates.length === 2
           ? this.pinCoordinates[0]
@@ -151,7 +152,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
       layerSwitcher
       mapid="media-map"
       id="map"
-      @click="${this._handleMapClick}"
+      @mapclick="${this._handleMapClick}"
     >
       ${
         this._getBounds().length === 2
@@ -229,20 +230,19 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
   }
 
   _handleMapClick(e) {
-    const map = this.shadowRoot.querySelector('grampsjs-map')
-    if (map !== null) {
-      const latlng = map._map.mouseEventToLatLng(e)
+    if (e.detail?.lngLat !== undefined) {
+      const {lat, lng} = e.detail.lngLat
       if (this.state === 'placeMarker') {
-        this.pinCoordinates = [latlng.lat, latlng.lng]
+        this.pinCoordinates = [lat, lng]
         this.state = ''
         e.preventDefault()
         e.stopPropagation()
         if (this._getBounds().length === 0) {
-          this._placeImage(latlng.lat, latlng.lng, 0.1)
+          this._placeImage(lat, lng, 0.1)
         }
       }
       if (this.state === 'alignImage') {
-        this._alignToPin(latlng.lat, latlng.lng)
+        this._alignToPin(lat, lng)
         this.state = ''
         e.preventDefault()
         e.stopPropagation()
