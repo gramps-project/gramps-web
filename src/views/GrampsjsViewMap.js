@@ -303,7 +303,6 @@ export class GrampsjsViewMap extends GrampsjsView {
         )
       )
     )
-    console.log(this._hiddenOverlaysHandles)
     return visibleLayers.map(obj => ({
       handle: obj.handle,
       desc: obj.desc,
