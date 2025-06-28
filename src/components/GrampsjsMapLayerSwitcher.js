@@ -32,6 +32,13 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
         .map-layer-switcher md-menu {
           --md-divider-thickness: 1px;
         }
+
+        span.limit-width {
+          max-width: min(40em, 80vw);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
       `,
     ]
   }
@@ -78,19 +85,6 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
           positioning="popover"
         >
           <md-menu-item
-            value="ohm"
-            keepOpen
-            ?selected=${this.currentStyle === 'ohm'}
-            @click="${() => this._handleStyleChange('ohm')}"
-          >
-            <div slot="headline">
-              <label
-                ><md-radio ?checked="${this.currentStyle === 'ohm'}"></md-radio>
-                OpenHistoricalMap</label
-              >
-            </div>
-          </md-menu-item>
-          <md-menu-item
             keepOpen
             value="base"
             ?selected=${this.currentStyle === 'base'}
@@ -105,7 +99,20 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
               >
             </div>
           </md-menu-item>
-          ${true // TODO
+          <md-menu-item
+            value="ohm"
+            keepOpen
+            ?selected=${this.currentStyle === 'ohm'}
+            @click="${() => this._handleStyleChange('ohm')}"
+          >
+            <div slot="headline">
+              <label
+                ><md-radio ?checked="${this.currentStyle === 'ohm'}"></md-radio>
+                ${this._('Historical Map')}</label
+              >
+            </div>
+          </md-menu-item>
+          ${this.overlays.length === 0
             ? ''
             : html`
                 <md-divider role="separator" tabindex="-1"></md-divider>
@@ -115,25 +122,15 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
                       keepOpen
                       value="${overlay.handle}"
                       ?selected="${overlay.visible}"
-                      @click="${() => {
-                        fireEvent(this, 'map:overlay-toggle', {
-                          overlay: overlay.handle,
-                          visible: overlay.visible,
-                        })
-                      }}"
                     >
                       <div slot="headline">
                         <label>
                           <md-checkbox
                             ?checked="${overlay.visible}"
-                            @change="${() => {
-                              fireEvent(this, 'map:overlay-toggle', {
-                                handle: overlay.handle,
-                                visible: overlay.visible,
-                              })
-                            }}"
+                            @change="${e =>
+                              this._handleOverlayToggle(e, overlay)}"
                           ></md-checkbox>
-                          ${overlay.desc}
+                          <span class="limit-width">${overlay.desc}</span>
                         </label>
                       </div>
                     </md-menu-item>
@@ -143,6 +140,10 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
         </md-menu>
       </div>
     `
+  }
+
+  _handleOverlayToggle(e, overlay) {
+    fireEvent(this, 'map:overlay-toggle', {overlay, visible: e.target.checked})
   }
 
   _handleStyleChange(style) {

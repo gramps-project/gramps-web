@@ -85,6 +85,7 @@ export class GrampsjsViewMap extends GrampsjsView {
       _yearSpan: {type: Number},
       _currentLayer: {type: String},
       _minYear: {type: Number},
+      _hiddenOverlaysHandles: {type: Array},
     }
   }
 
@@ -96,6 +97,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._handlesHighlight = []
     this._dataSearch = []
     this._dataLayers = []
+    this._hiddenOverlaysHandles = []
     this._selected = ''
     this._valueSearch = ''
     this._bounds = {}
@@ -122,6 +124,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         .overlays="${this._getOverlaysForLayerSwitcher()}"
         @map:layerchange="${this._handleLayerChange}"
         @map:moveend="${this._handleMoveEnd}"
+        @map:overlay-toggle="${this._handleOverlayToggle}"
         id="map"
         zoom="6"
         >${this._renderMarkers()}${this._renderLayers()}</grampsjs-map
@@ -180,6 +183,22 @@ export class GrampsjsViewMap extends GrampsjsView {
       if (searchbox !== null) {
         searchbox.focus()
       }
+    }
+  }
+
+  _handleOverlayToggle(event) {
+    const {overlay, visible} = event.detail
+    if (visible) {
+      this._hiddenOverlaysHandles = this._hiddenOverlaysHandles.filter(
+        handle => handle !== overlay.handle
+      )
+    } else if (visible === false) {
+      this._hiddenOverlaysHandles = [
+        ...this._hiddenOverlaysHandles.filter(
+          handle => handle !== overlay.handle
+        ),
+        overlay.handle,
+      ]
     }
   }
 
@@ -252,7 +271,12 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   _renderLayers() {
-    return html` ${this._dataLayers.map(obj => this._renderMapLayer(obj))} `
+    return html`
+      ${this._dataLayers
+        // do not show hidden overlays
+        .filter(obj => !this._hiddenOverlaysHandles.includes(obj.handle))
+        .map(obj => this._renderMapLayer(obj))}
+    `
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -279,10 +303,11 @@ export class GrampsjsViewMap extends GrampsjsView {
         )
       )
     )
+    console.log(this._hiddenOverlaysHandles)
     return visibleLayers.map(obj => ({
       handle: obj.handle,
       desc: obj.desc,
-      visible: true,
+      visible: !this._hiddenOverlaysHandles.includes(obj.handle),
     }))
   }
 
