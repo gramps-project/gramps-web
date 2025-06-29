@@ -12,7 +12,7 @@ class GrampsjsMapOverlay extends LitElement {
       opacity: {type: Number},
       title: {type: String},
       hidden: {type: Boolean},
-      _overlay: {type: Object, attribute: false},
+      _overlay: {type: String, attribute: false},
     }
   }
 
@@ -23,6 +23,7 @@ class GrampsjsMapOverlay extends LitElement {
     this.title = ''
     this.hidden = false
     this.bounds = []
+    this._overlay = ''
   }
 
   firstUpdated() {
@@ -36,9 +37,9 @@ class GrampsjsMapOverlay extends LitElement {
     if (!this._map || !this.url || !this.bounds || this.bounds.length !== 2)
       return
 
-    // Remove if already exists
-    if (this._overlay) {
-      this.removeOverlay()
+    // Do nothing if overlay already exists
+    if (this._overlay && this._map.getLayer(this._overlay)) {
+      return
     }
 
     // Wait for style to be loaded before adding source/layer
@@ -46,7 +47,7 @@ class GrampsjsMapOverlay extends LitElement {
       // Add as a raster image source/layer
       const id = `overlay-${this.title || 'image'}-${Math.random()
         .toString(36)
-        .substr(2, 9)}`
+        .substring(2, 11)}`
       this._overlay = id
       // MapLibre expects coordinates in order: top-left, top-right, bottom-right, bottom-left
       // Fix: ensure bounds[0] is top-left (northwest), bounds[1] is bottom-right (southeast)
@@ -99,7 +100,6 @@ class GrampsjsMapOverlay extends LitElement {
       if (this._map.getSource(this._overlay)) {
         this._map.removeSource(this._overlay)
       }
-      this._overlay = null
     }
   }
 
