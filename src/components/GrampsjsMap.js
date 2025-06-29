@@ -192,8 +192,20 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     if (this._currentStyle === 'ohm') {
       this._map.on('styledata', () => {
         this._map.filterByDate(`${this.year}`)
+        this._reAddOverlays()
       })
+    } else {
+      this._reAddOverlays()
     }
+  }
+
+  _reAddOverlays() {
+    const overlays = this._slottedChildren.filter(
+      el => el.tagName === 'GRAMPSJS-MAP-OVERLAY'
+    )
+    overlays.forEach(overlay => {
+      overlay.addOverlay()
+    })
   }
 }
 
