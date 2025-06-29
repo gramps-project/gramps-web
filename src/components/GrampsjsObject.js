@@ -155,6 +155,29 @@ const _allTabs = {
   },
 }
 
+const zoomByPlaceType = {
+  Country: 4,
+  State: 6,
+  Province: 7,
+  Region: 7,
+  Department: 9,
+  County: 11,
+  Parish: 12,
+  District: 12,
+  Borough: 12,
+  Municipality: 12,
+  City: 13,
+  Town: 13,
+  Locality: 14,
+  Village: 14,
+  Neighborhood: 15,
+  Hamlet: 15,
+  Street: 16,
+  Farm: 17,
+  Building: 19,
+  Number: 19,
+}
+
 export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
@@ -406,6 +429,9 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
                 .appState="${this.appState}"
                 latitude="${this.data.profile.lat}"
                 longitude="${this.data.profile.long}"
+                zoom="${this.data?.place_type in zoomByPlaceType
+                  ? zoomByPlaceType[this.data.place_type]
+                  : 13}"
                 layerSwitcher
                 mapid="place-map"
                 id="map"
