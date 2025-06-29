@@ -138,6 +138,11 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     })
   }
 
+  get _slottedChildren() {
+    const slot = this.shadowRoot.querySelector('slot')
+    return slot.assignedElements({flatten: true})
+  }
+
   panTo(latitude, longitude) {
     if (this._map !== undefined) {
       this._map.panTo([longitude, latitude])
@@ -185,7 +190,9 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     const styleUrl = style === 'base' ? config.baseStyle : config.glStyle
     this._map.setStyle(styleUrl)
     if (this._currentStyle === 'ohm') {
-      this._map.on('styledata', () => this._map.filterByDate(`${this.year}`))
+      this._map.on('styledata', () => {
+        this._map.filterByDate(`${this.year}`)
+      })
     }
   }
 }
