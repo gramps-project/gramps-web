@@ -90,11 +90,6 @@ const _allTabs = {
       'placeref_list' in data && data?.backlinks?.event?.length > 0,
     conditionEdit: data => false,
   },
-  timeline: {
-    title: 'Timeline',
-    condition: data => data?.event_ref_list?.length > 0,
-    conditionEdit: () => false,
-  },
   participants: {
     title: 'Participants',
     condition: data =>
@@ -191,27 +186,36 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           font-size: 11px;
         }
 
-        .tab-content {
-          margin-top: 25px;
-          padding-bottom: 3em;
-        }
-
-        #tabs {
-          clear: both;
-          margin-top: 30px;
-        }
-
-        mwc-tab-bar {
-          border-bottom: solid #6d4c4133 1px;
-          margin-top: 28px;
-          margin-bottom: 36px;
-          --mdc-tab-horizontal-padding: 16px;
-        }
-
         #picture {
           margin-bottom: 20px;
           position: relative;
           text-align: center;
+        }
+
+        .sections {
+          display: flex;
+          flex-direction: column;
+          gap: 2rem;
+          clear: both;
+          margin-top: 30px;
+        }
+
+        .row {
+          display: flex;
+          flex-wrap: wrap;
+          padding-bottom: 1rem;
+        }
+
+        .section {
+          flex: 1 1 200px;
+        }
+
+        .sections h3 {
+          margin-top: 0;
+          margin-bottom: 1.5rem;
+          font-size: 24px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid var(--md-sys-color-outline-variant);
         }
 
         @media (min-width: 768px) {
@@ -229,6 +233,10 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           justify-content: flex-start;
           flex-wrap: wrap;
         }
+
+        div.tags {
+          padding-top: 1em;
+        }
       `,
     ]
   }
@@ -241,8 +249,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
       _objectsName: {type: String},
       _objectEndpoint: {type: String},
       _objectIcon: {type: String},
-      _currentTabId: {type: Number},
-      _currentTab: {type: String},
       _showReferences: {type: Boolean},
       _showPersonTimeline: {type: Boolean},
       _showFamilyTimeline: {type: Boolean},
@@ -256,7 +262,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     this.dialogContent = ''
     this._objectsName = 'Objects'
     this._objectIcon = ''
-    this._currentTabId = 0
     this._showReferences = true
     this._showPersonTimeline = false
     this._showFamilyTimeline = false
@@ -275,11 +280,9 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
 
       <div style="clear:left;"></div>
 
-      ${this.renderBeforeTags()} ${this.renderTags()}
+      <div class="tags">${this.renderTags()}</div>
 
-      <div id="tabs">${this.renderTabs()}</div>
-
-      <div class="tab-content">${this.renderTabContent()}</div>
+      <div class="sections">${this.renderSections()}</div>
 
       ${this.dialogContent}
     `
@@ -331,7 +334,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     )
   }
 
-  renderTabs() {
+  renderSections() {
     const tabKeys = this._getTabs(this.edit)
     if (!tabKeys.includes(this._currentTab)) {
       ;[this._currentTab] = tabKeys
@@ -340,19 +343,15 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
       return html``
     }
     return html`
-      <mwc-tab-bar
-        .activeIndex=${this._currentTabId}
-        @MDCTabBar:activated=${this._handleTabActivated}
-        @MDCTab:interacted=${this._handleTabInteracted}
-        id="tab-bar"
-      >
-        ${tabKeys.map(key => this._makeTab(key))}
-      </mwc-tab-bar>
+      ${tabKeys.map(
+        key => html`<div class="row">
+          <div class="section">
+            <h3>${this._(_allTabs[key].title)}</h3>
+            ${this.renderSectionContent(key)}
+          </div>
+        </div>`
+      )}
     `
-  }
-
-  renderBeforeTags() {
-    return ''
   }
 
   renderTags() {
@@ -364,11 +363,11 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     ></grampsjs-tags>`
   }
 
-  renderTabContent() {
+  renderSectionContent(sectionKey) {
     const mapBounds = (this.data.attribute_list || []).filter(
       attr => attr.type === 'map:bounds'
     )
-    switch (this._currentTab) {
+    switch (sectionKey) {
       case 'relationships':
         return html`<grampsjs-relationships
           grampsId="${this.data.gramps_id}"
@@ -488,15 +487,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           .data=${this.data?.extended?.backlinks?.event}
           .profile=${this.data?.profile?.references?.event}
         ></grampsjs-events>`
-      case 'timeline':
-        if (this._showPersonTimeline) {
-          return html`<grampsjs-view-person-timeline
-            active
-            .appState="${this.appState}"
-            handle=${this.data.handle}
-          ></grampsjs-view-person-timeline>`
-        }
-        return ''
       case 'sources':
         return html`<grampsjs-sources
           .appState="${this.appState}"
@@ -552,6 +542,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
             .map(obj => obj.gramps_id)
             .filter(obj => Boolean(obj))}
           ?edit="${this.edit}"
+          numberOfNotes="${this.data?.note_list?.length || 0}"
         ></grampsjs-view-object-notes>`
       case 'gallery':
         return html` <grampsjs-gallery
@@ -614,36 +605,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           this._showPersonTimeline ||
           key !== 'timeline')
     )
-  }
-
-  _makeTab(key) {
-    return html`
-      <mwc-tab id="${key}" label="${this._(_allTabs[key].title)}"> </mwc-tab>
-    `
-  }
-
-  updated(changed) {
-    if (changed.has('edit')) {
-      this._updateTabIndicator(changed.get('  '))
-    }
-  }
-
-  _updateTabIndicator(edit) {
-    const tabKeys = this._getTabs(!edit)
-    if (
-      tabKeys.includes(this._currentTab) &&
-      tabKeys.indexOf(this._currentTab) !== this._currentTabId
-    ) {
-      this._currentTabId = tabKeys.indexOf(this._currentTab)
-    }
-  }
-
-  _handleTabActivated(event) {
-    this._currentTabId = event.detail.index
-  }
-
-  _handleTabInteracted(event) {
-    this._currentTab = event.detail.tabId
   }
 
   _handleCancelDialog() {

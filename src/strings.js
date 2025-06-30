@@ -503,6 +503,7 @@ export const grampsStrings = [
   'Relationship',
   'Relationships',
   'Religion',
+  'Remove note',
   'Report',
   'Repositories',
   'Repository Note',

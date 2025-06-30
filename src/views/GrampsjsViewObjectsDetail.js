@@ -36,6 +36,9 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
   }
 
   renderContent() {
+    if (this.loading) {
+      return this.renderLoading()
+    }
     if (this._data.length === 0) {
       return html`${this.edit ? this.renderEdit() : ''}`
     }
@@ -43,6 +46,10 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
       ${this.edit ? this.renderEdit() : ''} ${this.renderElements()}
       ${this.dialogContent}
     `
+  }
+
+  renderLoading() {
+    return ''
   }
 
   renderEdit() {}

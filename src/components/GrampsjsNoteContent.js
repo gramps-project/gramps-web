@@ -23,21 +23,21 @@ export class GrampsjsNoteContent extends LitElement {
           column-gap: 2em;
         }
 
-        .note.frame {
-          border: 1px solid rgba(0, 0, 0, 0.15);
-          border-radius: 8px;
+        .note-container.frame {
+          border: 1px solid var(--md-sys-color-outline-variant);
+          border-radius: 12px;
           padding: 20px 25px;
         }
 
-        .note.frame p {
+        .note-container.frame p {
           margin: 2em 0em;
         }
 
-        .note.frame p:first-child {
+        .note-container.frame p:first-child {
           margin-top: 0;
         }
 
-        .note.frame p:last-child {
+        .note-container.frame p:last-child {
           margin-bottom: 0;
         }
       `,
@@ -59,7 +59,10 @@ export class GrampsjsNoteContent extends LitElement {
 
   render() {
     return html`
-      <div class="note ${this.framed ? 'frame' : ''}" id="note-content"></div>
+      <div class="note-container ${this.framed ? 'frame' : ''}">
+        <div class="note" id="note-content"></div>
+        <slot></slot>
+      </div>
     `
   }
 
