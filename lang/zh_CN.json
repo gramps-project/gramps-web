@@ -198,5 +198,6 @@
     "Second person": "第二人",
     "Raw match data": "原始匹配数据",
     "Add new DNA match": "添加新的DNA匹配",
-    "Paste the raw data in the field above to see the preview.": "粘贴原始数据到上面并预览"
+    "Paste the raw data in the field above to see the preview.": "粘贴原始数据到上面并预览。",
+    "Number of SNPs": "SPN位点总数（衡量遗传变异丰富程度）"
 }
