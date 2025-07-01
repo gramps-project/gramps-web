@@ -16,11 +16,8 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 const defaultConfig = {
-  glStyle: 'https://www.openhistoricalmap.org/map-styles/main/main.json',
-  glAttribution:
-    '<a href="https://maplibre.org/" target="_blank">MapLibre</a> | <a href="https://www.openhistoricalmap.org/">OpenHistoricalMap</a> contributors',
-  baseStyle: 'https://tiles.openfreemap.org/styles/liberty',
-  baseAttribution: '<a href="https://openfreemap.org">OpenFreeMap</a>',
+  mapOhmStyle: 'https://www.openhistoricalmap.org/map-styles/main/main.json',
+  mapBaseStyle: 'https://tiles.openfreemap.org/styles/liberty',
 }
 
 const {maplibregl} = window
@@ -91,7 +88,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     const mapel = this.shadowRoot.getElementById(this.mapid)
     const config = {...defaultConfig, ...window.grampsjsConfig}
     const styleUrl =
-      this._currentStyle === 'base' ? config.baseStyle : config.glStyle
+      this._currentStyle === 'base' ? config.mapBaseStyle : config.mapOhmStyle
     this._map = new maplibregl.Map({
       container: mapel,
       style: styleUrl,
@@ -187,7 +184,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     const config = {...defaultConfig, ...window.grampsjsConfig}
     const {style} = e.detail
     this._currentStyle = style
-    const styleUrl = style === 'base' ? config.baseStyle : config.glStyle
+    const styleUrl = style === 'base' ? config.mapBaseStyle : config.mapOhmStyle
     this._map.setStyle(styleUrl)
     if (this._currentStyle === 'ohm') {
       this._map.on('styledata', () => {
