@@ -187,5 +187,16 @@
     "User Information": "用户信息",
     "User groups allowed to use AI chat:": "允许使用AI聊天的用户群组：",
     "Nobody": "没人",
-    "User group": "用户组"
+    "User group": "用户组",
+    "Regenerate semantic search index": "重建语义搜索索引",
+    "Settings": "设置",
+    "Pending": "待生效",
+    "Started": "已开始",
+    "Delete user": "删除用户",
+    "Do you really want to delete user \"%s\"?": "您确认要删除用户“%s”吗？",
+    "First person": "第一人",
+    "Second person": "第二人",
+    "Raw match data": "原始匹配数据",
+    "Add new DNA match": "添加新的DNA匹配",
+    "Paste the raw data in the field above to see the preview.": "粘贴原始数据到上面并预览"
 }
