@@ -2,9 +2,6 @@
 /* eslint-disable no-unused-vars */
 import {LitElement, css, html} from 'lit'
 
-import '@material/mwc-tab'
-import '@material/mwc-tab-bar'
-
 import {sharedStyles} from '../SharedStyles.js'
 import '../views/GrampsjsViewObjectNotes.js'
 import '../views/GrampsjsViewSourceCitations.js'
@@ -29,6 +26,7 @@ import './GrampsjsRepositories.js'
 import './GrampsjsSources.js'
 import './GrampsjsTags.js'
 import './GrampsjsUrls.js'
+import './GrampsjsObjectToc.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 import {fireEvent} from '../util.js'
@@ -192,12 +190,18 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           text-align: center;
         }
 
+        .content-wrapper {
+          display: flex;
+          margin-top: 30px;
+          clear: both;
+        }
+
         .sections {
           display: flex;
           flex-direction: column;
           gap: 2rem;
-          clear: both;
-          margin-top: 30px;
+          width: calc(100% - 235px);
+          padding-right: 35px;
         }
 
         .row {
@@ -208,6 +212,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
 
         .section {
           flex: 1 1 200px;
+          scroll-margin-top: 100px;
         }
 
         .sections h3 {
@@ -237,6 +242,15 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         div.tags {
           padding-top: 1em;
         }
+
+        div.toc {
+          margin-left: auto;
+          position: sticky;
+          width: 200px;
+          top: 100px;
+          height: fit-content;
+          margin-left: auto;
+        }
       `,
     ]
   }
@@ -265,6 +279,27 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     this._showReferences = true
     this._showPersonTimeline = false
     this._showFamilyTimeline = false
+    this._sectionObserver = null
+    this._currentVisibleSection = ''
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this._setupIntersectionObserver()
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    this._teardownIntersectionObserver()
+  }
+
+  updated(changedProperties) {
+    super.updated(changedProperties)
+
+    // Re-setup the observer when the data changes to observe the new sections
+    if (changedProperties.has('data') && Object.keys(this.data).length > 0) {
+      this._setupIntersectionObserver()
+    }
   }
 
   render() {
@@ -282,10 +317,49 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
 
       <div class="tags">${this.renderTags()}</div>
 
-      <div class="sections">${this.renderSections()}</div>
+      <div class="content-wrapper">
+        <div class="sections">${this.renderSections()}</div>
+        <div class="toc">${this.renderToc()}</div>
+      </div>
 
       ${this.dialogContent}
     `
+  }
+
+  renderToc() {
+    // Get all tabs/sections that should be displayed
+    const tabKeys = this._getTabs(this.edit)
+
+    // Create object with just the tabs we need to show
+    const visibleTabs = {}
+    tabKeys.forEach(key => {
+      visibleTabs[key] = _allTabs[key]
+    })
+
+    return html`
+      <grampsjs-object-toc
+        .tabs=${visibleTabs}
+        .appState="${this.appState}"
+        activeSection=${this._currentVisibleSection}
+        @toc-item-click=${this._handleTocItemClick}
+      ></grampsjs-object-toc>
+    `
+  }
+
+  _handleTocItemClick(e) {
+    const {sectionKey} = e.detail
+    const section = this.shadowRoot.querySelector(`#section-${sectionKey}`)
+    if (section) {
+      // Update the current visible section
+      this._currentVisibleSection = sectionKey
+
+      // Scroll to the section
+      section.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest',
+      })
+    }
   }
 
   renderHeader() {
@@ -345,7 +419,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     return html`
       ${tabKeys.map(
         key => html`<div class="row">
-          <div class="section">
+          <div class="section" id="section-${key}">
             <h3>${this._(_allTabs[key].title)}</h3>
             ${this.renderSectionContent(key)}
           </div>
@@ -652,5 +726,56 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     const Ly = yMax - yMin
     const L = Math.max(Lx, Ly)
     return Math.round(Math.log2(360 / L))
+  }
+
+  _setupIntersectionObserver() {
+    // Wait for the DOM to be ready
+    setTimeout(() => {
+      if (this._sectionObserver) {
+        this._teardownIntersectionObserver()
+      }
+
+      const options = {
+        root: null, // use viewport as root
+        rootMargin: '-100px 0px -70% 0px', // section needs to be near the top of the viewport
+        threshold: 0, // trigger when any part of the section is visible
+      }
+
+      this._sectionObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const sectionId = entry.target.id
+            const sectionKey = sectionId.replace('section-', '')
+
+            // Update the current visible section
+            this._currentVisibleSection = sectionKey
+
+            // Update the TOC component
+            const tocComponent = this.shadowRoot.querySelector(
+              'grampsjs-object-toc'
+            )
+            if (tocComponent) {
+              tocComponent.setActiveSection(sectionKey)
+            }
+          }
+        })
+      }, options)
+
+      // Observe all sections
+      const tabKeys = this._getTabs(this.edit)
+      tabKeys.forEach(key => {
+        const section = this.shadowRoot?.querySelector(`#section-${key}`)
+        if (section) {
+          this._sectionObserver.observe(section)
+        }
+      })
+    }, 100) // Short delay to ensure the DOM is ready
+  }
+
+  _teardownIntersectionObserver() {
+    if (this._sectionObserver) {
+      this._sectionObserver.disconnect()
+      this._sectionObserver = null
+    }
   }
 }
