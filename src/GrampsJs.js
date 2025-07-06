@@ -473,7 +473,11 @@ export class GrampsJs extends LitElement {
       this._loadStrings(grampsStrings, this.appState.settings.lang)
     }
     return html`
-      <mwc-drawer type="dismissible" id="app-drawer" ?open="${this.wide}">
+      <mwc-drawer
+        type="${this.wide ? 'dismissible' : 'modal'}"
+        id="app-drawer"
+        ?open="${this.wide}"
+      >
         <div>
           <grampsjs-main-menu .appState="${this.appState}"></grampsjs-main-menu>
         </div>
