@@ -227,6 +227,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           display: flex;
           gap: 12px;
           justify-content: flex-start;
+          flex-wrap: wrap;
         }
       `,
     ]
