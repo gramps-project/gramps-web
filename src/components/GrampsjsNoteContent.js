@@ -25,7 +25,7 @@ export class GrampsjsNoteContent extends LitElement {
 
         .note-container.frame {
           border: 1px solid var(--md-sys-color-outline-variant);
-          border-radius: 12px;
+          border-radius: 6px;
           padding: 20px 25px;
         }
 
