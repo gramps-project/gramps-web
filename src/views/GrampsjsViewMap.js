@@ -516,6 +516,10 @@ export class GrampsjsViewMap extends GrampsjsView {
         n += 1
       }
     }
+    if (n === 0) {
+      const locale = this.appState.i18n.lang || 'en'
+      return languageCoordinates[locale] || [0, 0]
+    }
     x /= n
     y /= n
     return [x, y]
