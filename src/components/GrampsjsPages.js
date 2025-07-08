@@ -295,6 +295,7 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         ?active=${this.appState.path.page === 'settings' &&
         this.appState.path.pageId === 'users'}
         .appState="${this.appState}"
+        .dbInfo="${this.dbInfo}"
       ></grampsjs-view-user-management>
       <grampsjs-view-sysinfo
         class="page"
