@@ -2,6 +2,8 @@
 /* eslint-disable no-unused-vars */
 import {LitElement, css, html} from 'lit'
 
+import '@material/web/iconbutton/icon-button.js'
+
 import {sharedStyles} from '../SharedStyles.js'
 import '../views/GrampsjsViewObjectNotes.js'
 import '../views/GrampsjsViewSourceCitations.js'
@@ -13,6 +15,7 @@ import './GrampsjsBreadcrumbs.js'
 import './GrampsjsChildren.js'
 import './GrampsjsCitations.js'
 import './GrampsjsEvents.js'
+import './GrampsjsIcon.js'
 import './GrampsjsNames.js'
 import './GrampsjsPlaceChildren.js'
 import './GrampsjsPlaceRefs.js'
@@ -176,9 +179,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        :host {
-        }
-
         pre {
           max-width: 80%;
           font-size: 11px;
@@ -200,8 +200,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           display: flex;
           flex-direction: column;
           gap: 2rem;
-          width: calc(100% - 235px);
-          padding-right: 35px;
         }
 
         .row {
@@ -213,6 +211,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         .section {
           flex: 1 1 200px;
           scroll-margin-top: 100px;
+          margin-right: 20px;
         }
 
         .sections h3 {
@@ -221,15 +220,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           font-size: 24px;
           padding-bottom: 12px;
           border-bottom: 1px solid var(--md-sys-color-outline-variant);
-        }
-
-        @media (min-width: 768px) {
-          #picture {
-            float: right;
-            text-align: right;
-            margin-left: 40px;
-            margin-right: 0px;
-          }
         }
 
         p.button-list {
@@ -244,12 +234,78 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         }
 
         div.toc {
-          margin-left: auto;
-          position: sticky;
-          width: 200px;
-          top: 100px;
-          height: fit-content;
-          margin-left: auto;
+          display: none;
+        }
+
+        div.bottom-bar {
+          position: fixed;
+          display: none; /* flex */
+          bottom: 0;
+          right: 0;
+          width: 100%;
+          height: 50px;
+          background-color: white;
+          border-top: 1px solid var(--md-sys-color-outline-variant);
+          box-sizing: border-box;
+        }
+
+        div.bottom-bar-content {
+          position: relative;
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          padding: 10px;
+          justify-content: space-between;
+          box-sizing: border-box;
+        }
+
+        div.bottom-bar-content > * {
+          flex: 1 1 auto;
+          align-items: center;
+          text-align: center;
+        }
+
+        div.bottom-bar-content md-icon-button {
+          --md-icon-button-icon-size: 22px;
+          width: 34px;
+          height: 34px;
+        }
+
+        @media (min-width: 992px) {
+          #picture {
+            float: right;
+            text-align: right;
+            margin-left: 40px;
+            margin-right: 0px;
+          }
+        }
+
+        @media (min-width: 1200px) {
+          div.toc {
+            display: block;
+            margin-left: auto;
+            position: sticky;
+            width: 200px;
+            top: 100px;
+            height: fit-content;
+            margin-left: auto;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .sections {
+            width: calc(100% - 235px);
+            padding-right: 35px;
+          }
+
+          .row {
+            display: flex;
+            justify-content: space-between;
+          }
+
+          div.bottom-bar {
+            display: none;
+          }
         }
       `,
     ]
@@ -321,6 +377,9 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         <div class="sections">${this.renderSections()}</div>
         <div class="toc">${this.renderToc()}</div>
       </div>
+      <div class="bottom-bar">
+        <div class="bottom-bar-content"></div>
+      </div>
 
       ${this.dialogContent}
     `
@@ -340,7 +399,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
       <grampsjs-object-toc
         .tabs=${visibleTabs}
         .appState="${this.appState}"
-        activeSection=${this._currentVisibleSection}
+        .activeSection="${this._currentVisibleSection}"
         @toc-item-click=${this._handleTocItemClick}
       ></grampsjs-object-toc>
     `

@@ -567,6 +567,7 @@ export const grampsStrings = [
   'Surname',
   'Surnames',
   'System Information',
+  'Table Of Contents',
   'Tag Report',
   'Tag',
   'Tags',

@@ -22,6 +22,15 @@ export class GrampsjsObjectToc extends GrampsjsAppStateMixin(LitElement) {
         md-list-item.active {
           --md-list-item-label-text-weight: 600;
         }
+
+        h3 {
+          margin-left: 14px;
+          margin-bottom: 12px;
+          margin-top: 0;
+          font-size: 16px;
+          font-weight: 420;
+          opacity: 0.55;
+        }
       `,
     ]
   }
@@ -46,6 +55,7 @@ export class GrampsjsObjectToc extends GrampsjsAppStateMixin(LitElement) {
     }
 
     return html`
+      <h3>${this._('Table Of Contents')}</h3>
       <md-list class="toc-list">
         ${tabKeys.map(
           key => html`
