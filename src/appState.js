@@ -11,7 +11,7 @@ export function getInitialAppState() {
   const auth = new Auth()
   return {
     auth,
-    wide: false,
+    screenSize: 'small',
     progress: false,
     settings: getSettings(),
     dbInfo: {},
