@@ -199,7 +199,7 @@
     "Confirm Password": "Confirmar contraseña",
     "Passwords do not match.": "Las contraseñas no coinciden.",
     "Register to Gramps Web": "Registrarse en Gramps Web",
-    "Log in to Gramps Web": "Iniciar sesión en Gramps Web",
+    "Log in to Gramps Web": "Acceder a Gramps Web",
     "Invalid E-mail address": "Dirección de correo electrónico no válida",
     "semantic": "semántica",
     "First person": "Primera persona",
@@ -224,5 +224,9 @@
     "Given Name First": "Primero el nombre de pila",
     "Log out": "Salir",
     "DNA matches": "Coincidencias de ADN",
-    "Raw match data": "Datos de coincidencias en bruto"
+    "Raw match data": "Datos de coincidencias en bruto",
+    "Base Map": "Mapa de base",
+    "Historical Map": "Mapa histórico",
+    "Toggle person outlines": "Activar o desactivar contornos de personas",
+    "in": "en"
 }
