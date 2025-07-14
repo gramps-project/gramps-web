@@ -209,5 +209,13 @@
     "End Position": "Slutposition",
     "Delete user": "Slet bruger",
     "Do you really want to delete user \"%s\"?": "Ønsker du virkelig at slette bruger \"%s\"?",
-    "in": "i"
+    "in": "i",
+    "Max Degree of Separation": "Højeste grad af separation",
+    "Max Number of Images displayed": "Højeste antal viste billeder",
+    "Length": "Længde",
+    "Confirm Password": "Bekræft kodeord",
+    "Passwords do not match.": "Kodeord ikke ens.",
+    "Register to Gramps Web": "Registrer dig på Gramps Web",
+    "Log in to Gramps Web": "Log ind på Gramps Web",
+    "Invalid E-mail address": "Ugyldig e-mail adresse."
 }
