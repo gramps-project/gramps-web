@@ -217,5 +217,15 @@
     "Passwords do not match.": "Kodeord ikke ens.",
     "Register to Gramps Web": "Registrer dig på Gramps Web",
     "Log in to Gramps Web": "Log ind på Gramps Web",
-    "Invalid E-mail address": "Ugyldig e-mail adresse."
+    "Invalid E-mail address": "Ugyldig e-mail adresse",
+    "full-text": "Fuldtekst",
+    "semantic": "semantisk",
+    "Name Display Format": "Navnevisningsformat",
+    "Surname First": "Efternavn først",
+    "Given Name First": "Fornavn først",
+    "Toggle person outlines": "Skift personomrids",
+    "Log out": "Log af",
+    "DNA matches": "DNA matches",
+    "Base Map": "Basiskort",
+    "Historical Map": "Historisk Kort"
 }
