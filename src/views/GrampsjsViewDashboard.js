@@ -1,6 +1,7 @@
 import {html, css} from 'lit'
 
 import '@material/web/button/text-button'
+import '@material/web/button/outlined-button'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import './GrampsjsViewRecentlyChanged.js'
@@ -44,6 +45,13 @@ export class GrampsjsViewDashboard extends GrampsjsView {
           margin-bottom: 1.5em;
         }
 
+        .buttons {
+          display: flex;
+          gap: 1em;
+          margin-top: 1em;
+          flex-wrap: wrap;
+        }
+
         @media screen and (max-width: 768px) {
           .column,
           .column:first-child {
@@ -58,6 +66,23 @@ export class GrampsjsViewDashboard extends GrampsjsView {
   renderContent() {
     return html`
       <div class="column">
+        ${this.appState.dbInfo?.object_counts?.people
+          ? ''
+          : html`<div>
+              <h3>Get started</h3>
+              <p>
+                ${this._(
+                  'To start building your family tree, add yourself as a person or import a family tree file.'
+                )}
+              </p>
+              <div class="buttons">
+                <md-outlined-button href="/new_person"
+                  >${this._('New Person')}</md-outlined-button
+                ><md-outlined-button href="/settings/administration"
+                  >${this._('Import Family Tree')}</md-outlined-button
+                >
+              </div>
+            </div>`}
         <div>
           <grampsjs-home-person
             id="homeperson"

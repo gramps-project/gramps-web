@@ -2,6 +2,7 @@ import {css} from 'lit'
 
 export const sharedStyles = css`
   :host {
+    line-height: 1.6;
     --grampsjs-body-font-family: 'Inter var', sans-serif;
     --grampsjs-heading-font-family: 'Inter var', sans-serif;
     --md-ref-typeface-plain: 'Inter var', sans-serif;

@@ -95,6 +95,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       <h3>${this._('Usage quotas')}</h3>
 
       <grampsjs-tree-quotas .appState="${this.appState}"></grampsjs-tree-quotas>
+      <grampsjs-import .appState="${this.appState}"></grampsjs-import>
 
       <grampsjs-media-status
         .appState="${this.appState}"
@@ -104,8 +105,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             .appState="${this.appState}"
           ></grampsjs-media-file-status>`
         : ''}
-
-      <grampsjs-import .appState="${this.appState}"></grampsjs-import>
 
       <grampsjs-import-media
         .appState="${this.appState}"
