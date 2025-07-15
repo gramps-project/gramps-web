@@ -5,6 +5,7 @@ All strings that need to be translated
 // existing languages for frontend strings
 export const frontendLanguages = [
   'ar',
+  'ba',
   'bg',
   'br',
   'ca',
