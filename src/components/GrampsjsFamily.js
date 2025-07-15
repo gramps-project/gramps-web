@@ -82,7 +82,8 @@ export class GrampsjsFamily extends GrampsjsObject {
     return html`
       <span class="event">
         <i>${ringsIcon}</i>
-        ${obj.date || ''} ${obj.place ? this._('in') : ''} ${obj.place || ''}
+        ${obj.date || ''} ${obj.place ? this._('in') : ''}
+        ${obj.place_name || obj.place || ''}
       </span>
     `
   }
