@@ -224,5 +224,9 @@
     "Log out": "Odhlásit",
     "Base Map": "Základní mapa",
     "DNA matches": "Shody DNA",
-    "Historical Map": "Historická mapa"
+    "Historical Map": "Historická mapa",
+    "To start building your family tree, add yourself as a person or import a family tree file.": "Chcete-li začít vytvářet svůj rodinný strom, přidejte se jako osoba nebo importujte soubor s rodokmenem.",
+    "full-text": "fulltextové",
+    "semantic": "významové",
+    "Toggle person outlines": "Přepnout obrysy osob"
 }
