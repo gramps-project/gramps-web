@@ -68,37 +68,47 @@ export class GrampsjsViewDashboard extends GrampsjsView {
       <div class="column">
         ${this.appState.dbInfo?.object_counts?.people
           ? ''
-          : html`<div>
-              <h3>Get started</h3>
-              <p>
-                ${this._(
-                  'To start building your family tree, add yourself as a person or import a family tree file.'
-                )}
-              </p>
-              <div class="buttons">
-                <md-outlined-button href="/new_person"
-                  >${this._('New Person')}</md-outlined-button
-                ><md-outlined-button href="/settings/administration"
-                  >${this._('Import Family Tree')}</md-outlined-button
-                >
+          : html`
+              <div>
+                <h3>Get started</h3>
+                <p>
+                  ${this._(
+                    'To start building your family tree, add yourself as a person or import a family tree file.'
+                  )}
+                </p>
+                <div class="buttons">
+                  <md-outlined-button href="/new_person"
+                    >${this._('New Person')}</md-outlined-button
+                  ><md-outlined-button href="/settings/administration"
+                    >${this._('Import Family Tree')}</md-outlined-button
+                  >
+                </div>
               </div>
-            </div>`}
-        <div>
-          <grampsjs-home-person
-            id="homeperson"
-            .appState="${this.appState}"
-            .homePersonDetails=${this.homePersonDetails}
-            .homePersonGrampsId=${this.homePersonGrampsId}
-          >
-          </grampsjs-home-person>
-        </div>
-        <div>
-          <grampsjs-view-anniversaries
-            id="anniversaries"
-            .appState="${this.appState}"
-          >
-          </grampsjs-view-anniversaries>
-        </div>
+            `}
+        ${this.appState.dbInfo?.object_counts?.people
+          ? html`
+              <div>
+                <grampsjs-home-person
+                  id="homeperson"
+                  .appState="${this.appState}"
+                  .homePersonDetails=${this.homePersonDetails}
+                  .homePersonGrampsId=${this.homePersonGrampsId}
+                >
+                </grampsjs-home-person>
+              </div>
+            `
+          : ''}
+        ${this.appState.dbInfo?.object_counts?.events
+          ? html`
+              <div>
+                <grampsjs-view-anniversaries
+                  id="anniversaries"
+                  .appState="${this.appState}"
+                >
+                </grampsjs-view-anniversaries>
+              </div>
+            `
+          : ''}
         <div>
           <grampsjs-view-recently-changed
             id="recently-changed"
