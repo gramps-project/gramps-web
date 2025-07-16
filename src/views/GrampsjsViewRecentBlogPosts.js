@@ -26,7 +26,7 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
     if (!this._data?.data?.length) {
       return html`
         <h3>${this._('Latest Blog Post')}</h3>
-        <p>${this._('No items')}.</p>
+        <p>${this._('None')}.</p>
       `
     }
     return html`

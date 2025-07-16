@@ -110,7 +110,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
       !Object.values(this._objectTypes).some(Boolean)
         ? html`<p>${this._('Select at least one object type')}</p>`
         : ''}
-      ${this._totalCount === 0 ? html`<p>${this._('No items')}</p>` : ''}
+      ${this._totalCount === 0 ? html`<p>${this._('None')}</p>` : ''}
       ${this._totalCount > 0 ? html`<p>Total: ${this._totalCount}</p>` : ''}
       <grampsjs-search-result-list
         .data="${this._data}"

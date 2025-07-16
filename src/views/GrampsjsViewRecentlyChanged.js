@@ -7,7 +7,7 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsConnectedComponent {
   renderContent() {
     return html` <h3>${this._('Recently changed objects')}</h3>
       ${this._data?.data === undefined || this._data?.data?.length === 0
-        ? html` <p>${this._('No items')}.</p> `
+        ? html` <p>${this._('None')}.</p> `
         : html`
             <grampsjs-search-result-list
               linked

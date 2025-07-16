@@ -47,7 +47,7 @@ export class GrampsjsViewBookmarks extends GrampsjsView {
   render() {
     return html` <h2>${this._('_Bookmarks')}</h2>
       ${this._data.length === 0
-        ? html` <p>${this._('No items')}.</p> `
+        ? html` <p>${this._('None')}.</p> `
         : html`
             <grampsjs-search-result-list
               .data="${this._searchResult.slice().reverse()}"

@@ -371,7 +371,7 @@ export const grampsStrings = [
   'No errors were found: the database has passed internal checks.',
   'No generations of empty boxes for unknown ancestors',
   'No Home Person set.',
-  'No items',
+  'None',
   'Nobility Title',
   'None',
   'Normal',
