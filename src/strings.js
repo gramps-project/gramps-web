@@ -103,6 +103,7 @@ export const grampsStrings = [
   'Aide',
   'Album',
   'Also Known As',
+  'Alternate Names',
   'Alternate Marriage',
   'Ancestor Tree',
   'and',
