@@ -66,9 +66,9 @@ export class GrampsjsViewDashboard extends GrampsjsView {
   renderContent() {
     return html`
       <div class="column">
-        ${this.appState.dbInfo?.object_counts?.people
-          ? ''
-          : html`
+        ${this.appState.dbInfo?.object_counts?.people === 0 &&
+        this.appState.permissions.canEdit
+          ? html`
               <div>
                 <h3>Get started</h3>
                 <p>
@@ -84,7 +84,8 @@ export class GrampsjsViewDashboard extends GrampsjsView {
                   >
                 </div>
               </div>
-            `}
+            `
+          : ''}
         ${this.appState.dbInfo?.object_counts?.people
           ? html`
               <div>

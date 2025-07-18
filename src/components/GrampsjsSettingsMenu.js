@@ -23,10 +23,10 @@ import {renderIconSvg} from '../icons.js'
 import {clickKeyHandler} from '../util.js'
 
 const menuItems = [
-  ['User settings', '/settings/user', mdiAccountCog],
-  ['Administration', '/settings/administration', mdiWrench],
-  ['Manage users', '/settings/users', mdiAccountMultiple],
-  ['System Information', '/settings/info', mdiInformation],
+  ['User settings', '/settings/user', mdiAccountCog, false],
+  ['Administration', '/settings/administration', mdiWrench, true],
+  ['Manage users', '/settings/users', mdiAccountMultiple, true],
+  ['System Information', '/settings/info', mdiInformation, false],
 ]
 
 class GrampsjsSettingsMenu extends GrampsjsAppStateMixin(LitElement) {
@@ -88,7 +88,10 @@ class GrampsjsSettingsMenu extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  _menuItem(title, url, icon) {
+  _menuItem(title, url, icon, needsAdminPermission) {
+    if (needsAdminPermission && !this.appState.permissions.canManageUsers) {
+      return ''
+    }
     return html`
       <md-menu-item href="${url}">
         <div slot="headline">${this._(title)}</div>
