@@ -211,5 +211,16 @@
     "Do you really want to delete user \"%s\"?": "Stvarno želiš izbrisati korisnkia „%s”?",
     "Max Degree of Separation": "Maks. stupanj rastavljanja",
     "Max Number of Images displayed": "Maks. broj prikazanih slika",
-    "Length": "Duljina"
+    "Length": "Duljina",
+    "Confirm Password": "Potvrdi lozinku",
+    "Passwords do not match.": "Lozinke se ne poklapaju.",
+    "Register to Gramps Web": "Registriraj se na Gramps Web",
+    "Log in to Gramps Web": "Prijavi se na Gramps Web",
+    "Invalid E-mail address": "Neispravna e-mail adresa",
+    "full-text": "potpuni tekst",
+    "semantic": "semantički",
+    "Name Display Format": "Format prikaza imena",
+    "Surname First": "Najprije prezime",
+    "Given Name First": "Najprije ime",
+    "Toggle person outlines": "Uključi/Isključi rubove osoba"
 }
