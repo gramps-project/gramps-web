@@ -122,21 +122,6 @@ const _allTabs = {
       data?.backlinks?.citation?.length > 0 && 'abbrev' in data,
     conditionEdit: data => false,
   },
-  attributes: {
-    title: 'Attributes',
-    condition: data => data?.attribute_list?.length > 0,
-    conditionEdit: data => 'attribute_list' in data,
-  },
-  addresses: {
-    title: 'Addresses',
-    condition: data => data?.address_list?.length > 0,
-    conditionEdit: data => false, // 'address_list' in data // FIXME editable in principle but UI not implemented
-  },
-  internet: {
-    title: 'Internet',
-    condition: data => data?.urls?.length > 0,
-    conditionEdit: data => 'urls' in data,
-  },
   metadata: {
     title: 'Metadata',
     condition: data =>
