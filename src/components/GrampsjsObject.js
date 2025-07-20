@@ -50,11 +50,6 @@ const _allTabs = {
       data.family_list?.length > 0 || data.parent_family_list?.length > 0,
     conditionEdit: () => false,
   },
-  names: {
-    title: '_Names',
-    condition: data => 'primary_name' in data,
-    conditionEdit: data => 'primary_name' in data,
-  },
   enclosed: {
     title: 'Place Hierarchy',
     condition: data =>
@@ -106,6 +101,11 @@ const _allTabs = {
     condition: data => data?.media_list?.length > 0,
     conditionEdit: data => 'media_list' in data,
   },
+  names: {
+    title: '_Names',
+    condition: data => 'primary_name' in data,
+    conditionEdit: data => 'primary_name' in data,
+  },
   notes: {
     title: 'Notes',
     condition: data => data?.note_list?.length > 0,
@@ -136,6 +136,14 @@ const _allTabs = {
     title: 'Internet',
     condition: data => data?.urls?.length > 0,
     conditionEdit: data => 'urls' in data,
+  },
+  metadata: {
+    title: 'Metadata',
+    condition: data =>
+      data?.attribute_list?.length > 0 ||
+      data?.urls?.length > 0 ||
+      data?.address_list?.length > 0,
+    conditionEdit: data => 'urls' in data || 'attribute_list' in data,
   },
   associations: {
     title: 'Associations',
@@ -709,19 +717,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
             .map(obj => obj.gramps_id)
             .filter(obj => Boolean(obj))}
         ></grampsjs-view-source-citations>`
-      case 'attributes':
-        return html`<grampsjs-attributes
-          hasEdit
-          .appState="${this.appState}"
-          ?edit="${this.edit}"
-          .data=${this.data.attribute_list}
-          attributeCategory="${this._objectsName.toLowerCase()}"
-        ></grampsjs-attributes>`
-      case 'addresses':
-        return html`<grampsjs-addresses
-          .appState="${this.appState}"
-          .data=${this.data.address_list}
-        ></grampsjs-addresses>`
       case 'notes':
         return html` <grampsjs-view-object-notes
           active
@@ -740,13 +735,33 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           ?edit="${this.edit}"
           ?editRect="${this.appState.permissions.canEdit}"
         ></grampsjs-gallery>`
-      case 'internet':
-        return html`<grampsjs-urls
-          hasEdit
-          .appState="${this.appState}"
-          .data=${this.data.urls}
-          ?edit="${this.edit}"
-        ></grampsjs-urls>`
+      case 'metadata':
+        return html` ${this.data.attribute_list?.length > 0 || this.edit
+            ? html` <h4>${this._('Attributes')}</h4> `
+            : ''}
+          <grampsjs-attributes
+            hasEdit
+            .appState="${this.appState}"
+            ?edit="${this.edit}"
+            .data=${this.data.attribute_list ?? []}
+            attributeCategory="${this._objectsName.toLowerCase()}"
+          ></grampsjs-attributes>
+          ${this.data.address_list?.length > 0
+            ? html`<h4>${this._('Addresses')}</h4>`
+            : ''}
+          <grampsjs-addresses
+            .appState="${this.appState}"
+            .data=${this.data.address_list ?? []}
+          ></grampsjs-addresses>
+          ${this.data.urls?.length || this.edit > 0
+            ? html`<h4>${this._('Internet')}</h4>`
+            : ''}
+          <grampsjs-urls
+            hasEdit
+            .appState="${this.appState}"
+            .data=${this.data.urls ?? []}
+            ?edit="${this.edit}"
+          ></grampsjs-urls>`
       case 'associations':
         return html`<grampsjs-associations
           hasEdit
