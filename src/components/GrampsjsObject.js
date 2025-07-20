@@ -2,7 +2,10 @@
 /* eslint-disable no-unused-vars */
 import {LitElement, css, html} from 'lit'
 
+import {mdiTableOfContents} from '@mdi/js'
+
 import '@material/web/iconbutton/icon-button.js'
+import '@material/web/dialog/dialog.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import '../views/GrampsjsViewObjectNotes.js'
@@ -185,7 +188,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         }
 
         #picture {
-          margin-bottom: 20px;
+          margin-bottom: 60px;
           position: relative;
           text-align: center;
         }
@@ -280,6 +283,12 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           }
         }
 
+        .toc-button {
+          position: relative;
+          top: 4px;
+          padding-left: 8px;
+        }
+
         @media (min-width: 1200px) {
           div.toc {
             display: block;
@@ -358,6 +367,10 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
+  get tocSidebar() {
+    return this.appState.screenSize === 'large'
+  }
+
   render() {
     if (Object.keys(this.data).length === 0) {
       return html``
@@ -375,8 +388,20 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
 
       <div class="content-wrapper">
         <div class="sections">${this.renderSections()}</div>
-        <div class="toc">${this.renderToc()}</div>
+        <div class="toc">${this.tocSidebar ? this.renderToc() : ''}</div>
       </div>
+      ${this.tocSidebar
+        ? ''
+        : html`
+            <md-dialog
+              id="toc-dialog"
+              @toc-item-click="${this._closeTocDialog}"
+              quick
+            >
+              <div slot="headline">${this._('Table Of Contents')}</div>
+              <div slot="content">${this.renderToc(false)}</div>
+            </md-dialog>
+          `}
       <div class="bottom-bar">
         <div class="bottom-bar-content"></div>
       </div>
@@ -385,7 +410,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  renderToc() {
+  renderToc(heading = true) {
     // Get all tabs/sections that should be displayed
     const tabKeys = this._getTabs(this.edit)
 
@@ -397,6 +422,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
 
     return html`
       <grampsjs-object-toc
+        ?heading="${heading}"
         .tabs=${visibleTabs}
         .appState="${this.appState}"
         .activeSection="${this._currentVisibleSection}"
@@ -477,14 +503,43 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     }
     return html`
       ${tabKeys.map(
-        key => html`<div class="row">
+        (key, idx, tabKeysArray) => html`<div class="row">
           <div class="section" id="section-${key}">
-            <h3>${this._(_allTabs[key].title)}</h3>
+            <h3>
+              ${this._(_allTabs[key].title)}
+              ${this.tocSidebar || tabKeysArray.length <= 1
+                ? ''
+                : html`
+                    <md-icon-button
+                      class="toc-button"
+                      @click="${this._openTocDialog}"
+                    >
+                      <grampsjs-icon
+                        .path="${mdiTableOfContents}"
+                        color="rgba(0, 0, 0, 0.4)"
+                      ></grampsjs-icon>
+                    </md-icon-button>
+                  `}
+            </h3>
             ${this.renderSectionContent(key)}
           </div>
         </div>`
       )}
     `
+  }
+
+  _openTocDialog() {
+    const dialog = this.renderRoot.querySelector('#toc-dialog')
+    if (dialog) {
+      dialog.open = true
+    }
+  }
+
+  _closeTocDialog() {
+    const dialog = this.renderRoot.querySelector('#toc-dialog')
+    if (dialog) {
+      dialog.open = false
+    }
   }
 
   renderTags() {

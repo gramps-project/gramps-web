@@ -39,6 +39,7 @@ export class GrampsjsObjectToc extends GrampsjsAppStateMixin(LitElement) {
     return {
       tabs: {type: Object},
       activeSection: {type: String},
+      heading: {type: Boolean},
     }
   }
 
@@ -46,6 +47,7 @@ export class GrampsjsObjectToc extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.tabs = {}
     this.activeSection = ''
+    this.heading = false
   }
 
   render() {
@@ -55,7 +57,7 @@ export class GrampsjsObjectToc extends GrampsjsAppStateMixin(LitElement) {
     }
 
     return html`
-      <h3>${this._('Table Of Contents')}</h3>
+      ${this.heading ? html`<h3>${this._('Table Of Contents')}</h3>` : ''}
       <md-list class="toc-list">
         ${tabKeys.map(
           key => html`
