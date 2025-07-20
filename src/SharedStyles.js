@@ -9,7 +9,7 @@ export const sharedStyles = css`
     --grampsjs-body-font-size: 17px;
     font-size: var(--grampsjs-body-font-size);
     font-family: var(--grampsjs-body-font-family);
-    --grampsjs-body-font-weight: 330;
+    --grampsjs-body-font-weight: 340;
     font-weight: var(--grampsjs-body-font-weight);
     --mdc-theme-primary: #6d4c41;
     --mdc-theme-on-primary: rgba(255, 255, 255, 0.95);
