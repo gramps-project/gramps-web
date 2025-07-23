@@ -9,7 +9,7 @@ export const sharedStyles = css`
     --grampsjs-body-font-size: 17px;
     font-size: var(--grampsjs-body-font-size);
     font-family: var(--grampsjs-body-font-family);
-    --grampsjs-body-font-weight: 330;
+    --grampsjs-body-font-weight: 340;
     font-weight: var(--grampsjs-body-font-weight);
     --mdc-theme-primary: #6d4c41;
     --mdc-theme-on-primary: rgba(255, 255, 255, 0.95);
@@ -52,7 +52,7 @@ export const sharedStyles = css`
     --md-sys-color-surface-variant: rgb(245 222 215);
     --md-sys-color-on-surface-variant: rgb(83 67 63);
     --md-sys-color-outline: rgb(133 115 110);
-    --md-sys-color-outline-variant: rgb(216 194 187);
+    --md-sys-color-outline-variant: rgb(200 200 200);
     --md-sys-color-shadow: rgb(0 0 0);
     --md-sys-color-scrim: rgb(0 0 0);
     --md-sys-color-inverse-surface: rgb(57 46 43);

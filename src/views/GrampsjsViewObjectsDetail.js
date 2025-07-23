@@ -2,6 +2,7 @@
 import {html, css} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
+import {arrayEqual} from '../util.js'
 
 export class GrampsjsViewObjectsDetail extends GrampsjsView {
   static get styles() {
@@ -36,6 +37,9 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
   }
 
   renderContent() {
+    if (this.loading) {
+      return this.renderLoading()
+    }
     if (this._data.length === 0) {
       return html`${this.edit ? this.renderEdit() : ''}`
     }
@@ -43,6 +47,10 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
       ${this.edit ? this.renderEdit() : ''} ${this.renderElements()}
       ${this.dialogContent}
     `
+  }
+
+  renderLoading() {
+    return ''
   }
 
   renderEdit() {}
@@ -54,7 +62,13 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
   update(changed) {
     super.update(changed)
     if (this.active && changed.has('grampsIds')) {
-      this._updateData()
+      // grampsIds is an array, so we need to check if its *contents* have changed as well
+      if (
+        changed.get('grampsIds') === undefined ||
+        !arrayEqual(this.grampsIds, changed.get('grampsIds'))
+      ) {
+        this._updateData()
+      }
     }
   }
 

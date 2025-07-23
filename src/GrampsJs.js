@@ -66,7 +66,6 @@ export class GrampsJs extends LitElement {
   constructor() {
     super()
     this.appState = getInitialAppState()
-    this.wide = false
     this.progress = false
     this.loadingState = LOADING_STATE_INITIAL
     this._homePersonDetails = {}
@@ -474,9 +473,9 @@ export class GrampsJs extends LitElement {
     }
     return html`
       <mwc-drawer
-        type="${this.wide ? 'dismissible' : 'modal'}"
+        type="${this.appState.screenSize !== 'small' ? 'dismissible' : 'modal'}"
         id="app-drawer"
-        ?open="${this.wide}"
+        ?open="${this.appState.screenSize !== 'small'}"
       >
         <div>
           <grampsjs-main-menu .appState="${this.appState}"></grampsjs-main-menu>
@@ -555,8 +554,23 @@ export class GrampsJs extends LitElement {
     installRouter(location =>
       this._loadPage(decodeURIComponent(location.pathname))
     )
-    installMediaQueryWatcher('(min-width: 768px)', matches => {
-      this.wide = matches
+    installMediaQueryWatcher('(max-width: 991px)', matches => {
+      if (matches && this.appState.screenSize !== 'small') {
+        this._updateAppState({screenSize: 'small'})
+      }
+    })
+    installMediaQueryWatcher(
+      '(min-width: 992px) and (max-width: 1199px)',
+      matches => {
+        if (matches && this.appState.screenSize !== 'medium') {
+          this._updateAppState({screenSize: 'medium'})
+        }
+      }
+    )
+    installMediaQueryWatcher('(min-width: 1200px)', matches => {
+      if (matches && this.appState.screenSize !== 'large') {
+        this._updateAppState({screenSize: 'large'})
+      }
     })
     this.addEventListener('nav', this._handleNav.bind(this))
     this.addEventListener('grampsjs:error', this._handleError.bind(this))
@@ -724,7 +738,7 @@ export class GrampsJs extends LitElement {
       })
     }
 
-    if (!this.wide) {
+    if (this.appState.screenSize === 'small') {
       this._closeDrawer()
     }
   }
