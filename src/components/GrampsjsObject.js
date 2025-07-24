@@ -196,18 +196,25 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           display: flex;
           flex-direction: column;
           gap: 2rem;
+          width: 100%;
         }
 
         .row {
           display: flex;
           flex-wrap: wrap;
           padding-bottom: 1rem;
+          max-width: 100%;
+          min-width: 0;
+          flex-shrink: 1;
         }
 
         .section {
           flex: 1 1 200px;
           scroll-margin-top: 100px;
           margin-right: 20px;
+          max-width: 100%;
+          min-width: 0;
+          flex-shrink: 1;
         }
 
         .sections h3 {
@@ -216,6 +223,13 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           font-size: 24px;
           padding-bottom: 12px;
           border-bottom: 1px solid var(--md-sys-color-outline-variant);
+        }
+
+        .section * {
+          min-width: 0;
+          max-width: 100%;
+          overflow-wrap: break-word;
+          word-break: break-word;
         }
 
         p.button-list {
