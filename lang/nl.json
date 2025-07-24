@@ -206,7 +206,7 @@
     "No DNA matches detected in the data provided.": "Er zijn geen dna-overeenkomsten aangetroffen in de verstrekte gegevens.",
     "First person": "Eerste persoon",
     "Paste the raw data in the field above to see the preview.": "Plak de onbewerkte gegevens in het bovenstaande veld om het voorbeeld te zien.",
-    "Raw match data": "Ruwe overeenkomst-gegevens",
+    "Raw match data": "Onbewerkte overeenkomst-gegevens",
     "Chromosome": "Chromosom",
     "No DNA matches found.": "Geen dna-overeenkomsten aangetroffen.",
     "Max Degree of Separation": "Max. mate van scheiding",
@@ -228,5 +228,6 @@
     "DNA matches": "DNA-overeenkomsten",
     "Base Map": "Basiskaart",
     "Historical Map": "Historische kaart",
-    "To start building your family tree, add yourself as a person or import a family tree file.": "Om te beginnen met het bouwen van uw stamboom, voegt u uzelf toe als persoon of importeert u een stamboombestand."
+    "To start building your family tree, add yourself as a person or import a family tree file.": "Om te beginnen met het bouwen van uw stamboom, voegt u uzelf toe als persoon of importeert u een stamboombestand.",
+    "Metadata": "Metadata"
 }
