@@ -222,5 +222,12 @@
     "Name Display Format": "Format prikaza imena",
     "Surname First": "Najprije prezime",
     "Given Name First": "Najprije ime",
-    "Toggle person outlines": "Uključi/Isključi rubove osoba"
+    "Toggle person outlines": "Uključi/Isključi rubove osoba",
+    "Log out": "Odjavi se",
+    "in": "u",
+    "DNA matches": "DNK poklapanja",
+    "Base Map": "Osnovna karta",
+    "Historical Map": "Povijesna karta",
+    "To start building your family tree, add yourself as a person or import a family tree file.": "Za početak izrade tvog rodoslova, dodaj sebe kao osobu ili uvezi jednu datoteku rodoslova/obiteljskog stabla.",
+    "Metadata": "Metapodaci"
 }
