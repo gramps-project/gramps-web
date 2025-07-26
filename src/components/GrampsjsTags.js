@@ -45,6 +45,9 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
         .chip mwc-icon-button {
           --mdc-icon-size: 14px;
           --mdc-icon-button-size: 18px;
+          position: relative;
+          top: 2px;
+          margin-left: 4px;
         }
 
         .newtag {

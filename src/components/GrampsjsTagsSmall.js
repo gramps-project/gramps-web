@@ -22,6 +22,8 @@ export class GrampsjsTagsSmall extends GrampsjsAppStateMixin(LitElement) {
           margin: 0 3px;
           height: 24px;
           display: inline-block;
+          line-height: 24px;
+          vertical-align: middle;
         }
 
         .chip mwc-icon-button {
