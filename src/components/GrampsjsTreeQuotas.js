@@ -1,9 +1,13 @@
 import {css, html} from 'lit'
 
 import '@material/mwc-linear-progress'
+import '@material/mwc-button'
+import '@material/mwc-textfield'
+import '@material/mwc-dialog'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
+import {fireEvent, clickKeyHandler} from '../util.js'
 
 function _getProgress(usage, quota) {
   if (usage === undefined || quota === undefined) {
@@ -33,6 +37,21 @@ function formatBytes(bytes) {
 }
 
 export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
+  static get properties() {
+    return {
+      _isEditing: {type: Boolean},
+      _editQuotas: {type: Object},
+      _isLoading: {type: Boolean},
+    }
+  }
+
+  constructor() {
+    super()
+    this._isEditing = false
+    this._editQuotas = {}
+    this._isLoading = false
+  }
+
   static get styles() {
     return [
       sharedStyles,
@@ -73,6 +92,27 @@ export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
 
         td.numbers {
           font-size: 14px;
+        }
+
+        .edit-button {
+          margin-top: 1em;
+        }
+
+        .quota-form {
+          display: grid;
+          gap: 1em;
+          margin-top: 1em;
+        }
+
+        .quota-form mwc-textfield {
+          width: 100%;
+        }
+
+        .dialog-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 1em;
+          margin-top: 1em;
         }
       `,
     ]
@@ -151,6 +191,62 @@ export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
             `
           : ''}
       </table>
+
+      <mwc-button
+        class="edit-button"
+        outlined
+        @click="${this._openEditDialog}"
+        @keydown="${clickKeyHandler}"
+      >
+        ${this._('Edit Quotas')}
+      </mwc-button>
+
+      <mwc-dialog
+        id="edit-quotas-dialog"
+        heading="${this._('Edit Upload Quotas')}"
+        ?open="${this._isEditing}"
+        @closed="${this._closeEditDialog}"
+      >
+        <div class="quota-form">
+          <mwc-textfield
+            id="quota-people"
+            label="${this._('Max number of people')}"
+            type="number"
+            min="0"
+            value="${this._editQuotas.quota_people || ''}"
+            @input="${this._handleQuotaChange}"
+          ></mwc-textfield>
+
+          <mwc-textfield
+            id="quota-media"
+            label="${this._('Max media size (MB)')}"
+            type="number"
+            min="0"
+            value="${this._editQuotas.quota_media
+              ? Math.round(this._editQuotas.quota_media / (1024 * 1024))
+              : ''}"
+            @input="${this._handleQuotaChange}"
+          ></mwc-textfield>
+        </div>
+
+        <div class="dialog-actions" slot="primaryAction">
+          <mwc-button
+            outlined
+            @click="${this._closeEditDialog}"
+            @keydown="${clickKeyHandler}"
+          >
+            ${this._('Cancel')}
+          </mwc-button>
+          <mwc-button
+            raised
+            ?disabled="${this._isLoading}"
+            @click="${this._saveQuotas}"
+            @keydown="${clickKeyHandler}"
+          >
+            ${this._isLoading ? this._('Saving...') : this._('Save')}
+          </mwc-button>
+        </div>
+      </mwc-dialog>
     `
   }
 
@@ -177,6 +273,83 @@ export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
         </tr>
       </table>
     `
+  }
+
+  _openEditDialog() {
+    const {data} = this._data
+    if (data) {
+      this._editQuotas = {
+        quota_people: data.quota_people || null,
+        quota_media: data.quota_media || null,
+      }
+    }
+    this._isEditing = true
+  }
+
+  _closeEditDialog() {
+    this._isEditing = false
+  }
+
+  _handleQuotaChange(e) {
+    const {id} = e.target
+    let value = parseInt(e.target.value, 10) || null
+
+    // Convert MB to bytes for media quota
+    if (id === 'quota-media' && value !== null) {
+      value = value * 1024 * 1024
+    }
+
+    this._editQuotas = {
+      ...this._editQuotas,
+      [id.replace('quota-', 'quota_')]: value,
+    }
+
+    console.log('Updated editQuotas:', this._editQuotas)
+  }
+
+  async _saveQuotas() {
+    this._isLoading = true
+
+    try {
+      console.log('Sending quota data:', this._editQuotas)
+
+      // Send only supported fields
+      const testPayload = {}
+
+      if (this._editQuotas.quota_people !== undefined) {
+        testPayload.quota_people = this._editQuotas.quota_people
+      }
+      if (this._editQuotas.quota_media !== undefined) {
+        testPayload.quota_media = this._editQuotas.quota_media
+      }
+      // quota_ai is not supported by the API
+
+      console.log('Sending supported fields:', testPayload)
+
+      console.log('Test payload:', testPayload)
+      const data = await this.appState.apiPut('/api/trees/-', testPayload)
+
+      if ('error' in data) {
+        console.error('API error:', data.error)
+        fireEvent(this, 'grampsjs:error', {message: data.error})
+      } else {
+        fireEvent(this, 'grampsjs:notification', {
+          message: this._('Quotas updated successfully'),
+          type: 'success',
+        })
+        this._closeEditDialog()
+        // Refresh data
+        this._updateData()
+      }
+    } catch (error) {
+      console.error('Error updating quotas:', error)
+      fireEvent(this, 'grampsjs:notification', {
+        message: this._('Error updating quotas'),
+        type: 'error',
+      })
+    } finally {
+      this._isLoading = false
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this
