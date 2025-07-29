@@ -90,18 +90,6 @@ export const sharedStyles = css`
     --md-list-item-trailing-supporting-text-color: rgba(0, 0, 0, 0.8);
   }
 
-  mwc-tab-bar {
-    --mdc-typography-button-text-transform: none;
-    --mdc-typography-button-font-weight: 400;
-    --mdc-typography-button-letter-spacing: 0px;
-    --mdc-typography-button-font-size: 16px;
-    --mdc-tab-text-label-color-default: #6d4c41;
-  }
-
-  mwc-tab {
-    flex-grow: 0;
-  }
-
   label {
     display: inline-flex;
     place-items: center;

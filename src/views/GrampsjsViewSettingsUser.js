@@ -4,8 +4,6 @@ import '@material/mwc-menu'
 import '@material/mwc-textfield'
 import '@material/mwc-button'
 import '@material/mwc-select'
-import '@material/mwc-tab'
-import '@material/mwc-tab-bar'
 
 import '../components/GrampsjsFormSelectObjectList.js'
 import '../components/GrampsjsShareUrl.js'
