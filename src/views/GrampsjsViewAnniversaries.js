@@ -1,5 +1,6 @@
 import {html, css} from 'lit'
-import '@material/mwc-button'
+import '@material/web/list/list'
+import '@material/web/list/list-item'
 
 import '../components/GrampsjsTimedelta.js'
 import {GrampsjsConnectedComponent} from '../components/GrampsjsConnectedComponent.js'
@@ -37,6 +38,7 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
           text-align: center;
           font-family: var(--grampsjs-heading-font-family);
           font-weight: 300;
+          margin-right: 10px;
         }
       `,
     ]
@@ -44,19 +46,21 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
 
   renderLoading() {
     return html`<h3>${this._('Anniversaries')}</h3>
-      <mwc-list>
+      <md-list>
         ${Array(2).fill(
           html`
-            <mwc-list-item noninteractive twoline graphic="avatar">
-              <span class="skeleton" style="width:15em;">&nbsp;</span>
-              <span slot="secondary" class="skeleton" style="width:10em;"
+            <md-list-item type="button" noninteractive>
+              <span slot="headline" class="skeleton" style="width:15em;"
                 >&nbsp;</span
               >
-              <span slot="graphic" class="skeleton avatar">&nbsp;</span>
-            </mwc-list-item>
+              <span slot="supporting-text" class="skeleton" style="width:10em;"
+                >&nbsp;</span
+              >
+              <span slot="start" class="skeleton avatar">&nbsp;</span>
+            </md-list-item>
           `
         )}
-      </mwc-list>`
+      </md-list>`
   }
 
   renderContent() {
@@ -64,9 +68,9 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
       ${this._data.data.length === 0
         ? html`<p>${this._('None')}.</p>`
         : html`
-            <mwc-list class="large">
+            <md-list class="large">
               ${this._data.data.map(event => this._renderEvent(event))}
-            </mwc-list>
+            </md-list>
           `} `
   }
 
@@ -79,30 +83,29 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
       return ''
     }
     return html`
-      <mwc-list-item
-        twoline
-        graphic="avatar"
+      <md-list-item
+        type="button"
         @click="${() => this._handleClick(event)}"
         @keydown="${this._handleKeyDown}"
       >
-        <span
+        <span slot="headline"
           >${eventTitleFromProfile(
             event.profile,
             this.appState.i18n.strings,
             false
           )}</span
         >
-        <span slot="graphic" class="years">${years}</span>
-        <span slot="secondary">
+        <span slot="start" class="years">${years}</span>
+        <span slot="supporting-text">
           <grampsjs-timedelta
             timestamp="${timestamp}"
             locale="${this.appState.i18n.lang}"
           ></grampsjs-timedelta
           >${event?.profile?.place
-            ? html`, ${event.profile.place_name || event.profile.place}`
+            ? html`<br />${event.profile.place_name || event.profile.place}`
             : ''}
         </span>
-      </mwc-list-item>
+      </md-list-item>
     `
   }
 

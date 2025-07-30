@@ -7,6 +7,7 @@ export const sharedStyles = css`
     --grampsjs-heading-font-family: 'Inter var', sans-serif;
     --md-ref-typeface-plain: 'Inter var', sans-serif;
     --grampsjs-body-font-size: 17px;
+    --grampsjs-body-font-color: rgba(0, 0, 0, 0.8);
     font-size: var(--grampsjs-body-font-size);
     font-family: var(--grampsjs-body-font-family);
     --grampsjs-body-font-weight: 340;
@@ -15,7 +16,7 @@ export const sharedStyles = css`
     --mdc-theme-on-primary: rgba(255, 255, 255, 0.95);
     --mdc-theme-secondary: #0277bd;
     --mdc-theme-on-secondary: rgba(255, 255, 255, 0.95);
-    --mdc-theme-text-primary-on-background: rgba(0, 0, 0, 0.8);
+    --mdc-theme-text-primary-on-background: var(--grampsjs-body-font-color);
     --mdc-theme-text-secondary-on-background: rgba(0, 0, 0, 0.45);
     --mdc-typography-font-family: var(--grampsjs-body-font-family);
     --color-boy: #64b5f6;
@@ -46,9 +47,9 @@ export const sharedStyles = css`
     --md-sys-color-error-container: rgb(255 218 214);
     --md-sys-color-on-error-container: rgb(65 0 2);
     --md-sys-color-background: rgb(255 248 246);
-    --md-sys-color-on-background: rgb(35 25 23);
+    --md-sys-color-on-background: var(--grampsjs-body-font-color);
     --md-sys-color-surface: #fff;
-    --md-sys-color-on-surface: rgb(35 25 23);
+    --md-sys-color-on-surface: var(--grampsjs-body-font-color);
     --md-sys-color-surface-variant: rgb(245 222 215);
     --md-sys-color-on-surface-variant: rgb(83 67 63);
     --md-sys-color-outline: rgb(133 115 110);
@@ -84,7 +85,7 @@ export const sharedStyles = css`
   }
 
   md-list-item {
-    --md-list-item-label-text-weight: 350;
+    --md-list-item-label-text-weight: var(--grampsjs-body-font-weight);
     --md-list-item-label-text-size: 17px;
     --md-list-item-supporting-text-color: rgba(0, 0, 0, 0.5);
     --md-list-item-trailing-supporting-text-color: rgba(0, 0, 0, 0.8);
