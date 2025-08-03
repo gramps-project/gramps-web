@@ -82,6 +82,9 @@ export const sharedStyles = css`
     --md-primary-tab-label-text-size: 16px;
     --md-primary-tab-active-indicator-height: 3px;
     --md-divider-thickness: 0px;
+    --md-list-item-leading-space: 16px;
+    --md-list-item-trailing-space: 16px;
+    --mdc-list-side-padding: 16px;
   }
 
   md-list-item {
@@ -388,6 +391,9 @@ export const sharedStyles = css`
   @media (max-width: 768px) {
     :host {
       font-size: 16px;
+      --md-list-item-leading-space: 8px;
+      --md-list-item-trailing-space: 8px;
+      --mdc-list-side-padding: 8px;
     }
 
     h1 {
