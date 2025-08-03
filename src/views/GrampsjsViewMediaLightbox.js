@@ -263,11 +263,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
           const refs = key in references ? references[key] : []
           const label =
             refs.length >= index
-              ? getNameFromProfile(
-                  refs[index] || {},
-                  key,
-                  this.appState.i18n.strings
-                )
+              ? getNameFromProfile(refs[index] || {}, key)
               : '...'
           return {
             rect: obj?.media_list?.find(mobj => mobj.ref === this._data.handle)

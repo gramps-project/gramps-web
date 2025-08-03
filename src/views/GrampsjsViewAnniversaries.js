@@ -89,19 +89,16 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
         @keydown="${this._handleKeyDown}"
       >
         <span slot="headline"
-          >${eventTitleFromProfile(
-            event.profile,
-            this.appState.i18n.strings,
-            false
-          )}</span
+          >${eventTitleFromProfile(event.profile, false)}</span
         >
         <span slot="start" class="years">${years}</span>
         <span slot="supporting-text">
           <grampsjs-timedelta
             timestamp="${timestamp}"
             locale="${this.appState.i18n.lang}"
-          ></grampsjs-timedelta
-          >${event?.profile?.place
+          ></grampsjs-timedelta>
+          (${event.profile.date})
+          ${event?.profile?.place
             ? html`<br />${event.profile.place_name || event.profile.place}`
             : ''}
         </span>

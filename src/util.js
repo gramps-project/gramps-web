@@ -148,7 +148,7 @@ export function showObject(type, obj, strings) {
       return html`
         <mwc-icon class="inline">event</mwc-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${eventTitleFromProfile(obj.profile || {}, strings) || obj.type}
+          >${eventTitleFromProfile(obj.profile || {}) || obj.type}
         </a>
       `
     case 'place':
@@ -316,7 +316,7 @@ export function objectDescription(type, obj, strings) {
       return html`${familyTitleFromProfile(obj.profile || {}) ||
       translate(strings, 'Family')}`
     case 'event':
-      return html`${eventTitleFromProfile(obj.profile || {}, strings, false) ||
+      return html`${eventTitleFromProfile(obj.profile || {}, false) ||
       translate(
         strings,
         typeof obj.type === 'string'
@@ -421,12 +421,12 @@ export function debounce(func, wait) {
   }
 }
 
-export function getNameFromProfile(obj, type, strings) {
+export function getNameFromProfile(obj, type) {
   switch (type) {
     case 'person':
       return personTitleFromProfile(obj)
     case 'event':
-      return eventTitleFromProfile(obj, strings)
+      return eventTitleFromProfile(obj)
     case 'family':
       return familyTitleFromProfile(obj)
     case 'place':
