@@ -50,7 +50,11 @@ class GrampsjsFormNewCitation extends GrampsjsObjectForm {
       </p>
 
       <h4 class="label">${this._('Confidence')}</h4>
-      <mwc-select id="select-confidence" @change="${this.handleConfidence}">
+      <mwc-select
+        id="select-confidence"
+        @change="${this.handleConfidence}"
+        fixedMenuPosition
+      >
         ${Object.keys(confidence).map(
           conf => html`
             <mwc-list-item
