@@ -61,7 +61,7 @@ const _allTabs = {
   placeNames: {
     title: 'Alternate Names',
     condition: data => data?.alt_names?.length > 0,
-    conditionEdit: data => data?.alt_names?.length > 0,
+    conditionEdit: data => 'alt_names' in data,
   },
   map: {
     title: 'Map',
@@ -591,19 +591,18 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           ></grampsjs-names>
         `
       case 'placeNames':
-        return html` ${this.data.alt_names?.length > 0
+        return html` ${this.data.alt_names?.length > 0 || this.edit
           ? html` <grampsjs-place-names
               .appState="${this.appState}"
               .strings="${this.strings}"
-              .data="${this.data.alt_names}"
-              .profile="${this.data.profile.alternate_place_names ?? []}"
-              ?edit=${false}
+              .data="${this.data.alt_names || []}"
+              ?edit=${this.edit}
             ></grampsjs-place-names>`
           : ''}`
       case 'enclosed':
         return html` ${this.data.placeref_list?.length || this.edit
           ? html`
-      <h4>${this._('Enclosed By')}</h3>
+      <h4>${this._('Enclosed By')}</h4>
         <grampsjs-place-refs
           .appState="${this.appState}"
           .data="${this.data?.placeref_list}"
@@ -612,11 +611,11 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         `
           : ''}
         ${this.data?.backlinks?.place?.length
-          ? html`<h4>${this._('Encloses')}</h3>
+          ? html`<h4>${this._('Encloses')}</h4>
         <grampsjs-place-children
           .appState="${this.appState}"
           .data="${this.data?.profile?.references?.place || []}"
-          ?edit="false"
+          ?edit=${false}
         ></grampsjs-place-children>
         `
           : ''}`
@@ -671,7 +670,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
               >
                 <grampsjs-map-overlay
                   url="${getMediaUrl(this.data.handle)}"
-                  bounds="${mapBounds[0].value}"
+                  .bounds="${mapBounds[0].value}"
                   title="${this.data.desc}"
                 >
                 </grampsjs-map-overlay>
