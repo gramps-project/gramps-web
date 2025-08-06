@@ -61,7 +61,7 @@ const _allTabs = {
   placeNames: {
     title: 'Alternate Names',
     condition: data => data?.alt_names?.length > 0,
-    conditionEdit: data => data?.alt_names?.length > 0,
+    conditionEdit: data => 'alt_names' in data,
   },
   map: {
     title: 'Map',
@@ -591,11 +591,12 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           ></grampsjs-names>
         `
       case 'placeNames':
-        return html` ${this.data.alt_names?.length > 0
+        return html` ${this.data.alt_names?.length > 0 || this.edit
           ? html` <grampsjs-place-names
               .strings="${this.strings}"
-              .data="${this.data.alt_names}"
-              ?edit=${false}
+              .data="${this.data.alt_names || []}"
+              ?edit=${this.edit}
+              .appState="${this.appState}"
             ></grampsjs-place-names>`
           : ''}`
       case 'enclosed':
