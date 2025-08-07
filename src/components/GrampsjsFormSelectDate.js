@@ -86,6 +86,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         id="select-modifier"
         label="${this._('Type')}"
         @change="${this.handleType}"
+        fixedMenuPosition
       >
         ${Object.keys(modifiers).map(
           modifier => html`
@@ -105,6 +106,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         id="select-quality"
         label="${this._('Quality')}"
         @change="${this.handleQuality}"
+        fixedMenuPosition
       >
         ${Object.keys(qualifiers).map(
           qualifier => html`
@@ -135,6 +137,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         id="month1"
         label="${this._('Month')}"
         style="width: 6em;"
+        fixedMenuPosition
       >${[...Array(13).keys()].map(
         idx => html`
           <mwc-list-item
@@ -154,6 +157,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         id="day1"
         label="${this._('Day')}"
         style="width: 6em;"
+        fixedMenuPosition
       >${[...Array(32).keys()].map(
         idx => html`
           <mwc-list-item
@@ -203,6 +207,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         id="month2"
         label="${this._('Month')}"
         style="width: 6em;"
+        fixedMenuPosition
       >${[...Array(13).keys()].map(
         idx => html`
           <mwc-list-item
@@ -222,6 +227,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         id="day2"
         label="${this._('Day')}"
         style="width: 6em;"
+        fixedMenuPosition
       >${[...Array(32).keys()].map(
         idx => html`
           <mwc-list-item
