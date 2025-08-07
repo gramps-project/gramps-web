@@ -1,14 +1,14 @@
 import {html} from 'lit'
 
-import './GrampsjsFormSelectObject.js'
-import './GrampsjsFormEditName.js'
-import './GrampsjsObjectForm.js'
-import './GrampsjsName.js'
-import {fireEvent} from '../util.js'
-import '@material/mwc-icon-button'
-import '@material/mwc-dialog'
 import '@material/mwc-button'
+import '@material/mwc-dialog'
+import '@material/mwc-icon-button'
+import {fireEvent} from '../util.js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
+import './GrampsjsFormEditName.js'
+import './GrampsjsFormSelectObject.js'
+import './GrampsjsName.js'
+import './GrampsjsObjectForm.js'
 
 export class GrampsjsNames extends GrampsjsEditableList {
   static get properties() {
@@ -27,6 +27,7 @@ export class GrampsjsNames extends GrampsjsEditableList {
     this.dialogContent = ''
     this.dialogTitle = ''
     this.hasEdit = true
+    this.hasReorder = true
   }
 
   row(obj) {
@@ -71,6 +72,22 @@ export class GrampsjsNames extends GrampsjsEditableList {
         </mwc-button>
       </mwc-dialog>
     `
+  }
+
+  _handleUp() {
+    fireEvent(this, 'edit:action', {
+      action: 'upName',
+      handle: this._selectedIndex,
+    })
+    this.renderRoot.querySelector('mwc-list').select(-1)
+  }
+
+  _handleDown() {
+    fireEvent(this, 'edit:action', {
+      action: 'downName',
+      handle: this._selectedIndex,
+    })
+    this.renderRoot.querySelector('mwc-list').select(-1)
   }
 
   _handleEdit() {
