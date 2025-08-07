@@ -452,6 +452,23 @@ export class GrampsjsViewObject extends GrampsjsView {
       )
     } else if (e.detail.action === 'updateName') {
       this.updateName(e.detail.data, this._data)
+    } else if (e.detail.action === 'addPlaceName') {
+      this.addObject(e.detail.data, this._data, this._className, 'alt_names')
+    } else if (e.detail.action === 'updatePlaceName') {
+      this.updateObjectByIndex(
+        e.detail.index,
+        e.detail.data,
+        this._data,
+        this._className,
+        'alt_names'
+      )
+    } else if (e.detail.action === 'delPlaceName') {
+      this.delObjectByIndex(
+        e.detail.index,
+        this._data,
+        this._className,
+        'alt_names'
+      )
     } else if (e.detail.action === 'delChildRef') {
       this.delObject(
         e.detail.handle,
