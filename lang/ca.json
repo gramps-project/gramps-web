@@ -220,8 +220,13 @@
     "Invalid E-mail address": "Adreça de correu electrònic invàlida",
     "Log in to Gramps Web": "Entra a la Web de Gramps",
     "Name Display Format": "Format de visualització del nom",
-    "Given Name First": "Nom Primer",
-    "Surname First": "Cognom Primer",
+    "Given Name First": "Nom de pila primer",
+    "Surname First": "Cognom primer",
     "Toggle person outlines": "Commuta els contorns de les persones",
-    "Log out": "Tanca la sessió"
+    "Log out": "Tanca la sessió",
+    "Metadata": "Metadades",
+    "To start building your family tree, add yourself as a person or import a family tree file.": "Per a començar a construir el vostre arbre genealògic, afegiu-vos com a persona o importeu un fitxer d'arbre genealògic.",
+    "Historical Map": "Mapa històric",
+    "Base Map": "Mapa de base",
+    "DNA matches": "Coincidències d'ADN"
 }
