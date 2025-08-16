@@ -31,25 +31,28 @@ export class GrampsjsFormNewMedia extends GrampsjsNewMediaMixin(
     this.checkFormValidity()
   }
 
-  async upload(dbChanged = false) {
+  async upload(submittedData) {
+    let finalData = {...submittedData}
     const uploadElement = this.shadowRoot.getElementById('upload')
     let data = await this.appState.apiPost('/api/media/', uploadElement.file, {
       isJson: false,
       dbChanged: false,
     })
     if ('data' in data) {
-      this.data = {...data.data[0].new, ...this.data}
+      finalData = {...data.data[0].new, ...finalData}
     } else if ('error' in data) {
       fireEvent(this, 'grampsjs:error', {message: data.error})
       return {error: data.error}
     }
-    const updateUrl = `/api/media/${this.data.handle}`
-    data = await this.appState.apiPut(updateUrl, this.data, {dbChanged})
+    const updateUrl = `/api/media/${finalData.handle}`
+    data = await this.appState.apiPut(updateUrl, finalData, {
+      dbChanged: false,
+    })
     if ('error' in data) {
       fireEvent(this, 'grampsjs:error', {message: data.error})
       return {error: data.error}
     }
-    return {data: this.data}
+    return {data: finalData}
   }
 }
 

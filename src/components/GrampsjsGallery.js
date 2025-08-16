@@ -235,8 +235,10 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleNewMediaSave(e) {
+    e.preventDefault()
+    e.stopPropagation()
     const uploadForm = this.renderRoot.querySelector('grampsjs-form-new-media')
-    uploadForm.upload(false).then(data => {
+    uploadForm.upload(e.detail.data).then(data => {
       if ('data' in data) {
         fireEvent(this, 'edit:action', {
           action: 'addMediaRef',
@@ -245,8 +247,6 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
       }
       this.dialogContent = ''
     })
-    e.preventDefault()
-    e.stopPropagation()
   }
 
   _handleMediaRefSave(e) {
