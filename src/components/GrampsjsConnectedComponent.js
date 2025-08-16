@@ -6,11 +6,12 @@ Base class for Components that fetch data when first loaded
 import {LitElement} from 'lit'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
 import {fireEvent} from '../util.js'
 
-export class GrampsjsConnectedComponent extends GrampsjsAppStateMixin(
-  LitElement
+export class GrampsjsConnectedComponent extends GrampsjsStaleDataMixin(
+  GrampsjsAppStateMixin(LitElement)
 ) {
   static get styles() {
     return [sharedStyles]
@@ -39,11 +40,15 @@ export class GrampsjsConnectedComponent extends GrampsjsAppStateMixin(
     this._errorMessage = ''
     this._data = {}
     this._oldUrl = ''
-    this._boundUpdateData = this._updateData.bind(this)
     this._boundsHandleOnline = this._handleOnline.bind(this)
     this.method = 'GET'
     this.postData = {}
     this._oldPostData = {}
+  }
+
+  get active() {
+    // this is needed for the StaleDataMixin
+    return true
   }
 
   render() {
@@ -144,15 +149,18 @@ export class GrampsjsConnectedComponent extends GrampsjsAppStateMixin(
     }
   }
 
+  handleUpdateStaleData() {
+    // reload with 1 second delay so the views are prioritized
+    setTimeout(() => this._updateData(), 1000)
+  }
+
   connectedCallback() {
     super.connectedCallback()
-    window.addEventListener('db:changed', this._boundUpdateData)
     window.addEventListener('online', this._boundHandleOnline)
   }
 
   disconnectedCallback() {
     window.removeEventListener('online', this._boundHandleOnline)
-    window.removeEventListener('db:changed', this._boundUpdateData)
     super.disconnectedCallback()
   }
 }
