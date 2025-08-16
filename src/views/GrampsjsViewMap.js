@@ -1,5 +1,6 @@
 /* eslint-disable lit/attribute-value-entities */
 import {html, css} from 'lit'
+import '@material/mwc-textfield'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsMap.js'
@@ -9,7 +10,7 @@ import '../components/GrampsjsMapTimeSlider.js'
 import '../components/GrampsjsPlaceBox.js'
 import {getMediaUrl} from '../api.js'
 import {isDateBetweenYears, getGregorianYears} from '../util.js'
-import '@material/mwc-textfield'
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
 // This is used for initial map center in absence of places
 const languageCoordinates = {
@@ -56,7 +57,7 @@ const languageCoordinates = {
   ko: [38, 128], // Korean - Approximate center of Korea
 }
 
-export class GrampsjsViewMap extends GrampsjsView {
+export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
     return [
       super.styles,
@@ -525,9 +526,8 @@ export class GrampsjsViewMap extends GrampsjsView {
     return [x, y]
   }
 
-  connectedCallback() {
-    super.connectedCallback()
-    window.addEventListener('db:changed', () => this._fetchDataAll())
+  handleUpdateStaleData() {
+    this._fetchDataAll()
   }
 }
 

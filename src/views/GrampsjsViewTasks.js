@@ -2,10 +2,11 @@ import {css, html} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsTasks.js'
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
 import {fireEvent} from '../util.js'
 
-export class GrampsjsViewTasks extends GrampsjsView {
+export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
     return [
       super.styles,
@@ -30,7 +31,6 @@ export class GrampsjsViewTasks extends GrampsjsView {
     super()
     this._data = []
     this._filters = []
-    this._boundFetchData = this._fetchData.bind(this)
   }
 
   render() {
@@ -132,14 +132,8 @@ export class GrampsjsViewTasks extends GrampsjsView {
     }
   }
 
-  connectedCallback() {
-    super.connectedCallback()
-    window.addEventListener('db:changed', this._boundFetchData)
-  }
-
-  disconnectedCallback() {
-    window.removeEventListener('db:changed', this._boundFetchData)
-    super.disconnectedCallback()
+  handleUpdateStaleData() {
+    this._fetchData()
   }
 }
 

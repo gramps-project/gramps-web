@@ -12,9 +12,13 @@ import '../components/GrampsjsFormNewMatch.js'
 import '../components/GrampsjsChromosomeBrowser.js'
 import '../components/GrampsjsBreadcrumbs.js'
 
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
+
 import {fireEvent, personDisplayName} from '../util.js'
 
-export class GrampsjsViewDnaMatches extends GrampsjsView {
+export class GrampsjsViewDnaMatches extends GrampsjsStaleDataMixin(
+  GrampsjsView
+) {
   static get styles() {
     return [
       super.styles,
@@ -476,9 +480,12 @@ export class GrampsjsViewDnaMatches extends GrampsjsView {
     this.edit = false
   }
 
+  handleUpdateStaleData() {
+    this._fetchAllData()
+  }
+
   connectedCallback() {
     super.connectedCallback()
-    window.addEventListener('db:changed', () => this._fetchAllData())
     window.addEventListener('edit-mode:delete', () => this._deleteMatch())
     window.addEventListener('edit-mode:off', () => this._disableEditMode())
   }

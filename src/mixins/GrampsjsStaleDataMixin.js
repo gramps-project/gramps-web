@@ -28,21 +28,21 @@ export const GrampsjsStaleDataMixin = superClass =>
 
     _handleDbChanged() {
       if (this.active) {
-        this._handleUpdateStaleData()
+        this.handleUpdateStaleData()
       } else {
         this._isStale = true
       }
     }
 
     // eslint-disable-next-line class-methods-use-this
-    _handleUpdateStaleData() {
+    handleUpdateStaleData() {
       // implement in subclass
     }
 
     update(changed) {
       super.update(changed)
       if (changed.has('active') && this.active && this._isStale) {
-        this._handleUpdateStaleData()
+        this.handleUpdateStaleData()
         this._isStale = false
       }
     }

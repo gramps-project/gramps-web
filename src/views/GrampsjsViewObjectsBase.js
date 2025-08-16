@@ -317,7 +317,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     }
   }
 
-  _handleUpdateStaleData() {
+  handleUpdateStaleData() {
     this._fetchData()
   }
 

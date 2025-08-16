@@ -46,6 +46,8 @@ import '../components/GrampsjsTimedelta.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
+
 import {renderIconSvg} from '../icons.js'
 
 const changeIcons = {
@@ -81,7 +83,9 @@ const changeIcons = {
   Media_2: mdiImageMinus,
 }
 
-export class GrampsjsViewRevisions extends GrampsjsView {
+export class GrampsjsViewRevisions extends GrampsjsStaleDataMixin(
+  GrampsjsView
+) {
   static get styles() {
     return [
       super.styles,
@@ -240,16 +244,15 @@ export class GrampsjsViewRevisions extends GrampsjsView {
     this._fetchData()
   }
 
+  handleUpdateStaleData() {
+    this._fetchData()
+  }
+
   update(changed) {
     super.update(changed)
     if (changed.has('_page') && changed._page !== this._page) {
       this._fetchData()
     }
-  }
-
-  connectedCallback() {
-    super.connectedCallback()
-    window.addEventListener('db:changed', () => this._fetchData())
   }
 }
 

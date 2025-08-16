@@ -139,7 +139,7 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
     fireEvent(this, 'nav', {path: `blog/${grampsId}`})
   }
 
-  _handleUpdateStaleData() {
+  handleUpdateStaleData() {
     this._fetchData()
   }
 
