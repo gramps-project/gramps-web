@@ -121,7 +121,6 @@ export class GrampsjsViewDashboard extends GrampsjsView {
       <div class="column">
         <div>
           <grampsjs-view-recent-blog-posts
-            ?active=${this.active}
             id="recent-blog"
             .appState="${this.appState}"
           >
