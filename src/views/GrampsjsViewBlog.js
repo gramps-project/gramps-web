@@ -3,9 +3,11 @@ import {css, html} from 'lit'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsBlogPostPreview.js'
 
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
+
 import {fireEvent, clickKeyHandler} from '../util.js'
 
-export class GrampsjsViewBlog extends GrampsjsView {
+export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
     return [
       super.styles,
@@ -135,6 +137,10 @@ export class GrampsjsViewBlog extends GrampsjsView {
 
   _handlePreviewClick(grampsId) {
     fireEvent(this, 'nav', {path: `blog/${grampsId}`})
+  }
+
+  _handleUpdateStaleData() {
+    this._fetchData()
   }
 
   async _fetchData() {
