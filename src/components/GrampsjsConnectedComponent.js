@@ -28,6 +28,7 @@ export class GrampsjsConnectedComponent extends GrampsjsStaleDataMixin(
       method: {type: String},
       postData: {type: Object},
       _oldPostData: {type: Object},
+      active: {type: Boolean},
     }
   }
 
@@ -44,11 +45,7 @@ export class GrampsjsConnectedComponent extends GrampsjsStaleDataMixin(
     this.method = 'GET'
     this.postData = {}
     this._oldPostData = {}
-  }
-
-  get active() {
-    // this is needed for the StaleDataMixin
-    return true
+    this.active = true
   }
 
   render() {
@@ -150,8 +147,23 @@ export class GrampsjsConnectedComponent extends GrampsjsStaleDataMixin(
   }
 
   handleUpdateStaleData() {
-    // reload with 1 second delay so the views are prioritized
-    setTimeout(() => this._updateData(), 1000)
+    // reload with 0.1 second delay so the views are prioritized
+    setTimeout(() => this._updateData(), 100)
+  }
+
+  firstUpdated() {
+    // the active property, used for lazy loading of stale data, is set
+    // based on visibility of the element in the viewport
+    const observer = IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          this.active = true
+        } else {
+          this.active = false
+        }
+      })
+    })
+    observer.observe(this)
   }
 
   connectedCallback() {
