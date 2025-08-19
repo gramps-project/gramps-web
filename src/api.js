@@ -610,7 +610,7 @@ export class Auth {
   }
 
   async getValidAccessToken() {
-    if (this._shouldRefresh(this.accessToken)) {
+    if (this._shouldRefresh()) {
       if (this._refreshingTokens) {
         // If already refreshing, wait for that to finish
         await this._refreshingTokens
@@ -671,7 +671,7 @@ export class Auth {
       // retry after 1s
       const jitter = Math.floor(Math.random() * 1000)
       await new Promise(resolve => setTimeout(resolve, 1000 + jitter))
-      return apiRefreshAuthToken(attempts - 1)
+      return this.refreshAuthTokens(attempts - 1)
     }
     const data = await resp.json()
     if (data.access_token === undefined) {

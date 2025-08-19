@@ -12,7 +12,7 @@ import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-linear-progress'
 import '@material/mwc-snackbar'
-import {getSettings, apiRefreshAuthToken} from './api.js'
+import {getSettings} from './api.js'
 import {
   grampsStrings,
   getFrontendStrings,
@@ -811,7 +811,7 @@ export class GrampsJs extends LitElement {
 
   // eslint-disable-next-line class-methods-use-this
   async _handleRefresh() {
-    await apiRefreshAuthToken()
+    await this.appState.refreshTokenIfNeeded()
     this.setPermissions()
   }
 
