@@ -107,7 +107,10 @@ export class GrampsjsEvent extends GrampsjsObject {
     if (obj === undefined) {
       return ''
     }
-    return `${obj?.name_display || '…'}`
+    if (!obj?.name_display) {
+      return `${obj?.name_given || '…'} ${obj?.name_surname || '…'}`
+    }
+    return `${obj?.name_display}`
   }
 
   // eslint-disable-next-line class-methods-use-this

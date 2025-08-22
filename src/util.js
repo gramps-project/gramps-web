@@ -33,7 +33,12 @@ export function translate(strings, s) {
 }
 
 export function personTitleFromProfile(personProfile) {
-  return `${personProfile.name_display || '…'}`.trim()
+  if (personProfile.name_display) {
+    return `${personProfile.name_display}`.trim()
+  }
+  return `${personProfile.name_given || '…'} ${
+    personProfile.name_surname || '…'
+  } ${personProfile.name_suffix || ''}`.trim()
 }
 
 function displaySurname(surname) {
@@ -83,7 +88,8 @@ export function renderPerson(personProfile) {
         >person</mwc-icon
       >
       <a href="${BASE_DIR}/person/${personProfile.gramps_id}"
-        >${personProfile.name_display || '…'}</a
+        >${personProfile.name_given || '…'}
+        ${personProfile.name_surname || '…'}</a
       >
     </span>
     ${personProfile?.birth?.date
