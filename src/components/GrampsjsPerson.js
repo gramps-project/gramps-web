@@ -52,22 +52,8 @@ export class GrampsjsPerson extends GrampsjsObject {
     if (!this.data.profile) {
       return ''
     }
-    const surname = this.data.profile.name_surname || '…'
-    const suffix = this.data.profile.name_suffix || ''
-    const call = this.data?.primary_name?.call
-    let given = this.data.profile.name_given || call || '…'
-    const callIndex = call && call !== given ? given.search(call) : -1
-    given =
-      callIndex > -1
-        ? html`
-            ${given.substring(0, callIndex)}
-            <span class="given-name"
-              >${given.substring(callIndex, callIndex + call.length)}</span
-            >
-            ${given.substring(callIndex + call.length)}
-          `
-        : given
-    return html`${given} ${surname} ${suffix}`
+    const nameDisplay = this.data.profile.name_display
+    return html`${nameDisplay}`
   }
 
   _renderBirth() {
