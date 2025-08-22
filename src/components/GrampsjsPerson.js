@@ -53,9 +53,6 @@ export class GrampsjsPerson extends GrampsjsObject {
       return ''
     }
     const nameDisplay = this.data.profile?.name_display
-    if (nameDisplay) {
-      return html`${nameDisplay}`
-    }
     const surname = this.data.profile.name_surname || '…'
     const suffix = this.data.profile.name_suffix || ''
     const call = this.data?.primary_name?.call
@@ -71,7 +68,7 @@ export class GrampsjsPerson extends GrampsjsObject {
             ${given.substring(callIndex + call.length)}
           `
         : given
-    return html`${given} ${surname} ${suffix}`
+    return nameDisplay || `${given} ${surname} ${suffix}`
   }
 
   _renderBirth() {
