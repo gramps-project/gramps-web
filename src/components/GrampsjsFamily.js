@@ -48,10 +48,15 @@ export class GrampsjsFamily extends GrampsjsObject {
 
   _renderTitle() {
     return html`
-      ${this.data?.profile?.father?.name_given || '…'}
-      ${this.data?.profile?.father?.name_surname || '…'} &amp;
-      ${this.data?.profile?.mother?.name_given || '…'}
-      ${this.data?.profile?.mother?.name_surname || '…'}
+      ${this.data?.profile?.father?.name_display ||
+      `${this.data?.profile?.father?.name_given || '…'} ${
+        this.data?.profile?.father?.name_surname || '…'
+      }`}
+      &amp;
+      ${this.data?.profile?.mother?.name_display ||
+      `${this.data?.profile?.mother?.name_given || '…'} ${
+        this.data?.profile?.mother?.name_surname || '…'
+      }`}
     `
   }
 

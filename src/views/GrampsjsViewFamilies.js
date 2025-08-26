@@ -65,12 +65,16 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
   _formatRow(row) {
     const formattedRow = {
       grampsId: row.gramps_id,
-      father: `${row?.profile?.father?.name_surname || '…'}, ${
-        row?.profile?.father?.name_given || '…'
-      }`,
-      mother: `${row?.profile?.mother?.name_surname || '…'}, ${
-        row?.profile?.mother?.name_given || '…'
-      }`,
+      father:
+        row?.profile?.father?.name_display ??
+        `${row?.profile?.father?.name_surname || '…'}, ${
+          row?.profile?.father?.name_given || '…'
+        }`,
+      mother:
+        row?.profile?.mother?.name_display ??
+        `${row?.profile?.mother?.name_surname || '…'}, ${
+          row?.profile?.mother?.name_given || '…'
+        }`,
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
     return formattedRow
