@@ -41,6 +41,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
         id="select-place-type"
         .appState="${this.appState}"
         ?loadingTypes="${this.loadingTypes}"
+        defaultValue="Unknown"
         typeName="place_types"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
@@ -65,7 +66,6 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
 
       ${this.renderButtons()}
     `
-    // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
 
   handleName(e) {
