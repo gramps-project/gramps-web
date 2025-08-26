@@ -44,10 +44,6 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
 
   constructor() {
     super()
-    this.reset()
-  }
-
-  reset() {
     this.disabled = false
     this.loadingTypes = false
     this.nocustom = false
@@ -64,6 +60,15 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
     this.value = ''
     this._hasCustomType = false
     this._touched = false
+  }
+
+  reset() {
+    this._hasCustomType = false
+    this._touched = false
+    const selectElement = this.renderRoot.querySelector('#select-type')
+    if (selectElement) {
+      selectElement.select(this.defaultValue)
+    }
   }
 
   updated(changed) {
