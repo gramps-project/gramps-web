@@ -155,6 +155,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
           handle: handleBirth,
           type: birthString,
           citation_list: person.citation_list ?? [],
+          private: person.private ?? false,
         },
       ]
     }
@@ -172,6 +173,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
           handle: handleDeath,
           type: deathString,
           citation_list: person.citation_list ?? [],
+          private: person.private ?? false,
         },
       ]
     }
@@ -192,6 +194,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
         handle: handleBirth,
         type: birthString,
         citation_list: person.citation_list ?? [],
+        private: person.private ?? false,
       },
       {
         ...death,
@@ -199,6 +202,7 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
         handle: handleDeath,
         type: deathString,
         citation_list: person.citation_list ?? [],
+        private: person.private ?? false,
       },
     ]
   }
