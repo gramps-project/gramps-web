@@ -18,7 +18,7 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
 
   // eslint-disable-next-line class-methods-use-this
   renderContent() {
-    return 'YDNA'
+    return html` <pre>${JSON.stringify(this._dnaData, null, 2)}</pre> `
   }
 
   _renderNoData() {
@@ -55,24 +55,27 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
     const rules = {
       rules: [
         {
-          name: 'HasAssociationType',
-          values: ['DNA'],
+          name: 'HasAttribute',
+          values: ['Y-DNA', '*'],
+          regex: true,
         },
       ],
     }
     const uri = `/api/people/?rules=${encodeURIComponent(
       JSON.stringify(rules)
-    )}&locale=${
-      this.appState.i18n.lang || 'en'
-    }&sort=name&extend=person_ref_list&profile=references`
+    )}&locale=${this.appState.i18n.lang || 'en'}&sort=name`
     return uri
   }
 
   _dnaUrl() {
-    const uri = `/api/people/${this.selectedHandle}/dna/matches?locale=${
+    const uri = `/api/people/${this.selectedHandle}/ydna?locale=${
       this.appState.i18n.lang || 'en'
     }&raw=1`
     return uri
+  }
+
+  _shouldLoadDnaData() {
+    return this._selectDataHasGrampsId() && !this._dnaDataLoading
   }
 }
 

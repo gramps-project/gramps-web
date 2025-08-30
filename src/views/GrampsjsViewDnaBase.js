@@ -9,6 +9,15 @@ import {GrampsjsView} from './GrampsjsView.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import {fireEvent} from '../util.js'
 
+function objectOrArrayIsEmpty(obj) {
+  return (
+    // length-0 array
+    (Array.isArray(obj) && obj.length === 0) ||
+    // empty object
+    (!Array.isArray(obj) && Object.keys(obj).length === 0)
+  )
+}
+
 export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
     return [
@@ -46,8 +55,8 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
       homePersonGrampsId: {type: String},
       edit: {type: Boolean},
       _data: {type: Array},
-      _matchData: {type: Array},
-      _matchDataLoading: {type: Boolean},
+      _dnaData: {type: Array},
+      _dnaDataLoading: {type: Boolean},
       _selectDataLoading: {type: Boolean},
     }
   }
@@ -59,8 +68,8 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     this.homePersonGrampsId = ''
     this.edit = false
     this._data = []
-    this._matchData = []
-    this._matchDataLoading = false
+    this._dnaData = []
+    this._dnaDataLoading = false
     this._selectDataLoading = false
   }
 
@@ -82,12 +91,6 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     }
   }
 
-  renderFab() {
-    return this.grampsIdMatch
-      ? html`<mwc-fab icon="edit" @click=${this._handleClickEdit}></mwc-fab>`
-      : html`<mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab>`
-  }
-
   _handleCancelDialog() {
     this.dialogContent = ''
   }
@@ -107,7 +110,11 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     if ('data' in data) {
       this.error = false
       this._data = data.data
-      await this._fetchMatchDataIfNeeded()
+      if (this._shouldLoadDnaData()) {
+        await this._fetchDnaData()
+      } else if (!this._selectDataHasGrampsId()) {
+        this._goTo(`${this.page}`)
+      }
       this._setGrampsIdIfNeeded()
     }
     if ('error' in data) {
@@ -120,27 +127,25 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     return this._data.find(person => person.gramps_id === this.grampsId)?.handle
   }
 
-  async _fetchMatchDataIfNeeded() {
-    if (this._shouldLoadMatchData()) {
-      await this._fetchMatchData()
-    }
-  }
-
-  async _fetchMatchData() {
+  async _fetchDnaData() {
+    console.log(`fetch ${this.grampsId}`)
     this.loading = true
-    this._matchDataLoading = true
+    this._dnaDataLoading = true
     if (!this.selectedHandle) {
       this.loading = false
-      this._matchDataLoading = false
+      this._dnaDataLoading = false
       return
     }
     const uri = this._dnaUrl()
     const data = await this.appState.apiGet(uri)
     this.loading = false
-    this._matchDataLoading = false
+    this._dnaDataLoading = false
     if ('data' in data) {
       this.error = false
-      this._matchData = data.data
+      this._dnaData = data.data
+      if (objectOrArrayIsEmpty(this._dnaData)) {
+        this._goTo(`${this.page}`)
+      }
     }
     if ('error' in data) {
       this.error = true
@@ -154,7 +159,7 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     }
     if (changed.has('grampsId')) {
       if (this.grampsId) {
-        this._fetchMatchData()
+        this._fetchDnaData()
         this._selectPersonByGrampsId()
       } else {
         this._setGrampsIdIfNeeded()
@@ -195,11 +200,15 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _fetchAllData() {
     this._fetchSelectData()
-    this._fetchMatchData()
+    this._fetchDnaData()
   }
 
   _disableEditMode() {
     this.edit = false
+  }
+
+  _selectDataHasGrampsId() {
+    return this._data.some(person => person.gramps_id === this.grampsId)
   }
 
   handleUpdateStaleData() {
@@ -213,6 +222,10 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   /* Methods to be implemented by child classes */
+
+  renderFab() {
+    return ''
+  }
 
   renderContent() {
     return ''
@@ -230,7 +243,7 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     return ''
   }
 
-  _shouldLoadMatchData() {
+  _shouldLoadDnaData() {
     return true
   }
 

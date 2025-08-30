@@ -46,7 +46,11 @@ class GrampsjsDnaTabBar extends GrampsjsAppStateMixin(LitElement) {
           key => html`
             <md-primary-tab
               @click=${() =>
-                this._goTo(this.grampsId ? `${key}/${this.grampsId}` : key)}
+                this._goTo(
+                  this.appState?.path?.pageId
+                    ? `${key}/${this.appState?.path?.pageId}`
+                    : key
+                )}
             >
               ${this._(tabs[key])}
             </md-primary-tab>

@@ -31,6 +31,12 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
 
   /* Implemented abstract methods */
 
+  renderFab() {
+    return this.grampsIdMatch
+      ? html`<mwc-fab icon="edit" @click=${this._handleClickEdit}></mwc-fab>`
+      : html`<mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab>`
+  }
+
   renderContent() {
     return html`
       ${this.matches ? this._renderMatches() : ''}
@@ -67,15 +73,14 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
     `
   }
 
-  _shouldLoadMatchData() {
-    const grampsIdHasMatches = this._data.some(
-      person => person.gramps_id === this.grampsId
-    )
-    const grampsIdHasMatchData = this._matchData.some(
+  _shouldLoadDnaData() {
+    const grampsIdHasDnaData = this._dnaData.some(
       match => match.handle && match.handle === this.selectedHandle
     )
     return (
-      grampsIdHasMatches && !grampsIdHasMatchData && !this._matchDataLoading
+      this._selectDataHasGrampsId() &&
+      !grampsIdHasDnaData &&
+      !this._dnaDataLoading
     )
   }
 
@@ -140,7 +145,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
     return html`
       <grampsjs-dna-match
         .edit="${this.edit}"
-        .data="${this._matchData.find(
+        .data="${this._dnaData.find(
           match => match.handle === this._getSelectedMatchHandle()
         ) ?? {}}"
         .personMatch="${this._allPeople.find(
@@ -158,12 +163,12 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
     return html`
       <div class="container">
         <grampsjs-dna-matches
-          .data="${this._matchData}"
+          .data="${this._dnaData}"
           .appState="${this.appState}"
           .person="${this._data.find(
             person => person.gramps_id === this.grampsId
           )}"
-          ?loading="${this._matchDataLoading}"
+          ?loading="${this._dnaDataLoading}"
           @dna-matches:row-selected="${this._handleRowSelected}"
         ></grampsjs-dna-matches>
       </div>
@@ -182,7 +187,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
 
   _handleRowSelected(e) {
     const {rowNumber} = e.detail
-    const handleMatch = this._matchData[rowNumber].handle
+    const handleMatch = this._dnaData[rowNumber].handle
     const match = this._allPeople.find(person => person.handle === handleMatch)
     const grampsIdMatch = match?.gramps_id
     this._goTo(`${this.page}/${this.grampsId}/${grampsIdMatch}`)
@@ -199,12 +204,12 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
     return html`
       <div class="container">
         <grampsjs-chromosome-browser
-          .data="${this._matchData}"
+          .data="${this._dnaData}"
           .appState="${this.appState}"
           .person="${this._data.find(
             person => person.gramps_id === this.grampsId
           )}"
-          ?loading="${this._matchDataLoading}"
+          ?loading="${this._dnaDataLoading}"
         ></grampsjs-chromosome-browser>
       </div>
     `
