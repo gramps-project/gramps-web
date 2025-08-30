@@ -55,7 +55,7 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
       homePersonGrampsId: {type: String},
       edit: {type: Boolean},
       _data: {type: Array},
-      _dnaData: {type: Array},
+      _dnaData: {type: Object},
       _dnaDataLoading: {type: Boolean},
       _selectDataLoading: {type: Boolean},
     }
@@ -68,17 +68,23 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     this.homePersonGrampsId = ''
     this.edit = false
     this._data = []
-    this._dnaData = []
+    this._dnaData = {}
     this._dnaDataLoading = false
     this._selectDataLoading = false
   }
 
   render() {
+    const noSelectData = !this._selectDataLoading && !this._data.length
+    const noDnaData =
+      !this._selectDataLoading &&
+      !this._dnaDataLoading &&
+      objectOrArrayIsEmpty(this._dnaData?.data ?? [])
+    if (this.grampsId && noDnaData) {
+      this._goTo(`${this.page}`)
+    }
     return html`
       ${this._renderSelect()}
-      ${!this._selectDataLoading && !this._data.length
-        ? this._renderNoData()
-        : this.renderContent()}
+      ${noSelectData ? this._renderNoData() : this.renderContent()}
       ${this.appState.permissions.canEdit ? this.renderFab() : ''}
       ${this.dialogContent}
     `
@@ -128,7 +134,6 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   async _fetchDnaData() {
-    console.log(`fetch ${this.grampsId}`)
     this.loading = true
     this._dnaDataLoading = true
     if (!this.selectedHandle) {
@@ -142,8 +147,8 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._dnaDataLoading = false
     if ('data' in data) {
       this.error = false
-      this._dnaData = data.data
-      if (objectOrArrayIsEmpty(this._dnaData)) {
+      this._dnaData = {grampsId: this.grampsId, data: data.data}
+      if (objectOrArrayIsEmpty(data.data ?? [])) {
         this._goTo(`${this.page}`)
       }
     }
@@ -157,7 +162,17 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     if (changed.has('homePersonGrampsId') && this.homePersonGrampsId) {
       this._setGrampsIdIfNeeded()
     }
-    if (changed.has('grampsId')) {
+    if (
+      // if gramps Id changed
+      changed.has('grampsId') ||
+      // OR if we changed to active and have stale DNA data
+      (changed.has('active') &&
+        this.active &&
+        !this._dnaDataLoading &&
+        this.grampsId &&
+        this._dnaData.grampsId !== this.grampsId)
+    ) {
+      this._dnaData = {}
       if (this.grampsId) {
         this._fetchDnaData()
         this._selectPersonByGrampsId()
