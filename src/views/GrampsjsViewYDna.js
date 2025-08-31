@@ -2,12 +2,7 @@ import {html} from 'lit'
 
 import '@material/web/select/filled-select'
 
-import '../components/GrampsjsTasks.js'
-import '../components/GrampsjsDnaMatches.js'
-import '../components/GrampsjsDnaMatch.js'
-import '../components/GrampsjsFormNewMatch.js'
-import '../components/GrampsjsChromosomeBrowser.js'
-import '../components/GrampsjsBreadcrumbs.js'
+import '../components/GrampsjsYtreeLineage.js'
 
 import {GrampsjsViewDnaBase} from './GrampsjsViewDnaBase.js'
 
@@ -25,7 +20,10 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
     if (this._selectDataLoading || this._dnaDataLoading) {
       return this.renderLoading()
     }
-    return html` <pre>${JSON.stringify(this._dnaData.data, null, 2)}</pre> `
+    return html`<grampsjs-ytree-lineage
+      .appState="${this.appState}"
+      .data="${this._dnaData.data}"
+    ></grampsjs-ytree-lineage>`
   }
 
   _renderNoData() {
