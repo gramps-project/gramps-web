@@ -22,7 +22,7 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
     }
     return html`<grampsjs-ytree-lineage
       .appState="${this.appState}"
-      .data="${this._dnaData.data}"
+      .data="${this._dnaData?.data?.clade_lineage ?? []}"
     ></grampsjs-ytree-lineage>`
   }
 
