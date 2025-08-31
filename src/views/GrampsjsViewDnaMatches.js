@@ -37,15 +37,31 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
       : html`<mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab>`
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  renderLoading() {
+    return ''
+  }
+
   renderContent() {
-    return html`
-      ${this.matches ? this._renderMatches() : ''}
-      ${this.chromosome ? this._renderChromosome() : ''}
-    `
+    if (this._selectDataLoading || this._dnaDataLoading) {
+      return this.renderLoading()
+    }
+    if (this.matches) {
+      return this._renderMatches()
+    }
+    if (this.chromosome) {
+      return this._renderChromosome()
+    }
+    return ''
   }
 
   _renderNoData() {
-    return html`<div>${this._('No DNA matches found.')}</div>`
+    return html`<div>
+      ${this._('No DNA matches found.')}
+      ${this.grampsId && this._data.length
+        ? this._('Please select a different person.')
+        : ''}
+    </div>`
   }
 
   get page() {

@@ -17,7 +17,14 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
   /* Implemented abstract methods */
 
   // eslint-disable-next-line class-methods-use-this
+  renderLoading() {
+    return ''
+  }
+
   renderContent() {
+    if (this._selectDataLoading || this._dnaDataLoading) {
+      return this.renderLoading()
+    }
     return html` <pre>${JSON.stringify(this._dnaData.data, null, 2)}</pre> `
   }
 

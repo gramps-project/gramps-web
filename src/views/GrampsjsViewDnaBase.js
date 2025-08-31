@@ -79,12 +79,11 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
       !this._selectDataLoading &&
       !this._dnaDataLoading &&
       objectOrArrayIsEmpty(this._dnaData?.data ?? [])
-    if (this.grampsId && noDnaData) {
-      this._goTo(`${this.page}`)
-    }
     return html`
       ${this._renderSelect()}
-      ${noSelectData ? this._renderNoData() : this.renderContent()}
+      ${noSelectData || (this.grampsId && noDnaData)
+        ? this._renderNoData()
+        : this.renderContent()}
       ${this.appState.permissions.canEdit ? this.renderFab() : ''}
       ${this.dialogContent}
     `
@@ -118,8 +117,6 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
       this._data = data.data
       if (this._shouldLoadDnaData()) {
         await this._fetchDnaData()
-      } else if (!this._selectDataHasGrampsId()) {
-        this._goTo(`${this.page}`)
       }
       this._setGrampsIdIfNeeded()
     }
@@ -133,7 +130,10 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     return this._data.find(person => person.gramps_id === this.grampsId)?.handle
   }
 
-  async _fetchDnaData() {
+  async _fetchDnaData(clear = false) {
+    if (clear) {
+      this._dnaData = {}
+    }
     this.loading = true
     this._dnaDataLoading = true
     if (!this.selectedHandle) {
@@ -148,11 +148,7 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     if ('data' in data) {
       this.error = false
       this._dnaData = {grampsId: this.grampsId, data: data.data}
-      if (objectOrArrayIsEmpty(data.data ?? [])) {
-        this._goTo(`${this.page}`)
-      }
-    }
-    if ('error' in data) {
+    } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
     }
@@ -162,24 +158,22 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     if (changed.has('homePersonGrampsId') && this.homePersonGrampsId) {
       this._setGrampsIdIfNeeded()
     }
-    if (
-      // if gramps Id changed
-      changed.has('grampsId') ||
-      // OR if we changed to active and have stale DNA data
-      (changed.has('active') &&
-        this.active &&
-        !this._dnaDataLoading &&
-        this.grampsId &&
-        this._dnaData.grampsId !== this.grampsId)
-    ) {
-      this._dnaData = {}
-      if (this.grampsId) {
-        this._fetchDnaData()
-        this._selectPersonByGrampsId()
-      } else {
-        this._setGrampsIdIfNeeded()
-      }
+    if (changed.has('grampsId') && this.grampsId) {
+      this._fetchDnaData(true)
+      this._selectPersonByGrampsId()
+    } else if (changed.has('grampsId') && !this.grampsId) {
+      this._clearDnaData()
+      this._setGrampsIdIfNeeded()
+    } else if (changed.has('active') && this.active && !this.grampsId) {
+      this._clearDnaData()
+      this._setGrampsIdIfNeeded()
+    } else if (changed.has('active') && this.active && this.grampsId) {
+      this._fetchDnaData(true)
     }
+  }
+
+  async _clearDnaData() {
+    this._dnaData = {}
   }
 
   _selectPersonByGrampsId() {
