@@ -751,32 +751,35 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           ?editRect="${this.appState.permissions.canEdit}"
         ></grampsjs-gallery>`
       case 'metadata':
-        return html` ${this.data.attribute_list?.length > 0 || this.edit
-            ? html` <h4>${this._('Attributes')}</h4> `
+        return html`
+          ${this.data.attribute_list?.length > 0 ||
+          (this.edit && 'attribute_list' in this.data)
+            ? html` <h4>${this._('Attributes')}</h4>
+                <grampsjs-attributes
+                  hasEdit
+                  .appState="${this.appState}"
+                  ?edit="${this.edit}"
+                  .data=${this.data.attribute_list ?? []}
+                  attributeCategory="${this._objectsName.toLowerCase()}"
+                ></grampsjs-attributes>`
             : ''}
-          <grampsjs-attributes
-            hasEdit
-            .appState="${this.appState}"
-            ?edit="${this.edit}"
-            .data=${this.data.attribute_list ?? []}
-            attributeCategory="${this._objectsName.toLowerCase()}"
-          ></grampsjs-attributes>
           ${this.data.address_list?.length > 0
-            ? html`<h4>${this._('Addresses')}</h4>`
+            ? html`<h4>${this._('Addresses')}</h4>
+                <grampsjs-addresses
+                  .appState="${this.appState}"
+                  .data=${this.data.address_list ?? []}
+                ></grampsjs-addresses>`
             : ''}
-          <grampsjs-addresses
-            .appState="${this.appState}"
-            .data=${this.data.address_list ?? []}
-          ></grampsjs-addresses>
-          ${this.data.urls?.length || this.edit > 0
-            ? html`<h4>${this._('Internet')}</h4>`
+          ${this.data.urls?.length > 0 || (this.edit && 'urls' in this.data)
+            ? html`<h4>${this._('Internet')}</h4>
+                <grampsjs-urls
+                  hasEdit
+                  .appState="${this.appState}"
+                  .data=${this.data.urls ?? []}
+                  ?edit="${this.edit}"
+                ></grampsjs-urls>`
             : ''}
-          <grampsjs-urls
-            hasEdit
-            .appState="${this.appState}"
-            .data=${this.data.urls ?? []}
-            ?edit="${this.edit}"
-          ></grampsjs-urls>`
+        `
       case 'associations':
         return html`<grampsjs-associations
           hasEdit
