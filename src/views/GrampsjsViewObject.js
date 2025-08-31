@@ -633,7 +633,7 @@ export class GrampsjsViewObject extends GrampsjsView {
   }
 
   // add an object to a list of objects
-  // e.g. an event references to the event_ref_list
+  // e.g. an event reference to the event_ref_list
   addObject(data, obj, objType, prop) {
     return this._updateObject(obj, objType, _obj => {
       _obj[prop] = [..._obj[prop], data]
