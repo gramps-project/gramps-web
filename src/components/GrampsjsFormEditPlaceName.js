@@ -9,6 +9,18 @@ import './GrampsjsFormSelectDate.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 class GrampsjsFormEditPlaceName extends GrampsjsObjectForm {
+  static get properties() {
+    return {
+      ...super.properties,
+      showDateInput: {type: Boolean},
+    }
+  }
+
+  constructor() {
+    super()
+    this.showDateInput = false
+  }
+
   renderForm() {
     return html`
       <grampsjs-form-string
@@ -19,14 +31,18 @@ class GrampsjsFormEditPlaceName extends GrampsjsObjectForm {
         value="${this.data.value || ''}"
       >
       </grampsjs-form-string>
-      <grampsjs-form-select-date
-        @formdata:changed="${this._handleFormData}"
-        id="place-name-date"
-        label="${this._('Date')}"
-        .data="${this.data.date || {dateval: ''}}"
-        .appState="${this.appState}"
-      >
-      </grampsjs-form-select-date>
+      ${this.showDateInput
+        ? html`
+            <grampsjs-form-select-date
+              @formdata:changed="${this._handleFormData}"
+              id="place-name-date"
+              label="${this._('Date')}"
+              .data="${this.data.date || {dateval: ''}}"
+              .appState="${this.appState}"
+            >
+            </grampsjs-form-select-date>
+          `
+        : ''}
     `
   }
 

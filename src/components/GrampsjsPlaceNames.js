@@ -61,6 +61,7 @@ export class GrampsjsPlaceNames extends GrampsjsEditableTable {
         @object:cancel="${this._handleCancelDialog}"
         .appState="${this.appState}"
         .strings="${this.strings}"
+        ?showDateInput=${true}
       >
       </grampsjs-form-edit-placename>
     `
@@ -74,6 +75,7 @@ export class GrampsjsPlaceNames extends GrampsjsEditableTable {
         .appState="${this.appState}"
         .strings="${this.strings}"
         .data="${obj}"
+        ?showDateInput=${true}
       >
       </grampsjs-form-edit-placename>
     `
