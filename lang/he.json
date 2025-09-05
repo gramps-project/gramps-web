@@ -191,5 +191,18 @@
     "To start building your family tree, add yourself as a person or import a family tree file.": "כדי להתחיל לבנות את אילן היוחסין שלך, יש להוסיף את עצמך כאדם או לייבא קובץ אילן יוחסין.",
     "Regenerate semantic search index": "חילול מפתחות חיפוש סמנטי מחדש",
     "Settings": "הגדרות",
-    "Pending": "תלוי ועומד"
+    "Pending": "תלוי ועומד",
+    "Delete user": "למחוק משתמש",
+    "Do you really want to delete user \"%s\"?": "האם למחוק משתמש \"%s\"?",
+    "First person": "אדם ראשון",
+    "Second person": "אדם שני",
+    "Raw match data": "התאמת נתונים גולמית",
+    "Add new DNA match": "הוספת התאמת DNA חדשה",
+    "Paste the raw data in the field above to see the preview.": "הדבקת הנתונים הגולמיים לשדה שמעל כדי לצפות בתצוגה מקדימה.",
+    "Number of SNPs": "כמות SNP",
+    "Side": "צד",
+    "Chromosome": "כרומוזום",
+    "Start Position": "איות התחלתית",
+    "End Position": "איות סופית",
+    "DNA Match": "התאמת DNA"
 }
