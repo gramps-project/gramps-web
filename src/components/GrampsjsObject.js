@@ -602,22 +602,21 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
       case 'enclosed':
         return html` ${this.data.placeref_list?.length || this.edit
           ? html`
-      <h4>${this._('Enclosed By')}</h4>
-        <grampsjs-place-refs
-          .appState="${this.appState}"
-          .data="${this.data?.placeref_list}"
-          ?edit="${this.edit}"
-        ></grampsjs-place-refs>
-        `
+              <h4>${this._('Enclosed By')}</h4>
+              <grampsjs-place-refs
+                .appState="${this.appState}"
+                .data="${this.data?.placeref_list}"
+                ?edit="${this.edit}"
+              ></grampsjs-place-refs>
+            `
           : ''}
         ${this.data?.backlinks?.place?.length
           ? html`<h4>${this._('Encloses')}</h4>
-        <grampsjs-place-children
-          .appState="${this.appState}"
-          .data="${this.data?.profile?.references?.place || []}"
-          ?edit=${false}
-        ></grampsjs-place-children>
-        `
+              <grampsjs-place-children
+                .appState="${this.appState}"
+                .data="${this.data?.profile?.references?.place || []}"
+                ?edit=${false}
+              ></grampsjs-place-children> `
           : ''}`
       case 'map':
         return html` ${this.edit
