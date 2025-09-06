@@ -595,7 +595,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           ? html` <grampsjs-place-names
               .appState="${this.appState}"
               .strings="${this.strings}"
-              .data="${this.data.alt_names || []}"
+              .data="${this.data.profile.alternate_place_names ?? []}"
               ?edit=${this.edit}
             ></grampsjs-place-names>`
           : ''}`
@@ -669,7 +669,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
               >
                 <grampsjs-map-overlay
                   url="${getMediaUrl(this.data.handle)}"
-                  .bounds="${mapBounds[0].value}"
+                  .bounds="${JSON.parse(mapBounds[0].value)}"
                   title="${this.data.desc}"
                 >
                 </grampsjs-map-overlay>

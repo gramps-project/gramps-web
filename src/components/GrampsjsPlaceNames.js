@@ -3,25 +3,17 @@ import {html} from 'lit'
 import '@material/mwc-icon-button'
 import '@material/mwc-dialog'
 import '@material/mwc-button'
-import {toDate} from '../date.js'
-import {dateIsEmpty, fireEvent} from '../util.js'
+import {fireEvent} from '../util.js'
 import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
 import './GrampsjsFormEditPlaceName.js'
 
 export class GrampsjsPlaceNames extends GrampsjsEditableTable {
-  static get properties() {
-    return {
-      profile: {type: Array},
-    }
-  }
-
   constructor() {
     super()
     this.objType = 'PlaceName'
     this._columns = ['Name', 'Date', '']
     this.dialogContent = ''
     this.edit = false
-    this.profile = []
   }
 
   row(obj, i) {
@@ -31,7 +23,7 @@ export class GrampsjsPlaceNames extends GrampsjsEditableTable {
           ${obj.value}
         </td>
         <td @click="${() => this.edit && this._handleEditClick(obj)}">
-          ${dateIsEmpty(obj.date) ? '' : toDate(obj.date?.dateval)}
+          ${obj.date_str ?? ''}
         </td>
         <td>${this.edit ? this._renderActionBtns(i, true) : ''}</td>
       </tr>

@@ -7,11 +7,11 @@ import {html} from 'lit'
 import './GrampsjsFormString.js'
 import './GrampsjsFormSelectDate.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
+import {emptyDate} from '../util.js'
 
 class GrampsjsFormEditPlaceName extends GrampsjsObjectForm {
   static get properties() {
     return {
-      ...super.properties,
       showDateInput: {type: Boolean},
     }
   }
@@ -37,13 +37,17 @@ class GrampsjsFormEditPlaceName extends GrampsjsObjectForm {
               @formdata:changed="${this._handleFormData}"
               id="place-name-date"
               label="${this._('Date')}"
-              .data="${this.data.date || {dateval: ''}}"
+              .data="${this.data.date ?? emptyDate}"
               .appState="${this.appState}"
             >
             </grampsjs-form-select-date>
           `
         : ''}
     `
+  }
+
+  get isValid() {
+    return this.data.value !== ''
   }
 
   _handleFormData(e) {
