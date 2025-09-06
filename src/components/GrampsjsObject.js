@@ -595,7 +595,8 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           ? html` <grampsjs-place-names
               .appState="${this.appState}"
               .strings="${this.strings}"
-              .data="${this.data.profile.alternate_place_names ?? []}"
+              .data="${this.data.alt_names}"
+              .profile="${this.data.profile.alternate_place_names || []}"
               ?edit=${this.edit}
             ></grampsjs-place-names>`
           : ''}`
