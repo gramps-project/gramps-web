@@ -20,7 +20,9 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
   }
 
   render() {
-    return html`${this.data.reverse().map(clade => this._renderClade(clade))}`
+    return html`${[...this.data]
+      .reverse()
+      .map(clade => this._renderClade(clade))}`
   }
 
   // eslint-disable-next-line class-methods-use-this
