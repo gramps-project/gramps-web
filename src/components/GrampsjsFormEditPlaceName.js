@@ -47,7 +47,7 @@ class GrampsjsFormEditPlaceName extends GrampsjsObjectForm {
   }
 
   get isValid() {
-    return this.data.value !== ''
+    return !!this.data.value
   }
 
   _handleFormData(e) {
