@@ -167,7 +167,7 @@ export const GrampsjsNewPersonMixin = superClass =>
       const deathString = this.translateTypeName(false, 'event_types', 'Death')
       const {birth, death, ...person} = this.data
       const hasBirth = birth.place || (birth?.date && !dateIsEmpty(birth.date))
-      const hasDeath = death.place || (death?.date && !dateIsEmpty(birth.date))
+      const hasDeath = death.place || (death?.date && !dateIsEmpty(death.date))
       if (!hasBirth && !hasDeath) {
         return [person]
       }
