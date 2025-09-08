@@ -1,20 +1,15 @@
 import {html} from 'lit'
 
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
-import '../components/GrampsjsFormName.js'
-import '../components/GrampsjsFormPrivate.js'
-import '../components/GrampsjsFormSelectObjectList.js'
-import {makeHandle, dateIsEmpty, emptyDate} from '../util.js'
+import {GrampsjsNewPersonMixin} from '../mixins/GrampsjsNewPersonMixin.js'
 
-const gender = {
-  2: 'Unknown',
-  1: 'Male',
-  0: 'Female',
-}
+import {makeHandle, dateIsEmpty, emptyDate} from '../util.js'
 
 const dataDefault = {_class: 'Person', gender: 2, citation_list: []}
 
-export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
+export class GrampsjsViewNewPerson extends GrampsjsNewPersonMixin(
+  GrampsjsViewNewObject
+) {
   constructor() {
     super()
     this.data = dataDefault
@@ -25,75 +20,10 @@ export class GrampsjsViewNewPerson extends GrampsjsViewNewObject {
 
   renderContent() {
     return html`
-      <h2>${this._('New Person')}</h2>
-
-      <h4 class="label">${this._('Name')}</h4>
-      <grampsjs-form-name
-        id="primary-name"
-        .appState="${this.appState}"
-      ></grampsjs-form-name>
-
-      <h4 class="label">${this._('Gender')}</h4>
-      <mwc-select id="select-confidence" @change="${this.handleGender}">
-        ${Object.keys(gender).map(
-          genderConst => html`
-            <mwc-list-item
-              value="${genderConst}"
-              ?selected="${
-                // eslint-disable-next-line eqeqeq
-                genderConst == this.data.gender
-              }"
-              >${this._(gender[genderConst])}</mwc-list-item
-            >
-          `
-        )}
-      </mwc-select>
-
-      <h4 class="label">${this._('Birth Date')}</h4>
-
-      <p>
-        <grampsjs-form-select-date id="birth-date" .appState="${this.appState}">
-        </grampsjs-form-select-date>
-      </p>
-
-      <h4 class="label">${this._('Birth Place')}</h4>
-
-      <grampsjs-form-select-object-list
-        id="birth-place"
-        objectType="place"
-        .appState="${this.appState}"
-      ></grampsjs-form-select-object-list>
-
-      <h4 class="label">${this._('Death Date')}</h4>
-
-      <p>
-        <grampsjs-form-select-date id="death-date" .appState="${this.appState}">
-        </grampsjs-form-select-date>
-      </p>
-
-      <h4 class="label">${this._('Death Place')}</h4>
-
-      <grampsjs-form-select-object-list
-        id="death-place"
-        objectType="place"
-        .appState="${this.appState}"
-      ></grampsjs-form-select-object-list>
-
-      ${this._renderCitationForm()}
-
-      <div class="spacer"></div>
-      <grampsjs-form-private
-        id="private"
-        .appState="${this.appState}"
-      ></grampsjs-form-private>
-
-      ${this.renderButtons()}
+      <h2>
+        ${this._('New Person')} ${this.renderForm()} ${this.renderButtons()}
+      </h2>
     `
-    // <pre>${JSON.stringify(this.data, null, 2)}</pre>
-  }
-
-  handleGender(e) {
-    this.data = {...this.data, gender: parseInt(e.target.value, 10)}
   }
 
   _handleFormData(e) {
