@@ -14,11 +14,9 @@ export class GrampsjsViewNewPerson extends GrampsjsNewPersonMixin(
   }
 
   renderContent() {
-    // prettier-ignore
     return html`
       <h2>${this._('New Person')}</h2>
-      ${this.renderForm()}
-      ${this.renderButtons()}
+      ${this.renderForm()} ${this.renderButtons()}
     `
   }
 
