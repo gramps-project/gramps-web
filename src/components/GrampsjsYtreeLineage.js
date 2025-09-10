@@ -1,7 +1,7 @@
 import {html, css, LitElement} from 'lit'
-
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {YtreeLineageChart} from '../charts/YtreeLineageChart.js'
 
 class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -20,17 +20,12 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
   }
 
   render() {
-    return html`${[...this.data]
-      .reverse()
-      .map(clade => this._renderClade(clade))}`
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _renderClade(clade) {
-    return html`<div>
-      ${clade.age_info.formed} &mdash;
-      ${clade.age_info.most_recent_common_ancestor}
-    </div>`
+    // Use d3-based chart rendering
+    let svgNode = null
+    if (this.data && this.data.length > 0) {
+      svgNode = YtreeLineageChart([...this.data])
+    }
+    return html`<div>${svgNode ? html`${svgNode}` : ''}</div>`
   }
 }
 
