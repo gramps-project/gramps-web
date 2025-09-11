@@ -22,8 +22,11 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
   render() {
     // Use d3-based chart rendering
     let svgNode = null
+    console.log('öang', this.appState?.i18n?.lang)
     if (this.data && this.data.length > 0) {
-      svgNode = YtreeLineageChart([...this.data])
+      svgNode = YtreeLineageChart([...this.data], {
+        locale: this.appState?.i18n?.lang ?? 'en-US',
+      })
     }
     return html`<div>${svgNode ? html`${svgNode}` : ''}</div>`
   }

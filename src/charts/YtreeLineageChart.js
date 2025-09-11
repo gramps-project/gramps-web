@@ -1,14 +1,28 @@
 import {create} from 'd3-selection'
 import {mdiAccount} from '@mdi/js'
 
-function formatYear(yearBeforePresentString) {
+function formatYear(yearBeforePresentString, locale) {
   if (!yearBeforePresentString) {
     return ''
   }
-  const year = Math.round(2000 - Number(yearBeforePresentString))
+  let year = Math.round(2000 - Number(yearBeforePresentString))
   if (Number.isNaN(year)) return ''
-  if (year < 1) return `${Math.abs(year)} BCE`
-  return `${year}`
+  // although this is technically wrong, we are anyway only looking at rounded dates
+  if (year < 0) {
+    year += 1
+  }
+  const date = new Date(Date.UTC(year, 0, 1))
+  const options = {
+    year: 'numeric',
+    ...(year <= 0 && {era: 'short'}),
+  }
+  let formatter
+  try {
+    formatter = new Intl.DateTimeFormat(locale.replace('_', '-'), options)
+  } catch (_) {
+    formatter = new Intl.DateTimeFormat('en-US', options)
+  }
+  return formatter.format(date)
 }
 
 /**
@@ -18,17 +32,16 @@ function formatYear(yearBeforePresentString) {
  * @returns {SVGElement}
  */
 export function YtreeLineageChart(clades, settings = {}) {
-  const boxWidth = settings.boxWidth ?? 190
+  const boxWidth = settings.boxWidth ?? 250
   const boxHeight = settings.boxHeight ?? 70
-  const gapY = settings.gapY ?? 50 // longer gap for line
+  const gapY = settings.gapY ?? 50
   const padding = settings.padding ?? 20
   const stroke = settings.stroke ?? '#999'
-  const strokeWidth = settings.strokeWidth ?? 2
-  const strokeDasharray = settings.strokeDasharray ?? '4,2' // shorter dashes
+  const strokeWidth = settings.strokeWidth ?? 3
+  const strokeDasharray = settings.strokeDasharray ?? '3,3'
   const fontFamily = settings.fontFamily ?? 'Inter var'
   const fontSize = settings.fontSize ?? 14
 
-  // Make chart width just enough for content
   const extraLabelSpace = 80
   const svgWidth = boxWidth + 2 * padding + extraLabelSpace
   const svgHeight =
@@ -104,12 +117,17 @@ export function YtreeLineageChart(clades, settings = {}) {
       .attr('text-anchor', 'start')
       .attr('font-weight', '350')
       .attr('fill', 'rgba(0,0,0,0.9)')
-      .text(`${formatYear(clade.age_info?.formed ?? '')}`)
+      .text(
+        `${formatYear(
+          clade.age_info?.formed ?? '',
+          settings.locale ?? 'en-US'
+        )}`
+      )
     if (i < clades.length - 1) {
       // Draw longer connecting line
       const lineY1 = y + boxHeight
       const lineY2 = y + boxHeight + gapY
-      const lineX = boxX + boxWidth / 2
+      const lineX = boxX + 37
       g.append('line')
         .attr('x1', lineX)
         .attr('y1', lineY1)
@@ -134,11 +152,14 @@ export function YtreeLineageChart(clades, settings = {}) {
       }
       // Add label next to line
       g.append('text')
-        .attr('x', lineX + 10)
+        .attr('x', lineX + 16)
         .attr('y', (lineY1 + lineY2) / 2 + 5)
         .attr('fill', '#888')
+        .attr('font-weight', '370')
         .attr('font-size', fontSize)
-        .text(nGen !== '' ? `≈ ${nGen} generations` : '')
+        .text(
+          nGen !== '' ? `${nGen === 0 ? 'few' : `≈ ${nGen}`} generations` : ''
+        )
     }
   })
 

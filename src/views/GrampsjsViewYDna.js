@@ -1,4 +1,4 @@
-import {html} from 'lit'
+import {html, css} from 'lit'
 
 import '@material/web/select/filled-select'
 
@@ -11,19 +11,54 @@ import {personDisplayName} from '../util.js'
 export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
   /* Implemented abstract methods */
 
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        strong {
+          font-weight: 450;
+        }
+      `,
+    ]
+  }
+
   // eslint-disable-next-line class-methods-use-this
   renderLoading() {
     return ''
+  }
+
+  get _leafCladeName() {
+    return this._dnaData?.data?.clade_lineage?.at(-1)?.name
   }
 
   renderContent() {
     if (this._selectDataLoading || this._dnaDataLoading) {
       return this.renderLoading()
     }
-    return html`<grampsjs-ytree-lineage
-      .appState="${this.appState}"
-      .data="${this._dnaData?.data?.clade_lineage ?? []}"
-    ></grampsjs-ytree-lineage>`
+    return html` ${this._leafCladeName
+        ? html`
+            <p>
+              Most specific position on the
+              <a href="https://yfull.com/" target="_blank">YFull</a>
+              ${this._dnaData?.data?.tree_version
+                ? html`v${this._dnaData?.data?.tree_version}`
+                : ''}
+              Y tree:
+              <strong>
+                <a
+                  href="https://yfull.com/tree/${this._leafCladeName}"
+                  target="_blank"
+                  >${this._leafCladeName}</a
+                >
+              </strong>
+            </p>
+          `
+        : ''}
+      <h3>Direct male ancestors</h3>
+      <grampsjs-ytree-lineage
+        .appState="${this.appState}"
+        .data="${this._dnaData?.data?.clade_lineage ?? []}"
+      ></grampsjs-ytree-lineage>`
   }
 
   _renderNoData() {
