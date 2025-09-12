@@ -1,51 +1,41 @@
 import {create} from 'd3-selection'
 import {mdiAccount} from '@mdi/js'
 
-function formatYear(yearBeforePresentString, locale) {
-  if (!yearBeforePresentString) {
+const clipString = (s, length) => {
+  if (!s) {
     return ''
   }
-  let year = Math.round(2000 - Number(yearBeforePresentString))
-  if (Number.isNaN(year)) return ''
-  // although this is technically wrong, we are anyway only looking at rounded dates
-  if (year < 0) {
-    year += 1
+  const fontSize = 13
+  const nChar = length / (fontSize * 0.6)
+  if (s.length <= nChar) {
+    return s
   }
-  const date = new Date(Date.UTC(year, 0, 1))
-  const options = {
-    year: 'numeric',
-    ...(year <= 0 && {era: 'short'}),
+  if (nChar < 2) {
+    return ''
   }
-  let formatter
-  try {
-    formatter = new Intl.DateTimeFormat(locale.replace('_', '-'), options)
-  } catch (_) {
-    formatter = new Intl.DateTimeFormat('en-US', options)
-  }
-  return formatter.format(date)
+  return `${s.slice(0, nChar - 2)}…`
 }
 
 /**
  * Render clade lineage as vertical person boxes connected by a dotted line.
- * @param {Array} clades - Array of clade objects (oldest first)
- * @param {Object} [settings] - Chart settings
+ * @param {Array} chartData - Array of objects {name, year, connectorText}
  * @returns {SVGElement}
  */
-export function YtreeLineageChart(clades, settings = {}) {
-  const boxWidth = settings.boxWidth ?? 250
-  const boxHeight = settings.boxHeight ?? 70
-  const gapY = settings.gapY ?? 50
-  const padding = settings.padding ?? 20
-  const stroke = settings.stroke ?? '#999'
-  const strokeWidth = settings.strokeWidth ?? 3
-  const strokeDasharray = settings.strokeDasharray ?? '3,3'
-  const fontFamily = settings.fontFamily ?? 'Inter var'
-  const fontSize = settings.fontSize ?? 14
+export function YtreeLineageChart(chartData) {
+  const boxWidth = 250
+  const boxHeight = 70
+  const gapY = 50
+  const padding = 20
+  const stroke = '#999'
+  const strokeWidth = 3
+  const strokeDasharray = '3,3'
+  const fontFamily = 'Inter var'
+  const fontSize = 14
 
   const extraLabelSpace = 80
   const svgWidth = boxWidth + 2 * padding + extraLabelSpace
   const svgHeight =
-    clades.length * boxHeight + (clades.length - 1) * gapY + 2 * padding
+    chartData.length * boxHeight + (chartData.length - 1) * gapY + 2 * padding
 
   const svg = create('svg')
     .attr('width', svgWidth)
@@ -55,14 +45,12 @@ export function YtreeLineageChart(clades, settings = {}) {
     .attr('font-size', fontSize)
 
   const g = svg.append('g')
-
-  // Use mdiAccount from @mdi/js for the person icon
   const personPath = mdiAccount
-
   const iconRadius = 24
   const leftPad = padding
   const boxX = leftPad
-  clades.forEach((clade, i) => {
+
+  chartData.forEach((item, i) => {
     const y = padding + i * (boxHeight + gapY)
     const group = g.append('g')
     // Draw left blue border
@@ -109,7 +97,7 @@ export function YtreeLineageChart(clades, settings = {}) {
       .attr('text-anchor', 'start')
       .attr('font-weight', '500')
       .attr('fill', 'rgba(0,0,0,0.9)')
-      .text(clade.name)
+      .text(clipString(item.name, 170))
     group
       .append('text')
       .attr('x', boxX + iconRadius * 2 + 30)
@@ -117,14 +105,9 @@ export function YtreeLineageChart(clades, settings = {}) {
       .attr('text-anchor', 'start')
       .attr('font-weight', '350')
       .attr('fill', 'rgba(0,0,0,0.9)')
-      .text(
-        `${formatYear(
-          clade.age_info?.formed ?? '',
-          settings.locale ?? 'en-US'
-        )}`
-      )
-    if (i < clades.length - 1) {
-      // Draw longer connecting line
+      .text(item.year)
+    // Draw connector line and label if not last box
+    if (i < chartData.length - 1) {
       const lineY1 = y + boxHeight
       const lineY2 = y + boxHeight + gapY
       const lineX = boxX + 37
@@ -136,30 +119,13 @@ export function YtreeLineageChart(clades, settings = {}) {
         .attr('stroke', stroke)
         .attr('stroke-width', strokeWidth)
         .attr('stroke-dasharray', strokeDasharray)
-      // Calculate N generations
-      let formedCurrent = clade.age_info?.formed ?? ''
-      let formedNext = clades[i + 1]?.age_info?.formed ?? ''
-      formedCurrent = Number(formedCurrent)
-      formedNext = Number(formedNext)
-      let nGen = ''
-      if (
-        !Number.isNaN(formedCurrent) &&
-        !Number.isNaN(formedNext) &&
-        formedCurrent > 0 &&
-        formedNext > 0
-      ) {
-        nGen = Math.round(Math.abs(formedCurrent - formedNext) / 20)
-      }
-      // Add label next to line
       g.append('text')
         .attr('x', lineX + 16)
         .attr('y', (lineY1 + lineY2) / 2 + 5)
         .attr('fill', '#888')
         .attr('font-weight', '370')
         .attr('font-size', fontSize)
-        .text(
-          nGen !== '' ? `${nGen === 0 ? 'few' : `≈ ${nGen}`} generations` : ''
-        )
+        .text(item.connectorText ?? '')
     }
   })
 

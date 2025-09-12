@@ -58,6 +58,7 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
       <grampsjs-ytree-lineage
         .appState="${this.appState}"
         .data="${this._dnaData?.data?.clade_lineage ?? []}"
+        .person="${this._data.find(p => p.gramps_id === this.grampsId) || {}}"
       ></grampsjs-ytree-lineage>`
   }
 
