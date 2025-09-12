@@ -519,6 +519,7 @@ export const grampsStrings = [
   'Run',
   'Safe',
   'Second date',
+  'Select a different person',
   'Select a file',
   'Select a person as the father',
   'Select a person as the mother',

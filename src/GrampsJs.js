@@ -22,6 +22,7 @@ import {fireEvent, getBrowserLanguage} from './util.js'
 import './dayjs_locales.js'
 
 import './components/GrampsjsAppBar.js'
+import './components/GrampsjsDnaTabBar.js'
 import './components/GrampsJsListItem.js'
 import './components/GrampsjsFirstRun.js'
 import './components/GrampsjsLogin.js'
@@ -487,6 +488,9 @@ export class GrampsJs extends LitElement {
 
           <main>
             <grampsjs-tab-bar .appState="${this.appState}"></grampsjs-tab-bar>
+            <grampsjs-dna-tab-bar
+              .appState="${this.appState}"
+            ></grampsjs-dna-tab-bar>
             <grampsjs-pages
               .appState="${this.appState}"
               .dbInfo="${this.appState.dbInfo}"
