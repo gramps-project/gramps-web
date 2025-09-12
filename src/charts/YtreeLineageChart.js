@@ -18,14 +18,18 @@ const clipString = (s, length) => {
 
 /**
  * Render clade lineage as vertical person boxes connected by a dotted line.
- * @param {Array} chartData - Array of objects {name, year, connectorText}
+ * @param {Array} chartData - Array of objects {name, year, connectorText, person?}
+ * @param {Object} options - Configuration options
+ * @param {Function} options.getImageUrl - Function to get image URL for person
  * @returns {SVGElement}
  */
-export function YtreeLineageChart(chartData) {
+export function YtreeLineageChart(chartData, options = {}) {
+  const {getImageUrl = null} = options
   const boxWidth = 250
   const boxHeight = 70
   const gapY = 50
   const padding = 20
+  const imgPadding = 10
   const stroke = '#999'
   const strokeWidth = 3
   const strokeDasharray = '3,3'
@@ -45,8 +49,10 @@ export function YtreeLineageChart(chartData) {
     .attr('font-size', fontSize)
 
   const g = svg.append('g')
+  const defs = svg.append('defs')
   const personPath = mdiAccount
   const iconRadius = 24
+  const imgRadius = (boxHeight - imgPadding * 2) / 2
   const leftPad = padding
   const boxX = leftPad
 
@@ -72,40 +78,75 @@ export function YtreeLineageChart(chartData) {
       .attr('rx', 8)
       .attr('ry', 8)
       .attr('fill', 'rgba(230,230,230,1)')
-    // Draw person icon circle inside the box
+    // Draw person icon circle inside the box, or image if available
     const iconCx = boxX + iconRadius + 13
     const iconCy = y + boxHeight / 2
-    group
-      .append('circle')
-      .attr('cx', iconCx)
-      .attr('cy', iconCy)
-      .attr('r', iconRadius)
-      .attr('fill', '#bbb')
-    group
-      .append('path')
-      .attr('d', personPath)
-      .attr('fill', '#888')
-      .attr(
-        'transform',
-        `translate(${iconCx - 18},${iconCy - 18}) scale(1.5,1.5)`
-      )
+    const imageUrl = getImageUrl && getImageUrl(item)
+
+    if (imageUrl) {
+      // Use actual person image
+      group
+        .append('circle')
+        .attr('cx', iconCx)
+        .attr('cy', iconCy)
+        .attr('r', imgRadius)
+        .attr('fill', `url(#imgpattern-${i})`)
+
+      // Create image pattern in defs
+      defs
+        .append('pattern')
+        .attr('id', `imgpattern-${i}`)
+        .attr('height', 1)
+        .attr('width', 1)
+        .attr('x', '0')
+        .attr('y', '0')
+        .append('image')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('height', imgRadius * 2)
+        .attr('width', imgRadius * 2)
+        .attr('xlink:href', imageUrl)
+    } else {
+      // Use default person icon
+      group
+        .append('circle')
+        .attr('cx', iconCx)
+        .attr('cy', iconCy)
+        .attr('r', iconRadius)
+        .attr('fill', '#bbb')
+      group
+        .append('path')
+        .attr('d', personPath)
+        .attr('fill', '#888')
+        .attr(
+          'transform',
+          `translate(${iconCx - 18},${iconCy - 18}) scale(1.5,1.5)`
+        )
+    }
     // Texts
+    const textPadding = imageUrl
+      ? 2 * imgRadius + 2 * imgPadding + 8
+      : 2 * iconRadius + 30
+    const textWidth = imageUrl
+      ? boxWidth - 2 * imgPadding - 2 * imgRadius - 8
+      : 170
+
     group
       .append('text')
-      .attr('x', boxX + iconRadius * 2 + 30)
+      .attr('x', boxX + textPadding)
       .attr('y', y + 30)
       .attr('text-anchor', 'start')
       .attr('font-weight', '500')
       .attr('fill', 'rgba(0,0,0,0.9)')
-      .text(clipString(item.name, 170))
+      .text(clipString(item.name, textWidth))
     group
       .append('text')
-      .attr('x', boxX + iconRadius * 2 + 30)
+      .attr('x', boxX + textPadding)
       .attr('y', y + 50)
       .attr('text-anchor', 'start')
       .attr('font-weight', '350')
       .attr('fill', 'rgba(0,0,0,0.9)')
-      .text(item.year)
+      .text(clipString(item.year, textWidth))
     // Draw connector line and label if not last box
     if (i < chartData.length - 1) {
       const lineY1 = y + boxHeight

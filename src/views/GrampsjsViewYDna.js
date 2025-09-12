@@ -104,7 +104,9 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
     }
     const uri = `/api/people/?rules=${encodeURIComponent(
       JSON.stringify(rules)
-    )}&locale=${this.appState.i18n.lang || 'en'}&sort=name`
+    )}&locale=${
+      this.appState.i18n.lang || 'en'
+    }&sort=name&extend=event_ref_list`
     return uri
   }
 

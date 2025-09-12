@@ -3,6 +3,7 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {YtreeLineageChart} from '../charts/YtreeLineageChart.js'
 import {personDisplayName} from '../util.js'
+import {getImageUrl} from '../charts/util.js'
 
 class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -94,10 +95,13 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
       }
     }
     // person box
+    const birthYear =
+      this.person?.extended?.events?.[this.person?.birth_ref_index]?.date?.year
     result.push({
       name: personDisplayName(this.person),
-      year: '1982',
+      year: `${birthYear || ''}`,
       connectorText: '',
+      person: this.person,
     })
     return result
   }
@@ -107,7 +111,9 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
     let svgNode = null
     const chartData = this.getChartData()
     if (chartData.length > 0) {
-      svgNode = YtreeLineageChart(chartData)
+      svgNode = YtreeLineageChart(chartData, {
+        getImageUrl: d => getImageUrl(d?.person || {}, 200),
+      })
     }
     return html`<div>${svgNode ? html`${svgNode}` : ''}</div>`
   }
