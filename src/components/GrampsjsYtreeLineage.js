@@ -46,7 +46,7 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
       const clade = this.data[i]
       result.push({
         name: clade.name,
-        year: formatYear(clade.age_info?.formed ?? ''),
+        year: `≈ ${formatYear(clade.age_info?.formed ?? '')}`,
         connectorText: '',
       })
       // connectorText for next connector
@@ -67,6 +67,7 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
       }
     }
     // MRCA box
+    let mrcaAdded = false
     if (
       this.data.length > 0 &&
       this.data[this.data.length - 1]?.age_info?.most_recent_common_ancestor
@@ -84,14 +85,15 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
         const nGen = Math.round(Math.abs(formed - mrca) / 20)
         result.push({
           name: `${lastClade.name} MRCA`,
-          year: formatYear(
+          year: `≈ ${formatYear(
             lastClade.age_info?.most_recent_common_ancestor ?? ''
-          ),
+          )}`,
           connectorText: '',
         })
         result[result.length - 2].connectorText = `${
           nGen === 0 ? 'few' : `≈ ${nGen}`
         } generations`
+        mrcaAdded = true
       }
     }
     // person box
@@ -103,6 +105,24 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
       connectorText: '',
       person: this.person,
     })
+
+    // Add connector text from next-to-last box to person box
+    if (result.length >= 2) {
+      const nextToLastIndex = result.length - 2
+      const lastClade = this.data[this.data.length - 1]
+      const lastCladeYear = mrcaAdded
+        ? lastClade?.age_info?.most_recent_common_ancestor
+        : lastClade?.age_info?.formed
+      if (lastCladeYear && birthYear) {
+        const nGen = Math.round(
+          Math.abs(Number(lastCladeYear) - Number(birthYear)) / 20
+        )
+        result[nextToLastIndex].connectorText = `${
+          nGen === 0 ? 'few' : `≈ ${nGen}`
+        } generations`
+      }
+    }
+
     return result
   }
 
