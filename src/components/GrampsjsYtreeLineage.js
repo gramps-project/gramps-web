@@ -1,19 +1,46 @@
 import {html, css, LitElement} from 'lit'
+import {mdiUnfoldMoreHorizontal, mdiUnfoldLessHorizontal} from '@mdi/js'
+
+import '@material/web/iconbutton/filled-tonal-icon-button.js'
+
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {YtreeLineageChart} from '../charts/YtreeLineageChart.js'
 import {personDisplayName} from '../util.js'
 import {getImageUrl} from '../charts/util.js'
+import './GrampsjsIcon.js'
+import './GrampsjsTooltip.js'
 
 class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
-    return [sharedStyles, css``]
+    return [
+      sharedStyles,
+      css`
+        .expand-button {
+          position: absolute;
+          top: -5px;
+          left: 145px;
+          transform: translateX(-50%);
+          z-index: 1;
+        }
+
+        .container {
+          position: relative;
+          padding-top: 40px;
+        }
+
+        md-filled-tonal-icon-button {
+          --md-filled-tonal-icon-button-container-color: #eee;
+        }
+      `,
+    ]
   }
 
   static get properties() {
     return {
       data: {type: Array},
       person: {type: Object},
+      expanded: {type: Boolean},
     }
   }
 
@@ -21,6 +48,7 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.data = []
     this.person = {}
+    this.expanded = false
   }
 
   getChartData() {
@@ -42,17 +70,20 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
     }
 
     const result = []
-    for (let i = 0; i < this.data.length; i += 1) {
-      const clade = this.data[i]
+    // When collapsed, only show last 2 clades + MRCA + person = 4 boxes total
+    const dataToProcess = this.expanded ? this.data : this.data.slice(-2)
+
+    for (let i = 0; i < dataToProcess.length; i += 1) {
+      const clade = dataToProcess[i]
       result.push({
         name: clade.name,
         year: `≈ ${formatYear(clade.age_info?.formed ?? '')}`,
         connectorText: '',
       })
       // connectorText for next connector
-      if (i < this.data.length - 1) {
+      if (i < dataToProcess.length - 1) {
         const formedCurrent = Number(clade.age_info?.formed ?? '')
-        const formedNext = Number(this.data[i + 1]?.age_info?.formed ?? '')
+        const formedNext = Number(dataToProcess[i + 1]?.age_info?.formed ?? '')
         let nGen = ''
         if (
           !Number.isNaN(formedCurrent) &&
@@ -135,7 +166,47 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
         getImageUrl: d => getImageUrl(d?.person || {}, 200),
       })
     }
-    return html`<div>${svgNode ? html`${svgNode}` : ''}</div>`
+
+    // Only show expand button if there are more than 4 items total (3 clades + person)
+    const showExpandButton = this.data.length > 3
+
+    return html`
+      <div class="container">
+        ${showExpandButton
+          ? html`
+              <div class="expand-button">
+                <md-filled-tonal-icon-button
+                  @click="${this._toggleExpanded}"
+                  id="expand-button"
+                  aria-label="${this.expanded
+                    ? this._('Show less')
+                    : this._('Show all')}"
+                >
+                  <grampsjs-icon
+                    style="width:24px; height:24px;"
+                    path="${this.expanded
+                      ? mdiUnfoldLessHorizontal
+                      : mdiUnfoldMoreHorizontal}"
+                    color="#555"
+                  ></grampsjs-icon>
+                </md-filled-tonal-icon-button>
+                <grampsjs-tooltip
+                  for="expand-button"
+                  .content="${this.expanded
+                    ? this._('Show less')
+                    : this._('Show all')}"
+                >
+                </grampsjs-tooltip>
+              </div>
+            `
+          : ''}
+        <div>${svgNode ? html`${svgNode}` : ''}</div>
+      </div>
+    `
+  }
+
+  _toggleExpanded() {
+    this.expanded = !this.expanded
   }
 }
 

@@ -2,6 +2,8 @@ import {html, css} from 'lit'
 
 import '@material/web/select/filled-select'
 
+import {mdiOpenInNew, mdiPencil} from '@mdi/js'
+
 import '../components/GrampsjsYtreeLineage.js'
 
 import {GrampsjsViewDnaBase} from './GrampsjsViewDnaBase.js'
@@ -17,6 +19,12 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
       css`
         strong {
           font-weight: 450;
+        }
+
+        md-outlined-text-field {
+          width: 100%;
+          resize: both;
+          min-width: 300px;
         }
       `,
     ]
@@ -35,15 +43,14 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
     if (this._selectDataLoading || this._dnaDataLoading) {
       return this.renderLoading()
     }
-    return html` ${this._leafCladeName
+    return html`
+      ${this._leafCladeName
         ? html`
+            <h3>${this._('Haplogroup')}</h3>
             <p>
-              Most specific position on the
-              <a href="https://yfull.com/" target="_blank">YFull</a>
-              ${this._dnaData?.data?.tree_version
-                ? html`v${this._dnaData?.data?.tree_version}`
-                : ''}
-              Y tree:
+              ${this._(
+                'Most specific position on the human Y chromosome tree'
+              )}:
               <strong>
                 <a
                   href="https://yfull.com/tree/${this._leafCladeName}"
@@ -51,15 +58,93 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
                   >${this._leafCladeName}</a
                 >
               </strong>
+              <br />
+              (<a href="https://yfull.com/" target="_blank">YFull</a>${this
+                ._dnaData?.data?.tree_version
+                ? html` v${this._dnaData?.data?.tree_version}`
+                : ''})
             </p>
           `
         : ''}
-      <h3>Direct male ancestors</h3>
+      <h3>${this._('Paternal Lineage')}</h3>
       <grampsjs-ytree-lineage
         .appState="${this.appState}"
         .data="${this._dnaData?.data?.clade_lineage ?? []}"
         .person="${this._data.find(p => p.gramps_id === this.grampsId) || {}}"
-      ></grampsjs-ytree-lineage>`
+      ></grampsjs-ytree-lineage>
+      <h3>${this._('Raw SNP data')}</h3>
+
+      <p>
+        <md-text-button @click="${this._showRawSnpData}">
+          <grampsjs-icon
+            .path="${mdiOpenInNew}"
+            slot="icon"
+            color="var(--md-sys-color-primary)"
+          ></grampsjs-icon>
+          Show
+        </md-text-button>
+        ${this.appState.permissions.canEdit
+          ? html`
+              <md-text-button @click="${this._editRawSnpData}">
+                <grampsjs-icon
+                  .path="${mdiPencil}"
+                  slot="icon"
+                  color="var(--md-sys-color-primary)"
+                ></grampsjs-icon>
+                Edit
+              </md-text-button>
+            `
+          : ''}
+      </p>
+    `
+  }
+
+  _showRawSnpData() {
+    this.dialogContent = html`
+      XXX
+      <md-dialog open @cancel="${this._handleCancelDialog}">
+        <div slot="headline">${this._('Raw SNP data')}</div>
+        <div slot="content">${this._dnaData?.data?.raw_data}</div>
+        <div slot="actions">
+          <md-text-button @click="${this._handleCancelDialog}"
+            >${this._('Close')}</md-text-button
+          >
+          <md-text-button @click="${this._editRawSnpData}"
+            >${this._('Edit')}</md-text-button
+          >
+        </div>
+      </md-dialog>
+    `
+  }
+
+  _editRawSnpData() {
+    this.dialogContent = html`
+      <md-dialog open @cancel="${this._handleCancelDialog}">
+        <div slot="headline">${this._('Edit Y-SNP data')}</div>
+        <div slot="content">
+          <md-outlined-text-field
+            type="textarea"
+            value="${this._dnaData?.data?.raw_data}"
+            rows="5"
+          ></md-outlined-text-field>
+        </div>
+        <div slot="actions">
+          <md-text-button @click="${this._handleCancelDialog}"
+            >${this._('Close')}</md-text-button
+          >
+          <md-text-button @click="${this._saveEditedRawSnpData}"
+            >${this._('Save')}</md-text-button
+          >
+        </div>
+      </md-dialog>
+    `
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _saveEditedRawSnpData() {}
+
+  _handleCancelDialog() {
+    this.dialogContent = ''
   }
 
   _renderNoData() {

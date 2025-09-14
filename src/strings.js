@@ -534,6 +534,7 @@ export const grampsStrings = [
   'self',
   'Set _Home Person',
   'Share an existing event',
+  'Show all',
   'Show Details',
   'show people by generations',
   'Shows some interesting records about people and families',
