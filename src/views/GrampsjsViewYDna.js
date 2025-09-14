@@ -1,14 +1,11 @@
 import {html, css} from 'lit'
 
 import '@material/web/select/filled-select'
-
 import {mdiOpenInNew, mdiPencil} from '@mdi/js'
 
 import '../components/GrampsjsYtreeLineage.js'
-
 import {GrampsjsViewDnaBase} from './GrampsjsViewDnaBase.js'
-
-import {personDisplayName} from '../util.js'
+import {fireEvent, personDisplayName} from '../util.js'
 
 export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
   /* Implemented abstract methods */
@@ -123,6 +120,7 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
         <div slot="headline">${this._('Edit Y-SNP data')}</div>
         <div slot="content">
           <md-outlined-text-field
+            id="raw-snp-data-field"
             type="textarea"
             value="${this._dnaData?.data?.raw_data}"
             rows="5"
@@ -140,8 +138,60 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  _saveEditedRawSnpData() {}
+  async _saveEditedRawSnpData() {
+    const textField = this.renderRoot.querySelector('#raw-snp-data-field')
+    if (!textField) {
+      return
+    }
+
+    const newRawData = textField.value
+    const currentPerson = this._data.find(p => p.gramps_id === this.grampsId)
+
+    if (!currentPerson) {
+      return
+    }
+
+    const updatedPerson = {...currentPerson}
+
+    if (updatedPerson.attribute_list) {
+      const ydnaAttrIndex = updatedPerson.attribute_list.findIndex(
+        attr => attr.type === 'Y-DNA'
+      )
+
+      if (ydnaAttrIndex >= 0) {
+        updatedPerson.attribute_list = updatedPerson.attribute_list.map(
+          (attr, index) =>
+            index === ydnaAttrIndex ? {...attr, value: newRawData} : attr
+        )
+      } else {
+        updatedPerson.attribute_list.push({
+          _class: 'Attribute',
+          type: 'Y-DNA',
+          value: newRawData,
+        })
+      }
+    } else {
+      updatedPerson.attribute_list = [
+        {
+          _class: 'Attribute',
+          type: 'Y-DNA',
+          value: newRawData,
+        },
+      ]
+    }
+
+    const {extended, profile, backlinks, formatted, ...personToUpdate} =
+      updatedPerson
+
+    const result = await this.appState.apiPut(
+      `/api/people/${currentPerson.handle}`,
+      {_class: 'Person', ...personToUpdate}
+    )
+
+    if ('error' in result) {
+      fireEvent(this, 'grampsjs:error', {message: result.error})
+    }
+  }
 
   _handleCancelDialog() {
     this.dialogContent = ''
