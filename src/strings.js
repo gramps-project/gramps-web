@@ -610,6 +610,7 @@ export const grampsStrings = [
   'Very High',
   'Very Low',
   'Video',
+  'View',
   'Village',
   'Web Home',
   'Web Search',

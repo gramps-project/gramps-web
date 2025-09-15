@@ -51,6 +51,11 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
     this.expanded = false
   }
 
+  _formatNGenerations(nGen) {
+    if (nGen === 0) return `≈ ${this._('few generations')}`
+    return `≈ ${this._('%s generations', nGen)}`
+  }
+
   getChartData() {
     const locale = this.appState?.i18n?.lang ?? 'en-US'
     const formatYear = yearBeforePresentString => {
@@ -94,7 +99,7 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
           nGen = Math.round(Math.abs(formedCurrent - formedNext) / 20)
         }
         result[result.length - 1].connectorText =
-          nGen !== '' ? `${nGen === 0 ? 'few' : `≈ ${nGen}`} generations` : ''
+          nGen !== '' ? this._formatNGenerations(nGen) : ''
       }
     }
     // MRCA box
@@ -121,9 +126,7 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
           )}`,
           connectorText: '',
         })
-        result[result.length - 2].connectorText = `${
-          nGen === 0 ? 'few' : `≈ ${nGen}`
-        } generations`
+        result[result.length - 2].connectorText = this._formatNGenerations(nGen)
         mrcaAdded = true
       }
     }

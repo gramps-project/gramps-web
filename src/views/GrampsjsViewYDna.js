@@ -1,9 +1,11 @@
 import {html, css} from 'lit'
 
 import '@material/web/select/filled-select'
-import {mdiOpenInNew, mdiPencil} from '@mdi/js'
+import {mdiEye, mdiPencil} from '@mdi/js'
 
 import '../components/GrampsjsYtreeLineage.js'
+import '../components/GrampsjsFormNewYDna.js'
+import '../components/GrampsjsFormEditYDna.js'
 import {GrampsjsViewDnaBase} from './GrampsjsViewDnaBase.js'
 import {fireEvent, personDisplayName} from '../util.js'
 
@@ -30,6 +32,10 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
   // eslint-disable-next-line class-methods-use-this
   renderLoading() {
     return ''
+  }
+
+  renderFab() {
+    return html`<mwc-fab icon="add" @click="${this._handleClickAdd}"></mwc-fab>`
   }
 
   get _leafCladeName() {
@@ -74,11 +80,11 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
       <p>
         <md-text-button @click="${this._showRawSnpData}">
           <grampsjs-icon
-            .path="${mdiOpenInNew}"
+            .path="${mdiEye}"
             slot="icon"
             color="var(--md-sys-color-primary)"
           ></grampsjs-icon>
-          Show
+          ${this._('View')}
         </md-text-button>
         ${this.appState.permissions.canEdit
           ? html`
@@ -88,7 +94,7 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
                   slot="icon"
                   color="var(--md-sys-color-primary)"
                 ></grampsjs-icon>
-                Edit
+                ${this._('Edit')}
               </md-text-button>
             `
           : ''}
@@ -98,7 +104,6 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
 
   _showRawSnpData() {
     this.dialogContent = html`
-      XXX
       <md-dialog open @cancel="${this._handleCancelDialog}">
         <div slot="headline">${this._('Raw SNP data')}</div>
         <div slot="content">${this._dnaData?.data?.raw_data}</div>
@@ -115,82 +120,18 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
   }
 
   _editRawSnpData() {
-    this.dialogContent = html`
-      <md-dialog open @cancel="${this._handleCancelDialog}">
-        <div slot="headline">${this._('Edit Y-SNP data')}</div>
-        <div slot="content">
-          <md-outlined-text-field
-            id="raw-snp-data-field"
-            type="textarea"
-            value="${this._dnaData?.data?.raw_data}"
-            rows="5"
-          ></md-outlined-text-field>
-        </div>
-        <div slot="actions">
-          <md-text-button @click="${this._handleCancelDialog}"
-            >${this._('Close')}</md-text-button
-          >
-          <md-text-button @click="${this._saveEditedRawSnpData}"
-            >${this._('Save')}</md-text-button
-          >
-        </div>
-      </md-dialog>
-    `
-  }
-
-  async _saveEditedRawSnpData() {
-    const textField = this.renderRoot.querySelector('#raw-snp-data-field')
-    if (!textField) {
-      return
-    }
-
-    const newRawData = textField.value
     const currentPerson = this._data.find(p => p.gramps_id === this.grampsId)
+    if (!currentPerson) return
 
-    if (!currentPerson) {
-      return
-    }
-
-    const updatedPerson = {...currentPerson}
-
-    if (updatedPerson.attribute_list) {
-      const ydnaAttrIndex = updatedPerson.attribute_list.findIndex(
-        attr => attr.type === 'Y-DNA'
-      )
-
-      if (ydnaAttrIndex >= 0) {
-        updatedPerson.attribute_list = updatedPerson.attribute_list.map(
-          (attr, index) =>
-            index === ydnaAttrIndex ? {...attr, value: newRawData} : attr
-        )
-      } else {
-        updatedPerson.attribute_list.push({
-          _class: 'Attribute',
-          type: 'Y-DNA',
-          value: newRawData,
-        })
-      }
-    } else {
-      updatedPerson.attribute_list = [
-        {
-          _class: 'Attribute',
-          type: 'Y-DNA',
-          value: newRawData,
-        },
-      ]
-    }
-
-    const {extended, profile, backlinks, formatted, ...personToUpdate} =
-      updatedPerson
-
-    const result = await this.appState.apiPut(
-      `/api/people/${currentPerson.handle}`,
-      {_class: 'Person', ...personToUpdate}
-    )
-
-    if ('error' in result) {
-      fireEvent(this, 'grampsjs:error', {message: result.error})
-    }
+    this.dialogContent = html`
+      <grampsjs-form-edit-ydna
+        .appState="${this.appState}"
+        .data="${{raw_data: this._dnaData?.data?.raw_data || ''}}"
+        .personHandle="${currentPerson.handle}"
+        @object:save="${this._handleClickSaveYDna}"
+        @dialog:cancel="${this._handleCancelDialog}"
+      ></grampsjs-form-edit-ydna>
+    `
   }
 
   _handleCancelDialog() {
@@ -254,6 +195,83 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
 
   _shouldLoadDnaData() {
     return this._selectDataHasGrampsId() && !this._dnaDataLoading
+  }
+
+  _handleClickAdd() {
+    this.dialogContent = html`
+      <grampsjs-form-new-ydna
+        .appState="${this.appState}"
+        @object:save="${this._handleClickSaveYDna}"
+        @object:cancel="${this._handleCancelDialog}"
+        dialogTitle="${this._('Add Y-DNA Data')}"
+      >
+      </grampsjs-form-new-ydna>
+    `
+  }
+
+  async _handleClickSaveYDna(e) {
+    const personHandle = e?.detail?.data?.person_handle
+    const rawSnpData = e?.detail?.data?.raw_data
+    await this._saveYdnaData(personHandle, rawSnpData)
+    this.dialogContent = ''
+  }
+
+  async _saveYdnaData(personHandle, rawData) {
+    if (!rawData || !personHandle) return
+
+    // Get the full person data from the API
+    const res = await this.appState.apiGet(`/api/people/${personHandle}`)
+    if ('error' in res) {
+      fireEvent(this, 'grampsjs:error', {message: res.error})
+      return
+    }
+
+    const personData = res.data ?? {}
+
+    // Update the Y-DNA attribute
+    const existingAttrs = personData.attribute_list || []
+    const ydnaAttrIndex = existingAttrs.findIndex(
+      attr =>
+        attr.type === 'Y-DNA' || (attr.type && attr.type.string === 'Y-DNA')
+    )
+
+    const ydnaAttribute = {
+      type: 'Y-DNA',
+      value: rawData,
+    }
+
+    if (ydnaAttrIndex >= 0) {
+      // Update existing attribute
+      existingAttrs[ydnaAttrIndex] = {
+        ...existingAttrs[ydnaAttrIndex],
+        ...ydnaAttribute,
+      }
+    } else {
+      // Add new attribute
+      existingAttrs.push(ydnaAttribute)
+    }
+
+    // Update the person with the new/updated attribute
+    const updatedPersonData = {
+      ...personData,
+      _class: 'Person',
+      attribute_list: existingAttrs,
+    }
+
+    const result = await this.appState.apiPut(
+      `/api/people/${personHandle}`,
+      updatedPersonData
+    )
+    if ('error' in result) {
+      fireEvent(this, 'grampsjs:error', {message: result.error})
+    }
+    // if we just created Y-DNA for a different person, navigate to that person
+    const newGrampsId = result?.data?.[0]?.new?.gramps_id
+    if (newGrampsId && newGrampsId !== this.grampsId) {
+      fireEvent(this, 'nav', {
+        path: `ydna/${newGrampsId}`,
+      })
+    }
   }
 }
 
