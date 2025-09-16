@@ -1,97 +1,15 @@
 import {css} from 'lit'
 
 export const sharedStyles = css`
-  :host {
-    line-height: 1.6;
-    --grampsjs-body-font-family: 'Inter var', sans-serif;
-    --grampsjs-heading-font-family: 'Inter var', sans-serif;
-    --md-ref-typeface-plain: 'Inter var', sans-serif;
-    --grampsjs-body-font-size: 17px;
-    --grampsjs-body-font-color: rgba(0, 0, 0, 0.8);
-    font-size: var(--grampsjs-body-font-size);
-    font-family: var(--grampsjs-body-font-family);
-    --grampsjs-body-font-weight: 340;
-    font-weight: var(--grampsjs-body-font-weight);
-    --mdc-theme-primary: #6d4c41;
-    --mdc-theme-on-primary: rgba(255, 255, 255, 0.95);
-    --mdc-theme-secondary: #0277bd;
-    --mdc-theme-on-secondary: rgba(255, 255, 255, 0.95);
-    --mdc-theme-text-primary-on-background: var(--grampsjs-body-font-color);
-    --mdc-theme-text-secondary-on-background: rgba(0, 0, 0, 0.45);
-    --mdc-typography-font-family: var(--grampsjs-body-font-family);
-    --color-boy: #64b5f6;
-    --color-girl: #ef9a9a;
-    --md-sys-typescale-headline-small-font: var(--grampsjs-heading-font-family);
-    --md-sys-typescale-headline-medium-font: var(
-      --grampsjs-heading-font-family
-    );
-    --md-sys-typescale-headline-large-font: var(--grampsjs-heading-font-family);
-    --md-sys-typescale-body-small-font: var(--grampsjs-body-font-family);
-    --md-sys-typescale-body-medium-font: var(--grampsjs-body-font-family);
-    --md-sys-typescale-body-large-font: var(--grampsjs-body-font-family);
-    --md-sys-color-primary: rgb(109 76 65);
-    --md-sys-color-surface-tint: rgb(109 76 65);
-    --md-sys-color-on-primary: rgb(255 255 255);
-    --md-sys-color-primary-container: rgb(255 219 207);
-    --md-sys-color-on-primary-container: rgb(57 12 0);
-    --md-sys-color-secondary: rgb(49 98 141);
-    --md-sys-color-on-secondary: rgb(255 255 255);
-    --md-sys-color-secondary-container: rgb(207 229 255);
-    --md-sys-color-on-secondary-container: rgb(0 29 52);
-    --md-sys-color-tertiary: rgb(106 94 47);
-    --md-sys-color-on-tertiary: rgb(255 255 255);
-    --md-sys-color-tertiary-container: rgb(243 226 167);
-    --md-sys-color-on-tertiary-container: rgb(34 27 0);
-    --md-sys-color-error: rgb(186 26 26);
-    --md-sys-color-on-error: rgb(255 255 255);
-    --md-sys-color-error-container: rgb(255 218 214);
-    --md-sys-color-on-error-container: rgb(65 0 2);
-    --md-sys-color-background: rgb(255 248 246);
-    --md-sys-color-on-background: var(--grampsjs-body-font-color);
-    --md-sys-color-surface: #fff;
-    --md-sys-color-on-surface: var(--grampsjs-body-font-color);
-    --md-sys-color-surface-variant: rgb(245 222 215);
-    --md-sys-color-on-surface-variant: rgb(83 67 63);
-    --md-sys-color-outline: rgb(133 115 110);
-    --md-sys-color-outline-variant: rgb(200 200 200);
-    --md-sys-color-shadow: rgb(0 0 0);
-    --md-sys-color-scrim: rgb(0 0 0);
-    --md-sys-color-inverse-surface: rgb(57 46 43);
-    --md-sys-color-inverse-on-surface: rgb(255 237 232);
-    --md-sys-color-inverse-primary: rgb(255 181 156);
-    --md-sys-color-primary-fixed: rgb(255 219 207);
-    --md-sys-color-on-primary-fixed: rgb(57 12 0);
-    --md-sys-color-primary-fixed-dim: rgb(255 181 156);
-    --md-sys-color-on-primary-fixed-variant: rgb(114 53 32);
-    --md-sys-color-secondary-fixed: rgb(207 229 255);
-    --md-sys-color-on-secondary-fixed: rgb(0 29 52);
-    --md-sys-color-secondary-fixed-dim: rgb(157 203 251);
-    --md-sys-color-on-secondary-fixed-variant: rgb(18 74 115);
-    --md-sys-color-tertiary-fixed: rgb(243 226 167);
-    --md-sys-color-on-tertiary-fixed: rgb(34 27 0);
-    --md-sys-color-tertiary-fixed-dim: rgb(214 198 141);
-    --md-sys-color-on-tertiary-fixed-variant: rgb(81 70 26);
-    --md-sys-color-surface-dim: rgb(232 214 209);
-    --md-sys-color-surface-bright: rgb(255 248 246);
-    --md-sys-color-surface-container-lowest: rgb(255 255 255);
-    --md-sys-color-surface-container-low: rgb(255 241 237);
-    --md-sys-color-surface-container: #fff;
-    --md-sys-color-surface-container-high: #fff;
-    --md-sys-color-surface-container-highest: whitesmoke;
-    --md-primary-tab-label-text-weight: 425;
-    --md-primary-tab-label-text-size: 16px;
-    --md-primary-tab-active-indicator-height: 3px;
-    --md-divider-thickness: 0px;
-    --md-list-item-leading-space: 16px;
-    --md-list-item-trailing-space: 16px;
-    --mdc-list-side-padding: 16px;
-  }
-
   md-list-item {
     --md-list-item-label-text-weight: var(--grampsjs-body-font-weight);
     --md-list-item-label-text-size: 17px;
-    --md-list-item-supporting-text-color: rgba(0, 0, 0, 0.5);
-    --md-list-item-trailing-supporting-text-color: rgba(0, 0, 0, 0.8);
+    --md-list-item-supporting-text-color: var(
+      --md-sys-color-on-surface-variant
+    );
+    --md-list-item-trailing-supporting-text-color: var(
+      --md-sys-color-on-surface-variant
+    );
   }
 
   label {
@@ -108,7 +26,7 @@ export const sharedStyles = css`
   h4 {
     font-weight: 500;
     font-family: var(--grampsjs-heading-font-family);
-    color: rgb(40, 40, 40);
+    color: var(--md-sys-color-on-surface);
   }
 
   h1 {
@@ -189,12 +107,12 @@ export const sharedStyles = css`
   hr {
     border: 0;
     height: 0.5px;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--md-sys-color-outline);
   }
 
   dt {
     font-size: 14px;
-    color: rgba(0, 0, 0, 0.5);
+    color: var(--md-sys-color-on-surface);
     font-weight: 400;
     margin-bottom: 0.2em;
   }
@@ -202,6 +120,7 @@ export const sharedStyles = css`
   dd {
     margin: 0;
     padding: 0 0 1em 0;
+    color: var(--md-sys-color-on-surface);
   }
 
   dl div {
@@ -215,7 +134,7 @@ export const sharedStyles = css`
   }
 
   h2 mwc-icon {
-    color: rgba(0, 0, 0, 0.2);
+    color: var(--md-sys-color-on-surface);
     font-size: 1.05em;
     position: relative;
     top: 0.15em;
@@ -226,7 +145,7 @@ export const sharedStyles = css`
   }
 
   mwc-list.large {
-    --mdc-typography-subtitle1-color: rgba(0, 0, 0, 1);
+    --mdc-typography-subtitle1-color: var(--md-sys-color-on-surface);
     --mdc-typography-subtitle1-font-size: var(--grampsjs-body-font-size);
     --mdc-typography-subtitle1-font-weight: var(--grampsjs-body-font-weight);
     --mdc-typography-subtitle1-letter-spacing: -0.01em;
@@ -249,7 +168,7 @@ export const sharedStyles = css`
     position: relative;
     bottom: auto;
     top: auto;
-    color: rgba(0, 0, 0, 0.35);
+    color: var(--md-sys-color-on-surface);
   }
 
   mwc-icon.male {
@@ -290,14 +209,14 @@ export const sharedStyles = css`
   }
 
   h2 .given-name {
-    text-decoration: underline rgba(0, 0, 0, 0.6);
+    text-decoration: underline var(--md-sys-color-on-surface);
     text-underline-offset: 0.15em;
     text-decoration-thickness: 0.1rem;
   }
 
   span.skeleton {
     display: inline-block;
-    background: #eee;
+    background: var(--md-sys-color-surface-container-high);
     background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
     opacity: 0.8;
     border-radius: 3px;
@@ -306,7 +225,7 @@ export const sharedStyles = css`
   }
 
   div.skeleton {
-    background: #eee;
+    background: var(--md-sys-color-surface-container-high);
     background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
     opacity: 0.8;
     background-size: 200% 100%;

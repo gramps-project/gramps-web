@@ -63,7 +63,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         }
 
         table.linked tr:hover td {
-          background-color: #f0f0f0;
+          background-color: var(--md-sys-color-surface-container-highest);
           cursor: pointer;
         }
 
