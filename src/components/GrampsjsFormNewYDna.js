@@ -48,7 +48,7 @@ export class GrampsjsFormNewYDna extends GrampsjsEditYDnaMixin(
               objectType="person"
               .appState="${this.appState}"
               id="ydna-person"
-              label="${this._('Select person')}"
+              label="${this._('Select')}"
               class="edit"
             ></grampsjs-form-select-object-list>
           </p>

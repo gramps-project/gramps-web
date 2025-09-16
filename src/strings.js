@@ -530,6 +530,7 @@ export const grampsStrings = [
   'Select the format to display names',
   'Select...',
   'Select',
+  'Select Person',
   'Selected',
   'self',
   'Set _Home Person',
