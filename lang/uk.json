@@ -229,5 +229,16 @@
     "Base Map": "Базова карта",
     "Historical Map": "Історична карта",
     "To start building your family tree, add yourself as a person or import a family tree file.": "Щоб розпочати створення генеалогічного дерева, додайте себе як особу або імпортуйте файл генеалогічного дерева.",
-    "Metadata": "Метадані"
+    "Metadata": "Метадані",
+    "Please select a different person.": "Будь ласка, виберіть іншу особу.",
+    "No Y-DNA data found.": "Дані Y-ДНК не знайдено.",
+    "Edit Y-DNA data": "Редагувати дані Y-ДНК",
+    "Raw SNP data": "Необроблені дані SNP",
+    "Haplogroup": "Гаплогрупа",
+    "few generations": "кілька поколінь",
+    "%s generations": "%s поколінь",
+    "Show less": "Показати менше",
+    "Most specific position on the human Y chromosome tree": "Найбільш специфічне положення на Y-хромосомному дереві людини",
+    "Paternal Lineage": "Батьківське походження",
+    "Add Y-DNA data": "Додати дані Y-ДНК"
 }
