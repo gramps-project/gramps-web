@@ -122,7 +122,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       <grampsjs-list-item
         href="${BASE_DIR}/dna-matches"
         graphic="icon"
-        ?selected="${['dna-matches', 'dna-chromosome'].includes(
+        ?selected="${['dna-matches', 'dna-chromosome', 'ydna'].includes(
           this.appState.path.page
         )}"
       >
@@ -131,7 +131,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
           ><span class="raise"
             >${renderIcon(
               mdiDna,
-              ['dna-matches', 'dna-chromosome'].includes(
+              ['dna-matches', 'dna-chromosome', 'ydna'].includes(
                 this.appState.path.page
               )
                 ? selectedColor

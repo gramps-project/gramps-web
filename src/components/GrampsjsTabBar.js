@@ -30,12 +30,6 @@ class GrampsjsTabBar extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        mwc-select {
-          width: 100%;
-          max-width: 30em;
-          margin-bottom: 10px;
-        }
-
         md-tabs {
           margin: 20px;
           width: max-content;

@@ -229,5 +229,16 @@
   "Base Map": "Base Map",
   "Historical Map": "Historical Map",
   "To start building your family tree, add yourself as a person or import a family tree file.": "To start building your family tree, add yourself as a person or import a family tree file.",
-  "Metadata": "Metadata"
+  "Metadata": "Metadata",
+  "Please select a different person.": "Please select a different person.",
+  "No Y-DNA data found.": "No Y-DNA data found.",
+  "Edit Y-DNA data": "Edit Y-DNA data",
+  "Raw SNP data": "Raw SNP data",
+  "Haplogroup": "Haplogroup",
+  "few generations": "few generations",
+  "%s generations": "%s generations",
+  "Show less": "Show less",
+  "Most specific position on the human Y chromosome tree": "Most specific position on the human Y chromosome tree",
+  "Paternal Lineage": "Paternal Lineage",
+  "Add Y-DNA data": "Add Y-DNA data"
 }

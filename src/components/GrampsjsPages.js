@@ -43,6 +43,7 @@ import '../views/GrampsjsViewRevisions.js'
 import '../views/GrampsjsViewRevision.js'
 import '../views/GrampsjsViewBookmarks.js'
 import '../views/GrampsjsViewDnaMatches.js'
+import '../views/GrampsjsViewYDna.js'
 import '../views/GrampsjsViewMap.js'
 import '../views/GrampsjsViewTree.js'
 import '../views/GrampsjsViewNewPerson.js'
@@ -169,6 +170,14 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         ?matches="${this.appState.path.page === 'dna-matches'}"
         ?chromosome="${this.appState.path.page === 'dna-chromosome'}"
       ></grampsjs-view-dna-matches>
+
+      <grampsjs-view-ydna
+        class="page"
+        ?active=${this.appState.path.page === 'ydna'}
+        .appState="${this.appState}"
+        homePersonGrampsId="${this.homePersonDetails?.gramps_id ?? ''}"
+        grampsId="${this.appState.path.pageId}"
+      ></grampsjs-view-ydna>
 
       <grampsjs-view-map
         class="page"
