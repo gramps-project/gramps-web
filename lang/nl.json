@@ -229,5 +229,16 @@
     "Base Map": "Basiskaart",
     "Historical Map": "Historische kaart",
     "To start building your family tree, add yourself as a person or import a family tree file.": "Om te beginnen met het bouwen van uw stamboom, voegt u uzelf toe als persoon of importeert u een stamboombestand.",
-    "Metadata": "Metadata"
+    "Metadata": "Metadata",
+    "Please select a different person.": "Kies een andere persoon.",
+    "No Y-DNA data found.": "Geen Y-DNA-gegevens gevonden.",
+    "Edit Y-DNA data": "Y-DNA-gegevens bewerken",
+    "Raw SNP data": "Ruwe SNP-gegevens",
+    "Haplogroup": "Haplogroep",
+    "few generations": "enkele generaties",
+    "%s generations": "%s generaties",
+    "Show less": "Minder weergeven",
+    "Most specific position on the human Y chromosome tree": "Meest specifieke positie op de menselijke Y-chromosoomboom",
+    "Paternal Lineage": "Vaderlijke afstamming",
+    "Add Y-DNA data": "Y-DNA-gegevens toevoegen"
 }
