@@ -1,39 +1,40 @@
-import {LitElement, html, css} from 'lit'
-import {installRouter} from 'pwa-helpers/router.js'
-import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
-import '@material/mwc-drawer'
-import '@material/mwc-top-app-bar'
-import '@material/mwc-icon'
 import '@material/mwc-button'
-import '@material/mwc-textfield'
+import '@material/mwc-drawer'
+import '@material/mwc-icon'
 import '@material/mwc-icon-button'
-import '@material/mwc-list'
-import '@material/mwc-menu'
-import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-linear-progress'
+import '@material/mwc-list'
+import '@material/mwc-list/mwc-list-item'
+import '@material/mwc-menu'
 import '@material/mwc-snackbar'
+import '@material/mwc-textfield'
+import '@material/mwc-top-app-bar'
+import {LitElement, css, html} from 'lit'
+import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
+import {installRouter} from 'pwa-helpers/router.js'
 import {getSettings} from './api.js'
+import './dayjs_locales.js'
 import {
-  grampsStrings,
-  getFrontendStrings,
   frontendLanguages,
+  getFrontendStrings,
+  grampsStrings,
 } from './strings.js'
 import {fireEvent, getBrowserLanguage} from './util.js'
-import './dayjs_locales.js'
 
+import {appStateUpdatePermissions, getInitialAppState} from './appState.js'
 import './components/GrampsjsAppBar.js'
-import './components/GrampsJsListItem.js'
 import './components/GrampsjsFirstRun.js'
-import './components/GrampsjsLogin.js'
 import './components/GrampsjsFormRegister.js'
+import './components/GrampsJsListItem.js'
+import './components/GrampsjsLogin.js'
 import './components/GrampsjsMainMenu.js'
 import './components/GrampsjsPages.js'
 import './components/GrampsjsTabBar.js'
+import './components/GrampsjsUndoTransaction.js'
 import './components/GrampsjsUpdateAvailable.js'
 import './components/GrampsjsUpgradeDb.js'
-import './components/GrampsjsUndoTransaction.js'
 import {sharedStyles} from './SharedStyles.js'
-import {getInitialAppState, appStateUpdatePermissions} from './appState.js'
+import {applyTheme} from './theme.js'
 
 const LOADING_STATE_INITIAL = 0
 const LOADING_STATE_UNAUTHORIZED = 1
@@ -548,6 +549,12 @@ export class GrampsJs extends LitElement {
     } else if (this.appState.settings.lang) {
       this._loadFrontendStrings(this.appState.settings.lang)
     }
+
+    applyTheme(this.appState.settings.theme)
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    mediaQuery.addEventListener('change', () =>
+      applyTheme(this.appState.settings.theme)
+    )
   }
 
   firstUpdated() {

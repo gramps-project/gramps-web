@@ -15,6 +15,7 @@ import '../components/GrampsjsUsers.js'
 import {GrampsjsView} from './GrampsjsView.js'
 
 import {fireEvent} from '../util.js'
+import {applyTheme} from '../theme.js'
 
 export class GrampsjsViewSettingsUser extends GrampsjsView {
   static get properties() {
@@ -151,17 +152,8 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
 
   _handleThemeSelected(event) {
     const theme = event.target.value
-    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
-      .matches
-      ? 'dark'
-      : 'light'
-
     this.appState.updateSettings({theme})
-
-    document.documentElement.setAttribute(
-      'data-theme',
-      theme === 'system' ? systemTheme : theme
-    )
+    applyTheme(theme)
   }
 
   renderChangeEmail() {
