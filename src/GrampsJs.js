@@ -23,6 +23,8 @@ import {fireEvent, getBrowserLanguage} from './util.js'
 
 import {appStateUpdatePermissions, getInitialAppState} from './appState.js'
 import './components/GrampsjsAppBar.js'
+import './components/GrampsjsDnaTabBar.js'
+import './components/GrampsJsListItem.js'
 import './components/GrampsjsFirstRun.js'
 import './components/GrampsjsFormRegister.js'
 import './components/GrampsJsListItem.js'
@@ -488,6 +490,9 @@ export class GrampsJs extends LitElement {
 
           <main>
             <grampsjs-tab-bar .appState="${this.appState}"></grampsjs-tab-bar>
+            <grampsjs-dna-tab-bar
+              .appState="${this.appState}"
+            ></grampsjs-dna-tab-bar>
             <grampsjs-pages
               .appState="${this.appState}"
               .dbInfo="${this.appState.dbInfo}"
