@@ -22,7 +22,7 @@ export class GrampsjsDiffJson extends GrampsjsAppStateMixin(LitElement) {
 
         #container {
           overflow: hidden;
-          border: 1px solid rgba(0, 0, 0, 0.2);
+          border: 1px solid var(--grampsjs-body-font-color-20);
           border-radius: 8px;
           padding: 20px 8px;
         }
@@ -63,7 +63,7 @@ export class GrampsjsDiffJson extends GrampsjsAppStateMixin(LitElement) {
         .jsondiffpatch-textdiff-deleted {
           background: var(--color-red);
           text-decoration: line-through;
-          text-decoration-color: rgba(0, 0, 0, 0.2);
+          text-decoration-color: var(--grampsjs-body-font-color-20);
           text-decoration-thickness: 1px;
         }
         .jsondiffpatch-unchanged,

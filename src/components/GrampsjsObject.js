@@ -529,7 +529,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
                     >
                       <grampsjs-icon
                         .path="${mdiTableOfContents}"
-                        color="rgba(0, 0, 0, 0.4)"
+                        color="var(--grampsjs-body-font-color-40)"
                       ></grampsjs-icon>
                     </md-icon-button>
                   `}

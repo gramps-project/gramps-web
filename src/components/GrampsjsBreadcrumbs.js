@@ -17,22 +17,22 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
         .breadcrumb {
           font-size: 14px;
           font-weight: 450;
-          color: rgba(0, 0, 0, 0.45);
+          color: var(--grampsjs-body-font-color-45);
           margin-bottom: 18px;
         }
 
         .breadcrumb a:link,
         a:visited {
-          color: rgba(0, 0, 0, 0.45);
+          color: var(--grampsjs-body-font-color-45);
           text-decoration: none;
           border-radius: 3px;
           padding: 4px 7px;
         }
 
         .breadcrumb a:hover {
-          color: rgba(0, 0, 0, 0.45);
+          color: var(--grampsjs-body-font-color-45);
           text-decoration: none;
-          background-color: rgba(0, 0, 0, 0.05);
+          background-color: var(--grampsjs-body-font-color-5);
         }
 
         .breadcrumb .dark {
@@ -42,7 +42,7 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
           font-size: 18px;
           top: 4px;
           position: relative;
-          color: rgba(0, 0, 0, 0.4);
+          color: var(--grampsjs-body-font-color-40);
         }
 
         .breadcrumb .action-buttons {
@@ -54,7 +54,7 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
           --mdc-icon-button-size: 28px;
           position: relative;
           top: -3px;
-          color: rgba(0, 0, 0, 0.4);
+          color: var(--grampsjs-body-font-color-40);
         }
 
         .breadcrumb .action-buttons mwc-icon-button.edit {

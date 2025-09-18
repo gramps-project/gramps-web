@@ -45,9 +45,13 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
 
         .dropdowns {
           margin-top: 48px;
-          --mdc-select-outlined-disabled-border-color: rgba(0, 0, 0, 0.38);
-          --mdc-select-disabled-ink-color: rgba(0, 0, 0, 0.87);
-          --mdc-select-disabled-dropdown-icon-color: #fff;
+          --mdc-select-outlined-disabled-border-color: var(
+            --grampsjs-body-font-color-38
+          );
+          --mdc-select-disabled-ink-color: var(--grampsjs-body-font-color-87);
+          --mdc-select-disabled-dropdown-icon-color: var(
+            --grampsjs-color-shade-255
+          );
         }
 
         .dropdowns mwc-select {

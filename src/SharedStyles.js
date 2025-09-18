@@ -32,8 +32,10 @@ export const sharedStyles = css`
   md-list-item {
     --md-list-item-label-text-weight: var(--grampsjs-body-font-weight);
     --md-list-item-label-text-size: 17px;
-    --md-list-item-supporting-text-color: rgba(0, 0, 0, 0.5);
-    --md-list-item-trailing-supporting-text-color: rgba(0, 0, 0, 0.8);
+    --md-list-item-supporting-text-color: var(--grampsjs-body-font-color-50);
+    --md-list-item-trailing-supporting-text-color: var(
+      --grampsjs-body-font-color
+    );
   }
 
   label {
@@ -50,7 +52,7 @@ export const sharedStyles = css`
   h4 {
     font-weight: 500;
     font-family: var(--grampsjs-heading-font-family);
-    color: rgb(40, 40, 40);
+    color: var(--grampsjs-color-shade-40);
   }
 
   h1 {
@@ -131,12 +133,12 @@ export const sharedStyles = css`
   hr {
     border: 0;
     height: 0.5px;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--grampsjs-body-font-color-40);
   }
 
   dt {
     font-size: 14px;
-    color: rgba(0, 0, 0, 0.5);
+    color: var(--grampsjs-body-font-color-50);
     font-weight: 400;
     margin-bottom: 0.2em;
   }
@@ -157,7 +159,7 @@ export const sharedStyles = css`
   }
 
   h2 mwc-icon {
-    color: rgba(0, 0, 0, 0.2);
+    color: var(--grampsjs-body-font-color-20);
     font-size: 1.05em;
     position: relative;
     top: 0.15em;
@@ -168,7 +170,7 @@ export const sharedStyles = css`
   }
 
   mwc-list.large {
-    --mdc-typography-subtitle1-color: rgba(0, 0, 0, 1);
+    --mdc-typography-subtitle1-color: var(--grampsjs-body-font-color-100);
     --mdc-typography-subtitle1-font-size: var(--grampsjs-body-font-size);
     --mdc-typography-subtitle1-font-weight: var(--grampsjs-body-font-weight);
     --mdc-typography-subtitle1-letter-spacing: -0.01em;
@@ -191,7 +193,7 @@ export const sharedStyles = css`
     position: relative;
     bottom: auto;
     top: auto;
-    color: rgba(0, 0, 0, 0.35);
+    color: var(--grampsjs-body-font-color-35);
   }
 
   mwc-icon.male {
@@ -232,7 +234,7 @@ export const sharedStyles = css`
   }
 
   h2 .given-name {
-    text-decoration: underline rgba(0, 0, 0, 0.6);
+    text-decoration: underline var(--grampsjs-body-font-color-60);
     text-underline-offset: 0.15em;
     text-decoration-thickness: 0.1rem;
   }
@@ -261,7 +263,7 @@ export const sharedStyles = css`
     border-radius: 5px;
     padding: 0.8em 1em;
     font-size: 0.8em;
-    color: rgba(0, 0, 0, 0.8);
+    color: var(--grampsjs-body-font-color);
     margin: 1.5em 0;
   }
 
@@ -272,7 +274,7 @@ export const sharedStyles = css`
   }
 
   .alert.warn {
-    color: rgba(0, 0, 0, 0.5);
+    color: var(--grampsjs-body-font-color-50);
     background-color: rgba(251, 192, 45, 0.2);
     border-left-color: rgba(251, 192, 45, 0.7);
   }
@@ -313,12 +315,12 @@ export const sharedStyles = css`
 
   .monospace {
     font-family: 'Commit Mono';
-    border: 1px solid rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--grampsjs-body-font-color-15);
     border-radius: 5px;
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: var(--grampsjs-body-font-color-5);
     padding: 0.3em;
     font-size: 0.9em;
-    color: rgb(125, 0, 0, 0.8);
+    color: var(--grampsjs-color-monospace);
   }
 
   md-outlined-text-field.drag-hover {
@@ -326,8 +328,12 @@ export const sharedStyles = css`
     --md-outlined-text-field-hover-outline-color: var(--mdc-theme-secondary);
     --md-outlined-text-field-hover-outline-width: var(--mdc-theme-secondary);
     --md-outlined-text-field-outline-width: var(--mdc-theme-secondary);
-    --md-outlined-text-field-input-text-color: rgba(0, 0, 0, 0.5);
-    --md-outlined-text-field-hover-input-text-color: rgba(0, 0, 0, 0.4);
+    --md-outlined-text-field-input-text-color: var(
+      --grampsjs-body-font-color-50
+    );
+    --md-outlined-text-field-hover-input-text-color: var(
+      --grampsjs-body-font-color-40
+    );
   }
 
   @media (max-width: 768px) {

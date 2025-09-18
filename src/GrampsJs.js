@@ -159,7 +159,7 @@ export class GrampsJs extends LitElement {
         }
 
         #shortcut-overlay-container {
-          background-color: rgba(0, 0, 0, 0.1);
+          background-color: var(--grampsjs-body-font-color-10);
           position: fixed;
           left: 0;
           top: 0;

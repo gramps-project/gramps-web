@@ -36,14 +36,14 @@ class GrampsjsSettingsMenu extends GrampsjsAppStateMixin(LitElement) {
       css`
         md-menu {
           --md-divider-thickness: 1px;
-          --md-divider-color: rgba(0, 0, 0, 0.3);
+          --md-divider-color: var(--grampsjs-body-font-color-30);
         }
 
         md-menu-item {
           --md-menu-item-top-space: 0px;
           --md-menu-item-bottom-space: 0px;
           --md-menu-item-one-line-container-height: 56px;
-          --icon-color: rgba(0, 0, 0, 0.35);
+          --icon-color: var(--grampsjs-body-font-color-35);
         }
         md-menu-item.red {
           --md-menu-item-label-text-color: var(--icon-color);
@@ -51,7 +51,7 @@ class GrampsjsSettingsMenu extends GrampsjsAppStateMixin(LitElement) {
         }
         md-menu {
           --md-divider-thickness: 1px;
-          --md-divider-color: rgba(0, 0, 0, 0.3);
+          --md-divider-color: var(--grampsjs-body-font-color-30);
         }
       `,
     ]

@@ -28,7 +28,9 @@ class GrampsjsDeleteAll extends GrampsjsAppStateMixin(LitElement) {
       css`
         md-filter-chip {
           --md-sys-color-secondary-container: rgba(109, 76, 65, 0.32);
-          --md-sys-color-on-secondary-container: rgba(0, 0, 0, 0.78);
+          --md-sys-color-on-secondary-container: var(
+            --grampsjs-body-font-color-78
+          );
         }
       `,
     ]

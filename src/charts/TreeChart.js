@@ -233,7 +233,7 @@ function TreeChartCore(
     .attr('x', d => -boxWidth / 2 + textPadding(d))
     .attr('text-anchor', 'start')
     .attr('font-weight', '500')
-    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('fill', 'var(--grampsjs-body-font-color-90)')
     .attr('paint-order', 'stroke')
     .text(d =>
       clipString(
@@ -252,7 +252,7 @@ function TreeChartCore(
     .attr('width', 50)
     .attr('text-anchor', 'start')
     .attr('font-weight', '500')
-    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('fill', 'var(--grampsjs-body-font-color-90)')
     .attr('paint-order', 'stroke')
     .attr('text-overflow', 'ellipsis')
     .attr('overflow', 'hidden')
@@ -273,7 +273,7 @@ function TreeChartCore(
     .attr('x', d => -boxWidth / 2 + textPadding(d))
     .attr('text-anchor', 'start')
     .attr('font-weight', '350')
-    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('fill', 'var(--grampsjs-body-font-color-90)')
     .attr('paint-order', 'stroke')
     .text(d => clipString(`*${d.data.person.profile.birth.date}`, textWidth(d)))
 
@@ -284,7 +284,7 @@ function TreeChartCore(
     .attr('x', d => -boxWidth / 2 + textPadding(d))
     .attr('text-anchor', 'start')
     .attr('font-weight', '350')
-    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('fill', 'var(--grampsjs-body-font-color-90)')
 
     .attr('paint-order', 'stroke')
     .text(d => clipString(`†${d.data.person.profile.death.date}`, textWidth(d)))

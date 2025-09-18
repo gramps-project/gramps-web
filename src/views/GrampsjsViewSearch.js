@@ -38,13 +38,13 @@ export class GrampsjsViewSearch extends GrampsjsView {
           --mdc-typography-subtitle1-font-weight: var(
             --grampsjs-body-font-weight
           );
-          --mdc-text-field-idle-line-color: rgba(0, 0, 0, 0.2);
+          --mdc-text-field-idle-line-color: var(--grampsjs-body-font-color-20);
           width: calc(100% - 70px);
           margin: 30px auto;
         }
 
         #search-field-container mwc-icon-button {
-          color: rgba(0, 0, 0, 0.5);
+          color: var(--grampsjs-body-font-color-50);
           --mdc-icon-size: 26px;
           --mdc-icon-button-size: 55px;
           position: relative;

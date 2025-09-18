@@ -44,7 +44,7 @@ export class GrampsjsTableBase extends GrampsjsAppStateMixin(LitElement) {
         }
 
         td mwc-icon.inline {
-          color: rgba(0, 0, 0, 0.25);
+          color: var(--grampsjs-body-font-color-25);
           font-size: 16px;
         }
 

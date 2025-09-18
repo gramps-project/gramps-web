@@ -18,7 +18,7 @@ export class GrampsjsPersonTimeline extends GrampsjsAppStateMixin(LitElement) {
           display: grid;
           grid-gap: 15px;
           grid-template-columns: 150px minmax(150px, 1fr);
-          background-color: #fff;
+          background-color: var(--md-sys-color-surface-container);
           color: #444;
         }
 
@@ -50,7 +50,7 @@ export class GrampsjsPersonTimeline extends GrampsjsAppStateMixin(LitElement) {
           font-family: var(--grampsjs-heading-font-family);
           font-weight: 400;
           font-size: 18px;
-          color: rgba(0, 0, 0, 0.8);
+          color: var(--grampsjs-body-font-color);
           margin-bottom: 0.4em;
         }
 
@@ -71,7 +71,7 @@ export class GrampsjsPersonTimeline extends GrampsjsAppStateMixin(LitElement) {
 
         .timeline-detail mwc-icon {
           --mdc-icon-size: 1em;
-          color: rgba(0, 0, 0, 0.25);
+          color: var(--grampsjs-body-font-color-25);
           margin-right: 0.2em;
           position: relative;
           top: 0.13em;

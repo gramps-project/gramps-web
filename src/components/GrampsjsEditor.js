@@ -131,7 +131,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         }
 
         mwc-icon-button {
-          color: rgba(0, 0, 0, 0.5);
+          color: var(--grampsjs-body-font-color-50);
         }
 
         #controls {
