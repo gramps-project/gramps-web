@@ -63,7 +63,7 @@ export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
 
         th {
           font-weight: 450;
-          color: var(--md-sys-color-on-surface);
+          color: rgba(0, 0, 0, 0.6);
           text-align: right;
         }
 

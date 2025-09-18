@@ -32,12 +32,8 @@ export const sharedStyles = css`
   md-list-item {
     --md-list-item-label-text-weight: var(--grampsjs-body-font-weight);
     --md-list-item-label-text-size: 17px;
-    --md-list-item-supporting-text-color: var(
-      --md-sys-color-on-surface-variant
-    );
-    --md-list-item-trailing-supporting-text-color: var(
-      --md-sys-color-on-surface-variant
-    );
+    --md-list-item-supporting-text-color: rgba(0, 0, 0, 0.5);
+    --md-list-item-trailing-supporting-text-color: rgba(0, 0, 0, 0.8);
   }
 
   label {
@@ -54,7 +50,7 @@ export const sharedStyles = css`
   h4 {
     font-weight: 500;
     font-family: var(--grampsjs-heading-font-family);
-    color: var(--md-sys-color-on-surface);
+    color: rgb(40, 40, 40);
   }
 
   h1 {
@@ -135,12 +131,12 @@ export const sharedStyles = css`
   hr {
     border: 0;
     height: 0.5px;
-    background: var(--md-sys-color-outline);
+    background: rgba(0, 0, 0, 0.4);
   }
 
   dt {
     font-size: 14px;
-    color: var(--md-sys-color-on-surface);
+    color: rgba(0, 0, 0, 0.5);
     font-weight: 400;
     margin-bottom: 0.2em;
   }
@@ -148,7 +144,6 @@ export const sharedStyles = css`
   dd {
     margin: 0;
     padding: 0 0 1em 0;
-    color: var(--md-sys-color-on-surface);
   }
 
   dl div {
@@ -162,7 +157,7 @@ export const sharedStyles = css`
   }
 
   h2 mwc-icon {
-    color: var(--md-sys-color-on-surface);
+    color: rgba(0, 0, 0, 0.2);
     font-size: 1.05em;
     position: relative;
     top: 0.15em;
@@ -173,7 +168,7 @@ export const sharedStyles = css`
   }
 
   mwc-list.large {
-    --mdc-typography-subtitle1-color: var(--md-sys-color-on-surface);
+    --mdc-typography-subtitle1-color: rgba(0, 0, 0, 1);
     --mdc-typography-subtitle1-font-size: var(--grampsjs-body-font-size);
     --mdc-typography-subtitle1-font-weight: var(--grampsjs-body-font-weight);
     --mdc-typography-subtitle1-letter-spacing: -0.01em;
@@ -196,7 +191,7 @@ export const sharedStyles = css`
     position: relative;
     bottom: auto;
     top: auto;
-    color: var(--md-sys-color-on-surface);
+    color: rgba(0, 0, 0, 0.35);
   }
 
   mwc-icon.male {
@@ -237,14 +232,14 @@ export const sharedStyles = css`
   }
 
   h2 .given-name {
-    text-decoration: underline var(--md-sys-color-on-surface);
+    text-decoration: underline rgba(0, 0, 0, 0.6);
     text-underline-offset: 0.15em;
     text-decoration-thickness: 0.1rem;
   }
 
   span.skeleton {
     display: inline-block;
-    background: var(--md-sys-color-surface-container-high);
+    background: #eee;
     background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
     opacity: 0.8;
     border-radius: 3px;
@@ -253,7 +248,7 @@ export const sharedStyles = css`
   }
 
   div.skeleton {
-    background: var(--md-sys-color-surface-container-high);
+    background: #eee;
     background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
     opacity: 0.8;
     background-size: 200% 100%;
