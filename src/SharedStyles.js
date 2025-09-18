@@ -1,6 +1,34 @@
 import {css} from 'lit'
 
 export const sharedStyles = css`
+  :host {
+    line-height: 1.6;
+    --grampsjs-body-font-family: 'Inter var', sans-serif;
+    --grampsjs-heading-font-family: 'Inter var', sans-serif;
+    --md-ref-typeface-plain: 'Inter var', sans-serif;
+    --grampsjs-body-font-size: 17px;
+    font-size: var(--grampsjs-body-font-size);
+    font-family: var(--grampsjs-body-font-family);
+    --grampsjs-body-font-weight: 340;
+    font-weight: var(--grampsjs-body-font-weight);
+    --mdc-typography-font-family: var(--grampsjs-body-font-family);
+    --md-sys-typescale-headline-small-font: var(--grampsjs-heading-font-family);
+    --md-sys-typescale-headline-medium-font: var(
+      --grampsjs-heading-font-family
+    );
+    --md-sys-typescale-headline-large-font: var(--grampsjs-heading-font-family);
+    --md-sys-typescale-body-small-font: var(--grampsjs-body-font-family);
+    --md-sys-typescale-body-medium-font: var(--grampsjs-body-font-family);
+    --md-sys-typescale-body-large-font: var(--grampsjs-body-font-family);
+    --md-primary-tab-label-text-weight: 425;
+    --md-primary-tab-label-text-size: 16px;
+    --md-primary-tab-active-indicator-height: 3px;
+    --md-divider-thickness: 0px;
+    --md-list-item-leading-space: 16px;
+    --md-list-item-trailing-space: 16px;
+    --mdc-list-side-padding: 16px;
+  }
+
   md-list-item {
     --md-list-item-label-text-weight: var(--grampsjs-body-font-weight);
     --md-list-item-label-text-size: 17px;
