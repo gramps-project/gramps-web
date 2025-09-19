@@ -32,7 +32,12 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
         <td>${prof.type}</td>
         <td>
           ${this.edit
-            ? this._renderActionBtns(obj.ref, i === 0, i === arr.length - 1)
+            ? this._renderActionBtns(
+                obj.ref,
+                i === 0,
+                i === arr.length - 1,
+                true
+              )
             : ''}
         </td>
       </tr>
@@ -88,7 +93,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
         @object:save="${this._handlePlaceRefAdd}"
         @object:cancel="${this._handlePlaceRefCancel}"
         .appState="${this.appState}"
-        dialogTitle=${this._('Share an existing place')}
+        dialogTitle=${this._('Add place reference')}
       >
       </grampsjs-form-placeref>
     `
@@ -96,6 +101,17 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
 
   _handlePlaceRefAdd(e) {
     fireEvent(this, 'edit:action', {action: 'addPlaceRef', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handlePlaceRefUpdate(e, originalObj) {
+    fireEvent(this, 'edit:action', {
+      action: 'updatePlaceRef',
+      index: this.data.indexOf(originalObj),
+      data: e.detail.data,
+    })
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''
@@ -109,6 +125,20 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
     if (!this.edit) {
       fireEvent(this, 'nav', {path: this._getItemPath(grampsId)})
     }
+  }
+
+  _handleEditClick(handle) {
+    const obj = this.data.find(p => p.ref === handle)
+    this.dialogContent = html`
+      <grampsjs-form-placeref
+        @object:save="${e => this._handlePlaceRefUpdate(e, obj)}"
+        @object:cancel="${this._handlePlaceRefCancel}"
+        .appState="${this.appState}"
+        .data="${obj}"
+        dialogTitle=${this._('Edit place reference')}
+      >
+      </grampsjs-form-placeref>
+    `
   }
 
   // eslint-disable-next-line class-methods-use-this
