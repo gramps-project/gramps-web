@@ -42,6 +42,7 @@ export const GrampsjsNewEventMixin = superClass =>
 
         <h4 class="label">${this._('Place')}</h4>
         <grampsjs-form-select-object-list
+          fixedMenuPosition
           id="place"
           objectType="place"
           .appState="${this.appState}"
