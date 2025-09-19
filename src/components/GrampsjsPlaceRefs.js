@@ -93,7 +93,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
         @object:save="${this._handlePlaceRefAdd}"
         @object:cancel="${this._handlePlaceRefCancel}"
         .appState="${this.appState}"
-        dialogTitle=${this._('Add place reference')}
+        dialogTitle=${this._('Add enclosing place')}
       >
       </grampsjs-form-placeref>
     `
@@ -128,14 +128,16 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
   }
 
   _handleEditClick(handle) {
-    const obj = this.data.find(p => p.ref === handle)
+    const place = this.places.find(p => p.handle === handle)
+    const placeRef = this.data.find(p => p.ref === handle)
     this.dialogContent = html`
       <grampsjs-form-placeref
-        @object:save="${e => this._handlePlaceRefUpdate(e, obj)}"
+        @object:save="${e => this._handlePlaceRefUpdate(e, placeRef)}"
         @object:cancel="${this._handlePlaceRefCancel}"
         .appState="${this.appState}"
-        .data="${obj}"
-        dialogTitle=${this._('Edit place reference')}
+        .data="${placeRef}"
+        .place="${place}"
+        dialogTitle=${this._('Edit enclosing place')}
       >
       </grampsjs-form-placeref>
     `
