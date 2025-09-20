@@ -28,14 +28,14 @@ class GrampsjsImg extends LitElement {
         }
 
         .bordered {
-          box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.2);
+          box-shadow: 0px 0px 4px 0px var(--grampsjs-body-font-color-20);
         }
 
         .file-placeholder {
           width: 200px;
           height: 200px;
           background-color: rgba(200, 200, 200, 0.5);
-          color: rgba(0, 0, 0, 0.3);
+          color: var(--grampsjs-body-font-color-30);
           display: flex;
           align-items: center;
           justify-content: center;

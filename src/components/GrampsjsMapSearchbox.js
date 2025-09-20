@@ -27,17 +27,23 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           left: 20px;
           border-radius: 5px;
           background-color: white;
-          box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2),
-            0 -1px 0px rgba(0, 0, 0, 0.02);
+          box-shadow: 0 2px 2px var(--grampsjs-body-font-color-20),
+            0 -1px 0px var(--grampsjs-body-font-color-2);
         }
 
         #searchbox {
           width: 350px;
           top: 90px;
           padding: 0px;
-          --mdc-text-field-outlined-idle-border-color: rgba(0, 0, 0, 0.2);
-          --mdc-text-field-outlined-hover-border-color: rgba(0, 0, 0, 0.38);
-          --mdc-text-field-outlined-disabled-border-color: rgba(0, 0, 0, 0.06);
+          --mdc-text-field-outlined-idle-border-color: var(
+            --grampsjs-body-font-color-20
+          );
+          --mdc-text-field-outlined-hover-border-color: var(
+            --grampsjs-body-font-color-38
+          );
+          --mdc-text-field-outlined-disabled-border-color: var(
+            --grampsjs-body-font-color-6
+          );
         }
 
         md-outlined-text-field {
@@ -45,7 +51,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
         }
 
         md-outlined-text-field mwc-icon-button {
-          color: rgba(0, 0, 0, 0.5);
+          color: var(--grampsjs-body-font-color-50);
         }
 
         #details,
@@ -85,7 +91,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
 
         #details::-webkit-scrollbar-thumb,
         #searchresult::-webkit-scrollbar-thumb {
-          background: rgba(0, 0, 0, 0.4);
+          background: var(--grampsjs-body-font-color-40);
         }
 
         #searchresult-content {

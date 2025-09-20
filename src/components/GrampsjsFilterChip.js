@@ -26,7 +26,7 @@ export class GrampsjsFilterChip extends GrampsjsAppStateMixin(LitElement) {
           border-radius: 9999px;
           margin: 5px 5px;
           background-color: var(--mdc-theme-primary);
-          color: rgba(255, 255, 255, 0.9);
+          color: var(--mdc-theme-on-primary);
           line-height: 18px;
         }
 

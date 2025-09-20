@@ -40,7 +40,7 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
         mwc-list[activatable] [mwc-list-item][selected]:hover,
         mwc-list[activatable] [mwc-list-item][selected]:focus {
           background-color: rgba(2, 119, 189, 0.4);
-          color: rgba(0, 0, 0, 0.9);
+          color: var(--grampsjs-body-font-color-90);
         }
 
         mwc-list[activatable] [mwc-list-item][selected]:active {
@@ -48,11 +48,13 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
         }
 
         mwc-icon-button {
-          --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.25);
+          --mdc-theme-text-disabled-on-light: var(
+            --grampsjs-body-font-color-25
+          );
         }
 
         mwc-icon {
-          background-color: rgba(0, 0, 0, 0.25);
+          background-color: var(--grampsjs-body-font-color-25);
           color: white;
         }
 

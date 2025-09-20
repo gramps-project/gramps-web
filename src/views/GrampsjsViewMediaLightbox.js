@@ -21,7 +21,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
           font-size: 0.85em;
           font-weight: 300;
           font-family: var(--grampsjs-body-font-family);
-          color: rgba(0, 0, 0, 0.8);
+          color: var(--grampsjs-body-font-color);
           padding-left: 0.8em;
         }
 

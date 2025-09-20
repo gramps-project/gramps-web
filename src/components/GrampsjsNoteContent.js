@@ -14,7 +14,7 @@ export class GrampsjsNoteContent extends LitElement {
           );
           font-size: var(--grampsjs-note-font-size, 17px);
           line-height: var(--grampsjs-note-line-height, 1.5em);
-          color: var(--grampsjs-note-color, #000000);
+          color: var(--grampsjs-note-color);
         }
 
         .note {

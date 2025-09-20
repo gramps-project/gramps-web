@@ -77,7 +77,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         }
 
         td mwc-icon.inline {
-          color: rgba(0, 0, 0, 0.25);
+          color: var(--grampsjs-body-font-color-25);
           font-size: 16px;
         }
 
@@ -274,11 +274,14 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   _renderSortIcon(isCurrent, isAscending) {
     if (isCurrent) {
       if (isAscending) {
-        return renderIcon(mdiSortAscending, 'rgba(0, 0, 0, 0.6)')
+        return renderIcon(
+          mdiSortAscending,
+          'var(--grampsjs-body-font-color-60)'
+        )
       }
-      return renderIcon(mdiSortDescending, 'rgba(0, 0, 0, 0.6)')
+      return renderIcon(mdiSortDescending, 'var(--grampsjs-body-font-color-60)')
     }
-    return renderIcon(mdiSort, 'rgba(0, 0, 0, 0.2)')
+    return renderIcon(mdiSort, 'var(--grampsjs-body-font-color-20)')
   }
 
   _toggleSort(sortKey, isCurrent, isAscending) {

@@ -55,7 +55,7 @@ export class GrampsjsTagsSmall extends GrampsjsAppStateMixin(LitElement) {
           obj.color?.length > 7
             ? hex12ToCss(obj.color, 0.8)
             : hex6ToCss(obj.color, 0.8)
-        color = color || 'rgba(0, 0, 0, 0.6)'
+        color = color || 'var(--grampsjs-body-font-color-60)'
         return html`<span
           class="chip"
           style="background-color:${color};color:white;"

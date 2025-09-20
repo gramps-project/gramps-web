@@ -18,7 +18,7 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
           --mdc-icon-button-size: 32px;
           position: relative;
           top: -5px;
-          color: rgba(0, 0, 0, 0.4);
+          color: var(--grampsjs-body-font-color-40);
         }
 
         span.url {

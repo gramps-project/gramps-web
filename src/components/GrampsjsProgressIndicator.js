@@ -89,7 +89,7 @@ export class GrampsjsProgressIndicator extends GrampsjsAppStateMixin(
       <mwc-circular-progress
         indeterminate
         id="progress-indeterminate"
-        style="--mdc-theme-primary: rgba(0, 0, 0, 0.5);"
+        style="--mdc-theme-primary: var(--grampsjs-body-font-color-50);"
         density="${this._getDensity()}"
       >
       </mwc-circular-progress>

@@ -31,20 +31,20 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         }
 
         mwc-check-list-item {
-          border-top: 1px solid rgba(0, 0, 0, 0.1);
+          border-top: 1px solid var(--grampsjs-body-font-color-10);
           height: auto;
           width: 100%;
         }
 
         mwc-check-list-item:last-child {
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          border-bottom: 1px solid var(--grampsjs-body-font-color-10);
         }
 
         h4 {
           font-family: var(--grampsjs-body-font-family);
           font-size: 14px;
           font-weight: 450;
-          color: rgba(0, 0, 0, 0.7);
+          color: var(--grampsjs-body-font-color-70);
           text-transform: uppercase;
         }
 
@@ -74,7 +74,6 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           overflow-wrap: break-word;
           height: 100%;
           width: 100%;
-          background-color: rgba(0, 0, 0, 255, 0.1) !important;
           padding-right: 8px;
           flex: auto;
           word-wrap: break-word;
@@ -104,7 +103,7 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         }
 
         mwc-check-list-item mwc-icon {
-          color: rgba(0, 0, 0, 0.3);
+          color: var(--grampsjs-body-font-color-30);
           --mdc-icon-size: 20px;
         }
 
