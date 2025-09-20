@@ -260,6 +260,14 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._className,
         'placeref_list'
       )
+    } else if (e.detail.action === 'updatePlaceRef') {
+      this.updateObjectByIndex(
+        e.detail.index,
+        e.detail.data,
+        this._data,
+        this._className,
+        'placeref_list'
+      )
     } else if (e.detail.action === 'addChildRef') {
       this.addObject(
         e.detail.data,
