@@ -93,7 +93,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
         @object:save="${this._handlePlaceRefAdd}"
         @object:cancel="${this._handlePlaceRefCancel}"
         .appState="${this.appState}"
-        dialogTitle=${this._('Add enclosing place')}
+        dialogTitle=${this._('Link to enclosing place')}
       >
       </grampsjs-form-placeref>
     `
@@ -137,7 +137,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
         .appState="${this.appState}"
         .data="${placeRef}"
         .place="${place}"
-        dialogTitle=${this._('Edit enclosing place')}
+        dialogTitle=${this._('Link to enclosing place')}
       >
       </grampsjs-form-placeref>
     `
