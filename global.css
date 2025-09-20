@@ -28,6 +28,10 @@ body {
   --grampsjs-face-rect-border-shadow-color: rgba(0, 0, 0, 0.4);
   --grampsjs-face-rect-label-background-color: rgba(1, 1, 1, 0.25);
   --grampsjs-face-rect-label-color: #fff;
+  --grampsjs-lightbox-background-color: #000;
+  --grampsjs-lightbox-font-color: #fff;
+  --grampsjs-lightbox-nav-color: #aaa;
+  --grampsjs-lightbox-nav-hover-color: #fff;
 }
 
 :root[data-theme='light'] {
@@ -60,6 +64,10 @@ body {
   --grampsjs-color-shade-220: rgb(220, 220, 220);
   --grampsjs-color-shade-255: rgb(255, 255, 255);
   --grampsjs-color-monospace: rgba(125, 0, 0, 0.8);
+  --grampsjs-color-drawer-text: #444;
+  --grampsjs-color-icon-default: #9e9e9e;
+  --grampsjs-color-icon-selected: #393939;
+  --grampsjs-note-color: #333;
   --md-sys-color-primary: rgb(109, 76, 65);
   --md-sys-color-surface-tint: rgb(109, 76, 65);
   --md-sys-color-on-primary: rgb(255, 255, 255);
@@ -141,6 +149,10 @@ body {
   --grampsjs-color-shade-220: rgb(35, 35, 35);
   --grampsjs-color-shade-255: rgb(0, 0, 0);
   --grampsjs-color-monospace: rgba(255, 100, 100, 0.85);
+  --grampsjs-color-drawer-text: #bbb;
+  --grampsjs-color-icon-default: #616161;
+  --grampsjs-color-icon-selected: #c6c6c6;
+  --grampsjs-note-color: #ccc;
   --md-sys-color-primary: rgb(233, 189, 174);
   --md-sys-color-surface-tint: rgb(233, 189, 174);
   --md-sys-color-on-primary: rgb(69, 41, 32);

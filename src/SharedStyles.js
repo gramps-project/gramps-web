@@ -44,7 +44,7 @@ export const sharedStyles = css`
     gap: 12px;
     font-size: 15px;
     font-weight: 350;
-    color: var(--md-sys-color-on-background, #000);
+    color: var(--md-sys-color-on-background);
   }
 
   h2,

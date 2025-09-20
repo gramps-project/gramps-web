@@ -23,7 +23,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
 
         #controls {
           position: absolute;
-          background: rgba(255, 255, 255, 0.9);
+          background-color: var(--md-sys-color-surface-container-low);
           border-radius: 16px;
           z-index: 1;
           padding: 0 10px;
