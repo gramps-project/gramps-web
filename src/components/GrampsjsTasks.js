@@ -54,7 +54,6 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         }
 
         span.link:hover {
-          color: #1976d2;
           text-decoration: none;
         }
 
@@ -114,28 +113,28 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .success {
-          color: #41ad49;
+          color: var(--grampsjs-alert-success-font-color);
         }
 
         .done {
-          color: rgba(65, 173, 73, 0.4);
+          color: var(--grampsjs-task-done);
         }
 
         .progress {
-          color: #ff9800;
+          color: var(--grampsjs-task-progress);
         }
 
         .open {
-          color: #007bff;
+          color: var(--grampsjs-task-open);
         }
 
         .error,
         .blocked {
-          color: #bf360c;
+          color: var(--grampsjs-alert-error-font-color);
         }
 
         .warn {
-          color: #f9a825;
+          color: var(--grampsjs-alert-warn-font-color);
         }
 
         .strike {

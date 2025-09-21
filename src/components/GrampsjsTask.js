@@ -38,11 +38,6 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
           margin-left: -10px;
         }
 
-        h2.editable:hover,
-        mwc-select:hover {
-          background-color: rgba(2, 119, 189, 0.2);
-        }
-
         .dropdowns {
           margin-top: 48px;
           --mdc-select-outlined-disabled-border-color: var(

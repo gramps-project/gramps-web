@@ -31,7 +31,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         .danger-zone {
           font-size: 16px;
           padding: 0.8em 1.4em;
-          border: 1px solid #bf360c;
+          border: 1px solid var(--grampsjs-alert-error-font-color);
           border-radius: 8px;
           display: flex;
           align-items: center;
@@ -47,8 +47,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         .danger-zone div.button {
           float: right;
           order: 2;
-          --mdc-button-outline-color: #bf360c;
-          --mdc-theme-primary: #bf360c;
+          --mdc-button-outline-color: var(--grampsjs-alert-error-font-color);
+          --mdc-theme-primary: var(--grampsjs-alert-error-font-color);
         }
 
         .danger-zone p {

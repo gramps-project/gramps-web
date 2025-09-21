@@ -15,15 +15,15 @@ export class GrampsjsProgressIndicator extends GrampsjsAppStateMixin(
       sharedStyles,
       css`
         .success {
-          color: #41ad49;
+          color: var(--grampsjs-alert-success-font-color);
         }
 
         .error {
-          color: #bf360c;
+          color: var(--grampsjs-alert-error-font-color);
         }
 
         .warn {
-          color: #f9a825;
+          color: var(--grampsjs-alert-warn-font-color);
         }
       `,
     ]

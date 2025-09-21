@@ -92,13 +92,13 @@ export const sharedStyles = css`
   a:link,
   a:visited,
   span.link {
-    color: #0d47a1;
+    color: var(--grampsjs-color-link-font);
     text-decoration: none;
   }
 
   a:hover,
   span.link:hover {
-    color: #1976d2;
+    color: var(--grampsjs-color-link-hover);
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
@@ -209,7 +209,7 @@ export const sharedStyles = css`
   }
 
   .event i svg path {
-    fill: #999999;
+    fill: var(--grampsjs-body-font-color-40);
   }
 
   .event i svg {
@@ -241,8 +241,13 @@ export const sharedStyles = css`
 
   span.skeleton {
     display: inline-block;
-    background: #eee;
-    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+    background-color: var(--grampsjs-color-skeleton-background);
+    background: linear-gradient(
+      110deg,
+      var(--grampsjs-color-skeleton-base) 8%,
+      var(--grampsjs-color-skeleton-shine) 18%,
+      var(--grampsjs-color-skeleton-base) 33%
+    );
     opacity: 0.8;
     border-radius: 3px;
     background-size: 200% 100%;
@@ -250,16 +255,21 @@ export const sharedStyles = css`
   }
 
   div.skeleton {
-    background: #eee;
-    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+    background-color: var(--grampsjs-color-skeleton-background);
+    background: linear-gradient(
+      110deg,
+      var(--grampsjs-color-skeleton-base) 8%,
+      var(--grampsjs-color-skeleton-shine) 18%,
+      var(--grampsjs-color-skeleton-base) 33%
+    );
     opacity: 0.8;
     background-size: 200% 100%;
     animation: 1.5s shine linear infinite;
   }
 
   .alert {
-    background-color: rgba(109, 76, 65, 0.15);
-    border-left: 4px solid rgba(109, 76, 65, 0.7);
+    background-color: var(--grampsjs-alert-background-color);
+    border-left: 4px solid var(--grampsjs-alert-border-color);
     border-radius: 5px;
     padding: 0.8em 1em;
     font-size: 0.8em;
@@ -268,27 +278,25 @@ export const sharedStyles = css`
   }
 
   .alert.error {
-    color: #bf360c;
-    background-color: rgba(191, 54, 12, 0.2);
-    border-left-color: rgba(191, 54, 12, 0.7);
+    background-color: var(--grampsjs-alert-error-background-color);
+    border-left-color: var(--grampsjs-alert-error-border-color);
   }
 
   .alert.warn {
-    color: var(--grampsjs-body-font-color-50);
-    background-color: rgba(251, 192, 45, 0.2);
-    border-left-color: rgba(251, 192, 45, 0.7);
+    background-color: var(--grampsjs-alert-warn-background-color);
+    border-left-color: var(--grampsjs-alert-warn-border-color);
   }
 
   .success {
-    color: #41ad49;
+    color: var(--grampsjs-alert-success-font-color);
   }
 
   .error {
-    color: #bf360c;
+    color: var(--grampsjs-alert-error-font-color);
   }
 
   .warn {
-    color: #f9a825;
+    color: var(--grampsjs-alert-warn-font-color);
   }
 
   @keyframes shine {
@@ -310,7 +318,7 @@ export const sharedStyles = css`
   }
 
   h2.editable:hover {
-    background-color: rgba(2, 119, 189, 0.2);
+    background-color: var(--grampsjs-editable-title-hover-background-color);
   }
 
   .monospace {
