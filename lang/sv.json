@@ -230,5 +230,17 @@
     "Base Map": "Baskarta",
     "Historical Map": "Historisk karta",
     "To start building your family tree, add yourself as a person or import a family tree file.": "För att börja bygga ditt släktträd, lägg till dig själv som person eller importera en släktträdsfil.",
-    "Metadata": "Metadata"
+    "Metadata": "Metadata",
+    "Link to enclosing place": "Länk till omslutande plats",
+    "Please select a different person.": "Välj en annan person.",
+    "No Y-DNA data found.": "Inga Y-DNA-data hittades.",
+    "Edit Y-DNA data": "Redigera Y-DNA-data",
+    "Raw SNP data": "Rå SNP-data",
+    "Haplogroup": "Haplogrupp",
+    "few generations": "några generationer",
+    "%s generations": "%s generationer",
+    "Show less": "Visa mindre",
+    "Most specific position on the human Y chromosome tree": "Den mest specifika positionen på det mänskliga Y-kromosomträdet",
+    "Paternal Lineage": "Faderns härstamning",
+    "Add Y-DNA data": "Lägg till Y-DNA-data"
 }
