@@ -34,7 +34,7 @@ class GrampsjsImg extends LitElement {
         .file-placeholder {
           width: 200px;
           height: 200px;
-          background-color: rgba(200, 200, 200, 0.5);
+          background-color: var(--grampsjs-color-shade-230);
           color: var(--grampsjs-body-font-color-30);
           display: flex;
           align-items: center;

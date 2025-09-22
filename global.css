@@ -45,6 +45,15 @@ body {
   --grampsjs-task-progress: #ff9800;
   --grampsjs-task-done: rgba(65, 173, 73, 0.4);
   --grampsjs-editable-title-hover-background-color: rgba(2, 119, 189, 0.2);
+  --grampsjs-delete-all-filter-chip-color: rgba(109, 76, 65, 0.32);
+  --grampsjs-connection-chart-border-color: rgba(137, 107, 94, 0.4);
+  --grampsjs-connection-chart-person-box: #e6e6e6;
+  --grampsjs-editable-list-hover-background-color: rgba(2, 119, 189, 0.1);
+  --grampsjs-editable-list-active-background-color: rgba(2, 119, 189, 0.2);
+  --grampsjs-editable-list-selected-active-background-color: rgba(2, 119, 189, 0.3);
+  --grampsjs-editable-list-selected-hover-background-color: rgba(2, 119, 189, 0.4);
+  --grampsjs-editable-list-selected-background-color: rgba(2, 119, 189, 0.5);
+  --grampsjs-mobile-table-sort-menu-color: rgba(109, 76, 65, 0.3);
 }
 
 :root[data-theme='light'] {
@@ -75,6 +84,7 @@ body {
   --grampsjs-color-shade-120: rgb(120, 120, 120);
   --grampsjs-color-shade-200: rgb(200, 200, 200);
   --grampsjs-color-shade-220: rgb(220, 220, 220);
+  --grampsjs-color-shade-230: rgb(230, 230, 230);
   --grampsjs-color-shade-255: rgb(255, 255, 255);
   --grampsjs-color-monospace: rgba(125, 0, 0, 0.8);
   --grampsjs-color-drawer-text: #444;
@@ -165,6 +175,7 @@ body {
   --grampsjs-color-shade-120: rgb(135, 135, 135);
   --grampsjs-color-shade-200: rgb(55, 55, 55);
   --grampsjs-color-shade-220: rgb(35, 35, 35);
+  --grampsjs-color-shade-230: rgb(25, 25, 25);
   --grampsjs-color-shade-255: rgb(0, 0, 0);
   --grampsjs-color-monospace: rgba(255, 100, 100, 0.85);
   --grampsjs-color-drawer-text: #bbb;

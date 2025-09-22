@@ -158,7 +158,7 @@ function TreeChartCore(
   node
     .append('rect')
     .filter(d => d.data.person)
-    .attr('fill', 'rgba(230, 230, 230)')
+    .attr('fill', 'var(--grampsjs-color-shade-230)')
     .attr('width', boxWidth)
     .attr('height', boxHeight)
     .attr('rx', 8)

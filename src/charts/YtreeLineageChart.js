@@ -77,7 +77,7 @@ export function YtreeLineageChart(chartData, options = {}) {
       .attr('height', boxHeight)
       .attr('rx', 8)
       .attr('ry', 8)
-      .attr('fill', 'rgba(230,230,230,1)')
+      .attr('fill', 'var(--grampsjs-color-shade-230)')
     // Draw person icon circle inside the box, or image if available
     const iconCx = boxX + iconRadius + 13
     const iconCy = y + boxHeight / 2

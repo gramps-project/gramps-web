@@ -116,7 +116,9 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
         .mobile-sort md-menu {
           --md-menu-item-one-line-container-height: 48px;
           --md-sys-color-on-surface: var(--grampsjs-body-font-color-70);
-          --md-menu-item-selected-container-color: rgba(109, 76, 65, 0.3);
+          --md-menu-item-selected-container-color: var(
+            --grampsjs-mobile-table-sort-menu-color
+          );
         }
       `,
     ]

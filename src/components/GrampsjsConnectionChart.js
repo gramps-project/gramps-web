@@ -17,11 +17,11 @@ export class GrampsjsConnectionChart extends GrampsjsResizeContainerMixin(
         }
 
         svg .personBox {
-          fill: #e6e6e6;
+          fill: var(--grampsjs-connection-chart-person-box);
         }
 
         div#container {
-          border: 2px solid rgba(137, 107, 94, 0.4);
+          border: 2px solid var(--grampsjs-connection-chart-border-color);
           border-radius: 16px;
           overflow: hidden;
           width: 100%;

@@ -21,7 +21,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         .card {
           padding: 1em 1em;
           border-radius: 16px;
-          background-color: rgba(109, 76, 65, 0.12);
+          background-color: var(--grampsjs-color-shade-230);
         }
 
         .pre {
