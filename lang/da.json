@@ -229,5 +229,17 @@
     "Base Map": "Basiskort",
     "Historical Map": "Historisk Kort",
     "To start building your family tree, add yourself as a person or import a family tree file.": "Fot at begynde din slægtsbog, indtast dig selv som person eller importer en slægtsbogsfil.",
-    "Metadata": "Metadata"
+    "Metadata": "Metadata",
+    "Link to enclosing place": "Link til omsluttende sted",
+    "Please select a different person.": "Vælg venligst en anden person.",
+    "No Y-DNA data found.": "Ingen Y-DNA data fundet.",
+    "Edit Y-DNA data": "Rediger Y-DNA data",
+    "Raw SNP data": "Rå SNP data",
+    "Haplogroup": "Haplogruppe",
+    "few generations": "få generationer",
+    "%s generations": "%s generationer",
+    "Show less": "Vis mindre",
+    "Most specific position on the human Y chromosome tree": "Den mest specifikke position på det menneskelige Y kromosom træ",
+    "Paternal Lineage": "Fædrene linje",
+    "Add Y-DNA data": "Tillføj Y-DNA data"
 }
