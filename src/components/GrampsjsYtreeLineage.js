@@ -52,7 +52,7 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _formatNGenerations(nGen) {
-    if (nGen === 0) return `≈ ${this._('few generations')}`
+    if (nGen === 0) return this._('few generations')
     return `≈ ${this._('%s generations', nGen)}`
   }
 
