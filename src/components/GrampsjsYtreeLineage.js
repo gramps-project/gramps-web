@@ -151,9 +151,7 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
         const nGen = Math.round(
           Math.abs(Number(lastCladeYear) - Number(birthYear)) / 20
         )
-        result[nextToLastIndex].connectorText = `${
-          nGen === 0 ? 'few' : `≈ ${nGen}`
-        } generations`
+        result[nextToLastIndex].connectorText = this._formatNGenerations(nGen)
       }
     }
 
