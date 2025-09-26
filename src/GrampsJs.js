@@ -12,7 +12,7 @@ import '@material/mwc-top-app-bar'
 import {LitElement, css, html} from 'lit'
 import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
 import {installRouter} from 'pwa-helpers/router.js'
-import {getSettings} from './api.js'
+import {getSettings, __APIHOST__} from './api.js'
 import './dayjs_locales.js'
 import {
   frontendLanguages,
@@ -516,8 +516,38 @@ export class GrampsJs extends LitElement {
     document.location.href = '/'
   }
 
+  _checkOIDCTokens() {
+    // Check if we have OIDC tokens in the URL fragment
+    const hash = window.location.hash.substring(1)
+    if (!hash) return
+
+    const params = new URLSearchParams(hash)
+    const accessToken = params.get('access_token')
+    const refreshToken = params.get('refresh_token')
+
+    if (accessToken && refreshToken) {
+      // Store tokens in localStorage
+      const expiresAt = Date.now() + 15 * 60 * 1000 // 15 minutes from now
+      localStorage.setItem('access_token', accessToken)
+      localStorage.setItem('access_token_expires', expiresAt.toString())
+      localStorage.setItem('refresh_token', refreshToken)
+
+      // Clear the hash to remove tokens from URL
+      window.history.replaceState(null, null, window.location.pathname)
+
+      // Fire login event
+      window.dispatchEvent(
+        new CustomEvent('user:loggedin', {bubbles: true, composed: true})
+      )
+
+      // Trigger app state reload to reflect logged-in status
+      this._loadDbInfo()
+    }
+  }
+
   connectedCallback() {
     super.connectedCallback()
+    this._checkOIDCTokens()
     this._loadDbInfo()
     window.addEventListener('storage', () => this._handleStorage())
     window.addEventListener('settings:changed', () => this._handleSettings())
@@ -713,6 +743,13 @@ export class GrampsJs extends LitElement {
 
   _loadPage(path) {
     this._disableEditMode()
+
+    // Handle OIDC callback
+    if (path.includes('/oidc/callback')) {
+      this._handleOIDCCallback()
+      return
+    }
+
     if (path === '/' || path === `${BASE_DIR}/`) {
       this._updateAppState({path: {page: 'home', pageId: '', pageId2: ''}})
     } else if (BASE_DIR === '') {
@@ -785,6 +822,53 @@ export class GrampsJs extends LitElement {
   _handleNotification(e) {
     const {message} = e.detail
     this._showToast(message)
+  }
+
+  async _handleOIDCCallback() {
+    try {
+      // Extract query parameters from current URL
+      const urlParams = new URLSearchParams(window.location.search)
+      const code = urlParams.get('code')
+      const state = urlParams.get('state')
+
+      if (!code) {
+        this._showError('OIDC authentication failed - no authorization code')
+        window.location.href = '/'
+        return
+      }
+
+      // Call the OIDC callback endpoint
+      const resp = await fetch(
+        `${__APIHOST__}/api/oidc/callback/?code=${code}&state=${state || ''}`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+          },
+        }
+      )
+
+      if (!resp.ok) {
+        throw new Error(resp.statusText || `Error ${resp.status}`)
+      }
+
+      const data = await resp.json()
+      if (data.access_token === undefined) {
+        throw new Error('Access token missing in response')
+      }
+
+      // Store tokens and redirect to home
+      localStorage.setItem('access_token', data.access_token)
+      if (data.refresh_token) {
+        localStorage.setItem('refresh_token', data.refresh_token)
+      }
+
+      // Redirect to home page
+      window.location.href = '/'
+    } catch (error) {
+      this._showError(`OIDC authentication failed: ${error.message}`)
+      window.location.href = '/'
+    }
   }
 
   _handleDbUpgradeComplete() {

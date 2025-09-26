@@ -3,7 +3,7 @@ import jwt_decode from 'jwt-decode'
 
 import {fireEvent} from './util.js'
 
-export const __APIHOST__ = 'http://localhost:5555'
+export const __APIHOST__ = 'http://localhost:5000'
 
 export function doLogout() {
   localStorage.removeItem('access_token')
@@ -156,6 +156,32 @@ export async function apiResetPassword(username) {
       throw new Error(resp.statusText || `Error ${resp.status}`)
     }
     return {}
+  } catch (error) {
+    return {error: error.message}
+  }
+}
+
+export async function apiGetOIDCConfig() {
+  try {
+    const resp = await fetch(`${__APIHOST__}/api/oidc/config/`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+    if (!resp.ok) {
+      throw new Error(resp.statusText || `Error ${resp.status}`)
+    }
+    return await resp.json()
+  } catch (error) {
+    return {error: error.message}
+  }
+}
+
+export async function apiOIDCLogin() {
+  try {
+    window.location.href = `${__APIHOST__}/api/oidc/login/`
+    return {success: true}
   } catch (error) {
     return {error: error.message}
   }

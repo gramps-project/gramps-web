@@ -8,7 +8,12 @@ import '@material/mwc-circular-progress'
 
 import './GrampsjsPasswordManagerPolyfill.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {apiGetTokens, apiResetPassword} from '../api.js'
+import {
+  apiGetTokens,
+  apiResetPassword,
+  apiGetOIDCConfig,
+  apiOIDCLogin,
+} from '../api.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -68,6 +73,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
       isFormValid: {type: Boolean},
       credentials: {type: Object},
       tree: {type: String},
+      oidcConfig: {type: Object},
     }
   }
 
@@ -77,6 +83,21 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     this.isFormValid = false
     this.credentials = {}
     this.tree = ''
+    this.oidcConfig = {}
+  }
+
+  async connectedCallback() {
+    super.connectedCallback()
+    // Fetch OIDC config when component loads
+    const config = await apiGetOIDCConfig()
+    if (!config.error) {
+      this.oidcConfig = config
+
+      // Auto-redirect to OIDC if local auth is disabled and auto-redirect is enabled
+      if (config.enabled && config.disable_local_auth && config.auto_redirect) {
+        setTimeout(() => this._submitOIDCLogin(), 100) // Small delay to ensure component is fully loaded
+      }
+    }
   }
 
   render() {
@@ -87,6 +108,9 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _renderLogin() {
+    const localAuthDisabled =
+      this.oidcConfig?.enabled && this.oidcConfig?.disable_local_auth
+
     return html`
       <div id="login-container">
         <form
@@ -95,57 +119,84 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
           @keydown="${this._handleLoginKey}"
         >
           <h2>${this._('Log in to Gramps Web')}</h2>
-          <md-outlined-text-field
-            id="username"
-            label="${this._('Username')}"
-            @input="${this._credChanged}"
-            @change="${this._credChanged}"
-            value="${this.credentials.username || ''}"
-          ></md-outlined-text-field>
-          <md-outlined-text-field
-            id="password"
-            label="${this._('Password')}"
-            type="password"
-            @input="${this._credChanged}"
-            @change="${this._credChanged}"
-            value="${this.credentials.password || ''}"
-          ></md-outlined-text-field>
-          <mwc-button
-            raised
-            label="${this._('login')}"
-            type="submit"
-            @click="${this._submitLogin}"
-          >
-            <span slot="trailingIcon" style="display:none;">
-              <mwc-circular-progress
-                indeterminate
-                density="-7"
-                closed
-                id="login-progress"
-              >
-              </mwc-circular-progress>
-            </span>
-          </mwc-button>
-          <p class="reset-link">
-            <span
-              class="link"
-              @click="${() => {
-                this.resetpw = true
-              }}"
-              >${this._('Lost password?')}</span
-            >
-          </p>
-          ${window.grampsjsConfig.hideRegisterLink
-            ? ''
+          ${localAuthDisabled
+            ? html`
+                <p
+                  style="text-align: center; margin: 2em 0; color: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.6));"
+                >
+                  ${this._(
+                    'Local authentication is disabled. Please use OIDC authentication.'
+                  )}
+                </p>
+              `
             : html`
+                <md-outlined-text-field
+                  id="username"
+                  label="${this._('Username')}"
+                  @input="${this._credChanged}"
+                  @change="${this._credChanged}"
+                  value="${this.credentials.username || ''}"
+                ></md-outlined-text-field>
+                <md-outlined-text-field
+                  id="password"
+                  label="${this._('Password')}"
+                  type="password"
+                  @input="${this._credChanged}"
+                  @change="${this._credChanged}"
+                  value="${this.credentials.password || ''}"
+                ></md-outlined-text-field>
+                <mwc-button
+                  raised
+                  label="${this._('login')}"
+                  type="submit"
+                  @click="${this._submitLogin}"
+                >
+                  <span slot="trailingIcon" style="display:none;">
+                    <mwc-circular-progress
+                      indeterminate
+                      density="-7"
+                      closed
+                      id="login-progress"
+                    >
+                    </mwc-circular-progress>
+                  </span>
+                </mwc-button>
+              `}
+          ${this.oidcConfig?.enabled
+            ? html`
+                <mwc-button
+                  outlined
+                  label="${this._('Login with OIDC')}"
+                  @click="${this._submitOIDCLogin}"
+                  style="margin-top: 1em; width: 100%;"
+                >
+                </mwc-button>
+              `
+            : ''}
+          ${!localAuthDisabled
+            ? html`
                 <p class="reset-link">
                   <span
                     class="link"
-                    @click="${() => this._handleNav('register')}"
-                    >${this._('Register new account')}</span
+                    @click="${() => {
+                      this.resetpw = true
+                    }}"
+                    >${this._('Lost password?')}</span
                   >
                 </p>
-              `}
+                ${window.grampsjsConfig.hideRegisterLink
+                  ? ''
+                  : html`
+                      <p class="reset-link">
+                        <span
+                          class="link"
+                          @click="${() => this._handleNav('register')}"
+                          >${this._('Register new account')}</span
+                        >
+                      </p>
+                    `}
+              `
+            : ''}
         </form>
         <grampsjs-password-manager-polyfill
           .credentials=${this.credentials}
@@ -245,6 +296,13 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
         }
       }
     )
+  }
+
+  async _submitOIDCLogin() {
+    const res = await apiOIDCLogin()
+    if ('error' in res) {
+      this._showError(res.error)
+    }
   }
 
   _loginFormChanged(ev) {
