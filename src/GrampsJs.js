@@ -112,7 +112,7 @@ export class GrampsJs extends LitElement {
         }
 
         mwc-linear-progress {
-          --mdc-theme-primary: #4fc3f7;
+          --mdc-theme-primary: var(--grampsjs-color-page-loading-progress);
         }
 
         #user-menu mwc-button {

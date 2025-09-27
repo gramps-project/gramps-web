@@ -46,8 +46,8 @@ class GrampsjsSettingsMenu extends GrampsjsAppStateMixin(LitElement) {
           --icon-color: var(--grampsjs-body-font-color-35);
         }
         md-menu-item.red {
-          --md-menu-item-label-text-color: var(--icon-color);
-          --icon-color: #c62828;
+          --md-menu-item-label-text-color: var(--grampsjs-logout-font-color);
+          --icon-color: var(--grampsjs-logout-font-color);
         }
         md-menu {
           --md-divider-thickness: 1px;

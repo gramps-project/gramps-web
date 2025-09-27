@@ -50,7 +50,7 @@ class GrampsjsMapMarker extends LitElement {
     el.style.cursor = 'pointer'
     el.innerHTML = `
       <svg width="${this.size}" height="${this.size}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="${mdiMapMarker}" fill="#EA4335" />
+        <path d="${mdiMapMarker}" fill="var(--grampsjs-map-marker-color)" />
       </svg>
     `
     el.addEventListener('click', this.clickHandler.bind(this))

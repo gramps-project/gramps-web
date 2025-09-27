@@ -193,7 +193,12 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
                         xmlns="http://www.w3.org/2000/svg"
                         style="position: absolute; top: 7px; right: 7px;"
                       >
-                        <circle cx="15" cy="5" r="5" fill="#BA1B1B" />
+                        <circle
+                          cx="15"
+                          cy="5"
+                          r="5"
+                          fill="var(--grampsjs-map-filter-badge-color)"
+                        />
                       </svg>
                     `
                   : ''}

@@ -37,6 +37,9 @@ body {
   --grampsjs-alert-error-background-color: rgba(191, 54, 12, 0.2);
   --grampsjs-alert-error-border-color: rgba(191, 54, 12, 0.7);
   --grampsjs-alert-error-font-color: #bf360c;
+  --grampsjs-map-marker-color: #ea4335;
+  --grampsjs-map-filter-badge-color: #ba1b1b;
+  --grampsjs-logout-font-color: #c62828;
   --grampsjs-alert-warn-background-color: rgba(251, 192, 45, 0.2);
   --grampsjs-alert-warn-border-color: rgba(251, 192, 45, 0.7);
   --grampsjs-alert-warn-font-color: #f9a825;
@@ -95,6 +98,13 @@ body {
   --grampsjs-color-skeleton-shine: #f5f5f5;
   --grampsjs-color-link-font: #0d47a1;
   --grampsjs-color-link-hover: #1976d2;
+  --grampsjs-color-page-loading-progress: #4fc3f7;
+  --grampsjs-color-revision-deleted-background-red: #ffebe9;
+  --grampsjs-color-revision-added-background-green: #dafbe1;
+  --grampsjs-color-revision-moved-background-blue: #ddf4ff;
+  --grampsjs-color-revision-moved-font: #888;
+  --grampsjs-color-revision-error-background: #f00;
+  --grampsjs-color-revision-error-font: #fff;
   --grampsjs-note-color: #333;
   --md-sys-color-primary: rgb(109, 76, 65);
   --md-sys-color-surface-tint: rgb(109, 76, 65);
@@ -186,6 +196,13 @@ body {
   --grampsjs-color-skeleton-shine: #1a1a1a;
   --grampsjs-color-link-font: #5193f6;
   --grampsjs-color-link-hover: #62adf8;
+  --grampsjs-color-page-loading-progress: #42a6d2;
+  --grampsjs-color-revision-deleted-background-red: rgba(248, 81, 73, 0.3);
+  --grampsjs-color-revision-added-background-green: rgba(46, 160, 67, 0.15);
+  --grampsjs-color-revision-moved-background-blue: rgba(56, 139, 253, 0.1);
+  --grampsjs-color-revision-moved-font: #777;
+  --grampsjs-color-revision-error-background: #f00;
+  --grampsjs-color-revision-error-font: #fff;
   --grampsjs-note-color: #ccc;
   --md-sys-color-primary: rgb(233, 189, 174);
   --md-sys-color-surface-tint: rgb(233, 189, 174);
@@ -261,4 +278,7 @@ body {
   --mdc-text-field-ink-color: var(--grampsjs-body-font-color);
   --mdc-text-field-label-ink-color: var(--grampsjs-body-font-color);
   --mdc-text-field-disabled-ink-color: var(--grampsjs-body-font-color);
+  --mdc-linear-progress-buffer-color: var(
+    --md-sys-color-surface-container-highest
+  );
 }
