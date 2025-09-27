@@ -94,8 +94,15 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
       this.oidcConfig = config
 
       // Auto-redirect to OIDC if local auth is disabled and auto-redirect is enabled
-      if (config.enabled && config.disable_local_auth && config.auto_redirect) {
-        setTimeout(() => this._submitOIDCLogin(), 100) // Small delay to ensure component is fully loaded
+      // Only auto-redirect if there's exactly one provider available
+      if (
+        config.enabled &&
+        config.disable_local_auth &&
+        config.auto_redirect &&
+        config.providers &&
+        config.providers.length === 1
+      ) {
+        setTimeout(() => this._submitOIDCLogin(config.providers[0].id), 100) // Small delay to ensure component is fully loaded
       }
     }
   }
@@ -162,16 +169,18 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                   </span>
                 </mwc-button>
               `}
-          ${this.oidcConfig?.enabled
-            ? html`
-                <mwc-button
-                  outlined
-                  label="${this._('Login with OIDC')}"
-                  @click="${this._submitOIDCLogin}"
-                  style="margin-top: 1em; width: 100%;"
-                >
-                </mwc-button>
-              `
+          ${this.oidcConfig?.enabled && this.oidcConfig?.providers
+            ? this.oidcConfig.providers.map(
+                provider => html`
+                  <mwc-button
+                    outlined
+                    label="${this._('Login with')} ${provider.name}"
+                    @click="${() => this._submitOIDCLogin(provider.id)}"
+                    style="margin-top: 1em; width: 100%;"
+                  >
+                  </mwc-button>
+                `
+              )
             : ''}
           ${!localAuthDisabled
             ? html`
@@ -298,8 +307,12 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     )
   }
 
-  async _submitOIDCLogin() {
-    const res = await apiOIDCLogin()
+  async _submitOIDCLogin(providerId) {
+    if (!providerId) {
+      this._showError('No OIDC provider specified')
+      return
+    }
+    const res = await apiOIDCLogin(providerId)
     if ('error' in res) {
       this._showError(res.error)
     }
