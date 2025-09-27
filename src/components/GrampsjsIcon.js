@@ -34,7 +34,7 @@ export class GrampsjsIcon extends LitElement {
   constructor() {
     super()
     this.path = ''
-    this.color = '#999999'
+    this.color = '#999'
     this.rotate = 0
     this.height = 24
     this.width = 24

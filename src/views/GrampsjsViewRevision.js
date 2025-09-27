@@ -24,8 +24,12 @@ export class GrampsjsViewRevision extends GrampsjsView {
         md-list-item {
           --md-list-item-label-text-weight: 350;
           --md-list-item-label-text-size: 17px;
-          --md-list-item-supporting-text-color: rgba(0, 0, 0, 0.5);
-          --md-list-item-trailing-supporting-text-color: rgba(0, 0, 0, 0.8);
+          --md-list-item-supporting-text-color: var(
+            --grampsjs-body-font-color-50
+          );
+          --md-list-item-trailing-supporting-text-color: var(
+            --grampsjs-body-font-color
+          );
         }
 
         svg[slot='end'] {
@@ -36,7 +40,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
 
         md-divider {
           --md-divider-thickness: 1px;
-          --md-divider-color: rgba(0, 0, 0, 0.1);
+          --md-divider-color: var(--grampsjs-body-font-color-10);
         }
 
         #left {
@@ -77,7 +81,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
 
         p.user-time {
           font-size: 0.95em;
-          color: rgba(0, 0, 0, 0.6);
+          color: var(--grampsjs-body-font-color-60);
         }
 
         span.user {

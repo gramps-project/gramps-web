@@ -24,8 +24,8 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .container.human {
-          background-color: rgba(109, 76, 65, 0.12);
-          color: rgba(27, 19, 16);
+          background-color: var(--grampsjs-color-shade-230);
+          color: var(--grampsjs-body-font-color);
           padding: 10px 20px;
           border-radius: 16px;
           float: right;

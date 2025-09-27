@@ -192,7 +192,7 @@ export class GrampsjsTextRecognition extends GrampsjsAppStateMixin(LitElement) {
           );
           font-size: var(--grampsjs-note-font-size, 17px);
           line-height: var(--grampsjs-note-line-height, 1.5em);
-          color: var(--grampsjs-note-color, #000000);
+          color: var(--grampsjs-note-color);
           white-space: pre-wrap;
         }
       `,

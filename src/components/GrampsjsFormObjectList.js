@@ -23,8 +23,10 @@ class GrampsjsFormObjectList extends GrampsjsAppStateMixin(LitElement) {
       css`
         mwc-icon-button {
           vertical-align: middle;
-          color: rgba(0, 0, 0, 0.4);
-          --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.15);
+          color: var(--grampsjs-body-font-color-40);
+          --mdc-theme-text-disabled-on-light: var(
+            --grampsjs-body-font-color-15
+          );
         }
       `,
     ]

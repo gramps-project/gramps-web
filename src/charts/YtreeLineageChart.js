@@ -77,7 +77,7 @@ export function YtreeLineageChart(chartData, options = {}) {
       .attr('height', boxHeight)
       .attr('rx', 8)
       .attr('ry', 8)
-      .attr('fill', 'rgba(230,230,230,1)')
+      .attr('fill', 'var(--grampsjs-color-shade-230)')
     // Draw person icon circle inside the box, or image if available
     const iconCx = boxX + iconRadius + 13
     const iconCy = y + boxHeight / 2
@@ -137,7 +137,7 @@ export function YtreeLineageChart(chartData, options = {}) {
       .attr('y', y + 30)
       .attr('text-anchor', 'start')
       .attr('font-weight', '500')
-      .attr('fill', 'rgba(0,0,0,0.9)')
+      .attr('fill', 'var(--grampsjs-body-font-color-90)')
       .text(clipString(item.name, textWidth))
     group
       .append('text')
@@ -145,7 +145,7 @@ export function YtreeLineageChart(chartData, options = {}) {
       .attr('y', y + 50)
       .attr('text-anchor', 'start')
       .attr('font-weight', '350')
-      .attr('fill', 'rgba(0,0,0,0.9)')
+      .attr('fill', 'var(--grampsjs-body-font-color-90)')
       .text(clipString(item.year, textWidth))
     // Draw connector line and label if not last box
     if (i < chartData.length - 1) {

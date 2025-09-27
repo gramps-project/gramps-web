@@ -23,12 +23,14 @@ class GrampsjsChatPrompt extends GrampsjsAppStateMixin(LitElement) {
         md-outlined-text-field {
           flex: 1;
           --md-outlined-text-field-container-shape: 28px;
-          --md-outlined-text-field-input-text-placeholder-color: #777;
+          --md-outlined-text-field-input-text-placeholder-color: var(
+            --grampsjs-color-shade-120
+          );
           resize: none;
         }
 
         md-filled-icon-button.send {
-          --md-filled-icon-button-container-color: rgba(109, 76, 65, 1);
+          --md-filled-icon-button-container-color: var(--md-sys-color-primary);
           position: relative;
           margin-left: 16px;
           margin-top: 9px;
@@ -76,7 +78,12 @@ class GrampsjsChatPrompt extends GrampsjsAppStateMixin(LitElement) {
           class="send"
           ?disabled="${this.loading}"
         >
-          <md-icon>${renderIconSvg(mdiSend, '#ffffff')}</md-icon>
+          <md-icon
+            >${renderIconSvg(
+              mdiSend,
+              'var(--grampsjs-color-shade-255)'
+            )}</md-icon
+          >
         </md-filled-icon-button>
       </div>
     `

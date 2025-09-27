@@ -31,20 +31,20 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         }
 
         mwc-check-list-item {
-          border-top: 1px solid rgba(0, 0, 0, 0.1);
+          border-top: 1px solid var(--grampsjs-body-font-color-10);
           height: auto;
           width: 100%;
         }
 
         mwc-check-list-item:last-child {
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          border-bottom: 1px solid var(--grampsjs-body-font-color-10);
         }
 
         h4 {
           font-family: var(--grampsjs-body-font-family);
           font-size: 14px;
           font-weight: 450;
-          color: rgba(0, 0, 0, 0.7);
+          color: var(--grampsjs-body-font-color-70);
           text-transform: uppercase;
         }
 
@@ -54,7 +54,6 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         }
 
         span.link:hover {
-          color: #1976d2;
           text-decoration: none;
         }
 
@@ -74,7 +73,6 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           overflow-wrap: break-word;
           height: 100%;
           width: 100%;
-          background-color: rgba(0, 0, 0, 255, 0.1) !important;
           padding-right: 8px;
           flex: auto;
           word-wrap: break-word;
@@ -104,7 +102,7 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         }
 
         mwc-check-list-item mwc-icon {
-          color: rgba(0, 0, 0, 0.3);
+          color: var(--grampsjs-body-font-color-30);
           --mdc-icon-size: 20px;
         }
 
@@ -115,28 +113,28 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .success {
-          color: #41ad49;
+          color: var(--grampsjs-alert-success-font-color);
         }
 
         .done {
-          color: rgba(65, 173, 73, 0.4);
+          color: var(--grampsjs-task-done);
         }
 
         .progress {
-          color: #ff9800;
+          color: var(--grampsjs-task-progress);
         }
 
         .open {
-          color: #007bff;
+          color: var(--grampsjs-task-open);
         }
 
         .error,
         .blocked {
-          color: #bf360c;
+          color: var(--grampsjs-alert-error-font-color);
         }
 
         .warn {
-          color: #f9a825;
+          color: var(--grampsjs-alert-warn-font-color);
         }
 
         .strike {
