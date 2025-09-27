@@ -161,6 +161,35 @@ export async function apiResetPassword(username) {
   }
 }
 
+export async function apiGetOIDCConfig() {
+  try {
+    const resp = await fetch(`${__APIHOST__}/api/oidc/config/`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+    if (!resp.ok) {
+      throw new Error(resp.statusText || `Error ${resp.status}`)
+    }
+    return await resp.json()
+  } catch (error) {
+    return {error: error.message}
+  }
+}
+
+export async function apiOIDCLogin(providerId) {
+  try {
+    if (!providerId) {
+      throw new Error('Provider ID is required')
+    }
+    window.location.href = `${__APIHOST__}/api/oidc/login/?provider=${providerId}`
+    return {success: true}
+  } catch (error) {
+    return {error: error.message}
+  }
+}
+
 export async function apiRegisterUser(
   username,
   password,
