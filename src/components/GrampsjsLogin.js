@@ -7,6 +7,7 @@ import '@material/mwc-textfield'
 import '@material/mwc-circular-progress'
 
 import './GrampsjsPasswordManagerPolyfill.js'
+import './GrampsjsOidcButton.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {
   apiGetTokens,
@@ -172,13 +173,11 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
           ${this.oidcConfig?.enabled && this.oidcConfig?.providers
             ? this.oidcConfig.providers.map(
                 provider => html`
-                  <mwc-button
-                    outlined
-                    label="${this._('Login with')} ${provider.name}"
-                    @click="${() => this._submitOIDCLogin(provider.id)}"
-                    style="margin-top: 1em; width: 100%;"
-                  >
-                  </mwc-button>
+                  <grampsjs-oidc-button
+                    .provider="${provider.id}"
+                    .providerName="${provider.name}"
+                    .onClick="${() => this._submitOIDCLogin(provider.id)}"
+                  ></grampsjs-oidc-button>
                 `
               )
             : ''}
