@@ -228,5 +228,8 @@
     "Base Map": "Mapa de base",
     "Historical Map": "Mapa histórico",
     "Toggle person outlines": "Activar o desactivar contornos de personas",
-    "in": "en"
+    "in": "en",
+    "Metadata": "Metadatos",
+    "%s generations": "%s generaciones",
+    "Show less": "Mostrar menos"
 }
