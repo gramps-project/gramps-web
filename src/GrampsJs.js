@@ -49,6 +49,41 @@ const BASE_DIR = ''
 
 const MINIMUM_API_VERSION = '2.3.0'
 
+// Immediate OIDC token processing - runs before component initialization
+;(function processOIDCTokensImmediately() {
+  const hash = window.location.hash.substring(1)
+  if (!hash) return
+
+  const params = new URLSearchParams(hash)
+  const accessToken = params.get('access_token')
+  const refreshToken = params.get('refresh_token')
+
+  if (accessToken && refreshToken) {
+    try {
+      // Store tokens in localStorage
+      const expiresAt = Date.now() + 15 * 60 * 1000 // 15 minutes from now
+      localStorage.setItem('access_token', accessToken)
+      localStorage.setItem('access_token_expires', expiresAt.toString())
+      localStorage.setItem('refresh_token', refreshToken)
+
+      // Clear the hash to remove tokens from URL
+      window.history.replaceState(null, null, window.location.pathname)
+
+      // Fire login event
+      window.dispatchEvent(
+        new CustomEvent('user:loggedin', {bubbles: true, composed: true})
+      )
+
+      // Mark that we processed tokens so the component can handle it properly
+      window.gramps_oidc_tokens_processed = true
+    } catch (error) {
+      console.error('Error processing OIDC tokens:', error)
+      // Fallback: reload page if token processing fails
+      setTimeout(() => window.location.reload(), 100)
+    }
+  }
+})()
+
 export class GrampsJs extends LitElement {
   static get properties() {
     return {
@@ -516,39 +551,21 @@ export class GrampsJs extends LitElement {
     document.location.href = '/'
   }
 
-  _checkOIDCTokens() {
-    // Check if we have OIDC tokens in the URL fragment
-    const hash = window.location.hash.substring(1)
-    if (!hash) return
-
-    const params = new URLSearchParams(hash)
-    const accessToken = params.get('access_token')
-    const refreshToken = params.get('refresh_token')
-
-    if (accessToken && refreshToken) {
-      // Store tokens in localStorage
-      const expiresAt = Date.now() + 15 * 60 * 1000 // 15 minutes from now
-      localStorage.setItem('access_token', accessToken)
-      localStorage.setItem('access_token_expires', expiresAt.toString())
-      localStorage.setItem('refresh_token', refreshToken)
-
-      // Clear the hash to remove tokens from URL
-      window.history.replaceState(null, null, window.location.pathname)
-
-      // Fire login event
-      window.dispatchEvent(
-        new CustomEvent('user:loggedin', {bubbles: true, composed: true})
-      )
-
-      // Trigger app state reload to reflect logged-in status
-      this._loadDbInfo()
-    }
-  }
-
   connectedCallback() {
     super.connectedCallback()
-    this._checkOIDCTokens()
-    this._loadDbInfo()
+
+    // Check if OIDC tokens were already processed by our IIFE
+    if (window.gramps_oidc_tokens_processed) {
+      // Clear the flag
+      window.gramps_oidc_tokens_processed = false
+      // Load DB info with stored tokens after a brief delay to ensure all setup is complete
+      setTimeout(() => {
+        this._loadDbInfo()
+      }, 50)
+    } else {
+      // Normal flow - load DB info (no need to check for OIDC tokens as IIFE already handled them)
+      this._loadDbInfo()
+    }
     window.addEventListener('storage', () => this._handleStorage())
     window.addEventListener('settings:changed', () => this._handleSettings())
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
