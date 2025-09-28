@@ -229,5 +229,17 @@
     "Historical Map": "Historická mapa",
     "Base Map": "Základná mapa",
     "To start building your family tree, add yourself as a person or import a family tree file.": "Začnite vytvárať svoj rodinný strom pridaním seba ako osoby alebo importovaním súboru rodokmeňa.",
-    "Metadata": "Metadáta"
+    "Metadata": "Metadáta",
+    "Please select a different person.": "Vyberte prosím inú osobu.",
+    "No Y-DNA data found.": "Nebol nájdený žiadny údaj o Y-DNA.",
+    "Edit Y-DNA data": "Upraviť údaje Y-DNA",
+    "Raw SNP data": "Nespracované údaje SNP",
+    "Haplogroup": "Haploskupina",
+    "few generations": "niekoľko generácií",
+    "%s generations": "%s generácií",
+    "Show less": "Zobraziť menej",
+    "Most specific position on the human Y chromosome tree": "Najšpecifickejšia pozícia na strome ľudského Y chromozómu",
+    "Paternal Lineage": "Otcovská rodová línia",
+    "Add Y-DNA data": "Pridať údaje o Y-DNA",
+    "Link to enclosing place": "Pripojiť k nadradenému miestu"
 }

@@ -64,6 +64,7 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
       outlined: {type: Boolean},
       label: {type: String},
       accept: {type: String},
+      _isVisible: {type: Boolean},
     }
   }
 
@@ -77,6 +78,7 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
     this.outlined = false
     this.label = ''
     this.accept = undefined
+    this._isVisible = false
   }
 
   render() {
@@ -141,12 +143,18 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
     if (input?.files?.length) {
       this.imageUrl = ''
       ;[this.file] = input.files
+      this._processPreview()
+      this.handleChange()
+    }
+  }
+
+  _processPreview() {
+    if (this.file.type.startsWith('image')) {
       const reader = new FileReader()
       reader.onload = () => {
         this.imageUrl = reader.result
       }
       reader.readAsDataURL(this.file)
-      this.handleChange()
     }
   }
 
@@ -165,6 +173,52 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
   handleChange() {
     fireEvent(this, 'formdata:changed', {data: this.file})
   }
-}
 
+  firstUpdated() {
+    // monitor if the form is visible
+    // used for lazy loading of pasted images
+    const observer = IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          this._isVisible = true
+        } else {
+          this._isVisible = false
+        }
+      })
+    })
+    observer.observe(this)
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this._boundHandlePaste = this._handlePaste.bind(this)
+    window.addEventListener('paste', this._boundHandlePaste)
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    if (this._boundHandlePaste) {
+      window.removeEventListener('paste', this._boundHandlePaste)
+    }
+  }
+
+  _handlePaste(event) {
+    if (!this._isVisible) {
+      return
+    }
+    const {items} = event.clipboardData
+    if (!items) {
+      return
+    }
+    // prevent other forms down on the same page from also handling the paste
+    event.stopImmediatePropagation()
+    for (const item of items) {
+      if (item.kind === 'file') {
+        this.file = item.getAsFile()
+        this._processPreview()
+        this.handleChange()
+      }
+    }
+  }
+}
 window.customElements.define('grampsjs-form-upload', GrampsjsFormUpload)

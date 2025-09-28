@@ -909,9 +909,14 @@ export class GrampsJs extends LitElement {
   _handleKey(e) {
     const target = e.composedPath()[0]
     if (
-      ['input', 'textarea', 'select', 'option', 'mwc-list-item'].includes(
-        target.tagName.toLowerCase()
-      ) ||
+      [
+        'input',
+        'textarea',
+        'select',
+        'option',
+        'mwc-list-item',
+        'md-filled-select',
+      ].includes(target.tagName.toLowerCase()) ||
       target.getAttribute('contenteditable')
     ) {
       return
