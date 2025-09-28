@@ -49,40 +49,8 @@ const BASE_DIR = ''
 
 const MINIMUM_API_VERSION = '2.3.0'
 
-// Immediate OIDC token processing - runs before component initialization
-;(function processOIDCTokensImmediately() {
-  const hash = window.location.hash.substring(1)
-  if (!hash) return
-
-  const params = new URLSearchParams(hash)
-  const accessToken = params.get('access_token')
-  const refreshToken = params.get('refresh_token')
-
-  if (accessToken && refreshToken) {
-    try {
-      // Store tokens in localStorage
-      const expiresAt = Date.now() + 15 * 60 * 1000 // 15 minutes from now
-      localStorage.setItem('access_token', accessToken)
-      localStorage.setItem('access_token_expires', expiresAt.toString())
-      localStorage.setItem('refresh_token', refreshToken)
-
-      // Clear the hash to remove tokens from URL
-      window.history.replaceState(null, null, window.location.pathname)
-
-      // Fire login event
-      window.dispatchEvent(
-        new CustomEvent('user:loggedin', {bubbles: true, composed: true})
-      )
-
-      // Mark that we processed tokens so the component can handle it properly
-      window.gramps_oidc_tokens_processed = true
-    } catch (error) {
-      console.error('Error processing OIDC tokens:', error)
-      // Fallback: reload page if token processing fails
-      setTimeout(() => window.location.reload(), 100)
-    }
-  }
-})()
+// OIDC token processing is now handled securely via HTTP-only cookies
+// No immediate processing needed as tokens are not in URL
 
 export class GrampsJs extends LitElement {
   static get properties() {
@@ -554,18 +522,8 @@ export class GrampsJs extends LitElement {
   connectedCallback() {
     super.connectedCallback()
 
-    // Check if OIDC tokens were already processed by our IIFE
-    if (window.gramps_oidc_tokens_processed) {
-      // Clear the flag
-      window.gramps_oidc_tokens_processed = false
-      // Load DB info with stored tokens after a brief delay to ensure all setup is complete
-      setTimeout(() => {
-        this._loadDbInfo()
-      }, 50)
-    } else {
-      // Normal flow - load DB info (no need to check for OIDC tokens as IIFE already handled them)
-      this._loadDbInfo()
-    }
+    // Normal flow - load DB info
+    this._loadDbInfo()
     window.addEventListener('storage', () => this._handleStorage())
     window.addEventListener('settings:changed', () => this._handleSettings())
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
@@ -767,6 +725,12 @@ export class GrampsJs extends LitElement {
       return
     }
 
+    // Handle OIDC token completion
+    if (path.includes('/oidc/complete')) {
+      this._handleOIDCComplete()
+      return
+    }
+
     if (path === '/' || path === `${BASE_DIR}/`) {
       this._updateAppState({path: {page: 'home', pageId: '', pageId2: ''}})
     } else if (BASE_DIR === '') {
@@ -847,6 +811,7 @@ export class GrampsJs extends LitElement {
       const urlParams = new URLSearchParams(window.location.search)
       const code = urlParams.get('code')
       const state = urlParams.get('state')
+      const provider = urlParams.get('provider')
 
       if (!code) {
         this._showError('OIDC authentication failed - no authorization code')
@@ -854,9 +819,11 @@ export class GrampsJs extends LitElement {
         return
       }
 
-      // Call the OIDC callback endpoint
+      // Call the OIDC callback endpoint which now returns tokens in response body
       const resp = await fetch(
-        `${__APIHOST__}/api/oidc/callback/?code=${code}&state=${state || ''}`,
+        `${__APIHOST__}/api/oidc/callback/?code=${code}&state=${
+          state || ''
+        }&provider=${provider || ''}`,
         {
           method: 'GET',
           headers: {
@@ -870,19 +837,101 @@ export class GrampsJs extends LitElement {
       }
 
       const data = await resp.json()
-      if (data.access_token === undefined) {
+      if (!data.access_token) {
         throw new Error('Access token missing in response')
       }
 
-      // Store tokens and redirect to home
+      // Store tokens securely in localStorage
+      const expiresAt = Date.now() + 15 * 60 * 1000 // 15 minutes from now
       localStorage.setItem('access_token', data.access_token)
+      localStorage.setItem('access_token_expires', expiresAt.toString())
       if (data.refresh_token) {
         localStorage.setItem('refresh_token', data.refresh_token)
       }
 
-      // Redirect to home page
-      window.location.href = '/'
+      // Give a small delay to ensure localStorage is written and then redirect
+      setTimeout(() => {
+        console.log('OIDC Callback: Redirecting to home...')
+        window.location.href = data.frontend_url || '/'
+      }, 100)
     } catch (error) {
+      this._showError(`OIDC authentication failed: ${error.message}`)
+      window.location.href = '/'
+    }
+  }
+
+  async _handleOIDCComplete() {
+    console.log('OIDC Complete: Starting token exchange...')
+
+    try {
+      // Show a loading message
+      console.log('OIDC Complete: Calling token exchange endpoint...')
+
+      // Exchange HTTP-only cookies for tokens we can store in localStorage
+      const resp = await fetch(`${__APIHOST__}/api/oidc/tokens/`, {
+        method: 'GET',
+        credentials: 'include', // Include cookies
+        headers: {
+          Accept: 'application/json',
+        },
+      })
+
+      console.log(
+        'OIDC Complete: Response received:',
+        resp.status,
+        resp.statusText
+      )
+      console.log(
+        'OIDC Complete: Response headers:',
+        Object.fromEntries(resp.headers.entries())
+      )
+
+      if (!resp.ok) {
+        const errorText = await resp.text()
+        console.error('OIDC Complete: Error response:', errorText)
+        throw new Error(
+          `${resp.statusText}: ${errorText}` || `Error ${resp.status}`
+        )
+      }
+
+      // Try to read response as text first to debug
+      const responseText = await resp.text()
+      console.log('OIDC Complete: Raw response:', responseText)
+
+      let data
+      try {
+        data = JSON.parse(responseText)
+      } catch (e) {
+        console.error('OIDC Complete: JSON parse error:', e)
+        throw new Error(`Invalid JSON response: ${responseText}`)
+      }
+      console.log('OIDC Complete: Token data received:', {
+        hasAccessToken: !!data.access_token,
+        hasRefreshToken: !!data.refresh_token,
+      })
+
+      if (!data.access_token) {
+        throw new Error('Access token missing in response')
+      }
+
+      // Store tokens securely in localStorage
+      const expiresAt = Date.now() + 15 * 60 * 1000 // 15 minutes from now
+      localStorage.setItem('access_token', data.access_token)
+      localStorage.setItem('access_token_expires', expiresAt.toString())
+      if (data.refresh_token) {
+        localStorage.setItem('refresh_token', data.refresh_token)
+      }
+
+      console.log('OIDC Complete: Tokens stored, setting up for redirect...')
+
+      // Give a small delay to ensure localStorage is written and then redirect
+      // The app will automatically load DB info on the home page with the new tokens
+      setTimeout(() => {
+        console.log('OIDC Complete: Redirecting to home...')
+        window.location.href = '/'
+      }, 100)
+    } catch (error) {
+      console.error('OIDC Complete: Error:', error)
       this._showError(`OIDC authentication failed: ${error.message}`)
       window.location.href = '/'
     }
