@@ -522,8 +522,7 @@ export class GrampsJs extends LitElement {
   connectedCallback() {
     super.connectedCallback()
 
-    // Normal flow - load DB info
-    this._loadDbInfo()
+    // Set up all event listeners regardless of OIDC state
     window.addEventListener('storage', () => this._handleStorage())
     window.addEventListener('settings:changed', () => this._handleSettings())
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
@@ -534,6 +533,15 @@ export class GrampsJs extends LitElement {
     )
     window.addEventListener('online', () => this._handleOnline())
     window.addEventListener('token:refresh', () => this._handleRefresh())
+
+    // Check if we're in the middle of OIDC token processing
+    if (window.location.pathname.includes('/oidc/complete')) {
+      // Don't load DB info yet - wait for token exchange to complete
+      return
+    }
+
+    // Normal flow - load DB info
+    this._loadDbInfo()
 
     const browserLang = getBrowserLanguage()
     if (browserLang && !this.appState.settings.lang) {
@@ -851,7 +859,6 @@ export class GrampsJs extends LitElement {
 
       // Give a small delay to ensure localStorage is written and then redirect
       setTimeout(() => {
-        console.log('OIDC Callback: Redirecting to home...')
         window.location.href = data.frontend_url || '/'
       }, 100)
     } catch (error) {
@@ -861,12 +868,7 @@ export class GrampsJs extends LitElement {
   }
 
   async _handleOIDCComplete() {
-    console.log('OIDC Complete: Starting token exchange...')
-
     try {
-      // Show a loading message
-      console.log('OIDC Complete: Calling token exchange endpoint...')
-
       // Exchange HTTP-only cookies for tokens we can store in localStorage
       const resp = await fetch(`${__APIHOST__}/api/oidc/tokens/`, {
         method: 'GET',
@@ -876,40 +878,14 @@ export class GrampsJs extends LitElement {
         },
       })
 
-      console.log(
-        'OIDC Complete: Response received:',
-        resp.status,
-        resp.statusText
-      )
-      console.log(
-        'OIDC Complete: Response headers:',
-        Object.fromEntries(resp.headers.entries())
-      )
-
       if (!resp.ok) {
         const errorText = await resp.text()
-        console.error('OIDC Complete: Error response:', errorText)
         throw new Error(
           `${resp.statusText}: ${errorText}` || `Error ${resp.status}`
         )
       }
 
-      // Try to read response as text first to debug
-      const responseText = await resp.text()
-      console.log('OIDC Complete: Raw response:', responseText)
-
-      let data
-      try {
-        data = JSON.parse(responseText)
-      } catch (e) {
-        console.error('OIDC Complete: JSON parse error:', e)
-        throw new Error(`Invalid JSON response: ${responseText}`)
-      }
-      console.log('OIDC Complete: Token data received:', {
-        hasAccessToken: !!data.access_token,
-        hasRefreshToken: !!data.refresh_token,
-      })
-
+      const data = await resp.json()
       if (!data.access_token) {
         throw new Error('Access token missing in response')
       }
@@ -922,16 +898,12 @@ export class GrampsJs extends LitElement {
         localStorage.setItem('refresh_token', data.refresh_token)
       }
 
-      console.log('OIDC Complete: Tokens stored, setting up for redirect...')
-
       // Give a small delay to ensure localStorage is written and then redirect
       // The app will automatically load DB info on the home page with the new tokens
       setTimeout(() => {
-        console.log('OIDC Complete: Redirecting to home...')
         window.location.href = '/'
       }, 100)
     } catch (error) {
-      console.error('OIDC Complete: Error:', error)
       this._showError(`OIDC authentication failed: ${error.message}`)
       window.location.href = '/'
     }
