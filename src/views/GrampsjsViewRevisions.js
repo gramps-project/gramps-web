@@ -175,7 +175,12 @@ export class GrampsjsViewRevisions extends GrampsjsStaleDataMixin(
         href="${txn.changes?.length ? `/revision/${txn.id}` : ''}"
       >
         <div slot="headline">${this._(txn.description)}</div>
-        ${renderIconSvg(mdiSourceCommit, '#777', 0, 'start')}
+        ${renderIconSvg(
+          mdiSourceCommit,
+          'var(--grampsjs-body-font-color-50)',
+          0,
+          'start'
+        )}
         ${txn.changes?.length
           ? Object.keys(counts).map(key =>
               changeIcons[key]

@@ -19,11 +19,11 @@ export class GrampsjsPersonTimeline extends GrampsjsAppStateMixin(LitElement) {
           grid-gap: 15px;
           grid-template-columns: 150px minmax(150px, 1fr);
           background-color: var(--md-sys-color-surface-container);
-          color: #444;
+          color: var(--grampsjs-body-font-color-75);
         }
 
         .timeline-event.highlighted {
-          background-color: #efebe9;
+          background-color: var(--grampsjs-color-shade-230);
           border-radius: 6px;
         }
 

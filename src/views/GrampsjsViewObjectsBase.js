@@ -37,7 +37,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         th {
           padding: 12px 20px;
           font-size: 13px;
-          color: #666;
+          color: var(--grampsjs-body-font-color-60);
           font-weight: 400;
           vertical-align: top;
           line-height: 24px;
@@ -57,13 +57,13 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
 
         th,
         td {
-          border-bottom: 1px solid #e0e0e0;
+          border-bottom: 1px solid var(--grampsjs-body-font-color-10);
           text-align: left;
           margin: 0;
         }
 
         table.linked tr:hover td {
-          background-color: #f0f0f0;
+          background-color: var(--grampsjs-color-shade-240);
           cursor: pointer;
         }
 

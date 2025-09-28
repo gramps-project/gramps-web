@@ -23,10 +23,10 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
 
         span.url {
           border-radius: 5px;
-          border: 1px solid #ddd;
+          border: 1px solid var(--grampsjs-body-font-color-15);
           font-size: 13px;
           padding: 6px 6px;
-          color: #444;
+          color: var(--grampsjs-body-font-color-75);
         }
       `,
     ]

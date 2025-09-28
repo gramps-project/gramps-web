@@ -34,7 +34,7 @@ function TreeChartCore(
     padding = 20, // horizontal padding for first and last column
     gapX = 30, // horizontal gap between boxes
     gapY = 5, // vertical gap between boxes
-    stroke = '#555', // stroke for links
+    stroke = 'var(--grampsjs-body-font-color-70)', // stroke for links
     strokeWidth = 1, // stroke width for links
     strokeOpacity = 0.4, // stroke opacity for links
     strokeLinejoin, // stroke line join for links
@@ -197,7 +197,7 @@ function TreeChartCore(
         'transform',
         d => `translate(${yPos(d)},${d.x}) rotate(${angle}) scale(-1, 0.5)`
       )
-      .attr('fill', '#bbb')
+      .attr('fill', 'var(--grampsjs-body-font-color-30)')
       .attr('id', 'triangle-children')
       .on('click', triangleClicked)
   }

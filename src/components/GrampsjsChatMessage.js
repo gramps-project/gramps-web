@@ -88,7 +88,13 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
         ${this.type === 'ai'
           ? html`
               <div class="avatar">
-                <md-icon>${renderIconSvg(mdiFamilyTree, '#999', 270)}</md-icon>
+                <md-icon
+                  >${renderIconSvg(
+                    mdiFamilyTree,
+                    'var(--grampsjs-body-font-color-40)',
+                    270
+                  )}</md-icon
+                >
               </div>
             `
           : ''}

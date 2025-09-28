@@ -88,6 +88,7 @@ body {
   --grampsjs-color-shade-200: rgb(200, 200, 200);
   --grampsjs-color-shade-220: rgb(220, 220, 220);
   --grampsjs-color-shade-230: rgb(230, 230, 230);
+  --grampsjs-color-shade-240: rgb(240, 240, 240);
   --grampsjs-color-shade-255: rgb(255, 255, 255);
   --grampsjs-color-monospace: rgba(125, 0, 0, 0.8);
   --grampsjs-color-drawer-text: #444;
@@ -186,6 +187,7 @@ body {
   --grampsjs-color-shade-200: rgb(55, 55, 55);
   --grampsjs-color-shade-220: rgb(35, 35, 35);
   --grampsjs-color-shade-230: rgb(25, 25, 25);
+  --grampsjs-color-shade-240: rgb(15, 15, 15);
   --grampsjs-color-shade-255: rgb(0, 0, 0);
   --grampsjs-color-monospace: rgba(255, 100, 100, 0.85);
   --grampsjs-color-drawer-text: #bbb;

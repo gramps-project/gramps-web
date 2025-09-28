@@ -516,8 +516,8 @@ function remasterChart(
     .attr('class', 'married')
     .attr('r', 6)
     .attr('cy', boxHeight / 2 - 10)
-    .attr('stroke', '#999')
-    .attr('fill', '#ddd')
+    .attr('stroke', 'var(--grampsjs-body-font-color-40)')
+    .attr('fill', 'var(--grampsjs-color-shade-220)')
 
   nodes
     .filter(d => d.type === 'Married' && d.nodetype === 'family')
@@ -527,7 +527,7 @@ function remasterChart(
     .attr('x2', 11)
     .attr('y1', boxHeight / 2 - 10)
     .attr('y2', boxHeight / 2 - 10)
-    .attr('stroke', '#999')
+    .attr('stroke', 'var(--grampsjs-body-font-color-40)')
     .attr('stroke-width', 1)
 
   nodes
@@ -563,7 +563,7 @@ function remasterChart(
         })
       )
       .attr('fill', 'none')
-      .attr('stroke', '#999')
+      .attr('stroke', 'var(--grampsjs-body-font-color-40)')
       .attr('stroke-width', 1)
   })
   // edges.selectAll('path').attr('stroke-opacity', '0.4')

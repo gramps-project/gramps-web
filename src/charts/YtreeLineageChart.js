@@ -30,7 +30,7 @@ export function YtreeLineageChart(chartData, options = {}) {
   const gapY = 50
   const padding = 20
   const imgPadding = 10
-  const stroke = '#999'
+  const stroke = 'var(--grampsjs-body-font-color-40)'
   const strokeWidth = 3
   const strokeDasharray = '3,3'
   const fontFamily = 'Inter var'
@@ -117,7 +117,7 @@ export function YtreeLineageChart(chartData, options = {}) {
       group
         .append('path')
         .attr('d', personPath)
-        .attr('fill', '#888')
+        .attr('fill', 'var(--grampsjs-body-font-color-50)')
         .attr(
           'transform',
           `translate(${iconCx - 18},${iconCy - 18}) scale(1.5,1.5)`
@@ -163,7 +163,7 @@ export function YtreeLineageChart(chartData, options = {}) {
       g.append('text')
         .attr('x', lineX + 16)
         .attr('y', (lineY1 + lineY2) / 2 + 5)
-        .attr('fill', '#888')
+        .attr('fill', 'var(--grampsjs-body-font-color-50)')
         .attr('font-weight', '370')
         .attr('font-size', fontSize)
         .text(item.connectorText ?? '')

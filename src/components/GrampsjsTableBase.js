@@ -17,20 +17,20 @@ export class GrampsjsTableBase extends GrampsjsAppStateMixin(LitElement) {
 
         th {
           font-size: 14px;
-          color: #666;
+          color: var(--grampsjs-body-font-color-60);
           font-weight: 400;
         }
 
         th,
         td {
           padding: 14px 20px;
-          border-bottom: 1px solid #e0e0e0;
+          border-bottom: 1px solid var(--grampsjs-body-font-color-10);
           text-align: left;
           margin: 0;
         }
 
         table.linked tr:hover td {
-          background-color: #f0f0f0;
+          background-color: var(--grampsjs-color-shade-240);
           cursor: pointer;
         }
 

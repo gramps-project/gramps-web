@@ -63,11 +63,6 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
           );
         }
 
-        mwc-icon {
-          background-color: var(--grampsjs-body-font-color-25);
-          color: white;
-        }
-
         mwc-icon.placeholder {
           width: 40px;
           height: 40px;

@@ -59,7 +59,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
         }
 
         table.linked tbody tr:hover {
-          background-color: #f0f0f0;
+          background-color: var(--grampsjs-color-shade-240);
           cursor: pointer;
         }
 

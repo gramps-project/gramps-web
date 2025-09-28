@@ -47,7 +47,7 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
         }
 
         mwc-circular-progress {
-          --mdc-theme-primary: white;
+          --mdc-theme-primary: var(--mdc-theme-on-primary);
         }
       `,
     ]

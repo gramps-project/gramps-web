@@ -26,7 +26,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           position: absolute;
           left: 20px;
           border-radius: 5px;
-          background-color: white;
+          background-color: var(--md-sys-color-surface-container-high);
           box-shadow: 0 2px 2px var(--grampsjs-body-font-color-20),
             0 -1px 0px var(--grampsjs-body-font-color-2);
         }

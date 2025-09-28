@@ -119,14 +119,6 @@ export class GrampsJs extends LitElement {
           margin: 0.5em 1em;
         }
 
-        #person-button {
-          margin-left: 60px;
-          margin-top: 10px;
-          background-color: #e0e0e0;
-          color: #444;
-          border-radius: 50%;
-        }
-
         #app-title:first-letter {
           text-transform: capitalize;
         }
@@ -143,14 +135,6 @@ export class GrampsJs extends LitElement {
           display: block;
           width: 20%;
           text-align: center;
-        }
-
-        .menu-bottom {
-          position: absolute;
-          bottom: 0;
-          width: 100%;
-          border-top: 1px solid #e0e0e0;
-          background-color: white;
         }
 
         mwc-list {
@@ -176,7 +160,7 @@ export class GrampsJs extends LitElement {
 
         #shortcut-overlay {
           font-size: 16px;
-          background-color: white;
+          background-color: var(--md-sys-color-surface-container-high);
           padding: 0.5em 1.5em;
           position: absolute;
           top: 15vh;
@@ -223,8 +207,8 @@ export class GrampsJs extends LitElement {
           min-width: 0.75em;
           padding: 4px 6px;
           text-align: center;
-          border: 1px solid #ccc;
-          color: #555;
+          border: 1px solid var(--grampsjs-body-font-color-20);
+          color: var(--grampsjs-body-font-color-70);
           border-radius: 6px;
           margin-bottom: 4px;
         }
