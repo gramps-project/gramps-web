@@ -259,8 +259,8 @@ body {
   --md-sys-color-surface-container: rgb(32, 31, 31);
   --md-sys-color-surface-container-high: rgb(42, 42, 42);
   --md-sys-color-surface-container-highest: rgb(53, 52, 52);
-  --mdc-select-fill-color: var(--mdc-theme-surface);
-  --mdc-select-ink-color: var(--md-sys-color-on-background);
+  --mdc-select-fill-color: var(--md-sys-color-surface-container-highest);
+  --mdc-select-ink-color: var(--md-sys-color-on-surface);
   --mdc-select-label-ink-color: rgba(255, 255, 255, 0.5);
   --mdc-select-dropdown-icon-color: var(--grampsjs-body-font-color);
   --mdc-select-idle-line-color: var(--grampsjs-body-font-color);
@@ -269,6 +269,10 @@ body {
   --mdc-select-outlined-hover-border-color: var(
     --md-sys-color-surface-container-high
   );
+  --mdc-select-disabled-fill-color: rgba(229, 226, 225, 0.04);
+  --mdc-select-disabled-ink-color: var(--grampsjs-body-font-color-40);
+  --mdc-select-disabled-dropdown-icon-color: var(--grampsjs-body-font-color-40);
+  --mdc-select-outlined-disabled-border-color: var(--grampsjs-body-font-color-30);
   --mdc-text-field-idle-line-color: var(--grampsjs-body-font-color);
   --mdc-text-field-hover-line-color: var(--md-sys-color-on-surface);
   --mdc-text-field-disabled-line-color: var(--grampsjs-body-font-color);
@@ -279,12 +283,18 @@ body {
   --mdc-text-field-outlined-disabled-border-color: var(
     --grampsjs-body-font-color
   );
-  --mdc-text-field-fill-color: var(--mdc-theme-surface);
-  --mdc-text-field-disabled-fill-color: var(--mdc-theme-surface);
-  --mdc-text-field-ink-color: var(--grampsjs-body-font-color);
+  --mdc-text-field-fill-color: var(--md-sys-color-surface-container-highest);
+  --mdc-text-field-ink-color: var(--md-sys-color-on-surface);
   --mdc-text-field-label-ink-color: var(--grampsjs-body-font-color);
-  --mdc-text-field-disabled-ink-color: var(--grampsjs-body-font-color);
+  --mdc-text-field-disabled-fill-color: rgba(229, 226, 225, 0.04);
+  --mdc-text-field-disabled-ink-color: var(--grampsjs-body-font-color-40);
+  --mdc-text-field-disabled-line-color: var(--grampsjs-body-font-color-40);
   --mdc-linear-progress-buffer-color: var(
     --md-sys-color-surface-container-highest
   );
+  --mdc-button-disabled-fill-color: rgba(229, 226, 225, 0.12);
+  --mdc-button-disabled-ink-color: rgba(229, 226, 225, 0.38);
+  --mdc-dialog-heading-ink-color: var(--grampsjs-body-font-color);
+  --mdc-dialog-content-ink-color: var(--grampsjs-body-font-color-60);
+  --mdc-theme-text-icon-on-background: var(--grampsjs-body-font-color-60);
 }
