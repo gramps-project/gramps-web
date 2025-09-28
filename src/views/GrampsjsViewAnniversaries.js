@@ -31,7 +31,7 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
           border-radius: 19px;
           background-color: var(--mdc-theme-primary);
           opacity: 0.6;
-          color: white;
+          color: var(--mdc-theme-on-primary);
           font-size: 15px;
           line-height: 38px;
           display: inline-block;

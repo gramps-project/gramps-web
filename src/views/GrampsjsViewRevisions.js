@@ -107,7 +107,7 @@ export class GrampsjsViewRevisions extends GrampsjsStaleDataMixin(
 
         .counter {
           position: relative;
-          color: white;
+          color: var(--grampsjs-color-icon);
           font-size: 11px;
           min-width: 14px;
           height: 14px;
@@ -115,7 +115,7 @@ export class GrampsjsViewRevisions extends GrampsjsStaleDataMixin(
           left: -17px;
           top: -6px;
           font-weight: 600;
-          background-color: var(--grampsjs-body-font-color-35);
+          background-color: var(--grampsjs-color-icon-background);
           border-radius: 100px;
           display: inline-block;
           text-align: center;

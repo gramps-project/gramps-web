@@ -39,7 +39,7 @@ export class GrampsjsTableBase extends GrampsjsAppStateMixin(LitElement) {
         }
 
         table.linked tr.highlight:hover td {
-          background-color: white;
+          background-color: var(--grampsjs-color-shade-240);
           cursor: auto;
         }
 

@@ -72,7 +72,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         }
 
         table.linked tr.highlight:hover td {
-          background-color: white;
+          background-color: var(--grampsjs-color-shade-240);
           cursor: auto;
         }
 
