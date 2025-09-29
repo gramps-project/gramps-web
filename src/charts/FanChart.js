@@ -399,6 +399,7 @@ export function FanChart(
   cell
     .filter(d => d.depth === 0)
     .append('text')
+    .style('fill', 'var(--grampsjs-body-font-color-70)')
     .attr(
       'font-weight',
       nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
@@ -419,6 +420,7 @@ export function FanChart(
   cell
     .filter(d => d.depth === 0)
     .append('text')
+    .style('fill', 'var(--grampsjs-body-font-color-70)')
     .attr(
       'font-weight',
       nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
@@ -445,6 +447,7 @@ export function FanChart(
     .filter(d => d.depth > 0)
     .filter(d => ((d.y0 + d.y1) / 2) * (d.x1 - d.x0) > 50)
     .append('text')
+    .style('fill', 'var(--grampsjs-body-font-color-70)')
     .attr(
       'font-weight',
       nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
@@ -456,6 +459,7 @@ export function FanChart(
     // .attr("dx", (dx => 1)
     .append('textPath') // append a textPath to the text element
     .attr('xlink:href', d => `#${d.data.id}`)
+    .style('fill', 'var(--grampsjs-body-font-color-70)')
     .style('text-anchor', 'middle')
     .attr('startOffset', startOffset)
     .style('letter-spacing', d =>
@@ -474,6 +478,7 @@ export function FanChart(
     .filter(d => d.depth > 0)
     .filter(d => ((d.y0 + d.y1) / 2) * (d.x1 - d.x0) > 50)
     .append('text')
+    .style('fill', 'var(--grampsjs-body-font-color-70)')
     .attr(
       'font-weight',
       nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
@@ -485,6 +490,7 @@ export function FanChart(
     // .attr("dx", (dx => 1)
     .append('textPath') // append a textPath to the text element
     .attr('xlink:href', d => `#${d.data.id}`)
+    .style('fill', 'var(--grampsjs-body-font-color-70)')
     .style('text-anchor', 'middle')
     .attr('startOffset', startOffset)
     .style('letter-spacing', d =>
