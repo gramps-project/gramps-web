@@ -128,7 +128,7 @@ body {
   --md-sys-color-on-error: rgb(255, 255, 255);
   --md-sys-color-error-container: rgb(255, 218, 214);
   --md-sys-color-on-error-container: rgb(65, 0, 2);
-  --md-sys-color-background: rgb(255, 248, 246);
+  --md-sys-color-background: #fff;;
   --md-sys-color-on-background: var(--grampsjs-body-font-color);
   --md-sys-color-surface: #fff;
   --md-sys-color-on-surface: var(--grampsjs-body-font-color);
@@ -156,7 +156,7 @@ body {
   --md-sys-color-surface-dim: rgb(232, 214, 209);
   --md-sys-color-surface-bright: rgb(255, 248, 246);
   --md-sys-color-surface-container-lowest: rgb(255, 255, 255);
-  --md-sys-color-surface-container-low: rgb(255, 241, 237);
+  --md-sys-color-surface-container-low: rgb(240, 240, 240);
   --md-sys-color-surface-container: #fff;
   --md-sys-color-surface-container-high: #fff;
   --md-sys-color-surface-container-highest: whitesmoke;
