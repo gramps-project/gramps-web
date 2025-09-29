@@ -10,8 +10,8 @@ body {
   color: var(--md-sys-color-on-surface);
   --color-boy: #64b5f6;
   --color-girl: #ef9a9a;
-  --mdc-theme-primary: #6d4c41;
-  --mdc-theme-on-primary: rgba(255, 255, 255, 0.95);
+  --mdc-theme-primary: var(--md-sys-color-primary);
+  --mdc-theme-on-primary: var(--md-sys-color-on-primary);
   --mdc-theme-secondary: #0277bd;
   --mdc-theme-on-secondary: rgba(255, 255, 255, 0.95);
   --mdc-theme-background: var(--md-sys-color-background);
@@ -60,6 +60,8 @@ body {
 }
 
 :root[data-theme='light'] {
+  --grampsjs-top-app-bar-background-color: var(--mdc-theme-primary);
+  --grampsjs-top-app-bar-font-color: var(--mdc-theme-on-primary);
   --grampsjs-body-font-color: rgba(0, 0, 0, 0.8);
   --grampsjs-body-font-color-0: rgba(0, 0, 0, 0);
   --grampsjs-body-font-color-2: rgba(0, 0, 0, 0.02);
@@ -161,6 +163,8 @@ body {
 }
 
 :root[data-theme='dark'] {
+  --grampsjs-top-app-bar-background-color: var(--md-sys-color-surface-container);
+  --grampsjs-top-app-bar-font-color: var(--md-sys-color-on-surface);
   --grampsjs-body-font-color: rgba(255, 255, 255, 0.8);
   --grampsjs-body-font-color-0: rgba(255, 255, 255, 0);
   --grampsjs-body-font-color-2: rgba(255, 255, 255, 0.05);
