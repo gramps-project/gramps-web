@@ -297,4 +297,6 @@ body {
   --mdc-dialog-heading-ink-color: var(--grampsjs-body-font-color);
   --mdc-dialog-content-ink-color: var(--grampsjs-body-font-color-60);
   --mdc-theme-text-icon-on-background: var(--grampsjs-body-font-color-60);
+  --mdc-checkbox-unchecked-color: var(--md-sys-color-on-surface-variant);
+  --mdc-checkbox-disabled-color: rgba(229, 226, 225, 0.38);
 }
