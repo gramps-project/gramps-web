@@ -6,6 +6,7 @@ import {
   apiPutPostDeleteNew,
   updateSettings,
 } from './api.js'
+import {getCurrentTheme} from './theme.js'
 
 export function getInitialAppState() {
   const auth = new Auth()
@@ -44,6 +45,7 @@ export function getInitialAppState() {
     signout: () => auth.signout(),
     updateSettings: (settings = {}, tree = false) =>
       updateSettings(settings, tree),
+    getCurrentTheme: () => getCurrentTheme(getSettings().theme),
   }
 }
 

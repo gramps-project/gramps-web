@@ -1,10 +1,13 @@
-export function applyTheme(theme) {
-  const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+export function getSystemTheme() {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
     ? 'dark'
     : 'light'
+}
 
-  document.documentElement.setAttribute(
-    'data-theme',
-    theme === undefined || theme === 'system' ? systemTheme : theme
-  )
+export function getCurrentTheme(theme) {
+  return theme === undefined || theme === 'system' ? getSystemTheme() : theme
+}
+
+export function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', getCurrentTheme(theme))
 }

@@ -214,6 +214,7 @@ body {
   --grampsjs-color-icon-background: rgba(255, 255, 255, 0.15);
   --grampsjs-color-icon: rgba(255, 255, 255, 0.6);
   --grampsjs-note-color: #ccc;
+  --grampsjs-map-marker-color: #bb1f11;
   --md-sys-color-primary: #8d7168;
   --md-sys-color-surface-tint: rgb(233, 189, 174);
   --md-sys-color-on-primary: rgba(0, 0, 0, 0.8);
