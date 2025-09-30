@@ -214,9 +214,9 @@ body {
   --grampsjs-color-icon-background: rgba(255, 255, 255, 0.15);
   --grampsjs-color-icon: rgba(255, 255, 255, 0.6);
   --grampsjs-note-color: #ccc;
-  --md-sys-color-primary: rgb(233, 189, 174);
+  --md-sys-color-primary: #8d7168;
   --md-sys-color-surface-tint: rgb(233, 189, 174);
-  --md-sys-color-on-primary: rgb(69, 41, 32);
+  --md-sys-color-on-primary: rgba(0, 0, 0, 0.8);
   --md-sys-color-primary-container: rgb(109, 76, 65);
   --md-sys-color-on-primary-container: rgb(235, 190, 176);
   --md-sys-color-secondary: rgb(156, 203, 251);
