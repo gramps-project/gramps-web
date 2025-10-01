@@ -65,9 +65,9 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
       bottom: 46px;
       left: 10px;
       z-index: 1;
-      background: white;
+      background: var(--md-sys-color-surface-container-high);
       border-radius: 4px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 1px 4px var(--grampsjs-body-font-color-20);
       padding: 2px;
       font-size: 14px;
       display: flex;
@@ -75,7 +75,10 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
       "
       >
         <md-icon-button id="layer-button" @click="${this._handleLayerClick}">
-          <grampsjs-icon path="${mdiLayers}" color="#555"></grampsjs-icon>
+          <grampsjs-icon
+            path="${mdiLayers}"
+            color="var(--grampsjs-body-font-color-70)"
+          ></grampsjs-icon>
         </md-icon-button>
 
         <md-menu

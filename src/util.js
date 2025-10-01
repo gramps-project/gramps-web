@@ -706,7 +706,10 @@ export function linkUrls(text, textOnly = true) {
     part.match(urlRegex)
       ? html`<a href="${part}" target="_blank">${part}</a>
           <md-icon class="linkicon"
-            >${renderIconSvg(mdiOpenInNew, '#0d47a1')}</md-icon
+            >${renderIconSvg(
+              mdiOpenInNew,
+              'var(--grampsjs-color-link-font)'
+            )}</md-icon
           > `
       : part
   )}`

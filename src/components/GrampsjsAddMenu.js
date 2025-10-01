@@ -34,7 +34,7 @@ class GrampsjsAddMenu extends GrampsjsAppStateMixin(LitElement) {
       css`
         md-menu {
           --md-divider-thickness: 1px;
-          --md-divider-color: rgba(0, 0, 0, 0.3);
+          --md-divider-color: var(--grampsjs-body-font-color-30);
         }
 
         md-menu-item {
@@ -44,7 +44,7 @@ class GrampsjsAddMenu extends GrampsjsAppStateMixin(LitElement) {
         }
 
         md-menu-item mwc-icon {
-          color: rgba(0, 0, 0, 0.35);
+          color: var(--grampsjs-body-font-color-35);
         }
 
         md-menu-item.header {

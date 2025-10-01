@@ -123,6 +123,7 @@ export const LegendCategorical = (
     .enter()
     .append('text')
     .attr('x', legendItemWidth + 8)
+    .attr('fill', 'var(--grampsjs-body-font-color)')
     .attr('text-anchor', 'start')
     .attr('font-family', 'Inter var')
     .attr('font-weight', 350)
@@ -209,10 +210,11 @@ export const LegendColorBar = (
         .append('line')
         .attr('x1', -4)
         .attr('x2', -10) // Adjust the length of the tick mark
-        .attr('stroke', 'black') // Set the tick color
+        .attr('stroke', 'var(--grampsjs-body-font-color)') // Set the tick color
     })
     .append('text')
     .attr('class', 'colorbar-tick')
+    .attr('fill', 'var(--grampsjs-body-font-color)')
     .attr('x', 4)
     .attr('text-anchor', 'start')
     .attr('dy', '0.4em')

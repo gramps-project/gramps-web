@@ -21,7 +21,7 @@ export class GrampsjsBlogPostPreview extends GrampsjsAppStateMixin(LitElement) {
           margin-top: 0;
           line-height: 1.3em;
           min-height: 2.6em;
-          color: rgba(0, 0, 0, 0.75);
+          color: var(--grampsjs-body-font-color-75);
         }
 
         #image {
@@ -34,12 +34,12 @@ export class GrampsjsBlogPostPreview extends GrampsjsAppStateMixin(LitElement) {
           flex-grow: 1;
           font-size: 17px;
           font-weight: 300;
-          color: rgba(0, 0, 0, 0.7);
+          color: var(--grampsjs-body-font-color-70);
           line-height: 1.45em;
         }
 
         #date {
-          color: rgba(0, 0, 0, 0.6);
+          color: var(--grampsjs-body-font-color-60);
           font-size: 14px;
           letter-spacing: 0.02em;
           margin: 2em 0;

@@ -18,7 +18,6 @@ class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
         md-filled-text-field {
           margin-right: 8px;
           margin-bottom: 12px;
-          --md-filled-text-field-container-color: #f5f5f5;
         }
 
         .hidden {

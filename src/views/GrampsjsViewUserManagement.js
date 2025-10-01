@@ -18,15 +18,15 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
           --mdc-icon-button-size: 32px;
           position: relative;
           top: -5px;
-          color: rgba(0, 0, 0, 0.4);
+          color: var(--grampsjs-body-font-color-40);
         }
 
         span.url {
           border-radius: 5px;
-          border: 1px solid #ddd;
+          border: 1px solid var(--grampsjs-body-font-color-15);
           font-size: 13px;
           padding: 6px 6px;
-          color: #444;
+          color: var(--grampsjs-body-font-color-75);
         }
       `,
     ]

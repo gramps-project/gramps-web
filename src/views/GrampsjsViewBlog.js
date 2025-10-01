@@ -32,13 +32,13 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
         .post {
           padding: 0.8em 1em;
           cursor: pointer;
-          outline: 2px solid rgba(0, 0, 0, 0);
+          outline: 2px solid var(--grampsjs-body-font-color-0);
           transition: outline-color 0.3s ease-in;
         }
 
         .post:focus,
         .post:focus-within {
-          outline: 2px solid rgba(0, 0, 0, 0.1);
+          outline: 2px solid var(--grampsjs-body-font-color-10);
           border-radius: 5px;
         }
       `,

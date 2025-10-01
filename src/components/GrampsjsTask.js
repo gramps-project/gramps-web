@@ -38,16 +38,15 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
           margin-left: -10px;
         }
 
-        h2.editable:hover,
-        mwc-select:hover {
-          background-color: rgba(2, 119, 189, 0.2);
-        }
-
         .dropdowns {
           margin-top: 48px;
-          --mdc-select-outlined-disabled-border-color: rgba(0, 0, 0, 0.38);
-          --mdc-select-disabled-ink-color: rgba(0, 0, 0, 0.87);
-          --mdc-select-disabled-dropdown-icon-color: #fff;
+          --mdc-select-outlined-disabled-border-color: var(
+            --grampsjs-body-font-color-38
+          );
+          --mdc-select-disabled-ink-color: var(--grampsjs-body-font-color-87);
+          --mdc-select-disabled-dropdown-icon-color: var(
+            --grampsjs-color-shade-255
+          );
         }
 
         .dropdowns mwc-select {

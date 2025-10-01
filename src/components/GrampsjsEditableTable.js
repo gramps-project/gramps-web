@@ -12,7 +12,7 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
       super.styles,
       css`
         tr:hover td {
-          background-color: #f0f0f0;
+          background-color: var(--grampsjs-color-shade-240);
           cursor: pointer;
         }
       `,
