@@ -1,6 +1,6 @@
 name: Bug Report
 description: Report a bug with the Gramps Web frontend
-title: ''
+title: '[Bug] '
 body:
   - type: markdown
     attributes:
