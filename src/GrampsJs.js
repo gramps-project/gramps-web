@@ -12,7 +12,7 @@ import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-linear-progress'
 import '@material/mwc-snackbar'
-import {getSettings} from './api.js'
+import {getSettings, __APIHOST__} from './api.js'
 import {
   grampsStrings,
   getFrontendStrings,
@@ -47,6 +47,9 @@ const LOADING_STATE_READY = 10
 const BASE_DIR = ''
 
 const MINIMUM_API_VERSION = '2.3.0'
+
+// OIDC token processing is now handled securely via HTTP-only cookies
+// No immediate processing needed as tokens are not in URL
 
 export class GrampsJs extends LitElement {
   static get properties() {
@@ -533,7 +536,8 @@ export class GrampsJs extends LitElement {
 
   connectedCallback() {
     super.connectedCallback()
-    this._loadDbInfo()
+
+    // Set up all event listeners regardless of OIDC state
     window.addEventListener('storage', () => this._handleStorage())
     window.addEventListener('settings:changed', () => this._handleSettings())
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
@@ -544,6 +548,15 @@ export class GrampsJs extends LitElement {
     )
     window.addEventListener('online', () => this._handleOnline())
     window.addEventListener('token:refresh', () => this._handleRefresh())
+
+    // Check if we're in the middle of OIDC token processing
+    if (window.location.pathname.includes('/oidc/complete')) {
+      // Don't load DB info yet - wait for token exchange to complete
+      return
+    }
+
+    // Normal flow - load DB info
+    this._loadDbInfo()
 
     const browserLang = getBrowserLanguage()
     if (browserLang && !this.appState.settings.lang) {
@@ -722,6 +735,19 @@ export class GrampsJs extends LitElement {
 
   _loadPage(path) {
     this._disableEditMode()
+
+    // Handle OIDC callback
+    if (path.includes('/oidc/callback')) {
+      this._handleOIDCCallback()
+      return
+    }
+
+    // Handle OIDC token completion
+    if (path.includes('/oidc/complete')) {
+      this._handleOIDCComplete()
+      return
+    }
+
     if (path === '/' || path === `${BASE_DIR}/`) {
       this._updateAppState({path: {page: 'home', pageId: '', pageId2: ''}})
     } else if (BASE_DIR === '') {
@@ -794,6 +820,102 @@ export class GrampsJs extends LitElement {
   _handleNotification(e) {
     const {message} = e.detail
     this._showToast(message)
+  }
+
+  async _handleOIDCCallback() {
+    try {
+      // Extract query parameters from current URL
+      const urlParams = new URLSearchParams(window.location.search)
+      const code = urlParams.get('code')
+      const state = urlParams.get('state')
+      const provider = urlParams.get('provider')
+
+      if (!code) {
+        this._showError('OIDC authentication failed - no authorization code')
+        window.location.href = '/'
+        return
+      }
+
+      // Call the OIDC callback endpoint which now returns tokens in response body
+      const resp = await fetch(
+        `${__APIHOST__}/api/oidc/callback/?code=${code}&state=${
+          state || ''
+        }&provider=${provider || ''}`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+          },
+        }
+      )
+
+      if (!resp.ok) {
+        throw new Error(resp.statusText || `Error ${resp.status}`)
+      }
+
+      const data = await resp.json()
+      if (!data.access_token) {
+        throw new Error('Access token missing in response')
+      }
+
+      // Store tokens securely in localStorage
+      const expiresAt = Date.now() + 15 * 60 * 1000 // 15 minutes from now
+      localStorage.setItem('access_token', data.access_token)
+      localStorage.setItem('access_token_expires', expiresAt.toString())
+      if (data.refresh_token) {
+        localStorage.setItem('refresh_token', data.refresh_token)
+      }
+
+      // Give a small delay to ensure localStorage is written and then redirect
+      setTimeout(() => {
+        window.location.href = data.frontend_url || '/'
+      }, 100)
+    } catch (error) {
+      this._showError(`OIDC authentication failed: ${error.message}`)
+      window.location.href = '/'
+    }
+  }
+
+  async _handleOIDCComplete() {
+    try {
+      // Exchange HTTP-only cookies for tokens we can store in localStorage
+      const resp = await fetch(`${__APIHOST__}/api/oidc/tokens/`, {
+        method: 'GET',
+        credentials: 'include', // Include cookies
+        headers: {
+          Accept: 'application/json',
+        },
+      })
+
+      if (!resp.ok) {
+        const errorText = await resp.text()
+        throw new Error(
+          `${resp.statusText}: ${errorText}` || `Error ${resp.status}`
+        )
+      }
+
+      const data = await resp.json()
+      if (!data.access_token) {
+        throw new Error('Access token missing in response')
+      }
+
+      // Store tokens securely in localStorage
+      const expiresAt = Date.now() + 15 * 60 * 1000 // 15 minutes from now
+      localStorage.setItem('access_token', data.access_token)
+      localStorage.setItem('access_token_expires', expiresAt.toString())
+      if (data.refresh_token) {
+        localStorage.setItem('refresh_token', data.refresh_token)
+      }
+
+      // Give a small delay to ensure localStorage is written and then redirect
+      // The app will automatically load DB info on the home page with the new tokens
+      setTimeout(() => {
+        window.location.href = '/'
+      }, 100)
+    } catch (error) {
+      this._showError(`OIDC authentication failed: ${error.message}`)
+      window.location.href = '/'
+    }
   }
 
   _handleDbUpgradeComplete() {

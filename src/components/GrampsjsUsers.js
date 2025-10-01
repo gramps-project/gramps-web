@@ -40,6 +40,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
           <th>${this._('Full Name')}</th>
           <th>${this._('E-mail')}</th>
           <th>${this._('Role')}</th>
+          <th>${this._('Account Source')}</th>
           <th></th>
         </tr>
         ${this.data.map(
@@ -49,6 +50,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
               <td>${obj.full_name}</td>
               <td>${obj.email}</td>
               <td>${this._(userRoles[obj.role])}</td>
+              <td>${obj.account_source || 'Local'}</td>
               <td>
                 <mwc-icon-button
                   class="edit"
