@@ -149,7 +149,6 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
           : this._getLongCenter()
       }"
       zoom="${this._getZoom()}"
-      layerSwitcher
       mapid="media-map"
       id="map"
       @mapclick="${this._handleMapClick}"
