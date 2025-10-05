@@ -190,6 +190,40 @@ export async function apiOIDCLogin(providerId) {
   }
 }
 
+export async function apiGetOIDCLogoutUrl(
+  providerId,
+  idToken,
+  postLogoutRedirectUri
+) {
+  try {
+    if (!providerId) {
+      throw new Error('Provider ID is required')
+    }
+    const params = new URLSearchParams({provider: providerId})
+    if (idToken) {
+      params.append('id_token', idToken)
+    }
+    if (postLogoutRedirectUri) {
+      params.append('post_logout_redirect_uri', postLogoutRedirectUri)
+    }
+    const resp = await fetch(
+      `${__APIHOST__}/api/oidc/logout/?${params.toString()}`,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+        },
+      }
+    )
+    if (!resp.ok) {
+      throw new Error(resp.statusText || `Error ${resp.status}`)
+    }
+    return await resp.json()
+  } catch (error) {
+    return {error: error.message, logout_url: null}
+  }
+}
+
 export async function apiRegisterUser(
   username,
   password,
@@ -671,12 +705,40 @@ export class Auth {
     return !!this.claims.fresh
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  signout() {
+  async signout() {
+    // Check if user logged in via OIDC
+    const oidcProvider = this.claims.oidc_provider
+
+    // Clear local tokens first
     localStorage.removeItem('access_token')
     localStorage.removeItem('access_token_expires')
     localStorage.removeItem('refresh_token')
+
+    // Fire logout event
     fireEvent(window, 'user:loggedout')
+
+    // If logged in via OIDC, attempt SSO logout
+    if (oidcProvider) {
+      try {
+        const idToken = this.accessToken // Use current token as id_token_hint
+        const postLogoutRedirectUri = window.location.origin
+        const result = await apiGetOIDCLogoutUrl(
+          oidcProvider,
+          idToken,
+          postLogoutRedirectUri
+        )
+
+        if (result.logout_url) {
+          // Redirect to SSO logout page
+          window.location.href = result.logout_url
+          return
+        }
+        // If no logout URL, gracefully degrade to local logout only (already done above)
+      } catch (error) {
+        // On error, gracefully degrade to local logout only (already done above)
+        console.warn('Failed to get OIDC logout URL:', error)
+      }
+    }
   }
 
   async refreshAuthTokens(attempts = 3) {
