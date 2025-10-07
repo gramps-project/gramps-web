@@ -1,4 +1,4 @@
-import {__APIHOST__} from './api.js'
+import {__APIHOST__, ACCESS_TOKEN_EXPIRY_MS} from './api.js'
 
 export async function handleOIDCCallback(errorCallback) {
   try {
@@ -34,16 +34,16 @@ export async function handleOIDCCallback(errorCallback) {
       throw new Error('Access token missing in response')
     }
 
-    const expiresAt = Date.now() + 15 * 60 * 1000
+    const expiresAt = Date.now() + ACCESS_TOKEN_EXPIRY_MS
     localStorage.setItem('access_token', data.access_token)
     localStorage.setItem('access_token_expires', expiresAt.toString())
     if (data.refresh_token) {
       localStorage.setItem('refresh_token', data.refresh_token)
     }
 
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       window.location.href = data.frontend_url || '/'
-    }, 100)
+    })
   } catch (error) {
     errorCallback(`OIDC authentication failed: ${error.message}`)
     window.location.href = '/'
@@ -72,16 +72,16 @@ export async function handleOIDCComplete(errorCallback) {
       throw new Error('Access token missing in response')
     }
 
-    const expiresAt = Date.now() + 15 * 60 * 1000
+    const expiresAt = Date.now() + ACCESS_TOKEN_EXPIRY_MS
     localStorage.setItem('access_token', data.access_token)
     localStorage.setItem('access_token_expires', expiresAt.toString())
     if (data.refresh_token) {
       localStorage.setItem('refresh_token', data.refresh_token)
     }
 
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       window.location.href = '/'
-    }, 100)
+    })
   } catch (error) {
     errorCallback(`OIDC authentication failed: ${error.message}`)
     window.location.href = '/'

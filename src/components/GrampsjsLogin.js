@@ -100,7 +100,9 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
         config.providers &&
         config.providers.length === 1
       ) {
-        setTimeout(() => this._submitOIDCLogin(config.providers[0].id), 100)
+        requestAnimationFrame(() =>
+          this._submitOIDCLogin(config.providers[0].id)
+        )
       }
     }
   }
