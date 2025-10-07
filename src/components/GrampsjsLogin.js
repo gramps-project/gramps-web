@@ -89,13 +89,10 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
 
   async connectedCallback() {
     super.connectedCallback()
-    // Fetch OIDC config when component loads
     const config = await apiGetOIDCConfig()
     if (!config.error) {
       this.oidcConfig = config
 
-      // Auto-redirect to OIDC if local auth is disabled and auto-redirect is enabled
-      // Only auto-redirect if there's exactly one provider available
       if (
         config.enabled &&
         config.disable_local_auth &&
@@ -103,7 +100,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
         config.providers &&
         config.providers.length === 1
       ) {
-        setTimeout(() => this._submitOIDCLogin(config.providers[0].id), 100) // Small delay to ensure component is fully loaded
+        setTimeout(() => this._submitOIDCLogin(config.providers[0].id), 100)
       }
     }
   }
@@ -128,15 +125,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
         >
           <h2>${this._('Log in to Gramps Web')}</h2>
           ${localAuthDisabled
-            ? html`
-                <p
-                  style="text-align: center; margin: 2em 0; color: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.6));"
-                >
-                  ${this._(
-                    'Local authentication is disabled. Please use OIDC authentication.'
-                  )}
-                </p>
-              `
+            ? ''
             : html`
                 <md-outlined-text-field
                   id="username"
@@ -177,6 +166,11 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                     .provider="${provider.id}"
                     .providerName="${provider.name}"
                     .onClick="${() => this._submitOIDCLogin(provider.id)}"
+                    .buttonText="${this._getOIDCButtonText(
+                      provider.id,
+                      provider.name
+                    )}"
+                    .signingInText="${this._('Signing in...')}"
                   ></grampsjs-oidc-button>
                 `
               )
@@ -226,6 +220,18 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
 
   _handleNav(path) {
     fireEvent(this, 'nav', {path})
+  }
+
+  _getOIDCButtonText(providerId, providerName) {
+    const translations = {
+      google: this._('Sign in with Google'),
+      microsoft: this._('Sign in with Microsoft'),
+      github: this._('Sign in with GitHub'),
+    }
+    return (
+      translations[providerId] ||
+      this._('Sign in with {provider}').replace('{provider}', providerName)
+    )
   }
 
   _credChanged(e) {
