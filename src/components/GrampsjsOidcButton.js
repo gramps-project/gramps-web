@@ -1,11 +1,6 @@
 import {html, css, LitElement} from 'lit'
+import '@material/web/button/outlined-button'
 
-/**
- * Styled OIDC provider login button component.
- *
- * Follows official branding guidelines for Google, Microsoft, GitHub and other providers.
- * Includes proper logos, colors, and accessibility features.
- */
 class GrampsjsOidcButton extends LitElement {
   static get styles() {
     return [
@@ -15,175 +10,16 @@ class GrampsjsOidcButton extends LitElement {
           margin-top: 1em;
         }
 
-        .oidc-button {
-          display: flex;
-          align-items: center;
-          justify-content: center;
+        md-outlined-button {
           width: 100%;
-          padding: 12px 16px;
-          border: 1px solid #dadce0;
-          border-radius: 4px;
-          font-family: 'Roboto', sans-serif;
-          font-size: 14px;
-          font-weight: 500;
-          text-decoration: none;
-          cursor: pointer;
-          transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
-          background-color: #ffffff;
-          color: #3c4043;
-          min-height: 44px;
-          position: relative;
-        }
-
-        .oidc-button:hover {
-          box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3),
-            0 1px 3px 1px rgba(60, 64, 67, 0.15);
-          background-color: #f8f9fa;
-        }
-
-        .oidc-button:active {
-          background-color: #f1f3f4;
-          box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3),
-            0 2px 6px 2px rgba(60, 64, 67, 0.15);
-        }
-
-        .oidc-button:focus {
-          outline: 2px solid #4285f4;
-          outline-offset: 2px;
-          box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3),
-            0 1px 3px 1px rgba(60, 64, 67, 0.15);
-        }
-
-        .oidc-button:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        .oidc-button:disabled:hover {
-          background-color: #ffffff;
-          box-shadow: none;
-        }
-
-        /* Google specific styling */
-        .oidc-button.google {
-          background-color: #ffffff;
-          color: #3c4043;
-          border: 1px solid #dadce0;
-        }
-
-        .oidc-button.google:hover {
-          background-color: #f8f9fa;
-        }
-
-        /* Microsoft specific styling */
-        .oidc-button.microsoft {
-          background-color: #ffffff;
-          color: #5e5e5e;
-          border: 1px solid #8c8c8c;
-        }
-
-        .oidc-button.microsoft:hover {
-          background-color: #f3f2f1;
-        }
-
-        /* GitHub specific styling */
-        .oidc-button.github {
-          background-color: #24292f;
-          color: #ffffff;
-          border: 1px solid #24292f;
-        }
-
-        .oidc-button.github:hover {
-          background-color: #32383f;
-        }
-
-        /* Custom provider styling */
-        .oidc-button.custom {
-          background-color: #1976d2;
-          color: #ffffff;
-          border: 1px solid #1976d2;
-        }
-
-        .oidc-button.custom:hover {
-          background-color: #1565c0;
+          --md-outlined-button-container-height: 44px;
         }
 
         .provider-icon {
           width: 18px;
           height: 18px;
-          margin-right: 12px;
-          flex-shrink: 0;
-        }
-
-        .button-text {
-          flex: 1;
-          text-align: center;
-        }
-
-        /* Responsive design */
-        @media (max-width: 480px) {
-          .oidc-button {
-            font-size: 16px;
-            padding: 14px 18px;
-            min-height: 48px;
-          }
-
-          .provider-icon {
-            width: 20px;
-            height: 20px;
-            margin-right: 14px;
-          }
-        }
-
-        @media (max-width: 320px) {
-          .button-text {
-            font-size: 14px;
-          }
-        }
-
-        /* High contrast mode support */
-        @media (prefers-contrast: high) {
-          .oidc-button {
-            border-width: 2px;
-          }
-
-          .oidc-button:focus {
-            outline-width: 3px;
-          }
-        }
-
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-          .oidc-button {
-            transition: none;
-          }
-        }
-
-        /* Dark theme support */
-        @media (prefers-color-scheme: dark) {
-          .oidc-button.google {
-            background-color: #131314;
-            color: #e8eaed;
-            border-color: #5f6368;
-          }
-
-          .oidc-button.google:hover {
-            background-color: #232527;
-          }
-
-          .oidc-button.microsoft {
-            background-color: #131314;
-            color: #ffffff;
-            border-color: #5f6368;
-          }
-
-          .oidc-button.microsoft:hover {
-            background-color: #232527;
-          }
-
-          .oidc-button:focus {
-            outline-color: #8ab4f8;
-          }
+          margin-right: 8px;
+          vertical-align: middle;
         }
       `,
     ]
@@ -196,6 +32,8 @@ class GrampsjsOidcButton extends LitElement {
       onClick: {type: Function},
       disabled: {type: Boolean},
       loading: {type: Boolean},
+      buttonText: {type: String},
+      signingInText: {type: String},
     }
   }
 
@@ -206,6 +44,8 @@ class GrampsjsOidcButton extends LitElement {
     this.onClick = () => {}
     this.disabled = false
     this.loading = false
+    this.buttonText = 'Sign in'
+    this.signingInText = 'Signing in...'
   }
 
   _getProviderIcon() {
@@ -281,16 +121,6 @@ class GrampsjsOidcButton extends LitElement {
     }
   }
 
-  _getButtonText() {
-    const translations = {
-      google: 'Sign in with Google',
-      microsoft: 'Sign in with Microsoft',
-      github: 'Sign in with GitHub',
-      custom: `Sign in with ${this.providerName}`,
-    }
-    return translations[this.provider] || `Sign in with ${this.providerName}`
-  }
-
   _handleClick(e) {
     e.preventDefault()
     if (this.disabled || this.loading) {
@@ -303,19 +133,13 @@ class GrampsjsOidcButton extends LitElement {
 
   render() {
     return html`
-      <button
-        class="oidc-button ${this.provider}"
+      <md-outlined-button
         @click="${this._handleClick}"
-        type="button"
-        aria-label="${this._getButtonText()}"
         ?disabled="${this.disabled || this.loading}"
-        aria-busy="${this.loading}"
       >
         ${this._getProviderIcon()}
-        <span class="button-text">
-          ${this.loading ? 'Signing in...' : this._getButtonText()}
-        </span>
-      </button>
+        ${this.loading ? this.signingInText : this.buttonText}
+      </md-outlined-button>
     `
   }
 }
