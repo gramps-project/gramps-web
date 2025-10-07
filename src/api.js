@@ -5,6 +5,9 @@ import {fireEvent} from './util.js'
 
 export const __APIHOST__ = 'http://localhost:5555'
 
+// Access token expiration time (15 minutes in milliseconds)
+export const ACCESS_TOKEN_EXPIRY_MS = 15 * 60 * 1000
+
 export function doLogout() {
   localStorage.removeItem('access_token')
   localStorage.removeItem('access_token_expires')
@@ -281,7 +284,7 @@ export async function apiGetTokens(username, password) {
     if (data.refresh_token === undefined) {
       return {error: 'Refresh token missing in response'}
     }
-    const expires = Date.now() + 15 * 60 * 1000
+    const expires = Date.now() + ACCESS_TOKEN_EXPIRY_MS
     storeAuthToken(data.access_token, expires)
     storeRefreshToken(data.refresh_token)
     return {}
@@ -318,7 +321,7 @@ export async function apiRefreshAuthToken(attempts = 3) {
     if (data.access_token === undefined) {
       throw new Error('Access token missing in response')
     }
-    const expires = Date.now() + 15 * 60 * 1000
+    const expires = Date.now() + ACCESS_TOKEN_EXPIRY_MS
     storeAuthToken(data.access_token, expires)
     return {}
   } catch (error) {
