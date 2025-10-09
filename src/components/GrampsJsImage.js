@@ -23,6 +23,10 @@ class GrampsjsImg extends LitElement {
           max-height: 100vh;
         }
 
+        img.broken {
+          background-color: var(--md-sys-color-surface-container-highest);
+        }
+
         .round {
           border-radius: 50%;
         }
@@ -178,7 +182,11 @@ class GrampsjsImg extends LitElement {
 
   renderBrokenImage() {
     return html`<img
-      class=${classMap({round: this.circle, bordered: this.border})}
+      class=${classMap({
+        broken: true,
+        round: this.circle,
+        bordered: this.border,
+      })}
       height="${this.displayHeight || ''}"
       style="${this.circle ? '' : `border-radius:${this.radius}px`}"
       src="data:image/svg+xml;base64,${brokenIcon}"
