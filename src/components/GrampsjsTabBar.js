@@ -40,11 +40,6 @@ class GrampsjsTabBar extends GrampsjsAppStateMixin(LitElement) {
           flex: 0 0 auto;
           width: auto;
         }
-
-        .medium {
-          font-weight: 500;
-          color: rgb(0.05, 0.05, 0.05);
-        }
       `,
     ]
   }

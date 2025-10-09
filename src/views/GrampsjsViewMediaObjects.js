@@ -33,7 +33,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         }
 
         .tile span {
-          color: #666;
+          color: var(--grampsjs-body-font-color-60);
           font-size: 15px;
           position: absolute;
           bottom: 0px;

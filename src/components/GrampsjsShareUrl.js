@@ -15,14 +15,14 @@ export class GrampsjsShareUrl extends GrampsjsAppStateMixin(LitElement) {
         :host {
           font-size: 14px;
           font-weight: 450;
-          color: rgba(0, 0, 0, 0.45);
+          color: var(--grampsjs-body-font-color-45);
         }
 
         mwc-icon {
           font-size: 18px;
           top: 4px;
           position: relative;
-          color: rgba(0, 0, 0, 0.4);
+          color: var(--grampsjs-body-font-color-40);
         }
 
         mwc-icon-button {

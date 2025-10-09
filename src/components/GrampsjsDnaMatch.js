@@ -112,7 +112,10 @@ export class GrampsjsDnaMatch extends GrampsjsAppStateMixin(LitElement) {
 
       <div class="container">
         <md-icon-button @click="${this.handleBackToAllMatches}">
-          <md-icon>${renderIconSvg(mdiArrowLeft, '#666')}</md-icon>
+          <md-icon>${renderIconSvg(
+            mdiArrowLeft,
+            'var(--grampsjs-body-font-color-60)'
+          )}</md-icon>
         </md-icon-button>
       </div>
     `

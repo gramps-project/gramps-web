@@ -32,20 +32,20 @@ class GrampsjsFormEditLatLong extends GrampsjsObjectForm {
 
         .search-result {
           padding: 0.5em 0;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-          border-top: 1px solid rgba(0, 0, 0, 0.1);
+          border-bottom: 1px solid var(--grampsjs-body-font-color-10);
+          border-top: 1px solid var(--grampsjs-body-font-color-10);
         }
 
         .attribution {
           font-size: 0.8em;
-          color: rgba(0, 0, 0, 0.4);
+          color: var(--grampsjs-body-font-color-40);
           text-align: right;
         }
 
         .attribution a:link,
         a:hover,
         a:visited {
-          color: rgba(0, 0, 0, 0.4);
+          color: var(--grampsjs-body-font-color-40);
         }
       `,
     ]

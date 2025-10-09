@@ -25,7 +25,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .number {
-          color: rgba(0, 0, 0, 0.35);
+          color: var(--grampsjs-body-font-color-35);
           font-size: 22px;
         }
       `,

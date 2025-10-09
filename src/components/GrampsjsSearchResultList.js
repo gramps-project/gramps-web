@@ -31,8 +31,8 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
         }
 
         mwc-icon {
-          background-color: rgba(0, 0, 0, 0.25);
-          color: white;
+          background-color: var(--grampsjs-color-icon-background);
+          color: var(--grampsjs-color-icon);
         }
 
         mwc-icon.placeholder {

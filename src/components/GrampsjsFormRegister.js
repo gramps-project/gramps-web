@@ -38,7 +38,7 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
 
         p.success {
           padding-top: 1em;
-          color: #4caf50;
+          color: var(--grampsjs-alert-success-font-color);
           font-size: 1.2em;
           font-weight: 400;
           --mdc-icon-size: 1.6em;
@@ -47,7 +47,7 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
         }
 
         mwc-circular-progress {
-          --mdc-theme-primary: white;
+          --mdc-theme-primary: var(--mdc-theme-on-primary);
         }
       `,
     ]

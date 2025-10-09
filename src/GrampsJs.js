@@ -1,40 +1,41 @@
-import {LitElement, html, css} from 'lit'
-import {installRouter} from 'pwa-helpers/router.js'
-import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
-import '@material/mwc-drawer'
-import '@material/mwc-top-app-bar'
-import '@material/mwc-icon'
 import '@material/mwc-button'
-import '@material/mwc-textfield'
+import '@material/mwc-drawer'
+import '@material/mwc-icon'
 import '@material/mwc-icon-button'
-import '@material/mwc-list'
-import '@material/mwc-menu'
-import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-linear-progress'
+import '@material/mwc-list'
+import '@material/mwc-list/mwc-list-item'
+import '@material/mwc-menu'
 import '@material/mwc-snackbar'
+import '@material/mwc-textfield'
+import '@material/mwc-top-app-bar'
+import {LitElement, css, html} from 'lit'
+import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
+import {installRouter} from 'pwa-helpers/router.js'
 import {getSettings} from './api.js'
+import './dayjs_locales.js'
 import {
-  grampsStrings,
-  getFrontendStrings,
   frontendLanguages,
+  getFrontendStrings,
+  grampsStrings,
 } from './strings.js'
 import {fireEvent, getBrowserLanguage} from './util.js'
-import './dayjs_locales.js'
 
+import {appStateUpdatePermissions, getInitialAppState} from './appState.js'
 import './components/GrampsjsAppBar.js'
 import './components/GrampsjsDnaTabBar.js'
-import './components/GrampsJsListItem.js'
 import './components/GrampsjsFirstRun.js'
-import './components/GrampsjsLogin.js'
 import './components/GrampsjsFormRegister.js'
+import './components/GrampsJsListItem.js'
+import './components/GrampsjsLogin.js'
 import './components/GrampsjsMainMenu.js'
 import './components/GrampsjsPages.js'
 import './components/GrampsjsTabBar.js'
+import './components/GrampsjsUndoTransaction.js'
 import './components/GrampsjsUpdateAvailable.js'
 import './components/GrampsjsUpgradeDb.js'
-import './components/GrampsjsUndoTransaction.js'
 import {sharedStyles} from './SharedStyles.js'
-import {getInitialAppState, appStateUpdatePermissions} from './appState.js'
+import {applyTheme} from './theme.js'
 
 const LOADING_STATE_INITIAL = 0
 const LOADING_STATE_UNAUTHORIZED = 1
@@ -111,19 +112,11 @@ export class GrampsJs extends LitElement {
         }
 
         mwc-linear-progress {
-          --mdc-theme-primary: #4fc3f7;
+          --mdc-theme-primary: var(--grampsjs-color-page-loading-progress);
         }
 
         #user-menu mwc-button {
           margin: 0.5em 1em;
-        }
-
-        #person-button {
-          margin-left: 60px;
-          margin-top: 10px;
-          background-color: #e0e0e0;
-          color: #444;
-          border-radius: 50%;
         }
 
         #app-title:first-letter {
@@ -144,21 +137,13 @@ export class GrampsJs extends LitElement {
           text-align: center;
         }
 
-        .menu-bottom {
-          position: absolute;
-          bottom: 0;
-          width: 100%;
-          border-top: 1px solid #e0e0e0;
-          background-color: white;
-        }
-
         mwc-list {
           --mdc-list-item-graphic-margin: 20px;
           --mdc-list-side-padding: 20px;
         }
 
         #shortcut-overlay-container {
-          background-color: rgba(0, 0, 0, 0.1);
+          background-color: var(--grampsjs-body-font-color-10);
           position: fixed;
           left: 0;
           top: 0;
@@ -175,7 +160,7 @@ export class GrampsJs extends LitElement {
 
         #shortcut-overlay {
           font-size: 16px;
-          background-color: white;
+          background-color: var(--md-sys-color-surface-container-high);
           padding: 0.5em 1.5em;
           position: absolute;
           top: 15vh;
@@ -222,8 +207,8 @@ export class GrampsJs extends LitElement {
           min-width: 0.75em;
           padding: 4px 6px;
           text-align: center;
-          border: 1px solid #ccc;
-          color: #555;
+          border: 1px solid var(--grampsjs-body-font-color-20);
+          color: var(--grampsjs-body-font-color-70);
           border-radius: 6px;
           margin-bottom: 4px;
         }
@@ -552,6 +537,12 @@ export class GrampsJs extends LitElement {
     } else if (this.appState.settings.lang) {
       this._loadFrontendStrings(this.appState.settings.lang)
     }
+
+    applyTheme(this.appState.settings.theme)
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    mediaQuery.addEventListener('change', () =>
+      applyTheme(this.appState.settings.theme)
+    )
   }
 
   firstUpdated() {

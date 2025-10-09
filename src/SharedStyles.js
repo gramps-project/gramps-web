@@ -7,20 +7,11 @@ export const sharedStyles = css`
     --grampsjs-heading-font-family: 'Inter var', sans-serif;
     --md-ref-typeface-plain: 'Inter var', sans-serif;
     --grampsjs-body-font-size: 17px;
-    --grampsjs-body-font-color: rgba(0, 0, 0, 0.8);
     font-size: var(--grampsjs-body-font-size);
     font-family: var(--grampsjs-body-font-family);
     --grampsjs-body-font-weight: 340;
     font-weight: var(--grampsjs-body-font-weight);
-    --mdc-theme-primary: #6d4c41;
-    --mdc-theme-on-primary: rgba(255, 255, 255, 0.95);
-    --mdc-theme-secondary: #0277bd;
-    --mdc-theme-on-secondary: rgba(255, 255, 255, 0.95);
-    --mdc-theme-text-primary-on-background: var(--grampsjs-body-font-color);
-    --mdc-theme-text-secondary-on-background: rgba(0, 0, 0, 0.45);
     --mdc-typography-font-family: var(--grampsjs-body-font-family);
-    --color-boy: #64b5f6;
-    --color-girl: #ef9a9a;
     --md-sys-typescale-headline-small-font: var(--grampsjs-heading-font-family);
     --md-sys-typescale-headline-medium-font: var(
       --grampsjs-heading-font-family
@@ -29,55 +20,6 @@ export const sharedStyles = css`
     --md-sys-typescale-body-small-font: var(--grampsjs-body-font-family);
     --md-sys-typescale-body-medium-font: var(--grampsjs-body-font-family);
     --md-sys-typescale-body-large-font: var(--grampsjs-body-font-family);
-    --md-sys-color-primary: rgb(109 76 65);
-    --md-sys-color-surface-tint: rgb(109 76 65);
-    --md-sys-color-on-primary: rgb(255 255 255);
-    --md-sys-color-primary-container: rgb(255 219 207);
-    --md-sys-color-on-primary-container: rgb(57 12 0);
-    --md-sys-color-secondary: rgb(49 98 141);
-    --md-sys-color-on-secondary: rgb(255 255 255);
-    --md-sys-color-secondary-container: rgb(207 229 255);
-    --md-sys-color-on-secondary-container: rgb(0 29 52);
-    --md-sys-color-tertiary: rgb(106 94 47);
-    --md-sys-color-on-tertiary: rgb(255 255 255);
-    --md-sys-color-tertiary-container: rgb(243 226 167);
-    --md-sys-color-on-tertiary-container: rgb(34 27 0);
-    --md-sys-color-error: rgb(186 26 26);
-    --md-sys-color-on-error: rgb(255 255 255);
-    --md-sys-color-error-container: rgb(255 218 214);
-    --md-sys-color-on-error-container: rgb(65 0 2);
-    --md-sys-color-background: rgb(255 248 246);
-    --md-sys-color-on-background: var(--grampsjs-body-font-color);
-    --md-sys-color-surface: #fff;
-    --md-sys-color-on-surface: var(--grampsjs-body-font-color);
-    --md-sys-color-surface-variant: rgb(245 222 215);
-    --md-sys-color-on-surface-variant: rgb(83 67 63);
-    --md-sys-color-outline: rgb(133 115 110);
-    --md-sys-color-outline-variant: rgb(200 200 200);
-    --md-sys-color-shadow: rgb(0 0 0);
-    --md-sys-color-scrim: rgb(0 0 0);
-    --md-sys-color-inverse-surface: rgb(57 46 43);
-    --md-sys-color-inverse-on-surface: rgb(255 237 232);
-    --md-sys-color-inverse-primary: rgb(255 181 156);
-    --md-sys-color-primary-fixed: rgb(255 219 207);
-    --md-sys-color-on-primary-fixed: rgb(57 12 0);
-    --md-sys-color-primary-fixed-dim: rgb(255 181 156);
-    --md-sys-color-on-primary-fixed-variant: rgb(114 53 32);
-    --md-sys-color-secondary-fixed: rgb(207 229 255);
-    --md-sys-color-on-secondary-fixed: rgb(0 29 52);
-    --md-sys-color-secondary-fixed-dim: rgb(157 203 251);
-    --md-sys-color-on-secondary-fixed-variant: rgb(18 74 115);
-    --md-sys-color-tertiary-fixed: rgb(243 226 167);
-    --md-sys-color-on-tertiary-fixed: rgb(34 27 0);
-    --md-sys-color-tertiary-fixed-dim: rgb(214 198 141);
-    --md-sys-color-on-tertiary-fixed-variant: rgb(81 70 26);
-    --md-sys-color-surface-dim: rgb(232 214 209);
-    --md-sys-color-surface-bright: rgb(255 248 246);
-    --md-sys-color-surface-container-lowest: rgb(255 255 255);
-    --md-sys-color-surface-container-low: rgb(255 241 237);
-    --md-sys-color-surface-container: #fff;
-    --md-sys-color-surface-container-high: #fff;
-    --md-sys-color-surface-container-highest: whitesmoke;
     --md-primary-tab-label-text-weight: 425;
     --md-primary-tab-label-text-size: 16px;
     --md-primary-tab-active-indicator-height: 3px;
@@ -90,8 +32,14 @@ export const sharedStyles = css`
   md-list-item {
     --md-list-item-label-text-weight: var(--grampsjs-body-font-weight);
     --md-list-item-label-text-size: 17px;
-    --md-list-item-supporting-text-color: rgba(0, 0, 0, 0.5);
-    --md-list-item-trailing-supporting-text-color: rgba(0, 0, 0, 0.8);
+    --md-list-item-supporting-text-color: var(--grampsjs-body-font-color-50);
+    --md-list-item-trailing-supporting-text-color: var(
+      --grampsjs-body-font-color
+    );
+  }
+
+  mwc-dialog {
+    --mdc-theme-surface: var(--grampsjs-mwc-dialog-background-color);
   }
 
   label {
@@ -100,7 +48,7 @@ export const sharedStyles = css`
     gap: 12px;
     font-size: 15px;
     font-weight: 350;
-    color: var(--md-sys-color-on-background, #000);
+    color: var(--md-sys-color-on-background);
   }
 
   h2,
@@ -108,7 +56,7 @@ export const sharedStyles = css`
   h4 {
     font-weight: 500;
     font-family: var(--grampsjs-heading-font-family);
-    color: rgb(40, 40, 40);
+    color: var(--grampsjs-color-shade-40);
   }
 
   h1 {
@@ -148,13 +96,13 @@ export const sharedStyles = css`
   a:link,
   a:visited,
   span.link {
-    color: #0d47a1;
+    color: var(--grampsjs-color-link-font);
     text-decoration: none;
   }
 
   a:hover,
   span.link:hover {
-    color: #1976d2;
+    color: var(--grampsjs-color-link-hover);
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
@@ -189,12 +137,12 @@ export const sharedStyles = css`
   hr {
     border: 0;
     height: 0.5px;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--grampsjs-body-font-color-40);
   }
 
   dt {
     font-size: 14px;
-    color: rgba(0, 0, 0, 0.5);
+    color: var(--grampsjs-body-font-color-50);
     font-weight: 400;
     margin-bottom: 0.2em;
   }
@@ -215,7 +163,7 @@ export const sharedStyles = css`
   }
 
   h2 mwc-icon {
-    color: rgba(0, 0, 0, 0.2);
+    color: var(--grampsjs-body-font-color-20);
     font-size: 1.05em;
     position: relative;
     top: 0.15em;
@@ -226,7 +174,7 @@ export const sharedStyles = css`
   }
 
   mwc-list.large {
-    --mdc-typography-subtitle1-color: rgba(0, 0, 0, 1);
+    --mdc-typography-subtitle1-color: var(--grampsjs-body-font-color-100);
     --mdc-typography-subtitle1-font-size: var(--grampsjs-body-font-size);
     --mdc-typography-subtitle1-font-weight: var(--grampsjs-body-font-weight);
     --mdc-typography-subtitle1-letter-spacing: -0.01em;
@@ -249,7 +197,7 @@ export const sharedStyles = css`
     position: relative;
     bottom: auto;
     top: auto;
-    color: rgba(0, 0, 0, 0.35);
+    color: var(--grampsjs-body-font-color-35);
   }
 
   mwc-icon.male {
@@ -265,7 +213,7 @@ export const sharedStyles = css`
   }
 
   .event i svg path {
-    fill: #999999;
+    fill: var(--grampsjs-body-font-color-40);
   }
 
   .event i svg {
@@ -290,15 +238,20 @@ export const sharedStyles = css`
   }
 
   h2 .given-name {
-    text-decoration: underline rgba(0, 0, 0, 0.6);
+    text-decoration: underline var(--grampsjs-body-font-color-60);
     text-underline-offset: 0.15em;
     text-decoration-thickness: 0.1rem;
   }
 
   span.skeleton {
     display: inline-block;
-    background: #eee;
-    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+    background-color: var(--grampsjs-color-skeleton-background);
+    background: linear-gradient(
+      110deg,
+      var(--grampsjs-color-skeleton-base) 8%,
+      var(--grampsjs-color-skeleton-shine) 18%,
+      var(--grampsjs-color-skeleton-base) 33%
+    );
     opacity: 0.8;
     border-radius: 3px;
     background-size: 200% 100%;
@@ -306,45 +259,48 @@ export const sharedStyles = css`
   }
 
   div.skeleton {
-    background: #eee;
-    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+    background-color: var(--grampsjs-color-skeleton-background);
+    background: linear-gradient(
+      110deg,
+      var(--grampsjs-color-skeleton-base) 8%,
+      var(--grampsjs-color-skeleton-shine) 18%,
+      var(--grampsjs-color-skeleton-base) 33%
+    );
     opacity: 0.8;
     background-size: 200% 100%;
     animation: 1.5s shine linear infinite;
   }
 
   .alert {
-    background-color: rgba(109, 76, 65, 0.15);
-    border-left: 4px solid rgba(109, 76, 65, 0.7);
+    background-color: var(--grampsjs-alert-background-color);
+    border-left: 4px solid var(--grampsjs-alert-border-color);
     border-radius: 5px;
     padding: 0.8em 1em;
     font-size: 0.8em;
-    color: rgba(0, 0, 0, 0.8);
+    color: var(--grampsjs-body-font-color);
     margin: 1.5em 0;
   }
 
   .alert.error {
-    color: #bf360c;
-    background-color: rgba(191, 54, 12, 0.2);
-    border-left-color: rgba(191, 54, 12, 0.7);
+    background-color: var(--grampsjs-alert-error-background-color);
+    border-left-color: var(--grampsjs-alert-error-border-color);
   }
 
   .alert.warn {
-    color: rgba(0, 0, 0, 0.5);
-    background-color: rgba(251, 192, 45, 0.2);
-    border-left-color: rgba(251, 192, 45, 0.7);
+    background-color: var(--grampsjs-alert-warn-background-color);
+    border-left-color: var(--grampsjs-alert-warn-border-color);
   }
 
   .success {
-    color: #41ad49;
+    color: var(--grampsjs-alert-success-font-color);
   }
 
   .error {
-    color: #bf360c;
+    color: var(--grampsjs-alert-error-font-color);
   }
 
   .warn {
-    color: #f9a825;
+    color: var(--grampsjs-alert-warn-font-color);
   }
 
   @keyframes shine {
@@ -366,17 +322,17 @@ export const sharedStyles = css`
   }
 
   h2.editable:hover {
-    background-color: rgba(2, 119, 189, 0.2);
+    background-color: var(--grampsjs-editable-title-hover-background-color);
   }
 
   .monospace {
     font-family: 'Commit Mono';
-    border: 1px solid rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--grampsjs-body-font-color-15);
     border-radius: 5px;
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: var(--grampsjs-body-font-color-5);
     padding: 0.3em;
     font-size: 0.9em;
-    color: rgb(125, 0, 0, 0.8);
+    color: var(--grampsjs-color-monospace);
   }
 
   md-outlined-text-field.drag-hover {
@@ -384,8 +340,12 @@ export const sharedStyles = css`
     --md-outlined-text-field-hover-outline-color: var(--mdc-theme-secondary);
     --md-outlined-text-field-hover-outline-width: var(--mdc-theme-secondary);
     --md-outlined-text-field-outline-width: var(--mdc-theme-secondary);
-    --md-outlined-text-field-input-text-color: rgba(0, 0, 0, 0.5);
-    --md-outlined-text-field-hover-input-text-color: rgba(0, 0, 0, 0.4);
+    --md-outlined-text-field-input-text-color: var(
+      --grampsjs-body-font-color-50
+    );
+    --md-outlined-text-field-hover-input-text-color: var(
+      --grampsjs-body-font-color-40
+    );
   }
 
   @media (max-width: 768px) {
