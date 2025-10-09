@@ -1,0 +1,37 @@
+name: Bug Report
+description: Report a bug with the Gramps Web frontend
+title: '[Bug] '
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report a bug in Gramps Web!
+
+        Please note that this is the repository for the Gramps Web user interface. If you think the bug is more likely to be caused on the server side, please report a bug at https://github.com/gramps-project/gramps-web-api/issues. If you found a bug in the Gramps Web Sync Addon, please report it at https://github.com/DavidMStraub/gramps-web-sync. For setup/deployment issues, please open a discussion instead of an issue, or post in the [Gramps forum](https://gramps.discourse.group/c/gramps-web/28).
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is - steps to reproduce, expected behaviour, actual behaviour, etc.
+      placeholder: Describe the bug...
+    validations:
+      required: true
+
+  - type: textarea
+    id: gramps-web-version
+    attributes:
+      label: Gramps Web Version Information
+      description: Paste the version information from the "System Information" page in Gramps Web
+      placeholder: Paste version information
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: verification
+    attributes:
+      label: Verification
+      description: Please confirm the following
+      options:
+        - label: I have searched for existing issues before creating this one
+          required: true

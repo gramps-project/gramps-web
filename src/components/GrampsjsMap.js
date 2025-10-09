@@ -38,6 +38,14 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         <div id="${this.mapid}" style="z-index: 0; width: 100%; height: 100%;">
           <slot> </slot>
         </div>
+        ${this.layerSwitcher ? this._renderLayerSwitcher() : html`<div></div>`}
+      </div>
+    `
+  }
+
+  _renderLayerSwitcher() {
+    return html`
+      <div class="map-layerswitcher">
         <grampsjs-map-layer-switcher
           .appState="${this.appState}"
           .overlays="${this.overlays}"
@@ -63,6 +71,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       longMin: {type: Number},
       longMax: {type: Number},
       overlays: {type: Array},
+      layerSwitcher: {type: Boolean},
       _map: {type: Object},
       _currentStyle: {type: String},
     }
@@ -82,6 +91,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this.longMin = 0
     this.longMax = 0
     this.overlays = []
+    this.layerSwitcher = false
     this._currentStyle = 'base'
     this._mediaQuery = undefined
   }
