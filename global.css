@@ -111,6 +111,9 @@ body {
   --grampsjs-color-revision-error-font: #fff;
   --grampsjs-color-icon-background: rgba(0, 0, 0, 0.25);
   --grampsjs-color-icon: #fff;
+  --grampsjs-color-ytree-expand-background: #eee;
+  --grampsjs-color-ytree-expand-font: #555;
+  --grampsjs-color-ytree-default-person-icon-background: #bbb;
   --grampsjs-note-color: #333;
   --md-sys-color-primary: rgb(109, 76, 65);
   --md-sys-color-surface-tint: rgb(109, 76, 65);
@@ -215,6 +218,9 @@ body {
   --grampsjs-color-revision-error-font: #fff;
   --grampsjs-color-icon-background: rgba(255, 255, 255, 0.15);
   --grampsjs-color-icon: rgba(255, 255, 255, 0.6);
+  --grampsjs-color-ytree-expand-background: var(--md-sys-color-surface-container);
+  --grampsjs-color-ytree-expand-font: var(--md-sys-color-on-surface);
+  --grampsjs-color-ytree-default-person-icon-background: var(--md-sys-color-surface-container);
   --grampsjs-note-color: #ccc;
   --grampsjs-map-marker-color: #bb1f11;
   --md-sys-color-primary: #8d7168;

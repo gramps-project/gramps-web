@@ -113,7 +113,10 @@ export function YtreeLineageChart(chartData, options = {}) {
         .attr('cx', iconCx)
         .attr('cy', iconCy)
         .attr('r', iconRadius)
-        .attr('fill', '#bbb')
+        .attr(
+          'fill',
+          'var(--grampsjs-color-ytree-default-person-icon-background)'
+        )
       group
         .append('path')
         .attr('d', personPath)
