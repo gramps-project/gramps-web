@@ -62,6 +62,7 @@ body {
 :root[data-theme='light'] {
   --grampsjs-top-app-bar-background-color: var(--mdc-theme-primary);
   --grampsjs-top-app-bar-font-color: var(--mdc-theme-on-primary);
+  --grampsjs-mwc-dialog-background-color: var(--md-sys-color-surface);
   --grampsjs-body-font-color: rgba(0, 0, 0, 0.8);
   --grampsjs-body-font-color-0: rgba(0, 0, 0, 0);
   --grampsjs-body-font-color-2: rgba(0, 0, 0, 0.02);
@@ -165,6 +166,7 @@ body {
 :root[data-theme='dark'] {
   --grampsjs-top-app-bar-background-color: var(--md-sys-color-surface-container);
   --grampsjs-top-app-bar-font-color: var(--md-sys-color-on-surface);
+  --grampsjs-mwc-dialog-background-color: var(--md-sys-color-surface-container-high);
   --grampsjs-body-font-color: rgba(255, 255, 255, 0.8);
   --grampsjs-body-font-color-0: rgba(255, 255, 255, 0);
   --grampsjs-body-font-color-2: rgba(255, 255, 255, 0.05);

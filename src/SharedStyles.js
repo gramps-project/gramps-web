@@ -38,6 +38,10 @@ export const sharedStyles = css`
     );
   }
 
+  mwc-dialog {
+    --mdc-theme-surface: var(--grampsjs-mwc-dialog-background-color);
+  }
+
   label {
     display: inline-flex;
     place-items: center;
