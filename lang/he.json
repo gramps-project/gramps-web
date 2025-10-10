@@ -204,5 +204,10 @@
     "Chromosome": "כרומוזום",
     "Start Position": "איות התחלתית",
     "End Position": "איות סופית",
-    "DNA Match": "התאמת DNA"
+    "DNA Match": "התאמת DNA",
+    "Link to enclosing place": "קישור למקום 'מכיל'",
+    "Started": "התחיל",
+    "DNA match with %s deleted.": "התאמת DNA עם %s נמחקה.",
+    "Paste text or drop a file here": "הדבקת מלל או שחרור קובץ כאן",
+    "No DNA matches found.": "לא נמצאו התאמות DNA."
 }
