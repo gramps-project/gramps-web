@@ -40,6 +40,9 @@ export async function handleOIDCCallback(errorCallback) {
     if (data.refresh_token) {
       localStorage.setItem('refresh_token', data.refresh_token)
     }
+    if (data.id_token) {
+      localStorage.setItem('id_token', data.id_token)
+    }
 
     requestAnimationFrame(() => {
       window.location.href = data.frontend_url || '/'
@@ -77,6 +80,9 @@ export async function handleOIDCComplete(errorCallback) {
     localStorage.setItem('access_token_expires', expiresAt.toString())
     if (data.refresh_token) {
       localStorage.setItem('refresh_token', data.refresh_token)
+    }
+    if (data.id_token) {
+      localStorage.setItem('id_token', data.id_token)
     }
 
     requestAnimationFrame(() => {

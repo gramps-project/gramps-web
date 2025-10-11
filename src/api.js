@@ -12,6 +12,7 @@ export function doLogout() {
   localStorage.removeItem('access_token')
   localStorage.removeItem('access_token_expires')
   localStorage.removeItem('refresh_token')
+  localStorage.removeItem('id_token')
   window.dispatchEvent(
     new CustomEvent('user:loggedout', {bubbles: true, composed: true})
   )
@@ -710,16 +711,17 @@ export class Auth {
 
   async signout() {
     const oidcProvider = this.claims.oidc_provider
+    const idToken = localStorage.getItem('id_token')
 
     localStorage.removeItem('access_token')
     localStorage.removeItem('access_token_expires')
     localStorage.removeItem('refresh_token')
+    localStorage.removeItem('id_token')
 
     fireEvent(window, 'user:loggedout')
 
     if (oidcProvider) {
       try {
-        const idToken = this.accessToken
         const postLogoutRedirectUri = window.location.origin
         const result = await apiGetOIDCLogoutUrl(
           oidcProvider,
