@@ -5,10 +5,14 @@ import {fireEvent} from './util.js'
 
 export const __APIHOST__ = 'http://localhost:5555'
 
+// Access token expiration time (15 minutes in milliseconds)
+export const ACCESS_TOKEN_EXPIRY_MS = 15 * 60 * 1000
+
 export function doLogout() {
   localStorage.removeItem('access_token')
   localStorage.removeItem('access_token_expires')
   localStorage.removeItem('refresh_token')
+  localStorage.removeItem('id_token')
   window.dispatchEvent(
     new CustomEvent('user:loggedout', {bubbles: true, composed: true})
   )
@@ -161,6 +165,71 @@ export async function apiResetPassword(username) {
   }
 }
 
+export async function apiGetOIDCConfig() {
+  try {
+    const resp = await fetch(`${__APIHOST__}/api/oidc/config/`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+    if (!resp.ok) {
+      throw new Error(resp.statusText || `Error ${resp.status}`)
+    }
+    return await resp.json()
+  } catch (error) {
+    return {error: error.message}
+  }
+}
+
+export async function apiOIDCLogin(providerId) {
+  try {
+    if (!providerId) {
+      throw new Error('Provider ID is required')
+    }
+    window.location.href = `${__APIHOST__}/api/oidc/login/?provider=${encodeURIComponent(
+      providerId
+    )}`
+    return {success: true}
+  } catch (error) {
+    return {error: error.message}
+  }
+}
+
+export async function apiGetOIDCLogoutUrl(
+  providerId,
+  idToken,
+  postLogoutRedirectUri
+) {
+  try {
+    if (!providerId) {
+      throw new Error('Provider ID is required')
+    }
+    const params = new URLSearchParams({provider: providerId})
+    if (idToken) {
+      params.append('id_token', idToken)
+    }
+    if (postLogoutRedirectUri) {
+      params.append('post_logout_redirect_uri', postLogoutRedirectUri)
+    }
+    const resp = await fetch(
+      `${__APIHOST__}/api/oidc/logout/?${params.toString()}`,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+        },
+      }
+    )
+    if (!resp.ok) {
+      throw new Error(resp.statusText || `Error ${resp.status}`)
+    }
+    return await resp.json()
+  } catch (error) {
+    return {error: error.message, logout_url: null}
+  }
+}
+
 export async function apiRegisterUser(
   username,
   password,
@@ -218,7 +287,7 @@ export async function apiGetTokens(username, password) {
     if (data.refresh_token === undefined) {
       return {error: 'Refresh token missing in response'}
     }
-    const expires = Date.now() + 15 * 60 * 1000
+    const expires = Date.now() + ACCESS_TOKEN_EXPIRY_MS
     storeAuthToken(data.access_token, expires)
     storeRefreshToken(data.refresh_token)
     return {}
@@ -255,7 +324,7 @@ export async function apiRefreshAuthToken(attempts = 3) {
     if (data.access_token === undefined) {
       throw new Error('Access token missing in response')
     }
-    const expires = Date.now() + 15 * 60 * 1000
+    const expires = Date.now() + ACCESS_TOKEN_EXPIRY_MS
     storeAuthToken(data.access_token, expires)
     return {}
   } catch (error) {
@@ -642,12 +711,35 @@ export class Auth {
     return !!this.claims.fresh
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  signout() {
+  async signout() {
+    const oidcProvider = this.claims.oidc_provider
+    const idToken = localStorage.getItem('id_token')
+
     localStorage.removeItem('access_token')
     localStorage.removeItem('access_token_expires')
     localStorage.removeItem('refresh_token')
+    localStorage.removeItem('id_token')
+
     fireEvent(window, 'user:loggedout')
+
+    if (oidcProvider) {
+      try {
+        const postLogoutRedirectUri = window.location.origin
+        const result = await apiGetOIDCLogoutUrl(
+          oidcProvider,
+          idToken,
+          postLogoutRedirectUri
+        )
+
+        if (result.logout_url) {
+          window.location.href = result.logout_url
+          return
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.warn('Failed to get OIDC logout URL:', error)
+      }
+    }
   }
 
   async refreshAuthTokens(attempts = 3) {
