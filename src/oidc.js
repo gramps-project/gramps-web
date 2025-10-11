@@ -1,5 +1,17 @@
 import {__APIHOST__, ACCESS_TOKEN_EXPIRY_MS} from './api.js'
 
+function storeTokens(data) {
+  const expiresAt = Date.now() + ACCESS_TOKEN_EXPIRY_MS
+  localStorage.setItem('access_token', data.access_token)
+  localStorage.setItem('access_token_expires', expiresAt.toString())
+  if (data.refresh_token) {
+    localStorage.setItem('refresh_token', data.refresh_token)
+  }
+  if (data.id_token) {
+    localStorage.setItem('id_token', data.id_token)
+  }
+}
+
 export async function handleOIDCCallback(errorCallback) {
   try {
     const urlParams = new URLSearchParams(window.location.search)
@@ -34,15 +46,7 @@ export async function handleOIDCCallback(errorCallback) {
       throw new Error('Access token missing in response')
     }
 
-    const expiresAt = Date.now() + ACCESS_TOKEN_EXPIRY_MS
-    localStorage.setItem('access_token', data.access_token)
-    localStorage.setItem('access_token_expires', expiresAt.toString())
-    if (data.refresh_token) {
-      localStorage.setItem('refresh_token', data.refresh_token)
-    }
-    if (data.id_token) {
-      localStorage.setItem('id_token', data.id_token)
-    }
+    storeTokens(data)
 
     requestAnimationFrame(() => {
       window.location.href = data.frontend_url || '/'
@@ -66,7 +70,7 @@ export async function handleOIDCComplete(errorCallback) {
     if (!resp.ok) {
       const errorText = await resp.text()
       throw new Error(
-        `${resp.statusText}: ${errorText}` || `Error ${resp.status}`
+        errorText ? `${resp.statusText}: ${errorText}` : `Error ${resp.status}`
       )
     }
 
@@ -75,15 +79,7 @@ export async function handleOIDCComplete(errorCallback) {
       throw new Error('Access token missing in response')
     }
 
-    const expiresAt = Date.now() + ACCESS_TOKEN_EXPIRY_MS
-    localStorage.setItem('access_token', data.access_token)
-    localStorage.setItem('access_token_expires', expiresAt.toString())
-    if (data.refresh_token) {
-      localStorage.setItem('refresh_token', data.refresh_token)
-    }
-    if (data.id_token) {
-      localStorage.setItem('id_token', data.id_token)
-    }
+    storeTokens(data)
 
     requestAnimationFrame(() => {
       window.location.href = '/'

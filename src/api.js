@@ -187,7 +187,9 @@ export async function apiOIDCLogin(providerId) {
     if (!providerId) {
       throw new Error('Provider ID is required')
     }
-    window.location.href = `${__APIHOST__}/api/oidc/login/?provider=${providerId}`
+    window.location.href = `${__APIHOST__}/api/oidc/login/?provider=${encodeURIComponent(
+      providerId
+    )}`
     return {success: true}
   } catch (error) {
     return {error: error.message}
