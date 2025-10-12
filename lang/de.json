@@ -241,5 +241,10 @@
     "Most specific position on the human Y chromosome tree": "Genaueste Position im Stammbaum des menschlichen Y-Chromosoms",
     "Paternal Lineage": "Väterliche Abstammungslinie",
     "Add Y-DNA data": "Y-DNA-Daten hinzufügen",
-    "Link to enclosing place": "Mit umschließendem Ort verknüpfen"
+    "Link to enclosing place": "Mit umschließendem Ort verknüpfen",
+    "Select theme": "Erscheinungsbild auswählen",
+    "Theme": "Erscheinungsbild",
+    "System": "System",
+    "Light": "Hell",
+    "Dark": "Dunkel"
 }
