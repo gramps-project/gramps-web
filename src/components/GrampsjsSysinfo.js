@@ -11,7 +11,7 @@ export class GrampsjsSysinfo extends GrampsjsAppStateMixin(LitElement) {
       sharedStyles,
       css`
         div.copy {
-          border: 1px solid rgba(0, 0, 0, 0.2);
+          border: 1px solid var(--grampsjs-body-font-color-20);
           border-radius: 5px;
           padding: 20px;
           max-width: 20em;
@@ -20,7 +20,7 @@ export class GrampsjsSysinfo extends GrampsjsAppStateMixin(LitElement) {
         }
 
         div.copy mwc-icon-button {
-          color: rgba(0, 0, 0, 0.3);
+          color: var(--grampsjs-body-font-color-30);
           --mdc-icon-size: 16px;
           float: right;
         }

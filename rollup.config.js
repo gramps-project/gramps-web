@@ -1,7 +1,7 @@
-import merge from 'deepmerge'
-import copy from 'rollup-plugin-copy'
 import {createSpaConfig} from '@open-wc/building-rollup'
 import replace from '@rollup/plugin-replace'
+import merge from 'deepmerge'
+import copy from 'rollup-plugin-copy'
 import versionInjector from 'rollup-plugin-version-injector'
 
 const API_URL = process.env.API_URL === undefined ? '' : process.env.API_URL
@@ -31,6 +31,7 @@ export default merge(baseConfig, {
     copy({
       targets: [
         {src: './maplibre-gl.css', dest: 'dist/'},
+        {src: './global.css', dest: 'dist/'},
         {src: './tippy.css', dest: 'dist/'},
         {src: './src/config.js', dest: 'dist/'},
         {src: './manifest.json', dest: 'dist/'},

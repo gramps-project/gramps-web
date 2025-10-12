@@ -15,7 +15,7 @@ const colorFunctions = {
   default: {
     fct: d => {
       if (d.depth === 0) {
-        return 'rgb(120, 120, 120)'
+        return 'var(--grampsjs-color-shade-120)'
       }
       const ind = Math.min(Math.max(0, Math.floor((d.x0 / Math.PI / 2) * 8)), 8)
       return schemePaired[ind]
@@ -92,7 +92,7 @@ function getMinMaxNumber(numbers) {
 function colorFunctionNumber(d, callback, min, max) {
   const x = callback(d?.data?.person)
   if (x === undefined) {
-    return 'rgb(220, 220, 220)'
+    return 'var(--grampsjs-color-shade-220)'
   }
   const p = max === min ? 0.5 : (x - min) / (max - min)
   return interpolateWarm(p)
@@ -101,7 +101,7 @@ function colorFunctionNumber(d, callback, min, max) {
 function colorFunctionCount(d, callback) {
   const count = callback(d?.data?.person)
   if (count === undefined || count === 0) {
-    return 'rgb(220, 220, 220)'
+    return 'var(--grampsjs-color-shade-220)'
   }
   return schemeYlOrRd[9][count > 8 ? 8 : count]
   // const p = (count - 1) / 8
@@ -130,7 +130,7 @@ const schemeCategorical = [
 function colorFunctionCategory(d, callback, categories) {
   const category = callback(d?.data?.person)
   if (category === undefined) {
-    return 'rgb(220, 220, 220)'
+    return 'var(--grampsjs-color-shade-220)'
   }
   const index = categories.findIndex(cat => cat === category)
   if (index === -1 || index >= 9) {
@@ -252,13 +252,13 @@ export function FanChart(
       color: schemeYlOrRd[9][i],
     }))
     legendData.push({label: '≥ 8', color: schemeYlOrRd[9][8]})
-    legendData[0].color = 'rgb(220, 220, 220)'
+    legendData[0].color = 'var(--grampsjs-color-shade-220)'
     legendFunction = le => LegendCategorical(le, legendData, {opacity: 0.5})
   } else if (colorFunctionInfo.type === 'multiplicity') {
     const multiplicities = countPersonMultiplicity(data)
     colorFunction = d =>
       d.depth === 0
-        ? 'rgb(220, 220, 220)'
+        ? 'var(--grampsjs-color-shade-220)'
         : colorFunctionCount(d, person => multiplicities?.[person?.handle] ?? 0)
     colorOpacity = 0.5
     const legendData = [...Array(8).keys()].slice(0, 8).map(i => ({
@@ -266,7 +266,7 @@ export function FanChart(
       color: schemeYlOrRd[9][i],
     }))
     legendData.push({label: '≥ 8', color: schemeYlOrRd[9][8]})
-    legendData[0].color = 'rgb(220, 220, 220)'
+    legendData[0].color = 'var(--grampsjs-color-shade-220)'
     legendFunction = le => LegendCategorical(le, legendData, {opacity: 0.5})
   } else if (colorFunctionInfo.type === 'category') {
     const catFunction = colorFunctionInfo.fct
@@ -350,7 +350,9 @@ export function FanChart(
     .append('path')
     .attr('d', arc)
     .attr('fill', d =>
-      colorFunction === null ? 'rgb(200, 200, 200)' : colorFunction(d)
+      colorFunction === null
+        ? 'var(--grampsjs-color-shade-200)'
+        : colorFunction(d)
     )
     .attr('fill-opacity', colorOpacity)
     .attr('id', d => d.data.id) // Unique id for each slice
@@ -397,6 +399,7 @@ export function FanChart(
   cell
     .filter(d => d.depth === 0)
     .append('text')
+    .style('fill', 'var(--grampsjs-body-font-color-70)')
     .attr(
       'font-weight',
       nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
@@ -417,6 +420,7 @@ export function FanChart(
   cell
     .filter(d => d.depth === 0)
     .append('text')
+    .style('fill', 'var(--grampsjs-body-font-color-70)')
     .attr(
       'font-weight',
       nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
@@ -443,6 +447,7 @@ export function FanChart(
     .filter(d => d.depth > 0)
     .filter(d => ((d.y0 + d.y1) / 2) * (d.x1 - d.x0) > 50)
     .append('text')
+    .style('fill', 'var(--grampsjs-body-font-color-70)')
     .attr(
       'font-weight',
       nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
@@ -454,6 +459,7 @@ export function FanChart(
     // .attr("dx", (dx => 1)
     .append('textPath') // append a textPath to the text element
     .attr('xlink:href', d => `#${d.data.id}`)
+    .style('fill', 'var(--grampsjs-body-font-color-70)')
     .style('text-anchor', 'middle')
     .attr('startOffset', startOffset)
     .style('letter-spacing', d =>
@@ -472,6 +478,7 @@ export function FanChart(
     .filter(d => d.depth > 0)
     .filter(d => ((d.y0 + d.y1) / 2) * (d.x1 - d.x0) > 50)
     .append('text')
+    .style('fill', 'var(--grampsjs-body-font-color-70)')
     .attr(
       'font-weight',
       nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
@@ -483,6 +490,7 @@ export function FanChart(
     // .attr("dx", (dx => 1)
     .append('textPath') // append a textPath to the text element
     .attr('xlink:href', d => `#${d.data.id}`)
+    .style('fill', 'var(--grampsjs-body-font-color-70)')
     .style('text-anchor', 'middle')
     .attr('startOffset', startOffset)
     .style('letter-spacing', d =>

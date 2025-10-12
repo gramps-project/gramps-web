@@ -30,7 +30,9 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
         }
 
         md-filled-tonal-icon-button {
-          --md-filled-tonal-icon-button-container-color: #eee;
+          --md-filled-tonal-icon-button-container-color: var(
+            --grampsjs-color-ytree-expand-background
+          );
         }
       `,
     ]
@@ -188,7 +190,7 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
                     path="${this.expanded
                       ? mdiUnfoldLessHorizontal
                       : mdiUnfoldMoreHorizontal}"
-                    color="#555"
+                    color="var(--grampsjs-color-ytree-expand-font)"
                   ></grampsjs-icon>
                 </md-filled-tonal-icon-button>
                 <grampsjs-tooltip

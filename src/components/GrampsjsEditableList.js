@@ -25,35 +25,42 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
         }
 
         mwc-list[activatable] [selected] {
-          background-color: rgba(2, 119, 189, 0.5);
+          background-color: var(
+            --grampsjs-editable-list-selected-background-color
+          );
         }
 
         mwc-list[activatable] [mwc-list-item]:not([selected]):hover,
         mwc-list[activatable] [mwc-list-item]:not([selected]):focus {
-          background-color: rgba(2, 119, 189, 0.1);
+          background-color: var(
+            --grampsjs-editable-list-hover-background-color
+          );
         }
 
         mwc-list[activatable] [mwc-list-item]:not([selected]):active {
-          background-color: rgba(2, 119, 189, 0.2);
+          background-color: var(
+            --grampsjs-editable-list-active-background-color
+          );
         }
 
         mwc-list[activatable] [mwc-list-item][selected]:hover,
         mwc-list[activatable] [mwc-list-item][selected]:focus {
-          background-color: rgba(2, 119, 189, 0.4);
-          color: rgba(0, 0, 0, 0.9);
+          background-color: var(
+            --grampsjs-editable-list-selected-hover-background-color
+          );
+          color: var(--grampsjs-body-font-color-90);
         }
 
         mwc-list[activatable] [mwc-list-item][selected]:active {
-          background-color: rgba(2, 119, 189, 0.3);
+          background-color: var(
+            --grampsjs-editable-list-selected-active-background-color
+          );
         }
 
         mwc-icon-button {
-          --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.25);
-        }
-
-        mwc-icon {
-          background-color: rgba(0, 0, 0, 0.25);
-          color: white;
+          --mdc-theme-text-disabled-on-light: var(
+            --grampsjs-body-font-color-25
+          );
         }
 
         mwc-icon.placeholder {

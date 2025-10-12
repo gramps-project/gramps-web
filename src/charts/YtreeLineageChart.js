@@ -30,7 +30,7 @@ export function YtreeLineageChart(chartData, options = {}) {
   const gapY = 50
   const padding = 20
   const imgPadding = 10
-  const stroke = '#999'
+  const stroke = 'var(--grampsjs-body-font-color-40)'
   const strokeWidth = 3
   const strokeDasharray = '3,3'
   const fontFamily = 'Inter var'
@@ -77,7 +77,7 @@ export function YtreeLineageChart(chartData, options = {}) {
       .attr('height', boxHeight)
       .attr('rx', 8)
       .attr('ry', 8)
-      .attr('fill', 'rgba(230,230,230,1)')
+      .attr('fill', 'var(--grampsjs-color-shade-230)')
     // Draw person icon circle inside the box, or image if available
     const iconCx = boxX + iconRadius + 13
     const iconCy = y + boxHeight / 2
@@ -113,11 +113,14 @@ export function YtreeLineageChart(chartData, options = {}) {
         .attr('cx', iconCx)
         .attr('cy', iconCy)
         .attr('r', iconRadius)
-        .attr('fill', '#bbb')
+        .attr(
+          'fill',
+          'var(--grampsjs-color-ytree-default-person-icon-background)'
+        )
       group
         .append('path')
         .attr('d', personPath)
-        .attr('fill', '#888')
+        .attr('fill', 'var(--grampsjs-body-font-color-50)')
         .attr(
           'transform',
           `translate(${iconCx - 18},${iconCy - 18}) scale(1.5,1.5)`
@@ -137,7 +140,7 @@ export function YtreeLineageChart(chartData, options = {}) {
       .attr('y', y + 30)
       .attr('text-anchor', 'start')
       .attr('font-weight', '500')
-      .attr('fill', 'rgba(0,0,0,0.9)')
+      .attr('fill', 'var(--grampsjs-body-font-color-90)')
       .text(clipString(item.name, textWidth))
     group
       .append('text')
@@ -145,7 +148,7 @@ export function YtreeLineageChart(chartData, options = {}) {
       .attr('y', y + 50)
       .attr('text-anchor', 'start')
       .attr('font-weight', '350')
-      .attr('fill', 'rgba(0,0,0,0.9)')
+      .attr('fill', 'var(--grampsjs-body-font-color-90)')
       .text(clipString(item.year, textWidth))
     // Draw connector line and label if not last box
     if (i < chartData.length - 1) {
@@ -163,7 +166,7 @@ export function YtreeLineageChart(chartData, options = {}) {
       g.append('text')
         .attr('x', lineX + 16)
         .attr('y', (lineY1 + lineY2) / 2 + 5)
-        .attr('fill', '#888')
+        .attr('fill', 'var(--grampsjs-body-font-color-50)')
         .attr('font-weight', '370')
         .attr('font-size', fontSize)
         .text(item.connectorText ?? '')

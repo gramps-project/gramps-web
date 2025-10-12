@@ -9,7 +9,7 @@ class GrampsjsLightbox extends LitElement {
       sharedStyles,
       css`
         #lightbox-container {
-          background-color: black;
+          background-color: var(--grampsjs-lightbox-background-color);
           position: fixed;
           left: 0;
           top: 0;
@@ -27,7 +27,7 @@ class GrampsjsLightbox extends LitElement {
           top: 0;
           left: 0;
           bottom: 70px;
-          color: white;
+          color: var(--grampsjs-lightbox-font-color);
           display: flex;
           justify-content: center;
           align-items: center;
@@ -39,7 +39,8 @@ class GrampsjsLightbox extends LitElement {
           width: 100%;
           top: calc(100vh - 70px);
           left: 0;
-          background-color: white;
+          background-color: var(--md-sys-color-surface);
+          color: var(--md-sys-color-on-surface);
           z-index: 10002;
           min-height: 70px;
           overflow-x: hidden;
@@ -84,11 +85,11 @@ class GrampsjsLightbox extends LitElement {
         }
 
         .lightbox-nav:hover svg path {
-          fill: #ffffff;
+          fill: var(--grampsjs-lightbox-nav-hover-color);
         }
 
         .lightbox-nav svg path {
-          fill: #aaaaaa;
+          fill: var(--grampsjs-lightbox-nav-color);
         }
 
         #close-lightbox {

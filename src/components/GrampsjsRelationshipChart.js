@@ -16,7 +16,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
           text-decoration: none !important;
         }
         svg .personBox {
-          fill: #e6e6e6;
+          fill: var(--grampsjs-color-shade-230);
         }
         mwc-menu {
           --mdc-typography-subtitle1-font-size: 13px;

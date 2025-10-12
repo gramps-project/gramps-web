@@ -13,7 +13,7 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
       css`
         .date {
           font-size: 0.9em;
-          color: rgba(0, 0, 0, 0.5);
+          color: var(--grampsjs-body-font-color-50);
         }
 
         .title {
@@ -31,7 +31,7 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
           border-radius: 19px;
           background-color: var(--mdc-theme-primary);
           opacity: 0.6;
-          color: white;
+          color: var(--mdc-theme-on-primary);
           font-size: 15px;
           line-height: 38px;
           display: inline-block;

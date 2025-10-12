@@ -274,7 +274,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           right: 0;
           width: 100%;
           height: 50px;
-          background-color: white;
+          background-color: var(--md-sys-color-surface-container);
           border-top: 1px solid var(--md-sys-color-outline-variant);
           box-sizing: border-box;
         }
@@ -543,7 +543,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
                     >
                       <grampsjs-icon
                         .path="${mdiTableOfContents}"
-                        color="rgba(0, 0, 0, 0.4)"
+                        color="var(--grampsjs-body-font-color-40)"
                       ></grampsjs-icon>
                     </md-icon-button>
                   `}

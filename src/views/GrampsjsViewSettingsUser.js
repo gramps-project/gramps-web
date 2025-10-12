@@ -1,20 +1,21 @@
 import {html} from 'lit'
 
-import '@material/mwc-menu'
-import '@material/mwc-textfield'
 import '@material/mwc-button'
+import '@material/mwc-menu'
 import '@material/mwc-select'
+import '@material/mwc-textfield'
 
 import '../components/GrampsjsFormSelectObjectList.js'
+import {userRoles} from '../components/GrampsjsFormUser.js'
 import '../components/GrampsjsShareUrl.js'
 import '../components/GrampsjsSysinfo.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
 import '../components/GrampsjsUsers.js'
 import {GrampsjsView} from './GrampsjsView.js'
-import {userRoles} from '../components/GrampsjsFormUser.js'
 
 import {fireEvent} from '../util.js'
+import {applyTheme} from '../theme.js'
 
 export class GrampsjsViewSettingsUser extends GrampsjsView {
   static get properties() {
@@ -50,6 +51,10 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       <h3>${this._('Select language')}</h3>
 
       ${this.renderLangSelect()}
+
+      <h3>${this._('Select theme')}</h3>
+
+      ${this.renderThemeSelect()}
 
       <h3>${this._('Change E-mail')}</h3>
 
@@ -122,6 +127,33 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     }
     this._langLoading = false
     this.loading = false
+  }
+
+  renderThemeSelect() {
+    const theme = this.appState.settings.theme ?? 'system'
+    return html`
+      <mwc-select
+        id="select-theme"
+        label="${this._('Theme')}"
+        @selected="${this._handleThemeSelected}"
+      >
+        <mwc-list-item value="system" ?selected="${theme === 'system'}"
+          >${this._('System')}</mwc-list-item
+        >
+        <mwc-list-item value="light" ?selected="${theme === 'light'}"
+          >${this._('Light')}</mwc-list-item
+        >
+        <mwc-list-item value="dark" ?selected="${theme === 'dark'}"
+          >${this._('Dark')}</mwc-list-item
+        >
+      </mwc-select>
+    `
+  }
+
+  _handleThemeSelected(event) {
+    const theme = event.target.value
+    this.appState.updateSettings({theme})
+    applyTheme(theme)
   }
 
   renderChangeEmail() {
