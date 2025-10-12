@@ -209,5 +209,12 @@
     "Started": "התחיל",
     "DNA match with %s deleted.": "התאמת DNA עם %s נמחקה.",
     "Paste text or drop a file here": "הדבקת מלל או שחרור קובץ כאן",
-    "No DNA matches found.": "לא נמצאו התאמות DNA."
+    "No DNA matches found.": "לא נמצאו התאמות DNA.",
+    "No DNA matches detected in the data provided.": "לא נמצאו התאמות DNA בנתונים שסופקו.",
+    "Confirm Password": "אישור סיסמה",
+    "Passwords do not match.": "סיסמאות לא תואמות.",
+    "Register to Gramps Web": "רישום ל־Gramps Web",
+    "Log in to Gramps Web": "התחברות ל־Gramps Web",
+    "Invalid E-mail address": "כתובת דוא\"ל לא תקינה",
+    "full-text": "מלל מלא"
 }
