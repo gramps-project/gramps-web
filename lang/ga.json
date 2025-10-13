@@ -241,5 +241,10 @@
     "Most specific position on the human Y chromosome tree": "An suíomh is sainiúla ar chrann crómasóim Y an duine",
     "Paternal Lineage": "Sliocht Athartha",
     "Add Y-DNA data": "Cuir sonraí Y-DNA leis",
-    "Link to enclosing place": "Nasc chuig an áit atá faoi iamh"
+    "Link to enclosing place": "Nasc chuig an áit atá faoi iamh",
+    "Select theme": "Roghnaigh téama",
+    "Theme": "Téama",
+    "System": "Córas",
+    "Light": "Solas",
+    "Dark": "Dorcha"
 }
