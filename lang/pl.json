@@ -217,5 +217,7 @@
     "in": "w",
     "Log out": "Wyloguj się",
     "Max Degree of Separation": "Maksymalny stopień oddzielenia",
-    "DNA matches": "Dopasowanie DNA"
+    "DNA matches": "Dopasowanie DNA",
+    "Dark": "Ciemny",
+    "Light": "Jasne"
 }
