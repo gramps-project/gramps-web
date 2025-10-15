@@ -238,5 +238,13 @@
     "Show less": "להציג פחות",
     "Most specific position on the human Y chromosome tree": "מיקום מסויים ביותר על עץ הכרומוזום Y האנושי",
     "Paternal Lineage": "שושלת אבהית",
-    "Add Y-DNA data": "הוספת מידע Y-DNA"
+    "Add Y-DNA data": "הוספת מידע Y-DNA",
+    "Select theme": "בחירת ערכת נושא",
+    "Theme": "ערכת נושא",
+    "System": "מערכת",
+    "Light": "בהיר",
+    "Dark": "כהה",
+    "Max Degree of Separation": "דרגת הפרדה מרבית",
+    "Max Number of Images displayed": "מספר מרבי של תמונות שמוצגות",
+    "Length": "אורך"
 }
