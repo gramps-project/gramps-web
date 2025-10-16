@@ -2,9 +2,10 @@
 import {html, css, LitElement} from 'lit'
 
 import '@material/mwc-icon'
-import '@material/mwc-button'
 import '@material/mwc-textfield'
 import '@material/mwc-circular-progress'
+import '@material/web/button/filled-button'
+import '@material/web/button/outlined-button'
 
 import './GrampsjsPasswordManagerPolyfill.js'
 import './GrampsjsOidcButton.js'
@@ -46,9 +47,63 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
           margin-bottom: 0.7em;
         }
 
+        #login-form md-filled-button {
+          width: 100%;
+          margin-bottom: 0.5em;
+        }
+
+        .button-container {
+          display: flex;
+          gap: 0.5em;
+          margin-top: 1em;
+          margin-bottom: 0.5em;
+          --button-height: 48px;
+        }
+
+        .button-container md-outlined-button,
+        .button-container md-filled-button {
+          flex: 1;
+          height: var(--button-height);
+        }
+
+        .button-container md-outlined-button {
+          --md-outlined-button-container-height: var(--button-height);
+          --md-outlined-button-leading-space: 8px;
+          --md-outlined-button-trailing-space: 8px;
+          --md-outlined-button-top-space: 0px;
+          --md-outlined-button-bottom-space: 0px;
+          min-height: var(--button-height);
+          max-height: var(--button-height);
+        }
+
+        .button-container md-outlined-button::part(outline) {
+          height: var(--button-height);
+        }
+
+        .button-container md-filled-button {
+          --md-filled-button-container-height: var(--button-height);
+          --md-filled-button-leading-space: 8px;
+          --md-filled-button-trailing-space: 8px;
+          --md-filled-button-top-space: 0px;
+          --md-filled-button-bottom-space: 0px;
+          min-height: var(--button-height);
+          max-height: var(--button-height);
+        }
+
+        .button-container md-filled-button::part(container) {
+          height: var(--button-height);
+        }
+
         p.reset-link {
           padding-top: 1em;
           font-size: 0.9em;
+        }
+
+        p.forgot-password {
+          text-align: center;
+          font-size: 0.85em;
+          margin-top: 0.75em;
+          margin-bottom: 1.5em;
         }
 
         p.success {
@@ -144,23 +199,43 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                   @change="${this._credChanged}"
                   value="${this.credentials.password || ''}"
                 ></md-outlined-text-field>
-                <mwc-button
-                  raised
-                  label="${this._('login')}"
-                  type="submit"
-                  @click="${this._submitLogin}"
+                <div class="button-container">
+                  ${window.grampsjsConfig.hideRegisterLink
+                    ? ''
+                    : html`
+                        <md-outlined-button
+                          @click="${() => this._handleNav('register')}"
+                        >
+                          ${this._('Register new account')}
+                        </md-outlined-button>
+                      `}
+                  <md-filled-button type="submit" @click="${this._submitLogin}">
+                    ${this._('login')}
+                  </md-filled-button>
+                </div>
+                <mwc-circular-progress
+                  indeterminate
+                  density="-7"
+                  closed
+                  id="login-progress"
+                  style="display:none; margin-top: 0.5em;"
                 >
-                  <span slot="trailingIcon" style="display:none;">
-                    <mwc-circular-progress
-                      indeterminate
-                      density="-7"
-                      closed
-                      id="login-progress"
-                    >
-                    </mwc-circular-progress>
-                  </span>
-                </mwc-button>
+                </mwc-circular-progress>
+                <p class="forgot-password">
+                  <span
+                    class="link"
+                    @click="${() => {
+                      this.resetpw = true
+                    }}"
+                    >${this._('Lost password?')}</span
+                  >
+                </p>
               `}
+          ${this.oidcConfig?.enabled &&
+          this.oidcConfig?.providers &&
+          !localAuthDisabled
+            ? html`<hr />`
+            : ''}
           ${this.oidcConfig?.enabled && this.oidcConfig?.providers
             ? this.oidcConfig.providers.map(
                 provider => html`
@@ -176,30 +251,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                   ></grampsjs-oidc-button>
                 `
               )
-            : ''}
-          ${!localAuthDisabled
-            ? html`
-                <p class="reset-link">
-                  <span
-                    class="link"
-                    @click="${() => {
-                      this.resetpw = true
-                    }}"
-                    >${this._('Lost password?')}</span
-                  >
-                </p>
-                ${window.grampsjsConfig.hideRegisterLink
-                  ? ''
-                  : html`
-                      <p class="reset-link">
-                        <span
-                          class="link"
-                          @click="${() => this._handleNav('register')}"
-                          >${this._('Register new account')}</span
-                        >
-                      </p>
-                    `}
-              `
             : ''}
         </form>
         <grampsjs-password-manager-polyfill
@@ -225,15 +276,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _getOIDCButtonText(providerId, providerName) {
-    const translations = {
-      google: this._('Sign in with Google'),
-      microsoft: this._('Sign in with Microsoft'),
-      github: this._('Sign in with GitHub'),
-    }
-    return (
-      translations[providerId] ||
-      this._('Sign in with {provider}').replace('{provider}', providerName)
-    )
+    return `${this._('Continue with')} ${providerName}`
   }
 
   _credChanged(e) {
@@ -251,22 +294,13 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
               label="${this._('Username')}"
               type="text"
             ></md-outlined-text-field>
-            <mwc-button
-              raised
-              label="${this._('reset password')}"
+            <md-filled-button
               type="submit"
               @click="${this._resetPw}"
+              style="width: 100%;"
             >
-              <span slot="trailingIcon" style="display:none;">
-                <mwc-circular-progress
-                  indeterminate
-                  density="-7"
-                  closed
-                  id="login-progress"
-                >
-                </mwc-circular-progress>
-              </span>
-            </mwc-button>
+              ${this._('reset password')}
+            </md-filled-button>
           </div>
           <p class="success" id="reset-success" style="display:none;">
             <mwc-icon>check_circle</mwc-icon><br />
@@ -299,12 +333,12 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
 
   async _submitLogin() {
     const submitProgress = this.shadowRoot.getElementById('login-progress')
-    submitProgress.parentElement.style.display = 'block'
+    submitProgress.style.display = 'block'
     submitProgress.closed = false
     apiGetTokens(this.credentials.username, this.credentials.password).then(
       res => {
         if ('error' in res) {
-          submitProgress.parentElement.style.display = 'none'
+          submitProgress.style.display = 'none'
           submitProgress.closed = true
           this._showError(res.error)
         } else {
