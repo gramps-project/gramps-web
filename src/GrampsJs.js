@@ -12,7 +12,7 @@ import '@material/mwc-top-app-bar'
 import {LitElement, css, html} from 'lit'
 import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
 import {installRouter} from 'pwa-helpers/router.js'
-import {getSettings, __APIHOST__} from './api.js'
+import {getSettings} from './api.js'
 import './dayjs_locales.js'
 import {
   frontendLanguages,
