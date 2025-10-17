@@ -246,5 +246,8 @@
     "Theme": "Erscheinungsbild",
     "System": "System",
     "Light": "Hell",
-    "Dark": "Dunkel"
+    "Dark": "Dunkel",
+    "Continue with": "Weiter mit",
+    "Signing in...": "Anmelden...",
+    "Account Source": "Kontoart"
 }
