@@ -36,6 +36,7 @@ import './components/GrampsjsUpdateAvailable.js'
 import './components/GrampsjsUpgradeDb.js'
 import {sharedStyles} from './SharedStyles.js'
 import {applyTheme} from './theme.js'
+import {handleOIDCCallback, handleOIDCComplete} from './oidc.js'
 
 const LOADING_STATE_INITIAL = 0
 const LOADING_STATE_UNAUTHORIZED = 1
@@ -518,7 +519,7 @@ export class GrampsJs extends LitElement {
 
   connectedCallback() {
     super.connectedCallback()
-    this._loadDbInfo()
+
     window.addEventListener('storage', () => this._handleStorage())
     window.addEventListener('settings:changed', () => this._handleSettings())
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
@@ -529,6 +530,12 @@ export class GrampsJs extends LitElement {
     )
     window.addEventListener('online', () => this._handleOnline())
     window.addEventListener('token:refresh', () => this._handleRefresh())
+
+    if (window.location.pathname.includes('/oidc/complete')) {
+      return
+    }
+
+    this._loadDbInfo()
 
     const browserLang = getBrowserLanguage()
     if (browserLang && !this.appState.settings.lang) {
@@ -713,6 +720,17 @@ export class GrampsJs extends LitElement {
 
   _loadPage(path) {
     this._disableEditMode()
+
+    if (path.includes('/oidc/callback')) {
+      handleOIDCCallback(msg => this._showError(msg))
+      return
+    }
+
+    if (path.includes('/oidc/complete')) {
+      handleOIDCComplete(msg => this._showError(msg))
+      return
+    }
+
     if (path === '/' || path === `${BASE_DIR}/`) {
       this._updateAppState({path: {page: 'home', pageId: '', pageId2: ''}})
     } else if (BASE_DIR === '') {
@@ -794,7 +812,6 @@ export class GrampsJs extends LitElement {
   // eslint-disable-next-line class-methods-use-this
   _handleVisibilityChange() {
     if (document.visibilityState === 'visible') {
-      // refresh auth token when app becomes visible again
       this._handleRefresh()
     }
   }
