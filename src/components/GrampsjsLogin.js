@@ -276,7 +276,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _getOIDCButtonText(providerId, providerName) {
-    return `${this._('Continue with')} ${providerName}`
+    return `${this._('Continue with %s', providerName)}`
   }
 
   _credChanged(e) {
