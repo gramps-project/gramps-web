@@ -54,7 +54,7 @@
     "Password": "Wachtwoord",
     "login": "login",
     "Lost password?": "Wachtwoord vergeten?",
-    "Register new account": "Nieuw account aanmelden",
+    "Register new account": "Nieuw account registreren",
     "All": "Alles",
     "Select at least one object type": "Selecteer ten minste één objecttype",
     "Properties": "Eigenschappen",
@@ -92,7 +92,7 @@
     "Storing configuration": "Configuratie opslaan",
     "Importing family tree": "Stamboom importeren",
     "E-mail settings": "E-mailinstellingen",
-    "Creating owner account": "Eigenaar-account aanmaken",
+    "Creating owner account": "Eigenaarsaccount aanmaken",
     "Copy to clipboard": "Naar klembord kopiëren",
     "Usage quotas": "Gebruiksquota",
     "Not authorized": "Niet geautoriseerd",
@@ -246,5 +246,8 @@
     "Theme": "Thema",
     "System": "Systeem",
     "Light": "Licht",
-    "Dark": "Donker"
+    "Dark": "Donker",
+    "Continue with": "Doorgaan met",
+    "Signing in...": "Inloggen…",
+    "Account Source": "Accountbron"
 }
