@@ -63,7 +63,11 @@ class GrampsjsOidcButton extends LitElement {
       default:
         iconPath = mdiOpenid
     }
-    return html`<grampsjs-icon .path="${iconPath}" slot="icon"></grampsjs-icon>`
+    return html`<grampsjs-icon
+      .path="${iconPath}"
+      slot="icon"
+      color="var(--mdc-theme-primary)"
+    ></grampsjs-icon>`
   }
 
   _handleClick(e) {

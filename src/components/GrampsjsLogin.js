@@ -29,7 +29,8 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
         #login-container {
           margin: auto;
           height: 100%;
-          max-width: 20em;
+          width: 100%;
+          max-width: 25em;
         }
 
         #login-form {
@@ -118,6 +119,11 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
 
         mwc-circular-progress {
           --mdc-theme-primary: var(--mdc-theme-on-primary);
+        }
+
+        hr {
+          margin-top: 2em;
+          margin-bottom: 2em;
         }
       `,
     ]
