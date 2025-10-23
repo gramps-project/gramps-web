@@ -249,5 +249,6 @@
     "Dark": "Темний",
     "Continue with": "Продовжити з",
     "Signing in...": "Вхід...",
-    "Account Source": "Джерело облікового запису"
+    "Account Source": "Джерело облікового запису",
+    "Continue with %s": "Продовжити з %s"
 }
