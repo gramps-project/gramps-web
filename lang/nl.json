@@ -249,5 +249,6 @@
     "Dark": "Donker",
     "Continue with": "Doorgaan met",
     "Signing in...": "Inloggen…",
-    "Account Source": "Accountbron"
+    "Account Source": "Accountbron",
+    "Continue with %s": "Doorgaan met %s"
 }
