@@ -249,5 +249,6 @@
     "Dark": "Dunkel",
     "Continue with": "Weiter mit",
     "Signing in...": "Anmelden...",
-    "Account Source": "Kontoart"
+    "Account Source": "Kontoart",
+    "Continue with %s": "Weiter mit %s"
 }
