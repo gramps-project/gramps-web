@@ -19,8 +19,6 @@ import {
 import {fireEvent} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-const BASE_DIR = ''
-
 class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
@@ -181,11 +179,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
 
     return html`
       <div id="login-container">
-        <form
-          id="login-form"
-          action="${BASE_DIR}/"
-          @keydown="${this._handleLoginKey}"
-        >
+        <form id="login-form" @keydown="${this._handleLoginKey}">
           <h2>${this._('Log in to Gramps Web')}</h2>
           ${localAuthDisabled
             ? ''
@@ -292,7 +286,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   _renderResetPw() {
     return html`
       <div id="login-container">
-        <form id="login-form" action="${BASE_DIR}/">
+        <form id="login-form">
           <h2>${this._('reset password')}</h2>
           <div id="inner-form">
             <md-outlined-text-field
@@ -333,11 +327,15 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
 
   _handleLoginKey(event) {
     if (event.code === 'Enter') {
-      this._submitLogin()
+      this._submitLogin(event)
     }
   }
 
-  async _submitLogin() {
+  async _submitLogin(e) {
+    // Prevent the native form submit/navigation
+    e?.preventDefault()
+    e?.stopPropagation()
+
     const submitProgress = this.shadowRoot.getElementById('login-progress')
     submitProgress.style.display = 'block'
     submitProgress.closed = false
@@ -369,7 +367,10 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     this.credentials = {...this.credentials, ...ev.detail.value}
   }
 
-  async _resetPw() {
+  async _resetPw(e) {
+    e?.preventDefault()
+    e?.stopPropagation()
+
     const userField = this.shadowRoot.getElementById('username')
     if (userField.value === '') {
       this._showError('Username must not be empty.')

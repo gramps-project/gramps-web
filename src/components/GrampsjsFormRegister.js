@@ -8,8 +8,6 @@ import {fireEvent} from '../util.js'
 
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-const BASE_DIR = ''
-
 class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
@@ -75,11 +73,7 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
   render() {
     return html`
       <div id="register-container">
-        <form
-          id="register-form"
-          action="${BASE_DIR}/"
-          @keydown="${this._checkFormValid}"
-        >
+        <form id="register-form" @keydown="${this._checkFormValid}">
           <h2>${this._('Register to Gramps Web')}</h2>
           <div id="inner-form">
             <md-outlined-text-field
@@ -219,7 +213,10 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
     )
   }
 
-  async _register() {
+  async _register(e) {
+    e?.preventDefault()
+    e?.stopPropagation()
+
     const userField = this.shadowRoot.getElementById('username')
     const pwField = this.shadowRoot.getElementById('password')
     const emailField = this.shadowRoot.getElementById('email')
