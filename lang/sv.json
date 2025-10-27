@@ -242,5 +242,13 @@
     "Show less": "Visa mindre",
     "Most specific position on the human Y chromosome tree": "Den mest specifika positionen på det mänskliga Y-kromosomträdet",
     "Paternal Lineage": "Faderns härstamning",
-    "Add Y-DNA data": "Lägg till Y-DNA-data"
+    "Add Y-DNA data": "Lägg till Y-DNA-data",
+    "Select theme": "Välj tema",
+    "Theme": "Tema",
+    "System": "System",
+    "Light": "Ljust",
+    "Dark": "Mörkt",
+    "Continue with %s": "Fortsätt med %s",
+    "Signing in...": "Loggar in...",
+    "Account Source": "Kontokälla"
 }
