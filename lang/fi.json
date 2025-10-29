@@ -231,5 +231,6 @@
     "To start building your family tree, add yourself as a person or import a family tree file.": "Aloittaaksesi sukupuun rakentamisen, lisää itsesi henkilöksi tai tuo olemassa oleva sukupuu tiedostosta.",
     "Metadata": "Metatiedot",
     "Paternal Lineage": "Isän sukuhaara",
-    "Link to enclosing place": "Yhdistä ympäröivään paikkaan"
+    "Link to enclosing place": "Yhdistä ympäröivään paikkaan",
+    "Continue with %s": "Jatka %s"
 }
