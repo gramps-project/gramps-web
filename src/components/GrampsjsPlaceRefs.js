@@ -20,16 +20,18 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
     super()
     this.places = []
     this.objType = 'Place'
-    this._columns = ['Name', 'Type', '']
+    this._columns = ['Name', 'Type', 'Date', '']
     this.dialogContent = ''
+    this.profile = []
   }
 
   row(obj, i, arr) {
-    const prof = this.places.length > i ? this.places[i].profile : {}
+    const prof = this.places.length > i ? this.profile[i] : {}
     return html`
-      <tr @click=${() => this._handleClick(prof.gramps_id)}>
-        <td>${prof.name}</td>
-        <td>${prof.type}</td>
+      <tr @click=${() => this._handleClick(prof.place?.gramps_id)}>
+        <td>${prof.place?.name}</td>
+        <td>${prof.place?.type}</td>
+        <td>${prof.date_str}</td>
         <td>
           ${this.edit
             ? this._renderActionBtns(
