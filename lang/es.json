@@ -242,5 +242,13 @@
     "Edit Y-DNA data": "Editar datos de ADN-Y",
     "No Y-DNA data found.": "No se encontraron datos de ADN-Y.",
     "Raw SNP data": "Datos SNP sin procesar",
-    "Most specific position on the human Y chromosome tree": "Posición más específica en el árbol del cromosoma Y humano"
+    "Most specific position on the human Y chromosome tree": "Posición más específica en el árbol del cromosoma Y humano",
+    "Theme": "Tema",
+    "System": "Sistema",
+    "Light": "Claro",
+    "Dark": "Oscuro",
+    "Continue with %s": "Continuar con %s",
+    "Signing in...": "Iniciando sesión...",
+    "Select theme": "Seleccione el tema",
+    "Account Source": "Fuente de cuentas"
 }
