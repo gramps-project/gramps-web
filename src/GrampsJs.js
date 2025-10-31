@@ -417,8 +417,16 @@ export class GrampsJs extends LitElement {
       ) {
         window.location.href = loginRedirect
       }
-      if (this.appState.path.page === 'register') {
+      // prevent showing register page if disabled by backend
+      if (
+        this.appState.path.page === 'register' &&
+        !window.grampsjsConfig?.hideRegisterLink
+      ) {
         return this._renderRegister()
+      }
+      if (this.appState.path.page === 'register' && window.grampsjsConfig?.hideRegisterLink) {
+        // redirect to login if register is disabled
+        window.history.pushState({}, '', 'login')
       }
       if (this.appState.path.page !== 'login') {
         window.history.pushState({}, '', 'login')
@@ -603,6 +611,16 @@ export class GrampsJs extends LitElement {
       }
       if ('data' in data) {
         this._updateAppState({dbInfo: data.data})
+        // Hide register link if backend disables registration
+        const disabled = Boolean(
+          data.data?.server?.registration_disabled
+        )
+        window.grampsjsConfig = {
+          ...window.grampsjsConfig,
+          hideRegisterLink: disabled,
+        }
+        // keep frontendConfig in app state in sync
+        this._updateAppState({frontendConfig: window.grampsjsConfig})
         this._checkSearch()
         this._checkApiVersion()
         if (this.appState.dbInfo?.locale?.language !== undefined) {
