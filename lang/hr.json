@@ -241,5 +241,13 @@
     "Raw SNP data": "Neobrađeni SNP podaci",
     "Haplogroup": "Haplogrupa",
     "%s generations": "%s generacija",
-    "Add Y-DNA data": "Dodaj Y-DNK podatke"
+    "Add Y-DNA data": "Dodaj Y-DNK podatke",
+    "Select theme": "Odaberi temu",
+    "Theme": "Tema",
+    "System": "Sustav",
+    "Light": "Svijetla",
+    "Dark": "Tamna",
+    "Continue with %s": "Nastavi sa %s",
+    "Signing in...": "Prijava …",
+    "Account Source": "Izvor računa"
 }
