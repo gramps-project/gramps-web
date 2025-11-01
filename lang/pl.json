@@ -196,7 +196,7 @@
     "Started": "Rozpoczęty",
     "Pending": "W toku",
     "Name Display Format": "Format wyświetlania nazwy",
-    "Given Name First": "Imię",
+    "Given Name First": "Pierwsze Imię",
     "Paste the raw data in the field above to see the preview.": "Wklej nieprzetworzone dane w polu powyżej, aby zobaczyć podgląd.",
     "Second person": "Druga osoba",
     "Add new DNA match": "Dodaj nowe dopasowanie DNA",
@@ -222,5 +222,17 @@
     "Light": "Jasne",
     "Continue with %s": "Kontynuj z %s",
     "Signing in...": "Logowanie ...",
-    "Account Source": "Źródło konta"
+    "Account Source": "Źródło konta",
+    "Select theme": "Wybierz motyw",
+    "Theme": "Motyw",
+    "System": "System",
+    "No DNA matches detected in the data provided.": "Nie znaleziono dopasowań DNA w danych.",
+    "Max Number of Images displayed": "Maksymalna ilość wyświetlanych obrazów",
+    "Raw match data": "Surowe przypisanie",
+    "DNA Match": "Dopasowanie DNA",
+    "DNA match with %s deleted.": "Dopasowanie DNA z %s usunięte.",
+    "No DNA matches found.": "Nie znaleziono dopasowań DNA.",
+    "Surname First": "Pierwsze nazwisko",
+    "Historical Map": "Mapa historyczna",
+    "To start building your family tree, add yourself as a person or import a family tree file.": "Aby rozpocząć budowę drzewa Twojej rodziny, dodaj siebie jako osobę albo zaimportuj drzewo rodzinne."
 }
