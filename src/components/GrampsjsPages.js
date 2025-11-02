@@ -293,19 +293,23 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         (this.appState.path.pageId === 'user' || !this.appState.path.pageId)}
         .appState="${this.appState}"
       ></grampsjs-view-settings-user>
-      <grampsjs-view-admin-settings
-        class="page"
-        ?active=${this.appState.path.page === 'settings' &&
-        this.appState.path.pageId === 'administration'}
-        .appState="${this.appState}"
-      ></grampsjs-view-admin-settings>
-      <grampsjs-view-user-management
-        class="page"
-        ?active=${this.appState.path.page === 'settings' &&
-        this.appState.path.pageId === 'users'}
-        .appState="${this.appState}"
-        .dbInfo="${this.dbInfo}"
-      ></grampsjs-view-user-management>
+      ${this.appState.permissions.canManageUsers
+        ? html`
+            <grampsjs-view-admin-settings
+              class="page"
+              ?active=${this.appState.path.page === 'settings' &&
+              this.appState.path.pageId === 'administration'}
+              .appState="${this.appState}"
+            ></grampsjs-view-admin-settings>
+            <grampsjs-view-user-management
+              class="page"
+              ?active=${this.appState.path.page === 'settings' &&
+              this.appState.path.pageId === 'users'}
+              .appState="${this.appState}"
+              .dbInfo="${this.dbInfo}"
+            ></grampsjs-view-user-management>
+          `
+        : ''}
       <grampsjs-view-sysinfo
         class="page"
         ?active=${this.appState.path.page === 'settings' &&
