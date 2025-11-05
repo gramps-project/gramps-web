@@ -372,4 +372,8 @@ export const sharedStyles = css`
       font-size: 18px;
     }
   }
+
+  mwc-icon-button[slot='meta'] {
+    color: var(--grampsjs-color-icon);
+  }
 `
