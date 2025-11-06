@@ -32,6 +32,8 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
         }
 
         #login-form {
+          margin: auto;
+          max-width: 90vw;
           position: relative;
           top: 20vh;
         }
