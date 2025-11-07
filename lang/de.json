@@ -243,12 +243,13 @@
     "Add Y-DNA data": "Y-DNA-Daten hinzufügen",
     "Link to enclosing place": "Mit umschließendem Ort verknüpfen",
     "Select theme": "Erscheinungsbild auswählen",
-    "Theme": "Thema",
+    "Theme": "Erscheinungsbild",
     "System": "System",
     "Light": "Hell",
     "Dark": "Dunkel",
     "Continue with": "Weiter mit",
     "Signing in...": "Anmelden...",
     "Account Source": "Kontoart",
-    "Continue with %s": "Weiter mit %s"
+    "Continue with %s": "Weiter mit %s",
+    "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "Dein Browser unterstützt leider die Anzeige von PDF-Dateien nicht. Um die Datei trotzdem zu betrachten, kannst du sie mit der Schaltfläche unten herunterladen."
 }
