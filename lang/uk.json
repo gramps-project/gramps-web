@@ -250,5 +250,6 @@
     "Continue with": "Продовжити з",
     "Signing in...": "Вхід...",
     "Account Source": "Джерело облікового запису",
-    "Continue with %s": "Продовжити з %s"
+    "Continue with %s": "Продовжити з %s",
+    "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "На жаль, ваш браузер не підтримує відображення PDF-файлів. Щоб переглянути файл у будь-якому разі, ви можете завантажити його, натиснувши кнопку нижче."
 }
