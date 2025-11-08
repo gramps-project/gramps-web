@@ -21,7 +21,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
           font-size: 0.85em;
           font-weight: 300;
           font-family: var(--grampsjs-body-font-family);
-          color: rgba(0, 0, 0, 0.8);
+          color: var(--grampsjs-body-font-color);
           padding-left: 0.8em;
         }
 
@@ -31,6 +31,12 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
           position: relative;
           bottom: 5px;
           margin-right: 10px;
+        }
+
+        object > p {
+          margin-left: 2em;
+          margin-right: 2em;
+          text-align: center;
         }
       `,
     ]
@@ -126,7 +132,11 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
       style="width: 80vw; height: 90vh;"
       @error=${this._pdfErrorHandler}
     >
-      ${this._innerContainerContentFile('application/pdf')}
+      <p>
+        ${this._(
+          'Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.'
+        )}
+      </p>
     </object>`
   }
 

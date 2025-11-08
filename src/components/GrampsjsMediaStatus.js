@@ -22,7 +22,7 @@ export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
 
         mwc-icon {
           font-size: 20px;
-          color: rgba(0, 0, 0, 0.4);
+          color: var(--grampsjs-body-font-color-40);
           top: 3px;
           position: relative;
         }
@@ -35,7 +35,7 @@ export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
         mwc-circular-progress {
           top: 3px;
           position: relative;
-          --mdc-theme-primary: rgba(0, 0, 0, 0.4);
+          --mdc-theme-primary: var(--grampsjs-body-font-color-40);
         }
       `,
     ]

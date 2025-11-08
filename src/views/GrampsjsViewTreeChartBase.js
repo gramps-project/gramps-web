@@ -23,7 +23,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
 
         #controls {
           position: absolute;
-          background: rgba(255, 255, 255, 0.9);
+          background-color: var(--md-sys-color-surface-container-low);
           border-radius: 16px;
           z-index: 1;
           padding: 0 10px;
@@ -37,9 +37,11 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
         }
 
         #controls mwc-icon-button {
-          color: rgba(0, 0, 0, 0.35);
+          color: var(--grampsjs-body-font-color-35);
           --mdc-icon-size: 26px;
-          --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.1);
+          --mdc-theme-text-disabled-on-light: var(
+            --grampsjs-body-font-color-10
+          );
         }
 
         #menu-controls mwc-textfield {

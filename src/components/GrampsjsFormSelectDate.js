@@ -51,8 +51,10 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         }
 
         mwc-icon-button {
-          color: rgba(0, 0, 0, 0.5);
-          --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.25);
+          color: var(--grampsjs-body-font-color-50);
+          --mdc-theme-text-disabled-on-light: var(
+            --grampsjs-body-font-color-25
+          );
         }
 
         span.dateform {

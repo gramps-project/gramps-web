@@ -67,7 +67,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
           width: 8px;
           height: 8px;
           margin: 0 4px;
-          background-color: #888;
+          background-color: var(--grampsjs-body-font-color-50);
           border-radius: 50%;
           animation: flash 1.4s infinite ease-in-out both;
         }

@@ -113,7 +113,10 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
             ${this.stateUser !== STATE_INITIAL
               ? html`
                   <span class="icon">
-                    ${renderIcon(mdiCheckCircle, '#41AD49')}
+                    ${renderIcon(
+                      mdiCheckCircle,
+                      'var(--grampsjs-alert-success-font-color)'
+                    )}
                   </span>
                 `
               : ''}
@@ -164,7 +167,10 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
                   ${this.stateConfig !== STATE_INITIAL
                     ? html`
                         <span class="icon">
-                          ${renderIcon(mdiCheckCircle, '#41AD49')}
+                          ${renderIcon(
+                            mdiCheckCircle,
+                            'var(--grampsjs-alert-success-font-color)'
+                          )}
                         </span>
                       `
                     : ''}

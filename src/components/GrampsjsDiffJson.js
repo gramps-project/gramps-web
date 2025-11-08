@@ -14,15 +14,15 @@ export class GrampsjsDiffJson extends GrampsjsAppStateMixin(LitElement) {
       sharedStyles,
       css`
         :host {
-          --color-red: #ffebe9;
-          --color-green: #dafbe1;
-          --color-blue: #ddf4ff;
-          color: #222;
+          --color-red: var(--grampsjs-color-revision-deleted-background-red);
+          --color-green: var(--grampsjs-color-revision-added-background-green);
+          --color-blue: var(--grampsjs-color-revision-moved-background-blue);
+          color: var(--grampsjs-body-font-color-87);
         }
 
         #container {
           overflow: hidden;
-          border: 1px solid rgba(0, 0, 0, 0.2);
+          border: 1px solid var(--grampsjs-body-font-color-20);
           border-radius: 8px;
           padding: 20px 8px;
         }
@@ -63,12 +63,12 @@ export class GrampsjsDiffJson extends GrampsjsAppStateMixin(LitElement) {
         .jsondiffpatch-textdiff-deleted {
           background: var(--color-red);
           text-decoration: line-through;
-          text-decoration-color: rgba(0, 0, 0, 0.2);
+          text-decoration-color: var(--grampsjs-body-font-color-20);
           text-decoration-thickness: 1px;
         }
         .jsondiffpatch-unchanged,
         .jsondiffpatch-movedestination {
-          color: gray;
+          color: var(--grampsjs-body-font-color-50);
         }
         .jsondiffpatch-unchanged,
         .jsondiffpatch-movedestination > .jsondiffpatch-value {
@@ -168,7 +168,7 @@ export class GrampsjsDiffJson extends GrampsjsAppStateMixin(LitElement) {
         .jsondiffpatch-moved .jsondiffpatch-moved-destination {
           display: inline-block;
           background: var(--color-blue);
-          color: #888;
+          color: var(--grampsjs-color-revision-moved-font);
         }
         .jsondiffpatch-moved .jsondiffpatch-moved-destination:before {
           content: ' => ';
@@ -177,7 +177,7 @@ export class GrampsjsDiffJson extends GrampsjsAppStateMixin(LitElement) {
           padding: 0;
         }
         .jsondiffpatch-textdiff-location {
-          color: #bbb;
+          color: var(--grampsjs-body-font-color-25);
           display: inline-block;
           min-width: 60px;
         }
@@ -188,8 +188,8 @@ export class GrampsjsDiffJson extends GrampsjsAppStateMixin(LitElement) {
           content: ',';
         }
         .jsondiffpatch-error {
-          background: red;
-          color: white;
+          background: var(--grampsjs-color-revision-error-background);
+          color: var(--grampsjs-color-revision-error-font);
           font-weight: bold;
         }
       `,

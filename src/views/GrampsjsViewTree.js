@@ -27,22 +27,6 @@ export class GrampsjsViewTree extends GrampsjsView {
           margin: 25px 40px;
         }
 
-        #outer-container {
-          height: calc(100vh - 68px);
-        }
-
-        #select {
-          z-index: 1;
-          position: absolute;
-          top: 85px;
-          right: 25px;
-          border-radius: 5px;
-          background-color: rgba(255, 255, 255, 0.9);
-          color: #b1b1b1;
-          --mdc-theme-text-disabled-on-light: #666;
-          --mdc-icon-size: 32px;
-        }
-
         md-primary-tab {
           opacity: 0.8;
         }

@@ -35,7 +35,7 @@ export function ChromosomeBrowser(
     fontFamily = 'Inter var',
     fontSize = 16,
     fontWeight = 350,
-    fontColor = 'rgba(0, 0, 0, 0.8)',
+    fontColor = 'var(--grampsjs-body-font-color)',
     width = 800,
     margin = {top: 0, right: 10, bottom: 0, left: 35},
     interGroupPadding = 0.2,

@@ -2,7 +2,7 @@
 // import { renderIconSvg } from '../icons.js'
 
 // <md-icon-button href="https://google.com" target="_blank" id="help-button">
-//             <md-icon>${renderIconSvg(mdiHelpCircleOutline, 'rgba(0, 0, 0, 0.25)')}</md-icon>
+//             <md-icon>${renderIconSvg(mdiHelpCircleOutline, 'var(--grampsjs-body-font-color-25)')}</md-icon>
 //           </md-icon-button>
 //           <grampsjs-tooltip
 //           for="help-button"

@@ -137,7 +137,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
               <mwc-list-item
                 @click=${() => this._handleChild(child.person.gramps_id)}
                 @keydown=${clickKeyHandler}
-                >${child.name_given || html`$hellip;`}</mwc-list-item
+                >${child.name_given || html`&hellip;`}</mwc-list-item
               >
             `
         )}

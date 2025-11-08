@@ -30,7 +30,7 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
         }
 
         mwc-icon-button {
-          color: rgba(0, 0, 0, 0.5);
+          color: var(--grampsjs-body-font-color-50);
         }
 
         md-dialog {
@@ -263,6 +263,9 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
     }
     if (originalTarget.id === 'match-source-list') {
       this.data = {...this.data, source_handle: e.detail.data[0]}
+    }
+    if (originalTarget.id === 'ydna-person-list') {
+      this.data = {...this.data, person_handle: e.detail.data[0]}
     }
     if (originalTarget.id === 'match-target-list') {
       this.data = {...this.data, target_handle: e.detail.data[0]}

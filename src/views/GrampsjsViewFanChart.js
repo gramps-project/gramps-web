@@ -33,8 +33,8 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
         }
 
         #controls md-input-chip {
-          --md-sys-color-outline: rgba(0, 0, 0, 0.3);
-          --md-sys-color-primary: rgba(0, 0, 0, 0.4);
+          --md-sys-color-outline: var(--grampsjs-body-font-color-30);
+          --md-sys-color-primary: var(--grampsjs-body-font-color-40);
           position: relative;
           top: 8px;
           margin-left: 10px;

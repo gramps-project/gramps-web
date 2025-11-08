@@ -92,6 +92,14 @@ export class GrampsjsViewBlogPost extends GrampsjsView {
     if (this.active && changed.has('grampsId')) {
       this._fetchData()
     }
+    if (
+      changed.has('active') &&
+      this.active &&
+      !this.loading &&
+      this.grampsId !== this._dataSources[0]?.gramps_id
+    ) {
+      this._fetchData()
+    }
   }
 
   async _fetchData() {

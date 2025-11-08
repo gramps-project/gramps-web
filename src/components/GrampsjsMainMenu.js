@@ -14,8 +14,8 @@ import {renderIcon} from '../icons.js'
 
 const BASE_DIR = ''
 
-const selectedColor = '#393939'
-const defaultColor = '#9e9e9e'
+const selectedColor = 'var(--grampsjs-color-icon-selected)'
+const defaultColor = 'var(--grampsjs-color-icon-default)'
 
 class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -23,16 +23,20 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       sharedStyles,
       css`
         grampsjs-list-item span {
-          color: #444;
+          color: var(--grampsjs-color-drawer-text);
+        }
+
+        grampsjs-list-item mwc-icon {
+          color: var(--grampsjs-body-font-color-38);
         }
 
         grampsjs-list-item[selected] span {
-          color: #393939;
+          color: var(--grampsjs-color-icon-selected);
           font-weight: 500;
         }
 
         grampsjs-list-item[selected] mwc-icon {
-          color: #393939;
+          color: var(--grampsjs-color-icon-selected);
         }
 
         span.raise {
@@ -122,7 +126,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       <grampsjs-list-item
         href="${BASE_DIR}/dna-matches"
         graphic="icon"
-        ?selected="${['dna-matches', 'dna-chromosome'].includes(
+        ?selected="${['dna-matches', 'dna-chromosome', 'ydna'].includes(
           this.appState.path.page
         )}"
       >
@@ -131,7 +135,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
           ><span class="raise"
             >${renderIcon(
               mdiDna,
-              ['dna-matches', 'dna-chromosome'].includes(
+              ['dna-matches', 'dna-chromosome', 'ydna'].includes(
                 this.appState.path.page
               )
                 ? selectedColor

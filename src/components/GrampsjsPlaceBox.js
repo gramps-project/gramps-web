@@ -47,15 +47,6 @@ export class GrampsjsPlaceBox extends GrampsjsAppStateMixin(LitElement) {
           text-align: right;
         }
 
-        #banner {
-          background-color: red;
-          height: 150px;
-          width: 302px;
-          margin-top: -15px;
-          margin-left: -20px;
-          position: relative;
-        }
-
         p {
           margin-top: 0.6em;
           margin-bottom: 0.6em;

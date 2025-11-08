@@ -17,7 +17,8 @@ import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 const defaultConfig = {
   mapOhmStyle: 'https://www.openhistoricalmap.org/map-styles/main/main.json',
-  mapBaseStyle: 'https://tiles.openfreemap.org/styles/liberty',
+  mapBaseStyleLight: 'https://tiles.openfreemap.org/styles/liberty',
+  mapBaseStyleDark: 'https://tiles.openfreemap.org/styles/dark',
 }
 
 const {maplibregl} = window
@@ -37,6 +38,14 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         <div id="${this.mapid}" style="z-index: 0; width: 100%; height: 100%;">
           <slot> </slot>
         </div>
+        ${this.layerSwitcher ? this._renderLayerSwitcher() : html`<div></div>`}
+      </div>
+    `
+  }
+
+  _renderLayerSwitcher() {
+    return html`
+      <div class="map-layerswitcher">
         <grampsjs-map-layer-switcher
           .appState="${this.appState}"
           .overlays="${this.overlays}"
@@ -62,6 +71,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       longMin: {type: Number},
       longMax: {type: Number},
       overlays: {type: Array},
+      layerSwitcher: {type: Boolean},
       _map: {type: Object},
       _currentStyle: {type: String},
     }
@@ -81,14 +91,25 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this.longMin = 0
     this.longMax = 0
     this.overlays = []
+    this.layerSwitcher = false
     this._currentStyle = 'base'
+    this._mediaQuery = undefined
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this._mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    this._mediaQuery.addEventListener('change', this._onThemeChange)
+  }
+
+  disconnectedCallback() {
+    this._mediaQuery?.removeEventListener('change', this._onThemeChange)
+    super.disconnectedCallback()
   }
 
   firstUpdated() {
     const mapel = this.shadowRoot.getElementById(this.mapid)
-    const config = {...defaultConfig, ...window.grampsjsConfig}
-    const styleUrl =
-      this._currentStyle === 'base' ? config.mapBaseStyle : config.mapOhmStyle
+    const styleUrl = this._getStyleUrl(this._currentStyle)
     this._map = new maplibregl.Map({
       container: mapel,
       style: styleUrl,
@@ -181,10 +202,17 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _onStyleChange(e) {
-    const config = {...defaultConfig, ...window.grampsjsConfig}
     const {style} = e.detail
     this._currentStyle = style
-    const styleUrl = style === 'base' ? config.mapBaseStyle : config.mapOhmStyle
+    this._handleStyleChange(style)
+  }
+
+  _onThemeChange = () => {
+    this._handleStyleChange(this._currentStyle)
+  }
+
+  _handleStyleChange(style) {
+    const styleUrl = this._getStyleUrl(style)
     this._map.setStyle(styleUrl)
     if (this._currentStyle === 'ohm') {
       this._map.on('styledata', () => {
@@ -203,6 +231,14 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     overlays.forEach(overlay => {
       overlay.addOverlay()
     })
+  }
+
+  _getStyleUrl(style) {
+    const config = {...defaultConfig, ...window.grampsjsConfig}
+    const theme = this.appState.getCurrentTheme()
+    const mapBaseStyle =
+      theme === 'dark' ? config.mapBaseStyleDark : config.mapBaseStyleLight
+    return style === 'base' ? mapBaseStyle : config.mapOhmStyle
   }
 }
 

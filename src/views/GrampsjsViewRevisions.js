@@ -91,7 +91,7 @@ export class GrampsjsViewRevisions extends GrampsjsStaleDataMixin(
       super.styles,
       css`
         md-list-item[type='text'] {
-          --md-list-item-label-text-color: rgba(0, 0, 0, 0.48);
+          --md-list-item-label-text-color: var(--grampsjs-body-font-color-48);
         }
 
         svg[slot='end'] {
@@ -102,12 +102,12 @@ export class GrampsjsViewRevisions extends GrampsjsStaleDataMixin(
 
         md-divider {
           --md-divider-thickness: 1px;
-          --md-divider-color: rgba(0, 0, 0, 0.1);
+          --md-divider-color: var(--grampsjs-body-font-color-10);
         }
 
         .counter {
           position: relative;
-          color: white;
+          color: var(--grampsjs-color-icon);
           font-size: 11px;
           min-width: 14px;
           height: 14px;
@@ -115,7 +115,7 @@ export class GrampsjsViewRevisions extends GrampsjsStaleDataMixin(
           left: -17px;
           top: -6px;
           font-weight: 600;
-          background-color: rgba(0, 0, 0, 0.35);
+          background-color: var(--grampsjs-color-icon-background);
           border-radius: 100px;
           display: inline-block;
           text-align: center;
@@ -175,7 +175,12 @@ export class GrampsjsViewRevisions extends GrampsjsStaleDataMixin(
         href="${txn.changes?.length ? `/revision/${txn.id}` : ''}"
       >
         <div slot="headline">${this._(txn.description)}</div>
-        ${renderIconSvg(mdiSourceCommit, '#777777', 0, 'start')}
+        ${renderIconSvg(
+          mdiSourceCommit,
+          'var(--grampsjs-body-font-color-50)',
+          0,
+          'start'
+        )}
         ${txn.changes?.length
           ? Object.keys(counts).map(key =>
               changeIcons[key]
@@ -183,7 +188,7 @@ export class GrampsjsViewRevisions extends GrampsjsStaleDataMixin(
                       ${
                         renderIconSvg(
                           changeIcons[key],
-                          'rgba(0, 0, 0, 0.45)',
+                          'var(--grampsjs-body-font-color-45)',
                           0,
                           'end'
                         )
@@ -194,7 +199,7 @@ export class GrampsjsViewRevisions extends GrampsjsStaleDataMixin(
             )
           : renderIconSvg(
               mdiTimelineQuestionOutline,
-              'rgba(0, 0, 0, 0.45)',
+              'var(--grampsjs-body-font-color-45)',
               0,
               'end'
             )}

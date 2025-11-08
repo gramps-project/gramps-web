@@ -238,6 +238,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
     e.preventDefault()
     e.stopPropagation()
     const uploadForm = this.renderRoot.querySelector('grampsjs-form-new-media')
+    // FIXME - we need some kind of progress indicator to show that sth is happening
     uploadForm.upload(e.detail.data).then(data => {
       if ('data' in data) {
         fireEvent(this, 'edit:action', {
@@ -245,8 +246,8 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
           data: {ref: data.data.handle},
         })
       }
-      this.dialogContent = ''
     })
+    this.dialogContent = ''
   }
 
   _handleMediaRefSave(e) {

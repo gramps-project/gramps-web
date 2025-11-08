@@ -31,13 +31,13 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
         tbody tr {
           display: grid;
           gap: 1em;
-          border-top: 1px solid rgba(0, 0, 0, 0.1);
+          border-top: 1px solid var(--grampsjs-body-font-color-10);
           grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
           padding: 10px 0;
         }
 
         tbody tr:last-child {
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          border-bottom: 1px solid var(--grampsjs-body-font-color-10);
         }
 
         tbody td {
@@ -54,12 +54,12 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           display: block;
           margin-bottom: 5px;
           font-size: 14px;
-          color: rgba(0, 0, 0, 0.5);
+          color: var(--grampsjs-body-font-color-50);
           font-weight: 400;
         }
 
         table.linked tbody tr:hover {
-          background-color: #f0f0f0;
+          background-color: var(--grampsjs-color-shade-240);
           cursor: pointer;
         }
 
@@ -73,7 +73,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           text-align: left;
           padding: 20px 20px;
           font-size: 14px;
-          color: rgba(0, 0, 0, 0.5);
+          color: var(--grampsjs-body-font-color-50);
           font-weight: 400;
         }
 
@@ -115,8 +115,10 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
 
         .mobile-sort md-menu {
           --md-menu-item-one-line-container-height: 48px;
-          --md-sys-color-on-surface: rgba(0, 0, 0, 0.7);
-          --md-menu-item-selected-container-color: rgba(109, 76, 65, 0.3);
+          --md-sys-color-on-surface: var(--grampsjs-body-font-color-70);
+          --md-menu-item-selected-container-color: var(
+            --grampsjs-mobile-table-sort-menu-color
+          );
         }
       `,
     ]
@@ -292,11 +294,17 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   _renderSortIcon(isCurrent, isAscending) {
     if (isCurrent) {
       if (isAscending) {
-        return renderIconSvg(mdiSortAscending, 'rgba(0, 0, 0, 0.6)')
+        return renderIconSvg(
+          mdiSortAscending,
+          'var(--grampsjs-body-font-color-60)'
+        )
       }
-      return renderIconSvg(mdiSortDescending, 'rgba(0, 0, 0, 0.6)')
+      return renderIconSvg(
+        mdiSortDescending,
+        'var(--grampsjs-body-font-color-60)'
+      )
     }
-    return renderIconSvg(mdiSort, 'rgba(0, 0, 0, 0.2)')
+    return renderIconSvg(mdiSort, 'var(--grampsjs-body-font-color-20)')
   }
 
   _sortedData() {

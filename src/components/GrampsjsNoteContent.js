@@ -1,4 +1,5 @@
 import {html, css, LitElement} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {linkUrls} from '../util.js'
 
@@ -14,13 +15,18 @@ export class GrampsjsNoteContent extends LitElement {
           );
           font-size: var(--grampsjs-note-font-size, 17px);
           line-height: var(--grampsjs-note-line-height, 1.5em);
-          color: var(--grampsjs-note-color, #000000);
+          color: var(--grampsjs-note-color);
         }
 
         .note {
           font-weight: 300;
+        }
+
+        .note.columns {
           column-width: 30em;
           column-gap: 2em;
+          orphans: 2;
+          widows: 2;
         }
 
         .note-container.frame {
@@ -49,18 +55,23 @@ export class GrampsjsNoteContent extends LitElement {
       grampsId: {type: String},
       content: {type: String},
       framed: {type: Boolean},
+      columns: {type: Boolean},
     }
   }
 
   constructor() {
     super()
     this.framed = false
+    this.columns = false
   }
 
   render() {
     return html`
       <div class="note-container ${this.framed ? 'frame' : ''}">
-        <div class="note" id="note-content"></div>
+        <div
+          id="note-content"
+          class="${classMap({note: true, columns: this.columns})}"
+        ></div>
         <slot></slot>
       </div>
     `
@@ -69,6 +80,7 @@ export class GrampsjsNoteContent extends LitElement {
   updated() {
     const noteContent = this.shadowRoot.getElementById('note-content')
     noteContent.innerHTML = linkUrls(this.content)
+    this.columns = noteContent.textContent.length > 1000
   }
 }
 

@@ -176,6 +176,20 @@ const zoomByPlaceType = {
   Number: 19,
 }
 
+/* Get the latest event year from the place's events, or return the current year if none exist */
+const getPlaceLatestEventYear = data => {
+  const currentYear = new Date().getFullYear()
+  if (!data?.extended?.backlinks?.event?.length) {
+    return currentYear
+  }
+  return data.extended.backlinks.event.reduce((max, event) => {
+    if (event.date?.year && event.date.year > max) {
+      return event.date.year
+    }
+    return max
+  }, -1)
+}
+
 export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
@@ -260,7 +274,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           right: 0;
           width: 100%;
           height: 50px;
-          background-color: white;
+          background-color: var(--md-sys-color-surface-container);
           border-top: 1px solid var(--md-sys-color-outline-variant);
           box-sizing: border-box;
         }
@@ -529,7 +543,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
                     >
                       <grampsjs-icon
                         .path="${mdiTableOfContents}"
-                        color="rgba(0, 0, 0, 0.4)"
+                        color="var(--grampsjs-body-font-color-40)"
                       ></grampsjs-icon>
                     </md-icon-button>
                   `}
@@ -644,6 +658,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
                   ? zoomByPlaceType[this.data.place_type]
                   : 13}"
                 layerSwitcher
+                year="${getPlaceLatestEventYear(this.data) ?? -1}"
                 mapid="place-map"
                 id="map"
               >
@@ -665,7 +680,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
                 zoom="${this._getZoomFromBounds(
                   JSON.parse(mapBounds[0].value)
                 )}"
-                layerSwitcher
                 mapid="media-map"
                 id="map"
               >

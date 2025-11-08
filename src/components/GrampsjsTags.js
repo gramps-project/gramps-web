@@ -18,7 +18,7 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
           font-weight: 400;
           font-size: 14px;
           font-family: var(--grampsjs-heading-font-family);
-          color: rgba(0, 0, 0, 0.5);
+          color: var(--grampsjs-body-font-color-50);
           margin-top: 15px;
           margin-bottom: 7px;
         }

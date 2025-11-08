@@ -19,7 +19,7 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
       sharedStyles,
       css`
         #container {
-          background-color: #ffffff;
+          background-color: var(--md-sys-color-surface-container);
           border-radius: 14px;
           width: 100%;
           position: absolute;
@@ -40,7 +40,7 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
           display: inline-block;
           font-size: 13px;
           font-weight: 500;
-          color: rgba(0, 0, 0, 0.6);
+          color: var(--grampsjs-body-font-color-60);
           white-space: nowrap;
           margin-left: 4px;
           margin-right: 8px;

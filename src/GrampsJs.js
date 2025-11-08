@@ -1,39 +1,42 @@
-import {LitElement, html, css} from 'lit'
-import {installRouter} from 'pwa-helpers/router.js'
-import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
-import '@material/mwc-drawer'
-import '@material/mwc-top-app-bar'
-import '@material/mwc-icon'
 import '@material/mwc-button'
-import '@material/mwc-textfield'
+import '@material/mwc-drawer'
+import '@material/mwc-icon'
 import '@material/mwc-icon-button'
-import '@material/mwc-list'
-import '@material/mwc-menu'
-import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-linear-progress'
+import '@material/mwc-list'
+import '@material/mwc-list/mwc-list-item'
+import '@material/mwc-menu'
 import '@material/mwc-snackbar'
+import '@material/mwc-textfield'
+import '@material/mwc-top-app-bar'
+import {LitElement, css, html} from 'lit'
+import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
+import {installRouter} from 'pwa-helpers/router.js'
 import {getSettings} from './api.js'
+import './dayjs_locales.js'
 import {
-  grampsStrings,
-  getFrontendStrings,
   frontendLanguages,
+  getFrontendStrings,
+  grampsStrings,
 } from './strings.js'
 import {fireEvent, getBrowserLanguage} from './util.js'
-import './dayjs_locales.js'
 
+import {appStateUpdatePermissions, getInitialAppState} from './appState.js'
 import './components/GrampsjsAppBar.js'
-import './components/GrampsJsListItem.js'
+import './components/GrampsjsDnaTabBar.js'
 import './components/GrampsjsFirstRun.js'
-import './components/GrampsjsLogin.js'
 import './components/GrampsjsFormRegister.js'
+import './components/GrampsJsListItem.js'
+import './components/GrampsjsLogin.js'
 import './components/GrampsjsMainMenu.js'
 import './components/GrampsjsPages.js'
 import './components/GrampsjsTabBar.js'
+import './components/GrampsjsUndoTransaction.js'
 import './components/GrampsjsUpdateAvailable.js'
 import './components/GrampsjsUpgradeDb.js'
-import './components/GrampsjsUndoTransaction.js'
 import {sharedStyles} from './SharedStyles.js'
-import {getInitialAppState, appStateUpdatePermissions} from './appState.js'
+import {applyTheme} from './theme.js'
+import {handleOIDCCallback, handleOIDCComplete} from './oidc.js'
 
 const LOADING_STATE_INITIAL = 0
 const LOADING_STATE_UNAUTHORIZED = 1
@@ -45,7 +48,7 @@ const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
 
-const MINIMUM_API_VERSION = '2.3.0'
+const MINIMUM_API_VERSION = '3.3.0'
 
 export class GrampsJs extends LitElement {
   static get properties() {
@@ -110,19 +113,11 @@ export class GrampsJs extends LitElement {
         }
 
         mwc-linear-progress {
-          --mdc-theme-primary: #4fc3f7;
+          --mdc-theme-primary: var(--grampsjs-color-page-loading-progress);
         }
 
         #user-menu mwc-button {
           margin: 0.5em 1em;
-        }
-
-        #person-button {
-          margin-left: 60px;
-          margin-top: 10px;
-          background-color: #e0e0e0;
-          color: #444;
-          border-radius: 50%;
         }
 
         #app-title:first-letter {
@@ -143,21 +138,13 @@ export class GrampsJs extends LitElement {
           text-align: center;
         }
 
-        .menu-bottom {
-          position: absolute;
-          bottom: 0;
-          width: 100%;
-          border-top: 1px solid #e0e0e0;
-          background-color: white;
-        }
-
         mwc-list {
           --mdc-list-item-graphic-margin: 20px;
           --mdc-list-side-padding: 20px;
         }
 
         #shortcut-overlay-container {
-          background-color: rgba(0, 0, 0, 0.1);
+          background-color: var(--grampsjs-body-font-color-10);
           position: fixed;
           left: 0;
           top: 0;
@@ -174,7 +161,7 @@ export class GrampsJs extends LitElement {
 
         #shortcut-overlay {
           font-size: 16px;
-          background-color: white;
+          background-color: var(--md-sys-color-surface-container-high);
           padding: 0.5em 1.5em;
           position: absolute;
           top: 15vh;
@@ -221,8 +208,8 @@ export class GrampsJs extends LitElement {
           min-width: 0.75em;
           padding: 4px 6px;
           text-align: center;
-          border: 1px solid #ccc;
-          color: #555;
+          border: 1px solid var(--grampsjs-body-font-color-20);
+          color: var(--grampsjs-body-font-color-70);
           border-radius: 6px;
           margin-bottom: 4px;
         }
@@ -487,6 +474,9 @@ export class GrampsJs extends LitElement {
 
           <main>
             <grampsjs-tab-bar .appState="${this.appState}"></grampsjs-tab-bar>
+            <grampsjs-dna-tab-bar
+              .appState="${this.appState}"
+            ></grampsjs-dna-tab-bar>
             <grampsjs-pages
               .appState="${this.appState}"
               .dbInfo="${this.appState.dbInfo}"
@@ -529,7 +519,7 @@ export class GrampsJs extends LitElement {
 
   connectedCallback() {
     super.connectedCallback()
-    this._loadDbInfo()
+
     window.addEventListener('storage', () => this._handleStorage())
     window.addEventListener('settings:changed', () => this._handleSettings())
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
@@ -541,6 +531,12 @@ export class GrampsJs extends LitElement {
     window.addEventListener('online', () => this._handleOnline())
     window.addEventListener('token:refresh', () => this._handleRefresh())
 
+    if (window.location.pathname.includes('/oidc/complete')) {
+      return
+    }
+
+    this._loadDbInfo()
+
     const browserLang = getBrowserLanguage()
     if (browserLang && !this.appState.settings.lang) {
       this.appState.updateSettings({lang: browserLang})
@@ -548,6 +544,12 @@ export class GrampsJs extends LitElement {
     } else if (this.appState.settings.lang) {
       this._loadFrontendStrings(this.appState.settings.lang)
     }
+
+    applyTheme(this.appState.settings.theme)
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    mediaQuery.addEventListener('change', () =>
+      applyTheme(this.appState.settings.theme)
+    )
   }
 
   firstUpdated() {
@@ -718,6 +720,17 @@ export class GrampsJs extends LitElement {
 
   _loadPage(path) {
     this._disableEditMode()
+
+    if (path.includes('/oidc/callback')) {
+      handleOIDCCallback(msg => this._showError(msg))
+      return
+    }
+
+    if (path.includes('/oidc/complete')) {
+      handleOIDCComplete(msg => this._showError(msg))
+      return
+    }
+
     if (path === '/' || path === `${BASE_DIR}/`) {
       this._updateAppState({path: {page: 'home', pageId: '', pageId2: ''}})
     } else if (BASE_DIR === '') {
@@ -799,7 +812,6 @@ export class GrampsJs extends LitElement {
   // eslint-disable-next-line class-methods-use-this
   _handleVisibilityChange() {
     if (document.visibilityState === 'visible') {
-      // refresh auth token when app becomes visible again
       this._handleRefresh()
     }
   }
@@ -898,9 +910,14 @@ export class GrampsJs extends LitElement {
   _handleKey(e) {
     const target = e.composedPath()[0]
     if (
-      ['input', 'textarea', 'select', 'option', 'mwc-list-item'].includes(
-        target.tagName.toLowerCase()
-      ) ||
+      [
+        'input',
+        'textarea',
+        'select',
+        'option',
+        'mwc-list-item',
+        'md-filled-select',
+      ].includes(target.tagName.toLowerCase()) ||
       target.getAttribute('contenteditable')
     ) {
       return
