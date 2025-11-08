@@ -64,16 +64,18 @@ class GrampsjsTabBar extends GrampsjsAppStateMixin(LitElement) {
     } else {
       currentTabs = tabs[this.appState.path.page]
     }
+    const filteredTabKeys = Object.keys(currentTabs).filter(key =>
+      this._permissionToSeeTab(this.appState.path.page, key)
+    )
     return html`
-      <md-tabs .activeTabIndex=${Object.keys(currentTabs).indexOf(currentKey)}>
-        ${Object.keys(currentTabs).map(key =>
-          this._permissionToSeeTab(this.appState.path.page, key)
-            ? html`
-                <md-primary-tab @click="${() => this._goTo(key)}"
-                  >${this._(currentTabs[key])}</md-primary-tab
-                >
-              `
-            : ''
+      <md-tabs .activeTabIndex=${filteredTabKeys.indexOf(currentKey)}>
+        ${filteredTabKeys.map(
+          key =>
+            html`
+              <md-primary-tab @click="${() => this._goTo(key)}"
+                >${this._(currentTabs[key])}</md-primary-tab
+              >
+            `
         )}
       </md-tabs>
     `
