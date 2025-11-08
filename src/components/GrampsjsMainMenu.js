@@ -123,27 +123,31 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
           ></mwc-icon
         >
       </grampsjs-list-item>
-      <grampsjs-list-item
-        href="${BASE_DIR}/dna-matches"
-        graphic="icon"
-        ?selected="${['dna-matches', 'dna-chromosome', 'ydna'].includes(
-          this.appState.path.page
-        )}"
-      >
-        <span>${this._('DNA')}</span>
-        <mwc-icon slot="graphic"
-          ><span class="raise"
-            >${renderIcon(
-              mdiDna,
-              ['dna-matches', 'dna-chromosome', 'ydna'].includes(
+      ${this.appState.frontendConfig.hideDNALink
+        ? ''
+        : html`
+            <grampsjs-list-item
+              href="${BASE_DIR}/dna-matches"
+              graphic="icon"
+              ?selected="${['dna-matches', 'dna-chromosome', 'ydna'].includes(
                 this.appState.path.page
-              )
-                ? selectedColor
-                : defaultColor
-            )}</span
-          ></mwc-icon
-        >
-      </grampsjs-list-item>
+              )}"
+            >
+              <span>${this._('DNA')}</span>
+              <mwc-icon slot="graphic"
+                ><span class="raise"
+                  >${renderIcon(
+                    mdiDna,
+                    ['dna-matches', 'dna-chromosome', 'ydna'].includes(
+                      this.appState.path.page
+                    )
+                      ? selectedColor
+                      : defaultColor
+                  )}</span
+                ></mwc-icon
+              >
+            </grampsjs-list-item>
+          `}
       ${this.canUseChat
         ? html`
             <grampsjs-list-item
