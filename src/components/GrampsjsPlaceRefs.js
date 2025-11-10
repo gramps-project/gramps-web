@@ -26,12 +26,13 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
   }
 
   row(obj, i, arr) {
-    const prof = this.places.length > i ? this.profile[i] : {}
+    const placeProf = this.places.length > i ? this.places[i].profile : {}
+    const placeRefProf = this.profile.length > i ? this.profile[i] : {}
     return html`
-      <tr @click=${() => this._handleClick(prof.place?.gramps_id)}>
-        <td>${prof.place?.name}</td>
-        <td>${prof.place?.type}</td>
-        <td>${prof.date_str}</td>
+      <tr @click=${() => this._handleClick(placeProf.gramps_id)}>
+        <td>${placeProf.name}</td>
+        <td>${placeProf.type}</td>
+        <td>${placeRefProf.date_str}</td>
         <td>
           ${this.edit
             ? this._renderActionBtns(
