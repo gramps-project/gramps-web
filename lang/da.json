@@ -241,5 +241,14 @@
     "Show less": "Vis mindre",
     "Most specific position on the human Y chromosome tree": "Den mest specifikke position på det menneskelige Y kromosom træ",
     "Paternal Lineage": "Fædrene linje",
-    "Add Y-DNA data": "Tillføj Y-DNA data"
+    "Add Y-DNA data": "Tillføj Y-DNA data",
+    "Select theme": "Vælg tema",
+    "Theme": "Tema",
+    "System": "System",
+    "Light": "Lyst",
+    "Dark": "Mørkt",
+    "Continue with %s": "Fortsæt med %s",
+    "Signing in...": "Logger ind...",
+    "Account Source": "Kontokilde",
+    "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "Din browser understøtter desværre ikke at vis PDF filer. For at se filen alligevel, kan du hente den ved at benytte nedenstående knap."
 }
