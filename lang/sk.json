@@ -251,5 +251,8 @@
     "Signing in...": "Prihlasovanie...",
     "Account Source": "Zdroj účtu",
     "Continue with %s": "Pokračovať s %s",
-    "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "Bohužiaľ, váš prehliadač nepodporuje zobrazenie súborov PDF. Ak chcete súbor aj tak zobraziť, môžete si ho stiahnuť pomocou tlačidla nižšie."
+    "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "Bohužiaľ, váš prehliadač nepodporuje zobrazenie súborov PDF. Ak chcete súbor aj tak zobraziť, môžete si ho stiahnuť pomocou tlačidla nižšie.",
+    "User Documentation": "Dokumentácia pre používateľov",
+    "Administrator Documentation": "Dokumentácia pre správcov",
+    "Forum": "Fórum"
 }
