@@ -251,5 +251,8 @@
     "Signing in...": "A iniciar...",
     "Account Source": "Fonte da conta",
     "Continue with %s": "Continuar com %s",
-    "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "Infelizmente, o seu navegador não suporta a leitura de ficheiros PDF. Para abrir o ficheiro, transfira-o utilizando o botão abaixo."
+    "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "Infelizmente, o seu navegador não suporta a leitura de ficheiros PDF. Para abrir o ficheiro, transfira-o utilizando o botão abaixo.",
+    "User Documentation": "Documentação do utilizador",
+    "Administrator Documentation": "Documentação do administrador",
+    "Forum": "Fórum"
 }
