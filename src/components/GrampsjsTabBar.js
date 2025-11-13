@@ -22,6 +22,7 @@ const tabs = {
     administration: 'Administration',
     users: 'Manage users',
     info: 'System Information',
+    researcher: 'Researcher Information',
   },
 }
 
@@ -94,6 +95,8 @@ class GrampsjsTabBar extends GrampsjsAppStateMixin(LitElement) {
         return true
       case 'info':
         return true
+      case 'researcher':
+        return true && !this.appState.frontendConfig.hideResearcherDetails
       default:
         return false
     }
