@@ -251,5 +251,8 @@
     "Signing in...": "Inloggen…",
     "Account Source": "Accountbron",
     "Continue with %s": "Doorgaan met %s",
-    "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "Helaas ondersteunt uw browser de weergave van PDF-bestanden niet. Om het bestand toch te bekijken, kunt u het downloaden via de onderstaande knop."
+    "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "Helaas ondersteunt uw browser de weergave van PDF-bestanden niet. Om het bestand toch te bekijken, kunt u het downloaden via de onderstaande knop.",
+    "User Documentation": "Gebruikersdocumentatie",
+    "Administrator Documentation": "Beheerdersdocumentatie",
+    "Forum": "Forum"
 }
