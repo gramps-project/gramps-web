@@ -16,6 +16,7 @@ import {
   mdiWrench,
   mdiAccountMultiple,
   mdiAccountCog,
+  mdiHelp,
 } from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -27,6 +28,7 @@ const menuItems = [
   ['Administration', '/settings/administration', mdiWrench, true],
   ['Manage users', '/settings/users', mdiAccountMultiple, true],
   ['System Information', '/settings/info', mdiInformation, false],
+  ['Help', '/help', mdiHelp, false],
 ]
 
 class GrampsjsSettingsMenu extends GrampsjsAppStateMixin(LitElement) {

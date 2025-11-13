@@ -56,6 +56,7 @@ import '../views/GrampsjsViewNewRepository.js'
 import '../views/GrampsjsViewNewNote.js'
 import '../views/GrampsjsViewNewMedia.js'
 import '../views/GrampsjsViewNewTask.js'
+import '../views/GrampsjsViewHelp.js'
 
 class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -179,6 +180,11 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         grampsId="${this.appState.path.pageId}"
       ></grampsjs-view-ydna>
 
+      <grampsjs-view-help
+        class="page"
+        ?active=${this.appState.path.page === 'help'}
+        .appState="${this.appState}"
+      ></grampsjs-view-help>
       <grampsjs-view-map
         class="page"
         ?active=${this.appState.path.page === 'map'}
