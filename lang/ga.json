@@ -251,5 +251,8 @@
     "Signing in...": "Ag síniú isteach...",
     "Account Source": "Foinse an Chuntais",
     "Continue with %s": "Lean ar aghaidh le %s",
-    "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "Ar an drochuair, ní thacaíonn do bhrabhsálaí le taispeáint comhaid PDF. Chun an comhad a fheiceáil ar aon nós, is féidir leat é a íoslódáil ag baint úsáide as an gcnaipe thíos."
+    "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "Ar an drochuair, ní thacaíonn do bhrabhsálaí le taispeáint comhaid PDF. Chun an comhad a fheiceáil ar aon nós, is féidir leat é a íoslódáil ag baint úsáide as an gcnaipe thíos.",
+    "User Documentation": "Doiciméadú Úsáideora",
+    "Administrator Documentation": "Doiciméadacht an Riarthóra",
+    "Forum": "Fóram"
 }
