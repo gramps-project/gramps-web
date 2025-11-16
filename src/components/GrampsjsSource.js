@@ -18,6 +18,7 @@ export class GrampsjsSource extends GrampsjsObject {
   }
 
   renderProfile() {
+    console.log('jit this.edit', this.edit)
     return html`
       <h2>
         ${this.data.title || this._('Media Object')}
@@ -44,7 +45,7 @@ export class GrampsjsSource extends GrampsjsObject {
         ${this.data?.author
           ? html`
               <div>
-                <dt>${this._('Author')}</dt>
+                <dt>${this._('Author test')}</dt>
                 <dd>${this.data.author}</dd>
               </div>
             `
@@ -72,6 +73,15 @@ export class GrampsjsSource extends GrampsjsObject {
           `
         : ''}
       ${this._renderBlogBtn()}
+      ${this.edit
+        ? html`
+            <mwc-icon-button
+              icon="edit"
+              class="edit"
+              @click="${this._handleSourceData}"
+            ></mwc-icon-button>
+          `
+        : ''}
     `
   }
 
