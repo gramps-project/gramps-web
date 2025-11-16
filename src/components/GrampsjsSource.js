@@ -18,7 +18,6 @@ export class GrampsjsSource extends GrampsjsObject {
   }
 
   renderProfile() {
-    console.log('jit this.edit', this.edit)
     return html`
       <h2>
         ${this.data.title || this._('Media Object')}
