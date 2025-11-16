@@ -193,7 +193,7 @@ export class GrampsjsSource extends GrampsjsObject {
         ${this.data?.author
           ? html`
               <div>
-                <dt>${this._('Author test')}</dt>
+                <dt>${this._('Author')}</dt>
                 <dd>${this.data.author}</dd>
               </div>
             `
