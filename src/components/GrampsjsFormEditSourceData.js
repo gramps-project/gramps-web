@@ -1,5 +1,5 @@
 /*
-Form for adding a new event reference
+Form for updating the propertoies of Source - Abbrevation, Author & Pub Info
 */
 
 import {html} from 'lit'
@@ -8,26 +8,15 @@ import './GrampsjsFormString.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 class GrampsjsFormEditSourceData extends GrampsjsObjectForm {
-  static get properties() {
-    return {
-      prop: {type: Object},
-    }
-  }
-
-  constructor() {
-    super()
-    this.prop = {abbrev: 'abbrev', author: 'author', pubinfo: 'pubinfo'}
-  }
-
   renderForm() {
     return html`
       <div style="width:100%;float:left;margin-bottom:20px;">
         <grampsjs-form-string
           @formdata:changed="${this._handleFormData}"
           fullwidth
-          id="${this.prop?.abbrev}"
+          id="abbrev"
           label="${this._('Abbrevation')}"
-          value="${this.data?.[this.prop?.abbrev] || 'Abbr'}"
+          value="${this.data?.abbrev || ''}"
         >
         </grampsjs-form-string>
       </div>
@@ -35,9 +24,9 @@ class GrampsjsFormEditSourceData extends GrampsjsObjectForm {
         <grampsjs-form-string
           @formdata:changed="${this._handleFormData}"
           fullwidth
-          id="${this.prop?.author}"
+          id="author"
           label="${this._('Author')}"
-          value="${this.data?.[this.prop?.author] || 'auth'}"
+          value="${this.data?.author || ''}"
         >
         </grampsjs-form-string>
       </div>
@@ -45,9 +34,9 @@ class GrampsjsFormEditSourceData extends GrampsjsObjectForm {
         <grampsjs-form-string
           @formdata:changed="${this._handleFormData}"
           fullwidth
-          id="${this.prop?.pubinfo}"
+          id="pubinfo"
           label="${this._('Publication Info')}"
-          value="${this.data?.[this.prop?.pubinfo] || 'hgh'}"
+          value="${this.data?.pubinfo || ''}"
         >
         </grampsjs-form-string>
       </div>
