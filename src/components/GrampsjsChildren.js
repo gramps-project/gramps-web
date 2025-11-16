@@ -1,13 +1,13 @@
 import {html} from 'lit'
 
+import '@material/mwc-button'
+import '@material/mwc-icon-button'
 import {mdiGenderFemale, mdiGenderMale} from '@mdi/js'
-import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
-import './GrampsjsFormChildRef.js'
 import {renderIcon} from '../icons.js'
 import {fireEvent} from '../util.js'
-
-import '@material/mwc-icon-button'
-import '@material/mwc-button'
+import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
+import './GrampsjsFormChildRef.js'
+import './GrampsjsFormNewPerson.js'
 
 function genderIcon(gender) {
   if (gender === 'M') {
@@ -24,6 +24,7 @@ export class GrampsjsChildren extends GrampsjsEditableTable {
     return {
       profile: {type: Array},
       highlightId: {type: String},
+      dialogContent: {type: String},
     }
   }
 
@@ -59,27 +60,54 @@ export class GrampsjsChildren extends GrampsjsEditableTable {
     return this.edit
       ? html`
           <mwc-icon-button
-            class="edit large"
-            icon="add_circle"
-            @click="${this._handleAddClick}"
+            class="edit"
+            icon="add_link"
+            @click="${this._handleShare}"
+          ></mwc-icon-button>
+          <mwc-icon-button
+            class="edit"
+            icon="add"
+            @click="${this._handleAdd}"
           ></mwc-icon-button>
           ${this.dialogContent}
         `
       : ''
   }
 
-  _handleAddClick() {
+  _handleShare() {
     this.dialogContent = html`
       <grampsjs-form-childref
         new
         @object:save="${this._handleChildRefSave}"
-        @object:cancel="${this._handleChildRefCancel}"
+        @object:cancel="${this._handleDialogCancel}"
         .appState="${this.appState}"
         objType="${this.objType}"
         dialogTitle=${this._('Add existing child to family')}
       >
       </grampsjs-form-childref>
     `
+  }
+
+  _handleAdd() {
+    this.dialogContent = html`
+      <grampsjs-form-new-person
+        @object:save="${this._handleNewPersonSave}"
+        @object:cancel="${this._handleDialogCancel}"
+        .appState="${this.appState}"
+        dialogTitle="${this._('Add a new person')}"
+      >
+      </grampsjs-form-new-person>
+    `
+  }
+
+  _handleNewPersonSave(e) {
+    fireEvent(this, 'edit:action', {
+      action: 'newChild',
+      data: e.detail.data,
+    })
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
   }
 
   _handleChildRefSave(e) {
@@ -89,7 +117,7 @@ export class GrampsjsChildren extends GrampsjsEditableTable {
     this.dialogContent = ''
   }
 
-  _handleChildRefCancel() {
+  _handleDialogCancel() {
     this.dialogContent = ''
   }
 

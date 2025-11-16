@@ -82,6 +82,7 @@ export const grampsStrings = [
   'about',
   'About',
   'Above the name',
+  'Add a new person',
   'Add a new event',
   'Add a new media object',
   'Add an existing person as a child of the family',
