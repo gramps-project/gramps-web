@@ -18,7 +18,6 @@ export class GrampsjsSource extends GrampsjsObject {
   }
 
   renderProfile() {
-    console.log('jit this.edit', this.edit)
     return html`
       <h2>
         ${this.data.title || this._('Media Object')}
@@ -114,13 +113,17 @@ export class GrampsjsSource extends GrampsjsObject {
   }
 
   _handleSourceData() {
+    const data = {
+      abbrev: this.data?.abbrev,
+      author: this.data?.author,
+      pubinfo: this.data?.pubinfo,
+    }
     this.dialogContent = html`
       <grampsjs-form-edit-source-data
         @object:save="${this._handleSaveTitle}"
         @object:cancel="${this._handleCancelDialog}"
         .appState="${this.appState}"
-        .data="${this.data}"
-        prop="author"
+        .data=${data}
       >
       </grampsjs-form-edit-source-data>
     `

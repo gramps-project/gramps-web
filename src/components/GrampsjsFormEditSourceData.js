@@ -10,13 +10,12 @@ import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 class GrampsjsFormEditSourceData extends GrampsjsObjectForm {
   static get properties() {
     return {
-      prop: {type: String},
+      prop: {type: Object},
     }
   }
 
   constructor() {
     super()
-    console.log('jit this.data', this.data)
     this.prop = {abbrev: 'abbrev', author: 'author', pubinfo: 'pubinfo'}
   }
 
@@ -26,9 +25,9 @@ class GrampsjsFormEditSourceData extends GrampsjsObjectForm {
         <grampsjs-form-string
           @formdata:changed="${this._handleFormData}"
           fullwidth
-          id="${this.prop.abbrev}"
+          id="${this.prop?.abbrev}"
           label="${this._('Abbrevation')}"
-          value="${this.data[this.prop.abbrev] || ''}"
+          value="${this.data?.[this.prop?.abbrev] || 'Abbr'}"
         >
         </grampsjs-form-string>
       </div>
@@ -36,9 +35,9 @@ class GrampsjsFormEditSourceData extends GrampsjsObjectForm {
         <grampsjs-form-string
           @formdata:changed="${this._handleFormData}"
           fullwidth
-          id="${this.prop.author}"
+          id="${this.prop?.author}"
           label="${this._('Author')}"
-          value="${this.data[this.prop.author] || ''}"
+          value="${this.data?.[this.prop?.author] || 'auth'}"
         >
         </grampsjs-form-string>
       </div>
@@ -46,9 +45,9 @@ class GrampsjsFormEditSourceData extends GrampsjsObjectForm {
         <grampsjs-form-string
           @formdata:changed="${this._handleFormData}"
           fullwidth
-          id="${this.prop.pubinfo}"
+          id="${this.prop?.pubinfo}"
           label="${this._('Publication Info')}"
-          value="${this.data[this.prop.pubinfo] || ''}"
+          value="${this.data?.[this.prop?.pubinfo] || 'hgh'}"
         >
         </grampsjs-form-string>
       </div>
