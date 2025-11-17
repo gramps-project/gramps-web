@@ -1,11 +1,12 @@
-import {html, css} from 'lit'
+import {css, html} from 'lit'
 
 import '@material/mwc-icon'
 
-import {GrampsjsObject} from './GrampsjsObject.js'
 import {ringsIcon} from '../icons.js'
-import {renderPerson, fireEvent} from '../util.js'
+import {fireEvent, renderPerson} from '../util.js'
 import './GrampsjsFormEditFamily.js'
+import './GrampsjsFormNewPerson.js'
+import {GrampsjsObject} from './GrampsjsObject.js'
 
 export class GrampsjsFamily extends GrampsjsObject {
   static get styles() {
@@ -30,6 +31,10 @@ export class GrampsjsFamily extends GrampsjsObject {
     return html`
       <h2>${this._renderTitle()}</h2>
       ${this._renderFather()} ${this._renderMother()}
+      <p>
+        ${this._renderRelType()} ${this._renderMarriage()}
+        ${this._renderDivorce()}
+      </p>
       ${this.edit
         ? html`
             <mwc-icon-button
@@ -39,10 +44,6 @@ export class GrampsjsFamily extends GrampsjsObject {
             ></mwc-icon-button>
           `
         : ''}
-      <p>
-        ${this._renderRelType()} ${this._renderMarriage()}
-        ${this._renderDivorce()}
-      </p>
     `
   }
 
@@ -67,11 +68,52 @@ export class GrampsjsFamily extends GrampsjsObject {
   }
 
   _renderFather() {
-    return html` <p>${renderPerson(this.data?.profile?.father || {})}</p> `
+    return html`
+      <h4 class="label">${this._('Father')}</h4>
+      ${this._renderParent('father')}
+    `
   }
 
   _renderMother() {
-    return html` <p>${renderPerson(this.data?.profile?.mother || {})}</p> `
+    return html`
+      <h4 class="label">${this._('Mother')}</h4>
+      ${this._renderParent('mother')}
+    `
+  }
+
+  _renderParent(type) {
+    const profile = this.data?.profile[type]
+    const extended = this.data?.extended[type]
+    return html`
+      ${this.edit
+        ? html`
+            <grampsjs-form-select-object-list
+              objectType="person"
+              .appState="${this.appState}"
+              .objectsInitial="${extended.handle
+                ? [
+                    {
+                      object_type: 'person',
+                      object: {
+                        ...extended,
+                        profile,
+                      },
+                      handle: extended.handle,
+                    },
+                  ]
+                : []}"
+              class="edit"
+            ></grampsjs-form-select-object-list>
+            <mwc-button
+              raised
+              icon="add"
+              class="edit"
+              @click="${() => this._handleAddNewParent(type)}"
+              >${this._('Add a new person')}</mwc-button
+            >
+          `
+        : html`<p>${renderPerson(profile || {})}</p>`}
+    `
   }
 
   _renderMarriage() {
@@ -101,16 +143,22 @@ export class GrampsjsFamily extends GrampsjsObject {
     `
   }
 
+  _handleAddNewParent(type) {
+    this.dialogContent = html`
+      <grampsjs-form-new-person
+        @object:save="${e => this._handleNewParentSave(e, type)}"
+        @object:cancel="${this._handleCancelDialog}"
+        .appState="${this.appState}"
+        dialogTitle="${this._('Add a new person')}"
+      >
+      </grampsjs-form-new-person>
+    `
+  }
+
   _handleEditFamily() {
     const data = {
-      father_handle: this.data.father_handle,
-      mother_handle: this.data.mother_handle,
       type: this.data?.type?.string || this.data.type,
     }
-    const father = this.data?.extended?.father
-    const mother = this.data?.extended?.mother
-    const fatherProfile = this.data?.profile?.father
-    const motherProfile = this.data?.profile?.mother
 
     this.dialogContent = html`
       <grampsjs-form-edit-family
@@ -118,13 +166,23 @@ export class GrampsjsFamily extends GrampsjsObject {
         @object:cancel="${this._handleCancelDialog}"
         .appState="${this.appState}"
         .data=${data}
-        .father=${father}
-        .mother=${mother}
-        .fatherProfile=${fatherProfile}
-        .motherProfile=${motherProfile}
       >
       </grampsjs-form-edit-family>
     `
+  }
+
+  _handleNewParentSave(e, type) {
+    const data = {
+      ...e.detail.data,
+      type,
+    }
+    fireEvent(this, 'edit:action', {
+      action: 'newParent',
+      data,
+    })
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
   }
 
   _handleSaveDetails(e) {

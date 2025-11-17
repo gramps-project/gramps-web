@@ -7,7 +7,7 @@ import {renderIcon} from '../icons.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
 import './GrampsjsFormChildRef.js'
-import './GrampsjsFormNewPerson.js'
+import './GrampsjsFormNewChild.js'
 
 function genderIcon(gender) {
   if (gender === 'M') {
@@ -90,17 +90,17 @@ export class GrampsjsChildren extends GrampsjsEditableTable {
 
   _handleAdd() {
     this.dialogContent = html`
-      <grampsjs-form-new-person
-        @object:save="${this._handleNewPersonSave}"
+      <grampsjs-form-new-child
+        @object:save="${this._handleNewChildSave}"
         @object:cancel="${this._handleDialogCancel}"
         .appState="${this.appState}"
         dialogTitle="${this._('Add a new person')}"
       >
-      </grampsjs-form-new-person>
+      </grampsjs-form-new-child>
     `
   }
 
-  _handleNewPersonSave(e) {
+  _handleNewChildSave(e) {
     fireEvent(this, 'edit:action', {
       action: 'newChild',
       data: e.detail.data,
