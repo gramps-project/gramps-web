@@ -62,7 +62,7 @@ class GrampsjsFormSelectObjectList extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  firstUpdated() {
+  updated() {
     const objList = this.shadowRoot.querySelector('grampsjs-form-object-list')
     const objSelect = this.shadowRoot.querySelector(
       'grampsjs-form-select-object'

@@ -81,9 +81,9 @@ export class GrampsjsFamily extends GrampsjsObject {
     `
   }
 
-  _renderParent(type) {
-    const profile = this.data?.profile[type]
-    const extended = this.data?.extended[type]
+  _renderParent(parent) {
+    const profile = this.data?.profile[parent]
+    const extended = this.data?.extended[parent]
     return html`
       ${this.edit
         ? html`
@@ -103,12 +103,16 @@ export class GrampsjsFamily extends GrampsjsObject {
                   ]
                 : []}"
               class="edit"
+              @select-object:changed="${e =>
+                this._handleParentChanged(e, parent)}"
+              @object-list:changed="${e =>
+                this._handleParentChanged(e, parent)}"
             ></grampsjs-form-select-object-list>
             <mwc-button
               raised
               icon="add"
               class="edit"
-              @click="${() => this._handleAddNewParent(type)}"
+              @click="${() => this._handleAddNewParent(parent)}"
               >${this._('Add a new person')}</mwc-button
             >
           `
@@ -143,16 +147,23 @@ export class GrampsjsFamily extends GrampsjsObject {
     `
   }
 
-  _handleAddNewParent(type) {
+  _handleAddNewParent(parent) {
     this.dialogContent = html`
       <grampsjs-form-new-person
-        @object:save="${e => this._handleNewParentSave(e, type)}"
+        @object:save="${e => this._handleNewParentSave(e, parent)}"
         @object:cancel="${this._handleCancelDialog}"
         .appState="${this.appState}"
         dialogTitle="${this._('Add a new person')}"
       >
       </grampsjs-form-new-person>
     `
+  }
+
+  _handleParentChanged(e, parent) {
+    const {objects} = e.detail
+    const handle = objects.length === 0 ? '' : objects[0].handle
+    const updatedFamily = {[`${parent}_handle`]: handle}
+    fireEvent(this, 'edit:action', {action: 'updateProp', data: updatedFamily})
   }
 
   _handleEditFamily() {
@@ -171,10 +182,10 @@ export class GrampsjsFamily extends GrampsjsObject {
     `
   }
 
-  _handleNewParentSave(e, type) {
+  _handleNewParentSave(e, parent) {
     const data = {
       ...e.detail.data,
-      type,
+      parent,
     }
     fireEvent(this, 'edit:action', {
       action: 'newParent',

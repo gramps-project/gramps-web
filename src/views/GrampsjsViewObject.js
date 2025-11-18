@@ -305,11 +305,11 @@ export class GrampsjsViewObject extends GrampsjsView {
         }
       })
     } else if (e.detail.action === 'newParent') {
-      const {processedData, type} = e.detail.data
+      const {processedData, parent} = e.detail.data
       const {handle} = processedData.filter(obj => obj._class === 'Person')[0]
       this._postObject(processedData, 'object').then(data => {
         if ('data' in data) {
-          const updatedFamily = {[`${type}_handle`]: handle}
+          const updatedFamily = {[`${parent}_handle`]: handle}
           this.updateProp(this._data, this._className, updatedFamily)
         }
       })
