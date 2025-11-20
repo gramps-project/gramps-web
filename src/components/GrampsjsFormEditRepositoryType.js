@@ -14,9 +14,12 @@ import {html} from 'lit'
 
 import './GrampsjsFormSelectType.js'
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import './GrampsjsFormString.js'
 >>>>>>> b1e6065 (Updated for edit repository type)
+=======
+>>>>>>> c837430 (Updated for remove unwanted import)
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 class GrampsjsFormEditRepositoryType extends GrampsjsObjectForm {
