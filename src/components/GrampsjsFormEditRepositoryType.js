@@ -5,7 +5,6 @@ Form for edit the repository type
 import {html} from 'lit'
 
 import './GrampsjsFormSelectType.js'
-import './GrampsjsFormString.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 class GrampsjsFormEditRepositoryType extends GrampsjsObjectForm {
