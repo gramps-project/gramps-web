@@ -1,5 +1,5 @@
 /*
-Form for adding a new event reference
+Form for edit the repository type
 */
 
 import {html} from 'lit'
