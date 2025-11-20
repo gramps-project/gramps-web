@@ -1,9 +1,13 @@
 /*
 <<<<<<< HEAD
+<<<<<<< HEAD
 Form for edit the repository type
 =======
 Form for adding a new event reference
 >>>>>>> b1e6065 (Updated for edit repository type)
+=======
+Form for edit the repository type
+>>>>>>> 87c5fbe (Updated for adding comments on top of the page)
 */
 
 import {html} from 'lit'
