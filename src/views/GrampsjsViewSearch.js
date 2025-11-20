@@ -83,7 +83,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
     this._objectTypes = Object.fromEntries(
       Object.keys(objectTypeToEndpoint)
         .filter(key => key !== 'tag')
-        .map(key => [key, true])
+        .map(key => [key, false])
     )
   }
 
@@ -106,10 +106,6 @@ export class GrampsjsViewSearch extends GrampsjsView {
       </div>
 
       ${this.renderFilters()}
-      ${this._totalCount === -1 &&
-      !Object.values(this._objectTypes).some(Boolean)
-        ? html`<p>${this._('Select at least one object type')}</p>`
-        : ''}
       ${this._totalCount === 0 ? html`<p>${this._('None')}</p>` : ''}
       ${this._totalCount > 0 ? html`<p>Total: ${this._totalCount}</p>` : ''}
       <grampsjs-search-result-list
@@ -162,13 +158,6 @@ export class GrampsjsViewSearch extends GrampsjsView {
   renderFilters() {
     return html`
       <div @grampsjs-button-toggle:toggle="${this._handleFilterToggle}">
-        <grampsjs-button-toggle
-          ?checked="${Object.values(this._objectTypes).every(Boolean)}"
-          icon=""
-          id="toggle-all"
-        >
-          ${this._('All')}
-        </grampsjs-button-toggle>
         ${Object.keys(this._objectTypes).map(
           key => html`<grampsjs-button-toggle
             ?checked="${this._objectTypes[key]}"
@@ -191,13 +180,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
   _handleFilterToggle(e) {
     const key = e.target.id.split('-', 2)[1]
-    if (key === 'all') {
-      this._objectTypes = Object.fromEntries(
-        Object.keys(this._objectTypes).map(key_ => [key_, e.detail.checked])
-      )
-    } else {
-      this._objectTypes = {...this._objectTypes, [key]: e.detail.checked}
-    }
+    this._objectTypes = {...this._objectTypes, [key]: e.detail.checked}
     this._page = 1
     debounce(() => this._executeSearch(), 500)()
   }
@@ -283,12 +266,6 @@ export class GrampsjsViewSearch extends GrampsjsView {
     }
     // apply object type filter if necessary
     if (!Object.values(this._objectTypes).every(Boolean)) {
-      if (!Object.values(this._objectTypes).some(Boolean)) {
-        // all deselected - do nothing
-        this._data = []
-        this._totalCount = -1
-        return
-      }
       if (window._oldSearchBackend) {
         query = this._filterQueryByObjectType(query)
       }
@@ -297,10 +274,17 @@ export class GrampsjsViewSearch extends GrampsjsView {
     this._fetchData(query, page)
   }
 
+  _getSelectedObjectTypes() {
+    if (!Object.values(this._objectTypes).some(Boolean)) {
+      // no filter selected, search for all
+      return Object.keys(this._objectTypes)
+    }
+    // at least one filter selected, search for selected only
+    return Object.keys(this._objectTypes).filter(key => this._objectTypes[key])
+  }
+
   _filterQueryByObjectType(query) {
-    const objectTypes = Object.keys(this._objectTypes).filter(
-      key => this._objectTypes[key]
-    )
+    const objectTypes = this._getSelectedObjectTypes()
     return `${query} (${objectTypes.map(key => `type:${key}`).join(' OR ')})`
   }
 
@@ -328,9 +312,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
       url = `${url}&semantic=${this.semantic ? 1 : 0}`
     }
     if (!window._oldSearchBackend) {
-      const objectTypes = Object.keys(this._objectTypes).filter(
-        key => this._objectTypes[key]
-      )
+      const objectTypes = this._getSelectedObjectTypes()
       url = `${url}&type=${objectTypes.join(',')}`
     }
     const data = await this.appState.apiGet(url)
