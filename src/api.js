@@ -678,8 +678,8 @@ export class Auth {
     return localStorage.getItem('refresh_token')
   }
 
-  async getValidAccessToken() {
-    if (this._shouldRefresh()) {
+  async getValidAccessToken(force = false) {
+    if (force || this._shouldRefresh()) {
       if (this._refreshingTokens) {
         // If already refreshing, wait for that to finish
         await this._refreshingTokens

@@ -529,7 +529,7 @@ export class GrampsJs extends LitElement {
       this._handleVisibilityChange()
     )
     window.addEventListener('online', () => this._handleOnline())
-    window.addEventListener('token:refresh', () => this._handleRefresh())
+    window.addEventListener('token:refresh', () => this._handleRefresh(true))
 
     if (window.location.pathname.includes('/oidc/complete')) {
       return
@@ -822,8 +822,8 @@ export class GrampsJs extends LitElement {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async _handleRefresh() {
-    await this.appState.refreshTokenIfNeeded()
+  async _handleRefresh(force = false) {
+    await this.appState.refreshTokenIfNeeded(force)
     this.setPermissions()
   }
 
