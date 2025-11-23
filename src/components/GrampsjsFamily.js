@@ -6,6 +6,7 @@ import {ringsIcon} from '../icons.js'
 import {fireEvent, renderPerson} from '../util.js'
 import './GrampsjsFormEditFamily.js'
 import './GrampsjsFormNewPerson.js'
+import './GrampsjsFormPersonRef.js'
 import {GrampsjsObject} from './GrampsjsObject.js'
 
 export class GrampsjsFamily extends GrampsjsObject {
@@ -83,40 +84,35 @@ export class GrampsjsFamily extends GrampsjsObject {
 
   _renderParent(parent) {
     const profile = this.data?.profile[parent]
-    const extended = this.data?.extended[parent]
+    const hasProfile = Object.keys(profile ?? {}).length > 0
+
     return html`
+      <p>
+        ${!this.edit || hasProfile ? renderPerson(profile || {}) : ''}
+        ${this.edit && hasProfile
+          ? html`
+              <mwc-icon-button
+                class="edit"
+                icon="link_off"
+                @click="${e => this._handleParentChanged(e, parent)}"
+              ></mwc-icon-button>
+            `
+          : ''}
+      </p>
       ${this.edit
         ? html`
-            <grampsjs-form-select-object-list
-              objectType="person"
-              .appState="${this.appState}"
-              .objectsInitial="${extended.handle
-                ? [
-                    {
-                      object_type: 'person',
-                      object: {
-                        ...extended,
-                        profile,
-                      },
-                      handle: extended.handle,
-                    },
-                  ]
-                : []}"
+            <mwc-icon-button
               class="edit"
-              @select-object:changed="${e =>
-                this._handleParentChanged(e, parent)}"
-              @object-list:changed="${e =>
-                this._handleParentChanged(e, parent)}"
-            ></grampsjs-form-select-object-list>
-            <mwc-button
-              raised
+              icon="add_link"
+              @click="${() => this._handleParentShare(parent)}"
+            ></mwc-icon-button>
+            <mwc-icon-button
+              class="edit"
               icon="add"
-              class="edit"
               @click="${() => this._handleAddNewParent(parent)}"
-              >${this._('Add a new person')}</mwc-button
-            >
+            ></mwc-icon-button>
           `
-        : html`<p>${renderPerson(profile || {})}</p>`}
+        : ''}
     `
   }
 
@@ -159,11 +155,23 @@ export class GrampsjsFamily extends GrampsjsObject {
     `
   }
 
+  _handleParentShare(parent) {
+    this.dialogContent = html`
+      <grampsjs-form-personref
+        @object:save="${e => this._handleParentChanged(e, parent)}"
+        @object:cancel="${this._handleCancelDialog}"
+        .appState="${this.appState}"
+        dialogTitle="${this._('Select an existing person')}"
+      >
+      </grampsjs-form-personref>
+    `
+  }
+
   _handleParentChanged(e, parent) {
-    const {objects} = e.detail
-    const handle = objects.length === 0 ? '' : objects[0].handle
+    const handle = e.detail.data?.ref ?? ''
     const updatedFamily = {[`${parent}_handle`]: handle}
     fireEvent(this, 'edit:action', {action: 'updateProp', data: updatedFamily})
+    this.dialogContent = ''
   }
 
   _handleEditFamily() {
