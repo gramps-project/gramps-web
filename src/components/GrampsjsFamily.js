@@ -18,6 +18,8 @@ export class GrampsjsFamily extends GrampsjsObject {
           .parent {
             display: flex;
             align-items: center;
+            margin-top: 1em;
+            margin-bottom: 1em;
           }
         }
       `,
