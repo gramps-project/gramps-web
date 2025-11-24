@@ -621,6 +621,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
               <grampsjs-place-refs
                 .appState="${this.appState}"
                 .data="${this.data?.placeref_list}"
+                .profile="${this.data?.profile?.direct_parent_places ?? []}"
                 ?edit="${this.edit}"
               ></grampsjs-place-refs>
             `

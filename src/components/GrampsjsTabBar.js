@@ -22,6 +22,7 @@ const tabs = {
     administration: 'Administration',
     users: 'Manage users',
     info: 'System Information',
+    researcher: 'Researcher Information',
   },
 }
 
@@ -64,9 +65,12 @@ class GrampsjsTabBar extends GrampsjsAppStateMixin(LitElement) {
     } else {
       currentTabs = tabs[this.appState.path.page]
     }
+    const filteredTabKeys = Object.keys(currentTabs).filter(key =>
+      this._permissionToSeeTab(this.appState.path.page, key)
+    )
     return html`
-      <md-tabs .activeTabIndex=${Object.keys(currentTabs).indexOf(currentKey)}>
-        ${Object.keys(currentTabs).map(
+      <md-tabs .activeTabIndex=${filteredTabKeys.indexOf(currentKey)}>
+        ${filteredTabKeys.map(
           key =>
             html`
               <md-primary-tab @click="${() => this._goTo(key)}"
@@ -76,6 +80,26 @@ class GrampsjsTabBar extends GrampsjsAppStateMixin(LitElement) {
         )}
       </md-tabs>
     `
+  }
+
+  _permissionToSeeTab(page, key) {
+    if (page !== 'settings') {
+      return true
+    }
+    switch (key) {
+      case 'administration':
+        return this.appState.permissions.canManageUsers
+      case 'users':
+        return this.appState.permissions.canManageUsers
+      case 'user':
+        return true
+      case 'info':
+        return true
+      case 'researcher':
+        return true && !this.appState.frontendConfig.hideResearcherDetails
+      default:
+        return false
+    }
   }
 
   _goTo(key) {

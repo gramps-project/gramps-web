@@ -79,7 +79,7 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
         !types.includes(this.value) &&
         types.includes(this.defaultValue)
       ) {
-        this.value = this.defaultValue
+        this.#setValue(this.defaultValue)
       }
     }
   }

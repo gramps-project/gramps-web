@@ -36,6 +36,7 @@ import '../views/GrampsjsViewMedia.js'
 import '../views/GrampsjsViewSearch.js'
 import '../views/GrampsjsViewSettingsUser.js'
 import '../views/GrampsjsViewSysinfo.js'
+import '../views/GrampsjsViewResearcher.js'
 import '../views/GrampsjsViewAdminSettings.js'
 import '../views/GrampsjsViewUserManagement.js'
 import '../views/GrampsjsViewRecent.js'
@@ -56,6 +57,7 @@ import '../views/GrampsjsViewNewRepository.js'
 import '../views/GrampsjsViewNewNote.js'
 import '../views/GrampsjsViewNewMedia.js'
 import '../views/GrampsjsViewNewTask.js'
+import '../views/GrampsjsViewHelp.js'
 
 class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -179,6 +181,11 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         grampsId="${this.appState.path.pageId}"
       ></grampsjs-view-ydna>
 
+      <grampsjs-view-help
+        class="page"
+        ?active=${this.appState.path.page === 'help'}
+        .appState="${this.appState}"
+      ></grampsjs-view-help>
       <grampsjs-view-map
         class="page"
         ?active=${this.appState.path.page === 'map'}
@@ -293,25 +300,35 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         (this.appState.path.pageId === 'user' || !this.appState.path.pageId)}
         .appState="${this.appState}"
       ></grampsjs-view-settings-user>
-      <grampsjs-view-admin-settings
-        class="page"
-        ?active=${this.appState.path.page === 'settings' &&
-        this.appState.path.pageId === 'administration'}
-        .appState="${this.appState}"
-      ></grampsjs-view-admin-settings>
-      <grampsjs-view-user-management
-        class="page"
-        ?active=${this.appState.path.page === 'settings' &&
-        this.appState.path.pageId === 'users'}
-        .appState="${this.appState}"
-        .dbInfo="${this.dbInfo}"
-      ></grampsjs-view-user-management>
+      ${this.appState.permissions.canManageUsers
+        ? html`
+            <grampsjs-view-admin-settings
+              class="page"
+              ?active=${this.appState.path.page === 'settings' &&
+              this.appState.path.pageId === 'administration'}
+              .appState="${this.appState}"
+            ></grampsjs-view-admin-settings>
+            <grampsjs-view-user-management
+              class="page"
+              ?active=${this.appState.path.page === 'settings' &&
+              this.appState.path.pageId === 'users'}
+              .appState="${this.appState}"
+              .dbInfo="${this.dbInfo}"
+            ></grampsjs-view-user-management>
+          `
+        : ''}
       <grampsjs-view-sysinfo
         class="page"
         ?active=${this.appState.path.page === 'settings' &&
         this.appState.path.pageId === 'info'}
         .appState="${this.appState}"
       ></grampsjs-view-sysinfo>
+      <grampsjs-view-researcher
+        class="page"
+        ?active=${this.appState.path.page === 'settings' &&
+        this.appState.path.pageId === 'researcher'}
+        .appState="${this.appState}"
+      ></grampsjs-view-researcher>
       <grampsjs-view-report
         class="page"
         ?active=${this.appState.path.page === 'report'}

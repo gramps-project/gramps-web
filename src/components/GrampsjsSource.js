@@ -5,6 +5,7 @@ import '@material/web/button/outlined-button'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditTitle.js'
+import './GrampsjsFormEditSourceData.js'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsSource extends GrampsjsObject {
@@ -57,6 +58,19 @@ export class GrampsjsSource extends GrampsjsObject {
             `
           : ''}
       </dl>
+      ${this.edit
+        ? html`
+            <div>
+              <dd>
+                <mwc-icon-button
+                  icon="edit"
+                  class="edit"
+                  @click="${this._handleSourceData}"
+                ></mwc-icon-button>
+              </dd>
+            </div>
+          `
+        : ''}
       ${this._renderBlogBtn()}
     `
   }
@@ -85,7 +99,7 @@ export class GrampsjsSource extends GrampsjsObject {
   _handleEditTitle() {
     this.dialogContent = html`
       <grampsjs-form-edit-title
-        @object:save="${this._handleSaveTitle}"
+        @object:save="${this._handleSaveProps}"
         @object:cancel="${this._handleCancelDialog}"
         .appState="${this.appState}"
         .data=${{title: this.data?.title || ''}}
@@ -95,11 +109,28 @@ export class GrampsjsSource extends GrampsjsObject {
     `
   }
 
-  _handleSaveTitle(e) {
+  _handleSaveProps(e) {
     fireEvent(this, 'edit:action', {action: 'updateProp', data: e.detail.data})
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''
+  }
+
+  _handleSourceData() {
+    const data = {
+      abbrev: this.data?.abbrev,
+      author: this.data?.author,
+      pubinfo: this.data?.pubinfo,
+    }
+    this.dialogContent = html`
+      <grampsjs-form-edit-source-data
+        @object:save="${this._handleSaveProps}"
+        @object:cancel="${this._handleCancelDialog}"
+        .appState="${this.appState}"
+        .data=${data}
+      >
+      </grampsjs-form-edit-source-data>
+    `
   }
 }
 
