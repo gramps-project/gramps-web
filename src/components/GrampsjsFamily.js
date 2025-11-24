@@ -15,6 +15,10 @@ export class GrampsjsFamily extends GrampsjsObject {
       super.styles,
       css`
         :host {
+          .parent {
+            display: flex;
+            align-items: center;
+          }
         }
       `,
     ]
@@ -87,7 +91,7 @@ export class GrampsjsFamily extends GrampsjsObject {
     const hasProfile = Object.keys(profile ?? {}).length > 0
 
     return html`
-      <p>
+      <div class="parent">
         ${!this.edit || hasProfile ? renderPerson(profile || {}) : ''}
         ${this.edit && hasProfile
           ? html`
@@ -98,7 +102,7 @@ export class GrampsjsFamily extends GrampsjsObject {
               ></mwc-icon-button>
             `
           : ''}
-      </p>
+      </div>
       ${this.edit
         ? html`
             <mwc-icon-button
