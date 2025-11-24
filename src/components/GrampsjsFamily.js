@@ -15,11 +15,18 @@ export class GrampsjsFamily extends GrampsjsObject {
       super.styles,
       css`
         :host {
-          .parent {
+          .items-center {
             display: flex;
             align-items: center;
+          }
+
+          .parent {
             margin-top: 1em;
             margin-bottom: 1em;
+          }
+
+          .relationship-type {
+            margin-top: 2em;
           }
         }
       `,
@@ -38,10 +45,10 @@ export class GrampsjsFamily extends GrampsjsObject {
     return html`
       <h2>${this._renderTitle()}</h2>
       ${this._renderFather()} ${this._renderMother()}
-      <p>
+      <div class="relationship-type">
         ${this._renderRelType()} ${this._renderMarriage()}
         ${this._renderDivorce()}
-      </p>
+      </div>
       ${this.edit
         ? html`
             <mwc-icon-button
@@ -94,31 +101,33 @@ export class GrampsjsFamily extends GrampsjsObject {
 
     return html`
       <div class="parent">
-        ${!this.edit || hasProfile ? renderPerson(profile || {}) : ''}
-        ${this.edit && hasProfile
+        <div class="items-center">
+          ${!this.edit || hasProfile ? renderPerson(profile || {}) : ''}
+          ${this.edit && hasProfile
+            ? html`
+                <mwc-icon-button
+                  class="edit"
+                  icon="link_off"
+                  @click="${e => this._handleParentChanged(e, parent)}"
+                ></mwc-icon-button>
+              `
+            : ''}
+        </div>
+        ${this.edit
           ? html`
               <mwc-icon-button
                 class="edit"
-                icon="link_off"
-                @click="${e => this._handleParentChanged(e, parent)}"
+                icon="add_link"
+                @click="${() => this._handleParentShare(parent)}"
+              ></mwc-icon-button>
+              <mwc-icon-button
+                class="edit"
+                icon="add"
+                @click="${() => this._handleAddNewParent(parent)}"
               ></mwc-icon-button>
             `
           : ''}
       </div>
-      ${this.edit
-        ? html`
-            <mwc-icon-button
-              class="edit"
-              icon="add_link"
-              @click="${() => this._handleParentShare(parent)}"
-            ></mwc-icon-button>
-            <mwc-icon-button
-              class="edit"
-              icon="add"
-              @click="${() => this._handleAddNewParent(parent)}"
-            ></mwc-icon-button>
-          `
-        : ''}
     `
   }
 
