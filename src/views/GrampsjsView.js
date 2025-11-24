@@ -2,7 +2,7 @@
 Base class for Gramps views
 */
 
-import {LitElement, css, html} from 'lit'
+import {LitElement, css} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -37,7 +37,6 @@ export class GrampsjsView extends GrampsjsAppStateMixin(LitElement) {
       settings: {type: Object},
       _errorMessage: {type: String},
       _hasFirstUpdated: {type: Boolean},
-      dialogContent: {type: String},
     }
   }
 
@@ -49,7 +48,6 @@ export class GrampsjsView extends GrampsjsAppStateMixin(LitElement) {
     this.settings = {}
     this._errorMessage = ''
     this._hasFirstUpdated = false
-    this.dialogContent = ''
   }
 
   render() {
@@ -62,7 +60,7 @@ export class GrampsjsView extends GrampsjsAppStateMixin(LitElement) {
         })
       )
     }
-    return html`${this.renderContent()} ${this.dialogContent}`
+    return this.renderContent()
   }
 
   firstUpdated() {
@@ -93,9 +91,5 @@ export class GrampsjsView extends GrampsjsAppStateMixin(LitElement) {
         )
       }
     }
-  }
-
-  _handleDialogCancel() {
-    this.dialogContent = ''
   }
 }

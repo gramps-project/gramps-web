@@ -3,7 +3,6 @@ import {html} from 'lit'
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 import '../components/GrampsjsFormPrivate.js'
 import '../components/GrampsjsFormSelectObjectList.js'
-import '../components/GrampsjsFormNewPerson.js'
 
 const dataDefault = {_class: 'Family'}
 
@@ -27,22 +26,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
         objectType="person"
         label="${this._('Select a person as the father')}"
         .appState="${this.appState}"
-        .objectsInitial="${this.data.father_handle
-          ? [
-              {
-                object_type: 'person',
-                object: {},
-                handle: this.data.father_handle,
-              },
-            ]
-          : []}"
       ></grampsjs-form-select-object-list>
-      <mwc-button
-        raised
-        icon="add"
-        @click="${() => this._handleAddNewParent('father')}"
-        >${this._('Add a new person')}</mwc-button
-      >
 
       <h4 class="label">${this._('Mother')}</h4>
 
@@ -51,22 +35,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
         objectType="person"
         label="${this._('Select a person as the mother')}"
         .appState="${this.appState}"
-        .objectsInitial="${this.data.mother_handle
-          ? [
-              {
-                object_type: 'person',
-                object: {},
-                handle: this.data.mother_handle,
-              },
-            ]
-          : []}"
       ></grampsjs-form-select-object-list>
-      <mwc-button
-        raised
-        icon="add"
-        @click="${() => this._handleAddNewParent('mother')}"
-        >${this._('Add a new person')}</mwc-button
-      >
 
       <h4 class="label">${this._('Children')}</h4>
 
@@ -77,9 +46,6 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
         label="${this._('Add an existing person as a child of the family')}"
         .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
-      <mwc-button raised icon="add" @click="${this._handleAddNewChild}"
-        >${this._('Add a new person')}</mwc-button
-      >
 
       <grampsjs-form-select-type
         id="family-rel-type"
@@ -108,46 +74,6 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
 
   handleGender(e) {
     this.data = {...this.data, gender: parseInt(e.target.value, 10)}
-  }
-
-  _handleAddNewParent(parent) {
-    this.dialogContent = html`
-      <grampsjs-form-new-person
-        @object:save="${e => this._handleNewParentSave(e, parent)}"
-        @object:cancel="${this._handleDialogCancel}"
-        .appState="${this.appState}"
-        dialogTitle="${this._('Add a new person')}"
-      >
-      </grampsjs-form-new-person>
-    `
-  }
-
-  _handleAddNewChild() {
-    this.dialogContent = html`
-      <grampsjs-form-new-child
-        @object:cancel="${this._handleDialogCancel}"
-        .appState="${this.appState}"
-        dialogTitle="${this._('Add a new person')}"
-      >
-      </grampsjs-form-new-child>
-    `
-  }
-
-  _handleNewParentSave(e, parent) {
-    const {processedData} = e.detail.data
-    this.appState.apiPost('/api/objects/', processedData).then(data => {
-      if ('data' in data) {
-        this.error = false
-        const {handle} = data.data.filter(obj => obj._class === 'Person')[0]
-        this.data[`${parent}_handle`] = handle
-      } else if ('error' in data) {
-        this.error = true
-        this._errorMessage = data.error
-      }
-    })
-    e.preventDefault()
-    e.stopPropagation()
-    this.dialogContent = ''
   }
 
   _handleFormData(e) {
