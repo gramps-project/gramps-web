@@ -44,7 +44,7 @@ export class GrampsjsFamily extends GrampsjsObject {
   renderProfile() {
     return html`
       <h2>${this._renderTitle()}</h2>
-      ${this._renderFather()} ${this._renderMother()}
+      ${this._renderParent('father')} ${this._renderParent('mother')}
       <div class="relationship-type">
         ${this._renderRelType()} ${this._renderMarriage()}
         ${this._renderDivorce()}
@@ -81,20 +81,6 @@ export class GrampsjsFamily extends GrampsjsObject {
     `
   }
 
-  _renderFather() {
-    return html`
-      <h4 class="label">${this._('Father')}</h4>
-      ${this._renderParent('father')}
-    `
-  }
-
-  _renderMother() {
-    return html`
-      <h4 class="label">${this._('Mother')}</h4>
-      ${this._renderParent('mother')}
-    `
-  }
-
   _renderParent(parent) {
     const profile = this.data?.profile[parent]
     const hasProfile = Object.keys(profile ?? {}).length > 0
@@ -102,7 +88,7 @@ export class GrampsjsFamily extends GrampsjsObject {
     return html`
       <div class="parent">
         <div class="items-center">
-          ${!this.edit || hasProfile ? renderPerson(profile || {}) : ''}
+          ${renderPerson(profile || {})}
           ${this.edit && hasProfile
             ? html`
                 <mwc-icon-button
