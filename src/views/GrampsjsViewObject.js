@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-import {html, css} from 'lit'
+import {css, html} from 'lit'
 
 import '@material/mwc-fab'
 import '@material/mwc-icon'
@@ -301,6 +301,33 @@ export class GrampsjsViewObject extends GrampsjsView {
             this._data,
             this._className,
             'note_list'
+          )
+        }
+      })
+    } else if (e.detail.action === 'newParent') {
+      const {processedData, parent} = e.detail.data
+      const {handle} = processedData.filter(obj => obj._class === 'Person')[0]
+      this._postObject(processedData, 'object').then(data => {
+        if ('data' in data) {
+          const updatedFamily = {[`${parent}_handle`]: handle}
+          this.updateProp(this._data, this._className, updatedFamily)
+        }
+      })
+    } else if (e.detail.action === 'newChild') {
+      const {processedData, frel, mrel} = e.detail.data
+      const {handle} = processedData.filter(obj => obj._class === 'Person')[0]
+      this._postObject(processedData, 'object').then(data => {
+        if ('data' in data) {
+          const childRefData = {
+            ref: handle,
+            frel,
+            mrel,
+          }
+          this.addObject(
+            childRefData,
+            this._data,
+            this._className,
+            'child_ref_list'
           )
         }
       })
