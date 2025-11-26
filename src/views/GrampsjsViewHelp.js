@@ -3,6 +3,23 @@ import {css, html} from 'lit'
 import {mdiOpenInNew} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
 
+// non-English languages with translated documentation
+const supportedDocLangs = [
+  'de',
+  'fr',
+  'es',
+  'zh',
+  'vi',
+  'tr',
+  'ru',
+  'pt',
+  'ja',
+  'da',
+  'fi',
+  'it',
+  'uk',
+]
+
 export class GrampsjsViewHelp extends GrampsjsView {
   static get styles() {
     return [
@@ -19,13 +36,22 @@ export class GrampsjsViewHelp extends GrampsjsView {
     ]
   }
 
+  _getDocLang() {
+    const lang = this.appState.i18n.lang.substring(0, 2)
+    if (supportedDocLangs.includes(lang)) {
+      return `${lang}/`
+    }
+    return ''
+  }
+
   renderContent() {
+    const docLang = this._getDocLang()
     return html`
       <h2>${this._('Help')}</h2>
 
       <div>
         <md-outlined-button
-          href="https://www.grampsweb.org/user-guide"
+          href="https://www.grampsweb.org/${docLang}user-guide"
           target="_blank"
         >
           ${this._('User Documentation')}
@@ -37,7 +63,7 @@ export class GrampsjsViewHelp extends GrampsjsView {
         </md-outlined-button>
 
         <md-outlined-button
-          href="https://www.grampsweb.org/administration/admin"
+          href="https://www.grampsweb.org/${docLang}administration/admin"
           target="_blank"
         >
           ${this._('Administrator Documentation')}
