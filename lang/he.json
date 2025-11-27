@@ -249,5 +249,10 @@
     "Length": "אורך",
     "Continue with %s": "להמשיך עם %s",
     "Signing in...": "מתבצעת התחברות...",
-    "Account Source": "מקור חשבון"
+    "Account Source": "מקור חשבון",
+    "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "למרבה הצער, הדפדפן לא תומך בהצגת קבצי PDF. כדי לצפות בקובץ בכל זאת, ניתן להוריד אותו באמצעות הלחצן מטה.",
+    "User Documentation": "תיעוד משתמש",
+    "Administrator Documentation": "תיעוד מנהלן",
+    "Forum": "פורום",
+    "Researcher Information": "מידע על החוקר"
 }
