@@ -214,7 +214,6 @@ export const objectIcon = {
 }
 
 export const objectTypeToEndpoint = {
-  object: 'objects',
   person: 'people',
   family: 'families',
   event: 'events',
