@@ -2,6 +2,7 @@ import {css, html} from 'lit'
 
 import {mdiOpenInNew} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
+import {fireEvent} from '../util.js'
 
 // non-English languages with translated documentation
 const supportedDocLangs = [
@@ -27,10 +28,8 @@ export class GrampsjsViewHelp extends GrampsjsView {
       css`
         .button-container {
           display: flex;
+          flex-wrap: wrap;
           gap: 0.5em;
-          margin-top: 1em;
-          margin-bottom: 0.5em;
-          --button-height: 48px;
         }
       `,
     ]
@@ -50,30 +49,42 @@ export class GrampsjsViewHelp extends GrampsjsView {
       <h2>${this._('Help')}</h2>
 
       <div>
-        <md-outlined-button
-          href="https://www.grampsweb.org/${docLang}user-guide"
-          target="_blank"
-        >
-          ${this._('User Documentation')}
-          <grampsjs-icon
-            .path="${mdiOpenInNew}"
-            slot="icon"
-            color="var(--mdc-theme-primary)"
-          ></grampsjs-icon>
+        <h3>${this._('Quick Access')}</h3>
+        <md-outlined-button @click="${() => fireEvent(this, 'shortcuts:show')}">
+          ${this._('Keyboard Shortcuts')}
         </md-outlined-button>
+      </div>
 
-        <md-outlined-button
-          href="https://www.grampsweb.org/${docLang}administration/admin"
-          target="_blank"
-        >
-          ${this._('Administrator Documentation')}
-          <grampsjs-icon
-            .path="${mdiOpenInNew}"
-            slot="icon"
-            color="var(--mdc-theme-primary)"
-          ></grampsjs-icon>
-        </md-outlined-button>
+      <div>
+        <h3>${this._('Documentation')}</h3>
+        <div class="button-container">
+          <md-outlined-button
+            href="https://www.grampsweb.org/${docLang}user-guide"
+            target="_blank"
+          >
+            ${this._('User Documentation')}
+            <grampsjs-icon
+              .path="${mdiOpenInNew}"
+              slot="icon"
+              color="var(--mdc-theme-primary)"
+            ></grampsjs-icon>
+          </md-outlined-button>
+          <md-outlined-button
+            href="https://www.grampsweb.org/${docLang}administration/admin"
+            target="_blank"
+          >
+            ${this._('Administrator Documentation')}
+            <grampsjs-icon
+              .path="${mdiOpenInNew}"
+              slot="icon"
+              color="var(--mdc-theme-primary)"
+            ></grampsjs-icon>
+          </md-outlined-button>
+        </div>
+      </div>
 
+      <div>
+        <h3>${this._('Community')}</h3>
         <md-outlined-button
           href="https://gramps.discourse.group/c/gramps-web"
           target="_blank"

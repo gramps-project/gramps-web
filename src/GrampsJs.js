@@ -19,7 +19,7 @@ import {
   getFrontendStrings,
   grampsStrings,
 } from './strings.js'
-import {fireEvent, getBrowserLanguage} from './util.js'
+import {fireEvent, getBrowserLanguage, clickKeyHandler} from './util.js'
 
 import {appStateUpdatePermissions, getInitialAppState} from './appState.js'
 import './components/GrampsjsAppBar.js'
@@ -277,7 +277,13 @@ export class GrampsJs extends LitElement {
       return ''
     }
     return html`
-      <div id="shortcut-overlay-container">
+      <div
+        id="shortcut-overlay-container"
+        @click="${() => {
+          this._showShortcuts = false
+        }}"
+        @keydown="${clickKeyHandler}"
+      >
         <div id="shortcut-overlay">
           <h3>${this._('Keyboard Shortcuts')}</h3>
           <section>
@@ -527,6 +533,9 @@ export class GrampsJs extends LitElement {
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
     this.addEventListener('drawer:toggle', this._toggleDrawer)
     window.addEventListener('keydown', event => this._handleKey(event))
+    window.addEventListener('shortcuts:show', event =>
+      this._handleShowShortcuts(event)
+    )
     document.addEventListener('visibilitychange', () =>
       this._handleVisibilityChange()
     )
@@ -816,6 +825,10 @@ export class GrampsJs extends LitElement {
     if (document.visibilityState === 'visible') {
       this._handleRefresh()
     }
+  }
+
+  _handleShowShortcuts() {
+    this._showShortcuts = true
   }
 
   // eslint-disable-next-line class-methods-use-this
