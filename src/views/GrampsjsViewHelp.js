@@ -49,13 +49,6 @@ export class GrampsjsViewHelp extends GrampsjsView {
       <h2>${this._('Help')}</h2>
 
       <div>
-        <h3>${this._('Quick Access')}</h3>
-        <md-outlined-button @click="${() => fireEvent(this, 'shortcuts:show')}">
-          ${this._('Keyboard Shortcuts')}
-        </md-outlined-button>
-      </div>
-
-      <div>
         <h3>${this._('Documentation')}</h3>
         <div class="button-container">
           <md-outlined-button
@@ -95,6 +88,13 @@ export class GrampsjsViewHelp extends GrampsjsView {
             slot="icon"
             color="var(--mdc-theme-primary)"
           ></grampsjs-icon>
+        </md-outlined-button>
+      </div>
+
+      <div>
+        <h3>${this._('Quick Access')}</h3>
+        <md-outlined-button @click="${() => fireEvent(this, 'shortcuts:show')}">
+          ${this._('Keyboard Shortcuts')}
         </md-outlined-button>
       </div>
     `
