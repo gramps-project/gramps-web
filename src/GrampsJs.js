@@ -19,7 +19,7 @@ import {
   getFrontendStrings,
   grampsStrings,
 } from './strings.js'
-import {fireEvent, getBrowserLanguage} from './util.js'
+import {fireEvent, getBrowserLanguage, clickKeyHandler} from './util.js'
 
 import {appStateUpdatePermissions, getInitialAppState} from './appState.js'
 import './components/GrampsjsAppBar.js'
@@ -277,7 +277,13 @@ export class GrampsJs extends LitElement {
       return ''
     }
     return html`
-      <div id="shortcut-overlay-container">
+      <div
+        id="shortcut-overlay-container"
+        @click="${() => {
+          this._showShortcuts = false
+        }}"
+        @keydown="${clickKeyHandler}"
+      >
         <div id="shortcut-overlay">
           <h3>${this._('Keyboard Shortcuts')}</h3>
           <section>
@@ -288,6 +294,8 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Show this dialog')}</dd>
                 <dt><span>s</span></dt>
                 <dd>${this._('Search')}</dd>
+                <dt><span>e</span></dt>
+                <dd>${this._('Edit')}</dd>
               </dl>
             </div>
             <div>
@@ -525,6 +533,9 @@ export class GrampsJs extends LitElement {
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
     this.addEventListener('drawer:toggle', this._toggleDrawer)
     window.addEventListener('keydown', event => this._handleKey(event))
+    window.addEventListener('shortcuts:show', event =>
+      this._handleShowShortcuts(event)
+    )
     document.addEventListener('visibilitychange', () =>
       this._handleVisibilityChange()
     )
@@ -816,6 +827,10 @@ export class GrampsJs extends LitElement {
     }
   }
 
+  _handleShowShortcuts() {
+    this._showShortcuts = true
+  }
+
   // eslint-disable-next-line class-methods-use-this
   _handleOnline() {
     this._handleRefresh()
@@ -910,15 +925,17 @@ export class GrampsJs extends LitElement {
   _handleKey(e) {
     const target = e.composedPath()[0]
     if (
-      [
-        'input',
-        'textarea',
-        'select',
-        'option',
-        'mwc-list-item',
-        'md-filled-select',
-      ].includes(target.tagName.toLowerCase()) ||
+      ['input', 'textarea', 'select', 'option', 'mwc-list-item'].includes(
+        target.tagName.toLowerCase()
+      ) ||
       target.getAttribute('contenteditable')
+    ) {
+      return
+    }
+    if (
+      e
+        .composedPath()
+        .some(el => el.tagName?.toLowerCase() === 'md-filled-select')
     ) {
       return
     }
@@ -975,6 +992,8 @@ export class GrampsJs extends LitElement {
       this._shortcutPressed = 'n'
     } else if (e.key === 's') {
       fireEvent(this, 'nav', {path: 'search'})
+    } else if (e.key === 'e') {
+      fireEvent(this, 'edit-mode:toggle')
     } else if (e.key === '?') {
       this._showShortcuts = true
     } else {
