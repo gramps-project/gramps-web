@@ -288,6 +288,8 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Show this dialog')}</dd>
                 <dt><span>s</span></dt>
                 <dd>${this._('Search')}</dd>
+                <dt><span>e</span></dt>
+                <dd>${this._('Edit')}</dd>
               </dl>
             </div>
             <div>
@@ -910,15 +912,17 @@ export class GrampsJs extends LitElement {
   _handleKey(e) {
     const target = e.composedPath()[0]
     if (
-      [
-        'input',
-        'textarea',
-        'select',
-        'option',
-        'mwc-list-item',
-        'md-filled-select',
-      ].includes(target.tagName.toLowerCase()) ||
+      ['input', 'textarea', 'select', 'option', 'mwc-list-item'].includes(
+        target.tagName.toLowerCase()
+      ) ||
       target.getAttribute('contenteditable')
+    ) {
+      return
+    }
+    if (
+      e
+        .composedPath()
+        .some(el => el.tagName?.toLowerCase() === 'md-filled-select')
     ) {
       return
     }
@@ -975,6 +979,8 @@ export class GrampsJs extends LitElement {
       this._shortcutPressed = 'n'
     } else if (e.key === 's') {
       fireEvent(this, 'nav', {path: 'search'})
+    } else if (e.key === 'e') {
+      fireEvent(this, 'edit-mode:toggle')
     } else if (e.key === '?') {
       this._showShortcuts = true
     } else {
