@@ -207,6 +207,14 @@ export class GrampsjsViewSearch extends GrampsjsView {
     }
   }
 
+  _customizeSearchIcon() {
+    const textfield = this.shadowRoot.getElementById('search-field')
+    const icon = textfield.shadowRoot.querySelector('.mdc-text-field__icon')
+    if (icon) {
+      icon.style.color = 'var(--grampsjs-body-font-color-50)'
+    }
+  }
+
   _unfocus() {
     if (this.active) {
       const el = this.shadowRoot.getElementById('search-field')
@@ -242,6 +250,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
       this.loading = true
       this._executeSearch(this._page)
     }
+    this._customizeSearchIcon()
   }
 
   _handleSearchKey(event) {
