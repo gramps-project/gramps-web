@@ -374,6 +374,6 @@ export const sharedStyles = css`
   }
 
   mwc-icon-button[slot='meta'] {
-    color: var(--grampsjs-color-icon);
+    color: var(--grampsjs-color-icon-default);
   }
 `

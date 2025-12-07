@@ -1,11 +1,13 @@
-import {html, css} from 'lit'
+import {css, html} from 'lit'
 
 import '@material/mwc-icon'
 
-import {GrampsjsObject} from './GrampsjsObject.js'
 import {ringsIcon} from '../icons.js'
-import {renderPerson, fireEvent} from '../util.js'
+import {fireEvent, renderPerson} from '../util.js'
 import './GrampsjsFormEditFamily.js'
+import './GrampsjsFormNewPerson.js'
+import './GrampsjsFormPersonRef.js'
+import {GrampsjsObject} from './GrampsjsObject.js'
 
 export class GrampsjsFamily extends GrampsjsObject {
   static get styles() {
@@ -13,6 +15,19 @@ export class GrampsjsFamily extends GrampsjsObject {
       super.styles,
       css`
         :host {
+          .items-center {
+            display: flex;
+            align-items: center;
+          }
+
+          .parent {
+            margin-top: 1em;
+            margin-bottom: 1em;
+          }
+
+          .relationship-type {
+            margin-top: 2em;
+          }
         }
       `,
     ]
@@ -29,7 +44,11 @@ export class GrampsjsFamily extends GrampsjsObject {
   renderProfile() {
     return html`
       <h2>${this._renderTitle()}</h2>
-      ${this._renderFather()} ${this._renderMother()}
+      ${this._renderParent('father')} ${this._renderParent('mother')}
+      <div class="relationship-type">
+        ${this._renderRelType()} ${this._renderMarriage()}
+        ${this._renderDivorce()}
+      </div>
       ${this.edit
         ? html`
             <mwc-icon-button
@@ -39,10 +58,6 @@ export class GrampsjsFamily extends GrampsjsObject {
             ></mwc-icon-button>
           `
         : ''}
-      <p>
-        ${this._renderRelType()} ${this._renderMarriage()}
-        ${this._renderDivorce()}
-      </p>
     `
   }
 
@@ -66,12 +81,40 @@ export class GrampsjsFamily extends GrampsjsObject {
     `
   }
 
-  _renderFather() {
-    return html` <p>${renderPerson(this.data?.profile?.father || {})}</p> `
-  }
+  _renderParent(parent) {
+    const profile = this.data?.profile[parent]
+    const hasProfile = Object.keys(profile ?? {}).length > 0
 
-  _renderMother() {
-    return html` <p>${renderPerson(this.data?.profile?.mother || {})}</p> `
+    return html`
+      <div class="parent">
+        <div class="items-center">
+          ${renderPerson(profile || {})}
+          ${this.edit && hasProfile
+            ? html`
+                <mwc-icon-button
+                  class="edit"
+                  icon="link_off"
+                  @click="${e => this._handleParentChanged(e, parent)}"
+                ></mwc-icon-button>
+              `
+            : ''}
+        </div>
+        ${this.edit
+          ? html`
+              <mwc-icon-button
+                class="edit"
+                icon="add_link"
+                @click="${() => this._handleParentShare(parent)}"
+              ></mwc-icon-button>
+              <mwc-icon-button
+                class="edit"
+                icon="add"
+                @click="${() => this._handleAddNewParent(parent)}"
+              ></mwc-icon-button>
+            `
+          : ''}
+      </div>
+    `
   }
 
   _renderMarriage() {
@@ -101,16 +144,41 @@ export class GrampsjsFamily extends GrampsjsObject {
     `
   }
 
+  _handleAddNewParent(parent) {
+    this.dialogContent = html`
+      <grampsjs-form-new-person
+        @object:save="${e => this._handleNewParentSave(e, parent)}"
+        @object:cancel="${this._handleCancelDialog}"
+        .appState="${this.appState}"
+        dialogTitle="${this._('Add a new person')}"
+      >
+      </grampsjs-form-new-person>
+    `
+  }
+
+  _handleParentShare(parent) {
+    this.dialogContent = html`
+      <grampsjs-form-personref
+        @object:save="${e => this._handleParentChanged(e, parent)}"
+        @object:cancel="${this._handleCancelDialog}"
+        .appState="${this.appState}"
+        dialogTitle="${this._('Select an existing person')}"
+      >
+      </grampsjs-form-personref>
+    `
+  }
+
+  _handleParentChanged(e, parent) {
+    const handle = e.detail.data?.ref ?? ''
+    const updatedFamily = {[`${parent}_handle`]: handle}
+    fireEvent(this, 'edit:action', {action: 'updateProp', data: updatedFamily})
+    this.dialogContent = ''
+  }
+
   _handleEditFamily() {
     const data = {
-      father_handle: this.data.father_handle,
-      mother_handle: this.data.mother_handle,
       type: this.data?.type?.string || this.data.type,
     }
-    const father = this.data?.extended?.father
-    const mother = this.data?.extended?.mother
-    const fatherProfile = this.data?.profile?.father
-    const motherProfile = this.data?.profile?.mother
 
     this.dialogContent = html`
       <grampsjs-form-edit-family
@@ -118,13 +186,23 @@ export class GrampsjsFamily extends GrampsjsObject {
         @object:cancel="${this._handleCancelDialog}"
         .appState="${this.appState}"
         .data=${data}
-        .father=${father}
-        .mother=${mother}
-        .fatherProfile=${fatherProfile}
-        .motherProfile=${motherProfile}
       >
       </grampsjs-form-edit-family>
     `
+  }
+
+  _handleNewParentSave(e, parent) {
+    const data = {
+      ...e.detail.data,
+      parent,
+    }
+    fireEvent(this, 'edit:action', {
+      action: 'newParent',
+      data,
+    })
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
   }
 
   _handleSaveDetails(e) {
