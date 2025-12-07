@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-import {html, css} from 'lit'
+import {css, html} from 'lit'
 
 import '@material/mwc-fab'
 import '@material/mwc-icon'
@@ -83,6 +83,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     this._saveButton = false
     this._boundDisableEditMode = this._disableEditMode.bind(this)
     this._boundDeleteSelf = this._deleteSelf.bind(this)
+    this._boundToggleEditMode = this._toggleEditMode.bind(this)
   }
 
   get canEdit() {
@@ -102,16 +103,18 @@ export class GrampsjsViewObject extends GrampsjsView {
     }
     return html`
       ${this.renderElement()}
-      ${this.appState.permissions.canEdit && !this.edit ? this.renderFab() : ''}
+      ${this.canEdit && !this.edit ? this.renderFab() : ''}
       ${this.editDialogContent}
     `
   }
 
   renderFab() {
-    return html` <mwc-fab icon="edit" @click="${this._handleFab}"></mwc-fab> `
+    return html`
+      <mwc-fab icon="edit" @click="${this._activateEditMode}"></mwc-fab>
+    `
   }
 
-  _handleFab() {
+  _activateEditMode() {
     this.edit = true
     fireEvent(this, 'edit-mode:on', {
       title: this._(editTitle[this._className] || 'Edit'),
@@ -123,6 +126,17 @@ export class GrampsjsViewObject extends GrampsjsView {
     this.edit = false
   }
 
+  _toggleEditMode() {
+    if (!this.active || !this.canEdit) {
+      return
+    }
+    if (this.edit) {
+      fireEvent(this, 'edit-mode:close-request')
+    } else {
+      this._activateEditMode()
+    }
+  }
+
   renderElement() {
     return html``
   }
@@ -131,6 +145,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     super.connectedCallback()
     window.addEventListener('edit-mode:off', this._boundDisableEditMode)
     window.addEventListener('edit-mode:delete', this._boundDeleteSelf)
+    window.addEventListener('edit-mode:toggle', this._boundToggleEditMode)
     this.addEventListener('edit:action', this.handleEditAction.bind(this))
   }
 
@@ -138,6 +153,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     this.removeEventListener('edit:action', this.handleEditAction.bind(this))
     window.removeEventListener('edit-mode:off', this._boundDisableEditMode)
     window.removeEventListener('edit-mode:delete', this._boundDeleteSelf)
+    window.removeEventListener('edit-mode:toggle', this._boundToggleEditMode)
     super.disconnectedCallback()
   }
 
@@ -301,6 +317,33 @@ export class GrampsjsViewObject extends GrampsjsView {
             this._data,
             this._className,
             'note_list'
+          )
+        }
+      })
+    } else if (e.detail.action === 'newParent') {
+      const {processedData, parent} = e.detail.data
+      const {handle} = processedData.filter(obj => obj._class === 'Person')[0]
+      this._postObject(processedData, 'object').then(data => {
+        if ('data' in data) {
+          const updatedFamily = {[`${parent}_handle`]: handle}
+          this.updateProp(this._data, this._className, updatedFamily)
+        }
+      })
+    } else if (e.detail.action === 'newChild') {
+      const {processedData, frel, mrel} = e.detail.data
+      const {handle} = processedData.filter(obj => obj._class === 'Person')[0]
+      this._postObject(processedData, 'object').then(data => {
+        if ('data' in data) {
+          const childRefData = {
+            ref: handle,
+            frel,
+            mrel,
+          }
+          this.addObject(
+            childRefData,
+            this._data,
+            this._className,
+            'child_ref_list'
           )
         }
       })
