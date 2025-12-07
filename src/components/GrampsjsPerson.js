@@ -1,9 +1,6 @@
 import {html, css} from 'lit'
-
 import '@material/web/button/outlined-button'
-
 import {mdiFamilyTree, mdiDna, mdiSearchWeb} from '@mdi/js'
-
 import {GrampsjsObject} from './GrampsjsObject.js'
 import {asteriskIcon, crossIcon} from '../icons.js'
 import './GrampsJsImage.js'
