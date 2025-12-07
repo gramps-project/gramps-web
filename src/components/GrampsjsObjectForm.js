@@ -54,8 +54,13 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
       isFormValid: {type: Boolean},
       new: {type: Boolean},
       dialogTitle: {type: String},
+<<<<<<< HEAD
       hideCancelButton: {type: Boolean},
       hideSaveButton: {type: Boolean},
+=======
+      showCancelButton: {type: Boolean},
+      showSaveButton: {type: Boolean},
+>>>>>>> 7a14f36 (Updated for external search)
     }
   }
 
@@ -71,8 +76,13 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
     this.isFormValid = false
     this.new = false
     this.dialogTitle = ''
+<<<<<<< HEAD
     this.hideSaveButton = false
     this.hideCancelButton = false
+=======
+    this.showSaveButton = this.showSaveButton || true
+    this.showCancelButton = this.showCancelButton || true
+>>>>>>> 7a14f36 (Updated for external search)
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -136,14 +146,22 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
         </div>
         <div slot="actions">
           <md-text-button
+<<<<<<< HEAD
             class="edit ${this.hideCancelButton ? 'hide' : ''}"
+=======
+            class="edit ${this.showCancelButton === false ? 'hide' : ''}"
+>>>>>>> 7a14f36 (Updated for external search)
             @click="${this._handleDialogCancel}"
             ${this.showButton}
           >
             ${this._('Cancel')}
           </md-text-button>
           <md-filled-button
+<<<<<<< HEAD
             class="edit ${this.hideSaveButton ? 'hide' : ''}"
+=======
+            class="edit ${this.showSaveButton === false ? 'hide' : ''}"
+>>>>>>> 7a14f36 (Updated for external search)
             @click="${this._handleDialogSave}"
             ?disabled="${!this.isValid}"
           >
