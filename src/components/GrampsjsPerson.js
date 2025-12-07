@@ -1,12 +1,16 @@
 import {html, css} from 'lit'
 import '@material/web/button/outlined-button'
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {mdiFamilyTree, mdiDna, mdiSearchWeb} from '@mdi/js'
 =======
 
 import {mdiFamilyTree, mdiDna, mdiSearchWeb} from '@mdi/js'
 
 >>>>>>> 7a14f36 (Updated for external search)
+=======
+import {mdiFamilyTree, mdiDna, mdiSearchWeb} from '@mdi/js'
+>>>>>>> 32222bc (Updated for remove empty lines)
 import {GrampsjsObject} from './GrampsjsObject.js'
 import {asteriskIcon, crossIcon} from '../icons.js'
 import './GrampsJsImage.js'
