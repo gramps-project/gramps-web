@@ -65,7 +65,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
                 slot="navigationIcon"
                 icon="close"
                 id="button-close"
-                @click="${this._handleCloseIcon}"
+                @click="${this._handleCloseRequest}"
               ></mwc-icon-button>
               <grampsjs-tooltip for="button-close" .appState="${this.appState}"
                 >${this._('Stop editing')}</grampsjs-tooltip
@@ -162,7 +162,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     fireEvent(this, 'nav', {path})
   }
 
-  _handleCloseIcon() {
+  _handleCloseRequest() {
     if (this.saveButton) {
       this.editDialogContent = html`
         <mwc-dialog open @closed="${this._handleDialog}">
@@ -230,6 +230,9 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     super.connectedCallback()
     window.addEventListener('edit-mode:on', e => this._enableEditMode(e))
     window.addEventListener('edit-mode:off', e => this._disableEditMode(e))
+    window.addEventListener('edit-mode:close-request', e =>
+      this._handleCloseRequest(e)
+    )
   }
 }
 

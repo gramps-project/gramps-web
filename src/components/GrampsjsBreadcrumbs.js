@@ -1,6 +1,7 @@
 import {LitElement, html, css} from 'lit'
 
 import '@material/mwc-icon-button'
+import {mdiLockOpenVariantOutline, mdiLockOutline} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent, clickKeyHandler} from '../util.js'
@@ -19,6 +20,9 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
           font-weight: 450;
           color: var(--grampsjs-body-font-color-45);
           margin-bottom: 18px;
+          display: flex;
+          align-items: center;
+          gap: 7px;
         }
 
         .breadcrumb a:link,
@@ -26,7 +30,6 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
           color: var(--grampsjs-body-font-color-45);
           text-decoration: none;
           border-radius: 3px;
-          padding: 4px 7px;
         }
 
         .breadcrumb a:hover {
@@ -40,32 +43,25 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
 
         .breadcrumb mwc-icon {
           font-size: 18px;
-          top: 4px;
           position: relative;
           color: var(--grampsjs-body-font-color-40);
         }
 
         .breadcrumb .action-buttons {
-          margin-left: 1rem;
+          margin-left: 10px;
+          gap: 7px;
         }
 
-        .breadcrumb .action-buttons mwc-icon-button {
-          --mdc-icon-size: 16px;
-          --mdc-icon-button-size: 28px;
-          position: relative;
-          top: -3px;
-          color: var(--grampsjs-body-font-color-40);
+        .breadcrumb span {
+          display: inline-flex;
         }
 
-        .breadcrumb .action-buttons mwc-icon-button.edit {
-          color: var(--mdc-theme-secondary);
-        }
-
-        .breadcrumb .action-buttons mwc-icon-button#btn-star {
-          --mdc-icon-size: 20px;
-          --mdc-icon-button-size: 28px;
-          position: relative;
-          top: -3px;
+        .breadcrumb .action-buttons md-icon-button {
+          --md-icon-button-icon-size: 16px;
+          --md-icon-button-disabled-icon-opacity: 1;
+          opacity: 1;
+          height: 28px;
+          width: 28px;
         }
 
         .breadcrumb .action-buttons grampsjs-share-url,
@@ -73,12 +69,10 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
           --mdc-icon-size: 16px;
           --mdc-icon-button-size: 28px;
           position: relative;
-          top: -3px;
         }
 
         .breadcrumb .action-buttons grampsjs-bookmark-button {
           --mdc-icon-size: 17px;
-          top: -2px;
         }
       `,
     ]
@@ -119,21 +113,29 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
             ? ''
             : html`
                 <span id="wrap-btn-private">
-                  <mwc-icon-button
-                    icon="${this.data.private ? 'lock_outline' : 'lock_open'}"
+                  <md-icon-button
                     ?disabled="${!this.edit}"
                     @click="${this._handlePrivacyClick}"
                     @keydown="${clickKeyHandler}"
-                    class="edit"
+                    touch-target="none"
                     id="btn-private"
-                  ></mwc-icon-button>
+                  >
+                    <grampsjs-icon
+                      .path="${this.data.private
+                        ? mdiLockOutline
+                        : mdiLockOpenVariantOutline}"
+                      color="${this.edit
+                        ? 'var(--mdc-theme-secondary)'
+                        : 'var(--grampsjs-body-font-color-40)'}"
+                    ></grampsjs-icon>
+                  </md-icon-button>
+                  <grampsjs-tooltip
+                    for="wrap-btn-private"
+                    content="${this.data.private
+                      ? this._('Record is private')
+                      : this._('Record is public')}"
+                  ></grampsjs-tooltip>
                 </span>
-                <grampsjs-tooltip
-                  for="wrap-btn-private"
-                  content="${this.data.private
-                    ? this._('Record is private')
-                    : this._('Record is public')}"
-                ></grampsjs-tooltip>
               `}
           ${this.hideBookmark
             ? ''

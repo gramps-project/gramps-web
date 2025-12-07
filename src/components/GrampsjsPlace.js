@@ -86,7 +86,10 @@ export class GrampsjsPlace extends GrampsjsObject {
   _handleEditGeo() {
     let data = {}
     if (this.data.profile.lat && this.data.profile.long) {
-      data = {lat: this.data.profile.lat, long: this.data.profile.long}
+      data = {
+        lat: `${this.data.profile.lat}`,
+        long: `${this.data.profile.long}`,
+      }
     }
     this.dialogContent = html`
       <grampsjs-form-edit-lat-long

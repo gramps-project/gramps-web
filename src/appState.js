@@ -41,7 +41,7 @@ export function getInitialAppState() {
       apiPutPostDeleteNew(auth, 'PUT', endpoint, payload, options),
     apiDelete: (endpoint, options = {}) =>
       apiPutPostDeleteNew(auth, 'DELETE', endpoint, {}, options),
-    refreshTokenIfNeeded: () => auth.getValidAccessToken(),
+    refreshTokenIfNeeded: (force = false) => auth.getValidAccessToken(force),
     signout: () => auth.signout(),
     updateSettings: (settings = {}, tree = false) =>
       updateSettings(settings, tree),
