@@ -2,13 +2,14 @@ import {html, css} from 'lit'
 
 import '@material/web/button/outlined-button'
 
-import {mdiFamilyTree, mdiDna} from '@mdi/js'
+import {mdiFamilyTree, mdiDna, mdiSearchWeb} from '@mdi/js'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
 import {asteriskIcon, crossIcon} from '../icons.js'
 import './GrampsJsImage.js'
 import './GrampsjsEditGender.js'
 import './GrampsjsPersonRelationship.js'
+import './GrampsjsForMorePersonDetails.js'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsPerson extends GrampsjsObject {
@@ -119,15 +120,26 @@ export class GrampsjsPerson extends GrampsjsObject {
 
   _renderTreeBtn() {
     return html`
-      <md-outlined-button @click="${this._handleTreeButtonClick}">
-        ${this._('Show in tree')}
-        <grampsjs-icon
-          path="${mdiFamilyTree}"
-          color="var(--mdc-theme-primary)"
-          slot="icon"
-        >
-        </grampsjs-icon>
-      </md-outlined-button>
+      <div>
+        <md-outlined-button @click="${this._handleTreeButtonClick}">
+          ${this._('Show in tree')}
+          <grampsjs-icon
+            path="${mdiFamilyTree}"
+            color="var(--mdc-theme-primary)"
+            slot="icon"
+          >
+          </grampsjs-icon>
+        </md-outlined-button>
+        <md-outlined-button @click="${this._handleMoreDetailsClick}">
+          ${this._('External Search')}
+          <grampsjs-icon
+            path="${mdiSearchWeb}"
+            color="var(--mdc-theme-primary)"
+            slot="icon"
+          >
+          </grampsjs-icon>
+        </md-outlined-button>
+      </div>
     `
   }
 
@@ -160,6 +172,32 @@ export class GrampsjsPerson extends GrampsjsObject {
       })
     )
     fireEvent(this, 'nav', {path: 'tree'})
+  }
+
+  _handleMoreDetailsClick() {
+    const obj = this.data?.profile?.death
+    const data = {
+      name_given: this.data?.profile?.name_given,
+      name_surname: this.data?.profile?.name_surname,
+      place_name: obj?.place_name,
+    }
+    this.dialogContent = html`
+      <div>
+        <grampsjs-for-more-person-details
+          @object:cancel=${this._handleCancelDialog}
+          .appState="${this.appState}"
+          .data=${data}
+          .dialogTitle=${'External Search'}
+          .showSaveButton=${false}
+          .showCancelButton=${true}
+        >
+        </grampsjs-for-more-person-details>
+      </div>
+    `
+  }
+
+  _handleCancelDialog() {
+    this.dialogContent = ''
   }
 
   _handleDnaButtonClick() {
