@@ -17,15 +17,15 @@ class GrampsjsForMorePersonDetails extends GrampsjsObjectForm {
       {
         key: 'familySearch',
         value: 'FamilySearch',
-        baseUrl: `https://familysearch.org/en/search/tree/results?q.anyPlace=${this.data?.place_name}&q.givenName=${this.data?.name_given}&q.surname=${this.data?.name_surname}`,
+        baseUrl: `https://familysearch.org/en/search/tree/results`,
         icon: 'grass',
       },
-      // {
-      //   key: 'ancestry',
-      //   value: 'Ancestry',
-      //   baseUrl: 'familySearch',
-      //   icon: 'temp_preferences_eco',
-      // },
+      {
+        key: 'ancestry',
+        value: 'Ancestry',
+        baseUrl: `https://www.ancestry.com/search`,
+        icon: 'temp_preferences_eco',
+      },
       // {
       //   key: 'findMyPast',
       //   value: 'Findmypast',
@@ -67,7 +67,7 @@ class GrampsjsForMorePersonDetails extends GrampsjsObjectForm {
             web => html` <div>
               <md-list-item
                 type="button"
-                href="${`${web.baseUrl}`}"
+                href="${`${this._handleClick(web.baseUrl, web.key)}`}"
                 target="_blank"
               >
                 <span>${web.value}</span>
@@ -77,6 +77,25 @@ class GrampsjsForMorePersonDetails extends GrampsjsObjectForm {
         </md-list>
       </div>
     `
+  }
+
+  _handleClick(baseUrl, key) {
+    let url = ''
+    if (baseUrl && key) {
+      switch (key) {
+        case 'familySearch':
+          url = `${baseUrl}?q.anyPlace=${this.data.place_name}&q.givenName=${this.data.name_given}&q.surname=${this.data.name_surname}`
+          break
+        case 'ancestry':
+          url = `${baseUrl}?name=${this.data.name_given}_${this.data.name_surname}&event=${this.data.place_name}&searchMode=advanced`
+          break
+        default:
+          url = ''
+          break
+      }
+      return url
+    }
+    return url
   }
 }
 
