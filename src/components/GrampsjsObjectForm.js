@@ -71,8 +71,8 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
     this.isFormValid = false
     this.new = false
     this.dialogTitle = ''
-    this.showSaveButton = this.showSaveButton || true
-    this.showCancelButton = this.showCancelButton || true
+    this.showSaveButton = true
+    this.showCancelButton = true
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -136,14 +136,14 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
         </div>
         <div slot="actions">
           <md-text-button
-            class="edit ${this.showCancelButton === false ? 'hide' : ''}"
+            class="edit ${!this.showCancelButton ? 'hide' : ''}"
             @click="${this._handleDialogCancel}"
             ${this.showButton}
           >
             ${this._('Cancel')}
           </md-text-button>
           <md-filled-button
-            class="edit ${this.showSaveButton === false ? 'hide' : ''}"
+            class="edit ${!this.showSaveButton ? 'hide' : ''}"
             @click="${this._handleDialogSave}"
             ?disabled="${!this.isValid}"
           >
