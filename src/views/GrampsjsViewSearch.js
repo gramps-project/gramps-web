@@ -13,6 +13,18 @@ function capitalize(string) {
   return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
 }
 
+const filtrableObjectTypes = [
+  'person',
+  'family',
+  'event',
+  'place',
+  'source',
+  'citation',
+  'repository',
+  'note',
+  'media',
+]
+
 export class GrampsjsViewSearch extends GrampsjsView {
   static get styles() {
     return [
@@ -81,9 +93,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
     this._page = 1
     this._pages = -1
     this._objectTypes = Object.fromEntries(
-      Object.keys(objectTypeToEndpoint)
-        .filter(key => key !== 'tag')
-        .map(key => [key, false])
+      filtrableObjectTypes.map(key => [key, false])
     )
   }
 
