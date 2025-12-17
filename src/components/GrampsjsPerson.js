@@ -189,8 +189,7 @@ export class GrampsjsPerson extends GrampsjsObject {
           .appState="${this.appState}"
           .data=${data}
           .dialogTitle=${this._('External Search')}
-          .showSaveButton=${false}
-          .showCancelButton=${true}
+          .hideSaveButton=${true}
         >
         </grampsjs-form-external-search>
       </div>

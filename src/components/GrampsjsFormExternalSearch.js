@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /*
 Form to get parameters for find more details about a person from other websites
 */
@@ -6,7 +7,12 @@ import {css, html} from 'lit'
 import '@material/mwc-icon'
 import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
-import {mdiOpenInNew} from '@mdi/js'
+import {
+  mdiOpenInNew,
+  mdiEarth,
+  mdiShieldLockOutline,
+  mdiCashLock,
+} from '@mdi/js'
 import {renderIcon} from '../icons.js'
 import './GrampsjsTooltip.js'
 import './GrampsjsFormSelectType.js'
@@ -23,65 +29,70 @@ class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
           gap: 0.5em;
           margin-bottom: 10px;
         }
+        .meta-icon svg {
+          height: 0.8em;
+        }
       `,
     ]
   }
 
-  renderForm() {
-    this.searchWebUrls = [
+  getExternalSearchWebsitesData() {
+    return [
       {
         key: 'familySearch',
         value: 'FamilySearch',
+        websiteCriteria: {
+          open: false,
+          reqRegistration: true,
+          reqPayment: false,
+        },
         baseUrl: `https://familysearch.org/en/search/tree/results`,
         params: `?q.anyPlace=${this.data.place_name}&q.givenName=${this.data.name_given}&q.surname=${this.data.name_surname}`,
       },
       {
         key: 'ancestry',
         value: 'Ancestry',
+        websiteCriteria: {
+          open: false,
+          reqRegistration: true,
+          reqPayment: true,
+        },
         baseUrl: `https://www.ancestry.com/search`,
         params: `?name=${this.data.name_given}_${this.data.name_surname}&event=${this.data.place_name}&searchMode=advanced`,
       },
       {
-        key: 'genealogy',
-        value: 'Genealogy',
+        key: 'comgen',
+        value: 'CompGen',
+        websiteCriteria: {
+          open: true,
+          reqRegistration: false,
+          reqPayment: false,
+        },
         baseUrl: 'https://meta.genealogy.net/search',
         params: `?lastname=${this.data.name_surname}&place=${this.data.place_name}`,
       },
-      // {
-      //   key: 'myHeritage',
-      //   value: 'MyHeritage',
-      //   baseUrl: 'familySearch',
-      //   icon: 'temp_preferences_eco',
-      // },
-      // {
-      //   key: 'geneanet',
-      //   value: 'Geneanet',
-      //   baseUrl: 'familySearch',
-      //   icon: 'temp_preferences_eco',
-      // },
-      // {
-      //   key: 'filae',
-      //   value: 'Filae',
-      //   baseUrl: 'familySearch',
-      //   icon: 'temp_preferences_eco',
-      // },
-      // {
-      //   key: 'google',
-      //   value: 'Google',
-      //   baseUrl: 'familySearch',
-      //   icon: 'temp_preferences_eco',
-      // },
     ]
+  }
+
+  getWebCriteriaIcon(websiteCriteria) {
+    if (websiteCriteria.reqPayment) return mdiCashLock
+    if (websiteCriteria.reqRegistration) return mdiShieldLockOutline
+    if (websiteCriteria.open) return mdiEarth
+    return ''
+  }
+
+  renderForm() {
+    const searchWebUrls = this.getExternalSearchWebsitesData()
 
     return html`
       <div>
         <span>
           ${this._(
-            `Select a web service to search for the person details. Some of the services require prior registration`
+            `Select a web service to search for the person’s details. Some services require prior registration`
           )}
         </span>
         <md-list>
-          ${this.searchWebUrls.map(
+          ${searchWebUrls.map(
             web => html` <div>
               <md-list-item
                 type="button"
@@ -95,6 +106,12 @@ class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
                   )}
                 </span>
                 <span> ${web.value} </span>
+                <span class="meta-icon">
+                  ${renderIcon(
+                    this.getWebCriteriaIcon(web.websiteCriteria),
+                    'var(--grampsjs-body-font-color-100)'
+                  )}
+                </span>
               </md-list-item>
             </div>`
           )}
