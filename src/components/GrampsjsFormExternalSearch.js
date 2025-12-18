@@ -7,7 +7,7 @@ import {css, html} from 'lit'
 import '@material/mwc-icon'
 import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
-import {mdiOpenInNew, mdiEarth, mdiShieldLockOutline, mdiLock} from '@mdi/js'
+import {mdiOpenInNew, mdiEarth, mdiShieldAccount, mdiLock} from '@mdi/js'
 import {renderIcon} from '../icons.js'
 import './GrampsjsFormSelectType.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
@@ -104,7 +104,7 @@ class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
 
   getWebCriteriaIcon(websiteCriteria) {
     if (websiteCriteria.reqSubscription) return mdiLock
-    if (websiteCriteria.reqRegistration) return mdiShieldLockOutline
+    if (websiteCriteria.reqRegistration) return mdiShieldAccount
     return mdiEarth
   }
 
@@ -148,7 +148,7 @@ class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
           </span>
           <span class="legend-item">
             ${renderIcon(
-              mdiShieldLockOutline,
+              mdiShieldAccount,
               'var(--grampsjs-body-font-color-60)'
             )}
             <span>${this._('Registration required')}</span>
