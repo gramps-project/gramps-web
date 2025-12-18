@@ -257,5 +257,8 @@
   "Community": "Community",
   "Researcher Information": "Researcher Information",
   "External Search": "External Search",
-  "Select a web service to search for the person's details. Some services require prior registration.": "Select a web service to search for the person's details. Some services require prior registration."
+  "Search external services for matching records.": "Search external services for matching records.",
+  "Open access": "Open access",
+  "Registration required": "Registration required",
+  "Records require additional access": "Records require additional access"
 }
