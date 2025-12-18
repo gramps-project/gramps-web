@@ -18,6 +18,44 @@ import './GrampsjsTooltip.js'
 import './GrampsjsFormSelectType.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
+const EXTERNAL_SEARCH_WEBSITES = [
+  {
+    key: 'comgen',
+    value: 'CompGen',
+    websiteCriteria: {
+      open: true,
+      reqRegistration: false,
+      reqPayment: false,
+    },
+    baseUrl: 'https://meta.genealogy.net/search',
+    params: '?lastname={{name_surname}}&place={{place_name}}',
+  },
+  {
+    key: 'familySearch',
+    value: 'FamilySearch',
+    websiteCriteria: {
+      open: false,
+      reqRegistration: true,
+      reqPayment: false,
+    },
+    baseUrl: 'https://familysearch.org/en/search/tree/results',
+    params:
+      '?q.anyPlace={{place_name}}&q.givenName={{name_given}}&q.surname={{name_surname}}',
+  },
+  {
+    key: 'ancestry',
+    value: 'Ancestry',
+    websiteCriteria: {
+      open: false,
+      reqRegistration: true,
+      reqPayment: true,
+    },
+    baseUrl: 'https://www.ancestry.com/search',
+    params:
+      '?name={{name_given}}_{{name_surname}}&event={{place_name}}&searchMode=advanced',
+  },
+]
+
 class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
   static get styles() {
     return [
@@ -36,42 +74,16 @@ class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
     ]
   }
 
+  interpolateTemplate(template, data) {
+    return template.replace(/\{\{(\w+)\}\}/g, (match, key) => data[key] || '')
+  }
+
   getExternalSearchWebsitesData() {
-    return [
-      {
-        key: 'familySearch',
-        value: 'FamilySearch',
-        websiteCriteria: {
-          open: false,
-          reqRegistration: true,
-          reqPayment: false,
-        },
-        baseUrl: `https://familysearch.org/en/search/tree/results`,
-        params: `?q.anyPlace=${this.data.place_name}&q.givenName=${this.data.name_given}&q.surname=${this.data.name_surname}`,
-      },
-      {
-        key: 'ancestry',
-        value: 'Ancestry',
-        websiteCriteria: {
-          open: false,
-          reqRegistration: true,
-          reqPayment: true,
-        },
-        baseUrl: `https://www.ancestry.com/search`,
-        params: `?name=${this.data.name_given}_${this.data.name_surname}&event=${this.data.place_name}&searchMode=advanced`,
-      },
-      {
-        key: 'comgen',
-        value: 'CompGen',
-        websiteCriteria: {
-          open: true,
-          reqRegistration: false,
-          reqPayment: false,
-        },
-        baseUrl: 'https://meta.genealogy.net/search',
-        params: `?lastname=${this.data.name_surname}&place=${this.data.place_name}`,
-      },
-    ]
+    return EXTERNAL_SEARCH_WEBSITES.map(website => ({
+      ...website,
+      baseUrl: this.interpolateTemplate(website.baseUrl, this.data),
+      params: this.interpolateTemplate(website.params, this.data),
+    }))
   }
 
   getWebCriteriaIcon(websiteCriteria) {
