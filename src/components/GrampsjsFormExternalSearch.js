@@ -114,9 +114,7 @@ class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
     return html`
       <div>
         <span>
-          ${this._(
-            `Select a web service to search for the person’s details. Some services require prior registration`
-          )}
+          ${this._('Search external services for matching records.')}
         </span>
         <md-list>
           ${searchWebUrls.map(
@@ -157,7 +155,7 @@ class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
           </span>
           <span class="legend-item">
             ${renderIcon(mdiLock, 'var(--grampsjs-body-font-color-60)')}
-            <span>${this._('Records may require a subscription')}</span>
+            <span>${this._('Records require additional access')}</span>
           </span>
         </div>
       </div>
