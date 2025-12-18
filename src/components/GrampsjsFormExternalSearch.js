@@ -26,7 +26,7 @@ import {
 } from '@mdi/js'
 import {renderIcon} from '../icons.js'
 import {updateSettings, getSettings} from '../api.js'
-import {clickKeyHandler} from '../util.js'
+import {clickKeyHandler, makeHandle} from '../util.js'
 import './GrampsjsFormSelectType.js'
 import './GrampsjsIcon.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
@@ -130,7 +130,7 @@ class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
       return
     }
 
-    const key = `custom_${Date.now()}`
+    const key = `custom_${makeHandle()}`
     this.customEngines = [...this.customEngines, {key, name, url}]
     this._saveCustomEngines()
 
