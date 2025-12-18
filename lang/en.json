@@ -255,5 +255,10 @@
   "Quick Access": "Quick Access",
   "Documentation": "Documentation",
   "Community": "Community",
-  "Researcher Information": "Researcher Information"
+  "Researcher Information": "Researcher Information",
+  "External Search": "External Search",
+  "Search external services for matching records.": "Search external services for matching records.",
+  "Open access": "Open access",
+  "Registration required": "Registration required",
+  "Records require additional access": "Records require additional access"
 }
