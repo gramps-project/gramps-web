@@ -258,5 +258,10 @@
     "Researcher Information": "Інформація для дослідника",
     "Quick Access": "Швидкий доступ",
     "Documentation": "Документація",
-    "Community": "Громада"
+    "Community": "Громада",
+    "External Search": "Зовнішній пошук",
+    "Search external services for matching records.": "Пошук відповідних записів у зовнішніх сервісах.",
+    "Open access": "Відкритий доступ",
+    "Registration required": "Потрібна реєстрація",
+    "Records require additional access": "Записи потребують додаткового доступу"
 }
