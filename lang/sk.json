@@ -258,5 +258,10 @@
     "Researcher Information": "Informácie o výskumníkovi",
     "Quick Access": "Rýchly prístup",
     "Documentation": "Dokumentácia",
-    "Community": "Komunita"
+    "Community": "Komunita",
+    "External Search": "Externé vyhľadávanie",
+    "Search external services for matching records.": "Prehľadať externé služby pre zodpovedajúce záznamy.",
+    "Open access": "Otvorený prístup",
+    "Registration required": "Registrácia je povinná",
+    "Records require additional access": "Záznamy vyžadujú dodatočný prístup"
 }
