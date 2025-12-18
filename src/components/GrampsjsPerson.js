@@ -176,7 +176,6 @@ export class GrampsjsPerson extends GrampsjsObject {
   }
 
   _handleExternalSearchClick() {
-    const obj = this.data?.profile?.death
     // Helper to extract year from date string (format: "YYYY-MM-DD" or "YYYY")
     const extractYear = dateStr => {
       if (!dateStr) return ''
@@ -187,7 +186,12 @@ export class GrampsjsPerson extends GrampsjsObject {
       name_given: this.data?.profile?.name_given,
       name_surname: this.data?.profile?.name_surname,
       name_middle: this.data?.profile?.name_given?.split(' ')[1] || '',
-      place_name: obj?.place_name,
+      place_name:
+        this.data?.profile?.birth?.place_name ||
+        this.data?.profile?.birth?.place ||
+        this.data?.profile?.death?.place_name ||
+        this.data?.profile?.death?.place ||
+        '',
       birth_year: extractYear(this.data?.profile?.birth?.date),
       death_year: extractYear(this.data?.profile?.death?.date),
     }
