@@ -7,14 +7,8 @@ import {css, html} from 'lit'
 import '@material/mwc-icon'
 import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
-import {
-  mdiOpenInNew,
-  mdiEarth,
-  mdiShieldLockOutline,
-  mdiCashLock,
-} from '@mdi/js'
+import {mdiOpenInNew, mdiEarth, mdiShieldLockOutline, mdiLock} from '@mdi/js'
 import {renderIcon} from '../icons.js'
-import './GrampsjsTooltip.js'
 import './GrampsjsFormSelectType.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
@@ -23,9 +17,8 @@ const EXTERNAL_SEARCH_WEBSITES = [
     key: 'comgen',
     value: 'CompGen',
     websiteCriteria: {
-      open: true,
       reqRegistration: false,
-      reqPayment: false,
+      reqSubscription: false,
     },
     baseUrl: 'https://meta.genealogy.net/search',
     params: '?lastname={{name_surname}}&place={{place_name}}',
@@ -34,9 +27,8 @@ const EXTERNAL_SEARCH_WEBSITES = [
     key: 'familySearch',
     value: 'FamilySearch',
     websiteCriteria: {
-      open: false,
       reqRegistration: true,
-      reqPayment: false,
+      reqSubscription: false,
     },
     baseUrl: 'https://familysearch.org/en/search/tree/results',
     params:
@@ -46,9 +38,8 @@ const EXTERNAL_SEARCH_WEBSITES = [
     key: 'ancestry',
     value: 'Ancestry',
     websiteCriteria: {
-      open: false,
-      reqRegistration: true,
-      reqPayment: true,
+      reqRegistration: false,
+      reqSubscription: true,
     },
     baseUrl: 'https://www.ancestry.com/search',
     params:
@@ -67,8 +58,33 @@ class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
           gap: 0.5em;
           margin-bottom: 10px;
         }
+        .meta-icon {
+          display: inline-flex;
+          align-items: center;
+        }
         .meta-icon svg {
           height: 0.8em;
+          margin-bottom: 2px;
+        }
+        .legend {
+          display: flex;
+          gap: 1em;
+          margin-top: 1em;
+          margin-bottom: 0;
+          padding-top: 1em;
+          border-top: 1px solid var(--grampsjs-body-font-color-10);
+          font-size: 0.9em;
+          color: var(--grampsjs-body-font-color-70);
+          flex-wrap: wrap;
+        }
+        .legend-item {
+          display: flex;
+          align-items: center;
+          gap: 0.3em;
+        }
+        .legend-item svg {
+          height: 0.9em;
+          margin-bottom: 1px;
         }
       `,
     ]
@@ -87,10 +103,9 @@ class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
   }
 
   getWebCriteriaIcon(websiteCriteria) {
-    if (websiteCriteria.reqPayment) return mdiCashLock
+    if (websiteCriteria.reqSubscription) return mdiLock
     if (websiteCriteria.reqRegistration) return mdiShieldLockOutline
-    if (websiteCriteria.open) return mdiEarth
-    return ''
+    return mdiEarth
   }
 
   renderForm() {
@@ -121,13 +136,30 @@ class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
                 <span class="meta-icon">
                   ${renderIcon(
                     this.getWebCriteriaIcon(web.websiteCriteria),
-                    'var(--grampsjs-body-font-color-100)'
+                    'var(--grampsjs-body-font-color-60)'
                   )}
                 </span>
               </md-list-item>
             </div>`
           )}
         </md-list>
+        <div class="legend">
+          <span class="legend-item">
+            ${renderIcon(mdiEarth, 'var(--grampsjs-body-font-color-60)')}
+            <span>${this._('Open access')}</span>
+          </span>
+          <span class="legend-item">
+            ${renderIcon(
+              mdiShieldLockOutline,
+              'var(--grampsjs-body-font-color-60)'
+            )}
+            <span>${this._('Registration required')}</span>
+          </span>
+          <span class="legend-item">
+            ${renderIcon(mdiLock, 'var(--grampsjs-body-font-color-60)')}
+            <span>${this._('Records may require a subscription')}</span>
+          </span>
+        </div>
       </div>
     `
   }
