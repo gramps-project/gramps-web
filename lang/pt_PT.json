@@ -263,5 +263,9 @@
     "Search external services for matching records.": "Procurar correspondências em serviços externos.",
     "Open access": "Acesso aberto",
     "Registration required": "Registo requerido",
-    "Records require additional access": "Os registos requerem acesso adicional"
+    "Records require additional access": "Os registos requerem acesso adicional",
+    "Add custom search engine": "Adicionar motor de pesquisa",
+    "Enter a search URL with template variables for person data. Available variables:": "Insira um URL de pesquisa com variáveis-modelo de dados pessoais. Dispõe de:",
+    "e.g., MyGenealogy": "e.g., MyGenealogy",
+    "Search URL": "URL de pesquisa"
 }
