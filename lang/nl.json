@@ -258,5 +258,10 @@
     "Researcher Information": "Informatie onderzoeker",
     "Community": "Gemeenschap",
     "Quick Access": "Snelle toegang",
-    "Documentation": "Documentatie"
+    "Documentation": "Documentatie",
+    "External Search": "Externe zoekopdracht",
+    "Search external services for matching records.": "Externe diensten doorzoeken voor overeenkomstige gegevens.",
+    "Open access": "Vrije toegang",
+    "Registration required": "Registratie verplicht",
+    "Records require additional access": "Gegevens verlangen aanvullende toegang"
 }
