@@ -263,5 +263,9 @@
     "Search external services for matching records.": "Prehľadať externé služby pre zodpovedajúce záznamy.",
     "Open access": "Otvorený prístup",
     "Registration required": "Registrácia je povinná",
-    "Records require additional access": "Záznamy vyžadujú dodatočný prístup"
+    "Records require additional access": "Záznamy vyžadujú dodatočný prístup",
+    "Add custom search engine": "Pridať vlastný vyhľadávač",
+    "Enter a search URL with template variables for person data. Available variables:": "Zadajte vyhľadávaciu URL adresu so šablónovými premennými pre údaje o osobe. Dostupné premenné:",
+    "e.g., MyGenealogy": "napr. MyGenealogy",
+    "Search URL": "Vyhľadávacia URL adresa"
 }
