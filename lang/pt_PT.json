@@ -258,5 +258,10 @@
     "Researcher Information": "Informação do investigador",
     "Quick Access": "Acesso rápido",
     "Documentation": "Documentação",
-    "Community": "Comunidade"
+    "Community": "Comunidade",
+    "External Search": "Procura externa",
+    "Search external services for matching records.": "Procurar correspondências em serviços externos.",
+    "Open access": "Acesso aberto",
+    "Registration required": "Registo requerido",
+    "Records require additional access": "Os registos requerem acesso adicional"
 }
