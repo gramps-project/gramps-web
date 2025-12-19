@@ -30,9 +30,9 @@ const EXTERNAL_SEARCH_WEBSITES = [
       reqRegistration: true,
       reqSubscription: false,
     },
-    baseUrl: 'https://familysearch.org/en/search/tree/results',
+    baseUrl: 'https://familysearch.org/search/record/results',
     params:
-      '?q.anyPlace={{place_name}}&q.givenName={{name_given}}&q.surname={{name_surname}}',
+      '?q.birthLikeDate.from={{birth_year}}&q.birthLikeDate.to={{birth_year}}&q.deathLikeDate.from={{death_year}}&q.deathLikeDate.to={{death_year}}&q.givenName={{name_given}}&q.surname={{name_surname}}',
   },
   {
     key: 'ancestry',
@@ -43,7 +43,51 @@ const EXTERNAL_SEARCH_WEBSITES = [
     },
     baseUrl: 'https://www.ancestry.com/search',
     params:
-      '?name={{name_given}}_{{name_surname}}&event={{place_name}}&searchMode=advanced',
+      '?name={{name_given}}_{{name_surname}}&birth={{birth_year}}_{{place_name}}&death={{death_year}}&searchMode=advanced',
+  },
+  {
+    key: 'myheritage',
+    value: 'MyHeritage',
+    websiteCriteria: {
+      reqRegistration: false,
+      reqSubscription: true,
+    },
+    baseUrl: 'https://www.myheritage.com/research',
+    params:
+      '?formId=master&formMode=1&action=query&qname=Name+fn.{{name_given}}+ln.{{name_surname}}&qevents-event1=Event+et.birth+ey.{{birth_year}}+ep.{{place_name}}&qevents-any/1event_2=Event+et.death+ey.{{death_year}}&qevents=List',
+  },
+  {
+    key: 'geneanet',
+    value: 'Geneanet',
+    websiteCriteria: {
+      reqRegistration: false,
+      reqSubscription: true,
+    },
+    baseUrl: 'https://en.geneanet.org/fonds/individus/',
+    params: '?size=10&nom={{name_surname}}&prenom={{name_given}}',
+  },
+  {
+    key: 'wikitree',
+    value: 'WikiTree',
+    websiteCriteria: {
+      reqRegistration: false,
+      reqSubscription: false,
+    },
+    baseUrl:
+      'https://plus.wikitree.com/function/WTWebProfileSearch/Profiles.htm',
+    params:
+      '?Query={{name_given}}+{{name_surname}}&MaxProfiles=500&SortOrder=Default&PageSize=10',
+  },
+  {
+    key: 'findagrave',
+    value: 'Find A Grave',
+    websiteCriteria: {
+      reqRegistration: false,
+      reqSubscription: false,
+    },
+    baseUrl: 'https://www.findagrave.com/memorial/search',
+    params:
+      '?firstname={{name_given}}&middlename={{name_middle}}&lastname={{name_surname}}&birthyear={{birth_year}}&birthyearfilter=&deathyear={{death_year}}&deathyearfilter=',
   },
 ]
 

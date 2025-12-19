@@ -132,7 +132,7 @@ export class GrampsjsPerson extends GrampsjsObject {
 
   _renderExternalSearchBtn() {
     return html`
-      <md-outlined-button @click="${this._handleMoreDetailsClick}">
+      <md-outlined-button @click="${this._handleExternalSearchClick}">
         ${this._('External Search')}
         <grampsjs-icon
           path="${mdiSearchWeb}"
@@ -175,12 +175,25 @@ export class GrampsjsPerson extends GrampsjsObject {
     fireEvent(this, 'nav', {path: 'tree'})
   }
 
-  _handleMoreDetailsClick() {
-    const obj = this.data?.profile?.death
+  _handleExternalSearchClick() {
+    // Helper to extract year from date string (format: "YYYY-MM-DD" or "YYYY")
+    const extractYear = dateStr => {
+      if (!dateStr) return ''
+      const match = dateStr.match(/^\d{4}/)
+      return match ? match[0] : ''
+    }
     const data = {
       name_given: this.data?.profile?.name_given,
       name_surname: this.data?.profile?.name_surname,
-      place_name: obj?.place_name,
+      name_middle: this.data?.profile?.name_given?.split(' ')[1] || '',
+      place_name:
+        this.data?.profile?.birth?.place_name ||
+        this.data?.profile?.birth?.place ||
+        this.data?.profile?.death?.place_name ||
+        this.data?.profile?.death?.place ||
+        '',
+      birth_year: extractYear(this.data?.profile?.birth?.date),
+      death_year: extractYear(this.data?.profile?.death?.date),
     }
     this.dialogContent = html`
       <div>
