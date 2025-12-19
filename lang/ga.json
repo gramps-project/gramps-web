@@ -258,5 +258,10 @@
     "Researcher Information": "Faisnéis Taighdeora",
     "Quick Access": "Rochtain Thapa",
     "Documentation": "Doiciméadú",
-    "Community": "Pobal"
+    "Community": "Pobal",
+    "External Search": "Cuardach Seachtrach",
+    "Search external services for matching records.": "Cuardaigh seirbhísí seachtracha le haghaidh taifid chomhoiriúnacha.",
+    "Open access": "Rochtain oscailte",
+    "Registration required": "Clárú riachtanach",
+    "Records require additional access": "Éilíonn taifid rochtain bhreise"
 }
