@@ -263,5 +263,9 @@
     "Search external services for matching records.": "Cuardaigh seirbhísí seachtracha le haghaidh taifid chomhoiriúnacha.",
     "Open access": "Rochtain oscailte",
     "Registration required": "Clárú riachtanach",
-    "Records require additional access": "Éilíonn taifid rochtain bhreise"
+    "Records require additional access": "Éilíonn taifid rochtain bhreise",
+    "Add custom search engine": "Cuir inneall cuardaigh saincheaptha leis",
+    "Enter a search URL with template variables for person data. Available variables:": "Cuir isteach URL cuardaigh le hathróga teimpléid le haghaidh sonraí pearsanta. Athróga atá ar fáil:",
+    "e.g., MyGenealogy": "m.sh., MoGhinealas",
+    "Search URL": "Cuardaigh URL"
 }
