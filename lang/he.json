@@ -232,7 +232,7 @@
     "No Y-DNA data found.": "לא נמצאו נתוני Y-DNA.",
     "Edit Y-DNA data": "עריכת נתוני Y-DNA",
     "Raw SNP data": "נתוני Raw SNP",
-    "Haplogroup": "Haplogroup",
+    "Haplogroup": "האפלוגרופ",
     "few generations": "דורות מעטים",
     "%s generations": "% דורות",
     "Show less": "להציג פחות",
@@ -254,5 +254,17 @@
     "User Documentation": "תיעוד משתמש",
     "Administrator Documentation": "תיעוד מנהלן",
     "Forum": "פורום",
-    "Researcher Information": "מידע על החוקר"
+    "Researcher Information": "מידע על החוקר",
+    "Quick Access": "גישה מהירה",
+    "Documentation": "תיעוד",
+    "Community": "קהילה",
+    "External Search": "חיפוש חיצוני",
+    "Search external services for matching records.": "חיפוש שירותים חיצוניים לרשומות תואמות.",
+    "Open access": "גישה פתוחה",
+    "Registration required": "רישום נדרש",
+    "Records require additional access": "רשומות דורשות גישה נוספת",
+    "Add custom search engine": "הוסף מנוע חיפוש מותאם אישית",
+    "Enter a search URL with template variables for person data. Available variables:": "הזנת כתובת חיפוש עם משתנה תבניות עבור נתוני אדם. משתנים זמינים:",
+    "e.g., MyGenealogy": "לדוגמה, MyGenealogy",
+    "Search URL": "חיפוש מען URL"
 }
