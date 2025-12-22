@@ -254,5 +254,10 @@
     "Administrator Documentation": "Документация для администратора",
     "Forum": "Форум",
     "Paternal Lineage": "Отцовская линия",
-    "Researcher Information": "Информация об исследователе"
+    "Researcher Information": "Информация об исследователе",
+    "Quick Access": "Быстрый доступ",
+    "Documentation": "Документация",
+    "Community": "Сообщество",
+    "External Search": "Внешний поиск",
+    "Search external services for matching records.": "Поиск соответствующих записей во внешних сервисах."
 }
