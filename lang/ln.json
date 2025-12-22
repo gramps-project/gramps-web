@@ -1,1 +1,9 @@
-{}
+{
+    "Open access": "Открытый доступ",
+    "Registration required": "Требуется регистрация",
+    "Records require additional access": "Записи требуют дополнительного доступа",
+    "Add custom search engine": "Добавить пользовательскую поисковую систему",
+    "Enter a search URL with template variables for person data. Available variables:": "Введите URL-адрес поиска с переменными шаблона для данных о человеке. Доступные переменные:",
+    "e.g., MyGenealogy": "например, МояГенеалогия",
+    "Search URL": "URL поиска"
+}
