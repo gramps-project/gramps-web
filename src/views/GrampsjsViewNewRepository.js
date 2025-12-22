@@ -65,7 +65,7 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
   }
 
   _handleFormData(e) {
-    this.checkFormValidity()
+    super._handleFormData(e)
     const originalTarget = e.composedPath()[0]
     if (originalTarget.id === 'select-repository-type') {
       this.data = {
@@ -73,9 +73,7 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
         type: e.detail.data,
       }
     }
-    if (originalTarget.id === 'private') {
-      this.data = {...this.data, private: e.detail.checked}
-    }
+    this.checkFormValidity()
   }
 
   checkFormValidity() {
