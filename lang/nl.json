@@ -258,5 +258,14 @@
     "Researcher Information": "Informatie onderzoeker",
     "Community": "Gemeenschap",
     "Quick Access": "Snelle toegang",
-    "Documentation": "Documentatie"
+    "Documentation": "Documentatie",
+    "External Search": "Externe zoekopdracht",
+    "Search external services for matching records.": "Externe diensten doorzoeken voor overeenkomstige gegevens.",
+    "Open access": "Vrije toegang",
+    "Registration required": "Registratie verplicht",
+    "Records require additional access": "Gegevens verlangen aanvullende toegang",
+    "Search URL": "Zoek-URL",
+    "Add custom search engine": "Aangepaste zoekmachine toevoegen",
+    "Enter a search URL with template variables for person data. Available variables:": "Voer een zoek-URL in met sjabloonvariabelen voor persoonsgegevens. Beschikbare variabelen:",
+    "e.g., MyGenealogy": "bijv., MyGenealogy"
 }

@@ -224,6 +224,7 @@ export const objectTypeToEndpoint = {
   note: 'notes',
   media: 'media',
   tag: 'tags',
+  object: 'objects',
 }
 
 const eventTypeStrings = {

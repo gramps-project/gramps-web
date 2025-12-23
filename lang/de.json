@@ -243,7 +243,7 @@
     "Add Y-DNA data": "Y-DNA-Daten hinzufügen",
     "Link to enclosing place": "Mit umschließendem Ort verknüpfen",
     "Select theme": "Erscheinungsbild auswählen",
-    "Theme": "Erscheinungsbild",
+    "Theme": "Thema",
     "System": "System",
     "Light": "Hell",
     "Dark": "Dunkel",
@@ -258,5 +258,14 @@
     "Researcher Information": "Informationen zum Forscher",
     "Quick Access": "Schnellzugriff",
     "Documentation": "Dokumentation",
-    "Community": "Gemeinschaft"
+    "Community": "Gemeinschaft",
+    "External Search": "Externe Suche",
+    "Search external services for matching records.": "Externe Dienste nach übereinstimmenden Datensätzen durchsuchen.",
+    "Open access": "Frei zugänglich",
+    "Registration required": "Registrierung erforderlich",
+    "Records require additional access": "Aufzeichnungen erfordern zusätzlichen Zugriff",
+    "Add custom search engine": "Benutzerdefinierte Suchmaschine hinzufügen",
+    "Enter a search URL with template variables for person data. Available variables:": "Gib eine Such-URL mit Vorlagenvariablen für Personendaten ein. Verfügbare Variablen:",
+    "e.g., MyGenealogy": "z.B. MeineGenealogie",
+    "Search URL": "Such-URL"
 }

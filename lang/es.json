@@ -250,5 +250,14 @@
     "Continue with %s": "Continuar con %s",
     "Signing in...": "Iniciando sesión...",
     "Select theme": "Seleccione el tema",
-    "Account Source": "Fuente de cuentas"
+    "Account Source": "Fuente de cuentas",
+    "User Documentation": "Documentación del usuario",
+    "Administrator Documentation": "Documentación de administrador",
+    "Forum": "Foro",
+    "Quick Access": "Acceso rápido",
+    "Documentation": "Documentación",
+    "Community": "Comunidad",
+    "External Search": "Búsqueda externa",
+    "Search URL": "URL de búsqueda",
+    "Add custom search engine": "Añadir motor de búsqueda personalizado"
 }

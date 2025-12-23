@@ -258,5 +258,14 @@
     "Researcher Information": "Інформація для дослідника",
     "Quick Access": "Швидкий доступ",
     "Documentation": "Документація",
-    "Community": "Громада"
+    "Community": "Громада",
+    "External Search": "Зовнішній пошук",
+    "Search external services for matching records.": "Пошук відповідних записів у зовнішніх сервісах.",
+    "Open access": "Відкритий доступ",
+    "Registration required": "Потрібна реєстрація",
+    "Records require additional access": "Записи потребують додаткового доступу",
+    "Add custom search engine": "Додати користувацьку пошукову систему",
+    "Enter a search URL with template variables for person data. Available variables:": "Введіть URL-адресу пошуку зі змінними шаблону для даних особи. Доступні змінні:",
+    "e.g., MyGenealogy": "наприклад, МояГенеалогія",
+    "Search URL": "URL-адреса пошуку"
 }
