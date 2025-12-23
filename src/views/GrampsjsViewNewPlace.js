@@ -77,7 +77,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
   }
 
   _handleFormData(e) {
-    this.checkFormValidity()
+    super._handleFormData(e)
     const originalTarget = e.composedPath()[0]
     if (originalTarget.id === 'select-place-type') {
       this.data = {
@@ -95,9 +95,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
         })),
       }
     }
-    if (originalTarget.id === 'private') {
-      this.data = {...this.data, private: e.detail.checked}
-    }
+    this.checkFormValidity()
   }
 
   checkFormValidity() {
