@@ -6,7 +6,7 @@ import {asteriskIcon, crossIcon} from '../icons.js'
 import './GrampsJsImage.js'
 import './GrampsjsEditGender.js'
 import './GrampsjsPersonRelationship.js'
-import './GrampsjsForMorePersonDetails.js'
+import './GrampsjsFormExternalSearch.js'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsPerson extends GrampsjsObject {
@@ -42,6 +42,7 @@ export class GrampsjsPerson extends GrampsjsObject {
       ${this._renderBirth()} ${this._renderDeath()} ${this._renderRelation()}
       <p class="button-list">
         ${this._renderTreeBtn()} ${this._renderDnaBtn()}
+        ${this._renderExternalSearchBtn()}
       </p>
     `
   }
@@ -140,6 +141,20 @@ export class GrampsjsPerson extends GrampsjsObject {
     `
   }
 
+  _renderExternalSearchBtn() {
+    return html`
+      <md-outlined-button @click="${this._handleExternalSearchClick}">
+        ${this._('External Search')}
+        <grampsjs-icon
+          path="${mdiSearchWeb}"
+          color="var(--mdc-theme-primary)"
+          slot="icon"
+        >
+        </grampsjs-icon>
+      </md-outlined-button>
+    `
+  }
+
   _renderDnaBtn() {
     if (!this.data?.person_ref_list?.filter(ref => ref.rel === 'DNA').length) {
       // no DNA data
@@ -171,24 +186,36 @@ export class GrampsjsPerson extends GrampsjsObject {
     fireEvent(this, 'nav', {path: 'tree'})
   }
 
-  _handleMoreDetailsClick() {
-    const obj = this.data?.profile?.death
+  _handleExternalSearchClick() {
+    // Helper to extract year from date string (format: "YYYY-MM-DD" or "YYYY")
+    const extractYear = dateStr => {
+      if (!dateStr) return ''
+      const match = dateStr.match(/^\d{4}/)
+      return match ? match[0] : ''
+    }
     const data = {
       name_given: this.data?.profile?.name_given,
       name_surname: this.data?.profile?.name_surname,
-      place_name: obj?.place_name,
+      name_middle: this.data?.profile?.name_given?.split(' ')[1] || '',
+      place_name:
+        this.data?.profile?.birth?.place_name ||
+        this.data?.profile?.birth?.place ||
+        this.data?.profile?.death?.place_name ||
+        this.data?.profile?.death?.place ||
+        '',
+      birth_year: extractYear(this.data?.profile?.birth?.date),
+      death_year: extractYear(this.data?.profile?.death?.date),
     }
     this.dialogContent = html`
       <div>
-        <grampsjs-for-more-person-details
+        <grampsjs-form-external-search
           @object:cancel=${this._handleCancelDialog}
           .appState="${this.appState}"
           .data=${data}
-          .dialogTitle=${'External Search'}
-          .showSaveButton=${false}
-          .showCancelButton=${true}
+          .dialogTitle=${this._('External Search')}
+          .hideSaveButton=${true}
         >
-        </grampsjs-for-more-person-details>
+        </grampsjs-form-external-search>
       </div>
     `
   }

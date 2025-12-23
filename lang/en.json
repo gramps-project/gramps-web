@@ -255,5 +255,14 @@
   "Quick Access": "Quick Access",
   "Documentation": "Documentation",
   "Community": "Community",
-  "Researcher Information": "Researcher Information"
+  "Researcher Information": "Researcher Information",
+  "External Search": "External Search",
+  "Search external services for matching records.": "Search external services for matching records.",
+  "Open access": "Open access",
+  "Registration required": "Registration required",
+  "Records require additional access": "Records require additional access",
+  "Add custom search engine": "Add custom search engine",
+  "Enter a search URL with template variables for person data. Available variables:": "Enter a search URL with template variables for person data. Available variables:",
+  "e.g., MyGenealogy": "e.g., MyGenealogy",
+  "Search URL": "Search URL"
 }
