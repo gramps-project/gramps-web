@@ -142,15 +142,6 @@ export class GrampsjsPerson extends GrampsjsObject {
           >
           </grampsjs-icon>
         </md-outlined-button>
-        <md-outlined-button @click="${this._handleMoreDetailsClick}">
-          ${this._('External Search')}
-          <grampsjs-icon
-            path="${mdiSearchWeb}"
-            color="var(--mdc-theme-primary)"
-            slot="icon"
-          >
-          </grampsjs-icon>
-        </md-outlined-button>
       </div>
     `
   }
