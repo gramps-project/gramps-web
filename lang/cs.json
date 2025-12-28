@@ -257,5 +257,13 @@
     "Researcher Information": "Informace o badateli",
     "Quick Access": "Rychlý přístup",
     "Documentation": "Dokumentace",
-    "Community": "Komunita"
+    "Community": "Komunita",
+    "External Search": "Externí vyhledávání",
+    "Open access": "Otevřený přístup",
+    "Registration required": "Povinná registrace",
+    "Records require additional access": "Záznamy vyžadují další přístup",
+    "Add custom search engine": "Přidat vlastní vyhledávač",
+    "Enter a search URL with template variables for person data. Available variables:": "Zadejte vyhledávací URL s proměnnými šablony pro údaje o osobách. Dostupné proměnné:",
+    "e.g., MyGenealogy": "např. MyGenealogy",
+    "Search external services for matching records.": "Prohledat externí služby pro odpovídající záznamy."
 }
