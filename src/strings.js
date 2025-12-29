@@ -747,7 +747,7 @@ export const grampsStrings = [
   'Tamil',
   'tDay Mon Year (28 Dec 2025)',
   'Text',
-  'tGreek',
+  'Greek',
   'The center family for the filter',
   'The center person for the filter',
   'The center person for the report',
