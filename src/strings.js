@@ -902,7 +902,7 @@ export const grampsStrings = [
   "Whether to compute a person's age at death.",
   "Whether to compute a person's age at death.",
   "Whether to include a sign ('+') before the descendant number in the child-list to indicate a child has succession.",
-  "Whether to resize the page to fit the size of the tree. Note: the page will have a non standard size. With this option selected, the following will happen: With the 'Do not scale tree' option the page is resized to the height/width of the tree With 'Scale tree to fit page width only' the height of the page is resized to the height of the tree With 'Scale tree to fit the size of the page' the page is resized to remove any gap in either height or width",
+  "Whether to resize the page to fit the size \nof the tree.  Note:  the page will have a \nnon standard size.\n\nWith this option selected, the following will happen:\n\nWith the 'Do not scale tree' option the page\n  is resized to the height/width of the tree\n\nWith 'Scale tree to fit page width only' the height of\n  the page is resized to the height of the tree\n\nWith 'Scale tree to fit the size of the page' the page\n  is resized to remove any gap in either height or width",
   "Wives use husband's surname (from first family listed)",
   "Wives use husband's surname (from last family listed)",
 ]
