@@ -256,5 +256,12 @@
     "Account Source": "Source du Compte",
     "Quick Access": "Accès rapide",
     "Documentation": "Documentation",
-    "Community": "Communauté"
+    "Community": "Communauté",
+    "External Search": "Recherche externe",
+    "Search external services for matching records.": "Rechercher des enregistrements correspondants dans des services externes.",
+    "Open access": "Accès libre",
+    "Registration required": "Enregistrement requis",
+    "Add custom search engine": "Ajouter un moteur de recherche personnalisé",
+    "e.g., MyGenealogy": "ex., MyGenealogy",
+    "Search URL": "Rechercher l'URL"
 }
