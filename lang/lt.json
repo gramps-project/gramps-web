@@ -13,7 +13,7 @@
     "Old password": "Senas slaptažodis",
     "Select language": "Pasirinkti kalbą",
     "Show in tree": "Rodyti medyje",
-    "User settings": "Naudotojo nustatymai",
+    "User settings": "Naudotojo nuostatos",
     "Anniversaries": "Sukaktys",
     "Export": "Iškelti",
     "Search": "Ieškoti",
@@ -52,7 +52,7 @@
     "Year": "Metai",
     "Month": "Mėnuo",
     "Day": "Diena",
-    "Sort": "Rūšiuoti",
+    "Sort": "Rikiuoti",
     "Add Tag": "Pridėti žymę",
     "Owner": "Savininkas",
     "Clear all filters": "Išvalyti visus filtrus",
@@ -141,5 +141,12 @@
     "Log out": "Atsijungti",
     "Register to Gramps Web": "Registruotis prie Gramps tinklapio",
     "No DNA matches found.": "Nerasta DNR sutapimų.",
-    "Add new DNA match": "Pridėti naują DNR sutapimą"
+    "Add new DNA match": "Pridėti naują DNR sutapimą",
+    "Recently browsed objects": "Paskiausiai peržiūrėta",
+    "Recently changed objects": "Paskiausiai pakeista",
+    "Select theme": "Apipavidalinimo pasirinkimas",
+    "Theme": "Apipavidalinimas",
+    "System": "Sistemos",
+    "Light": "Šviesus",
+    "Dark": "Tamsus"
 }
