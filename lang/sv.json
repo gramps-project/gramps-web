@@ -258,5 +258,14 @@
     "Researcher Information": "Information om forskare",
     "Quick Access": "Snabb åtkomst",
     "Documentation": "Dokumentation",
-    "Community": "Gemenskap"
+    "Community": "Gemenskap",
+    "External Search": "Extern sökning",
+    "Search external services for matching records.": "Sök efter matchande poster i externa tjänster.",
+    "Open access": "Öppen åtkomst",
+    "Registration required": "Registrering krävs",
+    "Records require additional access": "Uppgifter kräver ytterligare åtkomst",
+    "Add custom search engine": "Lägg till anpassad sökmotor",
+    "Enter a search URL with template variables for person data. Available variables:": "Ange en sök-URL med mallvariabler för persondata. Tillgängliga variabler:",
+    "e.g., MyGenealogy": "t.ex. MinSläktforskning",
+    "Search URL": "Sök-URL"
 }
