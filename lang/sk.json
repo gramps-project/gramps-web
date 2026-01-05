@@ -269,7 +269,7 @@
     "e.g., MyGenealogy": "napr. MyGenealogy",
     "Search URL": "Vyhľadávacia URL adresa",
     "A number": "Číslo",
-    "A file system path": "Cesta k súborovému systému",
+    "A file system path": "Systémová cesta súboru",
     "Any text": "Akýkoľvek text",
     "A list of text values. Each entry in the list represents one line of text.": "Zoznam textových hodnôt. Každý záznam v zozname predstavuje jeden riadok textu."
 }
