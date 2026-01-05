@@ -264,5 +264,9 @@
   "Add custom search engine": "Add custom search engine",
   "Enter a search URL with template variables for person data. Available variables:": "Enter a search URL with template variables for person data. Available variables:",
   "e.g., MyGenealogy": "e.g., MyGenealogy",
-  "Search URL": "Search URL"
+  "Search URL": "Search URL",
+  "A number": "A number",
+  "A file system path": "A file system path",
+  "Any text": "Any text",
+  "A list of text values. Each entry in the list represents one line of text." : "A list of text values. Each entry in the list represents one line of text."
 }
