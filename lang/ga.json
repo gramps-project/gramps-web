@@ -267,5 +267,9 @@
     "Add custom search engine": "Cuir inneall cuardaigh saincheaptha leis",
     "Enter a search URL with template variables for person data. Available variables:": "Cuir isteach URL cuardaigh le hathróga teimpléid le haghaidh sonraí pearsanta. Athróga atá ar fáil:",
     "e.g., MyGenealogy": "m.sh., MoGhinealas",
-    "Search URL": "Cuardaigh URL"
+    "Search URL": "Cuardaigh URL",
+    "A number": "Uimhir",
+    "A file system path": "Cosán córais comhad",
+    "Any text": "Aon téacs",
+    "A list of text values. Each entry in the list represents one line of text.": "Liosta luachanna téacs. Is ionann gach iontráil sa liosta agus líne amháin téacs."
 }
