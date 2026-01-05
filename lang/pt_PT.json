@@ -267,5 +267,9 @@
     "Add custom search engine": "Adicionar motor de pesquisa",
     "Enter a search URL with template variables for person data. Available variables:": "Insira um URL de pesquisa com variáveis-modelo de dados pessoais. Dispõe de:",
     "e.g., MyGenealogy": "e.g., MyGenealogy",
-    "Search URL": "URL de pesquisa"
+    "Search URL": "URL de pesquisa",
+    "A number": "Um número",
+    "A file system path": "Um caminho do sistema de ficheiros",
+    "Any text": "Qualquer texto",
+    "A list of text values. Each entry in the list represents one line of text.": "Uma lista de valores de texto. Cada entrada representa uma linha de texto."
 }
