@@ -1,9 +1,16 @@
 import {html, css} from 'lit'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
+import {chartNameDisplayFormat} from '../util.js'
 import '../components/GrampsjsRelationshipChart.js'
 
 export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
+  DefaultNAnc = 8
+
+  DefaultNMaxImages = 100
+
+  DefaultNameDisplayFormat = chartNameDisplayFormat.givenThenSurname
+
   static get styles() {
     return [
       super.styles,
@@ -17,14 +24,16 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
 
   constructor() {
     super()
-    this.nAnc = 2
     this._setSep = true
     this._setMaxImages = true
     this.color = ''
+    this._resetLevels()
   }
 
   _resetLevels() {
-    this.nAnc = 2
+    this.nAnc = this.DefaultNAnc
+    this.nMaxImages = this.DefaultNMaxImages
+    this.nameDisplayFormat = this.DefaultNameDisplayFormat
   }
 
   _getPersonRules(grampsId) {

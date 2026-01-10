@@ -7,6 +7,7 @@ import '@material/web/chips/input-chip'
 import {mdiPalette} from '@mdi/js'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
+import {chartNameDisplayFormat} from '../util.js'
 import '../components/GrampsjsFanChart.js'
 
 const colors = {
@@ -21,6 +22,10 @@ const colors = {
 }
 
 export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
+  DefaultNAnc = 4
+
+  DefaultNameDisplayFormat = chartNameDisplayFormat.givenThenSurname
+
   static get styles() {
     return [
       super.styles,
@@ -56,14 +61,15 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
 
   constructor() {
     super()
-    this.nAnc = 4
     this.nDesc = 1
     this._setAnc = true
     this.color = ''
+    this._resetLevels()
   }
 
   _resetLevels() {
-    this.nAnc = 4
+    this.nAnc = this.DefaultNAnc
+    this.nameDisplayFormat = this.DefaultNameDisplayFormat
   }
 
   renderChart() {

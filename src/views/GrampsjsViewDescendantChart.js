@@ -1,18 +1,24 @@
 import {html} from 'lit'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
+import {chartNameDisplayFormat} from '../util.js'
 import '../components/GrampsjsTreeChart.js'
 
 export class GrampsjsViewDescendantChart extends GrampsjsViewTreeChartBase {
+  DefaultNDesc = 2
+
+  DefaultNameDisplayFormat = chartNameDisplayFormat.givenThenSurname
+
   constructor() {
     super()
     this.nAnc = 1
-    this.nDesc = 1
     this._setDesc = true
+    this._resetLevels()
   }
 
   _resetLevels() {
-    this.nDesc = 1
+    this.nDesc = this.DefaultNDesc
+    this.nameDisplayFormat = this.DefaultNameDisplayFormat
   }
 
   renderChart() {

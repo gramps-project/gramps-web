@@ -1,20 +1,27 @@
 import {html} from 'lit'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
+import {chartNameDisplayFormat} from '../util.js'
 import '../components/GrampsjsTreeChart.js'
 
 export class GrampsjsViewHourglassChart extends GrampsjsViewTreeChartBase {
+  DefaultNAnc = 3
+
+  DefaultNDesc = 2
+
+  DefaultNameDisplayFormat = chartNameDisplayFormat.givenThenSurname
+
   constructor() {
     super()
-    this.nAnc = 2
-    this.nDesc = 1
     this._setAnc = true
     this._setDesc = true
+    this._resetLevels()
   }
 
   _resetLevels() {
-    this.nAnc = 2
-    this.nDesc = 1
+    this.nAnc = this.DefaultNAnc
+    this.nDesc = this.DefaultNDesc
+    this.nameDisplayFormat = this.DefaultNameDisplayFormat
   }
 
   renderChart() {
