@@ -263,5 +263,7 @@
     "Registration required": "Enregistrement requis",
     "Add custom search engine": "Ajouter un moteur de recherche personnalisé",
     "e.g., MyGenealogy": "ex., MyGenealogy",
-    "Search URL": "Rechercher l'URL"
+    "Search URL": "Rechercher l'URL",
+    "Link to enclosing place": "Liens vers le lieu d'encapsulation",
+    "Records require additional access": "Les dossiers nécessitent un accès supplémentaire"
 }
