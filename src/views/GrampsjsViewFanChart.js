@@ -7,6 +7,7 @@ import '@material/web/chips/input-chip'
 import {mdiPalette} from '@mdi/js'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
+import {chartNameDisplayFormat} from '../util.js'
 import '../components/GrampsjsFanChart.js'
 
 const colors = {
@@ -21,6 +22,10 @@ const colors = {
 }
 
 export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
+  DefaultNAnc = 4
+
+  DefaultNameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
+
   static get styles() {
     return [
       super.styles,
@@ -56,14 +61,36 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
 
   constructor() {
     super()
-    this.nAnc = 4
     this.nDesc = 1
     this._setAnc = true
     this.color = ''
+    this.nAnc = this.DefaultNAnc
+    this.nameDisplayFormat = this.DefaultNameDisplayFormat
   }
 
   _resetLevels() {
-    this.nAnc = 4
+    this.nAnc = this.DefaultNAnc
+    this.nameDisplayFormat = this.DefaultNameDisplayFormat
+    this.persistAnc()
+    this.persistNameDisplayFormat()
+  }
+
+  persistAnc() {
+    this.appState.updateSettings({fanChartAnc: this.nAnc}, false)
+  }
+
+  persistNameDisplayFormat() {
+    this.appState.updateSettings(
+      {fanChartNameDisplayFormat: this.nameDisplayFormat},
+      false
+    )
+  }
+
+  willUpdate() {
+    this.nAnc = this.appState.settings.fanChartAnc ?? this.DefaultNAnc
+    this.nameDisplayFormat =
+      this.appState.settings.fanChartNameDisplayFormat ??
+      this.DefaultNameDisplayFormat
   }
 
   renderChart() {

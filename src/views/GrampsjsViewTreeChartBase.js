@@ -97,16 +97,14 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
           style="margin-bottom:-10px;"
           ?disabled=${this.disableHome}
           id="button-home"
-          >${renderIcon(
-            mdiHomeAccount,
-            this.disableHome ? 'var(--mdc-theme-text-disabled-on-light)' : ''
-          )}</mwc-icon-button>
-          <grampsjs-tooltip
-            for="button-home"
-            .appState="${this.appState}"
-            >${this._('Home Person')}</grampsjs-tooltip
-          >
-
+        >${renderIcon(
+          mdiHomeAccount,
+          this.disableHome ? 'var(--mdc-theme-text-disabled-on-light)' : ''
+        )}</mwc-icon-button>
+        <grampsjs-tooltip
+          for="button-home"
+          .appState="${this.appState}"
+        >${this._('Home Person')}</grampsjs-tooltip>
         <mwc-icon-button
           icon="arrow_back"
           @click=${this._handleBack}
@@ -117,8 +115,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
         <grampsjs-tooltip
           for="btn-back"
           .appState="${this.appState}"
-        >${this._('_Back')}</grampsjs-tooltip
-        >
+        >${this._('_Back')}</grampsjs-tooltip>
         <mwc-icon-button
           @click=${this._goToPerson}
           id="btn-person"
@@ -126,8 +123,8 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
         <grampsjs-tooltip
           for="btn-person"
           .appState="${this.appState}"
-        >${this._('Person Details')}</grampsjs-tooltip
-        >        <mwc-icon-button
+        >${this._('Person Details')}</grampsjs-tooltip>
+        <mwc-icon-button
           icon="settings"
           id="btn-controls"
           @click=${this._openMenuControls}
@@ -135,8 +132,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
         <grampsjs-tooltip
           for="btn-controls"
           .appState="${this.appState}"
-        >${this._('Preferences')}</grampsjs-tooltip
-      >
+        >${this._('Preferences')}</grampsjs-tooltip>
     <mwc-dialog id="menu-controls">
           <table>
           ${
@@ -240,6 +236,18 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     return ''
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  persistAnc() {}
+
+  // eslint-disable-next-line class-methods-use-this
+  persistDesc() {}
+
+  // eslint-disable-next-line class-methods-use-this
+  persistMaxImages() {}
+
+  // eslint-disable-next-line class-methods-use-this
+  persistNameDisplayFormat() {}
+
   _backToHomePerson() {
     fireEvent(this, 'tree:home')
   }
@@ -307,18 +315,22 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
 
   _handleChangeAnc(e) {
     this.nAnc = parseInt(e.target.value, 10)
+    this.persistAnc()
   }
 
   _handleChangeDesc(e) {
     this.nDesc = parseInt(e.target.value, 10)
+    this.persistDesc()
   }
 
   _handleChangeMaxImages(e) {
     this.nMaxImages = parseInt(e.target.value, 10)
+    this.persistMaxImages()
   }
 
   _handleChangeNameDisplayFormat(e) {
     this.nameDisplayFormat = e.target.value
+    this.persistNameDisplayFormat()
   }
 
   _openMenuControls() {
