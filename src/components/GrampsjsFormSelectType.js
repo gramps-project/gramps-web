@@ -65,6 +65,7 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
   reset() {
     this._hasCustomType = false
     this._touched = false
+    this.value = ''
     const selectElement = this.renderRoot.querySelector('#select-type')
     if (selectElement) {
       selectElement.select(this.defaultValue)
