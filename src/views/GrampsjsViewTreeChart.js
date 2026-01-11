@@ -5,20 +5,45 @@ import {chartNameDisplayFormat} from '../util.js'
 import '../components/GrampsjsTreeChart.js'
 
 export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
-  DefaultNAnc = 4
+  DefaultNAnc = 3
 
-  DefaultNameDisplayFormat = chartNameDisplayFormat.givenThenSurname
+  DefaultNameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
 
   constructor() {
     super()
     this.nDesc = 1
     this._setAnc = true
-    this._resetLevels()
+    this.nAnc = this.DefaultNAnc
+    this.nameDisplayFormat = this.DefaultNameDisplayFormat
   }
 
   _resetLevels() {
     this.nAnc = this.DefaultNAnc
     this.nameDisplayFormat = this.DefaultNameDisplayFormat
+    this.persistAnc()
+    this.persistNameDisplayFormat()
+  }
+
+  persistAnc() {
+    this.appState.updateSettings({treeChartAnc: this.nAnc}, false)
+  }
+
+  persistNameDisplayFormat() {
+    this.appState.updateSettings(
+      {treeChartNameDisplayFormat: this.nameDisplayFormat},
+      false
+    )
+  }
+
+  willUpdate() {
+    this.nAnc = this.appState.settings.treeChartAnc ?? this.DefaultNAnc
+    this.nameDisplayFormat =
+      this.appState.settings.treeChartNameDisplayFormat ??
+      this.DefaultNameDisplayFormat
+  }
+
+  renderControls() {
+    return super.renderControls()
   }
 
   renderChart() {
