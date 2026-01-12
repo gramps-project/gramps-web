@@ -5,25 +5,25 @@ import {chartNameDisplayFormat} from '../util.js'
 import '../components/GrampsjsTreeChart.js'
 
 export class GrampsjsViewHourglassChart extends GrampsjsViewTreeChartBase {
-  DefaultNAnc = 2
+  defaultNAnc = 2
 
-  DefaultNDesc = 1
+  defaultNDesc = 1
 
-  DefaultNameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
+  defaultNameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
 
   constructor() {
     super()
     this._setAnc = true
     this._setDesc = true
-    this.nAnc = this.DefaultNAnc
-    this.nDesc = this.DefaultNDesc
-    this.nameDisplayFormat = this.DefaultNameDisplayFormat
+    this.nAnc = this.defaultNAnc
+    this.nDesc = this.defaultNDesc
+    this.nameDisplayFormat = this.defaultNameDisplayFormat
   }
 
   _resetLevels() {
-    this.nAnc = this.DefaultNAnc
-    this.nDesc = this.DefaultNDesc
-    this.nameDisplayFormat = this.DefaultNameDisplayFormat
+    this.nAnc = this.defaultNAnc
+    this.nDesc = this.defaultNDesc
+    this.nameDisplayFormat = this.defaultNameDisplayFormat
     this.persistAnc()
     this.persistDesc()
     this.persistNameDisplayFormat()
@@ -44,16 +44,15 @@ export class GrampsjsViewHourglassChart extends GrampsjsViewTreeChartBase {
     )
   }
 
-  willUpdate() {
-    this.nAnc = this.appState.settings.hourglassChartAnc ?? this.DefaultNAnc
-    this.nDesc = this.appState.settings.hourglassChartDesc ?? this.DefaultNDesc
-    this.nameDisplayFormat =
-      this.appState.settings.hourglassChartNameDisplayFormat ??
-      this.DefaultNameDisplayFormat
-  }
-
-  renderControls() {
-    return super.renderControls()
+  willUpdate(changedProperties) {
+    if (changedProperties.has('appState')) {
+      this.nAnc = this.appState?.settings?.hourglassChartAnc ?? this.defaultNAnc
+      this.nDesc =
+        this.appState?.settings?.hourglassChartDesc ?? this.defaultNDesc
+      this.nameDisplayFormat =
+        this.appState?.settings?.hourglassChartNameDisplayFormat ??
+        this.defaultNameDisplayFormat
+    }
   }
 
   renderChart() {

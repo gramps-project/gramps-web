@@ -5,21 +5,21 @@ import {chartNameDisplayFormat} from '../util.js'
 import '../components/GrampsjsTreeChart.js'
 
 export class GrampsjsViewDescendantChart extends GrampsjsViewTreeChartBase {
-  DefaultNDesc = 1
+  defaultNDesc = 1
 
-  DefaultNameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
+  defaultNameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
 
   constructor() {
     super()
     this.nAnc = 1
     this._setDesc = true
-    this.nDesc = this.DefaultNDesc
-    this.nameDisplayFormat = this.DefaultNameDisplayFormat
+    this.nDesc = this.defaultNDesc
+    this.nameDisplayFormat = this.defaultNameDisplayFormat
   }
 
   _resetLevels() {
-    this.nDesc = this.DefaultNDesc
-    this.nameDisplayFormat = this.DefaultNameDisplayFormat
+    this.nDesc = this.defaultNDesc
+    this.nameDisplayFormat = this.defaultNameDisplayFormat
     this.persistDesc()
     this.persistNameDisplayFormat()
   }
@@ -35,15 +35,14 @@ export class GrampsjsViewDescendantChart extends GrampsjsViewTreeChartBase {
     )
   }
 
-  willUpdate() {
-    this.nDesc = this.appState.settings.descendantChartDesc ?? this.DefaultNDesc
-    this.nameDisplayFormat =
-      this.appState.settings.descendantChartNameDisplayFormat ??
-      this.DefaultNameDisplayFormat
-  }
-
-  renderControls() {
-    return super.renderControls()
+  willUpdate(changedProperties) {
+    if (changedProperties.has('appState')) {
+      this.nDesc =
+        this.appState?.settings?.descendantChartDesc ?? this.defaultNDesc
+      this.nameDisplayFormat =
+        this.appState?.settings?.descendantChartNameDisplayFormat ??
+        this.defaultNameDisplayFormat
+    }
   }
 
   renderChart() {

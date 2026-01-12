@@ -5,11 +5,11 @@ import {chartNameDisplayFormat} from '../util.js'
 import '../components/GrampsjsRelationshipChart.js'
 
 export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
-  DefaultNAnc = 2
+  defaultNAnc = 2
 
-  DefaultNMaxImages = 50
+  defaultNMaxImages = 50
 
-  DefaultNameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
+  defaultNameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
 
   static get styles() {
     return [
@@ -27,15 +27,15 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
     this._setSep = true
     this._setMaxImages = true
     this.color = ''
-    this.nAnc = this.DefaultNAnc
-    this.nMaxImages = this.DefaultNMaxImages
-    this.nameDisplayFormat = this.DefaultNameDisplayFormat
+    this.nAnc = this.defaultNAnc
+    this.nMaxImages = this.defaultNMaxImages
+    this.nameDisplayFormat = this.defaultNameDisplayFormat
   }
 
   _resetLevels() {
-    this.nAnc = this.DefaultNAnc
-    this.nMaxImages = this.DefaultNMaxImages
-    this.nameDisplayFormat = this.DefaultNameDisplayFormat
+    this.nAnc = this.defaultNAnc
+    this.nMaxImages = this.defaultNMaxImages
+    this.nameDisplayFormat = this.defaultNameDisplayFormat
     this.persistAnc()
     this.persistMaxImages()
     this.persistNameDisplayFormat()
@@ -71,18 +71,17 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
     )
   }
 
-  willUpdate() {
-    this.nAnc = this.appState.settings.relationshipChartAnc ?? this.DefaultNAnc
-    this.nMaxImages =
-      this.appState.settings.relationshipChartMaxImages ??
-      this.DefaultNMaxImages
-    this.nameDisplayFormat =
-      this.appState.settings.relationshipChartNameDisplayFormat ??
-      this.DefaultNameDisplayFormat
-  }
-
-  renderControls() {
-    return super.renderControls()
+  willUpdate(changedProperties) {
+    if (changedProperties.has('appState')) {
+      this.nAnc =
+        this.appState?.settings?.relationshipChartAnc ?? this.defaultNAnc
+      this.nMaxImages =
+        this.appState?.settings?.relationshipChartMaxImages ??
+        this.defaultNMaxImages
+      this.nameDisplayFormat =
+        this.appState?.settings?.relationshipChartNameDisplayFormat ??
+        this.defaultNameDisplayFormat
+    }
   }
 
   renderChart() {

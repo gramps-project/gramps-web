@@ -22,9 +22,9 @@ const colors = {
 }
 
 export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
-  DefaultNAnc = 4
+  defaultNAnc = 4
 
-  DefaultNameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
+  defaultNameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
 
   static get styles() {
     return [
@@ -64,13 +64,13 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
     this.nDesc = 1
     this._setAnc = true
     this.color = ''
-    this.nAnc = this.DefaultNAnc
-    this.nameDisplayFormat = this.DefaultNameDisplayFormat
+    this.nAnc = this.defaultNAnc
+    this.nameDisplayFormat = this.defaultNameDisplayFormat
   }
 
   _resetLevels() {
-    this.nAnc = this.DefaultNAnc
-    this.nameDisplayFormat = this.DefaultNameDisplayFormat
+    this.nAnc = this.defaultNAnc
+    this.nameDisplayFormat = this.defaultNameDisplayFormat
     this.persistAnc()
     this.persistNameDisplayFormat()
   }
@@ -86,11 +86,13 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
     )
   }
 
-  willUpdate() {
-    this.nAnc = this.appState.settings.fanChartAnc ?? this.DefaultNAnc
-    this.nameDisplayFormat =
-      this.appState.settings.fanChartNameDisplayFormat ??
-      this.DefaultNameDisplayFormat
+  willUpdate(changedProperties) {
+    if (changedProperties.has('appState')) {
+      this.nAnc = this.appState?.settings?.fanChartAnc ?? this.defaultNAnc
+      this.nameDisplayFormat =
+        this.appState?.settings?.fanChartNameDisplayFormat ??
+        this.defaultNameDisplayFormat
+    }
   }
 
   renderChart() {
