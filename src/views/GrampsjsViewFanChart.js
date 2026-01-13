@@ -62,7 +62,7 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
   }
 
   get nAnc() {
-    return this.appState?.settings?.fanChartAnc ?? this.defauls.nAnc
+    return this.appState?.settings?.fanChartAnc ?? this.defaults.nAnc
   }
 
   set nAnc(value) {
@@ -81,7 +81,7 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
   }
 
   _resetLevels() {
-    this.nAnc = this.defauls.nAnc
+    this.nAnc = this.defaults.nAnc
     this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
