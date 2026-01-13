@@ -7,7 +7,6 @@ import '@material/web/chips/input-chip'
 import {mdiPalette} from '@mdi/js'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
-import {chartNameDisplayFormat} from '../util.js'
 import '../components/GrampsjsFanChart.js'
 
 const colors = {
@@ -22,10 +21,6 @@ const colors = {
 }
 
 export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
-  defaultNAnc = 4
-
-  defaultNameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
-
   static get styles() {
     return [
       super.styles,
@@ -61,38 +56,33 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
 
   constructor() {
     super()
-    this.nDesc = 1
     this._setAnc = true
     this.color = ''
-    this.nAnc = this.defaultNAnc
-    this.nameDisplayFormat = this.defaultNameDisplayFormat
+    this.defaults.nAnc = 4
   }
 
-  _resetLevels() {
-    this.nAnc = this.defaultNAnc
-    this.nameDisplayFormat = this.defaultNameDisplayFormat
-    this.persistAnc()
-    this.persistNameDisplayFormat()
+  get nAnc() {
+    return this.appState?.settings?.fanChartAnc ?? this.defauls.nAnc
   }
 
-  persistAnc() {
-    this.appState.updateSettings({fanChartAnc: this.nAnc}, false)
+  set nAnc(value) {
+    this.appState.updateSettings({fanChartAnc: value}, false)
   }
 
-  persistNameDisplayFormat() {
-    this.appState.updateSettings(
-      {fanChartNameDisplayFormat: this.nameDisplayFormat},
-      false
+  get nameDisplayFormat() {
+    return (
+      this.appState?.settings?.fanChartNameDisplayFormat ??
+      this.defaults.nameDisplayFormat
     )
   }
 
-  willUpdate(changedProperties) {
-    if (changedProperties.has('appState')) {
-      this.nAnc = this.appState?.settings?.fanChartAnc ?? this.defaultNAnc
-      this.nameDisplayFormat =
-        this.appState?.settings?.fanChartNameDisplayFormat ??
-        this.defaultNameDisplayFormat
-    }
+  set nameDisplayFormat(value) {
+    this.appState.updateSettings({fanChartNameDisplayFormat: value}, false)
+  }
+
+  _resetLevels() {
+    this.nAnc = this.defauls.nAnc
+    this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
   renderChart() {

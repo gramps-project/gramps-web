@@ -67,13 +67,16 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     }
   }
 
+  defaults = {
+    nAnc: 1,
+    nDesc: 1,
+    nMaxImages: 50,
+    nameDisplayFormat: chartNameDisplayFormat.surnameThenGiven,
+  }
+
   constructor() {
     super()
     this.grampsId = ''
-    this.nAnc = 3
-    this.nDesc = 1
-    this.nMaxImages = 50
-    this.nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
     this.disableBack = false
     this.disableHome = false
     this._data = []
@@ -81,6 +84,22 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     this._setDesc = false
     this._setSep = false
     this._setMaxImages = false
+  }
+
+  get nAnc() {
+    return this.defaults.nAnc
+  }
+
+  get nDesc() {
+    return this.defaults.nDesc
+  }
+
+  get nMaxImages() {
+    return this.defaults.nMaxImages
+  }
+
+  get nameDisplayFormat() {
+    return this.defaults.nameDisplayFormat
   }
 
   renderContent() {
@@ -236,18 +255,6 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     return ''
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  persistAnc() {}
-
-  // eslint-disable-next-line class-methods-use-this
-  persistDesc() {}
-
-  // eslint-disable-next-line class-methods-use-this
-  persistMaxImages() {}
-
-  // eslint-disable-next-line class-methods-use-this
-  persistNameDisplayFormat() {}
-
   _backToHomePerson() {
     fireEvent(this, 'tree:home')
   }
@@ -258,12 +265,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
 
   update(changed) {
     super.update(changed)
-    if (
-      changed.has('grampsId') ||
-      changed.has('nAnc') ||
-      changed.has('nDesc') ||
-      changed.has('nMaxImages')
-    ) {
+    if (changed.has('grampsId') || changed.has('settings')) {
       this._fetchData(this.grampsId)
     }
   }
@@ -315,22 +317,18 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
 
   _handleChangeAnc(e) {
     this.nAnc = parseInt(e.target.value, 10)
-    this.persistAnc()
   }
 
   _handleChangeDesc(e) {
     this.nDesc = parseInt(e.target.value, 10)
-    this.persistDesc()
   }
 
   _handleChangeMaxImages(e) {
     this.nMaxImages = parseInt(e.target.value, 10)
-    this.persistMaxImages()
   }
 
   _handleChangeNameDisplayFormat(e) {
     this.nameDisplayFormat = e.target.value
-    this.persistNameDisplayFormat()
   }
 
   _openMenuControls() {

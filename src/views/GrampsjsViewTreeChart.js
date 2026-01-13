@@ -1,47 +1,37 @@
 import {html} from 'lit'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
-import {chartNameDisplayFormat} from '../util.js'
 import '../components/GrampsjsTreeChart.js'
 
 export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
-  defaultNAnc = 3
-
-  defaultNameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
-
   constructor() {
     super()
-    this.nDesc = 1
     this._setAnc = true
-    this.nAnc = this.defaultNAnc
-    this.nameDisplayFormat = this.defaultNameDisplayFormat
+    this.defaults.nAnc = 3
   }
 
-  _resetLevels() {
-    this.nAnc = this.defaultNAnc
-    this.nameDisplayFormat = this.defaultNameDisplayFormat
-    this.persistAnc()
-    this.persistNameDisplayFormat()
+  get nAnc() {
+    return this.appState?.settings?.treeChartAnc ?? this.defaults.nAnc
   }
 
-  persistAnc() {
-    this.appState.updateSettings({treeChartAnc: this.nAnc}, false)
+  set nAnc(value) {
+    this.appState.updateSettings({treeChartAnc: value}, false)
   }
 
-  persistNameDisplayFormat() {
-    this.appState.updateSettings(
-      {treeChartNameDisplayFormat: this.nameDisplayFormat},
-      false
+  get nameDisplayFormat() {
+    return (
+      this.appState?.settings?.treeChartNameDisplayFormat ??
+      this.defaults.nameDisplayFormat
     )
   }
 
-  willUpdate(changedProperties) {
-    if (changedProperties.has('appState')) {
-      this.nAnc = this.appState?.settings?.treeChartAnc ?? this.defaultNAnc
-      this.nameDisplayFormat =
-        this.appState?.settings?.treeChartNameDisplayFormat ??
-        this.defaultNameDisplayFormat
-    }
+  set nameDisplayFormat(value) {
+    this.appState.updateSettings({treeChartNameDisplayFormat: value}, false)
+  }
+
+  _resetLevels() {
+    this.nAnc = this.defaults.nAnc
+    this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
   renderChart() {

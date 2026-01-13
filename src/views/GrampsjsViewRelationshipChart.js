@@ -1,16 +1,9 @@
 import {html, css} from 'lit'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
-import {chartNameDisplayFormat} from '../util.js'
 import '../components/GrampsjsRelationshipChart.js'
 
 export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
-  defaultNAnc = 2
-
-  defaultNMaxImages = 50
-
-  defaultNameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
-
   static get styles() {
     return [
       super.styles,
@@ -27,18 +20,46 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
     this._setSep = true
     this._setMaxImages = true
     this.color = ''
-    this.nAnc = this.defaultNAnc
-    this.nMaxImages = this.defaultNMaxImages
-    this.nameDisplayFormat = this.defaultNameDisplayFormat
+    this.defaults.nAnc = 2
+  }
+
+  get nAnc() {
+    return this.appState?.settings?.relationshipChartAnc ?? this.defaults.nAnc
+  }
+
+  set nAnc(value) {
+    this.appState.updateSettings({relationshipChartAnc: value}, false)
+  }
+
+  get nMaxImages() {
+    return (
+      this.appState?.settings?.relationshipChartMaxImages ??
+      this.defaults.nMaxImages
+    )
+  }
+
+  set nMaxImages(value) {
+    this.appState.updateSettings({relationshipChartMaxImages: value}, false)
+  }
+
+  get nameDisplayFormat() {
+    return (
+      this.appState?.settings?.relationshipChartNameDisplayFormat ??
+      this.defaults.nameDisplayFormat
+    )
+  }
+
+  set nameDisplayFormat(value) {
+    this.appState.updateSettings(
+      {relationshipChartNameDisplayFormat: value},
+      false
+    )
   }
 
   _resetLevels() {
-    this.nAnc = this.defaultNAnc
-    this.nMaxImages = this.defaultNMaxImages
-    this.nameDisplayFormat = this.defaultNameDisplayFormat
-    this.persistAnc()
-    this.persistMaxImages()
-    this.persistNameDisplayFormat()
+    this.nAnc = this.defaults.nAnc
+    this.nMaxImages = this.defaults.nMaxImages
+    this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
   _getPersonRules(grampsId) {
@@ -50,37 +71,6 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
           values: [grampsId, this.nAnc],
         },
       ],
-    }
-  }
-
-  persistAnc() {
-    this.appState.updateSettings({relationshipChartAnc: this.nAnc}, false)
-  }
-
-  persistMaxImages() {
-    this.appState.updateSettings(
-      {relationshipChartMaxImages: this.nMaxImages},
-      false
-    )
-  }
-
-  persistNameDisplayFormat() {
-    this.appState.updateSettings(
-      {relationshipChartNameDisplayFormat: this.nameDisplayFormat},
-      false
-    )
-  }
-
-  willUpdate(changedProperties) {
-    if (changedProperties.has('appState')) {
-      this.nAnc =
-        this.appState?.settings?.relationshipChartAnc ?? this.defaultNAnc
-      this.nMaxImages =
-        this.appState?.settings?.relationshipChartMaxImages ??
-        this.defaultNMaxImages
-      this.nameDisplayFormat =
-        this.appState?.settings?.relationshipChartNameDisplayFormat ??
-        this.defaultNameDisplayFormat
     }
   }
 

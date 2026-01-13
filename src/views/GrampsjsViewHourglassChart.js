@@ -1,58 +1,50 @@
 import {html} from 'lit'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
-import {chartNameDisplayFormat} from '../util.js'
 import '../components/GrampsjsTreeChart.js'
 
 export class GrampsjsViewHourglassChart extends GrampsjsViewTreeChartBase {
-  defaultNAnc = 2
-
-  defaultNDesc = 1
-
-  defaultNameDisplayFormat = chartNameDisplayFormat.surnameThenGiven
-
   constructor() {
     super()
     this._setAnc = true
     this._setDesc = true
-    this.nAnc = this.defaultNAnc
-    this.nDesc = this.defaultNDesc
-    this.nameDisplayFormat = this.defaultNameDisplayFormat
+    this.defaults.nAnc = 2
   }
 
-  _resetLevels() {
-    this.nAnc = this.defaultNAnc
-    this.nDesc = this.defaultNDesc
-    this.nameDisplayFormat = this.defaultNameDisplayFormat
-    this.persistAnc()
-    this.persistDesc()
-    this.persistNameDisplayFormat()
+  get nAnc() {
+    return this.appState?.settings?.hourglassChartAnc ?? this.defaults.nAnc
   }
 
-  persistAnc() {
-    this.appState.updateSettings({hourglassChartAnc: this.nAnc}, false)
+  set nAnc(value) {
+    this.appState.updateSettings({hourglassChartAnc: value}, false)
   }
 
-  persistDesc() {
-    this.appState.updateSettings({hourglassChartDesc: this.nDesc}, false)
+  get nDesc() {
+    return this.appState?.settings?.hourglassChartDesc ?? this.defaults.nDesc
   }
 
-  persistNameDisplayFormat() {
+  set nDesc(value) {
+    this.appState.updateSettings({hourglassChartDesc: value}, false)
+  }
+
+  get nameDisplayFormat() {
+    return (
+      this.appState?.settings?.hourglassChartNameDisplayFormat ??
+      this.defaults.nameDisplayFormat
+    )
+  }
+
+  set nameDisplayFormat(value) {
     this.appState.updateSettings(
-      {hourglassChartNameDisplayFormat: this.nameDisplayFormat},
+      {hourglassChartNameDisplayFormat: value},
       false
     )
   }
 
-  willUpdate(changedProperties) {
-    if (changedProperties.has('appState')) {
-      this.nAnc = this.appState?.settings?.hourglassChartAnc ?? this.defaultNAnc
-      this.nDesc =
-        this.appState?.settings?.hourglassChartDesc ?? this.defaultNDesc
-      this.nameDisplayFormat =
-        this.appState?.settings?.hourglassChartNameDisplayFormat ??
-        this.defaultNameDisplayFormat
-    }
+  _resetLevels() {
+    this.nAnc = this.defaults.nAnc
+    this.nDesc = this.defaults.nDesc
+    this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
   renderChart() {
