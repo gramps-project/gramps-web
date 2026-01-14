@@ -267,5 +267,9 @@
     "Add custom search engine": "Pridať vlastný vyhľadávač",
     "Enter a search URL with template variables for person data. Available variables:": "Zadajte vyhľadávaciu URL adresu so šablónovými premennými pre údaje o osobe. Dostupné premenné:",
     "e.g., MyGenealogy": "napr. MyGenealogy",
-    "Search URL": "Vyhľadávacia URL adresa"
+    "Search URL": "Vyhľadať URL",
+    "A number": "Číslo",
+    "A file system path": "Systémová cesta súboru",
+    "Any text": "Akýkoľvek text",
+    "A list of text values. Each entry in the list represents one line of text.": "Zoznam textových hodnôt. Každý záznam v zozname predstavuje jeden riadok textu."
 }

@@ -265,5 +265,10 @@
     "Add custom search engine": "Přidat vlastní vyhledávač",
     "Enter a search URL with template variables for person data. Available variables:": "Zadejte vyhledávací URL s proměnnými šablony pro údaje o osobách. Dostupné proměnné:",
     "e.g., MyGenealogy": "např. MyGenealogy",
-    "Search external services for matching records.": "Prohledat externí služby pro odpovídající záznamy."
+    "Search external services for matching records.": "Prohledat externí služby pro odpovídající záznamy.",
+    "A number": "Číslo",
+    "A file system path": "Systémová cesta souboru",
+    "Any text": "Libovolný text",
+    "A list of text values. Each entry in the list represents one line of text.": "Seznam textových hodnot. Každý záznam v seznamu představuje jeden řádek textu.",
+    "Search URL": "Hledat URL"
 }

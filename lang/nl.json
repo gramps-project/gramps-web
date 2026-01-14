@@ -267,5 +267,9 @@
     "Search URL": "Zoek-URL",
     "Add custom search engine": "Aangepaste zoekmachine toevoegen",
     "Enter a search URL with template variables for person data. Available variables:": "Voer een zoek-URL in met sjabloonvariabelen voor persoonsgegevens. Beschikbare variabelen:",
-    "e.g., MyGenealogy": "bijv., MyGenealogy"
+    "e.g., MyGenealogy": "bijv., MyGenealogy",
+    "A number": "Een getal",
+    "A file system path": "Een bestandspad",
+    "Any text": "Elke tekst",
+    "A list of text values. Each entry in the list represents one line of text.": "Een lijst van tekstwaarden. Elke vermelding in de lijst vertegenwoordigt één regel tekst."
 }

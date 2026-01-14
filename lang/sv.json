@@ -267,5 +267,9 @@
     "Add custom search engine": "Lägg till anpassad sökmotor",
     "Enter a search URL with template variables for person data. Available variables:": "Ange en sök-URL med mallvariabler för persondata. Tillgängliga variabler:",
     "e.g., MyGenealogy": "t.ex. MinSläktforskning",
-    "Search URL": "Sök-URL"
+    "Search URL": "Sök-URL",
+    "A number": "Ett nummer",
+    "A file system path": "En filsystemsökväg",
+    "Any text": "Valfri text",
+    "A list of text values. Each entry in the list represents one line of text.": "En lista med textvärden. Varje post i listan representerar en textrad."
 }
