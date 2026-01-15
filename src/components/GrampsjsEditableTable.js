@@ -71,7 +71,8 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
     return ''
   }
 
-  _renderActionBtns(handle, first, last, edit = false, deleteFirst = true) {
+  // identifier can be either a handle or an index, depending on the subclass
+  _renderActionBtns(identifier, first, last, edit = false, deleteFirst = true) {
     return html`
       ${first && !deleteFirst
         ? ''
@@ -80,7 +81,7 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
               class="edit"
               icon="delete"
               @click="${e =>
-                this._handleActionClick(e, `del${this.objType}`, handle)}"
+                this._handleActionClick(e, `del${this.objType}`, identifier)}"
             ></mwc-icon-button>
           `}
       ${first
@@ -90,7 +91,7 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
               class="edit"
               icon="arrow_upward"
               @click="${e =>
-                this._handleActionClick(e, `up${this.objType}`, handle)}"
+                this._handleActionClick(e, `up${this.objType}`, identifier)}"
             ></mwc-icon-button>
           `}
       ${last
@@ -100,7 +101,7 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
               class="edit"
               icon="arrow_downward"
               @click="${e =>
-                this._handleActionClick(e, `down${this.objType}`, handle)}"
+                this._handleActionClick(e, `down${this.objType}`, identifier)}"
             ></mwc-icon-button>
           `}
       ${edit
@@ -108,15 +109,15 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
             <mwc-icon-button
               class="edit"
               icon="edit"
-              @click="${e => this._handleEditClick(handle)}"
+              @click="${e => this._handleEditClick(identifier)}"
             ></mwc-icon-button>
           `
         : ''}
     `
   }
 
-  _handleActionClick(e, action, handle) {
-    fireEvent(this, 'edit:action', {action, handle})
+  _handleActionClick(e, action, identifier) {
+    fireEvent(this, 'edit:action', {action, handle: identifier})
     e.preventDefault()
     e.stopPropagation()
   }
