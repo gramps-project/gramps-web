@@ -17,14 +17,49 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
 
   constructor() {
     super()
-    this.nAnc = 2
     this._setSep = true
     this._setMaxImages = true
     this.color = ''
+    this.defaults.nAnc = 2
+  }
+
+  get nAnc() {
+    return this.appState?.settings?.relationshipChartAnc ?? this.defaults.nAnc
+  }
+
+  set nAnc(value) {
+    this.appState.updateSettings({relationshipChartAnc: value}, false)
+  }
+
+  get nMaxImages() {
+    return (
+      this.appState?.settings?.relationshipChartMaxImages ??
+      this.defaults.nMaxImages
+    )
+  }
+
+  set nMaxImages(value) {
+    this.appState.updateSettings({relationshipChartMaxImages: value}, false)
+  }
+
+  get nameDisplayFormat() {
+    return (
+      this.appState?.settings?.relationshipChartNameDisplayFormat ??
+      this.defaults.nameDisplayFormat
+    )
+  }
+
+  set nameDisplayFormat(value) {
+    this.appState.updateSettings(
+      {relationshipChartNameDisplayFormat: value},
+      false
+    )
   }
 
   _resetLevels() {
-    this.nAnc = 2
+    this.nAnc = this.defaults.nAnc
+    this.nMaxImages = this.defaults.nMaxImages
+    this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
   _getPersonRules(grampsId) {

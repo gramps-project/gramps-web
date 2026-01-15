@@ -6,13 +6,32 @@ import '../components/GrampsjsTreeChart.js'
 export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
   constructor() {
     super()
-    this.nAnc = 3
-    this.nDesc = 1
     this._setAnc = true
+    this.defaults.nAnc = 3
+  }
+
+  get nAnc() {
+    return this.appState?.settings?.treeChartAnc ?? this.defaults.nAnc
+  }
+
+  set nAnc(value) {
+    this.appState.updateSettings({treeChartAnc: value}, false)
+  }
+
+  get nameDisplayFormat() {
+    return (
+      this.appState?.settings?.treeChartNameDisplayFormat ??
+      this.defaults.nameDisplayFormat
+    )
+  }
+
+  set nameDisplayFormat(value) {
+    this.appState.updateSettings({treeChartNameDisplayFormat: value}, false)
   }
 
   _resetLevels() {
-    this.nAnc = 3
+    this.nAnc = this.defaults.nAnc
+    this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
   renderChart() {

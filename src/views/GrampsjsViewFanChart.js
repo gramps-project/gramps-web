@@ -56,14 +56,33 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
 
   constructor() {
     super()
-    this.nAnc = 4
-    this.nDesc = 1
     this._setAnc = true
     this.color = ''
+    this.defaults.nAnc = 4
+  }
+
+  get nAnc() {
+    return this.appState?.settings?.fanChartAnc ?? this.defaults.nAnc
+  }
+
+  set nAnc(value) {
+    this.appState.updateSettings({fanChartAnc: value}, false)
+  }
+
+  get nameDisplayFormat() {
+    return (
+      this.appState?.settings?.fanChartNameDisplayFormat ??
+      this.defaults.nameDisplayFormat
+    )
+  }
+
+  set nameDisplayFormat(value) {
+    this.appState.updateSettings({fanChartNameDisplayFormat: value}, false)
   }
 
   _resetLevels() {
-    this.nAnc = 4
+    this.nAnc = this.defaults.nAnc
+    this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
   renderChart() {
