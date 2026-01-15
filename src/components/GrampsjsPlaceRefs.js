@@ -35,12 +35,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
         <td>${placeRefProf.date_str}</td>
         <td>
           ${this.edit
-            ? this._renderActionBtns(
-                obj.ref,
-                i === 0,
-                i === arr.length - 1,
-                true
-              )
+            ? this._renderActionBtns(i, i === 0, i === arr.length - 1, true)
             : ''}
         </td>
       </tr>
@@ -130,9 +125,15 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
     }
   }
 
-  _handleEditClick(handle) {
-    const place = this.places.find(p => p.handle === handle)
-    const placeRef = this.data.find(p => p.ref === handle)
+  _handleActionClick(e, action, index) {
+    fireEvent(this, 'edit:action', {action, index})
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  _handleEditClick(index) {
+    const placeRef = this.data[index]
+    const place = this.places[index]
     this.dialogContent = html`
       <grampsjs-form-placeref
         @object:save="${e => this._handlePlaceRefUpdate(e, placeRef)}"

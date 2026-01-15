@@ -450,8 +450,8 @@ export class GrampsjsViewObject extends GrampsjsView {
     } else if (e.detail.action === 'delMediaRef') {
       this.delObject(e.detail.handle, this._data, this._className, 'media_list')
     } else if (e.detail.action === 'delPlace') {
-      this.delObject(
-        e.detail.handle,
+      this.delObjectByIndex(
+        e.detail.index,
         this._data,
         this._className,
         'placeref_list'
@@ -551,16 +551,16 @@ export class GrampsjsViewObject extends GrampsjsView {
         'down'
       )
     } else if (e.detail.action === 'upPlace') {
-      this.moveObject(
-        e.detail.handle,
+      this.moveObjectByIndex(
+        e.detail.index,
         this._data,
         this._className,
         'placeref_list',
         'up'
       )
     } else if (e.detail.action === 'downPlace') {
-      this.moveObject(
-        e.detail.handle,
+      this.moveObjectByIndex(
+        e.detail.index,
         this._data,
         this._className,
         'placeref_list',
@@ -634,6 +634,17 @@ export class GrampsjsViewObject extends GrampsjsView {
         _obj[prop] = moveUp(_obj[prop], i)
       } else if (upDown === 'down') {
         _obj[prop] = moveDown(_obj[prop], i)
+      }
+      return _obj
+    })
+  }
+
+  moveObjectByIndex(index, obj, objType, prop, upDown) {
+    return this._updateObject(obj, objType, _obj => {
+      if (upDown === 'up') {
+        _obj[prop] = moveUp(_obj[prop], index)
+      } else if (upDown === 'down') {
+        _obj[prop] = moveDown(_obj[prop], index)
       }
       return _obj
     })
