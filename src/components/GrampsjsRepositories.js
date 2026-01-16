@@ -85,20 +85,20 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
     console.log('repoRefData', repoRefData)
     console.log('repoData', repoData)
 
-    // this.dialogContent = html`
-    //   <grampsjs-form-reporef
-    //     new
-    //     @object:save="${e => this._handleRepoRefEdit(e, handle)}"
-    //     @object:cancel="${this._handleRepoRefCancel}"
-    //     .appState="${this.appState}"
-    //     objType="${this.objType}"
-    //     .repoRefKey="${handle}"
-    //     .data="${repoRefData}"
-    //     .repoData="${repoData}"
-    //     dialogTitle=${this._('Edit an existing repository')}
-    //   >
-    //   </grampsjs-form-reporef>
-    // `
+    this.dialogContent = html`
+      <grampsjs-form-reporef
+        new
+        @object:save="${e => this._handleRepoRefEdit(e, handle)}"
+        @object:cancel="${this._handleRepoRefCancel}"
+        .appState="${this.appState}"
+        objType="${this.objType}"
+        .repoRefKey="${handle}"
+        .data="${repoRefData}"
+        .repoData="${repoData}"
+        dialogTitle=${this._('Edit an existing repository')}
+      >
+      </grampsjs-form-reporef>
+    `
   }
 
   _handleRepoRefEdit(e, originalObj) {
