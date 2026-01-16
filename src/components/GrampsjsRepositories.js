@@ -82,29 +82,23 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
   _handleEditClick(handle) {
     const repoRefData = this.data.find(p => p.ref === handle)
     const repoData = this.extended.find(p => p.handle === handle)
-    console.log('repoRefData', repoRefData)
-    console.log('repoData', repoData)
-
-    // this.dialogContent = html`
-    //   <grampsjs-form-reporef
-    //     new
-    //     @object:save="${e => this._handleRepoRefEdit(e, handle)}"
-    //     @object:cancel="${this._handleRepoRefCancel}"
-    //     .appState="${this.appState}"
-    //     objType="${this.objType}"
-    //     .repoRefKey="${handle}"
-    //     .data="${repoRefData}"
-    //     .repoData="${repoData}"
-    //     dialogTitle=${this._('Edit an existing repository')}
-    //   >
-    //   </grampsjs-form-reporef>
-    // `
+    this.dialogContent = html`
+      <grampsjs-form-reporef
+        new
+        @object:save="${e => this._handleRepoRefEdit(e)}"
+        @object:cancel="${this._handleRepoRefCancel}"
+        .appState="${this.appState}"
+        objType="${this.objType}"
+        .repoRefKey="${handle}"
+        .data="${repoRefData}"
+        .repoData="${repoData}"
+        dialogTitle=${this._('Edit an existing repository')}
+      >
+      </grampsjs-form-reporef>
+    `
   }
 
-  _handleRepoRefEdit(e, originalObj) {
-    console.log('originalObj', originalObj)
-    console.log('_handleRepoRefEdit e.detail.data', e.detail)
-    console.log('_handleRepoRefEdit this.data', this.data)
+  _handleRepoRefEdit(e) {
     if (e.detail.data.ref) {
       fireEvent(this, 'edit:action', {
         action: 'updateRepoRef',
