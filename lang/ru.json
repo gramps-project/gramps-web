@@ -259,5 +259,16 @@
     "Documentation": "Документация",
     "Community": "Сообщество",
     "External Search": "Внешний поиск",
-    "Search external services for matching records.": "Поиск соответствующих записей во внешних сервисах."
+    "Search external services for matching records.": "Поиск соответствующих записей во внешних сервисах.",
+    "Open access": "Открытый доступ",
+    "Registration required": "Требуется регистрация",
+    "Records require additional access": "Записи требуют дополнительного доступа",
+    "Add custom search engine": "Добавить пользовательскую поисковую систему",
+    "Enter a search URL with template variables for person data. Available variables:": "Введите URL-адрес поиска с переменными шаблона для данных о человеке. Доступные переменные:",
+    "e.g., MyGenealogy": "например, МояГенеалогия",
+    "Search URL": "URL поиска",
+    "A number": "Число",
+    "A file system path": "Путь к файлу",
+    "Any text": "Любой текст",
+    "A list of text values. Each entry in the list represents one line of text.": "Список текстовых значений. Каждая запись в списке представляет собой одну строку текста."
 }
