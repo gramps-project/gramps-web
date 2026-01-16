@@ -82,6 +82,10 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
   _handleEditClick(handle) {
     const repoRefData = this.data.find(p => p.ref === handle)
     const repoData = this.extended.find(p => p.handle === handle)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 62e0e18 (Updated for removing console)
     this.dialogContent = html`
       <grampsjs-form-reporef
         new
