@@ -109,7 +109,11 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
             <mwc-icon-button
               class="edit"
               icon="edit"
+<<<<<<< HEAD
               @click="${e => this._handleEditClick(identifier)}"
+=======
+              @click="${e => this._handleEditClick(handle)}"
+>>>>>>> af7478d (Updated the files)
             ></mwc-icon-button>
           `
         : ''}
