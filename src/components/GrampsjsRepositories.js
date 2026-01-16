@@ -28,7 +28,12 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
         <td>${this._(obj.media_type)}</td>
         <td>
           ${this.edit
-            ? this._renderActionBtns(obj.ref, i === 0, i === arr.length - 1)
+            ? this._renderActionBtns(
+                obj.ref,
+                i === 0,
+                i === arr.length - 1,
+                true
+              )
             : ''}
         </td>
       </tr>
@@ -66,6 +71,43 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
     if (e.detail.data.ref) {
       fireEvent(this, 'edit:action', {
         action: 'addRepoRef',
+        data: e.detail.data,
+      })
+    }
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleEditClick(handle) {
+    const repoRefData = this.data.find(p => p.ref === handle)
+    const repoData = this.extended.find(p => p.handle === handle)
+    console.log('repoRefData', repoRefData)
+    console.log('repoData', repoData)
+
+    // this.dialogContent = html`
+    //   <grampsjs-form-reporef
+    //     new
+    //     @object:save="${e => this._handleRepoRefEdit(e, handle)}"
+    //     @object:cancel="${this._handleRepoRefCancel}"
+    //     .appState="${this.appState}"
+    //     objType="${this.objType}"
+    //     .repoRefKey="${handle}"
+    //     .data="${repoRefData}"
+    //     .repoData="${repoData}"
+    //     dialogTitle=${this._('Edit an existing repository')}
+    //   >
+    //   </grampsjs-form-reporef>
+    // `
+  }
+
+  _handleRepoRefEdit(e, originalObj) {
+    console.log('originalObj', originalObj)
+    console.log('_handleRepoRefEdit e.detail.data', e.detail)
+    console.log('_handleRepoRefEdit this.data', this.data)
+    if (e.detail.data.ref) {
+      fireEvent(this, 'edit:action', {
+        action: 'updateRepoRef',
         data: e.detail.data,
       })
     }

@@ -14,7 +14,27 @@ import './GrampsjsFormString.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 class GrampsjsFormRepoRef extends GrampsjsObjectForm {
+  static get properties() {
+    return {
+      repoRefKey: {type: String},
+      repoData: {type: Array},
+    }
+  }
+
+  constructor() {
+    super()
+    this.repoRefKey = ''
+    this.repoData = []
+  }
+
   renderForm() {
+    const selectOption = [
+      {
+        handle: this.repoRefKey,
+        object: this.repoData,
+        object_type: 'repository',
+      },
+    ]
     return html`
       <grampsjs-form-select-object-list
         fixedMenuPosition
@@ -24,6 +44,7 @@ class GrampsjsFormRepoRef extends GrampsjsObjectForm {
         id="repository-select"
         label="${this._('Select')}"
         class="edit"
+        .objectsInitial="${selectOption}"
       ></grampsjs-form-select-object-list>
 
       <h4 class="label">${this._('Call Number')}</h4>
@@ -45,6 +66,7 @@ class GrampsjsFormRepoRef extends GrampsjsObjectForm {
         defaultValue="Book"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
+        .value="${this.data.media_type}"
       >
       </grampsjs-form-select-type>
     `
