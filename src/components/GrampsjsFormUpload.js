@@ -177,7 +177,7 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
   firstUpdated() {
     // monitor if the form is visible
     // used for lazy loading of pasted images
-    const observer = IntersectionObserver(entries => {
+    const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           this._isVisible = true
