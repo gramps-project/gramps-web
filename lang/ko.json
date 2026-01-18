@@ -177,5 +177,10 @@
     "Update semantic search index": "시맨틱 검색 색인 갱신하기",
     "Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.": "시맨틱 검색 색인 갱신하기는 실제로 시간과 컴퓨터 자원이 필요하다. 필요할때만 실행하라.",
     "Chat messages": "대화 내용",
-    "Manage semantic search index": "시맨틱 검색 색인 관리"
+    "Manage semantic search index": "시맨틱 검색 색인 관리",
+    "Select theme": "테마 선택",
+    "Theme": "테마",
+    "System": "시스템",
+    "Light": "빛",
+    "Dark": "어둠"
 }

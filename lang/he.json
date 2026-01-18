@@ -266,5 +266,9 @@
     "Add custom search engine": "הוסף מנוע חיפוש מותאם אישית",
     "Enter a search URL with template variables for person data. Available variables:": "הזנת כתובת חיפוש עם משתנה תבניות עבור נתוני אדם. משתנים זמינים:",
     "e.g., MyGenealogy": "לדוגמה, MyGenealogy",
-    "Search URL": "חיפוש מען URL"
+    "Search URL": "חיפוש מען URL",
+    "A number": "מספר",
+    "A file system path": "נתיב מערכת הקבצים",
+    "Any text": "כל מלל",
+    "A list of text values. Each entry in the list represents one line of text.": "רשימת ערכי מלל. כל רשומה ברשימה מייצגת שורה אחת של מלל."
 }
