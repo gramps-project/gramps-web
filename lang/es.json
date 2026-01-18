@@ -259,5 +259,17 @@
     "Community": "Comunidad",
     "External Search": "Búsqueda externa",
     "Search URL": "URL de búsqueda",
-    "Add custom search engine": "Añadir motor de búsqueda personalizado"
+    "Add custom search engine": "Añadir motor de búsqueda personalizado",
+    "Open access": "Abrir acceso",
+    "Registration required": "Se requiere registro",
+    "A number": "Un número",
+    "Any text": "Cualquier texto",
+    "A list of text values. Each entry in the list represents one line of text.": "Una lista de valores de texto. Cada entrada representa una línea de texto.",
+    "A file system path": "Una ruta del sistema de archivos",
+    "e.g., MyGenealogy": "p. ej., MyGenealogy",
+    "Enter a search URL with template variables for person data. Available variables:": "Introduzca una URL de búsqueda con variables de plantilla para datos personales. Variables disponibles:",
+    "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "Lamentablemente, su navegador no admite la visualización de archivos PDF. Para ver el archivo de todas formas, puede descargarlo usando el botón de abajo.",
+    "Researcher Information": "Información del investigador",
+    "Search external services for matching records.": "Buscar servicios externos para encontrar registros coincidentes.",
+    "Records require additional access": "Los registros requieren acceso adicional"
 }
