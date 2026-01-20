@@ -28,14 +28,7 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
         <td>${this._(obj.media_type)}</td>
         <td>
           ${this.edit
-            ? this._renderActionBtns(
-                obj.ref,
-                i === 0,
-                i === arr.length - 1,
-                true,
-                true,
-                i
-              )
+            ? this._renderActionBtns(i, i === 0, i === arr.length - 1, true)
             : ''}
         </td>
       </tr>
@@ -81,9 +74,9 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
     this.dialogContent = ''
   }
 
-  _handleEditClick(handle, editIndex) {
-    const repoRefData = this.data[editIndex] || {}
-    const repoData = this.extended[editIndex] || {}
+  _handleEditClick(handle) {
+    const repoRefData = this.data[handle] || {}
+    const repoData = this.extended[handle] || {}
 
     this.dialogContent = html`
       <grampsjs-form-reporef
@@ -92,7 +85,6 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
         @object:cancel="${this._handleRepoRefCancel}"
         .appState="${this.appState}"
         objType="${this.objType}"
-        .repoRefKey="${handle}"
         .data="${repoRefData}"
         .repoData="${repoData}"
         dialogTitle=${this._('Edit an existing repository')}

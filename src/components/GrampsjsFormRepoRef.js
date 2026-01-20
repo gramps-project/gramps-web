@@ -16,22 +16,20 @@ import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 class GrampsjsFormRepoRef extends GrampsjsObjectForm {
   static get properties() {
     return {
-      repoRefKey: {type: String},
       repoData: {type: Object},
     }
   }
 
   constructor() {
     super()
-    this.repoRefKey = ''
     this.repoData = {}
   }
 
   renderForm() {
     const selectOption = []
-    if (this.repoRefKey) {
+    if (this.repoData.handle !== undefined) {
       selectOption.push({
-        handle: this.repoRefKey,
+        handle: this.data.ref,
         object: this.repoData,
         object_type: 'repository',
       })
