@@ -1,26 +1,12 @@
 import {html, css} from 'lit'
 import '@material/web/button/outlined-button'
-<<<<<<< HEAD
-<<<<<<< HEAD
 import {mdiFamilyTree, mdiDna, mdiSearchWeb} from '@mdi/js'
-=======
-
-import {mdiFamilyTree, mdiDna, mdiSearchWeb} from '@mdi/js'
-
->>>>>>> 7a14f36 (Updated for external search)
-=======
-import {mdiFamilyTree, mdiDna, mdiSearchWeb} from '@mdi/js'
->>>>>>> 32222bc (Updated for remove empty lines)
 import {GrampsjsObject} from './GrampsjsObject.js'
 import {asteriskIcon, crossIcon} from '../icons.js'
 import './GrampsJsImage.js'
 import './GrampsjsEditGender.js'
 import './GrampsjsPersonRelationship.js'
-<<<<<<< HEAD
 import './GrampsjsFormExternalSearch.js'
-=======
-import './GrampsjsForMorePersonDetails.js'
->>>>>>> 7a14f36 (Updated for external search)
 import {fireEvent} from '../util.js'
 
 export class GrampsjsPerson extends GrampsjsObject {
@@ -189,7 +175,6 @@ export class GrampsjsPerson extends GrampsjsObject {
     fireEvent(this, 'nav', {path: 'tree'})
   }
 
-<<<<<<< HEAD
   _handleExternalSearchClick() {
     // Helper to extract year from date string (format: "YYYY-MM-DD" or "YYYY")
     const extractYear = dateStr => {
@@ -220,26 +205,6 @@ export class GrampsjsPerson extends GrampsjsObject {
           .hideSaveButton=${true}
         >
         </grampsjs-form-external-search>
-=======
-  _handleMoreDetailsClick() {
-    const obj = this.data?.profile?.death
-    const data = {
-      name_given: this.data?.profile?.name_given,
-      name_surname: this.data?.profile?.name_surname,
-      place_name: obj?.place_name,
-    }
-    this.dialogContent = html`
-      <div>
-        <grampsjs-for-more-person-details
-          @object:cancel=${this._handleCancelDialog}
-          .appState="${this.appState}"
-          .data=${data}
-          .dialogTitle=${'External Search'}
-          .showSaveButton=${false}
-          .showCancelButton=${true}
-        >
-        </grampsjs-for-more-person-details>
->>>>>>> 7a14f36 (Updated for external search)
       </div>
     `
   }

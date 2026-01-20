@@ -1,25 +1,10 @@
 /*
-<<<<<<< HEAD
-<<<<<<< HEAD
 Form for edit the repository type
-=======
-Form for adding a new event reference
->>>>>>> b1e6065 (Updated for edit repository type)
-=======
-Form for edit the repository type
->>>>>>> 87c5fbe (Updated for adding comments on top of the page)
 */
 
 import {html} from 'lit'
 
 import './GrampsjsFormSelectType.js'
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import './GrampsjsFormString.js'
->>>>>>> b1e6065 (Updated for edit repository type)
-=======
->>>>>>> c837430 (Updated for remove unwanted import)
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 class GrampsjsFormEditRepositoryType extends GrampsjsObjectForm {
