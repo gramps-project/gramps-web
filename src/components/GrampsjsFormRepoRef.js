@@ -17,14 +17,14 @@ class GrampsjsFormRepoRef extends GrampsjsObjectForm {
   static get properties() {
     return {
       repoRefKey: {type: String},
-      repoData: {type: Array},
+      repoData: {type: Object},
     }
   }
 
   constructor() {
     super()
     this.repoRefKey = ''
-    this.repoData = []
+    this.repoData = {}
   }
 
   renderForm() {

@@ -72,7 +72,14 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
   }
 
   // identifier can be either a handle or an index, depending on the subclass
-  _renderActionBtns(identifier, first, last, edit = false, deleteFirst = true) {
+  _renderActionBtns(
+    identifier,
+    first,
+    last,
+    edit = false,
+    deleteFirst = true,
+    rowIndex = null
+  ) {
     return html`
       ${first && !deleteFirst
         ? ''
@@ -109,7 +116,7 @@ export class GrampsjsEditableTable extends GrampsjsTableBase {
             <mwc-icon-button
               class="edit"
               icon="edit"
-              @click="${e => this._handleEditClick(identifier)}"
+              @click="${e => this._handleEditClick(identifier, rowIndex)}"
             ></mwc-icon-button>
           `
         : ''}

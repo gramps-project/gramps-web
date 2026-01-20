@@ -28,7 +28,18 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
         <td>${this._(obj.media_type)}</td>
         <td>
           ${this.edit
+<<<<<<< HEAD
             ? this._renderActionBtns(i, i === 0, i === arr.length - 1, true)
+=======
+            ? this._renderActionBtns(
+                obj.ref,
+                i === 0,
+                i === arr.length - 1,
+                true,
+                true,
+                i
+              )
+>>>>>>> 4b42c77 (Added new arg in _renderActionBtns fn to pass the rowindex and put null as default value)
             : ''}
         </td>
       </tr>
@@ -74,9 +85,15 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
     this.dialogContent = ''
   }
 
+<<<<<<< HEAD
   _handleEditClick(handle) {
     const repoRefData = this.data[handle] || {}
     const repoData = this.extended[handle] || {}
+=======
+  _handleEditClick(handle, editIndex) {
+    const repoRefData = this.data[editIndex]
+    const repoData = this.extended[editIndex]
+>>>>>>> 4b42c77 (Added new arg in _renderActionBtns fn to pass the rowindex and put null as default value)
 
     this.dialogContent = html`
       <grampsjs-form-reporef

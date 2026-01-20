@@ -397,7 +397,14 @@ export class GrampsjsViewObject extends GrampsjsView {
     } else if (e.detail.action === 'addRepoRef') {
       this.addObject(e.detail.data, this._data, this._className, 'reporef_list')
     } else if (e.detail.action === 'updateRepoRef') {
-      this.updateObject(
+      // this.updateObject(
+      //   e.detail.data,
+      //   this._data,
+      //   this._className,
+      //   'reporef_list'
+      // )
+      this.updateObjectByIndex(
+        e.detail.index,
         e.detail.data,
         this._data,
         this._className,

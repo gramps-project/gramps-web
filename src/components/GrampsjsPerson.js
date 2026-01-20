@@ -132,17 +132,15 @@ export class GrampsjsPerson extends GrampsjsObject {
 
   _renderTreeBtn() {
     return html`
-      <div>
-        <md-outlined-button @click="${this._handleTreeButtonClick}">
-          ${this._('Show in tree')}
-          <grampsjs-icon
-            path="${mdiFamilyTree}"
-            color="var(--mdc-theme-primary)"
-            slot="icon"
-          >
-          </grampsjs-icon>
-        </md-outlined-button>
-      </div>
+      <md-outlined-button @click="${this._handleTreeButtonClick}">
+        ${this._('Show in tree')}
+        <grampsjs-icon
+          path="${mdiFamilyTree}"
+          color="var(--mdc-theme-primary)"
+          slot="icon"
+        >
+        </grampsjs-icon>
+      </md-outlined-button>
     `
   }
 
