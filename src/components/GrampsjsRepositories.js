@@ -1,5 +1,4 @@
 import {html} from 'lit'
-
 import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
 import './GrampsjsObjectForm.js'
 import './GrampsjsFormRepoRef.js'
