@@ -82,8 +82,8 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
   }
 
   _handleEditClick(handle, editIndex) {
-    const repoRefData = this.data[editIndex]
-    const repoData = this.extended[editIndex]
+    const repoRefData = this.data[editIndex] || {}
+    const repoData = this.extended[editIndex] || {}
 
     this.dialogContent = html`
       <grampsjs-form-reporef
