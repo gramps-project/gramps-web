@@ -28,13 +28,15 @@ class GrampsjsFormRepoRef extends GrampsjsObjectForm {
   }
 
   renderForm() {
-    const selectOption = [
-      {
+    const selectOption = []
+    if (this.repoRefKey) {
+      selectOption.push({
         handle: this.repoRefKey,
         object: this.repoData,
         object_type: 'repository',
-      },
-    ]
+      })
+    }
+
     return html`
       <grampsjs-form-select-object-list
         fixedMenuPosition
