@@ -154,7 +154,7 @@ export class GrampsjsConnectedComponent extends GrampsjsStaleDataMixin(
   firstUpdated() {
     // the active property, used for lazy loading of stale data, is set
     // based on visibility of the element in the viewport
-    const observer = IntersectionObserver(entries => {
+    const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           this.active = true
