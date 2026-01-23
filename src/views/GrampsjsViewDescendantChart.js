@@ -6,13 +6,34 @@ import '../components/GrampsjsTreeChart.js'
 export class GrampsjsViewDescendantChart extends GrampsjsViewTreeChartBase {
   constructor() {
     super()
-    this.nAnc = 1
-    this.nDesc = 1
     this._setDesc = true
   }
 
+  get nDesc() {
+    return this.appState?.settings?.descendantChartDesc ?? this.defaults.nDesc
+  }
+
+  set nDesc(value) {
+    this.appState.updateSettings({descendantChartDesc: value}, false)
+  }
+
+  get nameDisplayFormat() {
+    return (
+      this.appState?.settings?.descendantChartNameDisplayFormat ??
+      this.defaults.nameDisplayFormat
+    )
+  }
+
+  set nameDisplayFormat(value) {
+    this.appState.updateSettings(
+      {descendantChartNameDisplayFormat: value},
+      false
+    )
+  }
+
   _resetLevels() {
-    this.nDesc = 1
+    this.nDesc = this.defaults.nDesc
+    this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
   renderChart() {
