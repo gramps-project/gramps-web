@@ -388,7 +388,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         'person_ref_list'
       )
     } else if (e.detail.action === 'delRepository') {
-      this.delObject(
+      this.delObjectByIndex(
         e.detail.handle,
         this._data,
         this._className,
@@ -396,8 +396,16 @@ export class GrampsjsViewObject extends GrampsjsView {
       )
     } else if (e.detail.action === 'addRepoRef') {
       this.addObject(e.detail.data, this._data, this._className, 'reporef_list')
+    } else if (e.detail.action === 'updateRepoRef') {
+      this.updateObjectByIndex(
+        e.detail.index,
+        e.detail.data,
+        this._data,
+        this._className,
+        'reporef_list'
+      )
     } else if (e.detail.action === 'upRepository') {
-      this.moveObject(
+      this.moveObjectByIndex(
         e.detail.handle,
         this._data,
         this._className,
@@ -405,7 +413,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         'up'
       )
     } else if (e.detail.action === 'downRepository') {
-      this.moveObject(
+      this.moveObjectByIndex(
         e.detail.handle,
         this._data,
         this._className,

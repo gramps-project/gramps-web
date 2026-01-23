@@ -58,7 +58,6 @@ export class GrampsjsSource extends GrampsjsObject {
             `
           : ''}
       </dl>
-<<<<<<< HEAD
       ${this.edit
         ? html`
             <div>
@@ -73,8 +72,6 @@ export class GrampsjsSource extends GrampsjsObject {
           `
         : ''}
       ${this._renderBlogBtn()}
-=======
->>>>>>> 5709405 (Updated the PR comments)
       ${this.edit
         ? html`
             <div>
