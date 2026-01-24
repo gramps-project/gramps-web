@@ -137,6 +137,176 @@ export function setChatHistory(data) {
   localStorage.setItem('chatMessages', stringData)
 }
 
+// Editor draft management
+const DRAFT_EXPIRY_DAYS = 7
+
+export function saveDraft(key, data) {
+  const tree = getTreeId()
+  if (!tree || !key) {
+    return
+  }
+  try {
+    const stringDataAll = localStorage.getItem('grampsjs_editor_drafts')
+    const objectDataAll = stringDataAll ? JSON.parse(stringDataAll) : {}
+    const treeDrafts = objectDataAll[tree] || {}
+
+    treeDrafts[key] = {
+      data,
+      timestamp: Date.now(),
+    }
+
+    objectDataAll[tree] = treeDrafts
+    localStorage.setItem(
+      'grampsjs_editor_drafts',
+      JSON.stringify(objectDataAll)
+    )
+  } catch (e) {
+    // Silently fail if localStorage is full or unavailable
+    console.warn('Failed to save draft:', e)
+  }
+}
+
+export function getDraft(key) {
+  const tree = getTreeId()
+  if (!tree || !key) {
+    return null
+  }
+  try {
+    const stringDataAll = localStorage.getItem('grampsjs_editor_drafts')
+    if (!stringDataAll) {
+      return null
+    }
+    const objectDataAll = JSON.parse(stringDataAll)
+    const treeDrafts = objectDataAll[tree] || {}
+    const draft = treeDrafts[key]
+
+    if (!draft) {
+      return null
+    }
+
+    // Check if draft is expired
+    const ageInDays = (Date.now() - draft.timestamp) / (1000 * 60 * 60 * 24)
+    if (ageInDays > DRAFT_EXPIRY_DAYS) {
+      // Clean up expired draft
+      console.log(
+        '[DEBUG] Clearing expired draft:',
+        key,
+        `(${ageInDays.toFixed(1)} days old)`
+      )
+      delete treeDrafts[key]
+      objectDataAll[tree] = treeDrafts
+      localStorage.setItem(
+        'grampsjs_editor_drafts',
+        JSON.stringify(objectDataAll)
+      )
+      return null
+    }
+
+    console.log('[DEBUG] Found draft to restore:', key, draft)
+    return draft
+  } catch (e) {
+    return null
+  }
+}
+
+export function clearDraft(key) {
+  const tree = getTreeId()
+  if (!tree || !key) {
+    return
+  }
+  try {
+    const stringDataAll = localStorage.getItem('grampsjs_editor_drafts')
+    if (!stringDataAll) {
+      return
+    }
+    const objectDataAll = JSON.parse(stringDataAll)
+    const treeDrafts = objectDataAll[tree] || {}
+
+    if (treeDrafts[key]) {
+      console.log('[DEBUG] Clearing draft:', key)
+      delete treeDrafts[key]
+      objectDataAll[tree] = treeDrafts
+      localStorage.setItem(
+        'grampsjs_editor_drafts',
+        JSON.stringify(objectDataAll)
+      )
+    }
+  } catch (e) {
+    // Silently fail
+  }
+}
+
+export function clearDraftsWithPrefix(prefix) {
+  const tree = getTreeId()
+  if (!tree || !prefix) {
+    return
+  }
+  try {
+    const stringDataAll = localStorage.getItem('grampsjs_editor_drafts')
+    if (!stringDataAll) {
+      return
+    }
+    const objectDataAll = JSON.parse(stringDataAll)
+    const treeDrafts = objectDataAll[tree] || {}
+
+    // Delete all keys that start with the prefix
+    const keysToDelete = []
+    Object.keys(treeDrafts).forEach(key => {
+      if (key.startsWith(prefix)) {
+        keysToDelete.push(key)
+      }
+    })
+
+    if (keysToDelete.length > 0) {
+      console.log(
+        '[DEBUG] Clearing drafts with prefix:',
+        prefix,
+        '- Keys:',
+        keysToDelete
+      )
+      keysToDelete.forEach(key => {
+        delete treeDrafts[key]
+      })
+      objectDataAll[tree] = treeDrafts
+      localStorage.setItem(
+        'grampsjs_editor_drafts',
+        JSON.stringify(objectDataAll)
+      )
+    }
+  } catch (e) {
+    // Silently fail
+  }
+}
+
+export function cleanOldDrafts() {
+  try {
+    const stringDataAll = localStorage.getItem('grampsjs_editor_drafts')
+    if (!stringDataAll) {
+      return
+    }
+    const objectDataAll = JSON.parse(stringDataAll)
+    const cutoffTime = Date.now() - DRAFT_EXPIRY_DAYS * 24 * 60 * 60 * 1000
+
+    // Clean all trees
+    Object.keys(objectDataAll).forEach(treeId => {
+      const treeDrafts = objectDataAll[treeId] || {}
+      Object.keys(treeDrafts).forEach(key => {
+        if (treeDrafts[key].timestamp < cutoffTime) {
+          delete treeDrafts[key]
+        }
+      })
+      objectDataAll[treeId] = treeDrafts
+    })
+
+    localStorage.setItem(
+      'grampsjs_editor_drafts',
+      JSON.stringify(objectDataAll)
+    )
+  } catch (e) {
+    // Silently fail
+  }
+}
+
 export async function apiResetPassword(username) {
   try {
     const resp = await fetch(

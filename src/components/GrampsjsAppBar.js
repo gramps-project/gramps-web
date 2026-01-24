@@ -196,6 +196,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
 
   _handleDialog(e) {
     if (e.detail.action === 'discard') {
+      fireEvent(this, 'edit:cancel', {})
       this._editModeOff()
     } else if (e.detail.action === 'delete') {
       this._deleteObject()
