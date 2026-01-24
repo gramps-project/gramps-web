@@ -349,6 +349,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       this._draftTimestamp = draft.timestamp
     }
 
+    // Notify parent component of the restored data
+    fireEvent(this, 'formdata:changed', {data: this.data})
+
     // Clear the draft after restoration
     clearDraft(this._getStorageKey())
   }
