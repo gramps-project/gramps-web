@@ -180,9 +180,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
         .draft-banner md-text-button {
           --md-text-button-label-text-size: 13px;
-          --md-text-button-label-text-color: var(--mdc-theme-primary);
-          --md-text-button-hover-label-text-color: var(--mdc-theme-primary);
-          --md-text-button-pressed-label-text-color: var(--mdc-theme-primary);
+          --md-text-button-label-text-color: var(--mdc-theme-secondary);
+          --md-text-button-hover-label-text-color: var(--mdc-theme-secondary);
+          --md-text-button-pressed-label-text-color: var(--mdc-theme-secondary);
         }
 
         .draft-banner md-icon-button {
@@ -258,10 +258,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
                 </span>
               </div>
               <div class="draft-banner-actions">
-                <md-text-button
-                  @click="${this._handleDiscardDraft}"
-                  style="--md-sys-color-primary: var(--mdc-theme-primary);"
-                >
+                <md-text-button @click="${this._handleDiscardDraft}">
                   ${this._('Discard')}
                 </md-text-button>
                 <md-icon-button @click="${this._handleDismissBanner}">
