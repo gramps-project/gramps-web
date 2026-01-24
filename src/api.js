@@ -188,11 +188,6 @@ export function getDraft(key) {
     const ageInDays = (Date.now() - draft.timestamp) / (1000 * 60 * 60 * 24)
     if (ageInDays > DRAFT_EXPIRY_DAYS) {
       // Clean up expired draft
-      console.log(
-        '[DEBUG] Clearing expired draft:',
-        key,
-        `(${ageInDays.toFixed(1)} days old)`
-      )
       delete treeDrafts[key]
       objectDataAll[tree] = treeDrafts
       localStorage.setItem(
@@ -202,7 +197,6 @@ export function getDraft(key) {
       return null
     }
 
-    console.log('[DEBUG] Found draft to restore:', key, draft)
     return draft
   } catch (e) {
     return null
@@ -223,7 +217,6 @@ export function clearDraft(key) {
     const treeDrafts = objectDataAll[tree] || {}
 
     if (treeDrafts[key]) {
-      console.log('[DEBUG] Clearing draft:', key)
       delete treeDrafts[key]
       objectDataAll[tree] = treeDrafts
       localStorage.setItem(
@@ -258,12 +251,6 @@ export function clearDraftsWithPrefix(prefix) {
     })
 
     if (keysToDelete.length > 0) {
-      console.log(
-        '[DEBUG] Clearing drafts with prefix:',
-        prefix,
-        '- Keys:',
-        keysToDelete
-      )
       keysToDelete.forEach(key => {
         delete treeDrafts[key]
       })
