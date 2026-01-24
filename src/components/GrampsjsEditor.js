@@ -219,6 +219,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     this._boundHandleSaveButton = this._handleSaveButton.bind(this)
     this._boundHandleBeforeUnload = this._handleBeforeUnload.bind(this)
     this._boundHandleCancel = this._handleCancel.bind(this)
+    this._boundHandleSaved = this._handleSaved.bind(this)
   }
 
   _getStorageKey() {
@@ -336,21 +337,10 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     const initialString = JSON.stringify(this.initialData)
 
     if (draftString === initialString) {
-      // eslint-disable-next-line no-console
-      console.log(
-        '[DEBUG] Draft matches initial data, skipping restore for key:',
-        this._getStorageKey()
-      )
       clearDraft(this._getStorageKey())
       return
     }
 
-    // eslint-disable-next-line no-console
-    console.log(
-      '[DEBUG] Restoring draft in editor for key:',
-      this._getStorageKey()
-    )
-    // Restore draft data (but keep initialData as the original API data)
     this.data = draft.data
 
     // Show banner only if initialData is non-empty (not for new notes)
@@ -940,8 +930,6 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       clearTimeout(this._draftSaveTimer)
       this._draftSaveTimer = null
     }
-    // Clear all drafts for this page/context when saving
-    clearDraftsWithPrefix(this._getStorageKeyPrefix())
 
     fireEvent(this, 'edit:action', {
       action: 'updateProp',
@@ -960,17 +948,25 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     clearDraftsWithPrefix(this._getStorageKeyPrefix())
   }
 
+  _handleSaved() {
+    clearDraftsWithPrefix(this._getStorageKeyPrefix())
+  }
+
   connectedCallback() {
     super.connectedCallback()
     window.addEventListener('edit-mode:save', this._boundHandleSaveButton)
     window.addEventListener('beforeunload', this._boundHandleBeforeUnload)
     window.addEventListener('edit:cancel', this._boundHandleCancel)
+    window.addEventListener('object:cancel', this._boundHandleCancel)
+    window.addEventListener('edit:saved', this._boundHandleSaved)
   }
 
   disconnectedCallback() {
     window.removeEventListener('edit-mode:save', this._boundHandleSaveButton)
     window.removeEventListener('beforeunload', this._boundHandleBeforeUnload)
     window.removeEventListener('edit:cancel', this._boundHandleCancel)
+    window.removeEventListener('object:cancel', this._boundHandleCancel)
+    window.removeEventListener('edit:saved', this._boundHandleSaved)
     // Clear any pending draft save timer
     if (this._draftSaveTimer) {
       clearTimeout(this._draftSaveTimer)

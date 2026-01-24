@@ -798,8 +798,10 @@ export class GrampsjsViewObject extends GrampsjsView {
     let {extended, profile, backlinks, formatted, ...objNew} = obj
     objNew = {_class: capitalize(objType), ...objNew}
     const url = `/api/${objectTypeToEndpoint[objType]}/${obj.handle}`
-    this.appState
-      .apiPut(url, updateFunc(objNew))
-      .then(() => this._updateData(false))
+    this.appState.apiPut(url, updateFunc(objNew)).then(() => {
+      this._updateData(false)
+      // Fire event to clear editor drafts after successful save
+      fireEvent(this, 'edit:saved')
+    })
   }
 }
