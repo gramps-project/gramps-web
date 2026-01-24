@@ -263,6 +263,13 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         this.cursorPosition = [nCharBefore1 + range.startOffset + e.data.length]
       }
       if (e.inputType === 'insertFromPaste') {
+        if (range.startOffset !== range.endOffset) {
+          const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
+          this._deleteText(
+            nCharBefore1 + range.startOffset,
+            nCharBefore2 + range.endOffset
+          )
+        }
         const data = stripHtml(e.dataTransfer.getData('text/plain'))
         this._insertText(data, nCharBefore1 + range.startOffset)
         this.cursorPosition = [nCharBefore1 + range.startOffset + data.length]
