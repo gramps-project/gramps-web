@@ -53,7 +53,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
       <p>
         <grampsjs-editor
           @formdata:changed="${this.handleEditor}"
-          id="note-editor"
+          id="task-description-editor"
           .appState="${this.appState}"
         ></grampsjs-editor>
       </p>

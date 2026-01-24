@@ -158,6 +158,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
           ? html` ${this._editingNote
               ? html`
                   <grampsjs-editor
+                    id="task-note-editor"
                     .initialData=${this.source.extended.notes[0].text}
                     .appState="${this.appState}"
                   ></grampsjs-editor>
@@ -170,6 +171,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
                 `}`
           : html`${this._editingNote
               ? html`<grampsjs-editor
+                  id="task-note-editor"
                   .appState="${this.appState}"
                 ></grampsjs-editor>`
               : html`<span class="muted">${this._('None')}</span>`}`}

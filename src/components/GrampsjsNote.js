@@ -42,6 +42,7 @@ export class GrampsjsNote extends GrampsjsObject {
 
       ${this.edit
         ? html` <grampsjs-editor
+            id="note-text-editor"
             .initialData=${this.data.text}
             .appState="${this.appState}"
           ></grampsjs-editor>`

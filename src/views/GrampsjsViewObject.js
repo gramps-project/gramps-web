@@ -8,6 +8,7 @@ import '@material/mwc-icon'
 import {GrampsjsView} from './GrampsjsView.js'
 
 import {fireEvent, objectTypeToEndpoint} from '../util.js'
+import {clearDraftsWithPrefix} from '../api.js'
 
 const editTitle = {
   person: 'Edit Person',
@@ -607,7 +608,12 @@ export class GrampsjsViewObject extends GrampsjsView {
         'down'
       )
     } else if (e.detail.action === 'updateProp') {
-      this.updateProp(this._data, this._className, e.detail.data)
+      this.updateProp(
+        this._data,
+        this._className,
+        e.detail.data,
+        e.detail.editorDraftPrefix
+      )
     } else {
       // eslint-disable-next-line no-alert
       alert(JSON.stringify(e.detail))
@@ -771,8 +777,13 @@ export class GrampsjsViewObject extends GrampsjsView {
     })
   }
 
-  updateProp(obj, objType, objNew) {
-    return this._updateObject(obj, objType, _obj => ({..._obj, ...objNew}))
+  updateProp(obj, objType, objNew, editorDraftPrefix) {
+    return this._updateObject(
+      obj,
+      objType,
+      _obj => ({..._obj, ...objNew}),
+      editorDraftPrefix
+    )
   }
 
   moveHandle(handle, obj, objType, prop, upDown) {
@@ -792,16 +803,19 @@ export class GrampsjsViewObject extends GrampsjsView {
     return this.appState.apiPost(url, obj)
   }
 
-  _updateObject(obj, objType, updateFunc) {
+  _updateObject(obj, objType, updateFunc, editorDraftPrefix) {
     // remove extended, profile, backlinks, formatted keys from object
     // eslint-disable-next-line prefer-const
     let {extended, profile, backlinks, formatted, ...objNew} = obj
     objNew = {_class: capitalize(objType), ...objNew}
     const url = `/api/${objectTypeToEndpoint[objType]}/${obj.handle}`
+
     this.appState.apiPut(url, updateFunc(objNew)).then(() => {
       this._updateData(false)
-      // Fire event to clear editor drafts after successful save
-      fireEvent(this, 'edit:saved')
+      // Clear editor drafts after successful save (if prefix provided)
+      if (editorDraftPrefix) {
+        clearDraftsWithPrefix(editorDraftPrefix)
+      }
     })
   }
 }
