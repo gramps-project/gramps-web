@@ -86,7 +86,7 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
         objType="${this.objType}"
         .data="${repoRefData}"
         .repoData="${repoData}"
-        dialogTitle=${this._('Edit an existing repository')}
+        dialogTitle=${this._('Edit repository reference')}
       >
       </grampsjs-form-reporef>
     `

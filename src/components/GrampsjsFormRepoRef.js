@@ -27,7 +27,7 @@ class GrampsjsFormRepoRef extends GrampsjsObjectForm {
 
   renderForm() {
     const selectOption = []
-    if (this.repoData.handle !== undefined) {
+    if (this.data.ref !== undefined) {
       selectOption.push({
         handle: this.data.ref,
         object: this.repoData,
