@@ -272,5 +272,6 @@
     "A file system path": "Ein Dateisystempfad",
     "Any text": "Beliebiger Text",
     "A list of text values. Each entry in the list represents one line of text.": "Eine Liste von Textwerten. Jeder Eintrag in der Liste entspricht einer Textzeile.",
-    "Edit repository reference": "Aufbewahrungsortreferenz bearbeiten"
+    "Edit repository reference": "Aufbewahrungsortreferenz bearbeiten",
+    "Unsaved changes restored": "Ungespeicherte Änderungen wiederhergestellt"
 }
