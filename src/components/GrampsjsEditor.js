@@ -6,11 +6,17 @@ import '@material/mwc-textfield'
 import '@material/mwc-icon'
 import '@material/mwc-button'
 import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
+import '@material/web/button/text-button.js'
+import {mdiInformation, mdiClose} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent, stripHtml} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {saveDraft, getDraft, clearDraft, clearDraftsWithPrefix} from '../api.js'
 import './GrampsjsFormSelectObject.js'
+import './GrampsjsTimedelta.js'
+import './GrampsjsIcon.js'
 
 function capitalize(string) {
   return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
@@ -141,6 +147,47 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         a {
           pointer-events: none;
         }
+
+        .draft-banner {
+          background-color: var(--grampsjs-color-shade-230);
+          border-radius: 8px;
+          padding: 10px 14px;
+          margin-bottom: 1em;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 13px;
+          color: var(--grampsjs-body-font-color-60);
+        }
+
+        .draft-banner-content {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .draft-banner-content grampsjs-icon {
+          --grampsjs-icon-size: 18px;
+          color: var(--grampsjs-body-font-color-50);
+        }
+
+        .draft-banner-actions {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .draft-banner md-text-button {
+          --md-text-button-label-text-size: 13px;
+          --md-text-button-label-text-color: var(--mdc-theme-secondary);
+          --md-text-button-hover-label-text-color: var(--mdc-theme-secondary);
+          --md-text-button-pressed-label-text-color: var(--mdc-theme-secondary);
+        }
+
+        .draft-banner md-icon-button {
+          --md-icon-button-icon-size: 18px;
+        }
       `,
     ]
   }
@@ -152,6 +199,8 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       cursorPosition: {type: Array},
       _dialogContent: {type: String},
       _html: {type: String},
+      _showDraftBanner: {type: Boolean},
+      _draftTimestamp: {type: Number},
     }
   }
 
@@ -162,6 +211,27 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     this.cursorPosition = [0]
     this._dialogContent = ''
     this._html = ''
+    this._showDraftBanner = false
+    this._draftTimestamp = 0
+    // Debounce timer for draft saving
+    this._draftSaveTimer = null
+    // Bind methods that need to be added/removed as event listeners
+    this._boundHandleSaveButton = this._handleSaveButton.bind(this)
+    this._boundHandleBeforeUnload = this._handleBeforeUnload.bind(this)
+    this._boundHandleCancel = this._handleCancel.bind(this)
+  }
+
+  _getStorageKey() {
+    // Create unique key from page routing + element ID
+    const {page, pageId} = this.appState?.path || {page: '', pageId: ''}
+    const elementId = this.id || ''
+    return `${page}:${pageId}:${elementId}`
+  }
+
+  _getStorageKeyPrefix() {
+    // Get prefix for clearing all drafts for this page/context
+    const {page, pageId} = this.appState?.path || {page: '', pageId: ''}
+    return `${page}:${pageId}:`
   }
 
   reset() {
@@ -171,6 +241,33 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     return html`
+      ${this._showDraftBanner
+        ? html`
+            <div class="draft-banner">
+              <div class="draft-banner-content">
+                <grampsjs-icon
+                  path="${mdiInformation}"
+                  color="var(--grampsjs-body-font-color-50)"
+                ></grampsjs-icon>
+                <span>
+                  ${this._('Unsaved changes restored')} (<grampsjs-timedelta
+                    timestamp="${Math.floor(this._draftTimestamp / 1000)}"
+                    locale="${this.appState?.i18n?.lang || 'en'}"
+                  ></grampsjs-timedelta
+                  >)
+                </span>
+              </div>
+              <div class="draft-banner-actions">
+                <md-text-button @click="${this._handleDiscardDraft}">
+                  ${this._('Discard')}
+                </md-text-button>
+                <md-icon-button @click="${this._handleDismissBanner}">
+                  <grampsjs-icon path="${mdiClose}"></grampsjs-icon>
+                </md-icon-button>
+              </div>
+            </div>
+          `
+        : ''}
       <div id="controls">
         <mwc-icon-button
           id="btn-bold"
@@ -220,9 +317,36 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   }
 
   firstUpdated() {
-    // this will set data to initialData (the two are kept separate to avoid changes
-    // being discarded when the state is updated)
-    this.reset()
+    this._restoreDraft()
+  }
+
+  _restoreDraft() {
+    const draft = getDraft(this._getStorageKey())
+    if (!draft || !draft.data) {
+      // No draft found, use normal initialization
+      this.reset()
+      return
+    }
+
+    // Only restore if draft is actually different from initial data
+    const draftString = JSON.stringify(draft.data)
+    const initialString = JSON.stringify(this.initialData)
+
+    if (draftString === initialString) {
+      clearDraft(this._getStorageKey())
+      return
+    }
+
+    this.data = draft.data
+
+    // Show banner only if initialData is non-empty (not for new notes)
+    if (this.initialData.string && this.initialData.string.trim() !== '') {
+      this._showDraftBanner = true
+      this._draftTimestamp = draft.timestamp
+    }
+
+    // Notify parent component of the restored data
+    fireEvent(this, 'formdata:changed', {data: this.data})
   }
 
   get _editorDiv() {
@@ -470,7 +594,52 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   }
 
   handleChange() {
-    fireEvent(this, 'formdata:changed', {data: this.data})
+    // Dismiss banner on first edit
+    if (this._showDraftBanner) {
+      this._showDraftBanner = false
+    }
+    fireEvent(this, 'formdata:changed', {
+      data: this.data,
+      storageKeyPrefix: this._getStorageKeyPrefix(),
+    })
+    this._saveDraftDebounced()
+  }
+
+  _saveDraftDebounced() {
+    // Clear existing timer
+    if (this._draftSaveTimer) {
+      clearTimeout(this._draftSaveTimer)
+    }
+    // Set new timer to save draft after 2000ms
+    this._draftSaveTimer = setTimeout(() => {
+      this._saveDraftNow()
+    }, 2000)
+  }
+
+  _saveDraftNow() {
+    // If data is empty, clear the draft instead of saving
+    if (!this.data.string || this.data.string.trim() === '') {
+      clearDraft(this._getStorageKey())
+    } else {
+      saveDraft(this._getStorageKey(), this.data)
+    }
+  }
+
+  _handleBeforeUnload() {
+    // Save draft immediately when page is closing/refreshing
+    this._saveDraftNow()
+  }
+
+  _handleDismissBanner() {
+    this._showDraftBanner = false
+  }
+
+  _handleDiscardDraft() {
+    // Reset to original data and dismiss banner
+    this.reset()
+    this._showDraftBanner = false
+    // Clear the draft from storage so it doesn't come back
+    clearDraft(this._getStorageKey())
   }
 
   _insertTag(tagname, range, value = null) {
@@ -757,23 +926,48 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleSaveButton() {
+    // Cancel any pending draft save
+    if (this._draftSaveTimer) {
+      clearTimeout(this._draftSaveTimer)
+      this._draftSaveTimer = null
+    }
+
     fireEvent(this, 'edit:action', {
       action: 'updateProp',
       data: {text: this.data},
+      editorDraftPrefix: this._getStorageKeyPrefix(),
     })
     fireEvent(this, 'edit-mode:off')
   }
 
+  _handleCancel() {
+    // Cancel any pending draft save
+    if (this._draftSaveTimer) {
+      clearTimeout(this._draftSaveTimer)
+      this._draftSaveTimer = null
+    }
+    // Clear all drafts for this page/context when user explicitly cancels editing
+    clearDraftsWithPrefix(this._getStorageKeyPrefix())
+  }
+
   connectedCallback() {
     super.connectedCallback()
-    window.addEventListener('edit-mode:save', this._handleSaveButton.bind(this))
+    window.addEventListener('edit-mode:save', this._boundHandleSaveButton)
+    window.addEventListener('beforeunload', this._boundHandleBeforeUnload)
+    window.addEventListener('edit:cancel', this._boundHandleCancel)
+    window.addEventListener('object:cancel', this._boundHandleCancel)
   }
 
   disconnectedCallback() {
-    window.removeEventListener(
-      'edit-mode:save',
-      this._handleSaveButton.bind(this)
-    )
+    window.removeEventListener('edit-mode:save', this._boundHandleSaveButton)
+    window.removeEventListener('beforeunload', this._boundHandleBeforeUnload)
+    window.removeEventListener('edit:cancel', this._boundHandleCancel)
+    window.removeEventListener('object:cancel', this._boundHandleCancel)
+    // Clear any pending draft save timer
+    if (this._draftSaveTimer) {
+      clearTimeout(this._draftSaveTimer)
+      this._draftSaveTimer = null
+    }
     super.disconnectedCallback()
   }
 }

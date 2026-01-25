@@ -8,6 +8,7 @@ import '@material/mwc-button'
 import '@material/mwc-circular-progress'
 
 import {GrampsjsView} from './GrampsjsView.js'
+import {clearDraftsWithPrefix} from '../api.js'
 
 export class GrampsjsViewNewObject extends GrampsjsView {
   static get styles() {
@@ -90,6 +91,13 @@ export class GrampsjsViewNewObject extends GrampsjsView {
         const grampsId = data.data.filter(
           obj => obj.new._class === this.objClass
         )[0].new.gramps_id
+
+        // Clear drafts after successful save
+        // Compute prefix from current path
+        const {page, pageId} = this.appState?.path || {page: '', pageId: ''}
+        const prefix = `${page}:${pageId}:`
+        clearDraftsWithPrefix(prefix)
+
         this.dispatchEvent(
           new CustomEvent('nav', {
             bubbles: true,

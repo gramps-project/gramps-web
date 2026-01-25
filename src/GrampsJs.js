@@ -12,7 +12,7 @@ import '@material/mwc-top-app-bar'
 import {LitElement, css, html} from 'lit'
 import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
 import {installRouter} from 'pwa-helpers/router.js'
-import {getSettings} from './api.js'
+import {getSettings, cleanOldDrafts} from './api.js'
 import './dayjs_locales.js'
 import {
   frontendLanguages,
@@ -527,6 +527,9 @@ export class GrampsJs extends LitElement {
 
   connectedCallback() {
     super.connectedCallback()
+
+    // Clean up old editor drafts (older than 7 days)
+    cleanOldDrafts()
 
     window.addEventListener('storage', () => this._handleStorage())
     window.addEventListener('settings:changed', () => this._handleSettings())
