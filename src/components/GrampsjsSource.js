@@ -72,20 +72,6 @@ export class GrampsjsSource extends GrampsjsObject {
           `
         : ''}
       ${this._renderBlogBtn()}
-      ${this.edit
-        ? html`
-            <div>
-              <dd>
-                <mwc-icon-button
-                  icon="edit"
-                  class="edit"
-                  @click="${this._handleSourceData}"
-                ></mwc-icon-button>
-              </dd>
-            </div>
-          `
-        : ''}
-      ${this._renderBlogBtn()}
     `
   }
 

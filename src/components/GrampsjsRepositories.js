@@ -74,14 +74,13 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
     this.dialogContent = ''
   }
 
-  _handleEditClick(handle) {
-    const repoRefData = this.data[handle] || {}
-    const repoData = this.extended[handle] || {}
+  _handleEditClick(index) {
+    const repoRefData = this.data[index] || {}
+    const repoData = this.extended[index] || {}
 
     this.dialogContent = html`
       <grampsjs-form-reporef
-        new
-        @object:save="${e => this._handleRepoRefEdit(e, repoRefData)}"
+        @object:save="${e => this._handleRepoRefEdit(e, index)}"
         @object:cancel="${this._handleRepoRefCancel}"
         .appState="${this.appState}"
         objType="${this.objType}"
@@ -93,11 +92,11 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
     `
   }
 
-  _handleRepoRefEdit(e, originalObj) {
+  _handleRepoRefEdit(e, index) {
     if (e.detail.data.ref) {
       fireEvent(this, 'edit:action', {
         action: 'updateRepoRef',
-        index: this.data.indexOf(originalObj),
+        index,
         data: e.detail.data,
       })
     }
