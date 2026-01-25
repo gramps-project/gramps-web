@@ -39,8 +39,9 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
     return this.edit
       ? html`
           <mwc-icon-button
-            class="edit large"
-            icon="add_circle"
+            class="edit"
+            icon="add_link"
+            style="margin-top: 0.5em;"
             @click="${this._handleAddClick}"
           ></mwc-icon-button>
           ${this.dialogContent}
