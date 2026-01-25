@@ -347,9 +347,6 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
     // Notify parent component of the restored data
     fireEvent(this, 'formdata:changed', {data: this.data})
-
-    // Clear the draft after restoration
-    clearDraft(this._getStorageKey())
   }
 
   get _editorDiv() {
@@ -641,6 +638,8 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     // Reset to original data and dismiss banner
     this.reset()
     this._showDraftBanner = false
+    // Clear the draft from storage so it doesn't come back
+    clearDraft(this._getStorageKey())
   }
 
   _insertTag(tagname, range, value = null) {
