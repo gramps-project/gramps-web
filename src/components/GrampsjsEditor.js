@@ -212,6 +212,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         contenteditable="true"
         @beforeinput="${this._handleBeforeInput}"
         @compositionend="${this._handleCompositionEnd}"
+        @keydown="${this._handleKeydown}"
         .innerHTML="${live(this._html)}"
       ></div>
       ${this._renderLinkDialog()}
@@ -228,8 +229,42 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     return this.renderRoot.getElementById('editor-content')
   }
 
-  // handle input actions by modifying the data object
-  // (and cancelling the browser default behaviour)
+  _handleKeydown(e) {
+    if (e.key === 'Escape') {
+      this._editorDiv.blur()
+      e.preventDefault()
+      e.stopPropagation()
+      return
+    }
+    if (e.ctrlKey || e.metaKey) {
+      let handled = false
+      switch (e.key.toLowerCase()) {
+        case 'b':
+          this._handleFormat('bold')
+          handled = true
+          break
+        case 'i':
+          this._handleFormat('italic')
+          handled = true
+          break
+        case 'u':
+          this._handleFormat('underline')
+          handled = true
+          break
+        case 'k':
+          this._handleFormat('link')
+          handled = true
+          break
+        default:
+          break
+      }
+      if (handled) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    }
+  }
+
   _handleBeforeInput(e) {
     e.preventDefault()
     e.stopPropagation()
