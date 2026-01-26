@@ -1,5 +1,9 @@
+import {html} from 'lit'
+
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import {GrampsjsNewMediaMixin} from '../mixins/GrampsjsNewMediaMixin.js'
+
+import './GrampsjsFormUpload.js'
 
 import {fireEvent, emptyDate} from '../util.js'
 
@@ -11,9 +15,24 @@ export class GrampsjsFormNewMedia extends GrampsjsNewMediaMixin(
     this.data = {_class: 'Media'}
   }
 
+  renderForm() {
+    return html`
+      <h4 class="label">${this._('File')}</h4>
+      <p>
+        <grampsjs-form-upload
+          preview
+          id="upload"
+          .appState="${this.appState}"
+        ></grampsjs-form-upload>
+      </p>
+
+      ${super.renderForm()}
+    `
+  }
+
   checkFormValidity() {
     const upload = this.shadowRoot.getElementById('upload')
-    this.isFormValid = !!upload.file.name
+    this.isFormValid = !!upload.file?.name
   }
 
   _handleFormData(e) {

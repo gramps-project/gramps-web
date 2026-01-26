@@ -56,7 +56,7 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
 
   static get properties() {
     return {
-      file: {type: Object},
+      files: {type: Array},
       imageUrl: {type: String},
       preview: {type: Boolean},
       filename: {type: Boolean},
@@ -64,13 +64,18 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
       outlined: {type: Boolean},
       label: {type: String},
       accept: {type: String},
+      multiple: {type: Boolean},
       _isVisible: {type: Boolean},
     }
   }
 
+  get file() {
+    return this.files[0]
+  }
+
   constructor() {
     super()
-    this.file = {}
+    this.files = []
     this.imageUrl = ''
     this.preview = false
     this.filename = false
@@ -78,6 +83,7 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
     this.outlined = false
     this.label = ''
     this.accept = undefined
+    this.multiple = false
     this._isVisible = false
   }
 
@@ -87,6 +93,7 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
         id="input-upload"
         type="file"
         accept="${this.accept}"
+        ?multiple="${this.multiple}"
         hidden
         @change="${this._handleInputChange}"
       />
@@ -97,7 +104,8 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
         icon="upload"
         @click="${this._handleClickUpload}"
       >
-        ${this.label || this._('Select a file')}
+        ${this.label ||
+        (this.multiple ? this._('Select files') : this._('Select a file'))}
       </mwc-button>
       ${this.filename ? this.renderFileName() : ''}
       ${this.preview ? this.renderPreview() : ''}
@@ -105,12 +113,12 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
   }
 
   renderPreview() {
-    if (!this.file.name) {
+    if (!this.files[0]?.name) {
       return ''
     }
     return html`
       <div id="preview">
-        ${this.file.type.startsWith('image')
+        ${this.files[0].type.startsWith('image')
           ? this.renderImage()
           : this.renderIcon()}
       </div>
@@ -118,7 +126,7 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
   }
 
   renderFileName() {
-    return html`<span class="filename">${this.file.name}</span>`
+    return html`<span class="filename">${this.files[0]?.name || ''}</span>`
   }
 
   renderImage() {
@@ -142,19 +150,19 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
     const input = this.shadowRoot.getElementById('input-upload')
     if (input?.files?.length) {
       this.imageUrl = ''
-      ;[this.file] = input.files
+      this.files = Array.from(input.files)
       this._processPreview()
       this.handleChange()
     }
   }
 
   _processPreview() {
-    if (this.file.type.startsWith('image')) {
+    if (this.files[0]?.type.startsWith('image')) {
       const reader = new FileReader()
       reader.onload = () => {
         this.imageUrl = reader.result
       }
-      reader.readAsDataURL(this.file)
+      reader.readAsDataURL(this.files[0])
     }
   }
 
@@ -164,14 +172,27 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
   }
 
   reset() {
-    this.file = {}
+    this.files = []
     this.imageUrl = ''
     const input = this.shadowRoot.getElementById('input-upload')
     input.value = ''
   }
 
+  removeFile(index) {
+    this.files = this.files.filter((_, i) => i !== index)
+    if (this.files.length > 0) {
+      this._processPreview()
+    } else {
+      this.imageUrl = ''
+    }
+    this.handleChange()
+  }
+
   handleChange() {
-    fireEvent(this, 'formdata:changed', {data: this.file})
+    fireEvent(this, 'formdata:changed', {
+      data: this.files[0] || {},
+      files: this.files,
+    })
   }
 
   firstUpdated() {
@@ -212,12 +233,16 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
     }
     // prevent other forms down on the same page from also handling the paste
     event.stopImmediatePropagation()
+    const pastedFiles = []
     for (const item of items) {
       if (item.kind === 'file') {
-        this.file = item.getAsFile()
-        this._processPreview()
-        this.handleChange()
+        pastedFiles.push(item.getAsFile())
       }
+    }
+    if (pastedFiles.length > 0) {
+      this.files = [...this.files, ...pastedFiles]
+      this._processPreview()
+      this.handleChange()
     }
   }
 }
