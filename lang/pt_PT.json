@@ -271,5 +271,7 @@
     "A number": "Um número",
     "A file system path": "Um caminho do sistema de ficheiros",
     "Any text": "Qualquer texto",
-    "A list of text values. Each entry in the list represents one line of text.": "Uma lista de valores de texto. Cada entrada representa uma linha de texto."
+    "A list of text values. Each entry in the list represents one line of text.": "Uma lista de valores de texto. Cada entrada representa uma linha de texto.",
+    "Edit repository reference": "Editar referência do repositório",
+    "Unsaved changes restored": "Alterações não gravadas restauradas"
 }
