@@ -271,5 +271,7 @@
     "A number": "Een getal",
     "A file system path": "Een bestandspad",
     "Any text": "Elke tekst",
-    "A list of text values. Each entry in the list represents one line of text.": "Een lijst van tekstwaarden. Elke vermelding in de lijst vertegenwoordigt één regel tekst."
+    "A list of text values. Each entry in the list represents one line of text.": "Een lijst van tekstwaarden. Elke vermelding in de lijst vertegenwoordigt één regel tekst.",
+    "Edit repository reference": "Verwijzing naar opslagplaats bewerken",
+    "Unsaved changes restored": "Niet-opgeslagen wijzigingen hersteld"
 }
