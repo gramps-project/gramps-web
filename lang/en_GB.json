@@ -270,5 +270,7 @@
     "A number": "A number",
     "A file system path": "A file system path",
     "Any text": "Any text",
-    "A list of text values. Each entry in the list represents one line of text.": "A list of text values. Each entry in the list represents one line of text."
+    "A list of text values. Each entry in the list represents one line of text.": "A list of text values. Each entry in the list represents one line of text.",
+    "Edit repository reference": "Edit repository reference",
+    "Unsaved changes restored": "Unsaved changes restored"
 }
