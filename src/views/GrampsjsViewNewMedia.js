@@ -92,6 +92,7 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
       uploadProgress: {type: Number},
       uploadTotal: {type: Number},
       isUploading: {type: Boolean},
+      _isRemovingFile: {type: Boolean},
     }
   }
 
@@ -105,6 +106,7 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
     this.uploadProgress = 0
     this.uploadTotal = 0
     this.isUploading = false
+    this._isRemovingFile = false
   }
 
   renderContent() {
@@ -122,7 +124,7 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
               <p style="text-align: center; margin-top: 8px;">
                 ${this._(
                   'Uploading file %s of %s',
-                  this.uploadProgress + 1,
+                  Math.min(this.uploadProgress + 1, this.uploadTotal),
                   this.uploadTotal
                 )}...
               </p>
@@ -263,10 +265,14 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
           this._filePreviewUrls.delete(file)
         }
       }
-      upload.removeFile(index)
+      // Remove from filesData BEFORE calling upload.removeFile
+      // and set flag to prevent upload handler from running
       if (this.filesData) {
         this.filesData = this.filesData.filter((_, i) => i !== index)
       }
+      this._isRemovingFile = true
+      upload.removeFile(index)
+      this._isRemovingFile = false
       this.requestUpdate()
     }
   }
@@ -325,7 +331,16 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
         }
       }
     } else if (originalTarget.id === 'upload') {
-      // Files changed, initialize filesData array
+      // Skip if we're in the middle of removing a file - _removeFile handles it
+      if (this._isRemovingFile) {
+        return
+      }
+      // Files changed - revoke old preview URLs to prevent memory leak
+      if (this._filePreviewUrls) {
+        this._filePreviewUrls.forEach(url => URL.revokeObjectURL(url))
+        this._filePreviewUrls.clear()
+      }
+      // Initialize filesData array for new files
       this.filesData = files.map(file => ({
         _class: 'Media',
         desc: file.name.replace(/\.[^/.]+$/, ''),
@@ -342,6 +357,11 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
     this.uploadProgress = 0
     this.uploadTotal = 0
     this.isUploading = false
+    // Clean up preview URLs
+    if (this._filePreviewUrls) {
+      this._filePreviewUrls.forEach(url => URL.revokeObjectURL(url))
+      this._filePreviewUrls.clear()
+    }
   }
 
   async _submit() {
