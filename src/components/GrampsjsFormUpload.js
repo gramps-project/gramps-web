@@ -163,6 +163,9 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
         this.imageUrl = reader.result
       }
       reader.readAsDataURL(this.files[0])
+    } else {
+      // Clear imageUrl if first file is not an image
+      this.imageUrl = ''
     }
   }
 

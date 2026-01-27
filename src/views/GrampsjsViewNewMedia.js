@@ -202,7 +202,7 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
           <div>
             <h4>${this._('Title')}</h4>
             <grampsjs-form-string
-              value="${data.desc || file.name.replace(/\.[^/.]+$/, '')}"
+              value="${data.desc ?? file.name.replace(/\.[^/.]+$/, '')}"
               fullwidth
               id="desc-${index}"
               data-index="${index}"
