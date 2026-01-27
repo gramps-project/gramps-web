@@ -432,10 +432,17 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         const data = stripHtml(e.dataTransfer.getData('text/plain'))
         this._insertText(data, nCharBefore1 + range.startOffset)
         this.cursorPosition = [nCharBefore1 + range.startOffset + data.length]
-      } else if (e.inputType === 'insertParagraph') {
-        this._insertText('\n\n', nCharBefore1 + range.startOffset)
-        this.cursorPosition = [nCharBefore1 + range.startOffset + 2]
-      } else if (e.inputType === 'insertLineBreak') {
+      } else if (
+        e.inputType === 'insertParagraph' ||
+        e.inputType === 'insertLineBreak'
+      ) {
+        if (range.startOffset !== range.endOffset) {
+          const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
+          this._deleteText(
+            nCharBefore1 + range.startOffset,
+            nCharBefore2 + range.endOffset
+          )
+        }
         this._insertText('\n', nCharBefore1 + range.startOffset)
         this.cursorPosition = [nCharBefore1 + range.startOffset + 1]
       } else if (
@@ -922,7 +929,8 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       i = j
     })
     str = `${str}${_applyTags(this.data.string.slice(i), activeTags)}`
-    return str
+    // Add zero-width space at the end to make trailing newlines visible
+    return `${str}\u200B`
   }
 
   _handleSaveButton() {
