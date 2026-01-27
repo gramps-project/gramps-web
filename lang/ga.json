@@ -271,5 +271,7 @@
     "A number": "Uimhir",
     "A file system path": "Cosán córais comhad",
     "Any text": "Aon téacs",
-    "A list of text values. Each entry in the list represents one line of text.": "Liosta luachanna téacs. Is ionann gach iontráil sa liosta agus líne amháin téacs."
+    "A list of text values. Each entry in the list represents one line of text.": "Liosta luachanna téacs. Is ionann gach iontráil sa liosta agus líne amháin téacs.",
+    "Edit repository reference": "Cuir tagairt an stórtha in eagar",
+    "Unsaved changes restored": "Athruithe neamhshábháilte athchóirithe"
 }
