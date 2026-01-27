@@ -236,11 +236,18 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
     const pastedFiles = []
     for (const item of items) {
       if (item.kind === 'file') {
-        pastedFiles.push(item.getAsFile())
+        const file = item.getAsFile()
+        if (file) {
+          pastedFiles.push(file)
+        }
       }
     }
     if (pastedFiles.length > 0) {
-      this.files = [...this.files, ...pastedFiles]
+      if (this.multiple) {
+        this.files = [...this.files, ...pastedFiles]
+      } else {
+        this.files = [pastedFiles[0]]
+      }
       this._processPreview()
       this.handleChange()
     }

@@ -1,4 +1,5 @@
 import {html, css} from 'lit'
+import {repeat} from 'lit/directives/repeat.js'
 
 import '@material/mwc-textfield'
 import '@material/web/progress/linear-progress.js'
@@ -12,7 +13,7 @@ import {GrampsjsNewMediaMixin} from '../mixins/GrampsjsNewMediaMixin.js'
 
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 
-import {emptyDate} from '../util.js'
+import {emptyDate, fireEvent} from '../util.js'
 
 export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
   GrampsjsViewNewObject
@@ -114,12 +115,14 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
         ? html`
             <div style="margin: 20px 0;">
               <md-linear-progress
-                value="${this.uploadProgress / this.uploadTotal}"
+                value="${this.uploadTotal > 0
+                  ? this.uploadProgress / this.uploadTotal
+                  : 0}"
               ></md-linear-progress>
               <p style="text-align: center; margin-top: 8px;">
                 ${this._(
                   'Uploading file %s of %s',
-                  this.uploadProgress,
+                  this.uploadProgress + 1,
                   this.uploadTotal
                 )}...
               </p>
@@ -146,7 +149,11 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
       ${files.length > 0
         ? html`
             <div class="spacer"></div>
-            ${files.map((file, index) => this._renderFileEntry(file, index))}
+            ${repeat(
+              files,
+              file => file,
+              (file, index) => this._renderFileEntry(file, index)
+            )}
           `
         : ''}
     `
@@ -214,6 +221,7 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
           <grampsjs-form-private
             id="private-${index}"
             data-index="${index}"
+            ?checked="${data.private || false}"
             .appState="${this.appState}"
           ></grampsjs-form-private>
         </div>
@@ -246,6 +254,15 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
   _removeFile(index) {
     const upload = this.shadowRoot.getElementById('upload')
     if (upload) {
+      // Revoke object URL to prevent memory leak
+      const file = upload.files[index]
+      if (this._filePreviewUrls && file) {
+        const url = this._filePreviewUrls.get(file)
+        if (url) {
+          URL.revokeObjectURL(url)
+          this._filePreviewUrls.delete(file)
+        }
+      }
       upload.removeFile(index)
       if (this.filesData) {
         this.filesData = this.filesData.filter((_, i) => i !== index)
@@ -304,7 +321,7 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
       } else if (originalTarget.id.startsWith('private-')) {
         this.filesData[idx] = {
           ...this.filesData[idx],
-          private: e.detail.data,
+          private: e.detail.checked,
         }
       }
     } else if (originalTarget.id === 'upload') {
@@ -394,28 +411,16 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
         // Single file: navigate to the media object
         const grampsId = this.filesData[0]?.gramps_id
         if (grampsId) {
-          this.dispatchEvent(
-            new CustomEvent('nav', {
-              bubbles: true,
-              composed: true,
-              detail: {path: this._getItemPath(grampsId)},
-            })
-          )
+          fireEvent(this, 'nav', {path: this._getItemPath(grampsId)})
         }
       } else {
-        // Multiple files: navigate to media list
-        this.dispatchEvent(
-          new CustomEvent('nav', {
-            bubbles: true,
-            composed: true,
-            detail: {path: 'media'},
-          })
-        )
+        // Multiple files: navigate to home page
+        fireEvent(this, 'nav', {path: ''})
       }
       this._reset()
     } catch (err) {
       this.error = true
-      this._errorMessage = err.message || 'Upload failed'
+      this._errorMessage = err.message || this._('Failed to upload')
       this.isUploading = false
     }
   }
