@@ -2,21 +2,12 @@ import {html} from 'lit'
 
 import '../components/GrampsjsFormString.js'
 import '../components/GrampsjsFormPrivate.js'
-import '../components/GrampsjsFormUpload.js'
+import '../components/GrampsjsFormSelectDate.js'
 
 export const GrampsjsNewMediaMixin = superClass =>
   class extends superClass {
     renderForm() {
       return html`
-        <h4 class="label">${this._('File')}</h4>
-        <p>
-          <grampsjs-form-upload
-            preview
-            id="upload"
-            .appState="${this.appState}"
-          ></grampsjs-form-upload>
-        </p>
-
         <h4 class="label">${this._('Title')}</h4>
         <p>
           <grampsjs-form-string
