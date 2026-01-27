@@ -1,7 +1,6 @@
 import {html, css} from 'lit'
 import {repeat} from 'lit/directives/repeat.js'
 
-import '@material/mwc-textfield'
 import '@material/web/progress/linear-progress.js'
 import '@material/web/iconbutton/icon-button.js'
 import {mdiClose, mdiFileDocumentOutline} from '@mdi/js'
