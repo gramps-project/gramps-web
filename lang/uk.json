@@ -271,5 +271,7 @@
     "A number": "Число",
     "A file system path": "Шлях до файлової системи",
     "Any text": "Будь-який текст",
-    "A list of text values. Each entry in the list represents one line of text.": "Список текстових значень. Кожен запис у списку представляє один рядок тексту."
+    "A list of text values. Each entry in the list represents one line of text.": "Список текстових значень. Кожен запис у списку представляє один рядок тексту.",
+    "Edit repository reference": "Редагувати посилання на репозиторій",
+    "Unsaved changes restored": "Незбережені зміни відновлено"
 }
