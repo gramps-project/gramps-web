@@ -273,5 +273,9 @@
     "Any text": "Будь-який текст",
     "A list of text values. Each entry in the list represents one line of text.": "Список текстових значень. Кожен запис у списку представляє один рядок тексту.",
     "Edit repository reference": "Редагувати посилання на репозиторій",
-    "Unsaved changes restored": "Незбережені зміни відновлено"
+    "Unsaved changes restored": "Незбережені зміни відновлено",
+    "Uploading file %s of %s": "Завантаження файлу %s з %s",
+    "Select files": "Вибрати файли",
+    "Failed to upload": "Не вдалося завантажити",
+    "Failed to update": "Не вдалося оновити"
 }
