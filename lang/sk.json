@@ -271,5 +271,7 @@
     "A number": "Číslo",
     "A file system path": "Systémová cesta súboru",
     "Any text": "Akýkoľvek text",
-    "A list of text values. Each entry in the list represents one line of text.": "Zoznam textových hodnôt. Každý záznam v zozname predstavuje jeden riadok textu."
+    "A list of text values. Each entry in the list represents one line of text.": "Zoznam textových hodnôt. Každý záznam v zozname predstavuje jeden riadok textu.",
+    "Edit repository reference": "Upraviť odkaz na repozitár",
+    "Unsaved changes restored": "Neuložené zmeny boli obnovené"
 }
