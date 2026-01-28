@@ -273,5 +273,9 @@
     "Any text": "Elke tekst",
     "A list of text values. Each entry in the list represents one line of text.": "Een lijst van tekstwaarden. Elke vermelding in de lijst vertegenwoordigt één regel tekst.",
     "Edit repository reference": "Verwijzing naar opslagplaats bewerken",
-    "Unsaved changes restored": "Niet-opgeslagen wijzigingen hersteld"
+    "Unsaved changes restored": "Niet-opgeslagen wijzigingen hersteld",
+    "Uploading file %s of %s": "Bestand %s van %s uploaden",
+    "Select files": "Bestanden selecteren",
+    "Failed to upload": "Upload is mislukt",
+    "Failed to update": "Bijwerken is mislukt"
 }
