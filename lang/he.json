@@ -270,5 +270,11 @@
     "A number": "מספר",
     "A file system path": "נתיב מערכת הקבצים",
     "Any text": "כל מלל",
-    "A list of text values. Each entry in the list represents one line of text.": "רשימת ערכי מלל. כל רשומה ברשימה מייצגת שורה אחת של מלל."
+    "A list of text values. Each entry in the list represents one line of text.": "רשימת ערכי מלל. כל רשומה ברשימה מייצגת שורה אחת של מלל.",
+    "Unsaved changes restored": "שינויים שלא נשמרו שוחזרו",
+    "Uploading file %s of %s": "העלאת קובץ %s מתוך %s",
+    "Select files": "בחירת קבצים",
+    "Failed to upload": "האלעה כשלה",
+    "Failed to update": "עדכון כשל",
+    "Edit repository reference": "עריכת העדפות מאגרים"
 }
