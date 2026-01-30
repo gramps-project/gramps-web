@@ -271,5 +271,11 @@
     "A number": "Ett nummer",
     "A file system path": "En filsystemsökväg",
     "Any text": "Valfri text",
-    "A list of text values. Each entry in the list represents one line of text.": "En lista med textvärden. Varje post i listan representerar en textrad."
+    "A list of text values. Each entry in the list represents one line of text.": "En lista med textvärden. Varje post i listan representerar en textrad.",
+    "Edit repository reference": "Redigera arkivreferens",
+    "Unsaved changes restored": "Osparade ändringar har återställts",
+    "Uploading file %s of %s": "Laddar upp fil %s av %s",
+    "Select files": "Välj filer",
+    "Failed to upload": "Misslyckades med att ladda upp",
+    "Failed to update": "Misslyckades med att uppdatera"
 }
