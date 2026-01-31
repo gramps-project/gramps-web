@@ -17,7 +17,7 @@
     "New E-mail": "Нов E-mail",
     "Usage quotas": "Квоти за използване",
     "Creating owner account": "Създаване на акаунт на собственик",
-    "Submit": "Изпращане",
+    "Submit": "Запази",
     "To start using the blog, add a source with tag 'Blog'.": "За да започнете да използвате блога, добавете източник с етикет „Blog“.",
     "All": "Всички",
     "Username": "Потребителско име",
@@ -100,5 +100,6 @@
     "Theme": "Палитра",
     "System": "Състема",
     "Light": "Светла",
-    "Dark": "Тъмна"
+    "Dark": "Тъмна",
+    "Chat messages": "Разговорни съобщения"
 }
