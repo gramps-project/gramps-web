@@ -270,5 +270,11 @@
     "A file system path": "Systémová cesta souboru",
     "Any text": "Libovolný text",
     "A list of text values. Each entry in the list represents one line of text.": "Seznam textových hodnot. Každý záznam v seznamu představuje jeden řádek textu.",
-    "Search URL": "Hledat URL"
+    "Search URL": "Hledat URL",
+    "Edit repository reference": "Upravit odkaz na archiv",
+    "Unsaved changes restored": "Neuložené změny obnoveny",
+    "Uploading file %s of %s": "Nahrávání souboru %s z %s",
+    "Select files": "Vybrat soubory",
+    "Failed to upload": "Nahrávání se nezdařilo",
+    "Failed to update": "Aktualizace se nezdařila"
 }
