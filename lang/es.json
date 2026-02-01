@@ -271,5 +271,11 @@
     "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "Lamentablemente, su navegador no admite la visualización de archivos PDF. Para ver el archivo de todas formas, puede descargarlo usando el botón de abajo.",
     "Researcher Information": "Información del investigador",
     "Search external services for matching records.": "Buscar servicios externos para encontrar registros coincidentes.",
-    "Records require additional access": "Los registros requieren acceso adicional"
+    "Records require additional access": "Los registros requieren acceso adicional",
+    "Edit repository reference": "Editar referencia de repositorio",
+    "Unsaved changes restored": "Cambios no guardados restaurados",
+    "Uploading file %s of %s": "Subiendo archivo %s de %s",
+    "Failed to upload": "Error al subir",
+    "Failed to update": "Error al actualizar",
+    "Select files": "Seleccione archivos"
 }
