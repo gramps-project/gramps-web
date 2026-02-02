@@ -272,5 +272,9 @@
     "Any text": "Любой текст",
     "A list of text values. Each entry in the list represents one line of text.": "Список текстовых значений. Каждая запись в списке представляет собой одну строку текста.",
     "Unsaved changes restored": "Несохраненные изменения восстановлены",
-    "Edit repository reference": "Редактировать ссылку на хранилище"
+    "Edit repository reference": "Редактировать ссылку на хранилище",
+    "Uploading file %s of %s": "Загрузка файла %s из %s",
+    "Select files": "Выберите файлы",
+    "Failed to upload": "Не удалось загрузить",
+    "Failed to update": "Не удалось обновить"
 }
