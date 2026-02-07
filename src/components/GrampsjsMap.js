@@ -253,9 +253,8 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       el => el.tagName === 'GRAMPSJS-MAP-OVERLAY'
     )
     overlays.forEach(overlayElement => {
-      // Remove and re-add overlays after style change
-      // This lets the overlay element manage its own state cleanup
-      overlayElement.removeOverlay()
+      // After style change, MapLibre cleared all layers. Reset overlay state and re-add.
+      overlayElement.resetForStyleChange()
       overlayElement.addOverlay()
     })
   }

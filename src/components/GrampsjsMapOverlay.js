@@ -134,6 +134,12 @@ class GrampsjsMapOverlay extends LitElement {
     super.disconnectedCallback()
   }
 
+  resetForStyleChange() {
+    // After a style change, MapLibre has already cleared all layers/sources.
+    // We just need to reset our internal state so addOverlay() can recreate them.
+    this._overlay = ''
+  }
+
   updated(changed) {
     if (changed.has('bounds') || changed.has('opacity') || changed.has('url')) {
       this.updateOverlay()
