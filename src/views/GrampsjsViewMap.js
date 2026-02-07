@@ -274,12 +274,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _renderLayers() {
-    return html`
-      ${this._dataLayers
-        // do not show hidden overlays
-        .filter(obj => !this._hiddenOverlaysHandles.includes(obj.handle))
-        .map(obj => this._renderMapLayer(obj))}
-    `
+    return html` ${this._dataLayers.map(obj => this._renderMapLayer(obj))} `
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -292,7 +287,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         url="${getMediaUrl(obj.handle)}"
         title="${obj.desc}"
         bounds="${bounds}"
-        ?hidden="${!this._isLayerVisible(JSON.parse(bounds))}"
+        ?hidden="${this._hiddenOverlaysHandles.includes(obj.handle)}"
+        handle="${obj.handle}"
       ></grampsjs-map-overlay>
     `
   }

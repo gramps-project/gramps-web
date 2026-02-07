@@ -150,6 +150,8 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
           [this.longMax, this.latMax],
         ])
       }
+      // Add overlays after initial load
+      this._reAddOverlays()
     })
     this._map.on('moveend', () => {
       fireEvent(this, 'map:moveend', {bounds: this._map.getBounds()})
@@ -211,25 +213,49 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this._handleStyleChange(this._currentStyle)
   }
 
+  _handleOverlayToggle(e) {
+    const {overlay, visible} = e.detail
+
+    const overlays = this._slottedChildren.filter(
+      el => el.tagName === 'GRAMPSJS-MAP-OVERLAY'
+    )
+
+    overlays.forEach(overlayElement => {
+      // Prefer matching by stable handle when available; fall back to title/desc for backward compatibility
+      const matchesByHandle =
+        overlay.handle &&
+        overlayElement.handle &&
+        overlayElement.handle === overlay.handle
+      const matchesByTitle =
+        !overlay.handle && overlayElement.title === overlay.desc
+
+      if (matchesByHandle || matchesByTitle) {
+        // eslint-disable-next-line no-param-reassign
+        overlayElement.hidden = !visible
+      }
+    })
+  }
+
   _handleStyleChange(style) {
     const styleUrl = this._getStyleUrl(style)
     this._map.setStyle(styleUrl)
-    if (this._currentStyle === 'ohm') {
-      this._map.on('styledata', () => {
+    // Always wait for style to load before re-adding overlays
+    this._map.once('styledata', () => {
+      if (this._currentStyle === 'ohm') {
         this._map.filterByDate(`${this.year}`)
-        this._reAddOverlays()
-      })
-    } else {
+      }
       this._reAddOverlays()
-    }
+    })
   }
 
   _reAddOverlays() {
     const overlays = this._slottedChildren.filter(
       el => el.tagName === 'GRAMPSJS-MAP-OVERLAY'
     )
-    overlays.forEach(overlay => {
-      overlay.addOverlay()
+    overlays.forEach(overlayElement => {
+      // After style change, MapLibre cleared all layers. Reset overlay state and re-add.
+      overlayElement.resetForStyleChange()
+      overlayElement.addOverlay()
     })
   }
 

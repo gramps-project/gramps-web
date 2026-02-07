@@ -687,6 +687,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
                   url="${getMediaUrl(this.data.handle)}"
                   .bounds="${JSON.parse(mapBounds[0].value)}"
                   title="${this.data.desc}"
+                  handle="${this.data.handle}"
                 >
                 </grampsjs-map-overlay>
               </grampsjs-map>`
