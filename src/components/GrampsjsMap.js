@@ -221,8 +221,15 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     )
 
     overlays.forEach(overlayElement => {
-      // Match by desc (which is used as title in the overlay element)
-      if (overlayElement.title === overlay.desc) {
+      // Prefer matching by stable handle when available; fall back to title/desc for backward compatibility
+      const matchesByHandle =
+        overlay.handle &&
+        overlayElement.handle &&
+        overlayElement.handle === overlay.handle
+      const matchesByTitle =
+        !overlay.handle && overlayElement.title === overlay.desc
+
+      if (matchesByHandle || matchesByTitle) {
         // eslint-disable-next-line no-param-reassign
         overlayElement.hidden = !visible
       }
@@ -246,9 +253,9 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       el => el.tagName === 'GRAMPSJS-MAP-OVERLAY'
     )
     overlays.forEach(overlayElement => {
-      // Clear the old overlay ID since style change removed all layers
-      // eslint-disable-next-line no-param-reassign
-      overlayElement._overlay = ''
+      // Remove and re-add overlays after style change
+      // This lets the overlay element manage its own state cleanup
+      overlayElement.removeOverlay()
       overlayElement.addOverlay()
     })
   }

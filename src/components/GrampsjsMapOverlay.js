@@ -44,11 +44,6 @@ class GrampsjsMapOverlay extends LitElement {
       return
     }
 
-    // Need a handle to create stable ID
-    if (!this.handle) {
-      return
-    }
-
     // Do nothing if overlay already exists
     if (this._overlay && this._map.getLayer(this._overlay)) {
       return
@@ -61,14 +56,18 @@ class GrampsjsMapOverlay extends LitElement {
         return
       }
 
-      // Generate stable ID from handle if not already set
-      if (!this._overlay && this.handle) {
-        this._overlay = `overlay-${this.handle}`
-      }
-
-      // If still no ID, we can't proceed
+      // Generate stable ID if not already set
       if (!this._overlay) {
-        return
+        if (this.handle) {
+          // Prefer handle-based ID for stability across re-renders
+          this._overlay = `overlay-${this.handle}`
+        } else if (this.title) {
+          // Fall back to title-based ID (less stable if title changes)
+          this._overlay = `overlay-${this.title.replace(/\s+/g, '-')}`
+        } else {
+          // Last resort: random ID (not stable across re-renders)
+          this._overlay = `overlay-${Math.random().toString(36).substr(2, 9)}`
+        }
       }
 
       // Check if already added (shouldn't happen but be safe)
