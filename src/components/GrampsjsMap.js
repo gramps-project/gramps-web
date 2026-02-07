@@ -150,6 +150,8 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
           [this.longMax, this.latMax],
         ])
       }
+      // Add overlays after initial load
+      this._reAddOverlays()
     })
     this._map.on('moveend', () => {
       fireEvent(this, 'map:moveend', {bounds: this._map.getBounds()})
@@ -211,25 +213,43 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this._handleStyleChange(this._currentStyle)
   }
 
+  _handleOverlayToggle(e) {
+    const {overlay, visible} = e.detail
+
+    const overlays = this._slottedChildren.filter(
+      el => el.tagName === 'GRAMPSJS-MAP-OVERLAY'
+    )
+
+    overlays.forEach(overlayElement => {
+      // Match by desc (which is used as title in the overlay element)
+      if (overlayElement.title === overlay.desc) {
+        // eslint-disable-next-line no-param-reassign
+        overlayElement.hidden = !visible
+      }
+    })
+  }
+
   _handleStyleChange(style) {
     const styleUrl = this._getStyleUrl(style)
     this._map.setStyle(styleUrl)
-    if (this._currentStyle === 'ohm') {
-      this._map.on('styledata', () => {
+    // Always wait for style to load before re-adding overlays
+    this._map.once('styledata', () => {
+      if (this._currentStyle === 'ohm') {
         this._map.filterByDate(`${this.year}`)
-        this._reAddOverlays()
-      })
-    } else {
+      }
       this._reAddOverlays()
-    }
+    })
   }
 
   _reAddOverlays() {
     const overlays = this._slottedChildren.filter(
       el => el.tagName === 'GRAMPSJS-MAP-OVERLAY'
     )
-    overlays.forEach(overlay => {
-      overlay.addOverlay()
+    overlays.forEach(overlayElement => {
+      // Clear the old overlay ID since style change removed all layers
+      // eslint-disable-next-line no-param-reassign
+      overlayElement._overlay = ''
+      overlayElement.addOverlay()
     })
   }
 
