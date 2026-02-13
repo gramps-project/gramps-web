@@ -275,5 +275,6 @@
     "Unsaved changes restored": "Unsaved changes restored",
     "Uploading file %s of %s": "Uploading file %s of %s",
     "Select files": "Select files",
-    "Failed to upload": "Failed to upload"
+    "Failed to upload": "Failed to upload",
+    "Failed to update": "Failed to update"
 }
