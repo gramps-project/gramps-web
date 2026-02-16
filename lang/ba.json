@@ -264,5 +264,17 @@
     "Registration required": "Теркәлеү кәрәк",
     "Records require additional access": "Яҙмалар өҫтәмә ҡулланыу хоҡуғын талап итә",
     "Add custom search engine": "Ҡулланыусы эҙләү системаһын өҫтәү",
-    "Enter a search URL with template variables for person data. Available variables:": "Кеше мәғлүмәттәре өсөн ҡалып үҙгәреүселәре булған эҙләү URL-ын индерегеҙ. Ҡулланыла торған үҙгәреүселәр:"
+    "Enter a search URL with template variables for person data. Available variables:": "Кеше мәғлүмәттәре өсөн ҡалып үҙгәреүселәре булған эҙләү URL-ын индерегеҙ. Ҡулланыла торған үҙгәреүселәр:",
+    "e.g., MyGenealogy": "мәҫәлән, МинеңШәжәрәм",
+    "Search URL": "Эҙләү URL-ы",
+    "A number": "Һан",
+    "A file system path": "Файл системаһы юлы",
+    "Any text": "Теләһә ниндәй текст",
+    "A list of text values. Each entry in the list represents one line of text.": "Текст ҡиммәттәре исемлеге. Исемлектәге һәр яҙма текст юлын күрһәтә.",
+    "Edit repository reference": "Репозиторий һылтанмаһын мөхәррирләү",
+    "Unsaved changes restored": "Һаҡланмаған үҙгәртеүҙәр тергеҙелде",
+    "Uploading file %s of %s": "%s / %s файлын йөкләү",
+    "Select files": "Файлдарҙы һайлау",
+    "Failed to upload": "Йөкләү уңышһыҙ",
+    "Failed to update": "Яңыртыу уңышһыҙ"
 }
