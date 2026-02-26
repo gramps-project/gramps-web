@@ -239,6 +239,12 @@ export class GrampsjsMediaObject extends GrampsjsObject {
             )}
       </grampsjs-rect-container>
 
+      ${this._renderReplaceFile()}
+    `
+  }
+
+  _renderReplaceFile() {
+    return html`
       <p>
         <grampsjs-form-upload
           @formdata:changed="${this._handleFormData}"
@@ -272,6 +278,8 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         mime="${this.data.mime}"
         @click=${this._handleClick}
       ></grampsjs-img>
+
+      ${this.edit ? this._renderReplaceFile() : ''}
     `
   }
 
