@@ -119,7 +119,11 @@ const _allTabs = {
   },
   sourceCitations: {
     title: 'Sources',
-    condition: data => data?.citation_list?.length > 0,
+    condition: data =>
+      data?.citation_list?.length > 0 ||
+      (data?.extended?.events || []).some(
+        event => (event.citation_list || []).length > 0
+      ),
     conditionEdit: data => 'citation_list' in data,
   },
   citations: {
@@ -738,15 +742,28 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           .profile=${this.data?.profile?.children}
           ?edit="${this.edit}"
         ></grampsjs-children>`
-      case 'sourceCitations':
+      case 'sourceCitations': {
+        const directCitations = (this.data?.extended?.citations || [])
+          .map(obj => obj.handle)
+          .filter(obj => Boolean(obj))
+        let citationIds = directCitations
+
+        // In edit mode, only show direct citations (which are editable)
+        // In view mode, combine with event citations
+        if (!this.edit) {
+          const eventCitations = (this.data?.extended?.events || [])
+            .flatMap(obj => obj.citation_list || [])
+            .filter(obj => Boolean(obj))
+          citationIds = [...new Set([...directCitations, ...eventCitations])]
+        }
+
         return html`<grampsjs-view-source-citations
           active
           .appState="${this.appState}"
           ?edit="${this.edit}"
-          .grampsIds=${(this.data?.extended?.citations || [])
-            .map(obj => obj.gramps_id)
-            .filter(obj => Boolean(obj))}
+          .grampsIds=${citationIds}
         ></grampsjs-view-source-citations>`
+      }
       case 'notes':
         return html` <grampsjs-view-object-notes
           active
