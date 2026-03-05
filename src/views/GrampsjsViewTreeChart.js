@@ -34,6 +34,25 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
     this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
+  _openAddNewPersonDialog(data) {
+    console.log('open add new person dialog', data)
+    this.dialogContent = html`
+      <grampsjs-add-person-to-tree
+        data=${data}
+        @object:save="${this._handleSave}"
+        @object:cancel="${this._handleCancel}"
+      >
+      </grampsjs-add-person-to-tree>
+    `
+  }
+
+  _handleAddNewPersonRelation(e) {
+    console.log('handle add new person relation', e)
+    const {data} = e.detail
+    console.log('handle add new person relation', data)
+    this._openAddNewPersonDialog(data)
+  }
+
   renderChart() {
     return html`
       <grampsjs-tree-chart
@@ -44,6 +63,7 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
         nameDisplayFormat=${this.nameDisplayFormat}
         .data=${this._data}
         .appState="${this.appState}"
+        @add-new-person-relation="${this._handleAddNewPersonRelation}"
       >
       </grampsjs-tree-chart>
     `
