@@ -297,6 +297,40 @@ function TreeChartCore(
     .attr('paint-order', 'stroke')
     .text(d => clipString(`†${d.data.person.profile.death.date}`, textWidth(d)))
 
+  function addPerson(event, nodeData) {
+    console.log('add person', nodeData)
+    dispatchEvent(
+      new CustomEvent('add-new-person-relation', {
+        bubbles: true,
+        composed: true,
+        detail: {data: nodeData},
+      })
+    )
+    event.stopPropagation()
+    event.preventDefault()
+  }
+
+  node
+    .append('circle')
+    .attr('class', 'add-person-btn')
+    .attr('r', 13)
+    .attr('cx', -90) // left edge of rectangle
+    .attr('cy', 30) // bottom edge of rectangle
+    .style('fill', '#FFFFFF')
+    .style('cursor', 'pointer')
+    .on('click', addPerson)
+
+  node
+    .append('text')
+    .attr('class', 'add-person-text')
+    .attr('x', -90)
+    .attr('y', 34)
+    .attr('text-anchor', 'middle')
+    .attr('font-size', '14px')
+    .attr('fill', 'black')
+    .style('pointer-events', 'none')
+    .text('+')
+
   node
     .filter(getImageUrl)
     .append('circle')
