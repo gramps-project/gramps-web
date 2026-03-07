@@ -775,7 +775,7 @@ export class Auth {
   }
 }
 
-export async function apiGetNew(auth, endpoint) {
+export async function apiGet(auth, endpoint) {
   try {
     const headers = {}
     try {
@@ -814,7 +814,7 @@ export async function apiGetNew(auth, endpoint) {
   }
 }
 
-export async function apiPutPostDeleteNew(
+export async function apiPutPostDelete(
   auth,
   method,
   endpoint,
@@ -876,7 +876,7 @@ export async function apiPutPostDeleteNew(
 }
 
 async function fetchStatus(auth, taskId) {
-  const res = await apiGetNew(auth, `/api/tasks/${taskId}`)
+  const res = await apiGet(auth, `/api/tasks/${taskId}`)
   return res.data
 }
 

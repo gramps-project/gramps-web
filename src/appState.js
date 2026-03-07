@@ -1,9 +1,9 @@
 import {
   getSettings,
   getPermissions,
-  apiGetNew,
+  apiGet,
   Auth,
-  apiPutPostDeleteNew,
+  apiPutPostDelete,
   updateSettings,
 } from './api.js'
 import {getCurrentTheme} from './theme.js'
@@ -34,13 +34,13 @@ export function getInitialAppState() {
       pageId: '',
       pageId2: '',
     },
-    apiGet: endpoint => apiGetNew(auth, endpoint),
+    apiGet: endpoint => apiGet(auth, endpoint),
     apiPost: (endpoint, payload, options = {}) =>
-      apiPutPostDeleteNew(auth, 'POST', endpoint, payload, options),
+      apiPutPostDelete(auth, 'POST', endpoint, payload, options),
     apiPut: (endpoint, payload, options = {}) =>
-      apiPutPostDeleteNew(auth, 'PUT', endpoint, payload, options),
+      apiPutPostDelete(auth, 'PUT', endpoint, payload, options),
     apiDelete: (endpoint, options = {}) =>
-      apiPutPostDeleteNew(auth, 'DELETE', endpoint, {}, options),
+      apiPutPostDelete(auth, 'DELETE', endpoint, {}, options),
     refreshTokenIfNeeded: (force = false) => auth.getValidAccessToken(force),
     signout: () => auth.signout(),
     updateSettings: (settings = {}, tree = false) =>
