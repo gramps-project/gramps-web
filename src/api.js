@@ -489,137 +489,6 @@ export async function apiRefreshAuthToken(attempts = 3) {
   }
 }
 
-export async function apiGet(endpoint) {
-  const accessToken = localStorage.getItem('access_token')
-  let headers = {}
-  if (accessToken !== null) {
-    headers = {
-      Authorization: `Bearer ${accessToken}`,
-    }
-  }
-  try {
-    const resp = await fetch(`${__APIHOST__}${endpoint}`, {
-      method: 'GET',
-      headers,
-    })
-    let resJson
-    try {
-      resJson = await resp.json()
-    } catch (error) {
-      resJson = {}
-    }
-    if (resp.status === 401) {
-      const refreshToken = localStorage.getItem('refresh_token')
-      if (refreshToken === null) {
-        throw new Error('Missing refresh token')
-      }
-      const refreshResp = await apiRefreshAuthToken()
-      if ('error' in refreshResp) {
-        throw new Error(refreshResp.error)
-      } else {
-        return apiGet(endpoint)
-      }
-    }
-    if (resp.status === 403) {
-      throw new Error('Authorization error')
-    }
-    if (resp.status !== 200) {
-      throw new Error(
-        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
-      )
-    }
-    return {
-      data: resJson,
-      total_count: resp.headers.get('X-Total-Count'),
-      etag: resp.headers.get('ETag'),
-    }
-  } catch (error) {
-    if (error instanceof TypeError) {
-      return {error: 'Network error'}
-    }
-    return {error: error.message}
-  }
-}
-
-async function apiPutPost(
-  method,
-  endpoint,
-  payload,
-  isJson = true,
-  dbChanged = true,
-  requireFresh = false
-) {
-  const accessToken = localStorage.getItem('access_token')
-  const headers = {Accept: 'application/json'}
-  if (accessToken !== null) {
-    headers.Authorization = `Bearer ${accessToken}`
-  }
-  if (isJson) {
-    headers['Content-Type'] = 'application/json'
-  }
-  try {
-    const resp = await fetch(`${__APIHOST__}${endpoint}`, {
-      method,
-      headers,
-      body: isJson ? JSON.stringify(payload) : payload,
-    })
-    let resJson
-    try {
-      resJson = await resp.json()
-    } catch (error) {
-      resJson = {}
-    }
-    if (resp.status === 401) {
-      if (requireFresh) {
-        throw new Error(resJson.message)
-      }
-      const refreshToken = localStorage.getItem('refresh_token')
-      if (refreshToken === null) {
-        throw new Error('Missing refresh token')
-      }
-      const refreshResp = await apiRefreshAuthToken()
-      if ('error' in refreshResp) {
-        throw new Error(refreshResp.error)
-      } else {
-        return apiPutPost(method, endpoint, payload, isJson, dbChanged)
-      }
-    }
-    if (resp.status === 403) {
-      throw new Error('Not authorized')
-    }
-    if (resp.status !== 201 && resp.status !== 200 && resp.status !== 202) {
-      throw new Error(
-        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
-      )
-    }
-    if (dbChanged) {
-      window.dispatchEvent(
-        new CustomEvent('db:changed', {bubbles: true, composed: true})
-      )
-    }
-    if (resp.status === 202 && 'task' in resJson) {
-      return resJson
-    }
-    return {
-      data: resJson,
-      total_count: resp.headers.get('X-Total-Count'),
-      etag: resp.headers.get('ETag'),
-    }
-  } catch (error) {
-    return {error: error.message}
-  }
-}
-
-export async function apiPost(
-  endpoint,
-  payload,
-  isJson = true,
-  dbChanged = true,
-  requireFresh = false
-) {
-  return apiPutPost('POST', endpoint, payload, isJson, dbChanged, requireFresh)
-}
-
 export function getExporterUrl(id, options) {
   const jwt = localStorage.getItem('access_token')
   const queryParam = new URLSearchParams(options).toString()
@@ -690,31 +559,6 @@ export async function queryNominatim(q) {
     return {data: await resp.json()}
   } catch (error) {
     return {error: error.message}
-  }
-}
-
-async function fetchStatus(taskId) {
-  const res = await apiGet(`/api/tasks/${taskId}`)
-  return res.data
-}
-
-export async function updateTaskStatus(
-  taskId,
-  statusCallback,
-  pollInterval = 1000,
-  maxPolls = Infinity
-) {
-  const doneStates = ['FAILURE', 'REVOKED', 'SUCCESS']
-  let i = 0
-  let status = {}
-  while (!doneStates.includes(status.state) && i < maxPolls) {
-    // eslint-disable-next-line no-await-in-loop
-    status = await fetchStatus(taskId)
-    statusCallback(status)
-    // wait for 1s
-    // eslint-disable-next-line no-await-in-loop
-    await new Promise(resolve => setTimeout(resolve, pollInterval))
-    i += 1
   }
 }
 
@@ -1028,5 +872,31 @@ export async function apiPutPostDeleteNew(
     }
   } catch (error) {
     return {error: error.message}
+  }
+}
+
+async function fetchStatus(auth, taskId) {
+  const res = await apiGetNew(auth, `/api/tasks/${taskId}`)
+  return res.data
+}
+
+export async function updateTaskStatus(
+  auth,
+  taskId,
+  statusCallback,
+  pollInterval = 1000,
+  maxPolls = Infinity
+) {
+  const doneStates = ['FAILURE', 'REVOKED', 'SUCCESS']
+  let i = 0
+  let status = {}
+  while (!doneStates.includes(status.state) && i < maxPolls) {
+    // eslint-disable-next-line no-await-in-loop
+    status = await fetchStatus(auth, taskId)
+    statusCallback(status)
+    // wait for 1s
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise(resolve => setTimeout(resolve, pollInterval))
+    i += 1
   }
 }

@@ -48,6 +48,7 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
       addTaskId(this.taskName, this.taskId)
     }
     updateTaskStatus(
+      this.appState.auth,
       this.taskId,
       status => {
         this.status = status
