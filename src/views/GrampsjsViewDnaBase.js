@@ -3,7 +3,7 @@
 import {css, html} from 'lit'
 
 import '@material/web/select/filled-select'
-import '@material/mwc-fab'
+import '@material/web/fab/fab.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
@@ -23,7 +23,7 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     return [
       super.styles,
       css`
-        mwc-fab {
+        md-fab {
           position: fixed;
           bottom: 32px;
           right: 32px;

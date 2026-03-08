@@ -3,11 +3,12 @@ Base view for lists of Gramps objects, e.g. people, events, ...
 */
 
 import {html, css} from 'lit'
-import {mdiSort, mdiSortAscending, mdiSortDescending} from '@mdi/js'
+import {mdiPlus, mdiSort, mdiSortAscending, mdiSortDescending} from '@mdi/js'
 
-import '@material/mwc-fab'
+import '@material/web/fab/fab.js'
 import '@material/mwc-icon-button'
 import '@material/mwc-icon'
+import '../components/GrampsjsIcon.js'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
@@ -98,7 +99,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
           top: -4px;
         }
 
-        mwc-fab {
+        md-fab {
           position: fixed;
           bottom: 32px;
           right: 32px;
@@ -231,7 +232,15 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   }
 
   renderFab() {
-    return html` <mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab> `
+    return html`
+      <md-fab variant="secondary" @click=${this._handleClickAdd}>
+        <grampsjs-icon
+          slot="icon"
+          .path="${mdiPlus}"
+          color="var(--mdc-theme-on-secondary)"
+        ></grampsjs-icon>
+      </md-fab>
+    `
   }
 
   _handleFiltersChanged() {

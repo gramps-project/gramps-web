@@ -1,7 +1,10 @@
 import {css, html} from 'lit'
+import {mdiPlus} from '@mdi/js'
 
+import '@material/web/fab/fab.js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsTasks.js'
+import '../components/GrampsjsIcon.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
 import {fireEvent} from '../util.js'
@@ -11,7 +14,7 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
     return [
       super.styles,
       css`
-        mwc-fab {
+        md-fab {
           position: fixed;
           bottom: 32px;
           right: 32px;
@@ -48,7 +51,15 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   renderFab() {
-    return html` <mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab> `
+    return html`
+      <md-fab variant="secondary" @click=${this._handleClickAdd}>
+        <grampsjs-icon
+          slot="icon"
+          .path="${mdiPlus}"
+          color="var(--mdc-theme-on-secondary)"
+        ></grampsjs-icon>
+      </md-fab>
+    `
   }
 
   _handleClickAdd() {

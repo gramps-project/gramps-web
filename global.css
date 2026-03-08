@@ -8,6 +8,7 @@ body {
 
 :root {
   color: var(--md-sys-color-on-surface);
+  --md-fab-secondary-container-color: var(--mdc-theme-secondary);
   --color-boy: #64b5f6;
   --color-girl: #ef9a9a;
   --mdc-theme-primary: var(--md-sys-color-primary);

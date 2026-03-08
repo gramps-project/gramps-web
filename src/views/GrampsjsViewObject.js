@@ -2,8 +2,9 @@
 /* eslint-disable class-methods-use-this */
 import {css, html} from 'lit'
 
-import '@material/mwc-fab'
-import '@material/mwc-icon'
+import {mdiPencil} from '@mdi/js'
+import '@material/web/fab/fab.js'
+import '../components/GrampsjsIcon.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 
@@ -55,7 +56,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         :host {
         }
 
-        mwc-fab {
+        md-fab {
           position: fixed;
           bottom: 32px;
           right: 32px;
@@ -111,7 +112,13 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   renderFab() {
     return html`
-      <mwc-fab icon="edit" @click="${this._activateEditMode}"></mwc-fab>
+      <md-fab variant="secondary" @click="${this._activateEditMode}">
+        <grampsjs-icon
+          slot="icon"
+          .path="${mdiPencil}"
+          color="var(--mdc-theme-on-secondary)"
+        ></grampsjs-icon>
+      </md-fab>
     `
   }
 
