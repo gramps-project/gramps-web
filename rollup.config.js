@@ -32,7 +32,7 @@ export default {
     plugins: [
       generateSW({
         globIgnores: ['polyfills/*.js', 'legacy-*.js', 'nomodule-*.js'],
-        navigateFallback: '/index.html',
+        navigateFallback: `${BASE_DIR}/index.html`,
         navigateFallbackDenylist: [/^\/api.*/],
         swDest: path.join(outputDir, 'sw.js'),
         globDirectory: outputDir,
