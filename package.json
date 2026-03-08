@@ -13,9 +13,6 @@
     "start": "web-dev-server --app-index index.html --host 0.0.0.0 --node-resolve --open --watch --port 8001"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.8",
-    "@babel/eslint-parser": "^7.26.8",
-    "@babel/plugin-syntax-import-assertions": "^7.26.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-replace": "^5.0.7",
     "@rollup/plugin-terser": "^1.0.0",
@@ -62,7 +59,6 @@
     "rules": {
       "no-only-tests/no-only-tests": "error"
     },
-    "parser": "@babel/eslint-parser",
     "env": {
       "browser": true
     },
@@ -106,11 +102,6 @@
     "*.js": [
       "eslint --fix",
       "prettier --write"
-    ]
-  },
-  "babel": {
-    "plugins": [
-      "@babel/plugin-syntax-import-assertions"
     ]
   },
   "name": "gramps-js",
