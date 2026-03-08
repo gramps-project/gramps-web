@@ -162,4 +162,4 @@ npm test          # run once with coverage
 npm run test:watch
 ```
 
-Tests live in `test/`. Coverage is currently minimal — existing tests are mainly smoke tests. New tests are welcome but not currently required for contributions.
+Runner: [Vitest](https://vitest.dev/) with `happy-dom` (no browser needed), coverage via `@vitest/coverage-v8`. Tests live in `test/unit/` and cover pure functions. Import from `vitest` directly. Component tests requiring a real DOM are out of scope for now.
