@@ -1,4 +1,4 @@
-import {describe, it, expect} from 'vitest'
+import {describe, it, expect, afterEach} from 'vitest'
 import {appStateUpdatePermissions} from '../../src/appState.js'
 
 // Minimal fake JWT with known permissions claims.
