@@ -237,7 +237,7 @@
     "%s generations": "%s sukupolvea",
     "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "Valitettavasti selaimesi ei tue PDF-tiedostojen näyttämistä. Voit ladata tiedoston alla olevasta painikkeesta.",
     "Registration required": "Vaatii rekisteröitymisen",
-    "Open access": "Avoin",
+    "Open access": "Vapaasti nähtävissä",
     "Select files": "Valitse tiedostot",
     "Uploading file %s of %s": "Ladataan tiedostoa %s/%s",
     "Select theme": "Valitse teema",
@@ -245,5 +245,14 @@
     "System": "Järjestelmä",
     "Light": "Vaalea",
     "Dark": "Tumma",
-    "Signing in...": "Kirjaudutaan sisään..."
+    "Signing in...": "Kirjaudutaan sisään...",
+    "Search URL": "Haku-URL",
+    "Any text": "Vapaa teksti",
+    "A list of text values. Each entry in the list represents one line of text.": "Tekstiarvojen luettelo. Kukin merkintä edustaa yhtä tekstiriviä.",
+    "Edit repository reference": "Muokkaa arkiston viitettä",
+    "Unsaved changes restored": "Tallentamattomat muutokset palautettu",
+    "Please select a different person.": "Valitse toinen henkilö.",
+    "No Y-DNA data found.": "Y-DNA-tietoja ei löytynyt.",
+    "Edit Y-DNA data": "Muokkaa Y-DNA-tietoja",
+    "Account Source": "Tilin lähde"
 }
