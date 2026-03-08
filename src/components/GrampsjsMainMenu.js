@@ -3,14 +3,28 @@ The dropdown menu for adding objects in the top app bar
 */
 
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-list'
+import '@material/web/list/list'
+import '@material/web/list/list-item'
+import '@material/web/divider/divider'
 
-import './GrampsJsListItem.js'
-
-import {mdiFamilyTree, mdiChat, mdiDna} from '@mdi/js'
+import {
+  mdiFamilyTree,
+  mdiChat,
+  mdiDna,
+  mdiHome,
+  mdiRss,
+  mdiFormatListBulleted,
+  mdiMap,
+  mdiHistory,
+  mdiBookmark,
+  mdiFormatListChecks,
+  mdiDownload,
+  mdiBookOpenVariant,
+  mdiSourceCommit,
+} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {renderIcon} from '../icons.js'
+import './GrampsjsIcon.js'
 
 const BASE_DIR = ''
 
@@ -22,26 +36,22 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        grampsjs-list-item span {
-          color: var(--grampsjs-color-drawer-text);
+        md-list-item {
+          --md-list-item-label-text-color: var(--grampsjs-color-drawer-text);
+          --md-list-item-label-text-size: 1rem;
+          --md-list-item-label-text-weight: 400;
         }
 
-        grampsjs-list-item mwc-icon {
-          color: var(--grampsjs-body-font-color-38);
+        md-list-item[selected] {
+          --md-list-item-label-text-color: var(--grampsjs-color-icon-selected);
+          --md-list-item-label-text-weight: 500;
         }
 
-        grampsjs-list-item[selected] span {
-          color: var(--grampsjs-color-icon-selected);
-          font-weight: 500;
-        }
-
-        grampsjs-list-item[selected] mwc-icon {
-          color: var(--grampsjs-color-icon-selected);
-        }
-
-        span.raise {
-          position: relative;
-          top: -2px;
+        md-divider {
+          --md-divider-thickness: 1px;
+          --md-divider-color: rgba(0, 0, 0, 0.12);
+          padding: 0 20px;
+          margin: 4px 0;
         }
       `,
     ]
@@ -64,27 +74,34 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     this.saveButton = false
   }
 
+  _icon(path, isSelected) {
+    return html`<grampsjs-icon
+      slot="start"
+      path="${path}"
+      color="${isSelected ? selectedColor : defaultColor}"
+    ></grampsjs-icon>`
+  }
+
   render() {
-    return html` <mwc-list>
-      <grampsjs-list-item
-        href="${BASE_DIR}/"
-        graphic="icon"
-        ?selected="${this.appState.path.page === 'home'}"
+    const p = this.appState.path.page
+    return html` <md-list>
+      <md-list-item
+        type="link"
+        href="${BASE_DIR + '/'}"
+        ?selected="${p === 'home'}"
       >
-        <span>${this._('Home Page')}</span>
-        <mwc-icon slot="graphic">home</mwc-icon>
-      </grampsjs-list-item>
-      <grampsjs-list-item
+        ${this._icon(mdiHome, p === 'home')} ${this._('Home Page')}
+      </md-list-item>
+      <md-list-item
+        type="link"
         href="${BASE_DIR}/blog"
-        graphic="icon"
-        ?selected="${this.appState.path.page === 'blog'}"
+        ?selected="${p === 'blog'}"
       >
-        <span>${this._('Blog')}</span>
-        <mwc-icon slot="graphic">rss_feed</mwc-icon>
-      </grampsjs-list-item>
-      <grampsjs-list-item
+        ${this._icon(mdiRss, p === 'blog')} ${this._('Blog')}
+      </md-list-item>
+      <md-list-item
+        type="link"
         href="${BASE_DIR}/people"
-        graphic="icon"
         ?selected="${[
           'people',
           'families',
@@ -95,134 +112,116 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
           'repositories',
           'notes',
           'medialist',
-        ].includes(this.appState.path.page)}"
+        ].includes(p)}"
       >
-        <span>${this._('Lists')}</span>
-        <mwc-icon slot="graphic">list</mwc-icon>
-      </grampsjs-list-item>
-      <grampsjs-list-item
+        ${this._icon(
+          mdiFormatListBulleted,
+          [
+            'people',
+            'families',
+            'events',
+            'places',
+            'citations',
+            'sources',
+            'repositories',
+            'notes',
+            'medialist',
+          ].includes(p)
+        )}
+        ${this._('Lists')}
+      </md-list-item>
+      <md-list-item
+        type="link"
         href="${BASE_DIR}/map"
-        graphic="icon"
-        ?selected="${this.appState.path.page === 'map'}"
+        ?selected="${p === 'map'}"
       >
-        <span>${this._('Map')}</span>
-        <mwc-icon slot="graphic">map</mwc-icon>
-      </grampsjs-list-item>
-      <grampsjs-list-item
+        ${this._icon(mdiMap, p === 'map')} ${this._('Map')}
+      </md-list-item>
+      <md-list-item
+        type="link"
         href="${BASE_DIR}/tree"
-        graphic="icon"
-        ?selected="${this.appState.path.page === 'tree'}"
+        ?selected="${p === 'tree'}"
       >
-        <span>${this._('Family Tree')}</span>
-        <mwc-icon slot="graphic"
-          ><span class="raise"
-            >${renderIcon(
-              mdiFamilyTree,
-              this.appState.path.page === 'tree' ? selectedColor : defaultColor
-            )}</span
-          ></mwc-icon
-        >
-      </grampsjs-list-item>
+        ${this._icon(mdiFamilyTree, p === 'tree')} ${this._('Family Tree')}
+      </md-list-item>
       ${this.appState.frontendConfig.hideDNALink
         ? ''
         : html`
-            <grampsjs-list-item
+            <md-list-item
+              type="link"
               href="${BASE_DIR}/dna-matches"
-              graphic="icon"
               ?selected="${['dna-matches', 'dna-chromosome', 'ydna'].includes(
-                this.appState.path.page
+                p
               )}"
             >
-              <span>${this._('DNA')}</span>
-              <mwc-icon slot="graphic"
-                ><span class="raise"
-                  >${renderIcon(
-                    mdiDna,
-                    ['dna-matches', 'dna-chromosome', 'ydna'].includes(
-                      this.appState.path.page
-                    )
-                      ? selectedColor
-                      : defaultColor
-                  )}</span
-                ></mwc-icon
-              >
-            </grampsjs-list-item>
+              ${this._icon(
+                mdiDna,
+                ['dna-matches', 'dna-chromosome', 'ydna'].includes(p)
+              )}
+              ${this._('DNA')}
+            </md-list-item>
           `}
       ${this.canUseChat
         ? html`
-            <grampsjs-list-item
+            <md-list-item
+              type="link"
               href="${BASE_DIR}/chat"
-              graphic="icon"
-              ?selected="${this.appState.path.page === 'chat'}"
+              ?selected="${p === 'chat'}"
             >
-              <span>${this._('Chat')}</span>
-              <mwc-icon slot="graphic"
-                ><span class="raise"
-                  >${renderIcon(
-                    mdiChat,
-                    this.appState.path.page === 'chat'
-                      ? selectedColor
-                      : defaultColor
-                  )}</span
-                ></mwc-icon
-              >
-            </grampsjs-list-item>
+              ${this._icon(mdiChat, p === 'chat')} ${this._('Chat')}
+            </md-list-item>
           `
         : ''}
-      <li divider padded role="separator"></li>
-      <grampsjs-list-item
+      <md-divider inset></md-divider>
+      <md-list-item
+        type="link"
         href="${BASE_DIR}/recent"
-        graphic="icon"
-        ?selected="${this.appState.path.page === 'recent'}"
+        ?selected="${p === 'recent'}"
       >
-        <span>${this._('History')}</span>
-        <mwc-icon slot="graphic">history</mwc-icon>
-      </grampsjs-list-item>
-      <grampsjs-list-item
+        ${this._icon(mdiHistory, p === 'recent')} ${this._('History')}
+      </md-list-item>
+      <md-list-item
+        type="link"
         href="${BASE_DIR}/bookmarks"
-        graphic="icon"
-        ?selected="${this.appState.path.page === 'bookmarks'}"
+        ?selected="${p === 'bookmarks'}"
       >
-        <span>${this._('_Bookmarks')}</span>
-        <mwc-icon slot="graphic">bookmark</mwc-icon>
-      </grampsjs-list-item>
-      <grampsjs-list-item
+        ${this._icon(mdiBookmark, p === 'bookmarks')} ${this._('_Bookmarks')}
+      </md-list-item>
+      <md-list-item
+        type="link"
         href="${BASE_DIR}/tasks"
-        graphic="icon"
-        ?selected="${this.appState.path.page === 'tasks'}"
+        ?selected="${p === 'tasks'}"
       >
-        <span>${this._('Tasks')}</span>
-        <mwc-icon slot="graphic">checklist</mwc-icon>
-      </grampsjs-list-item>
-      <grampsjs-list-item
+        ${this._icon(mdiFormatListChecks, p === 'tasks')} ${this._('Tasks')}
+      </md-list-item>
+      <md-list-item
+        type="link"
         href="${BASE_DIR}/export"
-        graphic="icon"
-        ?selected="${this.appState.path.page === 'export'}"
+        ?selected="${p === 'export'}"
       >
-        <span>${this._('Export')}</span>
-        <mwc-icon slot="graphic">download_file</mwc-icon>
-      </grampsjs-list-item>
-      <grampsjs-list-item
+        ${this._icon(mdiDownload, p === 'export')} ${this._('Export')}
+      </md-list-item>
+      <md-list-item
+        type="link"
         href="${BASE_DIR}/reports"
-        graphic="icon"
-        ?selected="${this.appState.path.page === 'reports'}"
+        ?selected="${p === 'reports'}"
       >
-        <span>${this._('_Reports').replace('_', '')}</span>
-        <mwc-icon slot="graphic">menu_book</mwc-icon>
-      </grampsjs-list-item>
+        ${this._icon(mdiBookOpenVariant, p === 'reports')}
+        ${this._('_Reports').replace('_', '')}
+      </md-list-item>
       ${this.appState.permissions.canViewPrivate
         ? html`
-            <grampsjs-list-item
+            <md-list-item
+              type="link"
               href="${BASE_DIR}/revisions"
-              graphic="icon"
-              ?selected="${this.appState.path.page === 'revisions'}"
+              ?selected="${p === 'revisions'}"
             >
-              <span>${this._('Revisions')}</span>
-              <mwc-icon slot="graphic">commit</mwc-icon>
-            </grampsjs-list-item>
+              ${this._icon(mdiSourceCommit, p === 'revisions')}
+              ${this._('Revisions')}
+            </md-list-item>
           `
         : ''}
-    </mwc-list>`
+    </md-list>`
   }
 }
 
