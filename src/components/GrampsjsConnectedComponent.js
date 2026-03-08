@@ -41,7 +41,7 @@ export class GrampsjsConnectedComponent extends GrampsjsStaleDataMixin(
     this._errorMessage = ''
     this._data = {}
     this._oldUrl = ''
-    this._boundsHandleOnline = this._handleOnline.bind(this)
+    this._boundHandleOnline = this._handleOnline.bind(this)
     this.method = 'GET'
     this.postData = {}
     this._oldPostData = {}

@@ -453,42 +453,6 @@ export async function apiGetTokens(username, password) {
   }
 }
 
-export async function apiRefreshAuthToken(attempts = 3) {
-  const refreshToken = localStorage.getItem('refresh_token')
-  if (refreshToken === null) {
-    return {error: 'No refresh token found!'}
-  }
-  try {
-    const resp = await fetch(`${__APIHOST__}/api/token/refresh/`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${refreshToken}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-    if (resp.status === 403 || resp.status === 422) {
-      doLogout()
-      throw new Error('Failed refreshing token')
-    }
-    // handle 429 too-many-attempts
-    if (resp.status === 429 && attempts > 0) {
-      // retry after 1s
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      return apiRefreshAuthToken(attempts - 1)
-    }
-    const data = await resp.json()
-    if (data.access_token === undefined) {
-      throw new Error('Access token missing in response')
-    }
-    const expires = Date.now() + ACCESS_TOKEN_EXPIRY_MS
-    storeAuthToken(data.access_token, expires)
-    return {}
-  } catch (error) {
-    return {error: error.message}
-  }
-}
-
 export function getExporterUrl(id, options) {
   const jwt = localStorage.getItem('access_token')
   const queryParam = new URLSearchParams(options).toString()
@@ -756,7 +720,7 @@ export class Auth {
       },
     })
     if (resp.status === 403 || resp.status === 422) {
-      this.logout()
+      doLogout()
       throw new Error('Failed refreshing token')
     }
     // handle 429 too-many-attempts
