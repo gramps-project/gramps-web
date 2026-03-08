@@ -4,6 +4,7 @@ import {generateSW} from 'rollup-plugin-workbox'
 import resolve from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
 import replace from '@rollup/plugin-replace'
+import typescript from '@rollup/plugin-typescript'
 import copy from 'rollup-plugin-copy'
 import versionInjector from 'rollup-plugin-version-injector'
 import path from 'path'
@@ -54,6 +55,7 @@ export default {
       ],
     }),
     resolve(),
+    typescript({outDir: outputDir, declaration: false}),
     !developmentMode && terser({format: {comments: false}}),
     polyfillsLoader({polyfills: {}, minify: !developmentMode}),
     copy({

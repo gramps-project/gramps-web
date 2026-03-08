@@ -5,7 +5,7 @@ This is the frontend for [Gramps Web](https://www.grampsweb.org/), a genealogica
 ## Tech stack
 
 - **[LitElement](https://lit.dev/) (Web Components)** — every UI element is a custom element
-- **[Rollup](https://rollupjs.org/)** via `@open-wc/building-rollup` for production builds; `@web/dev-server` for development
+- **[Rollup](https://rollupjs.org/)** v4 for production builds (`rollup.config.js`); `@web/dev-server` for development
 - **[Material Web Components](https://github.com/material-components/material-web)** — UI primitives; the codebase contains a mix of the old v1 `@material/mwc-*` (`<mwc-button>` etc.) and the new v2 `@material/web` (`<md-button>` etc.). **New code should use `md-*` elements only.**
 - **[D3.js](https://d3js.org/)** — genealogical charts (fan chart, tree chart, relationship chart, Y-DNA lineage)
 - **[MapLibre GL](https://maplibre.org/)** — interactive maps
@@ -154,6 +154,16 @@ npm run format    # fix
 ```
 
 Prettier config (from `package.json`): single quotes, no semicolons, no arrow-function parens for single args, no bracket spacing.
+
+Both `.js` and `.ts` files are linted and formatted.
+
+## TypeScript
+
+TypeScript is optional — new files may be `.ts`, existing `.js` files stay as-is. The two coexist freely.
+
+- Production build compiles `.ts` via `tsc`; dev server transpiles with esbuild (no type-checking)
+- Run `npm run typecheck` for a standalone type-check (also runs in CI)
+- Lit components: use `@customElement`, `@property`, `@state` from `lit/decorators.js`; `experimentalDecorators` and `useDefineForClassFields: false` are already set in `tsconfig.json`
 
 ## Tests
 
