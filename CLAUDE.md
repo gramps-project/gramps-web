@@ -161,7 +161,7 @@ Both `.js` and `.ts` files are linted and formatted.
 
 TypeScript is optional — new files may be `.ts`, existing `.js` files stay as-is. The two coexist freely.
 
-- Production build compiles `.ts` via `tsc`; dev server transpiles with esbuild (no type-checking)
+- Production build compiles `.ts` via `@rollup/plugin-typescript`; dev server transpiles with esbuild (no type-checking)
 - Run `npm run typecheck` for a standalone type-check (also runs in CI)
 - Lit components: use `@customElement`, `@property`, `@state` from `lit/decorators.js`; `experimentalDecorators` and `useDefineForClassFields: false` are already set in `tsconfig.json`
 
