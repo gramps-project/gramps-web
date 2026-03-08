@@ -1,33 +1,61 @@
-import {createSpaConfig} from '@open-wc/building-rollup'
+import {rollupPluginHTML as html} from '@web/rollup-plugin-html'
+import {polyfillsLoader} from '@web/rollup-plugin-polyfills-loader'
+import {generateSW} from 'rollup-plugin-workbox'
+import resolve from '@rollup/plugin-node-resolve'
+import terser from '@rollup/plugin-terser'
 import replace from '@rollup/plugin-replace'
-import merge from 'deepmerge'
 import copy from 'rollup-plugin-copy'
 import versionInjector from 'rollup-plugin-version-injector'
+import path from 'path'
 
 const API_URL = process.env.API_URL === undefined ? '' : process.env.API_URL
 
 const BASE_DIR = process.env.BASE_DIR === undefined ? '' : process.env.BASE_DIR
 
-const baseConfig = createSpaConfig({
-  developmentMode: process.env.ROLLUP_WATCH === 'true',
-  injectServiceWorker: true,
-  workbox: {
-    globIgnores: ['index.html'],
-    navigateFallbackDenylist: [/^\/api.*/],
-    skipWaiting: false,
-    clientsClaim: false,
-  },
-  html: {
-    transform: [
-      html => html.replace('<base href="/">', `<base href="${BASE_DIR}/">`),
+const developmentMode = process.env.ROLLUP_WATCH === 'true'
+
+const outputDir = 'dist'
+
+const swRegistrationScript = `<script>if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').then(function(){console.log('ServiceWorker registered.')}).catch(function(err){console.log('ServiceWorker registration failed: ',err)})})}</script>`
+
+export default {
+  input: './index.html',
+  preserveEntrySignatures: false,
+  treeshake: !developmentMode,
+  external: ['./config.js'],
+  output: {
+    dir: outputDir,
+    format: 'es',
+    entryFileNames: developmentMode ? '[name].js' : '[hash].js',
+    chunkFileNames: developmentMode ? '[name].js' : '[hash].js',
+    assetFileNames: developmentMode ? '[name][extname]' : '[hash][extname]',
+    plugins: [
+      generateSW({
+        globIgnores: ['polyfills/*.js', 'legacy-*.js', 'nomodule-*.js'],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api.*/],
+        swDest: path.join(outputDir, 'sw.js'),
+        globDirectory: outputDir,
+        globPatterns: ['**/*.{html,js,css,webmanifest}'],
+        skipWaiting: false,
+        clientsClaim: false,
+        runtimeCaching: [{urlPattern: 'polyfills/*.js', handler: 'CacheFirst'}],
+      }),
     ],
   },
-})
-
-export default merge(baseConfig, {
-  input: './index.html',
-  external: './config.js',
   plugins: [
+    html({
+      minify: !developmentMode,
+      extractAssets: false,
+      transformHtml: [
+        htmlStr =>
+          htmlStr.replace('<base href="/">', `<base href="${BASE_DIR}/">`),
+        htmlStr => htmlStr.replace('</body>', `${swRegistrationScript}</body>`),
+      ],
+    }),
+    resolve(),
+    !developmentMode && terser({format: {comments: false}}),
+    polyfillsLoader({polyfills: {}, minify: !developmentMode}),
     copy({
       targets: [
         {src: './maplibre-gl.css', dest: 'dist/'},
@@ -47,5 +75,5 @@ export default merge(baseConfig, {
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),
     versionInjector(),
-  ],
-})
+  ].filter(Boolean),
+}
