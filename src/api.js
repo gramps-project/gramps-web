@@ -698,7 +698,6 @@ export class Auth {
 
         if (result.logout_url) {
           window.location.href = result.logout_url
-          return
         }
       } catch (error) {
         // eslint-disable-next-line no-console

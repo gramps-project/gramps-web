@@ -360,8 +360,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     this.focus()
   }
 
-  update(changed) {
-    super.update(changed)
+  willUpdate(changed) {
     if (changed.has('data'))
       if (this.data.length > 0) {
         this.resultsOpen = true
