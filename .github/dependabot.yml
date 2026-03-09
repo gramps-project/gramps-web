@@ -6,7 +6,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 10
     groups:
-      material-web:
+      material:
         patterns:
           - "@material/*"
       lit:
@@ -28,7 +28,7 @@ updates:
           - "eslint"
           - "@eslint/*"
           - "eslint-*"
-          - "typescript-eslint"
+          - "@typescript-eslint/*"
 
   - package-ecosystem: github-actions
     directory: /
