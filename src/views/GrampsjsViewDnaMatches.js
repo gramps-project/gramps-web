@@ -1,6 +1,8 @@
 import {html} from 'lit'
+import {mdiPencil, mdiPlus} from '@mdi/js'
 
 import '@material/web/select/filled-select'
+import '../components/GrampsjsIcon.js'
 
 import '../components/GrampsjsTasks.js'
 import '../components/GrampsjsDnaMatches.js'
@@ -33,8 +35,20 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
 
   renderFab() {
     return this.grampsIdMatch
-      ? html`<mwc-fab icon="edit" @click=${this._handleClickEdit}></mwc-fab>`
-      : html`<mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab>`
+      ? html`<md-fab variant="secondary" @click=${this._handleClickEdit}>
+          <grampsjs-icon
+            slot="icon"
+            .path="${mdiPencil}"
+            color="var(--mdc-theme-on-secondary)"
+          ></grampsjs-icon>
+        </md-fab>`
+      : html`<md-fab variant="secondary" @click=${this._handleClickAdd}>
+          <grampsjs-icon
+            slot="icon"
+            .path="${mdiPlus}"
+            color="var(--mdc-theme-on-secondary)"
+          ></grampsjs-icon>
+        </md-fab>`
   }
 
   // eslint-disable-next-line class-methods-use-this

@@ -1,7 +1,7 @@
 import {html, css} from 'lit'
 
 import '@material/web/select/filled-select'
-import {mdiEye, mdiPencil} from '@mdi/js'
+import {mdiEye, mdiPencil, mdiPlus} from '@mdi/js'
 
 import '../components/GrampsjsYtreeLineage.js'
 import '../components/GrampsjsFormNewYDna.js'
@@ -35,7 +35,13 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
   }
 
   renderFab() {
-    return html`<mwc-fab icon="add" @click="${this._handleClickAdd}"></mwc-fab>`
+    return html`<md-fab variant="secondary" @click="${this._handleClickAdd}">
+      <grampsjs-icon
+        slot="icon"
+        .path="${mdiPlus}"
+        color="var(--mdc-theme-on-secondary)"
+      ></grampsjs-icon>
+    </md-fab>`
   }
 
   get _leafCladeName() {
