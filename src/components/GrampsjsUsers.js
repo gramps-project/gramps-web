@@ -2,6 +2,9 @@ import {html} from 'lit'
 
 import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/text-button.js'
+import '@material/web/button/filled-button.js'
 
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 import {userRoles} from './GrampsjsFormUser.js'
@@ -136,9 +139,9 @@ export class GrampsjsUsers extends GrampsjsTableBase {
   }
 
   _openDialog() {
-    const dialog = this.shadowRoot.querySelector('mwc-dialog')
+    const dialog = this.shadowRoot.querySelector('md-dialog')
     if (dialog !== null) {
-      dialog.open = true
+      dialog.show()
     }
   }
 
@@ -158,34 +161,27 @@ export class GrampsjsUsers extends GrampsjsTableBase {
 
   _importUsersDialog() {
     return html`
-      <mwc-dialog
-        scrimClickAction=""
-        escapeKeyAction=""
-        open
-        heading="${this._('Import user accounts')}"
-      >
-        <grampsjs-form-upload
-          accept=".json"
-          filename
-          @formdata:changed="${this._handleUploadChanged}"
-        ></grampsjs-form-upload>
-
-        <mwc-button
-          slot="primaryAction"
-          dialogAction="ok"
-          ?disabled="${this._userData.length === 0}"
-          @click="${this._handleUpload}"
-        >
-          ${this._('Import')}
-        </mwc-button>
-        <mwc-button
-          slot="secondaryAction"
-          dialogAction="cancel"
-          @click="${this._handleDialogCancel}"
-        >
-          ${this._('Cancel')}
-        </mwc-button>
-      </mwc-dialog>
+      <md-dialog open @cancel="${e => e.preventDefault()}">
+        <span slot="headline">${this._('Import user accounts')}</span>
+        <div slot="content">
+          <grampsjs-form-upload
+            accept=".json"
+            filename
+            @formdata:changed="${this._handleUploadChanged}"
+          ></grampsjs-form-upload>
+        </div>
+        <div slot="actions">
+          <md-text-button @click="${this._handleDialogCancel}">
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-filled-button
+            ?disabled="${this._userData.length === 0}"
+            @click="${this._handleUpload}"
+          >
+            ${this._('Import')}
+          </md-filled-button>
+        </div>
+      </md-dialog>
     `
   }
 
@@ -225,6 +221,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
   _handleDialogCancel() {
     const uploadForm = this.shadowRoot.querySelector('grampsjs-form-upload')
     uploadForm.reset()
+    this.dialogContent = ''
   }
 
   _startDownload() {
@@ -236,76 +233,80 @@ export class GrampsjsUsers extends GrampsjsTableBase {
   _editUserDialog(username) {
     const [user] = this.data.filter(el => el.name === username)
     return html`
-      <mwc-dialog
-        scrimClickAction=""
-        escapeKeyAction=""
-        open
-        heading="${this._('Edit user')} &ndash; ${username}"
-      >
-        <grampsjs-form-user
-          .data="${user}"
-          .appState="${this.appState}"
-          ?ismulti="${this.ismulti}"
-        ></grampsjs-form-user>
-        <mwc-button
-          slot="primaryAction"
-          dialogAction="ok"
-          @click="${this._handleSave}"
-        >
-          ${this._('_Save')}
-        </mwc-button>
-        <mwc-button slot="secondaryAction" dialogAction="cancel">
-          ${this._('Cancel')}
-        </mwc-button>
-      </mwc-dialog>
+      <md-dialog open @cancel="${e => e.preventDefault()}">
+        <span slot="headline">${this._('Edit user')} &ndash; ${username}</span>
+        <div slot="content">
+          <grampsjs-form-user
+            .data="${user}"
+            .appState="${this.appState}"
+            ?ismulti="${this.ismulti}"
+          ></grampsjs-form-user>
+        </div>
+        <div slot="actions">
+          <md-text-button
+            @click="${() => {
+              this.dialogContent = ''
+            }}"
+          >
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-filled-button @click="${this._handleSave}">
+            ${this._('_Save')}
+          </md-filled-button>
+        </div>
+      </md-dialog>
     `
   }
 
   _deleteUserDialog(username) {
     return html`
-      <mwc-dialog scrimClickAction="" escapeKeyAction="" open>
-        <div>
-          ${this._('Do you really want to delete user "%s"?', username)}
+      <md-dialog open @cancel="${e => e.preventDefault()}">
+        <div slot="content">
+          <div>
+            ${this._('Do you really want to delete user "%s"?', username)}
+          </div>
+          <div>${this._('This action cannot be undone.')}</div>
         </div>
-        <div>${this._('This action cannot be undone.')}</div>
-        <mwc-button
-          slot="primaryAction"
-          dialogAction="delete"
-          @click="${() => this._handleDelete(username)}"
-        >
-          ${this._('_Delete')}
-        </mwc-button>
-        <mwc-button slot="secondaryAction" dialogAction="cancel">
-          ${this._('Cancel')}
-        </mwc-button>
-      </mwc-dialog>
+        <div slot="actions">
+          <md-text-button
+            @click="${() => {
+              this.dialogContent = ''
+            }}"
+          >
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-text-button @click="${() => this._handleDelete(username)}">
+            ${this._('_Delete')}
+          </md-text-button>
+        </div>
+      </md-dialog>
     `
   }
 
   _addUserDialog() {
     return html`
-      <mwc-dialog
-        scrimClickAction=""
-        escapeKeyAction=""
-        open
-        heading="${this._('Add a new user')}"
-      >
-        <grampsjs-form-user
-          newUser
-          .appState="${this.appState}"
-          ?ismulti="${this.ismulti}"
-        ></grampsjs-form-user>
-        <mwc-button
-          slot="primaryAction"
-          dialogAction="ok"
-          @click="${this._handleSave}"
-        >
-          ${this._('_Save')}
-        </mwc-button>
-        <mwc-button slot="secondaryAction" dialogAction="cancel">
-          ${this._('Cancel')}
-        </mwc-button>
-      </mwc-dialog>
+      <md-dialog open @cancel="${e => e.preventDefault()}">
+        <span slot="headline">${this._('Add a new user')}</span>
+        <div slot="content">
+          <grampsjs-form-user
+            newUser
+            .appState="${this.appState}"
+            ?ismulti="${this.ismulti}"
+          ></grampsjs-form-user>
+        </div>
+        <div slot="actions">
+          <md-text-button
+            @click="${() => {
+              this.dialogContent = ''
+            }}"
+          >
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-filled-button @click="${this._handleSave}">
+            ${this._('_Save')}
+          </md-filled-button>
+        </div>
+      </md-dialog>
     `
   }
 
