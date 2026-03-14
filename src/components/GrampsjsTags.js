@@ -6,7 +6,6 @@ import '@material/web/chips/chip-set'
 import '@material/web/chips/input-chip'
 import '@material/web/chips/assist-chip'
 import '@material/web/iconbutton/icon-button.js'
-import '@material/web/icon/icon.js'
 import {mdiTagPlus} from '@mdi/js'
 
 import {fireEvent} from '../util.js'
