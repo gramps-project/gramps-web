@@ -1,7 +1,6 @@
 import {html} from 'lit'
 
 import '@material/mwc-select'
-import '@material/mwc-dialog'
 import '@material/mwc-list/mwc-list-item'
 
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'

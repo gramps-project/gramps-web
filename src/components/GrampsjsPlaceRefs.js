@@ -5,7 +5,6 @@ import './GrampsjsFormPlaceRef.js'
 import {fireEvent} from '../util.js'
 
 import '@material/mwc-icon-button'
-import '@material/mwc-dialog'
 import '@material/mwc-button'
 
 export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
