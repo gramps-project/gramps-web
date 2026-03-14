@@ -216,6 +216,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     const uploadForm = this.shadowRoot.querySelector('grampsjs-form-upload')
     fireEvent(this, 'user:added-multiple', this._userData)
     uploadForm.reset()
+    this.dialogContent = ''
   }
 
   _handleDialogCancel() {
@@ -323,6 +324,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
 
   _handleDelete(username) {
     fireEvent(this, 'user:deleted', username)
+    this.dialogContent = ''
   }
 
   updated(changed) {
