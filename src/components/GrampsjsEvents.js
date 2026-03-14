@@ -7,7 +7,6 @@ import './GrampsjsFormEventRef.js'
 import './GrampsjsFormNewEvent.js'
 import './GrampsjsObjectForm.js'
 import '@material/mwc-icon-button'
-import '@material/mwc-dialog'
 import '@material/mwc-button'
 
 export class GrampsjsEvents extends GrampsjsEditableList {

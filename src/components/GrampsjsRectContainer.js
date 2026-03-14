@@ -3,7 +3,6 @@ import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import '@material/mwc-icon-button'
-import '@material/mwc-dialog'
 
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsFormSelectObjectList.js'

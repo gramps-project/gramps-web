@@ -126,7 +126,6 @@
     "@hpcc-js/wasm": "^2.22.4",
     "@material/mwc-button": "^0.27.0",
     "@material/mwc-circular-progress": "^0.27.0",
-    "@material/mwc-dialog": "^0.27.0",
     "@material/mwc-drawer": "^0.27.0",
     "@material/mwc-formfield": "^0.27.0",
     "@material/mwc-icon": "^0.27.0",

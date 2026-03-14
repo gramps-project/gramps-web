@@ -1,7 +1,8 @@
 import {html, css, LitElement} from 'lit'
 import {live} from 'lit/directives/live.js'
 
-import '@material/mwc-dialog'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/filled-button.js'
 import '@material/mwc-textfield'
 import '@material/mwc-icon'
 import '@material/mwc-button'
@@ -209,7 +210,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     this.initialData = {_class: 'StyledText', string: '', tags: []}
     this.data = {_class: 'StyledText', string: '', tags: []}
     this.cursorPosition = [0]
-    this._dialogContent = ''
+    this._dialogContent = null
     this._html = ''
     this._showDraftBanner = false
     this._draftTimestamp = 0
@@ -490,39 +491,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleLink(pos) {
-    this._dialogContent = html`
-      <p>
-        <mwc-textfield
-          id="linkurl"
-          label="URL"
-          style="width:100%"
-        ></mwc-textfield>
-      </p>
-      <p>
-        <grampsjs-form-select-object
-          fixedMenuPosition
-          @select-object:changed="${this._handleSelectObjectsChanged}"
-          .appState="${this.appState}"
-          id="link-select"
-          label="${this._('Select')}"
-        ></grampsjs-form-select-object>
-      </p>
-
-      <mwc-button
-        slot="primaryAction"
-        dialogAction="ok"
-        @click="${() => this._handleDialogSave(pos)}"
-      >
-        ${this._('_Save')}
-      </mwc-button>
-      <mwc-button
-        slot="secondaryAction"
-        dialogAction="cancel"
-        @click="${this._handleDialogCancel}"
-      >
-        ${this._('Cancel')}
-      </mwc-button>
-    `
+    this._dialogContent = {pos}
     this._openDialog()
   }
 
@@ -537,33 +506,66 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
-  _handleDialogSave(pos) {
+  _handleDialogSave() {
     const url = this.shadowRoot.querySelector('#linkurl')
     if (url === null) {
       return
     }
+    const pos = this._dialogContent?.pos
     const {value} = url
-    if (value) {
+    if (value && pos) {
       // first remove, then add, to prevent overlapping tags
       this._removeTag('link', pos)
       this._insertTag('link', pos, value)
       this.handleChange()
     }
-    this._dialogContent = ''
+    this._dialogContent = null
+    this.shadowRoot.querySelector('md-dialog').close()
   }
 
   _handleDialogCancel() {
-    this._dialogContent = ''
+    this._dialogContent = null
+    this.shadowRoot.querySelector('md-dialog').close()
   }
 
   _renderLinkDialog() {
-    return html` <mwc-dialog> ${this._dialogContent} </mwc-dialog> `
+    return html`
+      <md-dialog @cancel="${e => e.preventDefault()}">
+        <span slot="headline">${this._('Link')}</span>
+        <div slot="content">
+          <p>
+            <mwc-textfield
+              id="linkurl"
+              label="URL"
+              style="width:100%"
+            ></mwc-textfield>
+          </p>
+          <p>
+            <grampsjs-form-select-object
+              fixedMenuPosition
+              @select-object:changed="${this._handleSelectObjectsChanged}"
+              .appState="${this.appState}"
+              id="link-select"
+              label="${this._('Select')}"
+            ></grampsjs-form-select-object>
+          </p>
+        </div>
+        <div slot="actions">
+          <md-text-button @click="${this._handleDialogCancel}">
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-filled-button @click="${this._handleDialogSave}">
+            ${this._('_Save')}
+          </md-filled-button>
+        </div>
+      </md-dialog>
+    `
   }
 
   _openDialog() {
-    const dialog = this.shadowRoot.querySelector('mwc-dialog')
+    const dialog = this.shadowRoot.querySelector('md-dialog')
     if (dialog !== null) {
-      dialog.open = true
+      dialog.show()
     }
   }
 
