@@ -5,17 +5,26 @@ The dropdown menu for adding objects in the top app bar
 import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
-import '@material/mwc-checkbox'
-import '@material/mwc-icon'
-import '@material/mwc-button'
-import '@material/mwc-icon-button'
-import '@material/mwc-list'
-import '@material/mwc-list/mwc-list-item'
-import '@material/mwc-list/mwc-check-list-item'
+import '@material/web/checkbox/checkbox'
+import '@material/web/button/outlined-button'
+import '@material/web/menu/menu'
+import '@material/web/menu/menu-item'
+
+import {
+  mdiRadioboxBlank,
+  mdiTimelapse,
+  mdiMinusCircle,
+  mdiCheckCircle,
+  mdiHelp,
+  mdiChevronDoubleDown,
+  mdiAdjust,
+  mdiChevronDoubleUp,
+} from '@mdi/js'
 
 import './GrampsjsFilters.js'
 import './GrampsjsFilterTags.js'
 import './GrampsjsTagsSmall.js'
+import './GrampsjsIcon.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {clickKeyHandler, fireEvent} from '../util.js'
@@ -25,18 +34,22 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        mwc-list {
-          --mdc-typography-subtitle1-font-size: 15px;
+        .tasks-list {
+          font-size: 15px;
           margin-bottom: 85px;
         }
 
-        mwc-check-list-item {
+        .task-item {
           border-top: 1px solid var(--grampsjs-body-font-color-10);
-          height: auto;
+          display: flex;
+          align-items: center;
           width: 100%;
+          box-sizing: border-box;
+          padding-left: 10px;
+          gap: 8px;
         }
 
-        mwc-check-list-item:last-child {
+        .task-item:last-child {
           border-bottom: 1px solid var(--grampsjs-body-font-color-10);
         }
 
@@ -62,10 +75,13 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           display: flex;
           align-items: center;
           justify-content: center;
+          flex: 1;
         }
 
         .status-icon {
           width: 32px;
+          display: flex;
+          align-items: center;
         }
 
         .title {
@@ -86,8 +102,8 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           word-wrap: break-word;
         }
 
-        mwc-checkbox#select-all {
-          margin-right: 8px;
+        md-checkbox#select-all {
+          margin-right: 16px;
         }
 
         .filters {
@@ -98,18 +114,11 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           padding-left: 10px;
           display: flex;
           align-items: center;
-          margin-bottom: 8px;
+          margin-bottom: 16px;
         }
 
-        mwc-check-list-item mwc-icon {
-          color: var(--grampsjs-body-font-color-30);
-          --mdc-icon-size: 20px;
-        }
-
-        .status-icon mwc-icon {
+        .status-icon grampsjs-icon {
           margin-right: 12px;
-          position: relative;
-          top: 3px;
         }
 
         .success {
@@ -141,11 +150,36 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           text-decoration: line-through !important;
         }
 
-        .taskbar mwc-button {
+        .taskbar md-outlined-button {
           margin-right: 8px;
         }
 
-        .prio-icon mwc-icon {
+        md-outlined-button {
+          --md-outlined-button-outline-color: var(--md-sys-color-secondary);
+          --md-outlined-button-label-text-color: var(--md-sys-color-secondary);
+          --md-outlined-button-hover-outline-color: var(
+            --md-sys-color-secondary
+          );
+          --md-outlined-button-focus-outline-color: var(
+            --md-sys-color-secondary
+          );
+          --md-outlined-button-hover-label-text-color: var(
+            --md-sys-color-secondary
+          );
+          --md-outlined-button-focus-label-text-color: var(
+            --md-sys-color-secondary
+          );
+          --md-outlined-button-pressed-label-text-color: var(
+            --md-sys-color-secondary
+          );
+        }
+
+        md-checkbox {
+          --md-sys-color-primary: var(--md-sys-color-secondary);
+          --md-sys-color-on-primary: var(--md-sys-color-on-secondary);
+        }
+
+        .prio-icon grampsjs-icon {
           padding-left: 8px;
           position: relative;
           top: 2px;
@@ -153,6 +187,10 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
 
         grampsjs-tags-small {
           margin-left: 1em;
+        }
+
+        .task-meta {
+          padding-right: 8px;
         }
       `,
     ]
@@ -194,70 +232,61 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
   _renderTaskBar() {
     return html`
       <div class="taskbar">
-        <mwc-checkbox
+        <md-checkbox
           id="select-all"
           @change="${this._handleSelectAll}"
           ?checked=${this._selected.length > 0}
-        ></mwc-checkbox>
+        ></md-checkbox>
         <div style="position: relative; display: inline-block;">
-          <mwc-button
+          <md-outlined-button
             id="prio-btn"
-            outlined
             class="edit"
             ?disabled="${this._selected.length === 0}"
             @click="${this._handleSetPrioClick}"
-            >${this._('Set Priority')}</mwc-button
+            >${this._('Set Priority')}</md-outlined-button
           >
-          <mwc-menu
-            @action="${this._handlePrioSet}"
-            id="prio-menu"
-            .anchor=${this.prioBtn}
-            x="0"
-            y="40"
-          >
-            <mwc-list-item>${this._('High')}</mwc-list-item>
-            <mwc-list-item>${this._('Medium')}</mwc-list-item>
-            <mwc-list-item>${this._('Low')}</mwc-list-item>
-          </mwc-menu>
+          <md-menu id="prio-menu" anchor="prio-btn">
+            <md-menu-item @click="${() => this._handlePrioSet('1')}">
+              <div slot="headline">${this._('High')}</div>
+            </md-menu-item>
+            <md-menu-item @click="${() => this._handlePrioSet('5')}">
+              <div slot="headline">${this._('Medium')}</div>
+            </md-menu-item>
+            <md-menu-item @click="${() => this._handlePrioSet('9')}">
+              <div slot="headline">${this._('Low')}</div>
+            </md-menu-item>
+          </md-menu>
         </div>
         <div style="position: relative; display: inline-block;">
-          <mwc-button
-            id="prio-btn"
-            outlined
+          <md-outlined-button
+            id="status-btn"
             class="edit"
             ?disabled="${this._selected.length === 0}"
             @click="${this._handleSetStatusClick}"
-            >${this._('Set Status')}</mwc-button
+            >${this._('Set Status')}</md-outlined-button
           >
-          <mwc-menu
-            @action="${this._handleStatusSet}"
-            id="status-menu"
-            .anchor=${this.statusBtn}
-            x="0"
-            y="40"
-          >
-            <mwc-list-item>${this._('Open')}</mwc-list-item>
-            <mwc-list-item>${this._('In Progress')}</mwc-list-item>
-            <mwc-list-item>${this._('Blocked')}</mwc-list-item>
-            <mwc-list-item>${this._('Done')}</mwc-list-item>
-          </mwc-menu>
+          <md-menu id="status-menu" anchor="status-btn">
+            <md-menu-item @click="${() => this._handleStatusSet('Open')}">
+              <div slot="headline">${this._('Open')}</div>
+            </md-menu-item>
+            <md-menu-item
+              @click="${() => this._handleStatusSet('In Progress')}"
+            >
+              <div slot="headline">${this._('In Progress')}</div>
+            </md-menu-item>
+            <md-menu-item @click="${() => this._handleStatusSet('Blocked')}">
+              <div slot="headline">${this._('Blocked')}</div>
+            </md-menu-item>
+            <md-menu-item @click="${() => this._handleStatusSet('Done')}">
+              <div slot="headline">${this._('Done')}</div>
+            </md-menu-item>
+          </md-menu>
         </div>
       </div>
     `
   }
 
-  get prioBtn() {
-    return this.renderRoot.getElementById('prio-btn')
-  }
-
-  get statusBtn() {
-    return this.renderRoot.getElementById('status-btn')
-  }
-
-  _handlePrioSet(e) {
-    this.renderRoot.getElementById('prio-menu').select(null)
-    const values = {0: '1', 1: '5', 2: '9'}
-    const value = values[e.detail.index]
+  _handlePrioSet(value) {
     if (value) {
       this._updateAttributes(this._selected, 'Priority', value)
     }
@@ -269,10 +298,7 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
     menu.open = true
   }
 
-  _handleStatusSet(e) {
-    this.renderRoot.getElementById('prio-menu').select(null)
-    const values = {0: 'Open', 1: 'In Progress', 2: 'Blocked', 3: 'Done'}
-    const value = values[e.detail.index]
+  _handleStatusSet(value) {
     if (value) {
       this._updateAttributes(this._selected, 'Status', value)
     }
@@ -285,13 +311,21 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _renderTaskList(data) {
-    return html` <mwc-list multi @action="${this._handleAction}" id="all-tasks">
-      ${data.map((obj, i) => this._renderTask(obj, i))}
-    </mwc-list>`
+    return html`
+      <div class="tasks-list" id="all-tasks">
+        ${data.map((obj, i) => this._renderTask(obj, i))}
+      </div>
+    `
   }
 
-  _handleAction(e) {
-    this._selected = [...e.target.index]
+  _handleItemCheck(e, i) {
+    if (e.target.checked) {
+      if (!this._selected.includes(i)) {
+        this._selected = [...this._selected, i]
+      }
+    } else {
+      this._selected = this._selected.filter(s => s !== i)
+    }
   }
 
   _handleSelectAll() {
@@ -306,17 +340,40 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
   _statusIcon(status, handle) {
     const id = `status-icon-${handle}`
     const icons = {
-      Open: html`<mwc-icon class="open" id="${id}"
-        >radio_button_unchecked</mwc-icon
-      >`,
-      'In Progress': html`<mwc-icon class="progress" id="${id}"
-        >timelapse</mwc-icon
-      >`,
-      Blocked: html`<mwc-icon class="blocked" id="${id}"
-        >remove_circle</mwc-icon
-      >`,
-      Done: html`<mwc-icon class="done" id="${id}">check_circle</mwc-icon>`,
-      unknown: html`<mwc-icon class="" id="${id}">help</mwc-icon>`,
+      Open: html`<grampsjs-icon
+        path="${mdiRadioboxBlank}"
+        color="var(--grampsjs-task-open)"
+        id="${id}"
+        height="20"
+        width="20"
+      ></grampsjs-icon>`,
+      'In Progress': html`<grampsjs-icon
+        path="${mdiTimelapse}"
+        color="var(--grampsjs-task-progress)"
+        id="${id}"
+        height="20"
+        width="20"
+      ></grampsjs-icon>`,
+      Blocked: html`<grampsjs-icon
+        path="${mdiMinusCircle}"
+        color="var(--grampsjs-alert-error-font-color)"
+        id="${id}"
+        height="20"
+        width="20"
+      ></grampsjs-icon>`,
+      Done: html`<grampsjs-icon
+        path="${mdiCheckCircle}"
+        color="var(--grampsjs-task-done)"
+        id="${id}"
+        height="20"
+        width="20"
+      ></grampsjs-icon>`,
+      unknown: html`<grampsjs-icon
+        path="${mdiHelp}"
+        id="${id}"
+        height="20"
+        width="20"
+      ></grampsjs-icon>`,
     }
     const icon = icons[status] || icons.unknown
     return html`
@@ -341,13 +398,26 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
       return ''
     }
     const icons = {
-      Low: html`<mwc-icon class="success" id="${id}"
-        >keyboard_double_arrow_down</mwc-icon
-      >`,
-      Medium: html`<mwc-icon id="${id}">adjust</mwc-icon>`,
-      High: html`<mwc-icon class="error" id="${id}"
-        >keyboard_double_arrow_up</mwc-icon
-      >`,
+      Low: html`<grampsjs-icon
+        path="${mdiChevronDoubleDown}"
+        color="var(--grampsjs-alert-success-font-color)"
+        id="${id}"
+        height="20"
+        width="20"
+      ></grampsjs-icon>`,
+      Medium: html`<grampsjs-icon
+        path="${mdiAdjust}"
+        id="${id}"
+        height="20"
+        width="20"
+      ></grampsjs-icon>`,
+      High: html`<grampsjs-icon
+        path="${mdiChevronDoubleUp}"
+        color="var(--grampsjs-alert-error-font-color)"
+        id="${id}"
+        height="20"
+        width="20"
+      ></grampsjs-icon>`,
     }
     const icon = icons[label]
     return html`
@@ -370,13 +440,14 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
     const status = this._getAttribute(obj, 'Status')
     const priority = this._getAttribute(obj, 'Priority')
     return html`
-      <mwc-check-list-item
-        left
-        hasMeta
-        graphic=""
-        ?selected="${this._selected.includes(i)}"
+      <div
+        class="task-item"
         @keydown="${e => this._handleListKeyDown(e, obj.gramps_id)}"
       >
+        <md-checkbox
+          ?checked="${this._selected.includes(i)}"
+          @change="${e => this._handleItemCheck(e, i)}"
+        ></md-checkbox>
         <div class="item-content">
           <div class="status-icon">${this._statusIcon(status, obj.handle)}</div>
           <div class="title">
@@ -394,12 +465,12 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
             ></grampsjs-tags-small>
           </div>
         </div>
-        <div slot="meta">
+        <div class="task-meta">
           <span class="prio-icon"
             >${this._priorityIcon(priority, obj.handle)}</span
           >
         </div>
-      </mwc-check-list-item>
+      </div>
     `
   }
 
