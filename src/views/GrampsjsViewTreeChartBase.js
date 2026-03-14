@@ -2,6 +2,8 @@ import {css, html} from 'lit'
 import {map} from 'lit/directives/map.js'
 
 import '@material/mwc-textfield'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/text-button.js'
 
 import {mdiAccountDetails, mdiHomeAccount} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
@@ -152,23 +154,24 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
           for="btn-controls"
           .appState="${this.appState}"
         >${this._('Preferences')}</grampsjs-tooltip>
-    <mwc-dialog id="menu-controls">
-          <table>
-          ${
-            this._setAnc
-              ? html` <tr>
-                  <td>${this._('Max Ancestor Generations')}</td>
-                  <td>
-                    <mwc-textfield
-                      value=${this.nAnc}
-                      type="number"
-                      min="1"
-                      @change=${this._handleChangeAnc}
-                    ></mwc-textfield>
-                  </td>
-                </tr>`
-              : ''
-          }${
+    <md-dialog id="menu-controls">
+          <div slot="content">
+            <table>
+            ${
+              this._setAnc
+                ? html` <tr>
+                    <td>${this._('Max Ancestor Generations')}</td>
+                    <td>
+                      <mwc-textfield
+                        value=${this.nAnc}
+                        type="number"
+                        min="1"
+                        @change=${this._handleChangeAnc}
+                      ></mwc-textfield>
+                    </td>
+                  </tr>`
+                : ''
+            }${
       this._setDesc
         ? html`
             <tr>
@@ -218,33 +221,36 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
           `
         : ''
     }
-            <tr>
-              <td>${this._('Name Display Format')}</td>
-              <td>
-                  <mwc-select
-                    fixedMenuPosition
-                    id="name-display-format"
-                    @change=${this._handleChangeNameDisplayFormat}
-                  >
-                    ${map(
-                      Object.values(chartNameDisplayFormat),
-                      i => html` <mwc-list-item
-                        value="${i}"
-                        ?selected="${i === this.nameDisplayFormat}"
-                        >${this._(i)}</mwc-list-item
-                      >`
-                    )}
-                  </mwc-select>
-              </td>
-            </tr>
-          </table>
-          <mwc-button slot="primaryAction" dialogAction="close"
-            >${this._('done')}</mwc-button
-          >
-          <mwc-button slot="secondaryAction" @click="${this._resetLevels}"
-            >${this._('Reset')}</mwc-button
-          >
-        </mwc-dialog>
+              <tr>
+                <td>${this._('Name Display Format')}</td>
+                <td>
+                    <mwc-select
+                      fixedMenuPosition
+                      id="name-display-format"
+                      @change=${this._handleChangeNameDisplayFormat}
+                    >
+                      ${map(
+                        Object.values(chartNameDisplayFormat),
+                        i => html` <mwc-list-item
+                          value="${i}"
+                          ?selected="${i === this.nameDisplayFormat}"
+                          >${this._(i)}</mwc-list-item
+                        >`
+                      )}
+                    </mwc-select>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div slot="actions">
+            <md-text-button @click="${this._resetLevels}"
+              >${this._('Reset')}</md-text-button
+            >
+            <md-text-button @click="${this._closeMenuControls}"
+              >${this._('Close')}</md-text-button
+            >
+          </div>
+        </md-dialog>
       </div>
 
     `
@@ -332,7 +338,10 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
   }
 
   _openMenuControls() {
-    const menu = this.shadowRoot.getElementById('menu-controls')
-    menu.open = true
+    this.shadowRoot.getElementById('menu-controls').show()
+  }
+
+  _closeMenuControls() {
+    this.shadowRoot.getElementById('menu-controls').close()
   }
 }

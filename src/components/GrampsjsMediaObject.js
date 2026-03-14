@@ -13,7 +13,6 @@ import './GrampsjsTextRecognition.js'
 import {arrayEqual, fireEvent, getNameFromProfile, emptyDate} from '../util.js'
 import {renderIconSvg} from '../icons.js'
 
-import '@material/mwc-dialog'
 import '@material/mwc-icon'
 import '@material/mwc-icon-button'
 

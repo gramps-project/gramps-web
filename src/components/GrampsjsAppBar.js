@@ -7,7 +7,8 @@ import {classMap} from 'lit/directives/class-map.js'
 import '@material/mwc-top-app-bar'
 import '@material/mwc-icon-button'
 import '@material/mwc-icon'
-import '@material/mwc-dialog'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/text-button.js'
 
 import './GrampsjsAddMenu.js'
 import './GrampsjsSettingsMenu.js'
@@ -165,15 +166,17 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
   _handleCloseRequest() {
     if (this.saveButton) {
       this.editDialogContent = html`
-        <mwc-dialog open @closed="${this._handleDialog}">
-          <div>${this._('Abort changes?')}</div>
-          <mwc-button slot="primaryAction" dialogAction="discard">
-            ${this._('Discard')}
-          </mwc-button>
-          <mwc-button slot="secondaryAction" dialogAction="cancel">
-            ${this._('Cancel')}
-          </mwc-button>
-        </mwc-dialog>
+        <md-dialog open @cancel="${e => e.preventDefault()}">
+          <div slot="content">${this._('Abort changes?')}</div>
+          <div slot="actions">
+            <md-text-button @click="${() => this._handleDialogCancel()}">
+              ${this._('Cancel')}
+            </md-text-button>
+            <md-text-button @click="${() => this._handleDialogDiscard()}">
+              ${this._('Discard')}
+            </md-text-button>
+          </div>
+        </md-dialog>
       `
     } else {
       this._editModeOff()
@@ -182,26 +185,32 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
 
   _handleDeleteIcon() {
     this.editDialogContent = html`
-      <mwc-dialog open @closed="${this._handleDialog}">
-        <div>${this._('Delete this object?')}</div>
-        <mwc-button slot="primaryAction" dialogAction="delete">
-          ${this._('_Delete')}
-        </mwc-button>
-        <mwc-button slot="secondaryAction" dialogAction="cancel">
-          ${this._('Cancel')}
-        </mwc-button>
-      </mwc-dialog>
+      <md-dialog open @cancel="${e => e.preventDefault()}">
+        <div slot="content">${this._('Delete this object?')}</div>
+        <div slot="actions">
+          <md-text-button @click="${() => this._handleDialogCancel()}">
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-text-button @click="${() => this._handleDialogDelete()}">
+            ${this._('_Delete')}
+          </md-text-button>
+        </div>
+      </md-dialog>
     `
   }
 
-  _handleDialog(e) {
-    if (e.detail.action === 'discard') {
-      fireEvent(this, 'edit:cancel', {})
-      this._editModeOff()
-    } else if (e.detail.action === 'delete') {
-      this._deleteObject()
-    }
+  _handleDialogCancel() {
+    this.editDialogContent = ''
+  }
 
+  _handleDialogDiscard() {
+    fireEvent(this, 'edit:cancel', {})
+    this._editModeOff()
+    this.editDialogContent = ''
+  }
+
+  _handleDialogDelete() {
+    this._deleteObject()
     this.editDialogContent = ''
   }
 

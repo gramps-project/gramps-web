@@ -10,10 +10,10 @@ export class GrampsjsFormNewNote extends GrampsjsNewNoteMixin(
     return [
       super.styles,
       css`
-        mwc-dialog {
-          --mdc-dialog-max-width: min(1200px, 95vw);
-          --mdc-dialog-min-width: min(1200px, 95vw);
-          --mdc-dialog-max-height: 95vh;
+        md-dialog {
+          --md-dialog-container-max-inline-size: min(1200px, 95vw);
+          --md-dialog-container-min-inline-size: min(1200px, 95vw);
+          max-block-size: 95vh;
         }
       `,
     ]

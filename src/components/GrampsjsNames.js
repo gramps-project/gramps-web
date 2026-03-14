@@ -1,8 +1,9 @@
 import {html} from 'lit'
 
 import '@material/mwc-button'
-import '@material/mwc-dialog'
 import '@material/mwc-icon-button'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/text-button.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditName.js'
@@ -58,19 +59,21 @@ export class GrampsjsNames extends GrampsjsEditableList {
   _handleDelete() {
     const handle = this._selectedIndex
     this.dialogContent = html`
-      <mwc-dialog
-        open
-        @closed="${e => this._handleDialog(handle, e)}"
-        heading="${this._('Are you sure?')}"
-      >
-        <div>${this._('This action cannot be undone.')}</div>
-        <mwc-button slot="primaryAction" dialogAction="confirm">
-          ${this._('Yes')}
-        </mwc-button>
-        <mwc-button slot="secondaryAction" dialogAction="cancel">
-          ${this._('Cancel')}
-        </mwc-button>
-      </mwc-dialog>
+      <md-dialog open @cancel="${e => e.preventDefault()}">
+        <span slot="headline">${this._('Are you sure?')}</span>
+        <div slot="content">${this._('This action cannot be undone.')}</div>
+        <div slot="actions">
+          <md-text-button @click="${() => this._handleNameCancel()}">
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-text-button
+            @click="${() =>
+              this._handleNameDelete(handle, new Event('confirm'))}"
+          >
+            ${this._('Yes')}
+          </md-text-button>
+        </div>
+      </md-dialog>
     `
   }
 
@@ -102,14 +105,6 @@ export class GrampsjsNames extends GrampsjsEditableList {
       >
       </grampsjs-form-edit-name>
     `
-  }
-
-  _handleDialog(handle, e) {
-    if (e.detail.action === 'confirm') {
-      this._handleNameDelete(handle, e)
-    } else if (e.detail.action === 'cancel') {
-      this._handleNameCancel()
-    }
   }
 
   _handleNameAdd(e) {

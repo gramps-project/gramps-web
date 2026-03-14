@@ -1,7 +1,7 @@
 import {css, html} from 'lit'
 import '@material/mwc-icon'
 import '@material/mwc-circular-progress'
-import '@material/mwc-dialog'
+import '@material/web/dialog/dialog.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
@@ -81,17 +81,19 @@ export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
       <mwc-icon class="error link" @click="${this._handleErrorClick}"
         >error</mwc-icon
       >
-      <mwc-dialog hideActions
-        >${objects.map(
-          obj =>
-            html`<a href="/media/${obj.gramps_id}">${obj.gramps_id}</a></br>`
-        )}</mwc-dialog
-      >
+      <md-dialog>
+        <div slot="content">
+          ${objects.map(
+            obj =>
+              html`<a href="/media/${obj.gramps_id}">${obj.gramps_id}</a></br>`
+          )}
+        </div>
+      </md-dialog>
     `
   }
 
   _handleErrorClick() {
-    this.renderRoot.querySelector('mwc-dialog').open = true
+    this.renderRoot.querySelector('md-dialog').show()
   }
 
   // eslint-disable-next-line class-methods-use-this
