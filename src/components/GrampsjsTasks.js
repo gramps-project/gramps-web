@@ -245,11 +245,7 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
             @click="${this._handleSetPrioClick}"
             >${this._('Set Priority')}</md-outlined-button
           >
-          <md-menu
-            @close-menu="${this._handlePrioMenuClose}"
-            id="prio-menu"
-            anchor="prio-btn"
-          >
+          <md-menu id="prio-menu" anchor="prio-btn">
             <md-menu-item @click="${() => this._handlePrioSet('1')}">
               <div slot="headline">${this._('High')}</div>
             </md-menu-item>
@@ -269,11 +265,7 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
             @click="${this._handleSetStatusClick}"
             >${this._('Set Status')}</md-outlined-button
           >
-          <md-menu
-            @close-menu="${this._handleStatusMenuClose}"
-            id="status-menu"
-            anchor="status-btn"
-          >
+          <md-menu id="status-menu" anchor="status-btn">
             <md-menu-item @click="${() => this._handleStatusSet('Open')}">
               <div slot="headline">${this._('Open')}</div>
             </md-menu-item>
@@ -292,14 +284,6 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         </div>
       </div>
     `
-  }
-
-  _handlePrioMenuClose() {
-    // md-menu closes automatically; nothing to deselect
-  }
-
-  _handleStatusMenuClose() {
-    // md-menu closes automatically; nothing to deselect
   }
 
   _handlePrioSet(value) {
