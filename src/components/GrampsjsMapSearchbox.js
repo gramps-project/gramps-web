@@ -1,12 +1,20 @@
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-icon'
-import '@material/mwc-list'
-import '@material/mwc-list/mwc-list-item'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
+import '@material/web/list/list'
+import '@material/web/list/list-item'
 import '@material/web/textfield/outlined-text-field'
 import '@material/web/dialog/dialog'
 import '@material/web/button/text-button'
 import '@material/web/switch/switch'
+
+import {
+  mdiClose,
+  mdiMagnify,
+  mdiFilterVariant,
+  mdiMapMarker,
+  mdiMapMarkerOff,
+} from '@mdi/js'
+import './GrampsjsIcon.js'
 
 import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
@@ -35,22 +43,13 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           width: 350px;
           top: 90px;
           padding: 0px;
-          --mdc-text-field-outlined-idle-border-color: var(
-            --grampsjs-body-font-color-20
-          );
-          --mdc-text-field-outlined-hover-border-color: var(
-            --grampsjs-body-font-color-38
-          );
-          --mdc-text-field-outlined-disabled-border-color: var(
-            --grampsjs-body-font-color-6
-          );
         }
 
         md-outlined-text-field {
           width: 100%;
         }
 
-        md-outlined-text-field mwc-icon-button {
+        md-outlined-text-field md-icon-button {
           color: var(--grampsjs-body-font-color-50);
         }
 
@@ -96,10 +95,6 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
 
         #searchresult-content {
           font-size: 14px;
-        }
-
-        #searchresult-content mwc-list-item {
-          --mdc-list-item-graphic-margin: 16px;
         }
 
         .hidden {
@@ -173,16 +168,14 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
             <div slot="trailing-icon">
               ${this._showClearButton
                 ? html`
-                    <mwc-icon-button
-                      icon="clear"
-                      @click="${this._handleClear}"
-                    ></mwc-icon-button>
+                    <md-icon-button @click="${this._handleClear}">
+                      <grampsjs-icon path="${mdiClose}"></grampsjs-icon>
+                    </md-icon-button>
                   `
                 : html`
-                    <mwc-icon-button
-                      icon="search"
-                      @click="${this._handleInput}"
-                    ></mwc-icon-button>
+                    <md-icon-button @click="${this._handleInput}">
+                      <grampsjs-icon path="${mdiMagnify}"></grampsjs-icon>
+                    </md-icon-button>
                   `}
               <div style="position: relative; display: inline-block;">
                 ${filterHasBadge
@@ -202,10 +195,9 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
                       </svg>
                     `
                   : ''}
-                <mwc-icon-button
-                  icon="filter_alt"
-                  @click="${this._handleFilter}"
-                ></mwc-icon-button>
+                <md-icon-button @click="${this._handleFilter}">
+                  <grampsjs-icon path="${mdiFilterVariant}"></grampsjs-icon>
+                </md-icon-button>
               </div>
             </div>
           </md-outlined-text-field>
@@ -216,30 +208,29 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _renderResults() {
     return html`
       <div id="searchresult">
         <div id="searchresult-content">
-          <mwc-list id="searchresult-list" @selected="${this._handleSelected}">
-            ${this.data.map(this._renderListItem)}
-          </mwc-list>
+          <md-list id="searchresult-list">
+            ${this.data.map((obj, i) => this._renderListItem(obj, i))}
+          </md-list>
         </div>
       </div>
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  _renderListItem(obj) {
+  _renderListItem(obj, i) {
     return html`
-      <mwc-list-item graphic="icon">
+      <md-list-item type="button" @click="${() => this._handleSelected(i)}">
         ${obj.object?.profile?.name || ''}
-        <mwc-icon slot="graphic"
-          >${obj.object.lat && obj.object.long
-            ? 'place'
-            : 'location_off'}</mwc-icon
-        >
-      </mwc-list-item>
+        <grampsjs-icon
+          slot="start"
+          path="${obj.object.lat && obj.object.long
+            ? mdiMapMarker
+            : mdiMapMarkerOff}"
+        ></grampsjs-icon>
+      </md-list-item>
     `
   }
 
@@ -296,7 +287,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
   _handleKeyDown(event) {
     if (event.code === 'ArrowDown') {
       const lst = this.renderRoot.querySelector(
-        '#searchresult-list > mwc-list-item'
+        '#searchresult-list > md-list-item'
       )
       if (lst) {
         lst.focus()
@@ -326,11 +317,10 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
-  _handleSelected(event) {
+  _handleSelected(index) {
     if (this.data.length === 0) {
       return
     }
-    const {index} = event.detail
     fireEvent(this, 'mapsearch:selected', {object: this.data[index].object})
     this.detailsOpen = true
   }
