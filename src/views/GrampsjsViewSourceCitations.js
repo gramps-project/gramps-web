@@ -19,16 +19,11 @@ export class GrampsjsViewSourceCitations extends GrampsjsViewObjectsDetail {
 
   // eslint-disable-next-line class-methods-use-this
   getUrl() {
-    const rules = {
-      function: 'or',
-      rules: this.grampsIds.map(grampsId => ({
-        name: 'HasIdOf',
-        values: [grampsId],
-      })),
-    }
+    const gql = (this.grampsIds || []).map(h => `handle="${h}"`).join(' or ')
+
     return `/api/citations/?locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=all&extend=all&rules=${encodeURIComponent(JSON.stringify(rules))}`
+    }&profile=all&extend=all&gql=${encodeURIComponent(gql)}`
   }
 
   renderElements() {
