@@ -298,8 +298,7 @@ function TreeChartCore(
     .text(d => clipString(`†${d.data.person.profile.death.date}`, textWidth(d)))
 
   function addPerson(event, nodeData) {
-    console.log('add person', nodeData)
-    dispatchEvent(
+    chart.node().dispatchEvent(
       new CustomEvent('add-new-person-relation', {
         bubbles: true,
         composed: true,

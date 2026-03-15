@@ -9,27 +9,14 @@ import './GrampsjsFormNewPerson.js'
 class GrampsjsAddPersonToTree extends GrampsjsObjectForm {
   constructor() {
     super()
-    this.data = {}
-    console.log('data GrampsjsAddPersonToTree', this.data)
+    console.log('data GrampsjsAddPersonToTree')
   }
 
-  _handleAddNewParent() {
-    this.dialogContent = html`
-      <grampsjs-form-new-person
-        @object:save="${this._handleSave}"
-        @object:cancel="${this._handleCancel}"
-      ></grampsjs-form-new-person>
-    `
-  }
-
-  renderForm() {
+  render() {
     return html`
-      <mwc-icon-button
-        class="edit add-person"
-        icon="plus"
-        @click="${() => this._handleAddNewParent()}"
-        >Add Father</mwc-icon-button
-      >
+      <grampsjs-form-new-person
+        .appState="${this.appState}"
+      ></grampsjs-form-new-person>
     `
   }
 }
