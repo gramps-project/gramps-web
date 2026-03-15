@@ -1,13 +1,18 @@
 import {html} from 'lit'
-
+import '@material/mwc-dialog'
+import '@material/mwc-button'
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
 import '../components/GrampsjsTreeChart.js'
+import '../components/GrampsjsFormNewPerson.js'
 
 export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
   constructor() {
     super()
     this._setAnc = true
     this.defaults.nAnc = 3
+    this._addPersonDialogOpen = false
+    this._addPersonDialogData = null
+    this._newPersonFormDialogOpen = false
   }
 
   get nAnc() {
@@ -35,37 +40,79 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
   }
 
   _openAddNewPersonDialog(data) {
-    console.log('open add new person dialog', data)
-    this.dialogContent = html`
-      <grampsjs-add-person-to-tree
-        data=${data}
-        @object:save="${this._handleSave}"
-        @object:cancel="${this._handleCancel}"
-      >
-      </grampsjs-add-person-to-tree>
-    `
+    this._addPersonDialogOpen = true
+    this._addPersonDialogData = data
+    this.requestUpdate()
+  }
+
+  _closeAddNewPersonDialog() {
+    this._addPersonDialogOpen = false
+    this._addPersonDialogData = null
+    this.requestUpdate()
+  }
+
+  _handleAddPerson(relationship) {
+    // Close the first dialog and open the new person form dialog
+    this.relationship = relationship
+    this._addPersonDialogOpen = false
+    this._newPersonFormDialogOpen = true
+    this.requestUpdate()
+  }
+
+  _closeNewPersonFormDialog() {
+    this._newPersonFormDialogOpen = false
+    this.requestUpdate()
   }
 
   _handleAddNewPersonRelation(e) {
-    console.log('handle add new person relation', e)
     const {data} = e.detail
-    console.log('handle add new person relation', data)
     this._openAddNewPersonDialog(data)
   }
 
   renderChart() {
     return html`
-      <grampsjs-tree-chart
-        ancestors
-        grampsId=${this.grampsId}
-        nAnc=${this.nAnc + 1}
-        nDesc=${this.nDesc + 1}
-        nameDisplayFormat=${this.nameDisplayFormat}
-        .data=${this._data}
-        .appState="${this.appState}"
-        @add-new-person-relation="${this._handleAddNewPersonRelation}"
+      <div @add-new-person-relation="${this._handleAddNewPersonRelation}">
+        <grampsjs-tree-chart
+          ancestors
+          grampsId=${this.grampsId}
+          nAnc=${this.nAnc + 1}
+          nDesc=${this.nDesc + 1}
+          nameDisplayFormat=${this.nameDisplayFormat}
+          .data=${this._data}
+          .appState="${this.appState}"
+        >
+        </grampsjs-tree-chart>
+      </div>
+    `
+  }
+
+  render() {
+    return html`
+      ${this.renderChart()}
+      <mwc-dialog
+        ?open="${this._addPersonDialogOpen}"
+        heading="${this._('Add Person with Relation')}"
+        @closed="${() => this._closeAddNewPersonDialog()}"
       >
-      </grampsjs-tree-chart>
+        <mwc-button @click="${() => this._handleAddPerson('father')}">
+          Add Father
+        </mwc-button>
+        <mwc-button @click="${() => this._handleAddPerson('mother')}">
+          Add Mother
+        </mwc-button>
+        <mwc-button @click="${() => this._handleAddPerson('child')}">
+          Add Children(s)
+        </mwc-button>
+      </mwc-dialog>
+      <mwc-dialog
+        ?open="${this._newPersonFormDialogOpen}"
+        heading="${this._('Add Person')}"
+        @closed="${() => this._closeNewPersonFormDialog()}"
+      >
+        <grampsjs-form-new-person
+          .appState="${this.appState}"
+        ></grampsjs-form-new-person>
+      </mwc-dialog>
     `
   }
 }
