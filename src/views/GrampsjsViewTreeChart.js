@@ -2,6 +2,7 @@ import {html} from 'lit'
 import '@material/mwc-dialog'
 import '@material/mwc-button'
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
+import {fireEvent} from '../util.js'
 import '../components/GrampsjsTreeChart.js'
 import '../components/GrampsjsFormNewPerson.js'
 
@@ -10,9 +11,10 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
     super()
     this._setAnc = true
     this.defaults.nAnc = 3
-    this._addPersonDialogOpen = false
-    this._addPersonDialogData = null
+    this._addPersonRelationDialogOpen = false
+    this._addPersonRelationDialogData = null
     this._newPersonFormDialogOpen = false
+    this.relationship = ''
   }
 
   get nAnc() {
@@ -39,22 +41,25 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
     this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
-  _openAddNewPersonDialog(data) {
-    this._addPersonDialogOpen = true
-    this._addPersonDialogData = data
+  _openAddPersonRelationDialog(data) {
+    this._addPersonRelationDialogOpen = true
+    this._addPersonRelationDialogData = data
     this.requestUpdate()
   }
 
-  _closeAddNewPersonDialog() {
-    this._addPersonDialogOpen = false
-    this._addPersonDialogData = null
+  _closeAddPersonRelationDialog() {
+    this._addPersonRelationDialogOpen = false
     this.requestUpdate()
+  }
+
+  _handleAddNewPersonRelation(e) {
+    const {data} = e.detail
+    this._openAddPersonRelationDialog(data)
   }
 
   _handleAddPerson(relationship) {
-    // Close the first dialog and open the new person form dialog
     this.relationship = relationship
-    this._addPersonDialogOpen = false
+    this._addPersonRelationDialogOpen = false
     this._newPersonFormDialogOpen = true
     this.requestUpdate()
   }
@@ -64,9 +69,102 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
     this.requestUpdate()
   }
 
-  _handleAddNewPersonRelation(e) {
-    const {data} = e.detail
-    this._openAddNewPersonDialog(data)
+  _handleCancelDialog() {
+    this._closeNewPersonFormDialog()
+  }
+
+  async _handleNewParentSave(e) {
+    const relatedPerson = this._addPersonRelationDialogData?.parent
+    const {processedData} = e.detail.data
+
+    if (
+      !relatedPerson?.data ||
+      !['father', 'mother', 'child'].includes(this.relationship)
+    ) {
+      this._closeNewPersonFormDialog()
+      return
+    }
+
+    // const data = {
+    //   relationship: this.relationship,
+    //   relatedPersonId: relatedPerson?.data?.person?.gramps_id,
+    // }
+
+    const createPerson = await this.appState.apiPost(
+      '/api/objects/',
+      processedData
+    )
+
+    if ('error' in createPerson) {
+      fireEvent(this, 'grampsjs:error', {message: createPerson.error})
+      return
+    }
+
+    // const newPerson = createPerson.data.find(
+    //   obj => obj.new?._class === 'Person'
+    // )?.new
+    // if (!newPerson?.handle) {
+    //   fireEvent(this, 'grampsjs:error', {
+    //     message: this._('Could not create the new person.'),
+    //   })
+    //   return
+    // }
+
+    // let result = null
+    // const parentFamilyHandle =
+    //   relatedPerson.extended?.primary_parent_family?.handle
+
+    // if (parentFamilyHandle) {
+    //   const family = await this.appState.apiGet(
+    //     `/api/families/${parentFamilyHandle}`
+    //   )
+
+    //   if ('error' in family) {
+    //     fireEvent(this, 'grampsjs:error', {message: family.error})
+    //     return
+    //   }
+    //   result = await this.appState.apiPut(
+    //     `/api/families/${parentFamilyHandle}`,
+    //     {
+    //       ...family.data,
+    //       [`${this.relationship}_handle`]: newPerson.handle,
+    //     }
+    //   )
+    // } else {
+    //   result = await this.appState.apiPost('/api/families/', {
+    //     _class: 'Family',
+    //     [`${this.relationship}_handle`]: newPerson.handle,
+    //     child_ref_list: [{_class: 'ChildRef', ref: relatedPerson.handle}],
+    //   })
+    // }
+
+    // if ('error' in result) {
+    //   fireEvent(this, 'grampsjs:error', {message: result.error})
+    //   return
+    // }
+
+    e.preventDefault()
+    e.stopPropagation()
+    this._closeNewPersonFormDialog()
+    this._addPersonRelationDialogData = null
+    // this._fetchData(this.grampsId)
+    // fireEvent(this, 'grampsjs:db-changed', data)
+  }
+
+  _handleAddNewPersonPopup() {
+    if (!this._newPersonFormDialogOpen) {
+      return ''
+    }
+
+    return html`
+      <grampsjs-form-new-person
+        @object:save="${this._handleNewParentSave}"
+        @object:cancel="${this._handleCancelDialog}"
+        .appState="${this.appState}"
+        dialogTitle="${this._('Add a new person')}"
+      >
+      </grampsjs-form-new-person>
+    `
   }
 
   renderChart() {
@@ -90,29 +188,27 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
     return html`
       ${this.renderChart()}
       <mwc-dialog
-        ?open="${this._addPersonDialogOpen}"
+        ?open="${this._addPersonRelationDialogOpen}"
         heading="${this._('Add Person with Relation')}"
-        @closed="${() => this._closeAddNewPersonDialog()}"
+        @closed="${() => this._closeAddPersonRelationDialog()}"
       >
-        <mwc-button @click="${() => this._handleAddPerson('father')}">
+        <mwc-button
+          icon="add"
+          @click="${() => this._handleAddPerson('father')}"
+        >
           Add Father
         </mwc-button>
-        <mwc-button @click="${() => this._handleAddPerson('mother')}">
+        <mwc-button
+          icon="add"
+          @click="${() => this._handleAddPerson('mother')}"
+        >
           Add Mother
         </mwc-button>
-        <mwc-button @click="${() => this._handleAddPerson('child')}">
-          Add Children(s)
+        <mwc-button icon="add" @click="${() => this._handleAddPerson('child')}">
+          Add Child
         </mwc-button>
       </mwc-dialog>
-      <mwc-dialog
-        ?open="${this._newPersonFormDialogOpen}"
-        heading="${this._('Add Person')}"
-        @closed="${() => this._closeNewPersonFormDialog()}"
-      >
-        <grampsjs-form-new-person
-          .appState="${this.appState}"
-        ></grampsjs-form-new-person>
-      </mwc-dialog>
+      ${this._handleAddNewPersonPopup()}
     `
   }
 }
