@@ -277,5 +277,8 @@
     "Uploading file %s of %s": "Nahrávanie súboru %s z %s",
     "Select files": "Vybrať súbory",
     "Failed to upload": "Nepodarilo sa nahrať",
-    "Failed to update": "Aktualizácia sa nepodarila"
+    "Failed to update": "Aktualizácia sa nepodarila",
+    "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Skopírujte si token relácie, ktorý budete používať v Swagger UI, interaktívnom nástroji na testovanie API.",
+    "Developer Tools": "Nástroje pre vývojárov",
+    "Launch Swagger": "Spustiť Swagger"
 }
