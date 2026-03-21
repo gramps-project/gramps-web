@@ -277,5 +277,8 @@
     "Uploading file %s of %s": "Lade Datei %s von %s hoch",
     "Select files": "Dateien auswählen",
     "Failed to upload": "Hochladen fehlgeschlagen",
-    "Failed to update": "Aktualisieren fehlgeschlagen"
+    "Failed to update": "Aktualisieren fehlgeschlagen",
+    "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Kopiere dein Sitzungstoken, um es in Swagger UI, dem interaktiven API-Testtool, zu verwenden.",
+    "Developer Tools": "Entwicklerwerkzeuge",
+    "Launch Swagger": "Swagger starten"
 }
