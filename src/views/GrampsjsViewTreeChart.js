@@ -95,60 +95,11 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
       return
     }
 
-    // const data = {
-    //   relationship: this.relationship,
-    //   relatedPersonId: relatedPerson?.data?.person?.gramps_id,
-    // }
-
-    // const newPerson = createPerson.data.find(
-    //   obj => obj.new?._class === 'Person'
-    // )?.new
-    // if (!newPerson?.handle) {
-    //   fireEvent(this, 'grampsjs:error', {
-    //     message: this._('Could not create the new person.'),
-    //   })
-    //   return
-    // }
-
-    // let result = null
-    // const parentFamilyHandle =
-    //   relatedPerson.extended?.primary_parent_family?.handle
-
-    // if (parentFamilyHandle) {
-    //   const family = await this.appState.apiGet(
-    //     `/api/families/${parentFamilyHandle}`
-    //   )
-
-    //   if ('error' in family) {
-    //     fireEvent(this, 'grampsjs:error', {message: family.error})
-    //     return
-    //   }
-    //   result = await this.appState.apiPut(
-    //     `/api/families/${parentFamilyHandle}`,
-    //     {
-    //       ...family.data,
-    //       [`${this.relationship}_handle`]: newPerson.handle,
-    //     }
-    //   )
-    // } else {
-    //   result = await this.appState.apiPost('/api/families/', {
-    //     _class: 'Family',
-    //     [`${this.relationship}_handle`]: newPerson.handle,
-    //     child_ref_list: [{_class: 'ChildRef', ref: relatedPerson.handle}],
-    //   })
-    // }
-
-    // if ('error' in result) {
-    //   fireEvent(this, 'grampsjs:error', {message: result.error})
-    //   return
-    // }
-
     e.preventDefault()
     e.stopPropagation()
     this._closeNewPersonFormDialog()
     this._addPersonRelationDialogData = null
     this._fetchData(this.grampsId)
-    // fireEvent(this, 'grampsjs:db-changed', data)
   }
 
   _handleAddNewPersonPopup() {
