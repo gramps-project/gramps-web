@@ -15,7 +15,7 @@ import '../components/GrampsjsTreeQuotas.js'
 import '../components/GrampsjsUsers.js'
 import {GrampsjsView} from './GrampsjsView.js'
 
-import {mdiContentCopy} from '@mdi/js'
+import {mdiCheck, mdiContentCopy} from '@mdi/js'
 import {__APIHOST__} from '../api.js'
 import {fireEvent} from '../util.js'
 import {applyTheme} from '../theme.js'
@@ -39,6 +39,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       _userInfo: {type: Object},
       _translations: {type: Array},
       _langLoading: {type: Boolean},
+      _tokenCopied: {type: Boolean},
     }
   }
 
@@ -47,6 +48,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     this._userInfo = {}
     this._translations = []
     this._langLoading = false
+    this._tokenCopied = false
   }
 
   renderContent() {
@@ -234,7 +236,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         <md-outlined-button @click="${this._copyToken}">
           <grampsjs-icon
             slot="icon"
-            path="${mdiContentCopy}"
+            path="${this._tokenCopied ? mdiCheck : mdiContentCopy}"
             color="var(--mdc-theme-primary)"
           ></grampsjs-icon>
           ${this._('_Copy')}
@@ -242,6 +244,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         <md-outlined-button
           href="${__APIHOST__}/api/swagger-ui"
           target="_blank"
+          rel="noopener noreferrer"
         >
           ${this._('Launch Swagger')}
         </md-outlined-button>
@@ -250,11 +253,24 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
   }
 
   async _copyToken() {
-    const token = localStorage.getItem('access_token') ?? ''
-    await navigator.clipboard.writeText(token)
-    fireEvent(this, 'grampsjs:notification', {
-      message: 'Token copied to clipboard',
-    })
+    const token = await this.appState.refreshTokenIfNeeded()
+    if (!token) {
+      fireEvent(this, 'grampsjs:error', {
+        message: 'No valid session token available',
+      })
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(token)
+      this._tokenCopied = true
+      setTimeout(() => {
+        this._tokenCopied = false
+      }, 2000)
+    } catch {
+      fireEvent(this, 'grampsjs:error', {
+        message: 'Failed to copy token to clipboard',
+      })
+    }
   }
 
   async _changeEmail() {
