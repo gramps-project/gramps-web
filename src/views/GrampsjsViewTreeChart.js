@@ -1,6 +1,6 @@
 import {html} from 'lit'
-import '@material/mwc-dialog'
-import '@material/mwc-button'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/text-button.js'
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
 import {fireEvent} from '../util.js'
 import '../components/GrampsjsTreeChart.js'
@@ -85,11 +85,6 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
       return
     }
 
-    // const data = {
-    //   relationship: this.relationship,
-    //   relatedPersonId: relatedPerson?.data?.person?.gramps_id,
-    // }
-
     const createPerson = await this.appState.apiPost(
       '/api/objects/',
       processedData
@@ -99,6 +94,11 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
       fireEvent(this, 'grampsjs:error', {message: createPerson.error})
       return
     }
+
+    // const data = {
+    //   relationship: this.relationship,
+    //   relatedPersonId: relatedPerson?.data?.person?.gramps_id,
+    // }
 
     // const newPerson = createPerson.data.find(
     //   obj => obj.new?._class === 'Person'
@@ -147,7 +147,7 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
     e.stopPropagation()
     this._closeNewPersonFormDialog()
     this._addPersonRelationDialogData = null
-    // this._fetchData(this.grampsId)
+    this._fetchData(this.grampsId)
     // fireEvent(this, 'grampsjs:db-changed', data)
   }
 
@@ -187,27 +187,23 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
   render() {
     return html`
       ${this.renderChart()}
-      <mwc-dialog
+      <md-dialog
         ?open="${this._addPersonRelationDialogOpen}"
-        heading="${this._('Add Person with Relation')}"
-        @closed="${() => this._closeAddPersonRelationDialog()}"
+        @close="${() => this._closeAddPersonRelationDialog()}"
       >
-        <mwc-button
-          icon="add"
-          @click="${() => this._handleAddPerson('father')}"
-        >
-          Add Father
-        </mwc-button>
-        <mwc-button
-          icon="add"
-          @click="${() => this._handleAddPerson('mother')}"
-        >
-          Add Mother
-        </mwc-button>
-        <mwc-button icon="add" @click="${() => this._handleAddPerson('child')}">
-          Add Child
-        </mwc-button>
-      </mwc-dialog>
+        <div slot="headline">${this._('Add Person with Relation')}</div>
+        <div slot="actions">
+          <md-text-button @click="${() => this._handleAddPerson('father')}">
+            Add Father
+          </md-text-button>
+          <md-text-button @click="${() => this._handleAddPerson('mother')}">
+            Add Mother
+          </md-text-button>
+          <md-text-button @click="${() => this._handleAddPerson('child')}">
+            Add Child
+          </md-text-button>
+        </div>
+      </md-dialog>
       ${this._handleAddNewPersonPopup()}
     `
   }
