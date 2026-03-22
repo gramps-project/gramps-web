@@ -276,5 +276,8 @@
     "Uploading file %s of %s": "Uploading file %s of %s",
     "Select files": "Select files",
     "Failed to upload": "Failed to upload",
-    "Failed to update": "Failed to update"
+    "Failed to update": "Failed to update",
+    "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Copy your session token to use in Swagger UI, the interactive API testing tool.",
+    "Developer Tools": "Developer Tools",
+    "Launch Swagger": "Launch Swagger"
 }
