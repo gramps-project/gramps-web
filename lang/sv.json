@@ -277,5 +277,8 @@
     "Uploading file %s of %s": "Laddar upp fil %s av %s",
     "Select files": "Välj filer",
     "Failed to upload": "Misslyckades med att ladda upp",
-    "Failed to update": "Misslyckades med att uppdatera"
+    "Failed to update": "Misslyckades med att uppdatera",
+    "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Kopiera din sessionstoken för att använda i Swagger UI, det interaktiva API-testverktyget.",
+    "Developer Tools": "Utvecklarverktyg",
+    "Launch Swagger": "Starta Swagger"
 }
