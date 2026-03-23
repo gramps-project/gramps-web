@@ -1,7 +1,7 @@
 {
     "A new version of the app is available.": "Програмын шинэ хувилбар гарсан байна.",
     "Blog": "Блог",
-    "Discard": "Хүчингүй",
+    "Discard": "Цуцлах",
     "History": "Түүх",
     "Lists": "Жагсаалт",
     "Manage users": "Хэрэглэгчдийг удирдах",
@@ -127,5 +127,10 @@
     "Year": "Жил",
     "Month": "Сар",
     "Storing configuration": "Тохиргоог хадгалж байна",
-    "Importing family tree": "Ургийн модыг импортолж байна"
+    "Importing family tree": "Ургийн модыг импортолж байна",
+    "Change E-mail": "Имэйл хаяг өөрчлөх",
+    "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Swagger UI (интерактив API тестлэх хэрэгсэл) ашиглахын тулд сессийн токеноо хуулна уу.",
+    "Developer Tools": "Хөгжүүлэгчийн Хэрэгслүүд",
+    "Launch Swagger": "Launch Swagger",
+    "Change password": "Нууц үгээ өөрчлөх"
 }
