@@ -276,5 +276,8 @@
     "Uploading file %s of %s": "Nahrávání souboru %s z %s",
     "Select files": "Vybrat soubory",
     "Failed to upload": "Nahrávání se nezdařilo",
-    "Failed to update": "Aktualizace se nezdařila"
+    "Failed to update": "Aktualizace se nezdařila",
+    "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Zkopírujte si token relace, abyste jej mohli použít v interaktivním nástroji pro testování API Swagger UI.",
+    "Developer Tools": "Nástroje pro vývojáře",
+    "Launch Swagger": "Spustit Swagger"
 }
