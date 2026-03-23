@@ -54,6 +54,7 @@ function TreeChartCore(
     getImageUrl = null,
     orientation = 'LTR',
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
+    canEdit = false,
   } = {}
 ) {
   // Create a hierarchical data structure based on the input data
@@ -309,26 +310,30 @@ function TreeChartCore(
     event.preventDefault()
   }
 
-  node
-    .append('circle')
-    .attr('class', 'add-person-btn')
-    .attr('r', 13)
-    .attr('cx', -90) // left edge of rectangle
-    .attr('cy', 30) // bottom edge of rectangle
-    .style('fill', '#FFFFFF')
-    .style('cursor', 'pointer')
-    .on('click', addPerson)
+  if (canEdit) {
+    node
+      .filter(d => d.data.person)
+      .append('circle')
+      .attr('class', 'add-person-btn')
+      .attr('r', 13)
+      .attr('cx', -90) // left edge of rectangle
+      .attr('cy', 30) // bottom edge of rectangle
+      .style('fill', '#FFFFFF')
+      .style('cursor', 'pointer')
+      .on('click', addPerson)
 
-  node
-    .append('text')
-    .attr('class', 'add-person-text')
-    .attr('x', -90)
-    .attr('y', 34)
-    .attr('text-anchor', 'middle')
-    .attr('font-size', '14px')
-    .attr('fill', 'black')
-    .style('pointer-events', 'none')
-    .text('+')
+    node
+      .filter(d => d.data.person)
+      .append('text')
+      .attr('class', 'add-person-text')
+      .attr('x', -90)
+      .attr('y', 34)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '14px')
+      .attr('fill', 'black')
+      .style('pointer-events', 'none')
+      .text('+')
+  }
 
   node
     .filter(getImageUrl)
