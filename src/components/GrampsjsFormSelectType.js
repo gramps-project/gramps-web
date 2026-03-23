@@ -127,6 +127,7 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
               label="${this.label}"
               .value="${this.value}"
               id="select-type"
+              menu-positioning="fixed"
             >
               <md-select-option value="">
                 <div slot="headline"></div>

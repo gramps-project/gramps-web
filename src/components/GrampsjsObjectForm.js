@@ -202,6 +202,19 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
 
   firstUpdated() {
     this.updateTypeData()
+    this._fixDialogOverflow()
+  }
+
+  _fixDialogOverflow() {
+    const dialog = this.renderRoot.querySelector('md-dialog')
+    if (dialog) {
+      dialog.updateComplete.then(() => {
+        const container = dialog.shadowRoot?.querySelector('.container')
+        const scroller = dialog.shadowRoot?.querySelector('.scroller')
+        if (container) container.style.overflow = 'visible'
+        if (scroller) scroller.style.overflow = 'visible'
+      })
+    }
   }
 
   translateTypeName(isCustom, typeKey, string) {
