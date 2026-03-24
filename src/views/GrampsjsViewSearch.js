@@ -7,7 +7,7 @@ import '../components/GrampsjsButtonToggle.js'
 
 import {objectTypeToEndpoint, objectIcon, debounce} from '../util.js'
 import '@material/web/textfield/outlined-text-field'
-import '@material/web/iconbutton/icon-button'
+import '@material/web/iconbutton/icon-button.js'
 import '@material/web/button/text-button'
 import {mdiMagnify} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
@@ -144,6 +144,8 @@ export class GrampsjsViewSearch extends GrampsjsView {
       <div id="search-field-container">
         <md-outlined-text-field
           id="search-field"
+          label="${this._('Search')}"
+          type="search"
           @keydown="${this._handleSearchKey}"
         >
           <grampsjs-icon
@@ -152,7 +154,10 @@ export class GrampsjsViewSearch extends GrampsjsView {
             color="var(--grampsjs-body-font-color-50)"
           ></grampsjs-icon>
         </md-outlined-text-field>
-        <md-icon-button @click="${() => this._executeSearch()}">
+        <md-icon-button
+          aria-label="${this._('Search')}"
+          @click="${() => this._executeSearch()}"
+        >
           <grampsjs-icon
             path="${mdiMagnify}"
             color="var(--grampsjs-body-font-color-50)"
@@ -189,20 +194,20 @@ export class GrampsjsViewSearch extends GrampsjsView {
       <div class="mode-toggle">
         <md-text-button
           class="${!this.semantic ? 'active' : ''}"
-          @click="${this._handleModeClick}"
+          @click="${() => this._handleModeClick(false)}"
           >${this._('full-text')}</md-text-button
         >
         <md-text-button
           class="${this.semantic ? 'active' : ''}"
-          @click="${this._handleModeClick}"
+          @click="${() => this._handleModeClick(true)}"
           >${this._('semantic')}</md-text-button
         >
       </div>
     `
   }
 
-  async _handleModeClick() {
-    this.semantic = !this.semantic
+  async _handleModeClick(semantic) {
+    this.semantic = semantic
     this._executeSearch()
   }
 
