@@ -277,5 +277,8 @@
     "Uploading file %s of %s": "Ag uaslódáil comhad %s de %s",
     "Select files": "Roghnaigh comhaid",
     "Failed to upload": "Theip ar an uaslódáil",
-    "Failed to update": "Theip ar an nuashonrú"
+    "Failed to update": "Theip ar an nuashonrú",
+    "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Cóipeáil do chomhartha seisiúin le húsáid in Swagger UI, an uirlis tástála API idirghníomhach.",
+    "Developer Tools": "Uirlisí Forbróra",
+    "Launch Swagger": "Lainseáil Swagger"
 }
