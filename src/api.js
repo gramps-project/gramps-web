@@ -1,7 +1,7 @@
 // eslint-disable-next-line camelcase
 import jwt_decode from 'jwt-decode'
 
-import {fireEvent} from './util.js'
+import {fireEvent, normalizeRect} from './util.js'
 
 export const __APIHOST__ = 'http://localhost:5555'
 
@@ -484,8 +484,12 @@ export function getMediaUrl(handle, download = false) {
 }
 
 export function getMediaUrlCropped(handle, rect) {
+  const normalizedRect = normalizeRect(rect)
+  if (!normalizedRect) {
+    return getMediaUrl(handle)
+  }
   const jwt = localStorage.getItem('access_token')
-  const [x1, y1, x2, y2] = rect
+  const [x1, y1, x2, y2] = normalizedRect
   if (jwt === null) {
     return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}`
   }
@@ -501,8 +505,12 @@ export function getThumbnailUrl(handle, size, square = false) {
 }
 
 export function getThumbnailUrlCropped(handle, rect, size, square = false) {
+  const normalizedRect = normalizeRect(rect)
+  if (!normalizedRect) {
+    return getThumbnailUrl(handle, size, square)
+  }
   const jwt = localStorage.getItem('access_token')
-  const [x1, y1, x2, y2] = rect
+  const [x1, y1, x2, y2] = normalizedRect
   if (jwt === null) {
     return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?square=${square}`
   }

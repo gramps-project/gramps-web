@@ -3,7 +3,12 @@ import {html} from 'lit'
 import {GrampsjsViewObject} from './GrampsjsViewObject.js'
 import '../components/GrampsjsMediaObject.js'
 
-import {objectTypeToEndpoint, arrayEqual} from '../util.js'
+import {
+  objectTypeToEndpoint,
+  arrayEqual,
+  normalizeRect,
+  fireEvent,
+} from '../util.js'
 
 export class GrampsjsViewMedia extends GrampsjsViewObject {
   static get properties() {
@@ -45,11 +50,18 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
     if (!('personHandle' in data)) {
       return
     }
+    const normalizedRect = normalizeRect(data.rect)
+    if (!normalizedRect) {
+      fireEvent(this, 'grampsjs:error', {
+        message: this._('Invalid face rectangle coordinates'),
+      })
+      return
+    }
     if (data.oldHandle) {
       await this.addMediaRefToPerson(
         data.personHandle,
         data.mediaHandle,
-        data.rect,
+        normalizedRect,
         false,
         false
       )
@@ -57,12 +69,16 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
         data.oldHandle,
         data.oldType,
         data.mediaHandle,
-        data.rect,
+        normalizedRect,
         false
       )
       this._updateData(false)
     } else {
-      this.addMediaRefToPerson(data.personHandle, data.mediaHandle, data.rect)
+      this.addMediaRefToPerson(
+        data.personHandle,
+        data.mediaHandle,
+        normalizedRect
+      )
     }
   }
 
@@ -82,13 +98,20 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
     reload = true,
     fireChanged = true
   ) {
+    const normalizedRect = normalizeRect(rect)
+    if (!normalizedRect) {
+      fireEvent(this, 'grampsjs:error', {
+        message: this._('Invalid face rectangle coordinates'),
+      })
+      return
+    }
     const url = `/api/people/${personHandle}`
     let resp = await this.appState.apiGet(url)
     if ('error' in resp) {
       return
     }
     const person = {_class: 'Person', ...resp.data}
-    const data = {ref: mediaHandle, rect}
+    const data = {ref: mediaHandle, rect: normalizedRect}
     person.media_list = [
       ...person.media_list.filter(mobj => mobj.ref !== mediaHandle),
       data,

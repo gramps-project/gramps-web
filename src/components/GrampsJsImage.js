@@ -8,6 +8,7 @@ import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {getMediaUrl, getThumbnailUrl, getThumbnailUrlCropped} from '../api.js'
+import {isValidRect} from '../util.js'
 
 // base64 encoded broken image icon
 const brokenIcon =
@@ -245,9 +246,9 @@ class GrampsjsImg extends LitElement {
   }
 
   _renderThumb() {
-    return this.rect.length === 0
-      ? this._renderImage()
-      : this._renderImageCropped()
+    return isValidRect(this.rect)
+      ? this._renderImageCropped()
+      : this._renderImage()
   }
 
   _renderFull() {

@@ -5,6 +5,7 @@ import {select} from 'd3-selection'
 import {scaleSequential} from 'd3-scale'
 import {interpolateWarm} from 'd3-scale-chromatic'
 import {getThumbnailUrl, getThumbnailUrlCropped} from '../api.js'
+import {isValidRect} from '../util.js'
 
 export const getPerson = (data, handle) =>
   data.find(person => person.handle === handle) || {}
@@ -17,7 +18,7 @@ export const getImageUrl = (person, size, square = true) => {
     return ''
   }
   const [mediaRef] = person.media_list
-  if (!mediaRef.rect || mediaRef.rect.length === 0) {
+  if (!isValidRect(mediaRef.rect)) {
     return getThumbnailUrl(mediaRef.ref, size, square)
   }
   return getThumbnailUrlCropped(mediaRef.ref, mediaRef.rect, size, square)
