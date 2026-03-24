@@ -4,10 +4,13 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsSearchResultList.js'
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsButtonToggle.js'
-import '../components/GrampsjsButtonGroup.js'
 
 import {objectTypeToEndpoint, objectIcon, debounce} from '../util.js'
-import '@material/mwc-textfield'
+import '@material/web/textfield/outlined-text-field'
+import '@material/web/iconbutton/icon-button'
+import '@material/web/button/text-button'
+import {mdiMagnify} from '@mdi/js'
+import '../components/GrampsjsIcon.js'
 
 function capitalize(string) {
   return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
@@ -42,25 +45,60 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
         .mode-toggle {
           float: right;
+          display: flex;
+          gap: 4px;
         }
 
-        mwc-textfield#search-field {
-          --mdc-shape-small: 28px;
-          --mdc-typography-subtitle1-font-size: 22px;
-          --mdc-typography-subtitle1-font-weight: var(
+        .mode-toggle md-text-button {
+          --md-text-button-label-text-size: 13px;
+          --md-text-button-label-text-weight: 500;
+          position: relative;
+        }
+
+        .mode-toggle md-text-button.active {
+          --md-sys-color-primary: var(--mdc-theme-primary);
+        }
+
+        .mode-toggle md-text-button.active::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 12px;
+          right: 12px;
+          height: 2px;
+          background-color: var(--mdc-theme-primary);
+          border-radius: 1px;
+        }
+
+        md-outlined-text-field#search-field {
+          --md-outlined-text-field-container-shape: 28px;
+          --md-outlined-text-field-input-text-size: 22px;
+          --md-outlined-text-field-input-text-weight: var(
             --grampsjs-body-font-weight
           );
-          --mdc-text-field-idle-line-color: var(--grampsjs-body-font-color-20);
+          --md-outlined-text-field-outline-color: var(
+            --grampsjs-body-font-color-20
+          );
+          --md-outlined-text-field-leading-icon-color: var(
+            --grampsjs-body-font-color-50
+          );
+          --md-outlined-text-field-top-space: 12px;
+          --md-outlined-text-field-bottom-space: 12px;
+          --md-outlined-text-field-leading-space: 24px;
           width: calc(100% - 70px);
           margin: 30px auto;
         }
 
-        #search-field-container mwc-icon-button {
-          color: var(--grampsjs-body-font-color-50);
-          --mdc-icon-size: 26px;
-          --mdc-icon-button-size: 55px;
+        #search-field-container md-icon-button {
+          --md-icon-button-icon-size: 26px;
+          --md-icon-button-state-layer-height: 55px;
+          --md-icon-button-state-layer-width: 55px;
           position: relative;
           top: -2px;
+        }
+
+        md-outlined-text-field#search-field grampsjs-icon {
+          margin-left: 8px;
         }
 
         grampsjs-button-toggle {
@@ -104,15 +142,22 @@ export class GrampsjsViewSearch extends GrampsjsView {
       <h2>${this._('Search')}</h2>
 
       <div id="search-field-container">
-        <mwc-textfield
+        <md-outlined-text-field
           id="search-field"
-          outlined
-          icon="search"
           @keydown="${this._handleSearchKey}"
         >
-        </mwc-textfield>
-        <mwc-icon-button icon="search" @click="${() => this._executeSearch()}">
-        </mwc-icon-button>
+          <grampsjs-icon
+            slot="leading-icon"
+            path="${mdiMagnify}"
+            color="var(--grampsjs-body-font-color-50)"
+          ></grampsjs-icon>
+        </md-outlined-text-field>
+        <md-icon-button @click="${() => this._executeSearch()}">
+          <grampsjs-icon
+            path="${mdiMagnify}"
+            color="var(--grampsjs-body-font-color-50)"
+          ></grampsjs-icon>
+        </md-icon-button>
       </div>
 
       ${this.renderFilters()}
@@ -142,20 +187,16 @@ export class GrampsjsViewSearch extends GrampsjsView {
   _renderModeToggle() {
     return html`
       <div class="mode-toggle">
-        <grampsjs-button-group>
-          <mwc-button
-            dense
-            ?unelevated="${!this.semantic}"
-            @click="${this._handleModeClick}"
-            >${this._('full-text')}</mwc-button
-          >
-          <mwc-button
-            dense
-            ?unelevated="${this.semantic}"
-            @click="${this._handleModeClick}"
-            >${this._('semantic')}</mwc-button
-          >
-        </grampsjs-button-group>
+        <md-text-button
+          class="${!this.semantic ? 'active' : ''}"
+          @click="${this._handleModeClick}"
+          >${this._('full-text')}</md-text-button
+        >
+        <md-text-button
+          class="${this.semantic ? 'active' : ''}"
+          @click="${this._handleModeClick}"
+          >${this._('semantic')}</md-text-button
+        >
       </div>
     `
   }
