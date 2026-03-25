@@ -483,8 +483,27 @@ export function getMediaUrl(handle, download = false) {
   return download ? `${url}&download=1` : url
 }
 
+function _isNormalizedRect(rect) {
+  if (!Array.isArray(rect) || rect.length !== 4) {
+    return false
+  }
+  const [x1, y1, x2, y2] = rect
+  const values = [x1, y1, x2, y2]
+  if (values.some(value => !Number.isInteger(value))) {
+    return false
+  }
+  if (values.some(value => value < 0 || value > 100)) {
+    return false
+  }
+  return x1 < x2 && y1 < y2
+}
+
+function _getRectForUrl(rect) {
+  return _isNormalizedRect(rect) ? rect : normalizeRect(rect)
+}
+
 export function getMediaUrlCropped(handle, rect) {
-  const normalizedRect = normalizeRect(rect)
+  const normalizedRect = _getRectForUrl(rect)
   if (!normalizedRect) {
     return getMediaUrl(handle)
   }
@@ -505,7 +524,7 @@ export function getThumbnailUrl(handle, size, square = false) {
 }
 
 export function getThumbnailUrlCropped(handle, rect, size, square = false) {
-  const normalizedRect = normalizeRect(rect)
+  const normalizedRect = _getRectForUrl(rect)
   if (!normalizedRect) {
     return getThumbnailUrl(handle, size, square)
   }

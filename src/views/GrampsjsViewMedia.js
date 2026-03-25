@@ -50,21 +50,17 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
     if (!('personHandle' in data)) {
       return
     }
-    const normalizedRect = normalizeRect(data.rect)
-    if (!normalizedRect) {
-      fireEvent(this, 'grampsjs:error', {
-        message: this._('Invalid face rectangle coordinates'),
-      })
-      return
-    }
     if (data.oldHandle) {
-      await this.addMediaRefToPerson(
+      const added = await this.addMediaRefToPerson(
         data.personHandle,
         data.mediaHandle,
-        normalizedRect,
+        data.rect,
         false,
         false
       )
+      if (!added) {
+        return
+      }
       await this.delMediaRef(
         data.oldHandle,
         data.oldType,
@@ -74,11 +70,7 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
       )
       this._updateData(false)
     } else {
-      this.addMediaRefToPerson(
-        data.personHandle,
-        data.mediaHandle,
-        normalizedRect
-      )
+      this.addMediaRefToPerson(data.personHandle, data.mediaHandle, data.rect)
     }
   }
 
@@ -103,12 +95,12 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
       fireEvent(this, 'grampsjs:error', {
         message: this._('Invalid face rectangle coordinates'),
       })
-      return
+      return false
     }
     const url = `/api/people/${personHandle}`
     let resp = await this.appState.apiGet(url)
     if ('error' in resp) {
-      return
+      return false
     }
     const person = {_class: 'Person', ...resp.data}
     const data = {ref: mediaHandle, rect: normalizedRect}
@@ -118,11 +110,12 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
     ]
     resp = await this.appState.apiPut(url, person, {dbChanged: fireChanged})
     if ('error' in resp) {
-      return
+      return false
     }
     if (reload) {
       this._updateData(false)
     }
+    return true
   }
 
   async delMediaRef(objHandle, objType, mediaHandle, rect, reload = true) {
