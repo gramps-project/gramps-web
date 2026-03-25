@@ -69,7 +69,7 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
         data.oldHandle,
         data.oldType,
         data.mediaHandle,
-        normalizedRect,
+        data.rect,
         false
       )
       this._updateData(false)
