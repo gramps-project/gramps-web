@@ -58,6 +58,7 @@ export class GrampsjsViewTree extends GrampsjsView {
     this.view = 'ancestor'
     this._history = this.grampsId ? [this.grampsId] : []
     this._currentTabId = getTreeViewTabIndex(DEFAULT_TREE_VIEW)
+    this._appliedTreeDefaultView = null
   }
 
   renderContent() {
@@ -262,16 +263,18 @@ export class GrampsjsViewTree extends GrampsjsView {
       // limit history to 100 people
       this._history = this._history.slice(-100)
     }
-    if (changed.has('active')) {
-      if (this.active) {
-        this._setPreferredTab()
-      }
+    if (this.active && (changed.has('active') || changed.has('settings'))) {
+      this._applyPreferredTabIfNeeded()
     }
   }
 
-  _setPreferredTab() {
+  _applyPreferredTabIfNeeded() {
     const preferredView = this.settings?.treeDefaultView ?? DEFAULT_TREE_VIEW
+    if (preferredView === this._appliedTreeDefaultView) {
+      return
+    }
     const preferredIndex = getTreeViewTabIndex(preferredView)
+    this._appliedTreeDefaultView = preferredView
     if (this._currentTabId !== preferredIndex) {
       this._currentTabId = preferredIndex
     }
