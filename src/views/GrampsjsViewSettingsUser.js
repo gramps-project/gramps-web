@@ -93,7 +93,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       <h3>${this._('Change password')}</h3>
 
       ${this.renderChangePw()}
-      <h3>${this._('Family Tree preferences')}</h3>
+      <h3>${this._('Family tree preferences')}</h3>
       ${this.renderTreePreferences()}
       ${this._apiVersionAtLeast(3, 8)
         ? html`
@@ -200,7 +200,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       <div class="tree-preferences">
         <md-filled-select
           id="tree-default-view"
-          label="${this._('Default Family Tree view')}"
+          label="${this._('Default family tree view')}"
           @change=${this._handleDefaultTreeViewChange}
         >
           ${TREE_VIEWS.map(
