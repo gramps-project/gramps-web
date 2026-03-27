@@ -58,6 +58,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
       fixedMenuPosition: {type: Boolean},
       label: {type: String},
       disabled: {type: Boolean},
+      hideButton: {type: Boolean},
     }
   }
 
@@ -70,6 +71,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
     this.fixedMenuPosition = false
     this.label = ''
     this.disabled = false
+    this.hideButton = false
   }
 
   render() {
@@ -78,6 +80,9 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
         <mwc-button
           raised
           ?disabled="${this.disabled}"
+          style="${this.hideButton
+            ? 'visibility:hidden;pointer-events:none;'
+            : ''}"
           label="${this.label ||
           this._(btnLabel[this.objectType]) ||
           this._('Select')}"
@@ -114,6 +119,20 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
         </mwc-menu>
       </div>
     `
+  }
+
+  open(anchor) {
+    const menu = this.shadowRoot.getElementById('menu-search-results')
+    if (anchor) {
+      menu.anchor = anchor
+      const {left, right} = anchor.getBoundingClientRect()
+      // Fit within whichever side has more room: space rightward from anchor's left edge vs. space leftward to anchor's right edge
+      const spaceRight = window.innerWidth - left
+      const spaceLeft = right
+      const maxWidth = Math.min(400, Math.max(spaceRight, spaceLeft))
+      menu.style.setProperty('--mdc-menu-max-width', `${maxWidth}px`)
+    }
+    this._handleBtnClick()
   }
 
   reset() {

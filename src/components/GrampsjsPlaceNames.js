@@ -1,7 +1,6 @@
 import {html} from 'lit'
 
 import '@material/mwc-icon-button'
-import '@material/mwc-dialog'
 import '@material/mwc-button'
 
 import {fireEvent} from '../util.js'
