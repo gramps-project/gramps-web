@@ -85,7 +85,7 @@ export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
         <div slot="content">
           ${objects.map(
             obj =>
-              html`<a href="/media/${obj.gramps_id}">${obj.gramps_id}</a></br>`
+              html`<a href="/media/${obj.gramps_id}">${obj.gramps_id}</a><br />`
           )}
         </div>
       </md-dialog>
