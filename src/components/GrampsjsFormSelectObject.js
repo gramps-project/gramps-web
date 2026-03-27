@@ -126,8 +126,10 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
     if (anchor) {
       menu.anchor = anchor
       const {left, right} = anchor.getBoundingClientRect()
-      // Cap width to the larger of the space left/right of the anchor so the menu fits on screen
-      const maxWidth = Math.min(400, Math.max(window.innerWidth - left, right))
+      // Fit within whichever side has more room: space rightward from anchor's left edge vs. space leftward to anchor's right edge
+      const spaceRight = window.innerWidth - left
+      const spaceLeft = right
+      const maxWidth = Math.min(400, Math.max(spaceRight, spaceLeft))
       menu.style.setProperty('--mdc-menu-max-width', `${maxWidth}px`)
     }
     this._handleBtnClick()
