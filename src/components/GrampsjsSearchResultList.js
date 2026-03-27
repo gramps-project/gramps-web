@@ -176,7 +176,10 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
   _handleMetaClick(e, obj) {
     e.preventDefault()
     e.stopPropagation()
-    fireEvent(this, 'search-result:metaClicked', obj)
+    fireEvent(this, 'search-result:metaClicked', {
+      ...obj,
+      sourceElement: e.currentTarget,
+    })
   }
 
   _handleClick(obj) {

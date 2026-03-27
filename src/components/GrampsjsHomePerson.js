@@ -1,13 +1,12 @@
 import {LitElement, css, html} from 'lit'
 
-import '@material/web/dialog/dialog'
 import '@material/web/button/text-button'
 import {mdiPencil} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsSearchResultList.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import './GrampsjsFormSelectObjectList.js'
+import './GrampsjsFormSelectObject.js'
 
 export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -16,13 +15,6 @@ export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
       css`
         h3 {
           margin-bottom: 15px;
-        }
-
-        md-dialog {
-          min-width: 450px;
-          min-height: 450px;
-          max-width: 100vw;
-          max-height: 100vh;
         }
       `,
     ]
@@ -67,29 +59,21 @@ export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
               <path d="${mdiPencil}" />
             </svg>
           </md-text-button>`}
-      ${this.renderPersonSelect()}
+      <grampsjs-form-select-object
+        @select-object:changed="${this._handleHomePerson}"
+        objectType="person"
+        .appState="${this.appState}"
+        id="homeperson-select"
+        label="${this._('Select')}"
+        fixedMenuPosition
+        hideButton
+      ></grampsjs-form-select-object>
     `
   }
 
-  _handleEditClick() {
-    this.renderRoot.querySelector('md-dialog')?.show()
-  }
-
-  renderPersonSelect() {
-    return html`
-      <md-dialog id="select-home-person-dialog">
-        <div slot="headline">${this._('Set _Home Person')}</div>
-        <div slot="content">
-          <grampsjs-form-select-object
-            @select-object:changed="${this._handleHomePerson}"
-            objectType="person"
-            .appState="${this.appState}"
-            id="homeperson-select"
-            label="${this._('Select')}"
-          ></grampsjs-form-select-object>
-        </div>
-      </md-dialog>
-    `
+  _handleEditClick(e) {
+    const anchor = e.detail?.sourceElement ?? e.currentTarget
+    this.renderRoot.querySelector('#homeperson-select')?.open(anchor)
   }
 
   _handleHomePerson(e) {
@@ -97,7 +81,6 @@ export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
     if (obj.object?.gramps_id) {
       this.appState.updateSettings({homePerson: obj.object.gramps_id}, true)
       this.homePersonDetails = obj
-      this.renderRoot.querySelector('md-dialog')?.close()
     }
     e.preventDefault()
     e.stopPropagation()
