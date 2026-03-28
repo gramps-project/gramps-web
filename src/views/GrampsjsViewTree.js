@@ -17,6 +17,7 @@ import {
   renderIconSvg,
   relationshipGraphIconPath,
 } from '../icons.js'
+import {DEFAULT_TREE_VIEW, getTreeViewTabIndex} from '../treeDefaults.js'
 
 export class GrampsjsViewTree extends GrampsjsView {
   static get styles() {
@@ -56,7 +57,8 @@ export class GrampsjsViewTree extends GrampsjsView {
     this.grampsId = ''
     this.view = 'ancestor'
     this._history = this.grampsId ? [this.grampsId] : []
-    this._currentTabId = 0
+    this._currentTabId = getTreeViewTabIndex(DEFAULT_TREE_VIEW)
+    this._appliedTreeDefaultView = null
   }
 
   renderContent() {
@@ -260,6 +262,21 @@ export class GrampsjsViewTree extends GrampsjsView {
       this._history.push(this.grampsId)
       // limit history to 100 people
       this._history = this._history.slice(-100)
+    }
+    if (this.active && (changed.has('active') || changed.has('settings'))) {
+      this._applyPreferredTabIfNeeded()
+    }
+  }
+
+  _applyPreferredTabIfNeeded() {
+    const preferredView = this.settings?.treeDefaultView ?? DEFAULT_TREE_VIEW
+    if (preferredView === this._appliedTreeDefaultView) {
+      return
+    }
+    const preferredIndex = getTreeViewTabIndex(preferredView)
+    this._appliedTreeDefaultView = preferredView
+    if (this._currentTabId !== preferredIndex) {
+      this._currentTabId = preferredIndex
     }
   }
 

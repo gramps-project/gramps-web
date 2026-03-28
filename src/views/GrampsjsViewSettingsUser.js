@@ -19,6 +19,7 @@ import {mdiCheck, mdiContentCopy} from '@mdi/js'
 import {__APIHOST__} from '../api.js'
 import {fireEvent} from '../util.js'
 import {applyTheme} from '../theme.js'
+import {DEFAULT_TREE_VIEW, TREE_VIEWS} from '../treeDefaults.js'
 
 export class GrampsjsViewSettingsUser extends GrampsjsView {
   static get styles() {
@@ -29,6 +30,17 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
           display: flex;
           align-items: center;
           gap: 8px;
+        }
+
+        .tree-preferences {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 12px 24px;
+          align-items: start;
+        }
+
+        .tree-preferences md-filled-select {
+          width: 100%;
         }
       `,
     ]
@@ -81,6 +93,8 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       <h3>${this._('Change password')}</h3>
 
       ${this.renderChangePw()}
+      <h3>${this._('Family tree preferences')}</h3>
+      ${this.renderTreePreferences()}
       ${this._apiVersionAtLeast(3, 8)
         ? html`
             <h3>${this._('Developer Tools')}</h3>
@@ -177,6 +191,52 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     const theme = event.target.value
     this.appState.updateSettings({theme})
     applyTheme(theme)
+  }
+
+  renderTreePreferences() {
+    const defaultView =
+      this.appState.settings.treeDefaultView ?? DEFAULT_TREE_VIEW
+    return html`
+      <div class="tree-preferences">
+        <md-filled-select
+          id="tree-default-view"
+          label="${this._('Default family tree view')}"
+          @change=${this._handleDefaultTreeViewChange}
+        >
+          ${TREE_VIEWS.map(
+            view => html`
+              <md-select-option
+                value="${view}"
+                ?selected=${view === defaultView}
+              >
+                ${this._(this._treeViewLabel(view))}
+              </md-select-option>
+            `
+          )}
+        </md-filled-select>
+      </div>
+    `
+  }
+
+  _treeViewLabel(view) {
+    switch (view) {
+      case 'descendant':
+        return 'Descendant Tree'
+      case 'hourglass':
+        return 'Hourglass Graph'
+      case 'relationship':
+        return 'Relationship Graph'
+      case 'fan':
+        return 'Fan Chart'
+      default:
+        return 'Ancestor Tree'
+    }
+  }
+
+  _handleDefaultTreeViewChange(event) {
+    const candidate = event.target.value || DEFAULT_TREE_VIEW
+    const view = TREE_VIEWS.includes(candidate) ? candidate : DEFAULT_TREE_VIEW
+    this.appState.updateSettings({treeDefaultView: view})
   }
 
   renderChangeEmail() {
