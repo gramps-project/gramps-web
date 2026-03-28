@@ -280,5 +280,8 @@
     "Failed to update": "Falha ao actualizar",
     "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Copie o seu símbolo de sessão para usar no Swagger UI, a ferramenta interactiva de teste de API.",
     "Developer Tools": "Ferramentas de programadores",
-    "Launch Swagger": "Iniciar o Swagger"
+    "Launch Swagger": "Iniciar o Swagger",
+    "Family tree preferences": "Preferências da árvore genalógica",
+    "Default family tree view": "Disposição pré-definida da árvore",
+    "Invalid face rectangle coordinates": "Cordenadas do rectângulo inválidas"
 }
