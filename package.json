@@ -91,7 +91,9 @@
         }
       },
       {
-        "files": ["**/*.ts"],
+        "files": [
+          "**/*.ts"
+        ],
         "parser": "@typescript-eslint/parser",
         "rules": {
           "no-undef": "off"
@@ -117,7 +119,7 @@
     ]
   },
   "name": "gramps-js",
-  "version": "26.2.0",
+  "version": "26.3.0",
   "description": "The frontend for the Gramps Web genealogical research system.",
   "author": "David M. Straub",
   "license": "AGPL",
