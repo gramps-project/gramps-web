@@ -3,7 +3,12 @@ import {html} from 'lit'
 import {GrampsjsViewObject} from './GrampsjsViewObject.js'
 import '../components/GrampsjsMediaObject.js'
 
-import {objectTypeToEndpoint, arrayEqual} from '../util.js'
+import {
+  objectTypeToEndpoint,
+  arrayEqual,
+  normalizeRect,
+  fireEvent,
+} from '../util.js'
 
 export class GrampsjsViewMedia extends GrampsjsViewObject {
   static get properties() {
@@ -46,13 +51,16 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
       return
     }
     if (data.oldHandle) {
-      await this.addMediaRefToPerson(
+      const added = await this.addMediaRefToPerson(
         data.personHandle,
         data.mediaHandle,
         data.rect,
         false,
         false
       )
+      if (!added) {
+        return
+      }
       await this.delMediaRef(
         data.oldHandle,
         data.oldType,
@@ -82,24 +90,32 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
     reload = true,
     fireChanged = true
   ) {
+    const normalizedRect = normalizeRect(rect)
+    if (!normalizedRect) {
+      fireEvent(this, 'grampsjs:error', {
+        message: this._('Invalid face rectangle coordinates'),
+      })
+      return false
+    }
     const url = `/api/people/${personHandle}`
     let resp = await this.appState.apiGet(url)
     if ('error' in resp) {
-      return
+      return false
     }
     const person = {_class: 'Person', ...resp.data}
-    const data = {ref: mediaHandle, rect}
+    const data = {ref: mediaHandle, rect: normalizedRect}
     person.media_list = [
       ...person.media_list.filter(mobj => mobj.ref !== mediaHandle),
       data,
     ]
     resp = await this.appState.apiPut(url, person, {dbChanged: fireChanged})
     if ('error' in resp) {
-      return
+      return false
     }
     if (reload) {
       this._updateData(false)
     }
+    return true
   }
 
   async delMediaRef(objHandle, objType, mediaHandle, rect, reload = true) {

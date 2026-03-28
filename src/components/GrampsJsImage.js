@@ -8,6 +8,7 @@ import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {getMediaUrl, getThumbnailUrl, getThumbnailUrlCropped} from '../api.js'
+import {normalizeRect} from '../util.js'
 
 // base64 encoded broken image icon
 const brokenIcon =
@@ -137,38 +138,33 @@ class GrampsjsImg extends LitElement {
     `
   }
 
-  _renderImageCropped() {
+  _renderImageCropped(rect) {
     const height = this.displayHeight || ''
     return html`<img
       srcset="
+        ${getThumbnailUrlCropped(this.handle, rect, this.size, this.square)},
         ${getThumbnailUrlCropped(
           this.handle,
-          this.rect,
-          this.size,
-          this.square
-        )},
-        ${getThumbnailUrlCropped(
-          this.handle,
-          this.rect,
+          rect,
           1.5 * this.size,
           this.square
         )} 1.5x,
         ${getThumbnailUrlCropped(
           this.handle,
-          this.rect,
+          rect,
           2 * this.size,
           this.square
         )} 2x,
         ${getThumbnailUrlCropped(
           this.handle,
-          this.rect,
+          rect,
           3 * this.size,
           this.square
         )} 3x
       "
       src="${getThumbnailUrlCropped(
         this.handle,
-        this.rect,
+        rect,
         3 * this.size,
         this.square
       )}"
@@ -245,9 +241,8 @@ class GrampsjsImg extends LitElement {
   }
 
   _renderThumb() {
-    return this.rect.length === 0
-      ? this._renderImage()
-      : this._renderImageCropped()
+    const rect = normalizeRect(this.rect)
+    return rect ? this._renderImageCropped(rect) : this._renderImage()
   }
 
   _renderFull() {

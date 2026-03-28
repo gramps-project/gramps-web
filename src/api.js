@@ -1,7 +1,7 @@
 // eslint-disable-next-line camelcase
 import jwt_decode from 'jwt-decode'
 
-import {fireEvent} from './util.js'
+import {fireEvent, normalizeRect} from './util.js'
 
 export const __APIHOST__ = 'http://localhost:5555'
 
@@ -483,9 +483,32 @@ export function getMediaUrl(handle, download = false) {
   return download ? `${url}&download=1` : url
 }
 
-export function getMediaUrlCropped(handle, rect) {
-  const jwt = localStorage.getItem('access_token')
+function _isNormalizedRect(rect) {
+  if (!Array.isArray(rect) || rect.length !== 4) {
+    return false
+  }
   const [x1, y1, x2, y2] = rect
+  const values = [x1, y1, x2, y2]
+  if (values.some(value => !Number.isInteger(value))) {
+    return false
+  }
+  if (values.some(value => value < 0 || value > 100)) {
+    return false
+  }
+  return x1 < x2 && y1 < y2
+}
+
+function _getRectForUrl(rect) {
+  return _isNormalizedRect(rect) ? rect : normalizeRect(rect)
+}
+
+export function getMediaUrlCropped(handle, rect) {
+  const normalizedRect = _getRectForUrl(rect)
+  if (!normalizedRect) {
+    return getMediaUrl(handle)
+  }
+  const jwt = localStorage.getItem('access_token')
+  const [x1, y1, x2, y2] = normalizedRect
   if (jwt === null) {
     return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}`
   }
@@ -501,8 +524,12 @@ export function getThumbnailUrl(handle, size, square = false) {
 }
 
 export function getThumbnailUrlCropped(handle, rect, size, square = false) {
+  const normalizedRect = _getRectForUrl(rect)
+  if (!normalizedRect) {
+    return getThumbnailUrl(handle, size, square)
+  }
   const jwt = localStorage.getItem('access_token')
-  const [x1, y1, x2, y2] = rect
+  const [x1, y1, x2, y2] = normalizedRect
   if (jwt === null) {
     return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?square=${square}`
   }

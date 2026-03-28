@@ -616,6 +616,38 @@ export function arrayEqual(A, B) {
   return A.length > 0 && B.length > 0 && A.every(e => B.includes(e))
 }
 
+function _toNumber(value) {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+function _clampPercent(value) {
+  return Math.max(0, Math.min(100, Math.round(value)))
+}
+
+export function normalizeRect(rect) {
+  if (!Array.isArray(rect) || rect.length !== 4) {
+    return null
+  }
+  const parsedRect = rect.map(_toNumber)
+  if (parsedRect.some(value => value === null)) {
+    return null
+  }
+  const [x1, y1, x2, y2] = parsedRect.map(_clampPercent)
+  const left = Math.min(x1, x2)
+  const top = Math.min(y1, y2)
+  const right = Math.max(x1, x2)
+  const bottom = Math.max(y1, y2)
+  if (right <= left || bottom <= top) {
+    return null
+  }
+  return [left, top, right, bottom]
+}
+
+export function isValidRect(rect) {
+  return normalizeRect(rect) !== null
+}
+
 function _getMediaHandle(obj) {
   if (obj.object_type === 'media') {
     return obj.object.handle

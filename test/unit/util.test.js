@@ -11,6 +11,8 @@ import {
   getGregorianYears,
   isDateBetweenYears,
   makeHandle,
+  normalizeRect,
+  isValidRect,
 } from '../../src/util.js'
 
 // Helpers
@@ -240,5 +242,45 @@ describe('makeHandle', () => {
 
   it('returns unique values', () => {
     expect(makeHandle()).to.not.equal(makeHandle())
+  })
+})
+
+describe('normalizeRect', () => {
+  it('clamps negative coordinates to 0', () => {
+    expect(normalizeRect([24, -11, 83, 98])).to.deep.equal([24, 0, 83, 98])
+  })
+
+  it('clamps coordinates above 100', () => {
+    expect(normalizeRect([24, 11, 183, 198])).to.deep.equal([24, 11, 100, 100])
+  })
+
+  it('reorders inverted coordinates', () => {
+    expect(normalizeRect([83, 98, 24, 11])).to.deep.equal([24, 11, 83, 98])
+  })
+
+  it('returns null for zero-area rectangles', () => {
+    expect(normalizeRect([50, 50, 50, 60])).to.equal(null)
+    expect(normalizeRect([50, 50, 60, 50])).to.equal(null)
+  })
+
+  it('returns null for malformed rectangles', () => {
+    expect(normalizeRect([])).to.equal(null)
+    expect(normalizeRect([1, 2, 3])).to.equal(null)
+    expect(normalizeRect([1, 2, 3, 'x'])).to.equal(null)
+  })
+
+  it('keeps full-frame boundaries intact', () => {
+    expect(normalizeRect([0, 0, 100, 100])).to.deep.equal([0, 0, 100, 100])
+  })
+})
+
+describe('isValidRect', () => {
+  it('returns true for valid rectangles', () => {
+    expect(isValidRect([24, 0, 83, 98])).to.be.true
+  })
+
+  it('returns false for invalid rectangles', () => {
+    expect(isValidRect([10, 10, 10, 20])).to.be.false
+    expect(isValidRect([10, 10, 20, 10])).to.be.false
   })
 })
