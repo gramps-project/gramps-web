@@ -24,6 +24,7 @@ export function getInitialAppState() {
       canManageUsers: false,
       canUseChat: false,
       canUpgradeTree: false,
+      canEditTree: false,
     },
     i18n: {
       strings: {},
@@ -58,6 +59,7 @@ export function appStateUpdatePermissions(appState) {
     canManageUsers: rawPermissions.includes('EditOtherUser'),
     canUseChat: rawPermissions.includes('UseChat'),
     canUpgradeTree: rawPermissions.includes('UpgradeSchema'),
+    canEditTree: rawPermissions.includes('EditTree'),
   }
   return {...appState, permissions}
 }
