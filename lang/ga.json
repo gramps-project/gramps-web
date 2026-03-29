@@ -280,5 +280,8 @@
     "Failed to update": "Theip ar an nuashonrú",
     "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Cóipeáil do chomhartha seisiúin le húsáid in Swagger UI, an uirlis tástála API idirghníomhach.",
     "Developer Tools": "Uirlisí Forbróra",
-    "Launch Swagger": "Lainseáil Swagger"
+    "Launch Swagger": "Lainseáil Swagger",
+    "Family tree preferences": "Roghanna crann teaghlaigh",
+    "Default family tree view": "Radharc réamhshocraithe crainn teaghlaigh",
+    "Invalid face rectangle coordinates": "Comhordanáidí dronuilleog aghaidhe neamhbhailí"
 }
