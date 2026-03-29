@@ -280,5 +280,8 @@
     "Failed to update": "Misslyckades med att uppdatera",
     "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Kopiera din sessionstoken för att använda i Swagger UI, det interaktiva API-testverktyget.",
     "Developer Tools": "Utvecklarverktyg",
-    "Launch Swagger": "Starta Swagger"
+    "Launch Swagger": "Starta Swagger",
+    "Family tree preferences": "Inställningar för släktträd",
+    "Default family tree view": "Standardvy för släktträd",
+    "Invalid face rectangle coordinates": "Ogiltiga koordinater för sidrektangel"
 }
