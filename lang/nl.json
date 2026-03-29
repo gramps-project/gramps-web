@@ -16,7 +16,7 @@
     "Anniversaries": "Verjaardagen",
     "Create an admin account": "Maak een beheerdersaccount aan",
     "SMTP host": "SMTP-host",
-    "Optionally, upload existing family tree data.": "Upload optioneel bestaande stamboomgegevens.",
+    "Optionally, upload existing family tree data.": "Optioneel: bestaande stamboomgegevens uploaden.",
     "Need help? Check out ": "Hulp nodig? Bekijk ",
     "Submit": "Indienen",
     "Lists": "Lijsten",
@@ -280,5 +280,8 @@
     "Failed to update": "Bijwerken is mislukt",
     "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Kopieer uw sessietoken om te gebruiken in Swagger UI, de interactieve API-testtool.",
     "Developer Tools": "Ontwikkelaarshulpmiddelen",
-    "Launch Swagger": "Swagger starten"
+    "Launch Swagger": "Swagger starten",
+    "Invalid face rectangle coordinates": "Ongeldige coördinaten gezichtsrechthoek",
+    "Family tree preferences": "Stamboom voorkeuren",
+    "Default family tree view": "Standaard stamboomweergave"
 }
