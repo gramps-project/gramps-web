@@ -75,6 +75,7 @@ class GrampsjsUpgradeDb extends GrampsjsAppStateMixin(LitElement) {
           class="button"
           size="20"
           pollInterval="0.2"
+          .appState="${this.appState}"
           @task:complete="${this._handleUpgradeComplete}"
         ></grampsjs-task-progress-indicator>
         <br /><br />

@@ -248,6 +248,7 @@ export class GrampsjsTextRecognition extends GrampsjsAppStateMixin(LitElement) {
           class="button"
           size="20"
           hideAfter="10"
+          .appState="${this.appState}"
           @task:complete="${this._handleTaskComplete}"
         ></grampsjs-task-progress-indicator>
       </p>

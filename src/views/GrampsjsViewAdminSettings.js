@@ -132,6 +132,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         taskName="searchReindexFull"
         size="20"
         pollInterval="0.5"
+        .appState="${this.appState}"
         @task:complete="${this._handleSuccessUpdateSearch}"
       ></grampsjs-task-progress-indicator>
 
@@ -160,6 +161,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                 taskName="searchReindexFullSemantic"
                 size="20"
                 pollInterval="1.0"
+                .appState="${this.appState}"
                 @task:complete="${this._handleSuccessUpdateSearch}"
               ></grampsjs-task-progress-indicator>
             </p>
@@ -177,6 +179,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                 taskName="searchReindexIncrementalSemantic"
                 size="20"
                 pollInterval="1.0"
+                .appState="${this.appState}"
                 @task:complete="${this._handleSuccessUpdateSearch}"
               ></grampsjs-task-progress-indicator>
             </p>
@@ -201,6 +204,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         taskName="repairDb"
         size="20"
         pollInterval="0.2"
+        .appState="${this.appState}"
         @task:complete="${this._handleRepairComplete}"
       ></grampsjs-task-progress-indicator>
 
@@ -230,6 +234,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             taskName="deleteObjects"
             size="20"
             pollInterval="0.2"
+            .appState="${this.appState}"
           ></grampsjs-task-progress-indicator>
           <mwc-button
             outlined
