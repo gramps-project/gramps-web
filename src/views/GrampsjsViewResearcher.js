@@ -5,7 +5,6 @@ import '@material/web/button/outlined-button'
 import '@material/web/textfield/outlined-text-field'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {fireEvent} from '../util.js'
 
 const FIELDS = [
   {id: 'name', label: 'Name'},
@@ -175,7 +174,6 @@ export class GrampsjsViewResearcher extends GrampsjsView {
 
     this.error = false
     this._editing = false
-    fireEvent(this, 'db:changed')
   }
 
   _buildAddress() {
