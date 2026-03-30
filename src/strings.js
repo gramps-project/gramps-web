@@ -624,6 +624,7 @@ export const grampsStrings = [
   'Places',
   'Polish',
   'Portrait',
+  'Postal Code',
   'Portuguese (Brazil)',
   'Portuguese (Portugal)',
   'Preferences',
