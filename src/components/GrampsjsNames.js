@@ -1,4 +1,5 @@
 import {html} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 
 import '@material/mwc-button'
 import '@material/mwc-icon-button'
@@ -31,16 +32,25 @@ export class GrampsjsNames extends GrampsjsEditableList {
     this.hasReorder = true
   }
 
-  row(obj) {
+  row(obj, i) {
     return html` ${!obj
       ? ''
       : html`
-          <mwc-list-item style="height: auto">
+          <md-list-item
+            type="${this.edit ? 'button' : 'text'}"
+            style="height: auto"
+            class="${classMap({selected: i === this._selectedIndex})}"
+            @click="${() => {
+              if (this.edit) {
+                this._handleSelected(i)
+              }
+            }}"
+          >
             <grampsjs-name
               .appState="${this.appState}"
               .data="${obj}"
             ></grampsjs-name>
-          </mwc-list-item>
+          </md-list-item>
         `}`
   }
 
@@ -82,7 +92,7 @@ export class GrampsjsNames extends GrampsjsEditableList {
       action: 'upName',
       handle: this._selectedIndex,
     })
-    this.renderRoot.querySelector('mwc-list').select(-1)
+    this._updateSelectionAfterReorder(true)
   }
 
   _handleDown() {
@@ -90,7 +100,7 @@ export class GrampsjsNames extends GrampsjsEditableList {
       action: 'downName',
       handle: this._selectedIndex,
     })
-    this.renderRoot.querySelector('mwc-list').select(-1)
+    this._updateSelectionAfterReorder(false)
   }
 
   _handleEdit() {

@@ -1,11 +1,20 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 import {css, html, LitElement} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 
 import {fireEvent} from '../util.js'
-import '@material/mwc-icon-button'
-import '@material/mwc-list'
-import '@material/mwc-list/mwc-list-item'
+import {
+  mdiArrowDown,
+  mdiArrowUp,
+  mdiDelete,
+  mdiLinkPlus,
+  mdiPencil,
+  mdiPlus,
+} from '@mdi/js'
+import '@material/web/iconbutton/icon-button.js'
+import '@material/web/list/list.js'
+import '@material/web/list/list-item.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -15,52 +24,83 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        mwc-list,
-        mwc-list > * {
-          --mdc-ripple-color: transparent;
+        md-list,
+        md-list > * {
+          --md-ripple-hover-opacity: 0;
+          --md-ripple-pressed-opacity: 0;
         }
 
-        mwc-list > * {
+        md-list > * {
           transition: background-color 0.1s, color 0.1s;
         }
 
-        mwc-list[activatable] [selected] {
+        /* Increase vertical spacing to match mwc-list-item */
+        md-list-item {
+          --md-list-item-one-line-container-height: 64px;
+          --md-list-item-two-line-container-height: 80px;
+          --md-list-item-three-line-container-height: 96px;
+          --md-list-item-top-space: 12px;
+          --md-list-item-bottom-space: 12px;
+        }
+
+        md-list.activatable md-list-item.selected {
           background-color: var(
-            --grampsjs-editable-list-selected-background-color
+            --grampsjs-editable-list-selected-background-color,
+            color-mix(in srgb, var(--md-sys-color-primary) 12%, transparent)
           );
         }
 
-        mwc-list[activatable] [mwc-list-item]:not([selected]):hover,
-        mwc-list[activatable] [mwc-list-item]:not([selected]):focus {
+        md-list.activatable md-list-item:not(.selected):hover,
+        md-list.activatable md-list-item:not(.selected):focus {
           background-color: var(
-            --grampsjs-editable-list-hover-background-color
+            --grampsjs-editable-list-hover-background-color,
+            color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent)
           );
         }
 
-        mwc-list[activatable] [mwc-list-item]:not([selected]):active {
+        md-list.activatable md-list-item:not(.selected):active {
           background-color: var(
-            --grampsjs-editable-list-active-background-color
+            --grampsjs-editable-list-active-background-color,
+            color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent)
           );
         }
 
-        mwc-list[activatable] [mwc-list-item][selected]:hover,
-        mwc-list[activatable] [mwc-list-item][selected]:focus {
+        md-list.activatable md-list-item.selected:hover,
+        md-list.activatable md-list-item.selected:focus {
           background-color: var(
-            --grampsjs-editable-list-selected-hover-background-color
+            --grampsjs-editable-list-selected-hover-background-color,
+            color-mix(in srgb, var(--md-sys-color-primary) 16%, transparent)
           );
           color: var(--grampsjs-body-font-color-90);
         }
 
-        mwc-list[activatable] [mwc-list-item][selected]:active {
+        md-list.activatable md-list-item.selected:active {
           background-color: var(
-            --grampsjs-editable-list-selected-active-background-color
+            --grampsjs-editable-list-selected-active-background-color,
+            color-mix(in srgb, var(--md-sys-color-primary) 20%, transparent)
           );
         }
 
-        mwc-icon-button {
-          --mdc-theme-text-disabled-on-light: var(
-            --grampsjs-body-font-color-25
-          );
+        md-icon-button[disabled] {
+          color: var(--grampsjs-body-font-color-25);
+        }
+
+        /* Icon styling - replicate mwc-list-item graphic="avatar" */
+        grampsjs-img[slot='start'],
+        grampsjs-icon[slot='start'],
+        mwc-icon[slot='start'] {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          overflow: hidden;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+
+        grampsjs-icon[slot='start'] {
+          background-color: var(--grampsjs-color-icon-background);
         }
 
         mwc-icon.placeholder {
@@ -68,6 +108,11 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
           height: 40px;
           line-height: 40px;
           border-radius: 50%;
+        }
+
+        /* Cursor for clickable items in view mode */
+        md-list:not(.activatable) md-list-item[type='button'] {
+          cursor: pointer;
         }
       `,
     ]
@@ -108,21 +153,18 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
         ? ''
         : html`
             ${this.edit ? this._renderActionBtns() : ''}
-            <mwc-list
-              ?activatable="${this.edit}"
-              @action="${this._handleSelected}"
-            >
+            <md-list class="${classMap({activatable: this.edit})}">
               ${this.sortData([...this.data]).map((obj, i, arr) =>
                 this.row(obj, i, arr)
               )}
-            </mwc-list>
+            </md-list>
           `}
       ${this.dialogContent}
     `
   }
 
-  _handleSelected(e) {
-    this._selectedIndex = e.detail.index
+  _handleSelected(i) {
+    this._selectedIndex = i
   }
 
   // function to sort the data, if necessary
@@ -138,56 +180,74 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
     return html`
       ${this.hasShare
         ? html`
-            <mwc-icon-button
-              class="edit"
-              icon="add_link"
-              @click="${this._handleShare}"
-            ></mwc-icon-button>
+            <md-icon-button class="edit" @click="${this._handleShare}">
+              <grampsjs-icon
+                path="${mdiLinkPlus}"
+                color="var(--mdc-theme-secondary)"
+              ></grampsjs-icon>
+            </md-icon-button>
           `
         : ''}
       ${this.hasAdd
         ? html`
-            <mwc-icon-button
-              class="edit"
-              icon="add"
-              @click="${this._handleAdd}"
-            ></mwc-icon-button>
+            <md-icon-button class="edit" @click="${this._handleAdd}">
+              <grampsjs-icon
+                path="${mdiPlus}"
+                color="var(--mdc-theme-secondary)"
+              ></grampsjs-icon>
+            </md-icon-button>
           `
         : ''}
       ${this.hasEdit
         ? html`
-            <mwc-icon-button
+            <md-icon-button
               ?disabled="${this._selectedIndex === -1}"
               class="edit"
-              icon="edit"
               @click="${this._handleEdit}"
-            ></mwc-icon-button>
+            >
+              <grampsjs-icon
+                path="${mdiPencil}"
+                color="var(--mdc-theme-secondary)"
+              ></grampsjs-icon>
+            </md-icon-button>
           `
         : ''}
       ${this.hasReorder
         ? html`
-            <mwc-icon-button
+            <md-icon-button
               ?disabled="${this._selectedIndex === -1 ||
               this._selectedIndex === 0}"
               class="edit"
-              icon="arrow_upward"
               @click="${this._handleUp}"
-            ></mwc-icon-button>
-            <mwc-icon-button
+            >
+              <grampsjs-icon
+                path="${mdiArrowUp}"
+                color="var(--mdc-theme-secondary)"
+              ></grampsjs-icon>
+            </md-icon-button>
+            <md-icon-button
               ?disabled="${this._selectedIndex === -1 ||
               this._selectedIndex === this.data.length - 1}"
               class="edit"
-              icon="arrow_downward"
               @click="${this._handleDown}"
-            ></mwc-icon-button>
+            >
+              <grampsjs-icon
+                path="${mdiArrowDown}"
+                color="var(--mdc-theme-secondary)"
+              ></grampsjs-icon>
+            </md-icon-button>
           `
         : ''}
-      <mwc-icon-button
+      <md-icon-button
         ?disabled="${this._selectedIndex === -1}"
         class="edit"
-        icon="delete"
         @click="${this._handleDelete}"
-      ></mwc-icon-button>
+      >
+        <grampsjs-icon
+          path="${mdiDelete}"
+          color="var(--mdc-theme-secondary)"
+        ></grampsjs-icon>
+      </md-icon-button>
     `
   }
 
@@ -196,6 +256,13 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
       this._selectedIndex = -1
       this.dialogContent = ''
     }
+  }
+
+  _updateSelectionAfterReorder(movedUp) {
+    // Clear selection to avoid highlighting wrong item while API call completes.
+    // The movedUp parameter is provided for subclasses that may want to track
+    // and restore selection after the data updates.
+    this._selectedIndex = -1
   }
 
   _handleActionClick(e, action, handle) {

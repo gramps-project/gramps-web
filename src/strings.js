@@ -760,6 +760,7 @@ export const grampsStrings = [
   'Source: Author',
   'Source: Title',
   'Source',
+  '_Source Citations',
   'Sources having <count> notes',
   'Sources with <count> media',
   'Sources with <count> Repository references',

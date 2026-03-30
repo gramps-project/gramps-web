@@ -8,7 +8,7 @@ import {
   mdiOpenInNew,
   mdiAccount,
   mdiAccountMultiple,
-  mdiCalendarBlank,
+  mdiCalendar,
   mdiMapMarker,
   mdiBookmarkMultiple,
   mdiBookmark,
@@ -229,7 +229,7 @@ export const objectIcon = {
 const objectIconPath = {
   person: mdiAccount,
   family: mdiAccountMultiple,
-  event: mdiCalendarBlank,
+  event: mdiCalendar,
   place: mdiMapMarker,
   source: mdiBookmarkMultiple,
   citation: mdiBookmark,

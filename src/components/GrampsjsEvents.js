@@ -1,4 +1,5 @@
 import {html} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import {fireEvent, renderIcon, objectDetail, makeHandle} from '../util.js'
@@ -34,19 +35,27 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     this.defaultRole = 'Primary'
   }
 
-  row(obj) {
+  row(obj, i) {
     const j = this.data.indexOf(obj)
     const objProfile = {...obj, profile: this.profile[j]}
     return html`
-      <mwc-list-item
-        twoline
-        graphic="avatar"
-        @click="${() => this._handleClick(obj.gramps_id)}"
+      <md-list-item
+        type="button"
+        class="${classMap({selected: i === this._selectedIndex})}"
+        @click="${() => {
+          if (this.edit) {
+            this._handleSelected(i)
+          } else {
+            this._handleClick(obj.gramps_id)
+          }
+        }}"
       >
         ${this._getPrimaryText(objProfile)}
-        <span slot="secondary">${this._getSecondaryText(objProfile)}</span>
-        ${renderIcon({object: obj, object_type: 'event'})}
-      </mwc-list-item>
+        <span slot="supporting-text"
+          >${this._getSecondaryText(objProfile)}</span
+        >
+        ${renderIcon({object: obj, object_type: 'event'}, 'start')}
+      </md-list-item>
     `
   }
 
@@ -205,6 +214,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
         action: 'upEvent',
         handle: this.data[this._selectedIndex].handle,
       })
+      this._updateSelectionAfterReorder(true)
     }
   }
 
@@ -215,7 +225,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
         action: 'downEvent',
         handle: this.data[this._selectedIndex].handle,
       })
-      this.renderRoot.querySelector('mwc-list').select(-1)
+      this._updateSelectionAfterReorder(false)
     }
   }
 
