@@ -280,5 +280,8 @@
     "Failed to update": "Aktualisieren fehlgeschlagen",
     "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Kopiere dein Sitzungstoken, um es in Swagger UI, dem interaktiven API-Testtool, zu verwenden.",
     "Developer Tools": "Entwicklerwerkzeuge",
-    "Launch Swagger": "Swagger starten"
+    "Launch Swagger": "Swagger starten",
+    "Family tree preferences": "Stammbaumeinstellungen",
+    "Default family tree view": "Standard-Stammbaumansicht",
+    "Invalid face rectangle coordinates": "Ungültige Koordinaten des Gesichtsrechtecks"
 }
