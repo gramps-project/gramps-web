@@ -61,12 +61,6 @@ export class GrampsjsUrls extends GrampsjsEditableList {
     `
   }
 
-  _handleClick(obj) {
-    if (!this.edit) {
-      window.open(obj.path, '_blank')
-    }
-  }
-
   _handleAdd() {
     this.dialogContent = html`
       <grampsjs-form-edit-url
