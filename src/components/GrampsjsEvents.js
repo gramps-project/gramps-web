@@ -40,7 +40,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     const objProfile = {...obj, profile: this.profile[j]}
     return html`
       <md-list-item
-        type="${this.edit ? 'text' : 'button'}"
+        type="button"
         class="${classMap({selected: i === this._selectedIndex})}"
         @click="${() => {
           if (this.edit) {

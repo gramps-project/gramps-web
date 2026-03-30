@@ -232,14 +232,12 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
       this._selectedIndex = -1
       this.dialogContent = ''
     }
-    if (changed.has('data') && this._selectedIndex !== -1) {
-      // After reordering, keep the same item selected (not the same index)
-      // This is handled by subclasses calling _updateSelectionAfterReorder
-    }
   }
 
   _updateSelectionAfterReorder(movedUp) {
-    // Clear selection to avoid highlighting wrong item while API call completes
+    // Clear selection to avoid highlighting wrong item while API call completes.
+    // The movedUp parameter is provided for subclasses that may want to track
+    // and restore selection after the data updates.
     this._selectedIndex = -1
   }
 

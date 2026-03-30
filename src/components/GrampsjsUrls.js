@@ -32,19 +32,18 @@ export class GrampsjsUrls extends GrampsjsEditableList {
   row(obj, i) {
     return html`
       <md-list-item
-        type="${this.edit ? 'text' : 'button'}"
+        type="${this.edit ? 'button' : 'text'}"
         class="${classMap({selected: i === this._selectedIndex})}"
         @click="${() => {
           if (this.edit) {
             this._handleSelected(i)
-          } else {
-            this._handleClick(obj)
           }
         }}"
       >
         <a
           href="${fixUrl(obj.path)}"
           target="_blank"
+          rel="noopener noreferrer"
           class="${classMap({nopointer: this.edit})}"
           >${obj.path}</a
         >
