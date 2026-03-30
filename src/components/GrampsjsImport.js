@@ -71,6 +71,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
           size="20"
           hideAfter="0"
           pollInterval="0.2"
+          .appState="${this.appState}"
           @task:complete="${this._handleSuccess}"
           @task:error="${() => this._handleCompleted(STATE_ERROR)}"
         ></grampsjs-task-progress-indicator>

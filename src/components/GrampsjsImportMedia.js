@@ -73,6 +73,7 @@ export class GrampsjsImportMedia extends GrampsjsAppStateMixin(LitElement) {
           size="20"
           hideAfter="0"
           pollInterval="0.2"
+          .appState="${this.appState}"
           @task:complete="${this._handleSuccessMedia}"
           @task:error="${() => this._handleCompletedMedia(STATE_ERROR)}"
         ></grampsjs-task-progress-indicator>

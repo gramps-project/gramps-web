@@ -76,6 +76,7 @@ export class GrampsjsViewExport extends GrampsjsView {
           class="button"
           size="20"
           pollInterval="0.2"
+          .appState="${this.appState}"
           @task:complete="${this._handleTaskComplete}"
         ></grampsjs-task-progress-indicator>
         <a
@@ -103,6 +104,7 @@ export class GrampsjsViewExport extends GrampsjsView {
           class="button"
           size="20"
           pollInterval="0.2"
+          .appState="${this.appState}"
           @task:complete="${this._handleMediaTaskComplete}"
         ></grampsjs-task-progress-indicator>
         <a
