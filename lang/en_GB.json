@@ -279,5 +279,8 @@
     "Failed to update": "Failed to update",
     "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Copy your session token to use in Swagger UI, the interactive API testing tool.",
     "Developer Tools": "Developer Tools",
-    "Launch Swagger": "Launch Swagger"
+    "Launch Swagger": "Launch Swagger",
+    "Family tree preferences": "Family tree preferences",
+    "Default family tree view": "Default family tree view",
+    "Invalid face rectangle coordinates": "Invalid face rectangle coordinates"
 }
