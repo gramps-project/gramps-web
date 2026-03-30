@@ -6,10 +6,6 @@ import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditAttribute.js'
 import './GrampsjsIcon.js'
 
-import '@material/mwc-icon-button'
-import '@material/web/list/list.js'
-import '@material/web/list/list-item.js'
-
 import {fireEvent, linkUrls} from '../util.js'
 
 export class GrampsjsAttributes extends GrampsjsEditableList {

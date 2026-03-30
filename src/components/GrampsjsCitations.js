@@ -4,10 +4,6 @@ import {classMap} from 'lit/directives/class-map.js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import {fireEvent, renderIcon} from '../util.js'
 
-import '@material/mwc-icon-button'
-import '@material/web/list/list.js'
-import '@material/web/list/list-item.js'
-
 export class GrampsjsCitations extends GrampsjsEditableList {
   constructor() {
     super()

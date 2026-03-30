@@ -6,10 +6,6 @@ import {fireEvent, renderIcon, makeHandle} from '../util.js'
 import './GrampsjsFormCitation.js'
 import './GrampsjsFormNewCitation.js'
 
-import '@material/mwc-icon-button'
-import '@material/web/list/list.js'
-import '@material/web/list/list-item.js'
-
 export class GrampsjsSourceCitations extends GrampsjsEditableList {
   constructor() {
     super()
