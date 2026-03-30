@@ -706,6 +706,7 @@ export function renderIcon(obj, slot = 'graphic') {
       ><grampsjs-icon
         class="placeholder"
         path="${objectIconPath[obj.object_type]}"
+        color="var(--grampsjs-color-icon)"
       ></grampsjs-icon
     ></grampsjs-img>`
   }
@@ -717,12 +718,14 @@ export function renderIcon(obj, slot = 'graphic') {
     return html`<grampsjs-icon
       slot="${slot}"
       path="${objectIconPath[obj.object_type]}"
+      color="var(--grampsjs-color-icon)"
       style="background-color:${color};"
     ></grampsjs-icon>`
   }
   return html`<grampsjs-icon
     slot="${slot}"
     path="${objectIconPath[obj.object_type]}"
+    color="var(--grampsjs-color-icon)"
   ></grampsjs-icon>`
 }
 

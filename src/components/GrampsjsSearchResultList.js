@@ -28,14 +28,8 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
           --md-icon-button-icon-size: 20px;
         }
 
-        grampsjs-icon {
+        grampsjs-icon[slot='start'] {
           background-color: var(--grampsjs-color-icon-background);
-          color: var(--grampsjs-color-icon);
-        }
-
-        md-icon-button grampsjs-icon {
-          background-color: transparent;
-          color: var(--md-sys-color-on-surface-variant);
         }
 
         /* Replicate mwc-list-item graphic="avatar" sizing/rounding */
