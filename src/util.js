@@ -4,8 +4,21 @@ import '@material/mwc-icon'
 import dayjs from 'dayjs/esm'
 import relativeTime from 'dayjs/esm/plugin/relativeTime'
 
-import {mdiOpenInNew} from '@mdi/js'
+import {
+  mdiOpenInNew,
+  mdiAccount,
+  mdiAccountMultiple,
+  mdiCalendarBlank,
+  mdiMapMarker,
+  mdiBookmarkMultiple,
+  mdiBookmark,
+  mdiBank,
+  mdiNoteText,
+  mdiImage,
+  mdiLabel,
+} from '@mdi/js'
 import {asteriskIcon, crossIcon, renderIconSvg} from './icons.js'
+import './components/GrampsjsIcon.js'
 import {frontendLanguages} from './strings.js'
 import {hex6ToCss, hex12ToCss} from './color.js'
 
@@ -211,6 +224,19 @@ export const objectIcon = {
   note: 'sticky_note_2',
   media: 'photo',
   tag: 'label',
+}
+
+const objectIconPath = {
+  person: mdiAccount,
+  family: mdiAccountMultiple,
+  event: mdiCalendarBlank,
+  place: mdiMapMarker,
+  source: mdiBookmarkMultiple,
+  citation: mdiBookmark,
+  repository: mdiBank,
+  note: mdiNoteText,
+  media: mdiImage,
+  tag: mdiLabel,
 }
 
 export const objectTypeToEndpoint = {
@@ -665,35 +691,42 @@ function _getMediaRect(obj) {
   return []
 }
 
-export function renderIcon(obj) {
+export function renderIcon(obj, slot = 'graphic') {
   const handle = _getMediaHandle(obj)
   const rect = _getMediaRect(obj)
   if (handle) {
     return html`<grampsjs-img
       handle="${handle}"
-      slot="graphic"
+      slot="${slot}"
       circle
       square
       size="70"
       .rect="${rect}"
       .mime=""
-      ><mwc-icon class="placeholder"
-        >${objectIcon[obj.object_type]}</mwc-icon
-      ></grampsjs-img
-    >`
+      ><grampsjs-icon
+        class="placeholder"
+        path="${objectIconPath[obj.object_type]}"
+        color="var(--grampsjs-color-icon)"
+      ></grampsjs-icon
+    ></grampsjs-img>`
   }
   if (obj.object_type === 'tag') {
     const color =
       obj.object?.color?.length > 7
         ? hex12ToCss(obj.object.color, 0.6)
         : hex6ToCss(obj.object.color, 0.6)
-    return html`<mwc-icon slot="graphic" style="background-color:${color};"
-      >${objectIcon[obj.object_type]}</mwc-icon
-    >`
+    return html`<grampsjs-icon
+      slot="${slot}"
+      path="${objectIconPath[obj.object_type]}"
+      color="var(--grampsjs-color-icon)"
+      style="background-color:${color};"
+    ></grampsjs-icon>`
   }
-  return html`<mwc-icon slot="graphic"
-    >${objectIcon[obj.object_type]}</mwc-icon
-  >`
+  return html`<grampsjs-icon
+    slot="${slot}"
+    path="${objectIconPath[obj.object_type]}"
+    color="var(--grampsjs-color-icon)"
+  ></grampsjs-icon>`
 }
 
 export function clickKeyHandler(event) {
