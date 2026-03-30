@@ -281,7 +281,7 @@
     "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Skopírujte si token relácie, ktorý budete používať v Swagger UI, interaktívnom nástroji na testovanie API.",
     "Developer Tools": "Nástroje pre vývojárov",
     "Launch Swagger": "Spustiť Swagger",
-    "Family tree preferences": "Predvoľby rodokmeňa",
-    "Default family tree view": "Predvolené zobrazenie rodokmeňa",
+    "Family tree preferences": "Predvoľby rodinného stromu",
+    "Default family tree view": "Predvolené zobrazenie rodinného stromu",
     "Invalid face rectangle coordinates": "Neplatné súradnice obdĺžnika tváre"
 }
