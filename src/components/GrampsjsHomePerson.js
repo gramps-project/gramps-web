@@ -43,7 +43,7 @@ export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
               <grampsjs-search-result-list
                 large
                 linked
-                metaIcon="edit"
+                metaIcon="${mdiPencil}"
                 .appState="${this.appState}"
                 .data=${[
                   {object: this.homePersonDetails, object_type: 'person'},
