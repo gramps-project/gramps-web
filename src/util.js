@@ -16,8 +16,36 @@ import {
   mdiNoteText,
   mdiImage,
   mdiLabel,
+  mdiCradle,
+  mdiCoffin,
+  mdiGraveStone,
+  mdiChurch,
+  mdiStarDavid,
+  mdiClipboardList,
+  mdiSchool,
+  mdiFerry,
+  mdiHammer,
+  mdiHandCoin,
+  mdiHome,
+  mdiRing,
+  mdiMedicalBag,
+  mdiSwordCross,
+  mdiPassport,
+  mdiFleurDeLis,
+  mdiScaleBalance,
+  mdiGavel,
+  mdiVote,
+  mdiFireplace,
+  mdiFileCertificate,
+  mdiFileDocument,
+  mdiHumanCane,
+  mdiHandsPray,
+  mdiWater,
+  mdiDivision,
+  mdiSkullCrossbones,
+  mdiAccountChild,
 } from '@mdi/js'
-import {asteriskIcon, crossIcon, renderIconSvg} from './icons.js'
+import {asteriskIcon, crossIcon, renderIconSvg, ringsIconPath} from './icons.js'
 import './components/GrampsjsIcon.js'
 import {frontendLanguages} from './strings.js'
 import {hex6ToCss, hex12ToCss} from './color.js'
@@ -237,6 +265,56 @@ const objectIconPath = {
   note: mdiNoteText,
   media: mdiImage,
   tag: mdiLabel,
+}
+
+export const eventTypeIconPath = {
+  Unknown: null,
+  Custom: null,
+  Adopted: mdiAccountChild,
+  Birth: mdiCradle,
+  Death: mdiCoffin,
+  'Adult Christening': mdiWater,
+  Baptism: mdiWater,
+  'Bar Mitzvah': mdiStarDavid,
+  'Bas Mitzvah': mdiStarDavid,
+  Blessing: mdiHandsPray,
+  Burial: mdiGraveStone,
+  'Cause Of Death': mdiSkullCrossbones,
+  Census: mdiClipboardList,
+  Christening: mdiWater,
+  Confirmation: mdiChurch,
+  Cremation: mdiFireplace,
+  Degree: mdiSchool,
+  Education: mdiSchool,
+  Elected: mdiVote,
+  Emigration: mdiFerry,
+  'First Communion': mdiHandCoin,
+  Immigration: mdiFerry,
+  Graduation: mdiSchool,
+  'Medical Information': mdiMedicalBag,
+  'Military Service': mdiSwordCross,
+  Naturalization: mdiPassport,
+  'Nobility Title': mdiFleurDeLis,
+  'Number of Marriages': ringsIconPath,
+  Occupation: mdiHammer,
+  Ordination: mdiChurch,
+  Probate: mdiGavel,
+  Property: mdiHome,
+  Religion: mdiChurch,
+  Residence: mdiHome,
+  Retirement: mdiHumanCane,
+  Will: mdiFileDocument,
+  Marriage: ringsIconPath,
+  'Marriage Settlement': mdiFileCertificate,
+  'Marriage License': mdiFileCertificate,
+  'Marriage Contract': mdiFileCertificate,
+  'Marriage Banns': mdiFileCertificate,
+  Engagement: mdiRing,
+  Divorce: mdiDivision,
+  'Divorce Filing': mdiFileDocument,
+  Annulment: mdiScaleBalance,
+  'Alternate Marriage': ringsIconPath,
+  Stillbirth: null,
 }
 
 export const objectTypeToEndpoint = {
@@ -691,7 +769,7 @@ function _getMediaRect(obj) {
   return []
 }
 
-export function renderIcon(obj, slot = 'graphic') {
+export function renderIcon(obj, slot = 'graphic', iconPath = null) {
   const handle = _getMediaHandle(obj)
   const rect = _getMediaRect(obj)
   if (handle) {
@@ -724,7 +802,7 @@ export function renderIcon(obj, slot = 'graphic') {
   }
   return html`<grampsjs-icon
     slot="${slot}"
-    path="${objectIconPath[obj.object_type]}"
+    path="${iconPath || objectIconPath[obj.object_type]}"
     color="var(--grampsjs-color-icon)"
   ></grampsjs-icon>`
 }

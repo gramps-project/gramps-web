@@ -2,7 +2,13 @@ import {html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
-import {fireEvent, renderIcon, objectDetail, makeHandle} from '../util.js'
+import {
+  fireEvent,
+  renderIcon,
+  objectDetail,
+  makeHandle,
+  eventTypeIconPath,
+} from '../util.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormEventRef.js'
 import './GrampsjsFormNewEvent.js'
@@ -38,6 +44,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
   row(obj, i) {
     const j = this.data.indexOf(obj)
     const objProfile = {...obj, profile: this.profile[j]}
+    const typeKey = typeof obj.type === 'string' ? obj.type : obj.type?.value
     return html`
       <md-list-item
         type="button"
@@ -54,7 +61,11 @@ export class GrampsjsEvents extends GrampsjsEditableList {
         <span slot="supporting-text"
           >${this._getSecondaryText(objProfile)}</span
         >
-        ${renderIcon({object: obj, object_type: 'event'}, 'start')}
+        ${renderIcon(
+          {object: obj, object_type: 'event'},
+          'start',
+          eventTypeIconPath[typeKey] || null
+        )}
       </md-list-item>
     `
   }
