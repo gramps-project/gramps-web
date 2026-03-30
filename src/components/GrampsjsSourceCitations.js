@@ -1,4 +1,5 @@
 import {html} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import {fireEvent, renderIcon, makeHandle} from '../util.js'
@@ -6,8 +7,8 @@ import './GrampsjsFormCitation.js'
 import './GrampsjsFormNewCitation.js'
 
 import '@material/mwc-icon-button'
-import '@material/mwc-list'
-import '@material/mwc-list/mwc-list-item'
+import '@material/web/list/list.js'
+import '@material/web/list/list-item.js'
 
 export class GrampsjsSourceCitations extends GrampsjsEditableList {
   constructor() {
@@ -15,18 +16,23 @@ export class GrampsjsSourceCitations extends GrampsjsEditableList {
     this.objType = 'Citation'
   }
 
-  row(obj) {
+  row(obj, i) {
     return html`
-      <mwc-list-item
-        twoline
-        graphic="avatar"
-        ?hasMeta="${this.edit}"
-        @click="${() => this._handleClick(obj.gramps_id)}"
+      <md-list-item
+        type="${this.edit ? 'text' : 'button'}"
+        class="${classMap({selected: i === this._selectedIndex})}"
+        @click="${() => {
+          if (this.edit) {
+            this._handleSelected(i)
+          } else {
+            this._handleClick(obj.gramps_id)
+          }
+        }}"
       >
         ${obj?.profile?.source?.title || this._('Source')}
-        <span slot="secondary"> ${obj.page || obj.gramps_id} </span>
-        ${renderIcon({object: obj, object_type: 'citation'})}
-      </mwc-list-item>
+        <span slot="supporting-text"> ${obj.page || obj.gramps_id} </span>
+        ${renderIcon({object: obj, object_type: 'citation'}, 'start')}
+      </md-list-item>
     `
   }
 

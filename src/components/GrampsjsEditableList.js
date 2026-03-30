@@ -1,11 +1,12 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable class-methods-use-this */
 import {css, html, LitElement} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 
 import {fireEvent} from '../util.js'
 import '@material/mwc-icon-button'
-import '@material/mwc-list'
-import '@material/mwc-list/mwc-list-item'
+import '@material/web/list/list.js'
+import '@material/web/list/list-item.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -15,45 +16,60 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        mwc-list,
-        mwc-list > * {
-          --mdc-ripple-color: transparent;
+        md-list,
+        md-list > * {
+          --md-ripple-hover-opacity: 0;
+          --md-ripple-pressed-opacity: 0;
         }
 
-        mwc-list > * {
+        md-list > * {
           transition: background-color 0.1s, color 0.1s;
         }
 
-        mwc-list[activatable] [selected] {
+        /* Increase vertical spacing to match mwc-list-item */
+        md-list-item {
+          --md-list-item-one-line-container-height: 64px;
+          --md-list-item-two-line-container-height: 80px;
+          --md-list-item-three-line-container-height: 96px;
+          --md-list-item-top-space: 12px;
+          --md-list-item-bottom-space: 12px;
+        }
+
+        md-list.activatable md-list-item.selected {
           background-color: var(
-            --grampsjs-editable-list-selected-background-color
+            --grampsjs-editable-list-selected-background-color,
+            color-mix(in srgb, var(--md-sys-color-primary) 12%, transparent)
           );
         }
 
-        mwc-list[activatable] [mwc-list-item]:not([selected]):hover,
-        mwc-list[activatable] [mwc-list-item]:not([selected]):focus {
+        md-list.activatable md-list-item:not(.selected):hover,
+        md-list.activatable md-list-item:not(.selected):focus {
           background-color: var(
-            --grampsjs-editable-list-hover-background-color
+            --grampsjs-editable-list-hover-background-color,
+            color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent)
           );
         }
 
-        mwc-list[activatable] [mwc-list-item]:not([selected]):active {
+        md-list.activatable md-list-item:not(.selected):active {
           background-color: var(
-            --grampsjs-editable-list-active-background-color
+            --grampsjs-editable-list-active-background-color,
+            color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent)
           );
         }
 
-        mwc-list[activatable] [mwc-list-item][selected]:hover,
-        mwc-list[activatable] [mwc-list-item][selected]:focus {
+        md-list.activatable md-list-item.selected:hover,
+        md-list.activatable md-list-item.selected:focus {
           background-color: var(
-            --grampsjs-editable-list-selected-hover-background-color
+            --grampsjs-editable-list-selected-hover-background-color,
+            color-mix(in srgb, var(--md-sys-color-primary) 16%, transparent)
           );
           color: var(--grampsjs-body-font-color-90);
         }
 
-        mwc-list[activatable] [mwc-list-item][selected]:active {
+        md-list.activatable md-list-item.selected:active {
           background-color: var(
-            --grampsjs-editable-list-selected-active-background-color
+            --grampsjs-editable-list-selected-active-background-color,
+            color-mix(in srgb, var(--md-sys-color-primary) 20%, transparent)
           );
         }
 
@@ -63,11 +79,34 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
           );
         }
 
+        /* Icon styling - replicate mwc-list-item graphic="avatar" */
+        grampsjs-img[slot='start'],
+        grampsjs-icon[slot='start'],
+        mwc-icon[slot='start'] {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          overflow: hidden;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+
+        grampsjs-icon[slot='start'] {
+          background-color: var(--grampsjs-color-icon-background);
+        }
+
         mwc-icon.placeholder {
           width: 40px;
           height: 40px;
           line-height: 40px;
           border-radius: 50%;
+        }
+
+        /* Cursor for clickable items in view mode */
+        md-list:not(.activatable) md-list-item[type='button'] {
+          cursor: pointer;
         }
       `,
     ]
@@ -108,21 +147,18 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
         ? ''
         : html`
             ${this.edit ? this._renderActionBtns() : ''}
-            <mwc-list
-              ?activatable="${this.edit}"
-              @action="${this._handleSelected}"
-            >
+            <md-list class="${classMap({activatable: this.edit})}">
               ${this.sortData([...this.data]).map((obj, i, arr) =>
                 this.row(obj, i, arr)
               )}
-            </mwc-list>
+            </md-list>
           `}
       ${this.dialogContent}
     `
   }
 
-  _handleSelected(e) {
-    this._selectedIndex = e.detail.index
+  _handleSelected(i) {
+    this._selectedIndex = i
   }
 
   // function to sort the data, if necessary
@@ -196,6 +232,15 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
       this._selectedIndex = -1
       this.dialogContent = ''
     }
+    if (changed.has('data') && this._selectedIndex !== -1) {
+      // After reordering, keep the same item selected (not the same index)
+      // This is handled by subclasses calling _updateSelectionAfterReorder
+    }
+  }
+
+  _updateSelectionAfterReorder(movedUp) {
+    // Clear selection to avoid highlighting wrong item while API call completes
+    this._selectedIndex = -1
   }
 
   _handleActionClick(e, action, handle) {

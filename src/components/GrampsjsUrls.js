@@ -1,13 +1,14 @@
 import {html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
+import {mdiOpenInNew} from '@mdi/js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditUrl.js'
+import './GrampsjsIcon.js'
 
 import {fireEvent} from '../util.js'
 
-import '@material/mwc-icon'
-import '@material/mwc-list/mwc-list-item'
+import '@material/web/list/list-item.js'
 
 function isValidEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -28,13 +29,18 @@ function fixUrl(input) {
 }
 
 export class GrampsjsUrls extends GrampsjsEditableList {
-  row(obj) {
+  row(obj, i) {
     return html`
-      <mwc-list-item
-        twoline
-        graphic="avatar"
-        ?hasMeta="${this.edit}"
-        @click="${() => this._handleClick(obj)}"
+      <md-list-item
+        type="${this.edit ? 'text' : 'button'}"
+        class="${classMap({selected: i === this._selectedIndex})}"
+        @click="${() => {
+          if (this.edit) {
+            this._handleSelected(i)
+          } else {
+            this._handleClick(obj)
+          }
+        }}"
       >
         <a
           href="${fixUrl(obj.path)}"
@@ -42,13 +48,17 @@ export class GrampsjsUrls extends GrampsjsEditableList {
           class="${classMap({nopointer: this.edit})}"
           >${obj.path}</a
         >
-        <span slot="secondary"
+        <span slot="supporting-text"
           >${this._(obj.type)}${obj.type && obj.desc
             ? html` &ndash; `
             : ''}${obj.desc}</span
         >
-        <mwc-icon slot="graphic">open_in_new</mwc-icon>
-      </mwc-list-item>
+        <grampsjs-icon
+          slot="start"
+          path="${mdiOpenInNew}"
+          color="var(--grampsjs-color-icon)"
+        ></grampsjs-icon>
+      </md-list-item>
     `
   }
 

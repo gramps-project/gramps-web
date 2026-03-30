@@ -118,7 +118,7 @@ const _allTabs = {
     conditionEdit: data => 'note_list' in data,
   },
   sourceCitations: {
-    title: 'Sources',
+    title: '_Source Citations',
     condition: data => data?.citation_list?.length > 0,
     conditionEdit: data => 'citation_list' in data,
   },
