@@ -4,7 +4,15 @@ import {css, html, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {fireEvent} from '../util.js'
-import '@material/mwc-icon-button'
+import {
+  mdiArrowDown,
+  mdiArrowUp,
+  mdiDelete,
+  mdiLinkPlus,
+  mdiPencil,
+  mdiPlus,
+} from '@mdi/js'
+import '@material/web/iconbutton/icon-button.js'
 import '@material/web/list/list.js'
 import '@material/web/list/list-item.js'
 
@@ -73,10 +81,8 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
           );
         }
 
-        mwc-icon-button {
-          --mdc-theme-text-disabled-on-light: var(
-            --grampsjs-body-font-color-25
-          );
+        md-icon-button[disabled] {
+          color: var(--grampsjs-body-font-color-25);
         }
 
         /* Icon styling - replicate mwc-list-item graphic="avatar" */
@@ -174,56 +180,74 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
     return html`
       ${this.hasShare
         ? html`
-            <mwc-icon-button
-              class="edit"
-              icon="add_link"
-              @click="${this._handleShare}"
-            ></mwc-icon-button>
+            <md-icon-button class="edit" @click="${this._handleShare}">
+              <grampsjs-icon
+                path="${mdiLinkPlus}"
+                color="var(--mdc-theme-secondary)"
+              ></grampsjs-icon>
+            </md-icon-button>
           `
         : ''}
       ${this.hasAdd
         ? html`
-            <mwc-icon-button
-              class="edit"
-              icon="add"
-              @click="${this._handleAdd}"
-            ></mwc-icon-button>
+            <md-icon-button class="edit" @click="${this._handleAdd}">
+              <grampsjs-icon
+                path="${mdiPlus}"
+                color="var(--mdc-theme-secondary)"
+              ></grampsjs-icon>
+            </md-icon-button>
           `
         : ''}
       ${this.hasEdit
         ? html`
-            <mwc-icon-button
+            <md-icon-button
               ?disabled="${this._selectedIndex === -1}"
               class="edit"
-              icon="edit"
               @click="${this._handleEdit}"
-            ></mwc-icon-button>
+            >
+              <grampsjs-icon
+                path="${mdiPencil}"
+                color="var(--mdc-theme-secondary)"
+              ></grampsjs-icon>
+            </md-icon-button>
           `
         : ''}
       ${this.hasReorder
         ? html`
-            <mwc-icon-button
+            <md-icon-button
               ?disabled="${this._selectedIndex === -1 ||
               this._selectedIndex === 0}"
               class="edit"
-              icon="arrow_upward"
               @click="${this._handleUp}"
-            ></mwc-icon-button>
-            <mwc-icon-button
+            >
+              <grampsjs-icon
+                path="${mdiArrowUp}"
+                color="var(--mdc-theme-secondary)"
+              ></grampsjs-icon>
+            </md-icon-button>
+            <md-icon-button
               ?disabled="${this._selectedIndex === -1 ||
               this._selectedIndex === this.data.length - 1}"
               class="edit"
-              icon="arrow_downward"
               @click="${this._handleDown}"
-            ></mwc-icon-button>
+            >
+              <grampsjs-icon
+                path="${mdiArrowDown}"
+                color="var(--mdc-theme-secondary)"
+              ></grampsjs-icon>
+            </md-icon-button>
           `
         : ''}
-      <mwc-icon-button
+      <md-icon-button
         ?disabled="${this._selectedIndex === -1}"
         class="edit"
-        icon="delete"
         @click="${this._handleDelete}"
-      ></mwc-icon-button>
+      >
+        <grampsjs-icon
+          path="${mdiDelete}"
+          color="var(--mdc-theme-secondary)"
+        ></grampsjs-icon>
+      </md-icon-button>
     `
   }
 
