@@ -266,7 +266,8 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
 
     const result = await this.appState.apiPut(
       `/api/people/${personHandle}`,
-      updatedPersonData
+      updatedPersonData,
+      {etag: res.etag}
     )
     if ('error' in result) {
       fireEvent(this, 'grampsjs:error', {message: result.error})

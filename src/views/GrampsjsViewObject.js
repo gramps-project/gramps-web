@@ -71,6 +71,7 @@ export class GrampsjsViewObject extends GrampsjsView {
       edit: {type: Boolean},
       editDialogContent: {type: String},
       _data: {type: Object},
+      _etag: {type: String},
       _className: {type: String},
       _saveButton: {type: Boolean},
     }
@@ -81,6 +82,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     this.edit = false
     this.editDialogContent = ''
     this._data = {}
+    this._etag = ''
     this._className = ''
     this._saveButton = false
     this._boundDisableEditMode = this._disableEditMode.bind(this)
@@ -202,6 +204,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         this.loading = false
         if ('data' in data) {
           ;[this._data] = data.data
+          this._etag = data.etag || ''
           this.error = false
           if (this._className !== '') {
             this.dispatchEvent(
@@ -229,6 +232,7 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   _clearData() {
     this._data = {}
+    this._etag = ''
   }
 
   _handleObjectLoaded() {}
@@ -819,7 +823,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     objNew = {_class: capitalize(objType), ...objNew}
     const url = `/api/${objectTypeToEndpoint[objType]}/${obj.handle}`
 
-    this.appState.apiPut(url, updateFunc(objNew)).then(() => {
+    this.appState.apiPut(url, updateFunc(objNew), {etag: this._etag}).then(() => {
       this._updateData(false)
       // Clear editor drafts after successful save (if prefix provided)
       if (editorDraftPrefix) {

@@ -855,7 +855,7 @@ export async function apiPutPostDelete(
   method,
   endpoint,
   payload,
-  {isJson = true, dbChanged = true, requireFresh = false} = {}
+  {isJson = true, dbChanged = true, requireFresh = false, etag} = {}
 ) {
   try {
     let headers = {}
@@ -870,6 +870,9 @@ export async function apiPutPostDelete(
     } catch {}
     if (isJson) {
       headers['Content-Type'] = 'application/json'
+    }
+    if (method === 'PUT' && etag) {
+      headers['If-Match'] = etag
     }
     const resp = await fetch(`${__APIHOST__}${endpoint}`, {
       method,
@@ -889,6 +892,11 @@ export async function apiPutPostDelete(
     }
     if (resp.status === 403) {
       throw new Error('Not authorized')
+    }
+    if (resp.status === 412) {
+      throw new Error(
+        'Object has been modified by another user. Please reload and try again.'
+      )
     }
     if (resp.status !== 201 && resp.status !== 200 && resp.status !== 202) {
       throw new Error(

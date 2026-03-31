@@ -60,7 +60,7 @@ export class GrampsjsFormEditMatch extends GrampsjsEditMatchMixin(
       ...noteData.data,
       text: {_class: 'StyledText', string: noteText, tags: []},
     }
-    const data = await this.appState.apiPut(`/api/notes/${noteHandle}`, note)
+    const data = await this.appState.apiPut(`/api/notes/${noteHandle}`, note, {etag: noteData.etag})
     if ('error' in data) {
       console.error(data.error) // eslint-disable-line no-console
     }
