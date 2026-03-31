@@ -37,7 +37,7 @@ export class GrampsjsEditGender extends LitElement {
 
   constructor() {
     super()
-    this.gender = 2 // unkown
+    this.gender = 2 // unknown
     this.edit = false
     this.appState = {}
   }
