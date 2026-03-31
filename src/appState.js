@@ -61,5 +61,20 @@ export function appStateUpdatePermissions(appState) {
     canUpgradeTree: rawPermissions.includes('UpgradeSchema'),
     canEditTree: rawPermissions.includes('EditTree'),
   }
+  // Return the same object reference if permissions haven't changed,
+  // to avoid triggering unnecessary re-renders (which would reset open dialogs).
+  const existing = appState.permissions
+  if (
+    existing &&
+    existing.canAdd === permissions.canAdd &&
+    existing.canEdit === permissions.canEdit &&
+    existing.canViewPrivate === permissions.canViewPrivate &&
+    existing.canManageUsers === permissions.canManageUsers &&
+    existing.canUseChat === permissions.canUseChat &&
+    existing.canUpgradeTree === permissions.canUpgradeTree &&
+    existing.canEditTree === permissions.canEditTree
+  ) {
+    return appState
+  }
   return {...appState, permissions}
 }
