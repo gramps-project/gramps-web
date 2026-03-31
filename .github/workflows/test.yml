@@ -9,6 +9,7 @@ on:
 
 jobs:
   install:
+    name: Install
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -18,8 +19,9 @@ jobs:
           cache: 'npm'
       - run: npm ci
 
-  lint:
+  lint_eslint:
     needs: install
+    name: ESLint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -27,10 +29,23 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: 'npm'
-      - run: npm run lint
+      - run: npm run lint:eslint
+
+  lint_prettier:
+    needs: install
+    name: Prettier
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
+        with:
+          node-version-file: .nvmrc
+          cache: 'npm'
+      - run: npm run lint:prettier
 
   typecheck:
     needs: install
+    name: Type check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -42,6 +57,7 @@ jobs:
 
   test:
     needs: install
+    name: Unit tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -53,6 +69,7 @@ jobs:
 
   build:
     needs: install
+    name: Build test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
