@@ -300,7 +300,7 @@ export const eventTypeIconPath = {
   Ordination: mdiChurch,
   Probate: mdiGavel,
   Property: mdiHome,
-  Religion: mdiChurch,
+  Religion: mdiHandsPray,
   Residence: mdiHome,
   Retirement: mdiHumanCane,
   Will: mdiFileDocument,
