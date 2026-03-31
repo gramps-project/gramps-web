@@ -43,7 +43,7 @@ export class GrampsjsEditGender extends LitElement {
   }
 
   _supportsOther() {
-    return apiVersionAtLeast(this.appState.dbInfo, 3, 10)
+    return apiVersionAtLeast(this.appState?.dbInfo, 3, 10)
   }
 
   render() {
