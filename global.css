@@ -136,7 +136,7 @@ body {
   --md-sys-color-on-background: var(--grampsjs-body-font-color);
   --md-sys-color-surface: #fff;
   --md-sys-color-on-surface: var(--grampsjs-body-font-color);
-  --md-sys-color-surface-variant: rgb(245, 222, 215);
+  --md-sys-color-surface-variant: rgb(232, 224, 222);
   --md-sys-color-on-surface-variant: rgb(83, 67, 63);
   --md-sys-color-outline: rgb(133, 115, 110);
   --md-sys-color-outline-variant: rgb(200, 200, 200);

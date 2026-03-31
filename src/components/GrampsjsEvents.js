@@ -1,4 +1,4 @@
-import {html} from 'lit'
+import {html, css} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
@@ -17,6 +17,18 @@ import '@material/mwc-icon-button'
 import '@material/mwc-button'
 
 export class GrampsjsEvents extends GrampsjsEditableList {
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
+        md-list-item {
+          --md-list-item-top-space: 16px;
+          --md-list-item-bottom-space: 16px;
+        }
+      `,
+    ]
+  }
+
   static get properties() {
     return {
       profile: {type: Array},
@@ -66,6 +78,11 @@ export class GrampsjsEvents extends GrampsjsEditableList {
           'start',
           eventTypeIconPath[typeKey] || null
         )}
+        ${objProfile.profile?.age && /\d/.test(objProfile.profile.age)
+          ? html`<span slot="trailing-supporting-text"
+              >${objProfile.profile.age}</span
+            >`
+          : ''}
       </md-list-item>
     `
   }
@@ -87,9 +104,10 @@ export class GrampsjsEvents extends GrampsjsEditableList {
 
   _getSecondaryText(obj) {
     const detail = objectDetail('event', obj, this.appState.i18n.strings) || ''
+    const context = obj.profile?.context || ''
+    const titleLine = [obj.description, context].filter(Boolean).join(' • ')
     return html`
-      ${detail} ${obj.description && detail.trim() ? html` &ndash; ` : ''}
-      ${obj.description || ''}
+      ${titleLine} ${titleLine && detail.trim() ? html`<br />` : ''} ${detail}
     `
   }
 

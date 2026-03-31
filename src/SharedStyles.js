@@ -34,8 +34,10 @@ export const sharedStyles = css`
     --md-list-item-label-text-size: 17px;
     --md-list-item-supporting-text-color: var(--grampsjs-body-font-color-50);
     --md-list-item-trailing-supporting-text-color: var(
-      --grampsjs-body-font-color
+      --grampsjs-body-font-color-60
     );
+    --md-list-item-trailing-supporting-text-size: 0.875rem;
+    --md-list-item-trailing-supporting-text-weight: 380;
   }
 
   label {
@@ -350,6 +352,10 @@ export const sharedStyles = css`
       --md-list-item-leading-space: 8px;
       --md-list-item-trailing-space: 8px;
       --mdc-list-side-padding: 8px;
+    }
+
+    [slot='trailing-supporting-text'] {
+      display: none;
     }
 
     h1 {
