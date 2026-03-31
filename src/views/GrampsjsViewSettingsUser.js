@@ -52,6 +52,10 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       _translations: {type: Array},
       _langLoading: {type: Boolean},
       _tokenCopied: {type: Boolean},
+      _icsToken: {type: Object},
+      _icsLoading: {type: Boolean},
+      _icsCopied: {type: Boolean},
+      _icsErrorMessage: {type: String},
     }
   }
 
@@ -61,6 +65,10 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     this._translations = []
     this._langLoading = false
     this._tokenCopied = false
+    this._icsToken = {active: false, url: null}
+    this._icsLoading = false
+    this._icsCopied = false
+    this._icsErrorMessage = ''
   }
 
   renderContent() {
@@ -95,6 +103,9 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       ${this.renderChangePw()}
       <h3>${this._('Family tree preferences')}</h3>
       ${this.renderTreePreferences()}
+
+      <h3>${this._('Anniversary calendar (ICS)')}</h3>
+      ${this.renderAnniversaryIcs()}
       ${this._apiVersionAtLeast(3, 8)
         ? html`
             <h3>${this._('Developer Tools')}</h3>
@@ -312,6 +323,53 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     `
   }
 
+  renderAnniversaryIcs() {
+    return html`
+      <p>
+        ${this._(
+          'Generate an ICS subscription URL to use anniversary reminders in your calendar app.'
+        )}
+      </p>
+      <p>
+        <md-outlined-text-field
+          id="anniversary-ics-url"
+          label="${this._('Subscription URL')}"
+          value="${this._icsToken?.url || ''}"
+          readonly
+          ?disabled="${this._icsLoading}"
+        ></md-outlined-text-field>
+      </p>
+      <p class="token-row">
+        <md-outlined-button
+          @click="${this._generateAnniversariesIcsToken}"
+          ?disabled="${this._icsLoading}"
+        >
+          ${this._icsToken?.active
+            ? this._('Regenerate link')
+            : this._('Generate link')}
+        </md-outlined-button>
+        <md-outlined-button
+          @click="${this._copyAnniversariesIcsUrl}"
+          ?disabled="${!this._icsToken?.url || this._icsLoading}"
+        >
+          <grampsjs-icon
+            slot="icon"
+            path="${this._icsCopied ? mdiCheck : mdiContentCopy}"
+            color="var(--mdc-theme-primary)"
+          ></grampsjs-icon>
+          ${this._('_Copy')}
+        </md-outlined-button>
+        <md-outlined-button
+          @click="${this._revokeAnniversariesIcsToken}"
+          ?disabled="${!this._icsToken?.active || this._icsLoading}"
+        >
+          ${this._('Revoke')}
+        </md-outlined-button>
+      </p>
+      ${this._icsErrorMessage ? html`<p>${this._icsErrorMessage}</p>` : html``}
+    `
+  }
+
   async _copyToken() {
     const token = await this.appState.refreshTokenIfNeeded()
     if (!token) {
@@ -329,6 +387,83 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     } catch {
       fireEvent(this, 'grampsjs:error', {
         message: 'Failed to copy token to clipboard',
+      })
+    }
+  }
+
+  async _fetchAnniversariesIcsTokenStatus() {
+    this._icsLoading = true
+    const data = await this.appState.apiGet(
+      '/api/users/-/anniversaries/ics/token/'
+    )
+    if ('error' in data) {
+      this._icsToken = {active: false, url: null}
+      this._icsErrorMessage = data.error
+    } else {
+      this._icsToken = data.data
+      this._icsErrorMessage = ''
+    }
+    this._icsLoading = false
+  }
+
+  async _generateAnniversariesIcsToken() {
+    this._icsLoading = true
+    const data = await this.appState.apiPost(
+      '/api/users/-/anniversaries/ics/token/',
+      {},
+      {dbChanged: false}
+    )
+    if ('error' in data) {
+      this._icsErrorMessage = data.error
+      this._icsLoading = false
+      fireEvent(this, 'grampsjs:error', {
+        message: data.error,
+      })
+      return
+    }
+    this._icsToken = data.data
+    this._icsErrorMessage = ''
+    this._icsLoading = false
+    fireEvent(this, 'grampsjs:notification', {
+      message: 'ICS subscription link updated',
+    })
+  }
+
+  async _revokeAnniversariesIcsToken() {
+    this._icsLoading = true
+    const data = await this.appState.apiDelete(
+      '/api/users/-/anniversaries/ics/token/',
+      {dbChanged: false}
+    )
+    if ('error' in data) {
+      this._icsErrorMessage = data.error
+      this._icsLoading = false
+      fireEvent(this, 'grampsjs:error', {
+        message: data.error,
+      })
+      return
+    }
+    this._icsToken = data.data
+    this._icsErrorMessage = ''
+    this._icsLoading = false
+    fireEvent(this, 'grampsjs:notification', {
+      message: 'ICS subscription link revoked',
+    })
+  }
+
+  async _copyAnniversariesIcsUrl() {
+    if (!this._icsToken?.url) {
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(this._icsToken.url)
+      this._icsCopied = true
+      setTimeout(() => {
+        this._icsCopied = false
+      }, 2000)
+    } catch {
+      fireEvent(this, 'grampsjs:error', {
+        message: 'Failed to copy ICS URL to clipboard',
       })
     }
   }
@@ -402,6 +537,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
   connectedCallback() {
     super.connectedCallback()
     this._fetchOwnUserDetails()
+    this._fetchAnniversariesIcsTokenStatus()
   }
 }
 
