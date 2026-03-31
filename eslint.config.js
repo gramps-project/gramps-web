@@ -62,10 +62,10 @@ const config = [
     },
   },
 
-  // Import rules from import-x (use flatConfigs for flat config format)
+  // Import rules from import-x
   {
     files: productionFiles,
-    ...eslintPluginImportX.flatConfigs.recommended,
+    ...eslintPluginImportX.configs['flat/recommended'],
   },
 
   // Node.js rules from eslint-plugin-n
