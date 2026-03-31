@@ -52,10 +52,7 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
           conf => html`
             <mwc-list-item
               value="${conf}"
-              ?selected="${
-                // eslint-disable-next-line eqeqeq
-                conf == this.data.confidence
-              }"
+              ?selected="${conf == this.data.confidence}"
               >${this._(confidence[conf])}</mwc-list-item
             >
           `
@@ -78,7 +75,7 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
     const selectDate = this.shadowRoot.querySelector(
       'grampsjs-form-select-date'
     )
-    if (!selectDate !== null && !selectDate.isValid()) {
+    if (selectDate !== null && !selectDate.isValid()) {
       valid = false
     }
     this.isFormValid = valid

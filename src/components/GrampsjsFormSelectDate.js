@@ -94,10 +94,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
           modifier => html`
             <mwc-list-item
               value="${modifier}"
-              ?selected="${
-                // eslint-disable-next-line eqeqeq
-                modifier == (this.data.modifier || 0)
-              }"
+              ?selected="${modifier == (this.data.modifier || 0)}"
               >${this._(modifiers[modifier])}</mwc-list-item
             >
           `
@@ -114,10 +111,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
           qualifier => html`
             <mwc-list-item
               value="${qualifier}"
-              ?selected="${
-                // eslint-disable-next-line eqeqeq
-                qualifier == (this.data.quality || 0)
-              }"
+              ?selected="${qualifier == (this.data.quality || 0)}"
               >${this._(qualifiers[qualifier])}</mwc-list-item
             >
           `
@@ -144,10 +138,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         idx => html`
           <mwc-list-item
             value="${idx}"
-            ?selected="${
-              // eslint-disable-next-line eqeqeq
-              idx == (this.data.dateval[1] || 0)
-            }"
+            ?selected="${idx == (this.data.dateval[1] || 0)}"
           >
             ${idx === 0 ? '' : idx}
           </mwc-list-item>
@@ -164,10 +155,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         idx => html`
           <mwc-list-item
             value="${idx}"
-            ?selected="${
-              // eslint-disable-next-line eqeqeq
-              idx == (this.data.dateval[0] || 0)
-            }"
+            ?selected="${idx == (this.data.dateval[0] || 0)}"
           >
             ${idx === 0 ? '' : idx}
           </mwc-list-item>
@@ -214,10 +202,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         idx => html`
           <mwc-list-item
             value="${idx}"
-            ?selected="${
-              // eslint-disable-next-line eqeqeq
-              idx == (this.data.dateval[5] || 0)
-            }"
+            ?selected="${idx == (this.data.dateval[5] || 0)}"
           >
             ${idx === 0 ? '' : idx}
           </mwc-list-item>
@@ -234,10 +219,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         idx => html`
           <mwc-list-item
             value="${idx}"
-            ?selected="${
-              // eslint-disable-next-line eqeqeq
-              idx == (this.data.dateval[4] || 0)
-            }"
+            ?selected="${idx == (this.data.dateval[4] || 0)}"
           >
             ${idx === 0 ? '' : idx}
           </mwc-list-item>
@@ -274,11 +256,9 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
   reset() {
     this.data = dataDefault
     this.shadowRoot.querySelectorAll('mwc-textfield').forEach(element => {
-      // eslint-disable-next-line no-param-reassign
       element.value = ''
     })
     this.shadowRoot.querySelectorAll('mwc-select').forEach(element => {
-      // eslint-disable-next-line no-param-reassign
       element.value = 0
     })
   }
@@ -309,7 +289,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
 
   handleDate1(e) {
     const [y, m, d] = parseDate(e.target.value)
-    const oldval = [...this.data?.dateval]
+    const oldval = [...(this.data?.dateval ?? [])]
     this.data = {
       ...this.data,
       dateval: [d, m, y, false, ...oldval.slice(4)],
@@ -321,7 +301,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
 
   handleDate2(e) {
     const [y, m, d] = parseDate(e.target.value)
-    const oldval = [...this.data?.dateval]
+    const oldval = [...(this.data?.dateval ?? [])]
     this.data = {...this.data, dateval: [...oldval.slice(0, 4), d, m, y, false]}
     this.handleChange()
   }
