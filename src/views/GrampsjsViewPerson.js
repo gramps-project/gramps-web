@@ -1,7 +1,7 @@
 import {html} from 'lit'
 
 import {GrampsjsViewObject} from './GrampsjsViewObject.js'
-import {apiVersionAtLeast} from '../util.js'
+import {apiVersionAtLeast, fireEvent} from '../util.js'
 import '../components/GrampsjsPerson.js'
 
 export class GrampsjsViewPerson extends GrampsjsViewObject {
@@ -41,6 +41,7 @@ export class GrampsjsViewPerson extends GrampsjsViewObject {
   _clearData() {
     super._clearData()
     this._timelineData = []
+    this._timelineLoading = false
   }
 
   _handleTimelineNeeded() {
@@ -60,6 +61,8 @@ export class GrampsjsViewPerson extends GrampsjsViewObject {
       this._timelineLoading = false
       if ('data' in result) {
         this._timelineData = result.data
+      } else if ('error' in result) {
+        fireEvent(this, 'grampsjs:error', {message: result.error})
       }
     })
   }
