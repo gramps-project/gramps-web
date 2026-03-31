@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "lint:eslint": "eslint --ext .js,.ts . --ignore-path .gitignore",
-    "format:eslint": "eslint --ext .js,.ts . --fix --ignore-path .gitignore",
+    "lint:eslint": "eslint .",
+    "format:eslint": "eslint . --fix",
     "lint:prettier": "prettier \"**/*.{js,ts}\" --check --ignore-path .gitignore",
     "format:prettier": "prettier \"**/*.{js,ts}\" --write --ignore-path .gitignore",
     "lint": "npm run lint:eslint && npm run lint:prettier",
@@ -25,16 +25,16 @@
     "@web/dev-server-rollup": "^0.6.4",
     "@web/rollup-plugin-html": "^3.1.0",
     "@web/rollup-plugin-polyfills-loader": "^2.1.3",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^7.2.0",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-import": "^2.31.0",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import-x": "^4.16.2",
     "eslint-plugin-lit": "^2.2.1",
-    "eslint-plugin-lit-a11y": "^4.1.4",
-    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-lit-a11y": "^5.1.1",
+    "eslint-plugin-n": "^17.24.0",
     "eslint-plugin-no-only-tests": "^3.3.0",
-    "eslint-plugin-promise": "^6.6.0",
+    "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-wc": "^3.1.0",
+    "globals": "^17.4.0",
     "happy-dom": "^20.8.3",
     "husky": "^4.3.8",
     "lint-staged": "^10.5.4",
@@ -49,57 +49,6 @@
   },
   "browser": {
     "crypto": false
-  },
-  "eslintConfig": {
-    "extends": [
-      "standard",
-      "plugin:lit/recommended",
-      "plugin:wc/recommended",
-      "plugin:lit-a11y/recommended",
-      "prettier"
-    ],
-    "plugins": [
-      "no-only-tests"
-    ],
-    "rules": {
-      "no-only-tests/no-only-tests": "error"
-    },
-    "env": {
-      "browser": true
-    },
-    "overrides": [
-      {
-        "files": [
-          "test/**/*.js"
-        ],
-        "rules": {
-          "import/no-extraneous-dependencies": [
-            "error",
-            {
-              "devDependencies": true
-            }
-          ],
-          "no-unused-expressions": "off"
-        }
-      },
-      {
-        "files": [
-          "vitest.config.js"
-        ],
-        "rules": {
-          "import/no-unresolved": "off"
-        }
-      },
-      {
-        "files": [
-          "**/*.ts"
-        ],
-        "parser": "@typescript-eslint/parser",
-        "rules": {
-          "no-undef": "off"
-        }
-      }
-    ]
   },
   "prettier": {
     "singleQuote": true,
