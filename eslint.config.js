@@ -23,6 +23,17 @@ const config = [
       '**/*.min.js',
     ],
   },
+  // Rollup config file (uses Node.js globals)
+  {
+    files: ['rollup.config.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+      ecmaVersion: 2021,
+      sourceType: 'module',
+    },
+  },
   // Main production source files
   {
     files: productionFiles,
