@@ -1,4 +1,4 @@
-import {html} from 'lit'
+import {html, css} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
@@ -17,6 +17,18 @@ import '@material/mwc-icon-button'
 import '@material/mwc-button'
 
 export class GrampsjsEvents extends GrampsjsEditableList {
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
+        md-list-item {
+          --md-list-item-top-space: 16px;
+          --md-list-item-bottom-space: 16px;
+        }
+      `,
+    ]
+  }
+
   static get properties() {
     return {
       profile: {type: Array},
