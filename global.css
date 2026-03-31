@@ -11,6 +11,8 @@ body {
   --md-fab-secondary-container-color: var(--mdc-theme-secondary);
   --color-boy: #64b5f6;
   --color-girl: #ef9a9a;
+  --color-unknown: #b0bec5;
+  --color-other: #ce93d8;
   --mdc-theme-primary: var(--md-sys-color-primary);
   --mdc-theme-on-primary: var(--md-sys-color-on-primary);
   --mdc-theme-secondary: #0277bd;
