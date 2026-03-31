@@ -19,7 +19,12 @@ import {
   getFrontendStrings,
   grampsStrings,
 } from './strings.js'
-import {fireEvent, getBrowserLanguage, clickKeyHandler} from './util.js'
+import {
+  fireEvent,
+  getBrowserLanguage,
+  clickKeyHandler,
+  apiVersionAtLeast,
+} from './util.js'
 
 import {appStateUpdatePermissions, getInitialAppState} from './appState.js'
 import './components/GrampsjsAppBar.js'
@@ -640,18 +645,9 @@ export class GrampsJs extends LitElement {
     if (!apiVersion) {
       return
     }
-    const apiVersionParts = apiVersion.split('.')
-    const minApiVersionParts = MINIMUM_API_VERSION.split('.')
-    const len = Math.min(minApiVersionParts.length, apiVersionParts.length)
-    for (let i = 0; i < len; i += 1) {
-      if (apiVersionParts[i] > minApiVersionParts[i]) {
-        // API has higher version: no action right now
-        return
-      }
-      if (apiVersionParts[i] < minApiVersionParts[i]) {
-        // API has lower version
-        this._showError(`${this._('outdated backend')} (${apiVersion})`)
-      }
+    const [major, minor, patch] = MINIMUM_API_VERSION.split('.').map(Number)
+    if (!apiVersionAtLeast(this.appState.dbInfo, major, minor, patch)) {
+      this._showError(`${this._('outdated backend')} (${apiVersion})`)
     }
   }
 

@@ -973,4 +973,13 @@ export const chartNameDisplayFormat = {
   givenThenSurname: 'Given Name First',
 }
 
+export function apiVersionAtLeast(dbInfo, major, minor, patch = 0) {
+  const version = dbInfo?.gramps_webapi?.version
+  if (!version) return false
+  const [maj, min, pat = 0] = version.split('.').map(Number)
+  if (maj !== major) return maj > major
+  if (min !== minor) return min > minor
+  return pat >= patch
+}
+
 //

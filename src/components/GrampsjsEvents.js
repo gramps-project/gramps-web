@@ -66,6 +66,11 @@ export class GrampsjsEvents extends GrampsjsEditableList {
           'start',
           eventTypeIconPath[typeKey] || null
         )}
+        ${objProfile.profile?.age && /\d/.test(objProfile.profile.age)
+          ? html`<span slot="trailing-supporting-text"
+              >${objProfile.profile.age}</span
+            >`
+          : ''}
       </md-list-item>
     `
   }
@@ -87,9 +92,10 @@ export class GrampsjsEvents extends GrampsjsEditableList {
 
   _getSecondaryText(obj) {
     const detail = objectDetail('event', obj, this.appState.i18n.strings) || ''
+    const context = obj.profile?.context || ''
+    const titleLine = [obj.description, context].filter(Boolean).join(' • ')
     return html`
-      ${detail} ${obj.description && detail.trim() ? html` &ndash; ` : ''}
-      ${obj.description || ''}
+      ${titleLine} ${titleLine && detail.trim() ? html`<br />` : ''} ${detail}
     `
   }
 
