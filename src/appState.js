@@ -66,13 +66,7 @@ export function appStateUpdatePermissions(appState) {
   const existing = appState.permissions
   if (
     existing &&
-    existing.canAdd === permissions.canAdd &&
-    existing.canEdit === permissions.canEdit &&
-    existing.canViewPrivate === permissions.canViewPrivate &&
-    existing.canManageUsers === permissions.canManageUsers &&
-    existing.canUseChat === permissions.canUseChat &&
-    existing.canUpgradeTree === permissions.canUpgradeTree &&
-    existing.canEditTree === permissions.canEditTree
+    Object.keys(permissions).every(key => existing[key] === permissions[key])
   ) {
     return appState
   }
