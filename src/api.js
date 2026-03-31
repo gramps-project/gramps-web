@@ -1,4 +1,3 @@
-// eslint-disable-next-line camelcase
 import jwt_decode from 'jwt-decode'
 
 import {fireEvent, normalizeRect} from './util.js'
@@ -51,7 +50,7 @@ export function getPermissions() {
   try {
     const claims = jwt_decode(accessToken) || {}
     return claims.permissions || {}
-  } catch (e) {
+  } catch {
     return {}
   }
 }
@@ -67,7 +66,7 @@ export function getSettings() {
     const treeId = getTreeId() || 'unknown'
     const settingsTree = JSON.parse(settingStringTree)?.[treeId] || {}
     return {...settings, ...settingsTree}
-  } catch (e) {
+  } catch {
     return {}
   }
 }
@@ -98,7 +97,7 @@ export function getRecentObjects() {
       return data[tree]
     }
     return []
-  } catch (e) {
+  } catch {
     return []
   }
 }
@@ -119,7 +118,7 @@ export function getChatHistory() {
       return data[tree]
     }
     return []
-  } catch (e) {
+  } catch {
     return []
   }
 }
@@ -198,7 +197,7 @@ export function getDraft(key) {
     }
 
     return draft
-  } catch (e) {
+  } catch {
     return null
   }
 }
@@ -224,7 +223,7 @@ export function clearDraft(key) {
         JSON.stringify(objectDataAll)
       )
     }
-  } catch (e) {
+  } catch {
     // Silently fail
   }
 }
@@ -260,7 +259,7 @@ export function clearDraftsWithPrefix(prefix) {
         JSON.stringify(objectDataAll)
       )
     }
-  } catch (e) {
+  } catch {
     // Silently fail
   }
 }
@@ -289,7 +288,7 @@ export function cleanOldDrafts() {
       'grampsjs_editor_drafts',
       JSON.stringify(objectDataAll)
     )
-  } catch (e) {
+  } catch {
     // Silently fail
   }
 }
@@ -407,7 +406,7 @@ export async function apiRegisterUser(
     let resJson
     try {
       resJson = await resp.json()
-    } catch (error) {
+    } catch {
       resJson = {}
     }
     if (resp.status === 409) {
@@ -562,7 +561,7 @@ export function getTreeBookmarks() {
       return data[tree]
     }
     return {}
-  } catch (e) {
+  } catch {
     return {}
   }
 }
@@ -572,7 +571,7 @@ export function getAllBookmarks() {
     const string = localStorage.getItem('bookmarks')
     const data = JSON.parse(string) ?? {}
     return data
-  } catch (e) {
+  } catch {
     return {}
   }
 }
@@ -618,7 +617,7 @@ export function getTaskIds() {
       return data[tree]
     }
     return {}
-  } catch (e) {
+  } catch {
     return {}
   }
 }
@@ -628,7 +627,7 @@ export function getAllTaskIds() {
     const string = localStorage.getItem('tasks')
     const data = JSON.parse(string) ?? {}
     return data
-  } catch (e) {
+  } catch {
     return {}
   }
 }
@@ -660,12 +659,10 @@ export class Auth {
     this._refreshingTokens = null
   }
 
-  // eslint-disable-next-line class-methods-use-this
   get accessToken() {
     return localStorage.getItem('access_token')
   }
 
-  // eslint-disable-next-line class-methods-use-this
   get refreshToken() {
     return localStorage.getItem('refresh_token')
   }
@@ -727,7 +724,6 @@ export class Auth {
           window.location.href = result.logout_url
         }
       } catch (error) {
-        // eslint-disable-next-line no-console
         console.warn('Failed to get OIDC logout URL:', error)
       }
     }
@@ -780,7 +776,7 @@ export async function apiGet(auth, endpoint) {
     let resJson
     try {
       resJson = await resp.json()
-    } catch (error) {
+    } catch {
       resJson = {}
     }
     if (resp.status === 403) {
@@ -833,7 +829,7 @@ export async function apiPutPostDelete(
     let resJson
     try {
       resJson = await resp.json()
-    } catch (error) {
+    } catch {
       resJson = {}
     }
     if (resp.status === 401) {
@@ -881,11 +877,10 @@ export async function updateTaskStatus(
   let i = 0
   let status = {}
   while (!doneStates.includes(status.state) && i < maxPolls) {
-    // eslint-disable-next-line no-await-in-loop
     status = await fetchStatus(auth, taskId)
     statusCallback(status)
     // wait for 1s
-    // eslint-disable-next-line no-await-in-loop
+
     await new Promise(resolve => setTimeout(resolve, pollInterval))
     i += 1
   }

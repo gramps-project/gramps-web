@@ -254,7 +254,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
       const el = this.shadowRoot.getElementById('search-field')
       try {
         el.focus()
-      } catch (e) {
+      } catch {
         // retry once
         if (retry) {
           window.setTimeout(() => this._focus(false), 100)
@@ -268,7 +268,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
       const el = this.shadowRoot.getElementById('search-field')
       try {
         el.blur()
-      } catch (e) {
+      } catch {
         // retry once
         window.setTimeout(() => this._blur(false), 100)
       }

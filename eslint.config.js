@@ -30,7 +30,7 @@ const config = [
       globals: {
         ...globals.node,
       },
-      ecmaVersion: 2021,
+      ecmaVersion: 2023,
       sourceType: 'module',
     },
   },
@@ -51,7 +51,7 @@ const config = [
         ...globals.browser,
         ...globals.es2021,
       },
-      ecmaVersion: 2021,
+      ecmaVersion: 2023,
       sourceType: 'module',
     },
     rules: {
@@ -109,7 +109,7 @@ const config = [
         ...globals.es2021,
         ...globals.node,
       },
-      ecmaVersion: 2021,
+      ecmaVersion: 2023,
       sourceType: 'module',
     },
     rules: {
@@ -129,7 +129,7 @@ const config = [
       globals: {
         ...globals.node,
       },
-      ecmaVersion: 2021,
+      ecmaVersion: 2023,
       sourceType: 'module',
     },
     rules: {
@@ -148,7 +148,7 @@ const config = [
         ...globals.browser,
         ...globals.es2021,
       },
-      ecmaVersion: 2021,
+      ecmaVersion: 2023,
       sourceType: 'module',
     },
     rules: {
