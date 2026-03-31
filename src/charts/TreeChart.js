@@ -5,6 +5,13 @@ import {curveBumpX, link, symbolTriangle, symbol} from 'd3-shape'
 import {zoom} from 'd3-zoom'
 import {chartNameDisplayFormat} from '../util.js'
 
+const genderColor = {
+  0: 'var(--color-girl)',
+  1: 'var(--color-boy)',
+  2: 'var(--color-unknown)',
+  3: 'var(--color-other)',
+}
+
 // Returns the total depth of the tree
 function countDepthOfTree(treeData) {
   if (treeData == null) {
@@ -132,8 +139,9 @@ function TreeChartCore(
   node
     .append('rect')
     .filter(d => d.data.person)
-    .attr('fill', d =>
-      d.data?.person?.gender === 0 ? 'var(--color-girl)' : 'var(--color-boy)'
+    .attr(
+      'fill',
+      d => genderColor[d.data?.person?.gender] ?? 'var(--color-unknown)'
     )
     .attr('width', 24)
     .attr('height', boxHeight - 1)
