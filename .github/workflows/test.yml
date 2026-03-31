@@ -29,6 +29,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: 'npm'
+      - run: npm ci
       - run: npm run lint:eslint
 
   lint_prettier:
@@ -41,6 +42,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: 'npm'
+      - run: npm ci
       - run: npm run lint:prettier
 
   typecheck:
@@ -53,6 +55,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: 'npm'
+      - run: npm ci
       - run: npm run typecheck
 
   test:
@@ -65,6 +68,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: 'npm'
+      - run: npm ci
       - run: npm test
 
   build:
@@ -77,4 +81,5 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: 'npm'
+      - run: npm ci
       - run: npm run build
