@@ -1,5 +1,3 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable class-methods-use-this */
 import {css, html} from 'lit'
 
 import {mdiPencil} from '@mdi/js'
@@ -622,7 +620,6 @@ export class GrampsjsViewObject extends GrampsjsView {
         e.detail.editorDraftPrefix
       )
     } else {
-      // eslint-disable-next-line no-alert
       alert(JSON.stringify(e.detail))
     }
   }
@@ -812,8 +809,7 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   _updateObject(obj, objType, updateFunc, editorDraftPrefix) {
     // remove extended, profile, backlinks, formatted keys from object
-    // eslint-disable-next-line prefer-const
-    let {extended, profile, backlinks, formatted, ...objNew} = obj
+    let {...objNew} = obj
     objNew = {_class: capitalize(objType), ...objNew}
     const url = `/api/${objectTypeToEndpoint[objType]}/${obj.handle}`
 

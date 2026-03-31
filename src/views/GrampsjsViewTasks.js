@@ -66,7 +66,6 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
     fireEvent(this, 'nav', {path: 'new_task'})
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _getAttribute(obj, key) {
     return obj.attribute_list.filter(att => att.type === key)[0]?.value
   }
@@ -116,12 +115,12 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
     const {value} = event.detail
     for (let i = 0; i < event.detail.objects.length; i += 1) {
       const object = event.detail.objects[i]
-      const {extended, profile, ...rest} = object
+      const {...rest} = object
       rest.attribute_list = [
         ...rest.attribute_list.filter(att => att.type !== key),
         {type: key, value},
       ]
-      // eslint-disable-next-line no-await-in-loop
+
       await this.appState.apiPut(`/api/sources/${object.handle}`, rest, {
         dbChanged: false,
       })

@@ -36,10 +36,7 @@ export const GrampsjsNewPersonMixin = superClass =>
             genderConst => html`
               <mwc-list-item
                 value="${genderConst}"
-                ?selected="${
-                  // eslint-disable-next-line eqeqeq
-                  genderConst == this.data.gender
-                }"
+                ?selected="${genderConst == this.data.gender}"
                 >${this._(this.gender[genderConst])}</mwc-list-item
               >
             `
@@ -165,7 +162,7 @@ export const GrampsjsNewPersonMixin = superClass =>
       const handleDeath = makeHandle()
       const birthString = this.translateTypeName(false, 'event_types', 'Birth')
       const deathString = this.translateTypeName(false, 'event_types', 'Death')
-      const {birth, death, frel, mrel, ...person} = this.data
+      const {birth, death, ...person} = this.data
       const hasBirth = birth.place || (birth?.date && !dateIsEmpty(birth.date))
       const hasDeath = death.place || (death?.date && !dateIsEmpty(death.date))
       if (!hasBirth && !hasDeath) {

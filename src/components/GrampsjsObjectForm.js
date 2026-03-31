@@ -75,7 +75,6 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
     this.hideCancelButton = false
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _reset() {
     this.shadowRoot
       .querySelectorAll(
@@ -93,24 +92,20 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
       )
       .forEach(element => element.reset())
     this.shadowRoot.querySelectorAll('mwc-textfield').forEach(element => {
-      // eslint-disable-next-line no-param-reassign
       element.value = ''
     })
     this.shadowRoot
       .querySelectorAll('md-outlined-text-field')
       .forEach(element => {
-        // eslint-disable-next-line no-param-reassign
         element.value = ''
       })
     this.shadowRoot
       .querySelectorAll('md-filled-text-field')
       .forEach(element => {
-        // eslint-disable-next-line no-param-reassign
         element.value = ''
       })
   }
 
-  // eslint-disable-next-line class-methods-use-this
   get isValid() {
     return true
   }
@@ -253,7 +248,7 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
       if (handle) {
         this.data = {...this.data, ref: handle}
       } else {
-        const {ref, ...rest} = this.data
+        const {...rest} = this.data
         this.data = rest
       }
     }
