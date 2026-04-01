@@ -90,7 +90,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
         href="${BASE_DIR + '/'}"
         ?selected="${p === 'home'}"
       >
-        ${this._icon(mdiHome, p === 'home')} ${this._('Home Page')}
+        ${this._icon(mdiHome, p === 'home')} ${this._('Home')}
       </md-list-item>
       <md-list-item
         type="link"
