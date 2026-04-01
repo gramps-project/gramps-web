@@ -141,18 +141,19 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
     }
   }
 
-  _handleUploadFile(e) {
+  async _handleUploadFile(e) {
     const putUrl = `/api/media/${e.detail.handle}/file`
-    this.appState.apiPut(putUrl, e.detail.data, {isJson: false}).then(data => {
-      if ('data' in data) {
-        this.error = false
-        this._updateData()
-        this._reloadImage()
-      } else if ('error' in data) {
-        this.error = true
-        this._errorMessage = data.error
-      }
+    const data = await this.appState.apiPut(putUrl, e.detail.data, {
+      isJson: false,
     })
+    if ('error' in data) {
+      this.error = true
+      this._errorMessage = data.error
+    } else {
+      this.error = false
+      this._updateData()
+      this._reloadImage()
+    }
   }
 
   _reloadImage() {
