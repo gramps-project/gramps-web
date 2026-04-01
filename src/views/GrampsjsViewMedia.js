@@ -108,7 +108,10 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
       ...person.media_list.filter(mobj => mobj.ref !== mediaHandle),
       data,
     ]
-    resp = await this.appState.apiPut(url, person, {dbChanged: fireChanged, etag: resp.etag})
+    resp = await this.appState.apiPut(url, person, {
+      dbChanged: fireChanged,
+      etag: resp.etag,
+    })
     if ('error' in resp) {
       return false
     }

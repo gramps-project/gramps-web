@@ -266,7 +266,9 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
       ...person,
       person_ref_list: [...person.person_ref_list, newPersonRef],
     }
-    await this.appState.apiPut(`/api/people/${sourceHandle}`, updatedPerson, {etag: personData.etag})
+    await this.appState.apiPut(`/api/people/${sourceHandle}`, updatedPerson, {
+      etag: personData.etag,
+    })
     this.dialogContent = ''
   }
 
@@ -317,7 +319,10 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
           ref => ref.ref !== handleMatch
         ),
       }
-      const data = await this.appState.apiPut(url, payload, {dbChanged: false, etag: personData.etag})
+      const data = await this.appState.apiPut(url, payload, {
+        dbChanged: false,
+        etag: personData.etag,
+      })
       if ('data' in data) {
         fireEvent(this, 'db:changed')
         this._goTo(`dna-matches/${grampsId}`)

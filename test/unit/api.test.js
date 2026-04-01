@@ -213,6 +213,7 @@ describe('apiPutPostDelete If-Match header', () => {
       getValidAccessToken: vi.fn().mockResolvedValue('test-token'),
     }
 
+    // Should not throw - should return {error: '...'}
     const result = await apiPutPostDelete(
       mockAuth,
       'PUT',
@@ -555,12 +556,13 @@ describe('fetch-update cycle with etag (mid-air collision detection)', () => {
 
   it('succeeds when PUT with fresh etag from GET', async () => {
     const getEtag = '"abc123"'
-    global.fetch = vi.fn()
+    global.fetch = vi
+      .fn()
       .mockResolvedValueOnce({
         status: 200,
         ok: true,
         json: () => Promise.resolve({handle: 'H123', name: {value: 'Test'}}),
-        headers: {get: (header) => header === 'ETag' ? getEtag : null},
+        headers: {get: header => (header === 'ETag' ? getEtag : null)},
       })
       .mockResolvedValueOnce({
         status: 200,
@@ -584,12 +586,13 @@ describe('fetch-update cycle with etag (mid-air collision detection)', () => {
 
   it('fails with 412 when PUT with stale etag', async () => {
     const staleEtag = '"stale-etag"'
-    global.fetch = vi.fn()
+    global.fetch = vi
+      .fn()
       .mockResolvedValueOnce({
         status: 200,
         ok: true,
         json: () => Promise.resolve({handle: 'H123', name: {value: 'Test'}}),
-        headers: {get: (header) => header === 'ETag' ? staleEtag : null},
+        headers: {get: header => (header === 'ETag' ? staleEtag : null)},
       })
       .mockResolvedValueOnce({
         status: 412,
