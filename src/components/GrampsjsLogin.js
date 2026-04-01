@@ -343,6 +343,10 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     e?.preventDefault()
     e?.stopPropagation()
 
+    if (!this.credentials.username || !this.credentials.password) {
+      return
+    }
+
     const submitProgress = this.shadowRoot.getElementById('login-progress')
     submitProgress.style.display = 'block'
     submitProgress.closed = false

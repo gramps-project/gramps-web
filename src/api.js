@@ -338,18 +338,18 @@ export async function apiGetOIDCConfig() {
         Accept: 'application/json',
       },
     })
-    let resJson
-    try {
-      resJson = await resp.json()
-    } catch (error) {
-      resJson = {}
-    }
     if (!resp.ok) {
+      let resJson
+      try {
+        resJson = await resp.json()
+      } catch {
+        resJson = {}
+      }
       throw new Error(
         resJson?.error?.message || resp.statusText || `Error ${resp.status}`
       )
     }
-    return resJson
+    return await resp.json()
   } catch (error) {
     return {error: error.message}
   }
