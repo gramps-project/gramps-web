@@ -54,7 +54,7 @@ function TreeChartCore(
     getImageUrl = null,
     orientation = 'LTR',
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
-    canEdit = false,
+    canEdit = this.appState.permissions.canEdit,
   } = {}
 ) {
   // Create a hierarchical data structure based on the input data
