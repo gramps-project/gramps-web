@@ -823,7 +823,11 @@ export class GrampsjsViewObject extends GrampsjsView {
     objNew = {_class: capitalize(objType), ...objNew}
     const url = `/api/${objectTypeToEndpoint[objType]}/${obj.handle}`
 
-    this.appState.apiPut(url, updateFunc(objNew), {etag: this._etag}).then(() => {
+    this.appState.apiPut(url, updateFunc(objNew), {etag: this._etag}).then(data => {
+      if ('error' in data) {
+        fireEvent(this, 'grampsjs:error', {message: data.error})
+        return
+      }
       this._updateData(false)
       // Clear editor drafts after successful save (if prefix provided)
       if (editorDraftPrefix) {
