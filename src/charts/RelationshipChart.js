@@ -7,7 +7,7 @@ import {chartNameDisplayFormat} from '../util.js'
 const sexColor = {
   F: 'var(--color-girl)',
   M: 'var(--color-boy)',
-  O: 'var(--color-other)',
+  X: 'var(--color-other)',
   U: 'var(--color-unknown)',
 }
 
