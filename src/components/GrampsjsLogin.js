@@ -211,7 +211,12 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                           ${this._('Register new account')}
                         </md-outlined-button>
                       `}
-                  <md-filled-button type="submit" @click="${this._submitLogin}">
+                  <md-filled-button
+                    type="submit"
+                    @click="${this._submitLogin}"
+                    ?disabled="${!this.credentials.username ||
+                    !this.credentials.password}"
+                  >
                     ${this._('login')}
                   </md-filled-button>
                 </div>
