@@ -48,6 +48,8 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
       >
       </grampsjs-form-select-type>
 
+      ${this._renderTagsForm()}
+
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"

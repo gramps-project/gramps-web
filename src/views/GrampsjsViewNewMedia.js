@@ -129,7 +129,10 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
               </p>
             </div>
           `
-        : html` ${this._renderFormWithUpload()} ${this.renderButtons()} `}
+        : html`
+            ${this._renderFormWithUpload()} ${this._renderTagsForm()}
+            ${this.renderButtons()}
+          `}
     `
     // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
@@ -397,7 +400,11 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
         }
 
         // Step 2: Update metadata
-        const mediaData = {...uploadData.data[0].new, ...metadata}
+        const mediaData = {
+          ...uploadData.data[0].new,
+          ...metadata,
+          ...(this.data.tag_list?.length ? {tag_list: this.data.tag_list} : {}),
+        }
         const updateUrl = `/api/media/${mediaData.handle}`
         // eslint-disable-next-line no-await-in-loop
         const updateData = await this.appState.apiPut(updateUrl, mediaData)

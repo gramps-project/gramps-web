@@ -7,8 +7,11 @@ import '@material/web/button/filled-button.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent, emptyDate} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {GrampsjsNewObjectTagsMixin} from '../mixins/GrampsjsNewObjectTagsMixin.js'
 
-export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
+export class GrampsjsObjectForm extends GrampsjsNewObjectTagsMixin(
+  GrampsjsAppStateMixin(LitElement)
+) {
   static get styles() {
     return [
       sharedStyles,
@@ -111,6 +114,7 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
         // eslint-disable-next-line no-param-reassign
         element.value = ''
       })
+    this._tagDialogContent = ''
   }
 
   // eslint-disable-next-line class-methods-use-this

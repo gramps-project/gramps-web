@@ -73,6 +73,8 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
         </mwc-select>
       </p>
 
+      ${this._renderTagsForm()}
+
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"
@@ -141,12 +143,13 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
     const {note, ...source} = this.data
     const hasNote = note?.text?.string
     const attrStatus = {_class: 'SrcAttribute', type: 'Status', value: 'Open'}
+    const tagList = [this._todoTagHandle, ...(this.data.tag_list || [])]
     if (!hasNote) {
       return [
         {
           ...source,
           attribute_list: [...source.attribute_list, attrStatus],
-          tag_list: [this._todoTagHandle],
+          tag_list: tagList,
         },
       ]
     }
@@ -156,12 +159,12 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
         handle: handleSource,
         note_list: [handleNote],
         attribute_list: [...source.attribute_list, attrStatus],
-        tag_list: [this._todoTagHandle],
+        tag_list: tagList,
       },
       {
         ...note,
         handle: handleNote,
-        tag_list: [this._todoTagHandle],
+        tag_list: tagList,
         type: 'To Do',
       },
     ]
@@ -170,6 +173,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
   async _fetchTodoTagHandle(retry = true) {
     const data = await this.appState.apiGet('/api/tags/')
     if ('data' in data) {
+      this._allTags = data.data
       const tags = data.data.filter(tag => tag.name === 'ToDo')
       if (tags.length > 0) {
         this._todoTagHandle = tags[0].handle

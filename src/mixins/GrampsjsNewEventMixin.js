@@ -48,7 +48,7 @@ export const GrampsjsNewEventMixin = superClass =>
           .appState="${this.appState}"
         ></grampsjs-form-select-object-list>
 
-        ${this._renderCitationForm()}
+        ${this._renderCitationForm()} ${this._renderTagsForm()}
 
         <div class="spacer"></div>
         <grampsjs-form-private
