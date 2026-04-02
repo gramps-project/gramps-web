@@ -60,6 +60,10 @@ export default {
     polyfillsLoader({polyfills: {}, minify: !developmentMode}),
     copy({
       targets: [
+        {
+          src: 'node_modules/@awesome.me/webawesome/dist/styles/**/*',
+          dest: 'dist/webawesome-styles',
+        },
         {src: './maplibre-gl.css', dest: 'dist/'},
         {src: './global.css', dest: 'dist/'},
         {src: './tippy.css', dest: 'dist/'},

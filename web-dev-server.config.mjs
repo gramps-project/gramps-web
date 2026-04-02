@@ -6,6 +6,17 @@ const replace = fromRollup(rollupReplace)
 
 export default {
   nodeResolve: {exportConditions: ['browser']},
+  middleware: [
+    async (ctx, next) => {
+      if (ctx.path.startsWith('/webawesome-styles/')) {
+        ctx.path = ctx.path.replace(
+          '/webawesome-styles/',
+          '/node_modules/@awesome.me/webawesome/dist/styles/'
+        )
+      }
+      await next()
+    },
+  ],
   plugins: [
     esbuildPlugin({ts: true}),
     replace({
