@@ -254,5 +254,8 @@
     "Please select a different person.": "Valitse toinen henkilö.",
     "No Y-DNA data found.": "Y-DNA-tietoja ei löytynyt.",
     "Edit Y-DNA data": "Muokkaa Y-DNA-tietoja",
-    "Account Source": "Tilin lähde"
+    "Account Source": "Tilin lähde",
+    "Invalid face rectangle coordinates": "Virheelliset kasvoja rajaavan suorakulmion koordinaatit",
+    "Default family tree view": "Sukupuun oletusnäkymä",
+    "Family tree preferences": "Sukupuun asetukset"
 }
