@@ -283,5 +283,6 @@
     "Launch Swagger": "Iniciar o Swagger",
     "Family tree preferences": "Preferências da árvore genalógica",
     "Default family tree view": "Disposição pré-definida da árvore",
-    "Invalid face rectangle coordinates": "Cordenadas do rectângulo inválidas"
+    "Invalid face rectangle coordinates": "Cordenadas do rectângulo inválidas",
+    "Or select an existing tag": "Ou seleccione uma etiqueta existente"
 }
