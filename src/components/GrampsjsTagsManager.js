@@ -60,7 +60,6 @@ export class GrampsjsTagsManager extends GrampsjsTableBase {
       _editingTag: {type: Object},
       _editName: {type: String},
       _editColor: {type: String},
-      _saving: {type: Boolean},
     }
   }
 
@@ -70,55 +69,58 @@ export class GrampsjsTagsManager extends GrampsjsTableBase {
     this._editingTag = null
     this._editName = ''
     this._editColor = '#1f77b4'
-    this._saving = false
   }
 
   render() {
-    if (!this.data.length) return html``
     return html`
-      <table style="width: 100%">
-        <thead>
-          <tr>
-            <th>${this._('Tags')}</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          ${this.data.map(
-            tag => html`
-              <tr>
-                <td>
-                  <span
-                    class="tag-chip"
-                    style="
-                      --tag-color: ${colorToCss(tag.color, 0.9)};
-                      --tag-color-bg: ${colorToCss(tag.color, 0.12)};
-                    "
-                    >${tag.name}</span
-                  >
-                </td>
-                <td>
-                  <div class="actions">
-                    <md-icon-button @click="${() => this._openEdit(tag)}">
-                      <grampsjs-icon
-                        path="${mdiPencil}"
-                        color="var(--mdc-theme-secondary)"
-                      ></grampsjs-icon>
-                    </md-icon-button>
-                    <md-icon-button @click="${() => this._openDelete(tag)}">
-                      <grampsjs-icon
-                        path="${mdiDelete}"
-                        color="var(--mdc-theme-secondary)"
-                      ></grampsjs-icon>
-                    </md-icon-button>
-                  </div>
-                </td>
-              </tr>
-            `
-          )}
-        </tbody>
-      </table>
-
+      ${this.data.length
+        ? html`
+            <table style="width: 100%">
+              <thead>
+                <tr>
+                  <th>${this._('Tags')}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                ${this.data.map(
+                  tag => html`
+                    <tr>
+                      <td>
+                        <span
+                          class="tag-chip"
+                          style="
+                            --tag-color: ${colorToCss(tag.color, 0.9)};
+                            --tag-color-bg: ${colorToCss(tag.color, 0.12)};
+                          "
+                          >${tag.name}</span
+                        >
+                      </td>
+                      <td>
+                        <div class="actions">
+                          <md-icon-button @click="${() => this._openEdit(tag)}">
+                            <grampsjs-icon
+                              path="${mdiPencil}"
+                              color="var(--mdc-theme-secondary)"
+                            ></grampsjs-icon>
+                          </md-icon-button>
+                          <md-icon-button
+                            @click="${() => this._openDelete(tag)}"
+                          >
+                            <grampsjs-icon
+                              path="${mdiDelete}"
+                              color="var(--mdc-theme-secondary)"
+                            ></grampsjs-icon>
+                          </md-icon-button>
+                        </div>
+                      </td>
+                    </tr>
+                  `
+                )}
+              </tbody>
+            </table>
+          `
+        : ''}
       ${this._renderEditDialog()} ${this._renderDeleteDialog()}
     `
   }
@@ -154,7 +156,7 @@ export class GrampsjsTagsManager extends GrampsjsTableBase {
             ${this._('Cancel')}
           </md-text-button>
           <md-filled-button
-            ?disabled="${!this._editName || this._saving}"
+            ?disabled="${!this._editName}"
             @click="${this._handleSave}"
           >
             ${this._('_Save')}
@@ -174,10 +176,7 @@ export class GrampsjsTagsManager extends GrampsjsTableBase {
           <md-text-button @click="${this._closeDialog}">
             ${this._('Cancel')}
           </md-text-button>
-          <md-filled-button
-            ?disabled="${this._saving}"
-            @click="${this._handleDelete}"
-          >
+          <md-filled-button @click="${this._handleDelete}">
             ${this._('Delete')}
           </md-filled-button>
         </div>
@@ -226,11 +225,7 @@ export class GrampsjsTagsManager extends GrampsjsTableBase {
     if (!this._editName) return
     if (this._dialogMode === 'create') {
       fireEvent(this, 'tag:save', {
-        tag: {
-          _class: 'Tag',
-          name: this._editName,
-          color: this._editColor,
-        },
+        tag: {_class: 'Tag', name: this._editName, color: this._editColor},
         isNew: true,
       })
     } else if (this._dialogMode === 'edit' && this._editingTag) {
