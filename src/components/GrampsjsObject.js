@@ -49,7 +49,8 @@ const _allTabs = {
     title: 'Relationships',
     condition: data =>
       data.family_list?.length > 0 || data.parent_family_list?.length > 0,
-    conditionEdit: () => false,
+    conditionEdit: data =>
+      data.family_list?.length > 1 || data.parent_family_list?.length > 1,
   },
   enclosed: {
     title: 'Place Hierarchy',
