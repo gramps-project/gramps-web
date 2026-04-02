@@ -34,7 +34,7 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
           align-items: center;
           display: flex;
           flex-wrap: wrap;
-          gap: 4px;
+          gap: 12px;
           padding: 5px 0px;
         }
 
@@ -140,7 +140,7 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
               >
                 <grampsjs-icon
                   path="${mdiTagPlus}"
-                  color="var(--grampsjs-body-font-color-35)"
+                  color="var(--mdc-theme-secondary)"
                 ></grampsjs-icon>
               </md-icon-button>
               <grampsjs-tooltip for="btn-tag" .appState="${this.appState}"

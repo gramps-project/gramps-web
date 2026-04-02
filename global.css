@@ -8,6 +8,20 @@ body {
 
 :root {
   color: var(--md-sys-color-on-surface);
+  /* Web Awesome color token overrides.
+     default.css (loaded in index.html) defines --wa-* tokens inside @layer wa-theme,
+     so these unlayered declarations win without !important. The --md-sys-color-*
+     values on the right are defined in the light/dark blocks below, so the
+     color picker automatically adapts to the active theme. */
+  --wa-color-surface-raised: var(--md-sys-color-surface-container-high);
+  --wa-color-surface-default: var(--md-sys-color-surface);
+  --wa-color-surface-border: var(--md-sys-color-outline-variant);
+  --wa-color-neutral-fill-normal: var(--md-sys-color-surface-container);
+  --wa-color-brand-fill-loud: var(--md-sys-color-primary);
+  --wa-color-text-normal: var(--md-sys-color-on-surface);
+  --wa-color-focus: var(--md-sys-color-primary);
+  --wa-form-control-border-color: var(--md-sys-color-outline);
+  /* End Web Awesome overrides */
   --md-fab-secondary-container-color: var(--mdc-theme-secondary);
   --color-boy: #64b5f6;
   --color-girl: #ef9a9a;
