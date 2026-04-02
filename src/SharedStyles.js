@@ -71,9 +71,9 @@ export const sharedStyles = css`
   }
 
   h3 {
-    font-weight: 470;
+    font-weight: 550;
     font-size: 18px;
-    margin-top: 35px;
+    margin-top: 40px;
     margin-bottom: 30px;
   }
 
@@ -134,8 +134,8 @@ export const sharedStyles = css`
 
   hr {
     border: 0;
-    height: 0.5px;
-    background: var(--grampsjs-body-font-color-40);
+    height: 1px;
+    background: var(--grampsjs-body-font-color-20);
   }
 
   dt {

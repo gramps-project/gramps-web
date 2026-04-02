@@ -1,5 +1,5 @@
 import {css, html, LitElement} from 'lit'
-import '@material/mwc-button'
+import '@material/web/button/filled-button.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -55,13 +55,12 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       </p>
       ${this._uploadHint ? html`${this._uploadHint}` : ''}
       <p>
-        <mwc-button
-          raised
-          label="${this._('Import')}"
+        <md-filled-button
           type="submit"
           @click="${this._submit}"
           ?disabled=${this._state !== STATE_READY}
-        ></mwc-button>
+          >${this._('Import')}</md-filled-button
+        >
         <grampsjs-task-progress-indicator
           id="progress-tree"
           taskName="importFile"
