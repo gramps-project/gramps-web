@@ -283,5 +283,6 @@
     "Launch Swagger": "Spustiť Swagger",
     "Family tree preferences": "Predvoľby rodinného stromu",
     "Default family tree view": "Predvolené zobrazenie rodinného stromu",
-    "Invalid face rectangle coordinates": "Neplatné súradnice obdĺžnika tváre"
+    "Invalid face rectangle coordinates": "Neplatné súradnice obdĺžnika tváre",
+    "Or select an existing tag": "Alebo vyberte existujúci štítok"
 }
