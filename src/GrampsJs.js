@@ -367,8 +367,10 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Map')}</dd>
                 <dt><span>g</span> <span>c</span></dt>
                 <dd>${this._('Family Tree')}</dd>
-                <dt><span>g</span> <span>d</span></dt>
-                <dd>${this._('DNA')}</dd>
+                ${this.appState.frontendConfig.hideDNALink
+                  ? ''
+                  : html`<dt><span>g</span> <span>d</span></dt>
+                      <dd>${this._('DNA')}</dd>`}
                 ${this.canUseChat
                   ? html`<dt><span>g</span> <span>a</span></dt>
                       <dd>${this._('Chat')}</dd>`
@@ -1043,7 +1045,9 @@ export class GrampsJs extends LitElement {
       } else if (e.key === 'e') {
         fireEvent(this, 'nav', {path: 'export'})
       } else if (e.key === 'd') {
-        fireEvent(this, 'nav', {path: 'dna-matches'})
+        if (!this.appState.frontendConfig.hideDNALink) {
+          fireEvent(this, 'nav', {path: 'dna-matches'})
+        }
       } else if (e.key === 'a') {
         if (this.canUseChat) {
           fireEvent(this, 'nav', {path: 'chat'})
