@@ -458,20 +458,20 @@ export async function apiGetTokens(username, password) {
       },
       body: JSON.stringify({username, password}),
     })
-    let resJson
-    try {
-      resJson = await resp.json()
-    } catch (error) {
-      resJson = {}
-    }
     if (resp.status === 401 || resp.status === 403) {
       throw new Error('Wrong username or password')
     } else if (resp.status !== 200) {
+      let resJson
+      try {
+        resJson = await resp.json()
+      } catch {
+        resJson = {}
+      }
       throw new Error(
         resJson?.error?.message || resp.statusText || `Error ${resp.status}`
       )
     }
-    const data = resJson
+    const data = await resp.json()
     if (data.access_token === undefined) {
       return {error: 'Access token missing in response'}
     }
