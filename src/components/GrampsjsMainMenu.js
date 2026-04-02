@@ -21,6 +21,7 @@ import {
   mdiDownload,
   mdiBookOpenVariant,
   mdiSourceCommit,
+  mdiLabel,
 } from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -218,6 +219,17 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
             >
               ${this._icon(mdiSourceCommit, p === 'revisions')}
               ${this._('Revisions')}
+            </md-list-item>
+          `
+        : ''}
+      ${this.appState.permissions.canEdit
+        ? html`
+            <md-list-item
+              type="link"
+              href="${BASE_DIR}/tags"
+              ?selected="${p === 'tags'}"
+            >
+              ${this._icon(mdiLabel, p === 'tags')} ${this._('Tags')}
             </md-list-item>
           `
         : ''}
