@@ -129,6 +129,12 @@ export class GrampsJs extends LitElement {
     this._reindexNeeded = false
   }
 
+  get canUseChat() {
+    return (
+      this.appState.permissions.canUseChat && this.appState.dbInfo?.server?.chat
+    )
+  }
+
   static get styles() {
     return [
       sharedStyles,
@@ -361,6 +367,14 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Map')}</dd>
                 <dt><span>g</span> <span>c</span></dt>
                 <dd>${this._('Family Tree')}</dd>
+                ${this.appState.frontendConfig.hideDNALink
+                  ? ''
+                  : html`<dt><span>g</span> <span>d</span></dt>
+                      <dd>${this._('DNA')}</dd>`}
+                ${this.canUseChat
+                  ? html`<dt><span>g</span> <span>a</span></dt>
+                      <dd>${this._('Chat')}</dd>`
+                  : ''}
                 <dt><span>g</span> <span>r</span></dt>
                 <dd>${this._('History')}</dd>
                 <dt><span>g</span> <span>f</span></dt>
@@ -1030,6 +1044,14 @@ export class GrampsJs extends LitElement {
         fireEvent(this, 'nav', {path: 'tasks'})
       } else if (e.key === 'e') {
         fireEvent(this, 'nav', {path: 'export'})
+      } else if (e.key === 'd') {
+        if (!this.appState.frontendConfig.hideDNALink) {
+          fireEvent(this, 'nav', {path: 'dna-matches'})
+        }
+      } else if (e.key === 'a') {
+        if (this.canUseChat) {
+          fireEvent(this, 'nav', {path: 'chat'})
+        }
       }
       this._shortcutPressed = ''
     } else if (this._shortcutPressed === 'n') {
