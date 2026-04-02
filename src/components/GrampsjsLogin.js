@@ -211,7 +211,12 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                           ${this._('Register new account')}
                         </md-outlined-button>
                       `}
-                  <md-filled-button type="submit" @click="${this._submitLogin}">
+                  <md-filled-button
+                    type="submit"
+                    @click="${this._submitLogin}"
+                    ?disabled="${!this.credentials.username ||
+                    !this.credentials.password}"
+                  >
                     ${this._('login')}
                   </md-filled-button>
                 </div>
@@ -337,6 +342,10 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     // Prevent the native form submit/navigation
     e?.preventDefault()
     e?.stopPropagation()
+
+    if (!this.credentials.username || !this.credentials.password) {
+      return
+    }
 
     const submitProgress = this.shadowRoot.getElementById('login-progress')
     submitProgress.style.display = 'block'
