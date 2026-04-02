@@ -223,5 +223,11 @@
     "Given Name First": "Nama Depan (Lahir)",
     "Name Display Format": "Format Tampilan Nama",
     "Log out": "Keluar",
-    "DNA matches": "DNA sesuai"
+    "DNA matches": "DNA sesuai",
+    "Select theme": "Pilih tema",
+    "Theme": "Tema",
+    "System": "Sistem",
+    "Light": "Cerah",
+    "Dark": "Gelap",
+    "Failed to update": "Pembaruan gagal"
 }
