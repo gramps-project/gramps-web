@@ -50,7 +50,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
       grampsId: {type: String},
       familyList: {type: Array},
       families: {type: Array},
-      parentFamilies: {type: Array},
+      parentFamilyList: {type: Array},
       primaryParentFamily: {type: Object},
       otherParentFamilies: {type: Array},
       edit: {type: Boolean},
