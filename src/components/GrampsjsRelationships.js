@@ -1,9 +1,10 @@
 import {LitElement, css, html} from 'lit'
 import '@material/web/button/outlined-button'
-import {mdiAccountMultiple} from '@mdi/js'
+import '@material/web/iconbutton/icon-button.js'
+import {mdiAccountMultiple, mdiArrowDown, mdiArrowUp} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {renderPerson} from '../util.js'
+import {fireEvent, renderPerson} from '../util.js'
 import './GrampsjsChildren.js'
 import './GrampsjsIcon.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -28,6 +29,18 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
           color: var(--grampsjs-body-font-color-35);
           font-size: 22px;
         }
+
+        .reorder-buttons {
+          margin-left: 0.75em;
+          display: flex;
+          align-items: center;
+        }
+
+        md-icon-button {
+          --md-icon-button-icon-size: 20px;
+          width: 34px;
+          height: 34px;
+        }
       `,
     ]
   }
@@ -40,6 +53,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
       parentFamilies: {type: Array},
       primaryParentFamily: {type: Object},
       otherParentFamilies: {type: Array},
+      edit: {type: Boolean},
     }
   }
 
@@ -51,45 +65,134 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
     this.families = []
     this.otherParentFamilies = []
     this.primaryParentFamily = {}
+    this.edit = false
   }
 
   render() {
+    const parentFamilies = [
+      this.primaryParentFamily,
+      ...this.otherParentFamilies,
+    ].filter(f => Object.keys(f).length > 0)
+    const totalParent = parentFamilies.length
+    const totalPartner = this.families.length
     return html`
-      ${this._renderFamily(
-        this.primaryParentFamily,
-        this._('Parents'),
-        this._('Siblings')
-      )}
-      ${this.otherParentFamilies.map(
-        (familyProfile, i) =>
-          this._renderFamily(
-            familyProfile,
-            `${this._('Parents')} #${i + 2}`,
-            this._('Siblings')
-          ),
-        this
+      ${parentFamilies.map((familyProfile, i) =>
+        this._renderFamily(
+          familyProfile,
+          totalParent < 2
+            ? this._('Parents')
+            : html`${this._('Parents')} <span class="number">${i + 1}</span>`,
+          this._('Siblings'),
+          this.edit && totalParent > 1
+            ? this._renderReorderButtons(
+                i,
+                totalParent,
+                () => this._moveParentFamily(i, -1),
+                () => this._moveParentFamily(i, 1)
+              )
+            : ''
+        )
       )}
       ${this.families.map(
         (familyProfile, i) =>
           this._renderFamily(
             familyProfile,
             html`${this._('Partner')}
-            ${this.families.length < 2
+            ${totalPartner < 2
               ? ''
               : html`<span class="number">${i + 1}</span>`}`,
-            this._('Children')
+            this._('Children'),
+            this.edit && totalPartner > 1
+              ? this._renderReorderButtons(
+                  i,
+                  totalPartner,
+                  () => this._movePartnerFamily(i, -1),
+                  () => this._movePartnerFamily(i, 1)
+                )
+              : ''
           ),
         this
       )}
     `
   }
 
-  _renderFamily(familyProfile, parentTitle, childrenTitle) {
+  _renderReorderButtons(index, total, onUp, onDown) {
+    return html`
+      <div class="reorder-buttons">
+        <md-icon-button
+          ?disabled="${index === 0}"
+          @click="${onUp}"
+          title="${this._('Move up')}"
+        >
+          <grampsjs-icon
+            path="${mdiArrowUp}"
+            color="var(--mdc-theme-secondary)"
+            height="20"
+            width="20"
+          ></grampsjs-icon>
+        </md-icon-button>
+        <md-icon-button
+          ?disabled="${index === total - 1}"
+          @click="${onDown}"
+          title="${this._('Move down')}"
+        >
+          <grampsjs-icon
+            path="${mdiArrowDown}"
+            color="var(--mdc-theme-secondary)"
+            height="20"
+            width="20"
+          ></grampsjs-icon>
+        </md-icon-button>
+      </div>
+    `
+  }
+
+  _movePartnerFamily(index, direction) {
+    const newIndex = index + direction
+    if (newIndex < 0 || newIndex >= this.families.length) return
+    const newOrder = [...this.families]
+    ;[newOrder[index], newOrder[newIndex]] = [
+      newOrder[newIndex],
+      newOrder[index],
+    ]
+    fireEvent(this, 'edit:action', {
+      action: 'updateProp',
+      data: {family_list: newOrder.map(f => f.handle)},
+    })
+  }
+
+  _moveParentFamily(index, direction) {
+    const parentFamilies = [
+      this.primaryParentFamily,
+      ...this.otherParentFamilies,
+    ].filter(f => Object.keys(f).length > 0)
+    const newIndex = index + direction
+    if (newIndex < 0 || newIndex >= parentFamilies.length) return
+    const newOrder = [...parentFamilies]
+    ;[newOrder[index], newOrder[newIndex]] = [
+      newOrder[newIndex],
+      newOrder[index],
+    ]
+    fireEvent(this, 'edit:action', {
+      action: 'updateProp',
+      data: {parent_family_list: newOrder.map(f => f.handle)},
+    })
+  }
+
+  _renderFamily(
+    familyProfile,
+    parentTitle,
+    childrenTitle,
+    reorderButtons = ''
+  ) {
     if (Object.keys(familyProfile).length === 0) {
       return html``
     }
     return html`
-      <h4>${parentTitle} ${this._renderFamilyBtn(familyProfile.gramps_id)}</h4>
+      <h4>
+        ${parentTitle}
+        ${this._renderFamilyBtn(familyProfile.gramps_id)}${reorderButtons}
+      </h4>
       ${familyProfile?.father?.gramps_id === this.grampsId ||
       Object.keys(familyProfile?.father || {}).length === 0
         ? ''
