@@ -6,7 +6,7 @@ import '@material/web/button/outlined-button'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditTitle.js'
 import './GrampsjsFormEditSourceData.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, linkUrls} from '../util.js'
 
 export class GrampsjsSource extends GrampsjsObject {
   constructor() {
@@ -53,7 +53,7 @@ export class GrampsjsSource extends GrampsjsObject {
           ? html`
               <div>
                 <dt>${this._('Publication info')}</dt>
-                <dd>${this.data.pubinfo}</dd>
+                <dd>${linkUrls(this.data.pubinfo, false)}</dd>
               </div>
             `
           : ''}
