@@ -5,6 +5,7 @@ import {esbuildPlugin} from '@web/dev-server-esbuild'
 const replace = fromRollup(rollupReplace)
 
 export default {
+  nodeResolve: {exportConditions: ['browser']},
   plugins: [
     esbuildPlugin({ts: true}),
     replace({

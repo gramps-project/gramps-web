@@ -852,6 +852,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
       <grampsjs-form-new-tag
         .appState="${this.appState}"
         .data="${this.data.tag_list}"
+        dialogTitle="${this._('Add Tag')}"
         @object:save="${this._handleSaveTag}"
         @object:cancel="${this._handleCancelDialog}"
       >
