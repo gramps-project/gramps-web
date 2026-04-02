@@ -4,7 +4,7 @@ Only accessible to users with edit permission
 */
 
 import {html, css} from 'lit'
-import '@material/web/fab/fab'
+import '@material/web/fab/fab.js'
 import {mdiPlus} from '@mdi/js'
 
 import {GrampsjsView} from './GrampsjsView.js'
@@ -63,20 +63,40 @@ export class GrampsjsViewTags extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   async _handleSave(e) {
     const {tag, isNew} = e.detail
+    let data
     if (isNew) {
-      await this.appState.apiPost('/api/tags/', {
-        ...tag,
-        handle: makeHandle(),
-      })
+      data = await this.appState.apiPost(
+        '/api/tags/',
+        {...tag, handle: makeHandle()},
+        {dbChanged: false}
+      )
     } else {
-      await this.appState.apiPut(`/api/tags/${tag.handle}`, tag)
+      data = await this.appState.apiPut(`/api/tags/${tag.handle}`, tag, {
+        dbChanged: false,
+      })
     }
+    if (data && 'error' in data) {
+      this.error = true
+      this._errorMessage = data.error
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+      return
+    }
+    this.error = false
     fireEvent(this, 'db:changed')
     this._fetchData()
   }
 
   async _handleDelete(e) {
-    await this.appState.apiDelete(`/api/tags/${e.detail.handle}`)
+    const data = await this.appState.apiDelete(`/api/tags/${e.detail.handle}`, {
+      dbChanged: false,
+    })
+    if (data && 'error' in data) {
+      this.error = true
+      this._errorMessage = data.error
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+      return
+    }
+    this.error = false
     fireEvent(this, 'db:changed')
     this._fetchData()
   }

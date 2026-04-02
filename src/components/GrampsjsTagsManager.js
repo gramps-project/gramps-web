@@ -2,7 +2,7 @@ import {html, css} from 'lit'
 import '@material/web/dialog/dialog'
 import '@material/web/button/text-button'
 import '@material/web/button/filled-button'
-import '@material/web/iconbutton/icon-button'
+import '@material/web/iconbutton/icon-button.js'
 import '@awesome.me/webawesome/dist/components/color-picker/color-picker.js'
 import {mdiPencil, mdiDelete} from '@mdi/js'
 
@@ -98,13 +98,17 @@ export class GrampsjsTagsManager extends GrampsjsTableBase {
                       </td>
                       <td>
                         <div class="actions">
-                          <md-icon-button @click="${() => this._openEdit(tag)}">
+                          <md-icon-button
+                            aria-label="${this._('Edit')}"
+                            @click="${() => this._openEdit(tag)}"
+                          >
                             <grampsjs-icon
                               path="${mdiPencil}"
                               color="var(--mdc-theme-secondary)"
                             ></grampsjs-icon>
                           </md-icon-button>
                           <md-icon-button
+                            aria-label="${this._('Delete')}"
                             @click="${() => this._openDelete(tag)}"
                           >
                             <grampsjs-icon

@@ -38,11 +38,13 @@ export function colorToCss(color, a = 1) {
 
 /* Convert #RRRRGGGGBBBB back to #rrggbb */
 export function hex12ToHex6(hex) {
-  const result = /^#?([a-z\d]{4})([a-z\d]{4})([a-z\d]{4})$/i.exec(hex)
+  const result = /^#?([0-9a-v]{4})([0-9a-v]{4})([0-9a-v]{4})$/i.exec(hex)
   if (!result) return null
   const r = Math.round(parseInt(result[1], 32) / 255)
   const g = Math.round(parseInt(result[2], 32) / 255)
   const b = Math.round(parseInt(result[3], 32) / 255)
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return null
+  if (r > 255 || g > 255 || b > 255) return null
   return `#${r.toString(16).padStart(2, '0')}${g
     .toString(16)
     .padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
