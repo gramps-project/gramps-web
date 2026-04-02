@@ -143,7 +143,11 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
     const {note, ...source} = this.data
     const hasNote = note?.text?.string
     const attrStatus = {_class: 'SrcAttribute', type: 'Status', value: 'Open'}
-    const tagList = [this._todoTagHandle, ...(this.data.tag_list || [])]
+    const tagList = [
+      ...new Set(
+        [this._todoTagHandle, ...(this.data.tag_list || [])].filter(Boolean)
+      ),
+    ]
     if (!hasNote) {
       return [
         {
@@ -171,7 +175,10 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
   }
 
   async _fetchTodoTagHandle(retry = true) {
-    const data = await this.appState.apiGet('/api/tags/')
+    const lang = this.appState?.i18n?.lang || 'en'
+    const data = await this.appState.apiGet(
+      `/api/tags/?locale=${lang}&pagesize=200`
+    )
     if ('data' in data) {
       this._allTags = data.data
       const tags = data.data.filter(tag => tag.name === 'ToDo')

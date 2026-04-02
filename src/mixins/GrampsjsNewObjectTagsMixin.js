@@ -62,7 +62,10 @@ export const GrampsjsNewObjectTagsMixin = superClass =>
     }
 
     async _fetchAllTags() {
-      const data = await this.appState.apiGet('/api/tags/')
+      const lang = this.appState?.i18n?.lang || 'en'
+      const data = await this.appState.apiGet(
+        `/api/tags/?locale=${lang}&pagesize=200`
+      )
       if ('data' in data) {
         this._allTags = data.data
       }

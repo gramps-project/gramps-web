@@ -9,7 +9,6 @@ import '@material/web/iconbutton/icon-button.js'
 import {mdiTagPlus} from '@mdi/js'
 
 import {fireEvent} from '../util.js'
-import './GrampsjsFormNewTag.js'
 import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
