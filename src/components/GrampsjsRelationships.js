@@ -93,25 +93,21 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
             : ''
         )
       )}
-      ${this.families.map(
-        (familyProfile, i) =>
-          this._renderFamily(
-            familyProfile,
-            html`${this._('Partner')}
-            ${totalPartner < 2
-              ? ''
-              : html`<span class="number">${i + 1}</span>`}`,
-            this._('Children'),
-            this.edit && totalPartner > 1
-              ? this._renderReorderButtons(
-                  i,
-                  totalPartner,
-                  () => this._movePartnerFamily(i, -1),
-                  () => this._movePartnerFamily(i, 1)
-                )
-              : ''
-          ),
-        this
+      ${this.families.map((familyProfile, i) =>
+        this._renderFamily(
+          familyProfile,
+          html`${this._('Partner')}
+          ${totalPartner < 2 ? '' : html`<span class="number">${i + 1}</span>`}`,
+          this._('Children'),
+          this.edit && totalPartner > 1
+            ? this._renderReorderButtons(
+                i,
+                totalPartner,
+                () => this._movePartnerFamily(i, -1),
+                () => this._movePartnerFamily(i, 1)
+              )
+            : ''
+        )
       )}
     `
   }
