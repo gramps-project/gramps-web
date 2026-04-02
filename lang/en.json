@@ -283,6 +283,8 @@
   "Failed to upload": "Failed to upload",
   "Failed to update": "Failed to update",
   "Add Family Member": "Add Family Member",
+  "Father": "Father",
+  "Mother": "Mother",
   "Son": "Son",
   "Daughter": "Daughter"
 }
