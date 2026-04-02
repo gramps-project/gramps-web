@@ -30,6 +30,7 @@ npm run build        # outputs to dist/
 ```
 
 Environment variables used at build time:
+
 - `API_URL` — backend API origin (default: empty string, i.e. same origin). In dev, the hardcoded fallback is `http://localhost:5555`.
 - `BASE_DIR` — base path if the app is not served from `/`
 
@@ -60,10 +61,10 @@ All component files and classes use the `Grampsjs` prefix with lowercase `js` (e
 
 ### Base classes
 
-| Base class | Use for |
-|---|---|
-| `GrampsjsView` | Page-level views (only renders when `active`) |
-| `GrampsjsConnectedComponent` | Components that fetch API data on mount |
+| Base class                             | Use for                                               |
+| -------------------------------------- | ----------------------------------------------------- |
+| `GrampsjsView`                         | Page-level views (only renders when `active`)         |
+| `GrampsjsConnectedComponent`           | Components that fetch API data on mount               |
 | `LitElement` + `GrampsjsAppStateMixin` | Everything else that needs `appState` or translations |
 
 ### Icons
@@ -78,6 +79,8 @@ html`<grampsjs-icon path="${mdiInformation}"></grampsjs-icon>`
 ```
 
 Optional attributes: `color`, `height`, `width`, `rotate`.
+
+For action icon color (add/edit/delete buttons), use `color="var(--mdc-theme-secondary)"` — this is `#0277bd` and is consistent across light and dark mode.
 
 ### Mixins
 
@@ -131,12 +134,12 @@ Do not add frontend-only strings to `grampsStrings`, and do not add Gramps strin
 
 Components communicate via window-level custom events:
 
-| Event | Meaning |
-|---|---|
-| `db:changed` | A mutation succeeded; stale data should be refreshed |
-| `user:loggedout` | Auth was cleared |
-| `settings:changed` | User settings were updated |
-| `grampsjs:error` | A component encountered an error (bubbles up to root) |
+| Event              | Meaning                                               |
+| ------------------ | ----------------------------------------------------- |
+| `db:changed`       | A mutation succeeded; stale data should be refreshed  |
+| `user:loggedout`   | Auth was cleared                                      |
+| `settings:changed` | User settings were updated                            |
+| `grampsjs:error`   | A component encountered an error (bubbles up to root) |
 
 Fire events with the `fireEvent(target, eventName, detail?)` helper from `util.js`.
 
