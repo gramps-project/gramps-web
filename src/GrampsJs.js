@@ -129,6 +129,12 @@ export class GrampsJs extends LitElement {
     this._reindexNeeded = false
   }
 
+  get canUseChat() {
+    return (
+      this.appState.permissions.canUseChat && this.appState.dbInfo?.server?.chat
+    )
+  }
+
   static get styles() {
     return [
       sharedStyles,
@@ -363,7 +369,7 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Family Tree')}</dd>
                 <dt><span>g</span> <span>d</span></dt>
                 <dd>${this._('DNA')}</dd>
-                ${this.appState.canUseChat
+                ${this.canUseChat
                   ? html`<dt><span>g</span> <span>a</span></dt>
                       <dd>${this._('Chat')}</dd>`
                   : ''}
@@ -1039,7 +1045,7 @@ export class GrampsJs extends LitElement {
       } else if (e.key === 'd') {
         fireEvent(this, 'nav', {path: 'dna-matches'})
       } else if (e.key === 'a') {
-        if (this.appState.canUseChat) {
+        if (this.canUseChat) {
           fireEvent(this, 'nav', {path: 'chat'})
         }
       }
