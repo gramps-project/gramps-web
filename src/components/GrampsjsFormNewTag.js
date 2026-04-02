@@ -79,6 +79,8 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
     this._tagName = ''
     this._tagColor = '#1f77b4'
     this._loading = true
+    // Non-reactive guard flag; not in properties to avoid triggering re-renders
+    this._saving = false
   }
 
   renderForm() {
