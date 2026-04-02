@@ -400,7 +400,7 @@ export const grampsStrings = [
   'Help',
   'Henry numbering',
   'High',
-  'Home Page',
+  'Home',
   'Home Person',
   'Horizontal (←)',
   'Horizontal (→)',

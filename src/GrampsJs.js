@@ -54,6 +54,52 @@ const BASE_DIR = ''
 
 const MINIMUM_API_VERSION = '3.9.0'
 
+// Pages where the Gramps ID is used as the page title
+const OBJECT_PAGES = new Set([
+  'person',
+  'family',
+  'event',
+  'place',
+  'source',
+  'citation',
+  'repository',
+  'media',
+  'note',
+  'task',
+])
+
+// Map from route name to translatable title string
+const PAGE_TITLES = {
+  home: 'Home',
+  blog: 'Blog',
+  people: 'People',
+  families: 'Families',
+  events: 'Events',
+  places: 'Places',
+  sources: 'Sources',
+  citations: 'Citations',
+  repositories: 'Repositories',
+  notes: 'Notes',
+  medialist: 'Media',
+  map: 'Map',
+  tree: 'Family Tree',
+  'dna-matches': 'DNA',
+  'dna-chromosome': 'DNA',
+  ydna: 'DNA',
+  chat: 'Chat',
+  recent: 'History',
+  bookmarks: '_Bookmarks',
+  tasks: 'Tasks',
+  export: 'Export',
+  reports: '_Reports',
+  report: '_Reports',
+  revisions: 'Revisions',
+  revision: 'Revisions',
+  search: 'Search',
+  settings: 'Settings',
+  anniversaries: 'Anniversaries',
+}
+
 export class GrampsJs extends LitElement {
   static get properties() {
     return {
@@ -306,7 +352,7 @@ export class GrampsJs extends LitElement {
               <h4>${this._('Navigation')}</h4>
               <dl>
                 <dt><span>g</span> <span>h</span></dt>
-                <dd>${this._('Home Page')}</dd>
+                <dd>${this._('Home')}</dd>
                 <dt><span>g</span> <span>b</span></dt>
                 <dd>${this._('Blog')}</dd>
                 <dt><span>g</span> <span>l</span></dt>
@@ -765,6 +811,21 @@ export class GrampsJs extends LitElement {
     }
   }
 
+  _updateTitle() {
+    const {page, pageId} = this.appState.path
+    const suffix = 'Gramps Web'
+    if (OBJECT_PAGES.has(page) && pageId) {
+      document.title = `${pageId} · ${suffix}`
+      return
+    }
+    const pageTitle = PAGE_TITLES[page]
+    if (pageTitle) {
+      document.title = `${this._(pageTitle)} · ${suffix}`
+    } else {
+      document.title = suffix
+    }
+  }
+
   _progressOn() {
     this.progress = true
   }
@@ -850,6 +911,16 @@ export class GrampsJs extends LitElement {
         this.appState.settings.lang !== this.appState.i18n.lang
       ) {
         this._loadStrings(grampsStrings, this.appState.settings.lang)
+      }
+      // Re-run on any path change (covers _loadPage() and internal redirects)
+      if (changed.get('appState')?.path !== this.appState.path) {
+        this._updateTitle()
+      }
+      // Re-run whenever strings are replaced (frontend + backend load separately)
+      if (
+        changed.get('appState')?.i18n?.strings !== this.appState.i18n.strings
+      ) {
+        this._updateTitle()
       }
     }
   }
