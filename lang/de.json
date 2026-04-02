@@ -283,5 +283,6 @@
     "Launch Swagger": "Swagger starten",
     "Family tree preferences": "Stammbaumeinstellungen",
     "Default family tree view": "Standard-Stammbaumansicht",
-    "Invalid face rectangle coordinates": "Ungültige Koordinaten des Gesichtsrechtecks"
+    "Invalid face rectangle coordinates": "Ungültige Koordinaten des Gesichtsrechtecks",
+    "Or select an existing tag": "Oder wähle ein vorhandenes Etikett aus"
 }
