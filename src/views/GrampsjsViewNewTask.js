@@ -202,6 +202,11 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
     if (!this._todoTagHandle) {
       await this._fetchTodoTagHandle()
     }
+    if (!this._todoTagHandle) {
+      this.error = true
+      this._errorMessage = this._('Failed to fetch the ToDo tag')
+      return
+    }
     const processedData = this._processedData()
     this.appState.apiPost(this.postUrl, processedData).then(data => {
       if ('data' in data) {
