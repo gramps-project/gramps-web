@@ -28,6 +28,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
         .number {
           color: var(--grampsjs-body-font-color-35);
           font-size: 22px;
+          margin-left: 0.3em;
         }
 
         .reorder-buttons {
