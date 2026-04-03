@@ -42,17 +42,23 @@ export const GrampsjsNewObjectTagsMixin = superClass =>
           .data="${this.data.tag_list || []}"
           dialogTitle="${this._('Add Tag')}"
           @object:save="${this._handleSaveTag}"
-          @object:cancel="${() => {
-            this._tagDialogContent = ''
-          }}"
+          @object:cancel="${this._handleCancelTag}"
         ></grampsjs-form-new-tag>
       `
     }
 
     async _handleSaveTag(e) {
+      e.preventDefault()
+      e.stopPropagation()
       this.data = {...this.data, tag_list: e.detail.data}
       this._tagDialogContent = ''
       await this._fetchAllTags()
+    }
+
+    _handleCancelTag(e) {
+      e.preventDefault()
+      e.stopPropagation()
+      this._tagDialogContent = ''
     }
 
     _handleTagAction(e) {
