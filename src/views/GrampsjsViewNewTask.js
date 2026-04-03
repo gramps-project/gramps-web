@@ -177,7 +177,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
   async _fetchTodoTagHandle(retry = true) {
     const lang = this.appState?.i18n?.lang || 'en'
     const data = await this.appState.apiGet(
-      `/api/tags/?locale=${lang}&pagesize=200`
+      `/api/tags/?locale=${lang}&pagesize=500`
     )
     if ('data' in data) {
       this._allTags = data.data
@@ -198,7 +198,10 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
     this._fetchTodoTagHandle()
   }
 
-  _submit() {
+  async _submit() {
+    if (!this._todoTagHandle) {
+      await this._fetchTodoTagHandle()
+    }
     const processedData = this._processedData()
     this.appState.apiPost(this.postUrl, processedData).then(data => {
       if ('data' in data) {

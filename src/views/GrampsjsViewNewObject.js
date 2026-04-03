@@ -82,7 +82,6 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
       // eslint-disable-next-line no-param-reassign
       element.value = ''
     })
-    this._tagDialogContent = ''
   }
 
   _submit() {
