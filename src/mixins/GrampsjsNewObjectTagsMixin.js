@@ -62,7 +62,10 @@ export const GrampsjsNewObjectTagsMixin = superClass =>
     }
 
     _handleTagAction(e) {
-      if (e.detail?.action === 'updateProp' && 'tag_list' in e.detail.data) {
+      if (
+        e.detail?.action === 'updateProp' &&
+        'tag_list' in (e.detail.data ?? {})
+      ) {
         this.data = {...this.data, tag_list: e.detail.data.tag_list}
       }
     }
