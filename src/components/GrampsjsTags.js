@@ -9,7 +9,6 @@ import '@material/web/iconbutton/icon-button.js'
 import {mdiTagPlus} from '@mdi/js'
 
 import {fireEvent} from '../util.js'
-import './GrampsjsFormNewTag.js'
 import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -82,6 +81,7 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
       data: {type: Array},
       edit: {type: Boolean},
       hideTags: {type: Array},
+      noHeading: {type: Boolean},
     }
   }
 
@@ -90,6 +90,7 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
     this.data = []
     this.edit = false
     this.hideTags = []
+    this.noHeading = false
   }
 
   render() {
@@ -97,7 +98,7 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
       return html``
     }
     return html`
-      <h4>${this._('Tags')}</h4>
+      ${this.noHeading ? '' : html`<h4>${this._('Tags')}</h4>`}
       <div class="tags">
         <md-chip-set>
           ${this.data
