@@ -98,6 +98,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
         bboxWidth: this.containerWidth,
         bboxHeight: this.containerHeight,
         nameDisplayFormat: this.nameDisplayFormat,
+        canEdit: this.appState.permissions.canEdit,
       })}
     `
   }
