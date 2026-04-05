@@ -134,7 +134,11 @@ export class GrampsjsTagsManager extends GrampsjsTableBase {
     const isEdit = this._dialogMode === 'edit'
     if (!isCreate && !isEdit) return ''
     return html`
-      <md-dialog ?open="${true}" @closed="${this._handleDialogClosed}">
+      <md-dialog
+        ?open="${true}"
+        @cancel="${e => e.preventDefault()}"
+        @closed="${this._handleDialogClosed}"
+      >
         <span slot="headline">
           ${isCreate ? this._('Add Tag') : this._('Edit Tag')}
         </span>
