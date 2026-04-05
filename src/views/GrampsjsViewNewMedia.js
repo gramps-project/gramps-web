@@ -92,6 +92,7 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
       uploadTotal: {type: Number},
       isUploading: {type: Boolean},
       _isRemovingFile: {type: Boolean},
+      _tagDialogIndex: {type: Number},
     }
   }
 
@@ -106,6 +107,7 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
     this.uploadTotal = 0
     this.isUploading = false
     this._isRemovingFile = false
+    this._tagDialogIndex = -1
   }
 
   renderContent() {
@@ -129,10 +131,7 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
               </p>
             </div>
           `
-        : html`
-            ${this._renderFormWithUpload()} ${this._renderTagsForm()}
-            ${this.renderButtons()}
-          `}
+        : html` ${this._renderFormWithUpload()} ${this.renderButtons()} `}
     `
     // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
@@ -222,6 +221,21 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
             </grampsjs-form-select-date>
           </div>
 
+          <div>
+            <h4 class="label">${this._('Tags')}</h4>
+            <grampsjs-tags
+              .data="${this._allTags.filter(t =>
+                (data.tag_list || []).includes(t.handle)
+              )}"
+              edit
+              noHeading
+              .appState="${this.appState}"
+              @tag:new="${() => this._handleNewTagForFile(index)}"
+              @edit:action="${e => this._handleTagActionForFile(e, index)}"
+            ></grampsjs-tags>
+            ${this._tagDialogIndex === index ? this._tagDialogContent : ''}
+          </div>
+
           <grampsjs-form-private
             id="private-${index}"
             data-index="${index}"
@@ -231,6 +245,51 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
         </div>
       </div>
     `
+  }
+
+  _handleNewTagForFile(index) {
+    this._tagDialogIndex = index
+    this._tagDialogContent = html`
+      <grampsjs-form-new-tag
+        .appState="${this.appState}"
+        .data="${this.filesData[index]?.tag_list || []}"
+        dialogTitle="${this._('Add Tag')}"
+        @object:save="${e => this._handleSaveTagForFile(e, index)}"
+        @object:cancel="${this._handleCancelTagForFile}"
+      ></grampsjs-form-new-tag>
+    `
+  }
+
+  async _handleSaveTagForFile(e, index) {
+    e.preventDefault()
+    e.stopPropagation()
+    const filesData = [...this.filesData]
+    filesData[index] = {...(filesData[index] || {}), tag_list: e.detail.data}
+    this.filesData = filesData
+    this._tagDialogContent = ''
+    this._tagDialogIndex = -1
+    await this._fetchAllTags()
+  }
+
+  _handleCancelTagForFile(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    this._tagDialogContent = ''
+    this._tagDialogIndex = -1
+  }
+
+  _handleTagActionForFile(e, index) {
+    if (
+      e.detail?.action === 'updateProp' &&
+      'tag_list' in (e.detail.data ?? {})
+    ) {
+      const filesData = [...this.filesData]
+      filesData[index] = {
+        ...(filesData[index] || {}),
+        tag_list: e.detail.data.tag_list,
+      }
+      this.filesData = filesData
+    }
   }
 
   _getFilePreviewUrl(file) {
@@ -356,6 +415,7 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
     this.isFormValid = false
     this.data = {_class: 'Media'}
     this.filesData = []
+    this._tagDialogIndex = -1
     this.uploadProgress = 0
     this.uploadTotal = 0
     this.isUploading = false
@@ -403,7 +463,6 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
         const mediaData = {
           ...uploadData.data[0].new,
           ...metadata,
-          ...(this.data.tag_list?.length ? {tag_list: this.data.tag_list} : {}),
         }
         const updateUrl = `/api/media/${mediaData.handle}`
         // eslint-disable-next-line no-await-in-loop
