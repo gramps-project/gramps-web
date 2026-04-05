@@ -58,6 +58,7 @@ class GrampsjsDeleteAll extends GrampsjsAppStateMixin(LitElement) {
       <md-dialog
         id="filter-dialog"
         ?open="${this.open}"
+        @cancel="${e => e.preventDefault()}"
         @close=${this._handleClose}
       >
         <div slot="headline">${this._('Delete all objects')}</div>

@@ -132,7 +132,7 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     return html`
-      <md-dialog @cancel="${this._handleDialogCancel}" open>
+      <md-dialog @cancel="${e => e.preventDefault()}" open>
         <div slot="headline">${this.dialogTitle}</div>
         <div slot="content" @formdata:changed="${this._handleFormData}">
           ${this.dialogIsOpen ? this.renderForm() : ''}

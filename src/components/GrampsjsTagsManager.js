@@ -134,7 +134,11 @@ export class GrampsjsTagsManager extends GrampsjsTableBase {
     const isEdit = this._dialogMode === 'edit'
     if (!isCreate && !isEdit) return ''
     return html`
-      <md-dialog ?open="${true}" @closed="${this._handleDialogClosed}">
+      <md-dialog
+        ?open="${true}"
+        @cancel="${e => e.preventDefault()}"
+        @closed="${this._handleDialogClosed}"
+      >
         <span slot="headline">
           ${isCreate ? this._('Add Tag') : this._('Edit Tag')}
         </span>
@@ -173,7 +177,11 @@ export class GrampsjsTagsManager extends GrampsjsTableBase {
   _renderDeleteDialog() {
     if (this._dialogMode !== 'delete') return ''
     return html`
-      <md-dialog ?open="${true}" @closed="${this._handleDialogClosed}">
+      <md-dialog
+        ?open="${true}"
+        @cancel="${e => e.preventDefault()}"
+        @closed="${this._handleDialogClosed}"
+      >
         <span slot="headline">${this._('Delete Tag')}</span>
         <div slot="content">${this._('Delete this object?')}</div>
         <div slot="actions">
