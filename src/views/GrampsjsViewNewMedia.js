@@ -254,22 +254,28 @@ export class GrampsjsViewNewMedia extends GrampsjsNewMediaMixin(
         .appState="${this.appState}"
         .data="${this.filesData[index]?.tag_list || []}"
         dialogTitle="${this._('Add Tag')}"
-        @object:save="${this._handleSaveTagForFile}"
-        @object:cancel="${this._handleCancelTag}"
+        @object:save="${e => this._handleSaveTagForFile(e, index)}"
+        @object:cancel="${this._handleCancelTagForFile}"
       ></grampsjs-form-new-tag>
     `
   }
 
-  async _handleSaveTagForFile(e) {
+  async _handleSaveTagForFile(e, index) {
     e.preventDefault()
     e.stopPropagation()
-    const index = this._tagDialogIndex
     const filesData = [...this.filesData]
     filesData[index] = {...(filesData[index] || {}), tag_list: e.detail.data}
     this.filesData = filesData
     this._tagDialogContent = ''
     this._tagDialogIndex = -1
     await this._fetchAllTags()
+  }
+
+  _handleCancelTagForFile(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    this._tagDialogContent = ''
+    this._tagDialogIndex = -1
   }
 
   _handleTagActionForFile(e, index) {
