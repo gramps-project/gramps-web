@@ -120,6 +120,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
             `}
         <md-icon-button
           id="filteroff"
+          aria-label="${this._('Clear all filters')}"
           ?disabled="${this.filters.length === 0 && this.query === ''}"
           @click="${this._handleFilterOff}"
         >

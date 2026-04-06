@@ -21,6 +21,7 @@ import '../components/GrampsjsFilterProperties.js'
 import '../components/GrampsjsFilterMime.js'
 import '../components/GrampsjsFilterTags.js'
 import '../components/GrampsjsIcon.js'
+import '../components/GrampsjsTooltip.js'
 import '@material/web/select/filled-select'
 import '@material/web/select/select-option'
 
@@ -321,13 +322,20 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
             `
           )}
       </md-filled-select>
-      <mwc-icon-button @click="${this._toggleSortDirection}">
+      <mwc-icon-button
+        id="btn-sort-direction"
+        aria-label="${isAscending ? this._('Ascending') : this._('Descending')}"
+        @click="${this._toggleSortDirection}"
+      >
         <grampsjs-icon
           path="${isAscending ? mdiSortAscending : mdiSortDescending}"
           height="24"
           color="${iconColor}"
         ></grampsjs-icon>
       </mwc-icon-button>
+      <grampsjs-tooltip for="btn-sort-direction" .appState="${this.appState}">
+        ${isAscending ? this._('Ascending') : this._('Descending')}
+      </grampsjs-tooltip>
     `
   }
 
@@ -368,6 +376,8 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     const inactiveColor = 'var(--grampsjs-color-icon-default)'
     return html`
       <mwc-icon-button
+        id="btn-view-grid"
+        aria-label="${this._('Gallery view')}"
         @click="${() => {
           this.altView = true
         }}"
@@ -378,7 +388,12 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
           color="${this.altView ? activeColor : inactiveColor}"
         ></grampsjs-icon>
       </mwc-icon-button>
+      <grampsjs-tooltip for="btn-view-grid" .appState="${this.appState}">
+        ${this._('Gallery view')}
+      </grampsjs-tooltip>
       <mwc-icon-button
+        id="btn-view-list"
+        aria-label="${this._('List view')}"
         @click="${() => {
           this.altView = false
         }}"
@@ -389,6 +404,9 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
           color="${!this.altView ? activeColor : inactiveColor}"
         ></grampsjs-icon>
       </mwc-icon-button>
+      <grampsjs-tooltip for="btn-view-list" .appState="${this.appState}">
+        ${this._('List view')}
+      </grampsjs-tooltip>
     `
   }
 
