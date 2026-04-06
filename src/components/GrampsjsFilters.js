@@ -105,7 +105,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
                   path="${mdiFilter}"
                   color="var(--md-filled-button-label-text-color, white)"
                 ></grampsjs-icon>
-                ${this._('Filter')}
+                ${this._('filter')}
               </md-filled-button>
             `
           : html`
@@ -115,7 +115,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
                   path="${mdiFilter}"
                   color="var(--mdc-theme-primary)"
                 ></grampsjs-icon>
-                ${this._('Filter')}
+                ${this._('filter')}
               </md-outlined-button>
             `}
         <md-icon-button
