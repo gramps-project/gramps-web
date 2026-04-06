@@ -276,5 +276,12 @@
     "Uploading file %s of %s": "Prijenos datoteke %s od %s",
     "Select files": "Odaberi datoteke",
     "Failed to upload": "Prijenos nije uspio",
-    "Failed to update": "Aktualiziranje nije uspjelo"
+    "Failed to update": "Aktualiziranje nije uspjelo",
+    "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Kopiraj token sesije za korištenje u Swagger UI-ju, interaktivnom alatu za testiranje API-ja.",
+    "Developer Tools": "Alati za programere",
+    "Launch Swagger": "Pokreni Swagger",
+    "Or select an existing tag": "Ili odaberi jednu postojeću oznaku",
+    "Family tree preferences": "Postavke rodoslova",
+    "Default family tree view": "Standardni prikaz rodoslova",
+    "Invalid face rectangle coordinates": "Nevažeće koordinate pravokutnika lica"
 }
