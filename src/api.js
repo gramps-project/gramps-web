@@ -921,15 +921,27 @@ export async function updateTaskStatus(
   taskId,
   statusCallback,
   pollInterval = 1000,
-  maxPolls = Infinity
+  maxPolls = Infinity,
+  shouldContinue = () => true
 ) {
   const doneStates = ['FAILURE', 'REVOKED', 'SUCCESS']
   let i = 0
   let status = {}
-  while (!doneStates.includes(status.state) && i < maxPolls) {
+  // Let callers stop polling when the owning UI task changes or disconnects.
+  while (
+    shouldContinue() &&
+    !doneStates.includes(status.state) &&
+    i < maxPolls
+  ) {
     // eslint-disable-next-line no-await-in-loop
     status = await fetchStatus(auth, taskId)
+    if (!shouldContinue()) {
+      break
+    }
     statusCallback(status)
+    if (!shouldContinue() || doneStates.includes(status.state)) {
+      break
+    }
     // wait for 1s
     // eslint-disable-next-line no-await-in-loop
     await new Promise(resolve => setTimeout(resolve, pollInterval))
