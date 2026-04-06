@@ -269,7 +269,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         <div class="media-list-thumb">
           <grampsjs-img
             handle="${row.handle}"
-            size="160"
+            size="200"
             square
             mime="${row.mime}"
             checksum="${row.checksum}"
@@ -357,7 +357,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
       <div class="tile">
         <grampsjs-img
           handle="${row.handle}"
-          size="400"
+          size="300"
           square
           mime="${row.mime}"
           checksum="${row.checksum}"
