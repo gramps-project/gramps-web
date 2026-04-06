@@ -99,7 +99,18 @@ class GrampsjsImg extends LitElement {
     )
   }
 
+  willUpdate(changedProps) {
+    if (
+      changedProps.has('handle') ||
+      changedProps.has('mime') ||
+      changedProps.has('checksum')
+    ) {
+      this._error = false
+    }
+  }
+
   async reload() {
+    this._error = false
     if (this.mime.startsWith('image')) {
       // reload full image if present
       this._reloadImageUrl(getMediaUrl(this.handle))
