@@ -105,7 +105,7 @@ class GrampsjsImg extends LitElement {
       this._reloadImageUrl(getMediaUrl(this.handle))
       // reload thumbnail if present
       this._reloadImageUrl(
-        getThumbnailUrl(this.handle, 3 * this.size, this.square, this.checksum)
+        getThumbnailUrl(this.handle, this.size, this.square, this.checksum)
       )
     }
   }
@@ -249,7 +249,14 @@ class GrampsjsImg extends LitElement {
 
   renderBrokenImage() {
     if (this.fallbackIcon) {
-      return html`<div class="fallback-icon">
+      return html`<div
+        class=${classMap({
+          'fallback-icon': true,
+          round: this.circle,
+          bordered: this.border,
+        })}
+        style="${this.circle ? '' : `border-radius:${this.radius}px`}"
+      >
         <grampsjs-icon
           path="${this.fallbackIcon}"
           color="var(--grampsjs-color-icon)"
@@ -309,8 +316,7 @@ class GrampsjsImg extends LitElement {
   }
 
   _renderFull() {
-    const rect = normalizeRect(this.rect)
-    return rect ? this._renderImageCropped(rect) : this._renderImageFull()
+    return this._renderImageFull()
   }
 
   _errorHandler() {
