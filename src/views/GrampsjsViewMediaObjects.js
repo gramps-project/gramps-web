@@ -109,6 +109,12 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
           background-color: var(--grampsjs-color-shade-240);
         }
 
+        .media-list-item:focus-visible {
+          outline: 2px solid var(--mdc-theme-primary);
+          outline-offset: -2px;
+          background-color: var(--grampsjs-color-shade-240);
+        }
+
         .media-list-thumb {
           flex-shrink: 0;
           width: 88px;
