@@ -161,6 +161,7 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
           size="1000"
           .rect="${ref.rect || []}"
           mime="${obj.mime}"
+          checksum="${obj.checksum}"
         ></grampsjs-img>
       </div>
     `

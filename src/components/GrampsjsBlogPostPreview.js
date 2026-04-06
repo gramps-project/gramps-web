@@ -123,6 +123,7 @@ export class GrampsjsBlogPostPreview extends GrampsjsAppStateMixin(LitElement) {
           square
           .rect="${ref.rect || []}"
           mime="${obj.mime}"
+          checksum="${obj.checksum}"
         ></grampsjs-img>
       </div>
     `

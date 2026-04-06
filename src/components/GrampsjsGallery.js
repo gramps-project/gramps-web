@@ -151,7 +151,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
 
   _renderThumbnail(i, length) {
     const mediaObj = this.media[i]
-    const {handle, mime} = mediaObj
+    const {handle, mime, checksum} = mediaObj
     const {rect} = this.mediaRef[i]
     return html`<div class="tile">
       <grampsjs-img
@@ -162,6 +162,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
         displayHeight="${this.size}"
         .rect="${rect || []}"
         mime="${mime}"
+        checksum="${checksum}"
         @click="${() => this._handleClick(i)}"
       ></grampsjs-img>
       ${this.edit
