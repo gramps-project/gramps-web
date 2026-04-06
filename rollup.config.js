@@ -37,6 +37,12 @@ export default {
         globDirectory: outputDir,
         globPatterns: ['**/*.{html,js,css,webmanifest}'],
         globIgnores: ['polyfills/*.js', 'legacy-*.js', 'nomodule-*.js'],
+        plugins: [
+          replace({
+            BASE_DIR: JSON.stringify(BASE_DIR),
+            preventAssignment: true,
+          }),
+        ],
       }),
     ],
   },

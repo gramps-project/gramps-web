@@ -4,6 +4,8 @@ import {CacheFirst} from 'workbox-strategies'
 import {CacheableResponsePlugin} from 'workbox-cacheable-response'
 import {ExpirationPlugin} from 'workbox-expiration'
 
+const BASE_DIR = ''
+
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting()
@@ -13,12 +15,10 @@ self.addEventListener('message', event => {
 precacheAndRoute(self.__WB_MANIFEST)
 
 registerRoute(
-  new NavigationRoute(createHandlerBoundToURL('/index.html'), {
+  new NavigationRoute(createHandlerBoundToURL(BASE_DIR + '/index.html'), {
     denylist: [/^\/api.*/],
   })
 )
-
-registerRoute('polyfills/*.js', new CacheFirst(), 'GET')
 
 // Cache thumbnails with a stable cache key:
 // - strip `jwt` so token rotation doesn't bust the cache
