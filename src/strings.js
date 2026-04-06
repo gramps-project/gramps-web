@@ -758,6 +758,7 @@ export const grampsStrings = [
   'Slovakia',
   'Slovenian',
   'Social Security Number',
+  'Sort by',
   'Sorting method to use',
   'Source Note',
   'Source Reference Note',

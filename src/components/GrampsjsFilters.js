@@ -1,14 +1,15 @@
 import {LitElement, css, html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
-import {mdiAlertCircleOutline} from '@mdi/js'
+import {mdiAlertCircleOutline, mdiFilter, mdiFilterOff} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
-import '@material/mwc-icon-button'
-import '@material/mwc-button'
-import '@material/web/textfield/outlined-text-field'
 import '@material/web/button/filled-button'
+import '@material/web/button/outlined-button'
+import '@material/web/iconbutton/icon-button'
+import '@material/web/textfield/outlined-text-field'
 
 import './GrampsjsButtonGroup.js'
+import './GrampsjsIcon.js'
 import {renderIconSvg} from '../icons.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {
@@ -25,18 +26,14 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
       sharedStyles,
       css`
         .filtermenu {
-          display: inline;
-        }
-
-        .filtermenu > * {
-          vertical-align: middle;
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 4px 8px;
         }
 
         #filteroff {
-          --mdc-icon-size: 20px;
-          color: var(--mdc-theme-primary);
-          margin-left: 10px;
-          margin-right: 10px;
+          --md-icon-button-icon-size: 20px;
         }
 
         #input-gql-container {
@@ -100,18 +97,35 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
   render() {
     return html`
       <div class="filtermenu">
-        <mwc-button
-          icon="filter_list"
-          ?unelevated="${this.open}"
-          @click="${this._handleFilterButton}"
-          >${this._('filter')}</mwc-button
-        >
-        <mwc-icon-button
+        ${this.open
+          ? html`
+              <md-filled-button @click="${this._handleFilterButton}">
+                <grampsjs-icon
+                  slot="icon"
+                  path="${mdiFilter}"
+                  color="var(--md-filled-button-label-text-color, white)"
+                ></grampsjs-icon>
+                ${this._('filter')}
+              </md-filled-button>
+            `
+          : html`
+              <md-outlined-button @click="${this._handleFilterButton}">
+                <grampsjs-icon
+                  slot="icon"
+                  path="${mdiFilter}"
+                  color="var(--mdc-theme-primary)"
+                ></grampsjs-icon>
+                ${this._('filter')}
+              </md-outlined-button>
+            `}
+        <md-icon-button
           id="filteroff"
+          aria-label="${this._('Clear all filters')}"
           ?disabled="${this.filters.length === 0 && this.query === ''}"
-          icon="filter_list_off"
           @click="${this._handleFilterOff}"
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon path="${mdiFilterOff}"></grampsjs-icon>
+        </md-icon-button>
         <grampsjs-tooltip for="filteroff" .appState="${this.appState}"
           >${this._('Clear all filters')}</grampsjs-tooltip
         >
