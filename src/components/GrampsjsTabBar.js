@@ -16,7 +16,6 @@ const tabs = {
   citations: 'Citations',
   repositories: 'Repositories',
   notes: 'Notes',
-  medialist: 'Media Objects',
   settings: {
     user: 'User settings',
     administration: 'Administration',

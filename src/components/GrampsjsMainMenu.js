@@ -12,6 +12,7 @@ import {
   mdiChat,
   mdiDna,
   mdiHome,
+  mdiImage,
   mdiRss,
   mdiFormatListBulleted,
   mdiMap,
@@ -112,7 +113,6 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
           'sources',
           'repositories',
           'notes',
-          'medialist',
         ].includes(p)}"
       >
         ${this._icon(
@@ -126,10 +126,16 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
             'sources',
             'repositories',
             'notes',
-            'medialist',
           ].includes(p)
         )}
         ${this._('Lists')}
+      </md-list-item>
+      <md-list-item
+        type="link"
+        href="${BASE_DIR}/medialist"
+        ?selected="${p === 'medialist'}"
+      >
+        ${this._icon(mdiImage, p === 'medialist')} ${this._('Media')}
       </md-list-item>
       <md-list-item
         type="link"
