@@ -11,7 +11,7 @@ import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
 
 import './GrampsjsEditor.js'
-import './GrampsJsImage.js'
+import './GrampsjsImg.js'
 import './GrampsjsGallery.js'
 import './GrampsjsTags.js'
 import './GrampsjsTooltip.js'

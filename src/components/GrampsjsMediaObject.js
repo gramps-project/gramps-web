@@ -3,7 +3,7 @@ import {html, css} from 'lit'
 
 import {mdiSelectDrag, mdiTextRecognition} from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
-import './GrampsJsImage.js'
+import './GrampsjsImg.js'
 import './GrampsjsFormEditDate.js'
 import './GrampsjsFormEditTitle.js'
 import './GrampsjsFormEditMapLayer.js'

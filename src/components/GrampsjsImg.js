@@ -4,15 +4,14 @@ An Image thumbnail element.
 
 import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
-import '@material/mwc-icon'
+import {ifDefined} from 'lit/directives/if-defined.js'
+import {keyed} from 'lit/directives/keyed.js'
+import {mdiFile, mdiFileMusic, mdiImageBroken} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {getMediaUrl, getThumbnailUrl, getThumbnailUrlCropped} from '../api.js'
 import {normalizeRect} from '../util.js'
-
-// base64 encoded broken image icon
-const brokenIcon =
-  'PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgcng9IjAiIHJ5PSIwIiBmaWxsLW9wYWNpdHk9Ii4xIiBmaWxsPSIjMDAwIi8+PHBhdGggZD0ibTE4Ljg4IDYuNjQ4OHY1LjAzNzdsLTIuMjkzNC0yLjMwMS0zLjA1NzggMy4wNjU1LTMuMDU3OC0zLjA1NzgtMy4wNTc4IDMuMDU3OC0yLjI5MzQtMi4zMDF2LTMuNTAxMmExLjUyODkgMS41Mjg5IDAgMCAxIDEuNTI4OS0xLjUyODloMTAuNzAyYTEuNTI4OSAxLjUyODkgMCAwIDEgMS41Mjg5IDEuNTI4OW0tMi4yOTM0IDQuOTA3OCAyLjI5MzQgMi4zMDF2My40OTM1YTEuNTI4OSAxLjUyODkgMCAwIDEtMS41Mjg5IDEuNTI4OWgtMTAuNzAyYTEuNTI4OSAxLjUyODkgMCAwIDEtMS41Mjg5LTEuNTI4OXYtNS4wMzAxbDIuMjkzNCAyLjI4NTcgMy4wNTc4LTMuMDU3OCAzLjA1NzggMy4wNTc4IiBmaWxsLW9wYWNpdHk9Ii4yNSIgIGZpbGw9IiMwMDAiLz48L3N2Zz4K'
+import './GrampsjsIcon.js'
 
 class GrampsjsImg extends LitElement {
   static get styles() {
@@ -24,10 +23,6 @@ class GrampsjsImg extends LitElement {
           max-height: 100vh;
         }
 
-        img.broken {
-          background-color: var(--md-sys-color-surface-container-highest);
-        }
-
         .round {
           border-radius: 50%;
         }
@@ -36,15 +31,21 @@ class GrampsjsImg extends LitElement {
           box-shadow: 0px 0px 4px 0px var(--grampsjs-body-font-color-20);
         }
 
-        .file-placeholder {
-          width: 200px;
-          height: 200px;
+        img.broken {
+          background-color: var(--md-sys-color-surface-container-highest);
+        }
+
+        img.file-placeholder {
           background-color: var(--grampsjs-color-shade-230);
-          color: var(--grampsjs-body-font-color-30);
+        }
+
+        .fallback-icon {
           display: flex;
           align-items: center;
           justify-content: center;
-          --mdc-icon-size: 130px;
+          width: 100%;
+          height: 100%;
+          background-color: var(--grampsjs-color-icon-background);
         }
       `,
     ]
@@ -62,6 +63,7 @@ class GrampsjsImg extends LitElement {
       border: {type: Boolean},
       radius: {type: Number},
       checksum: {type: String},
+      fallbackIcon: {type: String},
       _error: {type: Boolean},
     }
   }
@@ -76,21 +78,25 @@ class GrampsjsImg extends LitElement {
     this.border = false
     this.radius = 0
     this.checksum = null
+    this.fallbackIcon = ''
     this._error = false
   }
 
   _renderImageFull() {
-    const height = this.displayHeight || ''
-    return html`
-      <img
-        src="${getMediaUrl(this.handle)}"
-        class=${classMap({round: this.circle, bordered: this.border})}
-        @error=${this._errorHandler}
-        alt=""
-        height="${height}"
-        style="${this.circle ? '' : `border-radius:${this.radius}px`}"
-      />
-    `
+    return keyed(
+      this.handle,
+      html`
+        <img
+          src="${getMediaUrl(this.handle)}"
+          class=${classMap({round: this.circle, bordered: this.border})}
+          @error=${this._errorHandler}
+          alt=""
+          height=${ifDefined(this.displayHeight || undefined)}
+          decoding="async"
+          style="${this.circle ? '' : `border-radius:${this.radius}px`}"
+        />
+      `
+    )
   }
 
   async reload() {
@@ -106,9 +112,11 @@ class GrampsjsImg extends LitElement {
 
   async _reloadImageUrl(url) {
     await fetch(url, {cache: 'reload', mode: 'no-cors'})
-    this.renderRoot.querySelectorAll(`img[src='${url}']`).forEach(img => {
-      // eslint-disable-next-line no-param-reassign
-      img.src = url
+    this.renderRoot.querySelectorAll('img').forEach(img => {
+      if (img.src === url) {
+        // eslint-disable-next-line no-param-reassign
+        img.src = url
+      }
     })
   }
 
@@ -121,110 +129,134 @@ class GrampsjsImg extends LitElement {
   }
 
   _renderImage() {
-    const height = this.displayHeight || ''
-    return html`
-      <img
-        srcset="
-          ${getThumbnailUrl(
+    return keyed(
+      this.handle,
+      html`
+        <img
+          srcset="
+            ${getThumbnailUrl(
+              this.handle,
+              this.size,
+              this.square,
+              this.checksum
+            )},
+            ${getThumbnailUrl(
+              this.handle,
+              1.5 * this.size,
+              this.square,
+              this.checksum
+            )} 1.5x,
+            ${getThumbnailUrl(
+              this.handle,
+              2 * this.size,
+              this.square,
+              this.checksum
+            )} 2x,
+            ${getThumbnailUrl(
+              this.handle,
+              3 * this.size,
+              this.square,
+              this.checksum
+            )} 3x
+          "
+          src="${getThumbnailUrl(
             this.handle,
             this.size,
             this.square,
             this.checksum
-          )},
-          ${getThumbnailUrl(
+          )}"
+          class=${classMap({round: this.circle, bordered: this.border})}
+          @error=${this._errorHandler}
+          alt=""
+          style="${this.circle ? '' : `border-radius:${this.radius}px`}"
+          height=${ifDefined(this.displayHeight || undefined)}
+          loading="lazy"
+          decoding="async"
+        />
+      `
+    )
+  }
+
+  _renderImageCropped(rect) {
+    return keyed(
+      this.handle,
+      html`<img
+        srcset="
+          ${getThumbnailUrlCropped(
             this.handle,
+            rect,
+            this.size,
+            this.square,
+            this.checksum
+          )},
+          ${getThumbnailUrlCropped(
+            this.handle,
+            rect,
             1.5 * this.size,
             this.square,
             this.checksum
           )} 1.5x,
-          ${getThumbnailUrl(
+          ${getThumbnailUrlCropped(
             this.handle,
+            rect,
             2 * this.size,
             this.square,
             this.checksum
           )} 2x,
-          ${getThumbnailUrl(
+          ${getThumbnailUrlCropped(
             this.handle,
+            rect,
             3 * this.size,
             this.square,
             this.checksum
           )} 3x
         "
-        src="${getThumbnailUrl(
-          this.handle,
-          3 * this.size,
-          this.square,
-          this.checksum
-        )}"
-        class=${classMap({round: this.circle, bordered: this.border})}
-        @error=${this._errorHandler}
-        alt=""
-        style="${this.circle ? '' : `border-radius:${this.radius}px`}"
-        height="${height}"
-      />
-    `
-  }
-
-  _renderImageCropped(rect) {
-    const height = this.displayHeight || ''
-    return html`<img
-      srcset="
-        ${getThumbnailUrlCropped(
+        src="${getThumbnailUrlCropped(
           this.handle,
           rect,
           this.size,
           this.square,
           this.checksum
-        )},
-        ${getThumbnailUrlCropped(
-          this.handle,
-          rect,
-          1.5 * this.size,
-          this.square,
-          this.checksum
-        )} 1.5x,
-        ${getThumbnailUrlCropped(
-          this.handle,
-          rect,
-          2 * this.size,
-          this.square,
-          this.checksum
-        )} 2x,
-        ${getThumbnailUrlCropped(
-          this.handle,
-          rect,
-          3 * this.size,
-          this.square,
-          this.checksum
-        )} 3x
-      "
-      src="${getThumbnailUrlCropped(
-        this.handle,
-        rect,
-        3 * this.size,
-        this.square,
-        this.checksum
-      )}"
-      class="${this.circle ? 'round' : ''}"
+        )}"
+        class=${classMap({round: this.circle, bordered: this.border})}
+        style="${this.circle ? '' : `border-radius:${this.radius}px`}"
+        @error=${this._errorHandler}
+        alt=""
+        height=${ifDefined(this.displayHeight || undefined)}
+        loading="lazy"
+        decoding="async"
+      />`
+    )
+  }
+
+  _renderPlaceholder(iconPath, cssClass, altText = '') {
+    const svgSize = this.displayHeight || Math.min(this.size || 200, 400)
+    const src = `data:image/svg+xml;base64,${btoa(
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -6 36 36" width="${svgSize}" height="${svgSize}"><path fill-opacity=".5" fill="#808080" d="${iconPath}"/></svg>`
+    )}`
+    return html`<img
+      class=${classMap({
+        [cssClass]: true,
+        round: this.circle,
+        bordered: this.border,
+      })}
+      height=${ifDefined(this.displayHeight || undefined)}
       style="${this.circle ? '' : `border-radius:${this.radius}px`}"
-      @error=${this._errorHandler}
-      alt=""
-      height="${height}"
+      src="${src}"
+      alt="${altText}"
     />`
   }
 
   renderBrokenImage() {
-    return html`<img
-      class=${classMap({
-        broken: true,
-        round: this.circle,
-        bordered: this.border,
-      })}
-      height="${this.displayHeight || ''}"
-      style="${this.circle ? '' : `border-radius:${this.radius}px`}"
-      src="data:image/svg+xml;base64,${brokenIcon}"
-      alt="Error"
-    /> `
+    if (this.fallbackIcon) {
+      return html`<div class="fallback-icon">
+        <grampsjs-icon
+          path="${this.fallbackIcon}"
+          color="var(--grampsjs-color-icon)"
+        ></grampsjs-icon>
+      </div>`
+    }
+    return this._renderPlaceholder(mdiImageBroken, 'broken', 'Error')
   }
 
   render() {
@@ -232,11 +264,8 @@ class GrampsjsImg extends LitElement {
       return this.renderBrokenImage()
     }
     if (this.mime.startsWith('audio')) {
-      if (this.displayHeight > 0) {
-        return html`
-        <div class="file-placeholder">
-          <mwc-icon>audio_file<mwc-icon>
-        </div>`
+      if (this.square) {
+        return this._renderPlaceholder(mdiFileMusic, 'file-placeholder')
       }
       return this._renderAudio()
     }
@@ -248,10 +277,7 @@ class GrampsjsImg extends LitElement {
       !this.mime.startsWith('image') &&
       this.mime !== 'application/pdf'
     ) {
-      return html`
-      <div class="file-placeholder">
-        <mwc-icon>insert_drive_file<mwc-icon>
-      </div>`
+      return this._renderPlaceholder(mdiFile, 'file-placeholder')
     }
     return this.size === 0 ? this._renderFull() : this._renderThumb()
   }
@@ -283,9 +309,8 @@ class GrampsjsImg extends LitElement {
   }
 
   _renderFull() {
-    return this.rect.length === 0
-      ? this._renderImageFull()
-      : this._renderImageFull()
+    const rect = normalizeRect(this.rect)
+    return rect ? this._renderImageCropped(rect) : this._renderImageFull()
   }
 
   _errorHandler() {
