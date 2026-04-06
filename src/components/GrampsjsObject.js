@@ -503,6 +503,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         square
         circle
         mime="${obj.mime}"
+        checksum="${obj.checksum}"
         @click="${() => this._handleImgClick(obj.gramps_id)}"
         class="link"
       ></grampsjs-img>

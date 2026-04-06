@@ -58,7 +58,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
 
   // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
-    return '/api/media/?keys=gramps_id,mime,desc,change,handle'
+    return '/api/media/?keys=gramps_id,mime,desc,change,handle,checksum'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -105,6 +105,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         displayHeight="200"
         square
         mime="${row.mime}"
+        checksum="${row.checksum}"
         @click="${() => this._handleImageClick(row)}"
       ></grampsjs-img
       ><br /><span>${row.desc}</span>

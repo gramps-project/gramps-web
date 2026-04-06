@@ -205,6 +205,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
             size="1000"
             border
             mime="${this.data.mime}"
+            checksum="${this.data.checksum}"
           ></grampsjs-img>
           ${this.selectedRect?.rect?.length
             ? html`<grampsjs-rect
@@ -275,6 +276,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         class="link"
         border
         mime="${this.data.mime}"
+        checksum="${this.data.checksum}"
         @click=${this._handleClick}
       ></grampsjs-img>
 
@@ -294,6 +296,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           class="link"
           border
           mime="${this.data.mime}"
+          checksum="${this.data.checksum}"
           @click=${this._handleClick}
         ></grampsjs-img>
 

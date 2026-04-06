@@ -61,6 +61,7 @@ class GrampsjsImg extends LitElement {
       displayHeight: {type: Number},
       border: {type: Boolean},
       radius: {type: Number},
+      checksum: {type: String},
       _error: {type: Boolean},
     }
   }
@@ -74,6 +75,7 @@ class GrampsjsImg extends LitElement {
     this.displayHeight = 0
     this.border = false
     this.radius = 0
+    this.checksum = null
     this._error = false
   }
 
@@ -97,7 +99,7 @@ class GrampsjsImg extends LitElement {
       this._reloadImageUrl(getMediaUrl(this.handle))
       // reload thumbnail if present
       this._reloadImageUrl(
-        getThumbnailUrl(this.handle, 3 * this.size, this.square)
+        getThumbnailUrl(this.handle, 3 * this.size, this.square, this.checksum)
       )
     }
   }
@@ -123,12 +125,37 @@ class GrampsjsImg extends LitElement {
     return html`
       <img
         srcset="
-          ${getThumbnailUrl(this.handle, this.size, this.square)},
-          ${getThumbnailUrl(this.handle, 1.5 * this.size, this.square)} 1.5x,
-          ${getThumbnailUrl(this.handle, 2 * this.size, this.square)} 2x,
-          ${getThumbnailUrl(this.handle, 3 * this.size, this.square)} 3x
+          ${getThumbnailUrl(
+            this.handle,
+            this.size,
+            this.square,
+            this.checksum
+          )},
+          ${getThumbnailUrl(
+            this.handle,
+            1.5 * this.size,
+            this.square,
+            this.checksum
+          )} 1.5x,
+          ${getThumbnailUrl(
+            this.handle,
+            2 * this.size,
+            this.square,
+            this.checksum
+          )} 2x,
+          ${getThumbnailUrl(
+            this.handle,
+            3 * this.size,
+            this.square,
+            this.checksum
+          )} 3x
         "
-        src="${getThumbnailUrl(this.handle, 3 * this.size, this.square)}"
+        src="${getThumbnailUrl(
+          this.handle,
+          3 * this.size,
+          this.square,
+          this.checksum
+        )}"
         class=${classMap({round: this.circle, bordered: this.border})}
         @error=${this._errorHandler}
         alt=""
@@ -142,31 +169,41 @@ class GrampsjsImg extends LitElement {
     const height = this.displayHeight || ''
     return html`<img
       srcset="
-        ${getThumbnailUrlCropped(this.handle, rect, this.size, this.square)},
+        ${getThumbnailUrlCropped(
+          this.handle,
+          rect,
+          this.size,
+          this.square,
+          this.checksum
+        )},
         ${getThumbnailUrlCropped(
           this.handle,
           rect,
           1.5 * this.size,
-          this.square
+          this.square,
+          this.checksum
         )} 1.5x,
         ${getThumbnailUrlCropped(
           this.handle,
           rect,
           2 * this.size,
-          this.square
+          this.square,
+          this.checksum
         )} 2x,
         ${getThumbnailUrlCropped(
           this.handle,
           rect,
           3 * this.size,
-          this.square
+          this.square,
+          this.checksum
         )} 3x
       "
       src="${getThumbnailUrlCropped(
         this.handle,
         rect,
         3 * this.size,
-        this.square
+        this.square,
+        this.checksum
       )}"
       class="${this.circle ? 'round' : ''}"
       style="${this.circle ? '' : `border-radius:${this.radius}px`}"

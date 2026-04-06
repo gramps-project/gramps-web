@@ -50,6 +50,7 @@ export class GrampsjsBlogPreview extends GrampsjsAppStateMixin(LitElement) {
         .rect="${ref.rect || []}"
         square
         mime="${obj.mime}"
+        checksum="${obj.checksum}"
       ></grampsjs-img>
     `
   }

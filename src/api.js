@@ -549,25 +549,37 @@ export function getMediaUrlCropped(handle, rect) {
   return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}?jwt=${jwt}`
 }
 
-export function getThumbnailUrl(handle, size, square = false) {
-  const jwt = localStorage.getItem('access_token')
-  if (jwt === null) {
-    return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?square=${square}`
-  }
-  return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?jwt=${jwt}&square=${square}`
+function _checksumParam(checksum) {
+  return checksum ? `&checksum=${checksum}` : ''
 }
 
-export function getThumbnailUrlCropped(handle, rect, size, square = false) {
+export function getThumbnailUrl(handle, size, square = false, checksum = null) {
+  const jwt = localStorage.getItem('access_token')
+  const cs = _checksumParam(checksum)
+  if (jwt === null) {
+    return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?square=${square}${cs}`
+  }
+  return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?jwt=${jwt}&square=${square}${cs}`
+}
+
+export function getThumbnailUrlCropped(
+  handle,
+  rect,
+  size,
+  square = false,
+  checksum = null
+) {
   const normalizedRect = _getRectForUrl(rect)
   if (!normalizedRect) {
-    return getThumbnailUrl(handle, size, square)
+    return getThumbnailUrl(handle, size, square, checksum)
   }
   const jwt = localStorage.getItem('access_token')
+  const cs = _checksumParam(checksum)
   const [x1, y1, x2, y2] = normalizedRect
   if (jwt === null) {
-    return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?square=${square}`
+    return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?square=${square}${cs}`
   }
-  return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?jwt=${jwt}&square=${square}`
+  return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?jwt=${jwt}&square=${square}${cs}`
 }
 
 export async function queryNominatim(q) {
