@@ -68,10 +68,18 @@ export class GrampsjsViewPerson extends GrampsjsViewObject {
   }
 
   getUrl() {
+    // Use individual URL once handle is available (correct ETag for PUT),
+    // fall back to query URL for initial load when handle is not yet known
+    const handle = this._data?.handle
     // the precision key for displaying age is only supported since Gramps Web API v3.10
     const precision = apiVersionAtLeast(this.appState.dbInfo, 3, 10)
       ? '&precision=2'
       : ''
+    if (handle) {
+      return `/api/people/${handle}?locale=${
+        this.appState.i18n.lang || 'en'
+      }&profile=all&backlinks=true&extend=all${precision}`
+    }
     return `/api/people/?gramps_id=${this.grampsId}&locale=${
       this.appState.i18n.lang || 'en'
     }&profile=all&backlinks=true&extend=all${precision}`

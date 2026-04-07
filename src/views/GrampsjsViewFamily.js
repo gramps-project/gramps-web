@@ -10,6 +10,14 @@ export class GrampsjsViewFamily extends GrampsjsViewObject {
   }
 
   getUrl() {
+    // Use individual URL once handle is available (correct ETag for PUT),
+    // fall back to query URL for initial load when handle is not yet known
+    const handle = this._data?.handle
+    if (handle) {
+      return `/api/families/${handle}?locale=${
+        this.appState.i18n.lang || 'en'
+      }&profile=all&backlinks=true&extend=all`
+    }
     return `/api/families/?gramps_id=${this.grampsId}&locale=${
       this.appState.i18n.lang || 'en'
     }&profile=all&backlinks=true&extend=all`

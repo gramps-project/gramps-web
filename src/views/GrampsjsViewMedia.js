@@ -24,6 +24,14 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
   }
 
   getUrl() {
+    // Use individual URL once handle is available (correct ETag for PUT),
+    // fall back to query URL for initial load when handle is not yet known
+    const handle = this._data?.handle
+    if (handle) {
+      return `/api/media/${handle}?locale=${
+        this.appState.i18n.lang || 'en'
+      }&backlinks=true&extend=all&profile=all`
+    }
     return `/api/media/?gramps_id=${this.grampsId}&locale=${
       this.appState.i18n.lang || 'en'
     }&backlinks=true&extend=all&profile=all`

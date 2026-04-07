@@ -254,6 +254,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         if ('data' in data) {
           this.error = false
           this._data = data.data
+          this._etag = data.etag || ''
         } else if ('error' in data) {
           this.error = true
           this._errorMessage = data.error
