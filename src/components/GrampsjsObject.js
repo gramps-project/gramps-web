@@ -49,7 +49,8 @@ const _allTabs = {
     title: 'Relationships',
     condition: data =>
       data.family_list?.length > 0 || data.parent_family_list?.length > 0,
-    conditionEdit: () => false,
+    conditionEdit: data =>
+      data.family_list?.length > 1 || data.parent_family_list?.length > 1,
   },
   enclosed: {
     title: 'Place Hierarchy',
@@ -502,6 +503,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         square
         circle
         mime="${obj.mime}"
+        checksum="${obj.checksum}"
         @click="${() => this._handleImgClick(obj.gramps_id)}"
         class="link"
       ></grampsjs-img>
@@ -852,6 +854,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
       <grampsjs-form-new-tag
         .appState="${this.appState}"
         .data="${this.data.tag_list}"
+        dialogTitle="${this._('Add Tag')}"
         @object:save="${this._handleSaveTag}"
         @object:cancel="${this._handleCancelDialog}"
       >

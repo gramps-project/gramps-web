@@ -1,6 +1,6 @@
 import {LitElement, css, html} from 'lit'
 
-import {hex6ToCss, hex12ToCss} from '../color.js'
+import {colorToCss} from '../color.js'
 import {sharedStyles} from '../SharedStyles.js'
 import '@material/web/chips/chip-set'
 import '@material/web/chips/input-chip'
@@ -9,7 +9,6 @@ import '@material/web/iconbutton/icon-button.js'
 import {mdiTagPlus} from '@mdi/js'
 
 import {fireEvent} from '../util.js'
-import './GrampsjsFormNewTag.js'
 import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -34,7 +33,7 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
           align-items: center;
           display: flex;
           flex-wrap: wrap;
-          gap: 4px;
+          gap: 12px;
           padding: 5px 0px;
         }
 
@@ -82,6 +81,7 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
       data: {type: Array},
       edit: {type: Boolean},
       hideTags: {type: Array},
+      noHeading: {type: Boolean},
     }
   }
 
@@ -90,13 +90,7 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
     this.data = []
     this.edit = false
     this.hideTags = []
-  }
-
-  _colorToCss(color, a) {
-    return (
-      (color?.length > 7 ? hex12ToCss(color, a) : hex6ToCss(color, a)) ??
-      `rgba(0,0,0,${a})`
-    )
+    this.noHeading = false
   }
 
   render() {
@@ -104,7 +98,7 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
       return html``
     }
     return html`
-      <h4>${this._('Tags')}</h4>
+      ${this.noHeading ? '' : html`<h4>${this._('Tags')}</h4>`}
       <div class="tags">
         <md-chip-set>
           ${this.data
@@ -113,10 +107,10 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
               this.edit
                 ? html`<md-input-chip
                     label="${obj.name}"
-                    style="--tag-color:${this._colorToCss(
+                    style="--tag-color:${colorToCss(
                       obj.color,
                       0.9
-                    )};--tag-color-bg:${this._colorToCss(obj.color, 0.12)}"
+                    )};--tag-color-bg:${colorToCss(obj.color, 0.12)}"
                     @remove=${e => {
                       e.preventDefault()
                       this._handleClear(obj.handle)
@@ -124,10 +118,10 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
                   ></md-input-chip>`
                 : html`<md-assist-chip
                     label="${obj.name}"
-                    style="--tag-color:${this._colorToCss(
+                    style="--tag-color:${colorToCss(
                       obj.color,
                       0.9
-                    )};--tag-color-bg:${this._colorToCss(obj.color, 0.12)}"
+                    )};--tag-color-bg:${colorToCss(obj.color, 0.12)}"
                   ></md-assist-chip>`
             )}
         </md-chip-set>
@@ -140,7 +134,7 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
               >
                 <grampsjs-icon
                   path="${mdiTagPlus}"
-                  color="var(--grampsjs-body-font-color-35)"
+                  color="var(--mdc-theme-secondary)"
                 ></grampsjs-icon>
               </md-icon-button>
               <grampsjs-tooltip for="btn-tag" .appState="${this.appState}"

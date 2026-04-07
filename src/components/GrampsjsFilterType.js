@@ -53,7 +53,6 @@ export class GrampsjsFilterType extends GrampsjsAppStateMixin(LitElement) {
         id="type"
         noheading
         nocustom
-        valueNonLocal
         label="${this.label || this._('Type')}"
         .appState="${this.appState}"
         typeName="${this.typeName}"

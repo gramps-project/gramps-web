@@ -283,5 +283,10 @@
     "Launch Swagger": "Swagger starten",
     "Invalid face rectangle coordinates": "Ongeldige coördinaten gezichtsrechthoek",
     "Family tree preferences": "Stamboom voorkeuren",
-    "Default family tree view": "Standaard stamboomweergave"
+    "Default family tree view": "Standaard stamboomweergave",
+    "Or select an existing tag": "Of kies een bestand label",
+    "Ascending": "Oplopend",
+    "Descending": "Aflopend",
+    "Gallery view": "Galerieweergave",
+    "List view": "Lijstwergave"
 }

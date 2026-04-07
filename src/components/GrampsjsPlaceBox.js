@@ -3,7 +3,7 @@ import {html, css, LitElement} from 'lit'
 import '@material/mwc-icon'
 import '@material/mwc-button'
 
-import './GrampsJsImage.js'
+import './GrampsjsImg.js'
 import './GrampsjsConnectedGallery.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'

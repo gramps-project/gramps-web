@@ -10,8 +10,11 @@ import '../components/GrampsjsRelogin.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
 
-import {fireEvent, clickKeyHandler} from '../util.js'
-import '@material/mwc-button'
+import {fireEvent, apiVersionAtLeast} from '../util.js'
+import {mdiDeleteForever} from '@mdi/js'
+import '../components/GrampsjsIcon.js'
+import '@material/web/button/outlined-button.js'
+import '@material/web/textfield/outlined-text-field.js'
 
 export class GrampsjsViewAdminSettings extends GrampsjsView {
   static get styles() {
@@ -47,12 +50,33 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         .danger-zone div.button {
           float: right;
           order: 2;
-          --mdc-button-outline-color: var(--grampsjs-alert-error-font-color);
-          --mdc-theme-primary: var(--grampsjs-alert-error-font-color);
+        }
+
+        .danger-button {
+          --md-outlined-button-label-text-color: var(
+            --grampsjs-alert-error-font-color
+          );
+          --md-outlined-button-focus-label-text-color: var(
+            --grampsjs-alert-error-font-color
+          );
+          --md-outlined-button-hover-label-text-color: var(
+            --grampsjs-alert-error-font-color
+          );
+          --md-outlined-button-pressed-label-text-color: var(
+            --grampsjs-alert-error-font-color
+          );
+          --md-outlined-button-outline-color: var(
+            --grampsjs-alert-error-font-color
+          );
         }
 
         .danger-zone p {
           margin: 0.4em 0;
+        }
+
+        #tree-name-field {
+          width: 100%;
+          max-width: 30em;
         }
 
         .bold {
@@ -79,6 +103,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       _repairResults: {type: Object},
       _buttonUpdateSearchDisabled: {type: Boolean},
       _buttonUpdateSearchSemanticDisabled: {type: Boolean},
+      _treeName: {type: String},
     }
   }
 
@@ -88,6 +113,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this._repairResults = {}
     this._buttonUpdateSearchDisabled = false
     this._buttonUpdateSearchSemanticDisabled = false
+    this._treeName = ''
   }
 
   renderContent() {
@@ -119,12 +145,10 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           'Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.'
         )}
       </p>
-      <mwc-button
-        outlined
+      <md-outlined-button
         ?disabled=${this._buttonUpdateSearchDisabled}
         @click="${() => this._updateSearch(false)}"
-        @keydown="${clickKeyHandler}"
-        >${this._('Update search index')}</mwc-button
+        >${this._('Update search index')}</md-outlined-button
       >
       <grampsjs-task-progress-indicator
         class="button"
@@ -148,12 +172,12 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
               )}
             </p>
             <p>
-              <mwc-button
-                outlined
+              <md-outlined-button
                 ?disabled=${this._buttonUpdateSearchSemanticDisabled}
                 @click="${() => this._updateSearch(true)}"
-                @keydown="${clickKeyHandler}"
-                >${this._('Regenerate semantic search index')}</mwc-button
+                >${this._(
+                  'Regenerate semantic search index'
+                )}</md-outlined-button
               >
               <grampsjs-task-progress-indicator
                 class="button"
@@ -166,12 +190,10 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
               ></grampsjs-task-progress-indicator>
             </p>
             <p>
-              <mwc-button
-                outlined
+              <md-outlined-button
                 ?disabled=${this._buttonUpdateSearchSemanticDisabled}
                 @click="${() => this._updateSearch(true, true)}"
-                @keydown="${clickKeyHandler}"
-                >${this._('Update semantic search index')}</mwc-button
+                >${this._('Update semantic search index')}</md-outlined-button
               >
               <grampsjs-task-progress-indicator
                 class="button"
@@ -185,6 +207,26 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             </p>
           `
         : ''}
+      ${apiVersionAtLeast(this.appState.dbInfo, 3, 9)
+        ? html`
+            <h3>${this._('Family Tree name')}</h3>
+            <p>
+              <md-outlined-text-field
+                id="tree-name-field"
+                label="${this._('Family Tree name')}"
+                .value="${this._treeName}"
+                @input="${e => {
+                  this._treeName = e.target.value
+                }}"
+              ></md-outlined-text-field>
+            </p>
+            <p>
+              <md-outlined-button @click="${this._renameTree}"
+                >${this._('_Rename')}</md-outlined-button
+              >
+            </p>
+          `
+        : ''}
       <h3>${this._('Check and Repair Database')}</h3>
 
       <p>
@@ -192,11 +234,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           'This tool checks the database for integrity problems, fixing the problems it can.'
         )}
       </p>
-      <mwc-button
-        outlined
-        @click="${this._checkRepair}"
-        @keydown="${clickKeyHandler}"
-        >${this._('Check and Repair')}</mwc-button
+      <md-outlined-button @click="${this._checkRepair}"
+        >${this._('Check and Repair')}</md-outlined-button
       >
       <grampsjs-task-progress-indicator
         class="button"
@@ -236,13 +275,17 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             pollInterval="0.2"
             .appState="${this.appState}"
           ></grampsjs-task-progress-indicator>
-          <mwc-button
-            outlined
+          <md-outlined-button
+            class="danger-button"
             @click="${this._openDeleteAll}"
-            @keydown="${clickKeyHandler}"
-            icon="delete_forever"
-            >${this._('Delete')}</mwc-button
           >
+            <grampsjs-icon
+              slot="icon"
+              path="${mdiDeleteForever}"
+              color="var(--grampsjs-alert-error-font-color)"
+            ></grampsjs-icon>
+            ${this._('Delete')}
+          </md-outlined-button>
         </div>
       </div>
       <grampsjs-delete-all
@@ -374,6 +417,22 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
+  async _fetchTreeInfo() {
+    const data = await this.appState.apiGet('/api/trees/-')
+    if (!('error' in data)) {
+      this._treeName = data?.data?.name ?? ''
+    }
+  }
+
+  async _renameTree() {
+    const data = await this.appState.apiPut('/api/trees/-', {
+      name: this._treeName,
+    })
+    if ('error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
   async _fetchOwnUserDetails() {
     const data = await this.appState.apiGet('/api/users/-/')
     if ('error' in data) {
@@ -388,6 +447,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
   connectedCallback() {
     super.connectedCallback()
     this._fetchOwnUserDetails()
+    this._fetchTreeInfo()
   }
 }
 

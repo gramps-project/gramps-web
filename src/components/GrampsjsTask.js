@@ -11,7 +11,7 @@ import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
 
 import './GrampsjsEditor.js'
-import './GrampsJsImage.js'
+import './GrampsjsImg.js'
 import './GrampsjsGallery.js'
 import './GrampsjsTags.js'
 import './GrampsjsTooltip.js'
@@ -356,6 +356,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
       <grampsjs-form-new-tag
         .appState="${this.appState}"
         .data="${this.source.tag_list}"
+        dialogTitle="${this._('Add Tag')}"
         @object:save="${this._handleSaveTag}"
         @object:cancel="${this._handleCancelDialog}"
       >

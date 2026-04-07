@@ -14,7 +14,7 @@ import {
   renderIcon,
 } from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import './GrampsJsImage.js'
+import './GrampsjsImg.js'
 import {sharedStyles} from '../SharedStyles.js'
 
 export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(

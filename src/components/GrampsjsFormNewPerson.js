@@ -1,10 +1,11 @@
 import {GrampsjsNewPersonMixin} from '../mixins/GrampsjsNewPersonMixin.js'
+import {GrampsjsNewObjectTagsMixin} from '../mixins/GrampsjsNewObjectTagsMixin.js'
 import {fireEvent} from '../util.js'
 import './GrampsjsFormSelectType.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
-export class GrampsjsFormNewPerson extends GrampsjsNewPersonMixin(
-  GrampsjsObjectForm
+export class GrampsjsFormNewPerson extends GrampsjsNewObjectTagsMixin(
+  GrampsjsNewPersonMixin(GrampsjsObjectForm)
 ) {
   _handleDialogSave() {
     const processedData = this._processedData()

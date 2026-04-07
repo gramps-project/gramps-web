@@ -13,6 +13,7 @@ import {
   makeHandle,
   normalizeRect,
   isValidRect,
+  apiVersionAtLeast,
 } from '../../src/util.js'
 
 // Helpers
@@ -282,5 +283,50 @@ describe('isValidRect', () => {
   it('returns false for invalid rectangles', () => {
     expect(isValidRect([10, 10, 10, 20])).to.be.false
     expect(isValidRect([10, 10, 20, 10])).to.be.false
+  })
+})
+
+describe('apiVersionAtLeast', () => {
+  const dbInfo = v => ({gramps_webapi: {version: v}})
+
+  it('returns false when version is missing', () => {
+    expect(apiVersionAtLeast({}, 3, 9)).to.be.false
+    expect(apiVersionAtLeast(undefined, 3, 9)).to.be.false
+  })
+
+  it('matches exact version', () => {
+    expect(apiVersionAtLeast(dbInfo('3.9.0'), 3, 9, 0)).to.be.true
+    expect(apiVersionAtLeast(dbInfo('3.9.1'), 3, 9, 1)).to.be.true
+  })
+
+  it('returns true for higher minor version', () => {
+    expect(apiVersionAtLeast(dbInfo('3.10.0'), 3, 9)).to.be.true
+  })
+
+  it('returns false for lower minor version', () => {
+    expect(apiVersionAtLeast(dbInfo('3.8.0'), 3, 9)).to.be.false
+  })
+
+  it('handles minor >= 10 correctly (no string comparison regression)', () => {
+    expect(apiVersionAtLeast(dbInfo('3.10.0'), 3, 9)).to.be.true
+    expect(apiVersionAtLeast(dbInfo('3.9.0'), 3, 10)).to.be.false
+  })
+
+  it('returns true for higher major version regardless of minor', () => {
+    expect(apiVersionAtLeast(dbInfo('4.0.0'), 3, 9)).to.be.true
+  })
+
+  it('returns false for lower major version regardless of minor', () => {
+    expect(apiVersionAtLeast(dbInfo('2.99.0'), 3, 9)).to.be.false
+  })
+
+  it('respects patch version', () => {
+    expect(apiVersionAtLeast(dbInfo('3.9.1'), 3, 9, 2)).to.be.false
+    expect(apiVersionAtLeast(dbInfo('3.9.2'), 3, 9, 2)).to.be.true
+    expect(apiVersionAtLeast(dbInfo('3.9.3'), 3, 9, 2)).to.be.true
+  })
+
+  it('defaults patch to 0 when not specified', () => {
+    expect(apiVersionAtLeast(dbInfo('3.9.0'), 3, 9)).to.be.true
   })
 })

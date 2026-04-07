@@ -1,8 +1,14 @@
-import {html} from 'lit'
+import {html, css} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
-import {fireEvent, renderIcon, objectDetail, makeHandle} from '../util.js'
+import {
+  fireEvent,
+  renderIcon,
+  objectDetail,
+  makeHandle,
+  eventTypeIconPath,
+} from '../util.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormEventRef.js'
 import './GrampsjsFormNewEvent.js'
@@ -11,6 +17,18 @@ import '@material/mwc-icon-button'
 import '@material/mwc-button'
 
 export class GrampsjsEvents extends GrampsjsEditableList {
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
+        md-list-item {
+          --md-list-item-top-space: 16px;
+          --md-list-item-bottom-space: 16px;
+        }
+      `,
+    ]
+  }
+
   static get properties() {
     return {
       profile: {type: Array},
@@ -38,6 +56,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
   row(obj, i) {
     const j = this.data.indexOf(obj)
     const objProfile = {...obj, profile: this.profile[j]}
+    const typeKey = typeof obj.type === 'string' ? obj.type : obj.type?.value
     return html`
       <md-list-item
         type="button"
@@ -54,7 +73,16 @@ export class GrampsjsEvents extends GrampsjsEditableList {
         <span slot="supporting-text"
           >${this._getSecondaryText(objProfile)}</span
         >
-        ${renderIcon({object: obj, object_type: 'event'}, 'start')}
+        ${renderIcon(
+          {object: obj, object_type: 'event'},
+          'start',
+          eventTypeIconPath[typeKey] || null
+        )}
+        ${objProfile.profile?.age && /\d/.test(objProfile.profile.age)
+          ? html`<span slot="trailing-supporting-text"
+              >${objProfile.profile.age}</span
+            >`
+          : ''}
       </md-list-item>
     `
   }
@@ -76,9 +104,10 @@ export class GrampsjsEvents extends GrampsjsEditableList {
 
   _getSecondaryText(obj) {
     const detail = objectDetail('event', obj, this.appState.i18n.strings) || ''
+    const context = obj.profile?.context || ''
+    const titleLine = [obj.description, context].filter(Boolean).join(' • ')
     return html`
-      ${detail} ${obj.description && detail.trim() ? html` &ndash; ` : ''}
-      ${obj.description || ''}
+      ${titleLine} ${titleLine && detail.trim() ? html`<br />` : ''} ${detail}
     `
   }
 

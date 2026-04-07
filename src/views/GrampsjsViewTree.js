@@ -67,7 +67,7 @@ export class GrampsjsViewTree extends GrampsjsView {
         <div class="with-margin">
           <p>
             ${this._('No Home Person set.')}
-            <a href="/">${this._('Home Page')}</a>
+            <a href="/">${this._('Home')}</a>
           </p>
         </div>
       `

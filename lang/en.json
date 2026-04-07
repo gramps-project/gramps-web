@@ -1,4 +1,8 @@
 {
+  "Ascending": "Ascending",
+  "Descending": "Descending",
+  "Gallery view": "Gallery view",
+  "List view": "List view",
   "A new version of the app is available.": "A new version of the app is available.",
   "Blog": "Blog",
   "Change E-mail": "Change E-mail",
@@ -90,6 +94,7 @@
   "Clear all filters": "Clear all filters",
   "Sort": "Sort",
   "Add Tag": "Add Tag",
+  "Or select an existing tag": "Or select an existing tag",
   "Manage search index": "Manage search index",
   "Add a new user": "Add a new user",
   "Edit user": "Edit user",

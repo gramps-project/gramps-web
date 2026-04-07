@@ -59,6 +59,8 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
         )}
       </mwc-select>
 
+      ${this._renderTagsForm()}
+
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"

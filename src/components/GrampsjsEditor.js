@@ -46,6 +46,9 @@ function _applyTag(str, tag) {
   if (name === 'highlight') {
     return `<span style="background-color:${value}">${str}</span>`
   }
+  if (name === 'strikethrough') {
+    return `<s>${str}</s>`
+  }
   if (name === 'superscript') {
     return `<sup>${str}</sup>`
   }
@@ -57,7 +60,13 @@ function _applyTag(str, tag) {
 
 // check if tag name is a boolean tag
 function isBooleanTag(tagName) {
-  const namesBool = ['bold', 'italic', 'underline', 'superscript']
+  const namesBool = [
+    'bold',
+    'italic',
+    'underline',
+    'strikethrough',
+    'superscript',
+  ]
   if (namesBool.includes(tagName)) {
     return true
   }
@@ -295,6 +304,14 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
           >${this._('Underline')}</grampsjs-tooltip
         >
         <mwc-icon-button
+          id="btn-strikethrough"
+          icon="format_strikethrough"
+          @click="${() => this._handleFormat('strikethrough')}"
+        ></mwc-icon-button>
+        <grampsjs-tooltip for="btn-strikethrough" .appState="${this.appState}"
+          >${this._('Strikethrough')}</grampsjs-tooltip
+        >
+        <mwc-icon-button
           id="btn-link"
           icon="link"
           @click="${() => this._handleFormat('link')}"
@@ -379,6 +396,12 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         case 'k':
           this._handleFormat('link')
           handled = true
+          break
+        case 'x':
+          if (e.shiftKey) {
+            this._handleFormat('strikethrough')
+            handled = true
+          }
           break
         default:
           break
