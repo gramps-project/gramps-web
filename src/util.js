@@ -780,12 +780,8 @@ export function renderIcon(obj, slot = 'graphic', iconPath = null) {
       square
       size="70"
       .rect="${rect}"
-      .mime=""
-      ><grampsjs-icon
-        class="placeholder"
-        path="${objectIconPath[obj.object_type]}"
-        color="var(--grampsjs-color-icon)"
-      ></grampsjs-icon
+      mime=""
+      fallbackIcon="${objectIconPath[obj.object_type]}"
     ></grampsjs-img>`
   }
   if (obj.object_type === 'tag') {

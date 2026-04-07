@@ -5,7 +5,7 @@ import '@material/mwc-icon-button'
 
 import {sharedStyles} from '../SharedStyles.js'
 
-import './GrampsJsImage.js'
+import './GrampsjsImg.js'
 import './GrampsjsLightbox.js'
 import '../views/GrampsjsViewMediaLightbox.js'
 import './GrampsjsFormMediaRef.js'
