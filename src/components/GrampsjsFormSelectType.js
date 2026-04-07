@@ -130,7 +130,7 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
                 <div slot="headline"></div>
               </md-select-option>
               ${this.getTypes().map(
-                (obj, i) => html`
+                obj => html`
                   <md-select-option value="${obj}">
                     <div slot="headline">${this._(obj)}</div>
                   </md-select-option>
