@@ -655,8 +655,6 @@ export const personFilter = {
   NoDeathdate: 'People without a known death date',
   PersonWithIncompleteEvent: 'People with incomplete events',
   FamilyWithIncompleteEvent: 'Families with incomplete events',
-  PeoplePrivate: 'People marked private',
-  PeoplePublic: 'People not marked private',
   MissingParent: 'People missing parents',
   Disconnected: 'Disconnected people',
 }

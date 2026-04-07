@@ -23,6 +23,9 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
     this.pollInterval = 1 // seconds
     this.hideAfter = 10 // seconds
     this.status = {}
+    this._closeTimer = null
+    this._pollingTaskId = ''
+    this._boundHandleStorage = this._handleStorage.bind(this)
   }
 
   firstUpdated() {
@@ -41,16 +44,22 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
 
   fetchData() {
     if (!this.taskId) {
+      this._pollingTaskId = ''
       return
     }
+    const currentTaskId = this.taskId
+    this._pollingTaskId = currentTaskId
     if (this.taskName) {
       // store the task ID in local storage
       addTaskId(this.taskName, this.taskId)
     }
     updateTaskStatus(
       this.appState.auth,
-      this.taskId,
+      currentTaskId,
       status => {
+        if (!this._shouldKeepPolling(currentTaskId)) {
+          return
+        }
         this.status = status
         if (status.state === 'SUCCESS') {
           this.setComplete()
@@ -71,12 +80,23 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
           ${Math.floor(100 * this.progress)}%`
         }
       },
-      this.pollInterval * 1000
+      this.pollInterval * 1000,
+      Infinity,
+      () => this._shouldKeepPolling(currentTaskId)
+    )
+  }
+
+  _shouldKeepPolling(taskId) {
+    return (
+      this.isConnected &&
+      this.taskId === taskId &&
+      this._pollingTaskId === taskId
     )
   }
 
   setComplete() {
     this.progress = 1
+    this._pollingTaskId = ''
     this.closeAfter()
     if (this.taskName) {
       deleteTaskId(this.taskName, this.taskId)
@@ -88,6 +108,7 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
   setError() {
     this.error = true
     this.errorMessage = this.status?.info || ''
+    this._pollingTaskId = ''
     this.closeAfter()
     if (this.taskName) {
       deleteTaskId(this.taskName, this.taskId)
@@ -97,10 +118,21 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
   }
 
   closeAfter() {
+    this._clearCloseTimer()
     if (this.hideAfter > 0) {
-      setTimeout(() => {
+      // Keep only one pending close timer so completed tasks do not retain
+      // component state longer than necessary.
+      this._closeTimer = setTimeout(() => {
         this.open = false
+        this._closeTimer = null
       }, this.hideAfter * 1000)
+    }
+  }
+
+  _clearCloseTimer() {
+    if (this._closeTimer !== null) {
+      clearTimeout(this._closeTimer)
+      this._closeTimer = null
     }
   }
 
@@ -122,8 +154,15 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
 
   connectedCallback() {
     super.connectedCallback()
-    window.addEventListener('storage', this._handleStorage.bind(this))
+    window.addEventListener('storage', this._boundHandleStorage)
     this._restoreState()
+  }
+
+  disconnectedCallback() {
+    this._pollingTaskId = ''
+    this._clearCloseTimer()
+    window.removeEventListener('storage', this._boundHandleStorage)
+    super.disconnectedCallback()
   }
 }
 

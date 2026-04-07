@@ -8,6 +8,12 @@ import {fireEvent} from '../util.js'
 export class GrampsjsFormEditMatch extends GrampsjsEditMatchMixin(
   GrampsjsAppStateMixin(LitElement)
 ) {
+  constructor() {
+    super()
+    // Keep a stable listener reference so global edit-mode hooks can be removed.
+    this._boundHandleSaveButton = this._handleSaveButton.bind(this)
+  }
+
   static get styles() {
     return [
       sharedStyles,
@@ -62,7 +68,12 @@ export class GrampsjsFormEditMatch extends GrampsjsEditMatchMixin(
 
   connectedCallback() {
     super.connectedCallback()
-    window.addEventListener('edit-mode:save', this._handleSaveButton.bind(this))
+    window.addEventListener('edit-mode:save', this._boundHandleSaveButton)
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('edit-mode:save', this._boundHandleSaveButton)
+    super.disconnectedCallback()
   }
 }
 

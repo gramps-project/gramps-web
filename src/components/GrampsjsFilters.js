@@ -307,7 +307,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     const rules = e.detail?.filters?.rules
     const replace = e.detail?.replace
     const oldFilters = replace
-      ? this.filters.filter(f => f.name !== replace)
+      ? this.filters.filter(f => (f._slot ?? f.name) !== replace)
       : this.filters
     if (rules) {
       this.filters = [...oldFilters, ...rules]
@@ -323,6 +323,9 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
       return `${this._('_Media Type:').replace(':', '')}: ${this._(
         filterMime[rule.values[1]]
       )}`
+    }
+    if (rule.name === 'HasMedia' && rule.values[3] !== '') {
+      return this._ruleToLabelSpan(rule, 'Date', 3)
     }
     if (rule.name === 'HasBirth' && rule.values[0] !== '') {
       return this._ruleToLabelSpan(rule, 'Birth year', 0)
@@ -347,6 +350,12 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         /<[^>]+>/,
         ''
       )
+    }
+    if (rule.name.endsWith('Private')) {
+      return this._('Private')
+    }
+    if (rule.name.endsWith('Public')) {
+      return this._('Not private')
     }
     return JSON.stringify(rule)
   }

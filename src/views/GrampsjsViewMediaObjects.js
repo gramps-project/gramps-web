@@ -20,6 +20,8 @@ import {colorToCss} from '../color.js'
 import '../components/GrampsjsFilterProperties.js'
 import '../components/GrampsjsFilterMime.js'
 import '../components/GrampsjsFilterTags.js'
+import '../components/GrampsjsFilterYears.js'
+import '../components/GrampsjsFilterPrivate.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTooltip.js'
 import '@material/web/select/filled-select'
@@ -230,6 +232,14 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
+      <grampsjs-filter-years
+        .appState="${this.appState}"
+        dateIndex="3"
+        numArgs="4"
+        label="${this._('Date')}"
+        rule="HasMedia"
+      ></grampsjs-filter-years>
+
       <grampsjs-filter-mime .appState="${this.appState}"></grampsjs-filter-mime>
 
       <grampsjs-filter-properties
@@ -240,6 +250,11 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
       ></grampsjs-filter-properties>
 
       <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
+
+      <grampsjs-filter-private
+        .appState="${this.appState}"
+        rule="MediaPrivate"
+      ></grampsjs-filter-private>
     `
   }
 
