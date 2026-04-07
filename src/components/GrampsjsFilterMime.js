@@ -62,8 +62,13 @@ export class GrampsjsFilterMime extends GrampsjsAppStateMixin(LitElement) {
 
   _handleChange(event) {
     const mime = event.target.id
-    const rules = [{name: 'HasMedia', values: ['', mime, '', '']}]
-    fireEvent(this, 'filter:changed', {filters: {rules}, replace: 'HasMedia'})
+    const rules = [
+      {name: 'HasMedia', _slot: 'HasMedia:mime', values: ['', mime, '', '']},
+    ]
+    fireEvent(this, 'filter:changed', {
+      filters: {rules},
+      replace: 'HasMedia:mime',
+    })
   }
 }
 

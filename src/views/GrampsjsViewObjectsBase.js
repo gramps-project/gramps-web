@@ -306,7 +306,10 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     if (this._sort) {
       url = `${url}&sort=${this._sort}`
     }
-    const filters = Object.values(this._filters.filters)
+    const filters = Object.values(this._filters.filters).map(
+      // eslint-disable-next-line no-unused-vars
+      ({_slot, ...rule}) => rule
+    )
     if (filters.length > 0) {
       url = `${url}&rules=${encodeURIComponent(
         JSON.stringify({rules: filters})
