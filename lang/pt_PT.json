@@ -284,5 +284,9 @@
     "Family tree preferences": "Preferências da árvore genalógica",
     "Default family tree view": "Disposição pré-definida da árvore",
     "Invalid face rectangle coordinates": "Cordenadas do rectângulo inválidas",
-    "Or select an existing tag": "Ou seleccione uma etiqueta existente"
+    "Or select an existing tag": "Ou seleccione uma etiqueta existente",
+    "Ascending": "Ascendente",
+    "Descending": "Descendente",
+    "Gallery view": "Vista Galeria",
+    "List view": "Vista Lista"
 }
