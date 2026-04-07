@@ -307,7 +307,7 @@ export async function apiResetPassword(username) {
     let resJson
     try {
       resJson = await resp.json()
-    } catch (error) {
+    } catch {
       resJson = {}
     }
     if (resp.status === 404) {
@@ -396,7 +396,7 @@ export async function apiGetOIDCLogoutUrl(
     let resJson
     try {
       resJson = await resp.json()
-    } catch (error) {
+    } catch {
       resJson = {}
     }
     if (!resp.ok) {

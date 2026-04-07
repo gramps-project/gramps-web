@@ -809,7 +809,8 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   _updateObject(obj, objType, updateFunc, editorDraftPrefix) {
     // remove extended, profile, backlinks, formatted keys from object
-    let {...objNew} = obj
+
+    let {extended, profile, backlinks, formatted, ...objNew} = obj
     objNew = {_class: capitalize(objType), ...objNew}
     const url = `/api/${objectTypeToEndpoint[objType]}/${obj.handle}`
 

@@ -253,7 +253,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
     const sourceHandle = e.detail.data.source_handle
     const targetHandle = e.detail.data.target_handle
     const personData = await this.appState.apiGet(`/api/people/${sourceHandle}`)
-    const {...person} = personData.data
+    const {extended, profile, ...person} = personData.data
     const noteHandle = await this._createNote(e.detail.data.raw_data[0])
     const newPersonRef = {
       _class: 'PersonRef',

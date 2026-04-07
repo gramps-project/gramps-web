@@ -159,6 +159,25 @@ const config = [
   // ESLint recommended rules (must be last to allow overrides)
   eslint.configs.recommended,
 
+  // no-unused-vars: allow unused variables in destructuring with rest operator
+  // This mirrors the behavior of eslint-config-standard which did not flag
+  // patterns like {extended, profile, ...rest} where the individual keys are
+  // intentionally discarded and only the rest is used.
+  {
+    files: productionFiles,
+    rules: {
+      'no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
+    },
+  },
+
   // Prettier must be last to disable conflicting rules
   eslintConfigPrettier,
 ]
