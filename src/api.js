@@ -915,6 +915,9 @@ export async function apiPutPostDelete(
       etag: resp.headers.get('ETag'),
     }
   } catch (error) {
+    if (error instanceof TypeError) {
+      return {error: 'Network error'}
+    }
     return {error: error.message}
   }
 }
