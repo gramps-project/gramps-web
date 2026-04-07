@@ -324,6 +324,9 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         filterMime[rule.values[1]]
       )}`
     }
+    if (rule.name === 'HasMedia' && rule.values[0] !== '') {
+      return `${this._('Title')}: ${rule.values[0]}`
+    }
     if (rule.name === 'HasMedia' && rule.values[3] !== '') {
       return this._ruleToLabelSpan(rule, 'Date', 3)
     }
@@ -335,6 +338,30 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     }
     if (rule.name === 'HasData' && rule.values[1] !== '') {
       return this._ruleToLabelSpan(rule, 'Date', 1)
+    }
+    if (rule.name === 'HasData' && rule.values[3] !== '') {
+      return `${this._('Description')}: ${rule.values[3]}`
+    }
+    if (rule.name === 'HasData' && rule.values[2] !== '') {
+      return `${this._('Place')}: ${rule.values[2]}`
+    }
+    if (rule.name === 'HasData' && rule.values[0] !== '') {
+      return `${this._('Name')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'MatchesTitleSubstringOf' && rule.values[0] !== '') {
+      return `${this._('Title')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'MatchesPageSubstringOf' && rule.values[0] !== '') {
+      return `${this._('Page')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'HasSource' && rule.values[0] !== '') {
+      return `${this._('Source: Title')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'MatchesRegexpOf' && rule.values[0] !== '') {
+      return `${this._('Text')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'MatchesNameSubstringOf' && rule.values[0] !== '') {
+      return `${this._('Name')}: ${rule.values[0]}`
     }
     if (rule.name === 'HasType') {
       return `${this._('Type')}: ${this._(rule.values[0])}`
