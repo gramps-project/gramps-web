@@ -31,6 +31,7 @@ export class GrampsjsFilterPrivate extends GrampsjsAppStateMixin(LitElement) {
     return {
       filters: {type: Array},
       rule: {type: String},
+      publicRule: {type: String},
     }
   }
 
@@ -38,12 +39,13 @@ export class GrampsjsFilterPrivate extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.filters = []
     this.rule = ''
+    this.publicRule = ''
   }
 
   render() {
     return html`
       <h3>${this._('Privacy')}</h3>
-      <label>
+      <label for="private">
         <md-checkbox
           id="private"
           @change="${this._handleChange}"
@@ -51,12 +53,32 @@ export class GrampsjsFilterPrivate extends GrampsjsAppStateMixin(LitElement) {
         ></md-checkbox>
         <span>${this._('Private')}</span>
       </label>
+      ${this.publicRule
+        ? html`
+            <label for="public">
+              <md-checkbox
+                id="public"
+                @change="${this._handleChangePublic}"
+                ?checked="${this.filters.some(f => f.name === this.publicRule)}"
+              ></md-checkbox>
+              <span>${this._('Not private')}</span>
+            </label>
+          `
+        : ''}
     `
   }
 
   _handleChange(event) {
     const rules = event.target.checked ? [{name: this.rule}] : []
     fireEvent(this, 'filter:changed', {filters: {rules}, replace: this.rule})
+  }
+
+  _handleChangePublic(event) {
+    const rules = event.target.checked ? [{name: this.publicRule}] : []
+    fireEvent(this, 'filter:changed', {
+      filters: {rules},
+      replace: this.publicRule,
+    })
   }
 }
 

@@ -85,6 +85,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       <grampsjs-filter-private
         .appState="${this.appState}"
         rule="PeoplePrivate"
+        publicRule="PeoplePublic"
       ></grampsjs-filter-private>
     `
   }

@@ -5,6 +5,8 @@ Places list view
 import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
+import '../components/GrampsjsFilterProperties.js'
+import '../components/GrampsjsFilterTags.js'
 import '../components/GrampsjsFilterPrivate.js'
 
 export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
