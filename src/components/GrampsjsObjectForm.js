@@ -37,6 +37,9 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
           max-width: 100vw;
           min-width: 50vw;
           max-height: 80vh;
+          /* md-list defaults to --md-sys-color-surface, but md-dialog uses
+             surface-container-high — match them so lists don't look sunken */
+          --md-list-container-color: var(--md-sys-color-surface-container-high);
         }
       `,
     ]
@@ -129,7 +132,7 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     return html`
-      <md-dialog @cancel="${this._handleDialogCancel}" open>
+      <md-dialog @cancel="${e => e.preventDefault()}" open>
         <div slot="headline">${this.dialogTitle}</div>
         <div slot="content" @formdata:changed="${this._handleFormData}">
           ${this.dialogIsOpen ? this.renderForm() : ''}

@@ -2,7 +2,7 @@ import {html, css, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import '@material/mwc-button'
 
-import './GrampsJsImage.js'
+import './GrampsjsImg.js'
 import './GrampsjsGallery.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsTimedelta.js'
@@ -161,6 +161,7 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
           size="1000"
           .rect="${ref.rect || []}"
           mime="${obj.mime}"
+          checksum="${obj.checksum}"
         ></grampsjs-img>
       </div>
     `

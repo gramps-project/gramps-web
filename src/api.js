@@ -305,6 +305,12 @@ export async function apiResetPassword(username) {
         },
       }
     )
+    let resJson
+    try {
+      resJson = await resp.json()
+    } catch (error) {
+      resJson = {}
+    }
     if (resp.status === 404) {
       throw new Error('User not found or user has no e-mail address.')
     }
@@ -314,7 +320,9 @@ export async function apiResetPassword(username) {
       )
     }
     if (resp.status !== 201 && resp.status !== 202) {
-      throw new Error(resp.statusText || `Error ${resp.status}`)
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
     }
     return {}
   } catch (error) {
@@ -331,7 +339,15 @@ export async function apiGetOIDCConfig() {
       },
     })
     if (!resp.ok) {
-      throw new Error(resp.statusText || `Error ${resp.status}`)
+      let resJson
+      try {
+        resJson = await resp.json()
+      } catch {
+        resJson = {}
+      }
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
     }
     return await resp.json()
   } catch (error) {
@@ -378,10 +394,18 @@ export async function apiGetOIDCLogoutUrl(
         },
       }
     )
-    if (!resp.ok) {
-      throw new Error(resp.statusText || `Error ${resp.status}`)
+    let resJson
+    try {
+      resJson = await resp.json()
+    } catch (error) {
+      resJson = {}
     }
-    return await resp.json()
+    if (!resp.ok) {
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
+    }
+    return resJson
   } catch (error) {
     return {error: error.message, logout_url: null}
   }
@@ -414,7 +438,9 @@ export async function apiRegisterUser(
       throw new Error('Username or e-mail already taken.')
     }
     if (resp.status !== 201) {
-      throw new Error(resJson?.error?.message || `Error ${resp.status}`)
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
     }
     return {}
   } catch (error) {
@@ -435,7 +461,15 @@ export async function apiGetTokens(username, password) {
     if (resp.status === 401 || resp.status === 403) {
       throw new Error('Wrong username or password')
     } else if (resp.status !== 200) {
-      throw new Error(resp.statusText || `Error ${resp.status}`)
+      let resJson
+      try {
+        resJson = await resp.json()
+      } catch {
+        resJson = {}
+      }
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
     }
     const data = await resp.json()
     if (data.access_token === undefined) {
@@ -515,25 +549,37 @@ export function getMediaUrlCropped(handle, rect) {
   return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}?jwt=${jwt}`
 }
 
-export function getThumbnailUrl(handle, size, square = false) {
-  const jwt = localStorage.getItem('access_token')
-  if (jwt === null) {
-    return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?square=${square}`
-  }
-  return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?jwt=${jwt}&square=${square}`
+function _checksumParam(checksum) {
+  return checksum ? `&checksum=${checksum}` : ''
 }
 
-export function getThumbnailUrlCropped(handle, rect, size, square = false) {
+export function getThumbnailUrl(handle, size, square = false, checksum = null) {
+  const jwt = localStorage.getItem('access_token')
+  const cs = _checksumParam(checksum)
+  if (jwt === null) {
+    return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?square=${square}${cs}`
+  }
+  return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?jwt=${jwt}&square=${square}${cs}`
+}
+
+export function getThumbnailUrlCropped(
+  handle,
+  rect,
+  size,
+  square = false,
+  checksum = null
+) {
   const normalizedRect = _getRectForUrl(rect)
   if (!normalizedRect) {
-    return getThumbnailUrl(handle, size, square)
+    return getThumbnailUrl(handle, size, square, checksum)
   }
   const jwt = localStorage.getItem('access_token')
+  const cs = _checksumParam(checksum)
   const [x1, y1, x2, y2] = normalizedRect
   if (jwt === null) {
-    return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?square=${square}`
+    return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?square=${square}${cs}`
   }
-  return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?jwt=${jwt}&square=${square}`
+  return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?jwt=${jwt}&square=${square}${cs}`
 }
 
 export async function queryNominatim(q) {

@@ -19,7 +19,12 @@ import {
   getFrontendStrings,
   grampsStrings,
 } from './strings.js'
-import {fireEvent, getBrowserLanguage, clickKeyHandler} from './util.js'
+import {
+  fireEvent,
+  getBrowserLanguage,
+  clickKeyHandler,
+  apiVersionAtLeast,
+} from './util.js'
 
 import {appStateUpdatePermissions, getInitialAppState} from './appState.js'
 import './components/GrampsjsAppBar.js'
@@ -49,6 +54,52 @@ const BASE_DIR = ''
 
 const MINIMUM_API_VERSION = '3.9.0'
 
+// Pages where the Gramps ID is used as the page title
+const OBJECT_PAGES = new Set([
+  'person',
+  'family',
+  'event',
+  'place',
+  'source',
+  'citation',
+  'repository',
+  'media',
+  'note',
+  'task',
+])
+
+// Map from route name to translatable title string
+const PAGE_TITLES = {
+  home: 'Home',
+  blog: 'Blog',
+  people: 'People',
+  families: 'Families',
+  events: 'Events',
+  places: 'Places',
+  sources: 'Sources',
+  citations: 'Citations',
+  repositories: 'Repositories',
+  notes: 'Notes',
+  medialist: 'Media',
+  map: 'Map',
+  tree: 'Family Tree',
+  'dna-matches': 'DNA',
+  'dna-chromosome': 'DNA',
+  ydna: 'DNA',
+  chat: 'Chat',
+  recent: 'History',
+  bookmarks: '_Bookmarks',
+  tasks: 'Tasks',
+  export: 'Export',
+  reports: '_Reports',
+  report: '_Reports',
+  revisions: 'Revisions',
+  revision: 'Revisions',
+  search: 'Search',
+  settings: 'Settings',
+  anniversaries: 'Anniversaries',
+}
+
 export class GrampsJs extends LitElement {
   static get properties() {
     return {
@@ -76,6 +127,12 @@ export class GrampsJs extends LitElement {
     this._firstRunToken = ''
     this._loadingStrings = false
     this._reindexNeeded = false
+  }
+
+  get canUseChat() {
+    return (
+      this.appState.permissions.canUseChat && this.appState.dbInfo?.server?.chat
+    )
   }
 
   static get styles() {
@@ -301,7 +358,7 @@ export class GrampsJs extends LitElement {
               <h4>${this._('Navigation')}</h4>
               <dl>
                 <dt><span>g</span> <span>h</span></dt>
-                <dd>${this._('Home Page')}</dd>
+                <dd>${this._('Home')}</dd>
                 <dt><span>g</span> <span>b</span></dt>
                 <dd>${this._('Blog')}</dd>
                 <dt><span>g</span> <span>l</span></dt>
@@ -310,6 +367,14 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Map')}</dd>
                 <dt><span>g</span> <span>c</span></dt>
                 <dd>${this._('Family Tree')}</dd>
+                ${this.appState.frontendConfig.hideDNALink
+                  ? ''
+                  : html`<dt><span>g</span> <span>d</span></dt>
+                      <dd>${this._('DNA')}</dd>`}
+                ${this.canUseChat
+                  ? html`<dt><span>g</span> <span>a</span></dt>
+                      <dd>${this._('Chat')}</dd>`
+                  : ''}
                 <dt><span>g</span> <span>r</span></dt>
                 <dd>${this._('History')}</dd>
                 <dt><span>g</span> <span>f</span></dt>
@@ -640,18 +705,9 @@ export class GrampsJs extends LitElement {
     if (!apiVersion) {
       return
     }
-    const apiVersionParts = apiVersion.split('.')
-    const minApiVersionParts = MINIMUM_API_VERSION.split('.')
-    const len = Math.min(minApiVersionParts.length, apiVersionParts.length)
-    for (let i = 0; i < len; i += 1) {
-      if (apiVersionParts[i] > minApiVersionParts[i]) {
-        // API has higher version: no action right now
-        return
-      }
-      if (apiVersionParts[i] < minApiVersionParts[i]) {
-        // API has lower version
-        this._showError(`${this._('outdated backend')} (${apiVersion})`)
-      }
+    const [major, minor, patch] = MINIMUM_API_VERSION.split('.').map(Number)
+    if (!apiVersionAtLeast(this.appState.dbInfo, major, minor, patch)) {
+      this._showError(`${this._('outdated backend')} (${apiVersion})`)
     }
   }
 
@@ -769,6 +825,21 @@ export class GrampsJs extends LitElement {
     }
   }
 
+  _updateTitle() {
+    const {page, pageId} = this.appState.path
+    const suffix = 'Gramps Web'
+    if (OBJECT_PAGES.has(page) && pageId) {
+      document.title = `${pageId} · ${suffix}`
+      return
+    }
+    const pageTitle = PAGE_TITLES[page]
+    if (pageTitle) {
+      document.title = `${this._(pageTitle)} · ${suffix}`
+    } else {
+      document.title = suffix
+    }
+  }
+
   _progressOn() {
     this.progress = true
   }
@@ -854,6 +925,16 @@ export class GrampsJs extends LitElement {
         this.appState.settings.lang !== this.appState.i18n.lang
       ) {
         this._loadStrings(grampsStrings, this.appState.settings.lang)
+      }
+      // Re-run on any path change (covers _loadPage() and internal redirects)
+      if (changed.get('appState')?.path !== this.appState.path) {
+        this._updateTitle()
+      }
+      // Re-run whenever strings are replaced (frontend + backend load separately)
+      if (
+        changed.get('appState')?.i18n?.strings !== this.appState.i18n.strings
+      ) {
+        this._updateTitle()
       }
     }
   }
@@ -963,6 +1044,14 @@ export class GrampsJs extends LitElement {
         fireEvent(this, 'nav', {path: 'tasks'})
       } else if (e.key === 'e') {
         fireEvent(this, 'nav', {path: 'export'})
+      } else if (e.key === 'd') {
+        if (!this.appState.frontendConfig.hideDNALink) {
+          fireEvent(this, 'nav', {path: 'dna-matches'})
+        }
+      } else if (e.key === 'a') {
+        if (this.canUseChat) {
+          fireEvent(this, 'nav', {path: 'chat'})
+        }
       }
       this._shortcutPressed = ''
     } else if (this._shortcutPressed === 'n') {

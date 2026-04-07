@@ -143,8 +143,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     this._totalCount = -1
     this._page = 1
     this._pages = -1
-    this._pageSize = 20
-    this._sort = ''
+    this._pageSize = 24
+    this._sort = '-change'
     this._objectsName = ''
     this.altView = false
     this._oldUrl = ''
@@ -306,7 +306,10 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     if (this._sort) {
       url = `${url}&sort=${this._sort}`
     }
-    const filters = Object.values(this._filters.filters)
+    const filters = Object.values(this._filters.filters).map(
+      // eslint-disable-next-line no-unused-vars
+      ({_slot, ...rule}) => rule
+    )
     if (filters.length > 0) {
       url = `${url}&rules=${encodeURIComponent(
         JSON.stringify({rules: filters})

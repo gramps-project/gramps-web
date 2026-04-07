@@ -9,15 +9,15 @@ import '@material/mwc-circular-progress'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import {clearDraftsWithPrefix} from '../api.js'
+import {GrampsjsNewObjectTagsMixin} from '../mixins/GrampsjsNewObjectTagsMixin.js'
 
-export class GrampsjsViewNewObject extends GrampsjsView {
+export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
+  GrampsjsView
+) {
   static get styles() {
     return [
       super.styles,
       css`
-        :host {
-        }
-
         div.spacer {
           margin-top: 2em;
         }

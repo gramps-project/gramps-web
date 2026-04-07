@@ -4,6 +4,13 @@ import {linkVertical} from 'd3-shape'
 import {Graphviz} from '@hpcc-js/wasm'
 import {chartNameDisplayFormat} from '../util.js'
 
+const sexColor = {
+  F: 'var(--color-girl)',
+  M: 'var(--color-boy)',
+  X: 'var(--color-other)',
+  U: 'var(--color-unknown)',
+}
+
 function createGraph(graph) {
   const data = graph.getData()
 
@@ -389,9 +396,7 @@ function remasterChart(
   nodes
     .filter(d => d.nodetype === 'person')
     .append('rect')
-    .attr('fill', d =>
-      d.profile?.sex === 'F' ? 'var(--color-girl)' : 'var(--color-boy)'
-    )
+    .attr('fill', d => sexColor[d.profile?.sex] ?? 'var(--color-unknown)')
     .attr('width', 24)
     .attr('height', boxHeight - 1)
     .attr('x', -4)

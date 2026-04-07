@@ -46,7 +46,11 @@ class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     return html`
-      <md-dialog id="filter-dialog" @close=${this._handleClose}>
+      <md-dialog
+        id="filter-dialog"
+        @cancel="${e => e.preventDefault()}"
+        @close=${this._handleClose}
+      >
         <form slot="content" id="form-id" method="dialog">
           <p>${this._('Please re-enter your password to continue.')}</p>
           <md-filled-text-field

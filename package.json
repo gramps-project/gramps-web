@@ -119,12 +119,13 @@
     ]
   },
   "name": "gramps-js",
-  "version": "26.3.1",
+  "version": "26.4.0",
   "description": "The frontend for the Gramps Web genealogical research system.",
   "author": "David M. Straub",
   "license": "AGPL",
   "type": "module",
   "dependencies": {
+    "@awesome.me/webawesome": "^3.4.0",
     "@hpcc-js/wasm": "^2.22.4",
     "@material/mwc-button": "^0.27.0",
     "@material/mwc-circular-progress": "^0.27.0",

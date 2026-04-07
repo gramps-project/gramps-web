@@ -2,9 +2,10 @@ import {css} from 'lit'
 
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import {GrampsjsNewNoteMixin} from '../mixins/GrampsjsNewNoteMixin.js'
+import {GrampsjsNewObjectTagsMixin} from '../mixins/GrampsjsNewObjectTagsMixin.js'
 
-export class GrampsjsFormNewNote extends GrampsjsNewNoteMixin(
-  GrampsjsObjectForm
+export class GrampsjsFormNewNote extends GrampsjsNewObjectTagsMixin(
+  GrampsjsNewNoteMixin(GrampsjsObjectForm)
 ) {
   static get styles() {
     return [

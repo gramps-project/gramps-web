@@ -1,6 +1,6 @@
 import {html} from 'lit'
 
-import {makeHandle, dateIsEmpty, emptyDate} from '../util.js'
+import {makeHandle, dateIsEmpty, emptyDate, apiVersionAtLeast} from '../util.js'
 
 import '../components/GrampsjsFormSelectObjectList.js'
 import '../components/GrampsjsFormSelectDate.js'
@@ -16,10 +16,12 @@ export const GrampsjsNewPersonMixin = superClass =>
       this.data = dataDefault
     }
 
-    gender = {
-      2: 'Unknown',
-      1: 'Male',
-      0: 'Female',
+    get gender() {
+      const options = {2: 'Unknown', 1: 'Male', 0: 'Female'}
+      if (apiVersionAtLeast(this.appState?.dbInfo, 3, 10)) {
+        options[3] = 'Other'
+      }
+      return options
     }
 
     renderForm() {
@@ -82,7 +84,7 @@ export const GrampsjsNewPersonMixin = superClass =>
           .appState="${this.appState}"
         ></grampsjs-form-select-object-list>
 
-        ${this._renderCitationForm()}
+        ${this._renderCitationForm()} ${this._renderTagsForm()}
 
         <div class="spacer"></div>
         <grampsjs-form-private

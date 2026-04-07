@@ -3,9 +3,10 @@ import {html} from 'lit'
 import './GrampsjsFormSelectType.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import {GrampsjsNewEventMixin} from '../mixins/GrampsjsNewEventMixin.js'
+import {GrampsjsNewObjectTagsMixin} from '../mixins/GrampsjsNewObjectTagsMixin.js'
 
-export class GrampsjsFormNewEvent extends GrampsjsNewEventMixin(
-  GrampsjsObjectForm
+export class GrampsjsFormNewEvent extends GrampsjsNewObjectTagsMixin(
+  GrampsjsNewEventMixin(GrampsjsObjectForm)
 ) {
   static get properties() {
     return {

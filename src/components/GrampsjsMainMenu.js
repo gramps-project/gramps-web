@@ -12,6 +12,7 @@ import {
   mdiChat,
   mdiDna,
   mdiHome,
+  mdiImage,
   mdiRss,
   mdiFormatListBulleted,
   mdiMap,
@@ -21,6 +22,7 @@ import {
   mdiDownload,
   mdiBookOpenVariant,
   mdiSourceCommit,
+  mdiLabel,
 } from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -90,7 +92,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
         href="${BASE_DIR + '/'}"
         ?selected="${p === 'home'}"
       >
-        ${this._icon(mdiHome, p === 'home')} ${this._('Home Page')}
+        ${this._icon(mdiHome, p === 'home')} ${this._('Home')}
       </md-list-item>
       <md-list-item
         type="link"
@@ -111,7 +113,6 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
           'sources',
           'repositories',
           'notes',
-          'medialist',
         ].includes(p)}"
       >
         ${this._icon(
@@ -125,10 +126,16 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
             'sources',
             'repositories',
             'notes',
-            'medialist',
           ].includes(p)
         )}
         ${this._('Lists')}
+      </md-list-item>
+      <md-list-item
+        type="link"
+        href="${BASE_DIR}/medialist"
+        ?selected="${p === 'medialist'}"
+      >
+        ${this._icon(mdiImage, p === 'medialist')} ${this._('Media')}
       </md-list-item>
       <md-list-item
         type="link"
@@ -218,6 +225,17 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
             >
               ${this._icon(mdiSourceCommit, p === 'revisions')}
               ${this._('Revisions')}
+            </md-list-item>
+          `
+        : ''}
+      ${this.appState.permissions.canEdit
+        ? html`
+            <md-list-item
+              type="link"
+              href="${BASE_DIR}/tags"
+              ?selected="${p === 'tags'}"
+            >
+              ${this._icon(mdiLabel, p === 'tags')} ${this._('Tags')}
             </md-list-item>
           `
         : ''}

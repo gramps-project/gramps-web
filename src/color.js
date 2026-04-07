@@ -28,6 +28,35 @@ export function hex6ToCss(hex, a = 1) {
   return null
 }
 
+/* Pick the right CSS conversion based on color string length */
+export function colorToCss(color, a = 1) {
+  return (
+    (color?.length > 7 ? hex12ToCss(color, a) : hex6ToCss(color, a)) ??
+    `rgba(0,0,0,${a})`
+  )
+}
+
+/* Convert #RRRRGGGGBBBB back to #rrggbb */
+export function hex12ToHex6(hex) {
+  const result = /^#?([0-9a-v]{4})([0-9a-v]{4})([0-9a-v]{4})$/i.exec(hex)
+  if (!result) return null
+  const r = Math.round(parseInt(result[1], 32) / 255)
+  const g = Math.round(parseInt(result[2], 32) / 255)
+  const b = Math.round(parseInt(result[3], 32) / 255)
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return null
+  if (r > 255 || g > 255 || b > 255) return null
+  return `#${r.toString(16).padStart(2, '0')}${g
+    .toString(16)
+    .padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+}
+
+/* Return a hex6 color suitable for a color picker input */
+export function colorForPicker(color, defaultColor = '#1f77b4') {
+  if (!color) return defaultColor
+  if (color.length > 7) return hex12ToHex6(color) ?? defaultColor
+  return color
+}
+
 /* Convert #rrggbb to #RRRRGGGGBBBB */
 export function hex6ToHex12(hex6) {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex6)

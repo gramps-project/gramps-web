@@ -3,12 +3,14 @@ Element for selecting a Gramps type
 */
 
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-button'
-import '@material/mwc-icon'
+import {mdiUpload, mdiFile} from '@mdi/js'
+import '@material/web/button/filled-button.js'
+import '@material/web/button/outlined-button.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import './GrampsjsIcon.js'
 
 async function parseJsonFile(file) {
   return new Promise((resolve, reject) => {
@@ -42,7 +44,6 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
 
         .file-icon {
           color: var(--grampsjs-body-font-color-60);
-          --mdc-icon-size: 100px;
         }
 
         span.filename {
@@ -97,16 +98,31 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
         hidden
         @change="${this._handleInputChange}"
       />
-      <mwc-button
-        ?raised="${!this.outlined}"
-        ?outlined="${this.outlined}"
-        ?disabled="${this.disabled}"
-        icon="upload"
-        @click="${this._handleClickUpload}"
-      >
-        ${this.label ||
-        (this.multiple ? this._('Select files') : this._('Select a file'))}
-      </mwc-button>
+      ${this.outlined
+        ? html`<md-outlined-button
+            ?disabled="${this.disabled}"
+            @click="${this._handleClickUpload}"
+          >
+            <grampsjs-icon
+              slot="icon"
+              path="${mdiUpload}"
+              color="currentColor"
+            ></grampsjs-icon>
+            ${this.label ||
+            (this.multiple ? this._('Select files') : this._('Select a file'))}
+          </md-outlined-button>`
+        : html`<md-filled-button
+            ?disabled="${this.disabled}"
+            @click="${this._handleClickUpload}"
+          >
+            <grampsjs-icon
+              slot="icon"
+              path="${mdiUpload}"
+              color="currentColor"
+            ></grampsjs-icon>
+            ${this.label ||
+            (this.multiple ? this._('Select files') : this._('Select a file'))}
+          </md-filled-button>`}
       ${this.filename ? this.renderFileName() : ''}
       ${this.preview ? this.renderPreview() : ''}
     `
@@ -138,7 +154,13 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
 
   // eslint-disable-next-line class-methods-use-this
   renderIcon() {
-    return html` <mwc-icon class="file-icon">insert_drive_file</mwc-icon> `
+    return html`<grampsjs-icon
+      class="file-icon"
+      path="${mdiFile}"
+      height="100"
+      width="100"
+      color="var(--grampsjs-body-font-color-60)"
+    ></grampsjs-icon>`
   }
 
   _handleClickUpload() {

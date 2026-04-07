@@ -8,9 +8,25 @@ body {
 
 :root {
   color: var(--md-sys-color-on-surface);
+  /* Web Awesome color token overrides.
+     default.css (loaded in index.html) defines --wa-* tokens inside @layer wa-theme,
+     so these unlayered declarations win without !important. The --md-sys-color-*
+     values on the right are defined in the light/dark blocks below, so the
+     color picker automatically adapts to the active theme. */
+  --wa-color-surface-raised: var(--md-sys-color-surface-container-high);
+  --wa-color-surface-default: var(--md-sys-color-surface);
+  --wa-color-surface-border: var(--md-sys-color-outline-variant);
+  --wa-color-neutral-fill-normal: var(--md-sys-color-surface-container);
+  --wa-color-brand-fill-loud: var(--md-sys-color-primary);
+  --wa-color-text-normal: var(--md-sys-color-on-surface);
+  --wa-color-focus: var(--md-sys-color-primary);
+  --wa-form-control-border-color: var(--md-sys-color-outline);
+  /* End Web Awesome overrides */
   --md-fab-secondary-container-color: var(--mdc-theme-secondary);
   --color-boy: #64b5f6;
   --color-girl: #ef9a9a;
+  --color-unknown: #b0bec5;
+  --color-other: #ce93d8;
   --mdc-theme-primary: var(--md-sys-color-primary);
   --mdc-theme-on-primary: var(--md-sys-color-on-primary);
   --mdc-theme-secondary: #0277bd;
@@ -136,7 +152,7 @@ body {
   --md-sys-color-on-background: var(--grampsjs-body-font-color);
   --md-sys-color-surface: #fff;
   --md-sys-color-on-surface: var(--grampsjs-body-font-color);
-  --md-sys-color-surface-variant: rgb(245, 222, 215);
+  --md-sys-color-surface-variant: rgb(232, 224, 222);
   --md-sys-color-on-surface-variant: rgb(83, 67, 63);
   --md-sys-color-outline: rgb(133, 115, 110);
   --md-sys-color-outline-variant: rgb(200, 200, 200);

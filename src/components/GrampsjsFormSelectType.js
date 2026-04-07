@@ -28,7 +28,6 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
       nocustom: {type: Boolean},
       noheading: {type: Boolean},
       required: {type: Boolean},
-      valueNonLocal: {type: Boolean},
       defaultValue: {type: String},
       heading: {type: String},
       label: {type: String},
@@ -49,7 +48,6 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
     this.nocustom = false
     this.noheading = false
     this.required = false
-    this.valueNonLocal = false
     this.defaultValue = 'General'
     this.heading = ''
     this.label = ''
@@ -133,9 +131,7 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
               </md-select-option>
               ${this.getTypes().map(
                 (obj, i) => html`
-                  <md-select-option
-                    value="${this.getTypes(this.valueNonLocal)[i]}"
-                  >
+                  <md-select-option value="${obj}">
                     <div slot="headline">${this._(obj)}</div>
                   </md-select-option>
                 `

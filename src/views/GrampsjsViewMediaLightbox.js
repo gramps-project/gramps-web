@@ -182,6 +182,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         handle="${handle}"
         size="2000"
         mime="${mime}"
+        checksum="${this._data.checksum}"
         slot="image"
       ></grampsjs-img>
     `

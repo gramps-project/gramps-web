@@ -1,6 +1,6 @@
 import {rollupPluginHTML as html} from '@web/rollup-plugin-html'
 import {polyfillsLoader} from '@web/rollup-plugin-polyfills-loader'
-import {generateSW} from 'rollup-plugin-workbox'
+import {injectManifest} from 'rollup-plugin-workbox'
 import resolve from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
 import replace from '@rollup/plugin-replace'
@@ -31,16 +31,18 @@ export default {
     chunkFileNames: developmentMode ? '[name].js' : '[hash].js',
     assetFileNames: developmentMode ? '[name][extname]' : '[hash][extname]',
     plugins: [
-      generateSW({
-        globIgnores: ['polyfills/*.js', 'legacy-*.js', 'nomodule-*.js'],
-        navigateFallback: `${BASE_DIR}/index.html`,
-        navigateFallbackDenylist: [/^\/api.*/],
+      injectManifest({
+        swSrc: 'src/sw.js',
         swDest: path.join(outputDir, 'sw.js'),
         globDirectory: outputDir,
         globPatterns: ['**/*.{html,js,css,webmanifest}'],
-        skipWaiting: false,
-        clientsClaim: false,
-        runtimeCaching: [{urlPattern: 'polyfills/*.js', handler: 'CacheFirst'}],
+        globIgnores: ['polyfills/*.js', 'legacy-*.js', 'nomodule-*.js'],
+        plugins: [
+          replace({
+            BASE_DIR: JSON.stringify(BASE_DIR),
+            preventAssignment: true,
+          }),
+        ],
       }),
     ],
   },
@@ -60,6 +62,10 @@ export default {
     polyfillsLoader({polyfills: {}, minify: !developmentMode}),
     copy({
       targets: [
+        {
+          src: 'node_modules/@awesome.me/webawesome/dist/styles/**/*',
+          dest: 'dist/webawesome-styles',
+        },
         {src: './maplibre-gl.css', dest: 'dist/'},
         {src: './global.css', dest: 'dist/'},
         {src: './tippy.css', dest: 'dist/'},

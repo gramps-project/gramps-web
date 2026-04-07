@@ -283,5 +283,6 @@
     "Launch Swagger": "Lainseáil Swagger",
     "Family tree preferences": "Roghanna crann teaghlaigh",
     "Default family tree view": "Radharc réamhshocraithe crainn teaghlaigh",
-    "Invalid face rectangle coordinates": "Comhordanáidí dronuilleog aghaidhe neamhbhailí"
+    "Invalid face rectangle coordinates": "Comhordanáidí dronuilleog aghaidhe neamhbhailí",
+    "Or select an existing tag": "Nó roghnaigh clib atá ann cheana féin"
 }

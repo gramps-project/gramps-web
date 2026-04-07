@@ -106,8 +106,9 @@ export class GrampsjsFilterYears extends GrampsjsAppStateMixin(LitElement) {
         : `from ${year1} until ${year2}`
       const values = Array(this.numArgs).fill('')
       values[this.dateIndex] = date
-      const rules = [{name: this.rule, values}]
-      fireEvent(this, 'filter:changed', {filters: {rules}, replace: this.rule})
+      const slot = `${this.rule}:${this.dateIndex}`
+      const rules = [{name: this.rule, _slot: slot, values}]
+      fireEvent(this, 'filter:changed', {filters: {rules}, replace: slot})
     }
   }
 }

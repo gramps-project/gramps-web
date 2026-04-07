@@ -1,7 +1,7 @@
 import {html, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 
-import './GrampsJsImage.js'
+import './GrampsjsImg.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 export class GrampsjsBlogPreview extends GrampsjsAppStateMixin(LitElement) {
@@ -50,6 +50,7 @@ export class GrampsjsBlogPreview extends GrampsjsAppStateMixin(LitElement) {
         .rect="${ref.rect || []}"
         square
         mime="${obj.mime}"
+        checksum="${obj.checksum}"
       ></grampsjs-img>
     `
   }

@@ -32,7 +32,7 @@ export class GrampsjsFormEditYDna extends GrampsjsEditYDnaMixin(
 
   render() {
     return html`
-      <md-dialog open @cancel="${this._handleCancelDialog}">
+      <md-dialog open @cancel="${e => e.preventDefault()}">
         <div slot="headline">${this._('Edit Y-DNA data')}</div>
         <div slot="content">
           <div @formdata:changed="${this._handleFormData}">

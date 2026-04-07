@@ -1,9 +1,11 @@
 /*
-Form for adding a new event reference
+Form for adding a new tag or selecting an existing one
 */
 
-import {html} from 'lit'
+import {html, css} from 'lit'
 
+import '@awesome.me/webawesome/dist/components/color-picker/color-picker.js'
+import '@material/web/divider/divider.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import './GrampsjsSearchResultList.js'
 import './GrampsjsFormString.js'
@@ -11,6 +13,52 @@ import './GrampsjsFormString.js'
 import {makeHandle} from '../util.js'
 
 class GrampsjsFormNewTag extends GrampsjsObjectForm {
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        .new-tag-row {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .new-tag-row grampsjs-form-string {
+          flex: 1;
+        }
+
+        .section-label {
+          color: var(--grampsjs-body-font-color-70);
+          margin: 14px 0 6px;
+        }
+
+        md-divider {
+          margin: 8px 0;
+        }
+
+        .skeleton-item {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 8px 16px;
+        }
+
+        .skeleton-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+
+        .skeleton-text {
+          height: 14px;
+          flex: 1;
+          border-radius: 3px;
+        }
+      `,
+    ]
+  }
+
   static get properties() {
     return {
       searchRes: {type: Array},
@@ -19,6 +67,7 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
       _selectedTag: {type: String},
       _tagName: {type: String},
       _tagColor: {type: String},
+      _loading: {type: Boolean},
     }
   }
 
@@ -28,48 +77,66 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
     this.disableString = false
     this._selectedTag = ''
     this._tagName = ''
-    this._tagColor = ''
+    this._tagColor = '#1f77b4'
+    this._loading = true
+    // Non-reactive guard flag; not in properties to avoid triggering re-renders
+    this._saving = false
   }
 
   renderForm() {
     return html`
-      <grampsjs-form-string
-        @formdata:changed="${this._handleString}"
-        ?disabled="${this.disableString}"
-        fullwidth
-        id="create"
-        label="${this._('New Tag')}"
-      >
-      </grampsjs-form-string>
-      <input
-        type="color"
-        id="color"
-        @change="${this._handleColor}"
-        list="presetColors"
-      />
-      <datalist id="presetColors">
-        <option>#1f77b4</option>
-        <option>#ff7f0e</option>
-        <option>#2ca02c</option>
-        <option>#d62728</option>
-        <option>#9467bd</option>
-        <option>#8c564b</option>
-        <option>#e377c2</option>
-        <option>#7f7f7f</option>
-        <option>#bcbd22</option>
-        <option>#17becf</option>
-      </datalist>
-      <grampsjs-search-result-list
-        selectable
-        activatable
-        .data="${this.searchRes}"
-        .appState="${this.appState}"
-        @search-result:clicked="${this._handleSelected}"
-      ></grampsjs-search-result-list>
+      <div class="new-tag-row">
+        <grampsjs-form-string
+          @formdata:changed="${this._handleString}"
+          ?disabled="${this.disableString}"
+          fullwidth
+          id="create"
+          label="${this._('New Tag')}"
+        ></grampsjs-form-string>
+        <wa-color-picker
+          id="color"
+          format="hex"
+          value="${this._tagColor}"
+          swatches="#1f77b4;#ff7f0e;#2ca02c;#d62728;#9467bd;#8c564b;#e377c2;#7f7f7f;#bcbd22;#17becf"
+          @change="${this._handleColor}"
+        ></wa-color-picker>
+      </div>
+      <md-divider></md-divider>
+      <div class="section-label">${this._('Or select an existing tag')}</div>
+      ${this._loading
+        ? this._renderSkeleton()
+        : html`
+            <grampsjs-search-result-list
+              selectable
+              activatable
+              .data="${this.searchRes}"
+              .appState="${this.appState}"
+              @search-result:clicked="${this._handleSelected}"
+            ></grampsjs-search-result-list>
+          `}
+    `
+  }
+
+  _renderSkeleton() {
+    return html`
+      ${[0.6, 0.85, 0.7].map(
+        w => html`
+          <div class="skeleton-item">
+            <div class="skeleton skeleton-avatar"></div>
+            <div
+              class="skeleton skeleton-text"
+              style="max-width: ${w * 100}%"
+            ></div>
+          </div>
+        `
+      )}
     `
   }
 
   firstUpdated() {
+    // md-dialog.open is set asynchronously; re-render after a microtask so
+    // dialogIsOpen is true and renderForm() runs before the fetch completes.
+    Promise.resolve().then(() => this.requestUpdate())
     this._fetchData()
   }
 
@@ -90,25 +157,31 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
     } else if ('error' in data) {
       this.searchRes = []
     }
+    this._loading = false
   }
 
   _handleString(e) {
     this._tagName = e.detail.data
   }
 
-  _handleColor() {
-    const el = this.shadowRoot.getElementById('color')
-    this._tagColor = el.value
+  _handleColor(e) {
+    this._tagColor = e.target.value
   }
 
   async _handleDialogSave() {
-    if (!this.disableString && this._tagName) {
-      const handle = await this._createNewTag()
-      this.data = [...this.data, handle]
-    } else if (this._selectedTag && !this.data.includes(this._selectedTag)) {
-      this.data = [...this.data, this._selectedTag]
+    if (this._saving) return
+    this._saving = true
+    try {
+      if (!this.disableString && this._tagName) {
+        const handle = await this._createNewTag()
+        this.data = [...this.data, handle]
+      } else if (this._selectedTag && !this.data.includes(this._selectedTag)) {
+        this.data = [...this.data, this._selectedTag]
+      }
+      super._handleDialogSave()
+    } finally {
+      this._saving = false
     }
-    super._handleDialogSave()
   }
 
   async _createNewTag() {

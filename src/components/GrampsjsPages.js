@@ -58,6 +58,7 @@ import '../views/GrampsjsViewNewNote.js'
 import '../views/GrampsjsViewNewMedia.js'
 import '../views/GrampsjsViewNewTask.js'
 import '../views/GrampsjsViewHelp.js'
+import '../views/GrampsjsViewTags.js'
 
 class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -407,6 +408,15 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         grampsId="${this.appState.path.pageId}"
         .appState="${this.appState}"
       ></grampsjs-view-task>
+      ${this.appState.permissions.canEdit
+        ? html`
+            <grampsjs-view-tags
+              class="page"
+              ?active=${this.appState.path.page === 'tags'}
+              .appState="${this.appState}"
+            ></grampsjs-view-tags>
+          `
+        : ''}
     `
   }
 }
