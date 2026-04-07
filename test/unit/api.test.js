@@ -58,6 +58,23 @@ describe('apiGet authentication', () => {
     expect(result.error).toBeDefined()
     expect(result.error).to.be.a('string')
   })
+
+  it('extracts and returns etag from response headers', async () => {
+    const expectedEtag = '"abc123"'
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        status: 200,
+        ok: true,
+        json: () => Promise.resolve({data: [{handle: 'H123'}]}),
+        headers: {get: header => (header === 'ETag' ? expectedEtag : null)},
+      })
+    )
+
+    const result = await apiGet({}, '/api/people/H123')
+
+    expect(result).to.have.property('etag', expectedEtag)
+  })
 })
 
 describe('apiPutPostDelete If-Match header', () => {
@@ -171,6 +188,31 @@ describe('apiPutPostDelete If-Match header', () => {
     expect(result.error).to.include('modified by another user')
   })
 
+  it('returns error when backend returns 403 Forbidden', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      status: 403,
+      ok: false,
+      statusText: 'Forbidden',
+      json: () => Promise.resolve({}),
+      headers: {get: () => null},
+    })
+
+    const mockAuth = {
+      getValidAccessToken: vi.fn().mockResolvedValue('test-token'),
+    }
+
+    const result = await apiPutPostDelete(
+      mockAuth,
+      'PUT',
+      '/api/people/handle',
+      {_class: 'Person'},
+      {}
+    )
+
+    expect(result.error).toBeDefined()
+    expect(result.error).to.equal('Not authorized')
+  })
+
   it('returns etag in response when request succeeds', async () => {
     const mockAuth = {
       getValidAccessToken: vi.fn().mockResolvedValue('test-token'),
@@ -223,74 +265,6 @@ describe('apiPutPostDelete If-Match header', () => {
     )
 
     expect(result).to.have.property('error')
-  })
-})
-
-describe('fetch-update cycle with etag (mid-air collision detection)', () => {
-  const mockAuth = {
-    getValidAccessToken: vi.fn().mockResolvedValue('test-token'),
-  }
-
-  it('succeeds when PUT with fresh etag from GET', async () => {
-    const getEtag = '"abc123"'
-    global.fetch = vi
-      .fn()
-      .mockResolvedValueOnce({
-        status: 200,
-        ok: true,
-        json: () => Promise.resolve({handle: 'H123', name: {value: 'Test'}}),
-        headers: {get: header => (header === 'ETag' ? getEtag : null)},
-      })
-      .mockResolvedValueOnce({
-        status: 200,
-        ok: true,
-        json: () => Promise.resolve({}),
-        headers: {get: () => '"new-etag"'},
-      })
-
-    const getResult = await apiGet(mockAuth, '/api/people/H123')
-    expect(getResult).to.have.property('etag', getEtag)
-
-    const putResult = await apiPutPostDelete(
-      mockAuth,
-      'PUT',
-      '/api/people/H123',
-      {...getResult.data, name: {value: 'Updated'}},
-      {etag: getResult.etag}
-    )
-    expect(putResult).to.not.have.property('error')
-  })
-
-  it('fails with 412 when PUT with stale etag', async () => {
-    const staleEtag = '"stale-etag"'
-    global.fetch = vi
-      .fn()
-      .mockResolvedValueOnce({
-        status: 200,
-        ok: true,
-        json: () => Promise.resolve({handle: 'H123', name: {value: 'Test'}}),
-        headers: {get: header => (header === 'ETag' ? staleEtag : null)},
-      })
-      .mockResolvedValueOnce({
-        status: 412,
-        ok: false,
-        statusText: 'Precondition Failed',
-        json: () => Promise.resolve({error: {message: 'ETag mismatch'}}),
-        headers: {get: () => null},
-      })
-
-    const getResult = await apiGet(mockAuth, '/api/people/H123')
-    expect(getResult).to.have.property('etag', staleEtag)
-
-    const putResult = await apiPutPostDelete(
-      mockAuth,
-      'PUT',
-      '/api/people/H123',
-      {...getResult.data, name: {value: 'Updated'}},
-      {etag: getResult.etag}
-    )
-    expect(putResult.error).toBeDefined()
-    expect(putResult.error).to.include('modified by another user')
   })
 })
 
