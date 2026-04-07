@@ -5,6 +5,7 @@ Places list view
 import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
+import '../components/GrampsjsFilterPrivate.js'
 
 export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
   constructor() {
@@ -42,6 +43,11 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
       ></grampsjs-filter-properties>
 
       <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
+
+      <grampsjs-filter-private
+        .appState="${this.appState}"
+        rule="PlacePrivate"
+      ></grampsjs-filter-private>
     `
   }
 

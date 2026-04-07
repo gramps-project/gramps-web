@@ -351,6 +351,9 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         ''
       )
     }
+    if (rule.name.endsWith('Private')) {
+      return this._('Private')
+    }
     return JSON.stringify(rule)
   }
 

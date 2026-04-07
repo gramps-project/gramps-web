@@ -2,8 +2,11 @@
 Repositories list view
 */
 
+import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
+import '../components/GrampsjsFilterTags.js'
+import '../components/GrampsjsFilterPrivate.js'
 
 export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
   constructor() {
@@ -29,6 +32,17 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
   // eslint-disable-next-line class-methods-use-this
   _getAddPath() {
     return 'new_repository'
+  }
+
+  renderFilters() {
+    return html`
+      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
+
+      <grampsjs-filter-private
+        .appState="${this.appState}"
+        rule="RepoPrivate"
+      ></grampsjs-filter-private>
+    `
   }
 
   // eslint-disable-next-line class-methods-use-this

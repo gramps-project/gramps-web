@@ -8,6 +8,7 @@ import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
 import '../components/GrampsjsFilterType.js'
 import '../components/GrampsjsFilterYears.js'
 import '../components/GrampsjsFilterTags.js'
+import '../components/GrampsjsFilterPrivate.js'
 
 export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
   constructor() {
@@ -62,6 +63,11 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
       ></grampsjs-filter-properties>
 
       <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
+
+      <grampsjs-filter-private
+        .appState="${this.appState}"
+        rule="EventPrivate"
+      ></grampsjs-filter-private>
     `
   }
 
