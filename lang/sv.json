@@ -284,5 +284,9 @@
     "Family tree preferences": "Inställningar för släktträd",
     "Default family tree view": "Standardvy för släktträd",
     "Invalid face rectangle coordinates": "Ogiltiga koordinater för sidrektangel",
-    "Or select an existing tag": "Eller välj en befintlig tagg"
+    "Or select an existing tag": "Eller välj en befintlig tagg",
+    "Ascending": "Stigande",
+    "Descending": "Fallande",
+    "Gallery view": "Gallerivy",
+    "List view": "Listvy"
 }
