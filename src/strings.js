@@ -639,6 +639,7 @@ export const grampsStrings = [
   'Print radial texts upright or roundabout',
   'Prints the year the event took place in the report',
   'Priority',
+  'Privacy',
   'Private',
   'Probate',
   'Produces a complete report on the selected people',

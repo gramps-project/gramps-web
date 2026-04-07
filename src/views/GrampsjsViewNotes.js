@@ -6,6 +6,8 @@ import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
 import '../components/GrampsjsFilterType.js'
+import '../components/GrampsjsFilterTags.js'
+import '../components/GrampsjsFilterPrivate.js'
 
 export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
   constructor() {
@@ -51,6 +53,13 @@ export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
         label="${this._('Note type:').replace(':', '')}"
         typeName="note_types"
       ></grampsjs-filter-type>
+
+      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
+
+      <grampsjs-filter-private
+        .appState="${this.appState}"
+        rule="NotePrivate"
+      ></grampsjs-filter-private>
     `
   }
 }
