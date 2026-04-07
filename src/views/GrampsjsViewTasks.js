@@ -115,7 +115,7 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
     const {value} = event.detail
     for (let i = 0; i < event.detail.objects.length; i += 1) {
       const object = event.detail.objects[i]
-      const {...rest} = object
+      const {extended, profile, ...rest} = object
       rest.attribute_list = [
         ...rest.attribute_list.filter(att => att.type !== key),
         {type: key, value},

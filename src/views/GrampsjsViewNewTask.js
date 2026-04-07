@@ -103,7 +103,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
         note: {_class: 'Note', text: e.detail.data},
       }
     } else {
-      const {...data} = this.data
+      const {note, ...data} = this.data
       this.data = data
     }
   }

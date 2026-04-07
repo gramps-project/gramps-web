@@ -251,7 +251,7 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
       if (handle) {
         this.data = {...this.data, ref: handle}
       } else {
-        const {...rest} = this.data
+        const {ref, ...rest} = this.data
         this.data = rest
       }
     }
