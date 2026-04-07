@@ -336,16 +336,16 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     if (rule.name === 'HasDeath' && rule.values[0] !== '') {
       return this._ruleToLabelSpan(rule, 'Death year', 0)
     }
-    if (rule.name === 'HasData' && rule.values[1] !== '') {
+    if (rule.name === 'HasData' && rule.values[1]) {
       return this._ruleToLabelSpan(rule, 'Date', 1)
     }
-    if (rule.name === 'HasData' && rule.values[3] !== '') {
+    if (rule.name === 'HasData' && rule.values[3]) {
       return `${this._('Description')}: ${rule.values[3]}`
     }
-    if (rule.name === 'HasData' && rule.values[2] !== '') {
+    if (rule.name === 'HasData' && rule.values[2]) {
       return `${this._('Place')}: ${rule.values[2]}`
     }
-    if (rule.name === 'HasData' && rule.values[0] !== '') {
+    if (rule.name === 'HasData' && rule.values[0]) {
       return `${this._('Name')}: ${rule.values[0]}`
     }
     if (rule.name === 'MatchesTitleSubstringOf' && rule.values[0] !== '') {
