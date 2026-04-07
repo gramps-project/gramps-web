@@ -86,6 +86,8 @@ export class GrampsjsViewObject extends GrampsjsView {
     this._boundDisableEditMode = this._disableEditMode.bind(this)
     this._boundDeleteSelf = this._deleteSelf.bind(this)
     this._boundToggleEditMode = this._toggleEditMode.bind(this)
+    // Reuse one function reference so disconnectedCallback can release it.
+    this._boundHandleEditAction = this.handleEditAction.bind(this)
   }
 
   get canEdit() {
@@ -154,11 +156,11 @@ export class GrampsjsViewObject extends GrampsjsView {
     window.addEventListener('edit-mode:off', this._boundDisableEditMode)
     window.addEventListener('edit-mode:delete', this._boundDeleteSelf)
     window.addEventListener('edit-mode:toggle', this._boundToggleEditMode)
-    this.addEventListener('edit:action', this.handleEditAction.bind(this))
+    this.addEventListener('edit:action', this._boundHandleEditAction)
   }
 
   disconnectedCallback() {
-    this.removeEventListener('edit:action', this.handleEditAction.bind(this))
+    this.removeEventListener('edit:action', this._boundHandleEditAction)
     window.removeEventListener('edit-mode:off', this._boundDisableEditMode)
     window.removeEventListener('edit-mode:delete', this._boundDeleteSelf)
     window.removeEventListener('edit-mode:toggle', this._boundToggleEditMode)

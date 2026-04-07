@@ -5,6 +5,7 @@ import {
   apiRegisterUser,
   apiResetPassword,
   apiGetOIDCConfig,
+  updateTaskStatus,
 } from '../../src/api.js'
 
 describe('apiGet authentication', () => {
@@ -244,5 +245,71 @@ describe('apiGetOIDCConfig error handling', () => {
 
     const result = await apiGetOIDCConfig()
     expect(result.error).toBeDefined()
+  })
+})
+
+describe('updateTaskStatus cleanup behavior', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
+
+  it('stops polling when shouldContinue becomes false', async () => {
+    vi.useFakeTimers()
+    let keepPolling = true
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        status: 200,
+        ok: true,
+        json: () =>
+          Promise.resolve({state: 'PENDING', result_object: {progress: 0.25}}),
+        headers: {get: () => null},
+      })
+    )
+
+    const callback = vi.fn(() => {
+      keepPolling = false
+    })
+
+    const promise = updateTaskStatus(
+      {getValidAccessToken: vi.fn().mockResolvedValue('test-token')},
+      'task-1',
+      callback,
+      1000,
+      Infinity,
+      () => keepPolling
+    )
+
+    await Promise.resolve()
+    await vi.runAllTimersAsync()
+    await promise
+
+    expect(fetch).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not schedule another wait after a terminal task state', async () => {
+    vi.useFakeTimers()
+    const timeoutSpy = vi.spyOn(globalThis, 'setTimeout')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        status: 200,
+        ok: true,
+        json: () => Promise.resolve({state: 'SUCCESS'}),
+        headers: {get: () => null},
+      })
+    )
+
+    await updateTaskStatus(
+      {getValidAccessToken: vi.fn().mockResolvedValue('test-token')},
+      'task-2',
+      vi.fn(),
+      1000
+    )
+
+    expect(fetch).toHaveBeenCalledTimes(1)
+    expect(timeoutSpy).not.toHaveBeenCalled()
   })
 })
