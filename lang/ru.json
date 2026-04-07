@@ -276,5 +276,12 @@
     "Uploading file %s of %s": "Загрузка файла %s из %s",
     "Select files": "Выберите файлы",
     "Failed to upload": "Не удалось загрузить",
-    "Failed to update": "Не удалось обновить"
+    "Failed to update": "Не удалось обновить",
+    "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Скопируйте свой токен сессии для использования в Swagger UI, интерактивном инструменте тестирования API.",
+    "Developer Tools": "Инструменты разработчика",
+    "Launch Swagger": "Запуск Swagger",
+    "Or select an existing tag": "Или выберите существующий тег",
+    "Family tree preferences": "Настройки семейного древа",
+    "Default family tree view": "Вид семейного древа по умолчанию",
+    "Invalid face rectangle coordinates": "Некорректные координаты области лица"
 }
