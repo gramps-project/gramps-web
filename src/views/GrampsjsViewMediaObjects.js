@@ -22,6 +22,7 @@ import '../components/GrampsjsFilterMime.js'
 import '../components/GrampsjsFilterTags.js'
 import '../components/GrampsjsFilterYears.js'
 import '../components/GrampsjsFilterPrivate.js'
+import '../components/GrampsjsFilterText.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTooltip.js'
 import '@material/web/select/filled-select'
@@ -232,6 +233,14 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Title"
+        rule="HasMedia"
+        .valueIndex=${0}
+        .numArgs=${4}
+      ></grampsjs-filter-text>
+
       <grampsjs-filter-years
         .appState="${this.appState}"
         dateIndex="3"

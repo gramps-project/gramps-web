@@ -5,6 +5,7 @@ Sources list view
 import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
+import '../components/GrampsjsFilterText.js'
 import '../components/GrampsjsFilterProperties.js'
 import '../components/GrampsjsFilterTags.js'
 import '../components/GrampsjsFilterPrivate.js'
@@ -39,6 +40,14 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Title"
+        rule="MatchesTitleSubstringOf"
+        .valueIndex=${0}
+        .numArgs=${1}
+      ></grampsjs-filter-text>
+
       <grampsjs-filter-properties
         hasCount
         .appState="${this.appState}"
