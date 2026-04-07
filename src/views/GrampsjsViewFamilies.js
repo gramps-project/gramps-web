@@ -7,6 +7,7 @@ import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
 import '../components/GrampsjsFilterProperties.js'
 import '../components/GrampsjsFilterTags.js'
+import '../components/GrampsjsFilterPrivate.js'
 
 export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
   constructor() {
@@ -53,6 +54,11 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
       ></grampsjs-filter-properties>
 
       <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
+
+      <grampsjs-filter-private
+        .appState="${this.appState}"
+        rule="FamilyPrivate"
+      ></grampsjs-filter-private>
     `
   }
 
