@@ -281,5 +281,9 @@
     "No Y-DNA data found.": "Y-ДНХ өгөгдөл олдсонгүй.",
     "Edit Y-DNA data": "Y-ДНХ өгөгдөл засах.",
     "Raw SNP data": "Түүхий SNP өгөгдөл",
-    "Or select an existing tag": "Эсвэл байгаа шошгоо сонгоно уу."
+    "Or select an existing tag": "Эсвэл байгаа шошгоо сонгоно уу.",
+    "Ascending": "Өсөх эрэмбэ",
+    "Descending": "Уруудах эрэмбэ",
+    "Gallery view": "Галерейгаар",
+    "List view": "Жагсаалтаар"
 }
