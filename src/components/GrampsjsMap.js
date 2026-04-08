@@ -266,7 +266,9 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       theme === 'dark' ? config.mapBaseStyleDark : config.mapBaseStyleLight
     if (style === 'ohm') {
       const ohmLocale = normalizeOhmLocale(this.appState.i18n?.lang)
-      return `${config.mapOhmStyle}?language=${ohmLocale}`
+      const styleUrl = new URL(config.mapOhmStyle)
+      styleUrl.searchParams.set('language', ohmLocale)
+      return styleUrl.toString()
     }
     return mapBaseStyle
   }
