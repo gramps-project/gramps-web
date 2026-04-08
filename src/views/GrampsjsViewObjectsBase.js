@@ -244,6 +244,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   }
 
   _handleFiltersChanged() {
+    this._page = 1
     this._fetchData()
   }
 
@@ -294,6 +295,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   }
 
   _toggleSort(sortKey, isCurrent, isAscending) {
+    this._page = 1
     this._sort = isCurrent && isAscending ? `-${sortKey}` : `+${sortKey}`
   }
 

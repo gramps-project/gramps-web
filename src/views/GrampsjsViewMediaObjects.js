@@ -370,11 +370,13 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
   }
 
   _handleSortKeyChange(e) {
+    this._page = 1
     const direction = this._sort.startsWith('-') ? '-' : '+'
     this._sort = `${direction}${e.target.value}`
   }
 
   _toggleSortDirection() {
+    this._page = 1
     const direction = this._sort.startsWith('+') ? '-' : '+'
     this._sort = `${direction}${this._sort.substring(1)}`
   }
