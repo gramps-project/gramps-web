@@ -4,8 +4,6 @@ import {CacheFirst} from 'workbox-strategies'
 import {CacheableResponsePlugin} from 'workbox-cacheable-response'
 import {ExpirationPlugin} from 'workbox-expiration'
 
-const BASE_DIR = ''
-
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting()
@@ -14,8 +12,10 @@ self.addEventListener('message', event => {
 
 precacheAndRoute(self.__WB_MANIFEST)
 
+// Handle navigation requests (SPA routing) by serving the precached index.html,
+// except for API routes which should always go to the network.
 registerRoute(
-  new NavigationRoute(createHandlerBoundToURL(BASE_DIR + '/index.html'), {
+  new NavigationRoute(createHandlerBoundToURL('index.html'), {
     denylist: [/^\/api.*/],
   })
 )

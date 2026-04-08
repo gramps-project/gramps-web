@@ -8,6 +8,7 @@ import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
 import '../components/GrampsjsFilterProperties.js'
 import '../components/GrampsjsFilterTags.js'
 import '../components/GrampsjsFilterPrivate.js'
+import '../components/GrampsjsFilterText.js'
 
 export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
   constructor() {
@@ -37,6 +38,14 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Name"
+        rule="HasData"
+        .valueIndex=${0}
+        .numArgs=${3}
+      ></grampsjs-filter-text>
+
       <grampsjs-filter-properties
         hasCount
         .appState="${this.appState}"
