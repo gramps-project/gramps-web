@@ -14,8 +14,10 @@ self.addEventListener('message', event => {
 
 precacheAndRoute(self.__WB_MANIFEST)
 
+// Handle navigation requests (SPA routing) by serving the precached index.html,
+// except for API routes which should always go to the network.
 registerRoute(
-  new NavigationRoute(createHandlerBoundToURL(BASE_DIR + '/index.html'), {
+  new NavigationRoute(createHandlerBoundToURL(BASE_DIR + 'index.html'), {
     denylist: [/^\/api.*/],
   })
 )
