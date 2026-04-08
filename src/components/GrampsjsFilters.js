@@ -107,7 +107,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
                 <grampsjs-icon
                   slot="icon"
                   path="${mdiFilter}"
-                  color="var(--md-filled-button-label-text-color, white)"
+                  color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
                 ></grampsjs-icon>
                 ${this._('filter')}
               </md-filled-button>
