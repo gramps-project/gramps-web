@@ -79,16 +79,19 @@ describe('apiGet authentication', () => {
 
 describe('apiPutPostDelete If-Match header', () => {
   beforeEach(() => {
-    global.fetch = vi.fn().mockResolvedValue({
-      status: 200,
-      ok: true,
-      json: () => Promise.resolve({}),
-      headers: {get: () => 'test-etag-value'},
-    })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        status: 200,
+        ok: true,
+        json: () => Promise.resolve({}),
+        headers: {get: () => 'test-etag-value'},
+      })
+    )
   })
 
   afterEach(() => {
-    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
   })
 
   it('adds If-Match header when etag is provided for PUT request', async () => {
@@ -164,13 +167,16 @@ describe('apiPutPostDelete If-Match header', () => {
   })
 
   it('returns error when backend returns 412 Precondition Failed', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      status: 412,
-      ok: false,
-      statusText: 'Precondition Failed',
-      json: () => Promise.resolve({error: {message: 'ETag mismatch'}}),
-      headers: {get: () => null},
-    })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        status: 412,
+        ok: false,
+        statusText: 'Precondition Failed',
+        json: () => Promise.resolve({error: {message: 'ETag mismatch'}}),
+        headers: {get: () => null},
+      })
+    )
 
     const mockAuth = {
       getValidAccessToken: vi.fn().mockResolvedValue('test-token'),
@@ -528,10 +534,17 @@ describe('fetch-update cycle with etag (mid-air collision detection)', () => {
     getValidAccessToken: vi.fn().mockResolvedValue('test-token'),
   }
 
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn())
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   it('succeeds when PUT with fresh etag from GET', async () => {
     const getEtag = '"abc123"'
-    global.fetch = vi
-      .fn()
+    fetch
       .mockResolvedValueOnce({
         status: 200,
         ok: true,
@@ -560,8 +573,7 @@ describe('fetch-update cycle with etag (mid-air collision detection)', () => {
 
   it('fails with 412 when PUT with stale etag', async () => {
     const staleEtag = '"stale-etag"'
-    global.fetch = vi
-      .fn()
+    fetch
       .mockResolvedValueOnce({
         status: 200,
         ok: true,

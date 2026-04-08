@@ -100,6 +100,16 @@ export class GrampsjsViewObject extends GrampsjsView {
     return ''
   }
 
+  /**
+   * Returns the individual resource URL for fetching the correct ETag for PUT operations.
+   * Subclasses should override this to return the resource URL (e.g., /api/people/{handle}).
+   * The display URL (getUrl) may differ - getUrl is used for list queries, this is for
+   * individual resources to ensure the correct ETag is obtained for mid-air collision detection.
+   */
+  _getResourceUrl() {
+    return ''
+  }
+
   renderContent() {
     if (Object.keys(this._data).length === 0) {
       if (this.loading) {
@@ -203,7 +213,12 @@ export class GrampsjsViewObject extends GrampsjsView {
       this.appState.apiGet(this.getUrl()).then(data => {
         this.loading = false
         if ('data' in data) {
-          ;[this._data] = data.data
+          // Handle both array (list endpoint) and object (individual endpoint) responses
+          if (Array.isArray(data.data)) {
+            ;[this._data] = data.data
+          } else {
+            this._data = data.data
+          }
           this._etag = data.etag || ''
           this.error = false
           if (this._className !== '') {
@@ -816,25 +831,34 @@ export class GrampsjsViewObject extends GrampsjsView {
     return this.appState.apiPost(url, obj)
   }
 
-  _updateObject(obj, objType, updateFunc, editorDraftPrefix) {
+  async _updateObject(obj, objType, updateFunc, editorDraftPrefix) {
     // remove extended, profile, backlinks, formatted keys from object
     // eslint-disable-next-line prefer-const
     let {extended, profile, backlinks, formatted, ...objNew} = obj
     objNew = {_class: capitalize(objType), ...objNew}
     const url = `/api/${objectTypeToEndpoint[objType]}/${obj.handle}`
 
-    this.appState
-      .apiPut(url, updateFunc(objNew), {etag: this._etag})
-      .then(data => {
-        if ('error' in data) {
-          fireEvent(this, 'grampsjs:error', {message: data.error})
-          return
-        }
-        this._updateData(false)
-        // Clear editor drafts after successful save (if prefix provided)
-        if (editorDraftPrefix) {
-          clearDraftsWithPrefix(editorDraftPrefix)
-        }
-      })
+    // Fetch the individual resource to get the correct ETag for mid-air collision detection.
+    // Using _getResourceUrl() (individual URL) rather than getUrl() (list URL) ensures
+    // the ETag matches the resource being updated.
+    const etagUrl = this._getResourceUrl()
+    let etag = this._etag
+    if (etagUrl) {
+      const etagData = await this.appState.apiGet(etagUrl)
+      if ('data' in etagData) {
+        etag = etagData.etag || ''
+      }
+    }
+
+    const data = await this.appState.apiPut(url, updateFunc(objNew), {etag})
+    if ('error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+      return
+    }
+    this._updateData(false)
+    // Clear editor drafts after successful save (if prefix provided)
+    if (editorDraftPrefix) {
+      clearDraftsWithPrefix(editorDraftPrefix)
+    }
   }
 }
