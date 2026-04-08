@@ -23,6 +23,7 @@ import '../components/GrampsjsFilterTags.js'
 import '../components/GrampsjsFilterYears.js'
 import '../components/GrampsjsFilterPrivate.js'
 import '../components/GrampsjsFilterText.js'
+import '../components/GrampsjsFilterObjectType.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTooltip.js'
 import '@material/web/select/filled-select'
@@ -259,6 +260,10 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
       ></grampsjs-filter-properties>
 
       <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
+
+      <grampsjs-filter-object-type
+        .appState="${this.appState}"
+      ></grampsjs-filter-object-type>
 
       <grampsjs-filter-private
         .appState="${this.appState}"
