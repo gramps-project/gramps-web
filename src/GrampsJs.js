@@ -363,6 +363,8 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Blog')}</dd>
                 <dt><span>g</span> <span>l</span></dt>
                 <dd>${this._('Lists')}</dd>
+                <dt><span>g</span> <span>i</span></dt>
+                <dd>${this._('Media')}</dd>
                 <dt><span>g</span> <span>m</span></dt>
                 <dd>${this._('Map')}</dd>
                 <dt><span>g</span> <span>c</span></dt>
@@ -383,8 +385,6 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Tasks')}</dd>
                 <dt><span>g</span> <span>e</span></dt>
                 <dd>${this._('Export')}</dd>
-                <dt><span>g</span> <span>i</span></dt>
-                <dd>${this._('Media')}</dd>
               </dl>
             </div>
             <div>
