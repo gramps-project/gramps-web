@@ -264,7 +264,11 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     const theme = this.appState.getCurrentTheme()
     const mapBaseStyle =
       theme === 'dark' ? config.mapBaseStyleDark : config.mapBaseStyleLight
-    return style === 'base' ? mapBaseStyle : config.mapOhmStyle
+    if (style === 'ohm') {
+      const lang = this.appState.i18n?.lang || 'en'
+      return `${config.mapOhmStyle}?language=${lang}`
+    }
+    return mapBaseStyle
   }
 }
 
