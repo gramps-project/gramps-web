@@ -89,15 +89,16 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
     return html`
       <div
         class="container"
-        role="group"
+        role="radiogroup"
         aria-label="${ifDefined(this.ariaLabel || undefined)}"
       >
         ${this.options.map(
           opt => html`
             <button
               type="button"
+              role="radio"
               class="${opt.value === this.selected ? 'active' : ''}"
-              aria-pressed="${opt.value === this.selected}"
+              aria-checked="${opt.value === this.selected}"
               @click="${() => this._handleClick(opt.value)}"
             >
               ${opt.label}

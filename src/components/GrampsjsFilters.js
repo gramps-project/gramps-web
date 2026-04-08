@@ -147,6 +147,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
           ]}"
           .selected="${this.useGql}"
           .appState="${this.appState}"
+          .ariaLabel="${this._('Filter mode')}"
           @pill-toggle:change="${this._handleGqlClick}"
         ></grampsjs-pill-toggle>
 

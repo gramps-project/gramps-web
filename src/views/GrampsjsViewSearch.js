@@ -177,6 +177,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
           ]}"
           .selected="${this.semantic}"
           .appState="${this.appState}"
+          .ariaLabel="${this._('Search mode')}"
           @pill-toggle:change="${this._handleModeClick}"
         ></grampsjs-pill-toggle>
       </div>
