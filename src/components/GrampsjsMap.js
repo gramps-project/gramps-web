@@ -265,13 +265,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     const mapBaseStyle =
       theme === 'dark' ? config.mapBaseStyleDark : config.mapBaseStyleLight
     if (style === 'ohm') {
-      const locale = this.appState.i18n?.lang
-      const ohmLocale = normalizeOhmLocale(locale)
-      // Log the language request for debugging purposes
-      // eslint-disable-next-line no-console
-      console.debug(
-        `OpenHistoricalMap: requesting labels in locale "${ohmLocale}" (frontend locale: "${locale}")`
-      )
+      const ohmLocale = normalizeOhmLocale(this.appState.i18n?.lang)
       return `${config.mapOhmStyle}?language=${ohmLocale}`
     }
     return mapBaseStyle
