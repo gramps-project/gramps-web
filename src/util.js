@@ -1035,8 +1035,14 @@ export const OHM_LOCALE_MAP = {
 
 /**
  * Converts a frontend locale code to an OpenHistoricalMap-compatible ISO 639-1 code.
- * Falls back to 'en' if the locale is unknown or unsupported.
- * @param {string|undefined} locale - Frontend locale code (e.g., 'de_AT', 'en_GB')
+ *
+ * Fallback chain:
+ * 1. If locale is falsy (null, undefined, empty string) → 'en'
+ * 2. If locale is in OHM_LOCALE_MAP → use the mapped value
+ * 3. If locale is not in map but has a base code (e.g., 'xx_YY') → extract base code ('xx')
+ * 4. If no base code is available → 'en'
+ *
+ * @param {string|null|undefined} locale - Frontend locale code (e.g., 'de_AT', 'en_GB')
  * @returns {string} OHM-compatible language code (e.g., 'de', 'en')
  */
 export function normalizeOhmLocale(locale) {
