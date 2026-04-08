@@ -1,5 +1,6 @@
 import {describe, it, expect} from 'vitest'
 import {normalizeOhmLocale, OHM_LOCALE_MAP} from '../../src/util.js'
+import {frontendLanguages} from '../../src/strings.js'
 
 describe('normalizeOhmLocale', () => {
   describe('basic mapping', () => {
@@ -78,57 +79,6 @@ describe('normalizeOhmLocale', () => {
 
 describe('OHM_LOCALE_MAP', () => {
   it('contains entries for all frontendLanguages that need mapping', () => {
-    const frontendLanguages = [
-      'ar',
-      'ba',
-      'bg',
-      'br',
-      'ca',
-      'cs',
-      'da',
-      'de_AT',
-      'de',
-      'el',
-      'en_GB',
-      'en',
-      'eo',
-      'es',
-      'fi',
-      'fr',
-      'ga',
-      'he',
-      'hr',
-      'hu',
-      'is',
-      'id',
-      'it',
-      'ja',
-      'ko',
-      'lt',
-      'lv',
-      'mk',
-      'nb',
-      'nl',
-      'nn',
-      'pl',
-      'pt_BR',
-      'pt_PT',
-      'ro',
-      'ru',
-      'sk',
-      'sl',
-      'sq',
-      'sr',
-      'sv',
-      'ta',
-      'tr',
-      'uk',
-      'vi',
-      'zh_CN',
-      'zh_HK',
-      'zh_TW',
-    ]
-
     // All languages from frontendLanguages should either:
     // 1. Be in OHM_LOCALE_MAP with a mapping to base code
     // 2. Or map to themselves (base code = same code)
