@@ -11,7 +11,7 @@ import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
 import './GrampsjsMapLayerSwitcher.js'
 import './GrampsjsIcon.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, normalizeOhmLocale} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -264,7 +264,13 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     const theme = this.appState.getCurrentTheme()
     const mapBaseStyle =
       theme === 'dark' ? config.mapBaseStyleDark : config.mapBaseStyleLight
-    return style === 'base' ? mapBaseStyle : config.mapOhmStyle
+    if (style === 'ohm') {
+      const ohmLocale = normalizeOhmLocale(this.appState.i18n?.lang)
+      const styleUrl = new URL(config.mapOhmStyle)
+      styleUrl.searchParams.set('language', ohmLocale)
+      return styleUrl.toString()
+    }
+    return mapBaseStyle
   }
 }
 
