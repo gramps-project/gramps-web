@@ -1,4 +1,5 @@
 import {LitElement, css, html} from 'lit'
+import {ifDefined} from 'lit/directives/if-defined.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -72,7 +73,8 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       options: {type: Array},
-      selected: {},
+      selected: {attribute: false},
+      ariaLabel: {type: String},
     }
   }
 
@@ -80,14 +82,20 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.options = []
     this.selected = null
+    this.ariaLabel = ''
   }
 
   render() {
     return html`
-      <div class="container" role="group">
+      <div
+        class="container"
+        role="group"
+        aria-label="${ifDefined(this.ariaLabel || undefined)}"
+      >
         ${this.options.map(
           opt => html`
             <button
+              type="button"
               class="${opt.value === this.selected ? 'active' : ''}"
               aria-pressed="${opt.value === this.selected}"
               @click="${() => this._handleClick(opt.value)}"
