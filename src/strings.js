@@ -788,6 +788,7 @@ export const grampsStrings = [
   'Street',
   'Style name.',
   'Subgraphs can help Graphviz position spouses together, but with non-trivial graphs will result in longer lines and larger graphs.',
+  'Subject',
   'Suffix',
   'Sunday',
   'Surname origin type:',
