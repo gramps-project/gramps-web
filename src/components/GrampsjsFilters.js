@@ -8,7 +8,7 @@ import '@material/web/button/outlined-button'
 import '@material/web/iconbutton/icon-button'
 import '@material/web/textfield/outlined-text-field'
 
-import './GrampsjsButtonGroup.js'
+import './GrampsjsPillToggle.js'
 import './GrampsjsIcon.js'
 import {renderIconSvg} from '../icons.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -68,6 +68,10 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
 
         .flex {
           display: flex;
+        }
+
+        #filter-container {
+          padding-top: 12px;
         }
       `,
     ]
@@ -132,23 +136,20 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         ${this._renderFilterChips()}
       </div>
       <div
+        id="filter-container"
         class="${classMap({hidden: !this.open})}"
         @filter:changed="${this._handleFilterChanged}"
       >
-        <grampsjs-button-group>
-          <mwc-button
-            dense
-            ?unelevated="${!this.useGql}"
-            @click="${this._handleGqlClick}"
-            >${this._('simple')}</mwc-button
-          >
-          <mwc-button
-            dense
-            ?unelevated="${this.useGql}"
-            @click="${this._handleGqlClick}"
-            >GQL</mwc-button
-          >
-        </grampsjs-button-group>
+        <grampsjs-pill-toggle
+          .options="${[
+            {label: this._('simple'), value: false},
+            {label: 'GQL', value: true},
+          ]}"
+          .selected="${this.useGql}"
+          .appState="${this.appState}"
+          .ariaLabel="${this._('Filter mode')}"
+          @pill-toggle:change="${this._handleGqlClick}"
+        ></grampsjs-pill-toggle>
 
         <div
           class="${classMap({hidden: !this.useGql, flex: this.useGql})}"
@@ -286,8 +287,8 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     })
   }
 
-  async _handleGqlClick() {
-    this.useGql = !this.useGql
+  async _handleGqlClick(e) {
+    this.useGql = e.detail.value
     if (this.filters.length || this.query) {
       this.filters = []
       this.query = ''

@@ -8,9 +8,9 @@ import '../components/GrampsjsButtonToggle.js'
 import {objectTypeToEndpoint, objectIcon, debounce} from '../util.js'
 import '@material/web/textfield/outlined-text-field'
 import '@material/web/iconbutton/icon-button.js'
-import '@material/web/button/text-button'
 import {mdiMagnify} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
+import '../components/GrampsjsPillToggle.js'
 
 function capitalize(string) {
   return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
@@ -45,29 +45,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
         .mode-toggle {
           float: right;
-          display: flex;
-          gap: 4px;
-        }
-
-        .mode-toggle md-text-button {
-          --md-text-button-label-text-size: 13px;
-          --md-text-button-label-text-weight: 500;
-          position: relative;
-        }
-
-        .mode-toggle md-text-button.active {
-          --md-sys-color-primary: var(--mdc-theme-primary);
-        }
-
-        .mode-toggle md-text-button.active::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 12px;
-          right: 12px;
-          height: 2px;
-          background-color: var(--mdc-theme-primary);
-          border-radius: 1px;
+          --grampsjs-pill-toggle-font-size: 13px;
         }
 
         md-outlined-text-field#search-field {
@@ -192,22 +170,22 @@ export class GrampsjsViewSearch extends GrampsjsView {
   _renderModeToggle() {
     return html`
       <div class="mode-toggle">
-        <md-text-button
-          class="${!this.semantic ? 'active' : ''}"
-          @click="${() => this._handleModeClick(false)}"
-          >${this._('full-text')}</md-text-button
-        >
-        <md-text-button
-          class="${this.semantic ? 'active' : ''}"
-          @click="${() => this._handleModeClick(true)}"
-          >${this._('semantic')}</md-text-button
-        >
+        <grampsjs-pill-toggle
+          .options="${[
+            {label: this._('full-text'), value: false},
+            {label: this._('semantic'), value: true},
+          ]}"
+          .selected="${this.semantic}"
+          .appState="${this.appState}"
+          .ariaLabel="${this._('Search mode')}"
+          @pill-toggle:change="${this._handleModeClick}"
+        ></grampsjs-pill-toggle>
       </div>
     `
   }
 
-  async _handleModeClick(semantic) {
-    this.semantic = semantic
+  async _handleModeClick(e) {
+    this.semantic = e.detail.value
     this._executeSearch()
   }
 
