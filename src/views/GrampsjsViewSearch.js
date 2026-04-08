@@ -249,18 +249,13 @@ export class GrampsjsViewSearch extends GrampsjsView {
     this._focus()
   }
 
-  _focus(retry = true) {
-    if (this.active) {
-      const el = this.shadowRoot.getElementById('search-field')
-      try {
-        el.focus()
-      } catch (e) {
-        // retry once
-        if (retry) {
-          window.setTimeout(() => this._focus(false), 100)
-        }
-      }
-    }
+  _focus() {
+    if (!this.active) return
+    window.setTimeout(() => {
+      if (!this.active) return
+      const el = this.shadowRoot?.getElementById('search-field')
+      if (el) el.focus()
+    }, 0)
   }
 
   _unfocus() {
