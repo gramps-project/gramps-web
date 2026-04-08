@@ -5,6 +5,7 @@ Notes list view
 import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
+import '../components/GrampsjsFilterText.js'
 import '../components/GrampsjsFilterType.js'
 import '../components/GrampsjsFilterTags.js'
 import '../components/GrampsjsFilterPrivate.js'
@@ -48,6 +49,14 @@ export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Text"
+        rule="MatchesRegexpOf"
+        .valueIndex=${0}
+        .numArgs=${1}
+      ></grampsjs-filter-text>
+
       <grampsjs-filter-type
         .appState="${this.appState}"
         label="${this._('Note type:').replace(':', '')}"

@@ -7,6 +7,7 @@ import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
 import '../components/GrampsjsFilterTags.js'
 import '../components/GrampsjsFilterPrivate.js'
+import '../components/GrampsjsFilterText.js'
 
 export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
   constructor() {
@@ -36,6 +37,14 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Name"
+        rule="MatchesNameSubstringOf"
+        .valueIndex=${0}
+        .numArgs=${1}
+      ></grampsjs-filter-text>
+
       <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
 
       <grampsjs-filter-private

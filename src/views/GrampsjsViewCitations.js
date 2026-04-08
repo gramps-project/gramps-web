@@ -5,6 +5,7 @@ Citations list view
 import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
+import '../components/GrampsjsFilterText.js'
 import '../components/GrampsjsFilterProperties.js'
 import '../components/GrampsjsFilterTags.js'
 import '../components/GrampsjsFilterPrivate.js'
@@ -38,6 +39,22 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Page"
+        rule="MatchesPageSubstringOf"
+        .valueIndex=${0}
+        .numArgs=${1}
+      ></grampsjs-filter-text>
+
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Source: Title"
+        rule="HasSource"
+        .valueIndex=${0}
+        .numArgs=${4}
+      ></grampsjs-filter-text>
+
       <grampsjs-filter-properties
         hasCount
         .appState="${this.appState}"
