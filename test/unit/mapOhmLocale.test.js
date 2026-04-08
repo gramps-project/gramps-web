@@ -100,6 +100,7 @@ describe('OHM_LOCALE_MAP', () => {
   })
 
   it('does not contain any entries that map to undefined', () => {
+    // eslint-disable-next-line no-unused-vars
     Object.entries(OHM_LOCALE_MAP).forEach(([locale, mappedLocale]) => {
       expect(mappedLocale).to.be.a('string')
       expect(mappedLocale.length).to.be.greaterThan(0)
