@@ -289,5 +289,8 @@
   "Select files": "Select files",
   "Failed to upload": "Failed to upload",
   "Failed to update": "Failed to update",
-  "Not private": "Not private"
+  "Not private": "Not private",
+  "Add Family Member": "Add Family Member",
+  "Son": "Son",
+  "Daughter": "Daughter"
 }
