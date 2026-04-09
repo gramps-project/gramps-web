@@ -283,5 +283,10 @@
     "Or select an existing tag": "Nebo vyberte existující štítek",
     "Family tree preferences": "Předvolby rodinného stromu",
     "Default family tree view": "Výchozí zobrazení rodinného stromu",
-    "Invalid face rectangle coordinates": "Neplatné souřadnice obdélníku obličeje"
+    "Invalid face rectangle coordinates": "Neplatné souřadnice obdélníku obličeje",
+    "Ascending": "Vzestupně",
+    "Descending": "Sestupně",
+    "Gallery view": "Zobrazení galerie",
+    "List view": "Zobrazení seznamu",
+    "Not private": "Ne soukromé"
 }
