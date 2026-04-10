@@ -157,12 +157,12 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       fireEvent(this, 'map:moveend', {bounds: this._map.getBounds()})
     })
     this._map.on('sourcedata', () => {
-      if (this._currentStyle === 'ohm' && this.year > 0) {
-        try {
-          this._map.filterByDate(`${this.year}`)
-        } catch (_) {
-          // Ignore errors if filterByDate fails
-        }
+      if (
+        this._currentStyle === 'ohm' &&
+        this.year > 0 &&
+        typeof this._map.filterByDate === 'function'
+      ) {
+        this._map.filterByDate(`${this.year}`)
       }
     })
   }
