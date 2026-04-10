@@ -8,7 +8,7 @@ import '@material/web/button/outlined-button'
 import '@material/web/iconbutton/icon-button'
 import '@material/web/textfield/outlined-text-field'
 
-import './GrampsjsButtonGroup.js'
+import './GrampsjsPillToggle.js'
 import './GrampsjsIcon.js'
 import {renderIconSvg} from '../icons.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -69,6 +69,10 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         .flex {
           display: flex;
         }
+
+        #filter-container {
+          padding-top: 12px;
+        }
       `,
     ]
   }
@@ -103,7 +107,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
                 <grampsjs-icon
                   slot="icon"
                   path="${mdiFilter}"
-                  color="var(--md-filled-button-label-text-color, white)"
+                  color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
                 ></grampsjs-icon>
                 ${this._('filter')}
               </md-filled-button>
@@ -132,23 +136,20 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         ${this._renderFilterChips()}
       </div>
       <div
+        id="filter-container"
         class="${classMap({hidden: !this.open})}"
         @filter:changed="${this._handleFilterChanged}"
       >
-        <grampsjs-button-group>
-          <mwc-button
-            dense
-            ?unelevated="${!this.useGql}"
-            @click="${this._handleGqlClick}"
-            >${this._('simple')}</mwc-button
-          >
-          <mwc-button
-            dense
-            ?unelevated="${this.useGql}"
-            @click="${this._handleGqlClick}"
-            >GQL</mwc-button
-          >
-        </grampsjs-button-group>
+        <grampsjs-pill-toggle
+          .options="${[
+            {label: this._('simple'), value: false},
+            {label: 'GQL', value: true},
+          ]}"
+          .selected="${this.useGql}"
+          .appState="${this.appState}"
+          .ariaLabel="${this._('Filter mode')}"
+          @pill-toggle:change="${this._handleGqlClick}"
+        ></grampsjs-pill-toggle>
 
         <div
           class="${classMap({hidden: !this.useGql, flex: this.useGql})}"
@@ -286,8 +287,8 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     })
   }
 
-  async _handleGqlClick() {
-    this.useGql = !this.useGql
+  async _handleGqlClick(e) {
+    this.useGql = e.detail.value
     if (this.filters.length || this.query) {
       this.filters = []
       this.query = ''
@@ -324,6 +325,9 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         filterMime[rule.values[1]]
       )}`
     }
+    if (rule.name === 'HasMedia' && rule.values[0] !== '') {
+      return `${this._('Title')}: ${rule.values[0]}`
+    }
     if (rule.name === 'HasMedia' && rule.values[3] !== '') {
       return this._ruleToLabelSpan(rule, 'Date', 3)
     }
@@ -333,8 +337,35 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     if (rule.name === 'HasDeath' && rule.values[0] !== '') {
       return this._ruleToLabelSpan(rule, 'Death year', 0)
     }
-    if (rule.name === 'HasData' && rule.values[1] !== '') {
+    if (rule.name === 'HasData' && rule.values[1]) {
       return this._ruleToLabelSpan(rule, 'Date', 1)
+    }
+    if (rule.name === 'HasData' && rule.values[3]) {
+      return `${this._('Description')}: ${rule.values[3]}`
+    }
+    if (rule.name === 'HasData' && rule.values[2]) {
+      return `${this._('Place')}: ${rule.values[2]}`
+    }
+    if (rule.name === 'HasData' && rule.values[0]) {
+      return `${this._('Name')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'MatchesTitleSubstringOf' && rule.values[0] !== '') {
+      return `${this._('Title')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'MatchesPageSubstringOf' && rule.values[0] !== '') {
+      return `${this._('Page')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'HasSource' && rule.values[0] !== '') {
+      return `${this._('Source: Title')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'MatchesRegexpOf' && rule.values[0] !== '') {
+      return `${this._('Text')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'MatchesNameSubstringOf' && rule.values[0] !== '') {
+      return `${this._('Name')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'IsReferencedByObjectType') {
+      return `${this._('Subject')}: ${this._(rule.values[0])}`
     }
     if (rule.name === 'HasType') {
       return `${this._('Type')}: ${this._(rule.values[0])}`

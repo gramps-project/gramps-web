@@ -268,7 +268,7 @@
     "Enter a search URL with template variables for person data. Available variables:": "Gib eine Such-URL mit Vorlagenvariablen für Personendaten ein. Verfügbare Variablen:",
     "e.g., MyGenealogy": "z.B. MeineGenealogie",
     "Search URL": "Such-URL",
-    "A number": "Eine Anzahl",
+    "A number": "Eine Zahl",
     "A file system path": "Ein Dateisystempfad",
     "Any text": "Beliebiger Text",
     "A list of text values. Each entry in the list represents one line of text.": "Eine Liste von Textwerten. Jeder Eintrag in der Liste entspricht einer Textzeile.",
@@ -288,5 +288,6 @@
     "Ascending": "Aufsteigend",
     "Descending": "Absteigend",
     "Gallery view": "Galerieansicht",
-    "List view": "Listenansicht"
+    "List view": "Listenansicht",
+    "Not private": "Nicht vertraulich"
 }

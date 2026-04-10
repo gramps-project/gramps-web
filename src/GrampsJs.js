@@ -363,6 +363,8 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Blog')}</dd>
                 <dt><span>g</span> <span>l</span></dt>
                 <dd>${this._('Lists')}</dd>
+                <dt><span>g</span> <span>i</span></dt>
+                <dd>${this._('Media')}</dd>
                 <dt><span>g</span> <span>m</span></dt>
                 <dd>${this._('Map')}</dd>
                 <dt><span>g</span> <span>c</span></dt>
@@ -1044,6 +1046,8 @@ export class GrampsJs extends LitElement {
         fireEvent(this, 'nav', {path: 'tasks'})
       } else if (e.key === 'e') {
         fireEvent(this, 'nav', {path: 'export'})
+      } else if (e.key === 'i') {
+        fireEvent(this, 'nav', {path: 'medialist'})
       } else if (e.key === 'd') {
         if (!this.appState.frontendConfig.hideDNALink) {
           fireEvent(this, 'nav', {path: 'dna-matches'})

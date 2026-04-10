@@ -22,6 +22,8 @@ import '../components/GrampsjsFilterMime.js'
 import '../components/GrampsjsFilterTags.js'
 import '../components/GrampsjsFilterYears.js'
 import '../components/GrampsjsFilterPrivate.js'
+import '../components/GrampsjsFilterText.js'
+import '../components/GrampsjsFilterObjectType.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTooltip.js'
 import '@material/web/select/filled-select'
@@ -232,6 +234,14 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Title"
+        rule="HasMedia"
+        .valueIndex=${0}
+        .numArgs=${4}
+      ></grampsjs-filter-text>
+
       <grampsjs-filter-years
         .appState="${this.appState}"
         dateIndex="3"
@@ -250,6 +260,10 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
       ></grampsjs-filter-properties>
 
       <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
+
+      <grampsjs-filter-object-type
+        .appState="${this.appState}"
+      ></grampsjs-filter-object-type>
 
       <grampsjs-filter-private
         .appState="${this.appState}"
@@ -361,11 +375,13 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
   }
 
   _handleSortKeyChange(e) {
+    this._page = 1
     const direction = this._sort.startsWith('-') ? '-' : '+'
     this._sort = `${direction}${e.target.value}`
   }
 
   _toggleSortDirection() {
+    this._page = 1
     const direction = this._sort.startsWith('+') ? '-' : '+'
     this._sort = `${direction}${this._sort.substring(1)}`
   }

@@ -5,6 +5,7 @@ Events list view
 import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
+import '../components/GrampsjsFilterText.js'
 import '../components/GrampsjsFilterType.js'
 import '../components/GrampsjsFilterYears.js'
 import '../components/GrampsjsFilterTags.js'
@@ -54,6 +55,22 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
         label="${this._('Event Type')}"
         typeName="event_types"
       ></grampsjs-filter-type>
+
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Description"
+        rule="HasData"
+        .valueIndex=${3}
+        .numArgs=${4}
+      ></grampsjs-filter-text>
+
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Place"
+        rule="HasData"
+        .valueIndex=${2}
+        .numArgs=${4}
+      ></grampsjs-filter-text>
 
       <grampsjs-filter-properties
         hasCount

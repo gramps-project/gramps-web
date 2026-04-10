@@ -284,5 +284,10 @@
     "Family tree preferences": "Roghanna crann teaghlaigh",
     "Default family tree view": "Radharc réamhshocraithe crainn teaghlaigh",
     "Invalid face rectangle coordinates": "Comhordanáidí dronuilleog aghaidhe neamhbhailí",
-    "Or select an existing tag": "Nó roghnaigh clib atá ann cheana féin"
+    "Or select an existing tag": "Nó roghnaigh clib atá ann cheana féin",
+    "Ascending": "Ag dul suas",
+    "Descending": "Ag dul síos",
+    "Gallery view": "Radharc gailearaí",
+    "List view": "Radharc liosta",
+    "Not private": "Ní príobháideach"
 }
