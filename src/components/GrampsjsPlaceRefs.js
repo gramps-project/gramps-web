@@ -27,7 +27,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableList {
   }
 
   row(obj, i) {
-    const place = this._places.find(p => p.handle === obj.ref) || null
+    const place = this._places[i] || null
     const name = place?.profile?.name || ''
     const type = place?.place_type
     const dateStr = this.profile[i]?.date_str || ''
@@ -107,7 +107,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableList {
   _handleEdit() {
     if (this._selectedIndex === -1) return
     const placeRef = this.data[this._selectedIndex]
-    const place = this._places.find(p => p.handle === placeRef?.ref) || {}
+    const place = this._places[this._selectedIndex] || {}
     this.dialogContent = html`
       <grampsjs-form-placeref
         @object:save="${e => this._handlePlaceRefEdit(e, this._selectedIndex)}"
@@ -115,7 +115,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableList {
         .appState="${this.appState}"
         .data="${placeRef}"
         .place="${place}"
-        dialogTitle=${this._('Edit repository reference')}
+        dialogTitle=${this._('Edit enclosing place')}
       ></grampsjs-form-placeref>
     `
   }
