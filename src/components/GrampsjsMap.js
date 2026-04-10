@@ -156,6 +156,15 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this._map.on('moveend', () => {
       fireEvent(this, 'map:moveend', {bounds: this._map.getBounds()})
     })
+    this._map.on('sourcedata', () => {
+      if (
+        this._currentStyle === 'ohm' &&
+        this.year > 0 &&
+        typeof this._map.filterByDate === 'function'
+      ) {
+        this._map.filterByDate(`${this.year}`)
+      }
+    })
   }
 
   get _slottedChildren() {
@@ -241,9 +250,6 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this._map.setStyle(styleUrl)
     // Always wait for style to load before re-adding overlays
     this._map.once('styledata', () => {
-      if (this._currentStyle === 'ohm') {
-        this._map.filterByDate(`${this.year}`)
-      }
       this._reAddOverlays()
     })
   }
