@@ -632,7 +632,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           ? html`<h4>${this._('Encloses')}</h4>
               <grampsjs-place-children
                 .appState="${this.appState}"
-                .data="${this.data?.profile?.references?.place || []}"
+                .data="${this.data?.extended?.backlinks?.place || []}"
                 ?edit=${false}
               ></grampsjs-place-children> `
           : ''}`
