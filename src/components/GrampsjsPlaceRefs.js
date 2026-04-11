@@ -66,8 +66,8 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableList {
   }
 
   async _updateData() {
+    this._places = []
     if (this.data.length === 0) {
-      this._places = []
       return
     }
     const places = []
