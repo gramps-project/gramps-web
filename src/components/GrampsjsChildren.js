@@ -1,4 +1,4 @@
-import {html} from 'lit'
+import {html, css} from 'lit'
 
 import '@material/mwc-button'
 import '@material/mwc-icon-button'
@@ -28,6 +28,17 @@ export class GrampsjsChildren extends GrampsjsEditableTable {
     }
   }
 
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        tr.highlight {
+          background-color: var(--grampsjs-color-skeleton-shine);
+        }
+      `,
+    ]
+  }
+
   constructor() {
     super()
     this.profile = []
@@ -40,7 +51,9 @@ export class GrampsjsChildren extends GrampsjsEditableTable {
     return html`
       <tr
         @click=${() => this._handleClick(this.profile[i].gramps_id)}
-        class="${obj.gramps_id === this.highlightId ? 'highlight' : ''}"
+        class="${this.profile[i].gramps_id === this.highlightId
+          ? 'highlight'
+          : ''}"
       >
         <td>${genderIcon(this.profile[i]?.sex)}</td>
         <td>${this.profile[i]?.name_given || ''}</td>
