@@ -44,6 +44,11 @@ import {
   mdiDivision,
   mdiSkullCrossbones,
   mdiAccountChild,
+  mdiFlag,
+  mdiCity,
+  mdiHomeGroup,
+  mdiRoad,
+  mdiBarn,
 } from '@mdi/js'
 import {asteriskIcon, crossIcon, renderIconSvg, ringsIconPath} from './icons.js'
 import './components/GrampsjsIcon.js'
@@ -265,6 +270,31 @@ const objectIconPath = {
   note: mdiNoteText,
   media: mdiImage,
   tag: mdiLabel,
+}
+
+export const placeTypeIconPath = {
+  Unknown: null,
+  Custom: null,
+  Country: mdiFlag,
+  State: mdiFlag,
+  County: null,
+  City: mdiCity,
+  Parish: mdiChurch,
+  Locality: mdiHomeGroup,
+  Street: mdiRoad,
+  Province: null,
+  Region: null,
+  Department: null,
+  Neighborhood: mdiHomeGroup,
+  District: null,
+  Borough: mdiCity,
+  Municipality: mdiCity,
+  Town: mdiCity,
+  Village: mdiHomeGroup,
+  Hamlet: mdiHomeGroup,
+  Farm: mdiBarn,
+  Building: mdiHome,
+  Number: mdiHome,
 }
 
 export const eventTypeIconPath = {
