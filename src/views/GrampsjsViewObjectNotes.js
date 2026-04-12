@@ -45,12 +45,14 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
   static get properties() {
     return {
       numberOfNotes: {type: Number},
+      objType: {type: String},
     }
   }
 
   constructor() {
     super()
     this.numberOfNotes = 0
+    this.objType = ''
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -123,6 +125,7 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
         @object:cancel="${this._handleNoteCancel}"
         .appState="${this.appState}"
         dialogTitle="${this._('Create and add a new note')}"
+        objType="${this.objType}"
       >
       </grampsjs-form-new-note>
     `
