@@ -25,14 +25,14 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
         }
 
         div.note-content {
-          padding-top: 1.2em;
-          padding-bottom: 1.2em;
+          padding-top: 1.6em;
+          padding-bottom: 1.6em;
         }
 
         div.note-meta {
-          margin-top: 1.2em;
+          margin-top: 0.4em;
           display: flex;
-          justify-content: flex-end;
+          justify-content: flex-start;
         }
 
         div.note-edit-meta {
@@ -150,19 +150,15 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
           framed
           grampsId="${obj.gramps_id}"
           content="${obj?.formatted?.html || obj?.text?.string}"
-        >
-          ${this.edit
-            ? ''
-            : html`<div class="note-meta">
-                <md-text-button
-                  outlined
-                  @click="${() => this._handleButtonClick(obj.gramps_id)}"
-                >
-                  ${this._('Details')}
-                </md-text-button>
-              </div>`}
-        </grampsjs-note-content>
+        ></grampsjs-note-content>
       </div>
+      ${this.edit
+        ? ''
+        : html`<div class="note-meta">
+            <md-text-button href="${BASE_DIR}/note/${obj.gramps_id}">
+              ${this._('Details')}
+            </md-text-button>
+          </div>`}
       <div class="note-edit-meta">
         ${this.edit
           ? html`
@@ -211,18 +207,6 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
 
   _handleNoteCancel() {
     this.dialogContent = ''
-  }
-
-  _handleButtonClick(grampsId) {
-    this.dispatchEvent(
-      new CustomEvent('nav', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          path: `note/${grampsId}`,
-        },
-      })
-    )
   }
 }
 
