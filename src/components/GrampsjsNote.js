@@ -47,7 +47,6 @@ export class GrampsjsNote extends GrampsjsObject {
             .appState="${this.appState}"
           ></grampsjs-editor>`
         : html` <grampsjs-note-content
-            framed
             grampsId="${this.data.gramps_id}"
             content="${this.data?.formatted?.html ||
             this.data?.text?.string ||

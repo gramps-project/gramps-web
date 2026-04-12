@@ -14,12 +14,12 @@ export class GrampsjsNoteContent extends LitElement {
             var(--grampsjs-body-font-family)
           );
           font-size: var(--grampsjs-note-font-size, 17px);
-          line-height: var(--grampsjs-note-line-height, 1.5em);
+          line-height: var(--grampsjs-note-line-height, 1.7em);
           color: var(--grampsjs-note-color);
         }
 
         .note {
-          font-weight: 300;
+          font-weight: 350;
         }
 
         .note.columns {
@@ -30,9 +30,8 @@ export class GrampsjsNoteContent extends LitElement {
         }
 
         .note-container.frame {
-          border: 1px solid var(--md-sys-color-outline-variant);
-          border-radius: 6px;
-          padding: 20px 25px;
+          border-left: 3px solid var(--md-sys-color-outline-variant);
+          padding: 4px 24px;
         }
 
         .note-container.frame p {
