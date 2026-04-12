@@ -175,11 +175,12 @@ body {
   --md-sys-color-on-tertiary-fixed-variant: rgb(81, 70, 26);
   --md-sys-color-surface-dim: rgb(232, 214, 209);
   --md-sys-color-surface-bright: rgb(255, 248, 246);
-  --md-sys-color-surface-container-lowest: rgb(255, 255, 255);
+  --md-sys-color-surface-container-lowest: rgb(245, 245, 245);
   --md-sys-color-surface-container-low: rgb(240, 240, 240);
   --md-sys-color-surface-container: #fff;
   --md-sys-color-surface-container-high: #fff;
   --md-sys-color-surface-container-highest: whitesmoke;
+  --grampsjs-note-background: var(--md-sys-color-surface-container-lowest);
 }
 
 :root[data-theme='dark'] {
@@ -284,6 +285,7 @@ body {
   --md-sys-color-surface-bright: rgb(58, 57, 57);
   --md-sys-color-surface-container-lowest: rgb(14, 14, 14);
   --md-sys-color-surface-container-low: rgb(28, 27, 27);
+  --grampsjs-note-background: var(--md-sys-color-surface-container-low);
   --md-sys-color-surface-container: rgb(32, 31, 31);
   --md-sys-color-surface-container-high: rgb(42, 42, 42);
   --md-sys-color-surface-container-highest: rgb(53, 52, 52);
