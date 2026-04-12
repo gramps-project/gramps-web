@@ -23,7 +23,11 @@ export class GrampsjsReferences extends GrampsjsEditableList {
   }
 
   render() {
-    if (this.data.length === 0 || Object.keys(this.data[0]).length === 0) {
+    if (
+      this.data.length === 0 ||
+      !this.data[0] ||
+      Object.keys(this.data[0]).length === 0
+    ) {
       return html``
     }
     return html`
