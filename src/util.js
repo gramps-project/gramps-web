@@ -528,7 +528,7 @@ export function objectDetail(type, obj, strings) {
     ${obj.type ? translate(strings, obj.type) : ''}
     `
     case 'note':
-      return obj?.text?.string?.split('\n').find(line => line.trim()) || ''
+      return obj?.text?.string?.match(/[^\r\n]+/)?.[0]?.trim() || ''
     case 'media':
       if (obj.mime?.startsWith('audio')) {
         return translate(strings, 'Audio')
