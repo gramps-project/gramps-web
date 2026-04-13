@@ -212,6 +212,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     }
     const data = await this.appState.apiPost('/api/chat/', payload, {
       dbChanged: false,
+      saving: false,
     })
     let message
     if ('error' in data || !data?.data?.response) {

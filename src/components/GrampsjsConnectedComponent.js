@@ -121,6 +121,7 @@ export class GrampsjsConnectedComponent extends GrampsjsStaleDataMixin(
   async _updatePostData(url) {
     const data = await this.appState.apiPost(url, this.postData, {
       dbChanged: false,
+      saving: false,
     })
     if ('data' in data) {
       this._data = {data: data.data}
