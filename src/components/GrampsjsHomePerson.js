@@ -45,6 +45,8 @@ export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
                 linked
                 metaIcon="${mdiPencil}"
                 .appState="${this.appState}"
+                ?loading="${!this.homePersonDetails?.handle}"
+                numberLoading="1"
                 .data=${[
                   {object: this.homePersonDetails, object_type: 'person'},
                 ]}
@@ -80,7 +82,7 @@ export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
     const obj = e.detail.objects[0]
     if (obj.object?.gramps_id) {
       this.appState.updateSettings({homePerson: obj.object.gramps_id}, true)
-      this.homePersonDetails = obj
+      this.homePersonDetails = obj.object
     }
     e.preventDefault()
     e.stopPropagation()
