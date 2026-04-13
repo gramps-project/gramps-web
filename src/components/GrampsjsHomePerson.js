@@ -45,6 +45,8 @@ export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
                 linked
                 metaIcon="${mdiPencil}"
                 .appState="${this.appState}"
+                ?loading="${!this.homePersonDetails?.handle}"
+                numberLoading="1"
                 .data=${[
                   {object: this.homePersonDetails, object_type: 'person'},
                 ]}

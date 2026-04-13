@@ -529,7 +529,8 @@ export class GrampsJs extends LitElement {
     if (
       this.appState.settings.lang &&
       !this._backendStringsLoaded() &&
-      !this._loadingStrings
+      !this._loadingStrings &&
+      this.appState.dbInfo?.gramps_webapi?.version
     ) {
       this._loadStrings(grampsStrings, this.appState.settings.lang)
     }
@@ -614,6 +615,11 @@ export class GrampsJs extends LitElement {
 
     if (window.location.pathname.includes('/oidc/complete')) {
       return
+    }
+
+    if (this.appState.auth.refreshToken) {
+      this.loadingState = LOADING_STATE_READY
+      this.progress = true
     }
 
     this._loadDbInfo()
@@ -792,6 +798,7 @@ export class GrampsJs extends LitElement {
 
   _setReady() {
     this.loadingState = LOADING_STATE_READY
+    this.progress = false
     this.setPermissions()
   }
 
