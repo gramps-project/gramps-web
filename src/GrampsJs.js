@@ -949,8 +949,12 @@ export class GrampsJs extends LitElement {
 
   async _loadStrings(strings, lang) {
     this._loadingStrings = true
+    const apiVersion = this.appState.dbInfo?.gramps_webapi?.version
+    const versionParam = apiVersion
+      ? `?v=${encodeURIComponent(apiVersion)}`
+      : ''
     const data = await this.appState.apiPost(
-      `/api/translations/${lang}`,
+      `/api/translations/${lang}${versionParam}`,
       {strings},
       {dbChanged: false}
     )
