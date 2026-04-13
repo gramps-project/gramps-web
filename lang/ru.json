@@ -283,5 +283,9 @@
     "Or select an existing tag": "Или выберите существующий тег",
     "Family tree preferences": "Настройки семейного древа",
     "Default family tree view": "Вид семейного древа по умолчанию",
-    "Invalid face rectangle coordinates": "Некорректные координаты области лица"
+    "Invalid face rectangle coordinates": "Некорректные координаты области лица",
+    "Descending": "По убыванию",
+    "Gallery view": "Галерея",
+    "List view": "Список",
+    "Ascending": "По возрастанию"
 }
