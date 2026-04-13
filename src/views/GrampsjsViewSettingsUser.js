@@ -137,7 +137,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
 
   firstUpdated() {
     if (this.active) {
-      this._fetchDataLang()
+      this._fetchOwnUserDetails()
     }
   }
 
@@ -390,11 +390,6 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       this.error = false
       this._userInfo = data.data
     }
-  }
-
-  connectedCallback() {
-    super.connectedCallback()
-    this._fetchOwnUserDetails()
   }
 }
 
