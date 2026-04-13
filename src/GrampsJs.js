@@ -178,13 +178,16 @@ export class GrampsJs extends LitElement {
           --md-linear-progress-active-indicator-color: var(
             --grampsjs-color-page-loading-progress
           );
+        }
+
+        [slot='appContent'] md-linear-progress {
           position: sticky;
           top: var(--mdc-top-app-bar-height, 64px);
           z-index: 4;
           visibility: hidden;
         }
 
-        md-linear-progress.active {
+        [slot='appContent'] md-linear-progress.active {
           visibility: visible;
         }
 
@@ -567,7 +570,6 @@ export class GrampsJs extends LitElement {
             indeterminate
             class="${this.progress ? 'active' : ''}"
           ></md-linear-progress>
-          </md-linear-progress>
 
           <main>
             <grampsjs-tab-bar .appState="${this.appState}"></grampsjs-tab-bar>
