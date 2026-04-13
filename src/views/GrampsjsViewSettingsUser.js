@@ -137,7 +137,6 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
 
   firstUpdated() {
     if (this.active) {
-      this._fetchDataLang()
       this._fetchOwnUserDetails()
     }
   }
