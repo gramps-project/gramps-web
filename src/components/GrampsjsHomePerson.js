@@ -82,7 +82,7 @@ export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
     const obj = e.detail.objects[0]
     if (obj.object?.gramps_id) {
       this.appState.updateSettings({homePerson: obj.object.gramps_id}, true)
-      this.homePersonDetails = obj
+      this.homePersonDetails = obj.object
     }
     e.preventDefault()
     e.stopPropagation()
