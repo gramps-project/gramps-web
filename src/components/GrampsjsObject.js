@@ -758,6 +758,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
             .filter(obj => Boolean(obj))}
           ?edit="${this.edit}"
           numberOfNotes="${this.data?.note_list?.length || 0}"
+          objType="${this._objectEndpoint}"
         ></grampsjs-view-object-notes>`
       case 'gallery':
         return html` <grampsjs-gallery
