@@ -122,6 +122,7 @@ export class GrampsJs extends LitElement {
     this.progress = false
     this.loadingState = LOADING_STATE_INITIAL
     this._homePersonDetails = {}
+    this._homePersonFetchingId = null
     this._showShortcuts = false
     this._shortcutPressed = ''
     this._firstRunToken = ''
@@ -768,14 +769,16 @@ export class GrampsJs extends LitElement {
 
   _loadHomePersonInfo() {
     const grampsId = this.appState.settings.homePerson
-    if (!grampsId) {
+    if (!grampsId || grampsId === this._homePersonFetchingId) {
       return
     }
+    this._homePersonFetchingId = grampsId
     this.appState
       .apiGet(
         `/api/people/?gramps_id=${grampsId}&profile=self&extend=media_list`
       )
       .then(data => {
+        this._homePersonFetchingId = null
         if ('data' in data) {
           ;[this._homePersonDetails] = data.data
         } else if ('error' in data) {

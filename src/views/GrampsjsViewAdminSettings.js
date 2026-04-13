@@ -444,8 +444,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
-  connectedCallback() {
-    super.connectedCallback()
+  firstUpdated() {
+    super.firstUpdated()
     this._fetchOwnUserDetails()
     this._fetchTreeInfo()
   }
