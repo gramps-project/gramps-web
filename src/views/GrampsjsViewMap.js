@@ -9,7 +9,11 @@ import '../components/GrampsjsMapSearchbox.js'
 import '../components/GrampsjsMapTimeSlider.js'
 import '../components/GrampsjsPlaceBox.js'
 import {getMediaUrl} from '../api.js'
-import {isDateBetweenYears, getGregorianYears} from '../util.js'
+import {
+  isDateBetweenYears,
+  getGregorianYears,
+  apiVersionAtLeast,
+} from '../util.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
 // This is used for initial map center in absence of places
@@ -277,7 +281,6 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     return html` ${this._dataLayers.map(obj => this._renderMapLayer(obj))} `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _renderMapLayer(obj) {
     const bounds = obj.attribute_list.filter(
       attr => attr.type === 'map:bounds'
@@ -426,10 +429,13 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   async _fetchPlaces() {
+    const placeHierarchyParam = apiVersionAtLeast(this.appState.dbInfo, 3, 11)
+      ? '&place_hierarchy=0'
+      : ''
     const data = await this.appState.apiGet(
       `/api/places/?locale=${
         this.appState.i18n.lang || 'en'
-      }&profile=self&backlinks=1`
+      }&profile=self&backlinks=1${placeHierarchyParam}`
     )
     this.loading = false
     if ('data' in data) {

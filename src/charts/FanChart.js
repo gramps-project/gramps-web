@@ -380,6 +380,14 @@ export function FanChart(
     .style('cursor', 'pointer')
     .on('click', clicked)
 
+  cell
+    .append('title')
+    .text(d =>
+      nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+        ? '' + d.data.name_surname + ', ' + d.data.name_given
+        : '' + d.data.name_given + ' ' + d.data.name_surname
+    )
+
   const fontSize = d => Math.min(12, (((d.y0 + d.y1) / 2) * (d.x1 - d.x0)) / 10)
 
   const clipString = (s, d, isCenter = false) => {

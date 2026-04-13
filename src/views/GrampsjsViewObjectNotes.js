@@ -25,14 +25,14 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
         }
 
         div.note-content {
-          padding-top: 1.2em;
-          padding-bottom: 1.2em;
+          padding-top: 1.6em;
+          padding-bottom: 1.6em;
         }
 
         div.note-meta {
-          margin-top: 1.2em;
+          margin-top: 0.4em;
           display: flex;
-          justify-content: flex-end;
+          justify-content: flex-start;
         }
 
         div.note-edit-meta {
@@ -45,15 +45,16 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
   static get properties() {
     return {
       numberOfNotes: {type: Number},
+      objType: {type: String},
     }
   }
 
   constructor() {
     super()
     this.numberOfNotes = 0
+    this.objType = ''
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getUrl() {
     if (this.grampsIds.length === 0) {
       return ''
@@ -79,7 +80,6 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
     return html`${this._data.map(obj => this.renderNote(obj))} `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   renderLoading() {
     const skeleton =
       '<p><span class="skeleton" style="width:100%;">&nbsp;</span></p>'
@@ -123,6 +123,7 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
         @object:cancel="${this._handleNoteCancel}"
         .appState="${this.appState}"
         dialogTitle="${this._('Create and add a new note')}"
+        objType="${this.objType}"
       >
       </grampsjs-form-new-note>
     `
@@ -142,7 +143,6 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   renderNote(obj) {
     return html`
       <div class="note-content">
@@ -150,19 +150,15 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
           framed
           grampsId="${obj.gramps_id}"
           content="${obj?.formatted?.html || obj?.text?.string}"
-        >
-          ${this.edit
-            ? ''
-            : html`<div class="note-meta">
-                <md-text-button
-                  outlined
-                  @click="${() => this._handleButtonClick(obj.gramps_id)}"
-                >
-                  ${this._('Details')}
-                </md-text-button>
-              </div>`}
-        </grampsjs-note-content>
+        ></grampsjs-note-content>
       </div>
+      ${this.edit
+        ? ''
+        : html`<div class="note-meta">
+            <md-text-button href="${BASE_DIR}/note/${obj.gramps_id}">
+              ${this._('Details')}
+            </md-text-button>
+          </div>`}
       <div class="note-edit-meta">
         ${this.edit
           ? html`
@@ -211,18 +207,6 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
 
   _handleNoteCancel() {
     this.dialogContent = ''
-  }
-
-  _handleButtonClick(grampsId) {
-    this.dispatchEvent(
-      new CustomEvent('nav', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          path: `note/${grampsId}`,
-        },
-      })
-    )
   }
 }
 

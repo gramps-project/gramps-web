@@ -23,6 +23,7 @@ import '../components/GrampsjsFilterTags.js'
 import '../components/GrampsjsFilterYears.js'
 import '../components/GrampsjsFilterPrivate.js'
 import '../components/GrampsjsFilterText.js'
+import '../components/GrampsjsFilterObjectType.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTooltip.js'
 import '@material/web/select/filled-select'
@@ -184,17 +185,14 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     this._objectsName = 'media'
   }
 
-  // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
     return '/api/media/?keys=gramps_id,mime,desc,change,handle,checksum,extended&extend=tag_list'
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _getItemPath(item) {
     return `media/${item.grampsId}`
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _getAddPath() {
     return 'new_media'
   }
@@ -259,6 +257,10 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
       ></grampsjs-filter-properties>
 
       <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
+
+      <grampsjs-filter-object-type
+        .appState="${this.appState}"
+      ></grampsjs-filter-object-type>
 
       <grampsjs-filter-private
         .appState="${this.appState}"
@@ -448,7 +450,6 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     return this.appState.permissions.canAdd && this.appState.permissions.canEdit
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _formatRow(row) {
     return {
       grampsId: row.gramps_id,

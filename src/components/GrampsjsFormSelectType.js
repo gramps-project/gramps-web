@@ -28,6 +28,7 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
       nocustom: {type: Boolean},
       noheading: {type: Boolean},
       required: {type: Boolean},
+      allowedTypes: {type: Array},
       defaultValue: {type: String},
       heading: {type: String},
       label: {type: String},
@@ -48,6 +49,7 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
     this.nocustom = false
     this.noheading = false
     this.required = false
+    this.allowedTypes = []
     this.defaultValue = 'General'
     this.heading = ''
     this.label = ''
@@ -180,7 +182,11 @@ class GrampsjsFormSelectType extends GrampsjsAppStateMixin(LitElement) {
       this.typeNameCustom || this.typeName in customTypesAll
         ? customTypesAll[this.typeNameCustom || this.typeName]
         : []
-    return defaultTypes.concat(customTypes)
+    const allTypes = defaultTypes.concat(customTypes)
+    if (this.allowedTypes.length > 0) {
+      return allTypes.filter(t => this.allowedTypes.includes(t))
+    }
+    return allTypes
   }
 
   #toggleCustomType() {

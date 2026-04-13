@@ -1,34 +1,44 @@
 import {html} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 
-import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
-import {fireEvent} from '../util.js'
+import {GrampsjsEditableList} from './GrampsjsEditableList.js'
+import {fireEvent, renderIcon, placeTypeIconPath} from '../util.js'
 
-export class GrampsjsPlaceChildren extends GrampsjsEditableTable {
+export class GrampsjsPlaceChildren extends GrampsjsEditableList {
   constructor() {
     super()
+    this.hasAdd = false
     this.objType = 'Place'
-    this._columns = ['Name', 'Type']
   }
 
-  // eslint-disable-next-line no-unused-vars
-  row(obj, i, arr) {
+  row(obj, i) {
+    const name = obj.name?.value || obj.title || ''
+    const type = obj.place_type
     return html`
-      <tr @click=${() => this._handleClick(obj.gramps_id)}>
-        <td>${obj.name}</td>
-        <td>${obj.type}</td>
-      </tr>
+      <md-list-item
+        type="button"
+        class="${classMap({selected: i === this._selectedIndex})}"
+        @click="${() => {
+          if (this.edit) {
+            this._handleSelected(i)
+          } else {
+            this._handleClick(obj.gramps_id)
+          }
+        }}"
+      >
+        ${name}
+        ${type ? html`<span slot="supporting-text">${this._(type)}</span>` : ''}
+        ${renderIcon(
+          {object: obj, object_type: 'place'},
+          'start',
+          placeTypeIconPath[type] || null
+        )}
+      </md-list-item>
     `
   }
 
   _handleClick(grampsId) {
-    if (!this.edit) {
-      fireEvent(this, 'nav', {path: this._getItemPath(grampsId)})
-    }
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _getItemPath(grampsId) {
-    return `place/${grampsId}`
+    fireEvent(this, 'nav', {path: `place/${grampsId}`})
   }
 }
 

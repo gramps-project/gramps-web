@@ -1,24 +1,74 @@
-import {html} from 'lit'
+import {html, css} from 'lit'
 
-import '@material/mwc-select'
-import '@material/mwc-list/mwc-list-item'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 import '@material/web/button/filled-button.js'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
+import '@material/web/textfield/filled-text-field.js'
+
+import {mdiFilterOff} from '@mdi/js'
 
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 import {userRoles} from './GrampsjsFormUser.js'
 import {fireEvent} from '../util.js'
 
 import './GrampsjsTooltip.js'
+import './GrampsjsIcon.js'
+
+const ALL_ROLES = '__all__'
 
 export class GrampsjsUsers extends GrampsjsTableBase {
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        .filter-bar {
+          display: flex;
+          flex-wrap: wrap;
+          flex-direction: row;
+          align-items: center;
+          gap: 8px;
+          margin-top: 16px;
+          margin-bottom: 4px;
+        }
+
+        md-filled-text-field {
+          flex: 1 1 200px;
+          min-width: 140px;
+        }
+
+        md-filled-select {
+          flex: 0 1 160px;
+          min-width: 130px;
+        }
+
+        .clear-filters {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          cursor: pointer;
+          background: none;
+          border: none;
+          padding: 4px 0;
+          color: var(--mdc-theme-secondary);
+        }
+
+        .clear-filters:hover {
+          text-decoration: underline;
+        }
+      `,
+    ]
+  }
+
   static get properties() {
     return {
       dialogContent: {type: String},
       ismulti: {type: Boolean},
       _downloadUrl: {type: String},
       _userData: {type: Array},
+      _filterText: {type: String},
+      _filterRole: {type: String},
     }
   }
 
@@ -28,14 +78,31 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     this.ismulti = false
     this._downloadUrl = ''
     this._userData = []
+    this._filterText = ''
+    this._filterRole = ALL_ROLES
+  }
+
+  get _filteredData() {
+    const text = this._filterText.toLowerCase()
+    return this.data.filter(obj => {
+      const matchesText =
+        !text ||
+        (obj.name || '').toLowerCase().includes(text) ||
+        (obj.full_name || '').toLowerCase().includes(text) ||
+        (obj.email || '').toLowerCase().includes(text)
+      const matchesRole =
+        this._filterRole === ALL_ROLES || String(obj.role) === this._filterRole
+      return matchesText && matchesRole
+    })
   }
 
   render() {
     if (this.data.length === 0) {
       return html``
     }
+    const filtered = this._filteredData
     return html`
-      ${this._renderButtons()}
+      ${this._renderButtons()} ${this._renderFilterBar()}
       <table>
         <tr>
           <th>${this._('Username: ').replace(':', '')}</th>
@@ -45,7 +112,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
           <th>${this._('Account Source')}</th>
           <th></th>
         </tr>
-        ${this.data.map(
+        ${filtered.map(
           (obj, index) => html`
             <tr>
               <td>${obj.name}</td>
@@ -79,6 +146,66 @@ export class GrampsjsUsers extends GrampsjsTableBase {
       </table>
       ${this.dialogContent}
     `
+  }
+
+  _renderFilterBar() {
+    return html`
+      <div class="filter-bar">
+        <md-filled-text-field
+          type="search"
+          label="${this._('Search')}"
+          .value="${this._filterText}"
+          @input="${e => {
+            this._filterText = e.target.value
+          }}"
+        ></md-filled-text-field>
+        <md-filled-select
+          label="${this._('Role')}"
+          .value="${this._filterRole}"
+          @change="${e => {
+            this._filterRole = e.target.value
+          }}"
+        >
+          <md-select-option value="${ALL_ROLES}">
+            <div slot="headline">${this._('All')}</div>
+          </md-select-option>
+          ${Object.keys(userRoles)
+            .map(Number)
+            .sort((a, b) => a - b)
+            .map(
+              role => html`
+                <md-select-option value="${role}">
+                  <div slot="headline">${this._(userRoles[role])}</div>
+                </md-select-option>
+              `
+            )}
+        </md-filled-select>
+        ${this._filterText || this._filterRole !== ALL_ROLES
+          ? html`
+              <button
+                class="clear-filters"
+                id="btn-clear-filters"
+                @click="${this._clearFilters}"
+              >
+                <grampsjs-icon
+                  path="${mdiFilterOff}"
+                  height="24"
+                  width="24"
+                  color="var(--mdc-theme-secondary)"
+                ></grampsjs-icon>
+              </button>
+              <grampsjs-tooltip for="btn-clear-filters">
+                ${this._('Clear all filters')}
+              </grampsjs-tooltip>
+            `
+          : ''}
+      </div>
+    `
+  }
+
+  _clearFilters() {
+    this._filterText = ''
+    this._filterRole = ALL_ROLES
   }
 
   _renderButtons() {

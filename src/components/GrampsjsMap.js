@@ -11,7 +11,7 @@ import './GrampsjsMapOverlay.js'
 import './GrampsjsMapMarker.js'
 import './GrampsjsMapLayerSwitcher.js'
 import './GrampsjsIcon.js'
-import {fireEvent, normalizeOhmLocale} from '../util.js'
+import {fireEvent} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -156,6 +156,15 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this._map.on('moveend', () => {
       fireEvent(this, 'map:moveend', {bounds: this._map.getBounds()})
     })
+    this._map.on('sourcedata', () => {
+      if (
+        this._currentStyle === 'ohm' &&
+        this.year > 0 &&
+        typeof this._map.filterByDate === 'function'
+      ) {
+        this._map.filterByDate(`${this.year}`)
+      }
+    })
   }
 
   get _slottedChildren() {
@@ -240,9 +249,6 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this._map.setStyle(styleUrl)
     // Always wait for style to load before re-adding overlays
     this._map.once('styledata', () => {
-      if (this._currentStyle === 'ohm') {
-        this._map.filterByDate(`${this.year}`)
-      }
       this._reAddOverlays()
     })
   }
@@ -263,13 +269,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     const theme = this.appState.getCurrentTheme()
     const mapBaseStyle =
       theme === 'dark' ? config.mapBaseStyleDark : config.mapBaseStyleLight
-    if (style === 'ohm') {
-      const ohmLocale = normalizeOhmLocale(this.appState.i18n?.lang)
-      const styleUrl = new URL(config.mapOhmStyle)
-      styleUrl.searchParams.set('language', ohmLocale)
-      return styleUrl.toString()
-    }
-    return mapBaseStyle
+    return style === 'base' ? mapBaseStyle : config.mapOhmStyle
   }
 }
 

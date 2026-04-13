@@ -277,5 +277,18 @@
     "Uploading file %s of %s": "Subiendo archivo %s de %s",
     "Failed to upload": "Error al subir",
     "Failed to update": "Error al actualizar",
-    "Select files": "Seleccione archivos"
+    "Select files": "Seleccione archivos",
+    "Ascending": "Ascendente",
+    "Descending": "Descendiente",
+    "Gallery view": "Vista de galería",
+    "List view": "Vista de listado",
+    "Copy your session token to use in Swagger UI, the interactive API testing tool.": "Copia tu vale de sesión para utilizar en IU Swagger, la herramienta de prueba API interactiva.",
+    "Developer Tools": "Herramientas de desarrollador",
+    "Launch Swagger": "Lanzar Swapper",
+    "Edit enclosing place": "Editar lugar encerrando",
+    "Or select an existing tag": "O seleccionar una etiqueta existente",
+    "Family tree preferences": "Preferencias del árbol familiar",
+    "Default family tree view": "Vista del árbol familiar por defecto",
+    "Invalid face rectangle coordinates": "Coordenadas de rectángulo del rostro no válido",
+    "Not private": "No privado"
 }

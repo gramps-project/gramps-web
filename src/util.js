@@ -1,4 +1,3 @@
-/* eslint-disable no-bitwise */
 import {html} from 'lit'
 import '@material/mwc-icon'
 import dayjs from 'dayjs/esm'
@@ -44,6 +43,11 @@ import {
   mdiDivision,
   mdiSkullCrossbones,
   mdiAccountChild,
+  mdiFlag,
+  mdiCity,
+  mdiHomeGroup,
+  mdiRoad,
+  mdiBarn,
 } from '@mdi/js'
 import {asteriskIcon, crossIcon, renderIconSvg, ringsIconPath} from './icons.js'
 import './components/GrampsjsIcon.js'
@@ -267,6 +271,44 @@ const objectIconPath = {
   tag: mdiLabel,
 }
 
+export const objectTypePlural = {
+  person: 'People',
+  family: 'Families',
+  event: 'Events',
+  place: 'Places',
+  source: 'Sources',
+  citation: 'Citations',
+  repository: 'Repositories',
+  note: 'Notes',
+  media: 'Media',
+  tag: 'Tags',
+}
+
+export const placeTypeIconPath = {
+  Unknown: null,
+  Custom: null,
+  Country: mdiFlag,
+  State: mdiFlag,
+  County: null,
+  City: mdiCity,
+  Parish: mdiChurch,
+  Locality: mdiHomeGroup,
+  Street: mdiRoad,
+  Province: null,
+  Region: null,
+  Department: null,
+  Neighborhood: mdiHomeGroup,
+  District: null,
+  Borough: mdiCity,
+  Municipality: mdiCity,
+  Town: mdiCity,
+  Village: mdiHomeGroup,
+  Hamlet: mdiHomeGroup,
+  Farm: mdiBarn,
+  Building: mdiHome,
+  Number: mdiHome,
+}
+
 export const eventTypeIconPath = {
   Unknown: null,
   Custom: null,
@@ -485,7 +527,7 @@ export function objectDetail(type, obj, strings) {
     ${obj.type ? translate(strings, obj.type) : ''}
     `
     case 'note':
-      return obj?.text?.string || ''
+      return obj?.text?.string?.match(/[^\r\n]+/)?.[0]?.trim() || ''
     case 'media':
       if (obj.mime?.startsWith('audio')) {
         return translate(strings, 'Audio')
@@ -862,7 +904,6 @@ export function renderMarkdownLinks(markdown) {
   let lastIndex = 0
   let match
 
-  // eslint-disable-next-line no-cond-assign
   while ((match = markdownLinkPattern.exec(markdown)) !== null) {
     // Push the text before the link
     if (match.index > lastIndex) {
@@ -974,87 +1015,6 @@ export function apiVersionAtLeast(dbInfo, major, minor, patch = 0) {
   if (maj !== major) return maj > major
   if (min !== minor) return min > minor
   return pat >= patch
-}
-
-/**
- * Mapping from frontend locale codes to OpenHistoricalMap-supported ISO 639-1 codes.
- * OpenHistoricalMap does not support regional variants (e.g., de_AT, en_GB, pt_BR),
- * so we map them to their base language codes.
- * @see https://github.com/gramps-project/gramps-web/issues/493
- */
-export const OHM_LOCALE_MAP = {
-  ar: 'ar',
-  ba: 'ba',
-  bg: 'bg',
-  br: 'br',
-  ca: 'ca',
-  cs: 'cs',
-  da: 'da',
-  de_AT: 'de',
-  de: 'de',
-  el: 'el',
-  en_GB: 'en',
-  en: 'en',
-  eo: 'eo',
-  es: 'es',
-  fi: 'fi',
-  fr: 'fr',
-  ga: 'ga',
-  he: 'he',
-  hr: 'hr',
-  hu: 'hu',
-  is: 'is',
-  id: 'id',
-  it: 'it',
-  ja: 'ja',
-  ko: 'ko',
-  lt: 'lt',
-  lv: 'lv',
-  mk: 'mk',
-  nb: 'nb',
-  nl: 'nl',
-  nn: 'nn',
-  pl: 'pl',
-  pt_BR: 'pt',
-  pt_PT: 'pt',
-  ro: 'ro',
-  ru: 'ru',
-  sk: 'sk',
-  sl: 'sl',
-  sq: 'sq',
-  sr: 'sr',
-  sv: 'sv',
-  ta: 'ta',
-  tr: 'tr',
-  uk: 'uk',
-  vi: 'vi',
-  zh_CN: 'zh',
-  zh_HK: 'zh',
-  zh_TW: 'zh',
-}
-
-/**
- * Converts a frontend locale code to an OpenHistoricalMap-compatible ISO 639-1 code.
- *
- * Fallback chain:
- * 1. If locale is falsy (null, undefined, empty string) → 'en'
- * 2. If locale is in OHM_LOCALE_MAP → use the mapped value
- * 3. If locale is not in map but has a base code (e.g., 'xx_YY') → extract base code ('xx')
- * 4. If no base code is available → 'en'
- *
- * @param {string|null|undefined} locale - Frontend locale code (e.g., 'de_AT', 'en_GB')
- * @returns {string} OHM-compatible language code (e.g., 'de', 'en')
- */
-export function normalizeOhmLocale(locale) {
-  if (!locale) {
-    return 'en'
-  }
-  const mapped = OHM_LOCALE_MAP[locale]
-  if (mapped !== undefined) {
-    return mapped
-  }
-  const baseCode = locale.split('_')[0]
-  return baseCode || 'en'
 }
 
 //

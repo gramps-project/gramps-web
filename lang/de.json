@@ -243,7 +243,7 @@
     "Add Y-DNA data": "Y-DNA-Daten hinzufügen",
     "Link to enclosing place": "Mit umschließendem Ort verknüpfen",
     "Select theme": "Erscheinungsbild auswählen",
-    "Theme": "Erscheinungsbild",
+    "Theme": "Thema",
     "System": "System",
     "Light": "Hell",
     "Dark": "Dunkel",
@@ -268,7 +268,7 @@
     "Enter a search URL with template variables for person data. Available variables:": "Gib eine Such-URL mit Vorlagenvariablen für Personendaten ein. Verfügbare Variablen:",
     "e.g., MyGenealogy": "z.B. MeineGenealogie",
     "Search URL": "Such-URL",
-    "A number": "Eine Anzahl",
+    "A number": "Eine Zahl",
     "A file system path": "Ein Dateisystempfad",
     "Any text": "Beliebiger Text",
     "A list of text values. Each entry in the list represents one line of text.": "Eine Liste von Textwerten. Jeder Eintrag in der Liste entspricht einer Textzeile.",
@@ -289,5 +289,6 @@
     "Descending": "Absteigend",
     "Gallery view": "Galerieansicht",
     "List view": "Listenansicht",
-    "Not private": "Nicht vertraulich"
+    "Not private": "Nicht vertraulich",
+    "Edit enclosing place": "Umgebenden Ort bearbeiten"
 }

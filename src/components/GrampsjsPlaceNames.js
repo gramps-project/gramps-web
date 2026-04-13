@@ -1,13 +1,13 @@
 import {html} from 'lit'
-
-import '@material/mwc-icon-button'
-import '@material/mwc-button'
+import {classMap} from 'lit/directives/class-map.js'
+import {mdiSignRealEstate} from '@mdi/js'
 
 import {fireEvent} from '../util.js'
-import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
+import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditPlaceName.js'
+import './GrampsjsIcon.js'
 
-export class GrampsjsPlaceNames extends GrampsjsEditableTable {
+export class GrampsjsPlaceNames extends GrampsjsEditableList {
   static get properties() {
     return {
       profile: {type: Array},
@@ -17,38 +17,30 @@ export class GrampsjsPlaceNames extends GrampsjsEditableTable {
   constructor() {
     super()
     this.objType = 'PlaceName'
-    this._columns = ['Name', 'Date', '']
-    this.dialogContent = ''
-    this.edit = false
+    this.hasEdit = true
     this.profile = []
   }
 
   row(obj, i) {
+    const dateStr = this.profile[i]?.date_str ?? ''
     return html`
-      <tr>
-        <td @click="${() => this.edit && this._handleEditClick(obj)}">
-          ${obj.value}
-        </td>
-        <td @click="${() => this.edit && this._handleEditClick(obj)}">
-          ${this.profile[i].date_str ?? ''}
-        </td>
-        <td>${this.edit ? this._renderActionBtns(i, true) : ''}</td>
-      </tr>
-    `
-  }
-
-  renderAfterTable() {
-    return html`
-      ${this.edit
-        ? html`
-            <mwc-icon-button
-              class="edit large"
-              icon="add_circle"
-              @click="${this._handleAdd}"
-            ></mwc-icon-button>
-          `
-        : ''}
-      ${this.dialogContent}
+      <md-list-item
+        type="${this.edit ? 'button' : 'text'}"
+        class="${classMap({selected: i === this._selectedIndex})}"
+        @click="${() => {
+          if (this.edit) {
+            this._handleSelected(i)
+          }
+        }}"
+      >
+        ${obj.value}
+        ${dateStr ? html`<span slot="supporting-text">${dateStr}</span>` : ''}
+        <grampsjs-icon
+          slot="start"
+          path="${mdiSignRealEstate}"
+          color="var(--grampsjs-color-icon)"
+        ></grampsjs-icon>
+      </md-list-item>
     `
   }
 
@@ -57,27 +49,35 @@ export class GrampsjsPlaceNames extends GrampsjsEditableTable {
       <grampsjs-form-edit-placename
         new
         @object:save="${this._handlePlaceNameAdd}"
-        @object:cancel="${this._handleCancelDialog}"
+        @object:cancel="${this._handleCancel}"
         .appState="${this.appState}"
-        .strings="${this.strings}"
         ?showDateInput=${true}
       >
       </grampsjs-form-edit-placename>
     `
   }
 
-  _handleEditClick(obj) {
+  _handleEdit() {
+    const index = this._selectedIndex
+    const obj = this.data[index]
     this.dialogContent = html`
       <grampsjs-form-edit-placename
-        @object:save="${e => this._handlePlaceNameUpdate(e, obj)}"
-        @object:cancel="${this._handleCancelDialog}"
+        @object:save="${e => this._handlePlaceNameUpdate(e, index, obj)}"
+        @object:cancel="${this._handleCancel}"
         .appState="${this.appState}"
-        .strings="${this.strings}"
         .data="${obj}"
         ?showDateInput=${true}
       >
       </grampsjs-form-edit-placename>
     `
+  }
+
+  _handleDelete() {
+    fireEvent(this, 'edit:action', {
+      action: 'delPlaceName',
+      index: this._selectedIndex,
+    })
+    this._selectedIndex = -1
   }
 
   _handlePlaceNameAdd(e) {
@@ -90,36 +90,20 @@ export class GrampsjsPlaceNames extends GrampsjsEditableTable {
     this.dialogContent = ''
   }
 
-  _handlePlaceNameUpdate(e, originalObj) {
+  _handlePlaceNameUpdate(e, index, originalObj) {
     const updatedData = {...originalObj, ...e.detail.data}
     fireEvent(this, 'edit:action', {
       action: 'updatePlaceName',
       data: updatedData,
-      index: this.data.indexOf(originalObj),
+      index,
     })
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''
   }
 
-  _handleCancelDialog() {
+  _handleCancel() {
     this.dialogContent = ''
-  }
-
-  _renderActionBtns(index) {
-    return html`
-      <mwc-icon-button
-        class="edit"
-        icon="delete"
-        @click="${e => this._handleActionClick(e, 'delPlaceName', index)}"
-      ></mwc-icon-button>
-    `
-  }
-
-  _handleActionClick(e, action, index) {
-    fireEvent(this, 'edit:action', {action, index})
-    e.preventDefault()
-    e.stopPropagation()
   }
 }
 

@@ -107,7 +107,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
                 <grampsjs-icon
                   slot="icon"
                   path="${mdiFilter}"
-                  color="var(--md-filled-button-label-text-color, white)"
+                  color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
                 ></grampsjs-icon>
                 ${this._('filter')}
               </md-filled-button>
@@ -363,6 +363,9 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     }
     if (rule.name === 'MatchesNameSubstringOf' && rule.values[0] !== '') {
       return `${this._('Name')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'IsReferencedByObjectType') {
+      return `${this._('Subject')}: ${this._(rule.values[0])}`
     }
     if (rule.name === 'HasType') {
       return `${this._('Type')}: ${this._(rule.values[0])}`
