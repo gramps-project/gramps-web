@@ -530,7 +530,7 @@ export class GrampsJs extends LitElement {
       this.appState.settings.lang &&
       !this._backendStringsLoaded() &&
       !this._loadingStrings &&
-      this.appState.dbInfo?.gramps_webapi?.version
+      'gramps_webapi' in (this.appState.dbInfo ?? {})
     ) {
       this._loadStrings(grampsStrings, this.appState.settings.lang)
     }
@@ -938,7 +938,7 @@ export class GrampsJs extends LitElement {
       if (
         this.appState.settings.lang &&
         this.appState.settings.lang !== this.appState.i18n.lang &&
-        this.appState.dbInfo?.gramps_webapi?.version
+        'gramps_webapi' in (this.appState.dbInfo ?? {})
       ) {
         this._loadStrings(grampsStrings, this.appState.settings.lang)
       }
