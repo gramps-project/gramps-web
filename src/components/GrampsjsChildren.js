@@ -30,10 +30,9 @@ export class GrampsjsChildren extends GrampsjsEditableList {
           pointer-events: none;
         }
 
-        /* Fixed-width date columns so birth/death/age align across rows. */
         span.date-col {
           display: inline-block;
-          min-width: 13ch;
+          min-width: 12ch;
         }
       `,
     ]
@@ -62,7 +61,7 @@ export class GrampsjsChildren extends GrampsjsEditableList {
     const extPerson = this.extended.find(e => e.handle === obj.ref) || null
     const birthStr = p.birth?.date || ''
     const deathStr = p.death?.date || ''
-    const ageStr = p.death?.age ? `(${p.death.age})` : ''
+    const ageStr = p.death?.date && p.death?.age ? `(${p.death.age})` : ''
     const hasDates = birthStr || deathStr || ageStr
 
     return html`
@@ -83,7 +82,7 @@ export class GrampsjsChildren extends GrampsjsEditableList {
         ${p.name_given || ''} ${p.name_surname || ''}
         ${hasDates
           ? html`<span slot="supporting-text"
-              ><span class="date-col">${birthStr ? `* ${birthStr}` : ''}</span
+              ><span class="date-col">${birthStr ? `∗ ${birthStr}` : ''}</span
               ><span class="date-col"
                 >${deathStr ? `† ${deathStr}` : ''}${ageStr
                   ? ` ${ageStr}`
