@@ -12,7 +12,7 @@ import './GrampsjsIcon.js'
 import '@material/web/list/list-item.js'
 
 // Maps Gramps API sex string codes to CSS gender colour tokens.
-// Covers all 4 values: F (female), M (male), U (unknown), O (other/non-binary)
+// Covers all 4 values: F (female), M (male), U (unknown), X (other/non-binary)
 const genderBorderColor = {
   F: 'var(--color-girl)',
   M: 'var(--color-boy)',
