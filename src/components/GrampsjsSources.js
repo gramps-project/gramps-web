@@ -7,8 +7,6 @@ import './GrampsjsIcon.js'
 import './GrampsjsImg.js'
 import {fireEvent, renderIcon} from '../util.js'
 
-import '@material/web/list/list-item.js'
-
 export class GrampsjsSources extends GrampsjsEditableList {
   static get properties() {
     return {

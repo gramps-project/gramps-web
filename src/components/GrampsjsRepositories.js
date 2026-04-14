@@ -7,8 +7,6 @@ import './GrampsjsIcon.js'
 import './GrampsjsFormRepoRef.js'
 import {fireEvent} from '../util.js'
 
-import '@material/web/list/list-item.js'
-
 export class GrampsjsRepositories extends GrampsjsEditableList {
   static get properties() {
     return {
@@ -33,7 +31,10 @@ export class GrampsjsRepositories extends GrampsjsEditableList {
           if (this.edit) {
             this._handleSelected(i)
           } else {
-            this._handleClick(this.extended[i]?.gramps_id)
+            const grampsId = this.extended[i]?.gramps_id
+            if (grampsId) {
+              this._handleClick(grampsId)
+            }
           }
         }}"
       >
