@@ -810,6 +810,8 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         return html`<grampsjs-participants
           .appState="${this.appState}"
           .data=${[this.data?.profile?.participants]}
+          .backlinksPeople=${this.data?.extended?.backlinks?.person || []}
+          .backlinksFamilies=${this.data?.extended?.backlinks?.family || []}
         ></grampsjs-participants>`
       case 'repositories':
         return html` <grampsjs-repositories
