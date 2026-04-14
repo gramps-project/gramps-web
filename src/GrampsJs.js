@@ -567,7 +567,7 @@ export class GrampsJs extends LitElement {
             ?saveComplete="${this._saveComplete}"
           ></grampsjs-app-bar>
           <md-linear-progress
-            indeterminate
+            ?indeterminate="${this.progress}"
             class="${this.progress ? 'active' : ''}"
           ></md-linear-progress>
 

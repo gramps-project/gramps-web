@@ -65,6 +65,7 @@ export function getInitialAppState() {
     apiPost: (endpoint, payload, options = {}) => {
       const {saving: isSave = true} = options
       if (isSave) {
+        if (activeSaveCount === 0) lastSaveSucceeded = true
         activeSaveCount += 1
         notifyCounters()
       }
@@ -75,6 +76,7 @@ export function getInitialAppState() {
     apiPut: (endpoint, payload, options = {}) => {
       const {saving: isSave = true} = options
       if (isSave) {
+        if (activeSaveCount === 0) lastSaveSucceeded = true
         activeSaveCount += 1
         notifyCounters()
       }
@@ -85,6 +87,7 @@ export function getInitialAppState() {
     apiDelete: (endpoint, options = {}) => {
       const {saving: isSave = true} = options
       if (isSave) {
+        if (activeSaveCount === 0) lastSaveSucceeded = true
         activeSaveCount += 1
         notifyCounters()
       }
