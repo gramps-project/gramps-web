@@ -2,7 +2,7 @@ import '@material/mwc-button'
 import '@material/mwc-drawer'
 import '@material/mwc-icon'
 import '@material/mwc-icon-button'
-import '@material/mwc-linear-progress'
+import '@material/web/progress/linear-progress.js'
 import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-menu'
@@ -106,6 +106,8 @@ export class GrampsJs extends LitElement {
       appState: {type: Object},
       wide: {type: Boolean},
       progress: {type: Boolean},
+      _saving: {type: Boolean},
+      _saveComplete: {type: Boolean},
       loadingState: {type: Number},
       _homePersonDetails: {type: Object},
       _showShortcuts: {type: Boolean},
@@ -120,6 +122,9 @@ export class GrampsJs extends LitElement {
     super()
     this.appState = getInitialAppState()
     this.progress = false
+    this._saving = false
+    this._saveComplete = false
+    this._saveCompleteTimer = null
     this.loadingState = LOADING_STATE_INITIAL
     this._homePersonDetails = {}
     this._homePersonFetchingId = null
@@ -169,8 +174,21 @@ export class GrampsJs extends LitElement {
           --mdc-top-app-bar-width: calc(100% - var(--mdc-drawer-width, 256px));
         }
 
-        mwc-linear-progress {
-          --mdc-theme-primary: var(--grampsjs-color-page-loading-progress);
+        md-linear-progress {
+          --md-linear-progress-active-indicator-color: var(
+            --grampsjs-color-page-loading-progress
+          );
+        }
+
+        [slot='appContent'] md-linear-progress {
+          position: sticky;
+          top: var(--mdc-top-app-bar-height, 64px);
+          z-index: 4;
+          visibility: hidden;
+        }
+
+        [slot='appContent'] md-linear-progress.active {
+          visibility: visible;
         }
 
         #user-menu mwc-button {
@@ -427,7 +445,7 @@ export class GrampsJs extends LitElement {
   _renderInitial() {
     return html`<div class="center-xy">
       <div>
-        <mwc-linear-progress indeterminate></mwc-linear-progress>
+        <md-linear-progress indeterminate></md-linear-progress>
       </div>
     </div> `
   }
@@ -544,9 +562,15 @@ export class GrampsJs extends LitElement {
           <grampsjs-main-menu .appState="${this.appState}"></grampsjs-main-menu>
         </div>
         <div slot="appContent">
-          <grampsjs-app-bar .appState="${this.appState}"></grampsjs-app-bar>
-          <mwc-linear-progress indeterminate ?closed="${!this.progress}">
-          </mwc-linear-progress>
+          <grampsjs-app-bar
+            .appState="${this.appState}"
+            ?saving="${this._saving}"
+            ?saveComplete="${this._saveComplete}"
+          ></grampsjs-app-bar>
+          <md-linear-progress
+            ?indeterminate="${this.progress}"
+            class="${this.progress ? 'active' : ''}"
+          ></md-linear-progress>
 
           <main>
             <grampsjs-tab-bar .appState="${this.appState}"></grampsjs-tab-bar>
@@ -601,6 +625,10 @@ export class GrampsJs extends LitElement {
 
     window.addEventListener('storage', () => this._handleStorage())
     window.addEventListener('settings:changed', () => this._handleSettings())
+    window.addEventListener(
+      'requests:changed',
+      this._handleRequestsChanged.bind(this)
+    )
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
     this.addEventListener('drawer:toggle', this._toggleDrawer)
     window.addEventListener('keydown', event => this._handleKey(event))
@@ -667,8 +695,6 @@ export class GrampsJs extends LitElement {
       'grampsjs:notification',
       this._handleNotification.bind(this)
     )
-    this.addEventListener('progress:on', this._progressOn.bind(this))
-    this.addEventListener('progress:off', this._progressOff.bind(this))
     window.addEventListener('user:loggedout', this._handleLogout.bind(this))
   }
 
@@ -763,14 +789,16 @@ export class GrampsJs extends LitElement {
       this.appState.path.page === 'firstrun' && this.appState.path.pageId
     const url = '/api/token/create_owner/'
     const payload = hasTree ? {tree: this.appState.path.pageId} : {}
-    this.appState.apiPost(url, payload, {dbChanged: false}).then(data => {
-      if (!('error' in data) && data?.data?.access_token) {
-        this.loadingState = LOADING_STATE_NO_OWNER
-        this._firstRunToken = data?.data?.access_token
-      } else {
-        this.loadingState = LOADING_STATE_UNAUTHORIZED
-      }
-    })
+    this.appState
+      .apiPost(url, payload, {dbChanged: false, saving: false})
+      .then(data => {
+        if (!('error' in data) && data?.data?.access_token) {
+          this.loadingState = LOADING_STATE_NO_OWNER
+          this._firstRunToken = data?.data?.access_token
+        } else {
+          this.loadingState = LOADING_STATE_UNAUTHORIZED
+        }
+      })
   }
 
   _loadHomePersonInfo() {
@@ -855,12 +883,20 @@ export class GrampsJs extends LitElement {
     }
   }
 
-  _progressOn() {
-    this.progress = true
-  }
-
-  _progressOff() {
-    this.progress = false
+  _handleRequestsChanged(e) {
+    this.progress = e.detail.activeGet > 0
+    const wasSaving = this._saving
+    this._saving = e.detail.activeSave > 0
+    if (wasSaving && !this._saving && e.detail.lastSaveSucceeded) {
+      this._saveComplete = true
+      clearTimeout(this._saveCompleteTimer)
+      this._saveCompleteTimer = setTimeout(() => {
+        this._saveComplete = false
+      }, 3000)
+    } else if (this._saving) {
+      clearTimeout(this._saveCompleteTimer)
+      this._saveComplete = false
+    }
   }
 
   _handleTab(page) {
@@ -970,7 +1006,7 @@ export class GrampsJs extends LitElement {
     const data = await this.appState.apiPost(
       `/api/translations/${lang}${versionParam}`,
       {strings},
-      {dbChanged: false}
+      {dbChanged: false, saving: false}
     )
     let _strings
     if ('data' in data) {
