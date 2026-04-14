@@ -70,7 +70,7 @@ export class GrampsjsViewPerson extends GrampsjsViewObject {
   getUrl() {
     // the precision key for displaying age is only supported since Gramps Web API v3.10
     const precision = apiVersionAtLeast(this.appState.dbInfo, 3, 10)
-      ? '&precision=2'
+      ? '&precision=1'
       : ''
     return `/api/people/?gramps_id=${this.grampsId}&locale=${
       this.appState.i18n.lang || 'en'

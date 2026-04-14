@@ -490,7 +490,7 @@ export function objectDetail(type, obj, strings) {
   switch (type) {
     case 'person':
       return `
-    ${obj?.profile?.birth?.date ? `* ${obj.profile.birth.date}` : ''}${
+    ${obj?.profile?.birth?.date ? `∗ ${obj.profile.birth.date}` : ''}${
         obj?.profile?.birth?.place && obj?.profile?.birth?.date ? ', ' : ''
       }${obj?.profile?.birth?.place_name || obj?.profile?.birth?.place || ''}
     `
