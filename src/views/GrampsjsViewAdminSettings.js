@@ -10,7 +10,7 @@ import '../components/GrampsjsRelogin.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
 
-import {fireEvent, apiVersionAtLeast} from '../util.js'
+import {fireEvent} from '../util.js'
 import {mdiDeleteForever} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
 import '@material/web/button/outlined-button.js'
@@ -207,26 +207,23 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             </p>
           `
         : ''}
-      ${apiVersionAtLeast(this.appState.dbInfo, 3, 9)
-        ? html`
-            <h3>${this._('Family Tree name')}</h3>
-            <p>
-              <md-outlined-text-field
-                id="tree-name-field"
-                label="${this._('Family Tree name')}"
-                .value="${this._treeName}"
-                @input="${e => {
-                  this._treeName = e.target.value
-                }}"
-              ></md-outlined-text-field>
-            </p>
-            <p>
-              <md-outlined-button @click="${this._renameTree}"
-                >${this._('_Rename')}</md-outlined-button
-              >
-            </p>
-          `
-        : ''}
+      <h3>${this._('Family Tree name')}</h3>
+      <p>
+        <md-outlined-text-field
+          id="tree-name-field"
+          label="${this._('Family Tree name')}"
+          .value="${this._treeName}"
+          @input="${e => {
+            this._treeName = e.target.value
+          }}"
+        ></md-outlined-text-field>
+      </p>
+      <p>
+        <md-outlined-button @click="${this._renameTree}"
+          >${this._('_Rename')}</md-outlined-button
+        >
+      </p>
+
       <h3>${this._('Check and Repair Database')}</h3>
 
       <p>

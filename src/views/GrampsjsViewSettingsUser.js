@@ -17,7 +17,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 
 import {mdiCheck, mdiContentCopy} from '@mdi/js'
 import {__APIHOST__} from '../api.js'
-import {fireEvent, apiVersionAtLeast} from '../util.js'
+import {fireEvent} from '../util.js'
 import {applyTheme} from '../theme.js'
 import {DEFAULT_TREE_VIEW, TREE_VIEWS} from '../treeDefaults.js'
 
@@ -95,12 +95,8 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       ${this.renderChangePw()}
       <h3>${this._('Family tree preferences')}</h3>
       ${this.renderTreePreferences()}
-      ${apiVersionAtLeast(this.appState.dbInfo, 3, 8)
-        ? html`
-            <h3>${this._('Developer Tools')}</h3>
-            ${this.renderApiToken()}
-          `
-        : ''}
+      <h3>${this._('Developer Tools')}</h3>
+      ${this.renderApiToken()}
     `
   }
 
