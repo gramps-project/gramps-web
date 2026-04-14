@@ -738,6 +738,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           .appState="${this.appState}"
           .data=${this.data?.child_ref_list}
           .profile=${this.data?.profile?.children}
+          .extended=${this.data?.extended?.children || []}
           ?edit="${this.edit}"
         ></grampsjs-children>`
       case 'sourceCitations':
