@@ -47,7 +47,9 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
         }}"
       >
         ${this.edit
-          ? obj.value
+          ? obj.value.length > 200
+            ? `${obj.value.slice(0, 200)}…`
+            : obj.value
           : linkUrls(
               obj.value.length > 200
                 ? `${obj.value.slice(0, 200)}…`
