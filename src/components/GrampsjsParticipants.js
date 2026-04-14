@@ -55,14 +55,6 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
     )
   }
 
-  _sortByPrimary(arr) {
-    return [...arr].sort((a, b) => {
-      const aP = this._isPrimaryRole(a.role) ? 0 : 1
-      const bP = this._isPrimaryRole(b.role) ? 0 : 1
-      return aP - bP
-    })
-  }
-
   _roleLabel(role) {
     return html`
       <span slot="supporting-text">
@@ -78,61 +70,53 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
     `
   }
 
-  render() {
-    if (!this.data[0] || Object.keys(this.data[0]).length === 0) {
-      return html``
-    }
+  // Flatten {families, people} into a sorted normalized array for the base render()
+  sortData(dataCopy) {
+    const participants = dataCopy[0]
+    if (!participants || Object.keys(participants).length === 0) return []
+
     const peopleByGrampsId = Object.fromEntries(
       this.backlinksPeople.map(p => [p.gramps_id, p])
     )
     const familiesByGrampsId = Object.fromEntries(
       this.backlinksFamilies.map(f => [f.gramps_id, f])
     )
+
+    const families = (participants.families || []).map(obj => ({
+      object_type: 'family',
+      role: obj.role,
+      backlink: familiesByGrampsId[obj.family.gramps_id] ?? {},
+      title: familyTitleFromProfile(obj.family) || '',
+      path: `family/${obj.family.gramps_id}`,
+    }))
+
+    const people = (participants.people || []).map(obj => ({
+      object_type: 'person',
+      role: obj.role,
+      backlink: peopleByGrampsId[obj.person.gramps_id] ?? {},
+      title: personTitleFromProfile(obj.person) || '',
+      path: `person/${obj.person.gramps_id}`,
+    }))
+
+    return [...families, ...people].sort((a, b) => {
+      const aP = this._isPrimaryRole(a.role) ? 0 : 1
+      const bP = this._isPrimaryRole(b.role) ? 0 : 1
+      return aP - bP
+    })
+  }
+
+  row(obj) {
     return html`
-      <md-list>
-        ${this._sortByPrimary(this.data[0].families).map(
-          obj => html`
-            <md-list-item
-              type="button"
-              @click="${() =>
-                fireEvent(this, 'nav', {
-                  path: `family/${obj.family.gramps_id}`,
-                })}"
-            >
-              ${familyTitleFromProfile(obj.family) || ''}
-              ${this._roleLabel(obj.role)}
-              ${renderIcon(
-                {
-                  object_type: 'family',
-                  object: familiesByGrampsId[obj.family.gramps_id] ?? {},
-                },
-                'start'
-              )}
-            </md-list-item>
-          `
+      <md-list-item
+        type="button"
+        @click="${() => fireEvent(this, 'nav', {path: obj.path})}"
+      >
+        ${obj.title} ${this._roleLabel(obj.role)}
+        ${renderIcon(
+          {object_type: obj.object_type, object: obj.backlink},
+          'start'
         )}
-        ${this._sortByPrimary(this.data[0].people).map(
-          obj => html`
-            <md-list-item
-              type="button"
-              @click="${() =>
-                fireEvent(this, 'nav', {
-                  path: `person/${obj.person.gramps_id}`,
-                })}"
-            >
-              ${personTitleFromProfile(obj.person) || ''}
-              ${this._roleLabel(obj.role)}
-              ${renderIcon(
-                {
-                  object_type: 'person',
-                  object: peopleByGrampsId[obj.person.gramps_id] ?? {},
-                },
-                'start'
-              )}
-            </md-list-item>
-          `
-        )}
-      </md-list>
+      </md-list-item>
     `
   }
 }
