@@ -5,7 +5,7 @@ import {mdiAccountMultiple, mdiArrowDown, mdiArrowUp} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent, renderPerson} from '../util.js'
-import './GrampsjsChildren.js'
+import './GrampsjsConnectedChildren.js'
 import './GrampsjsIcon.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -235,13 +235,13 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
       ${profile?.children?.length
         ? html`
             <h4>${childrenTitle}</h4>
-            <grampsjs-children
+            <grampsjs-connected-children
+              familyGrampsId="${profile.gramps_id}"
               .profile=${profile?.children || []}
               .data=${family.child_ref_list}
               .appState="${this.appState}"
               highlightId="${this.grampsId}"
-            >
-            </grampsjs-children>
+            ></grampsjs-connected-children>
           `
         : ''}
     `
