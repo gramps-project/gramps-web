@@ -5,7 +5,7 @@ import '../components/GrampsjsSearchResultList.js'
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsButtonToggle.js'
 
-import {objectTypeToEndpoint, objectIcon, debounce} from '../util.js'
+import {objectTypeToEndpoint, objectIconPath, debounce} from '../util.js'
 import '@material/web/textfield/outlined-text-field'
 import '@material/web/iconbutton/icon-button.js'
 import {mdiMagnify} from '@mdi/js'
@@ -195,11 +195,10 @@ export class GrampsjsViewSearch extends GrampsjsView {
         ${Object.keys(this._objectTypes).map(
           key => html`<grampsjs-button-toggle
             ?checked="${this._objectTypes[key]}"
-            icon="${objectIcon[key]}"
+            .iconPath="${objectIconPath[key]}"
+            label="${this._(capitalize(objectTypeToEndpoint[key]))}"
             id="toggle-${key}"
-          >
-            ${this._(capitalize(objectTypeToEndpoint[key]))}
-          </grampsjs-button-toggle>`
+          ></grampsjs-button-toggle>`
         )}
       </div>
     `

@@ -8,13 +8,12 @@ import {
   mdiOpenInNew,
   mdiAccount,
   mdiAccountMultiple,
+  mdiArchive,
   mdiCalendar,
   mdiMapMarker,
-  mdiBookmarkMultiple,
   mdiBookmark,
-  mdiBank,
-  mdiNoteText,
   mdiImage,
+  mdiTextBox,
   mdiLabel,
   mdiCradle,
   mdiCoffin,
@@ -49,6 +48,7 @@ import {
   mdiHomeGroup,
   mdiRoad,
   mdiBarn,
+  mdiBookOpenVariant,
 } from '@mdi/js'
 import {asteriskIcon, crossIcon, renderIconSvg, ringsIconPath} from './icons.js'
 import './components/GrampsjsIcon.js'
@@ -246,28 +246,15 @@ export function showObject(type, obj, strings) {
   }
 }
 
-export const objectIcon = {
-  person: 'person',
-  family: 'people',
-  event: 'event',
-  place: 'place',
-  source: 'bookmarks',
-  citation: 'bookmark',
-  repository: 'account_balance',
-  note: 'sticky_note_2',
-  media: 'photo',
-  tag: 'label',
-}
-
-const objectIconPath = {
+export const objectIconPath = {
   person: mdiAccount,
   family: mdiAccountMultiple,
   event: mdiCalendar,
   place: mdiMapMarker,
-  source: mdiBookmarkMultiple,
+  source: mdiBookOpenVariant,
   citation: mdiBookmark,
-  repository: mdiBank,
-  note: mdiNoteText,
+  repository: mdiArchive,
+  note: mdiTextBox,
   media: mdiImage,
   tag: mdiLabel,
 }
