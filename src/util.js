@@ -758,7 +758,7 @@ export const reportCategoryIcon = {
 }
 
 export function arrayEqual(A, B) {
-  return A.length > 0 && B.length > 0 && A.every(e => B.includes(e))
+  return A.length === B.length && A.every(e => B.includes(e))
 }
 
 function _toNumber(value) {
