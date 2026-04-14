@@ -153,12 +153,24 @@ describe('getSortval', () => {
 })
 
 describe('arrayEqual', () => {
-  it('returns true when all elements of A are in B', () => {
-    expect(arrayEqual([1, 2], [1, 2, 3])).to.be.true
+  it('returns true for arrays with the same elements', () => {
+    expect(arrayEqual([1, 2, 3], [1, 2, 3])).to.be.true
+  })
+
+  it('returns true for arrays with the same elements in different order', () => {
+    expect(arrayEqual([3, 1, 2], [1, 2, 3])).to.be.true
+  })
+
+  it('returns false when A is a strict subset of B', () => {
+    expect(arrayEqual([1, 2], [1, 2, 3])).to.be.false
   })
 
   it('returns false when some elements of A are not in B', () => {
     expect(arrayEqual([1, 4], [1, 2, 3])).to.be.false
+  })
+
+  it('returns true for two empty arrays', () => {
+    expect(arrayEqual([], [])).to.be.true
   })
 
   it('returns false for empty A', () => {
