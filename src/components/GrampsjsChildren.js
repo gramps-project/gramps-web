@@ -25,10 +25,15 @@ export class GrampsjsChildren extends GrampsjsEditableList {
     return [
       ...super.styles,
       css`
-        /* Left accent stripe instead of background tint for the highlighted
-           (= currently-viewed) person. Zero layout impact. */
         md-list-item.highlight {
-          box-shadow: inset 3px 0 0 var(--md-sys-color-primary);
+          opacity: 0.6;
+          pointer-events: none;
+        }
+
+        /* Fixed-width date columns so birth/death/age align across rows. */
+        span.date-col {
+          display: inline-block;
+          min-width: 13ch;
         }
       `,
     ]
@@ -58,13 +63,7 @@ export class GrampsjsChildren extends GrampsjsEditableList {
     const birthStr = p.birth?.date || ''
     const deathStr = p.death?.date || ''
     const ageStr = p.death?.age ? `(${p.death.age})` : ''
-    const supporting = [
-      birthStr ? `* ${birthStr}` : '',
-      deathStr ? `† ${deathStr}` : '',
-      ageStr,
-    ]
-      .filter(Boolean)
-      .join('  ')
+    const hasDates = birthStr || deathStr || ageStr
 
     return html`
       <md-list-item
@@ -82,8 +81,15 @@ export class GrampsjsChildren extends GrampsjsEditableList {
         }}"
       >
         ${p.name_given || ''} ${p.name_surname || ''}
-        ${supporting
-          ? html`<span slot="supporting-text">${supporting}</span>`
+        ${hasDates
+          ? html`<span slot="supporting-text"
+              ><span class="date-col">${birthStr ? `* ${birthStr}` : ''}</span
+              ><span class="date-col"
+                >${deathStr ? `† ${deathStr}` : ''}${ageStr
+                  ? ` ${ageStr}`
+                  : ''}</span
+              ></span
+            >`
           : ''}
         ${this._renderChildAvatar(extPerson, p.sex)}
       </md-list-item>
