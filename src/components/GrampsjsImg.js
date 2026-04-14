@@ -20,8 +20,8 @@ class GrampsjsImg extends LitElement {
       css`
         :host([cover]) {
           display: block;
-          position: absolute;
-          inset: 0;
+          width: 100%;
+          height: 100%;
         }
 
         img {
@@ -279,6 +279,7 @@ class GrampsjsImg extends LitElement {
         [cssClass]: true,
         round: this.circle,
         bordered: this.border,
+        cover: this.cover,
       })}
       height=${ifDefined(this.displayHeight || undefined)}
       style="${this.circle ? '' : `border-radius:${this.radius}px`}"

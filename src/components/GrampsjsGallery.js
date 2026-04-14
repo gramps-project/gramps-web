@@ -41,9 +41,8 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .tile grampsjs-img {
-          display: block;
-          width: 100%;
-          height: 100%;
+          position: absolute;
+          inset: 0;
         }
 
         .tile-overlay {
