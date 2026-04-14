@@ -26,7 +26,6 @@ export class GrampsjsSources extends GrampsjsEditableList {
     return obj.reporef_list?.find(r => r.ref === this.handle) || {}
   }
 
-  // eslint-disable-next-line no-unused-vars
   row(obj, i) {
     const repoRef = this._getRepoRef(obj)
     return html`
