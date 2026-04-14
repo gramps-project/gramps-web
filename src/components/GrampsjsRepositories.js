@@ -1,11 +1,13 @@
 import {html} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
+import {mdiArchive} from '@mdi/js'
 
-import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
-import './GrampsjsObjectForm.js'
+import {GrampsjsEditableList} from './GrampsjsEditableList.js'
+import './GrampsjsIcon.js'
 import './GrampsjsFormRepoRef.js'
 import {fireEvent} from '../util.js'
 
-export class GrampsjsRepositories extends GrampsjsEditableTable {
+export class GrampsjsRepositories extends GrampsjsEditableList {
   static get properties() {
     return {
       extended: {type: Array},
@@ -16,48 +18,69 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
     super()
     this.extended = []
     this.objType = 'Repository'
-    this._columns = ['Title', 'Call Number', '_Media Type:', '']
-    this.dialogContent = ''
+    this.hasEdit = true
+    this.hasReorder = true
   }
 
-  row(obj, i, arr) {
+  row(obj, i) {
     return html`
-      <tr @click=${() => this._handleClick(this.extended[i].gramps_id)}>
-        <td>${this.extended[i].name}</td>
-        <td>${obj.call_number}</td>
-        <td>${this._(obj.media_type)}</td>
-        <td>
-          ${this.edit
-            ? this._renderActionBtns(i, i === 0, i === arr.length - 1, true)
-            : ''}
-        </td>
-      </tr>
+      <md-list-item
+        type="button"
+        class="${classMap({selected: i === this._selectedIndex})}"
+        @click="${() => {
+          if (this.edit) {
+            this._handleSelected(i)
+          } else {
+            const grampsId = this.extended[i]?.gramps_id
+            if (grampsId) {
+              this._handleClick(grampsId)
+            }
+          }
+        }}"
+      >
+        ${this.extended[i]?.name ?? ''}
+        ${obj.call_number || obj.media_type
+          ? html`<span slot="supporting-text"
+              >${[obj.call_number, this._(obj.media_type ?? '')]
+                .filter(Boolean)
+                .join(' • ')}</span
+            >`
+          : ''}
+        <grampsjs-icon
+          slot="start"
+          path="${mdiArchive}"
+          color="var(--grampsjs-color-icon)"
+        ></grampsjs-icon>
+      </md-list-item>
     `
   }
 
-  renderAfterTable() {
-    return this.edit
-      ? html`
-          <mwc-icon-button
-            class="edit"
-            icon="add_link"
-            style="margin-top: 0.5em;"
-            @click="${this._handleAddClick}"
-          ></mwc-icon-button>
-          ${this.dialogContent}
-        `
-      : ''
-  }
-
-  _handleAddClick() {
+  _handleAdd() {
     this.dialogContent = html`
       <grampsjs-form-reporef
         new
         @object:save="${this._handleRepoRefAdd}"
-        @object:cancel="${this._handleRepoRefCancel}"
+        @object:cancel="${this._handleDialogCancel}"
         .appState="${this.appState}"
         objType="${this.objType}"
         dialogTitle=${this._('Add an existing repository')}
+      >
+      </grampsjs-form-reporef>
+    `
+  }
+
+  _handleEdit() {
+    const repoRefData = this.data[this._selectedIndex] || {}
+    const repoData = this.extended[this._selectedIndex] || {}
+    this.dialogContent = html`
+      <grampsjs-form-reporef
+        @object:save="${this._handleRepoRefEdit}"
+        @object:cancel="${this._handleDialogCancel}"
+        .appState="${this.appState}"
+        objType="${this.objType}"
+        .data="${repoRefData}"
+        .repoData="${repoData}"
+        dialogTitle=${this._('Edit repository reference')}
       >
       </grampsjs-form-reporef>
     `
@@ -75,29 +98,11 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
     this.dialogContent = ''
   }
 
-  _handleEditClick(index) {
-    const repoRefData = this.data[index] || {}
-    const repoData = this.extended[index] || {}
-
-    this.dialogContent = html`
-      <grampsjs-form-reporef
-        @object:save="${e => this._handleRepoRefEdit(e, index)}"
-        @object:cancel="${this._handleRepoRefCancel}"
-        .appState="${this.appState}"
-        objType="${this.objType}"
-        .data="${repoRefData}"
-        .repoData="${repoData}"
-        dialogTitle=${this._('Edit repository reference')}
-      >
-      </grampsjs-form-reporef>
-    `
-  }
-
-  _handleRepoRefEdit(e, index) {
+  _handleRepoRefEdit(e) {
     if (e.detail.data.ref) {
       fireEvent(this, 'edit:action', {
         action: 'updateRepoRef',
-        index,
+        index: this._selectedIndex,
         data: e.detail.data,
       })
     }
@@ -106,8 +111,31 @@ export class GrampsjsRepositories extends GrampsjsEditableTable {
     this.dialogContent = ''
   }
 
-  _handleRepoRefCancel() {
+  _handleDialogCancel() {
     this.dialogContent = ''
+  }
+
+  _handleDelete() {
+    fireEvent(this, 'edit:action', {
+      action: 'delRepository',
+      handle: this._selectedIndex,
+    })
+  }
+
+  _handleUp() {
+    fireEvent(this, 'edit:action', {
+      action: 'upRepository',
+      handle: this._selectedIndex,
+    })
+    this._updateSelectionAfterReorder(true)
+  }
+
+  _handleDown() {
+    fireEvent(this, 'edit:action', {
+      action: 'downRepository',
+      handle: this._selectedIndex,
+    })
+    this._updateSelectionAfterReorder(false)
   }
 
   _handleClick(grampsId) {

@@ -719,6 +719,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         return html`<grampsjs-sources
           .appState="${this.appState}"
           .data=${this.data?.extended?.backlinks?.source || []}
+          handle=${this.data?.handle ?? ''}
         ></grampsjs-sources>`
       case 'citations': {
         let data = this.data?.profile?.references?.citation || []
