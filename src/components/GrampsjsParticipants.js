@@ -11,9 +11,6 @@ import {
   renderIcon,
 } from '../util.js'
 
-import '@material/web/list/list.js'
-import '@material/web/list/list-item.js'
-
 const PRIMARY_ROLES_EN = new Set(['Primary', 'Family'])
 
 export class GrampsjsParticipants extends GrampsjsEditableList {
