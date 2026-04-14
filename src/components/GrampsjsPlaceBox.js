@@ -88,9 +88,6 @@ export class GrampsjsPlaceBox extends GrampsjsAppStateMixin(LitElement) {
               .appState="${this.appState}"
               handle=${this.data.handle}
               objectType="place"
-              square
-              size="95"
-              radius="7"
               count="${this.data?.media_list?.length || 1}"
             ></grampsjs-connected-gallery>
           `

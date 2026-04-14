@@ -92,7 +92,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
         nAnc: this.nAnc,
         nDesc: this.nDesc,
         childrenTriangle,
-        getImageUrl: d => getImageUrl(d?.data?.person || {}, 200),
+        getImageUrl: d => getImageUrl(d?.data?.person || {}, 100),
         orientation: this.descendants ? 'RTL' : 'LTR',
         gapX: this.gapX,
         bboxWidth: this.containerWidth,

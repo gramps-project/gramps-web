@@ -304,7 +304,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         <div class="media-list-thumb">
           <grampsjs-img
             handle="${row.handle}"
-            size="200"
+            size="100"
             square
             mime="${row.mime}"
             checksum="${row.checksum}"
