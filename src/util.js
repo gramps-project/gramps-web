@@ -806,7 +806,7 @@ export function renderIcon(obj, slot = 'graphic', iconPath = null) {
       slot="${slot}"
       circle
       square
-      size="70"
+      size="40"
       .rect="${rect}"
       mime=""
       fallbackIcon="${objectIconPath[obj.object_type]}"

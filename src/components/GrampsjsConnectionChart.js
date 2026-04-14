@@ -53,7 +53,7 @@ export class GrampsjsConnectionChart extends GrampsjsResizeContainerMixin(
     const chart = RelationshipChart(this._data.data, {
       maxImages: this.nMaxImages,
       grampsId: this.grampsId1,
-      getImageUrl: d => getImageUrl(d?.data || {}, 200),
+      getImageUrl: d => getImageUrl(d?.data || {}, 100),
       bboxWidth: this.containerWidth,
       bboxHeight: this.containerHeight,
       shrinkToFit: true,

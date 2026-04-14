@@ -110,7 +110,7 @@ export class GrampsjsChildren extends GrampsjsEditableList {
         slot="start"
         circle
         square
-        size="70"
+        size="40"
         .rect="${rect}"
         mime=""
         fallbackIcon="${objectIconPath.person}"

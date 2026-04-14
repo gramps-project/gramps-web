@@ -118,7 +118,7 @@ export class GrampsjsBlogPostPreview extends GrampsjsAppStateMixin(LitElement) {
       <div id="image">
         <grampsjs-img
           handle="${obj.handle}"
-          size="150"
+          size="200"
           displayHeight="150"
           square
           .rect="${ref.rect || []}"
