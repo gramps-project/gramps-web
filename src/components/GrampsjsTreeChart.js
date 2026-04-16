@@ -39,6 +39,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       descendants: {type: Boolean},
       gapX: {type: Number},
       nameDisplayFormat: {type: String},
+      canEdit: {type: Boolean},
     }
   }
 
@@ -98,7 +99,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
         bboxWidth: this.containerWidth,
         bboxHeight: this.containerHeight,
         nameDisplayFormat: this.nameDisplayFormat,
-        canEdit: this.appState.permissions.canEdit,
+        canEdit: this.canEdit,
       })}
     `
   }
