@@ -3,7 +3,7 @@ import {create} from 'd3-selection'
 import {hierarchy, tree} from 'd3-hierarchy'
 import {curveBumpX, link, symbolTriangle, symbol} from 'd3-shape'
 import {zoom} from 'd3-zoom'
-import {chartNameDisplayFormat} from '../util.js'
+import {chartNameDisplayFormat, fireEvent} from '../util.js'
 
 const genderColor = {
   0: 'var(--color-girl)',
@@ -54,7 +54,7 @@ function TreeChartCore(
     getImageUrl = null,
     orientation = 'LTR',
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
-    canEdit = this.appState.permissions.canEdit,
+    canEdit = false,
   } = {}
 ) {
   // Create a hierarchical data structure based on the input data
@@ -299,13 +299,7 @@ function TreeChartCore(
     .text(d => clipString(`†${d.data.person.profile.death.date}`, textWidth(d)))
 
   function addPerson(event, nodeData) {
-    chart.node().dispatchEvent(
-      new CustomEvent('add-new-person-relation', {
-        bubbles: true,
-        composed: true,
-        detail: {data: nodeData},
-      })
-    )
+    fireEvent(this, 'add-new-person-relation', {data: nodeData})
     event.stopPropagation()
     event.preventDefault()
   }

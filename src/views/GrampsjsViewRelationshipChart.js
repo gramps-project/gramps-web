@@ -62,6 +62,11 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
     this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
+  // Diabled edit blue icon for relationship chart
+  renderFab() {
+    return ''
+  }
+
   _getPersonRules(grampsId) {
     return {
       function: 'or',

@@ -4,8 +4,10 @@ import {map} from 'lit/directives/map.js'
 import '@material/mwc-textfield'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
+import '@material/web/fab/fab.js'
 
-import {mdiAccountDetails, mdiHomeAccount} from '@mdi/js'
+import {mdiAccountDetails, mdiHomeAccount, mdiPencil} from '@mdi/js'
+import '../components/GrampsjsIcon.js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsTooltip.js'
 
@@ -49,6 +51,12 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
         #menu-controls mwc-textfield {
           width: 6em;
         }
+
+        md-fab {
+          position: fixed;
+          bottom: 32px;
+          right: 32px;
+        }
       `,
     ]
   }
@@ -66,6 +74,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
       _setAnc: {type: Boolean},
       _setDesc: {type: Boolean},
       _setMaxImages: {type: Boolean},
+      _editMode: {type: Boolean},
     }
   }
 
@@ -86,6 +95,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     this._setDesc = false
     this._setSep = false
     this._setMaxImages = false
+    this._editMode = false
   }
 
   get nAnc() {
@@ -106,9 +116,29 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
 
   renderContent() {
     return html`<div style="position: relative;">
-      <div id="controls">${this.renderControls()}</div>
-      <div id="chart">${this.renderChart()}</div>
-    </div>`
+        <div id="controls">${this.renderControls()}</div>
+        <div id="chart">${this.renderChart()}</div>
+      </div>
+      ${this.appState.permissions.canEdit ? this.renderFab() : ''}`
+  }
+
+  renderFab() {
+    return html`
+      <md-fab
+        variant="${this._editMode ? 'primary' : 'secondary'}"
+        @click="${this._toggleEditMode}"
+      >
+        <grampsjs-icon
+          slot="icon"
+          .path="${mdiPencil}"
+          color="var(--mdc-theme-on-secondary)"
+        ></grampsjs-icon>
+      </md-fab>
+    `
+  }
+
+  _toggleEditMode() {
+    this._editMode = !this._editMode
   }
 
   renderControls() {

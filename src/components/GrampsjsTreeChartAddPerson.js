@@ -94,7 +94,6 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     this._newPersonFormDialogOpen = false
     this._addPersonRelationDialogData = {}
     this._relationship = ''
-    fireEvent(this, 'db:changed')
   }
 
   _renderRelationRow(label, relationship) {

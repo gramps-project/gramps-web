@@ -64,7 +64,7 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
           nAnc=${this.nAnc + 1}
           nDesc=${this.nDesc + 1}
           nameDisplayFormat=${this.nameDisplayFormat}
-          ?canEdit="${this.appState.permissions.canEdit}"
+          ?canEdit="${this._editMode}"
           .data=${this._data}
           .appState="${this.appState}"
         >
