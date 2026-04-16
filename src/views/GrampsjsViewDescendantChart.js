@@ -36,6 +36,11 @@ export class GrampsjsViewDescendantChart extends GrampsjsViewTreeChartBase {
     this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
+  // Diabled edit blue icon for descendant chart
+  renderFab() {
+    return ''
+  }
+
   renderChart() {
     return html`
       <grampsjs-tree-chart
