@@ -10,7 +10,7 @@ import {
 
 import './GrampsjsIcon.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {fireEvent, apiVersionAtLeast} from '../util.js'
+import {fireEvent} from '../util.js'
 
 const icons = {
   0: mdiGenderFemale,
@@ -18,9 +18,6 @@ const icons = {
   2: mdiHelp,
   3: mdiGenderNonBinary,
 }
-
-const newGenderBasic = {0: 1, 1: 2, 2: 0}
-const newGenderFull = {0: 1, 1: 2, 2: 3, 3: 0}
 
 export class GrampsjsEditGender extends LitElement {
   static get styles() {
@@ -42,10 +39,6 @@ export class GrampsjsEditGender extends LitElement {
     this.appState = {}
   }
 
-  _supportsOther() {
-    return apiVersionAtLeast(this.appState?.dbInfo, 3, 10)
-  }
-
   render() {
     if (!this.edit) {
       return ''
@@ -58,7 +51,7 @@ export class GrampsjsEditGender extends LitElement {
   }
 
   _handleClick() {
-    const cycle = this._supportsOther() ? newGenderFull : newGenderBasic
+    const cycle = {0: 1, 1: 2, 2: 3, 3: 0}
     fireEvent(this, 'edit:action', {
       action: 'updateProp',
       data: {gender: cycle[this.gender] ?? 0},
