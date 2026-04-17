@@ -28,7 +28,6 @@ export class GrampsjsEditGender extends LitElement {
     return {
       gender: {type: Number},
       edit: {type: Boolean},
-      appState: {type: Object},
     }
   }
 
@@ -36,7 +35,6 @@ export class GrampsjsEditGender extends LitElement {
     super()
     this.gender = 2 // unknown
     this.edit = false
-    this.appState = {}
   }
 
   render() {
