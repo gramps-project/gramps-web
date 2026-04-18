@@ -25,13 +25,13 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
       sharedStyles,
       personListItemStyles,
       css`
-        md-list,
-        md-list > * {
+        md-list.activatable,
+        md-list.activatable > * {
           --md-ripple-hover-opacity: 0;
           --md-ripple-pressed-opacity: 0;
         }
 
-        md-list > * {
+        md-list.activatable > * {
           transition: background-color 0.1s, color 0.1s;
         }
 
