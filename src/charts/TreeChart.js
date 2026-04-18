@@ -176,13 +176,7 @@ function TreeChartCore(
     .attr('id', d => d.data.id) // Unique id for each slice
 
   function triangleClicked(e) {
-    chart.node().dispatchEvent(
-      new CustomEvent('pedigree:show-children', {
-        bubbles: true,
-        composed: true,
-        detail: {pageX: e.pageX, pageY: e.pageY},
-      })
-    )
+    fireEvent(this, 'pedigree:show-children', {pageX: e.pageX, pageY: e.pageY})
     e.stopPropagation()
     e.preventDefault()
   }
