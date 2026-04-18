@@ -121,6 +121,11 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
   }
 
   _renderRelationDialog() {
+    const parentFamily =
+      this._addPersonRelationDialogData?.parent?.data?.person?.extended
+        ?.primary_parent_family
+    const hasFather = !!parentFamily?.father_handle
+    const hasMother = !!parentFamily?.mother_handle
     return html`
       <md-dialog
         ?open="${this._addPersonRelationDialogOpen}"
@@ -131,8 +136,12 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
       >
         <div slot="headline">${this._('Add Family Member')}</div>
         <div slot="content">
-          ${this._renderRelationRow(this._('Father'), 'father')}
-          ${this._renderRelationRow(this._('Mother'), 'mother')}
+          ${hasFather
+            ? ''
+            : this._renderRelationRow(this._('Father'), 'father')}
+          ${hasMother
+            ? ''
+            : this._renderRelationRow(this._('Mother'), 'mother')}
           ${this._renderRelationRow(this._('Son'), 'son')}
           ${this._renderRelationRow(this._('Daughter'), 'daughter')}
         </div>
