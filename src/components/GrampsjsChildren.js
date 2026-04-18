@@ -1,7 +1,8 @@
 import {css, html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
-import {fireEvent, renderPersonAvatar, renderPersonDates} from '../util.js'
+import {fireEvent} from '../util.js'
+import {renderPersonAvatar, renderPersonDates} from './personListUtils.js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormChildRef.js'
 import './GrampsjsFormNewChild.js'

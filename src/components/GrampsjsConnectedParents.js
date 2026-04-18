@@ -1,7 +1,8 @@
 import {css, html} from 'lit'
 
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
-import {fireEvent, renderPersonAvatar, renderPersonDates} from '../util.js'
+import {fireEvent} from '../util.js'
+import {renderPersonAvatar, renderPersonDates} from './personListUtils.js'
 import {personListItemStyles} from '../SharedStyles.js'
 import '@material/web/list/list.js'
 import '@material/web/list/list-item.js'
