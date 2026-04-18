@@ -379,3 +379,50 @@ export const sharedStyles = css`
     color: var(--grampsjs-color-icon-default);
   }
 `
+
+export const personListItemStyles = css`
+  /* Increase vertical spacing to match mwc-list-item */
+  md-list-item {
+    --md-list-item-one-line-container-height: 64px;
+    --md-list-item-two-line-container-height: 80px;
+    --md-list-item-three-line-container-height: 96px;
+    --md-list-item-top-space: 12px;
+    --md-list-item-bottom-space: 12px;
+  }
+
+  /* Icon styling - replicate mwc-list-item graphic="avatar" */
+  grampsjs-img[slot='start'],
+  grampsjs-icon[slot='start'],
+  mwc-icon[slot='start'] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  grampsjs-icon[slot='start'] {
+    background-color: var(--grampsjs-color-icon-background);
+  }
+
+  mwc-icon.placeholder {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 50%;
+  }
+
+  /* Cursor for clickable items in view mode */
+  md-list:not(.activatable) md-list-item[type='button'] {
+    cursor: pointer;
+  }
+
+  span.date-col {
+    display: inline-block;
+    min-width: 12ch;
+    margin-inline-end: 0.5em;
+  }
+`

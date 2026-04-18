@@ -1,24 +1,12 @@
 import {css, html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
-import {mdiAccount} from '@mdi/js'
 
-import {fireEvent, objectIconPath} from '../util.js'
+import {fireEvent, renderPersonAvatar, renderPersonDates} from '../util.js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormChildRef.js'
 import './GrampsjsFormNewChild.js'
-import './GrampsjsImg.js'
-import './GrampsjsIcon.js'
 
 import '@material/web/list/list-item.js'
-
-// Maps Gramps API sex string codes to CSS gender colour tokens.
-// Covers all 4 values: F (female), M (male), U (unknown), X (other/non-binary)
-const genderBorderColor = {
-  F: 'var(--color-girl)',
-  M: 'var(--color-boy)',
-  X: 'var(--color-other)',
-  U: 'var(--color-unknown)',
-}
 
 export class GrampsjsChildren extends GrampsjsEditableList {
   static get styles() {
@@ -28,11 +16,6 @@ export class GrampsjsChildren extends GrampsjsEditableList {
         md-list-item.highlight {
           opacity: 0.6;
           pointer-events: none;
-        }
-
-        span.date-col {
-          display: inline-block;
-          min-width: 12ch;
         }
       `,
     ]
@@ -59,10 +42,6 @@ export class GrampsjsChildren extends GrampsjsEditableList {
   row(obj, i) {
     const p = this.profile[i] || {}
     const extPerson = this.extended.find(e => e.handle === obj.ref) || null
-    const birthStr = p.birth?.date || ''
-    const deathStr = p.death?.date || ''
-    const ageStr = p.death?.date && p.death?.age ? `(${p.death.age})` : ''
-    const hasDates = birthStr || deathStr || ageStr
 
     return html`
       <md-list-item
@@ -79,50 +58,10 @@ export class GrampsjsChildren extends GrampsjsEditableList {
           }
         }}"
       >
-        ${p.name_given || ''} ${p.name_surname || ''}
-        ${hasDates
-          ? html`<span slot="supporting-text"
-              ><span class="date-col">${birthStr ? `∗ ${birthStr}` : ''}</span
-              ><span class="date-col"
-                >${deathStr ? `† ${deathStr}` : ''}${ageStr
-                  ? ` ${ageStr}`
-                  : ''}</span
-              ></span
-            >`
-          : ''}
-        ${this._renderChildAvatar(extPerson, p.sex)}
+        ${p.name_given || ''} ${p.name_surname || ''} ${renderPersonDates(p)}
+        ${renderPersonAvatar(extPerson, p.sex)}
       </md-list-item>
     `
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _renderChildAvatar(extPerson, sex) {
-    const handle = extPerson?.media_list?.[0]?.ref || ''
-    const rect = extPerson?.media_list?.[0]?.rect || []
-    // box-shadow sits flush against the circular edge with no gap, and works
-    // equally well on both grampsjs-img and grampsjs-icon.
-    const ringColor = genderBorderColor[sex] ?? 'var(--color-unknown)'
-    const style = `box-shadow: 0 0 0 2px ${ringColor};`
-
-    if (handle) {
-      return html`<grampsjs-img
-        handle="${handle}"
-        slot="start"
-        circle
-        square
-        size="40"
-        .rect="${rect}"
-        mime=""
-        fallbackIcon="${objectIconPath.person}"
-        style="${style}"
-      ></grampsjs-img>`
-    }
-    return html`<grampsjs-icon
-      slot="start"
-      path="${mdiAccount}"
-      color="var(--grampsjs-color-icon)"
-      style="${style}"
-    ></grampsjs-icon>`
   }
 
   _handleClick(grampsId) {
