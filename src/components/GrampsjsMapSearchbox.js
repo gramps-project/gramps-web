@@ -105,16 +105,6 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           --md-outlined-text-field-with-trailing-icon-trailing-space: 35px;
         }
 
-        md-list-item[type='button'] {
-          cursor: pointer;
-          transition: background-color 0.1s;
-        }
-
-        md-list-item[type='button']:hover,
-        md-list-item[type='button']:focus {
-          background-color: var(--md-sys-color-surface-container-highest);
-        }
-
         @media (max-width: 512px) {
           #searchbox {
             left: 0;
