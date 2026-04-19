@@ -23,12 +23,6 @@ export class GrampsjsConnectedParents extends GrampsjsConnectedComponent {
           min-width: 0;
           max-width: 450px;
         }
-
-        md-list,
-        md-list > * {
-          --md-ripple-hover-opacity: 0;
-          --md-ripple-pressed-opacity: 0;
-        }
       `,
     ]
   }

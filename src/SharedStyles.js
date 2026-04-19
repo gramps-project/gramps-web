@@ -378,6 +378,14 @@ export const sharedStyles = css`
   mwc-icon-button[slot='meta'] {
     color: var(--grampsjs-color-icon-default);
   }
+
+  /* Hover state layer for clickable list items in view mode */
+  md-list:not(.activatable):not(.toc-list) md-list-item[type='button'] {
+    --md-list-item-hover-state-layer-color: var(--md-sys-color-on-surface);
+    --md-list-item-hover-state-layer-opacity: 0.08;
+    --md-list-item-pressed-state-layer-color: var(--md-sys-color-on-surface);
+    --md-list-item-pressed-state-layer-opacity: 0.12;
+  }
 `
 
 export const personListItemStyles = css`
