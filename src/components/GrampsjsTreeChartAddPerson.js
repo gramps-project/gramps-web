@@ -60,12 +60,80 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     }
   }
 
+  // Link an existing or newly-created handle as father/mother of the child
+  // person shown as the D3 parent of the clicked node.
+  async _linkParent(parentHandle) {
+    const childPerson = this._addPersonRelationDialogData?.parent?.data?.person
+    const parentFamily = childPerson?.extended?.primary_parent_family
+
+    if (parentFamily?.handle) {
+      // Family already exists — update the appropriate parent slot.
+      const {extended, profile, backlinks, formatted, ...familyClean} =
+        parentFamily
+      const result = await this.appState.apiPut(
+        `/api/families/${parentFamily.handle}`,
+        {
+          _class: 'Family',
+          ...familyClean,
+          [`${this._relationship}_handle`]: parentHandle,
+        }
+      )
+      if ('error' in result) {
+        fireEvent(this, 'grampsjs:error', {message: result.error})
+      }
+    } else {
+      // No family yet — create one with the child already linked.
+      const childRefList = childPerson
+        ? [{_class: 'ChildRef', ref: childPerson.handle}]
+        : []
+      const result = await this.appState.apiPost('/api/families/', {
+        _class: 'Family',
+        [`${this._relationship}_handle`]: parentHandle,
+        child_ref_list: childRefList,
+      })
+      if ('error' in result) {
+        fireEvent(this, 'grampsjs:error', {message: result.error})
+      }
+    }
+  }
+
+  // Link an existing or newly-created handle as a child of the clicked person.
+  // A new family is created; the clicked person is placed as father or mother
+  // based on the gender stored in the relationship selection.
+  async _linkChild(childHandle) {
+    const parentPerson = this._addPersonRelationDialogData?.data?.person
+    if (!parentPerson?.handle) {
+      return
+    }
+    // Determine whether the parent goes in the father or mother slot.
+    // gender: 1 = male (father), 0 = female (mother), 2 = unknown → father slot.
+    const parentSlot =
+      parentPerson.gender === 0 ? 'mother_handle' : 'father_handle'
+    const result = await this.appState.apiPost('/api/families/', {
+      _class: 'Family',
+      [parentSlot]: parentPerson.handle,
+      child_ref_list: [{_class: 'ChildRef', ref: childHandle}],
+    })
+    if ('error' in result) {
+      fireEvent(this, 'grampsjs:error', {message: result.error})
+    }
+  }
+
   async _handleExistingPersonSave(e) {
-    // TODO: Implement family linkage logic for linking an existing person
-    // as father, mother, or child. The handle is available via e.detail.data.ref
+    const selectedHandle = e.detail.data?.ref
     this._personRefFormDialogOpen = false
-    this._addPersonRelationDialogData = {}
-    this._relationship = ''
+    if (!selectedHandle) {
+      this._reset()
+      return
+    }
+
+    if (['father', 'mother'].includes(this._relationship)) {
+      await this._linkParent(selectedHandle)
+    } else if (['son', 'daughter'].includes(this._relationship)) {
+      await this._linkChild(selectedHandle)
+    }
+
+    this._reset()
   }
 
   async _handleNewPersonSave(e) {
@@ -76,22 +144,36 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
       return
     }
 
-    // TODO: Update the family relationship for the selected relation after
-    // creating the new person. The current implementation only creates the
-    // person record and still needs the family linkage logic.
-    const createPerson = await this.appState.apiPost(
+    const createResult = await this.appState.apiPost(
       '/api/objects/',
       processedData
     )
 
-    if ('error' in createPerson) {
-      fireEvent(this, 'grampsjs:error', {message: createPerson.error})
+    if ('error' in createResult) {
+      fireEvent(this, 'grampsjs:error', {message: createResult.error})
       return
+    }
+
+    // Extract the handle of the newly created person.
+    const newPersonHandle = processedData
+      .filter(obj => obj._class === 'Person')
+      .map(obj => obj.handle)[0]
+
+    if (newPersonHandle) {
+      if (['father', 'mother'].includes(this._relationship)) {
+        await this._linkParent(newPersonHandle)
+      } else if (['son', 'daughter'].includes(this._relationship)) {
+        await this._linkChild(newPersonHandle)
+      }
     }
 
     e.preventDefault()
     e.stopPropagation()
     this._newPersonFormDialogOpen = false
+    this._reset()
+  }
+
+  _reset() {
     this._addPersonRelationDialogData = {}
     this._relationship = ''
   }
