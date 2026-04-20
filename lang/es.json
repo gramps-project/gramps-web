@@ -290,5 +290,7 @@
     "Family tree preferences": "Preferencias del árbol familiar",
     "Default family tree view": "Vista del árbol familiar por defecto",
     "Invalid face rectangle coordinates": "Coordenadas de rectángulo del rostro no válido",
-    "Not private": "No privado"
+    "Not private": "No privado",
+    "Saved": "Guardado",
+    "Saving...": "Guardando…"
 }
