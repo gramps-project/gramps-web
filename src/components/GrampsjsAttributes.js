@@ -46,7 +46,16 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
           }
         }}"
       >
-        ${this.edit ? obj.value : linkUrls(obj.value, false)}
+        ${this.edit
+          ? obj.value.length > 200
+            ? `${obj.value.slice(0, 200)}…`
+            : obj.value
+          : linkUrls(
+              obj.value.length > 200
+                ? `${obj.value.slice(0, 200)}…`
+                : obj.value,
+              false
+            )}
         <span slot="supporting-text">${this._(obj.type)}</span>
         <grampsjs-icon
           slot="start"

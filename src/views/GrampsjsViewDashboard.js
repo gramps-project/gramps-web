@@ -86,7 +86,7 @@ export class GrampsjsViewDashboard extends GrampsjsView {
               </div>
             `
           : ''}
-        ${this.appState.dbInfo?.object_counts?.people
+        ${this.appState.dbInfo?.object_counts?.people || this.homePersonGrampsId
           ? html`
               <div>
                 <grampsjs-home-person

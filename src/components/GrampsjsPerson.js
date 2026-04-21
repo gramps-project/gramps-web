@@ -60,7 +60,6 @@ export class GrampsjsPerson extends GrampsjsObject {
         <grampsjs-edit-gender
           ?edit="${this.edit}"
           gender="${this.data.gender}"
-          .appState="${this.appState}"
         ></grampsjs-edit-gender>
         ${this._displayName()}
       </h2>

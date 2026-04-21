@@ -6,7 +6,9 @@ import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 import '@material/mwc-top-app-bar'
 import '@material/mwc-icon-button'
-import '@material/mwc-icon'
+import '@material/web/progress/circular-progress.js'
+import {mdiCheck} from '@mdi/js'
+import './GrampsjsIcon.js'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 
@@ -37,6 +39,41 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
           --mdc-theme-primary: var(--mdc-theme-secondary);
           --mdc-theme-on-primary: var(--mdc-theme-on-secondary);
         }
+
+        .action-icon-wrapper {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 48px;
+          height: 48px;
+        }
+
+        .action-icon-wrapper md-circular-progress {
+          --md-circular-progress-size: 24px;
+          --md-circular-progress-active-indicator-width: 14;
+          --md-circular-progress-active-indicator-color: var(
+            --grampsjs-top-app-bar-font-color
+          );
+        }
+
+        @keyframes save-complete {
+          0% {
+            opacity: 0;
+          }
+          25% {
+            opacity: 1;
+          }
+          85% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0;
+          }
+        }
+
+        .save-done-icon {
+          animation: save-complete 3s ease-out forwards;
+        }
       `,
     ]
   }
@@ -47,6 +84,8 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       editTitle: {type: String},
       editDialogContent: {type: String},
       saveButton: {type: Boolean},
+      saving: {type: Boolean},
+      saveComplete: {type: Boolean},
     }
   }
 
@@ -56,9 +95,40 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     this.editTitle = ''
     this.editDialogContent = ''
     this.saveButton = false
+    this.saving = false
+    this.saveComplete = false
   }
 
   render() {
+    const savingIndicator = this.saving
+      ? html`<span
+            slot="actionItems"
+            class="action-icon-wrapper"
+            id="button-saving"
+          >
+            <md-circular-progress indeterminate></md-circular-progress>
+          </span>
+          <grampsjs-tooltip for="button-saving" .appState="${this.appState}"
+            >${this._('Saving...')}</grampsjs-tooltip
+          >`
+      : this.saveComplete
+      ? html`<span
+            slot="actionItems"
+            class="action-icon-wrapper save-done-icon"
+            id="button-saved"
+          >
+            <grampsjs-icon
+              path="${mdiCheck}"
+              color="var(--grampsjs-top-app-bar-font-color)"
+              height="20"
+              width="20"
+            ></grampsjs-icon>
+          </span>
+          <grampsjs-tooltip for="button-saved" .appState="${this.appState}"
+            >${this._('Saved')}</grampsjs-tooltip
+          >`
+      : ''
+
     return html`
       <mwc-top-app-bar class="${classMap({edit: this.editMode})}">
         ${this.editMode
@@ -70,7 +140,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
               ></mwc-icon-button>
               <grampsjs-tooltip for="button-close" .appState="${this.appState}"
                 >${this._('Stop editing')}</grampsjs-tooltip
-              > `
+              >`
           : html`<mwc-icon-button
               slot="navigationIcon"
               icon="menu"
@@ -81,75 +151,65 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
             ? this.editTitle
             : this._dbInfo?.database?.name || 'Gramps Web'}
         </div>
-        ${
-          // eslint-disable-next-line no-nested-ternary
-          this.editMode
-            ? html`
-                ${this.saveButton
-                  ? html`
-                      <mwc-icon-button
-                        icon="save"
-                        slot="actionItems"
-                        id="button-save"
-                        @click="${this._handleSaveIcon}"
-                      ></mwc-icon-button>
-                      <grampsjs-tooltip
-                        for="button-save"
-                        .appState="${this.appState}"
-                        >${this._('_Save')}</grampsjs-tooltip
-                      >
-                    `
-                  : ''}
-                <mwc-icon-button
-                  icon="delete"
-                  slot="actionItems"
-                  id="button-delete"
-                  @click="${this._handleDeleteIcon}"
-                ></mwc-icon-button>
-                <grampsjs-tooltip
-                  for="button-delete"
-                  .appState="${this.appState}"
-                  >${this._('_Delete')}</grampsjs-tooltip
-                >
-              `
-            : html`
-                ${this.appState.permissions.canAdd
-                  ? html`
-                      <grampsjs-add-menu
-                        slot="actionItems"
-                        .appState="${this.appState}"
-                        id="button-add"
-                      ></grampsjs-add-menu>
-                      <grampsjs-tooltip
-                        for="button-add"
-                        .appState="${this.appState}"
-                        >${this._('Add')}</grampsjs-tooltip
-                      >
-                    `
-                  : ''}
-                <grampsjs-settings-menu
-                  slot="actionItems"
-                  .appState="${this.appState}"
-                  id="button-settings"
-                ></grampsjs-settings-menu>
-                <grampsjs-tooltip
-                  for="button-settings"
-                  .appState="${this.appState}"
-                  >${this._('Preferences')}</grampsjs-tooltip
-                >
-                <mwc-icon-button
-                  icon="search"
-                  slot="actionItems"
-                  id="button-search"
-                  @click="${() => this._handleNav('search')}"
-                ></mwc-icon-button>
-                <grampsjs-tooltip
-                  for="button-search"
-                  .appState="${this.appState}"
-                  >${this._('Search')}</grampsjs-tooltip
-                >
-              `
-        }
+        ${savingIndicator}
+        ${this.editMode
+          ? html`
+              ${this.saveButton
+                ? html`<mwc-icon-button
+                      icon="save"
+                      slot="actionItems"
+                      id="button-save"
+                      @click="${this._handleSaveIcon}"
+                    ></mwc-icon-button>
+                    <grampsjs-tooltip
+                      for="button-save"
+                      .appState="${this.appState}"
+                      >${this._('_Save')}</grampsjs-tooltip
+                    >`
+                : ''}
+              <mwc-icon-button
+                icon="delete"
+                slot="actionItems"
+                id="button-delete"
+                @click="${this._handleDeleteIcon}"
+              ></mwc-icon-button>
+              <grampsjs-tooltip for="button-delete" .appState="${this.appState}"
+                >${this._('_Delete')}</grampsjs-tooltip
+              >
+            `
+          : html`
+              ${this.appState.permissions.canAdd
+                ? html`<grampsjs-add-menu
+                      slot="actionItems"
+                      .appState="${this.appState}"
+                      id="button-add"
+                    ></grampsjs-add-menu>
+                    <grampsjs-tooltip
+                      for="button-add"
+                      .appState="${this.appState}"
+                      >${this._('Add')}</grampsjs-tooltip
+                    >`
+                : ''}
+              <grampsjs-settings-menu
+                slot="actionItems"
+                .appState="${this.appState}"
+                id="button-settings"
+              ></grampsjs-settings-menu>
+              <grampsjs-tooltip
+                for="button-settings"
+                .appState="${this.appState}"
+                >${this._('Preferences')}</grampsjs-tooltip
+              >
+              <mwc-icon-button
+                icon="search"
+                slot="actionItems"
+                id="button-search"
+                @click="${() => this._handleNav('search')}"
+              ></mwc-icon-button>
+              <grampsjs-tooltip for="button-search" .appState="${this.appState}"
+                >${this._('Search')}</grampsjs-tooltip
+              >
+            `}
       </mwc-top-app-bar>
       ${this.editDialogContent}
     `

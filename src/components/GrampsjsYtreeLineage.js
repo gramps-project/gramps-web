@@ -166,7 +166,7 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
     const chartData = this.getChartData()
     if (chartData.length > 0) {
       svgNode = YtreeLineageChart(chartData, {
-        getImageUrl: d => getImageUrl(d?.person || {}, 200),
+        getImageUrl: d => getImageUrl(d?.person || {}, 100),
       })
     }
 

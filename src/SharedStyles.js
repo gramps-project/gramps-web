@@ -378,4 +378,59 @@ export const sharedStyles = css`
   mwc-icon-button[slot='meta'] {
     color: var(--grampsjs-color-icon-default);
   }
+
+  /* Hover state layer for clickable list items in view mode */
+  md-list:not(.activatable):not(.toc-list) md-list-item[type='button'] {
+    --md-list-item-hover-state-layer-color: var(--md-sys-color-on-surface);
+    --md-list-item-hover-state-layer-opacity: 0.08;
+    --md-list-item-pressed-state-layer-color: var(--md-sys-color-on-surface);
+    --md-list-item-pressed-state-layer-opacity: 0.12;
+  }
+`
+
+export const personListItemStyles = css`
+  /* Increase vertical spacing to match mwc-list-item */
+  md-list-item {
+    --md-list-item-one-line-container-height: 64px;
+    --md-list-item-two-line-container-height: 80px;
+    --md-list-item-three-line-container-height: 96px;
+    --md-list-item-top-space: 12px;
+    --md-list-item-bottom-space: 12px;
+  }
+
+  /* Icon styling - replicate mwc-list-item graphic="avatar" */
+  grampsjs-img[slot='start'],
+  grampsjs-icon[slot='start'],
+  mwc-icon[slot='start'] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  grampsjs-icon[slot='start'] {
+    background-color: var(--grampsjs-color-icon-background);
+  }
+
+  mwc-icon.placeholder {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 50%;
+  }
+
+  /* Cursor for clickable items in view mode */
+  md-list:not(.activatable) md-list-item[type='button'] {
+    cursor: pointer;
+  }
+
+  span.date-col {
+    display: inline-block;
+    min-width: 12ch;
+    margin-inline-end: 0.5em;
+  }
 `

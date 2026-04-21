@@ -18,9 +18,24 @@ class GrampsjsImg extends LitElement {
     return [
       sharedStyles,
       css`
+        :host([cover]) {
+          display: block;
+          width: 100%;
+          height: 100%;
+        }
+
         img {
           max-width: 100%;
           max-height: 100vh;
+        }
+
+        img.cover {
+          width: 100%;
+          height: 100%;
+          max-width: unset;
+          max-height: unset;
+          object-fit: cover;
+          display: block;
         }
 
         .round {
@@ -57,6 +72,7 @@ class GrampsjsImg extends LitElement {
       size: {type: Number},
       rect: {type: Array},
       circle: {type: Boolean},
+      cover: {type: Boolean},
       square: {type: Boolean},
       mime: {type: String},
       displayHeight: {type: Number},
@@ -72,6 +88,7 @@ class GrampsjsImg extends LitElement {
     super()
     this.rect = []
     this.circle = false
+    this.cover = false
     this.square = false
     this.mime = ''
     this.displayHeight = 0
@@ -88,7 +105,11 @@ class GrampsjsImg extends LitElement {
       html`
         <img
           src="${getMediaUrl(this.handle)}"
-          class=${classMap({round: this.circle, bordered: this.border})}
+          class=${classMap({
+            round: this.circle,
+            bordered: this.border,
+            cover: this.cover,
+          })}
           @error=${this._errorHandler}
           alt=""
           height=${ifDefined(this.displayHeight || undefined)}
@@ -125,7 +146,6 @@ class GrampsjsImg extends LitElement {
     await fetch(url, {cache: 'reload', mode: 'no-cors'})
     this.renderRoot.querySelectorAll('img').forEach(img => {
       if (img.src === url) {
-        // eslint-disable-next-line no-param-reassign
         img.src = url
       }
     })
@@ -176,7 +196,11 @@ class GrampsjsImg extends LitElement {
             this.square,
             this.checksum
           )}"
-          class=${classMap({round: this.circle, bordered: this.border})}
+          class=${classMap({
+            round: this.circle,
+            bordered: this.border,
+            cover: this.cover,
+          })}
           @error=${this._errorHandler}
           alt=""
           style="${this.circle ? '' : `border-radius:${this.radius}px`}"
@@ -229,7 +253,11 @@ class GrampsjsImg extends LitElement {
           this.square,
           this.checksum
         )}"
-        class=${classMap({round: this.circle, bordered: this.border})}
+        class=${classMap({
+          round: this.circle,
+          bordered: this.border,
+          cover: this.cover,
+        })}
         style="${this.circle ? '' : `border-radius:${this.radius}px`}"
         @error=${this._errorHandler}
         alt=""
@@ -250,6 +278,7 @@ class GrampsjsImg extends LitElement {
         [cssClass]: true,
         round: this.circle,
         bordered: this.border,
+        cover: this.cover,
       })}
       height=${ifDefined(this.displayHeight || undefined)}
       style="${this.circle ? '' : `border-radius:${this.radius}px`}"

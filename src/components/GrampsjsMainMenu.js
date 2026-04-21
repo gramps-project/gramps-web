@@ -20,7 +20,7 @@ import {
   mdiBookmark,
   mdiFormatListChecks,
   mdiDownload,
-  mdiBookOpenVariant,
+  mdiFileExportOutline,
   mdiSourceCommit,
   mdiLabel,
 } from '@mdi/js'
@@ -214,7 +214,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
         href="${BASE_DIR}/reports"
         ?selected="${p === 'reports'}"
       >
-        ${this._icon(mdiBookOpenVariant, p === 'reports')}
+        ${this._icon(mdiFileExportOutline, p === 'reports')}
         ${this._('_Reports').replace('_', '')}
       </md-list-item>
       ${this.appState.permissions.canViewPrivate

@@ -12,7 +12,7 @@ export class GrampsjsViewFamily extends GrampsjsViewObject {
   getUrl() {
     return `/api/families/?gramps_id=${this.grampsId}&locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=all&backlinks=true&extend=all`
+    }&profile=all&backlinks=true&extend=all&precision=1`
   }
 
   renderElement() {

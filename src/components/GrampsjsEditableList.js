@@ -16,31 +16,23 @@ import '@material/web/iconbutton/icon-button.js'
 import '@material/web/list/list.js'
 import '@material/web/list/list-item.js'
 
-import {sharedStyles} from '../SharedStyles.js'
+import {personListItemStyles, sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
+      personListItemStyles,
       css`
-        md-list,
-        md-list > * {
+        md-list.activatable,
+        md-list.activatable > * {
           --md-ripple-hover-opacity: 0;
           --md-ripple-pressed-opacity: 0;
         }
 
-        md-list > * {
+        md-list.activatable > * {
           transition: background-color 0.1s, color 0.1s;
-        }
-
-        /* Increase vertical spacing to match mwc-list-item */
-        md-list-item {
-          --md-list-item-one-line-container-height: 64px;
-          --md-list-item-two-line-container-height: 80px;
-          --md-list-item-three-line-container-height: 96px;
-          --md-list-item-top-space: 12px;
-          --md-list-item-bottom-space: 12px;
         }
 
         md-list.activatable md-list-item.selected {
@@ -83,36 +75,6 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
 
         md-icon-button[disabled] {
           color: var(--grampsjs-body-font-color-25);
-        }
-
-        /* Icon styling - replicate mwc-list-item graphic="avatar" */
-        grampsjs-img[slot='start'],
-        grampsjs-icon[slot='start'],
-        mwc-icon[slot='start'] {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 40px;
-          height: 40px;
-          overflow: hidden;
-          border-radius: 50%;
-          flex-shrink: 0;
-        }
-
-        grampsjs-icon[slot='start'] {
-          background-color: var(--grampsjs-color-icon-background);
-        }
-
-        mwc-icon.placeholder {
-          width: 40px;
-          height: 40px;
-          line-height: 40px;
-          border-radius: 50%;
-        }
-
-        /* Cursor for clickable items in view mode */
-        md-list:not(.activatable) md-list-item[type='button'] {
-          cursor: pointer;
         }
       `,
     ]

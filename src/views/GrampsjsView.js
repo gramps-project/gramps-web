@@ -66,30 +66,4 @@ export class GrampsjsView extends GrampsjsAppStateMixin(LitElement) {
   firstUpdated() {
     this._hasFirstUpdated = true
   }
-
-  update(changed) {
-    super.update(changed)
-    if (changed.has('loading')) {
-      if (this.loading && this.active) {
-        this.dispatchEvent(
-          new CustomEvent('progress:on', {bubbles: true, composed: true})
-        )
-      } else if (!this.loading && this.active) {
-        this.dispatchEvent(
-          new CustomEvent('progress:off', {bubbles: true, composed: true})
-        )
-      }
-    }
-    if (changed.has('active')) {
-      if (!this.active) {
-        this.dispatchEvent(
-          new CustomEvent('progress:off', {bubbles: true, composed: true})
-        )
-      } else if (this.loading) {
-        this.dispatchEvent(
-          new CustomEvent('progress:on', {bubbles: true, composed: true})
-        )
-      }
-    }
-  }
 }

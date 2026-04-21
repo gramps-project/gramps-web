@@ -713,6 +713,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         return html`<grampsjs-sources
           .appState="${this.appState}"
           .data=${this.data?.extended?.backlinks?.source || []}
+          handle=${this.data?.handle ?? ''}
         ></grampsjs-sources>`
       case 'citations': {
         let data = this.data?.profile?.references?.citation || []
@@ -732,6 +733,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           .appState="${this.appState}"
           .data=${this.data?.child_ref_list}
           .profile=${this.data?.profile?.children}
+          .extended=${this.data?.extended?.children || []}
           ?edit="${this.edit}"
         ></grampsjs-children>`
       case 'sourceCitations':
@@ -804,6 +806,8 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         return html`<grampsjs-participants
           .appState="${this.appState}"
           .data=${[this.data?.profile?.participants]}
+          .backlinksPeople=${this.data?.extended?.backlinks?.person || []}
+          .backlinksFamilies=${this.data?.extended?.backlinks?.family || []}
         ></grampsjs-participants>`
       case 'repositories':
         return html` <grampsjs-repositories

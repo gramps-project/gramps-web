@@ -1,7 +1,7 @@
 import {html} from 'lit'
 
 import {GrampsjsViewObject} from './GrampsjsViewObject.js'
-import {apiVersionAtLeast, fireEvent} from '../util.js'
+import {fireEvent} from '../util.js'
 import '../components/GrampsjsPerson.js'
 
 export class GrampsjsViewPerson extends GrampsjsViewObject {
@@ -68,13 +68,9 @@ export class GrampsjsViewPerson extends GrampsjsViewObject {
   }
 
   getUrl() {
-    // the precision key for displaying age is only supported since Gramps Web API v3.10
-    const precision = apiVersionAtLeast(this.appState.dbInfo, 3, 10)
-      ? '&precision=2'
-      : ''
     return `/api/people/?gramps_id=${this.grampsId}&locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=all&backlinks=true&extend=all${precision}`
+    }&profile=all&backlinks=true&extend=all&precision=1`
   }
 
   renderElement() {

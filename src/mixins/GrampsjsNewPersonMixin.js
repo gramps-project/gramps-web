@@ -1,6 +1,6 @@
 import {html} from 'lit'
 
-import {makeHandle, dateIsEmpty, emptyDate, apiVersionAtLeast} from '../util.js'
+import {makeHandle, dateIsEmpty, emptyDate} from '../util.js'
 
 import '../components/GrampsjsFormSelectObjectList.js'
 import '../components/GrampsjsFormSelectDate.js'
@@ -16,11 +16,9 @@ export const GrampsjsNewPersonMixin = superClass =>
       this.data = dataDefault
     }
 
+    // eslint-disable-next-line class-methods-use-this
     get gender() {
-      const options = {2: 'Unknown', 1: 'Male', 0: 'Female'}
-      if (apiVersionAtLeast(this.appState?.dbInfo, 3, 10)) {
-        options[3] = 'Other'
-      }
+      const options = {2: 'Unknown', 1: 'Male', 0: 'Female', 3: 'Other'}
       return options
     }
 

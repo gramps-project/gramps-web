@@ -4,8 +4,9 @@ import '@material/web/iconbutton/icon-button.js'
 import {mdiAccountMultiple, mdiArrowDown, mdiArrowUp} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {fireEvent, renderPerson} from '../util.js'
-import './GrampsjsChildren.js'
+import {fireEvent} from '../util.js'
+import './GrampsjsConnectedChildren.js'
+import './GrampsjsConnectedParents.js'
 import './GrampsjsIcon.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -190,14 +191,12 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
         ${parentTitle}
         ${this._renderFamilyBtn(familyProfile.gramps_id)}${reorderButtons}
       </h4>
-      ${familyProfile?.father?.gramps_id === this.grampsId ||
-      Object.keys(familyProfile?.father || {}).length === 0
-        ? ''
-        : html` <p>${renderPerson(familyProfile.father)}</p> `}
-      ${familyProfile?.mother?.gramps_id === this.grampsId ||
-      Object.keys(familyProfile?.mother || {}).length === 0
-        ? ''
-        : html` <p>${renderPerson(familyProfile.mother)}</p> `}
+      <grampsjs-connected-parents
+        familyGrampsId="${familyProfile.gramps_id}"
+        .profile="${familyProfile}"
+        highlightId="${this.grampsId}"
+        .appState="${this.appState}"
+      ></grampsjs-connected-parents>
       ${this._renderChildren(familyProfile, childrenTitle)}
     `
   }
@@ -235,13 +234,13 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
       ${profile?.children?.length
         ? html`
             <h4>${childrenTitle}</h4>
-            <grampsjs-children
+            <grampsjs-connected-children
+              familyGrampsId="${profile.gramps_id}"
               .profile=${profile?.children || []}
               .data=${family.child_ref_list}
               .appState="${this.appState}"
               highlightId="${this.grampsId}"
-            >
-            </grampsjs-children>
+            ></grampsjs-connected-children>
           `
         : ''}
     `

@@ -7,13 +7,32 @@ import {
   updateSettings,
 } from './api.js'
 import {getCurrentTheme} from './theme.js'
+import {fireEvent} from './util.js'
 
 export function getInitialAppState() {
   const auth = new Auth()
+  let activeGetCount = 0
+  let activeSaveCount = 0
+  let lastSaveSucceeded = true
+
+  function notifyCounters() {
+    fireEvent(window, 'requests:changed', {
+      activeGet: activeGetCount,
+      activeSave: activeSaveCount,
+      lastSaveSucceeded,
+    })
+  }
+
+  function completeSave(result) {
+    activeSaveCount = Math.max(0, activeSaveCount - 1)
+    lastSaveSucceeded = !('error' in result)
+    notifyCounters()
+    return result
+  }
+
   return {
     auth,
     screenSize: 'small',
-    progress: false,
     settings: getSettings(),
     dbInfo: {},
     frontendConfig: window.grampsjsConfig,
@@ -35,13 +54,47 @@ export function getInitialAppState() {
       pageId: '',
       pageId2: '',
     },
-    apiGet: endpoint => apiGet(auth, endpoint),
-    apiPost: (endpoint, payload, options = {}) =>
-      apiPutPostDelete(auth, 'POST', endpoint, payload, options),
-    apiPut: (endpoint, payload, options = {}) =>
-      apiPutPostDelete(auth, 'PUT', endpoint, payload, options),
-    apiDelete: (endpoint, options = {}) =>
-      apiPutPostDelete(auth, 'DELETE', endpoint, {}, options),
+    apiGet: endpoint => {
+      activeGetCount += 1
+      notifyCounters()
+      return apiGet(auth, endpoint).finally(() => {
+        activeGetCount = Math.max(0, activeGetCount - 1)
+        notifyCounters()
+      })
+    },
+    apiPost: (endpoint, payload, options = {}) => {
+      const {saving: isSave = true} = options
+      if (isSave) {
+        if (activeSaveCount === 0) lastSaveSucceeded = true
+        activeSaveCount += 1
+        notifyCounters()
+      }
+      return apiPutPostDelete(auth, 'POST', endpoint, payload, options).then(
+        result => (isSave ? completeSave(result) : result)
+      )
+    },
+    apiPut: (endpoint, payload, options = {}) => {
+      const {saving: isSave = true} = options
+      if (isSave) {
+        if (activeSaveCount === 0) lastSaveSucceeded = true
+        activeSaveCount += 1
+        notifyCounters()
+      }
+      return apiPutPostDelete(auth, 'PUT', endpoint, payload, options).then(
+        result => (isSave ? completeSave(result) : result)
+      )
+    },
+    apiDelete: (endpoint, options = {}) => {
+      const {saving: isSave = true} = options
+      if (isSave) {
+        if (activeSaveCount === 0) lastSaveSucceeded = true
+        activeSaveCount += 1
+        notifyCounters()
+      }
+      return apiPutPostDelete(auth, 'DELETE', endpoint, {}, options).then(
+        result => (isSave ? completeSave(result) : result)
+      )
+    },
     refreshTokenIfNeeded: (force = false) => auth.getValidAccessToken(force),
     signout: () => auth.signout(),
     updateSettings: (settings = {}, tree = false) =>

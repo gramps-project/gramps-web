@@ -7,13 +7,12 @@ import {
   mdiOpenInNew,
   mdiAccount,
   mdiAccountMultiple,
+  mdiArchive,
   mdiCalendar,
   mdiMapMarker,
-  mdiBookmarkMultiple,
   mdiBookmark,
-  mdiBank,
-  mdiNoteText,
   mdiImage,
+  mdiTextBox,
   mdiLabel,
   mdiCradle,
   mdiCoffin,
@@ -48,6 +47,7 @@ import {
   mdiHomeGroup,
   mdiRoad,
   mdiBarn,
+  mdiBookOpenVariant,
 } from '@mdi/js'
 import {asteriskIcon, crossIcon, renderIconSvg, ringsIconPath} from './icons.js'
 import './components/GrampsjsIcon.js'
@@ -245,28 +245,15 @@ export function showObject(type, obj, strings) {
   }
 }
 
-export const objectIcon = {
-  person: 'person',
-  family: 'people',
-  event: 'event',
-  place: 'place',
-  source: 'bookmarks',
-  citation: 'bookmark',
-  repository: 'account_balance',
-  note: 'sticky_note_2',
-  media: 'photo',
-  tag: 'label',
-}
-
-const objectIconPath = {
+export const objectIconPath = {
   person: mdiAccount,
   family: mdiAccountMultiple,
   event: mdiCalendar,
   place: mdiMapMarker,
-  source: mdiBookmarkMultiple,
+  source: mdiBookOpenVariant,
   citation: mdiBookmark,
-  repository: mdiBank,
-  note: mdiNoteText,
+  repository: mdiArchive,
+  note: mdiTextBox,
   media: mdiImage,
   tag: mdiLabel,
 }
@@ -502,7 +489,7 @@ export function objectDetail(type, obj, strings) {
   switch (type) {
     case 'person':
       return `
-    ${obj?.profile?.birth?.date ? `* ${obj.profile.birth.date}` : ''}${
+    ${obj?.profile?.birth?.date ? `∗ ${obj.profile.birth.date}` : ''}${
         obj?.profile?.birth?.place && obj?.profile?.birth?.date ? ', ' : ''
       }${obj?.profile?.birth?.place_name || obj?.profile?.birth?.place || ''}
     `
@@ -757,7 +744,7 @@ export const reportCategoryIcon = {
 }
 
 export function arrayEqual(A, B) {
-  return A.length > 0 && B.length > 0 && A.every(e => B.includes(e))
+  return A.length === B.length && A.every(e => B.includes(e))
 }
 
 function _toNumber(value) {
@@ -818,7 +805,7 @@ export function renderIcon(obj, slot = 'graphic', iconPath = null) {
       slot="${slot}"
       circle
       square
-      size="70"
+      size="40"
       .rect="${rect}"
       mime=""
       fallbackIcon="${objectIconPath[obj.object_type]}"

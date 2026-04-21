@@ -1,30 +1,32 @@
-import {html} from 'lit'
+import {css, html} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 
-import '@material/mwc-button'
-import '@material/mwc-icon-button'
-import {mdiGenderFemale, mdiGenderMale} from '@mdi/js'
-import {renderIcon} from '../icons.js'
 import {fireEvent} from '../util.js'
-import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
+import {renderPersonAvatar, renderPersonDates} from './personListUtils.js'
+import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormChildRef.js'
 import './GrampsjsFormNewChild.js'
 
-function genderIcon(gender) {
-  if (gender === 'M') {
-    return renderIcon(mdiGenderMale, 'var(--color-boy)')
-  }
-  if (gender === 'F') {
-    return renderIcon(mdiGenderFemale, 'var(--color-girl)')
-  }
-  return ''
-}
+import '@material/web/list/list-item.js'
 
-export class GrampsjsChildren extends GrampsjsEditableTable {
+export class GrampsjsChildren extends GrampsjsEditableList {
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
+        md-list-item.highlight {
+          opacity: 0.6;
+          pointer-events: none;
+        }
+      `,
+    ]
+  }
+
   static get properties() {
     return {
       profile: {type: Array},
       highlightId: {type: String},
-      dialogContent: {type: String},
+      extended: {type: Array},
     }
   }
 
@@ -32,46 +34,64 @@ export class GrampsjsChildren extends GrampsjsEditableTable {
     super()
     this.profile = []
     this.highlightId = ''
-    this._columns = ['', 'Given name', 'Birth', 'Death', 'Age at death', '']
+    this.extended = []
+    this.hasShare = true
+    this.hasReorder = true
     this.objType = 'ChildRef'
   }
 
-  row(obj, i, arr) {
+  row(obj, i) {
+    const p = this.profile[i] || {}
+    const extPerson = this.extended.find(e => e.handle === obj.ref) || null
+
     return html`
-      <tr
-        @click=${() => this._handleClick(this.profile[i].gramps_id)}
-        class="${obj.gramps_id === this.highlightId ? 'highlight' : ''}"
+      <md-list-item
+        type="button"
+        class="${classMap({
+          selected: i === this._selectedIndex,
+          highlight: p.gramps_id === this.highlightId,
+        })}"
+        @click="${() => {
+          if (this.edit) {
+            this._handleSelected(i)
+          } else {
+            this._handleClick(p.gramps_id)
+          }
+        }}"
       >
-        <td>${genderIcon(this.profile[i]?.sex)}</td>
-        <td>${this.profile[i]?.name_given || ''}</td>
-        <td>${this.profile[i]?.birth?.date || ' '}</td>
-        <td>${this.profile[i]?.death?.date || ''}</td>
-        <td>${this.profile[i]?.death?.age || ''}</td>
-        <td>
-          ${this.edit
-            ? this._renderActionBtns(obj.ref, i === 0, i === arr.length - 1)
-            : ''}
-        </td>
-      </tr>
+        ${p.name_given || ''} ${p.name_surname || ''} ${renderPersonDates(p)}
+        ${renderPersonAvatar(extPerson, p.sex)}
+      </md-list-item>
     `
   }
 
-  renderAfterTable() {
-    return this.edit
-      ? html`
-          <mwc-icon-button
-            class="edit"
-            icon="add_link"
-            @click="${this._handleShare}"
-          ></mwc-icon-button>
-          <mwc-icon-button
-            class="edit"
-            icon="add"
-            @click="${this._handleAdd}"
-          ></mwc-icon-button>
-          ${this.dialogContent}
-        `
-      : ''
+  _handleClick(grampsId) {
+    if (!this.edit && grampsId) {
+      fireEvent(this, 'nav', {path: `person/${grampsId}`})
+    }
+  }
+
+  _handleDelete() {
+    const obj = this.data[this._selectedIndex]
+    if (obj) {
+      fireEvent(this, 'edit:action', {action: 'delChildRef', handle: obj.ref})
+    }
+  }
+
+  _handleUp() {
+    const obj = this.data[this._selectedIndex]
+    if (obj) {
+      fireEvent(this, 'edit:action', {action: 'upChildRef', handle: obj.ref})
+      this._updateSelectionAfterReorder(true)
+    }
+  }
+
+  _handleDown() {
+    const obj = this.data[this._selectedIndex]
+    if (obj) {
+      fireEvent(this, 'edit:action', {action: 'downChildRef', handle: obj.ref})
+      this._updateSelectionAfterReorder(false)
+    }
   }
 
   _handleShare() {
@@ -119,23 +139,6 @@ export class GrampsjsChildren extends GrampsjsEditableTable {
 
   _handleDialogCancel() {
     this.dialogContent = ''
-  }
-
-  _handleClick(grampsId) {
-    if (!this.edit && grampsId !== this.grampsId) {
-      this.dispatchEvent(
-        new CustomEvent('nav', {
-          bubbles: true,
-          composed: true,
-          detail: {path: this._getItemPath(grampsId)},
-        })
-      )
-    }
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _getItemPath(grampsId) {
-    return `person/${grampsId}`
   }
 }
 
