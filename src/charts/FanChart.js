@@ -157,6 +157,7 @@ function angleBounds(radius, theta) {
 }
 // Returns true if the treeData contains a real person
 function isRealPerson(treeData) {
+  // eslint-disable-next-line eqeqeq
   return treeData != null && Object.keys(treeData.person).length > 0
 }
 // Finds the bounding box of the series of arcs that are used to represent the ancestry treeData

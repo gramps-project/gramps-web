@@ -238,6 +238,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
 
   _scrollToLastMessage() {
     const conversationDiv = this.renderRoot.querySelector('.conversation')
+    // eslint-disable-next-line eqeqeq
     if (conversationDiv != null) {
       conversationDiv.scrollTop = conversationDiv.scrollHeight
     }

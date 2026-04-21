@@ -185,14 +185,17 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     this._objectsName = 'media'
   }
 
+  // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
     return '/api/media/?keys=gramps_id,mime,desc,change,handle,checksum,extended&extend=tag_list'
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _getItemPath(item) {
     return `media/${item.grampsId}`
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _getAddPath() {
     return 'new_media'
   }

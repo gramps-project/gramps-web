@@ -75,6 +75,7 @@ export class GrampsjsTooltip extends GrampsjsAppStateMixin(LitElement) {
     this._tippy = tippy(this.target, options)
   }
 
+  // eslint-disable-next-line class-methods-use-this
   render() {
     return html`<slot></slot>`
   }

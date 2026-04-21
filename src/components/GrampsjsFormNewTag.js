@@ -117,6 +117,7 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
     `
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _renderSkeleton() {
     return html`
       ${[0.6, 0.85, 0.7].map(

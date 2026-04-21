@@ -73,6 +73,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableList {
     const places = []
     const handles = this.data.map(obj => obj.ref)
     for (let i = 0; i < handles.length; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
       const data = await this.appState.apiGet(this._getUrl(handles[i]))
       places.push(data?.data || {})
     }

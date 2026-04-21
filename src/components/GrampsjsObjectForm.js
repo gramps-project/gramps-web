@@ -109,6 +109,7 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
       })
   }
 
+  // eslint-disable-next-line class-methods-use-this
   get isValid() {
     return true
   }

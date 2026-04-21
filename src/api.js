@@ -705,10 +705,12 @@ export class Auth {
     this._refreshingTokens = null
   }
 
+  // eslint-disable-next-line class-methods-use-this
   get accessToken() {
     return localStorage.getItem('access_token')
   }
 
+  // eslint-disable-next-line class-methods-use-this
   get refreshToken() {
     return localStorage.getItem('refresh_token')
   }
@@ -940,6 +942,7 @@ export async function updateTaskStatus(
     }
     // wait for 1s
 
+    // eslint-disable-next-line no-await-in-loop
     await new Promise(resolve => setTimeout(resolve, pollInterval))
     i += 1
   }

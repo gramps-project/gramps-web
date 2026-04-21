@@ -38,7 +38,10 @@ export const GrampsjsNewPersonMixin = superClass =>
             genderConst => html`
               <mwc-list-item
                 value="${genderConst}"
-                ?selected="${genderConst == this.data.gender}"
+                ?selected="${
+                  // eslint-disable-next-line eqeqeq
+                  genderConst == this.data.gender
+                }"
                 >${this._(this.gender[genderConst])}</mwc-list-item
               >
             `

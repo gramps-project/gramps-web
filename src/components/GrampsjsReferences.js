@@ -71,6 +71,7 @@ export class GrampsjsReferences extends GrampsjsEditableList {
     fireEvent(this, 'nav', {path: this._getItemPath(type, grampsId)})
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _getItemPath(type, grampsId) {
     return `${type}/${grampsId}`
   }

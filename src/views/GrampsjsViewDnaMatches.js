@@ -51,6 +51,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
         </md-fab>`
   }
 
+  // eslint-disable-next-line class-methods-use-this
   renderLoading() {
     return ''
   }

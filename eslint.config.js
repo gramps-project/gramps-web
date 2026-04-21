@@ -59,6 +59,12 @@ const config = [
       ...eslintPluginWc.configs.recommended.rules,
       ...eslintPluginLitA11y.configs.recommended.rules,
       'no-only-tests/no-only-tests': 'error',
+      'class-methods-use-this': 'error',
+      eqeqeq: 'error',
+      'no-alert': 'error',
+      'no-await-in-loop': 'error',
+      'no-param-reassign': 'error',
+      'prefer-const': 'error',
     },
   },
 

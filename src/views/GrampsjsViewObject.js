@@ -92,6 +92,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     return this.appState.permissions.canEdit
   }
 
+  // eslint-disable-next-line class-methods-use-this
   getUrl() {
     return ''
   }
@@ -145,6 +146,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   renderElement() {
     return html``
   }
@@ -229,6 +231,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     this._data = {}
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _handleObjectLoaded() {}
 
   async _deleteSelf() {
@@ -622,6 +625,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         e.detail.editorDraftPrefix
       )
     } else {
+      // eslint-disable-next-line no-alert
       alert(JSON.stringify(e.detail))
     }
   }
@@ -812,6 +816,7 @@ export class GrampsjsViewObject extends GrampsjsView {
   _updateObject(obj, objType, updateFunc, editorDraftPrefix) {
     // remove extended, profile, backlinks, formatted keys from object
 
+    // eslint-disable-next-line prefer-const
     let {extended, profile, backlinks, formatted, ...objNew} = obj
     objNew = {_class: capitalize(objType), ...objNew}
     const url = `/api/${objectTypeToEndpoint[objType]}/${obj.handle}`

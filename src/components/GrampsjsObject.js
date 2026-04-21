@@ -877,6 +877,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     this.dialogContent = ''
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _getZoomFromBounds(bounds) {
     const xMin = bounds[0][0]
     const yMin = bounds[0][1]

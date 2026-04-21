@@ -1,6 +1,7 @@
 import {html, LitElement} from 'lit'
 
 class GrampsjsMapOverlay extends LitElement {
+  // eslint-disable-next-line class-methods-use-this
   render() {
     return html`` // No need for leaflet.css
   }
