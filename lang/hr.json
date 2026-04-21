@@ -230,7 +230,7 @@
     "Historical Map": "Povijesna karta",
     "To start building your family tree, add yourself as a person or import a family tree file.": "Za početak izrade tvog rodoslova, dodaj sebe kao osobu ili uvezi jednu datoteku rodoslova/obiteljskog stabla.",
     "Metadata": "Metapodaci",
-    "Link to enclosing place": "Poveži na obuhvačajuće mjesto",
+    "Link to enclosing place": "Poveži na obuhvaćajuće mjesto",
     "Please select a different person.": "Odaberi jednu drugu osobu.",
     "No Y-DNA data found.": "Nijedni Y-DNK podaci nisu pronađeni.",
     "Edit Y-DNA data": "Uredi Y-DNK podatke",
@@ -283,5 +283,13 @@
     "Or select an existing tag": "Ili odaberi jednu postojeću oznaku",
     "Family tree preferences": "Postavke rodoslova",
     "Default family tree view": "Standardni prikaz rodoslova",
-    "Invalid face rectangle coordinates": "Nevažeće koordinate pravokutnika lica"
+    "Invalid face rectangle coordinates": "Nevažeće koordinate pravokutnika lica",
+    "Saved": "Spremljeno",
+    "Saving...": "Spremanje …",
+    "Ascending": "Uzlazno",
+    "Descending": "Silazno",
+    "Gallery view": "Prikaz galerije",
+    "List view": "Prikaz popisa",
+    "Not private": "Nije privatno",
+    "Edit enclosing place": "Uredi obuhvaćajuće mjesto"
 }
