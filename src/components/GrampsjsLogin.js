@@ -25,17 +25,23 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
       sharedStyles,
       css`
         #login-container {
-          margin: auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           height: 100%;
           width: 100%;
-          max-width: 25em;
         }
 
         #login-form {
-          margin: auto;
-          max-width: 90vw;
-          position: relative;
-          top: 20vh;
+          width: 100%;
+          max-width: 25em;
+          padding: 0 1.5em;
+          box-sizing: border-box;
+          text-align: center;
+        }
+
+        #login-form h2 {
+          margin-bottom: 1.5em;
         }
 
         #login-form mwc-textfield {
