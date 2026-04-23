@@ -56,7 +56,7 @@ class GrampsjsMapMarker extends LitElement {
     el.addEventListener('click', this.clickHandler.bind(this))
     // Add popup if needed
     if (this.popupLabel) {
-      el.title = this.popupLabel
+      el.title = this.popupLabel.replace(/<[^>]*>?/gm, '')
     }
     // Create the marker
     this._marker = new maplibregl.Marker({element: el})
