@@ -97,9 +97,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
 
   connectedCallback() {
     super.connectedCallback()
-    const existing = Array.isArray(this.appState?.notifications)
-      ? this.appState.notifications
-      : []
+    const existing = this.appState?.getNotifications() ?? []
     this.unreadCount = existing.filter(n => n?.read === false).length
     window.addEventListener(
       'notifications:changed',
