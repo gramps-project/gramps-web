@@ -7,7 +7,7 @@ import {
   updateSettings,
 } from './api.js'
 import {getCurrentTheme} from './theme.js'
-import {fireEvent} from './util.js'
+import {fireEvent, makeHandle} from './util.js'
 
 export function getInitialAppState() {
   const auth = new Auth()
@@ -26,7 +26,7 @@ export function getInitialAppState() {
     detail = {},
   }) {
     const notification = {
-      id: `${Date.now()}-${Math.random()}`,
+      id: makeHandle(),
       type,
       message,
       source,
@@ -38,7 +38,7 @@ export function getInitialAppState() {
     if (notifications.length > 100) {
       notifications.length = 100
     }
-    unreadCount += 1
+    unreadCount = notifications.filter(n => n.read === false).length
     fireEvent(window, 'notifications:changed', {
       notifications: [...notifications],
       unreadCount,

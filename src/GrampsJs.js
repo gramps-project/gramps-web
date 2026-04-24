@@ -90,6 +90,8 @@ const PAGE_TITLES = {
   recent: 'History',
   bookmarks: '_Bookmarks',
   tasks: 'Tasks',
+  notifications: 'Notifications',
+  tags: 'Tags',
   export: 'Export',
   reports: '_Reports',
   report: '_Reports',
