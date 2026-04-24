@@ -151,7 +151,9 @@ export function getInitialAppState() {
     updateSettings: (settings = {}, tree = false) =>
       updateSettings(settings, tree),
     getCurrentTheme: () => getCurrentTheme(getSettings().theme),
-    notifications,
+    get notifications() {
+      return [...notifications]
+    },
     addNotification,
     markAllRead,
     clearNotifications,
