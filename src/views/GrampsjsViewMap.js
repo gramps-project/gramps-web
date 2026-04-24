@@ -304,7 +304,6 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     return html` ${this._dataLayers.map(obj => this._renderMapLayer(obj))} `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _renderMapLayer(obj) {
     const bounds = obj.attribute_list.filter(
       attr => attr.type === 'map:bounds'

@@ -65,12 +65,14 @@ export class GrampsjsViewNewEvent extends GrampsjsNewEventMixin(
       'grampsjs-form-select-type'
     )
     let valid = true
+    // eslint-disable-next-line no-constant-binary-expression
     if (!selectType !== null && !selectType.isValid()) {
       valid = false
     }
     const selectDate = this.shadowRoot.querySelector(
       'grampsjs-form-select-date'
     )
+    // eslint-disable-next-line no-constant-binary-expression
     if (!selectDate !== null && !selectDate.isValid()) {
       valid = false
     }

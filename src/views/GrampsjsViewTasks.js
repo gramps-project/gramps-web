@@ -121,6 +121,7 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
         ...rest.attribute_list.filter(att => att.type !== key),
         {type: key, value},
       ]
+
       // eslint-disable-next-line no-await-in-loop
       await this.appState.apiPut(`/api/sources/${object.handle}`, rest, {
         dbChanged: false,

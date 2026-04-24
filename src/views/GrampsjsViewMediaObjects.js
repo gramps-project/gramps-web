@@ -453,7 +453,6 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     return this.appState.permissions.canAdd && this.appState.permissions.canEdit
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _formatRow(row) {
     return {
       grampsId: row.gramps_id,

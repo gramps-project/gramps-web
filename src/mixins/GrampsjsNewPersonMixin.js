@@ -16,6 +16,7 @@ export const GrampsjsNewPersonMixin = superClass =>
       this.data = dataDefault
     }
 
+    // eslint-disable-next-line class-methods-use-this
     get gender() {
       const options = {2: 'Unknown', 1: 'Male', 0: 'Female', 3: 'Other'}
       return options

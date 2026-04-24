@@ -245,7 +245,6 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _renderFilter() {
     return html`
       <md-dialog id="filter-dialog">
@@ -367,7 +366,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     const el = this.shadowRoot.getElementById('searchfield')
     try {
       el.focus()
-    } catch (e) {
+    } catch {
       // retry once
       if (retry) {
         window.setTimeout(() => this.focus(false), 100)
@@ -379,7 +378,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     const el = this.shadowRoot.getElementById('searchfield')
     try {
       el.blur()
-    } catch (e) {
+    } catch {
       // retry once
       if (retry) {
         window.setTimeout(() => this.unfocus(false), 100)

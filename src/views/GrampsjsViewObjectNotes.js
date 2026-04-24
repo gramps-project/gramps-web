@@ -55,7 +55,6 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
     this.objType = ''
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getUrl() {
     if (this.grampsIds.length === 0) {
       return ''
@@ -81,7 +80,6 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
     return html`${this._data.map(obj => this.renderNote(obj))} `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   renderLoading() {
     const skeleton =
       '<p><span class="skeleton" style="width:100%;">&nbsp;</span></p>'
@@ -145,7 +143,6 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   renderNote(obj) {
     return html`
       <div class="note-content">

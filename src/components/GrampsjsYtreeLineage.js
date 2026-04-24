@@ -70,7 +70,7 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
       let formatter
       try {
         formatter = new Intl.DateTimeFormat(locale.replace('_', '-'), options)
-      } catch (_) {
+      } catch {
         formatter = new Intl.DateTimeFormat('en-US', options)
       }
       return formatter.format(date)

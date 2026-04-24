@@ -274,11 +274,9 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
   reset() {
     this.data = dataDefault
     this.shadowRoot.querySelectorAll('mwc-textfield').forEach(element => {
-      // eslint-disable-next-line no-param-reassign
       element.value = ''
     })
     this.shadowRoot.querySelectorAll('mwc-select').forEach(element => {
-      // eslint-disable-next-line no-param-reassign
       element.value = 0
     })
   }
@@ -309,7 +307,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
 
   handleDate1(e) {
     const [y, m, d] = parseDate(e.target.value)
-    const oldval = [...this.data?.dateval]
+    const oldval = [...(this.data?.dateval ?? [])]
     this.data = {
       ...this.data,
       dateval: [d, m, y, false, ...oldval.slice(4)],
@@ -321,7 +319,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
 
   handleDate2(e) {
     const [y, m, d] = parseDate(e.target.value)
-    const oldval = [...this.data?.dateval]
+    const oldval = [...(this.data?.dateval ?? [])]
     this.data = {...this.data, dateval: [...oldval.slice(0, 4), d, m, y, false]}
     this.handleChange()
   }

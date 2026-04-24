@@ -112,7 +112,6 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._fetchData()
   }
 
-  // eslint-disable-next-line no-dupe-class-members
   renderPost(source) {
     return html`
       <div

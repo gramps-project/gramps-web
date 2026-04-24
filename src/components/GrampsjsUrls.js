@@ -19,7 +19,7 @@ function fixUrl(input) {
   let url = input
   try {
     url = new URL(input)
-  } catch (error) {
+  } catch {
     if (isValidEmail(input)) {
       return `mailto:${input}`
     }

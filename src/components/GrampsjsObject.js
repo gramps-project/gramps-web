@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 /* eslint-disable no-unused-vars */
 import {LitElement, css, html} from 'lit'
 
@@ -649,52 +648,47 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
               </p>
             `
           : ''}
-        ${
-          // eslint-disable-next-line no-nested-ternary
-          this.data.lat && this.data.long
-            ? html` <grampsjs-map
-                .appState="${this.appState}"
+        ${this.data.lat && this.data.long
+          ? html` <grampsjs-map
+              .appState="${this.appState}"
+              latitude="${this.data.profile.lat}"
+              longitude="${this.data.profile.long}"
+              zoom="${this.data?.place_type in zoomByPlaceType
+                ? zoomByPlaceType[this.data.place_type]
+                : 13}"
+              layerSwitcher
+              year="${getPlaceLatestEventYear(this.data) ?? -1}"
+              mapid="place-map"
+              id="map"
+            >
+              <grampsjs-map-marker
                 latitude="${this.data.profile.lat}"
                 longitude="${this.data.profile.long}"
-                zoom="${this.data?.place_type in zoomByPlaceType
-                  ? zoomByPlaceType[this.data.place_type]
-                  : 13}"
-                layerSwitcher
-                year="${getPlaceLatestEventYear(this.data) ?? -1}"
-                mapid="place-map"
-                id="map"
               >
-                <grampsjs-map-marker
-                  latitude="${this.data.profile.lat}"
-                  longitude="${this.data.profile.long}"
-                >
-                </grampsjs-map-marker>
-              </grampsjs-map>`
-            : mapBounds.length > 0
-            ? html` <grampsjs-map
-                .appState="${this.appState}"
-                latitude="${(JSON.parse(mapBounds[0].value)[0][0] +
-                  JSON.parse(mapBounds[0].value)[1][0]) /
-                2}"
-                longitude="${(JSON.parse(mapBounds[0].value)[0][1] +
-                  JSON.parse(mapBounds[0].value)[1][1]) /
-                2}"
-                zoom="${this._getZoomFromBounds(
-                  JSON.parse(mapBounds[0].value)
-                )}"
-                mapid="media-map"
-                id="map"
+              </grampsjs-map-marker>
+            </grampsjs-map>`
+          : mapBounds.length > 0
+          ? html` <grampsjs-map
+              .appState="${this.appState}"
+              latitude="${(JSON.parse(mapBounds[0].value)[0][0] +
+                JSON.parse(mapBounds[0].value)[1][0]) /
+              2}"
+              longitude="${(JSON.parse(mapBounds[0].value)[0][1] +
+                JSON.parse(mapBounds[0].value)[1][1]) /
+              2}"
+              zoom="${this._getZoomFromBounds(JSON.parse(mapBounds[0].value))}"
+              mapid="media-map"
+              id="map"
+            >
+              <grampsjs-map-overlay
+                url="${getMediaUrl(this.data.handle)}"
+                .bounds="${JSON.parse(mapBounds[0].value)}"
+                title="${this.data.desc}"
+                handle="${this.data.handle}"
               >
-                <grampsjs-map-overlay
-                  url="${getMediaUrl(this.data.handle)}"
-                  .bounds="${JSON.parse(mapBounds[0].value)}"
-                  title="${this.data.desc}"
-                  handle="${this.data.handle}"
-                >
-                </grampsjs-map-overlay>
-              </grampsjs-map>`
-            : ''
-        }`
+              </grampsjs-map-overlay>
+            </grampsjs-map>`
+          : ''}`
       case 'events':
         return html`<grampsjs-events
           hasShare
@@ -887,6 +881,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     this.dialogContent = ''
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _getZoomFromBounds(bounds) {
     const xMin = bounds[0][0]
     const yMin = bounds[0][1]

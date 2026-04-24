@@ -214,6 +214,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     `
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _treeViewLabel(view) {
     switch (view) {
       case 'descendant':

@@ -258,6 +258,7 @@ class GrampsjsFormName extends GrampsjsAppStateMixin(LitElement) {
     this.handleChange()
   }
 
+  // eslint-disable-next-line class-methods-use-this
   moveItem = (array, from, to) => {
     const item = array[from]
     array.splice(from, 1)

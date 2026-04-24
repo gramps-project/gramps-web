@@ -5,6 +5,7 @@ import {html, LitElement} from 'lit'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsPasswordManagerPolyfill extends LitElement {
+  // eslint-disable-next-line class-methods-use-this
   createRenderRoot() {
     // Add under document body so the element isn't placed inside any shadow roots
     return document.body

@@ -146,7 +146,6 @@ class GrampsjsImg extends LitElement {
     await fetch(url, {cache: 'reload', mode: 'no-cors'})
     this.renderRoot.querySelectorAll('img').forEach(img => {
       if (img.src === url) {
-        // eslint-disable-next-line no-param-reassign
         img.src = url
       }
     })

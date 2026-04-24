@@ -14,6 +14,7 @@ const genderColor = {
 
 // Returns the total depth of the tree
 function countDepthOfTree(treeData) {
+  // eslint-disable-next-line eqeqeq
   if (treeData == null) {
     return 0
   }
@@ -79,7 +80,6 @@ function TreeChartCore(
 
   if (orientation === 'RTL') {
     descendants.forEach(d => {
-      // eslint-disable-next-line no-param-reassign
       d.y = -d.y
     })
   }

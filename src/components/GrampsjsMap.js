@@ -188,7 +188,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     ) {
       try {
         this._map.filterByDate(`${this.year}`)
-      } catch (e) {
+      } catch {
         // Ignore errors if filterByDate fails (e.g. style does not support it)
       }
       return
@@ -239,7 +239,6 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         !overlay.handle && overlayElement.title === overlay.desc
 
       if (matchesByHandle || matchesByTitle) {
-        // eslint-disable-next-line no-param-reassign
         overlayElement.hidden = !visible
       }
     })

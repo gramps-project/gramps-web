@@ -1,4 +1,3 @@
-/* eslint-disable no-bitwise */
 import {html} from 'lit'
 import '@material/mwc-icon'
 import dayjs from 'dayjs/esm'
@@ -892,7 +891,6 @@ export function renderMarkdownLinks(markdown) {
   let lastIndex = 0
   let match
 
-  // eslint-disable-next-line no-cond-assign
   while ((match = markdownLinkPattern.exec(markdown)) !== null) {
     // Push the text before the link
     if (match.index > lastIndex) {

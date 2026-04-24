@@ -57,7 +57,6 @@ export class GrampsjsViewBlogPost extends GrampsjsView {
     `
   }
 
-  // eslint-disable-next-line no-dupe-class-members
   renderPost(source, note) {
     return html`
       <grampsjs-blog-post

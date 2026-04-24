@@ -117,6 +117,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     this.unreadCount = e.detail.unreadCount
   }
 
+  // eslint-disable-next-line class-methods-use-this
   _icon(path, isSelected) {
     return html`<grampsjs-icon
       slot="start"

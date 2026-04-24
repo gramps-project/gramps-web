@@ -95,7 +95,7 @@ class GrampsjsTabBar extends GrampsjsAppStateMixin(LitElement) {
       case 'info':
         return true
       case 'researcher':
-        return true && !this.appState.frontendConfig.hideResearcherDetails
+        return !this.appState.frontendConfig.hideResearcherDetails
       default:
         return false
     }

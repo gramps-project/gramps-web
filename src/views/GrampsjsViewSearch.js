@@ -240,7 +240,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
       const el = this.shadowRoot.getElementById('search-field')
       try {
         el.blur()
-      } catch (e) {
+      } catch {
         // retry once
         window.setTimeout(() => this._blur(false), 100)
       }

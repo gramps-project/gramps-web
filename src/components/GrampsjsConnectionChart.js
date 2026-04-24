@@ -72,7 +72,6 @@ export class GrampsjsConnectionChart extends GrampsjsResizeContainerMixin(
     ></div>`
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getUrl() {
     const rules = {
       rules: [

@@ -322,7 +322,6 @@ export class GrampsJs extends LitElement {
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _renderReindexSnackbar() {
     return html`<mwc-snackbar
       id="reindex-snackbar"
@@ -948,7 +947,6 @@ export class GrampsJs extends LitElement {
     this._handleReload()
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _handleVisibilityChange() {
     if (document.visibilityState === 'visible') {
       this._handleRefresh()
@@ -959,12 +957,10 @@ export class GrampsJs extends LitElement {
     this._showShortcuts = true
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _handleOnline() {
     this._handleRefresh()
   }
 
-  // eslint-disable-next-line class-methods-use-this
   async _handleRefresh(force = false) {
     await this.appState.refreshTokenIfNeeded(force)
     this.setPermissions()
