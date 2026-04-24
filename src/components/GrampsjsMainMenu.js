@@ -57,6 +57,20 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
           padding: 0 20px;
           margin: 4px 0;
         }
+
+        .unread-badge {
+          min-width: 18px;
+          height: 18px;
+          padding: 0 4px;
+          border-radius: 9px;
+          background: var(--md-sys-color-error, #b00020);
+          color: #fff;
+          font-size: 11px;
+          font-weight: 700;
+          line-height: 18px;
+          text-align: center;
+          box-sizing: border-box;
+        }
       `,
     ]
   }
@@ -83,6 +97,10 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
 
   connectedCallback() {
     super.connectedCallback()
+    const existing = Array.isArray(this.appState?.notifications)
+      ? this.appState.notifications
+      : []
+    this.unreadCount = existing.filter(n => n?.read === false).length
     window.addEventListener(
       'notifications:changed',
       this._boundHandleNotifications
@@ -276,14 +294,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
         )}
         ${this._('Notifications')}
         ${this.unreadCount > 0
-          ? html`<span
-              slot="end"
-              style="
-                min-width:18px;height:18px;padding:0 4px;
-                border-radius:9px;
-                background:var(--md-sys-color-error,#b00020);
-                color:#fff;font-size:11px;font-weight:700;
-                line-height:18px;text-align:center;box-sizing:border-box;"
+          ? html`<span class="unread-badge" slot="end"
               >${this.unreadCount}</span
             >`
           : ''}

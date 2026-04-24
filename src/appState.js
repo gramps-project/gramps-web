@@ -35,6 +35,9 @@ export function getInitialAppState() {
       read: false,
     }
     notifications.unshift(notification)
+    if (notifications.length > 100) {
+      notifications.length = 100
+    }
     unreadCount += 1
     fireEvent(window, 'notifications:changed', {
       notifications: [...notifications],
@@ -74,14 +77,6 @@ export function getInitialAppState() {
   function completeSave(result) {
     activeSaveCount = Math.max(0, activeSaveCount - 1)
     lastSaveSucceeded = !('error' in result)
-    if ('error' in result) {
-      addNotification({
-        type: 'error',
-        message: result.error,
-        source: 'save',
-        detail: result.errorDetail ?? {},
-      })
-    }
     notifyCounters()
     return result
   }

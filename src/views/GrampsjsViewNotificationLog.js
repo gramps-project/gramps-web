@@ -129,6 +129,13 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
     this._notifications = [...e.detail.notifications]
   }
 
+  updated(changed) {
+    super.updated(changed)
+    if (changed.has('active') && this.active) {
+      this.appState?.markAllRead()
+    }
+  }
+
   renderContent() {
     return html`
       <div class="header">
@@ -205,7 +212,8 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
               <div slot="actions">
                 <div class="dialog-actions">
                   <md-icon-button
-                    title="Copy JSON"
+                    title="${this._('Copy JSON')}"
+                    aria-label="${this._('Copy JSON')}"
                     @click="${() =>
                       this._copyDetail(this._selectedNotification.detail)}"
                   >
@@ -230,9 +238,18 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  _copyDetail(detail) {
-    navigator.clipboard.writeText(JSON.stringify(detail, null, 2))
+  async _copyDetail(detail) {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(detail, null, 2))
+    } catch (err) {
+      this.dispatchEvent(
+        new CustomEvent('grampsjs:error', {
+          bubbles: true,
+          composed: true,
+          detail: {message: this._('Failed to copy to clipboard')},
+        })
+      )
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this

@@ -116,7 +116,7 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
     // Fire grampsjs:error with silent:true so GrampsJs logs it without showing
     // a snackbar — the inline progress indicator already displays the message.
     fireEvent(this, 'grampsjs:error', {
-      message: this.errorMessage || this.taskName || 'Task failed',
+      message: this.errorMessage || this.taskName || this._('Task failed'),
       silent: true,
       source: 'task',
       detail: this.status?.result_object ?? {},
