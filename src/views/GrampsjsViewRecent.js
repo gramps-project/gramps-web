@@ -30,12 +30,6 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     this._handleStorage()
   }
 
-  _handleLanguageChanged(lang) {
-    if (this._hasFirstUpdated) {
-      this._fetchData(lang)
-    }
-  }
-
   _handleStorage() {
     const recentObjects = getRecentObjects()
     if (recentObjects !== undefined && recentObjects !== null) {
@@ -122,24 +116,15 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     }
   }
 
-  firstUpdated() {
-    this._hasFirstUpdated = true
-    if (this.appState.i18n.lang) {
-      // don't load before we have strings
-      this._fetchData(this.appState.i18n.lang)
-    }
+  _onLangChanged(lang) {
+    this._fetchData(lang)
   }
 
   updated(changed) {
+    super.updated(changed)
     if (changed.has('active') && this.active && this._isStale) {
       this._fetchData(this.appState.i18n.lang)
       this._isStale = false
-    }
-    if (
-      changed.has('appState') &&
-      changed.get('appState')?.i18n?.lang !== this.appState.i18n.lang
-    ) {
-      this._handleLanguageChanged(this.appState.i18n.lang)
     }
   }
 }

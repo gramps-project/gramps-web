@@ -98,11 +98,12 @@ export class GrampsjsViewReport extends GrampsjsView {
   }
 
   firstUpdated() {
-    if (this.appState.i18n.lang) {
-      // don't load before we have strings
-      this._fetchData(this.appState.i18n.lang)
-    }
+    super.firstUpdated()
     this._updateQueryUrl()
+  }
+
+  _onLangChanged(lang) {
+    this._fetchData(lang)
   }
 
   update(changed) {

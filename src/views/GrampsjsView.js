@@ -65,5 +65,24 @@ export class GrampsjsView extends GrampsjsAppStateMixin(LitElement) {
 
   firstUpdated() {
     this._hasFirstUpdated = true
+    if (this.appState.i18n.lang) {
+      this._onLangChanged(this.appState.i18n.lang)
+    }
   }
+
+  updated(changed) {
+    if (
+      changed.has('appState') &&
+      changed.get('appState')?.i18n?.lang !== this.appState.i18n.lang &&
+      this.appState.i18n.lang &&
+      this._hasFirstUpdated
+    ) {
+      this._onLangChanged(this.appState.i18n.lang)
+    }
+  }
+
+  // Override in subclasses to fetch lang-dependent data.
+  // Called on first update (if lang already set) and whenever lang changes.
+  // eslint-disable-next-line no-unused-vars
+  _onLangChanged(_lang) {}
 }

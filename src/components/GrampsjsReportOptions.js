@@ -57,6 +57,28 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
     this._options = {}
   }
 
+  updated(changed) {
+    super.updated(changed)
+    if (changed.has('optionsDict') && Object.keys(this.optionsDict).length) {
+      // Pre-populate _options with string defaults so they are always sent
+      // to the backend even when the user only changes one field.
+      const stringDefaults = {}
+      Object.keys(this.optionsDict)
+        .filter(key => !_forbiddenOptions.includes(key))
+        .forEach(key => {
+          if (
+            this.optionsHelp[key] &&
+            this.optionsHelp[key][2] !== null &&
+            this.optionsHelp[key][2].constructor.name !== 'Array'
+          ) {
+            stringDefaults[key] = this.optionsDict[key] ?? ''
+          }
+        })
+      this._options = {...stringDefaults, ...this._options}
+      fireEvent(this, 'report-options:changed', this._options)
+    }
+  }
+
   render() {
     return html`
       ${Object.keys(this.optionsDict)
@@ -121,6 +143,7 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
           <mwc-textfield
             @input="${this._handleText}"
             id="${key}"
+            .value="${this._options[key] ?? this.optionsDict[key] ?? ''}"
             helper="${this._(helper)}"
             helperPersistent
             type="${helper.includes('A number') ? 'number' : 'text'}"
