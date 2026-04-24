@@ -12,7 +12,7 @@ class GrampsjsMapMarker extends LitElement {
     return {
       latitude: {type: Number},
       longitude: {type: Number},
-      popupLabel: {type: String},
+      label: {type: String},
       markerId: {type: String},
       opacity: {type: Number},
       size: {type: Number},
@@ -23,7 +23,7 @@ class GrampsjsMapMarker extends LitElement {
 
   constructor() {
     super()
-    this.popupLabel = ''
+    this.label = ''
     this.markerId = ''
     this.opacity = 1
     this.size = 32
@@ -54,19 +54,12 @@ class GrampsjsMapMarker extends LitElement {
       </svg>
     `
     el.addEventListener('click', this.clickHandler.bind(this))
-    // Add popup if needed
-    if (this.popupLabel) {
-      el.title = this.popupLabel
+    if (this.label) {
+      el.title = this.label
     }
-    // Create the marker
     this._marker = new maplibregl.Marker({element: el})
       .setLngLat([this.longitude, this.latitude])
       .addTo(this._map)
-    if (this.popupLabel) {
-      this._marker.setPopup(
-        new maplibregl.Popup({offset: 25}).setHTML(this.popupLabel)
-      )
-    }
   }
 
   clickHandler() {

@@ -68,19 +68,16 @@ export class GrampsjsPlaceBox extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     return html`
-    <h2>
-      ${this.data?.name?.value || this.data.title || this._('Place')}
-      ${
-        this.data?.profile?.parent_places.length > 0
+      <h2>
+        ${this.data?.name?.value || this.data.title || this._('Place')}
+        ${this.data?.profile?.parent_places?.length > 0
           ? html`<h4>
               ${this.data.profile.parent_places.map(obj => obj.name).join(', ')}
             </h4>`
-          : ''
-      }
-          </h4>
+          : ''}
+      </h2>
 
-    ${
-      this.data?.media_list?.length
+      ${this.data?.media_list?.length
         ? html`
             <h3>${this._('Gallery')}</h3>
 
@@ -91,14 +88,13 @@ export class GrampsjsPlaceBox extends GrampsjsAppStateMixin(LitElement) {
               count="${this.data?.media_list?.length || 1}"
             ></grampsjs-connected-gallery>
           `
-        : ''
-    }
+        : ''}
 
-    <div class="right">
-      <mwc-button
-        @click="${this._handleDetailClick}"
-      >${this._('Show Details')}</mwc-button>
-    </div>
+      <div class="right">
+        <mwc-button @click="${this._handleDetailClick}"
+          >${this._('Show Details')}</mwc-button
+        >
+      </div>
     `
   }
 

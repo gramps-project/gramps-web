@@ -1,4 +1,3 @@
-/* eslint-disable lit/attribute-value-entities */
 import {html, css} from 'lit'
 import '@material/mwc-textfield'
 
@@ -154,6 +153,23 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     `
   }
 
+  // Reconstruct parent_places from the already-loaded _dataPlaces array instead
+  // of fetching the individual place (which would include parent_places by default).
+  _resolveParentPlaces(place) {
+    const result = []
+    const visited = new Set()
+    let current = place
+    while (current?.placeref_list?.length > 0) {
+      const parentHandle = current.placeref_list[0].ref
+      if (visited.has(parentHandle)) break
+      visited.add(parentHandle)
+      current = this._dataPlaces.find(p => p.handle === parentHandle)
+      if (!current) break
+      result.push({name: current.profile?.name ?? ''})
+    }
+    return result
+  }
+
   _renderPlaceDetails() {
     if (this._handlesHighlight.length === 0) {
       return ''
@@ -164,9 +180,16 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       this._clearSearchBox()
       return ''
     }
+    const data = {
+      ...object,
+      profile: {
+        ...object.profile,
+        parent_places: this._resolveParentPlaces(object),
+      },
+    }
     return html`
       <grampsjs-place-box
-        .data="${object}"
+        .data="${data}"
         .appState="${this.appState}"
       ></grampsjs-place-box>
     `
@@ -363,8 +386,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         opacity="${!highlighted && this._handlesHighlight.length > 0
           ? 0.55
           : 0.9}"
-        popupLabel="<a href='place/${obj.profile.gramps_id}'>${obj.profile
-          .name}</a>"
+        label="${obj.profile.name}"
         @marker:clicked="${() => this._handleMarkerClick(obj)}"
       ></grampsjs-map-marker>`
     })
