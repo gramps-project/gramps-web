@@ -60,8 +60,8 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
   updated(changed) {
     super.updated(changed)
     if (changed.has('optionsDict') && Object.keys(this.optionsDict).length) {
-      // Pre-populate _options with string defaults so they are always sent
-      // to the backend even when the user only changes one field.
+      // Reset and re-populate whenever optionsDict changes (i.e. a different
+      // report is opened) so values from a previous report don't leak through.
       const stringDefaults = {}
       Object.keys(this.optionsDict)
         .filter(key => !_forbiddenOptions.includes(key))
@@ -74,12 +74,13 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
             const val = this.optionsDict[key]
             // Array-valued defaults (e.g. father_disp) must be sent to the
             // backend as bracket-notation strings so Gramps can parse them.
+            // All values are coerced to string — the API requires strings.
             stringDefaults[key] = Array.isArray(val)
               ? JSON.stringify(val)
-              : val ?? ''
+              : String(val ?? '')
           }
         })
-      this._options = {...stringDefaults, ...this._options}
+      this._options = stringDefaults
       fireEvent(this, 'report-options:changed', this._options)
     }
   }
