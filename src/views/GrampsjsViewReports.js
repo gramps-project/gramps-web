@@ -91,8 +91,8 @@ export class GrampsjsViewReports extends GrampsjsView {
     }
   }
 
-  _onLangChanged(lang) {
-    this._fetchData(lang)
+  _onLangChanged() {
+    this._fetchData()
   }
 }
 

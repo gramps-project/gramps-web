@@ -48,6 +48,10 @@ export class GrampsjsView extends GrampsjsAppStateMixin(LitElement) {
     this.settings = {}
     this._errorMessage = ''
     this._hasFirstUpdated = false
+    // Tracks the lang value we last passed to _onLangChanged. Used to deduplicate
+    // calls when firstUpdated() and updated() fire in the same Lit cycle (e.g.
+    // when active and appState both change together in the same batched update).
+    this._lastLangChanged = ''
   }
 
   render() {
@@ -65,6 +69,11 @@ export class GrampsjsView extends GrampsjsAppStateMixin(LitElement) {
 
   firstUpdated() {
     this._hasFirstUpdated = true
+    const lang = this.appState?.i18n?.lang
+    if (lang) {
+      this._lastLangChanged = lang
+      this._onLangChanged(lang)
+    }
   }
 
   updated(changed) {
@@ -72,16 +81,16 @@ export class GrampsjsView extends GrampsjsAppStateMixin(LitElement) {
     const lang = this.appState?.i18n?.lang
     if (
       lang &&
+      lang !== this._lastLangChanged &&
       changed.has('appState') &&
-      changed.get('appState')?.i18n?.lang !== lang &&
-      this._hasFirstUpdated
+      changed.get('appState')?.i18n?.lang !== lang
     ) {
+      this._lastLangChanged = lang
       this._onLangChanged(lang)
     }
   }
 
   // Override in subclasses to fetch lang-dependent data.
-  // Called on first update (if lang already set) and whenever lang changes.
   // eslint-disable-next-line no-unused-vars
   _onLangChanged(_lang) {}
 }

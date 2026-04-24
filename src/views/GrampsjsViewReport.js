@@ -102,8 +102,8 @@ export class GrampsjsViewReport extends GrampsjsView {
     this._updateQueryUrl()
   }
 
-  _onLangChanged(lang) {
-    this._fetchData(lang)
+  _onLangChanged() {
+    this._fetchData()
   }
 
   update(changed) {
