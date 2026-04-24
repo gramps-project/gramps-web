@@ -7,13 +7,64 @@ import {
   updateSettings,
 } from './api.js'
 import {getCurrentTheme} from './theme.js'
-import {fireEvent} from './util.js'
+import {fireEvent, makeHandle} from './util.js'
 
 export function getInitialAppState() {
   const auth = new Auth()
   let activeGetCount = 0
   let activeSaveCount = 0
   let lastSaveSucceeded = true
+
+  // In-memory notification log
+  const notifications = []
+  let unreadCount = 0
+
+  function addNotification({
+    type = 'error',
+    message = '',
+    source = 'api',
+    detail = {},
+  }) {
+    const notification = {
+      id: makeHandle(),
+      type,
+      message,
+      source,
+      detail,
+      timestamp: new Date(),
+      read: false,
+    }
+    notifications.unshift(notification)
+    if (notifications.length > 100) {
+      notifications.length = 100
+    }
+    unreadCount = notifications.filter(n => n.read === false).length
+    fireEvent(window, 'notifications:changed', {
+      notifications: [...notifications],
+      unreadCount,
+    })
+  }
+
+  function markAllRead() {
+    notifications.forEach(n => {
+      // eslint-disable-next-line no-param-reassign
+      n.read = true
+    })
+    unreadCount = 0
+    fireEvent(window, 'notifications:changed', {
+      notifications: [...notifications],
+      unreadCount,
+    })
+  }
+
+  function clearNotifications() {
+    notifications.length = 0
+    unreadCount = 0
+    fireEvent(window, 'notifications:changed', {
+      notifications: [],
+      unreadCount,
+    })
+  }
 
   function notifyCounters() {
     fireEvent(window, 'requests:changed', {
@@ -100,6 +151,12 @@ export function getInitialAppState() {
     updateSettings: (settings = {}, tree = false) =>
       updateSettings(settings, tree),
     getCurrentTheme: () => getCurrentTheme(getSettings().theme),
+    getNotifications() {
+      return [...notifications]
+    },
+    addNotification,
+    markAllRead,
+    clearNotifications,
   }
 }
 

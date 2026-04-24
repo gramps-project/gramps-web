@@ -28,6 +28,7 @@ import '../views/GrampsjsViewTask.js'
 import '../views/GrampsjsViewTasks.js'
 import '../views/GrampsjsViewBlog.js'
 import '../views/GrampsjsViewBlogPost.js'
+import '../views/GrampsjsViewNotificationLog.js'
 import '../views/GrampsjsViewCitation.js'
 import '../views/GrampsjsViewDashboard.js'
 import '../views/GrampsjsViewRepository.js'
@@ -295,6 +296,11 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         ?active=${this.appState.path.page === 'tasks'}
         .appState="${this.appState}"
       ></grampsjs-view-tasks>
+      <grampsjs-view-notification-log
+        class="page"
+        ?active=${this.appState.path.page === 'notifications'}
+        .appState="${this.appState}"
+      ></grampsjs-view-notification-log>
       <grampsjs-view-settings-user
         class="page"
         ?active=${this.appState.path.page === 'settings' &&

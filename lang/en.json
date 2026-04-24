@@ -289,5 +289,11 @@
   "Select files": "Select files",
   "Failed to upload": "Failed to upload",
   "Failed to update": "Failed to update",
-  "Not private": "Not private"
+  "Not private": "Not private",
+  "Network": "Network",
+  "Browser": "Browser",
+  "Notifications": "Notifications",
+  "Copy JSON": "Copy JSON",
+  "Task failed": "Task failed",
+  "Failed to copy to clipboard": "Failed to copy to clipboard"
 }

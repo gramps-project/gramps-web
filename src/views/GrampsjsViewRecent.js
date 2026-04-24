@@ -1,9 +1,11 @@
 import {html} from 'lit'
-import '@material/mwc-button'
+import '@material/web/button/outlined-button.js'
+import {mdiDeleteSweep} from '@mdi/js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import {getRecentObjects, setRecentObjects} from '../api.js'
 import '../components/GrampsjsSearchResultList.js'
+import '../components/GrampsjsIcon.js'
 
 export class GrampsjsViewRecentObject extends GrampsjsView {
   static get properties() {
@@ -62,14 +64,20 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
   }
 
   render() {
-    return html` <mwc-button
-        raised
-        label="${this._('Clear')}"
+    return html` <md-outlined-button
         class="float-right"
-        icon="clear_all"
         @click="${this._handleClear}"
         ?disabled=${this._data.length === 0}
-      ></mwc-button>
+      >
+        <grampsjs-icon
+          slot="icon"
+          path="${mdiDeleteSweep}"
+          color="var(--md-outlined-button-label-text-color, var(--md-sys-color-primary))"
+          height="20"
+          width="20"
+        ></grampsjs-icon>
+        ${this._('Clear _All')}
+      </md-outlined-button>
       <h2>${this._('Recently browsed objects')}</h2>
       ${this._data.length === 0
         ? html` <p>${this._('None')}.</p> `
