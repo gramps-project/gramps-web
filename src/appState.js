@@ -15,6 +15,54 @@ export function getInitialAppState() {
   let activeSaveCount = 0
   let lastSaveSucceeded = true
 
+  // In-memory notification log
+  const notifications = []
+  let unreadCount = 0
+
+  function addNotification({
+    type = 'error',
+    message = '',
+    source = 'api',
+    detail = {},
+  }) {
+    const notification = {
+      id: `${Date.now()}-${Math.random()}`,
+      type,
+      message,
+      source,
+      detail,
+      timestamp: new Date(),
+      read: false,
+    }
+    notifications.unshift(notification)
+    unreadCount += 1
+    fireEvent(window, 'notifications:changed', {
+      notifications: [...notifications],
+      unreadCount,
+    })
+  }
+
+  function markAllRead() {
+    notifications.forEach(n => {
+      // eslint-disable-next-line no-param-reassign
+      n.read = true
+    })
+    unreadCount = 0
+    fireEvent(window, 'notifications:changed', {
+      notifications: [...notifications],
+      unreadCount,
+    })
+  }
+
+  function clearNotifications() {
+    notifications.length = 0
+    unreadCount = 0
+    fireEvent(window, 'notifications:changed', {
+      notifications: [],
+      unreadCount,
+    })
+  }
+
   function notifyCounters() {
     fireEvent(window, 'requests:changed', {
       activeGet: activeGetCount,
@@ -26,6 +74,14 @@ export function getInitialAppState() {
   function completeSave(result) {
     activeSaveCount = Math.max(0, activeSaveCount - 1)
     lastSaveSucceeded = !('error' in result)
+    if ('error' in result) {
+      addNotification({
+        type: 'error',
+        message: result.error,
+        source: 'save',
+        detail: result.errorDetail ?? {},
+      })
+    }
     notifyCounters()
     return result
   }
@@ -100,6 +156,10 @@ export function getInitialAppState() {
     updateSettings: (settings = {}, tree = false) =>
       updateSettings(settings, tree),
     getCurrentTheme: () => getCurrentTheme(getSettings().theme),
+    notifications,
+    addNotification,
+    markAllRead,
+    clearNotifications,
   }
 }
 

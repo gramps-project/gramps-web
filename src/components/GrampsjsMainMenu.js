@@ -23,6 +23,8 @@ import {
   mdiFileExportOutline,
   mdiSourceCommit,
   mdiLabel,
+  mdiBell,
+  mdiBellBadge,
 } from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -65,6 +67,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       editTitle: {type: String},
       editDialogContent: {type: String},
       saveButton: {type: Boolean},
+      unreadCount: {type: Number},
     }
   }
 
@@ -74,6 +77,28 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     this.editTitle = ''
     this.editDialogContent = ''
     this.saveButton = false
+    this.unreadCount = 0
+    this._boundHandleNotifications = this._handleNotificationsChanged.bind(this)
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener(
+      'notifications:changed',
+      this._boundHandleNotifications
+    )
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    window.removeEventListener(
+      'notifications:changed',
+      this._boundHandleNotifications
+    )
+  }
+
+  _handleNotificationsChanged(e) {
+    this.unreadCount = e.detail.unreadCount
   }
 
   _icon(path, isSelected) {
@@ -239,6 +264,30 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
             </md-list-item>
           `
         : ''}
+      <md-divider inset></md-divider>
+      <md-list-item
+        type="link"
+        href="${BASE_DIR}/notifications"
+        ?selected="${p === 'notifications'}"
+      >
+        ${this._icon(
+          this.unreadCount > 0 ? mdiBellBadge : mdiBell,
+          p === 'notifications'
+        )}
+        ${this._('Notifications')}
+        ${this.unreadCount > 0
+          ? html`<span
+              slot="end"
+              style="
+                min-width:18px;height:18px;padding:0 4px;
+                border-radius:9px;
+                background:var(--md-sys-color-error,#b00020);
+                color:#fff;font-size:11px;font-weight:700;
+                line-height:18px;text-align:center;box-sizing:border-box;"
+              >${this.unreadCount}</span
+            >`
+          : ''}
+      </md-list-item>
     </md-list>`
   }
 }

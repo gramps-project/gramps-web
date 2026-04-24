@@ -289,5 +289,7 @@
   "Select files": "Select files",
   "Failed to upload": "Failed to upload",
   "Failed to update": "Failed to update",
-  "Not private": "Not private"
+  "Not private": "Not private",
+  "Network": "Network",
+  "Notifications": "Notifications"
 }

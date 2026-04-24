@@ -300,8 +300,7 @@ export class GrampsJs extends LitElement {
   render() {
     return html`
       ${this.renderContent()} ${this._renderKeyboardShortcuts()}
-      <mwc-snackbar id="error-snackbar" leading></mwc-snackbar>
-      <mwc-snackbar id="notification-snackbar" leading></mwc-snackbar>
+      <mwc-snackbar id="app-snackbar" leading></mwc-snackbar>
       ${this._reindexNeeded ? this._renderReindexSnackbar() : ''}
       <grampsjs-undo-transaction
         .appState="${this.appState}"
@@ -931,13 +930,16 @@ export class GrampsJs extends LitElement {
   }
 
   _handleError(e) {
-    const {message} = e.detail
-    this._showError(message)
+    const {message, silent = false, source = 'api', detail = {}} = e.detail
+    this.appState.addNotification({type: 'error', message, source, detail})
+    if (!silent) {
+      this._showMessage(`${this._('Error')}: ${message}`)
+    }
   }
 
   _handleNotification(e) {
     const {message} = e.detail
-    this._showToast(message)
+    this._showMessage(message)
   }
 
   _handleDbUpgradeComplete() {
@@ -1027,13 +1029,11 @@ export class GrampsJs extends LitElement {
   }
 
   _showError(msg) {
-    const snackbar = this.shadowRoot.getElementById('error-snackbar')
-    snackbar.labelText = `${this._('Error')}: ${msg}`
-    snackbar.show()
+    this._showMessage(`${this._('Error')}: ${msg}`)
   }
 
-  _showToast(msg) {
-    const snackbar = this.shadowRoot.getElementById('notification-snackbar')
+  _showMessage(msg) {
+    const snackbar = this.shadowRoot.getElementById('app-snackbar')
     snackbar.labelText = msg
     snackbar.show()
   }

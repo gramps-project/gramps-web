@@ -812,6 +812,8 @@ export class Auth {
 }
 
 export async function apiGet(auth, endpoint) {
+  let status
+  let resJson
   try {
     const headers = {}
     try {
@@ -823,7 +825,7 @@ export async function apiGet(auth, endpoint) {
       method: 'GET',
       headers,
     })
-    let resJson
+    status = resp.status
     try {
       resJson = await resp.json()
     } catch (error) {
@@ -834,7 +836,11 @@ export async function apiGet(auth, endpoint) {
     }
     if (resp.status !== 200) {
       throw new Error(
-        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+        resJson?.error?.message ||
+          resJson?.message ||
+          resJson?.status ||
+          resp.statusText ||
+          `Error ${resp.status}`
       )
     }
     return {
@@ -843,10 +849,11 @@ export async function apiGet(auth, endpoint) {
       etag: resp.headers.get('ETag'),
     }
   } catch (error) {
+    const errorDetail = {method: 'GET', endpoint, status, response: resJson}
     if (error instanceof TypeError) {
-      return {error: 'Network error'}
+      return {error: 'Network error', errorDetail}
     }
-    return {error: error.message}
+    return {error: error.message, errorDetail}
   }
 }
 
@@ -857,6 +864,8 @@ export async function apiPutPostDelete(
   payload,
   {isJson = true, dbChanged = true, requireFresh = false} = {}
 ) {
+  let resJson
+  let status
   try {
     let headers = {}
     try {
@@ -876,12 +885,12 @@ export async function apiPutPostDelete(
       headers,
       body: isJson ? JSON.stringify(payload) : payload,
     })
-    let resJson
     try {
       resJson = await resp.json()
     } catch (error) {
       resJson = {}
     }
+    status = resp.status
     if (resp.status === 401) {
       if (requireFresh) {
         throw new Error(resJson.message)
@@ -892,7 +901,11 @@ export async function apiPutPostDelete(
     }
     if (resp.status !== 201 && resp.status !== 200 && resp.status !== 202) {
       throw new Error(
-        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+        resJson?.error?.message ||
+          resJson?.message ||
+          resJson?.status ||
+          resp.statusText ||
+          `Error ${resp.status}`
       )
     }
     if (dbChanged) {
@@ -907,7 +920,10 @@ export async function apiPutPostDelete(
       etag: resp.headers.get('ETag'),
     }
   } catch (error) {
-    return {error: error.message}
+    return {
+      error: error.message,
+      errorDetail: {method, endpoint, status, response: resJson},
+    }
   }
 }
 
