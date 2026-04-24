@@ -65,20 +65,18 @@ export class GrampsjsView extends GrampsjsAppStateMixin(LitElement) {
 
   firstUpdated() {
     this._hasFirstUpdated = true
-    if (this.appState.i18n.lang) {
-      this._onLangChanged(this.appState.i18n.lang)
-    }
   }
 
   updated(changed) {
     super.updated(changed)
+    const lang = this.appState?.i18n?.lang
     if (
+      lang &&
       changed.has('appState') &&
-      changed.get('appState')?.i18n?.lang !== this.appState.i18n.lang &&
-      this.appState.i18n.lang &&
+      changed.get('appState')?.i18n?.lang !== lang &&
       this._hasFirstUpdated
     ) {
-      this._onLangChanged(this.appState.i18n.lang)
+      this._onLangChanged(lang)
     }
   }
 

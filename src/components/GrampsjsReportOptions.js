@@ -149,7 +149,7 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
           <mwc-textfield
             @input="${this._handleText}"
             id="${key}"
-            .value="${this._options[key] ?? ''}"
+            .value="${String(this._options[key] ?? '')}"
             helper="${this._(helper)}"
             helperPersistent
             type="${helper.includes('A number') ? 'number' : 'text'}"
