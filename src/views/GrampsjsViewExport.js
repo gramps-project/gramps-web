@@ -239,33 +239,23 @@ export class GrampsjsViewExport extends GrampsjsView {
   }
 
   firstUpdated() {
-    if (this.appState.i18n.lang) {
-      // don't load before we have strings
-      this._fetchData(this.appState.i18n.lang)
-    }
+    super.firstUpdated()
     const permissions = getPermissions()
     this._viewPrivate = permissions.includes('ViewPrivate')
   }
 
   updated(changed) {
+    super.updated(changed)
     if (changed.has('_downloadUrl') && this._downloadUrl) {
       this._startDownload()
     }
     if (changed.has('_mediaDownloadUrl') && this._mediaDownloadUrl) {
       this._startMediaDownload()
     }
-    if (
-      changed.has('appState') &&
-      changed.get('appState')?.i18n?.lang !== this.appState.i18n.lang
-    ) {
-      this._handleLanguageChanged(this.appState.i18n.lang)
-    }
   }
 
-  _handleLanguageChanged(lang) {
-    if (this._hasFirstUpdated) {
-      this._fetchData(lang)
-    }
+  _onLangChanged() {
+    this._fetchData()
   }
 }
 

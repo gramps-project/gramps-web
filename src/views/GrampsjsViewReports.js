@@ -91,26 +91,8 @@ export class GrampsjsViewReports extends GrampsjsView {
     }
   }
 
-  firstUpdated() {
-    if (this.appState.i18n.lang) {
-      // don't load before we have strings
-      this._fetchData(this.appState.i18n.lang)
-    }
-  }
-
-  updated(changed) {
-    if (
-      changed.has('appState') &&
-      changed.get('appState')?.i18n?.lang !== this.appState.i18n.lang
-    ) {
-      this._handleLanguageChanged(this.appState.i18n.lang)
-    }
-  }
-
-  _handleLanguageChanged(lang) {
-    if (this._hasFirstUpdated) {
-      this._fetchData(lang)
-    }
+  _onLangChanged() {
+    this._fetchData()
   }
 }
 

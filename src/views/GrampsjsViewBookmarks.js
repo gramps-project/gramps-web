@@ -91,12 +91,8 @@ export class GrampsjsViewBookmarks extends GrampsjsView {
     }
   }
 
-  firstUpdated() {
-    this._hasFirstUpdated = true
-    if (this.appState.i18n.lang) {
-      // don't load before we have strings
-      this._fetchData(this.appState.i18n.lang)
-    }
+  _onLangChanged(lang) {
+    this._fetchData(lang)
   }
 
   update(changed) {

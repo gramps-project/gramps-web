@@ -57,6 +57,34 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
     this._options = {}
   }
 
+  updated(changed) {
+    super.updated(changed)
+    if (changed.has('optionsDict') && Object.keys(this.optionsDict).length) {
+      // Reset and re-populate whenever optionsDict changes (i.e. a different
+      // report is opened) so values from a previous report don't leak through.
+      const stringDefaults = {}
+      Object.keys(this.optionsDict)
+        .filter(key => !_forbiddenOptions.includes(key))
+        .forEach(key => {
+          if (
+            this.optionsHelp[key] &&
+            this.optionsHelp[key][2] !== null &&
+            !Array.isArray(this.optionsHelp[key][2])
+          ) {
+            const val = this.optionsDict[key]
+            // Array-valued defaults (e.g. father_disp) must be sent to the
+            // backend as bracket-notation strings so Gramps can parse them.
+            // All values are coerced to string — the API requires strings.
+            stringDefaults[key] = Array.isArray(val)
+              ? JSON.stringify(val)
+              : String(val ?? '')
+          }
+        })
+      this._options = stringDefaults
+      fireEvent(this, 'report-options:changed', this._options)
+    }
+  }
+
   render() {
     return html`
       ${Object.keys(this.optionsDict)
@@ -67,7 +95,7 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
 
   _renderOption(key) {
     const options = this.optionsHelp[key][2]
-    if (options.constructor.name === 'Array') {
+    if (Array.isArray(options)) {
       if (
         options.length === 2 &&
         options.sort()[0] === 'False' &&
@@ -121,6 +149,7 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
           <mwc-textfield
             @input="${this._handleText}"
             id="${key}"
+            .value="${String(this._options[key] ?? '')}"
             helper="${this._(helper)}"
             helperPersistent
             type="${helper.includes('A number') ? 'number' : 'text'}"
