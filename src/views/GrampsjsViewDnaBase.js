@@ -201,10 +201,6 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     }
   }
 
-  firstUpdated() {
-    super.firstUpdated()
-  }
-
   _onLangChanged() {
     this._fetchSelectData()
   }
