@@ -71,7 +71,12 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
             this.optionsHelp[key][2] !== null &&
             this.optionsHelp[key][2].constructor.name !== 'Array'
           ) {
-            stringDefaults[key] = this.optionsDict[key] ?? ''
+            const val = this.optionsDict[key]
+            // Array-valued defaults (e.g. father_disp) must be sent to the
+            // backend as bracket-notation strings so Gramps can parse them.
+            stringDefaults[key] = Array.isArray(val)
+              ? JSON.stringify(val)
+              : val ?? ''
           }
         })
       this._options = {...stringDefaults, ...this._options}
@@ -143,7 +148,7 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
           <mwc-textfield
             @input="${this._handleText}"
             id="${key}"
-            .value="${this._options[key] ?? this.optionsDict[key] ?? ''}"
+            .value="${this._options[key] ?? ''}"
             helper="${this._(helper)}"
             helperPersistent
             type="${helper.includes('A number') ? 'number' : 'text'}"

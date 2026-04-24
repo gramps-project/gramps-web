@@ -116,9 +116,10 @@ export class GrampsjsViewReport extends GrampsjsView {
 
   _updateQueryUrl() {
     const options = Object.keys(this._options).reduce((r, e) => {
-      if (this._options[e] !== '') {
+      const val = `${this._options[e]}`
+      if (val !== '') {
         // eslint-disable-next-line no-param-reassign
-        r[e] = `${this._options[e]}`
+        r[e] = val
       }
       return r
     }, {})
