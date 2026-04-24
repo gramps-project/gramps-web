@@ -110,7 +110,7 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
 
   connectedCallback() {
     super.connectedCallback()
-    this._notifications = this.appState?.getNotifications() ?? []
+    this._notifications = this.appState?.getNotifications?.() ?? []
     window.addEventListener(
       'notifications:changed',
       this._boundHandleNotifications
