@@ -292,5 +292,11 @@
     "Not private": "Nicht vertraulich",
     "Edit enclosing place": "Umgebenden Ort bearbeiten",
     "Saved": "Gespeichert",
-    "Saving...": "Speichern..."
+    "Saving...": "Speichern...",
+    "Network": "Netzwerk",
+    "Browser": "Browser",
+    "Notifications": "Benachrichtigungen",
+    "Task failed": "Aufgabe fehlgeschlagen",
+    "Failed to copy to clipboard": "Das Kopieren in die Zwischenablage ist fehlgeschlagen",
+    "Copy JSON": "JSON kopieren"
 }
