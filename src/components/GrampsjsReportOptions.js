@@ -69,7 +69,7 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
           if (
             this.optionsHelp[key] &&
             this.optionsHelp[key][2] !== null &&
-            this.optionsHelp[key][2].constructor.name !== 'Array'
+            !Array.isArray(this.optionsHelp[key][2])
           ) {
             const val = this.optionsDict[key]
             // Array-valued defaults (e.g. father_disp) must be sent to the
@@ -95,7 +95,7 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
 
   _renderOption(key) {
     const options = this.optionsHelp[key][2]
-    if (options.constructor.name === 'Array') {
+    if (Array.isArray(options)) {
       if (
         options.length === 2 &&
         options.sort()[0] === 'False' &&

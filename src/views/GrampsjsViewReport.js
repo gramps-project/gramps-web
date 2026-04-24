@@ -103,7 +103,11 @@ export class GrampsjsViewReport extends GrampsjsView {
   }
 
   _onLangChanged() {
-    this._fetchData()
+    // update() already fetches when reportId changes (initial load).
+    // Only re-fetch here when lang changes after data is already loaded.
+    if (this.data.id) {
+      this._fetchData()
+    }
   }
 
   update(changed) {
