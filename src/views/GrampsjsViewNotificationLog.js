@@ -246,7 +246,11 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
         new CustomEvent('grampsjs:error', {
           bubbles: true,
           composed: true,
-          detail: {message: this._('Failed to copy to clipboard')},
+          detail: {
+            message: this._('Failed to copy to clipboard'),
+            source: 'browser',
+            detail: {error: err?.message ?? String(err)},
+          },
         })
       )
     }
@@ -266,6 +270,7 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
       api: this._('Network'),
       task: this._('Task'),
       save: this._('_Save'),
+      browser: this._('Browser'),
     }
     return labels[source] ?? source
   }
