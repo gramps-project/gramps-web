@@ -291,5 +291,11 @@
     "Gallery view": "Prikaz galerije",
     "List view": "Prikaz popisa",
     "Not private": "Nije privatno",
-    "Edit enclosing place": "Uredi obuhvaćajuće mjesto"
+    "Edit enclosing place": "Uredi obuhvaćajuće mjesto",
+    "Network": "Mreža",
+    "Browser": "Preglednik",
+    "Notifications": "Obavijesti",
+    "Copy JSON": "Kopiraj JSON",
+    "Task failed": "Zadatak nije uspio",
+    "Failed to copy to clipboard": "Neuspjelo kopiranje u međuspremnik"
 }
