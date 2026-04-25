@@ -292,5 +292,11 @@
     "Invalid face rectangle coordinates": "Coordenadas de rectángulo del rostro no válido",
     "Not private": "No privado",
     "Saved": "Guardado",
-    "Saving...": "Guardando…"
+    "Saving...": "Guardando…",
+    "Network": "Red",
+    "Browser": "Explorador",
+    "Notifications": "Notificaciones",
+    "Copy JSON": "Copiar JSON",
+    "Task failed": "Tareas incorrectas",
+    "Failed to copy to clipboard": "Fallo al copiar al portapapeles"
 }
