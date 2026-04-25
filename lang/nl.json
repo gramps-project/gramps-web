@@ -292,5 +292,11 @@
     "Not private": "Niet privé",
     "Edit enclosing place": "Omsluitende plaats bewerken",
     "Saved": "Opgeslagen",
-    "Saving...": "Opslaan…"
+    "Saving...": "Opslaan…",
+    "Network": "Netwerk",
+    "Browser": "Browser",
+    "Notifications": "Meldingen",
+    "Copy JSON": "JSON kopiëren",
+    "Task failed": "Taak mislukt",
+    "Failed to copy to clipboard": "Kopiëren naar klembord is mislukt"
 }
