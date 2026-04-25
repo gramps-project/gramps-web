@@ -292,5 +292,11 @@
     "Not private": "Inte privat",
     "Edit enclosing place": "Redigera omslutande plats",
     "Saved": "Sparad",
-    "Saving...": "Sparar..."
+    "Saving...": "Sparar...",
+    "Network": "Nätverk",
+    "Browser": "Webbläsare",
+    "Notifications": "Aviseringar",
+    "Copy JSON": "Kopiera JSON",
+    "Task failed": "Uppgiften misslyckades",
+    "Failed to copy to clipboard": "Misslyckades med att kopiera till urklipp"
 }
