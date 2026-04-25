@@ -291,5 +291,11 @@
     "Not private": "Ne soukromé",
     "Edit enclosing place": "Upravit nadřazené místo",
     "Saved": "Uloženo",
-    "Saving...": "Ukládání..."
+    "Saving...": "Ukládání...",
+    "Network": "Síť",
+    "Browser": "Prohlížeč",
+    "Notifications": "Oznámení",
+    "Copy JSON": "Kopírovat JSON",
+    "Task failed": "Úloha selhala",
+    "Failed to copy to clipboard": "Kopírování do schránky se nezdařilo"
 }
