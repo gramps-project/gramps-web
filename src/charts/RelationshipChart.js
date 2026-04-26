@@ -539,8 +539,8 @@ function remasterChart(
 
   nodes
     .filter(d => d.nodetype === 'person')
-    .style('cursor', 'pointer')
-    .on('click', clicked)
+    .style('cursor', canEdit ? 'default' : 'pointer')
+    .on('click', canEdit ? null : clicked)
 
   if (canEdit) {
     appendAddPersonButton(

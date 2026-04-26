@@ -331,7 +331,9 @@ function TreeChartCore(
     .attr('width', 70)
     .attr('xlink:href', getImageUrl)
 
-  node.style('cursor', 'pointer').on('click', clicked)
+  node
+    .style('cursor', canEdit ? 'default' : 'pointer')
+    .on('click', canEdit ? null : clicked)
 
   return [xOffset, yOffset, width, height, boxWidth + 2 * padding]
 }
@@ -347,6 +349,12 @@ export function TreeChart(dataDescendants, dataAncestors, chartsettings) {
     .attr('font-size', 13)
 
   const chartContent = svg.append('g').attr('id', 'chart-content')
+
+  // Restore zoom state from previous render if available
+  if (chartsettings.initialZoom) {
+    svg.node().__zoom = chartsettings.initialZoom
+    chartContent.attr('transform', chartsettings.initialZoom.toString())
+  }
 
   let width = 0
   let height = 0
