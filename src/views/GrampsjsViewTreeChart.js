@@ -11,17 +11,6 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
     this.defaults.nAnc = 3
   }
 
-  connectedCallback() {
-    super.connectedCallback()
-    this._boundHandleDbChanged = () => this._fetchData(this.grampsId)
-    window.addEventListener('db:changed', this._boundHandleDbChanged)
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback()
-    window.removeEventListener('db:changed', this._boundHandleDbChanged)
-  }
-
   get nAnc() {
     return this.appState?.settings?.treeChartAnc ?? this.defaults.nAnc
   }

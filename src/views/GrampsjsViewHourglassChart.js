@@ -47,7 +47,7 @@ export class GrampsjsViewHourglassChart extends GrampsjsViewTreeChartBase {
     this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
-  // Diabled edit blue icon for hourglass chart
+  // Disabled edit blue icon for hourglass chart
   renderFab() {
     return ''
   }
