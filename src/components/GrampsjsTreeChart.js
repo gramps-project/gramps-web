@@ -1,12 +1,11 @@
 import {html, css} from 'lit'
-import {select} from 'd3-selection'
+import {zoomTransform} from 'd3-zoom'
 
 import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 
 import {TreeChart} from '../charts/TreeChart.js'
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
-import {appendAddPersonButton} from '../charts/addPersonButton.js'
 import {
   getDescendantTree,
   getPersonByGrampsId,
@@ -51,6 +50,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     this.nAnc = 5
     this.nDesc = 5
     this.gapX = 30
+    this._savedZoom = null
   }
 
   render() {
@@ -65,17 +65,15 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     `
   }
 
-  shouldUpdate(changedProps) {
-    // canEdit-only change: update buttons without re-rendering (preserves zoom)
-    if (changedProps.size === 1 && changedProps.has('canEdit')) {
-      this._updateAddPersonButtons()
-      return false
-    }
-    return super.shouldUpdate(changedProps)
+  willUpdate() {
+    // Save zoom transform before Lit replaces the SVG node
+    const svg = this.renderRoot
+      ?.getElementById('container')
+      ?.querySelector('svg')
+    this._savedZoom = svg ? zoomTransform(svg) : null
   }
 
   updated() {
-    this._updateAddPersonButtons()
     this._updateMenuAnchor()
   }
 
@@ -112,36 +110,10 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
         bboxWidth: this.containerWidth,
         bboxHeight: this.containerHeight,
         nameDisplayFormat: this.nameDisplayFormat,
-        canEdit: false,
+        canEdit: this.canEdit,
+        initialZoom: this._savedZoom,
       })}
     `
-  }
-
-  _updateAddPersonButtons() {
-    const container = this.renderRoot.getElementById('container')
-    if (!container) {
-      return
-    }
-    const svg = container.querySelector('svg')
-    if (!svg) {
-      return
-    }
-    const svgSel = select(svg)
-    svgSel.selectAll('g.add-person-btn').remove()
-    if (this.canEdit) {
-      const boxWidth = 190
-      const boxHeight = 90
-      const personNodes = svgSel
-        .select('#chart-content')
-        .selectAll('a')
-        .filter(d => d?.data?.person)
-      appendAddPersonButton(
-        personNodes,
-        boxWidth / 2 - 14,
-        -boxHeight / 2 + 14,
-        d => d.data.person?.handle
-      )
-    }
   }
 
   _hasChildren() {

@@ -127,8 +127,12 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     const svgSel = select(svg)
     // Remove any existing buttons first to avoid duplicates
     svgSel.selectAll('g.add-person-btn').remove()
+    // Toggle cursor and click handler on person nodes
+    const personNodes = svgSel.selectAll('g.node.person')
+    personNodes
+      .style('cursor', this.canEdit ? 'default' : 'pointer')
+      .on('click', this.canEdit ? null : null) // clicks handled by RelationshipChart internally
     if (this.canEdit) {
-      const personNodes = svgSel.selectAll('g.node.person')
       appendAddPersonButton(personNodes, 190 - 14, 14, d => d.handle)
     }
   }
