@@ -99,6 +99,17 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
     this._setSep = false
     this._setMaxImages = false
     this._editMode = false
+    this._boundToggleEditMode = this._toggleEditMode.bind(this)
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('edit-mode:toggle', this._boundToggleEditMode)
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    window.removeEventListener('edit-mode:toggle', this._boundToggleEditMode)
   }
 
   get nAnc() {
@@ -141,6 +152,9 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
   }
 
   _toggleEditMode() {
+    if (!this.active || !this.appState.permissions.canEdit) {
+      return
+    }
     this._editMode = !this._editMode
   }
 
