@@ -32,6 +32,19 @@ export async function linkChild(appState, personData, childHandle, frel, mrel) {
   const childRef = {_class: 'ChildRef', ref: childHandle}
   if (frel) childRef.frel = frel
   if (mrel) childRef.mrel = mrel
+
+  // If the person is already in exactly one family as a parent/spouse, add the
+  // child to that family instead of creating a new one.
+  const existingFamilies = personData.extended?.families ?? []
+  if (existingFamilies.length === 1) {
+    const family = existingFamilies[0]
+    return appState.apiPut(`/api/families/${family.handle}`, {
+      _class: 'Family',
+      ...cleanFamily(family),
+      child_ref_list: [...(family.child_ref_list ?? []), childRef],
+    })
+  }
+
   return appState.apiPost('/api/families/', {
     _class: 'Family',
     [parentSlot(personData.gender)]: personData.handle,
