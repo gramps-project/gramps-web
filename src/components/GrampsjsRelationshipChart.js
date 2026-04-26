@@ -65,6 +65,15 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     ].join('|')
   }
 
+  shouldUpdate(changedProps) {
+    // canEdit-only change: update buttons without re-rendering (preserves zoom)
+    if (changedProps.size === 1 && changedProps.has('canEdit')) {
+      this._updateAddPersonButtons()
+      return false
+    }
+    return super.shouldUpdate(changedProps)
+  }
+
   updated(changedProps) {
     super.updated(changedProps)
     const needsFullRender =
@@ -75,9 +84,6 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     if (needsFullRender) {
       this._chartKey = this._getChartKey()
       this._renderChartImperatively()
-    } else if (changedProps.has('canEdit') && !needsFullRender) {
-      // Chart is already rendered — just add or remove the + buttons
-      this._updateAddPersonButtons()
     }
   }
 
@@ -95,8 +101,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
       bboxWidth: this.containerWidth,
       bboxHeight: this.containerHeight,
       nameDisplayFormat: this.nameDisplayFormat,
-      // Always render without buttons first; buttons are added via
-      // _updateAddPersonButtons after Graphviz resolves.
+      // Always render without buttons; canEdit toggles are handled by shouldUpdate.
       canEdit: false,
       onReady: () => {
         if (this.canEdit) {
@@ -118,10 +123,10 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     }
     const svgSel = select(svg)
     // Remove any existing buttons first to avoid duplicates
-    svgSel.selectAll('.add-person-btn, .add-person-text').remove()
+    svgSel.selectAll('g.add-person-btn').remove()
     if (this.canEdit) {
       const personNodes = svgSel.selectAll('g.node.person')
-      appendAddPersonButton(personNodes, 190 - 13, 90 - 13, d => d.handle)
+      appendAddPersonButton(personNodes, 190 - 14, 14, d => d.handle)
     }
   }
 }
