@@ -61,6 +61,15 @@ export class GrampsjsViewTree extends GrampsjsView {
     this._appliedTreeDefaultView = null
   }
 
+  shouldUpdate(changed) {
+    // Allow one render when active changes so child chart views receive
+    // the updated active value — the base class blocks renders when inactive.
+    if (changed.has('active')) {
+      return true
+    }
+    return super.shouldUpdate(changed)
+  }
+
   renderContent() {
     if (this.grampsId === '') {
       return html`

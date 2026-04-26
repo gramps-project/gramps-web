@@ -100,16 +100,19 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
     this._setMaxImages = false
     this._editMode = false
     this._boundToggleEditMode = this._toggleEditMode.bind(this)
+    this._boundDisableEditMode = this._disableEditMode.bind(this)
   }
 
   connectedCallback() {
     super.connectedCallback()
     window.addEventListener('edit-mode:toggle', this._boundToggleEditMode)
+    window.addEventListener('edit-mode:off', this._boundDisableEditMode)
   }
 
   disconnectedCallback() {
     super.disconnectedCallback()
     window.removeEventListener('edit-mode:toggle', this._boundToggleEditMode)
+    window.removeEventListener('edit-mode:off', this._boundDisableEditMode)
   }
 
   get nAnc() {
@@ -133,15 +136,14 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
         <div id="controls">${this.renderControls()}</div>
         <div id="chart">${this.renderChart()}</div>
       </div>
-      ${this.appState.permissions.canEdit ? this.renderFab() : ''}`
+      ${this.appState.permissions.canEdit && !this._editMode
+        ? this.renderFab()
+        : ''}`
   }
 
   renderFab() {
     return html`
-      <md-fab
-        variant="${this._editMode ? 'primary' : 'secondary'}"
-        @click="${this._toggleEditMode}"
-      >
+      <md-fab variant="secondary" @click="${this._enableEditMode}">
         <grampsjs-icon
           slot="icon"
           .path="${mdiPencil}"
@@ -151,11 +153,28 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
     `
   }
 
+  _enableEditMode() {
+    this._editMode = true
+    fireEvent(this, 'edit-mode:on', {
+      title: this._('Edit'),
+      hideDeleteButton: true,
+    })
+  }
+
+  _disableEditMode() {
+    this._editMode = false
+  }
+
   _toggleEditMode() {
     if (!this.active || !this.appState.permissions.canEdit) {
       return
     }
-    this._editMode = !this._editMode
+    if (this._editMode) {
+      this._disableEditMode()
+      fireEvent(this, 'edit-mode:off', {})
+    } else {
+      this._enableEditMode()
+    }
   }
 
   renderControls() {

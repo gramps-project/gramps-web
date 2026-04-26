@@ -4,6 +4,7 @@ import {hierarchy, tree} from 'd3-hierarchy'
 import {curveBumpX, link, symbolTriangle, symbol} from 'd3-shape'
 import {zoom} from 'd3-zoom'
 import {chartNameDisplayFormat, fireEvent} from '../util.js'
+import {appendAddPersonButton} from './addPersonButton.js'
 
 const genderColor = {
   0: 'var(--color-girl)',
@@ -292,35 +293,13 @@ function TreeChartCore(
     .attr('paint-order', 'stroke')
     .text(d => clipString(`†${d.data.person.profile.death.date}`, textWidth(d)))
 
-  function addPerson(event, nodeData) {
-    fireEvent(this, 'add-new-person-relation', {data: nodeData})
-    event.stopPropagation()
-    event.preventDefault()
-  }
-
   if (canEdit) {
-    node
-      .filter(d => d.data.person)
-      .append('circle')
-      .attr('class', 'add-person-btn')
-      .attr('r', 13)
-      .attr('cx', -90) // left edge of rectangle
-      .attr('cy', 30) // bottom edge of rectangle
-      .style('fill', '#FFFFFF')
-      .style('cursor', 'pointer')
-      .on('click', addPerson)
-
-    node
-      .filter(d => d.data.person)
-      .append('text')
-      .attr('class', 'add-person-text')
-      .attr('x', -90)
-      .attr('y', 34)
-      .attr('text-anchor', 'middle')
-      .attr('font-size', '14px')
-      .attr('fill', 'black')
-      .style('pointer-events', 'none')
-      .text('+')
+    appendAddPersonButton(
+      node.filter(d => d.data.person),
+      -boxWidth / 2 + 5,
+      boxHeight / 2 - 15,
+      d => d.data.person?.handle
+    )
   }
 
   node

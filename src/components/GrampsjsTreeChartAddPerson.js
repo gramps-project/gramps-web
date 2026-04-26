@@ -46,8 +46,8 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     this._mode = ''
   }
 
-  open(nodeData) {
-    this._personData = nodeData.data?.person ?? null
+  open(personData) {
+    this._personData = personData
     this._pickerOpen = true
   }
 
