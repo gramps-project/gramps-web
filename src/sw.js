@@ -1,4 +1,4 @@
-import {precacheAndRoute, createHandlerBoundToURL} from 'workbox-precaching'
+import {precacheAndRoute, matchPrecache} from 'workbox-precaching'
 import {registerRoute, NavigationRoute} from 'workbox-routing'
 import {CacheFirst} from 'workbox-strategies'
 import {CacheableResponsePlugin} from 'workbox-cacheable-response'
@@ -12,18 +12,28 @@ self.addEventListener('message', event => {
 
 precacheAndRoute(self.__WB_MANIFEST)
 
-// Handle navigation requests (SPA routing) by serving the precached index.html,
-// except for API routes which should always go to the network.
+// Try the network first with redirect:manual so cross-origin auth redirects
+// (e.g. Cloudflare Access) are passed through to the browser. Falls back to
+// precached index.html for SPA routing and offline use.
 registerRoute(
-  new NavigationRoute(createHandlerBoundToURL('index.html'), {
-    denylist: [/^\/api.*/],
-  })
+  new NavigationRoute(
+    async ({request}) => {
+      try {
+        const response = await fetch(request, {redirect: 'manual'})
+        if (response.type === 'opaqueredirect') {
+          return response
+        }
+      } catch {
+        // offline
+      }
+      return matchPrecache('/index.html')
+    },
+    {denylist: [/^\/api.*/]}
+  )
 )
 
-// Cache thumbnails with a stable cache key:
-// - strip `jwt` so token rotation doesn't bust the cache
-// - keep `checksum` in the cache key for content-addressed invalidation
-// - strip `checksum` before the network request so the backend doesn't reject it
+// Cache thumbnails: strip `jwt` from cache key (token rotation), strip `checksum`
+// before fetching (backend rejects it; kept in cache key for invalidation).
 const thumbnailPlugin = {
   cacheKeyWillBeUsed: async ({request}) => {
     const url = new URL(request.url)
