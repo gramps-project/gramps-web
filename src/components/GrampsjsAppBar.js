@@ -84,6 +84,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       editTitle: {type: String},
       editDialogContent: {type: String},
       saveButton: {type: Boolean},
+      hideDeleteButton: {type: Boolean},
       saving: {type: Boolean},
       saveComplete: {type: Boolean},
     }
@@ -95,6 +96,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     this.editTitle = ''
     this.editDialogContent = ''
     this.saveButton = false
+    this.hideDeleteButton = false
     this.saving = false
     this.saveComplete = false
   }
@@ -167,15 +169,19 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
                       >${this._('_Save')}</grampsjs-tooltip
                     >`
                 : ''}
-              <mwc-icon-button
-                icon="delete"
-                slot="actionItems"
-                id="button-delete"
-                @click="${this._handleDeleteIcon}"
-              ></mwc-icon-button>
-              <grampsjs-tooltip for="button-delete" .appState="${this.appState}"
-                >${this._('_Delete')}</grampsjs-tooltip
-              >
+              ${!this.hideDeleteButton
+                ? html`<mwc-icon-button
+                      icon="delete"
+                      slot="actionItems"
+                      id="button-delete"
+                      @click="${this._handleDeleteIcon}"
+                    ></mwc-icon-button>
+                    <grampsjs-tooltip
+                      for="button-delete"
+                      .appState="${this.appState}"
+                      >${this._('_Delete')}</grampsjs-tooltip
+                    >`
+                : ''}
             `
           : html`
               ${this.appState.permissions.canAdd
@@ -290,6 +296,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     this.editMode = true
     this.editTitle = e.detail.title
     this.saveButton = e.detail?.saveButton || false
+    this.hideDeleteButton = e.detail?.hideDeleteButton || false
   }
 
   _deleteObject() {
