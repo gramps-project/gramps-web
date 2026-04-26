@@ -9,12 +9,15 @@ import '@material/web/fab/fab.js'
 import {mdiAccountDetails, mdiHomeAccount, mdiPencil} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
 import {GrampsjsView} from './GrampsjsView.js'
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import '../components/GrampsjsTooltip.js'
 
 import {chartNameDisplayFormat, fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
 
-export class GrampsjsViewTreeChartBase extends GrampsjsView {
+export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
+  GrampsjsView
+) {
   static get styles() {
     return [
       super.styles,
@@ -304,6 +307,10 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     if (changed.has('grampsId') || changed.has('settings')) {
       this._fetchData(this.grampsId)
     }
+  }
+
+  handleUpdateStaleData() {
+    this._fetchData(this.grampsId)
   }
 
   // eslint-disable-next-line class-methods-use-this

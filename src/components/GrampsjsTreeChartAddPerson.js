@@ -167,8 +167,6 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
       }
     }
 
-    e.preventDefault()
-    e.stopPropagation()
     this._newPersonFormDialogOpen = false
     this._reset()
   }
