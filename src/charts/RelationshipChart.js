@@ -3,6 +3,7 @@ import {zoom} from 'd3-zoom'
 import {linkVertical} from 'd3-shape'
 import {Graphviz} from '@hpcc-js/wasm'
 import {chartNameDisplayFormat} from '../util.js'
+import {appendAddPersonButton} from './addPersonButton.js'
 
 const sexColor = {
   F: 'var(--color-girl)',
@@ -337,7 +338,8 @@ function remasterChart(
   imgPadding,
   getImageUrl,
   maxImages,
-  nameDisplayFormat
+  nameDisplayFormat,
+  canEdit = false
 ) {
   const gvchartx = divhidden.select('svg')
   const nodedata = []
@@ -540,6 +542,15 @@ function remasterChart(
     .style('cursor', 'pointer')
     .on('click', clicked)
 
+  if (canEdit) {
+    appendAddPersonButton(
+      nodes.filter(d => d.nodetype === 'person'),
+      boxWidth - 13,
+      boxHeight - 13,
+      d => d.handle
+    )
+  }
+
   const linkGenerator = linkVertical()
     .x(d => d.x)
     .y(d => d.y)
@@ -602,6 +613,8 @@ export function RelationshipChart(
     shrinkToFit = false,
     // orientation = 'LTR',
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
+    canEdit = false,
+    onReady = null,
   }
 ) {
   const resultnode = create('div').style('width', '100%')
@@ -631,7 +644,8 @@ export function RelationshipChart(
       imgPadding,
       getImageUrl,
       maxImages,
-      nameDisplayFormat
+      nameDisplayFormat,
+      canEdit
     )
     svg.attr('viewBox', [
       -bboxWidth / 2,
@@ -647,6 +661,9 @@ export function RelationshipChart(
           .attr('height', bboxHeight)
           .attr('width', bboxWidth)
       }
+    }
+    if (onReady) {
+      onReady()
     }
   })
 
