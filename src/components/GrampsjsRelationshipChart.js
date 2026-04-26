@@ -39,30 +39,27 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     }
   }
 
+  // Props that require a full Graphviz re-render when changed.
+  static get _chartProps() {
+    return [
+      'data',
+      'grampsId',
+      'nAnc',
+      'nMaxImages',
+      'nameDisplayFormat',
+      'containerWidth',
+      'containerHeight',
+    ]
+  }
+
   constructor() {
     super()
     this.grampsId = ''
     this.gapX = 30
-    // key used to detect when chart needs to be fully re-rendered
-    this._chartKey = ''
   }
 
   render() {
     return html` <div id="container"></div> `
-  }
-
-  // Returns a string that identifies the current chart configuration (excluding canEdit).
-  // When this changes, the chart is re-rendered from scratch.
-  _getChartKey() {
-    return [
-      this.grampsId,
-      this.nAnc,
-      this.nMaxImages,
-      this.nameDisplayFormat,
-      this.containerWidth,
-      this.containerHeight,
-      this.data.length,
-    ].join('|')
   }
 
   shouldUpdate(changedProps) {
@@ -76,15 +73,21 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
 
   updated(changedProps) {
     super.updated(changedProps)
-    const needsFullRender =
-      this.data.length > 0 &&
-      this.grampsId &&
-      this._getChartKey() !== this._chartKey
-
-    if (needsFullRender) {
-      this._chartKey = this._getChartKey()
-      this._renderChartImperatively()
+    const chartPropChanged = GrampsjsRelationshipChart._chartProps.some(p =>
+      changedProps.has(p)
+    )
+    if (!chartPropChanged) {
+      return
     }
+    const container = this.renderRoot.getElementById('container')
+    if (!this.data.length || !this.grampsId) {
+      // Clear any stale chart when there is nothing to show
+      if (container) {
+        container.innerHTML = ''
+      }
+      return
+    }
+    this._renderChartImperatively()
   }
 
   _renderChartImperatively() {

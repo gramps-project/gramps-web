@@ -91,14 +91,18 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
 
   async _handleNewPersonSave(e) {
     const {processedData, frel, mrel} = e.detail.data
-    this._formOpen = false
     const createResult = await this.appState.apiPost(
       '/api/objects/',
       processedData,
       {dbChanged: false}
     )
+    this._formOpen = false
     if ('error' in createResult) {
       fireEvent(this, 'grampsjs:error', {message: createResult.error})
+      // Reopen picker so user can retry with a different option
+      this._pickerOpen = true
+      this._relationship = ''
+      this._mode = ''
       return
     }
     const handle = processedData.find(o => o._class === 'Person')?.handle
@@ -149,7 +153,10 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     const primaryFamily = this._personData?.extended?.primary_parent_family
     const hasFather = !!primaryFamily?.father_handle
     const hasMother = !!primaryFamily?.mother_handle
-    const hasSpouse = (this._personData?.extended?.family_list ?? []).length > 0
+    const hasSpouse =
+      (this._personData?.extended?.families?.length ??
+        this._personData?.family_list?.length ??
+        0) > 0
 
     return html`
       <md-dialog
@@ -157,6 +164,9 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
         @cancel="${() => {
           this._pickerOpen = false
           this._reset()
+        }}"
+        @close="${() => {
+          this._pickerOpen = false
         }}"
       >
         <div slot="headline">${this._('Add Family Member')}</div>
