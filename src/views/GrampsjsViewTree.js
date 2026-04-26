@@ -70,6 +70,13 @@ export class GrampsjsViewTree extends GrampsjsView {
     return super.shouldUpdate(changed)
   }
 
+  updated(changed) {
+    super.updated(changed)
+    if (changed.has('_currentTabId')) {
+      fireEvent(this, 'edit-mode:off', {})
+    }
+  }
+
   renderContent() {
     if (this.grampsId === '') {
       return html`
@@ -91,14 +98,17 @@ export class GrampsjsViewTree extends GrampsjsView {
     `
   }
 
+  _handleTabChange(e) {
+    this._currentTabId = e.target.activeTabIndex
+  }
+
   renderTabs() {
     return html`
-      <md-tabs .activeTabIndex=${this._currentTabId}>
-        <md-primary-tab
-          @click=${() => {
-            this._currentTabId = 0
-          }}
-          has-icon
+      <md-tabs
+        .activeTabIndex=${this._currentTabId}
+        @change=${this._handleTabChange}
+      >
+        <md-primary-tab has-icon
           >${this._('Ancestor Tree')}
           <span slot="icon"
             >${renderIconSvg(
@@ -108,34 +118,19 @@ export class GrampsjsViewTree extends GrampsjsView {
             )}</span
           >
         </md-primary-tab>
-        <md-primary-tab
-          @click=${() => {
-            this._currentTabId = 1
-          }}
-          has-icon
-        >
+        <md-primary-tab has-icon>
           ${this._('Descendant Tree')}
           <span slot="icon"
             >${renderIconSvg(mdiFamilyTree, '--md-sys-color-primary', 90)}</span
           >
         </md-primary-tab>
-        <md-primary-tab
-          @click=${() => {
-            this._currentTabId = 2
-          }}
-          has-icon
-        >
+        <md-primary-tab has-icon>
           ${this._('Hourglass Graph')}
           <span slot="icon"
             >${renderIconSvg(hourglassIconPath, '--md-sys-color-primary')}</span
           >
         </md-primary-tab>
-        <md-primary-tab
-          @click=${() => {
-            this._currentTabId = 3
-          }}
-          has-icon
-        >
+        <md-primary-tab has-icon>
           ${this._('Relationship Graph')}
           <span slot="icon"
             >${renderIconSvg(
@@ -144,12 +139,7 @@ export class GrampsjsViewTree extends GrampsjsView {
             )}</span
           >
         </md-primary-tab>
-        <md-primary-tab
-          @click=${() => {
-            this._currentTabId = 4
-          }}
-          has-icon
-        >
+        <md-primary-tab has-icon>
           ${this._('Fan Chart')}
           <span slot="icon"
             >${renderIconSvg(chartFanIconPath, '--md-sys-color-primary')}</span
