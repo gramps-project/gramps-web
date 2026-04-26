@@ -289,5 +289,11 @@
     "List view": "Список",
     "Ascending": "По возрастанию",
     "Saving...": "Сохранение...",
-    "Saved": "Сохранено"
+    "Saved": "Сохранено",
+    "Network": "Сеть",
+    "Browser": "Браузер",
+    "Notifications": "Уведомления",
+    "Copy JSON": "Скопировать JSON",
+    "Task failed": "Задача не выполнена",
+    "Failed to copy to clipboard": "Не удалось скопировать в буфер обмена"
 }
