@@ -2,6 +2,7 @@ import {html, css} from 'lit'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
 import '../components/GrampsjsRelationshipChart.js'
+import '../components/GrampsjsTreeChartAddPerson.js'
 
 export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
   static get styles() {
@@ -62,9 +63,17 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
     this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
-  // Disabled edit blue icon for relationship chart
-  renderFab() {
-    return ''
+  _handleAddPersonRelation(e) {
+    const personData = this._data.find(p => p.handle === e.detail.handle)
+    if (!personData) {
+      return
+    }
+    const addPersonEl = this.renderRoot.querySelector(
+      'grampsjs-tree-chart-add-person'
+    )
+    if (addPersonEl) {
+      addPersonEl.open(personData)
+    }
   }
 
   _getPersonRules(grampsId) {
@@ -81,14 +90,26 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
 
   renderChart() {
     return html`
-      <grampsjs-relationship-chart
-        grampsId=${this.grampsId}
-        nAnc=${this.nAnc + 1}
-        nMaxImages=${this.nMaxImages}
-        nameDisplayFormat=${this.nameDisplayFormat}
-        .data=${this._data}
-      >
-      </grampsjs-relationship-chart>
+      <div @add-new-person-relation="${this._handleAddPersonRelation}">
+        <grampsjs-relationship-chart
+          grampsId=${this.grampsId}
+          nAnc=${this.nAnc + 1}
+          nMaxImages=${this.nMaxImages}
+          nameDisplayFormat=${this.nameDisplayFormat}
+          ?canEdit="${this._editMode}"
+          .data=${this._data}
+        >
+        </grampsjs-relationship-chart>
+      </div>
+    `
+  }
+
+  renderContent() {
+    return html`
+      ${super.renderContent()}
+      <grampsjs-tree-chart-add-person
+        .appState="${this.appState}"
+      ></grampsjs-tree-chart-add-person>
     `
   }
 }

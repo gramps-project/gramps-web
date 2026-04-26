@@ -36,11 +36,15 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
   }
 
   _handleAddPersonRelation(e) {
+    const personData = this._data.find(p => p.handle === e.detail.handle)
+    if (!personData) {
+      return
+    }
     const addPersonEl = this.renderRoot.querySelector(
       'grampsjs-tree-chart-add-person'
     )
     if (addPersonEl) {
-      addPersonEl.open(e.detail.data)
+      addPersonEl.open(personData)
     }
   }
 
