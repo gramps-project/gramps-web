@@ -292,5 +292,11 @@
     "Not private": "Não privado",
     "Edit enclosing place": "Editar jurisdição acima",
     "Saved": "Gravado",
-    "Saving...": "A gravar..."
+    "Saving...": "A gravar...",
+    "Network": "Rede",
+    "Browser": "Explorador",
+    "Notifications": "Notificações",
+    "Copy JSON": "Copiar JSON",
+    "Task failed": "A tarefa falhou",
+    "Failed to copy to clipboard": "Falha ao copiar para a memória"
 }
