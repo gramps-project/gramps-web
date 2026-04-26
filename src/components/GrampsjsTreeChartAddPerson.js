@@ -4,12 +4,7 @@ import '@material/web/iconbutton/icon-button.js'
 import {mdiLinkPlus, mdiPlus} from '@mdi/js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
-import {
-  linkParent,
-  linkChild,
-  linkSpouse,
-  linkSibling,
-} from '../util/familyLinks.js'
+import {linkParent, linkChild, linkSpouse} from '../util/familyLinks.js'
 import './GrampsjsFormNewPerson.js'
 import './GrampsjsFormNewChild.js'
 import './GrampsjsFormPersonRef.js'
@@ -77,8 +72,6 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
       result = await linkChild(this.appState, personData, handle, frel, mrel)
     } else if (this._relationship === 'spouse') {
       result = await linkSpouse(this.appState, personData, handle)
-    } else if (this._relationship === 'sibling') {
-      result = await linkSibling(this.appState, personData, handle)
     }
     if (result && 'error' in result) {
       fireEvent(this, 'grampsjs:error', {message: result.error})
@@ -101,7 +94,8 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     this._formOpen = false
     const createResult = await this.appState.apiPost(
       '/api/objects/',
-      processedData
+      processedData,
+      {dbChanged: false}
     )
     if ('error' in createResult) {
       fireEvent(this, 'grampsjs:error', {message: createResult.error})
@@ -155,7 +149,7 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     const primaryFamily = this._personData?.extended?.primary_parent_family
     const hasFather = !!primaryFamily?.father_handle
     const hasMother = !!primaryFamily?.mother_handle
-    const hasPrimaryFamily = !!primaryFamily?.handle
+    const hasSpouse = (this._personData?.extended?.family_list ?? []).length > 0
 
     return html`
       <md-dialog
@@ -174,10 +168,9 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
             ? ''
             : this._renderRelationRow(this._('Mother'), 'mother')}
           ${this._renderRelationRow(this._('Child'), 'child')}
-          ${this._renderRelationRow(this._('Spouse'), 'spouse')}
-          ${hasPrimaryFamily
-            ? this._renderRelationRow(this._('Sibling'), 'sibling')
-            : ''}
+          ${hasSpouse
+            ? ''
+            : this._renderRelationRow(this._('Spouse'), 'spouse')}
         </div>
       </md-dialog>
     `

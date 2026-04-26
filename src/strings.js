@@ -752,7 +752,6 @@ export const grampsStrings = [
   'Show Sosa / Sosa-Stradonitz / Ahnentafel number.',
   'Shows some interesting records about people and families',
   'Shows status of links in notes',
-  'Sibling',
   'Siblings',
   'Simple numbering',
   'Size in cm',

@@ -48,19 +48,3 @@ export async function linkSpouse(appState, personData, spouseHandle) {
     [otherSlot]: spouseHandle,
   })
 }
-
-export async function linkSibling(appState, personData, siblingHandle) {
-  const parentFamily = personData.extended?.primary_parent_family
-  if (!parentFamily?.handle) {
-    return {error: 'No primary parent family found'}
-  }
-  const family = cleanFamily(parentFamily)
-  return appState.apiPut(`/api/families/${parentFamily.handle}`, {
-    _class: 'Family',
-    ...family,
-    child_ref_list: [
-      ...(family.child_ref_list ?? []),
-      {_class: 'ChildRef', ref: siblingHandle},
-    ],
-  })
-}
