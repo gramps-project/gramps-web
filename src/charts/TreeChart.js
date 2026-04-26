@@ -296,8 +296,8 @@ function TreeChartCore(
   if (canEdit) {
     appendAddPersonButton(
       node.filter(d => d.data.person),
-      -boxWidth / 2 + 5,
-      boxHeight / 2 - 15,
+      boxWidth / 2 - 14,
+      -boxHeight / 2 + 14,
       d => d.data.person?.handle
     )
   }

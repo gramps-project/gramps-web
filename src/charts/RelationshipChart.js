@@ -545,8 +545,8 @@ function remasterChart(
   if (canEdit) {
     appendAddPersonButton(
       nodes.filter(d => d.nodetype === 'person'),
-      boxWidth - 13,
-      boxHeight - 13,
+      boxWidth - 14,
+      14,
       d => d.handle
     )
   }

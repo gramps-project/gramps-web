@@ -1,10 +1,12 @@
 import {html, css} from 'lit'
+import {select} from 'd3-selection'
 
 import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 
 import {TreeChart} from '../charts/TreeChart.js'
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
+import {appendAddPersonButton} from '../charts/addPersonButton.js'
 import {
   getDescendantTree,
   getPersonByGrampsId,
@@ -63,6 +65,20 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     `
   }
 
+  shouldUpdate(changedProps) {
+    // canEdit-only change: update buttons without re-rendering (preserves zoom)
+    if (changedProps.size === 1 && changedProps.has('canEdit')) {
+      this._updateAddPersonButtons()
+      return false
+    }
+    return super.shouldUpdate(changedProps)
+  }
+
+  updated() {
+    this._updateAddPersonButtons()
+    this._updateMenuAnchor()
+  }
+
   renderChart() {
     if (this.data.length === 0 || !this.grampsId) {
       return ''
@@ -71,15 +87,12 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     if (!handle) {
       return ''
     }
-
     const dataDescendants = this.descendants
       ? getDescendantTree(this.data, handle, this.nDesc)
       : false
-
     const dataAncestors = this.ancestors
       ? getTree(this.data, handle, this.nAnc, false)
       : false
-
     let childrenTriangle = false
     if (this.descendants && this.ancestors) {
       childrenTriangle = false
@@ -99,9 +112,36 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
         bboxWidth: this.containerWidth,
         bboxHeight: this.containerHeight,
         nameDisplayFormat: this.nameDisplayFormat,
-        canEdit: this.canEdit,
+        canEdit: false,
       })}
     `
+  }
+
+  _updateAddPersonButtons() {
+    const container = this.renderRoot.getElementById('container')
+    if (!container) {
+      return
+    }
+    const svg = container.querySelector('svg')
+    if (!svg) {
+      return
+    }
+    const svgSel = select(svg)
+    svgSel.selectAll('g.add-person-btn').remove()
+    if (this.canEdit) {
+      const boxWidth = 190
+      const boxHeight = 90
+      const personNodes = svgSel
+        .select('#chart-content')
+        .selectAll('a')
+        .filter(d => d?.data?.person)
+      appendAddPersonButton(
+        personNodes,
+        boxWidth / 2 - 14,
+        -boxHeight / 2 + 14,
+        d => d.data.person?.handle
+      )
+    }
   }
 
   _hasChildren() {
@@ -170,13 +210,6 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     const menu = this.renderRoot.querySelector('mwc-menu')
     if (menu !== null) {
       menu.open = false
-    }
-  }
-
-  update(changed) {
-    super.update(changed)
-    if (changed.has('data')) {
-      this._updateMenuAnchor()
     }
   }
 
