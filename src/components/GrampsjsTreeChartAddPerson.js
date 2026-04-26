@@ -1,13 +1,19 @@
 import {html, css, LitElement} from 'lit'
 import '@material/web/dialog/dialog.js'
 import '@material/web/iconbutton/icon-button.js'
-import '@material/web/list/list.js'
-import '@material/web/list/list-item.js'
 import {mdiLinkPlus, mdiPlus} from '@mdi/js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
+import {
+  linkParent,
+  linkChild,
+  linkSpouse,
+  linkSibling,
+} from '../util/familyLinks.js'
 import './GrampsjsFormNewPerson.js'
+import './GrampsjsFormNewChild.js'
 import './GrampsjsFormPersonRef.js'
+import './GrampsjsFormChildRef.js'
 import './GrampsjsIcon.js'
 
 export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
@@ -28,152 +34,97 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
 
   static get properties() {
     return {
-      _addPersonRelationDialogOpen: {type: Boolean},
-      _addPersonRelationDialogData: {type: Object},
-      _newPersonFormDialogOpen: {type: Boolean},
-      _personRefFormDialogOpen: {type: Boolean},
+      _pickerOpen: {type: Boolean},
+      _formOpen: {type: Boolean},
+      _personData: {type: Object},
       _relationship: {type: String},
+      _mode: {type: String},
     }
   }
 
   constructor() {
     super()
-    this._addPersonRelationDialogOpen = false
-    this._addPersonRelationDialogData = {}
-    this._newPersonFormDialogOpen = false
-    this._personRefFormDialogOpen = false
+    this._pickerOpen = false
+    this._formOpen = false
+    this._personData = null
     this._relationship = ''
+    this._mode = ''
   }
 
   open(nodeData) {
-    this._addPersonRelationDialogData = nodeData
-    this._addPersonRelationDialogOpen = true
+    this._personData = nodeData.data?.person ?? null
+    this._pickerOpen = true
   }
 
   _selectRelationship(relationship, mode) {
     this._relationship = relationship
-    this._addPersonRelationDialogOpen = false
-    if (mode === 'link') {
-      this._personRefFormDialogOpen = true
-    } else {
-      this._newPersonFormDialogOpen = true
-    }
+    this._mode = mode
+    this._pickerOpen = false
+    this._formOpen = true
   }
 
-  // Link an existing or newly-created handle as father/mother of the child
-  // person shown as the D3 parent of the clicked node.
-  async _linkParent(parentHandle) {
-    const childPerson = this._addPersonRelationDialogData?.parent?.data?.person
-    const parentFamily = childPerson?.extended?.primary_parent_family
-
-    if (parentFamily?.handle) {
-      // Family already exists — update the appropriate parent slot.
-      const {extended, profile, backlinks, formatted, ...familyClean} =
-        parentFamily
-      const result = await this.appState.apiPut(
-        `/api/families/${parentFamily.handle}`,
-        {
-          _class: 'Family',
-          ...familyClean,
-          [`${this._relationship}_handle`]: parentHandle,
-        }
+  async _dispatch(handle, frel, mrel) {
+    const personData = this._personData
+    let result
+    if (this._relationship === 'father' || this._relationship === 'mother') {
+      result = await linkParent(
+        this.appState,
+        personData,
+        handle,
+        this._relationship
       )
-      if ('error' in result) {
-        fireEvent(this, 'grampsjs:error', {message: result.error})
-      }
-    } else {
-      // No family yet — create one with the child already linked.
-      const childRefList = childPerson
-        ? [{_class: 'ChildRef', ref: childPerson.handle}]
-        : []
-      const result = await this.appState.apiPost('/api/families/', {
-        _class: 'Family',
-        [`${this._relationship}_handle`]: parentHandle,
-        child_ref_list: childRefList,
-      })
-      if ('error' in result) {
-        fireEvent(this, 'grampsjs:error', {message: result.error})
-      }
+    } else if (this._relationship === 'child') {
+      result = await linkChild(this.appState, personData, handle, frel, mrel)
+    } else if (this._relationship === 'spouse') {
+      result = await linkSpouse(this.appState, personData, handle)
+    } else if (this._relationship === 'sibling') {
+      result = await linkSibling(this.appState, personData, handle)
     }
-  }
-
-  // Link an existing or newly-created handle as a child of the clicked person.
-  // A new family is created; the clicked person is placed as father or mother
-  // based on the gender stored in the relationship selection.
-  async _linkChild(childHandle) {
-    const parentPerson = this._addPersonRelationDialogData?.data?.person
-    if (!parentPerson?.handle) {
-      return
-    }
-    // Determine whether the parent goes in the father or mother slot.
-    // gender: 1 = male (father), 0 = female (mother), 2 = unknown → father slot.
-    const parentSlot =
-      parentPerson.gender === 0 ? 'mother_handle' : 'father_handle'
-    const result = await this.appState.apiPost('/api/families/', {
-      _class: 'Family',
-      [parentSlot]: parentPerson.handle,
-      child_ref_list: [{_class: 'ChildRef', ref: childHandle}],
-    })
-    if ('error' in result) {
+    if (result && 'error' in result) {
       fireEvent(this, 'grampsjs:error', {message: result.error})
     }
   }
 
   async _handleExistingPersonSave(e) {
-    const selectedHandle = e.detail.data?.ref
-    this._personRefFormDialogOpen = false
-    if (!selectedHandle) {
+    const handle = e.detail.data?.ref
+    this._formOpen = false
+    if (!handle) {
       this._reset()
       return
     }
-
-    if (['father', 'mother'].includes(this._relationship)) {
-      await this._linkParent(selectedHandle)
-    } else if (['son', 'daughter'].includes(this._relationship)) {
-      await this._linkChild(selectedHandle)
-    }
-
+    await this._dispatch(handle, e.detail.data?.frel, e.detail.data?.mrel)
     this._reset()
   }
 
   async _handleNewPersonSave(e) {
-    const {processedData} = e.detail.data
-
-    if (!['father', 'mother', 'son', 'daughter'].includes(this._relationship)) {
-      this._newPersonFormDialogOpen = false
-      return
-    }
-
+    const {processedData, frel, mrel} = e.detail.data
+    this._formOpen = false
     const createResult = await this.appState.apiPost(
       '/api/objects/',
       processedData
     )
-
     if ('error' in createResult) {
       fireEvent(this, 'grampsjs:error', {message: createResult.error})
       return
     }
-
-    // Extract the handle of the newly created person.
-    const newPersonHandle = processedData
-      .filter(obj => obj._class === 'Person')
-      .map(obj => obj.handle)[0]
-
-    if (newPersonHandle) {
-      if (['father', 'mother'].includes(this._relationship)) {
-        await this._linkParent(newPersonHandle)
-      } else if (['son', 'daughter'].includes(this._relationship)) {
-        await this._linkChild(newPersonHandle)
-      }
+    const handle = processedData.find(o => o._class === 'Person')?.handle
+    if (handle) {
+      await this._dispatch(handle, frel, mrel)
     }
-
-    this._newPersonFormDialogOpen = false
     this._reset()
   }
 
   _reset() {
-    this._addPersonRelationDialogData = {}
+    this._personData = null
     this._relationship = ''
+    this._mode = ''
+  }
+
+  _cancelForm() {
+    this._formOpen = false
+    this._pickerOpen = true
+    this._relationship = ''
+    this._mode = ''
   }
 
   _renderRelationRow(label, relationship) {
@@ -200,18 +151,18 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     `
   }
 
-  _renderRelationDialog() {
-    const parentFamily =
-      this._addPersonRelationDialogData?.parent?.data?.person?.extended
-        ?.primary_parent_family
-    const hasFather = !!parentFamily?.father_handle
-    const hasMother = !!parentFamily?.mother_handle
+  _renderPickerDialog() {
+    const primaryFamily = this._personData?.extended?.primary_parent_family
+    const hasFather = !!primaryFamily?.father_handle
+    const hasMother = !!primaryFamily?.mother_handle
+    const hasPrimaryFamily = !!primaryFamily?.handle
+
     return html`
       <md-dialog
-        ?open="${this._addPersonRelationDialogOpen}"
+        ?open="${this._pickerOpen}"
         @cancel="${() => {
-          this._addPersonRelationDialogOpen = false
-          this._addPersonRelationDialogData = {}
+          this._pickerOpen = false
+          this._reset()
         }}"
       >
         <div slot="headline">${this._('Add Family Member')}</div>
@@ -222,58 +173,69 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
           ${hasMother
             ? ''
             : this._renderRelationRow(this._('Mother'), 'mother')}
-          ${this._renderRelationRow(this._('Son'), 'son')}
-          ${this._renderRelationRow(this._('Daughter'), 'daughter')}
+          ${this._renderRelationRow(this._('Child'), 'child')}
+          ${this._renderRelationRow(this._('Spouse'), 'spouse')}
+          ${hasPrimaryFamily
+            ? this._renderRelationRow(this._('Sibling'), 'sibling')
+            : ''}
         </div>
       </md-dialog>
     `
   }
 
-  _renderPersonRefDialog() {
-    if (!this._personRefFormDialogOpen) {
+  _renderFormDialog() {
+    if (!this._formOpen) {
       return ''
+    }
+
+    const isChild = this._relationship === 'child'
+    const isNew = this._mode === 'new'
+
+    if (isNew && isChild) {
+      return html`
+        <grampsjs-form-new-child
+          @object:save="${this._handleNewPersonSave}"
+          @object:cancel="${this._cancelForm}"
+          .appState="${this.appState}"
+          dialogTitle="${this._('Add a new person')}"
+        ></grampsjs-form-new-child>
+      `
+    }
+
+    if (!isNew && isChild) {
+      return html`
+        <grampsjs-form-childref
+          @object:save="${this._handleExistingPersonSave}"
+          @object:cancel="${this._cancelForm}"
+          .appState="${this.appState}"
+          dialogTitle="${this._('Select an existing person')}"
+        ></grampsjs-form-childref>
+      `
+    }
+
+    if (isNew) {
+      return html`
+        <grampsjs-form-new-person
+          @object:save="${this._handleNewPersonSave}"
+          @object:cancel="${this._cancelForm}"
+          .appState="${this.appState}"
+          dialogTitle="${this._('Add a new person')}"
+        ></grampsjs-form-new-person>
+      `
     }
 
     return html`
       <grampsjs-form-personref
         @object:save="${this._handleExistingPersonSave}"
-        @object:cancel="${() => {
-          this._personRefFormDialogOpen = false
-          this._addPersonRelationDialogOpen = true
-          this._relationship = ''
-        }}"
+        @object:cancel="${this._cancelForm}"
         .appState="${this.appState}"
         dialogTitle="${this._('Select an existing person')}"
-      >
-      </grampsjs-form-personref>
-    `
-  }
-
-  _renderNewPersonDialog() {
-    if (!this._newPersonFormDialogOpen) {
-      return ''
-    }
-
-    return html`
-      <grampsjs-form-new-person
-        @object:save="${this._handleNewPersonSave}"
-        @object:cancel="${() => {
-          this._newPersonFormDialogOpen = false
-          this._addPersonRelationDialogOpen = true
-          this._relationship = ''
-        }}"
-        .appState="${this.appState}"
-        dialogTitle="${this._('Add a new person')}"
-      >
-      </grampsjs-form-new-person>
+      ></grampsjs-form-personref>
     `
   }
 
   render() {
-    return html`
-      ${this._renderRelationDialog()} ${this._renderPersonRefDialog()}
-      ${this._renderNewPersonDialog()}
-    `
+    return html`${this._renderPickerDialog()} ${this._renderFormDialog()}`
   }
 }
 
