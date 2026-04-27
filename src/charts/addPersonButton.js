@@ -17,6 +17,7 @@ export function appendAddPersonButton(nodeSelection, cx, cy, getHandle) {
       event.stopPropagation()
       event.preventDefault()
     })
+    .on('pointerdown', e => e.stopPropagation())
 
   btn
     .append('circle')

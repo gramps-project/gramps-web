@@ -7,7 +7,8 @@ function cleanFamily(familyData) {
   return clean
 }
 
-// gender: 0 = female → mother slot, anything else → father slot
+// gender: 0 = Female → mother slot, 1 = Male → father slot
+// Unknown/Other genders fall back to father slot.
 function parentSlot(gender) {
   return gender === 0 ? 'mother_handle' : 'father_handle'
 }
