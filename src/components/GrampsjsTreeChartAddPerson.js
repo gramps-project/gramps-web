@@ -171,20 +171,13 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     const primaryFamily = this._personData?.extended?.primary_parent_family
     const hasFather = !!primaryFamily?.father_handle
     const hasMother = !!primaryFamily?.mother_handle
-    const hasSpouse =
-      (this._personData?.extended?.families?.length ??
-        this._personData?.family_list?.length ??
-        0) > 0
 
     return html`
       <md-dialog
         ?open="${this._pickerOpen}"
-        @cancel="${() => {
+        @closed="${() => {
           this._pickerOpen = false
           this._reset()
-        }}"
-        @close="${() => {
-          this._pickerOpen = false
         }}"
       >
         <div slot="headline">${this._('Add Family Member')}</div>
@@ -196,9 +189,7 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
             ? ''
             : this._renderRelationRow(this._('Mother'), 'mother')}
           ${this._renderRelationRow(this._('Child'), 'child')}
-          ${hasSpouse
-            ? ''
-            : this._renderRelationRow(this._('Spouse'), 'spouse')}
+          ${this._renderRelationRow(this._('Spouse'), 'spouse')}
         </div>
       </md-dialog>
     `
