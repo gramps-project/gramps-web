@@ -1,12 +1,11 @@
 import {html, css} from 'lit'
-import {select} from 'd3-selection'
+import {zoomTransform} from 'd3-zoom'
 
 import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 import {RelationshipChart} from '../charts/RelationshipChart.js'
-import {appendAddPersonButton} from '../charts/addPersonButton.js'
 import {getImageUrl} from '../charts/util.js'
 
 class GrampsjsRelationshipChart extends GrampsjsChartBase {
@@ -39,100 +38,38 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     }
   }
 
-  // Props that require a full Graphviz re-render when changed.
-  static get _chartProps() {
-    return [
-      'data',
-      'grampsId',
-      'nAnc',
-      'nMaxImages',
-      'nameDisplayFormat',
-      'containerWidth',
-      'containerHeight',
-    ]
-  }
-
   constructor() {
     super()
     this.grampsId = ''
     this.gapX = 30
+    this._savedZoom = null
   }
 
-  render() {
-    return html` <div id="container"></div> `
+  willUpdate() {
+    // Save zoom transform before Lit replaces the SVG node
+    const svg = this.renderRoot
+      ?.getElementById('container')
+      ?.querySelector('svg')
+    this._savedZoom = svg ? zoomTransform(svg) : null
   }
 
-  shouldUpdate(changedProps) {
-    // canEdit-only change: update buttons without re-rendering (preserves zoom)
-    if (changedProps.size === 1 && changedProps.has('canEdit')) {
-      this._updateAddPersonButtons()
-      return false
+  renderChart() {
+    if (this.data.length === 0 || !this.grampsId) {
+      return ''
     }
-    return super.shouldUpdate(changedProps)
-  }
-
-  updated(changedProps) {
-    super.updated(changedProps)
-    const chartPropChanged = GrampsjsRelationshipChart._chartProps.some(p =>
-      changedProps.has(p)
-    )
-    if (!chartPropChanged) {
-      return
-    }
-    const container = this.renderRoot.getElementById('container')
-    if (!this.data.length || !this.grampsId) {
-      // Clear any stale chart when there is nothing to show
-      if (container) {
-        container.innerHTML = ''
-      }
-      return
-    }
-    this._renderChartImperatively()
-  }
-
-  _renderChartImperatively() {
-    const container = this.renderRoot.getElementById('container')
-    if (!container) {
-      return
-    }
-    container.innerHTML = ''
-    const svgNode = RelationshipChart(this.data, {
-      nAnc: this.nAnc,
-      maxImages: this.nMaxImages,
-      grampsId: this.grampsId,
-      getImageUrl: d => getImageUrl(d?.data || {}, 100),
-      bboxWidth: this.containerWidth,
-      bboxHeight: this.containerHeight,
-      nameDisplayFormat: this.nameDisplayFormat,
-      // Always render without buttons; canEdit toggles are handled by shouldUpdate.
-      canEdit: false,
-      onReady: () => {
-        if (this.canEdit) {
-          this._updateAddPersonButtons()
-        }
-      },
-    })
-    container.appendChild(svgNode)
-  }
-
-  _updateAddPersonButtons() {
-    const container = this.renderRoot.getElementById('container')
-    if (!container) {
-      return
-    }
-    const svg = container.querySelector('svg')
-    if (!svg) {
-      return
-    }
-    const svgSel = select(svg)
-    // Remove any existing buttons first to avoid duplicates
-    svgSel.selectAll('g.add-person-btn').remove()
-    // Toggle cursor and click handler on person nodes
-    const personNodes = svgSel.selectAll('g.node.person')
-    personNodes.style('cursor', this.canEdit ? 'default' : 'pointer')
-    if (this.canEdit) {
-      appendAddPersonButton(personNodes, 190 - 14, 14, d => d.handle)
-    }
+    return html`
+      ${RelationshipChart(this.data, {
+        nAnc: this.nAnc,
+        maxImages: this.nMaxImages,
+        grampsId: this.grampsId,
+        getImageUrl: d => getImageUrl(d?.data || {}, 100),
+        bboxWidth: this.containerWidth,
+        bboxHeight: this.containerHeight,
+        nameDisplayFormat: this.nameDisplayFormat,
+        canEdit: this.canEdit,
+        initialZoom: this._savedZoom,
+      })}
+    `
   }
 }
 

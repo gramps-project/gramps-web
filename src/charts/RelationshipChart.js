@@ -614,7 +614,7 @@ export function RelationshipChart(
     // orientation = 'LTR',
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
     canEdit = false,
-    onReady = null,
+    initialZoom = null,
   }
 ) {
   const resultnode = create('div').style('width', '100%')
@@ -630,6 +630,11 @@ export function RelationshipChart(
     .attr('font-size', 13)
 
   const chartContent = svg.append('g').attr('id', 'chart-content')
+
+  if (initialZoom) {
+    svg.node().__zoom = initialZoom
+    chartContent.attr('transform', initialZoom.toString())
+  }
   const graph = new Relgraph(data, boxWidth, boxHeight, grampsId)
   const dot = graph.getDot()
   Graphviz.load().then(graphviz => {
@@ -661,9 +666,6 @@ export function RelationshipChart(
           .attr('height', bboxHeight)
           .attr('width', bboxWidth)
       }
-    }
-    if (onReady) {
-      onReady()
     }
   })
 
