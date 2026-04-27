@@ -179,7 +179,9 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
         ?open="${this._pickerOpen}"
         @closed="${() => {
           this._pickerOpen = false
-          this._reset()
+          if (!this._formOpen) {
+            this._reset()
+          }
         }}"
       >
         <div slot="headline">${this._('Add Family Member')}</div>
