@@ -121,6 +121,8 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     if (handle) {
       const ok = await this._dispatch(handle, frel, mrel)
       if (!ok) {
+        // Person created but link failed; refresh so the orphan is visible.
+        fireEvent(this, 'db:changed')
         this._pickerOpen = true
         this._relationship = ''
         this._mode = ''
