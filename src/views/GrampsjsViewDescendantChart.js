@@ -37,19 +37,6 @@ export class GrampsjsViewDescendantChart extends GrampsjsViewTreeChartBase {
     this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
-  _handleAddPersonRelation(e) {
-    const personData = this._data.find(p => p.handle === e.detail.handle)
-    if (!personData) {
-      return
-    }
-    const addPersonEl = this.renderRoot.querySelector(
-      'grampsjs-tree-chart-add-person'
-    )
-    if (addPersonEl) {
-      addPersonEl.open(personData)
-    }
-  }
-
   renderChart() {
     return html`
       <div @add-new-person-relation="${this._handleAddPersonRelation}">

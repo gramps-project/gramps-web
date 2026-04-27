@@ -165,6 +165,19 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
     this._editMode = false
   }
 
+  _handleAddPersonRelation(e) {
+    const personData = this._data.find(p => p.handle === e.detail.handle)
+    if (!personData) {
+      return
+    }
+    const addPersonEl = this.renderRoot.querySelector(
+      'grampsjs-tree-chart-add-person'
+    )
+    if (addPersonEl) {
+      addPersonEl.open(personData)
+    }
+  }
+
   _toggleEditMode() {
     if (!this.active || !this.appState.permissions.canEdit) {
       return

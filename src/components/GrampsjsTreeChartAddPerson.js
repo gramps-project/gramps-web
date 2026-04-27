@@ -75,7 +75,9 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     }
     if (result && 'error' in result) {
       fireEvent(this, 'grampsjs:error', {message: result.error})
+      return false
     }
+    return true
   }
 
   async _handleExistingPersonSave(e) {
@@ -85,8 +87,18 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
       this._reset()
       return
     }
-    await this._dispatch(handle, e.detail.data?.frel, e.detail.data?.mrel)
-    this._reset()
+    const ok = await this._dispatch(
+      handle,
+      e.detail.data?.frel,
+      e.detail.data?.mrel
+    )
+    if (ok) {
+      this._reset()
+    } else {
+      this._pickerOpen = true
+      this._relationship = ''
+      this._mode = ''
+    }
   }
 
   async _handleNewPersonSave(e) {
@@ -107,7 +119,13 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     }
     const handle = processedData.find(o => o._class === 'Person')?.handle
     if (handle) {
-      await this._dispatch(handle, frel, mrel)
+      const ok = await this._dispatch(handle, frel, mrel)
+      if (!ok) {
+        this._pickerOpen = true
+        this._relationship = ''
+        this._mode = ''
+        return
+      }
     }
     this._reset()
   }
