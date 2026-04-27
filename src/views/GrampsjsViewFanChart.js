@@ -85,7 +85,7 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
     this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
-  // Disabled edit blue icon for fan chart
+  // Disable edit FAB for fan chart
   renderFab() {
     return ''
   }
