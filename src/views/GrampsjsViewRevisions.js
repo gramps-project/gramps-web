@@ -7,37 +7,29 @@ import {
   mdiAccountPlus,
   mdiAccountMultiplePlus,
   mdiCalendarPlus,
-  mdiTagPlus,
-  mdiBookPlus,
-  mdiBookPlusMultiple,
-  mdiBankPlus,
+  mdiLabel,
+  mdiBookmarkPlus,
+  mdiArchivePlus,
   mdiImagePlus,
   mdiMapMarkerPlus,
-  mdiFileDocumentPlus,
+  mdiTextBoxPlus,
+  mdiBookOpenVariant,
   mdiAccountEdit,
-  // mdiAccountMultipleEdit,
   mdiAccountMultiple,
   mdiCalendarEdit,
-  mdiTagEdit,
-  mdiBookEdit,
-  // mdiBookEditMultiple,
-  mdiBookmarkMultiple,
-  // mdiBankEdit,
-  mdiBank,
+  mdiBookmark,
+  mdiArchiveEdit,
   mdiImageEdit,
-  // mdiMapMarkerEdit,
   mdiMapMarker,
-  mdiFileDocumentEdit,
+  mdiTextBoxEdit,
   mdiAccountMinus,
   mdiAccountMultipleMinus,
   mdiCalendarMinus,
-  mdiTagMinus,
-  mdiBookMinus,
-  mdiBookMinusMultiple,
-  mdiBankMinus,
+  mdiBookmarkMinus,
+  mdiArchiveMinus,
   mdiImageMinus,
   mdiMapMarkerMinus,
-  mdiFileDocumentMinus,
+  mdiTextBoxMinus,
   mdiTimelineQuestionOutline,
 } from '@mdi/js'
 
@@ -48,38 +40,36 @@ import {GrampsjsView} from './GrampsjsView.js'
 
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
-import {renderIconSvg} from '../icons.js'
-
 const changeIcons = {
   Person_0: mdiAccountPlus,
   Family_0: mdiAccountMultiplePlus,
   Event_0: mdiCalendarPlus,
   Place_0: mdiMapMarkerPlus,
-  Source_0: mdiBookPlusMultiple,
-  Citation_0: mdiBookPlus,
-  Repository_0: mdiBankPlus,
-  Note_0: mdiFileDocumentPlus,
-  Tag_0: mdiTagPlus,
+  Source_0: mdiBookOpenVariant,
+  Citation_0: mdiBookmarkPlus,
+  Repository_0: mdiArchivePlus,
+  Note_0: mdiTextBoxPlus,
+  Tag_0: mdiLabel,
   Media_0: mdiImagePlus,
   Person_1: mdiAccountEdit,
   Family_1: mdiAccountMultiple,
   Event_1: mdiCalendarEdit,
   Place_1: mdiMapMarker,
-  Source_1: mdiBookmarkMultiple,
-  Citation_1: mdiBookEdit,
-  Repository_1: mdiBank,
-  Note_1: mdiFileDocumentEdit,
-  Tag_1: mdiTagEdit,
+  Source_1: mdiBookOpenVariant,
+  Citation_1: mdiBookmark,
+  Repository_1: mdiArchiveEdit,
+  Note_1: mdiTextBoxEdit,
+  Tag_1: mdiLabel,
   Media_1: mdiImageEdit,
   Person_2: mdiAccountMinus,
   Family_2: mdiAccountMultipleMinus,
   Event_2: mdiCalendarMinus,
   Place_2: mdiMapMarkerMinus,
-  Source_2: mdiBookMinusMultiple,
-  Citation_2: mdiBookMinus,
-  Repository_2: mdiBankMinus,
-  Note_2: mdiFileDocumentMinus,
-  Tag_2: mdiTagMinus,
+  Source_2: mdiBookOpenVariant,
+  Citation_2: mdiBookmarkMinus,
+  Repository_2: mdiArchiveMinus,
+  Note_2: mdiTextBoxMinus,
+  Tag_2: mdiLabel,
   Media_2: mdiImageMinus,
 }
 
@@ -175,34 +165,26 @@ export class GrampsjsViewRevisions extends GrampsjsStaleDataMixin(
         href="${txn.changes?.length ? `/revision/${txn.id}` : ''}"
       >
         <div slot="headline">${this._(txn.description)}</div>
-        ${renderIconSvg(
-          mdiSourceCommit,
-          'var(--grampsjs-body-font-color-50)',
-          0,
-          'start'
-        )}
+        <grampsjs-icon
+          slot="start"
+          path="${mdiSourceCommit}"
+          color="var(--grampsjs-body-font-color-50)"
+        ></grampsjs-icon>
         ${txn.changes?.length
           ? Object.keys(counts).map(key =>
               changeIcons[key]
-                ? html`
-                      ${
-                        renderIconSvg(
-                          changeIcons[key],
-                          'var(--grampsjs-body-font-color-45)',
-                          0,
-                          'end'
-                        )
-                        // <span slot="end" class="counter">${counts[key]}</span>
-                      } </span
-                    > `
+                ? html`<grampsjs-icon
+                    slot="end"
+                    path="${changeIcons[key]}"
+                    color="var(--grampsjs-body-font-color-45)"
+                  ></grampsjs-icon>`
                 : ''
             )
-          : renderIconSvg(
-              mdiTimelineQuestionOutline,
-              'var(--grampsjs-body-font-color-45)',
-              0,
-              'end'
-            )}
+          : html`<grampsjs-icon
+              slot="end"
+              path="${mdiTimelineQuestionOutline}"
+              color="var(--grampsjs-body-font-color-45)"
+            ></grampsjs-icon>`}
         <div slot="supporting-text">
           <span class="user">
             ${txn.connection?.user

@@ -194,7 +194,10 @@ export function showObject(type, obj, strings) {
       return html`
         <mwc-icon class="inline">event</mwc-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${eventTitleFromProfile(obj.profile || {}) || obj.type}
+          >${eventTitleFromProfile(obj.profile || {}) ||
+          (typeof obj.type === 'string'
+            ? obj.type
+            : obj.type?.string || eventTypeStrings[obj.type?.value] || type)}
         </a>
       `
     case 'place':
@@ -229,7 +232,12 @@ export function showObject(type, obj, strings) {
       return html`
         <mwc-icon class="inline">sticky_note_2</mwc-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${translate(strings, obj.type) || type}
+          >${translate(
+            strings,
+            typeof obj.type === 'string'
+              ? obj.type
+              : obj.type?.string || noteTypeStrings[obj.type?.value] || ''
+          ) || type}
         </a>
       `
     case 'media':
@@ -512,7 +520,14 @@ export function objectDetail(type, obj, strings) {
     //   return ''
     case 'repository':
       return `
-    ${obj.type ? translate(strings, obj.type) : ''}
+    ${
+      obj.type
+        ? translate(
+            strings,
+            typeof obj.type === 'string' ? obj.type : obj.type.string || ''
+          )
+        : ''
+    }
     `
     case 'note':
       return obj?.text?.string?.match(/[^\r\n]+/)?.[0]?.trim() || ''
