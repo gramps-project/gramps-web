@@ -298,5 +298,10 @@
     "Notifications": "Notificaciones",
     "Copy JSON": "Copiar JSON",
     "Task failed": "Tareas incorrectas",
-    "Failed to copy to clipboard": "Fallo al copiar al portapapeles"
+    "Failed to copy to clipboard": "Fallo al copiar al portapapeles",
+    "Undo revision": "Deshacer revisión",
+    "Undo revision (force)": "Deshacer revisión (forzar)",
+    "Force undo": "Forzar deshacer",
+    "This will revert all changes made in this revision.": "Esto revertirá todos los cambios hechos en esta revisión.",
+    "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Esta revisión no puede ser deshecho limpiamente porque algunos objetos han sido modificados tras esta transacción. Forzar el deshacer puede resultar en inconsistencias de datos."
 }
