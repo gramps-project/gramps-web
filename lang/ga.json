@@ -141,7 +141,7 @@
     "login": "logáil isteach",
     "Password": "Pasfhocal",
     "Register new account": "Cláraigh cuntas nua",
-    "Contributor": "Ranníocóir",
+    "Contributor": "Rannpháirtí",
     "Add a new user": "Cuir úsáideoir nua leis",
     "Edit user": "Cuir úsáideoir in eagar",
     "Editor": "Eagarthóir",
@@ -292,5 +292,16 @@
     "Not private": "Ní príobháideach",
     "Edit enclosing place": "Cuir an áit iata in eagar",
     "Saved": "Sábháilte",
-    "Saving...": "Ag sábháil..."
+    "Saving...": "Ag sábháil...",
+    "Undo revision": "Cealaigh an t-athbhreithniú",
+    "Undo revision (force)": "Cealaigh athbhreithniú (fórsáil)",
+    "Force undo": "Fórsa cealú",
+    "This will revert all changes made in this revision.": "Cuirfidh sé seo na hathruithe uile a rinneadh sa athbhreithniú seo ar ais.",
+    "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Ní féidir an t-athbhreithniú seo a chealú go glan mar go ndearnadh roinnt réada a mhodhnú i ndiaidh an idirbhirt seo. D’fhéadfadh neamhréireachtaí sonraí a bheith mar thoradh ar an gcealú a fhorchur.",
+    "Network": "Líonra",
+    "Browser": "Brabhsálaí",
+    "Notifications": "Fógraí",
+    "Copy JSON": "Cóipeáil JSON",
+    "Task failed": "Theip ar an tasc",
+    "Failed to copy to clipboard": "Theip ar chóipeáil chuig an ghearrthaisce"
 }
