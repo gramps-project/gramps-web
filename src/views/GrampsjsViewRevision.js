@@ -11,6 +11,7 @@ import '../components/GrampsjsTimedelta.js'
 import '../components/GrampsjsSearchResultList.js'
 import '../components/GrampsjsDiffJson.js'
 import '../components/GrampsjsBreadcrumbs.js'
+import '../components/GrampsjsIcon.js'
 
 import {mdiClose, mdiUndo, mdiAlertOutline} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
@@ -189,7 +190,11 @@ export class GrampsjsViewRevision extends GrampsjsView {
                 @click="${this._handleUndoClick}"
                 ?disabled="${this._undoInProgress}"
               >
-                ${renderIconSvg(mdiUndo, 'currentColor', 0, 'icon')}
+                <grampsjs-icon
+                  slot="icon"
+                  path="${mdiUndo}"
+                  color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+                ></grampsjs-icon>
                 ${this._('Undo')}
               </md-filled-button>
             `

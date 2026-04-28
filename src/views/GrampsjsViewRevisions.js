@@ -84,7 +84,7 @@ export class GrampsjsViewRevisions extends GrampsjsStaleDataMixin(
           --md-list-item-label-text-color: var(--grampsjs-body-font-color-48);
         }
 
-        svg[slot='end'] {
+        grampsjs-icon[slot='end'] {
           height: 22px;
           width: 22px;
           opacity: 0.9;
