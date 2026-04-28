@@ -35,9 +35,9 @@ import {
 
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsTimedelta.js'
+import '../components/GrampsjsIcon.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
-
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
 const changeIcons = {
