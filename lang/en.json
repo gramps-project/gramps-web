@@ -1,4 +1,9 @@
 {
+  "Undo revision": "Undo revision",
+  "Undo revision (force)": "Undo revision (force)",
+  "Force undo": "Force undo",
+  "This will revert all changes made in this revision.": "This will revert all changes made in this revision.",
+  "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.",
   "Saved": "Saved",
   "Saving...": "Saving...",
   "Ascending": "Ascending",
