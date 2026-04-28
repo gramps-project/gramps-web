@@ -143,6 +143,12 @@ Components communicate via window-level custom events:
 
 Fire events with the `fireEvent(target, eventName, detail?)` helper from `util.js`.
 
+### `db:changed` and `dbChanged`
+
+`apiPutPostDelete` (called by `appState.apiPost`, `apiPut`, `apiDelete`) fires `db:changed` on `window` automatically whenever a mutation succeeds, **including 202 background-task responses**. The `dbChanged` option (default `true`) controls this.
+
+**Do not fire `db:changed` manually after an `apiPost`/`apiPut`/`apiDelete` call** — it will be a duplicate. If you need to suppress the automatic event (rare), pass `{dbChanged: false}` in the options and fire it yourself at the right moment.
+
 ## Runtime configuration
 
 `src/config.js` is excluded from the bundle and copied as-is to `dist/config.js`. Deployers can mount a replacement file on top in Docker to set `window.grampsjsConfig` options (e.g. custom API URL, OAuth provider configuration). The default file just sets `window.grampsjsConfig = {}`.

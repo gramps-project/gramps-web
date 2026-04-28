@@ -267,6 +267,9 @@ export class GrampsjsViewRevision extends GrampsjsView {
         @cancel="${() => {
           this._undoDialogOpen = false
         }}"
+        @closed="${() => {
+          this._undoDialogOpen = false
+        }}"
       >
         <div slot="headline">
           ${this._forceRequired
@@ -339,7 +342,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
   async _handleUndoConfirm(force = false) {
     this._undoInProgress = true
     const endpoint = `/api/transactions/history/${this.transactionId}/undo${
-      force ? '?force=true' : ''
+      force ? '?force=1' : ''
     }`
     const result = await this.appState.apiPost(endpoint, null, {saving: false})
     this._undoInProgress = false
@@ -348,7 +351,6 @@ export class GrampsjsViewRevision extends GrampsjsView {
       fireEvent(this, 'grampsjs:error', {message: result.error})
     } else {
       this._undoDialogOpen = false
-      fireEvent(this, 'db:changed')
       fireEvent(this, 'nav', {path: 'recent'})
     }
   }
