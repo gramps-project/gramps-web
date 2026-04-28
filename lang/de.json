@@ -298,5 +298,10 @@
     "Notifications": "Benachrichtigungen",
     "Task failed": "Aufgabe fehlgeschlagen",
     "Failed to copy to clipboard": "Das Kopieren in die Zwischenablage ist fehlgeschlagen",
-    "Copy JSON": "JSON kopieren"
+    "Copy JSON": "JSON kopieren",
+    "Undo revision": "Änderung rückgängig machen",
+    "Undo revision (force)": "Änderung rückgängig machen (erzwingen)",
+    "Force undo": "Rückgängig erzwingen",
+    "This will revert all changes made in this revision.": "Dadurch werden alle Änderungen dieser Version rückgängig gemacht.",
+    "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Diese Änderung kann nicht sauber rückgängig gemacht werden, da einige Objekte nach dieser Transaktion geändert wurden. Ein erzwungenes Rückgängigmachen kann zu Dateninkonsistenzen führen."
 }
