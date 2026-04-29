@@ -298,5 +298,10 @@
     "Notifications": "Aviseringar",
     "Copy JSON": "Kopiera JSON",
     "Task failed": "Uppgiften misslyckades",
-    "Failed to copy to clipboard": "Misslyckades med att kopiera till urklipp"
+    "Failed to copy to clipboard": "Misslyckades med att kopiera till urklipp",
+    "Undo revision": "Ångra revision",
+    "Undo revision (force)": "Ångra revision (tvinga fram)",
+    "Force undo": "Tvinga ångra",
+    "This will revert all changes made in this revision.": "Detta kommer att återställa alla ändringar som gjorts i den här revisionen.",
+    "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Den här revisionen kan inte ångras helt eftersom vissa objekt har ändrats efter transaktionen. Att tvinga fram ångringen kan leda till datainkonsekvenser."
 }
