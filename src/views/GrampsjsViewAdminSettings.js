@@ -271,6 +271,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             size="20"
             pollInterval="0.2"
             .appState="${this.appState}"
+            @task:complete="${this._handleDeleteAllComplete}"
           ></grampsjs-task-progress-indicator>
           <md-outlined-button
             class="danger-button"
@@ -344,6 +345,10 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
+  _handleDeleteAllComplete() {
+    fireEvent(this, 'db:changed')
+  }
+
   async _updateSearch(semantic = false, incremental = false) {
     let id
     if (semantic) {
@@ -412,6 +417,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     if (info !== undefined) {
       this._repairResults = JSON.parse(info)
     }
+    fireEvent(this, 'db:changed')
   }
 
   async _fetchTreeInfo() {
