@@ -271,6 +271,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             size="20"
             pollInterval="0.2"
             .appState="${this.appState}"
+            @task:complete="${this._handleDeleteAllComplete}"
           ></grampsjs-task-progress-indicator>
           <md-outlined-button
             class="danger-button"
@@ -332,7 +333,10 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       ? `?namespaces=${e.detail.namespaces}`
       : ''
     const url = `/api/objects/delete/${querypar}`
-    const data = await this.appState.apiPost(url, null, {requireFresh: true})
+    const data = await this.appState.apiPost(url, null, {
+      requireFresh: true,
+      dbChanged: false,
+    })
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -340,8 +344,11 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.taskId = data.task?.id || ''
     } else {
       prog.setComplete()
-      fireEvent(this, 'db:changed')
     }
+  }
+
+  _handleDeleteAllComplete() {
+    fireEvent(this, 'db:changed')
   }
 
   async _updateSearch(semantic = false, incremental = false) {
@@ -396,7 +403,9 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     const prog = this.renderRoot.querySelector('#progress-repair')
     prog.reset()
     prog.open = true
-    const data = await this.appState.apiPost('/api/trees/-/repair')
+    const data = await this.appState.apiPost('/api/trees/-/repair', null, {
+      dbChanged: false,
+    })
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -412,6 +421,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     if (info !== undefined) {
       this._repairResults = JSON.parse(info)
     }
+    fireEvent(this, 'db:changed')
   }
 
   async _fetchTreeInfo() {
