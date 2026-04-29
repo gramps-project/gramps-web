@@ -298,5 +298,10 @@
     "Notifications": "Meldingen",
     "Copy JSON": "JSON kopiëren",
     "Task failed": "Taak mislukt",
-    "Failed to copy to clipboard": "Kopiëren naar klembord is mislukt"
+    "Failed to copy to clipboard": "Kopiëren naar klembord is mislukt",
+    "Undo revision": "Revisie ongedaan maken",
+    "Undo revision (force)": "Revisie ongedaan maken (geforceerd)",
+    "Force undo": "Geforceerd ongedaan maken",
+    "This will revert all changes made in this revision.": "Hiermee worden alle wijzigingen die in deze revisie zijn aangebracht, ongedaan gemaakt.",
+    "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Deze revisie kan niet netjes ongedaan worden gemaakt, omdat sommige objecten na deze transactie zijn gewijzigd. Het forceren van het ongedaan maken kan resulteren in inconsistenties in de gegevens."
 }
