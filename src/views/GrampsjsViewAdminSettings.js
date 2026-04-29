@@ -344,7 +344,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.taskId = data.task?.id || ''
     } else {
       prog.setComplete()
-      this._handleDeleteAllComplete()
     }
   }
 
@@ -414,7 +413,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.taskId = data.task?.id || ''
     } else {
       prog.setComplete()
-      this._handleRepairComplete()
     }
   }
 
