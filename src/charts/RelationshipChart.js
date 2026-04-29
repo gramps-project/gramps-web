@@ -3,6 +3,7 @@ import {zoom} from 'd3-zoom'
 import {linkVertical} from 'd3-shape'
 import {Graphviz} from '@hpcc-js/wasm'
 import {chartNameDisplayFormat} from '../util.js'
+import {appendAddPersonButton} from './addPersonButton.js'
 
 const sexColor = {
   F: 'var(--color-girl)',
@@ -337,7 +338,8 @@ function remasterChart(
   imgPadding,
   getImageUrl,
   maxImages,
-  nameDisplayFormat
+  nameDisplayFormat,
+  canEdit = false
 ) {
   const gvchartx = divhidden.select('svg')
   const nodedata = []
@@ -537,8 +539,17 @@ function remasterChart(
 
   nodes
     .filter(d => d.nodetype === 'person')
-    .style('cursor', 'pointer')
-    .on('click', clicked)
+    .style('cursor', canEdit ? 'default' : 'pointer')
+    .on('click', canEdit ? null : clicked)
+
+  if (canEdit) {
+    appendAddPersonButton(
+      nodes.filter(d => d.nodetype === 'person'),
+      boxWidth - 14,
+      14,
+      d => d.handle
+    )
+  }
 
   const linkGenerator = linkVertical()
     .x(d => d.x)
@@ -602,6 +613,8 @@ export function RelationshipChart(
     shrinkToFit = false,
     // orientation = 'LTR',
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
+    canEdit = false,
+    initialZoom = null,
   }
 ) {
   const resultnode = create('div').style('width', '100%')
@@ -617,6 +630,11 @@ export function RelationshipChart(
     .attr('font-size', 13)
 
   const chartContent = svg.append('g').attr('id', 'chart-content')
+
+  if (initialZoom) {
+    svg.node().__zoom = initialZoom
+    chartContent.attr('transform', initialZoom.toString())
+  }
   const graph = new Relgraph(data, boxWidth, boxHeight, grampsId)
   const dot = graph.getDot()
   Graphviz.load().then(graphviz => {
@@ -631,7 +649,8 @@ export function RelationshipChart(
       imgPadding,
       getImageUrl,
       maxImages,
-      nameDisplayFormat
+      nameDisplayFormat,
+      canEdit
     )
     svg.attr('viewBox', [
       -bboxWidth / 2,

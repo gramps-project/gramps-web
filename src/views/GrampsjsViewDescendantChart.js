@@ -2,6 +2,7 @@ import {html} from 'lit'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
 import '../components/GrampsjsTreeChart.js'
+import '../components/GrampsjsTreeChartAddPerson.js'
 
 export class GrampsjsViewDescendantChart extends GrampsjsViewTreeChartBase {
   constructor() {
@@ -38,17 +39,29 @@ export class GrampsjsViewDescendantChart extends GrampsjsViewTreeChartBase {
 
   renderChart() {
     return html`
-      <grampsjs-tree-chart
-        descendants
-        grampsId=${this.grampsId}
-        nAnc=${this.nAnc + 1}
-        nDesc=${this.nDesc + 1}
-        nameDisplayFormat=${this.nameDisplayFormat}
-        .data=${this._data}
-        gapX="60"
+      <div @add-new-person-relation="${this._handleAddPersonRelation}">
+        <grampsjs-tree-chart
+          descendants
+          grampsId=${this.grampsId}
+          nAnc=${this.nAnc + 1}
+          nDesc=${this.nDesc + 1}
+          nameDisplayFormat=${this.nameDisplayFormat}
+          ?canEdit="${this._editMode}"
+          .data=${this._data}
+          gapX="60"
+          .appState="${this.appState}"
+        >
+        </grampsjs-tree-chart>
+      </div>
+    `
+  }
+
+  renderContent() {
+    return html`
+      ${super.renderContent()}
+      <grampsjs-tree-chart-add-person
         .appState="${this.appState}"
-      >
-      </grampsjs-tree-chart>
+      ></grampsjs-tree-chart-add-person>
     `
   }
 }

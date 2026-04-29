@@ -4,15 +4,20 @@ import {map} from 'lit/directives/map.js'
 import '@material/mwc-textfield'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
+import '@material/web/fab/fab.js'
 
-import {mdiAccountDetails, mdiHomeAccount} from '@mdi/js'
+import {mdiAccountDetails, mdiHomeAccount, mdiPencil} from '@mdi/js'
+import '../components/GrampsjsIcon.js'
 import {GrampsjsView} from './GrampsjsView.js'
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import '../components/GrampsjsTooltip.js'
 
 import {chartNameDisplayFormat, fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
 
-export class GrampsjsViewTreeChartBase extends GrampsjsView {
+export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
+  GrampsjsView
+) {
   static get styles() {
     return [
       super.styles,
@@ -49,6 +54,12 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
         #menu-controls mwc-textfield {
           width: 6em;
         }
+
+        md-fab {
+          position: fixed;
+          bottom: 32px;
+          right: 32px;
+        }
       `,
     ]
   }
@@ -66,6 +77,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
       _setAnc: {type: Boolean},
       _setDesc: {type: Boolean},
       _setMaxImages: {type: Boolean},
+      _editMode: {type: Boolean},
     }
   }
 
@@ -86,6 +98,21 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     this._setDesc = false
     this._setSep = false
     this._setMaxImages = false
+    this._editMode = false
+    this._boundToggleEditMode = this._toggleEditMode.bind(this)
+    this._boundDisableEditMode = this._disableEditMode.bind(this)
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('edit-mode:toggle', this._boundToggleEditMode)
+    window.addEventListener('edit-mode:off', this._boundDisableEditMode)
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    window.removeEventListener('edit-mode:toggle', this._boundToggleEditMode)
+    window.removeEventListener('edit-mode:off', this._boundDisableEditMode)
   }
 
   get nAnc() {
@@ -106,9 +133,61 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
 
   renderContent() {
     return html`<div style="position: relative;">
-      <div id="controls">${this.renderControls()}</div>
-      <div id="chart">${this.renderChart()}</div>
-    </div>`
+        <div id="controls">${this.renderControls()}</div>
+        <div id="chart">${this.renderChart()}</div>
+      </div>
+      ${this.appState.permissions.canEdit && !this._editMode
+        ? this.renderFab()
+        : ''}`
+  }
+
+  renderFab() {
+    return html`
+      <md-fab variant="secondary" @click="${this._enableEditMode}">
+        <grampsjs-icon
+          slot="icon"
+          .path="${mdiPencil}"
+          color="var(--mdc-theme-on-secondary)"
+        ></grampsjs-icon>
+      </md-fab>
+    `
+  }
+
+  _enableEditMode() {
+    this._editMode = true
+    fireEvent(this, 'edit-mode:on', {
+      title: this._('Edit'),
+      hideDeleteButton: true,
+    })
+  }
+
+  _disableEditMode() {
+    this._editMode = false
+  }
+
+  _handleAddPersonRelation(e) {
+    const personData = this._data.find(p => p.handle === e.detail.handle)
+    if (!personData) {
+      return
+    }
+    const addPersonEl = this.renderRoot.querySelector(
+      'grampsjs-tree-chart-add-person'
+    )
+    if (addPersonEl) {
+      addPersonEl.open(personData)
+    }
+  }
+
+  _toggleEditMode() {
+    if (!this.active || !this.appState.permissions.canEdit) {
+      return
+    }
+    if (this._editMode) {
+      this._disableEditMode()
+      fireEvent(this, 'edit-mode:off', {})
+    } else {
+      this._enableEditMode()
+    }
   }
 
   renderControls() {
@@ -274,6 +353,10 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     if (changed.has('grampsId') || changed.has('settings')) {
       this._fetchData(this.grampsId)
     }
+  }
+
+  handleUpdateStaleData() {
+    this._fetchData(this.grampsId)
   }
 
   // eslint-disable-next-line class-methods-use-this

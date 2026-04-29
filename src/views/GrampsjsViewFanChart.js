@@ -85,6 +85,14 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
     this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
+  // Disable edit mode for fan chart
+  renderFab() {
+    return ''
+  }
+
+  _toggleEditMode() {}
+  _enableEditMode() {}
+
   renderChart() {
     return html`
       <grampsjs-fan-chart
