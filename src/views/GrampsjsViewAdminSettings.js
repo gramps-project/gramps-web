@@ -333,7 +333,10 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       ? `?namespaces=${e.detail.namespaces}`
       : ''
     const url = `/api/objects/delete/${querypar}`
-    const data = await this.appState.apiPost(url, null, {requireFresh: true})
+    const data = await this.appState.apiPost(url, null, {
+      requireFresh: true,
+      dbChanged: false,
+    })
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -341,7 +344,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.taskId = data.task?.id || ''
     } else {
       prog.setComplete()
-      fireEvent(this, 'db:changed')
+      this._handleDeleteAllComplete()
     }
   }
 
@@ -401,7 +404,9 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     const prog = this.renderRoot.querySelector('#progress-repair')
     prog.reset()
     prog.open = true
-    const data = await this.appState.apiPost('/api/trees/-/repair')
+    const data = await this.appState.apiPost('/api/trees/-/repair', null, {
+      dbChanged: false,
+    })
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -409,6 +414,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.taskId = data.task?.id || ''
     } else {
       prog.setComplete()
+      this._handleRepairComplete()
     }
   }
 
