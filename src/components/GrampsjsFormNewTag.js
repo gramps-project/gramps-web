@@ -143,7 +143,7 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
   async _fetchData() {
     const url = `/api/tags/?locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=all&pagesize=100`
+    }&pagesize=500`
     const data = await this.appState.apiGet(url)
     if ('data' in data) {
       this.searchRes =
