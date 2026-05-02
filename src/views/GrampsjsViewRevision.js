@@ -375,10 +375,17 @@ export class GrampsjsViewRevision extends GrampsjsView {
       this._undoDialogOpen = false
       fireEvent(this, 'grampsjs:error', {message: result.error})
     } else if ('task' in result) {
+      const taskId = result.task?.id
+      if (!taskId) {
+        this._undoTaskRunning = false
+        this._undoDialogOpen = false
+        fireEvent(this, 'grampsjs:error', {message: this._('Task failed')})
+        return
+      }
       await this.updateComplete
       const prog = this.renderRoot.querySelector('#progress-undo')
       if (prog) {
-        prog.taskId = result.task?.id || ''
+        prog.taskId = taskId
       }
     } else {
       this._handleUndoComplete()
