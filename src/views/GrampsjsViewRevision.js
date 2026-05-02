@@ -310,8 +310,10 @@ export class GrampsjsViewRevision extends GrampsjsView {
                 taskName="undoTransaction"
                 size="32"
                 pollInterval="0.2"
+                ?open="${true}"
                 .appState="${this.appState}"
                 @task:complete="${this._handleUndoComplete}"
+                @task:error="${this._handleUndoError}"
               ></grampsjs-task-progress-indicator>`
             : html`
                 <md-text-button
@@ -375,8 +377,9 @@ export class GrampsjsViewRevision extends GrampsjsView {
     } else if ('task' in result) {
       await this.updateComplete
       const prog = this.renderRoot.querySelector('#progress-undo')
-      prog.open = true
-      prog.taskId = result.task?.id || ''
+      if (prog) {
+        prog.taskId = result.task?.id || ''
+      }
     } else {
       this._handleUndoComplete()
     }
@@ -387,6 +390,13 @@ export class GrampsjsViewRevision extends GrampsjsView {
     this._undoDialogOpen = false
     fireEvent(this, 'db:changed')
     fireEvent(this, 'nav', {path: 'revisions'})
+  }
+
+  _handleUndoError(e) {
+    this._undoTaskRunning = false
+    this._undoDialogOpen = false
+    const msg = e.detail?.status?.info || this._('Task failed')
+    fireEvent(this, 'grampsjs:error', {message: msg})
   }
 
   _renderAdded() {
