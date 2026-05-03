@@ -10,6 +10,12 @@ self.addEventListener('message', event => {
   }
 })
 
+self.addEventListener('activate', event => {
+  // Take control of all clients immediately
+  // eslint-disable-next-line no-undef
+  event.waitUntil(clients.claim())
+})
+
 precacheAndRoute(self.__WB_MANIFEST)
 
 // Try the network first with redirect:manual so cross-origin auth redirects
@@ -21,6 +27,10 @@ registerRoute(
       try {
         const response = await fetch(request, {redirect: 'manual'})
         if (response.type === 'opaqueredirect') {
+          return response
+        }
+        // Return successful network response
+        if (response.ok) {
           return response
         }
       } catch {
