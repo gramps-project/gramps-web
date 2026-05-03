@@ -18,14 +18,13 @@ export class GrampsjsUpdateAvailable extends PwaUpdateAvailable {
     if ('serviceWorker' in navigator) {
       const reg = await navigator.serviceWorker.getRegistration()
       if (reg?.waiting) {
-        e.preventDefault()
         reg.waiting.postMessage({type: 'SKIP_WAITING'})
         return
       }
     }
 
     // Fallback to parent implementation
-    super._postMessage(e)
+    return super._postMessage(e)
   }
 }
 
