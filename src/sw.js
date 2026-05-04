@@ -6,8 +6,13 @@ import {ExpirationPlugin} from 'workbox-expiration'
 
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting()
+    event.waitUntil(self.skipWaiting())
   }
+})
+
+self.addEventListener('activate', event => {
+  // Take control of all clients immediately
+  event.waitUntil(self.clients.claim())
 })
 
 precacheAndRoute(self.__WB_MANIFEST)
@@ -21,6 +26,10 @@ registerRoute(
       try {
         const response = await fetch(request, {redirect: 'manual'})
         if (response.type === 'opaqueredirect') {
+          return response
+        }
+        // Return successful network response
+        if (response.ok) {
           return response
         }
       } catch {
