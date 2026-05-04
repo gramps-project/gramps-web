@@ -297,5 +297,11 @@
     "Notifications": "Obavijesti",
     "Copy JSON": "Kopiraj JSON",
     "Task failed": "Zadatak nije uspio",
-    "Failed to copy to clipboard": "Neuspjelo kopiranje u međuspremnik"
+    "Failed to copy to clipboard": "Neuspjelo kopiranje u međuspremnik",
+    "Undo revision": "Poništi reviziju",
+    "Undo revision (force)": "Poništi reviziju (prisilno)",
+    "Force undo": "Prisili poništavanje",
+    "This will revert all changes made in this revision.": "Ovime će se poništiti sve promjene koje su napravljene u ovoj reviziji.",
+    "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Ova se revizija ne može potpuno poništiti jer su neki objekti promijenjeni nakon ove transakcije. Prisilno poništavanje može prouzročiti nedosljednost podataka.",
+    "Raw transaction": "Neobrađena transakcija"
 }
