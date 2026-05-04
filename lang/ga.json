@@ -303,5 +303,6 @@
     "Notifications": "Fógraí",
     "Copy JSON": "Cóipeáil JSON",
     "Task failed": "Theip ar an tasc",
-    "Failed to copy to clipboard": "Theip ar chóipeáil chuig an ghearrthaisce"
+    "Failed to copy to clipboard": "Theip ar chóipeáil chuig an ghearrthaisce",
+    "Raw transaction": "Idirbheart amh"
 }
