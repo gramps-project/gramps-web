@@ -49,8 +49,7 @@ const _allTabs = {
     title: 'Relationships',
     condition: data =>
       data.family_list?.length > 0 || data.parent_family_list?.length > 0,
-    conditionEdit: data =>
-      data.family_list?.length > 1 || data.parent_family_list?.length > 1,
+    conditionEdit: data => 'family_list' in data,
   },
   enclosed: {
     title: 'Place Hierarchy',
@@ -597,6 +596,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           {}}
           .otherParentFamilies=${this.data?.profile?.other_parent_families ||
           []}
+          personGender="${this.data?.gender ?? 2}"
         ></grampsjs-relationships>`
       case 'names':
         return html`
