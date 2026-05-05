@@ -295,5 +295,12 @@
     "Notifications": "Уведомления",
     "Copy JSON": "Скопировать JSON",
     "Task failed": "Задача не выполнена",
-    "Failed to copy to clipboard": "Не удалось скопировать в буфер обмена"
+    "Failed to copy to clipboard": "Не удалось скопировать в буфер обмена",
+    "Undo revision": "Отменить изменения",
+    "Undo revision (force)": "Отменить изменения (принудительно)",
+    "Force undo": "Принудительная отмена",
+    "This will revert all changes made in this revision.": "Это отменит все изменения, внесенные в эту редакцию.",
+    "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Это изменение нельзя безопасно отменить, так как после этой операции некоторые объекты были изменены. Принудительная отмена может привести к несогласованности данных.",
+    "Raw transaction": "Исходная операция",
+    "Not private": "Не личное"
 }
