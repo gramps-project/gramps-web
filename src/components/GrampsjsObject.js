@@ -597,6 +597,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           .otherParentFamilies=${this.data?.profile?.other_parent_families ||
           []}
           personGender="${this.data?.gender ?? 2}"
+          personHandle="${this.data?.handle ?? ''}"
         ></grampsjs-relationships>`
       case 'names':
         return html`

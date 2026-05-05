@@ -6,7 +6,30 @@ import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import {fireEvent} from '../util.js'
 
 class GrampsjsFormNewParentFamily extends GrampsjsObjectForm {
+  static get properties() {
+    return {
+      ...super.properties,
+      personHandle: {type: String},
+    }
+  }
+
+  constructor() {
+    super()
+    this.personHandle = ''
+  }
+
   get isValid() {
+    const fatherHandle = this.data?.father_handle
+    const motherHandle = this.data?.mother_handle
+    if (
+      this.personHandle &&
+      (fatherHandle === this.personHandle || motherHandle === this.personHandle)
+    ) {
+      return false
+    }
+    if (fatherHandle && motherHandle && fatherHandle === motherHandle) {
+      return false
+    }
     return true
   }
 

@@ -86,6 +86,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
       otherParentFamilies: {type: Array},
       edit: {type: Boolean},
       personGender: {type: Number},
+      personHandle: {type: String},
       dialogContent: {type: Object},
     }
   }
@@ -100,6 +101,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
     this.primaryParentFamily = {}
     this.edit = false
     this.personGender = 2
+    this.personHandle = ''
     this.dialogContent = ''
   }
 
@@ -262,6 +264,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
         @object:save="${this._handleAddToFamilySave}"
         @object:cancel="${this._handleDialogCancel}"
         .appState="${this.appState}"
+        personHandle="${this.personHandle}"
         dialogTitle="${this._('Add person as child to an existing family')}"
       ></grampsjs-form-add-person-to-family>
     `
@@ -273,6 +276,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
         @object:save="${this._handleNewParentFamilySave}"
         @object:cancel="${this._handleDialogCancel}"
         .appState="${this.appState}"
+        personHandle="${this.personHandle}"
         dialogTitle="${this._('Add a new set of parents')}"
       ></grampsjs-form-new-parent-family>
     `
@@ -285,6 +289,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
         @object:cancel="${this._handleDialogCancel}"
         .appState="${this.appState}"
         personRole="${this._personRole}"
+        personHandle="${this.personHandle}"
         dialogTitle="${this._('Add a new family with person as parent')}"
       ></grampsjs-form-new-partner-family>
     `

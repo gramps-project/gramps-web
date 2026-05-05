@@ -630,6 +630,27 @@ export class GrampsjsViewObject extends GrampsjsView {
         if ('data' in result) {
           const {extended, profile, backlinks, formatted, ...family} =
             result.data
+          // Prevent adding the person as a child to a family where they are already a parent
+          if (
+            family.father_handle === personHandle ||
+            family.mother_handle === personHandle
+          ) {
+            fireEvent(this, 'grampsjs:error', {
+              message:
+                'Cannot add person as child of a family they are already a parent of.',
+            })
+            return
+          }
+          // Prevent duplicate child entries
+          const alreadyChild = (family.child_ref_list || []).some(
+            ref => ref.ref === personHandle
+          )
+          if (alreadyChild) {
+            fireEvent(this, 'grampsjs:error', {
+              message: 'Person is already a child in this family.',
+            })
+            return
+          }
           const childRef = {
             _class: 'ChildRef',
             ref: personHandle,
@@ -643,7 +664,13 @@ export class GrampsjsViewObject extends GrampsjsView {
           }
           this.appState
             .apiPut(`/api/families/${familyHandle}`, updatedFamily)
-            .then(() => this._updateData(false))
+            .then(resultPut => {
+              if ('error' in resultPut) {
+                fireEvent(this, 'grampsjs:error', {message: resultPut.error})
+              } else {
+                this._updateData(false)
+              }
+            })
         } else if ('error' in result) {
           fireEvent(this, 'grampsjs:error', {message: result.error})
         }

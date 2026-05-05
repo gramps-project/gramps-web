@@ -10,15 +10,25 @@ class GrampsjsFormNewPartnerFamily extends GrampsjsObjectForm {
     return {
       ...super.properties,
       personRole: {type: String},
+      personHandle: {type: String},
     }
   }
 
   constructor() {
     super()
     this.personRole = 'father'
+    this.personHandle = ''
   }
 
   get isValid() {
+    const partnerHandle = this.data?.partner_handle
+    if (
+      this.personHandle &&
+      partnerHandle &&
+      partnerHandle === this.personHandle
+    ) {
+      return false
+    }
     return true
   }
 
