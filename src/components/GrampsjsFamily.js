@@ -2,8 +2,7 @@ import {css, html} from 'lit'
 
 import '@material/mwc-icon'
 
-import {ringsIcon} from '../icons.js'
-import {fireEvent, renderPerson} from '../util.js'
+import {fireEvent} from '../util.js'
 import './GrampsjsFormEditFamily.js'
 import './GrampsjsFormNewPerson.js'
 import './GrampsjsFormPersonRef.js'
@@ -15,18 +14,14 @@ export class GrampsjsFamily extends GrampsjsObject {
       super.styles,
       css`
         :host {
-          .items-center {
-            display: flex;
-            align-items: center;
+          .parent-dates {
+            display: block;
+            font-size: 0.85em;
           }
 
-          .parent {
-            margin-top: 1em;
-            margin-bottom: 1em;
-          }
-
-          .relationship-type {
-            margin-top: 2em;
+          .sym {
+            font-weight: bold;
+            color: var(--grampsjs-body-font-color-35);
           }
         }
       `,
@@ -41,14 +36,29 @@ export class GrampsjsFamily extends GrampsjsObject {
     this._objectIcon = 'people'
   }
 
+  _parentLabel(role) {
+    const fatherSex = this.data?.profile?.father?.sex
+    const motherSex = this.data?.profile?.mother?.sex
+    const hasFather = Object.keys(this.data?.profile?.father ?? {}).length > 0
+    const hasMother = Object.keys(this.data?.profile?.mother ?? {}).length > 0
+    const gendersEqual = hasFather && hasMother && fatherSex === motherSex
+    if (role === 'father') {
+      return gendersEqual ||
+        (hasFather && fatherSex !== 'M' && fatherSex !== 'F')
+        ? this._('Partner 1')
+        : this._('Father')
+    }
+    return gendersEqual || (hasMother && motherSex !== 'M' && motherSex !== 'F')
+      ? this._('Partner 2')
+      : this._('Mother')
+  }
+
   renderProfile() {
     return html`
       <h2>${this._renderTitle()}</h2>
-      ${this._renderParent('father')} ${this._renderParent('mother')}
-      <div class="relationship-type">
-        ${this._renderRelType()} ${this._renderMarriage()}
-        ${this._renderDivorce()}
-      </div>
+      ${this._renderParent('father', this._parentLabel('father'))}
+      ${this._renderParent('mother', this._parentLabel('mother'))}
+      ${this._renderMarriageBlock()}
       ${this.edit
         ? html`
             <mwc-icon-button
@@ -70,77 +80,97 @@ export class GrampsjsFamily extends GrampsjsObject {
     `
   }
 
-  _renderRelType() {
-    if (!this.data?.type || !this.data?.profile?.relationship) {
+  _renderMarriageBlock() {
+    const relType = this.data?.profile?.relationship
+    const marriage = this.data?.profile?.marriage
+    const divorce = this.data?.profile?.divorce
+    const hasMarriage = marriage?.date || marriage?.place
+    const hasDivorce = divorce && Object.keys(divorce).length > 0
+    if (!relType && !hasMarriage && !hasDivorce) {
       return ''
     }
     return html`
-      <span class="event">
-        ${this._('Relationship type:')} ${this.data.profile.relationship}
-      </span>
+      <dl>
+        <div>
+          <dt>${this._('Relationship type:').replace(':', '')}</dt>
+          <dd>
+            ${relType || ''}
+            ${hasMarriage
+              ? html`<span class="parent-dates">
+                  <span class="sym">⚭</span>
+                  ${marriage.date || ''}
+                  ${marriage.place
+                    ? `${this._('in')} ${marriage.place_name || marriage.place}`
+                    : ''}
+                </span>`
+              : ''}
+            ${hasDivorce
+              ? html`<span class="parent-dates">
+                  <span class="sym">⚮</span>
+                  ${divorce.date || ''}
+                  ${divorce.place ? `${this._('in')} ${divorce.place}` : ''}
+                </span>`
+              : ''}
+          </dd>
+        </div>
+      </dl>
     `
   }
 
-  _renderParent(parent) {
+  _renderParent(parent, label) {
     const profile = this.data?.profile[parent]
     const hasProfile = Object.keys(profile ?? {}).length > 0
+    const birthDate = profile?.birth?.date || ''
+    const deathDate = profile?.death?.date || ''
 
     return html`
-      <div class="parent">
-        <div class="items-center">
-          ${renderPerson(profile || {})}
-          ${this.edit && hasProfile
-            ? html`
-                <mwc-icon-button
-                  class="edit"
-                  icon="link_off"
-                  @click="${e => this._handleParentChanged(e, parent)}"
-                ></mwc-icon-button>
-              `
-            : ''}
+      <dl>
+        <div>
+          <dt>${label}</dt>
+          <dd>
+            ${hasProfile
+              ? html`<a href="/person/${profile.gramps_id}"
+                    >${profile.name_given || '…'}
+                    ${profile.name_surname || '…'}</a
+                  >
+                  ${birthDate || deathDate
+                    ? html`<span class="parent-dates">
+                        ${birthDate
+                          ? html`<span class="sym">∗</span> ${birthDate}`
+                          : ''}
+                        ${birthDate && deathDate ? ' ' : ''}
+                        ${deathDate
+                          ? html`<span class="sym">†</span> ${deathDate}`
+                          : ''}
+                      </span>`
+                    : ''}`
+              : '…'}
+            ${this.edit && hasProfile
+              ? html`
+                  <mwc-icon-button
+                    class="edit"
+                    icon="link_off"
+                    @click="${e => this._handleParentChanged(e, parent)}"
+                  ></mwc-icon-button>
+                `
+              : ''}
+            ${this.edit
+              ? html`
+                  <mwc-icon-button
+                    class="edit"
+                    icon="add_link"
+                    @click="${() => this._handleParentShare(parent)}"
+                  ></mwc-icon-button>
+                  <mwc-icon-button
+                    class="edit"
+                    icon="add"
+                    @click="${() => this._handleAddNewParent(parent)}"
+                  ></mwc-icon-button>
+                `
+              : ''}
+          </dd>
         </div>
-        ${this.edit
-          ? html`
-              <mwc-icon-button
-                class="edit"
-                icon="add_link"
-                @click="${() => this._handleParentShare(parent)}"
-              ></mwc-icon-button>
-              <mwc-icon-button
-                class="edit"
-                icon="add"
-                @click="${() => this._handleAddNewParent(parent)}"
-              ></mwc-icon-button>
-            `
-          : ''}
-      </div>
-    `
-  }
-
-  _renderMarriage() {
-    const obj = this.data?.profile?.marriage
-    if (!obj?.date && !obj?.place) {
-      return ''
-    }
-    return html`
-      <span class="event">
-        <i>${ringsIcon}</i>
-        ${obj.date || ''} ${obj.place ? this._('in') : ''}
-        ${obj.place_name || obj.place || ''}
-      </span>
-    `
-  }
-
-  _renderDivorce() {
-    const obj = this.data?.profile?.divorce
-    if (obj === undefined || Object.keys(obj).length === 0) {
-      return ''
-    }
-    return html`
-      <span class="event">
-        <i>oo</i>
-        ${obj.date || ''} ${obj.place ? this._('in') : ''} ${obj.place || ''}
-      </span>
+      </dl>
     `
   }
 
