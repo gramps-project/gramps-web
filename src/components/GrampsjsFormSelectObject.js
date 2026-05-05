@@ -11,11 +11,14 @@ import '@material/mwc-icon'
 import '@material/mwc-textfield'
 import '@material/mwc-icon-button'
 import '@material/mwc-circular-progress'
+import '@material/web/button/outlined-button.js'
 
+import {mdiLinkPlus} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 
 import {debounce, fireEvent} from '../util.js'
 import './GrampsjsSearchResultList.js'
+import './GrampsjsIcon.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 // labels for button
@@ -77,19 +80,17 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
   render() {
     return html`
       <div style="position:relative;">
-        <mwc-button
-          raised
+        <md-outlined-button
           ?disabled="${this.disabled}"
           style="${this.hideButton
             ? 'visibility:hidden;pointer-events:none;'
             : ''}"
-          label="${this.label ||
-          this._(btnLabel[this.objectType]) ||
-          this._('Select')}"
           id="button"
           @click="${this._handleBtnClick}"
-          icon="add_link"
-        ></mwc-button>
+        >
+          <grampsjs-icon slot="icon" path="${mdiLinkPlus}"></grampsjs-icon>
+          ${this.label || this._(btnLabel[this.objectType]) || this._('Select')}
+        </md-outlined-button>
 
         <mwc-menu
           ?fixed="${this.fixedMenuPosition}"
