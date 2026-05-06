@@ -131,6 +131,10 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
     `
   }
 
+  firstUpdated() {
+    this.updateComplete.then(() => this.checkFormValidity())
+  }
+
   _addChild() {
     this._childKeys = [...this._childKeys, this._nextChildKey]
     this._nextChildKey += 1
@@ -155,7 +159,9 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
     const slots = [
       ...this.shadowRoot.querySelectorAll('grampsjs-form-person-slot'),
     ]
-    this.isFormValid = slots.every(slot => slot.checkValidity())
+    this.isFormValid =
+      slots.every(slot => slot.checkValidity()) &&
+      slots.some(slot => !slot.isEmpty())
   }
 
   _submit() {

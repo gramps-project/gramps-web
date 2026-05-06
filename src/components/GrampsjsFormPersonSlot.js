@@ -3,7 +3,7 @@ import {html, css, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {GrampsjsNewPersonMixin} from '../mixins/GrampsjsNewPersonMixin.js'
-import {fireEvent} from '../util.js'
+import {dateIsEmpty, fireEvent} from '../util.js'
 import './GrampsjsPillToggle.js'
 import './GrampsjsFormSelectObjectList.js'
 import './GrampsjsFormSelectType.js'
@@ -205,11 +205,24 @@ export class GrampsjsFormPersonSlot extends GrampsjsNewPersonMixin(
         mrel: this._mrel,
       }
     }
+    // Treat a create-mode slot with no name, birth, or death as empty.
+    const {birth = {}, death = {}} = this.data
+    const hasBirth = birth.place || (birth.date && !dateIsEmpty(birth.date))
+    const hasDeath = death.place || (death.date && !dateIsEmpty(death.date))
+    if (!this.data.primary_name && !hasBirth && !hasDeath) return null
     return {
       newPersonData: this._processedData(),
       frel: this._frel,
       mrel: this._mrel,
     }
+  }
+
+  isEmpty() {
+    if (this._mode === 'select') return this._selectedHandles.length === 0
+    const {birth = {}, death = {}} = this.data
+    const hasBirth = birth.place || (birth.date && !dateIsEmpty(birth.date))
+    const hasDeath = death.place || (death.date && !dateIsEmpty(death.date))
+    return !this.data.primary_name && !hasBirth && !hasDeath
   }
 
   // Called by the parent view to check whether inline forms are valid.
