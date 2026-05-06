@@ -200,6 +200,7 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
     const types =
       (this.types[isCustom ? 'custom' : 'default'] || {})[typeKey] || []
     const ind = types.indexOf(string)
+    if (ind < 0) return string
     try {
       return this.typesLocale[isCustom ? 'custom' : 'default'][typeKey][ind]
     } catch {

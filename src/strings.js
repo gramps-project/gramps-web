@@ -695,6 +695,7 @@ export const grampsStrings = [
   'Remove note',
   'Remove person as child of these parents',
   'Remove person as parent in this family',
+  'Remove',
   'Replace first names with call name',
   'Report',
   'Repositories',

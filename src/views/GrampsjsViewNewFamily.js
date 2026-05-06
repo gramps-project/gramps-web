@@ -80,7 +80,10 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
         key => html`
           <div class="child-slot-wrapper">
             <div class="child-slot-header">
-              <md-icon-button @click="${() => this._removeChild(key)}">
+              <md-icon-button
+                aria-label="${this._('Remove')}"
+                @click="${() => this._removeChild(key)}"
+              >
                 <grampsjs-icon
                   path="${mdiClose}"
                   color="var(--mdc-theme-secondary)"

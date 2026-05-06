@@ -157,6 +157,7 @@ export class GrampsjsFormPersonSlot extends GrampsjsNewPersonMixin(
     const types =
       (this.types[isCustom ? 'custom' : 'default'] || {})[typeKey] || []
     const ind = types.indexOf(string)
+    if (ind < 0) return string
     try {
       return this.typesLocale[isCustom ? 'custom' : 'default'][typeKey][ind]
     } catch {
@@ -227,9 +228,19 @@ export class GrampsjsFormPersonSlot extends GrampsjsNewPersonMixin(
 
   // Called by the parent view to check whether inline forms are valid.
   checkValidity() {
-    if (this._mode === 'select') return true
-    this.checkFormValidity()
-    return this.isFormValid
+    let valid = true
+    if (this._mode !== 'select') {
+      this.checkFormValidity()
+      valid = this.isFormValid
+    }
+    if (valid && this.showRelTypes) {
+      this.shadowRoot
+        ?.querySelectorAll('#child-frel, #child-mrel')
+        .forEach(el => {
+          if (!el.isValid()) valid = false
+        })
+    }
+    return valid
   }
 
   reset() {
