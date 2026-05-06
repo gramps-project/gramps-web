@@ -304,5 +304,9 @@
     "Force undo": "Forçar desfazer",
     "This will revert all changes made in this revision.": "Isto irá reverter todas as alterações feitas nesta revisão.",
     "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Esta revisão não pode ser revertida correctamente, uma vez que alguns objectos foram modificados após esta transacção. Forçar a reversão pode resultar em inconsistências nos dados.",
-    "Raw transaction": "Transacção em bruto"
+    "Raw transaction": "Transacção em bruto",
+    "Add child": "Adicionar filho",
+    "Existing Person": "Indivíduo existente",
+    "Partner 1": "1º companheiro",
+    "Partner 2": "2º companheiro"
 }
