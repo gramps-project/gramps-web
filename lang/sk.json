@@ -304,5 +304,9 @@
     "Force undo": "Vynútiť vrátenie",
     "This will revert all changes made in this revision.": "Týmto sa vrátia všetky zmeny vykonané v tejto revízii.",
     "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Túto revíziu nie je možné vrátiť bez problémov, pretože niektoré objekty boli po tejto transakcii modifikované. Vynútenie vrátenia môže viesť k nekonzistencii údajov.",
-    "Raw transaction": "Neprepracovaná transakcia"
+    "Raw transaction": "Neprepracovaná transakcia",
+    "Add child": "Pridať dieťa",
+    "Existing Person": "Existujúca osoba",
+    "Partner 1": "Partner 1",
+    "Partner 2": "Partner 2"
 }
