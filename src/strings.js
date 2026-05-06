@@ -781,6 +781,7 @@ export const grampsStrings = [
   'Span',
   'Spanish',
   'Sponsored',
+  'Spouse',
   'Spouses',
   'Start',
   'State',

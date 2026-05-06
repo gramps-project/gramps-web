@@ -1,4 +1,5 @@
 import {html, css} from 'lit'
+import {zoomTransform} from 'd3-zoom'
 
 import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
@@ -39,6 +40,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       descendants: {type: Boolean},
       gapX: {type: Number},
       nameDisplayFormat: {type: String},
+      canEdit: {type: Boolean},
     }
   }
 
@@ -48,6 +50,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     this.nAnc = 5
     this.nDesc = 5
     this.gapX = 30
+    this._savedZoom = null
   }
 
   render() {
@@ -62,6 +65,18 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     `
   }
 
+  willUpdate() {
+    // Save zoom transform before Lit replaces the SVG node
+    const svg = this.renderRoot
+      ?.getElementById('container')
+      ?.querySelector('svg')
+    this._savedZoom = svg ? zoomTransform(svg) : null
+  }
+
+  updated() {
+    this._updateMenuAnchor()
+  }
+
   renderChart() {
     if (this.data.length === 0 || !this.grampsId) {
       return ''
@@ -70,15 +85,12 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     if (!handle) {
       return ''
     }
-
     const dataDescendants = this.descendants
       ? getDescendantTree(this.data, handle, this.nDesc)
       : false
-
     const dataAncestors = this.ancestors
       ? getTree(this.data, handle, this.nAnc, false)
       : false
-
     let childrenTriangle = false
     if (this.descendants && this.ancestors) {
       childrenTriangle = false
@@ -98,6 +110,8 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
         bboxWidth: this.containerWidth,
         bboxHeight: this.containerHeight,
         nameDisplayFormat: this.nameDisplayFormat,
+        canEdit: this.canEdit,
+        initialZoom: this._savedZoom,
       })}
     `
   }
@@ -168,13 +182,6 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     const menu = this.renderRoot.querySelector('mwc-menu')
     if (menu !== null) {
       menu.open = false
-    }
-  }
-
-  update(changed) {
-    super.update(changed)
-    if (changed.has('data')) {
-      this._updateMenuAnchor()
     }
   }
 
