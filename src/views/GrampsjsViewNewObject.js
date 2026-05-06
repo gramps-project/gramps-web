@@ -130,14 +130,22 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
       <div class="spacer"></div>
       <p class="right">
         <md-outlined-button @click="${this._reset}">
-          <grampsjs-icon slot="icon" path="${mdiClose}"></grampsjs-icon>
+          <grampsjs-icon
+            slot="icon"
+            path="${mdiClose}"
+            color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+          ></grampsjs-icon>
           ${this._('Cancel')}
         </md-outlined-button>
         <md-filled-button
           @click="${this._submit}"
           ?disabled=${!this.isFormValid}
         >
-          <grampsjs-icon slot="icon" path="${mdiContentSave}"></grampsjs-icon>
+          <grampsjs-icon
+            slot="icon"
+            path="${mdiContentSave}"
+            color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+          ></grampsjs-icon>
           ${this._('Add')}
         </md-filled-button>
       </p>

@@ -88,7 +88,11 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
           id="button"
           @click="${this._handleBtnClick}"
         >
-          <grampsjs-icon slot="icon" path="${mdiLinkPlus}"></grampsjs-icon>
+          <grampsjs-icon
+            slot="icon"
+            path="${mdiLinkPlus}"
+            color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+          ></grampsjs-icon>
           ${this.label || this._(btnLabel[this.objectType]) || this._('Select')}
         </md-outlined-button>
 
