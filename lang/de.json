@@ -304,5 +304,9 @@
     "Force undo": "Rückgängig erzwingen",
     "This will revert all changes made in this revision.": "Dadurch werden alle Änderungen dieser Version rückgängig gemacht.",
     "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Diese Änderung kann nicht sauber rückgängig gemacht werden, da einige Objekte nach dieser Transaktion geändert wurden. Ein erzwungenes Rückgängigmachen kann zu Dateninkonsistenzen führen.",
-    "Raw transaction": "Rohdatentransaktion"
+    "Raw transaction": "Rohdatentransaktion",
+    "Add child": "Kind hinzufügen",
+    "Existing Person": "Vorhandene Person",
+    "Partner 1": "Partner 1",
+    "Partner 2": "Partner 2"
 }
