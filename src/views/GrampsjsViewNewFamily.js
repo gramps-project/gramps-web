@@ -56,7 +56,6 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
 
       <grampsjs-form-person-slot
         id="father-slot"
-        role="father"
         .appState="${this.appState}"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
@@ -67,7 +66,6 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
 
       <grampsjs-form-person-slot
         id="mother-slot"
-        role="mother"
         .appState="${this.appState}"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
@@ -92,7 +90,6 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
             </div>
             <grampsjs-form-person-slot
               id="child-slot-${key}"
-              role="child"
               showRelTypes
               .appState="${this.appState}"
               .types="${this.types}"
@@ -228,7 +225,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
 
     const payload = [...newPersonObjects, familyObj]
 
-    this.appState.apiPost('/api/objects/', payload).then(data => {
+    this.appState.apiPost(this.postUrl, payload).then(data => {
       if ('data' in data) {
         this.error = false
         const grampsId = data.data.filter(obj => obj.new._class === 'Family')[0]

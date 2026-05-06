@@ -55,7 +55,6 @@ export class GrampsjsFormPersonSlot extends GrampsjsNewPersonMixin(
 ) {
   static get properties() {
     return {
-      role: {type: String},
       showRelTypes: {type: Boolean},
       types: {type: Object},
       typesLocale: {type: Object},
@@ -69,7 +68,6 @@ export class GrampsjsFormPersonSlot extends GrampsjsNewPersonMixin(
 
   constructor() {
     super()
-    this.role = ''
     this.showRelTypes = false
     this.types = {}
     this.typesLocale = {}
