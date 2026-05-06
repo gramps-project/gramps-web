@@ -3,6 +3,7 @@ import {html, css, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {GrampsjsNewPersonMixin} from '../mixins/GrampsjsNewPersonMixin.js'
+import {fireEvent} from '../util.js'
 import './GrampsjsPillToggle.js'
 import './GrampsjsFormSelectObjectList.js'
 import './GrampsjsFormSelectType.js'
@@ -81,7 +82,13 @@ export class GrampsjsFormPersonSlot extends GrampsjsNewPersonMixin(
 
   connectedCallback() {
     super.connectedCallback()
-    this.addEventListener('formdata:changed', this._handleFormData.bind(this))
+    this._boundHandleFormData = this._handleFormData.bind(this)
+    this.addEventListener('formdata:changed', this._boundHandleFormData)
+  }
+
+  disconnectedCallback() {
+    this.removeEventListener('formdata:changed', this._boundHandleFormData)
+    super.disconnectedCallback()
   }
 
   render() {
@@ -165,6 +172,12 @@ export class GrampsjsFormPersonSlot extends GrampsjsNewPersonMixin(
   }
 
   _handleFormData(e) {
+    // Re-dispatched slot-level pings are for the parent's benefit only.
+    if (e.composedPath()[0] === this) return
+    // Stop the original shadow-internal event here so its generic ids
+    // (e.g. 'private', 'object-citation-list') cannot collide with identically
+    // named fields on ancestor forms.
+    e.stopPropagation()
     super._handleFormData(e)
     const originalTarget = e.composedPath()[0]
     if (originalTarget.id === 'person-in-slot-list') {
@@ -176,6 +189,10 @@ export class GrampsjsFormPersonSlot extends GrampsjsNewPersonMixin(
     if (originalTarget.id === 'child-mrel') {
       this._mrel = e.detail.data
     }
+    // Re-dispatch from the slot element so ancestors can recheck validity.
+    // composedPath()[0] will be the slot itself, whose id never matches any
+    // ancestor form field.
+    fireEvent(this, 'formdata:changed', {})
   }
 
   // Returns the slot's data at submit time. Called once by the parent view.

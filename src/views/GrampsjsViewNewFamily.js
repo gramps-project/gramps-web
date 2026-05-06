@@ -134,10 +134,12 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
   _addChild() {
     this._childKeys = [...this._childKeys, this._nextChildKey]
     this._nextChildKey += 1
+    this.updateComplete.then(() => this.checkFormValidity())
   }
 
   _removeChild(key) {
     this._childKeys = this._childKeys.filter(k => k !== key)
+    this.updateComplete.then(() => this.checkFormValidity())
   }
 
   _handleFormData(e) {
