@@ -304,5 +304,7 @@
     "Copy JSON": "Cóipeáil JSON",
     "Task failed": "Theip ar an tasc",
     "Failed to copy to clipboard": "Theip ar chóipeáil chuig an ghearrthaisce",
-    "Raw transaction": "Idirbheart amh"
+    "Raw transaction": "Idirbheart amh",
+    "Add child": "Cuir páiste leis",
+    "Existing Person": "Duine atá ann cheana"
 }
