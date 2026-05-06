@@ -4,10 +4,13 @@ import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-textarea'
 import '@material/mwc-formfield'
-import '@material/mwc-button'
-import '@material/mwc-circular-progress'
+import '@material/web/button/outlined-button.js'
+import '@material/web/button/filled-button.js'
+
+import {mdiClose, mdiContentSave} from '@mdi/js'
 
 import {GrampsjsView} from './GrampsjsView.js'
+import '../components/GrampsjsIcon.js'
 import {clearDraftsWithPrefix} from '../api.js'
 import {GrampsjsNewObjectTagsMixin} from '../mixins/GrampsjsNewObjectTagsMixin.js'
 
@@ -24,6 +27,10 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
 
         p.right {
           text-align: right;
+        }
+
+        h3 {
+          font-size: 1.35em;
         }
       `,
     ]
@@ -122,39 +129,32 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
     return html`
       <div class="spacer"></div>
       <p class="right">
-        <mwc-button
-          outlined
-          label="${this._('Cancel')}"
-          type="reset"
-          @click="${this._reset}"
-          icon="cancel"
-        >
-        </mwc-button>
-        <mwc-button
-          raised
-          label="${this._('Add')}"
-          type="submit"
+        <md-outlined-button @click="${this._reset}">
+          <grampsjs-icon
+            slot="icon"
+            path="${mdiClose}"
+            color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+          ></grampsjs-icon>
+          ${this._('Cancel')}
+        </md-outlined-button>
+        <md-filled-button
           @click="${this._submit}"
-          icon="save"
           ?disabled=${!this.isFormValid}
         >
-          <span slot="trailingIcon" style="display:none;">
-            <mwc-circular-progress
-              indeterminate
-              density="-7"
-              closed
-              id="login-progress"
-            >
-            </mwc-circular-progress>
-          </span>
-        </mwc-button>
+          <grampsjs-icon
+            slot="icon"
+            path="${mdiContentSave}"
+            color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+          ></grampsjs-icon>
+          ${this._('Add')}
+        </md-filled-button>
       </p>
     `
   }
 
   _renderCitationForm() {
     return html`
-      <h4 class="label">${this._('Citation')}</h4>
+      <h3>${this._('Citation')}</h3>
 
       <grampsjs-form-select-object-list
         multiple
@@ -200,6 +200,7 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
     const types =
       (this.types[isCustom ? 'custom' : 'default'] || {})[typeKey] || []
     const ind = types.indexOf(string)
+    if (ind < 0) return string
     try {
       return this.typesLocale[isCustom ? 'custom' : 'default'][typeKey][ind]
     } catch {
