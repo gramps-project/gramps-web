@@ -39,7 +39,7 @@ import './components/GrampsjsUndoTransaction.js'
 import './components/GrampsjsUpdateAvailable.js'
 import './components/GrampsjsUpgradeDb.js'
 import {sharedStyles} from './SharedStyles.js'
-import {applyTheme} from './theme.js'
+import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from './theme.js'
 import {handleOIDCCallback, handleOIDCComplete} from './oidc.js'
 
 const LOADING_STATE_INITIAL = 0
@@ -661,10 +661,18 @@ export class GrampsJs extends LitElement {
       this._loadFrontendStrings(this.appState.settings.lang)
     }
 
-    applyTheme(this.appState.settings.theme)
+    applyScheme(
+      DEFAULT_PRIMARY,
+      DEFAULT_SECONDARY,
+      this.appState.settings.theme
+    )
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     mediaQuery.addEventListener('change', () =>
-      applyTheme(this.appState.settings.theme)
+      applyScheme(
+        DEFAULT_PRIMARY,
+        DEFAULT_SECONDARY,
+        this.appState.settings.theme
+      )
     )
   }
 
