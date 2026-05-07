@@ -103,6 +103,10 @@ export function applyColors(
     '--mdc-theme-secondary',
     hexFromArgb(secondaryPalette.tone(actionTone))
   )
+  root.style.setProperty(
+    '--mdc-theme-on-secondary',
+    actionTone < 60 ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.87)'
+  )
 }
 
 export function applyScheme(

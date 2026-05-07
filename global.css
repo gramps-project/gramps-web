@@ -11,7 +11,7 @@ body {
   /* Web Awesome color token overrides.
      default.css (loaded in index.html) defines --wa-* tokens inside @layer wa-theme,
      so these unlayered declarations win without !important. The --md-sys-color-*
-     values on the right are set dynamically by applyColors() in colors.js. */
+     values on the right are set dynamically by applyColors() in theme.js. */
   --wa-color-surface-raised: var(--md-sys-color-surface-container-high);
   --wa-color-surface-default: var(--md-sys-color-surface);
   --wa-color-surface-border: var(--md-sys-color-outline-variant);
@@ -186,7 +186,7 @@ body {
   --grampsjs-color-ytree-expand-font: #555;
   --grampsjs-color-ytree-default-person-icon-background: #bbb;
   --grampsjs-note-color: #333;
-  /* --md-sys-color-* tokens are set dynamically by applyColors() in colors.js */
+  /* --md-sys-color-* tokens are set dynamically by applyColors() in theme.js */
 }
 
 :root[data-theme='dark'] {
@@ -242,7 +242,7 @@ body {
   --grampsjs-color-ytree-default-person-icon-background: var(--md-sys-color-surface-container);
   --grampsjs-note-color: #ccc;
   --grampsjs-map-marker-color: #bb1f11;
-  /* --md-sys-color-* tokens are set dynamically by applyColors() in colors.js */
+  /* --md-sys-color-* tokens are set dynamically by applyColors() in theme.js */
   --mdc-select-fill-color: var(--md-sys-color-surface-container-highest);
   --mdc-select-ink-color: var(--md-sys-color-on-surface);
   --mdc-select-label-ink-color: rgba(255, 255, 255, 0.5);
