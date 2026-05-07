@@ -14,17 +14,19 @@ import '@material/mwc-icon-button'
 import {fireEvent} from '../util.js'
 import './GrampsjsSearchResultList.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFormObjectList extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
         mwc-icon-button {
           vertical-align: middle;
-          color: rgba(0, 0, 0, 0.4);
-          --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.15);
+          color: var(--grampsjs-body-font-color-40);
+          --mdc-theme-text-disabled-on-light: var(
+            --grampsjs-body-font-color-15
+          );
         }
       `,
     ]
@@ -86,7 +88,7 @@ class GrampsjsFormObjectList extends GrampsjsTranslateMixin(LitElement) {
         ?selectable="${this.deletable || this.reorder}"
         @action="${this._handleSelected}"
         .data="${this.objects}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-search-result-list>
     `
   }

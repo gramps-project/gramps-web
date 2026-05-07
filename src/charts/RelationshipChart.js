@@ -1,6 +1,15 @@
 import {create, select} from 'd3-selection'
 import {zoom} from 'd3-zoom'
+import {linkVertical} from 'd3-shape'
 import {Graphviz} from '@hpcc-js/wasm'
+import {chartNameDisplayFormat} from '../util.js'
+
+const sexColor = {
+  F: 'var(--color-girl)',
+  M: 'var(--color-boy)',
+  X: 'var(--color-other)',
+  U: 'var(--color-unknown)',
+}
 
 function createGraph(graph) {
   const data = graph.getData()
@@ -199,6 +208,7 @@ class Relgraph {
     this.person_node_map = {}
     this.persons = {}
     this.dot = undefined
+    this.shrinkToFit = false
     createGraph(this)
   }
 
@@ -326,7 +336,8 @@ function remasterChart(
   boxHeight,
   imgPadding,
   getImageUrl,
-  maxImages
+  maxImages,
+  nameDisplayFormat
 ) {
   const gvchartx = divhidden.select('svg')
   const nodedata = []
@@ -385,9 +396,7 @@ function remasterChart(
   nodes
     .filter(d => d.nodetype === 'person')
     .append('rect')
-    .attr('fill', d =>
-      d.profile?.sex === 'F' ? 'var(--color-girl)' : 'var(--color-boy)'
-    )
+    .attr('fill', d => sexColor[d.profile?.sex] ?? 'var(--color-unknown)')
     .attr('width', 24)
     .attr('height', boxHeight - 1)
     .attr('x', -4)
@@ -407,37 +416,59 @@ function remasterChart(
     .attr('ry', 8)
 
   nodes
-    .filter(d => d.nodetype === 'person')
+    .filter(
+      d =>
+        (d.profile?.name_given || d.profile?.name_surname) &&
+        d.nodetype === 'person'
+    )
     .append('text')
     .attr('text-anchor', 'start')
     .attr('font-weight', '500')
-    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('fill', 'var(--grampsjs-body-font-color-90)')
     .attr('paint-order', 'stroke')
     .attr('text-overflow', 'ellipsis')
     .attr('overflow', 'hidden')
     .attr('x', d => textPadding(d))
     .attr('y', 25)
-    .text(d => clipString(`${d.profile.name_surname},`, boxWidthTotal(d)))
+    .text(d =>
+      clipString(
+        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+          ? `${d.profile?.name_surname},`
+          : d.profile?.name_given,
+        boxWidthTotal(d)
+      )
+    )
 
   nodes
-    .filter(d => d.profile?.name_given && d.nodetype === 'person')
+    .filter(
+      d =>
+        (d.profile?.name_given || d.profile?.name_surname) &&
+        d.nodetype === 'person'
+    )
     .append('text')
     .attr('text-anchor', 'start')
     .attr('font-weight', '500')
-    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('fill', 'var(--grampsjs-body-font-color-90)')
     .attr('paint-order', 'stroke')
     .attr('text-overflow', 'ellipsis')
     .attr('overflow', 'hidden')
     .attr('x', d => textPadding(d))
     .attr('y', 25 + 17)
-    .text(d => clipString(d.profile.name_given, boxWidthTotal(d)))
+    .text(d =>
+      clipString(
+        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+          ? d.profile?.name_given
+          : d.profile?.name_surname,
+        boxWidthTotal(d)
+      )
+    )
 
   nodes
     .filter(d => d.profile?.birth?.date && d.nodetype === 'person')
     .append('text')
     .attr('text-anchor', 'start')
     .attr('font-weight', '350')
-    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('fill', 'var(--grampsjs-body-font-color-90)')
     .attr('paint-order', 'stroke')
     .attr('x', d => textPadding(d))
     .attr('y', 25 + 17 * 2)
@@ -448,7 +479,7 @@ function remasterChart(
     .append('text')
     .attr('text-anchor', 'start')
     .attr('font-weight', '350')
-    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('fill', 'var(--grampsjs-body-font-color-90)')
     .attr('paint-order', 'stroke')
     .attr('x', d => textPadding(d))
     .attr('y', 25 + 17 * 3)
@@ -487,19 +518,60 @@ function remasterChart(
   nodes
     .filter(d => d.type === 'Married' && d.nodetype === 'family')
     .append('circle')
-    .attr('r', 5)
     .attr('class', 'married')
+    .attr('r', 6)
+    .attr('cy', boxHeight / 2 - 10)
+    .attr('stroke', 'var(--grampsjs-body-font-color-40)')
+    .attr('fill', 'var(--grampsjs-color-shade-220)')
+
+  nodes
+    .filter(d => d.type === 'Married' && d.nodetype === 'family')
+    .insert('line', ':first-child')
+    .attr('class', 'married')
+    .attr('x1', -11)
+    .attr('x2', 11)
+    .attr('y1', boxHeight / 2 - 10)
+    .attr('y2', boxHeight / 2 - 10)
+    .attr('stroke', 'var(--grampsjs-body-font-color-40)')
+    .attr('stroke-width', 1)
 
   nodes
     .filter(d => d.nodetype === 'person')
     .style('cursor', 'pointer')
     .on('click', clicked)
 
+  const linkGenerator = linkVertical()
+    .x(d => d.x)
+    .y(d => d.y)
   // copy edges
   gvchartx.selectAll('.edge').each(function () {
-    edges.append('g').attr('class', 'edge').html(select(this).html())
+    const path = select(this).select('path')
+    const pathData = path.attr('d')
+    // extract points from path data
+    const points = pathData
+      ?.match(/-?[\d.]+,-?[\d.]+/g) // Find all "x,y" pairs
+      ?.map(d => d.split(',').map(Number)) // Convert to [x, y] arrays
+    // we use only the start and end point
+    const firstAndLastPoint = [points[0], points[points.length - 1]]
+    if (!points) {
+      return
+    }
+    // we replace the polyline with a smooth connector from start to end
+    edges
+      .append('path')
+      .attr('class', 'edge')
+      .attr(
+        'd',
+        linkGenerator({
+          source: {x: firstAndLastPoint[0][0], y: firstAndLastPoint[0][1]},
+          target: {x: firstAndLastPoint[1][0], y: firstAndLastPoint[1][1]},
+        })
+      )
+      .attr('fill', 'none')
+      .attr('stroke', 'var(--grampsjs-body-font-color-40)')
+      .attr('stroke-width', 1)
   })
-  edges.selectAll('path').attr('stroke-opacity', '0.4')
+  // edges.selectAll('path').attr('stroke-opacity', '0.4')
 
   // move root person to center
   nodes
@@ -527,7 +599,9 @@ export function RelationshipChart(
     getImageUrl = null,
     grampsId = 0,
     maxImages = 50,
+    shrinkToFit = false,
     // orientation = 'LTR',
+    nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
   }
 ) {
   const resultnode = create('div').style('width', '100%')
@@ -557,7 +631,7 @@ export function RelationshipChart(
       imgPadding,
       getImageUrl,
       maxImages,
-      grampsId
+      nameDisplayFormat
     )
     svg.attr('viewBox', [
       -bboxWidth / 2,
@@ -565,7 +639,16 @@ export function RelationshipChart(
       bboxWidth,
       bboxHeight,
     ])
+    if (shrinkToFit) {
+      const bbox = svg.node().getBBox()
+      if (bbox.height > bboxHeight) {
+        svg
+          .attr('viewBox', [bbox.x, bbox.y - 20, bbox.width, bbox.height + 40])
+          .attr('height', bboxHeight)
+          .attr('width', bboxWidth)
+      }
+    }
   })
 
-  return resultnode.node()
+  return svg.node()
 }

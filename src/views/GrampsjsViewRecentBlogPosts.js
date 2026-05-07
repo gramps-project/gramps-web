@@ -11,7 +11,7 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
       css`
         .change {
           font-size: 0.8em;
-          color: rgba(0, 0, 0, 0.5);
+          color: var(--grampsjs-body-font-color-50);
           margin-top: 0.3em;
         }
 
@@ -26,7 +26,7 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
     if (!this._data?.data?.length) {
       return html`
         <h3>${this._('Latest Blog Post')}</h3>
-        <p>${this._('No items')}.</p>
+        <p>${this._('None')}.</p>
       `
     }
     return html`
@@ -39,7 +39,7 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
           object: obj,
           object_type: 'source',
         }))}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         date
         noSep
       >
@@ -52,7 +52,7 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
       <h3>${this._('Latest Blog Post')}</h3>
       <grampsjs-search-result-list
         .data="${this._data.data}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         loading
         numberLoading="1"
         noSep
@@ -79,7 +79,7 @@ export class GrampsjsViewRecentBlogPosts extends GrampsjsConnectedComponent {
     return `/api/sources/?rules=${encodeURIComponent(
       JSON.stringify(rules)
     )}&pagesize=1&sort=-change&locale=${
-      this.strings.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&extend=all`
   }
 }

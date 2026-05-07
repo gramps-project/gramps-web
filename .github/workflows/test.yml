@@ -5,15 +5,16 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: "17"
+          node-version: "22"
       - name: Install
         run: npm ci
       - name: ESLint
@@ -22,3 +23,7 @@ jobs:
         run: npm run lint:prettier
       - name: Build
         run: npm run build
+      - name: Type check
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm test

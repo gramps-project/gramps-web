@@ -6,11 +6,11 @@ import '@material/web/chips/filter-chip'
 import '@material/web/textfield/filled-text-field'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {apiGetTokens} from '../api.js'
 import {fireEvent} from '../util.js'
 
-class GrampsjsRelogin extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -18,7 +18,6 @@ class GrampsjsRelogin extends GrampsjsTranslateMixin(LitElement) {
         md-filled-text-field {
           margin-right: 8px;
           margin-bottom: 12px;
-          --md-filled-text-field-container-color: #f5f5f5;
         }
 
         .hidden {
@@ -47,7 +46,11 @@ class GrampsjsRelogin extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-      <md-dialog id="filter-dialog" @close=${this._handleClose}>
+      <md-dialog
+        id="filter-dialog"
+        @cancel="${e => e.preventDefault()}"
+        @close=${this._handleClose}
+      >
         <form slot="content" id="form-id" method="dialog">
           <p>${this._('Please re-enter your password to continue.')}</p>
           <md-filled-text-field

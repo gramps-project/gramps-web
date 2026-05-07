@@ -1,13 +1,15 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-import {html, css} from 'lit'
+import {css, html} from 'lit'
 
-import '@material/mwc-fab'
-import '@material/mwc-icon'
+import {mdiPencil} from '@mdi/js'
+import '@material/web/fab/fab.js'
+import '../components/GrampsjsIcon.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet, apiPut, apiPost, apiDelete} from '../api.js'
+
 import {fireEvent, objectTypeToEndpoint} from '../util.js'
+import {clearDraftsWithPrefix} from '../api.js'
 
 const editTitle = {
   person: 'Edit Person',
@@ -54,7 +56,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         :host {
         }
 
-        mwc-fab {
+        md-fab {
           position: fixed;
           bottom: 32px;
           right: 32px;
@@ -66,7 +68,6 @@ export class GrampsjsViewObject extends GrampsjsView {
   static get properties() {
     return {
       grampsId: {type: String},
-      canEdit: {type: Boolean},
       edit: {type: Boolean},
       editDialogContent: {type: String},
       _data: {type: Object},
@@ -77,7 +78,6 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   constructor() {
     super()
-    this.canEdit = false
     this.edit = false
     this.editDialogContent = ''
     this._data = {}
@@ -85,6 +85,13 @@ export class GrampsjsViewObject extends GrampsjsView {
     this._saveButton = false
     this._boundDisableEditMode = this._disableEditMode.bind(this)
     this._boundDeleteSelf = this._deleteSelf.bind(this)
+    this._boundToggleEditMode = this._toggleEditMode.bind(this)
+    // Reuse one function reference so disconnectedCallback can release it.
+    this._boundHandleEditAction = this.handleEditAction.bind(this)
+  }
+
+  get canEdit() {
+    return this.appState.permissions.canEdit
   }
 
   getUrl() {
@@ -106,10 +113,18 @@ export class GrampsjsViewObject extends GrampsjsView {
   }
 
   renderFab() {
-    return html` <mwc-fab icon="edit" @click="${this._handleFab}"></mwc-fab> `
+    return html`
+      <md-fab variant="secondary" @click="${this._activateEditMode}">
+        <grampsjs-icon
+          slot="icon"
+          .path="${mdiPencil}"
+          color="var(--mdc-theme-on-secondary)"
+        ></grampsjs-icon>
+      </md-fab>
+    `
   }
 
-  _handleFab() {
+  _activateEditMode() {
     this.edit = true
     fireEvent(this, 'edit-mode:on', {
       title: this._(editTitle[this._className] || 'Edit'),
@@ -121,6 +136,17 @@ export class GrampsjsViewObject extends GrampsjsView {
     this.edit = false
   }
 
+  _toggleEditMode() {
+    if (!this.active || !this.canEdit) {
+      return
+    }
+    if (this.edit) {
+      fireEvent(this, 'edit-mode:close-request')
+    } else {
+      this._activateEditMode()
+    }
+  }
+
   renderElement() {
     return html``
   }
@@ -129,17 +155,15 @@ export class GrampsjsViewObject extends GrampsjsView {
     super.connectedCallback()
     window.addEventListener('edit-mode:off', this._boundDisableEditMode)
     window.addEventListener('edit-mode:delete', this._boundDeleteSelf)
-    window.addEventListener(
-      'language:changed',
-      this._handleLangChange.bind(this)
-    )
-    this.addEventListener('edit:action', this.handleEditAction.bind(this))
+    window.addEventListener('edit-mode:toggle', this._boundToggleEditMode)
+    this.addEventListener('edit:action', this._boundHandleEditAction)
   }
 
   disconnectedCallback() {
-    this.removeEventListener('edit:action', this.handleEditAction.bind(this))
+    this.removeEventListener('edit:action', this._boundHandleEditAction)
     window.removeEventListener('edit-mode:off', this._boundDisableEditMode)
     window.removeEventListener('edit-mode:delete', this._boundDeleteSelf)
+    window.removeEventListener('edit-mode:toggle', this._boundToggleEditMode)
     super.disconnectedCallback()
   }
 
@@ -157,6 +181,12 @@ export class GrampsjsViewObject extends GrampsjsView {
     ) {
       this._updateData()
     }
+    if (
+      changed.has('appState') &&
+      changed.get('appState')?.i18n?.lang !== this.appState.i18n.lang
+    ) {
+      this._handleLangChange(this.appState.i18n.lang)
+    }
   }
 
   _updateData(clearData = true) {
@@ -168,7 +198,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._clearData()
       }
       this.loading = true
-      apiGet(this.getUrl()).then(data => {
+      this.appState.apiGet(this.getUrl()).then(data => {
         this.loading = false
         if ('data' in data) {
           ;[this._data] = data.data
@@ -191,8 +221,8 @@ export class GrampsjsViewObject extends GrampsjsView {
     }
   }
 
-  _handleLangChange(e) {
-    if (this.active && e.detail.lang === this.strings.__lang__) {
+  _handleLangChange(lang) {
+    if (this.active && lang === this.appState.i18n.lang) {
       this._updateData(false)
     }
   }
@@ -209,7 +239,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     const endpoint = objectTypeToEndpoint[this._className]
     if (this.active && endpoint && handle) {
       const url = `/api/${endpoint}/${handle}`
-      const data = await apiDelete(url, false)
+      const data = await this.appState.apiDelete(url, {dbChanged: false})
       if ('data' in data) {
         this.grampsId = ''
         this._data = {}
@@ -256,6 +286,14 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._className,
         'placeref_list'
       )
+    } else if (e.detail.action === 'updatePlaceRef') {
+      this.updateObjectByIndex(
+        e.detail.index,
+        e.detail.data,
+        this._data,
+        this._className,
+        'placeref_list'
+      )
     } else if (e.detail.action === 'addChildRef') {
       this.addObject(
         e.detail.data,
@@ -289,6 +327,33 @@ export class GrampsjsViewObject extends GrampsjsView {
             this._data,
             this._className,
             'note_list'
+          )
+        }
+      })
+    } else if (e.detail.action === 'newParent') {
+      const {processedData, parent} = e.detail.data
+      const {handle} = processedData.filter(obj => obj._class === 'Person')[0]
+      this._postObject(processedData, 'object').then(data => {
+        if ('data' in data) {
+          const updatedFamily = {[`${parent}_handle`]: handle}
+          this.updateProp(this._data, this._className, updatedFamily)
+        }
+      })
+    } else if (e.detail.action === 'newChild') {
+      const {processedData, frel, mrel} = e.detail.data
+      const {handle} = processedData.filter(obj => obj._class === 'Person')[0]
+      this._postObject(processedData, 'object').then(data => {
+        if ('data' in data) {
+          const childRefData = {
+            ref: handle,
+            frel,
+            mrel,
+          }
+          this.addObject(
+            childRefData,
+            this._data,
+            this._className,
+            'child_ref_list'
           )
         }
       })
@@ -333,7 +398,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         'person_ref_list'
       )
     } else if (e.detail.action === 'delRepository') {
-      this.delObject(
+      this.delObjectByIndex(
         e.detail.handle,
         this._data,
         this._className,
@@ -341,8 +406,16 @@ export class GrampsjsViewObject extends GrampsjsView {
       )
     } else if (e.detail.action === 'addRepoRef') {
       this.addObject(e.detail.data, this._data, this._className, 'reporef_list')
+    } else if (e.detail.action === 'updateRepoRef') {
+      this.updateObjectByIndex(
+        e.detail.index,
+        e.detail.data,
+        this._data,
+        this._className,
+        'reporef_list'
+      )
     } else if (e.detail.action === 'upRepository') {
-      this.moveObject(
+      this.moveObjectByIndex(
         e.detail.handle,
         this._data,
         this._className,
@@ -350,7 +423,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         'up'
       )
     } else if (e.detail.action === 'downRepository') {
-      this.moveObject(
+      this.moveObjectByIndex(
         e.detail.handle,
         this._data,
         this._className,
@@ -395,8 +468,8 @@ export class GrampsjsViewObject extends GrampsjsView {
     } else if (e.detail.action === 'delMediaRef') {
       this.delObject(e.detail.handle, this._data, this._className, 'media_list')
     } else if (e.detail.action === 'delPlace') {
-      this.delObject(
-        e.detail.handle,
+      this.delObjectByIndex(
+        e.detail.index,
         this._data,
         this._className,
         'placeref_list'
@@ -448,6 +521,23 @@ export class GrampsjsViewObject extends GrampsjsView {
       )
     } else if (e.detail.action === 'updateName') {
       this.updateName(e.detail.data, this._data)
+    } else if (e.detail.action === 'addPlaceName') {
+      this.addObject(e.detail.data, this._data, this._className, 'alt_names')
+    } else if (e.detail.action === 'updatePlaceName') {
+      this.updateObjectByIndex(
+        e.detail.index,
+        e.detail.data,
+        this._data,
+        this._className,
+        'alt_names'
+      )
+    } else if (e.detail.action === 'delPlaceName') {
+      this.delObjectByIndex(
+        e.detail.index,
+        this._data,
+        this._className,
+        'alt_names'
+      )
     } else if (e.detail.action === 'delChildRef') {
       this.delObject(
         e.detail.handle,
@@ -479,16 +569,16 @@ export class GrampsjsViewObject extends GrampsjsView {
         'down'
       )
     } else if (e.detail.action === 'upPlace') {
-      this.moveObject(
-        e.detail.handle,
+      this.moveObjectByIndex(
+        e.detail.index,
         this._data,
         this._className,
         'placeref_list',
         'up'
       )
     } else if (e.detail.action === 'downPlace') {
-      this.moveObject(
-        e.detail.handle,
+      this.moveObjectByIndex(
+        e.detail.index,
         this._data,
         this._className,
         'placeref_list',
@@ -527,7 +617,110 @@ export class GrampsjsViewObject extends GrampsjsView {
         'down'
       )
     } else if (e.detail.action === 'updateProp') {
-      this.updateProp(this._data, this._className, e.detail.data)
+      this.updateProp(
+        this._data,
+        this._className,
+        e.detail.data,
+        e.detail.editorDraftPrefix
+      )
+    } else if (e.detail.action === 'addPersonToExistingFamily') {
+      const {familyHandle, frel, mrel} = e.detail.data
+      const personHandle = this._data.handle
+      this.appState.apiGet(`/api/families/${familyHandle}`).then(result => {
+        if ('data' in result) {
+          const {extended, profile, backlinks, formatted, ...family} =
+            result.data
+          // Prevent adding the person as a child to a family where they are already a parent
+          if (
+            family.father_handle === personHandle ||
+            family.mother_handle === personHandle
+          ) {
+            fireEvent(this, 'grampsjs:error', {
+              message:
+                'Cannot add person as child of a family they are already a parent of.',
+            })
+            return
+          }
+          // Prevent duplicate child entries
+          const alreadyChild = (family.child_ref_list || []).some(
+            ref => ref.ref === personHandle
+          )
+          if (alreadyChild) {
+            fireEvent(this, 'grampsjs:error', {
+              message: 'Person is already a child in this family.',
+            })
+            return
+          }
+          const childRef = {
+            _class: 'ChildRef',
+            ref: personHandle,
+            frel: frel || 'Birth',
+            mrel: mrel || 'Birth',
+          }
+          const updatedFamily = {
+            _class: 'Family',
+            ...family,
+            child_ref_list: [...(family.child_ref_list || []), childRef],
+          }
+          this.appState
+            .apiPut(`/api/families/${familyHandle}`, updatedFamily)
+            .then(resultPut => {
+              if ('error' in resultPut) {
+                fireEvent(this, 'grampsjs:error', {message: resultPut.error})
+              } else {
+                this._updateData(false)
+              }
+            })
+        } else if ('error' in result) {
+          fireEvent(this, 'grampsjs:error', {message: result.error})
+        }
+      })
+    } else if (e.detail.action === 'newParentFamily') {
+      const {
+        father_handle: fatherHandle,
+        mother_handle: motherHandle,
+        type,
+        frel,
+        mrel,
+      } = e.detail.data
+      const personHandle = this._data.handle
+      const childRef = {
+        _class: 'ChildRef',
+        ref: personHandle,
+        frel: frel || 'Birth',
+        mrel: mrel || 'Birth',
+      }
+      const familyData = {
+        _class: 'Family',
+        child_ref_list: [childRef],
+        ...(fatherHandle ? {father_handle: fatherHandle} : {}),
+        ...(motherHandle ? {mother_handle: motherHandle} : {}),
+        ...(type ? {type} : {}),
+      }
+      this.appState.apiPost('/api/families/', familyData).then(result => {
+        if ('error' in result) {
+          fireEvent(this, 'grampsjs:error', {message: result.error})
+        } else {
+          this._updateData(false)
+        }
+      })
+    } else if (e.detail.action === 'newPartnerFamily') {
+      const {role, partner_handle: partnerHandle, type} = e.detail.data
+      const personHandle = this._data.handle
+      const otherRole = role === 'father' ? 'mother' : 'father'
+      const familyData = {
+        _class: 'Family',
+        [`${role}_handle`]: personHandle,
+        ...(partnerHandle ? {[`${otherRole}_handle`]: partnerHandle} : {}),
+        ...(type ? {type} : {}),
+      }
+      this.appState.apiPost('/api/families/', familyData).then(result => {
+        if ('error' in result) {
+          fireEvent(this, 'grampsjs:error', {message: result.error})
+        } else {
+          this._updateData(false)
+        }
+      })
     } else {
       // eslint-disable-next-line no-alert
       alert(JSON.stringify(e.detail))
@@ -562,6 +755,17 @@ export class GrampsjsViewObject extends GrampsjsView {
         _obj[prop] = moveUp(_obj[prop], i)
       } else if (upDown === 'down') {
         _obj[prop] = moveDown(_obj[prop], i)
+      }
+      return _obj
+    })
+  }
+
+  moveObjectByIndex(index, obj, objType, prop, upDown) {
+    return this._updateObject(obj, objType, _obj => {
+      if (upDown === 'up') {
+        _obj[prop] = moveUp(_obj[prop], index)
+      } else if (upDown === 'down') {
+        _obj[prop] = moveDown(_obj[prop], index)
       }
       return _obj
     })
@@ -629,7 +833,7 @@ export class GrampsjsViewObject extends GrampsjsView {
   }
 
   // add an object to a list of objects
-  // e.g. an event references to the event_ref_list
+  // e.g. an event reference to the event_ref_list
   addObject(data, obj, objType, prop) {
     return this._updateObject(obj, objType, _obj => {
       _obj[prop] = [..._obj[prop], data]
@@ -680,8 +884,13 @@ export class GrampsjsViewObject extends GrampsjsView {
     })
   }
 
-  updateProp(obj, objType, objNew) {
-    return this._updateObject(obj, objType, _obj => ({..._obj, ...objNew}))
+  updateProp(obj, objType, objNew, editorDraftPrefix) {
+    return this._updateObject(
+      obj,
+      objType,
+      _obj => ({..._obj, ...objNew}),
+      editorDraftPrefix
+    )
   }
 
   moveHandle(handle, obj, objType, prop, upDown) {
@@ -698,15 +907,22 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   async _postObject(obj, objType) {
     const url = `/api/${objectTypeToEndpoint[objType]}/`
-    return apiPost(url, obj)
+    return this.appState.apiPost(url, obj)
   }
 
-  _updateObject(obj, objType, updateFunc) {
+  _updateObject(obj, objType, updateFunc, editorDraftPrefix) {
     // remove extended, profile, backlinks, formatted keys from object
     // eslint-disable-next-line prefer-const
     let {extended, profile, backlinks, formatted, ...objNew} = obj
     objNew = {_class: capitalize(objType), ...objNew}
     const url = `/api/${objectTypeToEndpoint[objType]}/${obj.handle}`
-    apiPut(url, updateFunc(objNew)).then(() => this._updateData(false))
+
+    this.appState.apiPut(url, updateFunc(objNew)).then(() => {
+      this._updateData(false)
+      // Clear editor drafts after successful save (if prefix provided)
+      if (editorDraftPrefix) {
+        clearDraftsWithPrefix(editorDraftPrefix)
+      }
+    })
   }
 }

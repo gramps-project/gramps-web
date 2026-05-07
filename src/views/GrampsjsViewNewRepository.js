@@ -40,7 +40,7 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
       <grampsjs-form-select-type
         required
         id="select-repository-type"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         ?loadingTypes="${this.loadingTypes}"
         typeName="repository_types"
         .types="${this.types}"
@@ -48,10 +48,12 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
       >
       </grampsjs-form-select-type>
 
+      ${this._renderTagsForm()}
+
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-private>
 
       ${this.renderButtons()}
@@ -65,17 +67,15 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
   }
 
   _handleFormData(e) {
-    this.checkFormValidity()
+    super._handleFormData(e)
     const originalTarget = e.composedPath()[0]
     if (originalTarget.id === 'select-repository-type') {
       this.data = {
         ...this.data,
-        type: {_class: 'RepositoryType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
-    if (originalTarget.id === 'private') {
-      this.data = {...this.data, private: e.detail.checked}
-    }
+    this.checkFormValidity()
   }
 
   checkFormValidity() {

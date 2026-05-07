@@ -1,10 +1,10 @@
 import {html, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 
-import './GrampsJsImage.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import './GrampsjsImg.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsBlogPreview extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsBlogPreview extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [sharedStyles]
   }
@@ -50,6 +50,7 @@ export class GrampsjsBlogPreview extends GrampsjsTranslateMixin(LitElement) {
         .rect="${ref.rect || []}"
         square
         mime="${obj.mime}"
+        checksum="${obj.checksum}"
       ></grampsjs-img>
     `
   }

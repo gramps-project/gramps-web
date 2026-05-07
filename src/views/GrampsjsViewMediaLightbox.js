@@ -4,7 +4,8 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsLightbox.js'
 import '../components/GrampsjsRectContainer.js'
 import '../components/GrampsjsRect.js'
-import {apiGet, getMediaUrl} from '../api.js'
+import '../components/GrampsjsTooltip.js'
+import {getMediaUrl} from '../api.js'
 import {fireEvent, getNameFromProfile} from '../util.js'
 
 export class GrampsjsViewMediaLightbox extends GrampsjsView {
@@ -20,15 +21,22 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
           font-size: 0.85em;
           font-weight: 300;
           font-family: var(--grampsjs-body-font-family);
-          color: rgba(0, 0, 0, 0.8);
+          color: var(--grampsjs-body-font-color);
           padding-left: 0.8em;
         }
 
+        mwc-icon-button.toggle-rect,
         mwc-icon-button.download {
           color: var(--mdc-theme-primary);
           position: relative;
           bottom: 5px;
           margin-right: 10px;
+        }
+
+        object > p {
+          margin-left: 2em;
+          margin-right: 2em;
+          text-align: center;
         }
       `,
     ]
@@ -41,6 +49,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
       hideLeftArrow: {type: Boolean},
       hideRightArrow: {type: Boolean},
       editRect: {type: Boolean},
+      rectHidden: {type: Boolean},
     }
   }
 
@@ -50,6 +59,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     this.hideLeftArrow = false
     this.hideRightArrow = false
     this.editRect = false
+    this.rectHidden = false
   }
 
   renderContent() {
@@ -67,6 +77,15 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
             : ''}</span
         >
         <span slot="button">
+          <mwc-icon-button
+            id="btn-toggle-rect"
+            class="toggle-rect"
+            .icon="${this.rectHidden ? 'person' : 'person_off'}"
+            @click="${this._handleToggleRectButtonClick}"
+          ></mwc-icon-button>
+          <grampsjs-tooltip for="btn-toggle-rect"
+            >${this._('Toggle person outlines')}</grampsjs-tooltip
+          >
           <mwc-icon-button
             icon="download"
             class="download"
@@ -113,7 +132,11 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
       style="width: 80vw; height: 90vh;"
       @error=${this._pdfErrorHandler}
     >
-      ${this._innerContainerContentFile('application/pdf')}
+      <p>
+        ${this._(
+          'Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.'
+        )}
+      </p>
     </object>`
   }
 
@@ -134,7 +157,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   _innerContainerContentImage() {
     return html` <grampsjs-rect-container
       ?edit="${this.editRect}"
-      .strings="${this.strings}"
+      .appState="${this.appState}"
       @rect:save="${this._handleSaveRect}"
     >
       ${this._renderImage()}
@@ -142,6 +165,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         obj => html`
           <grampsjs-rect
             .rect="${obj.rect}"
+            .hidden="${this.rectHidden}"
             label="${obj.label}"
             target="${obj.type}/${obj.grampsId}"
           >
@@ -158,6 +182,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         handle="${handle}"
         size="2000"
         mime="${mime}"
+        checksum="${this._data.checksum}"
         slot="image"
       ></grampsjs-img>
     `
@@ -179,6 +204,10 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         },
       })
     )
+  }
+
+  _handleToggleRectButtonClick() {
+    this.rectHidden = !this.rectHidden
   }
 
   _handleSaveRect(e) {
@@ -214,14 +243,14 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
 
   getUrl() {
     return `/api/media/${this.handle}?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&backlinks=true&extend=all`
   }
 
   _updateData() {
     if (this.handle !== undefined && this.handle) {
       this._data = {}
-      apiGet(this.getUrl()).then(data => {
+      this.appState.apiGet(this.getUrl()).then(data => {
         if ('data' in data) {
           this.error = false
           this._data = data.data
@@ -245,7 +274,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
           const refs = key in references ? references[key] : []
           const label =
             refs.length >= index
-              ? getNameFromProfile(refs[index] || {}, key, this.strings)
+              ? getNameFromProfile(refs[index] || {}, key)
               : '...'
           return {
             rect: obj?.media_list?.find(mobj => mobj.ref === this._data.handle)

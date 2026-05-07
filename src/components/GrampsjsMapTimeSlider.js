@@ -8,18 +8,18 @@ import '@material/web/switch/switch'
 
 import {mdiCog} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
 import {renderIconSvg} from '../icons.js'
 import './GrampsjsTooltip.js'
 
-class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
         #container {
-          background-color: #ffffff;
+          background-color: var(--md-sys-color-surface-container);
           border-radius: 14px;
           width: 100%;
           position: absolute;
@@ -40,7 +40,7 @@ class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
           display: inline-block;
           font-size: 13px;
           font-weight: 500;
-          color: rgba(0, 0, 0, 0.6);
+          color: var(--grampsjs-body-font-color-60);
           white-space: nowrap;
           margin-left: 4px;
           margin-right: 8px;
@@ -116,7 +116,7 @@ class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
             @click="${this._handleSpanClick}"
             ?disabled="${this.span < 0}"
           >
-            <grampsjs-tooltip for="span-button" .strings="${this.strings}"
+            <grampsjs-tooltip for="span-button" .appState="${this.appState}"
               >${this._('Span')}</grampsjs-tooltip
             >
             <md-icon
@@ -129,7 +129,7 @@ class GrampsjsMapTimeSlider extends GrampsjsTranslateMixin(LitElement) {
           @input="${this._handleSwitch}"
           ?selected="${this.span > 0}"
         ></md-switch>
-        <grampsjs-tooltip for="filter-switch" .strings="${this.strings}"
+        <grampsjs-tooltip for="filter-switch" .appState="${this.appState}"
           >${this._('Toggle time filter for places')}</grampsjs-tooltip
         >
       </div>

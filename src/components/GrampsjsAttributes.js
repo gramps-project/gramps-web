@@ -1,11 +1,10 @@
 import {html, css} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
+import {mdiInformation} from '@mdi/js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditAttribute.js'
-
-import '@material/mwc-icon-button'
-import '@material/mwc-list'
-import '@material/mwc-list/mwc-list-item'
+import './GrampsjsIcon.js'
 
 import {fireEvent, linkUrls} from '../util.js'
 
@@ -14,11 +13,11 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
     return [
       super.styles,
       css`
-        mwc-list-item {
+        md-list-item {
           cursor: default;
         }
 
-        mwc-list-item[hasMeta] {
+        md-list.activatable md-list-item {
           cursor: pointer;
         }
       `,
@@ -27,33 +26,54 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
 
   static get properties() {
     return {
-      source: {type: Boolean},
+      attributeCategory: {type: String},
     }
   }
 
   constructor() {
     super()
-    this.source = false
+    this.attributeCategory = ''
   }
 
-  row(obj) {
+  row(obj, i) {
     return html`
-      <mwc-list-item twoline graphic="avatar" ?hasMeta="${this.edit}">
-        ${this.edit ? obj.value : linkUrls(obj.value, false)}
-        <span slot="secondary">${this._(obj.type)}</span>
-        <mwc-icon slot="graphic">info</mwc-icon>
-      </mwc-list-item>
+      <md-list-item
+        type="${this.edit ? 'button' : 'text'}"
+        class="${classMap({selected: i === this._selectedIndex})}"
+        @click="${() => {
+          if (this.edit) {
+            this._handleSelected(i)
+          }
+        }}"
+      >
+        ${this.edit
+          ? obj.value.length > 200
+            ? `${obj.value.slice(0, 200)}…`
+            : obj.value
+          : linkUrls(
+              obj.value.length > 200
+                ? `${obj.value.slice(0, 200)}…`
+                : obj.value,
+              false
+            )}
+        <span slot="supporting-text">${this._(obj.type)}</span>
+        <grampsjs-icon
+          slot="start"
+          path="${mdiInformation}"
+          color="var(--grampsjs-color-icon)"
+        ></grampsjs-icon>
+      </md-list-item>
     `
   }
 
   _handleAdd() {
     this.dialogContent = html`
       <grampsjs-form-edit-attribute
-        ?source="${this.source}"
         new
+        attributeCategory="${this.attributeCategory}"
         @object:save="${this._handleAttrSave}"
         @object:cancel="${this._handleAttrCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-form-edit-attribute>
     `
@@ -62,18 +82,15 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
   _handleEdit() {
     const attr = this.data[this._selectedIndex]
     const data = {
-      type: {
-        _class: this.source ? 'SrcAttributeType' : 'AttributeType',
-        string: attr.type || '',
-      },
+      type: attr.type || '',
       value: attr.value || '',
     }
     this.dialogContent = html`
       <grampsjs-form-edit-attribute
-        ?source="${this.source}"
+        attributeCategory="${this.attributeCategory}"
         @object:save="${this._handleAttrSaveEdit}"
         @object:cancel="${this._handleAttrCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${data}"
       >
       </grampsjs-form-edit-attribute>

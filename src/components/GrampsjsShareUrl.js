@@ -4,10 +4,10 @@ import '@material/mwc-icon-button'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {clickKeyHandler} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsTooltip.js'
 
-export class GrampsjsShareUrl extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsShareUrl extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -15,14 +15,14 @@ export class GrampsjsShareUrl extends GrampsjsTranslateMixin(LitElement) {
         :host {
           font-size: 14px;
           font-weight: 450;
-          color: rgba(0, 0, 0, 0.45);
+          color: var(--grampsjs-body-font-color-45);
         }
 
         mwc-icon {
           font-size: 18px;
           top: 4px;
           position: relative;
-          color: rgba(0, 0, 0, 0.4);
+          color: var(--grampsjs-body-font-color-40);
         }
 
         mwc-icon-button {

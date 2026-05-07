@@ -2,30 +2,31 @@ import {html, css, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import '@material/mwc-button'
 
-import './GrampsJsImage.js'
+import './GrampsjsImg.js'
 import './GrampsjsGallery.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsTimedelta.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsBlogPost extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
         h2 {
-          color: #222222;
-          font-weight: 300;
-          font-size: 40px;
-          padding-bottom: 0.3em;
+          color: var(--grampsjs-note-color);
+          font-weight: 530;
+          font-size: 37px;
+          padding-bottom: 0.75em;
           margin-bottom: 0.5em;
           padding-top: 0.5em;
           text-align: center;
-          border-bottom: 2px solid #222222;
+          border-bottom: 2px solid var(--grampsjs-note-color);
         }
 
         h3.author {
           font-family: var(--grampsjs-body-font-family);
+          font-weight: 300;
           font-size: 16px;
           text-transform: uppercase;
           letter-spacing: 0.15em;
@@ -56,7 +57,6 @@ export class GrampsjsBlogPost extends GrampsjsTranslateMixin(LitElement) {
           --grampsjs-note-line-height: 1.7em;
           --grampsjs-note-font-size: 18px;
           --grampsjs-note-font-family: 'EB Garamond x';
-          --grampsjs-note-color: #333;
         }
 
         #btn-details {
@@ -66,6 +66,7 @@ export class GrampsjsBlogPost extends GrampsjsTranslateMixin(LitElement) {
         @media (min-width: 768px) {
           h2 {
             font-size: 60px;
+            padding-bottom: 0.3em;
           }
 
           grampsjs-note-content {
@@ -98,10 +99,10 @@ export class GrampsjsBlogPost extends GrampsjsTranslateMixin(LitElement) {
         <h2>${this.source.title}</h2>
         <h3 class="author">
           ${this.source.author} ~
-          ${this.strings.__lang__
+          ${this.appState.i18n.lang
             ? html`<grampsjs-timedelta
                 timestamp="${this.source.change}"
-                locale="${this.strings.__lang__}"
+                locale="${this.appState.i18n.lang}"
               ></grampsjs-timedelta>`
             : ''}
         </h3>
@@ -122,7 +123,7 @@ export class GrampsjsBlogPost extends GrampsjsTranslateMixin(LitElement) {
             ${this.source?.media_list?.length > 1
               ? html`
                   <grampsjs-gallery
-                    .strings=${this.strings}
+                    .appState="${this.appState}"
                     .media=${this.source?.extended?.media}
                     .mediaRef=${this.source?.media_list}
                   ></grampsjs-gallery>
@@ -160,6 +161,7 @@ export class GrampsjsBlogPost extends GrampsjsTranslateMixin(LitElement) {
           size="1000"
           .rect="${ref.rect || []}"
           mime="${obj.mime}"
+          checksum="${obj.checksum}"
         ></grampsjs-img>
       </div>
     `

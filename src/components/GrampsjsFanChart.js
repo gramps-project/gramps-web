@@ -21,6 +21,7 @@ class GrampsjsFanChart extends GrampsjsChartBase {
       grampsId: {type: String},
       depth: {type: Number},
       color: {type: String},
+      nameDisplayFormat: {type: String},
     }
   }
 
@@ -48,7 +49,8 @@ class GrampsjsFanChart extends GrampsjsChartBase {
         color: this.color || 'default',
         bboxWidth: this.containerWidth,
         bboxHeight: this.containerHeight,
-        strings: this.strings,
+        nameDisplayFormat: this.nameDisplayFormat,
+        strings: this.appState.i18n.strings,
       })}
     `
   }

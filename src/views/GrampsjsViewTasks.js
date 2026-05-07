@@ -1,16 +1,20 @@
 import {css, html} from 'lit'
+import {mdiPlus} from '@mdi/js'
 
+import '@material/web/fab/fab.js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsTasks.js'
-import {apiGet, apiPut} from '../api.js'
+import '../components/GrampsjsIcon.js'
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
+
 import {fireEvent} from '../util.js'
 
-export class GrampsjsViewTasks extends GrampsjsView {
+export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
     return [
       super.styles,
       css`
-        mwc-fab {
+        md-fab {
           position: fixed;
           bottom: 32px;
           right: 32px;
@@ -22,37 +26,40 @@ export class GrampsjsViewTasks extends GrampsjsView {
   static get properties() {
     return {
       _data: {type: Array},
-      canAdd: {type: Boolean},
-      canEdit: {type: Boolean},
       _filters: {type: Array},
     }
   }
 
   constructor() {
     super()
-    this.canAdd = false
-    this.canEdit = false
     this._data = []
     this._filters = []
-    this._boundFetchData = this._fetchData.bind(this)
   }
 
   render() {
     return html`<h2>${this._('Tasks')}</h2>
 
       <grampsjs-tasks
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${this._data}"
         @tasks:update-attribute="${this._handleUpdateAttribute}"
         @filters:changed="${this._handleFiltersChanged}"
-        ?canEdit="${this.canEdit}"
+        ?canEdit="${this.appState.permissions.canEdit}"
       ></grampsjs-tasks>
 
-      ${this.canAdd ? this.renderFab() : ''} `
+      ${this.appState.permissions.canAdd ? this.renderFab() : ''} `
   }
 
   renderFab() {
-    return html` <mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab> `
+    return html`
+      <md-fab variant="secondary" @click=${this._handleClickAdd}>
+        <grampsjs-icon
+          slot="icon"
+          .path="${mdiPlus}"
+          color="var(--mdc-theme-on-secondary)"
+        ></grampsjs-icon>
+      </md-fab>
+    `
   }
 
   _handleClickAdd() {
@@ -77,8 +84,10 @@ export class GrampsjsViewTasks extends GrampsjsView {
     }
     const uri = `/api/sources/?rules=${encodeURIComponent(
       JSON.stringify(rules)
-    )}&locale=${this.strings.__lang__ || 'en'}&sort=-gramps_id&extend=tag_list`
-    const data = await apiGet(uri)
+    )}&locale=${
+      this.appState.i18n.lang || 'en'
+    }&sort=-gramps_id&extend=tag_list`
+    const data = await this.appState.apiGet(uri)
     this.loading = false
     if ('data' in data) {
       this.error = false
@@ -113,7 +122,9 @@ export class GrampsjsViewTasks extends GrampsjsView {
         {type: key, value},
       ]
       // eslint-disable-next-line no-await-in-loop
-      await apiPut(`/api/sources/${object.handle}`, rest, true, false)
+      await this.appState.apiPut(`/api/sources/${object.handle}`, rest, {
+        dbChanged: false,
+      })
     }
     fireEvent(this, 'db:changed')
   }
@@ -125,21 +136,12 @@ export class GrampsjsViewTasks extends GrampsjsView {
     this._fetchData()
   }
 
-  firstUpdated() {
-    if ('__lang__' in this.strings) {
-      // don't load before we have strings
-      this._fetchData()
-    }
+  _onLangChanged() {
+    this._fetchData()
   }
 
-  connectedCallback() {
-    super.connectedCallback()
-    window.addEventListener('db:changed', this._boundFetchData)
-  }
-
-  disconnectedCallback() {
-    window.removeEventListener('db:changed', this._boundFetchData)
-    super.disconnectedCallback()
+  handleUpdateStaleData() {
+    this._fetchData()
   }
 }
 

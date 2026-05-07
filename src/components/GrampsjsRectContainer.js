@@ -3,14 +3,13 @@ import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import '@material/mwc-icon-button'
-import '@material/mwc-dialog'
 
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsFormSelectObjectList.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
 
-class GrampsjsRectContainer extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsRectContainer extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

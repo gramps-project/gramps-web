@@ -5,6 +5,7 @@ import '@material/mwc-textfield'
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 import '../components/GrampsjsFormString.js'
 import '../components/GrampsjsFormPrivate.js'
+import {emptyDate} from '../util.js'
 
 export const confidence = {
   0: 'Very Low',
@@ -31,7 +32,7 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
       <grampsjs-form-select-object-list
         id="source"
         objectType="source"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
 
       <h4 class="label">${this._('Page')}</h4>
@@ -41,7 +42,7 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
 
       <h4 class="label">${this._('Date')}</h4>
       <p>
-        <grampsjs-form-select-date id="date" .strings="${this.strings}">
+        <grampsjs-form-select-date id="date" .appState="${this.appState}">
         </grampsjs-form-select-date>
       </p>
 
@@ -61,10 +62,12 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
         )}
       </mwc-select>
 
+      ${this._renderTagsForm()}
+
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-private>
 
       ${this.renderButtons()}
@@ -94,7 +97,7 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
       this.data = {...this.data, source_handle: e.detail.data[0]}
     }
     if (originalTarget.id === 'date') {
-      this.data = {...this.data, date: e.detail.data}
+      this.data = {...this.data, date: e.detail.data ?? emptyDate}
     }
     this.checkFormValidity()
   }

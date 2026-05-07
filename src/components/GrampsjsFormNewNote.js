@@ -2,18 +2,19 @@ import {css} from 'lit'
 
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import {GrampsjsNewNoteMixin} from '../mixins/GrampsjsNewNoteMixin.js'
+import {GrampsjsNewObjectTagsMixin} from '../mixins/GrampsjsNewObjectTagsMixin.js'
 
-export class GrampsjsFormNewNote extends GrampsjsNewNoteMixin(
-  GrampsjsObjectForm
+export class GrampsjsFormNewNote extends GrampsjsNewObjectTagsMixin(
+  GrampsjsNewNoteMixin(GrampsjsObjectForm)
 ) {
   static get styles() {
     return [
       super.styles,
       css`
-        mwc-dialog {
-          --mdc-dialog-max-width: min(1200px, 95vw);
-          --mdc-dialog-min-width: min(1200px, 95vw);
-          --mdc-dialog-max-height: 95vh;
+        md-dialog {
+          --md-dialog-container-max-inline-size: min(1200px, 95vw);
+          --md-dialog-container-min-inline-size: min(1200px, 95vw);
+          max-block-size: 95vh;
         }
       `,
     ]
@@ -40,7 +41,7 @@ export class GrampsjsFormNewNote extends GrampsjsNewNoteMixin(
     if (originalTarget.id === 'select-note-type') {
       this.data = {
         ...this.data,
-        type: {_class: 'NoteType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'private') {

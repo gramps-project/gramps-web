@@ -5,7 +5,7 @@ import '@material/web/chips/chip-set'
 import '@material/web/chips/filter-chip'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
 
 const namespaces = {
@@ -21,14 +21,18 @@ const namespaces = {
   tags: 'Tags',
 }
 
-class GrampsjsDeleteAll extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsDeleteAll extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
         md-filter-chip {
-          --md-sys-color-secondary-container: rgba(109, 76, 65, 0.32);
-          --md-sys-color-on-secondary-container: rgba(0, 0, 0, 0.78);
+          --md-sys-color-secondary-container: var(
+            --grampsjs-delete-all-filter-chip-color
+          );
+          --md-sys-color-on-secondary-container: var(
+            --grampsjs-body-font-color-78
+          );
         }
       `,
     ]
@@ -54,6 +58,7 @@ class GrampsjsDeleteAll extends GrampsjsTranslateMixin(LitElement) {
       <md-dialog
         id="filter-dialog"
         ?open="${this.open}"
+        @cancel="${e => e.preventDefault()}"
         @close=${this._handleClose}
       >
         <div slot="headline">${this._('Delete all objects')}</div>

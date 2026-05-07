@@ -2,6 +2,7 @@ import {html, css} from 'lit'
 import {live} from 'lit/directives/live.js'
 import {classMap} from 'lit/directives/class-map.js'
 import {GrampsjsObject} from './GrampsjsObject.js'
+import './GrampsjsFormEditRepositoryType.js'
 import {debounce, fireEvent} from '../util.js'
 
 export class GrampsjsRepository extends GrampsjsObject {
@@ -35,12 +36,25 @@ export class GrampsjsRepository extends GrampsjsObject {
         &nbsp;
       </h2>
       <dl>
-        ${this.data?.type
-          ? html`
-      <dt>${this._('Type')}</dt>
-      <dd>${this._(this.data.type)}</dd>
-    </dl>`
-          : ''}
+        <div>
+          ${this.data?.type
+            ? html` <dt>${this._('Type')}</dt>
+                <dd>${this._(this.data.type)}</dd>`
+            : ''}
+        </div>
+        <div>
+          ${this.edit
+            ? html`
+                <dd>
+                  <mwc-icon-button
+                    icon="edit"
+                    class="edit"
+                    @click="${this._handleRepositoryType}"
+                  ></mwc-icon-button>
+                </dd>
+              `
+            : ''}
+        </div>
       </dl>
     `
   }
@@ -55,6 +69,37 @@ export class GrampsjsRepository extends GrampsjsObject {
       action: 'updateProp',
       data: {name},
     })
+  }
+
+  _handleRepositoryType() {
+    this.dialogContent = html`
+      <div>
+        <grampsjs-form-edit-repository-type
+          @object:save=${this._handleSaveReopositoryType}
+          @object:cancel=${this._handleCancelDialog}
+          .appState="${this.appState}"
+          .data=${{type: this.data?.type}}
+          .dialogTitle=${'Edit Repository Type'}
+        >
+        </grampsjs-form-edit-repository-type>
+      </div>
+    `
+  }
+
+  _handleCancelDialog() {
+    this.dialogContent = ''
+  }
+
+  _handleSaveReopositoryType(e) {
+    if (e.detail.data?.type !== '') {
+      fireEvent(this, 'edit:action', {
+        action: 'updateProp',
+        data: e.detail.data,
+      })
+      e.preventDefault()
+      e.stopPropagation()
+      this.dialogContent = ''
+    }
   }
 }
 

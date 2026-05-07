@@ -11,15 +11,15 @@ export class GrampsjsViewFamily extends GrampsjsViewObject {
 
   getUrl() {
     return `/api/families/?gramps_id=${this.grampsId}&locale=${
-      this.strings?.__lang__ || 'en'
-    }&profile=all&backlinks=true&extend=all`
+      this.appState.i18n.lang || 'en'
+    }&profile=all&backlinks=true&extend=all&precision=1`
   }
 
   renderElement() {
     return html`
       <grampsjs-family
         .data=${this._data}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         ?edit="${this.edit}"
         ?canEdit="${this.canEdit}"
       ></grampsjs-family>

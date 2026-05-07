@@ -2,14 +2,15 @@
 /* eslint-disable no-unused-vars */
 import {LitElement, css, html} from 'lit'
 
-import '@material/mwc-tab'
-import '@material/mwc-tab-bar'
+import {mdiTableOfContents} from '@mdi/js'
+
+import '@material/web/iconbutton/icon-button.js'
+import '@material/web/dialog/dialog.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import '../views/GrampsjsViewObjectNotes.js'
 import '../views/GrampsjsViewSourceCitations.js'
 import '../views/GrampsjsViewPersonTimeline.js'
-import '../views/GrampsjsViewPersonDna.js'
 import './GrampsjsAddresses.js'
 import './GrampsjsAssociations.js'
 import './GrampsjsAttributes.js'
@@ -17,9 +18,11 @@ import './GrampsjsBreadcrumbs.js'
 import './GrampsjsChildren.js'
 import './GrampsjsCitations.js'
 import './GrampsjsEvents.js'
+import './GrampsjsIcon.js'
 import './GrampsjsNames.js'
 import './GrampsjsPlaceChildren.js'
 import './GrampsjsPlaceRefs.js'
+import './GrampsjsPlaceNames.js'
 import './GrampsjsGallery.js'
 import './GrampsjsMap.js'
 import './GrampsjsMapMarker.js'
@@ -30,7 +33,8 @@ import './GrampsjsRepositories.js'
 import './GrampsjsSources.js'
 import './GrampsjsTags.js'
 import './GrampsjsUrls.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import './GrampsjsObjectToc.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 import {fireEvent} from '../util.js'
 import {getMediaUrl} from '../api.js'
@@ -45,12 +49,7 @@ const _allTabs = {
     title: 'Relationships',
     condition: data =>
       data.family_list?.length > 0 || data.parent_family_list?.length > 0,
-    conditionEdit: () => false,
-  },
-  names: {
-    title: '_Names',
-    condition: data => 'primary_name' in data,
-    conditionEdit: data => 'primary_name' in data,
+    conditionEdit: data => 'family_list' in data,
   },
   enclosed: {
     title: 'Place Hierarchy',
@@ -58,6 +57,11 @@ const _allTabs = {
       data.placeref_list?.length > 0 ||
       ('placeref_list' in data && data?.backlinks?.place?.length >= 0),
     conditionEdit: data => 'placeref_list' in data,
+  },
+  placeNames: {
+    title: 'Alternate Names',
+    condition: data => data?.alt_names?.length > 0,
+    conditionEdit: data => 'alt_names' in data,
   },
   map: {
     title: 'Map',
@@ -91,11 +95,6 @@ const _allTabs = {
       'placeref_list' in data && data?.backlinks?.event?.length > 0,
     conditionEdit: data => false,
   },
-  timeline: {
-    title: 'Timeline',
-    condition: data => data?.event_ref_list?.length > 0,
-    conditionEdit: () => false,
-  },
   participants: {
     title: 'Participants',
     condition: data =>
@@ -108,13 +107,18 @@ const _allTabs = {
     condition: data => data?.media_list?.length > 0,
     conditionEdit: data => 'media_list' in data,
   },
+  names: {
+    title: '_Names',
+    condition: data => 'primary_name' in data,
+    conditionEdit: data => 'primary_name' in data,
+  },
   notes: {
     title: 'Notes',
     condition: data => data?.note_list?.length > 0,
     conditionEdit: data => 'note_list' in data,
   },
   sourceCitations: {
-    title: 'Sources',
+    title: '_Source Citations',
     condition: data => data?.citation_list?.length > 0,
     conditionEdit: data => 'citation_list' in data,
   },
@@ -124,31 +128,18 @@ const _allTabs = {
       data?.backlinks?.citation?.length > 0 && 'abbrev' in data,
     conditionEdit: data => false,
   },
-  attributes: {
-    title: 'Attributes',
-    condition: data => data?.attribute_list?.length > 0,
-    conditionEdit: data => 'attribute_list' in data,
-  },
-  addresses: {
-    title: 'Addresses',
-    condition: data => data?.address_list?.length > 0,
-    conditionEdit: data => false, // 'address_list' in data // FIXME editable in principle but UI not implemented
-  },
-  internet: {
-    title: 'Internet',
-    condition: data => data?.urls?.length > 0,
-    conditionEdit: data => 'urls' in data,
+  metadata: {
+    title: 'Metadata',
+    condition: data =>
+      data?.attribute_list?.length > 0 ||
+      data?.urls?.length > 0 ||
+      data?.address_list?.length > 0,
+    conditionEdit: data => 'urls' in data || 'attribute_list' in data,
   },
   associations: {
     title: 'Associations',
     condition: data => data?.person_ref_list?.length > 0,
     conditionEdit: data => 'person_ref_list' in data,
-  },
-  dna: {
-    title: 'DNA',
-    condition: data =>
-      (data?.person_ref_list || []).filter(ref => ref.rel === 'DNA').length > 0,
-    conditionEdit: data => false,
   },
   repositories: {
     title: 'Repositories',
@@ -162,48 +153,194 @@ const _allTabs = {
   },
 }
 
-export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
+const zoomByPlaceType = {
+  Country: 4,
+  State: 6,
+  Province: 7,
+  Region: 7,
+  Department: 9,
+  County: 11,
+  Parish: 12,
+  District: 12,
+  Borough: 12,
+  Municipality: 12,
+  City: 13,
+  Town: 13,
+  Locality: 14,
+  Village: 14,
+  Neighborhood: 15,
+  Hamlet: 15,
+  Street: 16,
+  Farm: 17,
+  Building: 19,
+  Number: 19,
+}
+
+/* Get the latest event year from the place's events, or return the current year if none exist */
+const getPlaceLatestEventYear = data => {
+  const currentYear = new Date().getFullYear()
+  if (!data?.extended?.backlinks?.event?.length) {
+    return currentYear
+  }
+  return data.extended.backlinks.event.reduce((max, event) => {
+    if (event.date?.year && event.date.year > max) {
+      return event.date.year
+    }
+    return max
+  }, -1)
+}
+
+export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
-        :host {
-        }
-
         pre {
           max-width: 80%;
           font-size: 11px;
         }
 
-        .tab-content {
-          margin-top: 25px;
-          padding-bottom: 3em;
-        }
-
-        #tabs {
-          clear: both;
-          margin-top: 30px;
-        }
-
-        mwc-tab-bar {
-          border-bottom: solid #6d4c4133 1px;
-          margin-top: 28px;
-          margin-bottom: 36px;
-          --mdc-tab-horizontal-padding: 16px;
-        }
-
         #picture {
-          margin-bottom: 20px;
+          margin-bottom: 60px;
           position: relative;
           text-align: center;
         }
 
-        @media (min-width: 768px) {
+        .content-wrapper {
+          display: flex;
+          margin-top: 30px;
+          clear: both;
+        }
+
+        .sections {
+          display: flex;
+          flex-direction: column;
+          gap: 2rem;
+          width: 100%;
+        }
+
+        .row {
+          display: flex;
+          flex-wrap: wrap;
+          padding-bottom: 1rem;
+          max-width: 100%;
+          min-width: 0;
+          flex-shrink: 1;
+        }
+
+        .section {
+          flex: 1 1 200px;
+          scroll-margin-top: 100px;
+          margin-right: 20px;
+          max-width: 100%;
+          min-width: 0;
+          flex-shrink: 1;
+        }
+
+        .sections h3 {
+          margin-top: 0;
+          margin-bottom: 1.5rem;
+          font-size: 24px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid var(--md-sys-color-outline-variant);
+        }
+
+        .section * {
+          min-width: 0;
+          max-width: 100%;
+          overflow-wrap: break-word;
+          word-break: break-word;
+        }
+
+        p.button-list {
+          display: flex;
+          gap: 12px;
+          justify-content: flex-start;
+          flex-wrap: wrap;
+        }
+
+        div.tags {
+          padding-top: 1em;
+        }
+
+        div.toc {
+          display: none;
+        }
+
+        div.bottom-bar {
+          position: fixed;
+          display: none; /* flex */
+          bottom: 0;
+          right: 0;
+          width: 100%;
+          height: 50px;
+          background-color: var(--md-sys-color-surface-container);
+          border-top: 1px solid var(--md-sys-color-outline-variant);
+          box-sizing: border-box;
+        }
+
+        div.bottom-bar-content {
+          position: relative;
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          padding: 10px;
+          justify-content: space-between;
+          box-sizing: border-box;
+        }
+
+        div.bottom-bar-content > * {
+          flex: 1 1 auto;
+          align-items: center;
+          text-align: center;
+        }
+
+        div.bottom-bar-content md-icon-button {
+          --md-icon-button-icon-size: 22px;
+          width: 34px;
+          height: 34px;
+        }
+
+        @media (min-width: 992px) {
           #picture {
             float: right;
             text-align: right;
             margin-left: 40px;
             margin-right: 0px;
+          }
+        }
+
+        .toc-button {
+          position: relative;
+          top: 4px;
+          padding-left: 8px;
+        }
+
+        @media (min-width: 1200px) {
+          div.toc {
+            display: block;
+            margin-left: auto;
+            position: sticky;
+            width: 200px;
+            top: 100px;
+            height: fit-content;
+            margin-left: auto;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .sections {
+            width: calc(100% - 235px);
+            padding-right: 35px;
+          }
+
+          .row {
+            display: flex;
+            justify-content: space-between;
+          }
+
+          div.bottom-bar {
+            display: none;
           }
         }
       `,
@@ -214,13 +351,10 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     return {
       data: {type: Object},
       edit: {type: Boolean},
-      canEdit: {type: Boolean},
       dialogContent: {type: String},
       _objectsName: {type: String},
       _objectEndpoint: {type: String},
       _objectIcon: {type: String},
-      _currentTabId: {type: Number},
-      _currentTab: {type: String},
       _showReferences: {type: Boolean},
       _showPersonTimeline: {type: Boolean},
       _showFamilyTimeline: {type: Boolean},
@@ -231,14 +365,37 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     super()
     this.data = {}
     this.edit = false
-    this.canEdit = false
     this.dialogContent = ''
     this._objectsName = 'Objects'
     this._objectIcon = ''
-    this._currentTabId = 0
     this._showReferences = true
     this._showPersonTimeline = false
     this._showFamilyTimeline = false
+    this._sectionObserver = null
+    this._currentVisibleSection = ''
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this._setupIntersectionObserver()
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    this._teardownIntersectionObserver()
+  }
+
+  updated(changedProperties) {
+    super.updated(changedProperties)
+
+    // Re-setup the observer when the data changes to observe the new sections
+    if (changedProperties.has('data') && Object.keys(this.data).length > 0) {
+      this._setupIntersectionObserver()
+    }
+  }
+
+  get tocSidebar() {
+    return this.appState.screenSize === 'large'
   }
 
   render() {
@@ -254,21 +411,74 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
 
       <div style="clear:left;"></div>
 
-      ${this.renderBeforeTags()} ${this.renderTags()}
+      <div class="tags">${this.renderTags()}</div>
 
-      <div id="tabs">${this.renderTabs()}</div>
-
-      <div class="tab-content">${this.renderTabContent()}</div>
+      <div class="content-wrapper">
+        <div class="sections">${this.renderSections()}</div>
+        <div class="toc">${this.tocSidebar ? this.renderToc() : ''}</div>
+      </div>
+      ${this.tocSidebar
+        ? ''
+        : html`
+            <md-dialog
+              id="toc-dialog"
+              @toc-item-click="${this._closeTocDialog}"
+              quick
+            >
+              <div slot="headline">${this._('Table Of Contents')}</div>
+              <div slot="content">${this.renderToc(false)}</div>
+            </md-dialog>
+          `}
+      <div class="bottom-bar">
+        <div class="bottom-bar-content"></div>
+      </div>
 
       ${this.dialogContent}
     `
+  }
+
+  renderToc(heading = true) {
+    // Get all tabs/sections that should be displayed
+    const tabKeys = this._getTabs(this.edit)
+
+    // Create object with just the tabs we need to show
+    const visibleTabs = {}
+    tabKeys.forEach(key => {
+      visibleTabs[key] = _allTabs[key]
+    })
+
+    return html`
+      <grampsjs-object-toc
+        ?heading="${heading}"
+        .tabs=${visibleTabs}
+        .appState="${this.appState}"
+        .activeSection="${this._currentVisibleSection}"
+        @toc-item-click=${this._handleTocItemClick}
+      ></grampsjs-object-toc>
+    `
+  }
+
+  _handleTocItemClick(e) {
+    const {sectionKey} = e.detail
+    const section = this.shadowRoot.querySelector(`#section-${sectionKey}`)
+    if (section) {
+      // Update the current visible section
+      this._currentVisibleSection = sectionKey
+
+      // Scroll to the section
+      section.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest',
+      })
+    }
   }
 
   renderHeader() {
     return html`
       <grampsjs-breadcrumbs
         .data="${this.data}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         ?edit="${this.edit}"
         objectsName="${this._objectsName}"
         objectIcon="${this._objectIcon}"
@@ -292,6 +502,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         square
         circle
         mime="${obj.mime}"
+        checksum="${obj.checksum}"
         @click="${() => this._handleImgClick(obj.gramps_id)}"
         class="link"
       ></grampsjs-img>
@@ -310,7 +521,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     )
   }
 
-  renderTabs() {
+  renderSections() {
     const tabKeys = this._getTabs(this.edit)
     if (!tabKeys.includes(this._currentTab)) {
       ;[this._currentTab] = tabKeys
@@ -319,39 +530,64 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
       return html``
     }
     return html`
-      <mwc-tab-bar
-        .activeIndex=${this._currentTabId}
-        @MDCTabBar:activated=${this._handleTabActivated}
-        @MDCTab:interacted=${this._handleTabInteracted}
-        id="tab-bar"
-      >
-        ${tabKeys.map(key => this._makeTab(key))}
-      </mwc-tab-bar>
+      ${tabKeys.map(
+        (key, idx, tabKeysArray) => html`<div class="row">
+          <div class="section" id="section-${key}">
+            <h3>
+              ${this._(_allTabs[key].title)}
+              ${this.tocSidebar || tabKeysArray.length <= 1
+                ? ''
+                : html`
+                    <md-icon-button
+                      class="toc-button"
+                      @click="${this._openTocDialog}"
+                    >
+                      <grampsjs-icon
+                        .path="${mdiTableOfContents}"
+                        color="var(--grampsjs-body-font-color-40)"
+                      ></grampsjs-icon>
+                    </md-icon-button>
+                  `}
+            </h3>
+            ${this.renderSectionContent(key)}
+          </div>
+        </div>`
+      )}
     `
   }
 
-  renderBeforeTags() {
-    return ''
+  _openTocDialog() {
+    const dialog = this.renderRoot.querySelector('#toc-dialog')
+    if (dialog) {
+      dialog.open = true
+    }
+  }
+
+  _closeTocDialog() {
+    const dialog = this.renderRoot.querySelector('#toc-dialog')
+    if (dialog) {
+      dialog.open = false
+    }
   }
 
   renderTags() {
     return html` <grampsjs-tags
       .data=${this.data?.extended?.tags || []}
       ?edit="${this.edit}"
-      .strings="${this.strings}"
+      .appState="${this.appState}"
       @tag:new="${this._handleNewTag}"
     ></grampsjs-tags>`
   }
 
-  renderTabContent() {
+  renderSectionContent(sectionKey) {
     const mapBounds = (this.data.attribute_list || []).filter(
       attr => attr.type === 'map:bounds'
     )
-    switch (this._currentTab) {
+    switch (sectionKey) {
       case 'relationships':
         return html`<grampsjs-relationships
           grampsId="${this.data.gramps_id}"
-          .strings=${this.strings}
+          .appState="${this.appState}"
           ?edit=${this.edit}
           .familyList=${this.data?.extended?.families || []}
           .parentFamilyList=${this.data?.extended?.parent_families || []}
@@ -360,34 +596,46 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           {}}
           .otherParentFamilies=${this.data?.profile?.other_parent_families ||
           []}
+          personGender="${this.data?.gender ?? 2}"
+          personHandle="${this.data?.handle ?? ''}"
         ></grampsjs-relationships>`
       case 'names':
         return html`
           <grampsjs-names
-            .strings="${this.strings}"
+            .appState="${this.appState}"
             .data="${[this.data.primary_name, ...this.data.alternate_names]}"
             ?edit=${this.edit}
           ></grampsjs-names>
         `
+      case 'placeNames':
+        return html` ${this.data.alt_names?.length > 0 || this.edit
+          ? html` <grampsjs-place-names
+              .appState="${this.appState}"
+              .strings="${this.strings}"
+              .data="${this.data.alt_names}"
+              .profile="${this.data.profile.alternate_place_names || []}"
+              ?edit=${this.edit}
+            ></grampsjs-place-names>`
+          : ''}`
       case 'enclosed':
         return html` ${this.data.placeref_list?.length || this.edit
           ? html`
-      <h4>${this._('Enclosed By')}</h3>
-        <grampsjs-place-refs
-          .strings="${this.strings}"
-          .data="${this.data?.placeref_list}"
-          ?edit="${this.edit}"
-        ></grampsjs-place-refs>
-        `
+              <h4>${this._('Enclosed By')}</h4>
+              <grampsjs-place-refs
+                .appState="${this.appState}"
+                .data="${this.data?.placeref_list}"
+                .profile="${this.data?.profile?.direct_parent_places ?? []}"
+                ?edit="${this.edit}"
+              ></grampsjs-place-refs>
+            `
           : ''}
         ${this.data?.backlinks?.place?.length
-          ? html`<h4>${this._('Encloses')}</h3>
-        <grampsjs-place-children
-          .strings="${this.strings}"
-          .data="${this.data?.profile?.references?.place || []}"
-          ?edit="false"
-        ></grampsjs-place-children>
-        `
+          ? html`<h4>${this._('Encloses')}</h4>
+              <grampsjs-place-children
+                .appState="${this.appState}"
+                .data="${this.data?.extended?.backlinks?.place || []}"
+                ?edit=${false}
+              ></grampsjs-place-children> `
           : ''}`
       case 'map':
         return html` ${this.edit
@@ -406,9 +654,14 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           // eslint-disable-next-line no-nested-ternary
           this.data.lat && this.data.long
             ? html` <grampsjs-map
+                .appState="${this.appState}"
                 latitude="${this.data.profile.lat}"
                 longitude="${this.data.profile.long}"
+                zoom="${this.data?.place_type in zoomByPlaceType
+                  ? zoomByPlaceType[this.data.place_type]
+                  : 13}"
                 layerSwitcher
+                year="${getPlaceLatestEventYear(this.data) ?? -1}"
                 mapid="place-map"
                 id="map"
               >
@@ -420,6 +673,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
               </grampsjs-map>`
             : mapBounds.length > 0
             ? html` <grampsjs-map
+                .appState="${this.appState}"
                 latitude="${(JSON.parse(mapBounds[0].value)[0][0] +
                   JSON.parse(mapBounds[0].value)[1][0]) /
                 2}"
@@ -429,14 +683,14 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
                 zoom="${this._getZoomFromBounds(
                   JSON.parse(mapBounds[0].value)
                 )}"
-                layerSwitcher
                 mapid="media-map"
                 id="map"
               >
                 <grampsjs-map-overlay
                   url="${getMediaUrl(this.data.handle)}"
-                  bounds="${mapBounds[0].value}"
+                  .bounds="${JSON.parse(mapBounds[0].value)}"
                   title="${this.data.desc}"
+                  handle="${this.data.handle}"
                 >
                 </grampsjs-map-overlay>
               </grampsjs-map>`
@@ -448,7 +702,7 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           hasAdd
           hasEdit
           defaultRole=${this._objectsName === 'Families' ? 'Family' : 'Primary'}
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${this.data?.extended?.events}
           .profile=${this.data?.profile?.events}
           .eventRef=${this.data?.event_ref_list}
@@ -458,23 +712,15 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
         return html`<grampsjs-events
           useSummary
           sorted
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${this.data?.extended?.backlinks?.event}
           .profile=${this.data?.profile?.references?.event}
         ></grampsjs-events>`
-      case 'timeline':
-        if (this._showPersonTimeline) {
-          return html`<grampsjs-view-person-timeline
-            active
-            .strings=${this.strings}
-            handle=${this.data.handle}
-          ></grampsjs-view-person-timeline>`
-        }
-        return ''
       case 'sources':
         return html`<grampsjs-sources
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${this.data?.extended?.backlinks?.source || []}
+          handle=${this.data?.handle ?? ''}
         ></grampsjs-sources>`
       case 'citations': {
         let data = this.data?.profile?.references?.citation || []
@@ -485,93 +731,101 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
           }))
         }
         return html`<grampsjs-citations
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${data}
         ></grampsjs-citations>`
       }
       case 'children':
         return html`<grampsjs-children
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${this.data?.child_ref_list}
           .profile=${this.data?.profile?.children}
+          .extended=${this.data?.extended?.children || []}
           ?edit="${this.edit}"
         ></grampsjs-children>`
       case 'sourceCitations':
         return html`<grampsjs-view-source-citations
           active
-          .strings=${this.strings}
+          .appState="${this.appState}"
           ?edit="${this.edit}"
           .grampsIds=${(this.data?.extended?.citations || [])
             .map(obj => obj.gramps_id)
             .filter(obj => Boolean(obj))}
         ></grampsjs-view-source-citations>`
-      case 'attributes':
-        return html`<grampsjs-attributes
-          hasEdit
-          .strings=${this.strings}
-          ?edit="${this.edit}"
-          .data=${this.data.attribute_list}
-          ?source="${this._objectsName === 'Sources'}"
-        ></grampsjs-attributes>`
-      case 'addresses':
-        return html`<grampsjs-addresses
-          .strings=${this.strings}
-          .data=${this.data.address_list}
-        ></grampsjs-addresses>`
       case 'notes':
         return html` <grampsjs-view-object-notes
           active
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .grampsIds=${(this.data?.extended?.notes || [])
             .map(obj => obj.gramps_id)
             .filter(obj => Boolean(obj))}
           ?edit="${this.edit}"
+          numberOfNotes="${this.data?.note_list?.length || 0}"
+          objType="${this._objectEndpoint}"
         ></grampsjs-view-object-notes>`
       case 'gallery':
         return html` <grampsjs-gallery
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .media=${this.data?.extended?.media}
           .mediaRef=${this.data?.media_list}
           ?edit="${this.edit}"
-          ?editRect="${this.canEdit}"
+          ?editRect="${this.appState.permissions.canEdit}"
         ></grampsjs-gallery>`
-      case 'internet':
-        return html`<grampsjs-urls
-          hasEdit
-          .strings=${this.strings}
-          .data=${this.data.urls}
-          ?edit="${this.edit}"
-        ></grampsjs-urls>`
+      case 'metadata':
+        return html`
+          ${this.data.attribute_list?.length > 0 ||
+          (this.edit && 'attribute_list' in this.data)
+            ? html` <h4>${this._('Attributes')}</h4>
+                <grampsjs-attributes
+                  hasEdit
+                  .appState="${this.appState}"
+                  ?edit="${this.edit}"
+                  .data=${this.data.attribute_list ?? []}
+                  attributeCategory="${this._objectsName.toLowerCase()}"
+                ></grampsjs-attributes>`
+            : ''}
+          ${this.data.address_list?.length > 0
+            ? html`<h4>${this._('Addresses')}</h4>
+                <grampsjs-addresses
+                  .appState="${this.appState}"
+                  .data=${this.data.address_list ?? []}
+                ></grampsjs-addresses>`
+            : ''}
+          ${this.data.urls?.length > 0 || (this.edit && 'urls' in this.data)
+            ? html`<h4>${this._('Internet')}</h4>
+                <grampsjs-urls
+                  hasEdit
+                  .appState="${this.appState}"
+                  .data=${this.data.urls ?? []}
+                  ?edit="${this.edit}"
+                ></grampsjs-urls>`
+            : ''}
+        `
       case 'associations':
         return html`<grampsjs-associations
           hasEdit
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${this.data?.person_ref_list || []}
           .extended=${this.data?.extended?.people || []}
           ?edit="${this.edit}"
         ></grampsjs-associations>`
-      case 'dna':
-        return html`<grampsjs-view-person-dna
-          active
-          .strings=${this.strings}
-          handle="${this.data.handle || ''}"
-          .person="${this.data}"
-        ></grampsjs-view-person-dna>`
       case 'participants':
         return html`<grampsjs-participants
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${[this.data?.profile?.participants]}
+          .backlinksPeople=${this.data?.extended?.backlinks?.person || []}
+          .backlinksFamilies=${this.data?.extended?.backlinks?.family || []}
         ></grampsjs-participants>`
       case 'repositories':
         return html` <grampsjs-repositories
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${this.data?.reporef_list}
           .extended=${this.data?.extended?.repositories}
           ?edit=${this.edit}
         ></grampsjs-repositories>`
       case 'references':
         return html`<grampsjs-references
-          .strings=${this.strings}
+          .appState="${this.appState}"
           .data=${[this.data?.extended?.backlinks]}
           .profile=${this.data?.profile?.references || {}}
         ></grampsjs-references>`
@@ -597,36 +851,6 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     )
   }
 
-  _makeTab(key) {
-    return html`
-      <mwc-tab id="${key}" label="${this._(_allTabs[key].title)}"> </mwc-tab>
-    `
-  }
-
-  updated(changed) {
-    if (changed.has('edit')) {
-      this._updateTabIndicator(changed.get('  '))
-    }
-  }
-
-  _updateTabIndicator(edit) {
-    const tabKeys = this._getTabs(!edit)
-    if (
-      tabKeys.includes(this._currentTab) &&
-      tabKeys.indexOf(this._currentTab) !== this._currentTabId
-    ) {
-      this._currentTabId = tabKeys.indexOf(this._currentTab)
-    }
-  }
-
-  _handleTabActivated(event) {
-    this._currentTabId = event.detail.index
-  }
-
-  _handleTabInteracted(event) {
-    this._currentTab = event.detail.tabId
-  }
-
   _handleCancelDialog() {
     this.dialogContent = ''
   }
@@ -634,8 +858,9 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
   _handleNewTag() {
     this.dialogContent = html`
       <grampsjs-form-new-tag
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${this.data.tag_list}"
+        dialogTitle="${this._('Add Tag')}"
         @object:save="${this._handleSaveTag}"
         @object:cancel="${this._handleCancelDialog}"
       >
@@ -672,5 +897,56 @@ export class GrampsjsObject extends GrampsjsTranslateMixin(LitElement) {
     const Ly = yMax - yMin
     const L = Math.max(Lx, Ly)
     return Math.round(Math.log2(360 / L))
+  }
+
+  _setupIntersectionObserver() {
+    // Wait for the DOM to be ready
+    setTimeout(() => {
+      if (this._sectionObserver) {
+        this._teardownIntersectionObserver()
+      }
+
+      const options = {
+        root: null, // use viewport as root
+        rootMargin: '-100px 0px -70% 0px', // section needs to be near the top of the viewport
+        threshold: 0, // trigger when any part of the section is visible
+      }
+
+      this._sectionObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const sectionId = entry.target.id
+            const sectionKey = sectionId.replace('section-', '')
+
+            // Update the current visible section
+            this._currentVisibleSection = sectionKey
+
+            // Update the TOC component
+            const tocComponent = this.shadowRoot.querySelector(
+              'grampsjs-object-toc'
+            )
+            if (tocComponent) {
+              tocComponent.setActiveSection(sectionKey)
+            }
+          }
+        })
+      }, options)
+
+      // Observe all sections
+      const tabKeys = this._getTabs(this.edit)
+      tabKeys.forEach(key => {
+        const section = this.shadowRoot?.querySelector(`#section-${key}`)
+        if (section) {
+          this._sectionObserver.observe(section)
+        }
+      })
+    }, 100) // Short delay to ensure the DOM is ready
+  }
+
+  _teardownIntersectionObserver() {
+    if (this._sectionObserver) {
+      this._sectionObserver.disconnect()
+      this._sectionObserver = null
+    }
   }
 }

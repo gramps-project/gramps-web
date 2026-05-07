@@ -1,22 +1,74 @@
-import {html} from 'lit'
+import {html, css} from 'lit'
 
-import '@material/mwc-select'
-import '@material/mwc-dialog'
-import '@material/mwc-list/mwc-list-item'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/text-button.js'
+import '@material/web/button/filled-button.js'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
+import '@material/web/textfield/filled-text-field.js'
+
+import {mdiFilterOff} from '@mdi/js'
 
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 import {userRoles} from './GrampsjsFormUser.js'
 import {fireEvent} from '../util.js'
 
 import './GrampsjsTooltip.js'
+import './GrampsjsIcon.js'
+
+const ALL_ROLES = '__all__'
 
 export class GrampsjsUsers extends GrampsjsTableBase {
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        .filter-bar {
+          display: flex;
+          flex-wrap: wrap;
+          flex-direction: row;
+          align-items: center;
+          gap: 8px;
+          margin-top: 16px;
+          margin-bottom: 4px;
+        }
+
+        md-filled-text-field {
+          flex: 1 1 200px;
+          min-width: 140px;
+        }
+
+        md-filled-select {
+          flex: 0 1 160px;
+          min-width: 130px;
+        }
+
+        .clear-filters {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          cursor: pointer;
+          background: none;
+          border: none;
+          padding: 4px 0;
+          color: var(--mdc-theme-secondary);
+        }
+
+        .clear-filters:hover {
+          text-decoration: underline;
+        }
+      `,
+    ]
+  }
+
   static get properties() {
     return {
       dialogContent: {type: String},
       ismulti: {type: Boolean},
       _downloadUrl: {type: String},
       _userData: {type: Array},
+      _filterText: {type: String},
+      _filterRole: {type: String},
     }
   }
 
@@ -26,29 +78,48 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     this.ismulti = false
     this._downloadUrl = ''
     this._userData = []
+    this._filterText = ''
+    this._filterRole = ALL_ROLES
+  }
+
+  get _filteredData() {
+    const text = this._filterText.toLowerCase()
+    return this.data.filter(obj => {
+      const matchesText =
+        !text ||
+        (obj.name || '').toLowerCase().includes(text) ||
+        (obj.full_name || '').toLowerCase().includes(text) ||
+        (obj.email || '').toLowerCase().includes(text)
+      const matchesRole =
+        this._filterRole === ALL_ROLES || String(obj.role) === this._filterRole
+      return matchesText && matchesRole
+    })
   }
 
   render() {
     if (this.data.length === 0) {
       return html``
     }
+    const filtered = this._filteredData
     return html`
-      ${this._renderButtons()}
+      ${this._renderButtons()} ${this._renderFilterBar()}
       <table>
         <tr>
           <th>${this._('Username: ').replace(':', '')}</th>
           <th>${this._('Full Name')}</th>
           <th>${this._('E-mail')}</th>
           <th>${this._('Role')}</th>
+          <th>${this._('Account Source')}</th>
           <th></th>
         </tr>
-        ${this.data.map(
+        ${filtered.map(
           (obj, index) => html`
             <tr>
               <td>${obj.name}</td>
               <td>${obj.full_name}</td>
               <td>${obj.email}</td>
               <td>${this._(userRoles[obj.role])}</td>
+              <td>${obj.account_source || this._('Password')}</td>
               <td>
                 <mwc-icon-button
                   class="edit"
@@ -59,6 +130,15 @@ export class GrampsjsUsers extends GrampsjsTableBase {
                 <grampsjs-tooltip for="button-edit-${index}">
                   ${this._('Edit user')}
                 </grampsjs-tooltip>
+                <mwc-icon-button
+                  class="error"
+                  icon="delete_forever"
+                  @click="${e => this._handleDeleteClick(e, obj.name)}"
+                  id="button-del-${index}"
+                ></mwc-icon-button>
+                <grampsjs-tooltip for="button-del-${index}">
+                  ${this._('Delete user')}
+                </grampsjs-tooltip>
               </td>
             </tr>
           `
@@ -66,6 +146,66 @@ export class GrampsjsUsers extends GrampsjsTableBase {
       </table>
       ${this.dialogContent}
     `
+  }
+
+  _renderFilterBar() {
+    return html`
+      <div class="filter-bar">
+        <md-filled-text-field
+          type="search"
+          label="${this._('Search')}"
+          .value="${this._filterText}"
+          @input="${e => {
+            this._filterText = e.target.value
+          }}"
+        ></md-filled-text-field>
+        <md-filled-select
+          label="${this._('Role')}"
+          .value="${this._filterRole}"
+          @change="${e => {
+            this._filterRole = e.target.value
+          }}"
+        >
+          <md-select-option value="${ALL_ROLES}">
+            <div slot="headline">${this._('All')}</div>
+          </md-select-option>
+          ${Object.keys(userRoles)
+            .map(Number)
+            .sort((a, b) => a - b)
+            .map(
+              role => html`
+                <md-select-option value="${role}">
+                  <div slot="headline">${this._(userRoles[role])}</div>
+                </md-select-option>
+              `
+            )}
+        </md-filled-select>
+        ${this._filterText || this._filterRole !== ALL_ROLES
+          ? html`
+              <button
+                class="clear-filters"
+                id="btn-clear-filters"
+                @click="${this._clearFilters}"
+              >
+                <grampsjs-icon
+                  path="${mdiFilterOff}"
+                  height="24"
+                  width="24"
+                  color="var(--mdc-theme-secondary)"
+                ></grampsjs-icon>
+              </button>
+              <grampsjs-tooltip for="btn-clear-filters">
+                ${this._('Clear all filters')}
+              </grampsjs-tooltip>
+            `
+          : ''}
+      </div>
+    `
+  }
+
+  _clearFilters() {
+    this._filterText = ''
+    this._filterRole = ALL_ROLES
   }
 
   _renderButtons() {
@@ -115,15 +255,20 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     this._openDialog()
   }
 
+  _handleDeleteClick(e, username) {
+    this.dialogContent = this._deleteUserDialog(username)
+    this._openDialog()
+  }
+
   _handleAddClick() {
     this.dialogContent = this._addUserDialog()
     this._openDialog()
   }
 
   _openDialog() {
-    const dialog = this.shadowRoot.querySelector('mwc-dialog')
+    const dialog = this.shadowRoot.querySelector('md-dialog')
     if (dialog !== null) {
-      dialog.open = true
+      dialog.show()
     }
   }
 
@@ -143,34 +288,27 @@ export class GrampsjsUsers extends GrampsjsTableBase {
 
   _importUsersDialog() {
     return html`
-      <mwc-dialog
-        scrimClickAction=""
-        escapeKeyAction=""
-        open
-        heading="${this._('Import user accounts')}"
-      >
-        <grampsjs-form-upload
-          accept=".json"
-          filename
-          @formdata:changed="${this._handleUploadChanged}"
-        ></grampsjs-form-upload>
-
-        <mwc-button
-          slot="primaryAction"
-          dialogAction="ok"
-          ?disabled="${this._userData.length === 0}"
-          @click="${this._handleUpload}"
-        >
-          ${this._('Import')}
-        </mwc-button>
-        <mwc-button
-          slot="secondaryAction"
-          dialogAction="cancel"
-          @click="${this._handleDialogCancel}"
-        >
-          ${this._('Cancel')}
-        </mwc-button>
-      </mwc-dialog>
+      <md-dialog open @cancel="${e => e.preventDefault()}">
+        <span slot="headline">${this._('Import user accounts')}</span>
+        <div slot="content">
+          <grampsjs-form-upload
+            accept=".json"
+            filename
+            @formdata:changed="${this._handleUploadChanged}"
+          ></grampsjs-form-upload>
+        </div>
+        <div slot="actions">
+          <md-text-button @click="${this._handleDialogCancel}">
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-filled-button
+            ?disabled="${this._userData.length === 0}"
+            @click="${this._handleUpload}"
+          >
+            ${this._('Import')}
+          </md-filled-button>
+        </div>
+      </md-dialog>
     `
   }
 
@@ -205,11 +343,13 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     const uploadForm = this.shadowRoot.querySelector('grampsjs-form-upload')
     fireEvent(this, 'user:added-multiple', this._userData)
     uploadForm.reset()
+    this.dialogContent = ''
   }
 
   _handleDialogCancel() {
     const uploadForm = this.shadowRoot.querySelector('grampsjs-form-upload')
     uploadForm.reset()
+    this.dialogContent = ''
   }
 
   _startDownload() {
@@ -221,55 +361,80 @@ export class GrampsjsUsers extends GrampsjsTableBase {
   _editUserDialog(username) {
     const [user] = this.data.filter(el => el.name === username)
     return html`
-      <mwc-dialog
-        scrimClickAction=""
-        escapeKeyAction=""
-        open
-        heading="${this._('Edit user')} &ndash; ${username}"
-      >
-        <grampsjs-form-user
-          .data="${user}"
-          .strings="${this.strings}"
-          ?ismulti="${this.ismulti}"
-        ></grampsjs-form-user>
-        <mwc-button
-          slot="primaryAction"
-          dialogAction="ok"
-          @click="${this._handleSave}"
-        >
-          ${this._('_Save')}
-        </mwc-button>
-        <mwc-button slot="secondaryAction" dialogAction="cancel">
-          ${this._('Cancel')}
-        </mwc-button>
-      </mwc-dialog>
+      <md-dialog open @cancel="${e => e.preventDefault()}">
+        <span slot="headline">${this._('Edit user')} &ndash; ${username}</span>
+        <div slot="content">
+          <grampsjs-form-user
+            .data="${user}"
+            .appState="${this.appState}"
+            ?ismulti="${this.ismulti}"
+          ></grampsjs-form-user>
+        </div>
+        <div slot="actions">
+          <md-text-button
+            @click="${() => {
+              this.dialogContent = ''
+            }}"
+          >
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-filled-button @click="${this._handleSave}">
+            ${this._('_Save')}
+          </md-filled-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  _deleteUserDialog(username) {
+    return html`
+      <md-dialog open @cancel="${e => e.preventDefault()}">
+        <div slot="content">
+          <div>
+            ${this._('Do you really want to delete user "%s"?', username)}
+          </div>
+          <div>${this._('This action cannot be undone.')}</div>
+        </div>
+        <div slot="actions">
+          <md-text-button
+            @click="${() => {
+              this.dialogContent = ''
+            }}"
+          >
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-text-button @click="${() => this._handleDelete(username)}">
+            ${this._('_Delete')}
+          </md-text-button>
+        </div>
+      </md-dialog>
     `
   }
 
   _addUserDialog() {
     return html`
-      <mwc-dialog
-        scrimClickAction=""
-        escapeKeyAction=""
-        open
-        heading="${this._('Add a new user')}"
-      >
-        <grampsjs-form-user
-          newUser
-          .strings="${this.strings}"
-          ?ismulti="${this.ismulti}"
-        ></grampsjs-form-user>
-        <mwc-button
-          slot="primaryAction"
-          dialogAction="ok"
-          @click="${this._handleSave}"
-        >
-          ${this._('_Save')}
-        </mwc-button>
-        <mwc-button slot="secondaryAction" dialogAction="cancel">
-          ${this._('Cancel')}
-        </mwc-button>
-      </mwc-dialog>
+      <md-dialog open @cancel="${e => e.preventDefault()}">
+        <span slot="headline">${this._('Add a new user')}</span>
+        <div slot="content">
+          <grampsjs-form-user
+            newUser
+            .appState="${this.appState}"
+            ?ismulti="${this.ismulti}"
+          ></grampsjs-form-user>
+        </div>
+        <div slot="actions">
+          <md-text-button
+            @click="${() => {
+              this.dialogContent = ''
+            }}"
+          >
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-filled-button @click="${this._handleSave}">
+            ${this._('_Save')}
+          </md-filled-button>
+        </div>
+      </md-dialog>
     `
   }
 
@@ -282,6 +447,11 @@ export class GrampsjsUsers extends GrampsjsTableBase {
       fireEvent(this, existingUser ? 'user:updated' : 'user:added', form.data)
       this.dialogContent = ''
     }
+  }
+
+  _handleDelete(username) {
+    fireEvent(this, 'user:deleted', username)
+    this.dialogContent = ''
   }
 
   updated(changed) {

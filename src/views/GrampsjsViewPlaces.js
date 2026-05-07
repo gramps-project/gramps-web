@@ -5,6 +5,10 @@ Places list view
 import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
+import '../components/GrampsjsFilterProperties.js'
+import '../components/GrampsjsFilterTags.js'
+import '../components/GrampsjsFilterPrivate.js'
+import '../components/GrampsjsFilterText.js'
 
 export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
   constructor() {
@@ -34,14 +38,27 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Name"
+        rule="HasData"
+        .valueIndex=${0}
+        .numArgs=${3}
+      ></grampsjs-filter-text>
+
       <grampsjs-filter-properties
         hasCount
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .props="${filterCounts.places}"
         label="${this._('Associations')}"
       ></grampsjs-filter-properties>
 
-      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
+      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
+
+      <grampsjs-filter-private
+        .appState="${this.appState}"
+        rule="PlacePrivate"
+      ></grampsjs-filter-private>
     `
   }
 
@@ -50,7 +67,7 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
     const formattedRow = {
       grampsId: row.gramps_id,
       title: row.name.value,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+      change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
     return formattedRow
   }

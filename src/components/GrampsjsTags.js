@@ -1,45 +1,76 @@
 import {LitElement, css, html} from 'lit'
 
-import {hex6ToCss} from '../color.js'
+import {colorToCss} from '../color.js'
 import {sharedStyles} from '../SharedStyles.js'
-import '@material/mwc-icon-button'
+import '@material/web/chips/chip-set'
+import '@material/web/chips/input-chip'
+import '@material/web/chips/assist-chip'
+import '@material/web/iconbutton/icon-button.js'
+import {mdiTagPlus} from '@mdi/js'
 
 import {fireEvent} from '../util.js'
-import './GrampsjsFormNewTag.js'
+import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsTags extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
-        .chip {
-          font-size: 14px;
+        h4 {
           font-weight: 400;
-          font-family: var(--grampsjs-body-font-family);
-          padding: 6px 12px;
-          border-radius: 9999px;
-          margin: 5px 5px;
-          border-width: 1px;
-          border-style: solid;
+          font-size: 14px;
+          font-family: var(--grampsjs-heading-font-family);
+          color: var(--grampsjs-body-font-color-50);
+          margin-top: 15px;
+          margin-bottom: 7px;
         }
 
         .tags {
           clear: left;
-          margin: 15px 0px;
+          margin-bottom: 15px;
           align-items: center;
-          display: inline-flex;
-          padding: 5px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+          padding: 5px 0px;
         }
 
-        .chip mwc-icon-button {
-          --mdc-icon-size: 14px;
-          --mdc-icon-button-size: 18px;
+        md-input-chip {
+          --md-input-chip-container-color: var(--tag-color-bg);
+          --md-input-chip-label-text-color: var(--tag-color);
+          --md-input-chip-outline-color: var(--tag-color);
+          --md-input-chip-icon-color: var(--tag-color);
+          --md-input-chip-trailing-icon-color: var(--tag-color);
+          --md-input-chip-hover-label-text-color: var(--tag-color);
+          --md-input-chip-hover-trailing-icon-color: var(--tag-color);
+          --md-input-chip-hover-icon-color: var(--tag-color);
+          --md-input-chip-hover-outline-color: var(--tag-color);
+          --md-input-chip-focus-label-text-color: var(--tag-color);
+          --md-input-chip-focus-trailing-icon-color: var(--tag-color);
+          --md-input-chip-focus-icon-color: var(--tag-color);
+          --md-input-chip-focus-outline-color: var(--tag-color);
+          --md-input-chip-pressed-label-text-color: var(--tag-color);
+          --md-input-chip-pressed-trailing-icon-color: var(--tag-color);
+          --md-input-chip-pressed-icon-color: var(--tag-color);
         }
 
-        .newtag {
-          padding: 6px 12px;
+        md-assist-chip {
+          --md-assist-chip-container-color: var(--tag-color-bg);
+          --md-assist-chip-label-text-color: var(--tag-color);
+          --md-assist-chip-outline-color: var(--tag-color);
+          --md-assist-chip-hover-label-text-color: var(--tag-color);
+          --md-assist-chip-hover-outline-color: var(--tag-color);
+          --md-assist-chip-focus-label-text-color: var(--tag-color);
+          --md-assist-chip-focus-outline-color: var(--tag-color);
+          --md-assist-chip-pressed-label-text-color: var(--tag-color);
+        }
+
+        md-icon-button {
+          --md-icon-button-icon-size: 20px;
+          --md-icon-button-state-layer-height: 32px;
+          --md-icon-button-state-layer-width: 32px;
         }
       `,
     ]
@@ -50,6 +81,7 @@ export class GrampsjsTags extends GrampsjsTranslateMixin(LitElement) {
       data: {type: Array},
       edit: {type: Boolean},
       hideTags: {type: Array},
+      noHeading: {type: Boolean},
     }
   }
 
@@ -58,6 +90,7 @@ export class GrampsjsTags extends GrampsjsTranslateMixin(LitElement) {
     this.data = []
     this.edit = false
     this.hideTags = []
+    this.noHeading = false
   }
 
   render() {
@@ -65,38 +98,49 @@ export class GrampsjsTags extends GrampsjsTranslateMixin(LitElement) {
       return html``
     }
     return html`
+      ${this.noHeading ? '' : html`<h4>${this._('Tags')}</h4>`}
       <div class="tags">
-        ${this.data
-          .filter(obj => !this.hideTags.includes(obj.name))
-          .map(
-            obj => html`
-              <span
-                class="chip"
-                style="border-color:${hex6ToCss(
-                  obj.color,
-                  0.9
-                )};color:${hex6ToCss(obj.color, 0.9)};"
-                >${obj.name}${this.edit
-                  ? html` <mwc-icon-button
-                      icon="clear"
-                      @click=${() => this._handleClear(obj.handle)}
-                    ></mwc-icon-button>`
-                  : ''}</span
-              >
-            `
-          )}
+        <md-chip-set>
+          ${this.data
+            .filter(obj => !this.hideTags.includes(obj.name))
+            .map(obj =>
+              this.edit
+                ? html`<md-input-chip
+                    label="${obj.name}"
+                    style="--tag-color:${colorToCss(
+                      obj.color,
+                      0.9
+                    )};--tag-color-bg:${colorToCss(obj.color, 0.12)}"
+                    @remove=${e => {
+                      e.preventDefault()
+                      this._handleClear(obj.handle)
+                    }}
+                  ></md-input-chip>`
+                : html`<md-assist-chip
+                    label="${obj.name}"
+                    style="--tag-color:${colorToCss(
+                      obj.color,
+                      0.9
+                    )};--tag-color-bg:${colorToCss(obj.color, 0.12)}"
+                  ></md-assist-chip>`
+            )}
+        </md-chip-set>
         ${this.edit
-          ? html` <span class="newtag">
-              <mwc-icon-button
-                icon="new_label"
+          ? html`
+              <md-icon-button
                 id="btn-tag"
                 class="edit"
                 @click="${this._handleNewTag}"
-              ></mwc-icon-button>
-              <grampsjs-tooltip for="btn-tag" .strings="${this.strings}"
+              >
+                <grampsjs-icon
+                  path="${mdiTagPlus}"
+                  color="var(--mdc-theme-secondary)"
+                ></grampsjs-icon>
+              </md-icon-button>
+              <grampsjs-tooltip for="btn-tag" .appState="${this.appState}"
                 >${this._('Add Tag')}</grampsjs-tooltip
               >
-            </span>`
+            `
           : ''}
       </div>
     `

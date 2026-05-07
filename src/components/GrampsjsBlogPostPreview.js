@@ -2,15 +2,13 @@ import {html, css, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import '@material/mwc-button'
 
-import './GrampsJsImage.js'
+import './GrampsjsImg.js'
 import './GrampsjsGallery.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsTimedelta.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsBlogPostPreview extends GrampsjsTranslateMixin(
-  LitElement
-) {
+export class GrampsjsBlogPostPreview extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -23,7 +21,7 @@ export class GrampsjsBlogPostPreview extends GrampsjsTranslateMixin(
           margin-top: 0;
           line-height: 1.3em;
           min-height: 2.6em;
-          color: rgba(0, 0, 0, 0.75);
+          color: var(--grampsjs-body-font-color-75);
         }
 
         #image {
@@ -36,12 +34,12 @@ export class GrampsjsBlogPostPreview extends GrampsjsTranslateMixin(
           flex-grow: 1;
           font-size: 17px;
           font-weight: 300;
-          color: rgba(0, 0, 0, 0.7);
+          color: var(--grampsjs-body-font-color-70);
           line-height: 1.45em;
         }
 
         #date {
-          color: rgba(0, 0, 0, 0.6);
+          color: var(--grampsjs-body-font-color-60);
           font-size: 14px;
           letter-spacing: 0.02em;
           margin: 2em 0;
@@ -89,10 +87,10 @@ export class GrampsjsBlogPostPreview extends GrampsjsTranslateMixin(
         </div>
         <div class="clear"></div>
         <div id="date">
-          ${this.strings.__lang__
+          ${this.appState.i18n.lang
             ? html`<grampsjs-timedelta
                 timestamp="${this.data.change}"
-                locale="${this.strings.__lang__}"
+                locale="${this.appState.i18n.lang}"
               ></grampsjs-timedelta>`
             : ''}
         </div>
@@ -120,11 +118,12 @@ export class GrampsjsBlogPostPreview extends GrampsjsTranslateMixin(
       <div id="image">
         <grampsjs-img
           handle="${obj.handle}"
-          size="150"
+          size="200"
           displayHeight="150"
           square
           .rect="${ref.rect || []}"
           mime="${obj.mime}"
+          checksum="${obj.checksum}"
         ></grampsjs-img>
       </div>
     `

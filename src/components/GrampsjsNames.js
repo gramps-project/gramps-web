@@ -1,14 +1,16 @@
 import {html} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 
-import './GrampsjsFormSelectObject.js'
-import './GrampsjsFormEditName.js'
-import './GrampsjsObjectForm.js'
-import './GrampsjsName.js'
-import {fireEvent} from '../util.js'
-import '@material/mwc-icon-button'
-import '@material/mwc-dialog'
 import '@material/mwc-button'
+import '@material/mwc-icon-button'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/text-button.js'
+import {fireEvent} from '../util.js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
+import './GrampsjsFormEditName.js'
+import './GrampsjsFormSelectObject.js'
+import './GrampsjsName.js'
+import './GrampsjsObjectForm.js'
 
 export class GrampsjsNames extends GrampsjsEditableList {
   static get properties() {
@@ -27,18 +29,28 @@ export class GrampsjsNames extends GrampsjsEditableList {
     this.dialogContent = ''
     this.dialogTitle = ''
     this.hasEdit = true
+    this.hasReorder = true
   }
 
-  row(obj) {
+  row(obj, i) {
     return html` ${!obj
       ? ''
       : html`
-          <mwc-list-item style="height: auto">
+          <md-list-item
+            type="${this.edit ? 'button' : 'text'}"
+            style="height: auto"
+            class="${classMap({selected: i === this._selectedIndex})}"
+            @click="${() => {
+              if (this.edit) {
+                this._handleSelected(i)
+              }
+            }}"
+          >
             <grampsjs-name
-              .strings="${this.strings}"
+              .appState="${this.appState}"
               .data="${obj}"
             ></grampsjs-name>
-          </mwc-list-item>
+          </md-list-item>
         `}`
   }
 
@@ -48,7 +60,7 @@ export class GrampsjsNames extends GrampsjsEditableList {
         id="name"
         @object:save="${this._handleNameAdd}"
         @object:cancel="${this._handleNameCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-form-edit-name>
     `
@@ -57,20 +69,38 @@ export class GrampsjsNames extends GrampsjsEditableList {
   _handleDelete() {
     const handle = this._selectedIndex
     this.dialogContent = html`
-      <mwc-dialog
-        open
-        @closed="${e => this._handleDialog(handle, e)}"
-        heading="${this._('Are you sure?')}"
-      >
-        <div>${this._('This action cannot be undone.')}</div>
-        <mwc-button slot="primaryAction" dialogAction="confirm">
-          ${this._('Yes')}
-        </mwc-button>
-        <mwc-button slot="secondaryAction" dialogAction="cancel">
-          ${this._('Cancel')}
-        </mwc-button>
-      </mwc-dialog>
+      <md-dialog open @cancel="${e => e.preventDefault()}">
+        <span slot="headline">${this._('Are you sure?')}</span>
+        <div slot="content">${this._('This action cannot be undone.')}</div>
+        <div slot="actions">
+          <md-text-button @click="${() => this._handleNameCancel()}">
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-text-button
+            @click="${() =>
+              this._handleNameDelete(handle, new Event('confirm'))}"
+          >
+            ${this._('Yes')}
+          </md-text-button>
+        </div>
+      </md-dialog>
     `
+  }
+
+  _handleUp() {
+    fireEvent(this, 'edit:action', {
+      action: 'upName',
+      handle: this._selectedIndex,
+    })
+    this._updateSelectionAfterReorder(true)
+  }
+
+  _handleDown() {
+    fireEvent(this, 'edit:action', {
+      action: 'downName',
+      handle: this._selectedIndex,
+    })
+    this._updateSelectionAfterReorder(false)
   }
 
   _handleEdit() {
@@ -80,19 +110,11 @@ export class GrampsjsNames extends GrampsjsEditableList {
         id="name"
         @object:save="${e => this._handleNameSave(handle, e)}"
         @object:cancel="${this._handleNameCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${this.data[handle]}"
       >
       </grampsjs-form-edit-name>
     `
-  }
-
-  _handleDialog(handle, e) {
-    if (e.detail.action === 'confirm') {
-      this._handleNameDelete(handle, e)
-    } else if (e.detail.action === 'cancel') {
-      this._handleNameCancel()
-    }
   }
 
   _handleNameAdd(e) {

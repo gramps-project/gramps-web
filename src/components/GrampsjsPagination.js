@@ -4,9 +4,9 @@ import '@material/mwc-icon'
 import '@material/mwc-button'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-class GrampsjsPagination extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsPagination extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -19,13 +19,13 @@ class GrampsjsPagination extends GrampsjsTranslateMixin(LitElement) {
         }
 
         .span {
-          color: rgba(0, 0, 0, 0.9);
+          color: var(--grampsjs-body-font-color-90);
           padding: 0 0.5em;
         }
 
         mwc-button {
           --mdc-ripple-focus-opacity: 0;
-          --mdc-theme-primary: rgba(0, 0, 0, 0.7);
+          --mdc-theme-primary: var(--grampsjs-body-font-color-70);
         }
 
         .pagebtn {
@@ -33,7 +33,7 @@ class GrampsjsPagination extends GrampsjsTranslateMixin(LitElement) {
         }
 
         mwc-icon.more {
-          color: rgba(0, 0, 0, 0.2);
+          color: var(--grampsjs-body-font-color-20);
           position: relative;
           top: 0.35em;
         }

@@ -1,9 +1,9 @@
 import {css, html, LitElement} from 'lit'
-import '@material/mwc-button'
+import '@material/web/button/filled-button.js'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
-import {apiPost} from '../api.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+
 import {fireEvent} from '../util.js'
 import './GrampsjsFormUpload.js'
 import './GrampsjsTaskProgressIndicator.js'
@@ -14,7 +14,7 @@ const STATE_READY = 1
 const STATE_PROGRESS = 2
 const STATE_DONE = 3
 
-export class GrampsjsImport extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -48,20 +48,19 @@ export class GrampsjsImport extends GrampsjsTranslateMixin(LitElement) {
         <grampsjs-form-upload
           outlined
           id="upload-tree"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           filename
           @formdata:changed="${this._handleUploadChanged}"
         ></grampsjs-form-upload>
       </p>
       ${this._uploadHint ? html`${this._uploadHint}` : ''}
       <p>
-        <mwc-button
-          raised
-          label="${this._('Import')}"
+        <md-filled-button
           type="submit"
           @click="${this._submit}"
           ?disabled=${this._state !== STATE_READY}
-        ></mwc-button>
+          >${this._('Import')}</md-filled-button
+        >
         <grampsjs-task-progress-indicator
           id="progress-tree"
           taskName="importFile"
@@ -71,6 +70,7 @@ export class GrampsjsImport extends GrampsjsTranslateMixin(LitElement) {
           size="20"
           hideAfter="0"
           pollInterval="0.2"
+          .appState="${this.appState}"
           @task:complete="${this._handleSuccess}"
           @task:error="${() => this._handleCompleted(STATE_ERROR)}"
         ></grampsjs-task-progress-indicator>
@@ -92,7 +92,11 @@ export class GrampsjsImport extends GrampsjsTranslateMixin(LitElement) {
     prog.reset()
     prog.open = true
 
-    const res = await apiPost(`/api/importers/${ext}/file`, file, false, false)
+    const res = await this.appState.apiPost(
+      `/api/importers/${ext}/file`,
+      file,
+      {isJson: false, dbChanged: false}
+    )
     if ('error' in res) {
       prog.setError()
       prog.errorMessage = this._(res.error)

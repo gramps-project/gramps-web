@@ -1,12 +1,14 @@
 import {html} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
+import {mdiAccount} from '@mdi/js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditAssociation.js'
+import './GrampsjsIcon.js'
 
 import {personDisplayName, fireEvent} from '../util.js'
 
-import '@material/mwc-icon'
-import '@material/mwc-list/mwc-list-item'
+import '@material/web/list/list-item.js'
 
 export class GrampsjsAssociations extends GrampsjsEditableList {
   static get properties() {
@@ -17,15 +19,24 @@ export class GrampsjsAssociations extends GrampsjsEditableList {
 
   row(obj, i) {
     return html`
-      <mwc-list-item
-        twoline
-        graphic="avatar"
-        ?hasMeta="${this.edit}"
-        @click="${() => this._handleClick(this.extended[i])}"
+      <md-list-item
+        type="button"
+        class="${classMap({selected: i === this._selectedIndex})}"
+        @click="${() => {
+          if (this.edit) {
+            this._handleSelected(i)
+          } else {
+            this._handleClick(this.extended[i])
+          }
+        }}"
         >${personDisplayName(this.extended[i])}
-        <span slot="secondary">${this._(obj.rel)}</span>
-        <mwc-icon slot="graphic">group</mwc-icon>
-      </mwc-list-item>
+        <span slot="supporting-text">${this._(obj.rel)}</span>
+        <grampsjs-icon
+          slot="start"
+          path="${mdiAccount}"
+          color="var(--grampsjs-color-icon)"
+        ></grampsjs-icon>
+      </md-list-item>
     `
   }
 
@@ -46,7 +57,7 @@ export class GrampsjsAssociations extends GrampsjsEditableList {
         new
         @object:save="${this._handleAssocSave}"
         @object:cancel="${this._handleDialogCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-form-edit-association>
     `
@@ -59,7 +70,7 @@ export class GrampsjsAssociations extends GrampsjsEditableList {
       <grampsjs-form-edit-association
         @object:save="${this._handleAssocSaveEdit}"
         @object:cancel="${this._handleDialogCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${data}"
         .person="${person}"
       >

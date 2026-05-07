@@ -1,15 +1,14 @@
 import {html, css, LitElement} from 'lit'
 
-import '@material/mwc-icon'
-import '@material/mwc-button'
+import '@material/web/button/text-button.js'
 
-import './GrampsJsImage.js'
+import './GrampsjsImg.js'
 import './GrampsjsConnectedGallery.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 
-export class GrampsjsPlaceBox extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsPlaceBox extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -24,12 +23,13 @@ export class GrampsjsPlaceBox extends GrampsjsTranslateMixin(LitElement) {
           font-weight: 400;
           font-size: 22px;
           margin-top: 10px;
+          margin-bottom: 0;
         }
 
         h3 {
           font-weight: 400;
           font-size: 18px;
-          margin-bottom: 5px;
+          margin-top: 8px;
           margin-bottom: 7px;
         }
 
@@ -45,15 +45,6 @@ export class GrampsjsPlaceBox extends GrampsjsTranslateMixin(LitElement) {
 
         .right {
           text-align: right;
-        }
-
-        #banner {
-          background-color: red;
-          height: 150px;
-          width: 302px;
-          margin-top: -15px;
-          margin-left: -20px;
-          position: relative;
         }
 
         p {
@@ -77,40 +68,30 @@ export class GrampsjsPlaceBox extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-    <h2>
-      ${this.data?.name?.value || this.data.title || this._('Place')}
-      ${
-        this.data?.profile?.parent_places.length > 0
-          ? html`<h4>
-              ${this.data.profile.parent_places.map(obj => obj.name).join(', ')}
-            </h4>`
-          : ''
-      }
-          </h4>
-
-    ${
-      this.data?.media_list?.length
+      <h2>${this.data?.name?.value || this.data.title || this._('Place')}</h2>
+      ${this.data?.profile?.parent_places?.length > 0
+        ? html`<h4>
+            ${this.data.profile.parent_places.map(obj => obj.name).join(', ')}
+          </h4>`
+        : ''}
+      ${this.data?.media_list?.length
         ? html`
             <h3>${this._('Gallery')}</h3>
 
             <grampsjs-connected-gallery
-              .strings=${this.strings}
+              .appState="${this.appState}"
               handle=${this.data.handle}
               objectType="place"
-              square
-              size="95"
-              radius="7"
               count="${this.data?.media_list?.length || 1}"
             ></grampsjs-connected-gallery>
           `
-        : ''
-    }
+        : ''}
 
-    <div class="right">
-      <mwc-button
-        @click="${this._handleDetailClick}"
-      >${this._('Show Details')}</mwc-button>
-    </div>
+      <div class="right">
+        <md-text-button @click="${this._handleDetailClick}"
+          >${this._('Show Details')}</md-text-button
+        >
+      </div>
     `
   }
 

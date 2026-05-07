@@ -64,7 +64,7 @@ export class GrampsjsViewNewSource extends GrampsjsViewNewObject {
       <grampsjs-form-select-object-list
         id="reporef"
         objectType="repository"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
 
       <div class="${classMap({hidden: !this._hasRepoRef()})}">
@@ -84,19 +84,21 @@ export class GrampsjsViewNewSource extends GrampsjsViewNewObject {
             ?disabled="${!this._hasRepoRef()}"
             id="source-media-type"
             heading=" "
-            .strings="${this.strings}"
+            .appState="${this.appState}"
             ?loadingTypes="${this.loadingTypes}"
             typeName="source_media_types"
-            defaultTypeName="Unknown"
+            defaultValue="Unknown"
             .types="${this.types}"
             .typesLocale="${this.typesLocale}"
           >
           </grampsjs-form-select-type>
         </div>
+        ${this._renderTagsForm()}
+
         <div class="spacer"></div>
         <grampsjs-form-private
           id="private"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
         ></grampsjs-form-private>
 
         ${this.renderButtons()}
@@ -143,7 +145,7 @@ export class GrampsjsViewNewSource extends GrampsjsViewNewObject {
       if (this._hasRepoRef()) {
         const repoRef = {
           ...this.data.reporef_list[0],
-          media_type: {_class: 'SourceMediaType', string: e.detail.data},
+          media_type: e.detail.data,
         }
         this.data = {
           ...this.data,

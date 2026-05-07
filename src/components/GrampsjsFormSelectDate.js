@@ -8,17 +8,19 @@ import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {getSortval, dateIsEmpty} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {getSortval, dateIsEmpty, emptyDate} from '../util.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 const modifiers = {
   0: 'Regular',
-  1: 'Before',
-  2: 'After',
-  3: 'About',
+  1: 'before',
+  2: 'after',
+  3: 'about',
   4: 'Range',
   5: 'Span',
   //  6: 'Text only'
+  7: 'from',
+  8: 'to',
 }
 
 const qualifiers = {
@@ -27,14 +29,7 @@ const qualifiers = {
   2: 'Calculated',
 }
 
-const dataDefault = {
-  _class: 'Date',
-  calendar: 0,
-  modifier: 0,
-  quality: 0,
-  dateval: [0, 0, 0, false],
-  sortval: 0,
-}
+const dataDefault = {...emptyDate}
 
 function parseDate(s) {
   if (!s) {
@@ -46,7 +41,7 @@ function parseDate(s) {
   return [y, m, d]
 }
 
-class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -56,8 +51,10 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
         }
 
         mwc-icon-button {
-          color: rgba(0, 0, 0, 0.5);
-          --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.25);
+          color: var(--grampsjs-body-font-color-50);
+          --mdc-theme-text-disabled-on-light: var(
+            --grampsjs-body-font-color-25
+          );
         }
 
         span.dateform {
@@ -91,6 +88,7 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
         id="select-modifier"
         label="${this._('Type')}"
         @change="${this.handleType}"
+        fixedMenuPosition
       >
         ${Object.keys(modifiers).map(
           modifier => html`
@@ -110,6 +108,7 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
         id="select-quality"
         label="${this._('Quality')}"
         @change="${this.handleQuality}"
+        fixedMenuPosition
       >
         ${Object.keys(qualifiers).map(
           qualifier => html`
@@ -140,6 +139,7 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
         id="month1"
         label="${this._('Month')}"
         style="width: 6em;"
+        fixedMenuPosition
       >${[...Array(13).keys()].map(
         idx => html`
           <mwc-list-item
@@ -159,6 +159,7 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
         id="day1"
         label="${this._('Day')}"
         style="width: 6em;"
+        fixedMenuPosition
       >${[...Array(32).keys()].map(
         idx => html`
           <mwc-list-item
@@ -208,6 +209,7 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
         id="month2"
         label="${this._('Month')}"
         style="width: 6em;"
+        fixedMenuPosition
       >${[...Array(13).keys()].map(
         idx => html`
           <mwc-list-item
@@ -227,6 +229,7 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
         id="day2"
         label="${this._('Day')}"
         style="width: 6em;"
+        fixedMenuPosition
       >${[...Array(32).keys()].map(
         idx => html`
           <mwc-list-item
@@ -265,7 +268,7 @@ class GrampsjsFormSelectDate extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _hasSecondDate() {
-    return this.data?.modifier >= 4
+    return this.data?.modifier === 4 || this.data?.modifier === 5
   }
 
   reset() {

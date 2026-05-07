@@ -4,12 +4,14 @@ Base class for Components that fetch data when first loaded
 */
 
 import {LitElement} from 'lit'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {apiGet} from '../api.js'
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
-export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
-  LitElement
+import {fireEvent} from '../util.js'
+
+export class GrampsjsConnectedComponent extends GrampsjsStaleDataMixin(
+  GrampsjsAppStateMixin(LitElement)
 ) {
   static get styles() {
     return [sharedStyles]
@@ -21,8 +23,13 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
       error: {type: Boolean},
       loadWithoutLocale: {type: Boolean},
       _errorMessage: {type: String},
+      _errorDetail: {type: Object},
       _data: {type: Object},
       _oldUrl: {type: String},
+      method: {type: String},
+      postData: {type: Object},
+      _oldPostData: {type: Object},
+      active: {type: Boolean},
     }
   }
 
@@ -33,29 +40,42 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
     this.renderOnError = false
     this.loadWithoutLocale = false
     this._errorMessage = ''
+    this._errorDetail = {}
+    this._errorDispatched = false
     this._data = {}
     this._oldUrl = ''
-    this._boundUpdateData = this._updateData.bind(this)
-    this._boundsHandleOnline = this._handleOnline.bind(this)
+    this._boundHandleOnline = this._handleOnline.bind(this)
+    this.method = 'GET'
+    this.postData = {}
+    this._oldPostData = {}
+    this.active = true
   }
 
   render() {
-    if (this.error) {
-      this.dispatchEvent(
-        new CustomEvent('grampsjs:error', {
-          bubbles: true,
-          composed: true,
-          detail: {message: this._errorMessage},
-        })
-      )
-      if (!this.renderOnError) {
-        return ''
-      }
+    if (this.error && !this.renderOnError) {
+      return ''
     }
     if (this.loading) {
       return this.renderLoading()
     }
     return this.renderContent()
+  }
+
+  updated(changed) {
+    if (
+      changed.has('error') ||
+      changed.has('_errorMessage') ||
+      changed.has('_errorDetail')
+    ) {
+      this._errorDispatched = false
+    }
+    if (this.error && !this._errorDispatched) {
+      this._errorDispatched = true
+      fireEvent(this, 'grampsjs:error', {
+        message: this._errorMessage,
+        detail: this._errorDetail ?? {},
+      })
+    }
   }
 
   renderLoading() {
@@ -68,14 +88,18 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
 
   update(changed) {
     super.update(changed)
-    if (this.getUrl() !== this._oldUrl) {
+    if (this.method !== 'POST' && this.getUrl() !== this._oldUrl) {
+      this._updateData()
+    }
+    if (this.method === 'POST' && this.postData !== this._oldPostData) {
       this._updateData()
     }
   }
 
-  _updateData(clearData = true) {
+  async _updateData(clearData = true) {
     const url = this.getUrl()
     this._oldUrl = url
+    this._oldPostData = this.postData
     if (url === '') {
       return
     }
@@ -83,16 +107,47 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
       this._clearData()
     }
     this.loading = true
-    apiGet(url).then(data => {
-      this.loading = false
-      if ('data' in data) {
-        this._data = {data: data.data}
-        this.error = false
-      } else if ('error' in data) {
-        this.error = true
-        this._errorMessage = data.error
+    if (this.method === 'POST') {
+      if (Object.keys(this.postData).length > 0) {
+        await this._updatePostData(url)
       }
+    } else {
+      await this._updateGetData(url)
+    }
+    this.loading = false
+  }
+
+  async _updateGetData(url) {
+    const data = await this.appState.apiGet(url)
+    if ('data' in data) {
+      this._data = {data: data.data}
+      this.error = false
+      this._fireUpdateEvent()
+    } else if ('error' in data) {
+      this.error = true
+      this._errorMessage = data.error
+      this._errorDetail = data.errorDetail ?? {}
+    }
+  }
+
+  async _updatePostData(url) {
+    const data = await this.appState.apiPost(url, this.postData, {
+      dbChanged: false,
+      saving: false,
     })
+    if ('data' in data) {
+      this._data = {data: data.data}
+      this.error = false
+      this._fireUpdateEvent()
+    } else if ('error' in data) {
+      this.error = true
+      this._errorMessage = data.error
+      this._errorDetail = data.errorDetail ?? {}
+    }
+  }
+
+  _fireUpdateEvent() {
+    fireEvent(this, 'connected-component:updated', {data: this._data})
   }
 
   _clearData() {
@@ -105,15 +160,33 @@ export class GrampsjsConnectedComponent extends GrampsjsTranslateMixin(
     }
   }
 
+  handleUpdateStaleData() {
+    // reload with 0.1 second delay so the views are prioritized
+    setTimeout(() => this._updateData(), 100)
+  }
+
+  firstUpdated() {
+    // the active property, used for lazy loading of stale data, is set
+    // based on visibility of the element in the viewport
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          this.active = true
+        } else {
+          this.active = false
+        }
+      })
+    })
+    observer.observe(this)
+  }
+
   connectedCallback() {
     super.connectedCallback()
-    window.addEventListener('db:changed', this._boundUpdateData)
     window.addEventListener('online', this._boundHandleOnline)
   }
 
   disconnectedCallback() {
     window.removeEventListener('online', this._boundHandleOnline)
-    window.removeEventListener('db:changed', this._boundUpdateData)
     super.disconnectedCallback()
   }
 }

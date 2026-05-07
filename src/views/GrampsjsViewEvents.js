@@ -5,9 +5,11 @@ Events list view
 import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
+import '../components/GrampsjsFilterText.js'
 import '../components/GrampsjsFilterType.js'
 import '../components/GrampsjsFilterYears.js'
 import '../components/GrampsjsFilterTags.js'
+import '../components/GrampsjsFilterPrivate.js'
 
 export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
   constructor() {
@@ -24,7 +26,7 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
 
   get _fetchUrl() {
     return `/api/events/?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=self&keys=gramps_id,profile,change`
   }
 
@@ -41,7 +43,7 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
   renderFilters() {
     return html`
       <grampsjs-filter-years
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         dateIndex="1"
         numArgs="4"
         label="${this._('Event Year')}"
@@ -49,19 +51,40 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
       ></grampsjs-filter-years>
 
       <grampsjs-filter-type
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         label="${this._('Event Type')}"
         typeName="event_types"
       ></grampsjs-filter-type>
 
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Description"
+        rule="HasData"
+        .valueIndex=${3}
+        .numArgs=${4}
+      ></grampsjs-filter-text>
+
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Place"
+        rule="HasData"
+        .valueIndex=${2}
+        .numArgs=${4}
+      ></grampsjs-filter-text>
+
       <grampsjs-filter-properties
         hasCount
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .props="${filterCounts.events}"
         label="${this._('Associations')}"
       ></grampsjs-filter-properties>
 
-      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
+      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
+
+      <grampsjs-filter-private
+        .appState="${this.appState}"
+        rule="EventPrivate"
+      ></grampsjs-filter-private>
     `
   }
 
@@ -71,8 +94,8 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
       grampsId: row.gramps_id,
       type: row?.profile?.type,
       date: row?.profile?.date,
-      place: row?.profile?.place,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+      place: row?.profile?.place_name || row?.profile?.place,
+      change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
     return formattedRow
   }

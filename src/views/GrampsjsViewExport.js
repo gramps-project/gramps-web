@@ -4,12 +4,7 @@ import '@material/mwc-button'
 import '@material/mwc-icon'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {
-  apiGet,
-  apiPost,
-  getExporterDownloadUrl,
-  getPermissions,
-} from '../api.js'
+import {getExporterDownloadUrl, getPermissions} from '../api.js'
 
 export class GrampsjsViewExport extends GrampsjsView {
   static get styles() {
@@ -26,7 +21,7 @@ export class GrampsjsViewExport extends GrampsjsView {
 
         mwc-icon.inline {
           --mdc-icon-size: 1em;
-          color: rgba(0, 0, 0, 0.5);
+          color: var(--grampsjs-body-font-color-50);
         }
       `,
     ]
@@ -81,6 +76,7 @@ export class GrampsjsViewExport extends GrampsjsView {
           class="button"
           size="20"
           pollInterval="0.2"
+          .appState="${this.appState}"
           @task:complete="${this._handleTaskComplete}"
         ></grampsjs-task-progress-indicator>
         <a
@@ -108,6 +104,7 @@ export class GrampsjsViewExport extends GrampsjsView {
           class="button"
           size="20"
           pollInterval="0.2"
+          .appState="${this.appState}"
           @task:complete="${this._handleMediaTaskComplete}"
         ></grampsjs-task-progress-indicator>
         <a
@@ -182,7 +179,7 @@ export class GrampsjsViewExport extends GrampsjsView {
     prog.reset()
     prog.open = true
     const url = this._getQueryUrl()
-    const data = await apiPost(url)
+    const data = await this.appState.apiPost(url)
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -202,7 +199,7 @@ export class GrampsjsViewExport extends GrampsjsView {
     prog.reset()
     prog.open = true
     const url = '/api/media/archive/'
-    const data = await apiPost(url)
+    const data = await this.appState.apiPost(url)
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -230,7 +227,7 @@ export class GrampsjsViewExport extends GrampsjsView {
 
   async _fetchData() {
     this.loading = true
-    const data = await apiGet('/api/exporters/')
+    const data = await this.appState.apiGet('/api/exporters/')
     this.loading = false
     if ('data' in data) {
       this.error = false
@@ -242,15 +239,13 @@ export class GrampsjsViewExport extends GrampsjsView {
   }
 
   firstUpdated() {
-    if ('__lang__' in this.strings) {
-      // don't load before we have strings
-      this._fetchData(this.strings.__lang__)
-    }
+    super.firstUpdated()
     const permissions = getPermissions()
     this._viewPrivate = permissions.includes('ViewPrivate')
   }
 
   updated(changed) {
+    super.updated(changed)
     if (changed.has('_downloadUrl') && this._downloadUrl) {
       this._startDownload()
     }
@@ -259,17 +254,8 @@ export class GrampsjsViewExport extends GrampsjsView {
     }
   }
 
-  connectedCallback() {
-    super.connectedCallback()
-    window.addEventListener('language:changed', e =>
-      this._handleLanguageChanged(e)
-    )
-  }
-
-  _handleLanguageChanged(e) {
-    if (this._hasFirstUpdated) {
-      this._fetchData(e.detail.lang)
-    }
+  _onLangChanged() {
+    this._fetchData()
   }
 }
 

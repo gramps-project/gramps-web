@@ -3,12 +3,14 @@ Element for selecting a Gramps type
 */
 
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-button'
-import '@material/mwc-icon'
+import {mdiUpload, mdiFile} from '@mdi/js'
+import '@material/web/button/filled-button.js'
+import '@material/web/button/outlined-button.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import './GrampsjsIcon.js'
 
 async function parseJsonFile(file) {
   return new Promise((resolve, reject) => {
@@ -26,7 +28,7 @@ async function parseJsonFile(file) {
   })
 }
 
-class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -41,8 +43,7 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
         }
 
         .file-icon {
-          color: rgba(0, 0, 0, 0.6);
-          --mdc-icon-size: 100px;
+          color: var(--grampsjs-body-font-color-60);
         }
 
         span.filename {
@@ -56,7 +57,7 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
 
   static get properties() {
     return {
-      file: {type: Object},
+      files: {type: Array},
       imageUrl: {type: String},
       preview: {type: Boolean},
       filename: {type: Boolean},
@@ -64,12 +65,18 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
       outlined: {type: Boolean},
       label: {type: String},
       accept: {type: String},
+      multiple: {type: Boolean},
+      _isVisible: {type: Boolean},
     }
+  }
+
+  get file() {
+    return this.files[0]
   }
 
   constructor() {
     super()
-    this.file = {}
+    this.files = []
     this.imageUrl = ''
     this.preview = false
     this.filename = false
@@ -77,6 +84,8 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
     this.outlined = false
     this.label = ''
     this.accept = undefined
+    this.multiple = false
+    this._isVisible = false
   }
 
   render() {
@@ -85,30 +94,47 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
         id="input-upload"
         type="file"
         accept="${this.accept}"
+        ?multiple="${this.multiple}"
         hidden
         @change="${this._handleInputChange}"
       />
-      <mwc-button
-        ?raised="${!this.outlined}"
-        ?outlined="${this.outlined}"
-        ?disabled="${this.disabled}"
-        icon="upload"
-        @click="${this._handleClickUpload}"
-      >
-        ${this.label || this._('Select a file')}
-      </mwc-button>
+      ${this.outlined
+        ? html`<md-outlined-button
+            ?disabled="${this.disabled}"
+            @click="${this._handleClickUpload}"
+          >
+            <grampsjs-icon
+              slot="icon"
+              path="${mdiUpload}"
+              color="currentColor"
+            ></grampsjs-icon>
+            ${this.label ||
+            (this.multiple ? this._('Select files') : this._('Select a file'))}
+          </md-outlined-button>`
+        : html`<md-filled-button
+            ?disabled="${this.disabled}"
+            @click="${this._handleClickUpload}"
+          >
+            <grampsjs-icon
+              slot="icon"
+              path="${mdiUpload}"
+              color="currentColor"
+            ></grampsjs-icon>
+            ${this.label ||
+            (this.multiple ? this._('Select files') : this._('Select a file'))}
+          </md-filled-button>`}
       ${this.filename ? this.renderFileName() : ''}
       ${this.preview ? this.renderPreview() : ''}
     `
   }
 
   renderPreview() {
-    if (!this.file.name) {
+    if (!this.files[0]?.name) {
       return ''
     }
     return html`
       <div id="preview">
-        ${this.file.type.startsWith('image')
+        ${this.files[0].type.startsWith('image')
           ? this.renderImage()
           : this.renderIcon()}
       </div>
@@ -116,7 +142,7 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
   }
 
   renderFileName() {
-    return html`<span class="filename">${this.file.name}</span>`
+    return html`<span class="filename">${this.files[0]?.name || ''}</span>`
   }
 
   renderImage() {
@@ -128,7 +154,13 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
 
   // eslint-disable-next-line class-methods-use-this
   renderIcon() {
-    return html` <mwc-icon class="file-icon">insert_drive_file</mwc-icon> `
+    return html`<grampsjs-icon
+      class="file-icon"
+      path="${mdiFile}"
+      height="100"
+      width="100"
+      color="var(--grampsjs-body-font-color-60)"
+    ></grampsjs-icon>`
   }
 
   _handleClickUpload() {
@@ -140,13 +172,22 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
     const input = this.shadowRoot.getElementById('input-upload')
     if (input?.files?.length) {
       this.imageUrl = ''
-      ;[this.file] = input.files
+      this.files = Array.from(input.files)
+      this._processPreview()
+      this.handleChange()
+    }
+  }
+
+  _processPreview() {
+    if (this.files[0]?.type.startsWith('image')) {
       const reader = new FileReader()
       reader.onload = () => {
         this.imageUrl = reader.result
       }
-      reader.readAsDataURL(this.file)
-      this.handleChange()
+      reader.readAsDataURL(this.files[0])
+    } else {
+      // Clear imageUrl if first file is not an image
+      this.imageUrl = ''
     }
   }
 
@@ -156,15 +197,85 @@ class GrampsjsFormUpload extends GrampsjsTranslateMixin(LitElement) {
   }
 
   reset() {
-    this.file = {}
+    this.files = []
     this.imageUrl = ''
     const input = this.shadowRoot.getElementById('input-upload')
     input.value = ''
   }
 
+  removeFile(index) {
+    this.files = this.files.filter((_, i) => i !== index)
+    if (this.files.length > 0) {
+      this._processPreview()
+    } else {
+      this.imageUrl = ''
+    }
+    this.handleChange()
+  }
+
   handleChange() {
-    fireEvent(this, 'formdata:changed', {data: this.file})
+    fireEvent(this, 'formdata:changed', {
+      data: this.files[0] || {},
+      files: this.files,
+    })
+  }
+
+  firstUpdated() {
+    // monitor if the form is visible
+    // used for lazy loading of pasted images
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          this._isVisible = true
+        } else {
+          this._isVisible = false
+        }
+      })
+    })
+    observer.observe(this)
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this._boundHandlePaste = this._handlePaste.bind(this)
+    window.addEventListener('paste', this._boundHandlePaste)
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    if (this._boundHandlePaste) {
+      window.removeEventListener('paste', this._boundHandlePaste)
+    }
+  }
+
+  _handlePaste(event) {
+    if (!this._isVisible) {
+      return
+    }
+    const {items} = event.clipboardData
+    if (!items) {
+      return
+    }
+    // prevent other forms down on the same page from also handling the paste
+    event.stopImmediatePropagation()
+    const pastedFiles = []
+    for (const item of items) {
+      if (item.kind === 'file') {
+        const file = item.getAsFile()
+        if (file) {
+          pastedFiles.push(file)
+        }
+      }
+    }
+    if (pastedFiles.length > 0) {
+      if (this.multiple) {
+        this.files = [...this.files, ...pastedFiles]
+      } else {
+        this.files = [pastedFiles[0]]
+      }
+      this._processPreview()
+      this.handleChange()
+    }
   }
 }
-
 window.customElements.define('grampsjs-form-upload', GrampsjsFormUpload)

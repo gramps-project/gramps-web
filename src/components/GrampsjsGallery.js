@@ -1,40 +1,68 @@
 import {LitElement, css, html} from 'lit'
-import '@material/mwc-button'
-import '@material/mwc-icon'
-import '@material/mwc-icon-button'
+import {
+  mdiArrowLeft,
+  mdiArrowRight,
+  mdiDelete,
+  mdiLinkPlus,
+  mdiPlus,
+} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
-
-import './GrampsJsImage.js'
-import './GrampsjsLightbox.js'
+import './GrampsjsImg.js'
+import './GrampsjsIcon.js'
 import '../views/GrampsjsViewMediaLightbox.js'
 import './GrampsjsFormMediaRef.js'
 import './GrampsjsFormNewMedia.js'
+import '@material/web/iconbutton/icon-button.js'
 import {fireEvent} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
+        .gallery {
+          display: grid;
+          grid-template-columns: repeat(
+            auto-fill,
+            minmax(max(100px, 15%), 1fr)
+          );
+          gap: 4px;
+          margin-top: 8px;
+        }
+
         .tile {
-          margin: 3px;
-          float: left;
           cursor: pointer;
+          border-radius: 6px;
+          overflow: hidden;
+          aspect-ratio: 1;
           position: relative;
         }
 
-        .clear {
-          clear: both;
-          padding-bottom: 2em;
+        .tile grampsjs-img {
+          position: absolute;
+          inset: 0;
         }
 
-        .delbtn {
+        .tile-overlay {
           position: absolute;
-          right: 5px;
-          bottom: 5px;
-          opacity: 0.7;
+          bottom: 4px;
+          right: 4px;
+          display: flex;
+          gap: 2px;
+        }
+
+        .tile-overlay md-icon-button {
+          --md-icon-button-container-width: 32px;
+          --md-icon-button-container-height: 32px;
+          --md-icon-button-icon-size: 18px;
+          background: rgba(255, 255, 255, 0.5);
+          border-radius: 50%;
+        }
+
+        .edit-actions {
+          margin-top: 8px;
         }
       `,
     ]
@@ -48,9 +76,6 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
       edit: {type: Boolean},
       editRect: {type: Boolean},
       _lightboxSelected: {type: Number},
-      radius: {type: Number},
-      size: {type: Number},
-      square: {type: Boolean},
     }
   }
 
@@ -62,20 +87,32 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
     this.editRect = false
     this.dialogContent = ''
     this._lightboxSelected = 0
-    this.radius = 0
-    this.size = 200
-    this.square = false
   }
 
   render() {
     return html`
-      <div class="tiles">
-        ${this.media.map((mediaObj, i, arr) =>
-          this._renderThumbnail(i, arr.length)
-        )}
+      <div class="gallery">
+        ${this.media.map((mediaObj, i) => this._renderThumbnail(i))}
       </div>
 
-      <div class="clear"></div>
+      ${this.edit
+        ? html`
+            <div class="edit-actions">
+              <md-icon-button @click="${this._handleShareClick}">
+                <grampsjs-icon
+                  path="${mdiLinkPlus}"
+                  color="var(--mdc-theme-secondary)"
+                ></grampsjs-icon>
+              </md-icon-button>
+              <md-icon-button @click="${this._handleAddClick}">
+                <grampsjs-icon
+                  path="${mdiPlus}"
+                  color="var(--mdc-theme-secondary)"
+                ></grampsjs-icon>
+              </md-icon-button>
+            </div>
+          `
+        : ''}
 
       <grampsjs-view-media-lightbox
         active
@@ -87,27 +124,76 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
         handle="${this.media[this._lightboxSelected]?.handle}"
         ?hideLeftArrow="${this._lightboxSelected === 0}"
         ?hideRightArrow="${this._lightboxSelected === this.media.length - 1}"
-        .strings="${this.strings}"
-      >
-      </grampsjs-view-media-lightbox>
+        .appState="${this.appState}"
+      ></grampsjs-view-media-lightbox>
 
-      ${this.edit
-        ? html`
-            <div>
-              <mwc-icon-button
-                class="edit"
-                icon="add_link"
-                @click="${this._handleShareClick}"
-              ></mwc-icon-button>
-              <mwc-icon-button
-                class="edit"
-                icon="add"
-                @click="${this._handleAddClick}"
-              ></mwc-icon-button>
-              ${this.dialogContent}
-            </div>
-          `
-        : ''}
+      ${this.dialogContent}
+    `
+  }
+
+  _renderThumbnail(i) {
+    const {handle, mime, checksum} = this.media[i]
+    const {rect} = this.mediaRef[i]
+    return html`
+      <div class="tile">
+        <grampsjs-img
+          square
+          cover
+          handle="${handle}"
+          size="300"
+          .rect="${rect || []}"
+          mime="${mime}"
+          checksum="${checksum}"
+          @click="${() => this._handleClick(i)}"
+        ></grampsjs-img>
+        ${this.edit
+          ? html`
+              <div class="tile-overlay">
+                ${i > 0
+                  ? html`
+                      <md-icon-button
+                        @click="${e => {
+                          e.stopPropagation()
+                          this._handleMediaRefLeft(this.mediaRef[i].ref)
+                        }}"
+                      >
+                        <grampsjs-icon
+                          path="${mdiArrowLeft}"
+                          color="var(--mdc-theme-secondary)"
+                        ></grampsjs-icon>
+                      </md-icon-button>
+                    `
+                  : ''}
+                ${i < this.media.length - 1
+                  ? html`
+                      <md-icon-button
+                        @click="${e => {
+                          e.stopPropagation()
+                          this._handleMediaRefRight(this.mediaRef[i].ref)
+                        }}"
+                      >
+                        <grampsjs-icon
+                          path="${mdiArrowRight}"
+                          color="var(--mdc-theme-secondary)"
+                        ></grampsjs-icon>
+                      </md-icon-button>
+                    `
+                  : ''}
+                <md-icon-button
+                  @click="${e => {
+                    e.stopPropagation()
+                    this._handleMediaRefDel(this.mediaRef[i].ref)
+                  }}"
+                >
+                  <grampsjs-icon
+                    path="${mdiDelete}"
+                    color="var(--mdc-theme-secondary)"
+                  ></grampsjs-icon>
+                </md-icon-button>
+              </div>
+            `
+          : ''}
+      </div>
     `
   }
 
@@ -149,53 +235,6 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
-  _renderThumbnail(i, length) {
-    const mediaObj = this.media[i]
-    const {handle, mime} = mediaObj
-    const {rect} = this.mediaRef[i]
-    return html`<div class="tile">
-      <grampsjs-img
-        ?square="${this.square}"
-        radius="${this.radius}"
-        handle="${handle}"
-        size="300"
-        displayHeight="${this.size}"
-        .rect="${rect || []}"
-        mime="${mime}"
-        @click="${() => this._handleClick(i)}"
-      ></grampsjs-img>
-      ${this.edit
-        ? html`
-            <div class="delbtn">
-              ${i === 0
-                ? ''
-                : html`
-                    <mwc-icon-button
-                      class="edit"
-                      icon="arrow_back"
-                      @click="${() =>
-                        this._handleMediaRefLeft(this.mediaRef[i].ref)}"
-                    ></mwc-icon-button>
-                  `}
-              ${i === length - 1
-                ? ''
-                : html` <mwc-icon-button
-                    class="edit"
-                    icon="arrow_forward"
-                    @click="${() =>
-                      this._handleMediaRefRight(this.mediaRef[i].ref)}"
-                  ></mwc-icon-button>`}
-              <mwc-icon-button
-                class="edit"
-                icon="delete"
-                @click="${() => this._handleMediaRefDel(this.mediaRef[i].ref)}"
-              ></mwc-icon-button>
-            </div>
-          `
-        : ''}
-    </div>`
-  }
-
   _handleMediaRefDel(handle) {
     fireEvent(this, 'edit:action', {action: 'delMediaRef', handle})
   }
@@ -213,10 +252,9 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
       <grampsjs-form-new-media
         @object:save="${this._handleNewMediaSave}"
         @object:cancel="${this._handleMediaRefCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         dialogTitle="${this._('Add a new media object')}"
-      >
-      </grampsjs-form-new-media>
+      ></grampsjs-form-new-media>
     `
   }
 
@@ -226,27 +264,26 @@ export class GrampsjsGallery extends GrampsjsTranslateMixin(LitElement) {
         new
         @object:save="${this._handleMediaRefSave}"
         @object:cancel="${this._handleMediaRefCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         objType="${this.objType}"
         dialogTitle=${this._('Select an existing media object')}
-      >
-      </grampsjs-form-mediaref>
+      ></grampsjs-form-mediaref>
     `
   }
 
   _handleNewMediaSave(e) {
+    e.preventDefault()
+    e.stopPropagation()
     const uploadForm = this.renderRoot.querySelector('grampsjs-form-new-media')
-    uploadForm.upload(false).then(data => {
+    uploadForm.upload(e.detail.data).then(data => {
       if ('data' in data) {
         fireEvent(this, 'edit:action', {
           action: 'addMediaRef',
           data: {ref: data.data.handle},
         })
       }
-      this.dialogContent = ''
     })
-    e.preventDefault()
-    e.stopPropagation()
+    this.dialogContent = ''
   }
 
   _handleMediaRefSave(e) {

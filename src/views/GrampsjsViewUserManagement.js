@@ -7,31 +7,26 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsUsers.js'
 import '../components/GrampsjsShareUrl.js'
 import '../components/GrampsjsChatPermissions.js'
-import {apiPost, apiPut, apiGet, getTreeId} from '../api.js'
 
 export class GrampsjsViewUserManagement extends GrampsjsView {
   static get styles() {
     return [
       super.styles,
       css`
-        :host {
-          margin: 0 15px;
-        }
-
         grampsjs-share-url {
           --mdc-icon-size: 18px;
           --mdc-icon-button-size: 32px;
           position: relative;
           top: -5px;
-          color: rgba(0, 0, 0, 0.4);
+          color: var(--grampsjs-body-font-color-40);
         }
 
         span.url {
           border-radius: 5px;
-          border: 1px solid #ddd;
+          border: 1px solid var(--grampsjs-body-font-color-15);
           font-size: 13px;
           padding: 6px 6px;
-          color: #444;
+          color: var(--grampsjs-body-font-color-75);
         }
       `,
     ]
@@ -53,7 +48,7 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
   // eslint-disable-next-line class-methods-use-this
   get _registerUrl() {
     const url = new URL(document.URL)
-    const tree = getTreeId()
+    const {tree} = this.appState.auth.claims
     return `${url.origin}/register/${tree}`
   }
 
@@ -61,7 +56,7 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
     return html`
       ${this.dbInfo?.server?.chat
         ? html`<grampsjs-chat-permissions
-            .strings=${this.strings}
+            .appState="${this.appState}"
           ></grampsjs-chat-permissions>`
         : ''}
       ${this.dbInfo?.server?.multi_tree
@@ -70,16 +65,18 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
             <span class="url">${this._registerUrl}</span>
             <grampsjs-share-url
               href="${this._registerUrl}"
+              .appState="${this.appState}"
             ></grampsjs-share-url>
           </p>`
         : ''}
 
       <grampsjs-users
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${this.userData}"
         ?ismulti="${!!this.dbInfo?.server?.multi_tree}"
         @user:updated="${this._handleUserChanged}"
         @user:added="${this._handleUserAdded}"
+        @user:deleted="${this._handleUserDeleted}"
         @user:added-multiple="${this._handleUsersAdded}"
       >
       </grampsjs-users>
@@ -109,8 +106,12 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
     })
   }
 
+  _handleUserDeleted(e) {
+    this._deleteUser(e.detail)
+  }
+
   async _handleUsersAdded(e) {
-    const res = await apiPost('/api/users/', e.detail)
+    const res = await this.appState.apiPost('/api/users/', e.detail)
     if ('error' in res) {
       this.error = true
       this._errorMessage = res.error
@@ -121,7 +122,7 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
   }
 
   _updateUser(username, payload) {
-    apiPut(`/api/users/${username}/`, payload).then(data => {
+    this.appState.apiPut(`/api/users/${username}/`, payload).then(data => {
       if ('error' in data) {
         this.error = true
         this._errorMessage = data.error
@@ -133,7 +134,19 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
   }
 
   _addUser(username, payload) {
-    apiPost(`/api/users/${username}/`, payload).then(data => {
+    this.appState.apiPost(`/api/users/${username}/`, payload).then(data => {
+      if ('error' in data) {
+        this.error = true
+        this._errorMessage = data.error
+      } else {
+        this.error = false
+        this._fetchUserData()
+      }
+    })
+  }
+
+  _deleteUser(username) {
+    this.appState.apiDelete(`/api/users/${username}/`).then(data => {
       if ('error' in data) {
         this.error = true
         this._errorMessage = data.error
@@ -146,7 +159,7 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
 
   _fetchUserData() {
     this.loading = true
-    apiGet('/api/users/').then(data => {
+    this.appState.apiGet('/api/users/').then(data => {
       if ('data' in data) {
         this.error = false
         this.userData = data.data

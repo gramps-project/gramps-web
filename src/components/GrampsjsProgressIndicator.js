@@ -5,22 +5,25 @@ import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsProgressIndicator extends LitElement {
+export class GrampsjsProgressIndicator extends GrampsjsAppStateMixin(
+  LitElement
+) {
   static get styles() {
     return [
       sharedStyles,
       css`
         .success {
-          color: #41ad49;
+          color: var(--grampsjs-alert-success-font-color);
         }
 
         .error {
-          color: #bf360c;
+          color: var(--grampsjs-alert-error-font-color);
         }
 
         .warn {
-          color: #f9a825;
+          color: var(--grampsjs-alert-warn-font-color);
         }
       `,
     ]
@@ -85,10 +88,17 @@ export class GrampsjsProgressIndicator extends LitElement {
     return html`
       <mwc-circular-progress
         indeterminate
-        style="--mdc-theme-primary: rgba(0, 0, 0, 0.5);"
+        id="progress-indeterminate"
+        style="--mdc-theme-primary: var(--grampsjs-body-font-color-50);"
         density="${this._getDensity()}"
       >
       </mwc-circular-progress>
+      ${this.infoMessage
+        ? html` <grampsjs-tooltip
+            for="progress-indeterminate"
+            content="${this.infoMessage}"
+          ></grampsjs-tooltip>`
+        : ''}
     `
   }
 

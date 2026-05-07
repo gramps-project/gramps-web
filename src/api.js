@@ -1,12 +1,18 @@
 // eslint-disable-next-line camelcase
 import jwt_decode from 'jwt-decode'
 
+import {fireEvent, normalizeRect} from './util.js'
+
 export const __APIHOST__ = 'http://localhost:5555'
+
+// Access token expiration time (15 minutes in milliseconds)
+export const ACCESS_TOKEN_EXPIRY_MS = 15 * 60 * 1000
 
 export function doLogout() {
   localStorage.removeItem('access_token')
   localStorage.removeItem('access_token_expires')
   localStorage.removeItem('refresh_token')
+  localStorage.removeItem('id_token')
   window.dispatchEvent(
     new CustomEvent('user:loggedout', {bubbles: true, composed: true})
   )
@@ -50,15 +56,6 @@ export function getPermissions() {
   }
 }
 
-export function isTokenFresh() {
-  const accessToken = localStorage.getItem('access_token')
-  if (!accessToken || accessToken === '1') {
-    return false
-  }
-  const claims = jwt_decode(accessToken) || {}
-  return !!claims.fresh
-}
-
 // grampsjs_settings are tree-independent settings
 // grampsjs_settings_tree are tree-dependendent settings
 // this function returns all of them without distinguishing
@@ -86,9 +83,7 @@ export function updateSettings(settings, tree = false) {
   const finalSettings = {...existingSettings, ...settings}
   const data = tree ? {[treeId]: finalSettings} : finalSettings
   localStorage.setItem(key, JSON.stringify(data))
-  window.dispatchEvent(
-    new CustomEvent('settings:changed', {bubbles: true, composed: true})
-  )
+  fireEvent(window, 'settings:changed')
 }
 
 export function getRecentObjects() {
@@ -142,6 +137,163 @@ export function setChatHistory(data) {
   localStorage.setItem('chatMessages', stringData)
 }
 
+// Editor draft management
+const DRAFT_EXPIRY_DAYS = 7
+
+export function saveDraft(key, data) {
+  const tree = getTreeId()
+  if (!tree || !key) {
+    return
+  }
+  try {
+    const stringDataAll = localStorage.getItem('grampsjs_editor_drafts')
+    const objectDataAll = stringDataAll ? JSON.parse(stringDataAll) : {}
+    const treeDrafts = objectDataAll[tree] || {}
+
+    treeDrafts[key] = {
+      data,
+      timestamp: Date.now(),
+    }
+
+    objectDataAll[tree] = treeDrafts
+    localStorage.setItem(
+      'grampsjs_editor_drafts',
+      JSON.stringify(objectDataAll)
+    )
+  } catch (e) {
+    // Silently fail if localStorage is full or unavailable
+    console.warn('Failed to save draft:', e)
+  }
+}
+
+export function getDraft(key) {
+  const tree = getTreeId()
+  if (!tree || !key) {
+    return null
+  }
+  try {
+    const stringDataAll = localStorage.getItem('grampsjs_editor_drafts')
+    if (!stringDataAll) {
+      return null
+    }
+    const objectDataAll = JSON.parse(stringDataAll)
+    const treeDrafts = objectDataAll[tree] || {}
+    const draft = treeDrafts[key]
+
+    if (!draft) {
+      return null
+    }
+
+    // Check if draft is expired
+    const ageInDays = (Date.now() - draft.timestamp) / (1000 * 60 * 60 * 24)
+    if (ageInDays > DRAFT_EXPIRY_DAYS) {
+      // Clean up expired draft
+      delete treeDrafts[key]
+      objectDataAll[tree] = treeDrafts
+      localStorage.setItem(
+        'grampsjs_editor_drafts',
+        JSON.stringify(objectDataAll)
+      )
+      return null
+    }
+
+    return draft
+  } catch (e) {
+    return null
+  }
+}
+
+export function clearDraft(key) {
+  const tree = getTreeId()
+  if (!tree || !key) {
+    return
+  }
+  try {
+    const stringDataAll = localStorage.getItem('grampsjs_editor_drafts')
+    if (!stringDataAll) {
+      return
+    }
+    const objectDataAll = JSON.parse(stringDataAll)
+    const treeDrafts = objectDataAll[tree] || {}
+
+    if (treeDrafts[key]) {
+      delete treeDrafts[key]
+      objectDataAll[tree] = treeDrafts
+      localStorage.setItem(
+        'grampsjs_editor_drafts',
+        JSON.stringify(objectDataAll)
+      )
+    }
+  } catch (e) {
+    // Silently fail
+  }
+}
+
+export function clearDraftsWithPrefix(prefix) {
+  const tree = getTreeId()
+  if (!tree || !prefix) {
+    return
+  }
+  try {
+    const stringDataAll = localStorage.getItem('grampsjs_editor_drafts')
+    if (!stringDataAll) {
+      return
+    }
+    const objectDataAll = JSON.parse(stringDataAll)
+    const treeDrafts = objectDataAll[tree] || {}
+
+    // Delete all keys that start with the prefix
+    const keysToDelete = []
+    Object.keys(treeDrafts).forEach(key => {
+      if (key.startsWith(prefix)) {
+        keysToDelete.push(key)
+      }
+    })
+
+    if (keysToDelete.length > 0) {
+      keysToDelete.forEach(key => {
+        delete treeDrafts[key]
+      })
+      objectDataAll[tree] = treeDrafts
+      localStorage.setItem(
+        'grampsjs_editor_drafts',
+        JSON.stringify(objectDataAll)
+      )
+    }
+  } catch (e) {
+    // Silently fail
+  }
+}
+
+export function cleanOldDrafts() {
+  try {
+    const stringDataAll = localStorage.getItem('grampsjs_editor_drafts')
+    if (!stringDataAll) {
+      return
+    }
+    const objectDataAll = JSON.parse(stringDataAll)
+    const cutoffTime = Date.now() - DRAFT_EXPIRY_DAYS * 24 * 60 * 60 * 1000
+
+    // Clean all trees
+    Object.keys(objectDataAll).forEach(treeId => {
+      const treeDrafts = objectDataAll[treeId] || {}
+      Object.keys(treeDrafts).forEach(key => {
+        if (treeDrafts[key].timestamp < cutoffTime) {
+          delete treeDrafts[key]
+        }
+      })
+      objectDataAll[treeId] = treeDrafts
+    })
+
+    localStorage.setItem(
+      'grampsjs_editor_drafts',
+      JSON.stringify(objectDataAll)
+    )
+  } catch (e) {
+    // Silently fail
+  }
+}
+
 export async function apiResetPassword(username) {
   try {
     const resp = await fetch(
@@ -153,6 +305,12 @@ export async function apiResetPassword(username) {
         },
       }
     )
+    let resJson
+    try {
+      resJson = await resp.json()
+    } catch (error) {
+      resJson = {}
+    }
     if (resp.status === 404) {
       throw new Error('User not found or user has no e-mail address.')
     }
@@ -162,11 +320,94 @@ export async function apiResetPassword(username) {
       )
     }
     if (resp.status !== 201 && resp.status !== 202) {
-      throw new Error(resp.statusText || `Error ${resp.status}`)
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
     }
     return {}
   } catch (error) {
     return {error: error.message}
+  }
+}
+
+export async function apiGetOIDCConfig() {
+  try {
+    const resp = await fetch(`${__APIHOST__}/api/oidc/config/`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+    if (!resp.ok) {
+      let resJson
+      try {
+        resJson = await resp.json()
+      } catch {
+        resJson = {}
+      }
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
+    }
+    return await resp.json()
+  } catch (error) {
+    return {error: error.message}
+  }
+}
+
+export async function apiOIDCLogin(providerId) {
+  try {
+    if (!providerId) {
+      throw new Error('Provider ID is required')
+    }
+    window.location.href = `${__APIHOST__}/api/oidc/login/?provider=${encodeURIComponent(
+      providerId
+    )}`
+    return {success: true}
+  } catch (error) {
+    return {error: error.message}
+  }
+}
+
+export async function apiGetOIDCLogoutUrl(
+  providerId,
+  idToken,
+  postLogoutRedirectUri
+) {
+  try {
+    if (!providerId) {
+      throw new Error('Provider ID is required')
+    }
+    const params = new URLSearchParams({provider: providerId})
+    if (idToken) {
+      params.append('id_token', idToken)
+    }
+    if (postLogoutRedirectUri) {
+      params.append('post_logout_redirect_uri', postLogoutRedirectUri)
+    }
+    const resp = await fetch(
+      `${__APIHOST__}/api/oidc/logout/?${params.toString()}`,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+        },
+      }
+    )
+    let resJson
+    try {
+      resJson = await resp.json()
+    } catch (error) {
+      resJson = {}
+    }
+    if (!resp.ok) {
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
+    }
+    return resJson
+  } catch (error) {
+    return {error: error.message, logout_url: null}
   }
 }
 
@@ -197,7 +438,9 @@ export async function apiRegisterUser(
       throw new Error('Username or e-mail already taken.')
     }
     if (resp.status !== 201) {
-      throw new Error(resJson?.error?.message || `Error ${resp.status}`)
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
     }
     return {}
   } catch (error) {
@@ -218,7 +461,15 @@ export async function apiGetTokens(username, password) {
     if (resp.status === 401 || resp.status === 403) {
       throw new Error('Wrong username or password')
     } else if (resp.status !== 200) {
-      throw new Error(resp.statusText || `Error ${resp.status}`)
+      let resJson
+      try {
+        resJson = await resp.json()
+      } catch {
+        resJson = {}
+      }
+      throw new Error(
+        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
+      )
     }
     const data = await resp.json()
     if (data.access_token === undefined) {
@@ -227,198 +478,13 @@ export async function apiGetTokens(username, password) {
     if (data.refresh_token === undefined) {
       return {error: 'Refresh token missing in response'}
     }
-    const expires = Date.now() + 15 * 60 * 1000
+    const expires = Date.now() + ACCESS_TOKEN_EXPIRY_MS
     storeAuthToken(data.access_token, expires)
     storeRefreshToken(data.refresh_token)
     return {}
   } catch (error) {
     return {error: error.message}
   }
-}
-
-export async function apiRefreshAuthToken(attempts = 3) {
-  const refreshToken = localStorage.getItem('refresh_token')
-  if (refreshToken === null) {
-    return {error: 'No refresh token found!'}
-  }
-  try {
-    const resp = await fetch(`${__APIHOST__}/api/token/refresh/`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${refreshToken}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-    if (resp.status === 403 || resp.status === 422) {
-      doLogout()
-      throw new Error('Failed refreshing token')
-    }
-    // handle 429 too-many-attempts
-    if (resp.status === 429 && attempts > 0) {
-      // retry after 1s
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      return apiRefreshAuthToken(attempts - 1)
-    }
-    const data = await resp.json()
-    if (data.access_token === undefined) {
-      throw new Error('Access token missing in response')
-    }
-    const expires = Date.now() + 15 * 60 * 1000
-    storeAuthToken(data.access_token, expires)
-    return {}
-  } catch (error) {
-    return {error: error.message}
-  }
-}
-
-export async function apiGet(endpoint, isJson = true) {
-  const accessToken = localStorage.getItem('access_token')
-  let headers = {}
-  if (accessToken !== null) {
-    headers = {
-      Authorization: `Bearer ${accessToken}`,
-    }
-  }
-  try {
-    const resp = await fetch(`${__APIHOST__}${endpoint}`, {
-      method: 'GET',
-      headers,
-    })
-    let resJson
-    try {
-      resJson = await resp.json()
-    } catch (error) {
-      resJson = {}
-    }
-    if (resp.status === 401) {
-      const refreshToken = localStorage.getItem('refresh_token')
-      if (refreshToken === null) {
-        throw new Error('Missing refresh token')
-      }
-      const refreshResp = await apiRefreshAuthToken()
-      if ('error' in refreshResp) {
-        throw new Error(refreshResp.error)
-      } else {
-        return apiGet(endpoint, isJson)
-      }
-    }
-    if (resp.status === 403) {
-      throw new Error('Authorization error')
-    }
-    if (resp.status !== 200) {
-      throw new Error(
-        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
-      )
-    }
-    if (isJson) {
-      return {
-        data: resJson,
-        total_count: resp.headers.get('X-Total-Count'),
-        etag: resp.headers.get('ETag'),
-      }
-    }
-    return {
-      data: await resp.text(),
-    }
-  } catch (error) {
-    if (error instanceof TypeError) {
-      return {error: 'Network error'}
-    }
-    return {error: error.message}
-  }
-}
-
-async function apiPutPost(
-  method,
-  endpoint,
-  payload,
-  isJson = true,
-  dbChanged = true,
-  requireFresh = false
-) {
-  const accessToken = localStorage.getItem('access_token')
-  const headers = {Accept: 'application/json'}
-  if (accessToken !== null) {
-    headers.Authorization = `Bearer ${accessToken}`
-  }
-  if (isJson) {
-    headers['Content-Type'] = 'application/json'
-  }
-  try {
-    const resp = await fetch(`${__APIHOST__}${endpoint}`, {
-      method,
-      headers,
-      body: isJson ? JSON.stringify(payload) : payload,
-    })
-    let resJson
-    try {
-      resJson = await resp.json()
-    } catch (error) {
-      resJson = {}
-    }
-    if (resp.status === 401) {
-      if (requireFresh) {
-        throw new Error(resJson.message)
-      }
-      const refreshToken = localStorage.getItem('refresh_token')
-      if (refreshToken === null) {
-        throw new Error('Missing refresh token')
-      }
-      const refreshResp = await apiRefreshAuthToken()
-      if ('error' in refreshResp) {
-        throw new Error(refreshResp.error)
-      } else {
-        return apiPutPost(method, endpoint, payload, isJson, dbChanged)
-      }
-    }
-    if (resp.status === 403) {
-      throw new Error('Not authorized')
-    }
-    if (resp.status !== 201 && resp.status !== 200 && resp.status !== 202) {
-      throw new Error(
-        resJson?.error?.message || resp.statusText || `Error ${resp.status}`
-      )
-    }
-    if (dbChanged) {
-      window.dispatchEvent(
-        new CustomEvent('db:changed', {bubbles: true, composed: true})
-      )
-    }
-    if (resp.status === 202 && 'task' in resJson) {
-      return resJson
-    }
-    return {
-      data: resJson,
-      total_count: resp.headers.get('X-Total-Count'),
-      etag: resp.headers.get('ETag'),
-    }
-  } catch (error) {
-    return {error: error.message}
-  }
-}
-
-export async function apiPut(
-  endpoint,
-  payload,
-  isJson = true,
-  dbChanged = true
-) {
-  return apiPutPost('PUT', endpoint, payload, isJson, dbChanged)
-}
-
-export async function apiPost(
-  endpoint,
-  payload,
-  isJson = true,
-  dbChanged = true,
-  requireFresh = false
-) {
-  return apiPutPost('POST', endpoint, payload, isJson, dbChanged, requireFresh)
-}
-
-export async function apiDelete(endpoint, dbChanged = true) {
-  return apiPutPost('DELETE', endpoint, null, false, dbChanged)
 }
 
 export function getExporterUrl(id, options) {
@@ -451,30 +517,69 @@ export function getMediaUrl(handle, download = false) {
   return download ? `${url}&download=1` : url
 }
 
-export function getMediaUrlCropped(handle, rect) {
-  const jwt = localStorage.getItem('access_token')
+function _isNormalizedRect(rect) {
+  if (!Array.isArray(rect) || rect.length !== 4) {
+    return false
+  }
   const [x1, y1, x2, y2] = rect
+  const values = [x1, y1, x2, y2]
+  if (values.some(value => !Number.isInteger(value))) {
+    return false
+  }
+  if (values.some(value => value < 0 || value > 100)) {
+    return false
+  }
+  return x1 < x2 && y1 < y2
+}
+
+function _getRectForUrl(rect) {
+  return _isNormalizedRect(rect) ? rect : normalizeRect(rect)
+}
+
+export function getMediaUrlCropped(handle, rect) {
+  const normalizedRect = _getRectForUrl(rect)
+  if (!normalizedRect) {
+    return getMediaUrl(handle)
+  }
+  const jwt = localStorage.getItem('access_token')
+  const [x1, y1, x2, y2] = normalizedRect
   if (jwt === null) {
     return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}`
   }
   return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}?jwt=${jwt}`
 }
 
-export function getThumbnailUrl(handle, size, square = false) {
-  const jwt = localStorage.getItem('access_token')
-  if (jwt === null) {
-    return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?square=${square}`
-  }
-  return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?jwt=${jwt}&square=${square}`
+function _checksumParam(checksum) {
+  return checksum ? `&checksum=${checksum}` : ''
 }
 
-export function getThumbnailUrlCropped(handle, rect, size, square = false) {
+export function getThumbnailUrl(handle, size, square = false, checksum = null) {
   const jwt = localStorage.getItem('access_token')
-  const [x1, y1, x2, y2] = rect
+  const cs = _checksumParam(checksum)
   if (jwt === null) {
-    return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?square=${square}`
+    return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?square=${square}${cs}`
   }
-  return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?jwt=${jwt}&square=${square}`
+  return `${__APIHOST__}/api/media/${handle}/thumbnail/${size}?jwt=${jwt}&square=${square}${cs}`
+}
+
+export function getThumbnailUrlCropped(
+  handle,
+  rect,
+  size,
+  square = false,
+  checksum = null
+) {
+  const normalizedRect = _getRectForUrl(rect)
+  if (!normalizedRect) {
+    return getThumbnailUrl(handle, size, square, checksum)
+  }
+  const jwt = localStorage.getItem('access_token')
+  const cs = _checksumParam(checksum)
+  const [x1, y1, x2, y2] = normalizedRect
+  if (jwt === null) {
+    return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?square=${square}${cs}`
+  }
+  return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?jwt=${jwt}&square=${square}${cs}`
 }
 
 export async function queryNominatim(q) {
@@ -491,31 +596,6 @@ export async function queryNominatim(q) {
     return {data: await resp.json()}
   } catch (error) {
     return {error: error.message}
-  }
-}
-
-async function fetchStatus(taskId) {
-  const res = await apiGet(`/api/tasks/${taskId}`)
-  return res.data
-}
-
-export async function updateTaskStatus(
-  taskId,
-  statusCallback,
-  pollInterval = 1000,
-  maxPolls = Infinity
-) {
-  const doneStates = ['FAILURE', 'REVOKED', 'SUCCESS']
-  let i = 0
-  let status = {}
-  while (!doneStates.includes(status.state) && i < maxPolls) {
-    // eslint-disable-next-line no-await-in-loop
-    status = await fetchStatus(taskId)
-    statusCallback(status)
-    // wait for 1s
-    // eslint-disable-next-line no-await-in-loop
-    await new Promise(resolve => setTimeout(resolve, pollInterval))
-    i += 1
   }
 }
 
@@ -618,5 +698,269 @@ export function deleteTaskId(taskName, taskId) {
     delete data[tree][taskName]
     const stringData = JSON.stringify(data)
     localStorage.setItem('tasks', stringData)
+  }
+}
+
+export class Auth {
+  constructor() {
+    this._refreshingTokens = null
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get accessToken() {
+    return localStorage.getItem('access_token')
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get refreshToken() {
+    return localStorage.getItem('refresh_token')
+  }
+
+  async getValidAccessToken(force = false) {
+    if (force || this._shouldRefresh()) {
+      if (this._refreshingTokens) {
+        // If already refreshing, wait for that to finish
+        await this._refreshingTokens
+      } else {
+        // Start the refresh process and store the promise
+        this._refreshingTokens = this.refreshAuthTokens().finally(() => {
+          this._refreshingTokens = null
+        })
+        await this._refreshingTokens
+      }
+    }
+    return this.accessToken
+  }
+
+  _shouldRefresh() {
+    const {claims} = this
+    if (!claims.exp) return true
+    const tolerance = 60 * 1000 // 1 minute tolerance
+    return claims.exp * 1000 < Date.now() + tolerance
+  }
+
+  get claims() {
+    const token = this.accessToken
+    if (!token) return {}
+    return jwt_decode(token)
+  }
+
+  isTokenFresh() {
+    return !!this.claims.fresh
+  }
+
+  async signout() {
+    const oidcProvider = this.claims.oidc_provider
+    const idToken = localStorage.getItem('id_token')
+
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('access_token_expires')
+    localStorage.removeItem('refresh_token')
+    localStorage.removeItem('id_token')
+
+    fireEvent(window, 'user:loggedout')
+
+    if (oidcProvider) {
+      try {
+        const postLogoutRedirectUri = window.location.origin
+        const result = await apiGetOIDCLogoutUrl(
+          oidcProvider,
+          idToken,
+          postLogoutRedirectUri
+        )
+
+        if (result.logout_url) {
+          window.location.href = result.logout_url
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.warn('Failed to get OIDC logout URL:', error)
+      }
+    }
+  }
+
+  async refreshAuthTokens(attempts = 3) {
+    if (this.refreshToken === null) {
+      throw new Error('No refresh token found')
+    }
+    const resp = await fetch(`${__APIHOST__}/api/token/refresh/`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.refreshToken}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+    if (resp.status === 403 || resp.status === 422) {
+      doLogout()
+      throw new Error('Failed refreshing token')
+    }
+    // handle 429 too-many-attempts
+    if (resp.status === 429 && attempts > 0) {
+      // retry after 1s
+      const jitter = Math.floor(Math.random() * 1000)
+      await new Promise(resolve => setTimeout(resolve, 1000 + jitter))
+      return this.refreshAuthTokens(attempts - 1)
+    }
+    const data = await resp.json()
+    if (data.access_token === undefined) {
+      throw new Error('Access token missing in response')
+    }
+    localStorage.setItem('access_token', data.access_token)
+    return {}
+  }
+}
+
+export async function apiGet(auth, endpoint) {
+  let status
+  let resJson
+  try {
+    const headers = {}
+    try {
+      const accessToken = await auth.getValidAccessToken()
+      headers.Authorization = `Bearer ${accessToken}`
+      // eslint-disable-next-line no-empty
+    } catch {}
+    const resp = await fetch(`${__APIHOST__}${endpoint}`, {
+      method: 'GET',
+      headers,
+    })
+    status = resp.status
+    try {
+      resJson = await resp.json()
+    } catch (error) {
+      resJson = {}
+    }
+    if (resp.status === 403) {
+      throw new Error('Authorization error')
+    }
+    if (resp.status !== 200) {
+      throw new Error(
+        resJson?.error?.message ||
+          resJson?.message ||
+          resJson?.status ||
+          resp.statusText ||
+          `Error ${resp.status}`
+      )
+    }
+    return {
+      data: resJson,
+      total_count: resp.headers.get('X-Total-Count'),
+      etag: resp.headers.get('ETag'),
+    }
+  } catch (error) {
+    const errorDetail = {method: 'GET', endpoint, status, response: resJson}
+    if (error instanceof TypeError) {
+      return {error: 'Network error', errorDetail}
+    }
+    return {error: error.message, errorDetail}
+  }
+}
+
+export async function apiPutPostDelete(
+  auth,
+  method,
+  endpoint,
+  payload,
+  {isJson = true, dbChanged = true, requireFresh = false} = {}
+) {
+  let resJson
+  let status
+  try {
+    let headers = {}
+    try {
+      const accessToken = await auth.getValidAccessToken()
+      headers = {
+        ...headers,
+        Accept: 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      }
+      // eslint-disable-next-line no-empty
+    } catch {}
+    if (isJson) {
+      headers['Content-Type'] = 'application/json'
+    }
+    const resp = await fetch(`${__APIHOST__}${endpoint}`, {
+      method,
+      headers,
+      body: isJson ? JSON.stringify(payload) : payload,
+    })
+    try {
+      resJson = await resp.json()
+    } catch (error) {
+      resJson = {}
+    }
+    status = resp.status
+    if (resp.status === 401) {
+      if (requireFresh) {
+        throw new Error(resJson.message)
+      }
+    }
+    if (resp.status === 403) {
+      throw new Error('Not authorized')
+    }
+    if (resp.status !== 201 && resp.status !== 200 && resp.status !== 202) {
+      throw new Error(
+        resJson?.error?.message ||
+          resJson?.message ||
+          resJson?.status ||
+          resp.statusText ||
+          `Error ${resp.status}`
+      )
+    }
+    if (dbChanged) {
+      fireEvent(window, 'db:changed')
+    }
+    if (resp.status === 202 && 'task' in resJson) {
+      return resJson
+    }
+    return {
+      data: resJson,
+      total_count: resp.headers.get('X-Total-Count'),
+      etag: resp.headers.get('ETag'),
+    }
+  } catch (error) {
+    return {
+      error: error.message,
+      errorDetail: {method, endpoint, status, response: resJson},
+    }
+  }
+}
+
+async function fetchStatus(auth, taskId) {
+  const res = await apiGet(auth, `/api/tasks/${taskId}`)
+  return res.data
+}
+
+export async function updateTaskStatus(
+  auth,
+  taskId,
+  statusCallback,
+  pollInterval = 1000,
+  maxPolls = Infinity,
+  shouldContinue = () => true
+) {
+  const doneStates = ['FAILURE', 'REVOKED', 'SUCCESS']
+  let i = 0
+  let status = {}
+  // Let callers stop polling when the owning UI task changes or disconnects.
+  while (
+    shouldContinue() &&
+    !doneStates.includes(status.state) &&
+    i < maxPolls
+  ) {
+    // eslint-disable-next-line no-await-in-loop
+    status = await fetchStatus(auth, taskId)
+    if (!shouldContinue()) {
+      break
+    }
+    statusCallback(status)
+    if (!shouldContinue() || doneStates.includes(status.state)) {
+      break
+    }
+    // wait for 1s
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise(resolve => setTimeout(resolve, pollInterval))
+    i += 1
   }
 }

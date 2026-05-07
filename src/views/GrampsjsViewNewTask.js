@@ -7,7 +7,7 @@ import '../components/GrampsjsEditor.js'
 import '../components/GrampsjsFormString.js'
 import '../components/GrampsjsFormPrivate.js'
 import {GrampsjsViewNewSource} from './GrampsjsViewNewSource.js'
-import {apiGet, apiPost} from '../api.js'
+
 import {makeHandle, fireEvent} from '../util.js'
 
 const dataDefault = {
@@ -53,7 +53,8 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
       <p>
         <grampsjs-editor
           @formdata:changed="${this.handleEditor}"
-          id="note-editor"
+          id="task-description-editor"
+          .appState="${this.appState}"
         ></grampsjs-editor>
       </p>
 
@@ -72,10 +73,12 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
         </mwc-select>
       </p>
 
+      ${this._renderTagsForm()}
+
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-private>
 
       ${this.renderButtons()}
@@ -140,12 +143,17 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
     const {note, ...source} = this.data
     const hasNote = note?.text?.string
     const attrStatus = {_class: 'SrcAttribute', type: 'Status', value: 'Open'}
+    const tagList = [
+      ...new Set(
+        [this._todoTagHandle, ...(this.data.tag_list || [])].filter(Boolean)
+      ),
+    ]
     if (!hasNote) {
       return [
         {
           ...source,
           attribute_list: [...source.attribute_list, attrStatus],
-          tag_list: [this._todoTagHandle],
+          tag_list: tagList,
         },
       ]
     }
@@ -155,26 +163,30 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
         handle: handleSource,
         note_list: [handleNote],
         attribute_list: [...source.attribute_list, attrStatus],
-        tag_list: [this._todoTagHandle],
+        tag_list: tagList,
       },
       {
         ...note,
         handle: handleNote,
-        tag_list: [this._todoTagHandle],
-        type: {_class: 'NoteType', string: 'To Do'},
+        tag_list: tagList,
+        type: 'To Do',
       },
     ]
   }
 
   async _fetchTodoTagHandle(retry = true) {
-    const data = await apiGet('/api/tags/')
+    const lang = this.appState?.i18n?.lang || 'en'
+    const data = await this.appState.apiGet(
+      `/api/tags/?locale=${lang}&pagesize=500`
+    )
     if ('data' in data) {
+      this._allTags = data.data
       const tags = data.data.filter(tag => tag.name === 'ToDo')
       if (tags.length > 0) {
         this._todoTagHandle = tags[0].handle
       } else {
         const newTag = {name: 'ToDo'}
-        await apiPost('/api/tags/', newTag)
+        await this.appState.apiPost('/api/tags/', newTag)
         if (retry) {
           await this._fetchTodoTagHandle(false)
         }
@@ -186,9 +198,17 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
     this._fetchTodoTagHandle()
   }
 
-  _submit() {
+  async _submit() {
+    if (!this._todoTagHandle) {
+      await this._fetchTodoTagHandle()
+    }
+    if (!this._todoTagHandle) {
+      this.error = true
+      this._errorMessage = this._('Failed to fetch the ToDo tag')
+      return
+    }
     const processedData = this._processedData()
-    apiPost(this.postUrl, processedData).then(data => {
+    this.appState.apiPost(this.postUrl, processedData).then(data => {
       if ('data' in data) {
         this.error = false
         fireEvent(this, 'nav', {path: 'tasks'})

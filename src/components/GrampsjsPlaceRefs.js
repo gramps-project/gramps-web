@@ -1,55 +1,61 @@
 import {html} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 
-import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
+import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormPlaceRef.js'
-import {fireEvent} from '../util.js'
-import {apiGet} from '../api.js'
-import '@material/mwc-icon-button'
-import '@material/mwc-dialog'
-import '@material/mwc-button'
+import {fireEvent, renderIcon, placeTypeIconPath} from '../util.js'
 
-export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
+export class GrampsjsPlaceRefs extends GrampsjsEditableList {
   static get properties() {
     return {
-      places: {type: Array},
+      profile: {type: Array},
       dialogContent: {type: String},
+      _places: {type: Array},
     }
   }
 
   constructor() {
     super()
-    this.places = []
-    this.objType = 'Place'
-    this._columns = ['Name', 'Type', '']
+    this.profile = []
     this.dialogContent = ''
+    this.objType = 'Place'
+    this.hasAdd = false
+    this.hasShare = true
+    this.hasEdit = true
+    this.hasReorder = true
+    this._places = []
   }
 
-  row(obj, i, arr) {
-    const prof = this.places.length > i ? this.places[i].profile : {}
+  row(obj, i) {
+    const place = this._places[i] || null
+    const name = place?.profile?.name || ''
+    const type = place?.place_type
+    const dateStr = this.profile[i]?.date_str || ''
     return html`
-      <tr @click=${() => this._handleClick(prof.gramps_id)}>
-        <td>${prof.name}</td>
-        <td>${prof.type}</td>
-        <td>
-          ${this.edit
-            ? this._renderActionBtns(obj.ref, i === 0, i === arr.length - 1)
-            : ''}
-        </td>
-      </tr>
+      <md-list-item
+        type="button"
+        class="${classMap({selected: i === this._selectedIndex})}"
+        @click="${() => {
+          if (this.edit) {
+            this._handleSelected(i)
+          } else {
+            this._handleClick(place?.gramps_id)
+          }
+        }}"
+      >
+        ${name}
+        <span slot="supporting-text">
+          ${type ? this._(type) : ''}${type && dateStr ? ' · ' : ''}${dateStr}
+        </span>
+        ${place
+          ? renderIcon(
+              {object: place, object_type: 'place'},
+              'start',
+              placeTypeIconPath[type] || null
+            )
+          : ''}
+      </md-list-item>
     `
-  }
-
-  renderAfterTable() {
-    return this.edit
-      ? html`
-          <mwc-icon-button
-            class="edit large"
-            icon="add_circle"
-            @click="${this._handleAddClick}"
-          ></mwc-icon-button>
-          ${this.dialogContent}
-        `
-      : ''
   }
 
   update(changed) {
@@ -60,38 +66,84 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
   }
 
   async _updateData() {
+    this._places = []
     if (this.data.length === 0) {
-      this.places = []
-    } else {
-      const _places = []
-      this.loading = true
-      const handles = this.data.map(obj => obj.ref)
-      for (let i = 0; i < handles.length; i += 1) {
-        // eslint-disable-next-line no-await-in-loop
-        const data = await apiGet(this._getUrl(handles[i]))
-        _places.push(data?.data || {})
-      }
-      this.places = [..._places]
+      return
     }
+    const places = []
+    const handles = this.data.map(obj => obj.ref)
+    for (let i = 0; i < handles.length; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      const data = await this.appState.apiGet(this._getUrl(handles[i]))
+      places.push(data?.data || {})
+    }
+    this._places = places
   }
 
   _getUrl(handle) {
     return `/api/places/${handle}?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=self`
   }
 
-  _handleAddClick() {
+  _handleClick(grampsId) {
+    if (grampsId) {
+      fireEvent(this, 'nav', {path: `place/${grampsId}`})
+    }
+  }
+
+  _handleShare() {
     this.dialogContent = html`
       <grampsjs-form-placeref
         new
         @object:save="${this._handlePlaceRefAdd}"
         @object:cancel="${this._handlePlaceRefCancel}"
-        .strings="${this.strings}"
-        dialogTitle=${this._('Share an existing place')}
-      >
-      </grampsjs-form-placeref>
+        .appState="${this.appState}"
+        dialogTitle=${this._('Link to enclosing place')}
+      ></grampsjs-form-placeref>
     `
+  }
+
+  _handleEdit() {
+    if (this._selectedIndex === -1) return
+    const placeRef = this.data[this._selectedIndex]
+    const place = this._places[this._selectedIndex] || {}
+    this.dialogContent = html`
+      <grampsjs-form-placeref
+        @object:save="${e => this._handlePlaceRefEdit(e, this._selectedIndex)}"
+        @object:cancel="${this._handlePlaceRefCancel}"
+        .appState="${this.appState}"
+        .data="${placeRef}"
+        .place="${place}"
+        dialogTitle=${this._('Edit enclosing place')}
+      ></grampsjs-form-placeref>
+    `
+  }
+
+  _handleDelete() {
+    if (this._selectedIndex === -1) return
+    fireEvent(this, 'edit:action', {
+      action: 'delPlace',
+      index: this._selectedIndex,
+    })
+  }
+
+  _handleUp() {
+    if (this._selectedIndex === -1) return
+    fireEvent(this, 'edit:action', {
+      action: 'upPlace',
+      index: this._selectedIndex,
+    })
+    this._updateSelectionAfterReorder(true)
+  }
+
+  _handleDown() {
+    if (this._selectedIndex === -1) return
+    fireEvent(this, 'edit:action', {
+      action: 'downPlace',
+      index: this._selectedIndex,
+    })
+    this._updateSelectionAfterReorder(false)
   }
 
   _handlePlaceRefAdd(e) {
@@ -101,19 +153,21 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableTable {
     this.dialogContent = ''
   }
 
-  _handlePlaceRefCancel() {
+  _handlePlaceRefEdit(e, index) {
+    if (e.detail.data.ref) {
+      fireEvent(this, 'edit:action', {
+        action: 'updatePlaceRef',
+        index,
+        data: e.detail.data,
+      })
+    }
+    e.preventDefault()
+    e.stopPropagation()
     this.dialogContent = ''
   }
 
-  _handleClick(grampsId) {
-    if (!this.edit) {
-      fireEvent(this, 'nav', {path: this._getItemPath(grampsId)})
-    }
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _getItemPath(grampsId) {
-    return `place/${grampsId}`
+  _handlePlaceRefCancel() {
+    this.dialogContent = ''
   }
 }
 

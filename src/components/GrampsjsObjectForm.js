@@ -1,26 +1,18 @@
 import {html, css, LitElement} from 'lit'
 
-import '@material/mwc-select'
-import '@material/mwc-list/mwc-list-item'
-import '@material/mwc-textarea'
-import '@material/mwc-switch'
-import '@material/mwc-formfield'
-import '@material/mwc-button'
-import '@material/mwc-circular-progress'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/text-button.js'
+import '@material/web/button/filled-button.js'
 
-import {apiGet} from '../api.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {fireEvent} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {fireEvent, emptyDate} from '../util.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
-        :host {
-        }
-
         div.spacer {
           margin-top: 2em;
         }
@@ -38,12 +30,16 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
         }
 
         mwc-icon-button {
-          color: rgba(0, 0, 0, 0.5);
+          color: var(--grampsjs-body-font-color-50);
         }
 
-        mwc-dialog {
-          --mdc-dialog-max-width: 100vw;
-          --mdc-dialog-min-width: 50vw;
+        md-dialog {
+          max-width: 100vw;
+          min-width: 50vw;
+          max-height: 80vh;
+          /* md-list defaults to --md-sys-color-surface, but md-dialog uses
+             surface-container-high — match them so lists don't look sunken */
+          --md-list-container-color: var(--md-sys-color-surface-container-high);
         }
       `,
     ]
@@ -61,6 +57,8 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
       isFormValid: {type: Boolean},
       new: {type: Boolean},
       dialogTitle: {type: String},
+      hideCancelButton: {type: Boolean},
+      hideSaveButton: {type: Boolean},
     }
   }
 
@@ -76,6 +74,8 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
     this.isFormValid = false
     this.new = false
     this.dialogTitle = ''
+    this.hideSaveButton = false
+    this.hideCancelButton = false
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -99,6 +99,18 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
       // eslint-disable-next-line no-param-reassign
       element.value = ''
     })
+    this.shadowRoot
+      .querySelectorAll('md-outlined-text-field')
+      .forEach(element => {
+        // eslint-disable-next-line no-param-reassign
+        element.value = ''
+      })
+    this.shadowRoot
+      .querySelectorAll('md-filled-text-field')
+      .forEach(element => {
+        // eslint-disable-next-line no-param-reassign
+        element.value = ''
+      })
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -120,37 +132,28 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-      <mwc-dialog
-        scrimClickAction=""
-        escapeKeyAction=""
-        heading="${this.dialogTitle}"
-        open
-      >
-        <div @formdata:changed="${this._handleFormData}">
-          ${this.renderForm()}
+      <md-dialog @cancel="${e => e.preventDefault()}" open>
+        <div slot="headline">${this.dialogTitle}</div>
+        <div slot="content" @formdata:changed="${this._handleFormData}">
+          ${this.dialogIsOpen ? this.renderForm() : ''}
         </div>
-
-        <mwc-button
-          raised
-          class="edit"
-          style="margin:8px 16px 8px 8px"
-          slot="primaryAction"
-          dialogAction="ok"
-          ?disabled="${!this.isValid}"
-          @click="${this._handleDialogSave}"
-        >
-          ${this._('_Save')}
-        </mwc-button>
-        <mwc-button
-          class="edit"
-          style="margin:8px"
-          slot="secondaryAction"
-          dialogAction="cancel"
-          @click="${this._handleDialogCancel}"
-        >
-          ${this._('Cancel')}
-        </mwc-button>
-      </mwc-dialog>
+        <div slot="actions">
+          <md-text-button
+            class="edit ${this.hideCancelButton ? 'hide' : ''}"
+            @click="${this._handleDialogCancel}"
+            ${this.showButton}
+          >
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-filled-button
+            class="edit ${this.hideSaveButton ? 'hide' : ''}"
+            @click="${this._handleDialogSave}"
+            ?disabled="${!this.isValid}"
+          >
+            ${this._('_Save')}
+          </md-filled-button>
+        </div>
+      </md-dialog>
     `
   }
 
@@ -165,10 +168,11 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
   }
 
   _openDialog() {
-    const dialog = this.shadowRoot.querySelector('mwc-dialog')
-    if (dialog !== null) {
-      dialog.open = true
-    }
+    this.renderRoot.querySelector('md-dialog')?.show()
+  }
+
+  get dialogIsOpen() {
+    return this.renderRoot.querySelector('md-dialog')?.open ?? false
   }
 
   open() {
@@ -177,7 +181,8 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
 
   updateTypeData() {
     this.loadingTypes = true
-    apiGet('/api/types/')
+    this.appState
+      .apiGet('/api/types/')
       .then(data => {
         if ('data' in data) {
           this.types = data.data || {}
@@ -186,7 +191,7 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
         }
       })
       .then(() => {
-        apiGet('/api/types/?locale=1').then(data => {
+        this.appState.apiGet('/api/types/?locale=1').then(data => {
           this.loadingTypes = false
           if ('data' in data) {
             this.typesLocale = data.data || {}
@@ -267,61 +272,73 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
     if (originalTarget.id === 'mother-list') {
       this.data = {...this.data, mother_handle: e.detail.data[0]}
     }
+    if (originalTarget.id === 'match-source-list') {
+      this.data = {...this.data, source_handle: e.detail.data[0]}
+    }
+    if (originalTarget.id === 'ydna-person-list') {
+      this.data = {...this.data, person_handle: e.detail.data[0]}
+    }
+    if (originalTarget.id === 'match-target-list') {
+      this.data = {...this.data, target_handle: e.detail.data[0]}
+    }
+    if (originalTarget.id === 'match-data') {
+      this.data = {...this.data, raw_data: [e.detail.data]}
+    }
     if (originalTarget.id === 'date') {
-      this.data = {...this.data, date: e.detail.data}
+      this.data = {...this.data, date: e.detail.data ?? emptyDate}
     }
     if (originalTarget.id === 'event-role-type') {
       this.data = {
         ...this.data,
-        role: {_class: 'EventRoleType', string: e.detail.data},
+        role: e.detail.data,
       }
     }
     if (originalTarget.id === 'source-media-type') {
       this.data = {
         ...this.data,
-        media_type: {_class: 'SourceMediaType', string: e.detail.data},
+        media_type: e.detail.data,
       }
     }
     if (originalTarget.id === 'name-type') {
       this.data = {
         ...this.data,
-        type: {_class: 'NameType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'note-type') {
       this.data = {
         ...this.data,
-        type: {_class: 'NoteType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'place-type') {
       this.data = {
         ...this.data,
-        place_type: {_class: 'PlaceType', string: e.detail.data},
+        place_type: e.detail.data,
       }
     }
     if (originalTarget.id === 'event-type') {
       this.data = {
         ...this.data,
-        type: {_class: 'EventType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'child-frel') {
       this.data = {
         ...this.data,
-        frel: {_class: 'ChildRefType', string: e.detail.data},
+        frel: e.detail.data,
       }
     }
     if (originalTarget.id === 'child-mrel') {
       this.data = {
         ...this.data,
-        mrel: {_class: 'ChildRefType', string: e.detail.data},
+        mrel: e.detail.data,
       }
     }
     if (originalTarget.id === 'child-mrel') {
       this.data = {
         ...this.data,
-        mrel: {_class: 'ChildRefType', string: e.detail.data},
+        mrel: e.detail.data,
       }
     }
     if (originalTarget.id === 'note-select-list') {
@@ -348,25 +365,25 @@ export class GrampsjsObjectForm extends GrampsjsTranslateMixin(LitElement) {
     if (originalTarget.id === 'srcattrtype') {
       this.data = {
         ...this.data,
-        type: {_class: 'SrcAttributeType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'attrtype') {
       this.data = {
         ...this.data,
-        type: {_class: 'AttributeType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'family-rel-type') {
       this.data = {
         ...this.data,
-        type: {_class: 'FamilyRelType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'urltype') {
       this.data = {
         ...this.data,
-        type: {_class: 'UrlType', string: e.detail.data},
+        type: e.detail.data,
       }
     }
     if (originalTarget.id === 'place-name-value') {

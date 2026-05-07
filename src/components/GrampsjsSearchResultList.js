@@ -1,10 +1,11 @@
 import {LitElement, css, html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
-import '@material/mwc-icon'
-import '@material/mwc-icon-button'
-import '@material/mwc-list'
-import '@material/mwc-list/mwc-list-item'
+import '@material/web/iconbutton/icon-button.js'
+import './GrampsjsIcon.js'
+import '@material/web/list/list.js'
+import '@material/web/list/list-item.js'
+import '@material/web/divider/divider.js'
 
 import {
   objectDescription,
@@ -12,34 +13,50 @@ import {
   objectDetail,
   renderIcon,
 } from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
-import './GrampsJsImage.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import './GrampsjsImg.js'
 import {sharedStyles} from '../SharedStyles.js'
 
-export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
+export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
   LitElement
 ) {
   static get styles() {
     return [
       sharedStyles,
       css`
-        mwc-icon-button {
-          position: relative;
-          top: -14px;
-          left: -16px;
-          --mdc-icon-size: 20px;
+        md-icon-button {
+          --md-icon-button-icon-size: 20px;
         }
 
-        mwc-icon {
-          background-color: rgba(0, 0, 0, 0.25);
-          color: white;
+        grampsjs-icon[slot='start'] {
+          background-color: var(--grampsjs-color-icon-background);
         }
 
-        mwc-icon.placeholder {
+        /* Replicate mwc-list-item graphic="avatar" sizing/rounding */
+        grampsjs-img[slot='start'],
+        grampsjs-icon[slot='start'] {
+          display: flex;
+          align-items: center;
+          justify-content: center;
           width: 40px;
           height: 40px;
-          line-height: 40px;
+          overflow: hidden;
           border-radius: 50%;
+          flex-shrink: 0;
+        }
+
+        md-list.activatable md-list-item:hover {
+          background-color: var(
+            --grampsjs-editable-list-hover-background-color,
+            color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent)
+          );
+        }
+
+        md-list.activatable md-list-item.selected {
+          background-color: var(
+            --grampsjs-editable-list-selected-background-color,
+            color-mix(in srgb, var(--md-sys-color-primary) 12%, transparent)
+          );
         }
       `,
     ]
@@ -50,6 +67,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
       data: {type: Array},
       textEmpty: {type: String},
       activatable: {type: Boolean},
+      _selectedIndex: {type: Number},
       selectable: {type: Boolean},
       linked: {type: Boolean},
       metaIcon: {type: String},
@@ -66,6 +84,7 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
     this.data = []
     this.textEmpty = ''
     this.activatable = false
+    this._selectedIndex = -1
     this.selectable = false
     this.linked = false
     this.metaIcon = ''
@@ -81,89 +100,95 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
       return this.renderLoading()
     }
     return html`
-      <mwc-list
+      <md-list
         id="search-results"
-        ?activatable="${this.activatable}"
-        class="${classMap({large: this.large})}"
+        class="${classMap({activatable: this.activatable, large: this.large})}"
       >
         ${this.data.length === 0 && this.textEmpty
           ? html`
-              <mwc-list-item noninteractive>
+              <md-list-item type="text">
                 <span>${this.textEmpty}</span>
-              </mwc-list-item>
+              </md-list-item>
             `
           : ''}
         ${this.data.map((obj, i, arr) => {
           const desc = objectDescription(
             obj.object_type,
             obj.object,
-            this.strings
+            this.appState.i18n.strings
           )
           return html`
-            <mwc-list-item
-              ?noninteractive="${!this.selectable && !this.linked}"
-              twoline
-              graphic="avatar"
-              @click="${() => this._handleClick(obj)}"
+            <md-list-item
+              type="${this.selectable || this.linked ? 'button' : 'text'}"
+              class="${classMap({
+                selected: this.activatable && i === this._selectedIndex,
+              })}"
+              @click="${() => this._handleClick(obj, i)}"
               @keydown="${this._handleKeyDown}"
-              ?hasMeta=${this.metaIcon !== ''}
             >
-              ${renderIcon(obj)}
-              <mwc-icon-button
-                @click="${e => this._handleMetaClick(e, obj)}"
-                icon="${this.metaIcon}"
-                slot="meta"
-              ></mwc-icon-button>
+              ${renderIcon(obj, 'start')}
+              ${this.metaIcon
+                ? html`
+                    <md-icon-button
+                      @click="${e => this._handleMetaClick(e, obj)}"
+                      slot="end"
+                    >
+                      <grampsjs-icon path="${this.metaIcon}"></grampsjs-icon>
+                    </md-icon-button>
+                  `
+                : ''}
               ${obj.loading
                 ? html`<span style="width:10em;" class="skeleton">&nbsp;</span>`
                 : html`<span>${desc}</span>`}
               ${obj.loading
                 ? html`<span
-                    slot="secondary"
+                    slot="supporting-text"
                     style="width:10em;"
                     class="skeleton"
                     >&nbsp;</span
                   >`
-                : html`<span slot="secondary"
+                : html`<span slot="supporting-text"
                     >${this._renderSecondary(obj)}</span
                   >`}
-            </mwc-list-item>
+            </md-list-item>
             ${!this.noSep && arr.length - 1 !== i
-              ? html`<li divider padded role="separator"></li>`
+              ? html`<md-divider></md-divider>`
               : ''}
           `
         }, this)}
-      </mwc-list>
+      </md-list>
     `
   }
 
   renderLoading() {
-    return html` <mwc-list>
-      ${Array(this.numberLoading).fill(
-        html`
-          <mwc-list-item noninteractive twoline graphic="avatar">
-            <span class="skeleton" style="width:15em;">&nbsp;</span>
-            <span slot="secondary" class="skeleton" style="width:10em;"
-              >&nbsp;</span
-            >
-            <span slot="graphic" class="skeleton avatar">&nbsp;</span>
-          </mwc-list-item>
-        `
-      )}
-    </mwc-list>`
+    return html`
+      <md-list>
+        ${Array(this.numberLoading).fill(
+          html`
+            <md-list-item type="text">
+              <span class="skeleton" style="width:15em;">&nbsp;</span>
+              <span slot="supporting-text" class="skeleton" style="width:10em;"
+                >&nbsp;</span
+              >
+              <span slot="start" class="skeleton avatar">&nbsp;</span>
+            </md-list-item>
+          `
+        )}
+      </md-list>
+    `
   }
 
   _renderSecondary(obj) {
     if (this.date && obj.object?.change) {
       return html`<grampsjs-timedelta
         timestamp="${obj.object.change}"
-        locale="${this.strings.__lang__}"
+        locale="${this.appState.i18n.lang}"
       ></grampsjs-timedelta>`
     }
     const detail = objectDetail(
       obj.object_type,
       obj.object,
-      this.strings
+      this.appState.i18n.strings
     ).trim()
     if (detail?.length) {
       return detail
@@ -176,10 +201,17 @@ export class GrampsjsSearchResultList extends GrampsjsTranslateMixin(
   _handleMetaClick(e, obj) {
     e.preventDefault()
     e.stopPropagation()
-    fireEvent(this, 'search-result:metaClicked', obj)
+    fireEvent(this, 'search-result:metaClicked', {
+      ...obj,
+      sourceElement: e.currentTarget,
+    })
   }
 
-  _handleClick(obj) {
+  _handleClick(obj, i) {
+    if (this.activatable) {
+      this._selectedIndex = i
+      fireEvent(this, 'action', {index: i})
+    }
     if (this.linked && obj.object_type && obj.object?.gramps_id) {
       const path = `${obj.object_type}/${obj.object?.gramps_id}`
       fireEvent(this, 'nav', {path})

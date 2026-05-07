@@ -14,7 +14,7 @@ class GrampsjsFormMediaRef extends GrampsjsObjectForm {
         fixedMenuPosition
         style="min-height: 300px;"
         objectType="media"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         id="media-select"
         label="${this._('Select')}"
         class="edit"

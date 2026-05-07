@@ -4,10 +4,10 @@ import '@material/web/icon/icon.js'
 import {mdiFamilyTree} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {renderIconSvg} from '../icons.js'
 
-class GrampsjsChatMessage extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -24,8 +24,8 @@ class GrampsjsChatMessage extends GrampsjsTranslateMixin(LitElement) {
         }
 
         .container.human {
-          background-color: rgba(109, 76, 65, 0.12);
-          color: rgba(27, 19, 16);
+          background-color: var(--grampsjs-color-shade-230);
+          color: var(--grampsjs-body-font-color);
           padding: 10px 20px;
           border-radius: 16px;
           float: right;
@@ -88,7 +88,13 @@ class GrampsjsChatMessage extends GrampsjsTranslateMixin(LitElement) {
         ${this.type === 'ai'
           ? html`
               <div class="avatar">
-                <md-icon>${renderIconSvg(mdiFamilyTree, '#999', 270)}</md-icon>
+                <md-icon
+                  >${renderIconSvg(
+                    mdiFamilyTree,
+                    'var(--grampsjs-body-font-color-40)',
+                    270
+                  )}</md-icon
+                >
               </div>
             `
           : ''}

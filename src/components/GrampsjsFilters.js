@@ -1,16 +1,17 @@
 import {LitElement, css, html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
-import {mdiAlertCircleOutline} from '@mdi/js'
+import {mdiAlertCircleOutline, mdiFilter, mdiFilterOff} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
-import '@material/mwc-icon-button'
-import '@material/mwc-button'
-import '@material/web/textfield/outlined-text-field'
 import '@material/web/button/filled-button'
+import '@material/web/button/outlined-button'
+import '@material/web/iconbutton/icon-button'
+import '@material/web/textfield/outlined-text-field'
 
-import './GrampsjsButtonGroup.js'
+import './GrampsjsPillToggle.js'
+import './GrampsjsIcon.js'
 import {renderIconSvg} from '../icons.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {
   fireEvent,
   clickKeyHandler,
@@ -19,24 +20,20 @@ import {
   filterMime,
 } from '../util.js'
 
-export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
         .filtermenu {
-          display: inline;
-        }
-
-        .filtermenu > * {
-          vertical-align: middle;
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 4px 8px;
         }
 
         #filteroff {
-          --mdc-icon-size: 20px;
-          color: var(--mdc-theme-primary);
-          margin-left: 10px;
-          margin-right: 10px;
+          --md-icon-button-icon-size: 20px;
         }
 
         #input-gql-container {
@@ -46,7 +43,6 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
         }
 
         #input-gql {
-          --md-sys-color-surface-container-highest: #f5f5f5;
           --md-outlined-text-field-input-text-font: 'Commit Mono';
           --md-outlined-text-field-input-text-size: 15px;
           --md-outlined-text-field-container-shape: 8px;
@@ -72,6 +68,10 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
 
         .flex {
           display: flex;
+        }
+
+        #filter-container {
+          padding-top: 12px;
         }
       `,
     ]
@@ -101,41 +101,55 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
   render() {
     return html`
       <div class="filtermenu">
-        <mwc-button
-          icon="filter_list"
-          ?unelevated="${this.open}"
-          @click="${this._handleFilterButton}"
-          >${this._('filter')}</mwc-button
-        >
-        <mwc-icon-button
+        ${this.open
+          ? html`
+              <md-filled-button @click="${this._handleFilterButton}">
+                <grampsjs-icon
+                  slot="icon"
+                  path="${mdiFilter}"
+                  color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+                ></grampsjs-icon>
+                ${this._('filter')}
+              </md-filled-button>
+            `
+          : html`
+              <md-outlined-button @click="${this._handleFilterButton}">
+                <grampsjs-icon
+                  slot="icon"
+                  path="${mdiFilter}"
+                  color="var(--mdc-theme-primary)"
+                ></grampsjs-icon>
+                ${this._('filter')}
+              </md-outlined-button>
+            `}
+        <md-icon-button
           id="filteroff"
+          aria-label="${this._('Clear all filters')}"
           ?disabled="${this.filters.length === 0 && this.query === ''}"
-          icon="filter_list_off"
           @click="${this._handleFilterOff}"
-        ></mwc-icon-button>
-        <grampsjs-tooltip for="filteroff" .strings="${this.strings}"
+        >
+          <grampsjs-icon path="${mdiFilterOff}"></grampsjs-icon>
+        </md-icon-button>
+        <grampsjs-tooltip for="filteroff" .appState="${this.appState}"
           >${this._('Clear all filters')}</grampsjs-tooltip
         >
         ${this._renderFilterChips()}
       </div>
       <div
+        id="filter-container"
         class="${classMap({hidden: !this.open})}"
         @filter:changed="${this._handleFilterChanged}"
       >
-        <grampsjs-button-group>
-          <mwc-button
-            dense
-            ?unelevated="${!this.useGql}"
-            @click="${this._handleGqlClick}"
-            >${this._('simple')}</mwc-button
-          >
-          <mwc-button
-            dense
-            ?unelevated="${this.useGql}"
-            @click="${this._handleGqlClick}"
-            >GQL</mwc-button
-          >
-        </grampsjs-button-group>
+        <grampsjs-pill-toggle
+          .options="${[
+            {label: this._('simple'), value: false},
+            {label: 'GQL', value: true},
+          ]}"
+          .selected="${this.useGql}"
+          .appState="${this.appState}"
+          .ariaLabel="${this._('Filter mode')}"
+          @pill-toggle:change="${this._handleGqlClick}"
+        ></grampsjs-pill-toggle>
 
         <div
           class="${classMap({hidden: !this.useGql, flex: this.useGql})}"
@@ -273,8 +287,8 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
     })
   }
 
-  async _handleGqlClick() {
-    this.useGql = !this.useGql
+  async _handleGqlClick(e) {
+    this.useGql = e.detail.value
     if (this.filters.length || this.query) {
       this.filters = []
       this.query = ''
@@ -294,7 +308,7 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
     const rules = e.detail?.filters?.rules
     const replace = e.detail?.replace
     const oldFilters = replace
-      ? this.filters.filter(f => f.name !== replace)
+      ? this.filters.filter(f => (f._slot ?? f.name) !== replace)
       : this.filters
     if (rules) {
       this.filters = [...oldFilters, ...rules]
@@ -311,14 +325,47 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
         filterMime[rule.values[1]]
       )}`
     }
+    if (rule.name === 'HasMedia' && rule.values[0] !== '') {
+      return `${this._('Title')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'HasMedia' && rule.values[3] !== '') {
+      return this._ruleToLabelSpan(rule, 'Date', 3)
+    }
     if (rule.name === 'HasBirth' && rule.values[0] !== '') {
       return this._ruleToLabelSpan(rule, 'Birth year', 0)
     }
     if (rule.name === 'HasDeath' && rule.values[0] !== '') {
       return this._ruleToLabelSpan(rule, 'Death year', 0)
     }
-    if (rule.name === 'HasData' && rule.values[1] !== '') {
+    if (rule.name === 'HasData' && rule.values[1]) {
       return this._ruleToLabelSpan(rule, 'Date', 1)
+    }
+    if (rule.name === 'HasData' && rule.values[3]) {
+      return `${this._('Description')}: ${rule.values[3]}`
+    }
+    if (rule.name === 'HasData' && rule.values[2]) {
+      return `${this._('Place')}: ${rule.values[2]}`
+    }
+    if (rule.name === 'HasData' && rule.values[0]) {
+      return `${this._('Name')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'MatchesTitleSubstringOf' && rule.values[0] !== '') {
+      return `${this._('Title')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'MatchesPageSubstringOf' && rule.values[0] !== '') {
+      return `${this._('Page')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'HasSource' && rule.values[0] !== '') {
+      return `${this._('Source: Title')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'MatchesRegexpOf' && rule.values[0] !== '') {
+      return `${this._('Text')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'MatchesNameSubstringOf' && rule.values[0] !== '') {
+      return `${this._('Name')}: ${rule.values[0]}`
+    }
+    if (rule.name === 'IsReferencedByObjectType') {
+      return `${this._('Subject')}: ${this._(rule.values[0])}`
     }
     if (rule.name === 'HasType') {
       return `${this._('Type')}: ${this._(rule.values[0])}`
@@ -334,6 +381,12 @@ export class GrampsjsFilters extends GrampsjsTranslateMixin(LitElement) {
         /<[^>]+>/,
         ''
       )
+    }
+    if (rule.name.endsWith('Private')) {
+      return this._('Private')
+    }
+    if (rule.name.endsWith('Public')) {
+      return this._('Not private')
     }
     return JSON.stringify(rule)
   }

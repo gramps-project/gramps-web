@@ -1,11 +1,16 @@
 import {html, css} from 'lit'
 
-import '@material/mwc-icon-button'
+import {mdiLinkOff, mdiLinkPlus, mdiPlus} from '@mdi/js'
+
+import '@material/web/button/text-button'
+import '@material/web/iconbutton/icon-button.js'
 
 import {GrampsjsViewObjectsDetail} from './GrampsjsViewObjectsDetail.js'
 import '../components/GrampsjsNoteContent.js'
 import '../components/GrampsjsFormNoteRef.js'
 import '../components/GrampsjsFormNewNote.js'
+import '../components/GrampsjsIcon.js'
+import '../components/GrampsjsTooltip.js'
 import {fireEvent, makeHandle} from '../util.js'
 
 const BASE_DIR = ''
@@ -19,12 +24,35 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
           margin: 0;
         }
 
-        mwc-button {
-          margin-top: 1em;
-          margin-bottom: 2em;
+        div.note-content {
+          padding-top: 1.6em;
+          padding-bottom: 1.6em;
+        }
+
+        div.note-meta {
+          margin-top: 0.4em;
+          display: flex;
+          justify-content: flex-start;
+        }
+
+        div.note-edit-meta {
+          margin-bottom: 1.2em;
         }
       `,
     ]
+  }
+
+  static get properties() {
+    return {
+      numberOfNotes: {type: Number},
+      objType: {type: String},
+    }
+  }
+
+  constructor() {
+    super()
+    this.numberOfNotes = 0
+    this.objType = ''
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -43,29 +71,48 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
       link_format: `${BASE_DIR}/{obj_class}/{gramps_id}`,
     }
     return `/api/notes/?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&extend=all&formats=html&rules=${encodeURIComponent(
       JSON.stringify(rules)
     )}&format_options=${encodeURIComponent(JSON.stringify(options))}`
   }
 
   renderElements() {
-    return html` ${this._data.map(obj => this.renderNote(obj))} `
+    return html`${this._data.map(obj => this.renderNote(obj))} `
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  renderLoading() {
+    const skeleton =
+      '<p><span class="skeleton" style="width:100%;">&nbsp;</span></p>'
+    const skeletonNotes = Array(this.numberOfNotes)
+      .fill()
+      .map(
+        () => html` <div class="note-content">
+          <grampsjs-note-content
+            framed
+            content="${skeleton}"
+          ></grampsjs-note-content>
+        </div>`
+      )
+    return html`${skeletonNotes}`
   }
 
   renderEdit() {
     return html`
       <div>
-        <mwc-icon-button
-          class="edit"
-          icon="add_link"
-          @click="${this._handleShareClick}"
-        ></mwc-icon-button>
-        <mwc-icon-button
-          class="edit"
-          icon="add"
-          @click="${this._handleAddClick}"
-        ></mwc-icon-button>
+        <md-icon-button class="edit" @click="${this._handleShareClick}">
+          <grampsjs-icon
+            path="${mdiLinkPlus}"
+            color="var(--mdc-theme-secondary)"
+          ></grampsjs-icon>
+        </md-icon-button>
+        <md-icon-button class="edit" @click="${this._handleAddClick}">
+          <grampsjs-icon
+            path="${mdiPlus}"
+            color="var(--mdc-theme-secondary)"
+          ></grampsjs-icon>
+        </md-icon-button>
         ${this.dialogContent}
       </div>
     `
@@ -76,8 +123,9 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
       <grampsjs-form-new-note
         @object:save="${this._handleNewNoteSave}"
         @object:cancel="${this._handleNoteCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         dialogTitle="${this._('Create and add a new note')}"
+        objType="${this.objType}"
       >
       </grampsjs-form-new-note>
     `
@@ -89,7 +137,7 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
         new
         @object:save="${this._handleNoteRefSave}"
         @object:cancel="${this._handleNoteCancel}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         objType="${this.objType}"
         dialogTitle=${this._('Select an existing note')}
       >
@@ -100,26 +148,41 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
   // eslint-disable-next-line class-methods-use-this
   renderNote(obj) {
     return html`
-      <grampsjs-note-content
-        framed
-        grampsId="${obj.gramps_id}"
-        content="${obj?.formatted?.html || obj?.text?.string}"
-      ></grampsjs-note-content>
-
+      <div class="note-content">
+        <grampsjs-note-content
+          framed
+          grampsId="${obj.gramps_id}"
+          content="${obj?.formatted?.html || obj?.text?.string}"
+        ></grampsjs-note-content>
+      </div>
       ${this.edit
-        ? html`
-            <mwc-icon-button
-              class="edit"
-              icon="delete"
-              @click="${() => this._handleNoteRefDel(obj.handle)}"
-            ></mwc-icon-button>
-          `
-        : html`<mwc-button
-            outlined
-            label="${this._('Details')}"
-            @click="${() => this._handleButtonClick(obj.gramps_id)}"
-          >
-          </mwc-button>`}
+        ? ''
+        : html`<div class="note-meta">
+            <md-text-button href="${BASE_DIR}/note/${obj.gramps_id}">
+              ${this._('Details')}
+            </md-text-button>
+          </div>`}
+      <div class="note-edit-meta">
+        ${this.edit
+          ? html`
+              <md-icon-button
+                @click="${() => this._handleNoteRefDel(obj.handle)}"
+                id="del-note-${obj.handle}"
+              >
+                <grampsjs-icon
+                  path="${mdiLinkOff}"
+                  class="edit"
+                  color="var(--mdc-theme-secondary)"
+                  icon="delete"
+                ></grampsjs-icon>
+              </md-icon-button>
+              <grampsjs-tooltip
+                for="del-note-${obj.handle}"
+                content="${this._('Remove note')}"
+              ></grampsjs-tooltip>
+            `
+          : ''}
+      </div>
     `
   }
 
@@ -147,18 +210,6 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
 
   _handleNoteCancel() {
     this.dialogContent = ''
-  }
-
-  _handleButtonClick(grampsId) {
-    this.dispatchEvent(
-      new CustomEvent('nav', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          path: `note/${grampsId}`,
-        },
-      })
-    )
   }
 }
 

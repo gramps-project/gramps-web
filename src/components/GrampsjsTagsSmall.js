@@ -2,13 +2,10 @@ import {LitElement, css, html} from 'lit'
 
 import {hex6ToCss, hex12ToCss} from '../color.js'
 import {sharedStyles} from '../SharedStyles.js'
-import '@material/mwc-icon-button'
 
-import './GrampsjsFormNewTag.js'
-import './GrampsjsTooltip.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsTagsSmall extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsTagsSmall extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -22,11 +19,8 @@ export class GrampsjsTagsSmall extends GrampsjsTranslateMixin(LitElement) {
           margin: 0 3px;
           height: 24px;
           display: inline-block;
-        }
-
-        .chip mwc-icon-button {
-          --mdc-icon-size: 14px;
-          --mdc-icon-button-size: 18px;
+          line-height: 24px;
+          vertical-align: middle;
         }
       `,
     ]
@@ -49,11 +43,10 @@ export class GrampsjsTagsSmall extends GrampsjsTranslateMixin(LitElement) {
     }
     return html`
       ${this.data.map(obj => {
-        let color =
-          obj.color?.length > 7
+        const color =
+          (obj.color?.length > 7
             ? hex12ToCss(obj.color, 0.8)
-            : hex6ToCss(obj.color, 0.8)
-        color = color || 'rgba(0, 0, 0, 0.6)'
+            : hex6ToCss(obj.color, 0.8)) || 'var(--grampsjs-body-font-color-60)'
         return html`<span
           class="chip"
           style="background-color:${color};color:white;"

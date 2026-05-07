@@ -5,10 +5,10 @@ import {mdiPencil} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsSearchResultList.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
-import {fireEvent} from '../util.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import './GrampsjsFormSelectObject.js'
 
-export class GrampsjsHomePerson extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -43,27 +43,49 @@ export class GrampsjsHomePerson extends GrampsjsTranslateMixin(LitElement) {
               <grampsjs-search-result-list
                 large
                 linked
-                metaIcon="edit"
-                .strings=${this.strings}
+                metaIcon="${mdiPencil}"
+                .appState="${this.appState}"
+                ?loading="${!this.homePersonDetails?.handle}"
+                numberLoading="1"
                 .data=${[
                   {object: this.homePersonDetails, object_type: 'person'},
                 ]}
-                @search-result:metaClicked="${this._handleMetaClick}"
+                @search-result:metaClicked="${this._handleEditClick}"
               >
               </grampsjs-search-result-list>
             </div>
           `
-        : html` <md-text-button trailing-icon @click="${this._handleMetaClick}">
+        : html` <md-text-button trailing-icon @click="${this._handleEditClick}">
             ${this._('Set _Home Person')}
             <svg viewBox="0 0 24 24" slot="icon">
               <path d="${mdiPencil}" />
             </svg>
           </md-text-button>`}
+      <grampsjs-form-select-object
+        @select-object:changed="${this._handleHomePerson}"
+        objectType="person"
+        .appState="${this.appState}"
+        id="homeperson-select"
+        label="${this._('Select')}"
+        fixedMenuPosition
+        hideButton
+      ></grampsjs-form-select-object>
     `
   }
 
-  _handleMetaClick() {
-    fireEvent(this, 'nav', {path: 'settings'})
+  _handleEditClick(e) {
+    const anchor = e.detail?.sourceElement ?? e.currentTarget
+    this.renderRoot.querySelector('#homeperson-select')?.open(anchor)
+  }
+
+  _handleHomePerson(e) {
+    const obj = e.detail.objects[0]
+    if (obj.object?.gramps_id) {
+      this.appState.updateSettings({homePerson: obj.object.gramps_id}, true)
+      this.homePersonDetails = obj.object
+    }
+    e.preventDefault()
+    e.stopPropagation()
   }
 }
 

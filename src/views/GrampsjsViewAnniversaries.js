@@ -1,5 +1,6 @@
 import {html, css} from 'lit'
-import '@material/mwc-button'
+import '@material/web/list/list'
+import '@material/web/list/list-item'
 
 import '../components/GrampsjsTimedelta.js'
 import {GrampsjsConnectedComponent} from '../components/GrampsjsConnectedComponent.js'
@@ -12,7 +13,7 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
       css`
         .date {
           font-size: 0.9em;
-          color: rgba(0, 0, 0, 0.5);
+          color: var(--grampsjs-body-font-color-50);
         }
 
         .title {
@@ -30,13 +31,14 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
           border-radius: 19px;
           background-color: var(--mdc-theme-primary);
           opacity: 0.6;
-          color: white;
+          color: var(--mdc-theme-on-primary);
           font-size: 15px;
           line-height: 38px;
           display: inline-block;
           text-align: center;
           font-family: var(--grampsjs-heading-font-family);
           font-weight: 300;
+          margin-right: 10px;
         }
       `,
     ]
@@ -44,29 +46,31 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
 
   renderLoading() {
     return html`<h3>${this._('Anniversaries')}</h3>
-      <mwc-list>
+      <md-list>
         ${Array(2).fill(
           html`
-            <mwc-list-item noninteractive twoline graphic="avatar">
-              <span class="skeleton" style="width:15em;">&nbsp;</span>
-              <span slot="secondary" class="skeleton" style="width:10em;"
+            <md-list-item type="button" noninteractive>
+              <span slot="headline" class="skeleton" style="width:15em;"
                 >&nbsp;</span
               >
-              <span slot="graphic" class="skeleton avatar">&nbsp;</span>
-            </mwc-list-item>
+              <span slot="supporting-text" class="skeleton" style="width:10em;"
+                >&nbsp;</span
+              >
+              <span slot="start" class="skeleton avatar">&nbsp;</span>
+            </md-list-item>
           `
         )}
-      </mwc-list>`
+      </md-list>`
   }
 
   renderContent() {
     return html`<h3>${this._('Anniversaries')}</h3>
       ${this._data.data.length === 0
-        ? html`<p>${this._('No items')}.</p>`
+        ? html`<p>${this._('None')}.</p>`
         : html`
-            <mwc-list class="large">
+            <md-list class="large">
               ${this._data.data.map(event => this._renderEvent(event))}
-            </mwc-list>
+            </md-list>
           `} `
   }
 
@@ -79,24 +83,26 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
       return ''
     }
     return html`
-      <mwc-list-item
-        twoline
-        graphic="avatar"
+      <md-list-item
+        type="button"
         @click="${() => this._handleClick(event)}"
         @keydown="${this._handleKeyDown}"
       >
-        <span
-          >${eventTitleFromProfile(event.profile, this.strings, false)}</span
+        <span slot="headline"
+          >${eventTitleFromProfile(event.profile, false)}</span
         >
-        <span slot="graphic" class="years">${years}</span>
-        <span slot="secondary">
+        <span slot="start" class="years">${years}</span>
+        <span slot="supporting-text">
           <grampsjs-timedelta
             timestamp="${timestamp}"
-            locale="${this.strings.__lang__}"
-          ></grampsjs-timedelta
-          >${event?.profile?.place ? html`, ${event.profile.place}` : ''}
+            locale="${this.appState.i18n.lang}"
+          ></grampsjs-timedelta>
+          (${event.profile.date})
+          ${event?.profile?.place
+            ? html`<br />${event.profile.place_name || event.profile.place}`
+            : ''}
         </span>
-      </mwc-list-item>
+      </md-list-item>
     `
   }
 
@@ -119,7 +125,7 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
     const m = now.getMonth() + 1
     const d = now.getDate()
     return `/api/events/?dates=*/${m}/${d}&profile=all&sort=-date&locale=${
-      this.strings.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&pagesize=10&page=1`
   }
 }

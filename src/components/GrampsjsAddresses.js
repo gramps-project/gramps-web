@@ -1,8 +1,8 @@
 import {html, LitElement, css} from 'lit'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 
-export class GrampsjsAddresses extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsAddresses extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,

@@ -14,7 +14,7 @@ export const GrampsjsNewEventMixin = superClass =>
         <grampsjs-form-select-type
           required
           id="event-type"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           ?loadingTypes="${this.loadingTypes}"
           typeName="event_types"
           .types="${this.types}"
@@ -24,7 +24,7 @@ export const GrampsjsNewEventMixin = superClass =>
 
         <h4 class="label">${this._('Date')}</h4>
         <p>
-          <grampsjs-form-select-date id="date" .strings="${this.strings}">
+          <grampsjs-form-select-date id="date" .appState="${this.appState}">
           </grampsjs-form-select-date>
         </p>
 
@@ -35,24 +35,25 @@ export const GrampsjsNewEventMixin = superClass =>
             id="description"
             @formdata:changed="${this._handleFormData}"
             label="${this._('Description')}"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
           >
           </grampsjs-form-string>
         </p>
 
         <h4 class="label">${this._('Place')}</h4>
         <grampsjs-form-select-object-list
+          fixedMenuPosition
           id="place"
           objectType="place"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
         ></grampsjs-form-select-object-list>
 
-        ${this._renderCitationForm()}
+        ${this._renderCitationForm()} ${this._renderTagsForm()}
 
         <div class="spacer"></div>
         <grampsjs-form-private
           id="private"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
         ></grampsjs-form-private>
       `
     }

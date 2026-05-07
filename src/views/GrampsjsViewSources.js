@@ -5,8 +5,10 @@ Sources list view
 import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
+import '../components/GrampsjsFilterText.js'
 import '../components/GrampsjsFilterProperties.js'
 import '../components/GrampsjsFilterTags.js'
+import '../components/GrampsjsFilterPrivate.js'
 
 export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
   constructor() {
@@ -38,14 +40,27 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
 
   renderFilters() {
     return html`
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Title"
+        rule="MatchesTitleSubstringOf"
+        .valueIndex=${0}
+        .numArgs=${1}
+      ></grampsjs-filter-text>
+
       <grampsjs-filter-properties
         hasCount
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .props="${filterCounts.sources}"
         label="${this._('Associations')}"
       ></grampsjs-filter-properties>
 
-      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
+      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
+
+      <grampsjs-filter-private
+        .appState="${this.appState}"
+        rule="SourcePrivate"
+      ></grampsjs-filter-private>
     `
   }
 
@@ -56,7 +71,7 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
       title: row.title,
       author: row.author,
       pubinfo: row.pubinfo,
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+      change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
     return formattedRow
   }

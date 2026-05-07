@@ -1,5 +1,5 @@
-/* eslint-disable lit/attribute-value-entities */
 import {html, css} from 'lit'
+import '@material/mwc-textfield'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsMap.js'
@@ -7,9 +7,9 @@ import '../components/GrampsjsMapMarker.js'
 import '../components/GrampsjsMapSearchbox.js'
 import '../components/GrampsjsMapTimeSlider.js'
 import '../components/GrampsjsPlaceBox.js'
-import {apiGet, getMediaUrl} from '../api.js'
+import {getMediaUrl} from '../api.js'
 import {isDateBetweenYears, getGregorianYears} from '../util.js'
-import '@material/mwc-textfield'
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
 // This is used for initial map center in absence of places
 const languageCoordinates = {
@@ -30,6 +30,7 @@ const languageCoordinates = {
   he: [32, 35], // Hebrew - Approximate center of Israel
   hr: [45, 16], // Croatian - Approximate center of Croatia
   hu: [47, 19], // Hungarian - Approximate center of Hungary
+  id: [-5, 120], // Indonesian - Approximate center of Indonesia
   is: [65, -18], // Icelandic - Approximate center of Iceland
   it: [42, 12], // Italian - Approximate center of Italy
   ja: [36, 138], // Japanese - Approximate center of Japan
@@ -55,7 +56,7 @@ const languageCoordinates = {
   ko: [38, 128], // Korean - Approximate center of Korea
 }
 
-export class GrampsjsViewMap extends GrampsjsView {
+export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
     return [
       super.styles,
@@ -84,6 +85,7 @@ export class GrampsjsViewMap extends GrampsjsView {
       _yearSpan: {type: Number},
       _currentLayer: {type: String},
       _minYear: {type: Number},
+      _hiddenOverlaysHandles: {type: Array},
     }
   }
 
@@ -95,6 +97,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._handlesHighlight = []
     this._dataSearch = []
     this._dataLayers = []
+    this._hiddenOverlaysHandles = []
     this._selected = ''
     this._valueSearch = ''
     this._bounds = {}
@@ -109,6 +112,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     const center = this._getMapCenter()
     return html`
       <grampsjs-map
+        .appState="${this.appState}"
         layerSwitcher
         locateControl
         width="100%"
@@ -117,8 +121,10 @@ export class GrampsjsViewMap extends GrampsjsView {
         longitude="${center[1]}"
         year="${this._year}"
         mapid="map-mapview"
+        .overlays="${this._getOverlaysForLayerSwitcher()}"
         @map:layerchange="${this._handleLayerChange}"
         @map:moveend="${this._handleMoveEnd}"
+        @map:overlay-toggle="${this._handleOverlayToggle}"
         id="map"
         zoom="6"
         >${this._renderMarkers()}${this._renderLayers()}</grampsjs-map
@@ -129,7 +135,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         @mapsearch:selected="${this._handleSearchSelected}"
         @placefilter:changed="${this._handlePlaceFilterChanged}"
         .data="${this._dataSearch}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .placeFilters="${this._placeFilters}"
         value="${this._valueSearch}"
         >${this._renderPlaceDetails()}</grampsjs-map-searchbox
@@ -138,9 +144,26 @@ export class GrampsjsViewMap extends GrampsjsView {
         min="${this._minYear}"
         ?filterMap="${this._currentLayer === 'OpenHistoricalMap'}"
         @timeslider:change="${this._handleTimeSliderChange}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-map-time-slider>
     `
+  }
+
+  // Reconstruct parent_places from the already-loaded _dataPlaces array instead
+  // of fetching the individual place (which would include parent_places by default).
+  _resolveParentPlaces(place) {
+    const result = []
+    const visited = new Set()
+    let current = place
+    while (current?.placeref_list?.length > 0) {
+      const parentHandle = current.placeref_list[0].ref
+      if (visited.has(parentHandle)) break
+      visited.add(parentHandle)
+      current = this._dataPlaces.find(p => p.handle === parentHandle)
+      if (!current) break
+      result.push({name: current.profile?.name ?? ''})
+    }
+    return result
   }
 
   _renderPlaceDetails() {
@@ -153,10 +176,17 @@ export class GrampsjsViewMap extends GrampsjsView {
       this._clearSearchBox()
       return ''
     }
+    const data = {
+      ...object,
+      profile: {
+        ...object.profile,
+        parent_places: this._resolveParentPlaces(object),
+      },
+    }
     return html`
       <grampsjs-place-box
-        .data="${object}"
-        .strings="${this.strings}"
+        .data="${data}"
+        .appState="${this.appState}"
       ></grampsjs-place-box>
     `
   }
@@ -170,12 +200,31 @@ export class GrampsjsViewMap extends GrampsjsView {
     if (changed.has('active') && this.active) {
       const mapel = this.shadowRoot.getElementById('map')
       if (mapel !== null && mapel._map !== undefined) {
-        mapel._map.invalidateSize(false)
+        // MapLibre GL JS resize method instead of Leaflet's invalidateSize
+        mapel._map.resize()
       }
       const searchbox = this.shadowRoot.querySelector('grampsjs-map-searchbox')
       if (searchbox !== null) {
         searchbox.focus()
       }
+    }
+  }
+
+  _handleOverlayToggle(event) {
+    const {overlay, visible} = event.detail
+    if (visible) {
+      this._hiddenOverlaysHandles = [
+        ...this._hiddenOverlaysHandles.filter(
+          handle => handle !== overlay.handle
+        ),
+      ]
+    } else if (visible === false) {
+      this._hiddenOverlaysHandles = [
+        ...this._hiddenOverlaysHandles.filter(
+          handle => handle !== overlay.handle
+        ),
+        overlay.handle,
+      ]
     }
   }
 
@@ -220,7 +269,7 @@ export class GrampsjsViewMap extends GrampsjsView {
     this._dataSearch = []
     this._valueSearch = object.profile.name
     this._handlesHighlight = [object.handle]
-    if (object.lat && object.long) {
+    if (object.profile.lat && object.profile.long) {
       this.latitude = object.profile.lat
       this.longitude = object.profile.long
       if (this.getZoom() < 14) {
@@ -237,11 +286,13 @@ export class GrampsjsViewMap extends GrampsjsView {
 
   setZoom(zoom) {
     const map = this.renderRoot.querySelector('grampsjs-map')
+    // MapLibre GL JS setZoom method
     map._map.setZoom(zoom)
   }
 
   getZoom() {
     const map = this.renderRoot.querySelector('grampsjs-map')
+    // MapLibre GL JS getZoom method
     return map._map.getZoom()
   }
 
@@ -259,24 +310,38 @@ export class GrampsjsViewMap extends GrampsjsView {
         url="${getMediaUrl(obj.handle)}"
         title="${obj.desc}"
         bounds="${bounds}"
-        ?hidden="${!this._isLayerVisible(JSON.parse(bounds))}"
+        ?hidden="${this._hiddenOverlaysHandles.includes(obj.handle)}"
+        handle="${obj.handle}"
       ></grampsjs-map-overlay>
     `
+  }
+
+  _getOverlaysForLayerSwitcher() {
+    const visibleLayers = this._dataLayers.filter(obj =>
+      this._isLayerVisible(
+        JSON.parse(
+          obj.attribute_list?.filter(attr => attr.type === 'map:bounds')?.[0]
+            ?.value
+        )
+      )
+    )
+    return visibleLayers.map(obj => ({
+      handle: obj.handle,
+      desc: obj.desc,
+      visible: !this._hiddenOverlaysHandles.includes(obj.handle),
+    }))
   }
 
   _isLayerVisible(bounds) {
     if (Object.keys(this._bounds).length === 0) {
       return false
     }
-    const mapBounds = [
-      [this._bounds._southWest.lat, this._bounds._southWest.lng],
-      [this._bounds._northEast.lat, this._bounds._northEast.lng],
-    ]
+    const mapBounds = this._bounds
     if (
-      bounds[0][0] < mapBounds[1][0] &&
-      bounds[1][0] > mapBounds[0][0] &&
-      bounds[0][1] < mapBounds[1][1] &&
-      bounds[1][1] > mapBounds[0][1]
+      bounds[1][0] > mapBounds._sw.lat && // layer south > map south
+      bounds[0][0] < mapBounds._ne.lat && // layer north < map north
+      bounds[1][1] > mapBounds._sw.lng && // layer east > map west
+      bounds[0][1] < mapBounds._ne.lng // layer west < map east
     ) {
       return true
     }
@@ -284,6 +349,7 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   _handleMoveEnd(e) {
+    // MapLibre GL JS provides bounds in format [west, south, east, north]
     this._bounds = e.detail.bounds
   }
 
@@ -316,8 +382,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         opacity="${!highlighted && this._handlesHighlight.length > 0
           ? 0.55
           : 0.9}"
-        popupLabel="<a href='place/${obj.profile.gramps_id}'>${obj.profile
-          .name}</a>"
+        label="${obj.profile.name}"
         @marker:clicked="${() => this._handleMarkerClick(obj)}"
       ></grampsjs-map-marker>`
     })
@@ -366,8 +431,8 @@ export class GrampsjsViewMap extends GrampsjsView {
     const query = encodeURIComponent(
       `${value}*${window._oldSearchBackend ? ' AND type:place`' : ''}`
     )
-    const locale = this.strings?.__lang__ || 'en'
-    const data = await apiGet(
+    const locale = this.appState.i18n.lang || 'en'
+    const data = await this.appState.apiGet(
       `/api/search/?query=${query}&locale=${locale}&profile=self&page=1&pagesize=20${
         window._oldSearchBackend ? '' : '&type=place'
       }`
@@ -383,10 +448,10 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   async _fetchPlaces() {
-    const data = await apiGet(
+    const data = await this.appState.apiGet(
       `/api/places/?locale=${
-        this.strings?.__lang__ || 'en'
-      }&profile=self&backlinks=1`
+        this.appState.i18n.lang || 'en'
+      }&profile=self&backlinks=1&place_hierarchy=0`
     )
     this.loading = false
     if ('data' in data) {
@@ -400,7 +465,9 @@ export class GrampsjsViewMap extends GrampsjsView {
   }
 
   async _fetchEvents() {
-    const data = await apiGet('/api/events/?keys=date,handle,place')
+    const data = await this.appState.apiGet(
+      '/api/events/?keys=date,handle,place'
+    )
     this.loading = false
     if ('data' in data) {
       this.error = false
@@ -435,7 +502,7 @@ export class GrampsjsViewMap extends GrampsjsView {
         },
       ],
     }
-    const data = await apiGet(
+    const data = await this.appState.apiGet(
       `/api/media/?rules=${encodeURIComponent(JSON.stringify(rules))}`
     )
     this.loading = false
@@ -450,7 +517,7 @@ export class GrampsjsViewMap extends GrampsjsView {
 
   _getMapCenter() {
     if (this._dataPlaces.length === 0) {
-      const locale = this.strings?.__lang__ || 'en'
+      const locale = this.appState.i18n.lang || 'en'
       return languageCoordinates[locale] || [0, 0]
     }
     let x = 0
@@ -468,14 +535,17 @@ export class GrampsjsViewMap extends GrampsjsView {
         n += 1
       }
     }
+    if (n === 0) {
+      const locale = this.appState.i18n.lang || 'en'
+      return languageCoordinates[locale] || [0, 0]
+    }
     x /= n
     y /= n
     return [x, y]
   }
 
-  connectedCallback() {
-    super.connectedCallback()
-    window.addEventListener('db:changed', () => this._fetchDataAll())
+  handleUpdateStaleData() {
+    this._fetchDataAll()
   }
 }
 

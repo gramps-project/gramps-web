@@ -1,17 +1,17 @@
 import {css, html, LitElement} from 'lit'
 
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsTooltip.js'
 import '@material/mwc-icon-button'
 
-export class GrampsjsSysinfo extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsSysinfo extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
         div.copy {
-          border: 1px solid rgba(0, 0, 0, 0.2);
+          border: 1px solid var(--grampsjs-body-font-color-20);
           border-radius: 5px;
           padding: 20px;
           max-width: 20em;
@@ -20,7 +20,7 @@ export class GrampsjsSysinfo extends GrampsjsTranslateMixin(LitElement) {
         }
 
         div.copy mwc-icon-button {
-          color: rgba(0, 0, 0, 0.3);
+          color: var(--grampsjs-body-font-color-30);
           --mdc-icon-size: 16px;
           float: right;
         }
@@ -28,39 +28,31 @@ export class GrampsjsSysinfo extends GrampsjsTranslateMixin(LitElement) {
     ]
   }
 
-  static get properties() {
-    return {
-      data: {type: Object},
-    }
-  }
-
-  constructor() {
-    super()
-    this.data = {}
-  }
-
   render() {
     const version = '[VI]{version}[/VI]'
+    const data = this.appState.dbInfo
     return html`
-      <div class="copy" id="copy">
+      <div class="copy">
         <mwc-icon-button
           icon="content_copy"
           id="copy-button"
           @click=${this._copyToClipboard}
         ></mwc-icon-button>
-        <grampsjs-tooltip for="copy-button" .strings="${this.strings}"
+        <grampsjs-tooltip for="copy-button" .appState="${this.appState}"
           >${this._('Copy to clipboard')}</grampsjs-tooltip
         >
-        Gramps ${this.data?.gramps?.version || '?'}<br />
-        Gramps Web API ${this.data?.gramps_webapi?.version || '?'}<br />
-        Gramps Web Frontend ${version}<br />
-        Gramps QL ${this.data?.gramps_ql?.version || '?'}<br />
-        Sifts ${this.data?.search?.sifts?.version || '?'}<br />
-        locale: ${this.data?.locale?.language}<br />
-        multi-tree: ${this.data?.server?.multi_tree}<br />
-        task queue: ${this.data?.server?.task_queue}<br />
-        OCR: ${this.data?.server?.ocr}<br />
-        chat: ${this.data?.server?.chat}<br />
+        <span id="copy">
+          Gramps ${data?.gramps?.version || '?'}<br />
+          Gramps Web API ${data?.gramps_webapi?.version || '?'}<br />
+          Gramps Web Frontend ${version}<br />
+          Gramps QL ${data?.gramps_ql?.version || '?'}<br />
+          Sifts ${data?.search?.sifts?.version || '?'}<br />
+          locale: ${data?.locale?.language}<br />
+          multi-tree: ${data?.server?.multi_tree}<br />
+          task queue: ${data?.server?.task_queue}<br />
+          OCR: ${data?.server?.ocr}<br />
+          chat: ${data?.server?.chat}<br />
+        </span>
       </div>
     `
   }

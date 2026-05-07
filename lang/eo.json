@@ -1,1 +1,19 @@
-{}
+{
+    "Custom type": "Propra tipo",
+    "All": "Ĉiuj",
+    "Are you sure?": "Ĉu vi certas?",
+    "Yes": "Jes",
+    "A new version of the app is available.": "Nova versio de la aplikaĵo estas havebla.",
+    "Settings": "Agordoj",
+    "Blog": "Blogo",
+    "Change E-mail": "Ŝanĝi Retpoŝto",
+    "Change password": "Ŝanĝi pasvorton",
+    "Discard": "Forĵeti",
+    "History": "Historio",
+    "Lists": "Listoj",
+    "Manage users": "Administri uzantojn",
+    "Menu": "Menuo",
+    "New E-mail": "Nova retpoŝto",
+    "New password": "Nova pasvorto",
+    "Old password": "Malnova pasvorto"
+}

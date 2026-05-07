@@ -34,7 +34,7 @@ class GrampsjsFormEventRef extends GrampsjsObjectForm {
               fixedMenuPosition
               style="min-height: 300px;"
               objectType="event"
-              .strings="${this.strings}"
+              .appState="${this.appState}"
               id="event-select"
               label="${this._('Select')}"
               class="edit"
@@ -44,14 +44,14 @@ class GrampsjsFormEventRef extends GrampsjsObjectForm {
       <grampsjs-form-select-type
         required
         id="event-role-type"
-        defaultTypeName="${this.defaultRole}"
+        defaultValue="${this.defaultRole}"
         heading="${this._('Role')}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         typeName="event_role_types"
         ?loadingTypes=${this.loadingTypes}
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
-        initialValue="${this.data?.role?.string || this.data?.role || ''}"
+        value="${this.data?.role?.string || this.data?.role || ''}"
       >
       </grampsjs-form-select-type>
     `

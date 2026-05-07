@@ -3,12 +3,12 @@ import {html} from 'lit'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 import './GrampsjsRectContainer.js'
 import './GrampsjsRect.js'
-import {fireEvent, arrayEqual} from '../util.js'
+import {fireEvent, arrayEqual, normalizeRect} from '../util.js'
 
 export class GrampsjsFaces extends GrampsjsConnectedComponent {
   renderContent() {
     return html`
-      <grampsjs-rect-container .strings="${this.strings}">
+      <grampsjs-rect-container .appState="${this.appState}">
         <slot></slot>
         ${this.rectHidden
           ? ''
@@ -40,17 +40,20 @@ export class GrampsjsFaces extends GrampsjsConnectedComponent {
     if (!this._data.data) {
       return []
     }
-    return this._data.data.map(rect => {
-      const [left, top, right, bottom] = rect
-      const width = right - left
-      const height = bottom - top
-      return [
-        Math.round(left - 0.15 * width),
-        Math.round(top - 0.37 * height),
-        Math.round(right + 0.15 * width),
-        Math.round(bottom + 0.37 * height),
-      ]
-    })
+    return this._data.data
+      .map(rect => {
+        const [left, top, right, bottom] = rect
+        const width = right - left
+        const height = bottom - top
+        return [
+          Math.round(left - 0.15 * width),
+          Math.round(top - 0.37 * height),
+          Math.round(right + 0.15 * width),
+          Math.round(bottom + 0.37 * height),
+        ]
+      })
+      .map(normalizeRect)
+      .filter(rect => rect !== null)
   }
 
   static get properties() {

@@ -1,11 +1,11 @@
 import {LitElement, css, html} from 'lit'
-import '@material/mwc-radio'
+import '@material/web/radio/radio'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent, filterMime} from '../util.js'
 
-export class GrampsjsFilterMime extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsFilterMime extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -18,6 +18,10 @@ export class GrampsjsFilterMime extends GrampsjsTranslateMixin(LitElement) {
           color: var(--mdc-theme-primary);
           border-color: var(--mdc-theme-primary);
           border-bottom-width: 1px;
+        }
+
+        label {
+          margin: 0.5em;
         }
       `,
     ]
@@ -37,26 +41,34 @@ export class GrampsjsFilterMime extends GrampsjsTranslateMixin(LitElement) {
   render() {
     return html`
       <h3>${this._('_Media Type:').replace(':', '')}</h3>
-      ${Object.keys(filterMime).map(
-        key => html`
-          <mwc-formfield label="${this._(filterMime[key])}">
-            <mwc-radio
-              id="${key}"
-              @change="${this._handleChange}"
-              ?checked="${this.filters.filter(
-                rule => rule.name === 'HasMedia' && rule.values[1] === key
-              ).length > 0}"
-            ></mwc-radio>
-          </mwc-formfield>
-        `
-      )}
+      <div role="radiogroup">
+        ${Object.keys(filterMime).map(
+          key => html`
+            <label for="${key}">
+              <md-radio
+                id="${key}"
+                @change="${this._handleChange}"
+                ?checked="${this.filters.filter(
+                  rule => rule.name === 'HasMedia' && rule.values[1] === key
+                ).length > 0}"
+              ></md-radio>
+              <span>${this._(filterMime[key])}</span></label
+            >
+          `
+        )}
+      </div>
     `
   }
 
   _handleChange(event) {
     const mime = event.target.id
-    const rules = [{name: 'HasMedia', values: ['', mime, '', '']}]
-    fireEvent(this, 'filter:changed', {filters: {rules}, replace: 'HasMedia'})
+    const rules = [
+      {name: 'HasMedia', _slot: 'HasMedia:mime', values: ['', mime, '', '']},
+    ]
+    fireEvent(this, 'filter:changed', {
+      filters: {rules},
+      replace: 'HasMedia:mime',
+    })
   }
 }
 

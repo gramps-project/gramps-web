@@ -37,7 +37,7 @@ class GrampsjsFormEditCitationDetails extends GrampsjsObjectForm {
               },
             ]
           : []}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         notDeletable
       ></grampsjs-form-select-object-list>
 
@@ -57,13 +57,17 @@ class GrampsjsFormEditCitationDetails extends GrampsjsObjectForm {
           id="date"
           @formdata:changed="${this._handleFormData}"
           .data="${this.data.date}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
         >
         </grampsjs-form-select-date>
       </p>
 
       <h4 class="label">${this._('Confidence')}</h4>
-      <mwc-select id="select-confidence" @change="${this.handleConfidence}">
+      <mwc-select
+        id="select-confidence"
+        @change="${this.handleConfidence}"
+        fixedMenuPosition
+      >
         ${Object.keys(confidence).map(
           conf => html`
             <mwc-list-item

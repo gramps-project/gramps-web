@@ -1,12 +1,15 @@
 import {css, html} from 'lit'
+import {map} from 'lit/directives/map.js'
 
 import '@material/mwc-textfield'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/text-button.js'
 
 import {mdiAccountDetails, mdiHomeAccount} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsTooltip.js'
-import {apiGet} from '../api.js'
-import {fireEvent} from '../util.js'
+
+import {chartNameDisplayFormat, fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
 
 export class GrampsjsViewTreeChartBase extends GrampsjsView {
@@ -22,7 +25,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
 
         #controls {
           position: absolute;
-          background: rgba(255, 255, 255, 0.9);
+          background-color: var(--md-sys-color-surface-container-low);
           border-radius: 16px;
           z-index: 1;
           padding: 0 10px;
@@ -36,9 +39,11 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
         }
 
         #controls mwc-icon-button {
-          color: rgba(0, 0, 0, 0.35);
+          color: var(--grampsjs-body-font-color-35);
           --mdc-icon-size: 26px;
-          --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.1);
+          --mdc-theme-text-disabled-on-light: var(
+            --grampsjs-body-font-color-10
+          );
         }
 
         #menu-controls mwc-textfield {
@@ -56,6 +61,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
       nAnc: {type: Number},
       nDesc: {type: Number},
       nMaxImages: {type: Number},
+      nameDisplayFormat: {type: String},
       _data: {type: Array},
       _setAnc: {type: Boolean},
       _setDesc: {type: Boolean},
@@ -63,12 +69,16 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     }
   }
 
+  defaults = {
+    nAnc: 1,
+    nDesc: 1,
+    nMaxImages: 50,
+    nameDisplayFormat: chartNameDisplayFormat.surnameThenGiven,
+  }
+
   constructor() {
     super()
     this.grampsId = ''
-    this.nAnc = 3
-    this.nDesc = 1
-    this.nMaxImages = 50
     this.disableBack = false
     this.disableHome = false
     this._data = []
@@ -76,6 +86,22 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     this._setDesc = false
     this._setSep = false
     this._setMaxImages = false
+  }
+
+  get nAnc() {
+    return this.defaults.nAnc
+  }
+
+  get nDesc() {
+    return this.defaults.nDesc
+  }
+
+  get nMaxImages() {
+    return this.defaults.nMaxImages
+  }
+
+  get nameDisplayFormat() {
+    return this.defaults.nameDisplayFormat
   }
 
   renderContent() {
@@ -92,16 +118,14 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
           style="margin-bottom:-10px;"
           ?disabled=${this.disableHome}
           id="button-home"
-          >${renderIcon(
-            mdiHomeAccount,
-            this.disableHome ? 'var(--mdc-theme-text-disabled-on-light)' : ''
-          )}</mwc-icon-button>
-          <grampsjs-tooltip
-            for="button-home"
-            .strings="${this.strings}"
-            >${this._('Home Person')}</grampsjs-tooltip
-          >
-
+        >${renderIcon(
+          mdiHomeAccount,
+          this.disableHome ? 'var(--mdc-theme-text-disabled-on-light)' : ''
+        )}</mwc-icon-button>
+        <grampsjs-tooltip
+          for="button-home"
+          .appState="${this.appState}"
+        >${this._('Home Person')}</grampsjs-tooltip>
         <mwc-icon-button
           icon="arrow_back"
           @click=${this._handleBack}
@@ -111,44 +135,43 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
         ></mwc-icon-button>
         <grampsjs-tooltip
           for="btn-back"
-          .strings="${this.strings}"
-        >${this._('_Back')}</grampsjs-tooltip
-        >
+          .appState="${this.appState}"
+        >${this._('_Back')}</grampsjs-tooltip>
         <mwc-icon-button
           @click=${this._goToPerson}
           id="btn-person"
         >${renderIcon(mdiAccountDetails)}</mwc-icon-button>
         <grampsjs-tooltip
           for="btn-person"
-          .strings="${this.strings}"
-        >${this._('Person Details')}</grampsjs-tooltip
-        >        <mwc-icon-button
+          .appState="${this.appState}"
+        >${this._('Person Details')}</grampsjs-tooltip>
+        <mwc-icon-button
           icon="settings"
           id="btn-controls"
           @click=${this._openMenuControls}
         ></mwc-icon-button>
         <grampsjs-tooltip
           for="btn-controls"
-          .strings="${this.strings}"
-        >${this._('Preferences')}</grampsjs-tooltip
-      >
-    <mwc-dialog id="menu-controls">
-          <table>
-          ${
-            this._setAnc
-              ? html` <tr>
-                  <td>${this._('Max Ancestor Generations')}</td>
-                  <td>
-                    <mwc-textfield
-                      value=${this.nAnc}
-                      type="number"
-                      min="1"
-                      @change=${this._handleChangeAnc}
-                    ></mwc-textfield>
-                  </td>
-                </tr>`
-              : ''
-          }${
+          .appState="${this.appState}"
+        >${this._('Preferences')}</grampsjs-tooltip>
+    <md-dialog id="menu-controls">
+          <div slot="content">
+            <table>
+            ${
+              this._setAnc
+                ? html` <tr>
+                    <td>${this._('Max Ancestor Generations')}</td>
+                    <td>
+                      <mwc-textfield
+                        value=${this.nAnc}
+                        type="number"
+                        min="1"
+                        @change=${this._handleChangeAnc}
+                      ></mwc-textfield>
+                    </td>
+                  </tr>`
+                : ''
+            }${
       this._setDesc
         ? html`
             <tr>
@@ -198,14 +221,36 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
           `
         : ''
     }
-          </table>
-          <mwc-button slot="primaryAction" dialogAction="close"
-            >${this._('done')}</mwc-button
-          >
-          <mwc-button slot="secondaryAction" @click="${this._resetLevels}"
-            >${this._('Reset')}</mwc-button
-          >
-        </mwc-dialog>
+              <tr>
+                <td>${this._('Name Display Format')}</td>
+                <td>
+                    <mwc-select
+                      fixedMenuPosition
+                      id="name-display-format"
+                      @change=${this._handleChangeNameDisplayFormat}
+                    >
+                      ${map(
+                        Object.values(chartNameDisplayFormat),
+                        i => html` <mwc-list-item
+                          value="${i}"
+                          ?selected="${i === this.nameDisplayFormat}"
+                          >${this._(i)}</mwc-list-item
+                        >`
+                      )}
+                    </mwc-select>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div slot="actions">
+            <md-text-button @click="${this._resetLevels}"
+              >${this._('Reset')}</md-text-button
+            >
+            <md-text-button @click="${this._closeMenuControls}"
+              >${this._('Close')}</md-text-button
+            >
+          </div>
+        </md-dialog>
       </div>
 
     `
@@ -226,12 +271,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
 
   update(changed) {
     super.update(changed)
-    if (
-      changed.has('grampsId') ||
-      changed.has('nAnc') ||
-      changed.has('nDesc') ||
-      changed.has('nMaxImages')
-    ) {
+    if (changed.has('grampsId') || changed.has('settings')) {
       this._fetchData(this.grampsId)
     }
   }
@@ -258,9 +298,9 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
   async _fetchData(grampsId) {
     this.loading = true
     const rules = this._getPersonRules(grampsId)
-    const data = await apiGet(
+    const data = await this.appState.apiGet(
       `/api/people/?rules=${encodeURIComponent(JSON.stringify(rules))}&locale=${
-        this.strings?.__lang__ || 'en'
+        this.appState.i18n.lang || 'en'
       }&profile=self&extend=event_ref_list,primary_parent_family,family_list`
     )
     this.loading = false
@@ -293,8 +333,15 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
     this.nMaxImages = parseInt(e.target.value, 10)
   }
 
+  _handleChangeNameDisplayFormat(e) {
+    this.nameDisplayFormat = e.target.value
+  }
+
   _openMenuControls() {
-    const menu = this.shadowRoot.getElementById('menu-controls')
-    menu.open = true
+    this.shadowRoot.getElementById('menu-controls').show()
+  }
+
+  _closeMenuControls() {
+    this.shadowRoot.getElementById('menu-controls').close()
   }
 }

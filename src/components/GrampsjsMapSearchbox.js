@@ -1,19 +1,27 @@
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-icon'
-import '@material/mwc-list'
-import '@material/mwc-list/mwc-list-item'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
+import '@material/web/list/list'
+import '@material/web/list/list-item'
 import '@material/web/textfield/outlined-text-field'
 import '@material/web/dialog/dialog'
 import '@material/web/button/text-button'
 import '@material/web/switch/switch'
 
+import {
+  mdiClose,
+  mdiMagnify,
+  mdiFilterVariant,
+  mdiMapMarker,
+  mdiMapMarkerOff,
+} from '@mdi/js'
+import './GrampsjsIcon.js'
+
 import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {debounce, fireEvent} from '../util.js'
 
-class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -26,26 +34,23 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
           position: absolute;
           left: 20px;
           border-radius: 5px;
-          background-color: white;
-          box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2),
-            0 -1px 0px rgba(0, 0, 0, 0.02);
+          background-color: var(--md-sys-color-surface-container-high);
+          box-shadow: 0 2px 2px var(--grampsjs-body-font-color-20),
+            0 -1px 0px var(--grampsjs-body-font-color-2);
         }
 
         #searchbox {
           width: 350px;
           top: 90px;
           padding: 0px;
-          --mdc-text-field-outlined-idle-border-color: rgba(0, 0, 0, 0.2);
-          --mdc-text-field-outlined-hover-border-color: rgba(0, 0, 0, 0.38);
-          --mdc-text-field-outlined-disabled-border-color: rgba(0, 0, 0, 0.06);
         }
 
         md-outlined-text-field {
           width: 100%;
         }
 
-        md-outlined-text-field mwc-icon-button {
-          color: rgba(0, 0, 0, 0.5);
+        md-outlined-text-field md-icon-button {
+          color: var(--grampsjs-body-font-color-50);
         }
 
         #details,
@@ -85,19 +90,19 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
 
         #details::-webkit-scrollbar-thumb,
         #searchresult::-webkit-scrollbar-thumb {
-          background: rgba(0, 0, 0, 0.4);
+          background: var(--grampsjs-body-font-color-40);
         }
 
         #searchresult-content {
           font-size: 14px;
         }
 
-        #searchresult-content mwc-list-item {
-          --mdc-list-item-graphic-margin: 16px;
-        }
-
         .hidden {
           display: none;
+        }
+
+        md-outlined-text-field {
+          --md-outlined-text-field-with-trailing-icon-trailing-space: 35px;
         }
 
         @media (max-width: 512px) {
@@ -163,16 +168,14 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
             <div slot="trailing-icon">
               ${this._showClearButton
                 ? html`
-                    <mwc-icon-button
-                      icon="clear"
-                      @click="${this._handleClear}"
-                    ></mwc-icon-button>
+                    <md-icon-button @click="${this._handleClear}">
+                      <grampsjs-icon path="${mdiClose}"></grampsjs-icon>
+                    </md-icon-button>
                   `
                 : html`
-                    <mwc-icon-button
-                      icon="search"
-                      @click="${this._handleInput}"
-                    ></mwc-icon-button>
+                    <md-icon-button @click="${this._handleInput}">
+                      <grampsjs-icon path="${mdiMagnify}"></grampsjs-icon>
+                    </md-icon-button>
                   `}
               <div style="position: relative; display: inline-block;">
                 ${filterHasBadge
@@ -183,14 +186,18 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
                         xmlns="http://www.w3.org/2000/svg"
                         style="position: absolute; top: 7px; right: 7px;"
                       >
-                        <circle cx="15" cy="5" r="5" fill="#BA1B1B" />
+                        <circle
+                          cx="15"
+                          cy="5"
+                          r="5"
+                          fill="var(--grampsjs-map-filter-badge-color)"
+                        />
                       </svg>
                     `
                   : ''}
-                <mwc-icon-button
-                  icon="filter_alt"
-                  @click="${this._handleFilter}"
-                ></mwc-icon-button>
+                <md-icon-button @click="${this._handleFilter}">
+                  <grampsjs-icon path="${mdiFilterVariant}"></grampsjs-icon>
+                </md-icon-button>
               </div>
             </div>
           </md-outlined-text-field>
@@ -201,30 +208,29 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _renderResults() {
     return html`
       <div id="searchresult">
         <div id="searchresult-content">
-          <mwc-list id="searchresult-list" @selected="${this._handleSelected}">
-            ${this.data.map(this._renderListItem)}
-          </mwc-list>
+          <md-list id="searchresult-list">
+            ${this.data.map((obj, i) => this._renderListItem(obj, i))}
+          </md-list>
         </div>
       </div>
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  _renderListItem(obj) {
+  _renderListItem(obj, i) {
     return html`
-      <mwc-list-item graphic="icon">
+      <md-list-item type="button" @click="${() => this._handleSelected(i)}">
         ${obj.object?.profile?.name || ''}
-        <mwc-icon slot="graphic"
-          >${obj.object.lat && obj.object.long
-            ? 'place'
-            : 'location_off'}</mwc-icon
-        >
-      </mwc-list-item>
+        <grampsjs-icon
+          slot="start"
+          path="${obj.object.lat && obj.object.long
+            ? mdiMapMarker
+            : mdiMapMarkerOff}"
+        ></grampsjs-icon>
+      </md-list-item>
     `
   }
 
@@ -281,7 +287,7 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
   _handleKeyDown(event) {
     if (event.code === 'ArrowDown') {
       const lst = this.renderRoot.querySelector(
-        '#searchresult-list > mwc-list-item'
+        '#searchresult-list > md-list-item'
       )
       if (lst) {
         lst.focus()
@@ -311,11 +317,10 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
-  _handleSelected(event) {
+  _handleSelected(index) {
     if (this.data.length === 0) {
       return
     }
-    const {index} = event.detail
     fireEvent(this, 'mapsearch:selected', {object: this.data[index].object})
     this.detailsOpen = true
   }
@@ -345,8 +350,7 @@ class GrampsjsMapSearchbox extends GrampsjsTranslateMixin(LitElement) {
     this.focus()
   }
 
-  update(changed) {
-    super.update(changed)
+  willUpdate(changed) {
     if (changed.has('data'))
       if (this.data.length > 0) {
         this.resultsOpen = true

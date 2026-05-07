@@ -13,7 +13,7 @@ export class GrampsjsViewPlace extends GrampsjsViewObject {
     return `/api/places/?gramps_id=${
       this.grampsId
     }&backlinks=true&extend=all&locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all`
   }
 
@@ -21,7 +21,7 @@ export class GrampsjsViewPlace extends GrampsjsViewObject {
     return html`
       <grampsjs-place
         .data=${this._data}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         ?edit="${this.edit}"
         ?canEdit="${this.canEdit}"
       ></grampsjs-place>

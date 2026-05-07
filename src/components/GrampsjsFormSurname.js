@@ -11,9 +11,9 @@ import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
 import './GrampsjsFormString.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-class GrampsjsFormSurname extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFormSurname extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -27,7 +27,7 @@ class GrampsjsFormSurname extends GrampsjsTranslateMixin(LitElement) {
         }
 
         mwc-icon-button {
-          color: rgba(0, 0, 0, 0.5);
+          color: var(--grampsjs-body-font-color-50);
         }
       `,
     ]
@@ -92,10 +92,10 @@ class GrampsjsFormSurname extends GrampsjsTranslateMixin(LitElement) {
                 noheading
                 label="${this._('Surname origin type:').replace(':', '')}"
                 id="surname-origin-type"
-                .strings="${this.strings}"
+                .appState="${this.appState}"
                 typeName="name_origin_types"
-                defaultTypeName=""
-                initialValue=${this.data?.origintype || ''}
+                defaultValue=""
+                value=${this.data?.origintype || ''}
                 .types="${this.types}"
                 .typesLocale="${this.typesLocale}"
                 ?loadingTypes=${this.loadingTypes}

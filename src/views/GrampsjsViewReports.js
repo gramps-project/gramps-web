@@ -1,14 +1,24 @@
 import {css, html} from 'lit'
-import '@material/mwc-select'
-import '@material/mwc-checkbox'
-import '@material/mwc-button'
-import '@material/mwc-icon'
-import '@material/mwc-list'
-import '@material/mwc-list/mwc-list-item'
+import '@material/web/list/list'
+import '@material/web/list/list-item'
+import '@material/web/divider/divider'
+
+import {
+  mdiFileDocument,
+  mdiChartPie,
+  mdiFileTree,
+  mdiBookOpenVariant,
+} from '@mdi/js'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet} from '../api.js'
-import {reportCategoryIcon, fireEvent} from '../util.js'
+import {fireEvent} from '../util.js'
+import '../components/GrampsjsIcon.js'
+
+const categoryIconPath = {
+  0: mdiFileDocument,
+  1: mdiChartPie,
+  5: mdiFileTree,
+}
 
 export class GrampsjsViewReports extends GrampsjsView {
   static get styles() {
@@ -17,6 +27,11 @@ export class GrampsjsViewReports extends GrampsjsView {
       css`
         .hidden {
           display: none;
+        }
+
+        md-divider {
+          --md-divider-thickness: 1px;
+          --md-divider-color: rgba(0, 0, 0, 0.12);
         }
       `,
     ]
@@ -40,26 +55,22 @@ export class GrampsjsViewReports extends GrampsjsView {
   renderContent() {
     return html`
       <h2>${this._('_Reports').replace('_', '')}</h2>
-      <mwc-list>
-        ${this.data.map(item => this._selectListItem(item))}
-      </mwc-list>
+      <md-list> ${this.data.map(item => this._selectListItem(item))} </md-list>
     `
   }
 
   _selectListItem(report) {
+    const iconPath = categoryIconPath[report.category] || mdiBookOpenVariant
     return html`
-      <li divider role="separator" padded></li>
-      <mwc-list-item
-        twoline
-        graphic="icon"
+      <md-divider inset></md-divider>
+      <md-list-item
+        type="button"
         @click="${() => this._handleItemClick(report.id)}"
       >
-        <mwc-icon slot="graphic"
-          >${reportCategoryIcon[report.category] || 'menu_book'}</mwc-icon
-        >
-        <span>${this._(report.name)}</span>
-        <span slot="secondary">${this._(report.description)}</span>
-      </mwc-list-item>
+        <grampsjs-icon slot="start" path="${iconPath}"></grampsjs-icon>
+        ${this._(report.name)}
+        <span slot="supporting-text">${this._(report.description)}</span>
+      </md-list-item>
     `
   }
 
@@ -69,7 +80,7 @@ export class GrampsjsViewReports extends GrampsjsView {
 
   async _fetchData() {
     this.loading = true
-    const data = await apiGet('/api/reports/')
+    const data = await this.appState.apiGet('/api/reports/')
     this.loading = false
     if ('data' in data) {
       this.error = false
@@ -80,24 +91,8 @@ export class GrampsjsViewReports extends GrampsjsView {
     }
   }
 
-  firstUpdated() {
-    if ('__lang__' in this.strings) {
-      // don't load before we have strings
-      this._fetchData(this.strings.__lang__)
-    }
-  }
-
-  connectedCallback() {
-    super.connectedCallback()
-    window.addEventListener('language:changed', e =>
-      this._handleLanguageChanged(e)
-    )
-  }
-
-  _handleLanguageChanged(e) {
-    if (this._hasFirstUpdated) {
-      this._fetchData(e.detail.lang)
-    }
+  _onLangChanged() {
+    this._fetchData()
   }
 }
 

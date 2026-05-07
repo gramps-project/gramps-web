@@ -1,29 +1,32 @@
-import {html} from 'lit'
+import {css, html} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 
-import {mdiGenderFemale, mdiGenderMale} from '@mdi/js'
-import {GrampsjsEditableTable} from './GrampsjsEditableTable.js'
-import './GrampsjsFormChildRef.js'
-import {renderIcon} from '../icons.js'
 import {fireEvent} from '../util.js'
+import {renderPersonAvatar, renderPersonDates} from './personListUtils.js'
+import {GrampsjsEditableList} from './GrampsjsEditableList.js'
+import './GrampsjsFormChildRef.js'
+import './GrampsjsFormNewChild.js'
 
-import '@material/mwc-icon-button'
-import '@material/mwc-button'
+import '@material/web/list/list-item.js'
 
-function genderIcon(gender) {
-  if (gender === 'M') {
-    return renderIcon(mdiGenderMale, 'var(--color-boy)')
+export class GrampsjsChildren extends GrampsjsEditableList {
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
+        md-list-item.highlight {
+          opacity: 0.6;
+          pointer-events: none;
+        }
+      `,
+    ]
   }
-  if (gender === 'F') {
-    return renderIcon(mdiGenderFemale, 'var(--color-girl)')
-  }
-  return ''
-}
 
-export class GrampsjsChildren extends GrampsjsEditableTable {
   static get properties() {
     return {
       profile: {type: Array},
       highlightId: {type: String},
+      extended: {type: Array},
     }
   }
 
@@ -31,55 +34,112 @@ export class GrampsjsChildren extends GrampsjsEditableTable {
     super()
     this.profile = []
     this.highlightId = ''
-    this._columns = ['', 'Given name', 'Birth', 'Death', 'Age at death', '']
+    this.extended = []
+    this.hasShare = true
+    this.hasReorder = true
     this.objType = 'ChildRef'
   }
 
-  row(obj, i, arr) {
+  row(obj, i) {
+    const p = this.profile[i] || {}
+    const extPerson = this.extended.find(e => e.handle === obj.ref) || null
+
+    const frel = obj.frel || 'Birth'
+    const mrel = obj.mrel || 'Birth'
+    const hasNonBirthRel = frel !== 'Birth' || mrel !== 'Birth'
+    const relText = hasNonBirthRel
+      ? `${this._('Father')}: ${this._(frel)} / ${this._('Mother')}: ${this._(
+          mrel
+        )}`
+      : ''
+
     return html`
-      <tr
-        @click=${() => this._handleClick(this.profile[i].gramps_id)}
-        class="${obj.gramps_id === this.highlightId ? 'highlight' : ''}"
+      <md-list-item
+        type="button"
+        class="${classMap({
+          selected: i === this._selectedIndex,
+          highlight: p.gramps_id === this.highlightId,
+        })}"
+        @click="${() => {
+          if (this.edit) {
+            this._handleSelected(i)
+          } else {
+            this._handleClick(p.gramps_id)
+          }
+        }}"
       >
-        <td>${genderIcon(this.profile[i]?.sex)}</td>
-        <td>${this.profile[i]?.name_given || ''}</td>
-        <td>${this.profile[i]?.birth?.date || ' '}</td>
-        <td>${this.profile[i]?.death?.date || ''}</td>
-        <td>${this.profile[i]?.death?.age || ''}</td>
-        <td>
-          ${this.edit
-            ? this._renderActionBtns(obj.ref, i === 0, i === arr.length - 1)
-            : ''}
-        </td>
-      </tr>
+        ${p.name_given || ''} ${p.name_surname || ''} ${renderPersonDates(p)}
+        ${hasNonBirthRel
+          ? html`<span slot="supporting-text">${relText}</span>`
+          : ''}
+        ${renderPersonAvatar(extPerson, p.sex)}
+      </md-list-item>
     `
   }
 
-  renderAfterTable() {
-    return this.edit
-      ? html`
-          <mwc-icon-button
-            class="edit large"
-            icon="add_circle"
-            @click="${this._handleAddClick}"
-          ></mwc-icon-button>
-          ${this.dialogContent}
-        `
-      : ''
+  _handleClick(grampsId) {
+    if (!this.edit && grampsId) {
+      fireEvent(this, 'nav', {path: `person/${grampsId}`})
+    }
   }
 
-  _handleAddClick() {
+  _handleDelete() {
+    const obj = this.data[this._selectedIndex]
+    if (obj) {
+      fireEvent(this, 'edit:action', {action: 'delChildRef', handle: obj.ref})
+    }
+  }
+
+  _handleUp() {
+    const obj = this.data[this._selectedIndex]
+    if (obj) {
+      fireEvent(this, 'edit:action', {action: 'upChildRef', handle: obj.ref})
+      this._updateSelectionAfterReorder(true)
+    }
+  }
+
+  _handleDown() {
+    const obj = this.data[this._selectedIndex]
+    if (obj) {
+      fireEvent(this, 'edit:action', {action: 'downChildRef', handle: obj.ref})
+      this._updateSelectionAfterReorder(false)
+    }
+  }
+
+  _handleShare() {
     this.dialogContent = html`
       <grampsjs-form-childref
         new
         @object:save="${this._handleChildRefSave}"
-        @object:cancel="${this._handleChildRefCancel}"
-        .strings="${this.strings}"
+        @object:cancel="${this._handleDialogCancel}"
+        .appState="${this.appState}"
         objType="${this.objType}"
         dialogTitle=${this._('Add existing child to family')}
       >
       </grampsjs-form-childref>
     `
+  }
+
+  _handleAdd() {
+    this.dialogContent = html`
+      <grampsjs-form-new-child
+        @object:save="${this._handleNewChildSave}"
+        @object:cancel="${this._handleDialogCancel}"
+        .appState="${this.appState}"
+        dialogTitle="${this._('Add a new person')}"
+      >
+      </grampsjs-form-new-child>
+    `
+  }
+
+  _handleNewChildSave(e) {
+    fireEvent(this, 'edit:action', {
+      action: 'newChild',
+      data: e.detail.data,
+    })
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
   }
 
   _handleChildRefSave(e) {
@@ -89,25 +149,8 @@ export class GrampsjsChildren extends GrampsjsEditableTable {
     this.dialogContent = ''
   }
 
-  _handleChildRefCancel() {
+  _handleDialogCancel() {
     this.dialogContent = ''
-  }
-
-  _handleClick(grampsId) {
-    if (!this.edit && grampsId !== this.grampsId) {
-      this.dispatchEvent(
-        new CustomEvent('nav', {
-          bubbles: true,
-          composed: true,
-          detail: {path: this._getItemPath(grampsId)},
-        })
-      )
-    }
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _getItemPath(grampsId) {
-    return `person/${grampsId}`
   }
 }
 

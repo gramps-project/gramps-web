@@ -5,6 +5,7 @@ import {select} from 'd3-selection'
 import {scaleSequential} from 'd3-scale'
 import {interpolateWarm} from 'd3-scale-chromatic'
 import {getThumbnailUrl, getThumbnailUrlCropped} from '../api.js'
+import {normalizeRect} from '../util.js'
 
 export const getPerson = (data, handle) =>
   data.find(person => person.handle === handle) || {}
@@ -17,10 +18,11 @@ export const getImageUrl = (person, size, square = true) => {
     return ''
   }
   const [mediaRef] = person.media_list
-  if (!mediaRef.rect || mediaRef.rect.length === 0) {
+  const rect = normalizeRect(mediaRef.rect)
+  if (!rect) {
     return getThumbnailUrl(mediaRef.ref, size, square)
   }
-  return getThumbnailUrlCropped(mediaRef.ref, mediaRef.rect, size, square)
+  return getThumbnailUrlCropped(mediaRef.ref, rect, size, square)
 }
 
 export const getTree = (
@@ -79,10 +81,18 @@ export const getDescendantTree = (data, handle, depth, i = 0, label = 'p') => {
     return tree
   }
   const childHandles =
-    (person?.extended?.families || [])
-      .flatMap(fam => fam.child_ref_list)
-      .filter(childRef => childRef.frel === 'Birth')
-      .map(cref => cref.ref) ?? []
+    (person?.extended?.families || []).flatMap(fam => {
+      const isFather = fam.father_handle === person.handle
+      const isMother = fam.mother_handle === person.handle
+      if (!isFather && !isMother) {
+        return []
+      }
+      const relationKey = isFather ? 'frel' : 'mrel'
+
+      return (fam.child_ref_list || [])
+        .filter(childRef => childRef[relationKey] === 'Birth')
+        .map(cref => cref.ref)
+    }) ?? []
   tree.children = childHandles.map((childHandle, childInd) =>
     getDescendantTree(
       data,
@@ -123,6 +133,7 @@ export const LegendCategorical = (
     .enter()
     .append('text')
     .attr('x', legendItemWidth + 8)
+    .attr('fill', 'var(--grampsjs-body-font-color)')
     .attr('text-anchor', 'start')
     .attr('font-family', 'Inter var')
     .attr('font-weight', 350)
@@ -209,10 +220,11 @@ export const LegendColorBar = (
         .append('line')
         .attr('x1', -4)
         .attr('x2', -10) // Adjust the length of the tick mark
-        .attr('stroke', 'black') // Set the tick color
+        .attr('stroke', 'var(--grampsjs-body-font-color)') // Set the tick color
     })
     .append('text')
     .attr('class', 'colorbar-tick')
+    .attr('fill', 'var(--grampsjs-body-font-color)')
     .attr('x', 4)
     .attr('text-anchor', 'start')
     .attr('dy', '0.4em')

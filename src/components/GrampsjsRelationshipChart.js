@@ -16,13 +16,8 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
           text-decoration: none !important;
         }
         svg .personBox {
-          fill: #e6e6e6;
+          fill: var(--grampsjs-color-shade-230);
         }
-        svg .married {
-          fill: #ffffff;
-          stroke: #000000;
-        }
-
         mwc-menu {
           --mdc-typography-subtitle1-font-size: 13px;
           --mdc-menu-item-height: 36px;
@@ -37,6 +32,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
       nAnc: {type: Number},
       nMaxImages: {type: Number},
       gapX: {type: Number},
+      nameDisplayFormat: {type: String},
     }
   }
 
@@ -59,10 +55,11 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
         nAnc: this.nAnc,
         maxImages: this.nMaxImages,
         grampsId: this.grampsId,
-        getImageUrl: d => getImageUrl(d?.data || {}, 200),
+        getImageUrl: d => getImageUrl(d?.data || {}, 100),
         gapX: this.gapX,
         bboxWidth: this.containerWidth,
         bboxHeight: this.containerHeight,
+        nameDisplayFormat: this.nameDisplayFormat,
       })}
     `
   }

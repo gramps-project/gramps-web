@@ -11,18 +11,18 @@ import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
 
 import './GrampsjsEditor.js'
-import './GrampsJsImage.js'
+import './GrampsjsImg.js'
 import './GrampsjsGallery.js'
 import './GrampsjsTags.js'
 import './GrampsjsTooltip.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsConnectedNote.js'
 import './GrampsjsBreadcrumbs.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {debounce, fireEvent} from '../util.js'
 import {renderIconSvg} from '../icons.js'
 
-export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -38,16 +38,15 @@ export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
           margin-left: -10px;
         }
 
-        h2.editable:hover,
-        mwc-select:hover {
-          background-color: rgba(2, 119, 189, 0.2);
-        }
-
         .dropdowns {
           margin-top: 48px;
-          --mdc-select-outlined-disabled-border-color: rgba(0, 0, 0, 0.38);
-          --mdc-select-disabled-ink-color: rgba(0, 0, 0, 0.87);
-          --mdc-select-disabled-dropdown-icon-color: #fff;
+          --mdc-select-outlined-disabled-border-color: var(
+            --grampsjs-body-font-color-38
+          );
+          --mdc-select-disabled-ink-color: var(--grampsjs-body-font-color-87);
+          --mdc-select-disabled-dropdown-icon-color: var(
+            --grampsjs-color-shade-255
+          );
         }
 
         .dropdowns mwc-select {
@@ -74,7 +73,6 @@ export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
     return {
       source: {type: Object},
       note: {type: Object},
-      canEdit: {type: Boolean},
       dialogContent: {type: String},
       _editingNote: {type: Boolean},
       _editingGallery: {type: Boolean},
@@ -85,10 +83,13 @@ export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
     super()
     this.source = {}
     this.note = {}
-    this.canEdit = false
     this.dialogContent = ''
     this._editingNote = false
     this._editingGallery = false
+  }
+
+  get canEdit() {
+    return this.appState.permissions.canEdit
   }
 
   render() {
@@ -98,7 +99,7 @@ export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
     return html`
       <grampsjs-breadcrumbs
         .data="${this.source}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         objectsName="Tasks"
         objectIcon="checklist"
         hideBookmark
@@ -157,17 +158,21 @@ export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
           ? html` ${this._editingNote
               ? html`
                   <grampsjs-editor
-                    .data=${this.source.extended.notes[0].text}
-                    .strings=${this.strings}
+                    id="task-note-editor"
+                    .initialData=${this.source.extended.notes[0].text}
+                    .appState="${this.appState}"
                   ></grampsjs-editor>
                 `
               : html`
-                  <grampsjs-connected-note handle="${this.source.note_list[0]}">
-                  </grampsjs-connected-note>
+                  <grampsjs-connected-note
+                    handle="${this.source.note_list[0]}"
+                    .appState="${this.appState}"
+                  ></grampsjs-connected-note>
                 `}`
           : html`${this._editingNote
               ? html`<grampsjs-editor
-                  .strings=${this.strings}
+                  id="task-note-editor"
+                  .appState="${this.appState}"
                 ></grampsjs-editor>`
               : html`<span class="muted">${this._('None')}</span>`}`}
         ${this.canEdit
@@ -215,7 +220,7 @@ export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
         : html`
             <grampsjs-gallery
               ?edit="${this._editingGallery}"
-              .strings=${this.strings}
+              .appState="${this.appState}"
               .media=${this.source?.extended?.media}
               .mediaRef=${this.source?.media_list}
             ></grampsjs-gallery>
@@ -244,7 +249,7 @@ export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
         .data="${this.source?.extended?.tags}"
         .hideTags="${['ToDo']}"
         ?edit="${this.canEdit}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         @tag:new="${this._handleNewTag}"
       ></grampsjs-tags>
 
@@ -273,7 +278,7 @@ export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
   _handleSaveNote() {
     const editor = this.renderRoot.querySelector('grampsjs-editor')
     const text = editor.data
-    const type = {_class: 'NoteType', string: 'To Do'}
+    const type = 'To Do'
     if (this.source.note_list.length > 0) {
       const note = this.source.extended.notes[0]
       const data = {...note, text, type}
@@ -349,8 +354,9 @@ export class GrampsjsTask extends GrampsjsTranslateMixin(LitElement) {
   _handleNewTag() {
     this.dialogContent = html`
       <grampsjs-form-new-tag
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${this.source.tag_list}"
+        dialogTitle="${this._('Add Tag')}"
         @object:save="${this._handleSaveTag}"
         @object:cancel="${this._handleCancelDialog}"
       >

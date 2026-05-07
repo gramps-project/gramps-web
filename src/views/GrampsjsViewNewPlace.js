@@ -39,8 +39,9 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
       <grampsjs-form-select-type
         required
         id="select-place-type"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         ?loadingTypes="${this.loadingTypes}"
+        defaultValue="Unknown"
         typeName="place_types"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
@@ -52,20 +53,19 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
         id="enclosed"
         multiple
         objectType="place"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
 
-      ${this._renderCitationForm()}
+      ${this._renderCitationForm()} ${this._renderTagsForm()}
 
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-private>
 
       ${this.renderButtons()}
     `
-    // <pre>${JSON.stringify(this.data, null, 2)}</pre>
   }
 
   handleName(e) {
@@ -77,12 +77,12 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
   }
 
   _handleFormData(e) {
-    this.checkFormValidity()
+    super._handleFormData(e)
     const originalTarget = e.composedPath()[0]
     if (originalTarget.id === 'select-place-type') {
       this.data = {
         ...this.data,
-        place_type: {_class: 'PlaceType', string: e.detail.data},
+        place_type: e.detail.data,
       }
     }
     if (originalTarget.id === 'enclosed-list') {
@@ -95,9 +95,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
         })),
       }
     }
-    if (originalTarget.id === 'private') {
-      this.data = {...this.data, private: e.detail.checked}
-    }
+    this.checkFormValidity()
   }
 
   checkFormValidity() {

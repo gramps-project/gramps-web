@@ -6,9 +6,9 @@ import '@material/mwc-icon'
 
 import './GrampsjsMap.js'
 import './GrampsjsMapMarker.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsPersonTimeline extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -18,12 +18,12 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
           display: grid;
           grid-gap: 15px;
           grid-template-columns: 150px minmax(150px, 1fr);
-          background-color: #fff;
-          color: #444;
+          background-color: var(--md-sys-color-surface-container);
+          color: var(--grampsjs-body-font-color-75);
         }
 
         .timeline-event.highlighted {
-          background-color: #efebe9;
+          background-color: var(--grampsjs-color-shade-230);
           border-radius: 6px;
         }
 
@@ -50,7 +50,7 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
           font-family: var(--grampsjs-heading-font-family);
           font-weight: 400;
           font-size: 18px;
-          color: rgba(0, 0, 0, 0.8);
+          color: var(--grampsjs-body-font-color);
           margin-bottom: 0.4em;
         }
 
@@ -71,7 +71,7 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
 
         .timeline-detail mwc-icon {
           --mdc-icon-size: 1em;
-          color: rgba(0, 0, 0, 0.25);
+          color: var(--grampsjs-body-font-color-25);
           margin-right: 0.2em;
           position: relative;
           top: 0.13em;
@@ -146,6 +146,7 @@ export class GrampsjsPersonTimeline extends GrampsjsTranslateMixin(LitElement) {
     const mapCorners = this._getMapCorners()
     return html`
       <grampsjs-map
+        .appState="${this.appState}"
         latMin="${mapCorners[0][0]}"
         longMin="${mapCorners[0][1]}"
         latMax="${mapCorners[1][0]}"

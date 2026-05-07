@@ -1,4 +1,5 @@
 import {html, css, LitElement} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {linkUrls} from '../util.js'
 
@@ -13,31 +14,35 @@ export class GrampsjsNoteContent extends LitElement {
             var(--grampsjs-body-font-family)
           );
           font-size: var(--grampsjs-note-font-size, 17px);
-          line-height: var(--grampsjs-note-line-height, 1.5em);
-          color: var(--grampsjs-note-color, #000000);
+          line-height: var(--grampsjs-note-line-height, 1.7em);
+          color: var(--grampsjs-note-color);
         }
 
         .note {
-          font-weight: 300;
+          font-weight: 350;
+        }
+
+        .note.columns {
           column-width: 30em;
           column-gap: 2em;
+          orphans: 2;
+          widows: 2;
         }
 
-        .note.frame {
-          border: 1px solid rgba(0, 0, 0, 0.15);
-          border-radius: 8px;
-          padding: 20px 25px;
+        .note-container.frame {
+          border-left: 3px solid var(--md-sys-color-outline-variant);
+          padding: 4px 24px;
         }
 
-        .note.frame p {
+        .note-container.frame p {
           margin: 2em 0em;
         }
 
-        .note.frame p:first-child {
+        .note-container.frame p:first-child {
           margin-top: 0;
         }
 
-        .note.frame p:last-child {
+        .note-container.frame p:last-child {
           margin-bottom: 0;
         }
       `,
@@ -49,23 +54,32 @@ export class GrampsjsNoteContent extends LitElement {
       grampsId: {type: String},
       content: {type: String},
       framed: {type: Boolean},
+      columns: {type: Boolean},
     }
   }
 
   constructor() {
     super()
     this.framed = false
+    this.columns = false
   }
 
   render() {
     return html`
-      <div class="note ${this.framed ? 'frame' : ''}" id="note-content"></div>
+      <div class="note-container ${this.framed ? 'frame' : ''}">
+        <div
+          id="note-content"
+          class="${classMap({note: true, columns: this.columns})}"
+        ></div>
+        <slot></slot>
+      </div>
     `
   }
 
   updated() {
     const noteContent = this.shadowRoot.getElementById('note-content')
     noteContent.innerHTML = linkUrls(this.content)
+    this.columns = noteContent.textContent.length > 1000
   }
 }
 

@@ -1,7 +1,7 @@
 import {html, LitElement, css} from 'lit'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {apiPost} from '../api.js'
+
 import {fireEvent} from '../util.js'
 
 const tesseractLanguages = {
@@ -180,9 +180,7 @@ const langMapping = {
   zh_TW: 'chi_tra',
 }
 
-export class GrampsjsTextRecognition extends GrampsjsTranslateMixin(
-  LitElement
-) {
+export class GrampsjsTextRecognition extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -194,7 +192,7 @@ export class GrampsjsTextRecognition extends GrampsjsTranslateMixin(
           );
           font-size: var(--grampsjs-note-font-size, 17px);
           line-height: var(--grampsjs-note-line-height, 1.5em);
-          color: var(--grampsjs-note-color, #000000);
+          color: var(--grampsjs-note-color);
           white-space: pre-wrap;
         }
       `,
@@ -206,7 +204,6 @@ export class GrampsjsTextRecognition extends GrampsjsTranslateMixin(
       handle: {type: String},
       options: {type: Object},
       languages: {type: Array},
-      canEdit: {type: Boolean},
       _string: {type: String},
     }
   }
@@ -216,7 +213,6 @@ export class GrampsjsTextRecognition extends GrampsjsTranslateMixin(
     this.options = {}
     this.handle = ''
     this.languages = []
-    this.canEdit = false
     this._string = ''
   }
 
@@ -252,11 +248,12 @@ export class GrampsjsTextRecognition extends GrampsjsTranslateMixin(
           class="button"
           size="20"
           hideAfter="10"
+          .appState="${this.appState}"
           @task:complete="${this._handleTaskComplete}"
         ></grampsjs-task-progress-indicator>
       </p>
       <p class="result">${this._string ?? ''}</p>
-      ${this._string && this.canEdit
+      ${this._string && this.appState.permissions.canEdit
         ? html`
             <p>
               <mwc-button raised @click="${this._handleSaveAsNote}"
@@ -273,7 +270,7 @@ export class GrampsjsTextRecognition extends GrampsjsTranslateMixin(
   }
 
   _setLangInitial() {
-    const locale = this.strings.__lang__ ?? ''
+    const locale = this.appState.i18n.lang ?? ''
     if (!locale) {
       return
     }
@@ -298,7 +295,7 @@ export class GrampsjsTextRecognition extends GrampsjsTranslateMixin(
     prog.open = true
     const queryParam = new URLSearchParams(this.options).toString()
     const url = `/api/media/${this.handle}/ocr?${queryParam}`
-    const data = await apiPost(url)
+    const data = await this.appState.apiPost(url)
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -321,10 +318,10 @@ export class GrampsjsTextRecognition extends GrampsjsTranslateMixin(
   async _handleSaveAsNote() {
     const note = {
       _class: 'Note',
-      type: {_class: 'NoteType', string: 'Transcript'},
+      type: 'Transcript',
       text: {_class: 'StyledText', string: this._string},
     }
-    const data = await apiPost('/api/notes/', note)
+    const data = await this.appState.apiPost('/api/notes/', note)
     if ('error' in data) {
       fireEvent(this, 'grampsjs:error', {message: data.error})
     } else {

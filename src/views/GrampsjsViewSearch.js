@@ -4,14 +4,29 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsSearchResultList.js'
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsButtonToggle.js'
-import '../components/GrampsjsButtonGroup.js'
-import {apiGet} from '../api.js'
-import {objectTypeToEndpoint, objectIcon, debounce} from '../util.js'
-import '@material/mwc-textfield'
+
+import {objectTypeToEndpoint, objectIconPath, debounce} from '../util.js'
+import '@material/web/textfield/outlined-text-field'
+import '@material/web/iconbutton/icon-button.js'
+import {mdiMagnify} from '@mdi/js'
+import '../components/GrampsjsIcon.js'
+import '../components/GrampsjsPillToggle.js'
 
 function capitalize(string) {
   return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
 }
+
+const filtrableObjectTypes = [
+  'person',
+  'family',
+  'event',
+  'place',
+  'source',
+  'citation',
+  'repository',
+  'note',
+  'media',
+]
 
 export class GrampsjsViewSearch extends GrampsjsView {
   static get styles() {
@@ -30,23 +45,38 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
         .mode-toggle {
           float: right;
+          --grampsjs-pill-toggle-font-size: 13px;
         }
 
-        mwc-textfield#search-field {
-          --mdc-shape-small: 28px;
-          --mdc-typography-subtitle1-font-size: 22px;
-          --mdc-typography-subtitle1-font-weight: 300;
-          --mdc-text-field-idle-line-color: rgba(0, 0, 0, 0.2);
+        md-outlined-text-field#search-field {
+          --md-outlined-text-field-container-shape: 28px;
+          --md-outlined-text-field-input-text-size: 22px;
+          --md-outlined-text-field-input-text-weight: var(
+            --grampsjs-body-font-weight
+          );
+          --md-outlined-text-field-outline-color: var(
+            --grampsjs-body-font-color-20
+          );
+          --md-outlined-text-field-leading-icon-color: var(
+            --grampsjs-body-font-color-50
+          );
+          --md-outlined-text-field-top-space: 12px;
+          --md-outlined-text-field-bottom-space: 12px;
+          --md-outlined-text-field-leading-space: 24px;
           width: calc(100% - 70px);
           margin: 30px auto;
         }
 
-        #search-field-container mwc-icon-button {
-          color: rgba(0, 0, 0, 0.5);
-          --mdc-icon-size: 26px;
-          --mdc-icon-button-size: 55px;
+        #search-field-container md-icon-button {
+          --md-icon-button-icon-size: 26px;
+          --md-icon-button-state-layer-height: 55px;
+          --md-icon-button-state-layer-width: 55px;
           position: relative;
           top: -2px;
+        }
+
+        md-outlined-text-field#search-field grampsjs-icon {
+          margin-left: 8px;
         }
 
         grampsjs-button-toggle {
@@ -79,9 +109,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
     this._page = 1
     this._pages = -1
     this._objectTypes = Object.fromEntries(
-      Object.keys(objectTypeToEndpoint)
-        .filter(key => key !== 'tag')
-        .map(key => [key, true])
+      filtrableObjectTypes.map(key => [key, false])
     )
   }
 
@@ -92,27 +120,35 @@ export class GrampsjsViewSearch extends GrampsjsView {
       <h2>${this._('Search')}</h2>
 
       <div id="search-field-container">
-        <mwc-textfield
+        <md-outlined-text-field
           id="search-field"
-          outlined
-          icon="search"
+          label="${this._('Search')}"
+          type="search"
           @keydown="${this._handleSearchKey}"
         >
-        </mwc-textfield>
-        <mwc-icon-button icon="search" @click="${() => this._executeSearch()}">
-        </mwc-icon-button>
+          <grampsjs-icon
+            slot="leading-icon"
+            path="${mdiMagnify}"
+            color="var(--grampsjs-body-font-color-50)"
+          ></grampsjs-icon>
+        </md-outlined-text-field>
+        <md-icon-button
+          aria-label="${this._('Search')}"
+          @click="${() => this._executeSearch()}"
+        >
+          <grampsjs-icon
+            path="${mdiMagnify}"
+            color="var(--grampsjs-body-font-color-50)"
+          ></grampsjs-icon>
+        </md-icon-button>
       </div>
 
       ${this.renderFilters()}
-      ${this._totalCount === -1 &&
-      !Object.values(this._objectTypes).some(Boolean)
-        ? html`<p>${this._('Select at least one object type')}</p>`
-        : ''}
-      ${this._totalCount === 0 ? html`<p>${this._('No items')}</p>` : ''}
+      ${this._totalCount === 0 ? html`<p>${this._('None')}</p>` : ''}
       ${this._totalCount > 0 ? html`<p>Total: ${this._totalCount}</p>` : ''}
       <grampsjs-search-result-list
         .data="${this._data}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         large
         noSep
         linked
@@ -123,7 +159,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
             <grampsjs-pagination
               page="${this._page}"
               pages="${this._pages}"
-              .strings="${this.strings}"
+              .appState="${this.appState}"
               @page:changed="${this._handlePageChanged}"
             ></grampsjs-pagination>
           `
@@ -134,47 +170,35 @@ export class GrampsjsViewSearch extends GrampsjsView {
   _renderModeToggle() {
     return html`
       <div class="mode-toggle">
-        <grampsjs-button-group>
-          <mwc-button
-            dense
-            ?unelevated="${!this.semantic}"
-            @click="${this._handleModeClick}"
-            >${this._('full-text')}</mwc-button
-          >
-          <mwc-button
-            dense
-            ?unelevated="${this.semantic}"
-            @click="${this._handleModeClick}"
-            >${this._('semantic')}</mwc-button
-          >
-        </grampsjs-button-group>
+        <grampsjs-pill-toggle
+          .options="${[
+            {label: this._('full-text'), value: false},
+            {label: this._('semantic'), value: true},
+          ]}"
+          .selected="${this.semantic}"
+          .appState="${this.appState}"
+          .ariaLabel="${this._('Search mode')}"
+          @pill-toggle:change="${this._handleModeClick}"
+        ></grampsjs-pill-toggle>
       </div>
     `
   }
 
-  async _handleModeClick() {
-    this.semantic = !this.semantic
+  async _handleModeClick(e) {
+    this.semantic = e.detail.value
     this._executeSearch()
   }
 
   renderFilters() {
     return html`
       <div @grampsjs-button-toggle:toggle="${this._handleFilterToggle}">
-        <grampsjs-button-toggle
-          ?checked="${Object.values(this._objectTypes).every(Boolean)}"
-          icon=""
-          id="toggle-all"
-        >
-          ${this._('All')}
-        </grampsjs-button-toggle>
         ${Object.keys(this._objectTypes).map(
           key => html`<grampsjs-button-toggle
             ?checked="${this._objectTypes[key]}"
-            icon="${objectIcon[key]}"
+            .iconPath="${objectIconPath[key]}"
+            label="${this._(capitalize(objectTypeToEndpoint[key]))}"
             id="toggle-${key}"
-          >
-            ${this._(capitalize(objectTypeToEndpoint[key]))}
-          </grampsjs-button-toggle>`
+          ></grampsjs-button-toggle>`
         )}
       </div>
     `
@@ -189,13 +213,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
   _handleFilterToggle(e) {
     const key = e.target.id.split('-', 2)[1]
-    if (key === 'all') {
-      this._objectTypes = Object.fromEntries(
-        Object.keys(this._objectTypes).map(key_ => [key_, e.detail.checked])
-      )
-    } else {
-      this._objectTypes = {...this._objectTypes, [key]: e.detail.checked}
-    }
+    this._objectTypes = {...this._objectTypes, [key]: e.detail.checked}
     this._page = 1
     debounce(() => this._executeSearch(), 500)()
   }
@@ -208,18 +226,13 @@ export class GrampsjsViewSearch extends GrampsjsView {
     this._focus()
   }
 
-  _focus(retry = true) {
-    if (this.active) {
-      const el = this.shadowRoot.getElementById('search-field')
-      try {
-        el.focus()
-      } catch (e) {
-        // retry once
-        if (retry) {
-          window.setTimeout(() => this._focus(false), 100)
-        }
-      }
-    }
+  _focus() {
+    if (!this.active) return
+    window.setTimeout(() => {
+      if (!this.active) return
+      const el = this.shadowRoot?.getElementById('search-field')
+      if (el) el.focus()
+    }, 0)
   }
 
   _unfocus() {
@@ -281,12 +294,6 @@ export class GrampsjsViewSearch extends GrampsjsView {
     }
     // apply object type filter if necessary
     if (!Object.values(this._objectTypes).every(Boolean)) {
-      if (!Object.values(this._objectTypes).some(Boolean)) {
-        // all deselected - do nothing
-        this._data = []
-        this._totalCount = -1
-        return
-      }
       if (window._oldSearchBackend) {
         query = this._filterQueryByObjectType(query)
       }
@@ -295,10 +302,17 @@ export class GrampsjsViewSearch extends GrampsjsView {
     this._fetchData(query, page)
   }
 
+  _getSelectedObjectTypes() {
+    if (!Object.values(this._objectTypes).some(Boolean)) {
+      // no filter selected, search for all
+      return Object.keys(this._objectTypes)
+    }
+    // at least one filter selected, search for selected only
+    return Object.keys(this._objectTypes).filter(key => this._objectTypes[key])
+  }
+
   _filterQueryByObjectType(query) {
-    const objectTypes = Object.keys(this._objectTypes).filter(
-      key => this._objectTypes[key]
-    )
+    const objectTypes = this._getSelectedObjectTypes()
     return `${query} (${objectTypes.map(key => `type:${key}`).join(' OR ')})`
   }
 
@@ -320,18 +334,16 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
   async _fetchData(query, page) {
     let url = `/api/search/?query=${query}&locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&page=${page}&pagesize=20`
     if (this._semanticEnabled()) {
       url = `${url}&semantic=${this.semantic ? 1 : 0}`
     }
     if (!window._oldSearchBackend) {
-      const objectTypes = Object.keys(this._objectTypes).filter(
-        key => this._objectTypes[key]
-      )
+      const objectTypes = this._getSelectedObjectTypes()
       url = `${url}&type=${objectTypes.join(',')}`
     }
-    const data = await apiGet(url)
+    const data = await this.appState.apiGet(url)
     this.loading = false
     if ('data' in data) {
       this.error = false

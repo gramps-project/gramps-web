@@ -17,6 +17,7 @@ import {
   renderIconSvg,
   relationshipGraphIconPath,
 } from '../icons.js'
+import {DEFAULT_TREE_VIEW, getTreeViewTabIndex} from '../treeDefaults.js'
 
 export class GrampsjsViewTree extends GrampsjsView {
   static get styles() {
@@ -25,22 +26,6 @@ export class GrampsjsViewTree extends GrampsjsView {
       css`
         .with-margin {
           margin: 25px 40px;
-        }
-
-        #outer-container {
-          height: calc(100vh - 68px);
-        }
-
-        #select {
-          z-index: 1;
-          position: absolute;
-          top: 85px;
-          right: 25px;
-          border-radius: 5px;
-          background-color: rgba(255, 255, 255, 0.9);
-          color: #b1b1b1;
-          --mdc-theme-text-disabled-on-light: #666;
-          --mdc-icon-size: 32px;
         }
 
         md-primary-tab {
@@ -53,10 +38,6 @@ export class GrampsjsViewTree extends GrampsjsView {
 
         #tabs {
           height: 85px;
-        }
-
-        md-tabs {
-          --md-divider-thickness: 0px;
         }
       `,
     ]
@@ -76,7 +57,8 @@ export class GrampsjsViewTree extends GrampsjsView {
     this.grampsId = ''
     this.view = 'ancestor'
     this._history = this.grampsId ? [this.grampsId] : []
-    this._currentTabId = 0
+    this._currentTabId = getTreeViewTabIndex(DEFAULT_TREE_VIEW)
+    this._appliedTreeDefaultView = null
   }
 
   renderContent() {
@@ -85,7 +67,7 @@ export class GrampsjsViewTree extends GrampsjsView {
         <div class="with-margin">
           <p>
             ${this._('No Home Person set.')}
-            <a href="/settings">${this._('User settings')}</a>
+            <a href="/">${this._('Home')}</a>
           </p>
         </div>
       `
@@ -176,7 +158,7 @@ export class GrampsjsViewTree extends GrampsjsView {
         @tree:home="${this._backToHomePerson}"
         grampsId=${this.grampsId}
         ?active=${this.active}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .settings=${this.settings}
         ?disableBack=${this._history.length < 2}
         ?disableHome=${this.grampsId === this.settings.homePerson}
@@ -193,7 +175,7 @@ export class GrampsjsViewTree extends GrampsjsView {
         @tree:home="${this._backToHomePerson}"
         grampsId=${this.grampsId}
         ?active=${this.active}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .settings=${this.settings}
         ?disableBack=${this._history.length < 2}
         ?disableHome=${this.grampsId === this.settings.homePerson}
@@ -210,7 +192,7 @@ export class GrampsjsViewTree extends GrampsjsView {
         @tree:home="${this._backToHomePerson}"
         grampsId=${this.grampsId}
         ?active=${this.active}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .settings=${this.settings}
         ?disableBack=${this._history.length < 2}
         ?disableHome=${this.grampsId === this.settings.homePerson}
@@ -227,7 +209,7 @@ export class GrampsjsViewTree extends GrampsjsView {
         @tree:home="${this._backToHomePerson}"
         grampsId=${this.grampsId}
         ?active=${this.active}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .settings=${this.settings}
         ?disableBack=${this._history.length < 2}
         ?disableHome=${this.grampsId === this.settings.homePerson}
@@ -244,7 +226,7 @@ export class GrampsjsViewTree extends GrampsjsView {
         @tree:home="${this._backToHomePerson}"
         grampsId=${this.grampsId}
         ?active=${this.active}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .settings=${this.settings}
         ?disableBack=${this._history.length < 2}
         ?disableHome=${this.grampsId === this.settings.homePerson}
@@ -280,6 +262,21 @@ export class GrampsjsViewTree extends GrampsjsView {
       this._history.push(this.grampsId)
       // limit history to 100 people
       this._history = this._history.slice(-100)
+    }
+    if (this.active && (changed.has('active') || changed.has('settings'))) {
+      this._applyPreferredTabIfNeeded()
+    }
+  }
+
+  _applyPreferredTabIfNeeded() {
+    const preferredView = this.settings?.treeDefaultView ?? DEFAULT_TREE_VIEW
+    if (preferredView === this._appliedTreeDefaultView) {
+      return
+    }
+    const preferredIndex = getTreeViewTabIndex(preferredView)
+    this._appliedTreeDefaultView = preferredView
+    if (this._currentTabId !== preferredIndex) {
+      this._currentTabId = preferredIndex
     }
   }
 

@@ -3,6 +3,14 @@ import {create} from 'd3-selection'
 import {hierarchy, tree} from 'd3-hierarchy'
 import {curveBumpX, link, symbolTriangle, symbol} from 'd3-shape'
 import {zoom} from 'd3-zoom'
+import {chartNameDisplayFormat} from '../util.js'
+
+const genderColor = {
+  0: 'var(--color-girl)',
+  1: 'var(--color-boy)',
+  2: 'var(--color-unknown)',
+  3: 'var(--color-other)',
+}
 
 // Returns the total depth of the tree
 function countDepthOfTree(treeData) {
@@ -33,7 +41,7 @@ function TreeChartCore(
     padding = 20, // horizontal padding for first and last column
     gapX = 30, // horizontal gap between boxes
     gapY = 5, // vertical gap between boxes
-    stroke = '#555', // stroke for links
+    stroke = 'var(--grampsjs-body-font-color-70)', // stroke for links
     strokeWidth = 1, // stroke width for links
     strokeOpacity = 0.4, // stroke opacity for links
     strokeLinejoin, // stroke line join for links
@@ -45,6 +53,7 @@ function TreeChartCore(
     childrenTriangle = true,
     getImageUrl = null,
     orientation = 'LTR',
+    nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
   } = {}
 ) {
   // Create a hierarchical data structure based on the input data
@@ -130,8 +139,9 @@ function TreeChartCore(
   node
     .append('rect')
     .filter(d => d.data.person)
-    .attr('fill', d =>
-      d.data?.person?.gender === 0 ? 'var(--color-girl)' : 'var(--color-boy)'
+    .attr(
+      'fill',
+      d => genderColor[d.data?.person?.gender] ?? 'var(--color-unknown)'
     )
     .attr('width', 24)
     .attr('height', boxHeight - 1)
@@ -156,7 +166,7 @@ function TreeChartCore(
   node
     .append('rect')
     .filter(d => d.data.person)
-    .attr('fill', 'rgba(230, 230, 230)')
+    .attr('fill', 'var(--grampsjs-color-shade-230)')
     .attr('width', boxWidth)
     .attr('height', boxHeight)
     .attr('rx', 8)
@@ -195,7 +205,7 @@ function TreeChartCore(
         'transform',
         d => `translate(${yPos(d)},${d.x}) rotate(${angle}) scale(-1, 0.5)`
       )
-      .attr('fill', '#bbb')
+      .attr('fill', 'var(--grampsjs-body-font-color-30)')
       .attr('id', 'triangle-children')
       .on('click', triangleClicked)
   }
@@ -226,29 +236,43 @@ function TreeChartCore(
 
   node
     .append('text')
-    .filter(d => d.data.name_surname)
+    .filter(d => d.data.name_given || d.data.name_surname)
     .attr('y', -boxHeight / 2 + 25)
     .attr('x', d => -boxWidth / 2 + textPadding(d))
     .attr('text-anchor', 'start')
     .attr('font-weight', '500')
-    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('fill', 'var(--grampsjs-body-font-color-90)')
     .attr('paint-order', 'stroke')
-    .text(d => clipString(`${d.data.name_surname},`, textWidth(d)))
+    .text(d =>
+      clipString(
+        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+          ? `${d.data.name_surname || '…'},`
+          : d.data.name_given || '…',
+        textWidth(d)
+      )
+    )
 
   node
     .append('text')
-    .filter(d => d.data.name_given)
+    .filter(d => d.data.name_given || d.data.name_surname)
     .attr('y', -boxHeight / 2 + 25 + 17)
     .attr('x', d => -boxWidth / 2 + textPadding(d))
     .attr('width', 50)
     .attr('text-anchor', 'start')
     .attr('font-weight', '500')
-    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('fill', 'var(--grampsjs-body-font-color-90)')
     .attr('paint-order', 'stroke')
     .attr('text-overflow', 'ellipsis')
     .attr('overflow', 'hidden')
     .attr('width', 25)
-    .text(d => clipString(d.data.name_given, textWidth(d)))
+    .text(d =>
+      clipString(
+        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
+          ? d.data.name_given || '…'
+          : d.data.name_surname || '…',
+        textWidth(d)
+      )
+    )
 
   node
     .append('text')
@@ -257,7 +281,7 @@ function TreeChartCore(
     .attr('x', d => -boxWidth / 2 + textPadding(d))
     .attr('text-anchor', 'start')
     .attr('font-weight', '350')
-    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('fill', 'var(--grampsjs-body-font-color-90)')
     .attr('paint-order', 'stroke')
     .text(d => clipString(`*${d.data.person.profile.birth.date}`, textWidth(d)))
 
@@ -268,7 +292,7 @@ function TreeChartCore(
     .attr('x', d => -boxWidth / 2 + textPadding(d))
     .attr('text-anchor', 'start')
     .attr('font-weight', '350')
-    .attr('fill', 'rgba(0, 0, 0, 0.9)')
+    .attr('fill', 'var(--grampsjs-body-font-color-90)')
 
     .attr('paint-order', 'stroke')
     .text(d => clipString(`†${d.data.person.profile.death.date}`, textWidth(d)))

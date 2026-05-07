@@ -7,97 +7,84 @@ import {
   mdiAccountPlus,
   mdiAccountMultiplePlus,
   mdiCalendarPlus,
-  mdiTagPlus,
-  mdiBookPlus,
-  mdiBookPlusMultiple,
-  mdiBankPlus,
+  mdiLabel,
+  mdiBookmarkPlus,
+  mdiArchivePlus,
   mdiImagePlus,
   mdiMapMarkerPlus,
-  mdiFileDocumentPlus,
+  mdiTextBoxPlus,
+  mdiBookOpenVariant,
   mdiAccountEdit,
-  // mdiAccountMultipleEdit,
   mdiAccountMultiple,
   mdiCalendarEdit,
-  mdiTagEdit,
-  mdiBookEdit,
-  // mdiBookEditMultiple,
-  mdiBookmarkMultiple,
-  // mdiBankEdit,
-  mdiBank,
+  mdiBookmark,
+  mdiArchiveEdit,
   mdiImageEdit,
-  // mdiMapMarkerEdit,
   mdiMapMarker,
-  mdiFileDocumentEdit,
+  mdiTextBoxEdit,
   mdiAccountMinus,
   mdiAccountMultipleMinus,
   mdiCalendarMinus,
-  mdiTagMinus,
-  mdiBookMinus,
-  mdiBookMinusMultiple,
-  mdiBankMinus,
+  mdiBookmarkMinus,
+  mdiArchiveMinus,
   mdiImageMinus,
   mdiMapMarkerMinus,
-  mdiFileDocumentMinus,
+  mdiTextBoxMinus,
   mdiTimelineQuestionOutline,
 } from '@mdi/js'
 
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsTimedelta.js'
+import '../components/GrampsjsIcon.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet} from '../api.js'
-import {renderIconSvg} from '../icons.js'
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
 const changeIcons = {
   Person_0: mdiAccountPlus,
   Family_0: mdiAccountMultiplePlus,
   Event_0: mdiCalendarPlus,
   Place_0: mdiMapMarkerPlus,
-  Source_0: mdiBookPlusMultiple,
-  Citation_0: mdiBookPlus,
-  Repository_0: mdiBankPlus,
-  Note_0: mdiFileDocumentPlus,
-  Tag_0: mdiTagPlus,
+  Source_0: mdiBookOpenVariant,
+  Citation_0: mdiBookmarkPlus,
+  Repository_0: mdiArchivePlus,
+  Note_0: mdiTextBoxPlus,
+  Tag_0: mdiLabel,
   Media_0: mdiImagePlus,
   Person_1: mdiAccountEdit,
   Family_1: mdiAccountMultiple,
   Event_1: mdiCalendarEdit,
   Place_1: mdiMapMarker,
-  Source_1: mdiBookmarkMultiple,
-  Citation_1: mdiBookEdit,
-  Repository_1: mdiBank,
-  Note_1: mdiFileDocumentEdit,
-  Tag_1: mdiTagEdit,
+  Source_1: mdiBookOpenVariant,
+  Citation_1: mdiBookmark,
+  Repository_1: mdiArchiveEdit,
+  Note_1: mdiTextBoxEdit,
+  Tag_1: mdiLabel,
   Media_1: mdiImageEdit,
   Person_2: mdiAccountMinus,
   Family_2: mdiAccountMultipleMinus,
   Event_2: mdiCalendarMinus,
   Place_2: mdiMapMarkerMinus,
-  Source_2: mdiBookMinusMultiple,
-  Citation_2: mdiBookMinus,
-  Repository_2: mdiBankMinus,
-  Note_2: mdiFileDocumentMinus,
-  Tag_2: mdiTagMinus,
+  Source_2: mdiBookOpenVariant,
+  Citation_2: mdiBookmarkMinus,
+  Repository_2: mdiArchiveMinus,
+  Note_2: mdiTextBoxMinus,
+  Tag_2: mdiLabel,
   Media_2: mdiImageMinus,
 }
 
-export class GrampsjsViewRevisions extends GrampsjsView {
+export class GrampsjsViewRevisions extends GrampsjsStaleDataMixin(
+  GrampsjsView
+) {
   static get styles() {
     return [
       super.styles,
       css`
-        md-list-item {
-          --md-list-item-label-text-weight: 350;
-          --md-list-item-label-text-size: 17px;
-          --md-list-item-supporting-text-color: rgba(0, 0, 0, 0.5);
-          --md-list-item-trailing-supporting-text-color: rgba(0, 0, 0, 0.8);
-        }
-
         md-list-item[type='text'] {
-          --md-list-item-label-text-color: rgba(0, 0, 0, 0.48);
+          --md-list-item-label-text-color: var(--grampsjs-body-font-color-48);
         }
 
-        svg[slot='end'] {
+        grampsjs-icon[slot='end'] {
           height: 22px;
           width: 22px;
           opacity: 0.9;
@@ -105,11 +92,12 @@ export class GrampsjsViewRevisions extends GrampsjsView {
 
         md-divider {
           --md-divider-thickness: 1px;
-          --md-divider-color: rgba(0, 0, 0, 0.1);
+          --md-divider-color: var(--grampsjs-body-font-color-10);
         }
+
         .counter {
           position: relative;
-          color: white;
+          color: var(--grampsjs-color-icon);
           font-size: 11px;
           min-width: 14px;
           height: 14px;
@@ -117,7 +105,7 @@ export class GrampsjsViewRevisions extends GrampsjsView {
           left: -17px;
           top: -6px;
           font-weight: 600;
-          background-color: rgba(0, 0, 0, 0.35);
+          background-color: var(--grampsjs-color-icon-background);
           border-radius: 100px;
           display: inline-block;
           text-align: center;
@@ -157,7 +145,7 @@ export class GrampsjsViewRevisions extends GrampsjsView {
         page="${this._page}"
         pages="${this._pages}"
         @page:changed="${this._handlePageChanged}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-pagination>
     `
   }
@@ -177,29 +165,26 @@ export class GrampsjsViewRevisions extends GrampsjsView {
         href="${txn.changes?.length ? `/revision/${txn.id}` : ''}"
       >
         <div slot="headline">${this._(txn.description)}</div>
-        ${renderIconSvg(mdiSourceCommit, '#777777', 0, 'start')}
+        <grampsjs-icon
+          slot="start"
+          path="${mdiSourceCommit}"
+          color="var(--grampsjs-body-font-color-50)"
+        ></grampsjs-icon>
         ${txn.changes?.length
           ? Object.keys(counts).map(key =>
               changeIcons[key]
-                ? html`
-                      ${
-                        renderIconSvg(
-                          changeIcons[key],
-                          'rgba(0, 0, 0, 0.45)',
-                          0,
-                          'end'
-                        )
-                        // <span slot="end" class="counter">${counts[key]}</span>
-                      } </span
-                    > `
+                ? html`<grampsjs-icon
+                    slot="end"
+                    path="${changeIcons[key]}"
+                    color="var(--grampsjs-body-font-color-45)"
+                  ></grampsjs-icon>`
                 : ''
             )
-          : renderIconSvg(
-              mdiTimelineQuestionOutline,
-              'rgba(0, 0, 0, 0.45)',
-              0,
-              'end'
-            )}
+          : html`<grampsjs-icon
+              slot="end"
+              path="${mdiTimelineQuestionOutline}"
+              color="var(--grampsjs-body-font-color-45)"
+            ></grampsjs-icon>`}
         <div slot="supporting-text">
           <span class="user">
             ${txn.connection?.user
@@ -209,7 +194,7 @@ export class GrampsjsViewRevisions extends GrampsjsView {
           <span class="time">
             <grampsjs-timedelta
               timestamp="${txn.timestamp}"
-              locale="${this.strings.__lang__}"
+              locale="${this.appState.i18n.lang}"
             ></grampsjs-timedelta>
           </span>
         </div>
@@ -225,7 +210,7 @@ export class GrampsjsViewRevisions extends GrampsjsView {
   async _fetchData() {
     this.loading = true
     const url = `/api/transactions/history/?sort=-id&page=${this._page}&pagesize=${this._pageSize}`
-    const data = await apiGet(url)
+    const data = await this.appState.apiGet(url)
     this.loading = false
     if ('data' in data) {
       this.error = false
@@ -246,16 +231,15 @@ export class GrampsjsViewRevisions extends GrampsjsView {
     this._fetchData()
   }
 
+  handleUpdateStaleData() {
+    this._fetchData()
+  }
+
   update(changed) {
     super.update(changed)
     if (changed.has('_page') && changed._page !== this._page) {
       this._fetchData()
     }
-  }
-
-  connectedCallback() {
-    super.connectedCallback()
-    window.addEventListener('db:changed', () => this._fetchData())
   }
 }
 

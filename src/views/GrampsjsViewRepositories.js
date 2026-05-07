@@ -2,8 +2,12 @@
 Repositories list view
 */
 
+import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
+import '../components/GrampsjsFilterTags.js'
+import '../components/GrampsjsFilterPrivate.js'
+import '../components/GrampsjsFilterText.js'
 
 export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
   constructor() {
@@ -31,13 +35,32 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
     return 'new_repository'
   }
 
+  renderFilters() {
+    return html`
+      <grampsjs-filter-text
+        .appState="${this.appState}"
+        label="Name"
+        rule="MatchesNameSubstringOf"
+        .valueIndex=${0}
+        .numArgs=${1}
+      ></grampsjs-filter-text>
+
+      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
+
+      <grampsjs-filter-private
+        .appState="${this.appState}"
+        rule="RepoPrivate"
+      ></grampsjs-filter-private>
+    `
+  }
+
   // eslint-disable-next-line class-methods-use-this
   _formatRow(row) {
     const formattedRow = {
       grampsId: row.gramps_id,
       name: row.name,
       type: this._(row.type),
-      change: prettyTimeDiffTimestamp(row.change, this.strings.__lang__),
+      change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
     return formattedRow
   }

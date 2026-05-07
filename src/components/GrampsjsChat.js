@@ -2,34 +2,37 @@ import {html, css, LitElement} from 'lit'
 import '@material/mwc-button'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsChatPrompt.js'
 import './GrampsjsChatMessage.js'
-import {setChatHistory, getChatHistory, apiPost} from '../api.js'
+import {setChatHistory, getChatHistory} from '../api.js'
 import {renderMarkdownLinks} from '../util.js'
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
         :host {
-          height: 100%;
           display: flex;
+          flex: 1;
+          height: 100%;
           flex-direction: column;
         }
 
         .outer {
+          flex: 1;
           height: 100%;
           display: flex;
           flex-direction: column;
         }
 
         .container {
+          flex: 1;
           height: 100%;
           display: flex;
           flex-direction: column;
@@ -64,7 +67,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
           width: 8px;
           height: 8px;
           margin: 0 4px;
-          background-color: #888;
+          background-color: var(--grampsjs-body-font-color-50);
           border-radius: 50%;
           animation: flash 1.4s infinite ease-in-out both;
         }
@@ -90,10 +93,8 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
 
         .clear-btn {
           position: relative;
-          float: left;
           top: 20px;
           left: 0px;
-          margin: 1px solid red;
         }
       `,
     ]
@@ -114,23 +115,23 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
 
   render() {
     return html`
-    <div class="clear-btn">
-        <mwc-button
-          raised
-          label="${this._('New')}"
-          icon="clear_all"
-          @click="${this._handleClear}"
-          ?disabled=${this.messages.length === 0}
-        ></mwc-button>
-        </div>
         <div class="outer">
+          <div class="clear-btn">
+            <mwc-button
+              raised
+              label="${this._('New')}"
+              icon="clear_all"
+              @click="${this._handleClear}"
+              ?disabled=${this.messages.length === 0}
+            ></mwc-button>
+          </div>
           <div class="container">
             <div class="conversation">
               ${
                 this.loading
                   ? html` <grampsjs-chat-message
                       type="ai"
-                      .strings="${this.strings}"
+                      .appState="${this.appState}"
                     >
                       <div class="loading" slot="no-wrap">
                         <div class="dot"></div>
@@ -145,7 +146,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
                   message => html`
                     <grampsjs-chat-message
                       type="${message.role}"
-                      .strings="${this.strings}"
+                      .appState="${this.appState}"
                       >${renderMarkdownLinks(
                         message.message
                       )}</grampsjs-chat-message
@@ -157,7 +158,7 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
               <grampsjs-chat-prompt
                 ?loading="${this.loading}"
                 @chat:prompt="${this._handlePrompt}"
-                .strings="${this.strings}"
+                .appState="${this.appState}"
               ></grampsjs-chat-prompt>
             </div>
           </div>
@@ -209,7 +210,10 @@ class GrampsjsChat extends GrampsjsTranslateMixin(LitElement) {
     if (this.messages.length > 1) {
       payload.history = this.messages.slice(0, this.messages.length - 1)
     }
-    const data = await apiPost('/api/chat/', payload)
+    const data = await this.appState.apiPost('/api/chat/', payload, {
+      dbChanged: false,
+      saving: false,
+    })
     let message
     if ('error' in data || !data?.data?.response) {
       message = {

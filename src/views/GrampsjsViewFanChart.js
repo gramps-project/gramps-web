@@ -33,8 +33,8 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
         }
 
         #controls md-input-chip {
-          --md-sys-color-outline: rgba(0, 0, 0, 0.3);
-          --md-sys-color-primary: rgba(0, 0, 0, 0.4);
+          --md-sys-color-outline: var(--grampsjs-body-font-color-30);
+          --md-sys-color-primary: var(--grampsjs-body-font-color-40);
           position: relative;
           top: 8px;
           margin-left: 10px;
@@ -56,14 +56,33 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
 
   constructor() {
     super()
-    this.nAnc = 4
-    this.nDesc = 1
     this._setAnc = true
     this.color = ''
+    this.defaults.nAnc = 4
+  }
+
+  get nAnc() {
+    return this.appState?.settings?.fanChartAnc ?? this.defaults.nAnc
+  }
+
+  set nAnc(value) {
+    this.appState.updateSettings({fanChartAnc: value}, false)
+  }
+
+  get nameDisplayFormat() {
+    return (
+      this.appState?.settings?.fanChartNameDisplayFormat ??
+      this.defaults.nameDisplayFormat
+    )
+  }
+
+  set nameDisplayFormat(value) {
+    this.appState.updateSettings({fanChartNameDisplayFormat: value}, false)
   }
 
   _resetLevels() {
-    this.nAnc = 4
+    this.nAnc = this.defaults.nAnc
+    this.nameDisplayFormat = this.defaults.nameDisplayFormat
   }
 
   renderChart() {
@@ -72,8 +91,9 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
         grampsId=${this.grampsId}
         depth=${this.nAnc + 1}
         .data=${this._data}
-        .strings=${this.strings}
+        .appState="${this.appState}"
         color="${this.color}"
+        nameDisplayFormat=${this.nameDisplayFormat}
       >
       </grampsjs-fan-chart>
     `
@@ -88,7 +108,7 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
         @click=${this._handleColor}
         id="btn-color"
       ></mwc-icon-button>
-      <grampsjs-tooltip for="btn-color" .strings="${this.strings}"
+      <grampsjs-tooltip for="btn-color" .appState="${this.appState}"
         >${this._('Color')}</grampsjs-tooltip
       >
       <span style="position: relative">

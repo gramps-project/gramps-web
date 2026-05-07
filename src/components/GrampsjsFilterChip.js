@@ -3,12 +3,12 @@ import {classMap} from 'lit/directives/class-map.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import '@material/mwc-icon-button'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 import {fireEvent} from '../util.js'
 import './GrampsjsFormNewTag.js'
 
-export class GrampsjsFilterChip extends GrampsjsTranslateMixin(LitElement) {
+export class GrampsjsFilterChip extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -26,7 +26,7 @@ export class GrampsjsFilterChip extends GrampsjsTranslateMixin(LitElement) {
           border-radius: 9999px;
           margin: 5px 5px;
           background-color: var(--mdc-theme-primary);
-          color: rgba(255, 255, 255, 0.9);
+          color: var(--mdc-theme-on-primary);
           line-height: 18px;
         }
 

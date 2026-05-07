@@ -9,23 +9,22 @@ import '../components/GrampsjsDeleteAll.js'
 import '../components/GrampsjsRelogin.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
-import {apiPost, isTokenFresh} from '../api.js'
-import {fireEvent, clickKeyHandler} from '../util.js'
-import '@material/mwc-button'
+
+import {fireEvent} from '../util.js'
+import {mdiDeleteForever} from '@mdi/js'
+import '../components/GrampsjsIcon.js'
+import '@material/web/button/outlined-button.js'
+import '@material/web/textfield/outlined-text-field.js'
 
 export class GrampsjsViewAdminSettings extends GrampsjsView {
   static get styles() {
     return [
       super.styles,
       css`
-        :host {
-          margin: 0;
-        }
-
         .card {
           padding: 1em 1em;
           border-radius: 16px;
-          background-color: rgba(109, 76, 65, 0.12);
+          background-color: var(--grampsjs-color-shade-230);
         }
 
         .pre {
@@ -35,7 +34,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         .danger-zone {
           font-size: 16px;
           padding: 0.8em 1.4em;
-          border: 1px solid #bf360c;
+          border: 1px solid var(--grampsjs-alert-error-font-color);
           border-radius: 8px;
           display: flex;
           align-items: center;
@@ -51,12 +50,33 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         .danger-zone div.button {
           float: right;
           order: 2;
-          --mdc-button-outline-color: #bf360c;
-          --mdc-theme-primary: #bf360c;
+        }
+
+        .danger-button {
+          --md-outlined-button-label-text-color: var(
+            --grampsjs-alert-error-font-color
+          );
+          --md-outlined-button-focus-label-text-color: var(
+            --grampsjs-alert-error-font-color
+          );
+          --md-outlined-button-hover-label-text-color: var(
+            --grampsjs-alert-error-font-color
+          );
+          --md-outlined-button-pressed-label-text-color: var(
+            --grampsjs-alert-error-font-color
+          );
+          --md-outlined-button-outline-color: var(
+            --grampsjs-alert-error-font-color
+          );
         }
 
         .danger-zone p {
           margin: 0.4em 0;
+        }
+
+        #tree-name-field {
+          width: 100%;
+          max-width: 30em;
         }
 
         .bold {
@@ -79,41 +99,42 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
 
   static get properties() {
     return {
-      userData: {type: Array},
-      dbInfo: {type: Object},
-      userInfo: {type: Object},
+      _userInfo: {type: Object},
       _repairResults: {type: Object},
       _buttonUpdateSearchDisabled: {type: Boolean},
       _buttonUpdateSearchSemanticDisabled: {type: Boolean},
+      _treeName: {type: String},
     }
   }
 
   constructor() {
     super()
-    this.userData = []
-    this.dbInfo = {}
-    this.userInfo = {}
+    this._userInfo = {}
     this._repairResults = {}
     this._buttonUpdateSearchDisabled = false
     this._buttonUpdateSearchSemanticDisabled = false
+    this._treeName = ''
   }
 
   renderContent() {
     return html`
       <h3>${this._('Usage quotas')}</h3>
 
-      <grampsjs-tree-quotas .strings="${this.strings}"></grampsjs-tree-quotas>
+      <grampsjs-tree-quotas .appState="${this.appState}"></grampsjs-tree-quotas>
+      <grampsjs-import .appState="${this.appState}"></grampsjs-import>
 
-      <grampsjs-media-status .strings="${this.strings}"></grampsjs-media-status>
-      ${this.dbInfo?.object_counts?.media
+      <grampsjs-media-status
+        .appState="${this.appState}"
+      ></grampsjs-media-status>
+      ${this.appState.dbInfo?.object_counts?.media
         ? html`<grampsjs-media-file-status
-            .strings="${this.strings}"
+            .appState="${this.appState}"
           ></grampsjs-media-file-status>`
         : ''}
 
-      <grampsjs-import .strings="${this.strings}"></grampsjs-import>
-
-      <grampsjs-import-media .strings="${this.strings}"></grampsjs-import-media>
+      <grampsjs-import-media
+        .appState="${this.appState}"
+      ></grampsjs-import-media>
 
       <h3>${this._('Manage search index')}</h3>
 
@@ -124,23 +145,22 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           'Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.'
         )}
       </p>
-      <mwc-button
-        outlined
+      <md-outlined-button
         ?disabled=${this._buttonUpdateSearchDisabled}
         @click="${() => this._updateSearch(false)}"
-        @keydown="${clickKeyHandler}"
-        >${this._('Update search index')}</mwc-button
+        >${this._('Update search index')}</md-outlined-button
       >
       <grampsjs-task-progress-indicator
         class="button"
         id="progress-update-search"
         taskName="searchReindexFull"
         size="20"
-        pollInterval="0.2"
+        pollInterval="0.5"
+        .appState="${this.appState}"
         @task:complete="${this._handleSuccessUpdateSearch}"
       ></grampsjs-task-progress-indicator>
 
-      ${this.dbInfo?.server?.semantic_search
+      ${this.appState.dbInfo?.server?.semantic_search
         ? html`
             <h3>${this._('Manage semantic search index')}</h3>
 
@@ -151,23 +171,59 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                 'Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.'
               )}
             </p>
-            <mwc-button
-              outlined
-              ?disabled=${this._buttonUpdateSearchSemanticDisabled}
-              @click="${() => this._updateSearch(true)}"
-              @keydown="${clickKeyHandler}"
-              >${this._('Update semantic search index')}</mwc-button
-            >
-            <grampsjs-task-progress-indicator
-              class="button"
-              id="progress-update-search-semantic"
-              taskName="searchReindexFullSemantic"
-              size="20"
-              pollInterval="0.2"
-              @task:complete="${this._handleSuccessUpdateSearch}"
-            ></grampsjs-task-progress-indicator>
+            <p>
+              <md-outlined-button
+                ?disabled=${this._buttonUpdateSearchSemanticDisabled}
+                @click="${() => this._updateSearch(true)}"
+                >${this._(
+                  'Regenerate semantic search index'
+                )}</md-outlined-button
+              >
+              <grampsjs-task-progress-indicator
+                class="button"
+                id="progress-update-search-semantic"
+                taskName="searchReindexFullSemantic"
+                size="20"
+                pollInterval="1.0"
+                .appState="${this.appState}"
+                @task:complete="${this._handleSuccessUpdateSearch}"
+              ></grampsjs-task-progress-indicator>
+            </p>
+            <p>
+              <md-outlined-button
+                ?disabled=${this._buttonUpdateSearchSemanticDisabled}
+                @click="${() => this._updateSearch(true, true)}"
+                >${this._('Update semantic search index')}</md-outlined-button
+              >
+              <grampsjs-task-progress-indicator
+                class="button"
+                id="progress-update-search-semantic-incremental"
+                taskName="searchReindexIncrementalSemantic"
+                size="20"
+                pollInterval="1.0"
+                .appState="${this.appState}"
+                @task:complete="${this._handleSuccessUpdateSearch}"
+              ></grampsjs-task-progress-indicator>
+            </p>
           `
         : ''}
+      <h3>${this._('Family Tree name')}</h3>
+      <p>
+        <md-outlined-text-field
+          id="tree-name-field"
+          label="${this._('Family Tree name')}"
+          .value="${this._treeName}"
+          @input="${e => {
+            this._treeName = e.target.value
+          }}"
+        ></md-outlined-text-field>
+      </p>
+      <p>
+        <md-outlined-button @click="${this._renameTree}"
+          >${this._('_Rename')}</md-outlined-button
+        >
+      </p>
+
       <h3>${this._('Check and Repair Database')}</h3>
 
       <p>
@@ -175,11 +231,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           'This tool checks the database for integrity problems, fixing the problems it can.'
         )}
       </p>
-      <mwc-button
-        outlined
-        @click="${this._checkRepair}"
-        @keydown="${clickKeyHandler}"
-        >${this._('Check and Repair')}</mwc-button
+      <md-outlined-button @click="${this._checkRepair}"
+        >${this._('Check and Repair')}</md-outlined-button
       >
       <grampsjs-task-progress-indicator
         class="button"
@@ -187,6 +240,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         taskName="repairDb"
         size="20"
         pollInterval="0.2"
+        .appState="${this.appState}"
         @task:complete="${this._handleRepairComplete}"
       ></grampsjs-task-progress-indicator>
 
@@ -216,32 +270,38 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             taskName="deleteObjects"
             size="20"
             pollInterval="0.2"
+            .appState="${this.appState}"
+            @task:complete="${this._handleDeleteAllComplete}"
           ></grampsjs-task-progress-indicator>
-          <mwc-button
-            outlined
+          <md-outlined-button
+            class="danger-button"
             @click="${this._openDeleteAll}"
-            @keydown="${clickKeyHandler}"
-            icon="delete_forever"
-            >${this._('Delete')}</mwc-button
           >
+            <grampsjs-icon
+              slot="icon"
+              path="${mdiDeleteForever}"
+              color="var(--grampsjs-alert-error-font-color)"
+            ></grampsjs-icon>
+            ${this._('Delete')}
+          </md-outlined-button>
         </div>
       </div>
       <grampsjs-delete-all
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         @delete-objects="${this._handleDeleteAll}"
       ></grampsjs-delete-all>
       <grampsjs-relogin
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         @relogin="${this._openDeleteAll}"
-        username="${this.userInfo?.name || ''}"
+        username="${this._userInfo?.name || ''}"
       ></grampsjs-relogin>
     `
   }
 
   _renderSearchStatus(semantic = false) {
     const property = semantic ? 'count_semantic' : 'count'
-    const count = this.dbInfo?.search?.sifts?.[property] ?? -1
-    const objCounts = this.dbInfo?.object_counts ?? {}
+    const count = this.appState.dbInfo?.search?.sifts?.[property] ?? -1
+    const objCounts = this.appState.dbInfo?.object_counts ?? {}
     const objCount = Object.values(objCounts).reduce(
       (sum, value) => sum + value,
       0
@@ -258,7 +318,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
   }
 
   _openDeleteAll() {
-    if (isTokenFresh()) {
+    if (this.appState.auth.isTokenFresh()) {
       this.renderRoot.querySelector('grampsjs-delete-all').show()
     } else {
       this.renderRoot.querySelector('grampsjs-relogin').show()
@@ -273,7 +333,10 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       ? `?namespaces=${e.detail.namespaces}`
       : ''
     const url = `/api/objects/delete/${querypar}`
-    const data = await apiPost(url, null, true, true, true)
+    const data = await this.appState.apiPost(url, null, {
+      requireFresh: true,
+      dbChanged: false,
+    })
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -281,26 +344,35 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.taskId = data.task?.id || ''
     } else {
       prog.setComplete()
-      fireEvent(this, 'db:changed')
     }
   }
 
-  async _updateSearch(semantic = false) {
-    const id = semantic
-      ? 'progress-update-search-semantic'
-      : 'progress-update-search'
+  _handleDeleteAllComplete() {
+    fireEvent(this, 'db:changed')
+  }
+
+  async _updateSearch(semantic = false, incremental = false) {
+    let id
+    if (semantic) {
+      id = incremental
+        ? 'progress-update-search-semantic-incremental'
+        : 'progress-update-search-semantic'
+    } else {
+      id = 'progress-update-search'
+    }
     const prog = this.renderRoot.querySelector(`#${id}`)
     prog.reset()
     prog.open = true
-    const url = semantic
-      ? '/api/search/index/?full=1&semantic=1'
-      : '/api/search/index/?full=1'
+    const params = new URLSearchParams()
+    if (!incremental) params.append('full', '1')
+    if (semantic) params.append('semantic', '1')
+    const url = `/api/search/index/?${params.toString()}`
     if (semantic) {
       this._buttonUpdateSearchSemanticDisabled = true
     } else {
       this._buttonUpdateSearchDisabled = true
     }
-    const data = await apiPost(url)
+    const data = await this.appState.apiPost(url)
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -331,7 +403,9 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     const prog = this.renderRoot.querySelector('#progress-repair')
     prog.reset()
     prog.open = true
-    const data = await apiPost('/api/trees/-/repair')
+    const data = await this.appState.apiPost('/api/trees/-/repair', null, {
+      dbChanged: false,
+    })
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
@@ -347,6 +421,40 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     if (info !== undefined) {
       this._repairResults = JSON.parse(info)
     }
+    fireEvent(this, 'db:changed')
+  }
+
+  async _fetchTreeInfo() {
+    const data = await this.appState.apiGet('/api/trees/-')
+    if (!('error' in data)) {
+      this._treeName = data?.data?.name ?? ''
+    }
+  }
+
+  async _renameTree() {
+    const data = await this.appState.apiPut('/api/trees/-', {
+      name: this._treeName,
+    })
+    if ('error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
+  async _fetchOwnUserDetails() {
+    const data = await this.appState.apiGet('/api/users/-/')
+    if ('error' in data) {
+      this.error = true
+      this._errorMessage = data.error
+    } else {
+      this.error = false
+      this._userInfo = data.data
+    }
+  }
+
+  firstUpdated() {
+    super.firstUpdated()
+    this._fetchOwnUserDetails()
+    this._fetchTreeInfo()
   }
 }
 

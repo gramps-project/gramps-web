@@ -3,4 +3,7 @@
   "editor.tabSize": 2,
   "files.trimTrailingWhitespace": true,
   "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

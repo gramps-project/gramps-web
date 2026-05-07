@@ -8,16 +8,9 @@ import '@material/mwc-circular-progress'
 import './GrampsjsPasswordManagerPolyfill.js'
 import {mdiCheckCircle} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
-import {
-  __APIHOST__,
-  apiGetTokens,
-  apiPut,
-  apiPost,
-  updateTaskStatus,
-  getTreeFromToken,
-} from '../api.js'
+import {__APIHOST__, apiGetTokens, getTreeFromToken} from '../api.js'
 import {fireEvent} from '../util.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsFormUpload.js'
 import {renderIcon} from '../icons.js'
 import './GrampsjsProgressIndicator.js'
@@ -37,7 +30,7 @@ const CONFIG_KEYS = {
   '#base_url': 'BASE_URL',
 }
 
-class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -62,6 +55,15 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
           color: var(--mdc-theme-primary);
         }
 
+        h2 {
+          font-size: 32px;
+          font-weight: 600;
+        }
+
+        h3 {
+          font-size: 24px;
+        }
+
         p {
           line-height: 1.6;
         }
@@ -80,7 +82,6 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
       token: {type: String},
       stateUser: {type: Number},
       stateConfig: {type: Number},
-      stateTree: {type: Number},
       _errorUser: {type: String},
       _errorConfig: {type: String},
       _errorTree: {type: String},
@@ -94,7 +95,6 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     this.token = ''
     this.stateUser = STATE_INITIAL
     this.stateConfig = STATE_INITIAL
-    this.stateTree = STATE_INITIAL
     this._errorUser = ''
     this._errorConfig = ''
     this._errorTree = ''
@@ -106,14 +106,17 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     return html`
       <div class="container">
         <div class="form">
-          <h1>${this._('Welcome to Gramps Web')}</h1>
+          <h2>${this._('Welcome to Gramps Web')}</h2>
 
           <h3>
             ${this._('Create an admin account')}
             ${this.stateUser !== STATE_INITIAL
               ? html`
                   <span class="icon">
-                    ${renderIcon(mdiCheckCircle, '#41AD49')}
+                    ${renderIcon(
+                      mdiCheckCircle,
+                      'var(--grampsjs-alert-success-font-color)'
+                    )}
                   </span>
                 `
               : ''}
@@ -164,7 +167,10 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
                   ${this.stateConfig !== STATE_INITIAL
                     ? html`
                         <span class="icon">
-                          ${renderIcon(mdiCheckCircle, '#41AD49')}
+                          ${renderIcon(
+                            mdiCheckCircle,
+                            'var(--grampsjs-alert-success-font-color)'
+                          )}
                         </span>
                       `
                     : ''}
@@ -222,36 +228,6 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
                 ></mwc-textfield>
               `}
 
-          <h3>
-            ${this._('Upload family tree')}
-            ${this.stateTree !== STATE_INITIAL
-              ? html`
-                  <span class="icon">
-                    ${renderIcon(mdiCheckCircle, '#41AD49')}
-                  </span>
-                `
-              : ''}
-          </h3>
-
-          <p>${this._('Optionally, upload existing family tree data.')}</p>
-
-          <p>
-            <grampsjs-form-upload
-              .strings="${this.strings}"
-              filename
-              @formdata:changed="${this._handleUploadChanged}"
-              ?disabled="${this.stateUser === STATE_DONE}"
-            ></grampsjs-form-upload>
-          </p>
-          ${this._uploadHint ? html`${this._uploadHint}` : ''}
-
-          <p style="margin-top: 2em;">
-            ${this._('Need help? Check out ')}<a
-              href="https://www.grampsweb.org/Deployment/"
-              >${this._('the documentation')}</a
-            >.
-          </p>
-
           <h3>${this._('Submit')}</h3>
 
           <mwc-button
@@ -277,17 +253,11 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
                   this.stateConfig,
                   this._errorConfig
                 )}
-            ${this._showProgress(
-              this._('Importing family tree'),
-              this.stateTree,
-              this._errorTree
-            )}
           </p>
 
           <div
             style="visibility:${this.stateUser === STATE_DONE &&
-            this.stateConfig !== STATE_PROGRESS &&
-            this.stateTree !== STATE_PROGRESS
+            this.stateConfig !== STATE_PROGRESS
               ? 'visible'
               : 'hidden'};"
           >
@@ -343,11 +313,6 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
       if (this.stateConfig !== STATE_ERROR) {
         this.stateConfig = STATE_DONE
       }
-    }
-    if (this.stateTree === STATE_READY) {
-      const uploadForm = this.shadowRoot.querySelector('grampsjs-form-upload')
-      const ext = uploadForm.file.name.split('.').pop().toLowerCase()
-      await this._submitTree(ext, uploadForm.file)
     }
   }
 
@@ -409,7 +374,7 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
   }
 
   async _submitConfigSingle(key, value) {
-    const res = await apiPut(`/api/config/${key}/`, {
+    const res = await this.appState.apiPut(`/api/config/${key}/`, {
       value,
     })
     if ('error' in res) {
@@ -418,68 +383,8 @@ class GrampsjsFirstRun extends GrampsjsTranslateMixin(LitElement) {
     }
   }
 
-  async _submitTree(ext, file) {
-    this.stateTree = STATE_PROGRESS
-    const res = await apiPost(`/api/importers/${ext}/file`, file, false)
-    if ('error' in res) {
-      this.stateTree = STATE_ERROR
-      this._errorTree = res.error || ''
-    } else if ('task' in res) {
-      updateTaskStatus(res.task.id, status => {
-        if (status.state === 'SUCCESS') {
-          this.stateTree = STATE_DONE
-        } else if (status.state === 'FAILURE' || status.state === 'REVOKED') {
-          this.stateTree = STATE_ERROR
-          this._errorTree = status.state
-        }
-      })
-    } else {
-      this.stateTree = STATE_DONE
-    }
-  }
-
   _done() {
     fireEvent(this, 'firstrun:done')
-  }
-
-  _handleUploadChanged() {
-    const uploadForm = this.shadowRoot.querySelector('grampsjs-form-upload')
-    if (!uploadForm.file?.name) {
-      this._uploadHint = ''
-      this.stateTree = STATE_INITIAL
-      return
-    }
-
-    const ext = uploadForm.file.name.split('.').pop().toLowerCase()
-    if (!['gpkg', 'gramps', 'gw', 'def', 'vcf', 'csv', 'ged'].includes(ext)) {
-      this._uploadHint = html`<p class="alert error">
-        ${this._('Unsupported format')}
-      </p>`
-      this.stateTree = STATE_INITIAL
-      return
-    }
-    if (ext === 'gpkg') {
-      this._uploadHint = html`<p class="alert error">
-        ${this._(
-          'The Gramps package format (.gpkg) is currently not supported.'
-        )}
-        ${this._(
-          'Please upload a file in Gramps XML (.gramps) format without media files.'
-        )}
-      </p>`
-      this.stateTree = STATE_INITIAL
-      return
-    }
-    if (ext !== 'gramps') {
-      this._uploadHint = html`<p class="alert warn">
-        ${this._(
-          'If you intend to synchronize an existing Gramps database with Gramps Web, use the Gramps XML (.gramps) format instead.'
-        )}
-      </p>`
-    } else {
-      this._uploadHint = ''
-    }
-    this.stateTree = STATE_READY
   }
 
   checkValidity() {

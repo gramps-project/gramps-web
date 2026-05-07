@@ -3,17 +3,16 @@ import {html, css} from 'lit'
 
 import {mdiSelectDrag, mdiTextRecognition} from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
-import './GrampsJsImage.js'
+import './GrampsjsImg.js'
 import './GrampsjsFormEditDate.js'
 import './GrampsjsFormEditTitle.js'
 import './GrampsjsFormEditMapLayer.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFaces.js'
 import './GrampsjsTextRecognition.js'
-import {arrayEqual, fireEvent, getNameFromProfile} from '../util.js'
+import {arrayEqual, fireEvent, getNameFromProfile, emptyDate} from '../util.js'
 import {renderIconSvg} from '../icons.js'
 
-import '@material/mwc-dialog'
 import '@material/mwc-icon'
 import '@material/mwc-icon-button'
 
@@ -51,7 +50,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         .ocr {
           padding: 1em 1em;
           border-radius: 16px;
-          background-color: rgba(109, 76, 65, 0.12);
+          background-color: var(--grampsjs-color-shade-230);
         }
 
         .close-icon {
@@ -71,7 +70,6 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       deletedRects: {type: Array},
       bbox: {type: Object},
       dbInfo: {type: Object},
-      canEdit: {type: Boolean},
       _drawing: {type: Boolean},
       _ocr: {type: Boolean},
     }
@@ -86,7 +84,6 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     this.deletedRects = []
     this.bbox = {}
     this.dbInfo = {}
-    this.canEdit = false
     this._drawing = false
     this._ocr = false
   }
@@ -140,7 +137,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         hideLeftArrow
         hideRightArrow
         active
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       >
       </grampsjs-view-media-lightbox>
     `
@@ -154,7 +151,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           <grampsjs-form-select-object
             fixedMenuPosition
             objectType="person"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
             id="face-select"
             label="${this._('Person')}"
             ?disabled="${noSelection}"
@@ -187,7 +184,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       </p>
 
       <grampsjs-rect-container
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         ?draw="${this._drawing}"
         @rect:draw="${this._handleDrawRec}"
       >
@@ -199,7 +196,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
             ...this.deletedRects,
             ...this._getRectangles().map(obj => obj.rect),
           ]}"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
           @rect:selected="${this._handleRectSelected}"
           slot="image"
         >
@@ -208,6 +205,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
             size="1000"
             border
             mime="${this.data.mime}"
+            checksum="${this.data.checksum}"
           ></grampsjs-img>
           ${this.selectedRect?.rect?.length
             ? html`<grampsjs-rect
@@ -241,6 +239,12 @@ export class GrampsjsMediaObject extends GrampsjsObject {
             )}
       </grampsjs-rect-container>
 
+      ${this._renderReplaceFile()}
+    `
+  }
+
+  _renderReplaceFile() {
+    return html`
       <p>
         <grampsjs-form-upload
           @formdata:changed="${this._handleFormData}"
@@ -248,7 +252,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           id="upload"
           label="${this._('Replace file')}"
           class="edit"
-          .strings="${this.strings}"
+          .appState="${this.appState}"
         ></grampsjs-form-upload>
       </p>
     `
@@ -272,15 +276,18 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         class="link"
         border
         mime="${this.data.mime}"
+        checksum="${this.data.checksum}"
         @click=${this._handleClick}
       ></grampsjs-img>
+
+      ${this.edit ? this._renderReplaceFile() : ''}
     `
   }
 
   _renderImageNoEdit() {
     return html`
       <grampsjs-rect-container
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         @rect:clicked="${this._handleRectClick}"
       >
         <grampsjs-img
@@ -289,6 +296,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           class="link"
           border
           mime="${this.data.mime}"
+          checksum="${this.data.checksum}"
           @click=${this._handleClick}
         ></grampsjs-img>
 
@@ -339,10 +347,10 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         ></mwc-icon-button>
       </span>
       <grampsjs-text-recognition
-        ?canEdit="${this.canEdit}"
+        ?canEdit="${this.appState.permissions.canEdit}"
         .languages="${this.dbInfo?.server?.ocr_languages ?? []}"
         handle="${this.data.handle ?? ''}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-text-recognition>
     </div>`
   }
@@ -410,7 +418,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       <grampsjs-form-edit-title
         @object:save="${this._handleSaveTitle}"
         @object:cancel="${this._handleCancelDialog}"
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .data=${{desc: this.data?.desc || ''}}
         prop="desc"
       >
@@ -423,8 +431,8 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     <grampsjs-form-edit-date
       @object:save="${this._handleSaveDate}"
       @object:cancel="${this._handleCancelDialog}"
-      .strings=${this.strings}
-      .data=${{date: this.data.date}}
+      .appState="${this.appState}"
+      .data=${{date: this.data.date ?? emptyDate}}
     >
     </grampsjs-form-edit-title>
     `
@@ -449,7 +457,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       <grampsjs-form-edit-map-layer
         @object:save="${this._handleSaveMap}"
         @object:cancel="${this._handleCancelDialog}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         .data="${this.data}"
       ></grampsjs-form-edit-map-layer>
     `
@@ -467,7 +475,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           const refs = key in references ? references[key] : []
           const label =
             refs.length >= index
-              ? getNameFromProfile(refs[index] || {}, key, this.strings)
+              ? getNameFromProfile(refs[index] || {}, key)
               : '...'
           return {
             rect: obj?.media_list?.find(mobj => mobj.ref === this.data.handle)

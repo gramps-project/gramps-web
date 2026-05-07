@@ -4,14 +4,69 @@ import '@material/mwc-icon'
 import dayjs from 'dayjs/esm'
 import relativeTime from 'dayjs/esm/plugin/relativeTime'
 
-import {mdiOpenInNew} from '@mdi/js'
-import {asteriskIcon, crossIcon, renderIconSvg} from './icons.js'
+import {
+  mdiOpenInNew,
+  mdiAccount,
+  mdiAccountMultiple,
+  mdiArchive,
+  mdiCalendar,
+  mdiMapMarker,
+  mdiBookmark,
+  mdiImage,
+  mdiTextBox,
+  mdiLabel,
+  mdiCradle,
+  mdiCoffin,
+  mdiGraveStone,
+  mdiChurch,
+  mdiStarDavid,
+  mdiClipboardList,
+  mdiSchool,
+  mdiFerry,
+  mdiHammer,
+  mdiHandCoin,
+  mdiHome,
+  mdiRing,
+  mdiMedicalBag,
+  mdiSwordCross,
+  mdiPassport,
+  mdiFleurDeLis,
+  mdiScaleBalance,
+  mdiGavel,
+  mdiVote,
+  mdiFireplace,
+  mdiFileCertificate,
+  mdiFileDocument,
+  mdiHumanCane,
+  mdiHandsPray,
+  mdiWater,
+  mdiDivision,
+  mdiSkullCrossbones,
+  mdiAccountChild,
+  mdiFlag,
+  mdiCity,
+  mdiHomeGroup,
+  mdiRoad,
+  mdiBarn,
+  mdiBookOpenVariant,
+} from '@mdi/js'
+import {asteriskIcon, crossIcon, renderIconSvg, ringsIconPath} from './icons.js'
+import './components/GrampsjsIcon.js'
 import {frontendLanguages} from './strings.js'
 import {hex6ToCss, hex12ToCss} from './color.js'
 
 dayjs.extend(relativeTime)
 
 const BASE_DIR = ''
+
+export const emptyDate = {
+  _class: 'Date',
+  calendar: 0,
+  modifier: 0,
+  quality: 0,
+  dateval: [0, 0, 0, false],
+  sortval: 0,
+}
 
 export function translate(strings, s) {
   if (s === undefined) {
@@ -139,7 +194,10 @@ export function showObject(type, obj, strings) {
       return html`
         <mwc-icon class="inline">event</mwc-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${eventTitleFromProfile(obj.profile || {}, strings) || obj.type}
+          >${eventTitleFromProfile(obj.profile || {}) ||
+          (typeof obj.type === 'string'
+            ? obj.type
+            : obj.type?.string || eventTypeStrings[obj.type?.value] || type)}
         </a>
       `
     case 'place':
@@ -174,7 +232,12 @@ export function showObject(type, obj, strings) {
       return html`
         <mwc-icon class="inline">sticky_note_2</mwc-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${translate(strings, obj.type) || type}
+          >${translate(
+            strings,
+            typeof obj.type === 'string'
+              ? obj.type
+              : obj.type?.string || noteTypeStrings[obj.type?.value] || ''
+          ) || type}
         </a>
       `
     case 'media':
@@ -191,17 +254,105 @@ export function showObject(type, obj, strings) {
   }
 }
 
-export const objectIcon = {
-  person: 'person',
-  family: 'people',
-  event: 'event',
-  place: 'place',
-  source: 'bookmarks',
-  citation: 'bookmark',
-  repository: 'account_balance',
-  note: 'sticky_note_2',
-  media: 'photo',
-  tag: 'label',
+export const objectIconPath = {
+  person: mdiAccount,
+  family: mdiAccountMultiple,
+  event: mdiCalendar,
+  place: mdiMapMarker,
+  source: mdiBookOpenVariant,
+  citation: mdiBookmark,
+  repository: mdiArchive,
+  note: mdiTextBox,
+  media: mdiImage,
+  tag: mdiLabel,
+}
+
+export const objectTypePlural = {
+  person: 'People',
+  family: 'Families',
+  event: 'Events',
+  place: 'Places',
+  source: 'Sources',
+  citation: 'Citations',
+  repository: 'Repositories',
+  note: 'Notes',
+  media: 'Media',
+  tag: 'Tags',
+}
+
+export const placeTypeIconPath = {
+  Unknown: null,
+  Custom: null,
+  Country: mdiFlag,
+  State: mdiFlag,
+  County: null,
+  City: mdiCity,
+  Parish: mdiChurch,
+  Locality: mdiHomeGroup,
+  Street: mdiRoad,
+  Province: null,
+  Region: null,
+  Department: null,
+  Neighborhood: mdiHomeGroup,
+  District: null,
+  Borough: mdiCity,
+  Municipality: mdiCity,
+  Town: mdiCity,
+  Village: mdiHomeGroup,
+  Hamlet: mdiHomeGroup,
+  Farm: mdiBarn,
+  Building: mdiHome,
+  Number: mdiHome,
+}
+
+export const eventTypeIconPath = {
+  Unknown: null,
+  Custom: null,
+  Adopted: mdiAccountChild,
+  Birth: mdiCradle,
+  Death: mdiCoffin,
+  'Adult Christening': mdiWater,
+  Baptism: mdiWater,
+  'Bar Mitzvah': mdiStarDavid,
+  'Bas Mitzvah': mdiStarDavid,
+  Blessing: mdiHandsPray,
+  Burial: mdiGraveStone,
+  'Cause Of Death': mdiSkullCrossbones,
+  Census: mdiClipboardList,
+  Christening: mdiWater,
+  Confirmation: mdiChurch,
+  Cremation: mdiFireplace,
+  Degree: mdiSchool,
+  Education: mdiSchool,
+  Elected: mdiVote,
+  Emigration: mdiFerry,
+  'First Communion': mdiHandCoin,
+  Immigration: mdiFerry,
+  Graduation: mdiSchool,
+  'Medical Information': mdiMedicalBag,
+  'Military Service': mdiSwordCross,
+  Naturalization: mdiPassport,
+  'Nobility Title': mdiFleurDeLis,
+  'Number of Marriages': ringsIconPath,
+  Occupation: mdiHammer,
+  Ordination: mdiChurch,
+  Probate: mdiGavel,
+  Property: mdiHome,
+  Religion: mdiHandsPray,
+  Residence: mdiHome,
+  Retirement: mdiHumanCane,
+  Will: mdiFileDocument,
+  Marriage: ringsIconPath,
+  'Marriage Settlement': mdiFileCertificate,
+  'Marriage License': mdiFileCertificate,
+  'Marriage Contract': mdiFileCertificate,
+  'Marriage Banns': mdiFileCertificate,
+  Engagement: mdiRing,
+  Divorce: mdiDivision,
+  'Divorce Filing': mdiFileDocument,
+  Annulment: mdiScaleBalance,
+  'Alternate Marriage': ringsIconPath,
+  Stillbirth: null,
 }
 
 export const objectTypeToEndpoint = {
@@ -215,6 +366,89 @@ export const objectTypeToEndpoint = {
   note: 'notes',
   media: 'media',
   tag: 'tags',
+  object: 'objects',
+}
+
+const eventTypeStrings = {
+  '-1': 'Unknown',
+  0: 'Custom',
+  1: 'Marriage',
+  2: 'Marriage Settlement',
+  3: 'Marriage License',
+  4: 'Marriage Contract',
+  5: 'Marriage Banns',
+  6: 'Engagement',
+  7: 'Divorce',
+  8: 'Divorce Filing',
+  9: 'Annulment',
+  10: 'Alternate Marriage',
+  11: 'Adopted',
+  12: 'Birth',
+  13: 'Death',
+  14: 'Adult Christening',
+  15: 'Baptism',
+  16: 'Bar Mitzvah',
+  17: 'Bas Mitzvah',
+  18: 'Blessing',
+  19: 'Burial',
+  20: 'Cause Of Death',
+  21: 'Census',
+  22: 'Christening',
+  23: 'Confirmation',
+  24: 'Cremation',
+  25: 'Degree',
+  26: 'Education',
+  27: 'Elected',
+  28: 'Emigration',
+  29: 'First Communion',
+  30: 'Immigration',
+  31: 'Graduation',
+  32: 'Medical Information',
+  33: 'Military Service',
+  34: 'Naturalization',
+  35: 'Nobility Title',
+  36: 'Number of Marriages',
+  37: 'Occupation',
+  38: 'Ordination',
+  39: 'Probate',
+  40: 'Property',
+  41: 'Religion',
+  42: 'Residence',
+  43: 'Retirement',
+  44: 'Will',
+  45: 'Stillbirth',
+}
+
+const noteTypeStrings = {
+  '-1': 'Unknown',
+  0: 'Custom',
+  1: 'General',
+  2: 'Research',
+  3: 'Transcript',
+  4: 'Person Note',
+  5: 'Attribute Note',
+  6: 'Address Note',
+  7: 'Association Note',
+  8: 'LDS Note',
+  9: 'Family Note',
+  10: 'Event Note',
+  11: 'Event Reference Note',
+  12: 'Source Note',
+  13: 'Source Reference Note',
+  14: 'Place Note',
+  15: 'Repository Note',
+  16: 'Repository Reference Note',
+  17: 'Media Note',
+  18: 'Media Reference Note',
+  19: 'Child Reference Note',
+  20: 'Name Note',
+  21: 'Source text',
+  22: 'Citation',
+  23: 'Report',
+  24: 'Html code',
+  25: 'To Do',
+  26: 'Link',
+  27: 'Analysis',
 }
 
 export function objectDescription(type, obj, strings) {
@@ -225,8 +459,13 @@ export function objectDescription(type, obj, strings) {
       return html`${familyTitleFromProfile(obj.profile || {}) ||
       translate(strings, 'Family')}`
     case 'event':
-      return html`${eventTitleFromProfile(obj.profile || {}, strings, false) ||
-      translate(strings, obj.type.string ?? obj.type)}`
+      return html`${eventTitleFromProfile(obj.profile || {}, false) ||
+      translate(
+        strings,
+        typeof obj.type === 'string'
+          ? obj.type
+          : obj.type.string || eventTypeStrings[obj.type.value] || type
+      )}`
     case 'place':
       return html`${obj?.profile?.name ||
       obj?.name?.value ||
@@ -240,7 +479,12 @@ export function objectDescription(type, obj, strings) {
     case 'repository':
       return html`${getName(obj, type) || type}`
     case 'note':
-      return html`${translate(strings, obj.type.string ?? obj.type) || type}`
+      return html`${translate(
+        strings,
+        typeof obj.type === 'string'
+          ? obj.type
+          : obj.type.string || noteTypeStrings[obj.type.value] || type
+      )}`
     case 'media':
       return html`${getName(obj, type) || translate(strings, 'Media Object')}`
     case 'tag':
@@ -254,9 +498,9 @@ export function objectDetail(type, obj, strings) {
   switch (type) {
     case 'person':
       return `
-    ${obj?.profile?.birth?.date ? `* ${obj.profile.birth.date}` : ''}${
+    ${obj?.profile?.birth?.date ? `∗ ${obj.profile.birth.date}` : ''}${
         obj?.profile?.birth?.place && obj?.profile?.birth?.date ? ', ' : ''
-      }${obj?.profile?.birth?.place || ''}
+      }${obj?.profile?.birth?.place_name || obj?.profile?.birth?.place || ''}
     `
     // case 'family':
     //   return ''
@@ -264,7 +508,7 @@ export function objectDetail(type, obj, strings) {
       return `
     ${obj?.profile?.date || ''}${
         obj?.profile?.place && obj?.profile?.date ? ', ' : ''
-      }${obj?.profile?.place || ''}
+      }${obj?.profile?.place_name || obj?.profile?.place || ''}
     `
     case 'place':
       return `
@@ -276,10 +520,17 @@ export function objectDetail(type, obj, strings) {
     //   return ''
     case 'repository':
       return `
-    ${obj.type ? translate(strings, obj.type) : ''}
+    ${
+      obj.type
+        ? translate(
+            strings,
+            typeof obj.type === 'string' ? obj.type : obj.type.string || ''
+          )
+        : ''
+    }
     `
     case 'note':
-      return obj?.text?.string || ''
+      return obj?.text?.string?.match(/[^\r\n]+/)?.[0]?.trim() || ''
     case 'media':
       if (obj.mime?.startsWith('audio')) {
         return translate(strings, 'Audio')
@@ -320,12 +571,12 @@ export function debounce(func, wait) {
   }
 }
 
-export function getNameFromProfile(obj, type, strings) {
+export function getNameFromProfile(obj, type) {
   switch (type) {
     case 'person':
       return personTitleFromProfile(obj)
     case 'event':
-      return eventTitleFromProfile(obj, strings)
+      return eventTitleFromProfile(obj)
     case 'family':
       return familyTitleFromProfile(obj)
     case 'place':
@@ -449,8 +700,6 @@ export const personFilter = {
   NoDeathdate: 'People without a known death date',
   PersonWithIncompleteEvent: 'People with incomplete events',
   FamilyWithIncompleteEvent: 'Families with incomplete events',
-  PeoplePrivate: 'People marked private',
-  PeoplePublic: 'People not marked private',
   MissingParent: 'People missing parents',
   Disconnected: 'Disconnected people',
 }
@@ -511,7 +760,39 @@ export const reportCategoryIcon = {
 }
 
 export function arrayEqual(A, B) {
-  return A.length > 0 && B.length > 0 && A.every(e => B.includes(e))
+  return A.length === B.length && A.every(e => B.includes(e))
+}
+
+function _toNumber(value) {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+function _clampPercent(value) {
+  return Math.max(0, Math.min(100, Math.round(value)))
+}
+
+export function normalizeRect(rect) {
+  if (!Array.isArray(rect) || rect.length !== 4) {
+    return null
+  }
+  const parsedRect = rect.map(_toNumber)
+  if (parsedRect.some(value => value === null)) {
+    return null
+  }
+  const [x1, y1, x2, y2] = parsedRect.map(_clampPercent)
+  const left = Math.min(x1, x2)
+  const top = Math.min(y1, y2)
+  const right = Math.max(x1, x2)
+  const bottom = Math.max(y1, y2)
+  if (right <= left || bottom <= top) {
+    return null
+  }
+  return [left, top, right, bottom]
+}
+
+export function isValidRect(rect) {
+  return normalizeRect(rect) !== null
 }
 
 function _getMediaHandle(obj) {
@@ -531,35 +812,38 @@ function _getMediaRect(obj) {
   return []
 }
 
-export function renderIcon(obj) {
+export function renderIcon(obj, slot = 'graphic', iconPath = null) {
   const handle = _getMediaHandle(obj)
   const rect = _getMediaRect(obj)
   if (handle) {
     return html`<grampsjs-img
       handle="${handle}"
-      slot="graphic"
+      slot="${slot}"
       circle
       square
-      size="70"
+      size="40"
       .rect="${rect}"
-      .mime=""
-      ><mwc-icon class="placeholder"
-        >${objectIcon[obj.object_type]}</mwc-icon
-      ></grampsjs-img
-    >`
+      mime=""
+      fallbackIcon="${objectIconPath[obj.object_type]}"
+    ></grampsjs-img>`
   }
   if (obj.object_type === 'tag') {
     const color =
       obj.object?.color?.length > 7
         ? hex12ToCss(obj.object.color, 0.6)
         : hex6ToCss(obj.object.color, 0.6)
-    return html`<mwc-icon slot="graphic" style="background-color:${color};"
-      >${objectIcon[obj.object_type]}</mwc-icon
-    >`
+    return html`<grampsjs-icon
+      slot="${slot}"
+      path="${objectIconPath[obj.object_type]}"
+      color="var(--grampsjs-color-icon)"
+      style="background-color:${color};"
+    ></grampsjs-icon>`
   }
-  return html`<mwc-icon slot="graphic"
-    >${objectIcon[obj.object_type]}</mwc-icon
-  >`
+  return html`<grampsjs-icon
+    slot="${slot}"
+    path="${iconPath || objectIconPath[obj.object_type]}"
+    color="var(--grampsjs-color-icon)"
+  ></grampsjs-icon>`
 }
 
 export function clickKeyHandler(event) {
@@ -605,7 +889,10 @@ export function linkUrls(text, textOnly = true) {
     part.match(urlRegex)
       ? html`<a href="${part}" target="_blank">${part}</a>
           <md-icon class="linkicon"
-            >${renderIconSvg(mdiOpenInNew, '#0d47a1')}</md-icon
+            >${renderIconSvg(
+              mdiOpenInNew,
+              'var(--grampsjs-color-link-font)'
+            )}</md-icon
           > `
       : part
   )}`
@@ -718,6 +1005,20 @@ export function stripHtml(input) {
   const parser = new DOMParser()
   const doc = parser.parseFromString(input, 'text/html')
   return doc.body.textContent || ''
+}
+
+export const chartNameDisplayFormat = {
+  surnameThenGiven: 'Surname First',
+  givenThenSurname: 'Given Name First',
+}
+
+export function apiVersionAtLeast(dbInfo, major, minor, patch = 0) {
+  const version = dbInfo?.gramps_webapi?.version
+  if (!version) return false
+  const [maj, min, pat = 0] = version.split('.').map(Number)
+  if (maj !== major) return maj > major
+  if (min !== minor) return min > minor
+  return pat >= patch
 }
 
 //

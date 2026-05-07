@@ -1,16 +1,35 @@
-import {html} from 'lit'
+import {html, css} from 'lit'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 import './GrampsjsGallery.js'
 import {objectTypeToEndpoint} from '../util.js'
 
 export class GrampsjsConnectedGallery extends GrampsjsConnectedComponent {
+  static get styles() {
+    return [
+      ...super.styles,
+      css`
+        .skeleton-gallery {
+          display: grid;
+          grid-template-columns: repeat(
+            auto-fill,
+            minmax(max(100px, 15%), 1fr)
+          );
+          gap: 4px;
+          margin-top: 8px;
+        }
+
+        .skeleton-tile {
+          aspect-ratio: 1;
+          border-radius: 6px;
+        }
+      `,
+    ]
+  }
+
   static get properties() {
     return {
       objectType: {type: String},
       handle: {type: String},
-      radius: {type: Number},
-      size: {type: Number},
-      square: {type: Boolean},
       count: {type: Number},
     }
   }
@@ -19,28 +38,23 @@ export class GrampsjsConnectedGallery extends GrampsjsConnectedComponent {
     super()
     this.objectType = ''
     this.handle = ''
-    this.radius = 0
-    this.size = 200
-    this.square = false
     this.count = 1
   }
 
   getUrl() {
     return `/api/${objectTypeToEndpoint[this.objectType]}/${
       this.handle
-    }?extend=all&profile=all&locale=${this.strings?.__lang__ || 'en'}`
+    }?extend=all&profile=all&locale=${this.appState.i18n.lang || 'en'}`
   }
 
-  // eslint-disable-next-line class-methods-use-this
   renderLoading() {
-    return [...Array(this.count).keys()].map(
-      () => html`<span
-        class="skeleton"
-        style="width:${this.size}px;height:${this
-          .size}px;margin:3px;border-radius:${this.radius};"
-        >&nbsp;</span
-      >`
-    )
+    return html`
+      <div class="skeleton-gallery">
+        ${Array(this.count)
+          .fill(0)
+          .map(() => html`<span class="skeleton skeleton-tile">&nbsp;</span>`)}
+      </div>
+    `
   }
 
   renderContent() {
@@ -50,12 +64,9 @@ export class GrampsjsConnectedGallery extends GrampsjsConnectedComponent {
     }
     return html`
       <grampsjs-gallery
-        .strings=${this.strings}
+        .appState="${this.appState}"
         .media=${object?.extended?.media}
         .mediaRef=${object?.media_list}
-        radius="${this.radius}"
-        size="${this.size}"
-        ?square="${this.square}"
       ></grampsjs-gallery>
     `
   }

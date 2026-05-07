@@ -11,15 +11,19 @@ import '@material/mwc-icon'
 import '@material/mwc-textfield'
 import '@material/mwc-icon-button'
 import '@material/mwc-circular-progress'
+import '@material/web/button/outlined-button.js'
 
+import {mdiLinkPlus} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
-import {apiGet} from '../api.js'
+
 import {debounce, fireEvent} from '../util.js'
 import './GrampsjsSearchResultList.js'
-import {GrampsjsTranslateMixin} from '../mixins/GrampsjsTranslateMixin.js'
+import './GrampsjsIcon.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 // labels for button
 const btnLabel = {
+  person: 'Select an existing person',
   place: 'Select an existing place',
   source: 'Select an existing source',
   media: 'Select an existing media object',
@@ -27,14 +31,14 @@ const btnLabel = {
   note: 'Select an existing note',
 }
 
-class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
+class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
         mwc-menu {
           --mdc-menu-min-width: 200px;
-          --mdc-menu-max-width: 400px;
+          --mdc-menu-max-width: 800px;
         }
 
         .container {
@@ -57,6 +61,7 @@ class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
       fixedMenuPosition: {type: Boolean},
       label: {type: String},
       disabled: {type: Boolean},
+      hideButton: {type: Boolean},
     }
   }
 
@@ -69,21 +74,27 @@ class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
     this.fixedMenuPosition = false
     this.label = ''
     this.disabled = false
+    this.hideButton = false
   }
 
   render() {
     return html`
       <div style="position:relative;">
-        <mwc-button
-          raised
+        <md-outlined-button
           ?disabled="${this.disabled}"
-          label="${this.label ||
-          this._(btnLabel[this.objectType]) ||
-          this._('Select')}"
+          style="${this.hideButton
+            ? 'visibility:hidden;pointer-events:none;'
+            : ''}"
           id="button"
           @click="${this._handleBtnClick}"
-          icon="add_link"
-        ></mwc-button>
+        >
+          <grampsjs-icon
+            slot="icon"
+            path="${mdiLinkPlus}"
+            color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+          ></grampsjs-icon>
+          ${this.label || this._(btnLabel[this.objectType]) || this._('Select')}
+        </md-outlined-button>
 
         <mwc-menu
           ?fixed="${this.fixedMenuPosition}"
@@ -107,12 +118,26 @@ class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
           <grampsjs-search-result-list
             selectable
             .data="${this.data}"
-            .strings="${this.strings}"
+            .appState="${this.appState}"
             @search-result:clicked="${this._handleSelected}"
           ></grampsjs-search-result-list>
         </mwc-menu>
       </div>
     `
+  }
+
+  open(anchor) {
+    const menu = this.shadowRoot.getElementById('menu-search-results')
+    if (anchor) {
+      menu.anchor = anchor
+      const {left, right} = anchor.getBoundingClientRect()
+      // Fit within whichever side has more room: space rightward from anchor's left edge vs. space leftward to anchor's right edge
+      const spaceRight = window.innerWidth - left
+      const spaceLeft = right
+      const maxWidth = Math.min(400, Math.max(spaceRight, spaceLeft))
+      menu.style.setProperty('--mdc-menu-max-width', `${maxWidth}px`)
+    }
+    this._handleBtnClick()
   }
 
   reset() {
@@ -163,7 +188,7 @@ class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
       density="-3"
     ></mwc-circular-progress>`
     const url = this._getFetchUrl(textField.value)
-    const data = await apiGet(url)
+    const data = await this.appState.apiGet(url)
     if ('data' in data) {
       this.data = data.data.filter(
         obj => !this._handleList().includes(obj.handle)
@@ -180,18 +205,18 @@ class GrampsjsFormSelectObject extends GrampsjsTranslateMixin(LitElement) {
     if (window._oldSearchBackend) {
       return value
         ? `/api/search/?locale=${
-            this.strings?.__lang__ || 'en'
+            this.appState.i18n.lang || 'en'
           }&profile=all&query=${encodeURIComponent(
             `${value}* AND type:${this.objectType || '*'}`
           )}&profile=all&page=1&pagesize=20`
         : `/api/search/?sort=-change&locale=${
-            this.strings?.__lang__ || 'en'
+            this.appState.i18n.lang || 'en'
           }&profile=all&query=${encodeURIComponent(
             `type:${this.objectType || '*'}`
           )}&profile=all&page=1&pagesize=20`
     }
     let url = `/api/search/?locale=${
-      this.strings?.__lang__ || 'en'
+      this.appState.i18n.lang || 'en'
     }&profile=all&page=1&pagesize=20`
     if (value) {
       url = `${url}&query=${encodeURIComponent(`${value}*`)}`

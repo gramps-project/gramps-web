@@ -10,16 +10,16 @@ class GrampsjsRect extends LitElement {
       css`
         .rect {
           border-radius: 3px;
-          border: 2px solid rgba(255, 255, 255, 0.6);
-          box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.4);
+          border: 2px solid var(--grampsjs-face-rect-border-color);
+          box-shadow: 0 0 1px 1px var(--grampsjs-face-rect-border-shadow-color);
           position: absolute;
           cursor: pointer;
         }
 
         .rect .label {
-          background-color: rgba(0.5, 0.5, 0.5, 0.25);
+          background-color: var(--grampsjs-face-rect-label-background-color);
           border-radius: 3px;
-          color: #fff;
+          color: var(--grampsjs-face-rect-label-color);
           cursor: pointer;
           display: block;
           font-size: 0.8em;
@@ -34,7 +34,8 @@ class GrampsjsRect extends LitElement {
 
         .rect.selected {
           border: 3px solid var(--mdc-theme-secondary);
-          box-shadow: 0px 0px 0px 9999px rgba(0, 0, 0, 0.4);
+          box-shadow: 0px 0px 0px 9999px
+            var(--grampsjs-face-rect-border-shadow-color);
         }
 
         .rect.muted {
@@ -42,11 +43,19 @@ class GrampsjsRect extends LitElement {
           box-shadow: None;
         }
 
+        .rect.hidden:not(.selected) {
+          opacity: 0;
+        }
+
+        .rect.hidden:hover {
+          opacity: 1;
+        }
+
         @media (hover: hover) {
           .rect .label {
-            background-color: rgba(0.5, 0.5, 0.5, 0.25);
+            background-color: var(--grampsjs-face-rect-label-background-color);
             border-radius: 3px;
-            color: #fff;
+            color: var(--grampsjs-face-rect-label-color);
             cursor: pointer;
             display: block;
             font-size: 0.7em;
@@ -77,6 +86,7 @@ class GrampsjsRect extends LitElement {
       target: {type: String},
       selected: {type: Boolean},
       muted: {type: Boolean},
+      hidden: {type: Boolean},
     }
   }
 
@@ -87,6 +97,7 @@ class GrampsjsRect extends LitElement {
     this.target = ''
     this.selected = false
     this.muted = false
+    this.hidden = false
   }
 
   render() {
@@ -99,7 +110,11 @@ class GrampsjsRect extends LitElement {
     const height = this.rect[3] - this.rect[1]
     return html`
       <div
-        class="rect ${classMap({selected: this.selected, muted: this.muted})}"
+        class="rect ${classMap({
+          selected: this.selected,
+          muted: this.muted,
+          hidden: this.hidden,
+        })}"
         @click="${this._handleClick}"
         @keydown=""
         style="left:${left}%;top:${top}%;width:${width}%;height:${height}%;"

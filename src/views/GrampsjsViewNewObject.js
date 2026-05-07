@@ -3,28 +3,34 @@ import {html, css} from 'lit'
 import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-textarea'
-import '@material/mwc-switch'
 import '@material/mwc-formfield'
-import '@material/mwc-button'
-import '@material/mwc-circular-progress'
+import '@material/web/button/outlined-button.js'
+import '@material/web/button/filled-button.js'
+
+import {mdiClose, mdiContentSave} from '@mdi/js'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {apiGet, apiPost} from '../api.js'
+import '../components/GrampsjsIcon.js'
+import {clearDraftsWithPrefix} from '../api.js'
+import {GrampsjsNewObjectTagsMixin} from '../mixins/GrampsjsNewObjectTagsMixin.js'
 
-export class GrampsjsViewNewObject extends GrampsjsView {
+export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
+  GrampsjsView
+) {
   static get styles() {
     return [
       super.styles,
       css`
-        :host {
-        }
-
         div.spacer {
           margin-top: 2em;
         }
 
         p.right {
           text-align: right;
+        }
+
+        h3 {
+          font-size: 1.35em;
         }
       `,
     ]
@@ -86,12 +92,19 @@ export class GrampsjsViewNewObject extends GrampsjsView {
   }
 
   _submit() {
-    apiPost(this.postUrl, this.data).then(data => {
+    this.appState.apiPost(this.postUrl, this.data).then(data => {
       if ('data' in data) {
         this.error = false
         const grampsId = data.data.filter(
           obj => obj.new._class === this.objClass
         )[0].new.gramps_id
+
+        // Clear drafts after successful save
+        // Compute prefix from current path
+        const {page, pageId} = this.appState?.path || {page: '', pageId: ''}
+        const prefix = `${page}:${pageId}:`
+        clearDraftsWithPrefix(prefix)
+
         this.dispatchEvent(
           new CustomEvent('nav', {
             bubbles: true,
@@ -116,45 +129,38 @@ export class GrampsjsViewNewObject extends GrampsjsView {
     return html`
       <div class="spacer"></div>
       <p class="right">
-        <mwc-button
-          outlined
-          label="${this._('Cancel')}"
-          type="reset"
-          @click="${this._reset}"
-          icon="cancel"
-        >
-        </mwc-button>
-        <mwc-button
-          raised
-          label="${this._('Add')}"
-          type="submit"
+        <md-outlined-button @click="${this._reset}">
+          <grampsjs-icon
+            slot="icon"
+            path="${mdiClose}"
+            color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+          ></grampsjs-icon>
+          ${this._('Cancel')}
+        </md-outlined-button>
+        <md-filled-button
           @click="${this._submit}"
-          icon="save"
           ?disabled=${!this.isFormValid}
         >
-          <span slot="trailingIcon" style="display:none;">
-            <mwc-circular-progress
-              indeterminate
-              density="-7"
-              closed
-              id="login-progress"
-            >
-            </mwc-circular-progress>
-          </span>
-        </mwc-button>
+          <grampsjs-icon
+            slot="icon"
+            path="${mdiContentSave}"
+            color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+          ></grampsjs-icon>
+          ${this._('Add')}
+        </md-filled-button>
       </p>
     `
   }
 
   _renderCitationForm() {
     return html`
-      <h4 class="label">${this._('Citation')}</h4>
+      <h3>${this._('Citation')}</h3>
 
       <grampsjs-form-select-object-list
         multiple
         id="object-citation"
         objectType="citation"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
     `
   }
@@ -162,7 +168,8 @@ export class GrampsjsViewNewObject extends GrampsjsView {
   _updateData() {
     this.loading = true
     this.loadingTypes = true
-    apiGet('/api/types/')
+    this.appState
+      .apiGet('/api/types/')
       .then(data => {
         this.loading = false
         if ('data' in data) {
@@ -175,7 +182,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
       })
       .then(() => {
         this.loading = true
-        apiGet('/api/types/?locale=1').then(data => {
+        this.appState.apiGet('/api/types/?locale=1').then(data => {
           this.loading = false
           this.loadingTypes = false
           if ('data' in data) {
@@ -193,6 +200,7 @@ export class GrampsjsViewNewObject extends GrampsjsView {
     const types =
       (this.types[isCustom ? 'custom' : 'default'] || {})[typeKey] || []
     const ind = types.indexOf(string)
+    if (ind < 0) return string
     try {
       return this.typesLocale[isCustom ? 'custom' : 'default'][typeKey][ind]
     } catch {

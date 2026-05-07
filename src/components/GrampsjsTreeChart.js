@@ -38,6 +38,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       ancestors: {type: Boolean},
       descendants: {type: Boolean},
       gapX: {type: Number},
+      nameDisplayFormat: {type: String},
     }
   }
 
@@ -91,11 +92,12 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
         nAnc: this.nAnc,
         nDesc: this.nDesc,
         childrenTriangle,
-        getImageUrl: d => getImageUrl(d?.data?.person || {}, 200),
+        getImageUrl: d => getImageUrl(d?.data?.person || {}, 100),
         orientation: this.descendants ? 'RTL' : 'LTR',
         gapX: this.gapX,
         bboxWidth: this.containerWidth,
         bboxHeight: this.containerHeight,
+        nameDisplayFormat: this.nameDisplayFormat,
       })}
     `
   }
@@ -135,7 +137,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
               <mwc-list-item
                 @click=${() => this._handleChild(child.person.gramps_id)}
                 @keydown=${clickKeyHandler}
-                >${child.name_given || html`$hellip;`}</mwc-list-item
+                >${child.name_given || html`&hellip;`}</mwc-list-item
               >
             `
         )}

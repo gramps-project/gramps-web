@@ -3,22 +3,26 @@ Base view for lists of Gramps objects, e.g. people, events, ...
 */
 
 import {html, css} from 'lit'
-import {mdiSort, mdiSortAscending, mdiSortDescending} from '@mdi/js'
+import {mdiPlus, mdiSort, mdiSortAscending, mdiSortDescending} from '@mdi/js'
 
-import '@material/mwc-fab'
+import '@material/web/fab/fab.js'
 import '@material/mwc-icon-button'
 import '@material/mwc-icon'
+import '../components/GrampsjsIcon.js'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPagination.js'
 import '../components/GrampsjsFilterChip.js'
 import '../components/GrampsjsFilters.js'
-import {apiGet} from '../api.js'
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
+
 import {fireEvent} from '../util.js'
 import {renderIcon} from '../icons.js'
 
-export class GrampsjsViewObjectsBase extends GrampsjsView {
+export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
+  GrampsjsView
+) {
   static get styles() {
     return [
       super.styles,
@@ -34,7 +38,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
         th {
           padding: 12px 20px;
           font-size: 13px;
-          color: #666;
+          color: var(--grampsjs-body-font-color-60);
           font-weight: 400;
           vertical-align: top;
           line-height: 24px;
@@ -54,13 +58,13 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
 
         th,
         td {
-          border-bottom: 1px solid #e0e0e0;
+          border-bottom: 1px solid var(--grampsjs-body-font-color-10);
           text-align: left;
           margin: 0;
         }
 
         table.linked tr:hover td {
-          background-color: #f0f0f0;
+          background-color: var(--grampsjs-color-shade-240);
           cursor: pointer;
         }
 
@@ -69,12 +73,12 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
         }
 
         table.linked tr.highlight:hover td {
-          background-color: white;
+          background-color: var(--grampsjs-color-shade-240);
           cursor: auto;
         }
 
         td mwc-icon.inline {
-          color: rgba(0, 0, 0, 0.25);
+          color: var(--grampsjs-body-font-color-25);
           font-size: 16px;
         }
 
@@ -95,7 +99,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
           top: -4px;
         }
 
-        mwc-fab {
+        md-fab {
           position: fixed;
           bottom: 32px;
           right: 32px;
@@ -126,7 +130,6 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       _pages: {type: Number},
       _pageSize: {type: Number},
       _sort: {type: String},
-      canAdd: {type: Boolean},
       _objectsName: {type: String},
       altView: {type: Boolean},
       _oldUrl: {type: String},
@@ -140,9 +143,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     this._totalCount = -1
     this._page = 1
     this._pages = -1
-    this._pageSize = 20
-    this._sort = ''
-    this.canAdd = false
+    this._pageSize = 24
+    this._sort = '-change'
     this._objectsName = ''
     this.altView = false
     this._oldUrl = ''
@@ -182,11 +184,15 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
         page="${this._page}"
         pages="${this._pages}"
         @page:changed="${this._handlePageChanged}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
       ></grampsjs-pagination>
 
       ${this.canAdd ? this.renderFab() : ''}
     `
+  }
+
+  get canAdd() {
+    return this.appState.permissions.canAdd
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -199,7 +205,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     return html`
       <grampsjs-filters
         @filters:changed="${this._handleFiltersChanged}"
-        .strings="${this.strings}"
+        .appState="${this.appState}"
         objectType="${this._objectsName}"
         ?errorGql="${this.error}"
       >
@@ -221,15 +227,24 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
 
   renderFilters() {
     return html`
-      <grampsjs-filter-tags .strings="${this.strings}"></grampsjs-filter-tags>
+      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
     `
   }
 
   renderFab() {
-    return html` <mwc-fab icon="add" @click=${this._handleClickAdd}></mwc-fab> `
+    return html`
+      <md-fab variant="secondary" @click=${this._handleClickAdd}>
+        <grampsjs-icon
+          slot="icon"
+          .path="${mdiPlus}"
+          color="var(--mdc-theme-on-secondary)"
+        ></grampsjs-icon>
+      </md-fab>
+    `
   }
 
   _handleFiltersChanged() {
+    this._page = 1
     this._fetchData()
   }
 
@@ -259,7 +274,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
       >
         ${this._renderSortIcon(isCurrent, isAscending)}
       </mwc-icon-button>
-      <grampsjs-tooltip for="btn-sort-${column}" .strings="${this.strings}"
+      <grampsjs-tooltip for="btn-sort-${column}" .appState="${this.appState}"
         >${this._('Sort')}</grampsjs-tooltip
       >
     </div>`
@@ -269,14 +284,18 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
   _renderSortIcon(isCurrent, isAscending) {
     if (isCurrent) {
       if (isAscending) {
-        return renderIcon(mdiSortAscending, 'rgba(0, 0, 0, 0.6)')
+        return renderIcon(
+          mdiSortAscending,
+          'var(--grampsjs-body-font-color-60)'
+        )
       }
-      return renderIcon(mdiSortDescending, 'rgba(0, 0, 0, 0.6)')
+      return renderIcon(mdiSortDescending, 'var(--grampsjs-body-font-color-60)')
     }
-    return renderIcon(mdiSort, 'rgba(0, 0, 0, 0.2)')
+    return renderIcon(mdiSort, 'var(--grampsjs-body-font-color-20)')
   }
 
   _toggleSort(sortKey, isCurrent, isAscending) {
+    this._page = 1
     this._sort = isCurrent && isAscending ? `-${sortKey}` : `+${sortKey}`
   }
 
@@ -289,7 +308,10 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     if (this._sort) {
       url = `${url}&sort=${this._sort}`
     }
-    const filters = Object.values(this._filters.filters)
+    const filters = Object.values(this._filters.filters).map(
+      // eslint-disable-next-line no-unused-vars
+      ({_slot, ...rule}) => rule
+    )
     if (filters.length > 0) {
       url = `${url}&rules=${encodeURIComponent(
         JSON.stringify({rules: filters})
@@ -312,11 +334,15 @@ export class GrampsjsViewObjectsBase extends GrampsjsView {
     }
   }
 
+  handleUpdateStaleData() {
+    this._fetchData()
+  }
+
   _fetchData() {
     this.loading = true
     const url = this._fullUrl
     this._oldUrl = url
-    apiGet(url).then(data => {
+    this.appState.apiGet(url).then(data => {
       this.loading = false
       if ('data' in data) {
         this._errorMessage = ''

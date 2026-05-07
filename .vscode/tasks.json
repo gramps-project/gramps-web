@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Serve Gramps Web Frontend",
+      "type": "shell",
+      "command": "npm run start",
+      "isBackground": true,
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "Build Gramps Web Frontend",
+      "type": "shell",
+      "command": "npm run build",
+      "isBackground": true,
+      "group": {
+        "kind": "build"
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    }
+  ]
+}
