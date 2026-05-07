@@ -304,5 +304,9 @@
     "Force undo": "Geforceerd ongedaan maken",
     "This will revert all changes made in this revision.": "Hiermee worden alle wijzigingen die in deze revisie zijn aangebracht, ongedaan gemaakt.",
     "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Deze revisie kan niet netjes ongedaan worden gemaakt, omdat sommige objecten na deze transactie zijn gewijzigd. Het forceren van het ongedaan maken kan resulteren in inconsistenties in de gegevens.",
-    "Raw transaction": "Onbewerkte transactie"
+    "Raw transaction": "Onbewerkte transactie",
+    "Add child": "Kind toevoegen",
+    "Existing Person": "Bestaand persoon",
+    "Partner 1": "Partner 1",
+    "Partner 2": "Partner 2"
 }
