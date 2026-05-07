@@ -42,8 +42,10 @@ src/
   gramps-js.js             # Entry point (registers the custom element)
   api.js                   # All API calls, auth helpers, localStorage utilities
   appState.js              # App-wide state initialisation
+  color.js                 # Gramps internal hex format converters (tag colours etc.)
   config.js                # Runtime config (window.grampsjsConfig); see below
   strings.js               # i18n string keys and language list
+  theme.js                 # Colour theme: applyScheme(), applyColors(), DEFAULT_PRIMARY/SECONDARY
   util.js                  # Shared helpers
   components/              # Reusable components
   views/                   # Page-level components
@@ -80,7 +82,7 @@ html`<grampsjs-icon path="${mdiInformation}"></grampsjs-icon>`
 
 Optional attributes: `color`, `height`, `width`, `rotate`.
 
-For action icon color (add/edit/delete buttons), use `color="var(--mdc-theme-secondary)"` — this is `#0277bd` and is consistent across light and dark mode.
+For action icon color (add/edit/delete buttons), use `color="var(--mdc-theme-secondary)"` — this is derived from the active secondary seed colour and adapts to light/dark mode.
 
 ### Mixins
 
