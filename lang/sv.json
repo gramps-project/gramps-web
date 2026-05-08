@@ -306,5 +306,7 @@
     "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Den här revisionen kan inte ångras helt eftersom vissa objekt har ändrats efter transaktionen. Att tvinga fram ångringen kan leda till datainkonsekvenser.",
     "Raw transaction": "Rå transaktion",
     "Add child": "Lägg till barn",
-    "Existing Person": "Befintlig person"
+    "Existing Person": "Befintlig person",
+    "Partner 1": "Partner 1",
+    "Partner 2": "Partner 2"
 }
