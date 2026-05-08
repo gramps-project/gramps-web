@@ -529,8 +529,10 @@ export function objectDetail(type, obj, strings) {
         : ''
     }
     `
-    case 'note':
-      return obj?.text?.string?.match(/[^\r\n]+/)?.[0]?.trim() || ''
+    case 'note': {
+      const firstLine = obj?.text?.string?.match(/[^\r\n]+/)?.[0]?.trim() || ''
+      return firstLine.length > 100 ? `${firstLine.slice(0, 100)}…` : firstLine
+    }
     case 'media':
       if (obj.mime?.startsWith('audio')) {
         return translate(strings, 'Audio')

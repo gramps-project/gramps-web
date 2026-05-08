@@ -514,7 +514,10 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleLink(pos) {
-    this._dialogContent = {pos}
+    this._dialogContent = {
+      pos,
+      selectedText: this.data.string.slice(pos[0], pos[1]),
+    }
     this._openDialog()
   }
 
@@ -588,6 +591,15 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   _openDialog() {
     const dialog = this.shadowRoot.querySelector('md-dialog')
     if (dialog !== null) {
+      const urlField = this.shadowRoot.querySelector('#linkurl')
+      if (urlField) {
+        urlField.value = ''
+      }
+      const linkSelect = this.shadowRoot.querySelector('#link-select')
+      if (linkSelect) {
+        linkSelect.reset()
+        linkSelect.initialQuery = this._dialogContent?.selectedText || ''
+      }
       dialog.show()
     }
   }
@@ -614,6 +626,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         this._insertTag(type, pos)
       }
     } else if (type === 'link') {
+      if (pos[0] === pos[1]) {
+        return // no-op on empty selection; a link needs text to wrap
+      }
       if (this._hasTag(type, pos)) {
         // if there already is a link in the whole range, remove it
         this._removeTag(type, pos)

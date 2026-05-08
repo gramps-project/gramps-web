@@ -62,6 +62,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
       label: {type: String},
       disabled: {type: Boolean},
       hideButton: {type: Boolean},
+      initialQuery: {type: String},
     }
   }
 
@@ -75,6 +76,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
     this.label = ''
     this.disabled = false
     this.hideButton = false
+    this.initialQuery = ''
   }
 
   render() {
@@ -169,10 +171,11 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
   }
 
   async _handleBtnClick() {
+    const textField = this.shadowRoot.getElementById('textfield')
+    textField.value = this.initialQuery
+    this.initialQuery = ''
     this._fetchData()
     this.shadowRoot.getElementById('menu-search-results').open = true
-    const textField = this.shadowRoot.getElementById('textfield')
-    textField.value = ''
     textField.disabled = false
     await textField.updateComplete
     textField.focus()
