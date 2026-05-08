@@ -232,7 +232,7 @@ function TreeChartCore(
   const textWidth = d =>
     getImageUrl(d)
       ? boxWidth - 2 * imgPadding - 2 * imgRadius
-      : boxWidth - 2 * imgRadius
+      : boxWidth - 2 * imgPadding
 
   node
     .append('text')
