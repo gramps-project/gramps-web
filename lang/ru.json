@@ -302,5 +302,9 @@
     "This will revert all changes made in this revision.": "Это отменит все изменения, внесенные в эту редакцию.",
     "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Это изменение нельзя безопасно отменить, так как после этой операции некоторые объекты были изменены. Принудительная отмена может привести к несогласованности данных.",
     "Raw transaction": "Исходная операция",
-    "Not private": "Не личное"
+    "Not private": "Не личное",
+    "Add child": "Добавить ребенка",
+    "Existing Person": "Существующее лицо",
+    "Partner 1": "Партнер 1",
+    "Partner 2": "Партнер 2"
 }
