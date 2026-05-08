@@ -83,11 +83,9 @@ export function applyColors(
     root.style.setProperty('--md-sys-color-surface-container-lowest', '#ffffff')
     root.style.setProperty('--md-sys-color-surface-container-low', '#ffffff')
     root.style.setProperty('--md-sys-color-surface-container', '#ffffff')
-    // high/highest → filled input and select backgrounds: light gray
-    root.style.setProperty(
-      '--md-sys-color-surface-container-high',
-      'rgb(240, 240, 240)'
-    )
+    // high → dialogs, raised surfaces: white (md-dialog uses this token)
+    root.style.setProperty('--md-sys-color-surface-container-high', '#ffffff')
+    // highest → filled text-field/select backgrounds: light gray
     root.style.setProperty(
       '--md-sys-color-surface-container-highest',
       'rgb(235, 235, 235)'
