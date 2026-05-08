@@ -136,6 +136,7 @@ export class GrampsJs extends LitElement {
     this._loadingStrings = false
     this._reindexNeeded = false
     this._drawerWasOpen = false
+    this._metadataConfirmed = false
   }
 
   get canUseChat() {
@@ -566,7 +567,7 @@ export class GrampsJs extends LitElement {
     if (this.loadingState === LOADING_STATE_DB_SCHEMA_MISMATCH) {
       return this._renderSchemaMismatch()
     }
-    if (this.appState.path.page === 'login') {
+    if (this.appState.path.page === 'login' && this._metadataConfirmed) {
       window.history.pushState({}, '', '')
       this._updateAppState({path: {page: 'home', pageId: '', pageId2: ''}})
     }
@@ -641,6 +642,7 @@ export class GrampsJs extends LitElement {
   }
 
   _handleReload() {
+    this._metadataConfirmed = false
     this.loadingState = LOADING_STATE_INITIAL
     this._loadDbInfo()
   }
@@ -903,6 +905,7 @@ export class GrampsJs extends LitElement {
   }
 
   _setReady() {
+    this._metadataConfirmed = true
     this.loadingState = LOADING_STATE_READY
     this.progress = false
     this.setPermissions()
@@ -1123,6 +1126,7 @@ export class GrampsJs extends LitElement {
   }
 
   _handleLogout() {
+    this._metadataConfirmed = false
     this.loadingState = LOADING_STATE_UNAUTHORIZED
   }
 
