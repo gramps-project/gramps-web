@@ -135,6 +135,7 @@ export class GrampsJs extends LitElement {
     this._firstRunToken = ''
     this._loadingStrings = false
     this._reindexNeeded = false
+    this._drawerWasOpen = false
   }
 
   get canUseChat() {
@@ -294,6 +295,37 @@ export class GrampsJs extends LitElement {
         #shortcut-overlay dd {
           grid-column-start: 2;
           padding: 0;
+        }
+
+        @media print {
+          :host {
+            height: auto !important;
+            overflow: visible !important;
+          }
+
+          mwc-drawer {
+            --mdc-drawer-width: 0px;
+            height: auto !important;
+            overflow: visible !important;
+          }
+
+          [slot='appContent'] {
+            height: auto !important;
+            overflow: visible !important;
+          }
+
+          main {
+            height: auto !important;
+            overflow: visible !important;
+          }
+
+          grampsjs-main-menu,
+          grampsjs-app-bar,
+          grampsjs-tab-bar,
+          grampsjs-dna-tab-bar,
+          [slot='appContent'] md-linear-progress {
+            display: none !important;
+          }
         }
       `,
     ]
@@ -700,11 +732,48 @@ export class GrampsJs extends LitElement {
     })
     this.addEventListener('nav', this._handleNav.bind(this))
     this.addEventListener('grampsjs:error', this._handleError.bind(this))
+    window.addEventListener('beforeprint', this._handleBeforePrint.bind(this))
+    window.addEventListener('afterprint', this._handleAfterPrint.bind(this))
     this.addEventListener(
       'grampsjs:notification',
       this._handleNotification.bind(this)
     )
     window.addEventListener('user:loggedout', this._handleLogout.bind(this))
+  }
+
+  _handleBeforePrint() {
+    const drawer = this.shadowRoot.getElementById('app-drawer')
+    if (!drawer) return
+    this._drawerWasOpen = drawer.open
+    drawer.open = false
+    // Also update mwc-drawer's shadow DOM synchronously — setting drawer.open
+    // only schedules a Lit microtask, which may not run before the browser
+    // captures the print layout.
+    drawer.shadowRoot
+      ?.querySelector('.mdc-drawer')
+      ?.classList.remove('mdc-drawer--open', 'mdc-drawer--animate')
+    const appContent = drawer.shadowRoot?.querySelector(
+      '.mdc-drawer-app-content'
+    )
+    if (appContent) {
+      appContent.style.marginLeft = '0'
+      appContent.style.overflow = 'visible'
+      appContent.style.height = 'auto'
+    }
+  }
+
+  _handleAfterPrint() {
+    const drawer = this.shadowRoot.getElementById('app-drawer')
+    if (!drawer) return
+    const appContent = drawer.shadowRoot?.querySelector(
+      '.mdc-drawer-app-content'
+    )
+    if (appContent) {
+      appContent.style.marginLeft = ''
+      appContent.style.overflow = ''
+      appContent.style.height = ''
+    }
+    drawer.open = this._drawerWasOpen
   }
 
   async _loadFrontendStrings(lang) {

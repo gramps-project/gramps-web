@@ -6,6 +6,14 @@ body {
   background-color: var(--md-sys-color-background);
 }
 
+@media print {
+
+  html,
+  body {
+    height: auto;
+  }
+}
+
 :root {
   color: var(--md-sys-color-on-surface);
   /* Web Awesome color token overrides.
@@ -48,26 +56,18 @@ body {
   --grampsjs-lightbox-font-color: #fff;
   --grampsjs-lightbox-nav-color: #aaa;
   --grampsjs-lightbox-nav-hover-color: #fff;
-  --grampsjs-alert-background-color: color-mix(
-    in srgb,
-    var(--md-sys-color-primary) 15%,
-    transparent
-  );
-  --grampsjs-alert-border-color: color-mix(
-    in srgb,
-    var(--md-sys-color-primary) 70%,
-    transparent
-  );
-  --grampsjs-alert-error-background-color: color-mix(
-    in srgb,
-    var(--md-sys-color-error) 20%,
-    transparent
-  );
-  --grampsjs-alert-error-border-color: color-mix(
-    in srgb,
-    var(--md-sys-color-error) 70%,
-    transparent
-  );
+  --grampsjs-alert-background-color: color-mix(in srgb,
+      var(--md-sys-color-primary) 15%,
+      transparent);
+  --grampsjs-alert-border-color: color-mix(in srgb,
+      var(--md-sys-color-primary) 70%,
+      transparent);
+  --grampsjs-alert-error-background-color: color-mix(in srgb,
+      var(--md-sys-color-error) 20%,
+      transparent);
+  --grampsjs-alert-error-border-color: color-mix(in srgb,
+      var(--md-sys-color-error) 70%,
+      transparent);
   --grampsjs-alert-error-font-color: var(--md-sys-color-error);
   --grampsjs-map-marker-color: #ea4335;
   --grampsjs-map-filter-badge-color: #ba1b1b;
@@ -79,58 +79,38 @@ body {
   --grampsjs-task-open: #007bff;
   --grampsjs-task-progress: #ff9800;
   --grampsjs-task-done: rgba(65, 173, 73, 0.4);
-  --grampsjs-editable-title-hover-background-color: color-mix(
-    in srgb,
-    var(--mdc-theme-secondary) 20%,
-    transparent
-  );
-  --grampsjs-delete-all-filter-chip-color: color-mix(
-    in srgb,
-    var(--md-sys-color-primary) 32%,
-    transparent
-  );
-  --grampsjs-connection-chart-border-color: color-mix(
-    in srgb,
-    var(--md-sys-color-primary) 40%,
-    transparent
-  );
+  --grampsjs-editable-title-hover-background-color: color-mix(in srgb,
+      var(--mdc-theme-secondary) 20%,
+      transparent);
+  --grampsjs-delete-all-filter-chip-color: color-mix(in srgb,
+      var(--md-sys-color-primary) 32%,
+      transparent);
+  --grampsjs-connection-chart-border-color: color-mix(in srgb,
+      var(--md-sys-color-primary) 40%,
+      transparent);
   --grampsjs-connection-chart-person-box: #e6e6e6;
-  --grampsjs-editable-list-hover-background-color: color-mix(
-    in srgb,
-    var(--mdc-theme-secondary) 10%,
-    transparent
-  );
-  --grampsjs-editable-list-active-background-color: color-mix(
-    in srgb,
-    var(--mdc-theme-secondary) 20%,
-    transparent
-  );
-  --grampsjs-editable-list-selected-active-background-color: color-mix(
-    in srgb,
-    var(--mdc-theme-secondary) 30%,
-    transparent
-  );
-  --grampsjs-editable-list-selected-hover-background-color: color-mix(
-    in srgb,
-    var(--mdc-theme-secondary) 40%,
-    transparent
-  );
-  --grampsjs-editable-list-selected-background-color: color-mix(
-    in srgb,
-    var(--mdc-theme-secondary) 50%,
-    transparent
-  );
-  --grampsjs-mobile-table-sort-menu-color: color-mix(
-    in srgb,
-    var(--md-sys-color-primary) 30%,
-    transparent
-  );
+  --grampsjs-editable-list-hover-background-color: color-mix(in srgb,
+      var(--mdc-theme-secondary) 10%,
+      transparent);
+  --grampsjs-editable-list-active-background-color: color-mix(in srgb,
+      var(--mdc-theme-secondary) 20%,
+      transparent);
+  --grampsjs-editable-list-selected-active-background-color: color-mix(in srgb,
+      var(--mdc-theme-secondary) 30%,
+      transparent);
+  --grampsjs-editable-list-selected-hover-background-color: color-mix(in srgb,
+      var(--mdc-theme-secondary) 40%,
+      transparent);
+  --grampsjs-editable-list-selected-background-color: color-mix(in srgb,
+      var(--mdc-theme-secondary) 50%,
+      transparent);
+  --grampsjs-mobile-table-sort-menu-color: color-mix(in srgb,
+      var(--md-sys-color-primary) 30%,
+      transparent);
   --grampsjs-color-link-font: var(--mdc-theme-secondary);
-  --grampsjs-color-link-hover: color-mix(
-    in srgb,
-    var(--mdc-theme-secondary) 80%,
-    black
-  );
+  --grampsjs-color-link-hover: color-mix(in srgb,
+      var(--mdc-theme-secondary) 80%,
+      black);
   --grampsjs-color-page-loading-progress: var(--mdc-theme-secondary);
 }
 
@@ -250,9 +230,7 @@ body {
   --mdc-select-idle-line-color: var(--grampsjs-body-font-color);
   --mdc-select-hover-line-color: var(--md-sys-color-on-surface);
   --mdc-select-outlined-idle-border-color: var(--grampsjs-body-font-color);
-  --mdc-select-outlined-hover-border-color: var(
-    --md-sys-color-surface-container-high
-  );
+  --mdc-select-outlined-hover-border-color: var(--md-sys-color-surface-container-high);
   --mdc-select-disabled-fill-color: rgba(229, 226, 225, 0.04);
   --mdc-select-disabled-ink-color: var(--grampsjs-body-font-color-40);
   --mdc-select-disabled-dropdown-icon-color: var(--grampsjs-body-font-color-40);
@@ -261,21 +239,15 @@ body {
   --mdc-text-field-hover-line-color: var(--md-sys-color-on-surface);
   --mdc-text-field-disabled-line-color: var(--grampsjs-body-font-color);
   --mdc-text-field-outlined-idle-border-color: var(--grampsjs-body-font-color);
-  --mdc-text-field-outlined-hover-border-color: var(
-    --md-sys-color-surface-container-high
-  );
-  --mdc-text-field-outlined-disabled-border-color: var(
-    --grampsjs-body-font-color
-  );
+  --mdc-text-field-outlined-hover-border-color: var(--md-sys-color-surface-container-high);
+  --mdc-text-field-outlined-disabled-border-color: var(--grampsjs-body-font-color);
   --mdc-text-field-fill-color: var(--md-sys-color-surface-container-highest);
   --mdc-text-field-ink-color: var(--md-sys-color-on-surface);
   --mdc-text-field-label-ink-color: var(--grampsjs-body-font-color);
   --mdc-text-field-disabled-fill-color: rgba(229, 226, 225, 0.04);
   --mdc-text-field-disabled-ink-color: var(--grampsjs-body-font-color-40);
   --mdc-text-field-disabled-line-color: var(--grampsjs-body-font-color-40);
-  --mdc-linear-progress-buffer-color: var(
-    --md-sys-color-surface-container-highest
-  );
+  --mdc-linear-progress-buffer-color: var(--md-sys-color-surface-container-highest);
   --mdc-button-outline-color: var(--md-sys-color-outline);
   --mdc-button-disabled-outline-color: rgba(229, 226, 225, 0.12);
   --mdc-button-disabled-fill-color: rgba(229, 226, 225, 0.12);
