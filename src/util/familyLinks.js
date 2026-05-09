@@ -53,9 +53,10 @@ export async function linkChild(appState, personData, childHandle, frel, mrel) {
   })
 }
 
-export async function linkSpouse(appState, personData, spouseHandle) {
+export async function linkSpouse(appState, personData, spouseHandle, relType) {
   const slot = parentSlot(personData.gender)
   const otherSlot = slot === 'father_handle' ? 'mother_handle' : 'father_handle'
+  const typeField = relType ? {type: relType} : {}
 
   // If the person has exactly one existing family with no spouse yet, add the
   // spouse there instead of creating a new family.
@@ -66,6 +67,7 @@ export async function linkSpouse(appState, personData, spouseHandle) {
       _class: 'Family',
       ...cleanFamily(family),
       [otherSlot]: spouseHandle,
+      ...typeField,
     })
   }
 
@@ -73,5 +75,6 @@ export async function linkSpouse(appState, personData, spouseHandle) {
     _class: 'Family',
     [slot]: personData.handle,
     [otherSlot]: spouseHandle,
+    ...typeField,
   })
 }

@@ -6,7 +6,7 @@ import {html} from 'lit'
 import './GrampsjsFormSelectObjectList.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
-class GrampsjsFormPersonRef extends GrampsjsObjectForm {
+export class GrampsjsFormPersonRef extends GrampsjsObjectForm {
   renderForm() {
     return html`
       <grampsjs-form-select-object-list

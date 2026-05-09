@@ -7,7 +7,9 @@ import {fireEvent} from '../util.js'
 import {linkParent, linkChild, linkSpouse} from '../util/familyLinks.js'
 import './GrampsjsFormNewPerson.js'
 import './GrampsjsFormNewChild.js'
+import './GrampsjsFormNewSpouse.js'
 import './GrampsjsFormPersonRef.js'
+import './GrampsjsFormSpouseRef.js'
 import './GrampsjsFormChildRef.js'
 import './GrampsjsIcon.js'
 
@@ -58,7 +60,7 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     this._formOpen = true
   }
 
-  async _dispatch(handle, frel, mrel) {
+  async _dispatch(handle, frel, mrel, relType) {
     const personData = this._personData
     let result
     if (this._relationship === 'father' || this._relationship === 'mother') {
@@ -71,7 +73,7 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     } else if (this._relationship === 'child') {
       result = await linkChild(this.appState, personData, handle, frel, mrel)
     } else if (this._relationship === 'spouse') {
-      result = await linkSpouse(this.appState, personData, handle)
+      result = await linkSpouse(this.appState, personData, handle, relType)
     }
     if (result && 'error' in result) {
       fireEvent(this, 'grampsjs:error', {message: result.error})
@@ -90,7 +92,8 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     const ok = await this._dispatch(
       handle,
       e.detail.data?.frel,
-      e.detail.data?.mrel
+      e.detail.data?.mrel,
+      e.detail.data?.type
     )
     if (ok) {
       this._reset()
@@ -102,7 +105,7 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
   }
 
   async _handleNewPersonSave(e) {
-    const {processedData, frel, mrel} = e.detail.data
+    const {processedData, frel, mrel, relType} = e.detail.data
     const createResult = await this.appState.apiPost(
       '/api/objects/',
       processedData,
@@ -119,7 +122,7 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
     }
     const handle = processedData.find(o => o._class === 'Person')?.handle
     if (handle) {
-      const ok = await this._dispatch(handle, frel, mrel)
+      const ok = await this._dispatch(handle, frel, mrel, relType)
       if (!ok) {
         // Person created but link failed; refresh so the orphan is visible.
         fireEvent(this, 'db:changed')
@@ -229,25 +232,45 @@ export class GrampsjsTreeChartAddPerson extends GrampsjsAppStateMixin(
       `
     }
 
+    const isSpouse = this._relationship === 'spouse'
+
     if (isNew) {
-      return html`
-        <grampsjs-form-new-person
-          @object:save="${this._handleNewPersonSave}"
-          @object:cancel="${this._cancelForm}"
-          .appState="${this.appState}"
-          dialogTitle="${this._('Add a new person')}"
-        ></grampsjs-form-new-person>
-      `
+      return isSpouse
+        ? html`
+            <grampsjs-form-new-spouse
+              @object:save="${this._handleNewPersonSave}"
+              @object:cancel="${this._cancelForm}"
+              .appState="${this.appState}"
+              dialogTitle="${this._('Add a new person')}"
+            ></grampsjs-form-new-spouse>
+          `
+        : html`
+            <grampsjs-form-new-person
+              @object:save="${this._handleNewPersonSave}"
+              @object:cancel="${this._cancelForm}"
+              .appState="${this.appState}"
+              dialogTitle="${this._('Add a new person')}"
+            ></grampsjs-form-new-person>
+          `
     }
 
-    return html`
-      <grampsjs-form-personref
-        @object:save="${this._handleExistingPersonSave}"
-        @object:cancel="${this._cancelForm}"
-        .appState="${this.appState}"
-        dialogTitle="${this._('Select an existing person')}"
-      ></grampsjs-form-personref>
-    `
+    return isSpouse
+      ? html`
+          <grampsjs-form-spouseref
+            @object:save="${this._handleExistingPersonSave}"
+            @object:cancel="${this._cancelForm}"
+            .appState="${this.appState}"
+            dialogTitle="${this._('Select an existing person')}"
+          ></grampsjs-form-spouseref>
+        `
+      : html`
+          <grampsjs-form-personref
+            @object:save="${this._handleExistingPersonSave}"
+            @object:cancel="${this._cancelForm}"
+            .appState="${this.appState}"
+            dialogTitle="${this._('Select an existing person')}"
+          ></grampsjs-form-personref>
+        `
   }
 
   render() {
