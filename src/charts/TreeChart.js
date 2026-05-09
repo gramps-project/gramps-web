@@ -137,6 +137,11 @@ function TreeChartCore(
     .data(descendants)
     .join('a')
     .attr('transform', d => `translate(${d.y},${d.x})`)
+    .style('filter', d =>
+      d.depth === 0
+        ? 'drop-shadow(0 3px 8px var(--grampsjs-body-font-color-30))'
+        : null
+    )
 
   node
     .append('rect')
@@ -168,11 +173,7 @@ function TreeChartCore(
   node
     .append('rect')
     .filter(d => d.data.person)
-    .attr('fill', d =>
-      d.depth === 0
-        ? 'var(--grampsjs-color-shade-200)'
-        : 'var(--grampsjs-color-shade-230)'
-    )
+    .attr('fill', 'var(--grampsjs-color-shade-230)')
     .attr('width', boxWidth)
     .attr('height', boxHeight)
     .attr('rx', 8)
