@@ -346,8 +346,7 @@ function remasterChart(
   const imgRadius = (boxHeight - imgPadding * 2) / 2
   const textPadding = d =>
     d.imageUrl ? 2 * imgRadius + 2 * imgPadding : 2 * imgPadding
-  const boxWidthTotal = d =>
-    d.imageUrl ? boxWidth - 2 * imgRadius - 10 : boxWidth
+  const boxWidthTotal = d => boxWidth - textPadding(d)
   gvchartx.selectAll('title').remove()
   // based on graphviz created nodes build array containing node data to be bound to d3 nodes
   let imageCount = 0
@@ -594,6 +593,12 @@ function remasterChart(
       }
       targetsvg.attr('transform', `translate(${rpc.x} ${rpc.y})`)
     })
+
+  // highlight root person
+  nodes
+    .filter(d => d.handle === graph.rootPerson?.handle)
+    .select('rect.personBox')
+    .style('fill', 'var(--grampsjs-color-shade-200)')
 
   // kill hidden graphviz generated svg
   gvchartx.remove()
