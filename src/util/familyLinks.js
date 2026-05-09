@@ -56,6 +56,19 @@ export async function linkChild(appState, personData, childHandle, frel, mrel) {
 export async function linkSpouse(appState, personData, spouseHandle) {
   const slot = parentSlot(personData.gender)
   const otherSlot = slot === 'father_handle' ? 'mother_handle' : 'father_handle'
+
+  // If the person has exactly one existing family with no spouse yet, add the
+  // spouse there instead of creating a new family.
+  const existingFamilies = personData.extended?.families ?? []
+  if (existingFamilies.length === 1 && !existingFamilies[0][otherSlot]) {
+    const family = existingFamilies[0]
+    return appState.apiPut(`/api/families/${family.handle}`, {
+      _class: 'Family',
+      ...cleanFamily(family),
+      [otherSlot]: spouseHandle,
+    })
+  }
+
   return appState.apiPost('/api/families/', {
     _class: 'Family',
     [slot]: personData.handle,
