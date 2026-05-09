@@ -106,6 +106,24 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
     `
   }
 
+  connectedCallback() {
+    super.connectedCallback()
+    this._boundHandleVisibility = () => {
+      if (!document.hidden && this.getUrl() !== this._oldUrl) {
+        this._updateData()
+      }
+    }
+    document.addEventListener('visibilitychange', this._boundHandleVisibility)
+  }
+
+  disconnectedCallback() {
+    document.removeEventListener(
+      'visibilitychange',
+      this._boundHandleVisibility
+    )
+    super.disconnectedCallback()
+  }
+
   _handleClick(event) {
     const path = `event/${event.gramps_id}`
     fireEvent(this, 'nav', {path})
