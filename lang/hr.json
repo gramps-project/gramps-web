@@ -303,5 +303,10 @@
     "Force undo": "Prisili poništavanje",
     "This will revert all changes made in this revision.": "Ovime će se poništiti sve promjene koje su napravljene u ovoj reviziji.",
     "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Ova se revizija ne može potpuno poništiti jer su neki objekti promijenjeni nakon ove transakcije. Prisilno poništavanje može prouzročiti nedosljednost podataka.",
-    "Raw transaction": "Neobrađena transakcija"
+    "Raw transaction": "Neobrađena transakcija",
+    "Add child": "Dodaj dijete",
+    "Existing Person": "Postojeća osoba",
+    "Partner 1": "Partner 1",
+    "Partner 2": "Partner 2",
+    "Add Family Member": "Dodaj člana obitelji"
 }
