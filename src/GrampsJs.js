@@ -347,9 +347,7 @@ export class GrampsJs extends LitElement {
           timeoutMs="-1"
           labelText="${this._('A new version of the app is available.')}"
         >
-          <mwc-button slot="action" @click=${this._postUpdateMessage}
-            >${this._('Refresh')}</mwc-button
-          >
+          <mwc-button slot="action">${this._('Refresh')}</mwc-button>
         </mwc-snackbar>
       </grampsjs-update-available>
     `
@@ -469,10 +467,6 @@ export class GrampsJs extends LitElement {
         </div>
       </div>
     `
-  }
-
-  _postUpdateMessage() {
-    fireEvent(this, 'update:reload')
   }
 
   // eslint-disable-next-line class-methods-use-this
