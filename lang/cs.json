@@ -307,5 +307,6 @@
     "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Tuto revizi nelze čistě odvolat zpět, protože některé objekty byly po této transakci změněny. Nucené odvolání zpět může vést k nekonzistentnosti dat.",
     "Raw transaction": "Nezpracovaná transakce",
     "Partner 1": "Partner 1",
-    "Partner 2": "Partner 2"
+    "Partner 2": "Partner 2",
+    "Add Family Member": "Přidat člena rodiny"
 }
