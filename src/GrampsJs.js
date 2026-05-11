@@ -652,7 +652,7 @@ export class GrampsJs extends LitElement {
     // Clean up old editor drafts (older than 7 days)
     cleanOldDrafts()
 
-    window.addEventListener('storage', () => this._handleStorage())
+    window.addEventListener('storage', event => this._handleStorage(event))
     window.addEventListener('settings:changed', () => this._handleSettings())
     window.addEventListener('treeconfig:changed', () =>
       this._handleTreeConfig()
