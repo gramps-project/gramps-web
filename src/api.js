@@ -86,6 +86,27 @@ export function updateSettings(settings, tree = false) {
   fireEvent(window, 'settings:changed')
 }
 
+export function getTreeConfig() {
+  try {
+    const treeId = getTreeId() ?? 'unknown'
+    const data = JSON.parse(localStorage.getItem('grampsjs_tree_config')) ?? {}
+    return data[treeId] ?? {}
+  } catch (e) {
+    return {}
+  }
+}
+
+export function setTreeConfig(config) {
+  try {
+    const treeId = getTreeId() ?? 'unknown'
+    const all = JSON.parse(localStorage.getItem('grampsjs_tree_config')) ?? {}
+    all[treeId] = config
+    localStorage.setItem('grampsjs_tree_config', JSON.stringify(all))
+  } catch (e) {
+    // ignore
+  }
+}
+
 export function getRecentObjects() {
   try {
     const string = localStorage.getItem('recentObjects')
