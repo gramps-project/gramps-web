@@ -12,7 +12,7 @@ import '@material/mwc-top-app-bar'
 import {LitElement, css, html} from 'lit'
 import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
 import {installRouter} from 'pwa-helpers/router.js'
-import {getSettings, cleanOldDrafts} from './api.js'
+import {getSettings, getTreeConfig, cleanOldDrafts} from './api.js'
 import './dayjs_locales.js'
 import {
   frontendLanguages,
@@ -654,8 +654,8 @@ export class GrampsJs extends LitElement {
 
     window.addEventListener('storage', () => this._handleStorage())
     window.addEventListener('settings:changed', () => this._handleSettings())
-    window.addEventListener('treeconfig:changed', e =>
-      this._updateAppState({treeConfig: e.detail})
+    window.addEventListener('treeconfig:changed', () =>
+      this._handleTreeConfig()
     )
     window.addEventListener(
       'requests:changed',
@@ -1137,8 +1137,15 @@ export class GrampsJs extends LitElement {
     this.loadingState = LOADING_STATE_UNAUTHORIZED
   }
 
-  _handleStorage() {
+  _handleStorage(e) {
+    if (e?.key === 'grampsjs_tree_config') {
+      this._handleTreeConfig()
+    }
     this._handleSettings()
+  }
+
+  _handleTreeConfig() {
+    this._updateAppState({treeConfig: getTreeConfig()})
   }
 
   _handleSettings() {

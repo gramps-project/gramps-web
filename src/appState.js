@@ -153,7 +153,7 @@ export function getInitialAppState() {
     signout: () => auth.signout(),
     updateSettings: (settings = {}, tree = false) =>
       updateSettings(settings, tree),
-    updateTreeConfig: async patch => {
+    updateTreeConfig: async (patch = {}) => {
       const merged = {...getTreeConfig(), ...patch}
       const res = await apiPutPostDelete(
         auth,
