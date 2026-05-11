@@ -654,6 +654,9 @@ export class GrampsJs extends LitElement {
 
     window.addEventListener('storage', () => this._handleStorage())
     window.addEventListener('settings:changed', () => this._handleSettings())
+    window.addEventListener('treeconfig:changed', e =>
+      this._updateAppState({treeConfig: e.detail})
+    )
     window.addEventListener(
       'requests:changed',
       this._handleRequestsChanged.bind(this)
@@ -903,6 +906,16 @@ export class GrampsJs extends LitElement {
     this.loadingState = LOADING_STATE_READY
     this.progress = false
     this.setPermissions()
+    this._loadTreeConfig()
+  }
+
+  _loadTreeConfig() {
+    if (!apiVersionAtLeast(this.appState.dbInfo, 3, 13)) return
+    this.appState.apiGet('/api/trees/-/config').then(data => {
+      if ('data' in data) {
+        this.appState.cacheTreeConfig(data.data)
+      }
+    })
   }
 
   _loadPage(path) {

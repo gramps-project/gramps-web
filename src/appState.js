@@ -1,6 +1,8 @@
 import {
   getSettings,
   getPermissions,
+  getTreeConfig,
+  setTreeConfig,
   apiGet,
   Auth,
   apiPutPostDelete,
@@ -85,6 +87,7 @@ export function getInitialAppState() {
     auth,
     screenSize: 'small',
     settings: getSettings(),
+    treeConfig: getTreeConfig(),
     dbInfo: {},
     frontendConfig: window.grampsjsConfig,
     permissions: {
@@ -150,6 +153,25 @@ export function getInitialAppState() {
     signout: () => auth.signout(),
     updateSettings: (settings = {}, tree = false) =>
       updateSettings(settings, tree),
+    updateTreeConfig: async patch => {
+      const merged = {...getTreeConfig(), ...patch}
+      const res = await apiPutPostDelete(
+        auth,
+        'PUT',
+        '/api/trees/-/config',
+        merged,
+        {saving: false, dbChanged: false}
+      )
+      if (!('error' in res)) {
+        setTreeConfig(merged)
+        fireEvent(window, 'treeconfig:changed', merged)
+      }
+      return res
+    },
+    cacheTreeConfig: config => {
+      setTreeConfig(config)
+      fireEvent(window, 'treeconfig:changed', config)
+    },
     getCurrentTheme: () => getCurrentTheme(getSettings().theme),
     getNotifications() {
       return [...notifications]
