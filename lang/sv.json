@@ -309,5 +309,7 @@
     "Existing Person": "Befintlig person",
     "Partner 1": "Partner 1",
     "Partner 2": "Partner 2",
-    "Add Family Member": "Lägg till familjemedlem"
+    "Add Family Member": "Lägg till familjemedlem",
+    "App title": "Apptitel",
+    "If set, overrides the family tree name in the title bar": "Om angivet, åsidosätter det släktträdets namn i titelfältet"
 }
