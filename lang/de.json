@@ -310,5 +310,7 @@
     "Partner 1": "Partner 1",
     "Partner 2": "Partner 2",
     "Add Family Member": "Familienmitglied hinzufügen",
-    "Spouse": "Partner(in)"
+    "Spouse": "Partner(in)",
+    "App title": "App-Titel",
+    "If set, overrides the family tree name in the title bar": "Falls gesetzt, überschreibt er den Stammbaum-Namen in der Titelleiste"
 }
