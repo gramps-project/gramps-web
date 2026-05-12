@@ -958,7 +958,10 @@ export class GrampsJs extends LitElement {
 
   _updateTitle() {
     const {page, pageId} = this.appState.path
-    const suffix = 'Gramps Web'
+    const suffix =
+      this.appState.treeConfig?.title ||
+      this.appState.dbInfo?.database?.name ||
+      'Gramps Web'
     if (OBJECT_PAGES.has(page) && pageId) {
       document.title = `${pageId} · ${suffix}`
       return
@@ -1146,6 +1149,7 @@ export class GrampsJs extends LitElement {
 
   _handleTreeConfig() {
     this._updateAppState({treeConfig: getTreeConfig()})
+    this._updateTitle()
   }
 
   _handleSettings() {
