@@ -190,12 +190,17 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
   _handleThemeSelected(event) {
     const theme = event.target.value
     this.appState.updateSettings({theme})
-    applyScheme(
-      this.appState.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] || DEFAULT_PRIMARY,
-      this.appState.treeConfig?.[TREE_CONFIG_SECONDARY_COLOR] ||
-        DEFAULT_SECONDARY,
-      theme
-    )
+    try {
+      applyScheme(
+        this.appState.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] ||
+          DEFAULT_PRIMARY,
+        this.appState.treeConfig?.[TREE_CONFIG_SECONDARY_COLOR] ||
+          DEFAULT_SECONDARY,
+        theme
+      )
+    } catch {
+      applyScheme(DEFAULT_PRIMARY, DEFAULT_SECONDARY, theme)
+    }
   }
 
   renderTreePreferences() {

@@ -536,14 +536,15 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
   }
 
   async _resetColors() {
-    this._primaryColor = DEFAULT_PRIMARY
-    this._secondaryColor = DEFAULT_SECONDARY
     const data = await this.appState.updateTreeConfig({
       [TREE_CONFIG_PRIMARY_COLOR]: '',
       [TREE_CONFIG_SECONDARY_COLOR]: '',
     })
     if (data && 'error' in data) {
       fireEvent(this, 'grampsjs:error', {message: data.error})
+    } else {
+      this._primaryColor = DEFAULT_PRIMARY
+      this._secondaryColor = DEFAULT_SECONDARY
     }
   }
 
@@ -568,9 +569,10 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
-  updated(changedProperties) {
-    if (changedProperties.has('appState')) {
-      const prev = changedProperties.get('appState')
+  updated(changed) {
+    super.updated(changed)
+    if (changed.has('appState')) {
+      const prev = changed.get('appState')
       if (
         prev?.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] !==
           this.appState.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] ||
