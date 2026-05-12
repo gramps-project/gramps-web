@@ -11,9 +11,15 @@ import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
 
 import {fireEvent} from '../util.js'
-import {TREE_CONFIG_APP_TITLE} from '../api.js'
+import {
+  TREE_CONFIG_APP_TITLE,
+  TREE_CONFIG_PRIMARY_COLOR,
+  TREE_CONFIG_SECONDARY_COLOR,
+} from '../api.js'
+import {DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
 import {mdiDeleteForever} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
+import '@awesome.me/webawesome/dist/components/color-picker/color-picker.js'
 import '@material/web/button/outlined-button.js'
 import '@material/web/textfield/filled-text-field.js'
 
@@ -94,6 +100,31 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         .small {
           font-size: 16px;
         }
+
+        .color-pickers {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1.5em;
+          margin-bottom: 0.5em;
+        }
+
+        .color-row {
+          display: flex;
+          align-items: center;
+          gap: 1em;
+        }
+
+        .color-label {
+          font-size: 14px;
+          min-width: 8em;
+        }
+
+        @media (max-width: 600px) {
+          wa-color-picker {
+            --grid-width: min(200px, 60vw);
+            --grid-height: min(140px, 42vw);
+          }
+        }
       `,
     ]
   }
@@ -105,6 +136,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       _buttonUpdateSearchDisabled: {type: Boolean},
       _buttonUpdateSearchSemanticDisabled: {type: Boolean},
       _treeName: {type: String},
+      _primaryColor: {type: String},
+      _secondaryColor: {type: String},
     }
   }
 
@@ -115,6 +148,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this._buttonUpdateSearchDisabled = false
     this._buttonUpdateSearchSemanticDisabled = false
     this._treeName = ''
+    this._primaryColor = DEFAULT_PRIMARY
+    this._secondaryColor = DEFAULT_SECONDARY
   }
 
   renderContent() {
@@ -239,6 +274,38 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       <p>
         <md-outlined-button @click="${this._saveAppTitle}"
           >${this._('_Save')}</md-outlined-button
+        >
+      </p>
+
+      <h3>${this._('Theme colors')}</h3>
+      <div class="color-pickers">
+        <div class="color-row">
+          <span class="color-label">${this._('Primary color')}</span>
+          <wa-color-picker
+            format="hex"
+            .value="${this._primaryColor}"
+            @change="${e => {
+              this._primaryColor = e.target.value
+            }}"
+          ></wa-color-picker>
+        </div>
+        <div class="color-row">
+          <span class="color-label">${this._('Accent color')}</span>
+          <wa-color-picker
+            format="hex"
+            .value="${this._secondaryColor}"
+            @change="${e => {
+              this._secondaryColor = e.target.value
+            }}"
+          ></wa-color-picker>
+        </div>
+      </div>
+      <p style="display: flex; gap: 0.75em;">
+        <md-outlined-button @click="${this._saveColors}"
+          >${this._('_Save')}</md-outlined-button
+        >
+        <md-outlined-button @click="${this._resetColors}"
+          >${this._('Reset')}</md-outlined-button
         >
       </p>
 
@@ -458,6 +525,29 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
+  async _saveColors() {
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_PRIMARY_COLOR]: this._primaryColor,
+      [TREE_CONFIG_SECONDARY_COLOR]: this._secondaryColor,
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
+  async _resetColors() {
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_PRIMARY_COLOR]: '',
+      [TREE_CONFIG_SECONDARY_COLOR]: '',
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    } else {
+      this._primaryColor = DEFAULT_PRIMARY
+      this._secondaryColor = DEFAULT_SECONDARY
+    }
+  }
+
   async _saveAppTitle() {
     const field = this.renderRoot.querySelector('#app-title-field')
     const data = await this.appState.updateTreeConfig({
@@ -476,6 +566,26 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     } else {
       this.error = false
       this._userInfo = data.data
+    }
+  }
+
+  updated(changed) {
+    super.updated(changed)
+    if (changed.has('appState')) {
+      const prev = changed.get('appState')
+      if (
+        prev?.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] !==
+          this.appState.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] ||
+        prev?.treeConfig?.[TREE_CONFIG_SECONDARY_COLOR] !==
+          this.appState.treeConfig?.[TREE_CONFIG_SECONDARY_COLOR]
+      ) {
+        this._primaryColor =
+          this.appState.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] ||
+          DEFAULT_PRIMARY
+        this._secondaryColor =
+          this.appState.treeConfig?.[TREE_CONFIG_SECONDARY_COLOR] ||
+          DEFAULT_SECONDARY
+      }
     }
   }
 

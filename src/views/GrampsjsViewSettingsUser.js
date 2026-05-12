@@ -16,7 +16,11 @@ import '../components/GrampsjsUsers.js'
 import {GrampsjsView} from './GrampsjsView.js'
 
 import {mdiCheck, mdiContentCopy} from '@mdi/js'
-import {__APIHOST__} from '../api.js'
+import {
+  __APIHOST__,
+  TREE_CONFIG_PRIMARY_COLOR,
+  TREE_CONFIG_SECONDARY_COLOR,
+} from '../api.js'
 import {fireEvent} from '../util.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
 import {DEFAULT_TREE_VIEW, TREE_VIEWS} from '../treeDefaults.js'
@@ -186,7 +190,17 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
   _handleThemeSelected(event) {
     const theme = event.target.value
     this.appState.updateSettings({theme})
-    applyScheme(DEFAULT_PRIMARY, DEFAULT_SECONDARY, theme)
+    try {
+      applyScheme(
+        this.appState.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] ||
+          DEFAULT_PRIMARY,
+        this.appState.treeConfig?.[TREE_CONFIG_SECONDARY_COLOR] ||
+          DEFAULT_SECONDARY,
+        theme
+      )
+    } catch {
+      applyScheme(DEFAULT_PRIMARY, DEFAULT_SECONDARY, theme)
+    }
   }
 
   renderTreePreferences() {
