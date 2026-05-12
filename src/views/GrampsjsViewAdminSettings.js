@@ -568,15 +568,29 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
+  updated(changedProperties) {
+    if (changedProperties.has('appState')) {
+      const prev = changedProperties.get('appState')
+      if (
+        prev?.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] !==
+          this.appState.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] ||
+        prev?.treeConfig?.[TREE_CONFIG_SECONDARY_COLOR] !==
+          this.appState.treeConfig?.[TREE_CONFIG_SECONDARY_COLOR]
+      ) {
+        this._primaryColor =
+          this.appState.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] ||
+          DEFAULT_PRIMARY
+        this._secondaryColor =
+          this.appState.treeConfig?.[TREE_CONFIG_SECONDARY_COLOR] ||
+          DEFAULT_SECONDARY
+      }
+    }
+  }
+
   firstUpdated() {
     super.firstUpdated()
     this._fetchOwnUserDetails()
     this._fetchTreeInfo()
-    this._primaryColor =
-      this.appState.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] || DEFAULT_PRIMARY
-    this._secondaryColor =
-      this.appState.treeConfig?.[TREE_CONFIG_SECONDARY_COLOR] ||
-      DEFAULT_SECONDARY
   }
 }
 

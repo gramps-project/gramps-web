@@ -706,11 +706,19 @@ export class GrampsJs extends LitElement {
 
   _applyColorScheme() {
     const treeConfig = getTreeConfig()
-    applyScheme(
-      treeConfig[TREE_CONFIG_PRIMARY_COLOR] || DEFAULT_PRIMARY,
-      treeConfig[TREE_CONFIG_SECONDARY_COLOR] || DEFAULT_SECONDARY,
-      this.appState.settings.theme
-    )
+    try {
+      applyScheme(
+        treeConfig[TREE_CONFIG_PRIMARY_COLOR] || DEFAULT_PRIMARY,
+        treeConfig[TREE_CONFIG_SECONDARY_COLOR] || DEFAULT_SECONDARY,
+        this.appState.settings.theme
+      )
+    } catch {
+      applyScheme(
+        DEFAULT_PRIMARY,
+        DEFAULT_SECONDARY,
+        this.appState.settings.theme
+      )
+    }
   }
 
   firstUpdated() {
