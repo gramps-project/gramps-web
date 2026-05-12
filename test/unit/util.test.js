@@ -3,6 +3,7 @@ import {
   translate,
   personTitleFromProfile,
   personDisplayName,
+  reportSelectItemLabel,
   familyTitleFromProfile,
   citationTitleFromProfile,
   getSortval,
@@ -102,6 +103,30 @@ describe('personDisplayName', () => {
 
   it('handles missing primary_name gracefully', () => {
     expect(personDisplayName({})).to.equal('… …')
+  })
+})
+
+describe('reportSelectItemLabel', () => {
+  it('appends person Gramps ID from option value for person selections', () => {
+    expect(reportSelectItemLabel('I0001\tStefańczyk, Maciej')).to.equal(
+      'Stefańczyk, Maciej (I0001)'
+    )
+  })
+
+  it('appends person Gramps ID from third tab-separated value when provided', () => {
+    expect(
+      reportSelectItemLabel('handle123\tStefańczyk, Maciej\tI0001')
+    ).to.equal('Stefańczyk, Maciej (I0001)')
+  })
+
+  it('does not modify non-person option labels', () => {
+    expect(reportSelectItemLabel('pdf\tPDF')).to.equal('PDF')
+  })
+
+  it('does not append duplicate IDs when already present', () => {
+    expect(reportSelectItemLabel('I0001\tStefańczyk, Maciej (I0001)')).to.equal(
+      'Stefańczyk, Maciej (I0001)'
+    )
   })
 })
 

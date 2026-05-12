@@ -98,6 +98,24 @@ export function personDisplayName(person, options = {givenfirst: true}) {
     : `${surname}, ${given} ${suffix}`.trim()
 }
 
+const personGrampsIdRegex = /^I\d+$/i
+
+export function reportSelectItemLabel(option, translate = value => value) {
+  const splt = `${option}`.split(/\t+/).map(v => v.trim())
+  const labelKey = splt.length === 1 ? splt[0] : splt[1]
+  const label = translate(labelKey)
+  const personGrampsId = splt[2] || (splt.length > 1 ? splt[0] : '')
+
+  if (
+    personGrampsIdRegex.test(personGrampsId) &&
+    !label.endsWith(`(${personGrampsId})`)
+  ) {
+    return `${label} (${personGrampsId})`
+  }
+
+  return label
+}
+
 export function familyTitleFromProfile(familyProfile) {
   if (!familyProfile.father && !familyProfile.mother) {
     return ''
