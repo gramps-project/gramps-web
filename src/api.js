@@ -86,6 +86,8 @@ export function updateSettings(settings, tree = false) {
   fireEvent(window, 'settings:changed')
 }
 
+export const TREE_CONFIG_APP_TITLE = 'frontend.appTitle'
+
 export function getTreeConfig() {
   try {
     const treeId = getTreeId() ?? 'unknown'

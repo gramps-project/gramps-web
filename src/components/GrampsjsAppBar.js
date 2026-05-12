@@ -17,6 +17,7 @@ import './GrampsjsSettingsMenu.js'
 import './GrampsjsTooltip.js'
 
 import {fireEvent} from '../util.js'
+import {TREE_CONFIG_APP_TITLE} from '../api.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -151,7 +152,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
         <div id="app-title" slot="title">
           ${this.editMode && this.editTitle
             ? this.editTitle
-            : this.appState.treeConfig?.title ||
+            : this.appState.treeConfig?.[TREE_CONFIG_APP_TITLE] ||
               this.appState?.dbInfo?.database?.name ||
               'Gramps Web'}
         </div>

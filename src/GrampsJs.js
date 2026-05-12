@@ -12,7 +12,12 @@ import '@material/mwc-top-app-bar'
 import {LitElement, css, html} from 'lit'
 import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
 import {installRouter} from 'pwa-helpers/router.js'
-import {getSettings, getTreeConfig, cleanOldDrafts} from './api.js'
+import {
+  getSettings,
+  getTreeConfig,
+  cleanOldDrafts,
+  TREE_CONFIG_APP_TITLE,
+} from './api.js'
 import './dayjs_locales.js'
 import {
   frontendLanguages,
@@ -959,7 +964,7 @@ export class GrampsJs extends LitElement {
   _updateTitle() {
     const {page, pageId} = this.appState.path
     const suffix =
-      this.appState.treeConfig?.title ||
+      this.appState.treeConfig?.[TREE_CONFIG_APP_TITLE] ||
       this.appState.dbInfo?.database?.name ||
       'Gramps Web'
     if (OBJECT_PAGES.has(page) && pageId) {

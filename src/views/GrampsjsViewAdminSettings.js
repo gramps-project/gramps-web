@@ -11,6 +11,7 @@ import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
 
 import {fireEvent} from '../util.js'
+import {TREE_CONFIG_APP_TITLE} from '../api.js'
 import {mdiDeleteForever} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
 import '@material/web/button/outlined-button.js'
@@ -232,7 +233,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           .supportingText="${this._(
             'If set, overrides the family tree name in the title bar'
           )}"
-          .value="${this.appState.treeConfig?.title ?? ''}"
+          .value="${this.appState.treeConfig?.[TREE_CONFIG_APP_TITLE] ?? ''}"
         ></md-filled-text-field>
       </p>
       <p>
@@ -459,7 +460,9 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
 
   async _saveAppTitle() {
     const field = this.renderRoot.querySelector('#app-title-field')
-    const data = await this.appState.updateTreeConfig({title: field.value})
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_APP_TITLE]: field.value,
+    })
     if (data && 'error' in data) {
       fireEvent(this, 'grampsjs:error', {message: data.error})
     }
