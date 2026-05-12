@@ -17,6 +17,8 @@ import {
   getTreeConfig,
   cleanOldDrafts,
   TREE_CONFIG_APP_TITLE,
+  TREE_CONFIG_PRIMARY_COLOR,
+  TREE_CONFIG_SECONDARY_COLOR,
 } from './api.js'
 import './dayjs_locales.js'
 import {
@@ -697,18 +699,17 @@ export class GrampsJs extends LitElement {
       this._loadFrontendStrings(this.appState.settings.lang)
     }
 
-    applyScheme(
-      DEFAULT_PRIMARY,
-      DEFAULT_SECONDARY,
-      this.appState.settings.theme
-    )
+    this._applyColorScheme()
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.addEventListener('change', () =>
-      applyScheme(
-        DEFAULT_PRIMARY,
-        DEFAULT_SECONDARY,
-        this.appState.settings.theme
-      )
+    mediaQuery.addEventListener('change', () => this._applyColorScheme())
+  }
+
+  _applyColorScheme() {
+    const treeConfig = getTreeConfig()
+    applyScheme(
+      treeConfig[TREE_CONFIG_PRIMARY_COLOR] || DEFAULT_PRIMARY,
+      treeConfig[TREE_CONFIG_SECONDARY_COLOR] || DEFAULT_SECONDARY,
+      this.appState.settings.theme
     )
   }
 
@@ -1155,6 +1156,7 @@ export class GrampsJs extends LitElement {
   _handleTreeConfig() {
     this._updateAppState({treeConfig: getTreeConfig()})
     this._updateTitle()
+    this._applyColorScheme()
   }
 
   _handleSettings() {

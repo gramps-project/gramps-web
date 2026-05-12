@@ -1,5 +1,8 @@
 {
   "App title": "App title",
+  "Theme colors": "Theme colors",
+  "Primary color": "Primary color",
+  "Accent color": "Accent color",
   "If set, overrides the family tree name in the title bar": "If set, overrides the family tree name in the title bar",
   "Add child": "Add child",
   "Existing Person": "Existing Person",
