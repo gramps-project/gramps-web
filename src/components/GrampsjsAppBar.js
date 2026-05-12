@@ -151,7 +151,9 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
         <div id="app-title" slot="title">
           ${this.editMode && this.editTitle
             ? this.editTitle
-            : this.appState?.dbInfo?.database?.name || 'Gramps Web'}
+            : this.appState.treeConfig?.title ||
+              this.appState?.dbInfo?.database?.name ||
+              'Gramps Web'}
         </div>
         ${savingIndicator}
         ${this.editMode

@@ -14,7 +14,7 @@ import {fireEvent} from '../util.js'
 import {mdiDeleteForever} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
 import '@material/web/button/outlined-button.js'
-import '@material/web/textfield/outlined-text-field.js'
+import '@material/web/textfield/filled-text-field.js'
 
 export class GrampsjsViewAdminSettings extends GrampsjsView {
   static get styles() {
@@ -74,7 +74,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           margin: 0.4em 0;
         }
 
-        #tree-name-field {
+        .settings-text-field {
           width: 100%;
           max-width: 30em;
         }
@@ -209,18 +209,35 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         : ''}
       <h3>${this._('Family Tree name')}</h3>
       <p>
-        <md-outlined-text-field
+        <md-filled-text-field
+          class="settings-text-field"
           id="tree-name-field"
           label="${this._('Family Tree name')}"
           .value="${this._treeName}"
           @input="${e => {
             this._treeName = e.target.value
           }}"
-        ></md-outlined-text-field>
+        ></md-filled-text-field>
       </p>
       <p>
         <md-outlined-button @click="${this._renameTree}"
           >${this._('_Rename')}</md-outlined-button
+        >
+      </p>
+      <p>
+        <md-filled-text-field
+          class="settings-text-field"
+          id="app-title-field"
+          label="${this._('App title')}"
+          .supportingText="${this._(
+            'If set, overrides the family tree name in the title bar'
+          )}"
+          .value="${this.appState.treeConfig?.title ?? ''}"
+        ></md-filled-text-field>
+      </p>
+      <p>
+        <md-outlined-button @click="${this._saveAppTitle}"
+          >${this._('_Save')}</md-outlined-button
         >
       </p>
 
@@ -436,6 +453,14 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       name: this._treeName,
     })
     if ('error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
+  async _saveAppTitle() {
+    const field = this.renderRoot.querySelector('#app-title-field')
+    const data = await this.appState.updateTreeConfig({title: field.value})
+    if (data && 'error' in data) {
       fireEvent(this, 'grampsjs:error', {message: data.error})
     }
   }

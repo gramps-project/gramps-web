@@ -1,4 +1,6 @@
 {
+  "App title": "App title",
+  "If set, overrides the family tree name in the title bar": "If set, overrides the family tree name in the title bar",
   "Add child": "Add child",
   "Existing Person": "Existing Person",
   "Undo revision": "Undo revision",
