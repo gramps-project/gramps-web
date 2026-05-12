@@ -55,6 +55,13 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
           flex: 1;
           border-radius: 3px;
         }
+
+        @media (max-width: 600px) {
+          wa-color-picker {
+            --grid-width: min(200px, 60vw);
+            --grid-height: min(140px, 42vw);
+          }
+        }
       `,
     ]
   }
