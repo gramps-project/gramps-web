@@ -98,13 +98,16 @@ export function personDisplayName(person, options = {givenfirst: true}) {
     : `${surname}, ${given} ${suffix}`.trim()
 }
 
-const personGrampsIdRegex = /^I\d+$/i
+const personGrampsIdRegex = /^I\d+$/
 
-export function reportSelectItemLabel(option, translate = value => value) {
-  const splt = `${option}`.split(/\t+/).map(v => v.trim())
-  const labelKey = splt.length === 1 ? splt[0] : splt[1]
+export function reportSelectItemLabel(
+  optionString,
+  translate = value => value
+) {
+  const parts = `${optionString}`.split(/\t+/).map(v => v.trim())
+  const labelKey = parts.length === 1 ? parts[0] : parts[1]
   const label = translate(labelKey)
-  const personGrampsId = splt[2] || (splt.length > 1 ? splt[0] : '')
+  const personGrampsId = parts[2] || (parts.length > 1 ? parts[0] : '')
 
   if (
     personGrampsIdRegex.test(personGrampsId) &&
