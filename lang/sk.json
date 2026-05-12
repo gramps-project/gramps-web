@@ -311,5 +311,8 @@
     "Partner 2": "Partner 2",
     "Add Family Member": "Pridanie člena rodiny",
     "App title": "Názov aplikácie",
-    "If set, overrides the family tree name in the title bar": "Ak je táto možnosť nastavená, nahradí názov rodokmeňa v titulnej lište"
+    "If set, overrides the family tree name in the title bar": "Ak je táto možnosť nastavená, nahradí názov rodokmeňa v titulnej lište",
+    "Theme colors": "Farby motívu",
+    "Primary color": "Základná farba",
+    "Accent color": "Doplnková farba"
 }
