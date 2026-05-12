@@ -253,7 +253,7 @@
     "Administrator Documentation": "Documentation administrateur",
     "Forum": "Forum",
     "Researcher Information": "Informations sur le généalogiste",
-    "Account Source": "Source du Compte",
+    "Account Source": "Source du compte",
     "Quick Access": "Accès rapide",
     "Documentation": "Documentation",
     "Community": "Communauté",
@@ -298,5 +298,10 @@
     "Failed to copy to clipboard": "Échec de copie vers presse-papiers",
     "Partner 1": "Partenaire 1",
     "Partner 2": "Partenaire 2",
-    "Add Family Member": "Ajout membre famille"
+    "Add Family Member": "Ajout membre famille",
+    "App title": "Titre app",
+    "If set, overrides the family tree name in the title bar": "Si défini, remplace le nom de l’arbre familial dans la barre de titre",
+    "Undo revision": "Annuler la révision",
+    "Undo revision (force)": "Annuler la révision (forcer)",
+    "Force undo": "Forcer l'annulation"
 }
