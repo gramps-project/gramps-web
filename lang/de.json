@@ -312,5 +312,8 @@
     "Add Family Member": "Familienmitglied hinzufügen",
     "Spouse": "Partner(in)",
     "App title": "App-Titel",
-    "If set, overrides the family tree name in the title bar": "Falls gesetzt, überschreibt er den Stammbaum-Namen in der Titelleiste"
+    "If set, overrides the family tree name in the title bar": "Falls gesetzt, überschreibt er den Stammbaum-Namen in der Titelleiste",
+    "Theme colors": "Designfarben",
+    "Primary color": "Primärfarbe",
+    "Accent color": "Akzentfarbe"
 }
