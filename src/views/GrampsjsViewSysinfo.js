@@ -25,11 +25,15 @@ export class GrampsjsViewSysinfo extends GrampsjsView {
             <span class="monospace">${this.appState.dbInfo.database.type}</span>
           </p>`
         : ''}
-      <h3>${this._('Researcher Information')}</h3>
-      <grampsjs-researcher
-        readonly
-        .appState="${this.appState}"
-      ></grampsjs-researcher>
+      ${this.appState.frontendConfig?.hideResearcherDetails
+        ? ''
+        : html`
+            <h3>${this._('Researcher Information')}</h3>
+            <grampsjs-researcher
+              readonly
+              .appState="${this.appState}"
+            ></grampsjs-researcher>
+          `}
     `
   }
 }

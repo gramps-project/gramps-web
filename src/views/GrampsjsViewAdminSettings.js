@@ -230,7 +230,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           size="20"
           pollInterval="0.5"
           .appState="${this.appState}"
-          @task:complete="${this._handleSuccessUpdateSearch}"
+          @task:complete="${() => this._handleSuccessUpdateSearch(false)}"
         ></grampsjs-task-progress-indicator>
 
         ${this.appState.dbInfo?.server?.semantic_search
@@ -259,7 +259,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                   size="20"
                   pollInterval="1.0"
                   .appState="${this.appState}"
-                  @task:complete="${this._handleSuccessUpdateSearch}"
+                  @task:complete="${() =>
+                    this._handleSuccessUpdateSearch(true)}"
                 ></grampsjs-task-progress-indicator>
               </p>
               <p>
@@ -275,7 +276,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                   size="20"
                   pollInterval="1.0"
                   .appState="${this.appState}"
-                  @task:complete="${this._handleSuccessUpdateSearch}"
+                  @task:complete="${() =>
+                    this._handleSuccessUpdateSearch(true)}"
                 ></grampsjs-task-progress-indicator>
               </p>
             `
@@ -714,17 +716,18 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       })
       return
     }
-    if (typeof data !== 'object' || Array.isArray(data) || data === null) {
+    if (
+      typeof data !== 'object' ||
+      Array.isArray(data) ||
+      data === null ||
+      Object.keys(data).length === 0
+    ) {
       fireEvent(this, 'grampsjs:error', {
         message: this._('Error parsing JSON file'),
       })
       return
     }
-    // keep only recognized frontend.* keys
-    const sanitized = Object.fromEntries(
-      Object.entries(data).filter(([k]) => k.startsWith('frontend.'))
-    )
-    const res = await this.appState.replaceTreeConfig(sanitized)
+    const res = await this.appState.replaceTreeConfig(data)
     if (res?.error) {
       fireEvent(this, 'grampsjs:error', {message: res.error})
     } else {
