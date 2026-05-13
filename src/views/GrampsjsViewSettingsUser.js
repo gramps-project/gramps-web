@@ -3,8 +3,9 @@ import {html, css} from 'lit'
 import '@material/web/button/outlined-button'
 import '@material/web/select/filled-select'
 import '@material/web/select/select-option'
-import '@material/web/textfield/outlined-text-field'
+import '@material/web/textfield/filled-text-field'
 
+import '../components/GrampsjsCollapsibleSection.js'
 import '../components/GrampsjsFormSelectObjectList.js'
 import {userRoles} from '../components/GrampsjsFormUser.js'
 import '../components/GrampsjsIcon.js'
@@ -34,6 +35,12 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
           display: flex;
           align-items: center;
           gap: 8px;
+        }
+
+        h3 {
+          font-size: 1.1em;
+          font-weight: 500;
+          margin: 1.5em 0 0.5em;
         }
 
         .tree-preferences {
@@ -69,38 +76,53 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
 
   renderContent() {
     return html`
-      <h3>${this._('User Information')}</h3>
-      <dl>
-        <div>
-          <dt><span>${this._('Username: ').replace(':', '')}</span></dt>
-          <dd>${this._userInfo?.name}</dd>
-        </div>
-        <div>
-          <dt><span>${this._('User group')}</span></dt>
-          <dd>${this._(userRoles[this._userInfo?.role])}</dd>
-        </div>
-      </dl>
-      <div style="clear: both;"></div>
+      <p style="margin-top: 2.5em;">
+        ${this._('Changes here only affect your account.')}
+      </p>
 
-      <h3>${this._('Select language')}</h3>
+      <grampsjs-collapsible-section
+        title="${this._('Account')}"
+        description="${this._(
+          'Profile info, credentials, and account security'
+        )}"
+      >
+        <dl>
+          <div>
+            <dt><span>${this._('Username: ').replace(':', '')}</span></dt>
+            <dd>${this._userInfo?.name}</dd>
+          </div>
+          <div>
+            <dt><span>${this._('User group')}</span></dt>
+            <dd>${this._(userRoles[this._userInfo?.role])}</dd>
+          </div>
+        </dl>
+        <div style="clear: both;"></div>
 
-      ${this.renderLangSelect()}
+        <h3>${this._('Change E-mail')}</h3>
+        ${this.renderChangeEmail()}
 
-      <h3>${this._('Select theme')}</h3>
+        <h3>${this._('Change password')}</h3>
+        ${this.renderChangePw()}
+      </grampsjs-collapsible-section>
 
-      ${this.renderThemeSelect()}
+      <grampsjs-collapsible-section
+        title="${this._('Appearance')}"
+        description="${this._('Display preferences saved on this device')}"
+      >
+        <h3>${this._('Select language')}</h3>
+        ${this.renderLangSelect()}
+        <h3>${this._('Select theme')}</h3>
+        ${this.renderThemeSelect()}
+        <h3>${this._('Family tree preferences')}</h3>
+        ${this.renderTreePreferences()}
+      </grampsjs-collapsible-section>
 
-      <h3>${this._('Change E-mail')}</h3>
-
-      ${this.renderChangeEmail()}
-
-      <h3>${this._('Change password')}</h3>
-
-      ${this.renderChangePw()}
-      <h3>${this._('Family tree preferences')}</h3>
-      ${this.renderTreePreferences()}
-      <h3>${this._('Developer Tools')}</h3>
-      ${this.renderApiToken()}
+      <grampsjs-collapsible-section
+        title="${this._('Developer Tools')}"
+        description="${this._('Access the interactive API documentation')}"
+      >
+        ${this.renderApiToken()}
+      </grampsjs-collapsible-section>
     `
   }
 
@@ -252,11 +274,11 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
   renderChangeEmail() {
     return html`
       <p>
-        <md-outlined-text-field
+        <md-filled-text-field
           id="change-email"
           label="${this._('New E-mail')}"
           value="${this._userInfo?.email ? this._userInfo.email : ''}"
-        ></md-outlined-text-field>
+        ></md-filled-text-field>
       </p>
       <p>
         <md-outlined-button @click="${this._changeEmail}">
@@ -269,16 +291,16 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
   renderChangePw() {
     return html`
       <p>
-        <md-outlined-text-field
+        <md-filled-text-field
           id="old-pw"
           label="${this._('Old password')}"
           type="password"
-        ></md-outlined-text-field>
-        <md-outlined-text-field
+        ></md-filled-text-field>
+        <md-filled-text-field
           id="new-pw"
           label="${this._('New password')}"
           type="password"
-        ></md-outlined-text-field>
+        ></md-filled-text-field>
       </p>
       <p>
         <md-outlined-button @click="${this._changePw}">

@@ -1,6 +1,7 @@
 import {html} from 'lit'
 
 import '../components/GrampsjsSysinfo.js'
+import '../components/GrampsjsResearcher.js'
 import {GrampsjsView} from './GrampsjsView.js'
 
 export class GrampsjsViewSysinfo extends GrampsjsView {
@@ -24,6 +25,15 @@ export class GrampsjsViewSysinfo extends GrampsjsView {
             <span class="monospace">${this.appState.dbInfo.database.type}</span>
           </p>`
         : ''}
+      ${this.appState.frontendConfig?.hideResearcherDetails
+        ? ''
+        : html`
+            <h3>${this._('Researcher Information')}</h3>
+            <grampsjs-researcher
+              readonly
+              .appState="${this.appState}"
+            ></grampsjs-researcher>
+          `}
     `
   }
 }
