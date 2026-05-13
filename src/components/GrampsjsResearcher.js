@@ -5,6 +5,7 @@ import '@material/web/button/outlined-button'
 import '@material/web/textfield/filled-text-field'
 
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {fireEvent} from '../util.js'
 
 const FIELDS = [
   {id: 'name', label: 'Name'},
@@ -158,7 +159,9 @@ export class GrampsjsResearcher extends GrampsjsAppStateMixin(LitElement) {
       payload
     )
     this._loading = false
-    if (!('error' in data)) {
+    if ('error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    } else {
       this._editing = false
     }
   }
