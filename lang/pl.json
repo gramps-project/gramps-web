@@ -241,5 +241,18 @@
     "Add custom search engine": "Dodaj własną wyszukiwarkę",
     "Community": "Społeczność",
     "Documentation": "Dokumentacja",
-    "Quick Access": "Szybki dostęp"
+    "Quick Access": "Szybki dostęp",
+    "Theme colors": "Kolory motywu",
+    "Primary color": "Kolor główny",
+    "Accent color": "Kolor akcentu",
+    "Add child": "Dodaj dziecko",
+    "Existing Person": "Istniejąca osoba",
+    "Undo revision": "Cofnij zmiany",
+    "Undo revision (force)": "Cofnij zmiany (wymuś)",
+    "Force undo": "Wymuś cofnięcie zmian",
+    "This will revert all changes made in this revision.": "Ta operacja spowoduje cofnięcie zmian dokonanych w tej wersji.",
+    "Gallery view": "Galeria",
+    "List view": "Lista",
+    "Or select an existing tag": "Lub wybierz spośród istniejących",
+    "Add Family Member": "Dodaj członka rodziny"
 }
