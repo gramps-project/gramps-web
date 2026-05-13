@@ -19,8 +19,12 @@ import {
   TREE_CONFIG_SECONDARY_COLOR,
 } from '../api.js'
 import {DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
-import {mdiDeleteForever} from '@mdi/js'
+import {mdiDeleteForever, mdiDownload, mdiUpload} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
+import '../components/GrampsjsFormUpload.js'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/text-button.js'
+import '@material/web/button/filled-button.js'
 import '@awesome.me/webawesome/dist/components/color-picker/color-picker.js'
 import '@material/web/button/outlined-button.js'
 import '@material/web/textfield/filled-text-field.js'
@@ -152,6 +156,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       _treeName: {type: String},
       _primaryColor: {type: String},
       _secondaryColor: {type: String},
+      _importDialogOpen: {type: Boolean},
+      _importFileReady: {type: Boolean},
     }
   }
 
@@ -164,6 +170,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this._treeName = ''
     this._primaryColor = DEFAULT_PRIMARY
     this._secondaryColor = DEFAULT_SECONDARY
+    this._importDialogOpen = false
+    this._importFileReady = false
   }
 
   renderContent() {
@@ -353,6 +361,61 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             >${this._('_Save')}</md-outlined-button
           >
         </p>
+
+        <h3>${this._('Export/Import settings')}</h3>
+        <p style="display: flex; gap: 0.75em; flex-wrap: wrap;">
+          <md-outlined-button @click="${this._handleExportTreeConfig}">
+            <grampsjs-icon
+              slot="icon"
+              path="${mdiDownload}"
+              color="var(--mdc-theme-primary)"
+            ></grampsjs-icon>
+            ${this._('Export')}
+          </md-outlined-button>
+          <md-outlined-button @click="${this._handleImportClick}">
+            <grampsjs-icon
+              slot="icon"
+              path="${mdiUpload}"
+              color="var(--mdc-theme-primary)"
+            ></grampsjs-icon>
+            ${this._('Import')}
+          </md-outlined-button>
+        </p>
+        <a
+          id="treeconfig-download"
+          aria-hidden="true"
+          href="#"
+          style="display:none"
+          download="grampsweb-tree-config.json"
+        ></a>
+
+        ${this._importDialogOpen
+          ? html`
+              <md-dialog open @cancel="${e => e.preventDefault()}">
+                <span slot="headline">${this._('Import tree settings')}</span>
+                <div slot="content">
+                  <grampsjs-form-upload
+                    id="treeconfig-upload"
+                    accept=".json"
+                    filename
+                    .appState="${this.appState}"
+                    @formdata:changed="${this._handleUploadChanged}"
+                  ></grampsjs-form-upload>
+                </div>
+                <div slot="actions">
+                  <md-text-button @click="${this._handleImportCancel}">
+                    ${this._('Cancel')}
+                  </md-text-button>
+                  <md-filled-button
+                    ?disabled="${!this._importFileReady}"
+                    @click="${this._handleImportTreeConfig}"
+                  >
+                    ${this._('Import')}
+                  </md-filled-button>
+                </div>
+              </md-dialog>
+            `
+          : ''}
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
@@ -612,6 +675,63 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     })
     if (data && 'error' in data) {
       fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
+  _handleExportTreeConfig() {
+    const blob = new Blob([JSON.stringify(this.appState.treeConfig, null, 2)], {
+      type: 'application/json',
+    })
+    const url = URL.createObjectURL(blob)
+    const anchor = this.renderRoot.querySelector('#treeconfig-download')
+    anchor.href = url
+    anchor.click()
+    URL.revokeObjectURL(url)
+  }
+
+  _handleImportClick() {
+    this._importFileReady = false
+    this._importDialogOpen = true
+  }
+
+  _handleImportCancel() {
+    this._importDialogOpen = false
+    this._importFileReady = false
+  }
+
+  _handleUploadChanged() {
+    this._importFileReady = true
+  }
+
+  async _handleImportTreeConfig() {
+    const uploadForm = this.renderRoot.querySelector('#treeconfig-upload')
+    let data
+    try {
+      data = await uploadForm.readAsJson()
+    } catch {
+      fireEvent(this, 'grampsjs:error', {
+        message: this._('Error parsing JSON file'),
+      })
+      return
+    }
+    if (typeof data !== 'object' || Array.isArray(data) || data === null) {
+      fireEvent(this, 'grampsjs:error', {
+        message: this._('Error parsing JSON file'),
+      })
+      return
+    }
+    // keep only recognized frontend.* keys
+    const sanitized = Object.fromEntries(
+      Object.entries(data).filter(([k]) => k.startsWith('frontend.'))
+    )
+    const res = await this.appState.replaceTreeConfig(sanitized)
+    if (res?.error) {
+      fireEvent(this, 'grampsjs:error', {message: res.error})
+    } else {
+      this._importDialogOpen = false
+      fireEvent(this, 'grampsjs:notification', {
+        message: this._('Settings successfully imported'),
+      })
     }
   }
 

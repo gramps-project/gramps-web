@@ -168,6 +168,20 @@ export function getInitialAppState() {
       }
       return res
     },
+    replaceTreeConfig: async (config = {}) => {
+      const res = await apiPutPostDelete(
+        auth,
+        'PUT',
+        '/api/trees/-/config',
+        config,
+        {saving: false, dbChanged: false}
+      )
+      if (!('error' in res)) {
+        setTreeConfig(config)
+        fireEvent(window, 'treeconfig:changed', config)
+      }
+      return res
+    },
     cacheTreeConfig: config => {
       setTreeConfig(config)
       fireEvent(window, 'treeconfig:changed', config)
