@@ -37,7 +37,6 @@ import '../views/GrampsjsViewMedia.js'
 import '../views/GrampsjsViewSearch.js'
 import '../views/GrampsjsViewSettingsUser.js'
 import '../views/GrampsjsViewSysinfo.js'
-import '../views/GrampsjsViewResearcher.js'
 import '../views/GrampsjsViewAdminSettings.js'
 import '../views/GrampsjsViewUserManagement.js'
 import '../views/GrampsjsViewRecent.js'
@@ -330,12 +329,6 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         this.appState.path.pageId === 'info'}
         .appState="${this.appState}"
       ></grampsjs-view-sysinfo>
-      <grampsjs-view-researcher
-        class="page"
-        ?active=${this.appState.path.page === 'settings' &&
-        this.appState.path.pageId === 'researcher'}
-        .appState="${this.appState}"
-      ></grampsjs-view-researcher>
       <grampsjs-view-report
         class="page"
         ?active=${this.appState.path.page === 'report'}

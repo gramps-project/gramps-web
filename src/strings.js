@@ -1030,4 +1030,6 @@ export const grampsStrings = [
   "Whether to show every person's relationship to the center person",
   "Wives use husband's surname (from first family listed)",
   "Wives use husband's surname (from last family listed)",
+  'Data',
+  'Family Tree Processing',
 ]

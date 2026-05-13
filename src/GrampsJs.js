@@ -443,6 +443,8 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Tasks')}</dd>
                 <dt><span>g</span> <span>e</span></dt>
                 <dd>${this._('Export')}</dd>
+                <dt><span>g</span> <span>s</span></dt>
+                <dd>${this._('Settings')}</dd>
               </dl>
             </div>
             <div>
@@ -1226,6 +1228,8 @@ export class GrampsJs extends LitElement {
         if (this.canUseChat) {
           fireEvent(this, 'nav', {path: 'chat'})
         }
+      } else if (e.key === 's') {
+        fireEvent(this, 'nav', {path: 'settings'})
       }
       this._shortcutPressed = ''
     } else if (this._shortcutPressed === 'n') {

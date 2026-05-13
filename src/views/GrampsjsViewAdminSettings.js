@@ -1,6 +1,8 @@
 import {css, html} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
+import '../components/GrampsjsCollapsibleSection.js'
+import '../components/GrampsjsResearcher.js'
 import '../components/GrampsjsImport.js'
 import '../components/GrampsjsImportMedia.js'
 import '../components/GrampsjsMediaFileStatus.js'
@@ -86,6 +88,18 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           max-width: 30em;
         }
 
+        h3 {
+          font-size: 1.1em;
+          font-weight: 500;
+          margin: 2em 0 0.5em;
+        }
+
+        h4 {
+          font-size: 1em;
+          font-weight: 500;
+          margin: 1.5em 0 0.5em;
+        }
+
         .bold {
           font-weight: 500;
         }
@@ -154,223 +168,266 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
 
   renderContent() {
     return html`
-      <h3>${this._('Usage quotas')}</h3>
-
-      <grampsjs-tree-quotas .appState="${this.appState}"></grampsjs-tree-quotas>
-      <grampsjs-import .appState="${this.appState}"></grampsjs-import>
-
-      <grampsjs-media-status
-        .appState="${this.appState}"
-      ></grampsjs-media-status>
-      ${this.appState.dbInfo?.object_counts?.media
-        ? html`<grampsjs-media-file-status
-            .appState="${this.appState}"
-          ></grampsjs-media-file-status>`
-        : ''}
-
-      <grampsjs-import-media
-        .appState="${this.appState}"
-      ></grampsjs-import-media>
-
-      <h3>${this._('Manage search index')}</h3>
-
-      ${this._renderSearchStatus()}
-
-      <p>
-        ${this._(
-          'Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.'
-        )}
+      <p style="margin-top: 2.5em;">
+        ${this._('Changes here affect all users of this tree.')}
       </p>
-      <md-outlined-button
-        ?disabled=${this._buttonUpdateSearchDisabled}
-        @click="${() => this._updateSearch(false)}"
-        >${this._('Update search index')}</md-outlined-button
+
+      <grampsjs-collapsible-section
+        title="${this._('Data')}"
+        description="${this._(
+          'Quotas, imports, media, and storage management'
+        )}"
       >
-      <grampsjs-task-progress-indicator
-        class="button"
-        id="progress-update-search"
-        taskName="searchReindexFull"
-        size="20"
-        pollInterval="0.5"
-        .appState="${this.appState}"
-        @task:complete="${this._handleSuccessUpdateSearch}"
-      ></grampsjs-task-progress-indicator>
+        <grampsjs-tree-quotas
+          .appState="${this.appState}"
+        ></grampsjs-tree-quotas>
+        <grampsjs-import .appState="${this.appState}"></grampsjs-import>
 
-      ${this.appState.dbInfo?.server?.semantic_search
-        ? html`
-            <h3>${this._('Manage semantic search index')}</h3>
+        <grampsjs-media-status
+          .appState="${this.appState}"
+        ></grampsjs-media-status>
+        ${this.appState.dbInfo?.object_counts?.media
+          ? html`<grampsjs-media-file-status
+              .appState="${this.appState}"
+            ></grampsjs-media-file-status>`
+          : ''}
 
-            ${this._renderSearchStatus(true)}
+        <grampsjs-import-media
+          .appState="${this.appState}"
+        ></grampsjs-import-media>
+      </grampsjs-collapsible-section>
 
+      <grampsjs-collapsible-section
+        title="${this._('Search index')}"
+        description="${this._('Manage and rebuild the search index')}"
+      >
+        <h3>${this._('Manage search index')}</h3>
+
+        ${this._renderSearchStatus()}
+
+        <p>
+          ${this._(
+            'Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.'
+          )}
+        </p>
+        <md-outlined-button
+          ?disabled=${this._buttonUpdateSearchDisabled}
+          @click="${() => this._updateSearch(false)}"
+          >${this._('Update search index')}</md-outlined-button
+        >
+        <grampsjs-task-progress-indicator
+          class="button"
+          id="progress-update-search"
+          taskName="searchReindexFull"
+          size="20"
+          pollInterval="0.5"
+          .appState="${this.appState}"
+          @task:complete="${this._handleSuccessUpdateSearch}"
+        ></grampsjs-task-progress-indicator>
+
+        ${this.appState.dbInfo?.server?.semantic_search
+          ? html`
+              <h3>${this._('Manage semantic search index')}</h3>
+
+              ${this._renderSearchStatus(true)}
+
+              <p>
+                ${this._(
+                  'Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.'
+                )}
+              </p>
+              <p>
+                <md-outlined-button
+                  ?disabled=${this._buttonUpdateSearchSemanticDisabled}
+                  @click="${() => this._updateSearch(true)}"
+                  >${this._(
+                    'Regenerate semantic search index'
+                  )}</md-outlined-button
+                >
+                <grampsjs-task-progress-indicator
+                  class="button"
+                  id="progress-update-search-semantic"
+                  taskName="searchReindexFullSemantic"
+                  size="20"
+                  pollInterval="1.0"
+                  .appState="${this.appState}"
+                  @task:complete="${this._handleSuccessUpdateSearch}"
+                ></grampsjs-task-progress-indicator>
+              </p>
+              <p>
+                <md-outlined-button
+                  ?disabled=${this._buttonUpdateSearchSemanticDisabled}
+                  @click="${() => this._updateSearch(true, true)}"
+                  >${this._('Update semantic search index')}</md-outlined-button
+                >
+                <grampsjs-task-progress-indicator
+                  class="button"
+                  id="progress-update-search-semantic-incremental"
+                  taskName="searchReindexIncrementalSemantic"
+                  size="20"
+                  pollInterval="1.0"
+                  .appState="${this.appState}"
+                  @task:complete="${this._handleSuccessUpdateSearch}"
+                ></grampsjs-task-progress-indicator>
+              </p>
+            `
+          : ''}
+      </grampsjs-collapsible-section>
+
+      <grampsjs-collapsible-section
+        title="${this._('Tree settings')}"
+        description="${this._('Tree name and researcher information')}"
+      >
+        <h3>${this._('Family Tree name')}</h3>
+        <p>
+          <md-filled-text-field
+            class="settings-text-field"
+            id="tree-name-field"
+            label="${this._('Family Tree name')}"
+            .value="${this._treeName}"
+            @input="${e => {
+              this._treeName = e.target.value
+            }}"
+          ></md-filled-text-field>
+        </p>
+        <p>
+          <md-outlined-button @click="${this._renameTree}"
+            >${this._('_Rename')}</md-outlined-button
+          >
+        </p>
+
+        <h3>${this._('Researcher Information')}</h3>
+        <grampsjs-researcher .appState="${this.appState}"></grampsjs-researcher>
+      </grampsjs-collapsible-section>
+
+      <grampsjs-collapsible-section
+        title="${this._('Customization')}"
+        description="${this._('Colors, branding, and visual appearance')}"
+      >
+        <h3>${this._('Theme colors')}</h3>
+        <div class="color-pickers">
+          <div class="color-row">
+            <span class="color-label">${this._('Primary color')}</span>
+            <wa-color-picker
+              format="hex"
+              .value="${this._primaryColor}"
+              @change="${e => {
+                this._primaryColor = e.target.value
+              }}"
+            ></wa-color-picker>
+          </div>
+          <div class="color-row">
+            <span class="color-label">${this._('Accent color')}</span>
+            <wa-color-picker
+              format="hex"
+              .value="${this._secondaryColor}"
+              @change="${e => {
+                this._secondaryColor = e.target.value
+              }}"
+            ></wa-color-picker>
+          </div>
+        </div>
+        <p style="display: flex; gap: 0.75em;">
+          <md-outlined-button @click="${this._saveColors}"
+            >${this._('_Save')}</md-outlined-button
+          >
+          <md-outlined-button @click="${this._resetColors}"
+            >${this._('Reset')}</md-outlined-button
+          >
+        </p>
+
+        <h3>${this._('App title')}</h3>
+        <p>
+          <md-filled-text-field
+            class="settings-text-field"
+            id="app-title-field"
+            label="${this._('App title')}"
+            .supportingText="${this._(
+              'If set, overrides the family tree name in the title bar'
+            )}"
+            .value="${this.appState.treeConfig?.[TREE_CONFIG_APP_TITLE] ?? ''}"
+          ></md-filled-text-field>
+        </p>
+        <p>
+          <md-outlined-button @click="${this._saveAppTitle}"
+            >${this._('_Save')}</md-outlined-button
+          >
+        </p>
+      </grampsjs-collapsible-section>
+
+      <grampsjs-collapsible-section
+        title="${this._('Family Tree Processing')}"
+        description="${this._(
+          'Database checks, repairs, and other operations'
+        )}"
+      >
+        <p>
+          ${this._(
+            'This tool checks the database for integrity problems, fixing the problems it can.'
+          )}
+        </p>
+        <md-outlined-button @click="${this._checkRepair}"
+          >${this._('Check and Repair')}</md-outlined-button
+        >
+        <grampsjs-task-progress-indicator
+          class="button"
+          id="progress-repair"
+          taskName="repairDb"
+          size="20"
+          pollInterval="0.2"
+          .appState="${this.appState}"
+          @task:complete="${this._handleRepairComplete}"
+        ></grampsjs-task-progress-indicator>
+
+        ${this._repairResults?.num_errors !== undefined
+          ? html`<p class="card">
+              ${this._repairResults.num_errors === 0
+                ? this._(
+                    'No errors were found: the database has passed internal checks.'
+                  )
+                : html`<span class="pre">${this._repairResults.message}</span>`}
+            </p>`
+          : ''}
+      </grampsjs-collapsible-section>
+
+      <grampsjs-collapsible-section
+        title="${this._('Danger Zone')}"
+        description="${this._('Irreversible operations on tree data')}"
+      >
+        <div class="danger-zone">
+          <div class="text">
+            <p class="bold">${this._('Delete all objects')}</p>
             <p>
               ${this._(
-                'Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.'
+                'Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.'
               )}
             </p>
-            <p>
-              <md-outlined-button
-                ?disabled=${this._buttonUpdateSearchSemanticDisabled}
-                @click="${() => this._updateSearch(true)}"
-                >${this._(
-                  'Regenerate semantic search index'
-                )}</md-outlined-button
-              >
-              <grampsjs-task-progress-indicator
-                class="button"
-                id="progress-update-search-semantic"
-                taskName="searchReindexFullSemantic"
-                size="20"
-                pollInterval="1.0"
-                .appState="${this.appState}"
-                @task:complete="${this._handleSuccessUpdateSearch}"
-              ></grampsjs-task-progress-indicator>
-            </p>
-            <p>
-              <md-outlined-button
-                ?disabled=${this._buttonUpdateSearchSemanticDisabled}
-                @click="${() => this._updateSearch(true, true)}"
-                >${this._('Update semantic search index')}</md-outlined-button
-              >
-              <grampsjs-task-progress-indicator
-                class="button"
-                id="progress-update-search-semantic-incremental"
-                taskName="searchReindexIncrementalSemantic"
-                size="20"
-                pollInterval="1.0"
-                .appState="${this.appState}"
-                @task:complete="${this._handleSuccessUpdateSearch}"
-              ></grampsjs-task-progress-indicator>
-            </p>
-          `
-        : ''}
-      <h3>${this._('Family Tree name')}</h3>
-      <p>
-        <md-filled-text-field
-          class="settings-text-field"
-          id="tree-name-field"
-          label="${this._('Family Tree name')}"
-          .value="${this._treeName}"
-          @input="${e => {
-            this._treeName = e.target.value
-          }}"
-        ></md-filled-text-field>
-      </p>
-      <p>
-        <md-outlined-button @click="${this._renameTree}"
-          >${this._('_Rename')}</md-outlined-button
-        >
-      </p>
-      <p>
-        <md-filled-text-field
-          class="settings-text-field"
-          id="app-title-field"
-          label="${this._('App title')}"
-          .supportingText="${this._(
-            'If set, overrides the family tree name in the title bar'
-          )}"
-          .value="${this.appState.treeConfig?.[TREE_CONFIG_APP_TITLE] ?? ''}"
-        ></md-filled-text-field>
-      </p>
-      <p>
-        <md-outlined-button @click="${this._saveAppTitle}"
-          >${this._('_Save')}</md-outlined-button
-        >
-      </p>
-
-      <h3>${this._('Theme colors')}</h3>
-      <div class="color-pickers">
-        <div class="color-row">
-          <span class="color-label">${this._('Primary color')}</span>
-          <wa-color-picker
-            format="hex"
-            .value="${this._primaryColor}"
-            @change="${e => {
-              this._primaryColor = e.target.value
-            }}"
-          ></wa-color-picker>
+          </div>
+          <div class="button">
+            <grampsjs-task-progress-indicator
+              class="button-left"
+              id="progress-delete-all"
+              taskName="deleteObjects"
+              size="20"
+              pollInterval="0.2"
+              .appState="${this.appState}"
+              @task:complete="${this._handleDeleteAllComplete}"
+            ></grampsjs-task-progress-indicator>
+            <md-outlined-button
+              class="danger-button"
+              @click="${this._openDeleteAll}"
+            >
+              <grampsjs-icon
+                slot="icon"
+                path="${mdiDeleteForever}"
+                color="var(--grampsjs-alert-error-font-color)"
+              ></grampsjs-icon>
+              ${this._('Delete')}
+            </md-outlined-button>
+          </div>
         </div>
-        <div class="color-row">
-          <span class="color-label">${this._('Accent color')}</span>
-          <wa-color-picker
-            format="hex"
-            .value="${this._secondaryColor}"
-            @change="${e => {
-              this._secondaryColor = e.target.value
-            }}"
-          ></wa-color-picker>
-        </div>
-      </div>
-      <p style="display: flex; gap: 0.75em;">
-        <md-outlined-button @click="${this._saveColors}"
-          >${this._('_Save')}</md-outlined-button
-        >
-        <md-outlined-button @click="${this._resetColors}"
-          >${this._('Reset')}</md-outlined-button
-        >
-      </p>
+      </grampsjs-collapsible-section>
 
-      <h3>${this._('Check and Repair Database')}</h3>
-
-      <p>
-        ${this._(
-          'This tool checks the database for integrity problems, fixing the problems it can.'
-        )}
-      </p>
-      <md-outlined-button @click="${this._checkRepair}"
-        >${this._('Check and Repair')}</md-outlined-button
-      >
-      <grampsjs-task-progress-indicator
-        class="button"
-        id="progress-repair"
-        taskName="repairDb"
-        size="20"
-        pollInterval="0.2"
-        .appState="${this.appState}"
-        @task:complete="${this._handleRepairComplete}"
-      ></grampsjs-task-progress-indicator>
-
-      ${this._repairResults?.num_errors !== undefined
-        ? html`<p class="card">
-            ${this._repairResults.num_errors === 0
-              ? this._(
-                  'No errors were found: the database has passed internal checks.'
-                )
-              : html`<span class="pre">${this._repairResults.message}</span>`}
-          </p>`
-        : ''}
-      <h3>${this._('Danger Zone')}</h3>
-      <div class="danger-zone">
-        <div class="text">
-          <p class="bold">${this._('Delete all objects')}</p>
-          <p>
-            ${this._(
-              'Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.'
-            )}
-          </p>
-        </div>
-        <div class="button">
-          <grampsjs-task-progress-indicator
-            class="button-left"
-            id="progress-delete-all"
-            taskName="deleteObjects"
-            size="20"
-            pollInterval="0.2"
-            .appState="${this.appState}"
-            @task:complete="${this._handleDeleteAllComplete}"
-          ></grampsjs-task-progress-indicator>
-          <md-outlined-button
-            class="danger-button"
-            @click="${this._openDeleteAll}"
-          >
-            <grampsjs-icon
-              slot="icon"
-              path="${mdiDeleteForever}"
-              color="var(--grampsjs-alert-error-font-color)"
-            ></grampsjs-icon>
-            ${this._('Delete')}
-          </md-outlined-button>
-        </div>
-      </div>
       <grampsjs-delete-all
         .appState="${this.appState}"
         @delete-objects="${this._handleDeleteAll}"

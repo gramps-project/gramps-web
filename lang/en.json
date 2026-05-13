@@ -311,5 +311,21 @@
   "Failed to copy to clipboard": "Failed to copy to clipboard",
   "Partner 1": "Partner 1",
   "Partner 2": "Partner 2",
-  "Add Family Member": "Add Family Member"
+  "Add Family Member": "Add Family Member",
+  "Account": "Account",
+  "Appearance": "Appearance",
+  "Customization": "Customization",
+  "Search index": "Search index",
+  "Tree settings": "Tree settings",
+  "Profile info, credentials, and account security": "Profile info, credentials, and account security",
+  "Access the interactive API documentation": "Access the interactive API documentation",
+  "Quotas, imports, media, and storage management": "Quotas, imports, media, and storage management",
+  "Manage and rebuild the search index": "Manage and rebuild the search index",
+  "Tree name and researcher information": "Tree name and researcher information",
+  "Colors, branding, and visual appearance": "Colors, branding, and visual appearance",
+  "Database checks, repairs, and other operations": "Database checks, repairs, and other operations",
+  "Irreversible operations on tree data": "Irreversible operations on tree data",
+  "Changes here only affect your account.": "Changes here only affect your account.",
+  "Changes here affect all users of this tree.": "Changes here affect all users of this tree.",
+  "Display preferences saved on this device": "Display preferences saved on this device"
 }
