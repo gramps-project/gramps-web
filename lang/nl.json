@@ -309,5 +309,10 @@
     "Existing Person": "Bestaand persoon",
     "Partner 1": "Partner 1",
     "Partner 2": "Partner 2",
-    "Add Family Member": "Familielid toevoegen"
+    "Add Family Member": "Familielid toevoegen",
+    "App title": "App-titel",
+    "Theme colors": "Themakleuren",
+    "Primary color": "Hoofdkleur",
+    "Accent color": "Accentkleur",
+    "If set, overrides the family tree name in the title bar": "Indien ingesteld, wordt de stamboomnaam in de titelbalk overschreven"
 }
