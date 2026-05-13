@@ -303,5 +303,9 @@
     "If set, overrides the family tree name in the title bar": "Si défini, remplace le nom de l’arbre familial dans la barre de titre",
     "Undo revision": "Annuler la révision",
     "Undo revision (force)": "Annuler la révision (forcer)",
-    "Force undo": "Forcer l'annulation"
+    "Force undo": "Forcer l'annulation",
+    "Theme colors": "Couleurs de thème",
+    "Primary color": "Couleur primaire",
+    "Accent color": "Couleur d'accentuation",
+    "Or select an existing tag": "Ou sélectionnez une étiquette existante"
 }
