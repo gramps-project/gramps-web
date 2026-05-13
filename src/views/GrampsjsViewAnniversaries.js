@@ -97,9 +97,8 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
             timestamp="${timestamp}"
             locale="${this.appState.i18n.lang}"
           ></grampsjs-timedelta>
-          (${event.profile.date})
-          ${event?.profile?.place
-            ? html`<br />${event.profile.place_name || event.profile.place}`
+          (${event.profile.date})${event?.profile?.place
+            ? html` · ${event.profile.place_name || event.profile.place}`
             : ''}
         </span>
       </md-list-item>
