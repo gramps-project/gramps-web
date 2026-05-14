@@ -17,11 +17,14 @@ import {
   TREE_CONFIG_APP_TITLE,
   TREE_CONFIG_PRIMARY_COLOR,
   TREE_CONFIG_SECONDARY_COLOR,
+  TREE_CONFIG_HOME_PAGE_NOTE,
+  TREE_CONFIG_HOME_PAGE_IMAGE,
 } from '../api.js'
 import {DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
 import {mdiDeleteForever, mdiDownload, mdiUpload} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsFormUpload.js'
+import '../components/GrampsjsFormSelectObject.js'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 import '@material/web/button/filled-button.js'
@@ -158,6 +161,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       _secondaryColor: {type: String},
       _importDialogOpen: {type: Boolean},
       _importFileReady: {type: Boolean},
+      _homePageNoteGrampsId: {},
+      _homePageImageGrampsId: {},
     }
   }
 
@@ -172,6 +177,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this._secondaryColor = DEFAULT_SECONDARY
     this._importDialogOpen = false
     this._importFileReady = false
+    this._homePageNoteGrampsId = null
+    this._homePageImageGrampsId = null
   }
 
   renderContent() {
@@ -362,6 +369,52 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           <md-outlined-button @click="${this._saveAppTitle}"
             >${this._('_Save')}</md-outlined-button
           >
+        </p>
+
+        <h3>${this._('Home page note')}</h3>
+        ${this.appState.treeConfig?.[TREE_CONFIG_HOME_PAGE_NOTE]
+          ? html`
+              <p style="display:flex; align-items:center; gap:0.75em;">
+                ${this._homePageNoteGrampsId === null
+                  ? html`<span class="skeleton" style="width:4em;"
+                      >&nbsp;</span
+                    >`
+                  : html`<span>${this._homePageNoteGrampsId}</span>`}
+                <md-outlined-button @click="${this._clearHomePageNote}"
+                  >${this._('Remove')}</md-outlined-button
+                >
+              </p>
+            `
+          : ''}
+        <p>
+          <grampsjs-form-select-object
+            objectType="note"
+            .appState="${this.appState}"
+            @select-object:changed="${this._handleHomePageNoteSelected}"
+          ></grampsjs-form-select-object>
+        </p>
+
+        <h3>${this._('Home page image')}</h3>
+        ${this.appState.treeConfig?.[TREE_CONFIG_HOME_PAGE_IMAGE]
+          ? html`
+              <p style="display:flex; align-items:center; gap:0.75em;">
+                ${this._homePageImageGrampsId === null
+                  ? html`<span class="skeleton" style="width:4em;"
+                      >&nbsp;</span
+                    >`
+                  : html`<span>${this._homePageImageGrampsId}</span>`}
+                <md-outlined-button @click="${this._clearHomePageImage}"
+                  >${this._('Remove')}</md-outlined-button
+                >
+              </p>
+            `
+          : ''}
+        <p>
+          <grampsjs-form-select-object
+            objectType="media"
+            .appState="${this.appState}"
+            @select-object:changed="${this._handleHomePageImageSelected}"
+          ></grampsjs-form-select-object>
         </p>
 
         <h3>${this._('Export/Import settings')}</h3>
@@ -680,6 +733,69 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
+  async _handleHomePageNoteSelected(e) {
+    const obj = e.detail.objects?.[0]
+    if (!obj) return
+    this._homePageNoteGrampsId = null
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_HOME_PAGE_NOTE]: obj.handle,
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
+  async _handleHomePageImageSelected(e) {
+    const obj = e.detail.objects?.[0]
+    if (!obj) return
+    this._homePageImageGrampsId = null
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_HOME_PAGE_IMAGE]: obj.handle,
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
+  async _clearHomePageNote() {
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_HOME_PAGE_NOTE]: '',
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
+  async _clearHomePageImage() {
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_HOME_PAGE_IMAGE]: '',
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
+  async _fetchHomePageGrampsIds() {
+    const noteHandle = this.appState.treeConfig?.[TREE_CONFIG_HOME_PAGE_NOTE]
+    const imageHandle = this.appState.treeConfig?.[TREE_CONFIG_HOME_PAGE_IMAGE]
+    if (noteHandle) {
+      const data = await this.appState.apiGet(
+        `/api/notes/${noteHandle}?profile=self`
+      )
+      if (!('error' in data)) {
+        this._homePageNoteGrampsId = data.data?.gramps_id || ''
+      }
+    }
+    if (imageHandle) {
+      const data = await this.appState.apiGet(
+        `/api/media/${imageHandle}?profile=self`
+      )
+      if (!('error' in data)) {
+        this._homePageImageGrampsId = data.data?.gramps_id || ''
+      }
+    }
+  }
+
   _handleExportTreeConfig() {
     const blob = new Blob([JSON.stringify(this.appState.treeConfig, null, 2)], {
       type: 'application/json',
@@ -766,6 +882,14 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           this.appState.treeConfig?.[TREE_CONFIG_SECONDARY_COLOR] ||
           DEFAULT_SECONDARY
       }
+      if (
+        prev?.treeConfig?.[TREE_CONFIG_HOME_PAGE_NOTE] !==
+          this.appState.treeConfig?.[TREE_CONFIG_HOME_PAGE_NOTE] ||
+        prev?.treeConfig?.[TREE_CONFIG_HOME_PAGE_IMAGE] !==
+          this.appState.treeConfig?.[TREE_CONFIG_HOME_PAGE_IMAGE]
+      ) {
+        this._fetchHomePageGrampsIds()
+      }
     }
   }
 
@@ -773,6 +897,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     super.firstUpdated()
     this._fetchOwnUserDetails()
     this._fetchTreeInfo()
+    this._fetchHomePageGrampsIds()
   }
 }
 
