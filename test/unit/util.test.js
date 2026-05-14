@@ -4,6 +4,7 @@ import {
   personTitleFromProfile,
   personDisplayName,
   reportSelectItemLabel,
+  reportSelectItemValue,
   familyTitleFromProfile,
   citationTitleFromProfile,
   getSortval,
@@ -107,26 +108,34 @@ describe('personDisplayName', () => {
 })
 
 describe('reportSelectItemLabel', () => {
-  it('appends person Gramps ID from option value for person selections', () => {
+  it('returns the second tab-separated part as the label', () => {
     expect(reportSelectItemLabel('I0001\tStefańczyk, Maciej')).to.equal(
-      'Stefańczyk, Maciej (I0001)'
+      'Stefańczyk, Maciej'
     )
   })
 
-  it('appends person Gramps ID from third tab-separated value when provided', () => {
-    expect(
-      reportSelectItemLabel('handle123\tStefańczyk, Maciej\tI0001')
-    ).to.equal('Stefańczyk, Maciej (I0001)')
+  it('returns the label for family options (trailing colon on value)', () => {
+    expect(reportSelectItemLabel('F0058:\tSmith Family')).to.equal(
+      'Smith Family'
+    )
   })
 
-  it('does not modify non-person option labels', () => {
+  it('returns the single value as label for single-column options', () => {
     expect(reportSelectItemLabel('pdf\tPDF')).to.equal('PDF')
   })
+})
 
-  it('does not append duplicate IDs when already present', () => {
-    expect(reportSelectItemLabel('I0001\tStefańczyk, Maciej (I0001)')).to.equal(
-      'Stefańczyk, Maciej (I0001)'
-    )
+describe('reportSelectItemValue', () => {
+  it('returns the first column for simple key=value options', () => {
+    expect(reportSelectItemValue('pdf\tPDF')).to.equal('pdf')
+  })
+
+  it('returns the first column (Gramps ID) for person options', () => {
+    expect(reportSelectItemValue('I0001\tStefańczyk, Maciej')).to.equal('I0001')
+  })
+
+  it('strips trailing colon from value (family option Gramps internal format)', () => {
+    expect(reportSelectItemValue('F0058:\tSmith Family')).to.equal('F0058')
   })
 })
 

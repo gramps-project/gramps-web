@@ -98,25 +98,24 @@ export function personDisplayName(person, options = {givenfirst: true}) {
     : `${surname}, ${given} ${suffix}`.trim()
 }
 
-const personGrampsIdRegex = /^I\d+$/
-
 export function reportSelectItemLabel(
   optionString,
   translate = value => value
 ) {
   const parts = `${optionString}`.split(/\t+/).map(v => v.trim())
   const labelKey = parts.length === 1 ? parts[0] : parts[1]
-  const label = translate(labelKey)
-  const personGrampsId = parts[2] || (parts.length > 1 ? parts[0] : '')
+  return translate(labelKey)
+}
 
-  if (
-    personGrampsIdRegex.test(personGrampsId) &&
-    !label.endsWith(`(${personGrampsId})`)
-  ) {
-    return `${label} (${personGrampsId})`
-  }
-
-  return label
+/**
+ * Returns the value to submit to the API for a report option item.
+ * When the option string is in `handle\tName\tGrampsID` format, the
+ * Gramps ID (third column) is returned so the API receives the expected
+ * identifier rather than an internal handle.
+ */
+export function reportSelectItemValue(optionString) {
+  const parts = `${optionString}`.split(/\t+/).map(v => v.trim())
+  return parts[0].replace(/:\s*$/, '')
 }
 
 export function familyTitleFromProfile(familyProfile) {
