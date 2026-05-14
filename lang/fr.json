@@ -307,5 +307,21 @@
     "Theme colors": "Couleurs de thème",
     "Primary color": "Couleur primaire",
     "Accent color": "Couleur d'accentuation",
-    "Or select an existing tag": "Ou sélectionnez une étiquette existante"
+    "Or select an existing tag": "Ou sélectionnez une étiquette existante",
+    "Export/Import settings": "Paramètres d’export/import",
+    "Settings successfully imported": "Paramètres importés avec succès",
+    "Enter a search URL with template variables for person data. Available variables:": "Saisissez une URL de recherche avec des variables de modèle pour les données personnelles. Variables disponibles :",
+    "Edit repository reference": "Modifier référence dépôt",
+    "Account": "Compte",
+    "Appearance": "Apparence",
+    "Customization": "Personnalisation",
+    "Search index": "Index de recherche",
+    "Profile info, credentials, and account security": "Info de profil, identifiants et sécurité du compte",
+    "Access the interactive API documentation": "Accéder à la documentation de l’API interactive",
+    "Quotas, imports, media, and storage management": "Gestion des quotas, importations, médias et stockage",
+    "Manage and rebuild the search index": "Gérer et reconstruire l’index de recherche",
+    "Database checks, repairs, and other operations": "Vérifications, réparations et autres opérations de la base de données",
+    "Changes here only affect your account.": "Modifier ici n’affectera que votre compte.",
+    "Changes here affect all users of this tree.": "Modifier ici affectera tous les utilisateurs de cet arbre.",
+    "Display preferences saved on this device": "Préférences d’affichage enregistrées sur cet appareil"
 }
