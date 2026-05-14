@@ -84,9 +84,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
       <div style="position:relative;">
         <md-outlined-button
           ?disabled="${this.disabled}"
-          style="${this.hideButton
-            ? 'visibility:hidden;pointer-events:none;'
-            : ''}"
+          style="${this.hideButton ? 'display:none;' : ''}"
           id="button"
           @click="${this._handleBtnClick}"
         >

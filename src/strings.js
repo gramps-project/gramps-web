@@ -405,6 +405,8 @@ export const grampsStrings = [
   'Henry numbering',
   'High',
   'Home',
+  'Home page image',
+  'Home page note',
   'Home Person',
   'Horizontal (←)',
   'Horizontal (→)',

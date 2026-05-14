@@ -8,12 +8,14 @@ export class GrampsjsConnectedNote extends GrampsjsConnectedComponent {
   static get properties() {
     return {
       handle: {type: String},
+      framed: {type: Boolean},
     }
   }
 
   constructor() {
     super()
     this.handle = ''
+    this.framed = true
   }
 
   getUrl() {
@@ -33,7 +35,7 @@ export class GrampsjsConnectedNote extends GrampsjsConnectedComponent {
   renderContent() {
     return html`
       <grampsjs-note-content
-        framed
+        ?framed="${this.framed}"
         .appState="${this.appState}"
         grampsId="${this._data.data.gramps_id}"
         content="${this._data?.data?.formatted?.html ||
@@ -46,8 +48,8 @@ export class GrampsjsConnectedNote extends GrampsjsConnectedComponent {
   renderLoading() {
     const skeleton =
       '<p><span class="skeleton" style="width:100%;">&nbsp;</span></p>'
-    return html` <grampsjs-note-content
-      framed
+    return html`<grampsjs-note-content
+      ?framed="${this.framed}"
       content="${skeleton}"
     ></grampsjs-note-content>`
   }
