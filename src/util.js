@@ -109,9 +109,8 @@ export function reportSelectItemLabel(
 
 /**
  * Returns the value to submit to the API for a report option item.
- * When the option string is in `handle\tName\tGrampsID` format, the
- * Gramps ID (third column) is returned so the API receives the expected
- * identifier rather than an internal handle.
+ * Takes the first tab-separated column and strips any trailing colon
+ * (Gramps appends a colon to family handles in some contexts).
  */
 export function reportSelectItemValue(optionString) {
   const parts = `${optionString}`.split(/\t+/).map(v => v.trim())
