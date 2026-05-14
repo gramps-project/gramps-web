@@ -74,7 +74,7 @@ export class GrampsjsViewDashboard extends GrampsjsView {
         .home-page-block-combined {
           display: flex;
           gap: 3em;
-          align-items: flex-start;
+          align-items: center;
         }
 
         .home-page-block-combined .home-page-image {
