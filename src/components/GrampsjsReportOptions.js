@@ -6,7 +6,11 @@ import '@material/web/switch/switch'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {fireEvent, reportSelectItemLabel} from '../util.js'
+import {
+  fireEvent,
+  reportSelectItemLabel,
+  reportSelectItemValue,
+} from '../util.js'
 
 const _forbiddenOptions = ['css', 'of', 'style']
 
@@ -161,11 +165,11 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
 
   // eslint-disable-next-line class-methods-use-this
   _renderSelectItem(key, value) {
-    const splt = key.split(/\t+/)
-    const selected = splt[0] === `${value}` || splt[0] === 'pdf'
+    const itemValue = reportSelectItemValue(key)
+    const selected = itemValue === `${value}` || itemValue === 'pdf'
     const label = reportSelectItemLabel(key, item => this._(item))
     return html`
-      <mwc-list-item value="${splt[0]}" ?selected=${selected}
+      <mwc-list-item value="${itemValue}" ?selected=${selected}
         >${label}</mwc-list-item
       >
     `

@@ -98,25 +98,23 @@ export function personDisplayName(person, options = {givenfirst: true}) {
     : `${surname}, ${given} ${suffix}`.trim()
 }
 
-const personGrampsIdRegex = /^I\d+$/
-
 export function reportSelectItemLabel(
   optionString,
   translate = value => value
 ) {
   const parts = `${optionString}`.split(/\t+/).map(v => v.trim())
   const labelKey = parts.length === 1 ? parts[0] : parts[1]
-  const label = translate(labelKey)
-  const personGrampsId = parts[2] || (parts.length > 1 ? parts[0] : '')
+  return translate(labelKey)
+}
 
-  if (
-    personGrampsIdRegex.test(personGrampsId) &&
-    !label.endsWith(`(${personGrampsId})`)
-  ) {
-    return `${label} (${personGrampsId})`
-  }
-
-  return label
+/**
+ * Returns the value to submit to the API for a report option item.
+ * Takes the first tab-separated column and strips any trailing colon
+ * (Gramps appends a colon to family handles in some contexts).
+ */
+export function reportSelectItemValue(optionString) {
+  const parts = `${optionString}`.split(/\t+/).map(v => v.trim())
+  return parts[0].replace(/:\s*$/, '')
 }
 
 export function familyTitleFromProfile(familyProfile) {
