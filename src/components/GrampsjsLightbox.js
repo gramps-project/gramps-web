@@ -10,9 +10,29 @@ class GrampsjsLightbox extends LitElement {
       css`
         :host {
           --grampsjs-lightbox-toolbar-height: 70px;
-          --grampsjs-img-max-height: calc(
-            100vh - var(--grampsjs-lightbox-toolbar-height)
-          );
+        }
+
+        @media (max-width: 600px) {
+          :host {
+            --grampsjs-lightbox-toolbar-height: 96px;
+          }
+
+          #text-row {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          #description-container {
+            flex: 1;
+            font-size: 15px;
+            padding: 4px 12px 0;
+          }
+
+          #button-container {
+            height: 48px;
+            justify-content: flex-end;
+            padding: 0 4px;
+          }
         }
 
         #lightbox-container {
@@ -80,10 +100,6 @@ class GrampsjsLightbox extends LitElement {
           align-items: center;
           padding: 0 12px;
           gap: 4px;
-        }
-
-        #detail-container {
-          padding: 0 20px 12px;
         }
 
         .lightbox-nav {
@@ -202,9 +218,6 @@ class GrampsjsLightbox extends LitElement {
             <div id="button-container">
               <slot name="button"></slot>
             </div>
-          </div>
-          <div id="detail-container">
-            <slot name="details"></slot>
           </div>
         </div>
       </div>

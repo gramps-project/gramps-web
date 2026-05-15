@@ -26,7 +26,7 @@ class GrampsjsImg extends LitElement {
 
         img {
           max-width: 100%;
-          max-height: var(--grampsjs-img-max-height, 100vh);
+          max-height: 100vh;
         }
 
         img.cover {

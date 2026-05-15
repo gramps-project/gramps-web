@@ -156,10 +156,9 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
             ></grampsjs-icon>
           </md-icon-button>
           <md-filled-button @click="${this._handleButtonClick}">
-            ${this._('Show Details')}
+            ${this._('Details')}
           </md-filled-button>
         </span>
-        <span slot="details"></span>
       </grampsjs-lightbox>
     `
   }
@@ -262,7 +261,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     const w = window.innerWidth
     if (w <= 600) return 800
     if (w <= 1200) return 1200
-    return 1600
+    return 2000
   }
 
   // --- zoom ---
