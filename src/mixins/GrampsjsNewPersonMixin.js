@@ -166,7 +166,14 @@ export const GrampsjsNewPersonMixin = superClass =>
       const deathString = this.translateTypeName(false, 'event_types', 'Death')
       // type is the family relation type set by GrampsjsFormNewSpouse; strip it
       // so it doesn't leak into the Person payload (_type silences unused-var lint)
-      const {birth = {}, death = {}, frel, mrel, type: _type, ...person} = this.data
+      const {
+        birth = {},
+        death = {},
+        frel,
+        mrel,
+        type: _type,
+        ...person
+      } = this.data
       const hasBirth = birth.place || (birth?.date && !dateIsEmpty(birth.date))
       const hasDeath = death.place || (death?.date && !dateIsEmpty(death.date))
       if (!hasBirth && !hasDeath) {
