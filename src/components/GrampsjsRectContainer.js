@@ -61,7 +61,7 @@ class GrampsjsRectContainer extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleDown(e) {
-    e.preventDefault()
+    if (this.draw) e.preventDefault()
     e.stopPropagation()
     this._drawActive = true
     this._drawStart = this._getRelativeCoords(e)

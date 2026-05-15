@@ -1,12 +1,27 @@
 import {html, css} from 'lit'
+import {
+  mdiAccount,
+  mdiAccountOff,
+  mdiDownload,
+  mdiMagnifyMinus,
+  mdiMagnifyPlus,
+} from '@mdi/js'
+
+import '@material/web/iconbutton/icon-button.js'
+import '@material/web/button/filled-button.js'
+
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsLightbox.js'
 import '../components/GrampsjsRectContainer.js'
 import '../components/GrampsjsRect.js'
 import '../components/GrampsjsTooltip.js'
+import '../components/GrampsjsIcon.js'
 import {getMediaUrl} from '../api.js'
 import {fireEvent, getNameFromProfile} from '../util.js'
+
+// Make sure to synchronize this with the CSS variable --grampsjs-lightbox-toolbar-height in GrampsjsLightbox.js
+const LIGHTBOX_TOOLBAR_HEIGHT = 70
 
 export class GrampsjsViewMediaLightbox extends GrampsjsView {
   static get styles() {
@@ -25,12 +40,18 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
           padding-left: 0.8em;
         }
 
-        mwc-icon-button.toggle-rect,
-        mwc-icon-button.download {
-          color: var(--mdc-theme-primary);
+        .zoom-wrapper {
           position: relative;
-          bottom: 5px;
-          margin-right: 10px;
+          touch-action: none;
+          will-change: transform;
+        }
+
+        .zoom-wrapper.panning {
+          cursor: grab;
+        }
+
+        .zoom-wrapper.panning:active {
+          cursor: grabbing;
         }
 
         object > p {
@@ -50,6 +71,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
       hideRightArrow: {type: Boolean},
       editRect: {type: Boolean},
       rectHidden: {type: Boolean},
+      _zoom: {type: Number},
     }
   }
 
@@ -60,6 +82,20 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     this.hideRightArrow = false
     this.editRect = false
     this.rectHidden = false
+    this._zoom = 1
+    this._panX = 0
+    this._panY = 0
+    this._pinchStartDist = null
+    this._pinchStartZoom = 1
+    this._touchPanStartX = 0
+    this._touchPanStartY = 0
+    this._touchPanStartPanX = 0
+    this._touchPanStartPanY = 0
+    this._dragStartX = 0
+    this._dragStartY = 0
+    this._dragStartPanX = 0
+    this._dragStartPanY = 0
+    this._handleDbChanged = this._updateData.bind(this)
   }
 
   renderContent() {
@@ -77,26 +113,51 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
             : ''}</span
         >
         <span slot="button">
-          <mwc-icon-button
+          <md-icon-button
             id="btn-toggle-rect"
-            class="toggle-rect"
-            .icon="${this.rectHidden ? 'person' : 'person_off'}"
+            aria-label="${this._('Toggle person outlines')}"
+            ?disabled="${this._zoom > 1}"
             @click="${this._handleToggleRectButtonClick}"
-          ></mwc-icon-button>
+          >
+            <grampsjs-icon
+              path="${this.rectHidden ? mdiAccount : mdiAccountOff}"
+              color="var(--mdc-theme-primary)"
+            ></grampsjs-icon>
+          </md-icon-button>
           <grampsjs-tooltip for="btn-toggle-rect"
             >${this._('Toggle person outlines')}</grampsjs-tooltip
           >
-          <mwc-icon-button
-            icon="download"
-            class="download"
-            @click="${this._handleDownload}"
-          ></mwc-icon-button>
-          <mwc-button
-            unelevated
-            label="${this._('Show Details')}"
-            @click="${this._handleButtonClick}"
+          <md-icon-button
+            aria-label="${this._('Zoom in')}"
+            @click="${this._handleZoomIn}"
           >
-          </mwc-button>
+            <grampsjs-icon
+              path="${mdiMagnifyPlus}"
+              color="var(--mdc-theme-primary)"
+            ></grampsjs-icon>
+          </md-icon-button>
+          <md-icon-button
+            aria-label="${this._('Zoom out')}"
+            ?disabled="${this._zoom <= 1}"
+            @click="${this._handleZoomOut}"
+          >
+            <grampsjs-icon
+              path="${mdiMagnifyMinus}"
+              color="var(--mdc-theme-primary)"
+            ></grampsjs-icon>
+          </md-icon-button>
+          <md-icon-button
+            aria-label="${this._('Download')}"
+            @click="${this._handleDownload}"
+          >
+            <grampsjs-icon
+              path="${mdiDownload}"
+              color="var(--mdc-theme-primary)"
+            ></grampsjs-icon>
+          </md-icon-button>
+          <md-filled-button @click="${this._handleButtonClick}">
+            ${this._('Show Details')}
+          </md-filled-button>
         </span>
         <span slot="details"></span>
       </grampsjs-lightbox>
@@ -141,13 +202,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   }
 
   _pdfErrorHandler() {
-    this.dispatchEvent(
-      new CustomEvent('grampsjs:error', {
-        bubbles: true,
-        composed: true,
-        detail: {message: 'Failed loading PDF file'},
-      })
-    )
+    fireEvent(this, 'grampsjs:error', {message: 'Failed loading PDF file'})
   }
 
   _innerContainerContentFile() {
@@ -155,24 +210,39 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   }
 
   _innerContainerContentImage() {
-    return html` <grampsjs-rect-container
-      ?edit="${this.editRect}"
-      .appState="${this.appState}"
-      @rect:save="${this._handleSaveRect}"
-    >
-      ${this._renderImage()}
-      ${this._getRectangles().map(
-        obj => html`
-          <grampsjs-rect
-            .rect="${obj.rect}"
-            .hidden="${this.rectHidden}"
-            label="${obj.label}"
-            target="${obj.type}/${obj.grampsId}"
-          >
-          </grampsjs-rect>
-        `
-      )}
-    </grampsjs-rect-container>`
+    const zoomed = this._zoom > 1
+    return html`
+      <div
+        class="zoom-wrapper${zoomed ? ' panning' : ''}"
+        @wheel="${this._handleWheel}"
+        @touchstart="${this._handleTouchStart}"
+        @touchmove="${this._handleTouchMove}"
+        @touchend="${this._handleTouchEnd}"
+        @pointerdown="${this._handlePointerDown}"
+        @pointermove="${this._handlePointerMove}"
+        @pointerup="${this._handlePointerUp}"
+      >
+        <grampsjs-rect-container
+          ?edit="${this.editRect}"
+          .appState="${this.appState}"
+          style="${zoomed ? 'pointer-events: none;' : ''}"
+          @rect:save="${this._handleSaveRect}"
+        >
+          ${this._renderImage()}
+          ${this._getRectangles().map(
+            obj => html`
+              <grampsjs-rect
+                .rect="${obj.rect}"
+                .hidden="${this.rectHidden || zoomed}"
+                label="${obj.label}"
+                target="${obj.type}/${obj.grampsId}"
+              >
+              </grampsjs-rect>
+            `
+          )}
+        </grampsjs-rect-container>
+      </div>
+    `
   }
 
   _renderImage() {
@@ -188,6 +258,135 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     `
   }
 
+  // --- zoom ---
+
+  updated(changed) {
+    super.updated(changed)
+    this._applyTransform()
+  }
+
+  _applyTransform() {
+    const wrapper = this.shadowRoot?.querySelector('.zoom-wrapper')
+    if (wrapper) {
+      wrapper.style.transform = `translate(${this._panX}px, ${this._panY}px) scale(${this._zoom})`
+    }
+  }
+
+  _setZoom(newZoom) {
+    this._zoom = Math.max(1, Math.min(10, newZoom))
+    if (this._zoom === 1) {
+      this._panX = 0
+      this._panY = 0
+    } else {
+      this._clampPan()
+    }
+    this._applyTransform()
+  }
+
+  _clampPan() {
+    const maxPanX = ((this._zoom - 1) * window.innerWidth) / 2
+    const maxPanY =
+      ((this._zoom - 1) * (window.innerHeight - LIGHTBOX_TOOLBAR_HEIGHT)) / 2
+    this._panX = Math.max(-maxPanX, Math.min(maxPanX, this._panX))
+    this._panY = Math.max(-maxPanY, Math.min(maxPanY, this._panY))
+  }
+
+  _resetZoom() {
+    this._zoom = 1
+    this._panX = 0
+    this._panY = 0
+  }
+
+  _handleZoomIn() {
+    this._setZoom(this._zoom * 1.5)
+  }
+
+  _handleZoomOut() {
+    this._setZoom(this._zoom / 1.5)
+  }
+
+  _handleWheel(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    const factor = e.deltaY > 0 ? 0.9 : 1.1
+    this._setZoom(this._zoom * factor)
+  }
+
+  // --- mouse drag pan ---
+
+  _handlePointerDown(e) {
+    if (this._zoom <= 1) return
+    this._dragStartX = e.clientX
+    this._dragStartY = e.clientY
+    this._dragStartPanX = this._panX
+    this._dragStartPanY = this._panY
+    e.currentTarget.setPointerCapture(e.pointerId)
+  }
+
+  _handlePointerMove(e) {
+    if (this._zoom <= 1 || !e.buttons) return
+    this._panX = this._dragStartPanX + (e.clientX - this._dragStartX)
+    this._panY = this._dragStartPanY + (e.clientY - this._dragStartY)
+    this._clampPan()
+    this._applyTransform()
+  }
+
+  _handlePointerUp() {
+    // pointer capture released automatically
+  }
+
+  // --- touch zoom/pan ---
+
+  _handleTouchStart(e) {
+    if (e.touches.length === 2) {
+      e.stopPropagation()
+      this._pinchStartDist = this._getPinchDist(e)
+      this._pinchStartZoom = this._zoom
+    } else if (e.touches.length === 1 && this._zoom > 1) {
+      e.stopPropagation()
+      this._touchPanStartX = e.touches[0].clientX
+      this._touchPanStartY = e.touches[0].clientY
+      this._touchPanStartPanX = this._panX
+      this._touchPanStartPanY = this._panY
+    }
+  }
+
+  _handleTouchMove(e) {
+    if (e.touches.length === 2) {
+      e.stopPropagation()
+      e.preventDefault()
+      if (this._pinchStartDist) {
+        const dist = this._getPinchDist(e)
+        this._setZoom((this._pinchStartZoom * dist) / this._pinchStartDist)
+      }
+    } else if (e.touches.length === 1 && this._zoom > 1) {
+      e.stopPropagation()
+      this._panX =
+        this._touchPanStartPanX + (e.touches[0].clientX - this._touchPanStartX)
+      this._panY =
+        this._touchPanStartPanY + (e.touches[0].clientY - this._touchPanStartY)
+      this._clampPan()
+      this._applyTransform()
+    }
+  }
+
+  _handleTouchEnd(e) {
+    if (e.touches.length < 2) {
+      this._pinchStartDist = null
+    }
+    if (this._zoom > 1) {
+      e.stopPropagation()
+    }
+  }
+
+  _getPinchDist(e) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX
+    const dy = e.touches[0].clientY - e.touches[1].clientY
+    return Math.sqrt(dx * dx + dy * dy)
+  }
+
+  // --- existing handlers ---
+
   _handleDownload() {
     window.location.assign(getMediaUrl(this._data.handle, true))
   }
@@ -195,15 +394,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   _handleButtonClick() {
     const lightBox = this.shadowRoot.getElementById('gallery-lightbox')
     lightBox.open = false
-    this.dispatchEvent(
-      new CustomEvent('nav', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          path: `media/${this._data?.gramps_id}`,
-        },
-      })
-    )
+    fireEvent(this, 'nav', {path: `media/${this._data?.gramps_id}`})
   }
 
   _handleToggleRectButtonClick() {
@@ -227,7 +418,6 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
       Math.round(100 * right),
       Math.round(100 * bottom),
     ]
-    // make sure the rounded rectangle does not vanish
     if ((rect[2] - rect[0]) * (rect[3] - rect[1]) > 0) {
       const data = {ref: this.handle, rect}
       fireEvent(this, 'edit:action', {action: 'updateMediaRef', data})
@@ -238,6 +428,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     super.update(changed)
     if (changed.has('handle')) {
       this._updateData()
+      this._resetZoom()
     }
   }
 
@@ -291,7 +482,12 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
 
   connectedCallback() {
     super.connectedCallback()
-    window.addEventListener('db:changed', () => this._updateData())
+    window.addEventListener('db:changed', this._handleDbChanged)
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    window.removeEventListener('db:changed', this._handleDbChanged)
   }
 }
 
