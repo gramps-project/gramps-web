@@ -20,6 +20,7 @@ import '../components/GrampsjsIcon.js'
 import {getMediaUrl} from '../api.js'
 import {fireEvent, getNameFromProfile} from '../util.js'
 
+// Make sure to synchronize this with the CSS variable --grampsjs-lightbox-toolbar-height in GrampsjsLightbox.js
 const LIGHTBOX_TOOLBAR_HEIGHT = 70
 
 export class GrampsjsViewMediaLightbox extends GrampsjsView {
