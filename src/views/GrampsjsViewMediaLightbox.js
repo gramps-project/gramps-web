@@ -250,12 +250,19 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     return html`
       <grampsjs-img
         handle="${handle}"
-        size="2000"
+        size="${this._imageSize()}"
         mime="${mime}"
         checksum="${this._data.checksum}"
         slot="image"
       ></grampsjs-img>
     `
+  }
+
+  _imageSize() {
+    const w = window.innerWidth
+    if (w <= 600) return 800
+    if (w <= 1200) return 1200
+    return 1600
   }
 
   // --- zoom ---
