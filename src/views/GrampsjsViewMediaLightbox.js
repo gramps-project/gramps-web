@@ -20,6 +20,8 @@ import '../components/GrampsjsIcon.js'
 import {getMediaUrl} from '../api.js'
 import {fireEvent, getNameFromProfile} from '../util.js'
 
+const LIGHTBOX_TOOLBAR_HEIGHT = 70
+
 export class GrampsjsViewMediaLightbox extends GrampsjsView {
   static get styles() {
     return [
@@ -43,14 +45,11 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
           will-change: transform;
         }
 
-        .pan-overlay {
-          position: absolute;
-          inset: 0;
-          z-index: 10;
+        .zoom-wrapper.panning {
           cursor: grab;
         }
 
-        .pan-overlay:active {
+        .zoom-wrapper.panning:active {
           cursor: grabbing;
         }
 
@@ -87,15 +86,14 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     this._panY = 0
     this._pinchStartDist = null
     this._pinchStartZoom = 1
-    this._isDragging = false
-    this._dragStartX = 0
-    this._dragStartY = 0
-    this._dragStartPanX = 0
-    this._dragStartPanY = 0
     this._touchPanStartX = 0
     this._touchPanStartY = 0
     this._touchPanStartPanX = 0
     this._touchPanStartPanY = 0
+    this._dragStartX = 0
+    this._dragStartY = 0
+    this._dragStartPanX = 0
+    this._dragStartPanY = 0
     this._handleDbChanged = this._updateData.bind(this)
   }
 
@@ -116,6 +114,8 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         <span slot="button">
           <md-icon-button
             id="btn-toggle-rect"
+            aria-label="${this._('Toggle person outlines')}"
+            ?disabled="${this._zoom > 1}"
             @click="${this._handleToggleRectButtonClick}"
           >
             <grampsjs-icon
@@ -126,13 +126,17 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
           <grampsjs-tooltip for="btn-toggle-rect"
             >${this._('Toggle person outlines')}</grampsjs-tooltip
           >
-          <md-icon-button @click="${this._handleZoomIn}">
+          <md-icon-button
+            aria-label="${this._('Zoom in')}"
+            @click="${this._handleZoomIn}"
+          >
             <grampsjs-icon
               path="${mdiMagnifyPlus}"
               color="var(--mdc-theme-primary)"
             ></grampsjs-icon>
           </md-icon-button>
           <md-icon-button
+            aria-label="${this._('Zoom out')}"
             ?disabled="${this._zoom <= 1}"
             @click="${this._handleZoomOut}"
           >
@@ -141,7 +145,10 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
               color="var(--mdc-theme-primary)"
             ></grampsjs-icon>
           </md-icon-button>
-          <md-icon-button @click="${this._handleDownload}">
+          <md-icon-button
+            aria-label="${this._('Download')}"
+            @click="${this._handleDownload}"
+          >
             <grampsjs-icon
               path="${mdiDownload}"
               color="var(--mdc-theme-primary)"
@@ -202,26 +209,22 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   }
 
   _innerContainerContentImage() {
+    const zoomed = this._zoom > 1
     return html`
       <div
-        class="zoom-wrapper"
+        class="zoom-wrapper${zoomed ? ' panning' : ''}"
         @wheel="${this._handleWheel}"
         @touchstart="${this._handleTouchStart}"
         @touchmove="${this._handleTouchMove}"
         @touchend="${this._handleTouchEnd}"
+        @pointerdown="${this._handlePointerDown}"
+        @pointermove="${this._handlePointerMove}"
+        @pointerup="${this._handlePointerUp}"
       >
-        ${this._zoom > 1
-          ? html`<div
-              class="pan-overlay"
-              @pointerdown="${this._handlePointerDown}"
-              @pointermove="${this._handlePointerMove}"
-              @pointerup="${this._handlePointerUp}"
-              @pointerleave="${this._handlePointerUp}"
-            ></div>`
-          : ''}
         <grampsjs-rect-container
           ?edit="${this.editRect}"
           .appState="${this.appState}"
+          style="${zoomed ? 'pointer-events: none;' : ''}"
           @rect:save="${this._handleSaveRect}"
         >
           ${this._renderImage()}
@@ -229,7 +232,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
             obj => html`
               <grampsjs-rect
                 .rect="${obj.rect}"
-                .hidden="${this.rectHidden}"
+                .hidden="${this.rectHidden || zoomed}"
                 label="${obj.label}"
                 target="${obj.type}/${obj.grampsId}"
               >
@@ -256,7 +259,8 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
 
   // --- zoom ---
 
-  updated() {
+  updated(changed) {
+    super.updated(changed)
     this._applyTransform()
   }
 
@@ -280,7 +284,8 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
 
   _clampPan() {
     const maxPanX = ((this._zoom - 1) * window.innerWidth) / 2
-    const maxPanY = ((this._zoom - 1) * (window.innerHeight - 70)) / 2
+    const maxPanY =
+      ((this._zoom - 1) * (window.innerHeight - LIGHTBOX_TOOLBAR_HEIGHT)) / 2
     this._panX = Math.max(-maxPanX, Math.min(maxPanX, this._panX))
     this._panY = Math.max(-maxPanY, Math.min(maxPanY, this._panY))
   }
@@ -305,6 +310,31 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     const factor = e.deltaY > 0 ? 0.9 : 1.1
     this._setZoom(this._zoom * factor)
   }
+
+  // --- mouse drag pan ---
+
+  _handlePointerDown(e) {
+    if (this._zoom <= 1) return
+    this._dragStartX = e.clientX
+    this._dragStartY = e.clientY
+    this._dragStartPanX = this._panX
+    this._dragStartPanY = this._panY
+    e.currentTarget.setPointerCapture(e.pointerId)
+  }
+
+  _handlePointerMove(e) {
+    if (this._zoom <= 1 || !e.buttons) return
+    this._panX = this._dragStartPanX + (e.clientX - this._dragStartX)
+    this._panY = this._dragStartPanY + (e.clientY - this._dragStartY)
+    this._clampPan()
+    this._applyTransform()
+  }
+
+  _handlePointerUp() {
+    // pointer capture released automatically
+  }
+
+  // --- touch zoom/pan ---
 
   _handleTouchStart(e) {
     if (e.touches.length === 2) {
@@ -352,27 +382,6 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     const dx = e.touches[0].clientX - e.touches[1].clientX
     const dy = e.touches[0].clientY - e.touches[1].clientY
     return Math.sqrt(dx * dx + dy * dy)
-  }
-
-  _handlePointerDown(e) {
-    this._isDragging = true
-    this._dragStartX = e.clientX
-    this._dragStartY = e.clientY
-    this._dragStartPanX = this._panX
-    this._dragStartPanY = this._panY
-    e.currentTarget.setPointerCapture(e.pointerId)
-  }
-
-  _handlePointerMove(e) {
-    if (!this._isDragging) return
-    this._panX = this._dragStartPanX + (e.clientX - this._dragStartX)
-    this._panY = this._dragStartPanY + (e.clientY - this._dragStartY)
-    this._clampPan()
-    this._applyTransform()
-  }
-
-  _handlePointerUp() {
-    this._isDragging = false
   }
 
   // --- existing handlers ---
