@@ -99,6 +99,7 @@ class GrampsjsImg extends LitElement {
     this._error = false
     this._retried = false
     this._handleTokenRefreshed = this._handleTokenRefreshed.bind(this)
+    this._loadHandler = this._loadHandler.bind(this)
   }
 
   connectedCallback() {
@@ -122,6 +123,7 @@ class GrampsjsImg extends LitElement {
             bordered: this.border,
             cover: this.cover,
           })}
+          @load=${this._loadHandler}
           @error=${this._errorHandler}
           alt=""
           height=${ifDefined(this.displayHeight || undefined)}
@@ -215,6 +217,7 @@ class GrampsjsImg extends LitElement {
             bordered: this.border,
             cover: this.cover,
           })}
+          @load=${this._loadHandler}
           @error=${this._errorHandler}
           alt=""
           style="${this.circle ? '' : `border-radius:${this.radius}px`}"
@@ -273,6 +276,7 @@ class GrampsjsImg extends LitElement {
           cover: this.cover,
         })}
         style="${this.circle ? '' : `border-radius:${this.radius}px`}"
+        @load=${this._loadHandler}
         @error=${this._errorHandler}
         alt=""
         height=${ifDefined(this.displayHeight || undefined)}
@@ -378,6 +382,10 @@ class GrampsjsImg extends LitElement {
       this._retried = true
       this._error = false
     }
+  }
+
+  _loadHandler() {
+    this._retried = false
   }
 
   _errorHandler() {
