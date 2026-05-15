@@ -834,6 +834,7 @@ export class Auth {
       throw new Error('Access token missing in response')
     }
     localStorage.setItem('access_token', data.access_token)
+    fireEvent(window, 'token:refreshed')
     return {}
   }
 }
