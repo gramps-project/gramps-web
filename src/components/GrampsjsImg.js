@@ -97,9 +97,7 @@ class GrampsjsImg extends LitElement {
     this.checksum = null
     this.fallbackIcon = ''
     this._error = false
-    this._retried = false
     this._handleTokenRefreshed = this._handleTokenRefreshed.bind(this)
-    this._loadHandler = this._loadHandler.bind(this)
   }
 
   connectedCallback() {
@@ -123,7 +121,6 @@ class GrampsjsImg extends LitElement {
             bordered: this.border,
             cover: this.cover,
           })}
-          @load=${this._loadHandler}
           @error=${this._errorHandler}
           alt=""
           height=${ifDefined(this.displayHeight || undefined)}
@@ -141,7 +138,6 @@ class GrampsjsImg extends LitElement {
       changedProps.has('checksum')
     ) {
       this._error = false
-      this._retried = false
     }
   }
 
@@ -217,7 +213,6 @@ class GrampsjsImg extends LitElement {
             bordered: this.border,
             cover: this.cover,
           })}
-          @load=${this._loadHandler}
           @error=${this._errorHandler}
           alt=""
           style="${this.circle ? '' : `border-radius:${this.radius}px`}"
@@ -378,14 +373,9 @@ class GrampsjsImg extends LitElement {
   }
 
   _handleTokenRefreshed() {
-    if (this._error && !this._retried) {
-      this._retried = true
+    if (this._error) {
       this._error = false
     }
-  }
-
-  _loadHandler() {
-    this._retried = false
   }
 
   _errorHandler() {
