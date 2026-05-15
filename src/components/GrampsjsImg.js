@@ -271,7 +271,6 @@ class GrampsjsImg extends LitElement {
           cover: this.cover,
         })}
         style="${this.circle ? '' : `border-radius:${this.radius}px`}"
-        @load=${this._loadHandler}
         @error=${this._errorHandler}
         alt=""
         height=${ifDefined(this.displayHeight || undefined)}
