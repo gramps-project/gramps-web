@@ -51,20 +51,19 @@ describe('tickLabel', () => {
   const fmtMonth = {format: () => 'month'}
   const fmtYear = {format: () => 'year'}
   const formatters = {fmtDay, fmtMonth, fmtYear}
-  const date = new Date('2020-06-15')
 
-  it('uses day format when visibleDays <= 60', () => {
-    expect(tickLabel(date, 1, formatters)).toBe('day')
-    expect(tickLabel(date, 60, formatters)).toBe('day')
+  it('uses year format for Jan 1', () => {
+    expect(tickLabel(new Date(2020, 0, 1), formatters)).toBe('year')
+    expect(tickLabel(new Date(1066, 0, 1), formatters)).toBe('year')
   })
 
-  it('uses month format when visibleDays is between 61 and 3650', () => {
-    expect(tickLabel(date, 61, formatters)).toBe('month')
-    expect(tickLabel(date, 3650, formatters)).toBe('month')
+  it('uses month format for the 1st of any non-January month', () => {
+    expect(tickLabel(new Date(2020, 5, 1), formatters)).toBe('month')
+    expect(tickLabel(new Date(2020, 11, 1), formatters)).toBe('month')
   })
 
-  it('uses year format when visibleDays > 3650', () => {
-    expect(tickLabel(date, 3651, formatters)).toBe('year')
-    expect(tickLabel(date, 36500, formatters)).toBe('year')
+  it('uses day format for any non-1st day', () => {
+    expect(tickLabel(new Date(2020, 5, 15), formatters)).toBe('day')
+    expect(tickLabel(new Date(2020, 0, 15), formatters)).toBe('day')
   })
 })

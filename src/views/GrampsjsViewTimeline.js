@@ -2,7 +2,24 @@ import {html, css} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
+import {dateToSdn, sdnToJsDate} from '../gcalendar.js'
 import '../components/GrampsjsTimeline.js'
+
+const MIN_LABEL_WIDTH = 90
+
+function preprocessEvents(events) {
+  return events.map(event => {
+    const {date} = event
+    if (!date?.dateval || date.sortval === 0) return {...event, jsDate: null}
+    const [day, month, year] = date.dateval
+    try {
+      const sdn = dateToSdn(date.calendar, year, month, day)
+      return {...event, jsDate: sdnToJsDate(sdn)}
+    } catch {
+      return {...event, jsDate: null}
+    }
+  })
+}
 
 export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
@@ -26,6 +43,7 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
   constructor() {
     super()
     this._data = []
+    this._details = {}
   }
 
   async _fetchData() {
@@ -33,13 +51,40 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
       '/api/events/?keys=gramps_id,handle,date'
     )
     if ('data' in result) {
-      this._data = result.data
+      this._data = preprocessEvents(result.data)
     }
   }
 
   firstUpdated() {
     super.firstUpdated()
     this._fetchData()
+    this.addEventListener('timeline:zoom-end', e => this._handleZoomEnd(e))
+  }
+
+  _timelineEl() {
+    return this.renderRoot.querySelector('grampsjs-timeline')
+  }
+
+  async _handleZoomEnd({detail: {handles, innerWidth}}) {
+    const threshold = Math.floor(innerWidth / MIN_LABEL_WIDTH)
+    if (handles.length === 0 || handles.length > threshold) {
+      this._timelineEl()?.updateDetails({})
+      return
+    }
+    if (handles.every(h => h in this._details)) {
+      this._timelineEl()?.updateDetails(
+        Object.fromEntries(handles.map(h => [h, this._details[h]]))
+      )
+      return
+    }
+    const locale = this.appState.i18n.lang || 'en'
+    const result = await this.appState.apiGet(
+      `/api/events/?handles=${handles.join(',')}&profile=self&locale=${locale}`
+    )
+    if ('data' in result) {
+      this._details = Object.fromEntries(result.data.map(e => [e.handle, e]))
+      this._timelineEl()?.updateDetails(this._details)
+    }
   }
 
   handleUpdateStaleData() {

@@ -11,6 +11,7 @@ import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
 import {Timeline} from '../charts/Timeline.js'
+import {fireEvent} from '../util.js'
 
 const CONTROLS_HEIGHT = 48
 
@@ -22,6 +23,7 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
         :host {
           display: block;
           height: calc(100vh - 64px - 36px);
+          outline: none;
         }
 
         .container {
@@ -55,6 +57,40 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
     this._height = -1
   }
 
+  connectedCallback() {
+    super.connectedCallback()
+    this.setAttribute('tabindex', '0')
+    this._boundKeydown = e => {
+      switch (e.key) {
+        case 'ArrowLeft':
+          this._chart?.panLeft()
+          e.preventDefault()
+          break
+        case 'ArrowRight':
+          this._chart?.panRight()
+          e.preventDefault()
+          break
+        case '+':
+        case '=':
+          this._chart?.zoomIn()
+          e.preventDefault()
+          break
+        case '-':
+          this._chart?.zoomOut()
+          e.preventDefault()
+          break
+        default:
+          break
+      }
+    }
+    this.addEventListener('keydown', this._boundKeydown)
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    this.removeEventListener('keydown', this._boundKeydown)
+  }
+
   firstUpdated() {
     const container = this.renderRoot.querySelector('.container')
     new ResizeObserver(([entry]) => {
@@ -71,6 +107,12 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
         width: this._width,
         height: this._height - CONTROLS_HEIGHT,
         locale: this.appState?.i18n?.lang || 'en',
+        onZoomEnd: ([d0, d1], innerWidth) => {
+          const handles = this.events
+            .filter(e => e.jsDate != null && e.jsDate >= d0 && e.jsDate <= d1)
+            .map(e => e.handle)
+          fireEvent(this, 'timeline:zoom-end', {handles, innerWidth})
+        },
       })
     }
 
@@ -111,6 +153,10 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
         ${ready ? this._chart.node : ''}
       </div>
     `
+  }
+
+  updateDetails(details) {
+    this._chart?.updateDetails(details)
   }
 }
 

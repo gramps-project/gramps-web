@@ -199,6 +199,19 @@ export const CALENDARS = {
   SWEDISH: 6,
 }
 
+/**
+ * Convert an SDN to a JavaScript Date. Uses setFullYear to avoid the
+ * Date(year) constructor bug that maps years 0–99 to 1900–1999.
+ * Returns null for SDN 0 (empty/unspecified date).
+ */
+export function sdnToJsDate(sdn) {
+  if (sdn === 0) return null
+  const [year, month, day] = gregorianYmd(sdn)
+  const d = new Date(0, month - 1, day)
+  d.setFullYear(year)
+  return d
+}
+
 /** Convert any supported calendar date to an SDN. Zero-adjusts partial dates. */
 export function dateToSdn(calendar, year, month, day) {
   if (year === 0 && month === 0 && day === 0) return 0
