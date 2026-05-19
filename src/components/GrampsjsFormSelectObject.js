@@ -71,7 +71,6 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
 
       <grampsjs-object-picker-dialog
         objectType="${this.objectType}"
-        ?multiple="${this.multiple}"
         .excludeHandles="${this._handleList()}"
         .appState="${this.appState}"
         @select-object:selected="${this._handleSelected}"
