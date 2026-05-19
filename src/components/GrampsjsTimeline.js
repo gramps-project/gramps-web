@@ -99,10 +99,15 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
     }).observe(container)
   }
 
-  render() {
-    const ready = this._width > 0 && this._height > 0
-
-    if (ready) {
+  updated(changed) {
+    super.updated(changed)
+    if (
+      (changed.has('_width') ||
+        changed.has('_height') ||
+        changed.has('events')) &&
+      this._width > 0 &&
+      this._height > 0
+    ) {
       this._chart = Timeline(this.events, {
         width: this._width,
         height: this._height - CONTROLS_HEIGHT,
@@ -114,7 +119,12 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
           fireEvent(this, 'timeline:zoom-end', {handles, innerWidth})
         },
       })
+      this.requestUpdate()
     }
+  }
+
+  render() {
+    const ready = this._width > 0 && this._height > 0
 
     return html`
       <div class="container">
@@ -150,7 +160,7 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
             ${this._('Zoom in')}
           </grampsjs-tooltip>
         </div>
-        ${ready ? this._chart.node : ''}
+        ${ready && this._chart ? this._chart.node : ''}
       </div>
     `
   }

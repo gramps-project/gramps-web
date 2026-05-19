@@ -254,15 +254,19 @@ export function Timeline(
       .data(Object.values(details), d => d.handle)
       .join(
         enter => {
-          const g = enter.append('g').attr('class', 'event-detail')
+          const g = enter
+            .append('g')
+            .attr('class', 'event-detail')
+            .style('opacity', 0)
           g.append('line').attr('class', 'detail-line').attr('y1', axisY)
           const text = g.append('text')
           text.append('tspan').attr('class', 'detail-summary').attr('dy', 0)
           text.append('tspan').attr('class', 'detail-date').attr('dy', '1.4em')
+          g.transition().duration(300).style('opacity', 1)
           return g
         },
         update => update,
-        exit => exit.remove()
+        exit => exit.transition().duration(200).style('opacity', 0).remove()
       )
       .each(function (d) {
         select(this)
