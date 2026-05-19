@@ -19,11 +19,31 @@ function preprocessEvents(events) {
       const sdn = dateToSdn(date.calendar, year, month, day)
       const typeStr =
         typeof event.type === 'string' ? event.type : event.type?.string || ''
-      return {...event, jsDate: sdnToJsDate(sdn), eventType: typeStr}
+      return {
+        ...event,
+        jsDate: sdnToJsDate(sdn),
+        eventType: typeStr,
+        placeHandle: event.place || null,
+      }
     } catch {
       return {...event, jsDate: null}
     }
   })
+}
+
+function filterLabel(obj) {
+  if (!obj) return ''
+  const o = obj.object
+  if (obj.object_type === 'person') {
+    return (
+      [o?.profile?.name_given, o?.profile?.name_surname]
+        .filter(Boolean)
+        .join(' ') ||
+      o?.gramps_id ||
+      ''
+    )
+  }
+  return o?.profile?.name || o?.gramps_id || ''
 }
 
 export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
@@ -42,8 +62,7 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     return {
       ...super.properties,
       _data: {type: Array},
-      _placeFilter: {type: Object},
-      _placeEventHandles: {type: Object},
+      _activeFilter: {type: Object},
     }
   }
 
@@ -53,13 +72,12 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._details = {}
     this._clickedHandle = null
     this._clickedDetail = null
-    this._placeFilter = null
-    this._placeEventHandles = null
+    this._activeFilter = null
   }
 
   async _fetchData() {
     const result = await this.appState.apiGet(
-      '/api/events/?keys=gramps_id,handle,date,type'
+      '/api/events/?keys=gramps_id,handle,date,type,place'
     )
     if ('data' in result) {
       this._data = preprocessEvents(result.data)
@@ -75,26 +93,28 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     )
   }
 
-  async _handlePlaceChanged(e) {
-    const [place] = e.detail?.objects ?? []
-    if (!place) {
-      this._placeFilter = null
-      this._placeEventHandles = null
-      return
-    }
-    this._placeFilter = place
-    const handle = place.object?.handle ?? place.handle
-    const result = await this.appState.apiGet(
-      `/api/places/${handle}?backlinks=1&keys=backlinks`
-    )
-    if ('data' in result) {
-      this._placeEventHandles = new Set(result.data.backlinks?.event ?? [])
-    }
+  _handleFilterChanged(e) {
+    const [obj] = e.detail?.objects ?? []
+    this._activeFilter = obj ?? null
+  }
+
+  _clearFilter() {
+    this.renderRoot.querySelector('grampsjs-form-select-object')?.reset()
+    this._activeFilter = null
   }
 
   get _filteredData() {
-    if (!this._placeEventHandles) return this._data
-    return this._data.filter(e => this._placeEventHandles.has(e.handle))
+    if (!this._activeFilter) return this._data
+    const obj = this._activeFilter.object
+    if (this._activeFilter.object_type === 'person') {
+      const handles = new Set(obj?.event_ref_list?.map(r => r.ref) ?? [])
+      return this._data.filter(e => handles.has(e.handle))
+    }
+    if (this._activeFilter.object_type === 'place') {
+      const handle = obj?.handle
+      return this._data.filter(e => e.placeHandle === handle)
+    }
+    return this._data
   }
 
   async _handleDotClick(handle) {
@@ -168,24 +188,17 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
         <grampsjs-form-select-object
           slot="filter"
           label="${this._('filter')}"
-          objectType="place"
+          objectType="person,place"
           .iconPath="${mdiFilter}"
           .appState="${this.appState}"
-          @select-object:changed="${this._handlePlaceChanged}"
+          @select-object:changed="${this._handleFilterChanged}"
         ></grampsjs-form-select-object>
-        ${this._placeFilter
+        ${this._activeFilter
           ? html`<grampsjs-filter-chip
               slot="filter"
-              label="${this._placeFilter.object?.profile?.name ||
-              this._placeFilter.object?.gramps_id ||
-              ''}"
+              label="${filterLabel(this._activeFilter)}"
               .appState="${this.appState}"
-              @filter-chip:clear="${() => {
-                this.renderRoot
-                  .querySelector('grampsjs-form-select-object')
-                  ?.reset()
-                this._handlePlaceChanged({detail: {objects: []}})
-              }}"
+              @filter-chip:clear="${this._clearFilter}"
             ></grampsjs-filter-chip>`
           : ''}
       </grampsjs-timeline>
