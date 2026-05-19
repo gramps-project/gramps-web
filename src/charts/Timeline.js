@@ -2,9 +2,19 @@ import {create, select} from 'd3-selection'
 import {scaleTime} from 'd3-scale'
 import {axisBottom} from 'd3-axis'
 import {zoom as d3zoom, zoomIdentity} from 'd3-zoom'
+import {schemeSet1} from 'd3-scale-chromatic'
+
+const EVENT_TYPE_COLOR = {
+  Birth: schemeSet1[0], // red
+  Death: schemeSet1[1], // blue
+  Marriage: schemeSet1[2], // green
+  Baptism: schemeSet1[3], // purple
+  Burial: schemeSet1[4], // orange
+}
+const COLOR_OTHER = schemeSet1[8] // gray
 
 const MARGIN = {top: 6, right: 20, bottom: 45, left: 20}
-const DOT_RADIUS = 4
+const DOT_RADIUS = 6
 const N_DENSITY_SAMPLES = 200
 const DENSITY_BANDWIDTH_FRACTION = 0.05 // bandwidth = 5% of visible range
 const LABEL_FONT_SIZE = 13
@@ -98,7 +108,14 @@ function buildDensityPath(timestamps, xNew, baseline, top) {
 
 export function Timeline(
   events,
-  {width = 800, height = 80, locale = 'en', onZoomEnd = null} = {}
+  {
+    width = 800,
+    height = 80,
+    locale = 'en',
+    onZoomEnd = null,
+    onDotClick = null,
+    onDetailClick = null,
+  } = {}
 ) {
   const innerWidth = Math.max(0, width - MARGIN.left - MARGIN.right)
   const validEvents = events.filter(e => e.jsDate != null)
@@ -139,12 +156,14 @@ export function Timeline(
       font-weight: 550;
     }
     .event-dot {
-      fill: var(--md-sys-color-primary);
       opacity: 0.6;
     }
     .density-area {
       fill: var(--md-sys-color-primary);
       opacity: 0.15;
+    }
+    .event-detail {
+      cursor: pointer;
     }
     .detail-line {
       stroke: var(--grampsjs-body-font-color-50);
@@ -202,6 +221,17 @@ export function Timeline(
     .attr('cx', d => x(d.jsDate))
     .attr('cy', dotY)
     .attr('r', DOT_RADIUS)
+    .attr('fill', d => EVENT_TYPE_COLOR[d.eventType] ?? COLOR_OTHER)
+    .style('cursor', onDotClick ? 'pointer' : null)
+    .on(
+      'click',
+      onDotClick
+        ? (event, d) => {
+            event.stopPropagation()
+            onDotClick(d.handle)
+          }
+        : null
+    )
 
   const detailGroup = dataGroup.append('g').attr('class', 'detail-group')
 
@@ -262,6 +292,12 @@ export function Timeline(
           const text = g.append('text')
           text.append('tspan').attr('class', 'detail-summary').attr('dy', 0)
           text.append('tspan').attr('class', 'detail-date').attr('dy', '1.4em')
+          if (onDetailClick) {
+            g.on('click', (event, d) => {
+              event.stopPropagation()
+              onDetailClick(d.gramps_id)
+            })
+          }
           g.transition().duration(300).style('opacity', 1)
           return g
         },
@@ -310,6 +346,8 @@ export function Timeline(
     })
 
   svg.call(zoomBehavior)
+
+  if (onDotClick) svg.on('click', () => onDotClick(null))
 
   if (onZoomEnd)
     requestAnimationFrame(() => onZoomEnd([start, end], innerWidth))

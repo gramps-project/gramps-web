@@ -14,7 +14,9 @@ function preprocessEvents(events) {
     const [day, month, year] = date.dateval
     try {
       const sdn = dateToSdn(date.calendar, year, month, day)
-      return {...event, jsDate: sdnToJsDate(sdn)}
+      const typeStr =
+        typeof event.type === 'string' ? event.type : event.type?.string || ''
+      return {...event, jsDate: sdnToJsDate(sdn), eventType: typeStr}
     } catch {
       return {...event, jsDate: null}
     }
@@ -44,11 +46,13 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     super()
     this._data = []
     this._details = {}
+    this._clickedHandle = null
+    this._clickedDetail = null
   }
 
   async _fetchData() {
     const result = await this.appState.apiGet(
-      '/api/events/?keys=gramps_id,handle,date'
+      '/api/events/?keys=gramps_id,handle,date,type'
     )
     if ('data' in result) {
       this._data = preprocessEvents(result.data)
@@ -59,6 +63,38 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     super.firstUpdated()
     this._fetchData()
     this.addEventListener('timeline:zoom-end', e => this._handleZoomEnd(e))
+    this.addEventListener('timeline:dot-click', e =>
+      this._handleDotClick(e.detail.handle)
+    )
+  }
+
+  async _handleDotClick(handle) {
+    if (!handle || handle === this._clickedHandle) {
+      this._clickedHandle = null
+      this._clickedDetail = null
+      this._timelineEl()?.updateDetails(this._details)
+      return
+    }
+    this._clickedHandle = handle
+    if (handle in this._details) {
+      this._clickedDetail = this._details[handle]
+      return // already visible in batch labels
+    }
+    const locale = this.appState.i18n.lang || 'en'
+    const result = await this.appState.apiGet(
+      `/api/events/?handles=${handle}&profile=self&locale=${locale}`
+    )
+    if (
+      'data' in result &&
+      result.data.length > 0 &&
+      this._clickedHandle === handle
+    ) {
+      this._clickedDetail = result.data[0]
+      this._timelineEl()?.updateDetails({
+        ...this._details,
+        [handle]: this._clickedDetail,
+      })
+    }
   }
 
   _timelineEl() {
@@ -68,7 +104,10 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
   async _handleZoomEnd({detail: {handles, innerWidth}}) {
     const threshold = Math.floor(innerWidth / MIN_LABEL_WIDTH)
     if (handles.length === 0 || handles.length > threshold) {
-      this._timelineEl()?.updateDetails({})
+      this._details = {}
+      this._timelineEl()?.updateDetails(
+        this._clickedDetail ? {[this._clickedHandle]: this._clickedDetail} : {}
+      )
       return
     }
     if (handles.every(h => h in this._details)) {

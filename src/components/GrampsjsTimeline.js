@@ -101,17 +101,22 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
 
   updated(changed) {
     super.updated(changed)
+    const sizeChanged =
+      this._width !== this._chartWidth || this._height !== this._chartHeight
     if (
-      (changed.has('_width') ||
-        changed.has('_height') ||
-        changed.has('events')) &&
+      (sizeChanged || changed.has('events')) &&
       this._width > 0 &&
       this._height > 0
     ) {
+      this._chartWidth = this._width
+      this._chartHeight = this._height
       this._chart = Timeline(this.events, {
         width: this._width,
         height: this._height - CONTROLS_HEIGHT,
         locale: this.appState?.i18n?.lang || 'en',
+        onDotClick: handle => fireEvent(this, 'timeline:dot-click', {handle}),
+        onDetailClick: grampsId =>
+          fireEvent(this, 'nav', {path: `event/${grampsId}`}),
         onZoomEnd: ([d0, d1], innerWidth) => {
           const handles = this.events
             .filter(e => e.jsDate != null && e.jsDate >= d0 && e.jsDate <= d1)
