@@ -22,7 +22,7 @@ import './GrampsjsButtonToggle.js'
 import './GrampsjsIcon.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-const FILTRABLE_TYPES = [
+const FILTERABLE_TYPES = [
   'person',
   'family',
   'event',
@@ -195,7 +195,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
     this._tabIndex = 0
     this._fetchId = 0
     this._typeFilters = Object.fromEntries(
-      FILTRABLE_TYPES.map(key => [key, false])
+      FILTERABLE_TYPES.map(key => [key, false])
     )
   }
 
@@ -206,6 +206,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
           <md-filled-text-field
             id="textfield"
             type="search"
+            label="${this._('Search')}"
             @input="${debounce(() => this._handleInput(), 500)}"
           >
             <grampsjs-icon
@@ -307,7 +308,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
         class="pills"
         @grampsjs-button-toggle:toggle="${this._handleFilterToggle}"
       >
-        ${FILTRABLE_TYPES.map(
+        ${FILTERABLE_TYPES.map(
           key => html`
             <grampsjs-button-toggle
               ?checked="${this._typeFilters[key]}"
@@ -334,6 +335,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
     this._query = initialQuery
     if (initialQuery) {
       this._mode = 'search'
+      this._tabIndex = SIDEBAR_MODES.indexOf('search')
     } else if (this._mode === 'search') {
       this._mode = 'changed'
       this._tabIndex = SIDEBAR_MODES.indexOf('changed')
@@ -543,6 +545,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleSelected(e) {
+    if (e.detail.loading) return
     this._close()
     fireEvent(this, 'select-object:selected', e.detail)
   }

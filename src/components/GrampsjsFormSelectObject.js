@@ -83,7 +83,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleList() {
-    return this.objects.map(_obj => _obj.handle)
+    return this.objects.map(_obj => _obj.object?.handle).filter(Boolean)
   }
 
   _handleSelected(e) {
@@ -91,10 +91,14 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
     if (!this.multiple) {
       this.objects = [obj]
       fireEvent(this, 'select-object:changed', {objects: this.objects})
-    } else if (!this._handleList().includes(obj.handle)) {
+    } else if (!this._handleList().includes(obj.object?.handle)) {
       this.objects = [...this.objects, obj]
       fireEvent(this, 'select-object:changed', {objects: this.objects})
     }
+  }
+
+  open() {
+    this.renderRoot.querySelector('grampsjs-object-picker-dialog')?.open()
   }
 
   _handleBtnClick() {
