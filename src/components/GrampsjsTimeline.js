@@ -14,6 +14,7 @@ import {Timeline} from '../charts/Timeline.js'
 import {fireEvent} from '../util.js'
 
 const CONTROLS_HEIGHT = 48
+const FILTER_BAR_HEIGHT = 48
 
 export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -30,6 +31,15 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
           display: flex;
           flex-direction: column;
           height: 100%;
+        }
+
+        .timeline-filter-bar {
+          display: flex;
+          align-items: center;
+          flex-shrink: 0;
+          height: ${FILTER_BAR_HEIGHT}px;
+          padding: 0 8px;
+          gap: 12px;
         }
 
         .timeline-controls {
@@ -103,16 +113,12 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
     super.updated(changed)
     const sizeChanged =
       this._width !== this._chartWidth || this._height !== this._chartHeight
-    if (
-      (sizeChanged || changed.has('events')) &&
-      this._width > 0 &&
-      this._height > 0
-    ) {
+    if (sizeChanged && this._width > 0 && this._height > 0) {
       this._chartWidth = this._width
       this._chartHeight = this._height
       this._chart = Timeline(this.events, {
         width: this._width,
-        height: this._height - CONTROLS_HEIGHT,
+        height: this._height - CONTROLS_HEIGHT - FILTER_BAR_HEIGHT,
         locale: this.appState?.i18n?.lang || 'en',
         onDotClick: handle => fireEvent(this, 'timeline:dot-click', {handle}),
         onDetailClick: grampsId =>
@@ -125,6 +131,8 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
         },
       })
       this.requestUpdate()
+    } else if (changed.has('events') && this._chart) {
+      this._chart.updateEvents(this.events)
     }
   }
 
@@ -133,6 +141,9 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
 
     return html`
       <div class="container">
+        <div class="timeline-filter-bar">
+          <slot name="filter"></slot>
+        </div>
         <div class="timeline-controls">
           <md-icon-button
             id="btn-zoom-out"

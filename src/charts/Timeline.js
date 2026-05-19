@@ -195,8 +195,8 @@ export function Timeline(
   const dotY = axisY
   const densityBaseline = axisY
   const densityTop = axisY - 32
-  const timestamps = validEvents.map(e => e.jsDate.getTime())
-  const eventByHandle = new Map(validEvents.map(e => [e.handle, e]))
+  let timestamps = validEvents.map(e => e.jsDate.getTime())
+  let eventByHandle = new Map(validEvents.map(e => [e.handle, e]))
 
   let currentX = x
 
@@ -213,9 +213,24 @@ export function Timeline(
       buildDensityPath(timestamps, x, densityBaseline, densityTop).path
     )
 
-  dataGroup
+  const detailGroup = dataGroup.append('g').attr('class', 'detail-group')
+
+  const axisGroup = svg
+    .append('g')
+    .attr('transform', `translate(${MARGIN.left},${height - MARGIN.bottom})`)
+    .call(axis)
+    .style('font-size', '14px')
+    .style('font-family', 'var(--grampsjs-body-font-family)')
+
+  // Dots appended after the axis so they render on top and remain clickable
+  const dotGroup = svg
+    .append('g')
+    .attr('transform', `translate(${MARGIN.left},0)`)
+    .attr('clip-path', 'url(#timeline-data-clip)')
+
+  dotGroup
     .selectAll('.event-dot')
-    .data(validEvents)
+    .data(validEvents, d => d.handle)
     .join('circle')
     .attr('class', 'event-dot')
     .attr('cx', d => x(d.jsDate))
@@ -232,15 +247,6 @@ export function Timeline(
           }
         : null
     )
-
-  const detailGroup = dataGroup.append('g').attr('class', 'detail-group')
-
-  const axisGroup = svg
-    .append('g')
-    .attr('transform', `translate(${MARGIN.left},${height - MARGIN.bottom})`)
-    .call(axis)
-    .style('font-size', '14px')
-    .style('font-family', 'var(--grampsjs-body-font-family)')
 
   function repositionDetails(xScale) {
     const nodes = []
@@ -328,7 +334,7 @@ export function Timeline(
         rafId = requestAnimationFrame(() => {
           const xRaf = pendingTransform.rescaleX(x)
           currentX = xRaf
-          dataGroup.selectAll('.event-dot').attr('cx', d => xRaf(d.jsDate))
+          dotGroup.selectAll('.event-dot').attr('cx', d => xRaf(d.jsDate))
           const {path} = buildDensityPath(
             timestamps,
             xRaf,
@@ -355,8 +361,48 @@ export function Timeline(
   const pan = dx =>
     svg.transition().duration(200).call(zoomBehavior.translateBy, dx, 0)
 
+  function updateEvents(newEvents) {
+    const newValid = newEvents.filter(e => e.jsDate != null)
+    timestamps = newValid.map(e => e.jsDate.getTime())
+    eventByHandle = new Map(newValid.map(e => [e.handle, e]))
+    dotGroup
+      .selectAll('.event-dot')
+      .data(newValid, d => d.handle)
+      .join(
+        enter =>
+          enter
+            .append('circle')
+            .attr('class', 'event-dot')
+            .attr('cx', d => currentX(d.jsDate))
+            .attr('cy', dotY)
+            .attr('r', DOT_RADIUS)
+            .attr('fill', d => EVENT_TYPE_COLOR[d.eventType] ?? COLOR_OTHER)
+            .style('cursor', onDotClick ? 'pointer' : null)
+            .on(
+              'click',
+              onDotClick
+                ? (event, d) => {
+                    event.stopPropagation()
+                    onDotClick(d.handle)
+                  }
+                : null
+            ),
+        update => update.attr('cx', d => currentX(d.jsDate)),
+        exit => exit.remove()
+      )
+    const {path} = buildDensityPath(
+      timestamps,
+      currentX,
+      densityBaseline,
+      densityTop
+    )
+    densityPath.attr('d', path)
+    if (onZoomEnd) onZoomEnd(currentX.domain(), innerWidth)
+  }
+
   return {
     node: svg.node(),
+    updateEvents,
     updateDetails,
     zoomIn: () => svg.transition().duration(300).call(zoomBehavior.scaleBy, 2),
     zoomOut: () =>
