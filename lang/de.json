@@ -334,5 +334,7 @@
     "Irreversible operations on tree data": "Unumkehrbare Operationen an Stammbaumdaten",
     "Changes here only affect your account.": "Änderungen hier wirken sich nur auf dein Konto aus.",
     "Changes here affect all users of this tree.": "Änderungen hier wirken sich auf alle Benutzer dieses Stammbaums aus.",
-    "Display preferences saved on this device": "Anzeigeeinstellungen, die auf diesem Gerät gespeichert werden"
+    "Display preferences saved on this device": "Anzeigeeinstellungen, die auf diesem Gerät gespeichert werden",
+    "Recently changed": "Zuletzt geändert",
+    "Recently browsed": "Zuletzt angesehen"
 }
