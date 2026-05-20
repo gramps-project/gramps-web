@@ -192,7 +192,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
     this._query = ''
     this._loading = false
     this._error = false
-    this._tabIndex = 0
+    this._tabIndex = SIDEBAR_MODES.indexOf('changed')
     this._fetchId = 0
     this._typeFilters = Object.fromEntries(
       FILTERABLE_TYPES.map(key => [key, false])
@@ -463,7 +463,10 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
       )
       this._data = this._data
         .map(placeholder => byId[placeholder.object?.gramps_id] ?? placeholder)
-        .filter(obj => !this.excludeHandles.includes(obj.object?.handle))
+        .filter(obj => !obj.loading)
+        .filter(
+          obj => !this.excludeHandles.includes(obj.handle ?? obj.object?.handle)
+        )
     } else {
       this._data = []
       this._error = true
@@ -515,6 +518,8 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
       this._data = this._data.map(item =>
         item.object?.handle === handle ? updated : item
       )
+    } else {
+      this._data = this._data.filter(item => item.object?.handle !== handle)
     }
   }
 
