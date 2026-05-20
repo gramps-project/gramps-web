@@ -101,13 +101,13 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
   }
 
   open() {
-    this.renderRoot.querySelector('grampsjs-object-picker-dialog')?.open()
-  }
-
-  _handleBtnClick() {
     const query = this.initialQuery
     this.initialQuery = ''
     this.renderRoot.querySelector('grampsjs-object-picker-dialog')?.open(query)
+  }
+
+  _handleBtnClick() {
+    this.open()
   }
 }
 
