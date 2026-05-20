@@ -14,6 +14,9 @@ function preprocessEvents(events) {
   return events.map(event => {
     const {date} = event
     if (!date?.dateval || date.sortval === 0) return {...event, jsDate: null}
+    const modifier = date.modifier ?? 0
+    if (modifier === 4) return {...event, jsDate: null}
+    const quality = date.quality ?? 0
     const [day, month, year] = date.dateval
     try {
       const sdn = dateToSdn(date.calendar, year, month, day)
@@ -24,6 +27,8 @@ function preprocessEvents(events) {
         jsDate: sdnToJsDate(sdn),
         eventType: typeStr,
         placeHandle: event.place || null,
+        modifier,
+        quality,
       }
     } catch {
       return {...event, jsDate: null}

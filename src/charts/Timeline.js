@@ -13,6 +13,26 @@ const EVENT_TYPE_COLOR = {
 }
 const COLOR_OTHER = schemeSet1[8] // gray
 
+function isHollow(event) {
+  return (event.modifier ?? 0) === 3 || (event.quality ?? 0) === 1
+}
+
+function dotShapePath(modifier, cx, cy, r) {
+  const t = r * 1.3
+  if (modifier === 1 || modifier === 8) {
+    // ◁ left-pointing triangle (Before / To)
+    return `M ${cx + t},${cy - t} L ${cx - t},${cy} L ${cx + t},${cy + t} Z`
+  }
+  if (modifier === 2 || modifier === 5 || modifier === 7) {
+    // ▷ right-pointing triangle (After / Span / From)
+    return `M ${cx - t},${cy - t} L ${cx + t},${cy} L ${cx - t},${cy + t} Z`
+  }
+  // circle (Regular / About)
+  return `M ${cx - r},${cy} a ${r},${r} 0 1,0 ${2 * r},0 a ${r},${r} 0 1,0 ${
+    -2 * r
+  },0`
+}
+
 const MARGIN = {top: 6, right: 20, bottom: 45, left: 20}
 const DOT_RADIUS = 6
 const N_DENSITY_SAMPLES = 200
@@ -194,7 +214,7 @@ export function Timeline(
   const axisY = Math.round(height / 2)
   const dotY = axisY
   const densityBaseline = axisY
-  const densityTop = axisY - 32
+  const densityTop = axisY - 48
   const labelAboveBase = densityTop - LABEL_LEVEL_GAP - LABEL_HEIGHT
   const labelBelowBase = axisY + 44 // 44px clears tick labels below axis
   let timestamps = validEvents.map(e => e.jsDate.getTime())
@@ -230,15 +250,23 @@ export function Timeline(
     .attr('transform', `translate(${MARGIN.left},0)`)
     .attr('clip-path', 'url(#timeline-data-clip)')
 
+  const applyDotAttrs = (sel, xScale) =>
+    sel
+      .attr('d', d =>
+        dotShapePath(d.modifier ?? 0, xScale(d.jsDate), dotY, DOT_RADIUS)
+      )
+      .attr('fill', d =>
+        isHollow(d) ? 'none' : EVENT_TYPE_COLOR[d.eventType] ?? COLOR_OTHER
+      )
+      .attr('stroke', d => EVENT_TYPE_COLOR[d.eventType] ?? COLOR_OTHER)
+      .attr('stroke-width', d => (isHollow(d) ? 1.5 : 0))
+
   dotGroup
     .selectAll('.event-dot')
     .data(validEvents, d => d.handle)
-    .join('circle')
+    .join('path')
     .attr('class', 'event-dot')
-    .attr('cx', d => x(d.jsDate))
-    .attr('cy', dotY)
-    .attr('r', DOT_RADIUS)
-    .attr('fill', d => EVENT_TYPE_COLOR[d.eventType] ?? COLOR_OTHER)
+    .call(applyDotAttrs, x)
     .style('cursor', onDotClick ? 'pointer' : null)
     .on(
       'click',
@@ -358,7 +386,7 @@ export function Timeline(
         rafId = requestAnimationFrame(() => {
           const xRaf = pendingTransform.rescaleX(x)
           currentX = xRaf
-          dotGroup.selectAll('.event-dot').attr('cx', d => xRaf(d.jsDate))
+          dotGroup.selectAll('.event-dot').call(applyDotAttrs, xRaf)
           const {path} = buildDensityPath(
             timestamps,
             xRaf,
@@ -405,12 +433,9 @@ export function Timeline(
       .join(
         enter =>
           enter
-            .append('circle')
+            .append('path')
             .attr('class', 'event-dot')
-            .attr('cx', d => currentX(d.jsDate))
-            .attr('cy', dotY)
-            .attr('r', DOT_RADIUS)
-            .attr('fill', d => EVENT_TYPE_COLOR[d.eventType] ?? COLOR_OTHER)
+            .call(applyDotAttrs, currentX)
             .style('cursor', onDotClick ? 'pointer' : null)
             .on(
               'click',
@@ -421,7 +446,7 @@ export function Timeline(
                   }
                 : null
             ),
-        update => update.attr('cx', d => currentX(d.jsDate)),
+        update => update.call(applyDotAttrs, currentX),
         exit => exit.remove()
       )
     const {path} = buildDensityPath(
