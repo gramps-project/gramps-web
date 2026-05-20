@@ -161,11 +161,12 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
   }
 
   renderLoading() {
+    const type = this.selectable || this.linked ? 'button' : 'text'
     return html`
       <md-list>
         ${Array(this.numberLoading).fill(
           html`
-            <md-list-item type="text">
+            <md-list-item type="${type}">
               <span class="skeleton" style="width:15em;">&nbsp;</span>
               <span slot="supporting-text" class="skeleton" style="width:10em;"
                 >&nbsp;</span
