@@ -151,7 +151,7 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   async _handleZoomEnd({detail: {handles, innerWidth}}) {
-    const threshold = Math.floor(innerWidth / MIN_LABEL_WIDTH)
+    const threshold = Math.max(5, Math.floor(innerWidth / MIN_LABEL_WIDTH))
     if (handles.length === 0 || handles.length > threshold) {
       this._details = {}
       this._timelineEl()?.updateDetails(

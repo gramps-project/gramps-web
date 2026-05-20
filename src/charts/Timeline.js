@@ -191,10 +191,12 @@ export function Timeline(
     .attr('width', innerWidth)
     .attr('height', height - MARGIN.bottom + DOT_RADIUS)
 
-  const axisY = height - MARGIN.bottom
+  const axisY = Math.round(height / 2)
   const dotY = axisY
   const densityBaseline = axisY
   const densityTop = axisY - 32
+  const labelAboveBase = densityTop - LABEL_LEVEL_GAP - LABEL_HEIGHT
+  const labelBelowBase = axisY + 44 // 44px clears tick labels below axis
   let timestamps = validEvents.map(e => e.jsDate.getTime())
   let eventByHandle = new Map(validEvents.map(e => [e.handle, e]))
 
@@ -217,7 +219,7 @@ export function Timeline(
 
   const axisGroup = svg
     .append('g')
-    .attr('transform', `translate(${MARGIN.left},${height - MARGIN.bottom})`)
+    .attr('transform', `translate(${MARGIN.left},${axisY})`)
     .call(axis)
     .style('font-size', '14px')
     .style('font-family', 'var(--grampsjs-body-font-family)')
@@ -258,17 +260,39 @@ export function Timeline(
 
     nodes.sort((a, b) => b.cx - a.cx)
 
-    const levelRightEdge = []
+    const aboveEdge = []
+    const belowEdge = []
+
     for (const {el, cx} of nodes) {
       const textEl = select(el).select('text').node()
       const width = textEl ? textEl.getBBox().width || 0 : 0
+      const right = cx + 6 + width
 
-      let level = levelRightEdge.findIndex(r => cx >= r + LABEL_H_GAP)
-      if (level === -1) level = levelRightEdge.length
-      levelRightEdge[level] = cx + 6 + width
+      let chosenLevel = 0
+      let chosenSide = 'above'
+      let placed = false
+      const maxLvl = Math.max(aboveEdge.length, belowEdge.length) + 1
 
-      const baseY = densityTop - LABEL_LEVEL_GAP - LABEL_HEIGHT
-      const labelY = baseY - level * (LABEL_HEIGHT + LABEL_LEVEL_GAP)
+      for (let lvl = 0; lvl <= maxLvl && !placed; lvl++) {
+        if ((aboveEdge[lvl] ?? 0) + LABEL_H_GAP <= cx) {
+          chosenLevel = lvl
+          chosenSide = 'above'
+          placed = true
+        } else if ((belowEdge[lvl] ?? 0) + LABEL_H_GAP <= cx) {
+          chosenLevel = lvl
+          chosenSide = 'below'
+          placed = true
+        }
+      }
+
+      const labelY =
+        chosenSide === 'above'
+          ? labelAboveBase - chosenLevel * (LABEL_HEIGHT + LABEL_LEVEL_GAP)
+          : labelBelowBase + chosenLevel * (LABEL_HEIGHT + LABEL_LEVEL_GAP)
+
+      if (chosenSide === 'above') aboveEdge[chosenLevel] = right
+      else belowEdge[chosenLevel] = right
+
       select(el)
         .select('.detail-line')
         .attr('x1', cx)
@@ -363,8 +387,18 @@ export function Timeline(
 
   function updateEvents(newEvents) {
     const newValid = newEvents.filter(e => e.jsDate != null)
+    const wasEmpty = timestamps.length === 0
     timestamps = newValid.map(e => e.jsDate.getTime())
     eventByHandle = new Map(newValid.map(e => [e.handle, e]))
+
+    if (wasEmpty && newValid.length > 0) {
+      const [newStart, newEnd] = computeInitialDomain(newValid)
+      x.domain([newStart, newEnd])
+      axisGroup.call(axis.scale(x))
+      svg.call(zoomBehavior.transform, zoomIdentity)
+      if (onZoomEnd)
+        requestAnimationFrame(() => onZoomEnd([newStart, newEnd], innerWidth))
+    }
     dotGroup
       .selectAll('.event-dot')
       .data(newValid, d => d.handle)
