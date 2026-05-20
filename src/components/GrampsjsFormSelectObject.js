@@ -83,15 +83,18 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleList() {
-    return this.objects.map(_obj => _obj.object?.handle).filter(Boolean)
+    return this.objects
+      .map(_obj => _obj.handle ?? _obj.object?.handle)
+      .filter(Boolean)
   }
 
   _handleSelected(e) {
     const obj = e.detail
+    const handle = obj.handle ?? obj.object?.handle
     if (!this.multiple) {
       this.objects = [obj]
       fireEvent(this, 'select-object:changed', {objects: this.objects})
-    } else if (!this._handleList().includes(obj.object?.handle)) {
+    } else if (!this._handleList().includes(handle)) {
       this.objects = [...this.objects, obj]
       fireEvent(this, 'select-object:changed', {objects: this.objects})
     }

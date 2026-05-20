@@ -254,8 +254,12 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
               tabindex="0"
               role="button"
               @click="${() => this._setMode(mode)}"
-              @keydown="${e =>
-                (e.key === 'Enter' || e.key === ' ') && this._setMode(mode)}"
+              @keydown="${e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  this._setMode(mode)
+                }
+              }}"
             >
               <grampsjs-icon
                 path="${modeIcon[mode]}"
@@ -418,7 +422,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
     if (this._fetchId !== fetchId) return
     if ('data' in data) {
       this._data = data.data.filter(
-        obj => !this.excludeHandles.includes(obj.object?.handle)
+        obj => !this.excludeHandles.includes(obj.handle ?? obj.object?.handle)
       )
     } else if ('error' in data) {
       this._data = []
@@ -503,7 +507,11 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
     )
     if (this._fetchId !== fetchId) return
     if ('data' in data) {
-      const updated = {object_type: objectType, object: data.data}
+      const updated = {
+        object_type: objectType,
+        object: data.data,
+        handle: data.data.handle,
+      }
       this._data = this._data.map(item =>
         item.object?.handle === handle ? updated : item
       )
