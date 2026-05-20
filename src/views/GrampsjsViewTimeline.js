@@ -117,6 +117,15 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     return this._data
   }
 
+  _colocatedHandles(handle) {
+    const clicked = this._filteredData.find(e => e.handle === handle)
+    if (!clicked?.jsDate) return [handle]
+    const t = clicked.jsDate.getTime()
+    return this._filteredData
+      .filter(e => e.jsDate?.getTime() === t)
+      .map(e => e.handle)
+  }
+
   async _handleDotClick(handle) {
     if (!handle || handle === this._clickedHandle) {
       this._clickedHandle = null
@@ -125,23 +134,26 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
       return
     }
     this._clickedHandle = handle
-    if (handle in this._details) {
+    const handles = this._colocatedHandles(handle)
+    const toFetch = handles.filter(h => !(h in this._details))
+    if (!toFetch.length) {
       this._clickedDetail = this._details[handle]
       return
     }
     const locale = this.appState.i18n.lang || 'en'
     const result = await this.appState.apiGet(
-      `/api/events/?handles=${handle}&profile=self&locale=${locale}`
+      `/api/events/?handles=${toFetch.join(',')}&profile=self&locale=${locale}`
     )
     if (
       'data' in result &&
       result.data.length > 0 &&
       this._clickedHandle === handle
     ) {
-      this._clickedDetail = result.data[0]
+      const fetched = Object.fromEntries(result.data.map(e => [e.handle, e]))
+      this._clickedDetail = fetched[handle] ?? result.data[0]
       this._timelineEl()?.updateDetails({
         ...this._details,
-        [handle]: this._clickedDetail,
+        ...fetched,
       })
     }
   }
