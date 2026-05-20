@@ -546,7 +546,11 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _getActiveTypes() {
-    if (this.objectType) return [this.objectType]
+    if (this.objectType)
+      return this.objectType
+        .split(',')
+        .map(t => t.trim())
+        .filter(Boolean)
     return Object.entries(this._typeFilters)
       .filter(([, v]) => v)
       .map(([k]) => k)
