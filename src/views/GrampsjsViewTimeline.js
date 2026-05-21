@@ -98,14 +98,23 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     )
   }
 
+  _resetClickedState() {
+    this._clickedHandle = null
+    this._clickedDetail = null
+    this._details = {}
+    this._timelineEl()?.updateDetails({})
+  }
+
   _handleFilterChanged(e) {
     const [obj] = e.detail?.objects ?? []
     this._activeFilter = obj ?? null
+    this._resetClickedState()
   }
 
   _clearFilter() {
     this.renderRoot.querySelector('grampsjs-form-select-object')?.reset()
     this._activeFilter = null
+    this._resetClickedState()
   }
 
   get _filteredData() {
