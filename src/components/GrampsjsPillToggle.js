@@ -19,6 +19,11 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
           margin: 12px 0;
         }
 
+        button + button {
+          border-left: 1px solid
+            var(--md-sys-color-outline, var(--mdc-theme-primary));
+        }
+
         button {
           all: unset;
           box-sizing: border-box;

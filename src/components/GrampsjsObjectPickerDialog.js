@@ -348,7 +348,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
     if (initialQuery) {
       this._mode = 'search'
       this._tabIndex = SIDEBAR_MODES.indexOf('search')
-    } else if (this._mode === 'search') {
+    } else {
       this._mode = 'changed'
       this._tabIndex = SIDEBAR_MODES.indexOf('changed')
     }

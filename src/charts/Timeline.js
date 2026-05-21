@@ -143,6 +143,20 @@ export function Timeline(
   const [start, end] = computeInitialDomain(validEvents)
   const x = scaleTime().domain([start, end]).range([0, innerWidth])
 
+  const MS_PER_CENTURY = 100 * 365.25 * 24 * 3600 * 1000
+  const MS_PER_WEEK = 7 * 24 * 3600 * 1000
+  const MIN_ZOOM_CENTURIES = 10
+  const MAX_ZOOM_WEEKS = 2
+
+  function updateScaleExtent() {
+    const [d0, d1] = x.domain()
+    const span = d1 - d0
+    zoomBehavior.scaleExtent([
+      span / (MIN_ZOOM_CENTURIES * MS_PER_CENTURY),
+      span / (MAX_ZOOM_WEEKS * MS_PER_WEEK),
+    ])
+  }
+
   const intlLocale = normalizeLocale(locale)
   const formatters = {
     fmtDay: new Intl.DateTimeFormat(intlLocale, {
@@ -377,7 +391,7 @@ export function Timeline(
   let pendingTransform = zoomIdentity
 
   const zoomBehavior = d3zoom()
-    .scaleExtent([0.1, 1000])
+    .scaleExtent([1, 1000])
     .on('zoom', ({transform}) => {
       const xNew = transform.rescaleX(x)
       axisGroup.call(axis.scale(xNew))
@@ -404,6 +418,7 @@ export function Timeline(
     })
 
   svg.call(zoomBehavior)
+  updateScaleExtent()
 
   if (onDotClick) svg.on('click', () => onDotClick(null))
 
@@ -418,10 +433,10 @@ export function Timeline(
     const wasEmpty = timestamps.length === 0
     timestamps = newValid.map(e => e.jsDate.getTime())
     eventByHandle = new Map(newValid.map(e => [e.handle, e]))
-
     if (wasEmpty && newValid.length > 0) {
       const [newStart, newEnd] = computeInitialDomain(newValid)
       x.domain([newStart, newEnd])
+      updateScaleExtent()
       axisGroup.call(axis.scale(x))
       svg.call(zoomBehavior.transform, zoomIdentity)
       if (onZoomEnd)
