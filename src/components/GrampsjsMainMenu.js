@@ -45,6 +45,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
           --md-list-item-label-text-color: var(--grampsjs-color-drawer-text);
           --md-list-item-label-text-size: 1rem;
           --md-list-item-label-text-weight: 400;
+          --md-list-item-one-line-container-height: 40px;
         }
 
         md-list-item[selected] {
@@ -128,6 +129,16 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     const p = this.appState.path.page
+    const listsPages = [
+      'people',
+      'families',
+      'events',
+      'places',
+      'citations',
+      'sources',
+      'repositories',
+      'notes',
+    ]
     return html` <md-list>
       <md-list-item
         type="link"
@@ -145,49 +156,6 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       </md-list-item>
       <md-list-item
         type="link"
-        href="${BASE_DIR}/people"
-        ?selected="${[
-          'people',
-          'families',
-          'events',
-          'places',
-          'citations',
-          'sources',
-          'repositories',
-          'notes',
-        ].includes(p)}"
-      >
-        ${this._icon(
-          mdiFormatListBulleted,
-          [
-            'people',
-            'families',
-            'events',
-            'places',
-            'citations',
-            'sources',
-            'repositories',
-            'notes',
-          ].includes(p)
-        )}
-        ${this._('Lists')}
-      </md-list-item>
-      <md-list-item
-        type="link"
-        href="${BASE_DIR}/medialist"
-        ?selected="${p === 'medialist'}"
-      >
-        ${this._icon(mdiImage, p === 'medialist')} ${this._('Media')}
-      </md-list-item>
-      <md-list-item
-        type="link"
-        href="${BASE_DIR}/map"
-        ?selected="${p === 'map'}"
-      >
-        ${this._icon(mdiMap, p === 'map')} ${this._('Map')}
-      </md-list-item>
-      <md-list-item
-        type="link"
         href="${BASE_DIR}/tree"
         ?selected="${p === 'tree'}"
       >
@@ -200,6 +168,13 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       >
         ${this._icon(mdiTimelineOutline, p === 'timeline')}
         ${this._('Timeline')}
+      </md-list-item>
+      <md-list-item
+        type="link"
+        href="${BASE_DIR}/map"
+        ?selected="${p === 'map'}"
+      >
+        ${this._icon(mdiMap, p === 'map')} ${this._('Map')}
       </md-list-item>
       ${this.appState.frontendConfig.hideDNALink
         ? ''
@@ -218,17 +193,21 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
               ${this._('DNA')}
             </md-list-item>
           `}
-      ${this.canUseChat
-        ? html`
-            <md-list-item
-              type="link"
-              href="${BASE_DIR}/chat"
-              ?selected="${p === 'chat'}"
-            >
-              ${this._icon(mdiChat, p === 'chat')} ${this._('Chat')}
-            </md-list-item>
-          `
-        : ''}
+      <md-list-item
+        type="link"
+        href="${BASE_DIR}/people"
+        ?selected="${listsPages.includes(p)}"
+      >
+        ${this._icon(mdiFormatListBulleted, listsPages.includes(p))}
+        ${this._('Lists')}
+      </md-list-item>
+      <md-list-item
+        type="link"
+        href="${BASE_DIR}/medialist"
+        ?selected="${p === 'medialist'}"
+      >
+        ${this._icon(mdiImage, p === 'medialist')} ${this._('Media')}
+      </md-list-item>
       <md-divider inset></md-divider>
       <md-list-item
         type="link"
@@ -253,19 +232,31 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       </md-list-item>
       <md-list-item
         type="link"
-        href="${BASE_DIR}/export"
-        ?selected="${p === 'export'}"
-      >
-        ${this._icon(mdiDownload, p === 'export')} ${this._('Export')}
-      </md-list-item>
-      <md-list-item
-        type="link"
         href="${BASE_DIR}/reports"
         ?selected="${p === 'reports'}"
       >
         ${this._icon(mdiFileExportOutline, p === 'reports')}
         ${this._('_Reports').replace('_', '')}
       </md-list-item>
+      <md-list-item
+        type="link"
+        href="${BASE_DIR}/export"
+        ?selected="${p === 'export'}"
+      >
+        ${this._icon(mdiDownload, p === 'export')} ${this._('Export')}
+      </md-list-item>
+      ${this.canUseChat
+        ? html`
+            <md-list-item
+              type="link"
+              href="${BASE_DIR}/chat"
+              ?selected="${p === 'chat'}"
+            >
+              ${this._icon(mdiChat, p === 'chat')} ${this._('Chat')}
+            </md-list-item>
+          `
+        : ''}
+      <md-divider inset></md-divider>
       ${this.appState.permissions.canViewPrivate
         ? html`
             <md-list-item
@@ -289,7 +280,6 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
             </md-list-item>
           `
         : ''}
-      <md-divider inset></md-divider>
       <md-list-item
         type="link"
         href="${BASE_DIR}/notifications"

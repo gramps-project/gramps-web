@@ -43,7 +43,9 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         }
 
         #input-gql {
-          --md-outlined-text-field-input-text-font: 'Commit Mono';
+          --md-outlined-text-field-input-text-font: var(
+            --grampsjs-mono-font-family
+          );
           --md-outlined-text-field-input-text-size: 15px;
           --md-outlined-text-field-container-shape: 8px;
           --md-outlined-text-field-top-space: 9px;

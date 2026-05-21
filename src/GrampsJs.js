@@ -26,12 +26,7 @@ import {
   getFrontendStrings,
   grampsStrings,
 } from './strings.js'
-import {
-  fireEvent,
-  getBrowserLanguage,
-  clickKeyHandler,
-  apiVersionAtLeast,
-} from './util.js'
+import {fireEvent, getBrowserLanguage, apiVersionAtLeast} from './util.js'
 
 import {appStateUpdatePermissions, getInitialAppState} from './appState.js'
 import './components/GrampsjsAppBar.js'
@@ -45,6 +40,7 @@ import './components/GrampsjsTabBar.js'
 import './components/GrampsjsUndoTransaction.js'
 import './components/GrampsjsUpdateAvailable.js'
 import './components/GrampsjsUpgradeDb.js'
+import '@material/web/dialog/dialog.js'
 import {sharedStyles} from './SharedStyles.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from './theme.js'
 import {handleOIDCCallback, handleOIDCComplete} from './oidc.js'
@@ -229,67 +225,37 @@ export class GrampsJs extends LitElement {
           --mdc-list-side-padding: 20px;
         }
 
-        #shortcut-overlay-container {
-          background-color: var(--grampsjs-body-font-color-10);
-          position: fixed;
-          left: 0;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          min-height: 100vh;
-          width: 100vw;
-          z-index: 10001;
-          overflow: hidden;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        #shortcut-overlay {
-          font-size: 16px;
-          background-color: var(--md-sys-color-surface-container-high);
-          padding: 0.5em 1.5em;
-          position: absolute;
-          top: 15vh;
-          overflow-y: auto;
-          max-width: 100vw;
-          max-height: 75vh;
-          border-radius: 8px;
-        }
-
-        #shortcut-overlay section {
+        .shortcut-content section {
           display: flex;
           flex-direction: row;
           gap: 24px;
         }
 
-        #shortcut-overlay h3 {
-          margin-top: 0.5em;
-          font-size: 1.3em;
-          font-weight: 400;
-        }
-
-        #shortcut-overlay h4 {
+        .shortcut-content h4 {
           margin-top: 0.5em;
           font-weight: 400;
           font-size: 1em;
         }
 
-        #shortcut-overlay dl {
+        .shortcut-content dl {
           display: grid;
           grid-template-columns: max-content auto;
+          row-gap: 6px;
           margin: 0.5em 0em;
         }
 
-        #shortcut-overlay dt {
+        .shortcut-content dt {
           grid-column-start: 1;
           margin-right: 1.2em;
+          display: flex;
+          align-items: center;
+          gap: 4px;
         }
 
-        #shortcut-overlay dt span {
-          font-family: var(--grampsjs-heading-font-family);
-          font-size: 11px;
-          font-weight: 400;
+        .shortcut-content dt span {
+          font-family: var(--grampsjs-mono-font-family);
+          font-size: 13px;
+          font-weight: 700;
           display: inline-block;
           min-width: 0.75em;
           padding: 4px 6px;
@@ -297,12 +263,13 @@ export class GrampsJs extends LitElement {
           border: 1px solid var(--grampsjs-body-font-color-20);
           color: var(--grampsjs-body-font-color-70);
           border-radius: 6px;
-          margin-bottom: 4px;
         }
 
-        #shortcut-overlay dd {
+        .shortcut-content dd {
           grid-column-start: 2;
           padding: 0;
+          display: flex;
+          align-items: center;
         }
 
         @media print {
@@ -387,19 +354,20 @@ export class GrampsJs extends LitElement {
   }
 
   _renderKeyboardShortcuts() {
-    if (!this._showShortcuts) {
-      return ''
-    }
     return html`
-      <div
-        id="shortcut-overlay-container"
-        @click="${() => {
+      <md-dialog
+        quick
+        style="max-height: 90vh; max-width: 90vw;"
+        ?open="${this._showShortcuts}"
+        @cancel="${() => {
           this._showShortcuts = false
         }}"
-        @keydown="${clickKeyHandler}"
+        @close="${() => {
+          this._showShortcuts = false
+        }}"
       >
-        <div id="shortcut-overlay">
-          <h3>${this._('Keyboard Shortcuts')}</h3>
+        <div slot="headline">${this._('Keyboard Shortcuts')}</div>
+        <div slot="content" class="shortcut-content">
           <section>
             <div>
               <h4>${this._('Global')}</h4>
@@ -419,24 +387,20 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Home')}</dd>
                 <dt><span>g</span> <span>b</span></dt>
                 <dd>${this._('Blog')}</dd>
-                <dt><span>g</span> <span>l</span></dt>
-                <dd>${this._('Lists')}</dd>
-                <dt><span>g</span> <span>i</span></dt>
-                <dd>${this._('Media')}</dd>
-                <dt><span>g</span> <span>m</span></dt>
-                <dd>${this._('Map')}</dd>
                 <dt><span>g</span> <span>c</span></dt>
                 <dd>${this._('Family Tree')}</dd>
                 <dt><span>g</span> <span>t</span></dt>
                 <dd>${this._('Timeline')}</dd>
+                <dt><span>g</span> <span>m</span></dt>
+                <dd>${this._('Map')}</dd>
                 ${this.appState.frontendConfig.hideDNALink
                   ? ''
                   : html`<dt><span>g</span> <span>d</span></dt>
                       <dd>${this._('DNA')}</dd>`}
-                ${this.canUseChat
-                  ? html`<dt><span>g</span> <span>a</span></dt>
-                      <dd>${this._('Chat')}</dd>`
-                  : ''}
+                <dt><span>g</span> <span>l</span></dt>
+                <dd>${this._('Lists')}</dd>
+                <dt><span>g</span> <span>i</span></dt>
+                <dd>${this._('Media')}</dd>
                 <dt><span>g</span> <span>r</span></dt>
                 <dd>${this._('History')}</dd>
                 <dt><span>g</span> <span>f</span></dt>
@@ -445,6 +409,10 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Tasks')}</dd>
                 <dt><span>g</span> <span>e</span></dt>
                 <dd>${this._('Export')}</dd>
+                ${this.canUseChat
+                  ? html`<dt><span>g</span> <span>a</span></dt>
+                      <dd>${this._('Chat')}</dd>`
+                  : ''}
                 <dt><span>g</span> <span>s</span></dt>
                 <dd>${this._('Settings')}</dd>
               </dl>
@@ -476,7 +444,7 @@ export class GrampsJs extends LitElement {
             </div>
           </section>
         </div>
-      </div>
+      </md-dialog>
     `
   }
 
