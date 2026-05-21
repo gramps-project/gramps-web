@@ -1,6 +1,7 @@
 import {html, css} from 'lit'
 import {mdiFilter} from '@mdi/js'
 import '../components/GrampsjsFilterChip.js'
+import '../components/GrampsjsPillToggle.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
@@ -68,6 +69,8 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
       ...super.properties,
       _data: {type: Array},
       _activeFilter: {type: Object},
+      _personFilterMode: {type: String},
+      _filterEventHandles: {type: Object},
     }
   }
 
@@ -78,6 +81,8 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._clickedHandle = null
     this._clickedDetail = null
     this._activeFilter = null
+    this._personFilterMode = 'self'
+    this._filterEventHandles = null
   }
 
   async _fetchData() {
@@ -86,6 +91,26 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     )
     if ('data' in result) {
       this._data = preprocessEvents(result.data)
+    }
+  }
+
+  async _fetchRelationshipEvents() {
+    const grampsId = this._activeFilter?.object?.gramps_id
+    if (!grampsId) return
+    const ruleName =
+      this._personFilterMode === 'ancestors'
+        ? 'IsLessThanNthGenerationAncestorOf'
+        : 'IsLessThanNthGenerationDescendantOf'
+    const rules = {rules: [{name: ruleName, values: [grampsId, 100]}]}
+    const result = await this.appState.apiGet(
+      `/api/people/?rules=${encodeURIComponent(
+        JSON.stringify(rules)
+      )}&keys=handle,event_ref_list`
+    )
+    if ('data' in result) {
+      this._filterEventHandles = new Set(
+        result.data.flatMap(p => (p.event_ref_list ?? []).map(r => r.ref))
+      )
     }
   }
 
@@ -108,24 +133,41 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
   _handleFilterChanged(e) {
     const [obj] = e.detail?.objects ?? []
     this._activeFilter = obj ?? null
+    this._personFilterMode = 'self'
+    this._filterEventHandles = null
     this._resetClickedState()
   }
 
   _clearFilter() {
     this.renderRoot.querySelector('grampsjs-form-select-object')?.reset()
     this._activeFilter = null
+    this._personFilterMode = 'self'
+    this._filterEventHandles = null
     this._resetClickedState()
+  }
+
+  _handleFilterModeChange(e) {
+    this._personFilterMode = e.detail.value
+    this._filterEventHandles = null
+    this._resetClickedState()
+    if (this._personFilterMode !== 'self') {
+      this._fetchRelationshipEvents()
+    }
   }
 
   get _filteredData() {
     if (!this._activeFilter) return this._data
-    const obj = this._activeFilter.object
     if (this._activeFilter.object_type === 'person') {
+      if (this._personFilterMode !== 'self') {
+        if (!this._filterEventHandles) return []
+        return this._data.filter(e => this._filterEventHandles.has(e.handle))
+      }
+      const obj = this._activeFilter.object
       const handles = new Set(obj?.event_ref_list?.map(r => r.ref) ?? [])
       return this._data.filter(e => handles.has(e.handle))
     }
     if (this._activeFilter.object_type === 'place') {
-      const handle = obj?.handle
+      const handle = this._activeFilter.object?.handle
       return this._data.filter(e => e.placeHandle === handle)
     }
     return this._data
@@ -206,6 +248,12 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   renderContent() {
+    const isPersonFilter = this._activeFilter?.object_type === 'person'
+    const pillOptions = [
+      {value: 'self', label: this._('Person')},
+      {value: 'ancestors', label: this._('Ancestors')},
+      {value: 'descendants', label: this._('Descendants')},
+    ]
     return html`
       <grampsjs-timeline
         .events="${this._filteredData}"
@@ -226,6 +274,15 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
               .appState="${this.appState}"
               @filter-chip:clear="${this._clearFilter}"
             ></grampsjs-filter-chip>`
+          : ''}
+        ${isPersonFilter
+          ? html`<grampsjs-pill-toggle
+              slot="filter-options"
+              .options="${pillOptions}"
+              .selected="${this._personFilterMode}"
+              .appState="${this.appState}"
+              @pill-toggle:change="${this._handleFilterModeChange}"
+            ></grampsjs-pill-toggle>`
           : ''}
       </grampsjs-timeline>
     `

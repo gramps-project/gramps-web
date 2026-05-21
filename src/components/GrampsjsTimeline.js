@@ -13,9 +13,6 @@ import './GrampsjsTooltip.js'
 import {Timeline} from '../charts/Timeline.js'
 import {fireEvent} from '../util.js'
 
-const CONTROLS_HEIGHT = 48
-const FILTER_BAR_HEIGHT = 48
-
 export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
@@ -37,16 +34,29 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
           display: flex;
           align-items: center;
           flex-shrink: 0;
-          height: ${FILTER_BAR_HEIGHT}px;
+          min-height: 48px;
           padding: 0 8px;
           gap: 12px;
         }
 
-        .timeline-controls {
-          display: flex;
-          align-items: center;
+        .timeline-filter-options {
           flex-shrink: 0;
-          height: ${CONTROLS_HEIGHT}px;
+          padding: 0 8px;
+        }
+
+        .chart-area {
+          flex: 1;
+          min-height: 0;
+          position: relative;
+        }
+
+        .chart-controls {
+          position: absolute;
+          bottom: 16px;
+          right: 8px;
+          display: flex;
+          flex-direction: column;
+          z-index: 1;
         }
       `,
     ]
@@ -103,12 +113,12 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
   }
 
   firstUpdated() {
-    const container = this.renderRoot.querySelector('.container')
+    const chartArea = this.renderRoot.querySelector('.chart-area')
     this._resizeObserver = new ResizeObserver(([entry]) => {
       this._width = entry.contentRect.width
       this._height = entry.contentRect.height
     })
-    this._resizeObserver.observe(container)
+    this._resizeObserver.observe(chartArea)
   }
 
   updated(changed) {
@@ -120,7 +130,7 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
       this._chartHeight = this._height
       this._chart = Timeline(this.events, {
         width: this._width,
-        height: this._height - CONTROLS_HEIGHT - FILTER_BAR_HEIGHT,
+        height: this._height,
         locale: this.appState?.i18n?.lang || 'en',
         onDotClick: handle => fireEvent(this, 'timeline:dot-click', {handle}),
         onDetailClick: grampsId =>
@@ -146,39 +156,44 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
         <div class="timeline-filter-bar">
           <slot name="filter"></slot>
         </div>
-        <div class="timeline-controls">
-          <md-icon-button
-            id="btn-zoom-out"
-            aria-label="${this._('Zoom out')}"
-            @click=${() => this._chart?.zoomOut()}
-          >
-            <grampsjs-icon path="${mdiMagnifyMinus}"></grampsjs-icon>
-          </md-icon-button>
-          <grampsjs-tooltip for="btn-zoom-out" .appState="${this.appState}">
-            ${this._('Zoom out')}
-          </grampsjs-tooltip>
-          <md-icon-button
-            id="btn-reset"
-            aria-label="${this._('Reset')}"
-            @click=${() => this._chart?.reset()}
-          >
-            <grampsjs-icon path="${mdiArrowExpandHorizontal}"></grampsjs-icon>
-          </md-icon-button>
-          <grampsjs-tooltip for="btn-reset" .appState="${this.appState}">
-            ${this._('Reset')}
-          </grampsjs-tooltip>
-          <md-icon-button
-            id="btn-zoom-in"
-            aria-label="${this._('Zoom in')}"
-            @click=${() => this._chart?.zoomIn()}
-          >
-            <grampsjs-icon path="${mdiMagnifyPlus}"></grampsjs-icon>
-          </md-icon-button>
-          <grampsjs-tooltip for="btn-zoom-in" .appState="${this.appState}">
-            ${this._('Zoom in')}
-          </grampsjs-tooltip>
+        <div class="timeline-filter-options">
+          <slot name="filter-options"></slot>
         </div>
-        ${ready && this._chart ? this._chart.node : ''}
+        <div class="chart-area">
+          <div class="chart-controls">
+            <md-icon-button
+              id="btn-zoom-in"
+              aria-label="${this._('Zoom in')}"
+              @click=${() => this._chart?.zoomIn()}
+            >
+              <grampsjs-icon path="${mdiMagnifyPlus}"></grampsjs-icon>
+            </md-icon-button>
+            <grampsjs-tooltip for="btn-zoom-in" .appState="${this.appState}">
+              ${this._('Zoom in')}
+            </grampsjs-tooltip>
+            <md-icon-button
+              id="btn-reset"
+              aria-label="${this._('Reset')}"
+              @click=${() => this._chart?.reset()}
+            >
+              <grampsjs-icon path="${mdiArrowExpandHorizontal}"></grampsjs-icon>
+            </md-icon-button>
+            <grampsjs-tooltip for="btn-reset" .appState="${this.appState}">
+              ${this._('Reset')}
+            </grampsjs-tooltip>
+            <md-icon-button
+              id="btn-zoom-out"
+              aria-label="${this._('Zoom out')}"
+              @click=${() => this._chart?.zoomOut()}
+            >
+              <grampsjs-icon path="${mdiMagnifyMinus}"></grampsjs-icon>
+            </md-icon-button>
+            <grampsjs-tooltip for="btn-zoom-out" .appState="${this.appState}">
+              ${this._('Zoom out')}
+            </grampsjs-tooltip>
+          </div>
+          ${ready && this._chart ? this._chart.node : ''}
+        </div>
       </div>
     `
   }
