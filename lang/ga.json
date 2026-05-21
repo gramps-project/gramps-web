@@ -333,5 +333,9 @@
     "Irreversible operations on tree data": "Oibríochtaí dochúlaithe ar shonraí crann",
     "Changes here only affect your account.": "Ní dhéanann athruithe anseo difear ach chun do chuntas.",
     "Changes here affect all users of this tree.": "Bíonn tionchar ag athruithe anseo ar gach úsáideoir den chrainn seo.",
-    "Display preferences saved on this device": "Roghanna taispeána atá sábháilte ar an ngléas seo"
+    "Display preferences saved on this device": "Roghanna taispeána atá sábháilte ar an ngléas seo",
+    "Zoom in": "Zúmáil isteach",
+    "Zoom out": "Zúmáil amach",
+    "Recently changed": "Athraithe le déanaí",
+    "Recently browsed": "Brabhsáilte le déanaí"
 }
