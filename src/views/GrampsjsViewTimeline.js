@@ -96,20 +96,34 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   async _fetchRelationshipEvents() {
     const grampsId = this._activeFilter?.object?.gramps_id
-    if (!grampsId) return
+    const mode = this._personFilterMode
+    if (!grampsId || mode === 'self') return
+    this._relSeq = (this._relSeq ?? 0) + 1
+    const seq = this._relSeq
     const ruleName =
-      this._personFilterMode === 'ancestors'
+      mode === 'ancestors'
         ? 'IsLessThanNthGenerationAncestorOf'
         : 'IsLessThanNthGenerationDescendantOf'
+    // depth 100 is intentionally large — actual results are bounded by tree size
     const rules = {rules: [{name: ruleName, values: [grampsId, 100]}]}
     const result = await this.appState.apiGet(
       `/api/people/?rules=${encodeURIComponent(
         JSON.stringify(rules)
       )}&keys=handle,event_ref_list`
     )
+    if (seq !== this._relSeq) return
     if ('data' in result) {
       this._filterEventHandles = new Set(
         result.data.flatMap(p => (p.event_ref_list ?? []).map(r => r.ref))
+      )
+    } else if ('error' in result) {
+      this._filterEventHandles = new Set()
+      this.dispatchEvent(
+        new CustomEvent('grampsjs:error', {
+          bubbles: true,
+          composed: true,
+          detail: {message: result.error},
+        })
       )
     }
   }
