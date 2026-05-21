@@ -222,9 +222,7 @@ class GrampsjsFormEditLatLong extends GrampsjsObjectForm {
     this.data = {lat: `${lat}`, long: `${long}`}
     const map = this.shadowRoot.querySelector('grampsjs-map')
     if (map !== null) {
-      map.zoom = map._map.getZoom()
-      map.latitude = lat
-      map.longitude = long
+      map.jumpTo(lat, long, map._map.getZoom())
     }
   }
 }
