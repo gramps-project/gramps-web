@@ -485,5 +485,20 @@ export function Timeline(
       svg.transition().duration(300).call(zoomBehavior.transform, zoomIdentity),
     panLeft: () => pan(innerWidth * 0.2),
     panRight: () => pan(-innerWidth * 0.2),
+    scrollToDate: date => {
+      const MS_PER_YEAR = 365.25 * 24 * 3600 * 1000
+      const span = MS_PER_YEAR
+      const t = date.getTime()
+      const d0 = new Date(t - span / 2)
+      const d1 = new Date(t + span / 2)
+      const k = innerWidth / (x(d1) - x(d0))
+      svg
+        .transition()
+        .duration(600)
+        .call(
+          zoomBehavior.transform,
+          zoomIdentity.scale(k).translate(-x(d0), 0)
+        )
+    },
   }
 }

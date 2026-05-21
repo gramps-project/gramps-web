@@ -83,6 +83,41 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._activeFilter = null
     this._personFilterMode = 'self'
     this._filterEventHandles = null
+    this._pendingHandle = null
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this._boundEventSelected = e => this._handleExternalEventSelected(e)
+    window.addEventListener('timeline:event-selected', this._boundEventSelected)
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    window.removeEventListener(
+      'timeline:event-selected',
+      this._boundEventSelected
+    )
+  }
+
+  _handleExternalEventSelected({detail: {handle}}) {
+    this._pendingHandle = handle
+    this._applyPendingHandle()
+  }
+
+  async _applyPendingHandle() {
+    if (!this._pendingHandle || !this._data.length) return
+    const event = this._data.find(e => e.handle === this._pendingHandle)
+    if (!event?.jsDate) {
+      this._pendingHandle = null
+      return
+    }
+    // Wait for Lit to propagate new events to grampsjs-timeline so that
+    // updateEvents() runs before scrollToDate — otherwise updateEvents resets
+    // the zoom to zoomIdentity and cancels our scroll transition.
+    await this.updateComplete
+    if (!this._timelineEl()?.scrollToDate(event.jsDate)) return
+    this._pendingHandle = null
   }
 
   async _fetchData() {
@@ -91,6 +126,7 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     )
     if ('data' in result) {
       this._data = preprocessEvents(result.data)
+      this._applyPendingHandle()
     }
   }
 
@@ -131,7 +167,10 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
   firstUpdated() {
     super.firstUpdated()
     this._fetchData()
-    this.addEventListener('timeline:zoom-end', e => this._handleZoomEnd(e))
+    this.addEventListener('timeline:zoom-end', e => {
+      this._handleZoomEnd(e)
+      this._applyPendingHandle()
+    })
     this.addEventListener('timeline:dot-click', e =>
       this._handleDotClick(e.detail.handle)
     )

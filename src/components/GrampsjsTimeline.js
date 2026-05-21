@@ -201,6 +201,12 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
   updateDetails(details) {
     this._chart?.updateDetails(details)
   }
+
+  scrollToDate(date) {
+    if (!this._chart) return false
+    this._chart.scrollToDate(date)
+    return true
+  }
 }
 
 window.customElements.define('grampsjs-timeline', GrampsjsTimeline)

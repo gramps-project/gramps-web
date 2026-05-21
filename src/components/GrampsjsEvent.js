@@ -1,10 +1,13 @@
 import {html, css} from 'lit'
 
 import '@material/mwc-icon'
+import '@material/web/button/outlined-button.js'
 
+import {mdiTimelineOutline} from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditEventDetails.js'
 import './GrampsjsFormEditTitle.js'
+import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
 import {fireEvent, emptyDate} from '../util.js'
 
@@ -15,7 +18,8 @@ export class GrampsjsEvent extends GrampsjsObject {
     return [
       super.styles,
       css`
-        :host {
+        p.button-list {
+          margin-top: 1.5em;
         }
       `,
     ]
@@ -99,7 +103,31 @@ export class GrampsjsEvent extends GrampsjsObject {
             ></mwc-icon-button>
           `
         : ''}
+      ${this.data?.profile?.date
+        ? html`
+            <div style="clear:left;"></div>
+            <p class="button-list">
+              <md-outlined-button @click="${this._handleTimelineButtonClick}">
+                ${this._('Show on timeline')}
+                <grampsjs-icon
+                  path="${mdiTimelineOutline}"
+                  color="var(--mdc-theme-primary)"
+                  slot="icon"
+                ></grampsjs-icon>
+              </md-outlined-button>
+            </p>
+          `
+        : ''}
     `
+  }
+
+  _handleTimelineButtonClick() {
+    window.dispatchEvent(
+      new CustomEvent('timeline:event-selected', {
+        detail: {handle: this.data.handle},
+      })
+    )
+    fireEvent(this, 'nav', {path: 'timeline'})
   }
 
   // eslint-disable-next-line class-methods-use-this
