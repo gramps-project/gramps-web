@@ -155,11 +155,9 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
       this._clickedHandle === handle
     ) {
       const fetched = Object.fromEntries(result.data.map(e => [e.handle, e]))
-      this._clickedDetail = fetched[handle] ?? result.data[0]
-      this._timelineEl()?.updateDetails({
-        ...this._details,
-        ...fetched,
-      })
+      this._details = {...this._details, ...fetched}
+      this._clickedDetail = this._details[handle] ?? result.data[0]
+      this._timelineEl()?.updateDetails(this._details)
     }
   }
 
@@ -182,11 +180,13 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
       )
       return
     }
+    this._zoomSeq = (this._zoomSeq ?? 0) + 1
+    const seq = this._zoomSeq
     const locale = this.appState.i18n.lang || 'en'
     const result = await this.appState.apiGet(
       `/api/events/?handles=${handles.join(',')}&profile=self&locale=${locale}`
     )
-    if ('data' in result) {
+    if ('data' in result && seq === this._zoomSeq) {
       this._details = Object.fromEntries(result.data.map(e => [e.handle, e]))
       this._timelineEl()?.updateDetails(this._details)
     }

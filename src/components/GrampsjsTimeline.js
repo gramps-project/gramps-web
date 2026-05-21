@@ -99,14 +99,16 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
   disconnectedCallback() {
     super.disconnectedCallback()
     this.removeEventListener('keydown', this._boundKeydown)
+    this._resizeObserver?.disconnect()
   }
 
   firstUpdated() {
     const container = this.renderRoot.querySelector('.container')
-    new ResizeObserver(([entry]) => {
+    this._resizeObserver = new ResizeObserver(([entry]) => {
       this._width = entry.contentRect.width
       this._height = entry.contentRect.height
-    }).observe(container)
+    })
+    this._resizeObserver.observe(container)
   }
 
   updated(changed) {
