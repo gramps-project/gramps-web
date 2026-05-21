@@ -37,7 +37,7 @@ export class GrampsjsFilterChip extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .monospace {
-          font-family: 'Commit Mono';
+          font-family: var(--grampsjs-mono-font-family);
         }
       `,
     ]
