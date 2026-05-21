@@ -54,6 +54,7 @@ import {asteriskIcon, crossIcon, renderIconSvg, ringsIconPath} from './icons.js'
 import './components/GrampsjsIcon.js'
 import {frontendLanguages} from './strings.js'
 import {hex6ToCss, hex12ToCss} from './color.js'
+import {dateToSdn, CALENDARS} from './gcalendar.js'
 
 dayjs.extend(relativeTime)
 
@@ -634,13 +635,9 @@ export function makeHandle() {
   return uuidv4()
 }
 
-// Gregorian date to Julian day needed for Date.sortval
+// Thin wrapper around dateToSdn for Gregorian dates.
 export function getSortval(year, month, day) {
-  if (year === 0 && month === 0 && day === 0) {
-    // we're assuming that this is an invalid/empty date!
-    return 0
-  }
-  return Math.ceil(2440587.5 + Date.UTC(year, month - 1, day) / 86400000)
+  return dateToSdn(CALENDARS.GREGORIAN, year, month, day)
 }
 
 export function getBrowserLanguage() {

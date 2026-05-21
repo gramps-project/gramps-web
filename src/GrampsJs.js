@@ -427,6 +427,8 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Map')}</dd>
                 <dt><span>g</span> <span>c</span></dt>
                 <dd>${this._('Family Tree')}</dd>
+                <dt><span>g</span> <span>t</span></dt>
+                <dd>${this._('Timeline')}</dd>
                 ${this.appState.frontendConfig.hideDNALink
                   ? ''
                   : html`<dt><span>g</span> <span>d</span></dt>
@@ -439,7 +441,7 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('History')}</dd>
                 <dt><span>g</span> <span>f</span></dt>
                 <dd>${this._('_Bookmarks')}</dd>
-                <dt><span>g</span> <span>t</span></dt>
+                <dt><span>g</span> <span>j</span></dt>
                 <dd>${this._('Tasks')}</dd>
                 <dt><span>g</span> <span>e</span></dt>
                 <dd>${this._('Export')}</dd>
@@ -1215,6 +1217,8 @@ export class GrampsJs extends LitElement {
       } else if (e.key === 'f') {
         fireEvent(this, 'nav', {path: 'bookmarks'})
       } else if (e.key === 't') {
+        fireEvent(this, 'nav', {path: 'timeline'})
+      } else if (e.key === 'j') {
         fireEvent(this, 'nav', {path: 'tasks'})
       } else if (e.key === 'e') {
         fireEvent(this, 'nav', {path: 'export'})

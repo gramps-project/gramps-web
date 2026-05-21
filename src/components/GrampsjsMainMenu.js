@@ -25,6 +25,7 @@ import {
   mdiLabel,
   mdiBell,
   mdiBellBadge,
+  mdiTimelineOutline,
 } from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -191,6 +192,14 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
         ?selected="${p === 'tree'}"
       >
         ${this._icon(mdiFamilyTree, p === 'tree')} ${this._('Family Tree')}
+      </md-list-item>
+      <md-list-item
+        type="link"
+        href="${BASE_DIR}/timeline"
+        ?selected="${p === 'timeline'}"
+      >
+        ${this._icon(mdiTimelineOutline, p === 'timeline')}
+        ${this._('Timeline')}
       </md-list-item>
       ${this.appState.frontendConfig.hideDNALink
         ? ''

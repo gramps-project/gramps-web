@@ -306,22 +306,30 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _renderPills() {
-    if (this.objectType) return ''
+    const types = this.objectType
+      ? this.objectType
+          .split(',')
+          .map(t => t.trim())
+          .filter(Boolean)
+      : FILTERABLE_TYPES
+    if (types.length <= 1) return ''
     return html`
       <div
         class="pills"
         @grampsjs-button-toggle:toggle="${this._handleFilterToggle}"
       >
-        ${FILTERABLE_TYPES.map(
-          key => html`
-            <grampsjs-button-toggle
-              ?checked="${this._typeFilters[key]}"
-              .iconPath="${objectIconPath[key]}"
-              label="${this._(objectTypePlural[key])}"
-              id="toggle-${key}"
-            ></grampsjs-button-toggle>
-          `
-        )}
+        ${types
+          .filter(key => FILTERABLE_TYPES.includes(key))
+          .map(
+            key => html`
+              <grampsjs-button-toggle
+                ?checked="${this._typeFilters[key]}"
+                .iconPath="${objectIconPath[key]}"
+                label="${this._(objectTypePlural[key])}"
+                id="toggle-${key}"
+              ></grampsjs-button-toggle>
+            `
+          )}
       </div>
     `
   }
@@ -546,7 +554,14 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _getActiveTypes() {
-    if (this.objectType) return [this.objectType]
+    if (this.objectType) {
+      const allowed = this.objectType
+        .split(',')
+        .map(t => t.trim())
+        .filter(Boolean)
+      const checked = allowed.filter(t => this._typeFilters[t])
+      return checked.length ? checked : allowed
+    }
     return Object.entries(this._typeFilters)
       .filter(([, v]) => v)
       .map(([k]) => k)
