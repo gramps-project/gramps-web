@@ -53,6 +53,11 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
         .slot-wrap {
           flex-grow: 1;
           overflow: hidden;
+          white-space: pre-wrap;
+        }
+
+        .slot-wrap.markdown {
+          white-space: normal;
         }
 
         .slot-wrap p {
@@ -151,7 +156,7 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
             `
           : ''}
         <slot name="no-wrap"></slot>
-        <div class="slot-wrap">
+        <div class="${this.type === 'ai' ? 'slot-wrap markdown' : 'slot-wrap'}">
           ${this.type === 'ai' ? renderMarkdown(this.message) : this.message}
         </div>
       </div>
