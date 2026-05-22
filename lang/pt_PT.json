@@ -335,5 +335,8 @@
     "Changes here affect all users of this tree.": "Alterações aqui afectam todos os utilizadores desta árvore.",
     "Display preferences saved on this device": "Mostrar as preferências gravadas neste dispositivo",
     "Recently changed": "Alterações recentes",
-    "Recently browsed": "Vistos recentemente"
+    "Recently browsed": "Vistos recentemente",
+    "Zoom in": "Ampliar",
+    "Zoom out": "Reduzir",
+    "Show on timeline": "Mostrar na cronologia"
 }
