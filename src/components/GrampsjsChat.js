@@ -273,7 +273,6 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
         fireError(e?.message || this._('An error occurred'))
         message = {role: 'error', message: this._('An error occurred')}
       }
-      setChatTaskId(null, data.task.id)
       if (status?.state === 'SUCCESS' && status?.result_object?.response) {
         message = {role: 'ai', message: status.result_object.response}
       } else if (!message) {
@@ -291,6 +290,9 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     this.loading = false
     await this._addMessage(message, 6)
     setChatHistory(this.messages)
+    if (data?.task?.id) {
+      setChatTaskId(null, data.task.id)
+    }
   }
 
   _handleClear() {
@@ -324,25 +326,28 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     this.loading = true
     const fireError = (msg, detail = {}) =>
       fireEvent(this, 'grampsjs:error', {message: msg, silent: true, detail})
-    let status
     try {
-      status = await this._pollChatTask(taskId)
-    } catch (e) {
-      // task may have already expired on the server — just discard silently
-    }
-    setChatTaskId(null, taskId)
-    let message
-    if (status?.state === 'SUCCESS' && status?.result_object?.response) {
-      message = {role: 'ai', message: status.result_object.response}
-    } else if (status) {
-      const errMsg = status?.info || 'An error occurred'
-      fireError(errMsg, status?.result_object ?? {})
-      message = {role: 'error', message: this._(errMsg)}
-    }
-    this.loading = false
-    if (message) {
-      await this._addMessage(message, 6)
-      setChatHistory(this.messages)
+      let status
+      try {
+        status = await this._pollChatTask(taskId)
+      } catch (e) {
+        // task may have already expired on the server — just discard silently
+      }
+      let message
+      if (status?.state === 'SUCCESS' && status?.result_object?.response) {
+        message = {role: 'ai', message: status.result_object.response}
+      } else if (status) {
+        const errMsg = status?.info || 'An error occurred'
+        fireError(errMsg, status?.result_object ?? {})
+        message = {role: 'error', message: this._(errMsg)}
+      }
+      if (message) {
+        await this._addMessage(message, 6)
+        setChatHistory(this.messages)
+      }
+      setChatTaskId(null, taskId)
+    } finally {
+      this.loading = false
     }
   }
 
