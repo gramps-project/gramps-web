@@ -17,9 +17,10 @@ self.addEventListener('message', event => {
 
 precacheAndRoute(self.__WB_MANIFEST)
 
-// Probe the network only for cross-origin auth redirects (e.g. Cloudflare
-// Access). All other responses are discarded: always serve index.html from
-// the precache so HTML and JS chunks come from the same build version.
+// Try the network first with redirect:manual so cross-origin auth redirects
+// (e.g. Cloudflare Access) are passed through to the browser. On success,
+// return the fresh network response so navigation always reflects the current
+// deployment. Falls back to precached index.html when offline.
 registerRoute(
   new NavigationRoute(
     async ({request}) => {
@@ -27,6 +28,9 @@ registerRoute(
         const response = await fetch(request, {redirect: 'manual'})
         if (response.type === 'opaqueredirect') {
           console.log('[SW] NavigationRoute: opaque redirect — passing through')
+          return response
+        }
+        if (response.ok) {
           return response
         }
       } catch {
