@@ -201,13 +201,20 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _pollChatTask(taskId) {
-    return new Promise(resolve => {
-      updateTaskStatus(this.appState.auth, taskId, status => {
-        const doneStates = ['FAILURE', 'REVOKED', 'SUCCESS']
-        if (doneStates.includes(status?.state)) {
-          resolve(status)
-        }
-      })
+    return new Promise((resolve, reject) => {
+      updateTaskStatus(
+        this.appState.auth,
+        taskId,
+        status => {
+          const doneStates = ['FAILURE', 'REVOKED', 'SUCCESS']
+          if (doneStates.includes(status?.state)) {
+            resolve(status)
+          }
+        },
+        1000,
+        120,
+        () => this.isConnected
+      ).catch(reject)
     })
   }
 
@@ -235,10 +242,16 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
       fireError(data.error, data.errorDetail ?? {})
       message = {role: 'error', message: this._(data.error)}
     } else if (data?.task?.id) {
-      const status = await this._pollChatTask(data.task.id)
+      let status
+      try {
+        status = await this._pollChatTask(data.task.id)
+      } catch (e) {
+        fireError(e?.message || 'An error occurred')
+        message = {role: 'error', message: this._('An error occurred')}
+      }
       if (status?.state === 'SUCCESS' && status?.result_object?.response) {
         message = {role: 'ai', message: status.result_object.response}
-      } else {
+      } else if (!message) {
         const errMsg = status?.info || 'An error occurred'
         fireError(errMsg, status?.result_object ?? {})
         message = {role: 'error', message: this._(errMsg)}

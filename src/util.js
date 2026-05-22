@@ -59,6 +59,7 @@ import {hex6ToCss, hex12ToCss} from './color.js'
 import {dateToSdn, CALENDARS} from './gcalendar.js'
 
 dayjs.extend(relativeTime)
+marked.use({breaks: true})
 
 const BASE_DIR = ''
 
