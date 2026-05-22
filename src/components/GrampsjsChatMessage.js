@@ -103,10 +103,14 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
           margin-top: 0.6em;
         }
 
-        .slot-wrap ul,
-        .slot-wrap ol {
+        .slot-wrap ul {
           margin: 0.4em 0;
           padding-left: 1.5em;
+        }
+
+        .slot-wrap ol {
+          margin: 0.4em 0;
+          padding-left: 2em;
         }
 
         .slot-wrap h1,
