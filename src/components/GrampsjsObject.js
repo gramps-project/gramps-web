@@ -391,13 +391,24 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     // Re-setup the observer when the data changes to observe the new sections
     if (changedProperties.has('data') && Object.keys(this.data).length > 0) {
       this._setupIntersectionObserver()
+      const mapEl = this.renderRoot.querySelector('#map')
       if (this.data?.lat && this.data?.long) {
         const zoom =
           this.data.place_type in zoomByPlaceType
             ? zoomByPlaceType[this.data.place_type]
             : 13
-        const mapEl = this.renderRoot.querySelector('#map')
         mapEl?.jumpTo(this.data.profile.lat, this.data.profile.long, zoom)
+      } else {
+        const mapBounds = (this.data.attribute_list || []).filter(
+          attr => attr.type === 'map:bounds'
+        )
+        if (mapBounds.length > 0) {
+          const bounds = JSON.parse(mapBounds[0].value)
+          const zoom = this._getZoomFromBounds(bounds)
+          const lat = (bounds[0][0] + bounds[1][0]) / 2
+          const lng = (bounds[0][1] + bounds[1][1]) / 2
+          mapEl?.jumpTo(lat, lng, zoom)
+        }
       }
     }
   }

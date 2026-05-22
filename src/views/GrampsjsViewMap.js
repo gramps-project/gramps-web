@@ -231,6 +231,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   updated(changed) {
+    super.updated(changed)
     if (changed.has('active') && this.active) {
       if (this._mapEl?._map) {
         this._mapEl._map.resize()
