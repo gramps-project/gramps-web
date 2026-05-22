@@ -12,7 +12,7 @@ import '../components/GrampsjsRelogin.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
 
-import {fireEvent} from '../util.js'
+import {fireEvent, makeHandle} from '../util.js'
 import {
   TREE_CONFIG_APP_TITLE,
   TREE_CONFIG_PRIMARY_COLOR,
@@ -21,10 +21,11 @@ import {
   TREE_CONFIG_HOME_PAGE_IMAGE,
 } from '../api.js'
 import {DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
-import {mdiDeleteForever, mdiDownload, mdiUpload} from '@mdi/js'
+import {mdiDeleteForever, mdiDownload, mdiPlus, mdiUpload} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsFormUpload.js'
 import '../components/GrampsjsFormSelectObject.js'
+import '../components/GrampsjsTagsManager.js'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 import '@material/web/button/filled-button.js'
@@ -163,6 +164,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       _importFileReady: {type: Boolean},
       _homePageNoteGrampsId: {},
       _homePageImageGrampsId: {},
+      _tags: {type: Array},
     }
   }
 
@@ -179,6 +181,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this._importFileReady = false
     this._homePageNoteGrampsId = null
     this._homePageImageGrampsId = null
+    this._tags = []
   }
 
   renderContent() {
@@ -506,6 +509,28 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                 : html`<span class="pre">${this._repairResults.message}</span>`}
             </p>`
           : ''}
+      </grampsjs-collapsible-section>
+
+      <grampsjs-collapsible-section
+        title="${this._('Tags')}"
+        description="${this._('Organize Tags')}"
+      >
+        <p>
+          <md-outlined-button @click="${this._openCreateTag}">
+            <grampsjs-icon
+              slot="icon"
+              path="${mdiPlus}"
+              color="var(--mdc-theme-primary)"
+            ></grampsjs-icon>
+            ${this._('New Tag')}
+          </md-outlined-button>
+        </p>
+        <grampsjs-tags-manager
+          .data="${this._tags}"
+          .appState="${this.appState}"
+          @tag:save="${this._handleTagSave}"
+          @tag:delete="${this._handleTagDelete}"
+        ></grampsjs-tags-manager>
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
@@ -854,6 +879,55 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
+  _openCreateTag() {
+    this.renderRoot.querySelector('grampsjs-tags-manager').openCreate()
+  }
+
+  async _handleTagSave(e) {
+    const {tag, isNew} = e.detail
+    let data
+    if (isNew) {
+      data = await this.appState.apiPost(
+        '/api/tags/',
+        {...tag, handle: makeHandle()},
+        {dbChanged: false}
+      )
+    } else {
+      data = await this.appState.apiPut(`/api/tags/${tag.handle}`, tag, {
+        dbChanged: false,
+      })
+    }
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+      return
+    }
+    fireEvent(this, 'db:changed')
+    this._fetchTagData()
+  }
+
+  async _handleTagDelete(e) {
+    const data = await this.appState.apiDelete(`/api/tags/${e.detail.handle}`, {
+      dbChanged: false,
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+      return
+    }
+    fireEvent(this, 'db:changed')
+    this._fetchTagData()
+  }
+
+  async _fetchTagData() {
+    const data = await this.appState.apiGet(
+      `/api/tags/?locale=${this.appState.i18n.lang || 'en'}&pagesize=500`
+    )
+    if ('data' in data) {
+      this._tags = data.data
+    } else if ('error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
   async _fetchOwnUserDetails() {
     const data = await this.appState.apiGet('/api/users/-/')
     if ('error' in data) {
@@ -898,6 +972,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this._fetchOwnUserDetails()
     this._fetchTreeInfo()
     this._fetchHomePageGrampsIds()
+    this._fetchTagData()
   }
 }
 
