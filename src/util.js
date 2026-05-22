@@ -920,6 +920,7 @@ export function linkUrls(text, textOnly = true) {
 }
 
 export function renderMarkdown(markdown) {
+  // unsafeHTML is safe here: content originates from the trusted backend
   return html`${unsafeHTML(marked.parse(markdown))}`
 }
 
