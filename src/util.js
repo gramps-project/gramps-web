@@ -1,7 +1,5 @@
 /* eslint-disable no-bitwise */
 import {html} from 'lit'
-import {unsafeHTML} from 'lit/directives/unsafe-html.js'
-import {marked} from 'marked'
 import '@material/mwc-icon'
 import dayjs from 'dayjs/esm'
 import relativeTime from 'dayjs/esm/plugin/relativeTime'
@@ -59,7 +57,6 @@ import {hex6ToCss, hex12ToCss} from './color.js'
 import {dateToSdn, CALENDARS} from './gcalendar.js'
 
 dayjs.extend(relativeTime)
-marked.use({breaks: true})
 
 const BASE_DIR = ''
 
@@ -917,11 +914,6 @@ export function linkUrls(text, textOnly = true) {
           > `
       : part
   )}`
-}
-
-export function renderMarkdown(markdown) {
-  // unsafeHTML is safe here: content originates from the trusted backend
-  return html`${unsafeHTML(marked.parse(markdown))}`
 }
 
 export function getGregorianYears(date) {

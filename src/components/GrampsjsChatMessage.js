@@ -1,12 +1,18 @@
 import {html, css, LitElement} from 'lit'
+import {unsafeHTML} from 'lit/directives/unsafe-html.js'
 import {classMap} from 'lit/directives/class-map.js'
 import '@material/web/icon/icon.js'
 import {mdiFamilyTree} from '@mdi/js'
+import {marked} from 'marked'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {renderIconSvg} from '../icons.js'
-import {renderMarkdown} from '../util.js'
+
+marked.use({breaks: true})
+
+// unsafeHTML is safe here: content originates from the trusted backend
+const renderMarkdown = markdown => html`${unsafeHTML(marked.parse(markdown))}`
 
 class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
