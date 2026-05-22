@@ -6,7 +6,13 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsChatPrompt.js'
 import './GrampsjsChatMessage.js'
-import {setChatHistory, getChatHistory, updateTaskStatus} from '../api.js'
+import {
+  setChatHistory,
+  getChatHistory,
+  getChatTaskId,
+  setChatTaskId,
+  updateTaskStatus,
+} from '../api.js'
 import {fireEvent} from '../util.js'
 
 function delay(ms) {
@@ -259,6 +265,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
       fireError(data.error, data.errorDetail ?? {})
       message = {role: 'error', message: this._(data.error)}
     } else if (data?.task?.id) {
+      setChatTaskId(data.task.id)
       let status
       try {
         status = await this._pollChatTask(data.task.id)
@@ -266,6 +273,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
         fireError(e?.message || this._('An error occurred'))
         message = {role: 'error', message: this._('An error occurred')}
       }
+      setChatTaskId(null)
       if (status?.state === 'SUCCESS' && status?.result_object?.response) {
         message = {role: 'ai', message: status.result_object.response}
       } else if (!message) {
@@ -288,6 +296,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
   _handleClear() {
     this.messages = []
     setChatHistory(this.messages)
+    setChatTaskId(null)
   }
 
   _scrollToLastMessage() {
@@ -307,6 +316,36 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     this._scrollToLastMessage()
   }
 
+  async _resumePendingTask() {
+    const taskId = getChatTaskId()
+    if (!taskId) {
+      return
+    }
+    this.loading = true
+    const fireError = (msg, detail = {}) =>
+      fireEvent(this, 'grampsjs:error', {message: msg, silent: true, detail})
+    let status
+    try {
+      status = await this._pollChatTask(taskId)
+    } catch (e) {
+      // task may have already expired on the server — just discard silently
+    }
+    setChatTaskId(null)
+    let message
+    if (status?.state === 'SUCCESS' && status?.result_object?.response) {
+      message = {role: 'ai', message: status.result_object.response}
+    } else if (status) {
+      const errMsg = status?.info || 'An error occurred'
+      fireError(errMsg, status?.result_object ?? {})
+      message = {role: 'error', message: this._(errMsg)}
+    }
+    this.loading = false
+    if (message) {
+      await this._addMessage(message, 6)
+      setChatHistory(this.messages)
+    }
+  }
+
   _handleStorage() {
     this.messages = getChatHistory()
   }
@@ -314,6 +353,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
   connectedCallback() {
     super.connectedCallback()
     window.addEventListener('storage', event => this._handleStorage(event))
+    this._resumePendingTask()
   }
 }
 
