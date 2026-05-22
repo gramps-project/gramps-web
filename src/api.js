@@ -178,7 +178,7 @@ export function getChatTaskId() {
   }
 }
 
-export function setChatTaskId(taskId) {
+export function setChatTaskId(taskId, onlyIfEquals = undefined) {
   const tree = getTreeId()
   if (!tree) {
     return
@@ -187,6 +187,9 @@ export function setChatTaskId(taskId) {
     try {
       const string = localStorage.getItem('chatTaskId')
       const data = JSON.parse(string) ?? {}
+      if (onlyIfEquals !== undefined && data[tree] !== onlyIfEquals) {
+        return
+      }
       delete data[tree]
       localStorage.setItem('chatTaskId', JSON.stringify(data))
     } catch (e) {

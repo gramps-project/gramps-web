@@ -273,7 +273,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
         fireError(e?.message || this._('An error occurred'))
         message = {role: 'error', message: this._('An error occurred')}
       }
-      setChatTaskId(null)
+      setChatTaskId(null, data.task.id)
       if (status?.state === 'SUCCESS' && status?.result_object?.response) {
         message = {role: 'ai', message: status.result_object.response}
       } else if (!message) {
@@ -330,7 +330,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     } catch (e) {
       // task may have already expired on the server — just discard silently
     }
-    setChatTaskId(null)
+    setChatTaskId(null, taskId)
     let message
     if (status?.state === 'SUCCESS' && status?.result_object?.response) {
       message = {role: 'ai', message: status.result_object.response}
