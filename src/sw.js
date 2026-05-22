@@ -32,7 +32,6 @@ registerRoute(
       } catch {
         // offline — fall through to precache
       }
-      console.log('[SW] NavigationRoute: serving index.html from precache')
       return matchPrecache('/index.html')
     },
     {denylist: [/^\/api.*/]}
