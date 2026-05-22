@@ -106,6 +106,39 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._yearSpan = -1
     this._currentLayer = ''
     this._minYear = 1500
+    this._pendingPlace = null
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this._boundPlaceSelected = e => this._handleExternalPlaceSelected(e)
+    window.addEventListener('map:place-selected', this._boundPlaceSelected)
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    window.removeEventListener('map:place-selected', this._boundPlaceSelected)
+  }
+
+  _handleExternalPlaceSelected({detail}) {
+    this._pendingPlace = detail
+    this._applyPendingPlace()
+  }
+
+  _applyPendingPlace() {
+    if (!this._pendingPlace) return
+    if (!this._mapEl?._map) {
+      requestAnimationFrame(() => this._applyPendingPlace())
+      return
+    }
+    const place = this._pendingPlace
+    this._pendingPlace = null
+    // Defer one frame so the browser has computed layout after display:none →
+    // display:block, then resize before flyTo so MapLibre knows its dimensions.
+    requestAnimationFrame(() => {
+      this._mapEl._map.resize()
+      this._handlePlaceSelected(place)
+    })
   }
 
   renderContent() {
@@ -173,7 +206,9 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     const [handle] = this._handlesHighlight
     const [object] = this._dataPlaces.filter(obj => obj.handle === handle)
     if (object === undefined) {
-      this._clearSearchBox()
+      if (this._dataPlaces.length > 0) {
+        this._clearSearchBox()
+      }
       return ''
     }
     const data = {
@@ -195,14 +230,13 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._currentLayer = e.detail.layer
   }
 
-  update(changed) {
-    super.update(changed)
+  updated(changed) {
+    super.updated(changed)
     if (changed.has('active') && this.active) {
-      const mapel = this.shadowRoot.getElementById('map')
-      if (mapel !== null && mapel._map !== undefined) {
-        // MapLibre GL JS resize method instead of Leaflet's invalidateSize
-        mapel._map.resize()
+      if (this._mapEl?._map) {
+        this._mapEl._map.resize()
       }
+      this._applyPendingPlace()
       const searchbox = this.shadowRoot.querySelector('grampsjs-map-searchbox')
       if (searchbox !== null) {
         searchbox.focus()
@@ -270,30 +304,28 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._valueSearch = object.profile.name
     this._handlesHighlight = [object.handle]
     if (object.profile.lat && object.profile.long) {
-      this.latitude = object.profile.lat
-      this.longitude = object.profile.long
-      if (this.getZoom() < 14) {
-        this.setZoom(14)
-      }
-      this.panTo(this.latitude, this.longitude)
+      this.flyTo(object.profile.lat, object.profile.long)
     }
   }
 
+  get _mapEl() {
+    return this.renderRoot.querySelector('grampsjs-map')
+  }
+
+  flyTo(latitude, longitude) {
+    this._mapEl.flyTo(latitude, longitude)
+  }
+
   panTo(latitude, longitude) {
-    const map = this.renderRoot.querySelector('grampsjs-map')
-    map.panTo(latitude, longitude)
+    this._mapEl.panTo(latitude, longitude)
   }
 
   setZoom(zoom) {
-    const map = this.renderRoot.querySelector('grampsjs-map')
-    // MapLibre GL JS setZoom method
-    map._map.setZoom(zoom)
+    this._mapEl._map.setZoom(zoom)
   }
 
   getZoom() {
-    const map = this.renderRoot.querySelector('grampsjs-map')
-    // MapLibre GL JS getZoom method
-    return map._map.getZoom()
+    return this._mapEl._map.getZoom()
   }
 
   _renderLayers() {
@@ -458,6 +490,10 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       this.error = false
       this._dataPlaces = data.data
       this._applyPlaceFilter()
+      if (!this._handlesHighlight.length) {
+        const center = this._getMapCenter()
+        this._mapEl?.jumpTo(center[0], center[1], 6)
+      }
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error

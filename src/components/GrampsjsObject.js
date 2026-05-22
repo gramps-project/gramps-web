@@ -10,7 +10,6 @@ import '@material/web/dialog/dialog.js'
 import {sharedStyles} from '../SharedStyles.js'
 import '../views/GrampsjsViewObjectNotes.js'
 import '../views/GrampsjsViewSourceCitations.js'
-import '../views/GrampsjsViewPersonTimeline.js'
 import './GrampsjsAddresses.js'
 import './GrampsjsAssociations.js'
 import './GrampsjsAttributes.js'
@@ -356,8 +355,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
       _objectEndpoint: {type: String},
       _objectIcon: {type: String},
       _showReferences: {type: Boolean},
-      _showPersonTimeline: {type: Boolean},
-      _showFamilyTimeline: {type: Boolean},
     }
   }
 
@@ -369,8 +366,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     this._objectsName = 'Objects'
     this._objectIcon = ''
     this._showReferences = true
-    this._showPersonTimeline = false
-    this._showFamilyTimeline = false
     this._sectionObserver = null
     this._currentVisibleSection = ''
   }
@@ -391,6 +386,25 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     // Re-setup the observer when the data changes to observe the new sections
     if (changedProperties.has('data') && Object.keys(this.data).length > 0) {
       this._setupIntersectionObserver()
+      const mapEl = this.renderRoot.querySelector('#map')
+      if (this.data?.lat && this.data?.long) {
+        const zoom =
+          this.data.place_type in zoomByPlaceType
+            ? zoomByPlaceType[this.data.place_type]
+            : 13
+        mapEl?.jumpTo(this.data.profile.lat, this.data.profile.long, zoom)
+      } else {
+        const mapBounds = (this.data.attribute_list || []).filter(
+          attr => attr.type === 'map:bounds'
+        )
+        if (mapBounds.length > 0) {
+          const bounds = JSON.parse(mapBounds[0].value)
+          const zoom = this._getZoomFromBounds(bounds)
+          const lat = (bounds[0][0] + bounds[1][0]) / 2
+          const lng = (bounds[0][1] + bounds[1][1]) / 2
+          mapEl?.jumpTo(lat, lng, zoom)
+        }
+      }
     }
   }
 
@@ -844,10 +858,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     return Object.keys(_allTabs).filter(
       key =>
         _allTabs[key].condition(this.data) &&
-        (this._showReferences || key !== 'references') &&
-        (this._showFamilyTimeline ||
-          this._showPersonTimeline ||
-          key !== 'timeline')
+        (this._showReferences || key !== 'references')
     )
   }
 

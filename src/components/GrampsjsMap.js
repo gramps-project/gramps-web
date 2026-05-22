@@ -178,6 +178,22 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
+  jumpTo(latitude, longitude, zoom) {
+    if (this._map !== undefined) {
+      this._map.jumpTo({center: [longitude, latitude], zoom})
+    }
+  }
+
+  flyTo(latitude, longitude) {
+    if (this._map !== undefined) {
+      this._map.flyTo({
+        center: [longitude, latitude],
+        zoom: Math.max(this._map.getZoom(), 14),
+        speed: 2.5,
+      })
+    }
+  }
+
   updated(changed) {
     if (
       changed.has('year') &&
@@ -190,24 +206,6 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         this._map.filterByDate(`${this.year}`)
       } catch (e) {
         // Ignore errors if filterByDate fails (e.g. style does not support it)
-      }
-      return
-    }
-    if (
-      this._map !== undefined &&
-      (changed.has('latitude') ||
-        changed.has('longitude') ||
-        changed.has('mapid') ||
-        changed.has('zoom'))
-    ) {
-      if (this.latMin === 0 && this.latMax === 0) {
-        this._map.setZoom(this.zoom)
-        this._map.panTo([this.longitude, this.latitude])
-      } else {
-        this._map.fitBounds([
-          [this.longMin, this.latMin],
-          [this.longMax, this.latMax],
-        ])
       }
     }
   }
