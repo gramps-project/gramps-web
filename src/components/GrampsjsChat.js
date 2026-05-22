@@ -202,19 +202,25 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
 
   _pollChatTask(taskId) {
     return new Promise((resolve, reject) => {
+      let settled = false
       updateTaskStatus(
         this.appState.auth,
         taskId,
         status => {
           const doneStates = ['FAILURE', 'REVOKED', 'SUCCESS']
           if (doneStates.includes(status?.state)) {
+            settled = true
             resolve(status)
           }
         },
         1000,
         120,
         () => this.isConnected
-      ).catch(reject)
+      )
+        .then(() => {
+          if (!settled) reject(new Error('Chat task timed out'))
+        })
+        .catch(reject)
     })
   }
 
