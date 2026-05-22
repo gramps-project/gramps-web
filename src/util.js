@@ -1,5 +1,7 @@
 /* eslint-disable no-bitwise */
 import {html} from 'lit'
+import {unsafeHTML} from 'lit/directives/unsafe-html.js'
+import {marked} from 'marked'
 import '@material/mwc-icon'
 import dayjs from 'dayjs/esm'
 import relativeTime from 'dayjs/esm/plugin/relativeTime'
@@ -916,32 +918,8 @@ export function linkUrls(text, textOnly = true) {
   )}`
 }
 
-export function renderMarkdownLinks(markdown) {
-  // Regular expression to match markdown links
-  const markdownLinkPattern = /\[([^\]]+)\]\(([^)]+)\)/g
-
-  // Split the markdown into segments, with text and links separated
-  const segments = []
-  let lastIndex = 0
-  let match
-
-  // eslint-disable-next-line no-cond-assign
-  while ((match = markdownLinkPattern.exec(markdown)) !== null) {
-    // Push the text before the link
-    if (match.index > lastIndex) {
-      segments.push(markdown.substring(lastIndex, match.index))
-    }
-    // Push the link as an HTML node
-    segments.push(html`<a href="${match[2]}">${match[1]}</a>`)
-    lastIndex = markdownLinkPattern.lastIndex
-  }
-
-  // Push the remaining text after the last link
-  if (lastIndex < markdown.length) {
-    segments.push(markdown.substring(lastIndex))
-  }
-
-  return segments
+export function renderMarkdown(markdown) {
+  return html`${unsafeHTML(marked.parse(markdown))}`
 }
 
 export function getGregorianYears(date) {

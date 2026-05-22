@@ -43,9 +43,55 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .slot-wrap {
-          white-space: pre-wrap;
           flex-grow: 1;
           overflow: hidden;
+        }
+
+        .slot-wrap p {
+          margin: 0.4em 0;
+        }
+
+        .slot-wrap p:first-child {
+          margin-top: 0;
+        }
+
+        .slot-wrap p:last-child {
+          margin-bottom: 0;
+        }
+
+        .slot-wrap ul,
+        .slot-wrap ol {
+          margin: 0.4em 0;
+          padding-left: 1.5em;
+        }
+
+        .slot-wrap h1,
+        .slot-wrap h2,
+        .slot-wrap h3 {
+          margin: 0.6em 0 0.2em;
+          font-size: 1em;
+          font-weight: 600;
+        }
+
+        .slot-wrap code {
+          font-family: monospace;
+          background: var(--grampsjs-color-shade-230);
+          padding: 0.1em 0.3em;
+          border-radius: 3px;
+          font-size: 0.9em;
+        }
+
+        .slot-wrap pre {
+          background: var(--grampsjs-color-shade-230);
+          padding: 0.6em 0.8em;
+          border-radius: 6px;
+          overflow-x: auto;
+          margin: 0.4em 0;
+        }
+
+        .slot-wrap pre code {
+          background: none;
+          padding: 0;
         }
 
         .avatar {
