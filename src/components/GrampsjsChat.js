@@ -276,8 +276,10 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
       if (status?.state === 'SUCCESS' && status?.result_object?.response) {
         message = {role: 'ai', message: status.result_object.response}
       } else if (!message) {
-        const errMsg = status?.info || 'An error occurred'
-        fireError(errMsg, status?.result_object ?? {})
+        const errMsg =
+          (status?.state === 'FAILURE' && status.result_object) ||
+          'An error occurred'
+        fireError(errMsg)
         message = {role: 'error', message: this._(errMsg)}
       }
     } else if (data?.data?.response) {
@@ -337,8 +339,10 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
       if (status?.state === 'SUCCESS' && status?.result_object?.response) {
         message = {role: 'ai', message: status.result_object.response}
       } else if (status) {
-        const errMsg = status?.info || 'An error occurred'
-        fireError(errMsg, status?.result_object ?? {})
+        const errMsg =
+          (status?.state === 'FAILURE' && status.result_object) ||
+          'An error occurred'
+        fireError(errMsg)
         message = {role: 'error', message: this._(errMsg)}
       }
       if (message) {
