@@ -10,7 +10,6 @@ import '@material/web/dialog/dialog.js'
 import {sharedStyles} from '../SharedStyles.js'
 import '../views/GrampsjsViewObjectNotes.js'
 import '../views/GrampsjsViewSourceCitations.js'
-import '../views/GrampsjsViewPersonTimeline.js'
 import './GrampsjsAddresses.js'
 import './GrampsjsAssociations.js'
 import './GrampsjsAttributes.js'
@@ -356,8 +355,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
       _objectEndpoint: {type: String},
       _objectIcon: {type: String},
       _showReferences: {type: Boolean},
-      _showPersonTimeline: {type: Boolean},
-      _showFamilyTimeline: {type: Boolean},
     }
   }
 
@@ -369,8 +366,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     this._objectsName = 'Objects'
     this._objectIcon = ''
     this._showReferences = true
-    this._showPersonTimeline = false
-    this._showFamilyTimeline = false
     this._sectionObserver = null
     this._currentVisibleSection = ''
   }
@@ -863,10 +858,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     return Object.keys(_allTabs).filter(
       key =>
         _allTabs[key].condition(this.data) &&
-        (this._showReferences || key !== 'references') &&
-        (this._showFamilyTimeline ||
-          this._showPersonTimeline ||
-          key !== 'timeline')
+        (this._showReferences || key !== 'references')
     )
   }
 

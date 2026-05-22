@@ -48,7 +48,6 @@ export class GrampsjsPerson extends GrampsjsObject {
     this._objectEndpoint = 'people'
     this._objectIcon = 'person'
     this._showReferences = false
-    this._showPersonTimeline = true
     this.timelineData = []
     this._showFamilyEvents = false
     this._showRelatedEvents = false
