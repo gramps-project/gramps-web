@@ -6,35 +6,33 @@ import {ExpirationPlugin} from 'workbox-expiration'
 
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('[SW] skipWaiting triggered')
     event.waitUntil(self.skipWaiting())
   }
 })
 
-self.addEventListener('activate', event => {
-  // Take control of all clients immediately
-  event.waitUntil(self.clients.claim())
-})
+// No clients.claim(): the old SW terminating fires controllerchange on open
+// pages, which triggers a reload — without the auto-reload on first install
+// that clients.claim() causes.
 
 precacheAndRoute(self.__WB_MANIFEST)
 
-// Try the network first with redirect:manual so cross-origin auth redirects
-// (e.g. Cloudflare Access) are passed through to the browser. Falls back to
-// precached index.html for SPA routing and offline use.
+// Probe the network only for cross-origin auth redirects (e.g. Cloudflare
+// Access). All other responses are discarded: always serve index.html from
+// the precache so HTML and JS chunks come from the same build version.
 registerRoute(
   new NavigationRoute(
     async ({request}) => {
       try {
         const response = await fetch(request, {redirect: 'manual'})
         if (response.type === 'opaqueredirect') {
-          return response
-        }
-        // Return successful network response
-        if (response.ok) {
+          console.log('[SW] NavigationRoute: opaque redirect — passing through')
           return response
         }
       } catch {
-        // offline
+        // offline — fall through to precache
       }
+      console.log('[SW] NavigationRoute: serving index.html from precache')
       return matchPrecache('/index.html')
     },
     {denylist: [/^\/api.*/]}
