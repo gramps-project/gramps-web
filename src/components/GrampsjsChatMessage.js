@@ -12,8 +12,39 @@ import {renderIconSvg} from '../icons.js'
 
 marked.use({breaks: true})
 
-const renderMarkdown = markdown =>
-  html`${unsafeHTML(DOMPurify.sanitize(marked.parse(markdown)))}`
+const DOMPURIFY_CONFIG = {
+  ALLOWED_TAGS: [
+    'p',
+    'br',
+    'strong',
+    'em',
+    'b',
+    'i',
+    'ul',
+    'ol',
+    'li',
+    'blockquote',
+    'h1',
+    'h2',
+    'h3',
+    'code',
+    'pre',
+    'a',
+  ],
+  ALLOWED_ATTR: ['href'],
+}
+
+const markdownCache = new Map()
+
+const renderMarkdown = markdown => {
+  if (!markdownCache.has(markdown)) {
+    markdownCache.set(
+      markdown,
+      DOMPurify.sanitize(marked.parse(markdown), DOMPURIFY_CONFIG)
+    )
+  }
+  return html`${unsafeHTML(markdownCache.get(markdown))}`
+}
 
 class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -156,9 +187,12 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
             `
           : ''}
         <slot name="no-wrap"></slot>
-        <div class="${this.type === 'ai' ? 'slot-wrap markdown' : 'slot-wrap'}">
-          ${this.type === 'ai' ? renderMarkdown(this.message) : this.message}
-        </div>
+        <!-- prettier-ignore -->
+        <div class="${this.type === 'ai'
+          ? 'slot-wrap markdown'
+          : 'slot-wrap'}">${this.type === 'ai'
+          ? renderMarkdown(this.message)
+          : this.message}</div>
       </div>
     `
   }

@@ -258,7 +258,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
       try {
         status = await this._pollChatTask(data.task.id)
       } catch (e) {
-        fireError(e?.message || 'An error occurred')
+        fireError(e?.message || this._('An error occurred'))
         message = {role: 'error', message: this._('An error occurred')}
       }
       if (status?.state === 'SUCCESS' && status?.result_object?.response) {
