@@ -1,12 +1,13 @@
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-button'
+import '@material/web/button/filled-button.js'
+import {mdiNotificationClearAll} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsChatPrompt.js'
 import './GrampsjsChatMessage.js'
-import {setChatHistory, getChatHistory} from '../api.js'
-import {renderMarkdownLinks} from '../util.js'
+import {setChatHistory, getChatHistory, updateTaskStatus} from '../api.js'
+import {fireEvent} from '../util.js'
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -117,13 +118,17 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     return html`
         <div class="outer">
           <div class="clear-btn">
-            <mwc-button
-              raised
-              label="${this._('New')}"
-              icon="clear_all"
+            <md-filled-button
               @click="${this._handleClear}"
               ?disabled=${this.messages.length === 0}
-            ></mwc-button>
+            >
+              <grampsjs-icon
+                slot="icon"
+                path="${mdiNotificationClearAll}"
+                color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+              ></grampsjs-icon>
+              ${this._('New')}
+            </md-filled-button>
           </div>
           <div class="container">
             <div class="conversation">
@@ -146,11 +151,9 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
                   message => html`
                     <grampsjs-chat-message
                       type="${message.role}"
+                      .message="${message.message}"
                       .appState="${this.appState}"
-                      >${renderMarkdownLinks(
-                        message.message
-                      )}</grampsjs-chat-message
-                    >
+                    ></grampsjs-chat-message>
                   `
                 )}
             </div>
@@ -202,6 +205,36 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     this._generateResponse()
   }
 
+  _pollChatTask(taskId) {
+    return new Promise((resolve, reject) => {
+      let settled = false
+      updateTaskStatus(
+        this.appState.auth,
+        taskId,
+        status => {
+          const doneStates = ['FAILURE', 'REVOKED', 'SUCCESS']
+          if (doneStates.includes(status?.state)) {
+            settled = true
+            resolve(status)
+          }
+        },
+        1000,
+        120,
+        () => this.isConnected
+      )
+        .then(() => {
+          if (!settled) {
+            reject(
+              new Error(
+                this.isConnected ? 'Chat task timed out' : 'Chat cancelled'
+              )
+            )
+          }
+        })
+        .catch(reject)
+    })
+  }
+
   async _generateResponse() {
     this.loading = true
     const payload = {
@@ -210,21 +243,41 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     if (this.messages.length > 1) {
       payload.history = this.messages.slice(0, this.messages.length - 1)
     }
-    const data = await this.appState.apiPost('/api/chat/', payload, {
-      dbChanged: false,
-      saving: false,
-    })
+    const data = await this.appState.apiPost(
+      '/api/chat/?background=1',
+      payload,
+      {
+        dbChanged: false,
+        saving: false,
+      }
+    )
+    const fireError = (msg, detail = {}) =>
+      fireEvent(this, 'grampsjs:error', {message: msg, silent: true, detail})
+
     let message
-    if ('error' in data || !data?.data?.response) {
-      message = {
-        role: 'error',
-        message: this._(data.error),
+    if ('error' in data) {
+      fireError(data.error, data.errorDetail ?? {})
+      message = {role: 'error', message: this._(data.error)}
+    } else if (data?.task?.id) {
+      let status
+      try {
+        status = await this._pollChatTask(data.task.id)
+      } catch (e) {
+        fireError(e?.message || this._('An error occurred'))
+        message = {role: 'error', message: this._('An error occurred')}
       }
+      if (status?.state === 'SUCCESS' && status?.result_object?.response) {
+        message = {role: 'ai', message: status.result_object.response}
+      } else if (!message) {
+        const errMsg = status?.info || 'An error occurred'
+        fireError(errMsg, status?.result_object ?? {})
+        message = {role: 'error', message: this._(errMsg)}
+      }
+    } else if (data?.data?.response) {
+      message = {role: 'ai', message: data.data.response}
     } else {
-      message = {
-        role: 'ai',
-        message: data.data.response,
-      }
+      fireError('An error occurred')
+      message = {role: 'error', message: this._('An error occurred')}
     }
 
     this.loading = false
