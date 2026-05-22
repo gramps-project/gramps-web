@@ -334,5 +334,11 @@
     "Display preferences saved on this device": "Настройки отображения, сохраненные на этом устройстве",
     "Recently changed": "Недавно измененные",
     "Recently browsed": "Недавно просмотренные",
-    "Edit enclosing place": "Редактирование связанного места"
+    "Edit enclosing place": "Редактирование связанного места",
+    "Zoom in": "Приблизить",
+    "Zoom out": "Отдалить",
+    "Show on timeline": "Показать на временной шкале",
+    "Open in map": "Открыть на карте",
+    "An error occurred": "Произошла ошибка",
+    "Assistant": "Помощник"
 }
