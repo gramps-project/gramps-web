@@ -1,5 +1,6 @@
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-button'
+import '@material/web/button/filled-button.js'
+import {mdiNotificationClearAll} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -117,13 +118,17 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     return html`
         <div class="outer">
           <div class="clear-btn">
-            <mwc-button
-              raised
-              label="${this._('New')}"
-              icon="clear_all"
+            <md-filled-button
               @click="${this._handleClear}"
               ?disabled=${this.messages.length === 0}
-            ></mwc-button>
+            >
+              <grampsjs-icon
+                slot="icon"
+                path="${mdiNotificationClearAll}"
+                color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+              ></grampsjs-icon>
+              ${this._('New')}
+            </md-filled-button>
           </div>
           <div class="container">
             <div class="conversation">
