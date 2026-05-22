@@ -335,5 +335,9 @@
     "Changes here affect all users of this tree.": "Ändringar här påverkar alla användare av detta träd.",
     "Display preferences saved on this device": "Visningsinställningar sparade på den här enheten",
     "Recently changed": "Nyligen ändrad",
-    "Recently browsed": "Nyligen bläddrade"
+    "Recently browsed": "Nyligen bläddrade",
+    "Zoom in": "Zooma in",
+    "Zoom out": "Zooma ut",
+    "Show on timeline": "Visa på tidslinjen",
+    "Open in map": "Öppna på kartan"
 }
