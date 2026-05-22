@@ -6,6 +6,7 @@ import {mdiFamilyTree} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {renderIconSvg} from '../icons.js'
+import {renderMarkdown} from '../util.js'
 
 class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -48,15 +49,11 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .slot-wrap p {
-          margin: 0.4em 0;
+          margin: 0;
         }
 
-        .slot-wrap p:first-child {
-          margin-top: 0;
-        }
-
-        .slot-wrap p:last-child {
-          margin-bottom: 0;
+        .slot-wrap p + p {
+          margin-top: 0.6em;
         }
 
         .slot-wrap ul,
@@ -112,12 +109,14 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       type: {type: String},
+      message: {type: String},
     }
   }
 
   constructor() {
     super()
     this.type = 'human'
+    this.message = ''
   }
 
   render() {
@@ -145,8 +144,9 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
             `
           : ''}
         <slot name="no-wrap"></slot>
-        <!-- prettier-ignore -->
-        <div class="slot-wrap"><slot></slot></div>
+        <div class="slot-wrap">
+          ${this.type === 'ai' ? renderMarkdown(this.message) : this.message}
+        </div>
       </div>
     `
   }

@@ -6,7 +6,7 @@ import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsChatPrompt.js'
 import './GrampsjsChatMessage.js'
 import {setChatHistory, getChatHistory, updateTaskStatus} from '../api.js'
-import {renderMarkdown, fireEvent} from '../util.js'
+import {fireEvent} from '../util.js'
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -146,9 +146,9 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
                   message => html`
                     <grampsjs-chat-message
                       type="${message.role}"
+                      message="${message.message}"
                       .appState="${this.appState}"
-                      >${renderMarkdown(message.message)}</grampsjs-chat-message
-                    >
+                    ></grampsjs-chat-message>
                   `
                 )}
             </div>
