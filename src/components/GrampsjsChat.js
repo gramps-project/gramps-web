@@ -125,7 +125,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
               <grampsjs-icon
                 slot="icon"
                 path="${mdiNotificationClearAll}"
-                color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+                color="currentColor"
               ></grampsjs-icon>
               ${this._('New')}
             </md-filled-button>
