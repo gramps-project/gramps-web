@@ -9,7 +9,7 @@ import '@material/web/divider/divider'
 
 import {
   mdiFamilyTree,
-  mdiChat,
+  mdiCreation,
   mdiDna,
   mdiHome,
   mdiImage,
@@ -208,6 +208,17 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       >
         ${this._icon(mdiImage, p === 'medialist')} ${this._('Media')}
       </md-list-item>
+      ${this.canUseChat
+        ? html`
+            <md-list-item
+              type="link"
+              href="${BASE_DIR}/chat"
+              ?selected="${p === 'chat'}"
+            >
+              ${this._icon(mdiCreation, p === 'chat')} ${this._('Assistant')}
+            </md-list-item>
+          `
+        : ''}
       <md-divider inset></md-divider>
       <md-list-item
         type="link"
@@ -245,17 +256,6 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       >
         ${this._icon(mdiDownload, p === 'export')} ${this._('Export')}
       </md-list-item>
-      ${this.canUseChat
-        ? html`
-            <md-list-item
-              type="link"
-              href="${BASE_DIR}/chat"
-              ?selected="${p === 'chat'}"
-            >
-              ${this._icon(mdiChat, p === 'chat')} ${this._('Chat')}
-            </md-list-item>
-          `
-        : ''}
       <md-divider inset></md-divider>
       ${this.appState.permissions.canViewPrivate
         ? html`

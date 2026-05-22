@@ -89,7 +89,7 @@ const PAGE_TITLES = {
   'dna-matches': 'DNA',
   'dna-chromosome': 'DNA',
   ydna: 'DNA',
-  chat: 'Chat',
+  chat: 'Assistant',
   recent: 'History',
   bookmarks: '_Bookmarks',
   tasks: 'Tasks',
@@ -401,6 +401,10 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Lists')}</dd>
                 <dt><span>g</span> <span>i</span></dt>
                 <dd>${this._('Media')}</dd>
+                ${this.canUseChat
+                  ? html`<dt><span>g</span> <span>a</span></dt>
+                      <dd>${this._('Assistant')}</dd>`
+                  : ''}
                 <dt><span>g</span> <span>r</span></dt>
                 <dd>${this._('History')}</dd>
                 <dt><span>g</span> <span>f</span></dt>
@@ -409,10 +413,6 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Tasks')}</dd>
                 <dt><span>g</span> <span>e</span></dt>
                 <dd>${this._('Export')}</dd>
-                ${this.canUseChat
-                  ? html`<dt><span>g</span> <span>a</span></dt>
-                      <dd>${this._('Chat')}</dd>`
-                  : ''}
                 <dt><span>g</span> <span>s</span></dt>
                 <dd>${this._('Settings')}</dd>
               </dl>
