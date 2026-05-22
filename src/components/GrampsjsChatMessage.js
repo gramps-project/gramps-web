@@ -34,10 +34,14 @@ const DOMPURIFY_CONFIG = {
   ALLOWED_ATTR: ['href'],
 }
 
+const MARKDOWN_CACHE_MAX = 30
 const markdownCache = new Map()
 
 const renderMarkdown = markdown => {
   if (!markdownCache.has(markdown)) {
+    if (markdownCache.size >= MARKDOWN_CACHE_MAX) {
+      markdownCache.delete(markdownCache.keys().next().value)
+    }
     markdownCache.set(
       markdown,
       DOMPurify.sanitize(marked.parse(markdown), DOMPURIFY_CONFIG)
