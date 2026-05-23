@@ -11,21 +11,21 @@ self.addEventListener('message', event => {
   }
 })
 
-// No clients.claim(): the old SW terminating fires controllerchange on open
-// pages, which triggers a reload — without the auto-reload on first install
-// that clients.claim() causes.
+// No clients.claim(): SKIP_WAITING → controllerchange → reload (via PwaUpdateAvailable)
+// without the unwanted auto-reload on first install that clients.claim() causes.
 
 precacheAndRoute(self.__WB_MANIFEST)
 
-// Try the network first with redirect:manual so cross-origin auth redirects
-// (e.g. Cloudflare Access) are passed through to the browser. On success,
-// return the fresh network response so navigation always reflects the current
-// deployment. Falls back to precached index.html when offline.
+// Always fetch a fresh index.html (cache:'no-cache') so a new deployment's
+// JS filenames are never blocked by a stale HTTP-cached index.html.
+// Opaque redirects (e.g. Cloudflare Access) pass through; offline falls back
+// to the precached index.html.
 registerRoute(
   new NavigationRoute(
     async ({request}) => {
       try {
-        const response = await fetch(request, {redirect: 'manual'})
+        const revalidatingRequest = new Request(request, {cache: 'no-cache'})
+        const response = await fetch(revalidatingRequest, {redirect: 'manual'})
         if (response.type === 'opaqueredirect') {
           console.log('[SW] NavigationRoute: opaque redirect - passing through')
           return response

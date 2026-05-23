@@ -17,7 +17,10 @@ const developmentMode = process.env.ROLLUP_WATCH === 'true'
 
 const outputDir = 'dist'
 
-const swRegistrationScript = `<script>if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').then(function(){console.log('ServiceWorker registered.')}).catch(function(err){console.log('ServiceWorker registration failed: ',err)})})}</script>`
+// updateViaCache:'none' tells the browser (especially Firefox) to always
+// bypass its HTTP cache when checking for a new sw.js, so updates are
+// detected on the next page load rather than after the Cache-Control TTL.
+const swRegistrationScript = `<script>if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(function(){console.log('ServiceWorker registered.')}).catch(function(err){console.log('ServiceWorker registration failed: ',err)})})}</script>`
 
 export default {
   input: './index.html',
