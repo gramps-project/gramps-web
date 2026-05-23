@@ -1,25 +1,26 @@
-import {precacheAndRoute, matchPrecache} from 'workbox-precaching'
+import {precacheAndRoute} from 'workbox-precaching'
 import {registerRoute, NavigationRoute} from 'workbox-routing'
 import {CacheFirst} from 'workbox-strategies'
 import {CacheableResponsePlugin} from 'workbox-cacheable-response'
 import {ExpirationPlugin} from 'workbox-expiration'
 
+// Skip waiting immediately so the new SW activates without user interaction.
+// clients.claim() fires controllerchange on all open tabs → PwaUpdateAvailable
+// reloads them, recovering any tab stuck on a broken page.
+self.addEventListener('install', () => self.skipWaiting())
+self.addEventListener('activate', event =>
+  event.waitUntil(self.clients.claim())
+)
+
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('[SW] skipWaiting triggered')
-    event.waitUntil(self.skipWaiting())
+    self.skipWaiting()
   }
 })
 
-// No clients.claim(): SKIP_WAITING → controllerchange → reload (via PwaUpdateAvailable)
-// without the unwanted auto-reload on first install that clients.claim() causes.
-
 precacheAndRoute(self.__WB_MANIFEST)
 
-// Always fetch a fresh index.html (cache:'no-cache') so a new deployment's
-// JS filenames are never blocked by a stale HTTP-cached index.html.
-// Opaque redirects (e.g. Cloudflare Access) pass through; offline falls back
-// to the precached index.html.
+// Always fetch index.html fresh (cache:'no-cache'). Opaque redirects pass through.
 registerRoute(
   new NavigationRoute(
     async ({request}) => {
@@ -36,9 +37,9 @@ registerRoute(
           return response
         }
       } catch {
-        // offline — fall through to precache
+        // offline
       }
-      return matchPrecache('/index.html')
+      return fetch(new Request(request, {cache: 'no-cache'}))
     },
     {denylist: [/^\/api.*/]}
   )

@@ -39,7 +39,12 @@ export default {
         swDest: path.join(outputDir, 'sw.js'),
         globDirectory: outputDir,
         globPatterns: ['**/*.{html,js,css,webmanifest}'],
-        globIgnores: ['polyfills/*.js', 'legacy-*.js', 'nomodule-*.js'],
+        globIgnores: [
+          'polyfills/*.js',
+          'legacy-*.js',
+          'nomodule-*.js',
+          'index.html',
+        ],
       }),
     ],
   },
