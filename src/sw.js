@@ -27,7 +27,9 @@ registerRoute(
         const revalidatingRequest = new Request(request, {cache: 'no-cache'})
         const response = await fetch(revalidatingRequest, {redirect: 'manual'})
         if (response.type === 'opaqueredirect') {
-          console.log('[SW] NavigationRoute: opaque redirect - passing through')
+          console.log(
+            '[SW]  NavigationRoute: opaque redirect - passing through'
+          )
           return response
         }
         if (response.ok) {
