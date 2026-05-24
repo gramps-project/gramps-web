@@ -55,7 +55,7 @@ const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
 
-const MINIMUM_API_VERSION = '3.11.0'
+const MINIMUM_API_VERSION = '3.13.0'
 
 // Pages where the Gramps ID is used as the page title
 const OBJECT_PAGES = new Set([
@@ -389,8 +389,11 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Blog')}</dd>
                 <dt><span>g</span> <span>c</span></dt>
                 <dd>${this._('Family Tree')}</dd>
-                <dt><span>g</span> <span>t</span></dt>
-                <dd>${this._('Timeline')}</dd>
+                ${!apiVersionAtLeast(this.appState.dbInfo, 3, 14) &&
+                this.appState.dbInfo?.gramps_webapi?.version
+                  ? ''
+                  : html`<dt><span>g</span> <span>t</span></dt>
+                      <dd>${this._('Timeline')}</dd>`}
                 <dt><span>g</span> <span>m</span></dt>
                 <dd>${this._('Map')}</dd>
                 ${this.appState.frontendConfig.hideDNALink
@@ -896,7 +899,6 @@ export class GrampsJs extends LitElement {
   }
 
   _loadTreeConfig() {
-    if (!apiVersionAtLeast(this.appState.dbInfo, 3, 13)) return
     this.appState.apiGet('/api/trees/-/config').then(data => {
       if ('data' in data) {
         this.appState.cacheTreeConfig(data.data)
@@ -1185,7 +1187,12 @@ export class GrampsJs extends LitElement {
       } else if (e.key === 'f') {
         fireEvent(this, 'nav', {path: 'bookmarks'})
       } else if (e.key === 't') {
-        fireEvent(this, 'nav', {path: 'timeline'})
+        if (
+          apiVersionAtLeast(this.appState.dbInfo, 3, 14) ||
+          !this.appState.dbInfo?.gramps_webapi?.version
+        ) {
+          fireEvent(this, 'nav', {path: 'timeline'})
+        }
       } else if (e.key === 'j') {
         fireEvent(this, 'nav', {path: 'tasks'})
       } else if (e.key === 'e') {
