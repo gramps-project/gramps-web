@@ -13,6 +13,12 @@ import {mdiInformation, mdiClose} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent, stripHtml} from '../util.js'
+import {
+  charLength,
+  charSlice,
+  domOffsetToChar,
+  charToDomOffset,
+} from '../charUtils.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {saveDraft, getDraft, clearDraft, clearDraftsWithPrefix} from '../api.js'
 import './GrampsjsFormSelectObject.js'
@@ -82,6 +88,7 @@ function _applyTags(str, tags) {
 }
 
 // get the number of text characters before a node in a parent
+// (returns a Unicode code-point count; see charUtils.js)
 function getNumCharBeforeNode(node, parent) {
   let n = 0
   let found = false
@@ -95,7 +102,7 @@ function getNumCharBeforeNode(node, parent) {
         n += nChild
         found = foundChild
       } else if (childNode.nodeType !== Node.COMMENT_NODE) {
-        n += childNode.textContent.length
+        n += charLength(childNode.textContent)
       }
     }
   })
@@ -107,21 +114,33 @@ function getNodeAtNumChar(parent, num) {
   let n = 0
   let found = false
   let node = null
+  let nodeLen = 0 // code-point length of the found node (avoids recomputing it)
   parent.childNodes.forEach(childNode => {
     if (!found) {
       if (childNode.nodeType !== Node.COMMENT_NODE) {
-        n += childNode.textContent.length
+        const len = charLength(childNode.textContent)
+        n += len
         if (n >= num) {
           found = true
           node = childNode
+          nodeLen = len
         }
       }
     }
   })
   if (node !== null && node.hasChildNodes()) {
-    return getNodeAtNumChar(node, num - (n - node.textContent.length))
+    return getNodeAtNumChar(node, num - (n - nodeLen))
   }
   return node
+}
+
+// Return the Unicode code-point offset of a DOM Range endpoint
+// (container + domOffset) measured from the start of root.
+function rangeCharPos(container, domOffset, root) {
+  const text = container.nodeValue ?? container.textContent ?? ''
+  return (
+    getNumCharBeforeNode(container, root)[0] + domOffsetToChar(text, domOffset)
+  )
 }
 
 class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
@@ -432,43 +451,40 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     ) {
       const div = this.shadowRoot.querySelector('div.note')
       const [range] = e.getTargetRanges()
-      const nCharBefore1 = getNumCharBeforeNode(range.startContainer, div)[0]
+      const cpStart = rangeCharPos(range.startContainer, range.startOffset, div)
       if (e.inputType === 'insertText') {
         if (range.startOffset !== range.endOffset) {
-          const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
           this._deleteText(
-            nCharBefore1 + range.startOffset,
-            nCharBefore2 + range.endOffset
+            cpStart,
+            rangeCharPos(range.endContainer, range.endOffset, div)
           )
-          this.cursorPosition = [nCharBefore1 + range.startOffset]
+          this.cursorPosition = [cpStart]
         }
-        this._insertText(e.data, nCharBefore1 + range.startOffset)
-        this.cursorPosition = [nCharBefore1 + range.startOffset + e.data.length]
+        this._insertText(e.data, cpStart)
+        this.cursorPosition = [cpStart + charLength(e.data)]
       }
       if (e.inputType === 'insertFromPaste') {
         if (range.startOffset !== range.endOffset) {
-          const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
           this._deleteText(
-            nCharBefore1 + range.startOffset,
-            nCharBefore2 + range.endOffset
+            cpStart,
+            rangeCharPos(range.endContainer, range.endOffset, div)
           )
         }
         const data = stripHtml(e.dataTransfer.getData('text/plain'))
-        this._insertText(data, nCharBefore1 + range.startOffset)
-        this.cursorPosition = [nCharBefore1 + range.startOffset + data.length]
+        this._insertText(data, cpStart)
+        this.cursorPosition = [cpStart + charLength(data)]
       } else if (
         e.inputType === 'insertParagraph' ||
         e.inputType === 'insertLineBreak'
       ) {
         if (range.startOffset !== range.endOffset) {
-          const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
           this._deleteText(
-            nCharBefore1 + range.startOffset,
-            nCharBefore2 + range.endOffset
+            cpStart,
+            rangeCharPos(range.endContainer, range.endOffset, div)
           )
         }
-        this._insertText('\n', nCharBefore1 + range.startOffset)
-        this.cursorPosition = [nCharBefore1 + range.startOffset + 1]
+        this._insertText('\n', cpStart)
+        this.cursorPosition = [cpStart + 1]
       } else if (
         [
           'deleteContentBackward',
@@ -476,12 +492,11 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
           'deleteByCut',
         ].includes(e.inputType)
       ) {
-        const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
         this._deleteText(
-          nCharBefore1 + range.startOffset,
-          nCharBefore2 + range.endOffset
+          cpStart,
+          rangeCharPos(range.endContainer, range.endOffset, div)
         )
-        this.cursorPosition = [nCharBefore1 + range.startOffset]
+        this.cursorPosition = [cpStart]
       } else if (e.inputType === 'formatBold') {
         this._handleFormat('bold')
       } else if (e.inputType === 'formatItalic') {
@@ -505,18 +520,19 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         this.shadowRoot.getSelection().getRangeAt(0)
       : // Firefox
         document.getSelection().getRangeAt(0)
-    const nCharBefore1 = getNumCharBeforeNode(
+    const cpStart = rangeCharPos(
       range.startContainer,
+      range.startOffset,
       this._editorDiv
-    )[0]
-    this._insertText(e.data, nCharBefore1 + range.startOffset)
-    this.cursorPosition = [nCharBefore1 + range.startOffset]
+    )
+    this._insertText(e.data, cpStart)
+    this.cursorPosition = [cpStart]
   }
 
   _handleLink(pos) {
     this._dialogContent = {
       pos,
-      selectedText: this.data.string.slice(pos[0], pos[1]),
+      selectedText: charSlice(this.data.string, pos[0], pos[1]),
     }
     this._openDialog()
   }
@@ -612,11 +628,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         this.shadowRoot.getSelection().getRangeAt(0)
       : // Firefox
         document.getSelection().getRangeAt(0)
-    const nCharBefore1 = getNumCharBeforeNode(range.startContainer, div)[0]
-    const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
     const pos = [
-      nCharBefore1 + range.startOffset,
-      nCharBefore2 + range.endOffset,
+      rangeCharPos(range.startContainer, range.startOffset, div),
+      rangeCharPos(range.endContainer, range.endOffset, div),
     ]
     if (isBooleanTag(type)) {
       if (this._hasTag(type, pos)) {
@@ -848,28 +862,27 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       .filter(tag => tag.ranges.length > 0)
   }
 
-  // insert string at position
+  // insert string at position (position is a Unicode code-point offset)
   _insertText(str, position) {
+    const strLen = charLength(str)
     this.data = {
       ...this.data,
-      // string is old data with str inserted in between
       string:
-        this.data.string.slice(0, position) +
+        charSlice(this.data.string, 0, position) +
         str +
-        this.data.string.slice(position),
-      // for tags, need to shift by str.length all values after position
+        charSlice(this.data.string, position),
       tags: this._cleanTags(
         this.data.tags.map(tag => ({
           ...tag,
           ranges: tag.ranges.map(range =>
-            range.map(x => (x < position ? x : x + str.length))
+            range.map(x => (x < position ? x : x + strLen))
           ),
         }))
       ),
     }
   }
 
-  // remove string between positions
+  // remove string between positions (posStart/posEnd are Unicode code-point offsets)
   _deleteText(posStart, posEnd) {
     const d = posEnd - posStart
     if (d <= 0) {
@@ -877,9 +890,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     }
     this.data = {
       ...this.data,
-      // string is old data with str inserted in between
       string:
-        this.data.string.slice(0, posStart) + this.data.string.slice(posEnd),
+        charSlice(this.data.string, 0, posStart) +
+        charSlice(this.data.string, posEnd),
       // for tags, need to shift by str.length all values after position
       tags: this._cleanTags(
         this.data.tags.map(tag => ({
@@ -902,19 +915,28 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     const nodeStart = getNodeAtNumChar(div, this.cursorPosition[0])
     if (nodeStart !== null) {
       const offsetStart = getNumCharBeforeNode(nodeStart, div)[0]
+      // cursorPosition is in code points; convert to UTF-16 for the DOM API
+      const nodeStartText = nodeStart.nodeValue ?? nodeStart.textContent ?? ''
       // no selection but only cursor
       if (this.cursorPosition.length === 1) {
-        this._setCursor(nodeStart, this.cursorPosition[0] - offsetStart)
+        this._setCursor(
+          nodeStart,
+          charToDomOffset(nodeStartText, this.cursorPosition[0] - offsetStart)
+        )
       } else {
         // set selection range
         const nodeEnd = getNodeAtNumChar(div, this.cursorPosition[1])
         if (nodeEnd !== null) {
           const offsetEnd = getNumCharBeforeNode(nodeEnd, div)[0]
+          const nodeEndText = nodeEnd.nodeValue ?? nodeEnd.textContent ?? ''
           this._setSelection(
             nodeStart,
-            this.cursorPosition[0] - offsetStart,
+            charToDomOffset(
+              nodeStartText,
+              this.cursorPosition[0] - offsetStart
+            ),
             nodeEnd,
-            this.cursorPosition[1] - offsetEnd
+            charToDomOffset(nodeEndText, this.cursorPosition[1] - offsetEnd)
           )
         }
       }
@@ -959,7 +981,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     tags.forEach(tag => {
       const [j, t, name, value] = tag
       str = `${str}${
-        j > i ? _applyTags(this.data.string.slice(i, j), activeTags) : ''
+        j > i ? _applyTags(charSlice(this.data.string, i, j), activeTags) : ''
       }`
       if (t === 'start') {
         activeTags.push([name, value])
@@ -968,7 +990,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       }
       i = j
     })
-    str = `${str}${_applyTags(this.data.string.slice(i), activeTags)}`
+    str = `${str}${_applyTags(charSlice(this.data.string, i), activeTags)}`
     // Add zero-width space at the end to make trailing newlines visible
     return `${str}\u200B`
   }
