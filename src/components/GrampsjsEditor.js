@@ -114,19 +114,22 @@ function getNodeAtNumChar(parent, num) {
   let n = 0
   let found = false
   let node = null
+  let nodeLen = 0 // code-point length of the found node (avoids recomputing it)
   parent.childNodes.forEach(childNode => {
     if (!found) {
       if (childNode.nodeType !== Node.COMMENT_NODE) {
-        n += charLength(childNode.textContent)
+        const len = charLength(childNode.textContent)
+        n += len
         if (n >= num) {
           found = true
           node = childNode
+          nodeLen = len
         }
       }
     }
   })
   if (node !== null && node.hasChildNodes()) {
-    return getNodeAtNumChar(node, num - (n - charLength(node.textContent)))
+    return getNodeAtNumChar(node, num - (n - nodeLen))
   }
   return node
 }
