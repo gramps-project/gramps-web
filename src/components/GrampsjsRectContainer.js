@@ -52,7 +52,7 @@ class GrampsjsRectContainer extends GrampsjsAppStateMixin(LitElement) {
         @pointerdown="${this._handleDown}"
         @pointerup="${this._handleUp}"
         @pointermove="${this._handleMove}"
-        @pointerleave="${this._handleUp}"
+        @dragstart="${this._handleDragStart}"
       >
         <slot name="image"></slot>
         ${this.draw ? '' : html`<slot></slot>`}
@@ -61,10 +61,20 @@ class GrampsjsRectContainer extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleDown(e) {
-    if (this.draw) e.preventDefault()
+    if (!this.draw) return
+    e.preventDefault()
     e.stopPropagation()
+    // Capture the pointer so all subsequent move/up events are delivered to
+    // this element even when the pointer leaves it (fixes Firefox pointerleave
+    // firing on child elements) and suppresses the browser's native image drag
+    // (fixes Chrome stealing the drag).
+    e.currentTarget.setPointerCapture(e.pointerId)
     this._drawActive = true
     this._drawStart = this._getRelativeCoords(e)
+  }
+
+  _handleDragStart(e) {
+    if (this.draw) e.preventDefault()
   }
 
   _handleUp() {
