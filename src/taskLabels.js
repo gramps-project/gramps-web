@@ -3,8 +3,8 @@
 // the _() helper at render time).
 //
 // Celery may return either short names ("import_file") or fully-qualified
-// module paths ("gramps_webapi.api.tasks.import_file").  Both forms are
-// listed here; stripTaskPrefix() normalises them before lookup.
+// module paths ("gramps_webapi.api.tasks.import_file").  Only short names are
+// stored here; stripTaskPrefix() normalises fully-qualified names before lookup.
 //
 // For unknown names prettifyTaskName() provides a reasonable fallback.
 

@@ -105,25 +105,27 @@ export function getInitialAppState() {
           result_object: status.result_object ?? null,
         })
         if (doneStates.includes(status.state)) {
+          // Re-read after updateTask so the event payload has the final state.
+          const updatedEntry = activeTasks.get(taskId)
           const eventName =
             status.state === 'SUCCESS' ? 'task:complete' : 'task:error'
-          fireEvent(window, eventName, {taskId, status: entry})
+          fireEvent(window, eventName, {taskId, status: updatedEntry})
           // Add a persistent entry to the notification log.
           if (status.state === 'SUCCESS') {
             addNotification({
               type: 'info',
-              message: entry?.label ?? taskId,
+              message: updatedEntry?.label ?? taskId,
               source: 'task',
               detail: status.result_object ?? {},
-              userName: entry?.userName ?? null,
+              userName: updatedEntry?.userName ?? null,
             })
           } else {
             addNotification({
               type: 'error',
-              message: entry?.label ?? taskId,
+              message: updatedEntry?.label ?? taskId,
               source: 'task',
               detail: {info: status.info, result_object: status.result_object},
-              userName: entry?.userName ?? null,
+              userName: updatedEntry?.userName ?? null,
             })
           }
           setTimeout(() => removeTask(taskId), 10_000)
@@ -139,10 +141,18 @@ export function getInitialAppState() {
   //   <grampsjs-task-progress-indicator> (used for reconnection on remount).
   // options.createdAt: unix seconds; defaults to now.
   // options.userName: display name of the user who started the task, or null.
+  // options.state: initial task state; defaults to 'PENDING'. Pass the
+  //   server-reported state when registering tasks discovered via loadActiveTasks()
+  //   so tasks already in STARTED/PROGRESS don't briefly flash as PENDING.
   function registerTask(
     id,
     label,
-    {createdAt = Date.now() / 1000, taskName = '', userName = null} = {}
+    {
+      createdAt = Date.now() / 1000,
+      taskName = '',
+      userName = null,
+      state = 'PENDING',
+    } = {}
   ) {
     if (activeTasks.has(id)) return // already tracked
     activeTasks.set(id, {
@@ -150,7 +160,7 @@ export function getInitialAppState() {
       label,
       taskName,
       userName,
-      state: 'PENDING',
+      state,
       progress: -1,
       info: null,
       result: null,
@@ -187,6 +197,7 @@ export function getInitialAppState() {
           createdAt,
           taskName: getTaskName(t.name),
           userName: t.user_name ?? null,
+          state: t.state,
         })
       }
     }
