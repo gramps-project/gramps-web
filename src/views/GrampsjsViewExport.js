@@ -185,7 +185,12 @@ export class GrampsjsViewExport extends GrampsjsView {
       prog.errorMessage = data.error
     } else if ('task' in data) {
       // queued task
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      if (taskId)
+        this.appState.registerTask(taskId, 'Export', {
+          taskName: 'exportFile',
+        })
+      prog.taskId = taskId
     } else {
       // eagerly executed task
       this._downloadUrl = data?.data?.url || ''
@@ -205,7 +210,12 @@ export class GrampsjsViewExport extends GrampsjsView {
       prog.errorMessage = data.error
     } else if ('task' in data) {
       // queued task
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      if (taskId)
+        this.appState.registerTask(taskId, 'Export media', {
+          taskName: 'exportMedia',
+        })
+      prog.taskId = taskId
     } else {
       // eagerly executed task
       this._downloadUrl = data?.data?.url || ''

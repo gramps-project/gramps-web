@@ -724,52 +724,6 @@ export function deleteBookmark(endpoint, handle) {
   }
 }
 
-export function getTaskIds() {
-  try {
-    const string = localStorage.getItem('tasks')
-    const data = JSON.parse(string) ?? {}
-    const tree = getTreeId()
-    if (tree) {
-      return data[tree]
-    }
-    return {}
-  } catch (e) {
-    return {}
-  }
-}
-
-export function getAllTaskIds() {
-  try {
-    const string = localStorage.getItem('tasks')
-    const data = JSON.parse(string) ?? {}
-    return data
-  } catch (e) {
-    return {}
-  }
-}
-
-export function addTaskId(taskName, taskId) {
-  const tree = getTreeId()
-  const data = getAllTaskIds()
-  if (!Object.hasOwn(data, tree)) {
-    data[tree] = {[taskName]: taskId}
-  } else {
-    data[tree][taskName] = taskId
-  }
-  const stringData = JSON.stringify(data)
-  localStorage.setItem('tasks', stringData)
-}
-
-export function deleteTaskId(taskName, taskId) {
-  const tree = getTreeId()
-  const data = getAllTaskIds()
-  if (data?.[tree]?.[taskName] === taskId) {
-    delete data[tree][taskName]
-    const stringData = JSON.stringify(data)
-    localStorage.setItem('tasks', stringData)
-  }
-}
-
 export class Auth {
   constructor() {
     this._refreshingTokens = null

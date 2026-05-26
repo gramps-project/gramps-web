@@ -626,7 +626,12 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.setError()
       prog.errorMessage = data.error
     } else if ('task' in data) {
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      if (taskId)
+        this.appState.registerTask(taskId, 'Delete all objects', {
+          taskName: 'deleteObjects',
+        })
+      prog.taskId = taskId
     } else {
       prog.setComplete()
     }
@@ -663,7 +668,23 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.errorMessage = data.error
       this._doneUpdateSearch(semantic)
     } else if ('task' in data) {
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      if (taskId) {
+        let label
+        let taskName
+        if (!semantic) {
+          label = 'Update search index'
+          taskName = 'searchReindexFull'
+        } else if (incremental) {
+          label = 'Update semantic search index'
+          taskName = 'searchReindexIncrementalSemantic'
+        } else {
+          label = 'Regenerate semantic search index'
+          taskName = 'searchReindexFullSemantic'
+        }
+        this.appState.registerTask(taskId, label, {taskName})
+      }
+      prog.taskId = taskId
     } else {
       prog.setComplete()
       this._handleSuccessUpdateSearch(semantic)
@@ -695,7 +716,12 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.setError()
       prog.errorMessage = data.error
     } else if ('task' in data) {
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      if (taskId)
+        this.appState.registerTask(taskId, 'Check and Repair Database', {
+          taskName: 'repairDb',
+        })
+      prog.taskId = taskId
     } else {
       prog.setComplete()
     }

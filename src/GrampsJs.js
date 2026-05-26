@@ -896,6 +896,7 @@ export class GrampsJs extends LitElement {
     this.progress = false
     this.setPermissions()
     this._loadTreeConfig()
+    this.appState.loadActiveTasks()
   }
 
   _loadTreeConfig() {

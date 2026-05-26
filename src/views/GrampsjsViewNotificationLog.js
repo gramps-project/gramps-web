@@ -18,6 +18,7 @@ import {
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTimedelta.js'
+import '../components/GrampsjsTaskProgressIndicator.js'
 
 const TYPE_ICON = {
   error: mdiAlertCircleOutline,
@@ -90,6 +91,11 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
           justify-content: space-between;
           width: 100%;
         }
+
+        .active-tasks {
+          max-width: 600px;
+          margin-bottom: 2em;
+        }
       `,
     ]
   }
@@ -98,6 +104,7 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
     return {
       _notifications: {type: Array},
       _selectedNotification: {type: Object},
+      _activeTasks: {type: Array},
     }
   }
 
@@ -105,16 +112,20 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
     super()
     this._notifications = []
     this._selectedNotification = null
+    this._activeTasks = []
     this._boundHandleNotifications = this._handleNotificationsChanged.bind(this)
+    this._boundHandleTasksChanged = this._handleTasksChanged.bind(this)
   }
 
   connectedCallback() {
     super.connectedCallback()
     this._notifications = this.appState?.getNotifications?.() ?? []
+    this._activeTasks = this.appState?.getActiveTasks?.() ?? []
     window.addEventListener(
       'notifications:changed',
       this._boundHandleNotifications
     )
+    window.addEventListener('tasks:changed', this._boundHandleTasksChanged)
   }
 
   disconnectedCallback() {
@@ -123,16 +134,23 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
       'notifications:changed',
       this._boundHandleNotifications
     )
+    window.removeEventListener('tasks:changed', this._boundHandleTasksChanged)
   }
 
   _handleNotificationsChanged(e) {
     this._notifications = [...e.detail.notifications]
   }
 
+  _handleTasksChanged(e) {
+    this._activeTasks = [...e.detail.tasks]
+  }
+
   updated(changed) {
     super.updated(changed)
     if (changed.has('active') && this.active) {
       this.appState?.markAllRead()
+      // Refresh from server so cross-device / post-reload tasks are visible.
+      this.appState?.loadActiveTasks?.()
     }
   }
 
@@ -154,9 +172,48 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
           ${this._('Clear _All')}
         </md-outlined-button>
       </div>
-      ${this._notifications.length === 0
+
+      ${this._activeTasks.length > 0
+        ? html`
+            <div class="active-tasks">
+              <h3>${this._('Running tasks')}</h3>
+              <md-list>
+                ${this._activeTasks.map(
+                  task => html`
+                    <md-list-item type="text" noninteractive>
+                      <grampsjs-task-progress-indicator
+                        slot="start"
+                        taskId="${task.id}"
+                        taskName="${task.taskName}"
+                        size="24"
+                        hideAfter="0"
+                        ?open="${true}"
+                        .appState="${this.appState}"
+                      ></grampsjs-task-progress-indicator>
+                      <div slot="headline">${this._(task.label)}</div>
+                      <div slot="supporting-text">
+                        <grampsjs-timedelta
+                          timestamp="${task.createdAt}"
+                          locale="${this.appState?.i18n?.lang || 'en'}"
+                        ></grampsjs-timedelta>
+                        ${task.userName ? html` &middot; ${task.userName}` : ''}
+                      </div>
+                    </md-list-item>
+                    <md-divider></md-divider>
+                  `
+                )}
+              </md-list>
+            </div>
+          `
+        : ''}
+      ${this._notifications.length === 0 && this._activeTasks.length === 0
         ? html`<p class="empty-state">${this._('None')}.</p>`
+        : this._notifications.length === 0
+        ? ''
         : html`
+            ${this._activeTasks.length > 0
+              ? html`<h3>${this._('Notifications')}</h3>`
+              : ''}
             <md-list>
               ${this._notifications.map(
                 n => html`
@@ -172,13 +229,16 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
                       height="20"
                       width="20"
                     ></grampsjs-icon>
-                    <div slot="headline">${n.message}</div>
+                    <div slot="headline">
+                      ${n.source === 'task' ? this._(n.message) : n.message}
+                    </div>
                     <div slot="supporting-text">
                       ${this._sourceLabel(n.source)} &middot;
                       <grampsjs-timedelta
                         timestamp="${n.timestamp.getTime() / 1000}"
                         locale="${this.appState?.i18n?.lang || 'en'}"
                       ></grampsjs-timedelta>
+                      ${n.userName ? html` &middot; ${n.userName}` : ''}
                     </div>
                     ${this._hasDetail(n)
                       ? html`<grampsjs-icon

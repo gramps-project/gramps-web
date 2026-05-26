@@ -7,9 +7,11 @@ import {
   Auth,
   apiPutPostDelete,
   updateSettings,
+  updateTaskStatus,
 } from './api.js'
 import {getCurrentTheme} from './theme.js'
 import {fireEvent, makeHandle} from './util.js'
+import {getTaskLabel, getTaskName} from './taskLabels.js'
 
 export function getInitialAppState() {
   const auth = new Auth()
@@ -21,11 +23,142 @@ export function getInitialAppState() {
   const notifications = []
   let unreadCount = 0
 
+  // ---------------------------------------------------------------------------
+  // Active background task store
+  // ---------------------------------------------------------------------------
+  // Each entry: { id, label, taskName, state, progress, info, result,
+  //               result_object, createdAt (unix seconds) }
+  // taskName is the frontend identifier matching the taskName attribute on
+  // <grampsjs-task-progress-indicator> elements (e.g. "exportFile").
+  const activeTasks = new Map()
+
+  function notifyTasks() {
+    fireEvent(window, 'tasks:changed', {tasks: [...activeTasks.values()]})
+    // Also update the notification bell count to include running tasks.
+    // Re-use notifications:changed so GrampsjsMainMenu picks it up without
+    // needing a separate listener.
+    fireEvent(window, 'notifications:changed', {
+      notifications: [...notifications],
+      unreadCount: unreadCount + activeTasks.size,
+    })
+  }
+
+  function updateTask(id, patch) {
+    const existing = activeTasks.get(id)
+    if (!existing) return
+    activeTasks.set(id, {...existing, ...patch})
+    notifyTasks()
+  }
+
+  function removeTask(id) {
+    activeTasks.delete(id)
+    notifyTasks()
+  }
+
+  function startPolling(taskId) {
+    const doneStates = ['SUCCESS', 'FAILURE', 'REVOKED']
+    updateTaskStatus(
+      auth,
+      taskId,
+      status => {
+        updateTask(taskId, {
+          state: status.state,
+          progress: status.result_object?.progress ?? -1,
+          info: status.info ?? null,
+          result: status.result ?? null,
+          result_object: status.result_object ?? null,
+        })
+        if (doneStates.includes(status.state)) {
+          const entry = activeTasks.get(taskId)
+          const eventName =
+            status.state === 'SUCCESS' ? 'task:complete' : 'task:error'
+          fireEvent(window, eventName, {taskId, status: entry})
+          // Add a persistent entry to the notification log.
+          if (status.state === 'SUCCESS') {
+            addNotification({
+              type: 'info',
+              message: entry?.label ?? taskId,
+              source: 'task',
+              detail: status.result_object ?? {},
+              userName: entry?.userName ?? null,
+            })
+          } else {
+            addNotification({
+              type: 'error',
+              message: entry?.label ?? taskId,
+              source: 'task',
+              detail: {info: status.info, result_object: status.result_object},
+              userName: entry?.userName ?? null,
+            })
+          }
+          // Re-fire tasks:changed so the badge count reflects the updated
+          // unreadCount produced by addNotification above.
+          notifyTasks()
+          setTimeout(() => removeTask(taskId), 10_000)
+        }
+      },
+      1000,
+      Infinity,
+      () => activeTasks.has(taskId)
+    )
+  }
+
+  // options.taskName: frontend identifier matching the taskName attribute on
+  //   <grampsjs-task-progress-indicator> (used for reconnection on remount).
+  // options.createdAt: unix seconds; defaults to now.
+  // options.userName: display name of the user who started the task, or null.
+  function registerTask(
+    id,
+    label,
+    {createdAt = Date.now() / 1000, taskName = '', userName = null} = {}
+  ) {
+    if (activeTasks.has(id)) return // already tracked
+    activeTasks.set(id, {
+      id,
+      label,
+      taskName,
+      userName,
+      state: 'PENDING',
+      progress: -1,
+      info: null,
+      result: null,
+      result_object: null,
+      createdAt,
+    })
+    notifyTasks()
+    startPolling(id)
+  }
+
+  async function loadActiveTasks() {
+    const res = await apiGet(auth, '/api/tasks/?include_state=true')
+    if (!res.data) return
+    const runningStates = ['PENDING', 'STARTED', 'PROGRESS']
+    for (const t of res.data) {
+      if (runningStates.includes(t.state) && !activeTasks.has(t.task_id)) {
+        // Ensure created_at is treated as UTC (backend may omit the Z suffix).
+        let createdAt
+        if (t.created_at) {
+          const str =
+            t.created_at.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(t.created_at)
+              ? t.created_at
+              : `${t.created_at}Z`
+          createdAt = new Date(str).getTime() / 1000
+        }
+        registerTask(t.task_id, getTaskLabel(t.name), {
+          createdAt,
+          taskName: getTaskName(t.name),
+          userName: t.user_name ?? null,
+        })
+      }
+    }
+  }
+
   function addNotification({
     type = 'error',
     message = '',
     source = 'api',
     detail = {},
+    userName = null,
   }) {
     const notification = {
       id: makeHandle(),
@@ -33,6 +166,7 @@ export function getInitialAppState() {
       message,
       source,
       detail,
+      userName,
       timestamp: new Date(),
       read: false,
     }
@@ -193,6 +327,11 @@ export function getInitialAppState() {
     addNotification,
     markAllRead,
     clearNotifications,
+    registerTask,
+    loadActiveTasks,
+    getActiveTasks() {
+      return [...activeTasks.values()]
+    },
   }
 }
 
