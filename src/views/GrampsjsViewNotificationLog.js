@@ -137,6 +137,11 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
     window.removeEventListener('tasks:changed', this._boundHandleTasksChanged)
   }
 
+  get _runningTasks() {
+    const terminal = new Set(['SUCCESS', 'FAILURE', 'REVOKED'])
+    return this._activeTasks.filter(t => !terminal.has(t.state))
+  }
+
   _handleNotificationsChanged(e) {
     this._notifications = [...e.detail.notifications]
   }
@@ -173,12 +178,12 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
         </md-outlined-button>
       </div>
 
-      ${this._activeTasks.length > 0
+      ${this._runningTasks.length > 0
         ? html`
             <div class="active-tasks">
               <h3>${this._('Running tasks')}</h3>
               <md-list>
-                ${this._activeTasks.map(
+                ${this._runningTasks.map(
                   task => html`
                     <md-list-item type="text" noninteractive>
                       <grampsjs-task-progress-indicator
@@ -206,12 +211,12 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
             </div>
           `
         : ''}
-      ${this._notifications.length === 0 && this._activeTasks.length === 0
+      ${this._notifications.length === 0 && this._runningTasks.length === 0
         ? html`<p class="empty-state">${this._('None')}.</p>`
         : this._notifications.length === 0
         ? ''
         : html`
-            ${this._activeTasks.length > 0
+            ${this._runningTasks.length > 0
               ? html`<h3>${this._('Notifications')}</h3>`
               : ''}
             <md-list>
@@ -258,7 +263,11 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
       ${this._selectedNotification
         ? html`
             <md-dialog open @cancel="${e => e.preventDefault()}">
-              <div slot="headline">${this._selectedNotification.message}</div>
+              <div slot="headline">
+                ${this._selectedNotification.source === 'task'
+                  ? this._(this._selectedNotification.message)
+                  : this._selectedNotification.message}
+              </div>
               <div slot="content">
                 <dl>
                   ${Object.entries(this._selectedNotification.detail).map(

@@ -32,6 +32,12 @@ export function getInitialAppState() {
   // <grampsjs-task-progress-indicator> elements (e.g. "exportFile").
   const activeTasks = new Map()
 
+  // Total badge count = unread notifications + running tasks.
+  // Centralised here so every notifications:changed emission is consistent.
+  function totalUnreadCount() {
+    return unreadCount + activeTasks.size
+  }
+
   function notifyTasks() {
     fireEvent(window, 'tasks:changed', {tasks: [...activeTasks.values()]})
     // Also update the notification bell count to include running tasks.
@@ -39,7 +45,7 @@ export function getInitialAppState() {
     // needing a separate listener.
     fireEvent(window, 'notifications:changed', {
       notifications: [...notifications],
-      unreadCount: unreadCount + activeTasks.size,
+      unreadCount: totalUnreadCount(),
     })
   }
 
@@ -91,9 +97,6 @@ export function getInitialAppState() {
               userName: entry?.userName ?? null,
             })
           }
-          // Re-fire tasks:changed so the badge count reflects the updated
-          // unreadCount produced by addNotification above.
-          notifyTasks()
           setTimeout(() => removeTask(taskId), 10_000)
         }
       },
@@ -177,7 +180,7 @@ export function getInitialAppState() {
     unreadCount = notifications.filter(n => n.read === false).length
     fireEvent(window, 'notifications:changed', {
       notifications: [...notifications],
-      unreadCount,
+      unreadCount: totalUnreadCount(),
     })
   }
 
@@ -189,7 +192,7 @@ export function getInitialAppState() {
     unreadCount = 0
     fireEvent(window, 'notifications:changed', {
       notifications: [...notifications],
-      unreadCount,
+      unreadCount: totalUnreadCount(),
     })
   }
 
@@ -198,7 +201,7 @@ export function getInitialAppState() {
     unreadCount = 0
     fireEvent(window, 'notifications:changed', {
       notifications: [],
-      unreadCount,
+      unreadCount: totalUnreadCount(),
     })
   }
 

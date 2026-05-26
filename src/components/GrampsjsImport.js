@@ -102,7 +102,11 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       prog.errorMessage = this._(res.error)
       this._handleCompleted(STATE_ERROR)
     } else if ('task' in res) {
-      prog.taskId = res.task?.id || ''
+      const taskId = res.task?.id || ''
+      prog.taskId = taskId
+      if (taskId) {
+        this.appState.registerTask(taskId, 'Import', {taskName: 'importFile'})
+      }
     } else {
       prog.setComplete()
       this._handleSuccess()
