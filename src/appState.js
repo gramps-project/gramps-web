@@ -32,6 +32,10 @@ export function getInitialAppState() {
   // <grampsjs-task-progress-indicator> elements (e.g. "exportFile").
   const activeTasks = new Map()
 
+  // Redis result TTL — tasks older than this can no longer be polled for status.
+  // Should match the backend's result_expires setting (default 24 h).
+  const TASK_TTL_SECONDS = 24 * 60 * 60
+
   // Total badge count = unread notifications + non-terminal running tasks.
   // Terminal tasks (SUCCESS/FAILURE/REVOKED) linger in activeTasks for ~10 s
   // but are already counted as unread notifications, so exclude them here to
@@ -73,6 +77,26 @@ export function getInitialAppState() {
       auth,
       taskId,
       status => {
+        const entry = activeTasks.get(taskId)
+        // If the task result has expired from Redis (TTL elapsed), Celery
+        // returns PENDING indefinitely.  Detect this via createdAt age and
+        // stop polling to avoid spinning forever.
+        if (status.state === 'PENDING' && entry?.createdAt) {
+          const age = Date.now() / 1000 - entry.createdAt
+          if (age > TASK_TTL_SECONDS) {
+            addNotification({
+              type: 'warning',
+              message: entry.label ?? taskId,
+              source: 'task',
+              detail: {
+                info: 'Task status expired (result no longer in backend)',
+              },
+              userName: entry.userName ?? null,
+            })
+            removeTask(taskId)
+            return
+          }
+        }
         updateTask(taskId, {
           state: status.state,
           progress: status.result_object?.progress ?? -1,
@@ -81,7 +105,6 @@ export function getInitialAppState() {
           result_object: status.result_object ?? null,
         })
         if (doneStates.includes(status.state)) {
-          const entry = activeTasks.get(taskId)
           const eventName =
             status.state === 'SUCCESS' ? 'task:complete' : 'task:error'
           fireEvent(window, eventName, {taskId, status: entry})
@@ -153,6 +176,12 @@ export function getInitialAppState() {
               : `${t.created_at}Z`
           const parsed = new Date(str).getTime() / 1000
           createdAt = Number.isFinite(parsed) ? parsed : Date.now() / 1000
+        }
+        // Skip tasks older than the Redis TTL — they appear as PENDING because
+        // their result expired, not because they are genuinely still running.
+        if (createdAt && Date.now() / 1000 - createdAt > TASK_TTL_SECONDS) {
+          // eslint-disable-next-line no-continue
+          continue
         }
         registerTask(t.task_id, getTaskLabel(t.name), {
           createdAt,
