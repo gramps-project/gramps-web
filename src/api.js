@@ -724,52 +724,6 @@ export function deleteBookmark(endpoint, handle) {
   }
 }
 
-export function getTaskIds() {
-  try {
-    const string = localStorage.getItem('tasks')
-    const data = JSON.parse(string) ?? {}
-    const tree = getTreeId()
-    if (tree) {
-      return data[tree]
-    }
-    return {}
-  } catch (e) {
-    return {}
-  }
-}
-
-export function getAllTaskIds() {
-  try {
-    const string = localStorage.getItem('tasks')
-    const data = JSON.parse(string) ?? {}
-    return data
-  } catch (e) {
-    return {}
-  }
-}
-
-export function addTaskId(taskName, taskId) {
-  const tree = getTreeId()
-  const data = getAllTaskIds()
-  if (!Object.hasOwn(data, tree)) {
-    data[tree] = {[taskName]: taskId}
-  } else {
-    data[tree][taskName] = taskId
-  }
-  const stringData = JSON.stringify(data)
-  localStorage.setItem('tasks', stringData)
-}
-
-export function deleteTaskId(taskName, taskId) {
-  const tree = getTreeId()
-  const data = getAllTaskIds()
-  if (data?.[tree]?.[taskName] === taskId) {
-    delete data[tree][taskName]
-    const stringData = JSON.stringify(data)
-    localStorage.setItem('tasks', stringData)
-  }
-}
-
 export class Auth {
   constructor() {
     this._refreshingTokens = null
@@ -1002,6 +956,9 @@ async function fetchStatus(auth, taskId) {
   return res.data
 }
 
+// Maximum consecutive fetch failures before polling is abandoned.
+const MAX_CONSECUTIVE_FAILURES = 5
+
 export async function updateTaskStatus(
   auth,
   taskId,
@@ -1012,11 +969,12 @@ export async function updateTaskStatus(
 ) {
   const doneStates = ['FAILURE', 'REVOKED', 'SUCCESS']
   let i = 0
+  let consecutiveFailures = 0
   let status = {}
   // Let callers stop polling when the owning UI task changes or disconnects.
   while (
     shouldContinue() &&
-    !doneStates.includes(status.state) &&
+    !doneStates.includes(status?.state) &&
     i < maxPolls
   ) {
     // eslint-disable-next-line no-await-in-loop
@@ -1024,11 +982,32 @@ export async function updateTaskStatus(
     if (!shouldContinue()) {
       break
     }
+    // Guard: fetchStatus returns undefined when the API call fails (network
+    // error, 404, etc.).  Count consecutive failures and abort after the limit
+    // so a persistent error doesn't loop forever.
+    if (!status) {
+      consecutiveFailures += 1
+      if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+        statusCallback({
+          state: 'FAILURE',
+          info: 'Polling failed: no response from server',
+        })
+        break
+      }
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise(resolve => setTimeout(resolve, pollInterval))
+      i += 1
+      // Reset to empty object so the while condition stays valid on re-entry.
+      status = {}
+      // eslint-disable-next-line no-continue
+      continue
+    }
+    consecutiveFailures = 0
     statusCallback(status)
     if (!shouldContinue() || doneStates.includes(status.state)) {
       break
     }
-    // wait for 1s
+    // wait for pollInterval ms before next tick
     // eslint-disable-next-line no-await-in-loop
     await new Promise(resolve => setTimeout(resolve, pollInterval))
     i += 1

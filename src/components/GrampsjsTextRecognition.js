@@ -301,7 +301,13 @@ export class GrampsjsTextRecognition extends GrampsjsAppStateMixin(LitElement) {
       prog.errorMessage = data.error
     } else if ('task' in data) {
       // queued task
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      prog.taskId = taskId
+      if (taskId) {
+        this.appState.registerTask(taskId, 'Text Recognition', {
+          taskName: 'runOcr',
+        })
+      }
     } else {
       // eagerly executed task
       this._string = data.data || ''

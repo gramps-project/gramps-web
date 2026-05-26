@@ -238,7 +238,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           id="progress-update-search"
           taskName="searchReindexFull"
           size="20"
-          pollInterval="0.5"
           .appState="${this.appState}"
           @task:complete="${() => this._handleSuccessUpdateSearch(false)}"
         ></grampsjs-task-progress-indicator>
@@ -267,7 +266,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                   id="progress-update-search-semantic"
                   taskName="searchReindexFullSemantic"
                   size="20"
-                  pollInterval="1.0"
                   .appState="${this.appState}"
                   @task:complete="${() =>
                     this._handleSuccessUpdateSearch(true)}"
@@ -284,7 +282,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                   id="progress-update-search-semantic-incremental"
                   taskName="searchReindexIncrementalSemantic"
                   size="20"
-                  pollInterval="1.0"
                   .appState="${this.appState}"
                   @task:complete="${() =>
                     this._handleSuccessUpdateSearch(true)}"
@@ -495,7 +492,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           id="progress-repair"
           taskName="repairDb"
           size="20"
-          pollInterval="0.2"
           .appState="${this.appState}"
           @task:complete="${this._handleRepairComplete}"
         ></grampsjs-task-progress-indicator>
@@ -552,7 +548,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
               id="progress-delete-all"
               taskName="deleteObjects"
               size="20"
-              pollInterval="0.2"
               .appState="${this.appState}"
               @task:complete="${this._handleDeleteAllComplete}"
             ></grampsjs-task-progress-indicator>
@@ -626,7 +621,12 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.setError()
       prog.errorMessage = data.error
     } else if ('task' in data) {
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      if (taskId)
+        this.appState.registerTask(taskId, 'Delete all objects', {
+          taskName: 'deleteObjects',
+        })
+      prog.taskId = taskId
     } else {
       prog.setComplete()
     }
@@ -657,13 +657,32 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     } else {
       this._buttonUpdateSearchDisabled = true
     }
-    const data = await this.appState.apiPost(url)
+    // Search reindex doesn't mutate database records, and the index update
+    // happens asynchronously — suppress the automatic db:changed so stale-data
+    // refreshes don't fire before the task completes.
+    const data = await this.appState.apiPost(url, undefined, {dbChanged: false})
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
       this._doneUpdateSearch(semantic)
     } else if ('task' in data) {
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      if (taskId) {
+        let label
+        let taskName
+        if (!semantic) {
+          label = 'Update search index'
+          taskName = 'searchReindexFull'
+        } else if (incremental) {
+          label = 'Update semantic search index'
+          taskName = 'searchReindexIncrementalSemantic'
+        } else {
+          label = 'Regenerate semantic search index'
+          taskName = 'searchReindexFullSemantic'
+        }
+        this.appState.registerTask(taskId, label, {taskName})
+      }
+      prog.taskId = taskId
     } else {
       prog.setComplete()
       this._handleSuccessUpdateSearch(semantic)
@@ -695,7 +714,12 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.setError()
       prog.errorMessage = data.error
     } else if ('task' in data) {
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      if (taskId)
+        this.appState.registerTask(taskId, 'Check and Repair Database', {
+          taskName: 'repairDb',
+        })
+      prog.taskId = taskId
     } else {
       prog.setComplete()
     }

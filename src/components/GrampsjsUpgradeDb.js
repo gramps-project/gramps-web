@@ -74,7 +74,6 @@ class GrampsjsUpgradeDb extends GrampsjsAppStateMixin(LitElement) {
           taskName="upgradeDb"
           class="button"
           size="20"
-          pollInterval="0.2"
           .appState="${this.appState}"
           @task:complete="${this._handleUpgradeComplete}"
         ></grampsjs-task-progress-indicator>
@@ -95,7 +94,13 @@ class GrampsjsUpgradeDb extends GrampsjsAppStateMixin(LitElement) {
       prog.setError()
       prog.errorMessage = data.error
     } else if ('task' in data) {
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      prog.taskId = taskId
+      if (taskId) {
+        this.appState.registerTask(taskId, 'Upgrade database', {
+          taskName: 'upgradeDb',
+        })
+      }
     } else {
       prog.setComplete()
     }

@@ -309,7 +309,6 @@ export class GrampsjsViewRevision extends GrampsjsView {
                 id="progress-undo"
                 taskName="undoTransaction"
                 size="32"
-                pollInterval="0.2"
                 ?open="${true}"
                 .appState="${this.appState}"
                 @task:complete="${this._handleUndoComplete}"
@@ -382,6 +381,9 @@ export class GrampsjsViewRevision extends GrampsjsView {
         fireEvent(this, 'grampsjs:error', {message: this._('Task failed')})
         return
       }
+      this.appState.registerTask(taskId, 'Undo', {
+        taskName: 'undoTransaction',
+      })
       await this.updateComplete
       const prog = this.renderRoot.querySelector('#progress-undo')
       if (prog) {
