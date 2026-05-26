@@ -956,6 +956,9 @@ async function fetchStatus(auth, taskId) {
   return res.data
 }
 
+// Maximum consecutive fetch failures before polling is abandoned.
+const MAX_CONSECUTIVE_FAILURES = 5
+
 export async function updateTaskStatus(
   auth,
   taskId,
@@ -966,6 +969,7 @@ export async function updateTaskStatus(
 ) {
   const doneStates = ['FAILURE', 'REVOKED', 'SUCCESS']
   let i = 0
+  let consecutiveFailures = 0
   let status = {}
   // Let callers stop polling when the owning UI task changes or disconnects.
   while (
@@ -979,8 +983,17 @@ export async function updateTaskStatus(
       break
     }
     // Guard: fetchStatus returns undefined when the API call fails (network
-    // error, 404, etc.).  Skip the callback for this tick and retry.
+    // error, 404, etc.).  Count consecutive failures and abort after the limit
+    // so a persistent error doesn't loop forever.
     if (!status) {
+      consecutiveFailures += 1
+      if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+        statusCallback({
+          state: 'FAILURE',
+          info: 'Polling failed: no response from server',
+        })
+        break
+      }
       // eslint-disable-next-line no-await-in-loop
       await new Promise(resolve => setTimeout(resolve, pollInterval))
       i += 1
@@ -989,6 +1002,7 @@ export async function updateTaskStatus(
       // eslint-disable-next-line no-continue
       continue
     }
+    consecutiveFailures = 0
     statusCallback(status)
     if (!shouldContinue() || doneStates.includes(status.state)) {
       break

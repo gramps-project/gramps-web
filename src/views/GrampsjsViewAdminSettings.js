@@ -657,7 +657,10 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     } else {
       this._buttonUpdateSearchDisabled = true
     }
-    const data = await this.appState.apiPost(url)
+    // Search reindex doesn't mutate database records, and the index update
+    // happens asynchronously — suppress the automatic db:changed so stale-data
+    // refreshes don't fire before the task completes.
+    const data = await this.appState.apiPost(url, undefined, {dbChanged: false})
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
