@@ -342,5 +342,8 @@
     "Show on timeline": "Auf der Zeitleiste anzeigen",
     "Open in map": "In Landkarte öffnen",
     "An error occurred": "Ein Fehler ist aufgetreten",
-    "Assistant": "Assistent"
+    "Assistant": "Assistent",
+    "Export media": "Medien exportieren",
+    "Running tasks": "Laufende Aufgaben",
+    "Process transactions": "Transaktionen verarbeiten"
 }
