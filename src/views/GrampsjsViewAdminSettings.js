@@ -238,7 +238,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           id="progress-update-search"
           taskName="searchReindexFull"
           size="20"
-          pollInterval="0.5"
           .appState="${this.appState}"
           @task:complete="${() => this._handleSuccessUpdateSearch(false)}"
         ></grampsjs-task-progress-indicator>
@@ -267,7 +266,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                   id="progress-update-search-semantic"
                   taskName="searchReindexFullSemantic"
                   size="20"
-                  pollInterval="1.0"
                   .appState="${this.appState}"
                   @task:complete="${() =>
                     this._handleSuccessUpdateSearch(true)}"
@@ -284,7 +282,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                   id="progress-update-search-semantic-incremental"
                   taskName="searchReindexIncrementalSemantic"
                   size="20"
-                  pollInterval="1.0"
                   .appState="${this.appState}"
                   @task:complete="${() =>
                     this._handleSuccessUpdateSearch(true)}"
@@ -495,7 +492,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           id="progress-repair"
           taskName="repairDb"
           size="20"
-          pollInterval="0.2"
           .appState="${this.appState}"
           @task:complete="${this._handleRepairComplete}"
         ></grampsjs-task-progress-indicator>
@@ -552,7 +548,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
               id="progress-delete-all"
               taskName="deleteObjects"
               size="20"
-              pollInterval="0.2"
               .appState="${this.appState}"
               @task:complete="${this._handleDeleteAllComplete}"
             ></grampsjs-task-progress-indicator>

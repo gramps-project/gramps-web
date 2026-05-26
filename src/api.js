@@ -970,7 +970,7 @@ export async function updateTaskStatus(
   // Let callers stop polling when the owning UI task changes or disconnects.
   while (
     shouldContinue() &&
-    !doneStates.includes(status.state) &&
+    !doneStates.includes(status?.state) &&
     i < maxPolls
   ) {
     // eslint-disable-next-line no-await-in-loop
@@ -978,11 +978,22 @@ export async function updateTaskStatus(
     if (!shouldContinue()) {
       break
     }
+    // Guard: fetchStatus returns undefined when the API call fails (network
+    // error, 404, etc.).  Skip the callback for this tick and retry.
+    if (!status) {
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise(resolve => setTimeout(resolve, pollInterval))
+      i += 1
+      // Reset to empty object so the while condition stays valid on re-entry.
+      status = {}
+      // eslint-disable-next-line no-continue
+      continue
+    }
     statusCallback(status)
     if (!shouldContinue() || doneStates.includes(status.state)) {
       break
     }
-    // wait for 1s
+    // wait for pollInterval ms before next tick
     // eslint-disable-next-line no-await-in-loop
     await new Promise(resolve => setTimeout(resolve, pollInterval))
     i += 1

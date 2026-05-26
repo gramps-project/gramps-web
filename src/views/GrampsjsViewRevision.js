@@ -309,7 +309,6 @@ export class GrampsjsViewRevision extends GrampsjsView {
                 id="progress-undo"
                 taskName="undoTransaction"
                 size="32"
-                pollInterval="0.2"
                 ?open="${true}"
                 .appState="${this.appState}"
                 @task:complete="${this._handleUndoComplete}"

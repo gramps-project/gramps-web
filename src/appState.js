@@ -32,10 +32,16 @@ export function getInitialAppState() {
   // <grampsjs-task-progress-indicator> elements (e.g. "exportFile").
   const activeTasks = new Map()
 
-  // Total badge count = unread notifications + running tasks.
-  // Centralised here so every notifications:changed emission is consistent.
+  // Total badge count = unread notifications + non-terminal running tasks.
+  // Terminal tasks (SUCCESS/FAILURE/REVOKED) linger in activeTasks for ~10 s
+  // but are already counted as unread notifications, so exclude them here to
+  // avoid double-counting during the grace period.
+  const TERMINAL_STATES = new Set(['SUCCESS', 'FAILURE', 'REVOKED'])
   function totalUnreadCount() {
-    return unreadCount + activeTasks.size
+    const runningCount = [...activeTasks.values()].filter(
+      t => !TERMINAL_STATES.has(t.state)
+    ).length
+    return unreadCount + runningCount
   }
 
   function notifyTasks() {
@@ -145,7 +151,8 @@ export function getInitialAppState() {
             t.created_at.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(t.created_at)
               ? t.created_at
               : `${t.created_at}Z`
-          createdAt = new Date(str).getTime() / 1000
+          const parsed = new Date(str).getTime() / 1000
+          createdAt = Number.isFinite(parsed) ? parsed : Date.now() / 1000
         }
         registerTask(t.task_id, getTaskLabel(t.name), {
           createdAt,

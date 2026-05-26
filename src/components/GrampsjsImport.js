@@ -69,7 +69,6 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
           class="button"
           size="20"
           hideAfter="0"
-          pollInterval="0.2"
           .appState="${this.appState}"
           @task:complete="${this._handleSuccess}"
           @task:error="${() => this._handleCompleted(STATE_ERROR)}"
