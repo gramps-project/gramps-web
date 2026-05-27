@@ -85,7 +85,9 @@ function _applyTag(str, tag) {
   if (name === 'link') {
     return `<a href="${_escapeHtml(value)}">${str}</a>`
   }
-  return `[${name} ${value}]${str}[/${name}]`
+  const eName = _escapeHtml(String(name ?? ''))
+  const eValue = _escapeHtml(String(value ?? ''))
+  return `[${eName} ${eValue}]${str}[/${eName}]`
 }
 
 // check if tag name is a boolean tag
