@@ -83,6 +83,7 @@ function _applyTag(str, tag) {
     return `<sup>${str}</sup>`
   }
   if (name === 'link') {
+    if (!value) return str
     return `<a href="${_escapeHtml(value)}">${str}</a>`
   }
   const eName = _escapeHtml(String(name ?? ''))
