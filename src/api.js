@@ -206,6 +206,48 @@ export function setChatTaskId(taskId, onlyIfEquals = undefined) {
   }
 }
 
+export function getChatMessageHistoryRaw() {
+  try {
+    const tree = getTreeId()
+    if (!tree) {
+      return null
+    }
+    const string = localStorage.getItem('chatMessageHistoryRaw')
+    const data = JSON.parse(string)
+    return data?.[tree] ?? null
+  } catch (e) {
+    return null
+  }
+}
+
+export function setChatMessageHistoryRaw(blob, onlyIfEquals = undefined) {
+  const tree = getTreeId()
+  if (!tree) {
+    return
+  }
+  if (blob === null) {
+    try {
+      const string = localStorage.getItem('chatMessageHistoryRaw')
+      const data = JSON.parse(string) ?? {}
+      if (onlyIfEquals !== undefined && data[tree] !== onlyIfEquals) {
+        return
+      }
+      delete data[tree]
+      localStorage.setItem('chatMessageHistoryRaw', JSON.stringify(data))
+    } catch (e) {
+      // ignore
+    }
+    return
+  }
+  try {
+    const string = localStorage.getItem('chatMessageHistoryRaw')
+    const data = {...(JSON.parse(string) ?? {}), [tree]: blob}
+    localStorage.setItem('chatMessageHistoryRaw', JSON.stringify(data))
+  } catch (e) {
+    // ignore
+  }
+}
+
 // Editor draft management
 const DRAFT_EXPIRY_DAYS = 7
 

@@ -55,7 +55,7 @@ const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
 
-const MINIMUM_API_VERSION = '3.13.0'
+const MINIMUM_API_VERSION = '3.14.0'
 
 // Pages where the Gramps ID is used as the page title
 const OBJECT_PAGES = new Set([

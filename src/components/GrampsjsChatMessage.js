@@ -9,6 +9,7 @@ import DOMPurify from 'dompurify'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {renderIconSvg} from '../icons.js'
+import './GrampsjsChatToolCalls.js'
 
 marked.use({breaks: true})
 
@@ -64,6 +65,20 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
           max-width: 90%;
           display: flex;
           align-items: flex-start;
+        }
+
+        .container.ai {
+          flex-direction: column;
+        }
+
+        .message-row {
+          display: flex;
+          align-items: flex-start;
+          width: 100%;
+        }
+
+        grampsjs-chat-tool-calls {
+          padding-left: 35px;
         }
 
         .container.human {
@@ -161,6 +176,9 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
     return {
       type: {type: String},
       message: {type: String},
+      metadata: {type: Object},
+      status: {type: String},
+      live: {type: Boolean},
     }
   }
 
@@ -168,6 +186,9 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.type = 'human'
     this.message = ''
+    this.metadata = null
+    this.status = ''
+    this.live = false
   }
 
   render() {
@@ -183,24 +204,31 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
       >
         ${this.type === 'ai'
           ? html`
-              <div class="avatar">
-                <md-icon
-                  >${renderIconSvg(
-                    mdiFamilyTree,
-                    'var(--grampsjs-body-font-color-40)',
-                    270
-                  )}</md-icon
-                >
+              <grampsjs-chat-tool-calls
+                .metadata="${this.metadata}"
+                .status="${this.status ? this._(this.status) : ''}"
+                ?live="${this.live}"
+              ></grampsjs-chat-tool-calls>
+              <div class="message-row">
+                <div class="avatar">
+                  <md-icon
+                    >${renderIconSvg(
+                      mdiFamilyTree,
+                      'var(--grampsjs-body-font-color-40)',
+                      270
+                    )}</md-icon
+                  >
+                </div>
+                <slot name="no-wrap"></slot>
+                <div class="slot-wrap markdown">
+                  ${renderMarkdown(this.message)}
+                </div>
               </div>
             `
-          : ''}
-        <slot name="no-wrap"></slot>
-        <!-- prettier-ignore -->
-        <div class="${this.type === 'ai'
-          ? 'slot-wrap markdown'
-          : 'slot-wrap'}">${this.type === 'ai'
-          ? renderMarkdown(this.message)
-          : this.message}</div>
+          : html`
+              <slot name="no-wrap"></slot>
+              <div class="slot-wrap">${this.message}</div>
+            `}
       </div>
     `
   }
