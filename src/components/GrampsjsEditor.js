@@ -12,13 +12,14 @@ import '@material/web/button/text-button.js'
 import {mdiInformation, mdiClose} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {fireEvent, stripHtml} from '../util.js'
+import {fireEvent} from '../util.js'
 import {
   charLength,
   charSlice,
   domOffsetToChar,
   charToDomOffset,
 } from '../charUtils.js'
+import {parseHtmlToStyledText} from './styledTextPaste.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {saveDraft, getDraft, clearDraft, clearDraftsWithPrefix} from '../api.js'
 import './GrampsjsFormSelectObject.js'
@@ -345,6 +346,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         class="note framed"
         contenteditable="true"
         @beforeinput="${this._handleBeforeInput}"
+        @paste="${this._handlePaste}"
         @compositionend="${this._handleCompositionEnd}"
         @keydown="${this._handleKeydown}"
         .innerHTML="${live(this._html)}"
@@ -435,6 +437,8 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   _handleBeforeInput(e) {
     e.preventDefault()
     e.stopPropagation()
+    // Paste is handled entirely by _handlePaste (which fires before this event)
+    if (e.inputType === 'insertFromPaste') return
     if (
       [
         'insertText',
@@ -442,7 +446,6 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         'insertLineBreak',
         'deleteContentBackward',
         'deleteContentForward',
-        'insertFromPaste',
         'deleteByCut',
         'formatBold',
         'formatItalic',
@@ -462,17 +465,6 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         }
         this._insertText(e.data, cpStart)
         this.cursorPosition = [cpStart + charLength(e.data)]
-      }
-      if (e.inputType === 'insertFromPaste') {
-        if (range.startOffset !== range.endOffset) {
-          this._deleteText(
-            cpStart,
-            rangeCharPos(range.endContainer, range.endOffset, div)
-          )
-        }
-        const data = stripHtml(e.dataTransfer.getData('text/plain'))
-        this._insertText(data, cpStart)
-        this.cursorPosition = [cpStart + charLength(data)]
       } else if (
         e.inputType === 'insertParagraph' ||
         e.inputType === 'insertLineBreak'
@@ -507,6 +499,45 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     } else {
       // eslint-disable-next-line no-console
       console.log(e)
+    }
+    this.handleChange()
+  }
+
+  // Handle all paste operations (fires before beforeinput)
+  _handlePaste(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    const div = this._editorDiv
+    const selection = this.shadowRoot.getSelection
+      ? this.shadowRoot.getSelection()
+      : document.getSelection()
+    if (!selection || selection.rangeCount === 0) return
+    const range = selection.getRangeAt(0)
+    const dataLen = charLength(this.data.string)
+    // Clamp: the trailing zero-width space in _getHtml() is not in data.string,
+    // so the DOM cursor can be one past the end after a blur+click.
+    const cpStart = Math.min(
+      rangeCharPos(range.startContainer, range.startOffset, div),
+      dataLen
+    )
+    if (!range.collapsed) {
+      this._deleteText(
+        cpStart,
+        Math.min(
+          rangeCharPos(range.endContainer, range.endOffset, div),
+          dataLen
+        )
+      )
+    }
+    const htmlData = e.clipboardData?.getData('text/html')
+    if (htmlData) {
+      const styledText = parseHtmlToStyledText(htmlData)
+      this._insertStyledText(styledText, cpStart)
+      this.cursorPosition = [cpStart + charLength(styledText.string)]
+    } else {
+      const data = e.clipboardData?.getData('text/plain') ?? ''
+      this._insertText(data, cpStart)
+      this.cursorPosition = [cpStart + charLength(data)]
     }
     this.handleChange()
   }
@@ -879,6 +910,23 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
           ),
         }))
       ),
+    }
+  }
+
+  // insert a StyledText fragment {string, tags} at position, preserving existing tags
+  _insertStyledText({string, tags}, position) {
+    // _insertText inserts the plain text and shifts all existing tags past `position`
+    this._insertText(string, position)
+    // Add the pasted formatting tags, each range shifted by the insertion position
+    const newTags = (tags || []).map(tag => ({
+      ...tag,
+      ranges: tag.ranges.map(r => [r[0] + position, r[1] + position]),
+    }))
+    if (newTags.length > 0) {
+      this.data = {
+        ...this.data,
+        tags: this._cleanTags([...this.data.tags, ...newTags]),
+      }
     }
   }
 
