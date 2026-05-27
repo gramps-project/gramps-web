@@ -1,169 +1,186 @@
 import {charLength} from '../charUtils.js'
 
 const _SAFE_LINK_PROTOCOLS = ['http:', 'https:', 'mailto:', 'gramps:']
+const _HEADING_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
 
-// Parse an HTML string (e.g. from the clipboard) into a StyledText-compatible
-// {string, tags} object, preserving only what StyledText can represent.
+/**
+ * Return the StyledText format objects contributed by a single HTML element.
+ * Only structural/intentional formatting is mapped; ambient styles (color,
+ * font-family, font-size) are intentionally ignored.
+ *
+ * @param {Element} node
+ * @param {string} tag - lower-cased tag name
+ * @returns {{name: string, value: string|null}[]}
+ */
+function _formatsForElement(node, tag) {
+  const formats = []
+
+  // Semantic elements
+  if (tag === 'b' || tag === 'strong' || _HEADING_TAGS.includes(tag)) {
+    formats.push({name: 'bold', value: null})
+  } else if (tag === 'i' || tag === 'em') {
+    formats.push({name: 'italic', value: null})
+  } else if (tag === 'u') {
+    formats.push({name: 'underline', value: null})
+  } else if (tag === 's' || tag === 'del' || tag === 'strike') {
+    formats.push({name: 'strikethrough', value: null})
+  } else if (tag === 'sup') {
+    formats.push({name: 'superscript', value: null})
+  } else if (tag === 'a') {
+    try {
+      const url = new URL(node.getAttribute('href') || '')
+      if (_SAFE_LINK_PROTOCOLS.includes(url.protocol)) {
+        // Store url.href (normalized/encoded) to prevent quote characters from
+        // breaking the rendered <a href="…"> attribute in GrampsjsEditor.
+        formats.push({name: 'link', value: url.href})
+      }
+    } catch {
+      // relative or malformed href — skip
+    }
+  }
+
+  // CSS-based formatting — structural intent only (bold / italic / decoration).
+  // Font family, size, color and highlight are NOT picked up here: they are
+  // almost always ambient document styles, not intentional user formatting.
+  const style = node.style || {}
+  const fw = style.fontWeight
+  const fwNum = parseInt(fw, 10)
+  if (
+    fw === 'bold' ||
+    fw === 'bolder' ||
+    (!Number.isNaN(fwNum) && fwNum >= 600)
+  ) {
+    formats.push({name: 'bold', value: null})
+  }
+  if (style.fontStyle === 'italic' || style.fontStyle === 'oblique') {
+    formats.push({name: 'italic', value: null})
+  }
+  const td = style.textDecoration || style.textDecorationLine || ''
+  if (td.includes('underline')) formats.push({name: 'underline', value: null})
+  if (td.includes('line-through'))
+    formats.push({name: 'strikethrough', value: null})
+
+  return formats
+}
+
+/**
+ * Parse a clipboard HTML string into a StyledText-compatible `{string, tags}`
+ * object, preserving only what StyledText can represent.
+ *
+ * **Preserved:** bold, italic, underline, strikethrough, superscript, links.
+ * **Block structure:** headings/paragraphs become blank-line separators; list
+ * items become `• ` / `1. ` markers with two-space indentation per level.
+ * **Dropped:** font family, color, size, highlight (ambient document styles).
+ *
+ * @param {string} html - raw HTML from the clipboard
+ * @returns {{
+ *   string: string,
+ *   tags: Array<{name: string, value: string|null, ranges: number[][]}>
+ * }}
+ */
 export function parseHtmlToStyledText(html) {
-  // Use a <template> element — it is inert by spec, so no network requests
-  // are triggered by e.g. <img src="..."> in clipboard HTML.
+  // <template> is inert by spec — no network requests from <img src="…"> etc.
   const tmp = document.createElement('template')
   tmp.innerHTML = html
 
   let text = ''
-  // Flat list of {start, end, name, value} in code-point indices
-  const segments = []
-  // Stack of {type:'ol'|'ul', counter:number} — one entry per open list
-  const listStack = []
+  let textCpLen = 0 // running code-point length — avoids O(n²) charLength calls
+  const segments = [] // {start, end, name, value} in code-point indices
+  const listStack = [] // {type:'ol'|'ul', counter:number} — one entry per open list
+
+  // ── Text-accumulation helpers ─────────────────────────────────────────────
+
+  function append(str) {
+    text += str
+    textCpLen += charLength(str)
+  }
+
+  /** After a block element: ensure the text ends with \n\n (blank line). */
+  function ensureDoubleNewline() {
+    if (text.length === 0) return
+    if (!text.endsWith('\n\n')) append(text.endsWith('\n') ? '\n' : '\n\n')
+  }
+
+  /** After an inline-block element (li, td): ensure the text ends with \n. */
+  function ensureSingleNewline() {
+    if (text.length > 0 && !text.endsWith('\n')) append('\n')
+  }
+
+  /** Before a list item's content: add \n if needed, then bullet/number. */
+  function insertListMarker() {
+    ensureSingleNewline()
+    const depth = Math.max(0, listStack.length - 1)
+    const indent = '  '.repeat(depth)
+    const ctx = listStack[listStack.length - 1]
+    if (ctx?.type === 'ol') {
+      append(`${indent}${ctx.counter}. `)
+      ctx.counter += 1
+    } else {
+      append(`${indent}• `)
+    }
+  }
+
+  // ── Tree walker ───────────────────────────────────────────────────────────
 
   function walk(node, activeFormats, inPre) {
-    if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
-      for (const child of node.childNodes) walk(child, activeFormats, inPre)
-      return
-    }
+    // Text node: normalize whitespace (unless inside <pre>), record segments
     if (node.nodeType === Node.TEXT_NODE) {
       let nodeText = node.textContent
       if (!inPre) {
-        // Mimic CSS white-space:normal — collapse any whitespace run to one space
         nodeText = nodeText.replace(/[ \t\r\n]+/g, ' ')
-        // Suppress a leading space that would double up against existing whitespace
         if (
           nodeText.startsWith(' ') &&
           (text.length === 0 || /[ \n]$/.test(text))
         ) {
-          nodeText = nodeText.slice(1)
+          nodeText = nodeText.slice(1) // suppress redundant leading space
         }
       }
       if (nodeText.length === 0) return
-      const start = charLength(text)
-      text += nodeText
-      const end = charLength(text)
-      if (start < end) {
-        activeFormats.forEach(fmt =>
-          segments.push({start, end, name: fmt.name, value: fmt.value})
-        )
-      }
+      const start = textCpLen
+      append(nodeText)
+      activeFormats.forEach(fmt =>
+        segments.push({start, end: textCpLen, name: fmt.name, value: fmt.value})
+      )
       return
     }
+
     if (node.nodeType !== Node.ELEMENT_NODE) return
 
     const tag = node.tagName.toLowerCase()
     if (tag === 'script' || tag === 'style') return
-
     if (tag === 'br') {
-      text += '\n'
+      append('\n')
       return
     }
 
-    // Accumulate formats added by this element
-    const newFormats = [...activeFormats]
-
-    const style = node.style || {}
-
-    const isHeading = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tag)
-
-    // Semantic elements
-    if (tag === 'b' || tag === 'strong' || isHeading) {
-      newFormats.push({name: 'bold', value: null})
-    } else if (tag === 'i' || tag === 'em') {
-      newFormats.push({name: 'italic', value: null})
-    } else if (tag === 'u') {
-      newFormats.push({name: 'underline', value: null})
-    } else if (tag === 's' || tag === 'del' || tag === 'strike') {
-      newFormats.push({name: 'strikethrough', value: null})
-    } else if (tag === 'sup') {
-      newFormats.push({name: 'superscript', value: null})
-    } else if (tag === 'a') {
-      const href = node.getAttribute('href') || ''
-      try {
-        const proto = new URL(href).protocol
-        if (_SAFE_LINK_PROTOCOLS.includes(proto)) {
-          newFormats.push({name: 'link', value: href})
-        }
-      } catch {
-        // relative or malformed — skip
-      }
-    }
-
-    // CSS-based formatting — only structural intent (bold/italic/decoration).
-    // Font family, size, color and highlight are NOT picked up from paste: they
-    // are almost always ambient document styles, not intentional formatting.
-    const fw = style.fontWeight
-    const fwNum = parseInt(fw, 10)
-    if (
-      fw === 'bold' ||
-      fw === 'bolder' ||
-      (!Number.isNaN(fwNum) && fwNum >= 600)
-    ) {
-      newFormats.push({name: 'bold', value: null})
-    }
-    if (style.fontStyle === 'italic' || style.fontStyle === 'oblique') {
-      newFormats.push({name: 'italic', value: null})
-    }
-    const td = style.textDecoration || style.textDecorationLine || ''
-    if (td.includes('underline')) {
-      newFormats.push({name: 'underline', value: null})
-    }
-    if (td.includes('line-through')) {
-      newFormats.push({name: 'strikethrough', value: null})
-    }
-
-    // Preserve whitespace inside <pre> or elements with white-space:pre/pre-wrap
-    const ws = style.whiteSpace || ''
+    const newFormats = [...activeFormats, ..._formatsForElement(node, tag)]
     const nextInPre =
-      inPre || tag === 'pre' || ws === 'pre' || ws === 'pre-wrap'
+      inPre ||
+      tag === 'pre' ||
+      ['pre', 'pre-wrap'].includes(node.style?.whiteSpace)
 
-    // Double-break: blank line before + after. Single-break: one \n after.
-    // Nested ul/ol (already inside a list) don't get extra blank lines.
+    const isHeading = _HEADING_TAGS.includes(tag)
     const isDoubleBreak =
       isHeading ||
       ['p', 'div', 'blockquote'].includes(tag) ||
       (['ul', 'ol'].includes(tag) && listStack.length === 0)
     const isSingleBreak = ['li', 'td', 'th'].includes(tag)
 
-    // Ensure a blank line before any double-break element that follows text
-    if (isDoubleBreak && text.length > 0 && !text.endsWith('\n\n')) {
-      if (text.endsWith('\n')) text += '\n'
-      else text += '\n\n'
-    }
-
-    // List context: push before walking children
+    if (isDoubleBreak) ensureDoubleNewline() // blank line before block
     if (tag === 'ol') listStack.push({type: 'ol', counter: 1})
     else if (tag === 'ul') listStack.push({type: 'ul'})
+    else if (tag === 'li') insertListMarker()
 
-    // List item: insert marker before content
-    if (tag === 'li') {
-      if (text.length > 0 && !text.endsWith('\n')) text += '\n'
-      const depth = Math.max(0, listStack.length - 1)
-      const indent = '  '.repeat(depth)
-      const ctx = listStack[listStack.length - 1]
-      if (ctx?.type === 'ol') {
-        text += `${indent}${ctx.counter}. `
-        ctx.counter += 1
-      } else {
-        text += `${indent}• `
-      }
-    }
+    for (const child of node.childNodes) walk(child, newFormats, nextInPre)
 
-    for (const child of node.childNodes) {
-      walk(child, newFormats, nextInPre)
-    }
-
-    // List context: pop after children
     if (tag === 'ol' || tag === 'ul') listStack.pop()
-
-    // Post-children newline separators
-    if (isDoubleBreak && text.length > 0) {
-      if (!text.endsWith('\n\n')) {
-        if (text.endsWith('\n')) text += '\n'
-        else text += '\n\n'
-      }
-    } else if (isSingleBreak && text.length > 0 && !text.endsWith('\n')) {
-      text += '\n'
-    }
+    if (isDoubleBreak) ensureDoubleNewline() // blank line after block
+    else if (isSingleBreak) ensureSingleNewline()
   }
 
-  walk(tmp.content, [], false)
+  for (const child of tmp.content.childNodes) walk(child, [], false)
+
+  // ── Post-processing ───────────────────────────────────────────────────────
 
   // Strip leading and trailing newlines; track how many were removed from the
   // front so tag ranges can be shifted accordingly.
@@ -171,36 +188,32 @@ export function parseHtmlToStyledText(html) {
   const stripped = text.slice(leadNL).replace(/\n+$/, '')
   const trimmedLen = charLength(stripped)
 
-  // Build tags: group segments by (name, value), merge overlapping/adjacent ranges
+  // Group segments by (name, value) key, merge overlapping/adjacent ranges
   const tagMap = new Map()
   segments.forEach(({start, end, name, value}) => {
-    const adjStart = start - leadNL
-    const adjEnd = end - leadNL
-    const clampedStart = Math.max(0, adjStart)
-    const clampedEnd = Math.min(adjEnd, trimmedLen)
+    const clampedStart = Math.max(0, start - leadNL)
+    const clampedEnd = Math.min(end - leadNL, trimmedLen)
     if (clampedEnd <= clampedStart) return
     const key = `${name}\0${value ?? ''}`
-    if (!tagMap.has(key)) {
-      tagMap.set(key, {name, value, ranges: []})
-    }
+    if (!tagMap.has(key)) tagMap.set(key, {name, value, ranges: []})
     tagMap.get(key).ranges.push([clampedStart, clampedEnd])
   })
 
   const tags = []
   tagMap.forEach(({name, value, ranges}) => {
-    const sorted = ranges.slice().sort((a, b) => a[0] - b[0])
-    const merged = sorted.reduce((acc, r) => {
-      if (acc.length > 0 && r[0] <= acc[acc.length - 1][1]) {
-        acc[acc.length - 1][1] = Math.max(acc[acc.length - 1][1], r[1])
-      } else {
-        acc.push([r[0], r[1]])
-      }
-      return acc
-    }, [])
-    const valid = merged.filter(r => r[0] < r[1])
-    if (valid.length > 0) {
-      tags.push({name, value, ranges: valid})
-    }
+    const merged = ranges
+      .slice()
+      .sort((a, b) => a[0] - b[0])
+      .reduce((acc, r) => {
+        if (acc.length > 0 && r[0] <= acc[acc.length - 1][1]) {
+          acc[acc.length - 1][1] = Math.max(acc[acc.length - 1][1], r[1])
+        } else {
+          acc.push([r[0], r[1]])
+        }
+        return acc
+      }, [])
+      .filter(r => r[0] < r[1])
+    if (merged.length > 0) tags.push({name, value, ranges: merged})
   })
 
   return {string: stripped, tags}

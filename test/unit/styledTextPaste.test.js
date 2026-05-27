@@ -74,7 +74,7 @@ describe('parseHtmlToStyledText', () => {
       expect(r.string).toBe('click')
       expect(tag(r, 'link')).toEqual({
         name: 'link',
-        value: 'https://example.com',
+        value: 'https://example.com/', // new URL() normalizes by adding trailing slash
         ranges: [[0, 5]],
       })
     })
