@@ -341,5 +341,12 @@
   "Recently changed": "Recently changed",
   "Recently browsed": "Recently browsed",
   "An error occurred": "An error occurred",
-  "Assistant": "Assistant"
+  "Assistant": "Assistant",
+  "Processing your query...": "Processing your query...",
+  "Searching genealogy database...": "Searching genealogy database...",
+  "Filtering people in family tree...": "Filtering people in family tree...",
+  "Filtering events...": "Filtering events...",
+  "Fetching person record...": "Fetching person record...",
+  "Fetching family record...": "Fetching family record...",
+  "Filtering families...": "Filtering families..."
 }
