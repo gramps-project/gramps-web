@@ -273,7 +273,7 @@ describe('parseHtmlToStyledText', () => {
     })
   })
 
-  // ── h2 itself is not bold ─────────────────────────────────────────────────
+  // ── headings ──────────────────────────────────────────────────────────────
 
   describe('headings', () => {
     it('makes heading text bold', () => {

@@ -83,7 +83,12 @@ export function parseHtmlToStyledText(html) {
     // Font family, size, color and highlight are NOT picked up from paste: they
     // are almost always ambient document styles, not intentional formatting.
     const fw = style.fontWeight
-    if (fw === 'bold' || fw === 'bolder' || (parseInt(fw, 10) >= 600 && fw)) {
+    const fwNum = parseInt(fw, 10)
+    if (
+      fw === 'bold' ||
+      fw === 'bolder' ||
+      (!Number.isNaN(fwNum) && fwNum >= 600)
+    ) {
       newFormats.push({name: 'bold', value: null})
     }
     if (style.fontStyle === 'italic' || style.fontStyle === 'oblique') {
