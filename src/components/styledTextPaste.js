@@ -5,7 +5,9 @@ const _SAFE_LINK_PROTOCOLS = ['http:', 'https:', 'mailto:', 'gramps:']
 // Parse an HTML string (e.g. from the clipboard) into a StyledText-compatible
 // {string, tags} object, preserving only what StyledText can represent.
 export function parseHtmlToStyledText(html) {
-  const tmp = document.createElement('div')
+  // Use a <template> element — it is inert by spec, so no network requests
+  // are triggered by e.g. <img src="..."> in clipboard HTML.
+  const tmp = document.createElement('template')
   tmp.innerHTML = html
 
   let text = ''
@@ -15,6 +17,10 @@ export function parseHtmlToStyledText(html) {
   const listStack = []
 
   function walk(node, activeFormats, inPre) {
+    if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+      for (const child of node.childNodes) walk(child, activeFormats, inPre)
+      return
+    }
     if (node.nodeType === Node.TEXT_NODE) {
       let nodeText = node.textContent
       if (!inPre) {
@@ -157,7 +163,7 @@ export function parseHtmlToStyledText(html) {
     }
   }
 
-  walk(tmp, [], false)
+  walk(tmp.content, [], false)
 
   // Strip leading and trailing newlines; track how many were removed from the
   // front so tag ranges can be shifted accordingly.
