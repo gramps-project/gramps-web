@@ -28,11 +28,18 @@ function _formatsForElement(node, tag) {
     formats.push({name: 'superscript', value: null})
   } else if (tag === 'a') {
     try {
-      const url = new URL(node.getAttribute('href') || '')
+      const rawHref = node.getAttribute('href') || ''
+      const url = new URL(rawHref)
       if (_SAFE_LINK_PROTOCOLS.includes(url.protocol)) {
-        // Store url.href (normalized/encoded) to prevent quote characters from
-        // breaking the rendered <a href="…"> attribute in GrampsjsEditor.
-        formats.push({name: 'link', value: url.href})
+        // For gramps: links, preserve the raw href so that the capitalised
+        // object-type segment (e.g. gramps://Person/handle/…) is not silently
+        // lowercased by URL hostname normalisation. Quote characters are
+        // stripped to prevent them breaking the <a href="…"> attribute.
+        // For http/https/mailto, url.href (normalized/encoded) is used
+        // instead — it encodes unsafe characters and is safe to embed.
+        const value =
+          url.protocol === 'gramps:' ? rawHref.replace(/['"]/g, '') : url.href
+        formats.push({name: 'link', value})
       }
     } catch {
       // relative or malformed href — skip

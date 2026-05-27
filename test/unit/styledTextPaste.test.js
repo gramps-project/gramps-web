@@ -79,10 +79,22 @@ describe('parseHtmlToStyledText', () => {
       })
     })
 
-    it('allows gramps: protocol', () => {
+    it('allows gramps: protocol and preserves object-type casing', () => {
+      // gramps:// is a non-special URL scheme; the capitalised object-type
+      // segment (Person, Family, …) must NOT be lowercased by URL normalisation.
       const r = parseHtmlToStyledText(
         '<a href="gramps://Person/handle/abc">name</a>'
       )
+      expect(tag(r, 'link')?.value).toBe('gramps://Person/handle/abc')
+    })
+
+    it('strips quote characters from gramps: hrefs to keep the attribute safe', () => {
+      // Use a single-quoted HTML attribute so that a literal " inside the href
+      // value survives the HTML parser and reaches getAttribute().
+      const r = parseHtmlToStyledText(
+        "<a href='gramps://Person/handle/ab\"c'>name</a>"
+      )
+      // The " in the href is stripped so it cannot break <a href="…">
       expect(tag(r, 'link')?.value).toBe('gramps://Person/handle/abc')
     })
 
