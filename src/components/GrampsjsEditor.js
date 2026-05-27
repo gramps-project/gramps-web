@@ -51,16 +51,16 @@ function _applyTag(str, tag) {
     return `<u>${str}</u>`
   }
   if (name === 'fontface') {
-    return `<span style="font-family:${value}">${str}</span>`
+    return `<span style="font-family:${_escapeHtml(value)}">${str}</span>`
   }
   if (name === 'fontsize') {
-    return `<span style="font-size:${value}px;">${str}</span>`
+    return `<span style="font-size:${_escapeHtml(value)}px;">${str}</span>`
   }
   if (name === 'fontcolor') {
-    return `<span style="color:${value}">${str}</span>`
+    return `<span style="color:${_escapeHtml(value)}">${str}</span>`
   }
   if (name === 'highlight') {
-    return `<span style="background-color:${value}">${str}</span>`
+    return `<span style="background-color:${_escapeHtml(value)}">${str}</span>`
   }
   if (name === 'strikethrough') {
     return `<s>${str}</s>`
@@ -69,7 +69,7 @@ function _applyTag(str, tag) {
     return `<sup>${str}</sup>`
   }
   if (name === 'link') {
-    return `<a href="${value}">${str}</a>`
+    return `<a href="${_escapeHtml(value)}">${str}</a>`
   }
   return `[${name} ${value}]${str}[/${name}]`
 }
