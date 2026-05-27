@@ -409,8 +409,9 @@ describe('parseHtmlToStyledText', () => {
     })
 
     it('does not strip non-breaking spaces', () => {
-      const r = parseHtmlToStyledText('hello world')
-      expect(r.string).toBe('hello world')
+      const NBSP = '\u00A0'
+      const r = parseHtmlToStyledText(`hello${NBSP}world`)
+      expect(r.string).toBe(`hello${NBSP}world`)
     })
   })
 
