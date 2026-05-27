@@ -30,6 +30,15 @@ function capitalize(string) {
   return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
 }
 
+/** Escape plain text for safe embedding inside an HTML attribute or element. */
+function _escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
 function _applyTag(str, tag) {
   const [name, value] = tag
   if (name === 'bold') {
@@ -81,7 +90,10 @@ function isBooleanTag(tagName) {
 }
 
 function _applyTags(str, tags) {
-  let tstr = `${str}`
+  // Escape the raw text slice first so that any '<', '>', '&', '"' in
+  // data.string are never interpreted as HTML markup when assigned to innerHTML.
+  // Subsequent _applyTag calls wrap already-safe content in known-good tags.
+  let tstr = _escapeHtml(str)
   tags.forEach(tag => {
     tstr = _applyTag(tstr, tag)
   })
