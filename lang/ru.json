@@ -340,5 +340,15 @@
     "Show on timeline": "Показать на временной шкале",
     "Open in map": "Открыть на карте",
     "An error occurred": "Произошла ошибка",
-    "Assistant": "Помощник"
+    "Assistant": "Помощник",
+    "Export media": "Экспорт медиафайлов",
+    "Running tasks": "Текущие задачи",
+    "Process transactions": "Обработка операций",
+    "Processing your query...": "Выполняю запрос...",
+    "Searching genealogy database...": "Поиск в генеалогической базе...",
+    "Filtering people in family tree...": "Фильтрую людей в семейном древе...",
+    "Filtering events...": "Фильтрую события...",
+    "Fetching person record...": "Получаю данные о человеке...",
+    "Fetching family record...": "Получаю данные о семье...",
+    "Filtering families...": "Фильтрую семьи..."
 }
