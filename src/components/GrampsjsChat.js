@@ -11,6 +11,8 @@ import {
   getChatHistory,
   getChatTaskId,
   setChatTaskId,
+  getChatMessageHistoryRaw,
+  setChatMessageHistoryRaw,
   updateTaskStatus,
 } from '../api.js'
 import {fireEvent} from '../util.js'
@@ -111,6 +113,8 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     return {
       messages: {type: Array},
       loading: {type: Boolean},
+      _liveToolCalls: {type: Array},
+      _liveStatus: {type: String},
     }
   }
 
@@ -118,58 +122,70 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.messages = getChatHistory() || []
     this.loading = false
+    this._liveToolCalls = []
+    this._liveStatus = ''
+  }
+
+  // Converts PROGRESS result_objects into the same shape GrampsjsChatToolCalls expects.
+  get _liveMetadata() {
+    const toolsUsed = this._liveToolCalls
+      .filter(t => t.tool)
+      .map(t => ({step: t.step, name: t.tool}))
+    return toolsUsed.length ? {tools_used: toolsUsed} : null
   }
 
   render() {
     return html`
-        <div class="outer">
-          <div class="clear-btn">
-            <md-filled-button
-              @click="${this._handleClear}"
-              ?disabled=${this.messages.length === 0}
-            >
-              <grampsjs-icon
-                slot="icon"
-                path="${mdiNotificationClearAll}"
-                color="currentColor"
-              ></grampsjs-icon>
-              ${this._('New')}
-            </md-filled-button>
+      <div class="outer">
+        <div class="clear-btn">
+          <md-filled-button
+            @click="${this._handleClear}"
+            ?disabled=${this.messages.length === 0}
+          >
+            <grampsjs-icon
+              slot="icon"
+              path="${mdiNotificationClearAll}"
+              color="currentColor"
+            ></grampsjs-icon>
+            ${this._('New')}
+          </md-filled-button>
+        </div>
+        <div class="container">
+          <div class="conversation">
+            ${this.loading
+              ? html`<grampsjs-chat-message
+                  type="ai"
+                  .metadata="${this._liveMetadata}"
+                  .status="${this._liveStatus}"
+                  ?live="${true}"
+                  .appState="${this.appState}"
+                >
+                  <div class="loading" slot="no-wrap">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                  </div>
+                </grampsjs-chat-message>`
+              : ''}
+            ${this.messages
+              .toReversed()
+              .map(
+                message => html`
+                  <grampsjs-chat-message
+                    type="${message.role}"
+                    .message="${message.message}"
+                    .metadata="${message.metadata ?? null}"
+                    .appState="${this.appState}"
+                  ></grampsjs-chat-message>
+                `
+              )}
           </div>
-          <div class="container">
-            <div class="conversation">
-              ${
-                this.loading
-                  ? html` <grampsjs-chat-message
-                      type="ai"
-                      .appState="${this.appState}"
-                    >
-                      <div class="loading" slot="no-wrap">
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                        <div class="dot"></div></div
-                    ></grampsjs-chat-message>`
-                  : ''
-              }
-              ${this.messages
-                .toReversed()
-                .map(
-                  message => html`
-                    <grampsjs-chat-message
-                      type="${message.role}"
-                      .message="${message.message}"
-                      .appState="${this.appState}"
-                    ></grampsjs-chat-message>
-                  `
-                )}
-            </div>
-            <div class="prompt">
-              <grampsjs-chat-prompt
-                ?loading="${this.loading}"
-                @chat:prompt="${this._handlePrompt}"
-                .appState="${this.appState}"
-              ></grampsjs-chat-prompt>
-            </div>
+          <div class="prompt">
+            <grampsjs-chat-prompt
+              ?loading="${this.loading}"
+              @chat:prompt="${this._handlePrompt}"
+              .appState="${this.appState}"
+            ></grampsjs-chat-prompt>
           </div>
         </div>
       </div>
@@ -191,7 +207,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
       for (let end = 1; end <= nWords; end += 1) {
         this.messages = [
           ...messages.slice(-(maxLength - 1)),
-          {role: 'ai', message: words.slice(0, end).join(' ')},
+          {...message, message: words.slice(0, end).join(' ')},
         ]
         // eslint-disable-next-line no-await-in-loop
         await delay(Math.ceil(1000 / nWords))
@@ -211,7 +227,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     this._generateResponse()
   }
 
-  _pollChatTask(taskId) {
+  _pollChatTask(taskId, onProgress) {
     return new Promise((resolve, reject) => {
       let settled = false
       updateTaskStatus(
@@ -222,6 +238,8 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
           if (doneStates.includes(status?.state)) {
             settled = true
             resolve(status)
+          } else if (status?.state === 'PROGRESS' && onProgress) {
+            onProgress(status.result_object)
           }
         },
         1000,
@@ -246,11 +264,15 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     const payload = {
       query: this.messages[this.messages.length - 1].message,
     }
-    if (this.messages.length > 1) {
+    const rawHistory = getChatMessageHistoryRaw()
+    if (rawHistory) {
+      payload.message_history_raw = rawHistory
+    } else if (this.messages.length > 1) {
+      // Fallback for sessions pre-dating message_history_raw; can be removed later.
       payload.history = this.messages.slice(0, this.messages.length - 1)
     }
     const data = await this.appState.apiPost(
-      '/api/chat/?background=1',
+      '/api/chat/?background=1&verbose=1',
       payload,
       {
         dbChanged: false,
@@ -268,13 +290,31 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
       setChatTaskId(data.task.id)
       let status
       try {
-        status = await this._pollChatTask(data.task.id)
+        status = await this._pollChatTask(data.task.id, progress => {
+          if (progress?.message) {
+            this._liveStatus = progress.message
+          }
+          if (
+            progress?.tool &&
+            !this._liveToolCalls.some(t => t.step === progress.step)
+          ) {
+            this._liveToolCalls = [...this._liveToolCalls, progress]
+          }
+        })
       } catch (e) {
         fireError(e?.message || this._('An error occurred'))
         message = {role: 'error', message: this._('An error occurred')}
       }
       if (status?.state === 'SUCCESS' && status?.result_object?.response) {
-        message = {role: 'ai', message: status.result_object.response}
+        const result = status.result_object
+        if (result.message_history_raw) {
+          setChatMessageHistoryRaw(result.message_history_raw)
+        }
+        message = {
+          role: 'ai',
+          message: result.response,
+          metadata: result.metadata ?? null,
+        }
       } else if (!message) {
         const errMsg =
           (status?.state === 'FAILURE' && status.result_object) ||
@@ -283,13 +323,23 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
         message = {role: 'error', message: this._(errMsg)}
       }
     } else if (data?.data?.response) {
-      message = {role: 'ai', message: data.data.response}
+      const result = data.data
+      if (result.message_history_raw) {
+        setChatMessageHistoryRaw(result.message_history_raw)
+      }
+      message = {
+        role: 'ai',
+        message: result.response,
+        metadata: result.metadata ?? null,
+      }
     } else {
       fireError('An error occurred')
       message = {role: 'error', message: this._('An error occurred')}
     }
 
     this.loading = false
+    this._liveToolCalls = []
+    this._liveStatus = ''
     await this._addMessage(message, 6)
     setChatHistory(this.messages)
     if (data?.task?.id) {
@@ -301,6 +351,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     this.messages = []
     setChatHistory(this.messages)
     setChatTaskId(null)
+    setChatMessageHistoryRaw(null)
   }
 
   _scrollToLastMessage() {
@@ -337,7 +388,15 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
       }
       let message
       if (status?.state === 'SUCCESS' && status?.result_object?.response) {
-        message = {role: 'ai', message: status.result_object.response}
+        const result = status.result_object
+        if (result.message_history_raw) {
+          setChatMessageHistoryRaw(result.message_history_raw)
+        }
+        message = {
+          role: 'ai',
+          message: result.response,
+          metadata: result.metadata ?? null,
+        }
       } else if (status) {
         const errMsg =
           (status?.state === 'FAILURE' && status.result_object) ||
