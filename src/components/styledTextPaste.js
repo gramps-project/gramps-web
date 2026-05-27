@@ -156,7 +156,11 @@ export function parseHtmlToStyledText(html) {
     const tag = node.tagName.toLowerCase()
     if (tag === 'script' || tag === 'style') return
     if (tag === 'br') {
+      const start = textCpLen
       append('\n')
+      activeFormats.forEach(fmt =>
+        segments.push({start, end: textCpLen, name: fmt.name, value: fmt.value})
+      )
       return
     }
 

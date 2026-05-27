@@ -39,6 +39,15 @@ function _escapeHtml(str) {
     .replace(/"/g, '&quot;')
 }
 
+/**
+ * Sanitize a value for safe interpolation into a CSS style attribute.
+ * Applies HTML-attribute escaping (prevents `"` breaking out of style="…")
+ * and strips CSS property-injection sequences (`;`, `url(`).
+ */
+function _safeCssValue(value) {
+  return _escapeHtml(String(value ?? '')).replace(/;|url\s*\(/gi, '')
+}
+
 function _applyTag(str, tag) {
   const [name, value] = tag
   if (name === 'bold') {
@@ -51,16 +60,21 @@ function _applyTag(str, tag) {
     return `<u>${str}</u>`
   }
   if (name === 'fontface') {
-    return `<span style="font-family:${_escapeHtml(value)}">${str}</span>`
+    return `<span style="font-family:${_safeCssValue(value)}">${str}</span>`
   }
   if (name === 'fontsize') {
-    return `<span style="font-size:${_escapeHtml(value)}px;">${str}</span>`
+    const size = parseFloat(value)
+    return Number.isFinite(size)
+      ? `<span style="font-size:${size}px;">${str}</span>`
+      : str
   }
   if (name === 'fontcolor') {
-    return `<span style="color:${_escapeHtml(value)}">${str}</span>`
+    return `<span style="color:${_safeCssValue(value)}">${str}</span>`
   }
   if (name === 'highlight') {
-    return `<span style="background-color:${_escapeHtml(value)}">${str}</span>`
+    return `<span style="background-color:${_safeCssValue(
+      value
+    )}">${str}</span>`
   }
   if (name === 'strikethrough') {
     return `<s>${str}</s>`

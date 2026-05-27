@@ -190,6 +190,23 @@ describe('parseHtmlToStyledText', () => {
     })
   })
 
+  // ── <br> inside formatted elements ───────────────────────────────────────
+
+  describe('<br> inside formatted elements', () => {
+    it('applies formatting across a <br> so ranges merge', () => {
+      // <b>a<br>b</b>: the \n is inside <b>, so bold should cover [0,3]
+      const r = parseHtmlToStyledText('<b>a<br>b</b>')
+      expect(r.string).toBe('a\nb')
+      expect(tag(r, 'bold')?.ranges).toEqual([[0, 3]])
+    })
+
+    it('does not apply formatting to a <br> outside any formatted element', () => {
+      const r = parseHtmlToStyledText('a<br>b')
+      expect(r.string).toBe('a\nb')
+      expect(tag(r, 'bold')).toBeUndefined()
+    })
+  })
+
   // ── nested formatting ─────────────────────────────────────────────────────
 
   describe('nested formatting', () => {
