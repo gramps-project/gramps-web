@@ -132,7 +132,11 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     return html`
-      <md-dialog @cancel="${e => e.preventDefault()}" open>
+      <md-dialog
+        @keydown="${this._handleDialogKeydown}"
+        @cancel="${e => e.preventDefault()}"
+        open
+      >
         <div slot="headline">${this.dialogTitle}</div>
         <div slot="content" @formdata:changed="${this._handleFormData}">
           ${this.dialogIsOpen ? this.renderForm() : ''}
@@ -160,6 +164,12 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
   _handleDialogSave() {
     fireEvent(this, 'object:save', {data: this.data})
     this._reset()
+  }
+
+  _handleDialogKeydown(e) {
+    if (e.key === 'Escape') {
+      this._handleDialogCancel()
+    }
   }
 
   _handleDialogCancel() {
