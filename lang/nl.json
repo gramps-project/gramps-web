@@ -344,5 +344,12 @@
     "Assistant": "Assistent",
     "Export media": "Media exporteren",
     "Running tasks": "Lopende taken",
-    "Process transactions": "Transacties verwerken"
+    "Process transactions": "Transacties verwerken",
+    "Processing your query...": "Zoekopdracht verwerken…",
+    "Searching genealogy database...": "Genealogiedatabase doorzoeken…",
+    "Filtering people in family tree...": "Personen in stamboom filteren…",
+    "Filtering events...": "Gebeurtenissen filteren…",
+    "Fetching person record...": "Persoonsgegevens ophalen…",
+    "Fetching family record...": "Gezinsgegevens ophalen…",
+    "Filtering families...": "Gezinnen filteren…"
 }
