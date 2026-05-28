@@ -194,6 +194,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
                   @click="${() => this._handleRowClick(index)}"
                   @keydown="${clickKeyHandler}"
                   tabindex="${this.linked ? '0' : '-1'}"
+                  role="${this.linked ? 'button' : 'row'}"
                 >
                   ${item.map(
                     (value, colIndex) => html`
