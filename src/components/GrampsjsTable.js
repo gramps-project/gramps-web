@@ -30,7 +30,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
 
         tbody tr {
           display: grid;
-          gap: 1em;
+          gap: 0.75em;
           border-top: 1px solid var(--grampsjs-body-font-color-10);
           grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
           padding: 10px 0;
@@ -43,7 +43,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
         tbody td {
           text-align: left;
           display: block;
-          padding: 10px;
+          padding: 0 10px;
           border: none;
           position: relative;
           font-size: 16px;
@@ -117,9 +117,8 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
 
         .mobile-sort md-menu {
           --md-menu-item-one-line-container-height: 48px;
-          --md-sys-color-on-surface: var(--grampsjs-body-font-color-70);
           --md-menu-item-selected-container-color: var(
-            --grampsjs-mobile-table-sort-menu-color
+            --md-sys-color-secondary-container
           );
         }
       `,
@@ -190,7 +189,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           </thead>
           <tbody>
             ${this._sortedRows().map(
-              ({item, index}, rowNumber) => html`
+              ({item, index}) => html`
                 <tr
                   @click="${() => this._handleRowClick(index)}"
                   @keydown="${clickKeyHandler}"
