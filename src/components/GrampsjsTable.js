@@ -83,10 +83,12 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           padding: 0;
         }
 
+        table.wide thead tr {
+          border-bottom: 1px solid var(--grampsjs-body-font-color-10);
+        }
+
         table.wide tbody td {
           display: table-cell;
-          box-shadow: none;
-          background: none;
           padding: 14px 20px;
           border: none;
           font-size: 15px;
@@ -127,7 +129,6 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       columns: {type: Array},
-      units: {type: Array},
       data: {type: Array},
       narrow: {type: Boolean},
       naturalWidth: {type: Boolean},
@@ -144,7 +145,6 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   constructor() {
     super()
     this.columns = []
-    this.units = []
     this.data = []
     this.loading = false
     this.narrow = false
@@ -194,6 +194,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
                 <tr
                   @click="${() => this._handleRowClick(rowNumber)}"
                   @keydown="${clickKeyHandler}"
+                  tabindex="${this.linked ? '0' : '-1'}"
                 >
                   ${row.map(
                     (value, index) => html`
@@ -338,7 +339,13 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   firstUpdated() {
     const container = this.renderRoot.querySelector('.table-container')
     this.handleResize()
-    new ResizeObserver(() => this.handleResize()).observe(container)
+    this._resizeObserver = new ResizeObserver(() => this.handleResize())
+    this._resizeObserver.observe(container)
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    this._resizeObserver?.disconnect()
   }
 
   handleResize() {
