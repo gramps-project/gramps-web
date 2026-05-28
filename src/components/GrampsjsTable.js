@@ -30,7 +30,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
 
         tbody tr {
           display: grid;
-          gap: 1em;
+          gap: 0.75em;
           border-top: 1px solid var(--grampsjs-body-font-color-10);
           grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
           padding: 10px 0;
@@ -43,7 +43,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
         tbody td {
           text-align: left;
           display: block;
-          padding: 10px;
+          padding: 0 10px;
           border: none;
           position: relative;
           font-size: 16px;
@@ -83,10 +83,12 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           padding: 0;
         }
 
+        table.wide thead tr {
+          border-bottom: 1px solid var(--grampsjs-body-font-color-10);
+        }
+
         table.wide tbody td {
           display: table-cell;
-          box-shadow: none;
-          background: none;
           padding: 14px 20px;
           border: none;
           font-size: 15px;
@@ -115,9 +117,8 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
 
         .mobile-sort md-menu {
           --md-menu-item-one-line-container-height: 48px;
-          --md-sys-color-on-surface: var(--grampsjs-body-font-color-70);
           --md-menu-item-selected-container-color: var(
-            --grampsjs-mobile-table-sort-menu-color
+            --md-sys-color-secondary-container
           );
         }
       `,
@@ -127,7 +128,6 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       columns: {type: Array},
-      units: {type: Array},
       data: {type: Array},
       narrow: {type: Boolean},
       naturalWidth: {type: Boolean},
@@ -144,7 +144,6 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   constructor() {
     super()
     this.columns = []
-    this.units = []
     this.data = []
     this.loading = false
     this.narrow = false
@@ -189,25 +188,27 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
             </tr>
           </thead>
           <tbody>
-            ${this._sortedData().map(
-              (row, rowNumber) => html`
+            ${this._sortedRows().map(
+              ({item, index}) => html`
                 <tr
-                  @click="${() => this._handleRowClick(rowNumber)}"
+                  @click="${() => this._handleRowClick(index)}"
                   @keydown="${clickKeyHandler}"
+                  tabindex="${this.linked ? '0' : '-1'}"
+                  role="${this.linked ? 'button' : 'row'}"
                 >
-                  ${row.map(
-                    (value, index) => html`
-                      <td data-label="${this._(this.columns[index].name)}">
+                  ${item.map(
+                    (value, colIndex) => html`
+                      <td data-label="${this._(this.columns[colIndex].name)}">
                         ${this.loading
                           ? html`<span class="skeleton"
                               ><span style="visibility: hidden;"
                                 >${this._formatValue(
-                                  this.columns[index],
+                                  this.columns[colIndex],
                                   value
                                 )}</span
                               ></span
                             >`
-                          : this._formatValue(this.columns[index], value)}
+                          : this._formatValue(this.columns[colIndex], value)}
                       </td>
                     `
                   )}
@@ -307,38 +308,34 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     return renderIconSvg(mdiSort, 'var(--grampsjs-body-font-color-20)')
   }
 
-  _sortedData() {
+  _sortedRows() {
+    const indexed = this.data.map((item, index) => ({item, index}))
     if (this.sortable && this.sort >= 0) {
-      const sortFunc = this.descending
-        ? (a, b) => (a[this.sort] < b[this.sort] ? 1 : -1)
-        : (a, b) => (a[this.sort] > b[this.sort] ? 1 : -1)
-      return [...this.data].sort(sortFunc)
+      const col = this.sort
+      const dir = this.descending ? -1 : 1
+      indexed.sort((a, b) => {
+        if (a.item[col] > b.item[col]) return dir
+        if (a.item[col] < b.item[col]) return -dir
+        return 0
+      })
     }
-    return this.data
+    return indexed
   }
 
-  _sortedDataIndices() {
-    if (this.sortable && this.sort >= 0) {
-      const sortFunc = this.descending
-        ? (a, b) => (a[this.sort] < b[this.sort] ? 1 : -1)
-        : (a, b) => (a[this.sort] > b[this.sort] ? 1 : -1)
-      return [...this.data]
-        .map((item, index) => ({item, index}))
-        .sort((a, b) => sortFunc(a.item, b.item))
-        .map(({index}) => index)
-    }
-    return this.data.map((_, index) => index)
-  }
-
-  _handleRowClick(rowNumber) {
-    const originalRowNumber = this._sortedDataIndices()[rowNumber]
-    fireEvent(this, 'table:row-click', {rowNumber: originalRowNumber})
+  _handleRowClick(originalIndex) {
+    fireEvent(this, 'table:row-click', {rowNumber: originalIndex})
   }
 
   firstUpdated() {
     const container = this.renderRoot.querySelector('.table-container')
     this.handleResize()
-    new ResizeObserver(() => this.handleResize()).observe(container)
+    this._resizeObserver = new ResizeObserver(() => this.handleResize())
+    this._resizeObserver.observe(container)
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    this._resizeObserver?.disconnect()
   }
 
   handleResize() {
