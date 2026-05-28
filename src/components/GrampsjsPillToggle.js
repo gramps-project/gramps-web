@@ -84,7 +84,7 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
           animation: focus-ring-pulse 600ms cubic-bezier(0.2, 0, 0, 1) forwards;
         }
 
-        @media (prefers-reduced-motion) {
+        @media (prefers-reduced-motion: reduce) {
           button:focus-visible {
             animation: none;
           }
@@ -135,7 +135,10 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
               role="radio"
               class="${opt.value === this.selected ? 'active' : ''}"
               aria-checked="${opt.value === this.selected}"
-              tabindex="${opt.value === this.selected ? '0' : '-1'}"
+              tabindex="${opt.value === this.selected ||
+              (this.selected == null && opt === this.options[0])
+                ? '0'
+                : '-1'}"
               @click="${() => this._handleClick(opt.value)}"
             >
               ${opt.label}
@@ -158,9 +161,11 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
     if (!forward && !backward) return
     e.preventDefault()
     const buttons = [...this.renderRoot.querySelectorAll('button')]
+    if (!buttons.length) return
     const i = buttons.findIndex(b => b.getAttribute('aria-checked') === 'true')
+    const current = i === -1 ? 0 : i
     const next =
-      buttons[(i + (forward ? 1 : -1) + buttons.length) % buttons.length]
+      buttons[(current + (forward ? 1 : -1) + buttons.length) % buttons.length]
     next?.click()
     next?.focus()
   }
