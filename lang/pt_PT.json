@@ -344,5 +344,12 @@
     "Assistant": "Assistente",
     "Export media": "Exportar multimédia",
     "Running tasks": "A executar tarefas",
-    "Process transactions": "Processar transacções"
+    "Process transactions": "Processar transacções",
+    "Processing your query...": "A processar a consulta...",
+    "Searching genealogy database...": "A procurar na genealogia...",
+    "Filtering people in family tree...": "A filtrar indivíduos na árvore...",
+    "Filtering events...": "A filtrar eventos...",
+    "Fetching person record...": "A obter o registo do indivíduo...",
+    "Fetching family record...": "A obter o registo da família...",
+    "Filtering families...": "A filtrar famílias..."
 }
