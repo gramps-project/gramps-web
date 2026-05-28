@@ -11,7 +11,12 @@ import {
 } from './api.js'
 import {getCurrentTheme} from './theme.js'
 import {fireEvent, makeHandle} from './util.js'
-import {getTaskLabel, getTaskName} from './taskLabels.js'
+import {
+  getTaskLabel,
+  getTaskName,
+  TASK_LABELS,
+  stripTaskPrefix,
+} from './taskLabels.js'
 
 export function getInitialAppState() {
   const auth = new Auth()
@@ -176,7 +181,11 @@ export function getInitialAppState() {
     if (!res.data) return
     const runningStates = ['PENDING', 'STARTED', 'PROGRESS']
     for (const t of res.data) {
-      if (runningStates.includes(t.state) && !activeTasks.has(t.task_id)) {
+      if (
+        runningStates.includes(t.state) &&
+        !activeTasks.has(t.task_id) &&
+        stripTaskPrefix(t.name) in TASK_LABELS
+      ) {
         // Ensure created_at is treated as UTC (backend may omit the Z suffix).
         let createdAt
         if (t.created_at) {
