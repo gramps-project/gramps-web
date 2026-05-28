@@ -344,5 +344,12 @@
     "Assistant": "Asistent",
     "Export media": "Exportovať médiá",
     "Running tasks": "Spustené úlohy",
-    "Process transactions": "Spracovať transakcie"
+    "Process transactions": "Spracovať transakcie",
+    "Processing your query...": "Spracovávanie vašej požiadavky...",
+    "Searching genealogy database...": "Prehľadávanie genealogickej databázy...",
+    "Filtering people in family tree...": "Filtrovanie ľudí v rodinnom strome...",
+    "Filtering events...": "Filtrovanie udalostí...",
+    "Fetching person record...": "Načítavanie záznamu osoby...",
+    "Fetching family record...": "Načítavanie záznamu rodiny...",
+    "Filtering families...": "Filtrovanie rodín..."
 }
