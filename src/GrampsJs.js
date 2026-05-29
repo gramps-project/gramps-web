@@ -120,6 +120,7 @@ export class GrampsJs extends LitElement {
       _firstRunToken: {type: String},
       _loadingStrings: {type: Boolean},
       reindexNeeded: {type: Boolean},
+      _semanticIndexStale: {type: Boolean},
     }
   }
 
@@ -138,6 +139,7 @@ export class GrampsJs extends LitElement {
     this._firstRunToken = ''
     this._loadingStrings = false
     this._reindexNeeded = false
+    this._semanticIndexStale = false
     this._drawerWasOpen = false
     this._metadataConfirmed = false
   }
@@ -311,6 +313,7 @@ export class GrampsJs extends LitElement {
       ${this.renderContent()} ${this._renderKeyboardShortcuts()}
       <mwc-snackbar id="app-snackbar" leading></mwc-snackbar>
       ${this._reindexNeeded ? this._renderReindexSnackbar() : ''}
+      ${this._semanticIndexStale ? this._renderSemanticStaleSnackbar() : ''}
       <grampsjs-undo-transaction
         .appState="${this.appState}"
       ></grampsjs-undo-transaction>
@@ -351,6 +354,28 @@ export class GrampsJs extends LitElement {
     fireEvent(this, 'nav', {path: 'settings/administration'})
     e.preventDefault()
     e.stopPropagation()
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _renderSemanticStaleSnackbar() {
+    return html`<mwc-snackbar
+      id="semantic-stale-snackbar"
+      leading
+      open
+      timeoutMs="-1"
+      labelText="${this._(
+        'The semantic search index is out of date. A full reindex is required.'
+      )}"
+    >
+      ${this.appState.permissions.canManageUsers
+        ? html`
+            <mwc-button slot="action" @click="${this._handleReindexButton}"
+              >${this._('Settings')}</mwc-button
+            >
+          `
+        : ''}
+      ></mwc-snackbar
+    >`
   }
 
   _renderKeyboardShortcuts() {
@@ -829,6 +854,14 @@ export class GrampsJs extends LitElement {
       this._reindexNeeded = true
     } else {
       this._reindexNeeded = false
+    }
+    // Check if the semantic search index is stale due to a model change
+    const semanticSearch = this.appState.dbInfo?.server?.semantic_search
+    if (semanticSearch) {
+      this._semanticIndexStale =
+        this.appState.dbInfo?.search?.sifts?.semantic_index_stale === true
+    } else {
+      this._semanticIndexStale = false
     }
   }
 
