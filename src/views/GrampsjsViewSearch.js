@@ -353,13 +353,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
       this._pages = Math.ceil(this._totalCount / 20)
     } else if ('error' in data) {
       this.error = true
-      // 503 from semantic search with stale model: show the server message
-      // directly and append a reindex hint for admin users
-      if (data.status === 503 && this.semantic) {
-        this._errorMessage = data.error
-      } else {
-        this._errorMessage = data.error
-      }
+      this._errorMessage = data.error
     }
   }
 
