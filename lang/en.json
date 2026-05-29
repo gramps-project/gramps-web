@@ -213,6 +213,7 @@
   "Yes": "Yes",
   "Toggle time filter for places": "Toggle time filter for places",
   "The search index needs to be rebuilt.": "The search index needs to be rebuilt.",
+  "The semantic search index is out of date. A full reindex is required.": "The semantic search index is out of date. A full reindex is required.",
   "Ask something about your ancestors": "Ask something about your ancestors",
   "Chat messages": "Chat messages",
   "Manage semantic search index": "Manage semantic search index",

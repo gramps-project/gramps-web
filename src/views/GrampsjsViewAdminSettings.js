@@ -273,7 +273,9 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
               </p>
               <p>
                 <md-outlined-button
-                  ?disabled=${this._buttonUpdateSearchSemanticDisabled}
+                  ?disabled=${this._buttonUpdateSearchSemanticDisabled ||
+                  this.appState.dbInfo?.search?.sifts?.semantic_index_stale ===
+                    true}
                   @click="${() => this._updateSearch(true, true)}"
                   >${this._('Update semantic search index')}</md-outlined-button
                 >
@@ -590,6 +592,17 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     const iconOk = html`<mwc-icon class="success status"
       >check_circle</mwc-icon
     >`
+    if (
+      semantic &&
+      this.appState.dbInfo?.search?.sifts?.semantic_index_stale === true
+    ) {
+      return html`<p class="alert error">
+        ${iconError}
+        ${this._(
+          'The semantic search index is out of date. A full reindex is required.'
+        )}
+      </p>`
+    }
     const icon = objCount === 0 || count / objCount > 0.98 ? iconOk : iconError
     return html`<p class="small">
       ${icon} ${this._('Status')}:
