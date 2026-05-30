@@ -266,7 +266,7 @@
     "Records require additional access": "Os registos requerem acesso adicional",
     "Add custom search engine": "Adicionar motor de pesquisa",
     "Enter a search URL with template variables for person data. Available variables:": "Insira um URL de pesquisa com variáveis-modelo de dados pessoais. Dispõe de:",
-    "e.g., MyGenealogy": "e.g., MyGenealogy",
+    "e.g., MyGenealogy": "por ex., MyGenealogy",
     "Search URL": "URL de pesquisa",
     "A number": "Um número",
     "A file system path": "Um caminho do sistema de ficheiros",
@@ -351,5 +351,6 @@
     "Filtering events...": "A filtrar eventos...",
     "Fetching person record...": "A obter o registo do indivíduo...",
     "Fetching family record...": "A obter o registo da família...",
-    "Filtering families...": "A filtrar famílias..."
+    "Filtering families...": "A filtrar famílias...",
+    "The semantic search index is out of date. A full reindex is required.": "O índice de pesquisa semântica está desactualizado. É necessária uma reindexação completa."
 }
