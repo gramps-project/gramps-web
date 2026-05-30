@@ -9,7 +9,7 @@ import '@material/mwc-button'
 import '@material/mwc-icon-button'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/button/text-button.js'
-import {mdiInformation, mdiClose} from '@mdi/js'
+import {mdiInformation, mdiClose, mdiUndo, mdiRedo} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
@@ -195,7 +195,8 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
           padding: 20px 25px;
         }
 
-        mwc-icon-button {
+        mwc-icon-button,
+        #controls md-icon-button {
           color: var(--grampsjs-body-font-color-50);
         }
 
@@ -260,6 +261,8 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       _html: {type: String},
       _showDraftBanner: {type: Boolean},
       _draftTimestamp: {type: Number},
+      _canUndo: {type: Boolean},
+      _canRedo: {type: Boolean},
     }
   }
 
@@ -272,12 +275,19 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     this._html = ''
     this._showDraftBanner = false
     this._draftTimestamp = 0
+    this._canUndo = false
+    this._canRedo = false
+    this._undoStack = []
+    this._redoStack = []
+    this._suppressUndo = false
     // Debounce timer for draft saving
     this._draftSaveTimer = null
     // Bind methods that need to be added/removed as event listeners
     this._boundHandleSaveButton = this._handleSaveButton.bind(this)
     this._boundHandleBeforeUnload = this._handleBeforeUnload.bind(this)
     this._boundHandleCancel = this._handleCancel.bind(this)
+    this._undo = this._undo.bind(this)
+    this._redo = this._redo.bind(this)
   }
 
   _getStorageKey() {
@@ -296,6 +306,10 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   reset() {
     this.data = this.initialData
     this.cursorPosition = [0]
+    this._undoStack = []
+    this._redoStack = []
+    this._canUndo = false
+    this._canRedo = false
   }
 
   render() {
@@ -367,6 +381,26 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         ></mwc-icon-button>
         <grampsjs-tooltip for="btn-link" .appState="${this.appState}"
           >${this._('Link')}</grampsjs-tooltip
+        >
+        <md-icon-button
+          id="btn-undo"
+          ?disabled="${!this._canUndo}"
+          @click="${this._undo}"
+        >
+          <grampsjs-icon path="${mdiUndo}"></grampsjs-icon>
+        </md-icon-button>
+        <grampsjs-tooltip for="btn-undo" .appState="${this.appState}"
+          >${this._('Undo')}</grampsjs-tooltip
+        >
+        <md-icon-button
+          id="btn-redo"
+          ?disabled="${!this._canRedo}"
+          @click="${this._redo}"
+        >
+          <grampsjs-icon path="${mdiRedo}"></grampsjs-icon>
+        </md-icon-button>
+        <grampsjs-tooltip for="btn-redo" .appState="${this.appState}"
+          >${this._('Redo')}</grampsjs-tooltip
         >
       </div>
       <!-- display: inline -->
@@ -453,6 +487,18 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
             handled = true
           }
           break
+        case 'z':
+          if (e.shiftKey) {
+            this._redo()
+          } else {
+            this._undo()
+          }
+          handled = true
+          break
+        case 'y':
+          this._redo()
+          handled = true
+          break
         default:
           break
       }
@@ -468,6 +514,8 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     e.stopPropagation()
     // Paste is handled entirely by _handlePaste (which fires before this event)
     if (e.inputType === 'insertFromPaste') return
+    // Undo/redo are handled by _handleKeydown (which fires before this event)
+    if (e.inputType === 'historyUndo' || e.inputType === 'historyRedo') return
     if (
       [
         'insertText',
@@ -490,9 +538,11 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
             cpStart,
             rangeCharPos(range.endContainer, range.endOffset, div)
           )
+          this._suppressUndo = true
           this.cursorPosition = [cpStart]
         }
         this._insertText(e.data, cpStart)
+        this._suppressUndo = false
         this.cursorPosition = [cpStart + charLength(e.data)]
       } else if (
         e.inputType === 'insertParagraph' ||
@@ -503,8 +553,10 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
             cpStart,
             rangeCharPos(range.endContainer, range.endOffset, div)
           )
+          this._suppressUndo = true
         }
         this._insertText('\n', cpStart)
+        this._suppressUndo = false
         this.cursorPosition = [cpStart + 1]
       } else if (
         [
@@ -557,6 +609,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
           dataLen
         )
       )
+      this._suppressUndo = true
     }
     const htmlData = e.clipboardData?.getData('text/html')
     if (htmlData) {
@@ -568,6 +621,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       this._insertText(data, cpStart)
       this.cursorPosition = [cpStart + charLength(data)]
     }
+    this._suppressUndo = false
     this.handleChange()
   }
 
@@ -618,7 +672,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     if (value && pos) {
       // first remove, then add, to prevent overlapping tags
       this._removeTag('link', pos)
+      this._suppressUndo = true
       this._insertTag('link', pos, value)
+      this._suppressUndo = false
       this.handleChange()
     }
     this._dialogContent = null
@@ -714,6 +770,39 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     this.handleChange()
   }
 
+  _pushUndo() {
+    if (this._suppressUndo) return
+    this._undoStack.push({data: this.data, cursorPosition: this.cursorPosition})
+    if (this._undoStack.length > 100) {
+      this._undoStack.shift()
+    }
+    this._redoStack = []
+    this._canUndo = true
+    this._canRedo = false
+  }
+
+  _undo() {
+    if (this._undoStack.length === 0) return
+    this._redoStack.push({data: this.data, cursorPosition: this.cursorPosition})
+    const snapshot = this._undoStack.pop()
+    this.data = snapshot.data
+    this.cursorPosition = snapshot.cursorPosition
+    this._canUndo = this._undoStack.length > 0
+    this._canRedo = true
+    this.handleChange()
+  }
+
+  _redo() {
+    if (this._redoStack.length === 0) return
+    this._undoStack.push({data: this.data, cursorPosition: this.cursorPosition})
+    const snapshot = this._redoStack.pop()
+    this.data = snapshot.data
+    this.cursorPosition = snapshot.cursorPosition
+    this._canUndo = true
+    this._canRedo = this._redoStack.length > 0
+    this.handleChange()
+  }
+
   handleChange() {
     // Dismiss banner on first edit
     if (this._showDraftBanner) {
@@ -764,6 +853,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _insertTag(tagname, range, value = null) {
+    this._pushUndo()
     this.data = {
       ...this.data,
       tags: this._cleanTags([
@@ -815,6 +905,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     if (range[1] <= range[0]) {
       return
     }
+    this._pushUndo()
     this.data = {
       ...this.data,
       tags: this._cleanTags([
@@ -923,7 +1014,8 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   }
 
   // insert string at position (position is a Unicode code-point offset)
-  _insertText(str, position) {
+  _insertText(str, position, {skipUndo = false} = {}) {
+    if (!skipUndo) this._pushUndo()
     const strLen = charLength(str)
     this.data = {
       ...this.data,
@@ -944,8 +1036,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
   // insert a StyledText fragment {string, tags} at position, preserving existing tags
   _insertStyledText({string, tags}, position) {
+    this._pushUndo()
     // _insertText inserts the plain text and shifts all existing tags past `position`
-    this._insertText(string, position)
+    this._insertText(string, position, {skipUndo: true})
     // Add the pasted formatting tags, each range shifted by the insertion position
     const newTags = (tags || []).map(tag => ({
       ...tag,
@@ -965,6 +1058,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     if (d <= 0) {
       return
     }
+    this._pushUndo()
     this.data = {
       ...this.data,
       string:

@@ -898,6 +898,7 @@ export const grampsStrings = [
   'Underline',
   'Strikethrough',
   'Undo',
+  'Redo',
   'United States of America',
   'Unknown ',
   'Unknown',
