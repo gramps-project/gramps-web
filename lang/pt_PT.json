@@ -352,5 +352,7 @@
     "Fetching person record...": "A obter o registo do indivíduo...",
     "Fetching family record...": "A obter o registo da família...",
     "Filtering families...": "A filtrar famílias...",
-    "The semantic search index is out of date. A full reindex is required.": "O índice de pesquisa semântica está desactualizado. É necessária uma reindexação completa."
+    "The semantic search index is out of date. A full reindex is required.": "O índice de pesquisa semântica está desactualizado. É necessária uma reindexação completa.",
+    "Fetching event record...": "A recuperar o registo do evento...",
+    "Fetching place record...": "A recuperar o registo do local..."
 }
