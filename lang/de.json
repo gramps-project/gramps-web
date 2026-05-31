@@ -353,5 +353,7 @@
     "Fetching person record...": "Personendatensatz wird abgerufen...",
     "Fetching family record...": "Familiendatensatz wird abgerufen...",
     "Filtering families...": "Familien werden gefiltert...",
-    "The semantic search index is out of date. A full reindex is required.": "Der semantische Suchindex ist veraltet. Eine vollständige Neuindizierung ist erforderlich."
+    "The semantic search index is out of date. A full reindex is required.": "Der semantische Suchindex ist veraltet. Eine vollständige Neuindizierung ist erforderlich.",
+    "Fetching event record...": "Ereignisdatensatz wird abgerufen...",
+    "Fetching place record...": "Ortsdatensatz wird abgerufen..."
 }
