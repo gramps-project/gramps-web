@@ -341,5 +341,16 @@
     "Show on timeline": "Taispeáin ar an amlíne",
     "Open in map": "Oscail sa léarscáil",
     "An error occurred": "Tharla earráid",
-    "Assistant": "Cúntóir"
+    "Assistant": "Cúntóir",
+    "Export media": "Easpórtáil meáin",
+    "Running tasks": "Tascanna reatha",
+    "Process transactions": "Próiseáil idirbhearta",
+    "The semantic search index is out of date. A full reindex is required.": "Tá an t-innéacs cuardaigh sheimeantach as dáta. Tá athinnéacsú iomlán ag teastáil.",
+    "Processing your query...": "Ag próiseáil d'fhiosrúcháin...",
+    "Searching genealogy database...": "Ag cuardach bunachar sonraí ginealaigh...",
+    "Filtering people in family tree...": "Ag scagadh daoine i gcrann teaghlaigh...",
+    "Filtering events...": "Ag scagadh imeachtaí...",
+    "Fetching person record...": "Ag fáil taifead duine...",
+    "Fetching family record...": "Ag fáil taifead teaghlaigh...",
+    "Filtering families...": "Ag scagadh teaghlaigh..."
 }
