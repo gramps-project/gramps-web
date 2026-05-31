@@ -191,9 +191,15 @@ export class GrampsJs extends LitElement {
 
         [slot='appContent'] md-linear-progress {
           position: sticky;
-          top: var(--mdc-top-app-bar-height, 64px);
+          top: 64px;
           z-index: 4;
           visibility: hidden;
+        }
+
+        @media (max-width: 599px) {
+          [slot='appContent'] md-linear-progress {
+            top: 56px;
+          }
         }
 
         [slot='appContent'] md-linear-progress.active {
