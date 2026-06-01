@@ -119,7 +119,10 @@ class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
   }
 
   async _handleOIDCLogin() {
-    await apiOIDCLogin(this._oidcProvider)
+    const res = await apiOIDCLogin(this._oidcProvider)
+    if (res?.error) {
+      fireEvent(this, 'grampsjs:error', {message: res.error})
+    }
   }
 
   async _fetchToken() {
