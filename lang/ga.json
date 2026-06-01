@@ -352,5 +352,7 @@
     "Filtering events...": "Ag scagadh imeachtaí...",
     "Fetching person record...": "Ag fáil taifead duine...",
     "Fetching family record...": "Ag fáil taifead teaghlaigh...",
-    "Filtering families...": "Ag scagadh teaghlaigh..."
+    "Filtering families...": "Ag scagadh teaghlaigh...",
+    "Fetching event record...": "Ag fáil taifead imeachta...",
+    "Fetching place record...": "Ag fáil taifead áite..."
 }
