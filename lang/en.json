@@ -193,6 +193,7 @@
   "Delete all objects": "Delete all objects",
   "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.",
   "Please re-enter your password to continue.": "Please re-enter your password to continue.",
+  "Please sign in again to continue.": "Please sign in again to continue.",
   "Revisions": "Revisions",
   "Add multiple objects": "Add multiple objects",
   "Delete Person": "Delete Person",

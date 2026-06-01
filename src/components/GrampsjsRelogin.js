@@ -4,10 +4,11 @@ import '@material/web/button/text-button'
 import '@material/web/chips/chip-set'
 import '@material/web/chips/filter-chip'
 import '@material/web/textfield/filled-text-field'
+import './GrampsjsOidcButton.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {apiGetTokens} from '../api.js'
+import {apiGetTokens, apiOIDCLogin} from '../api.js'
 import {fireEvent} from '../util.js'
 
 class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
@@ -40,6 +41,10 @@ class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
     this._error = ''
   }
 
+  get _oidcProvider() {
+    return this.appState?.auth?.claims?.oidc_provider || ''
+  }
+
   show() {
     this.renderRoot.querySelector('md-dialog').show()
   }
@@ -52,23 +57,43 @@ class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
         @close=${this._handleClose}
       >
         <form slot="content" id="form-id" method="dialog">
-          <p>${this._('Please re-enter your password to continue.')}</p>
-          <md-filled-text-field
-            label="${this._('Password: ').replace(':', '')}"
-            type="password"
-            id="password"
-          >
-          </md-filled-text-field>
-          ${this._error ? html` <p class="alert error">${this._error}</p>` : ''}
+          ${this._oidcProvider
+            ? html`
+                <p>${this._('Please sign in again to continue.')}</p>
+                <grampsjs-oidc-button
+                  .provider="${this._oidcProvider}"
+                  .providerName="${this._oidcProvider}"
+                  .onClick="${() => this._handleOIDCLogin()}"
+                  .buttonText="${this._(
+                    'Continue with %s',
+                    this._oidcProvider
+                  )}"
+                  .signingInText="${this._('Signing in...')}"
+                ></grampsjs-oidc-button>
+              `
+            : html`
+                <p>${this._('Please re-enter your password to continue.')}</p>
+                <md-filled-text-field
+                  label="${this._('Password: ').replace(':', '')}"
+                  type="password"
+                  id="password"
+                >
+                </md-filled-text-field>
+                ${this._error
+                  ? html` <p class="alert error">${this._error}</p>`
+                  : ''}
+              `}
         </form>
 
         <div slot="actions">
           <md-text-button form="form-id" value="cancel"
             >${this._('Cancel')}</md-text-button
           >
-          <md-text-button @click="${this._handleClickOk}"
-            >${this._('login')}</md-text-button
-          >
+          ${!this._oidcProvider
+            ? html`<md-text-button @click="${this._handleClickOk}"
+                >${this._('login')}</md-text-button
+              >`
+            : ''}
           <md-text-button
             class="hidden"
             form="form-id"
@@ -91,6 +116,10 @@ class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
       this._error = this._((error.message ?? error) || 'Error')
     }
     // click the actual (hidden) OK button
+  }
+
+  async _handleOIDCLogin() {
+    await apiOIDCLogin(this._oidcProvider)
   }
 
   async _fetchToken() {
