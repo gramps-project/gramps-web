@@ -352,5 +352,7 @@
     "Fetching person record...": "Persoonsgegevens ophalen…",
     "Fetching family record...": "Gezinsgegevens ophalen…",
     "Filtering families...": "Gezinnen filteren…",
-    "The semantic search index is out of date. A full reindex is required.": "De semantische zoekindex is verouderd. Een volledige herindezering is vereist."
+    "The semantic search index is out of date. A full reindex is required.": "De semantische zoekindex is verouderd. Een volledige herindezering is vereist.",
+    "Fetching event record...": "Gegevens van gebeurtenis ophalen…",
+    "Fetching place record...": "Plaats gegevens ophalen…"
 }
