@@ -354,5 +354,6 @@
     "Filtering families...": "A filtrar famílias...",
     "The semantic search index is out of date. A full reindex is required.": "O índice de pesquisa semântica está desactualizado. É necessária uma reindexação completa.",
     "Fetching event record...": "A recuperar o registo do evento...",
-    "Fetching place record...": "A recuperar o registo do local..."
+    "Fetching place record...": "A recuperar o registo do local...",
+    "Please sign in again to continue.": "Por favor inicie sessão novamente para continuar."
 }
