@@ -344,5 +344,16 @@
     "Assistant": "Assistent",
     "Export media": "Exportera media",
     "Running tasks": "Kör uppgifter",
-    "Process transactions": "Bearbeta transaktioner"
+    "Process transactions": "Bearbeta transaktioner",
+    "Please sign in again to continue.": "Vänligen logga in igen för att fortsätta.",
+    "The semantic search index is out of date. A full reindex is required.": "Det semantiska sökindexet är föråldrat. En fullständig omindexering krävs.",
+    "Processing your query...": "Bearbetar din fråga...",
+    "Searching genealogy database...": "Söker i släktforskningsdatabasen...",
+    "Filtering people in family tree...": "Filtrerar personer i släktträdet...",
+    "Filtering events...": "Filtrerar händelser...",
+    "Fetching person record...": "Hämtar personpost...",
+    "Fetching family record...": "Hämtar familjepost...",
+    "Filtering families...": "Filtrerar familjer...",
+    "Fetching event record...": "Hämtar händelsepost...",
+    "Fetching place record...": "Hämtar platspost..."
 }
