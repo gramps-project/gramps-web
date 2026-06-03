@@ -12,12 +12,12 @@ import '../components/GrampsjsFilterPrivate.js'
 export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
   constructor() {
     super()
-    this._columns = {
-      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      father: {title: 'Father', sort: 'surname'},
-      mother: {title: 'Mother', sort: ''},
-      change: {title: 'Last changed', sort: 'change'},
-    }
+    this._columns = [
+      {name: 'Gramps ID', key: 'grampsId', sortKey: 'gramps_id'},
+      {name: 'Father', key: 'father', sortKey: 'surname'},
+      {name: 'Mother', key: 'mother'},
+      {name: 'Last changed', key: 'change', sortKey: 'change'},
+    ]
     this._objectsName = 'families'
   }
 

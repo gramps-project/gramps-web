@@ -14,13 +14,13 @@ import '../components/GrampsjsFilterPrivate.js'
 export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
   constructor() {
     super()
-    this._columns = {
-      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      type: {title: 'Event Type', sort: 'type'},
-      date: {title: 'Date', sort: 'date'},
-      place: {title: 'Place', sort: 'place'},
-      change: {title: 'Last changed', sort: 'change'},
-    }
+    this._columns = [
+      {name: 'Gramps ID', key: 'grampsId', sortKey: 'gramps_id'},
+      {name: 'Event Type', key: 'type', sortKey: 'type'},
+      {name: 'Date', key: 'date', sortKey: 'date'},
+      {name: 'Place', key: 'place', sortKey: 'place'},
+      {name: 'Last changed', key: 'change', sortKey: 'change'},
+    ]
     this._objectsName = 'events'
   }
 

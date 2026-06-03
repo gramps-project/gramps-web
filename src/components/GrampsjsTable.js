@@ -18,10 +18,13 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
+        :host {
+          display: block;
+        }
+
         table {
           border-collapse: collapse;
           font-weight: 300;
-          max-width: 100%;
         }
 
         thead {
@@ -75,6 +78,8 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           font-size: 14px;
           color: var(--grampsjs-body-font-color-50);
           font-weight: 400;
+          vertical-align: middle;
+          white-space: nowrap;
         }
 
         table.wide tbody tr {
@@ -94,19 +99,30 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           font-size: 15px;
         }
 
+        tbody td > .cell-content {
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
+          overflow: hidden;
+        }
+
+        table.wide tbody td > .cell-content {
+          -webkit-line-clamp: 1;
+        }
+
         table.wide tbody td::before {
           content: none;
         }
 
         th {
           --md-icon-button-icon-size: 18px;
+          --md-icon-button-container-height: 20px;
+          --md-icon-button-container-width: 20px;
         }
 
         th md-icon-button {
-          position: relative;
-          top: 3px;
           margin-left: 0.5em;
-          display: inline-block;
+          vertical-align: middle;
         }
 
         .mobile-sort {
@@ -137,6 +153,8 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
       sortable: {type: Boolean},
       sort: {type: Number},
       descending: {type: Boolean},
+      serverSort: {type: Boolean},
+      sortDescriptor: {type: String},
       _containerWidth: {type: Number},
     }
   }
@@ -153,6 +171,8 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     this.sortable = false
     this.sort = -1
     this.descending = false
+    this.serverSort = false
+    this.sortDescriptor = ''
     this._containerWidth = -1
   }
 
@@ -161,12 +181,11 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   }
 
   render() {
-    if (this.data.length === 0) {
-      return html`<div class="table-container"></div>`
-    }
     return html`
       <div class="table-container">
-        ${this.sortable && !this._isWide ? this._renderMobileSort() : ''}
+        ${this.data.length > 0 && this.sortable && !this._isWide
+          ? this._renderMobileSort()
+          : ''}
 
         <table
           class="${classMap({
@@ -199,16 +218,18 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
                   ${item.map(
                     (value, colIndex) => html`
                       <td data-label="${this._(this.columns[colIndex].name)}">
-                        ${this.loading
-                          ? html`<span class="skeleton"
-                              ><span style="visibility: hidden;"
-                                >${this._formatValue(
-                                  this.columns[colIndex],
-                                  value
-                                )}</span
-                              ></span
-                            >`
-                          : this._formatValue(this.columns[colIndex], value)}
+                        <div class="cell-content">
+                          ${this.loading
+                            ? html`<span class="skeleton"
+                                ><span style="visibility: hidden;"
+                                  >${this._formatValue(
+                                    this.columns[colIndex],
+                                    value
+                                  )}</span
+                                ></span
+                              >`
+                            : this._formatValue(this.columns[colIndex], value)}
+                        </div>
                       </td>
                     `
                   )}
@@ -222,24 +243,34 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _renderMobileSort() {
+    const hasActive = this.serverSort
+      ? this._getActiveSortColumn() >= 0
+      : this.sort >= 0
+    const isAscending = this.serverSort
+      ? !this._isSortDescending()
+      : !this.descending
     return html`
       <div class="mobile-sort">
         <md-icon-button @click="${this._toggleSortMenu}" id="btn-sort-menu">
-          <md-icon
-            >${this._renderSortIcon(this.sort >= 0, !this.descending)}</md-icon
-          >
+          <md-icon>${this._renderSortIcon(hasActive, isAscending)}</md-icon>
         </md-icon-button>
         <md-menu id="sort-menu" anchor="btn-sort-menu">
-          ${this.columns.map(
-            (column, columnIndex) => html`
-              <md-menu-item
-                @click="${() => this._toggleSort(columnIndex)}"
-                ?selected="${this.sort === columnIndex}"
-              >
-                <div slot="headline">${this._(column.name)}</div>
-              </md-menu-item>
-            `
-          )}
+          ${this.columns
+            .filter(col => !this.serverSort || col.sortKey)
+            .map((column, columnIndex) => {
+              const realIndex = this.columns.indexOf(column)
+              const isSelected = this.serverSort
+                ? this._getActiveSortColumn() === realIndex
+                : this.sort === realIndex
+              return html`
+                <md-menu-item
+                  @click="${() => this._toggleSort(realIndex)}"
+                  ?selected="${isSelected}"
+                >
+                  <div slot="headline">${this._(column.name)}</div>
+                </md-menu-item>
+              `
+            })}
         </md-menu>
       </div>
     `
@@ -263,8 +294,14 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _renderSortBtn(columnIndex) {
-    const isCurrent = this.sort === columnIndex
-    const isAscending = !this.descending
+    const col = this.columns[columnIndex]
+    if (this.serverSort && !col.sortKey) return ''
+    const isCurrent = this.serverSort
+      ? this._getActiveSortColumn() === columnIndex
+      : this.sort === columnIndex
+    const isAscending = this.serverSort
+      ? isCurrent && !this._isSortDescending()
+      : !this.descending
     return html`
       <span>
         <md-icon-button
@@ -283,12 +320,31 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _toggleSort(columnIndex) {
+    if (this.serverSort) {
+      const col = this.columns[columnIndex]
+      if (!col?.sortKey) return
+      const isCurrent = this._getActiveSortColumn() === columnIndex
+      const wasDescending = this._isSortDescending()
+      const descending = isCurrent ? !wasDescending : false
+      fireEvent(this, 'table:sort-changed', {key: col.sortKey, descending})
+      return
+    }
     if (this.sort === columnIndex) {
       this.descending = !this.descending
     } else {
       this.sort = columnIndex
       this.descending = false
     }
+  }
+
+  _getActiveSortColumn() {
+    if (!this.sortDescriptor) return -1
+    const key = this.sortDescriptor.substring(1)
+    return this.columns.findIndex(col => col.sortKey === key)
+  }
+
+  _isSortDescending() {
+    return this.sortDescriptor?.startsWith('-') ?? false
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -310,7 +366,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
 
   _sortedRows() {
     const indexed = this.data.map((item, index) => ({item, index}))
-    if (this.sortable && this.sort >= 0) {
+    if (!this.serverSort && this.sortable && this.sort >= 0) {
       const col = this.sort
       const dir = this.descending ? -1 : 1
       indexed.sort((a, b) => {
@@ -328,9 +384,9 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
 
   firstUpdated() {
     const container = this.renderRoot.querySelector('.table-container')
-    this.handleResize()
     this._resizeObserver = new ResizeObserver(() => this.handleResize())
     this._resizeObserver.observe(container)
+    this.handleResize()
   }
 
   disconnectedCallback() {
