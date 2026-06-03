@@ -16,6 +16,7 @@ import {
   normalizeRect,
   isValidRect,
   apiVersionAtLeast,
+  renderIcon,
 } from '../../src/util.js'
 
 // Helpers
@@ -374,5 +375,46 @@ describe('apiVersionAtLeast', () => {
 
   it('defaults patch to 0 when not specified', () => {
     expect(apiVersionAtLeast(dbInfo('3.9.0'), 3, 9)).to.be.true
+  })
+})
+
+describe('renderIcon checksum', () => {
+  // values order in the grampsjs-img template: [handle, slot, rect, checksum, fallbackIcon]
+  const CHECKSUM_INDEX = 3
+
+  it('uses checksum from media object itself', () => {
+    const obj = {
+      object_type: 'media',
+      object: {handle: 'mh1', checksum: 'abc123'},
+    }
+    const result = renderIcon(obj)
+    expect(result.values[CHECKSUM_INDEX]).to.equal('abc123')
+  })
+
+  it('resolves checksum from extended.media for non-media objects', () => {
+    const obj = {
+      object_type: 'person',
+      object: {
+        handle: 'ph1',
+        media_list: [{ref: 'mh2', rect: []}],
+        extended: {
+          media: [{handle: 'mh2', checksum: 'def456'}],
+        },
+      },
+    }
+    const result = renderIcon(obj)
+    expect(result.values[CHECKSUM_INDEX]).to.equal('def456')
+  })
+
+  it('returns empty checksum when extended.media is absent', () => {
+    const obj = {
+      object_type: 'person',
+      object: {
+        handle: 'ph1',
+        media_list: [{ref: 'mh3', rect: []}],
+      },
+    }
+    const result = renderIcon(obj)
+    expect(result.values[CHECKSUM_INDEX]).to.equal('')
   })
 })
