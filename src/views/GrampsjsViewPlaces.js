@@ -13,11 +13,11 @@ import '../components/GrampsjsFilterText.js'
 export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
   constructor() {
     super()
-    this._columns = {
-      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      title: {title: 'Name', sort: 'title'},
-      change: {title: 'Last changed', sort: 'change'},
-    }
+    this._columns = [
+      {name: 'Gramps ID', key: 'grampsId', sortKey: 'gramps_id'},
+      {name: 'Name', key: 'title', sortKey: 'title'},
+      {name: 'Last changed', key: 'change', sortKey: 'change'},
+    ]
     this._objectsName = 'places'
   }
 
