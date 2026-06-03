@@ -830,9 +830,17 @@ function _getMediaRect(obj) {
   return []
 }
 
+function _getMediaChecksum(obj) {
+  if (obj.object_type === 'media') {
+    return obj.object.checksum || ''
+  }
+  return ''
+}
+
 export function renderIcon(obj, slot = 'graphic', iconPath = null) {
   const handle = _getMediaHandle(obj)
   const rect = _getMediaRect(obj)
+  const checksum = _getMediaChecksum(obj)
   if (handle) {
     return html`<grampsjs-img
       handle="${handle}"
@@ -842,6 +850,7 @@ export function renderIcon(obj, slot = 'graphic', iconPath = null) {
       size="40"
       .rect="${rect}"
       mime=""
+      checksum="${checksum}"
       fallbackIcon="${objectIconPath[obj.object_type]}"
     ></grampsjs-img>`
   }
