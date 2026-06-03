@@ -834,6 +834,11 @@ function _getMediaChecksum(obj) {
   if (obj.object_type === 'media') {
     return obj.object.checksum || ''
   }
+  if (obj.object?.media_list?.length) {
+    const ref = obj.object.media_list[0].ref
+    const mediaObj = obj.object.extended?.media?.find(m => m.handle === ref)
+    return mediaObj?.checksum || ''
+  }
   return ''
 }
 
