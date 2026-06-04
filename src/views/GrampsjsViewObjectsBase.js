@@ -6,6 +6,7 @@ import {html, css} from 'lit'
 import {mdiPlus, mdiCog} from '@mdi/js'
 
 import '@material/web/fab/fab.js'
+import '@material/web/iconbutton/icon-button.js'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 import '@material/web/checkbox/checkbox.js'
@@ -168,6 +169,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         ${this._renderViewButton()}
         <md-icon-button
           title="${this._('Columns')}"
+          aria-label="${this._('Columns')}"
           @click="${() => {
             this._showColumnPicker = true
           }}"
@@ -223,8 +225,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
           ${this._columns.map(
             col => html`
               <div class="column-picker-row">
-                <label>
+                <label for="col-${col.key}">
                   <md-checkbox
+                    id="col-${col.key}"
                     ?checked="${visibleKeys.includes(col.key)}"
                     ?disabled="${visibleKeys.length === 1 &&
                     visibleKeys.includes(col.key)}"
@@ -258,9 +261,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   }
 
   _resetColumns() {
-    const existingColumns = this.appState.settings?.columns || {}
-    const {[this._objectsName]: _, ...rest} = existingColumns
-    this.appState.updateSettings({columns: rest})
+    const existingColumns = {...(this.appState.settings?.columns || {})}
+    delete existingColumns[this._objectsName]
+    this.appState.updateSettings({columns: existingColumns}, true)
   }
 
   _toggleColumn(key, visible) {
@@ -275,9 +278,10 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     }
     if (newVisible.length === 0) return
     const existingColumns = this.appState.settings?.columns || {}
-    this.appState.updateSettings({
-      columns: {...existingColumns, [this._objectsName]: newVisible},
-    })
+    this.appState.updateSettings(
+      {columns: {...existingColumns, [this._objectsName]: newVisible}},
+      true
+    )
   }
 
   _handleFiltersChanged() {

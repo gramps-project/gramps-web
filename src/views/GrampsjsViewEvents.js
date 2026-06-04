@@ -97,13 +97,12 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _formatRow(row) {
     const people = (row?.profile?.participants?.people || [])
-      .filter(p => PRIMARY_ROLES_EN.has(p.role))
+      .filter(p => PRIMARY_ROLES_EN.has(p.role) || p.role === this._('Primary'))
       .map(p => personTitleFromProfile(p.person))
     const families = (row?.profile?.participants?.families || [])
-      .filter(f => PRIMARY_ROLES_EN.has(f.role))
+      .filter(f => PRIMARY_ROLES_EN.has(f.role) || f.role === this._('Family'))
       .map(f => familyTitleFromProfile(f.family))
     return {
       grampsId: row.gramps_id,
