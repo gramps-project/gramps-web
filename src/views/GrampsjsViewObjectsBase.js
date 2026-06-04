@@ -100,9 +100,10 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   get _visibleColumns() {
     const saved = this.appState?.settings?.columns?.[this._objectsName]
     if (saved && Array.isArray(saved) && saved.length > 0) {
-      return saved
+      const filtered = saved
         .map(key => this._columns.find(col => col.key === key))
         .filter(Boolean)
+      if (filtered.length > 0) return filtered
     }
     return this._columns.filter(col => col.defaultVisible !== false)
   }
@@ -277,6 +278,17 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       newVisible = currentVisible.filter(k => k !== key)
     }
     if (newVisible.length === 0) return
+    const hiddenCol = this._columns.find(col => col.key === key)
+    if (
+      !visible &&
+      hiddenCol?.sortKey &&
+      this._sort.substring(1) === hiddenCol.sortKey
+    ) {
+      const fallback = this._columns.find(
+        col => col.sortKey && newVisible.includes(col.key)
+      )
+      this._sort = fallback ? `-${fallback.sortKey}` : '-change'
+    }
     const existingColumns = this.appState.settings?.columns || {}
     this.appState.updateSettings(
       {columns: {...existingColumns, [this._objectsName]: newVisible}},
