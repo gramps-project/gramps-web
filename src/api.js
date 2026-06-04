@@ -928,21 +928,23 @@ export async function apiPutPostDelete(
   method,
   endpoint,
   payload,
-  {isJson = true, dbChanged = true, requireFresh = false} = {}
+  {isJson = true, dbChanged = true, requireFresh = false, skipAuth = false} = {}
 ) {
   let resJson
   let status
   try {
     let headers = {}
-    try {
-      const accessToken = await auth.getValidAccessToken()
-      headers = {
-        ...headers,
-        Accept: 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      }
-      // eslint-disable-next-line no-empty
-    } catch {}
+    if (!skipAuth) {
+      try {
+        const accessToken = await auth.getValidAccessToken()
+        headers = {
+          ...headers,
+          Accept: 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        }
+        // eslint-disable-next-line no-empty
+      } catch {}
+    }
     if (isJson) {
       headers['Content-Type'] = 'application/json'
     }

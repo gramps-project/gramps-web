@@ -895,7 +895,11 @@ export class GrampsJs extends LitElement {
     const url = '/api/token/create_owner/'
     const payload = hasTree ? {tree: this.appState.path.pageId} : {}
     this.appState
-      .apiPost(url, payload, {dbChanged: false, saving: false})
+      .apiPost(url, payload, {
+        dbChanged: false,
+        saving: false,
+        skipAuth: true,
+      })
       .then(data => {
         if (!('error' in data) && data?.data?.access_token) {
           this.loadingState = LOADING_STATE_NO_OWNER
