@@ -7,6 +7,7 @@ import './GrampsjsDnaMatchTable.js'
 import './GrampsjsFormEditMatch.js'
 import './GrampsjsConnectionChart.js'
 import {personDisplayName, fireEvent} from '../util.js'
+import './GrampsjsObjectLink.js'
 import {renderIconSvg} from '../icons.js'
 
 export class GrampsjsDnaMatch extends GrampsjsAppStateMixin(LitElement) {
@@ -47,12 +48,16 @@ export class GrampsjsDnaMatch extends GrampsjsAppStateMixin(LitElement) {
     return html`
       <h3>
         ${this._('DNA Match')}:
-        <a href="/person/${this.person.gramps_id}"
-          >${personDisplayName(this.person)}</a
+        <grampsjs-object-link
+          object-type="person"
+          gramps-id="${this.person.gramps_id}"
+          >${personDisplayName(this.person)}</grampsjs-object-link
         >
         &amp;
-        <a href="/person/${this.personMatch.gramps_id}"
-          >${personDisplayName(this.personMatch)}</a
+        <grampsjs-object-link
+          object-type="person"
+          gramps-id="${this.personMatch.gramps_id}"
+          >${personDisplayName(this.personMatch)}</grampsjs-object-link
         >
       </h3>
 

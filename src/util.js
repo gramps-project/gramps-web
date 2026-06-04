@@ -52,6 +52,7 @@ import {
 } from '@mdi/js'
 import {asteriskIcon, crossIcon, renderIconSvg, ringsIconPath} from './icons.js'
 import './components/GrampsjsIcon.js'
+import './components/GrampsjsObjectLink.js'
 import {frontendLanguages} from './strings.js'
 import {hex6ToCss, hex12ToCss} from './color.js'
 import {dateToSdn, CALENDARS} from './gcalendar.js'
@@ -150,9 +151,11 @@ export function renderPerson(personProfile) {
       <mwc-icon class="inline ${personProfile.sex === 'M' ? 'male' : 'female'}"
         >person</mwc-icon
       >
-      <a href="${BASE_DIR}/person/${personProfile.gramps_id}"
+      <grampsjs-object-link
+        object-type="person"
+        gramps-id="${personProfile.gramps_id}"
         >${personProfile.name_given || '…'}
-        ${personProfile.name_surname || '…'}</a
+        ${personProfile.name_surname || '…'}</grampsjs-object-link
       >
     </span>
     ${personProfile?.birth?.date
@@ -198,17 +201,17 @@ export function showObject(type, obj, strings) {
         <mwc-icon class="inline ${obj.gender === 1 ? 'male' : 'female'}"
           >person</mwc-icon
         >
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
+        <grampsjs-object-link object-type="person" gramps-id="${obj.gramps_id}"
           >${obj?.profile?.name_given || html`&hellip;`}
           ${obj?.profile?.name_surname || html`&hellip;`}
-        </a>
+        </grampsjs-object-link>
       `
     case 'family':
       return html`
         <mwc-icon class="inline">people</mwc-icon>
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
+        <grampsjs-object-link object-type="family" gramps-id="${obj.gramps_id}"
           >${familyTitleFromProfile(obj.profile || {}) || type}
-        </a>
+        </grampsjs-object-link>
       `
     case 'event':
       return html`
@@ -223,9 +226,9 @@ export function showObject(type, obj, strings) {
     case 'place':
       return html`
         <mwc-icon class="inline">place</mwc-icon>
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
+        <grampsjs-object-link object-type="place" gramps-id="${obj.gramps_id}"
           >${obj?.profile?.name || obj?.name?.value || obj.title || type}
-        </a>
+        </grampsjs-object-link>
       `
     case 'source':
       return html`

@@ -10,6 +10,47 @@ import {GrampsjsView} from './GrampsjsView.js'
 
 import {fireEvent, objectTypeToEndpoint} from '../util.js'
 import {clearDraftsWithPrefix} from '../api.js'
+import '../components/GrampsjsBreadcrumbs.js'
+
+const BREADCRUMB_META = {
+  person: {
+    objectsName: 'People',
+    objectIcon: 'person',
+    objectEndpoint: 'people',
+  },
+  family: {
+    objectsName: 'Families',
+    objectIcon: 'people',
+    objectEndpoint: 'families',
+  },
+  place: {objectsName: 'Places', objectIcon: 'place', objectEndpoint: 'places'},
+  event: {objectsName: 'Events', objectIcon: 'event', objectEndpoint: 'events'},
+  citation: {
+    objectsName: 'Citations',
+    objectIcon: 'bookmark',
+    objectEndpoint: 'citations',
+  },
+  source: {
+    objectsName: 'Sources',
+    objectIcon: 'bookmarks',
+    objectEndpoint: 'sources',
+  },
+  repository: {
+    objectsName: 'Repositories',
+    objectIcon: 'account_balance',
+    objectEndpoint: 'repositories',
+  },
+  media: {
+    objectsName: 'Media Objects',
+    objectIcon: 'photo',
+    objectEndpoint: 'media',
+  },
+  note: {
+    objectsName: 'Notes',
+    objectIcon: 'sticky_note_2',
+    objectEndpoint: 'notes',
+  },
+}
 
 const editTitle = {
   person: 'Edit Person',
@@ -98,6 +139,21 @@ export class GrampsjsViewObject extends GrampsjsView {
     return ''
   }
 
+  renderBreadcrumbs() {
+    const meta = BREADCRUMB_META[this._className]
+    if (!meta) return html``
+    return html`
+      <grampsjs-breadcrumbs
+        .data="${this._data}"
+        .appState="${this.appState}"
+        ?edit="${this.edit}"
+        objectsName="${meta.objectsName}"
+        objectIcon="${meta.objectIcon}"
+        objectEndpoint="${meta.objectEndpoint}"
+      ></grampsjs-breadcrumbs>
+    `
+  }
+
   renderContent() {
     if (Object.keys(this._data).length === 0) {
       if (this.loading) {
@@ -106,7 +162,7 @@ export class GrampsjsViewObject extends GrampsjsView {
       return html``
     }
     return html`
-      ${this.renderElement()}
+      ${this.renderBreadcrumbs()} ${this.renderElement()}
       ${this.canEdit && !this.edit ? this.renderFab() : ''}
       ${this.editDialogContent}
     `

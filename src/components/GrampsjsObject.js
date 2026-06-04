@@ -13,7 +13,6 @@ import '../views/GrampsjsViewSourceCitations.js'
 import './GrampsjsAddresses.js'
 import './GrampsjsAssociations.js'
 import './GrampsjsAttributes.js'
-import './GrampsjsBreadcrumbs.js'
 import './GrampsjsChildren.js'
 import './GrampsjsCitations.js'
 import './GrampsjsEvents.js'
@@ -194,6 +193,11 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
+        :host {
+          display: block;
+          container-type: inline-size;
+        }
+
         pre {
           max-width: 80%;
           font-size: 11px;
@@ -315,7 +319,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           padding-left: 8px;
         }
 
-        @media (min-width: 1200px) {
+        @container (min-width: 1200px) {
           div.toc {
             display: block;
             margin-left: auto;
@@ -342,6 +346,18 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
             display: none;
           }
         }
+
+        @container (max-width: 700px) {
+          h2 {
+            font-size: 24px;
+            margin: 4px 0 16px;
+          }
+
+          .sections h3 {
+            font-size: 17px;
+            margin-bottom: 12px;
+          }
+        }
       `,
     ]
   }
@@ -350,11 +366,13 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     return {
       data: {type: Object},
       edit: {type: Boolean},
+      preview: {type: Boolean},
       dialogContent: {type: String},
       _objectsName: {type: String},
       _objectEndpoint: {type: String},
       _objectIcon: {type: String},
       _showReferences: {type: Boolean},
+      _wide: {type: Boolean},
     }
   }
 
@@ -362,21 +380,28 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.data = {}
     this.edit = false
+    this.preview = false
     this.dialogContent = ''
     this._objectsName = 'Objects'
     this._objectIcon = ''
     this._showReferences = true
     this._sectionObserver = null
     this._currentVisibleSection = ''
+    this._wide = false
+    this._resizeObserver = new ResizeObserver(entries => {
+      this._wide = entries[0].contentRect.width >= 1200
+    })
   }
 
   connectedCallback() {
     super.connectedCallback()
+    this._resizeObserver.observe(this)
     this._setupIntersectionObserver()
   }
 
   disconnectedCallback() {
     super.disconnectedCallback()
+    this._resizeObserver.disconnect()
     this._teardownIntersectionObserver()
   }
 
@@ -409,7 +434,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
   }
 
   get tocSidebar() {
-    return this.appState.screenSize === 'large'
+    return this._wide
   }
 
   render() {
@@ -431,7 +456,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         <div class="sections">${this.renderSections()}</div>
         <div class="toc">${this.tocSidebar ? this.renderToc() : ''}</div>
       </div>
-      ${this.tocSidebar
+      ${this.tocSidebar || this.preview
         ? ''
         : html`
             <md-dialog
@@ -443,10 +468,11 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
               <div slot="content">${this.renderToc(false)}</div>
             </md-dialog>
           `}
-      <div class="bottom-bar">
-        <div class="bottom-bar-content"></div>
-      </div>
-
+      ${this.preview
+        ? ''
+        : html`<div class="bottom-bar">
+            <div class="bottom-bar-content"></div>
+          </div>`}
       ${this.dialogContent}
     `
   }
@@ -489,16 +515,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
   }
 
   renderHeader() {
-    return html`
-      <grampsjs-breadcrumbs
-        .data="${this.data}"
-        .appState="${this.appState}"
-        ?edit="${this.edit}"
-        objectsName="${this._objectsName}"
-        objectIcon="${this._objectIcon}"
-        objectEndpoint="${this._objectEndpoint}"
-      ></grampsjs-breadcrumbs>
-    `
+    return html``
   }
 
   renderPicture() {
@@ -549,7 +566,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           <div class="section" id="section-${key}">
             <h3>
               ${this._(_allTabs[key].title)}
-              ${this.tocSidebar || tabKeysArray.length <= 1
+              ${this.tocSidebar || tabKeysArray.length <= 1 || this.preview
                 ? ''
                 : html`
                     <md-icon-button

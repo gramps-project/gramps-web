@@ -71,6 +71,7 @@ export async function getFrontendStrings(lang) {
 export const grampsStrings = [
   '_Back',
   '_Bookmarks',
+  '_Open',
   '_Copy',
   '_Delete',
   '_Generate',

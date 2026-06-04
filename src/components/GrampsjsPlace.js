@@ -9,8 +9,7 @@ import './GrampsjsFormEditLatLong.js'
 import './GrampsjsFormEditPlaceName.js'
 import './GrampsjsIcon.js'
 import {fireEvent} from '../util.js'
-
-const BASE_DIR = ''
+import './GrampsjsObjectLink.js'
 
 export class GrampsjsPlace extends GrampsjsObject {
   static get styles() {
@@ -73,8 +72,10 @@ export class GrampsjsPlace extends GrampsjsObject {
                   <div>
                     <dt>${obj.type}</dt>
                     <dd>
-                      <a href="${BASE_DIR}/place/${obj.gramps_id}"
-                        >${obj.name}</a
+                      <grampsjs-object-link
+                        object-type="place"
+                        gramps-id="${obj.gramps_id}"
+                        >${obj.name}</grampsjs-object-link
                       >
                     </dd>
                   </div>
@@ -91,16 +92,18 @@ export class GrampsjsPlace extends GrampsjsObject {
       return super.renderSectionContent(key)
     }
     return html`
-      <p class="button-list">
-        <md-outlined-button @click="${this._handleMapButtonClick}">
-          ${this._('Open in map')}
-          <grampsjs-icon
-            path="${mdiArrowExpandAll}"
-            color="var(--mdc-theme-primary)"
-            slot="icon"
-          ></grampsjs-icon>
-        </md-outlined-button>
-      </p>
+      ${this.preview
+        ? ''
+        : html`<p class="button-list">
+            <md-outlined-button @click="${this._handleMapButtonClick}">
+              ${this._('Open in map')}
+              <grampsjs-icon
+                path="${mdiArrowExpandAll}"
+                color="var(--mdc-theme-primary)"
+                slot="icon"
+              ></grampsjs-icon>
+            </md-outlined-button>
+          </p>`}
       ${super.renderSectionContent(key)}
     `
   }
