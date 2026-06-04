@@ -3,9 +3,12 @@ Base view for lists of Gramps objects, e.g. people, events, ...
 */
 
 import {html, css} from 'lit'
-import {mdiPlus} from '@mdi/js'
+import {mdiPlus, mdiCog} from '@mdi/js'
 
 import '@material/web/fab/fab.js'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/text-button.js'
+import '@material/web/checkbox/checkbox.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTable.js'
 
@@ -41,6 +44,21 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         .viewbtn {
           float: right;
         }
+
+        .column-picker-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 4px 0;
+        }
+
+        .column-picker-row label {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+          font-size: 15px;
+        }
       `,
     ]
   }
@@ -58,6 +76,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       _objectsName: {type: String},
       altView: {type: Boolean},
       _oldUrl: {type: String},
+      _showColumnPicker: {type: Boolean},
     }
   }
 
@@ -74,14 +93,25 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     this._objectsName = ''
     this.altView = false
     this._oldUrl = ''
+    this._showColumnPicker = false
+  }
+
+  get _visibleColumns() {
+    const saved = this.appState?.settings?.columns?.[this._objectsName]
+    if (saved && Array.isArray(saved) && saved.length > 0) {
+      return saved
+        .map(key => this._columns.find(col => col.key === key))
+        .filter(Boolean)
+    }
+    return this._columns.filter(col => col.defaultVisible !== false)
   }
 
   get _tableBreakPoint() {
-    return Math.min(960, Math.max(500, this._columns.length * 160))
+    return Math.min(960, Math.max(500, this._visibleColumns.length * 160))
   }
 
   get _tableData() {
-    return this._data.map(row => this._columns.map(col => row[col.key]))
+    return this._data.map(row => this._visibleColumns.map(col => row[col.key]))
   }
 
   renderContent() {
@@ -95,7 +125,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
               sortable
               linked
               ?loading="${this.loading}"
-              .columns="${this._columns}"
+              .columns="${this._visibleColumns}"
               .data="${this._tableData}"
               sortDescriptor="${this._sort}"
               breakPoint="${this._tableBreakPoint}"
@@ -111,7 +141,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         .appState="${this.appState}"
       ></grampsjs-pagination>
 
-      ${this.canAdd ? this.renderFab() : ''}
+      ${this.canAdd ? this.renderFab() : ''} ${this._renderColumnPickerDialog()}
     `
   }
 
@@ -124,7 +154,6 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     return ''
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _renderFilter() {
     return html`
       <grampsjs-filters
@@ -135,7 +164,17 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       >
         ${this.renderFilters()}
       </grampsjs-filters>
-      <div class="viewbtn">${this._renderViewButton()}</div>
+      <div class="viewbtn">
+        ${this._renderViewButton()}
+        <md-icon-button
+          title="${this._('Columns')}"
+          @click="${() => {
+            this._showColumnPicker = true
+          }}"
+        >
+          <grampsjs-icon .path="${mdiCog}" height="22"></grampsjs-icon>
+        </md-icon-button>
+      </div>
 
       <div
         class="${this.filterOpen ? '' : 'hidden'}"
@@ -165,6 +204,80 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         ></grampsjs-icon>
       </md-fab>
     `
+  }
+
+  _renderColumnPickerDialog() {
+    const visibleKeys = this._visibleColumns.map(c => c.key)
+    return html`
+      <md-dialog
+        ?open="${this._showColumnPicker}"
+        @cancel="${() => {
+          this._showColumnPicker = false
+        }}"
+        @close="${() => {
+          this._showColumnPicker = false
+        }}"
+      >
+        <div slot="headline">${this._('Columns')}</div>
+        <div slot="content">
+          ${this._columns.map(
+            col => html`
+              <div class="column-picker-row">
+                <label>
+                  <md-checkbox
+                    ?checked="${visibleKeys.includes(col.key)}"
+                    ?disabled="${visibleKeys.length === 1 &&
+                    visibleKeys.includes(col.key)}"
+                    @change="${e =>
+                      this._toggleColumn(col.key, e.target.checked)}"
+                  ></md-checkbox>
+                  ${this._colLabel(col.name)}
+                </label>
+              </div>
+            `
+          )}
+        </div>
+        <div slot="actions">
+          <md-text-button @click="${this._resetColumns}">
+            ${this._('Reset')}
+          </md-text-button>
+          <md-text-button
+            @click="${() => {
+              this._showColumnPicker = false
+            }}"
+          >
+            ${this._('Close')}
+          </md-text-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  _colLabel(name) {
+    return this._(name).replace(/:$/, '')
+  }
+
+  _resetColumns() {
+    const existingColumns = this.appState.settings?.columns || {}
+    const {[this._objectsName]: _, ...rest} = existingColumns
+    this.appState.updateSettings({columns: rest})
+  }
+
+  _toggleColumn(key, visible) {
+    const currentVisible = this._visibleColumns.map(c => c.key)
+    let newVisible
+    if (visible) {
+      newVisible = this._columns
+        .filter(col => col.key === key || currentVisible.includes(col.key))
+        .map(col => col.key)
+    } else {
+      newVisible = currentVisible.filter(k => k !== key)
+    }
+    if (newVisible.length === 0) return
+    const existingColumns = this.appState.settings?.columns || {}
+    this.appState.updateSettings({
+      columns: {...existingColumns, [this._objectsName]: newVisible},
+    })
   }
 
   _handleFiltersChanged() {

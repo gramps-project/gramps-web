@@ -16,6 +16,7 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
     this._columns = [
       {name: 'Gramps ID', key: 'grampsId', sortKey: 'gramps_id'},
       {name: 'Name', key: 'title', sortKey: 'title'},
+      {name: 'Place type:', key: 'type'},
       {name: 'Last changed', key: 'change', sortKey: 'change'},
     ]
     this._objectsName = 'places'
@@ -23,7 +24,7 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
 
   // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
-    return '/api/places/?keys=gramps_id,name,change'
+    return '/api/places/?keys=gramps_id,name,place_type,change'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -64,12 +65,12 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
 
   // eslint-disable-next-line class-methods-use-this
   _formatRow(row) {
-    const formattedRow = {
+    return {
       grampsId: row.gramps_id,
       title: row.name.value,
+      type: row?.place_type?.string || row?.place_type || '',
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
-    return formattedRow
   }
 }
 

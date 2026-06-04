@@ -3,13 +3,20 @@ Events list view
 */
 
 import {html} from 'lit'
-import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
 import '../components/GrampsjsFilterText.js'
 import '../components/GrampsjsFilterType.js'
 import '../components/GrampsjsFilterYears.js'
 import '../components/GrampsjsFilterTags.js'
 import '../components/GrampsjsFilterPrivate.js'
+import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
+import {
+  prettyTimeDiffTimestamp,
+  filterCounts,
+  personTitleFromProfile,
+  familyTitleFromProfile,
+} from '../util.js'
+
+const PRIMARY_ROLES_EN = new Set(['Primary', 'Family'])
 
 export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
   constructor() {
@@ -19,6 +26,8 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
       {name: 'Event Type', key: 'type', sortKey: 'type'},
       {name: 'Date', key: 'date', sortKey: 'date'},
       {name: 'Place', key: 'place', sortKey: 'place'},
+      {name: 'Participants', key: 'participants'},
+      {name: 'Description', key: 'description', defaultVisible: false},
       {name: 'Last changed', key: 'change', sortKey: 'change'},
     ]
     this._objectsName = 'events'
@@ -27,7 +36,7 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
   get _fetchUrl() {
     return `/api/events/?locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=self&keys=gramps_id,profile,change`
+    }&profile=all&keys=gramps_id,profile,description,change`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -90,14 +99,21 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
 
   // eslint-disable-next-line class-methods-use-this
   _formatRow(row) {
-    const formattedRow = {
+    const people = (row?.profile?.participants?.people || [])
+      .filter(p => PRIMARY_ROLES_EN.has(p.role))
+      .map(p => personTitleFromProfile(p.person))
+    const families = (row?.profile?.participants?.families || [])
+      .filter(f => PRIMARY_ROLES_EN.has(f.role))
+      .map(f => familyTitleFromProfile(f.family))
+    return {
       grampsId: row.gramps_id,
       type: row?.profile?.type,
       date: row?.profile?.date,
       place: row?.profile?.place_name || row?.profile?.place,
+      participants: [...people, ...families].join(', '),
+      description: row?.description,
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
-    return formattedRow
   }
 }
 

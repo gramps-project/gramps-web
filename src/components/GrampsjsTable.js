@@ -200,7 +200,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
             <tr>
               ${this.columns.map(
                 (column, columnIndex) => html`<th>
-                  ${this._(column.name)}
+                  ${this._colLabel(column.name)}
                   ${this.sortable ? this._renderSortBtn(columnIndex) : ''}
                 </th>`
               )}
@@ -217,7 +217,11 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
                 >
                   ${item.map(
                     (value, colIndex) => html`
-                      <td data-label="${this._(this.columns[colIndex].name)}">
+                      <td
+                        data-label="${this._colLabel(
+                          this.columns[colIndex].name
+                        )}"
+                      >
                         <div class="cell-content">
                           ${this.loading
                             ? html`<span class="skeleton"
@@ -267,7 +271,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
                   @click="${() => this._toggleSort(realIndex)}"
                   ?selected="${isSelected}"
                 >
-                  <div slot="headline">${this._(column.name)}</div>
+                  <div slot="headline">${this._colLabel(column.name)}</div>
                 </md-menu-item>
               `
             })}
@@ -279,6 +283,10 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   _toggleSortMenu() {
     const menu = this.renderRoot.querySelector('#sort-menu')
     menu.open = !menu.open
+  }
+
+  _colLabel(name) {
+    return this._(name).replace(/:$/, '')
   }
 
   // eslint-disable-next-line class-methods-use-this
