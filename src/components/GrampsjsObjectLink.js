@@ -9,7 +9,8 @@ const SHOW_DELAY = 250
 const HIDE_DELAY = 250
 
 const PREVIEWABLE = new Set(['person', 'family', 'place'])
-const NO_HOVER = window.matchMedia('(hover: none)').matches
+const NO_HOVER =
+  typeof window !== 'undefined' && window.matchMedia?.('(hover: none)').matches
 
 export class GrampsjsObjectLink extends LitElement {
   static get styles() {
@@ -57,6 +58,8 @@ export class GrampsjsObjectLink extends LitElement {
   }
 
   _handleClick(e) {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+      return
     e.preventDefault()
     fireEvent(this, 'nav', {path: `${this.objectType}/${this.grampsId}`})
   }

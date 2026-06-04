@@ -10,6 +10,7 @@ import './GrampsjsFamily.js'
 import './GrampsjsPlace.js'
 
 const HIDE_DELAY = 250
+const CACHE_MAX_SIZE = 50
 const POPUP_WIDTH = 580
 const POPUP_HEIGHT = 600
 const POPUP_MARGIN = 8
@@ -102,6 +103,9 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     this._boundNav = () => {
       this._visible = false
     }
+    this._boundDbChanged = () => {
+      this._cache.clear()
+    }
   }
 
   connectedCallback() {
@@ -109,6 +113,7 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     window.addEventListener('object:preview-show', this._boundShow)
     window.addEventListener('object:preview-hide', this._boundHide)
     window.addEventListener('nav', this._boundNav)
+    window.addEventListener('db:changed', this._boundDbChanged)
   }
 
   disconnectedCallback() {
@@ -116,6 +121,7 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     window.removeEventListener('object:preview-show', this._boundShow)
     window.removeEventListener('object:preview-hide', this._boundHide)
     window.removeEventListener('nav', this._boundNav)
+    window.removeEventListener('db:changed', this._boundDbChanged)
   }
 
   _handleShow(e) {
@@ -153,8 +159,9 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
 
     let x = anchorRect.left
     if (x + POPUP_WIDTH > viewportW - POPUP_MARGIN) {
-      x = Math.max(POPUP_MARGIN, viewportW - POPUP_WIDTH - POPUP_MARGIN)
+      x = viewportW - POPUP_WIDTH - POPUP_MARGIN
     }
+    x = Math.max(POPUP_MARGIN, x)
 
     const spaceBelow = viewportH - anchorRect.bottom - POPUP_MARGIN
     const spaceAbove = anchorRect.top - POPUP_MARGIN
@@ -178,6 +185,9 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     if (!result?.data?.[0]) return
     const data = result.data[0]
     const cacheKey = `${objectType}:${grampsId}`
+    if (this._cache.size >= CACHE_MAX_SIZE) {
+      this._cache.delete(this._cache.keys().next().value)
+    }
     this._cache.set(cacheKey, data)
     if (this._grampsId === grampsId && this._objectType === objectType) {
       this._data = data

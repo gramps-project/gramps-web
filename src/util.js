@@ -52,7 +52,6 @@ import {
 } from '@mdi/js'
 import {asteriskIcon, crossIcon, renderIconSvg, ringsIconPath} from './icons.js'
 import './components/GrampsjsIcon.js'
-import './components/GrampsjsObjectLink.js'
 import {frontendLanguages} from './strings.js'
 import {hex6ToCss, hex12ToCss} from './color.js'
 import {dateToSdn, CALENDARS} from './gcalendar.js'
