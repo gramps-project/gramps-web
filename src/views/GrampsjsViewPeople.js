@@ -10,6 +10,15 @@ import '../components/GrampsjsFilterProperties.js'
 import '../components/GrampsjsFilterTags.js'
 import '../components/GrampsjsFilterPrivate.js'
 
+function _ageAtDeath(birthDate, deathDate) {
+  if (!birthDate || !deathDate) return null
+  const by = String(birthDate).match(/\b(\d{4})\b/)
+  const dy = String(deathDate).match(/\b(\d{4})\b/)
+  if (!by || !dy) return null
+  const age = parseInt(dy[1], 10) - parseInt(by[1], 10)
+  return age >= 0 ? age : null
+}
+
 export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
   constructor() {
     super()
@@ -18,7 +27,14 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       {name: 'Surname', key: 'surname', sortKey: 'surname'},
       {name: 'Given name', key: 'given'},
       {name: 'Birth Date', key: 'birth', sortKey: 'birth'},
-      {name: 'Death Date', key: 'death', sortKey: 'death'},
+      {name: 'Birth Place', key: 'birthPlace', defaultVisible: false},
+      {
+        name: 'Death Date',
+        key: 'death',
+        sortKey: 'death',
+      },
+      {name: 'Death Place', key: 'deathPlace', defaultVisible: false},
+      {name: 'Age at death', key: 'age', defaultVisible: false},
       {name: 'Last changed', key: 'change', sortKey: 'change'},
     ]
     this._objectsName = 'people'
@@ -42,15 +58,19 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
 
   // eslint-disable-next-line class-methods-use-this
   _formatRow(row) {
-    const formattedRow = {
+    const birthDate = row?.profile?.birth?.date
+    const deathDate = row?.profile?.death?.date
+    return {
       grampsId: row.gramps_id,
       surname: row?.profile?.name_surname,
       given: row?.profile?.name_given,
-      birth: row?.profile?.birth?.date,
-      death: row?.profile?.death?.date,
+      birth: birthDate,
+      birthPlace: row?.profile?.birth?.place_name,
+      death: deathDate,
+      deathPlace: row?.profile?.death?.place_name,
+      age: _ageAtDeath(birthDate, deathDate),
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
-    return formattedRow
   }
 
   renderFilters() {
