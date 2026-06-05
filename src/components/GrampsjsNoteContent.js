@@ -120,6 +120,8 @@ export class GrampsjsNoteContent extends LitElement {
       const parsed = _parseGrampsHref(a.getAttribute('href'))
       if (!parsed) continue
       a.addEventListener('click', e => {
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+          return
         e.preventDefault()
         this.dispatchEvent(
           new CustomEvent('nav', {
