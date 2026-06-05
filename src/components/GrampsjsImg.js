@@ -18,15 +18,19 @@ class GrampsjsImg extends LitElement {
     return [
       sharedStyles,
       css`
-        :host([cover]) {
+        :host {
           display: block;
+        }
+
+        :host([cover]) {
           width: 100%;
           height: 100%;
         }
 
         img {
+          display: block;
           max-width: 100%;
-          max-height: 100vh;
+          max-height: var(--grampsjs-img-max-height, 100vh);
         }
 
         img.cover {

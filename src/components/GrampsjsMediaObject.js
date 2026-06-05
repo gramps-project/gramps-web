@@ -28,6 +28,15 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           margin: 30px 0;
         }
 
+        grampsjs-rect-container {
+          display: block;
+          margin: 30px 0;
+        }
+
+        grampsjs-rect-container grampsjs-img {
+          margin: 0;
+        }
+
         dl::after {
           content: '';
           display: block;

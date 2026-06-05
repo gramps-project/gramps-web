@@ -10,6 +10,9 @@ class GrampsjsLightbox extends LitElement {
       css`
         :host {
           --grampsjs-lightbox-toolbar-height: 70px;
+          --grampsjs-img-max-height: calc(
+            100vh - var(--grampsjs-lightbox-toolbar-height)
+          );
         }
 
         @media (max-width: 600px) {
