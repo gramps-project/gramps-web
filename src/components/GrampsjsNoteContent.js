@@ -14,7 +14,17 @@ const NAVIGABLE = new Set([
   'note',
   'media',
 ])
-const PREVIEWABLE = new Set(['person', 'family', 'place'])
+const PREVIEWABLE = new Set([
+  'person',
+  'family',
+  'place',
+  'event',
+  'source',
+  'citation',
+  'repository',
+  'note',
+  'media',
+])
 const NO_HOVER =
   typeof window !== 'undefined' && window.matchMedia?.('(hover: none)').matches
 

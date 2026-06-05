@@ -8,7 +8,17 @@ const BASE_DIR = ''
 const SHOW_DELAY = 250
 const HIDE_DELAY = 250
 
-const PREVIEWABLE = new Set(['person', 'family', 'place'])
+const PREVIEWABLE = new Set([
+  'person',
+  'family',
+  'place',
+  'event',
+  'source',
+  'citation',
+  'repository',
+  'note',
+  'media',
+])
 const NO_HOVER =
   typeof window !== 'undefined' && window.matchMedia?.('(hover: none)').matches
 

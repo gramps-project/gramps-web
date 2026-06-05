@@ -8,12 +8,22 @@ import './GrampsjsIcon.js'
 import './GrampsjsPerson.js'
 import './GrampsjsFamily.js'
 import './GrampsjsPlace.js'
+import './GrampsjsEvent.js'
+import './GrampsjsSource.js'
+import './GrampsjsCitation.js'
+import './GrampsjsRepository.js'
+import './GrampsjsNote.js'
+import './GrampsjsMediaObject.js'
 
 const HIDE_DELAY = 250
 const CACHE_MAX_SIZE = 50
 const POPUP_WIDTH = 580
 const POPUP_HEIGHT = 600
 const POPUP_MARGIN = 8
+
+const NOTE_LINK_FORMAT = encodeURIComponent(
+  JSON.stringify({link_format: '/{obj_class}/{gramps_id}'})
+)
 
 const URLS = {
   person: (id, lang) =>
@@ -22,6 +32,18 @@ const URLS = {
     `/api/families/?gramps_id=${id}&locale=${lang}&profile=all&backlinks=true&extend=all&precision=1`,
   place: (id, lang) =>
     `/api/places/?gramps_id=${id}&backlinks=true&extend=all&locale=${lang}&precision=1&profile=all`,
+  event: (id, lang) =>
+    `/api/events/?gramps_id=${id}&locale=${lang}&profile=all&backlinks=true&extend=all`,
+  source: (id, lang) =>
+    `/api/sources/?gramps_id=${id}&locale=${lang}&profile=all&backlinks=true&extend=all`,
+  citation: (id, lang) =>
+    `/api/citations/?gramps_id=${id}&locale=${lang}&profile=all&backlinks=true&extend=all`,
+  repository: (id, lang) =>
+    `/api/repositories/?gramps_id=${id}&locale=${lang}&profile=all&backlinks=true&extend=all`,
+  note: (id, lang) =>
+    `/api/notes/?gramps_id=${id}&locale=${lang}&profile=all&backlinks=true&extend=all&formats=html&format_options=${NOTE_LINK_FORMAT}`,
+  media: (id, lang) =>
+    `/api/media/?gramps_id=${id}&locale=${lang}&backlinks=true&extend=all&profile=all`,
 }
 
 export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
@@ -238,6 +260,42 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
           .appState=${this.appState}
           ?preview=${true}
         ></grampsjs-place>`
+      case 'event':
+        return html`<grampsjs-event
+          .data=${this._data}
+          .appState=${this.appState}
+          ?preview=${true}
+        ></grampsjs-event>`
+      case 'source':
+        return html`<grampsjs-source
+          .data=${this._data}
+          .appState=${this.appState}
+          ?preview=${true}
+        ></grampsjs-source>`
+      case 'citation':
+        return html`<grampsjs-citation
+          .data=${this._data}
+          .appState=${this.appState}
+          ?preview=${true}
+        ></grampsjs-citation>`
+      case 'repository':
+        return html`<grampsjs-repository
+          .data=${this._data}
+          .appState=${this.appState}
+          ?preview=${true}
+        ></grampsjs-repository>`
+      case 'note':
+        return html`<grampsjs-note
+          .data=${this._data}
+          .appState=${this.appState}
+          ?preview=${true}
+        ></grampsjs-note>`
+      case 'media':
+        return html`<grampsjs-media-object
+          .data=${this._data}
+          .appState=${this.appState}
+          ?preview=${true}
+        ></grampsjs-media-object>`
       default:
         return nothing
     }
