@@ -89,6 +89,12 @@ export class GrampsjsObjectLink extends LitElement {
     }, HIDE_DELAY)
   }
 
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    clearTimeout(this._showTimer)
+    clearTimeout(this._hideTimer)
+  }
+
   render() {
     return html`<a
       href="${this._href}"

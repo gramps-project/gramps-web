@@ -122,6 +122,7 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     window.removeEventListener('object:preview-hide', this._boundHide)
     window.removeEventListener('nav', this._boundNav)
     window.removeEventListener('db:changed', this._boundDbChanged)
+    clearTimeout(this._hideTimer)
   }
 
   _handleShow(e) {
