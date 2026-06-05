@@ -169,12 +169,15 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     const flipUp = spaceBelow < POPUP_HEIGHT && spaceAbove > spaceBelow
 
     this._x = x
-    this._y = flipUp
-      ? Math.max(POPUP_MARGIN, anchorRect.top - POPUP_HEIGHT - POPUP_MARGIN)
-      : Math.min(
-          anchorRect.bottom + POPUP_MARGIN,
-          viewportH - POPUP_HEIGHT - POPUP_MARGIN
-        )
+    this._y = Math.max(
+      POPUP_MARGIN,
+      flipUp
+        ? anchorRect.top - POPUP_HEIGHT - POPUP_MARGIN
+        : Math.min(
+            anchorRect.bottom + POPUP_MARGIN,
+            viewportH - POPUP_HEIGHT - POPUP_MARGIN
+          )
+    )
   }
 
   async _fetchData(objectType, grampsId) {
