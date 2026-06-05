@@ -44,6 +44,8 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
           position: relative;
           touch-action: none;
           will-change: transform;
+          display: flex;
+          align-items: flex-start;
         }
 
         .zoom-wrapper.panning {

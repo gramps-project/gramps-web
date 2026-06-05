@@ -18,6 +18,7 @@ class GrampsjsRectContainer extends GrampsjsAppStateMixin(LitElement) {
           display: inline-block;
           position: relative;
           overflow: hidden;
+          vertical-align: bottom;
         }
 
         .draw {
