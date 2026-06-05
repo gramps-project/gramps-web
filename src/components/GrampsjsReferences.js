@@ -6,8 +6,8 @@ import {
   objectDescription,
   objectDetail,
   objectTypePlural,
-  renderIcon,
 } from '../util.js'
+import {renderIcon} from '../objectRender.js'
 
 export class GrampsjsReferences extends GrampsjsEditableList {
   static get properties() {

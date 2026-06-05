@@ -3,7 +3,8 @@ import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormPlaceRef.js'
-import {fireEvent, renderIcon, placeTypeIconPath} from '../util.js'
+import {fireEvent, placeTypeIconPath} from '../util.js'
+import {renderIcon} from '../objectRender.js'
 
 export class GrampsjsPlaceRefs extends GrampsjsEditableList {
   static get properties() {

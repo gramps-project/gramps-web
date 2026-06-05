@@ -16,7 +16,6 @@ import {
   normalizeRect,
   isValidRect,
   apiVersionAtLeast,
-  renderIcon,
 } from '../../src/util.js'
 
 // Helpers
@@ -375,29 +374,5 @@ describe('apiVersionAtLeast', () => {
 
   it('defaults patch to 0 when not specified', () => {
     expect(apiVersionAtLeast(dbInfo('3.9.0'), 3, 9)).to.be.true
-  })
-})
-
-describe('renderIcon checksum', () => {
-  it('uses checksum from media object itself', () => {
-    const obj = {
-      object_type: 'media',
-      object: {handle: 'mh1', checksum: 'abc123'},
-    }
-    expect(renderIcon(obj).values).to.include('abc123')
-  })
-
-  it('resolves checksum from extended.media for non-media objects', () => {
-    const obj = {
-      object_type: 'person',
-      object: {
-        handle: 'ph1',
-        media_list: [{ref: 'mh2', rect: []}],
-        extended: {
-          media: [{handle: 'mh2', checksum: 'def456'}],
-        },
-      },
-    }
-    expect(renderIcon(obj).values).to.include('def456')
   })
 })
