@@ -312,6 +312,7 @@
   "Unsaved changes restored": "Unsaved changes restored",
   "Uploading file %s of %s": "Uploading file %s of %s",
   "Select files": "Select files",
+  "%s selected": "%s selected",
   "Failed to upload": "Failed to upload",
   "Failed to update": "Failed to update",
   "Not private": "Not private",

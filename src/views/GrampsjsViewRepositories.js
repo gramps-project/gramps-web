@@ -22,7 +22,7 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
 
   // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
-    return '/api/repositories/?keys=gramps_id,name,type,change'
+    return '/api/repositories/?keys=gramps_id,name,type,change,handle'
   }
 
   // eslint-disable-next-line class-methods-use-this

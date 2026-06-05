@@ -1,4 +1,5 @@
 import {css, html, LitElement} from 'lit'
+import '@material/web/checkbox/checkbox.js'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/icon/icon.js'
 import '@material/web/iconbutton/filled-icon-button'
@@ -62,8 +63,11 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
         }
 
         table.linked tbody tr:hover {
-          background-color: var(--grampsjs-color-shade-240);
           cursor: pointer;
+        }
+
+        table.linked tbody tr:not(.selected):hover {
+          background-color: var(--grampsjs-color-shade-240);
         }
 
         /* Wide table */
@@ -137,6 +141,40 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
             --md-sys-color-secondary-container
           );
         }
+
+        td.col-select,
+        th.col-select {
+          width: 48px;
+          padding: 0 4px;
+          text-align: center;
+        }
+
+        table.wide th.col-select {
+          padding: 0 4px;
+          vertical-align: middle;
+          text-align: center;
+        }
+
+        table.wide td.col-select {
+          padding: 4px 4px;
+          vertical-align: middle;
+        }
+
+        tbody td.col-select::before {
+          content: none;
+        }
+
+        tbody tr.selected {
+          background-color: var(
+            --md-sys-color-secondary-container,
+            var(--grampsjs-color-shade-240)
+          );
+        }
+
+        .col-select md-checkbox {
+          --md-checkbox-outline-color: var(--grampsjs-body-font-color-30);
+          --md-checkbox-hover-outline-color: var(--grampsjs-body-font-color-50);
+        }
       `,
     ]
   }
@@ -155,7 +193,10 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
       descending: {type: Boolean},
       serverSort: {type: Boolean},
       sortDescriptor: {type: String},
+      selectable: {type: Boolean},
+      selectionKey: {type: Number},
       _containerWidth: {type: Number},
+      _selectedIndices: {type: Object},
     }
   }
 
@@ -173,7 +214,16 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     this.descending = false
     this.serverSort = false
     this.sortDescriptor = ''
+    this.selectable = false
+    this.selectionKey = 0
     this._containerWidth = -1
+    this._selectedIndices = new Set()
+  }
+
+  updated(changed) {
+    if (changed.has('selectionKey')) {
+      this._selectedIndices = new Set()
+    }
   }
 
   get _isWide() {
@@ -198,6 +248,18 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
         >
           <thead>
             <tr>
+              ${this.selectable && this._isWide
+                ? html`<th class="col-select">
+                    <md-checkbox
+                      ?checked="${this._selectedIndices.size ===
+                        this.data.length && this.data.length > 0}"
+                      ?indeterminate="${this._selectedIndices.size > 0 &&
+                      this._selectedIndices.size < this.data.length}"
+                      @change="${this._handleSelectAll}"
+                      aria-label="Select all"
+                    ></md-checkbox>
+                  </th>`
+                : ''}
               ${this.columns.map(
                 (column, columnIndex) => html`<th>
                   ${this._colLabel(column.name)}
@@ -210,11 +272,24 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
             ${this._sortedRows().map(
               ({item, index}) => html`
                 <tr
+                  class="${this._selectedIndices.has(index) ? 'selected' : ''}"
                   @click="${() => this._handleRowClick(index)}"
                   @keydown="${clickKeyHandler}"
                   tabindex="${this.linked ? '0' : '-1'}"
                   role="${this.linked ? 'button' : 'row'}"
                 >
+                  ${this.selectable && this._isWide
+                    ? html`<td
+                        class="col-select"
+                        @click="${e => e.stopPropagation()}"
+                      >
+                        <md-checkbox
+                          ?checked="${this._selectedIndices.has(index)}"
+                          @change="${() => this._handleSelectRow(index)}"
+                          aria-label="Select row"
+                        ></md-checkbox>
+                      </td>`
+                    : ''}
                   ${item.map(
                     (value, colIndex) => html`
                       <td
@@ -370,6 +445,22 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
       )
     }
     return renderIconSvg(mdiSort, 'var(--grampsjs-body-font-color-20)')
+  }
+
+  _handleSelectAll() {
+    const willSelectAll = this._selectedIndices.size < this.data.length
+    this._selectedIndices = willSelectAll
+      ? new Set(this.data.map((_, i) => i))
+      : new Set()
+    fireEvent(this, 'selection:changed', {indices: [...this._selectedIndices]})
+  }
+
+  _handleSelectRow(index) {
+    const next = new Set(this._selectedIndices)
+    if (next.has(index)) next.delete(index)
+    else next.add(index)
+    this._selectedIndices = next
+    fireEvent(this, 'selection:changed', {indices: [...this._selectedIndices]})
   }
 
   _sortedRows() {

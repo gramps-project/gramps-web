@@ -3,10 +3,12 @@ Base view for lists of Gramps objects, e.g. people, events, ...
 */
 
 import {html, css} from 'lit'
-import {mdiPlus, mdiCog} from '@mdi/js'
+import {mdiPlus, mdiCog, mdiCheckboxMultipleOutline} from '@mdi/js'
 
 import '@material/web/fab/fab.js'
 import '@material/web/iconbutton/icon-button.js'
+import '@material/web/button/outlined-button.js'
+import '@material/web/button/filled-button.js'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 import '@material/web/checkbox/checkbox.js'
@@ -46,6 +48,21 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
           float: right;
         }
 
+        .batch-toolbar {
+          clear: both;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 4px;
+          margin-top: 8px;
+        }
+
+        .batch-toolbar .selection-count {
+          font-size: 14px;
+          color: var(--grampsjs-body-font-color-70);
+          flex: 1;
+        }
+
         .column-picker-row {
           display: flex;
           align-items: center;
@@ -78,6 +95,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       altView: {type: Boolean},
       _oldUrl: {type: String},
       _showColumnPicker: {type: Boolean},
+      _selectedHandles: {type: Array},
+      _selectionMode: {type: Boolean},
+      _selectionKey: {type: Number},
     }
   }
 
@@ -95,6 +115,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     this.altView = false
     this._oldUrl = ''
     this._showColumnPicker = false
+    this._selectedHandles = []
+    this._selectionMode = false
+    this._selectionKey = 0
   }
 
   get _visibleColumns() {
@@ -119,6 +142,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   renderContent() {
     return html`
       ${this._renderFilter()}
+      ${this._selectionMode ? this._renderBatchToolbar() : ''}
       ${this.altView
         ? this.renderAltView()
         : html`
@@ -126,6 +150,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
               serverSort
               sortable
               linked
+              ?selectable="${this._selectionMode}"
+              selectionKey="${this._selectionKey}"
               ?loading="${this.loading}"
               .columns="${this._visibleColumns}"
               .data="${this._tableData}"
@@ -134,6 +160,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
               .appState="${this.appState}"
               @table:row-click="${this._handleTableRowClick}"
               @table:sort-changed="${this._handleTableSortChanged}"
+              @selection:changed="${this._handleSelectionChanged}"
             ></grampsjs-table>
           `}
       <grampsjs-pagination
@@ -164,6 +191,33 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         objectType="${this._objectsName}"
         ?errorGql="${this.error}"
       >
+        ${this.appState.permissions.canEdit
+          ? this._selectionMode
+            ? html`<md-filled-button
+                slot="leading"
+                @click="${this._toggleSelectionMode}"
+              >
+                <grampsjs-icon
+                  slot="icon"
+                  .path="${mdiCheckboxMultipleOutline}"
+                  height="20"
+                  color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+                ></grampsjs-icon>
+                ${this._('Select')}
+              </md-filled-button>`
+            : html`<md-outlined-button
+                slot="leading"
+                @click="${this._toggleSelectionMode}"
+              >
+                <grampsjs-icon
+                  slot="icon"
+                  .path="${mdiCheckboxMultipleOutline}"
+                  height="20"
+                  color="var(--mdc-theme-primary)"
+                ></grampsjs-icon>
+                ${this._('Select')}
+              </md-outlined-button>`
+          : ''}
         ${this.renderFilters()}
       </grampsjs-filters>
       <div class="viewbtn">
@@ -183,6 +237,16 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         class="${this.filterOpen ? '' : 'hidden'}"
         @filter:changed="${this._handleFilterChanged}"
       ></div>
+    `
+  }
+
+  _renderBatchToolbar() {
+    return html`
+      <div class="batch-toolbar">
+        <span class="selection-count">
+          ${this._('%s selected', this._selectedHandles.length)}
+        </span>
+      </div>
     `
   }
 
@@ -316,6 +380,21 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     this._sort = `${descending ? '-' : '+'}${key}`
   }
 
+  _handleSelectionChanged(e) {
+    const {indices} = e.detail
+    this._selectedHandles = indices
+      .map(i => this._rawData[i]?.handle)
+      .filter(Boolean)
+  }
+
+  _toggleSelectionMode() {
+    this._selectionMode = !this._selectionMode
+    if (!this._selectionMode) {
+      this._selectedHandles = []
+      this._selectionKey += 1
+    }
+  }
+
   _handleClickAdd() {
     fireEvent(this, 'nav', {path: this._getAddPath()})
   }
@@ -360,6 +439,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   }
 
   _fetchData() {
+    this._selectedHandles = []
+    this._selectionKey += 1
     this.loading = true
     const url = this._fullUrl
     this._oldUrl = url

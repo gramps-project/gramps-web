@@ -23,7 +23,7 @@ export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
 
   // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
-    return '/api/notes/?keys=gramps_id,type,text,change'
+    return '/api/notes/?keys=gramps_id,type,text,change,handle'
   }
 
   // eslint-disable-next-line class-methods-use-this

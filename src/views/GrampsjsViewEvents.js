@@ -36,7 +36,7 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
   get _fetchUrl() {
     return `/api/events/?locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=all&keys=gramps_id,profile,description,change`
+    }&profile=all&keys=gramps_id,profile,description,change,handle`
   }
 
   // eslint-disable-next-line class-methods-use-this
