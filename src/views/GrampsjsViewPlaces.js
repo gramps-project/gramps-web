@@ -23,8 +23,12 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
   }
 
   // eslint-disable-next-line class-methods-use-this
+  get _supportsMerge() {
+    return true
+  }
+
   get _fetchUrl() {
-    return '/api/places/?keys=gramps_id,name,place_type,change'
+    return '/api/places/?keys=gramps_id,name,place_type,change,handle'
   }
 
   // eslint-disable-next-line class-methods-use-this

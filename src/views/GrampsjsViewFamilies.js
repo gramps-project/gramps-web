@@ -25,10 +25,14 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
     this._objectsName = 'families'
   }
 
+  get _supportsMerge() {
+    return true
+  }
+
   get _fetchUrl() {
     return `/api/families/?locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=self&keys=gramps_id,profile,change`
+    }&profile=self&keys=gramps_id,profile,change,handle`
   }
 
   // eslint-disable-next-line class-methods-use-this

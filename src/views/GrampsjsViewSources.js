@@ -24,8 +24,12 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
   }
 
   // eslint-disable-next-line class-methods-use-this
+  get _supportsMerge() {
+    return true
+  }
+
   get _fetchUrl() {
-    return '/api/sources/?keys=gramps_id,title,author,pubinfo,change'
+    return '/api/sources/?keys=gramps_id,title,author,pubinfo,change,handle'
   }
 
   // eslint-disable-next-line class-methods-use-this

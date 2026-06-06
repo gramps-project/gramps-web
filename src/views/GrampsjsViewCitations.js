@@ -23,8 +23,12 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
   }
 
   // eslint-disable-next-line class-methods-use-this
+  get _supportsMerge() {
+    return true
+  }
+
   get _fetchUrl() {
-    return '/api/citations/?extend=source_handle&keys=gramps_id,extended,page,change'
+    return '/api/citations/?extend=source_handle&keys=gramps_id,extended,page,change,handle'
   }
 
   // eslint-disable-next-line class-methods-use-this

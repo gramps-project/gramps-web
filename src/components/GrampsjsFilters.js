@@ -103,6 +103,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
   render() {
     return html`
       <div class="filtermenu">
+        <slot name="leading"></slot>
         ${this.open
           ? html`
               <md-filled-button @click="${this._handleFilterButton}">

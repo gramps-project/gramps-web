@@ -1054,4 +1054,8 @@ export const grampsStrings = [
   "Wives use husband's surname (from last family listed)",
   'Data',
   'Family Tree Processing',
+  '_Select All',
+  'Action',
+  'Merge',
+  'Select the object that will provide the\nprimary data for the merged object.',
 ]
