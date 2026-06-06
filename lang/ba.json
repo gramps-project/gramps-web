@@ -332,5 +332,11 @@
     "Irreversible operations on tree data": "Ағас мәғлүмәттәре өҫтөндә кире ҡайтарып булмаған ғәмәлдәр",
     "Changes here only affect your account.": "Бындағы үҙгәрештәр һеҙҙең аккаунтҡа ғына тәьҫир итә.",
     "Changes here affect all users of this tree.": "Бындағы үҙгәрештәр был ағастың бөтә ҡулланыусыларына тәьҫир итә.",
-    "Display preferences saved on this device": "Күрһәтеү көйләүҙәре был ҡоролмала һаҡлана"
+    "Display preferences saved on this device": "Күрһәтеү көйләүҙәре был ҡоролмала һаҡлана",
+    "Zoom in": "Ҙурайтырға",
+    "Zoom out": "Кесерәйтергә",
+    "Show on timeline": "Тарихта күрһәтергә",
+    "Open in map": "Картала асырға",
+    "Export media": "Медиафайлдарҙы сығарырға",
+    "Running tasks": "Эшләп торған бурыстар"
 }
