@@ -355,5 +355,7 @@
     "The semantic search index is out of date. A full reindex is required.": "Index sémantického vyhľadávania je neaktuálny. Je potrebné vykonať úplné preindexovanie.",
     "Fetching event record...": "Získavanie záznamu udalosti...",
     "Fetching place record...": "Získavanie záznamu o mieste...",
-    "Please sign in again to continue.": "Ak chcete pokračovať, prihláste sa prosím znovu."
+    "Please sign in again to continue.": "Ak chcete pokračovať, prihláste sa prosím znovu.",
+    "%s selected": "Vybrané: %s",
+    "Exactly two objects must be selected to perform a merge.": "Na vykonanie zlúčenia je potrebné vybrať presne dva objekty."
 }
