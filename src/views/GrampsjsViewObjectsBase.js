@@ -12,6 +12,8 @@ import '@material/web/button/filled-button.js'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 import '@material/web/checkbox/checkbox.js'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTable.js'
 
@@ -52,15 +54,21 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
           clear: both;
           display: flex;
           align-items: center;
-          gap: 8px;
+          flex-wrap: wrap;
+          gap: 12px 24px;
           padding: 6px 4px;
           margin-top: 8px;
         }
 
         .batch-toolbar .selection-count {
-          font-size: 14px;
+          font-size: 16px;
           color: var(--grampsjs-body-font-color-70);
-          flex: 1;
+        }
+
+        .batch-toolbar md-filled-select {
+          --md-filled-select-text-field-container-height: 36px;
+          --md-filled-select-text-field-top-space: 0px;
+          --md-filled-select-text-field-bottom-space: 0px;
         }
 
         .column-picker-row {
@@ -98,6 +106,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       _selectedHandles: {type: Array},
       _selectionMode: {type: Boolean},
       _selectionKey: {type: Number},
+      _showMergeDialog: {type: Boolean},
+      _showActionError: {type: Boolean},
+      _currentAction: {type: String},
     }
   }
 
@@ -118,6 +129,19 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     this._selectedHandles = []
     this._selectionMode = false
     this._selectionKey = 0
+    this._showMergeDialog = false
+    this._showActionError = false
+    this._currentAction = ''
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get _supportsMerge() {
+    return false
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _getObjectLabel(rawObj) {
+    return rawObj?.gramps_id || ''
   }
 
   get _visibleColumns() {
@@ -246,8 +270,121 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         <span class="selection-count">
           ${this._('%s selected', this._selectedHandles.length)}
         </span>
+        <md-filled-select
+          .value="${this._currentAction}"
+          label="${this._('Action')}"
+          style="min-width:140px"
+          @change="${e => {
+            this._currentAction = e.target.value
+          }}"
+        >
+          ${this._supportsMerge
+            ? html`<md-select-option value="merge">
+                ${this._('Merge')}
+              </md-select-option>`
+            : ''}
+        </md-filled-select>
+        <md-outlined-button
+          ?disabled="${!this._currentAction}"
+          @click="${this._handleApplyAction}"
+        >
+          ${this._('Apply')}
+        </md-outlined-button>
       </div>
+      ${this._renderMergeDialog()} ${this._renderActionErrorDialog()}
     `
+  }
+
+  _handleApplyAction() {
+    const action = this._currentAction
+    if (action === 'merge') {
+      if (this._selectedHandles.length === 2) {
+        this._showMergeDialog = true
+      } else {
+        this._showActionError = true
+      }
+    }
+  }
+
+  _renderActionErrorDialog() {
+    return html`
+      <md-dialog
+        ?open="${this._showActionError}"
+        @cancel="${() => {
+          this._showActionError = false
+        }}"
+        @close="${() => {
+          this._showActionError = false
+        }}"
+      >
+        <div slot="content">
+          ${this._('Exactly two objects must be selected to perform a merge.')}
+        </div>
+        <div slot="actions">
+          <md-text-button @click="${() => (this._showActionError = false)}">
+            ${this._('OK')}
+          </md-text-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  _renderMergeDialog() {
+    if (!this._showMergeDialog) return ''
+    const [h1, h2] = this._selectedHandles
+    const raw1 = this._rawData.find(r => r.handle === h1)
+    const raw2 = this._rawData.find(r => r.handle === h2)
+    return html`
+      <md-dialog
+        ?open="${this._showMergeDialog}"
+        @cancel="${() => {
+          this._showMergeDialog = false
+        }}"
+        @close="${() => {
+          this._showMergeDialog = false
+        }}"
+      >
+        <div slot="headline">${this._('Merge')}</div>
+        <div slot="content">
+          <p>
+            ${this._(
+              'Select the object that will provide the\nprimary data for the merged object.'
+            )}
+          </p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+            <md-outlined-button @click="${() => this._handleMerge(h1, h2)}">
+              ${this._getObjectLabel(raw1)}
+            </md-outlined-button>
+            <md-outlined-button @click="${() => this._handleMerge(h2, h1)}">
+              ${this._getObjectLabel(raw2)}
+            </md-outlined-button>
+          </div>
+        </div>
+        <div slot="actions">
+          <md-text-button
+            @click="${() => {
+              this._showMergeDialog = false
+            }}"
+          >
+            ${this._('Cancel')}
+          </md-text-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  async _handleMerge(phoenix, titanic) {
+    this._showMergeDialog = false
+    const result = await this.appState.apiPost(
+      `/api/${this._objectsName}/${phoenix}/merge/${titanic}`,
+      {}
+    )
+    if ('error' in result) {
+      fireEvent(this, 'grampsjs:error', {message: result.error})
+      return
+    }
+    this._selectionKey += 1
+    this._selectedHandles = []
   }
 
   // eslint-disable-next-line class-methods-use-this

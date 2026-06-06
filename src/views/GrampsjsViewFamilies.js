@@ -25,6 +25,10 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
     this._objectsName = 'families'
   }
 
+  get _supportsMerge() {
+    return true
+  }
+
   get _fetchUrl() {
     return `/api/families/?locale=${
       this.appState.i18n.lang || 'en'

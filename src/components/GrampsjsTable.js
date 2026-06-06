@@ -142,26 +142,54 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           );
         }
 
-        td.col-select,
-        th.col-select {
-          width: 48px;
-          padding: 0 4px;
-          text-align: center;
+        /* Narrow (card) mode: pull checkbox out of grid flow, pin to left */
+        table:not(.wide) tbody tr:has(td.col-select) {
+          position: relative;
+          padding-left: 48px;
         }
 
+        table:not(.wide) tbody td.col-select {
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+        }
+
+        tbody td.col-select::before {
+          content: none;
+        }
+
+        /* Wide (table) mode */
         table.wide th.col-select {
+          width: 48px;
           padding: 0 4px;
           vertical-align: middle;
           text-align: center;
         }
 
         table.wide td.col-select {
-          padding: 4px 4px;
+          width: 48px;
+          padding: 4px;
           vertical-align: middle;
+          text-align: center;
         }
 
-        tbody td.col-select::before {
-          content: none;
+        .narrow-select-all {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 4px 4px 4px 8px;
+          font-size: 14px;
+          color: var(--grampsjs-body-font-color-70);
+        }
+
+        .narrow-select-all + table {
+          margin-top: 12px;
         }
 
         tbody tr.selected {
@@ -171,7 +199,8 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           );
         }
 
-        .col-select md-checkbox {
+        .col-select md-checkbox,
+        .narrow-select-all md-checkbox {
           --md-checkbox-outline-color: var(--grampsjs-body-font-color-30);
           --md-checkbox-hover-outline-color: var(--grampsjs-body-font-color-50);
         }
@@ -236,6 +265,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
         ${this.data.length > 0 && this.sortable && !this._isWide
           ? this._renderMobileSort()
           : ''}
+        ${this.selectable && !this._isWide ? this._renderNarrowSelectAll() : ''}
 
         <table
           class="${classMap({
@@ -249,7 +279,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           <thead>
             <tr>
               ${this.selectable && this._isWide
-                ? html`<th class="col-select">
+                ? html`<th class="col-select" aria-hidden="true">
                     <md-checkbox
                       ?checked="${this._selectedIndices.size ===
                         this.data.length && this.data.length > 0}"
@@ -278,7 +308,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
                   tabindex="${this.linked ? '0' : '-1'}"
                   role="${this.linked ? 'button' : 'row'}"
                 >
-                  ${this.selectable && this._isWide
+                  ${this.selectable
                     ? html`<td
                         class="col-select"
                         @click="${e => e.stopPropagation()}"
@@ -445,6 +475,22 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
       )
     }
     return renderIconSvg(mdiSort, 'var(--grampsjs-body-font-color-20)')
+  }
+
+  _renderNarrowSelectAll() {
+    return html`
+      <div class="narrow-select-all">
+        <md-checkbox
+          ?checked="${this._selectedIndices.size === this.data.length &&
+          this.data.length > 0}"
+          ?indeterminate="${this._selectedIndices.size > 0 &&
+          this._selectedIndices.size < this.data.length}"
+          @change="${this._handleSelectAll}"
+          aria-label="${this._('_Select All')}"
+        ></md-checkbox>
+        <span>${this._('_Select All')}</span>
+      </div>
+    `
   }
 
   _handleSelectAll() {

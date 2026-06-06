@@ -33,6 +33,10 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
     this._objectsName = 'events'
   }
 
+  get _supportsMerge() {
+    return true
+  }
+
   get _fetchUrl() {
     return `/api/events/?locale=${
       this.appState.i18n.lang || 'en'

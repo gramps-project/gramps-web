@@ -40,6 +40,10 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
     this._objectsName = 'people'
   }
 
+  get _supportsMerge() {
+    return true
+  }
+
   get _fetchUrl() {
     return `/api/people/?locale=${
       this.appState.i18n.lang || 'en'
