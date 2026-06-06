@@ -279,14 +279,14 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           <thead>
             <tr>
               ${this.selectable && this._isWide
-                ? html`<th class="col-select" aria-hidden="true">
+                ? html`<th class="col-select">
                     <md-checkbox
                       ?checked="${this._selectedIndices.size ===
                         this.data.length && this.data.length > 0}"
                       ?indeterminate="${this._selectedIndices.size > 0 &&
                       this._selectedIndices.size < this.data.length}"
                       @change="${this._handleSelectAll}"
-                      aria-label="Select all"
+                      aria-label="${this._('_Select All')}"
                     ></md-checkbox>
                   </th>`
                 : ''}
