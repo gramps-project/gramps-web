@@ -356,6 +356,6 @@
     "Fetching event record...": "A recuperar o registo do evento...",
     "Fetching place record...": "A recuperar o registo do local...",
     "Please sign in again to continue.": "Por favor, inicie sessão novamente para continuar.",
-    "%s selected": "%s selecionado",
-    "Exactly two objects must be selected to perform a merge.": "Têm que ser selecionados exatamente dois objetos para realizar uma união."
+    "%s selected": "%s seleccionado",
+    "Exactly two objects must be selected to perform a merge.": "Tem de seleccionar exactamente dois objectos para realizar uma união."
 }
