@@ -356,5 +356,7 @@
     "The semantic search index is out of date. A full reindex is required.": "Der semantische Suchindex ist veraltet. Eine vollständige Neuindizierung ist erforderlich.",
     "Fetching event record...": "Ereignisdatensatz wird abgerufen...",
     "Fetching place record...": "Ortsdatensatz wird abgerufen...",
-    "Please sign in again to continue.": "Bitte melde dich erneut an, um fortzufahren."
+    "Please sign in again to continue.": "Bitte melde dich erneut an, um fortzufahren.",
+    "%s selected": "%s ausgewählt",
+    "Exactly two objects must be selected to perform a merge.": "Für eine Zusammenführung müssen genau zwei Objekte ausgewählt werden."
 }
