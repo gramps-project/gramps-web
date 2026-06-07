@@ -355,5 +355,7 @@
     "The semantic search index is out of date. A full reindex is required.": "De semantische zoekindex is verouderd. Een volledige herindezering is vereist.",
     "Fetching event record...": "Gegevens van gebeurtenis ophalen…",
     "Fetching place record...": "Plaats gegevens ophalen…",
-    "Please sign in again to continue.": "Meld u opnieuw aan om door te gaan."
+    "Please sign in again to continue.": "Meld u opnieuw aan om door te gaan.",
+    "%s selected": "%s geselecteerd",
+    "Exactly two objects must be selected to perform a merge.": "Er moeten precies twee objecten worden geselecteerd om een samenvoeging uit te voeren."
 }
