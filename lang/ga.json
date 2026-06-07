@@ -354,5 +354,8 @@
     "Fetching family record...": "Ag fáil taifead teaghlaigh...",
     "Filtering families...": "Ag scagadh teaghlaigh...",
     "Fetching event record...": "Ag fáil taifead imeachta...",
-    "Fetching place record...": "Ag fáil taifead áite..."
+    "Fetching place record...": "Ag fáil taifead áite...",
+    "Please sign in again to continue.": "Sínigh isteach arís le leanúint ar aghaidh.",
+    "%s selected": "%s roghnaithe",
+    "Exactly two objects must be selected to perform a merge.": "Ní mór dhá réad go díreach a roghnú chun cumasc a dhéanamh."
 }
