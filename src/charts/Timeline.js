@@ -33,6 +33,29 @@ function dotShapePath(modifier, cx, cy, r) {
   },0`
 }
 
+// Show/hide the shared object preview popup on hover, mirroring the
+// behaviour of the relationship/tree/fan charts for person nodes.
+function attachPreviewHandlers(selection) {
+  selection
+    .on('mouseenter', function (event, d) {
+      if (window.matchMedia('(hover: none)').matches) return
+      if (!d.gramps_id) return
+      window.dispatchEvent(
+        new CustomEvent('object:preview-show', {
+          detail: {
+            objectType: 'event',
+            grampsId: d.gramps_id,
+            anchorRect: this.getBoundingClientRect(),
+          },
+        })
+      )
+    })
+    .on('mouseleave', () => {
+      if (window.matchMedia('(hover: none)').matches) return
+      window.dispatchEvent(new CustomEvent('object:preview-hide'))
+    })
+}
+
 const MARGIN = {top: 6, right: 20, bottom: 45, left: 20}
 const DOT_RADIUS = 6
 const N_DENSITY_SAMPLES = 200
@@ -364,6 +387,7 @@ export function Timeline(
           const text = g.append('text')
           text.append('tspan').attr('class', 'detail-summary').attr('dy', 0)
           text.append('tspan').attr('class', 'detail-date').attr('dy', '1.4em')
+          g.call(attachPreviewHandlers)
           if (onDetailClick) {
             g.on('click', (event, d) => {
               event.stopPropagation()

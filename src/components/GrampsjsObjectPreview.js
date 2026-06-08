@@ -21,6 +21,19 @@ const POPUP_WIDTH = 580
 const POPUP_HEIGHT = 600
 const POPUP_MARGIN = 8
 
+// Some object types (e.g. events) typically have much less content than
+// others (e.g. people), so they get a shorter default popup height.
+const POPUP_HEIGHT_BY_TYPE = {
+  event: 400,
+  source: 500,
+  citation: 500,
+  repository: 500,
+}
+
+function getPopupHeight(objectType) {
+  return POPUP_HEIGHT_BY_TYPE[objectType] ?? POPUP_HEIGHT
+}
+
 const NOTE_LINK_FORMAT = encodeURIComponent(
   JSON.stringify({link_format: '/{obj_class}/{gramps_id}'})
 )
@@ -60,7 +73,6 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
       #popup {
         position: fixed;
         width: ${POPUP_WIDTH}px;
-        height: ${POPUP_HEIGHT}px;
         background: var(--md-sys-color-surface);
         color: var(--md-sys-color-on-surface);
         border: 1px solid var(--md-sys-color-outline-variant);
@@ -179,6 +191,7 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
   _position(anchorRect) {
     const viewportW = window.innerWidth
     const viewportH = window.innerHeight
+    const popupHeight = getPopupHeight(this._objectType)
 
     let x = anchorRect.left
     if (x + POPUP_WIDTH > viewportW - POPUP_MARGIN) {
@@ -188,16 +201,16 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
 
     const spaceBelow = viewportH - anchorRect.bottom - POPUP_MARGIN
     const spaceAbove = anchorRect.top - POPUP_MARGIN
-    const flipUp = spaceBelow < POPUP_HEIGHT && spaceAbove > spaceBelow
+    const flipUp = spaceBelow < popupHeight && spaceAbove > spaceBelow
 
     this._x = x
     this._y = Math.max(
       POPUP_MARGIN,
       flipUp
-        ? anchorRect.top - POPUP_HEIGHT - POPUP_MARGIN
+        ? anchorRect.top - popupHeight - POPUP_MARGIN
         : Math.min(
             anchorRect.bottom + POPUP_MARGIN,
-            viewportH - POPUP_HEIGHT - POPUP_MARGIN
+            viewportH - popupHeight - POPUP_MARGIN
           )
     )
   }
@@ -306,7 +319,9 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
       <div
         id="popup"
         class="${this._visible ? 'visible' : ''}"
-        style="left:${this._x}px;top:${this._y}px"
+        style="left:${this._x}px;top:${this._y}px;height:${getPopupHeight(
+          this._objectType
+        )}px"
         @mouseenter="${this._handlePopupMouseEnter}"
         @mouseleave="${this._handlePopupMouseLeave}"
       >
