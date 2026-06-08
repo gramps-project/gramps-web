@@ -350,5 +350,11 @@
     "Filtering events...": "Фильтрую события...",
     "Fetching person record...": "Получаю данные о человеке...",
     "Fetching family record...": "Получаю данные о семье...",
-    "Filtering families...": "Фильтрую семьи..."
+    "Filtering families...": "Фильтрую семьи...",
+    "Please sign in again to continue.": "Пожалуйста, войдите еще раз, чтобы продолжить.",
+    "The semantic search index is out of date. A full reindex is required.": "Семантический поисковый индекс устарел. Требуется полная переиндексация.",
+    "%s selected": "%s выбраны",
+    "Exactly two objects must be selected to perform a merge.": "Для выполнения слияния необходимо выбрать два объекта.",
+    "Fetching event record...": "Получение записи события...",
+    "Fetching place record...": "Получение записи о месте..."
 }
