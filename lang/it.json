@@ -223,7 +223,7 @@
     "semantic": "semantico",
     "Name Display Format": "Formato di visualizzazione del nome",
     "Toggle person outlines": "Attiva/disattiva i contorni delle persone",
-    "Log out": "Log out",
+    "Log out": "Uscire",
     "in": "in",
     "DNA matches": "Corrispondenze del DNA",
     "Base Map": "Mappa di base",
@@ -248,7 +248,7 @@
     "Add Y-DNA data": "Aggiungi dati Y-DNA",
     "Unfortunately, your browser does not support the display of PDF files. To view the file anyway, you can download it using the button below.": "Purtroppo il tuo browser non può visualizzare i files PDF. Per poterlo visualizzare puoi scaricarlo usando il bottone sottostante.",
     "User Documentation": "Documentazione dell'utente",
-    "Administrator Documentation": "Documentazione dell'amministratore",
+    "Administrator Documentation": "Documentazione per l'amministratore",
     "Forum": "Forum",
     "Signing in...": "Accesso in corso...",
     "Account Source": "Sorgente dell'account",
@@ -308,5 +308,8 @@
     "Irreversible operations on tree data": "Operazioni irreversibili sui dati dell'albero",
     "Display preferences saved on this device": "Preferenze di visualizzazione salvate su questo dispositivo",
     "Recently changed": "Modificate recentemente",
-    "An error occurred": "Si è verificato un errore"
+    "An error occurred": "Si è verificato un errore",
+    "Please sign in again to continue.": "Accedere nuovamente per continuare.",
+    "Add custom search engine": "Aggiungere motore di ricerca personalizzato",
+    "Invalid face rectangle coordinates": "Coordinate del riquadro facciale non valide"
 }
