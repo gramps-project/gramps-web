@@ -101,6 +101,9 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _handleExternalEventSelected({detail: {handle}}) {
+    if (this._activeFilter) {
+      this._clearFilter()
+    }
     this._pendingHandle = handle
     this._applyPendingHandle()
   }
