@@ -71,6 +71,7 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
       _activeFilter: {type: Object},
       _personFilterMode: {type: String},
       _filterEventHandles: {type: Object},
+      _detailsLoading: {type: Boolean},
     }
   }
 
@@ -84,6 +85,7 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._personFilterMode = 'self'
     this._filterEventHandles = null
     this._pendingHandle = null
+    this._detailsLoading = false
   }
 
   connectedCallback() {
@@ -276,12 +278,14 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     const threshold = Math.max(5, Math.floor(innerWidth / MIN_LABEL_WIDTH))
     if (handles.length === 0 || handles.length > threshold) {
       this._details = {}
+      this._detailsLoading = false
       this._timelineEl()?.updateDetails(
         this._clickedDetail ? {[this._clickedHandle]: this._clickedDetail} : {}
       )
       return
     }
     if (handles.every(h => h in this._details)) {
+      this._detailsLoading = false
       this._timelineEl()?.updateDetails(
         Object.fromEntries(handles.map(h => [h, this._details[h]]))
       )
@@ -289,13 +293,17 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     }
     this._zoomSeq = (this._zoomSeq ?? 0) + 1
     const seq = this._zoomSeq
+    this._detailsLoading = true
     const locale = this.appState.i18n.lang || 'en'
     const result = await this.appState.apiGet(
       `/api/events/?handles=${handles.join(',')}&profile=self&locale=${locale}`
     )
-    if ('data' in result && seq === this._zoomSeq) {
-      this._details = Object.fromEntries(result.data.map(e => [e.handle, e]))
-      this._timelineEl()?.updateDetails(this._details)
+    if (seq === this._zoomSeq) {
+      this._detailsLoading = false
+      if ('data' in result) {
+        this._details = Object.fromEntries(result.data.map(e => [e.handle, e]))
+        this._timelineEl()?.updateDetails(this._details)
+      }
     }
   }
 
@@ -313,6 +321,7 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     return html`
       <grampsjs-timeline
         .events="${this._filteredData}"
+        .detailsLoading="${this._detailsLoading}"
         .appState="${this.appState}"
       >
         <grampsjs-form-select-object
