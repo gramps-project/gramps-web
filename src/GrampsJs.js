@@ -40,6 +40,8 @@ import './components/GrampsjsTabBar.js'
 import './components/GrampsjsUndoTransaction.js'
 import './components/GrampsjsUpdateAvailable.js'
 import './components/GrampsjsUpgradeDb.js'
+import './components/GrampsjsObjectLink.js'
+import './components/GrampsjsObjectPreview.js'
 import '@material/web/dialog/dialog.js'
 import {sharedStyles} from './SharedStyles.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from './theme.js'
@@ -333,6 +335,9 @@ export class GrampsJs extends LitElement {
           <mwc-button slot="action">${this._('Refresh')}</mwc-button>
         </mwc-snackbar>
       </grampsjs-update-available>
+      <grampsjs-object-preview
+        .appState="${this.appState}"
+      ></grampsjs-object-preview>
     `
   }
 

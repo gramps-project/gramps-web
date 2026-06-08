@@ -10,8 +10,7 @@ import './GrampsjsFormEditTitle.js'
 import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
 import {fireEvent, emptyDate, apiVersionAtLeast} from '../util.js'
-
-const BASE_DIR = ''
+import './GrampsjsObjectLink.js'
 
 export class GrampsjsEvent extends GrampsjsObject {
   static get styles() {
@@ -83,11 +82,11 @@ export class GrampsjsEvent extends GrampsjsObject {
               <div>
                 <dt>${this._('Place')}</dt>
                 <dd>
-                  <a
-                    href="${BASE_DIR}/place/${this.data.extended.place
-                      .gramps_id}"
+                  <grampsjs-object-link
+                    object-type="place"
+                    gramps-id="${this.data.extended.place.gramps_id}"
                     >${this.data.profile.place_name ||
-                    this.data.profile.place}</a
+                    this.data.profile.place}</grampsjs-object-link
                   >
                 </dd>
               </div>
@@ -103,7 +102,8 @@ export class GrampsjsEvent extends GrampsjsObject {
             ></mwc-icon-button>
           `
         : ''}
-      ${this.data?.profile?.date &&
+      ${!this.preview &&
+      this.data?.profile?.date &&
       (apiVersionAtLeast(this.appState.dbInfo, 3, 14) ||
         !this.appState.dbInfo?.gramps_webapi?.version)
         ? html`

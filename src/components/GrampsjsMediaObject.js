@@ -138,17 +138,18 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         ? this._renderImageEdit()
         : this._renderImageNoEdit()}
       ${this._ocr ? this._renderOcr() : ''}
-
-      <grampsjs-view-media-lightbox
-        id="obj-lightbox-view"
-        @rect:clicked="${this._handleRectClick}"
-        handle="${this.data.handle}"
-        hideLeftArrow
-        hideRightArrow
-        active
-        .appState="${this.appState}"
-      >
-      </grampsjs-view-media-lightbox>
+      ${this.preview
+        ? ''
+        : html`<grampsjs-view-media-lightbox
+            id="obj-lightbox-view"
+            @rect:clicked="${this._handleRectClick}"
+            handle="${this.data.handle}"
+            hideLeftArrow
+            hideRightArrow
+            active
+            .appState="${this.appState}"
+          >
+          </grampsjs-view-media-lightbox>`}
     `
   }
 

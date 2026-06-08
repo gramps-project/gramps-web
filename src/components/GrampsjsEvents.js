@@ -4,11 +4,11 @@ import {classMap} from 'lit/directives/class-map.js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import {
   fireEvent,
-  renderIcon,
   objectDetail,
   makeHandle,
   eventTypeIconPath,
 } from '../util.js'
+import {renderIcon} from '../objectRender.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormEventRef.js'
 import './GrampsjsFormNewEvent.js'

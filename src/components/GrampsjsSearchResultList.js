@@ -7,12 +7,8 @@ import '@material/web/list/list.js'
 import '@material/web/list/list-item.js'
 import '@material/web/divider/divider.js'
 
-import {
-  objectDescription,
-  fireEvent,
-  objectDetail,
-  renderIcon,
-} from '../util.js'
+import {objectDescription, fireEvent, objectDetail} from '../util.js'
+import {renderIcon} from '../objectRender.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsImg.js'
 import {sharedStyles} from '../SharedStyles.js'

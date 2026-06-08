@@ -63,10 +63,12 @@ export class GrampsjsPerson extends GrampsjsObject {
         ${this._displayName()}
       </h2>
       ${this._renderBirth()} ${this._renderDeath()} ${this._renderRelation()}
-      <p class="button-list">
-        ${this._renderTreeBtn()} ${this._renderDnaBtn()}
-        ${this._renderExternalSearchBtn()}
-      </p>
+      ${this.preview
+        ? ''
+        : html`<p class="button-list">
+            ${this._renderTreeBtn()} ${this._renderDnaBtn()}
+            ${this._renderExternalSearchBtn()}
+          </p>`}
     `
   }
 

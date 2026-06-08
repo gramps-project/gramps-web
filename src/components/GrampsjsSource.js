@@ -85,6 +85,7 @@ export class GrampsjsSource extends GrampsjsObject {
     if (!tags.filter(tag => tag.name === 'Blog').length > 0) {
       return ''
     }
+    if (this.preview) return ''
     return html` <p style="clear: both; padding-top: 1em;">
       <md-outlined-button @click="${this._handleButtonClick}">
         ${this._('Show in blog')}

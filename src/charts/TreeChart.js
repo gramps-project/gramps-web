@@ -339,6 +339,24 @@ function TreeChartCore(
   node
     .style('cursor', canEdit ? 'default' : 'pointer')
     .on('click', canEdit ? null : clicked)
+    .on('mouseenter', function (event, d) {
+      if (window.matchMedia('(hover: none)').matches) return
+      const grampsId = d.data?.person?.gramps_id
+      if (!grampsId) return
+      window.dispatchEvent(
+        new CustomEvent('object:preview-show', {
+          detail: {
+            objectType: 'person',
+            grampsId,
+            anchorRect: this.getBoundingClientRect(),
+          },
+        })
+      )
+    })
+    .on('mouseleave', () => {
+      if (window.matchMedia('(hover: none)').matches) return
+      window.dispatchEvent(new CustomEvent('object:preview-hide'))
+    })
 
   return [xOffset, yOffset, width, height, boxWidth + 2 * padding]
 }

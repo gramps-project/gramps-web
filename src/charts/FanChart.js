@@ -379,6 +379,24 @@ export function FanChart(
     .filter(d => arcVisible(d.data))
     .style('cursor', 'pointer')
     .on('click', clicked)
+    .on('mouseenter', function (event, d) {
+      if (window.matchMedia('(hover: none)').matches) return
+      const grampsId = d.data?.person?.gramps_id
+      if (!grampsId) return
+      window.dispatchEvent(
+        new CustomEvent('object:preview-show', {
+          detail: {
+            objectType: 'person',
+            grampsId,
+            anchorRect: this.getBoundingClientRect(),
+          },
+        })
+      )
+    })
+    .on('mouseleave', () => {
+      if (window.matchMedia('(hover: none)').matches) return
+      window.dispatchEvent(new CustomEvent('object:preview-hide'))
+    })
 
   cell
     .append('title')
