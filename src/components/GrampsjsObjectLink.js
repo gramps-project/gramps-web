@@ -5,9 +5,6 @@ import {fireEvent} from '../util.js'
 // Replaced at build time by rollup
 const BASE_DIR = ''
 
-const SHOW_DELAY = 250
-const HIDE_DELAY = 250
-
 const PREVIEWABLE = new Set([
   'person',
   'family',
@@ -53,8 +50,6 @@ export class GrampsjsObjectLink extends LitElement {
     super()
     this.objectType = ''
     this.grampsId = ''
-    this._showTimer = null
-    this._hideTimer = null
   }
 
   get _href() {
@@ -76,33 +71,21 @@ export class GrampsjsObjectLink extends LitElement {
 
   _handleMouseEnter() {
     if (!this._canPreview) return
-    clearTimeout(this._hideTimer)
-    this._showTimer = setTimeout(() => {
-      const anchorRect = this.getBoundingClientRect()
-      window.dispatchEvent(
-        new CustomEvent('object:preview-show', {
-          detail: {
-            objectType: this.objectType,
-            grampsId: this.grampsId,
-            anchorRect,
-          },
-        })
-      )
-    }, SHOW_DELAY)
+    const anchorRect = this.getBoundingClientRect()
+    window.dispatchEvent(
+      new CustomEvent('object:preview-show', {
+        detail: {
+          objectType: this.objectType,
+          grampsId: this.grampsId,
+          anchorRect,
+        },
+      })
+    )
   }
 
   _handleMouseLeave() {
     if (!this._canPreview) return
-    clearTimeout(this._showTimer)
-    this._hideTimer = setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('object:preview-hide'))
-    }, HIDE_DELAY)
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback()
-    clearTimeout(this._showTimer)
-    clearTimeout(this._hideTimer)
+    window.dispatchEvent(new CustomEvent('object:preview-hide'))
   }
 
   render() {

@@ -15,6 +15,7 @@ import './GrampsjsRepository.js'
 import './GrampsjsNote.js'
 import './GrampsjsMediaObject.js'
 
+const SHOW_DELAY = 200
 const HIDE_DELAY = 250
 const CACHE_MAX_SIZE = 50
 const POPUP_WIDTH = 580
@@ -130,6 +131,7 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     this._x = 0
     this._y = 0
     this._cache = new Map()
+    this._showTimer = null
     this._hideTimer = null
     this._mouseInPopup = false
     this._boundShow = this._handleShow.bind(this)
@@ -156,13 +158,28 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     window.removeEventListener('object:preview-hide', this._boundHide)
     window.removeEventListener('nav', this._boundNav)
     window.removeEventListener('db:changed', this._boundDbChanged)
+    clearTimeout(this._showTimer)
     clearTimeout(this._hideTimer)
   }
 
-  _handleShow(e) {
-    const {objectType, grampsId, anchorRect} = e.detail
-    clearTimeout(this._hideTimer)
+  _cacheKey(objectType, grampsId) {
+    const lang = this.appState?.i18n?.lang || 'en'
+    return `${objectType}:${grampsId}:${lang}`
+  }
 
+  // Debounced: a burst of `object:preview-show` events (e.g. sweeping the
+  // cursor across many chart nodes in quick succession) resolves to a
+  // single preview once the cursor settles on one target for SHOW_DELAY ms.
+  _handleShow(e) {
+    const detail = e.detail
+    clearTimeout(this._hideTimer)
+    clearTimeout(this._showTimer)
+    this._showTimer = setTimeout(() => {
+      this._showPreview(detail)
+    }, SHOW_DELAY)
+  }
+
+  _showPreview({objectType, grampsId, anchorRect}) {
     this._objectType = objectType
     this._grampsId = grampsId
     this._position(anchorRect)
@@ -172,7 +189,7 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
       if (content) content.scrollTop = 0
     })
 
-    const cacheKey = `${objectType}:${grampsId}`
+    const cacheKey = this._cacheKey(objectType, grampsId)
     if (this._cache.has(cacheKey)) {
       this._data = this._cache.get(cacheKey)
     } else {
@@ -182,6 +199,7 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleHide() {
+    clearTimeout(this._showTimer)
     if (this._mouseInPopup) return
     this._hideTimer = setTimeout(() => {
       this._visible = false
@@ -223,7 +241,7 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     const result = await this.appState.apiGet(url)
     if (!result?.data?.[0]) return
     const data = result.data[0]
-    const cacheKey = `${objectType}:${grampsId}`
+    const cacheKey = this._cacheKey(objectType, grampsId)
     if (this._cache.size >= CACHE_MAX_SIZE) {
       this._cache.delete(this._cache.keys().next().value)
     }
@@ -329,6 +347,7 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
           id="open-btn"
           @click="${this._handleOpen}"
           title="${this._('_Open')}"
+          aria-label="${this._('_Open')}"
         >
           <grampsjs-icon path="${mdiOpenInNew}"></grampsjs-icon>
         </md-icon-button>
