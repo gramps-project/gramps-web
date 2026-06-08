@@ -35,7 +35,11 @@ function dotShapePath(modifier, cx, cy, r) {
 
 // Show/hide the shared object preview popup on hover, mirroring the
 // behaviour of the relationship/tree/fan charts for person nodes.
-function attachPreviewHandlers(selection) {
+// `getAnchorEl` resolves the element the popup should be anchored to and
+// positioned around (defaults to the hovered element itself) — for the
+// detail labels this is the text, not the whole group reaching down to
+// the dot, so the popup doesn't end up anchored at the dot instead.
+function attachPreviewHandlers(selection, getAnchorEl = el => el) {
   selection
     .on('mouseenter', function (event, d) {
       if (window.matchMedia('(hover: none)').matches) return
@@ -45,7 +49,7 @@ function attachPreviewHandlers(selection) {
           detail: {
             objectType: 'event',
             grampsId: d.gramps_id,
-            anchorRect: this.getBoundingClientRect(),
+            anchorRect: getAnchorEl(this).getBoundingClientRect(),
           },
         })
       )
@@ -387,7 +391,7 @@ export function Timeline(
           const text = g.append('text')
           text.append('tspan').attr('class', 'detail-summary').attr('dy', 0)
           text.append('tspan').attr('class', 'detail-date').attr('dy', '1.4em')
-          g.call(attachPreviewHandlers)
+          g.call(attachPreviewHandlers, el => select(el).select('text').node())
           if (onDetailClick) {
             g.on('click', (event, d) => {
               event.stopPropagation()
