@@ -6,6 +6,7 @@ import '../components/GrampsjsPillToggle.js'
 import {GrampsjsView} from './GrampsjsView.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import {dateToSdn, sdnToJsDate} from '../gcalendar.js'
+import {fireEvent} from '../util.js'
 import '../components/GrampsjsTimeline.js'
 import '../components/GrampsjsFormSelectObject.js'
 
@@ -70,7 +71,9 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
       _data: {type: Array},
       _activeFilter: {type: Object},
       _personFilterMode: {type: String},
+      _placeFilterMode: {type: String},
       _filterEventHandles: {type: Object},
+      _filterPlaceHandles: {type: Object},
       _detailsLoading: {type: Boolean},
     }
   }
@@ -83,7 +86,9 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._clickedDetail = null
     this._activeFilter = null
     this._personFilterMode = 'self'
+    this._placeFilterMode = 'exact'
     this._filterEventHandles = null
+    this._filterPlaceHandles = null
     this._pendingHandle = null
     this._detailsLoading = false
   }
@@ -159,13 +164,27 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
       )
     } else if ('error' in result) {
       this._filterEventHandles = new Set()
-      this.dispatchEvent(
-        new CustomEvent('grampsjs:error', {
-          bubbles: true,
-          composed: true,
-          detail: {message: result.error},
-        })
-      )
+      fireEvent(this, 'grampsjs:error', {message: result.error})
+    }
+  }
+
+  async _fetchEnclosedPlaces() {
+    const grampsId = this._activeFilter?.object?.gramps_id
+    if (!grampsId || this._placeFilterMode !== 'enclosed') return
+    this._placeSeq = (this._placeSeq ?? 0) + 1
+    const seq = this._placeSeq
+    const rules = {rules: [{name: 'IsEnclosedBy', values: [grampsId, '1']}]}
+    const result = await this.appState.apiGet(
+      `/api/places/?rules=${encodeURIComponent(
+        JSON.stringify(rules)
+      )}&keys=handle`
+    )
+    if (seq !== this._placeSeq) return
+    if ('data' in result) {
+      this._filterPlaceHandles = new Set(result.data.map(p => p.handle))
+    } else if ('error' in result) {
+      this._filterPlaceHandles = new Set()
+      fireEvent(this, 'grampsjs:error', {message: result.error})
     }
   }
 
@@ -197,7 +216,9 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     const [obj] = e.detail?.objects ?? []
     this._activeFilter = obj ?? null
     this._personFilterMode = 'self'
+    this._placeFilterMode = 'exact'
     this._filterEventHandles = null
+    this._filterPlaceHandles = null
     this._resetClickedState()
   }
 
@@ -205,7 +226,9 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     this.renderRoot.querySelector('grampsjs-form-select-object')?.reset()
     this._activeFilter = null
     this._personFilterMode = 'self'
+    this._placeFilterMode = 'exact'
     this._filterEventHandles = null
+    this._filterPlaceHandles = null
     this._resetClickedState()
   }
 
@@ -215,6 +238,15 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._resetClickedState()
     if (this._personFilterMode !== 'self') {
       this._fetchRelationshipEvents()
+    }
+  }
+
+  _handlePlaceFilterModeChange(e) {
+    this._placeFilterMode = e.detail.value
+    this._filterPlaceHandles = null
+    this._resetClickedState()
+    if (this._placeFilterMode !== 'exact') {
+      this._fetchEnclosedPlaces()
     }
   }
 
@@ -230,6 +262,12 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
       return this._data.filter(e => handles.has(e.handle))
     }
     if (this._activeFilter.object_type === 'place') {
+      if (this._placeFilterMode !== 'exact') {
+        if (!this._filterPlaceHandles) return []
+        return this._data.filter(e =>
+          this._filterPlaceHandles.has(e.placeHandle)
+        )
+      }
       const handle = this._activeFilter.object?.handle
       return this._data.filter(e => e.placeHandle === handle)
     }
@@ -325,10 +363,15 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   renderContent() {
     const isPersonFilter = this._activeFilter?.object_type === 'person'
-    const pillOptions = [
+    const isPlaceFilter = this._activeFilter?.object_type === 'place'
+    const personPillOptions = [
       {value: 'self', label: this._('Person')},
       {value: 'ancestors', label: this._('Ancestors')},
       {value: 'descendants', label: this._('Descendants')},
+    ]
+    const placePillOptions = [
+      {value: 'exact', label: this._('Exact place')},
+      {value: 'enclosed', label: this._('Enclosed places')},
     ]
     return html`
       <grampsjs-timeline
@@ -355,10 +398,19 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
         ${isPersonFilter
           ? html`<grampsjs-pill-toggle
               slot="filter-options"
-              .options="${pillOptions}"
+              .options="${personPillOptions}"
               .selected="${this._personFilterMode}"
               .appState="${this.appState}"
               @pill-toggle:change="${this._handleFilterModeChange}"
+            ></grampsjs-pill-toggle>`
+          : ''}
+        ${isPlaceFilter
+          ? html`<grampsjs-pill-toggle
+              slot="filter-options"
+              .options="${placePillOptions}"
+              .selected="${this._placeFilterMode}"
+              .appState="${this.appState}"
+              @pill-toggle:change="${this._handlePlaceFilterModeChange}"
             ></grampsjs-pill-toggle>`
           : ''}
       </grampsjs-timeline>

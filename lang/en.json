@@ -355,5 +355,7 @@
   "Fetching family record...": "Fetching family record...",
   "Filtering families...": "Filtering families...",
   "Fetching event record...": "Fetching event record...",
-  "Fetching place record...": "Fetching place record..."
+  "Fetching place record...": "Fetching place record...",
+  "Exact place": "Exact place",
+  "Enclosed places": "Enclosed places"
 }
