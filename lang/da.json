@@ -302,5 +302,22 @@
     "Notifications": "Notifikationer",
     "Copy JSON": "Kopier JSON",
     "Task failed": "Opgaven mislykkedes",
-    "Failed to copy to clipboard": "Kunne ikke kopiere til udklipsholder"
+    "Failed to copy to clipboard": "Kunne ikke kopiere til udklipsholder",
+    "Zoom in": "Zoom ind",
+    "Zoom out": "Zoom ud",
+    "Zoom in to see event details": "Zoom ind for at se detaljer for begivenheden",
+    "App title": "Apptitel",
+    "Theme colors": "Temafarver",
+    "Primary color": "Primær farve",
+    "Accent color": "Accentfarve",
+    "If set, overrides the family tree name in the title bar": "Såfremt angivet, overskriver det slægtbogens navn i titelfeltet",
+    "Add child": "Tilføj barn",
+    "Existing Person": "Eksisterende person",
+    "Show on timeline": "Vis på tidslinjen",
+    "Open in map": "Åbn på kortet",
+    "Export/Import settings": "Eksport/import indstillinger",
+    "Import tree settings": "Importer indstillinger for slægtsbog",
+    "Export media": "Eksporter medier",
+    "Running tasks": "Løbende opgaver",
+    "Process transactions": "Behandl transaktioner"
 }
