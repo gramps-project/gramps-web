@@ -3,7 +3,7 @@ import '@material/mwc-textfield'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsMap.js'
-import '../components/GrampsjsMapMarker.js'
+import '../components/GrampsjsMapPlacesLayer.js'
 import '../components/GrampsjsMapSearchbox.js'
 import '../components/GrampsjsMapTimeSlider.js'
 import '../components/GrampsjsPlaceBox.js'
@@ -80,7 +80,6 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       _selected: {type: String},
       _valueSearch: {type: String},
       _bounds: {type: Object},
-      _placeFilters: {type: Object},
       _year: {type: Number},
       _yearSpan: {type: Number},
       _currentLayer: {type: String},
@@ -101,7 +100,6 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._selected = ''
     this._valueSearch = ''
     this._bounds = {}
-    this._placeFilters = {}
     this._year = -1
     this._yearSpan = -1
     this._currentLayer = ''
@@ -141,6 +139,32 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     })
   }
 
+  get _placesForMap() {
+    const filteredHandles = this._filteredPlaces.map(place => place.handle)
+    const highlightedFilteredPlaces = this._dataPlaces.filter(
+      place =>
+        this._handlesHighlight.includes(place.handle) &&
+        !filteredHandles.includes(place.handle)
+    )
+    return [...this._filteredPlaces, ...highlightedFilteredPlaces]
+      .filter(
+        obj =>
+          obj?.profile?.lat !== null &&
+          obj?.profile?.lat !== undefined &&
+          !Number.isNaN(parseFloat(obj?.profile?.lat)) &&
+          obj?.profile?.long !== null &&
+          obj?.profile?.long !== undefined &&
+          !Number.isNaN(parseFloat(obj?.profile?.long)) &&
+          !(obj?.profile?.lat === 0 && obj?.profile?.long === 0)
+      )
+      .map(obj => ({
+        handle: obj.handle,
+        name: obj.profile.name,
+        lat: obj.profile.lat,
+        long: obj.profile.long,
+      }))
+  }
+
   renderContent() {
     const center = this._getMapCenter()
     return html`
@@ -158,18 +182,24 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         @map:layerchange="${this._handleLayerChange}"
         @map:moveend="${this._handleMoveEnd}"
         @map:overlay-toggle="${this._handleOverlayToggle}"
+        @map:marker-clicked="${this._handleMapMarkerClicked}"
         id="map"
         zoom="6"
-        >${this._renderMarkers()}${this._renderLayers()}</grampsjs-map
-      >
+        >${this._renderLayers()}
+        <grampsjs-map-places-layer
+          .places="${this._placesForMap}"
+          .highlightedHandles="${this._handlesHighlight}"
+        ></grampsjs-map-places-layer
+      ></grampsjs-map>
       <grampsjs-map-searchbox
         @mapsearch:input="${this._handleSearchInput}"
         @mapsearch:clear="${this._handleSearchClear}"
         @mapsearch:selected="${this._handleSearchSelected}"
-        @placefilter:changed="${this._handlePlaceFilterChanged}"
+        @searchbox:timechip-clear="${this._handleTimechipClear}"
         .data="${this._dataSearch}"
         .appState="${this.appState}"
-        .placeFilters="${this._placeFilters}"
+        year="${this._year}"
+        yearSpan="${this._yearSpan}"
         value="${this._valueSearch}"
         >${this._renderPlaceDetails()}</grampsjs-map-searchbox
       >
@@ -182,45 +212,24 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     `
   }
 
-  // Reconstruct parent_places from the already-loaded _dataPlaces array instead
-  // of fetching the individual place (which would include parent_places by default).
-  _resolveParentPlaces(place) {
-    const result = []
-    const visited = new Set()
-    let current = place
-    while (current?.placeref_list?.length > 0) {
-      const parentHandle = current.placeref_list[0].ref
-      if (visited.has(parentHandle)) break
-      visited.add(parentHandle)
-      current = this._dataPlaces.find(p => p.handle === parentHandle)
-      if (!current) break
-      result.push({name: current.profile?.name ?? ''})
-    }
-    return result
-  }
-
   _renderPlaceDetails() {
     if (this._handlesHighlight.length === 0) {
       return ''
     }
     const [handle] = this._handlesHighlight
-    const [object] = this._dataPlaces.filter(obj => obj.handle === handle)
-    if (object === undefined) {
-      if (this._dataPlaces.length > 0) {
-        this._clearSearchBox()
-      }
+    if (
+      this._dataPlaces.length > 0 &&
+      !this._dataPlaces.find(p => p.handle === handle)
+    ) {
+      this._clearSearchBox()
       return ''
     }
-    const data = {
-      ...object,
-      profile: {
-        ...object.profile,
-        parent_places: this._resolveParentPlaces(object),
-      },
-    }
+    const name =
+      this._dataPlaces.find(p => p.handle === handle)?.profile?.name ?? ''
     return html`
       <grampsjs-place-box
-        .data="${data}"
+        handle="${handle}"
+        name="${name}"
         .appState="${this.appState}"
       ></grampsjs-place-box>
     `
@@ -228,6 +237,10 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _handleLayerChange(e) {
     this._currentLayer = e.detail.layer
+  }
+
+  _handleTimechipClear() {
+    this.renderRoot.querySelector('grampsjs-map-time-slider')?.reset()
   }
 
   updated(changed) {
@@ -268,11 +281,6 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._applyPlaceFilter()
   }
 
-  _handlePlaceFilterChanged(event) {
-    this._placeFilters = {...event.detail}
-    this._applyPlaceFilter()
-  }
-
   _handleSearchInput(event) {
     this._fetchDataSearch(event.detail.value)
   }
@@ -295,14 +303,17 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._handlePlaceSelected(object)
   }
 
-  _handleMarkerClick(object) {
-    this._handlePlaceSelected(object)
+  _handleMapMarkerClicked(e) {
+    const place = this._dataPlaces.find(p => p.handle === e.detail.handle)
+    if (place) this._handlePlaceSelected(place)
   }
 
   _handlePlaceSelected(object) {
     this._dataSearch = []
     this._valueSearch = object.profile.name
     this._handlesHighlight = [object.handle]
+    const searchbox = this.renderRoot.querySelector('grampsjs-map-searchbox')
+    searchbox?.showDetails()
     if (object.profile.lat && object.profile.long) {
       this.flyTo(object.profile.lat, object.profile.long)
     }
@@ -385,49 +396,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._bounds = e.detail.bounds
   }
 
-  _renderMarkers() {
-    const filteredHandles = this._filteredPlaces.map(place => place.handle)
-    // places which are highlighted but hidden by a filter: show anyway!
-    const highlightedFilteredPlaces = this._dataPlaces.filter(
-      place =>
-        this._handlesHighlight.includes(place.handle) &&
-        !filteredHandles.includes(place.handle)
-    )
-    const places = [...this._filteredPlaces, ...highlightedFilteredPlaces]
-    return places.map(obj => {
-      if (
-        obj?.profile?.lat === null ||
-        obj?.profile?.lat === undefined ||
-        Number.isNaN(parseFloat(obj?.profile?.lat)) ||
-        obj?.profile?.long === null ||
-        obj?.profile?.long === undefined ||
-        Number.isNaN(parseFloat(obj?.profile?.long)) ||
-        (obj?.profile?.lat === 0 && obj?.profile?.long === 0)
-      ) {
-        return html``
-      }
-      const highlighted = this._handlesHighlight.includes(obj.handle)
-      return html` <grampsjs-map-marker
-        latitude="${obj.profile.lat}"
-        longitude="${obj.profile.long}"
-        size="${highlighted ? 48 : 32}"
-        opacity="${!highlighted && this._handlesHighlight.length > 0
-          ? 0.55
-          : 0.9}"
-        label="${obj.profile.name}"
-        @marker:clicked="${() => this._handleMarkerClick(obj)}"
-      ></grampsjs-map-marker>`
-    })
-  }
-
   _applyPlaceFilter() {
-    const enabledFilters = Object.keys(this._placeFilters).filter(
-      key => !!this._placeFilters[key]
-    )
     const filterFunction = place => {
-      if (enabledFilters.includes('hasEvent')) {
-        if (place?.backlinks?.event?.length === undefined) return false
-      }
       if (this._year > 0 && this._yearSpan > 0) {
         const placeEvents =
           place?.backlinks?.event?.map(handle =>
