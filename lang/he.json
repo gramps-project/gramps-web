@@ -144,12 +144,12 @@
     "Media file status": "מצב קובצי מדיה",
     "Upgrade database": "נא לשדרג מסד־נתונים",
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "נעשה נסיון לטעינת אילן־היוחסין בגרסת סכימת מסד־נתונים שאינה נתמכת על ידי גרסה זו של Gramps Web. לכן לא ניתן לטעון את אילן־היוחסין הזה מבלי לשדרג את הסכיממסד־הנתונים תחילה.פעולה זו לא ניתנת לבטל.",
-    "Wrong username or password": "שם משתמש או ססמה שגויים",
-    "Password successfully updated": "ססמה עודכנה בהצלחה",
-    "Please re-enter your password to continue.": "להמשך, נא להזין ססמה שוב.",
-    "E-mail successfully updated": "כתובת דוא\"ל עודכן בהצלחה",
+    "Wrong username or password": "שם משתמש או סיסמה שגויים",
+    "Password successfully updated": "הסיסמה עודכנה בהצלחה",
+    "Please re-enter your password to continue.": "כדי להמשיך, נא להזין סיסמה שוב.",
+    "E-mail successfully updated": "כתובת דוא\"ל עודכנה בהצלחה",
     "Danger Zone": "אזור סכנה",
-    "Password is required": "נדרשת ססמה",
+    "Password is required": "נדרשת סיסמה",
     "Delete all objects": "מחיקת כל העצמים",
     "Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.": "ניקוי אילן־היוחסין על ידי הסרת כל העצמים הקיימים. לחלופין, נא לבחור סוגי עצמים מסוימים למחיקה.",
     "Delete Family": "מחיקת משפחה",
@@ -277,5 +277,7 @@
     "Failed to upload": "האלעה כשלה",
     "Failed to update": "עדכון כשל",
     "Edit repository reference": "עריכת העדפות מאגרים",
-    "List view": "תצוגת רשימה"
+    "List view": "תצוגת רשימה",
+    "Settings successfully imported": "הגדרות יובאו בהצלחה",
+    "Please sign in again to continue.": "נא להתחבר מחדש כדי להמשיך."
 }
