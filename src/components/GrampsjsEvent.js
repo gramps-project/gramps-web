@@ -9,7 +9,7 @@ import './GrampsjsFormEditEventDetails.js'
 import './GrampsjsFormEditTitle.js'
 import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
-import {fireEvent, emptyDate, apiVersionAtLeast} from '../util.js'
+import {fireEvent, emptyDate} from '../util.js'
 import './GrampsjsObjectLink.js'
 
 export class GrampsjsEvent extends GrampsjsObject {
@@ -102,10 +102,7 @@ export class GrampsjsEvent extends GrampsjsObject {
             ></mwc-icon-button>
           `
         : ''}
-      ${!this.preview &&
-      this.data?.profile?.date &&
-      (apiVersionAtLeast(this.appState.dbInfo, 3, 14) ||
-        !this.appState.dbInfo?.gramps_webapi?.version)
+      ${!this.preview && this.data?.profile?.date
         ? html`
             <div style="clear:left;"></div>
             <p class="button-list">
