@@ -358,5 +358,11 @@
     "Fetching place record...": "Ortsdatensatz wird abgerufen...",
     "Please sign in again to continue.": "Bitte melde dich erneut an, um fortzufahren.",
     "%s selected": "%s ausgewählt",
-    "Exactly two objects must be selected to perform a merge.": "Für eine Zusammenführung müssen genau zwei Objekte ausgewählt werden."
+    "Exactly two objects must be selected to perform a merge.": "Für eine Zusammenführung müssen genau zwei Objekte ausgewählt werden.",
+    "Zoom in to see event details": "Vergrößern, um Ereignisdetails anzuzeigen",
+    "Merge": "Zusammenführen",
+    "Delete %s objects?": "%s Objekte löschen?",
+    "No objects selected.": "Es wurden keine Objekte ausgewählt.",
+    "Exact place": "Genauer Ort",
+    "Enclosed places": "Eingeschlossene Orte"
 }
