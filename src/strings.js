@@ -1057,6 +1057,5 @@ export const grampsStrings = [
   'Family Tree Processing',
   '_Select All',
   'Action',
-  'Merge',
   'Select the object that will provide the\nprimary data for the merged object.',
 ]
