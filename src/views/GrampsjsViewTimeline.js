@@ -71,6 +71,7 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
       _activeFilter: {type: Object},
       _personFilterMode: {type: String},
       _filterEventHandles: {type: Object},
+      _detailsLoading: {type: Boolean},
     }
   }
 
@@ -84,6 +85,7 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._personFilterMode = 'self'
     this._filterEventHandles = null
     this._pendingHandle = null
+    this._detailsLoading = false
   }
 
   connectedCallback() {
@@ -170,9 +172,14 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
   firstUpdated() {
     super.firstUpdated()
     this._fetchData()
+    // Debounce so a fetch only starts once the user pauses zooming.
+    let debounceTimer = null
     this.addEventListener('timeline:zoom-end', e => {
-      this._handleZoomEnd(e)
-      this._applyPendingHandle()
+      clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(() => {
+        this._handleZoomEnd(e)
+        this._applyPendingHandle()
+      }, 150)
     })
     this.addEventListener('timeline:dot-click', e =>
       this._handleDotClick(e.detail.handle)
@@ -275,27 +282,40 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
   async _handleZoomEnd({detail: {handles, innerWidth}}) {
     const threshold = Math.max(5, Math.floor(innerWidth / MIN_LABEL_WIDTH))
     if (handles.length === 0 || handles.length > threshold) {
+      this._pendingHandlesKey = null
       this._details = {}
+      this._detailsLoading = false
       this._timelineEl()?.updateDetails(
         this._clickedDetail ? {[this._clickedHandle]: this._clickedDetail} : {}
       )
       return
     }
     if (handles.every(h => h in this._details)) {
+      this._pendingHandlesKey = null
+      this._detailsLoading = false
       this._timelineEl()?.updateDetails(
         Object.fromEntries(handles.map(h => [h, this._details[h]]))
       )
       return
     }
-    this._zoomSeq = (this._zoomSeq ?? 0) + 1
-    const seq = this._zoomSeq
+    // Record which handles we're fetching; discard the result if the view
+    // has moved on by the time the response arrives.
+    const key = handles.join(',')
+    this._pendingHandlesKey = key
+    this._detailsLoading = true
     const locale = this.appState.i18n.lang || 'en'
     const result = await this.appState.apiGet(
-      `/api/events/?handles=${handles.join(',')}&profile=self&locale=${locale}`
+      `/api/events/?handles=${key}&profile=self&locale=${locale}`
     )
-    if ('data' in result && seq === this._zoomSeq) {
-      this._details = Object.fromEntries(result.data.map(e => [e.handle, e]))
-      this._timelineEl()?.updateDetails(this._details)
+    if (key === this._pendingHandlesKey) {
+      this._detailsLoading = false
+      if ('data' in result) {
+        this._details = Object.fromEntries(result.data.map(e => [e.handle, e]))
+        this._timelineEl()?.updateDetails(this._details)
+      } else {
+        this._details = {}
+        this._timelineEl()?.updateDetails({})
+      }
     }
   }
 
@@ -313,6 +333,7 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     return html`
       <grampsjs-timeline
         .events="${this._filteredData}"
+        .detailsLoading="${this._detailsLoading}"
         .appState="${this.appState}"
       >
         <grampsjs-form-select-object

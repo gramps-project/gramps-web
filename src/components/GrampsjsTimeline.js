@@ -58,6 +58,27 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
           flex-direction: column;
           z-index: 1;
         }
+
+        .chart-hint {
+          position: absolute;
+          bottom: 16px;
+          left: 50%;
+          transform: translateX(-50%);
+          padding: 6px 14px;
+          border-radius: 16px;
+          background-color: var(--grampsjs-color-shade-230);
+          font-size: 13px;
+          color: var(--grampsjs-body-font-color-70);
+          pointer-events: none;
+          white-space: nowrap;
+          z-index: 1;
+          opacity: 0;
+          transition: opacity 0.3s ease-in-out;
+        }
+
+        .chart-hint.visible {
+          opacity: 1;
+        }
       `,
     ]
   }
@@ -65,16 +86,22 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       events: {type: Array},
+      detailsLoading: {type: Boolean},
       _width: {type: Number},
       _height: {type: Number},
+      _hasDetails: {type: Boolean},
+      _hasVisibleEvents: {type: Boolean},
     }
   }
 
   constructor() {
     super()
     this.events = []
+    this.detailsLoading = false
     this._width = -1
     this._height = -1
+    this._hasDetails = false
+    this._hasVisibleEvents = false
   }
 
   connectedCallback() {
@@ -139,6 +166,7 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
           const handles = this.events
             .filter(e => e.jsDate != null && e.jsDate >= d0 && e.jsDate <= d1)
             .map(e => e.handle)
+          this._hasVisibleEvents = handles.length > 0
           fireEvent(this, 'timeline:zoom-end', {handles, innerWidth})
         },
       })
@@ -160,6 +188,16 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
           <slot name="filter-options"></slot>
         </div>
         <div class="chart-area">
+          <div
+            class="chart-hint ${ready &&
+            this._hasVisibleEvents &&
+            !this._hasDetails &&
+            !this.detailsLoading
+              ? 'visible'
+              : ''}"
+          >
+            ${this._('Zoom in to see event details')}
+          </div>
           <div class="chart-controls">
             <md-icon-button
               id="btn-zoom-in"
@@ -199,6 +237,7 @@ export class GrampsjsTimeline extends GrampsjsAppStateMixin(LitElement) {
   }
 
   updateDetails(details) {
+    this._hasDetails = Object.keys(details).length > 0
     this._chart?.updateDetails(details)
   }
 
