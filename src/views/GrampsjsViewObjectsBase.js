@@ -431,12 +431,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
 
   async _handleDelete() {
     this._showDeleteDialog = false
-    const handles = this._selectedHandles.join(',')
     const result = await this.appState.apiPost(
-      `/api/objects/delete-by-handle/?namespace=${
-        this._objectsName
-      }&handles=${encodeURIComponent(handles)}`,
-      {}
+      '/api/objects/delete-by-handle/',
+      {namespace: this._objectsName, handles: this._selectedHandles}
     )
     if ('error' in result) {
       fireEvent(this, 'grampsjs:error', {message: result.error})
