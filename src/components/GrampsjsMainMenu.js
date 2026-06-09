@@ -28,7 +28,6 @@ import {
 } from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {apiVersionAtLeast} from '../util.js'
 import './GrampsjsIcon.js'
 
 const BASE_DIR = ''
@@ -161,17 +160,14 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       >
         ${this._icon(mdiFamilyTree, p === 'tree')} ${this._('Family Tree')}
       </md-list-item>
-      ${!apiVersionAtLeast(this.appState.dbInfo, 3, 14) &&
-      this.appState.dbInfo?.gramps_webapi?.version
-        ? ''
-        : html`<md-list-item
-            type="link"
-            href="${BASE_DIR}/timeline"
-            ?selected="${p === 'timeline'}"
-          >
-            ${this._icon(mdiTimelineOutline, p === 'timeline')}
-            ${this._('Timeline')}
-          </md-list-item>`}
+      <md-list-item
+        type="link"
+        href="${BASE_DIR}/timeline"
+        ?selected="${p === 'timeline'}"
+      >
+        ${this._icon(mdiTimelineOutline, p === 'timeline')}
+        ${this._('Timeline')}
+      </md-list-item>
       <md-list-item
         type="link"
         href="${BASE_DIR}/map"

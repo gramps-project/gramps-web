@@ -5,7 +5,6 @@ The dropdown menu for adding objects in the top app bar
 import {html, css, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {apiVersionAtLeast} from '../util.js'
 
 import '../views/GrampsjsViewPeople.js'
 import '../views/GrampsjsViewFamilies.js'
@@ -408,14 +407,11 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         grampsId="${this.appState.path.pageId}"
         .appState="${this.appState}"
       ></grampsjs-view-task>
-      ${!apiVersionAtLeast(this.appState.dbInfo, 3, 14) &&
-      this.appState.dbInfo?.gramps_webapi?.version
-        ? ''
-        : html`<grampsjs-view-timeline
-            class="page"
-            ?active=${this.appState.path.page === 'timeline'}
-            .appState="${this.appState}"
-          ></grampsjs-view-timeline>`}
+      <grampsjs-view-timeline
+        class="page"
+        ?active=${this.appState.path.page === 'timeline'}
+        .appState="${this.appState}"
+      ></grampsjs-view-timeline>
     `
   }
 }
