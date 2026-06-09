@@ -107,6 +107,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       _selectionMode: {type: Boolean},
       _selectionKey: {type: Number},
       _showMergeDialog: {type: Boolean},
+      _showDeleteDialog: {type: Boolean},
       _showActionError: {type: Boolean},
       _currentAction: {type: String},
     }
@@ -130,6 +131,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     this._selectionMode = false
     this._selectionKey = 0
     this._showMergeDialog = false
+    this._showDeleteDialog = false
     this._showActionError = false
     this._currentAction = ''
   }
@@ -137,6 +139,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   // eslint-disable-next-line class-methods-use-this
   get _supportsMerge() {
     return false
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get _supportsDelete() {
+    return true
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -283,6 +290,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
                 ${this._('Merge')}
               </md-select-option>`
             : ''}
+          ${this._supportsDelete
+            ? html`<md-select-option value="delete">
+                ${this._('Delete')}
+              </md-select-option>`
+            : ''}
         </md-filled-select>
         <md-outlined-button
           ?disabled="${!this._currentAction}"
@@ -291,7 +303,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
           ${this._('Apply')}
         </md-outlined-button>
       </div>
-      ${this._renderMergeDialog()} ${this._renderActionErrorDialog()}
+      ${this._renderMergeDialog()} ${this._renderDeleteDialog()}
+      ${this._renderActionErrorDialog()}
     `
   }
 
@@ -303,10 +316,20 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       } else {
         this._showActionError = true
       }
+    } else if (action === 'delete') {
+      if (this._selectedHandles.length >= 1) {
+        this._showDeleteDialog = true
+      } else {
+        this._showActionError = true
+      }
     }
   }
 
   _renderActionErrorDialog() {
+    const message =
+      this._currentAction === 'merge'
+        ? this._('Exactly two objects must be selected to perform a merge.')
+        : this._('No objects selected.')
     return html`
       <md-dialog
         ?open="${this._showActionError}"
@@ -317,9 +340,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
           this._showActionError = false
         }}"
       >
-        <div slot="content">
-          ${this._('Exactly two objects must be selected to perform a merge.')}
-        </div>
+        <div slot="content">${message}</div>
         <div slot="actions">
           <md-text-button @click="${() => (this._showActionError = false)}">
             ${this._('OK')}
@@ -371,6 +392,58 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         </div>
       </md-dialog>
     `
+  }
+
+  _renderDeleteDialog() {
+    if (!this._showDeleteDialog) return ''
+    const count = this._selectedHandles.length
+    return html`
+      <md-dialog
+        ?open="${this._showDeleteDialog}"
+        @cancel="${() => {
+          this._showDeleteDialog = false
+        }}"
+        @close="${() => {
+          this._showDeleteDialog = false
+        }}"
+      >
+        <div slot="headline">
+          ${count === 1
+            ? this._('Delete this object?')
+            : this._('Delete %s objects?', count)}
+        </div>
+        <div slot="content">${this._('This action cannot be undone.')}</div>
+        <div slot="actions">
+          <md-text-button
+            @click="${() => {
+              this._showDeleteDialog = false
+            }}"
+          >
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-filled-button @click="${this._handleDelete}">
+            ${this._('Delete')}
+          </md-filled-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  async _handleDelete() {
+    this._showDeleteDialog = false
+    const handles = this._selectedHandles.join(',')
+    const result = await this.appState.apiPost(
+      `/api/objects/delete-by-handle/?namespace=${
+        this._objectsName
+      }&handles=${encodeURIComponent(handles)}`,
+      {}
+    )
+    if ('error' in result) {
+      fireEvent(this, 'grampsjs:error', {message: result.error})
+      return
+    }
+    this._selectionKey += 1
+    this._selectedHandles = []
   }
 
   async _handleMerge(phoenix, titanic) {
