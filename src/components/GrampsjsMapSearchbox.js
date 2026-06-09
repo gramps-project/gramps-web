@@ -165,6 +165,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     this.yearSpan = -1
     this._panelState = 'empty'
     this._showClearButton = false
+    this._debouncedHandleInput = debounce(() => this._handleInput(), 500)
   }
 
   render() {
@@ -181,7 +182,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
             type="search"
             placeholder="${this._('Search')}"
             @keydown="${this._handleKeyDown}"
-            @input="${debounce(() => this._handleInput(), 500)}"
+            @input="${this._debouncedHandleInput}"
             .value="${this.value}"
           />
           ${this._showClearButton

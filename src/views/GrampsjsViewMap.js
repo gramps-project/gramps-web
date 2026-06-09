@@ -314,7 +314,11 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._handlesHighlight = [object.handle]
     const searchbox = this.renderRoot.querySelector('grampsjs-map-searchbox')
     searchbox?.showDetails()
-    if (object.profile.lat && object.profile.long) {
+    if (
+      object.profile.lat != null &&
+      object.profile.long != null &&
+      !(object.profile.lat === 0 && object.profile.long === 0)
+    ) {
       this.flyTo(object.profile.lat, object.profile.long)
     }
   }

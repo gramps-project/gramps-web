@@ -84,20 +84,17 @@ export class GrampsjsPlaceBox extends GrampsjsConnectedComponent {
     return `/api/places/${this.handle}?extend=all&profile=self&locale=${lang}`
   }
 
-  update(changed) {
-    super.update(changed)
-    if (changed.has('handle')) {
-      this._updateData()
-    }
-  }
-
   renderContent() {
     const place = this._data?.data
     if (!place) return ''
+    const lat = place.lat
+    const long = place.long
     const hasCoords =
-      place.lat &&
-      place.long &&
-      !(parseFloat(place.lat) === 0 && parseFloat(place.long) === 0)
+      lat != null &&
+      lat !== '' &&
+      long != null &&
+      long !== '' &&
+      !(parseFloat(lat) === 0 && parseFloat(long) === 0)
     return html`
       <h2>${place.name?.value || place.title || this._('Place')}</h2>
       ${place.profile?.parent_places?.length > 0
@@ -144,7 +141,8 @@ export class GrampsjsPlaceBox extends GrampsjsConnectedComponent {
   }
 
   _handleDetailClick() {
-    fireEvent(this, 'nav', {path: `place/${this._data?.data?.gramps_id}`})
+    const id = this._data?.data?.gramps_id
+    if (id) fireEvent(this, 'nav', {path: `place/${id}`})
   }
 }
 
