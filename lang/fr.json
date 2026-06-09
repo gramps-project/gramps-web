@@ -354,5 +354,8 @@
     "Fetching family record...": "Récupération de la fiche de la famille...",
     "Filtering families...": "Filtrage des familles...",
     "Fetching event record...": "Récupération de la fiche de l'événement...",
-    "Fetching place record...": "Récupération de la fiche du lieu..."
+    "Fetching place record...": "Récupération de la fiche du lieu...",
+    "Zoom in to see event details": "Effectuez un zoom pour voir les détails de l'événement",
+    "%s selected": "%s sélectionné(e)",
+    "Exactly two objects must be selected to perform a merge.": "Pour effectuer une fusion, il faut sélectionner exactement deux objets."
 }
