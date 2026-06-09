@@ -357,5 +357,11 @@
     "Fetching place record...": "Získavanie záznamu o mieste...",
     "Please sign in again to continue.": "Ak chcete pokračovať, prihláste sa prosím znovu.",
     "%s selected": "Vybrané: %s",
-    "Exactly two objects must be selected to perform a merge.": "Na vykonanie zlúčenia je potrebné vybrať presne dva objekty."
+    "Exactly two objects must be selected to perform a merge.": "Na vykonanie zlúčenia je potrebné vybrať presne dva objekty.",
+    "Zoom in to see event details": "Zväčšite zobrazenie, aby ste videli podrobnosti o udalosti",
+    "Merge": "Zlúčiť",
+    "Delete %s objects?": "Odstrániť %s objektov?",
+    "No objects selected.": "Neboli vybrané žiadne objekty.",
+    "Exact place": "Presné miesto",
+    "Enclosed places": "Priliehajúce miesta"
 }
