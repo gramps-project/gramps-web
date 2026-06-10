@@ -363,5 +363,6 @@
     "Delete %s objects?": "Odstrániť %s objektov?",
     "No objects selected.": "Neboli vybrané žiadne objekty.",
     "Exact place": "Presné miesto",
-    "Enclosed places": "Priliehajúce miesta"
+    "Enclosed places": "Priliehajúce miesta",
+    "No coordinates": "Žiadne súradnice"
 }
