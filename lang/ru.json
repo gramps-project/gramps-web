@@ -356,5 +356,11 @@
     "%s selected": "%s выбраны",
     "Exactly two objects must be selected to perform a merge.": "Для выполнения слияния необходимо выбрать два объекта.",
     "Fetching event record...": "Получение записи события...",
-    "Fetching place record...": "Получение записи о месте..."
+    "Fetching place record...": "Получение записи о месте...",
+    "Zoom in to see event details": "Увеличьте масштаб, чтобы увидеть подробности события",
+    "Merge": "Слияние",
+    "Delete %s objects?": "Удалить %s объектов?",
+    "No objects selected.": "Объекты не выбраны.",
+    "Exact place": "Точное место",
+    "Enclosed places": "Связанные места"
 }
