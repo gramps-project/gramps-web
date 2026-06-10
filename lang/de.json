@@ -364,5 +364,6 @@
     "Delete %s objects?": "%s Objekte löschen?",
     "No objects selected.": "Es wurden keine Objekte ausgewählt.",
     "Exact place": "Genauer Ort",
-    "Enclosed places": "Eingeschlossene Orte"
+    "Enclosed places": "Eingeschlossene Orte",
+    "No coordinates": "Keine Koordinaten"
 }
