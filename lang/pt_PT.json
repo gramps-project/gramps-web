@@ -358,5 +358,10 @@
     "Please sign in again to continue.": "Por favor, inicie sessão novamente para continuar.",
     "%s selected": "%s seleccionado",
     "Exactly two objects must be selected to perform a merge.": "Tem de seleccionar exactamente dois objectos para realizar uma união.",
-    "Zoom in to see event details": "Amplie para ver detalhes do evento"
+    "Zoom in to see event details": "Amplie para ver detalhes do evento",
+    "Merge": "Unir",
+    "Delete %s objects?": "Eliminar %s objectos?",
+    "No objects selected.": "Nenhum objecto seleccionado.",
+    "Exact place": "Local exacto",
+    "Enclosed places": "Locais contidos"
 }
