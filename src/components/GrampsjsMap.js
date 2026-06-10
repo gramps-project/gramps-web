@@ -1,4 +1,4 @@
-import {html, css, LitElement} from 'lit'
+import {html, LitElement} from 'lit'
 import 'maplibre-gl'
 import '@openhistoricalmap/maplibre-gl-dates'
 
@@ -8,6 +8,7 @@ import '@material/web/menu/menu-item'
 import '@material/web/checkbox/checkbox'
 
 import './GrampsjsMapOverlay.js'
+import './GrampsjsMapMarker.js'
 import './GrampsjsMapLayerSwitcher.js'
 import './GrampsjsIcon.js'
 import {fireEvent} from '../util.js'
@@ -24,32 +25,7 @@ const {maplibregl} = window
 
 class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
-    return [
-      sharedStyles,
-      css`
-        .maplibregl-ctrl-group {
-          border-radius: 12px !important;
-        }
-        .maplibregl-ctrl-bottom-right {
-          right: 8px;
-        }
-        .grampsjs-place-tooltip .maplibregl-popup-content {
-          padding: 4px 12px;
-          border-radius: 9999px;
-          font-size: 13px;
-          font-weight: 500;
-          background: var(--md-sys-color-surface-container-high);
-          color: var(--md-sys-color-on-surface);
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-          white-space: nowrap;
-        }
-        .grampsjs-place-tooltip .maplibregl-popup-tip {
-          border-top-color: var(
-            --md-sys-color-surface-container-high
-          ) !important;
-        }
-      `,
-    ]
+    return [sharedStyles]
   }
 
   render() {
@@ -174,10 +150,8 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
           [this.longMax, this.latMax],
         ])
       }
+      // Add overlays after initial load
       this._reAddOverlays()
-      this._slottedChildren
-        .filter(el => typeof el.addToMap === 'function')
-        .forEach(el => el.addToMap(this._map))
     })
     this._map.on('moveend', () => {
       fireEvent(this, 'map:moveend', {bounds: this._map.getBounds()})
@@ -271,22 +245,9 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
 
   _handleStyleChange(style) {
     const styleUrl = this._getStyleUrl(style)
-    const contributors = this._slottedChildren.filter(
-      el => typeof el.getTransformStyleContribution === 'function'
-    )
-    this._map.setStyle(
-      styleUrl,
-      contributors.length > 0
-        ? {
-            transformStyle: (prev, next) =>
-              contributors.reduce(
-                (s, el) => el.getTransformStyleContribution(prev, s),
-                next
-              ),
-          }
-        : undefined
-    )
-    this._map.once('style.load', () => {
+    this._map.setStyle(styleUrl)
+    // Always wait for style to load before re-adding overlays
+    this._map.once('styledata', () => {
       this._reAddOverlays()
     })
   }

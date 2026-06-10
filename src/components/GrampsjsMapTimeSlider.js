@@ -186,13 +186,6 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
     this.value = slider.value
     this._fireEvent()
   }
-
-  reset() {
-    if (this.span > 0) {
-      this.span = -this.span
-      this._fireEvent()
-    }
-  }
 }
 
 window.customElements.define('grampsjs-map-time-slider', GrampsjsMapTimeSlider)
