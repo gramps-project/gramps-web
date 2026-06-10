@@ -37,6 +37,7 @@ class GrampsjsMapTileLayer extends LitElement {
         type: 'raster',
         tiles: [getTileUrl(this.handle)],
         tileSize: 256,
+        maxzoom: 18,
       })
     }
     if (!map.getLayer(layerId)) {
@@ -74,6 +75,15 @@ class GrampsjsMapTileLayer extends LitElement {
           layout: {visibility: this.hidden ? 'none' : 'visible'},
         },
       ],
+    }
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    if (this._map) {
+      const layerId = this._layerId
+      if (this._map.getLayer(layerId)) this._map.removeLayer(layerId)
+      if (this._map.getSource(layerId)) this._map.removeSource(layerId)
     }
   }
 

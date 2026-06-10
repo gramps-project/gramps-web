@@ -350,7 +350,6 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     return html` ${this._dataLayers.map(obj => this._renderMapLayer(obj))} `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _renderMapLayer(obj) {
     return html`
       <grampsjs-map-tile-layer
