@@ -243,16 +243,12 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
           }
         },
         1000,
-        120,
+        Infinity,
         () => this.isConnected
       )
         .then(() => {
           if (!settled) {
-            reject(
-              new Error(
-                this.isConnected ? 'Chat task timed out' : 'Chat cancelled'
-              )
-            )
+            reject(new Error('Chat cancelled'))
           }
         })
         .catch(reject)
