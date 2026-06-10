@@ -618,6 +618,12 @@ export function getReportUrl(id, options) {
   return `${__APIHOST__}/api/reports/${id}/file?jwt=${jwt}&${queryParam}`
 }
 
+export function getTileUrl(handle) {
+  const jwt = localStorage.getItem('access_token')
+  const base = `${__APIHOST__}/api/media/${handle}/tile/{z}/{x}/{y}`
+  return jwt ? `${base}?jwt=${jwt}` : base
+}
+
 export function getMediaUrl(handle, download = false) {
   const jwt = localStorage.getItem('access_token')
   if (jwt === null) {

@@ -1,0 +1,94 @@
+import {LitElement} from 'lit'
+import {getTileUrl} from '../api.js'
+
+class GrampsjsMapTileLayer extends LitElement {
+  static get properties() {
+    return {
+      handle: {type: String},
+      hidden: {type: Boolean},
+    }
+  }
+
+  constructor() {
+    super()
+    this.handle = ''
+    this.hidden = false
+    this._map = null
+  }
+
+  // No shadow DOM — renders no UI.
+  createRenderRoot() {
+    return this
+  }
+
+  get _layerId() {
+    return `tile-overlay-${this.handle}`
+  }
+
+  // Called by GrampsjsMap after initial map load.
+  // Imperatively adds the tile source/layer since the initial Map() constructor
+  // doesn't use transformStyle.
+  addToMap(map) {
+    this._map = map
+    if (!this.handle) return
+    const layerId = this._layerId
+    if (!map.getSource(layerId)) {
+      map.addSource(layerId, {
+        type: 'raster',
+        tiles: [getTileUrl(this.handle)],
+        tileSize: 256,
+      })
+    }
+    if (!map.getLayer(layerId)) {
+      map.addLayer({
+        id: layerId,
+        type: 'raster',
+        source: layerId,
+        layout: {visibility: this.hidden ? 'none' : 'visible'},
+      })
+    }
+  }
+
+  // Called by GrampsjsMap inside setStyle's transformStyle callback so the
+  // tile source/layer are part of the new style spec from its very first frame.
+  getTransformStyleContribution(_prev, next) {
+    if (!this.handle) return next
+    const layerId = this._layerId
+    return {
+      ...next,
+      sources: {
+        ...next.sources,
+        [layerId]: {
+          type: 'raster',
+          tiles: [getTileUrl(this.handle)],
+          tileSize: 256,
+          maxzoom: 18,
+        },
+      },
+      layers: [
+        ...next.layers,
+        {
+          id: layerId,
+          type: 'raster',
+          source: layerId,
+          layout: {visibility: this.hidden ? 'none' : 'visible'},
+        },
+      ],
+    }
+  }
+
+  updated(changed) {
+    if (changed.has('hidden') && this._map) {
+      const layerId = this._layerId
+      if (this._map.getLayer(layerId)) {
+        this._map.setLayoutProperty(
+          layerId,
+          'visibility',
+          this.hidden ? 'none' : 'visible'
+        )
+      }
+    }
+  }
+}
+
+window.customElements.define('grampsjs-map-tile-layer', GrampsjsMapTileLayer)

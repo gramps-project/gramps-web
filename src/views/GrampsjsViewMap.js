@@ -7,7 +7,7 @@ import '../components/GrampsjsMapPlacesLayer.js'
 import '../components/GrampsjsMapSearchbox.js'
 import '../components/GrampsjsMapTimeSlider.js'
 import '../components/GrampsjsPlaceBox.js'
-import {getMediaUrl} from '../api.js'
+import '../components/GrampsjsMapTileLayer.js'
 import {isDateBetweenYears, getGregorianYears} from '../util.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
@@ -352,17 +352,11 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   // eslint-disable-next-line class-methods-use-this
   _renderMapLayer(obj) {
-    const bounds = obj.attribute_list.filter(
-      attr => attr.type === 'map:bounds'
-    )[0].value
     return html`
-      <grampsjs-map-overlay
-        url="${getMediaUrl(obj.handle)}"
-        title="${obj.desc}"
-        bounds="${bounds}"
-        ?hidden="${this._hiddenOverlaysHandles.includes(obj.handle)}"
+      <grampsjs-map-tile-layer
         handle="${obj.handle}"
-      ></grampsjs-map-overlay>
+        ?hidden="${this._hiddenOverlaysHandles.includes(obj.handle)}"
+      ></grampsjs-map-tile-layer>
     `
   }
 
