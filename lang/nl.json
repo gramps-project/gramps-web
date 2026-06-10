@@ -357,5 +357,11 @@
     "Fetching place record...": "Plaats gegevens ophalen…",
     "Please sign in again to continue.": "Meld u opnieuw aan om door te gaan.",
     "%s selected": "%s geselecteerd",
-    "Exactly two objects must be selected to perform a merge.": "Er moeten precies twee objecten worden geselecteerd om een samenvoeging uit te voeren."
+    "Exactly two objects must be selected to perform a merge.": "Er moeten precies twee objecten worden geselecteerd om een samenvoeging uit te voeren.",
+    "Zoom in to see event details": "Zoom in om de details van de gebeurtenis te zien",
+    "Merge": "Samenvoegen",
+    "Delete %s objects?": "%s objecten verwijderen?",
+    "No objects selected.": "Geen objecten geselecteerd.",
+    "Exact place": "Exacte plaats",
+    "Enclosed places": "Afgesloten plaatsen"
 }
