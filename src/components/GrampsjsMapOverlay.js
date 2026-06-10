@@ -13,7 +13,6 @@ class GrampsjsMapOverlay extends LitElement {
       title: {type: String},
       handle: {type: String},
       hidden: {type: Boolean},
-      _overlay: {type: String, attribute: false},
     }
   }
 
@@ -25,7 +24,26 @@ class GrampsjsMapOverlay extends LitElement {
     this.handle = ''
     this.hidden = false
     this.bounds = []
-    this._overlay = ''
+  }
+
+  get _layerId() {
+    if (this.handle) return `overlay-${this.handle}`
+    if (this.title) return `overlay-${this.title.replace(/\s+/g, '-')}`
+    return ''
+  }
+
+  // MapLibre expects coordinates in order: top-left, top-right, bottom-right, bottom-left
+  _getCoordinates() {
+    if (!this.bounds || this.bounds.length !== 2) return null
+    let [[y0, x0], [y1, x1]] = this.bounds
+    if (y0 < y1) [y0, y1] = [y1, y0]
+    if (x0 > x1) [x0, x1] = [x1, x0]
+    return [
+      [x0, y0], // top left [lng, lat]
+      [x1, y0], // top right
+      [x1, y1], // bottom right
+      [x0, y1], // bottom left
+    ]
   }
 
   firstUpdated() {
@@ -36,97 +54,41 @@ class GrampsjsMapOverlay extends LitElement {
   }
 
   addOverlay() {
-    if (!this._map || !this.url || !this.bounds || this.bounds.length !== 2)
-      return
+    if (!this._map || !this.url || !this._layerId) return
+    if (this.hidden) return
+    if (this._map.getLayer(this._layerId)) return
 
-    // Don't add if overlay is hidden
-    if (this.hidden) {
-      return
-    }
-
-    // Do nothing if overlay already exists
-    if (this._overlay && this._map.getLayer(this._overlay)) {
-      return
-    }
-
-    // Wait for style to be loaded before adding source/layer
     const addOverlayWhenReady = () => {
-      // Don't add if hidden (could have changed while waiting)
-      if (this.hidden) {
-        return
-      }
-
-      // Generate stable ID if not already set
-      if (!this._overlay) {
-        if (this.handle) {
-          // Prefer handle-based ID for stability across re-renders
-          this._overlay = `overlay-${this.handle}`
-        } else if (this.title) {
-          // Fall back to title-based ID (less stable if title changes)
-          this._overlay = `overlay-${this.title.replace(/\s+/g, '-')}`
-        } else {
-          // Last resort: random ID (not stable across re-renders)
-          this._overlay = `overlay-${Math.random().toString(36).substr(2, 9)}`
-        }
-      }
-
-      // Check if already added (shouldn't happen but be safe)
-      if (this._map.getSource(this._overlay)) {
-        return
-      }
-
-      // MapLibre expects coordinates in order: top-left, top-right, bottom-right, bottom-left
-      // Fix: ensure bounds[0] is top-left (northwest), bounds[1] is bottom-right (southeast)
-      // If bounds are [south, west], [north, east], swap as needed
-      let [[y0, x0], [y1, x1]] = this.bounds
-      // Ensure y0 > y1 (top > bottom)
-      if (y0 < y1) {
-        ;[y0, y1] = [y1, y0]
-      }
-      // Ensure x0 < x1 (left < right)
-      if (x0 > x1) {
-        ;[x0, x1] = [x1, x0]
-      }
-      this._map.addSource(this._overlay, {
+      if (this.hidden) return
+      if (this._map.getSource(this._layerId)) return
+      const coordinates = this._getCoordinates()
+      if (!coordinates) return
+      this._map.addSource(this._layerId, {
         type: 'image',
         url: this.url,
-        coordinates: [
-          [x0, y0], // top left [lng, lat]
-          [x1, y0], // top right
-          [x1, y1], // bottom right
-          [x0, y1], // bottom left
-        ],
+        coordinates,
       })
       this._map.addLayer({
-        id: this._overlay,
+        id: this._layerId,
         type: 'raster',
-        source: this._overlay,
-        paint: {
-          'raster-opacity': this.opacity,
-        },
+        source: this._layerId,
+        paint: {'raster-opacity': this.opacity},
       })
-      // Bring to front
-      this._map.moveLayer(this._overlay)
+      this._map.moveLayer(this._layerId)
     }
 
-    // Check if style is already loaded
     if (this._map.isStyleLoaded()) {
       addOverlayWhenReady()
     } else {
-      // Wait for style to load
       this._map.once('styledata', addOverlayWhenReady)
     }
   }
 
   removeOverlay() {
-    if (this._map && this._overlay) {
-      if (this._map.getLayer(this._overlay)) {
-        this._map.removeLayer(this._overlay)
-      }
-      if (this._map.getSource(this._overlay)) {
-        this._map.removeSource(this._overlay)
-      }
-    }
+    if (!this._map || !this._layerId) return
+    if (this._map.getLayer(this._layerId)) this._map.removeLayer(this._layerId)
+    if (this._map.getSource(this._layerId))
+      this._map.removeSource(this._layerId)
   }
 
   disconnectedCallback() {
@@ -134,15 +96,36 @@ class GrampsjsMapOverlay extends LitElement {
     super.disconnectedCallback()
   }
 
-  resetForStyleChange() {
-    // After a style change, MapLibre has already cleared all layers/sources.
-    // We just need to reset our internal state so addOverlay() can recreate them.
-    this._overlay = ''
+  // Called by GrampsjsMap inside setStyle's transformStyle callback so the
+  // image source/layer survive style switches without a two-pass re-add.
+  getTransformStyleContribution(_prev, next) {
+    if (!this.url || !this._layerId) return next
+    const coordinates = this._getCoordinates()
+    if (!coordinates) return next
+    const layerId = this._layerId
+    return {
+      ...next,
+      sources: {
+        ...next.sources,
+        [layerId]: {type: 'image', url: this.url, coordinates},
+      },
+      layers: [
+        ...next.layers,
+        {
+          id: layerId,
+          type: 'raster',
+          source: layerId,
+          layout: {visibility: this.hidden ? 'none' : 'visible'},
+          paint: {'raster-opacity': this.opacity},
+        },
+      ],
+    }
   }
 
   updated(changed) {
     if (changed.has('bounds') || changed.has('opacity') || changed.has('url')) {
-      this.updateOverlay()
+      this.removeOverlay()
+      this.addOverlay()
     } else if (changed.has('hidden')) {
       if (this.hidden) {
         this.removeOverlay()
@@ -150,11 +133,6 @@ class GrampsjsMapOverlay extends LitElement {
         this.addOverlay()
       }
     }
-  }
-
-  updateOverlay() {
-    this.removeOverlay()
-    this.addOverlay()
   }
 }
 
