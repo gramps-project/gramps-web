@@ -140,11 +140,14 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   get _placesForMap() {
-    const filteredHandles = this._filteredPlaces.map(place => place.handle)
+    const filteredHandles = new Set(
+      this._filteredPlaces.map(place => place.handle)
+    )
+    const highlightedHandles = new Set(this._handlesHighlight)
     const highlightedFilteredPlaces = this._dataPlaces.filter(
       place =>
-        this._handlesHighlight.includes(place.handle) &&
-        !filteredHandles.includes(place.handle)
+        highlightedHandles.has(place.handle) &&
+        !filteredHandles.has(place.handle)
     )
     return [...this._filteredPlaces, ...highlightedFilteredPlaces]
       .filter(
