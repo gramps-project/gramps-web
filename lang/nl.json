@@ -363,5 +363,6 @@
     "Delete %s objects?": "%s objecten verwijderen?",
     "No objects selected.": "Geen objecten geselecteerd.",
     "Exact place": "Exacte plaats",
-    "Enclosed places": "Afgesloten plaatsen"
+    "Enclosed places": "Afgesloten plaatsen",
+    "No coordinates": "Geen coördinaten"
 }
