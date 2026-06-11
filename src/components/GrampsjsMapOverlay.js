@@ -26,10 +26,14 @@ class GrampsjsMapOverlay extends LitElement {
     this.bounds = []
   }
 
-  get _layerId() {
-    if (this.handle) return `overlay-${this.handle}`
-    if (this.title) return `overlay-${this.title.replace(/\s+/g, '-')}`
+  _layerIdFor(handle, title) {
+    if (handle) return `overlay-${handle}`
+    if (title) return `overlay-${title.replace(/\s+/g, '-')}`
     return ''
+  }
+
+  get _layerId() {
+    return this._layerIdFor(this.handle, this.title)
   }
 
   // MapLibre expects coordinates in order: top-left, top-right, bottom-right, bottom-left
@@ -123,7 +127,21 @@ class GrampsjsMapOverlay extends LitElement {
   }
 
   updated(changed) {
-    if (changed.has('bounds') || changed.has('opacity') || changed.has('url')) {
+    if (changed.has('handle') || changed.has('title')) {
+      const oldId = this._layerIdFor(
+        changed.has('handle') ? changed.get('handle') : this.handle,
+        changed.has('title') ? changed.get('title') : this.title
+      )
+      if (oldId && this._map) {
+        if (this._map.getLayer(oldId)) this._map.removeLayer(oldId)
+        if (this._map.getSource(oldId)) this._map.removeSource(oldId)
+      }
+      this.addOverlay()
+    } else if (
+      changed.has('bounds') ||
+      changed.has('opacity') ||
+      changed.has('url')
+    ) {
       this.removeOverlay()
       this.addOverlay()
     } else if (changed.has('hidden')) {

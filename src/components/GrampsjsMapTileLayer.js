@@ -88,6 +88,15 @@ class GrampsjsMapTileLayer extends LitElement {
   }
 
   updated(changed) {
+    if (changed.has('handle') && this._map) {
+      const oldHandle = changed.get('handle')
+      if (oldHandle) {
+        const oldLayerId = `tile-overlay-${oldHandle}`
+        if (this._map.getLayer(oldLayerId)) this._map.removeLayer(oldLayerId)
+        if (this._map.getSource(oldLayerId)) this._map.removeSource(oldLayerId)
+      }
+      this.addToMap(this._map)
+    }
     if (changed.has('hidden') && this._map) {
       const layerId = this._layerId
       if (this._map.getLayer(layerId)) {
