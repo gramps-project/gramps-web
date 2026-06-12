@@ -227,7 +227,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsNominatimSearchMixin(
   }
 
   _handleOpacitySlider(e) {
-    this.opacity = e.target.value
+    this.opacity = parseFloat(e.target.value)
   }
 
   _setScale(w) {

@@ -4,8 +4,6 @@ Form for editing a location's geographic coordinates
 
 import {html, css} from 'lit'
 
-import '@material/mwc-button'
-
 import './GrampsjsMap.js'
 import './GrampsjsFormSelectDate.js'
 import './GrampsjsFormSelectObjectList.js'

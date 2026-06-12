@@ -111,7 +111,10 @@ export const GrampsjsNominatimSearchMixin = superclass =>
             ></grampsjs-form-string>
           </div>
           <div style="float:left;padding:5px;">
-            <md-icon-button @click="${this._executeSearch}">
+            <md-icon-button
+              @click="${this._executeSearch}"
+              aria-label="${this._('Search')}"
+            >
               <grampsjs-icon path="${mdiMagnify}"></grampsjs-icon>
             </md-icon-button>
           </div>
@@ -143,7 +146,10 @@ export const GrampsjsNominatimSearchMixin = superclass =>
         ${this.showMore || this.searchRes.length <= 3
           ? ''
           : html`
-              <md-icon-button @click="${this._handleShowMore}">
+              <md-icon-button
+                @click="${this._handleShowMore}"
+                aria-label="${this._('Show more')}"
+              >
                 <grampsjs-icon path="${mdiDotsHorizontal}"></grampsjs-icon>
               </md-icon-button>
             `}
