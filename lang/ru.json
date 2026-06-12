@@ -362,5 +362,6 @@
     "Delete %s objects?": "Удалить %s объектов?",
     "No objects selected.": "Объекты не выбраны.",
     "Exact place": "Точное место",
-    "Enclosed places": "Связанные места"
+    "Enclosed places": "Связанные места",
+    "No coordinates": "Координаты отсутствуют"
 }
