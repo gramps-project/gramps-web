@@ -147,6 +147,8 @@ class GrampsjsMapOverlay extends LitElement {
     } else if (changed.has('hidden')) {
       if (this.hidden) {
         this.removeOverlay()
+      } else if (this._map && this._map.getLayer(this._layerId)) {
+        this._map.setLayoutProperty(this._layerId, 'visibility', 'visible')
       } else {
         this.addOverlay()
       }
