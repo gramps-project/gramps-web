@@ -199,7 +199,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
 
   // Handles children added after the map's load event (e.g. async data layers).
   _onSlotChange() {
-    if (!this._map) return
+    if (!this._map?.isStyleLoaded()) return
     this._slottedChildren
       .filter(el => typeof el.addToMap === 'function')
       .forEach(el => el.addToMap(this._map))

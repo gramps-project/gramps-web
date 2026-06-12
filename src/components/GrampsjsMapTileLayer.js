@@ -97,7 +97,7 @@ class GrampsjsMapTileLayer extends LitElement {
       }
       this.addToMap(this._map)
     }
-    if (changed.has('hidden') && this._map) {
+    if (changed.has('hidden') && this._map?.isStyleLoaded()) {
       const layerId = this._layerId
       if (this._map.getLayer(layerId)) {
         this._map.setLayoutProperty(
