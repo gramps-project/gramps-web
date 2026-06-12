@@ -357,5 +357,12 @@
     "Fetching event record...": "Hämtar händelsepost...",
     "Fetching place record...": "Hämtar platspost...",
     "%s selected": "%s vald",
-    "Exactly two objects must be selected to perform a merge.": "Exakt två objekt måste väljas för att sammanfogningen ska kunna genomföras."
+    "Exactly two objects must be selected to perform a merge.": "Exakt två objekt måste väljas för att sammanfogningen ska kunna genomföras.",
+    "Zoom in to see event details": "Zooma in för att se händelsedetaljer",
+    "Merge": "Slå ihop",
+    "Delete %s objects?": "Ta bort %s objekt?",
+    "No coordinates": "Inga koordinater",
+    "No objects selected.": "Inga objekt valda.",
+    "Exact place": "Exakt plats",
+    "Enclosed places": "Slutna platser"
 }
