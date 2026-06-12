@@ -7,7 +7,7 @@ import '../components/GrampsjsMapPlacesLayer.js'
 import '../components/GrampsjsMapSearchbox.js'
 import '../components/GrampsjsMapTimeSlider.js'
 import '../components/GrampsjsPlaceBox.js'
-import {getMediaUrl} from '../api.js'
+import '../components/GrampsjsMapTileLayer.js'
 import {isDateBetweenYears, getGregorianYears} from '../util.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
@@ -308,16 +308,17 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _handleMapMarkerClicked(e) {
     const place = this._dataPlaces.find(p => p.handle === e.detail.handle)
-    if (place) this._handlePlaceSelected(place)
+    if (place) this._handlePlaceSelected(place, {flyTo: false})
   }
 
-  _handlePlaceSelected(object) {
+  _handlePlaceSelected(object, {flyTo = true} = {}) {
     this._dataSearch = []
     this._valueSearch = object.profile.name
     this._handlesHighlight = [object.handle]
     const searchbox = this.renderRoot.querySelector('grampsjs-map-searchbox')
     searchbox?.showDetails()
     if (
+      flyTo &&
       object.profile.lat != null &&
       object.profile.long != null &&
       !(object.profile.lat === 0 && object.profile.long === 0)
@@ -350,19 +351,12 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     return html` ${this._dataLayers.map(obj => this._renderMapLayer(obj))} `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _renderMapLayer(obj) {
-    const bounds = obj.attribute_list.filter(
-      attr => attr.type === 'map:bounds'
-    )[0].value
     return html`
-      <grampsjs-map-overlay
-        url="${getMediaUrl(obj.handle)}"
-        title="${obj.desc}"
-        bounds="${bounds}"
-        ?hidden="${this._hiddenOverlaysHandles.includes(obj.handle)}"
+      <grampsjs-map-tile-layer
         handle="${obj.handle}"
-      ></grampsjs-map-overlay>
+        ?hidden="${this._hiddenOverlaysHandles.includes(obj.handle)}"
+      ></grampsjs-map-tile-layer>
     `
   }
 

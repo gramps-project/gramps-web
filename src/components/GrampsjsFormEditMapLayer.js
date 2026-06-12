@@ -159,6 +159,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
               url="${getMediaUrl(this.data.handle)}"
               opacity="${this.opacity}"
               title="${this.data.desc}"
+              handle="${this.data.handle}"
               .bounds="${this._getBounds()}"
             ></grampsjs-map-overlay>`
           : ''

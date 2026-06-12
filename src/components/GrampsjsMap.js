@@ -60,7 +60,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         style="width:${this.width}; height:${this.height};"
       >
         <div id="${this.mapid}" style="z-index: 0; width: 100%; height: 100%;">
-          <slot> </slot>
+          <slot @slotchange="${this._onSlotChange}"> </slot>
         </div>
         ${this.layerSwitcher ? this._renderLayerSwitcher() : html`<div></div>`}
       </div>
@@ -174,7 +174,6 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
           [this.longMax, this.latMax],
         ])
       }
-      this._reAddOverlays()
       this._slottedChildren
         .filter(el => typeof el.addToMap === 'function')
         .forEach(el => el.addToMap(this._map))
@@ -196,6 +195,14 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   get _slottedChildren() {
     const slot = this.shadowRoot.querySelector('slot')
     return slot.assignedElements({flatten: true})
+  }
+
+  // Handles children added after the map's load event (e.g. async data layers).
+  _onSlotChange() {
+    if (!this._map?.isStyleLoaded()) return
+    this._slottedChildren
+      .filter(el => typeof el.addToMap === 'function')
+      .forEach(el => el.addToMap(this._map))
   }
 
   panTo(latitude, longitude) {
@@ -248,25 +255,16 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
 
   _handleOverlayToggle(e) {
     const {overlay, visible} = e.detail
-
-    const overlays = this._slottedChildren.filter(
-      el => el.tagName === 'GRAMPSJS-MAP-OVERLAY'
-    )
-
-    overlays.forEach(overlayElement => {
-      // Prefer matching by stable handle when available; fall back to title/desc for backward compatibility
-      const matchesByHandle =
-        overlay.handle &&
-        overlayElement.handle &&
-        overlayElement.handle === overlay.handle
-      const matchesByTitle =
-        !overlay.handle && overlayElement.title === overlay.desc
-
-      if (matchesByHandle || matchesByTitle) {
+    this._slottedChildren
+      .filter(
+        el =>
+          (overlay.handle && el.handle === overlay.handle) ||
+          (!overlay.handle && el.title === overlay.desc)
+      )
+      .forEach(el => {
         // eslint-disable-next-line no-param-reassign
-        overlayElement.hidden = !visible
-      }
-    })
+        el.hidden = !visible
+      })
   }
 
   _handleStyleChange(style) {
@@ -286,20 +284,6 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
           }
         : undefined
     )
-    this._map.once('style.load', () => {
-      this._reAddOverlays()
-    })
-  }
-
-  _reAddOverlays() {
-    const overlays = this._slottedChildren.filter(
-      el => el.tagName === 'GRAMPSJS-MAP-OVERLAY'
-    )
-    overlays.forEach(overlayElement => {
-      // After style change, MapLibre cleared all layers. Reset overlay state and re-add.
-      overlayElement.resetForStyleChange()
-      overlayElement.addOverlay()
-    })
   }
 
   _getStyleUrl(style) {
