@@ -24,6 +24,13 @@ class GrampsjsMapOverlay extends LitElement {
     this.handle = ''
     this.hidden = false
     this.bounds = []
+    this._onStyleLoad = () => {
+      if (this.hidden) {
+        this.removeOverlay()
+      } else {
+        this.addOverlay()
+      }
+    }
   }
 
   _layerIdFor(handle, title) {
@@ -52,9 +59,9 @@ class GrampsjsMapOverlay extends LitElement {
 
   firstUpdated() {
     this._map = this.parentElement._map
-    if (!this.hidden) {
-      this.addOverlay()
-    }
+    this._map.off('style.load', this._onStyleLoad)
+    this._map.on('style.load', this._onStyleLoad)
+    if (!this.hidden) this.addOverlay()
   }
 
   addOverlay() {
@@ -96,6 +103,7 @@ class GrampsjsMapOverlay extends LitElement {
   }
 
   disconnectedCallback() {
+    if (this._map) this._map.off('style.load', this._onStyleLoad)
     this.removeOverlay()
     super.disconnectedCallback()
   }
@@ -103,7 +111,7 @@ class GrampsjsMapOverlay extends LitElement {
   // Called by GrampsjsMap inside setStyle's transformStyle callback so the
   // image source/layer survive style switches without a two-pass re-add.
   getTransformStyleContribution(_prev, next) {
-    if (!this.url || !this._layerId) return next
+    if (!this.url || !this._layerId || this.hidden) return next
     const coordinates = this._getCoordinates()
     if (!coordinates) return next
     const layerId = this._layerId

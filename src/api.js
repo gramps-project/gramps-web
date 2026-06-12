@@ -621,7 +621,7 @@ export function getReportUrl(id, options) {
 export function getTileUrl(handle) {
   const jwt = localStorage.getItem('access_token')
   const base = `${__APIHOST__}/api/media/${handle}/tile/{z}/{x}/{y}`
-  return jwt ? `${base}?jwt=${jwt}` : base
+  return jwt === null ? base : `${base}?jwt=${jwt}`
 }
 
 export function getMediaUrl(handle, download = false) {

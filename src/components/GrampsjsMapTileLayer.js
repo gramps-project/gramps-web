@@ -43,6 +43,7 @@ class GrampsjsMapTileLayer extends LitElement {
   // doesn't use transformStyle.
   addToMap(map) {
     this._map = map
+    map.off('style.load', this._onStyleLoad)
     map.on('style.load', this._onStyleLoad)
     if (!this.handle) return
     const layerId = this._layerId
