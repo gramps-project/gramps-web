@@ -308,16 +308,17 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _handleMapMarkerClicked(e) {
     const place = this._dataPlaces.find(p => p.handle === e.detail.handle)
-    if (place) this._handlePlaceSelected(place)
+    if (place) this._handlePlaceSelected(place, {flyTo: false})
   }
 
-  _handlePlaceSelected(object) {
+  _handlePlaceSelected(object, {flyTo = true} = {}) {
     this._dataSearch = []
     this._valueSearch = object.profile.name
     this._handlesHighlight = [object.handle]
     const searchbox = this.renderRoot.querySelector('grampsjs-map-searchbox')
     searchbox?.showDetails()
     if (
+      flyTo &&
       object.profile.lat != null &&
       object.profile.long != null &&
       !(object.profile.lat === 0 && object.profile.long === 0)
