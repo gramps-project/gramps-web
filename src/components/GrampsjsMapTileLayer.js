@@ -14,6 +14,7 @@ class GrampsjsMapTileLayer extends LitElement {
     this.handle = ''
     this.hidden = false
     this._map = null
+    this._onStyleLoad = () => this._syncVisibility()
   }
 
   // No shadow DOM — renders no UI.
@@ -25,11 +26,24 @@ class GrampsjsMapTileLayer extends LitElement {
     return `tile-overlay-${this.handle}`
   }
 
+  _syncVisibility() {
+    if (!this._map || !this.handle) return
+    const layerId = this._layerId
+    if (this._map.getLayer(layerId)) {
+      this._map.setLayoutProperty(
+        layerId,
+        'visibility',
+        this.hidden ? 'none' : 'visible'
+      )
+    }
+  }
+
   // Called by GrampsjsMap after initial map load.
   // Imperatively adds the tile source/layer since the initial Map() constructor
   // doesn't use transformStyle.
   addToMap(map) {
     this._map = map
+    map.on('style.load', this._onStyleLoad)
     if (!this.handle) return
     const layerId = this._layerId
     if (!map.getSource(layerId)) {
@@ -81,6 +95,7 @@ class GrampsjsMapTileLayer extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback()
     if (this._map) {
+      this._map.off('style.load', this._onStyleLoad)
       const layerId = this._layerId
       if (this._map.getLayer(layerId)) this._map.removeLayer(layerId)
       if (this._map.getSource(layerId)) this._map.removeSource(layerId)
@@ -98,14 +113,7 @@ class GrampsjsMapTileLayer extends LitElement {
       this.addToMap(this._map)
     }
     if (changed.has('hidden') && this._map?.isStyleLoaded()) {
-      const layerId = this._layerId
-      if (this._map.getLayer(layerId)) {
-        this._map.setLayoutProperty(
-          layerId,
-          'visibility',
-          this.hidden ? 'none' : 'visible'
-        )
-      }
+      this._syncVisibility()
     }
   }
 }
