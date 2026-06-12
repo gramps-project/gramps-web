@@ -6,24 +6,28 @@ import {html, css} from 'lit'
 
 import '@material/web/button/filled-button.js'
 import '@material/web/button/outlined-button.js'
-import '@material/web/iconbutton/icon-button.js'
-import '@material/web/progress/circular-progress.js'
 import '@material/web/slider/slider.js'
 
-import {mdiDotsHorizontal, mdiMagnify, mdiMapMarker} from '@mdi/js'
+import {mdiMapMarker} from '@mdi/js'
 
 import './GrampsjsMap.js'
 import './GrampsjsFormSelectDate.js'
 import './GrampsjsFormSelectObjectList.js'
 
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
-import {getMediaUrl, queryNominatim} from '../api.js'
-import {clickKeyHandler} from '../util.js'
+import {getMediaUrl} from '../api.js'
+import {
+  GrampsjsNominatimSearchMixin,
+  nominatimSearchStyles,
+} from '../mixins/GrampsjsNominatimSearchMixin.js'
 
-class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
+class GrampsjsFormEditMapLayer extends GrampsjsNominatimSearchMixin(
+  GrampsjsObjectForm
+) {
   static get styles() {
     return [
       super.styles,
+      nominatimSearchStyles,
       css`
         md-dialog {
           min-width: 80vw;
@@ -32,42 +36,16 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
         md-slider {
           width: 100%;
         }
-
-        .search-results {
-          clear: left;
-          padding: 1em 0em;
-        }
-
-        .search-result {
-          padding: 0.5em 0;
-          border-bottom: 1px solid var(--grampsjs-body-font-color-10);
-          border-top: 1px solid var(--grampsjs-body-font-color-10);
-        }
-
-        .attribution {
-          font-size: 0.8em;
-          color: var(--grampsjs-body-font-color-40);
-          text-align: right;
-        }
-
-        .attribution a:link,
-        a:hover,
-        a:visited {
-          color: var(--grampsjs-body-font-color-40);
-        }
       `,
     ]
   }
 
   static get properties() {
     return {
+      ...super.properties,
       opacity: {type: Number},
       state: {type: String},
       pinCoordinates: {type: Array},
-      searchRes: {type: Array},
-      searchResLoading: {type: Boolean},
-      showMore: {type: Boolean},
-      _searchFieldValue: {type: String},
     }
   }
 
@@ -76,10 +54,6 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
     this.opacity = 0.6
     this.state = ''
     this.pinCoordinates = []
-    this.searchRes = []
-    this.searchResLoading = false
-    this.showMore = false
-    this._searchFieldValue = ''
   }
 
   _getBounds() {
@@ -150,24 +124,9 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
         step="0.05"
         @input="${this._handleOpacitySlider}"
       ></md-slider>
-      <div style="margin-top:16px;">
-        <div style="width:calc(100% - 60px);float:left;">
-          <grampsjs-form-string
-            @formdata:changed="${this._handleSearchField}"
-            @keydown="${this._handleSearchKey}"
-            id="geocode"
-            label="${this._('Search %s', 'OpenStreetMap')}"
-            fullwidth
-          ></grampsjs-form-string>
-        </div>
-        <div style="float:left;padding:5px;">
-          <md-icon-button @click="${this._executeSearch}">
-            <grampsjs-icon path="${mdiMagnify}"></grampsjs-icon>
-          </md-icon-button>
-        </div>
-      </div>
+      <div style="margin-top:16px;">${this._renderSearchBox()}</div>
       ${this._renderSearchResults()}
-      <div style="margin-bottom:16px;">
+      <div style="margin-bottom:16px;display:flex;gap:8px;">
         ${this.state === 'placeMarker'
           ? html`
               <md-filled-button @click="${this._handleClickPinBtn}">
@@ -363,76 +322,12 @@ class GrampsjsFormEditMapLayer extends GrampsjsObjectForm {
     this._setBounds(bounds)
   }
 
-  _handleSearchField(e) {
-    this._searchFieldValue = e.detail.data
-  }
-
-  _handleSearchKey(event) {
-    if (event.code === 'Enter') {
-      this._executeSearch()
-      event.preventDefault()
-      event.stopPropagation()
-    }
-  }
-
-  async _executeSearch() {
-    if (this._searchFieldValue) {
-      this.searchResLoading = true
-      const res = await queryNominatim(this._searchFieldValue)
-      this.searchResLoading = false
-      this.searchRes = res.data || []
-    } else {
-      this.searchRes = []
-    }
-  }
-
-  _handleShowMore() {
-    this.showMore = true
-  }
-
   _handleResClick(res) {
     this.searchRes = []
     const map = this.shadowRoot.querySelector('grampsjs-map')
     if (map !== null) {
       map.jumpTo(parseFloat(res.lat), parseFloat(res.lon), 10)
     }
-  }
-
-  _renderSearchResults() {
-    if (this.searchResLoading) {
-      return html`<div class="search-results">
-        <md-circular-progress indeterminate></md-circular-progress>
-      </div>`
-    }
-    if (this.searchRes.length === 0) {
-      return html`<div class="search-results"></div>`
-    }
-    return html`<div class="search-results">
-      ${this.searchRes.slice(0, this.showMore ? this.searchRes.length : 3).map(
-        res => html`
-          <div class="search-result">
-            <span
-              class="link"
-              @click=${() => this._handleResClick(res)}
-              @keydown=${clickKeyHandler}
-              >${res.display_name}</span
-            >
-          </div>
-        `
-      )}
-      ${this.showMore || this.searchRes.length <= 3
-        ? ''
-        : html`
-            <md-icon-button @click="${this._handleShowMore}">
-              <grampsjs-icon path="${mdiDotsHorizontal}"></grampsjs-icon>
-            </md-icon-button>
-          `}
-      <div class="attribution">
-        <a href="https://nominatim.openstreetmap.org/"
-          >OpenStreetMap Nominatim</a
-        >
-      </div>
-    </div>`
   }
 
   _setBounds(bounds) {
