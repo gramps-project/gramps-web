@@ -60,7 +60,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         style="width:${this.width}; height:${this.height};"
       >
         <div id="${this.mapid}" style="z-index: 0; width: 100%; height: 100%;">
-          <slot> </slot>
+          <slot @slotchange="${this._onSlotChange}"> </slot>
         </div>
         ${this.layerSwitcher ? this._renderLayerSwitcher() : html`<div></div>`}
       </div>
@@ -195,6 +195,14 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   get _slottedChildren() {
     const slot = this.shadowRoot.querySelector('slot')
     return slot.assignedElements({flatten: true})
+  }
+
+  // Handles children added after the map's load event (e.g. async data layers).
+  _onSlotChange() {
+    if (!this._map) return
+    this._slottedChildren
+      .filter(el => typeof el.addToMap === 'function')
+      .forEach(el => el.addToMap(this._map))
   }
 
   panTo(latitude, longitude) {
