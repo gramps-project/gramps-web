@@ -1,71 +1,32 @@
-/* eslint-disable lit-a11y/click-events-have-key-events */
 /*
 Form for editing a location's geographic coordinates
 */
 
 import {html, css} from 'lit'
 
-import '@material/mwc-button'
-import '@material/mwc-icon-button'
-import '@material/mwc-circular-progress'
-
 import './GrampsjsMap.js'
 import './GrampsjsFormSelectDate.js'
 import './GrampsjsFormSelectObjectList.js'
 
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
-import {queryNominatim} from '../api.js'
+import {
+  GrampsjsNominatimSearchMixin,
+  nominatimSearchStyles,
+} from '../mixins/GrampsjsNominatimSearchMixin.js'
 
-class GrampsjsFormEditLatLong extends GrampsjsObjectForm {
+class GrampsjsFormEditLatLong extends GrampsjsNominatimSearchMixin(
+  GrampsjsObjectForm
+) {
   static get styles() {
     return [
       super.styles,
+      nominatimSearchStyles,
       css`
         md-dialog {
           min-width: 80vw;
         }
-
-        .search-results {
-          clear: left;
-          padding: 1em 0em;
-        }
-
-        .search-result {
-          padding: 0.5em 0;
-          border-bottom: 1px solid var(--grampsjs-body-font-color-10);
-          border-top: 1px solid var(--grampsjs-body-font-color-10);
-        }
-
-        .attribution {
-          font-size: 0.8em;
-          color: var(--grampsjs-body-font-color-40);
-          text-align: right;
-        }
-
-        .attribution a:link,
-        a:hover,
-        a:visited {
-          color: var(--grampsjs-body-font-color-40);
-        }
       `,
     ]
-  }
-
-  static get properties() {
-    return {
-      searchRes: {type: Array},
-      searchResLoading: {type: Boolean},
-      showMore: {type: Boolean},
-      _searchFieldValue: {type: String},
-    }
-  }
-
-  constructor() {
-    super()
-    this.searchRes = []
-    this.searchResLoading = false
-    this.showMore = false
-    this._searchFieldValue = ''
   }
 
   renderForm() {
@@ -92,24 +53,7 @@ class GrampsjsFormEditLatLong extends GrampsjsObjectForm {
         </div>
       </div>
       <div style="clear:left; height: 20px;"></div>
-      <div>
-        <div style="width:calc(100% - 60px);float:left;">
-          <grampsjs-form-string
-            @formdata:changed="${this._handleSearchField}"
-            @keydown="${this._handleSearchKey}"
-            id="geocode"
-            label="${this._('Search %s', 'OpenStreetMap')}"
-            fullwidth
-          ></grampsjs-form-string>
-        </div>
-        <div style="float:left;padding:5px;">
-          <mwc-icon-button
-            icon="search"
-            @click="${this._executeSearch}"
-          ></mwc-icon-button>
-        </div>
-      </div>
-      ${this._renderSearchResults()}
+      ${this._renderSearchBox()} ${this._renderSearchResults()}
       <p>
         <grampsjs-map
           .appState="${this.appState}"
@@ -131,75 +75,6 @@ class GrampsjsFormEditLatLong extends GrampsjsObjectForm {
         </grampsjs-map>
       </p>
     `
-  }
-
-  _handleSearchField(e) {
-    this._searchFieldValue = e.detail.data
-  }
-
-  _handleSearchKey(event) {
-    if (event.code === 'Enter') {
-      this._executeSearch()
-      event.preventDefault()
-      event.stopPropagation()
-    }
-  }
-
-  async _executeSearch() {
-    if (this._searchFieldValue) {
-      this.searchResLoading = true
-      const res = await queryNominatim(this._searchFieldValue)
-      this.searchResLoading = false
-      this.searchRes = res.data || []
-    } else {
-      this.searchRes = []
-    }
-  }
-
-  reset() {
-    this.shadowRoot
-      .querySelectorAll('grampsjs-form-string')
-      .forEach(element => element.reset())
-  }
-
-  _renderSearchResults() {
-    if (this.searchResLoading) {
-      return html` <div class="search-results">
-        <mwc-circular-progress indeterminate density="-3" open>
-        </mwc-circular-progress>
-      </div>`
-    }
-    if (this.searchRes.length === 0) {
-      return html` <div class="search-results"></div> `
-    }
-    return html` <div class="search-results">
-      ${this.searchRes.slice(0, this.showMore ? this.searchRes.length : 3).map(
-        res => html`
-          <div class="search-result">
-            <span class="link" @click=${() => this._handleResClick(res)}
-              >${res.display_name}</span
-            >
-          </div>
-        `
-      )}
-      ${this.showMore || this.searchRes.length <= 3
-        ? ''
-        : html`
-      <mwc-icon-button
-        @click="${this._handleShowMore}"
-        icon="more_horiz"
-      ></mwc-button>
-    `}
-      <div class="attribution">
-        <a href="https://nominatim.openstreetmap.org/"
-          >OpenStreetMap Nominatim</a
-        >
-      </div>
-    </div>`
-  }
-
-  _handleShowMore() {
-    this.showMore = true
   }
 
   _handleResClick(res) {
@@ -224,6 +99,12 @@ class GrampsjsFormEditLatLong extends GrampsjsObjectForm {
     if (map !== null) {
       map.jumpTo(lat, long, map._map.getZoom())
     }
+  }
+
+  reset() {
+    this.shadowRoot
+      .querySelectorAll('grampsjs-form-string')
+      .forEach(element => element.reset())
   }
 }
 

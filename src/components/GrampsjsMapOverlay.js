@@ -8,7 +8,11 @@ class GrampsjsMapOverlay extends LitElement {
   static get properties() {
     return {
       url: {type: String},
-      bounds: {type: Array},
+      bounds: {
+        type: Array,
+        hasChanged: (newVal, oldVal) =>
+          JSON.stringify(newVal) !== JSON.stringify(oldVal),
+      },
       opacity: {type: Number},
       title: {type: String},
       handle: {type: String},
@@ -145,13 +149,26 @@ class GrampsjsMapOverlay extends LitElement {
         if (this._map.getSource(oldId)) this._map.removeSource(oldId)
       }
       this.addOverlay()
-    } else if (
-      changed.has('bounds') ||
-      changed.has('opacity') ||
-      changed.has('url')
-    ) {
+    } else if (changed.has('url')) {
       this.removeOverlay()
       this.addOverlay()
+    } else if (changed.has('bounds')) {
+      const source = this._map?.getSource(this._layerId)
+      const coordinates = this._getCoordinates()
+      if (source && coordinates) {
+        source.setCoordinates(coordinates)
+      } else {
+        this.removeOverlay()
+        this.addOverlay()
+      }
+    } else if (changed.has('opacity')) {
+      if (this._map && this._map.getLayer(this._layerId)) {
+        this._map.setPaintProperty(
+          this._layerId,
+          'raster-opacity',
+          this.opacity
+        )
+      }
     } else if (changed.has('hidden')) {
       if (this.hidden) {
         this.removeOverlay()

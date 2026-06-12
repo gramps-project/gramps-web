@@ -2,8 +2,9 @@
 /* eslint-disable no-unused-vars */
 import {LitElement, css, html} from 'lit'
 
-import {mdiTableOfContents} from '@mdi/js'
+import {mdiTableOfContents, mdiPencil} from '@mdi/js'
 
+import '@material/web/button/outlined-button.js'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/dialog/dialog.js'
 
@@ -672,12 +673,17 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         return html` ${this.edit
           ? html`
               <p>
-                <mwc-button
-                  icon="edit"
+                <md-outlined-button
                   class="edit"
                   @click="${this._handleEditGeo}"
-                  >${this._('Edit coordinates')}</mwc-button
                 >
+                  <grampsjs-icon
+                    slot="icon"
+                    path="${mdiPencil}"
+                    color="var(--mdc-theme-secondary)"
+                  ></grampsjs-icon>
+                  ${this._('Edit coordinates')}
+                </md-outlined-button>
               </p>
             `
           : ''}
