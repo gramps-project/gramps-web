@@ -357,5 +357,12 @@
     "Fetching place record...": "Ag fáil taifead áite...",
     "Please sign in again to continue.": "Sínigh isteach arís le leanúint ar aghaidh.",
     "%s selected": "%s roghnaithe",
-    "Exactly two objects must be selected to perform a merge.": "Ní mór dhá réad go díreach a roghnú chun cumasc a dhéanamh."
+    "Exactly two objects must be selected to perform a merge.": "Ní mór dhá réad go díreach a roghnú chun cumasc a dhéanamh.",
+    "Zoom in to see event details": "Zúmáil isteach chun sonraí an imeachta a fheiceáil",
+    "Merge": "Cumaisc",
+    "Delete %s objects?": "Scrios %s réad?",
+    "No coordinates": "Gan comhordanáidí",
+    "No objects selected.": "Gan aon réada roghnaithe.",
+    "Exact place": "Áit chruinn",
+    "Enclosed places": "Áiteanna faoi iamh"
 }
