@@ -83,6 +83,10 @@ export function personTitleFromProfile(personProfile) {
   } ${personProfile.name_suffix || ''}`.trim()
 }
 
+export function personProfileDisplayName(profile) {
+  return [profile?.name_given, profile?.name_surname].filter(Boolean).join(' ')
+}
+
 function displaySurname(surname) {
   return `${surname.prefix} ${surname.surname} ${surname.connector}`.trim()
 }

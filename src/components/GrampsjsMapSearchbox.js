@@ -3,8 +3,15 @@ import '@material/web/iconbutton/icon-button.js'
 import '@material/web/list/list'
 import '@material/web/list/list-item'
 
-import {mdiClose, mdiMagnify, mdiMapMarker, mdiMapMarkerOff} from '@mdi/js'
+import {
+  mdiAccount,
+  mdiClose,
+  mdiMagnify,
+  mdiMapMarker,
+  mdiMapMarkerOff,
+} from '@mdi/js'
 import './GrampsjsIcon.js'
+import './GrampsjsButtonToggle.js'
 
 import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
@@ -65,6 +72,13 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           flex-wrap: wrap;
           gap: 6px;
           padding: 0 4px;
+        }
+
+        #filter-pills {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          padding: 12px 16px 4px;
         }
 
         .chip {
@@ -152,6 +166,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
       data: {type: Array},
       year: {type: Number},
       yearSpan: {type: Number},
+      searchFilter: {type: String},
       _panelState: {type: String},
       _showClearButton: {type: Boolean},
     }
@@ -163,6 +178,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     this.data = []
     this.year = -1
     this.yearSpan = -1
+    this.searchFilter = ''
     this._panelState = 'empty'
     this._showClearButton = false
     this._debouncedHandleInput = debounce(() => this._handleInput(), 500)
@@ -198,6 +214,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
 
         <div id="panel" class="${classMap({hidden: panelEmpty})}">
           <div class="${classMap({hidden: this._panelState !== 'results'})}">
+            ${this._renderFilterPills()}
             <md-list id="searchresult-list">
               ${this.data.map((obj, i) => this._renderListItem(obj, i))}
             </md-list>
@@ -227,16 +244,52 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
+  _renderFilterPills() {
+    return html`
+      <div id="filter-pills">
+        <grampsjs-button-toggle
+          label="${this._('Places')}"
+          .iconPath="${mdiMapMarker}"
+          ?checked="${this.searchFilter === 'place'}"
+          .appState="${this.appState}"
+          @grampsjs-button-toggle:toggle="${() =>
+            this._handleFilterToggle('place')}"
+        ></grampsjs-button-toggle>
+        <grampsjs-button-toggle
+          label="${this._('People')}"
+          .iconPath="${mdiAccount}"
+          ?checked="${this.searchFilter === 'person'}"
+          .appState="${this.appState}"
+          @grampsjs-button-toggle:toggle="${() =>
+            this._handleFilterToggle('person')}"
+        ></grampsjs-button-toggle>
+      </div>
+    `
+  }
+
+  _handleFilterToggle(type) {
+    const filter = this.searchFilter === type ? '' : type
+    fireEvent(this, 'mapsearch:filter-change', {filter})
+  }
+
   _renderListItem(obj, i) {
+    const isPerson = obj.object_type === 'person'
+    const label = isPerson
+      ? [obj.object?.profile?.name_given, obj.object?.profile?.name_surname]
+          .filter(Boolean)
+          .join(' ') ||
+        obj.object?.profile?.name ||
+        ''
+      : obj.object?.profile?.name || ''
+    const iconPath = isPerson
+      ? mdiAccount
+      : obj.object?.lat && obj.object?.long
+      ? mdiMapMarker
+      : mdiMapMarkerOff
     return html`
       <md-list-item type="button" @click="${() => this._handleSelected(i)}">
-        ${obj.object?.profile?.name || ''}
-        <grampsjs-icon
-          slot="start"
-          path="${obj.object.lat && obj.object.long
-            ? mdiMapMarker
-            : mdiMapMarkerOff}"
-        ></grampsjs-icon>
+        ${label}
+        <grampsjs-icon slot="start" path="${iconPath}"></grampsjs-icon>
       </md-list-item>
     `
   }
@@ -287,7 +340,11 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
 
   _handleSelected(index) {
     if (this.data.length === 0) return
-    fireEvent(this, 'mapsearch:selected', {object: this.data[index].object})
+    const item = this.data[index]
+    fireEvent(this, 'mapsearch:selected', {
+      object: item.object,
+      object_type: item.object_type,
+    })
     this._panelState = 'details'
   }
 
