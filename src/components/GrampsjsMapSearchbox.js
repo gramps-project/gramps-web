@@ -389,7 +389,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
   focus(retry = true) {
     // No-op on touch devices to avoid popping the on-screen keyboard;
     // pointer: fine is the best available proxy for "has a physical keyboard".
-    if (!window.matchMedia('(pointer: fine)').matches) return
+    if (!window.matchMedia?.('(pointer: fine)').matches) return
     const el = this.shadowRoot.getElementById('searchfield')
     try {
       el.focus()
