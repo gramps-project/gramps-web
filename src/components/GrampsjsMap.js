@@ -217,6 +217,12 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
+  fitBounds(bounds, options = {}) {
+    if (this._map !== undefined) {
+      this._map.fitBounds(bounds, {padding: 60, maxZoom: 14, ...options})
+    }
+  }
+
   flyTo(latitude, longitude) {
     if (this._map !== undefined) {
       this._map.flyTo({
