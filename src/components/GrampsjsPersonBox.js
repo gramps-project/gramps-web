@@ -39,6 +39,10 @@ export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
 
         .right {
           text-align: right;
+          position: sticky;
+          bottom: 0;
+          background: var(--md-sys-color-surface-container-high);
+          margin-top: 4px;
         }
 
         p {
