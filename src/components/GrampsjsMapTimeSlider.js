@@ -79,7 +79,6 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
       value: {type: Number},
       span: {type: Number},
       min: {type: Number},
-      filterMap: {type: Boolean},
     }
   }
 
@@ -88,7 +87,6 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
     this.min = 1500
     this.value = new Date().getFullYear() - 50
     this.span = 50
-    this.filterMap = false
   }
 
   render() {
@@ -96,16 +94,13 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
       <div id="container">
         <md-slider
           @input="${this._handleInput}"
-          ?disabled="${!this.filterMap && this.span < 0}"
           labeled
           min="${this.min}"
           max="${new Date().getFullYear()}"
           value="${this.value}"
         ></md-slider>
         <div class="date">
-          ${!this.filterMap && this.span < 0
-            ? ''
-            : html` <span class="year">${this.value}</span>`}
+          <span class="year">${this.value}</span>
           ${this.span > 0
             ? html`&pm; <span class="span">${this.span}</span>`
             : ''}
