@@ -306,9 +306,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       }
       this._applyPendingPlace()
       const searchbox = this.shadowRoot.querySelector('grampsjs-map-searchbox')
-      if (searchbox !== null) {
-        searchbox.focus()
-      }
+      searchbox?.focus()
     }
   }
 

@@ -79,6 +79,10 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           flex-wrap: wrap;
           gap: 6px;
           padding: 12px 16px 4px;
+          position: sticky;
+          top: 0;
+          background: var(--md-sys-color-surface-container-high);
+          z-index: 1;
         }
 
         .chip {
@@ -383,6 +387,9 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
   }
 
   focus(retry = true) {
+    // No-op on touch devices to avoid popping the on-screen keyboard;
+    // pointer: fine is the best available proxy for "has a physical keyboard".
+    if (!window.matchMedia?.('(pointer: fine)').matches) return
     const el = this.shadowRoot.getElementById('searchfield')
     try {
       el.focus()
