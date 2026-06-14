@@ -401,8 +401,9 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _fitPersonPlaces(handles) {
+    const handleSet = new Set(handles)
     const places = this._dataPlaces.filter(
-      p => handles.includes(p.handle) && this._hasCoords(p)
+      p => handleSet.has(p.handle) && this._hasCoords(p)
     )
     if (places.length === 0) return
     if (places.length === 1) {

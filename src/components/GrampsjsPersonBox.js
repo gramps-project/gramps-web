@@ -2,7 +2,6 @@ import {html, css} from 'lit'
 
 import '@material/web/button/text-button.js'
 
-import './GrampsjsIcon.js'
 import './GrampsjsGallery.js'
 import './GrampsjsEvents.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
