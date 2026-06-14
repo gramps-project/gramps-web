@@ -374,6 +374,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._valueSearch = personProfileDisplayName(person.profile)
     this._selectedPerson = person
     this._selectedPersonData = null
+    this._personPlaceHandles = []
     const searchbox = this.renderRoot.querySelector('grampsjs-map-searchbox')
     searchbox?.showDetails()
     this._highlightPersonPlaces(person)
@@ -384,7 +385,10 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     const data = await this.appState.apiGet(
       `/api/people/${person.handle}?extend=all&profile=all&locale=${lang}`
     )
-    if (!('data' in data)) return
+    if (!('data' in data)) {
+      this._selectedPerson = null
+      return
+    }
     if (this._selectedPerson?.handle !== person.handle) return
     const extPerson = data.data
     this._selectedPersonData = extPerson
