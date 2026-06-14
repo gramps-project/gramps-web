@@ -283,7 +283,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     const person = this._selectedPerson
     return html`
       <grampsjs-person-box
-        handle="${person.handle || ''}"
+        handle="${this._selectedPersonData ? person.handle : ''}"
         name="${personProfileDisplayName(person.profile)}"
         .personData="${this._selectedPersonData}"
         .appState="${this.appState}"
