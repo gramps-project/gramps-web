@@ -3,6 +3,7 @@ import '@material/mwc-textfield'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsMap.js'
+import '../components/GrampsjsMapPersonLinesLayer.js'
 import '../components/GrampsjsMapPlacesLayer.js'
 import '../components/GrampsjsMapSearchbox.js'
 import '../components/GrampsjsMapTimeSlider.js'
@@ -225,6 +226,12 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         id="map"
         zoom="6"
         >${this._renderLayers()}
+        ${this._selectedPersonData
+          ? html`<grampsjs-map-person-lines-layer
+              .events="${this._selectedPersonData.extended?.events ?? []}"
+              .places="${this._dataPlaces}"
+            ></grampsjs-map-person-lines-layer>`
+          : ''}
         <grampsjs-map-places-layer
           .places="${this._placesForMap}"
           .highlightedHandles="${this._handlesHighlight}"

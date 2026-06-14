@@ -29,7 +29,7 @@ export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
         h3 {
           font-weight: 400;
           font-size: 18px;
-          margin-top: 14px;
+          margin-top: 24px;
           margin-bottom: 7px;
         }
 
