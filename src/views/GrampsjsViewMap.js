@@ -371,6 +371,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _handlePersonSelected(person) {
     this._dataSearch = []
+    this._activeSearchQuery = ''
     this._valueSearch = personProfileDisplayName(person.profile)
     this._selectedPerson = person
     this._selectedPersonData = null
@@ -385,6 +386,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       `/api/people/${person.handle}?extend=all&profile=all&locale=${lang}`
     )
     if (!('data' in data)) return
+    if (this._selectedPerson?.handle !== person.handle) return
     const extPerson = data.data
     this._selectedPersonData = extPerson
     const placeHandles = (extPerson.extended?.events || [])
@@ -430,6 +432,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _handlePlaceSelected(object, {flyTo = true} = {}) {
     this._dataSearch = []
+    this._activeSearchQuery = ''
     this._selectedPerson = null
     this._valueSearch = object.profile.name
     this._handlesHighlight = [object.handle]

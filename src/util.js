@@ -84,7 +84,11 @@ export function personTitleFromProfile(personProfile) {
 }
 
 export function personProfileDisplayName(profile) {
-  return [profile?.name_given, profile?.name_surname].filter(Boolean).join(' ')
+  return (
+    [profile?.name_given, profile?.name_surname].filter(Boolean).join(' ') ||
+    profile?.name ||
+    ''
+  )
 }
 
 function displaySurname(surname) {

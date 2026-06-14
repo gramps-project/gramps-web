@@ -78,6 +78,11 @@ export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
     return `/api/people/${this.handle}?extend=all&profile=all&locale=${lang}`
   }
 
+  render() {
+    if (this.personData) return this.renderContent()
+    return super.render()
+  }
+
   renderContent() {
     const person = this.personData || this._data?.data
     if (!person) return ''
