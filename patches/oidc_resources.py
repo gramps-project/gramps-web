@@ -224,8 +224,8 @@ class OIDCCallbackResource(Resource):
                             token["id_token"],
                             options={"verify_signature": False},
                         )
-                        merged = dict(id_claims)
-                        merged.update(userinfo)
+                        merged = dict(userinfo)
+                        merged.update(id_claims)  # id_claims are fresher — always win
                         userinfo = merged
                     except Exception:  # pylint: disable=broad-except
                         logger.warning("Could not parse ID token claims; using userinfo only")

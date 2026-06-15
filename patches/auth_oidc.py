@@ -201,7 +201,6 @@ def get_role_from_claims(
     user_groups = []
 
     # Handle nested claims like 'realm_access.roles'
-    # But URL-namespaced claims (e.g. https://example.com/roles) are direct keys.
     if "." in role_claim and not role_claim.startswith("http"):
         claim_parts = role_claim.split(".")
         claim_value = user_claims
@@ -218,6 +217,7 @@ def get_role_from_claims(
             user_groups = [claim_value]
 
     # Fallback: if no groups found in claims, assign default guest role
+    logger.warning("DEBUG get_role_from_claims: role_claim=%r, user_groups=%r, claim_value=%r", role_claim, user_groups, user_claims.get(role_claim, "KEY_NOT_FOUND"))
     if not user_groups:
         logger.warning(
             f"No '{role_claim}' claim found in user claims. Assigning guest role."
