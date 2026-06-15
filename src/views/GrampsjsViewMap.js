@@ -125,6 +125,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._currentLayer = ''
     this._minYear = 1500
     this._pendingPlace = null
+    this._pendingPerson = null
   }
 
   get _searchbox() {
@@ -134,16 +135,19 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   connectedCallback() {
     super.connectedCallback()
     this._boundPlaceSelected = e => this._handleExternalPlaceSelected(e)
+    this._boundPersonSelected = e => this._handleExternalPersonSelected(e)
     this._boundPlaceActive = e => {
       this._handlesHighlight = e.detail.handle ? [e.detail.handle] : []
     }
     window.addEventListener('map:place-selected', this._boundPlaceSelected)
+    window.addEventListener('map:person-selected', this._boundPersonSelected)
     window.addEventListener('map:place-active', this._boundPlaceActive)
   }
 
   disconnectedCallback() {
     super.disconnectedCallback()
     window.removeEventListener('map:place-selected', this._boundPlaceSelected)
+    window.removeEventListener('map:person-selected', this._boundPersonSelected)
     window.removeEventListener('map:place-active', this._boundPlaceActive)
   }
 
@@ -165,6 +169,25 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     requestAnimationFrame(() => {
       this._mapEl._map.resize()
       this._handlePlaceSelected(place)
+    })
+  }
+
+  _handleExternalPersonSelected({detail: {person}}) {
+    this._pendingPerson = person
+    this._applyPendingPerson()
+  }
+
+  _applyPendingPerson() {
+    if (!this._pendingPerson) return
+    if (!this._mapEl?._map) {
+      requestAnimationFrame(() => this._applyPendingPerson())
+      return
+    }
+    const person = this._pendingPerson
+    this._pendingPerson = null
+    requestAnimationFrame(() => {
+      this._mapEl._map.resize()
+      this._handlePersonSelected(person)
     })
   }
 
@@ -317,6 +340,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         this._mapEl._map.resize()
       }
       this._applyPendingPlace()
+      this._applyPendingPerson()
       this._searchbox?.focus()
     }
   }
@@ -657,7 +681,9 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       this.error = false
       this._dataPlaces = data.data
       this._applyPlaceFilter()
-      if (!this._handlesHighlight.length) {
+      if (this._selectedPerson && this._personPlaceHandles.length) {
+        this._fitPersonPlaces(this._personPlaceHandles)
+      } else if (!this._handlesHighlight.length) {
         const center = this._getMapCenter()
         this._mapEl?.jumpTo(center[0], center[1], 6)
       }
