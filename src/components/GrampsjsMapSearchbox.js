@@ -396,7 +396,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
       label: obj.object?.profile?.name || '',
       supportingText: '',
       iconPath:
-        obj.object?.lat != null && obj.object?.long != null
+        obj.object?.profile?.lat != null && obj.object?.profile?.long != null
           ? mdiMapMarker
           : mdiMapMarkerOff,
     }
@@ -449,6 +449,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
   _handleInput() {
     const input = this.shadowRoot.getElementById('searchfield')
     const {value} = input
+    this.value = value
     if (value === '') {
       this.clear()
     } else {
@@ -482,12 +483,11 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
 
   clear() {
     fireEvent(this, 'mapsearch:clear')
+    this.value = ''
     this.data = []
     this._activeFilter = DEFAULT_SEARCH_FILTER
     this._panelState = PANEL_EMPTY
     this._collapsed = false
-    const input = this.shadowRoot.getElementById('searchfield')
-    if (input) input.value = ''
   }
 
   showDetails() {

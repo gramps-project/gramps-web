@@ -351,6 +351,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _handleSearchClear() {
+    this._nominatimAbort?.abort()
+    this.loading = false
     this._valueSearch = ''
     this._activeSearchQuery = ''
     this._searchFilter = DEFAULT_SEARCH_FILTER
@@ -442,6 +444,10 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _handleSearchFilterChange(event) {
     this._searchFilter = event.detail.filter
+    if (this._searchFilter !== TYPE_EXTERNAL) {
+      this._nominatimAbort?.abort()
+      this.loading = false
+    }
     if (this._activeSearchQuery) {
       this._fetchDataSearch(this._activeSearchQuery)
     }
