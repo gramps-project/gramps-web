@@ -365,5 +365,10 @@
     "No objects selected.": "Es wurden keine Objekte ausgewählt.",
     "Exact place": "Genauer Ort",
     "Enclosed places": "Eingeschlossene Orte",
-    "No coordinates": "Keine Koordinaten"
+    "No coordinates": "Keine Koordinaten",
+    "Pick on map": "Auf der Karte auswählen",
+    "Coordinates": "Koordinaten",
+    "External": "Extern",
+    "External search failed": "Externe Suche fehlgeschlagen",
+    "Too many requests. Please try again later.": "Zu viele Anfragen. Bitte versuche es später erneut."
 }
