@@ -127,7 +127,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           overflow-x: hidden;
           overflow-y: auto;
           scrollbar-width: thin;
-          max-height: calc(100vh - 200px);
+          max-height: calc(100vh - 240px);
           font-size: 14px;
           line-height: 20px;
         }
@@ -154,6 +154,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
             right: 12px;
             top: 68px;
             width: auto;
+            z-index: 4;
           }
 
           #panel {
