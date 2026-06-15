@@ -89,6 +89,7 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
       // eslint-disable-next-line no-param-reassign
       element.value = ''
     })
+    this.isFormValid = false
   }
 
   _submit() {
