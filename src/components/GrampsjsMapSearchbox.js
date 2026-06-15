@@ -277,6 +277,9 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           class="${classMap({hidden: this._panelState !== 'details'})}"
         >
           <button
+            aria-label="${this._collapsed
+              ? this._('Expand')
+              : this._('Collapse')}"
             @click="${() => {
               this._collapsed = !this._collapsed
             }}"
@@ -433,6 +436,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
   willUpdate(changed) {
     if (changed.has('data')) {
       if (this.data.length > 0) {
+        this._collapsed = false
         this._panelState = 'results'
       } else if (this._panelState === 'results') {
         this._panelState = 'empty'

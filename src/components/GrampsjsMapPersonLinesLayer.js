@@ -27,23 +27,18 @@ class GrampsjsMapPersonLinesLayer extends LitElement {
     return this
   }
 
-  addToMap(map) {
-    this._map = map
-    map.off('style.load', this._onStyleLoad)
-    map.on('style.load', this._onStyleLoad)
-    this._addArrowImage()
-    if (map.getLayer(ARROWS_LAYER_ID)) map.removeLayer(ARROWS_LAYER_ID)
-    if (map.getLayer(LAYER_ID)) map.removeLayer(LAYER_ID)
-    if (map.getSource(SOURCE_ID)) map.removeSource(SOURCE_ID)
-    map.addSource(SOURCE_ID, {type: 'geojson', data: this._buildGeoJSON()})
-    map.addLayer({
+  _lineLayerDef() {
+    return {
       id: LAYER_ID,
       type: 'line',
       source: SOURCE_ID,
       layout: {'line-join': 'round', 'line-cap': 'round'},
       paint: this._linePaint(),
-    })
-    map.addLayer({
+    }
+  }
+
+  _arrowsLayerDef() {
+    return {
       id: ARROWS_LAYER_ID,
       type: 'symbol',
       source: SOURCE_ID,
@@ -57,7 +52,20 @@ class GrampsjsMapPersonLinesLayer extends LitElement {
         'icon-color': this._color(),
         'icon-opacity': 0.9,
       },
-    })
+    }
+  }
+
+  addToMap(map) {
+    this._map = map
+    map.off('style.load', this._onStyleLoad)
+    map.on('style.load', this._onStyleLoad)
+    this._addArrowImage()
+    if (map.getLayer(ARROWS_LAYER_ID)) map.removeLayer(ARROWS_LAYER_ID)
+    if (map.getLayer(LAYER_ID)) map.removeLayer(LAYER_ID)
+    if (map.getSource(SOURCE_ID)) map.removeSource(SOURCE_ID)
+    map.addSource(SOURCE_ID, {type: 'geojson', data: this._buildGeoJSON()})
+    map.addLayer(this._lineLayerDef())
+    map.addLayer(this._arrowsLayerDef())
   }
 
   getTransformStyleContribution(_prev, next) {
@@ -67,32 +75,7 @@ class GrampsjsMapPersonLinesLayer extends LitElement {
         ...next.sources,
         [SOURCE_ID]: {type: 'geojson', data: this._buildGeoJSON()},
       },
-      layers: [
-        ...next.layers,
-        {
-          id: LAYER_ID,
-          type: 'line',
-          source: SOURCE_ID,
-          layout: {'line-join': 'round', 'line-cap': 'round'},
-          paint: this._linePaint(),
-        },
-        {
-          id: ARROWS_LAYER_ID,
-          type: 'symbol',
-          source: SOURCE_ID,
-          layout: {
-            'symbol-placement': 'line',
-            'icon-image': ARROW_IMAGE_ID,
-            'symbol-spacing': 200,
-            'icon-rotation-alignment': 'map',
-            'icon-allow-overlap': true,
-          },
-          paint: {
-            'icon-color': this._color(),
-            'icon-opacity': 0.9,
-          },
-        },
-      ],
+      layers: [...next.layers, this._lineLayerDef(), this._arrowsLayerDef()],
     }
   }
 
