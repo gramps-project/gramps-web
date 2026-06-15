@@ -54,6 +54,11 @@ class GrampsjsFormEditLatLong extends GrampsjsNominatimSearchMixin(
       </div>
       <div style="clear:left; height: 20px;"></div>
       ${this._renderSearchBox()} ${this._renderSearchResults()}
+      <p
+        style="color:var(--grampsjs-body-font-color-40);font-size:0.9em;margin-bottom:0.25em;"
+      >
+        ${this._('Select a point on the map')}
+      </p>
       <p>
         <grampsjs-map
           .appState="${this.appState}"
@@ -78,27 +83,25 @@ class GrampsjsFormEditLatLong extends GrampsjsNominatimSearchMixin(
   }
 
   _handleResClick(res) {
-    this._setLatLong(res.lat, res.lon)
+    const lat = parseFloat(res.lat)
+    const lon = parseFloat(res.lon)
+    if (Number.isNaN(lat) || Number.isNaN(lon)) return
+    this._setLatLong(lat, lon)
+    const map = this.shadowRoot.querySelector('grampsjs-map')
+    if (map !== null) {
+      map.jumpTo(lat, lon, map._map?.getZoom() ?? map.zoom)
+    }
   }
 
   _handleMapClick(e) {
-    const map = this.shadowRoot.querySelector('grampsjs-map')
     const {lngLat} = e.detail
-    if (
-      map !== null &&
-      lngLat?.lat !== undefined &&
-      lngLat?.lng !== undefined
-    ) {
+    if (lngLat?.lat !== undefined && lngLat?.lng !== undefined) {
       this._setLatLong(lngLat.lat, lngLat.lng)
     }
   }
 
   _setLatLong(lat, long) {
     this.data = {lat: `${lat}`, long: `${long}`}
-    const map = this.shadowRoot.querySelector('grampsjs-map')
-    if (map !== null) {
-      map.jumpTo(lat, long, map._map.getZoom())
-    }
   }
 
   reset() {

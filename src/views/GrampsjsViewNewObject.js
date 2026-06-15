@@ -89,6 +89,7 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
       // eslint-disable-next-line no-param-reassign
       element.value = ''
     })
+    this.isFormValid = false
   }
 
   _submit() {
@@ -135,7 +136,7 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
             path="${mdiClose}"
             color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
           ></grampsjs-icon>
-          ${this._('Cancel')}
+          ${this._('Reset')}
         </md-outlined-button>
         <md-filled-button
           @click="${this._submit}"
