@@ -5,6 +5,8 @@ import '@material/web/list/list-item'
 
 import {
   mdiAccount,
+  mdiChevronDown,
+  mdiChevronUp,
   mdiClose,
   mdiMagnify,
   mdiMapMarker,
@@ -148,6 +150,10 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           display: none;
         }
 
+        #collapse-toggle {
+          display: none;
+        }
+
         @media (max-width: 512px) {
           #container {
             left: 12px;
@@ -159,6 +165,35 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
 
           #panel {
             max-height: 50vh;
+            transition: max-height 0.25s ease;
+          }
+
+          #panel.collapsed {
+            max-height: 0;
+            overflow: hidden;
+          }
+
+          #collapse-toggle {
+            display: flex;
+            justify-content: center;
+            padding: 2px 0;
+          }
+
+          #collapse-toggle.hidden {
+            display: none;
+          }
+
+          #collapse-toggle button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            background: var(--md-sys-color-surface-container-high);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
         }
       `,
@@ -174,6 +209,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
       searchFilter: {type: String},
       _panelState: {type: String},
       _showClearButton: {type: Boolean},
+      _collapsed: {type: Boolean},
     }
   }
 
@@ -186,6 +222,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     this.searchFilter = ''
     this._panelState = 'empty'
     this._showClearButton = false
+    this._collapsed = false
     this._debouncedHandleInput = debounce(() => this._handleInput(), 500)
   }
 
@@ -217,7 +254,10 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
 
         ${this._renderChips()}
 
-        <div id="panel" class="${classMap({hidden: panelEmpty})}">
+        <div
+          id="panel"
+          class="${classMap({hidden: panelEmpty, collapsed: this._collapsed})}"
+        >
           <div class="${classMap({hidden: this._panelState !== 'results'})}">
             ${this._renderFilterPills()}
             <md-list id="searchresult-list">
@@ -231,6 +271,21 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           >
             <slot @slotchange="${this._handleSlotchange}"></slot>
           </div>
+        </div>
+        <div
+          id="collapse-toggle"
+          class="${classMap({hidden: this._panelState !== 'details'})}"
+        >
+          <button
+            @click="${() => {
+              this._collapsed = !this._collapsed
+            }}"
+          >
+            <grampsjs-icon
+              path="${this._collapsed ? mdiChevronDown : mdiChevronUp}"
+              color="var(--md-sys-color-on-surface-variant)"
+            ></grampsjs-icon>
+          </button>
         </div>
       </div>
     `
@@ -362,6 +417,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     fireEvent(this, 'mapsearch:clear')
     this._panelState = 'empty'
     this._showClearButton = false
+    this._collapsed = false
     const input = this.shadowRoot.getElementById('searchfield')
     if (input) input.value = ''
   }
