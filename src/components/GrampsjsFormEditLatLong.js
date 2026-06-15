@@ -83,10 +83,12 @@ class GrampsjsFormEditLatLong extends GrampsjsNominatimSearchMixin(
   }
 
   _handleResClick(res) {
-    this._setLatLong(res.lat, res.lon)
+    const lat = parseFloat(res.lat)
+    const lon = parseFloat(res.lon)
+    this._setLatLong(lat, lon)
     const map = this.shadowRoot.querySelector('grampsjs-map')
-    if (map !== null) {
-      map.jumpTo(res.lat, res.lon, map._map?.getZoom() ?? map.zoom)
+    if (map !== null && !Number.isNaN(lat) && !Number.isNaN(lon)) {
+      map.jumpTo(lat, lon, map._map?.getZoom() ?? map.zoom)
     }
   }
 

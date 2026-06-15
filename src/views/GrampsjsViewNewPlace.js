@@ -1,10 +1,6 @@
 import {html} from 'lit'
 
-import '@material/mwc-select'
-import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-textfield'
-import '@material/mwc-formfield'
-import '@material/mwc-button'
 import '@material/mwc-circular-progress'
 import '@material/web/button/outlined-button.js'
 
@@ -77,14 +73,14 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
         <grampsjs-form-string
           id="lat"
           style="width:150px;"
-          value="${this.data.lat || ''}"
+          value="${this.data.lat ?? ''}"
           label="${this._('Latitude')}"
           .appState="${this.appState}"
         ></grampsjs-form-string>
         <grampsjs-form-string
           id="long"
           style="width:150px;"
-          value="${this.data.long || ''}"
+          value="${this.data.long ?? ''}"
           label="${this._('Longitude')}"
           .appState="${this.appState}"
         ></grampsjs-form-string>
@@ -107,7 +103,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
               @object:save="${this._handleLatLongSave}"
               @object:cancel="${this._closeLatLongDialog}"
               .appState="${this.appState}"
-              .data="${{lat: this.data.lat || '', long: this.data.long || ''}}"
+              .data="${{lat: this.data.lat ?? '', long: this.data.long ?? ''}}"
             ></grampsjs-form-edit-lat-long>
           `
         : ''}
@@ -187,6 +183,7 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
     super._reset()
     this.data = {_class: 'Place'}
     this._latLongDialogOpen = false
+    this.isFormValid = false
   }
 }
 
