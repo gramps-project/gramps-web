@@ -135,7 +135,7 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
             path="${mdiClose}"
             color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
           ></grampsjs-icon>
-          ${this._('Cancel')}
+          ${this._('Reset')}
         </md-outlined-button>
         <md-filled-button
           @click="${this._submit}"
