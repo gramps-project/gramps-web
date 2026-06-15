@@ -1,7 +1,6 @@
 import {html} from 'lit'
 
 import '@material/mwc-textfield'
-import '@material/mwc-circular-progress'
 import '@material/web/button/outlined-button.js'
 
 import {mdiMapMarker} from '@mdi/js'
@@ -183,7 +182,6 @@ export class GrampsjsViewNewPlace extends GrampsjsViewNewObject {
     super._reset()
     this.data = {_class: 'Place'}
     this._latLongDialogOpen = false
-    this.isFormValid = false
   }
 }
 
