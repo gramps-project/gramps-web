@@ -218,7 +218,6 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
       yearSpan: {type: Number},
       _activeFilter: {type: String},
       _panelState: {type: String},
-      _showClearButton: {type: Boolean},
       _collapsed: {type: Boolean},
     }
   }
@@ -231,13 +230,13 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     this.yearSpan = -1
     this._activeFilter = DEFAULT_SEARCH_FILTER
     this._panelState = PANEL_EMPTY
-    this._showClearButton = false
     this._collapsed = false
     this._debouncedHandleInput = debounce(() => this._handleInput(), 500)
   }
 
   render() {
     const panelEmpty = this._panelState === PANEL_EMPTY
+    const showClearButton = this.value.length > 0
     return html`
       <div id="container">
         <div id="searchbar">
@@ -253,7 +252,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
             @input="${this._debouncedHandleInput}"
             .value="${this.value}"
           />
-          ${this._showClearButton
+          ${showClearButton
             ? html`
                 <md-icon-button @click="${this._handleClear}">
                   <grampsjs-icon path="${mdiClose}"></grampsjs-icon>
@@ -451,7 +450,6 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     if (value === '') {
       this.clear()
     } else {
-      this._showClearButton = true
       if (value.length >= 2) {
         fireEvent(this, 'mapsearch:input', {value})
       }
@@ -485,7 +483,6 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     this.data = []
     this._activeFilter = DEFAULT_SEARCH_FILTER
     this._panelState = PANEL_EMPTY
-    this._showClearButton = false
     this._collapsed = false
     const input = this.shadowRoot.getElementById('searchfield')
     if (input) input.value = ''

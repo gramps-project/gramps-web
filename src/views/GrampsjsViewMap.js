@@ -382,6 +382,10 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     }
     this._activeSearchQuery = ''
     this._valueSearch = object.name || object.display_name || ''
+    this._selectedPerson = null
+    this._selectedPersonData = null
+    this._personPlaceHandles = []
+    this._handlesHighlight = []
   }
 
   _handlePersonSelected(person) {
@@ -611,6 +615,17 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         headers: {Accept: 'application/json'},
         signal: this._nominatimAbort.signal,
       })
+      if (!response.ok) {
+        this.error = true
+        this._errorMessage =
+          response.status === 429
+            ? this._('Too many requests. Please try again later.')
+            : this._('External search failed')
+        this._searchbox?.setResults([])
+        this.loading = false
+        return
+      }
+      this.error = false
       const results = await response.json()
       this._searchbox?.setResults(
         results.map(r => ({
@@ -625,6 +640,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       )
     } catch (e) {
       if (e.name !== 'AbortError') {
+        this.error = true
+        this._errorMessage = this._('External search failed')
         this._searchbox?.setResults([])
       }
     }
