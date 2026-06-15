@@ -699,19 +699,24 @@ export function getThumbnailUrlCropped(
   return `${__APIHOST__}/api/media/${handle}/cropped/${x1}/${y1}/${x2}/${y2}/thumbnail/${size}?jwt=${jwt}&square=${square}${cs}`
 }
 
-export async function queryNominatim(q) {
-  const url = `https://nominatim.openstreetmap.org/search?q=${q}&format=jsonv2`
+export async function queryNominatim(
+  q,
+  {lang = 'en', limit = 10, signal} = {}
+) {
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+    q
+  )}&format=jsonv2&limit=${limit}&accept-language=${lang}`
   try {
     const resp = await fetch(url, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: {Accept: 'application/json'},
+      signal,
     })
-    if (resp.status !== 200) {
-      throw new Error(`Error ${resp.statusText}`)
+    if (!resp.ok) {
+      return {error: resp.statusText, status: resp.status}
     }
     return {data: await resp.json()}
   } catch (error) {
+    if (error.name === 'AbortError') throw error
     return {error: error.message}
   }
 }

@@ -396,7 +396,9 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
       label: obj.object?.profile?.name || '',
       supportingText: '',
       iconPath:
-        obj.object?.lat && obj.object?.long ? mdiMapMarker : mdiMapMarkerOff,
+        obj.object?.lat != null && obj.object?.long != null
+          ? mdiMapMarker
+          : mdiMapMarkerOff,
     }
   }
 

@@ -20,6 +20,7 @@ import {
   personProfileDisplayName,
 } from '../util.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
+import {queryNominatim} from '../api.js'
 
 // This is used for initial map center in absence of places
 const languageCoordinates = {
@@ -607,43 +608,34 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._nominatimAbort?.abort()
     this._nominatimAbort = new AbortController()
     const lang = (this.appState.i18n.lang || 'en').replaceAll('_', '-')
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-      value
-    )}&format=jsonv2&limit=10&accept-language=${lang}`
     try {
-      const response = await fetch(url, {
-        headers: {Accept: 'application/json'},
+      const res = await queryNominatim(value, {
+        lang,
         signal: this._nominatimAbort.signal,
       })
-      if (!response.ok) {
+      if (res.error) {
         this.error = true
         this._errorMessage =
-          response.status === 429
+          res.status === 429
             ? this._('Too many requests. Please try again later.')
             : this._('External search failed')
         this._searchbox?.setResults([])
-        this.loading = false
-        return
+      } else {
+        this.error = false
+        this._searchbox?.setResults(
+          res.data.map(r => ({
+            object_type: TYPE_EXTERNAL,
+            object: {
+              name: r.name,
+              display_name: r.display_name,
+              lat: r.lat,
+              long: r.lon,
+            },
+          }))
+        )
       }
-      this.error = false
-      const results = await response.json()
-      this._searchbox?.setResults(
-        results.map(r => ({
-          object_type: TYPE_EXTERNAL,
-          object: {
-            name: r.name,
-            display_name: r.display_name,
-            lat: r.lat,
-            long: r.lon,
-          },
-        }))
-      )
     } catch (e) {
-      if (e.name !== 'AbortError') {
-        this.error = true
-        this._errorMessage = this._('External search failed')
-        this._searchbox?.setResults([])
-      }
+      return
     }
     this.loading = false
   }
