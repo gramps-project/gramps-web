@@ -364,5 +364,10 @@
     "No objects selected.": "Nenhum objecto seleccionado.",
     "Exact place": "Local exacto",
     "Enclosed places": "Locais contidos",
-    "No coordinates": "Sem coordenadas"
+    "No coordinates": "Sem coordenadas",
+    "Pick on map": "Escolha no mapa",
+    "Coordinates": "Coordenadas",
+    "External": "Externo",
+    "External search failed": "Procura externa falhou",
+    "Too many requests. Please try again later.": "Demasiados pedidos. Por favor tente novamente mais tarde."
 }
