@@ -66,9 +66,10 @@ export function getSettings() {
     const settingStringTree = localStorage.getItem('grampsjs_settings_tree')
     const treeId = getTreeId() || 'unknown'
     const settingsTree = JSON.parse(settingStringTree)?.[treeId] || {}
-    return {...settings, ...settingsTree}
+    // Default to violet theme if the user has never chosen a theme
+    return {theme: 'violet', ...settings, ...settingsTree}
   } catch (e) {
-    return {}
+    return {theme: 'violet'}
   }
 }
 
