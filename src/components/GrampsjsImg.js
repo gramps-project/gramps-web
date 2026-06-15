@@ -85,6 +85,7 @@ class GrampsjsImg extends LitElement {
       checksum: {type: String},
       fallbackIcon: {type: String},
       _error: {type: Boolean},
+      _imgGeneration: {type: Number},
     }
   }
 
@@ -101,6 +102,7 @@ class GrampsjsImg extends LitElement {
     this.checksum = null
     this.fallbackIcon = ''
     this._error = false
+    this._imgGeneration = 0
     this._handleTokenRefreshed = this._handleTokenRefreshed.bind(this)
   }
 
@@ -116,10 +118,11 @@ class GrampsjsImg extends LitElement {
 
   _renderImageFull() {
     return keyed(
-      this.handle,
+      `${this.handle}-${this._imgGeneration}`,
       html`
         <img
           src="${getMediaUrl(this.handle)}"
+          data-gen="${this._imgGeneration}"
           class=${classMap({
             round: this.circle,
             bordered: this.border,
@@ -177,7 +180,7 @@ class GrampsjsImg extends LitElement {
 
   _renderImage() {
     return keyed(
-      this.handle,
+      `${this.handle}-${this._imgGeneration}`,
       html`
         <img
           srcset="
@@ -212,6 +215,7 @@ class GrampsjsImg extends LitElement {
             this.square,
             this.checksum
           )}"
+          data-gen="${this._imgGeneration}"
           class=${classMap({
             round: this.circle,
             bordered: this.border,
@@ -230,7 +234,7 @@ class GrampsjsImg extends LitElement {
 
   _renderImageCropped(rect) {
     return keyed(
-      this.handle,
+      `${this.handle}-${this._imgGeneration}`,
       html`<img
         srcset="
           ${getThumbnailUrlCropped(
@@ -269,6 +273,7 @@ class GrampsjsImg extends LitElement {
           this.square,
           this.checksum
         )}"
+        data-gen="${this._imgGeneration}"
         class=${classMap({
           round: this.circle,
           bordered: this.border,
@@ -376,13 +381,15 @@ class GrampsjsImg extends LitElement {
   }
 
   _handleTokenRefreshed() {
-    if (this._error) {
-      this._error = false
-    }
+    this._error = false
+    this._imgGeneration++
   }
 
-  _errorHandler() {
-    this._error = true
+  _errorHandler(e) {
+    const gen = parseInt(e.currentTarget.dataset.gen, 10)
+    if (gen === this._imgGeneration) {
+      this._error = true
+    }
   }
 }
 
