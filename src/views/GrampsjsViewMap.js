@@ -5,7 +5,11 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsMap.js'
 import '../components/GrampsjsMapPersonLinesLayer.js'
 import '../components/GrampsjsMapPlacesLayer.js'
-import '../components/GrampsjsMapSearchbox.js'
+import {
+  DEFAULT_SEARCH_FILTER,
+  TYPE_EXTERNAL,
+  TYPE_PERSON,
+} from '../components/GrampsjsMapSearchbox.js'
 import '../components/GrampsjsMapTimeSlider.js'
 import '../components/GrampsjsPlaceBox.js'
 import '../components/GrampsjsPersonBox.js'
@@ -16,6 +20,7 @@ import {
   personProfileDisplayName,
 } from '../util.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
+import {queryNominatim} from '../api.js'
 
 // This is used for initial map center in absence of places
 const languageCoordinates = {
@@ -81,7 +86,6 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       _dataEvents: {type: Array},
       _filteredPlaces: {type: Array},
       _handlesHighlight: {type: Array},
-      _dataSearch: {type: Array},
       _dataLayers: {type: Array},
       _selected: {type: String},
       _valueSearch: {type: String},
@@ -104,13 +108,12 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._dataEvents = []
     this._filteredPlaces = []
     this._handlesHighlight = []
-    this._dataSearch = []
     this._dataLayers = []
     this._hiddenOverlaysHandles = []
     this._personPlaceHandles = []
     this._selected = ''
     this._valueSearch = ''
-    this._searchFilter = ''
+    this._searchFilter = DEFAULT_SEARCH_FILTER
     this._selectedPerson = null
     this._selectedPersonData = null
     // Intentionally non-reactive: only read on filter-change events, never
@@ -122,6 +125,10 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._currentLayer = ''
     this._minYear = 1500
     this._pendingPlace = null
+  }
+
+  get _searchbox() {
+    return this.renderRoot?.querySelector('grampsjs-map-searchbox')
   }
 
   connectedCallback() {
@@ -243,11 +250,9 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         @mapsearch:selected="${this._handleSearchSelected}"
         @mapsearch:filter-change="${this._handleSearchFilterChange}"
         @searchbox:timechip-clear="${this._handleTimechipClear}"
-        .data="${this._dataSearch}"
         .appState="${this.appState}"
         year="${this._selectedPerson ? -1 : this._year}"
         yearSpan="${this._selectedPerson ? -1 : this._yearSpan}"
-        searchFilter="${this._searchFilter}"
         value="${this._valueSearch}"
         >${this._renderPlaceDetails()}</grampsjs-map-searchbox
       >
@@ -312,8 +317,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         this._mapEl._map.resize()
       }
       this._applyPendingPlace()
-      const searchbox = this.shadowRoot.querySelector('grampsjs-map-searchbox')
-      searchbox?.focus()
+      this._searchbox?.focus()
     }
   }
 
@@ -347,10 +351,11 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _handleSearchClear() {
-    this._dataSearch = []
+    this._nominatimAbort?.abort()
+    this.loading = false
     this._valueSearch = ''
     this._activeSearchQuery = ''
-    this._searchFilter = ''
+    this._searchFilter = DEFAULT_SEARCH_FILTER
     this._handlesHighlight = []
     this._personPlaceHandles = []
     this._selectedPerson = null
@@ -358,30 +363,41 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _clearSearchBox() {
-    const box = this.renderRoot.querySelector('grampsjs-map-searchbox')
-    if (box !== undefined) {
-      box.clear()
-    }
+    this._searchbox?.clear()
   }
 
   _handleSearchSelected(event) {
     const {object, object_type: objectType} = event.detail
-    if (objectType === 'person') {
+    if (objectType === TYPE_PERSON) {
       this._handlePersonSelected(object)
+    } else if (objectType === TYPE_EXTERNAL) {
+      this._handleExternalSelected(object)
     } else {
       this._handlePlaceSelected(object)
     }
   }
 
+  _handleExternalSelected(object) {
+    const lat = parseFloat(object.lat)
+    const lon = parseFloat(object.long)
+    if (!isNaN(lat) && !isNaN(lon)) {
+      this.flyTo(lat, lon)
+    }
+    this._activeSearchQuery = ''
+    this._valueSearch = object.name || object.display_name || ''
+    this._selectedPerson = null
+    this._selectedPersonData = null
+    this._personPlaceHandles = []
+    this._handlesHighlight = []
+  }
+
   _handlePersonSelected(person) {
-    this._dataSearch = []
     this._activeSearchQuery = ''
     this._valueSearch = personProfileDisplayName(person.profile)
     this._selectedPerson = person
     this._selectedPersonData = null
     this._personPlaceHandles = []
-    const searchbox = this.renderRoot.querySelector('grampsjs-map-searchbox')
-    searchbox?.showDetails()
+    this._searchbox?.showDetails()
     this._highlightPersonPlaces(person)
   }
 
@@ -428,9 +444,12 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _handleSearchFilterChange(event) {
     this._searchFilter = event.detail.filter
-    const query = this._activeSearchQuery || this._valueSearch
-    if (query) {
-      this._fetchDataSearch(query)
+    if (this._searchFilter !== TYPE_EXTERNAL) {
+      this._nominatimAbort?.abort()
+      this.loading = false
+    }
+    if (this._activeSearchQuery) {
+      this._fetchDataSearch(this._activeSearchQuery)
     }
   }
 
@@ -440,13 +459,11 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _handlePlaceSelected(object, {flyTo = true} = {}) {
-    this._dataSearch = []
     this._activeSearchQuery = ''
     this._selectedPerson = null
     this._valueSearch = object.profile.name
     this._handlesHighlight = [object.handle]
-    const searchbox = this.renderRoot.querySelector('grampsjs-map-searchbox')
-    searchbox?.showDetails()
+    this._searchbox?.showDetails()
     if (
       flyTo &&
       object.profile.lat != null &&
@@ -561,7 +578,11 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   async _fetchDataSearch(value) {
-    const typeFilter = this._searchFilter || 'place,person'
+    if (this._searchFilter === TYPE_EXTERNAL) {
+      await this._fetchNominatim(value)
+      return
+    }
+    const typeFilter = this._searchFilter || DEFAULT_SEARCH_FILTER
     const query = encodeURIComponent(
       `${value}*${
         window._oldSearchBackend
@@ -581,11 +602,48 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this.loading = false
     if ('data' in data) {
       this.error = false
-      this._dataSearch = data.data
+      this._searchbox?.setResults(data.data)
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
+      this._searchbox?.setResults([])
     }
+  }
+
+  async _fetchNominatim(value) {
+    this._nominatimAbort?.abort()
+    this._nominatimAbort = new AbortController()
+    const lang = (this.appState.i18n.lang || 'en').replaceAll('_', '-')
+    try {
+      const res = await queryNominatim(value, {
+        lang,
+        signal: this._nominatimAbort.signal,
+      })
+      if (res.error) {
+        this.error = true
+        this._errorMessage =
+          res.status === 429
+            ? this._('Too many requests. Please try again later.')
+            : this._('External search failed')
+        this._searchbox?.setResults([])
+      } else {
+        this.error = false
+        this._searchbox?.setResults(
+          res.data.map(r => ({
+            object_type: TYPE_EXTERNAL,
+            object: {
+              name: r.name,
+              display_name: r.display_name,
+              lat: r.lat,
+              long: r.lon,
+            },
+          }))
+        )
+      }
+    } catch (e) {
+      return
+    }
+    this.loading = false
   }
 
   async _fetchPlaces() {
