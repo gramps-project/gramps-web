@@ -8,6 +8,7 @@ import {
   mdiChevronDown,
   mdiChevronUp,
   mdiClose,
+  mdiEarth,
   mdiMagnify,
   mdiMapMarker,
   mdiMapMarkerOff,
@@ -19,6 +20,15 @@ import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {debounce, fireEvent} from '../util.js'
+
+const PANEL_EMPTY = 'empty'
+const PANEL_RESULTS = 'results'
+const PANEL_DETAILS = 'details'
+
+export const TYPE_PERSON = 'person'
+export const TYPE_PLACE = 'place'
+export const TYPE_EXTERNAL = 'external'
+export const DEFAULT_SEARCH_FILTER = `${TYPE_PLACE},${TYPE_PERSON}`
 
 class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -206,7 +216,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
       data: {type: Array},
       year: {type: Number},
       yearSpan: {type: Number},
-      searchFilter: {type: String},
+      _activeFilter: {type: String},
       _panelState: {type: String},
       _showClearButton: {type: Boolean},
       _collapsed: {type: Boolean},
@@ -219,15 +229,15 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     this.data = []
     this.year = -1
     this.yearSpan = -1
-    this.searchFilter = ''
-    this._panelState = 'empty'
+    this._activeFilter = DEFAULT_SEARCH_FILTER
+    this._panelState = PANEL_EMPTY
     this._showClearButton = false
     this._collapsed = false
     this._debouncedHandleInput = debounce(() => this._handleInput(), 500)
   }
 
   render() {
-    const panelEmpty = this._panelState === 'empty'
+    const panelEmpty = this._panelState === PANEL_EMPTY
     return html`
       <div id="container">
         <div id="searchbar">
@@ -258,15 +268,19 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           id="panel"
           class="${classMap({hidden: panelEmpty, collapsed: this._collapsed})}"
         >
-          <div class="${classMap({hidden: this._panelState !== 'results'})}">
+          <div
+            class="${classMap({hidden: this._panelState !== PANEL_RESULTS})}"
+          >
             ${this._renderFilterPills()}
-            <md-list id="searchresult-list">
-              ${this.data.map((obj, i) => this._renderListItem(obj, i))}
-            </md-list>
+            ${this.data.length === 0
+              ? html`<div class="panel-section">${this._('Not found')}</div>`
+              : html`<md-list id="searchresult-list">
+                  ${this.data.map((obj, i) => this._renderListItem(obj, i))}
+                </md-list>`}
           </div>
           <div
             class="panel-section ${classMap({
-              hidden: this._panelState !== 'details',
+              hidden: this._panelState !== PANEL_DETAILS,
             })}"
           >
             <slot @slotchange="${this._handleSlotchange}"></slot>
@@ -274,7 +288,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
         </div>
         <div
           id="collapse-toggle"
-          class="${classMap({hidden: this._panelState !== 'details'})}"
+          class="${classMap({hidden: this._panelState !== PANEL_DETAILS})}"
         >
           <button
             aria-label="${this._collapsed
@@ -313,46 +327,89 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
         <grampsjs-button-toggle
           label="${this._('Places')}"
           .iconPath="${mdiMapMarker}"
-          ?checked="${this.searchFilter === 'place'}"
+          ?checked="${this._activeFilter.split(',').includes(TYPE_PLACE)}"
           .appState="${this.appState}"
           @grampsjs-button-toggle:toggle="${() =>
-            this._handleFilterToggle('place')}"
+            this._handleFilterToggle(TYPE_PLACE)}"
         ></grampsjs-button-toggle>
         <grampsjs-button-toggle
           label="${this._('People')}"
           .iconPath="${mdiAccount}"
-          ?checked="${this.searchFilter === 'person'}"
+          ?checked="${this._activeFilter.split(',').includes(TYPE_PERSON)}"
           .appState="${this.appState}"
           @grampsjs-button-toggle:toggle="${() =>
-            this._handleFilterToggle('person')}"
+            this._handleFilterToggle(TYPE_PERSON)}"
+        ></grampsjs-button-toggle>
+        <grampsjs-button-toggle
+          label="${this._('External')}"
+          .iconPath="${mdiEarth}"
+          ?checked="${this._activeFilter === TYPE_EXTERNAL}"
+          .appState="${this.appState}"
+          @grampsjs-button-toggle:toggle="${() =>
+            this._handleFilterToggle(TYPE_EXTERNAL)}"
         ></grampsjs-button-toggle>
       </div>
     `
   }
 
   _handleFilterToggle(type) {
-    const filter = this.searchFilter === type ? '' : type
+    let filter
+    if (type === TYPE_EXTERNAL) {
+      filter =
+        this._activeFilter === TYPE_EXTERNAL
+          ? DEFAULT_SEARCH_FILTER
+          : TYPE_EXTERNAL
+    } else {
+      const active = new Set(this._activeFilter.split(',').filter(Boolean))
+      active.delete(TYPE_EXTERNAL)
+      if (active.has(type)) {
+        active.delete(type)
+      } else {
+        active.add(type)
+      }
+      filter = active.size === 0 ? DEFAULT_SEARCH_FILTER : [...active].join(',')
+    }
+    this._activeFilter = filter
     fireEvent(this, 'mapsearch:filter-change', {filter})
   }
 
+  _listItemMeta(obj) {
+    if (obj.object_type === TYPE_PERSON) {
+      return {
+        label:
+          [obj.object?.profile?.name_given, obj.object?.profile?.name_surname]
+            .filter(Boolean)
+            .join(' ') ||
+          obj.object?.profile?.name ||
+          '',
+        supportingText: '',
+        iconPath: mdiAccount,
+      }
+    }
+    if (obj.object_type === TYPE_EXTERNAL) {
+      return {
+        label: obj.object?.name || obj.object?.display_name || '',
+        supportingText: obj.object?.name ? obj.object.display_name : '',
+        iconPath: mdiEarth,
+      }
+    }
+    return {
+      label: obj.object?.profile?.name || '',
+      supportingText: '',
+      iconPath:
+        obj.object?.lat && obj.object?.long ? mdiMapMarker : mdiMapMarkerOff,
+    }
+  }
+
   _renderListItem(obj, i) {
-    const isPerson = obj.object_type === 'person'
-    const label = isPerson
-      ? [obj.object?.profile?.name_given, obj.object?.profile?.name_surname]
-          .filter(Boolean)
-          .join(' ') ||
-        obj.object?.profile?.name ||
-        ''
-      : obj.object?.profile?.name || ''
-    const iconPath = isPerson
-      ? mdiAccount
-      : obj.object?.lat && obj.object?.long
-      ? mdiMapMarker
-      : mdiMapMarkerOff
+    const {label, supportingText, iconPath} = this._listItemMeta(obj)
     return html`
       <md-list-item type="button" @click="${() => this._handleSelected(i)}">
         ${label}
         <grampsjs-icon slot="start" path="${iconPath}"></grampsjs-icon>
+        ${supportingText
+          ? html`<span slot="supporting-text">${supportingText}</span>`
+          : ''}
       </md-list-item>
     `
   }
@@ -363,8 +420,8 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
 
   _handleSlotchange(e) {
     const childNodes = e.target.assignedNodes({flatten: true})
-    if (childNodes.length === 0 && this._panelState === 'details') {
-      this._panelState = 'empty'
+    if (childNodes.length === 0 && this._panelState === PANEL_DETAILS) {
+      this._panelState = PANEL_EMPTY
     }
   }
 
@@ -408,7 +465,8 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
       object: item.object,
       object_type: item.object_type,
     })
-    this._panelState = 'details'
+    this._panelState =
+      item.object_type === TYPE_EXTERNAL ? PANEL_EMPTY : PANEL_DETAILS
   }
 
   _handleClear() {
@@ -416,9 +474,17 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     this.focus()
   }
 
+  setResults(results) {
+    this.data = results
+    if (results.length > 0) this._collapsed = false
+    this._panelState = PANEL_RESULTS
+  }
+
   clear() {
     fireEvent(this, 'mapsearch:clear')
-    this._panelState = 'empty'
+    this.data = []
+    this._activeFilter = DEFAULT_SEARCH_FILTER
+    this._panelState = PANEL_EMPTY
     this._showClearButton = false
     this._collapsed = false
     const input = this.shadowRoot.getElementById('searchfield')
@@ -426,25 +492,11 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
   }
 
   showDetails() {
-    this._panelState = 'details'
+    this._panelState = PANEL_DETAILS
   }
 
   firstUpdated() {
     this.focus()
-  }
-
-  willUpdate(changed) {
-    if (changed.has('data')) {
-      if (this.data.length > 0) {
-        this._collapsed = false
-        this._panelState = 'results'
-      } else if (this._panelState === 'results') {
-        this._panelState = 'empty'
-      }
-    }
-    if (changed.has('value') && this.value.length > 0) {
-      this._showClearButton = true
-    }
   }
 
   focus(retry = true) {
