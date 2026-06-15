@@ -762,7 +762,7 @@ export class Auth {
 
     if (oidcProvider) {
       try {
-        const postLogoutRedirectUri = window.location.origin
+        const postLogoutRedirectUri = 'https://ancestry.net.nz'
         const result = await apiGetOIDCLogoutUrl(
           oidcProvider,
           idToken,
