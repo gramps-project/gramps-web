@@ -165,6 +165,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       'bottom-right'
     )
     this._map.on('load', () => {
+      this._mapInitialLoadFired = true
       if (this.year > 0 && this._map.filterByDate) {
         this._map.filterByDate(`${this.year}`)
       }
@@ -199,7 +200,19 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
 
   // Handles children added after the map's load event (e.g. async data layers).
   _onSlotChange() {
-    if (!this._map?.isStyleLoaded()) return
+    if (!this._map?.isStyleLoaded()) {
+      // If the initial load has already fired but isStyleLoaded() is transiently
+      // false (e.g. sprites still loading), defer addToMap for any uninitialised
+      // children until the map reaches the idle state.
+      if (this._mapInitialLoadFired) {
+        this._map.once('idle', () => {
+          this._slottedChildren
+            .filter(el => typeof el.addToMap === 'function' && !el._map)
+            .forEach(el => el.addToMap(this._map))
+        })
+      }
+      return
+    }
     this._slottedChildren
       .filter(el => typeof el.addToMap === 'function')
       .forEach(el => el.addToMap(this._map))

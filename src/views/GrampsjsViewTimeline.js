@@ -96,7 +96,12 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
   connectedCallback() {
     super.connectedCallback()
     this._boundEventSelected = e => this._handleExternalEventSelected(e)
+    this._boundPersonSelected = e => this._handleExternalPersonSelected(e)
     window.addEventListener('timeline:event-selected', this._boundEventSelected)
+    window.addEventListener(
+      'timeline:person-selected',
+      this._boundPersonSelected
+    )
   }
 
   disconnectedCallback() {
@@ -105,6 +110,19 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
       'timeline:event-selected',
       this._boundEventSelected
     )
+    window.removeEventListener(
+      'timeline:person-selected',
+      this._boundPersonSelected
+    )
+  }
+
+  _handleExternalPersonSelected({detail: {object}}) {
+    this._activeFilter = {object_type: 'person', object}
+    this._personFilterMode = 'self'
+    this._placeFilterMode = 'exact'
+    this._filterEventHandles = null
+    this._filterPlaceHandles = null
+    this._resetClickedState()
   }
 
   _handleExternalEventSelected({detail: {handle}}) {
