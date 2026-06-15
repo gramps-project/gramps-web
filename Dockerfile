@@ -14,5 +14,13 @@ RUN DEST=$(python3 -c "import gramps_webapi.auth.oidc as m; import inspect; prin
     cp /tmp/auth_oidc_patch.py "$DEST" && \
     cp /tmp/auth_oidc_patch.py /app/src/gramps_webapi/auth/oidc.py 2>/dev/null || true
 
+# Patch 3: search/text.py — index genealogical dates (birth, death, event dates)
+# so year-based queries like "1970" and prefix wildcards like "197*" work.
+# Requires a full reindex in GrampsWeb admin after deploy.
+COPY patches/search_text.py /tmp/search_text_patch.py
+RUN DEST=$(python3 -c "import gramps_webapi.api.search.text as m; import inspect; print(inspect.getfile(m))") && \
+    cp /tmp/search_text_patch.py "$DEST" && \
+    cp /tmp/search_text_patch.py /app/src/gramps_webapi/api/search/text.py 2>/dev/null || true
+
 COPY dist /app/static
 LABEL org.opencontainers.image.source="https://github.com/sophieella/gramps-web"
