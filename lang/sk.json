@@ -364,5 +364,10 @@
     "No objects selected.": "Neboli vybrané žiadne objekty.",
     "Exact place": "Presné miesto",
     "Enclosed places": "Priliehajúce miesta",
-    "No coordinates": "Žiadne súradnice"
+    "No coordinates": "Žiadne súradnice",
+    "Pick on map": "Vybrať na mape",
+    "Coordinates": "Súradnice",
+    "External": "Externé",
+    "External search failed": "Externé vyhľadávanie sa nepodarilo",
+    "Too many requests. Please try again later.": "Príliš veľa požiadaviek. Skúste to prosím neskôr."
 }
