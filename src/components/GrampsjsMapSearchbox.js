@@ -420,7 +420,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     return {
       label: obj.object?.profile?.name || '',
       supportingText: objectDetail(
-        'place',
+        TYPE_PLACE,
         obj.object,
         this.appState.i18n.strings
       ).trim(),
