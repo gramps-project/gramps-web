@@ -152,6 +152,20 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           background: var(--grampsjs-body-font-color-40);
         }
 
+        .attribution {
+          font-size: 0.8em;
+          color: var(--md-sys-color-on-surface-variant);
+          text-align: right;
+          padding: 6px 16px 10px;
+          opacity: 0.6;
+        }
+
+        .attribution a:link,
+        .attribution a:hover,
+        .attribution a:visited {
+          color: inherit;
+        }
+
         .panel-section {
           padding: 15px 20px;
         }
@@ -276,6 +290,13 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
               : html`<md-list id="searchresult-list">
                   ${this.data.map((obj, i) => this._renderListItem(obj, i))}
                 </md-list>`}
+            ${this._activeFilter === TYPE_EXTERNAL && this.data.length > 0
+              ? html`<div class="attribution">
+                  <a href="https://nominatim.openstreetmap.org/"
+                    >OpenStreetMap Nominatim</a
+                  >
+                </div>`
+              : ''}
           </div>
           <div
             class="panel-section ${classMap({
