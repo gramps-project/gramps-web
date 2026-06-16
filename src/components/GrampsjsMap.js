@@ -14,6 +14,10 @@ import {fireEvent} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
+const MAP_STYLE_BASE = 'base'
+const MAP_STYLE_OHM = 'ohm'
+const THEME_DARK = 'dark'
+
 const defaultConfig = {
   mapOhmStyle: 'https://www.openhistoricalmap.org/map-styles/main/main.json',
   mapBaseStyleLight: 'https://tiles.openfreemap.org/styles/liberty',
@@ -116,7 +120,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this.longMax = 0
     this.overlays = []
     this.layerSwitcher = false
-    this._currentStyle = 'base'
+    this._currentStyle = MAP_STYLE_BASE
     this._mediaQuery = undefined
   }
 
@@ -178,6 +182,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       this._slottedChildren
         .filter(el => typeof el.addToMap === 'function')
         .forEach(el => el.addToMap(this._map))
+      this._prefetchAlternateStyle()
     })
     this._map.on('moveend', () => {
       fireEvent(this, 'map:moveend', {
@@ -188,7 +193,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     })
     this._map.on('sourcedata', () => {
       if (
-        this._currentStyle === 'ohm' &&
+        this._currentStyle === MAP_STYLE_OHM &&
         this.year > 0 &&
         typeof this._map.filterByDate === 'function'
       ) {
@@ -297,30 +302,49 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleStyleChange(style) {
+    if (!this._map) return
     const styleUrl = this._getStyleUrl(style)
+    const styleArg = this._prefetchedStyles?.get(styleUrl) ?? styleUrl
     const contributors = this._slottedChildren.filter(
       el => typeof el.getTransformStyleContribution === 'function'
     )
     this._map.setStyle(
-      styleUrl,
+      styleArg,
       contributors.length > 0
         ? {
             transformStyle: (prev, next) =>
-              contributors.reduce(
-                (s, el) => el.getTransformStyleContribution(prev, s),
-                next
-              ),
+              contributors.reduce((s, el) => {
+                try {
+                  return el.getTransformStyleContribution(prev, s)
+                } catch (e) {
+                  console.warn('transformStyle contribution failed:', e)
+                  return s
+                }
+              }, next),
           }
         : undefined
     )
+  }
+
+  _prefetchAlternateStyle() {
+    const alternateStyle =
+      this._currentStyle === MAP_STYLE_BASE ? MAP_STYLE_OHM : MAP_STYLE_BASE
+    const url = this._getStyleUrl(alternateStyle)
+    fetch(url)
+      .then(r => r.json())
+      .then(json => {
+        if (!this._prefetchedStyles) this._prefetchedStyles = new Map()
+        this._prefetchedStyles.set(url, json)
+      })
+      .catch(() => {})
   }
 
   _getStyleUrl(style) {
     const config = {...defaultConfig, ...window.grampsjsConfig}
     const theme = this.appState.getCurrentTheme()
     const mapBaseStyle =
-      theme === 'dark' ? config.mapBaseStyleDark : config.mapBaseStyleLight
-    return style === 'base' ? mapBaseStyle : config.mapOhmStyle
+      theme === THEME_DARK ? config.mapBaseStyleDark : config.mapBaseStyleLight
+    return style === MAP_STYLE_BASE ? mapBaseStyle : config.mapOhmStyle
   }
 }
 
