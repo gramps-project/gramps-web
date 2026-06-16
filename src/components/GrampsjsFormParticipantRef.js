@@ -1,4 +1,5 @@
 import {html} from 'lit'
+import {keyed} from 'lit/directives/keyed.js'
 import './GrampsjsFormSelectType.js'
 import './GrampsjsFormSelectObjectList.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
@@ -15,18 +16,22 @@ class GrampsjsFormParticipantRef extends GrampsjsObjectForm {
         id="person-select"
         label="${this._('Select')}"
       ></grampsjs-form-select-object-list>
-      <grampsjs-form-select-type
-        required
-        id="event-role-type"
-        defaultValue="Primary"
-        heading="${this._('Role')}"
-        .appState="${this.appState}"
-        typeName="event_role_types"
-        ?loadingTypes="${this.loadingTypes}"
-        .types="${this.types}"
-        .typesLocale="${this.typesLocale}"
-        value="${this.data?.role?.string || this.data?.role || ''}"
-      ></grampsjs-form-select-type>
+      ${keyed(
+        this.data.object_type,
+        html`<grampsjs-form-select-type
+          required
+          id="event-role-type"
+          defaultValue="${this.data.object_type === 'family'
+            ? 'Family'
+            : 'Primary'}"
+          heading="${this._('Role')}"
+          .appState="${this.appState}"
+          typeName="event_role_types"
+          ?loadingTypes="${this.loadingTypes}"
+          .types="${this.types}"
+          .typesLocale="${this.typesLocale}"
+        ></grampsjs-form-select-type>`
+      )}
     `
   }
 
