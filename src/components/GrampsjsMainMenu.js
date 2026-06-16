@@ -23,12 +23,26 @@ import {
   mdiFileExportOutline,
   mdiSourceCommit,
   mdiLabel,
+  mdiArrowLeft,
 } from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsIcon.js'
 
 const BASE_DIR = ''
+
+function _getPortalTrees() {
+  try {
+    const token = localStorage.getItem('id_token')
+    if (!token) return []
+    const payload = JSON.parse(
+      atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
+    )
+    return payload['https://ancestry.net.nz/trees'] ?? []
+  } catch {
+    return []
+  }
+}
 
 const selectedColor = 'var(--grampsjs-color-icon-selected)'
 const defaultColor = 'var(--grampsjs-color-icon-default)'
@@ -239,6 +253,18 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
             </md-list-item>
           `
         : ''}
+      ${(() => {
+        const portalUrl = window.grampsjsConfig?.portalUrl
+        if (!portalUrl) return ''
+        const trees = _getPortalTrees()
+        if (trees.length <= 1) return ''
+        return html`
+          <md-divider inset></md-divider>
+          <md-list-item type="link" href="${portalUrl}">
+            ${this._icon(mdiArrowLeft, false)} Family Portal
+          </md-list-item>
+        `
+      })()}
     </md-list>`
   }
 }
