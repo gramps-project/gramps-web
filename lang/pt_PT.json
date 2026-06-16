@@ -368,6 +368,6 @@
     "Pick on map": "Escolha no mapa",
     "Coordinates": "Coordenadas",
     "External": "Externo",
-    "External search failed": "Procura externa falhou",
-    "Too many requests. Please try again later.": "Demasiados pedidos. Por favor tente novamente mais tarde."
+    "External search failed": "A procura externa falhou",
+    "Too many requests. Please try again later.": "Demasiados pedidos. Por favor, tente novamente mais tarde."
 }
