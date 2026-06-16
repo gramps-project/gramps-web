@@ -68,7 +68,7 @@ def date_to_strings(date: Date) -> List[str]:
     - Bare year(s) as standalone tokens so FTS5 prefix queries like
       "197*" match all years in the 1970s.
     """
-    if date is None:
+    if date is None or date.is_empty():
         return []
     result = []
 
