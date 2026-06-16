@@ -11,8 +11,10 @@ export const GrampsjsNewEventMixin = superClass =>
   class extends superClass {
     renderForm() {
       return html`
+        <h3 class="label">${this._('Type')}</h3>
         <grampsjs-form-select-type
           required
+          noheading
           id="event-type"
           .appState="${this.appState}"
           ?loadingTypes="${this.loadingTypes}"
@@ -22,13 +24,13 @@ export const GrampsjsNewEventMixin = superClass =>
         >
         </grampsjs-form-select-type>
 
-        <h4 class="label">${this._('Date')}</h4>
+        <h3 class="label">${this._('Date')}</h3>
         <p>
           <grampsjs-form-select-date id="date" .appState="${this.appState}">
           </grampsjs-form-select-date>
         </p>
 
-        <h4 class="label">${this._('Description')}</h4>
+        <h3 class="label">${this._('Description')}</h3>
         <p>
           <grampsjs-form-string
             fullwidth
@@ -40,7 +42,7 @@ export const GrampsjsNewEventMixin = superClass =>
           </grampsjs-form-string>
         </p>
 
-        <h4 class="label">${this._('Place')}</h4>
+        <h3 class="label">${this._('Place')}</h3>
         <grampsjs-form-select-object-list
           fixedMenuPosition
           id="place"
