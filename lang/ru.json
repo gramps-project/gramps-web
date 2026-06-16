@@ -363,5 +363,10 @@
     "No objects selected.": "Объекты не выбраны.",
     "Exact place": "Точное место",
     "Enclosed places": "Связанные места",
-    "No coordinates": "Координаты отсутствуют"
+    "No coordinates": "Координаты отсутствуют",
+    "Pick on map": "Выбрать на карте",
+    "Coordinates": "Координаты",
+    "External": "Внешний",
+    "External search failed": "Внешний поиск не удался",
+    "Too many requests. Please try again later.": "Слишком много запросов. Повторите попытку позже."
 }
