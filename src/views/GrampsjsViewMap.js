@@ -524,7 +524,6 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _handleMoveEnd(e) {
-    // MapLibre GL JS provides bounds in format [west, south, east, north]
     this._bounds = e.detail.bounds
     const {center, zoom} = e.detail
     if (center && zoom != null) {
