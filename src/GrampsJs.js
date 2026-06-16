@@ -788,20 +788,9 @@ export class GrampsJs extends LitElement {
   }
 
   _fetchOnboardingToken() {
-    const hasTree =
-      this.appState.path.page === 'firstrun' && this.appState.path.pageId
-    const url = '/api/token/create_owner/'
-    const payload = hasTree ? {tree: this.appState.path.pageId} : {}
-    this.appState
-      .apiPost(url, payload, {dbChanged: false, saving: false})
-      .then(data => {
-        if (!('error' in data) && data?.data?.access_token) {
-          this.loadingState = LOADING_STATE_NO_OWNER
-          this._firstRunToken = data?.data?.access_token
-        } else {
-          this.loadingState = LOADING_STATE_UNAUTHORIZED
-        }
-      })
+    // First-run owner creation is disabled — trees are initialised via
+    // init-tree.sh / the OIDC flow. Always fall through to login.
+    this.loadingState = LOADING_STATE_UNAUTHORIZED
   }
 
   _loadHomePersonInfo() {
