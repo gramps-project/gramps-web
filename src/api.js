@@ -1,5 +1,4 @@
-// eslint-disable-next-line camelcase
-import jwt_decode from 'jwt-decode'
+import {jwtDecode} from 'jwt-decode'
 
 import {fireEvent, normalizeRect} from './util.js'
 
@@ -31,7 +30,7 @@ export function getTreeId() {
   const accessToken = localStorage.getItem('access_token')
   let claims = {}
   try {
-    claims = jwt_decode(accessToken) || {}
+    claims = jwtDecode(accessToken) || {}
   } catch {
     claims = {}
   }
@@ -39,20 +38,24 @@ export function getTreeId() {
 }
 
 export function getTreeFromToken(token) {
-  const claims = jwt_decode(token) || {}
-  return claims.tree
+  try {
+    const claims = jwtDecode(token) || {}
+    return claims.tree
+  } catch {
+    return null
+  }
 }
 
 export function getPermissions() {
   const accessToken = localStorage.getItem('access_token')
   if (!accessToken || accessToken === '1') {
-    return null
+    return []
   }
   try {
-    const claims = jwt_decode(accessToken) || {}
-    return claims.permissions || {}
+    const claims = jwtDecode(accessToken) || {}
+    return Array.isArray(claims.permissions) ? claims.permissions : []
   } catch (e) {
-    return {}
+    return []
   }
 }
 
@@ -848,7 +851,7 @@ export class Auth {
   get claims() {
     const token = this.accessToken
     if (!token) return {}
-    return jwt_decode(token)
+    return jwtDecode(token)
   }
 
   isTokenFresh() {

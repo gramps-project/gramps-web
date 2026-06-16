@@ -2,7 +2,7 @@ import {html, css, LitElement} from 'lit'
 import {unsafeHTML} from 'lit/directives/unsafe-html.js'
 
 import {diff} from 'jsondiffpatch'
-import * as htmlFormatter from '../../node_modules/jsondiffpatch/lib/formatters/html.js'
+import * as htmlFormatter from 'jsondiffpatch/formatters/html'
 
 import {sharedStyles} from '../SharedStyles.js'
 
