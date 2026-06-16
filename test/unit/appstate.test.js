@@ -2,7 +2,7 @@ import {describe, it, expect, afterEach} from 'vitest'
 import {appStateUpdatePermissions} from '../../src/appState.js'
 
 // Minimal fake JWT with known permissions claims.
-// jwt_decode only base64-decodes the payload — no signature verification needed.
+// jwtDecode only base64-decodes the payload — no signature verification needed.
 function makeFakeJwt(claims) {
   const header = btoa(JSON.stringify({alg: 'HS256', typ: 'JWT'}))
     .replace(/\+/g, '-')
