@@ -200,12 +200,20 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
 
   // Handles children added after the map's load event (e.g. async data layers).
   _onSlotChange() {
+    // Only initialise children that haven't been added to the map yet — never
+    // re-call addToMap on an already-initialised layer, as that would briefly
+    // remove and re-add its MapLibre source/layers on every slot mutation.
+    const toInit = this._slottedChildren.filter(
+      el => typeof el.addToMap === 'function' && !el._map
+    )
+    if (!toInit.length) return
     if (!this._map?.isStyleLoaded()) {
       // If the initial load has already fired but isStyleLoaded() is transiently
-      // false (e.g. sprites still loading), defer addToMap for any uninitialised
-      // children until the map reaches the idle state.
+      // false (e.g. sprites still loading), defer addToMap until the map is idle.
       if (this._mapInitialLoadFired) {
         this._map.once('idle', () => {
+          // Recompute from the live slot — elements may have been removed
+          // between now and when idle fires (e.g. during a slow OHM load).
           this._slottedChildren
             .filter(el => typeof el.addToMap === 'function' && !el._map)
             .forEach(el => el.addToMap(this._map))
@@ -213,9 +221,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       }
       return
     }
-    this._slottedChildren
-      .filter(el => typeof el.addToMap === 'function')
-      .forEach(el => el.addToMap(this._map))
+    toInit.forEach(el => el.addToMap(this._map))
   }
 
   panTo(latitude, longitude) {

@@ -22,6 +22,8 @@ import {
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import {queryNominatim} from '../api.js'
 
+const EMPTY_ARRAY = []
+
 // This is used for initial map center in absence of places
 const languageCoordinates = {
   ar: [25, 45], // Arabic - Approximate center of Arab countries
@@ -256,12 +258,10 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         id="map"
         zoom="6"
         >${this._renderLayers()}
-        ${this._selectedPersonData
-          ? html`<grampsjs-map-person-lines-layer
-              .events="${this._selectedPersonData.extended?.events ?? []}"
-              .places="${this._dataPlaces}"
-            ></grampsjs-map-person-lines-layer>`
-          : ''}
+        <grampsjs-map-person-lines-layer
+          .events="${this._selectedPersonData?.extended?.events ?? EMPTY_ARRAY}"
+          .places="${this._selectedPersonData ? this._dataPlaces : EMPTY_ARRAY}"
+        ></grampsjs-map-person-lines-layer>
         <grampsjs-map-places-layer
           .places="${this._placesForMap}"
           .highlightedHandles="${this._handlesHighlight}"
