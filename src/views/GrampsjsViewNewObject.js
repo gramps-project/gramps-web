@@ -61,6 +61,11 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
     }
   }
 
+  _cancel() {
+    this._reset()
+    window.history.back()
+  }
+
   // eslint-disable-next-line class-methods-use-this
   _reset() {
     this.shadowRoot
@@ -126,7 +131,7 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
           outlined
           label="${this._('Cancel')}"
           type="reset"
-          @click="${this._reset}"
+          @click="${this._cancel}"
           icon="cancel"
         >
         </mwc-button>
