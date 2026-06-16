@@ -180,7 +180,11 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         .forEach(el => el.addToMap(this._map))
     })
     this._map.on('moveend', () => {
-      fireEvent(this, 'map:moveend', {bounds: this._map.getBounds()})
+      fireEvent(this, 'map:moveend', {
+        bounds: this._map.getBounds(),
+        center: this._map.getCenter(),
+        zoom: this._map.getZoom(),
+      })
     })
     this._map.on('sourcedata', () => {
       if (

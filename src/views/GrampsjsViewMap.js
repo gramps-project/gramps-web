@@ -20,54 +20,12 @@ import {
   personProfileDisplayName,
 } from '../util.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
-import {queryNominatim} from '../api.js'
+import {queryNominatim, getMapViewport, saveMapViewport} from '../api.js'
 
 const EMPTY_ARRAY = []
 
-// This is used for initial map center in absence of places
-const languageCoordinates = {
-  ar: [25, 45], // Arabic - Approximate center of Arab countries
-  bg: [43, 25], // Bulgarian - Approximate center of Bulgaria
-  br: [48, -3], // Breton - Approximate center of Brittany, France
-  ca: [41, 2], // Catalan - Approximate center of Catalonia, Spain
-  cs: [49, 15], // Czech - Approximate center of Czech Republic
-  da: [56, 10], // Danish - Approximate center of Denmark
-  de: [51, 9], // German - Approximate center of Germany
-  el: [39, 22], // Greek - Approximate center of Greece
-  en: [52, -1], // English - Approximate center of England, United Kingdom
-  eo: [41, 0], // Esperanto - Approximate center of Europe
-  es: [40, -4], // Spanish - Approximate center of Spain
-  fi: [64, 26], // Finnish - Approximate center of Finland
-  fr: [46, 2], // French - Approximate center of France
-  ga: [53, -8], // Irish - Approximate center of Ireland
-  he: [32, 35], // Hebrew - Approximate center of Israel
-  hr: [45, 16], // Croatian - Approximate center of Croatia
-  hu: [47, 19], // Hungarian - Approximate center of Hungary
-  id: [-5, 120], // Indonesian - Approximate center of Indonesia
-  is: [65, -18], // Icelandic - Approximate center of Iceland
-  it: [42, 12], // Italian - Approximate center of Italy
-  ja: [36, 138], // Japanese - Approximate center of Japan
-  lt: [55, 24], // Lithuanian - Approximate center of Lithuania
-  mk: [42, 21], // Macedonian - Approximate center of North Macedonia
-  nb: [62, 10], // Norwegian Bokmål - Approximate center of Norway
-  nl: [52, 5], // Dutch - Approximate center of Netherlands
-  nn: [62, 10], // Norwegian Nynorsk - Approximate center of Norway
-  pl: [52, 20], // Polish - Approximate center of Poland
-  pt: [39, -8], // Portuguese - Approximate center of Portugal
-  ro: [46, 25], // Romanian - Approximate center of Romania
-  ru: [60, 100], // Russian - Approximate center of Russia
-  sk: [48, 19], // Slovak - Approximate center of Slovakia
-  sl: [46, 14], // Slovenian - Approximate center of Slovenia
-  sq: [41, 20], // Albanian - Approximate center of Albania
-  sr: [44, 21], // Serbian - Approximate center of Serbia
-  sv: [62, 16], // Swedish - Approximate center of Sweden
-  ta: [11, 78], // Tamil - Approximate center of Tamil Nadu, India
-  tr: [39, 35], // Turkish - Approximate center of Turkey
-  uk: [49, 31], // Ukrainian - Approximate center of Ukraine
-  vi: [16, 106], // Vietnamese - Approximate center of Vietnam
-  zh: [35, 105], // Chinese - Approximate center of China
-  ko: [38, 128], // Korean - Approximate center of Korea
-}
+const DEFAULT_CENTER = [20, 0]
+const DEFAULT_ZOOM = 2
 
 export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
@@ -239,6 +197,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   renderContent() {
     const center = this._getMapCenter()
+    const saved = getMapViewport()
+    const zoom = saved ? saved.zoom : DEFAULT_ZOOM
     return html`
       <grampsjs-map
         .appState="${this.appState}"
@@ -256,7 +216,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         @map:overlay-toggle="${this._handleOverlayToggle}"
         @map:marker-clicked="${this._handleMapMarkerClicked}"
         id="map"
-        zoom="6"
+        zoom="${zoom}"
         >${this._renderLayers()}
         <grampsjs-map-person-lines-layer
           .events="${this._selectedPersonData?.extended?.events ?? EMPTY_ARRAY}"
@@ -566,6 +526,10 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   _handleMoveEnd(e) {
     // MapLibre GL JS provides bounds in format [west, south, east, north]
     this._bounds = e.detail.bounds
+    const {center, zoom} = e.detail
+    if (center && zoom != null) {
+      saveMapViewport(center.lat, center.lng, zoom)
+    }
   }
 
   _applyPlaceFilter() {
@@ -683,7 +647,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       this._applyPlaceFilter()
       if (this._selectedPerson && this._personPlaceHandles.length) {
         this._fitPersonPlaces(this._personPlaceHandles)
-      } else if (!this._handlesHighlight.length) {
+      } else if (!this._handlesHighlight.length && !getMapViewport()) {
         const center = this._getMapCenter()
         this._mapEl?.jumpTo(center[0], center[1], 6)
       }
@@ -746,8 +710,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _getMapCenter() {
     if (this._dataPlaces.length === 0) {
-      const locale = this.appState.i18n.lang || 'en'
-      return languageCoordinates[locale] || [0, 0]
+      const saved = getMapViewport()
+      return saved ? [saved.lat, saved.lng] : DEFAULT_CENTER
     }
     let x = 0
     let y = 0
@@ -765,8 +729,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       }
     }
     if (n === 0) {
-      const locale = this.appState.i18n.lang || 'en'
-      return languageCoordinates[locale] || [0, 0]
+      const saved = getMapViewport()
+      return saved ? [saved.lat, saved.lng] : DEFAULT_CENTER
     }
     x /= n
     y /= n

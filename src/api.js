@@ -86,6 +86,36 @@ export function updateSettings(settings, tree = false) {
   fireEvent(window, 'settings:changed')
 }
 
+export function getMapViewport() {
+  try {
+    const treeId = getTreeId() || 'unknown'
+    const {lat, lng, zoom} =
+      JSON.parse(localStorage.getItem('grampsjs_map_viewport'))?.[treeId] ?? {}
+    if (
+      typeof lat === 'number' &&
+      typeof lng === 'number' &&
+      typeof zoom === 'number'
+    ) {
+      return {lat, lng, zoom}
+    }
+  } catch (_) {
+    // ignore
+  }
+  return null
+}
+
+export function saveMapViewport(lat, lng, zoom) {
+  try {
+    const treeId = getTreeId() || 'unknown'
+    const existing =
+      JSON.parse(localStorage.getItem('grampsjs_map_viewport')) ?? {}
+    existing[treeId] = {lat, lng, zoom}
+    localStorage.setItem('grampsjs_map_viewport', JSON.stringify(existing))
+  } catch (_) {
+    // ignore
+  }
+}
+
 export const TREE_CONFIG_APP_TITLE = 'frontend.appTitle'
 export const TREE_CONFIG_PRIMARY_COLOR = 'frontend.primaryColor'
 export const TREE_CONFIG_SECONDARY_COLOR = 'frontend.secondaryColor'
