@@ -302,6 +302,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleStyleChange(style) {
+    if (!this._map) return
     const styleUrl = this._getStyleUrl(style)
     const styleArg = this._prefetchedStyles?.get(styleUrl) ?? styleUrl
     const contributors = this._slottedChildren.filter(
