@@ -38,20 +38,24 @@ export function getTreeId() {
 }
 
 export function getTreeFromToken(token) {
-  const claims = jwtDecode(token) || {}
-  return claims.tree
+  try {
+    const claims = jwtDecode(token) || {}
+    return claims.tree
+  } catch {
+    return null
+  }
 }
 
 export function getPermissions() {
   const accessToken = localStorage.getItem('access_token')
   if (!accessToken || accessToken === '1') {
-    return null
+    return []
   }
   try {
     const claims = jwtDecode(accessToken) || {}
-    return claims.permissions || {}
+    return Array.isArray(claims.permissions) ? claims.permissions : []
   } catch (e) {
-    return {}
+    return []
   }
 }
 
