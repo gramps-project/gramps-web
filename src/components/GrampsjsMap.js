@@ -1,6 +1,7 @@
 import {html, css, LitElement} from 'lit'
 import 'maplibre-gl'
 import '@openhistoricalmap/maplibre-gl-dates'
+import * as Diplomat from '@americana/diplomat'
 
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/menu/menu'
@@ -275,6 +276,26 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         // Ignore errors if filterByDate fails (e.g. style does not support it)
       }
     }
+    if (
+      changed.has('appState') &&
+      this._currentStyle === MAP_STYLE_OHM &&
+      this._map?.isStyleLoaded()
+    ) {
+      const prevLang = changed.get('appState')?.i18n?.lang
+      if (prevLang !== this.appState.i18n?.lang) {
+        this._localizeOhm()
+      }
+    }
+  }
+
+  _localizeOhm() {
+    const lang = this.appState?.i18n?.lang
+    const locales = lang
+      ? [lang, ...Diplomat.getLocales()]
+      : Diplomat.getLocales()
+    Diplomat.localizeStyle(this._map, locales, {
+      localizedNamePropertyFormat: 'name_$1',
+    })
   }
 
   _onStyleChange(e) {
@@ -308,6 +329,9 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     const contributors = this._slottedChildren.filter(
       el => typeof el.getTransformStyleContribution === 'function'
     )
+    if (style === MAP_STYLE_OHM) {
+      this._map.once('styledata', () => this._localizeOhm())
+    }
     this._map.setStyle(
       styleArg,
       contributors.length > 0
