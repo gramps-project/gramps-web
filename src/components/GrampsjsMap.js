@@ -212,7 +212,11 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       // false (e.g. sprites still loading), defer addToMap until the map is idle.
       if (this._mapInitialLoadFired) {
         this._map.once('idle', () => {
-          toInit.filter(el => !el._map).forEach(el => el.addToMap(this._map))
+          // Recompute from the live slot — elements may have been removed
+          // between now and when idle fires (e.g. during a slow OHM load).
+          this._slottedChildren
+            .filter(el => typeof el.addToMap === 'function' && !el._map)
+            .forEach(el => el.addToMap(this._map))
         })
       }
       return
