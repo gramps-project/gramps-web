@@ -7,7 +7,7 @@ import {
   mdiDna,
   mdiSearchWeb,
   mdiTimelineOutline,
-  mdiArrowExpandAll,
+  mdiMap,
 } from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import {asteriskIcon, crossIcon} from '../icons.js'
@@ -180,7 +180,7 @@ export class GrampsjsPerson extends GrampsjsObject {
       <md-outlined-button @click="${this._handleMapButtonClick}">
         ${this._('Open in map')}
         <grampsjs-icon
-          path="${mdiArrowExpandAll}"
+          path="${mdiMap}"
           color="var(--mdc-theme-primary)"
           slot="icon"
         ></grampsjs-icon>
