@@ -289,6 +289,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _localizeOhm() {
+    if (this._currentStyle !== MAP_STYLE_OHM) return
     const lang = this.appState?.i18n?.lang
     const locales = lang
       ? [lang, ...Diplomat.getLocales()]
