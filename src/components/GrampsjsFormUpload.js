@@ -249,33 +249,65 @@ class GrampsjsFormUpload extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handlePaste(event) {
-    if (!this._isVisible) {
+    if (!this._isVisible || this.disabled) {
       return
     }
-    const {items} = event.clipboardData
-    if (!items) {
+    const {items} = event.clipboardData || {}
+    if (!items?.length) {
       return
     }
-    // prevent other forms down on the same page from also handling the paste
-    event.stopImmediatePropagation()
     const pastedFiles = []
     for (const item of items) {
       if (item.kind === 'file') {
         const file = item.getAsFile()
-        if (file) {
+        if (file && this._acceptsFile(file)) {
           pastedFiles.push(file)
         }
       }
     }
-    if (pastedFiles.length > 0) {
-      if (this.multiple) {
-        this.files = [...this.files, ...pastedFiles]
-      } else {
-        this.files = [pastedFiles[0]]
-      }
-      this._processPreview()
-      this.handleChange()
+    if (!pastedFiles.length) {
+      return
     }
+
+    // prevent multiple upload components from consuming the same clipboard files
+    event.preventDefault()
+    event.stopImmediatePropagation()
+
+    if (this.multiple) {
+      this.files = [...this.files, ...pastedFiles]
+    } else {
+      this.files = [pastedFiles[0]]
+    }
+    this._processPreview()
+    this.handleChange()
+  }
+
+  _acceptsFile(file) {
+    const accept = this.accept?.trim()
+    if (!accept) {
+      return true
+    }
+    const acceptValues = accept
+      .split(',')
+      .map(v => v.trim().toLowerCase())
+      .filter(Boolean)
+    if (!acceptValues.length) {
+      return true
+    }
+
+    const fileName = file.name.toLowerCase()
+    const fileType = file.type.toLowerCase()
+
+    return acceptValues.some(value => {
+      if (value.startsWith('.')) {
+        return fileName.endsWith(value)
+      }
+      if (value.endsWith('/*')) {
+        const [category] = value.split('/')
+        return fileType.startsWith(`${category}/`)
+      }
+      return fileType === value
+    })
   }
 }
 window.customElements.define('grampsjs-form-upload', GrampsjsFormUpload)
