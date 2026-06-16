@@ -58,10 +58,13 @@ export async function handleOIDCCallback(errorCallback) {
 }
 
 export async function handleOIDCComplete(errorCallback) {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 15000)
   try {
     const resp = await fetch(`${__APIHOST__}/api/oidc/tokens/`, {
       method: 'GET',
       credentials: 'include',
+      signal: controller.signal,
       headers: {
         Accept: 'application/json',
       },
@@ -80,12 +83,11 @@ export async function handleOIDCComplete(errorCallback) {
     }
 
     storeTokens(data)
-
-    requestAnimationFrame(() => {
-      window.location.href = '/'
-    })
+    window.location.href = '/'
   } catch (error) {
     errorCallback(`OIDC authentication failed: ${error.message}`)
     window.location.href = '/'
+  } finally {
+    clearTimeout(timeout)
   }
 }
