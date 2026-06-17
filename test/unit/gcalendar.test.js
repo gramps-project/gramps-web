@@ -19,6 +19,7 @@ import {
   swedishYmd,
   dateToSdn,
   isValidCalendarDate,
+  validateGrampsDate,
   CALENDARS,
 } from '../../src/gcalendar.js'
 
@@ -342,5 +343,146 @@ describe('isValidCalendarDate — unimplemented calendars', () => {
 
   it('always returns true for Persian (not yet implemented)', () => {
     expect(isValidCalendarDate(CALENDARS.PERSIAN, 1402, 12, 31)).toBe(true)
+  })
+})
+
+// ── validateGrampsDate ────────────────────────────────────────────────────────
+
+const makeDate = (dateval, modifier = 0, calendar = 0) => ({
+  _class: 'Date',
+  calendar,
+  modifier,
+  quality: 0,
+  dateval,
+  sortval: 0,
+})
+
+describe('validateGrampsDate — no dateval', () => {
+  it('returns valid=false when dateval is missing', () => {
+    expect(validateGrampsDate({_class: 'Date', modifier: 0}).valid).toBe(false)
+  })
+})
+
+describe('validateGrampsDate — single date (no range)', () => {
+  it('accepts an empty date (all zeros)', () => {
+    const result = validateGrampsDate(makeDate([0, 0, 0, false]))
+    expect(result.valid).toBe(true)
+    expect(result.date1Invalid).toBe(false)
+  })
+
+  it('accepts a valid partial date (year only)', () => {
+    expect(validateGrampsDate(makeDate([0, 0, 1900, false])).valid).toBe(true)
+  })
+
+  it('accepts a valid full date', () => {
+    expect(validateGrampsDate(makeDate([15, 6, 2000, false])).valid).toBe(true)
+  })
+
+  it('rejects an invalid calendar date', () => {
+    // Feb 30 is never valid
+    const result = validateGrampsDate(makeDate([30, 2, 2000, false]))
+    expect(result.valid).toBe(false)
+    expect(result.date1Invalid).toBe(true)
+  })
+
+  it('returns valid=false when dateval is longer than 4 (no modifier)', () => {
+    const result = validateGrampsDate(
+      makeDate([0, 0, 0, false, 0, 0, 0, false])
+    )
+    expect(result.valid).toBe(false)
+  })
+})
+
+describe('validateGrampsDate — range/span (modifier 4 or 5)', () => {
+  it('rejects when dateval has only 4 elements', () => {
+    const result = validateGrampsDate(makeDate([0, 0, 1900, false], 4))
+    expect(result.valid).toBe(false)
+    expect(result.date2Empty).toBe(true)
+  })
+
+  it('rejects when second date is all-zero (unspecified)', () => {
+    const result = validateGrampsDate(
+      makeDate([0, 0, 1900, false, 0, 0, 0, false], 4)
+    )
+    expect(result.valid).toBe(false)
+    expect(result.date2Empty).toBe(true)
+  })
+
+  it('rejects when second date is an invalid calendar date', () => {
+    // Feb 30 is invalid
+    const result = validateGrampsDate(
+      makeDate([1, 1, 1900, false, 30, 2, 2000, false], 4)
+    )
+    expect(result.valid).toBe(false)
+    expect(result.date2Invalid).toBe(true)
+  })
+
+  it('rejects when second year is before first year', () => {
+    const result = validateGrampsDate(
+      makeDate([0, 0, 2000, false, 0, 0, 1900, false], 4)
+    )
+    expect(result.valid).toBe(false)
+    expect(result.date2OrderInvalid).toBe(true)
+  })
+
+  it('rejects when second month is before first month (same year)', () => {
+    const result = validateGrampsDate(
+      makeDate([0, 6, 2000, false, 0, 3, 2000, false], 4)
+    )
+    expect(result.valid).toBe(false)
+    expect(result.date2OrderInvalid).toBe(true)
+  })
+
+  it('rejects when second day is same as first day (same year+month)', () => {
+    const result = validateGrampsDate(
+      makeDate([15, 6, 2000, false, 15, 6, 2000, false], 4)
+    )
+    expect(result.valid).toBe(false)
+    expect(result.date2OrderInvalid).toBe(true)
+  })
+
+  it('rejects when second day is before first day (same year+month)', () => {
+    const result = validateGrampsDate(
+      makeDate([20, 6, 2000, false, 10, 6, 2000, false], 4)
+    )
+    expect(result.valid).toBe(false)
+    expect(result.date2OrderInvalid).toBe(true)
+  })
+
+  it('accepts a valid range (different years)', () => {
+    const result = validateGrampsDate(
+      makeDate([0, 0, 1900, false, 0, 0, 2000, false], 4)
+    )
+    expect(result.valid).toBe(true)
+  })
+
+  it('accepts a valid range (same year, later month)', () => {
+    const result = validateGrampsDate(
+      makeDate([0, 3, 2000, false, 0, 9, 2000, false], 4)
+    )
+    expect(result.valid).toBe(true)
+  })
+
+  it('accepts a valid range (same year+month, later day)', () => {
+    const result = validateGrampsDate(
+      makeDate([1, 6, 2000, false, 15, 6, 2000, false], 4)
+    )
+    expect(result.valid).toBe(true)
+  })
+
+  it('works the same for span modifier (5)', () => {
+    const result = validateGrampsDate(
+      makeDate([0, 0, 1900, false, 0, 0, 2000, false], 5)
+    )
+    expect(result.valid).toBe(true)
+  })
+
+  it('also validates the first date in a range', () => {
+    // Feb 30 for first date, valid second date
+    const result = validateGrampsDate(
+      makeDate([30, 2, 2000, false, 0, 0, 2001, false], 4)
+    )
+    expect(result.valid).toBe(false)
+    expect(result.date1Invalid).toBe(true)
   })
 })

@@ -192,9 +192,12 @@ export function swedishYmd(sdn) {
  * SDN and back; the date is valid iff the result equals the input.
  */
 export function isValidCalendarDate(calendar, year, month, day) {
-  if (month === 0 || day === 0) return true
-  if (calendar === CALENDARS.HEBREW || calendar === CALENDARS.PERSIAN)
+  if (month === 0 || day === 0) {
     return true
+  }
+  if (calendar === CALENDARS.HEBREW || calendar === CALENDARS.PERSIAN) {
+    return true
+  }
   const y = year !== 0 ? year : 4
   let sdn
   let roundTrip
@@ -237,6 +240,72 @@ export const CALENDARS = {
   PERSIAN: 4, // not implemented here
   ISLAMIC: 5,
   SWEDISH: 6,
+}
+
+/**
+ * Validate a Gramps Date object and return a structured result.
+ *
+ * Modifiers 4 (Range) and 5 (Span) require a second date in dateval[4..7].
+ * For these, the second date must be non-empty, calendar-valid, and strictly
+ * later than the first date (compared by year → month → day; zeros meaning
+ * "unspecified" are treated as 0 in ordering).
+ *
+ * @param {Object} data - Gramps Date object
+ * @returns {{date1Invalid: boolean, date2Empty: boolean, date2Invalid: boolean, date2OrderInvalid: boolean, valid: boolean}}
+ */
+export function validateGrampsDate(data) {
+  const dv = data?.dateval
+  if (!dv) {
+    return {
+      date1Invalid: false,
+      date2Empty: false,
+      date2Invalid: false,
+      date2OrderInvalid: false,
+      valid: false,
+    }
+  }
+
+  const cal = data.calendar ?? CALENDARS.GREGORIAN
+  const hasSecond = data.modifier === 4 || data.modifier === 5
+  const [d1, m1, y1] = dv.slice(0, 3)
+  const date1Invalid =
+    (d1 !== 0 || m1 !== 0 || y1 !== 0) && !isValidCalendarDate(cal, y1, m1, d1)
+
+  if (!hasSecond) {
+    return {
+      date1Invalid,
+      date2Empty: false,
+      date2Invalid: false,
+      date2OrderInvalid: false,
+      valid: !date1Invalid && dv.length <= 4,
+    }
+  }
+
+  if (dv.length < 8) {
+    return {
+      date1Invalid,
+      date2Empty: true,
+      date2Invalid: false,
+      date2OrderInvalid: false,
+      valid: false,
+    }
+  }
+
+  const [d2, m2, y2] = dv.slice(4, 7)
+  const date2Empty = d2 === 0 && m2 === 0 && y2 === 0
+  const date2Invalid = !date2Empty && !isValidCalendarDate(cal, y2, m2, d2)
+  const date2OrderInvalid =
+    !date2Empty &&
+    !date2Invalid &&
+    (y2 < y1 || (y2 === y1 && (m2 < m1 || (m2 === m1 && d2 <= d1))))
+
+  return {
+    date1Invalid,
+    date2Empty,
+    date2Invalid,
+    date2OrderInvalid,
+    valid: !date1Invalid && !date2Empty && !date2Invalid && !date2OrderInvalid,
+  }
 }
 
 /**

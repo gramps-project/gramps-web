@@ -10,7 +10,7 @@ import '@material/mwc-list/mwc-list-item'
 import {sharedStyles} from '../SharedStyles.js'
 import {getSortval, dateIsEmpty, emptyDate} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {isValidCalendarDate, CALENDARS} from '../gcalendar.js'
+import {validateGrampsDate} from '../gcalendar.js'
 
 const modifiers = {
   0: 'Regular',
@@ -436,7 +436,6 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
       : [0, 0, 0, false]
     this.data = {...this.data, dateval: [...oldval.slice(0, 4), ...dateval]}
     this.handleChange()
-    this.handleChange()
   }
 
   handleChange() {
@@ -447,25 +446,22 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         detail: {data: this.data},
       })
     )
-    const cal = this.data.calendar ?? CALENDARS.GREGORIAN
-    const dv = this.data.dateval ?? [0, 0, 0, false]
-    const [d1, m1, y1] = dv.slice(0, 3)
-    const date1Err =
-      (d1 !== 0 || m1 !== 0 || y1 !== 0) &&
-      !isValidCalendarDate(cal, y1, m1, d1)
+    const result = validateGrampsDate(this.data)
     const year1 = this.renderRoot.getElementById('year1')
     if (year1) {
-      year1.setCustomValidity(date1Err ? this._('Invalid date') : '')
+      year1.setCustomValidity(result.date1Invalid ? this._('Invalid date') : '')
       year1.reportValidity()
     }
-    if (this._hasSecondDate() && dv.length >= 8) {
-      const [d2, m2, y2] = dv.slice(4, 7)
-      const date2Err =
-        (d2 !== 0 || m2 !== 0 || y2 !== 0) &&
-        !isValidCalendarDate(cal, y2, m2, d2)
+    if (this._hasSecondDate()) {
       const year2 = this.renderRoot.getElementById('year2')
       if (year2) {
-        year2.setCustomValidity(date2Err ? this._('Invalid date') : '')
+        let err = ''
+        if (result.date2Invalid) {
+          err = this._('Invalid date')
+        } else if (result.date2OrderInvalid) {
+          err = this._('End date must be after start date')
+        }
+        year2.setCustomValidity(err)
         year2.reportValidity()
       }
     }
@@ -480,26 +476,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
   }
 
   isValid() {
-    const dv = this.data.dateval
-    if (!dv) return false
-
-    const cal = this.data.calendar ?? CALENDARS.GREGORIAN
-
-    // All-zero means unspecified, which is always valid
-    const dateValid = (d, m, y) =>
-      (d === 0 && m === 0 && y === 0) || isValidCalendarDate(cal, y, m, d)
-
-    // dateval is [d, m, y, bc] for single dates, [d, m, y, bc, d2, m2, y2, bc2] for ranges
-    const [d1, m1, y1] = dv.slice(0, 3)
-    if (!dateValid(d1, m1, y1)) return false
-
-    if (this._hasSecondDate()) {
-      if (dv.length < 8) return false
-      const [d2, m2, y2] = dv.slice(4, 7)
-      return dateValid(d2, m2, y2)
-    }
-
-    return dv.length <= 4
+    return validateGrampsDate(this.data).valid
   }
 
   isEmpty() {
