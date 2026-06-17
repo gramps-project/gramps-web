@@ -99,28 +99,12 @@ function createGraph(graph) {
 
 function generateDot(graph) {
   let dot = ''
-
-  // identify persons appearing in multiple families — they get a graphviz
-  // `group` attribute so the layout engine keeps their occurrences adjacent
-  const duplicatePersons = new Set()
-  for (const [personHandle, nodeMap] of Object.entries(
-    graph.person_node_map || {}
-  )) {
-    if (Object.keys(nodeMap).length > 1) {
-      duplicatePersons.add(personHandle)
-    }
-  }
-
   // nodes
   for (const n of graph.getNodes()) {
     const pf = n.father
     const pm = n.mother
     const widthInches = n.fake ? 0 : graph.boxWidth / 66
     const heightInches = n.fake ? 0 : graph.boxHeight / 66 - 0.3
-    // group attribute: shared by all graphviz nodes representing the same person,
-    // causes the dot engine to align and cluster those occurrences together
-    const pfGroup = pf && duplicatePersons.has(pf) ? `group="dup_${pf}"` : ''
-    const pmGroup = pm && duplicatePersons.has(pm) ? `group="dup_${pm}"` : ''
     if (pf && pm) {
       dot += `
       subgraph "cluster_${n.handle}" {
@@ -130,7 +114,6 @@ function generateDot(graph) {
         label="."
         "node_${n.handle}x${pf}" [
           class="person_${pf}"
-          ${pfGroup}
           margin=0
           shape="none"
           fixedsize=true
@@ -149,7 +132,6 @@ function generateDot(graph) {
         ]
         "node_${n.handle}x${pm}" [
           class="person_${pm}"
-          ${pmGroup}
           margin=0.25
           shape="none"
           fixedsize=true
@@ -161,7 +143,6 @@ function generateDot(graph) {
     `
     } else {
       const p = pf || pm
-      const pGroup = p && duplicatePersons.has(p) ? `group="dup_${p}"` : ''
       dot += `
       subgraph "cluster_${n.handle}" {
         cluster=true
@@ -169,7 +150,6 @@ function generateDot(graph) {
         label="."
         "node_${n.handle}x${p}" [
           class="person_${p}"
-          ${pGroup}
           margin=0.25
           shape="none"
           fixedsize=true
@@ -195,19 +175,17 @@ function generateDot(graph) {
     }
   }
 
-  // Force duplicate-person family clusters to appear adjacent within their rank.
-  // rank=same + a directed invisible edge is the standard graphviz idiom for
-  // controlling left-to-right ordering within a rank. This is different from
-  // a plain invisible edge in the main graph (which only affects edge routing).
+  // add invisible edges between clusters that share a person to keep them adjacent
+  // this prevents unrelated families from appearing between two families of the same person
   for (const [personHandle, nodeMap] of Object.entries(
     graph.person_node_map || {}
   )) {
     const families = Object.keys(nodeMap)
     if (families.length > 1) {
       for (let i = 0; i < families.length - 1; i++) {
-        dot += `{ rank=same; "node_${families[i]}x${personHandle}" -> "node_${
+        dot += `"node_${families[i]}x${personHandle}" -> "node_${
           families[i + 1]
-        }x${personHandle}" [style=invis weight=100] }\n`
+        }x${personHandle}" [style=invis, weight=10, constraint=false]\n`
       }
     }
   }
@@ -383,21 +361,17 @@ function remasterChart(
     d.imageUrl ? 2 * imgRadius + 2 * imgPadding : 2 * imgPadding
   const boxWidthTotal = d =>
     d.imageUrl ? boxWidth - 2 * imgRadius - 10 : boxWidth
+  gvchartx.selectAll('title').remove()
   // based on graphviz created nodes build array containing node data to be bound to d3 nodes
   let imageCount = 0
   // track first occurrence index of each person handle for duplicate detection
   const firstOccurrenceIndex = {}
-  // Read titles BEFORE removing them — they encode the graphviz node ID
-  // "node_{familyHandle}x{personHandle}" which lets us tag each person node
-  // with the family cluster it belongs to (needed for duplicate cluster swapping).
   gvchartx.selectAll('.node').each(function () {
     const e = select(this)
     const textElement = e.select('text')
     const x = textElement.attr('x')
     const y = textElement.attr('y')
     const c = e.attr('class')
-    const titleText = e.select('title').text()
-    e.select('title').remove()
     const found = c.match(/(?<handletype>family|person)_(?<handle>\S+)/)
     if (found.groups.handletype === 'person') {
       const d = graph.known(found.groups.handle)
@@ -406,16 +380,6 @@ function remasterChart(
       if (imageUrl) {
         imageCount += 1
       }
-      // Extract family handle: title = "node_{familyHandle}x{personHandle}"
-      const titlePrefix = 'node_'
-      const titleSuffix = `x${handle}`
-      const familyHandle =
-        titleText.startsWith(titlePrefix) && titleText.endsWith(titleSuffix)
-          ? titleText.slice(
-              titlePrefix.length,
-              titleText.length - titleSuffix.length
-            )
-          : null
       const isDuplicate = firstOccurrenceIndex[handle] !== undefined
       if (!isDuplicate) {
         firstOccurrenceIndex[handle] = nodedata.length
@@ -430,7 +394,6 @@ function remasterChart(
         profile: d.profile,
         imageUrl: imageCount > maxImages ? '' : imageUrl,
         handle,
-        familyHandle,
         isDuplicate,
         firstOccurrenceIndex: isDuplicate ? firstOccurrenceIndex[handle] : null,
       })
@@ -445,7 +408,6 @@ function remasterChart(
       })
     }
   })
-
   // container for edges
   const edges = targetsvg.append('g').attr('class', 'edges')
 
@@ -627,55 +589,34 @@ function remasterChart(
   const linkGenerator = linkVertical()
     .x(d => d.x)
     .y(d => d.y)
-  // Draw edges from graph structure using the (possibly swapped) nodedata positions.
-  // This replaces copying graphviz paths, which would be stale after any cluster swap.
-  for (const e of graph.getEdges()) {
-    // Determine source coordinates
-    let sx, sy
-    if (e.sourcePerson) {
-      // Edge comes from a single-person node (one parent only)
-      const srcNode = nodedata.find(
-        d =>
-          d.nodetype === 'person' &&
-          d.handle === e.sourcePerson &&
-          d.familyHandle === e.sourceFamily
-      )
-      if (!srcNode) continue
-      sx = Number(srcNode.xCoord) + boxWidth / 2
-      sy = Number(srcNode.yCoord) + boxHeight
-    } else {
-      // Edge comes from a two-person family cluster — use the family-dot node
-      const srcNode = nodedata.find(
-        d => d.nodetype === 'family' && d.handle === e.sourceFamily
-      )
-      if (!srcNode) continue
-      sx = Number(srcNode.xCoord)
-      sy = Number(srcNode.yCoord) + boxHeight / 2 - 4
+  // copy edges
+  gvchartx.selectAll('.edge').each(function () {
+    const path = select(this).select('path')
+    const pathData = path.attr('d')
+    // extract points from path data
+    const points = pathData
+      ?.match(/-?[\d.]+,-?[\d.]+/g) // Find all "x,y" pairs
+      ?.map(d => d.split(',').map(Number)) // Convert to [x, y] arrays
+    // we use only the start and end point
+    const firstAndLastPoint = [points[0], points[points.length - 1]]
+    if (!points) {
+      return
     }
-    // Draw one edge for each occurrence of the target person (they may appear
-    // in multiple family clusters if they remarried)
-    for (const targetFamilyHandle of graph.getNodesOfPerson(e.targetPerson)) {
-      const tgtNode = nodedata.find(
-        d =>
-          d.nodetype === 'person' &&
-          d.handle === e.targetPerson &&
-          d.familyHandle === targetFamilyHandle
+    // we replace the polyline with a smooth connector from start to end
+    edges
+      .append('path')
+      .attr('class', 'edge')
+      .attr(
+        'd',
+        linkGenerator({
+          source: {x: firstAndLastPoint[0][0], y: firstAndLastPoint[0][1]},
+          target: {x: firstAndLastPoint[1][0], y: firstAndLastPoint[1][1]},
+        })
       )
-      if (!tgtNode) continue
-      const tx = Number(tgtNode.xCoord) + boxWidth / 2
-      const ty = Number(tgtNode.yCoord)
-      edges
-        .append('path')
-        .attr('class', 'edge')
-        .attr(
-          'd',
-          linkGenerator({source: {x: sx, y: sy}, target: {x: tx, y: ty}})
-        )
-        .attr('fill', 'none')
-        .attr('stroke', 'var(--grampsjs-body-font-color-40)')
-        .attr('stroke-width', 1)
-    }
-  }
+      .attr('fill', 'none')
+      .attr('stroke', 'var(--grampsjs-body-font-color-40)')
+      .attr('stroke-width', 1)
+  })
   // edges.selectAll('path').attr('stroke-opacity', '0.4')
 
   // draw dashed connecting lines between duplicate person occurrences
