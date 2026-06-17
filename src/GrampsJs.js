@@ -645,6 +645,7 @@ export class GrampsJs extends LitElement {
     window.addEventListener('token:refresh', () => this._handleRefresh(true))
 
     if (window.location.pathname.includes('/oidc/complete')) {
+      handleOIDCComplete(msg => this._showError(msg))
       return
     }
 
