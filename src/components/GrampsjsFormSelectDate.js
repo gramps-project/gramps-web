@@ -456,7 +456,9 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
       const year2 = this.renderRoot.getElementById('year2')
       if (year2) {
         let err = ''
-        if (result.date2Invalid) {
+        if (result.date2Empty) {
+          err = this._('End date is required')
+        } else if (result.date2Invalid) {
           err = this._('Invalid date')
         } else if (result.date2OrderInvalid) {
           err = this._('End date must be after start date')

@@ -369,5 +369,6 @@
   "Enclosed places": "Enclosed places",
   "Add Participant": "Add Participant",
   "Invalid date": "Invalid date",
-  "End date must be after start date": "End date must be after start date"
+  "End date must be after start date": "End date must be after start date",
+  "End date is required": "End date is required"
 }
