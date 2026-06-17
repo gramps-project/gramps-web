@@ -339,13 +339,38 @@ const clipString = (s, length) => {
   return `${s.slice(0, nChar - 2)}…`
 }
 
+// Recursively shift the entire subtree rooted at a family cluster by delta.
+// Uses graph edge structure to find descendants, visiting each cluster once.
+function shiftSubtree(familyHandle, delta, nodedata, graph, visited) {
+  if (visited.has(familyHandle)) return
+  visited.add(familyHandle)
+
+  // Shift every nodedata entry that belongs to this cluster
+  nodedata.forEach(d => {
+    const inCluster =
+      (d.nodetype === 'person' && d.familyHandle === familyHandle) ||
+      (d.nodetype === 'family' && d.handle === familyHandle)
+    if (inCluster) d.xCoord = String(Number(d.xCoord) + delta)
+  })
+
+  // Follow edges downward: for each child of this family, shift their
+  // own family clusters (and recurse into their children).
+  for (const e of graph.getEdges()) {
+    if (e.sourceFamily !== familyHandle) continue
+    for (const childFamilyHandle of graph.getNodesOfPerson(e.targetPerson)) {
+      shiftSubtree(childFamilyHandle, delta, nodedata, graph, visited)
+    }
+  }
+}
+
 // Post-process nodedata to ensure families that share a duplicate person are
 // placed adjacent to each other, regardless of where graphviz decided to put them.
-// Operates by swapping x-coordinates of whole clusters within the same rank.
+// Swaps entire subtrees (cluster + all descendants) so child/grandchild nodes
+// move with their parent cluster.
 function swapDuplicateClusters(nodedata, graph, boxHeight) {
   const Y_TOLERANCE = boxHeight * 1.5
 
-  // Helper: all nodedata entries belonging to a given family cluster
+  // Helper: all nodedata entries belonging to a given family cluster at refY
   const clusterNodes = (familyHandle, refY) =>
     nodedata.filter(d => {
       if (Math.abs(Number(d.yCoord) - refY) > Y_TOLERANCE) return false
@@ -360,32 +385,24 @@ function swapDuplicateClusters(nodedata, graph, boxHeight) {
     return (Math.min(...xs) + Math.max(...xs)) / 2
   }
 
-  // Helper: shift all nodes in a set by delta
-  const shiftNodes = (nodes, delta) =>
-    nodes.forEach(d => {
-      d.xCoord = String(Number(d.xCoord) + delta)
-    })
-
   for (const [personHandle, nodeMap] of Object.entries(
     graph.person_node_map || {}
   )) {
     const families = Object.keys(nodeMap)
     if (families.length < 2) continue
 
-    // Find all D3 person-node occurrences for this duplicate person
-    const occurrences = nodedata.filter(
+    const allOccurrences = nodedata.filter(
       d => d.nodetype === 'person' && d.handle === personHandle
     )
-    if (occurrences.length < 2) continue
+    if (allOccurrences.length < 2) continue
 
-    occurrences.sort((a, b) => Number(a.xCoord) - Number(b.xCoord))
-    const leftOcc = occurrences[0]
-    const rightOcc = occurrences[occurrences.length - 1]
+    allOccurrences.sort((a, b) => Number(a.xCoord) - Number(b.xCoord))
+    const leftOcc = allOccurrences[0]
+    const rightOcc = allOccurrences[allOccurrences.length - 1]
 
     const refY = Number(leftOcc.yCoord)
     const leftFH = leftOcc.familyHandle
     const rightFH = rightOcc.familyHandle
-
     if (!leftFH || !rightFH || leftFH === rightFH) continue
 
     const leftCluster = clusterNodes(leftFH, refY)
@@ -411,21 +428,26 @@ function swapDuplicateClusters(nodedata, graph, boxHeight) {
       const nodes = clusterNodes(fh, refY)
       if (!nodes.length) continue
       const cx = centerX(nodes)
-      if (cx > leftCX && cx < rightCX) intruders.push({fh, cx, nodes})
+      if (cx > leftCX && cx < rightCX) intruders.push({fh, cx})
     }
     if (!intruders.length) continue // already adjacent — nothing to do
 
-    // Sort intruders left-to-right
     intruders.sort((a, b) => a.cx - b.cx)
-
-    // Strategy: swap the right duplicate cluster with the leftmost intruder so
-    // the two duplicate families end up next to each other.
     const leftmostIntruder = intruders[0]
+
+    // Swap the right duplicate subtree with the leftmost intruder subtree.
+    // Each swap shifts the entire cluster + all its descendants.
     const rightToIntruderDelta = leftmostIntruder.cx - rightCX
     const intruderToRightDelta = rightCX - leftmostIntruder.cx
 
-    shiftNodes(rightCluster, rightToIntruderDelta)
-    shiftNodes(leftmostIntruder.nodes, intruderToRightDelta)
+    shiftSubtree(rightFH, rightToIntruderDelta, nodedata, graph, new Set())
+    shiftSubtree(
+      leftmostIntruder.fh,
+      intruderToRightDelta,
+      nodedata,
+      graph,
+      new Set()
+    )
   }
 }
 
