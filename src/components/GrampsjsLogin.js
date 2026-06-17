@@ -241,7 +241,16 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _renderWordmark() {
-    return html`<span class="wordmark">ancestry<span>.net.nz</span></span>`
+    const hostname = window.location.hostname
+    const parts = hostname.split('.')
+    // e.g. crawford.ancestry.net.nz → subdomain = "crawford", rest = "ancestry.net.nz"
+    const subdomain = parts.length > 1 ? parts[0] : null
+    const base = parts.length > 1 ? parts.slice(1).join('.') : hostname
+    return html`<span class="wordmark"
+      >${subdomain
+        ? html`<span>${subdomain}</span>.${base}`
+        : html`${base}`}</span
+    >`
   }
 
   _renderLogin() {
