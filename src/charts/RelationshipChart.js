@@ -339,6 +339,96 @@ const clipString = (s, length) => {
   return `${s.slice(0, nChar - 2)}…`
 }
 
+// Post-process nodedata to ensure families that share a duplicate person are
+// placed adjacent to each other, regardless of where graphviz decided to put them.
+// Operates by swapping x-coordinates of whole clusters within the same rank.
+function swapDuplicateClusters(nodedata, graph, boxHeight) {
+  const Y_TOLERANCE = boxHeight * 1.5
+
+  // Helper: all nodedata entries belonging to a given family cluster
+  const clusterNodes = (familyHandle, refY) =>
+    nodedata.filter(d => {
+      if (Math.abs(Number(d.yCoord) - refY) > Y_TOLERANCE) return false
+      if (d.nodetype === 'person') return d.familyHandle === familyHandle
+      if (d.nodetype === 'family') return d.handle === familyHandle
+      return false
+    })
+
+  // Helper: centre x of a set of nodes
+  const centerX = nodes => {
+    const xs = nodes.map(d => Number(d.xCoord))
+    return (Math.min(...xs) + Math.max(...xs)) / 2
+  }
+
+  // Helper: shift all nodes in a set by delta
+  const shiftNodes = (nodes, delta) =>
+    nodes.forEach(d => {
+      d.xCoord = String(Number(d.xCoord) + delta)
+    })
+
+  for (const [personHandle, nodeMap] of Object.entries(
+    graph.person_node_map || {}
+  )) {
+    const families = Object.keys(nodeMap)
+    if (families.length < 2) continue
+
+    // Find all D3 person-node occurrences for this duplicate person
+    const occurrences = nodedata.filter(
+      d => d.nodetype === 'person' && d.handle === personHandle
+    )
+    if (occurrences.length < 2) continue
+
+    occurrences.sort((a, b) => Number(a.xCoord) - Number(b.xCoord))
+    const leftOcc = occurrences[0]
+    const rightOcc = occurrences[occurrences.length - 1]
+
+    const refY = Number(leftOcc.yCoord)
+    const leftFH = leftOcc.familyHandle
+    const rightFH = rightOcc.familyHandle
+
+    if (!leftFH || !rightFH || leftFH === rightFH) continue
+
+    const leftCluster = clusterNodes(leftFH, refY)
+    const rightCluster = clusterNodes(rightFH, refY)
+    if (!leftCluster.length || !rightCluster.length) continue
+
+    const leftCX = centerX(leftCluster)
+    const rightCX = centerX(rightCluster)
+
+    // Collect all OTHER family clusters at the same rank that sit between the two
+    const allFHsAtLevel = new Set()
+    nodedata.forEach(d => {
+      if (Math.abs(Number(d.yCoord) - refY) <= Y_TOLERANCE) {
+        if (d.nodetype === 'person' && d.familyHandle)
+          allFHsAtLevel.add(d.familyHandle)
+        if (d.nodetype === 'family') allFHsAtLevel.add(d.handle)
+      }
+    })
+
+    const intruders = []
+    for (const fh of allFHsAtLevel) {
+      if (fh === leftFH || fh === rightFH) continue
+      const nodes = clusterNodes(fh, refY)
+      if (!nodes.length) continue
+      const cx = centerX(nodes)
+      if (cx > leftCX && cx < rightCX) intruders.push({fh, cx, nodes})
+    }
+    if (!intruders.length) continue // already adjacent — nothing to do
+
+    // Sort intruders left-to-right
+    intruders.sort((a, b) => a.cx - b.cx)
+
+    // Strategy: swap the right duplicate cluster with the leftmost intruder so
+    // the two duplicate families end up next to each other.
+    const leftmostIntruder = intruders[0]
+    const rightToIntruderDelta = leftmostIntruder.cx - rightCX
+    const intruderToRightDelta = rightCX - leftmostIntruder.cx
+
+    shiftNodes(rightCluster, rightToIntruderDelta)
+    shiftNodes(leftmostIntruder.nodes, intruderToRightDelta)
+  }
+}
+
 function clicked(event, d) {
   dispatchEvent(
     new CustomEvent('pedigree:person-selected', {
@@ -366,17 +456,21 @@ function remasterChart(
     d.imageUrl ? 2 * imgRadius + 2 * imgPadding : 2 * imgPadding
   const boxWidthTotal = d =>
     d.imageUrl ? boxWidth - 2 * imgRadius - 10 : boxWidth
-  gvchartx.selectAll('title').remove()
   // based on graphviz created nodes build array containing node data to be bound to d3 nodes
   let imageCount = 0
   // track first occurrence index of each person handle for duplicate detection
   const firstOccurrenceIndex = {}
+  // Read titles BEFORE removing them — they encode the graphviz node ID
+  // "node_{familyHandle}x{personHandle}" which lets us tag each person node
+  // with the family cluster it belongs to (needed for duplicate cluster swapping).
   gvchartx.selectAll('.node').each(function () {
     const e = select(this)
     const textElement = e.select('text')
     const x = textElement.attr('x')
     const y = textElement.attr('y')
     const c = e.attr('class')
+    const titleText = e.select('title').text()
+    e.select('title').remove()
     const found = c.match(/(?<handletype>family|person)_(?<handle>\S+)/)
     if (found.groups.handletype === 'person') {
       const d = graph.known(found.groups.handle)
@@ -385,6 +479,16 @@ function remasterChart(
       if (imageUrl) {
         imageCount += 1
       }
+      // Extract family handle: title = "node_{familyHandle}x{personHandle}"
+      const titlePrefix = 'node_'
+      const titleSuffix = `x${handle}`
+      const familyHandle =
+        titleText.startsWith(titlePrefix) && titleText.endsWith(titleSuffix)
+          ? titleText.slice(
+              titlePrefix.length,
+              titleText.length - titleSuffix.length
+            )
+          : null
       const isDuplicate = firstOccurrenceIndex[handle] !== undefined
       if (!isDuplicate) {
         firstOccurrenceIndex[handle] = nodedata.length
@@ -399,6 +503,7 @@ function remasterChart(
         profile: d.profile,
         imageUrl: imageCount > maxImages ? '' : imageUrl,
         handle,
+        familyHandle,
         isDuplicate,
         firstOccurrenceIndex: isDuplicate ? firstOccurrenceIndex[handle] : null,
       })
@@ -413,6 +518,10 @@ function remasterChart(
       })
     }
   })
+
+  // Post-process: swap same-rank clusters so families sharing a duplicate person
+  // end up adjacent, regardless of where graphviz placed them.
+  swapDuplicateClusters(nodedata, graph, boxHeight)
   // container for edges
   const edges = targetsvg.append('g').attr('class', 'edges')
 
@@ -594,34 +703,55 @@ function remasterChart(
   const linkGenerator = linkVertical()
     .x(d => d.x)
     .y(d => d.y)
-  // copy edges
-  gvchartx.selectAll('.edge').each(function () {
-    const path = select(this).select('path')
-    const pathData = path.attr('d')
-    // extract points from path data
-    const points = pathData
-      ?.match(/-?[\d.]+,-?[\d.]+/g) // Find all "x,y" pairs
-      ?.map(d => d.split(',').map(Number)) // Convert to [x, y] arrays
-    // we use only the start and end point
-    const firstAndLastPoint = [points[0], points[points.length - 1]]
-    if (!points) {
-      return
-    }
-    // we replace the polyline with a smooth connector from start to end
-    edges
-      .append('path')
-      .attr('class', 'edge')
-      .attr(
-        'd',
-        linkGenerator({
-          source: {x: firstAndLastPoint[0][0], y: firstAndLastPoint[0][1]},
-          target: {x: firstAndLastPoint[1][0], y: firstAndLastPoint[1][1]},
-        })
+  // Draw edges from graph structure using the (possibly swapped) nodedata positions.
+  // This replaces copying graphviz paths, which would be stale after any cluster swap.
+  for (const e of graph.getEdges()) {
+    // Determine source coordinates
+    let sx, sy
+    if (e.sourcePerson) {
+      // Edge comes from a single-person node (one parent only)
+      const srcNode = nodedata.find(
+        d =>
+          d.nodetype === 'person' &&
+          d.handle === e.sourcePerson &&
+          d.familyHandle === e.sourceFamily
       )
-      .attr('fill', 'none')
-      .attr('stroke', 'var(--grampsjs-body-font-color-40)')
-      .attr('stroke-width', 1)
-  })
+      if (!srcNode) continue
+      sx = Number(srcNode.xCoord) + boxWidth / 2
+      sy = Number(srcNode.yCoord) + boxHeight
+    } else {
+      // Edge comes from a two-person family cluster — use the family-dot node
+      const srcNode = nodedata.find(
+        d => d.nodetype === 'family' && d.handle === e.sourceFamily
+      )
+      if (!srcNode) continue
+      sx = Number(srcNode.xCoord)
+      sy = Number(srcNode.yCoord) + boxHeight / 2 - 4
+    }
+    // Draw one edge for each occurrence of the target person (they may appear
+    // in multiple family clusters if they remarried)
+    for (const targetFamilyHandle of graph.getNodesOfPerson(e.targetPerson)) {
+      const tgtNode = nodedata.find(
+        d =>
+          d.nodetype === 'person' &&
+          d.handle === e.targetPerson &&
+          d.familyHandle === targetFamilyHandle
+      )
+      if (!tgtNode) continue
+      const tx = Number(tgtNode.xCoord) + boxWidth / 2
+      const ty = Number(tgtNode.yCoord)
+      edges
+        .append('path')
+        .attr('class', 'edge')
+        .attr(
+          'd',
+          linkGenerator({source: {x: sx, y: sy}, target: {x: tx, y: ty}})
+        )
+        .attr('fill', 'none')
+        .attr('stroke', 'var(--grampsjs-body-font-color-40)')
+        .attr('stroke-width', 1)
+    }
+  }
   // edges.selectAll('path').attr('stroke-opacity', '0.4')
 
   // draw dashed connecting lines between duplicate person occurrences
