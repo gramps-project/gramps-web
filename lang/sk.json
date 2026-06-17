@@ -370,5 +370,8 @@
     "External": "Externé",
     "External search failed": "Externé vyhľadávanie sa nepodarilo",
     "Too many requests. Please try again later.": "Príliš veľa požiadaviek. Skúste to prosím neskôr.",
-    "Add Participant": "Pridať účastníka"
+    "Add Participant": "Pridať účastníka",
+    "Invalid date": "Neplatný dátum",
+    "End date must be after start date": "Koncový dátum musí byť neskôr ako počiatočný dátum",
+    "End date is required": "Koncový dátum je požadovaný"
 }
