@@ -24,112 +24,168 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
+        :host {
+          display: block;
+          min-height: 100vh;
+          background: #ffffff;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            sans-serif;
+        }
+
+        /* Violet gradient wash at the top, matching ancestry.net.nz */
         #login-container {
+          position: relative;
           display: flex;
           align-items: center;
           justify-content: center;
-          height: 100%;
+          min-height: 100vh;
           width: 100%;
+          overflow: hidden;
         }
 
-        #login-form {
+        #login-container::before {
+          content: '';
+          position: absolute;
+          inset-inline: 0;
+          top: 0;
+          height: 24rem;
+          background: linear-gradient(
+            to bottom,
+            #f5f3ff,
+            rgba(245, 243, 255, 0.5),
+            transparent
+          );
+          pointer-events: none;
+        }
+
+        #login-card {
+          position: relative;
+          z-index: 1;
           width: 100%;
-          max-width: 25em;
-          padding: 0 1.5em;
+          max-width: 26em;
+          margin: 2em 1.5em;
+          padding: 2.5em 2.25em;
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
+          border-radius: 1rem;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06),
+            0 4px 16px rgba(0, 0, 0, 0.06);
           box-sizing: border-box;
-          text-align: center;
         }
 
-        #login-form h2 {
-          margin-bottom: 1.5em;
+        /* Wordmark */
+        .wordmark {
+          display: block;
+          margin-bottom: 2em;
+          font-size: 1.1em;
+          font-weight: 700;
+          color: #0f172a;
+          letter-spacing: -0.01em;
         }
 
-        #login-form mwc-textfield {
+        .wordmark span {
+          color: #7c3aed;
+        }
+
+        /* Headings */
+        #login-card h2 {
+          margin: 0 0 0.5em 0;
+          font-size: 1.75em;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+          color: #0f172a;
+        }
+
+        .subtitle {
+          margin: 0 0 2em 0;
+          font-size: 0.95em;
+          line-height: 1.6;
+          color: #64748b;
+        }
+
+        /* Text fields (admin login path) */
+        md-outlined-text-field,
+        mwc-textfield {
           width: 100%;
-          margin-bottom: 0.7em;
+          margin-bottom: 0.75em;
         }
 
-        #login-form md-outlined-text-field {
-          width: 100%;
-          margin-bottom: 0.7em;
-        }
-
-        #login-form md-filled-button {
-          width: 100%;
-          margin-bottom: 0.5em;
-        }
-
-        .button-container {
+        /* Submit button row */
+        .button-row {
           display: flex;
           gap: 0.5em;
-          margin-top: 1em;
-          margin-bottom: 0.5em;
-          --button-height: 48px;
+          margin-top: 1.25em;
         }
 
-        .button-container md-outlined-button,
-        .button-container md-filled-button {
+        .button-row md-outlined-button,
+        .button-row md-filled-button {
           flex: 1;
-          height: var(--button-height);
-        }
-
-        .button-container md-outlined-button {
-          --md-outlined-button-container-height: var(--button-height);
-          --md-outlined-button-leading-space: 8px;
-          --md-outlined-button-trailing-space: 8px;
-          --md-outlined-button-top-space: 0px;
-          --md-outlined-button-bottom-space: 0px;
-          min-height: var(--button-height);
-          max-height: var(--button-height);
-        }
-
-        .button-container md-outlined-button::part(outline) {
-          height: var(--button-height);
-        }
-
-        .button-container md-filled-button {
-          --md-filled-button-container-height: var(--button-height);
-          --md-filled-button-leading-space: 8px;
-          --md-filled-button-trailing-space: 8px;
-          --md-filled-button-top-space: 0px;
-          --md-filled-button-bottom-space: 0px;
-          min-height: var(--button-height);
-          max-height: var(--button-height);
-        }
-
-        .button-container md-filled-button::part(container) {
-          height: var(--button-height);
-        }
-
-        p.reset-link {
-          padding-top: 1em;
-          font-size: 0.9em;
+          --md-outlined-button-container-height: 44px;
+          --md-filled-button-container-height: 44px;
+          --md-filled-button-container-color: #7c3aed;
+          --md-filled-button-hover-container-color: #6d28d9;
+          --md-filled-button-label-text-color: #ffffff;
+          --md-filled-button-hover-label-text-color: #ffffff;
+          --md-filled-button-container-shape: 0.6rem;
+          --md-outlined-button-container-shape: 0.6rem;
+          --md-outlined-button-outline-color: #d1d5db;
         }
 
         p.forgot-password {
           text-align: center;
           font-size: 0.85em;
           margin-top: 0.75em;
-          margin-bottom: 1.5em;
+          margin-bottom: 0;
+          color: #64748b;
         }
 
+        p.forgot-password .link {
+          color: #7c3aed;
+          cursor: pointer;
+        }
+
+        p.forgot-password .link:hover {
+          text-decoration: underline;
+        }
+
+        /* Divider between local and OIDC */
+        .divider {
+          display: flex;
+          align-items: center;
+          gap: 0.75em;
+          margin: 1.75em 0;
+          color: #9ca3af;
+          font-size: 0.8em;
+        }
+
+        .divider::before,
+        .divider::after {
+          content: '';
+          flex: 1;
+          height: 1px;
+          background: #e5e7eb;
+        }
+
+        /* Reset-password form */
         p.success {
           padding-top: 1em;
           color: var(--grampsjs-alert-success-font-color);
-          font-size: 1.2em;
+          font-size: 1.1em;
           font-weight: 400;
-          --mdc-icon-size: 1.6em;
-          line-height: 1.4em;
+          --mdc-icon-size: 1.5em;
+          line-height: 1.5em;
+          text-align: center;
+        }
+
+        p.reset-link {
+          padding-top: 1em;
+          font-size: 0.9em;
           text-align: center;
         }
 
         mwc-circular-progress {
           --mdc-theme-primary: var(--mdc-theme-on-primary);
-        }
-
-        hr {
-          margin-top: 2em;
-          margin-bottom: 2em;
+          margin-top: 0.5em;
         }
       `,
     ]
@@ -184,20 +240,30 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     return this._renderLogin()
   }
 
+  _renderWordmark() {
+    return html`<span class="wordmark">ancestry<span>.net.nz</span></span>`
+  }
+
   _renderLogin() {
     const localAuthDisabled =
       this.oidcConfig?.enabled && this.oidcConfig?.disable_local_auth
     const adminLogin = window.location.pathname === '/login-admin'
+    const showLocalAuth =
+      this._oidcConfigLoaded &&
+      !localAuthDisabled &&
+      (adminLogin || !this.oidcConfig?.enabled)
 
     return html`
       <div id="login-container">
-        <form id="login-form" @keydown="${this._handleLoginKey}">
-          <h2>${this._('Log in to Gramps Web')}</h2>
-          ${!this._oidcConfigLoaded ||
-          localAuthDisabled ||
-          (!adminLogin && this.oidcConfig?.enabled)
-            ? ''
-            : html`
+        <div id="login-card">
+          ${this._renderWordmark()}
+          <h2>${this._('Sign in')}</h2>
+          <p class="subtitle">
+            ${this._('This is a private site for family members.')}
+          </p>
+
+          ${showLocalAuth
+            ? html`
                 <md-outlined-text-field
                   id="username"
                   label="${this._('Username')}"
@@ -213,7 +279,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                   @change="${this._credChanged}"
                   value="${this.credentials.password || ''}"
                 ></md-outlined-text-field>
-                <div class="button-container">
+                <div class="button-row">
                   ${window.grampsjsConfig.hideRegisterLink
                     ? ''
                     : html`
@@ -237,7 +303,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                   density="-7"
                   closed
                   id="login-progress"
-                  style="display:none; margin-top: 0.5em;"
+                  style="display:none;"
                 >
                 </mwc-circular-progress>
                 <p class="forgot-password">
@@ -249,12 +315,12 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                     >${this._('Lost password?')}</span
                   >
                 </p>
-              `}
-          ${this.oidcConfig?.enabled &&
-          this.oidcConfig?.providers &&
-          !localAuthDisabled &&
-          adminLogin
-            ? html`<hr />`
+              `
+            : ''}
+          ${showLocalAuth &&
+          this.oidcConfig?.enabled &&
+          this.oidcConfig?.providers
+            ? html`<div class="divider">or</div>`
             : ''}
           ${this.oidcConfig?.enabled && this.oidcConfig?.providers
             ? this.oidcConfig.providers.map(
@@ -272,7 +338,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                 `
               )
             : ''}
-        </form>
+        </div>
         <grampsjs-password-manager-polyfill
           .credentials=${this.credentials}
           @form-submitted=${this._submitLogin}
@@ -306,8 +372,12 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   _renderResetPw() {
     return html`
       <div id="login-container">
-        <form id="login-form">
+        <div id="login-card">
+          ${this._renderWordmark()}
           <h2>${this._('reset password')}</h2>
+          <p class="subtitle">
+            ${this._("Enter your username and we'll send a reset link.")}
+          </p>
           <div id="inner-form">
             <md-outlined-text-field
               id="username"
@@ -317,7 +387,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
             <md-filled-button
               type="submit"
               @click="${this._resetPw}"
-              style="width: 100%;"
+              style="width: 100%; --md-filled-button-container-color: #7c3aed; --md-filled-button-label-text-color: #fff; --md-filled-button-container-shape: 0.6rem;"
             >
               ${this._('reset password')}
             </md-filled-button>
@@ -335,7 +405,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
               >${this._('_Back')}</span
             >
           </p>
-        </form>
+        </div>
       </div>
     `
   }
@@ -352,7 +422,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
   }
 
   async _submitLogin(e) {
-    // Prevent the native form submit/navigation
     e?.preventDefault()
     e?.stopPropagation()
 

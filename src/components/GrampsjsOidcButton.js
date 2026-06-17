@@ -1,5 +1,5 @@
 import {html, css, LitElement} from 'lit'
-import '@material/web/button/outlined-button'
+import '@material/web/button/filled-button'
 import {mdiGoogle, mdiMicrosoft, mdiGithub, mdiOpenid} from '@mdi/js'
 
 import './GrampsjsIcon.js'
@@ -13,9 +13,14 @@ class GrampsjsOidcButton extends LitElement {
           margin-top: 1em;
         }
 
-        md-outlined-button {
+        md-filled-button {
           width: 100%;
-          --md-outlined-button-container-height: 44px;
+          --md-filled-button-container-height: 44px;
+          --md-filled-button-container-color: #7c3aed;
+          --md-filled-button-hover-container-color: #6d28d9;
+          --md-filled-button-label-text-color: #ffffff;
+          --md-filled-button-hover-label-text-color: #ffffff;
+          --md-filled-button-container-shape: 0.6rem;
         }
 
         grampsjs-icon {
@@ -66,7 +71,7 @@ class GrampsjsOidcButton extends LitElement {
     return html`<grampsjs-icon
       .path="${iconPath}"
       slot="icon"
-      color="var(--mdc-theme-primary)"
+      color="#ffffff"
     ></grampsjs-icon>`
   }
 
@@ -82,13 +87,13 @@ class GrampsjsOidcButton extends LitElement {
 
   render() {
     return html`
-      <md-outlined-button
+      <md-filled-button
         @click="${this._handleClick}"
         ?disabled="${this.disabled || this.loading}"
       >
         ${this._getProviderIcon()}
         ${this.loading ? this.signingInText : this.buttonText}
-      </md-outlined-button>
+      </md-filled-button>
     `
   }
 }
