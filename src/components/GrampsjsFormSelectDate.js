@@ -10,6 +10,7 @@ import '@material/mwc-list/mwc-list-item'
 import {sharedStyles} from '../SharedStyles.js'
 import {getSortval, dateIsEmpty, emptyDate} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {isValidCalendarDate, CALENDARS} from '../gcalendar.js'
 
 const modifiers = {
   0: 'Regular',
@@ -446,7 +447,28 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         detail: {data: this.data},
       })
     )
-    this.renderRoot.getElementById('year1').reportValidity()
+    const cal = this.data.calendar ?? CALENDARS.GREGORIAN
+    const dv = this.data.dateval ?? [0, 0, 0, false]
+    const [d1, m1, y1] = dv.slice(0, 3)
+    const date1Err =
+      (d1 !== 0 || m1 !== 0 || y1 !== 0) &&
+      !isValidCalendarDate(cal, y1, m1, d1)
+    const year1 = this.renderRoot.getElementById('year1')
+    if (year1) {
+      year1.setCustomValidity(date1Err ? this._('Invalid date') : '')
+      year1.reportValidity()
+    }
+    if (this._hasSecondDate() && dv.length >= 8) {
+      const [d2, m2, y2] = dv.slice(4, 7)
+      const date2Err =
+        (d2 !== 0 || m2 !== 0 || y2 !== 0) &&
+        !isValidCalendarDate(cal, y2, m2, d2)
+      const year2 = this.renderRoot.getElementById('year2')
+      if (year2) {
+        year2.setCustomValidity(date2Err ? this._('Invalid date') : '')
+        year2.reportValidity()
+      }
+    }
     const input1 = this.renderRoot.getElementById('input-date1')
     if (input1) {
       input1.value = this._getValue1()
@@ -458,50 +480,26 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
   }
 
   isValid() {
-    // no dateval: invalid
-    if (!this.data.dateval) {
-      return false
-    }
-    // empty date: OK
-    if (
-      !this._hasSecondDate() &&
-      this.data.dateval[0] === 0 &&
-      this.data.dateval[1] === 0 &&
-      this.data.dateval[2] === 0
-    ) {
-      return true
-    }
-    // second date > first date
+    const dv = this.data.dateval
+    if (!dv) return false
+
+    const cal = this.data.calendar ?? CALENDARS.GREGORIAN
+
+    // All-zero means unspecified, which is always valid
+    const dateValid = (d, m, y) =>
+      (d === 0 && m === 0 && y === 0) || isValidCalendarDate(cal, y, m, d)
+
+    // dateval is [d, m, y, bc] for single dates, [d, m, y, bc, d2, m2, y2, bc2] for ranges
+    const [d1, m1, y1] = dv.slice(0, 3)
+    if (!dateValid(d1, m1, y1)) return false
+
     if (this._hasSecondDate()) {
-      if (this.data.dateval.length < 8) {
-        return false
-      }
-      // year 2 > year 1
-      if (this.data.dateval[6] > this.data.dateval[2]) {
-        return true
-      }
-      // year 2 < year 1
-      if (this.data.dateval[6] < this.data.dateval[2]) {
-        return false
-      }
-      // year 2 == year 1
-      // month 2 > month 1
-      if (this.data.dateval[5] > this.data.dateval[1]) {
-        return true
-      }
-      // month 2 < month 1
-      if (this.data.dateval[5] < this.data.dateval[1]) {
-        return false
-      }
-      // month 2 == month 1
-      // day 2 <= day 1
-      if (this.data.dateval[4] <= this.data.dateval[0]) {
-        return false
-      }
-    } else if (this.data.dateval.length > 4) {
-      return false
+      if (dv.length < 8) return false
+      const [d2, m2, y2] = dv.slice(4, 7)
+      return dateValid(d2, m2, y2)
     }
-    return true
+
+    return dv.length <= 4
   }
 
   isEmpty() {
