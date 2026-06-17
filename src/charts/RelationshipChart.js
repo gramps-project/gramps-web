@@ -175,6 +175,21 @@ function generateDot(graph) {
     }
   }
 
+  // add invisible edges between clusters that share a person to keep them adjacent
+  // this prevents unrelated families from appearing between two families of the same person
+  for (const [personHandle, nodeMap] of Object.entries(
+    graph.person_node_map || {}
+  )) {
+    const families = Object.keys(nodeMap)
+    if (families.length > 1) {
+      for (let i = 0; i < families.length - 1; i++) {
+        dot += `"node_${families[i]}x${personHandle}" -> "node_${
+          families[i + 1]
+        }x${personHandle}" [style=invis, weight=10, constraint=false]\n`
+      }
+    }
+  }
+
   // frame dot code with global commands
   dot = `
     digraph gramps {
@@ -618,12 +633,17 @@ function remasterChart(
     if (pair.length < 2) return
     const a = pair[0]
     const b = pair[1]
+    const x1 = Number(a.xCoord) + boxWidth / 2
+    const y1 = Number(a.yCoord) + boxHeight / 2
+    const x2 = Number(b.xCoord) + boxWidth / 2
+    const y2 = Number(b.yCoord) + boxHeight / 2
+    // arc upward above the row so it doesn't cross other nodes
+    const mx = (x1 + x2) / 2
+    const my = Math.min(y1, y2) - Math.abs(x2 - x1) * 0.25 - 40
     edges
-      .append('line')
-      .attr('x1', Number(a.xCoord) + boxWidth / 2)
-      .attr('y1', Number(a.yCoord) + boxHeight / 2)
-      .attr('x2', Number(b.xCoord) + boxWidth / 2)
-      .attr('y2', Number(b.yCoord) + boxHeight / 2)
+      .append('path')
+      .attr('d', `M${x1},${y1} Q${mx},${my} ${x2},${y2}`)
+      .attr('fill', 'none')
       .attr('stroke', 'var(--grampsjs-color-icon-selected, #7c3aed)')
       .attr('stroke-width', 1.5)
       .attr('stroke-dasharray', '5,4')
