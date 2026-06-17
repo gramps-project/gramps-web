@@ -99,12 +99,28 @@ function createGraph(graph) {
 
 function generateDot(graph) {
   let dot = ''
+
+  // identify persons appearing in multiple families — they get a graphviz
+  // `group` attribute so the layout engine keeps their occurrences adjacent
+  const duplicatePersons = new Set()
+  for (const [personHandle, nodeMap] of Object.entries(
+    graph.person_node_map || {}
+  )) {
+    if (Object.keys(nodeMap).length > 1) {
+      duplicatePersons.add(personHandle)
+    }
+  }
+
   // nodes
   for (const n of graph.getNodes()) {
     const pf = n.father
     const pm = n.mother
     const widthInches = n.fake ? 0 : graph.boxWidth / 66
     const heightInches = n.fake ? 0 : graph.boxHeight / 66 - 0.3
+    // group attribute: shared by all graphviz nodes representing the same person,
+    // causes the dot engine to align and cluster those occurrences together
+    const pfGroup = pf && duplicatePersons.has(pf) ? `group="dup_${pf}"` : ''
+    const pmGroup = pm && duplicatePersons.has(pm) ? `group="dup_${pm}"` : ''
     if (pf && pm) {
       dot += `
       subgraph "cluster_${n.handle}" {
@@ -114,6 +130,7 @@ function generateDot(graph) {
         label="."
         "node_${n.handle}x${pf}" [
           class="person_${pf}"
+          ${pfGroup}
           margin=0
           shape="none"
           fixedsize=true
@@ -132,6 +149,7 @@ function generateDot(graph) {
         ]
         "node_${n.handle}x${pm}" [
           class="person_${pm}"
+          ${pmGroup}
           margin=0.25
           shape="none"
           fixedsize=true
@@ -143,6 +161,7 @@ function generateDot(graph) {
     `
     } else {
       const p = pf || pm
+      const pGroup = p && duplicatePersons.has(p) ? `group="dup_${p}"` : ''
       dot += `
       subgraph "cluster_${n.handle}" {
         cluster=true
@@ -150,6 +169,7 @@ function generateDot(graph) {
         label="."
         "node_${n.handle}x${p}" [
           class="person_${p}"
+          ${pGroup}
           margin=0.25
           shape="none"
           fixedsize=true
@@ -171,21 +191,6 @@ function generateDot(graph) {
       } else {
         dot += `"node_${e.sourceFamily}" -> "node_${targetnode}x${e.targetPerson}" [ltail="node_${e.sourceFamily}", label="", arrowhead=none, color="#555"]
       `
-      }
-    }
-  }
-
-  // add invisible edges between clusters that share a person to keep them adjacent
-  // this prevents unrelated families from appearing between two families of the same person
-  for (const [personHandle, nodeMap] of Object.entries(
-    graph.person_node_map || {}
-  )) {
-    const families = Object.keys(nodeMap)
-    if (families.length > 1) {
-      for (let i = 0; i < families.length - 1; i++) {
-        dot += `"node_${families[i]}x${personHandle}" -> "node_${
-          families[i + 1]
-        }x${personHandle}" [style=invis, weight=10, constraint=false]\n`
       }
     }
   }
