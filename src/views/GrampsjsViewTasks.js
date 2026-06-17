@@ -136,11 +136,8 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._fetchData()
   }
 
-  firstUpdated() {
-    if (this.appState.i18n.lang) {
-      // don't load before we have strings
-      this._fetchData()
-    }
+  _onLangChanged() {
+    this._fetchData()
   }
 
   handleUpdateStaleData() {

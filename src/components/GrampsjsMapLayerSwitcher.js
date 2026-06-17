@@ -66,7 +66,7 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
       left: 10px;
       z-index: 1;
       background: var(--md-sys-color-surface-container-high);
-      border-radius: 4px;
+      border-radius: 12px;
       box-shadow: 0 1px 4px var(--grampsjs-body-font-color-20);
       padding: 2px;
       font-size: 14px;

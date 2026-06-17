@@ -97,13 +97,30 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
             timestamp="${timestamp}"
             locale="${this.appState.i18n.lang}"
           ></grampsjs-timedelta>
-          (${event.profile.date})
-          ${event?.profile?.place
-            ? html`<br />${event.profile.place_name || event.profile.place}`
+          (${event.profile.date})${event?.profile?.place
+            ? html` · ${event.profile.place_name || event.profile.place}`
             : ''}
         </span>
       </md-list-item>
     `
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this._boundHandleVisibility = () => {
+      if (!document.hidden && this.getUrl() !== this._oldUrl) {
+        this._updateData()
+      }
+    }
+    document.addEventListener('visibilitychange', this._boundHandleVisibility)
+  }
+
+  disconnectedCallback() {
+    document.removeEventListener(
+      'visibilitychange',
+      this._boundHandleVisibility
+    )
+    super.disconnectedCallback()
   }
 
   _handleClick(event) {

@@ -10,6 +10,7 @@ import '@material/mwc-list/mwc-list-item'
 import {sharedStyles} from '../SharedStyles.js'
 import {getSortval, dateIsEmpty, emptyDate} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {validateGrampsDate} from '../gcalendar.js'
 
 const modifiers = {
   0: 'Regular',
@@ -435,7 +436,6 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
       : [0, 0, 0, false]
     this.data = {...this.data, dateval: [...oldval.slice(0, 4), ...dateval]}
     this.handleChange()
-    this.handleChange()
   }
 
   handleChange() {
@@ -446,7 +446,27 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         detail: {data: this.data},
       })
     )
-    this.renderRoot.getElementById('year1').reportValidity()
+    const result = validateGrampsDate(this.data)
+    const year1 = this.renderRoot.getElementById('year1')
+    if (year1) {
+      year1.setCustomValidity(result.date1Invalid ? this._('Invalid date') : '')
+      year1.reportValidity()
+    }
+    if (this._hasSecondDate()) {
+      const year2 = this.renderRoot.getElementById('year2')
+      if (year2) {
+        let err = ''
+        if (result.date2Empty) {
+          err = this._('End date is required')
+        } else if (result.date2Invalid) {
+          err = this._('Invalid date')
+        } else if (result.date2OrderInvalid) {
+          err = this._('End date must be after start date')
+        }
+        year2.setCustomValidity(err)
+        year2.reportValidity()
+      }
+    }
     const input1 = this.renderRoot.getElementById('input-date1')
     if (input1) {
       input1.value = this._getValue1()
@@ -458,50 +478,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
   }
 
   isValid() {
-    // no dateval: invalid
-    if (!this.data.dateval) {
-      return false
-    }
-    // empty date: OK
-    if (
-      !this._hasSecondDate() &&
-      this.data.dateval[0] === 0 &&
-      this.data.dateval[1] === 0 &&
-      this.data.dateval[2] === 0
-    ) {
-      return true
-    }
-    // second date > first date
-    if (this._hasSecondDate()) {
-      if (this.data.dateval.length < 8) {
-        return false
-      }
-      // year 2 > year 1
-      if (this.data.dateval[6] > this.data.dateval[2]) {
-        return true
-      }
-      // year 2 < year 1
-      if (this.data.dateval[6] < this.data.dateval[2]) {
-        return false
-      }
-      // year 2 == year 1
-      // month 2 > month 1
-      if (this.data.dateval[5] > this.data.dateval[1]) {
-        return true
-      }
-      // month 2 < month 1
-      if (this.data.dateval[5] < this.data.dateval[1]) {
-        return false
-      }
-      // month 2 == month 1
-      // day 2 <= day 1
-      if (this.data.dateval[4] <= this.data.dateval[0]) {
-        return false
-      }
-    } else if (this.data.dateval.length > 4) {
-      return false
-    }
-    return true
+    return validateGrampsDate(this.data).valid
   }
 
   isEmpty() {

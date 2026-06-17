@@ -2,19 +2,18 @@
 /* eslint-disable no-unused-vars */
 import {LitElement, css, html} from 'lit'
 
-import {mdiTableOfContents} from '@mdi/js'
+import {mdiTableOfContents, mdiPencil} from '@mdi/js'
 
+import '@material/web/button/outlined-button.js'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/dialog/dialog.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import '../views/GrampsjsViewObjectNotes.js'
 import '../views/GrampsjsViewSourceCitations.js'
-import '../views/GrampsjsViewPersonTimeline.js'
 import './GrampsjsAddresses.js'
 import './GrampsjsAssociations.js'
 import './GrampsjsAttributes.js'
-import './GrampsjsBreadcrumbs.js'
 import './GrampsjsChildren.js'
 import './GrampsjsCitations.js'
 import './GrampsjsEvents.js'
@@ -49,8 +48,7 @@ const _allTabs = {
     title: 'Relationships',
     condition: data =>
       data.family_list?.length > 0 || data.parent_family_list?.length > 0,
-    conditionEdit: data =>
-      data.family_list?.length > 1 || data.parent_family_list?.length > 1,
+    conditionEdit: data => 'family_list' in data,
   },
   enclosed: {
     title: 'Place Hierarchy',
@@ -196,6 +194,11 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
+        :host {
+          display: block;
+          container-type: inline-size;
+        }
+
         pre {
           max-width: 80%;
           font-size: 11px;
@@ -317,7 +320,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           padding-left: 8px;
         }
 
-        @media (min-width: 1200px) {
+        @container (min-width: 1200px) {
           div.toc {
             display: block;
             margin-left: auto;
@@ -344,6 +347,18 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
             display: none;
           }
         }
+
+        @container (max-width: 700px) {
+          h2 {
+            font-size: 24px;
+            margin: 4px 0 16px;
+          }
+
+          .sections h3 {
+            font-size: 17px;
+            margin-bottom: 12px;
+          }
+        }
       `,
     ]
   }
@@ -352,13 +367,13 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     return {
       data: {type: Object},
       edit: {type: Boolean},
+      preview: {type: Boolean},
       dialogContent: {type: String},
       _objectsName: {type: String},
       _objectEndpoint: {type: String},
       _objectIcon: {type: String},
       _showReferences: {type: Boolean},
-      _showPersonTimeline: {type: Boolean},
-      _showFamilyTimeline: {type: Boolean},
+      _wide: {type: Boolean},
     }
   }
 
@@ -366,23 +381,28 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.data = {}
     this.edit = false
+    this.preview = false
     this.dialogContent = ''
     this._objectsName = 'Objects'
     this._objectIcon = ''
     this._showReferences = true
-    this._showPersonTimeline = false
-    this._showFamilyTimeline = false
     this._sectionObserver = null
     this._currentVisibleSection = ''
+    this._wide = false
+    this._resizeObserver = new ResizeObserver(entries => {
+      this._wide = entries[0].contentRect.width >= 1200
+    })
   }
 
   connectedCallback() {
     super.connectedCallback()
+    this._resizeObserver.observe(this)
     this._setupIntersectionObserver()
   }
 
   disconnectedCallback() {
     super.disconnectedCallback()
+    this._resizeObserver.disconnect()
     this._teardownIntersectionObserver()
   }
 
@@ -392,11 +412,30 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     // Re-setup the observer when the data changes to observe the new sections
     if (changedProperties.has('data') && Object.keys(this.data).length > 0) {
       this._setupIntersectionObserver()
+      const mapEl = this.renderRoot.querySelector('#map')
+      if (this.data?.lat && this.data?.long) {
+        const zoom =
+          this.data.place_type in zoomByPlaceType
+            ? zoomByPlaceType[this.data.place_type]
+            : 13
+        mapEl?.jumpTo(this.data.profile.lat, this.data.profile.long, zoom)
+      } else {
+        const mapBounds = (this.data.attribute_list || []).filter(
+          attr => attr.type === 'map:bounds'
+        )
+        if (mapBounds.length > 0) {
+          const bounds = JSON.parse(mapBounds[0].value)
+          const zoom = this._getZoomFromBounds(bounds)
+          const lat = (bounds[0][0] + bounds[1][0]) / 2
+          const lng = (bounds[0][1] + bounds[1][1]) / 2
+          mapEl?.jumpTo(lat, lng, zoom)
+        }
+      }
     }
   }
 
   get tocSidebar() {
-    return this.appState.screenSize === 'large'
+    return this._wide
   }
 
   render() {
@@ -418,7 +457,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         <div class="sections">${this.renderSections()}</div>
         <div class="toc">${this.tocSidebar ? this.renderToc() : ''}</div>
       </div>
-      ${this.tocSidebar
+      ${this.tocSidebar || this.preview
         ? ''
         : html`
             <md-dialog
@@ -430,10 +469,11 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
               <div slot="content">${this.renderToc(false)}</div>
             </md-dialog>
           `}
-      <div class="bottom-bar">
-        <div class="bottom-bar-content"></div>
-      </div>
-
+      ${this.preview
+        ? ''
+        : html`<div class="bottom-bar">
+            <div class="bottom-bar-content"></div>
+          </div>`}
       ${this.dialogContent}
     `
   }
@@ -476,16 +516,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
   }
 
   renderHeader() {
-    return html`
-      <grampsjs-breadcrumbs
-        .data="${this.data}"
-        .appState="${this.appState}"
-        ?edit="${this.edit}"
-        objectsName="${this._objectsName}"
-        objectIcon="${this._objectIcon}"
-        objectEndpoint="${this._objectEndpoint}"
-      ></grampsjs-breadcrumbs>
-    `
+    return html``
   }
 
   renderPicture() {
@@ -536,7 +567,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           <div class="section" id="section-${key}">
             <h3>
               ${this._(_allTabs[key].title)}
-              ${this.tocSidebar || tabKeysArray.length <= 1
+              ${this.tocSidebar || tabKeysArray.length <= 1 || this.preview
                 ? ''
                 : html`
                     <md-icon-button
@@ -597,6 +628,8 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           {}}
           .otherParentFamilies=${this.data?.profile?.other_parent_families ||
           []}
+          personGender="${this.data?.gender ?? 2}"
+          personHandle="${this.data?.handle ?? ''}"
         ></grampsjs-relationships>`
       case 'names':
         return html`
@@ -640,12 +673,17 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         return html` ${this.edit
           ? html`
               <p>
-                <mwc-button
-                  icon="edit"
+                <md-outlined-button
                   class="edit"
                   @click="${this._handleEditGeo}"
-                  >${this._('Edit coordinates')}</mwc-button
                 >
+                  <grampsjs-icon
+                    slot="icon"
+                    path="${mdiPencil}"
+                    color="var(--mdc-theme-secondary)"
+                  ></grampsjs-icon>
+                  ${this._('Edit coordinates')}
+                </md-outlined-button>
               </p>
             `
           : ''}
@@ -843,10 +881,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     return Object.keys(_allTabs).filter(
       key =>
         _allTabs[key].condition(this.data) &&
-        (this._showReferences || key !== 'references') &&
-        (this._showFamilyTimeline ||
-          this._showPersonTimeline ||
-          key !== 'timeline')
+        (this._showReferences || key !== 'references')
     )
   }
 

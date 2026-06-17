@@ -10,6 +10,47 @@ import {GrampsjsView} from './GrampsjsView.js'
 
 import {fireEvent, objectTypeToEndpoint} from '../util.js'
 import {clearDraftsWithPrefix} from '../api.js'
+import '../components/GrampsjsBreadcrumbs.js'
+
+const BREADCRUMB_META = {
+  person: {
+    objectsName: 'People',
+    objectIcon: 'person',
+    objectEndpoint: 'people',
+  },
+  family: {
+    objectsName: 'Families',
+    objectIcon: 'people',
+    objectEndpoint: 'families',
+  },
+  place: {objectsName: 'Places', objectIcon: 'place', objectEndpoint: 'places'},
+  event: {objectsName: 'Events', objectIcon: 'event', objectEndpoint: 'events'},
+  citation: {
+    objectsName: 'Citations',
+    objectIcon: 'bookmark',
+    objectEndpoint: 'citations',
+  },
+  source: {
+    objectsName: 'Sources',
+    objectIcon: 'bookmarks',
+    objectEndpoint: 'sources',
+  },
+  repository: {
+    objectsName: 'Repositories',
+    objectIcon: 'account_balance',
+    objectEndpoint: 'repositories',
+  },
+  media: {
+    objectsName: 'Media Objects',
+    objectIcon: 'photo',
+    objectEndpoint: 'media',
+  },
+  note: {
+    objectsName: 'Notes',
+    objectIcon: 'sticky_note_2',
+    objectEndpoint: 'notes',
+  },
+}
 
 const editTitle = {
   person: 'Edit Person',
@@ -98,6 +139,21 @@ export class GrampsjsViewObject extends GrampsjsView {
     return ''
   }
 
+  renderBreadcrumbs() {
+    const meta = BREADCRUMB_META[this._className]
+    if (!meta) return html``
+    return html`
+      <grampsjs-breadcrumbs
+        .data="${this._data}"
+        .appState="${this.appState}"
+        ?edit="${this.edit}"
+        objectsName="${meta.objectsName}"
+        objectIcon="${meta.objectIcon}"
+        objectEndpoint="${meta.objectEndpoint}"
+      ></grampsjs-breadcrumbs>
+    `
+  }
+
   renderContent() {
     if (Object.keys(this._data).length === 0) {
       if (this.loading) {
@@ -106,7 +162,7 @@ export class GrampsjsViewObject extends GrampsjsView {
       return html``
     }
     return html`
-      ${this.renderElement()}
+      ${this.renderBreadcrumbs()} ${this.renderElement()}
       ${this.canEdit && !this.edit ? this.renderFab() : ''}
       ${this.editDialogContent}
     `
@@ -623,6 +679,104 @@ export class GrampsjsViewObject extends GrampsjsView {
         e.detail.data,
         e.detail.editorDraftPrefix
       )
+    } else if (e.detail.action === 'addPersonToExistingFamily') {
+      const {familyHandle, frel, mrel} = e.detail.data
+      const personHandle = this._data.handle
+      this.appState.apiGet(`/api/families/${familyHandle}`).then(result => {
+        if ('data' in result) {
+          const {extended, profile, backlinks, formatted, ...family} =
+            result.data
+          // Prevent adding the person as a child to a family where they are already a parent
+          if (
+            family.father_handle === personHandle ||
+            family.mother_handle === personHandle
+          ) {
+            fireEvent(this, 'grampsjs:error', {
+              message:
+                'Cannot add person as child of a family they are already a parent of.',
+            })
+            return
+          }
+          // Prevent duplicate child entries
+          const alreadyChild = (family.child_ref_list || []).some(
+            ref => ref.ref === personHandle
+          )
+          if (alreadyChild) {
+            fireEvent(this, 'grampsjs:error', {
+              message: 'Person is already a child in this family.',
+            })
+            return
+          }
+          const childRef = {
+            _class: 'ChildRef',
+            ref: personHandle,
+            frel: frel || 'Birth',
+            mrel: mrel || 'Birth',
+          }
+          const updatedFamily = {
+            _class: 'Family',
+            ...family,
+            child_ref_list: [...(family.child_ref_list || []), childRef],
+          }
+          this.appState
+            .apiPut(`/api/families/${familyHandle}`, updatedFamily)
+            .then(resultPut => {
+              if ('error' in resultPut) {
+                fireEvent(this, 'grampsjs:error', {message: resultPut.error})
+              } else {
+                this._updateData(false)
+              }
+            })
+        } else if ('error' in result) {
+          fireEvent(this, 'grampsjs:error', {message: result.error})
+        }
+      })
+    } else if (e.detail.action === 'newParentFamily') {
+      const {
+        father_handle: fatherHandle,
+        mother_handle: motherHandle,
+        type,
+        frel,
+        mrel,
+      } = e.detail.data
+      const personHandle = this._data.handle
+      const childRef = {
+        _class: 'ChildRef',
+        ref: personHandle,
+        frel: frel || 'Birth',
+        mrel: mrel || 'Birth',
+      }
+      const familyData = {
+        _class: 'Family',
+        child_ref_list: [childRef],
+        ...(fatherHandle ? {father_handle: fatherHandle} : {}),
+        ...(motherHandle ? {mother_handle: motherHandle} : {}),
+        ...(type ? {type} : {}),
+      }
+      this.appState.apiPost('/api/families/', familyData).then(result => {
+        if ('error' in result) {
+          fireEvent(this, 'grampsjs:error', {message: result.error})
+        } else {
+          this._updateData(false)
+        }
+      })
+    } else if (e.detail.action === 'newPartnerFamily') {
+      const {role, partner_handle: partnerHandle, type} = e.detail.data
+      const personHandle = this._data.handle
+      const otherRole = role === 'father' ? 'mother' : 'father'
+      const familyData = {
+        _class: 'Family',
+        [`${role}_handle`]: personHandle,
+        ...(partnerHandle ? {[`${otherRole}_handle`]: partnerHandle} : {}),
+        ...(type ? {type} : {}),
+      }
+      this.appState.apiPost('/api/families/', familyData).then(result => {
+        if ('error' in result) {
+          fireEvent(this, 'grampsjs:error', {message: result.error})
+        } else {
+          this._updateData(false)
+        }
+      })
     } else {
       // eslint-disable-next-line no-alert
       alert(JSON.stringify(e.detail))

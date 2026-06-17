@@ -25,6 +25,26 @@ export class GrampsjsStatistics extends GrampsjsTableBase {
         :host {
           margin-bottom: 5em;
         }
+
+        th,
+        td {
+          border-bottom: none;
+          padding-top: 6px;
+          padding-bottom: 6px;
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+
+        th {
+          text-align: left;
+        }
+
+        td {
+          font-size: 1.2em;
+          text-align: right;
+          color: var(--grampsjs-body-font-color-70);
+          font-weight: 450;
+        }
       `,
     ]
   }
@@ -42,8 +62,8 @@ export class GrampsjsStatistics extends GrampsjsTableBase {
               class="${classMap({link: key !== 'tags'})}"
               @click=${() => this._handleClick(key)}
             >
-              <th>${this._(`Number of ${key}`)}</th>
               <td>${this.data[key]}</td>
+              <th>${this._(key.charAt(0).toUpperCase() + key.slice(1))}</th>
             </tr>
           `
         }, this)}

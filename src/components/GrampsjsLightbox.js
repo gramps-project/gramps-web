@@ -8,6 +8,36 @@ class GrampsjsLightbox extends LitElement {
     return [
       sharedStyles,
       css`
+        :host {
+          --grampsjs-lightbox-toolbar-height: 70px;
+          --grampsjs-img-max-height: calc(
+            100vh - var(--grampsjs-lightbox-toolbar-height)
+          );
+        }
+
+        @media (max-width: 600px) {
+          :host {
+            --grampsjs-lightbox-toolbar-height: 96px;
+          }
+
+          #text-row {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          #description-container {
+            flex: 1;
+            font-size: 15px;
+            padding: 4px 12px 0;
+          }
+
+          #button-container {
+            height: 48px;
+            justify-content: flex-end;
+            padding: 0 4px;
+          }
+        }
+
         #lightbox-container {
           background-color: var(--grampsjs-lightbox-background-color);
           position: fixed;
@@ -17,7 +47,7 @@ class GrampsjsLightbox extends LitElement {
           min-height: 100vh;
           width: 100vw;
           z-index: 10000;
-          overflow: auto;
+          overflow: hidden;
         }
 
         #lightbox {
@@ -26,7 +56,7 @@ class GrampsjsLightbox extends LitElement {
           overflow: hidden;
           top: 0;
           left: 0;
-          bottom: 70px;
+          bottom: var(--grampsjs-lightbox-toolbar-height);
           color: var(--grampsjs-lightbox-font-color);
           display: flex;
           justify-content: center;
@@ -37,42 +67,42 @@ class GrampsjsLightbox extends LitElement {
           position: absolute;
           box-sizing: border-box;
           width: 100%;
-          top: calc(100vh - 70px);
+          top: calc(100vh - var(--grampsjs-lightbox-toolbar-height));
           left: 0;
           background-color: var(--md-sys-color-surface);
           color: var(--md-sys-color-on-surface);
           z-index: 10002;
-          min-height: 70px;
+          min-height: var(--grampsjs-lightbox-toolbar-height);
           overflow-x: hidden;
           margin: 0;
         }
 
+        #text-row {
+          display: flex;
+          align-items: center;
+          height: var(--grampsjs-lightbox-toolbar-height);
+          overflow: hidden;
+        }
+
         #description-container {
           font-family: var(--grampsjs-heading-font-family);
-          height: 70px;
           font-size: 22px;
           line-height: 30px;
           font-weight: 400;
+          flex: 1;
+          min-width: 0;
+          padding: 0 20px;
+          white-space: nowrap;
           overflow: hidden;
-          padding: 20px;
           text-overflow: ellipsis;
         }
 
         #button-container {
-          float: right;
-          height: 70px;
-          width: 350px;
-          font-size: 22px;
-          line-height: 30px;
-          font-weight: 400;
-          overflow: hidden;
-          padding: 20px;
-          text-overflow: ellipsis;
-          text-align: right;
-        }
-
-        #detail-container {
-          clear: right;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          padding: 0 12px;
+          gap: 4px;
         }
 
         .lightbox-nav {
@@ -184,14 +214,13 @@ class GrampsjsLightbox extends LitElement {
           ></slot>
         </div>
         <div id="text" tabindex="0">
-          <div id="button-container">
-            <slot name="button"></slot>
-          </div>
-          <div id="description-container">
-            <slot name="description"></slot>
-          </div>
-          <div id="detail-container">
-            <slot name="details"></slot>
+          <div id="text-row">
+            <div id="description-container">
+              <slot name="description"></slot>
+            </div>
+            <div id="button-container">
+              <slot name="button"></slot>
+            </div>
           </div>
         </div>
       </div>

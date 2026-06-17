@@ -1,9 +1,11 @@
 import {html} from 'lit'
-import '@material/mwc-button'
+import '@material/web/button/outlined-button.js'
+import {mdiDeleteSweep} from '@mdi/js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import {getRecentObjects, setRecentObjects} from '../api.js'
 import '../components/GrampsjsSearchResultList.js'
+import '../components/GrampsjsIcon.js'
 
 export class GrampsjsViewRecentObject extends GrampsjsView {
   static get properties() {
@@ -28,12 +30,6 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     this._boundStorageHandler = this._handleStorage.bind(this)
     window.addEventListener('storage', this._boundStorageHandler)
     this._handleStorage()
-  }
-
-  _handleLanguageChanged(lang) {
-    if (this._hasFirstUpdated) {
-      this._fetchData(lang)
-    }
   }
 
   _handleStorage() {
@@ -68,14 +64,20 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
   }
 
   render() {
-    return html` <mwc-button
-        raised
-        label="${this._('Clear')}"
+    return html` <md-outlined-button
         class="float-right"
-        icon="clear_all"
         @click="${this._handleClear}"
         ?disabled=${this._data.length === 0}
-      ></mwc-button>
+      >
+        <grampsjs-icon
+          slot="icon"
+          path="${mdiDeleteSweep}"
+          color="var(--md-outlined-button-label-text-color, var(--md-sys-color-primary))"
+          height="20"
+          width="20"
+        ></grampsjs-icon>
+        ${this._('Clear _All')}
+      </md-outlined-button>
       <h2>${this._('Recently browsed objects')}</h2>
       ${this._data.length === 0
         ? html` <p>${this._('None')}.</p> `
@@ -122,24 +124,15 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
     }
   }
 
-  firstUpdated() {
-    this._hasFirstUpdated = true
-    if (this.appState.i18n.lang) {
-      // don't load before we have strings
-      this._fetchData(this.appState.i18n.lang)
-    }
+  _onLangChanged(lang) {
+    this._fetchData(lang)
   }
 
   updated(changed) {
+    super.updated(changed)
     if (changed.has('active') && this.active && this._isStale) {
       this._fetchData(this.appState.i18n.lang)
       this._isStale = false
-    }
-    if (
-      changed.has('appState') &&
-      changed.get('appState')?.i18n?.lang !== this.appState.i18n.lang
-    ) {
-      this._handleLanguageChanged(this.appState.i18n.lang)
     }
   }
 }

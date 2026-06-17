@@ -17,6 +17,7 @@ import './GrampsjsSettingsMenu.js'
 import './GrampsjsTooltip.js'
 
 import {fireEvent} from '../util.js'
+import {TREE_CONFIG_APP_TITLE} from '../api.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -84,6 +85,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       editTitle: {type: String},
       editDialogContent: {type: String},
       saveButton: {type: Boolean},
+      hideDeleteButton: {type: Boolean},
       saving: {type: Boolean},
       saveComplete: {type: Boolean},
     }
@@ -95,6 +97,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     this.editTitle = ''
     this.editDialogContent = ''
     this.saveButton = false
+    this.hideDeleteButton = false
     this.saving = false
     this.saveComplete = false
   }
@@ -149,7 +152,9 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
         <div id="app-title" slot="title">
           ${this.editMode && this.editTitle
             ? this.editTitle
-            : this._dbInfo?.database?.name || 'Gramps Web'}
+            : this.appState.treeConfig?.[TREE_CONFIG_APP_TITLE] ||
+              this.appState?.dbInfo?.database?.name ||
+              'Gramps Web'}
         </div>
         ${savingIndicator}
         ${this.editMode
@@ -167,15 +172,19 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
                       >${this._('_Save')}</grampsjs-tooltip
                     >`
                 : ''}
-              <mwc-icon-button
-                icon="delete"
-                slot="actionItems"
-                id="button-delete"
-                @click="${this._handleDeleteIcon}"
-              ></mwc-icon-button>
-              <grampsjs-tooltip for="button-delete" .appState="${this.appState}"
-                >${this._('_Delete')}</grampsjs-tooltip
-              >
+              ${!this.hideDeleteButton
+                ? html`<mwc-icon-button
+                      icon="delete"
+                      slot="actionItems"
+                      id="button-delete"
+                      @click="${this._handleDeleteIcon}"
+                    ></mwc-icon-button>
+                    <grampsjs-tooltip
+                      for="button-delete"
+                      .appState="${this.appState}"
+                      >${this._('_Delete')}</grampsjs-tooltip
+                    >`
+                : ''}
             `
           : html`
               ${this.appState.permissions.canAdd
@@ -290,6 +299,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     this.editMode = true
     this.editTitle = e.detail.title
     this.saveButton = e.detail?.saveButton || false
+    this.hideDeleteButton = e.detail?.hideDeleteButton || false
   }
 
   _deleteObject() {

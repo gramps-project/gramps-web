@@ -55,6 +55,13 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
           flex: 1;
           border-radius: 3px;
         }
+
+        @media (max-width: 600px) {
+          wa-color-picker {
+            --grid-width: min(200px, 60vw);
+            --grid-height: min(140px, 42vw);
+          }
+        }
       `,
     ]
   }
@@ -143,7 +150,7 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
   async _fetchData() {
     const url = `/api/tags/?locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=all&pagesize=100`
+    }&pagesize=500`
     const data = await this.appState.apiGet(url)
     if ('data' in data) {
       this.searchRes =

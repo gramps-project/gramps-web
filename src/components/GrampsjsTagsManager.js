@@ -50,6 +50,13 @@ export class GrampsjsTagsManager extends GrampsjsTableBase {
         .dialog-row grampsjs-form-string {
           flex: 1;
         }
+
+        @media (max-width: 600px) {
+          wa-color-picker {
+            --grid-width: min(200px, 60vw);
+            --grid-height: min(140px, 42vw);
+          }
+        }
       `,
     ]
   }

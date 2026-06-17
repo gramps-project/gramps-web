@@ -1,13 +1,15 @@
 import {css, html} from 'lit'
 
 import '@material/mwc-icon'
+import '@material/web/button/outlined-button.js'
 
+import {mdiArrowExpandAll} from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditLatLong.js'
 import './GrampsjsFormEditPlaceName.js'
+import './GrampsjsIcon.js'
 import {fireEvent} from '../util.js'
-
-const BASE_DIR = ''
+import './GrampsjsObjectLink.js'
 
 export class GrampsjsPlace extends GrampsjsObject {
   static get styles() {
@@ -70,8 +72,10 @@ export class GrampsjsPlace extends GrampsjsObject {
                   <div>
                     <dt>${obj.type}</dt>
                     <dd>
-                      <a href="${BASE_DIR}/place/${obj.gramps_id}"
-                        >${obj.name}</a
+                      <grampsjs-object-link
+                        object-type="place"
+                        gramps-id="${obj.gramps_id}"
+                        >${obj.name}</grampsjs-object-link
                       >
                     </dd>
                   </div>
@@ -81,6 +85,43 @@ export class GrampsjsPlace extends GrampsjsObject {
           `
         : ''}
     `
+  }
+
+  renderSectionContent(key) {
+    if (key !== 'map' || !this.data?.lat || !this.data?.long || this.edit) {
+      return super.renderSectionContent(key)
+    }
+    return html`
+      ${this.preview
+        ? ''
+        : html`<p class="button-list">
+            <md-outlined-button @click="${this._handleMapButtonClick}">
+              ${this._('Open in map')}
+              <grampsjs-icon
+                path="${mdiArrowExpandAll}"
+                color="var(--mdc-theme-primary)"
+                slot="icon"
+              ></grampsjs-icon>
+            </md-outlined-button>
+          </p>`}
+      ${super.renderSectionContent(key)}
+    `
+  }
+
+  _handleMapButtonClick() {
+    window.dispatchEvent(
+      new CustomEvent('map:place-selected', {
+        detail: {
+          handle: this.data.handle,
+          profile: {
+            name: this.data.profile.name,
+            lat: this.data.profile.lat,
+            long: this.data.profile.long,
+          },
+        },
+      })
+    )
+    fireEvent(this, 'nav', {path: 'map'})
   }
 
   _handleEditGeo() {

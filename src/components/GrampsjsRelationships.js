@@ -1,12 +1,22 @@
 import {LitElement, css, html} from 'lit'
 import '@material/web/button/outlined-button'
 import '@material/web/iconbutton/icon-button.js'
-import {mdiAccountMultiple, mdiArrowDown, mdiArrowUp} from '@mdi/js'
+import {
+  mdiAccountMultiple,
+  mdiAccountMultiplePlus,
+  mdiArrowDown,
+  mdiArrowUp,
+  mdiLinkOff,
+  mdiLinkVariantPlus,
+} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
 import './GrampsjsConnectedChildren.js'
 import './GrampsjsConnectedParents.js'
+import './GrampsjsFormAddPersonToFamily.js'
+import './GrampsjsFormNewParentFamily.js'
+import './GrampsjsFormNewPartnerFamily.js'
 import './GrampsjsIcon.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -17,8 +27,6 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
       css`
         .familybtn {
           margin-left: 1.5em;
-          margin-bottom: 0.25em;
-          vertical-align: middle;
         }
 
         h4 {
@@ -33,15 +41,36 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .reorder-buttons {
-          margin-left: 0.75em;
           display: flex;
           align-items: center;
         }
 
-        md-icon-button {
+        .reorder-buttons md-icon-button {
           --md-icon-button-icon-size: 20px;
           width: 34px;
           height: 34px;
+        }
+
+        .edit-buttons {
+          margin-left: 0.5em;
+          display: flex;
+          align-items: center;
+        }
+
+        .edit-buttons > md-icon-button {
+          --md-icon-button-icon-size: 24px;
+          --md-icon-button-icon-color: var(--mdc-theme-secondary);
+          --md-icon-button-icon-opacity: 1;
+          width: 40px;
+          height: 40px;
+        }
+
+        p.button-list {
+          display: flex;
+          gap: 12px;
+          flex-wrap: wrap;
+          margin-top: 0.5em;
+          margin-bottom: 3em;
         }
       `,
     ]
@@ -56,6 +85,9 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
       primaryParentFamily: {type: Object},
       otherParentFamilies: {type: Array},
       edit: {type: Boolean},
+      personGender: {type: Number},
+      personHandle: {type: String},
+      dialogContent: {type: Object},
     }
   }
 
@@ -68,6 +100,14 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
     this.otherParentFamilies = []
     this.primaryParentFamily = {}
     this.edit = false
+    this.personGender = 2
+    this.personHandle = ''
+    this.dialogContent = ''
+  }
+
+  // male=1 → father, female=0 → mother, unknown=2 → father
+  get _personRole() {
+    return this.personGender === 0 ? 'mother' : 'father'
   }
 
   render() {
@@ -85,33 +125,208 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
             ? this._('Parents')
             : html`${this._('Parents')} <span class="number">${i + 1}</span>`,
           this._('Siblings'),
-          this.edit && totalParent > 1
-            ? this._renderReorderButtons(
-                i,
-                totalParent,
-                () => this._moveParentFamily(i, -1),
-                () => this._moveParentFamily(i, 1)
-              )
+          this.edit
+            ? html`
+                <div class="edit-buttons">
+                  ${totalParent > 1
+                    ? this._renderReorderButtons(
+                        i,
+                        totalParent,
+                        () => this._moveParentFamily(i, -1),
+                        () => this._moveParentFamily(i, 1)
+                      )
+                    : ''}
+                  ${this._renderRemoveButton(
+                    () => this._removeParentFamily(familyProfile.handle),
+                    this._('Remove person as child of these parents')
+                  )}
+                </div>
+              `
             : ''
         )
       )}
+      ${this.edit ? this._renderAddParentFamilyButtons() : ''}
       ${this.families.map((familyProfile, i) =>
         this._renderFamily(
           familyProfile,
           html`${this._('Partner')}
           ${totalPartner < 2 ? '' : html`<span class="number">${i + 1}</span>`}`,
           this._('Children'),
-          this.edit && totalPartner > 1
-            ? this._renderReorderButtons(
-                i,
-                totalPartner,
-                () => this._movePartnerFamily(i, -1),
-                () => this._movePartnerFamily(i, 1)
-              )
+          this.edit
+            ? html`
+                <div class="edit-buttons">
+                  ${totalPartner > 1
+                    ? this._renderReorderButtons(
+                        i,
+                        totalPartner,
+                        () => this._movePartnerFamily(i, -1),
+                        () => this._movePartnerFamily(i, 1)
+                      )
+                    : ''}
+                  ${this._renderRemoveButton(
+                    () => this._removePartnerFamily(familyProfile.handle),
+                    this._('Remove person as parent in this family')
+                  )}
+                </div>
+              `
             : ''
         )
       )}
+      ${this.edit ? this._renderAddPartnerFamilyButton() : ''}
+      ${this.dialogContent}
     `
+  }
+
+  _renderRemoveButton(onClick, title) {
+    return html`
+      <md-icon-button class="edit" @click="${onClick}" title="${title}">
+        <grampsjs-icon
+          path="${mdiLinkOff}"
+          color="var(--mdc-theme-secondary)"
+        ></grampsjs-icon>
+      </md-icon-button>
+    `
+  }
+
+  _removeParentFamily(handle) {
+    const parentFamilies = [
+      this.primaryParentFamily,
+      ...this.otherParentFamilies,
+    ].filter(f => Object.keys(f).length > 0)
+    fireEvent(this, 'edit:action', {
+      action: 'updateProp',
+      data: {
+        parent_family_list: parentFamilies
+          .filter(f => f.handle !== handle)
+          .map(f => f.handle),
+      },
+    })
+  }
+
+  _removePartnerFamily(handle) {
+    fireEvent(this, 'edit:action', {
+      action: 'updateProp',
+      data: {
+        family_list: this.families
+          .filter(f => f.handle !== handle)
+          .map(f => f.handle),
+      },
+    })
+  }
+
+  _renderAddParentFamilyButtons() {
+    return html`
+      <p class="button-list">
+        <md-outlined-button
+          class="edit"
+          @click="${this._handleAddPersonToFamily}"
+        >
+          ${this._('Add person as child to an existing family')}
+          <grampsjs-icon
+            path="${mdiLinkVariantPlus}"
+            color="var(--mdc-theme-secondary)"
+            slot="icon"
+          ></grampsjs-icon>
+        </md-outlined-button>
+        <md-outlined-button class="edit" @click="${this._handleAddNewParents}">
+          ${this._('Add a new set of parents')}
+          <grampsjs-icon
+            path="${mdiAccountMultiplePlus}"
+            color="var(--mdc-theme-secondary)"
+            slot="icon"
+          ></grampsjs-icon>
+        </md-outlined-button>
+      </p>
+    `
+  }
+
+  _renderAddPartnerFamilyButton() {
+    return html`
+      <p class="button-list">
+        <md-outlined-button
+          class="edit"
+          @click="${this._handleAddPartnerFamily}"
+        >
+          ${this._('Add a new family with person as parent')}
+          <grampsjs-icon
+            path="${mdiAccountMultiplePlus}"
+            color="var(--mdc-theme-secondary)"
+            slot="icon"
+          ></grampsjs-icon>
+        </md-outlined-button>
+      </p>
+    `
+  }
+
+  _handleAddPersonToFamily() {
+    this.dialogContent = html`
+      <grampsjs-form-add-person-to-family
+        @object:save="${this._handleAddToFamilySave}"
+        @object:cancel="${this._handleDialogCancel}"
+        .appState="${this.appState}"
+        personHandle="${this.personHandle}"
+        dialogTitle="${this._('Add person as child to an existing family')}"
+      ></grampsjs-form-add-person-to-family>
+    `
+  }
+
+  _handleAddNewParents() {
+    this.dialogContent = html`
+      <grampsjs-form-new-parent-family
+        @object:save="${this._handleNewParentFamilySave}"
+        @object:cancel="${this._handleDialogCancel}"
+        .appState="${this.appState}"
+        personHandle="${this.personHandle}"
+        dialogTitle="${this._('Add a new set of parents')}"
+      ></grampsjs-form-new-parent-family>
+    `
+  }
+
+  _handleAddPartnerFamily() {
+    this.dialogContent = html`
+      <grampsjs-form-new-partner-family
+        @object:save="${this._handleNewPartnerFamilySave}"
+        @object:cancel="${this._handleDialogCancel}"
+        .appState="${this.appState}"
+        personRole="${this._personRole}"
+        personHandle="${this.personHandle}"
+        dialogTitle="${this._('Add a new family with person as parent')}"
+      ></grampsjs-form-new-partner-family>
+    `
+  }
+
+  _handleAddToFamilySave(e) {
+    fireEvent(this, 'edit:action', {
+      action: 'addPersonToExistingFamily',
+      data: e.detail.data,
+    })
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleNewParentFamilySave(e) {
+    fireEvent(this, 'edit:action', {
+      action: 'newParentFamily',
+      data: e.detail.data,
+    })
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleNewPartnerFamilySave(e) {
+    fireEvent(this, 'edit:action', {
+      action: 'newPartnerFamily',
+      data: e.detail.data,
+    })
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleDialogCancel() {
+    this.dialogContent = ''
   }
 
   _renderReorderButtons(index, total, onUp, onDown) {

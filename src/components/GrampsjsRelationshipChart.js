@@ -1,4 +1,5 @@
 import {html, css} from 'lit'
+import {zoomTransform} from 'd3-zoom'
 
 import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
@@ -33,6 +34,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
       nMaxImages: {type: Number},
       gapX: {type: Number},
       nameDisplayFormat: {type: String},
+      canEdit: {type: Boolean},
     }
   }
 
@@ -40,10 +42,15 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     super()
     this.grampsId = ''
     this.gapX = 30
+    this._savedZoom = null
   }
 
-  render() {
-    return html` <div id="container">${this.renderChart()}</div> `
+  willUpdate() {
+    // Save zoom transform before Lit replaces the SVG node
+    const svg = this.renderRoot
+      ?.getElementById('container')
+      ?.querySelector('svg')
+    this._savedZoom = svg ? zoomTransform(svg) : null
   }
 
   renderChart() {
@@ -56,10 +63,11 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
         maxImages: this.nMaxImages,
         grampsId: this.grampsId,
         getImageUrl: d => getImageUrl(d?.data || {}, 100),
-        gapX: this.gapX,
         bboxWidth: this.containerWidth,
         bboxHeight: this.containerHeight,
         nameDisplayFormat: this.nameDisplayFormat,
+        canEdit: this.canEdit,
+        initialZoom: this._savedZoom,
       })}
     `
   }

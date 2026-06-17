@@ -8,8 +8,8 @@ import {
   personTitleFromProfile,
   familyTitleFromProfile,
   fireEvent,
-  renderIcon,
 } from '../util.js'
+import {renderIcon} from '../objectRender.js'
 
 const PRIMARY_ROLES_EN = new Set(['Primary', 'Family'])
 

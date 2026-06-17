@@ -3,6 +3,8 @@ import {
   translate,
   personTitleFromProfile,
   personDisplayName,
+  reportSelectItemLabel,
+  reportSelectItemValue,
   familyTitleFromProfile,
   citationTitleFromProfile,
   getSortval,
@@ -102,6 +104,38 @@ describe('personDisplayName', () => {
 
   it('handles missing primary_name gracefully', () => {
     expect(personDisplayName({})).to.equal('… …')
+  })
+})
+
+describe('reportSelectItemLabel', () => {
+  it('returns the second tab-separated part as the label', () => {
+    expect(reportSelectItemLabel('I0001\tStefańczyk, Maciej')).to.equal(
+      'Stefańczyk, Maciej'
+    )
+  })
+
+  it('returns the label for family options (trailing colon on value)', () => {
+    expect(reportSelectItemLabel('F0058:\tSmith Family')).to.equal(
+      'Smith Family'
+    )
+  })
+
+  it('returns the single value as label for single-column options', () => {
+    expect(reportSelectItemLabel('pdf\tPDF')).to.equal('PDF')
+  })
+})
+
+describe('reportSelectItemValue', () => {
+  it('returns the first column for simple key=value options', () => {
+    expect(reportSelectItemValue('pdf\tPDF')).to.equal('pdf')
+  })
+
+  it('returns the first column (Gramps ID) for person options', () => {
+    expect(reportSelectItemValue('I0001\tStefańczyk, Maciej')).to.equal('I0001')
+  })
+
+  it('strips trailing colon from value (family option Gramps internal format)', () => {
+    expect(reportSelectItemValue('F0058:\tSmith Family')).to.equal('F0058')
   })
 })
 

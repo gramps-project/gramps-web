@@ -2,7 +2,7 @@ import {html, css, LitElement} from 'lit'
 import {unsafeHTML} from 'lit/directives/unsafe-html.js'
 
 import {diff} from 'jsondiffpatch'
-import * as htmlFormatter from '../../node_modules/jsondiffpatch/lib/formatters/html.js'
+import * as htmlFormatter from 'jsondiffpatch/formatters/html'
 
 import {sharedStyles} from '../SharedStyles.js'
 
@@ -28,14 +28,14 @@ export class GrampsjsDiffJson extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .jsondiffpatch-delta {
-          font-family: 'Commit Mono';
+          font-family: var(--grampsjs-mono-font-family);
           font-size: 14px;
           margin: 0;
           padding: 0 0 0 14px;
           display: inline-block;
         }
         .jsondiffpatch-delta pre {
-          font-family: 'Commit Mono';
+          font-family: var(--grampsjs-mono-font-family);
           font-size: 14px;
           margin: 0;
           padding: 0;

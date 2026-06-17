@@ -1,65 +1,31 @@
-/* eslint-disable lit/attribute-value-entities */
 import {html, css} from 'lit'
 import '@material/mwc-textfield'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsMap.js'
-import '../components/GrampsjsMapMarker.js'
-import '../components/GrampsjsMapSearchbox.js'
+import '../components/GrampsjsMapPersonLinesLayer.js'
+import '../components/GrampsjsMapPlacesLayer.js'
+import {
+  DEFAULT_SEARCH_FILTER,
+  TYPE_EXTERNAL,
+  TYPE_PERSON,
+} from '../components/GrampsjsMapSearchbox.js'
 import '../components/GrampsjsMapTimeSlider.js'
 import '../components/GrampsjsPlaceBox.js'
-import {getMediaUrl} from '../api.js'
+import '../components/GrampsjsPersonBox.js'
+import '../components/GrampsjsMapTileLayer.js'
 import {
   isDateBetweenYears,
   getGregorianYears,
-  apiVersionAtLeast,
+  personProfileDisplayName,
 } from '../util.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
+import {queryNominatim, getMapViewport, saveMapViewport} from '../api.js'
 
-// This is used for initial map center in absence of places
-const languageCoordinates = {
-  ar: [25, 45], // Arabic - Approximate center of Arab countries
-  bg: [43, 25], // Bulgarian - Approximate center of Bulgaria
-  br: [48, -3], // Breton - Approximate center of Brittany, France
-  ca: [41, 2], // Catalan - Approximate center of Catalonia, Spain
-  cs: [49, 15], // Czech - Approximate center of Czech Republic
-  da: [56, 10], // Danish - Approximate center of Denmark
-  de: [51, 9], // German - Approximate center of Germany
-  el: [39, 22], // Greek - Approximate center of Greece
-  en: [52, -1], // English - Approximate center of England, United Kingdom
-  eo: [41, 0], // Esperanto - Approximate center of Europe
-  es: [40, -4], // Spanish - Approximate center of Spain
-  fi: [64, 26], // Finnish - Approximate center of Finland
-  fr: [46, 2], // French - Approximate center of France
-  ga: [53, -8], // Irish - Approximate center of Ireland
-  he: [32, 35], // Hebrew - Approximate center of Israel
-  hr: [45, 16], // Croatian - Approximate center of Croatia
-  hu: [47, 19], // Hungarian - Approximate center of Hungary
-  id: [-5, 120], // Indonesian - Approximate center of Indonesia
-  is: [65, -18], // Icelandic - Approximate center of Iceland
-  it: [42, 12], // Italian - Approximate center of Italy
-  ja: [36, 138], // Japanese - Approximate center of Japan
-  lt: [55, 24], // Lithuanian - Approximate center of Lithuania
-  mk: [42, 21], // Macedonian - Approximate center of North Macedonia
-  nb: [62, 10], // Norwegian Bokmål - Approximate center of Norway
-  nl: [52, 5], // Dutch - Approximate center of Netherlands
-  nn: [62, 10], // Norwegian Nynorsk - Approximate center of Norway
-  pl: [52, 20], // Polish - Approximate center of Poland
-  pt: [39, -8], // Portuguese - Approximate center of Portugal
-  ro: [46, 25], // Romanian - Approximate center of Romania
-  ru: [60, 100], // Russian - Approximate center of Russia
-  sk: [48, 19], // Slovak - Approximate center of Slovakia
-  sl: [46, 14], // Slovenian - Approximate center of Slovenia
-  sq: [41, 20], // Albanian - Approximate center of Albania
-  sr: [44, 21], // Serbian - Approximate center of Serbia
-  sv: [62, 16], // Swedish - Approximate center of Sweden
-  ta: [11, 78], // Tamil - Approximate center of Tamil Nadu, India
-  tr: [39, 35], // Turkish - Approximate center of Turkey
-  uk: [49, 31], // Ukrainian - Approximate center of Ukraine
-  vi: [16, 106], // Vietnamese - Approximate center of Vietnam
-  zh: [35, 105], // Chinese - Approximate center of China
-  ko: [38, 128], // Korean - Approximate center of Korea
-}
+const EMPTY_ARRAY = []
+
+const DEFAULT_CENTER = [20, 0]
+const DEFAULT_ZOOM = 2
 
 export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
@@ -80,17 +46,19 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       _dataEvents: {type: Array},
       _filteredPlaces: {type: Array},
       _handlesHighlight: {type: Array},
-      _dataSearch: {type: Array},
       _dataLayers: {type: Array},
       _selected: {type: String},
       _valueSearch: {type: String},
+      _searchFilter: {type: String},
+      _selectedPerson: {type: Object},
       _bounds: {type: Object},
-      _placeFilters: {type: Object},
       _year: {type: Number},
       _yearSpan: {type: Number},
       _currentLayer: {type: String},
       _minYear: {type: Number},
       _hiddenOverlaysHandles: {type: Array},
+      _personPlaceHandles: {type: Array},
+      _selectedPersonData: {type: Object},
     }
   }
 
@@ -100,21 +68,137 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._dataEvents = []
     this._filteredPlaces = []
     this._handlesHighlight = []
-    this._dataSearch = []
     this._dataLayers = []
     this._hiddenOverlaysHandles = []
+    this._personPlaceHandles = []
     this._selected = ''
     this._valueSearch = ''
+    this._searchFilter = DEFAULT_SEARCH_FILTER
+    this._selectedPerson = null
+    this._selectedPersonData = null
+    // Intentionally non-reactive: only read on filter-change events, never
+    // needs to trigger a re-render on its own.
+    this._activeSearchQuery = ''
     this._bounds = {}
-    this._placeFilters = {}
     this._year = -1
     this._yearSpan = -1
     this._currentLayer = ''
     this._minYear = 1500
+    this._pendingPlace = null
+    this._pendingPerson = null
+  }
+
+  get _searchbox() {
+    return this.renderRoot?.querySelector('grampsjs-map-searchbox')
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this._boundPlaceSelected = e => this._handleExternalPlaceSelected(e)
+    this._boundPersonSelected = e => this._handleExternalPersonSelected(e)
+    this._boundPlaceActive = e => {
+      this._handlesHighlight = e.detail.handle ? [e.detail.handle] : []
+    }
+    window.addEventListener('map:place-selected', this._boundPlaceSelected)
+    window.addEventListener('map:person-selected', this._boundPersonSelected)
+    window.addEventListener('map:place-active', this._boundPlaceActive)
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    window.removeEventListener('map:place-selected', this._boundPlaceSelected)
+    window.removeEventListener('map:person-selected', this._boundPersonSelected)
+    window.removeEventListener('map:place-active', this._boundPlaceActive)
+  }
+
+  _handleExternalPlaceSelected({detail}) {
+    this._pendingPlace = detail
+    this._applyPendingPlace()
+  }
+
+  _applyPendingPlace() {
+    if (!this._pendingPlace) return
+    if (!this._mapEl?._map) {
+      requestAnimationFrame(() => this._applyPendingPlace())
+      return
+    }
+    const place = this._pendingPlace
+    this._pendingPlace = null
+    // Defer one frame so the browser has computed layout after display:none →
+    // display:block, then resize before flyTo so MapLibre knows its dimensions.
+    requestAnimationFrame(() => {
+      this._mapEl._map.resize()
+      this._handlePlaceSelected(place)
+    })
+  }
+
+  _handleExternalPersonSelected({detail: {person}}) {
+    this._pendingPerson = person
+    this._applyPendingPerson()
+  }
+
+  _applyPendingPerson() {
+    if (!this._pendingPerson) return
+    if (!this._mapEl?._map) {
+      requestAnimationFrame(() => this._applyPendingPerson())
+      return
+    }
+    const person = this._pendingPerson
+    this._pendingPerson = null
+    requestAnimationFrame(() => {
+      this._mapEl._map.resize()
+      this._handlePersonSelected(person)
+    })
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _hasCoords(obj) {
+    const lat = parseFloat(obj?.profile?.lat)
+    const long = parseFloat(obj?.profile?.long)
+    return (
+      obj?.profile?.lat != null &&
+      !Number.isNaN(lat) &&
+      obj?.profile?.long != null &&
+      !Number.isNaN(long) &&
+      !(lat === 0 && long === 0)
+    )
+  }
+
+  get _placesForMap() {
+    const highlightedHandles = new Set(this._handlesHighlight)
+    const toMapPlace = obj => ({
+      handle: obj.handle,
+      name: obj.profile.name,
+      lat: obj.profile.lat,
+      long: obj.profile.long,
+    })
+
+    if (this._selectedPerson) {
+      const personHandles = new Set(this._personPlaceHandles)
+      return this._dataPlaces
+        .filter(
+          place => personHandles.has(place.handle) && this._hasCoords(place)
+        )
+        .map(toMapPlace)
+    }
+
+    const filteredHandles = new Set(
+      this._filteredPlaces.map(place => place.handle)
+    )
+    const highlightedFilteredPlaces = this._dataPlaces.filter(
+      place =>
+        highlightedHandles.has(place.handle) &&
+        !filteredHandles.has(place.handle)
+    )
+    return [...this._filteredPlaces, ...highlightedFilteredPlaces]
+      .filter(p => this._hasCoords(p))
+      .map(toMapPlace)
   }
 
   renderContent() {
     const center = this._getMapCenter()
+    const saved = getMapViewport()
+    const zoom = saved ? saved.zoom : DEFAULT_ZOOM
     return html`
       <grampsjs-map
         .appState="${this.appState}"
@@ -130,24 +214,33 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         @map:layerchange="${this._handleLayerChange}"
         @map:moveend="${this._handleMoveEnd}"
         @map:overlay-toggle="${this._handleOverlayToggle}"
+        @map:marker-clicked="${this._handleMapMarkerClicked}"
         id="map"
-        zoom="6"
-        >${this._renderMarkers()}${this._renderLayers()}</grampsjs-map
-      >
+        zoom="${zoom}"
+        >${this._renderLayers()}
+        <grampsjs-map-person-lines-layer
+          .events="${this._selectedPersonData?.extended?.events ?? EMPTY_ARRAY}"
+          .places="${this._selectedPersonData ? this._dataPlaces : EMPTY_ARRAY}"
+        ></grampsjs-map-person-lines-layer>
+        <grampsjs-map-places-layer
+          .places="${this._placesForMap}"
+          .highlightedHandles="${this._handlesHighlight}"
+        ></grampsjs-map-places-layer
+      ></grampsjs-map>
       <grampsjs-map-searchbox
         @mapsearch:input="${this._handleSearchInput}"
         @mapsearch:clear="${this._handleSearchClear}"
         @mapsearch:selected="${this._handleSearchSelected}"
-        @placefilter:changed="${this._handlePlaceFilterChanged}"
-        .data="${this._dataSearch}"
+        @mapsearch:filter-change="${this._handleSearchFilterChange}"
+        @searchbox:timechip-clear="${this._handleTimechipClear}"
         .appState="${this.appState}"
-        .placeFilters="${this._placeFilters}"
+        year="${this._selectedPerson ? -1 : this._year}"
+        yearSpan="${this._selectedPerson ? -1 : this._yearSpan}"
         value="${this._valueSearch}"
         >${this._renderPlaceDetails()}</grampsjs-map-searchbox
       >
       <grampsjs-map-time-slider
         min="${this._minYear}"
-        ?filterMap="${this._currentLayer === 'OpenHistoricalMap'}"
         @timeslider:change="${this._handleTimeSliderChange}"
         .appState="${this.appState}"
       ></grampsjs-map-time-slider>
@@ -155,20 +248,40 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _renderPlaceDetails() {
+    if (this._selectedPerson) {
+      return this._renderPersonBox()
+    }
     if (this._handlesHighlight.length === 0) {
       return ''
     }
     const [handle] = this._handlesHighlight
-    const [object] = this._dataPlaces.filter(obj => obj.handle === handle)
-    if (object === undefined) {
+    if (
+      this._dataPlaces.length > 0 &&
+      !this._dataPlaces.find(p => p.handle === handle)
+    ) {
       this._clearSearchBox()
       return ''
     }
+    const name =
+      this._dataPlaces.find(p => p.handle === handle)?.profile?.name ?? ''
     return html`
       <grampsjs-place-box
-        .data="${object}"
+        handle="${handle}"
+        name="${name}"
         .appState="${this.appState}"
       ></grampsjs-place-box>
+    `
+  }
+
+  _renderPersonBox() {
+    const person = this._selectedPerson
+    return html`
+      <grampsjs-person-box
+        handle="${this._selectedPersonData ? person.handle : ''}"
+        name="${personProfileDisplayName(person.profile)}"
+        .personData="${this._selectedPersonData}"
+        .appState="${this.appState}"
+      ></grampsjs-person-box>
     `
   }
 
@@ -176,18 +289,19 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._currentLayer = e.detail.layer
   }
 
-  update(changed) {
-    super.update(changed)
+  _handleTimechipClear() {
+    this.renderRoot.querySelector('grampsjs-map-time-slider')?.reset()
+  }
+
+  updated(changed) {
+    super.updated(changed)
     if (changed.has('active') && this.active) {
-      const mapel = this.shadowRoot.getElementById('map')
-      if (mapel !== null && mapel._map !== undefined) {
-        // MapLibre GL JS resize method instead of Leaflet's invalidateSize
-        mapel._map.resize()
+      if (this._mapEl?._map) {
+        this._mapEl._map.resize()
       }
-      const searchbox = this.shadowRoot.querySelector('grampsjs-map-searchbox')
-      if (searchbox !== null) {
-        searchbox.focus()
-      }
+      this._applyPendingPlace()
+      this._applyPendingPerson()
+      this._searchbox?.focus()
     }
   }
 
@@ -215,85 +329,165 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._applyPlaceFilter()
   }
 
-  _handlePlaceFilterChanged(event) {
-    this._placeFilters = {...event.detail}
-    this._applyPlaceFilter()
-  }
-
   _handleSearchInput(event) {
+    this._activeSearchQuery = event.detail.value
     this._fetchDataSearch(event.detail.value)
   }
 
   _handleSearchClear() {
-    this._dataSearch = []
+    this._nominatimAbort?.abort()
+    this.loading = false
     this._valueSearch = ''
+    this._activeSearchQuery = ''
+    this._searchFilter = DEFAULT_SEARCH_FILTER
     this._handlesHighlight = []
+    this._personPlaceHandles = []
+    this._selectedPerson = null
+    this._selectedPersonData = null
   }
 
   _clearSearchBox() {
-    const box = this.renderRoot.querySelector('grampsjs-map-searchbox')
-    if (box !== undefined) {
-      box.clear()
-    }
+    this._searchbox?.clear()
   }
 
   _handleSearchSelected(event) {
-    const {object} = event.detail
-    this._handlePlaceSelected(object)
-  }
-
-  _handleMarkerClick(object) {
-    this._handlePlaceSelected(object)
-  }
-
-  _handlePlaceSelected(object) {
-    this._dataSearch = []
-    this._valueSearch = object.profile.name
-    this._handlesHighlight = [object.handle]
-    if (object.profile.lat && object.profile.long) {
-      this.latitude = object.profile.lat
-      this.longitude = object.profile.long
-      if (this.getZoom() < 14) {
-        this.setZoom(14)
-      }
-      this.panTo(this.latitude, this.longitude)
+    const {object, object_type: objectType} = event.detail
+    if (objectType === TYPE_PERSON) {
+      this._handlePersonSelected(object)
+    } else if (objectType === TYPE_EXTERNAL) {
+      this._handleExternalSelected(object)
+    } else {
+      this._handlePlaceSelected(object)
     }
   }
 
+  _handleExternalSelected(object) {
+    const lat = parseFloat(object.lat)
+    const lon = parseFloat(object.long)
+    if (!isNaN(lat) && !isNaN(lon)) {
+      this.flyTo(lat, lon)
+    }
+    this._activeSearchQuery = ''
+    this._valueSearch = object.name || object.display_name || ''
+    this._selectedPerson = null
+    this._selectedPersonData = null
+    this._personPlaceHandles = []
+    this._handlesHighlight = []
+  }
+
+  _handlePersonSelected(person) {
+    this._activeSearchQuery = ''
+    this._valueSearch = personProfileDisplayName(person.profile)
+    this._selectedPerson = person
+    this._selectedPersonData = null
+    this._personPlaceHandles = []
+    this._searchbox?.showDetails()
+    this._highlightPersonPlaces(person)
+  }
+
+  async _highlightPersonPlaces(person) {
+    const lang = this.appState.i18n.lang || 'en'
+    const data = await this.appState.apiGet(
+      `/api/people/${person.handle}?extend=all&profile=all&locale=${lang}`
+    )
+    if (!('data' in data)) {
+      this._selectedPerson = null
+      return
+    }
+    if (this._selectedPerson?.handle !== person.handle) return
+    const extPerson = data.data
+    this._selectedPersonData = extPerson
+    const placeHandles = (extPerson.extended?.events || [])
+      .map(event => event.place)
+      .filter(Boolean)
+    this._personPlaceHandles = placeHandles
+    this._handlesHighlight = []
+    this._fitPersonPlaces(placeHandles)
+  }
+
+  _fitPersonPlaces(handles) {
+    const handleSet = new Set(handles)
+    const places = this._dataPlaces.filter(
+      p => handleSet.has(p.handle) && this._hasCoords(p)
+    )
+    if (places.length === 0) return
+    if (places.length === 1) {
+      this.flyTo(
+        parseFloat(places[0].profile.lat),
+        parseFloat(places[0].profile.long)
+      )
+      return
+    }
+    const lats = places.map(p => parseFloat(p.profile.lat))
+    const lngs = places.map(p => parseFloat(p.profile.long))
+    this._mapEl?.fitBounds([
+      [Math.min(...lngs), Math.min(...lats)],
+      [Math.max(...lngs), Math.max(...lats)],
+    ])
+  }
+
+  _handleSearchFilterChange(event) {
+    this._searchFilter = event.detail.filter
+    if (this._searchFilter !== TYPE_EXTERNAL) {
+      this._nominatimAbort?.abort()
+      this.loading = false
+    }
+    if (this._activeSearchQuery) {
+      this._fetchDataSearch(this._activeSearchQuery)
+    }
+  }
+
+  _handleMapMarkerClicked(e) {
+    const place = this._dataPlaces.find(p => p.handle === e.detail.handle)
+    if (place) this._handlePlaceSelected(place, {flyTo: false})
+  }
+
+  _handlePlaceSelected(object, {flyTo = true} = {}) {
+    this._activeSearchQuery = ''
+    this._selectedPerson = null
+    this._valueSearch = object.profile.name
+    this._handlesHighlight = [object.handle]
+    this._searchbox?.showDetails()
+    if (
+      flyTo &&
+      object.profile.lat != null &&
+      object.profile.long != null &&
+      !(object.profile.lat === 0 && object.profile.long === 0)
+    ) {
+      this.flyTo(object.profile.lat, object.profile.long)
+    }
+  }
+
+  get _mapEl() {
+    return this.renderRoot.querySelector('grampsjs-map')
+  }
+
+  flyTo(latitude, longitude) {
+    this._mapEl.flyTo(latitude, longitude)
+  }
+
   panTo(latitude, longitude) {
-    const map = this.renderRoot.querySelector('grampsjs-map')
-    map.panTo(latitude, longitude)
+    this._mapEl.panTo(latitude, longitude)
   }
 
   setZoom(zoom) {
-    const map = this.renderRoot.querySelector('grampsjs-map')
-    // MapLibre GL JS setZoom method
-    map._map.setZoom(zoom)
+    this._mapEl._map.setZoom(zoom)
   }
 
   getZoom() {
-    const map = this.renderRoot.querySelector('grampsjs-map')
-    // MapLibre GL JS getZoom method
-    return map._map.getZoom()
+    return this._mapEl._map.getZoom()
   }
 
   _renderLayers() {
     return html` ${this._dataLayers.map(obj => this._renderMapLayer(obj))} `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _renderMapLayer(obj) {
-    const bounds = obj.attribute_list.filter(
-      attr => attr.type === 'map:bounds'
-    )[0].value
     return html`
-      <grampsjs-map-overlay
-        url="${getMediaUrl(obj.handle)}"
-        title="${obj.desc}"
-        bounds="${bounds}"
-        ?hidden="${this._hiddenOverlaysHandles.includes(obj.handle)}"
+      <grampsjs-map-tile-layer
         handle="${obj.handle}"
-      ></grampsjs-map-overlay>
+        ?hidden="${this._hiddenOverlaysHandles.includes(obj.handle)}"
+      ></grampsjs-map-tile-layer>
     `
   }
 
@@ -330,54 +524,15 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _handleMoveEnd(e) {
-    // MapLibre GL JS provides bounds in format [west, south, east, north]
     this._bounds = e.detail.bounds
-  }
-
-  _renderMarkers() {
-    const filteredHandles = this._filteredPlaces.map(place => place.handle)
-    // places which are highlighted but hidden by a filter: show anyway!
-    const highlightedFilteredPlaces = this._dataPlaces.filter(
-      place =>
-        this._handlesHighlight.includes(place.handle) &&
-        !filteredHandles.includes(place.handle)
-    )
-    const places = [...this._filteredPlaces, ...highlightedFilteredPlaces]
-    return places.map(obj => {
-      if (
-        obj?.profile?.lat === null ||
-        obj?.profile?.lat === undefined ||
-        Number.isNaN(parseFloat(obj?.profile?.lat)) ||
-        obj?.profile?.long === null ||
-        obj?.profile?.long === undefined ||
-        Number.isNaN(parseFloat(obj?.profile?.long)) ||
-        (obj?.profile?.lat === 0 && obj?.profile?.long === 0)
-      ) {
-        return html``
-      }
-      const highlighted = this._handlesHighlight.includes(obj.handle)
-      return html` <grampsjs-map-marker
-        latitude="${obj.profile.lat}"
-        longitude="${obj.profile.long}"
-        size="${highlighted ? 48 : 32}"
-        opacity="${!highlighted && this._handlesHighlight.length > 0
-          ? 0.55
-          : 0.9}"
-        popupLabel="<a href='place/${obj.profile.gramps_id}'>${obj.profile
-          .name}</a>"
-        @marker:clicked="${() => this._handleMarkerClick(obj)}"
-      ></grampsjs-map-marker>`
-    })
+    const {center, zoom} = e.detail
+    if (center && zoom != null) {
+      saveMapViewport(center.lat, center.lng, zoom)
+    }
   }
 
   _applyPlaceFilter() {
-    const enabledFilters = Object.keys(this._placeFilters).filter(
-      key => !!this._placeFilters[key]
-    )
     const filterFunction = place => {
-      if (enabledFilters.includes('hasEvent')) {
-        if (place?.backlinks?.event?.length === undefined) return false
-      }
       if (this._year > 0 && this._yearSpan > 0) {
         const placeEvents =
           place?.backlinks?.event?.map(handle =>
@@ -410,39 +565,91 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   async _fetchDataSearch(value) {
+    if (this._searchFilter === TYPE_EXTERNAL) {
+      await this._fetchNominatim(value)
+      return
+    }
+    const typeFilter = this._searchFilter || DEFAULT_SEARCH_FILTER
     const query = encodeURIComponent(
-      `${value}*${window._oldSearchBackend ? ' AND type:place`' : ''}`
+      `${value}*${
+        window._oldSearchBackend
+          ? ` AND (${typeFilter
+              .split(',')
+              .map(t => `type:${t}`)
+              .join(' OR ')})`
+          : ''
+      }`
     )
     const locale = this.appState.i18n.lang || 'en'
     const data = await this.appState.apiGet(
       `/api/search/?query=${query}&locale=${locale}&profile=self&page=1&pagesize=20${
-        window._oldSearchBackend ? '' : '&type=place'
+        window._oldSearchBackend ? '' : `&type=${typeFilter}`
       }`
     )
     this.loading = false
     if ('data' in data) {
       this.error = false
-      this._dataSearch = data.data
+      this._searchbox?.setResults(data.data)
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
+      this._searchbox?.setResults([])
     }
   }
 
+  async _fetchNominatim(value) {
+    this._nominatimAbort?.abort()
+    this._nominatimAbort = new AbortController()
+    const lang = (this.appState.i18n.lang || 'en').replaceAll('_', '-')
+    try {
+      const res = await queryNominatim(value, {
+        lang,
+        signal: this._nominatimAbort.signal,
+      })
+      if (res.error) {
+        this.error = true
+        this._errorMessage =
+          res.status === 429
+            ? this._('Too many requests. Please try again later.')
+            : this._('External search failed')
+        this._searchbox?.setResults([])
+      } else {
+        this.error = false
+        this._searchbox?.setResults(
+          res.data.map(r => ({
+            object_type: TYPE_EXTERNAL,
+            object: {
+              name: r.name,
+              display_name: r.display_name,
+              lat: r.lat,
+              long: r.lon,
+            },
+          }))
+        )
+      }
+    } catch (e) {
+      return
+    }
+    this.loading = false
+  }
+
   async _fetchPlaces() {
-    const placeHierarchyParam = apiVersionAtLeast(this.appState.dbInfo, 3, 11)
-      ? '&place_hierarchy=0'
-      : ''
     const data = await this.appState.apiGet(
       `/api/places/?locale=${
         this.appState.i18n.lang || 'en'
-      }&profile=self&backlinks=1${placeHierarchyParam}`
+      }&profile=self&backlinks=1&place_hierarchy=0`
     )
     this.loading = false
     if ('data' in data) {
       this.error = false
       this._dataPlaces = data.data
       this._applyPlaceFilter()
+      if (this._selectedPerson && this._personPlaceHandles.length) {
+        this._fitPersonPlaces(this._personPlaceHandles)
+      } else if (!this._handlesHighlight.length && !getMapViewport()) {
+        const center = this._getMapCenter()
+        this._mapEl?.jumpTo(center[0], center[1], 6)
+      }
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
@@ -502,8 +709,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _getMapCenter() {
     if (this._dataPlaces.length === 0) {
-      const locale = this.appState.i18n.lang || 'en'
-      return languageCoordinates[locale] || [0, 0]
+      const saved = getMapViewport()
+      return saved ? [saved.lat, saved.lng] : DEFAULT_CENTER
     }
     let x = 0
     let y = 0
@@ -521,8 +728,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       }
     }
     if (n === 0) {
-      const locale = this.appState.i18n.lang || 'en'
-      return languageCoordinates[locale] || [0, 0]
+      const saved = getMapViewport()
+      return saved ? [saved.lat, saved.lng] : DEFAULT_CENTER
     }
     x /= n
     y /= n

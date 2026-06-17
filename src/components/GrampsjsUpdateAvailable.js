@@ -4,10 +4,18 @@ import '@material/mwc-snackbar'
 import '@material/mwc-button'
 
 export class GrampsjsUpdateAvailable extends PwaUpdateAvailable {
-  async connectedCallback() {
-    super.connectedCallback()
-    this.removeEventListener('click', this._postMessage.bind(this))
-    this.addEventListener('update:reload', this._postMessage.bind(this))
+  // Use a fresh registration instead of the stored _newWorker reference, which
+  // can be stale if the component rendered before the waiting worker arrived.
+  async _postMessage(e) {
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration()
+      if (reg?.waiting) {
+        console.log('[GrampsjsUpdateAvailable] posting SKIP_WAITING')
+        reg.waiting.postMessage({type: 'SKIP_WAITING'})
+        return
+      }
+    }
+    return super._postMessage(e)
   }
 }
 

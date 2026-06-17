@@ -12,19 +12,21 @@ import '@material/mwc-top-app-bar'
 import {LitElement, css, html} from 'lit'
 import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
 import {installRouter} from 'pwa-helpers/router.js'
-import {getSettings, cleanOldDrafts} from './api.js'
+import {
+  getSettings,
+  getTreeConfig,
+  cleanOldDrafts,
+  TREE_CONFIG_APP_TITLE,
+  TREE_CONFIG_PRIMARY_COLOR,
+  TREE_CONFIG_SECONDARY_COLOR,
+} from './api.js'
 import './dayjs_locales.js'
 import {
   frontendLanguages,
   getFrontendStrings,
   grampsStrings,
 } from './strings.js'
-import {
-  fireEvent,
-  getBrowserLanguage,
-  clickKeyHandler,
-  apiVersionAtLeast,
-} from './util.js'
+import {fireEvent, getBrowserLanguage, apiVersionAtLeast} from './util.js'
 
 import {appStateUpdatePermissions, getInitialAppState} from './appState.js'
 import './components/GrampsjsAppBar.js'
@@ -38,8 +40,11 @@ import './components/GrampsjsTabBar.js'
 import './components/GrampsjsUndoTransaction.js'
 import './components/GrampsjsUpdateAvailable.js'
 import './components/GrampsjsUpgradeDb.js'
+import './components/GrampsjsObjectLink.js'
+import './components/GrampsjsObjectPreview.js'
+import '@material/web/dialog/dialog.js'
 import {sharedStyles} from './SharedStyles.js'
-import {applyTheme} from './theme.js'
+import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from './theme.js'
 import {handleOIDCCallback, handleOIDCComplete} from './oidc.js'
 
 const LOADING_STATE_INITIAL = 0
@@ -52,7 +57,7 @@ const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
 
-const MINIMUM_API_VERSION = '3.10.0'
+const MINIMUM_API_VERSION = '3.16.0'
 
 // Pages where the Gramps ID is used as the page title
 const OBJECT_PAGES = new Set([
@@ -86,10 +91,12 @@ const PAGE_TITLES = {
   'dna-matches': 'DNA',
   'dna-chromosome': 'DNA',
   ydna: 'DNA',
-  chat: 'Chat',
+  chat: 'Assistant',
   recent: 'History',
   bookmarks: '_Bookmarks',
   tasks: 'Tasks',
+  notifications: 'Notifications',
+  tags: 'Tags',
   export: 'Export',
   reports: '_Reports',
   report: '_Reports',
@@ -115,6 +122,7 @@ export class GrampsJs extends LitElement {
       _firstRunToken: {type: String},
       _loadingStrings: {type: Boolean},
       reindexNeeded: {type: Boolean},
+      _semanticIndexStale: {type: Boolean},
     }
   }
 
@@ -133,6 +141,9 @@ export class GrampsJs extends LitElement {
     this._firstRunToken = ''
     this._loadingStrings = false
     this._reindexNeeded = false
+    this._semanticIndexStale = false
+    this._drawerWasOpen = false
+    this._metadataConfirmed = false
   }
 
   get canUseChat() {
@@ -182,9 +193,15 @@ export class GrampsJs extends LitElement {
 
         [slot='appContent'] md-linear-progress {
           position: sticky;
-          top: var(--mdc-top-app-bar-height, 64px);
+          top: 64px;
           z-index: 4;
           visibility: hidden;
+        }
+
+        @media (max-width: 599px) {
+          [slot='appContent'] md-linear-progress {
+            top: 56px;
+          }
         }
 
         [slot='appContent'] md-linear-progress.active {
@@ -218,67 +235,37 @@ export class GrampsJs extends LitElement {
           --mdc-list-side-padding: 20px;
         }
 
-        #shortcut-overlay-container {
-          background-color: var(--grampsjs-body-font-color-10);
-          position: fixed;
-          left: 0;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          min-height: 100vh;
-          width: 100vw;
-          z-index: 10001;
-          overflow: hidden;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        #shortcut-overlay {
-          font-size: 16px;
-          background-color: var(--md-sys-color-surface-container-high);
-          padding: 0.5em 1.5em;
-          position: absolute;
-          top: 15vh;
-          overflow-y: auto;
-          max-width: 100vw;
-          max-height: 75vh;
-          border-radius: 8px;
-        }
-
-        #shortcut-overlay section {
+        .shortcut-content section {
           display: flex;
           flex-direction: row;
           gap: 24px;
         }
 
-        #shortcut-overlay h3 {
-          margin-top: 0.5em;
-          font-size: 1.3em;
-          font-weight: 400;
-        }
-
-        #shortcut-overlay h4 {
+        .shortcut-content h4 {
           margin-top: 0.5em;
           font-weight: 400;
           font-size: 1em;
         }
 
-        #shortcut-overlay dl {
+        .shortcut-content dl {
           display: grid;
           grid-template-columns: max-content auto;
+          row-gap: 6px;
           margin: 0.5em 0em;
         }
 
-        #shortcut-overlay dt {
+        .shortcut-content dt {
           grid-column-start: 1;
           margin-right: 1.2em;
+          display: flex;
+          align-items: center;
+          gap: 4px;
         }
 
-        #shortcut-overlay dt span {
-          font-family: var(--grampsjs-heading-font-family);
-          font-size: 11px;
-          font-weight: 400;
+        .shortcut-content dt span {
+          font-family: var(--grampsjs-mono-font-family);
+          font-size: 13px;
+          font-weight: 700;
           display: inline-block;
           min-width: 0.75em;
           padding: 4px 6px;
@@ -286,12 +273,44 @@ export class GrampsJs extends LitElement {
           border: 1px solid var(--grampsjs-body-font-color-20);
           color: var(--grampsjs-body-font-color-70);
           border-radius: 6px;
-          margin-bottom: 4px;
         }
 
-        #shortcut-overlay dd {
+        .shortcut-content dd {
           grid-column-start: 2;
           padding: 0;
+          display: flex;
+          align-items: center;
+        }
+
+        @media print {
+          :host {
+            height: auto !important;
+            overflow: visible !important;
+          }
+
+          mwc-drawer {
+            --mdc-drawer-width: 0px;
+            height: auto !important;
+            overflow: visible !important;
+          }
+
+          [slot='appContent'] {
+            height: auto !important;
+            overflow: visible !important;
+          }
+
+          main {
+            height: auto !important;
+            overflow: visible !important;
+          }
+
+          grampsjs-main-menu,
+          grampsjs-app-bar,
+          grampsjs-tab-bar,
+          grampsjs-dna-tab-bar,
+          [slot='appContent'] md-linear-progress {
+            display: none !important;
+          }
         }
       `,
     ]
@@ -300,9 +319,9 @@ export class GrampsJs extends LitElement {
   render() {
     return html`
       ${this.renderContent()} ${this._renderKeyboardShortcuts()}
-      <mwc-snackbar id="error-snackbar" leading></mwc-snackbar>
-      <mwc-snackbar id="notification-snackbar" leading></mwc-snackbar>
+      <mwc-snackbar id="app-snackbar" leading></mwc-snackbar>
       ${this._reindexNeeded ? this._renderReindexSnackbar() : ''}
+      ${this._semanticIndexStale ? this._renderSemanticStaleSnackbar() : ''}
       <grampsjs-undo-transaction
         .appState="${this.appState}"
       ></grampsjs-undo-transaction>
@@ -313,11 +332,12 @@ export class GrampsJs extends LitElement {
           timeoutMs="-1"
           labelText="${this._('A new version of the app is available.')}"
         >
-          <mwc-button slot="action" @click=${this._postUpdateMessage}
-            >${this._('Refresh')}</mwc-button
-          >
+          <mwc-button slot="action">${this._('Refresh')}</mwc-button>
         </mwc-snackbar>
       </grampsjs-update-available>
+      <grampsjs-object-preview
+        .appState="${this.appState}"
+      ></grampsjs-object-preview>
     `
   }
 
@@ -347,20 +367,43 @@ export class GrampsJs extends LitElement {
     e.stopPropagation()
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  _renderSemanticStaleSnackbar() {
+    return html`<mwc-snackbar
+      id="semantic-stale-snackbar"
+      leading
+      open
+      timeoutMs="-1"
+      labelText="${this._(
+        'The semantic search index is out of date. A full reindex is required.'
+      )}"
+    >
+      ${this.appState.permissions.canManageUsers
+        ? html`
+            <mwc-button slot="action" @click="${this._handleReindexButton}"
+              >${this._('Settings')}</mwc-button
+            >
+          `
+        : ''}
+      ></mwc-snackbar
+    >`
+  }
+
   _renderKeyboardShortcuts() {
-    if (!this._showShortcuts) {
-      return ''
-    }
     return html`
-      <div
-        id="shortcut-overlay-container"
-        @click="${() => {
+      <md-dialog
+        quick
+        style="max-height: 90vh; max-width: 90vw;"
+        ?open="${this._showShortcuts}"
+        @cancel="${() => {
           this._showShortcuts = false
         }}"
-        @keydown="${clickKeyHandler}"
+        @close="${() => {
+          this._showShortcuts = false
+        }}"
       >
-        <div id="shortcut-overlay">
-          <h3>${this._('Keyboard Shortcuts')}</h3>
+        <div slot="headline">${this._('Keyboard Shortcuts')}</div>
+        <div slot="content" class="shortcut-content">
           <section>
             <div>
               <h4>${this._('Global')}</h4>
@@ -380,30 +423,34 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Home')}</dd>
                 <dt><span>g</span> <span>b</span></dt>
                 <dd>${this._('Blog')}</dd>
-                <dt><span>g</span> <span>l</span></dt>
-                <dd>${this._('Lists')}</dd>
-                <dt><span>g</span> <span>i</span></dt>
-                <dd>${this._('Media')}</dd>
-                <dt><span>g</span> <span>m</span></dt>
-                <dd>${this._('Map')}</dd>
                 <dt><span>g</span> <span>c</span></dt>
                 <dd>${this._('Family Tree')}</dd>
+                <dt><span>g</span> <span>t</span></dt>
+                <dd>${this._('Timeline')}</dd>
+                <dt><span>g</span> <span>m</span></dt>
+                <dd>${this._('Map')}</dd>
                 ${this.appState.frontendConfig.hideDNALink
                   ? ''
                   : html`<dt><span>g</span> <span>d</span></dt>
                       <dd>${this._('DNA')}</dd>`}
+                <dt><span>g</span> <span>l</span></dt>
+                <dd>${this._('Lists')}</dd>
+                <dt><span>g</span> <span>i</span></dt>
+                <dd>${this._('Media')}</dd>
                 ${this.canUseChat
                   ? html`<dt><span>g</span> <span>a</span></dt>
-                      <dd>${this._('Chat')}</dd>`
+                      <dd>${this._('Assistant')}</dd>`
                   : ''}
                 <dt><span>g</span> <span>r</span></dt>
                 <dd>${this._('History')}</dd>
                 <dt><span>g</span> <span>f</span></dt>
                 <dd>${this._('_Bookmarks')}</dd>
-                <dt><span>g</span> <span>t</span></dt>
+                <dt><span>g</span> <span>j</span></dt>
                 <dd>${this._('Tasks')}</dd>
                 <dt><span>g</span> <span>e</span></dt>
                 <dd>${this._('Export')}</dd>
+                <dt><span>g</span> <span>s</span></dt>
+                <dd>${this._('Settings')}</dd>
               </dl>
             </div>
             <div>
@@ -433,12 +480,8 @@ export class GrampsJs extends LitElement {
             </div>
           </section>
         </div>
-      </div>
+      </md-dialog>
     `
-  }
-
-  _postUpdateMessage() {
-    fireEvent(this, 'update:reload')
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -536,7 +579,7 @@ export class GrampsJs extends LitElement {
     if (this.loadingState === LOADING_STATE_DB_SCHEMA_MISMATCH) {
       return this._renderSchemaMismatch()
     }
-    if (this.appState.path.page === 'login') {
+    if (this.appState.path.page === 'login' && this._metadataConfirmed) {
       window.history.pushState({}, '', '')
       this._updateAppState({path: {page: 'home', pageId: '', pageId2: ''}})
     }
@@ -611,6 +654,7 @@ export class GrampsJs extends LitElement {
   }
 
   _handleReload() {
+    this._metadataConfirmed = false
     this.loadingState = LOADING_STATE_INITIAL
     this._loadDbInfo()
   }
@@ -626,8 +670,11 @@ export class GrampsJs extends LitElement {
     // Clean up old editor drafts (older than 7 days)
     cleanOldDrafts()
 
-    window.addEventListener('storage', () => this._handleStorage())
+    window.addEventListener('storage', event => this._handleStorage(event))
     window.addEventListener('settings:changed', () => this._handleSettings())
+    window.addEventListener('treeconfig:changed', () =>
+      this._handleTreeConfig()
+    )
     window.addEventListener(
       'requests:changed',
       this._handleRequestsChanged.bind(this)
@@ -664,11 +711,26 @@ export class GrampsJs extends LitElement {
       this._loadFrontendStrings(this.appState.settings.lang)
     }
 
-    applyTheme(this.appState.settings.theme)
+    this._applyColorScheme()
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.addEventListener('change', () =>
-      applyTheme(this.appState.settings.theme)
-    )
+    mediaQuery.addEventListener('change', () => this._applyColorScheme())
+  }
+
+  _applyColorScheme() {
+    const treeConfig = getTreeConfig()
+    try {
+      applyScheme(
+        treeConfig[TREE_CONFIG_PRIMARY_COLOR] || DEFAULT_PRIMARY,
+        treeConfig[TREE_CONFIG_SECONDARY_COLOR] || DEFAULT_SECONDARY,
+        this.appState.settings.theme
+      )
+    } catch {
+      applyScheme(
+        DEFAULT_PRIMARY,
+        DEFAULT_SECONDARY,
+        this.appState.settings.theme
+      )
+    }
   }
 
   firstUpdated() {
@@ -695,11 +757,48 @@ export class GrampsJs extends LitElement {
     })
     this.addEventListener('nav', this._handleNav.bind(this))
     this.addEventListener('grampsjs:error', this._handleError.bind(this))
+    window.addEventListener('beforeprint', this._handleBeforePrint.bind(this))
+    window.addEventListener('afterprint', this._handleAfterPrint.bind(this))
     this.addEventListener(
       'grampsjs:notification',
       this._handleNotification.bind(this)
     )
     window.addEventListener('user:loggedout', this._handleLogout.bind(this))
+  }
+
+  _handleBeforePrint() {
+    const drawer = this.shadowRoot.getElementById('app-drawer')
+    if (!drawer) return
+    this._drawerWasOpen = drawer.open
+    drawer.open = false
+    // Also update mwc-drawer's shadow DOM synchronously — setting drawer.open
+    // only schedules a Lit microtask, which may not run before the browser
+    // captures the print layout.
+    drawer.shadowRoot
+      ?.querySelector('.mdc-drawer')
+      ?.classList.remove('mdc-drawer--open', 'mdc-drawer--animate')
+    const appContent = drawer.shadowRoot?.querySelector(
+      '.mdc-drawer-app-content'
+    )
+    if (appContent) {
+      appContent.style.marginLeft = '0'
+      appContent.style.overflow = 'visible'
+      appContent.style.height = 'auto'
+    }
+  }
+
+  _handleAfterPrint() {
+    const drawer = this.shadowRoot.getElementById('app-drawer')
+    if (!drawer) return
+    const appContent = drawer.shadowRoot?.querySelector(
+      '.mdc-drawer-app-content'
+    )
+    if (appContent) {
+      appContent.style.marginLeft = ''
+      appContent.style.overflow = ''
+      appContent.style.height = ''
+    }
+    drawer.open = this._drawerWasOpen
   }
 
   async _loadFrontendStrings(lang) {
@@ -768,6 +867,14 @@ export class GrampsJs extends LitElement {
     } else {
       this._reindexNeeded = false
     }
+    // Check if the semantic search index is stale due to a model change
+    const semanticSearch = this.appState.dbInfo?.server?.semantic_search
+    if (semanticSearch) {
+      this._semanticIndexStale =
+        this.appState.dbInfo?.search?.sifts?.semantic_index_stale === true
+    } else {
+      this._semanticIndexStale = false
+    }
   }
 
   _checkDbSchema() {
@@ -818,9 +925,20 @@ export class GrampsJs extends LitElement {
   }
 
   _setReady() {
+    this._metadataConfirmed = true
     this.loadingState = LOADING_STATE_READY
     this.progress = false
     this.setPermissions()
+    this._loadTreeConfig()
+    this.appState.loadActiveTasks()
+  }
+
+  _loadTreeConfig() {
+    this.appState.apiGet('/api/trees/-/config').then(data => {
+      if ('data' in data) {
+        this.appState.cacheTreeConfig(data.data)
+      }
+    })
   }
 
   _loadPage(path) {
@@ -863,7 +981,10 @@ export class GrampsJs extends LitElement {
 
   _updateTitle() {
     const {page, pageId} = this.appState.path
-    const suffix = 'Gramps Web'
+    const suffix =
+      this.appState.treeConfig?.[TREE_CONFIG_APP_TITLE] ||
+      this.appState.dbInfo?.database?.name ||
+      'Gramps Web'
     if (OBJECT_PAGES.has(page) && pageId) {
       document.title = `${pageId} · ${suffix}`
       return
@@ -924,13 +1045,16 @@ export class GrampsJs extends LitElement {
   }
 
   _handleError(e) {
-    const {message} = e.detail
-    this._showError(message)
+    const {message, silent = false, source = 'api', detail = {}} = e.detail
+    this.appState.addNotification({type: 'error', message, source, detail})
+    if (!silent) {
+      this._showMessage(`${this._('Error')}: ${message}`)
+    }
   }
 
   _handleNotification(e) {
     const {message} = e.detail
-    this._showToast(message)
+    this._showMessage(message)
   }
 
   _handleDbUpgradeComplete() {
@@ -1020,13 +1144,11 @@ export class GrampsJs extends LitElement {
   }
 
   _showError(msg) {
-    const snackbar = this.shadowRoot.getElementById('error-snackbar')
-    snackbar.labelText = `${this._('Error')}: ${msg}`
-    snackbar.show()
+    this._showMessage(`${this._('Error')}: ${msg}`)
   }
 
-  _showToast(msg) {
-    const snackbar = this.shadowRoot.getElementById('notification-snackbar')
+  _showMessage(msg) {
+    const snackbar = this.shadowRoot.getElementById('app-snackbar')
     snackbar.labelText = msg
     snackbar.show()
   }
@@ -1037,11 +1159,21 @@ export class GrampsJs extends LitElement {
   }
 
   _handleLogout() {
+    this._metadataConfirmed = false
     this.loadingState = LOADING_STATE_UNAUTHORIZED
   }
 
-  _handleStorage() {
+  _handleStorage(e) {
+    if (e?.key === 'grampsjs_tree_config') {
+      this._handleTreeConfig()
+    }
     this._handleSettings()
+  }
+
+  _handleTreeConfig() {
+    this._updateAppState({treeConfig: getTreeConfig()})
+    this._updateTitle()
+    this._applyColorScheme()
   }
 
   _handleSettings() {
@@ -1057,9 +1189,15 @@ export class GrampsJs extends LitElement {
   _handleKey(e) {
     const target = e.composedPath()[0]
     if (
-      ['input', 'textarea', 'select', 'option', 'mwc-list-item'].includes(
-        target.tagName.toLowerCase()
-      ) ||
+      [
+        'input',
+        'textarea',
+        'select',
+        'option',
+        'mwc-list-item',
+        'md-dialog',
+        'dialog',
+      ].includes(target.tagName.toLowerCase()) ||
       target.getAttribute('contenteditable')
     ) {
       return
@@ -1090,6 +1228,8 @@ export class GrampsJs extends LitElement {
       } else if (e.key === 'f') {
         fireEvent(this, 'nav', {path: 'bookmarks'})
       } else if (e.key === 't') {
+        fireEvent(this, 'nav', {path: 'timeline'})
+      } else if (e.key === 'j') {
         fireEvent(this, 'nav', {path: 'tasks'})
       } else if (e.key === 'e') {
         fireEvent(this, 'nav', {path: 'export'})
@@ -1103,6 +1243,8 @@ export class GrampsJs extends LitElement {
         if (this.canUseChat) {
           fireEvent(this, 'nav', {path: 'chat'})
         }
+      } else if (e.key === 's') {
+        fireEvent(this, 'nav', {path: 'settings'})
       }
       this._shortcutPressed = ''
     } else if (this._shortcutPressed === 'n') {

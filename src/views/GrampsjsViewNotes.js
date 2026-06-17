@@ -13,17 +13,17 @@ import '../components/GrampsjsFilterPrivate.js'
 export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
   constructor() {
     super()
-    this._columns = {
-      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      type: {title: 'Type', sort: 'type'},
-      text: {title: 'Text', sort: 'text'},
-      change: {title: 'Last changed', sort: 'change'},
-    }
+    this._columns = [
+      {name: 'Gramps ID', key: 'grampsId', sortKey: 'gramps_id'},
+      {name: 'Type', key: 'type', sortKey: 'type'},
+      {name: 'Text', key: 'text', sortKey: 'text'},
+      {name: 'Last changed', key: 'change', sortKey: 'change'},
+    ]
   }
 
   // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
-    return '/api/notes/?keys=gramps_id,type,text,change'
+    return '/api/notes/?keys=gramps_id,type,text,change,handle'
   }
 
   // eslint-disable-next-line class-methods-use-this

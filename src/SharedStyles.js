@@ -5,6 +5,7 @@ export const sharedStyles = css`
     line-height: 1.6;
     --grampsjs-body-font-family: 'Inter var', sans-serif;
     --grampsjs-heading-font-family: 'Inter var', sans-serif;
+    --grampsjs-mono-font-family: 'Commit Mono', monospace;
     --md-ref-typeface-plain: 'Inter var', sans-serif;
     --grampsjs-body-font-size: 17px;
     font-size: var(--grampsjs-body-font-size);
@@ -324,7 +325,7 @@ export const sharedStyles = css`
   }
 
   .monospace {
-    font-family: 'Commit Mono';
+    font-family: var(--grampsjs-mono-font-family);
     border: 1px solid var(--grampsjs-body-font-color-15);
     border-radius: 5px;
     background-color: var(--grampsjs-body-font-color-5);

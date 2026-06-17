@@ -3,7 +3,8 @@ import {create} from 'd3-selection'
 import {hierarchy, tree} from 'd3-hierarchy'
 import {curveBumpX, link, symbolTriangle, symbol} from 'd3-shape'
 import {zoom} from 'd3-zoom'
-import {chartNameDisplayFormat} from '../util.js'
+import {chartNameDisplayFormat, fireEvent} from '../util.js'
+import {appendAddPersonButton} from './addPersonButton.js'
 
 const genderColor = {
   0: 'var(--color-girl)',
@@ -54,6 +55,7 @@ function TreeChartCore(
     getImageUrl = null,
     orientation = 'LTR',
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
+    canEdit = false,
   } = {}
 ) {
   // Create a hierarchical data structure based on the input data
@@ -135,6 +137,11 @@ function TreeChartCore(
     .data(descendants)
     .join('a')
     .attr('transform', d => `translate(${d.y},${d.x})`)
+    .style('filter', d =>
+      d.depth === 0
+        ? 'drop-shadow(0 3px 8px var(--grampsjs-body-font-color-30))'
+        : null
+    )
 
   node
     .append('rect')
@@ -175,13 +182,7 @@ function TreeChartCore(
     .attr('id', d => d.data.id) // Unique id for each slice
 
   function triangleClicked(e) {
-    chart.node().dispatchEvent(
-      new CustomEvent('pedigree:show-children', {
-        bubbles: true,
-        composed: true,
-        detail: {pageX: e.pageX, pageY: e.pageY},
-      })
-    )
+    fireEvent(this, 'pedigree:show-children', {pageX: e.pageX, pageY: e.pageY})
     e.stopPropagation()
     e.preventDefault()
   }
@@ -232,7 +233,7 @@ function TreeChartCore(
   const textWidth = d =>
     getImageUrl(d)
       ? boxWidth - 2 * imgPadding - 2 * imgRadius
-      : boxWidth - 2 * imgRadius
+      : boxWidth - 2 * imgPadding
 
   node
     .append('text')
@@ -297,6 +298,15 @@ function TreeChartCore(
     .attr('paint-order', 'stroke')
     .text(d => clipString(`†${d.data.person.profile.death.date}`, textWidth(d)))
 
+  if (canEdit) {
+    appendAddPersonButton(
+      node.filter(d => d.data.person),
+      boxWidth / 2 - 14,
+      -boxHeight / 2 + 14,
+      d => d.data.person?.handle
+    )
+  }
+
   node
     .filter(getImageUrl)
     .append('circle')
@@ -326,7 +336,27 @@ function TreeChartCore(
     .attr('width', 70)
     .attr('xlink:href', getImageUrl)
 
-  node.style('cursor', 'pointer').on('click', clicked)
+  node
+    .style('cursor', canEdit ? 'default' : 'pointer')
+    .on('click', canEdit ? null : clicked)
+    .on('mouseenter', function (event, d) {
+      if (window.matchMedia('(hover: none)').matches) return
+      const grampsId = d.data?.person?.gramps_id
+      if (!grampsId) return
+      window.dispatchEvent(
+        new CustomEvent('object:preview-show', {
+          detail: {
+            objectType: 'person',
+            grampsId,
+            anchorRect: this.getBoundingClientRect(),
+          },
+        })
+      )
+    })
+    .on('mouseleave', () => {
+      if (window.matchMedia('(hover: none)').matches) return
+      window.dispatchEvent(new CustomEvent('object:preview-hide'))
+    })
 
   return [xOffset, yOffset, width, height, boxWidth + 2 * padding]
 }
@@ -342,6 +372,12 @@ export function TreeChart(dataDescendants, dataAncestors, chartsettings) {
     .attr('font-size', 13)
 
   const chartContent = svg.append('g').attr('id', 'chart-content')
+
+  // Restore zoom state from previous render if available
+  if (chartsettings.initialZoom) {
+    svg.node().__zoom = chartsettings.initialZoom
+    chartContent.attr('transform', chartsettings.initialZoom.toString())
+  }
 
   let width = 0
   let height = 0

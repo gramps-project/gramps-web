@@ -143,5 +143,13 @@
     "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree without upgrading its schema. This action cannot be undone.": "Породично стабло које покушавате да учитате има шематску верзију која није подржана од стране ове верзије Веб Грампса. Стога не можете учитати ово породично стабло пре надоградње њене шеме. Ова акција се не може поништити.",
     "Media file status": "Стање медијске датотеке",
     "Upgrade database": "Надоградња базе података",
-    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Породично стабло које покушавате да учитате има шематску верзију која није подржана од стране ове верзије Веб Грампса. Стога не можете учитати ово породично стабло пре него што администратор ажурира њену шематску верзију."
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "Породично стабло које покушавате да учитате има шематску верзију која није подржана од стране ове верзије Веб Грампса. Стога не можете учитати ово породично стабло пре него што администратор ажурира њену шематску верзију.",
+    "Add child": "Додај дете",
+    "Existing Person": "Постојећа особа",
+    "Undo revision": "Поништи измену",
+    "Undo revision (force)": "Поништи измену (на силу)",
+    "Force undo": "Присилно поништи",
+    "This will revert all changes made in this revision.": "Овим ће се вратити све промене направљене у овој измени.",
+    "This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.": "Ова измена се не може потпуно поништити, јер су неки објекти измењени након ове трансакције. Присилно поништавање може довести до недоследности података.",
+    "Saved": "Сачувано"
 }

@@ -8,5 +8,12 @@ export default defineConfig({
       reporter: ['text', 'lcov'],
       include: ['src/**/*.js'],
     },
+    server: {
+      deps: {
+        // ESM imports in this package lack .js extensions, which Node.js
+        // strict ESM requires. Inline through Vite's bundler instead.
+        inline: ['@material/material-color-utilities'],
+      },
+    },
   },
 })

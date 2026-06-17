@@ -1,6 +1,7 @@
-import {html, LitElement} from 'lit'
+import {html, css, LitElement} from 'lit'
 import 'maplibre-gl'
 import '@openhistoricalmap/maplibre-gl-dates'
+import * as Diplomat from '@americana/diplomat'
 
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/menu/menu'
@@ -8,12 +9,15 @@ import '@material/web/menu/menu-item'
 import '@material/web/checkbox/checkbox'
 
 import './GrampsjsMapOverlay.js'
-import './GrampsjsMapMarker.js'
 import './GrampsjsMapLayerSwitcher.js'
 import './GrampsjsIcon.js'
 import {fireEvent} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+
+const MAP_STYLE_BASE = 'base'
+const MAP_STYLE_OHM = 'ohm'
+const THEME_DARK = 'dark'
 
 const defaultConfig = {
   mapOhmStyle: 'https://www.openhistoricalmap.org/map-styles/main/main.json',
@@ -25,7 +29,32 @@ const {maplibregl} = window
 
 class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
-    return [sharedStyles]
+    return [
+      sharedStyles,
+      css`
+        .maplibregl-ctrl-group {
+          border-radius: 12px !important;
+        }
+        .maplibregl-ctrl-bottom-right {
+          right: 8px;
+        }
+        .grampsjs-place-tooltip .maplibregl-popup-content {
+          padding: 4px 12px;
+          border-radius: 9999px;
+          font-size: 13px;
+          font-weight: 500;
+          background: var(--md-sys-color-surface-container-high);
+          color: var(--md-sys-color-on-surface);
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+          white-space: nowrap;
+        }
+        .grampsjs-place-tooltip .maplibregl-popup-tip {
+          border-top-color: var(
+            --md-sys-color-surface-container-high
+          ) !important;
+        }
+      `,
+    ]
   }
 
   render() {
@@ -36,7 +65,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         style="width:${this.width}; height:${this.height};"
       >
         <div id="${this.mapid}" style="z-index: 0; width: 100%; height: 100%;">
-          <slot> </slot>
+          <slot @slotchange="${this._onSlotChange}"> </slot>
         </div>
         ${this.layerSwitcher ? this._renderLayerSwitcher() : html`<div></div>`}
       </div>
@@ -92,7 +121,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this.longMax = 0
     this.overlays = []
     this.layerSwitcher = false
-    this._currentStyle = 'base'
+    this._currentStyle = MAP_STYLE_BASE
     this._mediaQuery = undefined
   }
 
@@ -141,6 +170,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       'bottom-right'
     )
     this._map.on('load', () => {
+      this._mapInitialLoadFired = true
       if (this.year > 0 && this._map.filterByDate) {
         this._map.filterByDate(`${this.year}`)
       }
@@ -150,15 +180,21 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
           [this.longMax, this.latMax],
         ])
       }
-      // Add overlays after initial load
-      this._reAddOverlays()
+      this._slottedChildren
+        .filter(el => typeof el.addToMap === 'function')
+        .forEach(el => el.addToMap(this._map))
+      this._prefetchAlternateStyle()
     })
     this._map.on('moveend', () => {
-      fireEvent(this, 'map:moveend', {bounds: this._map.getBounds()})
+      fireEvent(this, 'map:moveend', {
+        bounds: this._map.getBounds(),
+        center: this._map.getCenter(),
+        zoom: this._map.getZoom(),
+      })
     })
     this._map.on('sourcedata', () => {
       if (
-        this._currentStyle === 'ohm' &&
+        this._currentStyle === MAP_STYLE_OHM &&
         this.year > 0 &&
         typeof this._map.filterByDate === 'function'
       ) {
@@ -172,9 +208,57 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     return slot.assignedElements({flatten: true})
   }
 
+  // Handles children added after the map's load event (e.g. async data layers).
+  _onSlotChange() {
+    // Only initialise children that haven't been added to the map yet — never
+    // re-call addToMap on an already-initialised layer, as that would briefly
+    // remove and re-add its MapLibre source/layers on every slot mutation.
+    const toInit = this._slottedChildren.filter(
+      el => typeof el.addToMap === 'function' && !el._map
+    )
+    if (!toInit.length) return
+    if (!this._map?.isStyleLoaded()) {
+      // If the initial load has already fired but isStyleLoaded() is transiently
+      // false (e.g. sprites still loading), defer addToMap until the map is idle.
+      if (this._mapInitialLoadFired) {
+        this._map.once('idle', () => {
+          // Recompute from the live slot — elements may have been removed
+          // between now and when idle fires (e.g. during a slow OHM load).
+          this._slottedChildren
+            .filter(el => typeof el.addToMap === 'function' && !el._map)
+            .forEach(el => el.addToMap(this._map))
+        })
+      }
+      return
+    }
+    toInit.forEach(el => el.addToMap(this._map))
+  }
+
   panTo(latitude, longitude) {
     if (this._map !== undefined) {
       this._map.panTo([longitude, latitude])
+    }
+  }
+
+  jumpTo(latitude, longitude, zoom) {
+    if (this._map !== undefined) {
+      this._map.jumpTo({center: [longitude, latitude], zoom})
+    }
+  }
+
+  fitBounds(bounds, options = {}) {
+    if (this._map !== undefined) {
+      this._map.fitBounds(bounds, {padding: 60, maxZoom: 14, ...options})
+    }
+  }
+
+  flyTo(latitude, longitude) {
+    if (this._map !== undefined) {
+      this._map.flyTo({
+        center: [longitude, latitude],
+        zoom: Math.max(this._map.getZoom(), 14),
+        speed: 2.5,
+      })
     }
   }
 
@@ -191,25 +275,28 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       } catch (e) {
         // Ignore errors if filterByDate fails (e.g. style does not support it)
       }
-      return
     }
     if (
-      this._map !== undefined &&
-      (changed.has('latitude') ||
-        changed.has('longitude') ||
-        changed.has('mapid') ||
-        changed.has('zoom'))
+      changed.has('appState') &&
+      this._currentStyle === MAP_STYLE_OHM &&
+      this._map?.isStyleLoaded()
     ) {
-      if (this.latMin === 0 && this.latMax === 0) {
-        this._map.setZoom(this.zoom)
-        this._map.panTo([this.longitude, this.latitude])
-      } else {
-        this._map.fitBounds([
-          [this.longMin, this.latMin],
-          [this.longMax, this.latMax],
-        ])
+      const prevLang = changed.get('appState')?.i18n?.lang
+      if (prevLang !== this.appState.i18n?.lang) {
+        this._localizeOhm()
       }
     }
+  }
+
+  _localizeOhm() {
+    if (this._currentStyle !== MAP_STYLE_OHM) return
+    const lang = this.appState?.i18n?.lang
+    const locales = lang
+      ? [lang, ...Diplomat.getLocales()]
+      : Diplomat.getLocales()
+    Diplomat.localizeStyle(this._map, locales, {
+      localizedNamePropertyFormat: 'name_$1',
+    })
   }
 
   _onStyleChange(e) {
@@ -224,53 +311,65 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
 
   _handleOverlayToggle(e) {
     const {overlay, visible} = e.detail
-
-    const overlays = this._slottedChildren.filter(
-      el => el.tagName === 'GRAMPSJS-MAP-OVERLAY'
-    )
-
-    overlays.forEach(overlayElement => {
-      // Prefer matching by stable handle when available; fall back to title/desc for backward compatibility
-      const matchesByHandle =
-        overlay.handle &&
-        overlayElement.handle &&
-        overlayElement.handle === overlay.handle
-      const matchesByTitle =
-        !overlay.handle && overlayElement.title === overlay.desc
-
-      if (matchesByHandle || matchesByTitle) {
+    this._slottedChildren
+      .filter(
+        el =>
+          (overlay.handle && el.handle === overlay.handle) ||
+          (!overlay.handle && el.title === overlay.desc)
+      )
+      .forEach(el => {
         // eslint-disable-next-line no-param-reassign
-        overlayElement.hidden = !visible
-      }
-    })
+        el.hidden = !visible
+      })
   }
 
   _handleStyleChange(style) {
+    if (!this._map) return
     const styleUrl = this._getStyleUrl(style)
-    this._map.setStyle(styleUrl)
-    // Always wait for style to load before re-adding overlays
-    this._map.once('styledata', () => {
-      this._reAddOverlays()
-    })
+    const styleArg = this._prefetchedStyles?.get(styleUrl) ?? styleUrl
+    const contributors = this._slottedChildren.filter(
+      el => typeof el.getTransformStyleContribution === 'function'
+    )
+    if (style === MAP_STYLE_OHM) {
+      this._map.once('styledata', () => this._localizeOhm())
+    }
+    this._map.setStyle(
+      styleArg,
+      contributors.length > 0
+        ? {
+            transformStyle: (prev, next) =>
+              contributors.reduce((s, el) => {
+                try {
+                  return el.getTransformStyleContribution(prev, s)
+                } catch (e) {
+                  console.warn('transformStyle contribution failed:', e)
+                  return s
+                }
+              }, next),
+          }
+        : undefined
+    )
   }
 
-  _reAddOverlays() {
-    const overlays = this._slottedChildren.filter(
-      el => el.tagName === 'GRAMPSJS-MAP-OVERLAY'
-    )
-    overlays.forEach(overlayElement => {
-      // After style change, MapLibre cleared all layers. Reset overlay state and re-add.
-      overlayElement.resetForStyleChange()
-      overlayElement.addOverlay()
-    })
+  _prefetchAlternateStyle() {
+    const alternateStyle =
+      this._currentStyle === MAP_STYLE_BASE ? MAP_STYLE_OHM : MAP_STYLE_BASE
+    const url = this._getStyleUrl(alternateStyle)
+    fetch(url)
+      .then(r => r.json())
+      .then(json => {
+        if (!this._prefetchedStyles) this._prefetchedStyles = new Map()
+        this._prefetchedStyles.set(url, json)
+      })
+      .catch(() => {})
   }
 
   _getStyleUrl(style) {
     const config = {...defaultConfig, ...window.grampsjsConfig}
     const theme = this.appState.getCurrentTheme()
     const mapBaseStyle =
-      theme === 'dark' ? config.mapBaseStyleDark : config.mapBaseStyleLight
-    return style === 'base' ? mapBaseStyle : config.mapOhmStyle
+      theme === THEME_DARK ? config.mapBaseStyleDark : config.mapBaseStyleLight
+    return style === MAP_STYLE_BASE ? mapBaseStyle : config.mapOhmStyle
   }
 }
 

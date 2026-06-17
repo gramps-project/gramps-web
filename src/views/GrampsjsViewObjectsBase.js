@@ -3,13 +3,19 @@ Base view for lists of Gramps objects, e.g. people, events, ...
 */
 
 import {html, css} from 'lit'
-import {mdiPlus, mdiSort, mdiSortAscending, mdiSortDescending} from '@mdi/js'
+import {mdiPlus, mdiCog, mdiCheckboxMultipleOutline} from '@mdi/js'
 
 import '@material/web/fab/fab.js'
-import '@material/mwc-icon-button'
-import '@material/mwc-icon'
+import '@material/web/iconbutton/icon-button.js'
+import '@material/web/button/outlined-button.js'
+import '@material/web/button/filled-button.js'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/text-button.js'
+import '@material/web/checkbox/checkbox.js'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
 import '../components/GrampsjsIcon.js'
-import {classMap} from 'lit/directives/class-map.js'
+import '../components/GrampsjsTable.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPagination.js'
@@ -18,7 +24,6 @@ import '../components/GrampsjsFilters.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
 import {fireEvent} from '../util.js'
-import {renderIcon} from '../icons.js'
 
 export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   GrampsjsView
@@ -27,76 +32,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     return [
       super.styles,
       css`
-        table {
-          border-collapse: collapse;
-          border-spacing: 0;
-          font-size: 14px;
+        grampsjs-table {
           margin-top: 20px;
-          width: 100%;
-        }
-
-        th {
-          padding: 12px 20px;
-          font-size: 13px;
-          color: var(--grampsjs-body-font-color-60);
-          font-weight: 400;
-          vertical-align: top;
-          line-height: 24px;
-        }
-
-        td {
-          padding: 12px 20px;
-          height: 17px;
-          line-height: 17px;
-        }
-
-        td > div {
-          width: 100%;
-          height: 100%;
-          overflow: hidden;
-        }
-
-        th,
-        td {
-          border-bottom: 1px solid var(--grampsjs-body-font-color-10);
-          text-align: left;
-          margin: 0;
-        }
-
-        table.linked tr:hover td {
-          background-color: var(--grampsjs-color-shade-240);
-          cursor: pointer;
-        }
-
-        table.linked tr.highlight td {
-          font-weight: 400;
-        }
-
-        table.linked tr.highlight:hover td {
-          background-color: var(--grampsjs-color-shade-240);
-          cursor: auto;
-        }
-
-        td mwc-icon.inline {
-          color: var(--grampsjs-body-font-color-25);
-          font-size: 16px;
-        }
-
-        .sortbtn {
-          margin-left: 1em;
-          display: inline-block;
-        }
-
-        .sortbtn mwc-icon-button {
-          --mdc-icon-button-size: 32px;
-          position: relative;
-          top: -4px;
-        }
-
-        .sortbtn mwc-icon-button svg {
-          height: 20px;
-          position: relative;
-          top: -4px;
         }
 
         md-fab {
@@ -113,8 +50,40 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
           float: right;
         }
 
-        .viewbtn mwc-icon-button {
-          color: var(--mdc-theme-primary);
+        .batch-toolbar {
+          clear: both;
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 12px 24px;
+          padding: 6px 4px;
+          margin-top: 8px;
+        }
+
+        .batch-toolbar .selection-count {
+          font-size: 16px;
+          color: var(--grampsjs-body-font-color-70);
+        }
+
+        .batch-toolbar md-filled-select {
+          --md-filled-select-text-field-container-height: 36px;
+          --md-filled-select-text-field-top-space: 0px;
+          --md-filled-select-text-field-bottom-space: 0px;
+        }
+
+        .column-picker-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 4px 0;
+        }
+
+        .column-picker-row label {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+          font-size: 15px;
         }
       `,
     ]
@@ -124,7 +93,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     return {
       _data: {type: Array},
       _rawData: {type: Array},
-      _columns: {type: Object},
+      _columns: {type: Array},
       _totalCount: {type: Number},
       _page: {type: Number},
       _pages: {type: Number},
@@ -133,6 +102,14 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       _objectsName: {type: String},
       altView: {type: Boolean},
       _oldUrl: {type: String},
+      _showColumnPicker: {type: Boolean},
+      _selectedHandles: {type: Array},
+      _selectionMode: {type: Boolean},
+      _selectionKey: {type: Number},
+      _showMergeDialog: {type: Boolean},
+      _showDeleteDialog: {type: Boolean},
+      _showActionError: {type: Boolean},
+      _currentAction: {type: String},
     }
   }
 
@@ -140,6 +117,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     super()
     this._data = []
     this._rawData = []
+    this._columns = []
     this._totalCount = -1
     this._page = 1
     this._pages = -1
@@ -148,37 +126,73 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     this._objectsName = ''
     this.altView = false
     this._oldUrl = ''
+    this._showColumnPicker = false
+    this._selectedHandles = []
+    this._selectionMode = false
+    this._selectionKey = 0
+    this._showMergeDialog = false
+    this._showDeleteDialog = false
+    this._showActionError = false
+    this._currentAction = ''
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get _supportsMerge() {
+    return false
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get _supportsDelete() {
+    return true
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _getObjectLabel(rawObj) {
+    return rawObj?.gramps_id || ''
+  }
+
+  get _visibleColumns() {
+    const saved = this.appState?.settings?.columns?.[this._objectsName]
+    if (saved && Array.isArray(saved) && saved.length > 0) {
+      const filtered = saved
+        .map(key => this._columns.find(col => col.key === key))
+        .filter(Boolean)
+      if (filtered.length > 0) return filtered
+    }
+    return this._columns.filter(col => col.defaultVisible !== false)
+  }
+
+  get _tableBreakPoint() {
+    return Math.min(960, Math.max(500, this._visibleColumns.length * 160))
+  }
+
+  get _tableData() {
+    return this._data.map(row => this._visibleColumns.map(col => row[col.key]))
   }
 
   renderContent() {
     return html`
       ${this._renderFilter()}
+      ${this._selectionMode ? this._renderBatchToolbar() : ''}
       ${this.altView
         ? this.renderAltView()
         : html`
-            <table class="linked">
-              <tr>
-                ${Object.keys(this._columns).map(
-                  column => html`
-                    <th>
-                      ${this._(this._columns[column].title)}
-                      ${this._renderSortBtn(column)}
-                    </th>
-                  `,
-                  this
-                )}
-              </tr>
-              ${this._data.map(
-                obj => html`
-                  <tr @click=${() => this._handleClick(obj)}>
-                    ${Object.keys(this._columns).map(
-                      column => html` <td><div>${obj[column]}</div></td> `,
-                      this
-                    )}
-                  </tr>
-                `
-              )}
-            </table>
+            <grampsjs-table
+              serverSort
+              sortable
+              linked
+              ?selectable="${this._selectionMode}"
+              selectionKey="${this._selectionKey}"
+              ?loading="${this.loading}"
+              .columns="${this._visibleColumns}"
+              .data="${this._tableData}"
+              sortDescriptor="${this._sort}"
+              breakPoint="${this._tableBreakPoint}"
+              .appState="${this.appState}"
+              @table:row-click="${this._handleTableRowClick}"
+              @table:sort-changed="${this._handleTableSortChanged}"
+              @selection:changed="${this._handleSelectionChanged}"
+            ></grampsjs-table>
           `}
       <grampsjs-pagination
         page="${this._page}"
@@ -187,7 +201,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         .appState="${this.appState}"
       ></grampsjs-pagination>
 
-      ${this.canAdd ? this.renderFab() : ''}
+      ${this.canAdd ? this.renderFab() : ''} ${this._renderColumnPickerDialog()}
     `
   }
 
@@ -200,7 +214,6 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     return ''
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _renderFilter() {
     return html`
       <grampsjs-filters
@@ -209,15 +222,239 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         objectType="${this._objectsName}"
         ?errorGql="${this.error}"
       >
+        ${this.appState.permissions.canEdit
+          ? this._selectionMode
+            ? html`<md-filled-button
+                slot="leading"
+                @click="${this._toggleSelectionMode}"
+              >
+                <grampsjs-icon
+                  slot="icon"
+                  .path="${mdiCheckboxMultipleOutline}"
+                  height="20"
+                  color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+                ></grampsjs-icon>
+                ${this._('Select')}
+              </md-filled-button>`
+            : html`<md-outlined-button
+                slot="leading"
+                @click="${this._toggleSelectionMode}"
+              >
+                <grampsjs-icon
+                  slot="icon"
+                  .path="${mdiCheckboxMultipleOutline}"
+                  height="20"
+                  color="var(--mdc-theme-primary)"
+                ></grampsjs-icon>
+                ${this._('Select')}
+              </md-outlined-button>`
+          : ''}
         ${this.renderFilters()}
       </grampsjs-filters>
-      <div class="viewbtn">${this._renderViewButton()}</div>
+      <div class="viewbtn">
+        ${this._renderViewButton()}
+        <md-icon-button
+          title="${this._('Columns')}"
+          aria-label="${this._('Columns')}"
+          @click="${() => {
+            this._showColumnPicker = true
+          }}"
+        >
+          <grampsjs-icon .path="${mdiCog}" height="22"></grampsjs-icon>
+        </md-icon-button>
+      </div>
 
       <div
-        class="${classMap({hidden: !this.filterOpen})}"
+        class="${this.filterOpen ? '' : 'hidden'}"
         @filter:changed="${this._handleFilterChanged}"
       ></div>
     `
+  }
+
+  _renderBatchToolbar() {
+    return html`
+      <div class="batch-toolbar">
+        <span class="selection-count">
+          ${this._('%s selected', this._selectedHandles.length)}
+        </span>
+        <md-filled-select
+          .value="${this._currentAction}"
+          label="${this._('Action')}"
+          style="min-width:140px"
+          @change="${e => {
+            this._currentAction = e.target.value
+          }}"
+        >
+          ${this._supportsMerge
+            ? html`<md-select-option value="merge">
+                ${this._('Merge')}
+              </md-select-option>`
+            : ''}
+          ${this._supportsDelete
+            ? html`<md-select-option value="delete">
+                ${this._('Delete')}
+              </md-select-option>`
+            : ''}
+        </md-filled-select>
+        <md-outlined-button
+          ?disabled="${!this._currentAction}"
+          @click="${this._handleApplyAction}"
+        >
+          ${this._('Apply')}
+        </md-outlined-button>
+      </div>
+      ${this._renderMergeDialog()} ${this._renderDeleteDialog()}
+      ${this._renderActionErrorDialog()}
+    `
+  }
+
+  _handleApplyAction() {
+    const action = this._currentAction
+    if (action === 'merge') {
+      if (this._selectedHandles.length === 2) {
+        this._showMergeDialog = true
+      } else {
+        this._showActionError = true
+      }
+    } else if (action === 'delete') {
+      if (this._selectedHandles.length >= 1) {
+        this._showDeleteDialog = true
+      } else {
+        this._showActionError = true
+      }
+    }
+  }
+
+  _renderActionErrorDialog() {
+    const message =
+      this._currentAction === 'merge'
+        ? this._('Exactly two objects must be selected to perform a merge.')
+        : this._('No objects selected.')
+    return html`
+      <md-dialog
+        ?open="${this._showActionError}"
+        @cancel="${() => {
+          this._showActionError = false
+        }}"
+        @close="${() => {
+          this._showActionError = false
+        }}"
+      >
+        <div slot="content">${message}</div>
+        <div slot="actions">
+          <md-text-button @click="${() => (this._showActionError = false)}">
+            ${this._('OK')}
+          </md-text-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  _renderMergeDialog() {
+    if (!this._showMergeDialog) return ''
+    const [h1, h2] = this._selectedHandles
+    const raw1 = this._rawData.find(r => r.handle === h1)
+    const raw2 = this._rawData.find(r => r.handle === h2)
+    return html`
+      <md-dialog
+        ?open="${this._showMergeDialog}"
+        @cancel="${() => {
+          this._showMergeDialog = false
+        }}"
+        @close="${() => {
+          this._showMergeDialog = false
+        }}"
+      >
+        <div slot="headline">${this._('Merge')}</div>
+        <div slot="content">
+          <p>
+            ${this._(
+              'Select the object that will provide the\nprimary data for the merged object.'
+            )}
+          </p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+            <md-outlined-button @click="${() => this._handleMerge(h1, h2)}">
+              ${this._getObjectLabel(raw1)}
+            </md-outlined-button>
+            <md-outlined-button @click="${() => this._handleMerge(h2, h1)}">
+              ${this._getObjectLabel(raw2)}
+            </md-outlined-button>
+          </div>
+        </div>
+        <div slot="actions">
+          <md-text-button
+            @click="${() => {
+              this._showMergeDialog = false
+            }}"
+          >
+            ${this._('Cancel')}
+          </md-text-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  _renderDeleteDialog() {
+    if (!this._showDeleteDialog) return ''
+    const count = this._selectedHandles.length
+    return html`
+      <md-dialog
+        ?open="${this._showDeleteDialog}"
+        @cancel="${() => {
+          this._showDeleteDialog = false
+        }}"
+        @close="${() => {
+          this._showDeleteDialog = false
+        }}"
+      >
+        <div slot="headline">
+          ${count === 1
+            ? this._('Delete this object?')
+            : this._('Delete %s objects?', count)}
+        </div>
+        <div slot="content">${this._('This action cannot be undone.')}</div>
+        <div slot="actions">
+          <md-text-button
+            @click="${() => {
+              this._showDeleteDialog = false
+            }}"
+          >
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-filled-button @click="${this._handleDelete}">
+            ${this._('Delete')}
+          </md-filled-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  async _handleDelete() {
+    this._showDeleteDialog = false
+    const result = await this.appState.apiPost(
+      '/api/objects/delete-by-handle/',
+      {namespace: this._objectsName, handles: this._selectedHandles}
+    )
+    if ('error' in result) {
+      fireEvent(this, 'grampsjs:error', {message: result.error})
+      return
+    }
+    this._selectionKey += 1
+    this._selectedHandles = []
+  }
+
+  async _handleMerge(phoenix, titanic) {
+    this._showMergeDialog = false
+    const result = await this.appState.apiPost(
+      `/api/${this._objectsName}/${phoenix}/merge/${titanic}`,
+      {}
+    )
+    if ('error' in result) {
+      fireEvent(this, 'grampsjs:error', {message: result.error})
+      return
+    }
+    this._selectionKey += 1
+    this._selectedHandles = []
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -243,6 +480,93 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     `
   }
 
+  _renderColumnPickerDialog() {
+    const visibleKeys = this._visibleColumns.map(c => c.key)
+    return html`
+      <md-dialog
+        ?open="${this._showColumnPicker}"
+        @cancel="${() => {
+          this._showColumnPicker = false
+        }}"
+        @close="${() => {
+          this._showColumnPicker = false
+        }}"
+      >
+        <div slot="headline">${this._('Columns')}</div>
+        <div slot="content">
+          ${this._columns.map(
+            col => html`
+              <div class="column-picker-row">
+                <label for="col-${col.key}">
+                  <md-checkbox
+                    id="col-${col.key}"
+                    ?checked="${visibleKeys.includes(col.key)}"
+                    ?disabled="${visibleKeys.length === 1 &&
+                    visibleKeys.includes(col.key)}"
+                    @change="${e =>
+                      this._toggleColumn(col.key, e.target.checked)}"
+                  ></md-checkbox>
+                  ${this._colLabel(col.name)}
+                </label>
+              </div>
+            `
+          )}
+        </div>
+        <div slot="actions">
+          <md-text-button @click="${this._resetColumns}">
+            ${this._('Reset')}
+          </md-text-button>
+          <md-text-button
+            @click="${() => {
+              this._showColumnPicker = false
+            }}"
+          >
+            ${this._('Close')}
+          </md-text-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  _colLabel(name) {
+    return this._(name).replace(/:$/, '')
+  }
+
+  _resetColumns() {
+    const existingColumns = {...(this.appState.settings?.columns || {})}
+    delete existingColumns[this._objectsName]
+    this.appState.updateSettings({columns: existingColumns}, true)
+  }
+
+  _toggleColumn(key, visible) {
+    const currentVisible = this._visibleColumns.map(c => c.key)
+    let newVisible
+    if (visible) {
+      newVisible = this._columns
+        .filter(col => col.key === key || currentVisible.includes(col.key))
+        .map(col => col.key)
+    } else {
+      newVisible = currentVisible.filter(k => k !== key)
+    }
+    if (newVisible.length === 0) return
+    const hiddenCol = this._columns.find(col => col.key === key)
+    if (
+      !visible &&
+      hiddenCol?.sortKey &&
+      this._sort.substring(1) === hiddenCol.sortKey
+    ) {
+      const fallback = this._columns.find(
+        col => col.sortKey && newVisible.includes(col.key)
+      )
+      this._sort = fallback ? `-${fallback.sortKey}` : '-change'
+    }
+    const existingColumns = this.appState.settings?.columns || {}
+    this.appState.updateSettings(
+      {columns: {...existingColumns, [this._objectsName]: newVisible}},
+      true
+    )
+  }
+
   _handleFiltersChanged() {
     this._page = 1
     this._fetchData()
@@ -252,51 +576,34 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     this._page = event.detail.page
   }
 
-  _handleClick(obj) {
-    fireEvent(this, 'nav', {path: this._getItemPath(obj)})
+  _handleTableRowClick(e) {
+    const {rowNumber} = e.detail
+    fireEvent(this, 'nav', {path: this._getItemPath(this._data[rowNumber])})
+  }
+
+  _handleTableSortChanged(e) {
+    const {key, descending} = e.detail
+    this._page = 1
+    this._sort = `${descending ? '-' : '+'}${key}`
+  }
+
+  _handleSelectionChanged(e) {
+    const {indices} = e.detail
+    this._selectedHandles = indices
+      .map(i => this._rawData[i]?.handle)
+      .filter(Boolean)
+  }
+
+  _toggleSelectionMode() {
+    this._selectionMode = !this._selectionMode
+    if (!this._selectionMode) {
+      this._selectedHandles = []
+      this._selectionKey += 1
+    }
   }
 
   _handleClickAdd() {
     fireEvent(this, 'nav', {path: this._getAddPath()})
-  }
-
-  _renderSortBtn(column) {
-    const sortKey = this._columns[column].sort
-    if (!sortKey) {
-      return ''
-    }
-    const isCurrent = this._sort.substring(1) === sortKey
-    const isAscending = isCurrent && this._sort.substring(0, 1) === '+'
-    return html` <div class="sortbtn ${isCurrent ? 'current-sort' : ''}">
-      <mwc-icon-button
-        @click="${() => this._toggleSort(sortKey, isCurrent, isAscending)}"
-        id="btn-sort-${column}"
-      >
-        ${this._renderSortIcon(isCurrent, isAscending)}
-      </mwc-icon-button>
-      <grampsjs-tooltip for="btn-sort-${column}" .appState="${this.appState}"
-        >${this._('Sort')}</grampsjs-tooltip
-      >
-    </div>`
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _renderSortIcon(isCurrent, isAscending) {
-    if (isCurrent) {
-      if (isAscending) {
-        return renderIcon(
-          mdiSortAscending,
-          'var(--grampsjs-body-font-color-60)'
-        )
-      }
-      return renderIcon(mdiSortDescending, 'var(--grampsjs-body-font-color-60)')
-    }
-    return renderIcon(mdiSort, 'var(--grampsjs-body-font-color-20)')
-  }
-
-  _toggleSort(sortKey, isCurrent, isAscending) {
-    this._page = 1
-    this._sort = isCurrent && isAscending ? `-${sortKey}` : `+${sortKey}`
   }
 
   get _filters() {
@@ -339,6 +646,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   }
 
   _fetchData() {
+    this._selectedHandles = []
+    this._selectionKey += 1
     this.loading = true
     const url = this._fullUrl
     this._oldUrl = url

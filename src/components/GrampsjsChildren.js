@@ -44,6 +44,15 @@ export class GrampsjsChildren extends GrampsjsEditableList {
     const p = this.profile[i] || {}
     const extPerson = this.extended.find(e => e.handle === obj.ref) || null
 
+    const frel = obj.frel || 'Birth'
+    const mrel = obj.mrel || 'Birth'
+    const hasNonBirthRel = frel !== 'Birth' || mrel !== 'Birth'
+    const relText = hasNonBirthRel
+      ? `${this._('Father')}: ${this._(frel)} / ${this._('Mother')}: ${this._(
+          mrel
+        )}`
+      : ''
+
     return html`
       <md-list-item
         type="button"
@@ -60,6 +69,9 @@ export class GrampsjsChildren extends GrampsjsEditableList {
         }}"
       >
         ${p.name_given || ''} ${p.name_surname || ''} ${renderPersonDates(p)}
+        ${hasNonBirthRel
+          ? html`<span slot="supporting-text">${relText}</span>`
+          : ''}
         ${renderPersonAvatar(extPerson, p.sex)}
       </md-list-item>
     `

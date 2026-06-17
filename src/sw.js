@@ -1,27 +1,52 @@
-import {clientsClaim} from 'workbox-core'
-import {precacheAndRoute, createHandlerBoundToURL} from 'workbox-precaching'
+import {precacheAndRoute} from 'workbox-precaching'
 import {registerRoute, NavigationRoute} from 'workbox-routing'
 import {CacheFirst} from 'workbox-strategies'
 import {CacheableResponsePlugin} from 'workbox-cacheable-response'
 import {ExpirationPlugin} from 'workbox-expiration'
 
-self.skipWaiting()
-clientsClaim()
+// Skip waiting immediately so the new SW activates without user interaction.
+// clients.claim() fires controllerchange on all open tabs → PwaUpdateAvailable
+// reloads them, recovering any tab stuck on a broken page.
+self.addEventListener('install', () => self.skipWaiting())
+self.addEventListener('activate', event =>
+  event.waitUntil(self.clients.claim())
+)
+
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting()
+  }
+})
 
 precacheAndRoute(self.__WB_MANIFEST)
 
-// Handle navigation requests (SPA routing) by serving the precached index.html,
-// except for API routes which should always go to the network.
+// Always fetch index.html fresh (cache:'no-cache'). Opaque redirects pass through.
 registerRoute(
-  new NavigationRoute(createHandlerBoundToURL('index.html'), {
-    denylist: [/^\/api.*/],
-  })
+  new NavigationRoute(
+    async ({request}) => {
+      try {
+        const revalidatingRequest = new Request(request, {cache: 'no-cache'})
+        const response = await fetch(revalidatingRequest, {redirect: 'manual'})
+        if (response.type === 'opaqueredirect') {
+          console.log(
+            '[SW]  NavigationRoute: opaque redirect - passing through'
+          )
+          return response
+        }
+        if (response.ok) {
+          return response
+        }
+      } catch {
+        // offline
+      }
+      return fetch(new Request(request, {cache: 'no-cache'}))
+    },
+    {denylist: [/^\/api.*/]}
+  )
 )
 
-// Cache thumbnails with a stable cache key:
-// - strip `jwt` so token rotation doesn't bust the cache
-// - keep `checksum` in the cache key for content-addressed invalidation
-// - strip `checksum` before the network request so the backend doesn't reject it
+// Cache thumbnails: strip `jwt` from cache key (token rotation), strip `checksum`
+// before fetching (backend rejects it; kept in cache key for invalidation).
 const thumbnailPlugin = {
   cacheKeyWillBeUsed: async ({request}) => {
     const url = new URL(request.url)

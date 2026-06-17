@@ -12,19 +12,27 @@ import '../components/GrampsjsFilterPrivate.js'
 export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
   constructor() {
     super()
-    this._columns = {
-      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      father: {title: 'Father', sort: 'surname'},
-      mother: {title: 'Mother', sort: ''},
-      change: {title: 'Last changed', sort: 'change'},
-    }
+    this._columns = [
+      {name: 'Gramps ID', key: 'grampsId', sortKey: 'gramps_id'},
+      {name: 'Father', key: 'father', sortKey: 'surname'},
+      {name: 'Mother', key: 'mother'},
+      {name: 'Relationship type:', key: 'relationship', defaultVisible: false},
+      {name: 'Marriage Date', key: 'marriageDate'},
+      {name: 'Marriage place', key: 'marriagePlace', defaultVisible: false},
+      {name: 'Number of Children', key: 'children', defaultVisible: false},
+      {name: 'Last changed', key: 'change', sortKey: 'change'},
+    ]
     this._objectsName = 'families'
+  }
+
+  get _supportsMerge() {
+    return true
   }
 
   get _fetchUrl() {
     return `/api/families/?locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=self&keys=gramps_id,profile,change`
+    }&profile=self&keys=gramps_id,profile,change,handle`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -69,7 +77,7 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
 
   // eslint-disable-next-line class-methods-use-this
   _formatRow(row) {
-    const formattedRow = {
+    return {
       grampsId: row.gramps_id,
       father: `${row?.profile?.father?.name_surname || '…'}, ${
         row?.profile?.father?.name_given || '…'
@@ -77,9 +85,12 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
       mother: `${row?.profile?.mother?.name_surname || '…'}, ${
         row?.profile?.mother?.name_given || '…'
       }`,
+      relationship: row?.profile?.relationship,
+      marriageDate: row?.profile?.marriage?.date,
+      marriagePlace: row?.profile?.marriage?.place_name,
+      children: row?.profile?.children?.length,
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
-    return formattedRow
   }
 }
 

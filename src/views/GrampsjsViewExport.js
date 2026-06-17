@@ -1,9 +1,11 @@
 import {css, html} from 'lit'
-import '@material/mwc-select'
-import '@material/mwc-button'
-import '@material/mwc-icon'
+import '@material/web/select/filled-select'
+import '@material/web/select/select-option'
+import '@material/web/button/filled-button'
+import {mdiAlertOutline} from '@mdi/js'
 
 import {GrampsjsView} from './GrampsjsView.js'
+import '../components/GrampsjsIcon.js'
 import {getExporterDownloadUrl, getPermissions} from '../api.js'
 
 export class GrampsjsViewExport extends GrampsjsView {
@@ -17,11 +19,6 @@ export class GrampsjsViewExport extends GrampsjsView {
 
         p {
           line-height: 1.6em;
-        }
-
-        mwc-icon.inline {
-          --mdc-icon-size: 1em;
-          color: var(--grampsjs-body-font-color-50);
         }
       `,
     ]
@@ -51,31 +48,40 @@ export class GrampsjsViewExport extends GrampsjsView {
       <h2>${this._('Export')}</h2>
       <h3>${this._('Export your family tree')}</h3>
 
-      <mwc-select @change=${this._handleSelect} style="min-width:30em;">
-        ${this.data.map(
-          obj => html`
-            <mwc-list-item
-              value="${obj.extension}"
-              ?selected="${obj.extension === 'gramps'}"
-              >${obj.name.replace('_', '')}</mwc-list-item
+      ${this.data.length === 0
+        ? html`<md-filled-select
+            style="min-width:30em;"
+            disabled
+          ></md-filled-select>`
+        : html`
+            <md-filled-select
+              @change=${this._handleSelect}
+              style="min-width:30em;"
             >
-          `
-        )}
-      </mwc-select>
+              ${this.data.map(
+                obj => html`
+                  <md-select-option
+                    value="${obj.extension}"
+                    ?selected="${obj.extension === this._formData.exporter}"
+                  >
+                    <div slot="headline">${this._(obj.name)}</div>
+                  </md-select-option>
+                `
+              )}
+            </md-filled-select>
+          `}
       ${this._getDescription()} ${this._renderWarning()}
       <p>
-        <mwc-button
-          raised
+        <md-filled-button
           @click="${this._generateExport}"
           ?disabled="${!this._formData.exporter}"
-          >${this._('_Generate')}</mwc-button
+          >${this._('_Generate')}</md-filled-button
         >
         <grampsjs-task-progress-indicator
           id="indicator-export"
           taskName="exportFile"
           class="button"
           size="20"
-          pollInterval="0.2"
           .appState="${this.appState}"
           @task:complete="${this._handleTaskComplete}"
         ></grampsjs-task-progress-indicator>
@@ -95,15 +101,14 @@ export class GrampsjsViewExport extends GrampsjsView {
 
       ${this._renderWarning()}
       <p>
-        <mwc-button raised @click="${this._generateMediaArchive}"
-          >${this._('_Generate')}</mwc-button
+        <md-filled-button @click="${this._generateMediaArchive}"
+          >${this._('_Generate')}</md-filled-button
         >
         <grampsjs-task-progress-indicator
           id="indicator-media"
           taskName="exportMedia"
           class="button"
           size="20"
-          pollInterval="0.2"
           .appState="${this.appState}"
           @task:complete="${this._handleMediaTaskComplete}"
         ></grampsjs-task-progress-indicator>
@@ -125,7 +130,13 @@ export class GrampsjsViewExport extends GrampsjsView {
     }
     return html`
       <p class="warn">
-        <mwc-icon class="inline">warning</mwc-icon> ${this._(
+        <grampsjs-icon
+          path="${mdiAlertOutline}"
+          height="1em"
+          width="1em"
+          color="var(--grampsjs-body-font-color-50)"
+        ></grampsjs-icon>
+        ${this._(
           'You do not have permissions to view private records, so the export will be incomplete.'
         )}
       </p>
@@ -151,7 +162,7 @@ export class GrampsjsViewExport extends GrampsjsView {
     if (!exporter) {
       return ''
     }
-    return html`<p>${exporter.description}</p>`
+    return html`<p>${this._(exporter.description)}</p>`
   }
 
   _handleSelect(e) {
@@ -185,7 +196,12 @@ export class GrampsjsViewExport extends GrampsjsView {
       prog.errorMessage = data.error
     } else if ('task' in data) {
       // queued task
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      if (taskId)
+        this.appState.registerTask(taskId, 'Export', {
+          taskName: 'exportFile',
+        })
+      prog.taskId = taskId
     } else {
       // eagerly executed task
       this._downloadUrl = data?.data?.url || ''
@@ -205,7 +221,12 @@ export class GrampsjsViewExport extends GrampsjsView {
       prog.errorMessage = data.error
     } else if ('task' in data) {
       // queued task
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      if (taskId)
+        this.appState.registerTask(taskId, 'Export media', {
+          taskName: 'exportMedia',
+        })
+      prog.taskId = taskId
     } else {
       // eagerly executed task
       this._downloadUrl = data?.data?.url || ''
@@ -239,33 +260,23 @@ export class GrampsjsViewExport extends GrampsjsView {
   }
 
   firstUpdated() {
-    if (this.appState.i18n.lang) {
-      // don't load before we have strings
-      this._fetchData(this.appState.i18n.lang)
-    }
+    super.firstUpdated()
     const permissions = getPermissions()
     this._viewPrivate = permissions.includes('ViewPrivate')
   }
 
   updated(changed) {
+    super.updated(changed)
     if (changed.has('_downloadUrl') && this._downloadUrl) {
       this._startDownload()
     }
     if (changed.has('_mediaDownloadUrl') && this._mediaDownloadUrl) {
       this._startMediaDownload()
     }
-    if (
-      changed.has('appState') &&
-      changed.get('appState')?.i18n?.lang !== this.appState.i18n.lang
-    ) {
-      this._handleLanguageChanged(this.appState.i18n.lang)
-    }
   }
 
-  _handleLanguageChanged(lang) {
-    if (this._hasFirstUpdated) {
-      this._fetchData(lang)
-    }
+  _onLangChanged() {
+    this._fetchData()
   }
 }
 
