@@ -349,6 +349,8 @@ function remasterChart(
   gvchartx.selectAll('title').remove()
   // based on graphviz created nodes build array containing node data to be bound to d3 nodes
   let imageCount = 0
+  // track first occurrence index of each person handle for duplicate detection
+  const firstOccurrenceIndex = {}
   gvchartx.selectAll('.node').each(function () {
     const e = select(this)
     const textElement = e.select('text')
@@ -358,9 +360,17 @@ function remasterChart(
     const found = c.match(/(?<handletype>family|person)_(?<handle>\S+)/)
     if (found.groups.handletype === 'person') {
       const d = graph.known(found.groups.handle)
+      const handle = found.groups.handle
       const imageUrl = getImageUrl(d)
       if (imageUrl) {
         imageCount += 1
+      }
+      const isDuplicate = firstOccurrenceIndex[handle] !== undefined
+      if (!isDuplicate) {
+        firstOccurrenceIndex[handle] = nodedata.length
+      } else {
+        // mark first occurrence as duplicate too
+        nodedata[firstOccurrenceIndex[handle]].isDuplicate = true
       }
       nodedata.push({
         nodetype: d.profile.fake ? 'fake' : 'person',
@@ -368,7 +378,9 @@ function remasterChart(
         yCoord: y - boxHeight / 2,
         profile: d.profile,
         imageUrl: imageCount > maxImages ? '' : imageUrl,
-        handle: found.groups.handle,
+        handle,
+        isDuplicate,
+        firstOccurrenceIndex: isDuplicate ? firstOccurrenceIndex[handle] : null,
       })
     } else if (found.groups.handletype === 'family') {
       const d = graph.getNode(found.groups.handle)
@@ -409,11 +421,30 @@ function remasterChart(
     .append('rect', ':first-child')
     .attr('width', boxWidth)
     .attr('height', boxHeight)
-    .attr('class', 'personBox')
+    .attr('class', d =>
+      d.isDuplicate ? 'personBox personBoxDuplicate' : 'personBox'
+    )
     .attr('x', 0)
     .attr('y', 0)
     .attr('rx', 8)
     .attr('ry', 8)
+    .attr('stroke', d =>
+      d.isDuplicate ? 'var(--grampsjs-color-icon-selected, #7c3aed)' : 'none'
+    )
+    .attr('stroke-width', d => (d.isDuplicate ? 2 : 0))
+    .attr('stroke-dasharray', d => (d.isDuplicate ? '6,3' : 'none'))
+
+  // duplicate indicator badge (small "2×" label in top-right corner)
+  nodes
+    .filter(d => d.isDuplicate && d.nodetype === 'person')
+    .append('text')
+    .attr('x', boxWidth - 6)
+    .attr('y', 14)
+    .attr('text-anchor', 'end')
+    .attr('font-size', 10)
+    .attr('font-weight', '600')
+    .attr('fill', 'var(--grampsjs-color-icon-selected, #7c3aed)')
+    .text('2×')
 
   nodes
     .filter(
@@ -572,6 +603,32 @@ function remasterChart(
       .attr('stroke-width', 1)
   })
   // edges.selectAll('path').attr('stroke-opacity', '0.4')
+
+  // draw dashed connecting lines between duplicate person occurrences
+  const duplicatePairs = {}
+  nodedata.forEach(d => {
+    if (d.isDuplicate && d.nodetype === 'person') {
+      if (!duplicatePairs[d.handle]) {
+        duplicatePairs[d.handle] = []
+      }
+      duplicatePairs[d.handle].push(d)
+    }
+  })
+  Object.values(duplicatePairs).forEach(pair => {
+    if (pair.length < 2) return
+    const a = pair[0]
+    const b = pair[1]
+    edges
+      .append('line')
+      .attr('x1', Number(a.xCoord) + boxWidth / 2)
+      .attr('y1', Number(a.yCoord) + boxHeight / 2)
+      .attr('x2', Number(b.xCoord) + boxWidth / 2)
+      .attr('y2', Number(b.yCoord) + boxHeight / 2)
+      .attr('stroke', 'var(--grampsjs-color-icon-selected, #7c3aed)')
+      .attr('stroke-width', 1.5)
+      .attr('stroke-dasharray', '5,4')
+      .attr('stroke-opacity', 0.5)
+  })
 
   // move root person to center
   nodes
