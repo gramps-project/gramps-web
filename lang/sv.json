@@ -364,5 +364,11 @@
     "No coordinates": "Inga koordinater",
     "No objects selected.": "Inga objekt valda.",
     "Exact place": "Exakt plats",
-    "Enclosed places": "Slutna platser"
+    "Enclosed places": "Slutna platser",
+    "Pick on map": "Välj på kartan",
+    "Coordinates": "Koordinater",
+    "External": "Extern",
+    "External search failed": "Extern sökning misslyckades",
+    "Too many requests. Please try again later.": "För många förfrågningar. Försök igen senare.",
+    "Add Participant": "Lägg till deltagare"
 }
