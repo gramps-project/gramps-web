@@ -195,6 +195,23 @@ function generateDot(graph) {
     }
   }
 
+  // Force duplicate-person family clusters to appear adjacent within their rank.
+  // rank=same + a directed invisible edge is the standard graphviz idiom for
+  // controlling left-to-right ordering within a rank. This is different from
+  // a plain invisible edge in the main graph (which only affects edge routing).
+  for (const [personHandle, nodeMap] of Object.entries(
+    graph.person_node_map || {}
+  )) {
+    const families = Object.keys(nodeMap)
+    if (families.length > 1) {
+      for (let i = 0; i < families.length - 1; i++) {
+        dot += `{ rank=same; "node_${families[i]}x${personHandle}" -> "node_${
+          families[i + 1]
+        }x${personHandle}" [style=invis weight=100] }\n`
+      }
+    }
+  }
+
   // frame dot code with global commands
   dot = `
     digraph gramps {
@@ -339,118 +356,6 @@ const clipString = (s, length) => {
   return `${s.slice(0, nChar - 2)}…`
 }
 
-// Recursively shift the entire subtree rooted at a family cluster by delta.
-// Uses graph edge structure to find descendants, visiting each cluster once.
-function shiftSubtree(familyHandle, delta, nodedata, graph, visited) {
-  if (visited.has(familyHandle)) return
-  visited.add(familyHandle)
-
-  // Shift every nodedata entry that belongs to this cluster
-  nodedata.forEach(d => {
-    const inCluster =
-      (d.nodetype === 'person' && d.familyHandle === familyHandle) ||
-      (d.nodetype === 'family' && d.handle === familyHandle)
-    if (inCluster) d.xCoord = String(Number(d.xCoord) + delta)
-  })
-
-  // Follow edges downward: for each child of this family, shift their
-  // own family clusters (and recurse into their children).
-  for (const e of graph.getEdges()) {
-    if (e.sourceFamily !== familyHandle) continue
-    for (const childFamilyHandle of graph.getNodesOfPerson(e.targetPerson)) {
-      shiftSubtree(childFamilyHandle, delta, nodedata, graph, visited)
-    }
-  }
-}
-
-// Post-process nodedata to ensure families that share a duplicate person are
-// placed adjacent to each other, regardless of where graphviz decided to put them.
-// Swaps entire subtrees (cluster + all descendants) so child/grandchild nodes
-// move with their parent cluster.
-function swapDuplicateClusters(nodedata, graph, boxHeight) {
-  const Y_TOLERANCE = boxHeight * 1.5
-
-  // Helper: all nodedata entries belonging to a given family cluster at refY
-  const clusterNodes = (familyHandle, refY) =>
-    nodedata.filter(d => {
-      if (Math.abs(Number(d.yCoord) - refY) > Y_TOLERANCE) return false
-      if (d.nodetype === 'person') return d.familyHandle === familyHandle
-      if (d.nodetype === 'family') return d.handle === familyHandle
-      return false
-    })
-
-  // Helper: centre x of a set of nodes
-  const centerX = nodes => {
-    const xs = nodes.map(d => Number(d.xCoord))
-    return (Math.min(...xs) + Math.max(...xs)) / 2
-  }
-
-  for (const [personHandle, nodeMap] of Object.entries(
-    graph.person_node_map || {}
-  )) {
-    const families = Object.keys(nodeMap)
-    if (families.length < 2) continue
-
-    const allOccurrences = nodedata.filter(
-      d => d.nodetype === 'person' && d.handle === personHandle
-    )
-    if (allOccurrences.length < 2) continue
-
-    allOccurrences.sort((a, b) => Number(a.xCoord) - Number(b.xCoord))
-    const leftOcc = allOccurrences[0]
-    const rightOcc = allOccurrences[allOccurrences.length - 1]
-
-    const refY = Number(leftOcc.yCoord)
-    const leftFH = leftOcc.familyHandle
-    const rightFH = rightOcc.familyHandle
-    if (!leftFH || !rightFH || leftFH === rightFH) continue
-
-    const leftCluster = clusterNodes(leftFH, refY)
-    const rightCluster = clusterNodes(rightFH, refY)
-    if (!leftCluster.length || !rightCluster.length) continue
-
-    const leftCX = centerX(leftCluster)
-    const rightCX = centerX(rightCluster)
-
-    // Collect all OTHER family clusters at the same rank that sit between the two
-    const allFHsAtLevel = new Set()
-    nodedata.forEach(d => {
-      if (Math.abs(Number(d.yCoord) - refY) <= Y_TOLERANCE) {
-        if (d.nodetype === 'person' && d.familyHandle)
-          allFHsAtLevel.add(d.familyHandle)
-        if (d.nodetype === 'family') allFHsAtLevel.add(d.handle)
-      }
-    })
-
-    const intruders = []
-    for (const fh of allFHsAtLevel) {
-      if (fh === leftFH || fh === rightFH) continue
-      const nodes = clusterNodes(fh, refY)
-      if (!nodes.length) continue
-      const cx = centerX(nodes)
-      if (cx > leftCX && cx < rightCX) intruders.push({fh, cx})
-    }
-    if (!intruders.length) continue // already adjacent — nothing to do
-
-    intruders.sort((a, b) => a.cx - b.cx)
-    const leftmostIntruder = intruders[0]
-
-    // Swap the right duplicate subtree with the leftmost intruder subtree.
-    // Each swap shifts the entire cluster + all its descendants.
-    const rightToIntruderDelta = leftmostIntruder.cx - rightCX
-    const intruderToRightDelta = rightCX - leftmostIntruder.cx
-
-    shiftSubtree(rightFH, rightToIntruderDelta, nodedata, graph, new Set())
-    shiftSubtree(
-      leftmostIntruder.fh,
-      intruderToRightDelta,
-      nodedata,
-      graph,
-      new Set()
-    )
-  }
-}
-
 function clicked(event, d) {
   dispatchEvent(
     new CustomEvent('pedigree:person-selected', {
@@ -541,9 +446,6 @@ function remasterChart(
     }
   })
 
-  // Post-process: swap same-rank clusters so families sharing a duplicate person
-  // end up adjacent, regardless of where graphviz placed them.
-  swapDuplicateClusters(nodedata, graph, boxHeight)
   // container for edges
   const edges = targetsvg.append('g').attr('class', 'edges')
 
