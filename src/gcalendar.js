@@ -12,8 +12,6 @@
  * and are not included here.
  */
 
-// ── Gregorian ────────────────────────────────────────────────────────────────
-
 const _GRG_SDN_OFFSET = 32045
 const _GRG_DAYS_PER_5_MONTHS = 153
 const _GRG_DAYS_PER_4_YEARS = 1461
@@ -59,8 +57,6 @@ export function gregorianYmd(sdn) {
   return [year, month, day]
 }
 
-// ── Julian ───────────────────────────────────────────────────────────────────
-
 const _JLN_SDN_OFFSET = 32083
 const _JLN_DAYS_PER_5_MONTHS = 153
 const _JLN_DAYS_PER_4_YEARS = 1461
@@ -102,8 +98,6 @@ export function julianYmd(sdn) {
   return [year, month, day]
 }
 
-// ── French Republican ─────────────────────────────────────────────────────────
-
 const _FR_SDN_OFFSET = 2375474
 const _FR_DAYS_PER_4_YEARS = 1461
 const _FR_DAYS_PER_MONTH = 30
@@ -127,8 +121,6 @@ export function frenchYmd(sdn) {
   const day = (dayOfYear % _FR_DAYS_PER_MONTH) + 1
   return [year, month, day]
 }
-
-// ── Islamic ───────────────────────────────────────────────────────────────────
 
 const _ISM_EPOCH = 1948439.5
 
@@ -155,8 +147,6 @@ export function islamicYmd(sdn) {
   const day = Math.floor(s - islamicSdn(year, month, 1)) + 1
   return [year, month, day]
 }
-
-// ── Swedish ───────────────────────────────────────────────────────────────────
 
 /**
  * Convert a Swedish calendar (year, month, day) to an SDN.
@@ -187,7 +177,60 @@ export function swedishYmd(sdn) {
   return julianYmd(sdn)
 }
 
-// ── Calendar index (matches Gramps Date.CAL_* constants) ─────────────────────
+/**
+ * Return true if (year, month, day) is a valid date in the given calendar.
+ *
+ * Partial dates (month === 0 or day === 0) are always accepted — they mean
+ * "unspecified" in Gramps. When year === 0 (unspecified), a canonical
+ * Gregorian leap year (4 AD) is used as a stand-in so that Feb 29 is
+ * accepted as a valid day-of-month regardless of the actual year.
+ *
+ * Unimplemented calendars (Hebrew=2, Persian=4) always return true because
+ * the JS port of gcalendar.py does not yet cover them.
+ *
+ * The check uses the round-trip SDN method: convert (year, month, day) to an
+ * SDN and back; the date is valid iff the result equals the input.
+ */
+export function isValidCalendarDate(calendar, year, month, day) {
+  if (month === 0 || day === 0) {
+    return true
+  }
+  if (calendar === CALENDARS.HEBREW || calendar === CALENDARS.PERSIAN) {
+    return true
+  }
+  const y = year !== 0 ? year : 4
+  let sdn
+  let roundTrip
+  switch (calendar) {
+    case CALENDARS.GREGORIAN:
+      sdn = gregorianSdn(y, month, day)
+      roundTrip = gregorianYmd(sdn)
+      break
+    case CALENDARS.JULIAN:
+      sdn = julianSdn(y, month, day)
+      roundTrip = julianYmd(sdn)
+      break
+    case CALENDARS.FRENCH:
+      sdn = frenchSdn(y, month, day)
+      roundTrip = frenchYmd(sdn)
+      break
+    case CALENDARS.ISLAMIC:
+      sdn = islamicSdn(y, month, day)
+      roundTrip = islamicYmd(sdn)
+      break
+    case CALENDARS.SWEDISH:
+      sdn = swedishSdn(y, month, day)
+      roundTrip = swedishYmd(sdn)
+      break
+    default:
+      return true
+  }
+  return (
+    roundTrip[1] === month &&
+    roundTrip[2] === day &&
+    (year === 0 || roundTrip[0] === y)
+  )
+}
 
 export const CALENDARS = {
   GREGORIAN: 0,
@@ -197,6 +240,72 @@ export const CALENDARS = {
   PERSIAN: 4, // not implemented here
   ISLAMIC: 5,
   SWEDISH: 6,
+}
+
+/**
+ * Validate a Gramps Date object and return a structured result.
+ *
+ * Modifiers 4 (Range) and 5 (Span) require a second date in dateval[4..7].
+ * For these, the second date must be non-empty, calendar-valid, and strictly
+ * later than the first date (compared by year → month → day; zeros meaning
+ * "unspecified" are treated as 0 in ordering).
+ *
+ * @param {Object} data - Gramps Date object
+ * @returns {{date1Invalid: boolean, date2Empty: boolean, date2Invalid: boolean, date2OrderInvalid: boolean, valid: boolean}}
+ */
+export function validateGrampsDate(data) {
+  const dv = data?.dateval
+  if (!dv) {
+    return {
+      date1Invalid: false,
+      date2Empty: false,
+      date2Invalid: false,
+      date2OrderInvalid: false,
+      valid: false,
+    }
+  }
+
+  const cal = data.calendar ?? CALENDARS.GREGORIAN
+  const hasSecond = data.modifier === 4 || data.modifier === 5
+  const [d1, m1, y1] = dv.slice(0, 3)
+  const date1Invalid =
+    (d1 !== 0 || m1 !== 0 || y1 !== 0) && !isValidCalendarDate(cal, y1, m1, d1)
+
+  if (!hasSecond) {
+    return {
+      date1Invalid,
+      date2Empty: false,
+      date2Invalid: false,
+      date2OrderInvalid: false,
+      valid: !date1Invalid && dv.length <= 4,
+    }
+  }
+
+  if (dv.length < 8) {
+    return {
+      date1Invalid,
+      date2Empty: true,
+      date2Invalid: false,
+      date2OrderInvalid: false,
+      valid: false,
+    }
+  }
+
+  const [d2, m2, y2] = dv.slice(4, 7)
+  const date2Empty = d2 === 0 && m2 === 0 && y2 === 0
+  const date2Invalid = !date2Empty && !isValidCalendarDate(cal, y2, m2, d2)
+  const date2OrderInvalid =
+    !date2Empty &&
+    !date2Invalid &&
+    (y2 < y1 || (y2 === y1 && (m2 < m1 || (m2 === m1 && d2 <= d1))))
+
+  return {
+    date1Invalid,
+    date2Empty,
+    date2Invalid,
+    date2OrderInvalid,
+    valid: !date1Invalid && !date2Empty && !date2Invalid && !date2OrderInvalid,
+  }
 }
 
 /**
