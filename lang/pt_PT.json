@@ -370,5 +370,8 @@
     "External": "Externo",
     "External search failed": "A procura externa falhou",
     "Too many requests. Please try again later.": "Demasiados pedidos. Por favor, tente novamente mais tarde.",
-    "Add Participant": "Adicionar participante"
+    "Add Participant": "Adicionar participante",
+    "Invalid date": "Data inválida",
+    "End date must be after start date": "A data final deve ser posterior à data inicial",
+    "End date is required": "Data final requerida"
 }
