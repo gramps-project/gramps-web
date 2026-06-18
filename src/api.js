@@ -80,13 +80,18 @@ export function getSettings() {
 export function updateSettings(settings, tree = false) {
   const key = tree ? 'grampsjs_settings_tree' : 'grampsjs_settings'
   const settingString = localStorage.getItem(key)
-  const parsedSettings = JSON.parse(settingString) || {}
-  const treeId = getTreeId() || 'unknown'
-  const existingSettings = tree ? parsedSettings?.[treeId] : parsedSettings
-  const finalSettings = {...existingSettings, ...settings}
-  const data = tree ? {[treeId]: finalSettings} : finalSettings
-  localStorage.setItem(key, JSON.stringify(data))
-  fireEvent(window, 'settings:changed')
+  try {
+    const parsedSettings = JSON.parse(settingString) || {}
+    const treeId = getTreeId() || 'unknown'
+    const existingSettings = tree ? parsedSettings?.[treeId] : parsedSettings
+    const finalSettings = {...existingSettings, ...settings}
+    const data = tree ? {[treeId]: finalSettings} : finalSettings
+    localStorage.setItem(key, JSON.stringify(data))
+    fireEvent(window, 'settings:changed')
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('Failed to update settings:', e)
+  }
 }
 
 export function getMapViewport() {
