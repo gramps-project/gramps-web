@@ -370,5 +370,9 @@
     "Coordinates": "Koordinaten",
     "External": "Extern",
     "External search failed": "Externe Suche fehlgeschlagen",
-    "Too many requests. Please try again later.": "Zu viele Anfragen. Bitte versuche es später erneut."
+    "Too many requests. Please try again later.": "Zu viele Anfragen. Bitte versuche es später erneut.",
+    "Add Participant": "Teilnehmer hinzufügen",
+    "Invalid date": "Ungültiges Datum",
+    "End date must be after start date": "Enddatum muss nach dem Anfangsdatum liegen",
+    "End date is required": "Das Enddatum ist ein Pflichtfeld"
 }
