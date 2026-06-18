@@ -860,7 +860,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     } else if ('task' in data) {
       const taskId = data.task?.id || ''
       if (taskId)
-        this.appState.registerTask(taskId, 'Verify genealogical data', {
+        this.appState.registerTask(taskId, 'Verify the Data', {
           taskName: 'verifyDb',
         })
       prog.taskId = taskId
@@ -894,8 +894,14 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       ['yngdad', this._('Mi_nimum age to father a child')],
       ['olddad', this._('Ma_ximum age to father a child')],
       ['wedder', this._('Maximum number of _spouses for a person')],
-      ['mxchildmom', this._('Maximum number of chil_dren')],
-      ['mxchilddad', this._('Maximum number of chil_dren')],
+      [
+        'mxchildmom',
+        `${this._('Maximum number of chil_dren')} (${this._('Women')})`,
+      ],
+      [
+        'mxchilddad',
+        `${this._('Maximum number of chil_dren')} (${this._('Men')})`,
+      ],
       [
         'lngwdw',
         this._(
@@ -932,9 +938,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       <div class="verify-bool-options">
         ${boolOptions.map(
           ([key, label]) => html`
-            <div class="verify-option-bool">
+            <label class="verify-option-bool">
               <md-switch
-                id="verify-opt-${key}"
                 ?selected="${this._verifyOptions[key]}"
                 @change="${e => {
                   this._verifyOptions = {
@@ -943,8 +948,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                   }
                 }}"
               ></md-switch>
-              <label for="verify-opt-${key}">${label}</label>
-            </div>
+              ${label}
+            </label>
           `
         )}
       </div>
