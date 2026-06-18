@@ -33,6 +33,14 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
           color: var(--grampsjs-body-font-color-50);
         }
 
+        h3.label {
+          font-family: var(--grampsjs-body-font-family);
+          font-size: 16px;
+          font-weight: 500;
+          margin-top: 1em;
+          margin-bottom: 0;
+        }
+
         md-dialog {
           max-width: 100vw;
           min-width: 50vw;
@@ -132,7 +140,11 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     return html`
-      <md-dialog @cancel="${e => e.preventDefault()}" open>
+      <md-dialog
+        @keydown="${this._handleDialogKeydown}"
+        @cancel="${e => e.preventDefault()}"
+        open
+      >
         <div slot="headline">${this.dialogTitle}</div>
         <div slot="content" @formdata:changed="${this._handleFormData}">
           ${this.dialogIsOpen ? this.renderForm() : ''}
@@ -160,6 +172,12 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
   _handleDialogSave() {
     fireEvent(this, 'object:save', {data: this.data})
     this._reset()
+  }
+
+  _handleDialogKeydown(e) {
+    if (e.key === 'Escape') {
+      this._handleDialogCancel()
+    }
   }
 
   _handleDialogCancel() {

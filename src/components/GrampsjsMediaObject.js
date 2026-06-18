@@ -28,6 +28,15 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           margin: 30px 0;
         }
 
+        grampsjs-rect-container {
+          display: block;
+          margin: 30px 0;
+        }
+
+        grampsjs-rect-container grampsjs-img {
+          margin: 0;
+        }
+
         dl::after {
           content: '';
           display: block;
@@ -129,17 +138,18 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         ? this._renderImageEdit()
         : this._renderImageNoEdit()}
       ${this._ocr ? this._renderOcr() : ''}
-
-      <grampsjs-view-media-lightbox
-        id="obj-lightbox-view"
-        @rect:clicked="${this._handleRectClick}"
-        handle="${this.data.handle}"
-        hideLeftArrow
-        hideRightArrow
-        active
-        .appState="${this.appState}"
-      >
-      </grampsjs-view-media-lightbox>
+      ${this.preview
+        ? ''
+        : html`<grampsjs-view-media-lightbox
+            id="obj-lightbox-view"
+            @rect:clicked="${this._handleRectClick}"
+            handle="${this.data.handle}"
+            hideLeftArrow
+            hideRightArrow
+            active
+            .appState="${this.appState}"
+          >
+          </grampsjs-view-media-lightbox>`}
     `
   }
 

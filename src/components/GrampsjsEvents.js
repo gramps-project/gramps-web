@@ -4,11 +4,11 @@ import {classMap} from 'lit/directives/class-map.js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import {
   fireEvent,
-  renderIcon,
   objectDetail,
   makeHandle,
   eventTypeIconPath,
 } from '../util.js'
+import {renderIcon} from '../objectRender.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormEventRef.js'
 import './GrampsjsFormNewEvent.js'
@@ -36,6 +36,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
       dialogContent: {type: String},
       useSummary: {type: Boolean},
       sorted: {type: Boolean},
+      hideAge: {type: Boolean},
       defaultRole: {type: String},
     }
   }
@@ -47,6 +48,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     this.objType = 'Event'
     this.useSummary = false
     this.sorted = false
+    this.hideAge = false
     this.hasAdd = false
     this.hasShare = true
     this.hasReorder = true
@@ -68,6 +70,16 @@ export class GrampsjsEvents extends GrampsjsEditableList {
             this._handleClick(obj.gramps_id)
           }
         }}"
+        @mouseenter="${() =>
+          obj.place
+            ? fireEvent(this, 'grampsjs-events:place-hover', {
+                handle: obj.place,
+              })
+            : undefined}"
+        @mouseleave="${() =>
+          obj.place
+            ? fireEvent(this, 'grampsjs-events:place-hover', {handle: null})
+            : undefined}"
       >
         ${this._getPrimaryText(objProfile)}
         <span slot="supporting-text"
@@ -78,7 +90,9 @@ export class GrampsjsEvents extends GrampsjsEditableList {
           'start',
           eventTypeIconPath[typeKey] || null
         )}
-        ${objProfile.profile?.age && /\d/.test(objProfile.profile.age)
+        ${!this.hideAge &&
+        objProfile.profile?.age &&
+        /\d/.test(objProfile.profile.age)
           ? html`<span slot="trailing-supporting-text"
               >${objProfile.profile.age}</span
             >`

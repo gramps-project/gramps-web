@@ -176,12 +176,12 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
   constructor() {
     super()
     this.altView = true
-    this._columns = {
-      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      mime: {title: 'Type', sort: 'mime'},
-      desc: {title: 'Description', sort: 'title'},
-      change: {title: 'Last changed', sort: 'change'},
-    }
+    this._columns = [
+      {name: 'Gramps ID', key: 'grampsId', sortKey: 'gramps_id'},
+      {name: 'Type', key: 'mime', sortKey: 'mime'},
+      {name: 'Description', key: 'desc', sortKey: 'title'},
+      {name: 'Last changed', key: 'change', sortKey: 'change'},
+    ]
     this._objectsName = 'media'
   }
 
@@ -344,15 +344,15 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         label="${this._('Sort by')}"
         @change="${this._handleSortKeyChange}"
       >
-        ${Object.entries(this._columns)
-          .filter(([, col]) => col.sort)
+        ${this._columns
+          .filter(col => col.sortKey)
           .map(
-            ([, col]) => html`
+            col => html`
               <md-select-option
-                value="${col.sort}"
-                ?selected="${sortKey === col.sort}"
+                value="${col.sortKey}"
+                ?selected="${sortKey === col.sortKey}"
               >
-                ${this._(col.title)}
+                ${this._(col.name)}
               </md-select-option>
             `
           )}

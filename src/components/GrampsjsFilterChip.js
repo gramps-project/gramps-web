@@ -23,7 +23,7 @@ export class GrampsjsFilterChip extends GrampsjsAppStateMixin(LitElement) {
           font-weight: 400;
           font-family: var(--grampsjs-body-font-family);
           padding: 6px 14px;
-          border-radius: 9999px;
+          border-radius: 8px;
           margin: 5px 5px;
           background-color: var(--mdc-theme-primary);
           color: var(--mdc-theme-on-primary);
@@ -37,7 +37,7 @@ export class GrampsjsFilterChip extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .monospace {
-          font-family: 'Commit Mono';
+          font-family: var(--grampsjs-mono-font-family);
         }
       `,
     ]

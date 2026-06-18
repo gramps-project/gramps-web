@@ -69,7 +69,6 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
           class="button"
           size="20"
           hideAfter="0"
-          pollInterval="0.2"
           .appState="${this.appState}"
           @task:complete="${this._handleSuccess}"
           @task:error="${() => this._handleCompleted(STATE_ERROR)}"
@@ -102,7 +101,11 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       prog.errorMessage = this._(res.error)
       this._handleCompleted(STATE_ERROR)
     } else if ('task' in res) {
-      prog.taskId = res.task?.id || ''
+      const taskId = res.task?.id || ''
+      prog.taskId = taskId
+      if (taskId) {
+        this.appState.registerTask(taskId, 'Import', {taskName: 'importFile'})
+      }
     } else {
       prog.setComplete()
       this._handleSuccess()

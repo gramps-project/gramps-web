@@ -23,6 +23,7 @@ export class GrampsjsConnectedComponent extends GrampsjsStaleDataMixin(
       error: {type: Boolean},
       loadWithoutLocale: {type: Boolean},
       _errorMessage: {type: String},
+      _errorDetail: {type: Object},
       _data: {type: Object},
       _oldUrl: {type: String},
       method: {type: String},
@@ -39,6 +40,8 @@ export class GrampsjsConnectedComponent extends GrampsjsStaleDataMixin(
     this.renderOnError = false
     this.loadWithoutLocale = false
     this._errorMessage = ''
+    this._errorDetail = {}
+    this._errorDispatched = false
     this._data = {}
     this._oldUrl = ''
     this._boundHandleOnline = this._handleOnline.bind(this)
@@ -49,22 +52,30 @@ export class GrampsjsConnectedComponent extends GrampsjsStaleDataMixin(
   }
 
   render() {
-    if (this.error) {
-      this.dispatchEvent(
-        new CustomEvent('grampsjs:error', {
-          bubbles: true,
-          composed: true,
-          detail: {message: this._errorMessage},
-        })
-      )
-      if (!this.renderOnError) {
-        return ''
-      }
+    if (this.error && !this.renderOnError) {
+      return ''
     }
     if (this.loading) {
       return this.renderLoading()
     }
     return this.renderContent()
+  }
+
+  updated(changed) {
+    if (
+      changed.has('error') ||
+      changed.has('_errorMessage') ||
+      changed.has('_errorDetail')
+    ) {
+      this._errorDispatched = false
+    }
+    if (this.error && !this._errorDispatched) {
+      this._errorDispatched = true
+      fireEvent(this, 'grampsjs:error', {
+        message: this._errorMessage,
+        detail: this._errorDetail ?? {},
+      })
+    }
   }
 
   renderLoading() {
@@ -115,6 +126,7 @@ export class GrampsjsConnectedComponent extends GrampsjsStaleDataMixin(
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
+      this._errorDetail = data.errorDetail ?? {}
     }
   }
 
@@ -130,6 +142,7 @@ export class GrampsjsConnectedComponent extends GrampsjsStaleDataMixin(
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
+      this._errorDetail = data.errorDetail ?? {}
     }
   }
 

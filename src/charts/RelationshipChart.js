@@ -3,6 +3,7 @@ import {zoom} from 'd3-zoom'
 import {linkVertical} from 'd3-shape'
 import {Graphviz} from '@hpcc-js/wasm'
 import {chartNameDisplayFormat} from '../util.js'
+import {appendAddPersonButton} from './addPersonButton.js'
 
 const sexColor = {
   F: 'var(--color-girl)',
@@ -352,15 +353,15 @@ function remasterChart(
   imgPadding,
   getImageUrl,
   maxImages,
-  nameDisplayFormat
+  nameDisplayFormat,
+  canEdit = false
 ) {
   const gvchartx = divhidden.select('svg')
   const nodedata = []
   const imgRadius = (boxHeight - imgPadding * 2) / 2
   const textPadding = d =>
     d.imageUrl ? 2 * imgRadius + 2 * imgPadding : 2 * imgPadding
-  const boxWidthTotal = d =>
-    d.imageUrl ? boxWidth - 2 * imgRadius - 10 : boxWidth
+  const boxWidthTotal = d => boxWidth - textPadding(d)
   gvchartx.selectAll('title').remove()
   // based on graphviz created nodes build array containing node data to be bound to d3 nodes
   let imageCount = 0
@@ -583,8 +584,35 @@ function remasterChart(
 
   nodes
     .filter(d => d.nodetype === 'person')
-    .style('cursor', 'pointer')
-    .on('click', clicked)
+    .style('cursor', canEdit ? 'default' : 'pointer')
+    .on('click', canEdit ? null : clicked)
+    .on('mouseenter', function (event, d) {
+      if (window.matchMedia('(hover: none)').matches) return
+      const grampsId = d.profile?.gramps_id
+      if (!grampsId) return
+      window.dispatchEvent(
+        new CustomEvent('object:preview-show', {
+          detail: {
+            objectType: 'person',
+            grampsId,
+            anchorRect: this.getBoundingClientRect(),
+          },
+        })
+      )
+    })
+    .on('mouseleave', () => {
+      if (window.matchMedia('(hover: none)').matches) return
+      window.dispatchEvent(new CustomEvent('object:preview-hide'))
+    })
+
+  if (canEdit) {
+    appendAddPersonButton(
+      nodes.filter(d => d.nodetype === 'person'),
+      boxWidth - 14,
+      14,
+      d => d.handle
+    )
+  }
 
   const linkGenerator = linkVertical()
     .x(d => d.x)
@@ -661,6 +689,14 @@ function remasterChart(
       targetsvg.attr('transform', `translate(${rpc.x} ${rpc.y})`)
     })
 
+  // highlight root person
+  nodes
+    .filter(d => d.handle === graph.rootPerson?.handle)
+    .style(
+      'filter',
+      'drop-shadow(0 3px 8px var(--grampsjs-body-font-color-30))'
+    )
+
   // kill hidden graphviz generated svg
   gvchartx.remove()
 }
@@ -679,6 +715,8 @@ export function RelationshipChart(
     shrinkToFit = false,
     // orientation = 'LTR',
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
+    canEdit = false,
+    initialZoom = null,
   }
 ) {
   const resultnode = create('div').style('width', '100%')
@@ -694,6 +732,11 @@ export function RelationshipChart(
     .attr('font-size', 13)
 
   const chartContent = svg.append('g').attr('id', 'chart-content')
+
+  if (initialZoom) {
+    svg.node().__zoom = initialZoom
+    chartContent.attr('transform', initialZoom.toString())
+  }
   const graph = new Relgraph(data, boxWidth, boxHeight, grampsId)
   const dot = graph.getDot()
   Graphviz.load().then(graphviz => {
@@ -708,7 +751,8 @@ export function RelationshipChart(
       imgPadding,
       getImageUrl,
       maxImages,
-      nameDisplayFormat
+      nameDisplayFormat,
+      canEdit
     )
     svg.attr('viewBox', [
       -bboxWidth / 2,

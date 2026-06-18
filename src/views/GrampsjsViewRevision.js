@@ -3,18 +3,22 @@ import {classMap} from 'lit/directives/class-map.js'
 
 import '@material/web/list/list'
 import '@material/web/list/list-item'
-import '@material/web/button/filled-tonal-button'
+import '@material/web/button/filled-button'
 import '@material/web/button/text-button'
+import '@material/web/dialog/dialog.js'
 
 import '../components/GrampsjsTimedelta.js'
 import '../components/GrampsjsSearchResultList.js'
 import '../components/GrampsjsDiffJson.js'
 import '../components/GrampsjsBreadcrumbs.js'
+import '../components/GrampsjsIcon.js'
+import '../components/GrampsjsTaskProgressIndicator.js'
 
-import {mdiClose} from '@mdi/js'
+import {mdiClose, mdiUndo, mdiAlertOutline} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
 
 import {renderIconSvg} from '../icons.js'
+import {fireEvent} from '../util.js'
 
 export class GrampsjsViewRevision extends GrampsjsView {
   static get styles() {
@@ -87,6 +91,36 @@ export class GrampsjsViewRevision extends GrampsjsView {
         span.user {
           font-weight: 440;
         }
+
+        .revision-header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 0.5em;
+        }
+
+        .revision-header h2 {
+          margin-top: 0;
+        }
+
+        .undo-button {
+          margin-top: 0.2em;
+          flex-shrink: 0;
+          --md-filled-button-hover-container-elevation: 0;
+        }
+
+        .dialog-warning {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          padding: 8px 0;
+        }
+
+        .dialog-warning svg {
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
       `,
     ]
   }
@@ -96,6 +130,10 @@ export class GrampsjsViewRevision extends GrampsjsView {
       transactionId: {type: Number},
       _data: {type: Object},
       _detailId: {type: Number},
+      _undoDialogOpen: {type: Boolean},
+      _forceRequired: {type: Boolean},
+      _undoInProgress: {type: Boolean},
+      _undoTaskRunning: {type: Boolean},
     }
   }
 
@@ -104,6 +142,24 @@ export class GrampsjsViewRevision extends GrampsjsView {
     this.transactionId = -1
     this._data = {}
     this._detailId = -1
+    this._undoDialogOpen = false
+    this._forceRequired = false
+    this._undoInProgress = false
+    this._undoTaskRunning = false
+  }
+
+  _getDescription() {
+    if (this._data.description) return this._(this._data.description)
+    const changes = (this._data.changes ?? []).filter(c => c.obj_class !== '7')
+    for (const transType of [0, 1, 2]) {
+      const change = changes.find(c => c.trans_type === transType)
+      if (change) {
+        const prefix =
+          transType === 0 ? 'New' : transType === 1 ? 'Edit' : 'Delete'
+        return this._(`${prefix} ${change.obj_class}`)
+      }
+    }
+    return ''
   }
 
   _getChanges(transType) {
@@ -128,7 +184,25 @@ export class GrampsjsViewRevision extends GrampsjsView {
         objectIcon="commit"
       ></grampsjs-breadcrumbs>
 
-      <h2>${this._(this._data.description)}</h2>
+      <div class="revision-header">
+        <h2>${this._getDescription()}</h2>
+        ${this.appState.permissions.canEdit
+          ? html`
+              <md-filled-button
+                class="undo-button"
+                @click="${this._handleUndoClick}"
+                ?disabled="${this._undoInProgress}"
+              >
+                <grampsjs-icon
+                  slot="icon"
+                  path="${mdiUndo}"
+                  color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+                ></grampsjs-icon>
+                ${this._('Undo')}
+              </md-filled-button>
+            `
+          : ''}
+      </div>
 
       <p class="user-time">
         <span class="user">
@@ -143,6 +217,8 @@ export class GrampsjsViewRevision extends GrampsjsView {
           ></grampsjs-timedelta>
         </span>
       </p>
+
+      ${this._renderUndoDialog()}
 
       <div id="left" class="${classMap({hidden: this._detailId > 0})}">
         ${this._getChanges(0).length > 0
@@ -187,6 +263,149 @@ export class GrampsjsViewRevision extends GrampsjsView {
 
   _handleCloseDetail() {
     this._detailId = -1
+  }
+
+  _renderUndoDialog() {
+    if (!this._undoDialogOpen) {
+      return ''
+    }
+    return html`
+      <md-dialog
+        open
+        @cancel="${() => {
+          this._undoDialogOpen = false
+        }}"
+        @closed="${() => {
+          this._undoDialogOpen = false
+          this._undoTaskRunning = false
+        }}"
+      >
+        <div slot="headline">
+          ${this._forceRequired
+            ? this._('Undo revision (force)')
+            : this._('Undo revision')}
+        </div>
+        <div slot="content">
+          ${this._forceRequired
+            ? html`
+                <div class="dialog-warning">
+                  ${renderIconSvg(
+                    mdiAlertOutline,
+                    'var(--md-sys-color-error)',
+                    0
+                  )}
+                  <span>
+                    ${this._(
+                      'This revision cannot be cleanly undone because some objects have been modified after this transaction. Forcing the undo may result in data inconsistencies.'
+                    )}
+                  </span>
+                </div>
+              `
+            : this._('This will revert all changes made in this revision.')}
+        </div>
+        <div slot="actions">
+          ${this._undoTaskRunning
+            ? html`<grampsjs-task-progress-indicator
+                id="progress-undo"
+                taskName="undoTransaction"
+                size="32"
+                ?open="${true}"
+                .appState="${this.appState}"
+                @task:complete="${this._handleUndoComplete}"
+                @task:error="${this._handleUndoError}"
+              ></grampsjs-task-progress-indicator>`
+            : html`
+                <md-text-button
+                  @click="${() => {
+                    this._undoDialogOpen = false
+                  }}"
+                >
+                  ${this._('Cancel')}
+                </md-text-button>
+                ${this._forceRequired
+                  ? html`
+                      <md-filled-button
+                        style="--md-filled-button-container-color: var(--md-sys-color-error); --md-filled-button-label-text-color: var(--md-sys-color-on-error); --md-filled-button-hover-container-elevation: 0;"
+                        @click="${() => this._handleUndoConfirm(true)}"
+                        ?disabled="${this._undoInProgress}"
+                      >
+                        ${this._('Force undo')}
+                      </md-filled-button>
+                    `
+                  : html`
+                      <md-filled-button
+                        @click="${() => this._handleUndoConfirm(false)}"
+                        ?disabled="${this._undoInProgress}"
+                      >
+                        ${this._('Undo')}
+                      </md-filled-button>
+                    `}
+              `}
+        </div>
+      </md-dialog>
+    `
+  }
+
+  async _handleUndoClick() {
+    this._undoInProgress = true
+    const result = await this.appState.apiGet(
+      `/api/transactions/history/${this.transactionId}/undo`
+    )
+    this._undoInProgress = false
+    if ('error' in result) {
+      fireEvent(this, 'grampsjs:error', {message: result.error})
+      return
+    }
+    this._forceRequired = result.data?.can_undo_without_force === false
+    this._undoDialogOpen = true
+  }
+
+  async _handleUndoConfirm(force = false) {
+    this._undoTaskRunning = true
+    const endpoint = `/api/transactions/history/${this.transactionId}/undo${
+      force ? '?force=1' : ''
+    }`
+    const result = await this.appState.apiPost(endpoint, null, {
+      saving: false,
+      dbChanged: false,
+    })
+    if ('error' in result) {
+      this._undoTaskRunning = false
+      this._undoDialogOpen = false
+      fireEvent(this, 'grampsjs:error', {message: result.error})
+    } else if ('task' in result) {
+      const taskId = result.task?.id
+      if (!taskId) {
+        this._undoTaskRunning = false
+        this._undoDialogOpen = false
+        fireEvent(this, 'grampsjs:error', {message: this._('Task failed')})
+        return
+      }
+      this.appState.registerTask(taskId, 'Undo', {
+        taskName: 'undoTransaction',
+      })
+      await this.updateComplete
+      const prog = this.renderRoot.querySelector('#progress-undo')
+      if (prog) {
+        prog.taskId = taskId
+      }
+    } else {
+      this._handleUndoComplete()
+    }
+  }
+
+  _handleUndoComplete() {
+    this._undoTaskRunning = false
+    this._undoDialogOpen = false
+    fireEvent(this, 'db:changed')
+    fireEvent(this, 'nav', {path: 'revisions'})
+  }
+
+  _handleUndoError(e) {
+    this._undoTaskRunning = false
+    this._undoDialogOpen = false
+    const msg = e.detail?.status?.info || this._('Task failed')
+    fireEvent(this, 'grampsjs:error', {message: msg})
   }
 
   _renderAdded() {

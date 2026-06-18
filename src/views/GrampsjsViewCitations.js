@@ -13,18 +13,22 @@ import '../components/GrampsjsFilterPrivate.js'
 export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
   constructor() {
     super()
-    this._columns = {
-      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      sourceTitle: {title: 'Source: Title', sort: ''},
-      page: {title: 'Page', sort: ''},
-      change: {title: 'Last changed', sort: 'change'},
-    }
+    this._columns = [
+      {name: 'Gramps ID', key: 'grampsId', sortKey: 'gramps_id'},
+      {name: 'Source: Title', key: 'sourceTitle'},
+      {name: 'Page', key: 'page'},
+      {name: 'Last changed', key: 'change', sortKey: 'change'},
+    ]
     this._objectsName = 'citations'
   }
 
   // eslint-disable-next-line class-methods-use-this
+  get _supportsMerge() {
+    return true
+  }
+
   get _fetchUrl() {
-    return '/api/citations/?extend=source_handle&keys=gramps_id,extended,page,change'
+    return '/api/citations/?extend=source_handle&keys=gramps_id,extended,page,change,handle'
   }
 
   // eslint-disable-next-line class-methods-use-this

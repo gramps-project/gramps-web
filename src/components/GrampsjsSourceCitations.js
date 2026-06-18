@@ -2,7 +2,8 @@ import {html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
-import {fireEvent, renderIcon, makeHandle} from '../util.js'
+import {fireEvent, makeHandle} from '../util.js'
+import {renderIcon} from '../objectRender.js'
 import './GrampsjsFormCitation.js'
 import './GrampsjsFormNewCitation.js'
 

@@ -36,6 +36,7 @@ export class GrampsjsView extends GrampsjsAppStateMixin(LitElement) {
       error: {type: Boolean},
       settings: {type: Object},
       _errorMessage: {type: String},
+      _errorDetail: {type: Object},
       _hasFirstUpdated: {type: Boolean},
     }
   }
@@ -48,22 +49,60 @@ export class GrampsjsView extends GrampsjsAppStateMixin(LitElement) {
     this.settings = {}
     this._errorMessage = ''
     this._hasFirstUpdated = false
+    this._lastLangChanged = ''
+    this._errorDetail = {}
+    this._errorDispatched = false
   }
 
   render() {
-    if (this.error) {
+    return this.renderContent()
+  }
+
+  updated(changed) {
+    super.updated(changed)
+    const lang = this.appState?.i18n?.lang
+    if (
+      lang &&
+      lang !== this._lastLangChanged &&
+      changed.has('appState') &&
+      changed.get('appState')?.i18n?.lang !== lang
+    ) {
+      this._lastLangChanged = lang
+      this._onLangChanged(lang)
+    }
+    if (
+      changed.has('error') ||
+      changed.has('_errorMessage') ||
+      changed.has('_errorDetail')
+    ) {
+      // Reset guard whenever the error state changes so a new error always fires
+      this._errorDispatched = false
+    }
+    if (this.error && !this._errorDispatched) {
+      this._errorDispatched = true
       this.dispatchEvent(
         new CustomEvent('grampsjs:error', {
           bubbles: true,
           composed: true,
-          detail: {message: this._errorMessage},
+          detail: {
+            message: this._errorMessage,
+            detail: this._errorDetail ?? {},
+          },
         })
       )
     }
-    return this.renderContent()
   }
 
   firstUpdated() {
     this._hasFirstUpdated = true
+    const lang = this.appState?.i18n?.lang
+    if (lang) {
+      this._lastLangChanged = lang
+      this._onLangChanged(lang)
+    }
   }
+
+  // Override in subclasses to fetch lang-dependent data.
+  // eslint-disable-next-line no-unused-vars
+  _onLangChanged(_lang) {}
 }

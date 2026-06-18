@@ -2,7 +2,13 @@ import {html, css} from 'lit'
 import '@material/web/button/outlined-button'
 import '@material/web/chips/chip-set'
 import '@material/web/chips/filter-chip'
-import {mdiFamilyTree, mdiDna, mdiSearchWeb} from '@mdi/js'
+import {
+  mdiFamilyTree,
+  mdiDna,
+  mdiSearchWeb,
+  mdiTimelineOutline,
+  mdiMap,
+} from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import {asteriskIcon, crossIcon} from '../icons.js'
 import './GrampsjsImg.js'
@@ -48,7 +54,6 @@ export class GrampsjsPerson extends GrampsjsObject {
     this._objectEndpoint = 'people'
     this._objectIcon = 'person'
     this._showReferences = false
-    this._showPersonTimeline = true
     this.timelineData = []
     this._showFamilyEvents = false
     this._showRelatedEvents = false
@@ -64,10 +69,13 @@ export class GrampsjsPerson extends GrampsjsObject {
         ${this._displayName()}
       </h2>
       ${this._renderBirth()} ${this._renderDeath()} ${this._renderRelation()}
-      <p class="button-list">
-        ${this._renderTreeBtn()} ${this._renderDnaBtn()}
-        ${this._renderExternalSearchBtn()}
-      </p>
+      ${this.preview
+        ? ''
+        : html`<p class="button-list">
+            ${this._renderTreeBtn()} ${this._renderTimelineBtn()}
+            ${this._renderMapBtn()} ${this._renderDnaBtn()}
+            ${this._renderExternalSearchBtn()}
+          </p>`}
     `
   }
 
@@ -154,6 +162,32 @@ export class GrampsjsPerson extends GrampsjsObject {
     `
   }
 
+  _renderTimelineBtn() {
+    return html`
+      <md-outlined-button @click="${this._handleTimelineButtonClick}">
+        ${this._('Show on timeline')}
+        <grampsjs-icon
+          path="${mdiTimelineOutline}"
+          color="var(--mdc-theme-primary)"
+          slot="icon"
+        ></grampsjs-icon>
+      </md-outlined-button>
+    `
+  }
+
+  _renderMapBtn() {
+    return html`
+      <md-outlined-button @click="${this._handleMapButtonClick}">
+        ${this._('Open in map')}
+        <grampsjs-icon
+          path="${mdiMap}"
+          color="var(--mdc-theme-primary)"
+          slot="icon"
+        ></grampsjs-icon>
+      </md-outlined-button>
+    `
+  }
+
   _renderExternalSearchBtn() {
     return html`
       <md-outlined-button @click="${this._handleExternalSearchClick}">
@@ -197,6 +231,24 @@ export class GrampsjsPerson extends GrampsjsObject {
       })
     )
     fireEvent(this, 'nav', {path: 'tree'})
+  }
+
+  _handleTimelineButtonClick() {
+    window.dispatchEvent(
+      new CustomEvent('timeline:person-selected', {
+        detail: {object: this.data},
+      })
+    )
+    fireEvent(this, 'nav', {path: 'timeline'})
+  }
+
+  _handleMapButtonClick() {
+    window.dispatchEvent(
+      new CustomEvent('map:person-selected', {
+        detail: {person: this.data},
+      })
+    )
+    fireEvent(this, 'nav', {path: 'map'})
   }
 
   _handleExternalSearchClick() {

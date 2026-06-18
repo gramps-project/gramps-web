@@ -9,10 +9,17 @@ import '@material/mwc-button'
 import '@material/mwc-icon-button'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/button/text-button.js'
-import {mdiInformation, mdiClose} from '@mdi/js'
+import {mdiInformation, mdiClose, mdiUndo, mdiRedo} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {fireEvent, stripHtml} from '../util.js'
+import {fireEvent} from '../util.js'
+import {
+  charLength,
+  charSlice,
+  domOffsetToChar,
+  charToDomOffset,
+} from '../charUtils.js'
+import {parseHtmlToStyledText} from './styledTextPaste.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {saveDraft, getDraft, clearDraft, clearDraftsWithPrefix} from '../api.js'
 import './GrampsjsFormSelectObject.js'
@@ -21,6 +28,24 @@ import './GrampsjsIcon.js'
 
 function capitalize(string) {
   return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
+}
+
+/** Escape plain text for safe embedding inside an HTML attribute or element. */
+function _escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+/**
+ * Sanitize a value for safe interpolation into a CSS style attribute.
+ * Applies HTML-attribute escaping (prevents `"` breaking out of style="…")
+ * and strips CSS property-injection sequences (`;`, `url(`).
+ */
+function _safeCssValue(value) {
+  return _escapeHtml(String(value ?? '')).replace(/;|url\s*\(/gi, '')
 }
 
 function _applyTag(str, tag) {
@@ -35,16 +60,21 @@ function _applyTag(str, tag) {
     return `<u>${str}</u>`
   }
   if (name === 'fontface') {
-    return `<span style="font-family:${value}">${str}</span>`
+    return `<span style="font-family:${_safeCssValue(value)}">${str}</span>`
   }
   if (name === 'fontsize') {
-    return `<span style="font-size:${value}px;">${str}</span>`
+    const size = parseFloat(value)
+    return Number.isFinite(size)
+      ? `<span style="font-size:${size}px;">${str}</span>`
+      : str
   }
   if (name === 'fontcolor') {
-    return `<span style="color:${value}">${str}</span>`
+    return `<span style="color:${_safeCssValue(value)}">${str}</span>`
   }
   if (name === 'highlight') {
-    return `<span style="background-color:${value}">${str}</span>`
+    return `<span style="background-color:${_safeCssValue(
+      value
+    )}">${str}</span>`
   }
   if (name === 'strikethrough') {
     return `<s>${str}</s>`
@@ -53,9 +83,12 @@ function _applyTag(str, tag) {
     return `<sup>${str}</sup>`
   }
   if (name === 'link') {
-    return `<a href="${value}">${str}</a>`
+    if (!value) return str
+    return `<a href="${_escapeHtml(value)}">${str}</a>`
   }
-  return `[${name} ${value}]${str}[/${name}]`
+  const eName = _escapeHtml(String(name ?? ''))
+  const eValue = _escapeHtml(String(value ?? ''))
+  return `[${eName} ${eValue}]${str}[/${eName}]`
 }
 
 // check if tag name is a boolean tag
@@ -74,7 +107,10 @@ function isBooleanTag(tagName) {
 }
 
 function _applyTags(str, tags) {
-  let tstr = `${str}`
+  // Escape the raw text slice first so that any '<', '>', '&', '"' in
+  // data.string are never interpreted as HTML markup when assigned to innerHTML.
+  // Subsequent _applyTag calls wrap already-safe content in known-good tags.
+  let tstr = _escapeHtml(str)
   tags.forEach(tag => {
     tstr = _applyTag(tstr, tag)
   })
@@ -82,6 +118,7 @@ function _applyTags(str, tags) {
 }
 
 // get the number of text characters before a node in a parent
+// (returns a Unicode code-point count; see charUtils.js)
 function getNumCharBeforeNode(node, parent) {
   let n = 0
   let found = false
@@ -95,7 +132,7 @@ function getNumCharBeforeNode(node, parent) {
         n += nChild
         found = foundChild
       } else if (childNode.nodeType !== Node.COMMENT_NODE) {
-        n += childNode.textContent.length
+        n += charLength(childNode.textContent)
       }
     }
   })
@@ -107,21 +144,33 @@ function getNodeAtNumChar(parent, num) {
   let n = 0
   let found = false
   let node = null
+  let nodeLen = 0 // code-point length of the found node (avoids recomputing it)
   parent.childNodes.forEach(childNode => {
     if (!found) {
       if (childNode.nodeType !== Node.COMMENT_NODE) {
-        n += childNode.textContent.length
+        const len = charLength(childNode.textContent)
+        n += len
         if (n >= num) {
           found = true
           node = childNode
+          nodeLen = len
         }
       }
     }
   })
   if (node !== null && node.hasChildNodes()) {
-    return getNodeAtNumChar(node, num - (n - node.textContent.length))
+    return getNodeAtNumChar(node, num - (n - nodeLen))
   }
   return node
+}
+
+// Return the Unicode code-point offset of a DOM Range endpoint
+// (container + domOffset) measured from the start of root.
+function rangeCharPos(container, domOffset, root) {
+  const text = container.nodeValue ?? container.textContent ?? ''
+  return (
+    getNumCharBeforeNode(container, root)[0] + domOffsetToChar(text, domOffset)
+  )
 }
 
 class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
@@ -146,7 +195,8 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
           padding: 20px 25px;
         }
 
-        mwc-icon-button {
+        mwc-icon-button,
+        #controls md-icon-button {
           color: var(--grampsjs-body-font-color-50);
         }
 
@@ -211,6 +261,8 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       _html: {type: String},
       _showDraftBanner: {type: Boolean},
       _draftTimestamp: {type: Number},
+      _canUndo: {type: Boolean},
+      _canRedo: {type: Boolean},
     }
   }
 
@@ -223,12 +275,19 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     this._html = ''
     this._showDraftBanner = false
     this._draftTimestamp = 0
+    this._canUndo = false
+    this._canRedo = false
+    this._undoStack = []
+    this._redoStack = []
+    this._suppressUndo = false
     // Debounce timer for draft saving
     this._draftSaveTimer = null
     // Bind methods that need to be added/removed as event listeners
     this._boundHandleSaveButton = this._handleSaveButton.bind(this)
     this._boundHandleBeforeUnload = this._handleBeforeUnload.bind(this)
     this._boundHandleCancel = this._handleCancel.bind(this)
+    this._undo = this._undo.bind(this)
+    this._redo = this._redo.bind(this)
   }
 
   _getStorageKey() {
@@ -247,6 +306,10 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   reset() {
     this.data = this.initialData
     this.cursorPosition = [0]
+    this._undoStack = []
+    this._redoStack = []
+    this._canUndo = false
+    this._canRedo = false
   }
 
   render() {
@@ -319,6 +382,26 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         <grampsjs-tooltip for="btn-link" .appState="${this.appState}"
           >${this._('Link')}</grampsjs-tooltip
         >
+        <md-icon-button
+          id="btn-undo"
+          ?disabled="${!this._canUndo}"
+          @click="${this._undo}"
+        >
+          <grampsjs-icon path="${mdiUndo}"></grampsjs-icon>
+        </md-icon-button>
+        <grampsjs-tooltip for="btn-undo" .appState="${this.appState}"
+          >${this._('Undo')}</grampsjs-tooltip
+        >
+        <md-icon-button
+          id="btn-redo"
+          ?disabled="${!this._canRedo}"
+          @click="${this._redo}"
+        >
+          <grampsjs-icon path="${mdiRedo}"></grampsjs-icon>
+        </md-icon-button>
+        <grampsjs-tooltip for="btn-redo" .appState="${this.appState}"
+          >${this._('Redo')}</grampsjs-tooltip
+        >
       </div>
       <!-- display: inline -->
       <div
@@ -326,6 +409,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         class="note framed"
         contenteditable="true"
         @beforeinput="${this._handleBeforeInput}"
+        @paste="${this._handlePaste}"
         @compositionend="${this._handleCompositionEnd}"
         @keydown="${this._handleKeydown}"
         .innerHTML="${live(this._html)}"
@@ -403,6 +487,18 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
             handled = true
           }
           break
+        case 'z':
+          if (e.shiftKey) {
+            this._redo()
+          } else {
+            this._undo()
+          }
+          handled = true
+          break
+        case 'y':
+          this._redo()
+          handled = true
+          break
         default:
           break
       }
@@ -416,6 +512,10 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   _handleBeforeInput(e) {
     e.preventDefault()
     e.stopPropagation()
+    // Paste is handled entirely by _handlePaste (which fires before this event)
+    if (e.inputType === 'insertFromPaste') return
+    // Undo/redo are handled by _handleKeydown (which fires before this event)
+    if (e.inputType === 'historyUndo' || e.inputType === 'historyRedo') return
     if (
       [
         'insertText',
@@ -423,7 +523,6 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         'insertLineBreak',
         'deleteContentBackward',
         'deleteContentForward',
-        'insertFromPaste',
         'deleteByCut',
         'formatBold',
         'formatItalic',
@@ -432,43 +531,33 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     ) {
       const div = this.shadowRoot.querySelector('div.note')
       const [range] = e.getTargetRanges()
-      const nCharBefore1 = getNumCharBeforeNode(range.startContainer, div)[0]
+      const cpStart = rangeCharPos(range.startContainer, range.startOffset, div)
       if (e.inputType === 'insertText') {
         if (range.startOffset !== range.endOffset) {
-          const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
           this._deleteText(
-            nCharBefore1 + range.startOffset,
-            nCharBefore2 + range.endOffset
+            cpStart,
+            rangeCharPos(range.endContainer, range.endOffset, div)
           )
-          this.cursorPosition = [nCharBefore1 + range.startOffset]
+          this._suppressUndo = true
+          this.cursorPosition = [cpStart]
         }
-        this._insertText(e.data, nCharBefore1 + range.startOffset)
-        this.cursorPosition = [nCharBefore1 + range.startOffset + e.data.length]
-      }
-      if (e.inputType === 'insertFromPaste') {
-        if (range.startOffset !== range.endOffset) {
-          const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
-          this._deleteText(
-            nCharBefore1 + range.startOffset,
-            nCharBefore2 + range.endOffset
-          )
-        }
-        const data = stripHtml(e.dataTransfer.getData('text/plain'))
-        this._insertText(data, nCharBefore1 + range.startOffset)
-        this.cursorPosition = [nCharBefore1 + range.startOffset + data.length]
+        this._insertText(e.data, cpStart)
+        this._suppressUndo = false
+        this.cursorPosition = [cpStart + charLength(e.data)]
       } else if (
         e.inputType === 'insertParagraph' ||
         e.inputType === 'insertLineBreak'
       ) {
         if (range.startOffset !== range.endOffset) {
-          const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
           this._deleteText(
-            nCharBefore1 + range.startOffset,
-            nCharBefore2 + range.endOffset
+            cpStart,
+            rangeCharPos(range.endContainer, range.endOffset, div)
           )
+          this._suppressUndo = true
         }
-        this._insertText('\n', nCharBefore1 + range.startOffset)
-        this.cursorPosition = [nCharBefore1 + range.startOffset + 1]
+        this._insertText('\n', cpStart)
+        this._suppressUndo = false
+        this.cursorPosition = [cpStart + 1]
       } else if (
         [
           'deleteContentBackward',
@@ -476,12 +565,11 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
           'deleteByCut',
         ].includes(e.inputType)
       ) {
-        const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
         this._deleteText(
-          nCharBefore1 + range.startOffset,
-          nCharBefore2 + range.endOffset
+          cpStart,
+          rangeCharPos(range.endContainer, range.endOffset, div)
         )
-        this.cursorPosition = [nCharBefore1 + range.startOffset]
+        this.cursorPosition = [cpStart]
       } else if (e.inputType === 'formatBold') {
         this._handleFormat('bold')
       } else if (e.inputType === 'formatItalic') {
@@ -496,6 +584,47 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     this.handleChange()
   }
 
+  // Handle all paste operations (fires before beforeinput)
+  _handlePaste(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    const div = this._editorDiv
+    const selection = this.shadowRoot.getSelection
+      ? this.shadowRoot.getSelection()
+      : document.getSelection()
+    if (!selection || selection.rangeCount === 0) return
+    const range = selection.getRangeAt(0)
+    const dataLen = charLength(this.data.string)
+    // Clamp: the trailing zero-width space in _getHtml() is not in data.string,
+    // so the DOM cursor can be one past the end after a blur+click.
+    const cpStart = Math.min(
+      rangeCharPos(range.startContainer, range.startOffset, div),
+      dataLen
+    )
+    if (!range.collapsed) {
+      this._deleteText(
+        cpStart,
+        Math.min(
+          rangeCharPos(range.endContainer, range.endOffset, div),
+          dataLen
+        )
+      )
+      this._suppressUndo = true
+    }
+    const htmlData = e.clipboardData?.getData('text/html')
+    if (htmlData) {
+      const styledText = parseHtmlToStyledText(htmlData)
+      this._insertStyledText(styledText, cpStart)
+      this.cursorPosition = [cpStart + charLength(styledText.string)]
+    } else {
+      const data = e.clipboardData?.getData('text/plain') ?? ''
+      this._insertText(data, cpStart)
+      this.cursorPosition = [cpStart + charLength(data)]
+    }
+    this._suppressUndo = false
+    this.handleChange()
+  }
+
   // also handle composition events
   _handleCompositionEnd(e) {
     e.preventDefault()
@@ -505,16 +634,20 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         this.shadowRoot.getSelection().getRangeAt(0)
       : // Firefox
         document.getSelection().getRangeAt(0)
-    const nCharBefore1 = getNumCharBeforeNode(
+    const cpStart = rangeCharPos(
       range.startContainer,
+      range.startOffset,
       this._editorDiv
-    )[0]
-    this._insertText(e.data, nCharBefore1 + range.startOffset)
-    this.cursorPosition = [nCharBefore1 + range.startOffset]
+    )
+    this._insertText(e.data, cpStart)
+    this.cursorPosition = [cpStart]
   }
 
   _handleLink(pos) {
-    this._dialogContent = {pos}
+    this._dialogContent = {
+      pos,
+      selectedText: charSlice(this.data.string, pos[0], pos[1]),
+    }
     this._openDialog()
   }
 
@@ -539,7 +672,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     if (value && pos) {
       // first remove, then add, to prevent overlapping tags
       this._removeTag('link', pos)
+      this._suppressUndo = true
       this._insertTag('link', pos, value)
+      this._suppressUndo = false
       this.handleChange()
     }
     this._dialogContent = null
@@ -588,6 +723,15 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   _openDialog() {
     const dialog = this.shadowRoot.querySelector('md-dialog')
     if (dialog !== null) {
+      const urlField = this.shadowRoot.querySelector('#linkurl')
+      if (urlField) {
+        urlField.value = ''
+      }
+      const linkSelect = this.shadowRoot.querySelector('#link-select')
+      if (linkSelect) {
+        linkSelect.reset()
+        linkSelect.initialQuery = this._dialogContent?.selectedText || ''
+      }
       dialog.show()
     }
   }
@@ -600,11 +744,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         this.shadowRoot.getSelection().getRangeAt(0)
       : // Firefox
         document.getSelection().getRangeAt(0)
-    const nCharBefore1 = getNumCharBeforeNode(range.startContainer, div)[0]
-    const nCharBefore2 = getNumCharBeforeNode(range.endContainer, div)[0]
     const pos = [
-      nCharBefore1 + range.startOffset,
-      nCharBefore2 + range.endOffset,
+      rangeCharPos(range.startContainer, range.startOffset, div),
+      rangeCharPos(range.endContainer, range.endOffset, div),
     ]
     if (isBooleanTag(type)) {
       if (this._hasTag(type, pos)) {
@@ -614,6 +756,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         this._insertTag(type, pos)
       }
     } else if (type === 'link') {
+      if (pos[0] === pos[1]) {
+        return // no-op on empty selection; a link needs text to wrap
+      }
       if (this._hasTag(type, pos)) {
         // if there already is a link in the whole range, remove it
         this._removeTag(type, pos)
@@ -622,6 +767,39 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       }
     }
     this.cursorPosition = pos
+    this.handleChange()
+  }
+
+  _pushUndo() {
+    if (this._suppressUndo) return
+    this._undoStack.push({data: this.data, cursorPosition: this.cursorPosition})
+    if (this._undoStack.length > 100) {
+      this._undoStack.shift()
+    }
+    this._redoStack = []
+    this._canUndo = true
+    this._canRedo = false
+  }
+
+  _undo() {
+    if (this._undoStack.length === 0) return
+    this._redoStack.push({data: this.data, cursorPosition: this.cursorPosition})
+    const snapshot = this._undoStack.pop()
+    this.data = snapshot.data
+    this.cursorPosition = snapshot.cursorPosition
+    this._canUndo = this._undoStack.length > 0
+    this._canRedo = true
+    this.handleChange()
+  }
+
+  _redo() {
+    if (this._redoStack.length === 0) return
+    this._undoStack.push({data: this.data, cursorPosition: this.cursorPosition})
+    const snapshot = this._redoStack.pop()
+    this.data = snapshot.data
+    this.cursorPosition = snapshot.cursorPosition
+    this._canUndo = true
+    this._canRedo = this._redoStack.length > 0
     this.handleChange()
   }
 
@@ -675,6 +853,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _insertTag(tagname, range, value = null) {
+    this._pushUndo()
     this.data = {
       ...this.data,
       tags: this._cleanTags([
@@ -726,6 +905,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     if (range[1] <= range[0]) {
       return
     }
+    this._pushUndo()
     this.data = {
       ...this.data,
       tags: this._cleanTags([
@@ -833,38 +1013,57 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       .filter(tag => tag.ranges.length > 0)
   }
 
-  // insert string at position
-  _insertText(str, position) {
+  // insert string at position (position is a Unicode code-point offset)
+  _insertText(str, position, {skipUndo = false} = {}) {
+    if (!skipUndo) this._pushUndo()
+    const strLen = charLength(str)
     this.data = {
       ...this.data,
-      // string is old data with str inserted in between
       string:
-        this.data.string.slice(0, position) +
+        charSlice(this.data.string, 0, position) +
         str +
-        this.data.string.slice(position),
-      // for tags, need to shift by str.length all values after position
+        charSlice(this.data.string, position),
       tags: this._cleanTags(
         this.data.tags.map(tag => ({
           ...tag,
           ranges: tag.ranges.map(range =>
-            range.map(x => (x < position ? x : x + str.length))
+            range.map(x => (x < position ? x : x + strLen))
           ),
         }))
       ),
     }
   }
 
-  // remove string between positions
+  // insert a StyledText fragment {string, tags} at position, preserving existing tags
+  _insertStyledText({string, tags}, position) {
+    this._pushUndo()
+    // _insertText inserts the plain text and shifts all existing tags past `position`
+    this._insertText(string, position, {skipUndo: true})
+    // Add the pasted formatting tags, each range shifted by the insertion position
+    const newTags = (tags || []).map(tag => ({
+      ...tag,
+      ranges: tag.ranges.map(r => [r[0] + position, r[1] + position]),
+    }))
+    if (newTags.length > 0) {
+      this.data = {
+        ...this.data,
+        tags: this._cleanTags([...this.data.tags, ...newTags]),
+      }
+    }
+  }
+
+  // remove string between positions (posStart/posEnd are Unicode code-point offsets)
   _deleteText(posStart, posEnd) {
     const d = posEnd - posStart
     if (d <= 0) {
       return
     }
+    this._pushUndo()
     this.data = {
       ...this.data,
-      // string is old data with str inserted in between
       string:
-        this.data.string.slice(0, posStart) + this.data.string.slice(posEnd),
+        charSlice(this.data.string, 0, posStart) +
+        charSlice(this.data.string, posEnd),
       // for tags, need to shift by str.length all values after position
       tags: this._cleanTags(
         this.data.tags.map(tag => ({
@@ -887,19 +1086,28 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     const nodeStart = getNodeAtNumChar(div, this.cursorPosition[0])
     if (nodeStart !== null) {
       const offsetStart = getNumCharBeforeNode(nodeStart, div)[0]
+      // cursorPosition is in code points; convert to UTF-16 for the DOM API
+      const nodeStartText = nodeStart.nodeValue ?? nodeStart.textContent ?? ''
       // no selection but only cursor
       if (this.cursorPosition.length === 1) {
-        this._setCursor(nodeStart, this.cursorPosition[0] - offsetStart)
+        this._setCursor(
+          nodeStart,
+          charToDomOffset(nodeStartText, this.cursorPosition[0] - offsetStart)
+        )
       } else {
         // set selection range
         const nodeEnd = getNodeAtNumChar(div, this.cursorPosition[1])
         if (nodeEnd !== null) {
           const offsetEnd = getNumCharBeforeNode(nodeEnd, div)[0]
+          const nodeEndText = nodeEnd.nodeValue ?? nodeEnd.textContent ?? ''
           this._setSelection(
             nodeStart,
-            this.cursorPosition[0] - offsetStart,
+            charToDomOffset(
+              nodeStartText,
+              this.cursorPosition[0] - offsetStart
+            ),
             nodeEnd,
-            this.cursorPosition[1] - offsetEnd
+            charToDomOffset(nodeEndText, this.cursorPosition[1] - offsetEnd)
           )
         }
       }
@@ -944,7 +1152,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     tags.forEach(tag => {
       const [j, t, name, value] = tag
       str = `${str}${
-        j > i ? _applyTags(this.data.string.slice(i, j), activeTags) : ''
+        j > i ? _applyTags(charSlice(this.data.string, i, j), activeTags) : ''
       }`
       if (t === 'start') {
         activeTags.push([name, value])
@@ -953,7 +1161,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       }
       i = j
     })
-    str = `${str}${_applyTags(this.data.string.slice(i), activeTags)}`
+    str = `${str}${_applyTags(charSlice(this.data.string, i), activeTags)}`
     // Add zero-width space at the end to make trailing newlines visible
     return `${str}\u200B`
   }

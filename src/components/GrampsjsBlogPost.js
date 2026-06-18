@@ -112,7 +112,6 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
         <div id="note">
           <div id="note-wrapper">
             <grampsjs-note-content
-              ?framed="${1 === 2}"
               grampsId="${this.note.grampsId}"
               content="${this.note?.formatted?.html ||
               this.note?.text?.string ||

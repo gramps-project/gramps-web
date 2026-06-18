@@ -257,5 +257,11 @@
     "Account Source": "Tilin lähde",
     "Invalid face rectangle coordinates": "Virheelliset kasvoja rajaavan suorakulmion koordinaatit",
     "Default family tree view": "Sukupuun oletusnäkymä",
-    "Family tree preferences": "Sukupuun asetukset"
+    "Family tree preferences": "Sukupuun asetukset",
+    "Or select an existing tag": "Tai valitse olemassa oleva tunniste",
+    "Saved": "Tallennettu",
+    "Saving...": "Tallennetaan...",
+    "Gallery view": "Gallerianäkymä",
+    "Descending": "Jälkeläiset",
+    "Ascending": "Esivanhemmat"
 }

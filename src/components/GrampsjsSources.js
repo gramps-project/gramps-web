@@ -5,7 +5,8 @@ import {mdiBookOpenVariant} from '@mdi/js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsIcon.js'
 import './GrampsjsImg.js'
-import {fireEvent, renderIcon} from '../util.js'
+import {fireEvent} from '../util.js'
+import {renderIcon} from '../objectRender.js'
 
 export class GrampsjsSources extends GrampsjsEditableList {
   static get properties() {

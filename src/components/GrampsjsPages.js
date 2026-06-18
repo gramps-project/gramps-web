@@ -28,6 +28,7 @@ import '../views/GrampsjsViewTask.js'
 import '../views/GrampsjsViewTasks.js'
 import '../views/GrampsjsViewBlog.js'
 import '../views/GrampsjsViewBlogPost.js'
+import '../views/GrampsjsViewNotificationLog.js'
 import '../views/GrampsjsViewCitation.js'
 import '../views/GrampsjsViewDashboard.js'
 import '../views/GrampsjsViewRepository.js'
@@ -36,7 +37,6 @@ import '../views/GrampsjsViewMedia.js'
 import '../views/GrampsjsViewSearch.js'
 import '../views/GrampsjsViewSettingsUser.js'
 import '../views/GrampsjsViewSysinfo.js'
-import '../views/GrampsjsViewResearcher.js'
 import '../views/GrampsjsViewAdminSettings.js'
 import '../views/GrampsjsViewUserManagement.js'
 import '../views/GrampsjsViewRecent.js'
@@ -58,7 +58,7 @@ import '../views/GrampsjsViewNewNote.js'
 import '../views/GrampsjsViewNewMedia.js'
 import '../views/GrampsjsViewNewTask.js'
 import '../views/GrampsjsViewHelp.js'
-import '../views/GrampsjsViewTags.js'
+import '../views/GrampsjsViewTimeline.js'
 
 class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -295,6 +295,11 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         ?active=${this.appState.path.page === 'tasks'}
         .appState="${this.appState}"
       ></grampsjs-view-tasks>
+      <grampsjs-view-notification-log
+        class="page"
+        ?active=${this.appState.path.page === 'notifications'}
+        .appState="${this.appState}"
+      ></grampsjs-view-notification-log>
       <grampsjs-view-settings-user
         class="page"
         ?active=${this.appState.path.page === 'settings' &&
@@ -324,12 +329,6 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         this.appState.path.pageId === 'info'}
         .appState="${this.appState}"
       ></grampsjs-view-sysinfo>
-      <grampsjs-view-researcher
-        class="page"
-        ?active=${this.appState.path.page === 'settings' &&
-        this.appState.path.pageId === 'researcher'}
-        .appState="${this.appState}"
-      ></grampsjs-view-researcher>
       <grampsjs-view-report
         class="page"
         ?active=${this.appState.path.page === 'report'}
@@ -408,15 +407,11 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         grampsId="${this.appState.path.pageId}"
         .appState="${this.appState}"
       ></grampsjs-view-task>
-      ${this.appState.permissions.canEdit
-        ? html`
-            <grampsjs-view-tags
-              class="page"
-              ?active=${this.appState.path.page === 'tags'}
-              .appState="${this.appState}"
-            ></grampsjs-view-tags>
-          `
-        : ''}
+      <grampsjs-view-timeline
+        class="page"
+        ?active=${this.appState.path.page === 'timeline'}
+        .appState="${this.appState}"
+      ></grampsjs-view-timeline>
     `
   }
 }

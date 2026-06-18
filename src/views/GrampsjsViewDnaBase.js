@@ -155,6 +155,7 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   updated(changed) {
+    super.updated(changed)
     if (changed.has('homePersonGrampsId') && this.homePersonGrampsId) {
       this._setGrampsIdIfNeeded()
     }
@@ -200,11 +201,8 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     }
   }
 
-  firstUpdated() {
-    if (this.appState.i18n.lang) {
-      // don't load before we have strings
-      this._fetchSelectData()
-    }
+  _onLangChanged() {
+    this._fetchSelectData()
   }
 
   _fetchAllData() {

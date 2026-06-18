@@ -1,6 +1,8 @@
 import {css, html} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
+import '../components/GrampsjsCollapsibleSection.js'
+import '../components/GrampsjsResearcher.js'
 import '../components/GrampsjsImport.js'
 import '../components/GrampsjsImportMedia.js'
 import '../components/GrampsjsMediaFileStatus.js'
@@ -10,11 +12,26 @@ import '../components/GrampsjsRelogin.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
 
-import {fireEvent} from '../util.js'
-import {mdiDeleteForever} from '@mdi/js'
+import {fireEvent, makeHandle} from '../util.js'
+import {
+  TREE_CONFIG_APP_TITLE,
+  TREE_CONFIG_PRIMARY_COLOR,
+  TREE_CONFIG_SECONDARY_COLOR,
+  TREE_CONFIG_HOME_PAGE_NOTE,
+  TREE_CONFIG_HOME_PAGE_IMAGE,
+} from '../api.js'
+import {DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
+import {mdiDeleteForever, mdiDownload, mdiPlus, mdiUpload} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
+import '../components/GrampsjsFormUpload.js'
+import '../components/GrampsjsFormSelectObject.js'
+import '../components/GrampsjsTagsManager.js'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/text-button.js'
+import '@material/web/button/filled-button.js'
+import '@awesome.me/webawesome/dist/components/color-picker/color-picker.js'
 import '@material/web/button/outlined-button.js'
-import '@material/web/textfield/outlined-text-field.js'
+import '@material/web/textfield/filled-text-field.js'
 
 export class GrampsjsViewAdminSettings extends GrampsjsView {
   static get styles() {
@@ -74,9 +91,21 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           margin: 0.4em 0;
         }
 
-        #tree-name-field {
+        .settings-text-field {
           width: 100%;
           max-width: 30em;
+        }
+
+        h3 {
+          font-size: 1.1em;
+          font-weight: 500;
+          margin: 2em 0 0.5em;
+        }
+
+        h4 {
+          font-size: 1em;
+          font-weight: 500;
+          margin: 1.5em 0 0.5em;
         }
 
         .bold {
@@ -93,6 +122,31 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         .small {
           font-size: 16px;
         }
+
+        .color-pickers {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1.5em;
+          margin-bottom: 0.5em;
+        }
+
+        .color-row {
+          display: flex;
+          align-items: center;
+          gap: 1em;
+        }
+
+        .color-label {
+          font-size: 14px;
+          min-width: 8em;
+        }
+
+        @media (max-width: 600px) {
+          wa-color-picker {
+            --grid-width: min(200px, 60vw);
+            --grid-height: min(140px, 42vw);
+          }
+        }
       `,
     ]
   }
@@ -104,6 +158,13 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       _buttonUpdateSearchDisabled: {type: Boolean},
       _buttonUpdateSearchSemanticDisabled: {type: Boolean},
       _treeName: {type: String},
+      _primaryColor: {type: String},
+      _secondaryColor: {type: String},
+      _importDialogOpen: {type: Boolean},
+      _importFileReady: {type: Boolean},
+      _homePageNoteGrampsId: {},
+      _homePageImageGrampsId: {},
+      _tags: {type: Array},
     }
   }
 
@@ -114,177 +175,399 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this._buttonUpdateSearchDisabled = false
     this._buttonUpdateSearchSemanticDisabled = false
     this._treeName = ''
+    this._primaryColor = DEFAULT_PRIMARY
+    this._secondaryColor = DEFAULT_SECONDARY
+    this._importDialogOpen = false
+    this._importFileReady = false
+    this._homePageNoteGrampsId = null
+    this._homePageImageGrampsId = null
+    this._tags = []
   }
 
   renderContent() {
     return html`
-      <h3>${this._('Usage quotas')}</h3>
-
-      <grampsjs-tree-quotas .appState="${this.appState}"></grampsjs-tree-quotas>
-      <grampsjs-import .appState="${this.appState}"></grampsjs-import>
-
-      <grampsjs-media-status
-        .appState="${this.appState}"
-      ></grampsjs-media-status>
-      ${this.appState.dbInfo?.object_counts?.media
-        ? html`<grampsjs-media-file-status
-            .appState="${this.appState}"
-          ></grampsjs-media-file-status>`
-        : ''}
-
-      <grampsjs-import-media
-        .appState="${this.appState}"
-      ></grampsjs-import-media>
-
-      <h3>${this._('Manage search index')}</h3>
-
-      ${this._renderSearchStatus()}
-
-      <p>
-        ${this._(
-          'Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.'
-        )}
+      <p style="margin-top: 2.5em;">
+        ${this._('Changes here affect all users of this tree.')}
       </p>
-      <md-outlined-button
-        ?disabled=${this._buttonUpdateSearchDisabled}
-        @click="${() => this._updateSearch(false)}"
-        >${this._('Update search index')}</md-outlined-button
+
+      <grampsjs-collapsible-section
+        title="${this._('Data')}"
+        description="${this._(
+          'Quotas, imports, media, and storage management'
+        )}"
       >
-      <grampsjs-task-progress-indicator
-        class="button"
-        id="progress-update-search"
-        taskName="searchReindexFull"
-        size="20"
-        pollInterval="0.5"
-        .appState="${this.appState}"
-        @task:complete="${this._handleSuccessUpdateSearch}"
-      ></grampsjs-task-progress-indicator>
+        <grampsjs-tree-quotas
+          .appState="${this.appState}"
+        ></grampsjs-tree-quotas>
+        <grampsjs-import .appState="${this.appState}"></grampsjs-import>
 
-      ${this.appState.dbInfo?.server?.semantic_search
-        ? html`
-            <h3>${this._('Manage semantic search index')}</h3>
+        <grampsjs-media-status
+          .appState="${this.appState}"
+        ></grampsjs-media-status>
+        ${this.appState.dbInfo?.object_counts?.media
+          ? html`<grampsjs-media-file-status
+              .appState="${this.appState}"
+            ></grampsjs-media-file-status>`
+          : ''}
 
-            ${this._renderSearchStatus(true)}
+        <grampsjs-import-media
+          .appState="${this.appState}"
+        ></grampsjs-import-media>
+      </grampsjs-collapsible-section>
 
-            <p>
-              ${this._(
-                'Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.'
-              )}
-            </p>
-            <p>
-              <md-outlined-button
-                ?disabled=${this._buttonUpdateSearchSemanticDisabled}
-                @click="${() => this._updateSearch(true)}"
-                >${this._(
-                  'Regenerate semantic search index'
-                )}</md-outlined-button
-              >
-              <grampsjs-task-progress-indicator
-                class="button"
-                id="progress-update-search-semantic"
-                taskName="searchReindexFullSemantic"
-                size="20"
-                pollInterval="1.0"
-                .appState="${this.appState}"
-                @task:complete="${this._handleSuccessUpdateSearch}"
-              ></grampsjs-task-progress-indicator>
-            </p>
-            <p>
-              <md-outlined-button
-                ?disabled=${this._buttonUpdateSearchSemanticDisabled}
-                @click="${() => this._updateSearch(true, true)}"
-                >${this._('Update semantic search index')}</md-outlined-button
-              >
-              <grampsjs-task-progress-indicator
-                class="button"
-                id="progress-update-search-semantic-incremental"
-                taskName="searchReindexIncrementalSemantic"
-                size="20"
-                pollInterval="1.0"
-                .appState="${this.appState}"
-                @task:complete="${this._handleSuccessUpdateSearch}"
-              ></grampsjs-task-progress-indicator>
-            </p>
-          `
-        : ''}
-      <h3>${this._('Family Tree name')}</h3>
-      <p>
-        <md-outlined-text-field
-          id="tree-name-field"
-          label="${this._('Family Tree name')}"
-          .value="${this._treeName}"
-          @input="${e => {
-            this._treeName = e.target.value
-          }}"
-        ></md-outlined-text-field>
-      </p>
-      <p>
-        <md-outlined-button @click="${this._renameTree}"
-          >${this._('_Rename')}</md-outlined-button
+      <grampsjs-collapsible-section
+        title="${this._('Search index')}"
+        description="${this._('Manage and rebuild the search index')}"
+      >
+        <h3>${this._('Manage search index')}</h3>
+
+        ${this._renderSearchStatus()}
+
+        <p>
+          ${this._(
+            'Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.'
+          )}
+        </p>
+        <md-outlined-button
+          ?disabled=${this._buttonUpdateSearchDisabled}
+          @click="${() => this._updateSearch(false)}"
+          >${this._('Update search index')}</md-outlined-button
         >
-      </p>
+        <grampsjs-task-progress-indicator
+          class="button"
+          id="progress-update-search"
+          taskName="searchReindexFull"
+          size="20"
+          .appState="${this.appState}"
+          @task:complete="${() => this._handleSuccessUpdateSearch(false)}"
+        ></grampsjs-task-progress-indicator>
 
-      <h3>${this._('Check and Repair Database')}</h3>
+        ${this.appState.dbInfo?.server?.semantic_search
+          ? html`
+              <h3>${this._('Manage semantic search index')}</h3>
 
-      <p>
-        ${this._(
-          'This tool checks the database for integrity problems, fixing the problems it can.'
-        )}
-      </p>
-      <md-outlined-button @click="${this._checkRepair}"
-        >${this._('Check and Repair')}</md-outlined-button
+              ${this._renderSearchStatus(true)}
+
+              <p>
+                ${this._(
+                  'Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.'
+                )}
+              </p>
+              <p>
+                <md-outlined-button
+                  ?disabled=${this._buttonUpdateSearchSemanticDisabled}
+                  @click="${() => this._updateSearch(true)}"
+                  >${this._(
+                    'Regenerate semantic search index'
+                  )}</md-outlined-button
+                >
+                <grampsjs-task-progress-indicator
+                  class="button"
+                  id="progress-update-search-semantic"
+                  taskName="searchReindexFullSemantic"
+                  size="20"
+                  .appState="${this.appState}"
+                  @task:complete="${() =>
+                    this._handleSuccessUpdateSearch(true)}"
+                ></grampsjs-task-progress-indicator>
+              </p>
+              <p>
+                <md-outlined-button
+                  ?disabled=${this._buttonUpdateSearchSemanticDisabled ||
+                  this.appState.dbInfo?.search?.sifts?.semantic_index_stale ===
+                    true}
+                  @click="${() => this._updateSearch(true, true)}"
+                  >${this._('Update semantic search index')}</md-outlined-button
+                >
+                <grampsjs-task-progress-indicator
+                  class="button"
+                  id="progress-update-search-semantic-incremental"
+                  taskName="searchReindexIncrementalSemantic"
+                  size="20"
+                  .appState="${this.appState}"
+                  @task:complete="${() =>
+                    this._handleSuccessUpdateSearch(true)}"
+                ></grampsjs-task-progress-indicator>
+              </p>
+            `
+          : ''}
+      </grampsjs-collapsible-section>
+
+      <grampsjs-collapsible-section
+        title="${this._('Tree settings')}"
+        description="${this._('Tree name and researcher information')}"
       >
-      <grampsjs-task-progress-indicator
-        class="button"
-        id="progress-repair"
-        taskName="repairDb"
-        size="20"
-        pollInterval="0.2"
-        .appState="${this.appState}"
-        @task:complete="${this._handleRepairComplete}"
-      ></grampsjs-task-progress-indicator>
-
-      ${this._repairResults?.num_errors !== undefined
-        ? html`<p class="card">
-            ${this._repairResults.num_errors === 0
-              ? this._(
-                  'No errors were found: the database has passed internal checks.'
-                )
-              : html`<span class="pre">${this._repairResults.message}</span>`}
-          </p>`
-        : ''}
-      <h3>${this._('Danger Zone')}</h3>
-      <div class="danger-zone">
-        <div class="text">
-          <p class="bold">${this._('Delete all objects')}</p>
-          <p>
-            ${this._(
-              'Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.'
-            )}
-          </p>
-        </div>
-        <div class="button">
-          <grampsjs-task-progress-indicator
-            class="button-left"
-            id="progress-delete-all"
-            taskName="deleteObjects"
-            size="20"
-            pollInterval="0.2"
-            .appState="${this.appState}"
-          ></grampsjs-task-progress-indicator>
-          <md-outlined-button
-            class="danger-button"
-            @click="${this._openDeleteAll}"
+        <h3>${this._('Family Tree name')}</h3>
+        <p>
+          <md-filled-text-field
+            class="settings-text-field"
+            id="tree-name-field"
+            label="${this._('Family Tree name')}"
+            .value="${this._treeName}"
+            @input="${e => {
+              this._treeName = e.target.value
+            }}"
+          ></md-filled-text-field>
+        </p>
+        <p>
+          <md-outlined-button @click="${this._renameTree}"
+            >${this._('_Rename')}</md-outlined-button
           >
+        </p>
+
+        <h3>${this._('Researcher Information')}</h3>
+        <grampsjs-researcher .appState="${this.appState}"></grampsjs-researcher>
+      </grampsjs-collapsible-section>
+
+      <grampsjs-collapsible-section
+        title="${this._('Customization')}"
+        description="${this._('Colors, branding, and visual appearance')}"
+      >
+        <h3>${this._('Theme colors')}</h3>
+        <div class="color-pickers">
+          <div class="color-row">
+            <span class="color-label">${this._('Primary color')}</span>
+            <wa-color-picker
+              format="hex"
+              .value="${this._primaryColor}"
+              @change="${e => {
+                this._primaryColor = e.target.value
+              }}"
+            ></wa-color-picker>
+          </div>
+          <div class="color-row">
+            <span class="color-label">${this._('Accent color')}</span>
+            <wa-color-picker
+              format="hex"
+              .value="${this._secondaryColor}"
+              @change="${e => {
+                this._secondaryColor = e.target.value
+              }}"
+            ></wa-color-picker>
+          </div>
+        </div>
+        <p style="display: flex; gap: 0.75em;">
+          <md-outlined-button @click="${this._saveColors}"
+            >${this._('_Save')}</md-outlined-button
+          >
+          <md-outlined-button @click="${this._resetColors}"
+            >${this._('Reset')}</md-outlined-button
+          >
+        </p>
+
+        <h3>${this._('App title')}</h3>
+        <p>
+          <md-filled-text-field
+            class="settings-text-field"
+            id="app-title-field"
+            label="${this._('App title')}"
+            .supportingText="${this._(
+              'If set, overrides the family tree name in the title bar'
+            )}"
+            .value="${this.appState.treeConfig?.[TREE_CONFIG_APP_TITLE] ?? ''}"
+          ></md-filled-text-field>
+        </p>
+        <p>
+          <md-outlined-button @click="${this._saveAppTitle}"
+            >${this._('_Save')}</md-outlined-button
+          >
+        </p>
+
+        <h3>${this._('Home page note')}</h3>
+        ${this.appState.treeConfig?.[TREE_CONFIG_HOME_PAGE_NOTE]
+          ? html`
+              <p style="display:flex; align-items:center; gap:0.75em;">
+                ${this._homePageNoteGrampsId === null
+                  ? html`<span class="skeleton" style="width:4em;"
+                      >&nbsp;</span
+                    >`
+                  : html`<span>${this._homePageNoteGrampsId}</span>`}
+                <md-outlined-button @click="${this._clearHomePageNote}"
+                  >${this._('Remove')}</md-outlined-button
+                >
+              </p>
+            `
+          : ''}
+        <p>
+          <grampsjs-form-select-object
+            objectType="note"
+            .appState="${this.appState}"
+            @select-object:changed="${this._handleHomePageNoteSelected}"
+          ></grampsjs-form-select-object>
+        </p>
+
+        <h3>${this._('Home page image')}</h3>
+        ${this.appState.treeConfig?.[TREE_CONFIG_HOME_PAGE_IMAGE]
+          ? html`
+              <p style="display:flex; align-items:center; gap:0.75em;">
+                ${this._homePageImageGrampsId === null
+                  ? html`<span class="skeleton" style="width:4em;"
+                      >&nbsp;</span
+                    >`
+                  : html`<span>${this._homePageImageGrampsId}</span>`}
+                <md-outlined-button @click="${this._clearHomePageImage}"
+                  >${this._('Remove')}</md-outlined-button
+                >
+              </p>
+            `
+          : ''}
+        <p>
+          <grampsjs-form-select-object
+            objectType="media"
+            .appState="${this.appState}"
+            @select-object:changed="${this._handleHomePageImageSelected}"
+          ></grampsjs-form-select-object>
+        </p>
+
+        <h3>${this._('Export/Import settings')}</h3>
+        <p style="display: flex; gap: 0.75em; flex-wrap: wrap;">
+          <md-outlined-button @click="${this._handleExportTreeConfig}">
             <grampsjs-icon
               slot="icon"
-              path="${mdiDeleteForever}"
-              color="var(--grampsjs-alert-error-font-color)"
+              path="${mdiDownload}"
+              color="var(--mdc-theme-primary)"
             ></grampsjs-icon>
-            ${this._('Delete')}
+            ${this._('Export')}
           </md-outlined-button>
+          <md-outlined-button @click="${this._handleImportClick}">
+            <grampsjs-icon
+              slot="icon"
+              path="${mdiUpload}"
+              color="var(--mdc-theme-primary)"
+            ></grampsjs-icon>
+            ${this._('Import')}
+          </md-outlined-button>
+        </p>
+        <a
+          id="treeconfig-download"
+          aria-hidden="true"
+          href="#"
+          style="display:none"
+          download="grampsweb-tree-config.json"
+        ></a>
+
+        ${this._importDialogOpen
+          ? html`
+              <md-dialog open @cancel="${e => e.preventDefault()}">
+                <span slot="headline">${this._('Import tree settings')}</span>
+                <div slot="content">
+                  <grampsjs-form-upload
+                    id="treeconfig-upload"
+                    accept=".json"
+                    filename
+                    .appState="${this.appState}"
+                    @formdata:changed="${this._handleUploadChanged}"
+                  ></grampsjs-form-upload>
+                </div>
+                <div slot="actions">
+                  <md-text-button @click="${this._handleImportCancel}">
+                    ${this._('Cancel')}
+                  </md-text-button>
+                  <md-filled-button
+                    ?disabled="${!this._importFileReady}"
+                    @click="${this._handleImportTreeConfig}"
+                  >
+                    ${this._('Import')}
+                  </md-filled-button>
+                </div>
+              </md-dialog>
+            `
+          : ''}
+      </grampsjs-collapsible-section>
+
+      <grampsjs-collapsible-section
+        title="${this._('Family Tree Processing')}"
+        description="${this._(
+          'Database checks, repairs, and other operations'
+        )}"
+      >
+        <p>
+          ${this._(
+            'This tool checks the database for integrity problems, fixing the problems it can.'
+          )}
+        </p>
+        <md-outlined-button @click="${this._checkRepair}"
+          >${this._('Check and Repair')}</md-outlined-button
+        >
+        <grampsjs-task-progress-indicator
+          class="button"
+          id="progress-repair"
+          taskName="repairDb"
+          size="20"
+          .appState="${this.appState}"
+          @task:complete="${this._handleRepairComplete}"
+        ></grampsjs-task-progress-indicator>
+
+        ${this._repairResults?.num_errors !== undefined
+          ? html`<p class="card">
+              ${this._repairResults.num_errors === 0
+                ? this._(
+                    'No errors were found: the database has passed internal checks.'
+                  )
+                : html`<span class="pre">${this._repairResults.message}</span>`}
+            </p>`
+          : ''}
+      </grampsjs-collapsible-section>
+
+      <grampsjs-collapsible-section
+        title="${this._('Tags')}"
+        description="${this._('Organize Tags')}"
+      >
+        <p>
+          <md-outlined-button @click="${this._openCreateTag}">
+            <grampsjs-icon
+              slot="icon"
+              path="${mdiPlus}"
+              color="var(--mdc-theme-primary)"
+            ></grampsjs-icon>
+            ${this._('New Tag')}
+          </md-outlined-button>
+        </p>
+        <grampsjs-tags-manager
+          .data="${this._tags}"
+          .appState="${this.appState}"
+          @tag:save="${this._handleTagSave}"
+          @tag:delete="${this._handleTagDelete}"
+        ></grampsjs-tags-manager>
+      </grampsjs-collapsible-section>
+
+      <grampsjs-collapsible-section
+        title="${this._('Danger Zone')}"
+        description="${this._('Irreversible operations on tree data')}"
+      >
+        <div class="danger-zone">
+          <div class="text">
+            <p class="bold">${this._('Delete all objects')}</p>
+            <p>
+              ${this._(
+                'Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.'
+              )}
+            </p>
+          </div>
+          <div class="button">
+            <grampsjs-task-progress-indicator
+              class="button-left"
+              id="progress-delete-all"
+              taskName="deleteObjects"
+              size="20"
+              .appState="${this.appState}"
+              @task:complete="${this._handleDeleteAllComplete}"
+            ></grampsjs-task-progress-indicator>
+            <md-outlined-button
+              class="danger-button"
+              @click="${this._openDeleteAll}"
+            >
+              <grampsjs-icon
+                slot="icon"
+                path="${mdiDeleteForever}"
+                color="var(--grampsjs-alert-error-font-color)"
+              ></grampsjs-icon>
+              ${this._('Delete')}
+            </md-outlined-button>
+          </div>
         </div>
-      </div>
+      </grampsjs-collapsible-section>
+
       <grampsjs-delete-all
         .appState="${this.appState}"
         @delete-objects="${this._handleDeleteAll}"
@@ -309,6 +592,17 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     const iconOk = html`<mwc-icon class="success status"
       >check_circle</mwc-icon
     >`
+    if (
+      semantic &&
+      this.appState.dbInfo?.search?.sifts?.semantic_index_stale === true
+    ) {
+      return html`<p class="alert error">
+        ${iconError}
+        ${this._(
+          'The semantic search index is out of date. A full reindex is required.'
+        )}
+      </p>`
+    }
     const icon = objCount === 0 || count / objCount > 0.98 ? iconOk : iconError
     return html`<p class="small">
       ${icon} ${this._('Status')}:
@@ -332,16 +626,27 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       ? `?namespaces=${e.detail.namespaces}`
       : ''
     const url = `/api/objects/delete/${querypar}`
-    const data = await this.appState.apiPost(url, null, {requireFresh: true})
+    const data = await this.appState.apiPost(url, null, {
+      requireFresh: true,
+      dbChanged: false,
+    })
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
     } else if ('task' in data) {
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      if (taskId)
+        this.appState.registerTask(taskId, 'Delete all objects', {
+          taskName: 'deleteObjects',
+        })
+      prog.taskId = taskId
     } else {
       prog.setComplete()
-      fireEvent(this, 'db:changed')
     }
+  }
+
+  _handleDeleteAllComplete() {
+    fireEvent(this, 'db:changed')
   }
 
   async _updateSearch(semantic = false, incremental = false) {
@@ -365,13 +670,32 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     } else {
       this._buttonUpdateSearchDisabled = true
     }
-    const data = await this.appState.apiPost(url)
+    // Search reindex doesn't mutate database records, and the index update
+    // happens asynchronously — suppress the automatic db:changed so stale-data
+    // refreshes don't fire before the task completes.
+    const data = await this.appState.apiPost(url, undefined, {dbChanged: false})
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
       this._doneUpdateSearch(semantic)
     } else if ('task' in data) {
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      if (taskId) {
+        let label
+        let taskName
+        if (!semantic) {
+          label = 'Update search index'
+          taskName = 'searchReindexFull'
+        } else if (incremental) {
+          label = 'Update semantic search index'
+          taskName = 'searchReindexIncrementalSemantic'
+        } else {
+          label = 'Regenerate semantic search index'
+          taskName = 'searchReindexFullSemantic'
+        }
+        this.appState.registerTask(taskId, label, {taskName})
+      }
+      prog.taskId = taskId
     } else {
       prog.setComplete()
       this._handleSuccessUpdateSearch(semantic)
@@ -396,12 +720,19 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     const prog = this.renderRoot.querySelector('#progress-repair')
     prog.reset()
     prog.open = true
-    const data = await this.appState.apiPost('/api/trees/-/repair')
+    const data = await this.appState.apiPost('/api/trees/-/repair', null, {
+      dbChanged: false,
+    })
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
     } else if ('task' in data) {
-      prog.taskId = data.task?.id || ''
+      const taskId = data.task?.id || ''
+      if (taskId)
+        this.appState.registerTask(taskId, 'Check and Repair Database', {
+          taskName: 'repairDb',
+        })
+      prog.taskId = taskId
     } else {
       prog.setComplete()
     }
@@ -412,6 +743,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     if (info !== undefined) {
       this._repairResults = JSON.parse(info)
     }
+    fireEvent(this, 'db:changed')
   }
 
   async _fetchTreeInfo() {
@@ -430,6 +762,209 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
+  async _saveColors() {
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_PRIMARY_COLOR]: this._primaryColor,
+      [TREE_CONFIG_SECONDARY_COLOR]: this._secondaryColor,
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
+  async _resetColors() {
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_PRIMARY_COLOR]: '',
+      [TREE_CONFIG_SECONDARY_COLOR]: '',
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    } else {
+      this._primaryColor = DEFAULT_PRIMARY
+      this._secondaryColor = DEFAULT_SECONDARY
+    }
+  }
+
+  async _saveAppTitle() {
+    const field = this.renderRoot.querySelector('#app-title-field')
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_APP_TITLE]: field.value,
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
+  async _handleHomePageNoteSelected(e) {
+    const obj = e.detail.objects?.[0]
+    if (!obj) return
+    this._homePageNoteGrampsId = null
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_HOME_PAGE_NOTE]: obj.handle,
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
+  async _handleHomePageImageSelected(e) {
+    const obj = e.detail.objects?.[0]
+    if (!obj) return
+    this._homePageImageGrampsId = null
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_HOME_PAGE_IMAGE]: obj.handle,
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
+  async _clearHomePageNote() {
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_HOME_PAGE_NOTE]: '',
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
+  async _clearHomePageImage() {
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_HOME_PAGE_IMAGE]: '',
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
+  async _fetchHomePageGrampsIds() {
+    const noteHandle = this.appState.treeConfig?.[TREE_CONFIG_HOME_PAGE_NOTE]
+    const imageHandle = this.appState.treeConfig?.[TREE_CONFIG_HOME_PAGE_IMAGE]
+    if (noteHandle) {
+      const data = await this.appState.apiGet(
+        `/api/notes/${noteHandle}?profile=self`
+      )
+      if (!('error' in data)) {
+        this._homePageNoteGrampsId = data.data?.gramps_id || ''
+      }
+    }
+    if (imageHandle) {
+      const data = await this.appState.apiGet(
+        `/api/media/${imageHandle}?profile=self`
+      )
+      if (!('error' in data)) {
+        this._homePageImageGrampsId = data.data?.gramps_id || ''
+      }
+    }
+  }
+
+  _handleExportTreeConfig() {
+    const blob = new Blob([JSON.stringify(this.appState.treeConfig, null, 2)], {
+      type: 'application/json',
+    })
+    const url = URL.createObjectURL(blob)
+    const anchor = this.renderRoot.querySelector('#treeconfig-download')
+    anchor.href = url
+    anchor.click()
+    URL.revokeObjectURL(url)
+  }
+
+  _handleImportClick() {
+    this._importFileReady = false
+    this._importDialogOpen = true
+  }
+
+  _handleImportCancel() {
+    this._importDialogOpen = false
+    this._importFileReady = false
+  }
+
+  _handleUploadChanged() {
+    this._importFileReady = true
+  }
+
+  async _handleImportTreeConfig() {
+    const uploadForm = this.renderRoot.querySelector('#treeconfig-upload')
+    let data
+    try {
+      data = await uploadForm.readAsJson()
+    } catch {
+      fireEvent(this, 'grampsjs:error', {
+        message: this._('Error parsing JSON file'),
+      })
+      return
+    }
+    if (
+      typeof data !== 'object' ||
+      Array.isArray(data) ||
+      data === null ||
+      Object.keys(data).length === 0
+    ) {
+      fireEvent(this, 'grampsjs:error', {
+        message: this._('Error parsing JSON file'),
+      })
+      return
+    }
+    const res = await this.appState.replaceTreeConfig(data)
+    if (res?.error) {
+      fireEvent(this, 'grampsjs:error', {message: res.error})
+    } else {
+      this._importDialogOpen = false
+      fireEvent(this, 'grampsjs:notification', {
+        message: this._('Settings successfully imported'),
+      })
+    }
+  }
+
+  _openCreateTag() {
+    this.renderRoot.querySelector('grampsjs-tags-manager').openCreate()
+  }
+
+  async _handleTagSave(e) {
+    const {tag, isNew} = e.detail
+    let data
+    if (isNew) {
+      data = await this.appState.apiPost(
+        '/api/tags/',
+        {...tag, handle: makeHandle()},
+        {dbChanged: false}
+      )
+    } else {
+      data = await this.appState.apiPut(`/api/tags/${tag.handle}`, tag, {
+        dbChanged: false,
+      })
+    }
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+      return
+    }
+    fireEvent(this, 'db:changed')
+    this._fetchTagData()
+  }
+
+  async _handleTagDelete(e) {
+    const data = await this.appState.apiDelete(`/api/tags/${e.detail.handle}`, {
+      dbChanged: false,
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+      return
+    }
+    fireEvent(this, 'db:changed')
+    this._fetchTagData()
+  }
+
+  async _fetchTagData() {
+    const data = await this.appState.apiGet(
+      `/api/tags/?locale=${this.appState.i18n.lang || 'en'}&pagesize=500`
+    )
+    if ('data' in data) {
+      this._tags = data.data
+    } else if ('error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
   async _fetchOwnUserDetails() {
     const data = await this.appState.apiGet('/api/users/-/')
     if ('error' in data) {
@@ -441,10 +976,40 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
+  updated(changed) {
+    super.updated(changed)
+    if (changed.has('appState')) {
+      const prev = changed.get('appState')
+      if (
+        prev?.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] !==
+          this.appState.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] ||
+        prev?.treeConfig?.[TREE_CONFIG_SECONDARY_COLOR] !==
+          this.appState.treeConfig?.[TREE_CONFIG_SECONDARY_COLOR]
+      ) {
+        this._primaryColor =
+          this.appState.treeConfig?.[TREE_CONFIG_PRIMARY_COLOR] ||
+          DEFAULT_PRIMARY
+        this._secondaryColor =
+          this.appState.treeConfig?.[TREE_CONFIG_SECONDARY_COLOR] ||
+          DEFAULT_SECONDARY
+      }
+      if (
+        prev?.treeConfig?.[TREE_CONFIG_HOME_PAGE_NOTE] !==
+          this.appState.treeConfig?.[TREE_CONFIG_HOME_PAGE_NOTE] ||
+        prev?.treeConfig?.[TREE_CONFIG_HOME_PAGE_IMAGE] !==
+          this.appState.treeConfig?.[TREE_CONFIG_HOME_PAGE_IMAGE]
+      ) {
+        this._fetchHomePageGrampsIds()
+      }
+    }
+  }
+
   firstUpdated() {
     super.firstUpdated()
     this._fetchOwnUserDetails()
     this._fetchTreeInfo()
+    this._fetchHomePageGrampsIds()
+    this._fetchTagData()
   }
 }
 

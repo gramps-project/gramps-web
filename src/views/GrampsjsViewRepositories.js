@@ -12,17 +12,17 @@ import '../components/GrampsjsFilterText.js'
 export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
   constructor() {
     super()
-    this._columns = {
-      grampsId: {title: 'Gramps ID', sort: 'gramps_id'},
-      name: {title: 'Name', sort: 'name'},
-      type: {title: 'Type', sort: 'type'},
-      change: {title: 'Last changed', sort: 'change'},
-    }
+    this._columns = [
+      {name: 'Gramps ID', key: 'grampsId', sortKey: 'gramps_id'},
+      {name: 'Name', key: 'name', sortKey: 'name'},
+      {name: 'Type', key: 'type', sortKey: 'type'},
+      {name: 'Last changed', key: 'change', sortKey: 'change'},
+    ]
   }
 
   // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
-    return '/api/repositories/?keys=gramps_id,name,type,change'
+    return '/api/repositories/?keys=gramps_id,name,type,change,handle'
   }
 
   // eslint-disable-next-line class-methods-use-this

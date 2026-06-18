@@ -2,7 +2,8 @@ import {html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
-import {fireEvent, renderIcon} from '../util.js'
+import {fireEvent} from '../util.js'
+import {renderIcon} from '../objectRender.js'
 
 export class GrampsjsCitations extends GrampsjsEditableList {
   constructor() {

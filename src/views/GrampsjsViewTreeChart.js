@@ -2,6 +2,7 @@ import {html} from 'lit'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
 import '../components/GrampsjsTreeChart.js'
+import '../components/GrampsjsTreeChartAddPerson.js'
 
 export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
   constructor() {
@@ -36,16 +37,28 @@ export class GrampsjsViewTreeChart extends GrampsjsViewTreeChartBase {
 
   renderChart() {
     return html`
-      <grampsjs-tree-chart
-        ancestors
-        grampsId=${this.grampsId}
-        nAnc=${this.nAnc + 1}
-        nDesc=${this.nDesc + 1}
-        nameDisplayFormat=${this.nameDisplayFormat}
-        .data=${this._data}
+      <div @add-new-person-relation="${this._handleAddPersonRelation}">
+        <grampsjs-tree-chart
+          ancestors
+          grampsId=${this.grampsId}
+          nAnc=${this.nAnc + 1}
+          nDesc=${this.nDesc + 1}
+          nameDisplayFormat=${this.nameDisplayFormat}
+          ?canEdit="${this._editMode}"
+          .data=${this._data}
+          .appState="${this.appState}"
+        >
+        </grampsjs-tree-chart>
+      </div>
+    `
+  }
+
+  renderContent() {
+    return html`
+      ${super.renderContent()}
+      <grampsjs-tree-chart-add-person
         .appState="${this.appState}"
-      >
-      </grampsjs-tree-chart>
+      ></grampsjs-tree-chart-add-person>
     `
   }
 }

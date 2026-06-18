@@ -42,8 +42,10 @@ src/
   gramps-js.js             # Entry point (registers the custom element)
   api.js                   # All API calls, auth helpers, localStorage utilities
   appState.js              # App-wide state initialisation
+  color.js                 # Gramps internal hex format converters (tag colours etc.)
   config.js                # Runtime config (window.grampsjsConfig); see below
   strings.js               # i18n string keys and language list
+  theme.js                 # Colour theme: applyScheme(), applyColors(), DEFAULT_PRIMARY/SECONDARY
   util.js                  # Shared helpers
   components/              # Reusable components
   views/                   # Page-level components
@@ -80,7 +82,7 @@ html`<grampsjs-icon path="${mdiInformation}"></grampsjs-icon>`
 
 Optional attributes: `color`, `height`, `width`, `rotate`.
 
-For action icon color (add/edit/delete buttons), use `color="var(--mdc-theme-secondary)"` — this is `#0277bd` and is consistent across light and dark mode.
+For action icon color (add/edit/delete buttons), use `color="var(--mdc-theme-secondary)"` — this is derived from the active secondary seed colour and adapts to light/dark mode.
 
 ### Mixins
 
@@ -142,6 +144,12 @@ Components communicate via window-level custom events:
 | `grampsjs:error`   | A component encountered an error (bubbles up to root) |
 
 Fire events with the `fireEvent(target, eventName, detail?)` helper from `util.js`.
+
+### `db:changed` and `dbChanged`
+
+`apiPutPostDelete` (called by `appState.apiPost`, `apiPut`, `apiDelete`) fires `db:changed` on `window` automatically whenever a mutation succeeds, **including 202 background-task responses**. The `dbChanged` option (default `true`) controls this.
+
+**Do not fire `db:changed` manually after an `apiPost`/`apiPut`/`apiDelete` call** — it will be a duplicate. If you need to suppress the automatic event (rare), pass `{dbChanged: false}` in the options and fire it yourself at the right moment.
 
 ## Runtime configuration
 

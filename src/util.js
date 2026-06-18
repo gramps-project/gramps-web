@@ -50,14 +50,13 @@ import {
   mdiBarn,
   mdiBookOpenVariant,
 } from '@mdi/js'
-import {asteriskIcon, crossIcon, renderIconSvg, ringsIconPath} from './icons.js'
+import {renderIconSvg, ringsIconPath} from './icons.js'
 import './components/GrampsjsIcon.js'
 import {frontendLanguages} from './strings.js'
-import {hex6ToCss, hex12ToCss} from './color.js'
+
+import {dateToSdn, CALENDARS} from './gcalendar.js'
 
 dayjs.extend(relativeTime)
-
-const BASE_DIR = ''
 
 export const emptyDate = {
   _class: 'Date',
@@ -84,6 +83,14 @@ export function personTitleFromProfile(personProfile) {
   } ${personProfile.name_suffix || ''}`.trim()
 }
 
+export function personProfileDisplayName(profile) {
+  return (
+    [profile?.name_given, profile?.name_surname].filter(Boolean).join(' ') ||
+    profile?.name ||
+    ''
+  )
+}
+
 function displaySurname(surname) {
   return `${surname.prefix} ${surname.surname} ${surname.connector}`.trim()
 }
@@ -96,6 +103,25 @@ export function personDisplayName(person, options = {givenfirst: true}) {
   return options.givenfirst
     ? `${given} ${surname} ${suffix}`.trim()
     : `${surname}, ${given} ${suffix}`.trim()
+}
+
+export function reportSelectItemLabel(
+  optionString,
+  translate = value => value
+) {
+  const parts = `${optionString}`.split(/\t+/).map(v => v.trim())
+  const labelKey = parts.length === 1 ? parts[0] : parts[1]
+  return translate(labelKey)
+}
+
+/**
+ * Returns the value to submit to the API for a report option item.
+ * Takes the first tab-separated column and strips any trailing colon
+ * (Gramps appends a colon to family handles in some contexts).
+ */
+export function reportSelectItemValue(optionString) {
+  const parts = `${optionString}`.split(/\t+/).map(v => v.trim())
+  return parts[0].replace(/:\s*$/, '')
 }
 
 export function familyTitleFromProfile(familyProfile) {
@@ -124,30 +150,6 @@ export function eventTitleFromProfile(eventProfile, date = true) {
   return ''
 }
 
-export function renderPerson(personProfile) {
-  return html`
-    <span class="event">
-      <mwc-icon class="inline ${personProfile.sex === 'M' ? 'male' : 'female'}"
-        >person</mwc-icon
-      >
-      <a href="${BASE_DIR}/person/${personProfile.gramps_id}"
-        >${personProfile.name_given || '…'}
-        ${personProfile.name_surname || '…'}</a
-      >
-    </span>
-    ${personProfile?.birth?.date
-      ? html` <span class="event"
-          ><i>${asteriskIcon}</i> ${personProfile.birth.date}</span
-        >`
-      : ''}
-    ${personProfile?.death?.date
-      ? html` <span class="event"
-          ><i>${crossIcon}</i> ${personProfile.death.date}</span
-        >`
-      : ''}
-  `
-}
-
 export function getName(obj, type) {
   switch (type) {
     case 'person':
@@ -168,81 +170,6 @@ export function getName(obj, type) {
       return obj.desc
     default:
       return ''
-  }
-}
-
-export function showObject(type, obj, strings) {
-  switch (type) {
-    case 'person':
-      return html`
-        <mwc-icon class="inline ${obj.gender === 1 ? 'male' : 'female'}"
-          >person</mwc-icon
-        >
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${obj?.profile?.name_given || html`&hellip;`}
-          ${obj?.profile?.name_surname || html`&hellip;`}
-        </a>
-      `
-    case 'family':
-      return html`
-        <mwc-icon class="inline">people</mwc-icon>
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${familyTitleFromProfile(obj.profile || {}) || type}
-        </a>
-      `
-    case 'event':
-      return html`
-        <mwc-icon class="inline">event</mwc-icon>
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${eventTitleFromProfile(obj.profile || {}) || obj.type}
-        </a>
-      `
-    case 'place':
-      return html`
-        <mwc-icon class="inline">place</mwc-icon>
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${obj?.profile?.name || obj?.name?.value || obj.title || type}
-        </a>
-      `
-    case 'source':
-      return html`
-        <mwc-icon class="inline">bookmarks</mwc-icon>
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${getName(obj, type) || type}
-        </a>
-      `
-    case 'citation':
-      return html`
-        <mwc-icon class="inline">bookmark</mwc-icon>
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${citationTitleFromProfile(obj.profile || {}) || type}
-        </a>
-      `
-    case 'repository':
-      return html`
-        <mwc-icon class="inline">account_balance</mwc-icon>
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${getName(obj, type) || type}
-        </a>
-      `
-    case 'note':
-      return html`
-        <mwc-icon class="inline">sticky_note_2</mwc-icon>
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${translate(strings, obj.type) || type}
-        </a>
-      `
-    case 'media':
-      return html`
-        <mwc-icon class="inline">photo</mwc-icon>
-        <a href="${BASE_DIR}/media/${obj.gramps_id}"
-          >${getName(obj, type) || type}
-        </a>
-      `
-    case 'tag':
-      return html``
-    default:
-      return `unknown type: ${type}`
   }
 }
 
@@ -361,7 +288,7 @@ export const objectTypeToEndpoint = {
   object: 'objects',
 }
 
-const eventTypeStrings = {
+export const eventTypeStrings = {
   '-1': 'Unknown',
   0: 'Custom',
   1: 'Marriage',
@@ -411,7 +338,7 @@ const eventTypeStrings = {
   45: 'Stillbirth',
 }
 
-const noteTypeStrings = {
+export const noteTypeStrings = {
   '-1': 'Unknown',
   0: 'Custom',
   1: 'General',
@@ -512,10 +439,19 @@ export function objectDetail(type, obj, strings) {
     //   return ''
     case 'repository':
       return `
-    ${obj.type ? translate(strings, obj.type) : ''}
+    ${
+      obj.type
+        ? translate(
+            strings,
+            typeof obj.type === 'string' ? obj.type : obj.type.string || ''
+          )
+        : ''
+    }
     `
-    case 'note':
-      return obj?.text?.string?.match(/[^\r\n]+/)?.[0]?.trim() || ''
+    case 'note': {
+      const firstLine = obj?.text?.string?.match(/[^\r\n]+/)?.[0]?.trim() || ''
+      return firstLine.length > 100 ? `${firstLine.slice(0, 100)}…` : firstLine
+    }
     case 'media':
       if (obj.mime?.startsWith('audio')) {
         return translate(strings, 'Audio')
@@ -598,13 +534,9 @@ export function makeHandle() {
   return uuidv4()
 }
 
-// Gregorian date to Julian day needed for Date.sortval
+// Thin wrapper around dateToSdn for Gregorian dates.
 export function getSortval(year, month, day) {
-  if (year === 0 && month === 0 && day === 0) {
-    // we're assuming that this is an invalid/empty date!
-    return 0
-  }
-  return Math.ceil(2440587.5 + Date.UTC(year, month - 1, day) / 86400000)
+  return dateToSdn(CALENDARS.GREGORIAN, year, month, day)
 }
 
 export function getBrowserLanguage() {
@@ -780,57 +712,6 @@ export function isValidRect(rect) {
   return normalizeRect(rect) !== null
 }
 
-function _getMediaHandle(obj) {
-  if (obj.object_type === 'media') {
-    return obj.object.handle
-  }
-  if (obj.object?.media_list?.length) {
-    return obj.object.media_list[0].ref
-  }
-  return ''
-}
-
-function _getMediaRect(obj) {
-  if (obj.object?.media_list?.length) {
-    return obj.object.media_list[0].rect
-  }
-  return []
-}
-
-export function renderIcon(obj, slot = 'graphic', iconPath = null) {
-  const handle = _getMediaHandle(obj)
-  const rect = _getMediaRect(obj)
-  if (handle) {
-    return html`<grampsjs-img
-      handle="${handle}"
-      slot="${slot}"
-      circle
-      square
-      size="40"
-      .rect="${rect}"
-      mime=""
-      fallbackIcon="${objectIconPath[obj.object_type]}"
-    ></grampsjs-img>`
-  }
-  if (obj.object_type === 'tag') {
-    const color =
-      obj.object?.color?.length > 7
-        ? hex12ToCss(obj.object.color, 0.6)
-        : hex6ToCss(obj.object.color, 0.6)
-    return html`<grampsjs-icon
-      slot="${slot}"
-      path="${objectIconPath[obj.object_type]}"
-      color="var(--grampsjs-color-icon)"
-      style="background-color:${color};"
-    ></grampsjs-icon>`
-  }
-  return html`<grampsjs-icon
-    slot="${slot}"
-    path="${iconPath || objectIconPath[obj.object_type]}"
-    color="var(--grampsjs-color-icon)"
-  ></grampsjs-icon>`
-}
-
 export function clickKeyHandler(event) {
   if (event.code === 'Enter' || event.code === 'Space') {
     event.target.click()
@@ -881,34 +762,6 @@ export function linkUrls(text, textOnly = true) {
           > `
       : part
   )}`
-}
-
-export function renderMarkdownLinks(markdown) {
-  // Regular expression to match markdown links
-  const markdownLinkPattern = /\[([^\]]+)\]\(([^)]+)\)/g
-
-  // Split the markdown into segments, with text and links separated
-  const segments = []
-  let lastIndex = 0
-  let match
-
-  // eslint-disable-next-line no-cond-assign
-  while ((match = markdownLinkPattern.exec(markdown)) !== null) {
-    // Push the text before the link
-    if (match.index > lastIndex) {
-      segments.push(markdown.substring(lastIndex, match.index))
-    }
-    // Push the link as an HTML node
-    segments.push(html`<a href="${match[2]}">${match[1]}</a>`)
-    lastIndex = markdownLinkPattern.lastIndex
-  }
-
-  // Push the remaining text after the last link
-  if (lastIndex < markdown.length) {
-    segments.push(markdown.substring(lastIndex))
-  }
-
-  return segments
 }
 
 export function getGregorianYears(date) {

@@ -207,7 +207,8 @@ export class GrampsjsViewSearch extends GrampsjsView {
   _semanticEnabled() {
     return (
       !!this.dbInfo?.server?.semantic_search &&
-      !!this.dbInfo?.search?.sifts?.count_semantic
+      !!this.dbInfo?.search?.sifts?.count_semantic &&
+      this.dbInfo?.search?.sifts?.semantic_index_stale !== true
     )
   }
 

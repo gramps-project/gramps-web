@@ -3,6 +3,38 @@ import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {linkUrls} from '../util.js'
 
+const NAVIGABLE = new Set([
+  'person',
+  'family',
+  'event',
+  'place',
+  'source',
+  'citation',
+  'repository',
+  'note',
+  'media',
+])
+const PREVIEWABLE = new Set([
+  'person',
+  'family',
+  'place',
+  'event',
+  'source',
+  'citation',
+  'repository',
+  'note',
+  'media',
+])
+const NO_HOVER =
+  typeof window !== 'undefined' && window.matchMedia?.('(hover: none)').matches
+
+export function _parseGrampsHref(href) {
+  // Resolved link from link_format: /person/I0042 or person/I0042
+  const m = href.match(/^\/?([a-z]+)\/([^/]+)$/)
+  if (m && NAVIGABLE.has(m[1])) return {objectType: m[1], grampsId: m[2]}
+  return null
+}
+
 export class GrampsjsNoteContent extends LitElement {
   static get styles() {
     return [
@@ -80,6 +112,41 @@ export class GrampsjsNoteContent extends LitElement {
     const noteContent = this.shadowRoot.getElementById('note-content')
     noteContent.innerHTML = linkUrls(this.content)
     this.columns = noteContent.textContent.length > 1000
+    this._wireLinks(noteContent)
+  }
+
+  _wireLinks(container) {
+    for (const a of container.querySelectorAll('a[href]')) {
+      const parsed = _parseGrampsHref(a.getAttribute('href'))
+      if (!parsed) continue
+      a.addEventListener('click', e => {
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+          return
+        e.preventDefault()
+        this.dispatchEvent(
+          new CustomEvent('nav', {
+            bubbles: true,
+            composed: true,
+            detail: {path: `${parsed.objectType}/${parsed.grampsId}`},
+          })
+        )
+      })
+      if (NO_HOVER || !PREVIEWABLE.has(parsed.objectType)) continue
+      a.addEventListener('mouseenter', () => {
+        window.dispatchEvent(
+          new CustomEvent('object:preview-show', {
+            detail: {
+              objectType: parsed.objectType,
+              grampsId: parsed.grampsId,
+              anchorRect: a.getBoundingClientRect(),
+            },
+          })
+        )
+      })
+      a.addEventListener('mouseleave', () => {
+        window.dispatchEvent(new CustomEvent('object:preview-hide'))
+      })
+    }
   }
 }
 

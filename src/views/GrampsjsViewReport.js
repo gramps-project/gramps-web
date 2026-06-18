@@ -98,10 +98,7 @@ export class GrampsjsViewReport extends GrampsjsView {
   }
 
   firstUpdated() {
-    if (this.appState.i18n.lang) {
-      // don't load before we have strings
-      this._fetchData(this.appState.i18n.lang)
-    }
+    super.firstUpdated()
     this._updateQueryUrl()
   }
 
@@ -115,9 +112,10 @@ export class GrampsjsViewReport extends GrampsjsView {
 
   _updateQueryUrl() {
     const options = Object.keys(this._options).reduce((r, e) => {
-      if (this._options[e] !== '') {
+      const val = `${this._options[e]}`
+      if (val !== '') {
         // eslint-disable-next-line no-param-reassign
-        r[e] = `${this._options[e]}`
+        r[e] = val
       }
       return r
     }, {})

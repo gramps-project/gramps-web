@@ -103,7 +103,12 @@ export class GrampsjsImportMedia extends GrampsjsAppStateMixin(LitElement) {
       prog.errorMessage = this._(res.error)
       this._handleCompletedMedia(STATE_ERROR)
     } else if ('task' in res) {
-      prog.taskId = res.task?.id || ''
+      const taskId = res.task?.id || ''
+      if (taskId)
+        this.appState.registerTask(taskId, 'Import Media Files', {
+          taskName: 'importMedia',
+        })
+      prog.taskId = taskId
     } else {
       prog.setComplete()
       this._handleSuccessMedia()
