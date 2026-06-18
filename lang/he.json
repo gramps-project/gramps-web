@@ -363,5 +363,13 @@
     "Fetching place record...": "מתבצעת שליפת רשומת מקום...",
     "Exact place": "מקום מדויק",
     "Enclosed places": "מקומות מוכלים",
-    "No coordinates": "אין נקודות־ציון"
+    "No coordinates": "אין נקודות־ציון",
+    "Coordinates": "נקודות־ציון",
+    "External": "חיצוני",
+    "External search failed": "שדה חיפוש חיצוני",
+    "Too many requests. Please try again later.": "יותר מדי בקשות. נא לנסות שוב מאוחר יותר.",
+    "Add Participant": "הוספת משתתף",
+    "Invalid date": "תאריך לא תקין",
+    "End date must be after start date": "תאריך סיום חייב לחול לאחר תאריך התחלה",
+    "End date is required": "נדרש תאריך סיום"
 }
