@@ -112,7 +112,14 @@ export function applyScheme(
   secondaryHex = DEFAULT_SECONDARY,
   theme
 ) {
-  const isDark = getCurrentTheme(theme) === 'dark'
+  const resolvedTheme = getCurrentTheme(theme)
+  // 'violet' is a custom theme: set data-theme so the CSS vars in global.css
+  // apply, then skip applyColors (colours are fully defined in CSS).
+  if (resolvedTheme === 'violet') {
+    document.documentElement.setAttribute('data-theme', 'violet')
+    return
+  }
+  const isDark = resolvedTheme === 'dark'
   document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
   applyColors(primaryHex, secondaryHex, isDark)
 }
