@@ -370,5 +370,10 @@
   "Add Participant": "Add Participant",
   "Invalid date": "Invalid date",
   "End date must be after start date": "End date must be after start date",
-  "End date is required": "End date is required"
+  "End date is required": "End date is required",
+  "Verify genealogical data": "Verify genealogical data",
+  "Check genealogical plausibility of persons and families": "Check genealogical plausibility of persons and families",
+  "No issues found": "No issues found",
+  "issues found": "issues found",
+  "Severity": "Severity"
 }

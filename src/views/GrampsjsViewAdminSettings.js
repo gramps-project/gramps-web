@@ -21,17 +21,47 @@ import {
   TREE_CONFIG_HOME_PAGE_IMAGE,
 } from '../api.js'
 import {DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
-import {mdiDeleteForever, mdiDownload, mdiPlus, mdiUpload} from '@mdi/js'
+import {
+  mdiAlertCircle,
+  mdiAlertOutline,
+  mdiDeleteForever,
+  mdiDownload,
+  mdiPlus,
+  mdiUpload,
+} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsFormUpload.js'
 import '../components/GrampsjsFormSelectObject.js'
 import '../components/GrampsjsTagsManager.js'
+import '../components/GrampsjsObjectLink.js'
+import '../components/GrampsjsTable.js'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 import '@material/web/button/filled-button.js'
 import '@awesome.me/webawesome/dist/components/color-picker/color-picker.js'
 import '@material/web/button/outlined-button.js'
 import '@material/web/textfield/filled-text-field.js'
+import '@material/web/switch/switch.js'
+
+const VERIFY_OPTIONS_DEFAULTS = {
+  oldage: 90,
+  hwdif: 30,
+  cspace: 8,
+  cbspan: 25,
+  yngmar: 17,
+  oldmar: 50,
+  oldmom: 48,
+  yngmom: 17,
+  yngdad: 18,
+  olddad: 65,
+  wedder: 3,
+  mxchildmom: 12,
+  mxchilddad: 15,
+  lngwdw: 30,
+  oldunm: 99,
+  estimate_age: false,
+  invdate: true,
+}
 
 export class GrampsjsViewAdminSettings extends GrampsjsView {
   static get styles() {
@@ -147,6 +177,41 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             --grid-height: min(140px, 42vw);
           }
         }
+
+        .verify-options {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(18em, 1fr));
+          gap: 0.75em 1.5em;
+          margin: 0.5em 0 1.5em;
+        }
+
+        .verify-option-field {
+          width: 100%;
+        }
+
+        .verify-bool-options {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5em 2em;
+          margin: 0.75em 0 1.5em;
+        }
+
+        .verify-option-bool {
+          display: flex;
+          align-items: center;
+          gap: 0.6em;
+        }
+
+        .verify-option-bool md-switch {
+          --md-switch-track-height: 22px;
+          --md-switch-track-width: 38px;
+          --md-switch-handle-height: 16px;
+          --md-switch-handle-width: 16px;
+          --md-switch-selected-handle-height: 16px;
+          --md-switch-selected-handle-width: 16px;
+          --md-switch-pressed-handle-height: 18px;
+          --md-switch-pressed-handle-width: 18px;
+        }
       `,
     ]
   }
@@ -155,6 +220,9 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     return {
       _userInfo: {type: Object},
       _repairResults: {type: Object},
+      _verifyResults: {type: Array},
+      _verifyLoading: {type: Boolean},
+      _verifyOptions: {type: Object},
       _buttonUpdateSearchDisabled: {type: Boolean},
       _buttonUpdateSearchSemanticDisabled: {type: Boolean},
       _treeName: {type: String},
@@ -172,6 +240,9 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     super()
     this._userInfo = {}
     this._repairResults = {}
+    this._verifyResults = null
+    this._verifyLoading = false
+    this._verifyOptions = {...VERIFY_OPTIONS_DEFAULTS}
     this._buttonUpdateSearchDisabled = false
     this._buttonUpdateSearchSemanticDisabled = false
     this._treeName = ''
@@ -481,6 +552,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           'Database checks, repairs, and other operations'
         )}"
       >
+        <h3>${this._('Check and Repair')}</h3>
         <p>
           ${this._(
             'This tool checks the database for integrity problems, fixing the problems it can.'
@@ -507,6 +579,25 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                 : html`<span class="pre">${this._repairResults.message}</span>`}
             </p>`
           : ''}
+
+        <h3>${this._('Verify the Data')}</h3>
+        <p>${this._('Verifies the data against user-defined tests')}</p>
+        ${this._renderVerifyOptions()}
+        <md-outlined-button
+          ?disabled="${this._verifyLoading}"
+          @click="${this._runVerify}"
+        >
+          ${this._('Verify the Data')}
+        </md-outlined-button>
+        <grampsjs-task-progress-indicator
+          class="button"
+          id="progress-verify"
+          taskName="verifyDb"
+          size="20"
+          .appState="${this.appState}"
+          @task:complete="${this._handleVerifyComplete}"
+        ></grampsjs-task-progress-indicator>
+        ${this._renderVerifyResults()}
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
@@ -744,6 +835,171 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       this._repairResults = JSON.parse(info)
     }
     fireEvent(this, 'db:changed')
+  }
+
+  async _runVerify() {
+    this._verifyLoading = true
+    this._verifyResults = null
+    const prog = this.renderRoot.querySelector('#progress-verify')
+    prog.reset()
+    prog.open = true
+    const params = new URLSearchParams()
+    params.append('locale', this.appState.i18n.lang || 'en')
+    for (const [key, val] of Object.entries(this._verifyOptions)) {
+      params.append(key, val)
+    }
+    const data = await this.appState.apiPost(
+      `/api/trees/-/verify?${params.toString()}`,
+      null,
+      {dbChanged: false}
+    )
+    this._verifyLoading = false
+    if ('error' in data) {
+      prog.setError()
+      prog.errorMessage = data.error
+    } else if ('task' in data) {
+      const taskId = data.task?.id || ''
+      if (taskId)
+        this.appState.registerTask(taskId, 'Verify genealogical data', {
+          taskName: 'verifyDb',
+        })
+      prog.taskId = taskId
+    } else {
+      prog.setComplete()
+      this._verifyResults = data.data ?? []
+    }
+  }
+
+  _handleVerifyComplete(e) {
+    const info = e.detail?.status?.info
+    if (info !== undefined) {
+      try {
+        this._verifyResults = JSON.parse(info)
+      } catch {
+        this._verifyResults = []
+      }
+    }
+  }
+
+  _renderVerifyOptions() {
+    const intOptions = [
+      ['oldage', this._('Maximum _age')],
+      ['hwdif', this._('Maximum husband-wife age _difference')],
+      ['cspace', this._('Maximum number of years _between children')],
+      ['cbspan', this._('Maximum _span of years for all children')],
+      ['yngmar', this._('Mi_nimum age to marry')],
+      ['oldmar', this._('Ma_ximum age to marry')],
+      ['oldmom', this._('Ma_ximum age to bear a child')],
+      ['yngmom', this._('Mi_nimum age to bear a child')],
+      ['yngdad', this._('Mi_nimum age to father a child')],
+      ['olddad', this._('Ma_ximum age to father a child')],
+      ['wedder', this._('Maximum number of _spouses for a person')],
+      ['mxchildmom', this._('Maximum number of chil_dren')],
+      ['mxchilddad', this._('Maximum number of chil_dren')],
+      [
+        'lngwdw',
+        this._(
+          'Maximum number of consecutive years of _widowhood before next marriage'
+        ),
+      ],
+      ['oldunm', this._('Maximum age for an _unmarried person')],
+    ]
+    const boolOptions = [
+      ['estimate_age', this._('_Estimate missing or inexact dates')],
+      ['invdate', this._('_Identify invalid dates')],
+    ]
+    return html`
+      <h4>${this._('Options')}</h4>
+      <div class="verify-options">
+        ${intOptions.map(
+          ([key, label]) => html`
+            <div class="verify-option">
+              <md-filled-text-field
+                class="verify-option-field"
+                type="number"
+                label="${label}"
+                .value="${String(this._verifyOptions[key])}"
+                @change="${e => {
+                  const v = parseInt(e.target.value, 10)
+                  if (!Number.isNaN(v))
+                    this._verifyOptions = {...this._verifyOptions, [key]: v}
+                }}"
+              ></md-filled-text-field>
+            </div>
+          `
+        )}
+      </div>
+      <div class="verify-bool-options">
+        ${boolOptions.map(
+          ([key, label]) => html`
+            <div class="verify-option-bool">
+              <md-switch
+                id="verify-opt-${key}"
+                ?selected="${this._verifyOptions[key]}"
+                @change="${e => {
+                  this._verifyOptions = {
+                    ...this._verifyOptions,
+                    [key]: e.target.selected,
+                  }
+                }}"
+              ></md-switch>
+              <label for="verify-opt-${key}">${label}</label>
+            </div>
+          `
+        )}
+      </div>
+    `
+  }
+
+  _renderVerifyResults() {
+    if (this._verifyResults === null) return ''
+    if (this._verifyResults.length === 0) {
+      return html`<p class="card">${this._('No issues found')}</p>`
+    }
+    const columns = [
+      {
+        name: 'Severity',
+        format: severity => html`
+          <span
+            style="display:flex;align-items:center;gap:4px;white-space:nowrap;"
+          >
+            <grampsjs-icon
+              path="${severity === 'error' ? mdiAlertCircle : mdiAlertOutline}"
+              color="${severity === 'error'
+                ? 'var(--grampsjs-alert-error-font-color)'
+                : 'var(--md-sys-color-tertiary)'}"
+              height="18"
+              width="18"
+            ></grampsjs-icon>
+            ${severity === 'error' ? this._('Error') : this._('Warning')}
+          </span>
+        `,
+      },
+      {
+        name: 'Object',
+        format: ([name, type, id]) => html`
+          <grampsjs-object-link object-type="${type}" gramps-id="${id}"
+            >${name}</grampsjs-object-link
+          >
+        `,
+      },
+      {name: 'Message'},
+    ]
+    const data = this._verifyResults.map(r => [
+      r.severity,
+      [r.name || r.object_id, r.object_type.toLowerCase(), r.object_id],
+      r.message,
+    ])
+    return html`
+      <h3>${this._('Data Verification Results')}</h3>
+      <grampsjs-table
+        .appState="${this.appState}"
+        .columns="${columns}"
+        .data="${data}"
+        naturalWidth
+        sortable
+      ></grampsjs-table>
+    `
   }
 
   async _fetchTreeInfo() {

@@ -25,6 +25,7 @@ export const TASK_LABELS = {
 
   // --- Database ---
   check_repair_database: 'Check and Repair Database',
+  verify_database: 'Verify the Data',
   upgrade_database_schema: 'Upgrade database',
   delete_objects: 'Delete all objects',
   // process_transactions covers both undo and the Sync addon — use a generic
@@ -52,6 +53,7 @@ export const CELERY_TO_TASK_NAME = {
 
   // --- Database ---
   check_repair_database: 'repairDb',
+  verify_database: 'verifyDb',
   upgrade_database_schema: 'upgradeDb',
   delete_objects: 'deleteObjects',
   // process_transactions: no single taskName — serves both undo and Sync addon
