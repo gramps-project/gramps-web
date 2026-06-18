@@ -373,5 +373,8 @@
     "Add Participant": "Pridať účastníka",
     "Invalid date": "Neplatný dátum",
     "End date must be after start date": "Koncový dátum musí byť neskôr ako počiatočný dátum",
-    "End date is required": "Koncový dátum je požadovaný"
+    "End date is required": "Koncový dátum je požadovaný",
+    "No issues found": "Nenájdené žiadne problémy",
+    "issues found": "Nájdené problémy",
+    "Severity": "Závažnosť"
 }
