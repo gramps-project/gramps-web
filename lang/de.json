@@ -27,7 +27,7 @@
     "Latest Blog Post": "Neuester Blogeintrag",
     "Align the image": "Das Bild ausrichten",
     "Select a point on the map": "Wähle einen Punkt auf der Karte",
-    "Select an existing citation": "Wähle eine bestehende Fundstelle",
+    "Select an existing citation": "Wähle eine bestehende Quellenangabe",
     "Place Hierarchy": "Ortshierarchie",
     "Keyboard Shortcuts": "Tastaturkürzel",
     "Show this dialog": "Diesen Dialog anzeigen",
@@ -161,7 +161,7 @@
     "Delete Event": "Ereignis löschen",
     "Delete Place": "Ort löschen",
     "Delete Source": "Quelle löschen",
-    "Delete Citation": "Fundstelle löschen",
+    "Delete Citation": "Quellenangabe löschen",
     "Delete Repository": "Aufbewahrungsort löschen",
     "Delete Note": "Notiz löschen",
     "Delete Media": "Medium löschen",
@@ -374,5 +374,8 @@
     "Add Participant": "Teilnehmer hinzufügen",
     "Invalid date": "Ungültiges Datum",
     "End date must be after start date": "Enddatum muss nach dem Anfangsdatum liegen",
-    "End date is required": "Das Enddatum ist ein Pflichtfeld"
+    "End date is required": "Das Enddatum ist ein Pflichtfeld",
+    "No issues found": "Es wurden keine Probleme festgestellt",
+    "issues found": "festgestellte Probleme",
+    "Severity": "Schweregrad"
 }
