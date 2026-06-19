@@ -368,5 +368,10 @@
     "Coordinates": "Координаты",
     "External": "Внешний",
     "External search failed": "Внешний поиск не удался",
-    "Too many requests. Please try again later.": "Слишком много запросов. Повторите попытку позже."
+    "Too many requests. Please try again later.": "Слишком много запросов. Повторите попытку позже.",
+    "Invalid date": "Неверная дата",
+    "End date must be after start date": "Дата окончания должна быть после даты начала",
+    "End date is required": "Требуется указать дату окончания",
+    "No issues found": "Ошибки не найдены",
+    "Add Participant": "Добавить участника"
 }
