@@ -2,6 +2,7 @@ import {html, css} from 'lit'
 
 import '@material/web/button/text-button.js'
 
+import './GrampsjsEvents.js'
 import './GrampsjsGallery.js'
 import './GrampsjsIcon.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
@@ -30,7 +31,7 @@ export class GrampsjsPlaceBox extends GrampsjsConnectedComponent {
         h3 {
           font-weight: 400;
           font-size: 18px;
-          margin-top: 8px;
+          margin-top: 24px;
           margin-bottom: 7px;
         }
 
@@ -85,7 +86,7 @@ export class GrampsjsPlaceBox extends GrampsjsConnectedComponent {
   getUrl() {
     if (!this.handle) return ''
     const lang = this.appState?.i18n?.lang || 'en'
-    return `/api/places/${this.handle}?extend=all&profile=self&locale=${lang}`
+    return `/api/places/${this.handle}?extend=all&profile=all&backlinks=true&locale=${lang}`
   }
 
   renderContent() {
@@ -124,6 +125,19 @@ export class GrampsjsPlaceBox extends GrampsjsConnectedComponent {
               .media="${place.extended?.media || []}"
               .mediaRef="${place.media_list}"
             ></grampsjs-gallery>
+          `
+        : ''}
+      ${place.extended?.backlinks?.event?.length
+        ? html`
+            <h3>${this._('Events')}</h3>
+            <grampsjs-events
+              useSummary
+              sorted
+              hideAge
+              .appState="${this.appState}"
+              .data="${place.extended.backlinks.event}"
+              .profile="${place.profile?.references?.event || []}"
+            ></grampsjs-events>
           `
         : ''}
       <div class="right">
