@@ -369,5 +369,12 @@
     "Coordinates": "Coördinaten",
     "External": "Extern",
     "External search failed": "Externe zoekopdracht is mislukt",
-    "Too many requests. Please try again later.": "Te veel verzoeken. Probeer het later nog eens."
+    "Too many requests. Please try again later.": "Te veel verzoeken. Probeer het later nog eens.",
+    "Add Participant": "Deelnemers toevoegen",
+    "Invalid date": "Ongeldige datum",
+    "End date must be after start date": "Einddatum moet na startdatum zijn",
+    "End date is required": "Einddatum is vereist",
+    "No issues found": "Geen problemen gevonden",
+    "issues found": "problemen gevonden",
+    "Severity": "Ernst"
 }

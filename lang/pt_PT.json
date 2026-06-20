@@ -373,5 +373,8 @@
     "Add Participant": "Adicionar participante",
     "Invalid date": "Data inválida",
     "End date must be after start date": "A data final deve ser posterior à data inicial",
-    "End date is required": "Data final requerida"
+    "End date is required": "Data final requerida",
+    "No issues found": "Nenhum problema encontrado",
+    "issues found": "problemas encontrados",
+    "Severity": "Severidade"
 }
