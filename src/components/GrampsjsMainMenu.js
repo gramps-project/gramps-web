@@ -13,6 +13,7 @@ import {
   mdiDna,
   mdiHome,
   mdiImage,
+  mdiLink,
   mdiRss,
   mdiFormatListBulleted,
   mdiMap,
@@ -28,6 +29,7 @@ import {
 } from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {normalizeNavLinks} from '../util.js'
 import './GrampsjsIcon.js'
 
 const BASE_DIR = ''
@@ -126,6 +128,17 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     ></grampsjs-icon>`
   }
 
+  // Render a deployer-configured custom navigation link. These point outside
+  // the app's own routes, so they are never marked selected, and target is set
+  // (default '_self') to force a real navigation rather than in-app routing.
+  _renderNavLink(link) {
+    return html`
+      <md-list-item type="link" href="${link.url}" target="${link.target}">
+        ${this._icon(link.icon || mdiLink, false)} ${link.title}
+      </md-list-item>
+    `
+  }
+
   render() {
     const p = this.appState.path.page
     const listsPages = [
@@ -153,13 +166,18 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       >
         ${this._icon(mdiRss, p === 'blog')} ${this._('Blog')}
       </md-list-item>
-      <md-list-item
-        type="link"
-        href="${BASE_DIR}/tree"
-        ?selected="${p === 'tree'}"
-      >
-        ${this._icon(mdiFamilyTree, p === 'tree')} ${this._('Family Tree')}
-      </md-list-item>
+      ${this.appState.frontendConfig.hideTreeLink
+        ? ''
+        : html`
+            <md-list-item
+              type="link"
+              href="${BASE_DIR}/tree"
+              ?selected="${p === 'tree'}"
+            >
+              ${this._icon(mdiFamilyTree, p === 'tree')}
+              ${this._('Family Tree')}
+            </md-list-item>
+          `}
       <md-list-item
         type="link"
         href="${BASE_DIR}/timeline"
@@ -218,6 +236,9 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
             </md-list-item>
           `
         : ''}
+      ${normalizeNavLinks(this.appState.frontendConfig.navLinks).map(link =>
+        this._renderNavLink(link)
+      )}
       <md-divider inset></md-divider>
       <md-list-item
         type="link"

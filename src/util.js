@@ -859,4 +859,38 @@ export function apiVersionAtLeast(dbInfo, major, minor, patch = 0) {
   return pat >= patch
 }
 
+// Validate and normalize deployer-configured custom navigation links
+// (window.grampsjsConfig.navLinks). Entries without a non-empty string title
+// and url are skipped with a warning rather than rendered as broken links.
+// target defaults to '_self' so that same-origin links trigger a real browser
+// navigation instead of being intercepted by the in-app (pwa-helpers) router.
+export function normalizeNavLinks(navLinks) {
+  if (!Array.isArray(navLinks)) {
+    return []
+  }
+  return navLinks.flatMap((link, i) => {
+    if (
+      typeof link?.title !== 'string' ||
+      link.title === '' ||
+      typeof link?.url !== 'string' ||
+      link.url === ''
+    ) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `Ignoring invalid navLinks[${i}] in config.js: title and url must be non-empty strings`,
+        link
+      )
+      return []
+    }
+    return [
+      {
+        title: link.title,
+        url: link.url,
+        target: typeof link.target === 'string' ? link.target : '_self',
+        icon: typeof link.icon === 'string' ? link.icon : undefined,
+      },
+    ]
+  })
+}
+
 //

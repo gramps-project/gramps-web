@@ -423,8 +423,10 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Home')}</dd>
                 <dt><span>g</span> <span>b</span></dt>
                 <dd>${this._('Blog')}</dd>
-                <dt><span>g</span> <span>c</span></dt>
-                <dd>${this._('Family Tree')}</dd>
+                ${this.appState.frontendConfig.hideTreeLink
+                  ? ''
+                  : html`<dt><span>g</span> <span>c</span></dt>
+                      <dd>${this._('Family Tree')}</dd>`}
                 <dt><span>g</span> <span>t</span></dt>
                 <dd>${this._('Timeline')}</dd>
                 <dt><span>g</span> <span>m</span></dt>
@@ -1233,7 +1235,9 @@ export class GrampsJs extends LitElement {
       } else if (e.key === 'm') {
         fireEvent(this, 'nav', {path: 'map'})
       } else if (e.key === 'c') {
-        fireEvent(this, 'nav', {path: 'tree'})
+        if (!this.appState.frontendConfig.hideTreeLink) {
+          fireEvent(this, 'nav', {path: 'tree'})
+        }
       } else if (e.key === 'r') {
         fireEvent(this, 'nav', {path: 'recent'})
       } else if (e.key === 'f') {
