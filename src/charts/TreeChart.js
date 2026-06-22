@@ -340,6 +340,7 @@ function TreeChartCore(
     .style('cursor', canEdit ? 'default' : 'pointer')
     .on('click', canEdit ? null : clicked)
     .on('mouseenter', function (event, d) {
+      if (canEdit) return
       if (window.matchMedia('(hover: none)').matches) return
       const grampsId = d.data?.person?.gramps_id
       if (!grampsId) return
@@ -354,6 +355,7 @@ function TreeChartCore(
       )
     })
     .on('mouseleave', () => {
+      if (canEdit) return
       if (window.matchMedia('(hover: none)').matches) return
       window.dispatchEvent(new CustomEvent('object:preview-hide'))
     })
