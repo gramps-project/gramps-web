@@ -1172,6 +1172,11 @@ export class GrampsJs extends LitElement {
   _handleLogout() {
     this._metadataConfirmed = false
     this.loadingState = LOADING_STATE_UNAUTHORIZED
+    if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'CLEAR_MEDIA_CACHES',
+      })
+    }
   }
 
   _handleStorage(e) {
