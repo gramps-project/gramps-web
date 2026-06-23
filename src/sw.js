@@ -79,3 +79,24 @@ registerRoute(
     url.pathname.match(/\/api\/media\/[^/]+\/cropped\/.+\/thumbnail\//),
   thumbnailCacheStrategy
 )
+
+// Cache map overlay images: strip `jwt` from cache key so token rotation
+// doesn't cause cache misses. The actual fetch uses an Authorization header
+// (injected by MapLibre's transformRequest), so no jwt param in the request.
+registerRoute(
+  ({url}) => url.pathname.match(/\/api\/media\/[^/]+\/file$/),
+  new CacheFirst({
+    cacheName: 'gramps-media-files-v1',
+    plugins: [
+      {
+        cacheKeyWillBeUsed: async ({request}) => {
+          const url = new URL(request.url)
+          url.searchParams.delete('jwt')
+          return url.toString()
+        },
+      },
+      new CacheableResponsePlugin({statuses: [200]}),
+      new ExpirationPlugin({maxEntries: 200, maxAgeSeconds: 7 * 24 * 60 * 60}),
+    ],
+  })
+)

@@ -145,6 +145,17 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       center: [this.longitude, this.latitude],
       zoom: this.zoom,
       attributionControl: true,
+      transformRequest: (url, resourceType) => {
+        if (resourceType === 'Image' && url.includes('/api/media/')) {
+          const u = new URL(url)
+          const jwt =
+            u.searchParams.get('jwt') || localStorage.getItem('access_token')
+          u.searchParams.delete('jwt')
+          const headers = jwt ? {Authorization: `Bearer ${jwt}`} : {}
+          return {url: u.toString(), headers}
+        }
+        return {url}
+      },
     })
     this._map.on('click', e => {
       const mapContainer = this._map.getContainer()
