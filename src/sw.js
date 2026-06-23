@@ -12,9 +12,14 @@ self.addEventListener('activate', event =>
   event.waitUntil(self.clients.claim())
 )
 
+const PROTECTED_CACHES = ['gramps-thumbnails-v1', 'gramps-media-files-v1']
+
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting()
+  }
+  if (event.data && event.data.type === 'CLEAR_MEDIA_CACHES') {
+    event.waitUntil(Promise.all(PROTECTED_CACHES.map(c => caches.delete(c))))
   }
 })
 

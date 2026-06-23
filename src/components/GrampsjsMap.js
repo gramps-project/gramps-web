@@ -146,8 +146,11 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       zoom: this.zoom,
       attributionControl: true,
       transformRequest: (url, resourceType) => {
-        if (resourceType === 'Image' && url.includes('/api/media/')) {
-          const u = new URL(url)
+        if (
+          (resourceType === 'Image' || resourceType === 'Tile') &&
+          url.includes('/api/media/')
+        ) {
+          const u = new URL(url, location.origin)
           const jwt =
             u.searchParams.get('jwt') || localStorage.getItem('access_token')
           u.searchParams.delete('jwt')
