@@ -152,7 +152,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         ) {
           const u = new URL(url, location.origin)
           const jwt =
-            u.searchParams.get('jwt') || localStorage.getItem('access_token')
+            localStorage.getItem('access_token') || u.searchParams.get('jwt')
           u.searchParams.delete('jwt')
           const headers = jwt ? {Authorization: `Bearer ${jwt}`} : {}
           return {url: u.toString(), headers}

@@ -12,14 +12,16 @@ self.addEventListener('activate', event =>
   event.waitUntil(self.clients.claim())
 )
 
-const PROTECTED_CACHES = ['gramps-thumbnails-v1', 'gramps-media-files-v1']
+const MEDIA_CACHES_TO_CLEAR = ['gramps-thumbnails-v1', 'gramps-tiles-v1']
 
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting()
   }
   if (event.data && event.data.type === 'CLEAR_MEDIA_CACHES') {
-    event.waitUntil(Promise.all(PROTECTED_CACHES.map(c => caches.delete(c))))
+    event.waitUntil(
+      Promise.all(MEDIA_CACHES_TO_CLEAR.map(c => caches.delete(c)))
+    )
   }
 })
 
@@ -85,13 +87,13 @@ registerRoute(
   thumbnailCacheStrategy
 )
 
-// Cache map overlay images: strip `jwt` from cache key so token rotation
+// Cache raster overlay tiles: strip `jwt` from cache key so token rotation
 // doesn't cause cache misses. The actual fetch uses an Authorization header
-// (injected by MapLibre's transformRequest), so no jwt param in the request.
+// injected by MapLibre's transformRequest, so no jwt param reaches the SW.
 registerRoute(
-  ({url}) => url.pathname.match(/\/api\/media\/[^/]+\/file$/),
+  ({url}) => url.pathname.match(/\/api\/media\/[^/]+\/tile\//),
   new CacheFirst({
-    cacheName: 'gramps-media-files-v1',
+    cacheName: 'gramps-tiles-v1',
     plugins: [
       {
         cacheKeyWillBeUsed: async ({request}) => {
@@ -101,7 +103,10 @@ registerRoute(
         },
       },
       new CacheableResponsePlugin({statuses: [200]}),
-      new ExpirationPlugin({maxEntries: 200, maxAgeSeconds: 7 * 24 * 60 * 60}),
+      new ExpirationPlugin({
+        maxEntries: 5000,
+        maxAgeSeconds: 30 * 24 * 60 * 60,
+      }),
     ],
   })
 )
