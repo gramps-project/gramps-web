@@ -63,6 +63,16 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         .profile-fields md-filled-text-field {
           width: 100%;
         }
+
+        .profile-field {
+          display: flex;
+          align-items: end;
+          gap: 8px;
+        }
+
+        .profile-field md-filled-text-field {
+          flex: 1;
+        }
       `,
     ]
   }
@@ -291,21 +301,26 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
   renderChangeProfile() {
     return html`
       <p class="profile-fields">
-        <md-filled-text-field
-          id="change-username"
-          label="${this._('Username: ').replace(':', '')}"
-          value="${this._userInfo?.name || ''}"
-        ></md-filled-text-field>
-        <md-filled-text-field
-          id="change-full-name"
-          label="${this._('Full Name')}"
-          value="${this._userInfo?.full_name || ''}"
-        ></md-filled-text-field>
-      </p>
-      <p>
-        <md-outlined-button @click="${this._changeProfile}">
-          ${this._('Submit')}
-        </md-outlined-button>
+        <span class="profile-field">
+          <md-filled-text-field
+            id="change-username"
+            label="${this._('Username: ').replace(':', '')}"
+            value="${this._userInfo?.name || ''}"
+          ></md-filled-text-field>
+          <md-outlined-button @click="${this._changeUsername}">
+            ${this._('Save')}
+          </md-outlined-button>
+        </span>
+        <span class="profile-field">
+          <md-filled-text-field
+            id="change-full-name"
+            label="${this._('Full Name')}"
+            value="${this._userInfo?.full_name || ''}"
+          ></md-filled-text-field>
+          <md-outlined-button @click="${this._changeFullName}">
+            ${this._('Save')}
+          </md-outlined-button>
+        </span>
       </p>
     `
   }
@@ -397,9 +412,14 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     }
   }
 
-  async _changeProfile() {
+  _setUserUpdateError(data, fallbackMessage) {
+    this.error = false
+    this.error = true
+    this._errorMessage = fallbackMessage || data.error
+  }
+
+  async _changeUsername() {
     const usernameField = this.shadowRoot.getElementById('change-username')
-    const fullNameField = this.shadowRoot.getElementById('change-full-name')
     const username = usernameField.value.trim()
     if (!username) {
       fireEvent(this, 'grampsjs:error', {
@@ -407,12 +427,37 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       })
       return
     }
+    if (username === this._userInfo?.name) {
+      return
+    }
+
+    this.loading = true
+    const data = await this.appState.apiPut('/api/users/-/', {
+      name_new: username,
+    })
+
+    this.loading = false
+    if ('error' in data) {
+      const isConflict = data.errorDetail?.status === 409
+      this._setUserUpdateError(
+        data,
+        isConflict ? 'This user name is already in use' : undefined
+      )
+      return
+    }
+    this.error = false
+    fireEvent(this, 'grampsjs:notification', {
+      message: 'Username successfully updated',
+    })
+
+    await this._fetchOwnUserDetails()
+  }
+
+  async _changeFullName() {
+    const fullNameField = this.shadowRoot.getElementById('change-full-name')
 
     const payload = {
       full_name: fullNameField.value,
-    }
-    if (username !== this._userInfo?.name) {
-      payload.name_new = username
     }
 
     this.loading = true
@@ -420,14 +465,12 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
 
     this.loading = false
     if ('error' in data) {
-      this.error = false
-      this.error = true
-      this._errorMessage = data.error
+      this._setUserUpdateError(data)
       return
     }
     this.error = false
     fireEvent(this, 'grampsjs:notification', {
-      message: 'User details successfully updated',
+      message: 'Full name successfully updated',
     })
 
     await this._fetchOwnUserDetails()

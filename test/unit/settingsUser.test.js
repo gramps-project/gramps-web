@@ -3,7 +3,7 @@ import {GrampsjsViewSettingsUser} from '../../src/views/GrampsjsViewSettingsUser
 
 const makeElement = ({username, fullName, currentUsername = 'old-name'}) => {
   const element = new GrampsjsViewSettingsUser()
-  const shadowRoot = element.attachShadow({mode: 'open'})
+  const shadowRoot = element.createRenderRoot()
   const usernameField = document.createElement('input')
   const fullNameField = document.createElement('input')
   const apiPut = vi.fn().mockResolvedValue({data: {}})
@@ -23,38 +23,90 @@ const makeElement = ({username, fullName, currentUsername = 'old-name'}) => {
 }
 
 describe('user profile settings', () => {
-  it('submits a changed username and full name', async () => {
+  it('submits a changed username', async () => {
     const {element, apiPut} = makeElement({
       username: 'new-name',
       fullName: 'New Full Name',
     })
 
-    await element._changeProfile()
+    await element._changeUsername()
 
     expect(apiPut).toHaveBeenCalledWith('/api/users/-/', {
       name_new: 'new-name',
-      full_name: 'New Full Name',
     })
     expect(element.dispatchEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'grampsjs:notification',
-        detail: {message: 'User details successfully updated'},
+        detail: {message: 'Username successfully updated'},
       })
     )
     expect(element._fetchOwnUserDetails).toHaveBeenCalledOnce()
   })
 
-  it('submits a changed full name without resending the username', async () => {
+  it('does not submit an unchanged username', async () => {
     const {element, apiPut} = makeElement({
       username: ' old-name ',
       fullName: 'Updated Full Name',
     })
 
-    await element._changeProfile()
+    await element._changeUsername()
+
+    expect(apiPut).not.toHaveBeenCalled()
+    expect(element._fetchOwnUserDetails).not.toHaveBeenCalled()
+  })
+
+  it('shows an error when the username is empty', async () => {
+    const {element, apiPut} = makeElement({
+      username: '   ',
+      fullName: 'Old Full Name',
+    })
+
+    await element._changeUsername()
+
+    expect(apiPut).not.toHaveBeenCalled()
+    expect(element.dispatchEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'grampsjs:error',
+        detail: {message: 'Username cannot be empty'},
+      })
+    )
+    expect(element._fetchOwnUserDetails).not.toHaveBeenCalled()
+  })
+
+  it('submits a changed full name without resending the username', async () => {
+    const {element, apiPut} = makeElement({
+      username: 'old-name',
+      fullName: 'Updated Full Name',
+    })
+
+    await element._changeFullName()
 
     expect(apiPut).toHaveBeenCalledWith('/api/users/-/', {
       full_name: 'Updated Full Name',
     })
+    expect(element.dispatchEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'grampsjs:notification',
+        detail: {message: 'Full name successfully updated'},
+      })
+    )
     expect(element._fetchOwnUserDetails).toHaveBeenCalledOnce()
+  })
+
+  it('shows a specific error when the username is already taken', async () => {
+    const {element, apiPut} = makeElement({
+      username: 'existing-name',
+      fullName: 'Old Full Name',
+    })
+    apiPut.mockResolvedValue({
+      error: 'Conflict',
+      errorDetail: {status: 409},
+    })
+
+    await element._changeUsername()
+
+    expect(element.error).toBe(true)
+    expect(element._errorMessage).toBe('This user name is already in use')
+    expect(element._fetchOwnUserDetails).not.toHaveBeenCalled()
   })
 })
