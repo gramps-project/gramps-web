@@ -53,6 +53,26 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         .tree-preferences md-filled-select {
           width: 100%;
         }
+
+        .profile-fields {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 12px;
+        }
+
+        .profile-fields md-filled-text-field {
+          width: 100%;
+        }
+
+        .profile-field {
+          display: flex;
+          align-items: end;
+          gap: 8px;
+        }
+
+        .profile-field md-filled-text-field {
+          flex: 1;
+        }
       `,
     ]
   }
@@ -92,11 +112,18 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
             <dd>${this._userInfo?.name}</dd>
           </div>
           <div>
+            <dt><span>${this._('Full Name')}</span></dt>
+            <dd>${this._userInfo?.full_name}</dd>
+          </div>
+          <div>
             <dt><span>${this._('User group')}</span></dt>
             <dd>${this._(userRoles[this._userInfo?.role])}</dd>
           </div>
         </dl>
         <div style="clear: both;"></div>
+
+        <h3>${this._('Change profile')}</h3>
+        ${this.renderChangeProfile()}
 
         <h3>${this._('Change E-mail')}</h3>
         ${this.renderChangeEmail()}
@@ -271,6 +298,33 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     this.appState.updateSettings({treeDefaultView: view})
   }
 
+  renderChangeProfile() {
+    return html`
+      <p class="profile-fields">
+        <span class="profile-field">
+          <md-filled-text-field
+            id="change-username"
+            label="${this._('Username: ').replace(':', '')}"
+            value="${this._userInfo?.name || ''}"
+          ></md-filled-text-field>
+          <md-outlined-button @click="${this._changeUsername}">
+            ${this._('Save')}
+          </md-outlined-button>
+        </span>
+        <span class="profile-field">
+          <md-filled-text-field
+            id="change-full-name"
+            label="${this._('Full Name')}"
+            value="${this._userInfo?.full_name || ''}"
+          ></md-filled-text-field>
+          <md-outlined-button @click="${this._changeFullName}">
+            ${this._('Save')}
+          </md-outlined-button>
+        </span>
+      </p>
+    `
+  }
+
   renderChangeEmail() {
     return html`
       <p>
@@ -356,6 +410,70 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         message: 'Failed to copy token to clipboard',
       })
     }
+  }
+
+  _setUserUpdateError(data, fallbackMessage) {
+    this.error = false
+    this.error = true
+    this._errorMessage = fallbackMessage || data.error
+  }
+
+  async _changeUsername() {
+    const usernameField = this.shadowRoot.getElementById('change-username')
+    const username = usernameField.value.trim()
+    if (!username) {
+      fireEvent(this, 'grampsjs:error', {
+        message: 'Username cannot be empty',
+      })
+      return
+    }
+    if (username === this._userInfo?.name) {
+      return
+    }
+
+    this.loading = true
+    const data = await this.appState.apiPut('/api/users/-/', {
+      name_new: username,
+    })
+
+    this.loading = false
+    if ('error' in data) {
+      const isConflict = data.errorDetail?.status === 409
+      this._setUserUpdateError(
+        data,
+        isConflict ? 'This user name is already in use' : undefined
+      )
+      return
+    }
+    this.error = false
+    fireEvent(this, 'grampsjs:notification', {
+      message: 'Username successfully updated',
+    })
+
+    await this._fetchOwnUserDetails()
+  }
+
+  async _changeFullName() {
+    const fullNameField = this.shadowRoot.getElementById('change-full-name')
+
+    const payload = {
+      full_name: fullNameField.value,
+    }
+
+    this.loading = true
+    const data = await this.appState.apiPut('/api/users/-/', payload)
+
+    this.loading = false
+    if ('error' in data) {
+      this._setUserUpdateError(data)
+      return
+    }
+    this.error = false
+    fireEvent(this, 'grampsjs:notification', {
+      message: 'Full name successfully updated',
+    })
+
+    await this._fetchOwnUserDetails()
   }
 
   async _changeEmail() {
