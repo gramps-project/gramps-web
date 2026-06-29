@@ -45,13 +45,9 @@ registerRoute(
   )
 )
 
-// config.js is replaced in place on the deployed distribution (see CLAUDE.md),
-// so it must not be frozen in the precache (it is excluded via globIgnores in
-// rollup.config.js, like index.html). Serve it network-first so deploy-time
-// edits take effect on the next load, while a copy stays available offline.
-// pathname.endsWith keeps this correct under a BASE_DIR subpath deployment.
+// config.js is replaced post-build, so serve it fresh with an offline fallback.
 registerRoute(
-  ({url}) => url.pathname.endsWith('/config.js'),
+  ({url}) => url.pathname === '/config.js',
   new NetworkFirst({
     cacheName: 'gramps-config-v1',
     plugins: [new CacheableResponsePlugin({statuses: [200]})],
