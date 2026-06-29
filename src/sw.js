@@ -1,6 +1,6 @@
 import {precacheAndRoute} from 'workbox-precaching'
 import {registerRoute, NavigationRoute} from 'workbox-routing'
-import {CacheFirst} from 'workbox-strategies'
+import {CacheFirst, NetworkFirst} from 'workbox-strategies'
 import {CacheableResponsePlugin} from 'workbox-cacheable-response'
 import {ExpirationPlugin} from 'workbox-expiration'
 
@@ -43,6 +43,19 @@ registerRoute(
     },
     {denylist: [/^\/api.*/]}
   )
+)
+
+// config.js is replaced in place on the deployed distribution (see CLAUDE.md),
+// so it must not be frozen in the precache (it is excluded via globIgnores in
+// rollup.config.js, like index.html). Serve it network-first so deploy-time
+// edits take effect on the next load, while a copy stays available offline.
+// pathname.endsWith keeps this correct under a BASE_DIR subpath deployment.
+registerRoute(
+  ({url}) => url.pathname.endsWith('/config.js'),
+  new NetworkFirst({
+    cacheName: 'gramps-config-v1',
+    plugins: [new CacheableResponsePlugin({statuses: [200]})],
+  })
 )
 
 // Cache thumbnails: strip `jwt` from cache key (token rotation), strip `checksum`

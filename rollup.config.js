@@ -44,6 +44,7 @@ export default {
           'legacy-*.js',
           'nomodule-*.js',
           'index.html',
+          'config.js',
         ],
       }),
     ],
