@@ -1,6 +1,6 @@
 import {precacheAndRoute} from 'workbox-precaching'
 import {registerRoute, NavigationRoute} from 'workbox-routing'
-import {CacheFirst} from 'workbox-strategies'
+import {CacheFirst, NetworkFirst} from 'workbox-strategies'
 import {CacheableResponsePlugin} from 'workbox-cacheable-response'
 import {ExpirationPlugin} from 'workbox-expiration'
 
@@ -50,6 +50,15 @@ registerRoute(
     },
     {denylist: [/^\/api.*/]}
   )
+)
+
+// config.js is replaced post-build, so serve it fresh with an offline fallback.
+registerRoute(
+  ({url}) => url.pathname === '/config.js',
+  new NetworkFirst({
+    cacheName: 'gramps-config-v1',
+    plugins: [new CacheableResponsePlugin({statuses: [200]})],
+  })
 )
 
 // Cache thumbnails: strip `jwt` from cache key (token rotation), strip `checksum`
