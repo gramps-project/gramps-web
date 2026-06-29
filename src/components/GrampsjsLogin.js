@@ -2,12 +2,10 @@
 import {html, css, LitElement} from 'lit'
 
 import '@material/mwc-icon'
-import '@material/mwc-textfield'
 import '@material/mwc-circular-progress'
 import '@material/web/button/filled-button'
 import '@material/web/button/outlined-button'
 
-import './GrampsjsPasswordManagerPolyfill.js'
 import './GrampsjsOidcButton.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {
@@ -38,19 +36,74 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
           top: 20vh;
         }
 
-        #login-form mwc-textfield {
-          width: 100%;
-          margin-bottom: 0.7em;
-        }
-
-        #login-form md-outlined-text-field {
-          width: 100%;
-          margin-bottom: 0.7em;
-        }
-
         #login-form md-filled-button {
           width: 100%;
           margin-bottom: 0.5em;
+        }
+
+        /* Native outlined text field */
+        .text-field-wrapper {
+          position: relative;
+          width: 100%;
+          margin-bottom: 0.7em;
+        }
+
+        .text-field-wrapper input {
+          width: 100%;
+          height: 56px;
+          padding: 20px 16px 8px;
+          border: 1px solid var(--md-sys-color-outline);
+          border-radius: 4px;
+          background: transparent;
+          color: var(--md-sys-color-on-surface);
+          font-family: var(--grampsjs-body-font-family);
+          font-size: 16px;
+          font-weight: 400;
+          box-sizing: border-box;
+          outline: none;
+          transition: border-color 0.15s ease;
+          caret-color: var(--md-sys-color-primary);
+        }
+
+        .text-field-wrapper input:hover:not(:focus) {
+          border-color: var(--md-sys-color-on-surface);
+        }
+
+        .text-field-wrapper input:focus {
+          border: 2px solid var(--md-sys-color-primary);
+          /* keep text position stable when border widens */
+          padding: 19px 15px 7px;
+        }
+
+        .text-field-wrapper label {
+          /* override sharedStyles label rules */
+          display: block;
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--md-sys-color-on-surface-variant);
+          font-size: 16px;
+          font-weight: 400;
+          line-height: 1;
+          padding: 0 4px;
+          pointer-events: none;
+          background: transparent;
+          transition: top 0.15s ease, font-size 0.15s ease, color 0.15s ease;
+          gap: 0;
+          place-items: initial;
+        }
+
+        /* Float label when focused or filled */
+        .text-field-wrapper input:focus ~ label,
+        .text-field-wrapper input:not(:placeholder-shown) ~ label {
+          top: 0;
+          font-size: 12px;
+          background: var(--md-sys-color-background);
+        }
+
+        .text-field-wrapper input:focus ~ label {
+          color: var(--md-sys-color-primary);
         }
 
         .button-container {
@@ -186,21 +239,33 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
           ${localAuthDisabled
             ? ''
             : html`
-                <md-outlined-text-field
-                  id="username"
-                  label="${this._('Username')}"
-                  @input="${this._credChanged}"
-                  @change="${this._credChanged}"
-                  value="${this.credentials.username || ''}"
-                ></md-outlined-text-field>
-                <md-outlined-text-field
-                  id="password"
-                  label="${this._('Password')}"
-                  type="password"
-                  @input="${this._credChanged}"
-                  @change="${this._credChanged}"
-                  value="${this.credentials.password || ''}"
-                ></md-outlined-text-field>
+                <div class="text-field-wrapper">
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    autocomplete="username"
+                    autocapitalize="off"
+                    placeholder=" "
+                    .value="${this.credentials.username || ''}"
+                    @input="${this._credChanged}"
+                    @change="${this._credChanged}"
+                  />
+                  <label for="username">${this._('Username')}</label>
+                </div>
+                <div class="text-field-wrapper">
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    placeholder=" "
+                    .value="${this.credentials.password || ''}"
+                    @input="${this._credChanged}"
+                    @change="${this._credChanged}"
+                  />
+                  <label for="password">${this._('Password')}</label>
+                </div>
                 <div class="button-container">
                   ${window.grampsjsConfig.hideRegisterLink
                     ? ''
@@ -260,22 +325,8 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
               )
             : ''}
         </form>
-        <grampsjs-password-manager-polyfill
-          .credentials=${this.credentials}
-          @form-submitted=${this._submitLogin}
-          @value-changed=${this._loginFormChanged}
-        ></grampsjs-password-manager-polyfill>
       </div>
     `
-  }
-
-  firstUpdated() {
-    const pf = this.shadowRoot.querySelector(
-      'grampsjs-password-manager-polyfill'
-    )
-    if (pf !== null) {
-      pf.boundingRect = this.getBoundingClientRect()
-    }
   }
 
   _handleNav(path) {
@@ -296,11 +347,17 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
         <form id="login-form">
           <h2>${this._('reset password')}</h2>
           <div id="inner-form">
-            <md-outlined-text-field
-              id="username"
-              label="${this._('Username')}"
-              type="text"
-            ></md-outlined-text-field>
+            <div class="text-field-wrapper">
+              <input
+                id="username"
+                name="username"
+                type="text"
+                autocomplete="username"
+                autocapitalize="off"
+                placeholder=" "
+              />
+              <label for="username">${this._('Username')}</label>
+            </div>
             <md-filled-button
               type="submit"
               @click="${this._resetPw}"
@@ -325,11 +382,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
         </form>
       </div>
     `
-  }
-
-  _checkFormValid() {
-    const fields = Array.from(this.shadowRoot.querySelectorAll('mwc-textfield'))
-    this.isFormValid = fields.every(el => el?.validity?.valid)
   }
 
   _handleLoginKey(event) {
@@ -372,10 +424,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     if ('error' in res) {
       this._showError(res.error)
     }
-  }
-
-  _loginFormChanged(ev) {
-    this.credentials = {...this.credentials, ...ev.detail.value}
   }
 
   async _resetPw(e) {

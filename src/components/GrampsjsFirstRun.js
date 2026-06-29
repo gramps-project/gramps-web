@@ -5,7 +5,6 @@ import '@material/mwc-button'
 import '@material/mwc-textfield'
 import '@material/mwc-circular-progress'
 
-import './GrampsjsPasswordManagerPolyfill.js'
 import {mdiCheckCircle} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 import {__APIHOST__, apiGetTokens, getTreeFromToken} from '../api.js'
