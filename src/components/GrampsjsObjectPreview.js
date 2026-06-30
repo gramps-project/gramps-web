@@ -216,10 +216,12 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     const spaceRight = viewportW - anchorRect.right - POPUP_MARGIN
     const spaceLeft = anchorRect.left - POPUP_MARGIN
 
-    const fitsBelow = spaceBelow >= popupHeight
-    const fitsAbove = spaceAbove >= popupHeight
-    const fitsRight = spaceRight >= POPUP_WIDTH
-    const fitsLeft = spaceLeft >= POPUP_WIDTH
+    // Require a second margin so the popup doesn't end up flush against the
+    // viewport edge in the "just barely fits" case.
+    const fitsBelow = spaceBelow >= popupHeight + POPUP_MARGIN
+    const fitsAbove = spaceAbove >= popupHeight + POPUP_MARGIN
+    const fitsRight = spaceRight >= POPUP_WIDTH + POPUP_MARGIN
+    const fitsLeft = spaceLeft >= POPUP_WIDTH + POPUP_MARGIN
 
     // Clamp helpers that keep the popup inside the viewport on the secondary axis.
     const clampedX = left =>
