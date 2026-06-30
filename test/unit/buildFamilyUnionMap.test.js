@@ -3,13 +3,13 @@ import {buildFamilyUnionMap} from '../../src/charts/RelationshipChart.js'
 
 describe('buildFamilyUnionMap', () => {
   it('returns an empty map for an empty people array', () => {
-    expect(buildFamilyUnionMap([])).toEqual({})
+    expect(buildFamilyUnionMap([])).to.deep.equal({})
   })
 
   it('returns an empty map for non-array input', () => {
-    expect(buildFamilyUnionMap(null)).toEqual({})
-    expect(buildFamilyUnionMap(undefined)).toEqual({})
-    expect(buildFamilyUnionMap('string')).toEqual({})
+    expect(buildFamilyUnionMap(null)).to.deep.equal({})
+    expect(buildFamilyUnionMap(undefined)).to.deep.equal({})
+    expect(buildFamilyUnionMap('string')).to.deep.equal({})
   })
 
   it('returns an empty map when no person has profile.families', () => {
@@ -18,7 +18,7 @@ describe('buildFamilyUnionMap', () => {
       {handle: 'P2'},
       {handle: 'P3', profile: {}},
     ]
-    expect(buildFamilyUnionMap(people)).toEqual({})
+    expect(buildFamilyUnionMap(people)).to.deep.equal({})
   })
 
   it('maps a single family correctly with all fields present', () => {
@@ -40,7 +40,7 @@ describe('buildFamilyUnionMap', () => {
       },
     ]
     const map = buildFamilyUnionMap(people)
-    expect(map.F1).toEqual({
+    expect(map.F1).to.deep.equal({
       maritalStatus: 'married',
       marriage,
       divorce: null,
@@ -64,7 +64,7 @@ describe('buildFamilyUnionMap', () => {
       },
     ]
     const map = buildFamilyUnionMap(people)
-    expect(map.F1.maritalStatus).toBe('unknown')
+    expect(map.F1.maritalStatus).to.equal('unknown')
   })
 
   it('defaults marriage and divorce to null when absent', () => {
@@ -83,8 +83,8 @@ describe('buildFamilyUnionMap', () => {
       },
     ]
     const map = buildFamilyUnionMap(people)
-    expect(map.F1.marriage).toBeNull()
-    expect(map.F1.divorce).toBeNull()
+    expect(map.F1.marriage).to.be.null
+    expect(map.F1.divorce).to.be.null
   })
 
   it('two people sharing the same family handle produce one entry', () => {
@@ -117,8 +117,8 @@ describe('buildFamilyUnionMap', () => {
       },
     ]
     const map = buildFamilyUnionMap(people)
-    expect(Object.keys(map)).toEqual(['F1'])
-    expect(map.F1.maritalStatus).toBe('married')
+    expect(Object.keys(map)).to.deep.equal(['F1'])
+    expect(map.F1.maritalStatus).to.equal('married')
   })
 
   it('handles multiple distinct families across multiple people', () => {
@@ -157,11 +157,11 @@ describe('buildFamilyUnionMap', () => {
       },
     ]
     const map = buildFamilyUnionMap(people)
-    expect(Object.keys(map).sort()).toEqual(['F1', 'F2', 'F3'])
-    expect(map.F1.maritalStatus).toBe('married')
-    expect(map.F2.maritalStatus).toBe('divorced')
-    expect(map.F2.divorce).toEqual({date: '2010'})
-    expect(map.F3.maritalStatus).toBe('partners')
+    expect(Object.keys(map).sort()).to.deep.equal(['F1', 'F2', 'F3'])
+    expect(map.F1.maritalStatus).to.equal('married')
+    expect(map.F2.maritalStatus).to.equal('divorced')
+    expect(map.F2.divorce).to.deep.equal({date: '2010'})
+    expect(map.F3.maritalStatus).to.equal('partners')
   })
 
   it('skips family entries without a handle', () => {
@@ -177,7 +177,7 @@ describe('buildFamilyUnionMap', () => {
       },
     ]
     const map = buildFamilyUnionMap(people)
-    expect(Object.keys(map)).toEqual(['F1'])
+    expect(Object.keys(map)).to.deep.equal(['F1'])
   })
 
   it('handles missing profile gracefully', () => {
@@ -198,6 +198,6 @@ describe('buildFamilyUnionMap', () => {
       },
     ]
     const map = buildFamilyUnionMap(people)
-    expect(map.F1.maritalStatus).toBe('married')
+    expect(map.F1.maritalStatus).to.equal('married')
   })
 })

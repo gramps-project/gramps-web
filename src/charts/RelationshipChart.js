@@ -12,6 +12,8 @@ const sexColor = {
   U: 'var(--color-unknown)',
 }
 
+const UNKNOWN_MARITAL_STATUS = 'unknown'
+
 /**
  * Build a map of family handle → union status/dates from the profiled families
  * carried on each person object (person.profile.families[]).
@@ -31,11 +33,11 @@ export function buildFamilyUnionMap(people) {
     for (const fam of families) {
       const handle = fam?.handle
       if (!handle) continue
-      // Last writer wins — all spouses share the same family record so values
+      // First writer wins — all spouses share the same family record so values
       // should be identical; we skip if already populated to avoid redundant work.
       if (map[handle]) continue
       map[handle] = {
-        maritalStatus: fam?.marital_status ?? 'unknown',
+        maritalStatus: fam?.marital_status ?? UNKNOWN_MARITAL_STATUS,
         marriage: fam?.marriage ?? null,
         divorce: fam?.divorce ?? null,
       }
@@ -46,8 +48,7 @@ export function buildFamilyUnionMap(people) {
 
 function createGraph(graph) {
   const data = graph.getData()
-  const unionMap = buildFamilyUnionMap(data)
-  graph._unionMap = unionMap
+  graph.unionMap = buildFamilyUnionMap(data)
 
   // step 1: collect all persons to be shown
   for (const p of data) {
@@ -244,6 +245,7 @@ class Relgraph {
     this.persons = {}
     this.dot = undefined
     this.shrinkToFit = false
+    this.unionMap = {}
     createGraph(this)
   }
 
@@ -283,12 +285,12 @@ class Relgraph {
   }
 
   addNode(fdata, family, father, mother) {
-    const unionEntry = this._unionMap?.[family]
+    const unionEntry = this.unionMap?.[family]
     const n = {
       handle: family,
       type: fdata?.type,
       fake: fdata?.fake,
-      maritalStatus: unionEntry?.maritalStatus ?? 'unknown',
+      maritalStatus: unionEntry?.maritalStatus ?? UNKNOWN_MARITAL_STATUS,
       unionDates: {
         marriage: unionEntry?.marriage ?? null,
         divorce: unionEntry?.divorce ?? null,
