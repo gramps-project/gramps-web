@@ -28,6 +28,53 @@ const UNKNOWN_MARITAL_STATUS = 'unknown'
  * @param {string} status
  * @returns {{ rings: number, filled: boolean, dashed: boolean, slash: boolean, cross: boolean }}
  */
+/**
+ * Extract the first 4-digit year from a date string. Returns '' if not found.
+ * @param {string|null|undefined} dateStr
+ * @returns {string}
+ */
+function extractYear(dateStr) {
+  if (!dateStr || typeof dateStr !== 'string') return ''
+  const m = dateStr.match(/\d{4}/)
+  return m ? m[0] : ''
+}
+
+/**
+ * Format a short year label for a family node union bar.
+ * Returns '' when there is nothing meaningful to show.
+ *
+ * Rules:
+ *   married  / widowed  → marriage year (e.g. "1985") or ''
+ *   divorced            → "<marriageYear>–<divorceYear>" (en-dash);
+ *                         no marriage year → just "<divorceYear>";
+ *                         no divorce year  → marriage year
+ *   partners            → marriage year if present else ''
+ *   unknown / other     → ''
+ *
+ * @param {string|null|undefined} status
+ * @param {{marriage: object|null, divorce: object|null}|null|undefined} unionDates
+ * @returns {string}
+ */
+export function formatUnionDates(status, unionDates) {
+  if (!status) return ''
+  const marriageYear = extractYear(unionDates?.marriage?.date)
+  const divorceYear = extractYear(unionDates?.divorce?.date)
+  switch (status) {
+    case 'married':
+    case 'widowed':
+      return marriageYear
+    case 'divorced': {
+      if (marriageYear && divorceYear) return `${marriageYear}–${divorceYear}`
+      if (divorceYear) return divorceYear
+      return marriageYear
+    }
+    case 'partners':
+      return marriageYear
+    default:
+      return ''
+  }
+}
+
 export function maritalStatusToMarker(status) {
   switch (status) {
     case 'married':
@@ -417,7 +464,8 @@ function remasterChart(
   getImageUrl,
   maxImages,
   nameDisplayFormat,
-  canEdit = false
+  canEdit = false,
+  showUnionDates = false
 ) {
   const gvchartx = divhidden.select('svg')
   const nodedata = []
@@ -461,6 +509,7 @@ function remasterChart(
           d.maritalStatus ?? UNKNOWN_MARITAL_STATUS
         ),
         unionDates: d.unionDates,
+        unionLabel: formatUnionDates(d.maritalStatus, d.unionDates),
         handle: found.groups.handle,
       })
     }
@@ -677,6 +726,19 @@ function remasterChart(
     .attr('stroke', 'var(--grampsjs-body-font-color-40)')
     .attr('stroke-width', 1.5)
 
+  // Union date label — rendered only when showUnionDates is ON and a label exists
+  if (showUnionDates) {
+    nodes
+      .filter(d => d.nodetype === 'family' && d.unionLabel)
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .attr('font-size', 10)
+      .attr('fill', 'var(--grampsjs-body-font-color-90)')
+      .attr('x', 0)
+      .attr('y', boxHeight / 2 - 10 + 16)
+      .text(d => d.unionLabel)
+  }
+
   nodes
     .filter(d => d.nodetype === 'person')
     .style('cursor', canEdit ? 'default' : 'pointer')
@@ -781,6 +843,7 @@ export function RelationshipChart(
     // orientation = 'LTR',
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
     canEdit = false,
+    showUnionDates = false,
     initialZoom = null,
   }
 ) {
@@ -817,7 +880,8 @@ export function RelationshipChart(
       getImageUrl,
       maxImages,
       nameDisplayFormat,
-      canEdit
+      canEdit,
+      showUnionDates
     )
     svg.attr('viewBox', [
       -bboxWidth / 2,
