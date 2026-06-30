@@ -211,26 +211,62 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     const viewportH = window.innerHeight
     const popupHeight = getPopupHeight(this._objectType)
 
-    let x = anchorRect.left
-    if (x + POPUP_WIDTH > viewportW - POPUP_MARGIN) {
-      x = viewportW - POPUP_WIDTH - POPUP_MARGIN
-    }
-    x = Math.max(POPUP_MARGIN, x)
-
     const spaceBelow = viewportH - anchorRect.bottom - POPUP_MARGIN
     const spaceAbove = anchorRect.top - POPUP_MARGIN
-    const flipUp = spaceBelow < popupHeight && spaceAbove > spaceBelow
+    const spaceRight = viewportW - anchorRect.right - POPUP_MARGIN
+    const spaceLeft = anchorRect.left - POPUP_MARGIN
 
-    this._x = x
-    this._y = Math.max(
-      POPUP_MARGIN,
-      flipUp
-        ? anchorRect.top - popupHeight - POPUP_MARGIN
-        : Math.min(
-            anchorRect.bottom + POPUP_MARGIN,
-            viewportH - popupHeight - POPUP_MARGIN
-          )
-    )
+    // Require a second margin so the popup doesn't end up flush against the
+    // viewport edge in the "just barely fits" case.
+    const fitsBelow = spaceBelow >= popupHeight + POPUP_MARGIN
+    const fitsAbove = spaceAbove >= popupHeight + POPUP_MARGIN
+    const fitsRight = spaceRight >= POPUP_WIDTH + POPUP_MARGIN
+    const fitsLeft = spaceLeft >= POPUP_WIDTH + POPUP_MARGIN
+
+    // Clamp helpers that keep the popup inside the viewport on the secondary axis.
+    const clampedX = left =>
+      Math.max(
+        POPUP_MARGIN,
+        Math.min(left, viewportW - POPUP_WIDTH - POPUP_MARGIN)
+      )
+    const clampedY = top =>
+      Math.max(
+        POPUP_MARGIN,
+        Math.min(top, viewportH - popupHeight - POPUP_MARGIN)
+      )
+
+    // Try each side in priority order; fall back to the side with the most space
+    // so the popup never slides back on top of the anchor box.
+    if (fitsBelow) {
+      this._x = clampedX(anchorRect.left)
+      this._y = anchorRect.bottom + POPUP_MARGIN
+    } else if (fitsAbove) {
+      this._x = clampedX(anchorRect.left)
+      this._y = anchorRect.top - popupHeight - POPUP_MARGIN
+    } else if (fitsRight) {
+      this._x = anchorRect.right + POPUP_MARGIN
+      this._y = clampedY(anchorRect.top)
+    } else if (fitsLeft) {
+      this._x = anchorRect.left - POPUP_WIDTH - POPUP_MARGIN
+      this._y = clampedY(anchorRect.top)
+    } else {
+      // Nothing fits perfectly — pick the roomiest side and accept viewport clipping
+      // rather than overlapping the anchor.
+      const best = Math.max(spaceBelow, spaceAbove, spaceRight, spaceLeft)
+      if (best === spaceBelow) {
+        this._x = clampedX(anchorRect.left)
+        this._y = anchorRect.bottom + POPUP_MARGIN
+      } else if (best === spaceAbove) {
+        this._x = clampedX(anchorRect.left)
+        this._y = anchorRect.top - popupHeight - POPUP_MARGIN
+      } else if (best === spaceRight) {
+        this._x = anchorRect.right + POPUP_MARGIN
+        this._y = clampedY(anchorRect.top)
+      } else {
+        this._x = anchorRect.left - POPUP_WIDTH - POPUP_MARGIN
+        this._y = clampedY(anchorRect.top)
+      }
+    }
   }
 
   async _fetchData(objectType, grampsId) {
