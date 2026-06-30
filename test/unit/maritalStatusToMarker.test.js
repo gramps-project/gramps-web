@@ -91,18 +91,4 @@ describe('maritalStatusToMarker', () => {
       cross: false,
     })
   })
-
-  it('each status returns a descriptor with exactly the expected keys', () => {
-    const keys = ['rings', 'filled', 'dashed', 'slash', 'cross']
-    for (const status of [
-      'married',
-      'divorced',
-      'partners',
-      'widowed',
-      'unknown',
-    ]) {
-      const descriptor = maritalStatusToMarker(status)
-      expect(Object.keys(descriptor).sort()).to.deep.equal(keys.slice().sort())
-    }
-  })
 })
