@@ -319,6 +319,7 @@
   "Any text": "Any text",
   "A list of text values. Each entry in the list represents one line of text.": "A list of text values. Each entry in the list represents one line of text.",
   "Edit repository reference": "Edit repository reference",
+  "Edit child reference": "Edit child reference",
   "Unsaved changes restored": "Unsaved changes restored",
   "Uploading file %s of %s": "Uploading file %s of %s",
   "Select files": "Select files",
