@@ -15,20 +15,6 @@ const sexColor = {
 const UNKNOWN_MARITAL_STATUS = 'unknown'
 
 /**
- * Map a marital status string to a plain descriptor that drives SVG marker
- * rendering. Pure function — no DOM side-effects, safe to unit-test.
- *
- * Descriptor shape:
- *   rings   {0|1|2}  — number of ring circles to draw
- *   filled  {boolean} — whether rings are filled (true) or open/unfilled (false)
- *   dashed  {boolean} — whether the union bar uses stroke-dasharray
- *   slash   {boolean} — whether to draw a diagonal slash (divorce glyph)
- *   cross   {boolean} — whether to draw a small cross above the ring (widowed)
- *
- * @param {string} status
- * @returns {{ rings: number, filled: boolean, dashed: boolean, slash: boolean, cross: boolean }}
- */
-/**
  * Extract the first 4-digit year from a date string. Returns '' if not found.
  * @param {string|null|undefined} dateStr
  * @returns {string}
@@ -75,6 +61,20 @@ export function formatUnionDates(status, unionDates) {
   }
 }
 
+/**
+ * Map a marital status string to a plain descriptor that drives SVG marker
+ * rendering. Pure function — no DOM side-effects, safe to unit-test.
+ *
+ * Descriptor shape:
+ *   rings   {0|1|2}  — number of ring circles to draw
+ *   filled  {boolean} — whether rings are filled (true) or open/unfilled (false)
+ *   dashed  {boolean} — whether the union bar uses stroke-dasharray
+ *   slash   {boolean} — whether to draw a diagonal slash (divorce glyph)
+ *   cross   {boolean} — whether to draw a small cross above the ring (widowed)
+ *
+ * @param {string} status
+ * @returns {{ rings: number, filled: boolean, dashed: boolean, slash: boolean, cross: boolean }}
+ */
 export function maritalStatusToMarker(status) {
   switch (status) {
     case 'married':
