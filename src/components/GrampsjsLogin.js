@@ -234,7 +234,11 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
 
     return html`
       <div id="login-container">
-        <form id="login-form" @keydown="${this._handleLoginKey}">
+        <form
+          id="login-form"
+          @submit="${this._submitLogin}"
+          @keydown="${this._handleFormKeydown}"
+        >
           <h2>${this._('Log in to Gramps Web')}</h2>
           ${localAuthDisabled
             ? ''
@@ -278,7 +282,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                       `}
                   <md-filled-button
                     type="submit"
-                    @click="${this._submitLogin}"
                     ?disabled="${!this.credentials.username ||
                     !this.credentials.password}"
                   >
@@ -341,10 +344,25 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     this.credentials = {...this.credentials, [e.target.id]: e.target.value}
   }
 
+  // md-filled-button[type="submit"] is not recognized by browsers as the
+  // form's default submit button, so pressing Enter in an input does not
+  // implicitly submit. Bridge it to a real submit event.
+  // eslint-disable-next-line class-methods-use-this
+  _handleFormKeydown(event) {
+    if (event.key === 'Enter' && event.target.tagName === 'INPUT') {
+      event.preventDefault()
+      event.currentTarget.requestSubmit()
+    }
+  }
+
   _renderResetPw() {
     return html`
       <div id="login-container">
-        <form id="login-form">
+        <form
+          id="login-form"
+          @submit="${this._resetPw}"
+          @keydown="${this._handleFormKeydown}"
+        >
           <h2>${this._('reset password')}</h2>
           <div id="inner-form">
             <div class="text-field-wrapper">
@@ -358,11 +376,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
               />
               <label for="username">${this._('Username')}</label>
             </div>
-            <md-filled-button
-              type="submit"
-              @click="${this._resetPw}"
-              style="width: 100%;"
-            >
+            <md-filled-button type="submit" style="width: 100%;">
               ${this._('reset password')}
             </md-filled-button>
           </div>
@@ -382,12 +396,6 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
         </form>
       </div>
     `
-  }
-
-  _handleLoginKey(event) {
-    if (event.code === 'Enter') {
-      this._submitLogin(event)
-    }
   }
 
   async _submitLogin(e) {
