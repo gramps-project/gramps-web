@@ -121,6 +121,41 @@ describe('buildFamilyUnionMap', () => {
     expect(map.F1.maritalStatus).to.equal('married')
   })
 
+  it('keeps the first writer when two people disagree on the same family', () => {
+    const people = [
+      {
+        handle: 'P1',
+        profile: {
+          families: [
+            {
+              handle: 'F1',
+              marital_status: 'married',
+              marriage: {date: '2000'},
+              divorce: null,
+            },
+          ],
+        },
+      },
+      {
+        handle: 'P2',
+        profile: {
+          families: [
+            {
+              handle: 'F1',
+              marital_status: 'divorced',
+              marriage: {date: '2000'},
+              divorce: {date: '2010'},
+            },
+          ],
+        },
+      },
+    ]
+    const map = buildFamilyUnionMap(people)
+    expect(Object.keys(map)).to.deep.equal(['F1'])
+    expect(map.F1.maritalStatus).to.equal('married')
+    expect(map.F1.divorce).to.equal(null)
+  })
+
   it('handles multiple distinct families across multiple people', () => {
     const people = [
       {

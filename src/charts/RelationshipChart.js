@@ -465,7 +465,8 @@ function remasterChart(
   maxImages,
   nameDisplayFormat,
   canEdit = false,
-  showUnionDates = false
+  showUnionDates = false,
+  unionStatusLabels = {}
 ) {
   const gvchartx = divhidden.select('svg')
   const nodedata = []
@@ -662,6 +663,15 @@ function remasterChart(
     .attr('stroke-width', 1)
     .attr('stroke-dasharray', d => (d.markerDesc.dashed ? '3,2' : null))
 
+  // Accessible label: name the union status on each family node (SVG <title>),
+  // so the marker is not conveyed by shape/colour alone.
+  nodes
+    .filter(
+      d => d.nodetype === 'family' && d.maritalStatus !== UNKNOWN_MARITAL_STATUS
+    )
+    .append('title')
+    .text(d => unionStatusLabels[d.maritalStatus] ?? d.maritalStatus)
+
   // Ring(s) — two rings for married/divorced, one for partners/widowed, none for unknown
   // Left ring (always the first when rings > 0)
   nodes
@@ -846,6 +856,7 @@ export function RelationshipChart(
     canEdit = false,
     showUnionDates = false,
     initialZoom = null,
+    unionStatusLabels = {},
   }
 ) {
   const resultnode = create('div').style('width', '100%')
@@ -882,7 +893,8 @@ export function RelationshipChart(
       maxImages,
       nameDisplayFormat,
       canEdit,
-      showUnionDates
+      showUnionDates,
+      unionStatusLabels
     )
     svg.attr('viewBox', [
       -bboxWidth / 2,

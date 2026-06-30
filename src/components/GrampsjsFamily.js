@@ -135,7 +135,7 @@ export class GrampsjsFamily extends GrampsjsObject {
       partners: this._('Unmarried partners'),
     }
     const statusLabel = statusLabels[maritalStatus] ?? null
-    if (!relType && !hasMarriage && !hasDivorce && !this.edit) {
+    if (!relType && !hasMarriage && !hasDivorce && !statusLabel && !this.edit) {
       return ''
     }
     return html`

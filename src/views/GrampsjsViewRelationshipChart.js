@@ -66,6 +66,12 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
     )
   }
 
+  // The relationship chart renders per-family union status, so it needs the
+  // family profiles the other charts do not.
+  get _profileParam() {
+    return 'self,families'
+  }
+
   set showUnionDates(value) {
     this.appState.updateSettings(
       {relationshipChartShowUnionDates: value},

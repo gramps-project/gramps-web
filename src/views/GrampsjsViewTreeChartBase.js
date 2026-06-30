@@ -139,6 +139,13 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
     return false
   }
 
+  // Person-profile fetch level. The default avoids requesting family profiles;
+  // subclasses that render family data (e.g. the relationship chart's union
+  // status) override this to 'self,families'.
+  get _profileParam() {
+    return 'self'
+  }
+
   renderContent() {
     return html`<div style="position: relative;">
         <div id="controls">${this.renderControls()}</div>
@@ -334,6 +341,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
                         <td>${this._('Show union dates')}</td>
                         <td>
                           <md-switch
+                            aria-label=${this._('Show union dates')}
                             ?selected=${this.showUnionDates}
                             @change=${this._handleChangeShowUnionDates}
                           ></md-switch>
@@ -407,7 +415,9 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
     const data = await this.appState.apiGet(
       `/api/people/?rules=${encodeURIComponent(JSON.stringify(rules))}&locale=${
         this.appState.i18n.lang || 'en'
-      }&profile=self,families&extend=event_ref_list,primary_parent_family,family_list`
+      }&profile=${
+        this._profileParam
+      }&extend=event_ref_list,primary_parent_family,family_list`
     )
     this.loading = false
     if ('data' in data) {

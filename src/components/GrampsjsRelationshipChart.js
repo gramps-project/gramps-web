@@ -70,6 +70,12 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
         showUnionDates: this.showUnionDates,
         canEdit: this.canEdit,
         initialZoom: this._savedZoom,
+        unionStatusLabels: {
+          married: this._('Married'),
+          divorced: this._('Divorced'),
+          widowed: this._('Widowed'),
+          partners: this._('Unmarried partners'),
+        },
       })}
     `
   }
