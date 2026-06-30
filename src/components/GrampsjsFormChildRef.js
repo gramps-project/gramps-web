@@ -1,5 +1,6 @@
 /*
-Form for adding a new event reference
+Form for adding a new child reference (mode `new`) or editing the
+parent relationships (frel/mrel) of an existing one.
 */
 
 import {html} from 'lit'
@@ -16,15 +17,19 @@ import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 class GrampsjsFormChildRef extends GrampsjsObjectForm {
   renderForm() {
     return html`
-      <grampsjs-form-select-object-list
-        fixedMenuPosition
-        style="min-height: 300px;"
-        objectType="person"
-        .appState="${this.appState}"
-        id="child-select"
-        label="${this._('Select')}"
-        class="edit"
-      ></grampsjs-form-select-object-list>
+      ${this.new
+        ? html`
+            <grampsjs-form-select-object-list
+              fixedMenuPosition
+              style="min-height: 300px;"
+              objectType="person"
+              .appState="${this.appState}"
+              id="child-select"
+              label="${this._('Select')}"
+              class="edit"
+            ></grampsjs-form-select-object-list>
+          `
+        : ''}
       <grampsjs-form-select-type
         required
         id="child-frel"
@@ -33,6 +38,7 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
         ?loadingTypes=${this.loadingTypes}
         typeName="child_reference_types"
         defaultValue="Birth"
+        .value="${this.data.frel || ''}"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
       >
@@ -45,6 +51,7 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
         ?loadingTypes=${this.loadingTypes}
         typeName="child_reference_types"
         defaultValue="Birth"
+        .value="${this.data.mrel || ''}"
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
       >

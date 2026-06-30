@@ -36,6 +36,7 @@ export class GrampsjsChildren extends GrampsjsEditableList {
     this.highlightId = ''
     this.extended = []
     this.hasShare = true
+    this.hasEdit = true
     this.hasReorder = true
     this.objType = 'ChildRef'
   }
@@ -120,6 +121,24 @@ export class GrampsjsChildren extends GrampsjsEditableList {
     `
   }
 
+  _handleEdit() {
+    const childRef = this.data[this._selectedIndex]
+    if (!childRef) {
+      return
+    }
+    this.dialogContent = html`
+      <grampsjs-form-childref
+        @object:save="${e => this._handleChildRefEdit(e, this._selectedIndex)}"
+        @object:cancel="${this._handleDialogCancel}"
+        .appState="${this.appState}"
+        .data="${childRef}"
+        objType="${this.objType}"
+        dialogTitle=${this._('Edit child reference')}
+      >
+      </grampsjs-form-childref>
+    `
+  }
+
   _handleAdd() {
     this.dialogContent = html`
       <grampsjs-form-new-child
@@ -144,6 +163,17 @@ export class GrampsjsChildren extends GrampsjsEditableList {
 
   _handleChildRefSave(e) {
     fireEvent(this, 'edit:action', {action: 'addChildRef', data: e.detail.data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleChildRefEdit(e, index) {
+    fireEvent(this, 'edit:action', {
+      action: 'updateChildRef',
+      index,
+      data: e.detail.data,
+    })
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''

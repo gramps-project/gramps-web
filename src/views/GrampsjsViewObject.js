@@ -357,6 +357,14 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._className,
         'child_ref_list'
       )
+    } else if (e.detail.action === 'updateChildRef') {
+      this.updateObjectByIndex(
+        e.detail.index,
+        e.detail.data,
+        this._data,
+        this._className,
+        'child_ref_list'
+      )
     } else if (e.detail.action === 'addNoteRef') {
       this.addHandle(
         e.detail.data.data[0],
