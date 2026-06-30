@@ -46,7 +46,7 @@ export class GrampsjsFamily extends GrampsjsObject {
             font-size: 11px;
             font-weight: 500;
             font-family: var(--grampsjs-body-font-family);
-            padding: 0 10px;
+            padding: 0 12px;
             border-radius: 6px;
             height: 20px;
             line-height: 20px;
@@ -65,8 +65,8 @@ export class GrampsjsFamily extends GrampsjsObject {
           }
 
           .status-badge.widowed {
-            background-color: var(--grampsjs-body-font-color-20);
-            color: var(--grampsjs-body-font-color);
+            background-color: var(--md-sys-color-surface-container-highest);
+            color: var(--md-sys-color-on-surface);
           }
 
           .status-badge.partners {
@@ -134,10 +134,7 @@ export class GrampsjsFamily extends GrampsjsObject {
       widowed: this._('Widowed'),
       partners: this._('Unmarried partners'),
     }
-    const statusLabel =
-      maritalStatus && maritalStatus !== 'unknown'
-        ? statusLabels[maritalStatus]
-        : null
+    const statusLabel = statusLabels[maritalStatus] ?? null
     if (!relType && !hasMarriage && !hasDivorce && !this.edit) {
       return ''
     }
