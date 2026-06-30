@@ -384,7 +384,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
     const data = await this.appState.apiGet(
       `/api/people/?rules=${encodeURIComponent(JSON.stringify(rules))}&locale=${
         this.appState.i18n.lang || 'en'
-      }&profile=self&extend=event_ref_list,primary_parent_family,family_list`
+      }&profile=self,families&extend=event_ref_list,primary_parent_family,family_list`
     )
     this.loading = false
     if ('data' in data) {

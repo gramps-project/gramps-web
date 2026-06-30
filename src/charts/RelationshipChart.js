@@ -12,8 +12,42 @@ const sexColor = {
   U: 'var(--color-unknown)',
 }
 
+/**
+ * Build a map of family handle → union status/dates from the profiled families
+ * carried on each person object (person.profile.families[]).
+ *
+ * Pure function — no side-effects; safe to unit-test directly.
+ *
+ * @param {Array} people - array of person objects from the API
+ * @returns {Object} map keyed by family handle:
+ *   { [handle]: { maritalStatus: string, marriage: object|null, divorce: object|null } }
+ */
+export function buildFamilyUnionMap(people) {
+  const map = {}
+  if (!Array.isArray(people)) return map
+  for (const person of people) {
+    const families = person?.profile?.families
+    if (!Array.isArray(families)) continue
+    for (const fam of families) {
+      const handle = fam?.handle
+      if (!handle) continue
+      // Last writer wins — all spouses share the same family record so values
+      // should be identical; we skip if already populated to avoid redundant work.
+      if (map[handle]) continue
+      map[handle] = {
+        maritalStatus: fam?.marital_status ?? 'unknown',
+        marriage: fam?.marriage ?? null,
+        divorce: fam?.divorce ?? null,
+      }
+    }
+  }
+  return map
+}
+
 function createGraph(graph) {
   const data = graph.getData()
+  const unionMap = buildFamilyUnionMap(data)
+  graph._unionMap = unionMap
 
   // step 1: collect all persons to be shown
   for (const p of data) {
@@ -249,10 +283,16 @@ class Relgraph {
   }
 
   addNode(fdata, family, father, mother) {
+    const unionEntry = this._unionMap?.[family]
     const n = {
       handle: family,
       type: fdata?.type,
       fake: fdata?.fake,
+      maritalStatus: unionEntry?.maritalStatus ?? 'unknown',
+      unionDates: {
+        marriage: unionEntry?.marriage ?? null,
+        divorce: unionEntry?.divorce ?? null,
+      },
     }
     if (father && this.known(father)) {
       n.father = father
@@ -378,6 +418,8 @@ function remasterChart(
         xCoord: x,
         yCoord: y,
         type: d.type,
+        maritalStatus: d.maritalStatus,
+        unionDates: d.unionDates,
         handle: found.groups.handle,
       })
     }
