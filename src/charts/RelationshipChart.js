@@ -15,6 +15,42 @@ const sexColor = {
 const UNKNOWN_MARITAL_STATUS = 'unknown'
 
 /**
+ * Map a marital status string to a plain descriptor that drives SVG marker
+ * rendering. Pure function — no DOM side-effects, safe to unit-test.
+ *
+ * Descriptor shape:
+ *   rings   {0|1|2}  — number of ring circles to draw
+ *   filled  {boolean} — whether rings are filled (true) or open/unfilled (false)
+ *   dashed  {boolean} — whether the union bar uses stroke-dasharray
+ *   slash   {boolean} — whether to draw a diagonal slash (divorce glyph)
+ *   cross   {boolean} — whether to draw a small cross above the ring (widowed)
+ *
+ * @param {string} status
+ * @returns {{ rings: number, filled: boolean, dashed: boolean, slash: boolean, cross: boolean }}
+ */
+export function maritalStatusToMarker(status) {
+  switch (status) {
+    case 'married':
+      return {rings: 2, filled: true, dashed: false, slash: false, cross: false}
+    case 'divorced':
+      return {rings: 2, filled: true, dashed: false, slash: true, cross: false}
+    case 'partners':
+      return {rings: 1, filled: false, dashed: true, slash: false, cross: false}
+    case 'widowed':
+      return {rings: 1, filled: true, dashed: false, slash: false, cross: true}
+    default:
+      // 'unknown' and any unrecognised value → neutral: bar only, no ring
+      return {
+        rings: 0,
+        filled: false,
+        dashed: false,
+        slash: false,
+        cross: false,
+      }
+  }
+}
+
+/**
  * Build a map of family handle → union status/dates from the profiled families
  * carried on each person object (person.profile.families[]).
  *
@@ -560,25 +596,104 @@ function remasterChart(
     .attr('width', 70)
     .attr('xlink:href', d => d.imageUrl)
 
+  // Union bar — draw for every family node that has a known status (not unknown/neutral)
+  // The bar is always drawn first (insert ':first-child') so rings/overlays render on top.
   nodes
-    .filter(d => d.type === 'Married' && d.nodetype === 'family')
-    .append('circle')
-    .attr('class', 'married')
-    .attr('r', 6)
-    .attr('cy', boxHeight / 2 - 10)
-    .attr('stroke', 'var(--grampsjs-body-font-color-40)')
-    .attr('fill', 'var(--grampsjs-color-shade-220)')
-
-  nodes
-    .filter(d => d.type === 'Married' && d.nodetype === 'family')
+    .filter(d => d.nodetype === 'family')
     .insert('line', ':first-child')
-    .attr('class', 'married')
+    .attr('class', 'union-bar')
     .attr('x1', -11)
     .attr('x2', 11)
     .attr('y1', boxHeight / 2 - 10)
     .attr('y2', boxHeight / 2 - 10)
     .attr('stroke', 'var(--grampsjs-body-font-color-40)')
     .attr('stroke-width', 1)
+    .attr('stroke-dasharray', d => {
+      const m = maritalStatusToMarker(d.maritalStatus)
+      return m.dashed ? '3,2' : null
+    })
+
+  // Ring(s) — two rings for married/divorced, one for partners/widowed, none for unknown
+  // Left ring (always the first when rings > 0)
+  nodes
+    .filter(
+      d =>
+        d.nodetype === 'family' &&
+        maritalStatusToMarker(d.maritalStatus).rings >= 1
+    )
+    .append('circle')
+    .attr('class', 'union-ring union-ring-left')
+    .attr('r', 5)
+    .attr('cx', d =>
+      maritalStatusToMarker(d.maritalStatus).rings === 2 ? -5 : 0
+    )
+    .attr('cy', boxHeight / 2 - 10)
+    .attr('stroke', 'var(--grampsjs-body-font-color-40)')
+    .attr('stroke-width', 1)
+    .attr('fill', d => {
+      const m = maritalStatusToMarker(d.maritalStatus)
+      return m.filled ? 'var(--grampsjs-color-shade-220)' : 'none'
+    })
+
+  // Right ring (only for two-ring statuses: married, divorced)
+  nodes
+    .filter(
+      d =>
+        d.nodetype === 'family' &&
+        maritalStatusToMarker(d.maritalStatus).rings === 2
+    )
+    .append('circle')
+    .attr('class', 'union-ring union-ring-right')
+    .attr('r', 5)
+    .attr('cx', 5)
+    .attr('cy', boxHeight / 2 - 10)
+    .attr('stroke', 'var(--grampsjs-body-font-color-40)')
+    .attr('stroke-width', 1)
+    .attr('fill', 'var(--grampsjs-color-shade-220)')
+
+  // Divorce slash — diagonal line across the rings
+  nodes
+    .filter(
+      d =>
+        d.nodetype === 'family' && maritalStatusToMarker(d.maritalStatus).slash
+    )
+    .append('line')
+    .attr('class', 'union-slash')
+    .attr('x1', -8)
+    .attr('x2', 8)
+    .attr('y1', boxHeight / 2 - 10 + 6)
+    .attr('y2', boxHeight / 2 - 10 - 6)
+    .attr('stroke', 'var(--md-sys-color-error)')
+    .attr('stroke-width', 1.5)
+
+  // Widowed cross — two short strokes forming a ✝ above the ring
+  nodes
+    .filter(
+      d =>
+        d.nodetype === 'family' && maritalStatusToMarker(d.maritalStatus).cross
+    )
+    .append('line')
+    .attr('class', 'union-cross-v')
+    .attr('x1', 0)
+    .attr('x2', 0)
+    .attr('y1', boxHeight / 2 - 10 - 5)
+    .attr('y2', boxHeight / 2 - 10 - 11)
+    .attr('stroke', 'var(--grampsjs-body-font-color-40)')
+    .attr('stroke-width', 1.5)
+
+  nodes
+    .filter(
+      d =>
+        d.nodetype === 'family' && maritalStatusToMarker(d.maritalStatus).cross
+    )
+    .append('line')
+    .attr('class', 'union-cross-h')
+    .attr('x1', -3)
+    .attr('x2', 3)
+    .attr('y1', boxHeight / 2 - 10 - 8)
+    .attr('y2', boxHeight / 2 - 10 - 8)
+    .attr('stroke', 'var(--grampsjs-body-font-color-40)')
+    .attr('stroke-width', 1.5)
 
   nodes
     .filter(d => d.nodetype === 'person')
