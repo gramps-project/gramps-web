@@ -251,6 +251,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                     autocomplete="username"
                     autocapitalize="off"
                     placeholder=" "
+                    required
                     .value="${this.credentials.username || ''}"
                     @input="${this._credChanged}"
                     @change="${this._credChanged}"
@@ -264,6 +265,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                     type="password"
                     autocomplete="current-password"
                     placeholder=" "
+                    required
                     .value="${this.credentials.password || ''}"
                     @input="${this._credChanged}"
                     @change="${this._credChanged}"
@@ -280,11 +282,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                           ${this._('Register new account')}
                         </md-outlined-button>
                       `}
-                  <md-filled-button
-                    type="submit"
-                    ?disabled="${!this.credentials.username ||
-                    !this.credentials.password}"
-                  >
+                  <md-filled-button type="submit">
                     ${this._('login')}
                   </md-filled-button>
                 </div>
@@ -403,24 +401,28 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     e?.preventDefault()
     e?.stopPropagation()
 
-    if (!this.credentials.username || !this.credentials.password) {
+    // Read directly from the DOM rather than this.credentials: autofill
+    // doesn't always fire input/change events, which could otherwise leave
+    // stale (empty) values in reactive state.
+    const username = this.shadowRoot.getElementById('username')?.value
+    const password = this.shadowRoot.getElementById('password')?.value
+
+    if (!username || !password) {
       return
     }
 
     const submitProgress = this.shadowRoot.getElementById('login-progress')
     submitProgress.style.display = 'block'
     submitProgress.closed = false
-    apiGetTokens(this.credentials.username, this.credentials.password).then(
-      res => {
-        if ('error' in res) {
-          submitProgress.style.display = 'none'
-          submitProgress.closed = true
-          this._showError(res.error)
-        } else {
-          document.location.href = '/'
-        }
+    apiGetTokens(username, password).then(res => {
+      if ('error' in res) {
+        submitProgress.style.display = 'none'
+        submitProgress.closed = true
+        this._showError(res.error)
+      } else {
+        document.location.href = '/'
       }
-    )
+    })
   }
 
   async _submitOIDCLogin(providerId) {
