@@ -5,6 +5,7 @@ import '@material/mwc-textfield'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 import '@material/web/fab/fab.js'
+import '@material/web/switch/switch.js'
 
 import {mdiAccountDetails, mdiHomeAccount, mdiPencil} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
@@ -73,10 +74,12 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
       nDesc: {type: Number},
       nMaxImages: {type: Number},
       nameDisplayFormat: {type: String},
+      showUnionDates: {type: Boolean},
       _data: {type: Array},
       _setAnc: {type: Boolean},
       _setDesc: {type: Boolean},
       _setMaxImages: {type: Boolean},
+      _setShowUnionDates: {type: Boolean},
       _editMode: {type: Boolean},
     }
   }
@@ -98,6 +101,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
     this._setDesc = false
     this._setSep = false
     this._setMaxImages = false
+    this._setShowUnionDates = false
     this._editMode = false
     this._boundToggleEditMode = this._toggleEditMode.bind(this)
     this._boundDisableEditMode = this._disableEditMode.bind(this)
@@ -129,6 +133,17 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
 
   get nameDisplayFormat() {
     return this.defaults.nameDisplayFormat
+  }
+
+  get showUnionDates() {
+    return false
+  }
+
+  // Person-profile fetch level. The default avoids requesting family profiles;
+  // subclasses that render family data (e.g. the relationship chart's union
+  // status) override this to 'self,families'.
+  get _profileParam() {
+    return 'self'
   }
 
   renderContent() {
@@ -319,6 +334,22 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
                     </mwc-select>
                 </td>
               </tr>
+              ${
+                this._setShowUnionDates
+                  ? html`
+                      <tr>
+                        <td>${this._('Show union dates')}</td>
+                        <td>
+                          <md-switch
+                            aria-label=${this._('Show union dates')}
+                            ?selected=${this.showUnionDates}
+                            @change=${this._handleChangeShowUnionDates}
+                          ></md-switch>
+                        </td>
+                      </tr>
+                    `
+                  : ''
+              }
             </table>
           </div>
           <div slot="actions">
@@ -384,7 +415,9 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
     const data = await this.appState.apiGet(
       `/api/people/?rules=${encodeURIComponent(JSON.stringify(rules))}&locale=${
         this.appState.i18n.lang || 'en'
-      }&profile=self&extend=event_ref_list,primary_parent_family,family_list`
+      }&profile=${
+        this._profileParam
+      }&extend=event_ref_list,primary_parent_family,family_list`
     )
     this.loading = false
     if ('data' in data) {
@@ -418,6 +451,10 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
 
   _handleChangeNameDisplayFormat(e) {
     this.nameDisplayFormat = e.target.value
+  }
+
+  _handleChangeShowUnionDates(e) {
+    this.showUnionDates = e.target.selected
   }
 
   _openMenuControls() {

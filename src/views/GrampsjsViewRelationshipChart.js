@@ -20,8 +20,10 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
     super()
     this._setSep = true
     this._setMaxImages = true
+    this._setShowUnionDates = true
     this.color = ''
     this.defaults.nAnc = 2
+    this.defaults.showUnionDates = false
   }
 
   get nAnc() {
@@ -57,10 +59,31 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
     )
   }
 
+  get showUnionDates() {
+    return (
+      this.appState?.settings?.relationshipChartShowUnionDates ??
+      this.defaults.showUnionDates
+    )
+  }
+
+  // The relationship chart renders per-family union status, so it needs the
+  // family profiles the other charts do not.
+  get _profileParam() {
+    return 'self,families'
+  }
+
+  set showUnionDates(value) {
+    this.appState.updateSettings(
+      {relationshipChartShowUnionDates: value},
+      false
+    )
+  }
+
   _resetLevels() {
     this.nAnc = this.defaults.nAnc
     this.nMaxImages = this.defaults.nMaxImages
     this.nameDisplayFormat = this.defaults.nameDisplayFormat
+    this.showUnionDates = this.defaults.showUnionDates
   }
 
   _getPersonRules(grampsId) {
@@ -83,6 +106,7 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
           nAnc=${this.nAnc + 1}
           nMaxImages=${this.nMaxImages}
           nameDisplayFormat=${this.nameDisplayFormat}
+          ?showUnionDates=${this.showUnionDates}
           ?canEdit="${this._editMode}"
           .data=${this._data}
         >
