@@ -31,6 +31,12 @@ const DOMPURIFY_CONFIG = {
     'code',
     'pre',
     'a',
+    'table',
+    'thead',
+    'tbody',
+    'tr',
+    'th',
+    'td',
   ],
   ALLOWED_ATTR: ['href'],
 }
@@ -155,6 +161,24 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
         .slot-wrap pre code {
           background: none;
           padding: 0;
+        }
+
+        .slot-wrap table {
+          display: block;
+          overflow-x: auto;
+          border-collapse: collapse;
+          margin: 0.4em 0;
+        }
+
+        .slot-wrap th,
+        .slot-wrap td {
+          border: 1px solid var(--grampsjs-color-shade-230);
+          padding: 0.2em 0.6em;
+          text-align: left;
+        }
+
+        .slot-wrap th {
+          font-weight: 600;
         }
 
         .avatar {
