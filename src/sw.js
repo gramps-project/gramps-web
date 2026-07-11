@@ -99,23 +99,46 @@ registerRoute(
 // Cache raster overlay tiles: strip `jwt` from cache key so token rotation
 // doesn't cause cache misses. The actual fetch uses an Authorization header
 // injected by MapLibre's transformRequest, so no jwt param reaches the SW.
+const tileCacheStrategy = new CacheFirst({
+  cacheName: 'gramps-tiles-v1',
+  plugins: [
+    {
+      cacheKeyWillBeUsed: async ({request}) => {
+        const url = new URL(request.url)
+        url.searchParams.delete('jwt')
+        return url.toString()
+      },
+    },
+    new CacheableResponsePlugin({statuses: [200]}),
+    new ExpirationPlugin({
+      maxEntries: 5000,
+      maxAgeSeconds: 30 * 24 * 60 * 60,
+    }),
+  ],
+})
+
+// MapLibre aborts in-flight tile requests when they scroll out of view
+// (pan/zoom before they finish). Strategy.handle() rethrows that AbortError,
+// which otherwise surfaces as a "ServiceWorker intercepted the request and
+// encountered an unexpected error" console error. Swallow only that case.
 registerRoute(
   ({url}) => url.pathname.match(/\/api\/media\/[^/]+\/tile\//),
-  new CacheFirst({
-    cacheName: 'gramps-tiles-v1',
-    plugins: [
-      {
-        cacheKeyWillBeUsed: async ({request}) => {
-          const url = new URL(request.url)
-          url.searchParams.delete('jwt')
-          return url.toString()
-        },
-      },
-      new CacheableResponsePlugin({statuses: [200]}),
-      new ExpirationPlugin({
-        maxEntries: 5000,
-        maxAgeSeconds: 30 * 24 * 60 * 60,
-      }),
-    ],
-  })
+  async ({event, request, url: reqUrl, params}) => {
+    try {
+      return await tileCacheStrategy.handle({
+        event,
+        request,
+        url: reqUrl,
+        params,
+      })
+    } catch (err) {
+      if (err?.name === 'AbortError') {
+        return new Response(null, {
+          status: 499,
+          statusText: 'Client Closed Request',
+        })
+      }
+      throw err
+    }
+  }
 )
