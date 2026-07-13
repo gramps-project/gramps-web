@@ -56,13 +56,25 @@ class GrampsjsMapTileLayer extends LitElement {
       })
     }
     if (!map.getLayer(layerId)) {
-      map.addLayer({
-        id: layerId,
-        type: 'raster',
-        source: layerId,
-        layout: {visibility: this.hidden ? 'none' : 'visible'},
-      })
+      map.addLayer(
+        {
+          id: layerId,
+          type: 'raster',
+          source: layerId,
+          layout: {visibility: this.hidden ? 'none' : 'visible'},
+        },
+        this._beforeId(map)
+      )
     }
+  }
+
+  // Keep tiles under pins/lines even if this layer is added after them.
+  // eslint-disable-next-line class-methods-use-this
+  _beforeId(map) {
+    return (
+      ['person-lines-layer', 'places-layer'].find(id => map.getLayer(id)) ??
+      undefined
+    )
   }
 
   // Called by GrampsjsMap inside setStyle's transformStyle callback so the
