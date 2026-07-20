@@ -34,9 +34,9 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
           text-align: center;
         }
 
-        #img-container {
-          width: 100%;
-          text-align: center;
+        #img-container grampsjs-img {
+          display: flex;
+          justify-content: center;
         }
 
         #image {
