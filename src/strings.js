@@ -909,6 +909,7 @@ export const grampsStrings = [
   'Unknown ',
   'Unknown',
   'Unmarried',
+  'Update',
   'Updating checksums on media',
   'upright',
   'Use Compression',

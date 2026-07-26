@@ -112,11 +112,13 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
       this.infoMessage = this._('Started')
     } else if (status.state === 'PROGRESS') {
       this.progress = status.progress ?? -1
+      const percent =
+        this.progress >= 0 ? `${Math.floor(100 * this.progress)}%` : ''
       this.infoMessage = `${status.result_object?.title ?? ''}
           ${status.result_object?.title ? '<br>' : ''}
           ${status.result_object?.message ?? ''}
           ${status.result_object?.message ? '<br>' : ''}
-          ${Math.floor(100 * this.progress)}%`
+          ${percent}`
     }
   }
 
