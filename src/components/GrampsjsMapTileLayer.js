@@ -53,8 +53,6 @@ class GrampsjsMapTileLayer extends LitElement {
         tiles: [getTileUrl(this.handle)],
         tileSize: 256,
         maxzoom: 18,
-        // Avoid re-fetching tiles the no-cache endpoint marks as expired.
-        refreshExpiredTiles: false,
       })
     }
     if (!map.getLayer(layerId)) {
@@ -93,8 +91,6 @@ class GrampsjsMapTileLayer extends LitElement {
           tiles: [getTileUrl(this.handle)],
           tileSize: 256,
           maxzoom: 18,
-          // Avoid re-fetching tiles the no-cache endpoint marks as expired.
-          refreshExpiredTiles: false,
         },
       },
       layers: [
