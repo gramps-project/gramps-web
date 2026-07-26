@@ -6,6 +6,11 @@ class GrampsjsMapTileLayer extends LitElement {
     return {
       handle: {type: String},
       checksum: {type: String},
+      bounds: {
+        type: Array,
+        hasChanged: (newVal, oldVal) =>
+          JSON.stringify(newVal) !== JSON.stringify(oldVal),
+      },
       hidden: {type: Boolean},
     }
   }
@@ -14,6 +19,7 @@ class GrampsjsMapTileLayer extends LitElement {
     super()
     this.handle = ''
     this.checksum = ''
+    this.bounds = null
     this.hidden = false
     this._map = null
     this._onStyleLoad = () => this._syncVisibility()
@@ -26,6 +32,31 @@ class GrampsjsMapTileLayer extends LitElement {
 
   get _layerId() {
     return `tile-overlay-${this.handle}`
+  }
+
+  // MapLibre wants [west, south, east, north]; map:bounds is [[lat,lng],[lat,lng]]
+  // in unspecified corner order, so normalise via min/max.
+  get _sourceBounds() {
+    if (!Array.isArray(this.bounds) || this.bounds.length !== 2) return null
+    const [[latA, lngA], [latB, lngB]] = this.bounds
+    return [
+      Math.min(lngA, lngB),
+      Math.min(latA, latB),
+      Math.max(lngA, lngB),
+      Math.max(latA, latB),
+    ]
+  }
+
+  get _sourceSpec() {
+    const bounds = this._sourceBounds
+    return {
+      type: 'raster',
+      tiles: [getTileUrl(this.handle, this.checksum)],
+      tileSize: 256,
+      maxzoom: 18,
+      // Stops MapLibre requesting (and looping on) tiles outside the overlay.
+      ...(bounds ? {bounds} : {}),
+    }
   }
 
   _syncVisibility() {
@@ -50,12 +81,7 @@ class GrampsjsMapTileLayer extends LitElement {
     if (!this.handle) return
     const layerId = this._layerId
     if (!map.getSource(layerId)) {
-      map.addSource(layerId, {
-        type: 'raster',
-        tiles: [getTileUrl(this.handle, this.checksum)],
-        tileSize: 256,
-        maxzoom: 18,
-      })
+      map.addSource(layerId, this._sourceSpec)
     }
     if (!map.getLayer(layerId)) {
       map.addLayer(
@@ -88,12 +114,7 @@ class GrampsjsMapTileLayer extends LitElement {
       ...next,
       sources: {
         ...next.sources,
-        [layerId]: {
-          type: 'raster',
-          tiles: [getTileUrl(this.handle, this.checksum)],
-          tileSize: 256,
-          maxzoom: 18,
-        },
+        [layerId]: this._sourceSpec,
       },
       layers: [
         ...next.layers,
@@ -126,8 +147,12 @@ class GrampsjsMapTileLayer extends LitElement {
         if (this._map.getSource(oldLayerId)) this._map.removeSource(oldLayerId)
       }
       this.addToMap(this._map)
-    } else if (changed.has('checksum') && this._map) {
-      // Same handle (so same layerId) but a new tile URL: drop and re-add.
+    } else if (
+      (changed.has('checksum') || changed.has('bounds')) &&
+      this._map
+    ) {
+      // Same handle (so same layerId) but a new tile URL or bounds: a raster
+      // source can't be mutated in place, so drop and re-add.
       const layerId = this._layerId
       if (this._map.getLayer(layerId)) this._map.removeLayer(layerId)
       if (this._map.getSource(layerId)) this._map.removeSource(layerId)
