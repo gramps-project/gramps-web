@@ -859,7 +859,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       if (taskId) {
         this.appState.registerTask(
           taskId,
-          dryRun ? 'Preview restore from backup' : 'Restore from backup',
+          dryRun ? 'Preview Restore from Backup' : 'Restore from Backup',
           {taskName: 'restoreBackup'}
         )
       }

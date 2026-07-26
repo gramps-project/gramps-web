@@ -33,7 +33,7 @@ export const TASK_LABELS = {
   process_transactions: 'Process transactions',
   // NOTE: Celery task name guessed from the import_file naming convention —
   // confirm against the backend and correct if it differs.
-  import_file_restore: 'Restore from backup',
+  import_file_restore: 'Restore from Backup',
 }
 
 // Maps Celery short names → the frontend taskName attribute used on

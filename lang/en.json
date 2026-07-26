@@ -379,6 +379,7 @@
   "Restore from Backup": "Restore from Backup",
   "Reset the tree to match an uploaded Gramps XML backup, adding, updating, and deleting objects as needed. This is a destructive replace, not a merge.": "Reset the tree to match an uploaded Gramps XML backup, adding, updating, and deleting objects as needed. This is a destructive replace, not a merge.",
   "Preview Restore": "Preview Restore",
+  "Preview Restore from Backup": "Preview Restore from Backup",
   "Restore": "Restore",
   "Confirm Restore from Backup": "Confirm Restore from Backup",
   "This will permanently delete %s existing objects that are not present in the backup.": "This will permanently delete %s existing objects that are not present in the backup.",
