@@ -486,6 +486,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     return html`
       <grampsjs-map-tile-layer
         handle="${obj.handle}"
+        checksum="${obj.checksum}"
         ?hidden="${this._hiddenOverlaysHandles.includes(obj.handle)}"
       ></grampsjs-map-tile-layer>
     `

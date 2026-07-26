@@ -5,6 +5,7 @@ class GrampsjsMapTileLayer extends LitElement {
   static get properties() {
     return {
       handle: {type: String},
+      checksum: {type: String},
       hidden: {type: Boolean},
     }
   }
@@ -12,6 +13,7 @@ class GrampsjsMapTileLayer extends LitElement {
   constructor() {
     super()
     this.handle = ''
+    this.checksum = ''
     this.hidden = false
     this._map = null
     this._onStyleLoad = () => this._syncVisibility()
@@ -50,7 +52,7 @@ class GrampsjsMapTileLayer extends LitElement {
     if (!map.getSource(layerId)) {
       map.addSource(layerId, {
         type: 'raster',
-        tiles: [getTileUrl(this.handle)],
+        tiles: [getTileUrl(this.handle, this.checksum)],
         tileSize: 256,
         maxzoom: 18,
       })
@@ -88,7 +90,7 @@ class GrampsjsMapTileLayer extends LitElement {
         ...next.sources,
         [layerId]: {
           type: 'raster',
-          tiles: [getTileUrl(this.handle)],
+          tiles: [getTileUrl(this.handle, this.checksum)],
           tileSize: 256,
           maxzoom: 18,
         },
@@ -123,6 +125,12 @@ class GrampsjsMapTileLayer extends LitElement {
         if (this._map.getLayer(oldLayerId)) this._map.removeLayer(oldLayerId)
         if (this._map.getSource(oldLayerId)) this._map.removeSource(oldLayerId)
       }
+      this.addToMap(this._map)
+    } else if (changed.has('checksum') && this._map) {
+      // Same handle (so same layerId) but a new tile URL: drop and re-add.
+      const layerId = this._layerId
+      if (this._map.getLayer(layerId)) this._map.removeLayer(layerId)
+      if (this._map.getSource(layerId)) this._map.removeSource(layerId)
       this.addToMap(this._map)
     }
     if (changed.has('hidden') && this._map) {

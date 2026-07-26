@@ -651,10 +651,13 @@ export function getReportUrl(id, options) {
   return `${__APIHOST__}/api/reports/${id}/file?jwt=${jwt}&${queryParam}`
 }
 
-export function getTileUrl(handle) {
+export function getTileUrl(handle, checksum = null) {
   const jwt = localStorage.getItem('access_token')
   const base = `${__APIHOST__}/api/media/${handle}/tile/{z}/{x}/{y}`
-  return jwt === null ? base : `${base}?jwt=${jwt}`
+  if (jwt === null) {
+    return checksum ? `${base}?checksum=${checksum}` : base
+  }
+  return `${base}?jwt=${jwt}${_checksumParam(checksum)}`
 }
 
 export function getMediaUrl(handle, download = false) {
