@@ -31,6 +31,9 @@ export const TASK_LABELS = {
   // process_transactions covers both undo and the Sync addon — use a generic
   // label since we cannot distinguish the two at the Celery task-name level.
   process_transactions: 'Process transactions',
+  // NOTE: Celery task name guessed from the import_file naming convention —
+  // confirm against the backend and correct if it differs.
+  import_file_restore: 'Restore from Backup',
 }
 
 // Maps Celery short names → the frontend taskName attribute used on
@@ -57,6 +60,9 @@ export const CELERY_TO_TASK_NAME = {
   upgrade_database_schema: 'upgradeDb',
   delete_objects: 'deleteObjects',
   // process_transactions: no single taskName — serves both undo and Sync addon
+  // dry_run and real restores share the same Celery task, so only the
+  // (rarer, longer-running) real apply gets a reconnect-after-reload taskName.
+  import_file_restore: 'restoreBackup',
 }
 
 /** Strip a fully-qualified Celery module prefix, e.g.
