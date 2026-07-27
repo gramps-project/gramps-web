@@ -80,7 +80,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
           hideAfter="0"
           .appState="${this.appState}"
           @task:complete="${this._handleTaskComplete}"
-          @task:error="${() => this._handleCompleted(STATE_ERROR)}"
+          @task:error="${this._handleTaskError}"
         ></grampsjs-task-progress-indicator>
       </p>
       <grampsjs-import-preview-dialog
@@ -112,6 +112,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       {isJson: false, dbChanged: false}
     )
     if ('error' in res) {
+      this._previewPending = false
       prog.setError()
       prog.errorMessage = this._(res.error)
       this._handleCompleted(STATE_ERROR)
@@ -186,6 +187,11 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     } else {
       this._handleSuccess()
     }
+  }
+
+  _handleTaskError() {
+    this._previewPending = false
+    this._handleCompleted(STATE_ERROR)
   }
 
   _handleSuccess() {
