@@ -868,7 +868,9 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
     prog.setComplete()
     if (dryRun) {
-      this._handleRestorePreviewResult(res)
+      // A plain 200 response is wrapped as {data, total_count, etag} by
+      // apiPutPostDelete (only the 202/task shape returns the body as-is).
+      this._handleRestorePreviewResult(res.data)
     } else {
       this._handleRestoreApplyComplete()
     }
