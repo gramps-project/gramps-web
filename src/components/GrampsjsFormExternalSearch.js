@@ -115,10 +115,10 @@ const EXTERNAL_SEARCH_WEBSITES = [
       reqRegistration: false,
       reqSubscription: false,
     },
-    baseUrl: 'https://www.genealogieonline.nl/zoeken/index.php'
+    baseUrl: 'https://www.genealogieonline.nl/zoeken/index.php',
     params:
-      '?vn={{name_given}}&q={{name_surname}}&gv={{birth_year}}&ot={{death_year}}&pn={{place_name}}'
-  }
+      '?vn={{name_given}}&q={{name_surname}}&gv={{birth_year}}&ot={{death_year}}&pn={{place_name}}',
+  },
 ]
 
 class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
