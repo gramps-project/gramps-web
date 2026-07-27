@@ -386,7 +386,7 @@ class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
           ${this._(
             'Enter a search URL with template variables for person data. Available variables:'
           )}
-          <strong>{{name_given}}, {{name_surname}}, {{place_name}}</strong>
+          <strong>${Object.keys(this.data).map(key => '{{' + key + '}}').join(', ')}</strong>
         </div>
         <md-outlined-text-field
           id="custom-name"
