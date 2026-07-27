@@ -386,5 +386,9 @@
   "No changes detected.": "No changes detected.",
   "Object Type": "Object Type",
   "Unchanged": "Unchanged",
-  "This restores object data and media references only. Binary media files and tree metadata (default person, bookmarks, name groups) are not affected.": "This restores object data and media references only. Binary media files and tree metadata (default person, bookmarks, name groups) are not affected."
+  "This restores object data and media references only. Binary media files and tree metadata (default person, bookmarks, name groups) are not affected.": "This restores object data and media references only. Binary media files and tree metadata (default person, bookmarks, name groups) are not affected.",
+  "Confirm Import": "Confirm Import",
+  "This file contains the following objects, which will be added to your tree:": "This file contains the following objects, which will be added to your tree:",
+  "No objects found in this file.": "No objects found in this file.",
+  "Preview Import": "Preview Import"
 }

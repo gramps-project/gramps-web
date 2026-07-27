@@ -230,6 +230,7 @@ export const grampsStrings = [
   'Confidence',
   'Confirmation',
   'Connector',
+  'Count',
   'Country',
   "CSV is a common spreadsheet format.\nYou can change this behavior in the 'Configure active view' of any list-based view",
   'Counts number of ancestors of selected person',

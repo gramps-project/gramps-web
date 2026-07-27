@@ -7,12 +7,14 @@ import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
 import './GrampsjsFormUpload.js'
 import './GrampsjsTaskProgressIndicator.js'
+import './GrampsjsImportPreviewDialog.js'
 
 const STATE_ERROR = -1
 const STATE_INITIAL = 0
 const STATE_READY = 1
-const STATE_PROGRESS = 2
-const STATE_DONE = 3
+const STATE_PREVIEWING = 2
+const STATE_PROGRESS = 3
+const STATE_DONE = 4
 
 export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -31,6 +33,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       _state: {type: Object},
       _mediaState: {type: Object},
       _uploadHint: {type: String},
+      _previewCounts: {type: Object},
     }
   }
 
@@ -38,6 +41,12 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     super()
     this._state = 0
     this._uploadHint = ''
+    this._previewCounts = {}
+    // Non-reactive: whether the in-flight #progress-tree task is the
+    // dry_run preview or the real import — both use the same Celery task
+    // (import_file), so a single shared indicator/taskName is used for
+    // both, and this flag decides which handler its completion routes to.
+    this._previewPending = false
   }
 
   render() {
@@ -70,10 +79,15 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
           size="20"
           hideAfter="0"
           .appState="${this.appState}"
-          @task:complete="${this._handleSuccess}"
+          @task:complete="${this._handleTaskComplete}"
           @task:error="${() => this._handleCompleted(STATE_ERROR)}"
         ></grampsjs-task-progress-indicator>
       </p>
+      <grampsjs-import-preview-dialog
+        .appState="${this.appState}"
+        .counts="${this._previewCounts}"
+        @import-confirmed="${this._handleImportConfirmed}"
+      ></grampsjs-import-preview-dialog>
     `
   }
 
@@ -81,12 +95,62 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     if (this._state === STATE_READY) {
       const uploadForm = this.shadowRoot.querySelector('#upload-tree')
       const ext = uploadForm.file.name.split('.').pop().toLowerCase()
-      await this._submitTree(ext, uploadForm.file)
+      await this._submitPreview(ext, uploadForm.file)
     }
+  }
+
+  async _submitPreview(ext, file) {
+    this._state = STATE_PREVIEWING
+    this._previewPending = true
+    const prog = this.renderRoot.querySelector('#progress-tree')
+    prog.reset()
+    prog.open = true
+
+    const res = await this.appState.apiPost(
+      `/api/importers/${ext}/file?dry_run=true`,
+      file,
+      {isJson: false, dbChanged: false}
+    )
+    if ('error' in res) {
+      prog.setError()
+      prog.errorMessage = this._(res.error)
+      this._handleCompleted(STATE_ERROR)
+      return
+    }
+    if ('task' in res) {
+      const taskId = res.task?.id || ''
+      if (taskId) {
+        this.appState.registerTask(taskId, 'Preview Import', {
+          taskName: 'importFile',
+        })
+      }
+      prog.taskId = taskId
+      return
+    }
+    prog.open = false
+    this._state = STATE_READY
+    // A plain 200 response is wrapped as {data, total_count, etag} by
+    // apiPutPostDelete (only the 202/task shape returns the body as-is).
+    this._showPreview(res.data)
+  }
+
+  _showPreview(counts) {
+    this._previewPending = false
+    this._state = STATE_READY
+    this._previewCounts = counts || {}
+    this.renderRoot.querySelector('grampsjs-import-preview-dialog').show()
+  }
+
+  async _handleImportConfirmed() {
+    const uploadForm = this.shadowRoot.querySelector('#upload-tree')
+    if (!uploadForm.file) return
+    const ext = uploadForm.file.name.split('.').pop().toLowerCase()
+    await this._submitTree(ext, uploadForm.file)
   }
 
   async _submitTree(ext, file) {
     this._state = STATE_PROGRESS
+    this._previewPending = false
     const prog = this.renderRoot.querySelector('#progress-tree')
     prog.reset()
     prog.open = true
@@ -108,6 +172,18 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       }
     } else {
       prog.setComplete()
+      this._handleSuccess()
+    }
+  }
+
+  // Both the preview (dry_run) and the real import run as the same Celery
+  // task (import_file) and share the #progress-tree indicator/taskName, so
+  // this dispatches its completion to whichever is actually in flight.
+  _handleTaskComplete(e) {
+    if (this._previewPending) {
+      const counts = JSON.parse(e.detail?.status?.result || '{}')
+      this._showPreview(counts)
+    } else {
       this._handleSuccess()
     }
   }
