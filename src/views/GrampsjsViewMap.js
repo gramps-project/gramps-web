@@ -483,10 +483,22 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _renderMapLayer(obj) {
+    const boundsAttr = obj.attribute_list?.find(
+      attr => attr.type === 'map:bounds'
+    )?.value
+    let bounds = null
+    if (boundsAttr) {
+      try {
+        bounds = JSON.parse(boundsAttr)
+      } catch {
+        bounds = null
+      }
+    }
     return html`
       <grampsjs-map-tile-layer
         handle="${obj.handle}"
         checksum="${obj.checksum}"
+        .bounds="${bounds}"
         ?hidden="${this._hiddenOverlaysHandles.includes(obj.handle)}"
       ></grampsjs-map-tile-layer>
     `
