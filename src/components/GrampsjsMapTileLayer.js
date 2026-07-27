@@ -38,7 +38,12 @@ class GrampsjsMapTileLayer extends LitElement {
   // in unspecified corner order, so normalise via min/max.
   get _sourceBounds() {
     if (!Array.isArray(this.bounds) || this.bounds.length !== 2) return null
-    const [[latA, lngA], [latB, lngB]] = this.bounds
+    const [cornerA, cornerB] = this.bounds
+    if (!Array.isArray(cornerA) || cornerA.length !== 2) return null
+    if (!Array.isArray(cornerB) || cornerB.length !== 2) return null
+    const [latA, lngA] = cornerA
+    const [latB, lngB] = cornerB
+    if (![latA, lngA, latB, lngB].every(Number.isFinite)) return null
     return [
       Math.min(lngA, lngB),
       Math.min(latA, latB),
