@@ -14,6 +14,7 @@ import {
   mdiTextBox,
   mdiImage,
   mdiFormatListChecks,
+  mdiPostOutline,
 } from '@mdi/js'
 import '@material/mwc-icon-button'
 import '@material/web/menu/menu'
@@ -37,6 +38,7 @@ const menuItems = [
   ['Note', '/new_note', mdiTextBox],
   ['Media Object', '/new_media', mdiImage],
   ['Task', '/new_task', mdiFormatListChecks],
+  ['Blog Post', '/new_blog_post', mdiPostOutline],
 ]
 
 class GrampsjsAddMenu extends GrampsjsAppStateMixin(LitElement) {

@@ -57,6 +57,7 @@ import '../views/GrampsjsViewNewRepository.js'
 import '../views/GrampsjsViewNewNote.js'
 import '../views/GrampsjsViewNewMedia.js'
 import '../views/GrampsjsViewNewTask.js'
+import '../views/GrampsjsViewNewBlogPost.js'
 import '../views/GrampsjsViewHelp.js'
 import '../views/GrampsjsViewTimeline.js'
 
@@ -401,6 +402,11 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         ?active=${this.appState.path.page === 'new_task'}
         .appState="${this.appState}"
       ></grampsjs-view-new-task>
+      <grampsjs-view-new-blog-post
+        class="page"
+        ?active=${this.appState.path.page === 'new_blog_post'}
+        .appState="${this.appState}"
+      ></grampsjs-view-new-blog-post>
       <grampsjs-view-task
         class="page"
         ?active=${this.appState.path.page === 'task'}
