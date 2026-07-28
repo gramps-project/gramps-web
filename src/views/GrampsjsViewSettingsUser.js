@@ -3,7 +3,6 @@ import {html, css} from 'lit'
 import '@material/web/button/outlined-button'
 import '@material/web/button/text-button'
 import '@material/web/dialog/dialog'
-import '@material/web/divider/divider'
 import '@material/web/list/list'
 import '@material/web/list/list-item'
 import '@material/web/select/filled-select'
@@ -165,20 +164,13 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
 
         <h3>${this._('Change password')}</h3>
         ${this.renderChangePw()}
-      </grampsjs-collapsible-section>
-
-      ${this._supportsPersistentAccessTokens()
-        ? html`
-            <grampsjs-collapsible-section
-              title="${this._('Access tokens')}"
-              description="${this._(
-                'Review and revoke long-lived access to your account'
-              )}"
-            >
+        ${this._supportsPersistentAccessTokens()
+          ? html`
+              <h3>${this._('Access tokens')}</h3>
               ${this.renderAccessTokens()}
-            </grampsjs-collapsible-section>
-          `
-        : ''}
+            `
+          : ''}
+      </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
         title="${this._('Appearance')}"
@@ -449,53 +441,71 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
   }
 
   renderAccessTokens() {
+    const activeTokens = PERSISTENT_ACCESS_TOKEN_SCOPES.filter(
+      ({scope}) => this._accessTokenStates[scope]?.status === 'active'
+    )
+    const isLoading = PERSISTENT_ACCESS_TOKEN_SCOPES.some(({scope}) =>
+      ['idle', 'loading'].includes(this._accessTokenStates[scope]?.status)
+    )
+    const hasUnavailableTokens = PERSISTENT_ACCESS_TOKEN_SCOPES.some(
+      ({scope}) => this._accessTokenStates[scope]?.status === 'unavailable'
+    )
     return html`
       <p>
         ${this._(
           'Applications and services can use persistent access tokens to access limited features of your account.'
         )}
       </p>
-      <md-list class="access-token-list">
-        ${PERSISTENT_ACCESS_TOKEN_SCOPES.map(
-          ({scope, label}) => html`
-            <md-list-item type="text" noninteractive>
-              <div slot="headline">${this._(label)}</div>
-              <div slot="supporting-text" aria-live="polite">
-                ${this._('Scope')}: <code>${scope}</code>
-                &middot; ${this._accessTokenStatusLabel(scope)}
-                ${this._accessTokenStates[scope]?.error
-                  ? html`
-                      <span class="access-token-error">
-                        &middot; ${this._accessTokenStates[scope].error}
-                      </span>
-                    `
-                  : ''}
-              </div>
-              ${this._accessTokenStates[scope]?.status === 'unavailable'
-                ? html`
+      ${activeTokens.length
+        ? html`
+            <md-list class="access-token-list">
+              ${activeTokens.map(
+                ({scope, label}) => html`
+                  <md-list-item type="text" noninteractive>
+                    <div slot="headline">${this._(label)}</div>
+                    <div slot="supporting-text" aria-live="polite">
+                      ${this._('Scope')}: <code>${scope}</code>
+                      ${this._accessTokenStates[scope]?.error
+                        ? html`
+                            <span class="access-token-error">
+                              &middot; ${this._accessTokenStates[scope].error}
+                            </span>
+                          `
+                        : ''}
+                    </div>
                     <md-outlined-button
                       slot="end"
-                      @click="${() => this._fetchAccessTokenStatus(scope)}"
-                    >
-                      ${this._('Retry')}
-                    </md-outlined-button>
-                  `
-                : html`
-                    <md-outlined-button
-                      slot="end"
-                      ?disabled="${this._accessTokenStates[scope]?.status !==
-                      'active'}"
                       @click="${() =>
                         this._requestAccessTokenRevocation(scope)}"
                     >
                       ${this._('Revoke')}
                     </md-outlined-button>
-                  `}
-            </md-list-item>
-            <md-divider></md-divider>
+                  </md-list-item>
+                `
+              )}
+            </md-list>
           `
-        )}
-      </md-list>
+        : ''}
+      ${isLoading
+        ? html`<p aria-live="polite">${this._('Loading...')}</p>`
+        : ''}
+      ${!isLoading && !hasUnavailableTokens && activeTokens.length === 0
+        ? html`<p aria-live="polite">${this._('No active access tokens.')}</p>`
+        : ''}
+      ${hasUnavailableTokens
+        ? html`
+            <p class="access-token-error" role="alert">
+              ${this._('Some access tokens could not be loaded.')}
+            </p>
+            <p>
+              <md-outlined-button
+                @click="${this._retryUnavailableAccessTokens}"
+              >
+                ${this._('Retry')}
+              </md-outlined-button>
+            </p>
+          `
+        : ''}
       ${this._pendingAccessTokenScope
         ? this._renderAccessTokenRevocationDialog()
         : ''}
@@ -510,16 +520,11 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     return `/api/users/-/access-tokens/${encodeURIComponent(scope)}/`
   }
 
-  _accessTokenStatusLabel(scope) {
-    switch (this._accessTokenStates[scope]?.status) {
-      case 'active':
-        return this._('Active')
-      case 'inactive':
-        return this._('Inactive')
-      case 'unavailable':
-        return this._('Unavailable')
-      default:
-        return this._('Loading...')
+  _retryUnavailableAccessTokens() {
+    for (const {scope} of PERSISTENT_ACCESS_TOKEN_SCOPES) {
+      if (this._accessTokenStates[scope]?.status === 'unavailable') {
+        this._fetchAccessTokenStatus(scope)
+      }
     }
   }
 

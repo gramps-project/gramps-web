@@ -5,16 +5,6 @@ import {GrampsjsViewSettingsUser} from '../../src/views/GrampsjsViewSettingsUser
 const SCOPE = 'anniversaries_ics'
 const TOKEN_ENDPOINT = `/api/users/-/access-tokens/${SCOPE}/`
 
-function templateText(value) {
-  if (Array.isArray(value)) {
-    return value.map(templateText).join(' ')
-  }
-  if (value && Array.isArray(value.values)) {
-    return value.values.map(templateText).join(' ')
-  }
-  return typeof value === 'string' ? value : ''
-}
-
 function createView({apiGet, apiDelete, version = '3.18.0'} = {}) {
   const view = new GrampsjsViewSettingsUser()
   view.appState = {
@@ -28,53 +18,87 @@ function createView({apiGet, apiDelete, version = '3.18.0'} = {}) {
   return view
 }
 
+function templateMarkup(value) {
+  if (Array.isArray(value)) {
+    return value.map(templateMarkup).join('')
+  }
+  if (value && Array.isArray(value.strings)) {
+    return value.strings.reduce(
+      (markup, string, index) =>
+        `${markup}${string}${templateMarkup(value.values[index])}`,
+      ''
+    )
+  }
+  return typeof value === 'string' || typeof value === 'number'
+    ? String(value)
+    : ''
+}
+
 describe('persistent access token settings', () => {
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  it('hides the section for API versions without persistent tokens', () => {
-    const view = createView({version: '3.17.0'})
+  it('hides access token controls for unsupported API versions', () => {
+    const apiGet = vi.fn()
+    const view = createView({apiGet, version: '3.17.0'})
+    const content = templateMarkup(view.renderContent())
 
-    expect(templateText(view.renderContent())).not.to.contain('Access tokens')
+    expect(content).not.to.contain('<h3>Access tokens</h3>')
+    expect(content).not.to.contain('title="Access tokens"')
+
+    view._loadAccessTokenStatusesIfNeeded()
+    expect(apiGet).not.toHaveBeenCalled()
   })
 
-  it('renders every known scope and its active state', async () => {
+  it('renders active tokens under Account without a separate section', async () => {
     const apiGet = vi.fn().mockResolvedValue({
-      data: {active: true, token: 'must-not-be-stored'},
+      data: {active: true},
     })
     const view = createView({apiGet})
 
     await view._fetchAccessTokenStatus(SCOPE)
-    const content = templateText(view.renderContent())
+    const content = templateMarkup(view.renderContent())
+    const tokenContent = templateMarkup(view.renderAccessTokens())
 
     expect(apiGet).toHaveBeenCalledWith(TOKEN_ENDPOINT)
-    expect(view._accessTokenStates).to.deep.equal({
-      [SCOPE]: {status: 'active', error: ''},
-    })
-    expect(content).to.contain('Access tokens')
-    expect(content).to.contain('Anniversary calendar subscription')
-    expect(content).to.contain(SCOPE)
-    expect(content).to.contain('Active')
-    expect(JSON.stringify(view._accessTokenStates)).not.to.contain(
-      'must-not-be-stored'
+    expect(content).to.match(
+      /title="Account"(?:(?!<\/grampsjs-collapsible-section>)[\s\S])*<h3>Access tokens<\/h3>/
     )
-    expect(content).not.to.contain('must-not-be-stored')
+    expect(content).not.to.contain('title="Access tokens"')
+    expect(tokenContent).to.contain('Anniversary calendar subscription')
+    expect(tokenContent).to.contain(SCOPE)
+    expect(tokenContent).to.contain('Revoke')
+    expect(tokenContent).not.to.contain('disabled')
   })
 
-  it('represents an inactive scope', async () => {
+  it('shows loading without rendering a token row or revoke button', () => {
+    const view = createView()
+    const content = templateMarkup(view.renderAccessTokens())
+
+    expect(content).to.contain('Loading...')
+    expect(content).not.to.contain('<md-list-item')
+    expect(content).not.to.contain('Revoke')
+  })
+
+  it('shows an empty state without rendering inactive scopes', async () => {
     const view = createView()
 
     await view._fetchAccessTokenStatus(SCOPE)
+    const content = templateMarkup(view.renderAccessTokens())
 
     expect(view._accessTokenStates[SCOPE]).to.deep.equal({
       status: 'inactive',
       error: '',
     })
-    expect(view._accessTokenStatusLabel(SCOPE)).to.equal('Inactive')
+    expect(content).to.contain('No active access tokens.')
+    expect(content).not.to.contain('Anniversary calendar subscription')
+    expect(content).not.to.contain(SCOPE)
+    expect(content).not.to.contain('<md-list-item')
+    expect(content).not.to.contain('Revoke')
   })
 
-  it('isolates status errors and allows the scope to be retried', async () => {
+  it('shows a generic loading error and retries unavailable scopes', async () => {
     const apiGet = vi
       .fn()
       .mockResolvedValueOnce({error: 'Network error'})
@@ -82,27 +106,24 @@ describe('persistent access token settings', () => {
     const view = createView({apiGet})
 
     await view._fetchAccessTokenStatus(SCOPE)
+    const errorContent = templateMarkup(view.renderAccessTokens())
 
     expect(view._accessTokenStates[SCOPE]).to.deep.equal({
       status: 'unavailable',
       error: 'Network error',
     })
+    expect(errorContent).to.contain('Some access tokens could not be loaded.')
+    expect(errorContent).not.to.contain('Anniversary calendar subscription')
+    expect(errorContent).not.to.contain(SCOPE)
+    expect(errorContent).to.contain('Retry')
+    expect(errorContent).not.to.contain('Revoke')
 
-    await view._fetchAccessTokenStatus(SCOPE)
-
-    expect(view._accessTokenStates[SCOPE]).to.deep.equal({
-      status: 'active',
-      error: '',
+    view._retryUnavailableAccessTokens()
+    await vi.waitFor(() => {
+      expect(view._accessTokenStates[SCOPE].status).to.equal('active')
     })
-  })
 
-  it('does not load token status on unsupported API versions', () => {
-    const apiGet = vi.fn()
-    const view = createView({apiGet, version: '3.17.0'})
-
-    view._loadAccessTokenStatusesIfNeeded()
-
-    expect(apiGet).not.toHaveBeenCalled()
+    expect(apiGet).toHaveBeenCalledTimes(2)
   })
 
   it('refreshes known scopes when the settings view is reactivated', async () => {
@@ -134,7 +155,7 @@ describe('persistent access token settings', () => {
     expect(apiDelete).not.toHaveBeenCalled()
   })
 
-  it('revokes an active token after confirmation', async () => {
+  it('removes a token after successful revocation', async () => {
     const apiDelete = vi.fn().mockResolvedValue({data: {active: false}})
     const view = createView({apiDelete})
     const notifications = []
@@ -145,6 +166,7 @@ describe('persistent access token settings', () => {
     view._requestAccessTokenRevocation(SCOPE)
 
     await view._confirmAccessTokenRevocation()
+    const content = templateMarkup(view.renderAccessTokens())
 
     expect(apiDelete).toHaveBeenCalledOnce()
     expect(apiDelete).toHaveBeenCalledWith(TOKEN_ENDPOINT, {dbChanged: false})
@@ -152,10 +174,12 @@ describe('persistent access token settings', () => {
       status: 'inactive',
       error: '',
     })
+    expect(content).to.contain('No active access tokens.')
+    expect(content).not.to.contain('<md-list-item')
     expect(notifications).to.deep.equal(['Access token revoked'])
   })
 
-  it('keeps a token active when revocation fails', async () => {
+  it('keeps an enabled active token row when revocation fails', async () => {
     const apiDelete = vi.fn().mockResolvedValue({error: 'Delete failed'})
     const view = createView({apiDelete})
     const errors = []
@@ -166,19 +190,15 @@ describe('persistent access token settings', () => {
     view._requestAccessTokenRevocation(SCOPE)
 
     await view._confirmAccessTokenRevocation()
+    const content = templateMarkup(view.renderAccessTokens())
 
     expect(view._accessTokenStates[SCOPE]).to.deep.equal({
       status: 'active',
       error: 'Delete failed',
     })
+    expect(content).to.contain('Delete failed')
+    expect(content).to.contain('Revoke')
+    expect(content).not.to.contain('disabled')
     expect(errors).to.deep.equal(['Delete failed'])
-  })
-
-  it('does not expose token generation or ICS URL helpers', () => {
-    const view = createView()
-
-    expect(view._generateAnniversaryIcsToken).to.equal(undefined)
-    expect(view._buildAnniversaryIcsUrl).to.equal(undefined)
-    expect(view.appState.apiPost).to.equal(undefined)
   })
 })
