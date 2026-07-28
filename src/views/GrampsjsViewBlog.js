@@ -1,7 +1,10 @@
 import {css, html} from 'lit'
+import {mdiPostOutline} from '@mdi/js'
 
+import '@material/web/fab/fab.js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsBlogPostPreview.js'
+import '../components/GrampsjsIcon.js'
 
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
@@ -41,6 +44,12 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
           outline: 2px solid var(--grampsjs-body-font-color-10);
           border-radius: 5px;
         }
+
+        md-fab {
+          position: fixed;
+          bottom: 32px;
+          right: 32px;
+        }
       `,
     ]
   }
@@ -70,7 +79,24 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
     return html`
       ${this.renderPosts()}
       ${this._totalCount > 0 ? this.renderPagination() : ''}
+      ${this.appState.permissions.canAdd ? this.renderFab() : ''}
     `
+  }
+
+  renderFab() {
+    return html`
+      <md-fab variant="secondary" @click=${this._handleClickAdd}>
+        <grampsjs-icon
+          slot="icon"
+          .path="${mdiPostOutline}"
+          color="var(--mdc-theme-on-secondary)"
+        ></grampsjs-icon>
+      </md-fab>
+    `
+  }
+
+  _handleClickAdd() {
+    fireEvent(this, 'nav', {path: 'new_blog_post'})
   }
 
   renderPosts() {
