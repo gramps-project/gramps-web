@@ -80,7 +80,7 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
     const selectDate = this.shadowRoot.querySelector(
       'grampsjs-form-select-date'
     )
-    if (!selectDate !== null && !selectDate.isValid()) {
+    if (selectDate !== null && !selectDate.isValid()) {
       valid = false
     }
     this.isFormValid = valid
