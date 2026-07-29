@@ -641,6 +641,9 @@ export async function createFirstTree(appState, name) {
   const res = await appState.apiPost('/api/trees/', {name}, {dbChanged: false})
   if ('error' in res) return res
   const treeId = res.data?.id
+  if (!treeId) {
+    return {error: 'Tree creation did not return an id'}
+  }
   const res2 = await appState.apiPut(
     '/api/users/-/',
     {tree: treeId},
