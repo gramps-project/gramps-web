@@ -41,6 +41,27 @@ describe('appStateUpdatePermissions', () => {
     expect(result.permissions.canEdit).to.be.true
   })
 
+  it('sets canViewOtherTree when ViewOtherTree permission is present', () => {
+    localStorage.setItem(
+      'access_token',
+      makeFakeJwt({permissions: ['ViewOtherTree'], exp: 9999999999})
+    )
+    const result = appStateUpdatePermissions(BASE_STATE)
+    expect(result.permissions.canViewOtherTree).to.be.true
+  })
+
+  it('does not set canViewOtherTree for an owner-level token', () => {
+    localStorage.setItem(
+      'access_token',
+      makeFakeJwt({
+        permissions: ['AddObject', 'EditObject', 'EditOtherUser'],
+        exp: 9999999999,
+      })
+    )
+    const result = appStateUpdatePermissions(BASE_STATE)
+    expect(result.permissions.canViewOtherTree).to.be.false
+  })
+
   it('sets all permissions for owner-level token', () => {
     localStorage.setItem(
       'access_token',

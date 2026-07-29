@@ -301,7 +301,7 @@ export function getInitialAppState() {
       canUseChat: false,
       canUpgradeTree: false,
       canEditTree: false,
-      isAdmin: false,
+      canViewOtherTree: false,
     },
     i18n: {
       strings: {},
@@ -417,9 +417,9 @@ export function appStateUpdatePermissions(appState) {
     canUseChat: rawPermissions.includes('UseChat'),
     canUpgradeTree: rawPermissions.includes('UpgradeSchema'),
     canEditTree: rawPermissions.includes('EditTree'),
-    // ViewOtherTree is granted to server Administrators only, not Owners -
-    // used to gate server-wide actions like creating a new tree.
-    isAdmin: rawPermissions.includes('ViewOtherTree'),
+    // Granted to server Administrators only, not Owners - used to gate
+    // server-wide actions like creating a new tree.
+    canViewOtherTree: rawPermissions.includes('ViewOtherTree'),
   }
   // Return the same object reference if permissions haven't changed,
   // to avoid triggering unnecessary re-renders (which would reset open dialogs).

@@ -1,7 +1,7 @@
 import {html, css, LitElement} from 'lit'
 
-import '@material/mwc-button'
-import '@material/mwc-textfield'
+import '@material/web/button/filled-button.js'
+import '@material/web/textfield/outlined-text-field.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {createFirstTree} from '../api.js'
@@ -27,7 +27,7 @@ class GrampsjsCreateTree extends GrampsjsAppStateMixin(LitElement) {
           padding: 3em 1.5em;
         }
 
-        mwc-textfield {
+        md-outlined-text-field {
           width: 100%;
           margin-bottom: 0.7em;
         }
@@ -73,22 +73,18 @@ class GrampsjsCreateTree extends GrampsjsAppStateMixin(LitElement) {
             'Choose a name for your family tree. You can change this later.'
           )}
         </p>
-        <mwc-textfield
-          outlined
+        <md-outlined-text-field
           id="tree-name"
           label="${this._('Tree name')}"
-          type="text"
           value="${this._('My Family Tree')}"
-        ></mwc-textfield>
+        ></md-outlined-text-field>
         <p>
-          <mwc-button
-            raised
-            label="${this._('Submit')}"
-            type="submit"
+          <md-filled-button
             @click="${this._submit}"
             ?disabled=${this.state === STATE_PROGRESS}
           >
-          </mwc-button>
+            ${this._('Submit')}
+          </md-filled-button>
           <span class="progress">
             <grampsjs-progress-indicator
               ?open="${this.state !== STATE_INITIAL}"

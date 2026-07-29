@@ -634,11 +634,18 @@ export async function apiGetTokens(username, password) {
 // Creates the first tree for a user whose token has no `tree` claim yet,
 // assigns it via the one-time `PUT /users/-/` onboarding write, and
 // refreshes the stored access token so it picks up the new claim.
+// db:changed is suppressed for the intermediate calls: firing it before the
+// token refresh completes would send <gramps-js> back into the "no tree"
+// state via its own db:changed handler, even though this is about to succeed.
 export async function createFirstTree(appState, name) {
-  const res = await appState.apiPost('/api/trees/', {name})
+  const res = await appState.apiPost('/api/trees/', {name}, {dbChanged: false})
   if ('error' in res) return res
   const treeId = res.data?.id
-  const res2 = await appState.apiPut('/api/users/-/', {tree: treeId})
+  const res2 = await appState.apiPut(
+    '/api/users/-/',
+    {tree: treeId},
+    {dbChanged: false}
+  )
   if ('error' in res2) return res2
   await appState.refreshTokenIfNeeded(true)
   return {}

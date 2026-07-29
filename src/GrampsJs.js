@@ -9,6 +9,8 @@ import '@material/mwc-menu'
 import '@material/mwc-snackbar'
 import '@material/mwc-textfield'
 import '@material/mwc-top-app-bar'
+import '@material/web/button/filled-button.js'
+import {mdiLogout} from '@mdi/js'
 import {LitElement, css, html} from 'lit'
 import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
 import {installRouter} from 'pwa-helpers/router.js'
@@ -34,6 +36,7 @@ import './components/GrampsjsAppBar.js'
 import './components/GrampsjsDnaTabBar.js'
 import './components/GrampsjsCreateTree.js'
 import './components/GrampsjsFirstRun.js'
+import './components/GrampsjsIcon.js'
 import './components/GrampsjsFormRegister.js'
 import './components/GrampsjsLogin.js'
 import './components/GrampsjsMainMenu.js'
@@ -540,7 +543,7 @@ export class GrampsJs extends LitElement {
   }
 
   _renderNoTree() {
-    if (this.appState.permissions.isAdmin) {
+    if (this.appState.permissions.canViewOtherTree) {
       return html`
         <grampsjs-create-tree
           .appState="${this.appState}"
@@ -552,12 +555,14 @@ export class GrampsJs extends LitElement {
       <div>
         ${this._('Waiting for an administrator to set up your family tree.')}
         <br /><br />
-        <mwc-button
-          outlined
-          label="${this._('Log out')}"
-          icon="exit_to_app"
-          @click=${() => this.appState.signout()}
-        ></mwc-button>
+        <md-filled-button @click=${() => this.appState.signout()}>
+          <grampsjs-icon
+            slot="icon"
+            .path="${mdiLogout}"
+            color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+          ></grampsjs-icon>
+          ${this._('Log out')}
+        </md-filled-button>
       </div>
     </div>`
   }
@@ -591,7 +596,9 @@ export class GrampsJs extends LitElement {
       return this._renderFirstRun()
     }
     if (this.loadingState === LOADING_STATE_NO_TREE) {
-      window.history.pushState({}, '', 'create-tree')
+      if (this.appState.path.page !== 'create-tree') {
+        window.history.pushState({}, '', 'create-tree')
+      }
       return this._renderNoTree()
     }
     if (!this.appState.settings.lang) {

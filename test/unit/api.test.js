@@ -5,6 +5,7 @@ import {
   apiRegisterUser,
   apiResetPassword,
   apiGetOIDCConfig,
+  createFirstTree,
   updateTaskStatus,
 } from '../../src/api.js'
 
@@ -124,6 +125,56 @@ describe('apiGetTokens error handling', () => {
     const result = await apiGetTokens('user', 'pass')
     expect(result.error).toBeDefined()
     expect(result.error).not.toBe('Access token missing in response')
+  })
+})
+
+describe('createFirstTree', () => {
+  function makeAppState({postResult, putResult} = {}) {
+    return {
+      apiPost: vi
+        .fn()
+        .mockResolvedValue(postResult ?? {data: {id: 'tree-123'}}),
+      apiPut: vi.fn().mockResolvedValue(putResult ?? {data: {}}),
+      refreshTokenIfNeeded: vi.fn().mockResolvedValue(undefined),
+    }
+  }
+
+  it('creates the tree, assigns it, and refreshes the token', async () => {
+    const appState = makeAppState()
+
+    const result = await createFirstTree(appState, 'My Family Tree')
+
+    expect(appState.apiPost).toHaveBeenCalledWith(
+      '/api/trees/',
+      {name: 'My Family Tree'},
+      {dbChanged: false}
+    )
+    expect(appState.apiPut).toHaveBeenCalledWith(
+      '/api/users/-/',
+      {tree: 'tree-123'},
+      {dbChanged: false}
+    )
+    expect(appState.refreshTokenIfNeeded).toHaveBeenCalledWith(true)
+    expect(result).toEqual({})
+  })
+
+  it('propagates an error from creating the tree without assigning it', async () => {
+    const appState = makeAppState({postResult: {error: 'Tree is required'}})
+
+    const result = await createFirstTree(appState, 'My Family Tree')
+
+    expect(result).toEqual({error: 'Tree is required'})
+    expect(appState.apiPut).not.toHaveBeenCalled()
+    expect(appState.refreshTokenIfNeeded).not.toHaveBeenCalled()
+  })
+
+  it('propagates an error from assigning the tree without refreshing the token', async () => {
+    const appState = makeAppState({putResult: {error: 'Not authorized'}})
+
+    const result = await createFirstTree(appState, 'My Family Tree')
+
+    expect(result).toEqual({error: 'Not authorized'})
+    expect(appState.refreshTokenIfNeeded).not.toHaveBeenCalled()
   })
 })
 
