@@ -15,6 +15,7 @@ import {installRouter} from 'pwa-helpers/router.js'
 import {
   getSettings,
   getTreeConfig,
+  getTreeId,
   cleanOldDrafts,
   TREE_CONFIG_APP_TITLE,
   TREE_CONFIG_PRIMARY_COLOR,
@@ -31,6 +32,7 @@ import {fireEvent, getBrowserLanguage, apiVersionAtLeast} from './util.js'
 import {appStateUpdatePermissions, getInitialAppState} from './appState.js'
 import './components/GrampsjsAppBar.js'
 import './components/GrampsjsDnaTabBar.js'
+import './components/GrampsjsCreateTree.js'
 import './components/GrampsjsFirstRun.js'
 import './components/GrampsjsFormRegister.js'
 import './components/GrampsjsLogin.js'
@@ -52,7 +54,7 @@ const LOADING_STATE_UNAUTHORIZED = 1
 const LOADING_STATE_UNAUTHORIZED_NOCONNECTION = 2
 const LOADING_STATE_NO_OWNER = 3
 const LOADING_STATE_DB_SCHEMA_MISMATCH = 4
-// const LOADING_STATE_MISSING_SETTINGS = 5
+const LOADING_STATE_NO_TREE = 5
 const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
@@ -537,6 +539,29 @@ export class GrampsJs extends LitElement {
     `
   }
 
+  _renderNoTree() {
+    if (this.appState.permissions.isAdmin) {
+      return html`
+        <grampsjs-create-tree
+          .appState="${this.appState}"
+          @tree:created="${this._handleTreeCreated}"
+        ></grampsjs-create-tree>
+      `
+    }
+    return html`<div class="center-xy">
+      <div>
+        ${this._('Waiting for an administrator to set up your family tree.')}
+        <br /><br />
+        <mwc-button
+          outlined
+          label="${this._('Log out')}"
+          icon="exit_to_app"
+          @click=${() => this.appState.signout()}
+        ></mwc-button>
+      </div>
+    </div>`
+  }
+
   renderContent() {
     if (this.loadingState === LOADING_STATE_INITIAL) {
       return this._renderInitial()
@@ -564,6 +589,10 @@ export class GrampsJs extends LitElement {
     if (this.loadingState === LOADING_STATE_NO_OWNER) {
       window.history.pushState({}, '', 'firstrun')
       return this._renderFirstRun()
+    }
+    if (this.loadingState === LOADING_STATE_NO_TREE) {
+      window.history.pushState({}, '', 'create-tree')
+      return this._renderNoTree()
     }
     if (!this.appState.settings.lang) {
       // this can only happen if the user has not set the language
@@ -661,6 +690,11 @@ export class GrampsJs extends LitElement {
     document.location.href = '/'
   }
 
+  _handleTreeCreated() {
+    this.loadingState = LOADING_STATE_INITIAL
+    this._loadDbInfo()
+  }
+
   connectedCallback() {
     super.connectedCallback()
 
@@ -677,6 +711,9 @@ export class GrampsJs extends LitElement {
       this._handleRequestsChanged.bind(this)
     )
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
+    window.addEventListener('tree:missing', () => {
+      this.loadingState = LOADING_STATE_NO_TREE
+    })
     this.addEventListener('drawer:toggle', this._toggleDrawer)
     window.addEventListener('keydown', event => this._handleKey(event))
     window.addEventListener('shortcuts:show', event =>
@@ -824,6 +861,11 @@ export class GrampsJs extends LitElement {
         }
         if (!this._checkDbSchema()) {
           this.setPermissions()
+          return
+        }
+        if (!getTreeId()) {
+          this.setPermissions()
+          this.loadingState = LOADING_STATE_NO_TREE
           return
         }
         if (setReady) {

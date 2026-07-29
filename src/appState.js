@@ -2,6 +2,7 @@ import {
   getSettings,
   getPermissions,
   getTreeConfig,
+  getTreeId,
   setTreeConfig,
   apiGet,
   Auth,
@@ -276,6 +277,15 @@ export function getInitialAppState() {
     return result
   }
 
+  // Ordinary permission-denied 403s use the same error envelope, so treat
+  // the status only as a trigger to check the token, not the message text.
+  function checkTreeMissing(result) {
+    if (result?.errorDetail?.status === 403 && !getTreeId()) {
+      fireEvent(window, 'tree:missing')
+    }
+    return result
+  }
+
   return {
     auth,
     screenSize: 'small',
@@ -291,6 +301,7 @@ export function getInitialAppState() {
       canUseChat: false,
       canUpgradeTree: false,
       canEditTree: false,
+      isAdmin: false,
     },
     i18n: {
       strings: {},
@@ -304,10 +315,12 @@ export function getInitialAppState() {
     apiGet: endpoint => {
       activeGetCount += 1
       notifyCounters()
-      return apiGet(auth, endpoint).finally(() => {
-        activeGetCount = Math.max(0, activeGetCount - 1)
-        notifyCounters()
-      })
+      return apiGet(auth, endpoint)
+        .finally(() => {
+          activeGetCount = Math.max(0, activeGetCount - 1)
+          notifyCounters()
+        })
+        .then(checkTreeMissing)
     },
     apiPost: (endpoint, payload, options = {}) => {
       const {saving: isSave = true} = options
@@ -316,9 +329,9 @@ export function getInitialAppState() {
         activeSaveCount += 1
         notifyCounters()
       }
-      return apiPutPostDelete(auth, 'POST', endpoint, payload, options).then(
-        result => (isSave ? completeSave(result) : result)
-      )
+      return apiPutPostDelete(auth, 'POST', endpoint, payload, options)
+        .then(result => (isSave ? completeSave(result) : result))
+        .then(checkTreeMissing)
     },
     apiPut: (endpoint, payload, options = {}) => {
       const {saving: isSave = true} = options
@@ -327,9 +340,9 @@ export function getInitialAppState() {
         activeSaveCount += 1
         notifyCounters()
       }
-      return apiPutPostDelete(auth, 'PUT', endpoint, payload, options).then(
-        result => (isSave ? completeSave(result) : result)
-      )
+      return apiPutPostDelete(auth, 'PUT', endpoint, payload, options)
+        .then(result => (isSave ? completeSave(result) : result))
+        .then(checkTreeMissing)
     },
     apiDelete: (endpoint, options = {}) => {
       const {saving: isSave = true} = options
@@ -338,9 +351,9 @@ export function getInitialAppState() {
         activeSaveCount += 1
         notifyCounters()
       }
-      return apiPutPostDelete(auth, 'DELETE', endpoint, {}, options).then(
-        result => (isSave ? completeSave(result) : result)
-      )
+      return apiPutPostDelete(auth, 'DELETE', endpoint, {}, options)
+        .then(result => (isSave ? completeSave(result) : result))
+        .then(checkTreeMissing)
     },
     refreshTokenIfNeeded: (force = false) => auth.getValidAccessToken(force),
     signout: () => auth.signout(),
@@ -404,6 +417,9 @@ export function appStateUpdatePermissions(appState) {
     canUseChat: rawPermissions.includes('UseChat'),
     canUpgradeTree: rawPermissions.includes('UpgradeSchema'),
     canEditTree: rawPermissions.includes('EditTree'),
+    // ViewOtherTree is granted to server Administrators only, not Owners -
+    // used to gate server-wide actions like creating a new tree.
+    isAdmin: rawPermissions.includes('ViewOtherTree'),
   }
   // Return the same object reference if permissions haven't changed,
   // to avoid triggering unnecessary re-renders (which would reset open dialogs).

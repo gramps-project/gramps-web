@@ -631,6 +631,19 @@ export async function apiGetTokens(username, password) {
   }
 }
 
+// Creates the first tree for a user whose token has no `tree` claim yet,
+// assigns it via the one-time `PUT /users/-/` onboarding write, and
+// refreshes the stored access token so it picks up the new claim.
+export async function createFirstTree(appState, name) {
+  const res = await appState.apiPost('/api/trees/', {name})
+  if ('error' in res) return res
+  const treeId = res.data?.id
+  const res2 = await appState.apiPut('/api/users/-/', {tree: treeId})
+  if ('error' in res2) return res2
+  await appState.refreshTokenIfNeeded(true)
+  return {}
+}
+
 export function getExporterUrl(id, options) {
   const jwt = localStorage.getItem('access_token')
   const queryParam = new URLSearchParams(options).toString()
@@ -945,7 +958,9 @@ export async function apiGet(auth, endpoint) {
       resJson = {}
     }
     if (resp.status === 403) {
-      throw new Error('Authorization error')
+      throw new Error(
+        resJson?.error?.message || resJson?.message || 'Authorization error'
+      )
     }
     if (resp.status !== 200) {
       throw new Error(
@@ -1012,7 +1027,9 @@ export async function apiPutPostDelete(
       }
     }
     if (resp.status === 403) {
-      throw new Error('Not authorized')
+      throw new Error(
+        resJson?.error?.message || resJson?.message || 'Not authorized'
+      )
     }
     if (resp.status !== 201 && resp.status !== 200 && resp.status !== 202) {
       throw new Error(
