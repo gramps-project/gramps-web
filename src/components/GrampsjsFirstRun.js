@@ -7,7 +7,12 @@ import '@material/mwc-circular-progress'
 
 import {mdiCheckCircle} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
-import {__APIHOST__, apiGetTokens, getTreeFromToken} from '../api.js'
+import {
+  __APIHOST__,
+  apiGetTokens,
+  createFirstTree,
+  getTreeFromToken,
+} from '../api.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsFormUpload.js'
@@ -81,6 +86,7 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
       token: {type: String},
       stateUser: {type: Number},
       stateConfig: {type: Number},
+      stateTree: {type: Number},
       _errorUser: {type: String},
       _errorConfig: {type: String},
       _errorTree: {type: String},
@@ -94,6 +100,7 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
     this.token = ''
     this.stateUser = STATE_INITIAL
     this.stateConfig = STATE_INITIAL
+    this.stateTree = STATE_INITIAL
     this._errorUser = ''
     this._errorConfig = ''
     this._errorTree = ''
@@ -158,6 +165,23 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
             type="text"
           ></mwc-textfield>
 
+          ${this._tree
+            ? ''
+            : html`
+                <h3>${this._('Name your first tree')}</h3>
+                <p>
+                  ${this._(
+                    'Choose a name for your family tree. You can change this later.'
+                  )}
+                </p>
+                <mwc-textfield
+                  outlined
+                  id="tree_name"
+                  label="${this._('Tree name')}"
+                  type="text"
+                  value="${this._('My Family Tree')}"
+                ></mwc-textfield>
+              `}
           ${this._tree
             ? ''
             : html`
@@ -248,6 +272,13 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
             ${this._tree
               ? ''
               : this._showProgress(
+                  this._('Creating your first tree'),
+                  this.stateTree,
+                  this._errorTree
+                )}
+            ${this._tree
+              ? ''
+              : this._showProgress(
                   this._('Storing configuration'),
                   this.stateConfig,
                   this._errorConfig
@@ -256,6 +287,7 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
 
           <div
             style="visibility:${this.stateUser === STATE_DONE &&
+            (this._tree || this.stateTree === STATE_DONE) &&
             this.stateConfig !== STATE_PROGRESS
               ? 'visible'
               : 'hidden'};"
@@ -305,6 +337,13 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
       this.stateUser = STATE_ERROR
       this._errorUser = resp.error || ''
       return
+    }
+
+    if (!this._tree) {
+      await this._submitTree()
+      if (this.stateTree === STATE_ERROR) {
+        return
+      }
     }
 
     if (this.stateConfig === STATE_READY) {
@@ -358,6 +397,19 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
       this.stateUser = STATE_ERROR
       this._errorUser = `${error}` || ''
     }
+  }
+
+  async _submitTree() {
+    this.stateTree = STATE_PROGRESS
+    const field = this.shadowRoot.querySelector('#tree_name')
+    const name = field?.value || this._('My Family Tree')
+    const res = await createFirstTree(this.appState, name)
+    if ('error' in res) {
+      this.stateTree = STATE_ERROR
+      this._errorTree = res.error || ''
+      return
+    }
+    this.stateTree = STATE_DONE
   }
 
   async _submitConfig() {

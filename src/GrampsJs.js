@@ -9,12 +9,15 @@ import '@material/mwc-menu'
 import '@material/mwc-snackbar'
 import '@material/mwc-textfield'
 import '@material/mwc-top-app-bar'
+import '@material/web/button/filled-button.js'
+import {mdiLogout} from '@mdi/js'
 import {LitElement, css, html} from 'lit'
 import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
 import {installRouter} from 'pwa-helpers/router.js'
 import {
   getSettings,
   getTreeConfig,
+  getTreeId,
   cleanOldDrafts,
   TREE_CONFIG_APP_TITLE,
   TREE_CONFIG_PRIMARY_COLOR,
@@ -29,9 +32,21 @@ import {
 import {fireEvent, getBrowserLanguage, apiVersionAtLeast} from './util.js'
 
 import {appStateUpdatePermissions, getInitialAppState} from './appState.js'
+import {
+  LOADING_STATE_INITIAL,
+  LOADING_STATE_UNAUTHORIZED,
+  LOADING_STATE_UNAUTHORIZED_NOCONNECTION,
+  LOADING_STATE_NO_OWNER,
+  LOADING_STATE_DB_SCHEMA_MISMATCH,
+  LOADING_STATE_NO_TREE,
+  LOADING_STATE_READY,
+  selectPreReadyView,
+} from './routing.js'
 import './components/GrampsjsAppBar.js'
 import './components/GrampsjsDnaTabBar.js'
+import './components/GrampsjsCreateTree.js'
 import './components/GrampsjsFirstRun.js'
+import './components/GrampsjsIcon.js'
 import './components/GrampsjsFormRegister.js'
 import './components/GrampsjsLogin.js'
 import './components/GrampsjsMainMenu.js'
@@ -46,14 +61,6 @@ import '@material/web/dialog/dialog.js'
 import {sharedStyles} from './SharedStyles.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from './theme.js'
 import {handleOIDCCallback, handleOIDCComplete} from './oidc.js'
-
-const LOADING_STATE_INITIAL = 0
-const LOADING_STATE_UNAUTHORIZED = 1
-const LOADING_STATE_UNAUTHORIZED_NOCONNECTION = 2
-const LOADING_STATE_NO_OWNER = 3
-const LOADING_STATE_DB_SCHEMA_MISMATCH = 4
-// const LOADING_STATE_MISSING_SETTINGS = 5
-const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
 
@@ -537,33 +544,68 @@ export class GrampsJs extends LitElement {
     `
   }
 
-  renderContent() {
-    if (this.loadingState === LOADING_STATE_INITIAL) {
-      return this._renderInitial()
+  _renderCreateTree() {
+    return html`
+      <grampsjs-create-tree
+        .appState="${this.appState}"
+        @tree:created="${this._handleTreeCreated}"
+      ></grampsjs-create-tree>
+    `
+  }
+
+  _renderNoTreeWait() {
+    return html`<div class="center-xy">
+      <div>
+        ${this._('Waiting for an administrator to set up your family tree.')}
+        <br /><br />
+        <md-filled-button @click=${() => this.appState.signout()}>
+          <grampsjs-icon
+            slot="icon"
+            .path="${mdiLogout}"
+            color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+          ></grampsjs-icon>
+          ${this._('Log out')}
+        </md-filled-button>
+      </div>
+    </div>`
+  }
+
+  // Turn a selectPreReadyView() decision into navigation side-effects + render.
+  _renderPreReadyView(decision) {
+    if (decision.redirect) {
+      window.location.href = decision.redirect
     }
-    if (this.loadingState === LOADING_STATE_UNAUTHORIZED_NOCONNECTION) {
-      return this._renderNoConn()
+    if (decision.navigateTo) {
+      window.history.pushState({}, '', decision.navigateTo)
     }
-    if (this.loadingState === LOADING_STATE_UNAUTHORIZED) {
-      const {loginRedirect} = this.appState.frontendConfig
-      if (
-        loginRedirect &&
-        this.appState.path.page !== 'login' &&
-        this.appState.path.page !== 'register'
-      ) {
-        window.location.href = loginRedirect
-      }
-      if (this.appState.path.page === 'register') {
+    switch (decision.view) {
+      case 'initial':
+        return this._renderInitial()
+      case 'noconn':
+        return this._renderNoConn()
+      case 'register':
         return this._renderRegister()
-      }
-      if (this.appState.path.page !== 'login') {
-        window.history.pushState({}, '', 'login')
-      }
-      return this._renderLogin()
+      case 'login':
+        return this._renderLogin()
+      case 'firstrun':
+        return this._renderFirstRun()
+      case 'create-tree':
+        return this._renderCreateTree()
+      case 'no-tree-wait':
+        return this._renderNoTreeWait()
+      default:
+        return html``
     }
-    if (this.loadingState === LOADING_STATE_NO_OWNER) {
-      window.history.pushState({}, '', 'firstrun')
-      return this._renderFirstRun()
+  }
+
+  renderContent() {
+    const decision = selectPreReadyView(this.loadingState, {
+      page: this.appState.path.page,
+      permissions: this.appState.permissions,
+      frontendConfig: this.appState.frontendConfig,
+    })
+    if (decision.view !== 'continue') {
+      return this._renderPreReadyView(decision)
     }
     if (!this.appState.settings.lang) {
       // this can only happen if the user has not set the language
@@ -661,6 +703,11 @@ export class GrampsJs extends LitElement {
     document.location.href = '/'
   }
 
+  _handleTreeCreated() {
+    this.loadingState = LOADING_STATE_INITIAL
+    this._loadDbInfo()
+  }
+
   connectedCallback() {
     super.connectedCallback()
 
@@ -677,6 +724,9 @@ export class GrampsJs extends LitElement {
       this._handleRequestsChanged.bind(this)
     )
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
+    window.addEventListener('tree:missing', () => {
+      this.loadingState = LOADING_STATE_NO_TREE
+    })
     this.addEventListener('drawer:toggle', this._toggleDrawer)
     window.addEventListener('keydown', event => this._handleKey(event))
     window.addEventListener('shortcuts:show', event =>
@@ -824,6 +874,11 @@ export class GrampsJs extends LitElement {
         }
         if (!this._checkDbSchema()) {
           this.setPermissions()
+          return
+        }
+        if (!getTreeId()) {
+          this.setPermissions()
+          this.loadingState = LOADING_STATE_NO_TREE
           return
         }
         if (setReady) {

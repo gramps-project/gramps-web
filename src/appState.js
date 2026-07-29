@@ -2,6 +2,7 @@ import {
   getSettings,
   getPermissions,
   getTreeConfig,
+  getTreeId,
   setTreeConfig,
   apiGet,
   Auth,
@@ -276,6 +277,13 @@ export function getInitialAppState() {
     return result
   }
 
+  function checkTreeMissing(result) {
+    if (shouldSignalTreeMissing(result, getTreeId())) {
+      fireEvent(window, 'tree:missing')
+    }
+    return result
+  }
+
   return {
     auth,
     screenSize: 'small',
@@ -291,6 +299,7 @@ export function getInitialAppState() {
       canUseChat: false,
       canUpgradeTree: false,
       canEditTree: false,
+      canViewOtherTree: false,
     },
     i18n: {
       strings: {},
@@ -304,10 +313,12 @@ export function getInitialAppState() {
     apiGet: endpoint => {
       activeGetCount += 1
       notifyCounters()
-      return apiGet(auth, endpoint).finally(() => {
-        activeGetCount = Math.max(0, activeGetCount - 1)
-        notifyCounters()
-      })
+      return apiGet(auth, endpoint)
+        .finally(() => {
+          activeGetCount = Math.max(0, activeGetCount - 1)
+          notifyCounters()
+        })
+        .then(checkTreeMissing)
     },
     apiPost: (endpoint, payload, options = {}) => {
       const {saving: isSave = true} = options
@@ -316,9 +327,9 @@ export function getInitialAppState() {
         activeSaveCount += 1
         notifyCounters()
       }
-      return apiPutPostDelete(auth, 'POST', endpoint, payload, options).then(
-        result => (isSave ? completeSave(result) : result)
-      )
+      return apiPutPostDelete(auth, 'POST', endpoint, payload, options)
+        .then(result => (isSave ? completeSave(result) : result))
+        .then(checkTreeMissing)
     },
     apiPut: (endpoint, payload, options = {}) => {
       const {saving: isSave = true} = options
@@ -327,9 +338,9 @@ export function getInitialAppState() {
         activeSaveCount += 1
         notifyCounters()
       }
-      return apiPutPostDelete(auth, 'PUT', endpoint, payload, options).then(
-        result => (isSave ? completeSave(result) : result)
-      )
+      return apiPutPostDelete(auth, 'PUT', endpoint, payload, options)
+        .then(result => (isSave ? completeSave(result) : result))
+        .then(checkTreeMissing)
     },
     apiDelete: (endpoint, options = {}) => {
       const {saving: isSave = true} = options
@@ -338,9 +349,9 @@ export function getInitialAppState() {
         activeSaveCount += 1
         notifyCounters()
       }
-      return apiPutPostDelete(auth, 'DELETE', endpoint, {}, options).then(
-        result => (isSave ? completeSave(result) : result)
-      )
+      return apiPutPostDelete(auth, 'DELETE', endpoint, {}, options)
+        .then(result => (isSave ? completeSave(result) : result))
+        .then(checkTreeMissing)
     },
     refreshTokenIfNeeded: (force = false) => auth.getValidAccessToken(force),
     signout: () => auth.signout(),
@@ -394,6 +405,14 @@ export function getInitialAppState() {
   }
 }
 
+// A 403 can mean many things (ordinary permission denials use the same error
+// envelope), so the status is only a trigger to check the token we already
+// hold - the absence of a `tree` claim is what actually means "no tree
+// selected", never the error message text.
+export function shouldSignalTreeMissing(result, treeId) {
+  return result?.errorDetail?.status === 403 && !treeId
+}
+
 export function appStateUpdatePermissions(appState) {
   const rawPermissions = getPermissions()
   const permissions = {
@@ -404,6 +423,9 @@ export function appStateUpdatePermissions(appState) {
     canUseChat: rawPermissions.includes('UseChat'),
     canUpgradeTree: rawPermissions.includes('UpgradeSchema'),
     canEditTree: rawPermissions.includes('EditTree'),
+    // Granted to server Administrators only, not Owners - used to gate
+    // server-wide actions like creating a new tree.
+    canViewOtherTree: rawPermissions.includes('ViewOtherTree'),
   }
   // Return the same object reference if permissions haven't changed,
   // to avoid triggering unnecessary re-renders (which would reset open dialogs).
