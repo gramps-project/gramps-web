@@ -106,6 +106,8 @@ export class GrampsjsViewReport extends GrampsjsView {
     super.update(changed)
     if (changed.has('reportId')) {
       this.data = {}
+      this._options = {}
+      this._updateQueryUrl()
       this._fetchData()
     }
   }
