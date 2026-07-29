@@ -94,75 +94,67 @@ describe('new blog post: Blog tag handling', () => {
   })
 })
 
-describe('new blog post: media upload', () => {
-  it('resolves with no media refs when no files are selected', async () => {
+describe('new blog post: media selection', () => {
+  // The media picker (grampsjs-form-select-object-list, objectType="media")
+  // emits a formdata:changed event from its inner id="media-list" list with
+  // the array of selected handles.
+  const makeMediaListEvent = data => {
+    const target = document.createElement('div')
+    target.id = 'media-list'
+    const event = new CustomEvent('formdata:changed', {detail: {data}})
+    Object.defineProperty(event, 'composedPath', {value: () => [target]})
+    return event
+  }
+
+  // checkFormValidity() (called from _handleFormData) looks up #source-name,
+  // so stub a minimal stand-in for it.
+  const stubNameField = element => {
+    const nameField = document.createElement('div')
+    nameField.id = 'source-name'
+    nameField.reportValidity = () => true
+    nameField.validity = {valid: true}
+    element.shadowRoot.append(nameField)
+  }
+
+  it('maps selected media handles to media_list refs', () => {
     const element = makeElement()
-    const uploadEl = document.createElement('div')
-    uploadEl.id = 'upload'
-    uploadEl.files = []
-    element.shadowRoot.append(uploadEl)
-    const apiPost = vi.fn()
-    element.appState = {apiPost, apiPut: vi.fn()}
+    stubNameField(element)
+    element.data = {_class: 'Source', title: 'Title'}
 
-    const result = await element._uploadMedia()
-
-    expect(result).toEqual({data: []})
-    expect(apiPost).not.toHaveBeenCalled()
-  })
-
-  it('uploads each file and updates its metadata', async () => {
-    const element = makeElement()
-    const file = new File(['x'], 'holiday.jpg', {type: 'image/jpeg'})
-    const uploadEl = document.createElement('div')
-    uploadEl.id = 'upload'
-    uploadEl.files = [file]
-    element.shadowRoot.append(uploadEl)
-
-    const apiPost = vi.fn().mockResolvedValue({
-      data: [{new: {_class: 'Media', handle: 'media-handle-1'}}],
-    })
-    const apiPut = vi.fn().mockResolvedValue({data: {}})
-    element.appState = {apiPost, apiPut}
-
-    const result = await element._uploadMedia()
-
-    expect(apiPost).toHaveBeenCalledWith('/api/media/', file, {
-      isJson: false,
-      dbChanged: false,
-    })
-    expect(apiPut).toHaveBeenCalledWith(
-      '/api/media/media-handle-1',
-      expect.objectContaining({handle: 'media-handle-1', desc: 'holiday'}),
-      {dbChanged: false}
+    element._handleFormData(
+      makeMediaListEvent(['media-handle-1', 'media-handle-2'])
     )
-    expect(result).toEqual({data: [{ref: 'media-handle-1'}]})
+
+    expect(element.data.media_list).toEqual([
+      {ref: 'media-handle-1'},
+      {ref: 'media-handle-2'},
+    ])
   })
 
-  it('stops and reports the error when the upload fails', async () => {
+  it('clears media_list when the selection is emptied', () => {
     const element = makeElement()
-    const file = new File(['x'], 'holiday.jpg', {type: 'image/jpeg'})
-    const uploadEl = document.createElement('div')
-    uploadEl.id = 'upload'
-    uploadEl.files = [file]
-    element.shadowRoot.append(uploadEl)
+    stubNameField(element)
+    element.data = {
+      _class: 'Source',
+      title: 'Title',
+      media_list: [{ref: 'media-handle-1'}],
+    }
 
-    const apiPost = vi.fn().mockResolvedValue({error: 'Upload failed'})
-    const apiPut = vi.fn()
-    element.appState = {apiPost, apiPut}
+    element._handleFormData(makeMediaListEvent([]))
 
-    const result = await element._uploadMedia()
-
-    expect(result).toEqual({error: 'Upload failed'})
-    expect(apiPut).not.toHaveBeenCalled()
+    expect(element.data.media_list).toEqual([])
   })
 })
 
 describe('new blog post: submit', () => {
-  it('uploads media, applies the Blog tag, and navigates to the new post', async () => {
+  it('applies the Blog tag, submits the picked media_list, and navigates to the new post', async () => {
     const element = makeElement()
     element._blogTagHandle = 'blog-tag-handle'
-    element.data = {_class: 'Source', title: 'My trip to the archive'}
-    element._uploadMedia = vi.fn().mockResolvedValue({data: []})
+    element.data = {
+      _class: 'Source',
+      title: 'My trip to the archive',
+      media_list: [{ref: 'media-handle-1'}],
+    }
     element._reset = vi.fn()
     const apiPost = vi.fn().mockResolvedValue({
       data: [{new: {_class: 'Source', gramps_id: 'S0001'}}],
@@ -175,7 +167,10 @@ describe('new blog post: submit', () => {
     expect(apiPost).toHaveBeenCalledWith(
       '/api/objects/',
       expect.arrayContaining([
-        expect.objectContaining({title: 'My trip to the archive'}),
+        expect.objectContaining({
+          title: 'My trip to the archive',
+          media_list: [{ref: 'media-handle-1'}],
+        }),
       ])
     )
     expect(element.dispatchEvent).toHaveBeenCalledWith(
@@ -183,6 +178,7 @@ describe('new blog post: submit', () => {
     )
     expect(element._reset).toHaveBeenCalledOnce()
     expect(element.error).toBe(false)
+    expect(element._isSaving).toBe(false)
   })
 
   it('shows an error and does not submit when the Blog tag cannot be fetched', async () => {
@@ -197,5 +193,46 @@ describe('new blog post: submit', () => {
     expect(element.error).toBe(true)
     expect(element._errorMessage).toBe('Failed to fetch the Blog tag')
     expect(apiPost).not.toHaveBeenCalled()
+  })
+
+  it('stays busy until the object-create request resolves, preventing double-submit', async () => {
+    const element = makeElement()
+    element._blogTagHandle = 'blog-tag-handle'
+    element.data = {_class: 'Source', title: 'Title'}
+    element._reset = vi.fn()
+    let resolveApiPost
+    const apiPost = vi.fn(
+      () =>
+        new Promise(resolve => {
+          resolveApiPost = resolve
+        })
+    )
+    element.appState = {apiPost, i18n: {strings: {}}}
+
+    const submitPromise = element._submit()
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(element._isSaving).toBe(true)
+
+    resolveApiPost({data: [{new: {_class: 'Source', gramps_id: 'S0001'}}]})
+    await submitPromise
+
+    expect(element._isSaving).toBe(false)
+  })
+
+  it('clears the busy state and reports the error without navigating when the create request fails', async () => {
+    const element = makeElement()
+    element._blogTagHandle = 'blog-tag-handle'
+    element.data = {_class: 'Source', title: 'Title'}
+    const apiPost = vi.fn().mockResolvedValue({error: 'Server exploded'})
+    element.appState = {apiPost, i18n: {strings: {}}}
+    vi.spyOn(element, 'dispatchEvent')
+
+    await element._submit()
+
+    expect(element._isSaving).toBe(false)
+    expect(element.error).toBe(true)
+    expect(element._errorMessage).toBe('Server exploded')
+    expect(element.dispatchEvent).not.toHaveBeenCalled()
   })
 })

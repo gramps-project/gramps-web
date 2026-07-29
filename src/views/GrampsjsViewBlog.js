@@ -1,5 +1,5 @@
 import {css, html} from 'lit'
-import {mdiPostOutline} from '@mdi/js'
+import {mdiPlus} from '@mdi/js'
 
 import '@material/web/fab/fab.js'
 import {GrampsjsView} from './GrampsjsView.js'
@@ -88,7 +88,7 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
       <md-fab variant="secondary" @click=${this._handleClickAdd}>
         <grampsjs-icon
           slot="icon"
-          .path="${mdiPostOutline}"
+          .path="${mdiPlus}"
           color="var(--mdc-theme-on-secondary)"
         ></grampsjs-icon>
       </md-fab>
