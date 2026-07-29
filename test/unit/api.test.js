@@ -168,6 +168,16 @@ describe('createFirstTree', () => {
     expect(appState.refreshTokenIfNeeded).not.toHaveBeenCalled()
   })
 
+  it('returns an error without assigning when the created tree has no id', async () => {
+    const appState = makeAppState({postResult: {data: {}}})
+
+    const result = await createFirstTree(appState, 'My Family Tree')
+
+    expect(result.error).to.be.a('string')
+    expect(appState.apiPut).not.toHaveBeenCalled()
+    expect(appState.refreshTokenIfNeeded).not.toHaveBeenCalled()
+  })
+
   it('propagates an error from assigning the tree without refreshing the token', async () => {
     const appState = makeAppState({putResult: {error: 'Not authorized'}})
 
