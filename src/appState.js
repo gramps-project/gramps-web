@@ -277,10 +277,8 @@ export function getInitialAppState() {
     return result
   }
 
-  // Ordinary permission-denied 403s use the same error envelope, so treat
-  // the status only as a trigger to check the token, not the message text.
   function checkTreeMissing(result) {
-    if (result?.errorDetail?.status === 403 && !getTreeId()) {
+    if (shouldSignalTreeMissing(result, getTreeId())) {
       fireEvent(window, 'tree:missing')
     }
     return result
@@ -405,6 +403,14 @@ export function getInitialAppState() {
       return [...activeTasks.values()]
     },
   }
+}
+
+// A 403 can mean many things (ordinary permission denials use the same error
+// envelope), so the status is only a trigger to check the token we already
+// hold - the absence of a `tree` claim is what actually means "no tree
+// selected", never the error message text.
+export function shouldSignalTreeMissing(result, treeId) {
+  return result?.errorDetail?.status === 403 && !treeId
 }
 
 export function appStateUpdatePermissions(appState) {

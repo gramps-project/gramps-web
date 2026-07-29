@@ -32,6 +32,16 @@ import {
 import {fireEvent, getBrowserLanguage, apiVersionAtLeast} from './util.js'
 
 import {appStateUpdatePermissions, getInitialAppState} from './appState.js'
+import {
+  LOADING_STATE_INITIAL,
+  LOADING_STATE_UNAUTHORIZED,
+  LOADING_STATE_UNAUTHORIZED_NOCONNECTION,
+  LOADING_STATE_NO_OWNER,
+  LOADING_STATE_DB_SCHEMA_MISMATCH,
+  LOADING_STATE_NO_TREE,
+  LOADING_STATE_READY,
+  selectPreReadyView,
+} from './routing.js'
 import './components/GrampsjsAppBar.js'
 import './components/GrampsjsDnaTabBar.js'
 import './components/GrampsjsCreateTree.js'
@@ -51,14 +61,6 @@ import '@material/web/dialog/dialog.js'
 import {sharedStyles} from './SharedStyles.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from './theme.js'
 import {handleOIDCCallback, handleOIDCComplete} from './oidc.js'
-
-const LOADING_STATE_INITIAL = 0
-const LOADING_STATE_UNAUTHORIZED = 1
-const LOADING_STATE_UNAUTHORIZED_NOCONNECTION = 2
-const LOADING_STATE_NO_OWNER = 3
-const LOADING_STATE_DB_SCHEMA_MISMATCH = 4
-const LOADING_STATE_NO_TREE = 5
-const LOADING_STATE_READY = 10
 
 const BASE_DIR = ''
 
@@ -542,15 +544,16 @@ export class GrampsJs extends LitElement {
     `
   }
 
-  _renderNoTree() {
-    if (this.appState.permissions.canViewOtherTree) {
-      return html`
-        <grampsjs-create-tree
-          .appState="${this.appState}"
-          @tree:created="${this._handleTreeCreated}"
-        ></grampsjs-create-tree>
-      `
-    }
+  _renderCreateTree() {
+    return html`
+      <grampsjs-create-tree
+        .appState="${this.appState}"
+        @tree:created="${this._handleTreeCreated}"
+      ></grampsjs-create-tree>
+    `
+  }
+
+  _renderNoTreeWait() {
     return html`<div class="center-xy">
       <div>
         ${this._('Waiting for an administrator to set up your family tree.')}
@@ -567,39 +570,42 @@ export class GrampsJs extends LitElement {
     </div>`
   }
 
-  renderContent() {
-    if (this.loadingState === LOADING_STATE_INITIAL) {
-      return this._renderInitial()
+  // Turn a selectPreReadyView() decision into navigation side-effects + render.
+  _renderPreReadyView(decision) {
+    if (decision.redirect) {
+      window.location.href = decision.redirect
     }
-    if (this.loadingState === LOADING_STATE_UNAUTHORIZED_NOCONNECTION) {
-      return this._renderNoConn()
+    if (decision.navigateTo) {
+      window.history.pushState({}, '', decision.navigateTo)
     }
-    if (this.loadingState === LOADING_STATE_UNAUTHORIZED) {
-      const {loginRedirect} = this.appState.frontendConfig
-      if (
-        loginRedirect &&
-        this.appState.path.page !== 'login' &&
-        this.appState.path.page !== 'register'
-      ) {
-        window.location.href = loginRedirect
-      }
-      if (this.appState.path.page === 'register') {
+    switch (decision.view) {
+      case 'initial':
+        return this._renderInitial()
+      case 'noconn':
+        return this._renderNoConn()
+      case 'register':
         return this._renderRegister()
-      }
-      if (this.appState.path.page !== 'login') {
-        window.history.pushState({}, '', 'login')
-      }
-      return this._renderLogin()
+      case 'login':
+        return this._renderLogin()
+      case 'firstrun':
+        return this._renderFirstRun()
+      case 'create-tree':
+        return this._renderCreateTree()
+      case 'no-tree-wait':
+        return this._renderNoTreeWait()
+      default:
+        return html``
     }
-    if (this.loadingState === LOADING_STATE_NO_OWNER) {
-      window.history.pushState({}, '', 'firstrun')
-      return this._renderFirstRun()
-    }
-    if (this.loadingState === LOADING_STATE_NO_TREE) {
-      if (this.appState.path.page !== 'create-tree') {
-        window.history.pushState({}, '', 'create-tree')
-      }
-      return this._renderNoTree()
+  }
+
+  renderContent() {
+    const decision = selectPreReadyView(this.loadingState, {
+      page: this.appState.path.page,
+      permissions: this.appState.permissions,
+      frontendConfig: this.appState.frontendConfig,
+    })
+    if (decision.view !== 'continue') {
+      return this._renderPreReadyView(decision)
     }
     if (!this.appState.settings.lang) {
       // this can only happen if the user has not set the language

@@ -1,5 +1,8 @@
 import {describe, it, expect, afterEach} from 'vitest'
-import {appStateUpdatePermissions} from '../../src/appState.js'
+import {
+  appStateUpdatePermissions,
+  shouldSignalTreeMissing,
+} from '../../src/appState.js'
 
 // Minimal fake JWT with known permissions claims.
 // jwtDecode only base64-decodes the payload — no signature verification needed.
@@ -107,5 +110,31 @@ describe('appStateUpdatePermissions', () => {
     )
     appStateUpdatePermissions(BASE_STATE)
     expect(BASE_STATE.permissions).to.deep.equal({})
+  })
+})
+
+describe('shouldSignalTreeMissing', () => {
+  it('signals when a 403 occurs and the token has no tree', () => {
+    const result = {error: 'No tree ID in JWT', errorDetail: {status: 403}}
+    expect(shouldSignalTreeMissing(result, undefined)).to.be.true
+  })
+
+  it('does not signal on a 403 when the token already has a tree', () => {
+    const result = {error: 'Not authorized', errorDetail: {status: 403}}
+    expect(shouldSignalTreeMissing(result, 'tree-123')).to.be.false
+  })
+
+  it('does not signal for non-403 errors even without a tree', () => {
+    const result = {error: 'Network error', errorDetail: {status: undefined}}
+    expect(shouldSignalTreeMissing(result, undefined)).to.be.false
+  })
+
+  it('does not signal for a successful result', () => {
+    expect(shouldSignalTreeMissing({data: {}}, undefined)).to.be.false
+  })
+
+  it('tolerates a null/undefined result', () => {
+    expect(shouldSignalTreeMissing(undefined, undefined)).to.be.false
+    expect(shouldSignalTreeMissing(null, undefined)).to.be.false
   })
 })
