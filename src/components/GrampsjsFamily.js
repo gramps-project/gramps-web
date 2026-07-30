@@ -40,6 +40,39 @@ export class GrampsjsFamily extends GrampsjsObject {
             align-items: center;
             flex-shrink: 0;
           }
+
+          .status-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 500;
+            font-family: var(--grampsjs-body-font-family);
+            padding: 0 12px;
+            border-radius: 6px;
+            height: 20px;
+            line-height: 20px;
+            vertical-align: middle;
+            margin-inline-start: 8px;
+          }
+
+          .status-badge.married {
+            background-color: var(--md-sys-color-primary-container);
+            color: var(--md-sys-color-on-primary-container);
+          }
+
+          .status-badge.divorced {
+            background-color: var(--md-sys-color-error);
+            color: var(--md-sys-color-on-error);
+          }
+
+          .status-badge.widowed {
+            background-color: var(--md-sys-color-surface-container-highest);
+            color: var(--md-sys-color-on-surface);
+          }
+
+          .status-badge.partners {
+            background-color: var(--md-sys-color-secondary-container);
+            color: var(--md-sys-color-on-secondary-container);
+          }
         }
       `,
     ]
@@ -92,9 +125,17 @@ export class GrampsjsFamily extends GrampsjsObject {
     const relType = this.data?.profile?.relationship
     const marriage = this.data?.profile?.marriage
     const divorce = this.data?.profile?.divorce
+    const maritalStatus = this.data?.profile?.marital_status
     const hasMarriage = marriage?.date || marriage?.place
     const hasDivorce = divorce && Object.keys(divorce).length > 0
-    if (!relType && !hasMarriage && !hasDivorce && !this.edit) {
+    const statusLabels = {
+      married: this._('Married'),
+      divorced: this._('Divorced'),
+      widowed: this._('Widowed'),
+      partners: this._('Unmarried partners'),
+    }
+    const statusLabel = statusLabels[maritalStatus] ?? null
+    if (!relType && !hasMarriage && !hasDivorce && !statusLabel && !this.edit) {
       return ''
     }
     return html`
@@ -104,6 +145,11 @@ export class GrampsjsFamily extends GrampsjsObject {
           <dd class="${this.edit ? 'parent-row' : ''}">
             <div class="parent-info">
               ${relType || ''}
+              ${statusLabel
+                ? html`<span class="status-badge ${maritalStatus}"
+                    >${statusLabel}</span
+                  >`
+                : ''}
               ${hasMarriage
                 ? html`<span class="parent-dates">
                     <span class="sym">⚭</span>

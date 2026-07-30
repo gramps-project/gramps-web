@@ -12,8 +12,126 @@ const sexColor = {
   U: 'var(--color-unknown)',
 }
 
+const UNKNOWN_MARITAL_STATUS = 'unknown'
+
+/**
+ * Extract the first 4-digit year from a date string. Returns '' if not found.
+ * @param {string|null|undefined} dateStr
+ * @returns {string}
+ */
+function extractYear(dateStr) {
+  if (!dateStr || typeof dateStr !== 'string') return ''
+  const m = dateStr.match(/\d{4}/)
+  return m ? m[0] : ''
+}
+
+/**
+ * Format a short year label for a family node union bar.
+ * Returns '' when there is nothing meaningful to show.
+ *
+ * Rules:
+ *   married  / widowed  → marriage year (e.g. "1985") or ''
+ *   divorced            → "<marriageYear>–<divorceYear>" (en-dash);
+ *                         no marriage year → just "<divorceYear>";
+ *                         no divorce year  → marriage year
+ *   partners            → marriage year if present else ''
+ *   unknown / other     → ''
+ *
+ * @param {string|null|undefined} status
+ * @param {{marriage: object|null, divorce: object|null}|null|undefined} unionDates
+ * @returns {string}
+ */
+export function formatUnionDates(status, unionDates) {
+  if (!status) return ''
+  const marriageYear = extractYear(unionDates?.marriage?.date)
+  const divorceYear = extractYear(unionDates?.divorce?.date)
+  switch (status) {
+    case 'married':
+    case 'widowed':
+      return marriageYear
+    case 'divorced': {
+      if (marriageYear && divorceYear) return `${marriageYear}–${divorceYear}`
+      if (divorceYear) return divorceYear
+      return marriageYear
+    }
+    case 'partners':
+      return marriageYear
+    default:
+      return ''
+  }
+}
+
+/**
+ * Map a marital status string to a plain descriptor that drives SVG marker
+ * rendering. Pure function — no DOM side-effects, safe to unit-test.
+ *
+ * Descriptor shape:
+ *   rings   {0|1|2}  — number of ring circles to draw
+ *   filled  {boolean} — whether rings are filled (true) or open/unfilled (false)
+ *   dashed  {boolean} — whether the union bar uses stroke-dasharray
+ *   slash   {boolean} — whether to draw a diagonal slash (divorce glyph)
+ *   cross   {boolean} — whether to draw a small cross above the ring (widowed)
+ *
+ * @param {string} status
+ * @returns {{ rings: number, filled: boolean, dashed: boolean, slash: boolean, cross: boolean }}
+ */
+export function maritalStatusToMarker(status) {
+  switch (status) {
+    case 'married':
+      return {rings: 2, filled: true, dashed: false, slash: false, cross: false}
+    case 'divorced':
+      return {rings: 2, filled: true, dashed: false, slash: true, cross: false}
+    case 'partners':
+      return {rings: 1, filled: false, dashed: true, slash: false, cross: false}
+    case 'widowed':
+      return {rings: 1, filled: true, dashed: false, slash: false, cross: true}
+    default:
+      // 'unknown' and any unrecognised value → neutral: bar only, no ring
+      return {
+        rings: 0,
+        filled: false,
+        dashed: false,
+        slash: false,
+        cross: false,
+      }
+  }
+}
+
+/**
+ * Build a map of family handle → union status/dates from the profiled families
+ * carried on each person object (person.profile.families[]).
+ *
+ * Pure function — no side-effects; safe to unit-test directly.
+ *
+ * @param {Array} people - array of person objects from the API
+ * @returns {Object} map keyed by family handle:
+ *   { [handle]: { maritalStatus: string, marriage: object|null, divorce: object|null } }
+ */
+export function buildFamilyUnionMap(people) {
+  const map = {}
+  if (!Array.isArray(people)) return map
+  for (const person of people) {
+    const families = person?.profile?.families
+    if (!Array.isArray(families)) continue
+    for (const fam of families) {
+      const handle = fam?.handle
+      if (!handle) continue
+      // First writer wins — all spouses share the same family record so values
+      // should be identical; we skip if already populated to avoid redundant work.
+      if (map[handle]) continue
+      map[handle] = {
+        maritalStatus: fam?.marital_status ?? UNKNOWN_MARITAL_STATUS,
+        marriage: fam?.marriage ?? null,
+        divorce: fam?.divorce ?? null,
+      }
+    }
+  }
+  return map
+}
+
 function createGraph(graph) {
   const data = graph.getData()
+  graph.unionMap = buildFamilyUnionMap(data)
 
   // step 1: collect all persons to be shown
   for (const p of data) {
@@ -210,6 +328,7 @@ class Relgraph {
     this.persons = {}
     this.dot = undefined
     this.shrinkToFit = false
+    this.unionMap = {}
     createGraph(this)
   }
 
@@ -249,10 +368,16 @@ class Relgraph {
   }
 
   addNode(fdata, family, father, mother) {
+    const unionEntry = this.unionMap?.[family]
     const n = {
       handle: family,
       type: fdata?.type,
       fake: fdata?.fake,
+      maritalStatus: unionEntry?.maritalStatus ?? UNKNOWN_MARITAL_STATUS,
+      unionDates: {
+        marriage: unionEntry?.marriage ?? null,
+        divorce: unionEntry?.divorce ?? null,
+      },
     }
     if (father && this.known(father)) {
       n.father = father
@@ -339,7 +464,9 @@ function remasterChart(
   getImageUrl,
   maxImages,
   nameDisplayFormat,
-  canEdit = false
+  canEdit = false,
+  showUnionDates = false,
+  unionStatusLabels = {}
 ) {
   const gvchartx = divhidden.select('svg')
   const nodedata = []
@@ -378,6 +505,12 @@ function remasterChart(
         xCoord: x,
         yCoord: y,
         type: d.type,
+        maritalStatus: d.maritalStatus,
+        markerDesc: maritalStatusToMarker(
+          d.maritalStatus ?? UNKNOWN_MARITAL_STATUS
+        ),
+        unionDates: d.unionDates,
+        unionLabel: formatUnionDates(d.maritalStatus, d.unionDates),
         handle: found.groups.handle,
       })
     }
@@ -516,25 +649,106 @@ function remasterChart(
     .attr('width', 70)
     .attr('xlink:href', d => d.imageUrl)
 
+  // Union bar — draw for every family node; unknown status → plain bar, no ring/decoration.
+  // The bar is always drawn first (insert ':first-child') so rings/overlays render on top.
   nodes
-    .filter(d => d.type === 'Married' && d.nodetype === 'family')
-    .append('circle')
-    .attr('class', 'married')
-    .attr('r', 6)
-    .attr('cy', boxHeight / 2 - 10)
-    .attr('stroke', 'var(--grampsjs-body-font-color-40)')
-    .attr('fill', 'var(--grampsjs-color-shade-220)')
-
-  nodes
-    .filter(d => d.type === 'Married' && d.nodetype === 'family')
+    .filter(d => d.nodetype === 'family')
     .insert('line', ':first-child')
-    .attr('class', 'married')
+    .attr('class', 'union-bar')
     .attr('x1', -11)
     .attr('x2', 11)
     .attr('y1', boxHeight / 2 - 10)
     .attr('y2', boxHeight / 2 - 10)
     .attr('stroke', 'var(--grampsjs-body-font-color-40)')
     .attr('stroke-width', 1)
+    .attr('stroke-dasharray', d => (d.markerDesc.dashed ? '3,2' : null))
+
+  // Accessible label: name the union status on each family node (SVG <title>),
+  // so the marker is not conveyed by shape/colour alone.
+  nodes
+    .filter(
+      d => d.nodetype === 'family' && d.maritalStatus !== UNKNOWN_MARITAL_STATUS
+    )
+    .append('title')
+    .text(d => unionStatusLabels[d.maritalStatus] ?? d.maritalStatus)
+
+  // Ring(s) — two rings for married/divorced, one for partners/widowed, none for unknown
+  // Left ring (always the first when rings > 0)
+  nodes
+    .filter(d => d.nodetype === 'family' && d.markerDesc.rings >= 1)
+    .append('circle')
+    .attr('class', 'union-ring union-ring-left')
+    .attr('r', 5)
+    .attr('cx', d => (d.markerDesc.rings === 2 ? -5 : 0))
+    .attr('cy', boxHeight / 2 - 10)
+    .attr('stroke', 'var(--grampsjs-body-font-color-40)')
+    .attr('stroke-width', 1)
+    .attr('fill', d =>
+      d.markerDesc.filled ? 'var(--grampsjs-color-shade-220)' : 'none'
+    )
+
+  // Right ring (only for two-ring statuses: married, divorced)
+  nodes
+    .filter(d => d.nodetype === 'family' && d.markerDesc.rings === 2)
+    .append('circle')
+    .attr('class', 'union-ring union-ring-right')
+    .attr('r', 5)
+    .attr('cx', 5)
+    .attr('cy', boxHeight / 2 - 10)
+    .attr('stroke', 'var(--grampsjs-body-font-color-40)')
+    .attr('stroke-width', 1)
+    .attr('fill', d =>
+      d.markerDesc.filled ? 'var(--grampsjs-color-shade-220)' : 'none'
+    )
+
+  // Divorce slash — diagonal line across the rings
+  nodes
+    .filter(d => d.nodetype === 'family' && d.markerDesc.slash)
+    .append('line')
+    .attr('class', 'union-slash')
+    .attr('x1', -8)
+    .attr('x2', 8)
+    .attr('y1', boxHeight / 2 - 10 + 6)
+    .attr('y2', boxHeight / 2 - 10 - 6)
+    .attr('stroke', 'var(--md-sys-color-error)')
+    .attr('stroke-width', 1.5)
+
+  // Widowed cross — ✝ sits 5–11 px above the ring centre (cy = boxHeight/2 - 10)
+  nodes
+    .filter(d => d.nodetype === 'family' && d.markerDesc.cross)
+    .append('line')
+    .attr('class', 'union-cross-v')
+    .attr('x1', 0)
+    .attr('x2', 0)
+    .attr('y1', boxHeight / 2 - 10 - 5)
+    .attr('y2', boxHeight / 2 - 10 - 11)
+    .attr('stroke', 'var(--grampsjs-body-font-color-40)')
+    .attr('stroke-width', 1.5)
+
+  nodes
+    .filter(d => d.nodetype === 'family' && d.markerDesc.cross)
+    .append('line')
+    .attr('class', 'union-cross-h')
+    .attr('x1', -3)
+    .attr('x2', 3)
+    .attr('y1', boxHeight / 2 - 10 - 8)
+    .attr('y2', boxHeight / 2 - 10 - 8)
+    .attr('stroke', 'var(--grampsjs-body-font-color-40)')
+    .attr('stroke-width', 1.5)
+
+  // Union date label — rendered only when showUnionDates is ON and a label exists
+  if (showUnionDates) {
+    nodes
+      .filter(d => d.nodetype === 'family' && d.unionLabel)
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('font-size', '10px')
+      .attr('fill', 'var(--grampsjs-body-font-color-90)')
+      .attr('x', 0)
+      .attr('y', boxHeight / 2 - 10 + 16)
+      .text(d => d.unionLabel)
+  }
 
   nodes
     .filter(d => d.nodetype === 'person')
@@ -640,7 +854,9 @@ export function RelationshipChart(
     // orientation = 'LTR',
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
     canEdit = false,
+    showUnionDates = false,
     initialZoom = null,
+    unionStatusLabels = {},
   }
 ) {
   const resultnode = create('div').style('width', '100%')
@@ -676,7 +892,9 @@ export function RelationshipChart(
       getImageUrl,
       maxImages,
       nameDisplayFormat,
-      canEdit
+      canEdit,
+      showUnionDates,
+      unionStatusLabels
     )
     svg.attr('viewBox', [
       -bboxWidth / 2,
