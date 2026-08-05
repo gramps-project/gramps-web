@@ -893,8 +893,10 @@ export class Auth {
     localStorage.removeItem('refresh_token')
     localStorage.removeItem('id_token')
 
-    fireEvent(window, 'user:loggedout')
-
+    // Resolve the logout URL before firing `user:loggedout`: the login view it
+    // renders auto-redirects to the IdP, aborting this request and logging the
+    // user straight back in (#1325).
+    let logoutUrl = ''
     if (oidcProvider) {
       try {
         const postLogoutRedirectUri = window.location.origin
@@ -903,14 +905,18 @@ export class Auth {
           idToken,
           postLogoutRedirectUri
         )
-
-        if (result.logout_url) {
-          window.location.href = result.logout_url
-        }
+        logoutUrl = result?.logout_url || ''
       } catch (error) {
         // eslint-disable-next-line no-console
         console.warn('Failed to get OIDC logout URL:', error)
       }
+    }
+
+    // `redirecting`: clean up, but stay put — we are leaving for the IdP.
+    fireEvent(window, 'user:loggedout', {redirecting: !!logoutUrl})
+
+    if (logoutUrl) {
+      window.location.href = logoutUrl
     }
   }
 

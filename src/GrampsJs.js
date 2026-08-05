@@ -1224,9 +1224,14 @@ export class GrampsJs extends LitElement {
     userMenu.open = true
   }
 
-  _handleLogout() {
+  _handleLogout(e) {
     this._metadataConfirmed = false
-    this.loadingState = LOADING_STATE_UNAUTHORIZED
+    // On an OIDC logout the browser is about to leave for the identity
+    // provider; showing the login view here would re-enter the OIDC flow
+    // before that happens (#1325).
+    if (!e?.detail?.redirecting) {
+      this.loadingState = LOADING_STATE_UNAUTHORIZED
+    }
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistration().then(reg => {
         if (reg?.active) reg.active.postMessage({type: 'CLEAR_MEDIA_CACHES'})
