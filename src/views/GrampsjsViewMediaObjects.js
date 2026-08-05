@@ -28,7 +28,7 @@ import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTooltip.js'
 import '@material/web/select/filled-select'
 import '@material/web/select/select-option'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
 
 export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
   static get styles() {
@@ -48,10 +48,6 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         .view-switcher {
           display: flex;
           align-items: center;
-        }
-
-        .view-switcher mwc-icon-button {
-          --mdc-icon-button-size: 40px;
         }
 
         .sort-control {
@@ -358,7 +354,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
             `
           )}
       </md-filled-select>
-      <mwc-icon-button
+      <md-icon-button
         id="btn-sort-direction"
         aria-label="${isAscending ? this._('Ascending') : this._('Descending')}"
         @click="${this._toggleSortDirection}"
@@ -368,7 +364,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
           height="24"
           color="${iconColor}"
         ></grampsjs-icon>
-      </mwc-icon-button>
+      </md-icon-button>
       <grampsjs-tooltip for="btn-sort-direction" .appState="${this.appState}">
         ${isAscending ? this._('Ascending') : this._('Descending')}
       </grampsjs-tooltip>
@@ -413,7 +409,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     const activeColor = 'var(--grampsjs-color-icon-selected)'
     const inactiveColor = 'var(--grampsjs-color-icon-default)'
     return html`
-      <mwc-icon-button
+      <md-icon-button
         id="btn-view-grid"
         aria-label="${this._('Gallery view')}"
         @click="${() => {
@@ -425,11 +421,11 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
           height="28"
           color="${this.altView ? activeColor : inactiveColor}"
         ></grampsjs-icon>
-      </mwc-icon-button>
+      </md-icon-button>
       <grampsjs-tooltip for="btn-view-grid" .appState="${this.appState}">
         ${this._('Gallery view')}
       </grampsjs-tooltip>
-      <mwc-icon-button
+      <md-icon-button
         id="btn-view-list"
         aria-label="${this._('List view')}"
         @click="${() => {
@@ -441,7 +437,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
           height="28"
           color="${!this.altView ? activeColor : inactiveColor}"
         ></grampsjs-icon>
-      </mwc-icon-button>
+      </md-icon-button>
       <grampsjs-tooltip for="btn-view-list" .appState="${this.appState}">
         ${this._('List view')}
       </grampsjs-tooltip>
