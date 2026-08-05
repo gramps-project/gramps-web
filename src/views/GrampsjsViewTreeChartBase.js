@@ -5,6 +5,7 @@ import '@material/mwc-textfield'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 import '@material/web/fab/fab.js'
+import '@material/mwc-icon-button'
 
 import {mdiAccountDetails, mdiHomeAccount, mdiPencil} from '@mdi/js'
 import '../components/GrampsjsIcon.js'

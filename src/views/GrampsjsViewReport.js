@@ -1,4 +1,5 @@
 import {css, html} from 'lit'
+import '@material/mwc-icon-button'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsReportOptions.js'

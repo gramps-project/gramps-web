@@ -29,10 +29,6 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
           display: none;
         }
 
-        mwc-icon-button {
-          color: var(--grampsjs-body-font-color-50);
-        }
-
         h3.label {
           font-family: var(--grampsjs-body-font-family);
           font-size: 16px;

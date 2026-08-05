@@ -4,6 +4,7 @@ The dropdown menu for adding objects in the top app bar
 
 import {html, LitElement} from 'lit'
 import '@material/mwc-snackbar'
+import '@material/mwc-icon-button'
 
 import {fireEvent} from '../util.js'
 

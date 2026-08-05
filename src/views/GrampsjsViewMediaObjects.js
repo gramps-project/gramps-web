@@ -28,6 +28,7 @@ import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTooltip.js'
 import '@material/web/select/filled-select'
 import '@material/web/select/select-option'
+import '@material/mwc-icon-button'
 
 export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
   static get styles() {

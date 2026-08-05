@@ -4,7 +4,6 @@ element for editing a name
 
 import {html, css, LitElement} from 'lit'
 import '@material/mwc-textfield'
-import '@material/mwc-icon-button'
 import '@material/mwc-icon'
 
 import {classMap} from 'lit/directives/class-map.js'
@@ -24,10 +23,6 @@ class GrampsjsFormSurname extends GrampsjsAppStateMixin(LitElement) {
 
         .hide {
           display: none;
-        }
-
-        mwc-icon-button {
-          color: var(--grampsjs-body-font-color-50);
         }
       `,
     ]

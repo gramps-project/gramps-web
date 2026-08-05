@@ -6,6 +6,7 @@ import {html, css, LitElement} from 'lit'
 import '@material/mwc-textfield'
 import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
+import '@material/mwc-icon-button'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {getSortval, dateIsEmpty, emptyDate} from '../util.js'

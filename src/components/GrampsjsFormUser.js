@@ -4,7 +4,6 @@ Element for selecting a Gramps type
 
 import {html, css, LitElement} from 'lit'
 import '@material/mwc-textfield'
-import '@material/mwc-icon-button'
 import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
@@ -33,10 +32,6 @@ class GrampsjsFormUser extends GrampsjsAppStateMixin(LitElement) {
 
         .hide {
           display: none;
-        }
-
-        mwc-icon-button {
-          color: var(--grampsjs-body-font-color-50);
         }
       `,
     ]

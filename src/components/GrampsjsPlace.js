@@ -2,6 +2,7 @@ import {css, html} from 'lit'
 
 import '@material/mwc-icon'
 import '@material/web/button/outlined-button.js'
+import '@material/mwc-icon-button'
 
 import {mdiArrowExpandAll} from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'

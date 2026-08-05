@@ -232,10 +232,6 @@ export const sharedStyles = css`
     );
   }
 
-  mwc-icon-button.large {
-    --mdc-icon-size: 32px;
-  }
-
   h2 .given-name {
     text-decoration: underline var(--grampsjs-body-font-color-60);
     text-underline-offset: 0.15em;
@@ -374,10 +370,6 @@ export const sharedStyles = css`
     h4 {
       font-size: 18px;
     }
-  }
-
-  mwc-icon-button[slot='meta'] {
-    color: var(--grampsjs-color-icon-default);
   }
 
   /* Hover state layer for clickable list items in view mode */

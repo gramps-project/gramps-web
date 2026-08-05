@@ -4,6 +4,7 @@ import '@material/web/icon/icon'
 import '@material/web/menu/menu'
 import '@material/web/menu/menu-item'
 import '@material/web/chips/input-chip'
+import '@material/mwc-icon-button'
 import {mdiPalette} from '@mdi/js'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'

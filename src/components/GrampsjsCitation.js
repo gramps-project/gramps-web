@@ -1,6 +1,7 @@
 import {html, css} from 'lit'
 
 import '@material/mwc-icon'
+import '@material/mwc-icon-button'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditCitationDetails.js'

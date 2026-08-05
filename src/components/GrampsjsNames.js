@@ -2,7 +2,6 @@ import {html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import '@material/mwc-button'
-import '@material/mwc-icon-button'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 import {fireEvent} from '../util.js'

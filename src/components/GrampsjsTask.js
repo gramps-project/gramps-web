@@ -9,6 +9,7 @@ import '@material/mwc-icon'
 import '@material/mwc-select'
 import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
+import '@material/mwc-icon-button'
 
 import './GrampsjsEditor.js'
 import './GrampsjsImg.js'

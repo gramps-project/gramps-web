@@ -2,8 +2,6 @@
 import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
-import '@material/mwc-icon-button'
-
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsFormSelectObjectList.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'

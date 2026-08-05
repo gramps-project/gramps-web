@@ -1,6 +1,5 @@
 import {LitElement, html, css} from 'lit'
 
-import '@material/mwc-icon-button'
 import {mdiLockOpenVariantOutline, mdiLockOutline} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'

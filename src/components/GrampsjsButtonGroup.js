@@ -1,7 +1,5 @@
 import {LitElement, html, css} from 'lit'
 
-import '@material/mwc-icon-button'
-
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsTooltip.js'

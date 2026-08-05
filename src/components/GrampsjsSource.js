@@ -2,6 +2,7 @@ import {html} from 'lit'
 
 import '@material/mwc-icon'
 import '@material/web/button/outlined-button'
+import '@material/mwc-icon-button'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditTitle.js'

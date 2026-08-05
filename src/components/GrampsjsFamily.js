@@ -1,6 +1,7 @@
 import {css, html} from 'lit'
 
 import '@material/mwc-icon'
+import '@material/mwc-icon-button'
 
 import {fireEvent} from '../util.js'
 import './GrampsjsObjectLink.js'

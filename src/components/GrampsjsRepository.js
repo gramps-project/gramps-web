@@ -1,6 +1,7 @@
 import {html, css} from 'lit'
 import {live} from 'lit/directives/live.js'
 import {classMap} from 'lit/directives/class-map.js'
+import '@material/mwc-icon-button'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditRepositoryType.js'
 import {debounce, fireEvent} from '../util.js'
