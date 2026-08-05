@@ -5,6 +5,7 @@ import {
   apiRegisterUser,
   apiResetPassword,
   apiGetOIDCConfig,
+  Auth,
   createFirstTree,
   updateTaskStatus,
 } from '../../src/api.js'
@@ -372,5 +373,128 @@ describe('updateTaskStatus cleanup behavior', () => {
 
     expect(fetch).toHaveBeenCalledTimes(1)
     expect(timeoutSpy).not.toHaveBeenCalled()
+  })
+})
+
+describe('Auth.signout', () => {
+  // Minimal unsigned JWT: only the payload is ever decoded.
+  const makeToken = claims => {
+    const encode = obj =>
+      btoa(JSON.stringify(obj))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '')
+    return `${encode({alg: 'HS256', typ: 'JWT'})}.${encode(claims)}.signature`
+  }
+
+  let events
+  let calls
+
+  const setUpLocation = () => {
+    vi.stubGlobal('location', {
+      origin: 'https://gramps.example.com',
+      get href() {
+        return 'https://gramps.example.com/'
+      },
+      set href(url) {
+        calls.push(`navigate:${url}`)
+      },
+    })
+  }
+
+  const onLoggedOut = e => events.push(e)
+
+  beforeEach(() => {
+    events = []
+    calls = []
+    localStorage.setItem('id_token', 'the-id-token')
+    window.addEventListener('user:loggedout', onLoggedOut)
+    setUpLocation()
+  })
+
+  afterEach(() => {
+    window.removeEventListener('user:loggedout', onLoggedOut)
+    localStorage.clear()
+    vi.unstubAllGlobals()
+  })
+
+  const stubLogoutFetch = logoutUrl =>
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(url => {
+        calls.push(`fetch:${url}`)
+        return Promise.resolve({
+          status: 200,
+          ok: true,
+          json: () => Promise.resolve({logout_url: logoutUrl}),
+        })
+      })
+    )
+
+  it('resolves the provider logout URL before announcing the logout', async () => {
+    localStorage.setItem('access_token', makeToken({oidc_provider: 'custom'}))
+    stubLogoutFetch('https://auth.example.com/end-session')
+
+    const auth = new Auth()
+    const signout = auth.signout()
+    // The event must not fire while the logout URL request is still in flight:
+    // it would send the app back through the OIDC login flow (#1325).
+    expect(events).toHaveLength(0)
+    await signout
+
+    expect(calls[0]).toContain('/api/oidc/logout/')
+    expect(calls[1]).toBe('navigate:https://auth.example.com/end-session')
+    expect(events).toHaveLength(1)
+    expect(events[0].detail.redirecting).toBe(true)
+  })
+
+  it('passes the id token and post-logout redirect URI to the backend', async () => {
+    localStorage.setItem('access_token', makeToken({oidc_provider: 'custom'}))
+    stubLogoutFetch('https://auth.example.com/end-session')
+
+    await new Auth().signout()
+
+    const [url] = fetch.mock.calls[0]
+    expect(url).toContain('provider=custom')
+    expect(url).toContain('id_token=the-id-token')
+    expect(url).toContain(
+      `post_logout_redirect_uri=${encodeURIComponent(
+        'https://gramps.example.com'
+      )}`
+    )
+  })
+
+  it('falls back to the login view when the provider has no logout URL', async () => {
+    localStorage.setItem('access_token', makeToken({oidc_provider: 'custom'}))
+    stubLogoutFetch(null)
+
+    await new Auth().signout()
+
+    expect(calls.some(c => c.startsWith('navigate:'))).toBe(false)
+    expect(events[0].detail.redirecting).toBe(false)
+  })
+
+  it('clears the stored tokens', async () => {
+    localStorage.setItem('access_token', makeToken({oidc_provider: 'custom'}))
+    localStorage.setItem('refresh_token', 'refresh')
+    localStorage.setItem('access_token_expires', '123')
+    stubLogoutFetch('https://auth.example.com/end-session')
+
+    await new Auth().signout()
+
+    expect(localStorage.getItem('access_token')).toBeNull()
+    expect(localStorage.getItem('refresh_token')).toBeNull()
+    expect(localStorage.getItem('access_token_expires')).toBeNull()
+    expect(localStorage.getItem('id_token')).toBeNull()
+  })
+
+  it('does not call the OIDC logout endpoint for a local account', async () => {
+    localStorage.setItem('access_token', makeToken({sub: 'alice'}))
+    stubLogoutFetch('https://auth.example.com/end-session')
+
+    await new Auth().signout()
+
+    expect(fetch).not.toHaveBeenCalled()
+    expect(events[0].detail.redirecting).toBe(false)
   })
 })
