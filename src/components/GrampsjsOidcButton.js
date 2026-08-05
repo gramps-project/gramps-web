@@ -1,6 +1,6 @@
 import {html, css, LitElement} from 'lit'
 import '@material/web/button/outlined-button'
-import {mdiGoogle, mdiMicrosoft, mdiGithub, mdiOpenid} from '@mdi/js'
+import {mdiGoogle, mdiMicrosoft, mdiOpenid} from '@mdi/js'
 
 import './GrampsjsIcon.js'
 
@@ -56,9 +56,6 @@ class GrampsjsOidcButton extends LitElement {
         break
       case 'microsoft':
         iconPath = mdiMicrosoft
-        break
-      case 'github':
-        iconPath = mdiGithub
         break
       default:
         iconPath = mdiOpenid
