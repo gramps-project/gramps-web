@@ -3,7 +3,10 @@ import {css, html, LitElement} from 'lit'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsTooltip.js'
-import '@material/mwc-icon-button'
+import './GrampsjsIcon.js'
+import '@material/web/iconbutton/icon-button.js'
+
+import {mdiContentCopy} from '@mdi/js'
 
 export class GrampsjsSysinfo extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -19,9 +22,8 @@ export class GrampsjsSysinfo extends GrampsjsAppStateMixin(LitElement) {
           font-size: 16px;
         }
 
-        div.copy mwc-icon-button {
-          color: var(--grampsjs-body-font-color-30);
-          --mdc-icon-size: 16px;
+        div.copy md-icon-button {
+          --md-icon-button-icon-size: 16px;
           float: right;
         }
       `,
@@ -33,11 +35,16 @@ export class GrampsjsSysinfo extends GrampsjsAppStateMixin(LitElement) {
     const data = this.appState.dbInfo
     return html`
       <div class="copy">
-        <mwc-icon-button
-          icon="content_copy"
+        <md-icon-button
+          aria-label="${this._('Copy to clipboard')}"
           id="copy-button"
           @click=${this._copyToClipboard}
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon
+            path="${mdiContentCopy}"
+            color="var(--grampsjs-body-font-color-30)"
+          ></grampsjs-icon>
+        </md-icon-button>
         <grampsjs-tooltip for="copy-button" .appState="${this.appState}"
           >${this._('Copy to clipboard')}</grampsjs-tooltip
         >

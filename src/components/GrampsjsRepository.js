@@ -1,8 +1,10 @@
 import {html, css} from 'lit'
 import {live} from 'lit/directives/live.js'
 import {classMap} from 'lit/directives/class-map.js'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
+import {mdiPencil} from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
+import './GrampsjsIcon.js'
 import './GrampsjsFormEditRepositoryType.js'
 import {debounce, fireEvent} from '../util.js'
 
@@ -47,11 +49,16 @@ export class GrampsjsRepository extends GrampsjsObject {
           ${this.edit
             ? html`
                 <dd>
-                  <mwc-icon-button
-                    icon="edit"
+                  <md-icon-button
                     class="edit"
+                    aria-label="${this._('Edit')}"
                     @click="${this._handleRepositoryType}"
-                  ></mwc-icon-button>
+                  >
+                    <grampsjs-icon
+                      path="${mdiPencil}"
+                      color="var(--mdc-theme-secondary)"
+                    ></grampsjs-icon>
+                  </md-icon-button>
                 </dd>
               `
             : ''}

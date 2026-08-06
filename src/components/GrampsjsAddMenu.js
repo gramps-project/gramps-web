@@ -14,13 +14,14 @@ import {
   mdiTextBox,
   mdiImage,
   mdiFormatListChecks,
+  mdiPlus,
 } from '@mdi/js'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
 import '@material/web/menu/menu'
 import '@material/web/menu/menu-item'
 import '@material/web/divider/divider'
 
-import {sharedStyles} from '../SharedStyles.js'
+import {sharedStyles, appBarIconButtonStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsIcon.js'
 
@@ -43,6 +44,7 @@ class GrampsjsAddMenu extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
+      appBarIconButtonStyles,
       css`
         md-menu {
           --md-divider-thickness: 1px;
@@ -68,11 +70,13 @@ class GrampsjsAddMenu extends GrampsjsAppStateMixin(LitElement) {
   render() {
     return html`
       <div style="position: relative;">
-        <mwc-icon-button
-          icon="add"
+        <md-icon-button
+          aria-label="${this._('Add')}"
           @click="${this._handleClickAdd}"
           id="button_add"
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon path="${mdiPlus}" color="currentColor"></grampsjs-icon>
+        </md-icon-button>
 
         <md-menu
           id="menu_add"

@@ -2,7 +2,10 @@ import {LitElement, css, html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {sharedStyles} from '../SharedStyles.js'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
+import './GrampsjsIcon.js'
+
+import {mdiClose} from '@mdi/js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 import {fireEvent} from '../util.js'
@@ -19,6 +22,8 @@ export class GrampsjsFilterChip extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .chip {
+          display: inline-flex;
+          align-items: center;
           font-size: 13px;
           font-weight: 400;
           font-family: var(--grampsjs-body-font-family);
@@ -30,10 +35,11 @@ export class GrampsjsFilterChip extends GrampsjsAppStateMixin(LitElement) {
           line-height: 18px;
         }
 
-        .chip mwc-icon-button {
+        .chip md-icon-button {
           margin-left: 4px;
-          --mdc-icon-size: 14px;
-          --mdc-icon-button-size: 18px;
+          --md-icon-button-icon-size: 14px;
+          --md-icon-button-state-layer-width: 18px;
+          --md-icon-button-state-layer-height: 18px;
         }
 
         .monospace {
@@ -63,10 +69,16 @@ export class GrampsjsFilterChip extends GrampsjsAppStateMixin(LitElement) {
         id="filter-label"
         >${this.monospace && this.label.length > 20
           ? html`${this.label.substring(0, 20)}&hellip;`
-          : this.label}<mwc-icon-button
-          icon="clear"
+          : this.label}<md-icon-button
+          aria-label="${this._('Clear')}"
           @click=${this._handleClear}
-        ></mwc-icon-button
+        >
+          <grampsjs-icon
+            path="${mdiClose}"
+            color="var(--mdc-theme-on-primary)"
+            width="14"
+            height="14"
+          ></grampsjs-icon> </md-icon-button
       ></span>
       ${this.monospace
         ? html`<grampsjs-tooltip

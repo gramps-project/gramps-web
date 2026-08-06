@@ -4,7 +4,7 @@ The dropdown menu for adding objects in the top app bar
 
 import {html, css, LitElement} from 'lit'
 import '@material/mwc-icon'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
 import '@material/web/icon/icon'
 import '@material/web/menu/menu'
 import '@material/web/menu/menu-item'
@@ -16,11 +16,13 @@ import {
   mdiWrench,
   mdiAccountMultiple,
   mdiAccountCog,
+  mdiAccountCircle,
   mdiHelp,
 } from '@mdi/js'
-import {sharedStyles} from '../SharedStyles.js'
+import {sharedStyles, appBarIconButtonStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {renderIconSvg} from '../icons.js'
+import './GrampsjsIcon.js'
 import {clickKeyHandler} from '../util.js'
 
 const menuItems = [
@@ -35,6 +37,7 @@ class GrampsjsSettingsMenu extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
+      appBarIconButtonStyles,
       css`
         md-menu {
           --md-divider-thickness: 1px;
@@ -62,11 +65,16 @@ class GrampsjsSettingsMenu extends GrampsjsAppStateMixin(LitElement) {
   render() {
     return html`
       <div style="position: relative;">
-        <mwc-icon-button
-          icon="account_circle"
+        <md-icon-button
+          aria-label="${this._('Settings')}"
           @click="${this._handleClickSettings}"
           id="button_settings"
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon
+            path="${mdiAccountCircle}"
+            color="currentColor"
+          ></grampsjs-icon>
+        </md-icon-button>
 
         <md-menu
           id="menu_settings"
