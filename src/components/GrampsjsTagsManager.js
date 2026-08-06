@@ -34,12 +34,6 @@ export class GrampsjsTagsManager extends GrampsjsTableBase {
           align-items: center;
         }
 
-        md-icon-button {
-          --md-icon-button-icon-size: 20px;
-          --md-icon-button-state-layer-height: 36px;
-          --md-icon-button-state-layer-width: 36px;
-        }
-
         .dialog-row {
           display: flex;
           align-items: center;

@@ -405,6 +405,13 @@ export const personListItemStyles = css`
     flex-shrink: 0;
   }
 
+  /* The 40px above is the circular container, not the glyph: grampsjs-icon
+     draws into its content box, so pad it back to a 24px icon. */
+  grampsjs-icon[slot='start'] {
+    box-sizing: border-box;
+    padding: 8px;
+  }
+
   grampsjs-icon[slot='start'] {
     background-color: var(--grampsjs-color-icon-background);
   }

@@ -1,11 +1,14 @@
 import {LitElement, html, css} from 'lit'
 
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
+
+import {mdiCheck, mdiShareVariant} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {clickKeyHandler} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsTooltip.js'
+import './GrampsjsIcon.js'
 
 export class GrampsjsShareUrl extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -25,9 +28,13 @@ export class GrampsjsShareUrl extends GrampsjsAppStateMixin(LitElement) {
           color: var(--grampsjs-body-font-color-40);
         }
 
-        mwc-icon-button {
-          --mdc-icon-size: 16px;
-          --mdc-icon-button-size: 28px;
+        md-icon-button {
+          --md-icon-button-icon-color: currentColor;
+          --md-icon-button-hover-icon-color: currentColor;
+          --md-icon-button-focus-icon-color: currentColor;
+          --md-icon-button-pressed-icon-color: currentColor;
+          --md-icon-button-state-layer-width: 28px;
+          --md-icon-button-state-layer-height: 28px;
           position: relative;
         }
       `,
@@ -37,22 +44,28 @@ export class GrampsjsShareUrl extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       href: {type: String},
+      _copied: {type: Boolean, state: true},
     }
   }
 
   constructor() {
     super()
     this.href = ''
+    this._copied = false
   }
 
   render() {
     return html`
-      <mwc-icon-button
+      <md-icon-button
         id="share-icon"
-        icon="share"
         @click="${this._handleShareClick}"
         @keydown="${clickKeyHandler}"
-      ></mwc-icon-button>
+      >
+        <grampsjs-icon
+          path="${this._copied ? mdiCheck : mdiShareVariant}"
+          color="currentColor"
+        ></grampsjs-icon>
+      </md-icon-button>
       <grampsjs-tooltip for="share-icon"
         >${this._('Copy URL')}</grampsjs-tooltip
       >
@@ -71,10 +84,9 @@ export class GrampsjsShareUrl extends GrampsjsAppStateMixin(LitElement) {
       navigator.clipboard.writeText(url).finally(() => {
         document.body.removeChild(input)
       })
-      const btn = this.renderRoot.getElementById('share-icon')
-      btn.icon = 'done'
+      this._copied = true
       setTimeout(() => {
-        btn.icon = 'share'
+        this._copied = false
       }, 1000)
     }
   }

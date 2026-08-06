@@ -6,9 +6,16 @@ import '@material/web/button/filled-button.js'
 import '@material/web/select/filled-select.js'
 import '@material/web/select/select-option.js'
 import '@material/web/textfield/filled-text-field.js'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
 
-import {mdiFilterOff} from '@mdi/js'
+import {
+  mdiAccountMultiplePlus,
+  mdiAccountPlus,
+  mdiDeleteForever,
+  mdiDownload,
+  mdiFilterOff,
+  mdiPencil,
+} from '@mdi/js'
 
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 import {userRoles} from './GrampsjsFormUser.js'
@@ -122,21 +129,33 @@ export class GrampsjsUsers extends GrampsjsTableBase {
               <td>${this._(userRoles[obj.role])}</td>
               <td>${obj.account_source || this._('Password')}</td>
               <td>
-                <mwc-icon-button
+                <md-icon-button
                   class="edit"
-                  icon="edit"
                   @click="${e => this._handleEditClick(e, obj.name)}"
                   id="button-edit-${index}"
-                ></mwc-icon-button>
+                >
+                  <grampsjs-icon
+                    path="${mdiPencil}"
+                    height="20"
+                    width="20"
+                    color="var(--mdc-theme-secondary)"
+                  ></grampsjs-icon>
+                </md-icon-button>
                 <grampsjs-tooltip for="button-edit-${index}">
                   ${this._('Edit user')}
                 </grampsjs-tooltip>
-                <mwc-icon-button
+                <md-icon-button
                   class="error"
-                  icon="delete_forever"
                   @click="${e => this._handleDeleteClick(e, obj.name)}"
                   id="button-del-${index}"
-                ></mwc-icon-button>
+                >
+                  <grampsjs-icon
+                    path="${mdiDeleteForever}"
+                    height="20"
+                    width="20"
+                    color="var(--grampsjs-alert-error-font-color)"
+                  ></grampsjs-icon>
+                </md-icon-button>
                 <grampsjs-tooltip for="button-del-${index}">
                   ${this._('Delete user')}
                 </grampsjs-tooltip>
@@ -212,32 +231,44 @@ export class GrampsjsUsers extends GrampsjsTableBase {
   _renderButtons() {
     return html`
       <p>
-        <mwc-icon-button
+        <md-icon-button
           class="edit"
-          icon="person_add"
           @click="${this._handleAddClick}"
           id="button-add"
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon
+            path="${mdiAccountPlus}"
+            color="var(--mdc-theme-secondary)"
+          ></grampsjs-icon>
+        </md-icon-button>
         <grampsjs-tooltip for="button-add">
           ${this._('Add a new user')}
         </grampsjs-tooltip>
 
-        <mwc-icon-button
+        <md-icon-button
           class="edit"
-          icon="group_add"
           id="button-import"
           @click="${this._handleImportClick}"
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon
+            path="${mdiAccountMultiplePlus}"
+            color="var(--mdc-theme-secondary)"
+          ></grampsjs-icon>
+        </md-icon-button>
         <grampsjs-tooltip for="button-import">
           ${this._('Import user accounts')}
         </grampsjs-tooltip>
 
-        <mwc-icon-button
+        <md-icon-button
           class="edit"
-          icon="file_download"
           id="button-export"
           @click="${this._handleExportClick}"
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon
+            path="${mdiDownload}"
+            color="var(--mdc-theme-secondary)"
+          ></grampsjs-icon>
+        </md-icon-button>
         <grampsjs-tooltip for="button-export">
           ${this._('Export user details')}
         </grampsjs-tooltip>
