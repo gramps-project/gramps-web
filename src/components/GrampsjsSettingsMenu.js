@@ -19,7 +19,7 @@ import {
   mdiAccountCircle,
   mdiHelp,
 } from '@mdi/js'
-import {sharedStyles} from '../SharedStyles.js'
+import {sharedStyles, appBarIconButtonStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {renderIconSvg} from '../icons.js'
 import './GrampsjsIcon.js'
@@ -37,16 +37,8 @@ class GrampsjsSettingsMenu extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
+      appBarIconButtonStyles,
       css`
-        /* mwc-icon-button inherited the app bar's colour; md-icon-button sets
-           its own, so route the tokens back to the inherited value. */
-        md-icon-button {
-          --md-icon-button-icon-color: currentColor;
-          --md-icon-button-hover-icon-color: currentColor;
-          --md-icon-button-focus-icon-color: currentColor;
-          --md-icon-button-pressed-icon-color: currentColor;
-        }
-
         md-menu {
           --md-divider-thickness: 1px;
           --md-divider-color: var(--grampsjs-body-font-color-30);

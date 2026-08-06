@@ -431,3 +431,15 @@ export const personListItemStyles = css`
     margin-inline-end: 0.5em;
   }
 `
+
+/* mwc-icon-button inherited the app bar's colour; md-icon-button sets its own,
+   so route the tokens back to the inherited value. Opt-in (rather than part of
+   sharedStyles) so it only applies to icon buttons sitting on the app bar. */
+export const appBarIconButtonStyles = css`
+  md-icon-button {
+    --md-icon-button-icon-color: currentColor;
+    --md-icon-button-hover-icon-color: currentColor;
+    --md-icon-button-focus-icon-color: currentColor;
+    --md-icon-button-pressed-icon-color: currentColor;
+  }
+`
