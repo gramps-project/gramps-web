@@ -20,7 +20,7 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
     this._setSep = true
     this._setMaxImages = true
     this.color = ''
-    this.defaults.nAnc = 2
+    this.defaults.nAnc = 100
   }
 
   get nAnc() {

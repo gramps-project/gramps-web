@@ -6,7 +6,7 @@ export const TREE_VIEWS = [
   'fan',
 ]
 
-export const DEFAULT_TREE_VIEW = 'ancestor'
+export const DEFAULT_TREE_VIEW = 'relationship'
 
 export function getTreeViewTabIndex(view) {
   const index = TREE_VIEWS.indexOf(view)

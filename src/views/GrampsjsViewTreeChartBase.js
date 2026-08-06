@@ -72,7 +72,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsView {
   defaults = {
     nAnc: 1,
     nDesc: 1,
-    nMaxImages: 50,
+    nMaxImages: 500,
     nameDisplayFormat: chartNameDisplayFormat.surnameThenGiven,
   }
 
