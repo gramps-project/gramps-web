@@ -65,13 +65,14 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
 
         .breadcrumb .action-buttons grampsjs-share-url,
         .breadcrumb .action-buttons grampsjs-bookmark-button {
-          --mdc-icon-size: 16px;
-          --mdc-icon-button-size: 28px;
+          --md-icon-button-icon-size: 16px;
+          --md-icon-button-state-layer-width: 28px;
+          --md-icon-button-state-layer-height: 28px;
           position: relative;
         }
 
         .breadcrumb .action-buttons grampsjs-bookmark-button {
-          --mdc-icon-size: 17px;
+          --md-icon-button-icon-size: 17px;
         }
       `,
     ]

@@ -48,9 +48,10 @@ export class GrampsjsTableBase extends GrampsjsAppStateMixin(LitElement) {
           font-size: 16px;
         }
 
-        td mwc-icon-button {
-          --mdc-icon-size: 20px;
-          --mdc-icon-button-size: 36px;
+        td md-icon-button {
+          --md-icon-button-icon-size: 20px;
+          --md-icon-button-state-layer-width: 36px;
+          --md-icon-button-state-layer-height: 36px;
           margin: -2px 0px;
         }
 
@@ -72,9 +73,10 @@ export class GrampsjsTableBase extends GrampsjsAppStateMixin(LitElement) {
             font-size: 15px;
           }
 
-          td mwc-icon-button {
-            --mdc-icon-size: 18px;
-            --mdc-icon-button-size: 33px;
+          td md-icon-button {
+            --md-icon-button-icon-size: 18px;
+            --md-icon-button-state-layer-width: 33px;
+            --md-icon-button-state-layer-height: 33px;
           }
         }
       `,

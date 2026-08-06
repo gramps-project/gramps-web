@@ -1,16 +1,29 @@
-import {LitElement, html} from 'lit'
+import {LitElement, html, css} from 'lit'
 
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
+
+import {mdiBookmark, mdiBookmarkOutline} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {clickKeyHandler, fireEvent} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsTooltip.js'
+import './GrampsjsIcon.js'
 import {addBookmark, deleteBookmark, hasBookmark} from '../api.js'
 
 export class GrampsjsBookmarkButton extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
-    return [sharedStyles]
+    return [
+      sharedStyles,
+      css`
+        md-icon-button {
+          --md-icon-button-icon-color: currentColor;
+          --md-icon-button-hover-icon-color: currentColor;
+          --md-icon-button-focus-icon-color: currentColor;
+          --md-icon-button-pressed-icon-color: currentColor;
+        }
+      `,
+    ]
   }
 
   static get properties() {
@@ -30,12 +43,19 @@ export class GrampsjsBookmarkButton extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     return html`
-      <mwc-icon-button
-        icon="${this.bookmarked ? 'bookmark' : 'bookmark_border'}"
+      <md-icon-button
+        aria-label="${this.bookmarked
+          ? this._('Remove bookmark')
+          : this._('Bookmark this')}"
         @click="${this._handleClick}"
         @keydown="${clickKeyHandler}"
         id="btn-star"
-      ></mwc-icon-button>
+      >
+        <grampsjs-icon
+          path="${this.bookmarked ? mdiBookmark : mdiBookmarkOutline}"
+          color="currentColor"
+        ></grampsjs-icon>
+      </md-icon-button>
       <grampsjs-tooltip
         for="btn-star"
         content="${this.bookmarked
