@@ -410,9 +410,6 @@ export const personListItemStyles = css`
   grampsjs-icon[slot='start'] {
     box-sizing: border-box;
     padding: 8px;
-  }
-
-  grampsjs-icon[slot='start'] {
     background-color: var(--grampsjs-color-icon-background);
   }
 

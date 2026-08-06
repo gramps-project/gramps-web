@@ -58,6 +58,7 @@ export class GrampsjsShareUrl extends GrampsjsAppStateMixin(LitElement) {
     return html`
       <md-icon-button
         id="share-icon"
+        aria-label="${this._('Copy URL')}"
         @click="${this._handleShareClick}"
         @keydown="${clickKeyHandler}"
       >

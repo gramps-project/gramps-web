@@ -131,6 +131,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
               <td>
                 <md-icon-button
                   class="edit"
+                  aria-label="${this._('Edit user')}"
                   @click="${e => this._handleEditClick(e, obj.name)}"
                   id="button-edit-${index}"
                 >
@@ -146,6 +147,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
                 </grampsjs-tooltip>
                 <md-icon-button
                   class="error"
+                  aria-label="${this._('Delete user')}"
                   @click="${e => this._handleDeleteClick(e, obj.name)}"
                   id="button-del-${index}"
                 >
@@ -233,6 +235,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
       <p>
         <md-icon-button
           class="edit"
+          aria-label="${this._('Add a new user')}"
           @click="${this._handleAddClick}"
           id="button-add"
         >
@@ -247,6 +250,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
 
         <md-icon-button
           class="edit"
+          aria-label="${this._('Import user accounts')}"
           id="button-import"
           @click="${this._handleImportClick}"
         >
@@ -261,6 +265,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
 
         <md-icon-button
           class="edit"
+          aria-label="${this._('Export user details')}"
           id="button-export"
           @click="${this._handleExportClick}"
         >

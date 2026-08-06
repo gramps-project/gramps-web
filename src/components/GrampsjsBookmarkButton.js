@@ -44,6 +44,9 @@ export class GrampsjsBookmarkButton extends GrampsjsAppStateMixin(LitElement) {
   render() {
     return html`
       <md-icon-button
+        aria-label="${this.bookmarked
+          ? this._('Remove bookmark')
+          : this._('Bookmark this')}"
         @click="${this._handleClick}"
         @keydown="${clickKeyHandler}"
         id="btn-star"
