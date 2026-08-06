@@ -1,9 +1,12 @@
 import {html, css} from 'lit'
 
 import '@material/mwc-icon'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
+
+import {mdiPencil} from '@mdi/js'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
+import './GrampsjsIcon.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsEditor.js'
 import './GrampsjsFormEditType.js'
@@ -32,11 +35,16 @@ export class GrampsjsNote extends GrampsjsObject {
         ${this._(this.data?.type || 'Note')}
         ${this.edit
           ? html`
-              <mwc-icon-button
-                icon="edit"
+              <md-icon-button
                 class="edit"
+                aria-label="${this._('Edit')}"
                 @click="${this._handleEditType}"
-              ></mwc-icon-button>
+              >
+                <grampsjs-icon
+                  path="${mdiPencil}"
+                  color="var(--mdc-theme-secondary)"
+                ></grampsjs-icon>
+              </md-icon-button>
             `
           : ''}
       </h2>

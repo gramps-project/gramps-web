@@ -1,7 +1,10 @@
 import {css, html} from 'lit'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
+
+import {mdiArrowLeft} from '@mdi/js'
 
 import {GrampsjsView} from './GrampsjsView.js'
+import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsReportOptions.js'
 import {getReportUrl} from '../api.js'
 import {fireEvent} from '../util.js'
@@ -13,10 +16,6 @@ export class GrampsjsViewReport extends GrampsjsView {
       css`
         :host {
           padding-bottom: 2em;
-        }
-
-        h2 mwc-icon-button {
-          color: var(--mdc-theme-primary);
         }
       `,
     ]
@@ -45,10 +44,15 @@ export class GrampsjsViewReport extends GrampsjsView {
     }
     return html`
       <h2>
-        <mwc-icon-button
-          icon="arrow_back"
+        <md-icon-button
+          aria-label="${this._('_Back')}"
           @click="${this._handleBack}"
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon
+            path="${mdiArrowLeft}"
+            color="var(--mdc-theme-primary)"
+          ></grampsjs-icon>
+        </md-icon-button>
         ${this._(this.data.name)}
       </h2>
       <dl style="clear:left;">
