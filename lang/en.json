@@ -396,5 +396,8 @@
   "Confirm Import": "Confirm Import",
   "This file contains the following objects, which will be added to your tree:": "This file contains the following objects, which will be added to your tree:",
   "No objects found in this file.": "No objects found in this file.",
-  "Preview Import": "Preview Import"
+  "Preview Import": "Preview Import",
+  "Select date": "Select date",
+  "Clear selection": "Clear selection",
+  "Draw a selection": "Draw a selection"
 }

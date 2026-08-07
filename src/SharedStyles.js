@@ -432,14 +432,59 @@ export const personListItemStyles = css`
   }
 `
 
-/* mwc-icon-button inherited the app bar's colour; md-icon-button sets its own,
-   so route the tokens back to the inherited value. Opt-in (rather than part of
-   sharedStyles) so it only applies to icon buttons sitting on the app bar. */
-export const appBarIconButtonStyles = css`
+/* Drives all six md-icon-button colour tokens from one variable. An inherited
+   `color` does not reach the icon, so include these styles and set:
+
+     md-icon-button {
+       --grampsjs-icon-button-color: var(--grampsjs-body-font-color-50);
+     }
+
+   The variable inherits, so setting it on an ancestor or on a class such as
+   `.edit` recolours a subset. Two optional companions:
+   `--grampsjs-icon-button-disabled-color` defaults to the enabled colour, and
+   `--grampsjs-icon-button-disabled-opacity` should be 1 once the disabled
+   colour is itself dimmed. Every fallback is md's own default, so a button that
+   sets nothing keeps the standard appearance.
+
+   These styles match by tag name, so they stay opt-in. */
+export const iconButtonColorStyles = css`
   md-icon-button {
-    --md-icon-button-icon-color: currentColor;
-    --md-icon-button-hover-icon-color: currentColor;
-    --md-icon-button-focus-icon-color: currentColor;
-    --md-icon-button-pressed-icon-color: currentColor;
+    --md-icon-button-icon-color: var(
+      --grampsjs-icon-button-color,
+      var(--md-sys-color-on-surface-variant)
+    );
+    --md-icon-button-hover-icon-color: var(
+      --grampsjs-icon-button-color,
+      var(--md-sys-color-on-surface-variant)
+    );
+    --md-icon-button-focus-icon-color: var(
+      --grampsjs-icon-button-color,
+      var(--md-sys-color-on-surface-variant)
+    );
+    --md-icon-button-pressed-icon-color: var(
+      --grampsjs-icon-button-color,
+      var(--md-sys-color-on-surface-variant)
+    );
+    --md-icon-button-disabled-icon-color: var(
+      --grampsjs-icon-button-disabled-color,
+      var(--grampsjs-icon-button-color, var(--md-sys-color-on-surface))
+    );
+    --md-icon-button-disabled-icon-opacity: var(
+      --grampsjs-icon-button-disabled-opacity,
+      0.38
+    );
   }
 `
+
+/* Icon buttons sitting on the app bar inherit its colour, and are 48px so that
+   they line up with each other and with the bar's own height. */
+export const appBarIconButtonStyles = [
+  iconButtonColorStyles,
+  css`
+    md-icon-button {
+      --grampsjs-icon-button-color: currentColor;
+      --md-icon-button-state-layer-width: 48px;
+      --md-icon-button-state-layer-height: 48px;
+    }
+  `,
+]

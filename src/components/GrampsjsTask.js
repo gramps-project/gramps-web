@@ -1,7 +1,7 @@
 import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 import {live} from 'lit/directives/live.js'
-import {mdiPencil, mdiPencilOff} from '@mdi/js'
+import {mdiClose, mdiContentSave, mdiPencil, mdiPencilOff} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 
 import '@material/mwc-button'
@@ -9,9 +9,10 @@ import '@material/mwc-icon'
 import '@material/mwc-select'
 import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
 
 import './GrampsjsEditor.js'
+import './GrampsjsIcon.js'
 import './GrampsjsImg.js'
 import './GrampsjsGallery.js'
 import './GrampsjsTags.js'
@@ -21,7 +22,6 @@ import './GrampsjsConnectedNote.js'
 import './GrampsjsBreadcrumbs.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {debounce, fireEvent} from '../util.js'
-import {renderIconSvg} from '../icons.js'
 
 export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -181,32 +181,47 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
               <div class="controls">
                 ${this._editingNote
                   ? html`
-                      <mwc-icon-button
+                      <md-icon-button
                         class="edit"
                         id="btn-save-note"
-                        icon="save"
+                        aria-label="${this._('_Save')}"
                         @click="${this._handleSaveNote}"
-                      ></mwc-icon-button>
+                      >
+                        <grampsjs-icon
+                          path="${mdiContentSave}"
+                          color="var(--mdc-theme-secondary)"
+                        ></grampsjs-icon>
+                      </md-icon-button>
                       <grampsjs-tooltip for="btn-save-note"
                         >${this._('_Save')}</grampsjs-tooltip
                       >
-                      <mwc-icon-button
+                      <md-icon-button
                         class="edit"
                         id="btn-cancel-note"
-                        icon="clear"
+                        aria-label="${this._('Cancel')}"
                         @click="${this._handleCancelNote}"
-                      ></mwc-icon-button>
+                      >
+                        <grampsjs-icon
+                          path="${mdiClose}"
+                          color="var(--mdc-theme-secondary)"
+                        ></grampsjs-icon>
+                      </md-icon-button>
                       <grampsjs-tooltip for="btn-cancel-note"
                         >${this._('Cancel')}</grampsjs-tooltip
                       >
                     `
                   : html`
-                      <mwc-icon-button
+                      <md-icon-button
                         id="btn-edit-note"
                         class="edit"
-                        icon="edit"
+                        aria-label="${this._('Edit Note')}"
                         @click="${this._handleEditNote}"
-                      ></mwc-icon-button>
+                      >
+                        <grampsjs-icon
+                          path="${mdiPencil}"
+                          color="var(--mdc-theme-secondary)"
+                        ></grampsjs-icon>
+                      </md-icon-button>
                       <grampsjs-tooltip for="btn-edit-note"
                         >${this._('Edit Note')}</grampsjs-tooltip
                       >
@@ -229,15 +244,17 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
       ${this.canEdit
         ? html`
             <div class="controls">
-              <mwc-icon-button
+              <md-icon-button
                 id="btn-edit-gallery"
                 class="edit"
+                aria-label="${this._('Edit')}"
                 @click="${this._handleEditGallery}"
               >
-                ${this._editingGallery
-                  ? renderIconSvg(mdiPencilOff, 'var(--mdc-theme-secondary)')
-                  : renderIconSvg(mdiPencil, 'var(--mdc-theme-secondary)')}
-              </mwc-icon-button>
+                <grampsjs-icon
+                  path="${this._editingGallery ? mdiPencilOff : mdiPencil}"
+                  color="var(--mdc-theme-secondary)"
+                ></grampsjs-icon>
+              </md-icon-button>
               <grampsjs-tooltip for="btn-edit-gallery"
                 >${this._('Edit')}</grampsjs-tooltip
               >

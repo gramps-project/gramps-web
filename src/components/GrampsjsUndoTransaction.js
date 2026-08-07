@@ -11,25 +11,23 @@ import {mdiClose} from '@mdi/js'
 import {fireEvent} from '../util.js'
 import './GrampsjsIcon.js'
 
-import {sharedStyles} from '../SharedStyles.js'
+import {sharedStyles, iconButtonColorStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 class GrampsjsUndoTransaction extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
+      iconButtonColorStyles,
       css`
-        /* mwc-snackbar styles its dismiss button via ::slotted(mwc-icon-button),
-           matched by tag name, so md-icon-button gets none of it. Replicate the
-           size, colour and spacing it used to provide. */
+        /* mwc-snackbar styles its dismiss button through
+           ::slotted(mwc-icon-button), which matches by tag name and so skips
+           md-icon-button. Supply the size, colour and spacing here. */
         md-icon-button[slot='dismiss'] {
           --md-icon-button-icon-size: 18px;
           --md-icon-button-state-layer-width: 36px;
           --md-icon-button-state-layer-height: 36px;
-          --md-icon-button-icon-color: rgba(255, 255, 255, 0.87);
-          --md-icon-button-hover-icon-color: rgba(255, 255, 255, 0.87);
-          --md-icon-button-focus-icon-color: rgba(255, 255, 255, 0.87);
-          --md-icon-button-pressed-icon-color: rgba(255, 255, 255, 0.87);
+          --grampsjs-icon-button-color: rgba(255, 255, 255, 0.87);
           margin-left: 8px;
           margin-right: 0;
         }

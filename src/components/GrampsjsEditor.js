@@ -6,12 +6,21 @@ import '@material/web/button/filled-button.js'
 import '@material/mwc-textfield'
 import '@material/mwc-icon'
 import '@material/mwc-button'
-import '@material/mwc-icon-button'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/button/text-button.js'
-import {mdiInformation, mdiClose, mdiUndo, mdiRedo} from '@mdi/js'
+import {
+  mdiFormatBold,
+  mdiFormatItalic,
+  mdiFormatStrikethrough,
+  mdiFormatUnderline,
+  mdiInformation,
+  mdiClose,
+  mdiLink,
+  mdiUndo,
+  mdiRedo,
+} from '@mdi/js'
 
-import {sharedStyles} from '../SharedStyles.js'
+import {sharedStyles, iconButtonColorStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
 import {
   charLength,
@@ -177,6 +186,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
+      iconButtonColorStyles,
       css`
         .note {
           font-family: var(
@@ -195,13 +205,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
           padding: 20px 25px;
         }
 
-        mwc-icon-button,
-        #controls md-icon-button {
-          color: var(--grampsjs-body-font-color-50);
-        }
-
         #controls {
           margin: 0.7em 0;
+          --grampsjs-icon-button-color: var(--grampsjs-body-font-color-50);
         }
 
         a {
@@ -247,6 +253,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
         .draft-banner md-icon-button {
           --md-icon-button-icon-size: 18px;
+          --grampsjs-icon-button-color: var(--grampsjs-body-font-color-40);
         }
       `,
     ]
@@ -334,70 +341,100 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
                 <md-text-button @click="${this._handleDiscardDraft}">
                   ${this._('Discard')}
                 </md-text-button>
-                <md-icon-button @click="${this._handleDismissBanner}">
-                  <grampsjs-icon path="${mdiClose}"></grampsjs-icon>
+                <md-icon-button
+                  aria-label="${this._('Close')}"
+                  @click="${this._handleDismissBanner}"
+                >
+                  <grampsjs-icon
+                    path="${mdiClose}"
+                    color="currentColor"
+                  ></grampsjs-icon>
                 </md-icon-button>
               </div>
             </div>
           `
         : ''}
       <div id="controls">
-        <mwc-icon-button
+        <md-icon-button
           id="btn-bold"
-          icon="format_bold"
+          aria-label="${this._('Bold')}"
           @click="${() => this._handleFormat('bold')}"
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon
+            path="${mdiFormatBold}"
+            color="currentColor"
+          ></grampsjs-icon>
+        </md-icon-button>
         <grampsjs-tooltip for="btn-bold" .appState="${this.appState}"
           >${this._('Bold')}</grampsjs-tooltip
         >
-        <mwc-icon-button
+        <md-icon-button
           id="btn-italic"
-          icon="format_italic"
+          aria-label="${this._('Italic')}"
           @click="${() => this._handleFormat('italic')}"
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon
+            path="${mdiFormatItalic}"
+            color="currentColor"
+          ></grampsjs-icon>
+        </md-icon-button>
         <grampsjs-tooltip for="btn-italic" .appState="${this.appState}"
           >${this._('Italic')}</grampsjs-tooltip
         >
-        <mwc-icon-button
+        <md-icon-button
           id="btn-underline"
-          icon="format_underlined"
+          aria-label="${this._('Underline')}"
           @click="${() => this._handleFormat('underline')}"
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon
+            path="${mdiFormatUnderline}"
+            color="currentColor"
+          ></grampsjs-icon>
+        </md-icon-button>
         <grampsjs-tooltip for="btn-underline" .appState="${this.appState}"
           >${this._('Underline')}</grampsjs-tooltip
         >
-        <mwc-icon-button
+        <md-icon-button
           id="btn-strikethrough"
-          icon="format_strikethrough"
+          aria-label="${this._('Strikethrough')}"
           @click="${() => this._handleFormat('strikethrough')}"
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon
+            path="${mdiFormatStrikethrough}"
+            color="currentColor"
+          ></grampsjs-icon>
+        </md-icon-button>
         <grampsjs-tooltip for="btn-strikethrough" .appState="${this.appState}"
           >${this._('Strikethrough')}</grampsjs-tooltip
         >
-        <mwc-icon-button
+        <md-icon-button
           id="btn-link"
-          icon="link"
+          aria-label="${this._('Link')}"
           @click="${() => this._handleFormat('link')}"
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon path="${mdiLink}" color="currentColor"></grampsjs-icon>
+        </md-icon-button>
         <grampsjs-tooltip for="btn-link" .appState="${this.appState}"
           >${this._('Link')}</grampsjs-tooltip
         >
         <md-icon-button
           id="btn-undo"
+          aria-label="${this._('Undo')}"
           ?disabled="${!this._canUndo}"
           @click="${this._undo}"
         >
-          <grampsjs-icon path="${mdiUndo}"></grampsjs-icon>
+          <grampsjs-icon path="${mdiUndo}" color="currentColor"></grampsjs-icon>
         </md-icon-button>
         <grampsjs-tooltip for="btn-undo" .appState="${this.appState}"
           >${this._('Undo')}</grampsjs-tooltip
         >
         <md-icon-button
           id="btn-redo"
+          aria-label="${this._('Redo')}"
           ?disabled="${!this._canRedo}"
           @click="${this._redo}"
         >
-          <grampsjs-icon path="${mdiRedo}"></grampsjs-icon>
+          <grampsjs-icon path="${mdiRedo}" color="currentColor"></grampsjs-icon>
         </md-icon-button>
         <grampsjs-tooltip for="btn-redo" .appState="${this.appState}"
           >${this._('Redo')}</grampsjs-tooltip

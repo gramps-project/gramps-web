@@ -523,6 +523,8 @@ export const grampsStrings = [
   'Modified Henry numbering',
   'Monday',
   'Mother',
+  'Move Down',
+  'Move Up',
   'Multiple birth',
   'Municipality',
   'Name Note',

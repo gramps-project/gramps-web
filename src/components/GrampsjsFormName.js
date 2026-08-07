@@ -4,12 +4,21 @@ element for editing a name
 
 import {html, css, LitElement} from 'lit'
 import '@material/mwc-textfield'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
 import '@material/mwc-icon'
 
+import {
+  mdiArrowDown,
+  mdiArrowUp,
+  mdiDelete,
+  mdiDotsHorizontal,
+  mdiPlus,
+} from '@mdi/js'
+
 import {classMap} from 'lit/directives/class-map.js'
-import {sharedStyles} from '../SharedStyles.js'
+import {sharedStyles, iconButtonColorStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
+import './GrampsjsIcon.js'
 import './GrampsjsFormString.js'
 import './GrampsjsFormSurname.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -18,6 +27,7 @@ class GrampsjsFormName extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
+      iconButtonColorStyles,
       css`
         mwc-textfield.fullwidth {
           width: 100%;
@@ -32,8 +42,13 @@ class GrampsjsFormName extends GrampsjsAppStateMixin(LitElement) {
           display: none;
         }
 
-        mwc-icon-button {
-          color: var(--grampsjs-body-font-color-50);
+        md-icon-button {
+          --grampsjs-icon-button-color: var(--grampsjs-body-font-color-50);
+        }
+
+        /* .edit sets color, which does not reach the slotted icon */
+        md-icon-button.edit {
+          --grampsjs-icon-button-color: var(--mdc-theme-secondary);
         }
       `,
     ]
@@ -124,28 +139,37 @@ class GrampsjsFormName extends GrampsjsAppStateMixin(LitElement) {
       </h4>
       ${(this.data.surname_list || [{}]).map(
         (obj, i) => html`
-          <mwc-icon-button
+          <md-icon-button
             ?disabled="${!this.data?.surname_list ||
             this.data?.surname_list?.length === 1}"
             class="edit ${classMap({hide: !this.showMore})}"
-            icon="delete"
+            aria-label="${this._('Delete')}"
             @click="${() => this._handleDeleteSurname(i)}"
-          ></mwc-icon-button>
+          >
+            <grampsjs-icon path="${mdiDelete}" color="currentColor">
+            </grampsjs-icon>
+          </md-icon-button>
 
-          <mwc-icon-button
+          <md-icon-button
             ?disabled="${!this.data?.surname_list || i === 0}"
             class="edit ${classMap({hide: !this.showMore})}"
-            icon="arrow_upward"
+            aria-label="${this._('Move Up')}"
             @click="${() => this._handleUpSurname(i)}"
-          ></mwc-icon-button>
+          >
+            <grampsjs-icon path="${mdiArrowUp}" color="currentColor">
+            </grampsjs-icon>
+          </md-icon-button>
 
-          <mwc-icon-button
+          <md-icon-button
             ?disabled="${!this.data?.surname_list ||
             i === this.data?.surname_list?.length - 1}"
             class="edit ${classMap({hide: !this.showMore})}"
-            icon="arrow_downward"
+            aria-label="${this._('Move Down')}"
             @click="${() => this._handleDownSurname(i)}"
-          ></mwc-icon-button>
+          >
+            <grampsjs-icon path="${mdiArrowDown}" color="currentColor">
+            </grampsjs-icon>
+          </md-icon-button>
 
           <grampsjs-form-surname
             ?origintype="${this.origintype}"
@@ -164,21 +188,27 @@ class GrampsjsFormName extends GrampsjsAppStateMixin(LitElement) {
         `
       )}
       <p class="${classMap({hide: !this.showMore})}">
-        <mwc-icon-button
+        <md-icon-button
+          aria-label="${this._('Add')}"
           @click="${this._handleAddSurname}"
-          icon="add"
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon path="${mdiPlus}" color="currentColor">
+          </grampsjs-icon>
+        </md-icon-button>
       </p>
 
       ${this.showMore
         ? ''
         : html`
-            <mwc-icon-button
+            <md-icon-button
               class="edit"
               id="button-show-more"
+              aria-label="${this._('Show more')}"
               @click="${this._handleShowMore}"
-              icon="more_horiz"
-            ></mwc-icon-button>
+            >
+              <grampsjs-icon path="${mdiDotsHorizontal}" color="currentColor">
+              </grampsjs-icon>
+            </md-icon-button>
             <grampsjs-tooltip
               for="button-show-more"
               .appState="${this.appState}"
