@@ -9,24 +9,29 @@ import '@material/mwc-list'
 import '@material/mwc-menu'
 import '@material/mwc-icon'
 import '@material/mwc-textfield'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
+
+import {mdiArrowDown, mdiArrowUp, mdiDelete} from '@mdi/js'
 
 import {fireEvent} from '../util.js'
+import './GrampsjsIcon.js'
 import './GrampsjsSearchResultList.js'
-import {sharedStyles} from '../SharedStyles.js'
+import {sharedStyles, iconButtonColorStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 class GrampsjsFormObjectList extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
+      iconButtonColorStyles,
       css`
-        mwc-icon-button {
+        md-icon-button {
           vertical-align: middle;
-          color: var(--grampsjs-body-font-color-40);
-          --mdc-theme-text-disabled-on-light: var(
+          --grampsjs-icon-button-color: var(--grampsjs-body-font-color-40);
+          --grampsjs-icon-button-disabled-color: var(
             --grampsjs-body-font-color-15
           );
+          --grampsjs-icon-button-disabled-opacity: 1;
         }
       `,
     ]
@@ -61,26 +66,41 @@ class GrampsjsFormObjectList extends GrampsjsAppStateMixin(LitElement) {
       <div class="buttons">
         ${this.deletable
           ? html`
-              <mwc-icon-button
-                icon="delete"
+              <md-icon-button
+                aria-label="${this._('Delete')}"
                 ?disabled="${unselected}"
                 @click="${this._handleDelete}"
-              ></mwc-icon-button>
+              >
+                <grampsjs-icon
+                  path="${mdiDelete}"
+                  color="currentColor"
+                ></grampsjs-icon>
+              </md-icon-button>
             `
           : ''}
         ${this.reorder
-          ? html`<mwc-icon-button
-                icon="arrow_upward"
+          ? html`<md-icon-button
+                aria-label="${this._('Move Up')}"
                 ?disabled="${unselected || one || this.selectedIndex === 0}"
                 @click="${this._handleUp}"
-              ></mwc-icon-button>
-              <mwc-icon-button
-                icon="arrow_downward"
+              >
+                <grampsjs-icon
+                  path="${mdiArrowUp}"
+                  color="currentColor"
+                ></grampsjs-icon>
+              </md-icon-button>
+              <md-icon-button
+                aria-label="${this._('Move Down')}"
                 ?disabled="${unselected ||
                 one ||
                 this.selectedIndex === this.objects.length - 1}"
                 @click="${this._handleDown}"
-              ></mwc-icon-button>`
+              >
+                <grampsjs-icon
+                  path="${mdiArrowDown}"
+                  color="currentColor"
+                ></grampsjs-icon>
+              </md-icon-button>`
           : ''}
       </div>
       <grampsjs-search-result-list

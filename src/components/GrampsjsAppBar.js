@@ -5,9 +5,16 @@ The dropdown menu for adding objects in the top app bar
 import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 import '@material/mwc-top-app-bar'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
 import '@material/web/progress/circular-progress.js'
-import {mdiCheck} from '@mdi/js'
+import {
+  mdiCheck,
+  mdiClose,
+  mdiContentSave,
+  mdiDelete,
+  mdiMagnify,
+  mdiMenu,
+} from '@mdi/js'
 import './GrampsjsIcon.js'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
@@ -18,13 +25,14 @@ import './GrampsjsTooltip.js'
 
 import {fireEvent} from '../util.js'
 import {TREE_CONFIG_APP_TITLE} from '../api.js'
-import {sharedStyles} from '../SharedStyles.js'
+import {sharedStyles, appBarIconButtonStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
+      appBarIconButtonStyles,
       css`
         mwc-top-app-bar {
           --mdc-typography-headline6-font-family: var(
@@ -135,20 +143,30 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     return html`
       <mwc-top-app-bar class="${classMap({edit: this.editMode})}">
         ${this.editMode
-          ? html`<mwc-icon-button
+          ? html`<md-icon-button
                 slot="navigationIcon"
-                icon="close"
                 id="button-close"
+                aria-label="${this._('Stop editing')}"
                 @click="${this._handleCloseRequest}"
-              ></mwc-icon-button>
+              >
+                <grampsjs-icon
+                  path="${mdiClose}"
+                  color="currentColor"
+                ></grampsjs-icon>
+              </md-icon-button>
               <grampsjs-tooltip for="button-close" .appState="${this.appState}"
                 >${this._('Stop editing')}</grampsjs-tooltip
               >`
-          : html`<mwc-icon-button
+          : html`<md-icon-button
               slot="navigationIcon"
-              icon="menu"
+              aria-label="${this._('Menu')}"
               @click="${this._toggleDrawer}"
-            ></mwc-icon-button>`}
+            >
+              <grampsjs-icon
+                path="${mdiMenu}"
+                color="currentColor"
+              ></grampsjs-icon>
+            </md-icon-button>`}
         <div id="app-title" slot="title">
           ${this.editMode && this.editTitle
             ? this.editTitle
@@ -160,12 +178,17 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
         ${this.editMode
           ? html`
               ${this.saveButton
-                ? html`<mwc-icon-button
-                      icon="save"
+                ? html`<md-icon-button
                       slot="actionItems"
                       id="button-save"
+                      aria-label="${this._('_Save')}"
                       @click="${this._handleSaveIcon}"
-                    ></mwc-icon-button>
+                    >
+                      <grampsjs-icon
+                        path="${mdiContentSave}"
+                        color="currentColor"
+                      ></grampsjs-icon>
+                    </md-icon-button>
                     <grampsjs-tooltip
                       for="button-save"
                       .appState="${this.appState}"
@@ -173,12 +196,17 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
                     >`
                 : ''}
               ${!this.hideDeleteButton
-                ? html`<mwc-icon-button
-                      icon="delete"
+                ? html`<md-icon-button
                       slot="actionItems"
                       id="button-delete"
+                      aria-label="${this._('_Delete')}"
                       @click="${this._handleDeleteIcon}"
-                    ></mwc-icon-button>
+                    >
+                      <grampsjs-icon
+                        path="${mdiDelete}"
+                        color="currentColor"
+                      ></grampsjs-icon>
+                    </md-icon-button>
                     <grampsjs-tooltip
                       for="button-delete"
                       .appState="${this.appState}"
@@ -209,12 +237,17 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
                 .appState="${this.appState}"
                 >${this._('Preferences')}</grampsjs-tooltip
               >
-              <mwc-icon-button
-                icon="search"
+              <md-icon-button
                 slot="actionItems"
                 id="button-search"
+                aria-label="${this._('Search')}"
                 @click="${() => this._handleNav('search')}"
-              ></mwc-icon-button>
+              >
+                <grampsjs-icon
+                  path="${mdiMagnify}"
+                  color="currentColor"
+                ></grampsjs-icon>
+              </md-icon-button>
               <grampsjs-tooltip for="button-search" .appState="${this.appState}"
                 >${this._('Search')}</grampsjs-tooltip
               >

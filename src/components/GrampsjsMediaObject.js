@@ -1,7 +1,14 @@
 /* eslint-disable no-nested-ternary */
 import {html, css} from 'lit'
 
-import {mdiSelectDrag, mdiTextRecognition} from '@mdi/js'
+import {
+  mdiClose,
+  mdiDelete,
+  mdiPencil,
+  mdiSelectDrag,
+  mdiSelectionOff,
+  mdiTextRecognition,
+} from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsImg.js'
 import './GrampsjsFormEditDate.js'
@@ -12,16 +19,24 @@ import './GrampsjsFaces.js'
 import './GrampsjsTextRecognition.js'
 import {arrayEqual, fireEvent, getNameFromProfile, emptyDate} from '../util.js'
 import {renderIconSvg} from '../icons.js'
+import {iconButtonColorStyles} from '../SharedStyles.js'
+import './GrampsjsIcon.js'
 
 import '@material/mwc-icon'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
 
 export class GrampsjsMediaObject extends GrampsjsObject {
   static get styles() {
     return [
       super.styles,
+      iconButtonColorStyles,
       css`
         :host {
+        }
+
+        /* .edit sets color, which does not reach the slotted icon */
+        md-icon-button.edit {
+          --grampsjs-icon-button-color: var(--mdc-theme-secondary);
         }
 
         grampsjs-img {
@@ -67,7 +82,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           size: 12px;
           margin-right: -0.5em;
           margin-top: -0.5em;
-          color: var(--mdc-theme-primary);
+          --grampsjs-icon-button-color: var(--mdc-theme-primary);
         }
       `,
     ]
@@ -103,11 +118,16 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         ${this.data.desc || this._('Media Object')}
         ${this.edit
           ? html`
-              <mwc-icon-button
-                icon="edit"
+              <md-icon-button
                 class="edit"
+                aria-label="${this._('Edit')}"
                 @click="${this._handleEditTitle}"
-              ></mwc-icon-button>
+              >
+                <grampsjs-icon
+                  path="${mdiPencil}"
+                  color="currentColor"
+                ></grampsjs-icon>
+              </md-icon-button>
             `
           : ''}
       </h2>
@@ -121,11 +141,16 @@ export class GrampsjsMediaObject extends GrampsjsObject {
               </div>
               ${this.edit
                 ? html`
-                    <mwc-icon-button
-                      icon="edit"
+                    <md-icon-button
                       class="edit"
+                      aria-label="${this._('Edit')}"
                       @click="${this._handleEditDate}"
-                    ></mwc-icon-button>
+                    >
+                      <grampsjs-icon
+                        path="${mdiPencil}"
+                        color="currentColor"
+                      ></grampsjs-icon>
+                    </md-icon-button>
                   `
                 : ''}
             `
@@ -170,26 +195,41 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           ></grampsjs-form-select-object>
         </span>
         <span>
-          <mwc-icon-button
+          <md-icon-button
             class="edit"
-            icon="delete"
+            aria-label="${this._('Delete')}"
             ?disabled="${noSelection}"
             @click="${this._handleFaceDelete}"
-          ></mwc-icon-button>
+          >
+            <grampsjs-icon
+              path="${mdiDelete}"
+              color="currentColor"
+            ></grampsjs-icon>
+          </md-icon-button>
         </span>
         <span>
-          <mwc-icon-button
+          <md-icon-button
             class="edit"
-            icon="deselect"
+            aria-label="${this._('Clear selection')}"
             ?disabled="${noSelection && !this._drawing}"
             @click="${this._handleFaceDeselect}"
-          ></mwc-icon-button>
-          <mwc-icon-button
+          >
+            <grampsjs-icon
+              path="${mdiSelectionOff}"
+              color="currentColor"
+            ></grampsjs-icon>
+          </md-icon-button>
+          <md-icon-button
             class="edit"
+            aria-label="${this._('Draw a selection')}"
             ?disabled="${this._drawing}"
             @click="${this._handleEnableDraw}"
-            >${renderIconSvg(mdiSelectDrag, '')}</mwc-icon-button
           >
+            <grampsjs-icon
+              path="${mdiSelectDrag}"
+              color="currentColor"
+            ></grampsjs-icon>
+          </md-icon-button>
         </span>
       </p>
 
@@ -351,10 +391,15 @@ export class GrampsjsMediaObject extends GrampsjsObject {
   _renderOcr() {
     return html` <div class="ocr">
       <span class="close-icon">
-        <mwc-icon-button
-          icon="close"
+        <md-icon-button
+          aria-label="${this._('Close')}"
           @click="${this._handleCloseOcrClick}"
-        ></mwc-icon-button>
+        >
+          <grampsjs-icon
+            path="${mdiClose}"
+            color="currentColor"
+          ></grampsjs-icon>
+        </md-icon-button>
       </span>
       <grampsjs-text-recognition
         ?canEdit="${this.appState.permissions.canEdit}"

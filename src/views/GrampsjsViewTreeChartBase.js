@@ -5,16 +5,22 @@ import '@material/mwc-textfield'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 import '@material/web/fab/fab.js'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
 
-import {mdiAccountDetails, mdiHomeAccount, mdiPencil} from '@mdi/js'
+import {
+  mdiAccountDetails,
+  mdiArrowLeft,
+  mdiCog,
+  mdiHomeAccount,
+  mdiPencil,
+} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
 import {GrampsjsView} from './GrampsjsView.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import '../components/GrampsjsTooltip.js'
 
 import {chartNameDisplayFormat, fireEvent} from '../util.js'
-import {renderIcon} from '../icons.js'
+import {iconButtonColorStyles} from '../SharedStyles.js'
 
 export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
   GrampsjsView
@@ -22,6 +28,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
   static get styles() {
     return [
       super.styles,
+      iconButtonColorStyles,
       css`
         :host {
           margin: 0;
@@ -44,12 +51,16 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
           margin-bottom: -25px;
         }
 
-        #controls mwc-icon-button {
-          color: var(--grampsjs-body-font-color-35);
-          --mdc-icon-size: 26px;
-          --mdc-theme-text-disabled-on-light: var(
+        #controls {
+          --grampsjs-icon-button-color: var(--grampsjs-body-font-color-35);
+          --grampsjs-icon-button-disabled-color: var(
             --grampsjs-body-font-color-10
           );
+          --grampsjs-icon-button-disabled-opacity: 1;
+        }
+
+        #controls md-icon-button {
+          --md-icon-button-icon-size: 26px;
         }
 
         #menu-controls mwc-textfield {
@@ -193,43 +204,46 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
 
   renderControls() {
     return html`
-        <mwc-icon-button
+        <md-icon-button
           @click=${this._backToHomePerson}
           style="margin-bottom:-10px;"
           ?disabled=${this.disableHome}
+          aria-label="${this._('Home Person')}"
           id="button-home"
-        >${renderIcon(
-          mdiHomeAccount,
-          this.disableHome ? 'var(--mdc-theme-text-disabled-on-light)' : ''
-        )}</mwc-icon-button>
+        ><grampsjs-icon path="${mdiHomeAccount}" color="currentColor"
+          ></grampsjs-icon></md-icon-button>
         <grampsjs-tooltip
           for="button-home"
           .appState="${this.appState}"
         >${this._('Home Person')}</grampsjs-tooltip>
-        <mwc-icon-button
-          icon="arrow_back"
+        <md-icon-button
           @click=${this._handleBack}
           ?disabled=${this.disableBack}
           style="margin-bottom:-10px;"
+          aria-label="${this._('_Back')}"
           id="btn-back"
-        ></mwc-icon-button>
+        ><grampsjs-icon path="${mdiArrowLeft}" color="currentColor"
+          ></grampsjs-icon></md-icon-button>
         <grampsjs-tooltip
           for="btn-back"
           .appState="${this.appState}"
         >${this._('_Back')}</grampsjs-tooltip>
-        <mwc-icon-button
+        <md-icon-button
           @click=${this._goToPerson}
+          aria-label="${this._('Person Details')}"
           id="btn-person"
-        >${renderIcon(mdiAccountDetails)}</mwc-icon-button>
+        ><grampsjs-icon path="${mdiAccountDetails}" color="currentColor"
+          ></grampsjs-icon></md-icon-button>
         <grampsjs-tooltip
           for="btn-person"
           .appState="${this.appState}"
         >${this._('Person Details')}</grampsjs-tooltip>
-        <mwc-icon-button
-          icon="settings"
+        <md-icon-button
           id="btn-controls"
+          aria-label="${this._('Preferences')}"
           @click=${this._openMenuControls}
-        ></mwc-icon-button>
+        ><grampsjs-icon path="${mdiCog}" color="currentColor"
+          ></grampsjs-icon></md-icon-button>
         <grampsjs-tooltip
           for="btn-controls"
           .appState="${this.appState}"

@@ -4,7 +4,7 @@ import '@material/web/iconbutton/icon-button.js'
 
 import {mdiBookmark, mdiBookmarkOutline} from '@mdi/js'
 
-import {sharedStyles} from '../SharedStyles.js'
+import {sharedStyles, iconButtonColorStyles} from '../SharedStyles.js'
 import {clickKeyHandler, fireEvent} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsTooltip.js'
@@ -15,12 +15,10 @@ export class GrampsjsBookmarkButton extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
+      iconButtonColorStyles,
       css`
         md-icon-button {
-          --md-icon-button-icon-color: currentColor;
-          --md-icon-button-hover-icon-color: currentColor;
-          --md-icon-button-focus-icon-color: currentColor;
-          --md-icon-button-pressed-icon-color: currentColor;
+          --grampsjs-icon-button-color: currentColor;
         }
       `,
     ]

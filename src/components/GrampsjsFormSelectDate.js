@@ -6,9 +6,12 @@ import {html, css, LitElement} from 'lit'
 import '@material/mwc-textfield'
 import '@material/mwc-select'
 import '@material/mwc-list/mwc-list-item'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
 
-import {sharedStyles} from '../SharedStyles.js'
+import {mdiCalendar} from '@mdi/js'
+
+import './GrampsjsIcon.js'
+import {sharedStyles, iconButtonColorStyles} from '../SharedStyles.js'
 import {getSortval, dateIsEmpty, emptyDate} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {validateGrampsDate} from '../gcalendar.js'
@@ -47,16 +50,18 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
+      iconButtonColorStyles,
       css`
         p {
           margin: 7px 0;
         }
 
-        mwc-icon-button {
-          color: var(--grampsjs-body-font-color-50);
-          --mdc-theme-text-disabled-on-light: var(
+        md-icon-button {
+          --grampsjs-icon-button-color: var(--grampsjs-body-font-color-50);
+          --grampsjs-icon-button-disabled-color: var(
             --grampsjs-body-font-color-25
           );
+          --grampsjs-icon-button-disabled-opacity: 1;
         }
 
         span.dateform {
@@ -185,11 +190,13 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
       >
       </input>
 
-      <mwc-icon-button
-        icon="event"
+      <md-icon-button
+        aria-label="${this._('Select date')}"
         ?disabled="${this.data.calendar !== 0}"
         @click=${this._openDatePicker1}
-      ></mwc-icon-button>
+      >
+        <grampsjs-icon path="${mdiCalendar}" color="currentColor"></grampsjs-icon>
+      </md-icon-button>
       </span>
 
       ${
@@ -255,11 +262,13 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
       >
       </input>
 
-      <mwc-icon-button
+      <md-icon-button
+        aria-label="${this._('Select date')}"
         ?disabled="${this.data.calendar !== 0}"
-        icon="event"
         @click=${this._openDatePicker2}
-      ></mwc-icon-button>
+      >
+        <grampsjs-icon path="${mdiCalendar}" color="currentColor"></grampsjs-icon>
+      </md-icon-button>
       </span>
     </p>
       `

@@ -2,9 +2,12 @@ import {html} from 'lit'
 
 import '@material/mwc-icon'
 import '@material/web/button/outlined-button'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
+
+import {mdiPencil} from '@mdi/js'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
+import './GrampsjsIcon.js'
 import './GrampsjsFormEditTitle.js'
 import './GrampsjsFormEditSourceData.js'
 import {fireEvent, linkUrls} from '../util.js'
@@ -24,11 +27,16 @@ export class GrampsjsSource extends GrampsjsObject {
         ${this.data.title || this._('Media Object')}
         ${this.edit
           ? html`
-              <mwc-icon-button
-                icon="edit"
+              <md-icon-button
                 class="edit"
+                aria-label="${this._('Edit')}"
                 @click="${this._handleEditTitle}"
-              ></mwc-icon-button>
+              >
+                <grampsjs-icon
+                  path="${mdiPencil}"
+                  color="var(--mdc-theme-secondary)"
+                ></grampsjs-icon>
+              </md-icon-button>
             `
           : ''}
       </h2>
@@ -63,11 +71,16 @@ export class GrampsjsSource extends GrampsjsObject {
         ? html`
             <div>
               <dd>
-                <mwc-icon-button
-                  icon="edit"
+                <md-icon-button
                   class="edit"
+                  aria-label="${this._('Edit')}"
                   @click="${this._handleSourceData}"
-                ></mwc-icon-button>
+                >
+                  <grampsjs-icon
+                    path="${mdiPencil}"
+                    color="var(--mdc-theme-secondary)"
+                  ></grampsjs-icon>
+                </md-icon-button>
               </dd>
             </div>
           `

@@ -1,9 +1,12 @@
 import {css, html} from 'lit'
 
 import '@material/mwc-icon'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
+
+import {mdiLinkOff, mdiLinkPlus, mdiPencil, mdiPlus} from '@mdi/js'
 
 import {fireEvent} from '../util.js'
+import './GrampsjsIcon.js'
 import './GrampsjsObjectLink.js'
 import './GrampsjsFormEditFamily.js'
 import './GrampsjsFormNewPerson.js'
@@ -127,11 +130,16 @@ export class GrampsjsFamily extends GrampsjsObject {
             ${this.edit
               ? html`
                   <div class="parent-actions">
-                    <mwc-icon-button
-                      icon="edit"
+                    <md-icon-button
                       class="edit"
+                      aria-label="${this._('Edit')}"
                       @click="${this._handleEditFamily}"
-                    ></mwc-icon-button>
+                    >
+                      <grampsjs-icon
+                        path="${mdiPencil}"
+                        color="var(--mdc-theme-secondary)"
+                      ></grampsjs-icon>
+                    </md-icon-button>
                   </div>
                 `
               : ''}
@@ -178,27 +186,42 @@ export class GrampsjsFamily extends GrampsjsObject {
                   <div class="parent-actions">
                     ${hasProfile
                       ? html`
-                          <mwc-icon-button
+                          <md-icon-button
                             class="edit"
-                            icon="link_off"
                             title="${this._('Remove')}"
+                            aria-label="${this._('Remove')}"
                             @click="${e =>
                               this._handleParentChanged(e, parent)}"
-                          ></mwc-icon-button>
+                          >
+                            <grampsjs-icon
+                              path="${mdiLinkOff}"
+                              color="var(--mdc-theme-secondary)"
+                            ></grampsjs-icon>
+                          </md-icon-button>
                         `
                       : ''}
-                    <mwc-icon-button
+                    <md-icon-button
                       class="edit"
-                      icon="add_link"
                       title="${this._('Select an existing person')}"
+                      aria-label="${this._('Select an existing person')}"
                       @click="${() => this._handleParentShare(parent)}"
-                    ></mwc-icon-button>
-                    <mwc-icon-button
+                    >
+                      <grampsjs-icon
+                        path="${mdiLinkPlus}"
+                        color="var(--mdc-theme-secondary)"
+                      ></grampsjs-icon>
+                    </md-icon-button>
+                    <md-icon-button
                       class="edit"
-                      icon="add"
                       title="${this._('Add a new person')}"
+                      aria-label="${this._('Add a new person')}"
                       @click="${() => this._handleAddNewParent(parent)}"
-                    ></mwc-icon-button>
+                    >
+                      <grampsjs-icon
+                        path="${mdiPlus}"
+                        color="var(--mdc-theme-secondary)"
+                      ></grampsjs-icon>
+                    </md-icon-button>
                   </div>
                 `
               : ''}

@@ -2,9 +2,9 @@ import {html, css} from 'lit'
 
 import '@material/mwc-icon'
 import '@material/web/button/outlined-button.js'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
 
-import {mdiTimelineOutline} from '@mdi/js'
+import {mdiTimelineOutline, mdiPencil} from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditEventDetails.js'
 import './GrampsjsFormEditTitle.js'
@@ -39,12 +39,17 @@ export class GrampsjsEvent extends GrampsjsObject {
         ${this._renderTitle()}
         ${this.edit
           ? html`
-              <mwc-icon-button
+              <md-icon-button
                 id="btn-edit-type"
-                icon="edit"
                 class="edit"
+                aria-label="${this._('Edit event type')}"
                 @click="${this._handleEditType}"
-              ></mwc-icon-button>
+              >
+                <grampsjs-icon
+                  path="${mdiPencil}"
+                  color="var(--mdc-theme-secondary)"
+                ></grampsjs-icon>
+              </md-icon-button>
               <grampsjs-tooltip for="btn-edit-type"
                 >${this._('Edit event type')}</grampsjs-tooltip
               >
@@ -61,11 +66,16 @@ export class GrampsjsEvent extends GrampsjsObject {
         : ''}
       ${this.edit
         ? html`
-            <mwc-icon-button
-              icon="edit"
+            <md-icon-button
               class="edit"
+              aria-label="${this._('Edit')}"
               @click="${this._handleEditDesc}"
-            ></mwc-icon-button>
+            >
+              <grampsjs-icon
+                path="${mdiPencil}"
+                color="var(--mdc-theme-secondary)"
+              ></grampsjs-icon>
+            </md-icon-button>
           `
         : ''}
 
@@ -96,11 +106,16 @@ export class GrampsjsEvent extends GrampsjsObject {
       </dl>
       ${this.edit
         ? html`
-            <mwc-icon-button
-              icon="edit"
+            <md-icon-button
               class="edit"
+              aria-label="${this._('Edit')}"
               @click="${this._handleEditDetails}"
-            ></mwc-icon-button>
+            >
+              <grampsjs-icon
+                path="${mdiPencil}"
+                color="var(--mdc-theme-secondary)"
+              ></grampsjs-icon>
+            </md-icon-button>
           `
         : ''}
       ${!this.preview && this.data?.profile?.date

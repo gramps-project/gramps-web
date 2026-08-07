@@ -4,7 +4,7 @@ import '@material/web/icon/icon'
 import '@material/web/menu/menu'
 import '@material/web/menu/menu-item'
 import '@material/web/chips/input-chip'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
 import {mdiPalette} from '@mdi/js'
 
 import {GrampsjsViewTreeChartBase} from './GrampsjsViewTreeChartBase.js'
@@ -112,11 +112,16 @@ export class GrampsjsViewFanChart extends GrampsjsViewTreeChartBase {
     return html`
       ${super.renderControls()}
 
-      <mwc-icon-button
-        icon="palette"
+      <md-icon-button
         @click=${this._handleColor}
+        aria-label="${this._('Color')}"
         id="btn-color"
-      ></mwc-icon-button>
+      >
+        <grampsjs-icon
+          path="${mdiPalette}"
+          color="currentColor"
+        ></grampsjs-icon>
+      </md-icon-button>
       <grampsjs-tooltip for="btn-color" .appState="${this.appState}"
         >${this._('Color')}</grampsjs-tooltip
       >

@@ -2,9 +2,9 @@ import {css, html} from 'lit'
 
 import '@material/mwc-icon'
 import '@material/web/button/outlined-button.js'
-import '@material/mwc-icon-button'
+import '@material/web/iconbutton/icon-button.js'
 
-import {mdiArrowExpandAll} from '@mdi/js'
+import {mdiArrowExpandAll, mdiPencil} from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditLatLong.js'
 import './GrampsjsFormEditPlaceName.js'
@@ -41,11 +41,16 @@ export class GrampsjsPlace extends GrampsjsObject {
         ${this.data?.name?.value || this.data.title || this._('Place')}
         ${this.edit
           ? html`
-              <mwc-icon-button
-                icon="edit"
+              <md-icon-button
                 class="edit"
+                aria-label="${this._('Edit')}"
                 @click="${this._handleEditName}"
-              ></mwc-icon-button>
+              >
+                <grampsjs-icon
+                  path="${mdiPencil}"
+                  color="var(--mdc-theme-secondary)"
+                ></grampsjs-icon>
+              </md-icon-button>
             `
           : ''}
       </h2>
@@ -55,12 +60,17 @@ export class GrampsjsPlace extends GrampsjsObject {
             ${this.data?.profile?.type || this._('Unknown')}
             ${this.edit
               ? html`
-                  <mwc-icon-button
+                  <md-icon-button
                     id="btn-edit-type"
-                    icon="edit"
                     class="edit"
+                    aria-label="${this._('Edit')}"
                     @click="${this._handleEditType}"
-                  ></mwc-icon-button>
+                  >
+                    <grampsjs-icon
+                      path="${mdiPencil}"
+                      color="var(--mdc-theme-secondary)"
+                    ></grampsjs-icon>
+                  </md-icon-button>
                 `
               : ''}
           </p>`
