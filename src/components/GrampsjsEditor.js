@@ -253,6 +253,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
         .draft-banner md-icon-button {
           --md-icon-button-icon-size: 18px;
+          --grampsjs-icon-button-color: var(--grampsjs-body-font-color-40);
         }
       `,
     ]
@@ -344,7 +345,10 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
                   aria-label="${this._('Close')}"
                   @click="${this._handleDismissBanner}"
                 >
-                  <grampsjs-icon path="${mdiClose}"></grampsjs-icon>
+                  <grampsjs-icon
+                    path="${mdiClose}"
+                    color="currentColor"
+                  ></grampsjs-icon>
                 </md-icon-button>
               </div>
             </div>
