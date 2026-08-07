@@ -9,7 +9,7 @@ import {objectIconPath} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 
-export const iconSucess = html`<grampsjs-icon
+export const iconSuccess = html`<grampsjs-icon
   class="success"
   path="${mdiCheckCircle}"
   color="currentColor"
@@ -62,7 +62,7 @@ export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
               ? html`${this.errorMessage(
                   this._data.data.filter(obj => !obj.checksum)
                 )}`
-              : html`${iconSucess}`}
+              : html`${iconSuccess}`}
             ${this._(
               '%s media objects with missing checksum',
               nChecksumMissing
