@@ -1,6 +1,10 @@
 import {html, css} from 'lit'
 
 import '@material/web/button/outlined-button'
+import '@material/web/button/text-button'
+import '@material/web/dialog/dialog'
+import '@material/web/list/list'
+import '@material/web/list/list-item'
 import '@material/web/select/filled-select'
 import '@material/web/select/select-option'
 import '@material/web/textfield/filled-text-field'
@@ -22,9 +26,16 @@ import {
   TREE_CONFIG_PRIMARY_COLOR,
   TREE_CONFIG_SECONDARY_COLOR,
 } from '../api.js'
-import {fireEvent} from '../util.js'
+import {apiVersionAtLeast, fireEvent} from '../util.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
 import {DEFAULT_TREE_VIEW, TREE_VIEWS} from '../treeDefaults.js'
+
+const PERSISTENT_ACCESS_TOKEN_SCOPES = [
+  {
+    scope: 'anniversaries_ics',
+    label: 'Anniversary calendar subscription',
+  },
+]
 
 export class GrampsjsViewSettingsUser extends GrampsjsView {
   static get styles() {
@@ -33,8 +44,29 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       css`
         .token-row {
           display: flex;
+          flex-wrap: wrap;
           align-items: center;
           gap: 8px;
+        }
+
+        .access-token-list {
+          max-width: 720px;
+          padding: 0;
+        }
+
+        .access-token-list md-list-item {
+          --md-list-item-label-text-size: 1rem;
+          --md-list-item-supporting-text-color: var(
+            --md-sys-color-on-surface-variant
+          );
+        }
+
+        .access-token-error {
+          color: var(--md-sys-color-error);
+        }
+
+        code {
+          overflow-wrap: anywhere;
         }
 
         h3 {
@@ -73,6 +105,8 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       _translations: {type: Array},
       _langLoading: {type: Boolean},
       _tokenCopied: {type: Boolean},
+      _accessTokenStates: {type: Object},
+      _pendingAccessTokenScope: {type: String},
     }
   }
 
@@ -82,6 +116,13 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     this._translations = []
     this._langLoading = false
     this._tokenCopied = false
+    this._accessTokenStates = Object.fromEntries(
+      PERSISTENT_ACCESS_TOKEN_SCOPES.map(({scope}) => [
+        scope,
+        {status: 'idle', error: ''},
+      ])
+    )
+    this._pendingAccessTokenScope = ''
   }
 
   renderContent() {
@@ -123,6 +164,12 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
 
         <h3>${this._('Change password')}</h3>
         ${this.renderChangePw()}
+        ${this._supportsPersistentAccessTokens()
+          ? html`
+              <h3>${this._('Access tokens')}</h3>
+              ${this.renderAccessTokens()}
+            `
+          : ''}
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
@@ -180,6 +227,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
   firstUpdated() {
     if (this.active) {
       this._fetchOwnUserDetails()
+      this._loadAccessTokenStatusesIfNeeded()
     }
   }
 
@@ -189,6 +237,11 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       if (!this._langLoading && this._translations.length === 0) {
         this._fetchDataLang()
       }
+    }
+    if (this.active && changed.has('active')) {
+      this._loadAccessTokenStatusesIfNeeded(true)
+    } else if (this.active && changed.has('appState')) {
+      this._loadAccessTokenStatusesIfNeeded()
     }
   }
 
@@ -385,6 +438,213 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         </md-outlined-button>
       </p>
     `
+  }
+
+  renderAccessTokens() {
+    const activeTokens = PERSISTENT_ACCESS_TOKEN_SCOPES.filter(
+      ({scope}) => this._accessTokenStates[scope]?.status === 'active'
+    )
+    const isLoading = PERSISTENT_ACCESS_TOKEN_SCOPES.some(({scope}) =>
+      ['idle', 'loading'].includes(this._accessTokenStates[scope]?.status)
+    )
+    const hasUnavailableTokens = PERSISTENT_ACCESS_TOKEN_SCOPES.some(
+      ({scope}) => this._accessTokenStates[scope]?.status === 'unavailable'
+    )
+    return html`
+      <p>
+        ${this._(
+          'Applications and services can use persistent access tokens to access limited features of your account.'
+        )}
+      </p>
+      ${activeTokens.length
+        ? html`
+            <md-list class="access-token-list">
+              ${activeTokens.map(
+                ({scope, label}) => html`
+                  <md-list-item type="text" noninteractive>
+                    <div slot="headline">${this._(label)}</div>
+                    <div slot="supporting-text" aria-live="polite">
+                      ${this._('Scope')}: <code>${scope}</code>
+                      ${this._accessTokenStates[scope]?.error
+                        ? html`
+                            <span class="access-token-error">
+                              &middot; ${this._accessTokenStates[scope].error}
+                            </span>
+                          `
+                        : ''}
+                    </div>
+                    <md-outlined-button
+                      slot="end"
+                      @click="${() =>
+                        this._requestAccessTokenRevocation(scope)}"
+                    >
+                      ${this._('Revoke')}
+                    </md-outlined-button>
+                  </md-list-item>
+                `
+              )}
+            </md-list>
+          `
+        : ''}
+      ${isLoading
+        ? html`<p aria-live="polite">${this._('Loading...')}</p>`
+        : ''}
+      ${!isLoading && !hasUnavailableTokens && activeTokens.length === 0
+        ? html`<p aria-live="polite">${this._('No active access tokens.')}</p>`
+        : ''}
+      ${hasUnavailableTokens
+        ? html`
+            <p class="access-token-error" role="alert">
+              ${this._('Some access tokens could not be loaded.')}
+            </p>
+            <p>
+              <md-outlined-button
+                @click="${this._retryUnavailableAccessTokens}"
+              >
+                ${this._('Retry')}
+              </md-outlined-button>
+            </p>
+          `
+        : ''}
+      ${this._pendingAccessTokenScope
+        ? this._renderAccessTokenRevocationDialog()
+        : ''}
+    `
+  }
+
+  _supportsPersistentAccessTokens() {
+    return apiVersionAtLeast(this.appState?.dbInfo, 3, 18)
+  }
+
+  _accessTokenEndpoint(scope) {
+    return `/api/users/-/access-tokens/${encodeURIComponent(scope)}/`
+  }
+
+  _retryUnavailableAccessTokens() {
+    for (const {scope} of PERSISTENT_ACCESS_TOKEN_SCOPES) {
+      if (this._accessTokenStates[scope]?.status === 'unavailable') {
+        this._fetchAccessTokenStatus(scope)
+      }
+    }
+  }
+
+  _setAccessTokenState(scope, state) {
+    this._accessTokenStates = {
+      ...this._accessTokenStates,
+      [scope]: state,
+    }
+  }
+
+  _loadAccessTokenStatusesIfNeeded(force = false) {
+    if (!this._supportsPersistentAccessTokens()) {
+      return
+    }
+    for (const {scope} of PERSISTENT_ACCESS_TOKEN_SCOPES) {
+      const status = this._accessTokenStates[scope]?.status
+      if (status === 'idle' || (force && status !== 'loading')) {
+        this._fetchAccessTokenStatus(scope)
+      }
+    }
+  }
+
+  async _fetchAccessTokenStatus(scope) {
+    if (this._accessTokenStates[scope]?.status === 'loading') {
+      return
+    }
+    this._setAccessTokenState(scope, {status: 'loading', error: ''})
+    try {
+      const result = await this.appState.apiGet(
+        this._accessTokenEndpoint(scope)
+      )
+      if ('error' in result) {
+        this._setAccessTokenState(scope, {
+          status: 'unavailable',
+          error: result.error,
+        })
+        return
+      }
+      this._setAccessTokenState(scope, {
+        status: result.data?.active ? 'active' : 'inactive',
+        error: '',
+      })
+    } catch (error) {
+      this._setAccessTokenState(scope, {
+        status: 'unavailable',
+        error: error instanceof Error ? error.message : String(error),
+      })
+    }
+  }
+
+  _requestAccessTokenRevocation(scope) {
+    if (this._accessTokenStates[scope]?.status === 'active') {
+      this._pendingAccessTokenScope = scope
+    }
+  }
+
+  _cancelAccessTokenRevocation() {
+    this._pendingAccessTokenScope = ''
+  }
+
+  _renderAccessTokenRevocationDialog() {
+    const token = PERSISTENT_ACCESS_TOKEN_SCOPES.find(
+      ({scope}) => scope === this._pendingAccessTokenScope
+    )
+    return html`
+      <md-dialog open @cancel="${this._cancelAccessTokenRevocation}">
+        <span slot="headline">${this._('Revoke access token?')}</span>
+        <div slot="content">
+          <p><strong>${this._(token?.label || '')}</strong></p>
+          <p>
+            ${this._(
+              'Revoking this token will immediately stop any application or service using it.'
+            )}
+          </p>
+        </div>
+        <div slot="actions">
+          <md-text-button @click="${this._cancelAccessTokenRevocation}">
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-text-button @click="${this._confirmAccessTokenRevocation}">
+            ${this._('Revoke')}
+          </md-text-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  async _confirmAccessTokenRevocation() {
+    const scope = this._pendingAccessTokenScope
+    this._pendingAccessTokenScope = ''
+    if (!scope || this._accessTokenStates[scope]?.status !== 'active') {
+      return
+    }
+
+    this._setAccessTokenState(scope, {status: 'loading', error: ''})
+    try {
+      const result = await this.appState.apiDelete(
+        this._accessTokenEndpoint(scope),
+        {dbChanged: false}
+      )
+      if ('error' in result) {
+        this._setAccessTokenState(scope, {
+          status: 'active',
+          error: result.error,
+        })
+        fireEvent(this, 'grampsjs:error', {message: result.error})
+        return
+      }
+      this._setAccessTokenState(scope, {status: 'inactive', error: ''})
+      fireEvent(this, 'grampsjs:notification', {
+        message: this._('Access token revoked'),
+      })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      this._setAccessTokenState(scope, {
+        status: 'active',
+        error: message,
+      })
+      fireEvent(this, 'grampsjs:error', {message})
+    }
   }
 
   async _copyToken() {
