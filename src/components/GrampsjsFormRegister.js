@@ -2,6 +2,9 @@
 import {html, css, LitElement} from 'lit'
 import '@material/web/textfield/outlined-text-field'
 
+import {mdiCheckCircle} from '@mdi/js'
+
+import './GrampsjsIcon.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {apiRegisterUser} from '../api.js'
 import {fireEvent} from '../util.js'
@@ -140,7 +143,11 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
             </mwc-button>
           </div>
           <p class="success" id="register-success" style="display:none;">
-            <mwc-icon>check_circle</mwc-icon><br />
+            <grampsjs-icon
+              path="${mdiCheckCircle}"
+              color="currentColor"
+            ></grampsjs-icon
+            ><br />
             ${this._('New account registered successfully.')}
             <br />
             ${this._(

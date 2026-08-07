@@ -1,6 +1,5 @@
 import {css, html} from 'lit'
 
-import '@material/mwc-icon'
 import '@material/web/button/outlined-button.js'
 import '@material/web/iconbutton/icon-button.js'
 
@@ -9,7 +8,7 @@ import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsFormEditLatLong.js'
 import './GrampsjsFormEditPlaceName.js'
 import './GrampsjsIcon.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, objectIconPath} from '../util.js'
 import './GrampsjsObjectLink.js'
 
 export class GrampsjsPlace extends GrampsjsObject {
@@ -32,7 +31,7 @@ export class GrampsjsPlace extends GrampsjsObject {
     this._showReferences = false
     this._objectsName = 'Places'
     this._objectEndpoint = 'places'
-    this._objectIcon = 'place'
+    this._objectIcon = objectIconPath.place
   }
 
   renderProfile() {

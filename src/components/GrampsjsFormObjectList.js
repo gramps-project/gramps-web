@@ -7,7 +7,6 @@ import {html, css, LitElement} from 'lit'
 import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-list'
 import '@material/mwc-menu'
-import '@material/mwc-icon'
 import '@material/mwc-textfield'
 import '@material/web/iconbutton/icon-button.js'
 

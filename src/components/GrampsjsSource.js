@@ -1,6 +1,5 @@
 import {html} from 'lit'
 
-import '@material/mwc-icon'
 import '@material/web/button/outlined-button'
 import '@material/web/iconbutton/icon-button.js'
 
@@ -10,7 +9,7 @@ import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormEditTitle.js'
 import './GrampsjsFormEditSourceData.js'
-import {fireEvent, linkUrls} from '../util.js'
+import {fireEvent, linkUrls, objectIconPath} from '../util.js'
 
 export class GrampsjsSource extends GrampsjsObject {
   constructor() {
@@ -18,7 +17,7 @@ export class GrampsjsSource extends GrampsjsObject {
     this._showReferences = false
     this._objectsName = 'Sources'
     this._objectEndpoint = 'sources'
-    this._objectIcon = 'bookmarks'
+    this._objectIcon = objectIconPath.source
   }
 
   renderProfile() {

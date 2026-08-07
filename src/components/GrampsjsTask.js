@@ -1,11 +1,16 @@
 import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 import {live} from 'lit/directives/live.js'
-import {mdiClose, mdiContentSave, mdiPencil, mdiPencilOff} from '@mdi/js'
+import {
+  mdiClose,
+  mdiContentSave,
+  mdiFormatListChecks,
+  mdiPencil,
+  mdiPencilOff,
+} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 
 import '@material/mwc-button'
-import '@material/mwc-icon'
 import '@material/mwc-select'
 import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
@@ -102,7 +107,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
         .data="${this.source}"
         .appState="${this.appState}"
         objectsName="Tasks"
-        objectIcon="checklist"
+        .objectIcon="${mdiFormatListChecks}"
         hideBookmark
         hideLock
       ></grampsjs-breadcrumbs>

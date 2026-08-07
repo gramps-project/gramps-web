@@ -1,8 +1,10 @@
 import {html, css, LitElement} from 'lit'
 
-import '@material/mwc-icon'
 import '@material/mwc-button'
 
+import {mdiDotsHorizontal} from '@mdi/js'
+
+import './GrampsjsIcon.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -32,10 +34,8 @@ class GrampsjsPagination extends GrampsjsAppStateMixin(LitElement) {
           --mdc-button-horizontal-padding: 0;
         }
 
-        mwc-icon.more {
+        grampsjs-icon.more {
           color: var(--grampsjs-body-font-color-20);
-          position: relative;
-          top: 0.35em;
         }
       `,
     ]
@@ -64,7 +64,11 @@ class GrampsjsPagination extends GrampsjsAppStateMixin(LitElement) {
         ${this._renderPrevBtn()} ${this._renderPageBtn(1)}
         ${this.pages > 1 ? this._renderPageBtn(2) : ''}
         ${this.page - 1 > 3
-          ? html`<mwc-icon class="more">more_horiz</mwc-icon>`
+          ? html`<grampsjs-icon
+              class="more"
+              path="${mdiDotsHorizontal}"
+              color="currentColor"
+            ></grampsjs-icon>`
           : ''}
         ${this.page - 1 > 2 && this.page - 1 < this.pages - 1
           ? this._renderPageBtn(this.page - 1)
@@ -76,7 +80,11 @@ class GrampsjsPagination extends GrampsjsAppStateMixin(LitElement) {
           ? this._renderPageBtn(this.page + 1)
           : ''}
         ${this.page + 1 < this.pages - 2
-          ? html`<mwc-icon class="more">more_horiz</mwc-icon>`
+          ? html`<grampsjs-icon
+              class="more"
+              path="${mdiDotsHorizontal}"
+              color="currentColor"
+            ></grampsjs-icon>`
           : ''}
         ${this.pages > 3 ? this._renderPageBtn(this.pages - 1) : ''}
         ${this.pages > 2 ? this._renderPageBtn(this.pages) : ''}

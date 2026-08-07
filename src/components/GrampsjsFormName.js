@@ -5,7 +5,6 @@ element for editing a name
 import {html, css, LitElement} from 'lit'
 import '@material/mwc-textfield'
 import '@material/web/iconbutton/icon-button.js'
-import '@material/mwc-icon'
 
 import {
   mdiArrowDown,

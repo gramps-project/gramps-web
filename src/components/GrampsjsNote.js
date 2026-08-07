@@ -1,10 +1,10 @@
 import {html, css} from 'lit'
 
-import '@material/mwc-icon'
 import '@material/web/iconbutton/icon-button.js'
 
 import {mdiPencil} from '@mdi/js'
 
+import {objectIconPath} from '../util.js'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsIcon.js'
 import './GrampsjsNoteContent.js'
@@ -26,7 +26,7 @@ export class GrampsjsNote extends GrampsjsObject {
     super()
     this._objectsName = 'Notes'
     this._objectEndpoint = 'notes'
-    this._objectIcon = 'sticky_note_2'
+    this._objectIcon = objectIconPath.note
   }
 
   renderProfile() {

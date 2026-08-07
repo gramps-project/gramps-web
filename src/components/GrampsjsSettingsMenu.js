@@ -3,7 +3,6 @@ The dropdown menu for adding objects in the top app bar
 */
 
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-icon'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/icon/icon'
 import '@material/web/menu/menu'

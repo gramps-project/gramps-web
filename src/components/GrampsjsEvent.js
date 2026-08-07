@@ -1,6 +1,5 @@
 import {html, css} from 'lit'
 
-import '@material/mwc-icon'
 import '@material/web/button/outlined-button.js'
 import '@material/web/iconbutton/icon-button.js'
 
@@ -10,7 +9,7 @@ import './GrampsjsFormEditEventDetails.js'
 import './GrampsjsFormEditTitle.js'
 import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
-import {fireEvent, emptyDate} from '../util.js'
+import {emptyDate, fireEvent, objectIconPath} from '../util.js'
 import './GrampsjsObjectLink.js'
 
 export class GrampsjsEvent extends GrampsjsObject {
@@ -28,7 +27,7 @@ export class GrampsjsEvent extends GrampsjsObject {
   constructor() {
     super()
     this._objectsName = 'Events'
-    this._objectIcon = 'event'
+    this._objectIcon = objectIconPath.event
     this._objectEndpoint = 'events'
     this._showReferences = false
   }

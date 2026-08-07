@@ -4,7 +4,6 @@ Form for adding a new event reference
 
 import {html} from 'lit'
 import '@material/mwc-textfield'
-import '@material/mwc-icon'
 import '@material/mwc-button'
 
 import './GrampsjsFormSelectType.js'

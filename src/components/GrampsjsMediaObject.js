@@ -17,12 +17,17 @@ import './GrampsjsFormEditMapLayer.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFaces.js'
 import './GrampsjsTextRecognition.js'
-import {arrayEqual, fireEvent, getNameFromProfile, emptyDate} from '../util.js'
+import {
+  arrayEqual,
+  emptyDate,
+  fireEvent,
+  getNameFromProfile,
+  objectIconPath,
+} from '../util.js'
 import {renderIconSvg} from '../icons.js'
 import {iconButtonColorStyles} from '../SharedStyles.js'
 import './GrampsjsIcon.js'
 
-import '@material/mwc-icon'
 import '@material/web/iconbutton/icon-button.js'
 
 export class GrampsjsMediaObject extends GrampsjsObject {
@@ -103,7 +108,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     super()
     this._objectsName = 'Media Objects'
     this._objectEndpoint = 'media'
-    this._objectIcon = 'photo'
+    this._objectIcon = objectIconPath.media
     this.selectedRect = {}
     this.deletedRects = []
     this.bbox = {}

@@ -4,7 +4,6 @@ Form to get parameters for find more details about a person from other websites
 */
 
 import {css, html} from 'lit'
-import '@material/mwc-icon'
 import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'
 import '@material/web/textfield/outlined-text-field'

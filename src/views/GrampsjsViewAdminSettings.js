@@ -25,6 +25,7 @@ import {DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
 import {
   mdiAlertCircle,
   mdiAlertOutline,
+  mdiCheckCircle,
   mdiBackupRestore,
   mdiDeleteForever,
   mdiDownload,
@@ -149,10 +150,9 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           font-weight: 500;
         }
 
-        mwc-icon.status {
-          font-size: 18px;
-          top: 4px;
-          position: relative;
+        grampsjs-icon.status {
+          width: 18px;
+          height: 18px;
           margin-right: 5px;
         }
 
@@ -743,10 +743,16 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       (sum, value) => sum + value,
       0
     )
-    const iconError = html`<mwc-icon class="error status">error</mwc-icon>`
-    const iconOk = html`<mwc-icon class="success status"
-      >check_circle</mwc-icon
-    >`
+    const iconError = html`<grampsjs-icon
+      class="error status"
+      path="${mdiAlertCircle}"
+      color="currentColor"
+    ></grampsjs-icon>`
+    const iconOk = html`<grampsjs-icon
+      class="success status"
+      path="${mdiCheckCircle}"
+      color="currentColor"
+    ></grampsjs-icon>`
     if (
       semantic &&
       this.appState.dbInfo?.search?.sifts?.semantic_index_stale === true

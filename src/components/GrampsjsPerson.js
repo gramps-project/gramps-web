@@ -15,7 +15,7 @@ import './GrampsjsImg.js'
 import './GrampsjsEditGender.js'
 import './GrampsjsPersonRelationship.js'
 import './GrampsjsFormExternalSearch.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, objectIconPath} from '../util.js'
 
 export class GrampsjsPerson extends GrampsjsObject {
   static get styles() {
@@ -52,7 +52,7 @@ export class GrampsjsPerson extends GrampsjsObject {
     this.homePersonDetails = {}
     this._objectsName = 'People'
     this._objectEndpoint = 'people'
-    this._objectIcon = 'person'
+    this._objectIcon = objectIconPath.person
     this._showReferences = false
     this.timelineData = []
     this._showFamilyEvents = false

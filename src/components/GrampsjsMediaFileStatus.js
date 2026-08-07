@@ -1,5 +1,5 @@
 import {html} from 'lit'
-import {iconSucess, GrampsjsMediaStatus} from './GrampsjsMediaStatus.js'
+import {iconSuccess, GrampsjsMediaStatus} from './GrampsjsMediaStatus.js'
 
 export class GrampsjsMediaFileStatus extends GrampsjsMediaStatus {
   renderContent() {
@@ -8,7 +8,7 @@ export class GrampsjsMediaFileStatus extends GrampsjsMediaStatus {
       <span class="inline">
         ${nTot
           ? html`${this.errorMessage(this._data.data)}`
-          : html`${iconSucess}`}
+          : html`${iconSuccess}`}
         ${this._('%s media objects with missing file', nTot)}
       </span>
     `

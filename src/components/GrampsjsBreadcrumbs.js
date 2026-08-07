@@ -1,10 +1,15 @@
 import {LitElement, html, css} from 'lit'
 
-import {mdiLockOpenVariantOutline, mdiLockOutline} from '@mdi/js'
+import {
+  mdiChevronRight,
+  mdiLockOpenVariantOutline,
+  mdiLockOutline,
+} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent, clickKeyHandler} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
 import './GrampsjsShareUrl.js'
 import './GrampsjsBookmarkButton.js'
@@ -40,9 +45,9 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
         .breadcrumb .dark {
         }
 
-        .breadcrumb mwc-icon {
-          font-size: 18px;
-          position: relative;
+        .breadcrumb grampsjs-icon {
+          width: 18px;
+          height: 18px;
           color: var(--grampsjs-body-font-color-40);
         }
 
@@ -104,9 +109,11 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
   render() {
     return html`
       <div class="breadcrumb">
-        <mwc-icon>${this.objectIcon}</mwc-icon>
+        <grampsjs-icon path="${this.objectIcon}" color="currentColor">
+        </grampsjs-icon>
         <a href="/${this._getObjectsLink()}">${this._(this.objectsName)}</a>
-        <mwc-icon>chevron_right</mwc-icon>
+        <grampsjs-icon path="${mdiChevronRight}" color="currentColor">
+        </grampsjs-icon>
         <span class="dark">${this.data.gramps_id}</span>
         <span class="action-buttons">
           ${this.hideLock

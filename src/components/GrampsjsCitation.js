@@ -1,6 +1,5 @@
 import {html, css} from 'lit'
 
-import '@material/mwc-icon'
 import '@material/web/iconbutton/icon-button.js'
 
 import {mdiPencil} from '@mdi/js'
@@ -8,7 +7,7 @@ import {mdiPencil} from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormEditCitationDetails.js'
-import {fireEvent, linkUrls, emptyDate} from '../util.js'
+import {emptyDate, fireEvent, linkUrls, objectIconPath} from '../util.js'
 
 const BASE_DIR = ''
 
@@ -35,7 +34,7 @@ export class GrampsjsCitation extends GrampsjsObject {
     super()
     this._objectsName = 'Citations'
     this._objectEndpoint = 'citations'
-    this._objectIcon = 'bookmark'
+    this._objectIcon = objectIconPath.citation
   }
 
   renderProfile() {
