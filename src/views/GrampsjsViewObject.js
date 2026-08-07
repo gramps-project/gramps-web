@@ -8,46 +8,54 @@ import '../components/GrampsjsIcon.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 
-import {fireEvent, objectTypeToEndpoint} from '../util.js'
+import {fireEvent, objectIconPath, objectTypeToEndpoint} from '../util.js'
 import {clearDraftsWithPrefix} from '../api.js'
 import '../components/GrampsjsBreadcrumbs.js'
 
 const BREADCRUMB_META = {
   person: {
     objectsName: 'People',
-    objectIcon: 'person',
+    objectIcon: objectIconPath.person,
     objectEndpoint: 'people',
   },
   family: {
     objectsName: 'Families',
-    objectIcon: 'people',
+    objectIcon: objectIconPath.family,
     objectEndpoint: 'families',
   },
-  place: {objectsName: 'Places', objectIcon: 'place', objectEndpoint: 'places'},
-  event: {objectsName: 'Events', objectIcon: 'event', objectEndpoint: 'events'},
+  place: {
+    objectsName: 'Places',
+    objectIcon: objectIconPath.place,
+    objectEndpoint: 'places',
+  },
+  event: {
+    objectsName: 'Events',
+    objectIcon: objectIconPath.event,
+    objectEndpoint: 'events',
+  },
   citation: {
     objectsName: 'Citations',
-    objectIcon: 'bookmark',
+    objectIcon: objectIconPath.citation,
     objectEndpoint: 'citations',
   },
   source: {
     objectsName: 'Sources',
-    objectIcon: 'bookmarks',
+    objectIcon: objectIconPath.source,
     objectEndpoint: 'sources',
   },
   repository: {
     objectsName: 'Repositories',
-    objectIcon: 'account_balance',
+    objectIcon: objectIconPath.repository,
     objectEndpoint: 'repositories',
   },
   media: {
     objectsName: 'Media Objects',
-    objectIcon: 'photo',
+    objectIcon: objectIconPath.media,
     objectEndpoint: 'media',
   },
   note: {
     objectsName: 'Notes',
-    objectIcon: 'sticky_note_2',
+    objectIcon: objectIconPath.note,
     objectEndpoint: 'notes',
   },
 }
@@ -148,7 +156,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         .appState="${this.appState}"
         ?edit="${this.edit}"
         objectsName="${meta.objectsName}"
-        objectIcon="${meta.objectIcon}"
+        .objectIcon="${meta.objectIcon}"
         objectEndpoint="${meta.objectEndpoint}"
       ></grampsjs-breadcrumbs>
     `

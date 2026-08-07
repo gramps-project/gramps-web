@@ -1,8 +1,10 @@
 import {css, LitElement, html} from 'lit'
 
 import '@material/mwc-circular-progress'
-import '@material/mwc-icon'
 
+import {mdiCheckCircle, mdiCloseCircle} from '@mdi/js'
+
+import './GrampsjsIcon.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -121,20 +123,26 @@ export class GrampsjsProgressIndicator extends GrampsjsAppStateMixin(
 
   renderSuccess() {
     return html`
-      <mwc-icon style="--mdc-icon-size: ${this.size}px;" class="success"
-        >check_circle</mwc-icon
-      >
+      <grampsjs-icon
+        class="success"
+        path="${mdiCheckCircle}"
+        color="currentColor"
+        width="${this.size}"
+        height="${this.size}"
+      ></grampsjs-icon>
     `
   }
 
   renderError() {
     return html`
-      <mwc-icon
+      <grampsjs-icon
         id="error-icon"
-        style="--mdc-icon-size: ${this.size}px;"
         class="error"
-        >cancel</mwc-icon
-      >
+        path="${mdiCloseCircle}"
+        color="currentColor"
+        width="${this.size}"
+        height="${this.size}"
+      ></grampsjs-icon>
       ${this.errorMessage
         ? html`
             <grampsjs-tooltip for="error-icon" theme="error"

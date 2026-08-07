@@ -22,13 +22,6 @@ export class GrampsjsShareUrl extends GrampsjsAppStateMixin(LitElement) {
           color: var(--grampsjs-body-font-color-45);
         }
 
-        mwc-icon {
-          font-size: 18px;
-          top: 4px;
-          position: relative;
-          color: var(--grampsjs-body-font-color-40);
-        }
-
         md-icon-button {
           --grampsjs-icon-button-color: currentColor;
           --md-icon-button-state-layer-width: 28px;

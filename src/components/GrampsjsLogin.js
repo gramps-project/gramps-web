@@ -1,11 +1,13 @@
 /* eslint-disable lit-a11y/click-events-have-key-events */
 import {html, css, LitElement} from 'lit'
 
-import '@material/mwc-icon'
 import '@material/mwc-circular-progress'
 import '@material/web/button/filled-button'
 import '@material/web/button/outlined-button'
 
+import {mdiCheckCircle} from '@mdi/js'
+
+import './GrampsjsIcon.js'
 import './GrampsjsOidcButton.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {
@@ -379,7 +381,11 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
             </md-filled-button>
           </div>
           <p class="success" id="reset-success" style="display:none;">
-            <mwc-icon>check_circle</mwc-icon><br />
+            <grampsjs-icon
+              path="${mdiCheckCircle}"
+              color="currentColor"
+            ></grampsjs-icon
+            ><br />
             ${this._('A password reset link has been sent by e-mail.')}
           </p>
           <p class="reset-link">

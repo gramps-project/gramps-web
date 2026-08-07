@@ -1,11 +1,10 @@
 import {css, html} from 'lit'
 
-import '@material/mwc-icon'
 import '@material/web/iconbutton/icon-button.js'
 
 import {mdiLinkOff, mdiLinkPlus, mdiPencil, mdiPlus} from '@mdi/js'
 
-import {fireEvent} from '../util.js'
+import {fireEvent, objectIconPath} from '../util.js'
 import './GrampsjsIcon.js'
 import './GrampsjsObjectLink.js'
 import './GrampsjsFormEditFamily.js'
@@ -54,7 +53,7 @@ export class GrampsjsFamily extends GrampsjsObject {
     this._showReferences = false
     this._objectsName = 'Families'
     this._objectEndpoint = 'families'
-    this._objectIcon = 'people'
+    this._objectIcon = objectIconPath.family
   }
 
   _parentLabel(role) {

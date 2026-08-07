@@ -43,9 +43,10 @@ export class GrampsjsTableBase extends GrampsjsAppStateMixin(LitElement) {
           cursor: auto;
         }
 
-        td mwc-icon.inline {
+        td grampsjs-icon.inline {
           color: var(--grampsjs-body-font-color-25);
-          font-size: 16px;
+          width: 16px;
+          height: 16px;
         }
 
         td md-icon-button {
@@ -69,8 +70,9 @@ export class GrampsjsTableBase extends GrampsjsAppStateMixin(LitElement) {
             padding: 10px 8px;
           }
 
-          td mwc-icon.inline {
-            font-size: 15px;
+          td grampsjs-icon.inline {
+            width: 15px;
+            height: 15px;
           }
 
           td md-icon-button {

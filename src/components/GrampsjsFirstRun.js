@@ -1,6 +1,5 @@
 import {html, css, LitElement} from 'lit'
 
-import '@material/mwc-icon'
 import '@material/mwc-button'
 import '@material/mwc-textfield'
 import '@material/mwc-circular-progress'

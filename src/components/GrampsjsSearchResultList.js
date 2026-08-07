@@ -11,7 +11,7 @@ import {objectDescription, fireEvent, objectDetail} from '../util.js'
 import {renderIcon} from '../objectRender.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsImg.js'
-import {sharedStyles} from '../SharedStyles.js'
+import {sharedStyles, listAvatarStyles} from '../SharedStyles.js'
 
 export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
   LitElement
@@ -19,26 +19,10 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
   static get styles() {
     return [
       sharedStyles,
+      listAvatarStyles,
       css`
         md-icon-button {
           --md-icon-button-icon-size: 20px;
-        }
-
-        grampsjs-icon[slot='start'] {
-          background-color: var(--grampsjs-color-icon-background);
-        }
-
-        /* Replicate mwc-list-item graphic="avatar" sizing/rounding */
-        grampsjs-img[slot='start'],
-        grampsjs-icon[slot='start'] {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 40px;
-          height: 40px;
-          overflow: hidden;
-          border-radius: 50%;
-          flex-shrink: 0;
         }
 
         md-list.activatable md-list-item:hover {

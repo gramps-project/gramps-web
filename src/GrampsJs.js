@@ -1,6 +1,5 @@
 import '@material/mwc-button'
 import '@material/mwc-drawer'
-import '@material/mwc-icon'
 import '@material/web/progress/linear-progress.js'
 import '@material/mwc-list'
 import '@material/mwc-list/mwc-list-item'

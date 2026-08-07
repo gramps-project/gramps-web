@@ -14,7 +14,7 @@ import '../components/GrampsjsBreadcrumbs.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 
-import {mdiClose, mdiUndo, mdiAlertOutline} from '@mdi/js'
+import {mdiClose, mdiUndo, mdiAlertOutline, mdiSourceCommit} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
 
 import {renderIconSvg} from '../icons.js'
@@ -181,7 +181,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
         .data="${{gramps_id: this.transactionId}}"
         .appState="${this.appState}"
         objectsName="Revisions"
-        objectIcon="commit"
+        .objectIcon="${mdiSourceCommit}"
       ></grampsjs-breadcrumbs>
 
       <div class="revision-header">

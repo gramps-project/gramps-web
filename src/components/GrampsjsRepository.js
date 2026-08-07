@@ -6,7 +6,7 @@ import {mdiPencil} from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormEditRepositoryType.js'
-import {debounce, fireEvent} from '../util.js'
+import {debounce, fireEvent, objectIconPath} from '../util.js'
 
 export class GrampsjsRepository extends GrampsjsObject {
   static get styles() {
@@ -24,7 +24,7 @@ export class GrampsjsRepository extends GrampsjsObject {
     this._showReferences = false
     this._objectsName = 'Repositories'
     this._objectEndpoint = 'repositories'
-    this._objectIcon = 'account_balance'
+    this._objectIcon = objectIconPath.repository
   }
 
   renderProfile() {

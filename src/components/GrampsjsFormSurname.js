@@ -4,7 +4,6 @@ element for editing a name
 
 import {html, css, LitElement} from 'lit'
 import '@material/mwc-textfield'
-import '@material/mwc-icon'
 
 import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'

@@ -161,13 +161,6 @@ export const sharedStyles = css`
     margin-bottom: 1.2em;
   }
 
-  h2 mwc-icon {
-    color: var(--grampsjs-body-font-color-20);
-    font-size: 1.05em;
-    position: relative;
-    top: 0.15em;
-  }
-
   mwc-list {
     --mdc-list-item-graphic-margin: 16px;
   }
@@ -189,9 +182,8 @@ export const sharedStyles = css`
     float: right;
   }
 
-  mwc-icon.inline {
+  grampsjs-icon.inline {
     vertical-align: middle;
-    size: 0.8em;
     padding-right: 0.2em;
     position: relative;
     bottom: auto;
@@ -199,11 +191,11 @@ export const sharedStyles = css`
     color: var(--grampsjs-body-font-color-35);
   }
 
-  mwc-icon.male {
+  grampsjs-icon.male {
     color: var(--color-boy);
   }
 
-  mwc-icon.female {
+  grampsjs-icon.female {
     color: var(--color-girl);
   }
 
@@ -381,20 +373,11 @@ export const sharedStyles = css`
   }
 `
 
-export const personListItemStyles = css`
-  /* Increase vertical spacing to match mwc-list-item */
-  md-list-item {
-    --md-list-item-one-line-container-height: 64px;
-    --md-list-item-two-line-container-height: 80px;
-    --md-list-item-three-line-container-height: 96px;
-    --md-list-item-top-space: 12px;
-    --md-list-item-bottom-space: 12px;
-  }
-
-  /* Icon styling - replicate mwc-list-item graphic="avatar" */
+/* A leading list icon or thumbnail as a 40px circle, replicating mwc-list-item
+   graphic="avatar". */
+export const listAvatarStyles = css`
   grampsjs-img[slot='start'],
-  grampsjs-icon[slot='start'],
-  mwc-icon[slot='start'] {
+  grampsjs-icon[slot='start'] {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -405,32 +388,39 @@ export const personListItemStyles = css`
     flex-shrink: 0;
   }
 
-  /* The 40px above is the circular container, not the glyph: grampsjs-icon
-     draws into its content box, so pad it back to a 24px icon. */
+  /* The 40px above is the circular container. grampsjs-icon draws into its
+     content box, so pad it back to a 24px glyph. */
   grampsjs-icon[slot='start'] {
     box-sizing: border-box;
     padding: 8px;
     background-color: var(--grampsjs-color-icon-background);
   }
-
-  mwc-icon.placeholder {
-    width: 40px;
-    height: 40px;
-    line-height: 40px;
-    border-radius: 50%;
-  }
-
-  /* Cursor for clickable items in view mode */
-  md-list:not(.activatable) md-list-item[type='button'] {
-    cursor: pointer;
-  }
-
-  span.date-col {
-    display: inline-block;
-    min-width: 12ch;
-    margin-inline-end: 0.5em;
-  }
 `
+
+export const personListItemStyles = [
+  listAvatarStyles,
+  css`
+    /* Increase vertical spacing to match mwc-list-item */
+    md-list-item {
+      --md-list-item-one-line-container-height: 64px;
+      --md-list-item-two-line-container-height: 80px;
+      --md-list-item-three-line-container-height: 96px;
+      --md-list-item-top-space: 12px;
+      --md-list-item-bottom-space: 12px;
+    }
+
+    /* Cursor for clickable items in view mode */
+    md-list:not(.activatable) md-list-item[type='button'] {
+      cursor: pointer;
+    }
+
+    span.date-col {
+      display: inline-block;
+      min-width: 12ch;
+      margin-inline-end: 0.5em;
+    }
+  `,
+]
 
 /* Drives all six md-icon-button colour tokens from one variable. An inherited
    `color` does not reach the icon, so include these styles and set:

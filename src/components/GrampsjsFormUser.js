@@ -4,7 +4,6 @@ Element for selecting a Gramps type
 
 import {html, css, LitElement} from 'lit'
 import '@material/mwc-textfield'
-import '@material/mwc-icon'
 
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsFormString.js'

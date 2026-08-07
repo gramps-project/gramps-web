@@ -1,14 +1,19 @@
 import {css, html} from 'lit'
-import '@material/mwc-icon'
 import '@material/mwc-circular-progress'
 import '@material/web/dialog/dialog.js'
 
+import {mdiAlertCircle, mdiCheckCircle} from '@mdi/js'
+
+import './GrampsjsIcon.js'
+import {objectIconPath} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 
-export const iconSucess = html`<mwc-icon class="success"
-  >check_circle</mwc-icon
->`
+export const iconSucess = html`<grampsjs-icon
+  class="success"
+  path="${mdiCheckCircle}"
+  color="currentColor"
+></grampsjs-icon>`
 
 export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
   static get styles() {
@@ -20,11 +25,10 @@ export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
           line-height: 28px;
         }
 
-        mwc-icon {
-          font-size: 20px;
+        grampsjs-icon {
+          width: 20px;
+          height: 20px;
           color: var(--grampsjs-body-font-color-40);
-          top: 3px;
-          position: relative;
         }
 
         .inline {
@@ -48,7 +52,9 @@ export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
       <h3>${this._('Media file status')}</h3>
 
       <span class="inline">
-        <mwc-icon>photo</mwc-icon> ${nTot} ${this._('Media Objects')}
+        <grampsjs-icon path="${objectIconPath.media}" color="currentColor">
+        </grampsjs-icon>
+        ${nTot} ${this._('Media Objects')}
       </span>
       <span class="inline">
         ${nTot
@@ -69,7 +75,8 @@ export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
   // eslint-disable-next-line class-methods-use-this
   renderLoading() {
     return html` <h3>${this._('Media file status')}</h3>
-      <mwc-icon>photo</mwc-icon>
+      <grampsjs-icon path="${objectIconPath.media}" color="currentColor">
+      </grampsjs-icon>
       <mwc-circular-progress
         indeterminate
         density="-7"
@@ -78,9 +85,12 @@ export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
 
   errorMessage(objects) {
     return html`
-      <mwc-icon class="error link" @click="${this._handleErrorClick}"
-        >error</mwc-icon
-      >
+      <grampsjs-icon
+        class="error link"
+        path="${mdiAlertCircle}"
+        color="currentColor"
+        @click="${this._handleErrorClick}"
+      ></grampsjs-icon>
       <md-dialog>
         <div slot="content">
           ${objects.map(

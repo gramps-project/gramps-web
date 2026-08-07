@@ -1,5 +1,4 @@
 import {html} from 'lit'
-import '@material/mwc-icon'
 
 import {asteriskIcon, crossIcon} from './icons.js'
 import {hex6ToCss, hex12ToCss} from './color.js'
@@ -23,9 +22,11 @@ const BASE_DIR = ''
 export function renderPerson(personProfile) {
   return html`
     <span class="event">
-      <mwc-icon class="inline ${personProfile.sex === 'M' ? 'male' : 'female'}"
-        >person</mwc-icon
-      >
+      <grampsjs-icon
+        class="inline ${personProfile.sex === 'M' ? 'male' : 'female'}"
+        path="${objectIconPath.person}"
+        color="currentColor"
+      ></grampsjs-icon>
       <grampsjs-object-link
         object-type="person"
         gramps-id="${personProfile.gramps_id}"
@@ -50,9 +51,11 @@ export function showObject(type, obj, strings) {
   switch (type) {
     case 'person':
       return html`
-        <mwc-icon class="inline ${obj.gender === 1 ? 'male' : 'female'}"
-          >person</mwc-icon
-        >
+        <grampsjs-icon
+          class="inline ${obj.gender === 1 ? 'male' : 'female'}"
+          path="${objectIconPath.person}"
+          color="currentColor"
+        ></grampsjs-icon>
         <grampsjs-object-link object-type="person" gramps-id="${obj.gramps_id}"
           >${obj?.profile?.name_given || html`&hellip;`}
           ${obj?.profile?.name_surname || html`&hellip;`}
@@ -60,14 +63,22 @@ export function showObject(type, obj, strings) {
       `
     case 'family':
       return html`
-        <mwc-icon class="inline">people</mwc-icon>
+        <grampsjs-icon
+          class="inline"
+          path="${objectIconPath.family}"
+          color="currentColor"
+        ></grampsjs-icon>
         <grampsjs-object-link object-type="family" gramps-id="${obj.gramps_id}"
           >${familyTitleFromProfile(obj.profile || {}) || type}
         </grampsjs-object-link>
       `
     case 'event':
       return html`
-        <mwc-icon class="inline">event</mwc-icon>
+        <grampsjs-icon
+          class="inline"
+          path="${objectIconPath.event}"
+          color="currentColor"
+        ></grampsjs-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
           >${eventTitleFromProfile(obj.profile || {}) ||
           (typeof obj.type === 'string'
@@ -77,35 +88,55 @@ export function showObject(type, obj, strings) {
       `
     case 'place':
       return html`
-        <mwc-icon class="inline">place</mwc-icon>
+        <grampsjs-icon
+          class="inline"
+          path="${objectIconPath.place}"
+          color="currentColor"
+        ></grampsjs-icon>
         <grampsjs-object-link object-type="place" gramps-id="${obj.gramps_id}"
           >${obj?.profile?.name || obj?.name?.value || obj.title || type}
         </grampsjs-object-link>
       `
     case 'source':
       return html`
-        <mwc-icon class="inline">bookmarks</mwc-icon>
+        <grampsjs-icon
+          class="inline"
+          path="${objectIconPath.source}"
+          color="currentColor"
+        ></grampsjs-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
           >${getName(obj, type) || type}
         </a>
       `
     case 'citation':
       return html`
-        <mwc-icon class="inline">bookmark</mwc-icon>
+        <grampsjs-icon
+          class="inline"
+          path="${objectIconPath.citation}"
+          color="currentColor"
+        ></grampsjs-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
           >${citationTitleFromProfile(obj.profile || {}) || type}
         </a>
       `
     case 'repository':
       return html`
-        <mwc-icon class="inline">account_balance</mwc-icon>
+        <grampsjs-icon
+          class="inline"
+          path="${objectIconPath.repository}"
+          color="currentColor"
+        ></grampsjs-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
           >${getName(obj, type) || type}
         </a>
       `
     case 'note':
       return html`
-        <mwc-icon class="inline">sticky_note_2</mwc-icon>
+        <grampsjs-icon
+          class="inline"
+          path="${objectIconPath.note}"
+          color="currentColor"
+        ></grampsjs-icon>
         <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
           >${translate(
             strings,
@@ -117,7 +148,11 @@ export function showObject(type, obj, strings) {
       `
     case 'media':
       return html`
-        <mwc-icon class="inline">photo</mwc-icon>
+        <grampsjs-icon
+          class="inline"
+          path="${objectIconPath.media}"
+          color="currentColor"
+        ></grampsjs-icon>
         <a href="${BASE_DIR}/media/${obj.gramps_id}"
           >${getName(obj, type) || type}
         </a>
