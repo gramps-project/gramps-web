@@ -57,15 +57,39 @@ export async function handleOIDCCallback(errorCallback) {
   }
 }
 
+// The code is single use, so the exchange must not run twice.
+let oidcCompleteStarted = false
+
 export async function handleOIDCComplete(errorCallback) {
+  if (oidcCompleteStarted) {
+    return
+  }
+  oidcCompleteStarted = true
   try {
-    const resp = await fetch(`${__APIHOST__}/api/oidc/tokens/`, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        Accept: 'application/json',
-      },
-    })
+    const code = new URLSearchParams(window.location.hash.slice(1)).get('code')
+
+    // Remove the code from the address bar before anything can read it back.
+    if (code) {
+      window.history.replaceState(null, '', window.location.pathname)
+    }
+
+    const resp = code
+      ? await fetch(`${__APIHOST__}/api/oidc/tokens/`, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({code}),
+        })
+      : // Older API versions return the tokens from cookies, which this GET clears.
+        await fetch(`${__APIHOST__}/api/oidc/tokens/`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            Accept: 'application/json',
+          },
+        })
 
     if (!resp.ok) {
       const errorText = await resp.text()
