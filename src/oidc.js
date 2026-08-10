@@ -68,8 +68,9 @@ export async function handleOIDCComplete(errorCallback) {
   try {
     const code = new URLSearchParams(window.location.hash.slice(1)).get('code')
 
-    // Remove the code from the address bar before anything can read it back.
-    if (code) {
+    // Remove the fragment from the address bar before anything can read the
+    // code back out of it.
+    if (window.location.hash) {
       window.history.replaceState(null, '', window.location.pathname)
     }
 
