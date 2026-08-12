@@ -133,7 +133,7 @@ export class GrampsjsChildren extends GrampsjsEditableList {
         .appState="${this.appState}"
         .data="${childRef}"
         objType="${this.objType}"
-        dialogTitle=${this._('Edit child reference')}
+        dialogTitle=${this._('Edit the child reference')}
       >
       </grampsjs-form-childref>
     `

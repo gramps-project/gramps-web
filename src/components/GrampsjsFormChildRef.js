@@ -1,6 +1,6 @@
 /*
-Form for adding a new child reference (mode `new`) or editing the
-parent relationships (frel/mrel) of an existing one.
+Form for linking a child to a family, or for editing the parent
+relationships (frel/mrel) of an existing child reference.
 */
 
 import {html} from 'lit'
@@ -13,10 +13,22 @@ import './GrampsjsFormString.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 class GrampsjsFormChildRef extends GrampsjsObjectForm {
+  // the form edits an existing reference if the data it was opened with
+  // already points at a child; determined once, since selecting a person
+  // sets `ref` on the data as well
+  #isExistingRef = undefined
+
+  willUpdate() {
+    if (this.#isExistingRef === undefined) {
+      this.#isExistingRef = Boolean(this.data?.ref)
+    }
+  }
+
   renderForm() {
     return html`
-      ${this.new
-        ? html`
+      ${this.#isExistingRef
+        ? ''
+        : html`
             <grampsjs-form-select-object-list
               fixedMenuPosition
               style="min-height: 300px;"
@@ -26,8 +38,7 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
               label="${this._('Select')}"
               class="edit"
             ></grampsjs-form-select-object-list>
-          `
-        : ''}
+          `}
       <grampsjs-form-select-type
         required
         id="child-frel"
