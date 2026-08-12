@@ -1,5 +1,11 @@
-import {describe, it, expect, vi} from 'vitest'
+import {describe, it, expect, vi, beforeEach} from 'vitest'
+import {clearDraftsWithPrefix} from '../../src/api.js'
 import {GrampsjsViewNewBlogPost} from '../../src/views/GrampsjsViewNewBlogPost.js'
+
+vi.mock('../../src/api.js', async importActual => {
+  const actual = await importActual()
+  return {...actual, clearDraftsWithPrefix: vi.fn()}
+})
 
 const makeElement = () => {
   const element = new GrampsjsViewNewBlogPost()
@@ -147,6 +153,10 @@ describe('new blog post: media selection', () => {
 })
 
 describe('new blog post: submit', () => {
+  beforeEach(() => {
+    clearDraftsWithPrefix.mockClear()
+  })
+
   it('applies the Blog tag, submits the picked media_list, and navigates to the new post', async () => {
     const element = makeElement()
     element._blogTagHandle = 'blog-tag-handle'
@@ -234,5 +244,63 @@ describe('new blog post: submit', () => {
     expect(element.error).toBe(true)
     expect(element._errorMessage).toBe('Server exploded')
     expect(element.dispatchEvent).not.toHaveBeenCalled()
+  })
+
+  it('ignores a second submit while the first one is still in flight', async () => {
+    const element = makeElement()
+    element._blogTagHandle = 'blog-tag-handle'
+    element.data = {_class: 'Source', title: 'Title'}
+    element._reset = vi.fn()
+    let resolveApiPost
+    const apiPost = vi.fn(
+      () =>
+        new Promise(resolve => {
+          resolveApiPost = resolve
+        })
+    )
+    element.appState = {apiPost, i18n: {strings: {}}}
+
+    const submitPromise = element._submit()
+    await element._submit()
+
+    expect(apiPost).toHaveBeenCalledOnce()
+
+    resolveApiPost({data: [{new: {_class: 'Source', gramps_id: 'S0001'}}]})
+    await submitPromise
+  })
+
+  it('clears the editor draft for this page after a successful save', async () => {
+    const element = makeElement()
+    element._blogTagHandle = 'blog-tag-handle'
+    element.data = {_class: 'Source', title: 'Title'}
+    element._reset = vi.fn()
+    const apiPost = vi.fn().mockResolvedValue({
+      data: [{new: {_class: 'Source', gramps_id: 'S0001'}}],
+    })
+    element.appState = {
+      apiPost,
+      i18n: {strings: {}},
+      path: {page: 'new_blog_post', pageId: ''},
+    }
+
+    await element._submit()
+
+    expect(clearDraftsWithPrefix).toHaveBeenCalledWith('new_blog_post::')
+  })
+
+  it('keeps the draft when the create request fails', async () => {
+    const element = makeElement()
+    element._blogTagHandle = 'blog-tag-handle'
+    element.data = {_class: 'Source', title: 'Title'}
+    const apiPost = vi.fn().mockResolvedValue({error: 'Server exploded'})
+    element.appState = {
+      apiPost,
+      i18n: {strings: {}},
+      path: {page: 'new_blog_post', pageId: ''},
+    }
+
+    await element._submit()
+
+    expect(clearDraftsWithPrefix).not.toHaveBeenCalled()
   })
 })

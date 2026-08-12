@@ -9,6 +9,7 @@ import '../components/GrampsjsFormSelectObjectList.js'
 import {GrampsjsViewNewSource} from './GrampsjsViewNewSource.js'
 
 import {makeHandle, fireEvent} from '../util.js'
+import {clearDraftsWithPrefix} from '../api.js'
 
 const dataDefault = {
   _class: 'Source',
@@ -136,16 +137,13 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
   }
 
   _processedData(mediaRefs) {
-    const handleSource = makeHandle()
-    const handleNote = makeHandle()
     const {note, ...source} = this.data
-    const hasNote = note?.text?.string
     const tagList = [
       ...new Set(
         [this._blogTagHandle, ...(this.data.tag_list || [])].filter(Boolean)
       ),
     ]
-    if (!hasNote) {
+    if (!note?.text?.string) {
       return [
         {
           ...source,
@@ -154,6 +152,8 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
         },
       ]
     }
+    const handleSource = makeHandle()
+    const handleNote = makeHandle()
     return [
       {
         ...source,
@@ -195,28 +195,36 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
   }
 
   async _submit() {
-    if (!this._blogTagHandle) {
-      await this._fetchBlogTagHandle()
-    }
-    if (!this._blogTagHandle) {
-      this.error = true
-      this._errorMessage = this._('Failed to fetch the Blog tag')
+    if (this._isSaving) {
       return
     }
     this._isSaving = true
-    const processedData = this._processedData(this.data.media_list || [])
-    const data = await this.appState.apiPost(this.postUrl, processedData)
-    this._isSaving = false
-    if ('data' in data) {
-      this.error = false
-      const grampsId = data.data.filter(
-        obj => obj.new._class === this.objClass
-      )[0].new.gramps_id
-      fireEvent(this, 'nav', {path: this._getItemPath(grampsId)})
-      this._reset()
-    } else if ('error' in data) {
-      this.error = true
-      this._errorMessage = data.error
+    try {
+      if (!this._blogTagHandle) {
+        await this._fetchBlogTagHandle()
+      }
+      if (!this._blogTagHandle) {
+        this.error = true
+        this._errorMessage = this._('Failed to fetch the Blog tag')
+        return
+      }
+      const processedData = this._processedData(this.data.media_list || [])
+      const data = await this.appState.apiPost(this.postUrl, processedData)
+      if ('data' in data) {
+        this.error = false
+        const grampsId = data.data.filter(
+          obj => obj.new._class === this.objClass
+        )[0].new.gramps_id
+        const {page, pageId} = this.appState?.path || {page: '', pageId: ''}
+        clearDraftsWithPrefix(`${page}:${pageId}:`)
+        fireEvent(this, 'nav', {path: this._getItemPath(grampsId)})
+        this._reset()
+      } else if ('error' in data) {
+        this.error = true
+        this._errorMessage = data.error
+      }
+    } finally {
+      this._isSaving = false
     }
   }
 }
