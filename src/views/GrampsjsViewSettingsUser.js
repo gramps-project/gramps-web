@@ -10,6 +10,7 @@ import '@material/web/select/select-option'
 import '@material/web/textfield/filled-text-field'
 
 import '../components/GrampsjsCollapsibleSection.js'
+import '../components/GrampsjsAnniversaryIcsSubscription.js'
 import '../components/GrampsjsFormSelectObjectList.js'
 import {userRoles} from '../components/GrampsjsFormUser.js'
 import '../components/GrampsjsIcon.js'
@@ -171,6 +172,24 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
             `
           : ''}
       </grampsjs-collapsible-section>
+
+      ${this._supportsAnniversaryIcs()
+        ? html`
+            <grampsjs-collapsible-section
+              title="${this._('Anniversary calendar (ICS)')}"
+              description="${this._(
+                'Subscribe to family anniversaries from your calendar app'
+              )}"
+            >
+              <grampsjs-anniversary-ics-subscription
+                .appState="${this.appState}"
+                .tokenStatus="${this._accessTokenStates.anniversaries_ics
+                  ?.status}"
+                @access-token:changed="${this._handleAccessTokenChanged}"
+              ></grampsjs-anniversary-ics-subscription>
+            </grampsjs-collapsible-section>
+          `
+        : ''}
 
       <grampsjs-collapsible-section
         title="${this._('Appearance')}"
@@ -516,6 +535,10 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     return apiVersionAtLeast(this.appState?.dbInfo, 3, 18)
   }
 
+  _supportsAnniversaryIcs() {
+    return apiVersionAtLeast(this.appState?.dbInfo, 3, 21)
+  }
+
   _accessTokenEndpoint(scope) {
     return `/api/users/-/access-tokens/${encodeURIComponent(scope)}/`
   }
@@ -532,6 +555,13 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     this._accessTokenStates = {
       ...this._accessTokenStates,
       [scope]: state,
+    }
+  }
+
+  _handleAccessTokenChanged(event) {
+    const {scope, status} = event.detail
+    if (scope in this._accessTokenStates) {
+      this._setAccessTokenState(scope, {status, error: ''})
     }
   }
 
