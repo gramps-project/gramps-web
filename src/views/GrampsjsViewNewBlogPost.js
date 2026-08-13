@@ -170,7 +170,7 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
     ]
   }
 
-  async _fetchBlogTagHandle(retry = true) {
+  async _fetchBlogTagHandle() {
     const lang = this.appState?.i18n?.lang || 'en'
     const data = await this.appState.apiGet(
       `/api/tags/?locale=${lang}&pagesize=500`
@@ -180,14 +180,19 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
       const tags = data.data.filter(tag => tag.name === 'Blog')
       if (tags.length > 0) {
         this._blogTagHandle = tags[0].handle
-      } else {
-        const newTag = {name: 'Blog'}
-        await this.appState.apiPost('/api/tags/', newTag)
-        if (retry) {
-          await this._fetchBlogTagHandle(false)
-        }
       }
     }
+  }
+
+  // create the Blog tag, returning an error message if it could not be
+  // created or found afterwards
+  async _createBlogTag() {
+    const data = await this.appState.apiPost('/api/tags/', {name: 'Blog'})
+    if ('error' in data) {
+      return data.error
+    }
+    await this._fetchBlogTagHandle()
+    return this._blogTagHandle ? '' : this._('Failed to fetch the Blog tag')
   }
 
   firstUpdated() {
@@ -204,9 +209,12 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
         await this._fetchBlogTagHandle()
       }
       if (!this._blogTagHandle) {
-        this.error = true
-        this._errorMessage = this._('Failed to fetch the Blog tag')
-        return
+        const errorMessage = await this._createBlogTag()
+        if (errorMessage) {
+          this.error = true
+          this._errorMessage = errorMessage
+          return
+        }
       }
       const processedData = this._processedData(this.data.media_list || [])
       const data = await this.appState.apiPost(this.postUrl, processedData)

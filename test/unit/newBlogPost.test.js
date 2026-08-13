@@ -81,22 +81,55 @@ describe('new blog post: Blog tag handling', () => {
     expect(apiPost).not.toHaveBeenCalled()
   })
 
-  it('creates the Blog tag when it does not exist yet, then retries', async () => {
+  it('does not create a tag while merely looking one up', async () => {
     const element = makeElement()
-    const apiGet = vi
-      .fn()
-      .mockResolvedValueOnce({data: []})
-      .mockResolvedValueOnce({
-        data: [{name: 'Blog', handle: 'new-blog-handle'}],
-      })
-    const apiPost = vi.fn().mockResolvedValue({data: {}})
+    const apiGet = vi.fn().mockResolvedValue({data: []})
+    const apiPost = vi.fn()
     element.appState = {apiGet, apiPost, i18n: {lang: 'en'}}
 
     await element._fetchBlogTagHandle()
 
+    expect(apiPost).not.toHaveBeenCalled()
+    expect(element._blogTagHandle).toBe('')
+  })
+
+  it('picks up the handle after creating the Blog tag', async () => {
+    const element = makeElement()
+    const apiGet = vi.fn().mockResolvedValue({
+      data: [{name: 'Blog', handle: 'new-blog-handle'}],
+    })
+    const apiPost = vi.fn().mockResolvedValue({data: {}})
+    element.appState = {apiGet, apiPost, i18n: {lang: 'en', strings: {}}}
+
+    const errorMessage = await element._createBlogTag()
+
     expect(apiPost).toHaveBeenCalledWith('/api/tags/', {name: 'Blog'})
-    expect(apiGet).toHaveBeenCalledTimes(2)
     expect(element._blogTagHandle).toBe('new-blog-handle')
+    expect(errorMessage).toBe('')
+  })
+
+  it('reports the backend error when the Blog tag cannot be created', async () => {
+    const element = makeElement()
+    const apiGet = vi.fn()
+    const apiPost = vi.fn().mockResolvedValue({error: 'Not authorized'})
+    element.appState = {apiGet, apiPost, i18n: {lang: 'en', strings: {}}}
+
+    const errorMessage = await element._createBlogTag()
+
+    expect(errorMessage).toBe('Not authorized')
+    expect(apiGet).not.toHaveBeenCalled()
+    expect(element._blogTagHandle).toBe('')
+  })
+
+  it('reports a generic error when the created tag cannot be found', async () => {
+    const element = makeElement()
+    const apiGet = vi.fn().mockResolvedValue({data: []})
+    const apiPost = vi.fn().mockResolvedValue({data: {}})
+    element.appState = {apiGet, apiPost, i18n: {lang: 'en', strings: {}}}
+
+    const errorMessage = await element._createBlogTag()
+
+    expect(errorMessage).toBe('Failed to fetch the Blog tag')
   })
 })
 
@@ -191,18 +224,47 @@ describe('new blog post: submit', () => {
     expect(element._isSaving).toBe(false)
   })
 
-  it('shows an error and does not submit when the Blog tag cannot be fetched', async () => {
+  it('creates the Blog tag on submit when the tree does not have one', async () => {
+    const element = makeElement()
+    element._blogTagHandle = ''
+    element.data = {_class: 'Source', title: 'Title'}
+    element._reset = vi.fn()
+    element._fetchBlogTagHandle = vi.fn().mockResolvedValue()
+    element._createBlogTag = vi.fn().mockImplementation(async () => {
+      element._blogTagHandle = 'new-blog-handle'
+      return ''
+    })
+    const apiPost = vi.fn().mockResolvedValue({
+      data: [{new: {_class: 'Source', gramps_id: 'S0001'}}],
+    })
+    element.appState = {apiPost, i18n: {strings: {}}}
+
+    await element._submit()
+
+    expect(element._createBlogTag).toHaveBeenCalledOnce()
+    expect(apiPost).toHaveBeenCalledWith(
+      '/api/objects/',
+      expect.arrayContaining([
+        expect.objectContaining({tag_list: ['new-blog-handle']}),
+      ])
+    )
+    expect(element.error).toBe(false)
+  })
+
+  it('shows an error and does not submit when the Blog tag cannot be created', async () => {
     const element = makeElement()
     element._blogTagHandle = ''
     element._fetchBlogTagHandle = vi.fn().mockResolvedValue()
-    const apiPost = vi.fn()
+    const apiPost = vi.fn().mockResolvedValue({error: 'Not authorized'})
     element.appState = {apiPost, i18n: {strings: {}}}
 
     await element._submit()
 
     expect(element.error).toBe(true)
-    expect(element._errorMessage).toBe('Failed to fetch the Blog tag')
-    expect(apiPost).not.toHaveBeenCalled()
+    expect(element._errorMessage).toBe('Not authorized')
+    expect(apiPost).toHaveBeenCalledOnce()
+    expect(apiPost).toHaveBeenCalledWith('/api/tags/', {name: 'Blog'})
+    expect(element._isSaving).toBe(false)
   })
 
   it('stays busy until the object-create request resolves, preventing double-submit', async () => {
