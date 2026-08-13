@@ -306,6 +306,7 @@ export const grampsStrings = [
   'Edit Place',
   'Edit Repository',
   'Edit Source',
+  'Edit the child reference',
   'Edit',
   'Edited',
   'Education',
