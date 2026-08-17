@@ -167,6 +167,7 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
 
     const previousStatus = this.tokenStatus
     this._loading = true
+    this._copied = false
     this._errorMessage = ''
     fireEvent(this, 'access-token:changed', {
       scope: TOKEN_SCOPE,
