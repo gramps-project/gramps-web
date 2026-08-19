@@ -2,6 +2,7 @@ import {css, html} from 'lit'
 import {map} from 'lit/directives/map.js'
 
 import '@material/mwc-textfield'
+import '@material/web/checkbox/checkbox.js'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 import '@material/web/fab/fab.js'
@@ -109,6 +110,7 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
     this._setAnc = false
     this._setDesc = false
     this._setSep = false
+    this._setSpouses = false
     this._setMaxImages = false
     this._editMode = false
     this._boundToggleEditMode = this._toggleEditMode.bind(this)
@@ -298,6 +300,20 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
           `
         : ''
     }${
+      this._setSpouses
+        ? html`
+            <tr>
+              <td>${this._('Include spouses')}</td>
+              <td>
+                <md-checkbox
+                  ?checked=${this.includeSpouses}
+                  @change=${this._handleChangeSpouses}
+                ></md-checkbox>
+              </td>
+            </tr>
+          `
+        : ''
+    }${
       this._setMaxImages
         ? html`
             <tr>
@@ -425,6 +441,10 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
 
   _handleChangeDesc(e) {
     this.nDesc = parseInt(e.target.value, 10)
+  }
+
+  _handleChangeSpouses(e) {
+    this.includeSpouses = e.target.checked
   }
 
   _handleChangeMaxImages(e) {

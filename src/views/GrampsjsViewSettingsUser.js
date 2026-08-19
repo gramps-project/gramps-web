@@ -333,6 +333,8 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         return 'Relationship Graph'
       case 'fan':
         return 'Fan Chart'
+      case 'blood':
+        return 'Blood Relatives'
       default:
         return 'Ancestor Tree'
     }

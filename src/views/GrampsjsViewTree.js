@@ -3,13 +3,14 @@ import {css, html} from 'lit'
 import '@material/web/tabs/tabs'
 import '@material/web/tabs/primary-tab'
 
-import {mdiFamilyTree} from '@mdi/js'
+import {mdiAccountGroup, mdiFamilyTree} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
 import './GrampsjsViewDescendantChart.js'
 import './GrampsjsViewTreeChart.js'
 import './GrampsjsViewHourglassChart.js'
 import './GrampsjsViewFanChart.js'
 import './GrampsjsViewRelationshipChart.js'
+import './GrampsjsViewBloodRelativesChart.js'
 import {fireEvent} from '../util.js'
 import {
   chartFanIconPath,
@@ -95,6 +96,7 @@ export class GrampsjsViewTree extends GrampsjsView {
       ${this._currentTabId === 2 ? this._renderHourglassTree() : ''}
       ${this._currentTabId === 3 ? this._renderRelationshipChart() : ''}
       ${this._currentTabId === 4 ? this._renderFan() : ''}
+      ${this._currentTabId === 5 ? this._renderBloodRelatives() : ''}
     `
   }
 
@@ -145,6 +147,12 @@ export class GrampsjsViewTree extends GrampsjsView {
             >${renderIconSvg(chartFanIconPath, '--md-sys-color-primary')}</span
           >
         </md-primary-tab>
+        <md-primary-tab has-icon>
+          ${this._('Blood Relatives')}
+          <span slot="icon"
+            >${renderIconSvg(mdiAccountGroup, '--md-sys-color-primary')}</span
+          >
+        </md-primary-tab>
       </md-tabs>
     `
   }
@@ -163,6 +171,23 @@ export class GrampsjsViewTree extends GrampsjsView {
         ?disableHome=${this.grampsId === this.settings.homePerson}
       >
       </grampsjs-view-fan-chart>
+    `
+  }
+
+  _renderBloodRelatives() {
+    return html`
+      <grampsjs-view-blood-relatives-chart
+        @tree:back="${this._prevPerson}"
+        @tree:person="${this._goToPerson}"
+        @tree:home="${this._backToHomePerson}"
+        grampsId=${this.grampsId}
+        ?active=${this.active}
+        .appState="${this.appState}"
+        .settings=${this.settings}
+        ?disableBack=${this._history.length < 2}
+        ?disableHome=${this.grampsId === this.settings.homePerson}
+      >
+      </grampsjs-view-blood-relatives-chart>
     `
   }
 
