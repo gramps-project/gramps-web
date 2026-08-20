@@ -1,6 +1,8 @@
 import {html, css, LitElement} from 'lit'
 import {unsafeHTML} from 'lit/directives/unsafe-html.js'
 
+import '@material/web/button/text-button'
+
 import {diff} from 'jsondiffpatch'
 import * as htmlFormatter from 'jsondiffpatch/formatters/html'
 
@@ -18,6 +20,10 @@ export class GrampsjsDiffJson extends GrampsjsAppStateMixin(LitElement) {
           --color-green: var(--grampsjs-color-revision-added-background-green);
           --color-blue: var(--grampsjs-color-revision-moved-background-blue);
           color: var(--grampsjs-body-font-color-87);
+        }
+
+        #toggle-unchanged {
+          margin-bottom: 8px;
         }
 
         #container {
@@ -201,6 +207,7 @@ export class GrampsjsDiffJson extends GrampsjsAppStateMixin(LitElement) {
       left: {type: Object},
       right: {type: Object},
       _diff: {type: Object},
+      _unchangedVisible: {type: Boolean, state: true},
     }
   }
 
@@ -209,24 +216,48 @@ export class GrampsjsDiffJson extends GrampsjsAppStateMixin(LitElement) {
     this.left = {}
     this.right = {}
     this._diff = {}
+    this._unchangedVisible = false
   }
 
   render() {
     return html`
+      <md-text-button id="toggle-unchanged" @click="${this._toggleUnchanged}">
+        ${this._unchangedVisible
+          ? this._('Hide unchanged fields')
+          : this._('Show unchanged fields')}
+      </md-text-button>
       <div id="container">
         ${unsafeHTML(htmlFormatter.format(this._diff, this.left))}
       </div>
     `
   }
 
-  updated(changed) {
+  willUpdate(changed) {
     if (changed.has('left') || changed.has('right')) {
       this._updateDiff()
+      this._unchangedVisible = false
+    }
+  }
+
+  updated(changed) {
+    if (changed.has('_diff') || changed.has('left') || changed.has('right')) {
+      const container = this.renderRoot.querySelector('#container')
+      if (container) {
+        htmlFormatter.hideUnchanged(container)
+      }
     }
   }
 
   _updateDiff() {
     this._diff = diff(this.left, this.right)
+  }
+
+  _toggleUnchanged() {
+    this._unchangedVisible = !this._unchangedVisible
+    const container = this.renderRoot.querySelector('#container')
+    if (container) {
+      htmlFormatter.showUnchanged(this._unchangedVisible, container, 300)
+    }
   }
 }
 
