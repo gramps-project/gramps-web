@@ -57,6 +57,8 @@
   "System": "System",
   "Light": "Light",
   "Dark": "Dark",
+  "Show unchanged fields": "Show unchanged fields",
+  "Hide unchanged fields": "Hide unchanged fields",
   "Show in tree": "Show in tree",
   "Show on timeline": "Show on timeline",
   "Open in map": "Open in map",

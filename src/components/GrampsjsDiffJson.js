@@ -221,7 +221,12 @@ export class GrampsjsDiffJson extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     return html`
-      <md-text-button id="toggle-unchanged" @click="${this._toggleUnchanged}">
+      <md-text-button
+        id="toggle-unchanged"
+        aria-pressed="${this._unchangedVisible}"
+        aria-controls="container"
+        @click="${this._toggleUnchanged}"
+      >
         ${this._unchangedVisible
           ? this._('Hide unchanged fields')
           : this._('Show unchanged fields')}
