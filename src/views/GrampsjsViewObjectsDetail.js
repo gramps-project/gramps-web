@@ -68,8 +68,19 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
         !arrayEqual(this.grampsIds, changed.get('grampsIds'))
       ) {
         this._updateData()
+      } else {
+        // same contents in a different order: reorder the existing data
+        this._sortData()
       }
     }
+  }
+
+  _sortData() {
+    this._data = [...this._data].sort(
+      (a, b) =>
+        this.grampsIds.indexOf(a.gramps_id) -
+        this.grampsIds.indexOf(b.gramps_id)
+    )
   }
 
   _updateData() {
@@ -85,11 +96,8 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
         this.loading = false
         if ('data' in data) {
           this.error = false
-          this._data = data.data.sort(
-            (a, b) =>
-              this.grampsIds.indexOf(a.gramps_id) -
-              this.grampsIds.indexOf(b.gramps_id)
-          )
+          this._data = data.data
+          this._sortData()
         } else if ('error' in data) {
           this.error = true
           this._errorMessage = data.error
