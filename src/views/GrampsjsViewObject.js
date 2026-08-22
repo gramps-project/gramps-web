@@ -538,7 +538,12 @@ export class GrampsjsViewObject extends GrampsjsView {
     } else if (e.detail.action === 'delNoteRef') {
       this.delHandle(e.detail.handle, this._data, this._className, 'note_list')
     } else if (e.detail.action === 'delMediaRef') {
-      this.delObject(e.detail.handle, this._data, this._className, 'media_list')
+      this.delObjectByIndex(
+        e.detail.index,
+        this._data,
+        this._className,
+        'media_list'
+      )
     } else if (e.detail.action === 'delPlace') {
       this.delObjectByIndex(
         e.detail.index,
@@ -563,16 +568,16 @@ export class GrampsjsViewObject extends GrampsjsView {
         'person_ref_list'
       )
     } else if (e.detail.action === 'upMediaRef') {
-      this.moveObject(
-        e.detail.handle,
+      this.moveObjectByIndex(
+        e.detail.index,
         this._data,
         this._className,
         'media_list',
         'up'
       )
     } else if (e.detail.action === 'downMediaRef') {
-      this.moveObject(
-        e.detail.handle,
+      this.moveObjectByIndex(
+        e.detail.index,
         this._data,
         this._className,
         'media_list',
