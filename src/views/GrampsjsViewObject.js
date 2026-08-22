@@ -307,6 +307,12 @@ export class GrampsjsViewObject extends GrampsjsView {
       if ('data' in data) {
         this.grampsId = ''
         this._data = {}
+        // yield so the view and its child components re-render without the
+        // deleted object before the change is announced - otherwise they
+        // fetch data for a handle that no longer exists
+        await new Promise(resolve => {
+          setTimeout(resolve)
+        })
         fireEvent(this, 'db:changed')
         fireEvent(this, 'nav', {path: ''})
         fireEvent(this, 'transaction:undo', {
