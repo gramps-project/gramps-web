@@ -122,6 +122,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
         @lightbox:right="${this._handleRight}"
         @rect:clicked="${this._handleRectClick}"
         handle="${this.media[this._lightboxSelected]?.handle}"
+        .index="${this._lightboxSelected}"
         ?hideLeftArrow="${this._lightboxSelected === 0}"
         ?hideRightArrow="${this._lightboxSelected === this.media.length - 1}"
         .appState="${this.appState}"
@@ -154,7 +155,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
                       <md-icon-button
                         @click="${e => {
                           e.stopPropagation()
-                          this._handleMediaRefLeft(this.mediaRef[i].ref)
+                          this._handleMediaRefLeft(i)
                         }}"
                       >
                         <grampsjs-icon
@@ -169,7 +170,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
                       <md-icon-button
                         @click="${e => {
                           e.stopPropagation()
-                          this._handleMediaRefRight(this.mediaRef[i].ref)
+                          this._handleMediaRefRight(i)
                         }}"
                       >
                         <grampsjs-icon
@@ -182,7 +183,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
                 <md-icon-button
                   @click="${e => {
                     e.stopPropagation()
-                    this._handleMediaRefDel(this.mediaRef[i].ref)
+                    this._handleMediaRefDel(i)
                   }}"
                 >
                   <grampsjs-icon
@@ -235,16 +236,16 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
-  _handleMediaRefDel(handle) {
-    fireEvent(this, 'edit:action', {action: 'delMediaRef', handle})
+  _handleMediaRefDel(index) {
+    fireEvent(this, 'edit:action', {action: 'delMediaRef', index})
   }
 
-  _handleMediaRefLeft(handle) {
-    fireEvent(this, 'edit:action', {action: 'upMediaRef', handle})
+  _handleMediaRefLeft(index) {
+    fireEvent(this, 'edit:action', {action: 'upMediaRef', index})
   }
 
-  _handleMediaRefRight(handle) {
-    fireEvent(this, 'edit:action', {action: 'downMediaRef', handle})
+  _handleMediaRefRight(index) {
+    fireEvent(this, 'edit:action', {action: 'downMediaRef', index})
   }
 
   _handleAddClick() {

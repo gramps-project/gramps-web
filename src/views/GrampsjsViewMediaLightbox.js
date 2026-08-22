@@ -68,6 +68,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   static get properties() {
     return {
       handle: {type: String},
+      index: {type: Number},
       _data: {type: Object},
       hideLeftArrow: {type: Boolean},
       hideRightArrow: {type: Boolean},
@@ -79,6 +80,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
 
   constructor() {
     super()
+    this.index = -1
     this._data = {}
     this.hideLeftArrow = false
     this.hideRightArrow = false
@@ -426,9 +428,13 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
       Math.round(100 * right),
       Math.round(100 * bottom),
     ]
-    if ((rect[2] - rect[0]) * (rect[3] - rect[1]) > 0) {
+    if ((rect[2] - rect[0]) * (rect[3] - rect[1]) > 0 && this.index >= 0) {
       const data = {ref: this.handle, rect}
-      fireEvent(this, 'edit:action', {action: 'updateMediaRef', data})
+      fireEvent(this, 'edit:action', {
+        action: 'updateMediaRef',
+        index: this.index,
+        data,
+      })
     }
   }
 
