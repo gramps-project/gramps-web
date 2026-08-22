@@ -13,6 +13,7 @@ import '../components/GrampsjsFilterPrivate.js'
 export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
   constructor() {
     super()
+    this._objectsName = 'notes'
     this._columns = [
       {name: 'Gramps ID', key: 'grampsId', sortKey: 'gramps_id'},
       {name: 'Type', key: 'type', sortKey: 'type'},
