@@ -297,6 +297,16 @@ export class GrampsjsViewObject extends GrampsjsView {
 
   _handleObjectLoaded() {}
 
+  // resolves once this element and the components it renders have updated
+  async _renderComplete() {
+    await this.updateComplete
+    await Promise.all(
+      [...this.renderRoot.querySelectorAll('*')]
+        .map(element => element.updateComplete)
+        .filter(promise => promise !== undefined)
+    )
+  }
+
   async _deleteSelf() {
     const {handle} = this._data
     const grampsId = this._data.gramps_id
@@ -307,12 +317,10 @@ export class GrampsjsViewObject extends GrampsjsView {
       if ('data' in data) {
         this.grampsId = ''
         this._data = {}
-        // yield so the view and its child components re-render without the
-        // deleted object before the change is announced - otherwise they
-        // fetch data for a handle that no longer exists
-        await new Promise(resolve => {
-          setTimeout(resolve)
-        })
+        // wait for the view and the object component it renders to update
+        // before the change is announced - otherwise components still showing
+        // the deleted object fetch data for a handle that no longer exists
+        await this._renderComplete()
         fireEvent(this, 'db:changed')
         fireEvent(this, 'nav', {path: ''})
         fireEvent(this, 'transaction:undo', {
