@@ -826,6 +826,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
                 <grampsjs-addresses
                   .appState="${this.appState}"
                   .data=${this.data.address_list ?? []}
+                  .profile=${this.data?.profile?.addresses ?? []}
                 ></grampsjs-addresses>`
             : ''}
           ${this.data.urls?.length > 0 || (this.edit && 'urls' in this.data)

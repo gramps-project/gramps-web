@@ -1,6 +1,7 @@
 import {html, LitElement, css} from 'lit'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
+import {toDate} from '../date.js'
 
 export class GrampsjsAddresses extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -32,12 +33,14 @@ export class GrampsjsAddresses extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       data: {type: Object},
+      profile: {type: Array},
     }
   }
 
   constructor() {
     super()
     this.data = {}
+    this.profile = []
   }
 
   render() {
@@ -46,13 +49,13 @@ export class GrampsjsAddresses extends GrampsjsAppStateMixin(LitElement) {
     }
     return html`
     ${this.data.map(
-      obj => html`
+      (obj, i) => html`
         <dl>
-          ${obj?.date?.dateval
+          ${this._dateString(obj, i)
             ? html`
                 <div>
                   <dt>${this._('Date')}</dt>
-                  <dd>${this._toDate(obj?.date?.dateval)}</dd>
+                  <dd>${this._dateString(obj, i)}</dd>
                 </div>
               `
             : ''}
@@ -111,13 +114,14 @@ export class GrampsjsAddresses extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  _toDate(dateVal) {
-    try {
-      return `${dateVal[2]}-${dateVal[1]}-${dateVal[0]}`
-    } catch {
-      return ''
-    }
+  // Date to show for the address at the given index. Prefers the string
+  // formatted by the API. Object types without the address in profile
+  // fall back to formatting the raw date.
+  _dateString(obj, i) {
+    return (
+      this.profile[i]?.date_str ??
+      (obj?.date?.dateval ? toDate(obj.date.dateval) : '')
+    )
   }
 }
 
