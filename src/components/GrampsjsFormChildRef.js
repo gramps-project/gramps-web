@@ -67,6 +67,10 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
       </grampsjs-form-select-type>
     `
   }
+
+  get isValid() {
+    return !!this.data.ref
+  }
 }
 
 window.customElements.define('grampsjs-form-childref', GrampsjsFormChildRef)

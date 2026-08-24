@@ -21,6 +21,10 @@ class GrampsjsFormMediaRef extends GrampsjsObjectForm {
       ></grampsjs-form-select-object-list>
     `
   }
+
+  get isValid() {
+    return !!this.data.ref
+  }
 }
 
 window.customElements.define('grampsjs-form-mediaref', GrampsjsFormMediaRef)
