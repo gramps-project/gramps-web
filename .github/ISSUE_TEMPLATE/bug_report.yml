@@ -1,37 +1,71 @@
 name: Bug Report
-description: Report a bug with the Gramps Web frontend
+description: Report a bug in the Gramps Web user interface
 title: '[Bug] '
 body:
   - type: markdown
     attributes:
       value: |
-        Thank you for taking the time to report a bug in Gramps Web!
+        Thanks for taking the time to report a bug!
 
-        Please note that this is the repository for the Gramps Web user interface. If you think the bug is more likely to be caused on the server side, please report a bug at https://github.com/gramps-project/gramps-web-api/issues. If you found a bug in the Gramps Web Sync Addon, please report it at https://github.com/DavidMStraub/gramps-web-sync. For setup/deployment issues, please open a discussion instead of an issue, or post in the [Gramps forum](https://gramps.discourse.group/c/gramps-web/28).
+        Bugs on the **server side** (API, search, import/export) belong in [gramps-web-api](https://github.com/gramps-project/gramps-web-api/issues), bugs in the sync addon in [gramps-web-sync](https://github.com/DavidMStraub/gramps-web-sync).
+
+        Please keep it as short as it can be while still complete. We read every word.
 
   - type: textarea
-    id: bug-description
+    id: steps
     attributes:
-      label: Bug Description
-      description: A clear and concise description of what the bug is - steps to reproduce, expected behaviour, actual behaviour, etc.
-      placeholder: Describe the bug...
+      label: What did you do?
+      description: The steps to get to the problem, starting from the home page.
+      placeholder: |
+        1. Open a person
+        2. Edit the birth date
+        3. Click "Save"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened then?
+      description: What you saw. An error message, wrong data on screen, nothing at all.
+      placeholder: e.g. A red error bar appeared and the date was unchanged after reloading.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      placeholder: e.g. The new birth date is saved and shown on the person page.
     validations:
       required: true
 
   - type: textarea
     id: gramps-web-version
     attributes:
-      label: Gramps Web Version Information
-      description: Paste the version information from the "System Information" page in Gramps Web
+      label: Version information
+      description: Paste the contents of the "System Information" page in Gramps Web.
       placeholder: Paste version information
     validations:
       required: true
 
+  - type: textarea
+    id: possible-cause
+    attributes:
+      label: Possible cause or solution (optional)
+      description: >-
+        Only if you already know the codebase, and please keep it brief.
+        Leaving this empty is completely fine: a clearly described problem is
+        already the most useful thing you can send us.
+    validations:
+      required: false
+
   - type: checkboxes
     id: verification
     attributes:
-      label: Verification
-      description: Please confirm the following
+      label: Before submitting
       options:
         - label: I have searched for existing issues before creating this one
+          required: true
+        - label: I wrote this myself, or used an AI assistant and have read the whole text and agree with it
           required: true

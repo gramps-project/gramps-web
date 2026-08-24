@@ -1,0 +1,42 @@
+name: Feature Request
+description: Suggest an idea for the Gramps Web user interface
+title: '[Feature] '
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to share your idea!
+
+        If your idea concerns the **server side** (API, search, import/export), please open it in [gramps-web-api](https://github.com/gramps-project/gramps-web-api/issues) instead. If you are not sure yet whether this is the right idea at all, the [Gramps forum](https://gramps.discourse.group/c/gramps-web/28) is a good place to discuss it first.
+
+        Please keep it as short as it can be while still complete. We read every word.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: What are you trying to do today, and what gets in the way?
+      placeholder: e.g. When researching a family I often need to compare two people side by side, and today that means opening two browser tabs.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Possible solution (optional)
+      description: >-
+        If you have something concrete in mind, describe it briefly. Leaving this
+        empty is completely fine: understanding the problem is the part we need
+        most.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: verification
+    attributes:
+      label: Before submitting
+      options:
+        - label: I have searched for existing issues before creating this one
+          required: true
+        - label: I wrote this myself, or used an AI assistant and have read the whole text and agree with it
+          required: true

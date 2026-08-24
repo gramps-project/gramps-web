@@ -1,5 +1,13 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Gramps Forum
+  - name: Setup, deployment or configuration help
+    url: https://gramps.discourse.group/c/gramps-web/28
+    about: Trouble installing, upgrading or configuring Gramps Web? The forum will get you an answer much faster than an issue.
+  - name: Questions and general discussion
     url: https://gramps.discourse.group/c/gramps-web/
-    about: Please use the Gramps forum for general questions and support with deployment/setup issues.
+    about: Not sure yet whether it's a bug? Ask here first, we're happy to help.
+  - name: Server-side bugs and ideas
+    url: https://github.com/gramps-project/gramps-web-api/issues
+    about: >-
+      For the Gramps Web API: anything involving the API, search, or
+      import/export.

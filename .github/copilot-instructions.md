@@ -1,1 +1,1 @@
-See CLAUDE.md at the repo root for full project conventions.
+See AGENTS.md at the repo root.
