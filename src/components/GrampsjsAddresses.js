@@ -115,8 +115,9 @@ export class GrampsjsAddresses extends GrampsjsAppStateMixin(LitElement) {
   }
 
   // Date to show for the address at the given index. Prefers the string
-  // formatted by the API. Object types without the address in profile
-  // fall back to formatting the raw date.
+  // formatted by the API, which honours modifiers, calendars and locale.
+  // Falls back to the raw date only when the object was loaded without a
+  // profile.
   _dateString(obj, i) {
     return (
       this.profile[i]?.date_str ??

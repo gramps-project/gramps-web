@@ -61,9 +61,9 @@ describe('address dates', () => {
     ])
   })
 
-  // Repositories have addresses but no profile at all, so nothing formats
-  // their dates for us.
-  describe('for an object whose profile carries no addresses', () => {
+  // Every object type with addresses formats their dates in its profile, so
+  // this only happens when the object was loaded without a profile.
+  describe('for an object loaded without a profile', () => {
     it('falls back to formatting the date held on the address', () => {
       const rows = renderRows(
         [{street: 'High Street', date: date([2, 1, 2000, false])}],
