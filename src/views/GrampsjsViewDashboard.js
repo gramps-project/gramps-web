@@ -21,6 +21,7 @@ export class GrampsjsViewDashboard extends GrampsjsView {
     return {
       dbInfo: {type: Object},
       homePersonDetails: {type: Object},
+      homePersonMissing: {type: Boolean},
       homePersonGrampsId: {type: String},
     }
   }
@@ -29,6 +30,7 @@ export class GrampsjsViewDashboard extends GrampsjsView {
     super()
     this.dbInfo = {}
     this.homePersonDetails = {}
+    this.homePersonMissing = false
     this.homePersonGrampsId = ''
   }
 
@@ -204,6 +206,7 @@ export class GrampsjsViewDashboard extends GrampsjsView {
                   id="homeperson"
                   .appState="${this.appState}"
                   .homePersonDetails=${this.homePersonDetails}
+                  .homePersonMissing=${this.homePersonMissing}
                   .homePersonGrampsId=${this.homePersonGrampsId}
                 >
                 </grampsjs-home-person>

@@ -81,6 +81,7 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
     return {
       settings: {type: Object},
       homePersonDetails: {type: Object},
+      homePersonMissing: {type: Boolean},
       dbInfo: {type: Object},
     }
   }
@@ -89,6 +90,7 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.settings = {}
     this.homePersonDetails = {}
+    this.homePersonMissing = false
     this.dbInfo = {}
   }
 
@@ -100,6 +102,7 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         .appState="${this.appState}"
         .dbInfo="${this.dbInfo}"
         .homePersonDetails=${this.homePersonDetails}
+        .homePersonMissing=${this.homePersonMissing}
         .homePersonGrampsId=${this.settings.homePerson ?? ''}
       ></grampsjs-view-dashboard>
       <grampsjs-view-blog

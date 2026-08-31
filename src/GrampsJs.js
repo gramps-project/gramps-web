@@ -122,6 +122,7 @@ export class GrampsJs extends LitElement {
       _saveComplete: {type: Boolean},
       loadingState: {type: Number},
       _homePersonDetails: {type: Object},
+      _homePersonMissing: {type: Boolean},
       _showShortcuts: {type: Boolean},
       _shortcutPressed: {type: String},
       _firstRunToken: {type: String},
@@ -140,7 +141,9 @@ export class GrampsJs extends LitElement {
     this._saveCompleteTimer = null
     this.loadingState = LOADING_STATE_INITIAL
     this._homePersonDetails = {}
+    this._homePersonMissing = false
     this._homePersonFetchingId = null
+    this._homePersonLoadedId = null
     this._showShortcuts = false
     this._shortcutPressed = ''
     this._firstRunToken = ''
@@ -664,6 +667,7 @@ export class GrampsJs extends LitElement {
               .appState="${this.appState}"
               .dbInfo="${this.appState.dbInfo}"
               .homePersonDetails=${this._homePersonDetails}
+              .homePersonMissing=${this._homePersonMissing}
               .settings="${this.appState.settings}"
               .page="${this.appState.path.page}"
               .pageId="${this.appState.path.pageId}"
@@ -971,6 +975,7 @@ export class GrampsJs extends LitElement {
       return
     }
     this._homePersonFetchingId = grampsId
+    this._homePersonMissing = false
     this.appState
       .apiGet(
         `/api/people/?gramps_id=${grampsId}&profile=self&extend=media_list`
@@ -980,10 +985,13 @@ export class GrampsJs extends LitElement {
           return
         }
         this._homePersonFetchingId = null
-        if ('data' in data) {
-          ;[this._homePersonDetails] = data.data
-        } else if ('error' in data) {
+        if ('error' in data) {
           this._showError(data.error)
+        } else if ('data' in data) {
+          this._homePersonLoadedId = grampsId
+          this._homePersonDetails = data.data[0] ?? {}
+          // an empty result means the person no longer exists in the tree
+          this._homePersonMissing = data.data.length === 0
         }
       })
   }
@@ -1254,7 +1262,7 @@ export class GrampsJs extends LitElement {
     this._updateAppState({settings: getSettings()})
     if (
       this.appState.settings?.homePerson &&
-      this.appState.settings.homePerson !== this._homePersonDetails.gramps_id
+      this.appState.settings.homePerson !== this._homePersonLoadedId
     ) {
       this._loadHomePersonInfo()
     }

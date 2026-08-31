@@ -23,6 +23,7 @@ export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       homePersonDetails: {type: Object},
+      homePersonMissing: {type: Boolean},
       homePersonGrampsId: {type: String},
     }
   }
@@ -30,6 +31,7 @@ export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
   constructor() {
     super()
     this.homePersonDetails = {}
+    this.homePersonMissing = false
     this.homePersonGrampsId = ''
   }
 
@@ -37,7 +39,7 @@ export class GrampsjsHomePerson extends GrampsjsAppStateMixin(LitElement) {
     return html`
       <h3>${this._('Home Person')}</h3>
 
-      ${this.homePersonGrampsId
+      ${this.homePersonGrampsId && !this.homePersonMissing
         ? html`
             <div class="content">
               <grampsjs-search-result-list
