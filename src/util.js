@@ -739,8 +739,19 @@ export function dateIsEmpty(date) {
   return true
 }
 
-const urlRegex =
-  /((?:^|\s)https?:\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/gi
+const urlChar = '[-A-Z0-9+&@#/%?=~_|!:,.;]'
+// a URL must not end on punctuation that more likely closes the sentence
+const urlEndChar = '[-A-Z0-9+&@#/%=~_|]'
+// URLs may contain parentheses, but only balanced ones: a ")" without an
+// opening counterpart inside the URL belongs to the surrounding text, as in
+// "Found on Google (https://www.google.com)"
+const balancedParens = `\\(${urlChar}*\\)`
+
+// the URL starts at the beginning of the text or after whitespace or "("
+const urlRegex = new RegExp(
+  `((?<![^\\s(])https?://(?:${urlChar}|${balancedParens})*(?:${urlEndChar}|${balancedParens}))`,
+  'gi'
+)
 
 export function linkUrls(text, textOnly = true) {
   if (textOnly) {

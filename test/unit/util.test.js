@@ -1,4 +1,5 @@
 import {describe, it, expect} from 'vitest'
+import {render, html} from 'lit'
 import {
   translate,
   personTitleFromProfile,
@@ -16,6 +17,7 @@ import {
   normalizeRect,
   isValidRect,
   apiVersionAtLeast,
+  linkUrls,
 } from '../../src/util.js'
 
 // Helpers
@@ -394,5 +396,95 @@ describe('apiVersionAtLeast', () => {
 
   it('defaults patch to 0 when not specified', () => {
     expect(apiVersionAtLeast(dbInfo('3.9.0'), 3, 9)).to.be.true
+  })
+})
+
+describe('linkUrls', () => {
+  const link = url => `<a href="${url}" target="_blank">${url}</a>`
+
+  it('links a bare https URL', () => {
+    expect(linkUrls('https://example.com/x')).to.equal(
+      link('https://example.com/x')
+    )
+  })
+
+  it('links a bare http URL', () => {
+    expect(linkUrls('http://example.com/x')).to.equal(
+      link('http://example.com/x')
+    )
+  })
+
+  it('keeps query string and fragment', () => {
+    const url = 'https://example.com/p?q=1&r=2#frag'
+    expect(linkUrls(url)).to.equal(link(url))
+  })
+
+  it('links a URL inside a text without touching the whitespace', () => {
+    expect(linkUrls('a https://a.org/x b')).to.equal(
+      `a ${link('https://a.org/x')} b`
+    )
+  })
+
+  it('links several URLs in one text', () => {
+    expect(linkUrls('a https://a.org/x b https://b.org/y c')).to.equal(
+      `a ${link('https://a.org/x')} b ${link('https://b.org/y')} c`
+    )
+  })
+
+  it('excludes trailing sentence punctuation', () => {
+    expect(linkUrls('See https://a.org/x, then https://b.org/y.')).to.equal(
+      `See ${link('https://a.org/x')}, then ${link('https://b.org/y')}.`
+    )
+  })
+
+  it('includes balanced parentheses in the URL', () => {
+    const url = 'https://wiki-de.genealogy.net/Dopp_(Haltern-Sythen)'
+    expect(linkUrls(url)).to.equal(link(url))
+  })
+
+  it('includes parentheses in the middle of the URL', () => {
+    const url = 'https://example.com/Foo_(bar)_baz'
+    expect(linkUrls(url)).to.equal(link(url))
+  })
+
+  it('links a URL enclosed in parentheses', () => {
+    expect(linkUrls('Found on Google (https://www.google.com)')).to.equal(
+      `Found on Google (${link('https://www.google.com')})`
+    )
+  })
+
+  it('links a parenthesized URL that itself contains parentheses', () => {
+    const url = 'https://en.wikipedia.org/wiki/Foo_(bar)'
+    expect(linkUrls(`(${url})`)).to.equal(`(${link(url)})`)
+  })
+
+  it('links a URL preceded by a line break', () => {
+    expect(linkUrls('line\nhttps://a.org/x\nmore')).to.equal(
+      `line\n${link('https://a.org/x')}\nmore`
+    )
+  })
+
+  it('ignores schemes other than http and https', () => {
+    expect(linkUrls('ftp://example.com/x')).to.equal('ftp://example.com/x')
+    expect(linkUrls('www.example.com')).to.equal('www.example.com')
+  })
+
+  it('ignores a URL glued to preceding text', () => {
+    const text = 'mailto:x@https://example.com'
+    expect(linkUrls(text)).to.equal(text)
+  })
+
+  it('returns text without URLs unchanged', () => {
+    expect(linkUrls('no urls here')).to.equal('no urls here')
+    expect(linkUrls('')).to.equal('')
+  })
+
+  it('renders anchors as a template result when textOnly is false', () => {
+    const div = document.createElement('div')
+    render(html`${linkUrls('see (https://a.org/x) now', false)}`, div)
+    const anchors = div.querySelectorAll('a')
+    expect(anchors.length).to.equal(1)
+    expect(anchors[0].getAttribute('href')).to.equal('https://a.org/x')
+    expect(div.textContent).to.contain('now')
   })
 })
