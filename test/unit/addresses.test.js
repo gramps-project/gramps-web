@@ -79,5 +79,13 @@ describe('address dates', () => {
       const rows = renderRows([{street: 'High Street'}], [])
       expect(rows).to.deep.equal([['Street', 'High Street']])
     })
+
+    it('omits the date row for an address holding an empty date', () => {
+      const rows = renderRows(
+        [{street: 'High Street', date: date([0, 0, 0, false])}],
+        []
+      )
+      expect(rows).to.deep.equal([['Street', 'High Street']])
+    })
   })
 })
