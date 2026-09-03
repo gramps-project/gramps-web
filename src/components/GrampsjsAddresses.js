@@ -32,19 +32,19 @@ export class GrampsjsAddresses extends GrampsjsAppStateMixin(LitElement) {
 
   static get properties() {
     return {
-      data: {type: Object},
+      data: {type: Array},
       profile: {type: Array},
     }
   }
 
   constructor() {
     super()
-    this.data = {}
+    this.data = []
     this.profile = []
   }
 
   render() {
-    if (Object.keys(this.data).length === 0) {
+    if (this.data.length === 0) {
       return ''
     }
     return html`
