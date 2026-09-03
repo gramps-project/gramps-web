@@ -2,6 +2,7 @@ import {html, LitElement, css} from 'lit'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {toDate} from '../date.js'
+import {dateIsEmpty} from '../util.js'
 
 export class GrampsjsAddresses extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -116,13 +117,19 @@ export class GrampsjsAddresses extends GrampsjsAppStateMixin(LitElement) {
 
   // Date to show for the address at the given index. Prefers the string
   // formatted by the API, which honours modifiers, calendars and locale.
-  // Falls back to the raw date only when the object was loaded without a
-  // profile.
+  //
+  // The fallback formats the raw date, for backends predating
+  // https://github.com/gramps-project/gramps-web-api/pull/949, which added
+  // addresses to the profile of every object type that has them. It can be
+  // removed once the minimum supported backend includes that change.
   _dateString(obj, i) {
-    return (
-      this.profile[i]?.date_str ??
-      (obj?.date?.dateval ? toDate(obj.date.dateval) : '')
-    )
+    const dateStr = this.profile[i]?.date_str
+    if (dateStr !== undefined) {
+      return dateStr
+    }
+    return obj?.date?.dateval && !dateIsEmpty(obj.date)
+      ? toDate(obj.date.dateval)
+      : ''
   }
 }
 
