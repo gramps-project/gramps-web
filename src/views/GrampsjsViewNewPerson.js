@@ -22,11 +22,19 @@ export class GrampsjsViewNewPerson extends GrampsjsNewPersonMixin(
 
   _submit() {
     const processedData = this._processedData()
+    // Captured before the POST: the response fires db:changed, which refreshes
+    // the object counts. An unset dbInfo fails closed and skips the home person.
+    const treeWasEmpty = this.appState.dbInfo?.object_counts?.people === 0
     this.appState.apiPost(this.postUrl, processedData).then(data => {
       if ('data' in data) {
         this.error = false
         const grampsId = data.data.filter(obj => obj.new._class === 'Person')[0]
           .new.gramps_id
+        // The first person in an empty tree becomes the home person, so the
+        // tree charts have a starting point without the user setting one.
+        if (treeWasEmpty && !this.appState.settings?.homePerson) {
+          this.appState.updateSettings({homePerson: grampsId}, true)
+        }
         this.dispatchEvent(
           new CustomEvent('nav', {
             bubbles: true,
