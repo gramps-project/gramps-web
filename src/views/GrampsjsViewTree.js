@@ -235,13 +235,15 @@ export class GrampsjsViewTree extends GrampsjsView {
   // it offers person creation. The first person becomes the home person, which
   // brings the user straight back here with a chart to look at.
   _renderNoHomePerson() {
+    // Truthiness rather than an explicit zero: a missing object_counts falls
+    // through to person creation, which is a way forward whether or not the
+    // tree turns out to be empty. The picker would be a dead end.
     const hasPeople = this.appState.dbInfo?.object_counts?.people
-    const canEdit = this.appState.permissions?.canEdit
     if (!hasPeople) {
       return html`
         <div class="with-margin">
           <p>${this._('No Home Person set.')}</p>
-          ${canEdit
+          ${this.appState.permissions?.canAdd
             ? html`
                 <md-filled-button href="/new_person">
                   <grampsjs-icon
@@ -283,8 +285,8 @@ export class GrampsjsViewTree extends GrampsjsView {
     `
   }
 
-  _openPicker(e) {
-    this.renderRoot.querySelector('#homeperson-select')?.open(e.currentTarget)
+  _openPicker() {
+    this.renderRoot.querySelector('#homeperson-select')?.open()
   }
 
   _handleHomePerson(e) {
