@@ -182,11 +182,14 @@ export class GrampsjsObjectRevisions extends GrampsjsAppStateMixin(LitElement) {
     }
     this._loading = true
     const url = `/api/transactions/history/objects/${this.objClass}/${this.handle}?sort=-id&page=${page}&pagesize=${PAGE_SIZE}`
-    const data = await this.appState.apiGet(url)
-    this._loading = false
-    if ('data' in data) {
-      this._data = page === 1 ? data.data : [...this._data, ...data.data]
-      this._totalCount = parseInt(data.total_count, 10) || 0
+    try {
+      const data = await this.appState.apiGet(url)
+      if ('data' in data) {
+        this._data = page === 1 ? data.data : [...this._data, ...data.data]
+        this._totalCount = parseInt(data.total_count, 10) || 0
+      }
+    } finally {
+      this._loading = false
     }
   }
 
