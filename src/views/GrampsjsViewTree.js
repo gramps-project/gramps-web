@@ -235,53 +235,59 @@ export class GrampsjsViewTree extends GrampsjsView {
   // it offers person creation. The first person becomes the home person, which
   // brings the user straight back here with a chart to look at.
   _renderNoHomePerson() {
-    // Truthiness rather than an explicit zero: a missing object_counts falls
-    // through to person creation, which is a way forward whether or not the
-    // tree turns out to be empty. The picker would be a dead end.
+    // A missing object_counts counts as empty: person creation leads somewhere
+    // either way, while the picker has nothing to offer an empty tree.
     const hasPeople = this.appState.dbInfo?.object_counts?.people
-    if (!hasPeople) {
-      return html`
-        <div class="with-margin">
-          <p>${this._('No Home Person set.')}</p>
-          ${this.appState.permissions?.canAdd
-            ? html`
-                <md-filled-button href="/new_person">
-                  <grampsjs-icon
-                    slot="icon"
-                    path="${mdiPlus}"
-                    color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
-                  ></grampsjs-icon>
-                  ${this._('New Person')}
-                </md-filled-button>
-              `
-            : ''}
-        </div>
-      `
-    }
+    // The Home link is the escape hatch for users whose permissions leave them
+    // no action below.
     return html`
       <div class="with-margin">
-        <p>${this._('No Home Person set.')}</p>
-        <md-outlined-button
-          id="select-home-person"
-          @click="${this._openPicker}"
-        >
-          <grampsjs-icon
-            slot="icon"
-            path="${mdiPencil}"
-            color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
-          ></grampsjs-icon>
-          ${this._('Set _Home Person')}
-        </md-outlined-button>
-        <grampsjs-form-select-object
-          @select-object:changed="${this._handleHomePerson}"
-          objectType="person"
-          .appState="${this.appState}"
-          id="homeperson-select"
-          label="${this._('Select')}"
-          fixedMenuPosition
-          hideButton
-        ></grampsjs-form-select-object>
+        <p>
+          ${this._('No Home Person set.')}
+          <a href="/">${this._('Home')}</a>
+        </p>
+        ${hasPeople
+          ? this._renderHomePersonPicker()
+          : this._renderAddFirstPerson()}
       </div>
+    `
+  }
+
+  _renderAddFirstPerson() {
+    if (!this.appState.permissions?.canAdd) {
+      return ''
+    }
+    return html`
+      <md-filled-button href="/new_person">
+        <grampsjs-icon
+          slot="icon"
+          path="${mdiPlus}"
+          color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+        ></grampsjs-icon>
+        ${this._('New Person')}
+      </md-filled-button>
+    `
+  }
+
+  _renderHomePersonPicker() {
+    return html`
+      <md-outlined-button id="select-home-person" @click="${this._openPicker}">
+        <grampsjs-icon
+          slot="icon"
+          path="${mdiPencil}"
+          color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+        ></grampsjs-icon>
+        ${this._('Set _Home Person')}
+      </md-outlined-button>
+      <grampsjs-form-select-object
+        @select-object:changed="${this._handleHomePerson}"
+        objectType="person"
+        .appState="${this.appState}"
+        id="homeperson-select"
+        label="${this._('Select')}"
+        fixedMenuPosition
+        hideButton
+      ></grampsjs-form-select-object>
     `
   }
 
