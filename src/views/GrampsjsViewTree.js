@@ -2,9 +2,13 @@ import {css, html} from 'lit'
 
 import '@material/web/tabs/tabs'
 import '@material/web/tabs/primary-tab'
+import '@material/web/button/filled-button'
+import '@material/web/button/outlined-button'
 
-import {mdiFamilyTree} from '@mdi/js'
+import {mdiFamilyTree, mdiPlus, mdiPencil} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
+import '../components/GrampsjsIcon.js'
+import '../components/GrampsjsFormSelectObject.js'
 import './GrampsjsViewDescendantChart.js'
 import './GrampsjsViewTreeChart.js'
 import './GrampsjsViewHourglassChart.js'
@@ -79,14 +83,7 @@ export class GrampsjsViewTree extends GrampsjsView {
 
   renderContent() {
     if (this.grampsId === '') {
-      return html`
-        <div class="with-margin">
-          <p>
-            ${this._('No Home Person set.')}
-            <a href="/">${this._('Home')}</a>
-          </p>
-        </div>
-      `
+      return this._renderNoHomePerson()
     }
     return html`
       <div id="tabs">${this.renderTabs()}</div>
@@ -232,6 +229,71 @@ export class GrampsjsViewTree extends GrampsjsView {
       >
       </grampsjs-view-hourglass-chart>
     `
+  }
+
+  // Shown whenever no home person is set. An empty tree has nobody to pick, so
+  // it offers person creation. The first person becomes the home person, which
+  // brings the user straight back here with a chart to look at.
+  _renderNoHomePerson() {
+    const hasPeople = this.appState.dbInfo?.object_counts?.people
+    const canEdit = this.appState.permissions?.canEdit
+    if (!hasPeople) {
+      return html`
+        <div class="with-margin">
+          <p>${this._('No Home Person set.')}</p>
+          ${canEdit
+            ? html`
+                <md-filled-button href="/new_person">
+                  <grampsjs-icon
+                    slot="icon"
+                    path="${mdiPlus}"
+                    color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+                  ></grampsjs-icon>
+                  ${this._('New Person')}
+                </md-filled-button>
+              `
+            : ''}
+        </div>
+      `
+    }
+    return html`
+      <div class="with-margin">
+        <p>${this._('No Home Person set.')}</p>
+        <md-outlined-button
+          id="select-home-person"
+          @click="${this._openPicker}"
+        >
+          <grampsjs-icon
+            slot="icon"
+            path="${mdiPencil}"
+            color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+          ></grampsjs-icon>
+          ${this._('Set _Home Person')}
+        </md-outlined-button>
+        <grampsjs-form-select-object
+          @select-object:changed="${this._handleHomePerson}"
+          objectType="person"
+          .appState="${this.appState}"
+          id="homeperson-select"
+          label="${this._('Select')}"
+          fixedMenuPosition
+          hideButton
+        ></grampsjs-form-select-object>
+      </div>
+    `
+  }
+
+  _openPicker(e) {
+    this.renderRoot.querySelector('#homeperson-select')?.open(e.currentTarget)
+  }
+
+  _handleHomePerson(e) {
+    const grampsId = e.detail.objects[0]?.object?.gramps_id
+    if (grampsId) {
+      this.appState.updateSettings({homePerson: grampsId}, true)
+    }
+    e.preventDefault()
+    e.stopPropagation()
   }
 
   _prevPerson() {
