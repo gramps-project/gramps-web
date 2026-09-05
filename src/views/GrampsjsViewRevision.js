@@ -14,11 +14,17 @@ import '../components/GrampsjsBreadcrumbs.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 
-import {mdiClose, mdiUndo, mdiAlertOutline, mdiSourceCommit} from '@mdi/js'
+import {
+  mdiClose,
+  mdiUndo,
+  mdiAlertOutline,
+  mdiSourceCommit,
+  mdiOpenInNew,
+} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
 
 import {renderIconSvg} from '../icons.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, objectTypeSingular} from '../util.js'
 
 export class GrampsjsViewRevision extends GrampsjsView {
   static get styles() {
@@ -58,8 +64,10 @@ export class GrampsjsViewRevision extends GrampsjsView {
           clear: left;
         }
 
-        #close-button {
-          text-align: right;
+        #detail-buttons {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
           margin-bottom: 15px;
         }
 
@@ -246,8 +254,24 @@ export class GrampsjsViewRevision extends GrampsjsView {
       return ''
     }
     const change = this._data.changes?.[this._detailId]
+    const objectType = change.obj_class?.toLowerCase()
+    const grampsId = change.new_data?.gramps_id
     return html`
-      <div id="close-button">
+      <div id="detail-buttons">
+        ${objectType && grampsId
+          ? html`
+              <md-text-button
+                @click="${() => this._handleOpenObject(objectType, grampsId)}"
+                >${renderIconSvg(
+                  mdiOpenInNew,
+                  '--md-sys-color-primary',
+                  0,
+                  'icon'
+                )}
+                ${this._(objectTypeSingular[objectType] ?? '')}</md-text-button
+              >
+            `
+          : html`<span></span>`}
         <md-text-button @click="${this._handleCloseDetail}"
           >${renderIconSvg(mdiClose, '--md-sys-color-primary', 0, 'icon')}
           ${this._('Close')}</md-text-button
@@ -259,6 +283,10 @@ export class GrampsjsViewRevision extends GrampsjsView {
         .appState="${this.appState}"
       ></grampsjs-diff-json>
     `
+  }
+
+  _handleOpenObject(objectType, grampsId) {
+    fireEvent(this, 'nav', {path: `${objectType}/${grampsId}`})
   }
 
   _handleCloseDetail() {
