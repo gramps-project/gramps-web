@@ -560,9 +560,17 @@ export function makeHandle() {
   return uuidv4()
 }
 
-// Thin wrapper around dateToSdn for Gregorian dates.
-export function getSortval(year, month, day) {
-  return dateToSdn(CALENDARS.GREGORIAN, year, month, day)
+// Wrapper around dateToSdn that also accepts non-Gregorian calendars.
+// The backend recalculates sortval authoritatively on save regardless of
+// what we send, so for calendars not implemented in the JS port (Hebrew,
+// Persian) we fall back to a Gregorian approximation for the in-progress
+// form state rather than throwing.
+export function getSortval(year, month, day, calendar = CALENDARS.GREGORIAN) {
+  try {
+    return dateToSdn(calendar ?? CALENDARS.GREGORIAN, year, month, day)
+  } catch {
+    return dateToSdn(CALENDARS.GREGORIAN, year, month, day)
+  }
 }
 
 export function getBrowserLanguage() {
