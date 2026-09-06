@@ -357,5 +357,19 @@
     "Fetching place record...": "Récupération de la fiche du lieu...",
     "Zoom in to see event details": "Effectuez un zoom pour voir les détails de l'événement",
     "%s selected": "%s sélectionné(e)",
-    "Exactly two objects must be selected to perform a merge.": "Pour effectuer une fusion, il faut sélectionner exactement deux objets."
+    "Exactly two objects must be selected to perform a merge.": "Pour effectuer une fusion, il faut sélectionner exactement deux objets.",
+    "Change full name": "Modifier le nom complet",
+    "Access tokens": "Jetons d'accès",
+    "Applications and services can use persistent access tokens to access limited features of your account.": "Les applications et les services peuvent utiliser des jetons d'accès persistants pour accéder à certaines fonctionnalités de votre compte.",
+    "Anniversary calendar subscription": "Abonnement au calendrier des anniversaires",
+    "Scope": "Portée",
+    "Loading...": "Chargement en cours…",
+    "No active access tokens.": "Aucun jeton d'accès actif.",
+    "Some access tokens could not be loaded.": "Certains jetons d'accès n'ont pas pu être chargés.",
+    "Retry": "Réessayer",
+    "Revoke": "Révoquer",
+    "Revoke access token?": "Révoquer le jeton d'accès ?",
+    "Revoking this token will immediately stop any application or service using it.": "La révocation de ce jeton entraînera l'arrêt immédiat de toute application ou de tout service qui l'utilise.",
+    "Access token revoked": "Jeton d'accès révoqué",
+    "Change username": "Modifier le nom d'utilisateur"
 }
