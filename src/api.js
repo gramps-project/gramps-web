@@ -2,7 +2,7 @@ import {jwtDecode} from 'jwt-decode'
 
 import {fireEvent, normalizeRect} from './util.js'
 
-export const __APIHOST__ = 'http://localhost:5555'
+export const __APIHOST__ = 'http://localhost' // Lembrar de desfazer essa alteração antes de subir para produção
 
 // Access token expiration time (15 minutes in milliseconds)
 export const ACCESS_TOKEN_EXPIRY_MS = 15 * 60 * 1000
