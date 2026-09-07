@@ -11,10 +11,9 @@ import {
 import {sharedStyles} from '../SharedStyles.js'
 
 import '@material/mwc-button'
-import '@material/mwc-select'
-import '@material/mwc-list'
-import '@material/mwc-list/mwc-list-item'
 import '@material/web/iconbutton/icon-button.js'
+import '@material/web/select/outlined-select.js'
+import '@material/web/select/select-option.js'
 
 import './GrampsjsEditor.js'
 import './GrampsjsIcon.js'
@@ -46,16 +45,25 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
 
         .dropdowns {
           margin-top: 48px;
-          --mdc-select-outlined-disabled-border-color: var(
+          --md-outlined-select-text-field-disabled-outline-color: var(
             --grampsjs-body-font-color-38
           );
-          --mdc-select-disabled-ink-color: var(--grampsjs-body-font-color-87);
-          --mdc-select-disabled-dropdown-icon-color: var(
+          --md-outlined-select-text-field-disabled-outline-opacity: 1;
+          --md-outlined-select-text-field-disabled-input-text-color: var(
+            --grampsjs-body-font-color-87
+          );
+          --md-outlined-select-text-field-disabled-input-text-opacity: 1;
+          --md-outlined-select-text-field-disabled-label-text-color: var(
+            --grampsjs-body-font-color-87
+          );
+          --md-outlined-select-text-field-disabled-label-text-opacity: 1;
+          --md-outlined-select-text-field-disabled-trailing-icon-color: var(
             --grampsjs-color-shade-255
           );
+          --md-outlined-select-text-field-disabled-trailing-icon-opacity: 1;
         }
 
-        .dropdowns mwc-select {
+        .dropdowns md-outlined-select {
           margin-right: 12px;
           margin-bottom: 18px;
         }
@@ -122,8 +130,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
       </h2>
 
       <p class="dropdowns">
-        <mwc-select
-          outlined
+        <md-outlined-select
           ?disabled="${!this.canEdit}"
           label="${this._('Status')}"
           id="select-status"
@@ -131,31 +138,31 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
         >
           ${['Open', 'In Progress', 'Blocked', 'Done'].map(
             status => html`
-              <mwc-list-item
+              <md-select-option
                 value="${status}"
                 ?selected="${this._status === status}"
-                >${this._(status)}</mwc-list-item
               >
+                <div slot="headline">${this._(status)}</div>
+              </md-select-option>
             `
           )}
-        </mwc-select>
-        <mwc-select
-          outlined
+        </md-outlined-select>
+        <md-outlined-select
           ?disabled="${!this.canEdit}"
           label="${this._('Priority')}"
           id="select-priority"
           @change="${this._handlePrioChange}"
         >
-          <mwc-list-item value="1" ?selected="${this._priority < 5}"
-            >${this._('High')}</mwc-list-item
-          >
-          <mwc-list-item value="5" ?selected="${this._priority === '5'}"
-            >${this._('Medium')}</mwc-list-item
-          >
-          <mwc-list-item value="9" ?selected="${this._priority > 5}"
-            >${this._('Low')}</mwc-list-item
-          >
-        </mwc-select>
+          <md-select-option value="1" ?selected="${this._priority < 5}">
+            <span slot="headline">${this._('High')}</span>
+          </md-select-option>
+          <md-select-option value="5" ?selected="${this._priority === '5'}">
+            <span slot="headline">${this._('Medium')}</span>
+          </md-select-option>
+          <md-select-option value="9" ?selected="${this._priority > 5}">
+            <span slot="headline">${this._('Low')}</span>
+          </md-select-option>
+        </md-outlined-select>
       </p>
 
       <h3>${this._('Description')}</h3>

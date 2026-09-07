@@ -4,6 +4,8 @@ Element for selecting a Gramps type
 
 import {html, css, LitElement} from 'lit'
 import '@material/mwc-textfield'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsFormString.js'
@@ -19,6 +21,8 @@ export const userRoles = {
   4: 'Owner',
   5: 'Administrator',
 }
+
+const defaultRole = 0
 
 class GrampsjsFormUser extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -47,7 +51,7 @@ class GrampsjsFormUser extends GrampsjsAppStateMixin(LitElement) {
 
   constructor() {
     super()
-    this.data = {}
+    this.data = {role: defaultRole}
     this.ismulti = false
     this.isFormValid = false
     this.newUser = false
@@ -103,9 +107,8 @@ class GrampsjsFormUser extends GrampsjsAppStateMixin(LitElement) {
         ></grampsjs-form-string>
       </p>
       <p>
-        <mwc-select
-          fixedMenuPosition
-          @selected="${this._handleRoleChange}"
+        <md-filled-select
+          @change="${this._handleRoleChange}"
           id="role"
           style="width: 100%;"
         >
@@ -115,16 +118,15 @@ class GrampsjsFormUser extends GrampsjsAppStateMixin(LitElement) {
             .filter(x => x <= 4 || this.ismulti)
             .map(
               role => html`
-                <mwc-list-item
+                <md-select-option
                   value="${role}"
-                  ?selected="${this.data.role === undefined
-                    ? role === 0
-                    : role === this.data.role}"
-                  >${this._(userRoles[role])}
-                </mwc-list-item>
+                  ?selected="${role === (this.data.role ?? defaultRole)}"
+                >
+                  <div slot="headline">${this._(userRoles[role])}</div>
+                </md-select-option>
               `
             )}
-        </mwc-select>
+        </md-filled-select>
       </p>
     `
   }
@@ -143,11 +145,7 @@ class GrampsjsFormUser extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleRoleChange(e) {
-    const i = e.detail.index
-    const roleKeys = Object.keys(userRoles)
-      .map(Number)
-      .sort((a, b) => a - b)
-    const role = roleKeys[i]
+    const role = parseInt(e.target.value, 10)
     this.data = {...this.data, role}
     this._checkFormValid()
   }

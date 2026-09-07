@@ -1,7 +1,5 @@
 import {html, css} from 'lit'
 
-import '@material/mwc-select'
-import '@material/mwc-list/mwc-list-item'
 import '@material/web/button/outlined-button.js'
 import '@material/web/button/filled-button.js'
 

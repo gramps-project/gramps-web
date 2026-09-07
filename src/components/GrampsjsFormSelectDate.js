@@ -4,9 +4,9 @@ Element for selecting a Gramps type
 
 import {html, css, LitElement} from 'lit'
 import '@material/mwc-textfield'
-import '@material/mwc-select'
-import '@material/mwc-list/mwc-list-item'
 import '@material/web/iconbutton/icon-button.js'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
 
 import {mdiCalendar} from '@mdi/js'
 
@@ -68,8 +68,16 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
           white-space: nowrap;
         }
 
-        span.dateform mwc-textfield {
+        span.dateform mwc-textfield,
+        span.dateform md-filled-select {
           margin-bottom: 10px;
+        }
+
+        /* md-filled-select defaults to min-width: 210px, which would blow out
+           the narrow month and day fields. */
+        md-filled-select.narrow {
+          width: 7em;
+          min-width: 6em;
         }
       `,
     ]
@@ -91,45 +99,45 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
   render() {
     return html`
     <p>
-      <mwc-select
+      <md-filled-select
         id="select-modifier"
         label="${this._('Type')}"
         @change="${this.handleType}"
-        fixedMenuPosition
       >
         ${Object.keys(modifiers).map(
           modifier => html`
-            <mwc-list-item
+            <md-select-option
               value="${modifier}"
               ?selected="${
                 // eslint-disable-next-line eqeqeq
                 modifier == (this.data.modifier || 0)
               }"
-              >${this._(modifiers[modifier])}</mwc-list-item
             >
+              <div slot="headline">${this._(modifiers[modifier])}</div>
+            </md-select-option>
           `
         )}
-      </mwc-select>
+      </md-filled-select>
 
-      <mwc-select
+      <md-filled-select
         id="select-quality"
         label="${this._('Quality')}"
         @change="${this.handleQuality}"
-        fixedMenuPosition
       >
         ${Object.keys(qualifiers).map(
           qualifier => html`
-            <mwc-list-item
+            <md-select-option
               value="${qualifier}"
               ?selected="${
                 // eslint-disable-next-line eqeqeq
                 qualifier == (this.data.quality || 0)
               }"
-              >${this._(qualifiers[qualifier])}</mwc-list-item
             >
+              <div slot="headline">${this._(qualifiers[qualifier])}</div>
+            </md-select-option>
           `
         )}
-      </mwc-select>
+      </md-filled-select>
     </p>
     <p>
     <span class="dateform">
@@ -141,46 +149,44 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         style="width: 6em;"
         value="${this.data.dateval[2] || ''}"
       ></mwc-textfield>
-      <mwc-select
+      <md-filled-select
         @change="${this.handleMonth1}"
         id="month1"
         label="${this._('Month')}"
-        style="width: 6em;"
-        fixedMenuPosition
+        class="narrow"
       >${[...Array(13).keys()].map(
         idx => html`
-          <mwc-list-item
+          <md-select-option
             value="${idx}"
             ?selected="${
               // eslint-disable-next-line eqeqeq
               idx == (this.data.dateval[1] || 0)
             }"
           >
-            ${idx === 0 ? '' : idx}
-          </mwc-list-item>
+            <div slot="headline">${idx === 0 ? '' : idx}</div>
+          </md-select-option>
         `
       )}
-      </mwc-select>
-      <mwc-select
+      </md-filled-select>
+      <md-filled-select
         @change="${this.handleDay1}"
         id="day1"
         label="${this._('Day')}"
-        style="width: 6em;"
-        fixedMenuPosition
+        class="narrow"
       >${[...Array(32).keys()].map(
         idx => html`
-          <mwc-list-item
+          <md-select-option
             value="${idx}"
             ?selected="${
               // eslint-disable-next-line eqeqeq
               idx == (this.data.dateval[0] || 0)
             }"
           >
-            ${idx === 0 ? '' : idx}
-          </mwc-list-item>
+            <div slot="headline">${idx === 0 ? '' : idx}</div>
+          </md-select-option>
         `
       )}
-      </mwc-select>
+      </md-filled-select>
 
       <input
         type="date"
@@ -213,46 +219,44 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         style="width: 6em;"
         value="${this.data.dateval[6] || ''}"
       ></mwc-textfield>
-      <mwc-select
+      <md-filled-select
         @change="${this.handleMonth2}"
         id="month2"
         label="${this._('Month')}"
-        style="width: 6em;"
-        fixedMenuPosition
+        class="narrow"
       >${[...Array(13).keys()].map(
         idx => html`
-          <mwc-list-item
+          <md-select-option
             value="${idx}"
             ?selected="${
               // eslint-disable-next-line eqeqeq
               idx == (this.data.dateval[5] || 0)
             }"
           >
-            ${idx === 0 ? '' : idx}
-          </mwc-list-item>
+            <div slot="headline">${idx === 0 ? '' : idx}</div>
+          </md-select-option>
         `
       )}
-      </mwc-select>
-      <mwc-select
+      </md-filled-select>
+      <md-filled-select
         @change="${this.handleDay2}"
         id="day2"
         label="${this._('Day')}"
-        style="width: 6em;"
-        fixedMenuPosition
+        class="narrow"
       >${[...Array(32).keys()].map(
         idx => html`
-          <mwc-list-item
+          <md-select-option
             value="${idx}"
             ?selected="${
               // eslint-disable-next-line eqeqeq
               idx == (this.data.dateval[4] || 0)
             }"
           >
-            ${idx === 0 ? '' : idx}
-          </mwc-list-item>
+            <div slot="headline">${idx === 0 ? '' : idx}</div>
+          </md-select-option>
         `
       )}
-      </mwc-select>
+      </md-filled-select>
 
       <input
         type="date"
@@ -288,9 +292,9 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
       // eslint-disable-next-line no-param-reassign
       element.value = ''
     })
-    this.shadowRoot.querySelectorAll('mwc-select').forEach(element => {
+    this.shadowRoot.querySelectorAll('md-filled-select').forEach(element => {
       // eslint-disable-next-line no-param-reassign
-      element.value = 0
+      element.value = '0'
     })
   }
 
