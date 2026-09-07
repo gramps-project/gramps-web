@@ -1,5 +1,8 @@
 import {html} from 'lit'
 
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
+
 import {makeHandle, dateIsEmpty, emptyDate} from '../util.js'
 
 import '../components/GrampsjsFormSelectObjectList.js'
@@ -30,20 +33,21 @@ export const GrampsjsNewPersonMixin = superClass =>
         ></grampsjs-form-name>
 
         <h4 class="label">${this._('Gender')}</h4>
-        <mwc-select id="select-confidence" @change="${this.handleGender}">
+        <md-filled-select id="select-gender" @change="${this.handleGender}">
           ${Object.keys(this.gender).map(
             genderConst => html`
-              <mwc-list-item
+              <md-select-option
                 value="${genderConst}"
                 ?selected="${
                   // eslint-disable-next-line eqeqeq
                   genderConst == this.data.gender
                 }"
-                >${this._(this.gender[genderConst])}</mwc-list-item
               >
+                <div slot="headline">${this._(this.gender[genderConst])}</div>
+              </md-select-option>
             `
           )}
-        </mwc-select>
+        </md-filled-select>
 
         <h4 class="label">${this._('Birth Date')}</h4>
 

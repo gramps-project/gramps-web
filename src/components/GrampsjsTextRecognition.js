@@ -1,4 +1,8 @@
 import {html, LitElement, css} from 'lit'
+
+import '@material/web/select/outlined-select.js'
+import '@material/web/select/select-option.js'
+
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 
@@ -219,21 +223,21 @@ export class GrampsjsTextRecognition extends GrampsjsAppStateMixin(LitElement) {
   render() {
     return html`
       <p>
-        <mwc-select
-          outlined
+        <md-outlined-select
           label="${this._('Language')}"
           @change="${this._handleLangChange}"
         >
           ${this.languages.map(
             lang => html`
-              <mwc-list-item
+              <md-select-option
                 value="${lang}"
                 ?selected=${lang === this.options.lang}
-                >${tesseractLanguages[lang] || lang}</mwc-list-item
               >
+                <div slot="headline">${tesseractLanguages[lang] || lang}</div>
+              </md-select-option>
             `
           )}
-        </mwc-select>
+        </md-outlined-select>
       </p>
       <p>
         <mwc-button

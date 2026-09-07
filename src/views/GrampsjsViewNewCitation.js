@@ -1,6 +1,8 @@
 import {html} from 'lit'
 
 import '@material/mwc-textfield'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
 
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 import '../components/GrampsjsFormString.js'
@@ -47,20 +49,24 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
       </p>
 
       <h4 class="label">${this._('Confidence')}</h4>
-      <mwc-select id="select-confidence" @change="${this.handleConfidence}">
+      <md-filled-select
+        id="select-confidence"
+        @change="${this.handleConfidence}"
+      >
         ${Object.keys(confidence).map(
           conf => html`
-            <mwc-list-item
+            <md-select-option
               value="${conf}"
               ?selected="${
                 // eslint-disable-next-line eqeqeq
                 conf == this.data.confidence
               }"
-              >${this._(confidence[conf])}</mwc-list-item
             >
+              <div slot="headline">${this._(confidence[conf])}</div>
+            </md-select-option>
           `
         )}
-      </mwc-select>
+      </md-filled-select>
 
       ${this._renderTagsForm()}
 
