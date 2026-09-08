@@ -25,7 +25,6 @@ import {DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
 import {
   mdiAlertCircle,
   mdiAlertOutline,
-  mdiArrowRight,
   mdiCheckCircle,
   mdiBackupRestore,
   mdiDeleteForever,
@@ -46,14 +45,6 @@ import '@awesome.me/webawesome/dist/components/color-picker/color-picker.js'
 import '@material/web/button/outlined-button.js'
 import '@material/web/textfield/filled-text-field.js'
 import '@material/web/switch/switch.js'
-
-// Deprecation messages mark up option names with Markdown-style backticks.
-// Odd-indexed segments are the ones that were enclosed in a pair.
-function renderInlineCode(text) {
-  return text
-    .split('`')
-    .map((part, i) => (i % 2 ? html`<code>${part}</code>` : part))
-}
 
 const VERIFY_OPTIONS_DEFAULTS = {
   oldage: 90,
@@ -218,51 +209,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           gap: 0.6em;
         }
 
-        /* Matches grampsjs-collapsible-section's title, since this heading is
-           a peer of the collapsible sections rather than a heading within
-           one, which is what h3 marks everywhere else in this view. */
-        h3.section-heading {
-          font-size: 1.5em;
-        }
-
-        .deprecations {
-          font-size: 16px;
-          padding: 0 1.4em;
-          border: 1px solid var(--md-sys-color-tertiary);
-          border-radius: 8px;
-        }
-
-        .deprecation-row {
-          padding: 0.8em 0;
-        }
-
-        .deprecation-row + .deprecation-row {
-          border-top: 1px solid var(--md-sys-color-tertiary);
-        }
-
-        .deprecation-row p {
-          margin: 0.4em 0;
-        }
-
-        .deprecation-heading {
-          display: flex;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 0.5em;
-          font-weight: 500;
-        }
-
-        /* Lighter than the bordered .monospace chips in the heading, so that
-           option names quoted mid-sentence do not break up the prose. */
-        .deprecation-row code {
-          font-family: var(--grampsjs-mono-font-family);
-          font-size: 0.9em;
-          color: var(--grampsjs-color-monospace);
-          background-color: var(--grampsjs-body-font-color-5);
-          border-radius: 4px;
-          padding: 0.1em 0.3em;
-        }
-
         .verify-option-bool md-switch {
           --md-switch-track-height: 22px;
           --md-switch-track-width: 38px;
@@ -331,8 +277,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       <p style="margin-top: 2.5em;">
         ${this._('Changes here affect all users of this tree.')}
       </p>
-
-      ${this._renderDeprecations()}
 
       <grampsjs-collapsible-section
         title="${this._('Data')}"
@@ -788,62 +732,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         @relogin="${this._handleRelogin}"
         username="${this._userInfo?.name || ''}"
       ></grampsjs-relogin>
-    `
-  }
-
-  _renderDeprecations() {
-    // The API only includes this key for users allowed to edit settings, so
-    // its presence is the permission check.
-    const deprecations = this.appState.dbInfo?.deprecations ?? []
-    if (deprecations.length === 0) {
-      return ''
-    }
-    return html`
-      <h3 class="section-heading">${this._('Warnings')}</h3>
-      <p>
-        ${this._(
-          'The server uses configuration options that are no longer supported.'
-        )}
-      </p>
-      <div class="deprecations">
-        ${deprecations.map(
-          deprecation => html`
-            <div class="deprecation-row">
-              <p class="deprecation-heading">
-                <grampsjs-icon
-                  path="${mdiAlertOutline}"
-                  color="var(--md-sys-color-tertiary)"
-                  height="18"
-                  width="18"
-                ></grampsjs-icon>
-                <span class="monospace">${deprecation.option}</span>
-                ${deprecation.replacement
-                  ? html`
-                      <grampsjs-icon
-                        path="${mdiArrowRight}"
-                        color="currentColor"
-                        height="18"
-                        width="18"
-                      ></grampsjs-icon>
-                      <span class="monospace">${deprecation.replacement}</span>
-                    `
-                  : ''}
-              </p>
-              ${deprecation.message
-                ? html`<p>${renderInlineCode(deprecation.message)}</p>`
-                : ''}
-              ${deprecation.removed_in
-                ? html`<p>
-                    ${this._(
-                      'Support will be removed in Gramps Web API %s.',
-                      deprecation.removed_in
-                    )}
-                  </p>`
-                : ''}
-            </div>
-          `
-        )}
-      </div>
     `
   }
 

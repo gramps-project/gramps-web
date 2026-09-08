@@ -1035,7 +1035,6 @@ export const grampsStrings = [
   'Whether to use the call name as the first name.',
   'white',
   'Warning',
-  'Warnings',
   'Wife',
   'Will show the parents, brother and sisters of the selected person.',
   'Will',
