@@ -14,7 +14,6 @@ import {
 } from '../api.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import './GrampsjsFormUpload.js'
 import {renderIcon} from '../icons.js'
 import './GrampsjsProgressIndicator.js'
 
@@ -95,7 +94,6 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
       _errorUser: {type: String},
       _errorConfig: {type: String},
       _errorTree: {type: String},
-      _uploadHint: {type: String},
       _tree: {type: String},
     }
   }
@@ -109,7 +107,6 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
     this._errorUser = ''
     this._errorConfig = ''
     this._errorTree = ''
-    this._uploadHint = ''
     this._tree = ''
   }
 
