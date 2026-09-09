@@ -5,7 +5,7 @@ import '@material/web/tabs/primary-tab'
 import '@material/web/button/filled-button'
 import '@material/web/button/outlined-button'
 
-import {mdiFamilyTree, mdiPlus, mdiPencil} from '@mdi/js'
+import {mdiFamilyTree, mdiChartGantt, mdiPlus, mdiPencil} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsFormSelectObject.js'
@@ -14,6 +14,7 @@ import './GrampsjsViewTreeChart.js'
 import './GrampsjsViewHourglassChart.js'
 import './GrampsjsViewFanChart.js'
 import './GrampsjsViewRelationshipChart.js'
+import './GrampsjsViewLifespanChart.js'
 import {fireEvent} from '../util.js'
 import {
   chartFanIconPath,
@@ -92,6 +93,7 @@ export class GrampsjsViewTree extends GrampsjsView {
       ${this._currentTabId === 2 ? this._renderHourglassTree() : ''}
       ${this._currentTabId === 3 ? this._renderRelationshipChart() : ''}
       ${this._currentTabId === 4 ? this._renderFan() : ''}
+      ${this._currentTabId === 5 ? this._renderLifespan() : ''}
     `
   }
 
@@ -142,7 +144,30 @@ export class GrampsjsViewTree extends GrampsjsView {
             >${renderIconSvg(chartFanIconPath, '--md-sys-color-primary')}</span
           >
         </md-primary-tab>
+        <md-primary-tab has-icon>
+          ${this._('Lifespans')}
+          <span slot="icon"
+            >${renderIconSvg(mdiChartGantt, '--md-sys-color-primary')}</span
+          >
+        </md-primary-tab>
       </md-tabs>
+    `
+  }
+
+  _renderLifespan() {
+    return html`
+      <grampsjs-view-lifespan-chart
+        @tree:back="${this._prevPerson}"
+        @tree:person="${this._goToPerson}"
+        @tree:home="${this._backToHomePerson}"
+        grampsId=${this.grampsId}
+        ?active=${this.active}
+        .appState="${this.appState}"
+        .settings=${this.settings}
+        ?disableBack=${this._history.length < 2}
+        ?disableHome=${this.grampsId === this.settings.homePerson}
+      >
+      </grampsjs-view-lifespan-chart>
     `
   }
 
