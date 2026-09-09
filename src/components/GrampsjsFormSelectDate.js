@@ -14,7 +14,7 @@ import './GrampsjsIcon.js'
 import {sharedStyles, iconButtonColorStyles} from '../SharedStyles.js'
 import {getSortval, dateIsEmpty, emptyDate} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {validateGrampsDate} from '../gcalendar.js'
+import {CALENDARS, validateGrampsDate} from '../gcalendar.js'
 
 const modifiers = {
   0: 'Regular',
@@ -32,6 +32,16 @@ const qualifiers = {
   0: 'Regular',
   1: 'Estimated',
   2: 'Calculated',
+}
+
+const calendars = {
+  [CALENDARS.GREGORIAN]: 'Gregorian',
+  [CALENDARS.JULIAN]: 'Julian',
+  [CALENDARS.HEBREW]: 'Hebrew',
+  [CALENDARS.FRENCH]: 'French Republican',
+  [CALENDARS.PERSIAN]: 'Persian',
+  [CALENDARS.ISLAMIC]: 'Islamic',
+  [CALENDARS.SWEDISH]: 'Swedish',
 }
 
 const dataDefault = {...emptyDate}
@@ -134,6 +144,26 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
               }"
             >
               <div slot="headline">${this._(qualifiers[qualifier])}</div>
+            </md-select-option>
+          `
+        )}
+      </md-filled-select>
+
+      <md-filled-select
+        id="select-calendar"
+        label="${this._('Calendar')}"
+        @change="${this.handleCalendar}"
+      >
+        ${Object.keys(calendars).map(
+          calendar => html`
+            <md-select-option
+              value="${calendar}"
+              ?selected="${
+                // eslint-disable-next-line eqeqeq
+                calendar == (this.data.calendar || 0)
+              }"
+            >
+              <div slot="headline">${this._(calendars[calendar])}</div>
             </md-select-option>
           `
         )}
@@ -322,13 +352,20 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
     this.handleChange()
   }
 
+  handleCalendar(e) {
+    const calendar = parseInt(e.target.value, 10) || 0
+    const [d, m, y] = this.data?.dateval || [0, 0, 0, false]
+    this.data = {...this.data, calendar, sortval: getSortval(y, m, d, calendar)}
+    this.handleChange()
+  }
+
   handleDate1(e) {
     const [y, m, d] = parseDate(e.target.value)
     const oldval = [...this.data?.dateval]
     this.data = {
       ...this.data,
       dateval: [d, m, y, false, ...oldval.slice(4)],
-      sortval: getSortval(y, m, d),
+      sortval: getSortval(y, m, d, this.data.calendar),
       year: y,
     }
     this.handleChange()
@@ -376,7 +413,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
     this.data = {
       ...this.data,
       dateval,
-      sortval: getSortval(y, m, d),
+      sortval: getSortval(y, m, d, this.data.calendar),
       year: y,
     }
     this.handleChange()
@@ -393,7 +430,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
     this.data = {
       ...this.data,
       dateval,
-      sortval: getSortval(y, m, d),
+      sortval: getSortval(y, m, d, this.data.calendar),
     }
     this.handleChange()
   }
@@ -409,7 +446,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
     this.data = {
       ...this.data,
       dateval,
-      sortval: getSortval(y, m, d),
+      sortval: getSortval(y, m, d, this.data.calendar),
     }
     this.handleChange()
   }
