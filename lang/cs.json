@@ -361,5 +361,9 @@
     "Accent color": "Barva akcentu",
     "Primary color": "Základní barva",
     "Theme colors": "Barvy motivu",
-    "App title": "Název aplikace"
+    "App title": "Název aplikace",
+    "Zoom in": "Přiblížit",
+    "Zoom out": "Oddálit",
+    "The server uses configuration options that are no longer supported.": "Server používá konfigurační možnosti, které již nejsou podporovány.",
+    "Support will be removed in Gramps Web API %s.": "Podpora bude v Gramps Web API %s odstraněna."
 }
