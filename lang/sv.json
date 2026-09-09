@@ -420,5 +420,7 @@
     "New Blog Post": "Nytt blogginlägg",
     "Blog Post": "Blogginlägg",
     "Failed to fetch the Blog tag": "Misslyckades med att hämta bloggtaggen",
-    "Only the most recent revisions are shown.": "Endast de senaste revisionerna visas."
+    "Only the most recent revisions are shown.": "Endast de senaste revisionerna visas.",
+    "The server uses configuration options that are no longer supported.": "Servern använder konfigurationsalternativ som inte längre stöds.",
+    "Support will be removed in Gramps Web API %s.": "Stödet kommer att tas bort i Gramps Web API %s."
 }
