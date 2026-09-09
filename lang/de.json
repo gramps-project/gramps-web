@@ -421,5 +421,7 @@
     "New Blog Post": "Neuer Blogbeitrag",
     "Blog Post": "Blogbeitrag",
     "Failed to fetch the Blog tag": "Das Abrufen des Blog-Tags ist fehlgeschlagen",
-    "Only the most recent revisions are shown.": "Es werden nur die neuesten Überarbeitungen angezeigt."
+    "Only the most recent revisions are shown.": "Es werden nur die neuesten Überarbeitungen angezeigt.",
+    "The server uses configuration options that are no longer supported.": "Der Server verwendet Konfigurationsoptionen, die nicht mehr unterstützt werden.",
+    "Support will be removed in Gramps Web API %s.": "Die Unterstützung wird in der Gramps-Web-API %s eingestellt."
 }
