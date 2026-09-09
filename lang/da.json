@@ -319,5 +319,17 @@
     "Import tree settings": "Importer indstillinger for slægtsbog",
     "Export media": "Eksporter medier",
     "Running tasks": "Løbende opgaver",
-    "Process transactions": "Behandl transaktioner"
+    "Process transactions": "Behandl transaktioner",
+    "Change full name": "Ret det fulde navn",
+    "Access tokens": "Adgangtokens",
+    "Applications and services can use persistent access tokens to access limited features of your account.": "Applikationer og tjenester kan benytte permanente adgangtokens for at få tilgang til begrænsede funktioner i din konto.",
+    "Anniversary calendar subscription": "Abonnement på jubilæumskalender",
+    "Scope": "Omfang",
+    "Loading...": "Henter...",
+    "No active access tokens.": "Ingen aktive adgangtokens.",
+    "Some access tokens could not be loaded.": "Nogle adgangtokens kunne ikke hentes.",
+    "Retry": "Prøv igen",
+    "Revoke": "Tilbagekald",
+    "Revoke access token?": "Tibagekald adgangtoken?",
+    "Revoking this token will immediately stop any application or service using it.": "Tilbagekaldelse af denne token vil øjeblikkelig stoppe alle applikationer eller tjenester, der benytter den."
 }
