@@ -420,5 +420,7 @@
     "New Blog Post": "Novo artigo do blogue",
     "Blog Post": "Artigo do blogue",
     "Failed to fetch the Blog tag": "Falha ao obter a etiqueta do blogue",
-    "Only the most recent revisions are shown.": "Só são mostradas as revisões mais recentes."
+    "Only the most recent revisions are shown.": "Só são mostradas as revisões mais recentes.",
+    "Support will be removed in Gramps Web API %s.": "O suporte será removido na API Web do Gramps %s.",
+    "The server uses configuration options that are no longer supported.": "O servidor utiliza opções de configuração que já não são suportadas."
 }
