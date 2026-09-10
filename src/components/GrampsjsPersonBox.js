@@ -95,7 +95,9 @@ export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
     const birthPlace = person.profile?.birth?.place_name || ''
     const deathDate = person.profile?.death?.date || ''
     const deathPlace = person.profile?.death?.place_name || ''
-    const {birthSymbol, deathSymbol} = getSymbols(this.appState.settings)
+    const {birthSymbol, deathSymbol} = getSymbols(this.appState.settings, s =>
+      this._(s)
+    )
     return html`
       <h2>${fullName || this.name || this._('Person')}</h2>
       <div class="dates">

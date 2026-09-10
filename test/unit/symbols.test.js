@@ -29,6 +29,23 @@ describe('getSymbols', () => {
     })
   })
 
+  it('translates text abbreviations when a translator is provided', () => {
+    const translations = {
+      'b.': 'geb.',
+      'd.': 'gest.',
+      'm.': 'verh.',
+      'div.': 'gesch.',
+    }
+    expect(
+      getSymbols({symbolSet: SYMBOL_SET_TEXT}, value => translations[value])
+    ).toEqual({
+      birthSymbol: 'geb.',
+      deathSymbol: 'gest.',
+      marriageSymbol: 'verh.',
+      divorceSymbol: 'gesch.',
+    })
+  })
+
   it('falls back to the default set for an unknown symbolSet', () => {
     expect(getSymbols({symbolSet: 'nonsense'})).toEqual(
       getSymbols({symbolSet: SYMBOL_SET_DEFAULT})

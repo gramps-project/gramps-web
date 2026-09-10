@@ -71,7 +71,10 @@ export class GrampsjsChildren extends GrampsjsEditableList {
         }}"
       >
         ${p.name_given || ''} ${p.name_surname || ''}
-        ${renderPersonDates(p, getSymbols(this.appState.settings))}
+        ${renderPersonDates(
+          p,
+          getSymbols(this.appState.settings, s => this._(s))
+        )}
         ${hasNonBirthRel
           ? html`<span slot="supporting-text">${relText}</span>`
           : ''}

@@ -476,7 +476,7 @@ function remasterChart(
     .attr('x', d => textPadding(d))
     .attr('y', 25 + 17 * 2)
     .text(d =>
-      clipString(`${birthSymbol}${d.profile.birth.date}`, boxWidthTotal(d))
+      clipString(`${birthSymbol} ${d.profile.birth.date}`, boxWidthTotal(d))
     )
 
   nodes
@@ -489,7 +489,7 @@ function remasterChart(
     .attr('x', d => textPadding(d))
     .attr('y', 25 + 17 * 3)
     .text(d =>
-      clipString(`${deathSymbol}${d.profile.death.date}`, boxWidthTotal(d))
+      clipString(`${deathSymbol} ${d.profile.death.date}`, boxWidthTotal(d))
     )
 
   // images

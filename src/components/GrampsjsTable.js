@@ -14,8 +14,6 @@ import {sharedStyles} from '../SharedStyles.js'
 import {clickKeyHandler, fireEvent} from '../util.js'
 import {renderIconSvg} from '../icons.js'
 
-/* eslint-disable lit-a11y/tabindex-no-positive */
-
 export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [

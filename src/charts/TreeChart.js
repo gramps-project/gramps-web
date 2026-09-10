@@ -288,7 +288,7 @@ function TreeChartCore(
     .attr('paint-order', 'stroke')
     .text(d =>
       clipString(
-        `${birthSymbol}${d.data.person.profile.birth.date}`,
+        `${birthSymbol} ${d.data.person.profile.birth.date}`,
         textWidth(d)
       )
     )
@@ -305,7 +305,7 @@ function TreeChartCore(
     .attr('paint-order', 'stroke')
     .text(d =>
       clipString(
-        `${deathSymbol}${d.data.person.profile.death.date}`,
+        `${deathSymbol} ${d.data.person.profile.death.date}`,
         textWidth(d)
       )
     )

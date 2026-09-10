@@ -5,8 +5,6 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
 
-/* eslint-disable lit-a11y/tabindex-no-positive */
-
 export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [

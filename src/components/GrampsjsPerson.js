@@ -106,7 +106,7 @@ export class GrampsjsPerson extends GrampsjsObject {
     if (obj === undefined || Object.keys(obj).length === 0) {
       return ''
     }
-    const {birthSymbol} = getSymbols(this.appState.settings)
+    const {birthSymbol} = getSymbols(this.appState.settings, s => this._(s))
     return html`
       <span class="event">
         <i>${birthSymbol}</i>
@@ -121,7 +121,7 @@ export class GrampsjsPerson extends GrampsjsObject {
     if (obj === undefined || Object.keys(obj).length === 0) {
       return ''
     }
-    const {deathSymbol} = getSymbols(this.appState.settings)
+    const {deathSymbol} = getSymbols(this.appState.settings, s => this._(s))
     return html`
       <span class="event">
         <i>${deathSymbol}</i>

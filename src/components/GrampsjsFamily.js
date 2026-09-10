@@ -98,7 +98,10 @@ export class GrampsjsFamily extends GrampsjsObject {
     const divorce = this.data?.profile?.divorce
     const hasMarriage = marriage?.date || marriage?.place
     const hasDivorce = divorce && Object.keys(divorce).length > 0
-    const {marriageSymbol, divorceSymbol} = getSymbols(this.appState.settings)
+    const {marriageSymbol, divorceSymbol} = getSymbols(
+      this.appState.settings,
+      s => this._(s)
+    )
     if (!relType && !hasMarriage && !hasDivorce && !this.edit) {
       return ''
     }
@@ -155,7 +158,9 @@ export class GrampsjsFamily extends GrampsjsObject {
     const hasProfile = Object.keys(profile ?? {}).length > 0
     const birthDate = profile?.birth?.date || ''
     const deathDate = profile?.death?.date || ''
-    const {birthSymbol, deathSymbol} = getSymbols(this.appState.settings)
+    const {birthSymbol, deathSymbol} = getSymbols(this.appState.settings, s =>
+      this._(s)
+    )
 
     return html`
       <dl>
