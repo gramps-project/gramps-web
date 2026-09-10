@@ -134,7 +134,8 @@ const _allTabs = {
       data?.attribute_list?.length > 0 ||
       data?.urls?.length > 0 ||
       data?.address_list?.length > 0,
-    conditionEdit: data => 'urls' in data || 'attribute_list' in data,
+    conditionEdit: data =>
+      'urls' in data || 'attribute_list' in data || 'address_list' in data,
   },
   associations: {
     title: 'Associations',
@@ -827,12 +828,15 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
                   attributeCategory="${this._objectsName.toLowerCase()}"
                 ></grampsjs-attributes>`
             : ''}
-          ${this.data.address_list?.length > 0
+          ${this.data.address_list?.length > 0 ||
+          (this.edit && 'address_list' in this.data)
             ? html`<h4>${this._('Addresses')}</h4>
                 <grampsjs-addresses
+                  hasEdit
                   .appState="${this.appState}"
                   .data=${this.data.address_list ?? []}
                   .profile=${this.data?.profile?.addresses ?? []}
+                  ?edit="${this.edit}"
                 ></grampsjs-addresses>`
             : ''}
           ${this.data.urls?.length > 0 || (this.edit && 'urls' in this.data)
