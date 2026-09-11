@@ -425,5 +425,6 @@
     "The server uses configuration options that are no longer supported.": "Der Server verwendet Konfigurationsoptionen, die nicht mehr unterstützt werden.",
     "Support will be removed in Gramps Web API %s.": "Die Unterstützung wird in der Gramps-Web-API %s eingestellt.",
     "Get started": "Loslegen",
-    "Connect the people in your tree by adding a family.": "Verbinde die Personen in deinem Stammbaum, indem du eine Familie hinzufügst."
+    "Connect the people in your tree by adding a family.": "Verbinde die Personen in deinem Stammbaum, indem du eine Familie hinzufügst.",
+    "This Gramps Web instance has already been set up. Log in with an existing account.": "Diese Gramps-Web-Instanz wurde bereits eingerichtet. Melde dich mit einem bestehenden Konto an."
 }
