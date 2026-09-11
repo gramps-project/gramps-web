@@ -13,17 +13,16 @@ const genderColor = {
   3: 'var(--color-other)',
 }
 
-// Returns the total depth of the tree
-function countDepthOfTree(treeData) {
-  if (treeData == null) {
-    return 0
+// Returns the viewBox start along one axis. A chart that fits the view is
+// centred as a whole. One that overflows is centred on `focus`, without
+// showing space beyond the chart's extent.
+export function viewBoxStart(focus, extentMin, extentMax, viewSize) {
+  if (extentMax - extentMin <= viewSize) {
+    return (extentMin + extentMax - viewSize) / 2
   }
-  return (
-    1 +
-    Math.max(
-      countDepthOfTree(treeData?.children?.[0]),
-      countDepthOfTree(treeData?.children?.[1])
-    )
+  return Math.min(
+    Math.max(focus - viewSize / 2, extentMin),
+    extentMax - viewSize
   )
 }
 
@@ -65,7 +64,7 @@ function TreeChartCore(
 
   // The true depth of the tree may be less than the passed in "depth" if the tree just doesn't
   // go that far back
-  const trueDepth = Math.min(countDepthOfTree(data), depth)
+  const trueDepth = Math.min(root.height + 1, depth)
 
   tree()
     .nodeSize([boxHeight + gapY, boxWidth + gapX])
@@ -380,53 +379,45 @@ export function TreeChart(dataDescendants, dataAncestors, chartsettings) {
     chartContent.attr('transform', chartsettings.initialZoom.toString())
   }
 
-  let width = 0
-  let height = 0
+  // Extent of the chart. Each half is shifted so that the root person box is
+  // centred at the origin, which makes zooming scale around the root person.
   let xMin = 0
+  let xMax = 0
   let yMin = 0
   let yMax = 0
-  let xOffset = 0
-  let yOffset = 0
 
   if (dataDescendants) {
     const chartD = chartContent.append('g')
-    const [xD, yD, widthD, heightD, overlap] = TreeChartCore(
+    const [, yD, widthD, heightD, overlap] = TreeChartCore(
       chartD,
       dataDescendants,
       {...chartsettings, orientation: 'RTL', depth: chartsettings.nDesc}
     )
-    chartD.attr('transform', `translate(${-widthD + overlap},0)`)
+    const translateX = overlap / 2 - widthD
+    chartD.attr('transform', `translate(${translateX},0)`)
+    xMin = Math.min(xMin, translateX)
+    xMax = Math.max(xMax, translateX + widthD)
     yMin = Math.min(yMin, yD)
     yMax = Math.max(yMax, yD + heightD)
-    xMin = Math.min(xMin, xD)
-    width += widthD - overlap
   }
   if (dataAncestors) {
     const chartA = chartContent.append('g')
-    const [xA, yA, widthA, heightA] = TreeChartCore(chartA, dataAncestors, {
-      ...chartsettings,
-      orientation: 'LTR',
-      depth: chartsettings.nAnc,
-    })
-    chartA.attr('transform', 'translate(0,0)')
+    const [, yA, widthA, heightA, overlap] = TreeChartCore(
+      chartA,
+      dataAncestors,
+      {...chartsettings, orientation: 'LTR', depth: chartsettings.nAnc}
+    )
+    const translateX = -overlap / 2
+    chartA.attr('transform', `translate(${translateX},0)`)
+    xMin = Math.min(xMin, translateX)
+    xMax = Math.max(xMax, translateX + widthA)
     yMin = Math.min(yMin, yA)
     yMax = Math.max(yMax, yA + heightA)
-    xMin = Math.min(xMin, xA)
-    width += widthA
   }
 
-  xOffset = xMin
-  height = yMax - yMin
-  if (chartsettings.bboxWidth > width) {
-    xOffset -= (chartsettings.bboxWidth - width) / 2
-  }
-  yOffset = yMin
-  if (chartsettings.bboxHeight > height) {
-    yOffset -= (chartsettings.bboxHeight - height) / 2
-  }
   svg.attr('viewBox', [
-    xOffset,
-    yOffset,
+    viewBoxStart(0, xMin, xMax, chartsettings.bboxWidth),
+    viewBoxStart(0, yMin, yMax, chartsettings.bboxHeight),
     chartsettings.bboxWidth,
     chartsettings.bboxHeight,
   ])
