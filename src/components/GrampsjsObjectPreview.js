@@ -142,6 +142,8 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     this._boundDbChanged = () => {
       this._cache.clear()
     }
+    this._boundOutsideInput = this._handleOutsideInput.bind(this)
+    this._boundKeyDown = this._handleKeyDown.bind(this)
   }
 
   connectedCallback() {
@@ -150,6 +152,12 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     window.addEventListener('object:preview-hide', this._boundHide)
     window.addEventListener('nav', this._boundNav)
     window.addEventListener('db:changed', this._boundDbChanged)
+    window.addEventListener('pointerdown', this._boundOutsideInput, true)
+    window.addEventListener('wheel', this._boundOutsideInput, {
+      capture: true,
+      passive: true,
+    })
+    window.addEventListener('keydown', this._boundKeyDown)
   }
 
   disconnectedCallback() {
@@ -158,6 +166,9 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     window.removeEventListener('object:preview-hide', this._boundHide)
     window.removeEventListener('nav', this._boundNav)
     window.removeEventListener('db:changed', this._boundDbChanged)
+    window.removeEventListener('pointerdown', this._boundOutsideInput, true)
+    window.removeEventListener('wheel', this._boundOutsideInput, true)
+    window.removeEventListener('keydown', this._boundKeyDown)
     clearTimeout(this._showTimer)
     clearTimeout(this._hideTimer)
   }
@@ -204,6 +215,28 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     this._hideTimer = setTimeout(() => {
       this._visible = false
     }, HIDE_DELAY)
+  }
+
+  // Closes the popup immediately and cancels any pending show. Used when the
+  // anchor may move or vanish without a `mouseleave`, e.g. a click that
+  // redraws a chart or a wheel zoom that moves the hovered node.
+  _hideNow() {
+    clearTimeout(this._showTimer)
+    clearTimeout(this._hideTimer)
+    this._mouseInPopup = false
+    this._visible = false
+  }
+
+  // Presses and wheel events inside the popup (e.g. scrolling its content)
+  // keep it open.
+  _handleOutsideInput(e) {
+    const popup = this.renderRoot.querySelector('#popup')
+    if (popup && e.composedPath().includes(popup)) return
+    this._hideNow()
+  }
+
+  _handleKeyDown(e) {
+    if (e.key === 'Escape') this._hideNow()
   }
 
   _position(anchorRect) {
