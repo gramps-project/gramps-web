@@ -320,25 +320,3 @@ export function sdnToJsDate(sdn) {
   d.setFullYear(year)
   return d
 }
-
-/** Convert any supported calendar date to an SDN. Zero-adjusts partial dates. */
-export function dateToSdn(calendar, year, month, day) {
-  if (year === 0 && month === 0 && day === 0) return 0
-  const y = year !== 0 ? year : 1
-  const m = month > 0 ? month : 1
-  const d = day > 0 ? day : 1
-  switch (calendar) {
-    case CALENDARS.GREGORIAN:
-      return gregorianSdn(y, m, d)
-    case CALENDARS.JULIAN:
-      return julianSdn(y, m, d)
-    case CALENDARS.FRENCH:
-      return frenchSdn(y, m, d)
-    case CALENDARS.ISLAMIC:
-      return islamicSdn(y, m, d)
-    case CALENDARS.SWEDISH:
-      return swedishSdn(y, m, d)
-    default:
-      throw new Error(`Calendar ${calendar} not implemented in JS`)
-  }
-}

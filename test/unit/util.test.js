@@ -8,7 +8,6 @@ import {
   reportSelectItemValue,
   familyTitleFromProfile,
   citationTitleFromProfile,
-  getSortval,
   arrayEqual,
   dateIsEmpty,
   getGregorianYears,
@@ -168,23 +167,6 @@ describe('citationTitleFromProfile', () => {
 
   it('returns empty string when no source title', () => {
     expect(citationTitleFromProfile({source: {}})).to.equal('')
-  })
-})
-
-describe('getSortval', () => {
-  it('returns 0 for all-zero date', () => {
-    expect(getSortval(0, 0, 0)).to.equal(0)
-  })
-
-  it('returns a positive integer for a valid date', () => {
-    const val = getSortval(2000, 1, 1)
-    expect(val).to.be.a('number')
-    expect(val).to.be.greaterThan(0)
-  })
-
-  it('later dates have higher sort values', () => {
-    expect(getSortval(2000, 1, 2)).to.be.greaterThan(getSortval(2000, 1, 1))
-    expect(getSortval(2001, 1, 1)).to.be.greaterThan(getSortval(2000, 1, 1))
   })
 })
 

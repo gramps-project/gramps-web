@@ -5,7 +5,7 @@ import '../components/GrampsjsPillToggle.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
-import {dateToSdn, sdnToJsDate} from '../gcalendar.js'
+import {sdnToJsDate} from '../gcalendar.js'
 import {fireEvent} from '../util.js'
 import '../components/GrampsjsTimeline.js'
 import '../components/GrampsjsFormSelectObject.js'
@@ -15,25 +15,19 @@ const MIN_LABEL_WIDTH = 90
 function preprocessEvents(events) {
   return events.map(event => {
     const {date} = event
-    if (!date?.dateval || date.sortval === 0) return {...event, jsDate: null}
+    if (!date?.sortval) return {...event, jsDate: null}
     const modifier = date.modifier ?? 0
     if (modifier === 4) return {...event, jsDate: null}
     const quality = date.quality ?? 0
-    const [day, month, year] = date.dateval
-    try {
-      const sdn = dateToSdn(date.calendar, year, month, day)
-      const typeStr =
-        typeof event.type === 'string' ? event.type : event.type?.string || ''
-      return {
-        ...event,
-        jsDate: sdnToJsDate(sdn),
-        eventType: typeStr,
-        placeHandle: event.place || null,
-        modifier,
-        quality,
-      }
-    } catch {
-      return {...event, jsDate: null}
+    const typeStr =
+      typeof event.type === 'string' ? event.type : event.type?.string || ''
+    return {
+      ...event,
+      jsDate: sdnToJsDate(date.sortval),
+      eventType: typeStr,
+      placeHandle: event.place || null,
+      modifier,
+      quality,
     }
   })
 }
