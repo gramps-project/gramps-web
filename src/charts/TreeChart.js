@@ -3,7 +3,12 @@ import {curveBumpX, link, symbolTriangle, symbol} from 'd3-shape'
 import {zoom, zoomIdentity, zoomTransform} from 'd3-zoom'
 import {fireEvent} from '../util.js'
 import {treeLayoutDefaults} from './layout/treeLayout.js'
-import {appendPersonCard, setPersonCardInteraction} from './personCard.js'
+import {chartPalette} from './palette.js'
+import {
+  appendPersonCard,
+  clearPersonCardInteraction,
+  setPersonCardInteraction,
+} from './personCard.js'
 
 // Returns the viewBox start along one axis. A chart that fits the view is
 // centred as a whole. One that overflows is centred on `focus`, without
@@ -24,7 +29,8 @@ const cardInputs = local()
 // Draws layouts from `layoutAncestors`, `layoutDescendants` or
 // `layoutHourglass` into an SVG that is created once. Each update changes only
 // what differs: positions, the viewBox and edit mode are updated in place, and
-// a card is redrawn only when its person, image or name format changes.
+// a card is redrawn only when its person, image, name format or palette
+// changes.
 export class TreeChart {
   constructor() {
     this._zoom = zoom().on('zoom', event =>
@@ -38,7 +44,6 @@ export class TreeChart {
     this._links = this._content
       .append('g')
       .attr('fill', 'none')
-      .attr('stroke', 'var(--grampsjs-body-font-color-70)')
       .attr('stroke-opacity', 0.4)
       .attr('stroke-width', 1)
     this._nodes = this._content.append('g')
@@ -57,7 +62,9 @@ export class TreeChart {
 
   // With `childrenTriangle`, the root person gets a triangle that opens the
   // menu of relatives, on the left for orientation 'LTR' and on the right for
-  // 'RTL'.
+  // 'RTL'. Without `interactive`, the chart has no add person buttons,
+  // triangle, click or hover handling, cursors or shadows. Colours come from
+  // `palette`.
   update(
     layout,
     {
@@ -66,6 +73,8 @@ export class TreeChart {
       getImageUrl = () => '',
       nameDisplayFormat,
       canEdit = false,
+      interactive = true,
+      palette = chartPalette,
       bboxWidth,
       bboxHeight,
     }
@@ -83,6 +92,7 @@ export class TreeChart {
     // Links join the facing sides of two boxes, slightly inside their edges
     const linkInset = boxWidth / 2 - 10
     this._links
+      .attr('stroke', palette.link)
       .selectChildren('path')
       .data(layout.links, l => l.target.key)
       .join('path')
@@ -95,17 +105,17 @@ export class TreeChart {
       })
 
     const nodes = this._nodes
-      .selectChildren('a')
+      .selectChildren('.person-node')
       .data(layout.nodes, d => d.key)
       .join(enter => {
-        const node = enter.append('a')
+        const node = enter.append('g').attr('class', 'person-node')
         node.append('g').attr('class', 'person-card')
         return node
       })
       .attr('transform', d => `translate(${d.x},${d.y})`)
       .style('filter', d =>
-        d.generation === 0
-          ? 'drop-shadow(0 3px 8px var(--grampsjs-body-font-color-30))'
+        interactive && d.generation === 0
+          ? `drop-shadow(0 3px 8px ${palette.shadow})`
           : null
       )
 
@@ -115,6 +125,7 @@ export class TreeChart {
           person: d.person,
           imageUrl: getImageUrl(d),
           nameDisplayFormat,
+          palette,
         }
         const previous = cardInputs.get(this)
         cardInputs.set(this, inputs)
@@ -131,27 +142,34 @@ export class TreeChart {
       boxWidth,
       boxHeight,
       nameDisplayFormat,
+      palette,
     })
 
-    setPersonCardInteraction(nodes, {
-      profile: d => d.person?.profile,
-      handle: d => d.handle,
-      boxWidth,
-      boxHeight,
-      canEdit,
-    })
+    if (interactive) {
+      setPersonCardInteraction(nodes, {
+        profile: d => d.person?.profile,
+        handle: d => d.handle,
+        boxWidth,
+        boxHeight,
+        canEdit,
+        palette,
+      })
+    } else {
+      clearPersonCardInteraction(nodes)
+    }
 
     const side = orientation === 'LTR' ? -1 : 1
     nodes
       .selectChildren('.children-triangle')
-      .data(d => (childrenTriangle && d.generation === 0 ? [d] : []))
+      .data(d =>
+        interactive && childrenTriangle && d.generation === 0 ? [d] : []
+      )
       .join(enter =>
         enter
           .append('path')
           .attr('class', 'children-triangle')
           .attr('id', 'triangle-children')
           .attr('d', symbol().type(symbolTriangle).size(200))
-          .attr('fill', 'var(--grampsjs-body-font-color-30)')
           .on('click', function (e) {
             fireEvent(this, 'pedigree:show-children', {
               pageX: e.pageX,
@@ -161,6 +179,7 @@ export class TreeChart {
             e.preventDefault()
           })
       )
+      .attr('fill', palette.triangle)
       .attr(
         'transform',
         `translate(${side * (boxWidth / 2 + 12)},0) rotate(${

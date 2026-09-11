@@ -4,6 +4,12 @@ import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 import {RelationshipChart} from '../charts/RelationshipChart.js'
 import {GrampsjsResizeContainerMixin} from '../mixins/GrampsjsResizeContainerMixin.js'
 import {getImageUrl} from '../charts/util.js'
+import {chartPalette} from '../charts/palette.js'
+
+const palette = {
+  ...chartPalette,
+  personBox: 'var(--grampsjs-connection-chart-person-box)',
+}
 
 export class GrampsjsConnectionChart extends GrampsjsResizeContainerMixin(
   GrampsjsConnectedComponent
@@ -12,14 +18,6 @@ export class GrampsjsConnectionChart extends GrampsjsResizeContainerMixin(
     return [
       super.styles,
       css`
-        svg a {
-          text-decoration: none !important;
-        }
-
-        svg .personBox {
-          fill: var(--grampsjs-connection-chart-person-box);
-        }
-
         div#container {
           border: 2px solid var(--grampsjs-connection-chart-border-color);
           border-radius: 16px;
@@ -58,6 +56,7 @@ export class GrampsjsConnectionChart extends GrampsjsResizeContainerMixin(
       bboxHeight: this.containerHeight,
       shrinkToFit: true,
       nameDisplayFormat: this.nameDisplayFormat,
+      palette,
     })
     return html`
       <div id="container" style="height: ${this.initialHeight}px">${chart}</div>
