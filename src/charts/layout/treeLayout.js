@@ -1,3 +1,4 @@
+import {extent} from 'd3-array'
 import {hierarchy, tree} from 'd3-hierarchy'
 import {getDescendantTree, getTree} from '../util.js'
 
@@ -43,16 +44,16 @@ function layoutTree(data, direction, {boxWidth, boxHeight, gapX, gapY}) {
 
 // Adds the extent of the boxes, with horizontal padding
 function withBounds({nodes, links}, {boxWidth, boxHeight, padding}) {
-  const xs = nodes.map(node => node.x)
-  const ys = nodes.map(node => node.y)
+  const [xMin, xMax] = extent(nodes, node => node.x)
+  const [yMin, yMax] = extent(nodes, node => node.y)
   return {
     nodes,
     links,
     bounds: {
-      xMin: Math.min(...xs) - boxWidth / 2 - padding,
-      xMax: Math.max(...xs) + boxWidth / 2 + padding,
-      yMin: Math.min(...ys) - boxHeight / 2,
-      yMax: Math.max(...ys) + boxHeight / 2,
+      xMin: xMin - boxWidth / 2 - padding,
+      xMax: xMax + boxWidth / 2 + padding,
+      yMin: yMin - boxHeight / 2,
+      yMax: yMax + boxHeight / 2,
     },
   }
 }
@@ -61,16 +62,17 @@ function withBounds({nodes, links}, {boxWidth, boxHeight, padding}) {
 // unique `key`, the person's `handle` and `person` object, a `generation`
 // that is positive for ancestors and negative for descendants, and the
 // centre `x`, `y` of its box. Each link has a `source` and a `target` node.
+// Depths count generations including the root person, who is always shown.
 
 export function layoutAncestors(graph, handle, {depth, ...options}) {
   const settings = {...treeLayoutDefaults, ...options}
-  const data = getTree(graph, handle, depth, false)
+  const data = getTree(graph, handle, Math.max(depth, 1), false)
   return withBounds(layoutTree(data, 1, settings), settings)
 }
 
 export function layoutDescendants(graph, handle, {depth, ...options}) {
   const settings = {...treeLayoutDefaults, ...options}
-  const data = getDescendantTree(graph, handle, depth)
+  const data = getDescendantTree(graph, handle, Math.max(depth, 1))
   return withBounds(layoutTree(data, -1, settings), settings)
 }
 
@@ -81,12 +83,12 @@ export function layoutHourglass(
 ) {
   const settings = {...treeLayoutDefaults, ...options}
   const ancestors = layoutTree(
-    getTree(graph, handle, ancestorDepth, false),
+    getTree(graph, handle, Math.max(ancestorDepth, 1), false),
     1,
     settings
   )
   const descendants = layoutTree(
-    getDescendantTree(graph, handle, descendantDepth),
+    getDescendantTree(graph, handle, Math.max(descendantDepth, 1)),
     -1,
     settings
   )

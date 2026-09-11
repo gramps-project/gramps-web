@@ -25,8 +25,6 @@ export function viewBoxStart(focus, extentMin, extentMax, viewSize) {
 export function TreeChart(
   layout,
   {
-    boxWidth = treeLayoutDefaults.boxWidth,
-    boxHeight = treeLayoutDefaults.boxHeight,
     childrenTriangle = false,
     orientation = 'LTR',
     getImageUrl = () => '',
@@ -37,6 +35,7 @@ export function TreeChart(
     initialZoom = null,
   }
 ) {
+  const {boxWidth, boxHeight} = treeLayoutDefaults
   const svg = create('svg')
     .call(
       zoom().on('zoom', e =>

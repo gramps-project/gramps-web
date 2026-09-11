@@ -89,6 +89,12 @@ describe('layoutAncestors', () => {
   it('keeps the person objects', () => {
     expect(layout.nodes[1].person).toBe(graph.person('F'))
   })
+
+  it('shows the root person for depth 0', () => {
+    expect(positions(layoutAncestors(graph, 'R', {depth: 0}))).toEqual([
+      {key: 'p', handle: 'R', generation: 0, x: 0, y: 0},
+    ])
+  })
 })
 
 describe('layoutDescendants', () => {
@@ -156,5 +162,18 @@ describe('layoutHourglass', () => {
       yMin: -92.5,
       yMax: 92.5,
     })
+  })
+
+  it('keeps the root person when the ancestor depth is 0', () => {
+    const shallow = layoutHourglass(graph, 'R', {
+      ancestorDepth: 0,
+      descendantDepth: 2,
+    })
+    expect(positions(shallow)).toEqual([
+      {key: 'p', handle: 'R', generation: 0, x: 0, y: 0},
+      {key: 'pc0', handle: 'K1', generation: -1, x: -220, y: -47.5},
+      {key: 'pc1', handle: 'K2', generation: -1, x: -220, y: 47.5},
+    ])
+    expect(shallow.links.every(l => l.source === shallow.nodes[0])).toBe(true)
   })
 })
