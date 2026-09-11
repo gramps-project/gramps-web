@@ -5,6 +5,7 @@ import '@material/mwc-list/mwc-list-item'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {FamilyGraph} from '../charts/model/FamilyGraph.js'
 
 export class GrampsjsChartBase extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -32,6 +33,12 @@ export class GrampsjsChartBase extends GrampsjsAppStateMixin(LitElement) {
     this.data = []
     this.containerWidth = -1
     this.containerHeight = -1
+  }
+
+  willUpdate(changed) {
+    if (changed.has('data')) {
+      this._graph = new FamilyGraph(this.data)
+    }
   }
 
   render() {
