@@ -61,6 +61,18 @@ describe('selectPreReadyView', () => {
       expect(decision.redirect).toBe(null)
     })
 
+    it('does not redirect from the firstrun page', () => {
+      const decision = selectPreReadyView(LOADING_STATE_UNAUTHORIZED, {
+        page: 'firstrun',
+        frontendConfig: {loginRedirect: 'https://sso.example.com'},
+      })
+      expect(decision).toEqual({
+        view: 'login',
+        navigateTo: 'login',
+        redirect: null,
+      })
+    })
+
     it('does not redirect on the register page', () => {
       const decision = selectPreReadyView(LOADING_STATE_UNAUTHORIZED, {
         page: 'register',
