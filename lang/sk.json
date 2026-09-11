@@ -422,5 +422,8 @@
     "Draw a selection": "Vytvorte výber",
     "Anniversary calendar subscription": "Odber kalendára výročí",
     "The server uses configuration options that are no longer supported.": "Server používa konfiguračné možnosti, ktoré už nie sú podporované.",
-    "Support will be removed in Gramps Web API %s.": "Podpora bude v Gramps Web API %s odstránená."
+    "Support will be removed in Gramps Web API %s.": "Podpora bude v Gramps Web API %s odstránená.",
+    "Get started": "Začnite",
+    "Connect the people in your tree by adding a family.": "Prepojte osoby vo svojom rodostrome pridaním rodiny.",
+    "This Gramps Web instance has already been set up. Log in with an existing account.": "Táto inštancia Gramps Web už bola nastavená. Prihláste sa s existujúcim účtom."
 }
