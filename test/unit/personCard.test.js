@@ -2,8 +2,10 @@ import {afterEach, beforeEach, describe, it, expect} from 'vitest'
 import {create} from 'd3-selection'
 import {
   appendPersonCard,
+  clearPersonCardInteraction,
   setPersonCardInteraction,
 } from '../../src/charts/personCard.js'
+import {chartPalette} from '../../src/charts/palette.js'
 import {chartNameDisplayFormat} from '../../src/util.js'
 
 const XLINK = 'http://www.w3.org/1999/xlink'
@@ -119,6 +121,20 @@ describe('appendPersonCard', () => {
     expect(barColor(cards.notFetched)).toBe('var(--color-unknown)')
   })
 
+  it('takes its colours from the palette', () => {
+    const palette = {
+      ...chartPalette,
+      sex: {...chartPalette.sex, F: 'pink'},
+      personBox: 'white',
+      text: 'black',
+    }
+    const {full} = renderCards({palette})
+    const [bar, box] = full.querySelectorAll('rect')
+    expect(bar.getAttribute('fill')).toBe('pink')
+    expect(box.getAttribute('fill')).toBe('white')
+    expect(full.querySelector('text').getAttribute('fill')).toBe('black')
+  })
+
   it('draws images with unique pattern ids', () => {
     const first = renderCards().noGiven
     const second = renderCards().noGiven
@@ -173,5 +189,20 @@ describe('setPersonCardInteraction', () => {
     click(rebound.node().querySelector('.add-person-btn'))
     window.removeEventListener('add-new-person-relation', onAdd)
     expect(handles).toEqual(['new-h1'])
+  })
+})
+
+describe('clearPersonCardInteraction', () => {
+  it('removes add person buttons, cursors and click handling', () => {
+    const editing = renderNodes({canEdit: true})
+    clearPersonCardInteraction(editing)
+    expect(editing.node().querySelectorAll('.add-person-btn')).toHaveLength(0)
+
+    const viewing = renderNodes()
+    clearPersonCardInteraction(viewing)
+    const [full] = viewing.nodes()
+    expect(full.style.cursor).toBe('')
+    click(full)
+    expect(selected).toEqual([])
   })
 })

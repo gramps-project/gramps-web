@@ -3,6 +3,7 @@ import {zoom} from 'd3-zoom'
 import {linkVertical} from 'd3-shape'
 import {Graphviz} from '@hpcc-js/wasm'
 import {chartNameDisplayFormat} from '../util.js'
+import {chartPalette} from './palette.js'
 import {appendPersonCard, setPersonCardInteraction} from './personCard.js'
 
 function createGraph(graph) {
@@ -308,7 +309,8 @@ function remasterChart(
   getImageUrl,
   maxImages,
   nameDisplayFormat,
-  canEdit = false
+  canEdit = false,
+  palette = chartPalette
 ) {
   const gvchartx = divhidden.select('svg')
   const nodedata = []
@@ -367,6 +369,7 @@ function remasterChart(
     boxHeight,
     imgPadding,
     nameDisplayFormat,
+    palette,
   })
   setPersonCardInteraction(personNodes, {
     profile: d => d.profile,
@@ -374,6 +377,7 @@ function remasterChart(
     boxWidth,
     boxHeight,
     canEdit,
+    palette,
   })
 
   nodes
@@ -468,6 +472,7 @@ export function RelationshipChart(
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
     canEdit = false,
     initialZoom = null,
+    palette = chartPalette,
   }
 ) {
   const resultnode = create('div').style('width', '100%')
@@ -503,7 +508,8 @@ export function RelationshipChart(
       getImageUrl,
       maxImages,
       nameDisplayFormat,
-      canEdit
+      canEdit,
+      palette
     )
     svg.attr('viewBox', [
       -bboxWidth / 2,

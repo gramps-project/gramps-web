@@ -1,6 +1,7 @@
 import {select} from 'd3-selection'
-import {chartNameDisplayFormat, fireEvent, sexColor} from '../util.js'
+import {chartNameDisplayFormat, fireEvent} from '../util.js'
 import {appendAddPersonButton} from './addPersonButton.js'
+import {chartPalette} from './palette.js'
 
 // Pattern ids must be unique in the document, and the same person can be
 // shown in several cards
@@ -28,7 +29,8 @@ function isHoverDevice() {
 
 // Appends the visible part of a person card, centred on each node of the
 // selection. `profile(d)` returns the person's profile, and `imageUrl(d)`
-// returns the URL of their image or an empty string.
+// returns the URL of their image or an empty string. Colours come from
+// `palette`.
 export function appendPersonCard(
   nodes,
   {
@@ -38,6 +40,7 @@ export function appendPersonCard(
     boxHeight = 90,
     imgPadding = 10,
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
+    palette = chartPalette,
   }
 ) {
   const left = -boxWidth / 2
@@ -48,7 +51,7 @@ export function appendPersonCard(
 
   nodes
     .append('rect')
-    .attr('fill', d => sexColor[profile(d)?.sex] ?? 'var(--color-unknown)')
+    .attr('fill', d => palette.sex[profile(d)?.sex] ?? palette.sex.U)
     .attr('x', left - 4)
     .attr('y', top + 0.5)
     .attr('width', 24)
@@ -58,8 +61,7 @@ export function appendPersonCard(
 
   nodes
     .append('rect')
-    .attr('class', 'personBox')
-    .attr('fill', 'var(--grampsjs-color-shade-230)')
+    .attr('fill', palette.personBox)
     .attr('x', left)
     .attr('y', top)
     .attr('width', boxWidth)
@@ -93,7 +95,7 @@ export function appendPersonCard(
       .attr('y', top + 25 + 17 * i)
       .attr('text-anchor', 'start')
       .attr('font-weight', line.weight)
-      .attr('fill', 'var(--grampsjs-body-font-color-90)')
+      .attr('fill', palette.text)
       .attr('paint-order', 'stroke')
       .text(d => clipString(line.text(profile(d)), boxWidth - textPadding(d)))
   })
@@ -127,7 +129,14 @@ export function appendPersonCard(
 // add person button in edit mode. Calling it again updates the nodes in place.
 export function setPersonCardInteraction(
   nodes,
-  {profile, handle, boxWidth = 190, boxHeight = 90, canEdit = false}
+  {
+    profile,
+    handle,
+    boxWidth = 190,
+    boxHeight = 90,
+    canEdit = false,
+    palette = chartPalette,
+  }
 ) {
   nodes
     .style('cursor', canEdit ? 'default' : 'pointer')
@@ -166,6 +175,17 @@ export function setPersonCardInteraction(
     }),
     boxWidth / 2 - 14,
     -boxHeight / 2 + 14,
-    handle
+    handle,
+    palette
   )
+}
+
+// Removes what `setPersonCardInteraction` added: click and hover handling,
+// cursors and add person buttons
+export function clearPersonCardInteraction(nodes) {
+  nodes
+    .style('cursor', null)
+    .on('click mouseenter mouseleave', null)
+    .selectAll('.add-person-btn')
+    .remove()
 }

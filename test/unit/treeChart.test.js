@@ -5,6 +5,7 @@ import {TreeChart, viewBoxStart} from '../../src/charts/TreeChart.js'
 import {FamilyGraph} from '../../src/charts/model/FamilyGraph.js'
 import {layoutAncestors} from '../../src/charts/layout/treeLayout.js'
 import {chartNameDisplayFormat} from '../../src/util.js'
+import {chartPalette} from '../../src/charts/palette.js'
 
 describe('viewBoxStart', () => {
   it('centres a chart that fits the view', () => {
@@ -62,11 +63,20 @@ const graph = new FamilyGraph([
 const size = {bboxWidth: 800, bboxHeight: 600}
 
 const nodeWithKey = (chart, key) =>
-  [...chart.node.querySelectorAll('a')].find(a => a.__data__.key === key)
+  [...chart.node.querySelectorAll('.person-node')].find(
+    node => node.__data__.key === key
+  )
 
 const firstText = (chart, key) => nodeWithKey(chart, key).querySelector('text')
 
 describe('TreeChart', () => {
+  it('draws people without link elements, which the app styles underline', () => {
+    const chart = new TreeChart()
+    chart.update(layoutAncestors(graph, 'R', {depth: 3}), size)
+    expect(chart.node.querySelectorAll('.person-node')).toHaveLength(4)
+    expect(chart.node.querySelectorAll('a')).toHaveLength(0)
+  })
+
   it('keeps nodes and cards when only the container size changes', () => {
     const chart = new TreeChart()
     const layout = layoutAncestors(graph, 'R', {depth: 3})
@@ -99,7 +109,7 @@ describe('TreeChart', () => {
     chart.update(layoutAncestors(graph, 'F', {depth: 3}), size)
     expect(firstText(chart, 'p').textContent).toBe('SurF,')
     expect(firstText(chart, 'p')).not.toBe(kept)
-    expect(chart.node.querySelectorAll('a')).toHaveLength(2)
+    expect(chart.node.querySelectorAll('.person-node')).toHaveLength(2)
     chart.update(layoutAncestors(graph, 'F', {depth: 3}), {
       ...size,
       nameDisplayFormat: chartNameDisplayFormat.givenThenSurname,
@@ -141,13 +151,55 @@ describe('TreeChart', () => {
     ).toBe('translate(0,0) scale(2)')
   })
 
+  it('leaves out buttons, triangle, shadows and clicks when not interactive', () => {
+    const chart = new TreeChart()
+    const layout = layoutAncestors(graph, 'R', {depth: 3})
+    chart.update(layout, {...size, canEdit: true, childrenTriangle: true})
+    const root = nodeWithKey(chart, 'p')
+    expect(root.style.filter).toContain('drop-shadow')
+    chart.update(layout, {...size, childrenTriangle: true, interactive: false})
+    expect(
+      chart.node.querySelectorAll('.add-person-btn, #triangle-children')
+    ).toHaveLength(0)
+    expect(root.style.filter).toBe('')
+    expect(root.style.cursor).toBe('')
+    const selected = []
+    root.addEventListener('pedigree:person-selected', e =>
+      selected.push(e.detail)
+    )
+    root.dispatchEvent(new MouseEvent('click', {bubbles: true}))
+    expect(selected).toEqual([])
+  })
+
+  it('takes link, triangle and card colours from the palette', () => {
+    const chart = new TreeChart()
+    const layout = layoutAncestors(graph, 'R', {depth: 3})
+    const palette = {
+      ...chartPalette,
+      link: 'grey',
+      triangle: 'blue',
+      personBox: 'white',
+    }
+    const box = () => nodeWithKey(chart, 'p').querySelectorAll('rect')[1]
+    chart.update(layout, {...size, childrenTriangle: true, palette})
+    expect(
+      chart.node.querySelector('path').parentNode.getAttribute('stroke')
+    ).toBe('grey')
+    expect(
+      chart.node.querySelector('#triangle-children').getAttribute('fill')
+    ).toBe('blue')
+    expect(box().getAttribute('fill')).toBe('white')
+    chart.update(layout, {...size, palette: {...palette, personBox: 'ivory'}})
+    expect(box().getAttribute('fill')).toBe('ivory')
+  })
+
   it('clears people and links but keeps the zoom', () => {
     const chart = new TreeChart()
     const layout = layoutAncestors(graph, 'R', {depth: 3})
     chart.update(layout, size)
     select(chart.node).call(zoom().transform, zoomIdentity.translate(5, 5))
     chart.clear()
-    expect(chart.node.querySelectorAll('a, path')).toHaveLength(0)
+    expect(chart.node.querySelectorAll('.person-node, path')).toHaveLength(0)
     chart.update(layout, size)
     expect(zoomTransform(chart.node)).toMatchObject({k: 1, x: 5, y: 5})
   })

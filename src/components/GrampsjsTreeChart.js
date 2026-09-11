@@ -29,10 +29,6 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     return [
       super.styles,
       css`
-        svg a {
-          text-decoration: none !important;
-        }
-
         mwc-menu {
           --mdc-typography-subtitle1-font-size: 13px;
           --mdc-menu-item-height: 36px;

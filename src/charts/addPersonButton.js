@@ -1,9 +1,16 @@
 import {fireEvent} from '../util.js'
+import {chartPalette} from './palette.js'
 
 // Appends a circular "+" button to each node in the selection.
 // cx, cy: center position relative to the node's origin.
 // getHandle(d) must return the person handle for a given datum.
-export function appendAddPersonButton(nodeSelection, cx, cy, getHandle) {
+export function appendAddPersonButton(
+  nodeSelection,
+  cx,
+  cy,
+  getHandle,
+  palette = chartPalette
+) {
   const r = 10
 
   const btn = nodeSelection
@@ -22,7 +29,7 @@ export function appendAddPersonButton(nodeSelection, cx, cy, getHandle) {
   btn
     .append('circle')
     .attr('r', r)
-    .attr('fill', 'var(--mdc-theme-secondary, #0277bd)')
+    .attr('fill', palette.addButton)
     .attr('opacity', 0.9)
 
   const arm = 4
@@ -33,7 +40,7 @@ export function appendAddPersonButton(nodeSelection, cx, cy, getHandle) {
     .attr('x2', arm)
     .attr('y1', 0)
     .attr('y2', 0)
-    .attr('stroke', '#ffffff')
+    .attr('stroke', palette.addButtonIcon)
     .attr('stroke-width', 1.5)
     .attr('stroke-linecap', 'round')
     .style('pointer-events', 'none')
@@ -44,7 +51,7 @@ export function appendAddPersonButton(nodeSelection, cx, cy, getHandle) {
     .attr('x2', 0)
     .attr('y1', -arm)
     .attr('y2', arm)
-    .attr('stroke', '#ffffff')
+    .attr('stroke', palette.addButtonIcon)
     .attr('stroke-width', 1.5)
     .attr('stroke-linecap', 'round')
     .style('pointer-events', 'none')
