@@ -5,6 +5,11 @@ import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 
 import {TreeChart} from '../charts/TreeChart.js'
+import {
+  layoutAncestors,
+  layoutDescendants,
+  layoutHourglass,
+} from '../charts/layout/treeLayout.js'
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 import {getDescendantTree, getTree, getImageUrl} from '../charts/util.js'
 import {fireEvent, clickKeyHandler} from '../util.js'
@@ -89,12 +94,6 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     if (!handle) {
       return ''
     }
-    const dataDescendants = this.descendants
-      ? getDescendantTree(this._graph, handle, this.nDesc)
-      : false
-    const dataAncestors = this.ancestors
-      ? getTree(this._graph, handle, this.nAnc, false)
-      : false
     let childrenTriangle = false
     if (this.descendants && this.ancestors) {
       childrenTriangle = false
@@ -104,13 +103,10 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       childrenTriangle = this._hasChildren()
     }
     return html`
-      ${TreeChart(dataDescendants, dataAncestors, {
-        nAnc: this.nAnc,
-        nDesc: this.nDesc,
+      ${TreeChart(this._layout(handle), {
         childrenTriangle,
-        getImageUrl: d => getImageUrl(d?.data?.person || {}, 100),
+        getImageUrl: d => getImageUrl(d.person, 100),
         orientation: this.descendants ? 'RTL' : 'LTR',
-        gapX: this.gapX,
         bboxWidth: this.containerWidth,
         bboxHeight: this.containerHeight,
         nameDisplayFormat: this.nameDisplayFormat,
@@ -118,6 +114,26 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
         initialZoom: this._savedZoom,
       })}
     `
+  }
+
+  _layout(handle) {
+    if (this.ancestors && this.descendants) {
+      return layoutHourglass(this._graph, handle, {
+        ancestorDepth: this.nAnc,
+        descendantDepth: this.nDesc,
+        gapX: this.gapX,
+      })
+    }
+    if (this.descendants) {
+      return layoutDescendants(this._graph, handle, {
+        depth: this.nDesc,
+        gapX: this.gapX,
+      })
+    }
+    return layoutAncestors(this._graph, handle, {
+      depth: this.nAnc,
+      gapX: this.gapX,
+    })
   }
 
   _hasChildren() {
