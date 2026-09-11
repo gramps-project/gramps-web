@@ -158,6 +158,7 @@ export function setPersonCardInteraction(
         objectType: 'person',
         grampsId,
         anchorRect: this.getBoundingClientRect(),
+        chart: true,
       })
     })
     .on('mouseleave', () => {

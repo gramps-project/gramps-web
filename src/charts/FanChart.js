@@ -389,6 +389,7 @@ export function FanChart(
             objectType: 'person',
             grampsId,
             anchorRect: this.getBoundingClientRect(),
+            chart: true,
           },
         })
       )
@@ -397,14 +398,6 @@ export function FanChart(
       if (window.matchMedia('(hover: none)').matches) return
       window.dispatchEvent(new CustomEvent('object:preview-hide'))
     })
-
-  cell
-    .append('title')
-    .text(d =>
-      nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
-        ? '' + d.data.name_surname + ', ' + d.data.name_given
-        : '' + d.data.name_given + ' ' + d.data.name_surname
-    )
 
   const fontSize = d => Math.min(12, (((d.y0 + d.y1) / 2) * (d.x1 - d.x0)) / 10)
 

@@ -16,10 +16,14 @@ import './GrampsjsNote.js'
 import './GrampsjsMediaObject.js'
 
 const SHOW_DELAY = 200
+// In charts the pointer is almost always over some node, so previews there
+// wait longer to show only when the pointer rests on one node.
+const CHART_SHOW_DELAY = 500
 const HIDE_DELAY = 250
 const CACHE_MAX_SIZE = 50
 const POPUP_WIDTH = 580
 const POPUP_HEIGHT = 600
+const POPUP_MAX_VIEWPORT_FRACTION = 0.6
 const POPUP_MARGIN = 8
 
 // Some object types (e.g. events) typically have much less content than
@@ -31,8 +35,14 @@ const POPUP_HEIGHT_BY_TYPE = {
   repository: 500,
 }
 
+// Capped to a fraction of the viewport so that on small screens the popup
+// leaves most of the page visible.
 function getPopupHeight(objectType) {
-  return POPUP_HEIGHT_BY_TYPE[objectType] ?? POPUP_HEIGHT
+  const height = POPUP_HEIGHT_BY_TYPE[objectType] ?? POPUP_HEIGHT
+  return Math.min(
+    height,
+    Math.round(window.innerHeight * POPUP_MAX_VIEWPORT_FRACTION)
+  )
 }
 
 const NOTE_LINK_FORMAT = encodeURIComponent(
@@ -180,14 +190,28 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
 
   // Debounced: a burst of `object:preview-show` events (e.g. sweeping the
   // cursor across many chart nodes in quick succession) resolves to a
-  // single preview once the cursor settles on one target for SHOW_DELAY ms.
+  // single preview once the cursor settles on one target for SHOW_DELAY ms
+  // (CHART_SHOW_DELAY ms in charts).
   _handleShow(e) {
     const detail = e.detail
-    clearTimeout(this._hideTimer)
     clearTimeout(this._showTimer)
-    this._showTimer = setTimeout(() => {
-      this._showPreview(detail)
-    }, SHOW_DELAY)
+    // Returning to the anchor of the open popup keeps it open. When moving to
+    // a different object, the open popup still closes after HIDE_DELAY, so it
+    // does not linger over the chart while the new preview is pending.
+    if (
+      this._visible &&
+      detail.objectType === this._objectType &&
+      detail.grampsId === this._grampsId
+    ) {
+      clearTimeout(this._hideTimer)
+    }
+    this._showTimer = setTimeout(
+      () => {
+        clearTimeout(this._hideTimer)
+        this._showPreview(detail)
+      },
+      detail.chart ? CHART_SHOW_DELAY : SHOW_DELAY
+    )
   }
 
   _showPreview({objectType, grampsId, anchorRect}) {
