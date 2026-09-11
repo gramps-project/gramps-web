@@ -895,6 +895,14 @@ export const chartNameDisplayFormat = {
   givenThenSurname: 'Given Name First',
 }
 
+// Colour for each value of a person profile's `sex`
+export const sexColor = {
+  F: 'var(--color-girl)',
+  M: 'var(--color-boy)',
+  X: 'var(--color-other)',
+  U: 'var(--color-unknown)',
+}
+
 export function apiVersionAtLeast(dbInfo, major, minor, patch = 0) {
   const version = dbInfo?.gramps_webapi?.version
   if (!version) return false
