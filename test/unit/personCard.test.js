@@ -192,6 +192,28 @@ describe('setPersonCardInteraction', () => {
   })
 })
 
+describe('setPersonCardInteraction colours', () => {
+  it('updates the colours of existing buttons', () => {
+    const nodes = renderNodes({canEdit: true})
+    setPersonCardInteraction(nodes, {
+      profile: d => d.profile,
+      handle: d => d.handle,
+      canEdit: true,
+      palette: {...chartPalette, addButton: 'green', addButtonIcon: 'black'},
+    })
+    const buttons = nodes.node().querySelectorAll('.add-person-btn')
+    expect(buttons).toHaveLength(1)
+    expect(buttons[0].querySelector('circle').getAttribute('fill')).toBe(
+      'green'
+    )
+    expect(
+      [...buttons[0].querySelectorAll('line')].map(l =>
+        l.getAttribute('stroke')
+      )
+    ).toEqual(['black', 'black'])
+  })
+})
+
 describe('clearPersonCardInteraction', () => {
   it('removes add person buttons, cursors and click handling', () => {
     const editing = renderNodes({canEdit: true})

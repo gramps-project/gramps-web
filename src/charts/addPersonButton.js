@@ -26,11 +26,7 @@ export function appendAddPersonButton(
     })
     .on('pointerdown', e => e.stopPropagation())
 
-  btn
-    .append('circle')
-    .attr('r', r)
-    .attr('fill', palette.addButton)
-    .attr('opacity', 0.9)
+  btn.append('circle').attr('r', r).attr('opacity', 0.9)
 
   const arm = 4
   // horizontal bar
@@ -40,7 +36,6 @@ export function appendAddPersonButton(
     .attr('x2', arm)
     .attr('y1', 0)
     .attr('y2', 0)
-    .attr('stroke', palette.addButtonIcon)
     .attr('stroke-width', 1.5)
     .attr('stroke-linecap', 'round')
     .style('pointer-events', 'none')
@@ -51,8 +46,15 @@ export function appendAddPersonButton(
     .attr('x2', 0)
     .attr('y1', -arm)
     .attr('y2', arm)
-    .attr('stroke', palette.addButtonIcon)
     .attr('stroke-width', 1.5)
     .attr('stroke-linecap', 'round')
     .style('pointer-events', 'none')
+
+  colorAddPersonButtons(btn, palette)
+}
+
+// Colours the circle and plus sign of the buttons in the selection
+export function colorAddPersonButtons(buttons, palette = chartPalette) {
+  buttons.select('circle').attr('fill', palette.addButton)
+  buttons.selectAll('line').attr('stroke', palette.addButtonIcon)
 }

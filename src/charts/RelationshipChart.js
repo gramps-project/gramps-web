@@ -447,10 +447,7 @@ function remasterChart(
   // highlight root person
   nodes
     .filter(d => d.handle === graph.rootPerson?.handle)
-    .style(
-      'filter',
-      'drop-shadow(0 3px 8px var(--grampsjs-body-font-color-30))'
-    )
+    .style('filter', `drop-shadow(0 3px 8px ${palette.shadow})`)
 
   // kill hidden graphviz generated svg
   gvchartx.remove()

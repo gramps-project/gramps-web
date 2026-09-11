@@ -1,6 +1,9 @@
 import {select} from 'd3-selection'
 import {chartNameDisplayFormat, fireEvent} from '../util.js'
-import {appendAddPersonButton} from './addPersonButton.js'
+import {
+  appendAddPersonButton,
+  colorAddPersonButtons,
+} from './addPersonButton.js'
 import {chartPalette} from './palette.js'
 
 // Pattern ids must be unique in the document, and the same person can be
@@ -168,7 +171,7 @@ export function setPersonCardInteraction(
     return
   }
   // Selecting existing buttons passes them the current data of their node
-  nodes.select('.add-person-btn')
+  colorAddPersonButtons(nodes.select('.add-person-btn'), palette)
   appendAddPersonButton(
     nodes.filter(function () {
       return !this.querySelector('.add-person-btn')
