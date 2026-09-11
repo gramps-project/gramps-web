@@ -400,5 +400,6 @@
     "End date must be after start date": "Datum konce musí být po datu začátku",
     "No issues found": "Nebyly nalezeny žádné problémy",
     "issues found": "nalezených problémů",
-    "Restore from Backup": "Obnova ze zálohy"
+    "Restore from Backup": "Obnova ze zálohy",
+    "End date is required": "Datum konce musí být stanoven"
 }
