@@ -863,7 +863,7 @@ export class GrampsJs extends LitElement {
         } else if (data.errorDetail?.status >= 500) {
           this._showError(data.error)
           // A failed background refresh keeps the loaded app usable
-          if (!this._metadataConfirmed) {
+          if (setReady) {
             this.loadingState = LOADING_STATE_UNAUTHORIZED_NOCONNECTION
           }
         } else {
