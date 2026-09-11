@@ -46,6 +46,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
   }
 
   willUpdate(changed) {
+    super.willUpdate(changed)
     // Save zoom transform before Lit replaces the SVG node. A new root person
     // keeps only the zoom level, so they start at the default position.
     const svg = this.renderRoot

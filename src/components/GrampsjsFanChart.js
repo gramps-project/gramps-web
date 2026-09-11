@@ -2,7 +2,7 @@ import {html, css} from 'lit'
 
 import {FanChart} from '../charts/FanChart.js'
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
-import {getPersonByGrampsId, getTree} from '../charts/util.js'
+import {getTree} from '../charts/util.js'
 
 class GrampsjsFanChart extends GrampsjsChartBase {
   static get styles() {
@@ -36,11 +36,11 @@ class GrampsjsFanChart extends GrampsjsChartBase {
     if (this.data.length === 0 || !this.grampsId) {
       return ''
     }
-    const {handle} = getPersonByGrampsId(this.data, this.grampsId)
+    const {handle} = this._graph.personByGrampsId(this.grampsId) ?? {}
     if (!handle) {
       return ''
     }
-    const data = getTree(this.data, handle, this.depth)
+    const data = getTree(this._graph, handle, this.depth)
     const arcRadius = 60
     return html`
       ${FanChart(data, {
