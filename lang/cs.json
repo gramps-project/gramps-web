@@ -423,5 +423,6 @@
     "Blog Post": "Příspěvek na blogu",
     "Failed to fetch the Blog tag": "Nepodařilo se načíst štítek blogu",
     "Only the most recent revisions are shown.": "Zobrazují se pouze nejnovější revize.",
-    "This Gramps Web instance has already been set up. Log in with an existing account.": "Tato instance Gramps Web je již nastavena. Přihlašte se pomocí stávajícího účtu."
+    "This Gramps Web instance has already been set up. Log in with an existing account.": "Tato instance Gramps Web je již nastavena. Přihlašte se pomocí stávajícího účtu.",
+    "Enclosed places": "Podřazená místa"
 }
