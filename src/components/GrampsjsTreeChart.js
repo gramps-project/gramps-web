@@ -13,6 +13,7 @@ import {
   getImageUrl,
 } from '../charts/util.js'
 import {fireEvent, clickKeyHandler} from '../util.js'
+import {getSymbols} from '../symbols.js'
 
 class GrampsjsTreeChart extends GrampsjsChartBase {
   static get styles() {
@@ -112,6 +113,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
         nameDisplayFormat: this.nameDisplayFormat,
         canEdit: this.canEdit,
         initialZoom: this._savedZoom,
+        ...getSymbols(this.appState.settings, s => this._(s)),
       })}
     `
   }

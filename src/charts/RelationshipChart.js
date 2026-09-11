@@ -339,7 +339,9 @@ function remasterChart(
   getImageUrl,
   maxImages,
   nameDisplayFormat,
-  canEdit = false
+  canEdit = false,
+  birthSymbol = '∗',
+  deathSymbol = '†'
 ) {
   const gvchartx = divhidden.select('svg')
   const nodedata = []
@@ -473,7 +475,9 @@ function remasterChart(
     .attr('paint-order', 'stroke')
     .attr('x', d => textPadding(d))
     .attr('y', 25 + 17 * 2)
-    .text(d => clipString(`*${d.profile.birth.date}`, boxWidthTotal(d)))
+    .text(d =>
+      clipString(`${birthSymbol} ${d.profile.birth.date}`, boxWidthTotal(d))
+    )
 
   nodes
     .filter(d => d.profile?.death?.date && d.nodetype === 'person')
@@ -484,7 +488,9 @@ function remasterChart(
     .attr('paint-order', 'stroke')
     .attr('x', d => textPadding(d))
     .attr('y', 25 + 17 * 3)
-    .text(d => clipString(`†${d.profile.death.date}`, boxWidthTotal(d)))
+    .text(d =>
+      clipString(`${deathSymbol} ${d.profile.death.date}`, boxWidthTotal(d))
+    )
 
   // images
   nodes
@@ -641,6 +647,8 @@ export function RelationshipChart(
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
     canEdit = false,
     initialZoom = null,
+    birthSymbol = '∗',
+    deathSymbol = '†',
   }
 ) {
   const resultnode = create('div').style('width', '100%')
@@ -676,7 +684,9 @@ export function RelationshipChart(
       getImageUrl,
       maxImages,
       nameDisplayFormat,
-      canEdit
+      canEdit,
+      birthSymbol,
+      deathSymbol
     )
     svg.attr('viewBox', [
       -bboxWidth / 2,

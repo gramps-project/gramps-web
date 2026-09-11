@@ -4,6 +4,7 @@ import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 import {RelationshipChart} from '../charts/RelationshipChart.js'
 import {GrampsjsResizeContainerMixin} from '../mixins/GrampsjsResizeContainerMixin.js'
 import {getImageUrl} from '../charts/util.js'
+import {getSymbols} from '../symbols.js'
 
 export class GrampsjsConnectionChart extends GrampsjsResizeContainerMixin(
   GrampsjsConnectedComponent
@@ -58,6 +59,7 @@ export class GrampsjsConnectionChart extends GrampsjsResizeContainerMixin(
       bboxHeight: this.containerHeight,
       shrinkToFit: true,
       nameDisplayFormat: this.nameDisplayFormat,
+      ...getSymbols(this.appState.settings, s => this._(s)),
     })
     return html`
       <div id="container" style="height: ${this.initialHeight}px">${chart}</div>

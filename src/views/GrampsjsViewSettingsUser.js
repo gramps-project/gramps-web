@@ -29,6 +29,7 @@ import {
 import {apiVersionAtLeast, fireEvent} from '../util.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
 import {DEFAULT_TREE_VIEW, TREE_VIEWS} from '../treeDefaults.js'
+import {SYMBOL_SET_DEFAULT, SYMBOL_SET_OPTIONS} from '../symbols.js'
 
 const PERSISTENT_ACCESS_TOKEN_SCOPES = [
   {
@@ -180,6 +181,8 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         ${this.renderLangSelect()}
         <h3>${this._('Select theme')}</h3>
         ${this.renderThemeSelect()}
+        <h3>${this._('Genealogical symbols')}</h3>
+        ${this.renderSymbolsSelect()}
         <h3>${this._('Family tree preferences')}</h3>
         ${this.renderTreePreferences()}
       </grampsjs-collapsible-section>
@@ -296,6 +299,33 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     } catch {
       applyScheme(DEFAULT_PRIMARY, DEFAULT_SECONDARY, theme)
     }
+  }
+
+  renderSymbolsSelect() {
+    const symbolSet = this.appState.settings.symbolSet ?? SYMBOL_SET_DEFAULT
+    return html`
+      <md-filled-select
+        id="select-symbols"
+        label="${this._('Genealogical symbols')}"
+        @change="${this._handleSymbolsSelected}"
+      >
+        ${SYMBOL_SET_OPTIONS.map(
+          ({value, label}) => html`
+            <md-select-option value="${value}" ?selected=${value === symbolSet}>
+              ${this._(label)}
+            </md-select-option>
+          `
+        )}
+      </md-filled-select>
+    `
+  }
+
+  _handleSymbolsSelected(event) {
+    const candidate = event.target.value || SYMBOL_SET_DEFAULT
+    const symbolSet = SYMBOL_SET_OPTIONS.some(({value}) => value === candidate)
+      ? candidate
+      : SYMBOL_SET_DEFAULT
+    this.appState.updateSettings({symbolSet})
   }
 
   renderTreePreferences() {

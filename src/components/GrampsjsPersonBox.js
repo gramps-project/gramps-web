@@ -7,6 +7,7 @@ import './GrampsjsEvents.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 import {fireEvent, personProfileDisplayName} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
+import {getSymbols} from '../symbols.js'
 
 export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
   static get styles() {
@@ -94,17 +95,22 @@ export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
     const birthPlace = person.profile?.birth?.place_name || ''
     const deathDate = person.profile?.death?.date || ''
     const deathPlace = person.profile?.death?.place_name || ''
+    const {birthSymbol, deathSymbol} = getSymbols(this.appState.settings, s =>
+      this._(s)
+    )
     return html`
       <h2>${fullName || this.name || this._('Person')}</h2>
       <div class="dates">
         ${birthDate || birthPlace
           ? html`<p>
-              ∗ ${[birthDate, birthPlace].filter(Boolean).join(' · ')}
+              ${birthSymbol}
+              ${[birthDate, birthPlace].filter(Boolean).join(' · ')}
             </p>`
           : ''}
         ${deathDate || deathPlace
           ? html`<p>
-              † ${[deathDate, deathPlace].filter(Boolean).join(' · ')}
+              ${deathSymbol}
+              ${[deathDate, deathPlace].filter(Boolean).join(' · ')}
             </p>`
           : ''}
       </div>

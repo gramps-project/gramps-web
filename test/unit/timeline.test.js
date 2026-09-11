@@ -40,9 +40,11 @@ describe('initialDomain', () => {
   })
 
   it('works across century boundaries', () => {
-    const now = new Date('2000-01-01')
+    const now = new Date(2000, 0, 1)
     const [start] = initialDomain(now)
     expect(start.getFullYear()).toBe(1900)
+    expect(start.getMonth()).toBe(0)
+    expect(start.getDate()).toBe(1)
   })
 })
 

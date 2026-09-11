@@ -56,6 +56,8 @@ function TreeChartCore(
     orientation = 'LTR',
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
     canEdit = false,
+    birthSymbol = '∗',
+    deathSymbol = '†',
   } = {}
 ) {
   // Create a hierarchical data structure based on the input data
@@ -284,7 +286,12 @@ function TreeChartCore(
     .attr('font-weight', '350')
     .attr('fill', 'var(--grampsjs-body-font-color-90)')
     .attr('paint-order', 'stroke')
-    .text(d => clipString(`*${d.data.person.profile.birth.date}`, textWidth(d)))
+    .text(d =>
+      clipString(
+        `${birthSymbol} ${d.data.person.profile.birth.date}`,
+        textWidth(d)
+      )
+    )
 
   node
     .append('text')
@@ -296,7 +303,12 @@ function TreeChartCore(
     .attr('fill', 'var(--grampsjs-body-font-color-90)')
 
     .attr('paint-order', 'stroke')
-    .text(d => clipString(`†${d.data.person.profile.death.date}`, textWidth(d)))
+    .text(d =>
+      clipString(
+        `${deathSymbol} ${d.data.person.profile.death.date}`,
+        textWidth(d)
+      )
+    )
 
   if (canEdit) {
     appendAddPersonButton(

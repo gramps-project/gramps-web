@@ -7,6 +7,7 @@ import '@material/mwc-list/mwc-list-item'
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 import {RelationshipChart} from '../charts/RelationshipChart.js'
 import {getImageUrl} from '../charts/util.js'
+import {getSymbols} from '../symbols.js'
 
 class GrampsjsRelationshipChart extends GrampsjsChartBase {
   static get styles() {
@@ -68,6 +69,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
         nameDisplayFormat: this.nameDisplayFormat,
         canEdit: this.canEdit,
         initialZoom: this._savedZoom,
+        ...getSymbols(this.appState.settings, s => this._(s)),
       })}
     `
   }
