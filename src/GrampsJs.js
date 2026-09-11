@@ -968,11 +968,16 @@ export class GrampsJs extends LitElement {
           this._firstRunToken = data?.data?.access_token
         } else {
           if (this.appState.path.page === 'firstrun') {
-            this._showMessage(
-              this._(
-                'This Gramps Web instance has already been set up. Log in with an existing account.'
+            // 405 means users already exist
+            if (data.errorDetail?.status === 405) {
+              this._showMessage(
+                this._(
+                  'This Gramps Web instance has already been set up. Log in with an existing account.'
+                )
               )
-            )
+            } else {
+              this._showError(data.error)
+            }
           }
           this.loadingState = LOADING_STATE_UNAUTHORIZED
         }
