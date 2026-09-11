@@ -419,5 +419,9 @@
     "Blog Post": "Article de blog",
     "Failed to fetch the Blog tag": "Impossible de récupérer le tag du blog",
     "Only the most recent revisions are shown.": "Seules les dernières révisions sont affichées.",
-    "Enclosed places": "Lieux inclus"
+    "Enclosed places": "Lieux inclus",
+    "Get started": "Pour commencer",
+    "Connect the people in your tree by adding a family.": "Reliez les personnes de votre arbre généalogique en créant une famille.",
+    "The server uses configuration options that are no longer supported.": "Le serveur utilise des options de configuration qui ne sont plus prises en charge.",
+    "Support will be removed in Gramps Web API %s.": "La prise en charge sera supprimée dans l'API de Gramps Web %s."
 }
