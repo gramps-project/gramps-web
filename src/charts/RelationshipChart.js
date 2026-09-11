@@ -3,7 +3,7 @@ import {zoom} from 'd3-zoom'
 import {linkVertical} from 'd3-shape'
 import {Graphviz} from '@hpcc-js/wasm'
 import {chartNameDisplayFormat} from '../util.js'
-import {appendPersonCard} from './personCard.js'
+import {appendPersonCard, setPersonCardInteraction} from './personCard.js'
 
 function createGraph(graph) {
   const data = graph.getData()
@@ -359,19 +359,22 @@ function remasterChart(
     .attr('transform', d => `translate(${d.xCoord} ${d.yCoord})`)
     .attr('class', d => `node ${d.nodetype}`)
 
-  appendPersonCard(
-    nodes.filter(d => d.nodetype === 'person'),
-    {
-      profile: d => d.profile,
-      handle: d => d.handle,
-      imageUrl: d => d.imageUrl,
-      boxWidth,
-      boxHeight,
-      imgPadding,
-      nameDisplayFormat,
-      canEdit,
-    }
-  )
+  const personNodes = nodes.filter(d => d.nodetype === 'person')
+  appendPersonCard(personNodes, {
+    profile: d => d.profile,
+    imageUrl: d => d.imageUrl,
+    boxWidth,
+    boxHeight,
+    imgPadding,
+    nameDisplayFormat,
+  })
+  setPersonCardInteraction(personNodes, {
+    profile: d => d.profile,
+    handle: d => d.handle,
+    boxWidth,
+    boxHeight,
+    canEdit,
+  })
 
   nodes
     .filter(d => d.type === 'Married' && d.nodetype === 'family')

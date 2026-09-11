@@ -26,20 +26,18 @@ function isHoverDevice() {
   return !window.matchMedia('(hover: none)').matches
 }
 
-// Appends a person card centred on each node of the selection. `profile(d)`
-// and `handle(d)` return the person's profile and handle, and `imageUrl(d)`
+// Appends the visible part of a person card, centred on each node of the
+// selection. `profile(d)` returns the person's profile, and `imageUrl(d)`
 // returns the URL of their image or an empty string.
 export function appendPersonCard(
   nodes,
   {
     profile,
-    handle,
     imageUrl = () => '',
     boxWidth = 190,
     boxHeight = 90,
     imgPadding = 10,
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
-    canEdit = false,
   }
 ) {
   const left = -boxWidth / 2
@@ -123,11 +121,14 @@ export function appendPersonCard(
         .attr('cy', top + imgPadding + imgRadius)
         .attr('fill', `url(#${patternId})`)
     })
+}
 
-  if (canEdit) {
-    appendAddPersonButton(nodes, boxWidth / 2 - 14, top + 14, handle)
-  }
-
+// Sets click and hover handling on each node of the selection, and adds the
+// add person button in edit mode. Calling it again updates the nodes in place.
+export function setPersonCardInteraction(
+  nodes,
+  {profile, handle, boxWidth = 190, boxHeight = 90, canEdit = false}
+) {
   nodes
     .style('cursor', canEdit ? 'default' : 'pointer')
     .on('click', function (event, d) {
@@ -152,4 +153,19 @@ export function appendPersonCard(
         fireEvent(window, 'object:preview-hide')
       }
     })
+
+  if (!canEdit) {
+    nodes.selectAll('.add-person-btn').remove()
+    return
+  }
+  // Selecting existing buttons passes them the current data of their node
+  nodes.select('.add-person-btn')
+  appendAddPersonButton(
+    nodes.filter(function () {
+      return !this.querySelector('.add-person-btn')
+    }),
+    boxWidth / 2 - 14,
+    -boxHeight / 2 + 14,
+    handle
+  )
 }

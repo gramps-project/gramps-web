@@ -1,5 +1,4 @@
 import {html, css} from 'lit'
-import {zoomIdentity, zoomTransform} from 'd3-zoom'
 
 import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
@@ -13,6 +12,17 @@ import {
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 import {getDescendantTree, getTree, getImageUrl} from '../charts/util.js'
 import {fireEvent, clickKeyHandler} from '../util.js'
+
+// Properties that change the layout of the chart
+const layoutProperties = [
+  'data',
+  'grampsId',
+  'ancestors',
+  'descendants',
+  'nAnc',
+  'nDesc',
+  'gapX',
+]
 
 class GrampsjsTreeChart extends GrampsjsChartBase {
   static get styles() {
@@ -50,7 +60,8 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     this.nAnc = 5
     this.nDesc = 5
     this.gapX = 30
-    this._savedZoom = null
+    this._chart = new TreeChart()
+    this._layout = null
   }
 
   render() {
@@ -59,64 +70,34 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
         @pedigree:show-children="${this._handleShowChildren}"
         style="position:relative;"
       >
-        <div id="container">${this.renderChart()}</div>
+        <div id="container"></div>
         ${this.renderChildrenMenu()}
       </div>
     `
   }
 
+  firstUpdated() {
+    super.firstUpdated()
+    this.renderRoot.getElementById('container').append(this._chart.node)
+  }
+
   willUpdate(changed) {
     super.willUpdate(changed)
-    // Save zoom transform before Lit replaces the SVG node. A new root person
-    // keeps only the zoom level, so they start at the default position.
-    const svg = this.renderRoot
-      ?.getElementById('container')
-      ?.querySelector('svg')
-    if (!svg) {
-      this._savedZoom = null
-      return
+    if (layoutProperties.some(name => changed.has(name))) {
+      this._layout = this._computeLayout()
     }
-    const transform = zoomTransform(svg)
-    this._savedZoom = changed.has('grampsId')
-      ? zoomIdentity.scale(transform.k)
-      : transform
   }
 
   updated() {
+    this._drawChart()
     this._updateMenuAnchor()
   }
 
-  renderChart() {
-    if (this.data.length === 0 || !this.grampsId) {
-      return ''
-    }
+  _computeLayout() {
     const {handle} = this._graph.personByGrampsId(this.grampsId) ?? {}
     if (!handle) {
-      return ''
+      return null
     }
-    let childrenTriangle = false
-    if (this.descendants && this.ancestors) {
-      childrenTriangle = false
-    } else if (this.descendants) {
-      childrenTriangle = this._hasParents()
-    } else {
-      childrenTriangle = this._hasChildren()
-    }
-    return html`
-      ${TreeChart(this._layout(handle), {
-        childrenTriangle,
-        getImageUrl: d => getImageUrl(d.person, 100),
-        orientation: this.descendants ? 'RTL' : 'LTR',
-        bboxWidth: this.containerWidth,
-        bboxHeight: this.containerHeight,
-        nameDisplayFormat: this.nameDisplayFormat,
-        canEdit: this.canEdit,
-        initialZoom: this._savedZoom,
-      })}
-    `
-  }
-
-  _layout(handle) {
     if (this.ancestors && this.descendants) {
       return layoutHourglass(this._graph, handle, {
         ancestorDepth: this.nAnc,
@@ -133,6 +114,30 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     return layoutAncestors(this._graph, handle, {
       depth: this.nAnc,
       gapX: this.gapX,
+    })
+  }
+
+  _drawChart() {
+    if (!this._layout) {
+      this._chart.clear()
+      return
+    }
+    let childrenTriangle = false
+    if (this.descendants && this.ancestors) {
+      childrenTriangle = false
+    } else if (this.descendants) {
+      childrenTriangle = this._hasParents()
+    } else {
+      childrenTriangle = this._hasChildren()
+    }
+    this._chart.update(this._layout, {
+      childrenTriangle,
+      getImageUrl: d => getImageUrl(d.person, 100),
+      orientation: this.descendants ? 'RTL' : 'LTR',
+      bboxWidth: this.containerWidth,
+      bboxHeight: this.containerHeight,
+      nameDisplayFormat: this.nameDisplayFormat,
+      canEdit: this.canEdit,
     })
   }
 

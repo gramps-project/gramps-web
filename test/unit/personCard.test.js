@@ -1,6 +1,9 @@
 import {afterEach, beforeEach, describe, it, expect} from 'vitest'
 import {create} from 'd3-selection'
-import {appendPersonCard} from '../../src/charts/personCard.js'
+import {
+  appendPersonCard,
+  setPersonCardInteraction,
+} from '../../src/charts/personCard.js'
 import {chartNameDisplayFormat} from '../../src/util.js'
 
 const XLINK = 'http://www.w3.org/1999/xlink'
@@ -51,16 +54,28 @@ afterEach(() => {
   document.body.replaceChildren()
 })
 
-function renderCards(options = {}) {
+const interaction = (nodes, canEdit) =>
+  setPersonCardInteraction(nodes, {
+    profile: d => d.profile,
+    handle: d => d.handle,
+    canEdit,
+  })
+
+function renderNodes({canEdit, ...options} = {}) {
   const svg = create('svg')
   document.body.append(svg.node())
   const nodes = svg.selectAll('g').data(Object.values(people)).join('g')
   appendPersonCard(nodes, {
     profile: d => d.profile,
-    handle: d => d.handle,
     imageUrl: d => d.image || '',
     ...options,
   })
+  interaction(nodes, canEdit)
+  return nodes
+}
+
+function renderCards(options) {
+  const nodes = renderNodes(options)
   return Object.fromEntries(
     Object.keys(people).map((key, i) => [key, nodes.nodes()[i]])
   )
@@ -130,5 +145,33 @@ describe('appendPersonCard', () => {
     expect(cards.full.querySelectorAll('.add-person-btn')).toHaveLength(1)
     click(cards.full)
     expect(selected).toEqual([])
+  })
+})
+
+describe('setPersonCardInteraction', () => {
+  it('adds the add person button once and removes it again', () => {
+    const nodes = renderNodes()
+    const [full] = nodes.nodes()
+    interaction(nodes, true)
+    interaction(nodes, true)
+    expect(full.querySelectorAll('.add-person-btn')).toHaveLength(1)
+    interaction(nodes, false)
+    expect(full.querySelectorAll('.add-person-btn')).toHaveLength(0)
+    click(full)
+    expect(selected).toEqual([{grampsId: 'I1'}])
+  })
+
+  it('gives an existing button the current person', () => {
+    const handles = []
+    const onAdd = e => handles.push(e.detail.handle)
+    window.addEventListener('add-new-person-relation', onAdd)
+    const nodes = renderNodes({canEdit: true})
+    const rebound = nodes.data(
+      Object.values(people).map(p => ({...p, handle: `new-${p.handle}`}))
+    )
+    interaction(rebound, true)
+    click(rebound.node().querySelector('.add-person-btn'))
+    window.removeEventListener('add-new-person-relation', onAdd)
+    expect(handles).toEqual(['new-h1'])
   })
 })
