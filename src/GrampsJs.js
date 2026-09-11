@@ -862,7 +862,10 @@ export class GrampsJs extends LitElement {
           this.loadingState = LOADING_STATE_UNAUTHORIZED_NOCONNECTION
         } else if (data.errorDetail?.status >= 500) {
           this._showError(data.error)
-          this.loadingState = LOADING_STATE_UNAUTHORIZED_NOCONNECTION
+          // A failed background refresh keeps the loaded app usable
+          if (!this._metadataConfirmed) {
+            this.loadingState = LOADING_STATE_UNAUTHORIZED_NOCONNECTION
+          }
         } else {
           this._fetchOnboardingToken()
         }
