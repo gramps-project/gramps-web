@@ -2,11 +2,16 @@ import {html} from 'lit'
 
 import '../components/GrampsjsSysinfo.js'
 import '../components/GrampsjsResearcher.js'
+import '../components/GrampsjsDeprecations.js'
 import {GrampsjsView} from './GrampsjsView.js'
 
 export class GrampsjsViewSysinfo extends GrampsjsView {
   renderContent() {
     return html`
+      <grampsjs-deprecations
+        .appState="${this.appState}"
+      ></grampsjs-deprecations>
+
       <h3>${this._('System Information')}</h3>
 
       <grampsjs-sysinfo .appState="${this.appState}"></grampsjs-sysinfo>
