@@ -422,5 +422,8 @@
     "Only the most recent revisions are shown.": "Alleen de meest recente herzieningen worden getoond.",
     "My Family Tree": "Mijn familiestamboom",
     "The server uses configuration options that are no longer supported.": "De server maakt gebruik van configuratieopties die niet langer worden ondersteund.",
-    "Support will be removed in Gramps Web API %s.": "Ondersteuning wordt verwijderd in Gramps Web API %s."
+    "Support will be removed in Gramps Web API %s.": "Ondersteuning wordt verwijderd in Gramps Web API %s.",
+    "Get started": "Aan de slag",
+    "Connect the people in your tree by adding a family.": "Verbind de personen in uw stamboom door een gezin toe te voegen.",
+    "This Gramps Web instance has already been set up. Log in with an existing account.": "Deze Gramps Web-instantie is al ingesteld. Log in met een bestaand account."
 }
