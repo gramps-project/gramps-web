@@ -422,5 +422,8 @@
     "Failed to fetch the Blog tag": "Misslyckades med att hämta bloggtaggen",
     "Only the most recent revisions are shown.": "Endast de senaste revisionerna visas.",
     "The server uses configuration options that are no longer supported.": "Servern använder konfigurationsalternativ som inte längre stöds.",
-    "Support will be removed in Gramps Web API %s.": "Stödet kommer att tas bort i Gramps Web API %s."
+    "Support will be removed in Gramps Web API %s.": "Stödet kommer att tas bort i Gramps Web API %s.",
+    "Get started": "Kom igång",
+    "Connect the people in your tree by adding a family.": "Koppla samman personerna i ditt släktträd genom att lägga till en familj.",
+    "This Gramps Web instance has already been set up. Log in with an existing account.": "Denna instans av Gramps Web har redan konfigurerats. Logga in med ett befintligt konto."
 }
