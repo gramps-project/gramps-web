@@ -24,6 +24,7 @@ class GrampsjsFormSelectObjectList extends GrampsjsAppStateMixin(LitElement) {
       multiple: {type: Boolean},
       notDeletable: {type: Boolean},
       fixedMenuPosition: {type: Boolean},
+      allowNew: {type: Boolean},
     }
   }
 
@@ -35,6 +36,7 @@ class GrampsjsFormSelectObjectList extends GrampsjsAppStateMixin(LitElement) {
     this.multiple = false
     this.notDeletable = false
     this.fixedMenuPosition = false
+    this.allowNew = false
   }
 
   render() {
@@ -57,6 +59,7 @@ class GrampsjsFormSelectObjectList extends GrampsjsAppStateMixin(LitElement) {
           id="${this.id}-select"
           label="${this.label}"
           ?multiple="${this.multiple}"
+          ?allowNew="${this.allowNew}"
         ></grampsjs-form-select-object>
       </p>
     `
