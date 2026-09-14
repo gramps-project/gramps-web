@@ -215,9 +215,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
       this._creatingObject = false
     }
     if (!('data' in data)) {
-      fireEvent(this, 'grampsjs:error', {
-        message: data.error || `Failed to create ${objectType}`,
-      })
+      fireEvent(this, 'grampsjs:error', {message: data.error})
       return
     }
     this._newObjectDialogOpen = false
