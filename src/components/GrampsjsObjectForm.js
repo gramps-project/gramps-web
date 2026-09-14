@@ -63,6 +63,9 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
       dialogTitle: {type: String},
       hideCancelButton: {type: Boolean},
       hideSaveButton: {type: Boolean},
+      // Skip resetting the form on save and cancel, for embedders that
+      // discard the dialog themselves and may keep it open after a save
+      noReset: {type: Boolean},
     }
   }
 
@@ -80,6 +83,7 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
     this.dialogTitle = ''
     this.hideSaveButton = false
     this.hideCancelButton = false
+    this.noReset = false
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -167,7 +171,7 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
 
   _handleDialogSave() {
     fireEvent(this, 'object:save', {data: this.data})
-    this._reset()
+    if (!this.noReset) this._reset()
   }
 
   _handleDialogKeydown(e) {
@@ -178,7 +182,7 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
 
   _handleDialogCancel() {
     fireEvent(this, 'object:cancel')
-    this._reset()
+    if (!this.noReset) this._reset()
   }
 
   _openDialog() {

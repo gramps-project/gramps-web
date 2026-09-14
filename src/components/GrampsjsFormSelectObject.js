@@ -62,6 +62,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
       iconPath: {type: String},
       allowNew: {type: Boolean},
       _newObjectDialogOpen: {type: Boolean, state: true},
+      _creatingObject: {type: Boolean, state: true},
     }
   }
 
@@ -77,6 +78,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
     this.iconPath = mdiLinkPlus
     this.allowNew = false
     this._newObjectDialogOpen = false
+    this._creatingObject = false
   }
 
   render() {
@@ -135,6 +137,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
         ${this.objectType === 'place'
           ? html`
               <grampsjs-form-new-place
+                noReset
                 .appState="${this.appState}"
                 dialogTitle="${this._(newDialogTitle[this.objectType])}"
               ></grampsjs-form-new-place>
@@ -192,23 +195,32 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
     this._newObjectDialogOpen = true
   }
 
+  // The modal dialog stays open until the object is created and selected, so
+  // the enclosing form cannot be submitted without it in the meantime.
   async _handleNewObjectSave(e) {
     e.preventDefault()
     e.stopPropagation()
-    this._newObjectDialogOpen = false
+    if (this._creatingObject) return
+    this._creatingObject = true
     const {objectType} = this
     const handle = makeHandle()
     const payload = {...e.detail.data, handle}
-    const data = await this.appState.apiPost(
-      `/api/${objectTypeToEndpoint[objectType]}/`,
-      payload
-    )
+    let data
+    try {
+      data = await this.appState.apiPost(
+        `/api/${objectTypeToEndpoint[objectType]}/`,
+        payload
+      )
+    } finally {
+      this._creatingObject = false
+    }
     if (!('data' in data)) {
       fireEvent(this, 'grampsjs:error', {
         message: data.error || `Failed to create ${objectType}`,
       })
       return
     }
+    this._newObjectDialogOpen = false
     // The form holding this selector may have been closed during the request.
     if (!this.isConnected) return
     const object =
@@ -219,6 +231,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
   _handleNewObjectCancel(e) {
     e.preventDefault()
     e.stopPropagation()
+    if (this._creatingObject) return
     this._newObjectDialogOpen = false
   }
 
