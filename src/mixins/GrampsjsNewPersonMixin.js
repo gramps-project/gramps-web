@@ -64,6 +64,7 @@ export const GrampsjsNewPersonMixin = superClass =>
         <grampsjs-form-select-object-list
           id="birth-place"
           objectType="place"
+          allowNew
           .appState="${this.appState}"
         ></grampsjs-form-select-object-list>
 
@@ -82,6 +83,7 @@ export const GrampsjsNewPersonMixin = superClass =>
         <grampsjs-form-select-object-list
           id="death-place"
           objectType="place"
+          allowNew
           .appState="${this.appState}"
         ></grampsjs-form-select-object-list>
 
