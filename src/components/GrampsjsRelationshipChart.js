@@ -7,7 +7,6 @@ import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 import {RelationshipChart} from '../charts/RelationshipChart.js'
 import {layoutRelationships} from '../charts/layout/relationshipLayout.js'
 import {getImageUrl} from '../charts/util.js'
-import {getSymbols} from '../symbols.js'
 import {fireEvent} from '../util.js'
 
 // Duration of the transition between two layouts, in milliseconds

@@ -12,7 +12,6 @@ import {
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 import {getDescendantTree, getTree, getImageUrl} from '../charts/util.js'
 import {fireEvent, clickKeyHandler} from '../util.js'
-import {getSymbols} from '../symbols.js'
 
 // Duration of the transition between two layouts, in milliseconds
 const transitionDuration = 400

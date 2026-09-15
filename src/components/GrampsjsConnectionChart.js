@@ -6,7 +6,6 @@ import {layoutRelationships} from '../charts/layout/relationshipLayout.js'
 import {FamilyGraph} from '../charts/model/FamilyGraph.js'
 import {GrampsjsResizeContainerMixin} from '../mixins/GrampsjsResizeContainerMixin.js'
 import {getImageUrl} from '../charts/util.js'
-import {getSymbols} from '../symbols.js'
 import {chartPalette} from '../charts/palette.js'
 import {fireEvent} from '../util.js'
 
