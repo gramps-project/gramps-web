@@ -314,7 +314,11 @@ export async function layoutRelationships(graph, rootHandle, options = {}) {
     ...relationshipLayoutDefaults,
     ...options,
   })
-  graphvizLoading ??= Graphviz.load()
+  graphvizLoading ??= Graphviz.load().catch(error => {
+    // A failed load is tried again by the next layout
+    graphvizLoading = undefined
+    throw error
+  })
   const graphviz = await graphvizLoading
   const output = JSON.parse(graphviz.layout(dot, 'json', 'dot'))
   return readLayout(output, model, graph, rootHandle)
