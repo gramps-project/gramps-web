@@ -38,6 +38,18 @@ function joinKeys(layout) {
   )
 }
 
+// Gives `node` the join key `key`, and gives the node that had that key the
+// previous key of `node`
+function assignKey(keys, node, key) {
+  const previousKey = keys.get(node)
+  for (const [other, otherKey] of keys) {
+    if (otherKey === key) {
+      keys.set(other, previousKey)
+    }
+  }
+  keys.set(node, key)
+}
+
 const place = node => [node.x, node.y]
 
 const translate = ([x, y]) => `translate(${x},${y})`
@@ -122,13 +134,18 @@ export class TreeChart {
     // Positions have to be read before the joins move the nodes
     const positions = currentPositions(this._nodes, '.person-node')
     const root = layout.nodes.find(node => node.generation === 0)
-    const shift = this._viewport.show({
+    const {offset, keptKey} = this._viewport.show({
       bounds: layout.bounds,
       size: [bboxWidth, bboxHeight],
       rootHandle: root.handle,
       rootKey: keys.get(root),
       positions,
     })
+    // The node kept in place becomes the root node, also when it is another
+    // occurrence of a person who appears more than once
+    if (keptKey) {
+      assignKey(keys, root, keptKey)
+    }
     const transitions = {
       keys,
       previousKeys,
@@ -138,7 +155,7 @@ export class TreeChart {
       previous: (key, fallback) => {
         const position = positions.get(key)
         return position
-          ? [position[0] - shift[0], position[1] - shift[1]]
+          ? [position[0] - offset[0], position[1] - offset[1]]
           : fallback
       },
     }

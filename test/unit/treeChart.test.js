@@ -212,6 +212,21 @@ describe('TreeChart', () => {
     expectClose(viewPosition(chart, 'p'), before)
   })
 
+  it('starts the clicked copy of a duplicated person in place when animated', () => {
+    const chart = new TreeChart()
+    chart.update(layoutAncestors(collapsed, 'R', {depth: 3}), size)
+    const clicked = nodeWithKey(chart, 'pmm')
+    const before = viewPosition(chart, 'pmm')
+    clicked.dispatchEvent(new MouseEvent('click', {bubbles: true}))
+    chart.update(layoutAncestors(collapsed, 'FM', {depth: 3}), {
+      ...size,
+      duration: 1000,
+    })
+    expect(nodeWithKey(chart, 'p')).toBe(clicked)
+    expectClose(viewPosition(chart, 'p'), before)
+    select(chart.node).selectAll('*').interrupt().interrupt('fade')
+  })
+
   it('does not remember clicks when not interactive', () => {
     const chart = new TreeChart()
     const options = {...size, interactive: false}
