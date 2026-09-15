@@ -213,8 +213,8 @@ describe('GrampsjsViewTree', () => {
     it('leaves keys with modifiers, in fields, tabs and menus alone', () => {
       const {view, viewport} = makeKeyView()
       const input = document.createElement('input')
-      // Only the tag name of the tabs matters
-      const tabs = {tagName: 'MD-TABS'}
+      // Only the tag name of the chart switcher matters
+      const tabs = {tagName: 'GRAMPSJS-PILL-TOGGLE'}
       const events = [
         keyEvent('+', {ctrlKey: true}),
         keyEvent('-', {metaKey: true}),

@@ -12,15 +12,13 @@ import '@material/web/fab/fab.js'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/select/filled-select.js'
 import '@material/web/select/select-option.js'
-import '@material/web/tabs/primary-tab'
-import '@material/web/tabs/tabs'
 
 import {
   mdiArrowLeft,
   mdiChevronRight,
   mdiCog,
   mdiFamilyTree,
-  mdiFitToScreenOutline,
+  mdiFitToScreen,
   mdiHomeAccount,
   mdiPencil,
   mdiPlus,
@@ -30,6 +28,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import '../components/GrampsjsFormSelectObject.js'
 import '../components/GrampsjsIcon.js'
+import '../components/GrampsjsPillToggle.js'
 import '../components/GrampsjsTooltip.js'
 import '../components/GrampsjsTreeChartAddPerson.js'
 import {
@@ -44,7 +43,6 @@ import {iconButtonColorStyles, listAvatarStyles} from '../SharedStyles.js'
 import {
   chartFanIconPath,
   hourglassIconPath,
-  renderIconSvg,
   relationshipGraphIconPath,
 } from '../icons.js'
 import {
@@ -84,7 +82,12 @@ const viewportKeys = {
 }
 
 // Elements that handle keys themselves, such as arrow keys in tabs and menus
-const keyHandlingElements = ['md-tabs', 'md-menu', 'mwc-menu', 'md-dialog']
+const keyHandlingElements = [
+  'grampsjs-pill-toggle',
+  'md-menu',
+  'mwc-menu',
+  'md-dialog',
+]
 
 // Shows the charts of the selected person in tabs. Each chart is described by
 // its definition in `chartDefinitions`, which gives its settings, the people
@@ -102,16 +105,12 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
           margin: 25px 40px;
         }
 
-        md-primary-tab {
-          opacity: 0.8;
-        }
-
-        md-primary-tab[active] {
-          opacity: 1;
-        }
-
+        /* The chart switcher, 40px high like Material 3 segmented buttons,
+           and a gap of 12px, like the rows below */
         #tabs {
-          height: 85px;
+          height: 52px;
+          --grampsjs-pill-toggle-margin: 0;
+          --grampsjs-pill-toggle-padding: 9px 16px;
         }
 
         #controls {
@@ -119,7 +118,8 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
           background-color: var(--md-sys-color-surface-container-low);
           border-radius: 16px;
           z-index: 1;
-          padding: 0 10px;
+          /* The first icon is centred below the first icon of the switcher */
+          padding: 0 10px 0 5px;
           display: flex;
           align-items: center;
           --grampsjs-icon-button-color: var(--grampsjs-body-font-color-35);
@@ -130,7 +130,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
         }
 
         #chart {
-          height: calc(100vh - 178px);
+          height: calc(100vh - 145px);
           margin-left: -40px;
           margin-right: -40px;
           margin-bottom: -25px;
@@ -145,7 +145,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
 
         @media (max-width: 599px) {
           #chart {
-            height: calc(100vh - 170px);
+            height: calc(100vh - 137px);
           }
         }
 
@@ -157,7 +157,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
            below the first button of the bar */
         #selected-person {
           position: absolute;
-          top: 56px;
+          top: 60px;
           left: 0;
           z-index: 1;
           display: inline-flex;
@@ -165,7 +165,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
           gap: 12px;
           max-width: min(360px, 80vw);
           height: 48px;
-          padding: 0 8px 0 14px;
+          padding: 0 8px 0 9px;
           border: none;
           border-radius: 24px;
           background-color: var(--md-sys-color-surface-container-low);
@@ -434,53 +434,46 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _handleTabChange(e) {
-    this._currentTabId = e.target.activeTabIndex
+    this._currentTabId = getTreeViewTabIndex(e.detail.value)
   }
 
+  // A segmented control to switch between the charts
   renderTabs() {
+    const options = [
+      {
+        value: 'ancestor',
+        label: this._('Ancestor Tree'),
+        icon: mdiFamilyTree,
+        rotate: -90,
+      },
+      {
+        value: 'descendant',
+        label: this._('Descendant Tree'),
+        icon: mdiFamilyTree,
+        rotate: 90,
+      },
+      {
+        value: 'hourglass',
+        label: this._('Hourglass Graph'),
+        icon: hourglassIconPath,
+      },
+      {
+        value: 'relationship',
+        label: this._('Relationship Graph'),
+        icon: relationshipGraphIconPath,
+      },
+      {value: 'fan', label: this._('Fan Chart'), icon: chartFanIconPath},
+    ]
     return html`
-      <md-tabs
-        .activeTabIndex=${this._currentTabId}
-        @change=${this._handleTabChange}
-      >
-        <md-primary-tab has-icon
-          >${this._('Ancestor Tree')}
-          <span slot="icon"
-            >${renderIconSvg(
-              mdiFamilyTree,
-              '--md-sys-color-primary',
-              -90
-            )}</span
-          >
-        </md-primary-tab>
-        <md-primary-tab has-icon>
-          ${this._('Descendant Tree')}
-          <span slot="icon"
-            >${renderIconSvg(mdiFamilyTree, '--md-sys-color-primary', 90)}</span
-          >
-        </md-primary-tab>
-        <md-primary-tab has-icon>
-          ${this._('Hourglass Graph')}
-          <span slot="icon"
-            >${renderIconSvg(hourglassIconPath, '--md-sys-color-primary')}</span
-          >
-        </md-primary-tab>
-        <md-primary-tab has-icon>
-          ${this._('Relationship Graph')}
-          <span slot="icon"
-            >${renderIconSvg(
-              relationshipGraphIconPath,
-              '--md-sys-color-primary'
-            )}</span
-          >
-        </md-primary-tab>
-        <md-primary-tab has-icon>
-          ${this._('Fan Chart')}
-          <span slot="icon"
-            >${renderIconSvg(chartFanIconPath, '--md-sys-color-primary')}</span
-          >
-        </md-primary-tab>
-      </md-tabs>
+      <grampsjs-pill-toggle
+        muted
+        icons-only-narrow
+        ariaLabel="${this._('Family Tree')}"
+        .options=${options}
+        .selected=${this.chart}
+        .appState=${this.appState}
+        @pill-toggle:change=${this._handleTabChange}
+      ></grampsjs-pill-toggle>
     `
   }
 
@@ -648,7 +641,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
         mdiTargetAccount,
         'Center on selected person'
       )}
-      ${button('btn-fit', 'fit', mdiFitToScreenOutline, 'Fit to window')}
+      ${button('btn-fit', 'fit', mdiFitToScreen, 'Fit to window')}
     `
   }
 
