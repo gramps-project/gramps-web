@@ -299,10 +299,11 @@ export class TreeChart {
       e.stopPropagation()
       e.preventDefault()
     }
-    function shade(opacity) {
-      return function () {
-        select(this).select('circle').attr('fill-opacity', opacity)
-      }
+    // Shades the button while the pointer is on it or it has focus
+    function shade() {
+      select(this)
+        .select('circle')
+        .attr('fill-opacity', this.matches(':hover, :focus') ? 1 : 0)
     }
     const triangles = nodes
       .selectChildren('.children-triangle')
@@ -323,8 +324,7 @@ export class TreeChart {
               openMenu.call(this, e)
             }
           })
-          .on('mouseenter focus', shade(1))
-          .on('mouseleave blur', shade(0))
+          .on('mouseenter mouseleave focus blur', shade)
         triangle
           .append('circle')
           .attr('r', menuButtonRadius)
