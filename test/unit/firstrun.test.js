@@ -1,5 +1,26 @@
 import {describe, it, expect, vi} from 'vitest'
 import {GrampsJs} from '../../src/GrampsJs.js'
+import {passwordsMismatch} from '../../src/components/GrampsjsFirstRun.js'
+
+describe('password confirmation', () => {
+  it('reports nothing while the confirmation is empty', () => {
+    expect(passwordsMismatch('hunter2', '')).to.equal(false)
+    expect(passwordsMismatch('', '')).to.equal(false)
+  })
+
+  it('reports a mismatch once the confirmation differs', () => {
+    expect(passwordsMismatch('hunter2', 'hunter')).to.equal(true)
+    expect(passwordsMismatch('hunter2', 'Hunter2')).to.equal(true)
+  })
+
+  it('accepts an exact repeat', () => {
+    expect(passwordsMismatch('hunter2', 'hunter2')).to.equal(false)
+  })
+
+  it('treats a missing password as a mismatch for a typed confirmation', () => {
+    expect(passwordsMismatch(undefined, 'hunter2')).to.equal(true)
+  })
+})
 
 describe('first run onboarding', () => {
   it('requests the owner token without using stored auth tokens', async () => {

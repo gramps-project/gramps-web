@@ -376,6 +376,8 @@
   "Irreversible operations on tree data": "Irreversible operations on tree data",
   "Changes here only affect your account.": "Changes here only affect your account.",
   "Changes here affect all users of this tree.": "Changes here affect all users of this tree.",
+  "The server uses configuration options that are no longer supported.": "The server uses configuration options that are no longer supported.",
+  "Support will be removed in Gramps Web API %s.": "Support will be removed in Gramps Web API %s.",
   "Display preferences saved on this device": "Display preferences saved on this device",
   "Recently changed": "Recently changed",
   "Recently browsed": "Recently browsed",

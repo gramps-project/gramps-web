@@ -14,7 +14,6 @@ import {
 } from '../api.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import './GrampsjsFormUpload.js'
 import {renderIcon} from '../icons.js'
 import './GrampsjsProgressIndicator.js'
 
@@ -31,6 +30,12 @@ const CONFIG_KEYS = {
   '#email_pw': 'EMAIL_HOST_PASSWORD',
   '#email_from': 'DEFAULT_FROM_EMAIL',
   '#base_url': 'BASE_URL',
+}
+
+// True once the confirmation has been typed into and differs from the password.
+// An empty confirmation reports nothing; `required` already covers it.
+export function passwordsMismatch(password, confirmation) {
+  return Boolean(confirmation) && confirmation !== password
 }
 
 class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
@@ -89,7 +94,6 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
       _errorUser: {type: String},
       _errorConfig: {type: String},
       _errorTree: {type: String},
-      _uploadHint: {type: String},
       _tree: {type: String},
     }
   }
@@ -103,8 +107,24 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
     this._errorUser = ''
     this._errorConfig = ''
     this._errorTree = ''
-    this._uploadHint = ''
     this._tree = ''
+  }
+
+  // Drives the confirmation field's own validity, so checkValidity() and the
+  // Submit button pick up a mismatch with no extra bookkeeping.
+  _handlePasswordInput() {
+    const password = this.shadowRoot.getElementById('password')
+    const confirmation = this.shadowRoot.getElementById('password2')
+    if (confirmation) {
+      const mismatch = passwordsMismatch(password?.value, confirmation.value)
+      confirmation.setCustomValidity(
+        mismatch ? this._('Passwords do not match.') : ''
+      )
+      if (confirmation.value) {
+        confirmation.reportValidity()
+      }
+    }
+    this.checkValidity()
   }
 
   render() {
@@ -139,12 +159,21 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
             type="text"
           ></mwc-textfield>
           <mwc-textfield
-            @input="${this.checkValidity}"
+            @input="${this._handlePasswordInput}"
             outlined
             required
             autocapitalize="off"
             id="password"
             label="${this._('Password')}"
+            type="password"
+          ></mwc-textfield>
+          <mwc-textfield
+            @input="${this._handlePasswordInput}"
+            outlined
+            required
+            autocapitalize="off"
+            id="password2"
+            label="${this._('Confirm Password')}"
             type="password"
           ></mwc-textfield>
           <mwc-textfield
@@ -456,11 +485,13 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
   _checkValidityUser() {
     const username = this.shadowRoot.getElementById('username')
     const password = this.shadowRoot.getElementById('password')
+    const password2 = this.shadowRoot.getElementById('password2')
     const fullName = this.shadowRoot.getElementById('full_name')
     const email = this.shadowRoot.getElementById('email')
     return (
       (username?.validity?.valid &&
         password?.validity?.valid &&
+        password2?.validity?.valid &&
         fullName?.validity?.valid &&
         email?.validity?.valid) ||
       false

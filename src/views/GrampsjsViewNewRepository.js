@@ -1,7 +1,5 @@
 import {html} from 'lit'
 
-import '@material/mwc-select'
-import '@material/mwc-list/mwc-list-item'
 import '@material/mwc-textfield'
 import '@material/mwc-button'
 import '@material/mwc-circular-progress'

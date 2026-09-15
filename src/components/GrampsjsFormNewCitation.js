@@ -5,6 +5,8 @@ Form for adding a new event reference
 import {html} from 'lit'
 import '@material/mwc-textfield'
 import '@material/mwc-button'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
 
 import './GrampsjsFormSelectType.js'
 import './GrampsjsFormSelectObjectList.js'
@@ -48,24 +50,24 @@ class GrampsjsFormNewCitation extends GrampsjsObjectForm {
       </p>
 
       <h4 class="label">${this._('Confidence')}</h4>
-      <mwc-select
+      <md-filled-select
         id="select-confidence"
         @change="${this.handleConfidence}"
-        fixedMenuPosition
       >
         ${Object.keys(confidence).map(
           conf => html`
-            <mwc-list-item
+            <md-select-option
               value="${conf}"
               ?selected="${
                 // eslint-disable-next-line eqeqeq
                 conf == this.data.confidence
               }"
-              >${this._(confidence[conf])}</mwc-list-item
             >
+              <div slot="headline">${this._(confidence[conf])}</div>
+            </md-select-option>
           `
         )}
-      </mwc-select>
+      </md-filled-select>
 
       <div class="spacer"></div>
       <grampsjs-form-private

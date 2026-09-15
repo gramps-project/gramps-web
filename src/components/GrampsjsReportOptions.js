@@ -1,7 +1,7 @@
 import {LitElement, css, html} from 'lit'
-import '@material/mwc-select'
 import '@material/mwc-textfield'
-import '@material/mwc-list/mwc-list-item'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
 import '@material/web/switch/switch'
 
 import {sharedStyles} from '../SharedStyles.js'
@@ -38,7 +38,7 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
         }
 
         mwc-textfield,
-        mwc-select {
+        md-filled-select {
           min-width: 20em;
           max-width: 100%;
         }
@@ -133,11 +133,11 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
       <div class="option">
         <span class="label">${this._(this.optionsHelp[key][1]) || key}</span>
         <span class="form">
-          <mwc-select id="${key}" @change="${this._handleSelect}">
+          <md-filled-select id="${key}" @change="${this._handleSelect}">
             ${this.optionsHelp[key][2].map(item =>
               this._renderSelectItem(item, this.optionsDict[key])
             )}
-          </mwc-select>
+          </md-filled-select>
         </span>
       </div>
     `
@@ -169,9 +169,9 @@ export class GrampsjsReportOptions extends GrampsjsAppStateMixin(LitElement) {
     const selected = itemValue === `${value}` || itemValue === 'pdf'
     const label = reportSelectItemLabel(key, item => this._(item))
     return html`
-      <mwc-list-item value="${itemValue}" ?selected=${selected}
-        >${label}</mwc-list-item
-      >
+      <md-select-option value="${itemValue}" ?selected=${selected}>
+        <div slot="headline">${label}</div>
+      </md-select-option>
     `
   }
 

@@ -4,9 +4,9 @@ Element for selecting a Gramps type
 
 import {html, css, LitElement} from 'lit'
 import '@material/mwc-textfield'
-import '@material/mwc-select'
-import '@material/mwc-list/mwc-list-item'
 import '@material/web/iconbutton/icon-button.js'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
 
 import {mdiCalendar} from '@mdi/js'
 
@@ -14,7 +14,7 @@ import './GrampsjsIcon.js'
 import {sharedStyles, iconButtonColorStyles} from '../SharedStyles.js'
 import {getSortval, dateIsEmpty, emptyDate} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {validateGrampsDate} from '../gcalendar.js'
+import {CALENDARS, validateGrampsDate} from '../gcalendar.js'
 
 const modifiers = {
   0: 'Regular',
@@ -32,6 +32,16 @@ const qualifiers = {
   0: 'Regular',
   1: 'Estimated',
   2: 'Calculated',
+}
+
+const calendars = {
+  [CALENDARS.GREGORIAN]: 'Gregorian',
+  [CALENDARS.JULIAN]: 'Julian',
+  [CALENDARS.HEBREW]: 'Hebrew',
+  [CALENDARS.FRENCH]: 'French Republican',
+  [CALENDARS.PERSIAN]: 'Persian',
+  [CALENDARS.ISLAMIC]: 'Islamic',
+  [CALENDARS.SWEDISH]: 'Swedish',
 }
 
 const dataDefault = {...emptyDate}
@@ -68,8 +78,16 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
           white-space: nowrap;
         }
 
-        span.dateform mwc-textfield {
+        span.dateform mwc-textfield,
+        span.dateform md-filled-select {
           margin-bottom: 10px;
+        }
+
+        /* md-filled-select defaults to min-width: 210px, which would blow out
+           the narrow month and day fields. */
+        md-filled-select.narrow {
+          width: 7em;
+          min-width: 6em;
         }
       `,
     ]
@@ -91,45 +109,65 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
   render() {
     return html`
     <p>
-      <mwc-select
+      <md-filled-select
         id="select-modifier"
         label="${this._('Type')}"
         @change="${this.handleType}"
-        fixedMenuPosition
       >
         ${Object.keys(modifiers).map(
           modifier => html`
-            <mwc-list-item
+            <md-select-option
               value="${modifier}"
               ?selected="${
                 // eslint-disable-next-line eqeqeq
                 modifier == (this.data.modifier || 0)
               }"
-              >${this._(modifiers[modifier])}</mwc-list-item
             >
+              <div slot="headline">${this._(modifiers[modifier])}</div>
+            </md-select-option>
           `
         )}
-      </mwc-select>
+      </md-filled-select>
 
-      <mwc-select
+      <md-filled-select
         id="select-quality"
         label="${this._('Quality')}"
         @change="${this.handleQuality}"
-        fixedMenuPosition
       >
         ${Object.keys(qualifiers).map(
           qualifier => html`
-            <mwc-list-item
+            <md-select-option
               value="${qualifier}"
               ?selected="${
                 // eslint-disable-next-line eqeqeq
                 qualifier == (this.data.quality || 0)
               }"
-              >${this._(qualifiers[qualifier])}</mwc-list-item
             >
+              <div slot="headline">${this._(qualifiers[qualifier])}</div>
+            </md-select-option>
           `
         )}
-      </mwc-select>
+      </md-filled-select>
+
+      <md-filled-select
+        id="select-calendar"
+        label="${this._('Calendar')}"
+        @change="${this.handleCalendar}"
+      >
+        ${Object.keys(calendars).map(
+          calendar => html`
+            <md-select-option
+              value="${calendar}"
+              ?selected="${
+                // eslint-disable-next-line eqeqeq
+                calendar == (this.data.calendar || 0)
+              }"
+            >
+              <div slot="headline">${this._(calendars[calendar])}</div>
+            </md-select-option>
+          `
+        )}
+      </md-filled-select>
     </p>
     <p>
     <span class="dateform">
@@ -141,46 +179,44 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         style="width: 6em;"
         value="${this.data.dateval[2] || ''}"
       ></mwc-textfield>
-      <mwc-select
+      <md-filled-select
         @change="${this.handleMonth1}"
         id="month1"
         label="${this._('Month')}"
-        style="width: 6em;"
-        fixedMenuPosition
+        class="narrow"
       >${[...Array(13).keys()].map(
         idx => html`
-          <mwc-list-item
+          <md-select-option
             value="${idx}"
             ?selected="${
               // eslint-disable-next-line eqeqeq
               idx == (this.data.dateval[1] || 0)
             }"
           >
-            ${idx === 0 ? '' : idx}
-          </mwc-list-item>
+            <div slot="headline">${idx === 0 ? '' : idx}</div>
+          </md-select-option>
         `
       )}
-      </mwc-select>
-      <mwc-select
+      </md-filled-select>
+      <md-filled-select
         @change="${this.handleDay1}"
         id="day1"
         label="${this._('Day')}"
-        style="width: 6em;"
-        fixedMenuPosition
+        class="narrow"
       >${[...Array(32).keys()].map(
         idx => html`
-          <mwc-list-item
+          <md-select-option
             value="${idx}"
             ?selected="${
               // eslint-disable-next-line eqeqeq
               idx == (this.data.dateval[0] || 0)
             }"
           >
-            ${idx === 0 ? '' : idx}
-          </mwc-list-item>
+            <div slot="headline">${idx === 0 ? '' : idx}</div>
+          </md-select-option>
         `
       )}
-      </mwc-select>
+      </md-filled-select>
 
       <input
         type="date"
@@ -213,46 +249,44 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
         style="width: 6em;"
         value="${this.data.dateval[6] || ''}"
       ></mwc-textfield>
-      <mwc-select
+      <md-filled-select
         @change="${this.handleMonth2}"
         id="month2"
         label="${this._('Month')}"
-        style="width: 6em;"
-        fixedMenuPosition
+        class="narrow"
       >${[...Array(13).keys()].map(
         idx => html`
-          <mwc-list-item
+          <md-select-option
             value="${idx}"
             ?selected="${
               // eslint-disable-next-line eqeqeq
               idx == (this.data.dateval[5] || 0)
             }"
           >
-            ${idx === 0 ? '' : idx}
-          </mwc-list-item>
+            <div slot="headline">${idx === 0 ? '' : idx}</div>
+          </md-select-option>
         `
       )}
-      </mwc-select>
-      <mwc-select
+      </md-filled-select>
+      <md-filled-select
         @change="${this.handleDay2}"
         id="day2"
         label="${this._('Day')}"
-        style="width: 6em;"
-        fixedMenuPosition
+        class="narrow"
       >${[...Array(32).keys()].map(
         idx => html`
-          <mwc-list-item
+          <md-select-option
             value="${idx}"
             ?selected="${
               // eslint-disable-next-line eqeqeq
               idx == (this.data.dateval[4] || 0)
             }"
           >
-            ${idx === 0 ? '' : idx}
-          </mwc-list-item>
+            <div slot="headline">${idx === 0 ? '' : idx}</div>
+          </md-select-option>
         `
       )}
-      </mwc-select>
+      </md-filled-select>
 
       <input
         type="date"
@@ -288,9 +322,9 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
       // eslint-disable-next-line no-param-reassign
       element.value = ''
     })
-    this.shadowRoot.querySelectorAll('mwc-select').forEach(element => {
+    this.shadowRoot.querySelectorAll('md-filled-select').forEach(element => {
       // eslint-disable-next-line no-param-reassign
-      element.value = 0
+      element.value = '0'
     })
   }
 
@@ -318,13 +352,20 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
     this.handleChange()
   }
 
+  handleCalendar(e) {
+    const calendar = parseInt(e.target.value, 10) || 0
+    const [d, m, y] = this.data?.dateval || [0, 0, 0, false]
+    this.data = {...this.data, calendar, sortval: getSortval(y, m, d, calendar)}
+    this.handleChange()
+  }
+
   handleDate1(e) {
     const [y, m, d] = parseDate(e.target.value)
     const oldval = [...this.data?.dateval]
     this.data = {
       ...this.data,
       dateval: [d, m, y, false, ...oldval.slice(4)],
-      sortval: getSortval(y, m, d),
+      sortval: getSortval(y, m, d, this.data.calendar),
       year: y,
     }
     this.handleChange()
@@ -372,7 +413,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
     this.data = {
       ...this.data,
       dateval,
-      sortval: getSortval(y, m, d),
+      sortval: getSortval(y, m, d, this.data.calendar),
       year: y,
     }
     this.handleChange()
@@ -389,7 +430,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
     this.data = {
       ...this.data,
       dateval,
-      sortval: getSortval(y, m, d),
+      sortval: getSortval(y, m, d, this.data.calendar),
     }
     this.handleChange()
   }
@@ -405,7 +446,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
     this.data = {
       ...this.data,
       dateval,
-      sortval: getSortval(y, m, d),
+      sortval: getSortval(y, m, d, this.data.calendar),
     }
     this.handleChange()
   }

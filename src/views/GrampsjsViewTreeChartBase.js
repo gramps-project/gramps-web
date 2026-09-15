@@ -6,6 +6,8 @@ import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 import '@material/web/fab/fab.js'
 import '@material/web/iconbutton/icon-button.js'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
 
 import {
   mdiAccountDetails,
@@ -318,20 +320,20 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
               <tr>
                 <td>${this._('Name Display Format')}</td>
                 <td>
-                    <mwc-select
-                      fixedMenuPosition
+                    <md-filled-select
                       id="name-display-format"
                       @change=${this._handleChangeNameDisplayFormat}
                     >
                       ${map(
                         Object.values(chartNameDisplayFormat),
-                        i => html` <mwc-list-item
+                        i => html` <md-select-option
                           value="${i}"
                           ?selected="${i === this.nameDisplayFormat}"
-                          >${this._(i)}</mwc-list-item
-                        >`
+                        >
+                          <div slot="headline">${this._(i)}</div>
+                        </md-select-option>`
                       )}
-                    </mwc-select>
+                    </md-filled-select>
                 </td>
               </tr>
             </table>

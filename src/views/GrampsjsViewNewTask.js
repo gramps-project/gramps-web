@@ -1,7 +1,8 @@
 import {html} from 'lit'
 
 import '@material/mwc-textfield'
-import '@material/mwc-select'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
 
 import '../components/GrampsjsEditor.js'
 import '../components/GrampsjsFormString.js'
@@ -60,17 +61,17 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
 
       <h4 class="label">${this._('Priority')}</h4>
       <p>
-        <mwc-select @change="${this.handlePriority}">
-          <mwc-list-item ?selected="${priority < 4}" value="1"
-            >${this._('High')}</mwc-list-item
-          >
-          <mwc-list-item ?selected="${priority === '5'}" value="5"
-            >${this._('Medium')}</mwc-list-item
-          >
-          <mwc-list-item ?selected="${priority > 5}" value="9"
-            >${this._('Low')}</mwc-list-item
-          >
-        </mwc-select>
+        <md-filled-select @change="${this.handlePriority}">
+          <md-select-option ?selected="${priority < 4}" value="1">
+            <span slot="headline">${this._('High')}</span>
+          </md-select-option>
+          <md-select-option ?selected="${priority === '5'}" value="5">
+            <span slot="headline">${this._('Medium')}</span>
+          </md-select-option>
+          <md-select-option ?selected="${priority > 5}" value="9">
+            <span slot="headline">${this._('Low')}</span>
+          </md-select-option>
+        </md-filled-select>
       </p>
 
       ${this._renderTagsForm()}
