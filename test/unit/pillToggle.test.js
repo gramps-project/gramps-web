@@ -68,6 +68,22 @@ describe('GrampsjsPillToggle', () => {
     expect(isCompact(toggle)).toBe(false)
   })
 
+  it('measures again when an option gets or loses its icon', async () => {
+    const toggle = await renderToggle()
+    setWidths(toggle, {available: 600, options: 800})
+    toggle._updateCompact()
+    await toggle.updateComplete
+    expect(isCompact(toggle)).toBe(true)
+    setWidths(toggle, {available: 600, options: 500})
+    toggle.options = [
+      {value: 'Ancestors', label: 'Ancestors'},
+      {value: 'Descendants', label: 'Descendants', icon},
+    ]
+    await toggle.updateComplete
+    await toggle.updateComplete
+    expect(isCompact(toggle)).toBe(false)
+  })
+
   it('keeps the labels without icons-only-narrow', async () => {
     const toggle = await renderToggle({iconsOnlyNarrow: false})
     setWidths(toggle, {available: 600, options: 800})

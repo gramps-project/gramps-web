@@ -170,7 +170,7 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
     this.muted = false
     this._compact = false
     this._fullWidth = 0
-    this._labels = ''
+    this._optionsKey = ''
     this._resizeObserver =
       typeof ResizeObserver === 'undefined'
         ? null
@@ -189,10 +189,13 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
 
   updated(changed) {
     super.updated(changed)
-    // Other labels need another width, which is measured while they are shown
-    const labels = this.options.map(opt => opt.label).join('\n')
-    if (labels !== this._labels) {
-      this._labels = labels
+    // Other labels or icons need another width, which is measured while the
+    // labels are shown
+    const optionsKey = this.options
+      .map(opt => `${opt.icon ? 'icon:' : ''}${opt.label}`)
+      .join('\n')
+    if (optionsKey !== this._optionsKey) {
+      this._optionsKey = optionsKey
       if (this._compact) {
         this._compact = false
         return
