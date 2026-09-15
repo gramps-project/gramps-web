@@ -1,25 +1,21 @@
-import {create, local} from 'd3-selection'
+import {create} from 'd3-selection'
 import {curveBumpX, link, symbolTriangle, symbol} from 'd3-shape'
 import {fireEvent} from '../util.js'
 import {
   currentPositions,
   elementPosition,
+  interpolatePoint,
   joinWithTransitions,
   keyOf,
+  moveElements,
+  translate,
 } from './animatedJoin.js'
 import {ChartViewport} from './ChartViewport.js'
 import {treeLayoutDefaults} from './layout/treeLayout.js'
 import {chartPalette} from './palette.js'
-import {
-  appendPersonCard,
-  clearPersonCardInteraction,
-  setPersonCardInteraction,
-} from './personCard.js'
+import {drawChangedCards, updatePersonCardInteraction} from './personCard.js'
 
 const {boxWidth, boxHeight} = treeLayoutDefaults
-
-// The inputs each card was last drawn with
-const cardInputs = local()
 
 // Returns keys that stay the same for a person across layouts with different
 // root people: the handle, numbered when a person appears more than once, or
@@ -51,11 +47,6 @@ function assignKey(keys, node, key) {
 }
 
 const place = node => [node.x, node.y]
-
-const translate = ([x, y]) => `translate(${x},${y})`
-
-const interpolatePoint = (a, b) => t =>
-  [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]
 
 // Returns the path of a link, which joins the facing sides of two boxes
 // slightly inside their edges
@@ -125,7 +116,8 @@ export class TreeChart {
   ) {
     // Only a new layout is animated. The chart component passes the same
     // layout object when only the size, edit mode or name format changes.
-    const animationDuration = layout === this._layout ? 0 : duration
+    const newLayout = layout !== this._layout
+    const animationDuration = newLayout ? duration : 0
     this._layout = layout
     const keys = joinKeys(layout)
     const previousKeys = this._keys
@@ -138,8 +130,13 @@ export class TreeChart {
       bounds: layout.bounds,
       size: [bboxWidth, bboxHeight],
       rootHandle: root.handle,
-      rootKey: keys.get(root),
+      // Any node of the root person in the previous layout can become the
+      // root node, which is at the origin
+      candidates: [...previousKeys]
+        .filter(([node]) => node.handle === root.handle)
+        .map(([, key]) => ({key, position: [0, 0]})),
       positions,
+      newLayout,
     })
     // The node kept in place becomes the root node, also when it is another
     // occurrence of a person who appears more than once
@@ -165,8 +162,20 @@ export class TreeChart {
       interactive,
       palette,
     })
-    this._drawChangedCards(nodes, {getImageUrl, nameDisplayFormat, palette})
-    this._updateInteraction(nodes, {interactive, canEdit, palette})
+    drawChangedCards(nodes, {
+      getImageUrl,
+      nameDisplayFormat,
+      palette,
+      boxWidth,
+      boxHeight,
+    })
+    updatePersonCardInteraction(nodes, {
+      interactive,
+      canEdit,
+      palette,
+      boxWidth,
+      boxHeight,
+    })
     this._updateTriangle(nodes, {
       interactive,
       childrenTriangle,
@@ -233,74 +242,12 @@ export class TreeChart {
           ? (event, d) => this._viewport.rememberClick(d.handle, keys.get(d))
           : null
       )
-
-    if (duration > 0) {
-      // Interpolating the points keeps the transform in the format that
-      // `elementPosition` reads, also while nodes move
-      const start = d => previous(keys.get(d), place(d))
-      joined
-        .attr('transform', d => translate(start(d)))
-        .transition()
-        .duration(duration)
-        .attrTween('transform', d => {
-          const position = interpolatePoint(start(d), place(d))
-          return t => translate(position(t))
-        })
-    } else {
-      joined.attr('transform', d => translate(place(d)))
-    }
+    moveElements(joined, {
+      position: place,
+      start: d => previous(keys.get(d), place(d)),
+      duration,
+    })
     return joined
-  }
-
-  // Redraws the cards whose person, image, name format or palette changed
-  // since they were last drawn
-  _drawChangedCards(nodes, {getImageUrl, nameDisplayFormat, palette}) {
-    const changed = new Set()
-    nodes.each(function (d) {
-      const inputs = {
-        person: d.person,
-        imageUrl: getImageUrl(d),
-        nameDisplayFormat,
-        palette,
-      }
-      const previous = cardInputs.get(this)
-      cardInputs.set(this, inputs)
-      if (
-        !previous ||
-        Object.keys(inputs).some(key => inputs[key] !== previous[key])
-      ) {
-        changed.add(this)
-      }
-    })
-    const cards = nodes
-      .filter(function () {
-        return changed.has(this)
-      })
-      .select('.person-card')
-    cards.selectChildren().remove()
-    appendPersonCard(cards, {
-      profile: d => d.person?.profile,
-      imageUrl: getImageUrl,
-      boxWidth,
-      boxHeight,
-      nameDisplayFormat,
-      palette,
-    })
-  }
-
-  _updateInteraction(nodes, {interactive, canEdit, palette}) {
-    if (!interactive) {
-      clearPersonCardInteraction(nodes)
-      return
-    }
-    setPersonCardInteraction(nodes, {
-      profile: d => d.person?.profile,
-      handle: d => d.handle,
-      boxWidth,
-      boxHeight,
-      canEdit,
-      palette,
-    })
   }
 
   _updateTriangle(

@@ -1,12 +1,16 @@
 import {html, css} from 'lit'
-import {zoomIdentity, zoomTransform} from 'd3-zoom'
 
 import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 import {RelationshipChart} from '../charts/RelationshipChart.js'
+import {layoutRelationships} from '../charts/layout/relationshipLayout.js'
 import {getImageUrl} from '../charts/util.js'
+import {fireEvent} from '../util.js'
+
+// Duration of the transition between two layouts, in milliseconds
+const transitionDuration = 400
 
 class GrampsjsRelationshipChart extends GrampsjsChartBase {
   static get styles() {
@@ -36,43 +40,74 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     super()
     this.grampsId = ''
     this.gapX = 30
-    this._savedZoom = null
+    this._chart = new RelationshipChart()
+    this._layout = null
+    this._layoutRequest = 0
+  }
+
+  render() {
+    return html`<div id="container"></div>`
+  }
+
+  firstUpdated() {
+    super.firstUpdated()
+    this.renderRoot.getElementById('container').append(this._chart.node)
   }
 
   willUpdate(changed) {
     super.willUpdate(changed)
-    // Save zoom transform before Lit replaces the SVG node. A new root person
-    // keeps only the zoom level, so they start at the default position.
-    const svg = this.renderRoot
-      ?.getElementById('container')
-      ?.querySelector('svg')
-    if (!svg) {
-      this._savedZoom = null
+    if (!changed.has('data') && !changed.has('grampsId')) {
       return
     }
-    const transform = zoomTransform(svg)
-    this._savedZoom = changed.has('grampsId')
-      ? zoomIdentity.scale(transform.k)
-      : transform
+    // A selected person who is not in the data yet is still being fetched, so
+    // the current chart stays until new data arrives. If the new data does not
+    // contain them either, the chart is cleared.
+    const root = this._graph.personByGrampsId(this.grampsId)
+    if (root) {
+      this._requestLayout(root.handle)
+    } else if (changed.has('data')) {
+      this._layoutRequest += 1
+      this._layout = null
+    }
   }
 
-  renderChart() {
-    if (this.data.length === 0 || !this.grampsId) {
-      return ''
+  updated() {
+    if (!this._layout) {
+      this._chart.clear()
+      return
     }
-    return html`
-      ${RelationshipChart(this.data, {
-        nAnc: this.nAnc,
-        maxImages: this.nMaxImages,
-        grampsId: this.grampsId,
-        getImageUrl: node => getImageUrl(node.person, 100),
-        bboxWidth: this.containerWidth,
-        bboxHeight: this.containerHeight,
-        nameDisplayFormat: this.nameDisplayFormat,
-        canEdit: this.canEdit,
-        initialZoom: this._savedZoom,
-      })}
-    `
+    this._chart.update(this._layout, {
+      getImageUrl: node => getImageUrl(node.person, 100),
+      maxImages: this.nMaxImages,
+      nameDisplayFormat: this.nameDisplayFormat,
+      canEdit: this.canEdit,
+      duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 0
+        : transitionDuration,
+      bboxWidth: this.containerWidth,
+      bboxHeight: this.containerHeight,
+    })
+  }
+
+  // Lays out the chart in the background. The current chart stays until the
+  // layout is ready, and a layout that is ready after a newer one was
+  // requested is ignored. If the layout fails, the chart is cleared and an
+  // error is reported.
+  async _requestLayout(rootHandle) {
+    this._layoutRequest += 1
+    const request = this._layoutRequest
+    let layout = null
+    try {
+      layout = await layoutRelationships(this._graph, rootHandle)
+    } catch (error) {
+      if (request === this._layoutRequest) {
+        fireEvent(this, 'grampsjs:error', {message: error.message})
+      }
+    }
+    if (request === this._layoutRequest) {
+      this._layout = layout
+      this.requestUpdate()
+    }
   }
 }
 

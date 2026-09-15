@@ -17,6 +17,32 @@ export function elementPosition(element) {
   return [Number(match[1]), Number(match[2])]
 }
 
+// Returns the translate transform for a position, in the format that
+// `elementPosition` reads
+export const translate = ([x, y]) => `translate(${x},${y})`
+
+// Returns a function that interpolates linearly from point `a` to point `b`
+export const interpolatePoint = (a, b) => t =>
+  [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]
+
+// Moves each element to `position(d)`. With a `duration`, elements move there
+// from `start(d)`. Interpolating the points keeps the transform in the format
+// that `elementPosition` reads while they move.
+export function moveElements(elements, {position, start, duration = 0}) {
+  if (duration > 0) {
+    elements
+      .attr('transform', d => translate(start(d)))
+      .transition()
+      .duration(duration)
+      .attrTween('transform', d => {
+        const point = interpolatePoint(start(d), position(d))
+        return t => translate(point(t))
+      })
+  } else {
+    elements.attr('transform', d => translate(position(d)))
+  }
+}
+
 // Returns the current position of each child of `parent` that matches
 // `selector`, by the key it was joined with
 export function currentPositions(parent, selector) {

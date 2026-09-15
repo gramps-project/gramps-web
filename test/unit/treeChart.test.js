@@ -154,11 +154,24 @@ describe('TreeChart', () => {
     expect(triangle()).toBeNull()
   })
 
-  it('keeps the zoom transform for the same root person', () => {
+  it('keeps the same root person in place in a new layout', () => {
     const chart = new TreeChart()
     chart.update(layoutAncestors(graph, 'R', {depth: 3}), size)
     setZoom(chart, zoomIdentity.translate(40, 30).scale(2))
+    const before = viewPosition(chart, 'p')
+    const viewBox = chart.node.getAttribute('viewBox')
     chart.update(layoutAncestors(graph, 'R', {depth: 2}), size)
+    expect(chart.node.getAttribute('viewBox')).not.toBe(viewBox)
+    expectClose(viewPosition(chart, 'p'), before)
+    expect(zoomTransform(chart.node).k).toBe(2)
+  })
+
+  it('keeps the zoom transform when only the size changes', () => {
+    const chart = new TreeChart()
+    const layout = layoutAncestors(graph, 'R', {depth: 3})
+    chart.update(layout, size)
+    setZoom(chart, zoomIdentity.translate(40, 30).scale(2))
+    chart.update(layout, {...size, bboxWidth: 500})
     expect(zoomTransform(chart.node)).toMatchObject({k: 2, x: 40, y: 30})
   })
 
@@ -225,6 +238,19 @@ describe('TreeChart', () => {
     expect(nodeWithKey(chart, 'p')).toBe(clicked)
     expectClose(viewPosition(chart, 'p'), before)
     select(chart.node).selectAll('*').interrupt().interrupt('fade')
+  })
+
+  it('keeps the first visible copy of a duplicated person in place without a click', () => {
+    const chart = new TreeChart()
+    chart.update(layoutAncestors(collapsed, 'R', {depth: 3}), size)
+    // The first copy of FM is above the view, the second one is in it
+    setZoom(chart, zoomIdentity.translate(0, -300))
+    expect(viewPosition(chart, 'pfm')[1]).toBeLessThan(0)
+    const second = nodeWithKey(chart, 'pmm')
+    const before = viewPosition(chart, 'pmm')
+    chart.update(layoutAncestors(collapsed, 'FM', {depth: 3}), size)
+    expect(nodeWithKey(chart, 'p')).toBe(second)
+    expectClose(viewPosition(chart, 'p'), before)
   })
 
   it('does not remember clicks when not interactive', () => {

@@ -13,6 +13,9 @@ export function viewBoxStart(focus, extentMin, extentMax, viewSize) {
   )
 }
 
+// Space around a chart that is fitted into the view, in pixels
+const fitMargin = 20
+
 // The zoom transform and viewBox of a chart whose layouts place the root
 // person at the origin. The viewBox is as large as the container, so one
 // viewBox unit is one screen pixel.
@@ -36,16 +39,31 @@ export class ChartViewport {
   }
 
   // Sets the viewBox for a layout with `bounds` in a view of `size`, and the
-  // zoom transform for its root person. The same root person keeps the zoom
-  // transform. A new root person who was on screen keeps their place in the
-  // view, and any other new root person starts at the default position; both
-  // keep the zoom level. `positions` are the current node positions by key,
-  // and `rootKey` is the key of the new root person's node.
+  // zoom transform for its root person. The same root person keeps their
+  // place in the view in a `newLayout`, and otherwise the zoom transform stays
+  // as it is. For a new root person, the first of `candidates` that was on
+  // screen keeps its place in the view, preferring the clicked node.
+  // Otherwise the chart starts at the default position with the current zoom
+  // level or, with `fit`, zoomed out as far as needed to show all of it. A
+  // layout shown before the view has a size does not count as shown.
+  //
+  // Each candidate has the `key` of a node of the new root person in
+  // `positions`, the current node positions by key, and the `position` that
+  // node has in the new layout.
   //
   // Returns `offset`, which subtracted from a current node position gives the
   // position in the coordinates of the new layout that is at the same place on
-  // screen, and `keptKey`, the key of the node kept in place, if any.
-  show({bounds, size, rootHandle, rootKey, positions}) {
+  // screen, and `keptKey`, the key of the node kept in place, if any. The
+  // offset is exact while the zoom level stays the same, which `fit` changes.
+  show({
+    bounds,
+    size,
+    rootHandle,
+    candidates = [],
+    positions,
+    fit = false,
+    newLayout = false,
+  }) {
     const previous = {
       transform: zoomTransform(this._svg.node()),
       viewStart: this._viewStart,
@@ -58,15 +76,18 @@ export class ChartViewport {
     this._size = size
     this._svg.attr('viewBox', [...this._viewStart, ...size])
     const {transform, keptKey} = this._transformFor(previous, {
+      bounds,
+      size,
       rootHandle,
-      rootKey,
+      candidates,
       positions,
+      fit,
+      newLayout,
     })
     if (transform !== previous.transform) {
       this._svg.call(this._zoom.transform, transform)
     }
-    // A position p is shown at p * k + translate - viewStart, and the zoom
-    // level k stays the same
+    // A position p is shown at p * k + translate - viewStart
     const {k} = transform
     const offset = [
       (transform.x -
@@ -84,38 +105,82 @@ export class ChartViewport {
   }
 
   // Returns the zoom transform for a new layout, and the key of the node kept
-  // in place: the current transform for the same root person, a transform
-  // that keeps a new root person who was on screen in the previous view at
-  // their place in the view, preferring the clicked node, or the default
-  // position at the current zoom level
-  _transformFor(previous, {rootHandle, rootKey, positions}) {
+  // in place, as described for `show`
+  _transformFor(
+    previous,
+    {bounds, size, rootHandle, candidates, positions, fit, newLayout}
+  ) {
     const {transform} = previous
-    if (rootHandle === this._rootHandle) {
+    if (!size.every(value => value > 0)) {
       return {transform}
+    }
+    if (rootHandle === this._rootHandle) {
+      if (!newLayout) {
+        return {transform}
+      }
+      // The root person is at the origin of both layouts, so moving the
+      // transform with the viewBox keeps them in place
+      return {
+        transform: zoomIdentity
+          .translate(
+            transform.x + this._viewStart[0] - previous.viewStart[0],
+            transform.y + this._viewStart[1] - previous.viewStart[1]
+          )
+          .scale(transform.k),
+      }
     }
     this._rootHandle = rootHandle
     const clickedKey =
       this._clicked?.handle === rootHandle ? this._clicked.key : undefined
     this._clicked = undefined
-    const keptKey = positions.has(clickedKey) ? clickedKey : rootKey
-    const kept = positions.get(keptKey)
-    const viewPosition = kept && [
-      transform.applyX(kept[0]) - previous.viewStart[0],
-      transform.applyY(kept[1]) - previous.viewStart[1],
+    const ordered = [
+      ...candidates.filter(candidate => candidate.key === clickedKey),
+      ...candidates.filter(candidate => candidate.key !== clickedKey),
     ]
-    if (
-      viewPosition?.every((value, i) => value >= 0 && value <= previous.size[i])
-    ) {
-      return {
-        transform: zoomIdentity
-          .translate(
-            viewPosition[0] + this._viewStart[0],
-            viewPosition[1] + this._viewStart[1]
-          )
-          .scale(transform.k),
-        keptKey,
+    for (const {key, position} of ordered) {
+      const current = positions.get(key)
+      const viewPosition = current && [
+        transform.applyX(current[0]) - previous.viewStart[0],
+        transform.applyY(current[1]) - previous.viewStart[1],
+      ]
+      if (
+        viewPosition?.every(
+          (value, i) => value >= 0 && value <= previous.size[i]
+        )
+      ) {
+        return {
+          transform: zoomIdentity
+            .translate(
+              viewPosition[0] + this._viewStart[0] - transform.k * position[0],
+              viewPosition[1] + this._viewStart[1] - transform.k * position[1]
+            )
+            .scale(transform.k),
+          keptKey: key,
+        }
       }
     }
-    return {transform: zoomIdentity.scale(transform.k)}
+    return {
+      transform: fit
+        ? this._fitTransform(bounds, size)
+        : zoomIdentity.scale(transform.k),
+    }
+  }
+
+  // Returns the zoom transform that centres the chart in the view, zoomed out
+  // as far as needed to show all of it
+  _fitTransform(bounds, size) {
+    const k = Math.min(
+      1,
+      size[0] / (bounds.xMax - bounds.xMin + 2 * fitMargin),
+      size[1] / (bounds.yMax - bounds.yMin + 2 * fitMargin)
+    )
+    return zoomIdentity
+      .translate(
+        this._viewStart[0] +
+          size[0] / 2 -
+          (k * (bounds.xMin + bounds.xMax)) / 2,
+        this._viewStart[1] + size[1] / 2 - (k * (bounds.yMin + bounds.yMax)) / 2
+      )
+      .scale(k)
   }
 }

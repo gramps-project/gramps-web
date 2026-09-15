@@ -1,4 +1,4 @@
-import {select} from 'd3-selection'
+import {local, select} from 'd3-selection'
 import {chartNameDisplayFormat, fireEvent} from '../util.js'
 import {
   appendAddPersonButton,
@@ -182,6 +182,75 @@ export function setPersonCardInteraction(
     handle,
     palette
   )
+}
+
+// The inputs each card was last drawn with
+const cardInputs = local()
+
+// Draws the card of each node whose person, image, name format or palette
+// changed since its card was last drawn. The data of each node has a
+// `person`, and each node has a `.person-card` group for the card.
+export function drawChangedCards(
+  nodes,
+  {
+    getImageUrl = () => '',
+    nameDisplayFormat,
+    palette = chartPalette,
+    boxWidth,
+    boxHeight,
+  }
+) {
+  const changed = new Set()
+  nodes.each(function (d) {
+    const inputs = {
+      person: d.person,
+      imageUrl: getImageUrl(d),
+      nameDisplayFormat,
+      palette,
+    }
+    const previous = cardInputs.get(this)
+    cardInputs.set(this, inputs)
+    if (
+      !previous ||
+      Object.keys(inputs).some(key => inputs[key] !== previous[key])
+    ) {
+      changed.add(this)
+    }
+  })
+  const cards = nodes
+    .filter(function () {
+      return changed.has(this)
+    })
+    .select('.person-card')
+  cards.selectChildren().remove()
+  appendPersonCard(cards, {
+    profile: d => d.person?.profile,
+    imageUrl: getImageUrl,
+    boxWidth,
+    boxHeight,
+    nameDisplayFormat,
+    palette,
+  })
+}
+
+// Sets click and hover handling and add person buttons on nodes whose data
+// have a `person` and a `handle`, or removes them without `interactive`
+export function updatePersonCardInteraction(
+  nodes,
+  {interactive, canEdit, palette = chartPalette, boxWidth, boxHeight}
+) {
+  if (!interactive) {
+    clearPersonCardInteraction(nodes)
+    return
+  }
+  setPersonCardInteraction(nodes, {
+    profile: d => d.person?.profile,
+    handle: d => d.handle,
+    boxWidth,
+    boxHeight,
+    canEdit,
+    palette,
+  })
 }
 
 // Removes what `setPersonCardInteraction` added: click and hover handling,
