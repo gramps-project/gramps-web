@@ -4,7 +4,8 @@ import {Graphviz} from '@hpcc-js/wasm'
 // graph with a cluster for each couple, laid out by the dot engine and read
 // back from its JSON output.
 
-const relationshipLayoutDefaults = {
+// Size of the person cards the layout makes room for, in pixels
+export const relationshipLayoutDefaults = {
   boxWidth: 190,
   boxHeight: 90,
 }
