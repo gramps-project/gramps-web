@@ -42,11 +42,10 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
           margin: var(--grampsjs-pill-toggle-margin, 12px 0);
         }
 
-        /* Options with an icon show only the icon when the toggle is narrower
-           than its labels need */
+        /* Takes the available width, which is compared with the width the
+           options need with their labels */
         :host([icons-only-narrow]) {
           display: block;
-          container-type: inline-size;
         }
 
         button + button {
@@ -79,15 +78,13 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
           gap: 6px;
         }
 
-        @container (max-width: 900px) {
-          :host([icons-only-narrow]) button.has-icon .label {
-            display: none;
-          }
+        .compact button.has-icon .label {
+          display: none;
+        }
 
-          :host([icons-only-narrow]) button.has-icon {
-            padding-left: 14px;
-            padding-right: 14px;
-          }
+        .compact button.has-icon {
+          padding-left: 14px;
+          padding-right: 14px;
         }
 
         button:first-child {
@@ -158,6 +155,7 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
         reflect: true,
       },
       muted: {type: Boolean, reflect: true},
+      _compact: {state: true},
     }
   }
 
@@ -170,12 +168,60 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
     this.ariaLabel = ''
     this.iconsOnlyNarrow = false
     this.muted = false
+    this._compact = false
+    this._fullWidth = 0
+    this._labels = ''
+    this._resizeObserver =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(() => this._updateCompact())
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    this._resizeObserver?.observe(this)
+  }
+
+  disconnectedCallback() {
+    this._resizeObserver?.disconnect()
+    super.disconnectedCallback()
+  }
+
+  updated(changed) {
+    super.updated(changed)
+    // Other labels need another width, which is measured while they are shown
+    const labels = this.options.map(opt => opt.label).join('\n')
+    if (labels !== this._labels) {
+      this._labels = labels
+      if (this._compact) {
+        this._compact = false
+        return
+      }
+    }
+    this._updateCompact()
+  }
+
+  // With `iconsOnlyNarrow`, options with an icon show only the icon while the
+  // toggle is narrower than the options need with their labels. That width is
+  // measured whenever the labels are shown.
+  _updateCompact() {
+    const container = this.renderRoot?.querySelector('.container')
+    if (!container) {
+      return
+    }
+    if (!this._compact) {
+      this._fullWidth = container.offsetWidth
+    }
+    const compact = this.iconsOnlyNarrow && this._fullWidth > this.clientWidth
+    if (compact !== this._compact) {
+      this._compact = compact
+    }
   }
 
   render() {
     return html`
       <div
-        class="container"
+        class="container ${this._compact ? 'compact' : ''}"
         role="radiogroup"
         aria-label="${ifDefined(this.ariaLabel || undefined)}"
         @keydown="${this._handleKeydown}"

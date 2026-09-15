@@ -468,7 +468,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
       <grampsjs-pill-toggle
         muted
         icons-only-narrow
-        ariaLabel="${this._('Family Tree')}"
+        .ariaLabel="${this._('Family Tree')}"
         .options=${options}
         .selected=${this.chart}
         .appState=${this.appState}
