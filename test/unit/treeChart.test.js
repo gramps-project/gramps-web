@@ -199,6 +199,31 @@ describe('TreeChart', () => {
     expectClose(viewPosition(chart, 'p'), clicked)
   })
 
+  it('judges whether a new root person was on screen by the previous view size', () => {
+    const chart = new TreeChart()
+    chart.update(layoutAncestors(graph, 'R', {depth: 3}), size)
+    setZoom(chart, zoomIdentity.translate(40, 30).scale(2))
+    const before = viewPosition(chart, 'pf')
+    expect(before[0]).toBeGreaterThan(500)
+    chart.update(layoutAncestors(graph, 'F', {depth: 3}), {
+      ...size,
+      bboxWidth: 500,
+    })
+    expectClose(viewPosition(chart, 'p'), before)
+  })
+
+  it('does not remember clicks when not interactive', () => {
+    const chart = new TreeChart()
+    const options = {...size, interactive: false}
+    chart.update(layoutAncestors(collapsed, 'R', {depth: 3}), options)
+    const first = viewPosition(chart, 'pfm')
+    nodeWithKey(chart, 'pmm').dispatchEvent(
+      new MouseEvent('click', {bubbles: true})
+    )
+    chart.update(layoutAncestors(collapsed, 'FM', {depth: 3}), options)
+    expectClose(viewPosition(chart, 'p'), first)
+  })
+
   it.each([
     ['the same root person with wider bounds', 'R', 2, 'R', 3, 'p', 'p'],
     ['a new root person who was on screen', 'R', 3, 'F', 3, 'pf', 'p'],
@@ -241,6 +266,7 @@ describe('TreeChart', () => {
       duration: 20,
     })
     expect(mother.classList.contains('person-node')).toBe(false)
+    expect(mother.style.getPropertyValue('pointer-events')).toBe('none')
     await vi.waitFor(() => expect(mother.parentNode).toBeNull())
   })
 

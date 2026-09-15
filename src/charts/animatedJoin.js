@@ -62,7 +62,8 @@ export function joinWithTransitions(
         // A leaving element may still be moving or fading in
         exitSelection.interrupt().interrupt('fade')
         exit(exitSelection)
-        exitSelection.attr('class', null)
+        // Leaving elements no longer respond to clicks or hovering
+        exitSelection.attr('class', null).style('pointer-events', 'none')
         if (duration > 0) {
           exitSelection
             .transition()

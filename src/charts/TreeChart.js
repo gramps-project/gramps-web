@@ -210,8 +210,11 @@ export class TreeChart {
           ? `drop-shadow(0 3px 8px ${palette.shadow})`
           : null
       )
-      .on('click.pin', (event, d) =>
-        this._viewport.rememberClick(d.handle, keys.get(d))
+      .on(
+        'click.pin',
+        interactive
+          ? (event, d) => this._viewport.rememberClick(d.handle, keys.get(d))
+          : null
       )
 
     if (duration > 0) {

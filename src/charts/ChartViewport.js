@@ -25,6 +25,7 @@ export class ChartViewport {
     svg.call(this._zoom)
     this._rootHandle = undefined
     this._viewStart = [0, 0]
+    this._size = undefined
     this._clicked = undefined
   }
 
@@ -45,20 +46,23 @@ export class ChartViewport {
   // position, in the coordinates of the new layout, that is at the same place
   // on screen.
   show({bounds, size, rootHandle, rootKey, positions}) {
-    const previousViewStart = this._viewStart
-    const previousTransform = zoomTransform(this._svg.node())
+    const previous = {
+      transform: zoomTransform(this._svg.node()),
+      viewStart: this._viewStart,
+      size: this._size ?? size,
+    }
     this._viewStart = [
       viewBoxStart(0, bounds.xMin, bounds.xMax, size[0]),
       viewBoxStart(0, bounds.yMin, bounds.yMax, size[1]),
     ]
+    this._size = size
     this._svg.attr('viewBox', [...this._viewStart, ...size])
-    const transform = this._transformFor(previousTransform, previousViewStart, {
-      size,
+    const transform = this._transformFor(previous, {
       rootHandle,
       rootKey,
       positions,
     })
-    if (transform !== previousTransform) {
+    if (transform !== previous.transform) {
       this._svg.call(this._zoom.transform, transform)
     }
     // A position p is shown at p * k + translate - viewStart, and the zoom
@@ -66,13 +70,13 @@ export class ChartViewport {
     const {k} = transform
     return [
       (transform.x -
-        previousTransform.x +
-        previousViewStart[0] -
+        previous.transform.x +
+        previous.viewStart[0] -
         this._viewStart[0]) /
         k,
       (transform.y -
-        previousTransform.y +
-        previousViewStart[1] -
+        previous.transform.y +
+        previous.viewStart[1] -
         this._viewStart[1]) /
         k,
     ]
@@ -80,13 +84,10 @@ export class ChartViewport {
 
   // Returns the zoom transform for a new layout: the current transform for
   // the same root person, a transform that keeps a new root person who was on
-  // screen at their place in the view, or the default position at the current
-  // zoom level
-  _transformFor(
-    transform,
-    previousViewStart,
-    {size, rootHandle, rootKey, positions}
-  ) {
+  // screen in the previous view at their place in the view, or the default
+  // position at the current zoom level
+  _transformFor(previous, {rootHandle, rootKey, positions}) {
+    const {transform} = previous
     if (rootHandle === this._rootHandle) {
       return transform
     }
@@ -96,10 +97,12 @@ export class ChartViewport {
     this._clicked = undefined
     const kept = clicked || positions.get(rootKey)
     const viewPosition = kept && [
-      transform.applyX(kept[0]) - previousViewStart[0],
-      transform.applyY(kept[1]) - previousViewStart[1],
+      transform.applyX(kept[0]) - previous.viewStart[0],
+      transform.applyY(kept[1]) - previous.viewStart[1],
     ]
-    if (viewPosition?.every((value, i) => value >= 0 && value <= size[i])) {
+    if (
+      viewPosition?.every((value, i) => value >= 0 && value <= previous.size[i])
+    ) {
       return zoomIdentity
         .translate(
           viewPosition[0] + this._viewStart[0],
