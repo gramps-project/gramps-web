@@ -51,7 +51,7 @@ export function renderPersonDates(
       : ''
   if (!birthStr && !deathStr && !ageStr) return ''
   return html`<span slot="supporting-text"
-    >><span class="date-col"
+    ><span class="date-col"
       >${birthStr ? `${birthSymbol} ${birthStr}` : ''}</span
     ><span class="date-col"
       >${deathStr ? `${deathSymbol} ${deathStr}` : ''}${ageStr

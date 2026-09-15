@@ -18,6 +18,7 @@ import {
   isValidRect,
   apiVersionAtLeast,
   linkUrls,
+  objectDetail,
 } from '../../src/util.js'
 
 // Helpers
@@ -44,6 +45,17 @@ describe('translate', () => {
 
   it('returns translation if key exists', () => {
     expect(translate(strings, 'Hello')).to.equal('Hola')
+  })
+
+  it('uses the configured text birth symbol in object detail', () => {
+    const result = objectDetail(
+      'person',
+      {profile: {birth: {date: '1990', place: 'Paris'}}},
+      {},
+      {symbolSet: 'text'}
+    )
+    expect(result).to.include('b. 1990')
+    expect(result).not.to.include('∗ 1990')
   })
 
   it('strips leading underscore', () => {

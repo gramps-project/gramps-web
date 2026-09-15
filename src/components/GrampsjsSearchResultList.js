@@ -169,7 +169,8 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
     const detail = objectDetail(
       obj.object_type,
       obj.object,
-      this.appState.i18n.strings
+      this.appState.i18n.strings,
+      this.appState.settings
     ).trim()
     if (detail?.length) {
       return detail
