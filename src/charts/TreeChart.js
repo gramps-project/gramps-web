@@ -1,5 +1,6 @@
-import {create} from 'd3-selection'
-import {curveBumpX, link, symbolTriangle, symbol} from 'd3-shape'
+import {create, select} from 'd3-selection'
+import {curveBumpX, link} from 'd3-shape'
+import {mdiChevronLeft, mdiChevronRight} from '@mdi/js'
 import {fireEvent} from '../util.js'
 import {
   currentPositions,
@@ -16,6 +17,31 @@ import {chartPalette} from './palette.js'
 import {drawChangedCards, updatePersonCardInteraction} from './personCard.js'
 
 const {boxWidth, boxHeight} = treeLayoutDefaults
+
+// Radius of the root person's menu button and its gap to the card, in pixels
+const menuButtonRadius = 20
+const menuButtonGap = 8
+
+// Returns the horizontal position of the root person's menu button, which
+// keeps a gap to the visible edge of the card: the colour stripe reaching 4px
+// past the box on the left for orientation 'LTR', the box on the right for
+// 'RTL'
+function menuButtonX(orientation) {
+  return orientation === 'LTR'
+    ? -(boxWidth / 2 + 4 + menuButtonGap + menuButtonRadius)
+    : boxWidth / 2 + menuButtonGap + menuButtonRadius
+}
+
+// Returns `bounds` widened to include the root person's menu button, which
+// lies outside the layout
+function boundsWithMenuButton(bounds, orientation) {
+  const x = menuButtonX(orientation)
+  return {
+    ...bounds,
+    xMin: Math.min(bounds.xMin, x - menuButtonRadius),
+    xMax: Math.max(bounds.xMax, x + menuButtonRadius),
+  }
+}
 
 // Returns keys that stay the same for a person across layouts with different
 // root people: the handle, numbered when a person appears more than once, or
@@ -96,17 +122,18 @@ export class TreeChart {
     this._nodes.selectChildren().remove()
   }
 
-  // With `childrenTriangle`, the root person gets a triangle that opens the
-  // menu of relatives, on the left for orientation 'LTR' and on the right for
-  // 'RTL'. Without `interactive`, the chart has no add person buttons,
-  // triangle, click or hover handling, cursors or shadows. Colours come from
-  // `palette`. With a `duration` in milliseconds, a new layout is animated:
+  // With `childrenTriangle`, the root person gets a triangle button labelled
+  // `triangleLabel` that opens the menu of relatives, on the left for
+  // orientation 'LTR' and on the right for 'RTL'. Without `interactive`, the
+  // chart has no add person buttons, triangle, click or hover handling, cursors
+  // or shadows. Colours come from `palette`. With a `duration` in milliseconds, a new layout is animated:
   // people move from where they were, people who leave fade out and new people
   // fade in.
   update(
     layout,
     {
       childrenTriangle = false,
+      triangleLabel = '',
       orientation = 'LTR',
       getImageUrl = () => '',
       nameDisplayFormat,
@@ -131,7 +158,10 @@ export class TreeChart {
     const positions = currentPositions(this._nodes, '.person-node')
     const root = layout.nodes.find(node => node.generation === 0)
     const {offset, keptKey} = this._viewport.show({
-      bounds: layout.bounds,
+      bounds:
+        interactive && childrenTriangle
+          ? boundsWithMenuButton(layout.bounds, orientation)
+          : layout.bounds,
       size: [bboxWidth, bboxHeight],
       rootHandle: root.handle,
       // Any node of the root person in the previous layout can become the
@@ -183,6 +213,7 @@ export class TreeChart {
     this._updateTriangle(nodes, {
       interactive,
       childrenTriangle,
+      triangleLabel,
       orientation,
       palette,
     })
@@ -254,37 +285,60 @@ export class TreeChart {
     return joined
   }
 
+  // The menu button is a chevron pointing away from the root card, in a round
+  // area of `menuButtonRadius` that is shaded while the pointer is on it or it
+  // has focus
   _updateTriangle(
     nodes,
-    {interactive, childrenTriangle, orientation, palette}
+    {interactive, childrenTriangle, triangleLabel, orientation, palette}
   ) {
     const side = orientation === 'LTR' ? -1 : 1
-    nodes
+    const x = menuButtonX(orientation)
+    function openMenu(e) {
+      fireEvent(this, 'pedigree:show-children', {})
+      e.stopPropagation()
+      e.preventDefault()
+    }
+    function shade(opacity) {
+      return function () {
+        select(this).select('circle').attr('fill-opacity', opacity)
+      }
+    }
+    const triangles = nodes
       .selectChildren('.children-triangle')
       .data(d =>
         interactive && childrenTriangle && d.generation === 0 ? [d] : []
       )
-      .join(enter =>
-        enter
-          .append('path')
+      .join(enter => {
+        const triangle = enter
+          .append('g')
           .attr('class', 'children-triangle')
           .attr('id', 'triangle-children')
-          .attr('d', symbol().type(symbolTriangle).size(200))
-          .on('click', function (e) {
-            fireEvent(this, 'pedigree:show-children', {
-              pageX: e.pageX,
-              pageY: e.pageY,
-            })
-            e.stopPropagation()
-            e.preventDefault()
+          .attr('role', 'button')
+          .attr('tabindex', 0)
+          .style('cursor', 'pointer')
+          .on('click', openMenu)
+          .on('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+              openMenu.call(this, e)
+            }
           })
-      )
+          .on('mouseenter focus', shade(1))
+          .on('mouseleave blur', shade(0))
+        triangle
+          .append('circle')
+          .attr('r', menuButtonRadius)
+          .attr('fill-opacity', 0)
+        // The 24px icon is centred on the button
+        triangle.append('path').attr('transform', 'translate(-12,-12)')
+        return triangle
+      })
+      .attr('transform', `translate(${x},0)`)
+      .attr('aria-label', triangleLabel)
+    triangles.select('circle').attr('fill', palette.triangleHover)
+    triangles
+      .select('path')
+      .attr('d', side < 0 ? mdiChevronLeft : mdiChevronRight)
       .attr('fill', palette.triangle)
-      .attr(
-        'transform',
-        `translate(${side * (boxWidth / 2 + 12)},0) rotate(${
-          side * 90
-        }) scale(-1, 0.5)`
-      )
   }
 }

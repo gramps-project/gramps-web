@@ -37,7 +37,7 @@ import {
   chartSettingValues,
 } from './treeChartDefinitions.js'
 import {chartNameDisplayFormat, fireEvent, isKeyEventInInput} from '../util.js'
-import {chartTransitionDuration} from '../charts/util.js'
+import {chartTransitionDuration, formatChartName} from '../charts/util.js'
 import {renderPersonAvatar} from '../components/personListUtils.js'
 import {iconButtonColorStyles, listAvatarStyles} from '../SharedStyles.js'
 import {
@@ -82,12 +82,7 @@ const viewportKeys = {
 }
 
 // Elements that handle keys themselves, such as arrow keys in tabs and menus
-const keyHandlingElements = [
-  'grampsjs-pill-toggle',
-  'md-menu',
-  'mwc-menu',
-  'md-dialog',
-]
+const keyHandlingElements = ['grampsjs-pill-toggle', 'md-menu', 'md-dialog']
 
 // Shows the charts of the selected person in tabs. Each chart is described by
 // its definition in `chartDefinitions`, which gives its settings, the people
@@ -586,13 +581,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     if (!profile) {
       return ''
     }
-    const given = profile.name_given || '…'
-    const surname = profile.name_surname || '…'
-    const name =
-      this.settingValues.nameDisplayFormat ===
-      chartNameDisplayFormat.givenThenSurname
-        ? `${given} ${surname}`
-        : `${surname}, ${given}`
+    const name = formatChartName(profile, this.settingValues.nameDisplayFormat)
     return html`
       <button
         id="selected-person"

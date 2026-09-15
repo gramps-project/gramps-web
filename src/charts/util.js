@@ -5,8 +5,16 @@ import {select} from 'd3-selection'
 import {scaleSequential} from 'd3-scale'
 import {interpolateWarm} from 'd3-scale-chromatic'
 import {getThumbnailUrl, getThumbnailUrlCropped} from '../api.js'
-import {normalizeRect} from '../util.js'
+import {chartNameDisplayFormat, normalizeRect} from '../util.js'
 
+// Returns the name of a person profile in a chart name display format
+export function formatChartName(profile, nameDisplayFormat) {
+  const given = profile?.name_given || '…'
+  const surname = profile?.name_surname || '…'
+  return nameDisplayFormat === chartNameDisplayFormat.givenThenSurname
+    ? `${given} ${surname}`
+    : `${surname}, ${given}`
+}
 export const getImageUrl = (person, size, square = true) => {
   if (!person.media_list || person.media_list.length === 0) {
     return ''
