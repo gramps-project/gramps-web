@@ -51,7 +51,7 @@ export class GrampsjsConnectionChart extends GrampsjsResizeContainerMixin(
     const chart = RelationshipChart(this._data.data, {
       maxImages: this.nMaxImages,
       grampsId: this.grampsId1,
-      getImageUrl: d => getImageUrl(d?.data || {}, 100),
+      getImageUrl: node => getImageUrl(node.person, 100),
       bboxWidth: this.containerWidth,
       bboxHeight: this.containerHeight,
       shrinkToFit: true,
@@ -85,7 +85,7 @@ export class GrampsjsConnectionChart extends GrampsjsResizeContainerMixin(
       JSON.stringify(rules)
     )}&locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=self&extend=event_ref_list,primary_parent_family,family_list`
+    }&profile=self&extend=event_ref_list,primary_parent_family,family_list,parent_family_list`
   }
 }
 

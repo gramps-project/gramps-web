@@ -65,7 +65,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
         nAnc: this.nAnc,
         maxImages: this.nMaxImages,
         grampsId: this.grampsId,
-        getImageUrl: d => getImageUrl(d?.data || {}, 100),
+        getImageUrl: node => getImageUrl(node.person, 100),
         bboxWidth: this.containerWidth,
         bboxHeight: this.containerHeight,
         nameDisplayFormat: this.nameDisplayFormat,
