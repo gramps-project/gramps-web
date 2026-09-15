@@ -917,4 +917,20 @@ export function isKeyEventInInput(e) {
   )
 }
 
+// Returns a `close-menu` handler for md-menu that calls `select` with the menu
+// item chosen by click, Enter or Space. A menu item chosen with a key closes
+// the menu without a click event, and closing with Escape selects nothing.
+export function menuSelectionHandler(select) {
+  return e => {
+    const {initiator, reason} = e.detail ?? {}
+    if (
+      initiator &&
+      (reason?.kind === 'click-selection' ||
+        ['Enter', 'Space'].includes(reason?.key))
+    ) {
+      select(initiator)
+    }
+  }
+}
+
 //

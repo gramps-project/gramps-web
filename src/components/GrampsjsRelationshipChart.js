@@ -1,7 +1,4 @@
-import {html, css} from 'lit'
-
-import '@material/mwc-menu'
-import '@material/mwc-list/mwc-list-item'
+import {html} from 'lit'
 
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 import {RelationshipChart} from '../charts/RelationshipChart.js'
@@ -10,18 +7,6 @@ import {chartTransitionDuration, getImageUrl} from '../charts/util.js'
 import {fireEvent} from '../util.js'
 
 class GrampsjsRelationshipChart extends GrampsjsChartBase {
-  static get styles() {
-    return [
-      super.styles,
-      css`
-        mwc-menu {
-          --mdc-typography-subtitle1-font-size: 13px;
-          --mdc-menu-item-height: 36px;
-        }
-      `,
-    ]
-  }
-
   static get properties() {
     return {
       grampsId: {type: String},

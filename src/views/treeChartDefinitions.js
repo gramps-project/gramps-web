@@ -11,7 +11,7 @@ import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsRelationshipChart.js'
 import '../components/GrampsjsTooltip.js'
 import '../components/GrampsjsTreeChart.js'
-import {chartNameDisplayFormat} from '../util.js'
+import {chartNameDisplayFormat, menuSelectionHandler} from '../util.js'
 
 // A chart definition describes one chart of the tree view:
 // - `settings`: the settings in the settings dialog. Each is stored in the
@@ -131,10 +131,17 @@ function renderFanColorControls(view) {
       >${view._('Color')}</grampsjs-tooltip
     >
     <span style="position: relative">
-      <md-menu id="usage-menu" anchor="btn-color" skip-restore-focus>
+      <md-menu
+        id="usage-menu"
+        anchor="btn-color"
+        skip-restore-focus
+        @close-menu=${menuSelectionHandler(item =>
+          setColor(item.dataset.value)
+        )}
+      >
         ${Object.keys(fanColors).map(
           value => html`
-            <md-menu-item @click="${() => setColor(value)}">
+            <md-menu-item data-value="${value}">
               <div slot="headline">${view._(fanColors[value])}</div>
             </md-menu-item>
           `
