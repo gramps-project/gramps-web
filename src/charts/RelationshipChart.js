@@ -10,7 +10,7 @@ import {
   translate,
 } from './animatedJoin.js'
 import {ChartViewport} from './ChartViewport.js'
-import {appendFamilyMarker} from './familyMarker.js'
+import {appendFamilyMarker, familyMarkerPosition} from './familyMarker.js'
 import {relationshipLayoutDefaults} from './layout/relationshipLayout.js'
 import {chartPalette} from './palette.js'
 import {drawChangedCards, updatePersonCardInteraction} from './personCard.js'
@@ -19,10 +19,17 @@ const {boxWidth, boxHeight} = relationshipLayoutDefaults
 
 const place = node => [node.x, node.y]
 
-// A link is drawn as a curve from the start to the end of its route
+// A link is drawn as a curve from the start to the end of its route. Links
+// from a family start at its marker.
 const curve = linkVertical()
 const linkPath = ([start, end]) => curve({source: start, target: end})
-const routeEnds = link => [link.points[0], link.points[link.points.length - 1]]
+const markerPosition = familyMarkerPosition(boxHeight)
+const routeEnds = ({source, points}) => [
+  source.kind === 'family'
+    ? [source.x + markerPosition[0], source.y + markerPosition[1]]
+    : points[0],
+  points[points.length - 1],
+]
 
 // Returns the image URL of each person node, leaving out the images of people
 // after the first `maxImages` people who have one

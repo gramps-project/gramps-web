@@ -28,9 +28,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
   static get properties() {
     return {
       grampsId: {type: String},
-      nAnc: {type: Number},
       nMaxImages: {type: Number},
-      gapX: {type: Number},
       nameDisplayFormat: {type: String},
       canEdit: {type: Boolean},
     }
@@ -39,7 +37,6 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
   constructor() {
     super()
     this.grampsId = ''
-    this.gapX = 30
     this._chart = new RelationshipChart()
     this._layout = null
     this._layoutRequest = 0

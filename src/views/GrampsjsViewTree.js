@@ -1,32 +1,64 @@
 import {css, html} from 'lit'
+import {ifDefined} from 'lit/directives/if-defined.js'
+import {keyed} from 'lit/directives/keyed.js'
+import {map} from 'lit/directives/map.js'
 
-import '@material/web/tabs/tabs'
-import '@material/web/tabs/primary-tab'
+import '@material/mwc-textfield'
 import '@material/web/button/filled-button'
 import '@material/web/button/outlined-button'
+import '@material/web/button/text-button.js'
+import '@material/web/dialog/dialog.js'
+import '@material/web/fab/fab.js'
+import '@material/web/iconbutton/icon-button.js'
+import '@material/web/select/filled-select.js'
+import '@material/web/select/select-option.js'
+import '@material/web/tabs/primary-tab'
+import '@material/web/tabs/tabs'
 
-import {mdiFamilyTree, mdiPlus, mdiPencil} from '@mdi/js'
+import {
+  mdiAccountDetails,
+  mdiArrowLeft,
+  mdiCog,
+  mdiFamilyTree,
+  mdiHomeAccount,
+  mdiPencil,
+  mdiPlus,
+} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
-import '../components/GrampsjsIcon.js'
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import '../components/GrampsjsFormSelectObject.js'
-import './GrampsjsViewDescendantChart.js'
-import './GrampsjsViewTreeChart.js'
-import './GrampsjsViewHourglassChart.js'
-import './GrampsjsViewFanChart.js'
-import './GrampsjsViewRelationshipChart.js'
-import {fireEvent} from '../util.js'
+import '../components/GrampsjsIcon.js'
+import '../components/GrampsjsTooltip.js'
+import '../components/GrampsjsTreeChartAddPerson.js'
+import {
+  chartDataUrl,
+  chartDefinitions,
+  chartSettingValues,
+} from './treeChartDefinitions.js'
+import {chartNameDisplayFormat, fireEvent} from '../util.js'
+import {iconButtonColorStyles} from '../SharedStyles.js'
 import {
   chartFanIconPath,
   hourglassIconPath,
   renderIconSvg,
   relationshipGraphIconPath,
 } from '../icons.js'
-import {DEFAULT_TREE_VIEW, getTreeViewTabIndex} from '../treeDefaults.js'
+import {
+  DEFAULT_TREE_VIEW,
+  TREE_VIEWS,
+  getTreeViewTabIndex,
+} from '../treeDefaults.js'
 
-export class GrampsjsViewTree extends GrampsjsView {
+// Shows the charts of the selected person in tabs. Each chart is described by
+// its definition in `chartDefinitions`, which gives its settings, the people
+// it needs and edit mode. People are fetched again only when the request
+// changes, and a response that arrives after a newer request was sent is
+// ignored.
+export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
     return [
       super.styles,
+      iconButtonColorStyles,
       css`
         .with-margin {
           margin: 25px 40px;
@@ -43,6 +75,67 @@ export class GrampsjsViewTree extends GrampsjsView {
         #tabs {
           height: 85px;
         }
+
+        #controls {
+          position: absolute;
+          background-color: var(--md-sys-color-surface-container-low);
+          border-radius: 16px;
+          z-index: 1;
+          padding: 0 10px;
+          --grampsjs-icon-button-color: var(--grampsjs-body-font-color-35);
+          --grampsjs-icon-button-disabled-color: var(
+            --grampsjs-body-font-color-10
+          );
+          --grampsjs-icon-button-disabled-opacity: 1;
+        }
+
+        #chart {
+          height: calc(100vh - 178px);
+          margin-left: -40px;
+          margin-right: -40px;
+          margin-bottom: -25px;
+        }
+
+        @media (max-width: 768px) {
+          #chart {
+            margin-left: -20px;
+            margin-right: -20px;
+          }
+        }
+
+        @media (max-width: 599px) {
+          #chart {
+            height: calc(100vh - 170px);
+          }
+        }
+
+        #controls md-icon-button {
+          --md-icon-button-icon-size: 26px;
+        }
+
+        #controls md-input-chip {
+          --md-sys-color-outline: var(--grampsjs-body-font-color-30);
+          --md-sys-color-primary: var(--grampsjs-body-font-color-40);
+          position: relative;
+          top: 8px;
+          margin-left: 10px;
+          margin-bottom: 0px;
+        }
+
+        #usage-menu {
+          min-width: 13em;
+          --md-menu-item-one-line-container-height: 48px;
+        }
+
+        #menu-controls mwc-textfield {
+          width: 6em;
+        }
+
+        md-fab {
+          position: fixed;
+          bottom: 32px;
+          right: 32px;
+        }
       `,
     ]
   }
@@ -50,28 +143,94 @@ export class GrampsjsViewTree extends GrampsjsView {
   static get properties() {
     return {
       grampsId: {type: String},
-      view: {type: String},
       _history: {type: Array},
       _currentTabId: {type: Number},
+      _data: {type: Array},
+      _editMode: {type: Boolean},
+      _chartState: {type: Object},
     }
   }
 
   constructor() {
     super()
     this.grampsId = ''
-    this.view = 'ancestor'
     this._history = this.grampsId ? [this.grampsId] : []
     this._currentTabId = getTreeViewTabIndex(DEFAULT_TREE_VIEW)
     this._appliedTreeDefaultView = null
+    this._data = []
+    this._dataChart = undefined
+    this._dataUrl = ''
+    this._dataRequest = 0
+    this._editMode = false
+    this._chartState = {}
+    this._boundSelectPerson = this._selectPerson.bind(this)
+    this._boundToggleEditMode = this._toggleEditMode.bind(this)
+    this._boundDisableEditMode = this._disableEditMode.bind(this)
   }
 
-  shouldUpdate(changed) {
-    // Allow one render when active changes so child chart views receive
-    // the updated active value — the base class blocks renders when inactive.
-    if (changed.has('active')) {
-      return true
+  get chart() {
+    return TREE_VIEWS[this._currentTabId]
+  }
+
+  get definition() {
+    return chartDefinitions[this.chart] ?? chartDefinitions.ancestor
+  }
+
+  get settingValues() {
+    return chartSettingValues(this.definition, this.appState?.settings)
+  }
+
+  get chartState() {
+    return this._chartState
+  }
+
+  setChartState(changes) {
+    this._chartState = {...this._chartState, ...changes}
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('pedigree:person-selected', this._boundSelectPerson)
+    window.addEventListener('edit-mode:toggle', this._boundToggleEditMode)
+    window.addEventListener('edit-mode:off', this._boundDisableEditMode)
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    window.removeEventListener(
+      'pedigree:person-selected',
+      this._boundSelectPerson
+    )
+    window.removeEventListener('edit-mode:toggle', this._boundToggleEditMode)
+    window.removeEventListener('edit-mode:off', this._boundDisableEditMode)
+  }
+
+  willUpdate(changed) {
+    super.willUpdate(changed)
+    // The history gets each newly selected person, also one selected while
+    // the view was not active
+    if (this.grampsId && this.grampsId !== this._history.at(-1)) {
+      // limit history to 100 people
+      this._history = [...this._history, this.grampsId].slice(-100)
     }
-    return super.shouldUpdate(changed)
+    // People fetched for another chart are not passed to a new chart
+    if (this.chart !== this._dataChart) {
+      this._dataChart = this.chart
+      this._data = []
+      this._dataUrl = ''
+      this._chartState = {}
+    }
+  }
+
+  update(changed) {
+    super.update(changed)
+    if (this.active && (changed.has('active') || changed.has('settings'))) {
+      this._applyPreferredTabIfNeeded()
+    }
+    // A chart that changed during this update fetches in the next one
+    if (this.chart === this._dataChart) {
+      this._fetchIfNeeded()
+    }
   }
 
   updated(changed) {
@@ -81,17 +240,68 @@ export class GrampsjsViewTree extends GrampsjsView {
     }
   }
 
+  handleUpdateStaleData() {
+    if (this._dataUrl) {
+      this._fetchData(this._dataUrl)
+    }
+  }
+
+  // Fetches the people the chart needs when the request differs from the last
+  // one, which happens when the selected person, the chart, the language or a
+  // setting of the request changes
+  _fetchIfNeeded() {
+    if (!this.grampsId) {
+      return
+    }
+    const url = chartDataUrl(
+      this.definition,
+      this.grampsId,
+      this.settingValues,
+      this.appState?.i18n?.lang
+    )
+    if (url !== this._dataUrl) {
+      this._dataUrl = url
+      this._fetchData(url)
+    }
+  }
+
+  async _fetchData(url) {
+    this._dataRequest += 1
+    const request = this._dataRequest
+    this.loading = true
+    const data = await this.appState.apiGet(url)
+    if (request !== this._dataRequest) {
+      return
+    }
+    this.loading = false
+    if ('data' in data) {
+      this.error = false
+      this._data = data.data
+    } else if ('error' in data) {
+      this.error = true
+      this._errorMessage = data.error
+    }
+  }
+
   renderContent() {
     if (this.grampsId === '') {
       return this._renderNoHomePerson()
     }
+    const {editable} = this.definition
     return html`
       <div id="tabs">${this.renderTabs()}</div>
-      ${this._currentTabId === 0 ? this._renderPedigree() : ''}
-      ${this._currentTabId === 1 ? this._renderDescendantTree() : ''}
-      ${this._currentTabId === 2 ? this._renderHourglassTree() : ''}
-      ${this._currentTabId === 3 ? this._renderRelationshipChart() : ''}
-      ${this._currentTabId === 4 ? this._renderFan() : ''}
+      <div style="position: relative;">
+        <div id="controls">${this.renderControls()}</div>
+        <div id="chart">${this.renderChart()}</div>
+      </div>
+      ${editable && this.appState.permissions.canEdit && !this._editMode
+        ? this.renderFab()
+        : ''}
+      ${editable
+        ? html`<grampsjs-tree-chart-add-person
+            .appState="${this.appState}"
+          ></grampsjs-tree-chart-add-person>`
+        : ''}
     `
   }
 
@@ -146,89 +356,210 @@ export class GrampsjsViewTree extends GrampsjsView {
     `
   }
 
-  _renderFan() {
+  renderChart() {
+    const {definition} = this
+    const chart = keyed(
+      this.chart,
+      definition.render({
+        grampsId: this.grampsId,
+        values: this.settingValues,
+        data: this._data,
+        canEdit: this._editMode,
+        appState: this.appState,
+        state: this._chartState,
+      })
+    )
+    if (!definition.editable) {
+      return chart
+    }
     return html`
-      <grampsjs-view-fan-chart
-        @tree:back="${this._prevPerson}"
-        @tree:person="${this._goToPerson}"
-        @tree:home="${this._backToHomePerson}"
-        grampsId=${this.grampsId}
-        ?active=${this.active}
-        .appState="${this.appState}"
-        .settings=${this.settings}
-        ?disableBack=${this._history.length < 2}
-        ?disableHome=${this.grampsId === this.settings.homePerson}
-      >
-      </grampsjs-view-fan-chart>
+      <div @add-new-person-relation="${this._handleAddPersonRelation}">
+        ${chart}
+      </div>
     `
   }
 
-  _renderRelationshipChart() {
+  renderFab() {
     return html`
-      <grampsjs-view-relationship-chart
-        @tree:back="${this._prevPerson}"
-        @tree:person="${this._goToPerson}"
-        @tree:home="${this._backToHomePerson}"
-        grampsId=${this.grampsId}
-        ?active=${this.active}
-        .appState="${this.appState}"
-        .settings=${this.settings}
-        ?disableBack=${this._history.length < 2}
-        ?disableHome=${this.grampsId === this.settings.homePerson}
-      >
-      </grampsjs-view-relationship-chart>
+      <md-fab variant="secondary" @click="${this._enableEditMode}">
+        <grampsjs-icon
+          slot="icon"
+          .path="${mdiPencil}"
+          color="var(--mdc-theme-on-secondary)"
+        ></grampsjs-icon>
+      </md-fab>
     `
   }
 
-  _renderPedigree() {
+  renderControls() {
     return html`
-      <grampsjs-view-tree-chart
-        @tree:back="${this._prevPerson}"
-        @tree:person="${this._goToPerson}"
-        @tree:home="${this._backToHomePerson}"
-        grampsId=${this.grampsId}
-        ?active=${this.active}
-        .appState="${this.appState}"
-        .settings=${this.settings}
-        ?disableBack=${this._history.length < 2}
-        ?disableHome=${this.grampsId === this.settings.homePerson}
+      <md-icon-button
+        @click=${this._backToHomePerson}
+        style="margin-bottom:-10px;"
+        ?disabled=${this.grampsId === this.settings.homePerson}
+        aria-label="${this._('Home Person')}"
+        id="button-home"
+        ><grampsjs-icon
+          path="${mdiHomeAccount}"
+          color="currentColor"
+        ></grampsjs-icon
+      ></md-icon-button>
+      <grampsjs-tooltip for="button-home" .appState="${this.appState}"
+        >${this._('Home Person')}</grampsjs-tooltip
       >
-      </grampsjs-view-tree-chart>
+      <md-icon-button
+        @click=${this._prevPerson}
+        ?disabled=${this._history.length < 2}
+        style="margin-bottom:-10px;"
+        aria-label="${this._('_Back')}"
+        id="btn-back"
+        ><grampsjs-icon
+          path="${mdiArrowLeft}"
+          color="currentColor"
+        ></grampsjs-icon
+      ></md-icon-button>
+      <grampsjs-tooltip for="btn-back" .appState="${this.appState}"
+        >${this._('_Back')}</grampsjs-tooltip
+      >
+      <md-icon-button
+        @click=${this._goToPerson}
+        aria-label="${this._('Person Details')}"
+        id="btn-person"
+        ><grampsjs-icon
+          path="${mdiAccountDetails}"
+          color="currentColor"
+        ></grampsjs-icon
+      ></md-icon-button>
+      <grampsjs-tooltip for="btn-person" .appState="${this.appState}"
+        >${this._('Person Details')}</grampsjs-tooltip
+      >
+      <md-icon-button
+        id="btn-controls"
+        aria-label="${this._('Preferences')}"
+        @click=${this._openMenuControls}
+        ><grampsjs-icon path="${mdiCog}" color="currentColor"></grampsjs-icon
+      ></md-icon-button>
+      <grampsjs-tooltip for="btn-controls" .appState="${this.appState}"
+        >${this._('Preferences')}</grampsjs-tooltip
+      >
+      <md-dialog id="menu-controls">
+        <div slot="content">
+          <table>
+            ${this.definition.settings.map(
+              setting => html`
+                <tr>
+                  <td>${this._(setting.label)}</td>
+                  <td>${this._renderSettingInput(setting)}</td>
+                </tr>
+              `
+            )}
+          </table>
+        </div>
+        <div slot="actions">
+          <md-text-button @click="${this._resetSettings}"
+            >${this._('Reset')}</md-text-button
+          >
+          <md-text-button @click="${this._closeMenuControls}"
+            >${this._('Close')}</md-text-button
+          >
+        </div>
+      </md-dialog>
+      ${this.definition.renderControls?.(this) ?? ''}
     `
   }
 
-  _renderDescendantTree() {
+  _renderSettingInput(setting) {
+    const value = this.settingValues[setting.name]
+    if (setting.type === 'nameDisplayFormat') {
+      return html`
+        <md-filled-select
+          id="name-display-format"
+          @change=${e => this._changeSetting(setting, e.target.value)}
+        >
+          ${map(
+            Object.values(chartNameDisplayFormat),
+            format => html`<md-select-option
+              value="${format}"
+              ?selected="${format === value}"
+            >
+              <div slot="headline">${this._(format)}</div>
+            </md-select-option>`
+          )}
+        </md-filled-select>
+      `
+    }
     return html`
-      <grampsjs-view-descendant-chart
-        @tree:back="${this._prevPerson}"
-        @tree:person="${this._goToPerson}"
-        @tree:home="${this._backToHomePerson}"
-        grampsId=${this.grampsId}
-        ?active=${this.active}
-        .appState="${this.appState}"
-        .settings=${this.settings}
-        ?disableBack=${this._history.length < 2}
-        ?disableHome=${this.grampsId === this.settings.homePerson}
-      >
-      </grampsjs-view-descendant-chart>
+      <mwc-textfield
+        value=${value}
+        type="number"
+        min=${setting.min}
+        size=${ifDefined(setting.size)}
+        @change=${e =>
+          this._changeSetting(setting, parseInt(e.target.value, 10))}
+      ></mwc-textfield>
     `
   }
 
-  _renderHourglassTree() {
-    return html`
-      <grampsjs-view-hourglass-chart
-        @tree:back="${this._prevPerson}"
-        @tree:person="${this._goToPerson}"
-        @tree:home="${this._backToHomePerson}"
-        grampsId=${this.grampsId}
-        ?active=${this.active}
-        .appState="${this.appState}"
-        .settings=${this.settings}
-        ?disableBack=${this._history.length < 2}
-        ?disableHome=${this.grampsId === this.settings.homePerson}
-      >
-      </grampsjs-view-hourglass-chart>
-    `
+  _changeSetting(setting, value) {
+    this.appState.updateSettings({[setting.key]: value}, false)
+  }
+
+  _resetSettings() {
+    this.appState.updateSettings(
+      Object.fromEntries(
+        this.definition.settings.map(setting => [setting.key, setting.default])
+      ),
+      false
+    )
+  }
+
+  _openMenuControls() {
+    this.renderRoot.getElementById('menu-controls').show()
+  }
+
+  _closeMenuControls() {
+    this.renderRoot.getElementById('menu-controls').close()
+  }
+
+  _enableEditMode() {
+    if (!this.definition.editable) {
+      return
+    }
+    this._editMode = true
+    fireEvent(this, 'edit-mode:on', {
+      title: this._('Edit'),
+      hideDeleteButton: true,
+    })
+  }
+
+  _disableEditMode() {
+    this._editMode = false
+  }
+
+  _toggleEditMode() {
+    if (
+      !this.active ||
+      !this.definition.editable ||
+      !this.appState.permissions.canEdit
+    ) {
+      return
+    }
+    if (this._editMode) {
+      this._disableEditMode()
+      fireEvent(this, 'edit-mode:off', {})
+    } else {
+      this._enableEditMode()
+    }
+  }
+
+  _handleAddPersonRelation(e) {
+    const personData = this._data.find(p => p.handle === e.detail.handle)
+    if (!personData) {
+      return
+    }
+    this.renderRoot
+      .querySelector('grampsjs-tree-chart-add-person')
+      ?.open(personData)
   }
 
   // Shown whenever no home person is set. An empty tree has nobody to pick, so
@@ -315,26 +646,6 @@ export class GrampsjsViewTree extends GrampsjsView {
 
   _goToPerson() {
     fireEvent(this, 'nav', {path: `person/${this.grampsId}`})
-  }
-
-  connectedCallback() {
-    super.connectedCallback()
-    window.addEventListener(
-      'pedigree:person-selected',
-      this._selectPerson.bind(this)
-    )
-  }
-
-  update(changed) {
-    super.update(changed)
-    if (changed.has('grampsId')) {
-      this._history.push(this.grampsId)
-      // limit history to 100 people
-      this._history = this._history.slice(-100)
-    }
-    if (this.active && (changed.has('active') || changed.has('settings'))) {
-      this._applyPreferredTabIfNeeded()
-    }
   }
 
   _applyPreferredTabIfNeeded() {
