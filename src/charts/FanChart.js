@@ -532,7 +532,7 @@ export function FanChart(
     .attr('id', 'legend')
     .attr(
       'transform',
-      `translate(${minX + xOffset + 60}, ${minY + yOffset + 120})`
+      `translate(${minX + xOffset + 60}, ${minY + yOffset + 152})`
     )
 
   svg.select('#legend').call(legendFunction)

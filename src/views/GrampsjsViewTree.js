@@ -229,10 +229,14 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
         #controls md-input-chip {
           --md-sys-color-outline: var(--grampsjs-body-font-color-30);
           --md-sys-color-primary: var(--grampsjs-body-font-color-40);
-          position: relative;
-          top: 8px;
-          margin-left: 10px;
-          margin-bottom: 0px;
+          max-width: 240px;
+          margin: 0 4px;
+        }
+
+        @media (max-width: 599px) {
+          #controls md-input-chip {
+            max-width: 140px;
+          }
         }
 
         #usage-menu {

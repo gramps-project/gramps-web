@@ -85,19 +85,48 @@ const fanColors = {
   nPaths: 'Ancestor frequency',
 }
 
+// The colour control of the fan chart: a palette button that opens the menu of
+// colours or, once a colour is chosen, a chip with that colour that opens the
+// menu and can be removed
 function renderFanColorControls(view) {
   const {color} = view.chartState
   const setColor = value => view.setChartState({color: value})
+  const openMenu = () => {
+    view.renderRoot.querySelector('#usage-menu').open = true
+  }
+  const control =
+    color && fanColors[color]
+      ? html`
+          <md-input-chip
+            id="btn-color"
+            label="${view._(fanColors[color])}"
+            @click=${openMenu}
+            @remove=${e => {
+              // The chip is replaced by the palette button on the next
+              // render, so it does not remove itself
+              e.preventDefault()
+              setColor('')
+            }}
+          >
+            <svg viewBox="0 0 24 24" slot="icon">
+              <path d="${mdiPalette}" />
+            </svg>
+          </md-input-chip>
+        `
+      : html`
+          <md-icon-button
+            @click=${openMenu}
+            aria-label="${view._('Color')}"
+            id="btn-color"
+          >
+            <grampsjs-icon
+              path="${mdiPalette}"
+              color="currentColor"
+            ></grampsjs-icon>
+          </md-icon-button>
+        `
   return html`
-    <md-icon-button
-      @click=${() => {
-        view.renderRoot.querySelector('#usage-menu').open = true
-      }}
-      aria-label="${view._('Color')}"
-      id="btn-color"
-    >
-      <grampsjs-icon path="${mdiPalette}" color="currentColor"></grampsjs-icon>
-    </md-icon-button>
+    ${control}
     <grampsjs-tooltip for="btn-color" .appState="${view.appState}"
       >${view._('Color')}</grampsjs-tooltip
     >
@@ -112,20 +141,6 @@ function renderFanColorControls(view) {
         )}
       </md-menu>
     </span>
-    ${color && fanColors[color]
-      ? html`
-          <div style="display: inline-block; height: 50px;">
-            <md-input-chip
-              label="${view._(fanColors[color])}"
-              @remove="${() => setColor('')}"
-            >
-              <svg viewBox="0 0 24 24" slot="icon">
-                <path d="${mdiPalette}" />
-              </svg>
-            </md-input-chip>
-          </div>
-        `
-      : ''}
   `
 }
 
