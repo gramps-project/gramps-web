@@ -424,5 +424,8 @@
     "Connect the people in your tree by adding a family.": "Reliez les personnes de votre arbre généalogique en créant une famille.",
     "The server uses configuration options that are no longer supported.": "Le serveur utilise des options de configuration qui ne sont plus prises en charge.",
     "Support will be removed in Gramps Web API %s.": "La prise en charge sera supprimée dans l'API de Gramps Web %s.",
-    "This Gramps Web instance has already been set up. Log in with an existing account.": "Cette instance de Gramps Web a déjà été configurée. Connectez-vous avec un compte existant."
+    "This Gramps Web instance has already been set up. Log in with an existing account.": "Cette instance de Gramps Web a déjà été configurée. Connectez-vous avec un compte existant.",
+    "Fit to window": "Ajuster à la fenêtre",
+    "Center on selected person": "Centrer sur la personne sélectionnée",
+    "Move the chart": "Déplacer le graphique"
 }
