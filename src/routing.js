@@ -43,7 +43,12 @@ export function selectPreReadyView(
       return {
         view: 'login',
         navigateTo: page !== 'login' ? 'login' : null,
-        redirect: loginRedirect && page !== 'login' ? loginRedirect : null,
+        // On firstrun the app explains that an owner already exists, which an
+        // external redirect would hide.
+        redirect:
+          loginRedirect && !['login', 'firstrun'].includes(page)
+            ? loginRedirect
+            : null,
       }
     }
     case LOADING_STATE_NO_OWNER:

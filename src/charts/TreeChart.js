@@ -1,446 +1,286 @@
-import {min, max} from 'd3-array'
 import {create} from 'd3-selection'
-import {hierarchy, tree} from 'd3-hierarchy'
 import {curveBumpX, link, symbolTriangle, symbol} from 'd3-shape'
-import {zoom} from 'd3-zoom'
-import {chartNameDisplayFormat, fireEvent} from '../util.js'
-import {appendAddPersonButton} from './addPersonButton.js'
+import {fireEvent} from '../util.js'
+import {
+  currentPositions,
+  elementPosition,
+  interpolatePoint,
+  joinWithTransitions,
+  keyOf,
+  moveElements,
+  translate,
+} from './animatedJoin.js'
+import {ChartViewport} from './ChartViewport.js'
+import {treeLayoutDefaults} from './layout/treeLayout.js'
+import {chartPalette} from './palette.js'
+import {drawChangedCards, updatePersonCardInteraction} from './personCard.js'
 
-const genderColor = {
-  0: 'var(--color-girl)',
-  1: 'var(--color-boy)',
-  2: 'var(--color-unknown)',
-  3: 'var(--color-other)',
-}
+const {boxWidth, boxHeight} = treeLayoutDefaults
 
-// Returns the total depth of the tree
-function countDepthOfTree(treeData) {
-  if (treeData == null) {
-    return 0
-  }
-  return (
-    1 +
-    Math.max(
-      countDepthOfTree(treeData?.children?.[0]),
-      countDepthOfTree(treeData?.children?.[1])
-    )
+// Returns keys that stay the same for a person across layouts with different
+// root people: the handle, numbered when a person appears more than once, or
+// the layout key for a person who was not fetched
+function joinKeys(layout) {
+  const occurrences = new Map()
+  return new Map(
+    layout.nodes.map(node => {
+      if (!node.handle) {
+        return [node, `key:${node.key}`]
+      }
+      const occurrence = occurrences.get(node.handle) ?? 0
+      occurrences.set(node.handle, occurrence + 1)
+      return [node, `${node.handle}:${occurrence}`]
+    })
   )
 }
 
-function getMinMaxX(descendants) {
-  const xValues = descendants.map(d => d.x)
-  const maxX = max(xValues)
-  const minX = min(xValues)
-  return [minX, maxX]
+// Gives `node` the join key `key`, and gives the node that had that key the
+// previous key of `node`
+function assignKey(keys, node, key) {
+  const previousKey = keys.get(node)
+  for (const [other, otherKey] of keys) {
+    if (otherKey === key) {
+      keys.set(other, previousKey)
+    }
+  }
+  keys.set(node, key)
 }
 
-function TreeChartCore(
-  svgParent,
-  data,
-  {
-    depth = 3,
-    padding = 20, // horizontal padding for first and last column
-    gapX = 30, // horizontal gap between boxes
-    gapY = 5, // vertical gap between boxes
-    stroke = 'var(--grampsjs-body-font-color-70)', // stroke for links
-    strokeWidth = 1, // stroke width for links
-    strokeOpacity = 0.4, // stroke opacity for links
-    strokeLinejoin, // stroke line join for links
-    strokeLinecap, // stroke line cap for links
-    curve = curveBumpX, // curve for the link
-    boxWidth = 190,
-    boxHeight = 90,
-    imgPadding = 10,
-    childrenTriangle = true,
-    getImageUrl = null,
-    orientation = 'LTR',
-    nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
-    canEdit = false,
-    birthSymbol = '∗',
-    deathSymbol = '†',
-  } = {}
-) {
-  // Create a hierarchical data structure based on the input data
-  const root = hierarchy(data)
+const place = node => [node.x, node.y]
 
-  const descendants = root.descendants()
-
-  // The true depth of the tree may be less than the passed in "depth" if the tree just doesn't
-  // go that far back
-  const trueDepth = Math.min(countDepthOfTree(data), depth)
-
-  tree()
-    .nodeSize([boxHeight + gapY, boxWidth + gapX])
-    .separation((a, b) => (a.parent === b.parent ? 1 : 1))(root)
-
-  // Center the tree.
-  let x0 = Infinity
-  let x1 = -x0
-  root.each(d => {
-    if (d.x > x1) x1 = d.x
-    if (d.x < x0) x0 = d.x
+// Returns the path of a link, which joins the facing sides of two boxes
+// slightly inside their edges
+function linkPath(source, target) {
+  const inset = boxWidth / 2 - 10
+  const direction = Math.sign(target[0] - source[0])
+  return link(curveBumpX)({
+    source: [source[0] + direction * inset, source[1]],
+    target: [target[0] - direction * inset, target[1]],
   })
+}
 
-  if (orientation === 'RTL') {
-    descendants.forEach(d => {
-      // eslint-disable-next-line no-param-reassign
-      d.y = -d.y
+// Draws layouts from `layoutAncestors`, `layoutDescendants` or
+// `layoutHourglass` into an SVG that is created once. Each update changes only
+// what differs: positions, the viewBox and edit mode are updated in place, and
+// a card is redrawn only when its person, image, name format or palette
+// changes. People are matched across layouts by handle, so a person who is in
+// both keeps their node and card.
+export class TreeChart {
+  constructor() {
+    this._svg = create('svg')
+      .attr('font-family', 'Inter var')
+      .attr('font-size', 13)
+    const content = this._svg.append('g').attr('id', 'chart-content')
+    this._viewport = new ChartViewport(this._svg, content)
+    this._links = content
+      .append('g')
+      .attr('fill', 'none')
+      .attr('stroke-opacity', 0.4)
+      .attr('stroke-width', 1)
+    this._nodes = content.append('g')
+    this._layout = undefined
+    this._keys = new Map()
+  }
+
+  get node() {
+    return this._svg.node()
+  }
+
+  // Removes all people and links, keeping the zoom transform
+  clear() {
+    this._links.selectChildren().remove()
+    this._nodes.selectChildren().remove()
+  }
+
+  // With `childrenTriangle`, the root person gets a triangle that opens the
+  // menu of relatives, on the left for orientation 'LTR' and on the right for
+  // 'RTL'. Without `interactive`, the chart has no add person buttons,
+  // triangle, click or hover handling, cursors or shadows. Colours come from
+  // `palette`. With a `duration` in milliseconds, a new layout is animated:
+  // people move from where they were, people who leave fade out and new people
+  // fade in.
+  update(
+    layout,
+    {
+      childrenTriangle = false,
+      orientation = 'LTR',
+      getImageUrl = () => '',
+      nameDisplayFormat,
+      canEdit = false,
+      interactive = true,
+      palette = chartPalette,
+      duration = 0,
+      bboxWidth,
+      bboxHeight,
+    }
+  ) {
+    // Only a new layout is animated. The chart component passes the same
+    // layout object when only the size, edit mode or name format changes.
+    const newLayout = layout !== this._layout
+    const animationDuration = newLayout ? duration : 0
+    this._layout = layout
+    const keys = joinKeys(layout)
+    const previousKeys = this._keys
+    this._keys = keys
+
+    // Positions have to be read before the joins move the nodes
+    const positions = currentPositions(this._nodes, '.person-node')
+    const root = layout.nodes.find(node => node.generation === 0)
+    const {offset, keptKey} = this._viewport.show({
+      bounds: layout.bounds,
+      size: [bboxWidth, bboxHeight],
+      rootHandle: root.handle,
+      // Any node of the root person in the previous layout can become the
+      // root node, which is at the origin
+      candidates: [...previousKeys]
+        .filter(([node]) => node.handle === root.handle)
+        .map(([, key]) => ({key, position: [0, 0]})),
+      positions,
+      newLayout,
+    })
+    // The node kept in place becomes the root node, also when it is another
+    // occurrence of a person who appears more than once
+    if (keptKey) {
+      assignKey(keys, root, keptKey)
+    }
+    const transitions = {
+      keys,
+      previousKeys,
+      duration: animationDuration,
+      // Where a node was, by the key it was joined with, in the coordinates of
+      // the new layout
+      previous: (key, fallback) => {
+        const position = positions.get(key)
+        return position
+          ? [position[0] - offset[0], position[1] - offset[1]]
+          : fallback
+      },
+    }
+
+    this._joinLinks(layout.links, transitions, palette)
+    const nodes = this._joinNodes(layout.nodes, transitions, {
+      interactive,
+      palette,
+    })
+    drawChangedCards(nodes, {
+      getImageUrl,
+      nameDisplayFormat,
+      palette,
+      boxWidth,
+      boxHeight,
+    })
+    updatePersonCardInteraction(nodes, {
+      interactive,
+      canEdit,
+      palette,
+      boxWidth,
+      boxHeight,
+    })
+    this._updateTriangle(nodes, {
+      interactive,
+      childrenTriangle,
+      orientation,
+      palette,
     })
   }
-  // Use the required curve
-  if (typeof curve !== 'function') throw new Error('Unsupported curve')
-  const width = trueDepth * boxWidth + (trueDepth - 1) * gapX + 2 * padding
-  const [minX, maxX] = getMinMaxX(descendants)
-  const height = maxX - minX + boxHeight
-  const yOffset = minX - boxHeight / 2
-  const xOffset =
-    orientation === 'RTL'
-      ? boxWidth / 2 + padding - width
-      : -boxWidth / 2 - padding
 
-  const chart = svgParent
-    .append('g')
-    .attr('transform', `translate(${-xOffset},${0})`)
+  _joinLinks(links, {keys, previousKeys, previous, duration}, palette) {
+    const joined = joinWithTransitions(
+      this._links.attr('stroke', palette.link),
+      '.link',
+      links,
+      {
+        key: l => keys.get(l.target),
+        enter: enter => enter.append('path').attr('class', 'link'),
+        exit: exit =>
+          exit.attr('d', l =>
+            linkPath(
+              previous(previousKeys.get(l.source), place(l.source)),
+              previous(previousKeys.get(l.target), place(l.target))
+            )
+          ),
+        duration,
+      }
+    )
+    if (duration > 0) {
+      const start = node => previous(keys.get(node), place(node))
+      joined
+        .transition()
+        .duration(duration)
+        .attrTween('d', l => {
+          const source = interpolatePoint(start(l.source), place(l.source))
+          const target = interpolatePoint(start(l.target), place(l.target))
+          return t => linkPath(source(t), target(t))
+        })
+    } else {
+      joined.attr('d', l => linkPath(place(l.source), place(l.target)))
+    }
+  }
 
-  chart
-    .append('g')
-    .attr('fill', 'none')
-    .attr('stroke', stroke)
-    .attr('stroke-opacity', strokeOpacity)
-    .attr('stroke-linecap', strokeLinecap)
-    .attr('stroke-linejoin', strokeLinejoin)
-    .attr('stroke-width', strokeWidth)
-    .selectAll('path')
-    .data(root.links())
-    .join('path')
-    .attr('d', d => {
-      const sourceX = d.source.x
-      const sourceY =
-        orientation === 'LTR'
-          ? d.source.y + boxWidth / 2 - 10
-          : d.source.y - boxWidth / 2 + 10
-      const targetX = d.target.x
-      const targetY =
-        orientation === 'LTR'
-          ? d.target.y - boxWidth / 2 + 10
-          : d.target.y + boxWidth / 2 - 10
-
-      return link(curve)
-        .x(dd => dd.y)
-        .y(dd => dd.x)({
-        source: {x: sourceX, y: sourceY},
-        target: {x: targetX, y: targetY},
-      })
+  _joinNodes(nodes, {keys, previous, duration}, {interactive, palette}) {
+    const joined = joinWithTransitions(this._nodes, '.person-node', nodes, {
+      key: d => keys.get(d),
+      enter: enter => {
+        const node = enter.append('g').attr('class', 'person-node')
+        node.append('g').attr('class', 'person-card')
+        return node
+      },
+      exit: exit =>
+        exit.attr('transform', function () {
+          return translate(previous(keyOf(this), elementPosition(this)))
+        }),
+      duration,
     })
-
-  const node = chart
-    .append('g')
-    .selectAll('a')
-    .data(descendants)
-    .join('a')
-    .attr('transform', d => `translate(${d.y},${d.x})`)
-    .style('filter', d =>
-      d.depth === 0
-        ? 'drop-shadow(0 3px 8px var(--grampsjs-body-font-color-30))'
-        : null
-    )
-
-  node
-    .append('rect')
-    .filter(d => d.data.person)
-    .attr(
-      'fill',
-      d => genderColor[d.data?.person?.gender] ?? 'var(--color-unknown)'
-    )
-    .attr('width', 24)
-    .attr('height', boxHeight - 1)
-    .attr('rx', 12)
-    .attr('ry', 12)
-    .attr(
-      'transform',
-      `translate(${-boxWidth / 2 - 4},${-boxHeight / 2 + 0.5})`
-    )
-    .attr('id', d => d.data.id) // Unique id for each rect
-
-  function clicked(event, d) {
-    dispatchEvent(
-      new CustomEvent('pedigree:person-selected', {
-        bubbles: true,
-        composed: true,
-        detail: {grampsId: d.data?.person?.gramps_id},
-      })
-    )
+      .style('filter', d =>
+        interactive && d.generation === 0
+          ? `drop-shadow(0 3px 8px ${palette.shadow})`
+          : null
+      )
+      .on(
+        'click.pin',
+        interactive
+          ? (event, d) => this._viewport.rememberClick(d.handle, keys.get(d))
+          : null
+      )
+    moveElements(joined, {
+      position: place,
+      start: d => previous(keys.get(d), place(d)),
+      duration,
+    })
+    return joined
   }
 
-  node
-    .append('rect')
-    .filter(d => d.data.person)
-    .attr('fill', 'var(--grampsjs-color-shade-230)')
-    .attr('width', boxWidth)
-    .attr('height', boxHeight)
-    .attr('rx', 8)
-    .attr('ry', 8)
-    .attr('transform', `translate(${-boxWidth / 2},${-boxHeight / 2})`)
-    .attr('id', d => d.data.id) // Unique id for each slice
-
-  function triangleClicked(e) {
-    fireEvent(this, 'pedigree:show-children', {pageX: e.pageX, pageY: e.pageY})
-    e.stopPropagation()
-    e.preventDefault()
-  }
-
-  function yPos(d) {
-    return orientation === 'LTR'
-      ? d.y - boxWidth / 2 - 12
-      : d.y + boxWidth / 2 + 12
-  }
-
-  if (childrenTriangle) {
-    const triangle = symbol().type(symbolTriangle).size(200)
-
-    const angle = orientation === 'LTR' ? -90 : 90
-
-    node
-      .append('path')
-      .filter(d => d.depth === 0)
-      .attr('d', triangle)
+  _updateTriangle(
+    nodes,
+    {interactive, childrenTriangle, orientation, palette}
+  ) {
+    const side = orientation === 'LTR' ? -1 : 1
+    nodes
+      .selectChildren('.children-triangle')
+      .data(d =>
+        interactive && childrenTriangle && d.generation === 0 ? [d] : []
+      )
+      .join(enter =>
+        enter
+          .append('path')
+          .attr('class', 'children-triangle')
+          .attr('id', 'triangle-children')
+          .attr('d', symbol().type(symbolTriangle).size(200))
+          .on('click', function (e) {
+            fireEvent(this, 'pedigree:show-children', {
+              pageX: e.pageX,
+              pageY: e.pageY,
+            })
+            e.stopPropagation()
+            e.preventDefault()
+          })
+      )
+      .attr('fill', palette.triangle)
       .attr(
         'transform',
-        d => `translate(${yPos(d)},${d.x}) rotate(${angle}) scale(-1, 0.5)`
+        `translate(${side * (boxWidth / 2 + 12)},0) rotate(${
+          side * 90
+        }) scale(-1, 0.5)`
       )
-      .attr('fill', 'var(--grampsjs-body-font-color-30)')
-      .attr('id', 'triangle-children')
-      .on('click', triangleClicked)
   }
-
-  const imgRadius = (boxHeight - imgPadding * 2) / 2
-  const textPadding = d =>
-    getImageUrl(d) ? 2 * imgRadius + 2 * imgPadding : 2 * imgPadding
-
-  const clipString = (s, length) => {
-    if (!s) {
-      return ''
-    }
-    const fontSize = 13
-    const nChar = length / (fontSize * 0.6)
-    if (s.length <= nChar) {
-      return s
-    }
-    if (nChar < 2) {
-      return ''
-    }
-    return `${s.slice(0, nChar - 2)}…`
-  }
-
-  const textWidth = d =>
-    getImageUrl(d)
-      ? boxWidth - 2 * imgPadding - 2 * imgRadius
-      : boxWidth - 2 * imgPadding
-
-  node
-    .append('text')
-    .filter(d => d.data.name_given || d.data.name_surname)
-    .attr('y', -boxHeight / 2 + 25)
-    .attr('x', d => -boxWidth / 2 + textPadding(d))
-    .attr('text-anchor', 'start')
-    .attr('font-weight', '500')
-    .attr('fill', 'var(--grampsjs-body-font-color-90)')
-    .attr('paint-order', 'stroke')
-    .text(d =>
-      clipString(
-        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
-          ? `${d.data.name_surname || '…'},`
-          : d.data.name_given || '…',
-        textWidth(d)
-      )
-    )
-
-  node
-    .append('text')
-    .filter(d => d.data.name_given || d.data.name_surname)
-    .attr('y', -boxHeight / 2 + 25 + 17)
-    .attr('x', d => -boxWidth / 2 + textPadding(d))
-    .attr('width', 50)
-    .attr('text-anchor', 'start')
-    .attr('font-weight', '500')
-    .attr('fill', 'var(--grampsjs-body-font-color-90)')
-    .attr('paint-order', 'stroke')
-    .attr('text-overflow', 'ellipsis')
-    .attr('overflow', 'hidden')
-    .attr('width', 25)
-    .text(d =>
-      clipString(
-        nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
-          ? d.data.name_given || '…'
-          : d.data.name_surname || '…',
-        textWidth(d)
-      )
-    )
-
-  node
-    .append('text')
-    .filter(d => d.data.person?.profile?.birth?.date)
-    .attr('y', -boxHeight / 2 + 25 + 17 * 2)
-    .attr('x', d => -boxWidth / 2 + textPadding(d))
-    .attr('text-anchor', 'start')
-    .attr('font-weight', '350')
-    .attr('fill', 'var(--grampsjs-body-font-color-90)')
-    .attr('paint-order', 'stroke')
-    .text(d =>
-      clipString(
-        `${birthSymbol} ${d.data.person.profile.birth.date}`,
-        textWidth(d)
-      )
-    )
-
-  node
-    .append('text')
-    .filter(d => d.data.person?.profile?.death?.date)
-    .attr('y', -boxHeight / 2 + 25 + 17 * 3)
-    .attr('x', d => -boxWidth / 2 + textPadding(d))
-    .attr('text-anchor', 'start')
-    .attr('font-weight', '350')
-    .attr('fill', 'var(--grampsjs-body-font-color-90)')
-
-    .attr('paint-order', 'stroke')
-    .text(d =>
-      clipString(
-        `${deathSymbol} ${d.data.person.profile.death.date}`,
-        textWidth(d)
-      )
-    )
-
-  if (canEdit) {
-    appendAddPersonButton(
-      node.filter(d => d.data.person),
-      boxWidth / 2 - 14,
-      -boxHeight / 2 + 14,
-      d => d.data.person?.handle
-    )
-  }
-
-  node
-    .filter(getImageUrl)
-    .append('circle')
-    .attr('r', imgRadius)
-    .attr('cy', -boxHeight / 2 + imgRadius + imgPadding)
-    .attr('cx', -boxWidth / 2 + imgRadius + imgPadding)
-    .attr('fill', d => `url(#imgpattern-${d.data.id})`)
-
-  const defs = svgParent.append('defs')
-
-  const imgPattern = defs
-    .selectAll('.imgpattern')
-    .data(descendants)
-    .enter()
-    .append('pattern')
-    .attr('id', d => `imgpattern-${d.data.id}`)
-    .attr('height', 1)
-    .attr('width', 1)
-    .attr('x', '0')
-    .attr('y', '0')
-
-  imgPattern
-    .append('image')
-    .attr('x', 0)
-    .attr('y', 0)
-    .attr('height', 70)
-    .attr('width', 70)
-    .attr('xlink:href', getImageUrl)
-
-  node
-    .style('cursor', canEdit ? 'default' : 'pointer')
-    .on('click', canEdit ? null : clicked)
-    .on('mouseenter', function (event, d) {
-      if (canEdit) return
-      if (window.matchMedia('(hover: none)').matches) return
-      const grampsId = d.data?.person?.gramps_id
-      if (!grampsId) return
-      window.dispatchEvent(
-        new CustomEvent('object:preview-show', {
-          detail: {
-            objectType: 'person',
-            grampsId,
-            anchorRect: this.getBoundingClientRect(),
-          },
-        })
-      )
-    })
-    .on('mouseleave', () => {
-      if (window.matchMedia('(hover: none)').matches) return
-      window.dispatchEvent(new CustomEvent('object:preview-hide'))
-    })
-
-  return [xOffset, yOffset, width, height, boxWidth + 2 * padding]
-}
-
-export function TreeChart(dataDescendants, dataAncestors, chartsettings) {
-  const svg = create('svg')
-    .call(
-      zoom().on('zoom', e =>
-        svg.select('#chart-content').attr('transform', e.transform)
-      )
-    )
-    .attr('font-family', 'Inter var')
-    .attr('font-size', 13)
-
-  const chartContent = svg.append('g').attr('id', 'chart-content')
-
-  // Restore zoom state from previous render if available
-  if (chartsettings.initialZoom) {
-    svg.node().__zoom = chartsettings.initialZoom
-    chartContent.attr('transform', chartsettings.initialZoom.toString())
-  }
-
-  let width = 0
-  let height = 0
-  let xMin = 0
-  let yMin = 0
-  let yMax = 0
-  let xOffset = 0
-  let yOffset = 0
-
-  if (dataDescendants) {
-    const chartD = chartContent.append('g')
-    const [xD, yD, widthD, heightD, overlap] = TreeChartCore(
-      chartD,
-      dataDescendants,
-      {...chartsettings, orientation: 'RTL', depth: chartsettings.nDesc}
-    )
-    chartD.attr('transform', `translate(${-widthD + overlap},0)`)
-    yMin = Math.min(yMin, yD)
-    yMax = Math.max(yMax, yD + heightD)
-    xMin = Math.min(xMin, xD)
-    width += widthD - overlap
-  }
-  if (dataAncestors) {
-    const chartA = chartContent.append('g')
-    const [xA, yA, widthA, heightA] = TreeChartCore(chartA, dataAncestors, {
-      ...chartsettings,
-      orientation: 'LTR',
-      depth: chartsettings.nAnc,
-    })
-    chartA.attr('transform', 'translate(0,0)')
-    yMin = Math.min(yMin, yA)
-    yMax = Math.max(yMax, yA + heightA)
-    xMin = Math.min(xMin, xA)
-    width += widthA
-  }
-
-  xOffset = xMin
-  height = yMax - yMin
-  if (chartsettings.bboxWidth > width) {
-    xOffset -= (chartsettings.bboxWidth - width) / 2
-  }
-  yOffset = yMin
-  if (chartsettings.bboxHeight > height) {
-    yOffset -= (chartsettings.bboxHeight - height) / 2
-  }
-  svg.attr('viewBox', [
-    xOffset,
-    yOffset,
-    chartsettings.bboxWidth,
-    chartsettings.bboxHeight,
-  ])
-  return svg.node()
 }

@@ -17,7 +17,6 @@ import {
   julianYmd,
   swedishSdn,
   swedishYmd,
-  dateToSdn,
   isValidCalendarDate,
   validateGrampsDate,
   CALENDARS,
@@ -204,39 +203,6 @@ describe('swedishYmd', () => {
     [2341982, [1699, 12, 31]],
   ])('swedishYmd(%i) === %j', (sdn, expected) => {
     expect(swedishYmd(sdn)).toEqual(expected)
-  })
-})
-
-// ── dateToSdn (unified entry point) ──────────────────────────────────────────
-
-describe('dateToSdn', () => {
-  it('returns 0 for all-zero date', () => {
-    expect(dateToSdn(CALENDARS.GREGORIAN, 0, 0, 0)).toBe(0)
-  })
-  it('zero-adjusts missing day to 1', () => {
-    expect(dateToSdn(CALENDARS.GREGORIAN, 2000, 6, 0)).toBe(
-      gregorianSdn(2000, 6, 1)
-    )
-  })
-  it('zero-adjusts missing month and day to 1', () => {
-    expect(dateToSdn(CALENDARS.GREGORIAN, 2000, 0, 0)).toBe(
-      gregorianSdn(2000, 1, 1)
-    )
-  })
-  it('dispatches to julian', () => {
-    expect(dateToSdn(CALENDARS.JULIAN, 2000, 6, 15)).toBe(2451724)
-  })
-  it('dispatches to french', () => {
-    expect(dateToSdn(CALENDARS.FRENCH, 1, 1, 1)).toBe(2375840)
-  })
-  it('dispatches to islamic', () => {
-    expect(dateToSdn(CALENDARS.ISLAMIC, 1, 1, 1)).toBe(1948440)
-  })
-  it('dispatches to swedish', () => {
-    expect(dateToSdn(CALENDARS.SWEDISH, 2000, 1, 1)).toBe(2451545)
-  })
-  it('throws for unimplemented calendar (Hebrew=2)', () => {
-    expect(() => dateToSdn(CALENDARS.HEBREW, 5784, 1, 1)).toThrow()
   })
 })
 

@@ -75,6 +75,11 @@ export class GrampsjsViewRelationshipChart extends GrampsjsViewTreeChartBase {
     }
   }
 
+  // The chart also shows other parent families, such as adoptive parents
+  _getExtend() {
+    return `${super._getExtend()},parent_family_list`
+  }
+
   renderChart() {
     return html`
       <div @add-new-person-relation="${this._handleAddPersonRelation}">

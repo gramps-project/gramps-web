@@ -1,25 +1,23 @@
 import {html, css} from 'lit'
-import {zoomTransform} from 'd3-zoom'
 
 import '@material/mwc-menu'
 import '@material/mwc-list/mwc-list-item'
 
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 import {RelationshipChart} from '../charts/RelationshipChart.js'
+import {layoutRelationships} from '../charts/layout/relationshipLayout.js'
 import {getImageUrl} from '../charts/util.js'
 import {getSymbols} from '../symbols.js'
+import {fireEvent} from '../util.js'
+
+// Duration of the transition between two layouts, in milliseconds
+const transitionDuration = 400
 
 class GrampsjsRelationshipChart extends GrampsjsChartBase {
   static get styles() {
     return [
       super.styles,
       css`
-        svg a {
-          text-decoration: none !important;
-        }
-        svg .personBox {
-          fill: var(--grampsjs-color-shade-230);
-        }
         mwc-menu {
           --mdc-typography-subtitle1-font-size: 13px;
           --mdc-menu-item-height: 36px;
@@ -43,35 +41,74 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     super()
     this.grampsId = ''
     this.gapX = 30
-    this._savedZoom = null
+    this._chart = new RelationshipChart()
+    this._layout = null
+    this._layoutRequest = 0
   }
 
-  willUpdate() {
-    // Save zoom transform before Lit replaces the SVG node
-    const svg = this.renderRoot
-      ?.getElementById('container')
-      ?.querySelector('svg')
-    this._savedZoom = svg ? zoomTransform(svg) : null
+  render() {
+    return html`<div id="container"></div>`
   }
 
-  renderChart() {
-    if (this.data.length === 0 || !this.grampsId) {
-      return ''
+  firstUpdated() {
+    super.firstUpdated()
+    this.renderRoot.getElementById('container').append(this._chart.node)
+  }
+
+  willUpdate(changed) {
+    super.willUpdate(changed)
+    if (!changed.has('data') && !changed.has('grampsId')) {
+      return
     }
-    return html`
-      ${RelationshipChart(this.data, {
-        nAnc: this.nAnc,
-        maxImages: this.nMaxImages,
-        grampsId: this.grampsId,
-        getImageUrl: d => getImageUrl(d?.data || {}, 100),
-        bboxWidth: this.containerWidth,
-        bboxHeight: this.containerHeight,
-        nameDisplayFormat: this.nameDisplayFormat,
-        canEdit: this.canEdit,
-        initialZoom: this._savedZoom,
-        ...getSymbols(this.appState.settings, s => this._(s)),
-      })}
-    `
+    // A selected person who is not in the data yet is still being fetched, so
+    // the current chart stays until new data arrives. If the new data does not
+    // contain them either, the chart is cleared.
+    const root = this._graph.personByGrampsId(this.grampsId)
+    if (root) {
+      this._requestLayout(root.handle)
+    } else if (changed.has('data')) {
+      this._layoutRequest += 1
+      this._layout = null
+    }
+  }
+
+  updated() {
+    if (!this._layout) {
+      this._chart.clear()
+      return
+    }
+    this._chart.update(this._layout, {
+      getImageUrl: node => getImageUrl(node.person, 100),
+      maxImages: this.nMaxImages,
+      nameDisplayFormat: this.nameDisplayFormat,
+      canEdit: this.canEdit,
+      duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 0
+        : transitionDuration,
+      bboxWidth: this.containerWidth,
+      bboxHeight: this.containerHeight,
+    })
+  }
+
+  // Lays out the chart in the background. The current chart stays until the
+  // layout is ready, and a layout that is ready after a newer one was
+  // requested is ignored. If the layout fails, the chart is cleared and an
+  // error is reported.
+  async _requestLayout(rootHandle) {
+    this._layoutRequest += 1
+    const request = this._layoutRequest
+    let layout = null
+    try {
+      layout = await layoutRelationships(this._graph, rootHandle)
+    } catch (error) {
+      if (request === this._layoutRequest) {
+        fireEvent(this, 'grampsjs:error', {message: error.message})
+      }
+    }
+    if (request === this._layoutRequest) {
+      this._layout = layout
+      this.requestUpdate()
+    }
   }
 }
 

@@ -175,30 +175,66 @@ export class GrampsjsViewDashboard extends GrampsjsView {
     `
   }
 
+  // True while the tree holds no objects of any kind, so the dashboard can drop
+  // the panels that would render as a row of blanks.
+  get _treeIsEmpty() {
+    const counts = this.appState.dbInfo?.object_counts
+    if (!counts) {
+      return false
+    }
+    return Object.values(counts).every(count => !count)
+  }
+
+  // Onboarding guidance that advances with the tree: create the first person,
+  // then connect people into families. It ends once families exist.
+  _renderGetStarted() {
+    const counts = this.appState.dbInfo?.object_counts
+    if (!counts || !this.appState.permissions.canEdit) {
+      return ''
+    }
+    if (counts.people === 0) {
+      return this._renderGetStartedCard(
+        this._(
+          'To start building your family tree, add yourself as a person or import a family tree file.'
+        ),
+        html`
+          <md-outlined-button href="/new_person"
+            >${this._('New Person')}</md-outlined-button
+          >
+          ${this.appState.permissions.canManageUsers
+            ? html`<md-outlined-button href="/settings/administration"
+                >${this._('Import Family Tree')}</md-outlined-button
+              >`
+            : ''}
+        `
+      )
+    }
+    if (!counts.families) {
+      return this._renderGetStartedCard(
+        this._('Connect the people in your tree by adding a family.'),
+        html`<md-outlined-button href="/new_family"
+          >${this._('New Family')}</md-outlined-button
+        >`
+      )
+    }
+    return ''
+  }
+
+  _renderGetStartedCard(text, buttons) {
+    return html`
+      <div>
+        <h3>${this._('Get started')}</h3>
+        <p>${text}</p>
+        <div class="buttons">${buttons}</div>
+      </div>
+    `
+  }
+
   renderContent() {
     return html`
       ${this._renderHomePageBlock()}
       <div class="column">
-        ${this.appState.dbInfo?.object_counts?.people === 0 &&
-        this.appState.permissions.canEdit
-          ? html`
-              <div>
-                <h3>Get started</h3>
-                <p>
-                  ${this._(
-                    'To start building your family tree, add yourself as a person or import a family tree file.'
-                  )}
-                </p>
-                <div class="buttons">
-                  <md-outlined-button href="/new_person"
-                    >${this._('New Person')}</md-outlined-button
-                  ><md-outlined-button href="/settings/administration"
-                    >${this._('Import Family Tree')}</md-outlined-button
-                  >
-                </div>
-              </div>
-            `
-          : ''}
+        ${this._renderGetStarted()}
         ${this.appState.dbInfo?.object_counts?.people || this.homePersonGrampsId
           ? html`
               <div>
@@ -224,31 +260,39 @@ export class GrampsjsViewDashboard extends GrampsjsView {
               </div>
             `
           : ''}
-        <div>
-          <grampsjs-view-recently-changed
-            id="recently-changed"
-            .appState="${this.appState}"
-          >
-          </grampsjs-view-recently-changed>
-        </div>
+        ${this._treeIsEmpty
+          ? ''
+          : html`
+              <div>
+                <grampsjs-view-recently-changed
+                  id="recently-changed"
+                  .appState="${this.appState}"
+                >
+                </grampsjs-view-recently-changed>
+              </div>
+            `}
       </div>
       <div class="column">
         ${this._renderHomePageImage()}
-        <div>
-          <grampsjs-view-recent-blog-posts
-            id="recent-blog"
-            .appState="${this.appState}"
-          >
-          </grampsjs-view-recent-blog-posts>
-        </div>
-        <div>
-          <grampsjs-statistics
-            .data="${this.dbInfo?.object_counts || {}}"
-            id="statistics"
-            .appState="${this.appState}"
-          >
-          </grampsjs-statistics>
-        </div>
+        ${this._treeIsEmpty
+          ? ''
+          : html`
+              <div>
+                <grampsjs-view-recent-blog-posts
+                  id="recent-blog"
+                  .appState="${this.appState}"
+                >
+                </grampsjs-view-recent-blog-posts>
+              </div>
+              <div>
+                <grampsjs-statistics
+                  .data="${this.dbInfo?.object_counts || {}}"
+                  id="statistics"
+                  .appState="${this.appState}"
+                >
+                </grampsjs-statistics>
+              </div>
+            `}
       </div>
     `
   }

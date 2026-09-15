@@ -1,22 +1,15 @@
 import {html} from 'lit'
 import {mdiAccount} from '@mdi/js'
 
-import {objectIconPath} from '../util.js'
+import {objectIconPath, sexColor} from '../util.js'
 import './GrampsjsImg.js'
 import './GrampsjsIcon.js'
-
-export const genderBorderColor = {
-  F: 'var(--color-girl)',
-  M: 'var(--color-boy)',
-  X: 'var(--color-other)',
-  U: 'var(--color-unknown)',
-}
 
 export function renderPersonAvatar(extPerson, sex) {
   const handle = extPerson?.media_list?.[0]?.ref || ''
   const rect = extPerson?.media_list?.[0]?.rect || []
   // box-shadow sits flush against the circular edge; works on both grampsjs-img and grampsjs-icon
-  const ringColor = genderBorderColor[sex] ?? 'var(--color-unknown)'
+  const ringColor = sexColor[sex] ?? 'var(--color-unknown)'
   const style = `box-shadow: 0 0 0 2px ${ringColor};`
   if (handle) {
     return html`<grampsjs-img

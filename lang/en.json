@@ -306,6 +306,8 @@
   "Base Map": "Base Map",
   "Historical Map": "Historical Map",
   "To start building your family tree, add yourself as a person or import a family tree file.": "To start building your family tree, add yourself as a person or import a family tree file.",
+  "Get started": "Get started",
+  "Connect the people in your tree by adding a family.": "Connect the people in your tree by adding a family.",
   "Metadata": "Metadata",
   "Please select a different person.": "Please select a different person.",
   "No Y-DNA data found.": "No Y-DNA data found.",
@@ -422,5 +424,6 @@
   "New Blog Post": "New Blog Post",
   "Blog Post": "Blog Post",
   "Failed to fetch the Blog tag": "Failed to fetch the Blog tag",
-  "Only the most recent revisions are shown.": "Only the most recent revisions are shown."
+  "Only the most recent revisions are shown.": "Only the most recent revisions are shown.",
+  "This Gramps Web instance has already been set up. Log in with an existing account.": "This Gramps Web instance has already been set up. Log in with an existing account."
 }

@@ -7,12 +7,6 @@ import {interpolateWarm} from 'd3-scale-chromatic'
 import {getThumbnailUrl, getThumbnailUrlCropped} from '../api.js'
 import {normalizeRect} from '../util.js'
 
-export const getPerson = (data, handle) =>
-  data.find(person => person.handle === handle) || {}
-
-export const getPersonByGrampsId = (data, grampsId) =>
-  data.find(person => person.gramps_id === grampsId) || {}
-
 export const getImageUrl = (person, size, square = true) => {
   if (!person.media_list || person.media_list.length === 0) {
     return ''
@@ -26,7 +20,7 @@ export const getImageUrl = (person, size, square = true) => {
 }
 
 export const getTree = (
-  data,
+  graph,
   handle,
   depth,
   includeEmpty = true,
@@ -36,7 +30,7 @@ export const getTree = (
   if (depth === 0) {
     return {}
   }
-  const person = getPerson(data, handle)
+  const person = graph.person(handle) ?? {}
   const tree = {
     name_given: person?.profile ? person?.profile?.name_given : null,
     name_surname: person?.profile ? person?.profile?.name_surname : null,
@@ -47,29 +41,26 @@ export const getTree = (
   if (depth === 1) {
     return tree
   }
-  const fatherHandle =
-    person?.extended?.primary_parent_family?.father_handle || ''
-  const motherHandle =
-    person?.extended?.primary_parent_family?.mother_handle || ''
+  const {father, mother} = graph.parents(handle)
   tree.children = []
-  if (fatherHandle || includeEmpty) {
+  if (father || includeEmpty) {
     tree.children.push(
-      getTree(data, fatherHandle, depth - 1, includeEmpty, i + 1, `${label}f`)
+      getTree(graph, father, depth - 1, includeEmpty, i + 1, `${label}f`)
     )
   }
-  if (motherHandle || includeEmpty) {
+  if (mother || includeEmpty) {
     tree.children.push(
-      getTree(data, motherHandle, depth - 1, includeEmpty, i + 1, `${label}m`)
+      getTree(graph, mother, depth - 1, includeEmpty, i + 1, `${label}m`)
     )
   }
   return tree
 }
 
-export const getDescendantTree = (data, handle, depth, i = 0, label = 'p') => {
+export const getDescendantTree = (graph, handle, depth, i = 0, label = 'p') => {
   if (depth === 0) {
     return {}
   }
-  const person = getPerson(data, handle)
+  const person = graph.person(handle) ?? {}
   const tree = {
     name_given: person?.profile ? person?.profile?.name_given : null,
     name_surname: person?.profile ? person?.profile?.name_surname : null,
@@ -80,22 +71,10 @@ export const getDescendantTree = (data, handle, depth, i = 0, label = 'p') => {
   if (depth === 1) {
     return tree
   }
-  const childHandles =
-    (person?.extended?.families || []).flatMap(fam => {
-      const isFather = fam.father_handle === person.handle
-      const isMother = fam.mother_handle === person.handle
-      if (!isFather && !isMother) {
-        return []
-      }
-      const relationKey = isFather ? 'frel' : 'mrel'
-
-      return (fam.child_ref_list || [])
-        .filter(childRef => childRef[relationKey] === 'Birth')
-        .map(cref => cref.ref)
-    }) ?? []
+  const childHandles = graph.children(handle, {birthOnly: true})
   tree.children = childHandles.map((childHandle, childInd) =>
     getDescendantTree(
-      data,
+      graph,
       childHandle,
       depth - 1,
       i + 1,

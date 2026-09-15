@@ -90,6 +90,7 @@ export const grampsStrings = [
   'Add a new family with person as parent',
   'Add a new media object',
   'Add a new person',
+  'Add a new place',
   'Add a new set of parents',
   'Add an existing person as a child of the family',
   'Add person as child to an existing family',

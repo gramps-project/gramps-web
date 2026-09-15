@@ -860,6 +860,12 @@ export class GrampsJs extends LitElement {
       if ('error' in data) {
         if (data.error === 'Network error') {
           this.loadingState = LOADING_STATE_UNAUTHORIZED_NOCONNECTION
+        } else if (data.errorDetail?.status >= 500) {
+          this._showError(data.error)
+          // A failed background refresh keeps the loaded app usable
+          if (setReady) {
+            this.loadingState = LOADING_STATE_UNAUTHORIZED_NOCONNECTION
+          }
         } else {
           this._fetchOnboardingToken()
         }
@@ -964,6 +970,18 @@ export class GrampsJs extends LitElement {
           this.loadingState = LOADING_STATE_NO_OWNER
           this._firstRunToken = data?.data?.access_token
         } else {
+          if (this.appState.path.page === 'firstrun') {
+            // 405 means users already exist
+            if (data.errorDetail?.status === 405) {
+              this._showMessage(
+                this._(
+                  'This Gramps Web instance has already been set up. Log in with an existing account.'
+                )
+              )
+            } else {
+              this._showError(data.error)
+            }
+          }
           this.loadingState = LOADING_STATE_UNAUTHORIZED
         }
       })
