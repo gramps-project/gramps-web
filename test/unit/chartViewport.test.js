@@ -165,4 +165,61 @@ describe('ChartViewport', () => {
     view.show({bounds: large, size, rootHandle: 'A', fit: true})
     expect(zoomTransform(svg.node()).k).toBeLessThan(1)
   })
+
+  it('zooms around the centre of the view', () => {
+    const {svg, viewport: view} = viewport()
+    view.show({bounds: large, size, rootHandle: 'A'})
+    pan(svg, 30, -20)
+    const {k} = zoomTransform(svg.node())
+    const centre = zoomTransform(svg.node()).invert([
+      ...svg
+        .attr('viewBox')
+        .split(',')
+        .map(Number)
+        .slice(0, 2)
+        .map((start, i) => start + size[i] / 2),
+    ])
+    view.zoomBy(2)
+    expect(zoomTransform(svg.node()).k).toBeCloseTo(2 * k)
+    expectClose(viewPosition(svg, centre), [size[0] / 2, size[1] / 2])
+  })
+
+  it('moves the chart by a number of pixels', () => {
+    const {svg, viewport: view} = viewport()
+    view.show({bounds: large, size, rootHandle: 'A'})
+    const [x, y] = viewPosition(svg, [0, 0])
+    view.panBy(-100, 40)
+    expectClose(viewPosition(svg, [0, 0]), [x - 100, y + 40])
+  })
+
+  it('fits the chart after the view was moved', () => {
+    const {svg, viewport: view} = viewport()
+    view.show({bounds: large, size, rootHandle: 'A', fit: true})
+    const fitted = zoomTransform(svg.node())
+    view.zoomBy(3)
+    view.panBy(250, 250)
+    view.fit()
+    const {x, y, k} = zoomTransform(svg.node())
+    expectClose([x, y, k], [fitted.x, fitted.y, fitted.k])
+  })
+
+  it('centres the root person at the current zoom level', () => {
+    const {svg, viewport: view} = viewport()
+    view.show({bounds: large, size, rootHandle: 'A'})
+    view.zoomBy(0.5)
+    view.panBy(300, -120)
+    view.centreRoot()
+    expect(zoomTransform(svg.node()).k).toBeCloseTo(0.5)
+    expectClose(viewPosition(svg, [0, 0]), [size[0] / 2, size[1] / 2])
+  })
+
+  it('does not change the view before it has a size', () => {
+    const {svg, viewport: view} = viewport()
+    view.show({bounds: large, size: [-1, -1], rootHandle: 'A'})
+    view.zoomBy(2)
+    view.panBy(10, 10)
+    view.fit()
+    const {x, y, k} = zoomTransform(svg.node())
+    expect([x, y, k]).toEqual([0, 0, 1])
+  })
 })

@@ -41,6 +41,11 @@ export class GrampsjsChartBase extends GrampsjsAppStateMixin(LitElement) {
     this.containerHeight = -1
   }
 
+  // The viewport of a chart drawn with `ChartViewport`
+  get viewport() {
+    return this._chart?.viewport
+  }
+
   willUpdate(changed) {
     if (changed.has('data')) {
       this._graph = new FamilyGraph(this.data)

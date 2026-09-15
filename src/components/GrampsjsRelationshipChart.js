@@ -6,11 +6,8 @@ import '@material/mwc-list/mwc-list-item'
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 import {RelationshipChart} from '../charts/RelationshipChart.js'
 import {layoutRelationships} from '../charts/layout/relationshipLayout.js'
-import {getImageUrl} from '../charts/util.js'
+import {chartTransitionDuration, getImageUrl} from '../charts/util.js'
 import {fireEvent} from '../util.js'
-
-// Duration of the transition between two layouts, in milliseconds
-const transitionDuration = 400
 
 class GrampsjsRelationshipChart extends GrampsjsChartBase {
   static get styles() {
@@ -78,9 +75,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
       maxImages: this.nMaxImages,
       nameDisplayFormat: this.nameDisplayFormat,
       canEdit: this.canEdit,
-      duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        ? 0
-        : transitionDuration,
+      duration: chartTransitionDuration(),
       bboxWidth: this.containerWidth,
       bboxHeight: this.containerHeight,
     })

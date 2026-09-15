@@ -19,6 +19,14 @@ export const getImageUrl = (person, size, square = true) => {
   return getThumbnailUrlCropped(mediaRef.ref, rect, size, square)
 }
 
+// Returns the duration of a chart animation in milliseconds, which is 0 when
+// the user prefers reduced motion
+export function chartTransitionDuration(duration = 400) {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 0
+    : duration
+}
+
 export const getTree = (
   graph,
   handle,

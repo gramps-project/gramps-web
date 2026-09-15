@@ -27,7 +27,12 @@ import {
   getFrontendStrings,
   grampsStrings,
 } from './strings.js'
-import {fireEvent, getBrowserLanguage, apiVersionAtLeast} from './util.js'
+import {
+  fireEvent,
+  getBrowserLanguage,
+  apiVersionAtLeast,
+  isKeyEventInInput,
+} from './util.js'
 
 import {appStateUpdatePermissions, getInitialAppState} from './appState.js'
 import {
@@ -484,6 +489,21 @@ export class GrampsJs extends LitElement {
                 <dd>${this._('Media Object')}</dd>
                 <dt><span>n</span> <span>t</span></dt>
                 <dd>${this._('Task')}</dd>
+              </dl>
+            </div>
+            <div>
+              <h4>${this._('Family Tree')}</h4>
+              <dl>
+                <dt><span>+</span></dt>
+                <dd>${this._('Zoom in')}</dd>
+                <dt><span>-</span></dt>
+                <dd>${this._('Zoom out')}</dd>
+                <dt>
+                  <span>←</span> <span>↑</span> <span>→</span> <span>↓</span>
+                </dt>
+                <dd>${this._('Move the chart')}</dd>
+                <dt><span>0</span></dt>
+                <dd>${this._('Fit to window')}</dd>
               </dl>
             </div>
           </section>
@@ -1287,26 +1307,7 @@ export class GrampsJs extends LitElement {
   }
 
   _handleKey(e) {
-    const target = e.composedPath()[0]
-    if (
-      [
-        'input',
-        'textarea',
-        'select',
-        'option',
-        'mwc-list-item',
-        'md-dialog',
-        'dialog',
-      ].includes(target.tagName.toLowerCase()) ||
-      target.getAttribute('contenteditable')
-    ) {
-      return
-    }
-    if (
-      e
-        .composedPath()
-        .some(el => el.tagName?.toLowerCase() === 'md-filled-select')
-    ) {
+    if (isKeyEventInInput(e)) {
       return
     }
     if (this._showShortcuts) {
