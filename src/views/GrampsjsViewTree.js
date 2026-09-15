@@ -106,9 +106,9 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
         }
 
         /* The chart switcher, 40px high like Material 3 segmented buttons,
-           and a gap of 12px, like the rows below */
+           and a gap of 20px to the controls bar */
         #tabs {
-          height: 52px;
+          height: 60px;
           --grampsjs-pill-toggle-margin: 0;
           --grampsjs-pill-toggle-padding: 9px 16px;
         }
@@ -130,7 +130,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
         }
 
         #chart {
-          height: calc(100vh - 145px);
+          height: calc(100vh - 153px);
           margin-left: -40px;
           margin-right: -40px;
           margin-bottom: -25px;
@@ -145,7 +145,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
 
         @media (max-width: 599px) {
           #chart {
-            height: calc(100vh - 137px);
+            height: calc(100vh - 145px);
           }
         }
 
