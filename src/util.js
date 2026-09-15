@@ -897,4 +897,24 @@ export function apiVersionAtLeast(dbInfo, major, minor, patch = 0) {
   return pat >= patch
 }
 
+// Returns whether a key event comes from a text field, a select, a list item
+// or a dialog, where keys are not shortcuts
+export function isKeyEventInInput(e) {
+  const path = e.composedPath()
+  const target = path[0]
+  return (
+    [
+      'input',
+      'textarea',
+      'select',
+      'option',
+      'mwc-list-item',
+      'md-dialog',
+      'dialog',
+    ].includes(target?.tagName?.toLowerCase()) ||
+    Boolean(target?.getAttribute?.('contenteditable')) ||
+    path.some(el => el.tagName?.toLowerCase() === 'md-filled-select')
+  )
+}
+
 //

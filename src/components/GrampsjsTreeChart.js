@@ -10,11 +10,13 @@ import {
   layoutHourglass,
 } from '../charts/layout/treeLayout.js'
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
-import {getDescendantTree, getTree, getImageUrl} from '../charts/util.js'
+import {
+  chartTransitionDuration,
+  getDescendantTree,
+  getTree,
+  getImageUrl,
+} from '../charts/util.js'
 import {fireEvent, clickKeyHandler} from '../util.js'
-
-// Duration of the transition between two layouts, in milliseconds
-const transitionDuration = 400
 
 // Properties that change the layout of the chart
 const layoutProperties = [
@@ -144,9 +146,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       bboxHeight: this.containerHeight,
       nameDisplayFormat: this.nameDisplayFormat,
       canEdit: this.canEdit,
-      duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        ? 0
-        : transitionDuration,
+      duration: chartTransitionDuration(),
     })
   }
 

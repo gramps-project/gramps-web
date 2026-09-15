@@ -16,13 +16,15 @@ import '@material/web/tabs/primary-tab'
 import '@material/web/tabs/tabs'
 
 import {
-  mdiAccountDetails,
   mdiArrowLeft,
+  mdiChevronRight,
   mdiCog,
   mdiFamilyTree,
+  mdiFitToScreenOutline,
   mdiHomeAccount,
   mdiPencil,
   mdiPlus,
+  mdiTargetAccount,
 } from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
@@ -35,8 +37,10 @@ import {
   chartDefinitions,
   chartSettingValues,
 } from './treeChartDefinitions.js'
-import {chartNameDisplayFormat, fireEvent} from '../util.js'
-import {iconButtonColorStyles} from '../SharedStyles.js'
+import {chartNameDisplayFormat, fireEvent, isKeyEventInInput} from '../util.js'
+import {chartTransitionDuration} from '../charts/util.js'
+import {renderPersonAvatar} from '../components/personListUtils.js'
+import {iconButtonColorStyles, listAvatarStyles} from '../SharedStyles.js'
 import {
   chartFanIconPath,
   hourglassIconPath,
@@ -49,6 +53,39 @@ import {
   getTreeViewTabIndex,
 } from '../treeDefaults.js'
 
+// Zoom factor of one zoom step, distance of one pan step in pixels, and the
+// duration of a zoom or pan in milliseconds
+const zoomStep = 1.25
+const panStep = 100
+const viewportDuration = 300
+
+// Changes of the chart viewport, by name
+const viewportActions = {
+  zoomIn: (viewport, duration) => viewport.zoomBy(zoomStep, {duration}),
+  zoomOut: (viewport, duration) => viewport.zoomBy(1 / zoomStep, {duration}),
+  panLeft: (viewport, duration) => viewport.panBy(panStep, 0, {duration}),
+  panRight: (viewport, duration) => viewport.panBy(-panStep, 0, {duration}),
+  panUp: (viewport, duration) => viewport.panBy(0, panStep, {duration}),
+  panDown: (viewport, duration) => viewport.panBy(0, -panStep, {duration}),
+  fit: (viewport, duration) => viewport.fit({duration}),
+  centre: (viewport, duration) => viewport.centreRoot({duration}),
+}
+
+// Viewport actions by key
+const viewportKeys = {
+  '+': 'zoomIn',
+  '=': 'zoomIn',
+  '-': 'zoomOut',
+  ArrowLeft: 'panLeft',
+  ArrowRight: 'panRight',
+  ArrowUp: 'panUp',
+  ArrowDown: 'panDown',
+  0: 'fit',
+}
+
+// Elements that handle keys themselves, such as arrow keys in tabs and menus
+const keyHandlingElements = ['md-tabs', 'md-menu', 'mwc-menu', 'md-dialog']
+
 // Shows the charts of the selected person in tabs. Each chart is described by
 // its definition in `chartDefinitions`, which gives its settings, the people
 // it needs and edit mode. People are fetched again only when the request
@@ -59,6 +96,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     return [
       super.styles,
       iconButtonColorStyles,
+      listAvatarStyles,
       css`
         .with-margin {
           margin: 25px 40px;
@@ -82,6 +120,8 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
           border-radius: 16px;
           z-index: 1;
           padding: 0 10px;
+          display: flex;
+          align-items: center;
           --grampsjs-icon-button-color: var(--grampsjs-body-font-color-35);
           --grampsjs-icon-button-disabled-color: var(
             --grampsjs-body-font-color-10
@@ -111,6 +151,79 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
 
         #controls md-icon-button {
           --md-icon-button-icon-size: 26px;
+        }
+
+        /* Below the controls bar, in the same colours, with the avatar centred
+           below the first button of the bar */
+        #selected-person {
+          position: absolute;
+          top: 56px;
+          left: 0;
+          z-index: 1;
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+          max-width: min(360px, 80vw);
+          height: 48px;
+          padding: 0 8px 0 14px;
+          border: none;
+          border-radius: 24px;
+          background-color: var(--md-sys-color-surface-container-low);
+          color: var(--grampsjs-body-font-color);
+          font: inherit;
+          text-align: left;
+          cursor: pointer;
+        }
+
+        #selected-person:hover {
+          background-color: var(--md-sys-color-surface-container);
+        }
+
+        #selected-person:focus-visible {
+          outline: 2px solid var(--md-sys-color-primary);
+          outline-offset: 2px;
+        }
+
+        #selected-person .avatar {
+          flex: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+        }
+
+        #selected-person .text {
+          display: flex;
+          flex-direction: column;
+          min-width: 0;
+          line-height: 1.3;
+        }
+
+        #selected-person .name {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        #selected-person .gramps-id {
+          font-size: 12px;
+          color: var(--grampsjs-body-font-color-50);
+        }
+
+        #selected-person .chevron {
+          flex: none;
+          color: var(--grampsjs-body-font-color-50);
+        }
+
+        #controls .divider {
+          display: inline-block;
+          width: 1px;
+          height: 24px;
+          margin: 0 8px;
+          background-color: var(--grampsjs-body-font-color-10);
         }
 
         #controls md-input-chip {
@@ -161,11 +274,13 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._dataChart = undefined
     this._dataUrl = ''
     this._dataRequest = 0
+    this._selectedPerson = undefined
     this._editMode = false
     this._chartState = {}
     this._boundSelectPerson = this._selectPerson.bind(this)
     this._boundToggleEditMode = this._toggleEditMode.bind(this)
     this._boundDisableEditMode = this._disableEditMode.bind(this)
+    this._boundHandleChartKey = this._handleChartKey.bind(this)
   }
 
   get chart() {
@@ -193,6 +308,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     window.addEventListener('pedigree:person-selected', this._boundSelectPerson)
     window.addEventListener('edit-mode:toggle', this._boundToggleEditMode)
     window.addEventListener('edit-mode:off', this._boundDisableEditMode)
+    window.addEventListener('keydown', this._boundHandleChartKey)
   }
 
   disconnectedCallback() {
@@ -203,6 +319,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     )
     window.removeEventListener('edit-mode:toggle', this._boundToggleEditMode)
     window.removeEventListener('edit-mode:off', this._boundDisableEditMode)
+    window.removeEventListener('keydown', this._boundHandleChartKey)
   }
 
   willUpdate(changed) {
@@ -212,6 +329,12 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     if (this.grampsId && this.grampsId !== this._history.at(-1)) {
       // limit history to 100 people
       this._history = [...this._history, this.grampsId].slice(-100)
+    }
+    // The selected person shown below the chart, who stays until the people
+    // of a newly selected person arrive
+    const selected = this._data.find(p => p.gramps_id === this.grampsId)
+    if (selected) {
+      this._selectedPerson = selected
     }
     // People fetched for another chart are not passed to a new chart
     if (this.chart !== this._dataChart) {
@@ -293,6 +416,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
       <div style="position: relative;">
         <div id="controls">${this.renderControls()}</div>
         <div id="chart">${this.renderChart()}</div>
+        ${this.renderSelectedPerson()}
       </div>
       ${editable && this.appState.permissions.canEdit && !this._editMode
         ? this.renderFab()
@@ -395,7 +519,6 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     return html`
       <md-icon-button
         @click=${this._backToHomePerson}
-        style="margin-bottom:-10px;"
         ?disabled=${this.grampsId === this.settings.homePerson}
         aria-label="${this._('Home Person')}"
         id="button-home"
@@ -410,7 +533,6 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
       <md-icon-button
         @click=${this._prevPerson}
         ?disabled=${this._history.length < 2}
-        style="margin-bottom:-10px;"
         aria-label="${this._('_Back')}"
         id="btn-back"
         ><grampsjs-icon
@@ -421,18 +543,10 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
       <grampsjs-tooltip for="btn-back" .appState="${this.appState}"
         >${this._('_Back')}</grampsjs-tooltip
       >
-      <md-icon-button
-        @click=${this._goToPerson}
-        aria-label="${this._('Person Details')}"
-        id="btn-person"
-        ><grampsjs-icon
-          path="${mdiAccountDetails}"
-          color="currentColor"
-        ></grampsjs-icon
-      ></md-icon-button>
-      <grampsjs-tooltip for="btn-person" .appState="${this.appState}"
-        >${this._('Person Details')}</grampsjs-tooltip
-      >
+      <span class="divider"></span>
+      ${this.definition.zoomable ? this.renderViewportControls() : ''}
+      ${this.definition.renderControls?.(this) ?? ''}
+      <span class="divider"></span>
       <md-icon-button
         id="btn-controls"
         aria-label="${this._('Preferences')}"
@@ -464,8 +578,119 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
           >
         </div>
       </md-dialog>
-      ${this.definition.renderControls?.(this) ?? ''}
     `
+  }
+
+  // The selected person, with the avatar of person lists, their name in the
+  // chart's name display format and their Gramps ID, as a button that opens
+  // their page
+  renderSelectedPerson() {
+    const profile = this._selectedPerson?.profile
+    if (!profile) {
+      return ''
+    }
+    const given = profile.name_given || '…'
+    const surname = profile.name_surname || '…'
+    const name =
+      this.settingValues.nameDisplayFormat ===
+      chartNameDisplayFormat.givenThenSurname
+        ? `${given} ${surname}`
+        : `${surname}, ${given}`
+    return html`
+      <button
+        id="selected-person"
+        aria-label="${this._('Person Details')}: ${name}"
+        @click=${this._goToPerson}
+      >
+        <span class="avatar"
+          >${renderPersonAvatar(this._selectedPerson, profile.sex)}</span
+        >
+        <span class="text">
+          <span class="name">${name}</span>
+          <span class="gramps-id">${this._selectedPerson.gramps_id}</span>
+        </span>
+        <grampsjs-icon
+          class="chevron"
+          path="${mdiChevronRight}"
+          color="currentColor"
+          height="20"
+          width="20"
+        ></grampsjs-icon>
+      </button>
+      <grampsjs-tooltip for="selected-person" .appState="${this.appState}"
+        >${this._('Person Details')}</grampsjs-tooltip
+      >
+    `
+  }
+
+  // Buttons for the chart viewport. Zooming uses the mouse wheel, pinching or
+  // keys.
+  renderViewportControls() {
+    const button = (id, action, path, label) => html`
+      <md-icon-button
+        id=${id}
+        aria-label="${this._(label)}"
+        @click=${() => this._runViewportAction(action)}
+        ><grampsjs-icon path="${path}" color="currentColor"></grampsjs-icon
+      ></md-icon-button>
+      <grampsjs-tooltip for=${id} .appState="${this.appState}"
+        >${this._(label)}</grampsjs-tooltip
+      >
+    `
+    return html`
+      ${button(
+        'btn-centre',
+        'centre',
+        mdiTargetAccount,
+        'Center on selected person'
+      )}
+      ${button('btn-fit', 'fit', mdiFitToScreenOutline, 'Fit to window')}
+    `
+  }
+
+  // The viewport of the chart, if it has viewport controls
+  _chartViewport() {
+    if (!this.definition.zoomable) {
+      return undefined
+    }
+    return this.renderRoot?.querySelector(
+      '#chart grampsjs-tree-chart, #chart grampsjs-relationship-chart'
+    )?.viewport
+  }
+
+  _runViewportAction(action) {
+    const viewport = this._chartViewport()
+    if (viewport) {
+      viewportActions[action](
+        viewport,
+        chartTransitionDuration(viewportDuration)
+      )
+    }
+  }
+
+  // Zooms and moves the chart with the keys in `viewportKeys`. Keys with a
+  // modifier, keys typed into a field and keys for elements that handle them
+  // themselves are left alone.
+  _handleChartKey(e) {
+    const action = viewportKeys[e.key]
+    if (
+      !action ||
+      !this.active ||
+      e.ctrlKey ||
+      e.metaKey ||
+      e.altKey ||
+      isKeyEventInInput(e) ||
+      e
+        .composedPath()
+        .some(el => keyHandlingElements.includes(el.tagName?.toLowerCase()))
+    ) {
+      return
+    }
+    if (!this._chartViewport()) {
+      return
+    }
+    e.preventDefault()
+    this._runViewportAction(action)
   }
 
   _renderSettingInput(setting) {

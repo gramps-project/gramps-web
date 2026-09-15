@@ -72,6 +72,10 @@ export class RelationshipChart {
     return this._svg.node()
   }
 
+  get viewport() {
+    return this._viewport
+  }
+
   // Removes all people, families and links, keeping the zoom transform
   clear() {
     this._links.selectChildren().remove()

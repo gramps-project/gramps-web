@@ -18,6 +18,7 @@ import {chartNameDisplayFormat} from '../util.js'
 //   user settings under `key` and has a `name` in the setting values, a
 //   `label`, a `type` ('number' or 'nameDisplayFormat') and a `default`.
 // - `editable`: whether people can be added to the chart in edit mode.
+// - `zoomable`: whether the chart has zoom and pan controls and keys.
 // - `request(grampsId, values)`: the filter rules and extensions of the
 //   people the chart needs.
 // - `render({grampsId, values, data, canEdit, appState, state})`: the chart
@@ -135,6 +136,7 @@ export const chartDefinitions = {
       nameDisplayFormatSetting('treeChartNameDisplayFormat'),
     ],
     editable: true,
+    zoomable: true,
     request: (grampsId, {ancestors}) => ({
       rules: treeRules(grampsId, ancestors + 1, 2),
       extend: treeExtend,
@@ -160,6 +162,7 @@ export const chartDefinitions = {
       nameDisplayFormatSetting('descendantChartNameDisplayFormat'),
     ],
     editable: true,
+    zoomable: true,
     request: (grampsId, {descendants}) => ({
       rules: treeRules(grampsId, 2, descendants + 1),
       extend: treeExtend,
@@ -187,6 +190,7 @@ export const chartDefinitions = {
       nameDisplayFormatSetting('hourglassChartNameDisplayFormat'),
     ],
     editable: true,
+    zoomable: true,
     request: (grampsId, {ancestors, descendants}) => ({
       rules: treeRules(grampsId, ancestors + 1, descendants + 1),
       extend: treeExtend,
@@ -230,6 +234,7 @@ export const chartDefinitions = {
       nameDisplayFormatSetting('relationshipChartNameDisplayFormat'),
     ],
     editable: true,
+    zoomable: true,
     request: (grampsId, {separation}) => ({
       rules: {
         function: 'or',
