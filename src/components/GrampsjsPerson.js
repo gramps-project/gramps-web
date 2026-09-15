@@ -10,7 +10,7 @@ import {
   mdiMap,
 } from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
-import {asteriskIcon, crossIcon} from '../icons.js'
+import {getSymbols} from '../symbols.js'
 import './GrampsjsImg.js'
 import './GrampsjsEditGender.js'
 import './GrampsjsPersonRelationship.js'
@@ -106,9 +106,10 @@ export class GrampsjsPerson extends GrampsjsObject {
     if (obj === undefined || Object.keys(obj).length === 0) {
       return ''
     }
+    const {birthSymbol} = getSymbols(this.appState.settings, s => this._(s))
     return html`
       <span class="event">
-        <i>${asteriskIcon}</i>
+        <i>${birthSymbol}</i>
         ${obj.date || ''} ${obj.place ? this._('in') : ''}
         ${obj.place_name || obj.place || ''}
       </span>
@@ -120,9 +121,10 @@ export class GrampsjsPerson extends GrampsjsObject {
     if (obj === undefined || Object.keys(obj).length === 0) {
       return ''
     }
+    const {deathSymbol} = getSymbols(this.appState.settings, s => this._(s))
     return html`
       <span class="event">
-        <i>${crossIcon}</i>
+        <i>${deathSymbol}</i>
         ${obj.date || ''} ${obj.place ? this._('in') : ''}
         ${obj.place_name || obj.place || ''}
       </span>

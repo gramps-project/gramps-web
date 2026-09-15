@@ -130,6 +130,7 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
       >
         ${this.options.map(
           opt => html`
+            <!-- eslint-disable-next-line lit-a11y/tabindex-no-positive -->
             <button
               type="button"
               role="radio"
@@ -137,8 +138,8 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
               aria-checked="${opt.value === this.selected}"
               tabindex="${opt.value === this.selected ||
               (this.selected == null && opt === this.options[0])
-                ? '0'
-                : '-1'}"
+                ? 0
+                : -1}"
               @click="${() => this._handleClick(opt.value)}"
             >
               ${opt.label}

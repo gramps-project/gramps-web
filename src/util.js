@@ -52,6 +52,7 @@ import {
 import {renderIconSvg, ringsIconPath} from './icons.js'
 import './components/GrampsjsIcon.js'
 import {frontendLanguages} from './strings.js'
+import {getSymbols} from './symbols.js'
 
 dayjs.extend(relativeTime)
 
@@ -437,13 +438,18 @@ export function objectDescription(type, obj, strings) {
   }
 }
 
-export function objectDetail(type, obj, strings) {
+export function objectDetail(type, obj, strings, settings = {}) {
+  const symbols = getSymbols(settings, value => translate(strings, value))
   switch (type) {
     case 'person':
       return `
-    ${obj?.profile?.birth?.date ? `∗ ${obj.profile.birth.date}` : ''}${
-        obj?.profile?.birth?.place && obj?.profile?.birth?.date ? ', ' : ''
-      }${obj?.profile?.birth?.place_name || obj?.profile?.birth?.place || ''}
+    ${
+      obj?.profile?.birth?.date
+        ? `${symbols.birthSymbol} ${obj.profile.birth.date}`
+        : ''
+    }${obj?.profile?.birth?.place && obj?.profile?.birth?.date ? ', ' : ''}${
+        obj?.profile?.birth?.place_name || obj?.profile?.birth?.place || ''
+      }
     `
     // case 'family':
     //   return ''
