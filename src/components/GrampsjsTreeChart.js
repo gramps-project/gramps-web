@@ -13,6 +13,9 @@ import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 import {getDescendantTree, getTree, getImageUrl} from '../charts/util.js'
 import {fireEvent, clickKeyHandler} from '../util.js'
 
+// Duration of the transition between two layouts, in milliseconds
+const transitionDuration = 400
+
 // Properties that change the layout of the chart
 const layoutProperties = [
   'data',
@@ -79,8 +82,15 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
 
   willUpdate(changed) {
     super.willUpdate(changed)
-    if (layoutProperties.some(name => changed.has(name))) {
-      this._layout = this._computeLayout()
+    if (!layoutProperties.some(name => changed.has(name))) {
+      return
+    }
+    // A selected person who is not in the data yet is still being fetched, so
+    // the current chart stays until new data arrives. If the new data does not
+    // contain them either, the chart is cleared.
+    const layout = this._computeLayout()
+    if (layout || changed.has('data')) {
+      this._layout = layout
     }
   }
 
@@ -134,6 +144,9 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       bboxHeight: this.containerHeight,
       nameDisplayFormat: this.nameDisplayFormat,
       canEdit: this.canEdit,
+      duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 0
+        : transitionDuration,
     })
   }
 
