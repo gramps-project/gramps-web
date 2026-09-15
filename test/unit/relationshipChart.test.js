@@ -108,6 +108,40 @@ describe('RelationshipChart', () => {
     ])
   })
 
+  it('starts the links of a family at its marker', async () => {
+    const chart = new RelationshipChart()
+    chart.update(await layoutRelationships(graph, 'R'), size)
+    const marker = nodeWithKey(chart, 'family:fRT')
+    const [x, y] = translateOf(marker)
+    const ring = marker.querySelector('circle.married')
+    const [cx, cy] = ['cx', 'cy'].map(name => Number(ring.getAttribute(name)))
+    const link = [...chart.node.querySelectorAll('path.link')].find(
+      path => path.__data__.source.key === 'family:fRT'
+    )
+    const [, startX, startY] = /^M([^,]+),([^C]+)/.exec(link.getAttribute('d'))
+    expectClose([Number(startX), Number(startY)], [x + cx, y + cy])
+  })
+
+  it('centres the family marker in the gap between the partner cards', async () => {
+    const chart = new RelationshipChart()
+    chart.update(await layoutRelationships(graph, 'R'), size)
+    // The visible edges of a card are its colour stripe and its box
+    const edges = key => {
+      const node = nodeWithKey(chart, key)
+      const [x] = translateOf(node)
+      const [stripe, box] = node.querySelectorAll('.person-card > rect')
+      return [
+        x + Number(stripe.getAttribute('x')),
+        x + Number(box.getAttribute('x')) + Number(box.getAttribute('width')),
+      ]
+    }
+    const [, leftEnd] = edges('fRT:R')
+    const [rightStart] = edges('fRT:T')
+    const marker = nodeWithKey(chart, 'family:fRT')
+    const cx = Number(marker.querySelector('circle.married').getAttribute('cx'))
+    expect(translateOf(marker)[0] + cx).toBeCloseTo((leftEnd + rightStart) / 2)
+  })
+
   it('marks married couples', async () => {
     const chart = new RelationshipChart()
     chart.update(await layoutRelationships(graph, 'R'), size)

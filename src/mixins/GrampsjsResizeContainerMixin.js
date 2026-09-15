@@ -28,11 +28,13 @@ export const GrampsjsResizeContainerMixin = superClass =>
       this._resizeObserver = new ResizeObserver(() => this.handleResize())
     }
 
-    firstUpdated() {
+    firstUpdated(changed) {
+      super.firstUpdated(changed)
       this.handleResize()
     }
 
-    updated() {
+    updated(changed) {
+      super.updated(changed)
       this.observeContainer()
     }
 
