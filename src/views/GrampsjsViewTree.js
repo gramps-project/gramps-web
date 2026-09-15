@@ -873,8 +873,11 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     this.grampsId = this.settings.homePerson
   }
 
+  // Opens the page of the person shown below the controls bar, who is the
+  // previous person while a newly selected person is loading
   _goToPerson() {
-    fireEvent(this, 'nav', {path: `person/${this.grampsId}`})
+    const grampsId = this._selectedPerson?.gramps_id ?? this.grampsId
+    fireEvent(this, 'nav', {path: `person/${grampsId}`})
   }
 
   _applyPreferredTabIfNeeded() {
