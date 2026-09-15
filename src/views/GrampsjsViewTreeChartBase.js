@@ -395,13 +395,19 @@ export class GrampsjsViewTreeChartBase extends GrampsjsStaleDataMixin(
     }
   }
 
+  // Returns the extensions of the fetched people that the chart uses
+  // eslint-disable-next-line class-methods-use-this
+  _getExtend() {
+    return 'event_ref_list,primary_parent_family,family_list'
+  }
+
   async _fetchData(grampsId) {
     this.loading = true
     const rules = this._getPersonRules(grampsId)
     const data = await this.appState.apiGet(
       `/api/people/?rules=${encodeURIComponent(JSON.stringify(rules))}&locale=${
         this.appState.i18n.lang || 'en'
-      }&profile=self&extend=event_ref_list,primary_parent_family,family_list`
+      }&profile=self&extend=${this._getExtend()}`
     )
     this.loading = false
     if ('data' in data) {

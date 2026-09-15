@@ -61,4 +61,38 @@ describe('FamilyGraph', () => {
     expect(graph.children('S')).toEqual([])
     expect(graph.children('X')).toEqual([])
   })
+
+  it('returns all people in the order they were fetched', () => {
+    expect(graph.people()).toEqual([R, S])
+  })
+
+  it('indexes the families people refer to', () => {
+    expect(graph.family('f2')).toBe(f2)
+    expect(graph.family('fP')).toBe(fParents)
+    expect(graph.family('nope')).toBeUndefined()
+  })
+
+  it('returns the families in which a person is a partner', () => {
+    expect(graph.partnerFamilies('R')).toEqual([f1, f2, f3])
+    expect(graph.partnerFamilies('S')).toEqual([])
+  })
+
+  it('returns the primary parent family first, then the other ones', () => {
+    const adoptive = family('fA', 'A', 'B', [childRef('K', 'Adopted')])
+    const birth = family('fB', 'F', 'M', [childRef('K')])
+    const withParents = new FamilyGraph([
+      {
+        handle: 'K',
+        gramps_id: 'I3',
+        extended: {
+          primary_parent_family: birth,
+          parent_families: [adoptive, birth],
+        },
+      },
+    ])
+    expect(withParents.parentFamilies('K')).toEqual([birth, adoptive])
+    expect(withParents.family('fA')).toBe(adoptive)
+    expect(graph.parentFamilies('R')).toEqual([fParents])
+    expect(graph.parentFamilies('S')).toEqual([])
+  })
 })
