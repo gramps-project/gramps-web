@@ -1,9 +1,6 @@
 import '@material/mwc-button'
 import '@material/mwc-drawer'
 import '@material/web/progress/linear-progress.js'
-import '@material/mwc-list'
-import '@material/mwc-list/mwc-list-item'
-import '@material/mwc-menu'
 import '@material/mwc-snackbar'
 import '@material/mwc-textfield'
 import '@material/mwc-top-app-bar'
@@ -241,11 +238,6 @@ export class GrampsJs extends LitElement {
           display: block;
           width: 20%;
           text-align: center;
-        }
-
-        mwc-list {
-          --mdc-list-item-graphic-margin: 20px;
-          --mdc-list-side-padding: 20px;
         }
 
         .shortcut-content section {

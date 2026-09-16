@@ -1,8 +1,5 @@
 import {css} from 'lit'
 
-import '@material/mwc-menu'
-import '@material/mwc-list/mwc-list-item'
-
 import {sharedStyles} from '../SharedStyles.js'
 
 export const GrampsjsResizeContainerMixin = superClass =>
