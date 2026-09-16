@@ -2,6 +2,7 @@ import {describe, it, expect} from 'vitest'
 import {render, html} from 'lit'
 import {
   translate,
+  objectDetail,
   personTitleFromProfile,
   personDisplayName,
   reportSelectItemLabel,
