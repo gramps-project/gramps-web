@@ -425,5 +425,8 @@
     "Support will be removed in Gramps Web API %s.": "Ondersteuning wordt verwijderd in Gramps Web API %s.",
     "Get started": "Aan de slag",
     "Connect the people in your tree by adding a family.": "Verbind de personen in uw stamboom door een gezin toe te voegen.",
-    "This Gramps Web instance has already been set up. Log in with an existing account.": "Deze Gramps Web-instantie is al ingesteld. Log in met een bestaand account."
+    "This Gramps Web instance has already been set up. Log in with an existing account.": "Deze Gramps Web-instantie is al ingesteld. Log in met een bestaand account.",
+    "Fit to window": "Aansluiten op venster",
+    "Center on selected person": "Centreren rond geselecteerde persoon",
+    "Move the chart": "Verplaats de grafiek"
 }
