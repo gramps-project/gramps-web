@@ -767,7 +767,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     const icon = objCount === 0 || count / objCount > 0.98 ? iconOk : iconError
     return html`<p class="small">
       ${icon} ${this._('Status')}:
-      ${count === -1 ? this._('unknown') : count}/${objCount}
+      ${count === -1 ? this._('Unknown') : count}/${objCount}
     </p>`
   }
 

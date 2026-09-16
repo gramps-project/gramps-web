@@ -209,7 +209,7 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
         .appState="${this.appState}"
         @object:save="${this._handleClickSaveYDna}"
         @object:cancel="${this._handleCancelDialog}"
-        dialogTitle="${this._('Add Y-DNA Data')}"
+        dialogTitle="${this._('Add Y-DNA data')}"
       >
       </grampsjs-form-new-ydna>
     `

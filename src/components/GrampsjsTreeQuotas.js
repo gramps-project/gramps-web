@@ -85,26 +85,26 @@ export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
     }
     const usagePeople =
       data.usage_people === undefined || data.usage_people === null
-        ? this._('unknown')
+        ? this._('Unknown')
         : data.usage_people
     const quotaPeople =
       'quota_people' in data
         ? data.quota_people || html`&infin;`
-        : this._('unknown')
+        : this._('Unknown')
     const usageMedia =
       data.usage_media === undefined || data.usage_media === null
-        ? this._('unknown')
+        ? this._('Unknown')
         : formatBytes(data.usage_media)
     const quotaMedia =
       'quota_media' in data
         ? formatBytes(data.quota_media) || html`&infin;`
-        : this._('unknown')
+        : this._('Unknown')
     const usageAi =
       data.usage_ai === undefined || data.usage_ai === null
-        ? this._('unknown')
+        ? this._('Unknown')
         : data.usage_ai
     const quotaAi =
-      'quota_ai' in data ? data.quota_ai || html`&infin;` : this._('unknown')
+      'quota_ai' in data ? data.quota_ai || html`&infin;` : this._('Unknown')
     const progressPeople = _getProgress(data.usage_people, data.quota_people)
     const progressMedia = _getProgress(data.usage_media, data.quota_media)
     const progressAi = _getProgress(data.usage_ai, data.quota_ai)
