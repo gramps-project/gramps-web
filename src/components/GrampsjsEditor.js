@@ -491,6 +491,14 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     return this.renderRoot.getElementById('editor-content')
   }
 
+  // The current selection with endpoints inside this shadow root,
+  // or undefined if there is no selection
+  _getSelectionRange() {
+    return document
+      .getSelection()
+      ?.getComposedRanges({shadowRoots: [this.shadowRoot]})[0]
+  }
+
   _handleKeydown(e) {
     if (e.key === 'Escape') {
       this._editorDiv.blur()
@@ -625,11 +633,8 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     e.preventDefault()
     e.stopPropagation()
     const div = this._editorDiv
-    const selection = this.shadowRoot.getSelection
-      ? this.shadowRoot.getSelection()
-      : document.getSelection()
-    if (!selection || selection.rangeCount === 0) return
-    const range = selection.getRangeAt(0)
+    const range = this._getSelectionRange()
+    if (!range) return
     const dataLen = charLength(this.data.string)
     // Clamp: the trailing zero-width space in _getHtml() is not in data.string,
     // so the DOM cursor can be one past the end after a blur+click.
@@ -665,11 +670,8 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   _handleCompositionEnd(e) {
     e.preventDefault()
     e.stopPropagation()
-    const range = this.shadowRoot.getSelection
-      ? // Chrome
-        this.shadowRoot.getSelection().getRangeAt(0)
-      : // Firefox
-        document.getSelection().getRangeAt(0)
+    const range = this._getSelectionRange()
+    if (!range) return
     const cpStart = rangeCharPos(
       range.startContainer,
       range.startOffset,
@@ -774,12 +776,8 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
   _handleFormat(type) {
     const div = this.shadowRoot.querySelector('div.note')
-    // workaround for Chrome & Firefox
-    const range = this.shadowRoot.getSelection
-      ? // Chrome
-        this.shadowRoot.getSelection().getRangeAt(0)
-      : // Firefox
-        document.getSelection().getRangeAt(0)
+    const range = this._getSelectionRange()
+    if (!range) return
     const pos = [
       rangeCharPos(range.startContainer, range.startOffset, div),
       rangeCharPos(range.endContainer, range.endOffset, div),
