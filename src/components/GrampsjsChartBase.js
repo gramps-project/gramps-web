@@ -1,8 +1,5 @@
 import {html, css, LitElement} from 'lit'
 
-import '@material/mwc-menu'
-import '@material/mwc-list/mwc-list-item'
-
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {FamilyGraph} from '../charts/model/FamilyGraph.js'
@@ -14,12 +11,12 @@ export class GrampsjsChartBase extends GrampsjsAppStateMixin(LitElement) {
       css`
         div#container {
           display: flex;
-          height: calc(100vh - 178px);
+          height: calc(100vh - 153px);
         }
 
         @media (max-width: 599px) {
           div#container {
-            height: calc(100vh - 170px);
+            height: calc(100vh - 145px);
           }
         }
       `,
@@ -39,6 +36,11 @@ export class GrampsjsChartBase extends GrampsjsAppStateMixin(LitElement) {
     this.data = []
     this.containerWidth = -1
     this.containerHeight = -1
+  }
+
+  // The viewport of a chart drawn with `ChartViewport`
+  get viewport() {
+    return this._chart?.viewport
   }
 
   willUpdate(changed) {

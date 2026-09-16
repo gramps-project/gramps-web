@@ -1,8 +1,5 @@
 import {html, css, LitElement} from 'lit'
 
-import '@material/mwc-menu'
-import '@material/mwc-list/mwc-list-item'
-
 import './GrampsjsTable.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'

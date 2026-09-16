@@ -1,8 +1,5 @@
 import {css} from 'lit'
 
-import '@material/mwc-menu'
-import '@material/mwc-list/mwc-list-item'
-
 import {sharedStyles} from '../SharedStyles.js'
 
 export const GrampsjsResizeContainerMixin = superClass =>
@@ -28,11 +25,13 @@ export const GrampsjsResizeContainerMixin = superClass =>
       this._resizeObserver = new ResizeObserver(() => this.handleResize())
     }
 
-    firstUpdated() {
+    firstUpdated(changed) {
+      super.firstUpdated(changed)
       this.handleResize()
     }
 
-    updated() {
+    updated(changed) {
+      super.updated(changed)
       this.observeContainer()
     }
 

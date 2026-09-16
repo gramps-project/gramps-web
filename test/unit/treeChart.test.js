@@ -6,6 +6,7 @@ import {FamilyGraph} from '../../src/charts/model/FamilyGraph.js'
 import {layoutAncestors} from '../../src/charts/layout/treeLayout.js'
 import {chartNameDisplayFormat} from '../../src/util.js'
 import {chartPalette} from '../../src/charts/palette.js'
+import {mdiChevronLeft, mdiChevronRight} from '@mdi/js'
 
 const family = (handle, father, mother, children) => ({
   handle,
@@ -140,18 +141,61 @@ describe('TreeChart', () => {
     const chart = new TreeChart()
     const layout = layoutAncestors(graph, 'R', {depth: 3})
     const triangle = () => chart.node.querySelector('#triangle-children')
+    const shape = () => triangle().querySelector('path')
     chart.update(layout, {...size, childrenTriangle: true})
-    expect(triangle().getAttribute('transform')).toBe(
-      'translate(-107,0) rotate(-90) scale(-1, 0.5)'
-    )
+    // 8px from the colour stripe on the left and from the box on the right
+    expect(triangle().getAttribute('transform')).toBe('translate(-127,0)')
+    expect(shape().getAttribute('d')).toBe(mdiChevronLeft)
     const element = triangle()
     chart.update(layout, {...size, childrenTriangle: true, orientation: 'RTL'})
     expect(triangle()).toBe(element)
-    expect(triangle().getAttribute('transform')).toBe(
-      'translate(107,0) rotate(90) scale(-1, 0.5)'
-    )
+    expect(triangle().getAttribute('transform')).toBe('translate(123,0)')
+    expect(shape().getAttribute('d')).toBe(mdiChevronRight)
     chart.update(layout, size)
     expect(triangle()).toBeNull()
+  })
+
+  it('shows the whole menu button in a view narrower than the chart', () => {
+    const chart = new TreeChart()
+    chart.update(layoutAncestors(graph, 'R', {depth: 3}), {
+      bboxWidth: 360,
+      bboxHeight: 600,
+      childrenTriangle: true,
+    })
+    const [x] = translateOf(chart.node.querySelector('#triangle-children'))
+    const [left] = zoomTransform(chart.node).apply([x - 20, 0])
+    const [viewBoxLeft] = chart.node
+      .getAttribute('viewBox')
+      .split(',')
+      .map(Number)
+    expect(left - viewBoxLeft).toBeGreaterThanOrEqual(0)
+  })
+
+  it('opens the menu of relatives by click or keyboard from a labelled triangle', () => {
+    const chart = new TreeChart()
+    const layout = layoutAncestors(graph, 'R', {depth: 3})
+    chart.update(layout, {
+      ...size,
+      childrenTriangle: true,
+      triangleLabel: 'Children',
+    })
+    const triangle = chart.node.querySelector('#triangle-children')
+    expect(triangle.getAttribute('role')).toBe('button')
+    expect(triangle.getAttribute('tabindex')).toBe('0')
+    expect(triangle.getAttribute('aria-label')).toBe('Children')
+    expect(Number(triangle.querySelector('circle').getAttribute('r'))).toBe(20)
+    let opened = 0
+    chart.node.addEventListener('pedigree:show-children', () => {
+      opened += 1
+    })
+    triangle.dispatchEvent(new MouseEvent('click', {bubbles: true}))
+    triangle.dispatchEvent(
+      new KeyboardEvent('keydown', {key: 'Enter', bubbles: true})
+    )
+    triangle.dispatchEvent(
+      new KeyboardEvent('keydown', {key: 'a', bubbles: true})
+    )
+    expect(opened).toBe(2)
   })
 
   it('keeps the same root person in place in a new layout', () => {
@@ -346,7 +390,7 @@ describe('TreeChart', () => {
       chart.node.querySelector('path').parentNode.getAttribute('stroke')
     ).toBe('grey')
     expect(
-      chart.node.querySelector('#triangle-children').getAttribute('fill')
+      chart.node.querySelector('#triangle-children path').getAttribute('fill')
     ).toBe('blue')
     expect(box().getAttribute('fill')).toBe('white')
     chart.update(layout, {...size, palette: {...palette, personBox: 'ivory'}})

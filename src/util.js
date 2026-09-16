@@ -903,4 +903,37 @@ export function apiVersionAtLeast(dbInfo, major, minor, patch = 0) {
   return pat >= patch
 }
 
+// Returns whether a key event comes from a text field, a select, a list item
+// or a dialog, where keys are not shortcuts
+export function isKeyEventInInput(e) {
+  const path = e.composedPath()
+  const target = path[0]
+  return (
+    ['input', 'textarea', 'select', 'option', 'md-dialog', 'dialog'].includes(
+      target?.tagName?.toLowerCase()
+    ) ||
+    Boolean(target?.getAttribute?.('contenteditable')) ||
+    // Selects and menus jump to an entry when letters are typed
+    path.some(el =>
+      ['md-filled-select', 'md-menu'].includes(el.tagName?.toLowerCase())
+    )
+  )
+}
+
+// Returns a `close-menu` handler for md-menu that calls `select` with the menu
+// item chosen by click, Enter or Space. A menu item chosen with a key closes
+// the menu without a click event, and closing with Escape selects nothing.
+export function menuSelectionHandler(select) {
+  return e => {
+    const {initiator, reason} = e.detail ?? {}
+    if (
+      initiator &&
+      (reason?.kind === 'click-selection' ||
+        ['Enter', 'Space'].includes(reason?.key))
+    ) {
+      select(initiator)
+    }
+  }
+}
+
 //

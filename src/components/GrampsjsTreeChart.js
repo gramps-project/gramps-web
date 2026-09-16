@@ -1,7 +1,7 @@
 import {html, css} from 'lit'
 
-import '@material/mwc-menu'
-import '@material/mwc-list/mwc-list-item'
+import '@material/web/menu/menu'
+import '@material/web/menu/menu-item'
 
 import {TreeChart} from '../charts/TreeChart.js'
 import {
@@ -10,11 +10,14 @@ import {
   layoutHourglass,
 } from '../charts/layout/treeLayout.js'
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
-import {getDescendantTree, getTree, getImageUrl} from '../charts/util.js'
-import {fireEvent, clickKeyHandler} from '../util.js'
-
-// Duration of the transition between two layouts, in milliseconds
-const transitionDuration = 400
+import {
+  chartTransitionDuration,
+  formatChartName,
+  getImageUrl,
+} from '../charts/util.js'
+import {fireEvent, menuSelectionHandler} from '../util.js'
+import {personListItemStyles} from '../SharedStyles.js'
+import {renderPersonAvatar, renderPersonDates} from './personListUtils.js'
 
 // Properties that change the layout of the chart
 const layoutProperties = [
@@ -31,10 +34,10 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
   static get styles() {
     return [
       super.styles,
+      personListItemStyles,
       css`
-        mwc-menu {
-          --mdc-typography-subtitle1-font-size: 13px;
-          --mdc-menu-item-height: 36px;
+        #relatives-menu {
+          min-width: 200px;
         }
       `,
     ]
@@ -66,11 +69,11 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
   render() {
     return html`
       <div
-        @pedigree:show-children="${this._handleShowChildren}"
+        @pedigree:show-children="${this._openMenu}"
         style="position:relative;"
       >
         <div id="container"></div>
-        ${this.renderChildrenMenu()}
+        ${this.renderRelativesMenu()}
       </div>
     `
   }
@@ -128,95 +131,84 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       this._chart.clear()
       return
     }
-    let childrenTriangle = false
-    if (this.descendants && this.ancestors) {
-      childrenTriangle = false
-    } else if (this.descendants) {
-      childrenTriangle = this._hasParents()
-    } else {
-      childrenTriangle = this._hasChildren()
-    }
     this._chart.update(this._layout, {
-      childrenTriangle,
+      childrenTriangle: this._relatives().length > 0,
+      triangleLabel: this.descendants ? this._('Parents') : this._('Children'),
       getImageUrl: d => getImageUrl(d.person, 100),
       orientation: this.descendants ? 'RTL' : 'LTR',
       bboxWidth: this.containerWidth,
       bboxHeight: this.containerHeight,
       nameDisplayFormat: this.nameDisplayFormat,
       canEdit: this.canEdit,
-      duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        ? 0
-        : transitionDuration,
+      duration: chartTransitionDuration(),
     })
   }
 
-  _hasChildren() {
+  // Returns the relatives in the menu of the root person's triangle: the
+  // parents in a descendant chart and the birth children in an ancestor
+  // chart. Hourglass charts show both, so they have no menu. People who were
+  // not fetched are left out.
+  _relatives() {
+    if (this.ancestors && this.descendants) {
+      return []
+    }
     const {handle} = this._graph.personByGrampsId(this.grampsId) ?? {}
-    return this._graph.children(handle, {birthOnly: true}).length > 0
+    if (!handle) {
+      return []
+    }
+    const handles = this.descendants
+      ? Object.values(this._graph.parents(handle))
+      : this._graph.children(handle, {birthOnly: true})
+    return handles
+      .map(relative => this._graph.person(relative))
+      .filter(person => person?.gramps_id)
   }
 
-  _hasParents() {
-    const {handle} = this._graph.personByGrampsId(this.grampsId) ?? {}
-    const {father, mother} = this._graph.parents(handle)
-    return Boolean(father || mother)
-  }
-
-  renderChildrenMenu() {
-    const {handle} = this._graph.personByGrampsId(this.grampsId) ?? {}
-    const data = this.descendants
-      ? getTree(this._graph, handle, 2, false)
-      : getDescendantTree(this._graph, handle, 2)
-    const {children} = data
-    if (!children || !children.length) {
+  renderRelativesMenu() {
+    const relatives = this._relatives()
+    if (relatives.length === 0) {
       return ''
     }
     return html`
-      <mwc-menu fixed corner="BOTTOM_LEFT" menuCorner="START">
-        ${children.map(
-          child =>
-            html`
-              <mwc-list-item
-                @click=${() => this._handleChild(child.person.gramps_id)}
-                @keydown=${clickKeyHandler}
-                >${child.name_given || html`&hellip;`}</mwc-list-item
-              >
-            `
+      <md-menu
+        id="relatives-menu"
+        positioning="fixed"
+        @close-menu=${menuSelectionHandler(item =>
+          this._selectPerson(item.dataset.grampsId)
         )}
-      </mwc-menu>
+      >
+        ${relatives.map(
+          person => html`
+            <md-menu-item data-gramps-id="${person.gramps_id}">
+              ${renderPersonAvatar(person, person.profile?.sex)}
+              <div slot="headline">
+                ${formatChartName(person.profile, this.nameDisplayFormat)}
+              </div>
+              ${renderPersonDates(person.profile)}
+            </md-menu-item>
+          `
+        )}
+      </md-menu>
     `
   }
 
-  _handleChild(grampsId) {
+  _selectPerson(grampsId) {
     fireEvent(this, 'pedigree:person-selected', {grampsId})
-    this._closeMenu()
-  }
-
-  _handleShowChildren() {
-    const triangle = this.renderRoot.querySelector('#triangle-children')
-    if (triangle !== null) {
-      this._openMenu()
-    }
   }
 
   _openMenu() {
-    const menu = this.renderRoot.querySelector('mwc-menu')
-    if (menu !== null) {
+    const menu = this.renderRoot.getElementById('relatives-menu')
+    if (menu) {
+      this._updateMenuAnchor()
       menu.open = true
     }
   }
 
-  _closeMenu() {
-    const menu = this.renderRoot.querySelector('mwc-menu')
-    if (menu !== null) {
-      menu.open = false
-    }
-  }
-
   _updateMenuAnchor() {
-    const menu = this.renderRoot.querySelector('mwc-menu')
-    const triangle = this.renderRoot.querySelector('#triangle-children')
-    if (menu !== null && triangle !== null) {
-      menu.anchor = triangle
+    const menu = this.renderRoot.getElementById('relatives-menu')
+    const triangle = this.renderRoot.getElementById('triangle-children')
+    if (menu && triangle) {
+      menu.anchorElement = triangle
     }
   }
 }

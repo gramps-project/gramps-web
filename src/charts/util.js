@@ -5,8 +5,16 @@ import {select} from 'd3-selection'
 import {scaleSequential} from 'd3-scale'
 import {interpolateWarm} from 'd3-scale-chromatic'
 import {getThumbnailUrl, getThumbnailUrlCropped} from '../api.js'
-import {normalizeRect} from '../util.js'
+import {chartNameDisplayFormat, normalizeRect} from '../util.js'
 
+// Returns the name of a person profile in a chart name display format
+export function formatChartName(profile, nameDisplayFormat) {
+  const given = profile?.name_given || '…'
+  const surname = profile?.name_surname || '…'
+  return nameDisplayFormat === chartNameDisplayFormat.givenThenSurname
+    ? `${given} ${surname}`
+    : `${surname}, ${given}`
+}
 export const getImageUrl = (person, size, square = true) => {
   if (!person.media_list || person.media_list.length === 0) {
     return ''
@@ -17,6 +25,14 @@ export const getImageUrl = (person, size, square = true) => {
     return getThumbnailUrl(mediaRef.ref, size, square)
   }
   return getThumbnailUrlCropped(mediaRef.ref, rect, size, square)
+}
+
+// Returns the duration of a chart animation in milliseconds, which is 0 when
+// the user prefers reduced motion
+export function chartTransitionDuration(duration = 400) {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 0
+    : duration
 }
 
 export const getTree = (

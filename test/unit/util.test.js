@@ -17,7 +17,7 @@ import {
   isValidRect,
   apiVersionAtLeast,
   linkUrls,
-  objectDetail,
+  isKeyEventInInput,
 } from '../../src/util.js'
 
 // Helpers
@@ -480,5 +480,32 @@ describe('linkUrls', () => {
     expect(anchors.length).to.equal(1)
     expect(anchors[0].getAttribute('href')).to.equal('https://a.org/x')
     expect(div.textContent).to.contain('now')
+  })
+})
+
+describe('isKeyEventInInput', () => {
+  const keyEvent = path => ({composedPath: () => path})
+  const element = tagName => ({tagName})
+
+  it('leaves keys to text fields, dialogs, selects and menus', () => {
+    const paths = [
+      [element('INPUT')],
+      [element('TEXTAREA')],
+      [element('OPTION')],
+      [element('MD-DIALOG')],
+      // A select and a menu are entered through the elements inside them
+      [element('LI'), element('MD-FILLED-SELECT')],
+      [element('LI'), element('MD-MENU')],
+    ]
+    paths.forEach(path =>
+      expect(isKeyEventInInput(keyEvent(path))).to.equal(true)
+    )
+  })
+
+  it('leaves keys alone elsewhere', () => {
+    expect(isKeyEventInInput(keyEvent([element('BODY')]))).to.equal(false)
+    expect(
+      isKeyEventInInput(keyEvent([element('A'), element('MD-LIST')]))
+    ).to.equal(false)
   })
 })

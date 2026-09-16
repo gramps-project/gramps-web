@@ -1,36 +1,16 @@
-import {html, css} from 'lit'
-
-import '@material/mwc-menu'
-import '@material/mwc-list/mwc-list-item'
+import {html} from 'lit'
 
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 import {RelationshipChart} from '../charts/RelationshipChart.js'
 import {layoutRelationships} from '../charts/layout/relationshipLayout.js'
-import {getImageUrl} from '../charts/util.js'
+import {chartTransitionDuration, getImageUrl} from '../charts/util.js'
 import {fireEvent} from '../util.js'
 
-// Duration of the transition between two layouts, in milliseconds
-const transitionDuration = 400
-
 class GrampsjsRelationshipChart extends GrampsjsChartBase {
-  static get styles() {
-    return [
-      super.styles,
-      css`
-        mwc-menu {
-          --mdc-typography-subtitle1-font-size: 13px;
-          --mdc-menu-item-height: 36px;
-        }
-      `,
-    ]
-  }
-
   static get properties() {
     return {
       grampsId: {type: String},
-      nAnc: {type: Number},
       nMaxImages: {type: Number},
-      gapX: {type: Number},
       nameDisplayFormat: {type: String},
       canEdit: {type: Boolean},
     }
@@ -39,7 +19,6 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
   constructor() {
     super()
     this.grampsId = ''
-    this.gapX = 30
     this._chart = new RelationshipChart()
     this._layout = null
     this._layoutRequest = 0
@@ -81,9 +60,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
       maxImages: this.nMaxImages,
       nameDisplayFormat: this.nameDisplayFormat,
       canEdit: this.canEdit,
-      duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        ? 0
-        : transitionDuration,
+      duration: chartTransitionDuration(),
       bboxWidth: this.containerWidth,
       bboxHeight: this.containerHeight,
     })

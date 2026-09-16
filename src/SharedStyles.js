@@ -161,17 +161,6 @@ export const sharedStyles = css`
     margin-bottom: 1.2em;
   }
 
-  mwc-list {
-    --mdc-list-item-graphic-margin: 16px;
-  }
-
-  mwc-list.large {
-    --mdc-typography-subtitle1-color: var(--grampsjs-body-font-color-100);
-    --mdc-typography-subtitle1-font-size: var(--grampsjs-body-font-size);
-    --mdc-typography-subtitle1-font-weight: var(--grampsjs-body-font-weight);
-    --mdc-typography-subtitle1-letter-spacing: -0.01em;
-  }
-
   .avatar.skeleton {
     width: 44px;
     height: 44px;
@@ -373,8 +362,7 @@ export const sharedStyles = css`
   }
 `
 
-/* A leading list icon or thumbnail as a 40px circle, replicating mwc-list-item
-   graphic="avatar". */
+/* A leading list icon or thumbnail as a 40px circle */
 export const listAvatarStyles = css`
   grampsjs-img[slot='start'],
   grampsjs-icon[slot='start'] {
@@ -400,7 +388,7 @@ export const listAvatarStyles = css`
 export const personListItemStyles = [
   listAvatarStyles,
   css`
-    /* Increase vertical spacing to match mwc-list-item */
+    /* Roomier rows than the Material defaults */
     md-list-item {
       --md-list-item-one-line-container-height: 64px;
       --md-list-item-two-line-container-height: 80px;

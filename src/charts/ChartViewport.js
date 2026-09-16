@@ -29,6 +29,7 @@ export class ChartViewport {
     this._rootHandle = undefined
     this._viewStart = [0, 0]
     this._size = undefined
+    this._bounds = undefined
     this._clicked = undefined
   }
 
@@ -64,6 +65,9 @@ export class ChartViewport {
     fit = false,
     newLayout = false,
   }) {
+    // A new layout stops an animated zoom or pan
+    this._svg.interrupt('viewport')
+    this._bounds = bounds
     const previous = {
       transform: zoomTransform(this._svg.node()),
       viewStart: this._viewStart,
@@ -102,6 +106,74 @@ export class ChartViewport {
         k,
     ]
     return {offset, keptKey}
+  }
+
+  // Zooms by `factor` around the centre of the view
+  zoomBy(factor, {duration = 0} = {}) {
+    if (!this._hasSize()) {
+      return
+    }
+    const {x, y, k} = zoomTransform(this._svg.node())
+    const [cx, cy] = this._viewCentre()
+    this._animateTo(
+      zoomIdentity
+        .translate(cx - (cx - x) * factor, cy - (cy - y) * factor)
+        .scale(k * factor),
+      duration
+    )
+  }
+
+  // Moves the chart by `dx` and `dy` pixels
+  panBy(dx, dy, {duration = 0} = {}) {
+    if (!this._hasSize()) {
+      return
+    }
+    const {x, y, k} = zoomTransform(this._svg.node())
+    this._animateTo(zoomIdentity.translate(x + dx, y + dy).scale(k), duration)
+  }
+
+  // Centres the chart in the view, zoomed out as far as needed to show all of
+  // it
+  fit({duration = 0} = {}) {
+    if (!this._hasSize() || !this._bounds) {
+      return
+    }
+    this._animateTo(this._fitTransform(this._bounds, this._size), duration)
+  }
+
+  // Centres the root person in the view, keeping the zoom level
+  centreRoot({duration = 0} = {}) {
+    if (!this._hasSize()) {
+      return
+    }
+    const {k} = zoomTransform(this._svg.node())
+    const [cx, cy] = this._viewCentre()
+    this._animateTo(zoomIdentity.translate(cx, cy).scale(k), duration)
+  }
+
+  _hasSize() {
+    return Boolean(this._size?.every(value => value > 0))
+  }
+
+  // The centre of the view in viewBox coordinates
+  _viewCentre() {
+    return [
+      this._viewStart[0] + this._size[0] / 2,
+      this._viewStart[1] + this._size[1] / 2,
+    ]
+  }
+
+  // Sets the zoom transform, animated over `duration` milliseconds
+  _animateTo(transform, duration) {
+    this._svg.interrupt('viewport')
+    if (duration > 0) {
+      this._svg
+        .transition('viewport')
+        .duration(duration)
+        .call(this._zoom.transform, transform)
+    } else {
+      this._svg.call(this._zoom.transform, transform)
+    }
   }
 
   // Returns the zoom transform for a new layout, and the key of the node kept
