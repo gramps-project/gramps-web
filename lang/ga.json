@@ -425,5 +425,8 @@
     "Blog Post": "Postáil Blag",
     "Failed to fetch the Blog tag": "Theip ar an gclibeáil blag a fháil",
     "Only the most recent revisions are shown.": "Ní thaispeántar ach na leasuithe is déanaí.",
-    "This Gramps Web instance has already been set up. Log in with an existing account.": "Tá an t-eiseamláir seo de Gramps Web socraithe cheana féin. Logáil isteach le cuntas atá ann cheana."
+    "This Gramps Web instance has already been set up. Log in with an existing account.": "Tá an t-eiseamláir seo de Gramps Web socraithe cheana féin. Logáil isteach le cuntas atá ann cheana.",
+    "Fit to window": "Oiriúnaigh don fhuinneog",
+    "Center on selected person": "Dírigh ar an duine roghnaithe",
+    "Move the chart": "Bog an chairt"
 }
