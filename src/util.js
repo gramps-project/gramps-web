@@ -907,7 +907,10 @@ export function isKeyEventInInput(e) {
       target?.tagName?.toLowerCase()
     ) ||
     Boolean(target?.getAttribute?.('contenteditable')) ||
-    path.some(el => el.tagName?.toLowerCase() === 'md-filled-select')
+    // Selects and menus jump to an entry when letters are typed
+    path.some(el =>
+      ['md-filled-select', 'md-menu'].includes(el.tagName?.toLowerCase())
+    )
   )
 }
 
