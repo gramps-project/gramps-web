@@ -903,15 +903,9 @@ export function isKeyEventInInput(e) {
   const path = e.composedPath()
   const target = path[0]
   return (
-    [
-      'input',
-      'textarea',
-      'select',
-      'option',
-      'mwc-list-item',
-      'md-dialog',
-      'dialog',
-    ].includes(target?.tagName?.toLowerCase()) ||
+    ['input', 'textarea', 'select', 'option', 'md-dialog', 'dialog'].includes(
+      target?.tagName?.toLowerCase()
+    ) ||
     Boolean(target?.getAttribute?.('contenteditable')) ||
     path.some(el => el.tagName?.toLowerCase() === 'md-filled-select')
   )

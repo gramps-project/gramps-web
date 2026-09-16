@@ -3,9 +3,6 @@ import tippy from 'tippy.js'
 import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
-import '@material/mwc-menu'
-import '@material/mwc-list/mwc-list-item'
-
 import {schemeSet1} from 'd3-scale-chromatic'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
