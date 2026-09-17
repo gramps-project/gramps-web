@@ -311,6 +311,16 @@ export const sharedStyles = css`
     color: var(--grampsjs-color-monospace);
   }
 
+  /* Note highlight; the stored color is blended with the background so that
+     it stays readable in dark mode */
+  .note-highlight {
+    background-color: color-mix(
+      in srgb,
+      var(--note-highlight-color) var(--grampsjs-note-highlight-strength),
+      transparent
+    );
+  }
+
   md-outlined-text-field.drag-hover {
     --md-outlined-text-field-outline-color: var(--mdc-theme-secondary);
     --md-outlined-text-field-hover-outline-color: var(--mdc-theme-secondary);

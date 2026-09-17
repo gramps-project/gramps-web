@@ -423,6 +423,7 @@ export const grampsStrings = [
   'Help',
   'Henry numbering',
   'High',
+  'Highlight',
   'Home',
   'Home page image',
   'Home page note',
