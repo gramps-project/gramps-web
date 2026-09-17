@@ -419,5 +419,13 @@
     "New Blog Post": "Новая запись в блоге",
     "Blog Post": "Запись в блоге",
     "Failed to fetch the Blog tag": "Не удалось получить тег блога",
-    "Only the most recent revisions are shown.": "Показаны только последние изменения."
+    "Only the most recent revisions are shown.": "Показаны только последние изменения.",
+    "Fit to window": "По размеру окна",
+    "Center on selected person": "Центрировать на выбранной персоне",
+    "Move the chart": "Переместить древо",
+    "Get started": "Начать",
+    "Connect the people in your tree by adding a family.": "Свяжите людей в вашем древе, добавив семью.",
+    "The server uses configuration options that are no longer supported.": "Сервер использует параметры конфигурации, которые больше не поддерживаются.",
+    "Support will be removed in Gramps Web API %s.": "Поддержка будет прекращена в Gramps Web API %s.",
+    "This Gramps Web instance has already been set up. Log in with an existing account.": "Этот экземпляр Gramps Web уже настроен. Войдите с существующей учётной записью."
 }
