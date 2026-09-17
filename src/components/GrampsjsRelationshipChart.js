@@ -10,7 +10,6 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
   static get properties() {
     return {
       grampsId: {type: String},
-      nMaxImages: {type: Number},
       nameDisplayFormat: {type: String},
       canEdit: {type: Boolean},
     }
@@ -57,7 +56,6 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     }
     this._chart.update(this._layout, {
       getImageUrl: node => getImageUrl(node.person, 100),
-      maxImages: this.nMaxImages,
       nameDisplayFormat: this.nameDisplayFormat,
       canEdit: this.canEdit,
       duration: chartTransitionDuration(),

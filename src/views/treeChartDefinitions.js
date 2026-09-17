@@ -244,15 +244,6 @@ export const chartDefinitions = {
         min: 0,
         default: 2,
       },
-      {
-        name: 'maxImages',
-        key: 'relationshipChartMaxImages',
-        label: 'Max Number of Images displayed',
-        type: 'number',
-        min: 0,
-        size: 5,
-        default: 50,
-      },
       nameDisplayFormatSetting('relationshipChartNameDisplayFormat'),
     ],
     editable: true,
@@ -268,7 +259,6 @@ export const chartDefinitions = {
     render: ({grampsId, values, data, canEdit}) => html`
       <grampsjs-relationship-chart
         grampsId=${grampsId}
-        nMaxImages=${values.maxImages}
         nameDisplayFormat=${values.nameDisplayFormat}
         ?canEdit="${canEdit}"
         .data=${data}

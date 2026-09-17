@@ -98,7 +98,6 @@ export class GrampsjsConnectionChart extends GrampsjsResizeContainerMixin(
     }
     this._chart.update(this._layout, {
       getImageUrl: node => getImageUrl(node.person, 100),
-      maxImages: this.nMaxImages,
       nameDisplayFormat: this.nameDisplayFormat,
       palette,
       fit: true,
