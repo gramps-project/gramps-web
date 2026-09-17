@@ -115,6 +115,7 @@ export const grampsStrings = [
   'Aide',
   'Albanian',
   'Album',
+  'All',
   'Also Known As',
   'Alternate Marriage',
   'Alternate Names',
