@@ -425,5 +425,8 @@
     "The server uses configuration options that are no longer supported.": "O servidor utiliza opções de configuração que já não são suportadas.",
     "Get started": "Para começar",
     "Connect the people in your tree by adding a family.": "Ligue os indivíduos na sua árvore adicionando uma família.",
-    "This Gramps Web instance has already been set up. Log in with an existing account.": "Esta instância do Gramps Web já foi configurada. Inicie sessão com uma conta existente."
+    "This Gramps Web instance has already been set up. Log in with an existing account.": "Esta instância do Gramps Web já foi configurada. Inicie sessão com uma conta existente.",
+    "Fit to window": "Ajustar à janela",
+    "Center on selected person": "Centrar no indivíduo seleccionado",
+    "Move the chart": "Mover a árvore"
 }
