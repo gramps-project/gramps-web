@@ -1,5 +1,6 @@
 import {html, css} from 'lit'
 import '@material/web/button/outlined-button'
+import '@material/web/iconbutton/outlined-icon-button'
 import '@material/web/chips/chip-set'
 import '@material/web/chips/filter-chip'
 import {
@@ -22,6 +23,10 @@ export class GrampsjsPerson extends GrampsjsObject {
     return [
       super.styles,
       css`
+        span.event {
+          white-space: nowrap;
+        }
+
         .events-chips {
           margin-bottom: 16px;
         }
@@ -33,6 +38,25 @@ export class GrampsjsPerson extends GrampsjsObject {
           --md-sys-color-on-secondary-container: var(
             --md-sys-color-on-surface-variant
           );
+        }
+
+        p.button-list.labeled {
+          display: none;
+        }
+
+        p.button-list.icon-only md-outlined-icon-button {
+          --md-outlined-icon-button-container-width: 48px;
+          --md-outlined-icon-button-container-height: 48px;
+        }
+
+        @container (min-width: 600px) {
+          p.button-list.labeled {
+            display: flex;
+          }
+
+          p.button-list.icon-only {
+            display: none;
+          }
         }
       `,
     ]
@@ -69,13 +93,7 @@ export class GrampsjsPerson extends GrampsjsObject {
         ${this._displayName()}
       </h2>
       ${this._renderBirth()} ${this._renderDeath()} ${this._renderRelation()}
-      ${this.preview
-        ? ''
-        : html`<p class="button-list">
-            ${this._renderTreeBtn()} ${this._renderTimelineBtn()}
-            ${this._renderMapBtn()} ${this._renderDnaBtn()}
-            ${this._renderExternalSearchBtn()}
-          </p>`}
+      ${this.preview ? '' : this._renderButtons()}
     `
   }
 
@@ -148,77 +166,70 @@ export class GrampsjsPerson extends GrampsjsObject {
     `
   }
 
-  _renderTreeBtn() {
-    return html`
-      <md-outlined-button @click="${this._handleTreeButtonClick}">
-        ${this._('Show in tree')}
-        <grampsjs-icon
-          path="${mdiFamilyTree}"
-          color="var(--mdc-theme-primary)"
-          slot="icon"
-        >
-        </grampsjs-icon>
-      </md-outlined-button>
-    `
+  _getButtons() {
+    const hasDna = this.data?.person_ref_list?.some(ref => ref.rel === 'DNA')
+    return [
+      {
+        label: 'Show in tree',
+        path: mdiFamilyTree,
+        handler: this._handleTreeButtonClick,
+      },
+      {
+        label: 'Show on timeline',
+        path: mdiTimelineOutline,
+        handler: this._handleTimelineButtonClick,
+      },
+      {label: 'Open in map', path: mdiMap, handler: this._handleMapButtonClick},
+      ...(hasDna
+        ? [
+            {
+              label: 'DNA matches',
+              path: mdiDna,
+              handler: this._handleDnaButtonClick,
+            },
+          ]
+        : []),
+      {
+        label: 'External Search',
+        path: mdiSearchWeb,
+        handler: this._handleExternalSearchClick,
+      },
+    ]
   }
 
-  _renderTimelineBtn() {
+  _renderButtons() {
+    const buttons = this._getButtons()
     return html`
-      <md-outlined-button @click="${this._handleTimelineButtonClick}">
-        ${this._('Show on timeline')}
-        <grampsjs-icon
-          path="${mdiTimelineOutline}"
-          color="var(--mdc-theme-primary)"
-          slot="icon"
-        ></grampsjs-icon>
-      </md-outlined-button>
-    `
-  }
-
-  _renderMapBtn() {
-    return html`
-      <md-outlined-button @click="${this._handleMapButtonClick}">
-        ${this._('Open in map')}
-        <grampsjs-icon
-          path="${mdiMap}"
-          color="var(--mdc-theme-primary)"
-          slot="icon"
-        ></grampsjs-icon>
-      </md-outlined-button>
-    `
-  }
-
-  _renderExternalSearchBtn() {
-    return html`
-      <md-outlined-button @click="${this._handleExternalSearchClick}">
-        ${this._('External Search')}
-        <grampsjs-icon
-          path="${mdiSearchWeb}"
-          color="var(--mdc-theme-primary)"
-          slot="icon"
-        >
-        </grampsjs-icon>
-      </md-outlined-button>
-    `
-  }
-
-  _renderDnaBtn() {
-    if (!this.data?.person_ref_list?.filter(ref => ref.rel === 'DNA').length) {
-      // no DNA data
-      return ''
-    }
-    return html`
-      <md-outlined-button
-        @click="${this._handleDnaButtonClick}"
-        class="dna-btn"
-      >
-        ${this._('DNA matches')}
-        <grampsjs-icon
-          path="${mdiDna}"
-          color="var(--mdc-theme-primary)"
-          slot="icon"
-        ></grampsjs-icon>
-      </md-outlined-button>
+      <p class="button-list labeled">
+        ${buttons.map(
+          btn => html`
+            <md-outlined-button @click="${btn.handler}">
+              ${this._(btn.label)}
+              <grampsjs-icon
+                path="${btn.path}"
+                color="var(--mdc-theme-primary)"
+                slot="icon"
+              ></grampsjs-icon>
+            </md-outlined-button>
+          `
+        )}
+      </p>
+      <p class="button-list icon-only">
+        ${buttons.map(
+          btn => html`
+            <md-outlined-icon-button
+              @click="${btn.handler}"
+              aria-label="${this._(btn.label)}"
+              title="${this._(btn.label)}"
+            >
+              <grampsjs-icon
+                path="${btn.path}"
+                color="var(--mdc-theme-primary)"
+              ></grampsjs-icon>
+            </md-outlined-icon-button>
+          `
+        )}
+      </p>
     `
   }
 
