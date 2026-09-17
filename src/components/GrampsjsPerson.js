@@ -24,7 +24,7 @@ export class GrampsjsPerson extends GrampsjsObject {
       super.styles,
       css`
         span.event {
-          white-space: nowrap;
+          display: inline-block;
         }
 
         .events-chips {
