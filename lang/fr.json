@@ -135,7 +135,7 @@
     "Ancestor frequency": "Fréquence d’ascendant",
     "Bookmark this": "Ajouter aux favoris",
     "Remove bookmark": "Retirer des favoris",
-    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "L’arbre généalogique que vous essayez de charger est dans une version du schéma qui n’est pas supportée par cette version de Gramps Web. Ainsi vous ne pouvez pas charger cet arbre généalogique jusqu’à ce que l’administrateur ait mis à niveau son schéma.",
+    "The Family Tree you are trying to load is in a schema version not supported by this version of Gramps Web. Therefore you cannot load this Family Tree until the tree administrator has upgraded its schema.": "L’arbre généalogique que vous essayez de charger est dans une version du schéma qui n’est pas prise en charge par cette version de Gramps Web. Ainsi vous ne pouvez pas charger cet arbre généalogique jusqu’à ce que l’administrateur ait mis à niveau son schéma.",
     "Media file status": "État des fichiers média",
     "Chromosome Browser": "Navigateur de chromosome",
     "Largest Segment": "Plus grand segment",
