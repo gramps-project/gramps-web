@@ -95,6 +95,7 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
       _errorConfig: {type: String},
       _errorTree: {type: String},
       _tree: {type: String},
+      _hasTree: {type: Boolean},
     }
   }
 
@@ -108,6 +109,9 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
     this._errorConfig = ''
     this._errorTree = ''
     this._tree = ''
+    // True once the owner's login token carries a tree claim, which is the
+    // case in single-tree installs, where no tree needs to be created.
+    this._hasTree = false
   }
 
   // Drives the confirmation field's own validity, so checkValidity() and the
@@ -297,7 +301,7 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
               this.stateUser,
               this._errorUser
             )}
-            ${this._tree
+            ${this._tree || this._hasTree
               ? ''
               : this._showProgress(
                   this._('Creating your first tree'),
@@ -315,7 +319,7 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
 
           <div
             style="visibility:${this.stateUser === STATE_DONE &&
-            (this._tree || this.stateTree === STATE_DONE) &&
+            (this._tree || this._hasTree || this.stateTree === STATE_DONE) &&
             this.stateConfig !== STATE_PROGRESS
               ? 'visible'
               : 'hidden'};"
@@ -366,8 +370,9 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
       this._errorUser = resp.error || ''
       return
     }
+    this._hasTree = !!getTreeFromToken(localStorage.getItem('access_token'))
 
-    if (!this._tree) {
+    if (!this._tree && !this._hasTree) {
       await this._submitTree()
       if (this.stateTree === STATE_ERROR) {
         return
