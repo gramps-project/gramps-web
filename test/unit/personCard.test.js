@@ -3,6 +3,7 @@ import {create} from 'd3-selection'
 import {
   appendPersonCard,
   clearPersonCardInteraction,
+  drawChangedCards,
   setPersonCardInteraction,
 } from '../../src/charts/personCard.js'
 import {chartPalette} from '../../src/charts/palette.js'
@@ -103,6 +104,32 @@ describe('appendPersonCard', () => {
     })
     expect(texts(cards.full)).toEqual(['Anna', 'Berg', '*1900', '†1980'])
     expect(texts(cards.noSurname)).toEqual(['Carl', '…'])
+  })
+
+  it('uses configured birth and death symbols', () => {
+    expect(
+      texts(renderCards({birthSymbol: 'b.', deathSymbol: 'd.'}).full)
+    ).toEqual(['Berg,', 'Anna', 'b.1900', 'd.1980'])
+  })
+
+  it('redraws cards when symbols change', () => {
+    const svg = create('svg')
+    const nodes = svg
+      .selectAll('g')
+      .data([{person: people.full}])
+      .join('g')
+    nodes.append('g').attr('class', 'person-card')
+
+    const draw = symbols =>
+      drawChangedCards(nodes, {
+        ...symbols,
+        nameDisplayFormat: chartNameDisplayFormat.surnameThenGiven,
+      })
+
+    draw({birthSymbol: '*', deathSymbol: '†'})
+    draw({birthSymbol: 'b.', deathSymbol: 'd.'})
+
+    expect(texts(nodes.node())).toEqual(['Berg,', 'Anna', 'b.1900', 'd.1980'])
   })
 
   it('shortens names that do not fit', () => {

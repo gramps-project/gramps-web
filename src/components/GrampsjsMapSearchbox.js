@@ -405,7 +405,8 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
         supportingText: objectDetail(
           TYPE_PERSON,
           obj.object,
-          this.appState.i18n.strings
+          this.appState.i18n.strings,
+          this.appState.settings
         ).trim(),
         iconPath: mdiAccount,
       }

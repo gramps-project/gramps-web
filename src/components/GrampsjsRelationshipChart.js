@@ -5,6 +5,7 @@ import {RelationshipChart} from '../charts/RelationshipChart.js'
 import {layoutRelationships} from '../charts/layout/relationshipLayout.js'
 import {chartTransitionDuration, getImageUrl} from '../charts/util.js'
 import {fireEvent} from '../util.js'
+import {getSymbols} from '../symbols.js'
 
 class GrampsjsRelationshipChart extends GrampsjsChartBase {
   static get properties() {
@@ -59,6 +60,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
       getImageUrl: node => getImageUrl(node.person, 100),
       maxImages: this.nMaxImages,
       nameDisplayFormat: this.nameDisplayFormat,
+      ...getSymbols(this.appState.settings, s => this._(s)),
       canEdit: this.canEdit,
       duration: chartTransitionDuration(),
       bboxWidth: this.containerWidth,

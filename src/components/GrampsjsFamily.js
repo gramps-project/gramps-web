@@ -11,6 +11,7 @@ import './GrampsjsFormEditFamily.js'
 import './GrampsjsFormNewPerson.js'
 import './GrampsjsFormPersonRef.js'
 import {GrampsjsObject} from './GrampsjsObject.js'
+import {getSymbols} from '../symbols.js'
 
 export class GrampsjsFamily extends GrampsjsObject {
   static get styles() {
@@ -97,6 +98,10 @@ export class GrampsjsFamily extends GrampsjsObject {
     const divorce = this.data?.profile?.divorce
     const hasMarriage = marriage?.date || marriage?.place
     const hasDivorce = divorce && Object.keys(divorce).length > 0
+    const {marriageSymbol, divorceSymbol} = getSymbols(
+      this.appState.settings,
+      s => this._(s)
+    )
     if (!relType && !hasMarriage && !hasDivorce && !this.edit) {
       return ''
     }
@@ -109,7 +114,7 @@ export class GrampsjsFamily extends GrampsjsObject {
               ${relType || ''}
               ${hasMarriage
                 ? html`<span class="parent-dates">
-                    <span class="sym">⚭</span>
+                    <span class="sym">${marriageSymbol}</span>
                     ${marriage.date || ''}
                     ${marriage.place
                       ? `${this._('in')} ${
@@ -120,7 +125,7 @@ export class GrampsjsFamily extends GrampsjsObject {
                 : ''}
               ${hasDivorce
                 ? html`<span class="parent-dates">
-                    <span class="sym">⚮</span>
+                    <span class="sym">${divorceSymbol}</span>
                     ${divorce.date || ''}
                     ${divorce.place ? `${this._('in')} ${divorce.place}` : ''}
                   </span>`
@@ -153,6 +158,9 @@ export class GrampsjsFamily extends GrampsjsObject {
     const hasProfile = Object.keys(profile ?? {}).length > 0
     const birthDate = profile?.birth?.date || ''
     const deathDate = profile?.death?.date || ''
+    const {birthSymbol, deathSymbol} = getSymbols(this.appState.settings, s =>
+      this._(s)
+    )
 
     return html`
       <dl>
@@ -170,11 +178,13 @@ export class GrampsjsFamily extends GrampsjsObject {
                     ${birthDate || deathDate
                       ? html`<span class="parent-dates">
                           ${birthDate
-                            ? html`<span class="sym">∗</span> ${birthDate}`
+                            ? html`<span class="sym">${birthSymbol}</span>
+                                ${birthDate}`
                             : ''}
                           ${birthDate && deathDate ? ' ' : ''}
                           ${deathDate
-                            ? html`<span class="sym">†</span> ${deathDate}`
+                            ? html`<span class="sym">${deathSymbol}</span>
+                                ${deathDate}`
                             : ''}
                         </span>`
                       : ''}`

@@ -1,5 +1,6 @@
 import {describe, it, expect, vi} from 'vitest'
 import {GrampsjsViewSettingsUser} from '../../src/views/GrampsjsViewSettingsUser.js'
+import {SYMBOL_SET_DEFAULT, SYMBOL_SET_TEXT} from '../../src/symbols.js'
 
 const makeElement = ({
   username,
@@ -125,5 +126,27 @@ describe('user profile settings', () => {
     expect(element.error).toBe(true)
     expect(element._errorMessage).toBe('This user name is already in use')
     expect(element._fetchOwnUserDetails).not.toHaveBeenCalled()
+  })
+})
+
+describe('genealogical symbols setting', () => {
+  it('saves the selected symbol set', () => {
+    const element = new GrampsjsViewSettingsUser()
+    const updateSettings = vi.fn()
+    element.appState = {settings: {}, updateSettings}
+
+    element._handleSymbolsSelected({target: {value: SYMBOL_SET_TEXT}})
+
+    expect(updateSettings).toHaveBeenCalledWith({symbolSet: SYMBOL_SET_TEXT})
+  })
+
+  it('falls back to the default set for an invalid value', () => {
+    const element = new GrampsjsViewSettingsUser()
+    const updateSettings = vi.fn()
+    element.appState = {settings: {}, updateSettings}
+
+    element._handleSymbolsSelected({target: {value: 'nonsense'}})
+
+    expect(updateSettings).toHaveBeenCalledWith({symbolSet: SYMBOL_SET_DEFAULT})
   })
 })

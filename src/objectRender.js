@@ -1,6 +1,5 @@
 import {html} from 'lit'
 
-import {asteriskIcon, crossIcon} from './icons.js'
 import {hex6ToCss, hex12ToCss} from './color.js'
 import {
   familyTitleFromProfile,
@@ -12,6 +11,7 @@ import {
   eventTypeStrings,
   noteTypeStrings,
 } from './util.js'
+import {getSymbols} from './symbols.js'
 import './components/GrampsjsObjectLink.js'
 import './components/GrampsjsImg.js'
 import './components/GrampsjsIcon.js'
@@ -19,7 +19,8 @@ import './components/GrampsjsIcon.js'
 // Replaced at build time by rollup
 const BASE_DIR = ''
 
-export function renderPerson(personProfile) {
+export function renderPerson(personProfile, settings) {
+  const {birthSymbol, deathSymbol} = getSymbols(settings)
   return html`
     <span class="event">
       <grampsjs-icon
@@ -36,12 +37,12 @@ export function renderPerson(personProfile) {
     </span>
     ${personProfile?.birth?.date
       ? html` <span class="event"
-          ><i>${asteriskIcon}</i> ${personProfile.birth.date}</span
+          ><i>${birthSymbol}</i> ${personProfile.birth.date}</span
         >`
       : ''}
     ${personProfile?.death?.date
       ? html` <span class="event"
-          ><i>${crossIcon}</i> ${personProfile.death.date}</span
+          ><i>${deathSymbol}</i> ${personProfile.death.date}</span
         >`
       : ''}
   `
