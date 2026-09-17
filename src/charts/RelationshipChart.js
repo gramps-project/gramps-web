@@ -10,28 +10,8 @@ const {boxWidth, boxHeight} = relationshipLayoutDefaults
 const curve = linkVertical()
 const markerPosition = familyMarkerPosition(boxHeight)
 
-// Returns the image URL of each person node, leaving out the images of people
-// after the first `maxImages` people who have one
-function limitImages(nodes, getImageUrl, maxImages) {
-  const urls = new Map()
-  let count = 0
-  for (const node of nodes) {
-    if (node.kind === 'person') {
-      const url = getImageUrl(node)
-      if (url) {
-        count += 1
-      }
-      urls.set(node, count > maxImages ? '' : url)
-    }
-  }
-  return urls
-}
-
 // Draws layouts from `layoutRelationships`. Nodes are matched across layouts
 // by their keys, which stay the same when the root person changes.
-//
-// With the update option `maxImages`, only the first that many people with an
-// image show it.
 export class RelationshipChart extends ChartCanvas {
   constructor() {
     super()
@@ -112,11 +92,6 @@ export class RelationshipChart extends ChartCanvas {
     links.attr('stroke-dasharray', link =>
       link.kind === 'child' && link.relation !== 'Birth' ? '6 4' : null
     )
-  }
-
-  cardImageUrl(layout, {getImageUrl, maxImages = 50}) {
-    const urls = limitImages(layout.nodes, getImageUrl, maxImages)
-    return node => urls.get(node) ?? ''
   }
 
   // Family markers are small, so they are redrawn on every update
