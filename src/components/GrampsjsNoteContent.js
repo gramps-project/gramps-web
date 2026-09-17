@@ -113,6 +113,20 @@ export class GrampsjsNoteContent extends LitElement {
     noteContent.innerHTML = linkUrls(this.content)
     this.columns = noteContent.textContent.length > 1000
     this._wireLinks(noteContent)
+    this._styleHighlights(noteContent)
+  }
+
+  // Render highlights from the backend HTML like the editor does, blended
+  // with the background for dark mode
+  // eslint-disable-next-line class-methods-use-this
+  _styleHighlights(container) {
+    for (const el of container.querySelectorAll('[style]')) {
+      const color = el.style.backgroundColor
+      if (!color) continue
+      el.style.removeProperty('background-color')
+      el.style.setProperty('--note-highlight-color', color)
+      el.classList.add('note-highlight')
+    }
   }
 
   _wireLinks(container) {

@@ -64,6 +64,21 @@ describe('parseHtmlToStyledText', () => {
       const r = parseHtmlToStyledText('<sup>2</sup>')
       expect(tag(r, 'superscript')?.ranges).toEqual([[0, 1]])
     })
+
+    it('wraps <sub> as subscript', () => {
+      const r = parseHtmlToStyledText('H<sub>2</sub>O')
+      expect(tag(r, 'subscript')?.ranges).toEqual([[1, 2]])
+    })
+
+    it('wraps <mark> as a yellow highlight', () => {
+      const r = parseHtmlToStyledText('<p>Test <mark>Highlight</mark> etc.</p>')
+      expect(r.string).toBe('Test Highlight etc.')
+      expect(tag(r, 'highlight')).toEqual({
+        name: 'highlight',
+        value: '#FFFF00',
+        ranges: [[5, 14]],
+      })
+    })
   })
 
   // ── links ─────────────────────────────────────────────────────────────────

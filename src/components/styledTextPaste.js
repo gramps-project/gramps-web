@@ -1,4 +1,5 @@
 import {charLength} from '../charUtils.js'
+import {HIGHLIGHT_COLOR} from './styledTextInputRules.js'
 
 const _SAFE_LINK_PROTOCOLS = ['http:', 'https:', 'mailto:', 'gramps:']
 const _HEADING_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
@@ -26,6 +27,10 @@ function _formatsForElement(node, tag) {
     formats.push({name: 'strikethrough', value: null})
   } else if (tag === 'sup') {
     formats.push({name: 'superscript', value: null})
+  } else if (tag === 'sub') {
+    formats.push({name: 'subscript', value: null})
+  } else if (tag === 'mark') {
+    formats.push({name: 'highlight', value: HIGHLIGHT_COLOR})
   } else if (tag === 'a') {
     try {
       const rawHref = node.getAttribute('href') || ''
@@ -74,10 +79,12 @@ function _formatsForElement(node, tag) {
  * Parse a clipboard HTML string into a StyledText-compatible `{string, tags}`
  * object, preserving only what StyledText can represent.
  *
- * **Preserved:** bold, italic, underline, strikethrough, superscript, links.
+ * **Preserved:** bold, italic, underline, strikethrough, superscript,
+ * subscript, links, `<mark>` highlights.
  * **Block structure:** headings/paragraphs become blank-line separators; list
  * items become `• ` / `1. ` markers with two-space indentation per level.
- * **Dropped:** font family, color, size, highlight (ambient document styles).
+ * **Dropped:** font family, color, size, CSS background color (ambient
+ * document styles).
  *
  * @param {string} html - raw HTML from the clipboard
  * @returns {{
