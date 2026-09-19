@@ -425,5 +425,8 @@
     "Support will be removed in Gramps Web API %s.": "Stödet kommer att tas bort i Gramps Web API %s.",
     "Get started": "Kom igång",
     "Connect the people in your tree by adding a family.": "Koppla samman personerna i ditt släktträd genom att lägga till en familj.",
-    "This Gramps Web instance has already been set up. Log in with an existing account.": "Denna instans av Gramps Web har redan konfigurerats. Logga in med ett befintligt konto."
+    "This Gramps Web instance has already been set up. Log in with an existing account.": "Denna instans av Gramps Web har redan konfigurerats. Logga in med ett befintligt konto.",
+    "Fit to window": "Anpassa till fönster",
+    "Center on selected person": "Centrera på vald person",
+    "Move the chart": "Flytta diagrammet"
 }
