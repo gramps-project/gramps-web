@@ -1286,6 +1286,10 @@ export class GrampsJs extends LitElement {
       e?.key === 'access_token' &&
       isTreeMismatch(this.appState.auth.tabTreeId, getTreeFromToken(e.newValue))
     ) {
+      // The service worker's thumbnail/tile cache keys drop the JWT but keep
+      // the object handle, which is only unique within a tree, so a stale
+      // entry from the old tree could otherwise be served after the reload.
+      clearMediaCaches()
       window.location.href = `${BASE_DIR}/`
       return
     }
