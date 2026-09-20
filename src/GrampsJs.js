@@ -13,6 +13,9 @@ import {
   getSettings,
   getTreeConfig,
   getTreeId,
+  getTreeFromToken,
+  isTreeMismatch,
+  clearMediaCaches,
   cleanOldDrafts,
   TREE_CONFIG_APP_TITLE,
   TREE_CONFIG_PRIMARY_COLOR,
@@ -1034,6 +1037,7 @@ export class GrampsJs extends LitElement {
     this.loadingState = LOADING_STATE_READY
     this.progress = false
     this.setPermissions()
+    this.appState.auth.pinTree()
     this._loadTreeConfig()
     this.appState.loadActiveTasks()
   }
@@ -1271,14 +1275,20 @@ export class GrampsJs extends LitElement {
     if (!e?.detail?.redirecting) {
       this.loadingState = LOADING_STATE_UNAUTHORIZED
     }
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistration().then(reg => {
-        if (reg?.active) reg.active.postMessage({type: 'CLEAR_MEDIA_CACHES'})
-      })
-    }
+    this.appState.auth.unpinTree()
+    clearMediaCaches()
   }
 
   _handleStorage(e) {
+    // Another tab switched trees: this tab's loaded data belongs to the old
+    // tree, and its URL may point to an object missing from the new one.
+    if (
+      e?.key === 'access_token' &&
+      isTreeMismatch(this.appState.auth.tabTreeId, getTreeFromToken(e.newValue))
+    ) {
+      window.location.href = `${BASE_DIR}/`
+      return
+    }
     if (e?.key === 'grampsjs_tree_config') {
       this._handleTreeConfig()
     }

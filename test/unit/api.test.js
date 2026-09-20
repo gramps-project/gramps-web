@@ -5,10 +5,22 @@ import {
   apiRegisterUser,
   apiResetPassword,
   apiGetOIDCConfig,
+  apiPutPostDelete,
   Auth,
   createFirstTree,
+  isTreeMismatch,
   updateTaskStatus,
 } from '../../src/api.js'
+
+// jwtDecode only base64-decodes the payload, so no signature is needed.
+function makeFakeJwt(claims) {
+  const encode = obj =>
+    btoa(JSON.stringify(obj))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '')
+  return `${encode({alg: 'HS256', typ: 'JWT'})}.${encode(claims)}.sig`
+}
 
 describe('apiGet authentication', () => {
   beforeEach(() => {
@@ -496,5 +508,100 @@ describe('Auth.signout', () => {
 
     expect(fetch).not.toHaveBeenCalled()
     expect(events[0].detail.redirecting).toBe(false)
+  })
+})
+
+describe('isTreeMismatch', () => {
+  it('is true only when both trees are known and differ', () => {
+    expect(isTreeMismatch('tree-a', 'tree-b')).to.be.true
+    expect(isTreeMismatch('tree-a', 'tree-a')).to.be.false
+    expect(isTreeMismatch(null, 'tree-b')).to.be.false
+    expect(isTreeMismatch('tree-a', null)).to.be.false
+    expect(isTreeMismatch(undefined, undefined)).to.be.false
+  })
+})
+
+describe('Auth tree pinning', () => {
+  afterEach(() => {
+    localStorage.removeItem('access_token')
+  })
+
+  it('pins the tree of the current token and keeps the pin', () => {
+    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-a'}))
+    const auth = new Auth()
+    auth.pinTree()
+    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-b'}))
+    auth.pinTree()
+    expect(auth.tabTreeId).toBe('tree-a')
+  })
+
+  it('pins nothing while the token has no tree', () => {
+    localStorage.setItem('access_token', makeFakeJwt({}))
+    const auth = new Auth()
+    auth.pinTree()
+    expect(auth.tabTreeId).toBe(null)
+  })
+
+  it('repins after unpinning', () => {
+    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-a'}))
+    const auth = new Auth()
+    auth.pinTree()
+    auth.unpinTree()
+    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-b'}))
+    auth.pinTree()
+    expect(auth.tabTreeId).toBe('tree-b')
+  })
+})
+
+describe('apiPutPostDelete tree guard', () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        status: 200,
+        ok: true,
+        json: () => Promise.resolve({}),
+        headers: {get: () => null},
+      })
+    )
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  function makeAuth(tabTreeId, tokenTree) {
+    return {
+      tabTreeId,
+      getValidAccessToken: vi
+        .fn()
+        .mockResolvedValue(makeFakeJwt({tree: tokenTree})),
+    }
+  }
+
+  it('refuses to write when the token belongs to another tree', async () => {
+    const auth = makeAuth('tree-a', 'tree-b')
+
+    const result = await apiPutPostDelete(auth, 'POST', '/api/people/', {}, {})
+
+    expect(fetch).not.toHaveBeenCalled()
+    expect(result.error).to.be.a('string')
+  })
+
+  it('writes when the token belongs to the pinned tree', async () => {
+    const auth = makeAuth('tree-a', 'tree-a')
+
+    const result = await apiPutPostDelete(auth, 'POST', '/api/people/', {}, {})
+
+    expect(fetch).toHaveBeenCalled()
+    expect(result.error).toBeUndefined()
+  })
+
+  it('writes when the tab is not pinned yet', async () => {
+    const auth = makeAuth(null, 'tree-b')
+
+    await apiPutPostDelete(auth, 'POST', '/api/trees/', {}, {})
+
+    expect(fetch).toHaveBeenCalled()
   })
 })

@@ -184,6 +184,7 @@ export function getInitialAppState() {
     for (const t of res.data) {
       if (
         runningStates.includes(t.state) &&
+        isTaskInTree(t, getTreeId()) &&
         !activeTasks.has(t.task_id) &&
         stripTaskPrefix(t.name) in TASK_LABELS
       ) {
@@ -411,6 +412,12 @@ export function getInitialAppState() {
 // selected", never the error message text.
 export function shouldSignalTreeMissing(result, treeId) {
   return result?.errorDetail?.status === 403 && !treeId
+}
+
+// Tasks without a `tree` field (older backends, tree-independent tasks) are
+// shown in every tree.
+export function isTaskInTree(task, treeId) {
+  return !task?.tree || !treeId || task.tree === treeId
 }
 
 export function appStateUpdatePermissions(appState) {

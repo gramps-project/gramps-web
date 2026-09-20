@@ -46,6 +46,23 @@ export function getTreeFromToken(token) {
   }
 }
 
+// True when a tab pinned to `tabTreeId` holds a token for a different tree,
+// e.g. after another tab switched trees. Missing ids never count as a
+// mismatch: those cases are handled by login and onboarding.
+export function isTreeMismatch(tabTreeId, currentTreeId) {
+  return Boolean(tabTreeId && currentTreeId && tabTreeId !== currentTreeId)
+}
+
+// Thumbnail and tile cache keys contain object handles, which are only unique
+// within a tree, so these caches must be emptied whenever the tree changes.
+export function clearMediaCaches() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (reg?.active) reg.active.postMessage({type: 'CLEAR_MEDIA_CACHES'})
+    })
+  }
+}
+
 export function getPermissions() {
   const accessToken = localStorage.getItem('access_token')
   if (!accessToken || accessToken === '1') {
@@ -839,6 +856,21 @@ export function deleteBookmark(endpoint, handle) {
 export class Auth {
   constructor() {
     this._refreshingTokens = null
+    // The tree whose data this tab has loaded. Tokens are shared between tabs
+    // via localStorage, so the stored token can belong to a different tree.
+    this.tabTreeId = null
+  }
+
+  // Pins the tab to the tree of the current token. Keeps an existing pin, so
+  // only a logout (unpinTree) or a page load can move a tab to another tree.
+  pinTree() {
+    if (!this.tabTreeId) {
+      this.tabTreeId = getTreeId() ?? null
+    }
+  }
+
+  unpinTree() {
+    this.tabTreeId = null
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -1013,8 +1045,9 @@ export async function apiPutPostDelete(
   try {
     let headers = {}
     if (!skipAuth) {
+      let accessToken
       try {
-        const accessToken = await auth.getValidAccessToken()
+        accessToken = await auth.getValidAccessToken()
         headers = {
           ...headers,
           Accept: 'application/json',
@@ -1022,6 +1055,10 @@ export async function apiPutPostDelete(
         }
         // eslint-disable-next-line no-empty
       } catch {}
+      // Never write data loaded from one tree into another tree.
+      if (isTreeMismatch(auth?.tabTreeId, getTreeFromToken(accessToken))) {
+        throw new Error('The family tree was changed in another tab')
+      }
     }
     if (isJson) {
       headers['Content-Type'] = 'application/json'
