@@ -871,6 +871,8 @@ export class GrampsJs extends LitElement {
   }
 
   _loadDbInfo(setReady = true) {
+    // Must run before the request goes out; see Auth's tree-pinning comment.
+    this.appState.auth.pinTree()
     this.appState.apiGet('/api/metadata/').then(data => {
       if ('error' in data) {
         if (data.error === 'Network error') {
@@ -1037,7 +1039,6 @@ export class GrampsJs extends LitElement {
     this.loadingState = LOADING_STATE_READY
     this.progress = false
     this.setPermissions()
-    this.appState.auth.pinTree()
     this._loadTreeConfig()
     this.appState.loadActiveTasks()
   }
@@ -1279,17 +1280,13 @@ export class GrampsJs extends LitElement {
     clearMediaCaches()
   }
 
-  _handleStorage(e) {
-    // Another tab switched trees: this tab's loaded data belongs to the old
-    // tree, and its URL may point to an object missing from the new one.
+  async _handleStorage(e) {
+    // Another tab switched trees; see Auth's tree-pinning comment.
     if (
       e?.key === 'access_token' &&
       isTreeMismatch(this.appState.auth.tabTreeId, getTreeFromToken(e.newValue))
     ) {
-      // The service worker's thumbnail/tile cache keys drop the JWT but keep
-      // the object handle, which is only unique within a tree, so a stale
-      // entry from the old tree could otherwise be served after the reload.
-      clearMediaCaches()
+      await clearMediaCaches()
       window.location.href = `${BASE_DIR}/`
       return
     }

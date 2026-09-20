@@ -46,21 +46,37 @@ export function getTreeFromToken(token) {
   }
 }
 
-// True when a tab pinned to `tabTreeId` holds a token for a different tree,
-// e.g. after another tab switched trees. Missing ids never count as a
-// mismatch: those cases are handled by login and onboarding.
+// True when a tab pinned to `tabTreeId` now holds a token for a different
+// tree, or one with no tree claim at all (e.g. another tab logged out into a
+// treeless account, or cleared storage) - either way the pinned tab's loaded
+// data no longer matches what the shared token would fetch or write. An
+// unpinned tab (tabTreeId falsy) never mismatches: that covers login and
+// onboarding, before any tree has been loaded.
 export function isTreeMismatch(tabTreeId, currentTreeId) {
-  return Boolean(tabTreeId && currentTreeId && tabTreeId !== currentTreeId)
+  return Boolean(tabTreeId) && tabTreeId !== currentTreeId
 }
 
 // Thumbnail and tile cache keys contain object handles, which are only unique
 // within a tree, so these caches must be emptied whenever the tree changes.
-export function clearMediaCaches() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistration().then(reg => {
-      if (reg?.active) reg.active.postMessage({type: 'CLEAR_MEDIA_CACHES'})
-    })
-  }
+// Resolves once the service worker confirms the caches are gone (or after
+// `timeoutMs`, so a missing/unresponsive worker never blocks the caller) -
+// callers that navigate straight into a page re-fetching thumbnails need
+// deletion to have actually happened, not just been requested.
+export async function clearMediaCaches(timeoutMs = 1000) {
+  if (!('serviceWorker' in navigator)) return
+  const reg = await navigator.serviceWorker.getRegistration()
+  if (!reg?.active) return
+  await new Promise(resolve => {
+    const channel = new MessageChannel()
+    const timer = setTimeout(resolve, timeoutMs)
+    channel.port1.onmessage = event => {
+      if (event.data?.type === 'MEDIA_CACHES_CLEARED') {
+        clearTimeout(timer)
+        resolve()
+      }
+    }
+    reg.active.postMessage({type: 'CLEAR_MEDIA_CACHES'}, [channel.port2])
+  })
 }
 
 export function getPermissions() {
@@ -854,6 +870,26 @@ export function deleteBookmark(endpoint, handle) {
 }
 
 export class Auth {
+  // Tree pinning: tabTreeId, isTreeMismatch(), and clearMediaCaches() work
+  // together to stop one tab's tree switch from corrupting another tab's
+  // in-flight requests. The rules, gathered in one place:
+  //   - pinTree() call site: must run before the first request that depends
+  //     on the tree goes out (GrampsJs._loadDbInfo), not after it resolves -
+  //     otherwise a switch mid-request pins the new tree onto data that was
+  //     actually fetched under the old one. It's idempotent, so calling it
+  //     again on reload/db:changed/tree-created is harmless.
+  //   - unpinTree() call site: logout only. A pinned tab never repins itself
+  //     to a different tree except via this.
+  //   - isTreeMismatch(tabTreeId, currentTreeId): true whenever a pinned tab
+  //     sees a token for another tree, *or one with no tree claim at all*
+  //     (foreign logout, cleared storage) - both mean the pin no longer
+  //     matches what the shared token would fetch or write. False for an
+  //     unpinned tab regardless of currentTreeId: that covers login and
+  //     onboarding, before any tree has loaded.
+  //   - Callers reacting to a mismatch (GrampsJs._handleStorage) must await
+  //     clearMediaCaches() before navigating: it only resolves once the
+  //     service worker has confirmed the caches are actually gone, not just
+  //     that deletion was requested.
   constructor() {
     this._refreshingTokens = null
     // The tree whose data this tab has loaded. Tokens are shared between tabs
@@ -861,8 +897,6 @@ export class Auth {
     this.tabTreeId = null
   }
 
-  // Pins the tab to the tree of the current token. Keeps an existing pin, so
-  // only a logout (unpinTree) or a page load can move a tab to another tree.
   pinTree() {
     if (!this.tabTreeId) {
       this.tabTreeId = getTreeId() ?? null

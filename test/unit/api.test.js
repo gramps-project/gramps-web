@@ -7,6 +7,7 @@ import {
   apiGetOIDCConfig,
   apiPutPostDelete,
   Auth,
+  clearMediaCaches,
   createFirstTree,
   isTreeMismatch,
   updateTaskStatus,
@@ -512,11 +513,18 @@ describe('Auth.signout', () => {
 })
 
 describe('isTreeMismatch', () => {
-  it('is true only when both trees are known and differ', () => {
+  it('is true when a pinned tab sees a token for a different tree', () => {
     expect(isTreeMismatch('tree-a', 'tree-b')).to.be.true
     expect(isTreeMismatch('tree-a', 'tree-a')).to.be.false
+  })
+
+  it('is true when a pinned tab sees a token that lost its tree claim', () => {
+    expect(isTreeMismatch('tree-a', null)).to.be.true
+    expect(isTreeMismatch('tree-a', undefined)).to.be.true
+  })
+
+  it('is false for an unpinned tab, regardless of the current tree', () => {
     expect(isTreeMismatch(null, 'tree-b')).to.be.false
-    expect(isTreeMismatch('tree-a', null)).to.be.false
     expect(isTreeMismatch(undefined, undefined)).to.be.false
   })
 })
@@ -603,5 +611,58 @@ describe('apiPutPostDelete tree guard', () => {
     await apiPutPostDelete(auth, 'POST', '/api/trees/', {}, {})
 
     expect(fetch).toHaveBeenCalled()
+  })
+})
+
+describe('clearMediaCaches', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('resolves without messaging when there is no service worker registration', async () => {
+    vi.stubGlobal('navigator', {
+      serviceWorker: {getRegistration: vi.fn().mockResolvedValue(undefined)},
+    })
+
+    await expect(clearMediaCaches()).resolves.toBeUndefined()
+  })
+
+  it('waits for the worker to acknowledge deletion', async () => {
+    const postMessage = vi.fn((msg, [port]) => {
+      // Simulate the worker replying, over the real transferred port, once
+      // caches.delete() has resolved.
+      Promise.resolve().then(() => {
+        port.postMessage({type: 'MEDIA_CACHES_CLEARED'})
+      })
+    })
+    vi.stubGlobal('navigator', {
+      serviceWorker: {
+        getRegistration: vi.fn().mockResolvedValue({active: {postMessage}}),
+      },
+    })
+
+    await clearMediaCaches()
+
+    expect(postMessage).toHaveBeenCalledWith(
+      {type: 'CLEAR_MEDIA_CACHES'},
+      expect.any(Array)
+    )
+  })
+
+  it('gives up after the timeout when the worker never acknowledges', async () => {
+    vi.useFakeTimers()
+    vi.stubGlobal('navigator', {
+      serviceWorker: {
+        getRegistration: vi
+          .fn()
+          .mockResolvedValue({active: {postMessage: vi.fn()}}),
+      },
+    })
+
+    const promise = clearMediaCaches(1000)
+    await vi.advanceTimersByTimeAsync(1000)
+    await expect(promise).resolves.toBeUndefined()
+
+    vi.useRealTimers()
   })
 })
