@@ -1017,6 +1017,9 @@ export class GrampsJs extends LitElement {
         this._homePersonFetchingId = null
         if ('error' in data) {
           this._showError(data.error)
+          this._homePersonLoadedId = null
+          this._homePersonDetails = {}
+          this._homePersonMissing = true
         } else if ('data' in data) {
           this._homePersonLoadedId = grampsId
           this._homePersonDetails = data.data[0] ?? {}
