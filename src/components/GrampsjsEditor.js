@@ -686,7 +686,12 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       this._insertStyledText(styledText, cpStart)
       this.cursorPosition = [cpStart + charLength(styledText.string)]
     } else {
-      const data = e.clipboardData?.getData('text/plain') ?? ''
+      // Normalize \r\n / \r to \n so data.string matches what the DOM
+      // will contain once it's rendered via .innerHTML=.
+      const data = (e.clipboardData?.getData('text/plain') ?? '').replace(
+        /\r\n|\r/g,
+        '\n'
+      )
       this._insertText(data, cpStart)
       this.cursorPosition = [cpStart + charLength(data)]
     }
