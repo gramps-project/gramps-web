@@ -51,11 +51,6 @@ class GrampsjsSettingsMenu extends GrampsjsAppStateMixin(LitElement) {
           --md-menu-item-one-line-container-height: 56px;
           --icon-color: var(--grampsjs-body-font-color-35);
         }
-        md-menu-item md-icon[slot='end'] svg {
-          height: 18px;
-          width: 18px;
-        }
-
         md-menu-item.red {
           --md-menu-item-label-text-color: var(--grampsjs-logout-font-color);
           --icon-color: var(--grampsjs-logout-font-color);
@@ -122,12 +117,18 @@ class GrampsjsSettingsMenu extends GrampsjsAppStateMixin(LitElement) {
       <md-divider role="separator" tabindex="-1"></md-divider>
       <md-menu-item href="${accountUrl}" target="_blank">
         <div slot="headline">${accountName}</div>
-        <md-icon slot="start"
-          >${renderIconSvg(mdiCloud, 'var(--icon-color)')}</md-icon
-        >
-        <md-icon slot="end"
-          >${renderIconSvg(mdiOpenInNew, 'var(--icon-color)')}</md-icon
-        >
+        <grampsjs-icon
+          slot="start"
+          path="${mdiCloud}"
+          color="var(--icon-color)"
+        ></grampsjs-icon>
+        <grampsjs-icon
+          slot="end"
+          path="${mdiOpenInNew}"
+          color="var(--icon-color)"
+          height="18"
+          width="18"
+        ></grampsjs-icon>
       </md-menu-item>
     `
   }
