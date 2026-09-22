@@ -39,8 +39,7 @@ export const place = node => [node.x, node.y]
 //   and target node, and `linkPath(ends)`: the path between them.
 // - `styleLinks(links, palette)`: the stroke of the links.
 // - Optionally `drawnNodes(layout)` and `drawnLinks(layout)`: the nodes and
-//   links to draw, `isPerson(node)`, `cardImageUrl(layout, options)`: the
-//   image URL of each person node, and `drawExtras(nodes, options)`: whatever
+//   links to draw, `isPerson(node)`, and `drawExtras(nodes, options)`: whatever
 //   else the nodes show.
 export class ChartCanvas {
   constructor() {
@@ -127,7 +126,7 @@ export class ChartCanvas {
     const people = nodes.filter(node => this.isPerson(node))
     const {boxWidth, boxHeight} = this.boxSize
     drawChangedCards(people, {
-      getImageUrl: this.cardImageUrl(layout, settings),
+      getImageUrl: settings.getImageUrl,
       nameDisplayFormat,
       birthSymbol: settings.birthSymbol,
       deathSymbol: settings.deathSymbol,
@@ -157,10 +156,6 @@ export class ChartCanvas {
 
   isPerson() {
     return true
-  }
-
-  cardImageUrl(layout, {getImageUrl}) {
-    return getImageUrl
   }
 
   drawExtras() {}

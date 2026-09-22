@@ -15,7 +15,7 @@ class GrampsjsFormEditSourceData extends GrampsjsObjectForm {
           @formdata:changed="${this._handleFormData}"
           fullwidth
           id="abbrev"
-          label="${this._('Abbrevation')}"
+          label="${this._('Abbreviation')}"
           value="${this.data?.abbrev || ''}"
         >
         </grampsjs-form-string>
@@ -35,7 +35,7 @@ class GrampsjsFormEditSourceData extends GrampsjsObjectForm {
           @formdata:changed="${this._handleFormData}"
           fullwidth
           id="pubinfo"
-          label="${this._('Publication Info')}"
+          label="${this._('Publication info')}"
           value="${this.data?.pubinfo || ''}"
         >
         </grampsjs-form-string>

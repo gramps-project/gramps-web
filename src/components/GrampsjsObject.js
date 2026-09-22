@@ -211,10 +211,22 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           font-size: 11px;
         }
 
+        .header {
+          display: flex;
+          flex-direction: column;
+        }
+
         #picture {
-          margin-bottom: 60px;
-          position: relative;
-          text-align: center;
+          display: flex;
+          justify-content: center;
+        }
+
+        #picture > * {
+          margin-bottom: 16px;
+        }
+
+        .profile {
+          min-width: 0;
         }
 
         .content-wrapper {
@@ -271,7 +283,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         }
 
         div.tags {
-          padding-top: 1em;
+          padding-top: 0.5em;
         }
 
         div.toc {
@@ -312,12 +324,23 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           height: 34px;
         }
 
-        @media (min-width: 992px) {
+        @container (min-width: 600px) {
+          .header {
+            flex-direction: row-reverse;
+            align-items: flex-start;
+          }
+
           #picture {
-            float: right;
-            text-align: right;
-            margin-left: 40px;
-            margin-right: 0px;
+            flex: 0 0 auto;
+          }
+
+          #picture > * {
+            margin-bottom: 0;
+            margin-left: 32px;
+          }
+
+          .profile {
+            flex: 1 1 auto;
           }
         }
 
@@ -452,11 +475,10 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     return html`
       ${this.renderHeader()}
 
-      <div id="picture">${this.renderPicture()}</div>
-
-      ${this.renderProfile()}
-
-      <div style="clear:left;"></div>
+      <div class="header">
+        <div id="picture">${this.renderPicture()}</div>
+        <div class="profile">${this.renderProfile()}</div>
+      </div>
 
       <div class="tags">${this.renderTags()}</div>
 

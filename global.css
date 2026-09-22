@@ -163,6 +163,7 @@ body {
     --grampsjs-color-ytree-expand-font: #555;
     --grampsjs-color-ytree-default-person-icon-background: #bbb;
     --grampsjs-note-color: #333;
+    --grampsjs-note-highlight-strength: 45%;
     /* --md-sys-color-* tokens are set dynamically by applyColors() in theme.js */
 }
 
@@ -218,6 +219,7 @@ body {
     --grampsjs-color-ytree-expand-font: var(--md-sys-color-on-surface);
     --grampsjs-color-ytree-default-person-icon-background: var(--md-sys-color-surface-container);
     --grampsjs-note-color: #ccc;
+    --grampsjs-note-highlight-strength: 30%;
     --grampsjs-map-marker-color: #bb1f11;
     /* --md-sys-color-* tokens are set dynamically by applyColors() in theme.js */
     --mdc-select-fill-color: var(--md-sys-color-surface-container-highest);

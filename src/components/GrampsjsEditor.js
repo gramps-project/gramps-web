@@ -9,6 +9,7 @@ import '@material/web/iconbutton/icon-button.js'
 import '@material/web/button/text-button.js'
 import {
   mdiFormatBold,
+  mdiFormatColorHighlight,
   mdiFormatItalic,
   mdiFormatStrikethrough,
   mdiFormatUnderline,
@@ -28,6 +29,7 @@ import {
   charToDomOffset,
 } from '../charUtils.js'
 import {parseHtmlToStyledText} from './styledTextPaste.js'
+import {HIGHLIGHT_COLOR, matchInputRule} from './styledTextInputRules.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {saveDraft, getDraft, clearDraft, clearDraftsWithPrefix} from '../api.js'
 import './GrampsjsFormSelectObject.js'
@@ -80,7 +82,7 @@ function _applyTag(str, tag) {
     return `<span style="color:${_safeCssValue(value)}">${str}</span>`
   }
   if (name === 'highlight') {
-    return `<span style="background-color:${_safeCssValue(
+    return `<span class="note-highlight" style="--note-highlight-color:${_safeCssValue(
       value
     )}">${str}</span>`
   }
@@ -89,6 +91,9 @@ function _applyTag(str, tag) {
   }
   if (name === 'superscript') {
     return `<sup>${str}</sup>`
+  }
+  if (name === 'subscript') {
+    return `<sub>${str}</sub>`
   }
   if (name === 'link') {
     if (!value) return str
@@ -107,6 +112,7 @@ function isBooleanTag(tagName) {
     'underline',
     'strikethrough',
     'superscript',
+    'subscript',
   ]
   if (namesBool.includes(tagName)) {
     return true
@@ -286,6 +292,8 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     this._undoStack = []
     this._redoStack = []
     this._suppressUndo = false
+    // Position where tags ending there do not grow when text is typed
+    this._tagBoundary = null
     // Debounce timer for draft saving
     this._draftSaveTimer = null
     // Bind methods that need to be added/removed as event listeners
@@ -407,6 +415,19 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
           >${this._('Strikethrough')}</grampsjs-tooltip
         >
         <md-icon-button
+          id="btn-highlight"
+          aria-label="${this._('Highlight')}"
+          @click="${() => this._handleFormat('highlight')}"
+        >
+          <grampsjs-icon
+            path="${mdiFormatColorHighlight}"
+            color="currentColor"
+          ></grampsjs-icon>
+        </md-icon-button>
+        <grampsjs-tooltip for="btn-highlight" .appState="${this.appState}"
+          >${this._('Highlight')}</grampsjs-tooltip
+        >
+        <md-icon-button
           id="btn-link"
           aria-label="${this._('Link')}"
           @click="${() => this._handleFormat('link')}"
@@ -491,6 +512,24 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     return this.renderRoot.getElementById('editor-content')
   }
 
+  // The current selection with endpoints inside this shadow root,
+  // or undefined if there is no selection
+  _getSelectionRange() {
+    return document
+      .getSelection()
+      ?.getComposedRanges({shadowRoots: [this.shadowRoot]})[0]
+  }
+
+  // Code-point offset of a DOM position in the editor. The trailing zero-width
+  // space from _getHtml() is not in data.string, so the caret can sit one past
+  // the end, e.g. after clicking at the end of a reopened note.
+  _charPos(container, domOffset) {
+    return Math.min(
+      rangeCharPos(container, domOffset, this._editorDiv),
+      charLength(this.data.string)
+    )
+  }
+
   _handleKeydown(e) {
     if (e.key === 'Escape') {
       this._editorDiv.blur()
@@ -520,6 +559,12 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         case 'x':
           if (e.shiftKey) {
             this._handleFormat('strikethrough')
+            handled = true
+          }
+          break
+        case 'h':
+          if (e.shiftKey) {
+            this._handleFormat('highlight')
             handled = true
           }
           break
@@ -565,14 +610,13 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         'formatUnderline',
       ].includes(e.inputType)
     ) {
-      const div = this.shadowRoot.querySelector('div.note')
       const [range] = e.getTargetRanges()
-      const cpStart = rangeCharPos(range.startContainer, range.startOffset, div)
+      const cpStart = this._charPos(range.startContainer, range.startOffset)
       if (e.inputType === 'insertText') {
         if (range.startOffset !== range.endOffset) {
           this._deleteText(
             cpStart,
-            rangeCharPos(range.endContainer, range.endOffset, div)
+            this._charPos(range.endContainer, range.endOffset)
           )
           this._suppressUndo = true
           this.cursorPosition = [cpStart]
@@ -580,6 +624,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         this._insertText(e.data, cpStart)
         this._suppressUndo = false
         this.cursorPosition = [cpStart + charLength(e.data)]
+        this._applyInputRule(cpStart + charLength(e.data))
       } else if (
         e.inputType === 'insertParagraph' ||
         e.inputType === 'insertLineBreak'
@@ -587,13 +632,14 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         if (range.startOffset !== range.endOffset) {
           this._deleteText(
             cpStart,
-            rangeCharPos(range.endContainer, range.endOffset, div)
+            this._charPos(range.endContainer, range.endOffset)
           )
           this._suppressUndo = true
         }
         this._insertText('\n', cpStart)
         this._suppressUndo = false
         this.cursorPosition = [cpStart + 1]
+        this._applyInputRule(cpStart + 1)
       } else if (
         [
           'deleteContentBackward',
@@ -603,7 +649,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       ) {
         this._deleteText(
           cpStart,
-          rangeCharPos(range.endContainer, range.endOffset, div)
+          this._charPos(range.endContainer, range.endOffset)
         )
         this.cursorPosition = [cpStart]
       } else if (e.inputType === 'formatBold') {
@@ -624,26 +670,13 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   _handlePaste(e) {
     e.preventDefault()
     e.stopPropagation()
-    const div = this._editorDiv
-    const selection = this.shadowRoot.getSelection
-      ? this.shadowRoot.getSelection()
-      : document.getSelection()
-    if (!selection || selection.rangeCount === 0) return
-    const range = selection.getRangeAt(0)
-    const dataLen = charLength(this.data.string)
-    // Clamp: the trailing zero-width space in _getHtml() is not in data.string,
-    // so the DOM cursor can be one past the end after a blur+click.
-    const cpStart = Math.min(
-      rangeCharPos(range.startContainer, range.startOffset, div),
-      dataLen
-    )
+    const range = this._getSelectionRange()
+    if (!range) return
+    const cpStart = this._charPos(range.startContainer, range.startOffset)
     if (!range.collapsed) {
       this._deleteText(
         cpStart,
-        Math.min(
-          rangeCharPos(range.endContainer, range.endOffset, div),
-          dataLen
-        )
+        this._charPos(range.endContainer, range.endOffset)
       )
       this._suppressUndo = true
     }
@@ -665,25 +698,50 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   _handleCompositionEnd(e) {
     e.preventDefault()
     e.stopPropagation()
-    const range = this.shadowRoot.getSelection
-      ? // Chrome
-        this.shadowRoot.getSelection().getRangeAt(0)
-      : // Firefox
-        document.getSelection().getRangeAt(0)
-    const cpStart = rangeCharPos(
-      range.startContainer,
-      range.startOffset,
-      this._editorDiv
+    const range = this._getSelectionRange()
+    if (!range) return
+    // The browser has already put the composed text into the DOM before the
+    // caret, but it is not in data.string yet
+    const dataLen = charLength(e.data)
+    const cpStart = Math.max(
+      0,
+      Math.min(
+        rangeCharPos(range.startContainer, range.startOffset, this._editorDiv) -
+          dataLen,
+        charLength(this.data.string)
+      )
     )
     this._insertText(e.data, cpStart)
-    this.cursorPosition = [cpStart]
+    this.cursorPosition = [cpStart + dataLen]
+    this._applyInputRule(cpStart + dataLen)
+    this.handleChange()
   }
 
-  _handleLink(pos) {
-    this._dialogContent = {
-      pos,
-      selectedText: charSlice(this.data.string, pos[0], pos[1]),
+  // Turn Markdown-style syntax completed by the character before `cursor`
+  // into formatting. A single undo step restores the typed markers.
+  _applyInputRule(cursor) {
+    const match = matchInputRule(this.data.string, cursor)
+    if (!match) return
+    const {removals, range, tag, query} = match
+    // a bare URL that already carries a link keeps it
+    if (removals.length === 0 && this._hasTag('link', range)) return
+    this._pushUndo()
+    const suppressUndo = this._suppressUndo
+    this._suppressUndo = true
+    ;[...removals].reverse().forEach(([s, e]) => this._deleteText(s, e))
+    if (tag) {
+      if (!isBooleanTag(tag.name)) this._removeTag(tag.name, range)
+      this._insertTag(tag.name, range, tag.value)
     }
+    this._suppressUndo = suppressUndo
+    const removed = removals.reduce((n, [s, e]) => n + e - s, 0)
+    this.cursorPosition = [cursor - removed]
+    this._tagBoundary = cursor - removed
+    if (query !== undefined) this._handleLink(range, query)
+  }
+
+  _handleLink(pos, query = charSlice(this.data.string, pos[0], pos[1])) {
+    this._dialogContent = {pos, selectedText: query}
     this._openDialog()
   }
 
@@ -773,16 +831,11 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleFormat(type) {
-    const div = this.shadowRoot.querySelector('div.note')
-    // workaround for Chrome & Firefox
-    const range = this.shadowRoot.getSelection
-      ? // Chrome
-        this.shadowRoot.getSelection().getRangeAt(0)
-      : // Firefox
-        document.getSelection().getRangeAt(0)
+    const range = this._getSelectionRange()
+    if (!range) return
     const pos = [
-      rangeCharPos(range.startContainer, range.startOffset, div),
-      rangeCharPos(range.endContainer, range.endOffset, div),
+      this._charPos(range.startContainer, range.startOffset),
+      this._charPos(range.endContainer, range.endOffset),
     ]
     if (isBooleanTag(type)) {
       if (this._hasTag(type, pos)) {
@@ -800,6 +853,15 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         this._removeTag(type, pos)
       } else {
         this._handleLink(pos)
+      }
+    } else if (type === 'highlight') {
+      const highlighted = this._hasTag(type, pos)
+      // replace highlights of other colors in the range
+      this._removeTag(type, pos)
+      if (!highlighted && pos[0] < pos[1]) {
+        this._suppressUndo = true
+        this._insertTag(type, pos, HIGHLIGHT_COLOR)
+        this._suppressUndo = false
       }
     }
     this.cursorPosition = pos
@@ -821,6 +883,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     if (this._undoStack.length === 0) return
     this._redoStack.push({data: this.data, cursorPosition: this.cursorPosition})
     const snapshot = this._undoStack.pop()
+    this._tagBoundary = null
     this.data = snapshot.data
     this.cursorPosition = snapshot.cursorPosition
     this._canUndo = this._undoStack.length > 0
@@ -832,6 +895,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     if (this._redoStack.length === 0) return
     this._undoStack.push({data: this.data, cursorPosition: this.cursorPosition})
     const snapshot = this._redoStack.pop()
+    this._tagBoundary = null
     this.data = snapshot.data
     this.cursorPosition = snapshot.cursorPosition
     this._canUndo = true
@@ -1050,9 +1114,13 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   }
 
   // insert string at position (position is a Unicode code-point offset)
+  // Tags ending at `position` grow with the inserted text, except at the
+  // tag boundary left by an input rule
   _insertText(str, position, {skipUndo = false} = {}) {
     if (!skipUndo) this._pushUndo()
     const strLen = charLength(str)
+    const keepEnd = this._tagBoundary === position
+    this._tagBoundary = null
     this.data = {
       ...this.data,
       string:
@@ -1062,9 +1130,12 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       tags: this._cleanTags(
         this.data.tags.map(tag => ({
           ...tag,
-          ranges: tag.ranges.map(range =>
-            range.map(x => (x < position ? x : x + strLen))
-          ),
+          ranges: tag.ranges.map(([start, end]) => [
+            start < position ? start : start + strLen,
+            end < position || (keepEnd && end === position)
+              ? end
+              : end + strLen,
+          ]),
         }))
       ),
     }
@@ -1095,6 +1166,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
       return
     }
     this._pushUndo()
+    this._tagBoundary = null
     this.data = {
       ...this.data,
       string:

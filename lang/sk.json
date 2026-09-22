@@ -425,5 +425,8 @@
     "Support will be removed in Gramps Web API %s.": "Podpora bude v Gramps Web API %s odstránená.",
     "Get started": "Začnite",
     "Connect the people in your tree by adding a family.": "Prepojte osoby vo svojom rodostrome pridaním rodiny.",
-    "This Gramps Web instance has already been set up. Log in with an existing account.": "Táto inštancia Gramps Web už bola nastavená. Prihláste sa s existujúcim účtom."
+    "This Gramps Web instance has already been set up. Log in with an existing account.": "Táto inštancia Gramps Web už bola nastavená. Prihláste sa s existujúcim účtom.",
+    "Fit to window": "Prispôsobiť oknu",
+    "Center on selected person": "Vycentrovať na vybranú osobu",
+    "Move the chart": "Posunúť diagram"
 }
