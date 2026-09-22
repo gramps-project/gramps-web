@@ -16,6 +16,7 @@ import '../components/GrampsjsSysinfo.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
 import '../components/GrampsjsUsers.js'
+import '../components/GrampsjsWebPushSettings.js'
 import {GrampsjsView} from './GrampsjsView.js'
 
 import {mdiCheck, mdiContentCopy} from '@mdi/js'
@@ -150,6 +151,21 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         <h3>${this._('Family tree preferences')}</h3>
         ${this.renderTreePreferences()}
       </grampsjs-collapsible-section>
+
+      ${this._supportsWebPush()
+        ? html`
+            <grampsjs-collapsible-section
+              title="${this._('Browser notifications')}"
+              description="${this._(
+                'Notifications for this browser and device'
+              )}"
+            >
+              <grampsjs-web-push-settings
+                .appState="${this.appState}"
+              ></grampsjs-web-push-settings>
+            </grampsjs-collapsible-section>
+          `
+        : ''}
 
       <grampsjs-collapsible-section
         title="${this._('Developer Tools')}"
