@@ -17,6 +17,8 @@ import {
   mdiAccountCog,
   mdiAccountCircle,
   mdiHelp,
+  mdiCloud,
+  mdiOpenInNew,
 } from '@mdi/js'
 import {sharedStyles, appBarIconButtonStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -82,6 +84,7 @@ class GrampsjsSettingsMenu extends GrampsjsAppStateMixin(LitElement) {
           menu-corner="end-end"
         >
         ${menuItems.map(menuItem => this._menuItem(...menuItem))}
+          ${this._renderAccountItem()}
           <md-divider role="separator" tabindex="-1"></md-divider>
           <md-menu-item class="red"
             @click="${() => this.appState.signout()}"
@@ -94,6 +97,39 @@ class GrampsjsSettingsMenu extends GrampsjsAppStateMixin(LitElement) {
             )}</md-icon>
           </md-menu-item>
       </div>
+    `
+  }
+
+  // Link to the page where the provider hosting this instance lets owners manage
+  // it, set via `accountUrl` and `accountName` in config.js. The label is the
+  // provider's name, a proper noun, so it needs no translation. Shown to tree
+  // owners only, since nobody else can act on what it leads to.
+  _renderAccountItem() {
+    const {accountUrl, accountName} = this.appState.frontendConfig
+    if (
+      !accountUrl ||
+      !accountName ||
+      !this.appState.permissions.canManageUsers
+    ) {
+      return ''
+    }
+    return html`
+      <md-divider role="separator" tabindex="-1"></md-divider>
+      <md-menu-item href="${accountUrl}" target="_blank">
+        <div slot="headline">${accountName}</div>
+        <grampsjs-icon
+          slot="start"
+          path="${mdiCloud}"
+          color="var(--icon-color)"
+        ></grampsjs-icon>
+        <grampsjs-icon
+          slot="end"
+          path="${mdiOpenInNew}"
+          color="var(--icon-color)"
+          height="18"
+          width="18"
+        ></grampsjs-icon>
+      </md-menu-item>
     `
   }
 
