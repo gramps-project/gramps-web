@@ -92,7 +92,7 @@ const click = node =>
 describe('appendPersonCard', () => {
   it('shows the surname first with placeholders for missing names', () => {
     const cards = renderCards()
-    expect(texts(cards.full)).toEqual(['Berg,', 'Anna', '*1900', '†1980'])
+    expect(texts(cards.full)).toEqual(['Berg,', 'Anna', '∗1900', '†1980'])
     expect(texts(cards.noSurname)).toEqual(['…,', 'Carl'])
     expect(texts(cards.noGiven)).toEqual(['Doe,', '…'])
     expect(texts(cards.notFetched)).toEqual([])
@@ -102,7 +102,7 @@ describe('appendPersonCard', () => {
     const cards = renderCards({
       nameDisplayFormat: chartNameDisplayFormat.givenThenSurname,
     })
-    expect(texts(cards.full)).toEqual(['Anna', 'Berg', '*1900', '†1980'])
+    expect(texts(cards.full)).toEqual(['Anna', 'Berg', '∗1900', '†1980'])
     expect(texts(cards.noSurname)).toEqual(['Carl', '…'])
   })
 

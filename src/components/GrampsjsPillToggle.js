@@ -172,6 +172,7 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
     this.muted = false
   }
 
+  /* eslint-disable lit-a11y/tabindex-no-positive */
   render() {
     return html`
       <div
@@ -182,7 +183,6 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
       >
         ${this.options.map(
           opt => html`
-            <!-- eslint-disable-next-line lit-a11y/tabindex-no-positive -->
             <button
               type="button"
               role="radio"
@@ -213,6 +213,7 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
       </div>
     `
   }
+  /* eslint-enable lit-a11y/tabindex-no-positive */
 
   _handleClick(value) {
     if (value !== this.selected) {

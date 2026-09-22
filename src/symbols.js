@@ -2,7 +2,7 @@
 export const SYMBOL_SET_DEFAULT = 'default'
 export const SYMBOL_SET_TEXT = 'text'
 
-const SYMBOL_SETS = {
+export const SYMBOL_SETS = {
   [SYMBOL_SET_DEFAULT]: {
     birthSymbol: '∗',
     deathSymbol: '†',

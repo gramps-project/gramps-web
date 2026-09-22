@@ -259,6 +259,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     return this._containerWidth > this.breakPoint && !this.narrow
   }
 
+  /* eslint-disable lit-a11y/tabindex-no-positive */
   render() {
     return html`
       <div class="table-container">
@@ -301,7 +302,6 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           <tbody>
             ${this._sortedRows().map(
               ({item, index}) => html`
-                <!-- eslint-disable-next-line lit-a11y/tabindex-no-positive -->
                 <tr
                   class="${this._selectedIndices.has(index) ? 'selected' : ''}"
                   @click="${() => this._handleRowClick(index)}"
@@ -351,6 +351,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
       </div>
     `
   }
+  /* eslint-enable lit-a11y/tabindex-no-positive */
 
   _renderMobileSort() {
     const hasActive = this.serverSort

@@ -196,6 +196,12 @@ export const sharedStyles = css`
     fill: var(--grampsjs-body-font-color-40);
   }
 
+  .event i {
+    color: var(--grampsjs-body-font-color-40);
+    font-size: 16px;
+    font-style: normal;
+  }
+
   .event i svg {
     height: 16px;
     width: auto;

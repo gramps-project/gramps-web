@@ -171,6 +171,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     if (relatives.length === 0) {
       return ''
     }
+    const symbols = getSymbols(this.appState.settings, s => this._(s))
     return html`
       <md-menu
         id="relatives-menu"
@@ -186,7 +187,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
               <div slot="headline">
                 ${formatChartName(person.profile, this.nameDisplayFormat)}
               </div>
-              ${renderPersonDates(person.profile)}
+              ${renderPersonDates(person.profile, symbols)}
             </md-menu-item>
           `
         )}

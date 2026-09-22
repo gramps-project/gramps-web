@@ -2,6 +2,7 @@ import {html} from 'lit'
 import {mdiAccount} from '@mdi/js'
 
 import {objectIconPath, sexColor} from '../util.js'
+import {SYMBOL_SETS, SYMBOL_SET_DEFAULT} from '../symbols.js'
 import './GrampsjsImg.js'
 import './GrampsjsIcon.js'
 
@@ -34,7 +35,11 @@ export function renderPersonAvatar(extPerson, sex) {
 
 export function renderPersonDates(
   profile,
-  {showAge = true, birthSymbol = '∗', deathSymbol = '†'} = {}
+  {
+    showAge = true,
+    birthSymbol = SYMBOL_SETS[SYMBOL_SET_DEFAULT].birthSymbol,
+    deathSymbol = SYMBOL_SETS[SYMBOL_SET_DEFAULT].deathSymbol,
+  } = {}
 ) {
   const birthStr = profile?.birth?.date || ''
   const deathStr = profile?.death?.date || ''

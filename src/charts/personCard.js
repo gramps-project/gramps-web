@@ -5,6 +5,7 @@ import {
   colorAddPersonButtons,
 } from './addPersonButton.js'
 import {chartPalette} from './palette.js'
+import {SYMBOL_SETS, SYMBOL_SET_DEFAULT} from '../symbols.js'
 
 // Pattern ids must be unique in the document, and the same person can be
 // shown in several cards
@@ -43,8 +44,8 @@ export function appendPersonCard(
     boxHeight = 90,
     imgPadding = 10,
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
-    birthSymbol = '*',
-    deathSymbol = '†',
+    birthSymbol = SYMBOL_SETS[SYMBOL_SET_DEFAULT].birthSymbol,
+    deathSymbol = SYMBOL_SETS[SYMBOL_SET_DEFAULT].deathSymbol,
     palette = chartPalette,
   }
 ) {
