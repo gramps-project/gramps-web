@@ -13,8 +13,6 @@ import {
   getSettings,
   getTreeConfig,
   getTreeId,
-  getTreeFromToken,
-  isTreeMismatch,
   clearMediaCaches,
   cleanOldDrafts,
   TREE_CONFIG_APP_TITLE,
@@ -1280,16 +1278,7 @@ export class GrampsJs extends LitElement {
     clearMediaCaches()
   }
 
-  async _handleStorage(e) {
-    // Another tab switched trees; see Auth's tree-pinning comment.
-    if (
-      e?.key === 'access_token' &&
-      isTreeMismatch(this.appState.auth.tabTreeId, getTreeFromToken(e.newValue))
-    ) {
-      await clearMediaCaches()
-      window.location.href = `${BASE_DIR}/`
-      return
-    }
+  _handleStorage(e) {
     if (e?.key === 'grampsjs_tree_config') {
       this._handleTreeConfig()
     }

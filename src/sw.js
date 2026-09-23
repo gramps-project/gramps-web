@@ -19,16 +19,9 @@ self.addEventListener('message', event => {
     self.skipWaiting()
   }
   if (event.data && event.data.type === 'CLEAR_MEDIA_CACHES') {
-    const port = event.ports?.[0]
-    const deletion = Promise.all(
-      MEDIA_CACHES_TO_CLEAR.map(c => caches.delete(c))
+    event.waitUntil(
+      Promise.all(MEDIA_CACHES_TO_CLEAR.map(c => caches.delete(c)))
     )
-    event.waitUntil(deletion)
-    // Ack once deleted so a caller can wait for it, e.g. before navigating
-    // into a page that re-fetches thumbnails (#tree-switching).
-    if (port) {
-      deletion.then(() => port.postMessage({type: 'MEDIA_CACHES_CLEARED'}))
-    }
   }
 })
 
