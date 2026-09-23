@@ -866,14 +866,12 @@ export function deleteBookmark(endpoint, handle) {
 export class Auth {
   constructor() {
     this._refreshingTokens = null
-    // The tree this tab is working in, taken from the first token it used.
-    // Tokens are shared between tabs via localStorage, so the stored token can
-    // move to another tree underneath this tab; _checkTree() catches that.
+    // Tree this tab works in. Tokens are shared between tabs via localStorage,
+    // so the stored token can move to another tree underneath this tab.
     this.tabTreeId = null
   }
 
-  // Logout only, so a tab never repins itself to a different tree while it is
-  // still showing one tree's data.
+  // Logout only; a tab never repins itself while showing one tree's data.
   unpinTree() {
     this.tabTreeId = null
   }
@@ -906,20 +904,25 @@ export class Auth {
     return token
   }
 
-  // Pins from the token the caller is about to use, so the pin can never be
-  // read from a different token than the request carries. Every authenticated
-  // read and write passes through here, so both are covered by this one rule.
+  // Pins from the token the request will carry, so reads and writes are both
+  // covered by one rule.
   _checkTree(token) {
-    const tree = getTreeFromToken(token)
-    if (!token || !tree) {
-      // No usable token: leave the pin alone and let the backend answer, so
-      // a failed refresh surfaces as the auth error it is.
+    if (!token) return
+    let claims
+    try {
+      claims = jwtDecode(token)
+    } catch {
+      // Undecodable: let the backend answer with the auth error.
       return
     }
+    // A decodable token with no tree still mismatches a pinned tab.
+    const tree = claims?.tree
     if (isTreeMismatch(this.tabTreeId, tree)) {
       throw new TreeMismatchError()
     }
-    this.tabTreeId = tree
+    if (tree) {
+      this.tabTreeId = tree
+    }
   }
 
   _shouldRefresh() {

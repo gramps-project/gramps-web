@@ -560,6 +560,21 @@ describe('Auth tree pinning', () => {
     expect(auth.tabTreeId).toBe('tree-a')
   })
 
+  // Distinct from a failed refresh: the token is valid, it just no longer
+  // scopes the tab to the tree whose data is on screen.
+  it('throws when a valid token drops the tree claim on a pinned tab', async () => {
+    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-a', exp}))
+    const auth = new Auth()
+    await auth.getValidAccessToken()
+
+    localStorage.setItem('access_token', makeFakeJwt({exp}))
+
+    await expect(auth.getValidAccessToken()).rejects.toBeInstanceOf(
+      TreeMismatchError
+    )
+    expect(auth.tabTreeId).toBe('tree-a')
+  })
+
   it('does not pin from a token without a tree claim', async () => {
     localStorage.setItem('access_token', makeFakeJwt({exp}))
     const auth = new Auth()
