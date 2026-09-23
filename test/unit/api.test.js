@@ -9,6 +9,7 @@ import {
   Auth,
   createFirstTree,
   isTreeMismatch,
+  TreeMismatchError,
   updateTaskStatus,
 } from '../../src/api.js'
 
@@ -21,6 +22,9 @@ function makeFakeJwt(claims) {
       .replace(/=/g, '')
   return `${encode({alg: 'HS256', typ: 'JWT'})}.${encode(claims)}.sig`
 }
+
+// Far-future expiry, so Auth treats the token as fresh and skips refreshing.
+const exp = 9999999999
 
 describe('apiGet authentication', () => {
   beforeEach(() => {
@@ -531,36 +535,69 @@ describe('isTreeMismatch', () => {
 describe('Auth tree pinning', () => {
   afterEach(() => {
     localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
   })
 
-  it('pins the tree of the current token and keeps the pin', () => {
-    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-a'}))
+  it('pins from the token it hands out and keeps that pin', async () => {
+    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-a', exp}))
     const auth = new Auth()
-    auth.pinTree()
-    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-b'}))
-    auth.pinTree()
+
+    await auth.getValidAccessToken()
+
     expect(auth.tabTreeId).toBe('tree-a')
   })
 
-  it('pins nothing while the token has no tree', () => {
-    localStorage.setItem('access_token', makeFakeJwt({}))
+  it('throws once the shared token moves to another tree', async () => {
+    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-a', exp}))
     const auth = new Auth()
-    auth.pinTree()
+    await auth.getValidAccessToken()
+
+    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-b', exp}))
+
+    await expect(auth.getValidAccessToken()).rejects.toBeInstanceOf(
+      TreeMismatchError
+    )
+    expect(auth.tabTreeId).toBe('tree-a')
+  })
+
+  it('does not pin from a token without a tree claim', async () => {
+    localStorage.setItem('access_token', makeFakeJwt({exp}))
+    const auth = new Auth()
+
+    await auth.getValidAccessToken()
+
     expect(auth.tabTreeId).toBe(null)
   })
 
-  it('repins after unpinning', () => {
-    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-a'}))
+  // A failed refresh must surface as the auth error it is, never as a tree
+  // change, and must not disturb an existing pin.
+  it('reports a failed refresh as an auth error, keeping the pin', async () => {
+    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-a', exp}))
     const auth = new Auth()
-    auth.pinTree()
+    await auth.getValidAccessToken()
+
+    localStorage.removeItem('access_token')
+
+    const error = await auth.getValidAccessToken().catch(e => e)
+    expect(error).toBeInstanceOf(Error)
+    expect(error).not.toBeInstanceOf(TreeMismatchError)
+    expect(auth.tabTreeId).toBe('tree-a')
+  })
+
+  it('repins after unpinning', async () => {
+    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-a', exp}))
+    const auth = new Auth()
+    await auth.getValidAccessToken()
+
     auth.unpinTree()
-    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-b'}))
-    auth.pinTree()
+    localStorage.setItem('access_token', makeFakeJwt({tree: 'tree-b', exp}))
+    await auth.getValidAccessToken()
+
     expect(auth.tabTreeId).toBe('tree-b')
   })
 })
 
-describe('apiPutPostDelete tree guard', () => {
+describe('tree mismatch aborts requests', () => {
   beforeEach(() => {
     vi.stubGlobal(
       'fetch',
@@ -577,37 +614,45 @@ describe('apiPutPostDelete tree guard', () => {
     vi.unstubAllGlobals()
   })
 
-  function makeAuth(tabTreeId, tokenTree) {
-    return {
-      tabTreeId,
-      getValidAccessToken: vi
-        .fn()
-        .mockResolvedValue(makeFakeJwt({tree: tokenTree})),
-    }
-  }
+  const mismatchingAuth = () => ({
+    getValidAccessToken: vi.fn().mockRejectedValue(new TreeMismatchError()),
+  })
 
-  it('refuses to write when the token belongs to another tree', async () => {
-    const auth = makeAuth('tree-a', 'tree-b')
+  // Ordinary auth failures are swallowed so the backend can answer with a 401.
+  const failingAuth = () => ({
+    getValidAccessToken: vi
+      .fn()
+      .mockRejectedValue(new Error('No refresh token')),
+  })
 
-    const result = await apiPutPostDelete(auth, 'POST', '/api/people/', {}, {})
+  it('aborts a write on a mismatch', async () => {
+    const result = await apiPutPostDelete(
+      mismatchingAuth(),
+      'POST',
+      '/api/people/',
+      {},
+      {}
+    )
 
     expect(fetch).not.toHaveBeenCalled()
     expect(result.error).to.be.a('string')
   })
 
-  it('writes when the token belongs to the pinned tree', async () => {
-    const auth = makeAuth('tree-a', 'tree-a')
+  it('aborts a read on a mismatch', async () => {
+    const result = await apiGet(mismatchingAuth(), '/api/people/')
 
-    const result = await apiPutPostDelete(auth, 'POST', '/api/people/', {}, {})
-
-    expect(fetch).toHaveBeenCalled()
-    expect(result.error).toBeUndefined()
+    expect(fetch).not.toHaveBeenCalled()
+    expect(result.error).to.be.a('string')
   })
 
-  it('writes when the tab is not pinned yet', async () => {
-    const auth = makeAuth(null, 'tree-b')
+  it('still sends a write when auth merely fails', async () => {
+    await apiPutPostDelete(failingAuth(), 'POST', '/api/people/', {}, {})
 
-    await apiPutPostDelete(auth, 'POST', '/api/trees/', {}, {})
+    expect(fetch).toHaveBeenCalled()
+  })
+
+  it('still sends a read when auth merely fails', async () => {
+    await apiGet(failingAuth(), '/api/people/')
 
     expect(fetch).toHaveBeenCalled()
   })

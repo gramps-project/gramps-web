@@ -13,6 +13,8 @@ import {
   getSettings,
   getTreeConfig,
   getTreeId,
+  getTreeFromToken,
+  isTreeMismatch,
   clearMediaCaches,
   cleanOldDrafts,
   TREE_CONFIG_APP_TITLE,
@@ -869,8 +871,6 @@ export class GrampsJs extends LitElement {
   }
 
   _loadDbInfo(setReady = true) {
-    // Must run before the request goes out; see Auth's tree-pinning comment.
-    this.appState.auth.pinTree()
     this.appState.apiGet('/api/metadata/').then(data => {
       if ('error' in data) {
         if (data.error === 'Network error') {
@@ -1279,6 +1279,18 @@ export class GrampsJs extends LitElement {
   }
 
   _handleStorage(e) {
+    // Another tab moved the shared token to a different tree. This tab's
+    // loaded data and its URL both belong to the old tree, and it would keep
+    // repopulating the origin-wide media caches with it, so reload into the
+    // new tree from the home page.
+    if (
+      e?.key === 'access_token' &&
+      isTreeMismatch(this.appState.auth.tabTreeId, getTreeFromToken(e.newValue))
+    ) {
+      clearMediaCaches()
+      window.location.href = `${BASE_DIR}/`
+      return
+    }
     if (e?.key === 'grampsjs_tree_config') {
       this._handleTreeConfig()
     }
