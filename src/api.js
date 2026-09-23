@@ -65,10 +65,18 @@ export function isTreeMismatch(tabTreeId, currentTreeId) {
 
 // Thumbnail and tile cache keys contain object handles, which are only unique
 // within a tree, so these caches must be emptied whenever the tree changes.
-// `controller` is synchronous, so the message is posted even when the caller
-// navigates immediately afterwards.
 export function clearMediaCaches() {
-  navigator.serviceWorker?.controller?.postMessage({type: 'CLEAR_MEDIA_CACHES'})
+  const container = navigator.serviceWorker
+  if (!container) return
+  const message = {type: 'CLEAR_MEDIA_CACHES'}
+  if (container.controller) {
+    // Synchronous, so the message survives a caller that navigates next.
+    container.controller.postMessage(message)
+    return
+  }
+  // A hard reload leaves the page uncontrolled while the caches are still
+  // populated. Callers in that state do not navigate, so the lookup is safe.
+  container.getRegistration().then(reg => reg?.active?.postMessage(message))
 }
 
 export function getPermissions() {
