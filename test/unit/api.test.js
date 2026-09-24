@@ -5,7 +5,6 @@ import {
   apiRegisterUser,
   apiResetPassword,
   apiGetOIDCConfig,
-  apiPutPostDelete,
   Auth,
   createFirstTree,
   isTreeMismatch,
