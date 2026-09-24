@@ -1,7 +1,9 @@
 import {css, html, LitElement} from 'lit'
 
-import '@material/web/button/filled-button'
-import '@material/web/button/outlined-button'
+import '@material/web/iconbutton/icon-button'
+import '@material/web/switch/switch'
+
+import {mdiBell, mdiBellOff, mdiRefresh} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -29,11 +31,23 @@ export class GrampsjsWebPushSettings extends GrampsjsAppStateMixin(LitElement) {
           color: var(--md-sys-color-error);
         }
 
-        .actions {
+        .channel {
           display: flex;
+          align-items: center;
+          justify-content: space-between;
           flex-wrap: wrap;
+          gap: 16px;
+        }
+
+        .channel-name {
+          font-weight: 500;
+        }
+
+        .feedback {
+          display: flex;
+          align-items: center;
           gap: 8px;
-          margin-top: 16px;
+          margin: 8px 0 0;
         }
       `,
     ]
@@ -66,109 +80,92 @@ export class GrampsjsWebPushSettings extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     return html`
-      <p>
-        ${this._(
-          'Receive browser notifications on this device, even when Gramps Web is not open.'
-        )}
-      </p>
-      ${this._renderStatus()} ${this._renderActions()}
+      <label class="channel">
+        <span class="channel-name">${this._('Browser')}</span>
+        <md-switch
+          icons
+          ?selected="${this._isSwitchSelected()}"
+          ?disabled="${this._isSwitchDisabled()}"
+          @change="${this._handleToggle}"
+        >
+          <svg slot="on-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="${mdiBell}" />
+          </svg>
+          <svg slot="off-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="${mdiBellOff}" />
+          </svg>
+        </md-switch>
+      </label>
+      ${this._renderFeedback()}
     `
   }
 
-  _renderStatus() {
-    if (this._status === 'loading') {
-      return html`<p class="status" aria-live="polite">
+  _renderFeedback() {
+    if (
+      this._status === 'loading' ||
+      this._status === 'enabling' ||
+      this._status === 'disabling'
+    ) {
+      return html`<p class="status feedback" aria-live="polite">
         ${this._('Loading...')}
       </p>`
     }
-    if (this._status === 'unsupported') {
-      return html`<p class="status">
-        ${this._('Browser notifications are not supported on this device.')}
-      </p>`
-    }
-    if (this._status === 'unavailable') {
-      return html`<p class="status">
-        ${this._('Browser notifications are not configured on this server.')}
-      </p>`
-    }
-    if (this._status === 'denied') {
-      return html`<p class="status">
+    if (this._status === 'unsupported' || this._status === 'unavailable') {
+      return html`<p class="status feedback">
         ${this._(
-          'Notifications are blocked. Allow them in your browser settings to continue.'
+          'Notifications are unavailable in this browser or on this server.'
         )}
       </p>`
     }
-    if (this._status === 'permission-dismissed') {
-      return html`<p class="status" aria-live="polite">
-        ${this._('Notification permission was not granted. You can try again.')}
+    if (this._status === 'denied') {
+      return html`<p class="status feedback">
+        ${this._('Notifications are blocked in browser settings.')}
       </p>`
-    }
-    if (this._status === 'active') {
-      return html`<p class="status" aria-live="polite">
-        ${this._('Browser notifications are enabled on this device.')}
-      </p>`
-    }
-    if (this._status === 'cleanup-error') {
-      return html`
-        <p class="status" aria-live="polite">
-          ${this._('Browser notifications are disabled on this device.')}
-        </p>
-        <p class="error" role="alert">
-          ${this._('The server subscription could not be removed.')}
-          ${this._error}
-        </p>
-      `
-    }
-    if (this._status === 'error') {
-      return html`<p class="error" role="alert">
-        ${this._('Browser notification settings could not be loaded.')}
-        ${this._error}
-      </p>`
-    }
-    return html`<p class="status" aria-live="polite">
-      ${this._('Browser notifications are disabled on this device.')}
-    </p>`
-  }
-
-  _renderActions() {
-    if (this._status === 'active') {
-      return html`
-        <div class="actions">
-          <md-outlined-button
-            ?disabled="${this._busy}"
-            @click="${this._disable}"
-          >
-            ${this._busy
-              ? this._('Disabling...')
-              : this._('Disable notifications')}
-          </md-outlined-button>
-        </div>
-      `
-    }
-    if (
-      this._status === 'inactive' ||
-      this._status === 'permission-dismissed'
-    ) {
-      return html`
-        <div class="actions">
-          <md-filled-button ?disabled="${this._busy}" @click="${this._enable}">
-            ${this._busy
-              ? this._('Enabling...')
-              : this._('Enable notifications')}
-          </md-filled-button>
-        </div>
-      `
     }
     if (this._status === 'error' || this._status === 'cleanup-error') {
       return html`
-        <div class="actions">
-          <md-outlined-button ?disabled="${this._busy}" @click="${this._retry}">
-            ${this._('Retry')}
-          </md-outlined-button>
-        </div>
+        <p class="error feedback" role="alert">
+          ${this._('Could not update notifications.')} ${this._error}
+          <md-icon-button
+            title="${this._('Retry')}"
+            aria-label="${this._('Retry')}"
+            @click="${this._retry}"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="${mdiRefresh}" />
+            </svg>
+          </md-icon-button>
+        </p>
       `
     }
     return ''
+  }
+
+  _isSwitchSelected() {
+    return (
+      this._status === 'active' ||
+      this._status === 'enabling' ||
+      this._status === 'disabling'
+    )
+  }
+
+  _isSwitchDisabled() {
+    return (
+      this._busy ||
+      [
+        'loading',
+        'unsupported',
+        'unavailable',
+        'denied',
+        'error',
+        'cleanup-error',
+      ].includes(this._status)
+    )
+  }
+
+  _handleToggle(event) {
+    if (event.target.selected) this._enable()
+    else this._disable()
   }
 
   _isSupported() {
@@ -231,6 +228,7 @@ export class GrampsjsWebPushSettings extends GrampsjsAppStateMixin(LitElement) {
     if (this._busy) return
     this._busy = true
     this._error = ''
+    this._status = 'enabling'
     let createdSubscription = null
     try {
       const permission =
@@ -275,13 +273,13 @@ export class GrampsjsWebPushSettings extends GrampsjsAppStateMixin(LitElement) {
     if (this._busy || !this._subscription) return
     this._busy = true
     this._error = ''
+    this._status = 'disabling'
     const endpoint = this._subscription.endpoint
     try {
       const unsubscribed = await this._subscription.unsubscribe()
       if (unsubscribed === false) {
-        throw new Error(
-          this._('The browser subscription could not be removed.')
-        )
+        this._status = 'error'
+        return
       }
       this._subscription = null
       const result = await this._deleteRemoteSubscription(endpoint)

@@ -109,13 +109,38 @@ describe('browser notification settings', () => {
     vi.restoreAllMocks()
   })
 
-  it('is shown only for API 3.23 or newer', () => {
+  it('shows the generic notification section only for API 3.23 or newer', () => {
     expect(renderSettingsForApiVersion('3.22.9')).not.to.contain(
-      'title="Browser notifications"'
+      'title="Notifications"'
     )
     expect(renderSettingsForApiVersion('3.23.0')).to.contain(
-      'title="Browser notifications"'
+      'title="Notifications"'
     )
+  })
+
+  it('uses a browser toggle and only shows feedback when needed', () => {
+    const element = createElement()
+
+    element._status = 'inactive'
+    expect(templateMarkup(element.render())).to.contain('<md-switch')
+    expect(templateMarkup(element._renderFeedback())).to.equal('')
+
+    element._status = 'unavailable'
+    expect(templateMarkup(element._renderFeedback())).to.contain(
+      'Notifications are unavailable in this browser or on this server.'
+    )
+  })
+
+  it('routes browser toggle changes to the matching action', () => {
+    const element = createElement()
+    element._enable = vi.fn()
+    element._disable = vi.fn()
+
+    element._handleToggle({target: {selected: true}})
+    element._handleToggle({target: {selected: false}})
+
+    expect(element._enable).toHaveBeenCalledOnce()
+    expect(element._disable).toHaveBeenCalledOnce()
   })
 
   it('reports unsupported browsers without calling the API', async () => {

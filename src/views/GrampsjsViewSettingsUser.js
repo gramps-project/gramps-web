@@ -187,12 +187,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
 
       ${this._supportsWebPush()
         ? html`
-            <grampsjs-collapsible-section
-              title="${this._('Browser notifications')}"
-              description="${this._(
-                'Notifications for this browser and device'
-              )}"
-            >
+            <grampsjs-collapsible-section title="${this._('Notifications')}">
               <grampsjs-web-push-settings
                 .appState="${this.appState}"
               ></grampsjs-web-push-settings>
