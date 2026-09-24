@@ -9,6 +9,7 @@ import '../components/GrampsjsFilterYears.js'
 import '../components/GrampsjsFilterTags.js'
 import '../components/GrampsjsFilterPrivate.js'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
+import {formatDate} from '../date.js'
 import {
   prettyTimeDiffTimestamp,
   filterCounts,
@@ -108,10 +109,13 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
     const families = (row?.profile?.participants?.families || [])
       .filter(f => PRIMARY_ROLES_EN.has(f.role) || f.role === this._('Family'))
       .map(f => familyTitleFromProfile(f.family))
+    const eventDate = row?.profile?.date
     return {
       grampsId: row.gramps_id,
       type: row?.profile?.type,
-      date: row?.profile?.date,
+      date: eventDate
+        ? formatDate(eventDate, this.appState?.i18n?.lang)
+        : eventDate,
       place: row?.profile?.place_name || row?.profile?.place,
       participants: [...people, ...families].join(', '),
       description: row?.description,

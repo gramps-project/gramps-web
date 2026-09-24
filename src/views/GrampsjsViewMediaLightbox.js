@@ -12,6 +12,7 @@ import '@material/web/button/filled-button.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsView} from './GrampsjsView.js'
+import {formatDate} from '../date.js'
 import '../components/GrampsjsLightbox.js'
 import '../components/GrampsjsRectContainer.js'
 import '../components/GrampsjsRect.js'
@@ -113,7 +114,12 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         <span slot="description"
           >${this._data?.desc || ''}
           ${this._data?.profile?.date
-            ? html`<span class="date">${this._data?.profile?.date}</span>`
+            ? html`<span class="date"
+                >${formatDate(
+                  this._data.profile.date,
+                  this.appState?.i18n?.lang
+                )}</span
+              >`
             : ''}</span
         >
         <span slot="button">

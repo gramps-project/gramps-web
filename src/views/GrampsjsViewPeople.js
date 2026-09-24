@@ -5,6 +5,7 @@ People list view
 import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, personFilter, filterCounts} from '../util.js'
+import {formatDate} from '../date.js'
 import '../components/GrampsjsFilterYears.js'
 import '../components/GrampsjsFilterProperties.js'
 import '../components/GrampsjsFilterTags.js'
@@ -64,14 +65,17 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
   _formatRow(row) {
     const birthDate = row?.profile?.birth?.date
     const deathDate = row?.profile?.death?.date
+    const lang = this.appState?.i18n?.lang
     return {
       grampsId: row.gramps_id,
       surname: row?.profile?.name_surname,
       given: row?.profile?.name_given,
-      birth: birthDate,
+      birth: birthDate ? formatDate(birthDate, lang) : birthDate,
       birthPlace: row?.profile?.birth?.place_name,
-      death: deathDate,
+      death: deathDate ? formatDate(deathDate, lang) : deathDate,
       deathPlace: row?.profile?.death?.place_name,
+      // _ageAtDeath keeps working on the raw ISO dates so its year-extracting
+      // regex is reliable across all locales
       age: _ageAtDeath(birthDate, deathDate),
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }

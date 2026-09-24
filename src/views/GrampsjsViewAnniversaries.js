@@ -5,6 +5,7 @@ import '@material/web/list/list-item'
 import '../components/GrampsjsTimedelta.js'
 import {GrampsjsConnectedComponent} from '../components/GrampsjsConnectedComponent.js'
 import {eventTitleFromProfile, fireEvent} from '../util.js'
+import {formatDate} from '../date.js'
 
 export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
   static get styles() {
@@ -89,7 +90,11 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
         @keydown="${this._handleKeyDown}"
       >
         <span slot="headline"
-          >${eventTitleFromProfile(event.profile, false)}</span
+          >${eventTitleFromProfile(
+            event.profile,
+            false,
+            this.appState?.i18n?.lang
+          )}</span
         >
         <span slot="start" class="years">${years}</span>
         <span slot="supporting-text">
@@ -97,7 +102,8 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
             timestamp="${timestamp}"
             locale="${this.appState.i18n.lang}"
           ></grampsjs-timedelta>
-          (${event.profile.date})${event?.profile?.place
+          (${formatDate(event.profile.date, this.appState?.i18n?.lang)})${event
+            ?.profile?.place
             ? html` · ${event.profile.place_name || event.profile.place}`
             : ''}
         </span>
