@@ -5,6 +5,7 @@ import '@material/web/iconbutton/icon-button.js'
 import {mdiLinkOff, mdiLinkPlus, mdiPencil, mdiPlus} from '@mdi/js'
 
 import {fireEvent, objectIconPath} from '../util.js'
+import {formatDate} from '../date.js'
 import './GrampsjsIcon.js'
 import './GrampsjsObjectLink.js'
 import './GrampsjsFormEditFamily.js'
@@ -110,7 +111,7 @@ export class GrampsjsFamily extends GrampsjsObject {
               ${hasMarriage
                 ? html`<span class="parent-dates">
                     <span class="sym">⚭</span>
-                    ${marriage.date || ''}
+                    ${formatDate(marriage.date, this.appState?.i18n?.lang)}
                     ${marriage.place
                       ? `${this._('in')} ${
                           marriage.place_name || marriage.place
@@ -121,7 +122,7 @@ export class GrampsjsFamily extends GrampsjsObject {
               ${hasDivorce
                 ? html`<span class="parent-dates">
                     <span class="sym">⚮</span>
-                    ${divorce.date || ''}
+                    ${formatDate(divorce.date, this.appState?.i18n?.lang)}
                     ${divorce.place ? `${this._('in')} ${divorce.place}` : ''}
                   </span>`
                 : ''}
@@ -151,8 +152,13 @@ export class GrampsjsFamily extends GrampsjsObject {
   _renderParent(parent, label) {
     const profile = this.data?.profile[parent]
     const hasProfile = Object.keys(profile ?? {}).length > 0
-    const birthDate = profile?.birth?.date || ''
-    const deathDate = profile?.death?.date || ''
+    const lang = this.appState?.i18n?.lang
+    const birthDate = profile?.birth?.date
+      ? formatDate(profile.birth.date, lang)
+      : ''
+    const deathDate = profile?.death?.date
+      ? formatDate(profile.death.date, lang)
+      : ''
 
     return html`
       <dl>

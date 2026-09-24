@@ -85,7 +85,10 @@ export class GrampsjsConnectedParents extends GrampsjsConnectedComponent {
           })}"
       >
         ${personProfile.name_given || ''} ${personProfile.name_surname || ''}
-        ${renderPersonDates(personProfile, {showAge: false})}
+        ${renderPersonDates(personProfile, {
+          showAge: false,
+          locale: this.appState?.i18n?.lang,
+        })}
         ${renderPersonAvatar(extPerson, personProfile.sex)}
       </md-list-item>
     `

@@ -6,6 +6,7 @@ import './GrampsjsGallery.js'
 import './GrampsjsEvents.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 import {fireEvent, personProfileDisplayName} from '../util.js'
+import {formatDate} from '../date.js'
 import {sharedStyles} from '../SharedStyles.js'
 
 export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
@@ -90,9 +91,14 @@ export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
     const person = this.personData || this._data?.data
     if (!person) return ''
     const fullName = personProfileDisplayName(person.profile)
-    const birthDate = person.profile?.birth?.date || ''
+    const lang = this.appState?.i18n?.lang
+    const birthDate = person.profile?.birth?.date
+      ? formatDate(person.profile.birth.date, lang)
+      : ''
     const birthPlace = person.profile?.birth?.place_name || ''
-    const deathDate = person.profile?.death?.date || ''
+    const deathDate = person.profile?.death?.date
+      ? formatDate(person.profile.death.date, lang)
+      : ''
     const deathPlace = person.profile?.death?.place_name || ''
     return html`
       <h2>${fullName || this.name || this._('Person')}</h2>

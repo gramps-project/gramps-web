@@ -69,7 +69,8 @@ export class GrampsjsChildren extends GrampsjsEditableList {
           }
         }}"
       >
-        ${p.name_given || ''} ${p.name_surname || ''} ${renderPersonDates(p)}
+        ${p.name_given || ''} ${p.name_surname || ''}
+        ${renderPersonDates(p, {locale: this.appState?.i18n?.lang})}
         ${hasNonBirthRel
           ? html`<span slot="supporting-text">${relText}</span>`
           : ''}

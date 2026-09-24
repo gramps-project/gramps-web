@@ -24,6 +24,7 @@ import {
   getNameFromProfile,
   objectIconPath,
 } from '../util.js'
+import {formatDate} from '../date.js'
 import {renderIconSvg} from '../icons.js'
 import {iconButtonColorStyles} from '../SharedStyles.js'
 import './GrampsjsIcon.js'
@@ -142,7 +143,12 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           ? html`
               <div>
                 <dt>${this._('Date')}</dt>
-                <dd>${this.data.profile.date}</dd>
+                <dd>
+                  ${formatDate(
+                    this.data.profile.date,
+                    this.appState?.i18n?.lang
+                  )}
+                </dd>
               </div>
               ${this.edit
                 ? html`

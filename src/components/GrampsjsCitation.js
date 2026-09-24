@@ -8,6 +8,7 @@ import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormEditCitationDetails.js'
 import {emptyDate, fireEvent, linkUrls, objectIconPath} from '../util.js'
+import {formatDate} from '../date.js'
 
 const BASE_DIR = ''
 
@@ -46,7 +47,12 @@ export class GrampsjsCitation extends GrampsjsObject {
           ? html`
               <div>
                 <dt>${this._('Date')}</dt>
-                <dd>${this.data.profile.date}</dd>
+                <dd>
+                  ${formatDate(
+                    this.data.profile.date,
+                    this.appState?.i18n?.lang
+                  )}
+                </dd>
               </div>
             `
           : ''}
