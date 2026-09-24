@@ -1,5 +1,6 @@
 import {local, select} from 'd3-selection'
 import {chartNameDisplayFormat, fireEvent} from '../util.js'
+import {formatDate} from '../date.js'
 import {
   appendAddPersonButton,
   colorAddPersonButtons,
@@ -33,7 +34,7 @@ function isHoverDevice() {
 // Appends the visible part of a person card, centred on each node of the
 // selection. `profile(d)` returns the person's profile, and `imageUrl(d)`
 // returns the URL of their image or an empty string. Colours come from
-// `palette`.
+// `palette`. `locale` is used to format the birth and death dates.
 export function appendPersonCard(
   nodes,
   {
@@ -44,6 +45,7 @@ export function appendPersonCard(
     imgPadding = 10,
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
     palette = chartPalette,
+    locale = 'en',
   }
 ) {
   const left = -boxWidth / 2
@@ -87,8 +89,16 @@ export function appendPersonCard(
       text: p => (surnameFirst ? p.name_given || '…' : p.name_surname || '…'),
       weight: 500,
     },
-    {show: p => p?.birth?.date, text: p => `*${p.birth.date}`, weight: 350},
-    {show: p => p?.death?.date, text: p => `†${p.death.date}`, weight: 350},
+    {
+      show: p => p?.birth?.date,
+      text: p => `*${formatDate(p.birth.date, locale)}`,
+      weight: 350,
+    },
+    {
+      show: p => p?.death?.date,
+      text: p => `†${formatDate(p.death.date, locale)}`,
+      weight: 350,
+    },
   ]
   lines.forEach((line, i) => {
     nodes
@@ -198,6 +208,7 @@ export function drawChangedCards(
     palette = chartPalette,
     boxWidth,
     boxHeight,
+    locale = 'en',
   }
 ) {
   const changed = new Set()
@@ -230,6 +241,7 @@ export function drawChangedCards(
     boxHeight,
     nameDisplayFormat,
     palette,
+    locale,
   })
 }
 

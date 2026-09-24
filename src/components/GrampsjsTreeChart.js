@@ -141,6 +141,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       nameDisplayFormat: this.nameDisplayFormat,
       canEdit: this.canEdit,
       duration: chartTransitionDuration(),
+      locale: this.appState?.i18n?.lang,
     })
   }
 
@@ -184,7 +185,9 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
               <div slot="headline">
                 ${formatChartName(person.profile, this.nameDisplayFormat)}
               </div>
-              ${renderPersonDates(person.profile)}
+              ${renderPersonDates(person.profile, {
+                locale: this.appState?.i18n?.lang,
+              })}
             </md-menu-item>
           `
         )}

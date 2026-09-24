@@ -164,6 +164,79 @@ describe('appendPersonCard', () => {
   })
 })
 
+describe('appendPersonCard locale-aware dates', () => {
+  const dates = {
+    full: {
+      handle: 'h1',
+      profile: {
+        gramps_id: 'I1',
+        name_given: 'Anna',
+        name_surname: 'Berg',
+        sex: 'F',
+        birth: {date: '1899-11-20'},
+        death: {date: '1900-01-15'},
+      },
+    },
+  }
+
+  const renderWithLocale = locale => {
+    const svg = create('svg')
+    document.body.append(svg.node())
+    const nodes = svg.selectAll('g').data([dates.full]).join('g')
+    appendPersonCard(nodes, {
+      profile: d => d.profile,
+      imageUrl: () => '',
+      locale,
+    })
+    return nodes.node()
+  }
+
+  it('formats birth/death in the supplied locale (de)', () => {
+    const node = renderWithLocale('de')
+    const cardTexts = [...node.querySelectorAll('text')].map(t => t.textContent)
+    const birth = cardTexts.find(t => t.startsWith('*'))
+    const death = cardTexts.find(t => t.startsWith('†'))
+    expect(birth).toMatch(/^\*20\..*11\..*1899$/)
+    expect(death).toMatch(/^†15\..*01\..*1900$/)
+  })
+
+  it('formats birth/death in en-GB (day-first)', () => {
+    const node = renderWithLocale('en-GB')
+    const cardTexts = [...node.querySelectorAll('text')].map(t => t.textContent)
+    const birth = cardTexts.find(t => t.startsWith('*'))
+    const death = cardTexts.find(t => t.startsWith('†'))
+    expect(birth).toMatch(/^\*20.*11.*1899$/)
+    expect(death).toMatch(/^†15.*01.*1900$/)
+  })
+
+  it('keeps non-ISO date strings (e.g. modifier) untouched', () => {
+    const svg = create('svg')
+    document.body.append(svg.node())
+    const data = {
+      handle: 'h1',
+      profile: {
+        gramps_id: 'I1',
+        name_given: 'A',
+        name_surname: 'B',
+        sex: 'F',
+        birth: {date: 'before 1899'},
+        death: {date: 'about 1900'},
+      },
+    }
+    const nodes = svg.selectAll('g').data([data]).join('g')
+    appendPersonCard(nodes, {
+      profile: d => d.profile,
+      imageUrl: () => '',
+      locale: 'de',
+    })
+    const cardTexts = [...nodes.node().querySelectorAll('text')].map(
+      t => t.textContent
+    )
+    expect(cardTexts.find(t => t.startsWith('*'))).toBe('*before 1899')
+    expect(cardTexts.find(t => t.startsWith('†'))).toBe('†about 1900')
+  })
+})
+
 describe('setPersonCardInteraction', () => {
   it('adds the add person button once and removes it again', () => {
     const nodes = renderNodes()

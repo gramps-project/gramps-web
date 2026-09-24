@@ -3,6 +3,7 @@ import {scaleTime} from 'd3-scale'
 import {axisBottom} from 'd3-axis'
 import {zoom as d3zoom, zoomIdentity} from 'd3-zoom'
 import {schemeSet1} from 'd3-scale-chromatic'
+import {formatDate} from '../date.js'
 
 const EVENT_TYPE_COLOR = {
   Birth: schemeSet1[0], // red
@@ -411,7 +412,7 @@ export function Timeline(
           .text(d.profile?.summary || '')
         select(this)
           .select('.detail-date')
-          .text(d.profile?.date || '')
+          .text(formatDate(d.profile?.date, locale))
       })
     requestAnimationFrame(() => repositionDetails(currentX))
   }

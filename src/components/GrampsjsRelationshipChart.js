@@ -61,6 +61,7 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
       duration: chartTransitionDuration(),
       bboxWidth: this.containerWidth,
       bboxHeight: this.containerHeight,
+      locale: this.appState?.i18n?.lang,
     })
   }
 

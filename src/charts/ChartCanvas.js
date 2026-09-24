@@ -84,6 +84,7 @@ export class ChartCanvas {
       fit = false,
       bboxWidth,
       bboxHeight,
+      locale = 'en',
     } = options
     const settings = {
       ...options,
@@ -131,6 +132,7 @@ export class ChartCanvas {
       palette,
       boxWidth,
       boxHeight,
+      locale,
     })
     updatePersonCardInteraction(people, {
       interactive,

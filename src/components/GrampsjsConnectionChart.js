@@ -103,6 +103,7 @@ export class GrampsjsConnectionChart extends GrampsjsResizeContainerMixin(
       fit: true,
       bboxWidth: this.containerWidth,
       bboxHeight: this.containerHeight,
+      locale: this.appState?.i18n?.lang,
     })
   }
 
