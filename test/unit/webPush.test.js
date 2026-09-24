@@ -16,7 +16,6 @@ describe('Web Push helpers', () => {
     const subscription = {
       toJSON: () => ({
         endpoint: 'https://push.example.test/1',
-        expirationTime: undefined,
         keys: {p256dh: 'public-key', auth: 'auth-secret'},
         ignored: 'value',
       }),
@@ -24,7 +23,6 @@ describe('Web Push helpers', () => {
 
     expect(serializePushSubscription(subscription)).to.deep.equal({
       endpoint: 'https://push.example.test/1',
-      expirationTime: null,
       keys: {p256dh: 'public-key', auth: 'auth-secret'},
     })
   })

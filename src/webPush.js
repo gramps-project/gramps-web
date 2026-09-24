@@ -11,7 +11,6 @@ export function serializePushSubscription(subscription) {
   const value = subscription.toJSON()
   return {
     endpoint: value.endpoint,
-    expirationTime: value.expirationTime ?? null,
     keys: {
       p256dh: value.keys?.p256dh,
       auth: value.keys?.auth,
