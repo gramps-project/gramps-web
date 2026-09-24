@@ -8,6 +8,8 @@ import {
   reportSelectItemValue,
   familyTitleFromProfile,
   citationTitleFromProfile,
+  eventTitleFromProfile,
+  objectDetail,
   arrayEqual,
   dateIsEmpty,
   getGregorianYears,
@@ -496,5 +498,97 @@ describe('isKeyEventInInput', () => {
     expect(
       isKeyEventInInput(keyEvent([element('A'), element('MD-LIST')]))
     ).to.equal(false)
+  })
+})
+
+describe('eventTitleFromProfile (locale-aware date)', () => {
+  const renderText = result => {
+    const div = document.createElement('div')
+    render(result, div)
+    return div.textContent
+  }
+
+  it('localizes the date in the supplied locale', () => {
+    const result = eventTitleFromProfile(
+      {summary: 'Geburt', date: '1899-11-20'},
+      true,
+      'de'
+    )
+    const text = renderText(result)
+    expect(text).to.include('Geburt')
+    expect(text).to.match(/20\..*11\..*1899/)
+  })
+
+  it('returns just the summary when no date is present', () => {
+    expect(
+      renderText(eventTitleFromProfile({summary: 'Birth'}, true, 'de'))
+    ).to.equal('Birth')
+  })
+
+  it('returns empty string when there is no summary', () => {
+    expect(renderText(eventTitleFromProfile({}, true, 'de'))).to.equal('')
+  })
+
+  it('omits the date when date flag is false', () => {
+    expect(
+      renderText(
+        eventTitleFromProfile(
+          {summary: 'Birth', date: '1899-11-20'},
+          false,
+          'de'
+        )
+      )
+    ).to.equal('Birth')
+  })
+
+  it('falls back to en when locale is omitted (backward compat)', () => {
+    const text = renderText(
+      eventTitleFromProfile({summary: 'Birth', date: '1899-11-20'}, true)
+    )
+    expect(text).to.match(/11\/20\/1899/)
+  })
+})
+
+describe('objectDetail (locale-aware date)', () => {
+  it('localizes a person birth date', () => {
+    const result = objectDetail(
+      'person',
+      {profile: {birth: {date: '1899-11-20'}}},
+      {},
+      'de'
+    )
+    expect(result).to.match(/20\..*11\..*1899/)
+  })
+
+  it('localizes an event date alongside its place', () => {
+    const result = objectDetail(
+      'event',
+      {profile: {date: '1899-11-20', place_name: 'Berlin'}},
+      {},
+      'de'
+    )
+    expect(result).to.match(/20\..*11\..*1899/)
+    expect(result).to.include('Berlin')
+  })
+
+  it('returns no date when neither birth date nor place is set (person)', () => {
+    expect(objectDetail('person', {profile: {}}, {}, 'de')).to.not.match(
+      /\d{4}/
+    )
+  })
+
+  it('does not crash on missing profile', () => {
+    expect(objectDetail('person', {}, {}, 'de')).to.equal(`
+    ${''}${''}${''}
+    `)
+  })
+
+  it('falls back to en when locale is omitted (backward compat)', () => {
+    const result = objectDetail(
+      'person',
+      {profile: {birth: {date: '1899-11-20'}}},
+      {}
+    )
+    expect(result).to.match(/11\/20\/1899/)
   })
 })

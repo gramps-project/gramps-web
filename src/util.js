@@ -52,6 +52,7 @@ import {
 import {renderIconSvg, ringsIconPath} from './icons.js'
 import './components/GrampsjsIcon.js'
 import {frontendLanguages} from './strings.js'
+import {formatDate} from './date.js'
 
 dayjs.extend(relativeTime)
 
@@ -138,10 +139,14 @@ export function citationTitleFromProfile(citationProfile) {
           ${citationProfile.page ? ` (${citationProfile.page})` : ''}`
 }
 
-export function eventTitleFromProfile(eventProfile, date = true) {
+export function eventTitleFromProfile(
+  eventProfile,
+  date = true,
+  locale = 'en'
+) {
   if (eventProfile.summary) {
     return html`${eventProfile.summary}${date && eventProfile.date
-      ? ` (${eventProfile.date})`
+      ? ` (${formatDate(eventProfile.date, locale)})`
       : ''}`
   }
   return ''
@@ -437,19 +442,23 @@ export function objectDescription(type, obj, strings) {
   }
 }
 
-export function objectDetail(type, obj, strings) {
+export function objectDetail(type, obj, strings, locale = 'en') {
   switch (type) {
     case 'person':
       return `
-    ${obj?.profile?.birth?.date ? `∗ ${obj.profile.birth.date}` : ''}${
-        obj?.profile?.birth?.place && obj?.profile?.birth?.date ? ', ' : ''
-      }${obj?.profile?.birth?.place_name || obj?.profile?.birth?.place || ''}
+    ${
+      obj?.profile?.birth?.date
+        ? `∗ ${formatDate(obj.profile.birth.date, locale)}`
+        : ''
+    }${obj?.profile?.birth?.place && obj?.profile?.birth?.date ? ', ' : ''}${
+        obj?.profile?.birth?.place_name || obj?.profile?.birth?.place || ''
+      }
     `
     // case 'family':
     //   return ''
     case 'event':
       return `
-    ${obj?.profile?.date || ''}${
+    ${obj?.profile?.date ? formatDate(obj.profile.date, locale) : ''}${
         obj?.profile?.place && obj?.profile?.date ? ', ' : ''
       }${obj?.profile?.place_name || obj?.profile?.place || ''}
     `
