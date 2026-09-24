@@ -12,7 +12,6 @@ function createSubscription(endpoint = 'https://push.example.test/1') {
     unsubscribe: vi.fn().mockResolvedValue(true),
     toJSON: () => ({
       endpoint,
-      expirationTime: null,
       keys: {p256dh: 'public-key', auth: 'auth-secret'},
     }),
   }
@@ -23,10 +22,10 @@ function createElement(overrides = {}) {
   element.appState = {
     i18n: {strings: {}},
     apiGet: vi.fn().mockResolvedValue({
-      data: {available: true, public_key: PUBLIC_KEY, subscriptions: 0},
+      data: {public_key: PUBLIC_KEY},
     }),
-    apiPost: vi.fn().mockResolvedValue({data: {subscriptions: 1}}),
-    apiDelete: vi.fn().mockResolvedValue({data: {subscriptions: 0}}),
+    apiPost: vi.fn().mockResolvedValue({data: {}}),
+    apiDelete: vi.fn().mockResolvedValue({data: {}}),
     ...overrides,
   }
   return element
@@ -133,7 +132,7 @@ describe('browser notification settings', () => {
     installBrowserApi()
     const element = createElement({
       apiGet: vi.fn().mockResolvedValue({
-        data: {available: false, public_key: null, subscriptions: 0},
+        data: {public_key: null},
       }),
     })
 
@@ -226,7 +225,7 @@ describe('browser notification settings', () => {
     const apiDelete = vi
       .fn()
       .mockResolvedValueOnce({error: 'Network error'})
-      .mockResolvedValueOnce({data: {subscriptions: 0}})
+      .mockResolvedValueOnce({data: {}})
     const element = createElement({apiDelete})
     element._subscription = subscription
 

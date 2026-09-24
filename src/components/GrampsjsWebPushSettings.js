@@ -197,7 +197,7 @@ export class GrampsjsWebPushSettings extends GrampsjsAppStateMixin(LitElement) {
       if ('error' in result) {
         throw new Error(result.error)
       }
-      if (!result.data?.available || !result.data?.public_key) {
+      if (!result.data?.public_key) {
         this._status = 'unavailable'
         return
       }

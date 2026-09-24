@@ -2,6 +2,7 @@ import {describe, it, expect, beforeEach, afterEach, vi} from 'vitest'
 import {
   apiGet,
   apiGetTokens,
+  apiPutPostDelete,
   apiRegisterUser,
   apiResetPassword,
   apiGetOIDCConfig,
@@ -74,6 +75,34 @@ describe('apiGet authentication', () => {
 
     expect(result.error).toBeDefined()
     expect(result.error).to.be.a('string')
+  })
+})
+
+describe('apiPutPostDelete', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('accepts an empty 204 response', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        status: 204,
+        statusText: 'No Content',
+        json: () => Promise.reject(new SyntaxError('Unexpected end of JSON')),
+        headers: {get: () => null},
+      })
+    )
+
+    const result = await apiPutPostDelete(
+      {getValidAccessToken: vi.fn().mockResolvedValue('test-token')},
+      'DELETE',
+      '/api/users/-/push-subscriptions/',
+      {endpoint: 'https://push.example.test/subscription/1'},
+      {dbChanged: false}
+    )
+
+    expect(result).to.deep.equal({data: {}, total_count: null, etag: null})
   })
 })
 
