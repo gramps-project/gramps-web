@@ -1,6 +1,7 @@
 import {describe, it, expect, afterEach} from 'vitest'
 import {
   appStateUpdatePermissions,
+  isTaskInTree,
   shouldSignalTreeMissing,
 } from '../../src/appState.js'
 
@@ -136,5 +137,20 @@ describe('shouldSignalTreeMissing', () => {
   it('tolerates a null/undefined result', () => {
     expect(shouldSignalTreeMissing(undefined, undefined)).to.be.false
     expect(shouldSignalTreeMissing(null, undefined)).to.be.false
+  })
+})
+
+describe('isTaskInTree', () => {
+  it('keeps tasks of the current tree and drops those of other trees', () => {
+    expect(isTaskInTree({tree: 'tree-a'}, 'tree-a')).to.be.true
+    expect(isTaskInTree({tree: 'tree-b'}, 'tree-a')).to.be.false
+  })
+
+  it('keeps tasks without a tree field', () => {
+    expect(isTaskInTree({task_id: 'x'}, 'tree-a')).to.be.true
+  })
+
+  it('keeps all tasks when the current tree is unknown', () => {
+    expect(isTaskInTree({tree: 'tree-b'}, undefined)).to.be.true
   })
 })

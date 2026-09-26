@@ -46,6 +46,39 @@ export function getTreeFromToken(token) {
   }
 }
 
+// Raised when the shared token has moved to a different tree than the one
+// this tab pinned. Distinct from an auth failure: callers swallow those and
+// let the backend answer, but a mismatch must abort the request.
+export class TreeMismatchError extends Error {
+  constructor() {
+    super('The family tree was changed in another tab')
+    this.name = 'TreeMismatchError'
+  }
+}
+
+// True when a tab pinned to `tabTreeId` holds a token for a different tree.
+// Only called with a tree id read from a token that was actually obtained,
+// so a missing `currentTreeId` means a treeless token, not a failed refresh.
+export function isTreeMismatch(tabTreeId, currentTreeId) {
+  return Boolean(tabTreeId) && tabTreeId !== currentTreeId
+}
+
+// Thumbnail and tile cache keys contain object handles, which are only unique
+// within a tree, so these caches must be emptied whenever the tree changes.
+export function clearMediaCaches() {
+  const container = navigator.serviceWorker
+  if (!container) return
+  const message = {type: 'CLEAR_MEDIA_CACHES'}
+  if (container.controller) {
+    // Synchronous, so the message survives a caller that navigates next.
+    container.controller.postMessage(message)
+    return
+  }
+  // A hard reload leaves the page uncontrolled while the caches are still
+  // populated. Callers in that state do not navigate, so the lookup is safe.
+  container.getRegistration().then(reg => reg?.active?.postMessage(message))
+}
+
 export function getPermissions() {
   const accessToken = localStorage.getItem('access_token')
   if (!accessToken || accessToken === '1') {
@@ -839,6 +872,14 @@ export function deleteBookmark(endpoint, handle) {
 export class Auth {
   constructor() {
     this._refreshingTokens = null
+    // Tree this tab works in. Tokens are shared between tabs via localStorage,
+    // so the stored token can move to another tree underneath this tab.
+    this.tabTreeId = null
+  }
+
+  // Logout only; a tab never repins itself while showing one tree's data.
+  unpinTree() {
+    this.tabTreeId = null
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -864,7 +905,30 @@ export class Auth {
         await this._refreshingTokens
       }
     }
-    return this.accessToken
+    const token = this.accessToken
+    this._checkTree(token)
+    return token
+  }
+
+  // Pins from the token the request will carry, so reads and writes are both
+  // covered by one rule.
+  _checkTree(token) {
+    if (!token) return
+    let claims
+    try {
+      claims = jwtDecode(token)
+    } catch {
+      // Undecodable: let the backend answer with the auth error.
+      return
+    }
+    // A decodable token with no tree still mismatches a pinned tab.
+    const tree = claims?.tree
+    if (isTreeMismatch(this.tabTreeId, tree)) {
+      throw new TreeMismatchError()
+    }
+    if (tree) {
+      this.tabTreeId = tree
+    }
   }
 
   _shouldRefresh() {
@@ -961,8 +1025,10 @@ export async function apiGet(auth, endpoint) {
     try {
       const accessToken = await auth.getValidAccessToken()
       headers.Authorization = `Bearer ${accessToken}`
-      // eslint-disable-next-line no-empty
-    } catch {}
+    } catch (error) {
+      // Auth failures fall through to the backend; a tree mismatch must not.
+      if (error instanceof TreeMismatchError) throw error
+    }
     const resp = await fetch(`${__APIHOST__}${endpoint}`, {
       method: 'GET',
       headers,
@@ -1020,8 +1086,10 @@ export async function apiPutPostDelete(
           Accept: 'application/json',
           Authorization: `Bearer ${accessToken}`,
         }
-        // eslint-disable-next-line no-empty
-      } catch {}
+      } catch (error) {
+        // Auth failures fall through to the backend; a tree mismatch must not.
+        if (error instanceof TreeMismatchError) throw error
+      }
     }
     if (isJson) {
       headers['Content-Type'] = 'application/json'

@@ -13,6 +13,9 @@ import {
   getSettings,
   getTreeConfig,
   getTreeId,
+  getTreeFromToken,
+  isTreeMismatch,
+  clearMediaCaches,
   cleanOldDrafts,
   TREE_CONFIG_APP_TITLE,
   TREE_CONFIG_PRIMARY_COLOR,
@@ -1271,14 +1274,23 @@ export class GrampsJs extends LitElement {
     if (!e?.detail?.redirecting) {
       this.loadingState = LOADING_STATE_UNAUTHORIZED
     }
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistration().then(reg => {
-        if (reg?.active) reg.active.postMessage({type: 'CLEAR_MEDIA_CACHES'})
-      })
-    }
+    this.appState.auth.unpinTree()
+    clearMediaCaches()
   }
 
   _handleStorage(e) {
+    // Another tab moved the shared token to a different tree. This tab's
+    // loaded data and its URL both belong to the old tree, and it would keep
+    // repopulating the origin-wide media caches with it, so reload into the
+    // new tree from the home page.
+    if (
+      e?.key === 'access_token' &&
+      isTreeMismatch(this.appState.auth.tabTreeId, getTreeFromToken(e.newValue))
+    ) {
+      clearMediaCaches()
+      window.location.href = `${BASE_DIR}/`
+      return
+    }
     if (e?.key === 'grampsjs_tree_config') {
       this._handleTreeConfig()
     }
