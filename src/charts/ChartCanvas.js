@@ -128,6 +128,8 @@ export class ChartCanvas {
     drawChangedCards(people, {
       getImageUrl: settings.getImageUrl,
       nameDisplayFormat,
+      birthSymbol: settings.birthSymbol,
+      deathSymbol: settings.deathSymbol,
       palette,
       boxWidth,
       boxHeight,

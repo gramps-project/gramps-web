@@ -5,6 +5,7 @@ import {
   colorAddPersonButtons,
 } from './addPersonButton.js'
 import {chartPalette} from './palette.js'
+import {SYMBOL_SETS, SYMBOL_SET_DEFAULT} from '../symbols.js'
 
 // Pattern ids must be unique in the document, and the same person can be
 // shown in several cards
@@ -43,6 +44,8 @@ export function appendPersonCard(
     boxHeight = 90,
     imgPadding = 10,
     nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
+    birthSymbol = SYMBOL_SETS[SYMBOL_SET_DEFAULT].birthSymbol,
+    deathSymbol = SYMBOL_SETS[SYMBOL_SET_DEFAULT].deathSymbol,
     palette = chartPalette,
   }
 ) {
@@ -87,8 +90,16 @@ export function appendPersonCard(
       text: p => (surnameFirst ? p.name_given || '…' : p.name_surname || '…'),
       weight: 500,
     },
-    {show: p => p?.birth?.date, text: p => `*${p.birth.date}`, weight: 350},
-    {show: p => p?.death?.date, text: p => `†${p.death.date}`, weight: 350},
+    {
+      show: p => p?.birth?.date,
+      text: p => `${birthSymbol}${p.birth.date}`,
+      weight: 350,
+    },
+    {
+      show: p => p?.death?.date,
+      text: p => `${deathSymbol}${p.death.date}`,
+      weight: 350,
+    },
   ]
   lines.forEach((line, i) => {
     nodes
@@ -195,6 +206,8 @@ export function drawChangedCards(
   {
     getImageUrl = () => '',
     nameDisplayFormat,
+    birthSymbol,
+    deathSymbol,
     palette = chartPalette,
     boxWidth,
     boxHeight,
@@ -206,6 +219,8 @@ export function drawChangedCards(
       person: d.person,
       imageUrl: getImageUrl(d),
       nameDisplayFormat,
+      birthSymbol,
+      deathSymbol,
       palette,
     }
     const previous = cardInputs.get(this)
@@ -229,6 +244,8 @@ export function drawChangedCards(
     boxWidth,
     boxHeight,
     nameDisplayFormat,
+    birthSymbol,
+    deathSymbol,
     palette,
   })
 }

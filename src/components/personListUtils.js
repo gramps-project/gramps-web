@@ -2,6 +2,7 @@ import {html} from 'lit'
 import {mdiAccount} from '@mdi/js'
 
 import {objectIconPath, sexColor} from '../util.js'
+import {SYMBOL_SETS, SYMBOL_SET_DEFAULT} from '../symbols.js'
 import './GrampsjsImg.js'
 import './GrampsjsIcon.js'
 
@@ -32,7 +33,14 @@ export function renderPersonAvatar(extPerson, sex) {
   ></grampsjs-icon>`
 }
 
-export function renderPersonDates(profile, {showAge = true} = {}) {
+export function renderPersonDates(
+  profile,
+  {
+    showAge = true,
+    birthSymbol = SYMBOL_SETS[SYMBOL_SET_DEFAULT].birthSymbol,
+    deathSymbol = SYMBOL_SETS[SYMBOL_SET_DEFAULT].deathSymbol,
+  } = {}
+) {
   const birthStr = profile?.birth?.date || ''
   const deathStr = profile?.death?.date || ''
   const ageStr =
@@ -41,9 +49,12 @@ export function renderPersonDates(profile, {showAge = true} = {}) {
       : ''
   if (!birthStr && !deathStr && !ageStr) return ''
   return html`<span slot="supporting-text"
-    ><span class="date-col">${birthStr ? `∗ ${birthStr}` : ''}</span
     ><span class="date-col"
-      >${deathStr ? `† ${deathStr}` : ''}${ageStr ? ` ${ageStr}` : ''}</span
+      >${birthStr ? `${birthSymbol} ${birthStr}` : ''}</span
+    ><span class="date-col"
+      >${deathStr ? `${deathSymbol} ${deathStr}` : ''}${ageStr
+        ? ` ${ageStr}`
+        : ''}</span
     ></span
   >`
 }

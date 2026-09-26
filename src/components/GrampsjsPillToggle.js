@@ -172,6 +172,7 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
     this.muted = false
   }
 
+  /* eslint-disable lit-a11y/tabindex-no-positive */
   render() {
     return html`
       <div
@@ -192,8 +193,8 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
               aria-label="${ifDefined(opt.icon ? opt.label : undefined)}"
               tabindex="${opt.value === this.selected ||
               (this.selected == null && opt === this.options[0])
-                ? '0'
-                : '-1'}"
+                ? 0
+                : -1}"
               @click="${() => this._handleClick(opt.value)}"
             >
               ${opt.icon
@@ -212,6 +213,7 @@ export class GrampsjsPillToggle extends GrampsjsAppStateMixin(LitElement) {
       </div>
     `
   }
+  /* eslint-enable lit-a11y/tabindex-no-positive */
 
   _handleClick(value) {
     if (value !== this.selected) {
