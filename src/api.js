@@ -698,15 +698,6 @@ export function getExporterDownloadUrl(url) {
   return `${__APIHOST__}${url}?jwt=${jwt}`
 }
 
-export function getReportUrl(id, options) {
-  const jwt = localStorage.getItem('access_token')
-  const queryParam = `options=${encodeURIComponent(JSON.stringify(options))}`
-  if (jwt === null) {
-    return `${__APIHOST__}/api/reports/${id}/file?${queryParam}`
-  }
-  return `${__APIHOST__}/api/reports/${id}/file?jwt=${jwt}&${queryParam}`
-}
-
 export function getTileUrl(handle, checksum = null) {
   const jwt = localStorage.getItem('access_token')
   const base = `${__APIHOST__}/api/media/${handle}/tile/{z}/{x}/{y}`

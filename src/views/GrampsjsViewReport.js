@@ -1,12 +1,14 @@
 import {css, html} from 'lit'
 import '@material/web/iconbutton/icon-button.js'
+import '@material/web/button/filled-button.js'
 
 import {mdiArrowLeft} from '@mdi/js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsReportOptions.js'
-import {getReportUrl} from '../api.js'
+import '../components/GrampsjsTaskProgressIndicator.js'
+import {getExporterDownloadUrl} from '../api.js'
 import {fireEvent} from '../util.js'
 
 export class GrampsjsViewReport extends GrampsjsView {
@@ -25,7 +27,7 @@ export class GrampsjsViewReport extends GrampsjsView {
     return {
       reportId: {type: String},
       data: {type: Object},
-      _queryUrl: {type: String},
+      _downloadUrl: {type: String},
       _options: {type: Object},
     }
   }
@@ -34,8 +36,9 @@ export class GrampsjsViewReport extends GrampsjsView {
     super()
     this.reportId = ''
     this.data = {}
-    this._queryUrl = ''
+    this._downloadUrl = ''
     this._options = {}
+    this._requestedReportId = ''
   }
 
   renderContent() {
@@ -62,7 +65,7 @@ export class GrampsjsViewReport extends GrampsjsView {
         </div>
         <div>
           <dt>${this._('Author')}</dt>
-          <dd>${this.data.authors.join('')}</dd>
+          <dd>${(this.data.authors ?? []).join(', ')}</dd>
         </div>
         <div>
           <dt>${this._('Version')}</dt>
@@ -80,62 +83,121 @@ export class GrampsjsViewReport extends GrampsjsView {
         .appState="${this.appState}"
       ></grampsjs-report-options>
 
-      <mwc-button unelevated @click="${this._handleSubmit}"
-        >${this._('_Generate').replace('_', '')}</mwc-button
-      >
-      <a download href="${this._queryUrl}" id="submitanchor" target="_blank"
-        >&nbsp;</a
-      >
+      <p>
+        <md-filled-button @click="${this._generateReport}"
+          >${this._('_Generate')}</md-filled-button
+        >
+        <grampsjs-task-progress-indicator
+          id="indicator-report"
+          taskName="generateReport"
+          class="button"
+          size="20"
+          .appState="${this.appState}"
+          @task:complete="${this._handleTaskComplete}"
+        ></grampsjs-task-progress-indicator>
+        <a
+          download
+          href="${this._downloadUrl
+            ? getExporterDownloadUrl(this._downloadUrl)
+            : ''}"
+          id="downloadanchor"
+          >&nbsp;</a
+        >
+      </p>
     `
   }
 
   async _fetchData() {
+    const {reportId} = this
+    this._requestedReportId = reportId
     this.loading = true
-    const data = await this.appState.apiGet(`/api/reports/${this.reportId}`)
+    const data = await this.appState.apiGet(`/api/reports/${reportId}`)
+    // A newer request for another report supersedes this one.
+    if (reportId !== this._requestedReportId) {
+      return
+    }
     this.loading = false
     if ('data' in data) {
       this.error = false
       this.data = data.data
     } else if ('error' in data) {
+      // Allow a retry on the next visit.
+      this._requestedReportId = ''
       this.error = true
       this._errorMessage = data.error
     }
   }
 
-  firstUpdated() {
-    super.firstUpdated()
-    this._updateQueryUrl()
-  }
-
-  update(changed) {
-    super.update(changed)
-    if (changed.has('reportId')) {
+  willUpdate(changed) {
+    super.willUpdate(changed)
+    // reportId follows the URL even while this view is inactive, so only
+    // reload when it names a report other than the one loaded or loading.
+    if (changed.has('reportId') && this.reportId !== this._requestedReportId) {
       this.data = {}
       this._options = {}
-      this._updateQueryUrl()
+      this._downloadUrl = ''
       this._fetchData()
     }
   }
 
-  _updateQueryUrl() {
-    const options = Object.keys(this._options).reduce((r, e) => {
-      const val = `${this._options[e]}`
-      if (val !== '') {
-        // eslint-disable-next-line no-param-reassign
-        r[e] = val
-      }
-      return r
-    }, {})
-    this._queryUrl = getReportUrl(this.reportId, options)
+  updated(changed) {
+    super.updated(changed)
+    if (changed.has('_downloadUrl') && this._downloadUrl) {
+      this.renderRoot.querySelector('#downloadanchor').click()
+    }
   }
 
-  _handleSubmit() {
-    this.shadowRoot.querySelector('#submitanchor').click()
+  _getQueryUrl() {
+    // Empty values are left out so the backend uses its defaults.
+    const options = Object.fromEntries(
+      Object.entries(this._options).filter(([, val]) => `${val}` !== '')
+    )
+    const param = encodeURIComponent(JSON.stringify(options))
+    return `/api/reports/${this.reportId}/file?options=${param}`
+  }
+
+  async _generateReport() {
+    this._downloadUrl = ''
+    const prog = this.renderRoot.querySelector('#indicator-report')
+    prog.reset()
+    prog.open = true
+    const data = await this.appState.apiPost(this._getQueryUrl(), undefined, {
+      saving: false,
+      dbChanged: false,
+    })
+    if ('error' in data) {
+      prog.setError()
+      prog.errorMessage = data.error
+    } else if ('task' in data) {
+      // queued task
+      const taskId = data.task?.id || ''
+      if (taskId)
+        this.appState.registerTask(taskId, 'Report', {
+          taskName: 'generateReport',
+        })
+      prog.taskId = taskId
+    } else {
+      // eagerly executed task
+      this._downloadUrl = data?.data?.url || ''
+      prog.setComplete()
+    }
+  }
+
+  _handleTaskComplete(e) {
+    const {status} = e.detail
+    let result = status?.result ?? {}
+    if (typeof result === 'string') {
+      try {
+        result = JSON.parse(result)
+      } catch (error) {
+        result = {}
+      }
+    }
+    this._downloadUrl = result?.url || ''
   }
 
   _handleOptionsChanged(e) {
     this._options = {...e.detail}
-    this._updateQueryUrl()
   }
 
   _handleBack() {
