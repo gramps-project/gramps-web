@@ -29,6 +29,7 @@ export class GrampsjsViewReport extends GrampsjsView {
       data: {type: Object},
       _downloadUrl: {type: String},
       _options: {type: Object},
+      _generating: {type: Boolean},
     }
   }
 
@@ -38,6 +39,7 @@ export class GrampsjsViewReport extends GrampsjsView {
     this.data = {}
     this._downloadUrl = ''
     this._options = {}
+    this._generating = false
     this._requestedReportId = ''
   }
 
@@ -84,7 +86,9 @@ export class GrampsjsViewReport extends GrampsjsView {
       ></grampsjs-report-options>
 
       <p>
-        <md-filled-button @click="${this._generateReport}"
+        <md-filled-button
+          ?disabled="${this._generating}"
+          @click="${this._generateReport}"
           >${this._('_Generate')}</md-filled-button
         >
         <grampsjs-task-progress-indicator
@@ -94,6 +98,7 @@ export class GrampsjsViewReport extends GrampsjsView {
           size="20"
           .appState="${this.appState}"
           @task:complete="${this._handleTaskComplete}"
+          @task:error="${this._handleTaskError}"
         ></grampsjs-task-progress-indicator>
         <a
           download
@@ -156,7 +161,10 @@ export class GrampsjsViewReport extends GrampsjsView {
     return `/api/reports/${this.reportId}/file?options=${param}`
   }
 
+  // The indicator fires task:complete or task:error on every outcome, which
+  // re-enables the Generate button.
   async _generateReport() {
+    this._generating = true
     this._downloadUrl = ''
     const prog = this.renderRoot.querySelector('#indicator-report')
     prog.reset()
@@ -171,11 +179,14 @@ export class GrampsjsViewReport extends GrampsjsView {
     } else if ('task' in data) {
       // queued task
       const taskId = data.task?.id || ''
-      if (taskId)
+      if (taskId) {
         this.appState.registerTask(taskId, 'Report', {
           taskName: 'generateReport',
         })
-      prog.taskId = taskId
+        prog.taskId = taskId
+      } else {
+        prog.setError()
+      }
     } else {
       // eagerly executed task
       this._downloadUrl = data?.data?.url || ''
@@ -184,6 +195,7 @@ export class GrampsjsViewReport extends GrampsjsView {
   }
 
   _handleTaskComplete(e) {
+    this._generating = false
     const {status} = e.detail
     let result = status?.result ?? {}
     if (typeof result === 'string') {
@@ -193,7 +205,15 @@ export class GrampsjsViewReport extends GrampsjsView {
         result = {}
       }
     }
-    this._downloadUrl = result?.url || ''
+    // An eagerly executed report completes with an empty status after its
+    // URL is already set, so only a queued task's result sets it here.
+    if (result?.url) {
+      this._downloadUrl = result.url
+    }
+  }
+
+  _handleTaskError() {
+    this._generating = false
   }
 
   _handleOptionsChanged(e) {
