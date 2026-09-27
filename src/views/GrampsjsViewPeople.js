@@ -2,13 +2,15 @@
 People list view
 */
 
-import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, personFilter, filterCounts} from '../util.js'
-import '../components/GrampsjsFilterYears.js'
-import '../components/GrampsjsFilterProperties.js'
-import '../components/GrampsjsFilterTags.js'
-import '../components/GrampsjsFilterPrivate.js'
+import {
+  associationsFilter,
+  privacyFilter,
+  propertiesFilter,
+  tagFilter,
+  yearsFilter,
+} from '../filterDefinitions.js'
 
 function _ageAtDeath(birthDate, deathDate) {
   if (!birthDate || !deathDate) return null
@@ -77,41 +79,19 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
     }
   }
 
-  renderFilters() {
-    return html`
-      <grampsjs-filter-years
-        .appState="${this.appState}"
-        label="Birth year"
-        rule="HasBirth"
-      >
-      </grampsjs-filter-years>
-      <grampsjs-filter-years
-        .appState="${this.appState}"
-        label="Death year"
-        rule="HasDeath"
-      >
-      </grampsjs-filter-years>
-
-      <grampsjs-filter-properties
-        .appState="${this.appState}"
-        .props="${personFilter}"
-      ></grampsjs-filter-properties>
-
-      <grampsjs-filter-properties
-        hasCount
-        .appState="${this.appState}"
-        .props="${filterCounts.people}"
-        label="${this._('Associations')}"
-      ></grampsjs-filter-properties>
-
-      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
-
-      <grampsjs-filter-private
-        .appState="${this.appState}"
-        rule="PeoplePrivate"
-        publicRule="PeoplePublic"
-      ></grampsjs-filter-private>
-    `
+  get filterDefinitions() {
+    const _ = s => this._(s)
+    return [
+      yearsFilter(_, {label: 'Birth year', rule: 'HasBirth'}),
+      yearsFilter(_, {label: 'Death year', rule: 'HasDeath'}),
+      propertiesFilter(_, personFilter),
+      associationsFilter(_, filterCounts.people),
+      tagFilter(_),
+      privacyFilter(_, {
+        rule: 'PeoplePrivate',
+        publicRule: 'PeoplePublic',
+      }),
+    ]
   }
 }
 

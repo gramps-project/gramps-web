@@ -2,6 +2,7 @@ import {LitElement, css, html} from 'lit'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import './GrampsjsFormSelectType.js'
 
 import {fireEvent} from '../util.js'
 
@@ -10,14 +11,9 @@ export class GrampsjsFilterType extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        h3 {
-          font-size: 14px;
-          text-transform: uppercase;
-          font-family: var(--grampsjs-body-font-family);
-          font-weight: 500;
-          color: var(--mdc-theme-primary);
-          border-color: var(--mdc-theme-primary);
-          border-bottom-width: 1px;
+        :host {
+          display: block;
+          max-width: 400px;
         }
       `,
     ]
@@ -25,38 +21,34 @@ export class GrampsjsFilterType extends GrampsjsAppStateMixin(LitElement) {
 
   static get properties() {
     return {
-      filters: {type: Array},
-      label: {type: String},
+      section: {type: Object},
+      rules: {type: Array},
       types: {type: Object},
       loadingTypes: {type: Boolean},
       typesLocale: {type: Object},
-      typeName: {type: String},
-      rule: {type: String},
     }
   }
 
   constructor() {
     super()
-    this.filters = []
-    this.label = ''
+    this.section = {}
+    this.rules = []
     this.types = {}
     this.typesLocale = {}
-    this.typeName = ''
     this.loadingTypes = false
-    this.rule = 'HasType'
   }
 
   render() {
     return html`
-      <h3>${this.label || this._('Type')}</h3>
       <grampsjs-form-select-type
         id="type"
         noheading
         nocustom
-        label="${this.label || this._('Type')}"
+        label="${this.section.label}"
         .appState="${this.appState}"
-        typeName="${this.typeName}"
+        typeName="${this.section.typeName}"
         defaultValue=""
+        .value="${this.rules[0]?.values?.[0] ?? ''}"
         ?loadingTypes=${this.loadingTypes}
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
@@ -95,9 +87,10 @@ export class GrampsjsFilterType extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleChange(event) {
+    event.stopPropagation()
     const type = event.detail.data
-    const rules = [{name: this.rule, values: [type]}]
-    fireEvent(this, 'filter:changed', {filters: {rules}, replace: this.rule})
+    const rules = type ? [{name: this.section.rule, values: [type]}] : []
+    fireEvent(this, 'filter-section:change', {rules})
   }
 }
 

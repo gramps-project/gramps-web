@@ -2,12 +2,6 @@
 Events list view
 */
 
-import {html} from 'lit'
-import '../components/GrampsjsFilterText.js'
-import '../components/GrampsjsFilterType.js'
-import '../components/GrampsjsFilterYears.js'
-import '../components/GrampsjsFilterTags.js'
-import '../components/GrampsjsFilterPrivate.js'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {
   prettyTimeDiffTimestamp,
@@ -15,6 +9,14 @@ import {
   personTitleFromProfile,
   familyTitleFromProfile,
 } from '../util.js'
+import {
+  associationsFilter,
+  privacyFilter,
+  tagFilter,
+  textFilter,
+  typeFilter,
+  yearsFilter,
+} from '../filterDefinitions.js'
 
 const PRIMARY_ROLES_EN = new Set(['Primary', 'Family'])
 
@@ -53,52 +55,32 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
     return 'new_event'
   }
 
-  renderFilters() {
-    return html`
-      <grampsjs-filter-years
-        .appState="${this.appState}"
-        dateIndex="1"
-        numArgs="4"
-        label="${this._('Event Year')}"
-        rule="HasData"
-      ></grampsjs-filter-years>
-
-      <grampsjs-filter-type
-        .appState="${this.appState}"
-        label="${this._('Event Type')}"
-        typeName="event_types"
-      ></grampsjs-filter-type>
-
-      <grampsjs-filter-text
-        .appState="${this.appState}"
-        label="Description"
-        rule="HasData"
-        .valueIndex=${3}
-        .numArgs=${4}
-      ></grampsjs-filter-text>
-
-      <grampsjs-filter-text
-        .appState="${this.appState}"
-        label="Place"
-        rule="HasData"
-        .valueIndex=${2}
-        .numArgs=${4}
-      ></grampsjs-filter-text>
-
-      <grampsjs-filter-properties
-        hasCount
-        .appState="${this.appState}"
-        .props="${filterCounts.events}"
-        label="${this._('Associations')}"
-      ></grampsjs-filter-properties>
-
-      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
-
-      <grampsjs-filter-private
-        .appState="${this.appState}"
-        rule="EventPrivate"
-      ></grampsjs-filter-private>
-    `
+  get filterDefinitions() {
+    const _ = s => this._(s)
+    return [
+      yearsFilter(_, {
+        label: 'Event Year',
+        rule: 'HasData',
+        index: 1,
+        numArgs: 4,
+      }),
+      typeFilter(_, {label: 'Event Type', typeName: 'event_types'}),
+      textFilter(_, {
+        label: 'Description',
+        rule: 'HasData',
+        index: 3,
+        numArgs: 4,
+      }),
+      textFilter(_, {
+        label: 'Place',
+        rule: 'HasData',
+        index: 2,
+        numArgs: 4,
+      }),
+      associationsFilter(_, filterCounts.events),
+      tagFilter(_),
+      privacyFilter(_, {rule: 'EventPrivate'}),
+    ]
   }
 
   _formatRow(row) {

@@ -2,13 +2,14 @@
 Sources list view
 */
 
-import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
-import '../components/GrampsjsFilterText.js'
-import '../components/GrampsjsFilterProperties.js'
-import '../components/GrampsjsFilterTags.js'
-import '../components/GrampsjsFilterPrivate.js'
+import {
+  associationsFilter,
+  privacyFilter,
+  tagFilter,
+  textFilter,
+} from '../filterDefinitions.js'
 
 export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
   constructor() {
@@ -42,30 +43,14 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
     return 'new_source'
   }
 
-  renderFilters() {
-    return html`
-      <grampsjs-filter-text
-        .appState="${this.appState}"
-        label="Title"
-        rule="MatchesTitleSubstringOf"
-        .valueIndex=${0}
-        .numArgs=${1}
-      ></grampsjs-filter-text>
-
-      <grampsjs-filter-properties
-        hasCount
-        .appState="${this.appState}"
-        .props="${filterCounts.sources}"
-        label="${this._('Associations')}"
-      ></grampsjs-filter-properties>
-
-      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
-
-      <grampsjs-filter-private
-        .appState="${this.appState}"
-        rule="SourcePrivate"
-      ></grampsjs-filter-private>
-    `
+  get filterDefinitions() {
+    const _ = s => this._(s)
+    return [
+      textFilter(_, {label: 'Title', rule: 'MatchesTitleSubstringOf'}),
+      associationsFilter(_, filterCounts.sources),
+      tagFilter(_),
+      privacyFilter(_, {rule: 'SourcePrivate'}),
+    ]
   }
 
   // eslint-disable-next-line class-methods-use-this

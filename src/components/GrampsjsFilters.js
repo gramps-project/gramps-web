@@ -1,6 +1,11 @@
-import {LitElement, css, html} from 'lit'
+import {LitElement, css, html, nothing} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
-import {mdiAlertCircleOutline, mdiFilter, mdiFilterOff} from '@mdi/js'
+import {
+  mdiAlertCircleOutline,
+  mdiChevronRight,
+  mdiFilter,
+  mdiFilterOff,
+} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import '@material/web/button/filled-button'
@@ -8,17 +13,28 @@ import '@material/web/button/outlined-button'
 import '@material/web/iconbutton/icon-button'
 import '@material/web/textfield/outlined-text-field'
 
-import './GrampsjsPillToggle.js'
+import './GrampsjsFilterCheckboxes.js'
+import './GrampsjsFilterChip.js'
+import './GrampsjsFilterMime.js'
+import './GrampsjsFilterObjectType.js'
+import './GrampsjsFilterTags.js'
+import './GrampsjsFilterText.js'
+import './GrampsjsFilterType.js'
+import './GrampsjsFilterYears.js'
 import './GrampsjsIcon.js'
 import {renderIconSvg} from '../icons.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {fireEvent, clickKeyHandler} from '../util.js'
 import {
-  fireEvent,
-  clickKeyHandler,
-  personFilter,
-  filterCounts,
-  filterMime,
-} from '../util.js'
+  findSection,
+  pillLabel,
+  removePill,
+  sectionRules,
+  setSectionRules,
+} from '../filterDefinitions.js'
+
+// section id of the GQL query in the filter panel
+const GQL_SECTION = 'gql'
 
 export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -37,9 +53,8 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         }
 
         #input-gql-container {
+          display: flex;
           align-items: center;
-          margin: 20px 0 30px 0;
-          width: 100%;
         }
 
         #input-gql {
@@ -68,12 +83,47 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
           display: none;
         }
 
-        .flex {
-          display: flex;
-        }
-
         #filter-container {
           padding-top: 12px;
+        }
+
+        .sections {
+          margin: 12px 0 20px 0;
+        }
+
+        summary {
+          display: flex;
+          align-items: center;
+          gap: 2px;
+          padding: 8px 0;
+          cursor: pointer;
+          list-style: none;
+          user-select: none;
+        }
+
+        summary::-webkit-details-marker {
+          display: none;
+        }
+
+        summary grampsjs-icon {
+          flex: none;
+          transition: transform 0.15s;
+        }
+
+        details[open] summary grampsjs-icon {
+          transform: rotate(90deg);
+        }
+
+        .section-label {
+          flex: none;
+          font-size: 14px;
+          font-weight: 500;
+          text-transform: uppercase;
+          color: var(--mdc-theme-primary);
+        }
+
+        .section-content {
+          padding: 4px 0 16px 22px;
         }
       `,
     ]
@@ -81,23 +131,27 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
 
   static get properties() {
     return {
-      filters: {type: Array},
+      // sections of the filter panel, see filterDefinitions.js
+      definitions: {type: Array},
       open: {type: Boolean},
-      objectType: {type: String},
       query: {type: String},
-      useGql: {type: Boolean},
       errorGql: {type: Boolean},
+      _pills: {type: Array},
     }
   }
 
   constructor() {
     super()
-    this.filters = []
+    this.definitions = []
     this.open = false
-    this.objectType = ''
     this.query = ''
-    this.useGql = false
     this.errorGql = false
+    this._pills = []
+  }
+
+  // the active rules
+  get filters() {
+    return this._pills.map(pill => pill.rule)
   }
 
   render() {
@@ -128,7 +182,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         <md-icon-button
           id="filteroff"
           aria-label="${this._('Clear all filters')}"
-          ?disabled="${this.filters.length === 0 && this.query === ''}"
+          ?disabled="${this._pills.length === 0 && this.query === ''}"
           @click="${this._handleFilterOff}"
         >
           <grampsjs-icon path="${mdiFilterOff}"></grampsjs-icon>
@@ -138,78 +192,160 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         >
         ${this._renderFilterChips()}
       </div>
-      <div
-        id="filter-container"
-        class="${classMap({hidden: !this.open})}"
-        @filter:changed="${this._handleFilterChanged}"
-      >
-        <grampsjs-pill-toggle
-          .options="${[
-            {label: this._('simple'), value: false},
-            {label: 'GQL', value: true},
-          ]}"
-          .selected="${this.useGql}"
-          .appState="${this.appState}"
-          .ariaLabel="${this._('Filter mode')}"
-          @pill-toggle:change="${this._handleGqlClick}"
-        ></grampsjs-pill-toggle>
-
+      <div id="filter-container" class="${classMap({hidden: !this.open})}">
         <div
-          class="${classMap({hidden: !this.useGql, flex: this.useGql})}"
-          id="input-gql-container"
+          class="sections"
+          @filter-section:change="${this._handleSectionChange}"
         >
-          ${this._renderGql()}
-        </div>
-
-        <div class="${classMap({hidden: this.useGql})}">
-          <slot></slot>
+          ${this.definitions.map(section => this._renderSection(section))}
+          ${this._renderDetails(GQL_SECTION, 'GQL', this._renderGql())}
         </div>
       </div>
     `
   }
 
   _renderFilterChips() {
-    if (this.query) {
-      return html`
-        <grampsjs-filter-chip
-          @filter-chip:clear="${this._handleFilterOff}"
-          monospace
-          label="${this.query}"
-        ></grampsjs-filter-chip>
-      `
-    }
-    return this.filters.map(
-      (rule, i) => html`
-        <grampsjs-filter-chip
-          label="${this.ruleToLabel(rule)}"
-          @filter-chip:clear="${() => this._clearFilter(i)}"
-        ></grampsjs-filter-chip>
-      `
+    return html`
+      ${this._pills.map((pill, i) => this._renderPill(pill, i))}
+      ${this.query
+        ? html`
+            <grampsjs-filter-chip
+              @filter-chip:clear="${this._clearQuery}"
+              monospace
+              label="${this.query}"
+            ></grampsjs-filter-chip>
+          `
+        : nothing}
+    `
+  }
+
+  _renderPill(pill, i) {
+    const section = findSection(this.definitions, pill.sectionId)
+    return section
+      ? html`
+          <grampsjs-filter-chip
+            label="${pillLabel(s => this._(s), section, pill.rule)}"
+            @filter-chip:clear="${() => this._removePill(i)}"
+          ></grampsjs-filter-chip>
+        `
+      : nothing
+  }
+
+  _renderSection(section) {
+    const rules = sectionRules(this._pills, section.id)
+    return this._renderDetails(
+      section.id,
+      section.label,
+      html`<div class="section-content" data-section="${section.id}">
+        ${this._renderSectionContent(section, rules)}
+      </div>`
     )
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _renderDetails(id, label, content) {
+    return html`
+      <details data-section="${id}">
+        <summary>
+          <grampsjs-icon
+            path="${mdiChevronRight}"
+            height="20"
+            width="20"
+            color="var(--mdc-theme-primary)"
+          ></grampsjs-icon>
+          <span class="section-label">${label}</span>
+        </summary>
+        ${content}
+      </details>
+    `
+  }
+
+  _renderSectionContent(section, rules) {
+    switch (section.editor) {
+      case 'years':
+        return html`<grampsjs-filter-years
+          .appState="${this.appState}"
+          .section="${section}"
+          .rules="${rules}"
+        ></grampsjs-filter-years>`
+      case 'text':
+        return html`<grampsjs-filter-text
+          .appState="${this.appState}"
+          .section="${section}"
+          .rules="${rules}"
+        ></grampsjs-filter-text>`
+      case 'type':
+        return html`<grampsjs-filter-type
+          .appState="${this.appState}"
+          .section="${section}"
+          .rules="${rules}"
+        ></grampsjs-filter-type>`
+      case 'tags':
+        return html`<grampsjs-filter-tags
+          .appState="${this.appState}"
+          .section="${section}"
+          .rules="${rules}"
+        ></grampsjs-filter-tags>`
+      case 'mime':
+        return html`<grampsjs-filter-mime
+          .appState="${this.appState}"
+          .section="${section}"
+          .rules="${rules}"
+        ></grampsjs-filter-mime>`
+      case 'objectType':
+        return html`<grampsjs-filter-object-type
+          .appState="${this.appState}"
+          .section="${section}"
+          .rules="${rules}"
+        ></grampsjs-filter-object-type>`
+      case 'checkboxes':
+        return html`<grampsjs-filter-checkboxes
+          .section="${section}"
+          .rules="${rules}"
+        ></grampsjs-filter-checkboxes>`
+      default:
+        return nothing
+    }
   }
 
   _renderGql() {
     return html`
-      <md-outlined-text-field
-        id="input-gql"
-        @keydown="${this._handleGqlKey}"
-        @input="${this._handleGqlChange}"
-        value="${this.query}"
-        ?error="${this.errorGql}"
-      >
-        ${this.errorGql
-          ? renderIconSvg(mdiAlertCircleOutline, null, 0, 'trailing-icon')
-          : ''}
-        ></md-outlined-text-field
-      >
-      <span
-        ><md-filled-button
-          @click="${this._applyGql}"
-          @keydown="${clickKeyHandler}"
-          >${this._('Apply')}</md-filled-button
-        ></span
-      >
+      <div class="section-content" id="input-gql-container">
+        <md-outlined-text-field
+          id="input-gql"
+          @keydown="${this._handleGqlKey}"
+          @input="${this._handleGqlChange}"
+          value="${this.query}"
+          ?error="${this._hasGqlError}"
+        >
+          ${this._hasGqlError
+            ? renderIconSvg(mdiAlertCircleOutline, null, 0, 'trailing-icon')
+            : ''}
+        </md-outlined-text-field>
+        <span
+          ><md-filled-button
+            @click="${this._applyGql}"
+            @keydown="${clickKeyHandler}"
+            >${this._('Apply')}</md-filled-button
+          ></span
+        >
+      </div>
     `
+  }
+
+  _handleSectionChange(e) {
+    e.stopPropagation()
+    const {section} = e.target.closest('.section-content').dataset
+    this._setPills(setSectionRules(this._pills, section, e.detail.rules))
+  }
+
+  _removePill(i) {
+    this._setPills(removePill(this._pills, i))
+  }
+
+  _setPills(pills) {
+    this._pills = pills
+    this._fireFiltersChanged()
   }
 
   _handleGqlKey(event) {
@@ -241,22 +377,50 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
+  // Views report any failed request as a GQL error, which only concerns
+  // the GQL field while a query is applied
+  get _hasGqlError() {
+    return this.errorGql && this.query !== ''
+  }
+
   _clearGqlError() {
     this.errorGql = false
   }
 
-  _clearFilter(i) {
-    this.filters = [...this.filters.slice(0, i), ...this.filters.slice(i + 1)]
-    this._fireFiltersChanged()
+  async _handleFilterButton() {
+    this.open = !this.open
+    if (this.open) {
+      await this.updateComplete
+      this._expandActiveSections()
+    }
   }
 
-  _handleFilterButton() {
-    this.open = !this.open
+  // Expands the sections with active filters and leaves the others as they are
+  _expandActiveSections() {
+    this.renderRoot.querySelectorAll('details').forEach(details => {
+      const {section} = details.dataset
+      const isActive =
+        section === GQL_SECTION
+          ? this.query !== ''
+          : sectionRules(this._pills, section).length > 0
+      if (isActive) {
+        // eslint-disable-next-line no-param-reassign
+        details.open = true
+      }
+    })
   }
 
   _handleFilterOff() {
-    this.filters = []
+    this._pills = []
     this.query = ''
+    this._clearGqlForm()
+    this._clearGqlError()
+    this._fireFiltersChanged()
+  }
+
+  _clearQuery() {
+    this.query = ''
+    this._clearGqlForm()
     this._clearGqlError()
     this._fireFiltersChanged()
   }
@@ -266,143 +430,6 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
       filters: this.filters,
       query: this.query,
     })
-  }
-
-  updated(changed) {
-    if (changed.has('filters')) {
-      this.broadcastToChildren()
-    }
-  }
-
-  get _slottedChildren() {
-    const slot = this.shadowRoot.querySelector('slot')
-    if (!slot) {
-      return []
-    }
-
-    return slot.assignedElements({flatten: true})
-  }
-
-  broadcastToChildren() {
-    this._slottedChildren.forEach(child => {
-      const el = child
-      el.filters = this.filters
-    })
-  }
-
-  async _handleGqlClick(e) {
-    this.useGql = e.detail.value
-    if (this.filters.length || this.query) {
-      this.filters = []
-      this.query = ''
-      this._fireFiltersChanged()
-    }
-    this.filters = []
-    this.query = ''
-    if (this.useGql) {
-      await this.updateComplete
-      this.renderRoot.getElementById('input-gql').focus()
-    }
-  }
-
-  _handleFilterChanged(e) {
-    e.preventDefault()
-    e.stopPropagation()
-    const rules = e.detail?.filters?.rules
-    const replace = e.detail?.replace
-    const oldFilters = replace
-      ? this.filters.filter(f => (f._slot ?? f.name) !== replace)
-      : this.filters
-    if (rules) {
-      this.filters = [...oldFilters, ...rules]
-      this._fireFiltersChanged()
-    }
-  }
-
-  ruleToLabel(rule) {
-    if (rule.name === 'HasTag') {
-      return `${this._('Tag')}: ${rule.values[0]}`
-    }
-    if (rule.name === 'HasMedia' && rule.values[1] !== '') {
-      return `${this._('_Media Type:').replace(':', '')}: ${this._(
-        filterMime[rule.values[1]]
-      )}`
-    }
-    if (rule.name === 'HasMedia' && rule.values[0] !== '') {
-      return `${this._('Title')}: ${rule.values[0]}`
-    }
-    if (rule.name === 'HasMedia' && rule.values[3] !== '') {
-      return this._ruleToLabelSpan(rule, 'Date', 3)
-    }
-    if (rule.name === 'HasBirth' && rule.values[0] !== '') {
-      return this._ruleToLabelSpan(rule, 'Birth year', 0)
-    }
-    if (rule.name === 'HasDeath' && rule.values[0] !== '') {
-      return this._ruleToLabelSpan(rule, 'Death year', 0)
-    }
-    if (rule.name === 'HasData' && rule.values[1]) {
-      return this._ruleToLabelSpan(rule, 'Date', 1)
-    }
-    if (rule.name === 'HasData' && rule.values[3]) {
-      return `${this._('Description')}: ${rule.values[3]}`
-    }
-    if (rule.name === 'HasData' && rule.values[2]) {
-      return `${this._('Place')}: ${rule.values[2]}`
-    }
-    if (rule.name === 'HasData' && rule.values[0]) {
-      return `${this._('Name')}: ${rule.values[0]}`
-    }
-    if (rule.name === 'MatchesTitleSubstringOf' && rule.values[0] !== '') {
-      return `${this._('Title')}: ${rule.values[0]}`
-    }
-    if (rule.name === 'MatchesPageSubstringOf' && rule.values[0] !== '') {
-      return `${this._('Page')}: ${rule.values[0]}`
-    }
-    if (rule.name === 'HasSource' && rule.values[0] !== '') {
-      return `${this._('Source: Title')}: ${rule.values[0]}`
-    }
-    if (rule.name === 'MatchesRegexpOf' && rule.values[0] !== '') {
-      return `${this._('Text')}: ${rule.values[0]}`
-    }
-    if (rule.name === 'MatchesNameSubstringOf' && rule.values[0] !== '') {
-      return `${this._('Name')}: ${rule.values[0]}`
-    }
-    if (rule.name === 'IsReferencedByObjectType') {
-      return `${this._('Subject')}: ${this._(rule.values[0])}`
-    }
-    if (rule.name === 'HasType') {
-      return `${this._('Type')}: ${this._(rule.values[0])}`
-    }
-    if (rule.name === 'HasRelType') {
-      return `${this._('Relationship type:')} ${this._(rule.values[0])}`
-    }
-    if (rule.name in personFilter) {
-      return this._(personFilter[rule.name])
-    }
-    if (rule.name in filterCounts[this.objectType]) {
-      return this._(filterCounts[this.objectType][rule.name]).replace(
-        /<[^>]+>/,
-        ''
-      )
-    }
-    if (rule.name.endsWith('Private')) {
-      return this._('Private')
-    }
-    if (rule.name.endsWith('Public')) {
-      return this._('Not private')
-    }
-    return JSON.stringify(rule)
-  }
-
-  _ruleToLabelSpan(rule, label, index) {
-    const match = rule.values[index].match(/(\d+)[^\d]+(\d+)/)
-    if (match.length === 3) {
-      if (match[1] === match[2]) {
-        return `${this._(label)}: ${match[1]}`
-      }
-      return `${this._(label)}: ${match[1]}-${match[2]}`
-    }
-    return JSON.stringify(rule)
   }
 }
 

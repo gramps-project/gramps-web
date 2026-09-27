@@ -2,12 +2,14 @@
 Families list view
 */
 
-import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
-import '../components/GrampsjsFilterProperties.js'
-import '../components/GrampsjsFilterTags.js'
-import '../components/GrampsjsFilterPrivate.js'
+import {
+  associationsFilter,
+  privacyFilter,
+  tagFilter,
+  typeFilter,
+} from '../filterDefinitions.js'
 
 export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
   constructor() {
@@ -45,29 +47,18 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
     return 'new_family'
   }
 
-  renderFilters() {
-    return html`
-      <grampsjs-filter-type
-        .appState="${this.appState}"
-        label="${this._('Relationship type:').replace(':', '')}"
-        typeName="family_relation_types"
-        rule="HasRelType"
-      ></grampsjs-filter-type>
-
-      <grampsjs-filter-properties
-        hasCount
-        .appState="${this.appState}"
-        .props="${filterCounts.families}"
-        label="${this._('Associations')}"
-      ></grampsjs-filter-properties>
-
-      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
-
-      <grampsjs-filter-private
-        .appState="${this.appState}"
-        rule="FamilyPrivate"
-      ></grampsjs-filter-private>
-    `
+  get filterDefinitions() {
+    const _ = s => this._(s)
+    return [
+      typeFilter(_, {
+        label: 'Relationship type:',
+        typeName: 'family_relation_types',
+        rule: 'HasRelType',
+      }),
+      associationsFilter(_, filterCounts.families),
+      tagFilter(_),
+      privacyFilter(_, {rule: 'FamilyPrivate'}),
+    ]
   }
 
   get canAdd() {
