@@ -92,12 +92,12 @@ export function appendPersonCard(
     },
     {
       show: p => p?.birth?.date,
-      text: p => `${birthSymbol}${p.birth.date}`,
+      text: p => `${birthSymbol} ${p.birth.date}`,
       weight: 350,
     },
     {
       show: p => p?.death?.date,
-      text: p => `${deathSymbol}${p.death.date}`,
+      text: p => `${deathSymbol} ${p.death.date}`,
       weight: 350,
     },
   ]

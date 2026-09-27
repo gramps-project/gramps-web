@@ -92,7 +92,7 @@ const click = node =>
 describe('appendPersonCard', () => {
   it('shows the surname first with placeholders for missing names', () => {
     const cards = renderCards()
-    expect(texts(cards.full)).toEqual(['Berg,', 'Anna', '∗1900', '†1980'])
+    expect(texts(cards.full)).toEqual(['Berg,', 'Anna', '∗ 1900', '† 1980'])
     expect(texts(cards.noSurname)).toEqual(['…,', 'Carl'])
     expect(texts(cards.noGiven)).toEqual(['Doe,', '…'])
     expect(texts(cards.notFetched)).toEqual([])
@@ -102,14 +102,14 @@ describe('appendPersonCard', () => {
     const cards = renderCards({
       nameDisplayFormat: chartNameDisplayFormat.givenThenSurname,
     })
-    expect(texts(cards.full)).toEqual(['Anna', 'Berg', '∗1900', '†1980'])
+    expect(texts(cards.full)).toEqual(['Anna', 'Berg', '∗ 1900', '† 1980'])
     expect(texts(cards.noSurname)).toEqual(['Carl', '…'])
   })
 
   it('uses configured birth and death symbols', () => {
     expect(
       texts(renderCards({birthSymbol: 'b.', deathSymbol: 'd.'}).full)
-    ).toEqual(['Berg,', 'Anna', 'b.1900', 'd.1980'])
+    ).toEqual(['Berg,', 'Anna', 'b. 1900', 'd. 1980'])
   })
 
   it('redraws cards when symbols change', () => {
@@ -129,7 +129,7 @@ describe('appendPersonCard', () => {
     draw({birthSymbol: '*', deathSymbol: '†'})
     draw({birthSymbol: 'b.', deathSymbol: 'd.'})
 
-    expect(texts(nodes.node())).toEqual(['Berg,', 'Anna', 'b.1900', 'd.1980'])
+    expect(texts(nodes.node())).toEqual(['Berg,', 'Anna', 'b. 1900', 'd. 1980'])
   })
 
   it('shortens names that do not fit', () => {
