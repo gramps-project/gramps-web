@@ -2,13 +2,14 @@
 Citations list view
 */
 
-import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
-import '../components/GrampsjsFilterText.js'
-import '../components/GrampsjsFilterProperties.js'
-import '../components/GrampsjsFilterTags.js'
-import '../components/GrampsjsFilterPrivate.js'
+import {
+  associationsFilter,
+  privacyFilter,
+  tagFilter,
+  textFilter,
+} from '../filterDefinitions.js'
 
 export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
   constructor() {
@@ -41,38 +42,19 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
     return 'new_citation'
   }
 
-  renderFilters() {
-    return html`
-      <grampsjs-filter-text
-        .appState="${this.appState}"
-        label="Page"
-        rule="MatchesPageSubstringOf"
-        .valueIndex=${0}
-        .numArgs=${1}
-      ></grampsjs-filter-text>
-
-      <grampsjs-filter-text
-        .appState="${this.appState}"
-        label="Source: Title"
-        rule="HasSource"
-        .valueIndex=${0}
-        .numArgs=${4}
-      ></grampsjs-filter-text>
-
-      <grampsjs-filter-properties
-        hasCount
-        .appState="${this.appState}"
-        .props="${filterCounts.citations}"
-        label="${this._('Associations')}"
-      ></grampsjs-filter-properties>
-
-      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
-
-      <grampsjs-filter-private
-        .appState="${this.appState}"
-        rule="CitationPrivate"
-      ></grampsjs-filter-private>
-    `
+  get filterDefinitions() {
+    const _ = s => this._(s)
+    return [
+      textFilter(_, {label: 'Page', rule: 'MatchesPageSubstringOf'}),
+      textFilter(_, {
+        label: 'Source: Title',
+        rule: 'HasSource',
+        numArgs: 4,
+      }),
+      associationsFilter(_, filterCounts.citations),
+      tagFilter(_),
+      privacyFilter(_, {rule: 'CitationPrivate'}),
+    ]
   }
 
   // eslint-disable-next-line class-methods-use-this

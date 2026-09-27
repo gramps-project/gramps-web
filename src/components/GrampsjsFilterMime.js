@@ -10,18 +10,11 @@ export class GrampsjsFilterMime extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        h3 {
-          font-size: 14px;
-          text-transform: uppercase;
-          font-family: var(--grampsjs-body-font-family);
-          font-weight: 500;
-          color: var(--mdc-theme-primary);
-          border-color: var(--mdc-theme-primary);
-          border-bottom-width: 1px;
-        }
-
         label {
-          margin: 0.5em;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin: 0.5em 0;
         }
       `,
     ]
@@ -29,31 +22,32 @@ export class GrampsjsFilterMime extends GrampsjsAppStateMixin(LitElement) {
 
   static get properties() {
     return {
-      filters: {type: Array},
+      section: {type: Object},
+      rules: {type: Array},
     }
   }
 
   constructor() {
     super()
-    this.filters = []
+    this.section = {}
+    this.rules = []
   }
 
   render() {
+    const selected = this.rules[0]?.values?.[1]
     return html`
-      <h3>${this._('_Media Type:').replace(':', '')}</h3>
       <div role="radiogroup">
         ${Object.keys(filterMime).map(
           key => html`
-            <label for="${key}">
+            <label>
               <md-radio
-                id="${key}"
+                name="mime"
+                value="${key}"
+                .checked="${key === selected}"
                 @change="${this._handleChange}"
-                ?checked="${this.filters.filter(
-                  rule => rule.name === 'HasMedia' && rule.values[1] === key
-                ).length > 0}"
               ></md-radio>
-              <span>${this._(filterMime[key])}</span></label
-            >
+              <span>${this._(filterMime[key])}</span>
+            </label>
           `
         )}
       </div>
@@ -61,14 +55,11 @@ export class GrampsjsFilterMime extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleChange(event) {
-    const mime = event.target.id
-    const rules = [
-      {name: 'HasMedia', _slot: 'HasMedia:mime', values: ['', mime, '', '']},
-    ]
-    fireEvent(this, 'filter:changed', {
-      filters: {rules},
-      replace: 'HasMedia:mime',
-    })
+    const rule = {
+      name: this.section.rule,
+      values: ['', event.target.value, '', ''],
+    }
+    fireEvent(this, 'filter-section:change', {rules: [rule]})
   }
 }
 

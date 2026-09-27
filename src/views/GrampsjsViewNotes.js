@@ -2,13 +2,14 @@
 Notes list view
 */
 
-import {html} from 'lit'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
-import '../components/GrampsjsFilterText.js'
-import '../components/GrampsjsFilterType.js'
-import '../components/GrampsjsFilterTags.js'
-import '../components/GrampsjsFilterPrivate.js'
+import {
+  privacyFilter,
+  tagFilter,
+  textFilter,
+  typeFilter,
+} from '../filterDefinitions.js'
 
 export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
   constructor() {
@@ -48,29 +49,14 @@ export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
     return formattedRow
   }
 
-  renderFilters() {
-    return html`
-      <grampsjs-filter-text
-        .appState="${this.appState}"
-        label="Text"
-        rule="MatchesRegexpOf"
-        .valueIndex=${0}
-        .numArgs=${1}
-      ></grampsjs-filter-text>
-
-      <grampsjs-filter-type
-        .appState="${this.appState}"
-        label="${this._('Note type:').replace(':', '')}"
-        typeName="note_types"
-      ></grampsjs-filter-type>
-
-      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
-
-      <grampsjs-filter-private
-        .appState="${this.appState}"
-        rule="NotePrivate"
-      ></grampsjs-filter-private>
-    `
+  get filterDefinitions() {
+    const _ = s => this._(s)
+    return [
+      textFilter(_, {label: 'Text', rule: 'MatchesRegexpOf'}),
+      typeFilter(_, {label: 'Note type:', typeName: 'note_types'}),
+      tagFilter(_),
+      privacyFilter(_, {rule: 'NotePrivate'}),
+    ]
   }
 }
 

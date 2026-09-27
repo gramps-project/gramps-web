@@ -17,13 +17,15 @@ import {
   clickKeyHandler,
 } from '../util.js'
 import {colorToCss} from '../color.js'
-import '../components/GrampsjsFilterProperties.js'
-import '../components/GrampsjsFilterMime.js'
-import '../components/GrampsjsFilterTags.js'
-import '../components/GrampsjsFilterYears.js'
-import '../components/GrampsjsFilterPrivate.js'
-import '../components/GrampsjsFilterText.js'
-import '../components/GrampsjsFilterObjectType.js'
+import {
+  associationsFilter,
+  mimeFilter,
+  objectTypeFilter,
+  privacyFilter,
+  tagFilter,
+  textFilter,
+  yearsFilter,
+} from '../filterDefinitions.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTooltip.js'
 import '@material/web/select/filled-select'
@@ -221,52 +223,29 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
       <grampsjs-filters
         @filters:changed="${this._handleFiltersChanged}"
         .appState="${this.appState}"
-        objectType="${this._objectsName}"
+        .definitions="${this.filterDefinitions}"
         ?errorGql="${this.error}"
       >
-        ${this.renderFilters()}
       </grampsjs-filters>
     `
   }
 
-  renderFilters() {
-    return html`
-      <grampsjs-filter-text
-        .appState="${this.appState}"
-        label="Title"
-        rule="HasMedia"
-        .valueIndex=${0}
-        .numArgs=${4}
-      ></grampsjs-filter-text>
-
-      <grampsjs-filter-years
-        .appState="${this.appState}"
-        dateIndex="3"
-        numArgs="4"
-        label="${this._('Date')}"
-        rule="HasMedia"
-      ></grampsjs-filter-years>
-
-      <grampsjs-filter-mime .appState="${this.appState}"></grampsjs-filter-mime>
-
-      <grampsjs-filter-properties
-        hasCount
-        .appState="${this.appState}"
-        .props="${filterCounts.media}"
-        label="${this._('Associations')}"
-      ></grampsjs-filter-properties>
-
-      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
-
-      <grampsjs-filter-object-type
-        .appState="${this.appState}"
-      ></grampsjs-filter-object-type>
-
-      <grampsjs-filter-private
-        .appState="${this.appState}"
-        rule="MediaPrivate"
-      ></grampsjs-filter-private>
-    `
+  get filterDefinitions() {
+    const _ = s => this._(s)
+    return [
+      textFilter(_, {label: 'Title', rule: 'HasMedia', numArgs: 4}),
+      yearsFilter(_, {
+        label: 'Date',
+        rule: 'HasMedia',
+        index: 3,
+        numArgs: 4,
+      }),
+      mimeFilter(_),
+      associationsFilter(_, filterCounts.media),
+      tagFilter(_),
+      objectTypeFilter(_),
+      privacyFilter(_, {rule: 'MediaPrivate'}),
+    ]
   }
 
   renderAltView() {

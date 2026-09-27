@@ -1,24 +1,24 @@
 import {LitElement, css, html} from 'lit'
-import '@material/mwc-button'
-import '@material/mwc-textfield'
+import '@material/web/textfield/outlined-text-field'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {fireEvent, dateSpanLocal, debounce} from '../util.js'
+import {fireEvent, debounce} from '../util.js'
+import {parseYears, yearsRule} from '../filterDefinitions.js'
 
 export class GrampsjsFilterYears extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
-        h3 {
-          font-size: 14px;
-          text-transform: uppercase;
-          font-family: var(--grampsjs-body-font-family);
-          font-weight: 500;
-          color: var(--mdc-theme-primary);
-          border-color: var(--mdc-theme-primary);
-          border-bottom-width: 1px;
+        :host {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+
+        md-outlined-text-field {
+          width: 160px;
         }
       `,
     ]
@@ -26,88 +26,54 @@ export class GrampsjsFilterYears extends GrampsjsAppStateMixin(LitElement) {
 
   static get properties() {
     return {
-      filters: {type: Object},
-      open: {type: Boolean},
-      label: {type: String},
-      rule: {type: String},
-      dateIndex: {type: Number},
-      numArgs: {type: Number},
-      _yearFrom: {type: String},
-      _yearUntil: {type: String},
+      section: {type: Object},
+      rules: {type: Array},
     }
   }
 
   constructor() {
     super()
-    this.filters = []
-    this.label = ''
-    this.rule = ''
-    this.open = false
-    this.dateIndex = 0
-    this.numArgs = 3
-    this._yearFrom = null
-    this._yearUntil = new Date().getFullYear()
+    this.section = {}
+    this.rules = []
+    this._handleInput = debounce(() => this._applyInput(), 1000)
   }
 
   render() {
+    const [yearFrom, yearUntil] = parseYears(this.rules[0], this.section.index)
+    const maxYear = new Date().getFullYear()
     return html`
-      <h3>${this._(this.label)}</h3>
-      <mwc-textfield
+      <md-outlined-text-field
         type="number"
-        max="${new Date().getFullYear()}"
+        max="${maxYear}"
         label="${this._('between')}"
-        id="year_from"
-        value="${this._yearFrom}"
-        @input="${debounce(() => this._handleYearFrom(), 1000)}"
-      ></mwc-textfield>
-      <mwc-textfield
+        id="year-from"
+        value="${yearFrom}"
+        @input="${this._handleInput}"
+      ></md-outlined-text-field>
+      <md-outlined-text-field
         type="number"
-        max="${new Date().getFullYear()}"
+        max="${maxYear}"
         label="${this._('and')}"
-        id="year_until"
-        value="${this._yearUntil}"
-        @input="${debounce(() => this._handleYearUntil(), 1000)}"
-      ></mwc-textfield>
+        id="year-until"
+        value="${yearUntil || maxYear}"
+        @input="${this._handleInput}"
+      ></md-outlined-text-field>
     `
   }
 
-  _handleYearFrom() {
-    const el = this.renderRoot.querySelector('#year_from')
-    if (el) {
-      this._yearFrom = el.value
-      this._checkValid()
-    }
-  }
-
-  _handleYearUntil() {
-    const el = this.renderRoot.querySelector('#year_until')
-    if (el) {
-      this._yearUntil = el.value
-      this._checkValid()
-    }
-  }
-
-  _checkValid() {
-    const isValid =
-      !!this._yearFrom && !!this._yearUntil && this._yearUntil >= this._yearFrom
-    if (isValid) {
-      this.applyFilter()
-    }
-  }
-
-  applyFilter() {
-    const year1 = this.renderRoot.querySelector('#year_from')?.value
-    const year2 = this.renderRoot.querySelector('#year_until')?.value
-    if (year1 && year2) {
-      // need to translate the date span if the server locale is not English
-      const date = this.appState.settings.serverLang
-        ? dateSpanLocal(year1, year2, this.appState.settings.serverLang)
-        : `from ${year1} until ${year2}`
-      const values = Array(this.numArgs).fill('')
-      values[this.dateIndex] = date
-      const slot = `${this.rule}:${this.dateIndex}`
-      const rules = [{name: this.rule, _slot: slot, values}]
-      fireEvent(this, 'filter:changed', {filters: {rules}, replace: slot})
+  _applyInput() {
+    const yearFrom = this.renderRoot.querySelector('#year-from')?.value
+    const yearUntil = this.renderRoot.querySelector('#year-until')?.value
+    if (!yearFrom && !yearUntil) {
+      fireEvent(this, 'filter-section:change', {rules: []})
+    } else if (yearFrom && yearUntil && Number(yearUntil) >= Number(yearFrom)) {
+      const rule = yearsRule(
+        this.section,
+        yearFrom,
+        yearUntil,
+        this.appState.settings.serverLang
+      )
+      fireEvent(this, 'filter-section:change', {rules: [rule]})
     }
   }
 }

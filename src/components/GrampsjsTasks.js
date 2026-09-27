@@ -22,12 +22,12 @@ import {
 } from '@mdi/js'
 
 import './GrampsjsFilters.js'
-import './GrampsjsFilterTags.js'
 import './GrampsjsTagsSmall.js'
 import './GrampsjsIcon.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {clickKeyHandler, fireEvent} from '../util.js'
+import {tagFilter} from '../filterDefinitions.js'
 
 class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -220,11 +220,10 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
   _renderFilters() {
     return html`
       <div class="filters">
-        <grampsjs-filters .appState="${this.appState}" objectType="sources">
-          <grampsjs-filter-tags
-            .appState="${this.appState}"
-          ></grampsjs-filter-tags>
-        </grampsjs-filters>
+        <grampsjs-filters
+          .appState="${this.appState}"
+          .definitions="${[tagFilter(s => this._(s))]}"
+        ></grampsjs-filters>
       </div>
     `
   }

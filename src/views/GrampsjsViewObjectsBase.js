@@ -24,6 +24,7 @@ import '../components/GrampsjsFilters.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
 import {fireEvent} from '../util.js'
+import {tagFilter} from '../filterDefinitions.js'
 
 export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   GrampsjsView
@@ -219,7 +220,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       <grampsjs-filters
         @filters:changed="${this._handleFiltersChanged}"
         .appState="${this.appState}"
-        objectType="${this._objectsName}"
+        .definitions="${this.filterDefinitions}"
         ?errorGql="${this.error}"
       >
         ${this.appState.permissions.canEdit
@@ -249,7 +250,6 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
                 ${this._('Select')}
               </md-outlined-button>`
           : ''}
-        ${this.renderFilters()}
       </grampsjs-filters>
       <div class="viewbtn">
         ${this._renderViewButton()}
@@ -263,11 +263,6 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
           <grampsjs-icon .path="${mdiCog}" height="22"></grampsjs-icon>
         </md-icon-button>
       </div>
-
-      <div
-        class="${this.filterOpen ? '' : 'hidden'}"
-        @filter:changed="${this._handleFilterChanged}"
-      ></div>
     `
   }
 
@@ -462,10 +457,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     return ''
   }
 
-  renderFilters() {
-    return html`
-      <grampsjs-filter-tags .appState="${this.appState}"></grampsjs-filter-tags>
-    `
+  // groups of filters offered in the filter bar, see filterDefinitions.js
+  get filterDefinitions() {
+    return [tagFilter(s => this._(s))]
   }
 
   renderFab() {
@@ -615,10 +609,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     if (this._sort) {
       url = `${url}&sort=${this._sort}`
     }
-    const filters = Object.values(this._filters.filters).map(
-      // eslint-disable-next-line no-unused-vars
-      ({_slot, ...rule}) => rule
-    )
+    const {filters} = this._filters
     if (filters.length > 0) {
       url = `${url}&rules=${encodeURIComponent(
         JSON.stringify({rules: filters})
@@ -633,9 +624,6 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
 
   update(changed) {
     super.update(changed)
-    if (changed.has('active')) {
-      this.filterOpen = false
-    }
     if (this._fullUrl !== this._oldUrl) {
       this._fetchData()
     }
