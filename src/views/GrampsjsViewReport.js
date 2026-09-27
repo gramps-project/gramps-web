@@ -11,6 +11,8 @@ import '../components/GrampsjsTaskProgressIndicator.js'
 import {getExporterDownloadUrl} from '../api.js'
 import {fireEvent} from '../util.js'
 
+const _terminalStates = ['SUCCESS', 'FAILURE', 'REVOKED']
+
 export class GrampsjsViewReport extends GrampsjsView {
   static get styles() {
     return [
@@ -27,9 +29,8 @@ export class GrampsjsViewReport extends GrampsjsView {
     return {
       reportId: {type: String},
       data: {type: Object},
-      _downloadUrl: {type: String},
       _options: {type: Object},
-      _generating: {type: Boolean},
+      _submitting: {type: Boolean},
     }
   }
 
@@ -37,10 +38,29 @@ export class GrampsjsViewReport extends GrampsjsView {
     super()
     this.reportId = ''
     this.data = {}
-    this._downloadUrl = ''
     this._options = {}
-    this._generating = false
+    this._submitting = false
     this._requestedReportId = ''
+    // Report tasks started in this tab. This element serves every report and
+    // stays mounted on other pages, so a finished task downloads its own file
+    // wherever the user is.
+    this._ownTaskIds = new Set()
+    this._boundHandleTasksChanged = () => this.requestUpdate()
+    this._boundHandleTaskDone = this._handleTaskDone.bind(this)
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('tasks:changed', this._boundHandleTasksChanged)
+    window.addEventListener('task:complete', this._boundHandleTaskDone)
+    window.addEventListener('task:error', this._boundHandleTaskDone)
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('tasks:changed', this._boundHandleTasksChanged)
+    window.removeEventListener('task:complete', this._boundHandleTaskDone)
+    window.removeEventListener('task:error', this._boundHandleTaskDone)
+    super.disconnectedCallback()
   }
 
   renderContent() {
@@ -87,7 +107,7 @@ export class GrampsjsViewReport extends GrampsjsView {
 
       <p>
         <md-filled-button
-          ?disabled="${this._generating}"
+          ?disabled="${this._submitting || this._ownTaskRunning()}"
           @click="${this._generateReport}"
           >${this._('_Generate')}</md-filled-button
         >
@@ -97,17 +117,7 @@ export class GrampsjsViewReport extends GrampsjsView {
           class="button"
           size="20"
           .appState="${this.appState}"
-          @task:complete="${this._handleTaskComplete}"
-          @task:error="${this._handleTaskError}"
         ></grampsjs-task-progress-indicator>
-        <a
-          download
-          href="${this._downloadUrl
-            ? getExporterDownloadUrl(this._downloadUrl)
-            : ''}"
-          id="downloadanchor"
-          >&nbsp;</a
-        >
       </p>
     `
   }
@@ -140,16 +150,16 @@ export class GrampsjsViewReport extends GrampsjsView {
     if (changed.has('reportId') && this.reportId !== this._requestedReportId) {
       this.data = {}
       this._options = {}
-      this._downloadUrl = ''
       this._fetchData()
     }
   }
 
-  updated(changed) {
-    super.updated(changed)
-    if (changed.has('_downloadUrl') && this._downloadUrl) {
-      this.renderRoot.querySelector('#downloadanchor').click()
-    }
+  _ownTaskRunning() {
+    const tasks = this.appState?.getActiveTasks?.() ?? []
+    return tasks.some(
+      task =>
+        this._ownTaskIds.has(task.id) && !_terminalStates.includes(task.state)
+    )
   }
 
   _getQueryUrl() {
@@ -161,42 +171,54 @@ export class GrampsjsViewReport extends GrampsjsView {
     return `/api/reports/${this.reportId}/file?options=${param}`
   }
 
-  // The indicator fires task:complete or task:error on every outcome, which
-  // re-enables the Generate button.
+  // While the request is in flight, _submitting disables Generate; once the
+  // task is queued, its state in the task store does.
   async _generateReport() {
-    this._generating = true
-    this._downloadUrl = ''
+    this._submitting = true
     const prog = this.renderRoot.querySelector('#indicator-report')
     prog.reset()
     prog.open = true
-    const data = await this.appState.apiPost(this._getQueryUrl(), undefined, {
-      saving: false,
-      dbChanged: false,
-    })
+    let data
+    try {
+      data = await this.appState.apiPost(this._getQueryUrl(), undefined, {
+        saving: false,
+        dbChanged: false,
+      })
+    } finally {
+      this._submitting = false
+    }
+    const taskId = data.task?.id || ''
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = data.error
-    } else if ('task' in data) {
+    } else if ('task' in data && taskId) {
       // queued task
-      const taskId = data.task?.id || ''
-      if (taskId) {
-        this.appState.registerTask(taskId, 'Report', {
-          taskName: 'generateReport',
-        })
-        prog.taskId = taskId
-      } else {
-        prog.setError()
-      }
+      this._ownTaskIds.add(taskId)
+      this.appState.registerTask(taskId, 'Report', {
+        taskName: 'generateReport',
+      })
+      prog.taskId = taskId
+    } else if ('task' in data) {
+      prog.setError()
     } else {
       // eagerly executed task
-      this._downloadUrl = data?.data?.url || ''
       prog.setComplete()
+      this._download(data?.data?.url)
     }
   }
 
-  _handleTaskComplete(e) {
-    this._generating = false
-    const {status} = e.detail
+  // appState fires these on window for every polled task; the indicator's
+  // events of the same name carry no taskId and are ignored.
+  _handleTaskDone(e) {
+    const {taskId, status} = e.detail ?? {}
+    if (!this._ownTaskIds.has(taskId)) {
+      return
+    }
+    this._ownTaskIds.delete(taskId)
+    this.requestUpdate()
+    if (e.type !== 'task:complete') {
+      return
+    }
     let result = status?.result ?? {}
     if (typeof result === 'string') {
       try {
@@ -205,15 +227,20 @@ export class GrampsjsViewReport extends GrampsjsView {
         result = {}
       }
     }
-    // An eagerly executed report completes with an empty status after its
-    // URL is already set, so only a queued task's result sets it here.
-    if (result?.url) {
-      this._downloadUrl = result.url
-    }
+    this._download(result?.url)
   }
 
-  _handleTaskError() {
-    this._generating = false
+  // A temporary anchor works while this view is inactive and not rendering.
+  _download(url) {
+    if (!url) {
+      return
+    }
+    const anchor = document.createElement('a')
+    anchor.href = getExporterDownloadUrl(url)
+    anchor.download = ''
+    this.renderRoot.appendChild(anchor)
+    anchor.click()
+    anchor.remove()
   }
 
   _handleOptionsChanged(e) {
