@@ -198,14 +198,9 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         .filter(el => typeof el.addToMap === 'function')
         .forEach(el => el.addToMap(this._map))
       this._prefetchAlternateStyle()
+      this._fireViewport('map:load')
     })
-    this._map.on('moveend', () => {
-      fireEvent(this, 'map:moveend', {
-        bounds: this._map.getBounds(),
-        center: this._map.getCenter(),
-        zoom: this._map.getZoom(),
-      })
-    })
+    this._map.on('moveend', () => this._fireViewport('map:moveend'))
     this._map.on('sourcedata', () => {
       if (
         this._currentStyle === MAP_STYLE_OHM &&
@@ -214,6 +209,14 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       ) {
         this._map.filterByDate(`${this.year}`)
       }
+    })
+  }
+
+  _fireViewport(eventName) {
+    fireEvent(this, eventName, {
+      bounds: this._map.getBounds(),
+      center: this._map.getCenter(),
+      zoom: this._map.getZoom(),
     })
   }
 

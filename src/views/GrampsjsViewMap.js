@@ -5,6 +5,8 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsMap.js'
 import '../components/GrampsjsMapPersonLinesLayer.js'
 import '../components/GrampsjsMapPlacesLayer.js'
+import {WIKIDATA_LAYER_HANDLE} from '../components/GrampsjsMapWikidataLayer.js'
+import '../components/GrampsjsWikidataBuildingBox.js'
 import {
   DEFAULT_SEARCH_FILTER,
   TYPE_EXTERNAL,
@@ -22,6 +24,8 @@ import {
 } from '../util.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import {queryNominatim, getMapViewport, saveMapViewport} from '../api.js'
+import {WIKIDATA_MIN_ZOOM} from '../wikidata.ts'
+import {WikidataBuildingsController} from '../wikidataBuildingsController.ts'
 
 const EMPTY_ARRAY = []
 
@@ -36,6 +40,22 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         :host {
           margin: 0;
           margin-top: -4px;
+        }
+
+        .wikidata-hint {
+          position: absolute;
+          bottom: 44px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 1;
+          padding: 4px 12px;
+          border-radius: 9999px;
+          font-size: 13px;
+          background: var(--md-sys-color-surface-container-high);
+          color: var(--md-sys-color-on-surface);
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+          white-space: nowrap;
+          pointer-events: none;
         }
       `,
     ]
@@ -60,6 +80,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       _hiddenOverlaysHandles: {type: Array},
       _personPlaceHandles: {type: Array},
       _selectedPersonData: {type: Object},
+      _selectedWikidata: {type: Object},
+      _zoom: {type: Number},
     }
   }
 
@@ -70,7 +92,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._filteredPlaces = []
     this._handlesHighlight = []
     this._dataLayers = []
-    this._hiddenOverlaysHandles = []
+    // The Wikidata building layer is off until the user switches it on.
+    this._hiddenOverlaysHandles = [WIKIDATA_LAYER_HANDLE]
     this._personPlaceHandles = []
     this._selected = ''
     this._valueSearch = ''
@@ -87,6 +110,9 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._minYear = 1500
     this._pendingPlace = null
     this._pendingPerson = null
+    this._selectedWikidata = null
+    this._zoom = getMapViewport()?.zoom ?? DEFAULT_ZOOM
+    this._wikidata = new WikidataBuildingsController(this)
   }
 
   get _searchbox() {
@@ -99,6 +125,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._boundPersonSelected = e => this._handleExternalPersonSelected(e)
     this._boundPlaceActive = e => {
       this._handlesHighlight = e.detail.handle ? [e.detail.handle] : []
+      if (e.detail.handle) this._selectedWikidata = null
     }
     window.addEventListener('map:place-selected', this._boundPlaceSelected)
     window.addEventListener('map:person-selected', this._boundPersonSelected)
@@ -213,12 +240,14 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         mapid="map-mapview"
         .overlays="${this._getOverlaysForLayerSwitcher()}"
         @map:layerchange="${this._handleLayerChange}"
+        @map:load="${this._handleMapLoad}"
         @map:moveend="${this._handleMoveEnd}"
         @map:overlay-toggle="${this._handleOverlayToggle}"
         @map:marker-clicked="${this._handleMapMarkerClicked}"
+        @map:wikidata-clicked="${this._handleWikidataClicked}"
         id="map"
         zoom="${zoom}"
-        >${this._renderLayers()}
+        >${this._renderLayers()} ${this._renderWikidataLayer()}
         <grampsjs-map-person-lines-layer
           .events="${this._selectedPersonData?.extended?.events ?? EMPTY_ARRAY}"
           .places="${this._selectedPersonData ? this._dataPlaces : EMPTY_ARRAY}"
@@ -228,6 +257,11 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
           .highlightedHandles="${this._handlesHighlight}"
         ></grampsjs-map-places-layer
       ></grampsjs-map>
+      ${this._wikidataVisible && this._zoom < WIKIDATA_MIN_ZOOM
+        ? html`<div class="wikidata-hint">
+            ${this._('Zoom in to see Wikidata buildings')}
+          </div>`
+        : ''}
       <grampsjs-map-searchbox
         @mapsearch:input="${this._handleSearchInput}"
         @mapsearch:clear="${this._handleSearchClear}"
@@ -251,6 +285,15 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   _renderPlaceDetails() {
     if (this._selectedPerson) {
       return this._renderPersonBox()
+    }
+    if (this._selectedWikidata) {
+      return html`
+        <grampsjs-wikidata-building-box
+          qid="${this._selectedWikidata.qid}"
+          label="${this._selectedWikidata.label}"
+          .appState="${this.appState}"
+        ></grampsjs-wikidata-building-box>
+      `
     }
     if (this._handlesHighlight.length === 0) {
       return ''
@@ -322,6 +365,14 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         overlay.handle,
       ]
     }
+    if (overlay.handle === WIKIDATA_LAYER_HANDLE) {
+      if (visible) {
+        this._updateWikidataBuildings({immediate: true})
+      } else {
+        this._wikidata.cancel()
+        if (this._selectedWikidata) this._clearSearchBox()
+      }
+    }
   }
 
   _handleTimeSliderChange(event) {
@@ -345,6 +396,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._personPlaceHandles = []
     this._selectedPerson = null
     this._selectedPersonData = null
+    this._selectedWikidata = null
   }
 
   _clearSearchBox() {
@@ -374,11 +426,13 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._selectedPersonData = null
     this._personPlaceHandles = []
     this._handlesHighlight = []
+    this._selectedWikidata = null
   }
 
   _handlePersonSelected(person) {
     this._activeSearchQuery = ''
     this._valueSearch = personProfileDisplayName(person.profile)
+    this._selectedWikidata = null
     this._selectedPerson = person
     this._selectedPersonData = null
     this._personPlaceHandles = []
@@ -443,9 +497,22 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     if (place) this._handlePlaceSelected(place, {flyTo: false})
   }
 
+  _handleWikidataClicked(e) {
+    const {qid, label} = e.detail
+    this._activeSearchQuery = ''
+    this._selectedPerson = null
+    this._selectedPersonData = null
+    this._personPlaceHandles = []
+    this._handlesHighlight = []
+    this._selectedWikidata = {qid, label}
+    this._valueSearch = label
+    this._searchbox?.showDetails()
+  }
+
   _handlePlaceSelected(object, {flyTo = true} = {}) {
     this._activeSearchQuery = ''
     this._selectedPerson = null
+    this._selectedWikidata = null
     this._valueSearch = object.profile.name
     this._handlesHighlight = [object.handle]
     this._searchbox?.showDetails()
@@ -505,6 +572,33 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     `
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  get _wikidataEnabled() {
+    return window.grampsjsConfig?.mapWikidata !== false
+  }
+
+  get _wikidataVisible() {
+    return (
+      this._wikidataEnabled &&
+      !this._hiddenOverlaysHandles.includes(WIKIDATA_LAYER_HANDLE)
+    )
+  }
+
+  _renderWikidataLayer() {
+    if (!this._wikidataEnabled) return ''
+    return html`
+      <grampsjs-map-wikidata-layer
+        .buildings="${this._wikidataVisible
+          ? this._wikidata.buildings
+          : EMPTY_ARRAY}"
+        selectedQid="${this._selectedWikidata?.qid ?? ''}"
+        year="${this._selectedPerson ? -1 : this._year}"
+        yearSpan="${this._selectedPerson ? -1 : this._yearSpan}"
+        ?hidden="${!this._wikidataVisible}"
+      ></grampsjs-map-wikidata-layer>
+    `
+  }
+
   _getOverlaysForLayerSwitcher() {
     const visibleLayers = this._dataLayers.filter(obj =>
       this._isLayerVisible(
@@ -514,11 +608,20 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         )
       )
     )
-    return visibleLayers.map(obj => ({
+    const overlays = visibleLayers.map(obj => ({
       handle: obj.handle,
       desc: obj.desc,
       visible: !this._hiddenOverlaysHandles.includes(obj.handle),
     }))
+    if (!this._wikidataEnabled) return overlays
+    return [
+      ...overlays,
+      {
+        handle: WIKIDATA_LAYER_HANDLE,
+        desc: this._('Wikidata buildings'),
+        visible: this._wikidataVisible,
+      },
+    ]
   }
 
   _isLayerVisible(bounds) {
@@ -537,11 +640,39 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     return false
   }
 
+  // The initial viewport is not saved: saving it would stop _fetchPlaces
+  // from centring a first visit on the tree's places.
+  _handleMapLoad(e) {
+    this._bounds = e.detail.bounds
+    this._zoom = e.detail.zoom
+  }
+
   _handleMoveEnd(e) {
     this._bounds = e.detail.bounds
     const {center, zoom} = e.detail
     if (center && zoom != null) {
       saveMapViewport(center.lat, center.lng, zoom)
+      this._zoom = zoom
+    }
+    this._updateWikidataBuildings()
+  }
+
+  _updateWikidataBuildings({immediate = false} = {}) {
+    const bounds = this._bounds
+    if (!this._wikidataVisible || typeof bounds?.getWest !== 'function') {
+      return
+    }
+    const viewport = {
+      west: bounds.getWest(),
+      south: bounds.getSouth(),
+      east: bounds.getEast(),
+      north: bounds.getNorth(),
+    }
+    const lang = this.appState.i18n.lang || 'en'
+    if (immediate) {
+      this._wikidata.fetch(viewport, this._zoom, lang)
+    } else {
+      this._wikidata.scheduleFetch(viewport, this._zoom, lang)
     }
   }
 
