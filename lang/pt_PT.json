@@ -428,5 +428,12 @@
     "This Gramps Web instance has already been set up. Log in with an existing account.": "Esta instância do Gramps Web já foi configurada. Inicie sessão com uma conta existente.",
     "Fit to window": "Ajustar à janela",
     "Center on selected person": "Centrar no indivíduo seleccionado",
-    "Move the chart": "Mover a árvore"
+    "Move the chart": "Mover a árvore",
+    "Public data from %s": "Dados públicos de %s",
+    "Wikidata buildings": "Edifícios do Wikidata",
+    "Zoom in to see Wikidata buildings": "Amplie para ver os edifícios do Wikidata",
+    "Built": "Construído",
+    "Demolished": "Demolido",
+    "Occupants": "Ocupantes",
+    "Owners": "Donos"
 }
