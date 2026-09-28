@@ -21,7 +21,6 @@ import '../components/GrampsjsPersonBox.js'
 import '../components/GrampsjsMapTileLayer.js'
 import {
   apiVersionAtLeast,
-  isDateBetweenYears,
   getGregorianYears,
   personProfileDisplayName,
 } from '../util.js'
@@ -35,6 +34,7 @@ import {
 } from '../api.js'
 import {WIKIDATA_MIN_ZOOM, countBuildingsInView} from '../wikidata.ts'
 import {WikidataBuildingsController} from '../wikidataBuildingsController.ts'
+import {countEventTypes, filterPlaces, yearRange} from '../mapFilters.js'
 
 const EMPTY_ARRAY = []
 
@@ -85,6 +85,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       _year: {type: Number},
       _yearSpan: {type: Number},
       _timeFilter: {type: Boolean},
+      _eventTypes: {type: Array},
+      _availableEventTypes: {type: Array},
       _mapStyle: {type: String},
       _minYear: {type: Number},
       _hiddenOverlaysHandles: {type: Array},
@@ -119,10 +121,16 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     // needs to trigger a re-render on its own.
     this._activeSearchQuery = ''
     this._bounds = {}
-    this._year = -1
-    this._yearSpan = 0
+    // The year of the slider: the historical map's date and the centre of the
+    // time filter.
+    this._year = new Date().getFullYear() - 50
+    this._yearSpan = 50
     // Whether places are filtered to _year ± _yearSpan.
     this._timeFilter = false
+    // Selected event types; places need an event of one of them.
+    this._eventTypes = []
+    // Event types occurring in the tree, most frequent first.
+    this._availableEventTypes = []
     this._minYear = 1500
     this._pendingPlace = null
     this._pendingPerson = null
@@ -222,6 +230,11 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     return this._timeFilter && !this._personSelection
   }
 
+  // The slider has an effect while it filters or dates the historical map.
+  get _timeSliderEnabled() {
+    return this._timeFilterActive || this._mapStyle === 'ohm'
+  }
+
   get _highlightedHandles() {
     if (this._selection?.type === 'place') return [this._selection.handle]
     if (this._hoveredPlace) return [this._hoveredPlace]
@@ -306,16 +319,23 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         @mapsearch:clear="${this._handleSearchClear}"
         @mapsearch:selected="${this._handleSearchSelected}"
         @mapsearch:filter-change="${this._handleSearchFilterChange}"
-        @searchbox:timechip-clear="${this._handleTimechipClear}"
+        @map:filter-change="${this._handleFilterChange}"
         .appState="${this.appState}"
         year="${this._year}"
         yearSpan="${this._yearSpan}"
-        ?timeFilter="${this._timeFilterActive}"
+        ?timeFilter="${this._timeFilter}"
+        .eventTypes="${this._availableEventTypes}"
+        .selectedEventTypes="${this._eventTypes}"
+        ?filtersSuspended="${Boolean(this._personSelection)}"
         value="${this._valueSearch}"
         >${this._renderPlaceDetails()}</grampsjs-map-searchbox
       >
       <grampsjs-map-time-slider
         min="${this._minYear}"
+        value="${this._year}"
+        span="${this._yearSpan}"
+        ?timeFilter="${this._timeFilterActive}"
+        ?disabled="${!this._timeSliderEnabled}"
         @timeslider:change="${this._handleTimeSliderChange}"
         .appState="${this.appState}"
       ></grampsjs-map-time-slider>
@@ -381,8 +401,14 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     })
   }
 
-  _handleTimechipClear() {
-    this.renderRoot.querySelector('grampsjs-map-time-slider')?.reset()
+  // A change from the filters panel or a filter chip: any of timeFilter,
+  // yearSpan and eventTypes.
+  _handleFilterChange(event) {
+    const {timeFilter, yearSpan, eventTypes} = event.detail
+    if (timeFilter !== undefined) this._timeFilter = timeFilter
+    if (yearSpan !== undefined) this._yearSpan = yearSpan
+    if (eventTypes !== undefined) this._eventTypes = eventTypes
+    this._applyPlaceFilter()
   }
 
   updated(changed) {
@@ -434,8 +460,6 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _handleTimeSliderChange(event) {
     this._year = event.detail.value
-    this._yearSpan = event.detail.span
-    this._timeFilter = event.detail.enabled
     this._applyPlaceFilter()
   }
 
@@ -751,21 +775,14 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _applyPlaceFilter() {
-    const filterFunction = place => {
-      if (this._timeFilter && this._year > 0) {
-        const placeEvents = this._eventsByPlace?.get(place.handle) ?? []
-        if (placeEvents.length === 0) return false
-        const yearMin = this._year - this._yearSpan
-        const yearMax = this._year + this._yearSpan
-        return placeEvents.some(event =>
-          isDateBetweenYears(event?.date, yearMin, yearMax)
-        )
+    this._filteredPlaces = filterPlaces(
+      this._dataPlaces,
+      this._eventsByPlace ?? new Map(),
+      {
+        years: yearRange(this._year, this._yearSpan, this._timeFilter),
+        eventTypes: this._eventTypes,
       }
-      return true
-    }
-    this._filteredPlaces = [
-      ...this._dataPlaces.filter(place => filterFunction(place)),
-    ]
+    )
   }
 
   firstUpdated() {
@@ -890,7 +907,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   async _fetchEvents() {
     const data = await this.appState.apiGet(
-      '/api/events/?keys=date,handle,place'
+      '/api/events/?keys=date,handle,place,type'
     )
     this.loading = false
     if ('data' in data) {
@@ -903,6 +920,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         this._eventsByPlace.set(event.place, placeEvents)
       }
       this._minYear = this._getMinYear()
+      this._availableEventTypes = countEventTypes(this._dataEvents)
       this._applyPlaceFilter()
     } else if ('error' in data) {
       this.error = true

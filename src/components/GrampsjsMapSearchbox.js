@@ -9,12 +9,14 @@ import {
   mdiChevronUp,
   mdiClose,
   mdiEarth,
+  mdiFilterVariant,
   mdiMagnify,
   mdiMapMarker,
   mdiMapMarkerOff,
 } from '@mdi/js'
 import './GrampsjsIcon.js'
 import './GrampsjsButtonToggle.js'
+import './GrampsjsMapFilters.js'
 
 import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
@@ -24,6 +26,10 @@ import {debounce, fireEvent, objectDetail} from '../util.js'
 const PANEL_EMPTY = 'empty'
 const PANEL_RESULTS = 'results'
 const PANEL_DETAILS = 'details'
+const PANEL_FILTERS = 'filters'
+
+// With more selected event types, they share one chip.
+const MAX_EVENT_TYPE_CHIPS = 3
 
 export const TYPE_PERSON = 'person'
 export const TYPE_PLACE = 'place'
@@ -79,11 +85,26 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           display: none;
         }
 
+        /* One row of fixed height, so that chips appearing or disappearing
+           do not move the filters panel. Chips that do not fit scroll. */
         #chips {
           display: flex;
-          flex-wrap: wrap;
+          flex-wrap: nowrap;
+          align-items: center;
           gap: 6px;
+          height: 28px;
           padding: 0 4px;
+          overflow-x: auto;
+          scrollbar-width: none;
+        }
+
+        #chips::-webkit-scrollbar {
+          display: none;
+        }
+
+        #chips .chip {
+          flex: none;
+          white-space: nowrap;
         }
 
         #filter-pills {
@@ -122,6 +143,21 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           background: var(--md-sys-color-primary);
           color: var(--md-sys-color-on-primary);
           border-color: transparent;
+        }
+
+        .filter-button {
+          position: relative;
+        }
+
+        .filter-dot {
+          position: absolute;
+          top: 9px;
+          right: 9px;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: var(--md-sys-color-primary);
+          pointer-events: none;
         }
 
         .chip-close {
@@ -231,6 +267,11 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
       year: {type: Number},
       yearSpan: {type: Number},
       timeFilter: {type: Boolean},
+      eventTypes: {type: Array},
+      selectedEventTypes: {type: Array},
+      // While a person is selected, the filters do not apply and the filter
+      // button is disabled.
+      filtersSuspended: {type: Boolean},
       _activeFilter: {type: String},
       _panelState: {type: String},
       _collapsed: {type: Boolean},
@@ -242,8 +283,12 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     this.value = ''
     this.data = []
     this.year = -1
-    this.yearSpan = -1
+    this.yearSpan = 50
     this.timeFilter = false
+    this.eventTypes = []
+    this.selectedEventTypes = []
+    this.filtersSuspended = false
+    this._panelBeforeFilters = PANEL_EMPTY
     this._activeFilter = DEFAULT_SEARCH_FILTER
     this._panelState = PANEL_EMPTY
     this._collapsed = false
@@ -275,6 +320,17 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
                 </md-icon-button>
               `
             : ''}
+          <span class="filter-button">
+            <md-icon-button
+              aria-label="${this._('Filter')}"
+              aria-expanded="${this._panelState === PANEL_FILTERS}"
+              ?disabled="${this.filtersSuspended}"
+              @click="${this._toggleFilters}"
+            >
+              <grampsjs-icon path="${mdiFilterVariant}"></grampsjs-icon>
+            </md-icon-button>
+            ${this._filtersActive ? html`<span class="filter-dot"></span>` : ''}
+          </span>
         </div>
 
         ${this._renderChips()}
@@ -307,6 +363,16 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           >
             <slot @slotchange="${this._handleSlotchange}"></slot>
           </div>
+          ${this._panelState === PANEL_FILTERS
+            ? html`<grampsjs-map-filters
+                .appState="${this.appState}"
+                year="${this.year}"
+                yearSpan="${this.yearSpan}"
+                ?timeFilter="${this.timeFilter}"
+                .eventTypes="${this.eventTypes}"
+                .selectedEventTypes="${this.selectedEventTypes}"
+              ></grampsjs-map-filters>`
+            : ''}
         </div>
         <div
           id="collapse-toggle"
@@ -330,16 +396,69 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
+  get _filtersActive() {
+    return (
+      !this.filtersSuspended &&
+      ((this.timeFilter && this.year > 0) || this.selectedEventTypes.length > 0)
+    )
+  }
+
+  // The row is kept, empty, while the filters panel is open.
   _renderChips() {
-    if (!this.timeFilter || !(this.year > 0)) return ''
+    const active = this._filtersActive
+    if (!active && this._panelState !== PANEL_FILTERS) return ''
+    const types = active ? this.selectedEventTypes : []
+    const typeLabels = types.map(type => this._(type))
     return html`
       <div id="chips">
-        <button class="chip active" @click="${this._handleTimechipClear}">
-          ${this.year} &pm;${this.yearSpan}
-          <span class="chip-close">&times;</span>
-        </button>
+        ${active && this.timeFilter && this.year > 0
+          ? this._renderChip(
+              `${this.year - this.yearSpan}–${this.year + this.yearSpan}`,
+              {timeFilter: false}
+            )
+          : ''}
+        ${types.length > MAX_EVENT_TYPE_CHIPS
+          ? this._renderChip(
+              `${typeLabels.slice(0, 2).join(', ')} +${types.length - 2}`,
+              {eventTypes: []}
+            )
+          : types.map((type, i) =>
+              this._renderChip(typeLabels[i], {
+                eventTypes: types.filter(other => other !== type),
+              })
+            )}
       </div>
     `
+  }
+
+  // A chip for an active filter; clicking it applies the given change.
+  _renderChip(label, change) {
+    return html`
+      <button
+        class="chip active"
+        @click="${() => fireEvent(this, 'map:filter-change', change)}"
+      >
+        ${label}
+        <span class="chip-close">&times;</span>
+      </button>
+    `
+  }
+
+  _toggleFilters() {
+    if (this._panelState === PANEL_FILTERS) {
+      // Return to the previous panel, unless its details were cleared.
+      const hasDetails =
+        this.renderRoot.querySelector('slot')?.assignedElements({flatten: true})
+          .length > 0
+      this._panelState =
+        this._panelBeforeFilters === PANEL_DETAILS && !hasDetails
+          ? PANEL_EMPTY
+          : this._panelBeforeFilters
+    } else {
+      this._panelBeforeFilters = this._panelState
+      this._panelState = PANEL_FILTERS
+      this._collapsed = false
+    }
   }
 
   _renderFilterPills() {
@@ -443,10 +562,6 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
           : ''}
       </md-list-item>
     `
-  }
-
-  _handleTimechipClear() {
-    fireEvent(this, 'searchbox:timechip-clear')
   }
 
   _handleSlotchange(e) {
