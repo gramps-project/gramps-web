@@ -427,5 +427,14 @@
     "Enclosed places": "Podřazená místa",
     "Fit to window": "Přizpůsobit oknu",
     "Center on selected person": "Vycentrovat na vybranou osobu",
-    "Move the chart": "Posunout graf"
+    "Move the chart": "Posunout graf",
+    "Wikidata buildings": "Budovy z Wikidata",
+    "Zoom in to see Wikidata buildings": "Přibližte mapu, abyste viděli budovy z Wikidata",
+    "Built": "Postaveno",
+    "Demolished": "Zbořeno",
+    "Occupants": "Nájemníci",
+    "Owners": "Vlastníci",
+    "Public data from %s": "Veřejná data z %s",
+    "Your maps": "Vaše mapy",
+    "No buildings here": "Zde nejsou žádné budovy"
 }
