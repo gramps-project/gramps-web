@@ -151,11 +151,12 @@ class GrampsjsMapWikidataLayer extends LitElement {
     }
   }
 
-  // Shows buildings that existed at some point within the selected years.
-  // Buildings without dates are always shown.
+  // Shows buildings that existed at some point within the selected years,
+  // while the time filter is switched on (positive span). Buildings without
+  // dates are always shown.
   _yearFilter() {
-    if (!(this.year > 0)) return null
-    const span = Math.max(this.yearSpan, 0)
+    if (!(this.year > 0) || !(this.yearSpan > 0)) return null
+    const span = this.yearSpan
     return [
       'all',
       [
@@ -200,7 +201,7 @@ class GrampsjsMapWikidataLayer extends LitElement {
     const color =
       getComputedStyle(document.documentElement)
         .getPropertyValue('--grampsjs-map-building-color')
-        .trim() || '#1a73e8'
+        .trim() || '#8e24aa'
     return {
       'circle-radius': ['case', ['get', 'selected'], 9, 5],
       'circle-color': color,
