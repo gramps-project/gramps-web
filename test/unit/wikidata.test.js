@@ -4,6 +4,8 @@ import {
   WIKIDATA_BUILDINGS_LIMIT,
   buildBuildingsQuery,
   containsBounds,
+  countBuildingsInView,
+  existedInYears,
   formatWikidataTime,
   formatWikidataTimeRange,
   getCommonsThumbnailUrl,
@@ -303,5 +305,40 @@ describe('getCommonsThumbnailUrl', () => {
     ).to.equal(
       'https://commons.wikimedia.org/wiki/Special:FilePath/A.jpg?width=400'
     )
+  })
+})
+
+describe('existedInYears and countBuildingsInView', () => {
+  const building = (inceptionYear, demolishedYear, lat = 49.5, long = 8.5) => ({
+    qid: 'Q1',
+    label: 'House',
+    lat,
+    long,
+    inceptionYear,
+    demolishedYear,
+  })
+
+  it('keeps buildings that existed within the years', () => {
+    expect(existedInYears(building(1800, 1900), 1850, 0)).to.equal(true)
+    expect(existedInYears(building(1870, null), 1850, 25)).to.equal(true)
+    expect(existedInYears(building(null, null), 1850, 0)).to.equal(true)
+  })
+
+  it('drops buildings built later or demolished earlier', () => {
+    expect(existedInYears(building(1900, null), 1850, 25)).to.equal(false)
+    expect(existedInYears(building(null, 1800), 1850, 25)).to.equal(false)
+  })
+
+  it('counts buildings inside the viewport', () => {
+    const viewport = {west: 8, south: 49, east: 9, north: 50}
+    const buildings = [
+      building(null, null),
+      building(1900, null),
+      building(null, null, 51),
+    ]
+    expect(countBuildingsInView(buildings, viewport)).to.equal(2)
+    expect(
+      countBuildingsInView(buildings, viewport, {year: 1850, span: 25})
+    ).to.equal(1)
   })
 })

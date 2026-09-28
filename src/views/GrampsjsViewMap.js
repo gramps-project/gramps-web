@@ -5,7 +5,10 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsMap.js'
 import '../components/GrampsjsMapPersonLinesLayer.js'
 import '../components/GrampsjsMapPlacesLayer.js'
-import {WIKIDATA_LAYER_HANDLE} from '../components/GrampsjsMapWikidataLayer.js'
+import {
+  BUILDING_COLOR,
+  WIKIDATA_LAYER_HANDLE,
+} from '../components/GrampsjsMapWikidataLayer.js'
 import '../components/GrampsjsWikidataBuildingBox.js'
 import {
   DEFAULT_SEARCH_FILTER,
@@ -23,8 +26,14 @@ import {
   personProfileDisplayName,
 } from '../util.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
-import {queryNominatim, getMapViewport, saveMapViewport} from '../api.js'
-import {WIKIDATA_MIN_ZOOM} from '../wikidata.ts'
+import {
+  queryNominatim,
+  getMapLayerSettings,
+  getMapViewport,
+  saveMapLayerSettings,
+  saveMapViewport,
+} from '../api.js'
+import {WIKIDATA_MIN_ZOOM, countBuildingsInView} from '../wikidata.ts'
 import {WikidataBuildingsController} from '../wikidataBuildingsController.ts'
 
 const EMPTY_ARRAY = []
@@ -76,7 +85,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       _year: {type: Number},
       _yearSpan: {type: Number},
       _timeFilter: {type: Boolean},
-      _currentLayer: {type: String},
+      _mapStyle: {type: String},
       _minYear: {type: Number},
       _hiddenOverlaysHandles: {type: Array},
       _zoom: {type: Number},
@@ -89,8 +98,12 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._dataEvents = []
     this._filteredPlaces = []
     this._dataLayers = []
+    const layerSettings = getMapLayerSettings()
     // The Wikidata building layer is off until the user switches it on.
-    this._hiddenOverlaysHandles = [WIKIDATA_LAYER_HANDLE]
+    this._hiddenOverlaysHandles = layerSettings?.hiddenOverlays ?? [
+      WIKIDATA_LAYER_HANDLE,
+    ]
+    this._mapStyle = layerSettings?.style ?? 'base'
     this._selected = ''
     this._valueSearch = ''
     this._searchFilter = DEFAULT_SEARCH_FILTER
@@ -110,7 +123,6 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._yearSpan = 0
     // Whether places are filtered to _year ± _yearSpan.
     this._timeFilter = false
-    this._currentLayer = ''
     this._minYear = 1500
     this._pendingPlace = null
     this._pendingPerson = null
@@ -264,6 +276,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         longitude="${center[1]}"
         year="${this._year}"
         mapid="map-mapview"
+        initialStyle="${this._mapStyle}"
         .overlays="${this._getOverlaysForLayerSwitcher()}"
         @map:layerchange="${this._handleLayerChange}"
         @map:load="${this._handleMapLoad}"
@@ -357,7 +370,15 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _handleLayerChange(e) {
-    this._currentLayer = e.detail.layer
+    this._mapStyle = e.detail.style
+    this._saveLayerSettings()
+  }
+
+  _saveLayerSettings() {
+    saveMapLayerSettings({
+      style: this._mapStyle,
+      hiddenOverlays: this._hiddenOverlaysHandles,
+    })
   }
 
   _handleTimechipClear() {
@@ -400,6 +421,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         overlay.handle,
       ]
     }
+    this._saveLayerSettings()
     if (overlay.handle === WIKIDATA_LAYER_HANDLE) {
       if (visible) {
         this._updateWikidataBuildings({immediate: true})
@@ -634,6 +656,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       handle: obj.handle,
       desc: obj.desc,
       visible: !this._hiddenOverlaysHandles.includes(obj.handle),
+      group: 'own',
+      thumbnail: {handle: obj.handle, checksum: obj.checksum, mime: obj.mime},
     }))
     if (!this._wikidataEnabled) return overlays
     return [
@@ -642,8 +666,42 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         handle: WIKIDATA_LAYER_HANDLE,
         desc: this._('Wikidata buildings'),
         visible: this._wikidataVisible,
+        group: 'external',
+        color: `var(--grampsjs-map-building-color, ${BUILDING_COLOR})`,
+        status: this._wikidataStatus,
       },
     ]
+  }
+
+  get _wikidataStatus() {
+    if (this._zoom < WIKIDATA_MIN_ZOOM) {
+      return this._('Zoom in to see Wikidata buildings')
+    }
+    if (this._wikidata.loading) return this._('Loading...')
+    const viewport = this._viewport
+    if (!viewport) return ''
+    const years = this._timeFilterActive
+      ? {year: this._year, span: this._yearSpan}
+      : null
+    // A status only explains an empty map; visible buildings need none.
+    const count = countBuildingsInView(
+      this._wikidata.buildings,
+      viewport,
+      years
+    )
+    return count === 0 ? this._('No buildings here') : ''
+  }
+
+  // The current map bounds as {west, south, east, north}, once known.
+  get _viewport() {
+    const bounds = this._bounds
+    if (typeof bounds?.getWest !== 'function') return null
+    return {
+      west: bounds.getWest(),
+      south: bounds.getSouth(),
+      east: bounds.getEast(),
+      north: bounds.getNorth(),
+    }
   }
 
   _isLayerVisible(bounds) {
@@ -667,6 +725,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   _handleMapLoad(e) {
     this._bounds = e.detail.bounds
     this._zoom = e.detail.zoom
+    // The saved layer settings can have the building layer switched on.
+    this._updateWikidataBuildings({immediate: true})
   }
 
   _handleMoveEnd(e) {
@@ -680,16 +740,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _updateWikidataBuildings({immediate = false} = {}) {
-    const bounds = this._bounds
-    if (!this._wikidataVisible || typeof bounds?.getWest !== 'function') {
-      return
-    }
-    const viewport = {
-      west: bounds.getWest(),
-      south: bounds.getSouth(),
-      east: bounds.getEast(),
-      north: bounds.getNorth(),
-    }
+    const viewport = this._viewport
+    if (!this._wikidataVisible || !viewport) return
     const lang = this.appState.i18n.lang || 'en'
     if (immediate) {
       this._wikidata.fetch(viewport, this._zoom, lang)
