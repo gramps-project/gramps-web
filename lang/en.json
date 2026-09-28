@@ -430,5 +430,6 @@
   "Built": "Built",
   "Demolished": "Demolished",
   "Occupants": "Occupants",
-  "Owners": "Owners"
+  "Owners": "Owners",
+  "Public data from %s": "Public data from %s"
 }

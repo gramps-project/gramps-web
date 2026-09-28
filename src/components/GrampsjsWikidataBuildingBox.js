@@ -1,9 +1,10 @@
 import {html, css, LitElement} from 'lit'
-import {mdiOpenInNew} from '@mdi/js'
+import {mdiEarth, mdiOpenInNew} from '@mdi/js'
 
 import '@material/web/button/text-button.js'
 
 import './GrampsjsIcon.js'
+import {BUILDING_COLOR} from './GrampsjsMapWikidataLayer.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {
@@ -44,6 +45,7 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
 
         h4 {
           margin-top: 2px;
+          margin-bottom: 0;
           font-weight: 300;
           font-size: 15px;
         }
@@ -72,11 +74,26 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
           margin: 0;
         }
 
+        /* Row sizes match the events table in the place panel. */
         li {
           display: flex;
           justify-content: space-between;
           gap: 12px;
           padding: 3px 0;
+          font-size: 15px;
+        }
+
+        ul.dates {
+          margin-top: 12px;
+        }
+
+        p.source {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 13px;
+          color: var(--md-sys-color-on-surface-variant);
+          margin-top: 4px;
         }
 
         .range {
@@ -158,6 +175,16 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
     if (!this.qid) return ''
     return html`
       <h2>${this._detail?.label || this.label}</h2>
+      ${this._renderSubtitle()}
+      <p class="source">
+        <grampsjs-icon
+          path="${mdiEarth}"
+          height="16"
+          width="16"
+          color="var(--grampsjs-map-building-color, ${BUILDING_COLOR})"
+        ></grampsjs-icon>
+        ${this._('Public data from %s', 'Wikidata')}
+      </p>
       ${this._loading ? this._renderLoading() : this._renderDetail()}
       <div class="right">
         ${this._renderExternalButton('Wikidata', getWikidataUrl(this.qid))}
@@ -188,14 +215,19 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
     `
   }
 
-  _renderDetail() {
+  _renderSubtitle() {
     const detail = this._detail
     if (!detail) return ''
     const subtitle = detail.types.length
       ? detail.types.join(', ')
       : detail.description
+    return subtitle ? html`<h4>${subtitle}</h4>` : ''
+  }
+
+  _renderDetail() {
+    const detail = this._detail
+    if (!detail) return ''
     return html`
-      ${subtitle ? html`<h4>${subtitle}</h4>` : ''}
       ${detail.image
         ? html`<a href="${detail.image}" target="_blank"
             ><img
@@ -213,14 +245,21 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
   }
 
   _renderDates(detail) {
-    const built = formatWikidataTime(detail.inception, this._lang)
-    const demolished = formatWikidataTime(detail.demolished, this._lang)
-    if (!built && !demolished) return ''
-    return html`<p>
-      ${built ? html`${this._('Built')}: ${built}` : ''}${built && demolished
-        ? html`<br />`
-        : ''}${demolished ? html`${this._('Demolished')}: ${demolished}` : ''}
-    </p>`
+    const rows = [
+      [this._('Built'), formatWikidataTime(detail.inception, this._lang)],
+      [this._('Demolished'), formatWikidataTime(detail.demolished, this._lang)],
+    ].filter(([, value]) => value)
+    if (!rows.length) return ''
+    return html`
+      <ul class="dates">
+        ${rows.map(
+          ([label, value]) =>
+            html`<li>
+              <span>${label}</span><span class="range">${value}</span>
+            </li>`
+        )}
+      </ul>
+    `
   }
 
   _renderList(title, entries) {
@@ -230,13 +269,7 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
       <ul>
         ${entries.map(
           entry => html`<li>
-            <span
-              >${entry.qid
-                ? html`<a href="${getWikidataUrl(entry.qid)}" target="_blank"
-                    >${entry.label}</a
-                  >`
-                : entry.label}</span
-            >
+            <span>${entry.label}</span>
             <span class="range"
               >${formatWikidataTimeRange(
                 entry.start,

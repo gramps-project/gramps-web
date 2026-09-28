@@ -4,6 +4,9 @@ import {WIKIDATA_MIN_ZOOM} from '../wikidata.ts'
 
 export const WIKIDATA_LAYER_HANDLE = 'wikidata-buildings'
 
+// Marker color, which --grampsjs-map-building-color overrides.
+export const BUILDING_COLOR = '#8e24aa'
+
 const SOURCE_ID = 'wikidata-buildings'
 const LAYER_ID = 'wikidata-buildings-layer'
 
@@ -207,7 +210,7 @@ class GrampsjsMapWikidataLayer extends LitElement {
     const color =
       getComputedStyle(document.documentElement)
         .getPropertyValue('--grampsjs-map-building-color')
-        .trim() || '#8e24aa'
+        .trim() || BUILDING_COLOR
     return {
       'circle-radius': ['case', ['get', 'selected'], 9, 5],
       'circle-color': color,
