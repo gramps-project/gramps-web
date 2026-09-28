@@ -14,6 +14,7 @@ class GrampsjsMapWikidataLayer extends LitElement {
       selectedQid: {type: String},
       year: {type: Number},
       yearSpan: {type: Number},
+      timeFilter: {type: Boolean},
       hidden: {type: Boolean},
       handle: {type: String},
     }
@@ -24,7 +25,8 @@ class GrampsjsMapWikidataLayer extends LitElement {
     this.buildings = []
     this.selectedQid = ''
     this.year = -1
-    this.yearSpan = -1
+    this.yearSpan = 0
+    this.timeFilter = false
     this.hidden = false
     // Matched by GrampsjsMap when the layer switcher toggles this overlay.
     this.handle = WIKIDATA_LAYER_HANDLE
@@ -118,7 +120,11 @@ class GrampsjsMapWikidataLayer extends LitElement {
       this._map.getSource(SOURCE_ID)?.setData(this._buildGeoJSON())
     }
     if (!this._map.getLayer(LAYER_ID)) return
-    if (changed.has('year') || changed.has('yearSpan')) {
+    if (
+      changed.has('year') ||
+      changed.has('yearSpan') ||
+      changed.has('timeFilter')
+    ) {
       this._map.setFilter(LAYER_ID, this._yearFilter())
     }
     if (changed.has('hidden')) {
@@ -152,10 +158,10 @@ class GrampsjsMapWikidataLayer extends LitElement {
   }
 
   // Shows buildings that existed at some point within the selected years,
-  // while the time filter is switched on (positive span). Buildings without
-  // dates are always shown.
+  // while the time filter is switched on. Buildings without dates are always
+  // shown.
   _yearFilter() {
-    if (!(this.year > 0) || !(this.yearSpan > 0)) return null
+    if (!this.timeFilter || !(this.year > 0)) return null
     const span = this.yearSpan
     return [
       'all',

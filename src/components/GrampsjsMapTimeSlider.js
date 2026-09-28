@@ -78,6 +78,7 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
     return {
       value: {type: Number},
       span: {type: Number},
+      enabled: {type: Boolean},
       min: {type: Number},
     }
   }
@@ -87,6 +88,8 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
     this.min = 1500
     this.value = new Date().getFullYear() - 50
     this.span = 50
+    // Whether places are filtered to value ± span.
+    this.enabled = true
   }
 
   render() {
@@ -101,7 +104,7 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
         ></md-slider>
         <div class="date">
           <span class="year">${this.value}</span>
-          ${this.span > 0
+          ${this.enabled
             ? html`&pm; <span class="span">${this.span}</span>`
             : ''}
         </div>
@@ -109,7 +112,7 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
           <md-icon-button
             id="span-button"
             @click="${this._handleSpanClick}"
-            ?disabled="${this.span < 0}"
+            ?disabled="${!this.enabled}"
           >
             <grampsjs-tooltip for="span-button" .appState="${this.appState}"
               >${this._('Span')}</grampsjs-tooltip
@@ -122,7 +125,7 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
         <md-switch
           id="filter-switch"
           @input="${this._handleSwitch}"
-          ?selected="${this.span > 0}"
+          ?selected="${this.enabled}"
         ></md-switch>
         <grampsjs-tooltip for="filter-switch" .appState="${this.appState}"
           >${this._('Toggle time filter for places')}</grampsjs-tooltip
@@ -149,6 +152,7 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
     const detail = {
       value: this.value,
       span: this.span,
+      enabled: this.enabled,
     }
     fireEvent(this, 'timeslider:change', detail)
   }
@@ -160,9 +164,7 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
 
   _handleSwitch() {
     const el = this.renderRoot.querySelector('md-switch')
-    if (el.selected !== this.span > 0) {
-      this.span = -this.span
-    }
+    this.enabled = el.selected
     this._fireEvent()
   }
 
@@ -183,8 +185,8 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
   }
 
   reset() {
-    if (this.span > 0) {
-      this.span = -this.span
+    if (this.enabled) {
+      this.enabled = false
       this._fireEvent()
     }
   }

@@ -230,6 +230,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
       data: {type: Array},
       year: {type: Number},
       yearSpan: {type: Number},
+      timeFilter: {type: Boolean},
       _activeFilter: {type: String},
       _panelState: {type: String},
       _collapsed: {type: Boolean},
@@ -242,6 +243,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
     this.data = []
     this.year = -1
     this.yearSpan = -1
+    this.timeFilter = false
     this._activeFilter = DEFAULT_SEARCH_FILTER
     this._panelState = PANEL_EMPTY
     this._collapsed = false
@@ -329,8 +331,7 @@ class GrampsjsMapSearchbox extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _renderChips() {
-    const timeActive = this.year > 0 && this.yearSpan > 0
-    if (!timeActive) return ''
+    if (!this.timeFilter || !(this.year > 0)) return ''
     return html`
       <div id="chips">
         <button class="chip active" @click="${this._handleTimechipClear}">
