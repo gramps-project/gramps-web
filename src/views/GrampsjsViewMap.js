@@ -15,6 +15,7 @@ import '../components/GrampsjsPlaceBox.js'
 import '../components/GrampsjsPersonBox.js'
 import '../components/GrampsjsMapTileLayer.js'
 import {
+  apiVersionAtLeast,
   isDateBetweenYears,
   getGregorianYears,
   personProfileDisplayName,
@@ -643,12 +644,27 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this.loading = false
   }
 
-  async _fetchPlaces() {
-    const data = await this.appState.apiGet(
+  // Places with the shape {handle, profile: {name, lat, long}}
+  async _getPlaces() {
+    if (apiVersionAtLeast(this.appState.dbInfo, 3, 23)) {
+      const data = await this.appState.apiGet('/api/places/coordinates/')
+      if (!('data' in data)) return data
+      return {
+        data: data.data.map(({handle, name, lat, long}) => ({
+          handle,
+          profile: {name, lat, long},
+        })),
+      }
+    }
+    return this.appState.apiGet(
       `/api/places/?locale=${
         this.appState.i18n.lang || 'en'
-      }&profile=self&place_hierarchy=0`
+      }&profile=self&place_hierarchy=0&keys=handle,profile`
     )
+  }
+
+  async _fetchPlaces() {
+    const data = await this._getPlaces()
     this.loading = false
     if ('data' in data) {
       this.error = false
