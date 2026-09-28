@@ -66,21 +66,19 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       _dataPlaces: {type: Array},
       _dataEvents: {type: Array},
       _filteredPlaces: {type: Array},
-      _handlesHighlight: {type: Array},
       _dataLayers: {type: Array},
       _selected: {type: String},
       _valueSearch: {type: String},
       _searchFilter: {type: String},
-      _selectedPerson: {type: Object},
+      _selection: {type: Object},
+      _hoveredPlace: {type: String},
       _bounds: {type: Object},
       _year: {type: Number},
       _yearSpan: {type: Number},
+      _timeFilter: {type: Boolean},
       _currentLayer: {type: String},
       _minYear: {type: Number},
       _hiddenOverlaysHandles: {type: Array},
-      _personPlaceHandles: {type: Array},
-      _selectedPersonData: {type: Object},
-      _selectedWikidata: {type: Object},
       _zoom: {type: Number},
     }
   }
@@ -90,27 +88,32 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._dataPlaces = []
     this._dataEvents = []
     this._filteredPlaces = []
-    this._handlesHighlight = []
     this._dataLayers = []
     // The Wikidata building layer is off until the user switches it on.
     this._hiddenOverlaysHandles = [WIKIDATA_LAYER_HANDLE]
-    this._personPlaceHandles = []
     this._selected = ''
     this._valueSearch = ''
     this._searchFilter = DEFAULT_SEARCH_FILTER
-    this._selectedPerson = null
-    this._selectedPersonData = null
+    // What the details panel shows: null or one of
+    // {type: 'place', handle}
+    // {type: 'person', person, data, placeHandles}, where data and
+    //   placeHandles are filled in once the person has loaded
+    // {type: 'wikidata', qid, label}
+    this._selection = null
+    // A place the person panel points at while a person is selected.
+    this._hoveredPlace = ''
     // Intentionally non-reactive: only read on filter-change events, never
     // needs to trigger a re-render on its own.
     this._activeSearchQuery = ''
     this._bounds = {}
     this._year = -1
-    this._yearSpan = -1
+    this._yearSpan = 0
+    // Whether places are filtered to _year ± _yearSpan.
+    this._timeFilter = false
     this._currentLayer = ''
     this._minYear = 1500
     this._pendingPlace = null
     this._pendingPerson = null
-    this._selectedWikidata = null
     this._zoom = getMapViewport()?.zoom ?? DEFAULT_ZOOM
     this._wikidata = new WikidataBuildingsController(this)
   }
@@ -123,10 +126,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     super.connectedCallback()
     this._boundPlaceSelected = e => this._handleExternalPlaceSelected(e)
     this._boundPersonSelected = e => this._handleExternalPersonSelected(e)
-    this._boundPlaceActive = e => {
-      this._handlesHighlight = e.detail.handle ? [e.detail.handle] : []
-      if (e.detail.handle) this._selectedWikidata = null
-    }
+    this._boundPlaceActive = e => this._handlePlaceActive(e)
     window.addEventListener('map:place-selected', this._boundPlaceSelected)
     window.addEventListener('map:person-selected', this._boundPersonSelected)
     window.addEventListener('map:place-active', this._boundPlaceActive)
@@ -158,6 +158,10 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       this._mapEl._map.resize()
       this._handlePlaceSelected(place)
     })
+  }
+
+  _handlePlaceActive(e) {
+    this._hoveredPlace = e.detail.handle ?? ''
   }
 
   _handleExternalPersonSelected({detail: {person}}) {
@@ -192,8 +196,28 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     )
   }
 
+  _select(selection) {
+    this._selection = selection
+    this._hoveredPlace = ''
+  }
+
+  get _personSelection() {
+    return this._selection?.type === 'person' ? this._selection : null
+  }
+
+  // The time filter does not apply while a person is selected.
+  get _timeFilterActive() {
+    return this._timeFilter && !this._personSelection
+  }
+
+  get _highlightedHandles() {
+    if (this._selection?.type === 'place') return [this._selection.handle]
+    if (this._hoveredPlace) return [this._hoveredPlace]
+    return EMPTY_ARRAY
+  }
+
   get _placesForMap() {
-    const highlightedHandles = new Set(this._handlesHighlight)
+    const highlightedHandles = new Set(this._highlightedHandles)
     const toMapPlace = obj => ({
       handle: obj.handle,
       name: obj.profile.name,
@@ -201,8 +225,9 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       long: obj.profile.long,
     })
 
-    if (this._selectedPerson) {
-      const personHandles = new Set(this._personPlaceHandles)
+    const personSelection = this._personSelection
+    if (personSelection) {
+      const personHandles = new Set(personSelection.placeHandles)
       return this._dataPlaces
         .filter(
           place => personHandles.has(place.handle) && this._hasCoords(place)
@@ -227,6 +252,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     const center = this._getMapCenter()
     const saved = getMapViewport()
     const zoom = saved ? saved.zoom : DEFAULT_ZOOM
+    const personData = this._personSelection?.data
     return html`
       <grampsjs-map
         .appState="${this.appState}"
@@ -249,12 +275,12 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         zoom="${zoom}"
         >${this._renderLayers()} ${this._renderWikidataLayer()}
         <grampsjs-map-person-lines-layer
-          .events="${this._selectedPersonData?.extended?.events ?? EMPTY_ARRAY}"
-          .places="${this._selectedPersonData ? this._dataPlaces : EMPTY_ARRAY}"
+          .events="${personData?.extended?.events ?? EMPTY_ARRAY}"
+          .places="${personData ? this._dataPlaces : EMPTY_ARRAY}"
         ></grampsjs-map-person-lines-layer>
         <grampsjs-map-places-layer
           .places="${this._placesForMap}"
-          .highlightedHandles="${this._handlesHighlight}"
+          .highlightedHandles="${this._highlightedHandles}"
         ></grampsjs-map-places-layer
       ></grampsjs-map>
       ${this._wikidataVisible && this._zoom < WIKIDATA_MIN_ZOOM
@@ -269,8 +295,9 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         @mapsearch:filter-change="${this._handleSearchFilterChange}"
         @searchbox:timechip-clear="${this._handleTimechipClear}"
         .appState="${this.appState}"
-        year="${this._selectedPerson ? -1 : this._year}"
-        yearSpan="${this._selectedPerson ? -1 : this._yearSpan}"
+        year="${this._year}"
+        yearSpan="${this._yearSpan}"
+        ?timeFilter="${this._timeFilterActive}"
         value="${this._valueSearch}"
         >${this._renderPlaceDetails()}</grampsjs-map-searchbox
       >
@@ -283,22 +310,23 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _renderPlaceDetails() {
-    if (this._selectedPerson) {
-      return this._renderPersonBox()
+    const selection = this._selection
+    if (selection?.type === 'person') {
+      return this._renderPersonBox(selection)
     }
-    if (this._selectedWikidata) {
+    if (selection?.type === 'wikidata') {
       return html`
         <grampsjs-wikidata-building-box
-          qid="${this._selectedWikidata.qid}"
-          label="${this._selectedWikidata.label}"
+          qid="${selection.qid}"
+          label="${selection.label}"
           .appState="${this.appState}"
         ></grampsjs-wikidata-building-box>
       `
     }
-    if (this._handlesHighlight.length === 0) {
+    if (selection?.type !== 'place') {
       return ''
     }
-    const [handle] = this._handlesHighlight
+    const {handle} = selection
     if (
       this._dataPlaces.length > 0 &&
       !this._dataPlaces.find(p => p.handle === handle)
@@ -317,13 +345,12 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     `
   }
 
-  _renderPersonBox() {
-    const person = this._selectedPerson
+  _renderPersonBox({person, data}) {
     return html`
       <grampsjs-person-box
-        handle="${this._selectedPersonData ? person.handle : ''}"
+        handle="${data ? person.handle : ''}"
         name="${personProfileDisplayName(person.profile)}"
-        .personData="${this._selectedPersonData}"
+        .personData="${data}"
         .appState="${this.appState}"
       ></grampsjs-person-box>
     `
@@ -378,7 +405,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         this._updateWikidataBuildings({immediate: true})
       } else {
         this._wikidata.cancel()
-        if (this._selectedWikidata) this._clearSearchBox()
+        if (this._selection?.type === 'wikidata') this._clearSearchBox()
       }
     }
   }
@@ -386,6 +413,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   _handleTimeSliderChange(event) {
     this._year = event.detail.value
     this._yearSpan = event.detail.span
+    this._timeFilter = event.detail.enabled
     this._applyPlaceFilter()
   }
 
@@ -400,11 +428,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._valueSearch = ''
     this._activeSearchQuery = ''
     this._searchFilter = DEFAULT_SEARCH_FILTER
-    this._handlesHighlight = []
-    this._personPlaceHandles = []
-    this._selectedPerson = null
-    this._selectedPersonData = null
-    this._selectedWikidata = null
+    this._select(null)
   }
 
   _clearSearchBox() {
@@ -430,41 +454,34 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     }
     this._activeSearchQuery = ''
     this._valueSearch = object.name || object.display_name || ''
-    this._selectedPerson = null
-    this._selectedPersonData = null
-    this._personPlaceHandles = []
-    this._handlesHighlight = []
-    this._selectedWikidata = null
+    this._select(null)
   }
 
   _handlePersonSelected(person) {
     this._activeSearchQuery = ''
     this._valueSearch = personProfileDisplayName(person.profile)
-    this._selectedWikidata = null
-    this._selectedPerson = person
-    this._selectedPersonData = null
-    this._personPlaceHandles = []
+    const selection = {type: 'person', person, data: null, placeHandles: []}
+    this._select(selection)
     this._searchbox?.showDetails()
-    this._highlightPersonPlaces(person)
+    this._highlightPersonPlaces(selection)
   }
 
-  async _highlightPersonPlaces(person) {
+  async _highlightPersonPlaces(selection) {
     const lang = this.appState.i18n.lang || 'en'
     const data = await this.appState.apiGet(
-      `/api/people/${person.handle}?extend=all&profile=all&locale=${lang}`
+      `/api/people/${selection.person.handle}?extend=all&profile=all&locale=${lang}`
     )
+    // Ignore the response if another selection was made in the meantime.
+    if (this._selection !== selection) return
     if (!('data' in data)) {
-      this._selectedPerson = null
+      this._select(null)
       return
     }
-    if (this._selectedPerson?.handle !== person.handle) return
     const extPerson = data.data
-    this._selectedPersonData = extPerson
     const placeHandles = (extPerson.extended?.events || [])
       .map(event => event.place)
       .filter(Boolean)
-    this._personPlaceHandles = placeHandles
-    this._handlesHighlight = []
+    this._select({...selection, data: extPerson, placeHandles})
     this._fitPersonPlaces(placeHandles)
   }
 
@@ -508,21 +525,15 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   _handleWikidataClicked(e) {
     const {qid, label} = e.detail
     this._activeSearchQuery = ''
-    this._selectedPerson = null
-    this._selectedPersonData = null
-    this._personPlaceHandles = []
-    this._handlesHighlight = []
-    this._selectedWikidata = {qid, label}
+    this._select({type: 'wikidata', qid, label})
     this._valueSearch = label
     this._searchbox?.showDetails()
   }
 
   _handlePlaceSelected(object, {flyTo = true} = {}) {
     this._activeSearchQuery = ''
-    this._selectedPerson = null
-    this._selectedWikidata = null
     this._valueSearch = object.profile.name
-    this._handlesHighlight = [object.handle]
+    this._select({type: 'place', handle: object.handle})
     this._searchbox?.showDetails()
     if (
       flyTo &&
@@ -599,9 +610,12 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         .buildings="${this._wikidataVisible
           ? this._wikidata.buildings
           : EMPTY_ARRAY}"
-        selectedQid="${this._selectedWikidata?.qid ?? ''}"
-        year="${this._selectedPerson ? -1 : this._year}"
-        yearSpan="${this._selectedPerson ? -1 : this._yearSpan}"
+        selectedQid="${this._selection?.type === 'wikidata'
+          ? this._selection.qid
+          : ''}"
+        year="${this._year}"
+        yearSpan="${this._yearSpan}"
+        ?timeFilter="${this._timeFilterActive}"
         ?hidden="${!this._wikidataVisible}"
       ></grampsjs-map-wikidata-layer>
     `
@@ -686,7 +700,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _applyPlaceFilter() {
     const filterFunction = place => {
-      if (this._year > 0 && this._yearSpan > 0) {
+      if (this._timeFilter && this._year > 0) {
         const placeEvents = this._eventsByPlace?.get(place.handle) ?? []
         if (placeEvents.length === 0) return false
         const yearMin = this._year - this._yearSpan
@@ -809,9 +823,10 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       this.error = false
       this._dataPlaces = data.data
       this._applyPlaceFilter()
-      if (this._selectedPerson && this._personPlaceHandles.length) {
-        this._fitPersonPlaces(this._personPlaceHandles)
-      } else if (!this._handlesHighlight.length && !getMapViewport()) {
+      const personPlaceHandles = this._personSelection?.placeHandles ?? []
+      if (personPlaceHandles.length) {
+        this._fitPersonPlaces(personPlaceHandles)
+      } else if (!this._highlightedHandles.length && !getMapViewport()) {
         const center = this._getMapCenter()
         this._mapEl?.jumpTo(center[0], center[1], 6)
       }
