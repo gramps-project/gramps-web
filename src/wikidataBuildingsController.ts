@@ -73,7 +73,13 @@ export class WikidataBuildingsController implements ReactiveController {
       }
       this.host.requestUpdate()
     } catch (e) {
-      // Aborted by a newer request, which owns the loading state.
+      // A newer request, or cancel(), owns the loading state once this
+      // request is superseded; an unexpected failure of the current request
+      // clears it.
+      if (abort === this.abort) {
+        this.loading = false
+        this.host.requestUpdate()
+      }
     }
   }
 
