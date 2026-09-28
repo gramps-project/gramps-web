@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 56" preserveAspectRatio="xMidYMid slice">
+  <!-- Map style thumbnail. Base map, dark: OpenFreeMap Dark. A simplified piece of Paris around the Louvre, in the colors of the map style. -->
+  <rect width="96" height="56" fill="#181818" />
+  <g fill="rgb(12, 12, 12)" transform="rotate(14 48 28)">
+    <rect x="-7" y="5" width="6.5" height="5.5" />
+    <rect x="-7" y="12" width="6.5" height="5.5" />
+    <rect x="-7" y="19" width="6.5" height="5.5" />
+    <rect x="-7" y="26" width="6.5" height="5.5" />
+    <rect x="-7" y="33" width="6.5" height="5.5" />
+    <rect x="1" y="5" width="6.5" height="5.5" />
+    <rect x="1" y="12" width="6.5" height="5.5" />
+    <rect x="1" y="19" width="6.5" height="5.5" />
+    <rect x="1" y="26" width="6.5" height="5.5" />
+    <rect x="1" y="33" width="6.5" height="5.5" />
+    <rect x="1" y="40" width="6.5" height="5.5" />
+    <rect x="1" y="47" width="6.5" height="5.5" />
+    <rect x="1" y="54" width="6.5" height="5.5" />
+    <rect x="1" y="61" width="6.5" height="5.5" />
+    <rect x="9" y="5" width="6.5" height="5.5" />
+    <rect x="9" y="12" width="6.5" height="5.5" />
+    <rect x="9" y="19" width="6.5" height="5.5" />
+    <rect x="9" y="26" width="6.5" height="5.5" />
+    <rect x="9" y="33" width="6.5" height="5.5" />
+    <rect x="9" y="40" width="6.5" height="5.5" />
+    <rect x="9" y="47" width="6.5" height="5.5" />
+    <rect x="9" y="54" width="6.5" height="5.5" />
+    <rect x="9" y="61" width="6.5" height="5.5" />
+    <rect x="17" y="5" width="6.5" height="5.5" />
+    <rect x="17" y="12" width="6.5" height="5.5" />
+    <rect x="17" y="19" width="6.5" height="5.5" />
+    <rect x="17" y="26" width="6.5" height="5.5" />
+    <rect x="17" y="33" width="6.5" height="5.5" />
+    <rect x="17" y="40" width="6.5" height="5.5" />
+    <rect x="17" y="47" width="6.5" height="5.5" />
+    <rect x="17" y="54" width="6.5" height="5.5" />
+    <rect x="17" y="61" width="6.5" height="5.5" />
+    <rect x="25" y="-2" width="6.5" height="5.5" />
+    <rect x="25" y="5" width="6.5" height="5.5" />
+    <rect x="25" y="12" width="6.5" height="5.5" />
+    <rect x="25" y="19" width="6.5" height="5.5" />
+    <rect x="25" y="26" width="6.5" height="5.5" />
+    <rect x="25" y="33" width="6.5" height="5.5" />
+    <rect x="25" y="40" width="6.5" height="5.5" />
+    <rect x="25" y="47" width="6.5" height="5.5" />
+    <rect x="25" y="54" width="6.5" height="5.5" />
+    <rect x="25" y="61" width="6.5" height="5.5" />
+    <rect x="33" y="-2" width="6.5" height="5.5" />
+    <rect x="33" y="5" width="6.5" height="5.5" />
+    <rect x="33" y="12" width="6.5" height="5.5" />
+    <rect x="33" y="19" width="6.5" height="5.5" />
+    <rect x="33" y="26" width="6.5" height="5.5" />
+    <rect x="33" y="33" width="6.5" height="5.5" />
+    <rect x="33" y="40" width="6.5" height="5.5" />
+    <rect x="33" y="47" width="6.5" height="5.5" />
+    <rect x="33" y="54" width="6.5" height="5.5" />
+    <rect x="33" y="61" width="6.5" height="5.5" />
+    <rect x="41" y="-2" width="6.5" height="5.5" />
+    <rect x="41" y="5" width="6.5" height="5.5" />
+    <rect x="41" y="12" width="6.5" height="5.5" />
+    <rect x="41" y="19" width="6.5" height="5.5" />
+    <rect x="41" y="26" width="6.5" height="5.5" />
+    <rect x="41" y="33" width="6.5" height="5.5" />
+    <rect x="41" y="40" width="6.5" height="5.5" />
+    <rect x="41" y="47" width="6.5" height="5.5" />
+    <rect x="41" y="54" width="6.5" height="5.5" />
+    <rect x="49" y="-9" width="6.5" height="5.5" />
+    <rect x="49" y="-2" width="6.5" height="5.5" />
+    <rect x="49" y="5" width="6.5" height="5.5" />
+    <rect x="49" y="12" width="6.5" height="5.5" />
+    <rect x="49" y="19" width="6.5" height="5.5" />
+    <rect x="49" y="26" width="6.5" height="5.5" />
+    <rect x="49" y="33" width="6.5" height="5.5" />
+    <rect x="49" y="40" width="6.5" height="5.5" />
+    <rect x="49" y="47" width="6.5" height="5.5" />
+    <rect x="49" y="54" width="6.5" height="5.5" />
+    <rect x="57" y="-9" width="6.5" height="5.5" />
+    <rect x="57" y="-2" width="6.5" height="5.5" />
+    <rect x="57" y="5" width="6.5" height="5.5" />
+    <rect x="57" y="12" width="6.5" height="5.5" />
+    <rect x="57" y="19" width="6.5" height="5.5" />
+    <rect x="57" y="26" width="6.5" height="5.5" />
+    <rect x="57" y="33" width="6.5" height="5.5" />
+    <rect x="57" y="40" width="6.5" height="5.5" />
+    <rect x="57" y="47" width="6.5" height="5.5" />
+    <rect x="57" y="54" width="6.5" height="5.5" />
+    <rect x="65" y="-9" width="6.5" height="5.5" />
+    <rect x="65" y="-2" width="6.5" height="5.5" />
+    <rect x="65" y="5" width="6.5" height="5.5" />
+    <rect x="65" y="12" width="6.5" height="5.5" />
+    <rect x="65" y="19" width="6.5" height="5.5" />
+    <rect x="65" y="26" width="6.5" height="5.5" />
+    <rect x="65" y="33" width="6.5" height="5.5" />
+    <rect x="65" y="40" width="6.5" height="5.5" />
+    <rect x="65" y="47" width="6.5" height="5.5" />
+    <rect x="73" y="-9" width="6.5" height="5.5" />
+    <rect x="73" y="-2" width="6.5" height="5.5" />
+    <rect x="73" y="5" width="6.5" height="5.5" />
+    <rect x="73" y="12" width="6.5" height="5.5" />
+    <rect x="73" y="19" width="6.5" height="5.5" />
+    <rect x="73" y="26" width="6.5" height="5.5" />
+    <rect x="73" y="33" width="6.5" height="5.5" />
+    <rect x="73" y="40" width="6.5" height="5.5" />
+    <rect x="73" y="47" width="6.5" height="5.5" />
+    <rect x="81" y="-16" width="6.5" height="5.5" />
+    <rect x="81" y="-9" width="6.5" height="5.5" />
+    <rect x="81" y="-2" width="6.5" height="5.5" />
+    <rect x="81" y="5" width="6.5" height="5.5" />
+    <rect x="81" y="12" width="6.5" height="5.5" />
+    <rect x="81" y="19" width="6.5" height="5.5" />
+    <rect x="81" y="26" width="6.5" height="5.5" />
+    <rect x="81" y="33" width="6.5" height="5.5" />
+    <rect x="81" y="40" width="6.5" height="5.5" />
+    <rect x="81" y="47" width="6.5" height="5.5" />
+    <rect x="89" y="-9" width="6.5" height="5.5" />
+    <rect x="89" y="-2" width="6.5" height="5.5" />
+    <rect x="89" y="5" width="6.5" height="5.5" />
+    <rect x="89" y="12" width="6.5" height="5.5" />
+    <rect x="89" y="19" width="6.5" height="5.5" />
+    <rect x="89" y="26" width="6.5" height="5.5" />
+    <rect x="89" y="33" width="6.5" height="5.5" />
+    <rect x="89" y="40" width="6.5" height="5.5" />
+    <rect x="89" y="47" width="6.5" height="5.5" />
+    <rect x="97" y="19" width="6.5" height="5.5" />
+    <rect x="97" y="26" width="6.5" height="5.5" />
+    <rect x="97" y="33" width="6.5" height="5.5" />
+    <rect x="97" y="40" width="6.5" height="5.5" />
+  </g>
+  <path d="M0 0 H38 V17 L17 22 L0 14 Z" fill="rgb(20, 20, 20)" />
+  <path d="M41 2 H64 V25 L41 20 Z" fill="rgb(12, 12, 12)" />
+  <path d="M27 0 L17 26" fill="none" stroke="rgb(60, 60, 60)" stroke-width="3" stroke-linecap="round" />
+  <path d="M39 1 L96 8" fill="none" stroke="rgb(60, 60, 60)" stroke-width="3" stroke-linecap="round" />
+  <path d="M90 0 L88 44" fill="none" stroke="rgb(60, 60, 60)" stroke-width="3" stroke-linecap="round" />
+  <path d="M36 36 L30 57" fill="none" stroke="rgb(60, 60, 60)" stroke-width="3" stroke-linecap="round" />
+  <path d="M27 0 L17 26" fill="none" stroke="hsl(0, 0%, 7%)" stroke-width="1.8" stroke-linecap="round" />
+  <path d="M39 1 L96 8" fill="none" stroke="hsl(0, 0%, 7%)" stroke-width="1.8" stroke-linecap="round" />
+  <path d="M90 0 L88 44" fill="none" stroke="hsl(0, 0%, 7%)" stroke-width="1.8" stroke-linecap="round" />
+  <path d="M36 36 L30 57" fill="none" stroke="hsl(0, 0%, 7%)" stroke-width="1.8" stroke-linecap="round" />
+  <path d="M-4 21 C 20 30, 48 40, 70 43 S 92 46, 100 46.5" fill="none" stroke="rgb(60, 60, 60)" stroke-width="17" stroke-linecap="round" />
+  <path d="M-4 21 C 20 30, 48 40, 70 43 S 92 46, 100 46.5" fill="none" stroke="hsl(0, 0%, 7%)" stroke-width="14.6" stroke-linecap="round" />
+  <path d="M-4 21 C 20 30, 48 40, 70 43 S 92 46, 100 46.5" fill="none" stroke="rgb(27, 27, 29)" stroke-width="11" stroke-linecap="round" />
+  <path d="M35 25.5 L31 41.5" fill="none" stroke="#2a2a2a" stroke-width="2" stroke-linecap="round" />
+  <path d="M69 34.5 L65 50.5" fill="none" stroke="#2a2a2a" stroke-width="2" stroke-linecap="round" />
+</svg>

@@ -32,6 +32,18 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
+        .mapcontainer {
+          position: relative;
+        }
+
+        /* Out of the flow, so the switcher adds no height below the map. */
+        .map-layerswitcher {
+          position: absolute;
+          left: 10px;
+          bottom: 10px;
+          z-index: 1;
+        }
+
         .maplibregl-ctrl-group {
           border-radius: 12px !important;
         }
@@ -79,6 +91,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
           .appState="${this.appState}"
           .overlays="${this.overlays}"
           .currentStyle="${this._currentStyle}"
+          year="${this.year}"
           @map:layerchange="${this._onStyleChange}"
           @map:overlay-toggle="${this._handleOverlayToggle}"
         ></grampsjs-map-layer-switcher>
@@ -101,6 +114,8 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       longMax: {type: Number},
       overlays: {type: Array},
       layerSwitcher: {type: Boolean},
+      // Map style when the map is created: 'base' or 'ohm'.
+      initialStyle: {type: String},
       _map: {type: Object},
       _currentStyle: {type: String},
     }
@@ -121,6 +136,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this.longMax = 0
     this.overlays = []
     this.layerSwitcher = false
+    this.initialStyle = MAP_STYLE_BASE
     this._currentStyle = MAP_STYLE_BASE
     this._mediaQuery = undefined
   }
@@ -138,6 +154,8 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
 
   firstUpdated() {
     const mapel = this.shadowRoot.getElementById(this.mapid)
+    this._currentStyle =
+      this.initialStyle === MAP_STYLE_OHM ? MAP_STYLE_OHM : MAP_STYLE_BASE
     const styleUrl = this._getStyleUrl(this._currentStyle)
     this._map = new maplibregl.Map({
       container: mapel,
@@ -188,6 +206,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       if (this.year > 0 && this._map.filterByDate) {
         this._map.filterByDate(`${this.year}`)
       }
+      this._localizeOhm()
       if (this.latMin !== 0 || this.latMax !== 0) {
         this._map.fitBounds([
           [this.longMin, this.latMin],

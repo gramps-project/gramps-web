@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 56" preserveAspectRatio="xMidYMid slice">
+  <!-- Map style thumbnail. Historical map: OpenHistoricalMap. A simplified piece of Paris around the Louvre, in the colors of the map style. -->
+  <rect width="96" height="56" fill="rgb(248, 247, 242)" />
+  <path d="M79 9 C 84 7, 89 10, 89 16 C 86 20, 80 20, 78 15 C 77 12, 77 10, 79 9 Z" fill="rgb(200, 210, 163)" />
+  <path d="M12 42 C 17 38, 27 40, 29 46 C 28 52, 18 55, 13 51 C 10 48, 10 45, 12 42 Z" fill="rgb(200, 210, 163)" />
+  <path d="M38 50 C 40 46, 46 46, 46 51 C 45 55, 39 55, 38 50 Z" fill="rgb(200, 210, 163)" />
+  <path d="M58 54 C 62 52, 70 53, 74 56 L56 56 Z" fill="rgb(200, 210, 163)" />
+  <path d="M66 3 C 63 12, 68 24, 64 35" fill="none" stroke="rgb(210, 210, 210)" stroke-width="2.2" stroke-linecap="round" />
+  <path d="M77 5 C 80 15, 74 26, 76 37" fill="none" stroke="rgb(210, 210, 210)" stroke-width="2.2" stroke-linecap="round" />
+  <path d="M64 22 C 72 19, 80 27, 89 24" fill="none" stroke="rgb(210, 210, 210)" stroke-width="2.2" stroke-linecap="round" />
+  <path d="M44 20 Q 45 26, 40 31" fill="none" stroke="rgb(210, 210, 210)" stroke-width="2.2" stroke-linecap="round" />
+  <path d="M52 45 C 49 49, 53 53, 47 57" fill="none" stroke="rgb(210, 210, 210)" stroke-width="2.2" stroke-linecap="round" />
+  <path d="M8 33 C 3 41, 10 48, 4 57" fill="none" stroke="rgb(210, 210, 210)" stroke-width="2.2" stroke-linecap="round" />
+  <path d="M5 51 C 14 46, 24 51, 33 46" fill="none" stroke="rgb(210, 210, 210)" stroke-width="2.2" stroke-linecap="round" />
+  <path d="M66 3 C 63 12, 68 24, 64 35" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+  <path d="M77 5 C 80 15, 74 26, 76 37" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+  <path d="M64 22 C 72 19, 80 27, 89 24" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+  <path d="M44 20 Q 45 26, 40 31" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+  <path d="M52 45 C 49 49, 53 53, 47 57" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+  <path d="M8 33 C 3 41, 10 48, 4 57" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+  <path d="M5 51 C 14 46, 24 51, 33 46" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+  <path d="M0 0 H38 V17 L17 22 L0 14 Z" fill="rgb(200, 210, 163)" />
+  <path d="M41 2 H64 V25 L41 20 Z" fill="rgb(224, 224, 224)" />
+  <path d="M27 0 Q 25 13, 17 26" fill="none" stroke="rgb(240, 190, 140)" stroke-width="3" stroke-linecap="round" />
+  <path d="M39 1 C 56 -1, 76 8, 96 7" fill="none" stroke="rgb(240, 190, 140)" stroke-width="3" stroke-linecap="round" />
+  <path d="M90 0 C 93 14, 86 28, 88 44" fill="none" stroke="rgb(240, 190, 140)" stroke-width="3" stroke-linecap="round" />
+  <path d="M36 36 C 33 42, 35 50, 30 57" fill="none" stroke="rgb(240, 190, 140)" stroke-width="3" stroke-linecap="round" />
+  <path d="M27 0 Q 25 13, 17 26" fill="none" stroke="rgb(255, 236, 211)" stroke-width="1.8" stroke-linecap="round" />
+  <path d="M39 1 C 56 -1, 76 8, 96 7" fill="none" stroke="rgb(255, 236, 211)" stroke-width="1.8" stroke-linecap="round" />
+  <path d="M90 0 C 93 14, 86 28, 88 44" fill="none" stroke="rgb(255, 236, 211)" stroke-width="1.8" stroke-linecap="round" />
+  <path d="M36 36 C 33 42, 35 50, 30 57" fill="none" stroke="rgb(255, 236, 211)" stroke-width="1.8" stroke-linecap="round" />
+  <path d="M0 13 C 10 16, 20 26, 32 27 C 44 28, 52 38, 64 38 C 76 38, 84 32, 96 34 L96 50 C 86 49, 78 52, 66 52 C 52 52, 44 42, 30 40 C 18 38, 10 28, 0 27 Z" fill="rgb(126, 218, 218)" />
+  <path d="M74 42 C 78 39, 88 38, 96 40.5 C 90 44, 80 45, 74 42 Z" fill="rgb(248, 247, 242)" />
+  <path d="M42 26 L39 45" fill="none" stroke="rgb(210, 210, 210)" stroke-width="2" stroke-linecap="round" />
+  <path d="M81 34 L79 52" fill="none" stroke="rgb(210, 210, 210)" stroke-width="2" stroke-linecap="round" />
+</svg>

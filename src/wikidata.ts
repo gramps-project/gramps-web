@@ -63,6 +63,42 @@ export interface WikidataBuilding {
   demolishedYear: number | null
 }
 
+// Whether a building existed at some point within year ± span. Buildings
+// without dates count as existing. The map layer's filter uses the same rule.
+export function existedInYears(
+  building: WikidataBuilding,
+  year: number,
+  span: number
+): boolean {
+  if (building.inceptionYear !== null && building.inceptionYear > year + span) {
+    return false
+  }
+  if (
+    building.demolishedYear !== null &&
+    building.demolishedYear < year - span
+  ) {
+    return false
+  }
+  return true
+}
+
+// Number of buildings inside the viewport, restricted to year ± span when
+// years are given.
+export function countBuildingsInView(
+  buildings: WikidataBuilding[],
+  viewport: Bounds,
+  years: {year: number; span: number} | null = null
+): number {
+  return buildings.filter(
+    building =>
+      building.long >= viewport.west &&
+      building.long <= viewport.east &&
+      building.lat >= viewport.south &&
+      building.lat <= viewport.north &&
+      (!years || existedInYears(building, years.year, years.span))
+  ).length
+}
+
 export interface WikidataTime {
   /** SPARQL dateTime literal, e.g. "1650-01-01T00:00:00Z" */
   time: string

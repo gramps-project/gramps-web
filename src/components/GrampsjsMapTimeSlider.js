@@ -111,6 +111,7 @@ class GrampsjsMapTimeSlider extends GrampsjsAppStateMixin(LitElement) {
         <div class="control">
           <md-icon-button
             id="span-button"
+            touch-target="none"
             @click="${this._handleSpanClick}"
             ?disabled="${!this.enabled}"
           >

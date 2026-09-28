@@ -152,6 +152,38 @@ export function saveMapViewport(lat, lng, zoom) {
   }
 }
 
+// Map style ('base' or 'ohm') and hidden overlay handles of the map view,
+// per tree.
+export function getMapLayerSettings() {
+  try {
+    const treeId = getTreeId() || 'unknown'
+    const settings = JSON.parse(localStorage.getItem('grampsjs_map_layers'))?.[
+      treeId
+    ]
+    if (
+      typeof settings?.style === 'string' &&
+      Array.isArray(settings?.hiddenOverlays)
+    ) {
+      return settings
+    }
+  } catch (_) {
+    // ignore
+  }
+  return null
+}
+
+export function saveMapLayerSettings({style, hiddenOverlays}) {
+  try {
+    const treeId = getTreeId() || 'unknown'
+    const existing =
+      JSON.parse(localStorage.getItem('grampsjs_map_layers')) ?? {}
+    existing[treeId] = {style, hiddenOverlays}
+    localStorage.setItem('grampsjs_map_layers', JSON.stringify(existing))
+  } catch (_) {
+    // ignore
+  }
+}
+
 export const TREE_CONFIG_APP_TITLE = 'frontend.appTitle'
 export const TREE_CONFIG_PRIMARY_COLOR = 'frontend.primaryColor'
 export const TREE_CONFIG_SECONDARY_COLOR = 'frontend.secondaryColor'

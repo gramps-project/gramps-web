@@ -46,7 +46,11 @@ function makeView() {
   }
   Object.defineProperty(view, '_mapEl', {value: map})
   Object.defineProperty(view, '_searchbox', {value: searchbox})
-  view.appState = {i18n: {lang: 'en'}, apiGet: vi.fn(), dbInfo: {}}
+  view.appState = {
+    i18n: {lang: 'en', strings: {}},
+    apiGet: vi.fn(),
+    dbInfo: {},
+  }
   view._dataPlaces = PLACES
   view._filteredPlaces = PLACES
   return {view, map, searchbox}
@@ -60,6 +64,7 @@ async function selectLoadedPerson(view) {
 
 beforeEach(() => {
   localStorage.removeItem('grampsjs_map_viewport')
+  localStorage.removeItem('grampsjs_map_layers')
 })
 
 describe('map view: places', () => {
@@ -297,5 +302,100 @@ describe('map view: time filter', () => {
     expect(view._timeFilterActive).to.equal(true)
     await selectLoadedPerson(view)
     expect(view._timeFilterActive).to.equal(false)
+  })
+})
+
+describe('map view: layer settings', () => {
+  it('starts with the base map and the building layer off', () => {
+    const {view} = makeView()
+    expect(view._mapStyle).to.equal('base')
+    expect(view._wikidataVisible).to.equal(false)
+  })
+
+  it('remembers the building layer and the map style', () => {
+    const {view} = makeView()
+    view._handleOverlayToggle({
+      detail: {overlay: {handle: WIKIDATA_LAYER_HANDLE}, visible: true},
+    })
+    view._handleLayerChange({detail: {style: 'ohm'}})
+
+    const {view: reloaded} = makeView()
+    expect(reloaded._wikidataVisible).to.equal(true)
+    expect(reloaded._mapStyle).to.equal('ohm')
+  })
+
+  it('remembers a hidden map overlay', () => {
+    const {view} = makeView()
+    view._handleOverlayToggle({
+      detail: {overlay: {handle: 'M1'}, visible: false},
+    })
+    const {view: reloaded} = makeView()
+    expect(reloaded._hiddenOverlaysHandles).to.include('M1')
+  })
+})
+
+describe('map view: building status', () => {
+  const bounds = {
+    getWest: () => 8,
+    getSouth: () => 49,
+    getEast: () => 9,
+    getNorth: () => 50,
+  }
+  const buildings = [
+    {
+      qid: 'Q1',
+      lat: 49.5,
+      long: 8.5,
+      inceptionYear: 1900,
+      demolishedYear: null,
+    },
+    {
+      qid: 'Q2',
+      lat: 49.5,
+      long: 8.5,
+      inceptionYear: null,
+      demolishedYear: null,
+    },
+    {qid: 'Q3', lat: 51, long: 8.5, inceptionYear: null, demolishedYear: null},
+  ]
+
+  function makeZoomedView() {
+    const {view} = makeView()
+    view._bounds = bounds
+    view._zoom = 15
+    view._wikidata.buildings = buildings
+    return view
+  }
+
+  it('asks to zoom in below the minimum zoom', () => {
+    const view = makeZoomedView()
+    view._zoom = 12
+    expect(view._wikidataStatus).to.equal('Zoom in to see Wikidata buildings')
+  })
+
+  it('shows that buildings are loading', () => {
+    const view = makeZoomedView()
+    view._wikidata.loading = true
+    expect(view._wikidataStatus).to.equal('Loading...')
+  })
+
+  it('shows no status while buildings are in view', () => {
+    const view = makeZoomedView()
+    expect(view._wikidataStatus).to.equal('')
+  })
+
+  it('says so when no building is in view', () => {
+    const view = makeZoomedView()
+    view._wikidata.buildings = [buildings[2]]
+    expect(view._wikidataStatus).to.equal('No buildings here')
+  })
+
+  it('counts only buildings matching the time filter', () => {
+    const view = makeZoomedView()
+    view._wikidata.buildings = [buildings[0]]
+    view._handleTimeSliderChange({
+      detail: {value: 1850, span: 25, enabled: true},
+    })
+    expect(view._wikidataStatus).to.equal('No buildings here')
   })
 })

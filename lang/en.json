@@ -431,5 +431,7 @@
   "Demolished": "Demolished",
   "Occupants": "Occupants",
   "Owners": "Owners",
-  "Public data from %s": "Public data from %s"
+  "Public data from %s": "Public data from %s",
+  "Your maps": "Your maps",
+  "No buildings here": "No buildings here"
 }

@@ -18,6 +18,9 @@ const PADDING = 0.25
 export class WikidataBuildingsController implements ReactiveController {
   buildings: WikidataBuilding[] = []
 
+  // Whether a request is running.
+  loading = false
+
   private host: ReactiveControllerHost
 
   private timer: ReturnType<typeof setTimeout> | undefined
@@ -53,6 +56,8 @@ export class WikidataBuildingsController implements ReactiveController {
     this.abort?.abort()
     const abort = new AbortController()
     this.abort = abort
+    this.loading = true
+    this.host.requestUpdate()
     try {
       const res = await queryWikidataBuildings(padded, {
         lang,
@@ -60,19 +65,25 @@ export class WikidataBuildingsController implements ReactiveController {
       })
       // A response can complete just before a newer request aborts it.
       if (abort !== this.abort) return
+      this.loading = false
       if ('data' in res) {
         this.buildings = res.data
         // A truncated result is not reused, so the next move fetches again.
         this.fetched = res.truncated ? null : {bounds: padded, lang}
-        this.host.requestUpdate()
       }
+      this.host.requestUpdate()
     } catch (e) {
-      // Aborted by a newer request.
+      // Aborted by a newer request, which owns the loading state.
     }
   }
 
   cancel(): void {
     clearTimeout(this.timer)
     this.abort?.abort()
+    this.abort = undefined
+    if (this.loading) {
+      this.loading = false
+      this.host.requestUpdate()
+    }
   }
 }
