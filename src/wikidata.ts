@@ -393,9 +393,10 @@ export function formatWikidataTime(
   if (!value || year === null) return ''
   const match = /^[+-]?\d+-(\d\d)-(\d\d)/.exec(value.time)
   if (value.precision < 10 || year < 1000 || !match) return `${year}`
-  const date = new Date(
-    Date.UTC(year, parseInt(match[1], 10) - 1, parseInt(match[2], 10))
-  )
+  // With month precision, the day is not meaningful and can be "00", which
+  // Date.UTC would roll back into the previous month.
+  const day = value.precision === 10 ? 1 : parseInt(match[2], 10)
+  const date = new Date(Date.UTC(year, parseInt(match[1], 10) - 1, day))
   const options: Intl.DateTimeFormatOptions =
     value.precision === 10
       ? {year: 'numeric', month: 'long', timeZone: 'UTC'}

@@ -114,7 +114,12 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
   }
 
   updated(changed) {
-    if (changed.has('qid')) {
+    const prevLang = changed.get('appState')?.i18n?.lang
+    const langChanged =
+      changed.has('appState') &&
+      prevLang !== undefined &&
+      prevLang !== this.appState?.i18n?.lang
+    if (changed.has('qid') || langChanged) {
       this._fetchDetail()
     }
   }
@@ -129,16 +134,19 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
     this._detail = null
     this._loading = Boolean(this.qid)
     if (!this.qid) return
-    this._abort = new AbortController()
+    const abort = new AbortController()
+    this._abort = abort
     try {
       const res = await queryWikidataBuilding(this.qid, {
         lang: this.appState?.i18n?.lang,
-        signal: this._abort.signal,
+        signal: abort.signal,
       })
+      // A response can complete just before a newer request aborts it.
+      if (abort !== this._abort) return
       this._detail = res.data ?? null
       this._loading = false
     } catch (e) {
-      // Aborted because another building was selected.
+      // Aborted by a newer request.
     }
   }
 

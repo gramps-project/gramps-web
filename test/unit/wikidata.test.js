@@ -271,6 +271,12 @@ describe('formatWikidataTime', () => {
     ).to.equal('March 15, 1650')
   })
 
+  it('ignores a zero day with month precision', () => {
+    expect(
+      formatWikidataTime({time: '1650-03-00T00:00:00Z', precision: 10}, 'en')
+    ).to.equal('March 1650')
+  })
+
   it('returns an empty string without a value', () => {
     expect(formatWikidataTime(null)).to.equal('')
   })

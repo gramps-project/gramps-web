@@ -51,12 +51,15 @@ export class WikidataBuildingsController implements ReactiveController {
     }
     const padded = padBounds(viewport, PADDING)
     this.abort?.abort()
-    this.abort = new AbortController()
+    const abort = new AbortController()
+    this.abort = abort
     try {
       const res = await queryWikidataBuildings(padded, {
         lang,
-        signal: this.abort.signal,
+        signal: abort.signal,
       })
+      // A response can complete just before a newer request aborts it.
+      if (abort !== this.abort) return
       if ('data' in res) {
         this.buildings = res.data
         // A truncated result is not reused, so the next move fetches again.

@@ -347,6 +347,14 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       this._applyPendingPerson()
       this._searchbox?.focus()
     }
+    const prevLang = changed.get('appState')?.i18n?.lang
+    if (
+      changed.has('appState') &&
+      prevLang !== undefined &&
+      prevLang !== this.appState?.i18n?.lang
+    ) {
+      this._updateWikidataBuildings({immediate: true})
+    }
   }
 
   _handleOverlayToggle(event) {
