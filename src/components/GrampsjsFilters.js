@@ -134,6 +134,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
       // sections of the filter panel, see filterDefinitions.js
       definitions: {type: Array},
       open: {type: Boolean},
+      showGql: {type: Boolean},
       query: {type: String},
       errorGql: {type: Boolean},
       _pills: {type: Array},
@@ -144,6 +145,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.definitions = []
     this.open = false
+    this.showGql = true
     this.query = ''
     this.errorGql = false
     this._pills = []
@@ -198,7 +200,9 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
           @filter-section:change="${this._handleSectionChange}"
         >
           ${this.definitions.map(section => this._renderSection(section))}
-          ${this._renderDetails(GQL_SECTION, 'GQL', this._renderGql())}
+          ${this.showGql
+            ? this._renderDetails(GQL_SECTION, 'GQL', this._renderGql())
+            : nothing}
         </div>
       </div>
     `

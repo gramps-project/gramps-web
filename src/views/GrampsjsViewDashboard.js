@@ -6,7 +6,6 @@ import '@material/web/button/outlined-button'
 import {GrampsjsView} from './GrampsjsView.js'
 import './GrampsjsViewRecentlyChanged.js'
 import './GrampsjsViewRecentBlogPosts.js'
-import './GrampsjsViewAnniversaries.js'
 import '../components/GrampsjsHomePerson.js'
 import '../components/GrampsjsStatistics.js'
 import '../components/GrampsjsConnectedNote.js'
@@ -246,17 +245,6 @@ export class GrampsjsViewDashboard extends GrampsjsView {
                   .homePersonGrampsId=${this.homePersonGrampsId}
                 >
                 </grampsjs-home-person>
-              </div>
-            `
-          : ''}
-        ${this.appState.dbInfo?.object_counts?.events
-          ? html`
-              <div>
-                <grampsjs-view-anniversaries
-                  id="anniversaries"
-                  .appState="${this.appState}"
-                >
-                </grampsjs-view-anniversaries>
               </div>
             `
           : ''}
