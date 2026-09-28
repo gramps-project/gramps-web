@@ -428,5 +428,14 @@
     "This Gramps Web instance has already been set up. Log in with an existing account.": "Táto inštancia Gramps Web už bola nastavená. Prihláste sa s existujúcim účtom.",
     "Fit to window": "Prispôsobiť oknu",
     "Center on selected person": "Vycentrovať na vybranú osobu",
-    "Move the chart": "Posunúť diagram"
+    "Move the chart": "Posunúť diagram",
+    "Your maps": "Vaše mapy",
+    "Owners": "Vlastníci",
+    "Wikidata buildings": "Budovy z Wikidata",
+    "Zoom in to see Wikidata buildings": "Priblížte mapu, aby ste videli budovy z Wikidata",
+    "Built": "Postavené",
+    "Demolished": "Zbúrané",
+    "Occupants": "Nájomníci",
+    "Public data from %s": "Verejné údaje z %s",
+    "No buildings here": "Tu nie sú žiadne budovy"
 }
