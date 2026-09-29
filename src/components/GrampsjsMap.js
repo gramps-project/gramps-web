@@ -27,6 +27,22 @@ const defaultConfig = {
 
 const {maplibregl} = window
 
+// Returns a copy of an OpenHistoricalMap style with labels in the given
+// locales.
+export function localizeOhmStyle(style, locales) {
+  const localized = structuredClone(style)
+  localized.layers.forEach(layer => Diplomat.prepareLayer(layer))
+  Diplomat.localizeLayers(localized.layers, locales, {
+    localizedNamePropertyFormat: 'name_$1',
+  })
+  const state = Diplomat.getGlobalStateForLocalization(locales)
+  localized.state = {...localized.state}
+  Object.entries(state).forEach(([name, value]) => {
+    localized.state[name] = {default: value}
+  })
+  return localized
+}
+
 class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
@@ -90,9 +106,9 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
         <grampsjs-map-layer-switcher
           .appState="${this.appState}"
           .overlays="${this.overlays}"
-          .currentStyle="${this._currentStyle}"
+          .currentStyle="${this.mapStyle}"
           year="${this.year}"
-          @map:layerchange="${this._onStyleChange}"
+          @map:layerchange="${this._handleLayerChange}"
           @map:overlay-toggle="${this._handleOverlayToggle}"
         ></grampsjs-map-layer-switcher>
       </div>
@@ -114,10 +130,10 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       longMax: {type: Number},
       overlays: {type: Array},
       layerSwitcher: {type: Boolean},
-      // Map style when the map is created: 'base' or 'ohm'.
-      initialStyle: {type: String},
+      // The map style to show: 'base' or 'ohm'. The layer switcher sets it
+      // too; the map applies it once the style JSON is fetched.
+      mapStyle: {type: String},
       _map: {type: Object},
-      _currentStyle: {type: String},
     }
   }
 
@@ -136,9 +152,15 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this.longMax = 0
     this.overlays = []
     this.layerSwitcher = false
-    this.initialStyle = MAP_STYLE_BASE
-    this._currentStyle = MAP_STYLE_BASE
+    this.mapStyle = MAP_STYLE_BASE
     this._mediaQuery = undefined
+    // Style JSON requests by URL.
+    this._styleRequests = new Map()
+    // The style shown by MapLibre, and the key (URL and locales) of the style
+    // shown and the one being loaded. See _syncStyle.
+    this._appliedStyle = undefined
+    this._appliedKey = undefined
+    this._pendingKey = undefined
   }
 
   connectedCallback() {
@@ -154,12 +176,9 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
 
   firstUpdated() {
     const mapel = this.shadowRoot.getElementById(this.mapid)
-    this._currentStyle =
-      this.initialStyle === MAP_STYLE_OHM ? MAP_STYLE_OHM : MAP_STYLE_BASE
-    const styleUrl = this._getStyleUrl(this._currentStyle)
+    // The style is set by _syncStyle, from updated().
     this._map = new maplibregl.Map({
       container: mapel,
-      style: styleUrl,
       center: [this.longitude, this.latitude],
       zoom: this.zoom,
       attributionControl: true,
@@ -206,7 +225,6 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       if (this.year > 0 && this._map.filterByDate) {
         this._map.filterByDate(`${this.year}`)
       }
-      this._localizeOhm()
       if (this.latMin !== 0 || this.latMax !== 0) {
         this._map.fitBounds([
           [this.longMin, this.latMin],
@@ -222,7 +240,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this._map.on('moveend', () => this._fireViewport('map:moveend'))
     this._map.on('sourcedata', () => {
       if (
-        this._currentStyle === MAP_STYLE_OHM &&
+        this._appliedStyle === MAP_STYLE_OHM &&
         this.year > 0 &&
         typeof this._map.filterByDate === 'function'
       ) {
@@ -253,7 +271,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       el => typeof el.addToMap === 'function' && !el._map
     )
     if (!toInit.length) return
-    if (!this._map?.isStyleLoaded()) {
+    if (!this._isStyleLoaded()) {
       // If the initial load has already fired but isStyleLoaded() is transiently
       // false (e.g. sprites still loading), defer addToMap until the map is idle.
       if (this._mapInitialLoadFired) {
@@ -299,50 +317,34 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   }
 
   updated(changed) {
-    if (
-      changed.has('year') &&
-      this.year > 0 &&
-      this._map &&
-      this._map.isStyleLoaded &&
-      this._map.isStyleLoaded()
-    ) {
+    // appState carries the theme and the language, which select the style.
+    if (changed.has('mapStyle') || changed.has('appState')) {
+      this._syncStyle()
+    }
+    if (changed.has('year') && this.year > 0 && this._isStyleLoaded()) {
       try {
         this._map.filterByDate(`${this.year}`)
       } catch (e) {
         // Ignore errors if filterByDate fails (e.g. style does not support it)
       }
     }
-    if (
-      changed.has('appState') &&
-      this._currentStyle === MAP_STYLE_OHM &&
-      this._map?.isStyleLoaded()
-    ) {
-      const prevLang = changed.get('appState')?.i18n?.lang
-      if (prevLang !== this.appState.i18n?.lang) {
-        this._localizeOhm()
-      }
-    }
   }
 
-  _localizeOhm() {
-    if (this._currentStyle !== MAP_STYLE_OHM) return
+  _isStyleLoaded() {
+    return Boolean(this._map?.style && this._map.isStyleLoaded())
+  }
+
+  get _locales() {
     const lang = this.appState?.i18n?.lang
-    const locales = lang
-      ? [lang, ...Diplomat.getLocales()]
-      : Diplomat.getLocales()
-    Diplomat.localizeStyle(this._map, locales, {
-      localizedNamePropertyFormat: 'name_$1',
-    })
+    return lang ? [lang, ...Diplomat.getLocales()] : Diplomat.getLocales()
   }
 
-  _onStyleChange(e) {
-    const {style} = e.detail
-    this._currentStyle = style
-    this._handleStyleChange(style)
+  _handleLayerChange(e) {
+    this.mapStyle = e.detail.style
   }
 
   _onThemeChange = () => {
-    this._handleStyleChange(this._currentStyle)
+    this._syncStyle()
   }
 
   _handleOverlayToggle(e) {
@@ -359,18 +361,50 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       })
   }
 
-  _handleStyleChange(style) {
+  // Brings the map to the style selected by mapStyle, the theme and the
+  // language. The style JSON is fetched and localized before setStyle, which
+  // then applies it synchronously. A load that finishes after the selection
+  // changed is dropped.
+  async _syncStyle() {
     if (!this._map) return
-    const styleUrl = this._getStyleUrl(style)
-    const styleArg = this._prefetchedStyles?.get(styleUrl) ?? styleUrl
-    const contributors = this._slottedChildren.filter(
-      el => typeof el.getTransformStyleContribution === 'function'
-    )
-    if (style === MAP_STYLE_OHM) {
-      this._map.once('styledata', () => this._localizeOhm())
+    const style =
+      this.mapStyle === MAP_STYLE_OHM ? MAP_STYLE_OHM : MAP_STYLE_BASE
+    const url = this._getStyleUrl(style)
+    const locales = style === MAP_STYLE_OHM ? this._locales : []
+    const key = `${url} ${locales.join(',')}`
+    if (key === this._appliedKey) {
+      this._pendingKey = undefined
+      return
     }
+    if (key === this._pendingKey) return
+    this._pendingKey = key
+    let json
+    try {
+      json = await this._loadStyle(url)
+    } catch (e) {
+      if (this._pendingKey === key) {
+        this._pendingKey = undefined
+        this._handleStyleLoadError(style)
+      }
+      return
+    }
+    if (this._pendingKey !== key || !this._map) return
+    this._pendingKey = undefined
+    // The cached JSON stays untouched; setStyle gets a copy.
+    json =
+      style === MAP_STYLE_OHM
+        ? localizeOhmStyle(json, locales)
+        : structuredClone(json)
+    // Layers add themselves on the first load; later styles keep them.
+    const contributors = this._appliedKey
+      ? this._slottedChildren.filter(
+          el => typeof el.getTransformStyleContribution === 'function'
+        )
+      : []
+    this._appliedStyle = style
+    this._appliedKey = key
     this._map.setStyle(
-      styleArg,
+      json,
       contributors.length > 0
         ? {
             transformStyle: (prev, next) =>
@@ -387,17 +421,39 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     )
   }
 
+  // Selects the style that is still shown, or the base map if nothing is
+  // shown yet, so the switcher is accurate and the failed style can be
+  // selected again to retry.
+  _handleStyleLoadError(style) {
+    fireEvent(this, 'grampsjs:error', {
+      message: this._('The map could not be loaded.'),
+    })
+    const fallback =
+      this._appliedStyle ??
+      (style === MAP_STYLE_OHM ? MAP_STYLE_BASE : undefined)
+    if (fallback === undefined || fallback === this.mapStyle) return
+    this.mapStyle = fallback
+    fireEvent(this, 'map:layerchange', {style: fallback})
+  }
+
   _prefetchAlternateStyle() {
     const alternateStyle =
-      this._currentStyle === MAP_STYLE_BASE ? MAP_STYLE_OHM : MAP_STYLE_BASE
-    const url = this._getStyleUrl(alternateStyle)
-    fetch(url)
-      .then(r => r.json())
-      .then(json => {
-        if (!this._prefetchedStyles) this._prefetchedStyles = new Map()
-        this._prefetchedStyles.set(url, json)
+      this._appliedStyle === MAP_STYLE_BASE ? MAP_STYLE_OHM : MAP_STYLE_BASE
+    this._loadStyle(this._getStyleUrl(alternateStyle)).catch(() => {})
+  }
+
+  // Resolves to the style JSON. A failed request is dropped from the cache so
+  // the next call retries it.
+  _loadStyle(url) {
+    if (!this._styleRequests.has(url)) {
+      const request = fetch(url).then(response => {
+        if (!response.ok) throw new Error(`${response.status} ${url}`)
+        return response.json()
       })
-      .catch(() => {})
+      request.catch(() => this._styleRequests.delete(url))
+      this._styleRequests.set(url, request)
+    }
+    return this._styleRequests.get(url)
   }
 
   _getStyleUrl(style) {

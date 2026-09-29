@@ -432,5 +432,6 @@
   "Owners": "Owners",
   "Public data from %s": "Public data from %s",
   "Your maps": "Your maps",
-  "No buildings here": "No buildings here"
+  "No buildings here": "No buildings here",
+  "The map could not be loaded.": "The map could not be loaded."
 }
