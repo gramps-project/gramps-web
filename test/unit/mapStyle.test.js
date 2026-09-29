@@ -53,14 +53,22 @@ describe('map style switching', () => {
 
   function createMap(responses) {
     const map = document.createElement('grampsjs-map')
-    map.appState = {getCurrentTheme: () => 'light', i18n: {lang: 'de'}}
+    map.appState = {
+      getCurrentTheme: () => 'light',
+      i18n: {lang: 'de', strings: {}},
+    }
     Object.defineProperty(map, '_slottedChildren', {value: []})
     const applied = []
     map._map = {setStyle: style => applied.push(style)}
     globalThis.fetch = vi.fn(url => {
       const {promise, json} =
         responses[url.includes('openhistoricalmap') ? 'ohm' : 'base']
-      return promise.then(() => ({ok: true, json: () => structuredClone(json)}))
+      // A response without JSON is a failed request.
+      return promise.then(() => ({
+        ok: json !== null,
+        status: 503,
+        json: () => structuredClone(json),
+      }))
     })
     return {map, applied}
   }
@@ -142,9 +150,24 @@ describe('map style switching', () => {
     ohm.resolve()
     const {map, applied} = await createBaseMap({ohm, base: deferred(BASE)})
     await select(map, 'ohm')
-    map.appState = {...map.appState, i18n: {lang: 'fr'}}
+    map.appState = {...map.appState, i18n: {lang: 'fr', strings: {}}}
     await map._syncStyle()
     expect(applied).to.have.length(3)
     expect(JSON.stringify(applied[2].layers[1])).to.contain('name_fr')
+  })
+
+  it('reports a failed load and selects the style still shown', async () => {
+    const ohm = deferred(null)
+    ohm.resolve()
+    const {map, applied} = await createBaseMap({ohm, base: deferred(BASE)})
+    const errors = []
+    const layerChanges = []
+    map.addEventListener('grampsjs:error', e => errors.push(e.detail))
+    map.addEventListener('map:layerchange', e => layerChanges.push(e.detail))
+    await select(map, 'ohm')
+    expect(errors).to.have.length(1)
+    expect(map.mapStyle).to.equal('base')
+    expect(layerChanges).to.deep.equal([{style: 'base'}])
+    expect(applied.map(style => style.name)).to.deep.equal(['base'])
   })
 })
