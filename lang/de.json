@@ -438,5 +438,6 @@
     "Owners": "Eigentümer",
     "Public data from %s": "Öffentliche Daten von %s",
     "Your maps": "Deine Karten",
-    "No buildings here": "Hier gibt es keine Gebäude"
+    "No buildings here": "Hier gibt es keine Gebäude",
+    "The map could not be loaded.": "Die Karte konnte nicht geladen werden."
 }
