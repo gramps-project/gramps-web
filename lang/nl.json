@@ -428,5 +428,14 @@
     "This Gramps Web instance has already been set up. Log in with an existing account.": "Deze Gramps Web-instantie is al ingesteld. Log in met een bestaand account.",
     "Fit to window": "Aansluiten op venster",
     "Center on selected person": "Centreren rond geselecteerde persoon",
-    "Move the chart": "Verplaats de grafiek"
+    "Move the chart": "Verplaats de grafiek",
+    "Wikidata buildings": "Wikidata gebouwen",
+    "Zoom in to see Wikidata buildings": "Zoom in om Wikidata-gebouwen te zien",
+    "Built": "Gebouwd",
+    "Demolished": "Gesloopt",
+    "Occupants": "Bewoners",
+    "Owners": "Eigenaars",
+    "Public data from %s": "Openbare gegevens van %s",
+    "Your maps": "Uw kaarten",
+    "No buildings here": "Hier geen gebouwen"
 }
