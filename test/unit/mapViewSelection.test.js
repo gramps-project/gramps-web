@@ -262,46 +262,122 @@ const date = year => ({
 })
 
 function withEvents(view) {
-  // P1 has an event in 1850, P2 in 1950, P3 none.
+  // P1 has a birth in 1850 and a death in 1950, P2 a birth in 1950, P3 none.
   view._eventsByPlace = new Map([
-    ['P1', [{place: 'P1', date: date(1850)}]],
-    ['P2', [{place: 'P2', date: date(1950)}]],
+    [
+      'P1',
+      [
+        {place: 'P1', type: 'Birth', date: date(1850)},
+        {place: 'P1', type: 'Death', date: date(1950)},
+      ],
+    ],
+    ['P2', [{place: 'P2', type: 'Birth', date: date(1950)}]],
   ])
 }
 
-describe('map view: time filter', () => {
-  it('filters places to the selected years while enabled', () => {
+// Sets the time filter as the filters panel and the slider do.
+function setTimeFilter(view, year, span) {
+  view._handleFilterChange({detail: {timeFilter: true, yearSpan: span}})
+  view._handleTimeSliderChange({detail: {value: year}})
+}
+
+const handles = view => view._filteredPlaces.map(p => p.handle)
+
+describe('map view: filters', () => {
+  it('starts without filters, showing all places', () => {
     const {view} = makeView()
     withEvents(view)
-    view._handleTimeSliderChange({
-      detail: {value: 1860, span: 25, enabled: true},
-    })
-    expect(view._filteredPlaces.map(p => p.handle)).to.deep.equal(['P1'])
+    view._applyPlaceFilter()
+    expect(view._timeFilter).to.equal(false)
+    expect(handles(view)).to.deep.equal(['P1', 'P2', 'P3'])
   })
 
-  it('shows all places while disabled, keeping the span', () => {
+  it('filters places to the selected years', () => {
     const {view} = makeView()
     withEvents(view)
-    view._handleTimeSliderChange({
-      detail: {value: 1860, span: 25, enabled: false},
-    })
-    expect(view._filteredPlaces.map(p => p.handle)).to.deep.equal([
-      'P1',
-      'P2',
-      'P3',
-    ])
+    setTimeFilter(view, 1860, 25)
+    expect(handles(view)).to.deep.equal(['P1'])
+  })
+
+  it('shows all places again when the time filter is off, keeping the span', () => {
+    const {view} = makeView()
+    withEvents(view)
+    setTimeFilter(view, 1860, 25)
+    view._handleFilterChange({detail: {timeFilter: false}})
+    expect(handles(view)).to.deep.equal(['P1', 'P2', 'P3'])
     expect(view._yearSpan).to.equal(25)
-    expect(view._timeFilterActive).to.equal(false)
+  })
+
+  it('filters places by event type', () => {
+    const {view} = makeView()
+    withEvents(view)
+    view._handleFilterChange({detail: {eventTypes: ['Death']}})
+    expect(handles(view)).to.deep.equal(['P1'])
+    view._handleFilterChange({detail: {eventTypes: []}})
+    expect(handles(view)).to.deep.equal(['P1', 'P2', 'P3'])
+  })
+
+  it('combines the filters per event', () => {
+    const {view} = makeView()
+    withEvents(view)
+    // P1 has a death, and an event around 1860, but no death around 1860.
+    view._handleFilterChange({detail: {eventTypes: ['Death']}})
+    setTimeFilter(view, 1860, 25)
+    expect(handles(view)).to.deep.equal([])
   })
 
   it('does not apply the time filter while a person is selected', async () => {
     const {view} = makeView()
-    view._handleTimeSliderChange({
-      detail: {value: 1860, span: 25, enabled: true},
-    })
+    setTimeFilter(view, 1860, 25)
     expect(view._timeFilterActive).to.equal(true)
     await selectLoadedPerson(view)
     expect(view._timeFilterActive).to.equal(false)
+  })
+
+  it('lists the event types of the tree, most frequent first', async () => {
+    const {view} = makeView()
+    view.appState.apiGet.mockResolvedValue({
+      data: [
+        {handle: 'E1', place: 'P1', type: 'Death'},
+        {handle: 'E2', place: 'P1', type: 'Birth'},
+        {handle: 'E3', place: 'P2', type: 'Birth'},
+        {handle: 'E4', place: '', type: 'Census'},
+      ],
+    })
+    await view._fetchEvents()
+    expect(view.appState.apiGet).toHaveBeenCalledWith(
+      '/api/events/?keys=date,handle,place,type'
+    )
+    expect(view._availableEventTypes).to.deep.equal([
+      {type: 'Birth', count: 2},
+      {type: 'Death', count: 1},
+    ])
+  })
+})
+
+describe('map view: time slider', () => {
+  it('is disabled without time filter on the base map', () => {
+    const {view} = makeView()
+    expect(view._timeSliderEnabled).to.equal(false)
+  })
+
+  it('is enabled while the time filter is on', () => {
+    const {view} = makeView()
+    setTimeFilter(view, 1860, 25)
+    expect(view._timeSliderEnabled).to.equal(true)
+  })
+
+  it('is enabled on the historical map', () => {
+    const {view} = makeView()
+    view._handleLayerChange({detail: {style: 'ohm'}})
+    expect(view._timeSliderEnabled).to.equal(true)
+  })
+
+  it('is disabled while a person is selected on the base map', async () => {
+    const {view} = makeView()
+    setTimeFilter(view, 1860, 25)
+    await selectLoadedPerson(view)
+    expect(view._timeSliderEnabled).to.equal(false)
   })
 })
 
@@ -393,9 +469,7 @@ describe('map view: building status', () => {
   it('counts only buildings matching the time filter', () => {
     const view = makeZoomedView()
     view._wikidata.buildings = [buildings[0]]
-    view._handleTimeSliderChange({
-      detail: {value: 1850, span: 25, enabled: true},
-    })
+    setTimeFilter(view, 1850, 25)
     expect(view._wikidataStatus).to.equal('No buildings here')
   })
 })

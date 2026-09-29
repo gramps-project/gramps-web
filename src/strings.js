@@ -593,6 +593,7 @@ export const grampsStrings = [
   'Number',
   'Object',
   'Occupation',
+  'Off',
   'Officiator',
   'OK',
   'On a line of its own',
