@@ -382,7 +382,10 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     try {
       json = await this._loadStyle(url)
     } catch (e) {
-      if (this._pendingKey === key) this._pendingKey = undefined
+      if (this._pendingKey === key) {
+        this._pendingKey = undefined
+        this._handleStyleLoadError(style)
+      }
       return
     }
     if (this._pendingKey !== key || !this._map) return
@@ -416,6 +419,21 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
           }
         : undefined
     )
+  }
+
+  // Selects the style that is still shown, or the base map if nothing is
+  // shown yet, so the switcher is accurate and the failed style can be
+  // selected again to retry.
+  _handleStyleLoadError(style) {
+    fireEvent(this, 'grampsjs:error', {
+      message: this._('The map could not be loaded.'),
+    })
+    const fallback =
+      this._appliedStyle ??
+      (style === MAP_STYLE_OHM ? MAP_STYLE_BASE : undefined)
+    if (fallback === undefined || fallback === this.mapStyle) return
+    this.mapStyle = fallback
+    fireEvent(this, 'map:layerchange', {style: fallback})
   }
 
   _prefetchAlternateStyle() {
