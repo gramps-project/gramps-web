@@ -437,5 +437,6 @@
     "Owners": "Eigenaars",
     "Public data from %s": "Openbare gegevens van %s",
     "Your maps": "Uw kaarten",
-    "No buildings here": "Hier geen gebouwen"
+    "No buildings here": "Hier geen gebouwen",
+    "The map could not be loaded.": "De kaart kon niet worden geladen."
 }
