@@ -73,29 +73,78 @@ describe('map style switching', () => {
     return {promise, resolve: resolvePromise, json}
   }
 
+  const OHM = {...STYLE, name: 'ohm'}
+
+  // What the layer switcher and the view do: set mapStyle, which updated()
+  // passes to _syncStyle. The map is detached, so this calls it directly.
+  function select(map, style) {
+    // eslint-disable-next-line no-param-reassign
+    map.mapStyle = style
+    return map._syncStyle()
+  }
+
+  async function createBaseMap(responses) {
+    const created = createMap(responses)
+    responses.base.resolve()
+    await select(created.map, 'base')
+    return created
+  }
+
   it('applies the localized style once it is loaded', async () => {
-    const ohm = deferred(STYLE)
-    const {map, applied} = createMap({ohm, base: deferred(BASE)})
-    const change = map._handleStyleChange('ohm')
-    expect(map._currentStyle).to.equal('base')
+    const ohm = deferred(OHM)
+    const {map, applied} = await createBaseMap({ohm, base: deferred(BASE)})
+    const change = select(map, 'ohm')
+    expect(map._appliedStyle).to.equal('base')
     ohm.resolve()
     await change
-    expect(map._currentStyle).to.equal('ohm')
-    expect(applied).to.have.length(1)
-    expect(JSON.stringify(applied[0].layers[1])).to.contain('name_de')
+    expect(map._appliedStyle).to.equal('ohm')
+    expect(applied.map(style => style.name)).to.deep.equal(['base', 'ohm'])
+    expect(JSON.stringify(applied[1].layers[1])).to.contain('name_de')
   })
 
-  it('applies only the latest style when requests overlap', async () => {
-    const ohm = deferred(STYLE)
+  it('keeps the applied style when it is selected again while loading', async () => {
+    const ohm = deferred(OHM)
+    const {map, applied} = await createBaseMap({ohm, base: deferred(BASE)})
+    const toOhm = select(map, 'ohm')
+    await select(map, 'base')
+    ohm.resolve()
+    await toOhm
+    expect(applied.map(style => style.name)).to.deep.equal(['base'])
+    expect(map._appliedStyle).to.equal('base')
+  })
+
+  it('applies only the latest selection when loads overlap', async () => {
+    const ohm = deferred(OHM)
     const base = deferred(BASE)
     const {map, applied} = createMap({ohm, base})
-    const first = map._handleStyleChange('ohm')
-    const second = map._handleStyleChange('base')
+    const first = select(map, 'ohm')
+    const second = select(map, 'base')
     base.resolve()
     await second
     ohm.resolve()
     await first
     expect(applied.map(style => style.name)).to.deep.equal(['base'])
-    expect(map._currentStyle).to.equal('base')
+  })
+
+  it('applies a selection once when synced repeatedly', async () => {
+    const ohm = deferred(OHM)
+    const {map, applied} = await createBaseMap({ohm, base: deferred(BASE)})
+    const first = select(map, 'ohm')
+    const second = map._syncStyle()
+    ohm.resolve()
+    await Promise.all([first, second])
+    await map._syncStyle()
+    expect(applied.map(style => style.name)).to.deep.equal(['base', 'ohm'])
+  })
+
+  it('relocalizes the historical map when the language changes', async () => {
+    const ohm = deferred(OHM)
+    ohm.resolve()
+    const {map, applied} = await createBaseMap({ohm, base: deferred(BASE)})
+    await select(map, 'ohm')
+    map.appState = {...map.appState, i18n: {lang: 'fr'}}
+    await map._syncStyle()
+    expect(applied).to.have.length(3)
+    expect(JSON.stringify(applied[2].layers[1])).to.contain('name_fr')
   })
 })

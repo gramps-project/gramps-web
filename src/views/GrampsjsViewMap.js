@@ -289,7 +289,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         longitude="${center[1]}"
         year="${this._year}"
         mapid="map-mapview"
-        initialStyle="${this._mapStyle}"
+        mapStyle="${this._mapStyle}"
         .overlays="${this._getOverlaysForLayerSwitcher()}"
         @map:layerchange="${this._handleLayerChange}"
         @map:load="${this._handleMapLoad}"
