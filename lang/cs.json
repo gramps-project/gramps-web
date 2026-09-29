@@ -436,5 +436,6 @@
     "Owners": "Vlastníci",
     "Public data from %s": "Veřejná data z %s",
     "Your maps": "Vaše mapy",
-    "No buildings here": "Zde nejsou žádné budovy"
+    "No buildings here": "Zde nejsou žádné budovy",
+    "The map could not be loaded.": "Mapu se nepodařilo načíst."
 }
