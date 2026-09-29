@@ -27,6 +27,22 @@ const defaultConfig = {
 
 const {maplibregl} = window
 
+// Returns a copy of an OpenHistoricalMap style with labels in the given
+// locales.
+export function localizeOhmStyle(style, locales) {
+  const localized = structuredClone(style)
+  localized.layers.forEach(layer => Diplomat.prepareLayer(layer))
+  Diplomat.localizeLayers(localized.layers, locales, {
+    localizedNamePropertyFormat: 'name_$1',
+  })
+  const state = Diplomat.getGlobalStateForLocalization(locales)
+  localized.state = {...localized.state}
+  Object.entries(state).forEach(([name, value]) => {
+    localized.state[name] = {default: value}
+  })
+  return localized
+}
+
 class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
@@ -139,6 +155,8 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     this.initialStyle = MAP_STYLE_BASE
     this._currentStyle = MAP_STYLE_BASE
     this._mediaQuery = undefined
+    // Style JSON requests by URL.
+    this._styleRequests = new Map()
   }
 
   connectedCallback() {
@@ -326,19 +344,16 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
 
   _localizeOhm() {
     if (this._currentStyle !== MAP_STYLE_OHM) return
+    this._map.setStyle(localizeOhmStyle(this._map.getStyle(), this._locales))
+  }
+
+  get _locales() {
     const lang = this.appState?.i18n?.lang
-    const locales = lang
-      ? [lang, ...Diplomat.getLocales()]
-      : Diplomat.getLocales()
-    Diplomat.localizeStyle(this._map, locales, {
-      localizedNamePropertyFormat: 'name_$1',
-    })
+    return lang ? [lang, ...Diplomat.getLocales()] : Diplomat.getLocales()
   }
 
   _onStyleChange(e) {
-    const {style} = e.detail
-    this._currentStyle = style
-    this._handleStyleChange(style)
+    this._handleStyleChange(e.detail.style)
   }
 
   _onThemeChange = () => {
@@ -359,18 +374,30 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       })
   }
 
-  _handleStyleChange(style) {
+  // Fetches the style JSON first, so the style is localized before it is
+  // applied and setStyle applies it synchronously. The latest call wins.
+  async _handleStyleChange(style) {
     if (!this._map) return
-    const styleUrl = this._getStyleUrl(style)
-    const styleArg = this._prefetchedStyles?.get(styleUrl) ?? styleUrl
+    const request = {}
+    this._pendingStyleChange = request
+    let json
+    try {
+      json = await this._loadStyle(style)
+    } catch (e) {
+      return
+    }
+    if (this._pendingStyleChange !== request || !this._map) return
+    // The cached JSON stays untouched; setStyle gets a copy.
+    json =
+      style === MAP_STYLE_OHM
+        ? localizeOhmStyle(json, this._locales)
+        : structuredClone(json)
+    this._currentStyle = style
     const contributors = this._slottedChildren.filter(
       el => typeof el.getTransformStyleContribution === 'function'
     )
-    if (style === MAP_STYLE_OHM) {
-      this._map.once('styledata', () => this._localizeOhm())
-    }
     this._map.setStyle(
-      styleArg,
+      json,
       contributors.length > 0
         ? {
             transformStyle: (prev, next) =>
@@ -390,14 +417,22 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   _prefetchAlternateStyle() {
     const alternateStyle =
       this._currentStyle === MAP_STYLE_BASE ? MAP_STYLE_OHM : MAP_STYLE_BASE
-    const url = this._getStyleUrl(alternateStyle)
-    fetch(url)
-      .then(r => r.json())
-      .then(json => {
-        if (!this._prefetchedStyles) this._prefetchedStyles = new Map()
-        this._prefetchedStyles.set(url, json)
+    this._loadStyle(alternateStyle).catch(() => {})
+  }
+
+  // Resolves to the style JSON. A failed request is dropped from the cache so
+  // the next call retries it.
+  _loadStyle(style) {
+    const url = this._getStyleUrl(style)
+    if (!this._styleRequests.has(url)) {
+      const request = fetch(url).then(response => {
+        if (!response.ok) throw new Error(`${response.status} ${url}`)
+        return response.json()
       })
-      .catch(() => {})
+      request.catch(() => this._styleRequests.delete(url))
+      this._styleRequests.set(url, request)
+    }
+    return this._styleRequests.get(url)
   }
 
   _getStyleUrl(style) {

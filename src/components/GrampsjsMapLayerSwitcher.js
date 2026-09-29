@@ -41,6 +41,20 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
           padding: 2px;
           display: flex;
           align-items: center;
+          position: relative;
+        }
+
+        /* Shown while any overlay is on. */
+        .dot {
+          position: absolute;
+          top: 5px;
+          right: 5px;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: var(--md-sys-color-primary);
+          box-shadow: 0 0 0 2px var(--md-sys-color-surface-container-high);
+          pointer-events: none;
         }
 
         .button md-icon-button {
@@ -237,6 +251,9 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
             color="var(--grampsjs-body-font-color-70)"
           ></grampsjs-icon>
         </md-icon-button>
+        ${this.overlays.some(overlay => overlay.visible)
+          ? html`<span class="dot"></span>`
+          : ''}
       </div>
       ${this._open ? this._renderPanel() : ''}
     `
