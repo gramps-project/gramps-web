@@ -24,6 +24,11 @@ describe('eventTypeKey', () => {
     expect(eventTypeKey({string: 'Birth'})).to.equal('Birth')
     expect(eventTypeKey(undefined)).to.equal('')
   })
+
+  it('names standard types given by their numeric value', () => {
+    expect(eventTypeKey({string: '', value: 12})).to.equal('Birth')
+    expect(eventTypeKey({value: 0})).to.equal('Custom')
+  })
 })
 
 describe('yearRange', () => {

@@ -3,15 +3,16 @@ Filters for the places on the map view: by time and by event type.
 A place is shown if one of its events matches all active filters.
 */
 
-import {isDateBetweenYears} from './util.js'
+import {eventTypeStrings, isDateBetweenYears} from './util.js'
 
 // Spans in years that the time filter offers around the selected year.
 export const TIME_SPANS = [1, 10, 25, 50, 100]
 
-// Event types come as strings or as Gramps type objects.
+// Event types come as strings or as Gramps type objects, where standard types
+// only carry their numeric value.
 export function eventTypeKey(type) {
   if (typeof type === 'string') return type
-  return type?.string || type?.value || ''
+  return type?.string || eventTypeStrings[type?.value] || ''
 }
 
 // The years the time filter covers, or null while it is off.
