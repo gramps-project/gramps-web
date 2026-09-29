@@ -437,5 +437,6 @@
     "Demolished": "Zbúrané",
     "Occupants": "Nájomníci",
     "Public data from %s": "Verejné údaje z %s",
-    "No buildings here": "Tu nie sú žiadne budovy"
+    "No buildings here": "Tu nie sú žiadne budovy",
+    "The map could not be loaded.": "Mapu sa nepodarilo načítať."
 }
