@@ -26,10 +26,32 @@ export const SYMBOL_SET_OPTIONS = [
   {value: SYMBOL_SET_TEXT, label: 'Text abbreviations (b. d. m. div.)'},
 ]
 
+const SYMBOL_TRANSLATION_CONTEXTS = {
+  birthSymbol: 'birth abbreviation',
+  deathSymbol: 'death abbreviation',
+  marriageSymbol: 'marriage abbreviation',
+  divorceSymbol: 'Divorce abbreviation',
+}
+
 export function getSymbols(settings, translate = value => value) {
   const symbols =
     SYMBOL_SETS[settings?.symbolSet] ?? SYMBOL_SETS[SYMBOL_SET_DEFAULT]
   return Object.fromEntries(
-    Object.entries(symbols).map(([key, value]) => [key, translate(value)])
+    Object.entries(symbols).map(([key, value]) => {
+      const context =
+        settings?.symbolSet === SYMBOL_SET_TEXT
+          ? SYMBOL_TRANSLATION_CONTEXTS[key]
+          : undefined
+      if (!context) return [key, value]
+
+      const translationKey = `${context}\u0004${value}`
+      const translated = translate(translationKey)
+      return [
+        key,
+        translated == null || translated === translationKey
+          ? value
+          : translated,
+      ]
+    })
   )
 }

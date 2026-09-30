@@ -31,10 +31,10 @@ describe('getSymbols', () => {
 
   it('translates text abbreviations when a translator is provided', () => {
     const translations = {
-      'b.': 'geb.',
-      'd.': 'gest.',
-      'm.': 'verh.',
-      'div.': 'gesch.',
+      'birth abbreviation\u0004b.': 'geb.',
+      'death abbreviation\u0004d.': 'gest.',
+      'marriage abbreviation\u0004m.': 'verh.',
+      'Divorce abbreviation\u0004div.': 'gesch.',
     }
     expect(
       getSymbols({symbolSet: SYMBOL_SET_TEXT}, value => translations[value])
@@ -43,6 +43,15 @@ describe('getSymbols', () => {
       deathSymbol: 'gest.',
       marriageSymbol: 'verh.',
       divorceSymbol: 'gesch.',
+    })
+  })
+
+  it('falls back to visible abbreviations when contextual translations are missing', () => {
+    expect(getSymbols({symbolSet: SYMBOL_SET_TEXT}, () => undefined)).toEqual({
+      birthSymbol: 'b.',
+      deathSymbol: 'd.',
+      marriageSymbol: 'm.',
+      divorceSymbol: 'div.',
     })
   })
 
