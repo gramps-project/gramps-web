@@ -428,5 +428,15 @@
     "This Gramps Web instance has already been set up. Log in with an existing account.": "Denna instans av Gramps Web har redan konfigurerats. Logga in med ett befintligt konto.",
     "Fit to window": "Anpassa till fönster",
     "Center on selected person": "Centrera på vald person",
-    "Move the chart": "Flytta diagrammet"
+    "Move the chart": "Flytta diagrammet",
+    "Wikidata buildings": "Wikidata-byggnader",
+    "Zoom in to see Wikidata buildings": "Zooma in för att se Wikidata-byggnader",
+    "Built": "Inbyggd",
+    "Demolished": "Riven",
+    "Occupants": "Boende",
+    "Owners": "Ägare",
+    "Public data from %s": "Offentliga data från %s",
+    "Your maps": "Dina kartor",
+    "No buildings here": "Inga byggnader här",
+    "The map could not be loaded.": "Kartan kunde inte läsas in."
 }
