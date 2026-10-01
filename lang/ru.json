@@ -427,5 +427,15 @@
     "Connect the people in your tree by adding a family.": "Свяжите людей в вашем древе, добавив семью.",
     "The server uses configuration options that are no longer supported.": "Сервер использует параметры конфигурации, которые больше не поддерживаются.",
     "Support will be removed in Gramps Web API %s.": "Поддержка будет прекращена в Gramps Web API %s.",
-    "This Gramps Web instance has already been set up. Log in with an existing account.": "Этот экземпляр Gramps Web уже настроен. Войдите с существующей учётной записью."
+    "This Gramps Web instance has already been set up. Log in with an existing account.": "Этот экземпляр Gramps Web уже настроен. Войдите с существующей учётной записью.",
+    "Wikidata buildings": "Здания из Wikidata",
+    "Zoom in to see Wikidata buildings": "Приблизьте карту, чтобы увидеть здания из Wikidata",
+    "Built": "Построено",
+    "Demolished": "Снесено",
+    "Occupants": "Жители",
+    "Owners": "Владельцы",
+    "Public data from %s": "Общедоступные данные из %s",
+    "Your maps": "Ваши карты",
+    "No buildings here": "Здесь нет зданий",
+    "The map could not be loaded.": "Не удалось загрузить карту."
 }
