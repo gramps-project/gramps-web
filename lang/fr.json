@@ -427,5 +427,15 @@
     "This Gramps Web instance has already been set up. Log in with an existing account.": "Cette instance de Gramps Web a déjà été configurée. Connectez-vous avec un compte existant.",
     "Fit to window": "Ajuster à la fenêtre",
     "Center on selected person": "Centrer sur la personne sélectionnée",
-    "Move the chart": "Déplacer le graphique"
+    "Move the chart": "Déplacer le graphique",
+    "Wikidata buildings": "Bâtiments wikidata",
+    "Zoom in to see Wikidata buildings": "Zoomez pour voir les bâtiments wikidata",
+    "Built": "Bâti",
+    "Demolished": "Démoli",
+    "Occupants": "Occupants",
+    "Owners": "Propriétaires",
+    "Public data from %s": "Données publiques de %s",
+    "Your maps": "Vos cartes",
+    "No buildings here": "Aucun bâtiment ici",
+    "The map could not be loaded.": "La carte n'a pas pu être chargée."
 }
