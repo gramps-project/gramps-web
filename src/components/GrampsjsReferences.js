@@ -48,7 +48,8 @@ export class GrampsjsReferences extends GrampsjsEditableList {
               const detail = objectDetail(
                 type,
                 merged,
-                this.appState.i18n.strings
+                this.appState.i18n.strings,
+                this.appState.settings
               ).trim()
               return html`
                 <md-list-item
