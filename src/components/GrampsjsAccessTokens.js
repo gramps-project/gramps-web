@@ -88,7 +88,6 @@ export class GrampsjsAccessTokens extends GrampsjsAppStateMixin(LitElement) {
 
   static get properties() {
     return {
-      active: {type: Boolean},
       _states: {type: Object},
       _pendingRevocation: {type: Object},
       _creatingScope: {type: String},
@@ -100,7 +99,6 @@ export class GrampsjsAccessTokens extends GrampsjsAppStateMixin(LitElement) {
 
   constructor() {
     super()
-    this.active = false
     this._states = Object.fromEntries(
       PERSISTENT_ACCESS_TOKEN_SCOPES.map(({scope}) => [
         scope,
@@ -117,14 +115,14 @@ export class GrampsjsAccessTokens extends GrampsjsAppStateMixin(LitElement) {
 
   update(changed) {
     super.update(changed)
-    if (!this.active) {
-      return
-    }
-    if (changed.has('active')) {
-      this._loadIfNeeded(true)
-    } else if (changed.has('appState')) {
+    if (changed.has('appState')) {
       this._loadIfNeeded()
     }
+  }
+
+  // Reloads all scopes, e.g. when the containing view is shown again.
+  refresh() {
+    this._loadIfNeeded(true)
   }
 
   render() {

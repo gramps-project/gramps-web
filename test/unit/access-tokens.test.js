@@ -1,3 +1,4 @@
+import {html} from 'lit'
 import {afterEach, describe, expect, it, vi} from 'vitest'
 
 import {GrampsjsAccessTokens} from '../../src/components/GrampsjsAccessTokens.js'
@@ -85,6 +86,33 @@ describe('access tokens in the user settings view', () => {
 
     expect(content).not.to.contain('<h3>Access tokens</h3>')
     expect(content).not.to.contain('<grampsjs-access-tokens')
+  })
+
+  it('refreshes the token component each time the view is shown', async () => {
+    const refresh = vi
+      .spyOn(GrampsjsAccessTokens.prototype, 'refresh')
+      .mockImplementation(() => {})
+    const view = createView('3.18.0')
+    view._fetchOwnUserDetails = vi.fn()
+    view._fetchDataLang = vi.fn()
+    // the full view needs form-associated elements happy-dom lacks
+    view.renderContent = () =>
+      html`<grampsjs-access-tokens></grampsjs-access-tokens>`
+    document.body.append(view)
+
+    try {
+      view.active = true
+      await view.updateComplete
+      view.active = false
+      await view.updateComplete
+      view.active = true
+      await view.updateComplete
+
+      expect(refresh).toHaveBeenCalledTimes(2)
+    } finally {
+      view.remove()
+      refresh.mockRestore()
+    }
   })
 
   it('renders the token component under Account', () => {
@@ -286,13 +314,13 @@ describe('multiple-token scopes', () => {
     expect(content).to.contain('No active access tokens.')
   })
 
-  it('does not refetch an unsupported scope on reactivation', async () => {
+  it('does not refetch an unsupported scope on refresh', async () => {
     const apiGet = endpointGet()
     const element = createTokens({apiGet})
     await element._fetchStatus('sync')
     apiGet.mockClear()
 
-    element._loadIfNeeded(true)
+    element.refresh()
     await vi.waitFor(() => expect(apiGet).toHaveBeenCalled())
 
     expect(apiGet).not.toHaveBeenCalledWith(SYNC_ENDPOINT)

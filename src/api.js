@@ -1138,7 +1138,7 @@ export async function apiPutPostDelete(
         resJson?.error?.message || resJson?.message || 'Not authorized'
       )
     }
-    if (resp.status !== 201 && resp.status !== 200 && resp.status !== 202) {
+    if (![200, 201, 202, 204].includes(resp.status)) {
       throw new Error(
         resJson?.error?.message ||
           resJson?.message ||

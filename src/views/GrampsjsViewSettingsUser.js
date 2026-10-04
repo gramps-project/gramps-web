@@ -130,7 +130,6 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
               <h3>${this._('Access tokens')}</h3>
               <grampsjs-access-tokens
                 .appState="${this.appState}"
-                ?active="${this.active}"
               ></grampsjs-access-tokens>
             `
           : ''}
@@ -200,6 +199,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       if (!this._langLoading && this._translations.length === 0) {
         this._fetchDataLang()
       }
+      this.renderRoot.querySelector('grampsjs-access-tokens')?.refresh()
     }
   }
 
