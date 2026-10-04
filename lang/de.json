@@ -439,5 +439,10 @@
     "Public data from %s": "Öffentliche Daten von %s",
     "Your maps": "Deine Karten",
     "No buildings here": "Hier gibt es keine Gebäude",
-    "The map could not be loaded.": "Die Karte konnte nicht geladen werden."
+    "The map could not be loaded.": "Die Karte konnte nicht geladen werden.",
+    "Desktop sync": "Desktop-Synchronisation",
+    "Add sync device": "Synchronisations-Gerät hinzufügen",
+    "Device name": "Gerätename",
+    "Created": "Erstellt",
+    "Last used": "Zuletzt genutzt"
 }
