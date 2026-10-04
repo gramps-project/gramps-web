@@ -71,12 +71,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     return [
       super.styles,
       css`
-        .card {
-          padding: 1em 1em;
-          border-radius: 16px;
-          background-color: var(--grampsjs-color-shade-230);
-        }
-
         .pre {
           white-space: pre-line;
         }
@@ -99,12 +93,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         .danger-zone-row p.first-control {
           margin-top: 0;
           padding-top: 1.6em;
-        }
-
-        .danger-zone-row p.actions {
-          display: flex;
-          align-items: center;
-          gap: 0.4em;
         }
 
         .danger-button {
@@ -316,19 +304,20 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             'Manually updating the search index is usually unnecessary, but it may become necessary after an upgrade.'
           )}
         </p>
-        <md-outlined-button
-          ?disabled=${this._buttonUpdateSearchDisabled}
-          @click="${() => this._updateSearch(false)}"
-          >${this._('Update search index')}</md-outlined-button
-        >
-        <grampsjs-task-progress-indicator
-          class="button"
-          id="progress-update-search"
-          taskName="searchReindexFull"
-          size="20"
-          .appState="${this.appState}"
-          @task:complete="${() => this._handleSuccessUpdateSearch(false)}"
-        ></grampsjs-task-progress-indicator>
+        <div class="button-row">
+          <md-outlined-button
+            ?disabled=${this._buttonUpdateSearchDisabled}
+            @click="${() => this._updateSearch(false)}"
+            >${this._('Update search index')}</md-outlined-button
+          >
+          <grampsjs-task-progress-indicator
+            id="progress-update-search"
+            taskName="searchReindexFull"
+            size="20"
+            .appState="${this.appState}"
+            @task:complete="${() => this._handleSuccessUpdateSearch(false)}"
+          ></grampsjs-task-progress-indicator>
+        </div>
 
         ${this.appState.dbInfo?.server?.semantic_search
           ? html`
@@ -341,7 +330,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                   'Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.'
                 )}
               </p>
-              <p>
+              <p class="button-row">
                 <md-outlined-button
                   ?disabled=${this._buttonUpdateSearchSemanticDisabled}
                   @click="${() => this._updateSearch(true)}"
@@ -350,7 +339,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                   )}</md-outlined-button
                 >
                 <grampsjs-task-progress-indicator
-                  class="button"
                   id="progress-update-search-semantic"
                   taskName="searchReindexFullSemantic"
                   size="20"
@@ -359,7 +347,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                     this._handleSuccessUpdateSearch(true)}"
                 ></grampsjs-task-progress-indicator>
               </p>
-              <p>
+              <p class="button-row">
                 <md-outlined-button
                   ?disabled=${this._buttonUpdateSearchSemanticDisabled ||
                   this.appState.dbInfo?.search?.sifts?.semantic_index_stale ===
@@ -368,7 +356,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                   >${this._('Update semantic search index')}</md-outlined-button
                 >
                 <grampsjs-task-progress-indicator
-                  class="button"
                   id="progress-update-search-semantic-incremental"
                   taskName="searchReindexIncrementalSemantic"
                   size="20"
@@ -575,17 +562,18 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             'This tool checks the database for integrity problems, fixing the problems it can.'
           )}
         </p>
-        <md-outlined-button @click="${this._checkRepair}"
-          >${this._('Check and Repair')}</md-outlined-button
-        >
-        <grampsjs-task-progress-indicator
-          class="button"
-          id="progress-repair"
-          taskName="repairDb"
-          size="20"
-          .appState="${this.appState}"
-          @task:complete="${this._handleRepairComplete}"
-        ></grampsjs-task-progress-indicator>
+        <div class="button-row">
+          <md-outlined-button @click="${this._checkRepair}"
+            >${this._('Check and Repair')}</md-outlined-button
+          >
+          <grampsjs-task-progress-indicator
+            id="progress-repair"
+            taskName="repairDb"
+            size="20"
+            .appState="${this.appState}"
+            @task:complete="${this._handleRepairComplete}"
+          ></grampsjs-task-progress-indicator>
+        </div>
 
         ${this._repairResults?.num_errors !== undefined
           ? html`<p class="card">
@@ -600,20 +588,21 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         <h3>${this._('Verify the Data')}</h3>
         <p>${this._('Verifies the data against user-defined tests')}</p>
         ${this._renderVerifyOptions()}
-        <md-outlined-button
-          ?disabled="${this._verifyLoading}"
-          @click="${this._runVerify}"
-        >
-          ${this._('Verify the Data')}
-        </md-outlined-button>
-        <grampsjs-task-progress-indicator
-          class="button"
-          id="progress-verify"
-          taskName="verifyDb"
-          size="20"
-          .appState="${this.appState}"
-          @task:complete="${this._handleVerifyComplete}"
-        ></grampsjs-task-progress-indicator>
+        <div class="button-row">
+          <md-outlined-button
+            ?disabled="${this._verifyLoading}"
+            @click="${this._runVerify}"
+          >
+            ${this._('Verify the Data')}
+          </md-outlined-button>
+          <grampsjs-task-progress-indicator
+            id="progress-verify"
+            taskName="verifyDb"
+            size="20"
+            .appState="${this.appState}"
+            @task:complete="${this._handleVerifyComplete}"
+          ></grampsjs-task-progress-indicator>
+        </div>
         ${this._renderVerifyResults()}
       </grampsjs-collapsible-section>
 
@@ -651,7 +640,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                 'Clear the family tree by removing all existing objects. Optionally, select specific types of objects for deletion.'
               )}
             </p>
-            <p class="actions first-control">
+            <p class="button-row first-control">
               <md-outlined-button
                 class="danger-button"
                 @click="${this._openDeleteAll}"
@@ -664,7 +653,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                 ${this._('Delete')}
               </md-outlined-button>
               <grampsjs-task-progress-indicator
-                class="button"
                 id="progress-delete-all"
                 taskName="deleteObjects"
                 size="20"
@@ -692,7 +680,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
               ></grampsjs-form-upload>
             </p>
             ${this._restoreUploadHint || ''}
-            <p class="actions">
+            <p class="button-row">
               <md-outlined-button
                 class="danger-button"
                 ?disabled="${!this._restoreReady}"
@@ -706,7 +694,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                 ${this._('Preview Restore')}
               </md-outlined-button>
               <grampsjs-task-progress-indicator
-                class="button"
                 id="progress-restore"
                 taskName="restoreBackup"
                 size="20"

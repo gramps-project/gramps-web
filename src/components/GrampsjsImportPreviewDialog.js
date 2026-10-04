@@ -4,20 +4,8 @@ import '@material/web/button/text-button'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {fireEvent} from '../util.js'
-
-const namespaceLabels = {
-  people: 'People',
-  families: 'Families',
-  events: 'Events',
-  places: 'Places',
-  citations: 'Citations',
-  sources: 'Sources',
-  repositories: 'Repositories',
-  media: 'Media Objects',
-  notes: 'Notes',
-  tags: 'Tags',
-}
+import {importedObjectTypes} from './GrampsjsImportCounts.js'
+import './GrampsjsImportExportReport.js'
 
 class GrampsjsImportPreviewDialog extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -33,23 +21,7 @@ class GrampsjsImportPreviewDialog extends GrampsjsAppStateMixin(LitElement) {
            fixed height that looks empty for short messages. */
         md-dialog#import-preview-dialog {
           max-height: min(640px, calc(100% - 48px));
-        }
-
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 1em 0;
-        }
-
-        th,
-        td {
-          text-align: right;
-          padding: 0.3em 0.6em;
-        }
-
-        th:first-child,
-        td:first-child {
-          text-align: left;
+          max-width: min(640px, calc(100% - 48px));
         }
       `,
     ]
@@ -58,23 +30,31 @@ class GrampsjsImportPreviewDialog extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       counts: {type: Object},
+      messages: {type: Array},
     }
   }
 
   constructor() {
     super()
     this.counts = {}
+    this.messages = []
+    this._resolve = null
   }
 
-  show() {
+  // Shows the dry run result of an import and resolves with whether the
+  // user confirmed the import.
+  confirm(result) {
+    this._resolve?.(false)
+    this.counts = result || {}
+    this.messages = result?.messages || []
     this.renderRoot.querySelector('md-dialog').show()
+    return new Promise(resolve => {
+      this._resolve = resolve
+    })
   }
 
   render() {
-    const counts = this.counts ?? {}
-    const types = Object.keys(namespaceLabels).filter(
-      type => (counts[type] || 0) > 0
-    )
+    const hasObjects = importedObjectTypes(this.counts).length > 0
     return html`
       <md-dialog
         id="import-preview-dialog"
@@ -83,33 +63,24 @@ class GrampsjsImportPreviewDialog extends GrampsjsAppStateMixin(LitElement) {
       >
         <div slot="headline">${this._('Confirm Import')}</div>
         <form slot="content" id="form-id" method="dialog">
-          ${types.length === 0
-            ? html`<p>${this._('No objects found in this file.')}</p>`
-            : html`
+          ${hasObjects
+            ? html`
                 <p>
                   ${this._(
                     'This file contains the following objects, which will be added to your tree:'
                   )}
                 </p>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>${this._('Object Type')}</th>
-                      <th>${this._('Count')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${types.map(
-                      type => html`
-                        <tr>
-                          <td>${this._(namespaceLabels[type])}</td>
-                          <td>${counts[type] || 0}</td>
-                        </tr>
-                      `
-                    )}
-                  </tbody>
-                </table>
-              `}
+                <grampsjs-import-counts
+                  .appState="${this.appState}"
+                  .counts="${this.counts}"
+                ></grampsjs-import-counts>
+              `
+            : html`<p>${this._('No objects found in this file.')}</p>`}
+          <grampsjs-import-export-report
+            .appState="${this.appState}"
+            .messages="${this.messages}"
+            heading="${this._('Problems found in this file')}"
+          ></grampsjs-import-export-report>
         </form>
         <div slot="actions">
           <md-text-button form="form-id" value="cancel"
@@ -125,9 +96,8 @@ class GrampsjsImportPreviewDialog extends GrampsjsAppStateMixin(LitElement) {
 
   _handleClose() {
     const {returnValue} = this.renderRoot.querySelector('md-dialog')
-    if (returnValue === 'ok') {
-      fireEvent(this, 'import-confirmed', {})
-    }
+    this._resolve?.(returnValue === 'ok')
+    this._resolve = null
   }
 }
 

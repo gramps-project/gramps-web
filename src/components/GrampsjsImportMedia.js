@@ -56,7 +56,7 @@ export class GrampsjsImportMedia extends GrampsjsAppStateMixin(LitElement) {
           @formdata:changed="${this._handleUploadChangedMedia}"
         ></grampsjs-form-upload>
       </p>
-      <p>
+      <p class="button-row">
         <md-filled-button
           type="submit"
           @click="${this._submitMedia}"
@@ -68,7 +68,6 @@ export class GrampsjsImportMedia extends GrampsjsAppStateMixin(LitElement) {
           taskName="importMedia"
           ?open="${this._mediaState !== STATE_INITIAL &&
           this._mediaState !== STATE_READY}"
-          class="button"
           size="20"
           hideAfter="0"
           pollInterval="0.2"

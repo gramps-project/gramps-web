@@ -930,4 +930,17 @@ export function menuSelectionHandler(select) {
   }
 }
 
+// Result of a finished task status as an object. Uses `result_object` and
+// falls back to the JSON string in `result`.
+export function getTaskResult(status) {
+  if (status?.result_object) {
+    return status.result_object
+  }
+  try {
+    return JSON.parse(status?.result || '{}') ?? {}
+  } catch {
+    return {}
+  }
+}
+
 //
