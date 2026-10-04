@@ -3,6 +3,7 @@ import '../../src/components/GrampsjsImportExportReport.js'
 import '../../src/components/GrampsjsImportCounts.js'
 import {GrampsjsImport} from '../../src/components/GrampsjsImport.js'
 import {GrampsjsViewExport} from '../../src/views/GrampsjsViewExport.js'
+import {GrampsjsTaskProgressIndicator} from '../../src/components/GrampsjsTaskProgressIndicator.js'
 import {getTaskResult} from '../../src/util.js'
 
 const mounted = []
@@ -55,6 +56,17 @@ describe('grampsjs-import-export-report', () => {
     expect(el.shadowRoot.querySelector('.messages').textContent).toBe('a\nb')
   })
 
+  it('moves padded GEDCOM source lines to their own line', async () => {
+    const el = await mount('grampsjs-import-export-report', {
+      messages: [
+        'GEDCOM import report: 1 errors detected\nCould not import a.jpg               Line   144: 1 FILE a.jpg',
+      ],
+    })
+    expect(el.shadowRoot.querySelector('.messages').textContent).toBe(
+      'GEDCOM import report: 1 errors detected\nCould not import a.jpg\n    Line   144: 1 FILE a.jpg'
+    )
+  })
+
   it('renders as a warning alert with warn', async () => {
     const el = await mount('grampsjs-import-export-report', {
       messages: ['a'],
@@ -93,6 +105,48 @@ describe('getTaskResult', () => {
   it('returns an empty object for missing or invalid results', () => {
     expect(getTaskResult(undefined)).toEqual({})
     expect(getTaskResult({result: 'not json'})).toEqual({})
+  })
+})
+
+describe('task progress indicator events', () => {
+  const makeIndicator = () => {
+    const prog = new GrampsjsTaskProgressIndicator()
+    prog.hideAfter = 0
+    prog.events = []
+    const record = e => prog.events.push(e)
+    prog.addEventListener('task:complete', record)
+    prog.addEventListener('task:error', record)
+    return prog
+  }
+
+  it('fires no event when completed or failed by hand', () => {
+    const prog = makeIndicator()
+
+    prog.setComplete()
+    prog.reset()
+    prog.setError()
+
+    expect(prog.events).toEqual([])
+  })
+
+  it('fires task:complete with the status of a finished task', () => {
+    const prog = makeIndicator()
+    const status = {id: 't1', state: 'SUCCESS', result_object: {url: '/u'}}
+
+    prog._applyStatus(status)
+
+    expect(prog.events.map(e => e.type)).toEqual(['task:complete'])
+    expect(prog.events[0].detail.status).toBe(status)
+  })
+
+  it('fires task:error with the status of a failed task', () => {
+    const prog = makeIndicator()
+    const status = {id: 't1', state: 'FAILURE', info: 'boom'}
+
+    prog._applyStatus(status)
+
+    expect(prog.events.map(e => e.type)).toEqual(['task:error'])
+    expect(prog.events[0].detail.status).toBe(status)
   })
 })
 
@@ -166,7 +220,10 @@ describe('import: preview and result', () => {
     root.append(prog, dialog, upload)
     element.renderRoot = root
     element.appState = {apiPost, registerTask: vi.fn()}
-    vi.spyOn(element, 'dispatchEvent')
+    element.refreshes = 0
+    element.addEventListener('db:changed', () => {
+      element.refreshes += 1
+    })
     return {element, dialog}
   }
 
@@ -183,35 +240,64 @@ describe('import: preview and result', () => {
     expect(dialog.show).toHaveBeenCalled()
   })
 
-  it('passes dry run messages from a finished task to the dialog', () => {
-    const {element, dialog} = makeImport(vi.fn())
-    element._previewPending = true
+  const complete = (element, id) =>
+    element._handleTaskComplete({
+      detail: {status: {id, state: 'SUCCESS', result_object: result}},
+    })
 
-    element._handleTaskComplete({detail: {status: {result_object: result}}})
+  it('passes dry run messages from a finished task to the dialog', async () => {
+    const apiPost = vi.fn().mockResolvedValue({task: {id: 'preview-1'}})
+    const {element, dialog} = makeImport(apiPost)
+    await element._submitPreview('ged', new Blob(['0 HEAD']))
+
+    complete(element, 'preview-1')
 
     expect(element._previewMessages).toEqual(['line 1\nline 2'])
     expect(element._importResult).toBeNull()
     expect(dialog.show).toHaveBeenCalled()
+    expect(element.refreshes).toBe(0)
   })
 
-  it('keeps the result of a synchronous import', async () => {
+  it('keeps the result of a synchronous import and refreshes once', async () => {
     const apiPost = vi.fn().mockResolvedValue({data: result})
     const {element} = makeImport(apiPost)
 
     await element._submitTree('ged', new Blob(['0 HEAD']))
 
     expect(element._importResult).toEqual(result)
-    const events = element.dispatchEvent.mock.calls.map(([e]) => e.type)
-    expect(events).toContain('db:changed')
+    expect(element.refreshes).toBe(1)
   })
 
-  it('keeps the result of a finished import task', () => {
-    const {element} = makeImport(vi.fn())
-    element._previewPending = false
+  it('keeps the result of a finished import task', async () => {
+    const apiPost = vi.fn().mockResolvedValue({task: {id: 'import-1'}})
+    const {element} = makeImport(apiPost)
+    await element._submitTree('ged', new Blob(['0 HEAD']))
 
-    element._handleTaskComplete({detail: {status: {result_object: result}}})
+    complete(element, 'import-1')
 
     expect(element._importResult).toEqual(result)
+    expect(element.refreshes).toBe(1)
+  })
+
+  it('only refreshes for a reconnected task it did not start', () => {
+    const {element, dialog} = makeImport(vi.fn())
+
+    complete(element, 'unknown')
+
+    expect(element._importResult).toBeNull()
+    expect(dialog.show).not.toHaveBeenCalled()
+    expect(element.refreshes).toBe(1)
+  })
+
+  it('ignores the failure of a task it did not start', () => {
+    const {element} = makeImport(vi.fn())
+    element._state = 1
+
+    element._handleTaskError({
+      detail: {status: {id: 'unknown', state: 'FAILURE'}},
+    })
+
+    expect(element._state).toBe(1)
   })
 
   it('clears the result when a new file is chosen', () => {

@@ -291,6 +291,16 @@ export const sharedStyles = css`
     }
   }
 
+  .button-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+  }
+
+  .button-row > grampsjs-task-progress-indicator {
+    display: flex;
+  }
+
   grampsjs-task-progress-indicator.button {
     position: relative;
     top: 6px;

@@ -48,11 +48,12 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     this._previewCounts = {}
     this._previewMessages = []
     this._importResult = null
-    // Non-reactive: whether the in-flight #progress-tree task is the
-    // dry_run preview or the real import — both use the same Celery task
-    // (import_file), so a single shared indicator/taskName is used for
-    // both, and this flag decides which handler its completion routes to.
-    this._previewPending = false
+    // Task ids this component started, mapped to 'preview' or 'import'. The
+    // preview (dry_run) and the real import are the same Celery task
+    // (import_file), and #progress-tree also reconnects to import_file tasks
+    // it did not start, e.g. after a reload. Only a task's id says which
+    // operation it is.
+    this._ownTasks = new Map()
   }
 
   render() {
@@ -69,7 +70,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
         ></grampsjs-form-upload>
       </p>
       ${this._uploadHint ? html`${this._uploadHint}` : ''}
-      <p>
+      <p class="button-row">
         <md-filled-button
           type="submit"
           @click="${this._submit}"
@@ -81,7 +82,6 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
           taskName="importFile"
           ?open="${this._state !== STATE_INITIAL &&
           this._state !== STATE_READY}"
-          class="button"
           size="20"
           hideAfter="0"
           .appState="${this.appState}"
@@ -129,7 +129,6 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
 
   async _submitPreview(ext, file) {
     this._state = STATE_PREVIEWING
-    this._previewPending = true
     this._importResult = null
     const prog = this.renderRoot.querySelector('#progress-tree')
     prog.reset()
@@ -141,7 +140,6 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       {isJson: false, dbChanged: false}
     )
     if ('error' in res) {
-      this._previewPending = false
       prog.setError()
       prog.errorMessage = this._(res.error)
       this._handleCompleted(STATE_ERROR)
@@ -150,6 +148,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     if ('task' in res) {
       const taskId = res.task?.id || ''
       if (taskId) {
+        this._ownTasks.set(taskId, 'preview')
         this.appState.registerTask(taskId, 'Preview Import', {
           taskName: 'importFile',
         })
@@ -165,7 +164,6 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _showPreview(result) {
-    this._previewPending = false
     this._state = STATE_READY
     this._previewCounts = result || {}
     this._previewMessages = result?.messages || []
@@ -181,7 +179,6 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
 
   async _submitTree(ext, file) {
     this._state = STATE_PROGRESS
-    this._previewPending = false
     const prog = this.renderRoot.querySelector('#progress-tree')
     prog.reset()
     prog.open = true
@@ -197,31 +194,37 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       this._handleCompleted(STATE_ERROR)
     } else if ('task' in res) {
       const taskId = res.task?.id || ''
-      prog.taskId = taskId
       if (taskId) {
+        this._ownTasks.set(taskId, 'import')
         this.appState.registerTask(taskId, 'Import', {taskName: 'importFile'})
       }
+      prog.taskId = taskId
     } else {
       prog.setComplete()
       this._handleSuccess(res.data)
     }
   }
 
-  // Both the preview (dry_run) and the real import run as the same Celery
-  // task (import_file) and share the #progress-tree indicator/taskName, so
-  // this dispatches its completion to whichever is actually in flight.
   _handleTaskComplete(e) {
-    const result = getTaskResult(e.detail?.status)
-    if (this._previewPending) {
-      this._showPreview(result)
+    const {status} = e.detail
+    const kind = this._ownTasks.get(status.id)
+    this._ownTasks.delete(status.id)
+    if (kind === 'preview') {
+      this._showPreview(getTaskResult(status))
+    } else if (kind === 'import') {
+      this._handleSuccess(getTaskResult(status))
     } else {
-      this._handleSuccess(result)
+      // A reconnected task could be a preview or an import, so the result
+      // is not shown. Refreshing is harmless either way.
+      fireEvent(this, 'db:changed', {})
     }
   }
 
-  _handleTaskError() {
-    this._previewPending = false
-    this._handleCompleted(STATE_ERROR)
+  _handleTaskError(e) {
+    const {status} = e.detail
+    if (this._ownTasks.delete(status.id)) {
+      this._handleCompleted(STATE_ERROR)
+    }
   }
 
   _handleSuccess(result) {

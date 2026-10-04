@@ -101,8 +101,12 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
     if (this.progress >= 1 || this.error) return
     if (status.state === 'SUCCESS') {
       this.setComplete()
+      fireEvent(this, 'task:complete', {status})
     } else if (status.state === 'FAILURE' || status.state === 'REVOKED') {
       this.setError()
+      // For component-level handlers (e.g. _handleUndoError).
+      // Notification-log entries are added centrally by appState.startPolling.
+      fireEvent(this, 'task:error', {status})
     } else if (status.state === 'PENDING') {
       this.progress = status.progress ?? -1
       this.infoMessage = this._('Pending')
@@ -121,10 +125,13 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
     }
   }
 
+  // setComplete and setError only change what the indicator shows. The
+  // task:complete and task:error events fire when a background task finishes,
+  // so their status is always that task's. Callers that get an immediate
+  // result handle it themselves.
   setComplete() {
     this.progress = 1
     this.closeAfter()
-    fireEvent(this, 'task:complete', {status: this.status})
     this.infoMessage = ''
   }
 
@@ -132,9 +139,6 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
     this.error = true
     this.errorMessage = this.status?.info || ''
     this.closeAfter()
-    // Fire task:error for component-level handlers (e.g. _handleUndoError).
-    // Notification-log entries are added centrally by appState.startPolling.
-    fireEvent(this, 'task:error', {status: this.status})
     this.infoMessage = ''
   }
 

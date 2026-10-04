@@ -22,6 +22,7 @@ class GrampsjsImportPreviewDialog extends GrampsjsAppStateMixin(LitElement) {
            fixed height that looks empty for short messages. */
         md-dialog#import-preview-dialog {
           max-height: min(640px, calc(100% - 48px));
+          max-width: min(640px, calc(100% - 48px));
         }
       `,
     ]
@@ -70,7 +71,7 @@ class GrampsjsImportPreviewDialog extends GrampsjsAppStateMixin(LitElement) {
           <grampsjs-import-export-report
             .appState="${this.appState}"
             .messages="${this.messages}"
-            heading="${this._('Import messages')}"
+            heading="${this._('Problems found in this file')}"
           ></grampsjs-import-export-report>
         </form>
         <div slot="actions">

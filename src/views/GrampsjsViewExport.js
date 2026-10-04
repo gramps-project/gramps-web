@@ -242,22 +242,19 @@ export class GrampsjsViewExport extends GrampsjsView {
       prog.taskId = taskId
     } else {
       // eagerly executed task
-      this._downloadUrl = data?.data?.url || ''
+      this._mediaDownloadUrl = data?.data?.url || ''
       prog.setComplete()
     }
   }
 
   _handleTaskComplete(e) {
-    const {status} = e.detail
-    const result = getTaskResult(status)
+    const result = getTaskResult(e.detail.status)
     this._messages = result.messages || []
     this._downloadUrl = result.url || ''
   }
 
   _handleMediaTaskComplete(e) {
-    const {status} = e.detail
-    const result = JSON.parse(status.result || {})
-    this._mediaDownloadUrl = result?.url || ''
+    this._mediaDownloadUrl = getTaskResult(e.detail.status).url || ''
   }
 
   async _fetchData() {

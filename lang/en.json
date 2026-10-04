@@ -443,5 +443,6 @@
   "The map could not be loaded.": "The map could not be loaded.",
   "Left out of the export": "Left out of the export",
   "The import has completed.": "The import has completed.",
-  "Import messages": "Import messages"
+  "Import messages": "Import messages",
+  "Problems found in this file": "Problems found in this file"
 }
