@@ -444,5 +444,10 @@
     "Add sync device": "Synchronisations-Gerät hinzufügen",
     "Device name": "Gerätename",
     "Created": "Erstellt",
-    "Last used": "Zuletzt genutzt"
+    "Last used": "Zuletzt genutzt",
+    "Access token created": "Zugriffstoken erstellt",
+    "Copy the token now. It will not be shown again.": "Kopiere den Token jetzt. Er wird nicht erneut angezeigt.",
+    "Left out of the export": "Im Export nicht berücksichtigt",
+    "The import has completed.": "Der Import ist abgeschlossen.",
+    "Problems found in this file": "In dieser Datei gefundene Probleme"
 }
