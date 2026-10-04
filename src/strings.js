@@ -543,6 +543,7 @@ export const grampsStrings = [
   'Naturalization',
   'Neighbor',
   'Neighborhood',
+  'Never',
   'New Citation',
   'New Event',
   'New Family',
