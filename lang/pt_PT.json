@@ -131,7 +131,7 @@
     "Shared Segments": "Segmentos partilhados",
     "Save as Note": "Gravar como nota",
     "DNA": "ADN",
-    "Matches": "Comparar",
+    "Matches": "Correspondências",
     "Bookmark this": "Adicionar aos favoritos",
     "Remove bookmark": "Eliminar favorito",
     "This tool checks the database for integrity problems, fixing the problems it can.": "Esta ferramenta verifica a integridade da base de dados, reparando aquilo que for possível.",
@@ -438,5 +438,13 @@
     "Owners": "Donos",
     "Your maps": "Os seus mapas",
     "No buildings here": "Nenhum edifício aqui",
-    "The map could not be loaded.": "Impossível carregar o mapa."
+    "The map could not be loaded.": "Impossível carregar o mapa.",
+    "Desktop sync": "Sincronização com dispositivo",
+    "Add sync device": "Adicionar dispositivo",
+    "Device name": "Nome do dispositivo",
+    "Created": "Criado",
+    "Last used": "Última utilização",
+    "Never": "Nunca",
+    "Access token created": "Símbolo de acesso criado",
+    "Copy the token now. It will not be shown again.": "Copie o símbolo agora. Não voltará a ser mostrado."
 }
