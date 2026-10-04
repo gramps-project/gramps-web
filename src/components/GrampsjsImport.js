@@ -99,7 +99,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
         <grampsjs-import-export-report
           .appState="${this.appState}"
           .messages="${this._importResult.messages}"
-          heading="${this._('Import messages')}"
+          heading="${this._('Problems found during the import')}"
         ></grampsjs-import-export-report>
       </div>
     `
