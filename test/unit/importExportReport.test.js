@@ -217,6 +217,41 @@ describe('export view: report messages', () => {
     expect(element._downloadUrl).toBe('/u')
   })
 
+  it('discards an older export that finishes after a newer one', async () => {
+    const apiPost = vi
+      .fn()
+      .mockResolvedValueOnce({task: {id: 'old'}})
+      .mockResolvedValueOnce({task: {id: 'new'}})
+    const element = makeExport(apiPost)
+    const {registerTask} = element.appState
+
+    const older = element._generateExport()
+    await vi.waitFor(() => expect(registerTask).toHaveBeenCalledTimes(1))
+    const newer = element._generateExport()
+    await vi.waitFor(() => expect(registerTask).toHaveBeenCalledTimes(2))
+    finishTask('new', {state: 'SUCCESS', result_object: {url: '/new'}})
+    await newer
+    finishTask('old', {state: 'SUCCESS', result_object: {url: '/old'}})
+    await older
+
+    expect(element._downloadUrl).toBe('/new')
+  })
+
+  it('discards a running export when another exporter is selected', async () => {
+    const apiPost = vi.fn().mockResolvedValue({task: {id: 't1'}})
+    const element = makeExport(apiPost)
+
+    const pending = element._generateExport()
+    await vi.waitFor(() =>
+      expect(element.appState.registerTask).toHaveBeenCalled()
+    )
+    element._handleSelect({target: {value: 'ged'}})
+    finishTask('t1', {state: 'SUCCESS', result_object: {url: '/u'}})
+    await pending
+
+    expect(element._downloadUrl).toBe('')
+  })
+
   it('clears messages when a new export starts', async () => {
     const apiPost = vi.fn().mockResolvedValue({error: 'nope'})
     const element = makeExport(apiPost)

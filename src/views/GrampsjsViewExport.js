@@ -45,6 +45,11 @@ export class GrampsjsViewExport extends GrampsjsView {
     this._mediaDownloadUrl = ''
     this._messages = []
     this._viewPrivate = true
+    // Tokens of the latest export and media export. A new run, or selecting
+    // another exporter, replaces the token; a replaced run discards its
+    // result.
+    this._exportOp = null
+    this._mediaOp = null
   }
 
   renderContent() {
@@ -176,6 +181,10 @@ export class GrampsjsViewExport extends GrampsjsView {
   _handleSelect(e) {
     this._formData = {...this._formData, exporter: e.target.value}
     this._messages = []
+    this._exportOp = null
+    const prog = this.renderRoot.querySelector('#indicator-export')
+    prog.reset()
+    prog.open = false
   }
 
   _startDownload() {
@@ -194,35 +203,45 @@ export class GrampsjsViewExport extends GrampsjsView {
   }
 
   async _generateExport() {
+    const op = {}
+    this._exportOp = op
     this._downloadUrl = ''
     this._messages = []
     const prog = this.renderRoot.querySelector('#indicator-export')
     prog.reset()
     prog.open = true
     const res = await this.appState.apiPost(this._getQueryUrl())
+    if (this._exportOp !== op) {
+      return
+    }
     const {data} = await awaitTaskResponse(this.appState, res, {
       prog,
       label: 'Export',
       taskName: 'exportFile',
     })
-    if (data) {
+    if (data && this._exportOp === op) {
       this._messages = data.messages || []
       this._downloadUrl = data.url || ''
     }
   }
 
   async _generateMediaArchive() {
+    const op = {}
+    this._mediaOp = op
     this._mediaDownloadUrl = ''
     const prog = this.renderRoot.querySelector('#indicator-media')
     prog.reset()
     prog.open = true
     const res = await this.appState.apiPost('/api/media/archive/')
+    if (this._mediaOp !== op) {
+      return
+    }
     const {data} = await awaitTaskResponse(this.appState, res, {
       prog,
       label: 'Export media',
       taskName: 'exportMedia',
     })
-    if (data) {
+    if (data && this._mediaOp === op) {
       this._mediaDownloadUrl = data.url || ''
     }
   }
