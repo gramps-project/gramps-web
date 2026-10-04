@@ -672,3 +672,32 @@ describe('tree mismatch aborts requests', () => {
     expect(fetch).toHaveBeenCalled()
   })
 })
+
+describe('apiPutPostDelete success statuses', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('treats 204 No Content as success with empty data', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        status: 204,
+        statusText: 'No Content',
+        json: () => Promise.reject(new SyntaxError('Unexpected end of JSON')),
+        headers: {get: () => null},
+      })
+    )
+
+    const result = await apiPutPostDelete(
+      undefined,
+      'DELETE',
+      '/api/users/-/access-tokens/sync/tokens/1/',
+      undefined,
+      {dbChanged: false, skipAuth: true}
+    )
+
+    expect(result).not.to.have.property('error')
+    expect(result.data).to.deep.equal({})
+  })
+})
