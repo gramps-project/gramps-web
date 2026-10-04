@@ -438,5 +438,16 @@
     "Occupants": "Nájomníci",
     "Public data from %s": "Verejné údaje z %s",
     "No buildings here": "Tu nie sú žiadne budovy",
-    "The map could not be loaded.": "Mapu sa nepodarilo načítať."
+    "The map could not be loaded.": "Mapu sa nepodarilo načítať.",
+    "Desktop sync": "Synchronizácia s počítačom",
+    "Add sync device": "Pridať synchronizačné zariadenie",
+    "Device name": "Názov zariadenia",
+    "Created": "Vytvorené",
+    "Last used": "Naposledy použité",
+    "Access token created": "Prístupový token bol vytvorený",
+    "Copy the token now. It will not be shown again.": "Skopírujte token teraz. Už sa znovu nezobrazí.",
+    "Left out of the export": "Vynechané z exportu",
+    "The import has completed.": "Import bol dokončený.",
+    "Problems found during the import": "Problémy zistené počas importu",
+    "Problems found in this file": "Problémy zistené v tomto súbore"
 }
