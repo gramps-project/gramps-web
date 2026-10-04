@@ -917,7 +917,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.taskId = taskId
     } else {
       prog.setComplete()
-      this._handleDeleteAllComplete()
     }
   }
 
@@ -1011,7 +1010,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       prog.taskId = taskId
     } else {
       prog.setComplete()
-      fireEvent(this, 'db:changed')
     }
   }
 

@@ -4,19 +4,15 @@ import '@material/web/button/filled-button.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-import {fireEvent, getTaskResult} from '../util.js'
+import {fireEvent} from '../util.js'
+import {awaitTaskResponse} from '../taskResponse.js'
 import './GrampsjsFormUpload.js'
 import './GrampsjsTaskProgressIndicator.js'
 import './GrampsjsImportPreviewDialog.js'
 import './GrampsjsImportCounts.js'
 import './GrampsjsImportExportReport.js'
 
-const STATE_ERROR = -1
-const STATE_INITIAL = 0
-const STATE_READY = 1
-const STATE_PREVIEWING = 2
-const STATE_PROGRESS = 3
-const STATE_DONE = 4
+const fileExtension = file => file.name.split('.').pop().toLowerCase()
 
 export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -32,28 +28,24 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
 
   static get properties() {
     return {
-      _state: {type: Object},
-      _mediaState: {type: Object},
+      _file: {type: Object},
+      _busy: {type: Boolean},
       _uploadHint: {type: String},
-      _previewCounts: {type: Object},
-      _previewMessages: {type: Array},
       _importResult: {type: Object},
     }
   }
 
   constructor() {
     super()
-    this._state = 0
+    // The selected file, if it can be imported.
+    this._file = null
+    this._busy = false
     this._uploadHint = ''
-    this._previewCounts = {}
-    this._previewMessages = []
     this._importResult = null
-    // Task ids this component started, mapped to 'preview' or 'import'. The
-    // preview (dry_run) and the real import are the same Celery task
-    // (import_file), and #progress-tree also reconnects to import_file tasks
-    // it did not start, e.g. after a reload. Only a task's id says which
-    // operation it is.
-    this._ownTasks = new Map()
+    // Token of the running preview and import. Selecting another file
+    // replaces it, so a run whose task never reports back blocks nothing;
+    // the replaced run stops at its next step.
+    this._op = null
   }
 
   render() {
@@ -74,27 +66,21 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
         <md-filled-button
           type="submit"
           @click="${this._submit}"
-          ?disabled=${this._state !== STATE_READY}
+          ?disabled=${!this._file || this._busy}
           >${this._('Import')}</md-filled-button
         >
         <grampsjs-task-progress-indicator
           id="progress-tree"
           taskName="importFile"
-          ?open="${this._state !== STATE_INITIAL &&
-          this._state !== STATE_READY}"
           size="20"
           hideAfter="0"
           .appState="${this.appState}"
-          @task:complete="${this._handleTaskComplete}"
-          @task:error="${this._handleTaskError}"
+          @task:complete="${this._handleOtherTaskComplete}"
         ></grampsjs-task-progress-indicator>
       </p>
       ${this._renderImportResult()}
       <grampsjs-import-preview-dialog
         .appState="${this.appState}"
-        .counts="${this._previewCounts}"
-        .messages="${this._previewMessages}"
-        @import-confirmed="${this._handleImportConfirmed}"
       ></grampsjs-import-preview-dialog>
     `
   }
@@ -119,142 +105,113 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
+  // Previews the selected file, asks for confirmation and imports it.
   async _submit() {
-    if (this._state === STATE_READY) {
-      const uploadForm = this.shadowRoot.querySelector('#upload-tree')
-      const ext = uploadForm.file.name.split('.').pop().toLowerCase()
-      await this._submitPreview(ext, uploadForm.file)
+    const file = this._file
+    if (!file || this._busy) {
+      return
     }
-  }
-
-  async _submitPreview(ext, file) {
-    this._state = STATE_PREVIEWING
+    const op = {}
+    this._op = op
+    this._busy = true
     this._importResult = null
+
+    const preview = await this._post(op, file, true)
+    if (this._op !== op) {
+      return
+    }
+    if (preview.error !== undefined) {
+      this._finish()
+      return
+    }
+    this.renderRoot.querySelector('#progress-tree').open = false
+    const confirmed = await this.renderRoot
+      .querySelector('grampsjs-import-preview-dialog')
+      .confirm(preview.data)
+    if (this._op !== op) {
+      return
+    }
+    if (!confirmed) {
+      this._op = null
+      this._busy = false
+      return
+    }
+
+    const imported = await this._post(op, file, false)
+    if (imported?.data) {
+      fireEvent(this, 'db:changed', {})
+    }
+    if (this._op !== op) {
+      return
+    }
+    this._importResult = imported.data ?? null
+    this._finish()
+  }
+
+  // Posts the file to the importer and resolves with its outcome ({data} or
+  // {error}). If the run was replaced before the response arrived, resolves
+  // with null and leaves the indicator to the new run.
+  async _post(op, file, dryRun) {
     const prog = this.renderRoot.querySelector('#progress-tree')
     prog.reset()
     prog.open = true
-
+    const query = dryRun ? '?dry_run=true' : ''
     const res = await this.appState.apiPost(
-      `/api/importers/${ext}/file?dry_run=true`,
+      `/api/importers/${fileExtension(file)}/file${query}`,
       file,
       {isJson: false, dbChanged: false}
     )
-    if ('error' in res) {
-      prog.setError()
-      prog.errorMessage = this._(res.error)
-      this._handleCompleted(STATE_ERROR)
-      return
+    if (this._op !== op) {
+      return null
     }
-    if ('task' in res) {
-      const taskId = res.task?.id || ''
-      if (taskId) {
-        this._ownTasks.set(taskId, 'preview')
-        this.appState.registerTask(taskId, 'Preview Import', {
-          taskName: 'importFile',
-        })
-      }
-      prog.taskId = taskId
-      return
+    const outcome = await awaitTaskResponse(this.appState, res, {
+      prog,
+      label: dryRun ? 'Preview Import' : 'Import',
+      taskName: 'importFile',
+    })
+    if (outcome.error !== undefined) {
+      prog.errorMessage = this._(outcome.error)
     }
-    prog.open = false
-    this._state = STATE_READY
-    // A plain 200 response is wrapped as {data, total_count, etag} by
-    // apiPutPostDelete (only the 202/task shape returns the body as-is).
-    this._showPreview(res.data)
+    return outcome
   }
 
-  _showPreview(result) {
-    this._state = STATE_READY
-    this._previewCounts = result || {}
-    this._previewMessages = result?.messages || []
-    this.renderRoot.querySelector('grampsjs-import-preview-dialog').show()
+  _finish() {
+    this._op = null
+    this._busy = false
+    this._file = null
+    this._uploadHint = ''
+    this.renderRoot.querySelector('#upload-tree').reset()
   }
 
-  async _handleImportConfirmed() {
-    const uploadForm = this.shadowRoot.querySelector('#upload-tree')
-    if (!uploadForm.file) return
-    const ext = uploadForm.file.name.split('.').pop().toLowerCase()
-    await this._submitTree(ext, uploadForm.file)
-  }
-
-  async _submitTree(ext, file) {
-    this._state = STATE_PROGRESS
-    const prog = this.renderRoot.querySelector('#progress-tree')
-    prog.reset()
-    prog.open = true
-
-    const res = await this.appState.apiPost(
-      `/api/importers/${ext}/file`,
-      file,
-      {isJson: false, dbChanged: false}
-    )
-    if ('error' in res) {
-      prog.setError()
-      prog.errorMessage = this._(res.error)
-      this._handleCompleted(STATE_ERROR)
-    } else if ('task' in res) {
-      const taskId = res.task?.id || ''
-      if (taskId) {
-        this._ownTasks.set(taskId, 'import')
-        this.appState.registerTask(taskId, 'Import', {taskName: 'importFile'})
-      }
-      prog.taskId = taskId
-    } else {
-      prog.setComplete()
-      this._handleSuccess(res.data)
-    }
-  }
-
-  _handleTaskComplete(e) {
-    const {status} = e.detail
-    const kind = this._ownTasks.get(status.id)
-    this._ownTasks.delete(status.id)
-    if (kind === 'preview') {
-      this._showPreview(getTaskResult(status))
-    } else if (kind === 'import') {
-      this._handleSuccess(getTaskResult(status))
-    } else {
-      // A reconnected task could be a preview or an import, so the result
-      // is not shown. Refreshing is harmless either way.
+  // The indicator also shows import tasks this component did not start, e.g.
+  // after a reload. Whether such a task was a preview is unknown, so its
+  // result is not shown; refreshing is harmless either way. Completions of a
+  // running preview or import are handled by _submit.
+  _handleOtherTaskComplete() {
+    if (!this._busy) {
       fireEvent(this, 'db:changed', {})
     }
   }
 
-  _handleTaskError(e) {
-    const {status} = e.detail
-    if (this._ownTasks.delete(status.id)) {
-      this._handleCompleted(STATE_ERROR)
-    }
-  }
-
-  _handleSuccess(result) {
-    this._handleCompleted(STATE_DONE)
-    this._importResult = result || {}
-    fireEvent(this, 'db:changed', {})
-  }
-
-  _handleCompleted(state) {
-    this._state = state
-    const uploadForm = this.shadowRoot.querySelector('#upload-tree')
-    uploadForm.reset()
-    this._uploadHint = ''
-  }
-
   _handleUploadChanged() {
     const uploadForm = this.shadowRoot.querySelector('#upload-tree')
+    this._op = null
+    this._busy = false
+    this._file = null
     this._importResult = null
+    const prog = this.renderRoot.querySelector('#progress-tree')
+    prog.reset()
+    prog.open = false
     if (!uploadForm.file?.name) {
       this._uploadHint = ''
-      this._state = STATE_INITIAL
       return
     }
 
-    const ext = uploadForm.file.name.split('.').pop().toLowerCase()
+    const ext = fileExtension(uploadForm.file)
     if (!['gpkg', 'gramps', 'gw', 'def', 'vcf', 'csv', 'ged'].includes(ext)) {
       this._uploadHint = html`<p class="alert error">
         ${this._('Unsupported format')}
       </p>`
-      this._state = STATE_INITIAL
       return
     }
     if (ext === 'gpkg') {
@@ -266,7 +223,6 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
           'Please upload a file in Gramps XML (.gramps) format without media files.'
         )}
       </p>`
-      this._state = STATE_INITIAL
       return
     }
     if (ext !== 'gramps') {
@@ -278,7 +234,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     } else {
       this._uploadHint = ''
     }
-    this._state = STATE_READY
+    this._file = uploadForm.file
   }
 }
 

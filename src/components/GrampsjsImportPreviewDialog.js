@@ -4,7 +4,6 @@ import '@material/web/button/text-button'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {fireEvent} from '../util.js'
 import {importedObjectTypes} from './GrampsjsImportCounts.js'
 import './GrampsjsImportExportReport.js'
 
@@ -39,10 +38,19 @@ class GrampsjsImportPreviewDialog extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.counts = {}
     this.messages = []
+    this._resolve = null
   }
 
-  show() {
+  // Shows the dry run result of an import and resolves with whether the
+  // user confirmed the import.
+  confirm(result) {
+    this._resolve?.(false)
+    this.counts = result || {}
+    this.messages = result?.messages || []
     this.renderRoot.querySelector('md-dialog').show()
+    return new Promise(resolve => {
+      this._resolve = resolve
+    })
   }
 
   render() {
@@ -88,9 +96,8 @@ class GrampsjsImportPreviewDialog extends GrampsjsAppStateMixin(LitElement) {
 
   _handleClose() {
     const {returnValue} = this.renderRoot.querySelector('md-dialog')
-    if (returnValue === 'ok') {
-      fireEvent(this, 'import-confirmed', {})
-    }
+    this._resolve?.(returnValue === 'ok')
+    this._resolve = null
   }
 }
 

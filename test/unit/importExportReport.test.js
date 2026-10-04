@@ -3,8 +3,8 @@ import '../../src/components/GrampsjsImportExportReport.js'
 import '../../src/components/GrampsjsImportCounts.js'
 import {GrampsjsImport} from '../../src/components/GrampsjsImport.js'
 import {GrampsjsViewExport} from '../../src/views/GrampsjsViewExport.js'
-import {GrampsjsTaskProgressIndicator} from '../../src/components/GrampsjsTaskProgressIndicator.js'
-import {getTaskResult} from '../../src/util.js'
+import {awaitTaskResponse} from '../../src/taskResponse.js'
+import {fireEvent, getTaskResult} from '../../src/util.js'
 
 const mounted = []
 
@@ -108,45 +108,72 @@ describe('getTaskResult', () => {
   })
 })
 
-describe('task progress indicator events', () => {
-  const makeIndicator = () => {
-    const prog = new GrampsjsTaskProgressIndicator()
-    prog.hideAfter = 0
-    prog.events = []
-    const record = e => prog.events.push(e)
-    prog.addEventListener('task:complete', record)
-    prog.addEventListener('task:error', record)
-    return prog
-  }
+// appState reports a finished task on window, with the task id.
+const finishTask = (taskId, status) =>
+  fireEvent(
+    window,
+    status.state === 'SUCCESS' ? 'task:complete' : 'task:error',
+    {
+      taskId,
+      status,
+    }
+  )
 
-  it('fires no event when completed or failed by hand', () => {
-    const prog = makeIndicator()
+describe('awaitTaskResponse', () => {
+  const appState = () => ({registerTask: vi.fn()})
+  const opts = prog => ({prog, label: 'Export', taskName: 'exportFile'})
 
-    prog.setComplete()
-    prog.reset()
-    prog.setError()
+  it('returns an immediate result', async () => {
+    const prog = makeProgress('p')
 
-    expect(prog.events).toEqual([])
+    const outcome = await awaitTaskResponse(
+      appState(),
+      {data: {url: '/u'}},
+      opts(prog)
+    )
+
+    expect(outcome).toEqual({data: {url: '/u'}})
+    expect(prog.setComplete).toHaveBeenCalled()
   })
 
-  it('fires task:complete with the status of a finished task', () => {
-    const prog = makeIndicator()
-    const status = {id: 't1', state: 'SUCCESS', result_object: {url: '/u'}}
+  it('returns an error response', async () => {
+    const prog = makeProgress('p')
 
-    prog._applyStatus(status)
+    const outcome = await awaitTaskResponse(
+      appState(),
+      {error: 'nope'},
+      opts(prog)
+    )
 
-    expect(prog.events.map(e => e.type)).toEqual(['task:complete'])
-    expect(prog.events[0].detail.status).toBe(status)
+    expect(outcome).toEqual({error: 'nope'})
+    expect(prog.setError).toHaveBeenCalled()
   })
 
-  it('fires task:error with the status of a failed task', () => {
-    const prog = makeIndicator()
-    const status = {id: 't1', state: 'FAILURE', info: 'boom'}
+  it('registers a queued task and returns its result', async () => {
+    const prog = makeProgress('p')
+    const state = appState()
 
-    prog._applyStatus(status)
+    const pending = awaitTaskResponse(state, {task: {id: 't1'}}, opts(prog))
+    finishTask('other', {state: 'SUCCESS', result_object: {url: '/x'}})
+    fireEvent(window, 'task:complete', {status: {state: 'SUCCESS'}})
+    finishTask('t1', {state: 'SUCCESS', result_object: {url: '/u'}})
 
-    expect(prog.events.map(e => e.type)).toEqual(['task:error'])
-    expect(prog.events[0].detail.status).toBe(status)
+    expect(await pending).toEqual({data: {url: '/u'}})
+    expect(state.registerTask).toHaveBeenCalledWith('t1', 'Export', {
+      taskName: 'exportFile',
+    })
+    expect(prog.taskId).toBe('t1')
+  })
+
+  it('returns the error of a failed task', async () => {
+    const pending = awaitTaskResponse(
+      appState(),
+      {task: {id: 't1'}},
+      opts(makeProgress('p'))
+    )
+    finishTask('t1', {state: 'FAILURE', info: 'boom'})
+
+    expect(await pending).toEqual({error: 'boom'})
   })
 })
 
@@ -154,42 +181,45 @@ describe('export view: report messages', () => {
   const makeExport = apiPost => {
     const element = new GrampsjsViewExport()
     const root = element.createRenderRoot()
-    const prog = makeProgress('indicator-export')
-    root.append(prog)
+    root.append(makeProgress('indicator-export'))
     element.renderRoot = root
-    element.appState = {apiPost, registerTask: vi.fn()}
-    return {element, prog}
+    element.appState = {apiPost, registerTask: vi.fn(), i18n: {strings: {}}}
+    return element
   }
 
   it('keeps messages from a synchronous export', async () => {
     const apiPost = vi.fn().mockResolvedValue({
       data: {url: '/api/exporters/ged/file/processed/x.ged', messages: ['m']},
     })
-    const {element, prog} = makeExport(apiPost)
+    const element = makeExport(apiPost)
 
     await element._generateExport()
 
     expect(element._messages).toEqual(['m'])
     expect(element._downloadUrl).toBe('/api/exporters/ged/file/processed/x.ged')
-    expect(prog.setComplete).toHaveBeenCalled()
   })
 
-  it('keeps messages from a finished export task', () => {
-    const {element} = makeExport(vi.fn())
+  it('keeps messages from a finished export task', async () => {
+    const apiPost = vi.fn().mockResolvedValue({task: {id: 't1'}})
+    const element = makeExport(apiPost)
 
-    element._handleTaskComplete({
-      detail: {
-        status: {result_object: {url: '/u', messages: ['a', 'b']}},
-      },
+    const pending = element._generateExport()
+    await vi.waitFor(() =>
+      expect(element.appState.registerTask).toHaveBeenCalled()
+    )
+    finishTask('t1', {
+      state: 'SUCCESS',
+      result_object: {url: '/u', messages: ['a', 'b']},
     })
+    await pending
 
     expect(element._messages).toEqual(['a', 'b'])
     expect(element._downloadUrl).toBe('/u')
   })
 
   it('clears messages when a new export starts', async () => {
-    const apiPost = vi.fn().mockResolvedValue({task: {id: 't1'}})
-    const {element} = makeExport(apiPost)
+    const apiPost = vi.fn().mockResolvedValue({error: 'nope'})
+    const element = makeExport(apiPost)
     element._messages = ['old']
 
     await element._generateExport()
@@ -198,7 +228,7 @@ describe('export view: report messages', () => {
   })
 
   it('clears messages when another exporter is selected', () => {
-    const {element} = makeExport(vi.fn())
+    const element = makeExport(vi.fn())
     element._messages = ['old']
 
     element._handleSelect({target: {value: 'gramps'}})
@@ -207,105 +237,158 @@ describe('export view: report messages', () => {
   })
 })
 
-describe('import: preview and result', () => {
-  const makeImport = apiPost => {
+describe('import: preview, confirmation and result', () => {
+  const fileA = new File(['0 HEAD'], 'a.ged')
+  const fileB = new File(['0 HEAD'], 'b.ged')
+  const preview = {people: 2, messages: ['line 1\nline 2']}
+  const imported = {people: 2, messages: ['done']}
+
+  const makeImport = ({apiPost, confirmed = true}) => {
     const element = new GrampsjsImport()
     const root = element.createRenderRoot()
-    const prog = makeProgress('progress-tree')
     const dialog = document.createElement('grampsjs-import-preview-dialog')
-    dialog.show = vi.fn()
+    dialog.confirm = vi.fn().mockResolvedValue(confirmed)
     const upload = document.createElement('div')
     upload.id = 'upload-tree'
-    upload.reset = vi.fn()
-    root.append(prog, dialog, upload)
+    upload.file = fileA
+    upload.reset = vi.fn(() => {
+      upload.file = undefined
+    })
+    root.append(makeProgress('progress-tree'), dialog, upload)
     element.renderRoot = root
-    element.appState = {apiPost, registerTask: vi.fn()}
+    element.appState = {apiPost, registerTask: vi.fn(), i18n: {strings: {}}}
     element.refreshes = 0
     element.addEventListener('db:changed', () => {
       element.refreshes += 1
     })
-    return {element, dialog}
+    element._handleUploadChanged()
+    return {element, dialog, upload}
   }
 
-  const result = {people: 2, families: 1, messages: ['line 1\nline 2']}
+  // apiPost answering the preview and then the import.
+  const answers = (...responses) => {
+    const apiPost = vi.fn()
+    responses.forEach(r => apiPost.mockResolvedValueOnce(r))
+    return apiPost
+  }
 
-  it('passes dry run messages from a synchronous response to the dialog', async () => {
-    const apiPost = vi.fn().mockResolvedValue({data: result})
-    const {element, dialog} = makeImport(apiPost)
+  it('previews, confirms and imports the selected file', async () => {
+    const apiPost = answers({data: preview}, {data: imported})
+    const {element, dialog, upload} = makeImport({apiPost})
 
-    await element._submitPreview('ged', new Blob(['0 HEAD']))
+    await element._submit()
 
-    expect(element._previewCounts).toEqual(result)
-    expect(element._previewMessages).toEqual(['line 1\nline 2'])
-    expect(dialog.show).toHaveBeenCalled()
+    expect(apiPost.mock.calls.map(c => [c[0], c[1]])).toEqual([
+      ['/api/importers/ged/file?dry_run=true', fileA],
+      ['/api/importers/ged/file', fileA],
+    ])
+    expect(dialog.confirm).toHaveBeenCalledWith(preview)
+    expect(element._importResult).toEqual(imported)
+    expect(element.refreshes).toBe(1)
+    expect(upload.reset).toHaveBeenCalled()
+    expect(element._busy).toBe(false)
   })
 
-  const complete = (element, id) =>
-    element._handleTaskComplete({
-      detail: {status: {id, state: 'SUCCESS', result_object: result}},
-    })
+  it('stops without importing when the preview is cancelled', async () => {
+    const apiPost = answers({data: preview})
+    const {element} = makeImport({apiPost, confirmed: false})
 
-  it('passes dry run messages from a finished task to the dialog', async () => {
-    const apiPost = vi.fn().mockResolvedValue({task: {id: 'preview-1'}})
-    const {element, dialog} = makeImport(apiPost)
-    await element._submitPreview('ged', new Blob(['0 HEAD']))
+    await element._submit()
 
-    complete(element, 'preview-1')
-
-    expect(element._previewMessages).toEqual(['line 1\nline 2'])
+    expect(apiPost).toHaveBeenCalledTimes(1)
     expect(element._importResult).toBeNull()
-    expect(dialog.show).toHaveBeenCalled()
     expect(element.refreshes).toBe(0)
+    expect(element._busy).toBe(false)
+    expect(element._file).toBe(fileA)
   })
 
-  it('keeps the result of a synchronous import and refreshes once', async () => {
-    const apiPost = vi.fn().mockResolvedValue({data: result})
-    const {element} = makeImport(apiPost)
+  it('handles a preview and an import that run as tasks', async () => {
+    const apiPost = answers({task: {id: 'p1'}}, {task: {id: 'i1'}})
+    const {element, dialog} = makeImport({apiPost})
+    const {registerTask} = element.appState
 
-    await element._submitTree('ged', new Blob(['0 HEAD']))
+    const pending = element._submit()
+    await vi.waitFor(() => expect(registerTask).toHaveBeenCalledTimes(1))
+    finishTask('p1', {state: 'SUCCESS', result_object: preview})
+    await vi.waitFor(() => expect(registerTask).toHaveBeenCalledTimes(2))
+    finishTask('i1', {state: 'SUCCESS', result_object: imported})
+    await pending
 
-    expect(element._importResult).toEqual(result)
+    expect(dialog.confirm).toHaveBeenCalledWith(preview)
+    expect(element._importResult).toEqual(imported)
     expect(element.refreshes).toBe(1)
   })
 
-  it('keeps the result of a finished import task', async () => {
-    const apiPost = vi.fn().mockResolvedValue({task: {id: 'import-1'}})
-    const {element} = makeImport(apiPost)
-    await element._submitTree('ged', new Blob(['0 HEAD']))
+  it('drops a preview when another file is selected meanwhile', async () => {
+    const apiPost = answers({task: {id: 'p1'}})
+    const {element, dialog, upload} = makeImport({apiPost})
 
-    complete(element, 'import-1')
+    const pending = element._submit()
+    await vi.waitFor(() =>
+      expect(element.appState.registerTask).toHaveBeenCalled()
+    )
+    upload.file = fileB
+    element._handleUploadChanged()
+    finishTask('p1', {state: 'SUCCESS', result_object: preview})
+    await pending
 
-    expect(element._importResult).toEqual(result)
-    expect(element.refreshes).toBe(1)
+    expect(dialog.confirm).not.toHaveBeenCalled()
+    expect(element._file).toBe(fileB)
   })
 
-  it('only refreshes for a reconnected task it did not start', () => {
-    const {element, dialog} = makeImport(vi.fn())
+  it('keeps a newly selected file when an earlier import finishes', async () => {
+    const apiPost = answers({data: preview}, {task: {id: 'i1'}})
+    const {element, upload} = makeImport({apiPost})
 
-    complete(element, 'unknown')
+    const pending = element._submit()
+    await vi.waitFor(() =>
+      expect(element.appState.registerTask).toHaveBeenCalled()
+    )
+    upload.file = fileB
+    element._handleUploadChanged()
+    finishTask('i1', {state: 'SUCCESS', result_object: imported})
+    await pending
 
+    expect(element.refreshes).toBe(1)
     expect(element._importResult).toBeNull()
-    expect(dialog.show).not.toHaveBeenCalled()
-    expect(element.refreshes).toBe(1)
+    expect(upload.reset).not.toHaveBeenCalled()
+    expect(element._file).toBe(fileB)
   })
 
-  it('ignores the failure of a task it did not start', () => {
-    const {element} = makeImport(vi.fn())
-    element._state = 1
+  it('accepts a new file while a task never reports back', async () => {
+    const apiPost = answers({task: {id: 'p1'}})
+    const {element, upload} = makeImport({apiPost})
 
-    element._handleTaskError({
-      detail: {status: {id: 'unknown', state: 'FAILURE'}},
-    })
-
-    expect(element._state).toBe(1)
-  })
-
-  it('clears the result when a new file is chosen', () => {
-    const {element} = makeImport(vi.fn())
-    element._importResult = result
-
+    element._submit()
+    await vi.waitFor(() =>
+      expect(element.appState.registerTask).toHaveBeenCalled()
+    )
+    expect(element._busy).toBe(true)
+    upload.file = fileB
     element._handleUploadChanged()
 
-    expect(element._importResult).toBeNull()
+    expect(element._busy).toBe(false)
+    expect(element._file).toBe(fileB)
+  })
+
+  it('resets the form when the preview fails', async () => {
+    const apiPost = answers({error: 'bad file'})
+    const {element, dialog, upload} = makeImport({apiPost})
+
+    await element._submit()
+
+    expect(dialog.confirm).not.toHaveBeenCalled()
+    expect(upload.reset).toHaveBeenCalled()
+    expect(element._busy).toBe(false)
+  })
+
+  it('refreshes for a task it did not start only when idle', () => {
+    const {element} = makeImport({apiPost: vi.fn()})
+
+    element._handleOtherTaskComplete()
+    element._busy = true
+    element._handleOtherTaskComplete()
+
+    expect(element.refreshes).toBe(1)
   })
 })

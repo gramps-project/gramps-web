@@ -103,7 +103,6 @@ class GrampsjsUpgradeDb extends GrampsjsAppStateMixin(LitElement) {
       }
     } else {
       prog.setComplete()
-      this._handleUpgradeComplete()
     }
   }
 

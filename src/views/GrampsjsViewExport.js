@@ -8,7 +8,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsImportExportReport.js'
 import {getExporterDownloadUrl, getPermissions} from '../api.js'
-import {getTaskResult} from '../util.js'
+import {awaitTaskResponse} from '../taskResponse.js'
 
 export class GrampsjsViewExport extends GrampsjsView {
   static get styles() {
@@ -87,7 +87,6 @@ export class GrampsjsViewExport extends GrampsjsView {
           class="button"
           size="20"
           .appState="${this.appState}"
-          @task:complete="${this._handleTaskComplete}"
         ></grampsjs-task-progress-indicator>
         <a
           download="${this._getFileName()}"
@@ -120,7 +119,6 @@ export class GrampsjsViewExport extends GrampsjsView {
           class="button"
           size="20"
           .appState="${this.appState}"
-          @task:complete="${this._handleMediaTaskComplete}"
         ></grampsjs-task-progress-indicator>
         <a
           download="grampsweb-media-export.zip"
@@ -201,24 +199,15 @@ export class GrampsjsViewExport extends GrampsjsView {
     const prog = this.renderRoot.querySelector('#indicator-export')
     prog.reset()
     prog.open = true
-    const url = this._getQueryUrl()
-    const data = await this.appState.apiPost(url)
-    if ('error' in data) {
-      prog.setError()
-      prog.errorMessage = data.error
-    } else if ('task' in data) {
-      // queued task
-      const taskId = data.task?.id || ''
-      if (taskId)
-        this.appState.registerTask(taskId, 'Export', {
-          taskName: 'exportFile',
-        })
-      prog.taskId = taskId
-    } else {
-      // eagerly executed task
-      this._messages = data?.data?.messages || []
-      this._downloadUrl = data?.data?.url || ''
-      prog.setComplete()
+    const res = await this.appState.apiPost(this._getQueryUrl())
+    const {data} = await awaitTaskResponse(this.appState, res, {
+      prog,
+      label: 'Export',
+      taskName: 'exportFile',
+    })
+    if (data) {
+      this._messages = data.messages || []
+      this._downloadUrl = data.url || ''
     }
   }
 
@@ -227,34 +216,15 @@ export class GrampsjsViewExport extends GrampsjsView {
     const prog = this.renderRoot.querySelector('#indicator-media')
     prog.reset()
     prog.open = true
-    const url = '/api/media/archive/'
-    const data = await this.appState.apiPost(url)
-    if ('error' in data) {
-      prog.setError()
-      prog.errorMessage = data.error
-    } else if ('task' in data) {
-      // queued task
-      const taskId = data.task?.id || ''
-      if (taskId)
-        this.appState.registerTask(taskId, 'Export media', {
-          taskName: 'exportMedia',
-        })
-      prog.taskId = taskId
-    } else {
-      // eagerly executed task
-      this._mediaDownloadUrl = data?.data?.url || ''
-      prog.setComplete()
+    const res = await this.appState.apiPost('/api/media/archive/')
+    const {data} = await awaitTaskResponse(this.appState, res, {
+      prog,
+      label: 'Export media',
+      taskName: 'exportMedia',
+    })
+    if (data) {
+      this._mediaDownloadUrl = data.url || ''
     }
-  }
-
-  _handleTaskComplete(e) {
-    const result = getTaskResult(e.detail.status)
-    this._messages = result.messages || []
-    this._downloadUrl = result.url || ''
-  }
-
-  _handleMediaTaskComplete(e) {
-    this._mediaDownloadUrl = getTaskResult(e.detail.status).url || ''
   }
 
   async _fetchData() {
