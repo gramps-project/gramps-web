@@ -4,10 +4,12 @@ import '@material/web/button/filled-button.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-import {fireEvent} from '../util.js'
+import {fireEvent, getTaskResult} from '../util.js'
 import './GrampsjsFormUpload.js'
 import './GrampsjsTaskProgressIndicator.js'
 import './GrampsjsImportPreviewDialog.js'
+import './GrampsjsImportCounts.js'
+import './GrampsjsImportExportReport.js'
 
 const STATE_ERROR = -1
 const STATE_INITIAL = 0
@@ -34,6 +36,8 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       _mediaState: {type: Object},
       _uploadHint: {type: String},
       _previewCounts: {type: Object},
+      _previewMessages: {type: Array},
+      _importResult: {type: Object},
     }
   }
 
@@ -42,6 +46,8 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     this._state = 0
     this._uploadHint = ''
     this._previewCounts = {}
+    this._previewMessages = []
+    this._importResult = null
     // Non-reactive: whether the in-flight #progress-tree task is the
     // dry_run preview or the real import — both use the same Celery task
     // (import_file), so a single shared indicator/taskName is used for
@@ -83,11 +89,33 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
           @task:error="${this._handleTaskError}"
         ></grampsjs-task-progress-indicator>
       </p>
+      ${this._renderImportResult()}
       <grampsjs-import-preview-dialog
         .appState="${this.appState}"
         .counts="${this._previewCounts}"
+        .messages="${this._previewMessages}"
         @import-confirmed="${this._handleImportConfirmed}"
       ></grampsjs-import-preview-dialog>
+    `
+  }
+
+  _renderImportResult() {
+    if (!this._importResult) {
+      return ''
+    }
+    return html`
+      <div class="card">
+        <p>${this._('The import has completed.')}</p>
+        <grampsjs-import-counts
+          .appState="${this.appState}"
+          .counts="${this._importResult}"
+        ></grampsjs-import-counts>
+        <grampsjs-import-export-report
+          .appState="${this.appState}"
+          .messages="${this._importResult.messages}"
+          heading="${this._('Import messages')}"
+        ></grampsjs-import-export-report>
+      </div>
     `
   }
 
@@ -102,6 +130,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
   async _submitPreview(ext, file) {
     this._state = STATE_PREVIEWING
     this._previewPending = true
+    this._importResult = null
     const prog = this.renderRoot.querySelector('#progress-tree')
     prog.reset()
     prog.open = true
@@ -135,10 +164,11 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     this._showPreview(res.data)
   }
 
-  _showPreview(counts) {
+  _showPreview(result) {
     this._previewPending = false
     this._state = STATE_READY
-    this._previewCounts = counts || {}
+    this._previewCounts = result || {}
+    this._previewMessages = result?.messages || []
     this.renderRoot.querySelector('grampsjs-import-preview-dialog').show()
   }
 
@@ -173,7 +203,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       }
     } else {
       prog.setComplete()
-      this._handleSuccess()
+      this._handleSuccess(res.data)
     }
   }
 
@@ -181,11 +211,11 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
   // task (import_file) and share the #progress-tree indicator/taskName, so
   // this dispatches its completion to whichever is actually in flight.
   _handleTaskComplete(e) {
+    const result = getTaskResult(e.detail?.status)
     if (this._previewPending) {
-      const counts = JSON.parse(e.detail?.status?.result || '{}')
-      this._showPreview(counts)
+      this._showPreview(result)
     } else {
-      this._handleSuccess()
+      this._handleSuccess(result)
     }
   }
 
@@ -194,8 +224,9 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     this._handleCompleted(STATE_ERROR)
   }
 
-  _handleSuccess() {
+  _handleSuccess(result) {
     this._handleCompleted(STATE_DONE)
+    this._importResult = result || {}
     fireEvent(this, 'db:changed', {})
   }
 
@@ -208,6 +239,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
 
   _handleUploadChanged() {
     const uploadForm = this.shadowRoot.querySelector('#upload-tree')
+    this._importResult = null
     if (!uploadForm.file?.name) {
       this._uploadHint = ''
       this._state = STATE_INITIAL

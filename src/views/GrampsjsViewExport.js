@@ -6,7 +6,9 @@ import {mdiAlertOutline} from '@mdi/js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsIcon.js'
+import '../components/GrampsjsImportExportReport.js'
 import {getExporterDownloadUrl, getPermissions} from '../api.js'
+import {getTaskResult} from '../util.js'
 
 export class GrampsjsViewExport extends GrampsjsView {
   static get styles() {
@@ -30,6 +32,7 @@ export class GrampsjsViewExport extends GrampsjsView {
       _formData: {type: Object},
       _downloadUrl: {type: String},
       _mediaDownloadUrl: {type: String},
+      _messages: {type: Array},
       _viewPrivate: {type: Boolean},
     }
   }
@@ -40,6 +43,7 @@ export class GrampsjsViewExport extends GrampsjsView {
     this._formData = {exporter: 'gramps', options: {}}
     this._downloadUrl = ''
     this._mediaDownloadUrl = ''
+    this._messages = []
     this._viewPrivate = true
   }
 
@@ -94,6 +98,12 @@ export class GrampsjsViewExport extends GrampsjsView {
           >&nbsp;</a
         >
       </p>
+      <grampsjs-import-export-report
+        .appState="${this.appState}"
+        .messages="${this._messages}"
+        heading="${this._('Left out of the export')}"
+        warn
+      ></grampsjs-import-export-report>
 
       <h3>${this._('Export your media files')}</h3>
 
@@ -167,6 +177,7 @@ export class GrampsjsViewExport extends GrampsjsView {
 
   _handleSelect(e) {
     this._formData = {...this._formData, exporter: e.target.value}
+    this._messages = []
   }
 
   _startDownload() {
@@ -186,6 +197,7 @@ export class GrampsjsViewExport extends GrampsjsView {
 
   async _generateExport() {
     this._downloadUrl = ''
+    this._messages = []
     const prog = this.renderRoot.querySelector('#indicator-export')
     prog.reset()
     prog.open = true
@@ -204,6 +216,7 @@ export class GrampsjsViewExport extends GrampsjsView {
       prog.taskId = taskId
     } else {
       // eagerly executed task
+      this._messages = data?.data?.messages || []
       this._downloadUrl = data?.data?.url || ''
       prog.setComplete()
     }
@@ -236,8 +249,9 @@ export class GrampsjsViewExport extends GrampsjsView {
 
   _handleTaskComplete(e) {
     const {status} = e.detail
-    const result = JSON.parse(status.result || {})
-    this._downloadUrl = result?.url || ''
+    const result = getTaskResult(status)
+    this._messages = result.messages || []
+    this._downloadUrl = result.url || ''
   }
 
   _handleMediaTaskComplete(e) {

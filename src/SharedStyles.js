@@ -247,6 +247,12 @@ export const sharedStyles = css`
     animation: 1.5s shine linear infinite;
   }
 
+  .card {
+    padding: 1em 1em;
+    border-radius: 16px;
+    background-color: var(--grampsjs-color-shade-230);
+  }
+
   .alert {
     background-color: var(--grampsjs-alert-background-color);
     border-left: 4px solid var(--grampsjs-alert-border-color);
