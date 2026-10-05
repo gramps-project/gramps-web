@@ -446,5 +446,9 @@
     "Last used": "Última utilização",
     "Never": "Nunca",
     "Access token created": "Símbolo de acesso criado",
-    "Copy the token now. It will not be shown again.": "Copie o símbolo agora. Não voltará a ser mostrado."
+    "Copy the token now. It will not be shown again.": "Copie o símbolo agora. Não voltará a ser mostrado.",
+    "Left out of the export": "Omitido na exportação",
+    "The import has completed.": "Importação concluída.",
+    "Problems found during the import": "Problemas encontrados ao importar",
+    "Problems found in this file": "Problemas encontrados neste ficheiro"
 }
