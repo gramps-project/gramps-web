@@ -437,5 +437,16 @@
     "Public data from %s": "Veřejná data z %s",
     "Your maps": "Vaše mapy",
     "No buildings here": "Zde nejsou žádné budovy",
-    "The map could not be loaded.": "Mapu se nepodařilo načíst."
+    "The map could not be loaded.": "Mapu se nepodařilo načíst.",
+    "Desktop sync": "Synchronizace s počítačem",
+    "Add sync device": "Přidat synchronizační zařízení",
+    "Device name": "Název zařízení",
+    "Created": "Vytvořeno",
+    "Last used": "Naposledy použito",
+    "Access token created": "Přístupový token vytvořen",
+    "Copy the token now. It will not be shown again.": "Zkopírujte token nyní. Znovu se již nezobrazí.",
+    "Left out of the export": "Vynecháno z exportu",
+    "The import has completed.": "Import byl dokončen.",
+    "Problems found during the import": "Problémy zjištěné během importu",
+    "Problems found in this file": "Problémy zjištěné v tomto souboru"
 }
