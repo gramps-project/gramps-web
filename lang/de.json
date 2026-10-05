@@ -449,5 +449,6 @@
     "Copy the token now. It will not be shown again.": "Kopiere den Token jetzt. Er wird nicht erneut angezeigt.",
     "Left out of the export": "Im Export nicht berücksichtigt",
     "The import has completed.": "Der Import ist abgeschlossen.",
-    "Problems found in this file": "In dieser Datei gefundene Probleme"
+    "Problems found in this file": "In dieser Datei gefundene Probleme",
+    "Problems found during the import": "Beim Import festgestellte Probleme"
 }
