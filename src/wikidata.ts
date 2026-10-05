@@ -293,6 +293,8 @@ function timeVars(v: string): string {
 
 // Each property sits in its own UNION branch, so the row count is the sum
 // of the value counts. The empty branch yields a row for items without any.
+// Without the runLast hint, Blazegraph runs the label service before the
+// joins and the query takes over a minute.
 export function buildBuildingDetailQuery(qid: string, lang?: string): string {
   return `SELECT ?itemLabel ?itemDescription ?typeLabel ?image
   ${timeVars('inception')} ${timeVars('demolished')}
@@ -331,6 +333,7 @@ WHERE {
   SERVICE wikibase:label { bd:serviceParam wikibase:language "${wikidataLanguages(
     lang
   )}" . }
+  hint:Prior hint:runLast true .
 }`
 }
 
