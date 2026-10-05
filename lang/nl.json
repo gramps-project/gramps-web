@@ -438,5 +438,16 @@
     "Public data from %s": "Openbare gegevens van %s",
     "Your maps": "Uw kaarten",
     "No buildings here": "Hier geen gebouwen",
-    "The map could not be loaded.": "De kaart kon niet worden geladen."
+    "The map could not be loaded.": "De kaart kon niet worden geladen.",
+    "Desktop sync": "Desktop-sync",
+    "Add sync device": "Synchronisatieapparaat toevoegen",
+    "Device name": "Apparaatnaam",
+    "Created": "Aangemaakt",
+    "Last used": "Laatst gebruikt",
+    "Access token created": "Toegangstoken aangemaakt",
+    "Copy the token now. It will not be shown again.": "Kopieer het token nu. Het wordt later niet meer getoond.",
+    "Left out of the export": "Buiten de export gelaten",
+    "The import has completed.": "De import is voltooid.",
+    "Problems found during the import": "Problemen gevonden tijdens de import",
+    "Problems found in this file": "Problemen gevonden in dit bestand"
 }
