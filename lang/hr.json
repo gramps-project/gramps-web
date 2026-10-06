@@ -314,7 +314,7 @@
     "Move the chart": "Pomakni dijagram",
     "Zoom in": "Uvećaj prikaz",
     "Zoom out": "Umanji prikaz",
-    "Zoom in to see event details": "Zumiraj za prikaz detalja događaja",
+    "Zoom in to see event details": "Uvećaj prikaz za prikaz detalja događaja",
     "App title": "Ime aplikacije",
     "Theme colors": "Boje teme",
     "Primary color": "Primarna boja",
@@ -441,5 +441,15 @@
     "Problems found in this file": "U ovoj su datoteci pronađeni problemi",
     "Severity": "Ozbiljnost",
     "Reset the tree to match an uploaded Gramps XML backup, adding, updating, and deleting objects as needed. This is a destructive replace, not a merge.": "Resetiraj rodoslov u stanje koje odgovara jednoj prenesenoj Gramps XML sigurnosnoj kopiji, dodajući, ažurirajući i brišući objekte prema potrebi. Ovo je destruktivna zamjena, a ne spajanje.",
-    "Failed to fetch the Blog tag": "Dohvaćanje oznake bloga nije uspjelo"
+    "Failed to fetch the Blog tag": "Dohvaćanje oznake bloga nije uspjelo",
+    "Built": "Izgrađeno",
+    "Demolished": "Srušeno",
+    "Occupants": "Stanari",
+    "No buildings here": "Ovdje nema zgrada",
+    "Genealogical symbols": "Genealoški simboli",
+    "Unicode symbols (∗ † ⚭ ⚮)": "Unicode simboli (∗ † ⚭ ⚮)",
+    "Text abbreviations (b. d. m. div.)": "Kratice teksta (r., u., b., raz.)",
+    "This will permanently delete %s existing objects that are not present in the backup.": "Ovo će trajno izbrisati %s postojeća objekta koji nisu prisutni u sigurnosnoj kopiji.",
+    "Wikidata buildings": "Wikidata zgrade",
+    "Zoom in to see Wikidata buildings": "Uvećaj prikaz za prikaz Wikidata zgrada"
 }
