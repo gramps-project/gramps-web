@@ -448,5 +448,8 @@
     "Left out of the export": "エクスポートから除外",
     "The import has completed.": "インポートが完了しました。",
     "Problems found during the import": "インポート中に検出された問題",
-    "Problems found in this file": "このファイルで見つかった問題"
+    "Problems found in this file": "このファイルで見つかった問題",
+    "Genealogical symbols": "系図記号",
+    "Unicode symbols (∗ † ⚭ ⚮)": "Unicode シンボル (∗ † ⚭ ⚮)",
+    "Text abbreviations (b. d. m. div.)": "テキストの略語 (b. d. m. div.)"
 }
