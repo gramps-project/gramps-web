@@ -450,5 +450,8 @@
     "Left out of the export": "Omitido na exportação",
     "The import has completed.": "Importação concluída.",
     "Problems found during the import": "Problemas encontrados ao importar",
-    "Problems found in this file": "Problemas encontrados neste ficheiro"
+    "Problems found in this file": "Problemas encontrados neste ficheiro",
+    "Genealogical symbols": "Símbolos genealógicos",
+    "Unicode symbols (∗ † ⚭ ⚮)": "Símbolos Unicode (∗ † ⚭ ⚮)",
+    "Text abbreviations (b. d. m. div.)": "Abreviaturas textuais (b. d. m. div.)"
 }
