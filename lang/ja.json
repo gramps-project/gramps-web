@@ -437,5 +437,16 @@
     "Public data from %s": "%s からの公開データ",
     "Your maps": "あなたの地図",
     "No buildings here": "ここには建物がありません",
-    "The map could not be loaded.": "地図を読み込めませんでした。"
+    "The map could not be loaded.": "地図を読み込めませんでした。",
+    "Desktop sync": "デスクトップの同期",
+    "Add sync device": "同期デバイスを追加",
+    "Device name": "デバイス名",
+    "Created": "作成日時",
+    "Last used": "最終使用日",
+    "Access token created": "アクセス トークンが作成されました",
+    "Copy the token now. It will not be shown again.": "今すぐトークンをコピーしてください。これ以降、トークンは表示されません。",
+    "Left out of the export": "エクスポートから除外",
+    "The import has completed.": "インポートが完了しました。",
+    "Problems found during the import": "インポート中に検出された問題",
+    "Problems found in this file": "このファイルで見つかった問題"
 }
