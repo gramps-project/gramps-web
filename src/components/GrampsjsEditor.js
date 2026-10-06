@@ -13,6 +13,7 @@ import {
   mdiFormatItalic,
   mdiFormatStrikethrough,
   mdiFormatUnderline,
+  mdiImage,
   mdiInformation,
   mdiClose,
   mdiLink,
@@ -31,7 +32,18 @@ import {
 import {parseHtmlToStyledText} from './styledTextPaste.js'
 import {HIGHLIGHT_COLOR, matchInputRule} from './styledTextInputRules.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {saveDraft, getDraft, clearDraft, clearDraftsWithPrefix} from '../api.js'
+import {
+  saveDraft,
+  getDraft,
+  clearDraft,
+  clearDraftsWithPrefix,
+  getThumbnailUrl,
+} from '../api.js'
+import {
+  IMAGE_PLACEHOLDER,
+  mediaHandleFromLink,
+  mediaLink,
+} from '../inlineImages.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsTimedelta.js'
 import './GrampsjsIcon.js'
@@ -120,7 +132,20 @@ function isBooleanTag(tagName) {
   return false
 }
 
+// An image placeholder covered by a media link renders as the image. The
+// placeholder stays in the DOM so that character offsets match data.string.
+function _inlineImageHtml(str, tags) {
+  if (str !== IMAGE_PLACEHOLDER) return null
+  const link = tags.find(([name]) => name === 'link')
+  const handle = mediaHandleFromLink(link?.[1])
+  if (!handle) return null
+  const src = _escapeHtml(getThumbnailUrl(handle, 600))
+  return `<span class="inline-image" contenteditable="false"><img src="${src}" alt="">${IMAGE_PLACEHOLDER}</span>`
+}
+
 function _applyTags(str, tags) {
+  const image = _inlineImageHtml(str, tags)
+  if (image !== null) return image
   // Escape the raw text slice first so that any '<', '>', '&', '"' in
   // data.string are never interpreted as HTML markup when assigned to innerHTML.
   // Subsequent _applyTag calls wrap already-safe content in known-good tags.
@@ -181,10 +206,22 @@ function getNodeAtNumChar(parent, num) {
 // Return the Unicode code-point offset of a DOM Range endpoint
 // (container + domOffset) measured from the start of root.
 function rangeCharPos(container, domOffset, root) {
-  const text = container.nodeValue ?? container.textContent ?? ''
-  return (
-    getNumCharBeforeNode(container, root)[0] + domOffsetToChar(text, domOffset)
-  )
+  const before =
+    container === root ? 0 : getNumCharBeforeNode(container, root)[0]
+  if (container.nodeType === Node.ELEMENT_NODE) {
+    // element endpoints count child nodes, e.g. next to an inline image
+    let n = 0
+    Array.from(container.childNodes)
+      .slice(0, domOffset)
+      .forEach(childNode => {
+        if (childNode.nodeType !== Node.COMMENT_NODE) {
+          n += charLength(childNode.textContent)
+        }
+      })
+    return before + n
+  }
+  const text = container.nodeValue ?? ''
+  return before + domOffsetToChar(text, domOffset)
 }
 
 class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
@@ -217,6 +254,34 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
         a {
           pointer-events: none;
+        }
+
+        .inline-image {
+          display: inline-block;
+          max-width: 100%;
+          margin: 0.5rem 0;
+          font-size: 0;
+          line-height: 0;
+          vertical-align: bottom;
+          position: relative;
+        }
+
+        /* images are not painted with the text selection */
+        .inline-image.selected::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 4px;
+          background-color: Highlight;
+          opacity: 0.4;
+          pointer-events: none;
+        }
+
+        .inline-image img {
+          display: block;
+          max-width: 100%;
+          max-height: 20rem;
+          border-radius: 4px;
         }
 
         .draft-banner {
@@ -267,6 +332,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       initialData: {type: Object},
+      allowImages: {type: Boolean},
       data: {type: Object},
       cursorPosition: {type: Array},
       _dialogContent: {type: String},
@@ -282,7 +348,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.initialData = {_class: 'StyledText', string: '', tags: []}
     this.data = {_class: 'StyledText', string: '', tags: []}
+    this.allowImages = false
     this.cursorPosition = [0]
+    this._imagePosition = null
     this._dialogContent = null
     this._html = ''
     this._showDraftBanner = false
@@ -300,6 +368,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     this._boundHandleSaveButton = this._handleSaveButton.bind(this)
     this._boundHandleBeforeUnload = this._handleBeforeUnload.bind(this)
     this._boundHandleCancel = this._handleCancel.bind(this)
+    this._markSelectedImages = this._markSelectedImages.bind(this)
     this._undo = this._undo.bind(this)
     this._redo = this._redo.bind(this)
   }
@@ -437,6 +506,23 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         <grampsjs-tooltip for="btn-link" .appState="${this.appState}"
           >${this._('Link')}</grampsjs-tooltip
         >
+        ${this.allowImages
+          ? html`
+              <md-icon-button
+                id="btn-image"
+                aria-label="${this._('Insert image')}"
+                @click="${this._handleImageButton}"
+              >
+                <grampsjs-icon
+                  path="${mdiImage}"
+                  color="currentColor"
+                ></grampsjs-icon>
+              </md-icon-button>
+              <grampsjs-tooltip for="btn-image" .appState="${this.appState}"
+                >${this._('Insert image')}</grampsjs-tooltip
+              >
+            `
+          : ''}
         <md-icon-button
           id="btn-undo"
           aria-label="${this._('Undo')}"
@@ -469,9 +555,19 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         @paste="${this._handlePaste}"
         @compositionend="${this._handleCompositionEnd}"
         @keydown="${this._handleKeydown}"
+        @mousedown="${this._handleMouseDown}"
         .innerHTML="${live(this._html)}"
       ></div>
       ${this._renderLinkDialog()}
+      ${this.allowImages
+        ? html`<grampsjs-form-select-object
+            hideButton
+            objectType="media"
+            id="image-select"
+            .appState="${this.appState}"
+            @select-object:changed="${this._handleImageSelected}"
+          ></grampsjs-form-select-object>`
+        : ''}
     `
   }
 
@@ -588,6 +684,23 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         e.stopPropagation()
       }
     }
+  }
+
+  // Clicking an inline image selects it, which non-editable elements do not
+  // do by themselves in every browser
+  _handleMouseDown(e) {
+    const image = e.target.closest?.('.inline-image')
+    if (!image || e.button !== 0) return
+    e.preventDefault()
+    this._editorDiv.focus()
+    const range = document.createRange()
+    range.selectNode(image)
+    this._setSelection(
+      range.startContainer,
+      range.startOffset,
+      range.endContainer,
+      range.endOffset
+    )
   }
 
   _handleBeforeInput(e) {
@@ -748,6 +861,54 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   _handleLink(pos, query = charSlice(this.data.string, pos[0], pos[1])) {
     this._dialogContent = {pos, selectedText: query}
     this._openDialog()
+  }
+
+  _handleImageButton() {
+    this._imagePosition = this._imageRange()
+    const select = this.renderRoot.querySelector('#image-select')
+    select.reset()
+    select.open()
+  }
+
+  // Position for an image: the selection, or the end of the text
+  _imageRange() {
+    const range = this._getSelectionRange()
+    const end = charLength(this.data.string)
+    if (!range || !this._editorDiv.contains(range.startContainer)) {
+      return [end, end]
+    }
+    return [
+      this._charPos(range.startContainer, range.startOffset),
+      this._charPos(range.endContainer, range.endOffset),
+    ]
+  }
+
+  _handleImageSelected(e) {
+    e.stopPropagation()
+    const handle = e.detail.objects[0]?.handle
+    if (!handle || !this._imagePosition) return
+    const [start, stop] = this._imagePosition
+    this._imagePosition = null
+    this._pushUndo()
+    this._suppressUndo = true
+    this._deleteText(start, stop)
+    this._insertImage(handle, start)
+    this._suppressUndo = false
+    this.handleChange()
+  }
+
+  // Insert an image on a line of its own at `position` and put the cursor
+  // on the line after it
+  _insertImage(handle, position) {
+    const before =
+      position > 0 ? charSlice(this.data.string, position - 1, position) : '\n'
+    const after = charSlice(this.data.string, position, position + 1)
+    const prefix = before === '\n' ? '' : '\n'
+    const suffix = after === '\n' ? '' : '\n'
+    const imagePos = position + prefix.length
+    this._insertText(`${prefix}${IMAGE_PLACEHOLDER}${suffix}`, position)
+    this._insertTag('link', [imagePos, imagePos + 1], mediaLink(handle))
+    this.cursorPosition = [imagePos + 2]
   }
 
   _handleSelectObjectsChanged(e) {
@@ -1126,6 +1287,10 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     const strLen = charLength(str)
     const keepEnd = this._tagBoundary === position
     this._tagBoundary = null
+    // an image link always covers just its placeholder
+    const afterImage =
+      position > 0 &&
+      charSlice(this.data.string, position - 1, position) === IMAGE_PLACEHOLDER
     this.data = {
       ...this.data,
       string:
@@ -1137,7 +1302,9 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
           ...tag,
           ranges: tag.ranges.map(([start, end]) => [
             start < position ? start : start + strLen,
-            end < position || (keepEnd && end === position)
+            end < position ||
+            (end === position &&
+              (keepEnd || (afterImage && tag.name === 'link')))
               ? end
               : end + strLen,
           ]),
@@ -1194,37 +1361,61 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     if (changed.has('data')) {
       this._html = this._getHtml()
     }
+    this._markSelectedImages()
     // set selection
     const div = this.shadowRoot.querySelector('div.note')
-    const nodeStart = getNodeAtNumChar(div, this.cursorPosition[0])
-    if (nodeStart !== null) {
-      const offsetStart = getNumCharBeforeNode(nodeStart, div)[0]
-      // cursorPosition is in code points; convert to UTF-16 for the DOM API
-      const nodeStartText = nodeStart.nodeValue ?? nodeStart.textContent ?? ''
+    const start = this._domPoint(div, this.cursorPosition[0])
+    if (start === null) return
+    if (this.cursorPosition.length === 1) {
       // no selection but only cursor
-      if (this.cursorPosition.length === 1) {
-        this._setCursor(
-          nodeStart,
-          charToDomOffset(nodeStartText, this.cursorPosition[0] - offsetStart)
-        )
-      } else {
-        // set selection range
-        const nodeEnd = getNodeAtNumChar(div, this.cursorPosition[1])
-        if (nodeEnd !== null) {
-          const offsetEnd = getNumCharBeforeNode(nodeEnd, div)[0]
-          const nodeEndText = nodeEnd.nodeValue ?? nodeEnd.textContent ?? ''
-          this._setSelection(
-            nodeStart,
-            charToDomOffset(
-              nodeStartText,
-              this.cursorPosition[0] - offsetStart
-            ),
-            nodeEnd,
-            charToDomOffset(nodeEndText, this.cursorPosition[1] - offsetEnd)
-          )
-        }
-      }
+      this._setCursor(...start)
+    } else {
+      const end = this._domPoint(div, this.cursorPosition[1])
+      if (end !== null) this._setSelection(...start, ...end)
     }
+  }
+
+  // Mark the inline images inside the selection
+  _markSelectedImages() {
+    const div = this._editorDiv
+    if (!div) return
+    const range = this._getSelectionRange()
+    const active =
+      range && !range.collapsed && div.contains(range.startContainer)
+    let domRange = null
+    if (active) {
+      domRange = document.createRange()
+      domRange.setStart(range.startContainer, range.startOffset)
+      domRange.setEnd(range.endContainer, range.endOffset)
+    }
+    for (const image of div.querySelectorAll('.inline-image')) {
+      image.classList.toggle(
+        'selected',
+        domRange !== null && domRange.intersectsNode(image)
+      )
+    }
+  }
+
+  // DOM node and offset for a code-point position in the editor. Positions
+  // at an inline image resolve to just before or after it, outside the
+  // non-editable wrapper.
+  // eslint-disable-next-line class-methods-use-this
+  _domPoint(div, charPos) {
+    const node = getNodeAtNumChar(div, charPos)
+    if (node === null) return null
+    const offset = getNumCharBeforeNode(node, div)[0]
+    const image =
+      node.nodeType === Node.ELEMENT_NODE
+        ? node.closest('.inline-image')
+        : node.parentElement?.closest('.inline-image')
+    if (image) {
+      const index = Array.from(image.parentNode.childNodes).indexOf(image)
+      const imageStart = getNumCharBeforeNode(image, div)[0]
+      return [image.parentNode, charPos > imageStart ? index + 1 : index]
+    }
+    // charPos is in code points; convert to UTF-16 for the DOM API
+    const text = node.nodeValue ?? node.textContent ?? ''
+    return [node, charToDomOffset(text, charPos - offset)]
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -1310,6 +1501,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     window.addEventListener('beforeunload', this._boundHandleBeforeUnload)
     window.addEventListener('edit:cancel', this._boundHandleCancel)
     window.addEventListener('object:cancel', this._boundHandleCancel)
+    document.addEventListener('selectionchange', this._markSelectedImages)
   }
 
   disconnectedCallback() {
@@ -1317,6 +1509,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     window.removeEventListener('beforeunload', this._boundHandleBeforeUnload)
     window.removeEventListener('edit:cancel', this._boundHandleCancel)
     window.removeEventListener('object:cancel', this._boundHandleCancel)
+    document.removeEventListener('selectionchange', this._markSelectedImages)
     // Clear any pending draft save timer
     if (this._draftSaveTimer) {
       clearTimeout(this._draftSaveTimer)

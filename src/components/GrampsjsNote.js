@@ -10,6 +10,7 @@ import './GrampsjsIcon.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsEditor.js'
 import './GrampsjsFormEditType.js'
+import {fetchInlineMedia} from '../inlineImages.js'
 
 export class GrampsjsNote extends GrampsjsObject {
   static get styles() {
@@ -22,8 +23,16 @@ export class GrampsjsNote extends GrampsjsObject {
     ]
   }
 
+  static get properties() {
+    return {
+      ...super.properties,
+      _inlineMedia: {type: Object},
+    }
+  }
+
   constructor() {
     super()
+    this._inlineMedia = {}
     this._objectsName = 'Notes'
     this._objectEndpoint = 'notes'
     this._objectIcon = objectIconPath.note
@@ -52,16 +61,29 @@ export class GrampsjsNote extends GrampsjsObject {
       ${this.edit
         ? html` <grampsjs-editor
             id="note-text-editor"
+            ?allowImages="${this.data?.backlinks?.source?.length > 0}"
             .initialData=${this.data.text}
             .appState="${this.appState}"
           ></grampsjs-editor>`
         : html` <grampsjs-note-content
             grampsId="${this.data.gramps_id}"
+            .inlineMedia="${this._inlineMedia}"
             content="${this.data?.formatted?.html ||
             this.data?.text?.string ||
             'Error loading note'}"
           ></grampsjs-note-content>`}
     `
+  }
+
+  updated(changed) {
+    super.updated?.(changed)
+    if (changed.has('data')) this._fetchInlineMedia()
+  }
+
+  async _fetchInlineMedia() {
+    const {data} = this
+    const inlineMedia = await fetchInlineMedia(this.appState, data?.text)
+    if (data === this.data) this._inlineMedia = inlineMedia
   }
 
   _handleEditType() {

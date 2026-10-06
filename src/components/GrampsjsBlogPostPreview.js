@@ -7,6 +7,7 @@ import './GrampsjsGallery.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsTimedelta.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {IMAGE_PLACEHOLDER} from '../inlineImages.js'
 
 export class GrampsjsBlogPostPreview extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -99,7 +100,10 @@ export class GrampsjsBlogPostPreview extends GrampsjsAppStateMixin(LitElement) {
   }
 
   getPreviewText() {
-    const all = this.data?.extended?.notes[0]?.text?.string
+    const all = this.data?.extended?.notes[0]?.text?.string?.replaceAll(
+      IMAGE_PLACEHOLDER,
+      ''
+    )
     if (!all) {
       return ''
     }

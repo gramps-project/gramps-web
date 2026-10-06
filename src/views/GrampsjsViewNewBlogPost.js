@@ -57,6 +57,7 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
         <grampsjs-editor
           @formdata:changed="${this.handleEditor}"
           id="blog-post-content-editor"
+          allowImages
           .appState="${this.appState}"
         ></grampsjs-editor>
       </p>
