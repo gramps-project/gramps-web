@@ -906,7 +906,10 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     const prefix = before === '\n' ? '' : '\n'
     const suffix = after === '\n' ? '' : '\n'
     const imagePos = position + prefix.length
-    this._insertText(`${prefix}${IMAGE_PLACEHOLDER}${suffix}`, position)
+    const inserted = `${prefix}${IMAGE_PLACEHOLDER}${suffix}`
+    this._insertText(inserted, position)
+    // a link around the position must not extend over the image
+    this._removeTag('link', [position, position + charLength(inserted)])
     this._insertTag('link', [imagePos, imagePos + 1], mediaLink(handle))
     this.cursorPosition = [imagePos + 2]
   }

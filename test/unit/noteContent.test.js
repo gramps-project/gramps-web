@@ -1,4 +1,5 @@
 import {describe, it, expect, beforeAll, afterAll, vi} from 'vitest'
+import {mdiImage} from '@mdi/js'
 import {
   _parseGrampsHref,
   renderInlineImages,
@@ -132,11 +133,11 @@ describe('renderInlineImages', () => {
     expect(a.textContent).not.toContain('\uFFFC')
   })
 
-  it('adds no caption when the description is empty', () => {
+  it('adds no caption and uses the Gramps ID as alt text when the description is empty', () => {
     const container = render('<p><a href="/media/M0002">\uFFFC</a></p>')
     const a = container.querySelector('a')
     expect(a.classList.contains('inline-image')).toBe(true)
-    expect(a.querySelector('img').getAttribute('alt')).toBe('')
+    expect(a.querySelector('img').getAttribute('alt')).toBe('M0002')
     expect(a.querySelector('.inline-image-caption')).toBeNull()
   })
 
@@ -172,9 +173,10 @@ describe('renderInlineImages', () => {
     const a = container.querySelector('a')
     expect(a.classList.contains('inline-image')).toBe(false)
     expect(a.querySelector('img')).toBeNull()
-    const svg = a.querySelector('svg.inline-image-icon')
-    expect(svg).not.toBeNull()
-    expect(svg.querySelector('path')).not.toBeNull()
+    const icon = a.querySelector('grampsjs-icon.inline-image-icon')
+    expect(icon).not.toBeNull()
+    expect(icon.path).toBe(mdiImage)
+    expect(a.getAttribute('aria-label')).toBe('M9999')
     expect(a.textContent).not.toContain('\uFFFC')
     expect(a.getAttribute('href')).toBe('/media/M9999')
   })

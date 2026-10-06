@@ -5,6 +5,7 @@ import {mdiImage} from '@mdi/js'
 import {linkUrls} from '../util.js'
 import {getThumbnailUrl} from '../api.js'
 import {IMAGE_PLACEHOLDER} from '../inlineImages.js'
+import './GrampsjsIcon.js'
 
 const NAVIGABLE = new Set([
   'person',
@@ -38,23 +39,9 @@ export function _parseGrampsHref(href) {
   return null
 }
 
-// An image icon standing in for an inline image whose media object is
-// unknown
-function _imageIcon() {
-  const svgNs = 'http://www.w3.org/2000/svg'
-  const svg = document.createElementNS(svgNs, 'svg')
-  svg.setAttribute('viewBox', '0 0 24 24')
-  svg.setAttribute('class', 'inline-image-icon')
-  const path = document.createElementNS(svgNs, 'path')
-  path.setAttribute('d', mdiImage)
-  path.setAttribute('fill', 'currentColor')
-  svg.append(path)
-  return svg
-}
-
 // Replace the links of inline image placeholders by the images, for media
 // objects found in `mediaById` (Gramps ID to media object), and by an image
-// icon otherwise
+// icon otherwise. Without a description, the Gramps ID names the link.
 export function renderInlineImages(container, mediaById) {
   for (const a of container.querySelectorAll('a[href]')) {
     if (a.textContent !== IMAGE_PLACEHOLDER) continue
@@ -62,13 +49,18 @@ export function renderInlineImages(container, mediaById) {
     if (parsed?.objectType !== 'media') continue
     const media = mediaById[parsed.grampsId]
     if (!media) {
+      const icon = document.createElement('grampsjs-icon')
+      icon.className = 'inline-image-icon'
+      icon.path = mdiImage
+      icon.color = 'var(--grampsjs-body-font-color-50)'
       a.textContent = ''
-      a.append(_imageIcon())
+      a.setAttribute('aria-label', parsed.grampsId)
+      a.append(icon)
       continue
     }
     const img = document.createElement('img')
     img.src = getThumbnailUrl(media.handle, 1000, false, media.checksum)
-    img.alt = media.desc || ''
+    img.alt = media.desc || parsed.grampsId
     img.loading = 'lazy'
     a.textContent = ''
     a.classList.add('inline-image')
@@ -124,7 +116,7 @@ export class GrampsjsNoteContent extends LitElement {
         .inline-image-icon {
           width: 1.2em;
           height: 1.2em;
-          color: var(--grampsjs-body-font-color-50);
+          display: inline-block;
           vertical-align: text-bottom;
         }
 
