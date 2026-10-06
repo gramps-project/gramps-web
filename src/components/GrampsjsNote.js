@@ -61,7 +61,7 @@ export class GrampsjsNote extends GrampsjsObject {
       ${this.edit
         ? html` <grampsjs-editor
             id="note-text-editor"
-            ?allowImages="${this.data?.backlinks?.source?.length > 0}"
+            allowImages
             .initialData=${this.data.text}
             .appState="${this.appState}"
           ></grampsjs-editor>`
