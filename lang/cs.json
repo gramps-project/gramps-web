@@ -448,5 +448,7 @@
     "Left out of the export": "Vynecháno z exportu",
     "The import has completed.": "Import byl dokončen.",
     "Problems found during the import": "Problémy zjištěné během importu",
-    "Problems found in this file": "Problémy zjištěné v tomto souboru"
+    "Problems found in this file": "Problémy zjištěné v tomto souboru",
+    "Genealogical symbols": "Genealogické symboly",
+    "Unicode symbols (∗ † ⚭ ⚮)": "Symboly Unicode (∗ † ⚭ ⚮)"
 }
