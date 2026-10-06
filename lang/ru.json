@@ -437,5 +437,16 @@
     "Public data from %s": "Общедоступные данные из %s",
     "Your maps": "Ваши карты",
     "No buildings here": "Здесь нет зданий",
-    "The map could not be loaded.": "Не удалось загрузить карту."
+    "The map could not be loaded.": "Не удалось загрузить карту.",
+    "Desktop sync": "Синхронизация с компьютером",
+    "Add sync device": "Добавить устройство синхронизации",
+    "Device name": "Название устройства",
+    "Created": "Создано",
+    "Last used": "Последнее использование",
+    "Access token created": "Создан токен доступа",
+    "Copy the token now. It will not be shown again.": "Скопируйте токен сейчас. Он больше не будет отображаться.",
+    "Left out of the export": "Исключены из экспорта",
+    "The import has completed.": "Импорт завершен.",
+    "Problems found during the import": "При импорте обнаружены проблемы",
+    "Problems found in this file": "В этом файле обнаружены проблемы"
 }
