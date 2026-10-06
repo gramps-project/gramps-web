@@ -7,6 +7,7 @@ import './GrampsjsGallery.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsTimedelta.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {fetchInlineMedia} from '../inlineImages.js'
 
 export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -81,6 +82,7 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
     return {
       source: {type: Object},
       note: {type: Object},
+      _inlineMedia: {type: Object},
     }
   }
 
@@ -88,6 +90,7 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.source = {}
     this.note = {}
+    this._inlineMedia = {}
   }
 
   render() {
@@ -113,6 +116,7 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
           <div id="note-wrapper">
             <grampsjs-note-content
               grampsId="${this.note.grampsId}"
+              .inlineMedia="${this._inlineMedia}"
               content="${this.note?.formatted?.html ||
               this.note?.text?.string ||
               'Error loading note'}"
@@ -138,6 +142,16 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
         </div>
       </div>
     `
+  }
+
+  updated(changed) {
+    if (changed.has('note')) this._fetchInlineMedia()
+  }
+
+  async _fetchInlineMedia() {
+    const {note} = this
+    const inlineMedia = await fetchInlineMedia(this.appState, note?.text)
+    if (note === this.note) this._inlineMedia = inlineMedia
   }
 
   _clickDetails(grampsId) {

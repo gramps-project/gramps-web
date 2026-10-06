@@ -71,6 +71,7 @@ export const GrampsjsNewNoteMixin = superClass =>
             @formdata:changed="${this.handleEditor}"
             @keydown="${e => e.stopImmediatePropagation()}"
             id="new-note-editor"
+            allowImages
             .appState="${this.appState}"
           ></grampsjs-editor>
         </p>

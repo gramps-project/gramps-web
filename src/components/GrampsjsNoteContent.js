@@ -1,7 +1,11 @@
 import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
+import {mdiImage} from '@mdi/js'
 import {linkUrls} from '../util.js'
+import {getThumbnailUrl} from '../api.js'
+import {IMAGE_PLACEHOLDER} from '../inlineImages.js'
+import './GrampsjsIcon.js'
 
 const NAVIGABLE = new Set([
   'person',
@@ -35,6 +39,41 @@ export function _parseGrampsHref(href) {
   return null
 }
 
+// Replace the links of inline image placeholders by the images, for media
+// objects found in `mediaById` (Gramps ID to media object), and by an image
+// icon otherwise. Without a description, the Gramps ID names the link.
+export function renderInlineImages(container, mediaById) {
+  for (const a of container.querySelectorAll('a[href]')) {
+    if (a.textContent !== IMAGE_PLACEHOLDER) continue
+    const parsed = _parseGrampsHref(a.getAttribute('href'))
+    if (parsed?.objectType !== 'media') continue
+    const media = mediaById[parsed.grampsId]
+    if (!media) {
+      const icon = document.createElement('grampsjs-icon')
+      icon.className = 'inline-image-icon'
+      icon.path = mdiImage
+      icon.color = 'var(--grampsjs-body-font-color-50)'
+      a.textContent = ''
+      a.setAttribute('aria-label', parsed.grampsId)
+      a.append(icon)
+      continue
+    }
+    const img = document.createElement('img')
+    img.src = getThumbnailUrl(media.handle, 1000, false, media.checksum)
+    img.alt = media.desc || parsed.grampsId
+    img.loading = 'lazy'
+    a.textContent = ''
+    a.classList.add('inline-image')
+    a.append(img)
+    if (media.desc) {
+      const caption = document.createElement('span')
+      caption.className = 'inline-image-caption'
+      caption.textContent = media.desc
+      a.append(caption)
+    }
+  }
+}
+
 export class GrampsjsNoteContent extends LitElement {
   static get styles() {
     return [
@@ -59,6 +98,34 @@ export class GrampsjsNoteContent extends LitElement {
           column-gap: 2em;
           orphans: 2;
           widows: 2;
+        }
+
+        a.inline-image {
+          display: block;
+          margin: 1.5em 0;
+          text-align: center;
+          text-decoration: none;
+          color: inherit;
+        }
+
+        a.inline-image img {
+          max-width: 100%;
+          border-radius: 4px;
+        }
+
+        .inline-image-icon {
+          width: 1.2em;
+          height: 1.2em;
+          display: inline-block;
+          vertical-align: text-bottom;
+        }
+
+        .inline-image-caption {
+          display: block;
+          margin-top: 0.5em;
+          font-size: 0.8em;
+          line-height: 1.4em;
+          opacity: 0.7;
         }
 
         .note-container.frame {
@@ -87,6 +154,7 @@ export class GrampsjsNoteContent extends LitElement {
       content: {type: String},
       framed: {type: Boolean},
       columns: {type: Boolean},
+      inlineMedia: {type: Object},
     }
   }
 
@@ -94,6 +162,7 @@ export class GrampsjsNoteContent extends LitElement {
     super()
     this.framed = false
     this.columns = false
+    this.inlineMedia = {}
   }
 
   render() {
@@ -112,6 +181,7 @@ export class GrampsjsNoteContent extends LitElement {
     const noteContent = this.shadowRoot.getElementById('note-content')
     noteContent.innerHTML = linkUrls(this.content)
     this.columns = noteContent.textContent.length > 1000
+    renderInlineImages(noteContent, this.inlineMedia)
     this._wireLinks(noteContent)
     this._styleHighlights(noteContent)
   }
@@ -145,7 +215,12 @@ export class GrampsjsNoteContent extends LitElement {
           })
         )
       })
-      if (NO_HOVER || !PREVIEWABLE.has(parsed.objectType)) continue
+      if (
+        NO_HOVER ||
+        !PREVIEWABLE.has(parsed.objectType) ||
+        a.classList.contains('inline-image')
+      )
+        continue
       a.addEventListener('mouseenter', () => {
         window.dispatchEvent(
           new CustomEvent('object:preview-show', {
