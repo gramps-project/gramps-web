@@ -270,6 +270,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     super()
     this.grampsId = ''
     this._history = this.grampsId ? [this.grampsId] : []
+    this._backTo = undefined
     this._currentTabId = getTreeViewTabIndex(DEFAULT_TREE_VIEW)
     this._appliedTreeDefaultView = null
     this._data = []
@@ -329,11 +330,16 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     if (this.active) {
       this._readPath()
     }
-    // The history gets each newly selected person, also one selected while
-    // the view was not active
+    // The history gets each newly shown person. Going back to the previous
+    // person removes the last one instead, once that person is shown.
     if (this.grampsId && this.grampsId !== this._history.at(-1)) {
-      // limit history to 100 people
-      this._history = [...this._history, this.grampsId].slice(-100)
+      if (this.grampsId === this._backTo) {
+        this._history = this._history.slice(0, -1)
+      } else {
+        // limit history to 100 people
+        this._history = [...this._history, this.grampsId].slice(-100)
+      }
+      this._backTo = undefined
     }
     // The selected person shown below the chart, who stays until the people
     // of a newly selected person arrive
@@ -870,9 +876,11 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     e.stopPropagation()
   }
 
+  // Shows the previous person in the shown chart. The history is shortened
+  // when that person arrives from the URL.
   _prevPerson() {
-    this._history = this._history.slice(0, -1)
-    this._navigate(this.chart, this._history.at(-1))
+    this._backTo = this._history.at(-2)
+    this._navigate(this.chart, this._backTo)
   }
 
   _backToHomePerson() {
@@ -885,20 +893,32 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     fireEvent(this, 'nav', {path: treeViewPath(chart, grampsId), replace})
   }
 
+  get _preferredView() {
+    return this.settings?.treeDefaultView ?? DEFAULT_TREE_VIEW
+  }
+
+  // The chart for a URL without one: the preferred chart at first and when
+  // it has changed since, otherwise the shown chart
+  get _chartWithoutPath() {
+    return this._preferredView === this._appliedTreeDefaultView
+      ? this.chart
+      : this._preferredView
+  }
+
   // Reads the chart and the person from the URL, /tree/<chart>/<grampsId>. A
-  // part the URL leaves out keeps what the view shows, which at first is the
-  // preferred chart and the home person. The preferred chart is also used
-  // when it changes while the URL names no chart.
+  // URL without a chart gets `_chartWithoutPath`, one with an unknown chart
+  // the preferred chart. A URL without a person keeps the shown person, at
+  // first the home person.
   _readPath() {
     const {pageId, pageId2} = this.appState?.path ?? {}
-    const preferredView = this.settings?.treeDefaultView ?? DEFAULT_TREE_VIEW
+    let chart = this._chartWithoutPath
     if (TREE_VIEWS.includes(pageId)) {
-      this._currentTabId = getTreeViewTabIndex(pageId)
-      this._appliedTreeDefaultView = preferredView
-    } else if (preferredView !== this._appliedTreeDefaultView) {
-      this._currentTabId = getTreeViewTabIndex(preferredView)
-      this._appliedTreeDefaultView = preferredView
+      chart = pageId
+    } else if (pageId) {
+      chart = this._preferredView
     }
+    this._currentTabId = getTreeViewTabIndex(chart)
+    this._appliedTreeDefaultView = this._preferredView
     this.grampsId = pageId2 || this.grampsId || this.settings?.homePerson || ''
   }
 
@@ -918,15 +938,11 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     fireEvent(this, 'nav', {path: `person/${grampsId}`})
   }
 
-  // A person selected while the view is not active, such as from a person's
-  // page, is shown when the view is next opened without a person in the URL
+  // Shows a person selected in a chart or elsewhere, such as on a person's
+  // page, in the chart that is shown or that a URL without a chart would get
   _selectPerson(event) {
-    const {grampsId} = event.detail
-    if (this.active) {
-      this._navigate(this.chart, grampsId)
-    } else {
-      this.grampsId = grampsId
-    }
+    const chart = this.active ? this.chart : this._chartWithoutPath
+    this._navigate(chart, event.detail.grampsId)
   }
 }
 

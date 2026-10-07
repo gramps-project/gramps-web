@@ -123,13 +123,6 @@ describe('GrampsjsViewTree', () => {
     view.grampsId = 'I2'
     view.willUpdate(new Map())
     expect(view._history).toEqual(['I1', 'I2'])
-    const navs = []
-    view.addEventListener('nav', e => navs.push(e.detail))
-    view._prevPerson()
-    expect(navs).toEqual([{path: 'tree/ancestor/I1', replace: false}])
-    view.grampsId = 'I1'
-    view.willUpdate(new Map())
-    expect(view._history).toEqual(['I1'])
   })
 
   describe('URL', () => {
@@ -171,11 +164,13 @@ describe('GrampsjsViewTree', () => {
       expect(navs).toEqual([{path: 'tree/descendant/I3', replace: true}])
     })
 
-    it('replaces an unknown chart in the URL', () => {
-      const {navs, update} = makeRoutedView(
-        {pageId: 'pedigree', pageId2: 'I7'},
+    it('replaces an unknown chart in the URL with the preferred one', () => {
+      const {view, navs, update} = makeRoutedView(
+        {pageId: 'fan', pageId2: 'I7'},
         {homePerson: 'I3'}
       )
+      update()
+      view.appState.path = {page: 'tree', pageId: 'pedigree', pageId2: 'I7'}
       update()
       expect(navs).toEqual([{path: 'tree/ancestor/I7', replace: true}])
     })
@@ -211,14 +206,53 @@ describe('GrampsjsViewTree', () => {
       ])
     })
 
-    it('shows a person selected elsewhere when opened without a person', () => {
-      const {view, navs, update} = makeRoutedView({}, {homePerson: 'I3'})
+    it('goes to the URL of a person selected while not shown', () => {
+      const settings = {homePerson: 'I3', treeDefaultView: 'descendant'}
+      const {view, navs, update} = makeRoutedView(
+        {pageId: 'fan', pageId2: 'I7'},
+        settings
+      )
       view.active = false
+      // The preferred chart, before the view was first shown
       view._selectPerson({detail: {grampsId: 'I8'}})
-      expect(navs).toEqual([])
       view.active = true
       update()
-      expect(navs).toEqual([{path: 'tree/ancestor/I8', replace: true}])
+      view.active = false
+      // The shown chart
+      view._selectPerson({detail: {grampsId: 'I9'}})
+      // A new preferred chart
+      view.settings = {...settings, treeDefaultView: 'relationship'}
+      view._selectPerson({detail: {grampsId: 'I10'}})
+      expect(navs).toEqual([
+        {path: 'tree/descendant/I8', replace: false},
+        {path: 'tree/fan/I9', replace: false},
+        {path: 'tree/relationship/I10', replace: false},
+      ])
+    })
+
+    it('goes back to the previous person in the shown chart', () => {
+      const {view, navs, update} = makeRoutedView({
+        pageId: 'ancestor',
+        pageId2: 'I1',
+      })
+      update()
+      view.appState.path = {page: 'tree', pageId: 'ancestor', pageId2: 'I2'}
+      update()
+      view.appState.path = {page: 'tree', pageId: 'hourglass', pageId2: 'I2'}
+      update()
+      expect(view._history).toEqual(['I1', 'I2'])
+      view._prevPerson()
+      expect(navs).toEqual([{path: 'tree/hourglass/I1', replace: false}])
+      // An update before the URL arrives
+      update()
+      expect(view._history).toEqual(['I1', 'I2'])
+      view.appState.path = {page: 'tree', pageId: 'hourglass', pageId2: 'I1'}
+      update()
+      expect(view._history).toEqual(['I1'])
+      // Browser back shows I2 as a newly shown person
+      view.appState.path = {page: 'tree', pageId: 'hourglass', pageId2: 'I2'}
+      update()
+      expect(view._history).toEqual(['I1', 'I2'])
     })
 
     it('waits for a home person for a URL without a person', () => {
