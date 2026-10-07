@@ -56,7 +56,9 @@ export function currentPositions(parent, selector) {
 // Joins `data` to the children of `parent` that match `selector`, matching
 // elements and data by `key(d)`. An element keeps the key it was joined with,
 // so it is reused whenever that key is in `data` again, even with a different
-// data object. `enter(selection)` appends and returns the new elements, and
+// data object. `previousKey(k)` gives the key in `data` of the element that
+// was last joined with key `k`, and elements for which it is undefined leave.
+// `enter(selection)` appends and returns the new elements, and
 // `exit(selection)` can move the leaving elements before they go.
 //
 // Leaving elements lose their classes, so that later joins ignore them, and
@@ -67,8 +69,25 @@ export function joinWithTransitions(
   parent,
   selector,
   data,
-  {key, enter, exit = () => {}, duration = 0}
+  {key, previousKey = k => k, enter, exit = () => {}, duration = 0}
 ) {
+  const leave = selection => {
+    // A leaving element may still be moving or fading in
+    selection.interrupt().interrupt('fade')
+    exit(selection)
+    // Leaving elements no longer respond to clicks or hovering
+    selection.attr('class', null).style('pointer-events', 'none')
+    if (duration > 0) {
+      selection.transition().duration(duration).style('opacity', 0).remove()
+    } else {
+      selection.remove()
+    }
+  }
+  leave(
+    parent.selectChildren(selector).filter(function () {
+      return previousKey(keyOf(this)) === undefined
+    })
+  )
   const parentNode = parent.node()
   let entering
   const elements = parent
@@ -76,7 +95,7 @@ export function joinWithTransitions(
     .data(data, function (d) {
       // d3 calls this with the parent for each new datum, and with each
       // existing element, whose datum is still the one from its last join
-      return this === parentNode ? key(d) : keyOf(this)
+      return this === parentNode ? key(d) : previousKey(keyOf(this))
     })
     .join(
       enterSelection => {
@@ -84,22 +103,7 @@ export function joinWithTransitions(
         return entering
       },
       update => update,
-      exitSelection => {
-        // A leaving element may still be moving or fading in
-        exitSelection.interrupt().interrupt('fade')
-        exit(exitSelection)
-        // Leaving elements no longer respond to clicks or hovering
-        exitSelection.attr('class', null).style('pointer-events', 'none')
-        if (duration > 0) {
-          exitSelection
-            .transition()
-            .duration(duration)
-            .style('opacity', 0)
-            .remove()
-        } else {
-          exitSelection.remove()
-        }
-      }
+      leave
     )
     .each(function (d) {
       joinKey.set(this, key(d))

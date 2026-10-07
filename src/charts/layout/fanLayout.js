@@ -97,3 +97,83 @@ export function layoutFan(graph, handle, {depth, ...options}) {
   const {minX, minY, maxX, maxY} = arcBounds(data, arcRadius)
   return {nodes, bounds: {xMin: minX, xMax: maxX, yMin: minY, yMax: maxY}}
 }
+
+// The frame of two layouts that share their coordinates
+const sameFrame = {scale: 1, offset: 0, shift: 0}
+
+// Returns how the arcs of the fan layout `previous` relate to those of
+// `layout`. `key(k)` is the key in `layout` of the arc with key `k` in
+// `previous`, or undefined if `layout` has no such arc. `frame` maps the arcs
+// of `previous` to their place in `layout`: an angle x becomes
+// x * scale + offset, and a radius y becomes y + shift. `kind` is 'sameRoot'
+// for layouts of the same root person, 'lineage' when the root person of one
+// layout is an ancestor of the other, and 'unrelated' otherwise.
+//
+// When the root person of one layout is an ancestor of the root person of
+// the other, the ancestor's arc in one layout is the full circle in the
+// other. An ancestor with several arcs is related by the arc with
+// `clickedKey` in `previous`, if it is theirs, and otherwise by their arc
+// nearest to the centre. Layouts of different people that are not related
+// this way have no arcs in common.
+export function relateFanLayouts(previous, layout, {clickedKey} = {}) {
+  const unrelated = {
+    key: () => undefined,
+    frame: sameFrame,
+    kind: 'unrelated',
+  }
+  if (!previous) {
+    return unrelated
+  }
+  const [before] = previous.nodes
+  const [after] = layout.nodes
+  if (before.handle === after.handle) {
+    return {key: key => key, frame: sameFrame, kind: 'sameRoot'}
+  }
+  // The nodes are ordered by generation, so the first arc of an ancestor is
+  // the one nearest to the centre
+  const arcOf = (nodes, handle, preferredKey) =>
+    handle &&
+    (nodes.find(node => node.key === preferredKey && node.handle === handle) ??
+      nodes.find(node => node.generation > 0 && node.handle === handle))
+  const ancestor = arcOf(previous.nodes, after.handle, clickedKey)
+  if (ancestor) {
+    const scale = (2 * Math.PI) / (ancestor.x1 - ancestor.x0)
+    return {
+      key: key =>
+        key.startsWith(ancestor.key)
+          ? `p${key.slice(ancestor.key.length)}`
+          : undefined,
+      frame: {scale, offset: -ancestor.x0 * scale, shift: -ancestor.y0},
+      kind: 'lineage',
+    }
+  }
+  const previousRoot = arcOf(layout.nodes, before.handle)
+  if (previousRoot) {
+    return {
+      key: key => `${previousRoot.key}${key.slice(1)}`,
+      frame: {
+        scale: (previousRoot.x1 - previousRoot.x0) / (2 * Math.PI),
+        offset: previousRoot.x0,
+        shift: previousRoot.y0,
+      },
+      kind: 'lineage',
+    }
+  }
+  return unrelated
+}
+
+// Returns the angles and radii of `arc` moved by `frame` from
+// `relateFanLayouts`
+export function placeArc({x0, x1, y0, y1}, {scale, offset, shift}) {
+  return {
+    x0: x0 * scale + offset,
+    x1: x1 * scale + offset,
+    y0: y0 + shift,
+    y1: y1 + shift,
+  }
+}
+
+// Returns the frame that moves arcs back where `frame` moved them from
+export function invertFrame({scale, offset, shift}) {
+  return {scale: 1 / scale, offset: -offset / scale, shift: -shift}
+}
