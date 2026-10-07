@@ -2,6 +2,7 @@ import {html} from 'lit'
 
 import {FanChart} from '../charts/FanChart.js'
 import {layoutFan} from '../charts/layout/fanLayout.js'
+import {chartTransitionDuration} from '../charts/util.js'
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 
 // Properties that change the layout of the chart
@@ -63,6 +64,7 @@ class GrampsjsFanChart extends GrampsjsChartBase {
       color: this.color || 'default',
       nameDisplayFormat: this.nameDisplayFormat,
       otherLabel: this._('Other'),
+      duration: chartTransitionDuration(),
       bboxWidth: this.containerWidth,
       bboxHeight: this.containerHeight,
     }

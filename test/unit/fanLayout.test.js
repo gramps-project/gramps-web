@@ -1,6 +1,11 @@
 import {describe, it, expect} from 'vitest'
 import {FamilyGraph} from '../../src/charts/model/FamilyGraph.js'
-import {layoutFan} from '../../src/charts/layout/fanLayout.js'
+import {
+  invertFrame,
+  layoutFan,
+  placeArc,
+  relateFanLayouts,
+} from '../../src/charts/layout/fanLayout.js'
 
 const family = (handle, father, mother, children) => ({
   handle,
@@ -70,5 +75,129 @@ describe('layoutFan', () => {
   it('bounds a person without known parents by their disc', () => {
     const alone = layoutFan(graph, 'FF', {depth: 4})
     expect(alone.bounds).toEqual({xMin: -60, xMax: 60, yMin: -60, yMax: 60})
+  })
+})
+
+describe('relateFanLayouts', () => {
+  const ofR = layoutFan(graph, 'R', {depth: 3})
+  const ofF = layoutFan(graph, 'F', {depth: 3})
+  const node = (layout, key) => layout.nodes.find(n => n.key === key)
+  const geometry = ({x0, x1, y0, y1}) => ({x0, x1, y0, y1})
+  const expectArc = (arc, expected) =>
+    Object.entries(geometry(expected)).forEach(([name, value]) =>
+      expect(arc[name]).toBeCloseTo(value)
+    )
+
+  it('relates nothing without a previous layout', () => {
+    const relation = relateFanLayouts(undefined, ofR)
+    expect(relation.key('p')).toBeUndefined()
+    expect(relation.kind).toBe('unrelated')
+  })
+
+  it('keeps keys and places for the same root person', () => {
+    const relation = relateFanLayouts(ofR, layoutFan(graph, 'R', {depth: 4}))
+    expect(relation.key('pfm')).toBe('pfm')
+    expect(relation.kind).toBe('sameRoot')
+    expectArc(placeArc(node(ofR, 'pm'), relation.frame), node(ofR, 'pm'))
+  })
+
+  it("widens the father's arc to the circle when he becomes the root person", () => {
+    const relation = relateFanLayouts(ofR, ofF)
+    expect(relation.kind).toBe('lineage')
+    expect(['p', 'pf', 'pff', 'pm', 'pfm'].map(relation.key)).toEqual([
+      undefined,
+      'p',
+      'pf',
+      undefined,
+      'pm',
+    ])
+    for (const key of ['pf', 'pff', 'pfm']) {
+      expectArc(
+        placeArc(node(ofR, key), relation.frame),
+        node(ofF, relation.key(key))
+      )
+    }
+  })
+
+  it('narrows the circle to the arc of the child when going back', () => {
+    const relation = relateFanLayouts(ofF, ofR)
+    expect(relation.kind).toBe('lineage')
+    expect(['p', 'pf', 'pmm'].map(relation.key)).toEqual(['pf', 'pff', 'pfmm'])
+    for (const key of ['p', 'pf', 'pm']) {
+      expectArc(
+        placeArc(node(ofF, key), relation.frame),
+        node(ofR, relation.key(key))
+      )
+    }
+  })
+
+  it("widens a grandparent's arc to the circle, and narrows it back", () => {
+    const ofFF = layoutFan(graph, 'FF', {depth: 3})
+    const relation = relateFanLayouts(ofR, ofFF)
+    expect(['pf', 'pff', 'pffm'].map(relation.key)).toEqual([
+      undefined,
+      'p',
+      'pm',
+    ])
+    expectArc(placeArc(node(ofR, 'pff'), relation.frame), node(ofFF, 'p'))
+    const back = relateFanLayouts(ofFF, ofR)
+    expect(back.key('pm')).toBe('pffm')
+    expectArc(placeArc(node(ofFF, 'p'), back.frame), node(ofR, 'pff'))
+  })
+
+  describe('an ancestor with several arcs', () => {
+    // G is the father of both of R's parents
+    const fF = family('fF', 'G', '', ['F'])
+    const fM = family('fM', 'G', '', ['M'])
+    const collapsed = new FamilyGraph([
+      person('R', {parentFamily: fR}),
+      person('F', {parentFamily: fF, families: [fR]}),
+      person('M', {parentFamily: fM, families: [fR]}),
+      person('G', {families: [fF, fM]}),
+    ])
+    const ofCollapsedR = layoutFan(collapsed, 'R', {depth: 3})
+    const ofG = layoutFan(collapsed, 'G', {depth: 3})
+    const viaMother = {descendant: 'R', ancestor: 'G', key: 'pmf'}
+
+    it('is related by their arc nearest to the centre', () => {
+      const relation = relateFanLayouts(ofCollapsedR, ofG)
+      expect(relation.key('pff')).toBe('p')
+      expect(relation.lineageArc).toEqual({
+        descendant: 'R',
+        ancestor: 'G',
+        key: 'pff',
+      })
+    })
+
+    it('is related by the lineage arc of the same two people', () => {
+      const relation = relateFanLayouts(ofCollapsedR, ofG, {
+        lineageArc: viaMother,
+      })
+      expect(relation.key('pmf')).toBe('p')
+      expect(relation.key('pff')).toBeUndefined()
+      expect(relation.lineageArc).toEqual(viaMother)
+      const back = relateFanLayouts(ofG, ofCollapsedR, {lineageArc: viaMother})
+      expect(back.key('p')).toBe('pmf')
+      expect(back.lineageArc).toEqual(viaMother)
+    })
+
+    it('ignores a lineage arc of other people', () => {
+      const relation = relateFanLayouts(ofCollapsedR, ofG, {
+        lineageArc: {...viaMother, descendant: 'F'},
+      })
+      expect(relation.key('pff')).toBe('p')
+    })
+  })
+
+  it('relates nothing for unrelated root people', () => {
+    const relation = relateFanLayouts(ofF, layoutFan(graph, 'M', {depth: 3}))
+    expect(relation.key('p')).toBeUndefined()
+    expect(relation.kind).toBe('unrelated')
+  })
+
+  it('inverts frames', () => {
+    const {frame} = relateFanLayouts(ofR, ofF)
+    const arc = node(ofR, 'pff')
+    expectArc(placeArc(placeArc(arc, frame), invertFrame(frame)), arc)
   })
 })

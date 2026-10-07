@@ -1,5 +1,5 @@
 import {arc as d3arc} from 'd3-shape'
-import {create} from 'd3-selection'
+import {create, local, select} from 'd3-selection'
 import {
   schemePaired,
   interpolateWarm,
@@ -7,6 +7,8 @@ import {
   schemeCategory10,
 } from 'd3-scale-chromatic'
 import {ChartViewport} from './ChartViewport.js'
+import {joinWithTransitions, transitionColor} from './animatedJoin.js'
+import {invertFrame, placeArc, relateFanLayouts} from './layout/fanLayout.js'
 import {chartPalette} from './palette.js'
 import {LegendCategorical, LegendColorBar, isHoverDevice} from './util.js'
 import {chartNameDisplayFormat, fireEvent} from '../util.js'
@@ -213,9 +215,59 @@ function colorScheme(nodes, color, palette, otherLabel) {
 // Offset of the legend from the top left corner of the view, in pixels
 const legendOffset = [60, 152]
 
-// Draws layouts from `layoutFan` into an SVG that is created once. Each update
-// draws the arcs again; the zoom transform is kept as described for
-// `ChartViewport.show`.
+// The angles and radii each arc moves `from` and `to`. They can be outside
+// the circle while the arc moves in or out of the chart.
+const arcMotion = local()
+
+// Returns the arc at `t` of the way from `from` to `to`
+const interpolateArc = (from, to, t) => ({
+  x0: from.x0 + (to.x0 - from.x0) * t,
+  x1: from.x1 + (to.x1 - from.x1) * t,
+  y0: from.y0 + (to.y0 - from.y0) * t,
+  y1: from.y1 + (to.y1 - from.y1) * t,
+})
+
+// Returns `arc` with its angles within the circle and its radii not negative
+function clampArc({x0, x1, y0, y1}) {
+  const clamp = x => Math.min(Math.max(x, 0), 2 * Math.PI)
+  return {
+    x0: clamp(x0),
+    x1: clamp(x1),
+    y0: Math.max(y0, 0),
+    y1: Math.max(y1, 0),
+  }
+}
+
+// Returns the path generators of the arcs of `layout`, with `padding`
+// between them, and of the stripe in the colour of the side at the inner
+// edge of each arc
+function arcShape(layout, padding) {
+  // The outermost radius of the layout
+  const radius = Math.max(...layout.nodes.map(node => node.y1))
+  const arcOf = outerRadius =>
+    d3arc()
+      .startAngle(d => d.x0 - Math.PI / 2)
+      .endAngle(d => d.x1 - Math.PI / 2)
+      .padAngle(d => Math.min((d.x1 - d.x0) / 2, (2 * padding) / radius))
+      .padRadius(radius / 2)
+      .innerRadius(d => d.y0)
+      .outerRadius(outerRadius)
+  return {
+    arc: arcOf(d => Math.max(d.y0, d.y1 - padding)),
+    sideStripe: arcOf(d => d.y0 + 3),
+  }
+}
+
+// Draws layouts from `layoutFan` into an SVG that is created once. The zoom
+// transform is kept as described for `ChartViewport.show`.
+//
+// When the root person of a new layout is an ancestor or descendant of the
+// previous root person, the arcs move as in a zoomable sunburst: the
+// ancestor's arc widens to the full circle, or the full circle narrows to the
+// arc of the descendant, and the arcs that are in only one of the layouts
+// move in or out of the circle. The origin stays in place if it is in view.
+// A layout of the same root person that arrives while the arcs move, such as
+// one with more ancestors, joins the movement.
 export class FanChart {
   constructor() {
     this._svg = create('svg')
@@ -225,7 +277,17 @@ export class FanChart {
     this._content = this._svg.append('g').attr('id', 'chart-content')
     this._viewport = new ChartViewport(this._svg, this._content)
     this._legend = this._svg.append('g').attr('id', 'legend')
+    // The drawn layout, to which the next one is related
     this._layout = undefined
+    // The movement of the arcs while they move: the frame from where they
+    // started to the current layout, and how far they have moved
+    this._motion = null
+    // The arc that last related two root people, or the last clicked arc, as
+    // described for `relateFanLayouts`. It names both people, so it stays
+    // valid when the chart is cleared or the data changes.
+    this._lineageArc = undefined
+    this._arcShape = null
+    this._nameOptions = {}
   }
 
   get node() {
@@ -236,8 +298,12 @@ export class FanChart {
     return this._viewport
   }
 
-  // Removes the chart and the legend, keeping the zoom transform
+  // Removes the chart and the legend, keeping the zoom transform. The next
+  // layout is not related to the removed one.
   clear() {
+    this._content.interrupt('arc')
+    this._motion = null
+    this._layout = undefined
     this._content.selectChildren().remove()
     this._legend.selectChildren().remove()
   }
@@ -246,7 +312,9 @@ export class FanChart {
   // `fanColorModes` and its legend in the top left corner of the view. A
   // legend with more categories than colours ends with `otherLabel`. Without
   // `interactive`, arcs have no click or hover handling or cursor. Colours
-  // other than those of the colour modes come from `palette`.
+  // other than those of the colour modes come from `palette`. Arcs move and
+  // change colour over `duration` milliseconds, and names are drawn once the
+  // arcs have stopped moving.
   update(
     layout,
     {
@@ -257,31 +325,47 @@ export class FanChart {
       palette = chartPalette,
       padding = 3,
       fit = false,
+      duration = 0,
       bboxWidth,
       bboxHeight,
     } = {}
   ) {
     const newLayout = layout !== this._layout
+    const relation = relateFanLayouts(this._layout, layout, {
+      lineageArc: this._lineageArc,
+    })
+    this._lineageArc = relation.lineageArc ?? this._lineageArc
     this._layout = layout
-    const root = layout.nodes.find(node => node.generation === 0)
+    const [root] = layout.nodes
+    // The origin is the centre of both layouts
+    const origin = [0, 0]
     this._viewport.show({
       bounds: layout.bounds,
       size: [bboxWidth, bboxHeight],
-      rootHandle: root?.handle,
-      positions: new Map(),
+      rootHandle: root.handle,
+      candidates:
+        relation.kind === 'lineage' ? [{key: 'origin', position: origin}] : [],
+      positions: new Map([['origin', origin]]),
       fit,
       newLayout,
     })
-    this.clear()
     const scheme = colorScheme(layout.nodes, color, palette, otherLabel)
-    this._drawArcs(layout, {
-      scheme,
-      nameDisplayFormat,
+    this._arcShape = arcShape(layout, padding)
+    this._nameOptions = {nameDisplayFormat, palette, padding}
+    const cells = this._joinArcs(layout, relation, duration)
+    this._colorArcs(cells, {scheme, palette, duration})
+    setFanInteraction(cells, {
       interactive,
-      palette,
-      padding,
+      onClick: arc => {
+        this._lineageArc = {
+          descendant: root.handle,
+          ancestor: arc.handle,
+          key: arc.key,
+        }
+      },
     })
     const [x, y] = this._viewport.viewStart
+    this._legend.selectChildren().remove()
     this._legend
       .attr(
         'transform',
@@ -290,57 +374,145 @@ export class FanChart {
       .call(scheme.legend)
   }
 
-  _drawArcs(
-    layout,
-    {scheme, nameDisplayFormat, interactive, palette, padding}
-  ) {
-    // The outermost radius of the layout
-    const radius = Math.max(...layout.nodes.map(node => node.y1))
-    const arcOf = outerRadius =>
-      d3arc()
-        .startAngle(d => d.x0 - Math.PI / 2)
-        .endAngle(d => d.x1 - Math.PI / 2)
-        .padAngle(d => Math.min((d.x1 - d.x0) / 2, (2 * padding) / radius))
-        .padRadius(radius / 2)
-        .innerRadius(d => d.y0)
-        .outerRadius(outerRadius)
-    const arc = arcOf(d => d.y1 - padding)
-    // A stripe in the colour of the side at the inner edge of each arc
-    const sideStripe = arcOf(d => d.y0 + 3)
-
-    // Unknown ancestors are not drawn
-    const cells = this._content
-      .selectAll('g')
-      .data(layout.nodes.filter(node => node.person?.profile))
-      .join('g')
-      .attr('class', 'fan-cell')
-
-    cells
-      .append('path')
-      .attr('d', arc)
-      .attr('fill', scheme.fill)
-      .attr('fill-opacity', scheme.opacity)
-      .attr('id', d => d.key)
-
-    cells
-      .filter(d => d.generation > 0)
-      .append('path')
-      .attr('d', sideStripe)
-      .attr('fill', d => (d.side === 'mother' ? palette.sex.F : palette.sex.M))
-
-    if (interactive) {
-      setFanInteraction(cells)
+  // Joins the arcs of `layout` and moves them. For a layout of the same root
+  // person, the arcs continue the current movement. Otherwise they start a
+  // new one from where they are drawn, which is animated for a layout
+  // related by `relation.kind` 'lineage' and drawn at its end for others.
+  // Returns the cells of the arcs.
+  _joinArcs(layout, relation, duration) {
+    const continues =
+      duration > 0 && relation.kind === 'sameRoot' && this._motion !== null
+    const frame = continues ? this._motion.frame : relation.frame
+    if (!continues) {
+      // Every arc, also one that is leaving, moves from where it is drawn
+      const t = this._motion?.t ?? 1
+      this._content.selectChildren('g').each(function () {
+        const {from, to} = arcMotion.get(this)
+        const now = interpolateArc(from, to, t)
+        arcMotion.set(this, {from: now, to: placeArc(now, frame)})
+      })
     }
-    appendNames(cells, {nameDisplayFormat, palette, padding})
+    // New arcs start where they are in the frame the movement started in
+    const back = invertFrame(frame)
+    // Unknown ancestors are not drawn
+    const cells = joinWithTransitions(
+      this._content,
+      '.fan-cell',
+      layout.nodes.filter(node => node.person?.profile),
+      {
+        key: node => node.key,
+        previousKey: relation.key,
+        enter: enter => {
+          const entering = enter.append('g').attr('class', 'fan-cell')
+          entering.append('path').attr('class', 'fan-arc')
+          entering.append('path').attr('class', 'fan-side')
+          return entering.each(function (d) {
+            arcMotion.set(this, {from: placeArc(d, back), to: d})
+          })
+        },
+        exit: exit => {
+          exit.selectAll('text').remove()
+          exit.select('.fan-arc').attr('id', null)
+        },
+        duration,
+      }
+    ).each(function (d) {
+      arcMotion.set(this, {...arcMotion.get(this), to: d})
+    })
+    cells.select('.fan-arc').attr('id', d => d.key)
+
+    cells.selectAll('text').remove()
+    if (continues) {
+      this._drawArcs(this._motion.t)
+    } else if (duration > 0 && relation.kind === 'lineage') {
+      this._startMotion(frame, duration)
+    } else {
+      this._content.interrupt('arc')
+      this._motion = null
+      this._drawArcs(1)
+      this._drawNames()
+    }
+    return cells
+  }
+
+  // Fills the arcs with the colours of `scheme`, changing over `duration`
+  // milliseconds, and colours the side stripes
+  _colorArcs(cells, {scheme, palette, duration}) {
+    const arcs = cells.select('.fan-arc').interrupt('fill')
+    // New arcs start with their colour
+    arcs
+      .filter(function () {
+        return !this.hasAttribute('fill')
+      })
+      .attr('fill', scheme.fill)
+    if (duration > 0) {
+      const fill = arcs.transition('fill').duration(duration)
+      transitionColor(fill, 'fill', scheme.fill)
+      fill.attr('fill-opacity', scheme.opacity)
+    } else {
+      arcs.attr('fill', scheme.fill).attr('fill-opacity', scheme.opacity)
+    }
+    cells
+      .select('.fan-side')
+      .attr('display', d => (d.generation > 0 ? null : 'none'))
+      .attr('fill', d => (d.side === 'mother' ? palette.sex.F : palette.sex.M))
+  }
+
+  // Moves the arcs over `duration` milliseconds, and draws the names when
+  // they stop. `frame` maps where the arcs start to the current layout.
+  _startMotion(frame, duration) {
+    const motion = {frame, t: 0}
+    this._motion = motion
+    this._content
+      .interrupt('arc')
+      .transition('arc')
+      .duration(duration)
+      .tween('arc', () => t => {
+        motion.t = t
+        this._drawArcs(t)
+      })
+      .on('end', () => {
+        this._motion = null
+        this._drawNames()
+      })
+  }
+
+  // Draws each arc, also those that are leaving, at `t` of its movement
+  _drawArcs(t) {
+    const {arc, sideStripe} = this._arcShape
+    this._content.selectChildren('g').each(function () {
+      const {from, to} = arcMotion.get(this)
+      const clamped = clampArc(interpolateArc(from, to, t))
+      const cell = select(this)
+      cell.select('.fan-arc').attr('d', arc(clamped))
+      cell.select('.fan-side').attr('d', sideStripe(clamped))
+    })
+  }
+
+  _drawNames() {
+    const cells = this._content.selectChildren('.fan-cell')
+    cells.selectAll('text').remove()
+    appendNames(cells, this._nameOptions)
   }
 }
 
-// Selects the person of an arc when it is clicked, and shows a preview of
-// the person while the pointer is on it
-function setFanInteraction(cells) {
+// Selects the person of an arc when it is clicked, after calling
+// `onClick(node)` with the node of the arc, and shows a preview of the person
+// while the pointer is on it. Without `interactive`, arcs have no click or
+// hover handling.
+function setFanInteraction(cells, {interactive, onClick}) {
+  if (!interactive) {
+    cells
+      .style('cursor', null)
+      .on('click', null)
+      .on('mouseenter', null)
+      .on('mouseleave', null)
+    return
+  }
   cells
     .style('cursor', 'pointer')
     .on('click', function (event, d) {
+      onClick(d)
       fireEvent(this, 'pedigree:person-selected', {
         grampsId: d.person?.gramps_id,
       })
