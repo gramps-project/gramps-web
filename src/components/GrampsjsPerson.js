@@ -235,15 +235,9 @@ export class GrampsjsPerson extends GrampsjsObject {
     `
   }
 
+  // The tree view opens the person in its chart
   _handleTreeButtonClick() {
-    this.dispatchEvent(
-      new CustomEvent('pedigree:person-selected', {
-        bubbles: true,
-        composed: true,
-        detail: {grampsId: this.data.gramps_id},
-      })
-    )
-    fireEvent(this, 'nav', {path: 'tree'})
+    fireEvent(this, 'pedigree:person-selected', {grampsId: this.data.gramps_id})
   }
 
   _handleTimelineButtonClick() {

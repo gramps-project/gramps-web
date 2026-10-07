@@ -50,6 +50,7 @@ import {
   DEFAULT_TREE_VIEW,
   TREE_VIEWS,
   getTreeViewTabIndex,
+  treeViewPath,
 } from '../treeDefaults.js'
 
 // Zoom factor of one zoom step, distance of one pan step in pixels, and the
@@ -269,6 +270,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     super()
     this.grampsId = ''
     this._history = this.grampsId ? [this.grampsId] : []
+    this._backTo = undefined
     this._currentTabId = getTreeViewTabIndex(DEFAULT_TREE_VIEW)
     this._appliedTreeDefaultView = null
     this._data = []
@@ -325,11 +327,19 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   willUpdate(changed) {
     super.willUpdate(changed)
-    // The history gets each newly selected person, also one selected while
-    // the view was not active
+    if (this.active) {
+      this._readPath()
+    }
+    // The history gets each newly shown person. Going back to the previous
+    // person removes the last one instead, once that person is shown.
     if (this.grampsId && this.grampsId !== this._history.at(-1)) {
-      // limit history to 100 people
-      this._history = [...this._history, this.grampsId].slice(-100)
+      if (this.grampsId === this._backTo) {
+        this._history = this._history.slice(0, -1)
+      } else {
+        // limit history to 100 people
+        this._history = [...this._history, this.grampsId].slice(-100)
+      }
+      this._backTo = undefined
     }
     // The selected person shown below the chart, who stays until the people
     // of a newly selected person arrive
@@ -348,9 +358,6 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   update(changed) {
     super.update(changed)
-    if (this.active && (changed.has('active') || changed.has('settings'))) {
-      this._applyPreferredTabIfNeeded()
-    }
     // A chart that changed during this update fetches in the next one
     if (this.chart === this._dataChart) {
       this._fetchIfNeeded()
@@ -359,6 +366,9 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   updated(changed) {
     super.updated(changed)
+    if (this.active) {
+      this._completePath()
+    }
     if (changed.has('_currentTabId')) {
       fireEvent(this, 'edit-mode:off', {})
     }
@@ -431,7 +441,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _handleTabChange(e) {
-    this._currentTabId = getTreeViewTabIndex(e.detail.value)
+    this._navigate(e.detail.value, this.grampsId)
   }
 
   // A segmented control to switch between the charts
@@ -866,13 +876,59 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     e.stopPropagation()
   }
 
+  // Shows the previous person in the shown chart. The history is shortened
+  // when that person arrives from the URL.
   _prevPerson() {
-    this._history.pop()
-    this.grampsId = this._history.pop()
+    this._backTo = this._history.at(-2)
+    this._navigate(this.chart, this._backTo)
   }
 
   _backToHomePerson() {
-    this.grampsId = this.settings.homePerson
+    this._navigate(this.chart, this.settings.homePerson)
+  }
+
+  // Shows `grampsId` in `chart` by going to its URL, which adds an entry to
+  // the browser history, or with `replace`, replaces the current one
+  _navigate(chart, grampsId, replace = false) {
+    fireEvent(this, 'nav', {path: treeViewPath(chart, grampsId), replace})
+  }
+
+  get _preferredView() {
+    return this.settings?.treeDefaultView ?? DEFAULT_TREE_VIEW
+  }
+
+  // The chart for a URL without one: the preferred chart at first and when
+  // it has changed since, otherwise the shown chart
+  get _chartWithoutPath() {
+    return this._preferredView === this._appliedTreeDefaultView
+      ? this.chart
+      : this._preferredView
+  }
+
+  // Reads the chart and the person from the URL, /tree/<chart>/<grampsId>. A
+  // URL without a chart gets `_chartWithoutPath`, one with an unknown chart
+  // the preferred chart. A URL without a person keeps the shown person, at
+  // first the home person.
+  _readPath() {
+    const {pageId, pageId2} = this.appState?.path ?? {}
+    let chart = this._chartWithoutPath
+    if (TREE_VIEWS.includes(pageId)) {
+      chart = pageId
+    } else if (pageId) {
+      chart = this._preferredView
+    }
+    this._currentTabId = getTreeViewTabIndex(chart)
+    this._appliedTreeDefaultView = this._preferredView
+    this.grampsId = pageId2 || this.grampsId || this.settings?.homePerson || ''
+  }
+
+  // Replaces a URL that does not name the shown chart and person with one
+  // that does
+  _completePath() {
+    const {pageId = '', pageId2 = ''} = this.appState?.path ?? {}
+    if (pageId !== this.chart || pageId2 !== this.grampsId) {
+      this._navigate(this.chart, this.grampsId, true)
+    }
   }
 
   // Opens the page of the person shown below the controls bar, who is the
@@ -882,21 +938,11 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     fireEvent(this, 'nav', {path: `person/${grampsId}`})
   }
 
-  _applyPreferredTabIfNeeded() {
-    const preferredView = this.settings?.treeDefaultView ?? DEFAULT_TREE_VIEW
-    if (preferredView === this._appliedTreeDefaultView) {
-      return
-    }
-    const preferredIndex = getTreeViewTabIndex(preferredView)
-    this._appliedTreeDefaultView = preferredView
-    if (this._currentTabId !== preferredIndex) {
-      this._currentTabId = preferredIndex
-    }
-  }
-
-  async _selectPerson(event) {
-    const {grampsId} = event.detail
-    this.grampsId = grampsId
+  // Shows a person selected in a chart or elsewhere, such as on a person's
+  // page, in the chart that is shown or that a URL without a chart would get
+  _selectPerson(event) {
+    const chart = this.active ? this.chart : this._chartWithoutPath
+    this._navigate(chart, event.detail.grampsId)
   }
 }
 
