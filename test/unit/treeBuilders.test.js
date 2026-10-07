@@ -57,12 +57,14 @@ const source = new FamilyGraph(Object.values(people))
 const ancestors = (...args) => getTree(source, ...args)
 const descendants = (...args) => getDescendantTree(source, ...args)
 
+// A parent or child, with the relation of the child to the parent
 const emptyNode = (id, depth) => ({
   name_given: null,
   name_surname: null,
   id,
   depth,
   person: {},
+  relation: 'Birth',
 })
 
 describe('getTree', () => {
@@ -106,6 +108,7 @@ describe('getTree', () => {
         id: 'pmm',
         depth: 2,
         person: people.MM,
+        relation: 'Birth',
       },
     ])
   })
@@ -120,6 +123,14 @@ describe('getTree', () => {
 
   it('keeps a parent that was not fetched as an empty person', () => {
     expect(ancestors('FM', 2, false).children).toEqual([emptyNode('pf', 1)])
+  })
+
+  it('gives each parent the relation of the child to them', () => {
+    const tree = ancestors('B', 2, false)
+    expect(tree.children.map(c => [c.person, c.relation])).toEqual([
+      [people.D, 'Adopted'],
+      [people.W1, 'Birth'],
+    ])
   })
 
   it('gives a person without parents an empty children list', () => {
@@ -138,23 +149,33 @@ describe('getDescendantTree', () => {
     expect('children' in tree).toBe(false)
   })
 
-  it('collects birth children across families with running ids', () => {
+  it('collects children across families with running ids', () => {
     const tree = descendants('D', 2)
-    expect(tree.children.map(c => c.id)).toEqual(['pc0', 'pc1'])
-    expect(tree.children.map(c => c.person)).toEqual([people.A, people.C])
+    expect(tree.children.map(c => c.id)).toEqual(['pc0', 'pc1', 'pc2'])
+    expect(tree.children.map(c => c.person)).toEqual([
+      people.A,
+      people.B,
+      people.C,
+    ])
     expect(tree.children.every(c => !('children' in c))).toBe(true)
   })
 
-  it('uses the mother relation for mothers', () => {
-    const tree = descendants('W1', 2)
-    expect(tree.children.map(c => c.person)).toEqual([people.A, people.B])
+  it('gives each child the relation to the parent', () => {
+    expect(descendants('D', 2).children.map(c => c.relation)).toEqual([
+      'Birth',
+      'Adopted',
+      'Birth',
+    ])
+    // B is the adopted child of D and the birth child of W1
+    expect(descendants('W1', 2).children.map(c => c.relation)).toEqual([
+      'Birth',
+      'Birth',
+    ])
   })
 
   it('keeps a child that was not fetched as an empty person', () => {
     const [childA] = descendants('D', 3).children
-    expect(childA.children).toEqual([
-      {name_given: null, name_surname: null, id: 'pc0c0', depth: 2, person: {}},
-    ])
+    expect(childA.children).toEqual([emptyNode('pc0c0', 2)])
   })
 
   it('gives a person without families an empty children list', () => {

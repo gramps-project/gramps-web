@@ -35,9 +35,12 @@ function layoutTree(data, direction, {boxWidth, boxHeight, gapX, gapY}) {
   )
   return {
     nodes: [...nodes.values()],
+    // The target of each link carries the relation of the child to the
+    // parent
     links: root.links().map(({source, target}) => ({
       source: nodes.get(source),
       target: nodes.get(target),
+      relation: target.data.relation ?? 'Birth',
     })),
   }
 }
@@ -61,7 +64,8 @@ function withBounds({nodes, links}, {boxWidth, boxHeight, padding}) {
 // The layout functions return `{nodes, links, bounds}`. Each node has a
 // unique `key`, the person's `handle` and `person` object, a `generation`
 // that is positive for ancestors and negative for descendants, and the
-// centre `x`, `y` of its box. Each link has a `source` and a `target` node.
+// centre `x`, `y` of its box. Each link has a `source` and a `target` node
+// and the `relation`, such as Birth or Adopted, of the child to the parent.
 // Depths count generations including the root person, who is always shown.
 
 export function layoutAncestors(graph, handle, {depth, ...options}) {
@@ -100,9 +104,9 @@ export function layoutHourglass(
       nodes: [...ancestors.nodes, ...descendantNodes],
       links: [
         ...ancestors.links,
-        ...descendants.links.map(({source, target}) => ({
-          source: source === descendantRoot ? root : source,
-          target,
+        ...descendants.links.map(link => ({
+          ...link,
+          source: link.source === descendantRoot ? root : link.source,
         })),
       ],
     },

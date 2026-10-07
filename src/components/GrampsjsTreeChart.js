@@ -150,7 +150,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
   }
 
   // Returns the relatives in the menu of the root person's triangle: the
-  // parents in a descendant chart and the birth children in an ancestor
+  // parents in a descendant chart and the children in an ancestor
   // chart. Hourglass charts show both, so they have no menu. People who were
   // not fetched are left out.
   _relatives() {
@@ -163,7 +163,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     }
     const handles = this.descendants
       ? Object.values(this._graph.parents(handle))
-      : this._graph.children(handle, {birthOnly: true})
+      : this._graph.children(handle)
     return handles
       .map(relative => this._graph.person(relative))
       .filter(person => person?.gramps_id)

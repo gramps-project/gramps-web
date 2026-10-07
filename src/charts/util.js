@@ -63,16 +63,19 @@ export const getTree = (
     return tree
   }
   const {father, mother} = graph.parents(handle)
+  const relations = graph.parentRelations(handle)
   tree.children = []
   if (father || includeEmpty) {
-    tree.children.push(
-      getTree(graph, father, depth - 1, includeEmpty, i + 1, `${label}f`)
-    )
+    tree.children.push({
+      ...getTree(graph, father, depth - 1, includeEmpty, i + 1, `${label}f`),
+      relation: relations.father,
+    })
   }
   if (mother || includeEmpty) {
-    tree.children.push(
-      getTree(graph, mother, depth - 1, includeEmpty, i + 1, `${label}m`)
-    )
+    tree.children.push({
+      ...getTree(graph, mother, depth - 1, includeEmpty, i + 1, `${label}m`),
+      relation: relations.mother,
+    })
   }
   return tree
 }
@@ -92,16 +95,18 @@ export const getDescendantTree = (graph, handle, depth, i = 0, label = 'p') => {
   if (depth === 1) {
     return tree
   }
-  const childHandles = graph.children(handle, {birthOnly: true})
-  tree.children = childHandles.map((childHandle, childInd) =>
-    getDescendantTree(
-      graph,
-      childHandle,
-      depth - 1,
-      i + 1,
-      `${label}c${childInd}`
-    )
-  )
+  tree.children = graph
+    .childRelations(handle)
+    .map(({handle: childHandle, relation}, childInd) => ({
+      ...getDescendantTree(
+        graph,
+        childHandle,
+        depth - 1,
+        i + 1,
+        `${label}c${childInd}`
+      ),
+      relation,
+    }))
   return tree
 }
 
