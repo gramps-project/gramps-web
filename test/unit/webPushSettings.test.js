@@ -19,6 +19,7 @@ function createSubscription(endpoint = 'https://push.example.test/1') {
 
 function createElement(overrides = {}) {
   const element = new GrampsjsWebPushSettings()
+  element.publicKey = PUBLIC_KEY
   element.appState = {
     i18n: {strings: {}},
     apiGet: vi.fn().mockResolvedValue({
@@ -53,6 +54,8 @@ function renderSettingsForApiVersion(version) {
     permissions: {},
     dbInfo: {gramps_webapi: {version}},
   }
+  view._pushConfigStatus = 'available'
+  view._pushPublicKey = PUBLIC_KEY
   return templateMarkup(view.renderContent())
 }
 
@@ -109,11 +112,11 @@ describe('browser notification settings', () => {
     vi.restoreAllMocks()
   })
 
-  it('shows the generic notification section only for API 3.23 or newer', () => {
-    expect(renderSettingsForApiVersion('3.22.9')).not.to.contain(
+  it('shows notifications only for API 3.24 or newer', () => {
+    expect(renderSettingsForApiVersion('3.23.9')).not.to.contain(
       'title="Notifications"'
     )
-    expect(renderSettingsForApiVersion('3.23.0')).to.contain(
+    expect(renderSettingsForApiVersion('3.24.0')).to.contain(
       'title="Notifications"'
     )
   })
@@ -150,20 +153,65 @@ describe('browser notification settings', () => {
     await element._loadState()
 
     expect(element._status).to.equal('unsupported')
-    expect(element.appState.apiGet).not.toHaveBeenCalled()
+    expect(element.appState.apiPost).not.toHaveBeenCalled()
   })
 
-  it('reports a server where Web Push is unavailable', async () => {
+  it('hides the entire section when the server has no public key', async () => {
+    const view = new GrampsjsViewSettingsUser()
+    view.appState = {
+      i18n: {strings: {}},
+      settings: {},
+      permissions: {},
+      dbInfo: {gramps_webapi: {version: '3.24.0'}},
+      apiGet: vi.fn().mockResolvedValue({data: {public_key: null}}),
+    }
+
+    await view._loadWebPushConfig()
+
+    expect(view.appState.apiGet).toHaveBeenCalledWith(
+      PUSH_SUBSCRIPTIONS_ENDPOINT
+    )
+    expect(view._pushConfigStatus).to.equal('unavailable')
+    expect(templateMarkup(view.renderContent())).not.to.contain(
+      'title="Notifications"'
+    )
+  })
+
+  it('offers retry for a configuration load error', async () => {
+    const view = new GrampsjsViewSettingsUser()
+    view.appState = {
+      i18n: {strings: {}},
+      settings: {},
+      permissions: {},
+      dbInfo: {gramps_webapi: {version: '3.24.0'}},
+      apiGet: vi
+        .fn()
+        .mockResolvedValueOnce({error: 'offline'})
+        .mockResolvedValueOnce({data: {public_key: PUBLIC_KEY}}),
+    }
+
+    await view._loadWebPushConfig()
+    const markup = templateMarkup(view.renderContent())
+    expect(markup).to.contain('Could not load notification settings.')
+    expect(markup).to.contain('Retry')
+    expect(markup).not.to.contain('<md-switch')
+
+    await view._loadWebPushConfig()
+    expect(view._pushConfigStatus).to.equal('available')
+    expect(templateMarkup(view.renderContent())).to.contain(
+      'title="Notifications"'
+    )
+  })
+
+  it('treats a missing service worker registration as unsupported', async () => {
     installBrowserApi()
-    const element = createElement({
-      apiGet: vi.fn().mockResolvedValue({
-        data: {public_key: null},
-      }),
-    })
+    navigator.serviceWorker.getRegistration.mockResolvedValue(null)
+    navigator.serviceWorker.ready = new Promise(() => {})
+    const element = createElement()
 
     await element._loadState()
 
-    expect(element._status).to.equal('unavailable')
+    expect(element._status).to.equal('unsupported')
   })
 
   it('synchronizes an existing browser subscription', async () => {
@@ -186,7 +234,7 @@ describe('browser notification settings', () => {
     const {pushManager} = installBrowserApi()
     pushManager.subscribe.mockResolvedValue(subscription)
     const element = createElement()
-    element._publicKey = PUBLIC_KEY
+    element.publicKey = PUBLIC_KEY
 
     await element._enable()
 
@@ -216,7 +264,7 @@ describe('browser notification settings', () => {
     const element = createElement({
       apiPost: vi.fn().mockResolvedValue({error: 'Storage failed'}),
     })
-    element._publicKey = PUBLIC_KEY
+    element.publicKey = PUBLIC_KEY
 
     await element._enable()
 

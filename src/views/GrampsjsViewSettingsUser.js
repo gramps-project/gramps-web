@@ -25,10 +25,11 @@ import {
   TREE_CONFIG_PRIMARY_COLOR,
   TREE_CONFIG_SECONDARY_COLOR,
 } from '../api.js'
-import {fireEvent} from '../util.js'
+import {apiVersionAtLeast, fireEvent} from '../util.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
 import {DEFAULT_TREE_VIEW, TREE_VIEWS} from '../treeDefaults.js'
 import {SYMBOL_SET_DEFAULT, SYMBOL_SET_OPTIONS} from '../symbols.js'
+import {PUSH_SUBSCRIPTIONS_ENDPOINT} from '../webPush.js'
 
 export class GrampsjsViewSettingsUser extends GrampsjsView {
   static get styles() {
@@ -78,6 +79,8 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       _translations: {type: Array},
       _langLoading: {type: Boolean},
       _tokenCopied: {type: Boolean},
+      _pushConfigStatus: {type: String},
+      _pushPublicKey: {type: String},
     }
   }
 
@@ -87,6 +90,8 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     this._translations = []
     this._langLoading = false
     this._tokenCopied = false
+    this._pushConfigStatus = 'idle'
+    this._pushPublicKey = ''
   }
 
   renderContent() {
@@ -152,12 +157,25 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         ${this.renderTreePreferences()}
       </grampsjs-collapsible-section>
 
-      ${this._supportsWebPush()
+      ${this._supportsWebPush() &&
+      ['available', 'error'].includes(this._pushConfigStatus)
         ? html`
             <grampsjs-collapsible-section title="${this._('Notifications')}">
-              <grampsjs-web-push-settings
-                .appState="${this.appState}"
-              ></grampsjs-web-push-settings>
+              ${this._pushConfigStatus === 'available'
+                ? html`
+                    <grampsjs-web-push-settings
+                      .appState="${this.appState}"
+                      .publicKey="${this._pushPublicKey}"
+                    ></grampsjs-web-push-settings>
+                  `
+                : html`
+                    <p role="alert">
+                      ${this._('Could not load notification settings.')}
+                    </p>
+                    <md-outlined-button @click="${this._loadWebPushConfig}"
+                      >${this._('Retry')}</md-outlined-button
+                    >
+                  `}
             </grampsjs-collapsible-section>
           `
         : ''}
@@ -210,6 +228,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
   firstUpdated() {
     if (this.active) {
       this._fetchOwnUserDetails()
+      this._loadWebPushConfig()
     }
   }
 
@@ -220,6 +239,30 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         this._fetchDataLang()
       }
       this.renderRoot.querySelector('grampsjs-access-tokens')?.refresh()
+      this._loadWebPushConfig()
+    } else if (
+      changed.has('appState') &&
+      this.active &&
+      this._pushConfigStatus === 'idle'
+    ) {
+      this._loadWebPushConfig()
+    }
+  }
+
+  _supportsWebPush() {
+    return apiVersionAtLeast(this.appState?.dbInfo, 3, 24)
+  }
+
+  async _loadWebPushConfig() {
+    if (!this._supportsWebPush() || this._pushConfigStatus === 'loading') return
+    this._pushConfigStatus = 'loading'
+    try {
+      const result = await this.appState.apiGet(PUSH_SUBSCRIPTIONS_ENDPOINT)
+      if ('error' in result) throw new Error(result.error)
+      this._pushPublicKey = result.data?.public_key || ''
+      this._pushConfigStatus = this._pushPublicKey ? 'available' : 'unavailable'
+    } catch {
+      this._pushConfigStatus = 'error'
     }
   }
 
