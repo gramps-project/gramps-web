@@ -1,4 +1,4 @@
-import {describe, it, expect} from 'vitest'
+import {beforeAll, describe, it, expect, vi} from 'vitest'
 import {TreeChart} from '../../src/charts/TreeChart.js'
 import {RelationshipChart} from '../../src/charts/RelationshipChart.js'
 import {FamilyGraph} from '../../src/charts/model/FamilyGraph.js'
@@ -39,7 +39,7 @@ const graph = new FamilyGraph([
 // The options a live chart is drawn with, including everything that an
 // export leaves out
 const liveOptions = {
-  getImageUrl: () => 'https://example.com/thumbnail?jwt=secret',
+  getImageUrl: node => `https://example.com/${node.handle}?jwt=secret`,
   childrenTriangle: true,
   canEdit: true,
   duration: 400,
@@ -50,10 +50,31 @@ const liveOptions = {
 const parse = content =>
   new DOMParser().parseFromString(content, 'image/svg+xml').documentElement
 
+// Returns a data URI for each URL, except for the image of M, which fails
+const fetchImage = async url => {
+  if (url.includes('/M?')) {
+    throw new Error('Not found')
+  }
+  return `data:image/jpeg;base64,${btoa(url.split('?')[0])}`
+}
+
+// Browsers write `xlink:href` and happy-dom writes `href`
+const imageHrefs = svg =>
+  [...svg.querySelectorAll('image')].map(
+    image => image.getAttribute('href') ?? image.getAttribute('xlink:href')
+  )
+
 describe('chartSvgDocument', () => {
   const layout = layoutAncestors(graph, 'R', {depth: 2})
-  const content = chartSvgDocument(TreeChart, layout, liveOptions)
-  const svg = parse(content)
+  let content
+  let svg
+
+  beforeAll(async () => {
+    content = await chartSvgDocument(TreeChart, layout, liveOptions, {
+      fetchImage,
+    })
+    svg = parse(content)
+  })
 
   it('is a standalone SVG document', () => {
     expect(content.startsWith('<?xml')).toBe(true)
@@ -88,9 +109,67 @@ describe('chartSvgDocument', () => {
     expect(content).not.toContain('var(')
   })
 
-  it('leaves out images, so no access token is written', () => {
-    expect(svg.querySelectorAll('image')).toHaveLength(0)
+  it('embeds images as data URIs, so no access token is written', () => {
+    expect(imageHrefs(svg)).toEqual(
+      expect.arrayContaining([
+        `data:image/jpeg;base64,${btoa('https://example.com/R')}`,
+        `data:image/jpeg;base64,${btoa('https://example.com/F')}`,
+      ])
+    )
     expect(content).not.toContain('jwt')
+    expect(content).not.toContain('https://example.com')
+  })
+
+  it('draws a card without an image when its image cannot be fetched', () => {
+    expect(imageHrefs(svg)).toHaveLength(2)
+    const cardOfM = [...svg.querySelectorAll('.person-node')].find(node =>
+      node.textContent.includes('SurM')
+    )
+    expect(cardOfM.querySelector('image')).toBeNull()
+  })
+
+  it('fetches each image once', async () => {
+    const fetchOnce = vi.fn(fetchImage)
+    await chartSvgDocument(
+      TreeChart,
+      layout,
+      {...liveOptions, getImageUrl: () => 'https://example.com/R?jwt=secret'},
+      {fetchImage: fetchOnce}
+    )
+    expect(fetchOnce).toHaveBeenCalledTimes(1)
+  })
+
+  it('embeds images when the access token changes during the fetches', async () => {
+    let token = 0
+    const changingToken = parse(
+      await chartSvgDocument(
+        TreeChart,
+        layout,
+        {
+          ...liveOptions,
+          getImageUrl: node => {
+            token += 1
+            return `https://example.com/${node.handle}?jwt=${token}`
+          },
+        },
+        {fetchImage}
+      )
+    )
+    expect(imageHrefs(changingToken)).toHaveLength(2)
+  })
+
+  it('draws cards without images when the chart has none', async () => {
+    const fetchNone = vi.fn(fetchImage)
+    const noImages = parse(
+      await chartSvgDocument(
+        TreeChart,
+        layout,
+        {...liveOptions, getImageUrl: () => ''},
+        {fetchImage: fetchNone}
+      )
+    )
+    expect(noImages.querySelectorAll('image')).toHaveLength(0)
+    expect(fetchNone).not.toHaveBeenCalled()
   })
 
   it('leaves out shadows and interactive elements', () => {
@@ -102,14 +181,16 @@ describe('chartSvgDocument', () => {
 
   it('draws relationship charts', async () => {
     const relationships = await layoutRelationships(graph, 'R')
-    const relationshipContent = chartSvgDocument(
+    const relationshipContent = await chartSvgDocument(
       RelationshipChart,
       relationships,
-      liveOptions
+      liveOptions,
+      {fetchImage}
     )
     const relationshipSvg = parse(relationshipContent)
     expect(relationshipSvg.querySelectorAll('.node.person')).toHaveLength(3)
     expect(relationshipSvg.querySelectorAll('circle.married')).toHaveLength(1)
+    expect(imageHrefs(relationshipSvg)).toHaveLength(2)
     expect(relationshipContent).not.toContain('var(')
     expect(relationshipContent).not.toContain('jwt')
   })

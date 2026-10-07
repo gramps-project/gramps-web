@@ -13,11 +13,11 @@ export const GrampsjsChartCanvasMixin = superClass =>
       this._layoutRequest = 0
     }
 
-    // The chart as an SVG document for saving to a file, or null while there
-    // is no chart
+    // Returns a promise of the chart as an SVG document for saving to a file,
+    // or null while there is no chart
     svgDocument() {
       if (!this._layout) {
-        return null
+        return Promise.resolve(null)
       }
       return chartSvgDocument(
         this._chart.constructor,
