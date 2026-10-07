@@ -94,18 +94,33 @@ export class FamilyGraph {
   }
 
   // Returns the person's children in all families where they are a parent,
-  // each with its `handle` and its `relation` to this parent
+  // each with its `handle` and its `relation` to this parent. A child in
+  // several of these families, such as a child of a parent who remarried, is
+  // listed once, from their primary parent family if it is one of them and
+  // otherwise from the first.
   childRelations(handle) {
-    return this.partnerFamilies(handle).flatMap(family => {
+    const entries = this.partnerFamilies(handle).flatMap(family => {
       const isFather = family.father_handle === handle
       if (!isFather && family.mother_handle !== handle) {
         return []
       }
       return (family.child_ref_list || []).map(childRef => ({
+        family,
         handle: childRef.ref,
         relation: (isFather ? childRef.frel : childRef.mrel) || 'Birth',
       }))
     })
+    const chosen = new Map()
+    for (const entry of entries) {
+      const primary = this.person(entry.handle)?.extended?.primary_parent_family
+        ?.handle
+      if (!chosen.has(entry.handle) || entry.family.handle === primary) {
+        chosen.set(entry.handle, entry)
+      }
+    }
+    return entries
+      .filter(entry => chosen.get(entry.handle) === entry)
+      .map(({handle: child, relation}) => ({handle: child, relation}))
   }
 
   // Returns the handles of the person's children in all families where they
