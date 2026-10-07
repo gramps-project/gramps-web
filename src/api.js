@@ -1,20 +1,53 @@
 import {jwtDecode} from 'jwt-decode'
 
 import {fireEvent, normalizeRect} from './util.js'
+import {
+  PUSH_SUBSCRIPTIONS_ENDPOINT,
+  removeWebPushSubscription,
+} from './webPush.js'
 
 export const __APIHOST__ = 'http://localhost:5555'
 
 // Access token expiration time (15 minutes in milliseconds)
 export const ACCESS_TOKEN_EXPIRY_MS = 15 * 60 * 1000
 
-export function doLogout() {
+async function removePushSubscriptionBeforeLogout(accessToken) {
+  let timeoutId
+  const cleanup = removeWebPushSubscription(endpoint =>
+    accessToken
+      ? apiPutPostDelete(
+          {getValidAccessToken: async () => accessToken},
+          'DELETE',
+          PUSH_SUBSCRIPTIONS_ENDPOINT,
+          {endpoint},
+          {dbChanged: false}
+        )
+      : {error: 'Not authenticated'}
+  )
+  const timeout = new Promise((_resolve, reject) => {
+    timeoutId = setTimeout(
+      () => reject(new Error('Push cleanup timed out')),
+      5000
+    )
+  })
+  try {
+    return await Promise.race([cleanup, timeout])
+  } catch {
+    return false
+  } finally {
+    clearTimeout(timeoutId)
+  }
+}
+
+export async function doLogout() {
+  const pushCleanupWarning = !(await removePushSubscriptionBeforeLogout(
+    localStorage.getItem('access_token')
+  ))
   localStorage.removeItem('access_token')
   localStorage.removeItem('access_token_expires')
   localStorage.removeItem('refresh_token')
   localStorage.removeItem('id_token')
-  window.dispatchEvent(
-    new CustomEvent('user:loggedout', {bubbles: true, composed: true})
-  )
+  fireEvent(window, 'user:loggedout', {pushCleanupWarning})
 }
 
 export function storeAuthToken(authToken, expires) {
@@ -974,6 +1007,9 @@ export class Auth {
   async signout() {
     const oidcProvider = this.claims.oidc_provider
     const idToken = localStorage.getItem('id_token')
+    const pushCleanupWarning = !(await removePushSubscriptionBeforeLogout(
+      this.accessToken
+    ))
 
     localStorage.removeItem('access_token')
     localStorage.removeItem('access_token_expires')
@@ -1000,9 +1036,15 @@ export class Auth {
     }
 
     // `redirecting`: clean up, but stay put — we are leaving for the IdP.
-    fireEvent(window, 'user:loggedout', {redirecting: !!logoutUrl})
+    fireEvent(window, 'user:loggedout', {
+      redirecting: !!logoutUrl,
+      pushCleanupWarning,
+    })
 
     if (logoutUrl) {
+      if (pushCleanupWarning) {
+        await new Promise(resolve => setTimeout(resolve, 5000))
+      }
       window.location.href = logoutUrl
     }
   }
@@ -1020,7 +1062,7 @@ export class Auth {
       },
     })
     if (resp.status === 403 || resp.status === 422) {
-      doLogout()
+      await doLogout()
       throw new Error('Failed refreshing token')
     }
     // handle 429 too-many-attempts
