@@ -279,6 +279,7 @@ export const chartDefinitions = {
       nameDisplayFormatSetting('fanChartNameDisplayFormat'),
     ],
     editable: false,
+    zoomable: true,
     request: (grampsId, {ancestors}) => ({
       rules: treeRules(grampsId, ancestors + 1, 2),
       extend: treeExtend,

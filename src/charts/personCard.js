@@ -5,6 +5,7 @@ import {
   colorAddPersonButtons,
 } from './addPersonButton.js'
 import {chartPalette} from './palette.js'
+import {isHoverDevice} from './util.js'
 import {SYMBOL_SETS, SYMBOL_SET_DEFAULT} from '../symbols.js'
 
 // Pattern ids must be unique in the document, and the same person can be
@@ -25,10 +26,6 @@ function clipString(s, length) {
     return ''
   }
   return `${s.slice(0, nChar - 2)}…`
-}
-
-function isHoverDevice() {
-  return !window.matchMedia('(hover: none)').matches
 }
 
 // Appends the visible part of a person card, centred on each node of the

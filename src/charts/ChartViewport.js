@@ -33,6 +33,12 @@ export class ChartViewport {
     this._clicked = undefined
   }
 
+  // The top left corner of the view in viewBox coordinates, where content
+  // that does not zoom or pan with the chart is placed
+  get viewStart() {
+    return this._viewStart
+  }
+
   // Remembers which node of a person was clicked, so that a person who
   // appears more than once is kept in place at that node
   rememberClick(handle, key) {

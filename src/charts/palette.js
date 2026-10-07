@@ -15,6 +15,10 @@ export const chartPalette = {
   shadow: 'var(--grampsjs-body-font-color-30)',
   addButton: 'var(--mdc-theme-secondary, #0277bd)',
   addButtonIcon: '#ffffff',
+  fanRoot: 'var(--grampsjs-color-shade-120)',
+  fanNoValue: 'var(--grampsjs-color-shade-220)',
+  fanText: 'var(--grampsjs-body-font-color-70)',
+  legendText: 'var(--grampsjs-body-font-color)',
 }
 
 // Colours of exported charts: the light theme as opaque colours on a white
@@ -33,4 +37,8 @@ export const exportPalette = {
   shadow: '#b3b3b3',
   addButton: '#0277bd',
   addButtonIcon: '#ffffff',
+  fanRoot: '#787878',
+  fanNoValue: '#dcdcdc',
+  fanText: '#4d4d4d',
+  legendText: '#333333',
 }

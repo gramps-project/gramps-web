@@ -649,10 +649,10 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     `
   }
 
-  // The component of the chart with cards
+  // The component of the chart
   _chartComponent() {
     return this.renderRoot?.querySelector(
-      '#chart grampsjs-tree-chart, #chart grampsjs-relationship-chart'
+      '#chart grampsjs-tree-chart, #chart grampsjs-relationship-chart, #chart grampsjs-fan-chart'
     )
   }
 

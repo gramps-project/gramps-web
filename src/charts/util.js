@@ -27,6 +27,11 @@ export const getImageUrl = (person, size, square = true) => {
   return getThumbnailUrlCropped(mediaRef.ref, rect, size, square)
 }
 
+// Returns whether the pointer can hover, so hover previews are shown
+export function isHoverDevice() {
+  return !window.matchMedia('(hover: none)').matches
+}
+
 // Returns the duration of a chart animation in milliseconds, which is 0 when
 // the user prefers reduced motion
 export function chartTransitionDuration(duration = 400) {
@@ -108,6 +113,7 @@ export const LegendCategorical = (
     legendItemWidth = 15,
     legendItemMargin = 5,
     opacity = 1,
+    textColor = 'var(--grampsjs-body-font-color)',
   } = {}
 ) => {
   legend
@@ -128,7 +134,7 @@ export const LegendCategorical = (
     .enter()
     .append('text')
     .attr('x', legendItemWidth + 8)
-    .attr('fill', 'var(--grampsjs-body-font-color)')
+    .attr('fill', textColor)
     .attr('text-anchor', 'start')
     .attr('font-family', 'Inter var')
     .attr('font-weight', 350)
@@ -149,6 +155,7 @@ export const LegendColorBar = (
     maxColorValue = 100,
     colorBarWidth = 20,
     colorBarHeight = 200,
+    textColor = 'var(--grampsjs-body-font-color)',
   } = {}
 ) => {
   const numColorTicks = 5 // Number of legend ticks
@@ -215,11 +222,11 @@ export const LegendColorBar = (
         .append('line')
         .attr('x1', -4)
         .attr('x2', -10) // Adjust the length of the tick mark
-        .attr('stroke', 'var(--grampsjs-body-font-color)') // Set the tick color
+        .attr('stroke', textColor)
     })
     .append('text')
     .attr('class', 'colorbar-tick')
-    .attr('fill', 'var(--grampsjs-body-font-color)')
+    .attr('fill', textColor)
     .attr('x', 4)
     .attr('text-anchor', 'start')
     .attr('dy', '0.4em')
