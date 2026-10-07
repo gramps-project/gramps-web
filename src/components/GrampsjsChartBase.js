@@ -3,8 +3,11 @@ import {html, css, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {FamilyGraph} from '../charts/model/FamilyGraph.js'
+import {GrampsjsChartCanvasMixin} from '../mixins/GrampsjsChartCanvasMixin.js'
 
-export class GrampsjsChartBase extends GrampsjsAppStateMixin(LitElement) {
+export class GrampsjsChartBase extends GrampsjsChartCanvasMixin(
+  GrampsjsAppStateMixin(LitElement)
+) {
   static get styles() {
     return [
       sharedStyles,

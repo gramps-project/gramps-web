@@ -8,6 +8,7 @@ import './GrampsjsFormEditMatch.js'
 import './GrampsjsConnectionChart.js'
 import {personDisplayName, fireEvent} from '../util.js'
 import './GrampsjsObjectLink.js'
+import './GrampsjsSvgDownloadButton.js'
 import {renderIconSvg} from '../icons.js'
 
 export class GrampsjsDnaMatch extends GrampsjsAppStateMixin(LitElement) {
@@ -19,6 +20,13 @@ export class GrampsjsDnaMatch extends GrampsjsAppStateMixin(LitElement) {
           padding-top: 20px;
           padding-bottom: 20px;
           clear: left;
+        }
+
+        .chart-heading {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          --grampsjs-icon-button-color: var(--grampsjs-body-font-color-60);
         }
       `,
     ]
@@ -104,7 +112,14 @@ export class GrampsjsDnaMatch extends GrampsjsAppStateMixin(LitElement) {
         this.data.relation
           ? html`
               <div class="container">
-                <h4>${this._('Relationship Graph')}</h4>
+                <div class="chart-heading">
+                  <h4>${this._('Relationship Graph')}</h4>
+                  <grampsjs-svg-download-button
+                    filename="${this._svgFilename()}"
+                    .svgDocument=${() => this._connectionChartSvg()}
+                    .appState="${this.appState}"
+                  ></grampsjs-svg-download-button>
+                </div>
                 <grampsjs-connection-chart
                   .appState="${this.appState}"
                   .grampsId1="${this.person.gramps_id}"
@@ -124,6 +139,19 @@ export class GrampsjsDnaMatch extends GrampsjsAppStateMixin(LitElement) {
         </md-icon-button>
       </div>
     `
+  }
+
+  // The relationship graph is saved to a file named after both people
+  _svgFilename() {
+    return `${this.person.gramps_id}-${this.personMatch.gramps_id}.svg`
+  }
+
+  _connectionChartSvg() {
+    return (
+      this.renderRoot
+        .querySelector('grampsjs-connection-chart')
+        ?.svgDocument() ?? null
+    )
   }
 
   handleBackToAllMatches() {

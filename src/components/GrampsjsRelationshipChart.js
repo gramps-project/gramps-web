@@ -2,9 +2,7 @@ import {html} from 'lit'
 
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 import {RelationshipChart} from '../charts/RelationshipChart.js'
-import {layoutRelationships} from '../charts/layout/relationshipLayout.js'
 import {chartTransitionDuration, getImageUrl} from '../charts/util.js'
-import {fireEvent} from '../util.js'
 import {getSymbols} from '../symbols.js'
 
 class GrampsjsRelationshipChart extends GrampsjsChartBase {
@@ -20,8 +18,6 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     super()
     this.grampsId = ''
     this._chart = new RelationshipChart()
-    this._layout = null
-    this._layoutRequest = 0
   }
 
   render() {
@@ -43,10 +39,9 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
     // contain them either, the chart is cleared.
     const root = this._graph.personByGrampsId(this.grampsId)
     if (root) {
-      this._requestLayout(root.handle)
+      this._requestRelationshipLayout(this._graph, root.handle)
     } else if (changed.has('data')) {
-      this._layoutRequest += 1
-      this._layout = null
+      this._clearRelationshipLayout()
     }
   }
 
@@ -55,7 +50,11 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
       this._chart.clear()
       return
     }
-    this._chart.update(this._layout, {
+    this._chart.update(this._layout, this.chartOptions())
+  }
+
+  chartOptions() {
+    return {
       getImageUrl: node => getImageUrl(node.person, 100),
       nameDisplayFormat: this.nameDisplayFormat,
       ...getSymbols(this.appState.settings, s => this._(s)),
@@ -63,27 +62,6 @@ class GrampsjsRelationshipChart extends GrampsjsChartBase {
       duration: chartTransitionDuration(),
       bboxWidth: this.containerWidth,
       bboxHeight: this.containerHeight,
-    })
-  }
-
-  // Lays out the chart in the background. The current chart stays until the
-  // layout is ready, and a layout that is ready after a newer one was
-  // requested is ignored. If the layout fails, the chart is cleared and an
-  // error is reported.
-  async _requestLayout(rootHandle) {
-    this._layoutRequest += 1
-    const request = this._layoutRequest
-    let layout = null
-    try {
-      layout = await layoutRelationships(this._graph, rootHandle)
-    } catch (error) {
-      if (request === this._layoutRequest) {
-        fireEvent(this, 'grampsjs:error', {message: error.message})
-      }
-    }
-    if (request === this._layoutRequest) {
-      this._layout = layout
-      this.requestUpdate()
     }
   }
 }

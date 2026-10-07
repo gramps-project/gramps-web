@@ -64,7 +64,6 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     this.nDesc = 5
     this.gapX = 30
     this._chart = new TreeChart()
-    this._layout = null
   }
 
   render() {
@@ -132,7 +131,11 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       this._chart.clear()
       return
     }
-    this._chart.update(this._layout, {
+    this._chart.update(this._layout, this.chartOptions())
+  }
+
+  chartOptions() {
+    return {
       childrenTriangle: this._relatives().length > 0,
       triangleLabel: this.descendants ? this._('Parents') : this._('Children'),
       getImageUrl: d => getImageUrl(d.person, 100),
@@ -143,7 +146,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       ...getSymbols(this.appState.settings, s => this._(s)),
       canEdit: this.canEdit,
       duration: chartTransitionDuration(),
-    })
+    }
   }
 
   // Returns the relatives in the menu of the root person's triangle: the

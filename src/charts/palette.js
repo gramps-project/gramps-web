@@ -16,3 +16,21 @@ export const chartPalette = {
   addButton: 'var(--mdc-theme-secondary, #0277bd)',
   addButtonIcon: '#ffffff',
 }
+
+// Colours of exported charts: the light theme as opaque colours on a white
+// background, so a saved file looks the same in any app and theme
+export const exportPalette = {
+  sex: {F: '#ef9a9a', M: '#64b5f6', X: '#ce93d8', U: '#b0bec5'},
+  background: '#ffffff',
+  personBox: '#e6e6e6',
+  text: '#1a1a1a',
+  link: '#4d4d4d',
+  relationshipLink: '#999999',
+  familyMarker: '#999999',
+  familyMarkerFill: '#dcdcdc',
+  triangle: '#a6a6a6',
+  triangleHover: '#e6e6e6',
+  shadow: '#b3b3b3',
+  addButton: '#0277bd',
+  addButtonIcon: '#ffffff',
+}
