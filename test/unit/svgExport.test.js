@@ -1,9 +1,11 @@
 import {beforeAll, describe, it, expect, vi} from 'vitest'
 import {TreeChart} from '../../src/charts/TreeChart.js'
 import {RelationshipChart} from '../../src/charts/RelationshipChart.js'
+import {FanChart} from '../../src/charts/FanChart.js'
 import {FamilyGraph} from '../../src/charts/model/FamilyGraph.js'
 import {layoutAncestors} from '../../src/charts/layout/treeLayout.js'
 import {layoutRelationships} from '../../src/charts/layout/relationshipLayout.js'
+import {layoutFan} from '../../src/charts/layout/fanLayout.js'
 import {exportPalette} from '../../src/charts/palette.js'
 import {chartSvgDocument} from '../../src/charts/svgExport.js'
 
@@ -193,5 +195,37 @@ describe('chartSvgDocument', () => {
     expect(imageHrefs(relationshipSvg)).toHaveLength(2)
     expect(relationshipContent).not.toContain('var(')
     expect(relationshipContent).not.toContain('jwt')
+  })
+})
+
+describe('chartSvgDocument of a fan chart', () => {
+  const layout = layoutFan(graph, 'R', {depth: 3})
+  let content
+  let svg
+
+  beforeAll(async () => {
+    // The fan chart has no images
+    content = await chartSvgDocument(
+      FanChart,
+      layout,
+      {...liveOptions, getImageUrl: undefined, color: 'nEvents'},
+      {fetchImage}
+    )
+    svg = parse(content)
+  })
+
+  it('draws every known person with concrete colours', () => {
+    expect(svg.querySelectorAll('.fan-cell')).toHaveLength(3)
+    expect(content).toContain('GivenR')
+    expect(content).not.toContain('var(')
+    expect(content).not.toContain('cursor')
+  })
+
+  it('is sized to the layout bounds without the legend', () => {
+    const {xMin, xMax, yMin, yMax} = layout.bounds
+    expect(svg.getAttribute('viewBox')).toBe(
+      [xMin - 20, yMin - 20, xMax - xMin + 40, yMax - yMin + 40].join(' ')
+    )
+    expect(svg.querySelector('#legend')).toBeNull()
   })
 })
