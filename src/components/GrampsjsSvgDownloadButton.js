@@ -6,12 +6,14 @@ import '@material/web/iconbutton/icon-button.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {iconButtonColorStyles} from '../SharedStyles.js'
 import {downloadSvg} from '../charts/svgExport.js'
+import {fireEvent} from '../util.js'
 import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
 
-// An icon button that saves the SVG document returned by `svgDocument()` as a
-// file named `filename`. Nothing is saved while `svgDocument()` returns null.
-// The icon colour is set with `--grampsjs-icon-button-color`.
+// An icon button that saves the SVG document returned by `svgDocument()`, or
+// by the promise it returns, as a file named `filename`. Nothing is saved for
+// null. The button is disabled while the document is being prepared. The icon
+// colour is set with `--grampsjs-icon-button-color`.
 export class GrampsjsSvgDownloadButton extends GrampsjsAppStateMixin(
   LitElement
 ) {
@@ -30,6 +32,7 @@ export class GrampsjsSvgDownloadButton extends GrampsjsAppStateMixin(
     return {
       filename: {type: String},
       svgDocument: {attribute: false},
+      _preparing: {state: true},
     }
   }
 
@@ -37,6 +40,7 @@ export class GrampsjsSvgDownloadButton extends GrampsjsAppStateMixin(
     super()
     this.filename = 'chart.svg'
     this.svgDocument = () => null
+    this._preparing = false
   }
 
   render() {
@@ -44,6 +48,7 @@ export class GrampsjsSvgDownloadButton extends GrampsjsAppStateMixin(
       <md-icon-button
         id="button"
         aria-label="${this._('Download')}"
+        ?disabled=${this._preparing}
         @click=${this._download}
         ><grampsjs-icon
           path="${mdiDownload}"
@@ -56,10 +61,19 @@ export class GrampsjsSvgDownloadButton extends GrampsjsAppStateMixin(
     `
   }
 
-  _download() {
-    const content = this.svgDocument()
-    if (content) {
-      downloadSvg(content, this.filename)
+  // The file gets the name the button had when the chart was captured
+  async _download() {
+    const {filename} = this
+    this._preparing = true
+    try {
+      const content = await this.svgDocument()
+      if (content) {
+        downloadSvg(content, filename)
+      }
+    } catch (error) {
+      fireEvent(this, 'grampsjs:error', {message: error.message})
+    } finally {
+      this._preparing = false
     }
   }
 }

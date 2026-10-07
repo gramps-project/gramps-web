@@ -3,18 +3,57 @@ import {exportPalette} from './palette.js'
 // Space around the chart in an exported SVG, in pixels
 const exportMargin = 20
 
-// Returns `layout` drawn by a new `ChartClass` canvas as a standalone SVG
-// document, sized to the layout's bounds independent of zoom and container
-// size. Cards have no images, colours come from `exportPalette` on a white
+// Returns the image at `url` as a data URI
+async function fetchDataUri(url) {
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error(`Image request failed with status ${response.status}`)
+  }
+  const blob = await response.blob()
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(blob)
+  })
+}
+
+// Returns the data URIs of the images at `urls` by URL, fetched with
+// `fetchImage`. Images that cannot be fetched are left out.
+async function imageDataUris(urls, fetchImage) {
+  const unique = [...new Set(urls.filter(Boolean))]
+  const results = await Promise.allSettled(unique.map(url => fetchImage(url)))
+  return new Map(
+    unique
+      .map((url, i) => [url, results[i]])
+      .filter(([, result]) => result.status === 'fulfilled')
+      .map(([url, result]) => [url, result.value])
+  )
+}
+
+// Returns a promise of `layout` drawn by a new `ChartClass` canvas as a
+// standalone SVG document, sized to the layout's bounds independent of zoom
+// and container size. Colours come from `exportPalette` on a white
 // background, and there are no shadows or interactive elements. `options` are
-// the update options of the live chart.
-export function chartSvgDocument(ChartClass, layout, options = {}) {
+// the update options of the live chart. The images from its `getImageUrl` are
+// fetched with `fetchImage` and embedded as data URIs, so no image URL, which
+// can carry the access token, is written to the file. A card whose image
+// cannot be fetched has no image.
+export async function chartSvgDocument(
+  ChartClass,
+  layout,
+  options = {},
+  {fetchImage = fetchDataUri} = {}
+) {
   const chart = new ChartClass()
+  const {getImageUrl = () => ''} = options
+  const people = chart.drawnNodes(layout).filter(node => chart.isPerson(node))
+  const dataUris = await imageDataUris(people.map(getImageUrl), fetchImage)
   chart.update(layout, {
     ...options,
     interactive: false,
     palette: exportPalette,
-    getImageUrl: () => '',
+    getImageUrl: node => dataUris.get(getImageUrl(node)) ?? '',
     duration: 0,
     bboxWidth: 0,
     bboxHeight: 0,
