@@ -3,7 +3,10 @@ import {select} from 'd3-selection'
 import {zoom, zoomIdentity, zoomTransform} from 'd3-zoom'
 import {TreeChart} from '../../src/charts/TreeChart.js'
 import {FamilyGraph} from '../../src/charts/model/FamilyGraph.js'
-import {layoutAncestors} from '../../src/charts/layout/treeLayout.js'
+import {
+  layoutAncestors,
+  layoutDescendants,
+} from '../../src/charts/layout/treeLayout.js'
 import {chartNameDisplayFormat} from '../../src/util.js'
 import {chartPalette} from '../../src/charts/palette.js'
 import {mdiChevronLeft, mdiChevronRight} from '@mdi/js'
@@ -395,6 +398,115 @@ describe('TreeChart', () => {
     expect(box().getAttribute('fill')).toBe('white')
     chart.update(layout, {...size, palette: {...palette, personBox: 'ivory'}})
     expect(box().getAttribute('fill')).toBe('ivory')
+  })
+
+  it('draws links at right angles, rounded where they turn to outer people', () => {
+    const chart = new TreeChart()
+    const layout = layoutAncestors(graph, 'R', {depth: 3})
+    chart.update(layout, size)
+    const paths = new Map(
+      [...chart.node.querySelectorAll('path.link')].map(path => [
+        path.__data__.target.handle,
+        path.getAttribute('d'),
+      ])
+    )
+    expect([...paths.keys()].sort()).toEqual(['F', 'FM', 'M'])
+    for (const d of paths.values()) {
+      // Straight lines and rounded corners only
+      expect(d).toMatch(/^M[-\d.,MHVLQ ]+$/)
+    }
+    // R's parents lie above and below R; FM lies straight across from F
+    expect(paths.get('F')).toMatch(/Q/)
+    expect(paths.get('M')).toMatch(/Q/)
+    expect(paths.get('FM')).not.toMatch(/Q/)
+  })
+
+  it('draws each part of the lines that links share once', () => {
+    // P has the children A, B and C
+    const fP = family('fP', 'P', '', ['A', 'B', 'C'])
+    const parent = new FamilyGraph([
+      person('P', {families: [fP]}),
+      ...['A', 'B', 'C'].map(handle => person(handle, {parentFamily: fP})),
+    ])
+    const chart = new TreeChart()
+    chart.update(layoutDescendants(parent, 'P', {depth: 2}), size)
+    const paths = new Map(
+      [...chart.node.querySelectorAll('path.link')].map(path => [
+        path.__data__.target.handle,
+        path.getAttribute('d'),
+      ])
+    )
+    const start = handle => /^M([^,]+)/.exec(paths.get(handle))[1]
+    // Only the link to the top child, A, draws the stem from P's card; the
+    // others start at the bar
+    expect(start('B')).toBe(start('C'))
+    expect(start('A')).not.toBe(start('B'))
+    // The outer links draw the bar, rounded into their child, and the link
+    // to the middle child only the line from the bar
+    expect(paths.get('A')).toMatch(/Q/)
+    expect(paths.get('C')).toMatch(/Q/)
+    expect(paths.get('B')).toMatch(/^M[^A-Z]+H[^A-Z]+$/)
+  })
+
+  it('dashes the lines that lead to children who are not birth children only', () => {
+    // P adopted A and has the birth children B, C and D; A and B lie above
+    // P, C and D below
+    const fP = {
+      handle: 'fP',
+      father_handle: 'P',
+      mother_handle: '',
+      child_ref_list: [
+        {ref: 'A', frel: 'Adopted', mrel: 'Birth'},
+        ...['B', 'C', 'D'].map(ref => ({ref, frel: 'Birth', mrel: 'Birth'})),
+      ],
+    }
+    const parent = new FamilyGraph([
+      person('P', {families: [fP]}),
+      ...['A', 'B', 'C', 'D'].map(handle => person(handle, {parentFamily: fP})),
+    ])
+    const chart = new TreeChart()
+    chart.update(layoutDescendants(parent, 'P', {depth: 2}), size)
+    const links = new Map(
+      [...chart.node.querySelectorAll('path.link')].map(path => [
+        path.__data__.target.handle,
+        path,
+      ])
+    )
+    const dashed = handle =>
+      links.get(handle).getAttribute('stroke-dasharray') !== null
+    expect(['A', 'B', 'C', 'D'].map(dashed)).toEqual([
+      true,
+      false,
+      false,
+      false,
+    ])
+    // B draws the bar from the stem, and A only the part beyond B
+    const y = handle => links.get(handle).__data__.target.y
+    const start = handle =>
+      /^M[^,]+,([^A-Z]+)/.exec(links.get(handle).getAttribute('d'))[1]
+    expect(Number(start('A'))).toBeCloseTo(y('B'))
+  })
+
+  it('dashes the line to an adoptive parent in an ancestor chart', () => {
+    // R is the adopted child of F and the birth child of M
+    const fAdopted = {
+      ...fR,
+      child_ref_list: [{ref: 'R', frel: 'Adopted', mrel: 'Birth'}],
+    }
+    const adopted = new FamilyGraph([
+      person('R', {parentFamily: fAdopted}),
+      person('F', {families: [fAdopted]}),
+      person('M', {families: [fAdopted]}),
+    ])
+    const chart = new TreeChart()
+    chart.update(layoutAncestors(adopted, 'R', {depth: 2}), size)
+    const dashes = Object.fromEntries(
+      [...chart.node.querySelectorAll('path.link')].map(path => [
+        path.__data__.target.handle,
+        path.getAttribute('stroke-dasharray'),
+      ])
+    )
+    expect(dashes).toEqual({F: '6 4', M: null})
   })
 
   it('clears people and links but keeps the zoom', () => {

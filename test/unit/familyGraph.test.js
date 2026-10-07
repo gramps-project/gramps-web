@@ -53,8 +53,33 @@ describe('FamilyGraph', () => {
     expect(graph.children('R')).toEqual(['A', 'B', 'C'])
   })
 
-  it('filters birth children by the relation to this parent', () => {
-    expect(graph.children('R', {birthOnly: true})).toEqual(['A'])
+  it('returns children with their relation to this parent', () => {
+    expect(graph.childRelations('R')).toEqual([
+      {handle: 'A', relation: 'Birth'},
+      {handle: 'B', relation: 'Adopted'},
+      {handle: 'C', relation: 'Foster'},
+    ])
+  })
+
+  it('returns the relation to each parent, Birth when unknown', () => {
+    expect(graph.parentRelations('R')).toEqual({
+      father: 'Birth',
+      mother: 'Birth',
+    })
+    const adopted = new FamilyGraph([
+      {
+        handle: 'B',
+        extended: {primary_parent_family: f1, families: []},
+      },
+    ])
+    expect(adopted.parentRelations('B')).toEqual({
+      father: 'Adopted',
+      mother: 'Birth',
+    })
+    expect(graph.parentRelations('S')).toEqual({
+      father: 'Birth',
+      mother: 'Birth',
+    })
   })
 
   it('returns no children for a person without families', () => {

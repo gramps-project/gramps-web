@@ -82,19 +82,35 @@ export class FamilyGraph {
     }
   }
 
-  // Returns the handles of the person's children in all families where they
-  // are a parent. With `birthOnly`, only children whose relation to this
-  // parent is Birth are included.
-  children(handle, {birthOnly = false} = {}) {
+  // Returns the relation of the person, such as Birth or Adopted, to the
+  // father and the mother of their primary parent family
+  parentRelations(handle) {
+    const family = this.person(handle)?.extended?.primary_parent_family
+    const childRef = family?.child_ref_list?.find(({ref}) => ref === handle)
+    return {
+      father: childRef?.frel || 'Birth',
+      mother: childRef?.mrel || 'Birth',
+    }
+  }
+
+  // Returns the person's children in all families where they are a parent,
+  // each with its `handle` and its `relation` to this parent
+  childRelations(handle) {
     return this.partnerFamilies(handle).flatMap(family => {
       const isFather = family.father_handle === handle
       if (!isFather && family.mother_handle !== handle) {
         return []
       }
-      const relationKey = isFather ? 'frel' : 'mrel'
-      return (family.child_ref_list || [])
-        .filter(childRef => !birthOnly || childRef[relationKey] === 'Birth')
-        .map(childRef => childRef.ref)
+      return (family.child_ref_list || []).map(childRef => ({
+        handle: childRef.ref,
+        relation: (isFather ? childRef.frel : childRef.mrel) || 'Birth',
+      }))
     })
+  }
+
+  // Returns the handles of the person's children in all families where they
+  // are a parent
+  children(handle) {
+    return this.childRelations(handle).map(child => child.handle)
   }
 }

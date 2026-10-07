@@ -1,11 +1,61 @@
 import {select} from 'd3-selection'
-import {curveBumpX, link} from 'd3-shape'
 import {mdiChevronLeft, mdiChevronRight} from '@mdi/js'
 import {fireEvent} from '../util.js'
 import {ChartCanvas, place} from './ChartCanvas.js'
+import {roundedPath, sameX} from './connectors.js'
 import {treeLayoutDefaults} from './layout/treeLayout.js'
 
 const {boxWidth, boxHeight} = treeLayoutDefaults
+
+const isBirth = link => link.relation === 'Birth'
+
+// Gives each link the parts it draws of the lines that the links of its
+// source on one side share, so that each part is drawn once. One link draws
+// the `stem` from the source, and on each side of the stem, the bar runs
+// from the stem to the furthest target. A line is dashed where all children
+// it leads to are not birth children, so the stem and the bar as far as the
+// furthest birth child are drawn by birth links where there are any: the
+// furthest birth link draws the bar from the stem, and the link to the
+// furthest target, if it is not a birth link, the rest of it. Where a link
+// draws a part of the bar, `bar` is how far below the source it starts, and
+// `outer` whether it ends at the furthest target, where its corner is
+// rounded.
+function withSharedParts(links) {
+  const groups = new Map()
+  for (const link of links) {
+    const side = Math.sign(link.target.x - link.source.x)
+    const key = `${link.source.key}:${side}`
+    if (!groups.has(key)) {
+      groups.set(key, [])
+    }
+    groups.get(key).push(link)
+  }
+  return [...groups.values()].flatMap(group => {
+    const parts = new Map(group.map(link => [link, {...link}]))
+    const [first] = group.filter(isBirth).length ? group.filter(isBirth) : group
+    parts.get(first).stem = true
+    for (const sign of [-1, 1]) {
+      // The links on this side of the stem, from the furthest target in
+      const offset = ({source, target}) => target.y - source.y
+      const side = group
+        .filter(link => sign * offset(link) > 0 && !sameX(offset(link), 0))
+        .sort((a, b) => sign * (offset(b) - offset(a)))
+      if (side.length === 0) {
+        continue
+      }
+      const [outer] = side
+      const solid = side.find(isBirth)
+      if (solid) {
+        parts.get(solid).bar = 0
+      }
+      if (solid !== outer) {
+        parts.get(outer).bar = solid ? offset(solid) : 0
+      }
+      parts.get(outer).outer = true
+    }
+    return [...parts.values()]
+  })
+}
 
 // Radius of the root person's menu button and its gap to the card, in pixels
 const menuButtonRadius = 20
@@ -71,7 +121,6 @@ function assignKey(keys, node, key) {
 export class TreeChart extends ChartCanvas {
   constructor() {
     super()
-    this._links.attr('stroke-opacity', 0.4)
     this._keys = new Map()
     this._root = undefined
   }
@@ -129,22 +178,44 @@ export class TreeChart extends ChartCanvas {
     return node.generation === 0
   }
 
+  drawnLinks(layout) {
+    return withSharedParts(layout.links)
+  }
+
   linkEnds(treeLink) {
     return [place(treeLink.source), place(treeLink.target)]
   }
 
-  // A link joins the facing sides of two boxes slightly inside their edges
-  linkPath([source, target]) {
+  // A link joins the facing sides of two boxes slightly inside their edges,
+  // turning at right angles in the middle of the gap between them. The links
+  // of one source on one side share the stem and the bar, which turns round
+  // into the lines to the furthest targets. Each link draws its own parts of
+  // them, so that no line is drawn twice, which would show darker edges.
+  linkPath([source, target], {stem, bar, outer}) {
     const inset = boxWidth / 2 - 10
     const direction = Math.sign(target[0] - source[0])
-    return link(curveBumpX)({
-      source: [source[0] + direction * inset, source[1]],
-      target: [target[0] - direction * inset, target[1]],
-    })
+    const [x0, y0] = [source[0] + direction * inset, source[1]]
+    const [x1, y1] = [target[0] - direction * inset, target[1]]
+    const middle = (x0 + x1) / 2
+    const stemPath = stem ? `M${x0},${y0}H${middle}` : ''
+    if (bar === undefined) {
+      return stemPath && sameX(y0, y1)
+        ? `${stemPath}H${x1}`
+        : `${stemPath}M${middle},${y1}H${x1}`
+    }
+    const from = [middle, y0 + bar]
+    const barPath = outer
+      ? roundedPath([from, [middle, y1], [x1, y1]])
+      : `M${from.join(',')}V${y1}H${x1}`
+    // The bar goes on from the end of the stem
+    return stemPath && bar === 0
+      ? `${stemPath}L${barPath.slice(1)}`
+      : `${stemPath}${barPath}`
   }
 
   styleLinks(links, palette) {
-    this._links.attr('stroke', palette.link)
+    this._links.attr('stroke', palette.link).attr('stroke-width', 1.5)
+    links.attr('stroke-dasharray', link => (isBirth(link) ? null : '6 4'))
   }
 
   drawExtras(nodes, options) {
