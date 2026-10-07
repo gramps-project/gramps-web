@@ -202,6 +202,56 @@ describe('relationshipDot', () => {
     // R is the second card of their group, below the gap between F and M
     expect(dot).toContain(`"${name('F')}":"g0":s -> "${name('R')}":"p1":n`)
   })
+
+  it('declares the edges of a group from where they leave it', () => {
+    // R's family with Z is a bracket that starts under Z's card, right of
+    // W's card, where W's child with an unfetched partner starts
+    const fRW = family('fRW', 'R', 'W')
+    const fRZ = family('fRZ', 'R', 'Z', [childRef('C1')])
+    const fWX = family('fWX', 'X', 'W', [childRef('C2')])
+    const tree = new FamilyGraph([
+      person('R', {families: [fRS, fRT, fRW, fRZ]}),
+      person('S', {families: [fRS]}),
+      person('T', {families: [fRT]}),
+      person('W', {families: [fRW, fWX]}),
+      person('Z', {families: [fRZ]}),
+      person('C1', {primary_parent_family: fRZ}),
+      person('C2', {primary_parent_family: fWX}),
+    ])
+    const model = relationshipModel(tree)
+    expect(model.groupOfPerson.get('R').members).toEqual([
+      'S',
+      'R',
+      'T',
+      'W',
+      'Z',
+    ])
+    const dot = relationshipDot(model)
+    const name = handle => `group${model.groupOfPerson.get(handle).index}`
+    const edgeTo = handle => dot.indexOf(`-> "${name(handle)}"`)
+    expect(edgeTo('C2')).toBeLessThan(edgeTo('C1'))
+  })
+
+  it('declares children in order below a group that links to itself', () => {
+    // M marries the widow W and later her daughter D
+    const fHW = family('fHW', 'H', 'W', [childRef('D')])
+    const fMW = family('fMW', 'M', 'W', [childRef('E1'), childRef('E2')])
+    const fMD = family('fMD', 'M', 'D')
+    const tree = new FamilyGraph([
+      person('E2', {primary_parent_family: fMW}),
+      person('E1', {primary_parent_family: fMW}),
+      person('H', {families: [fHW]}),
+      person('W', {families: [fHW, fMW]}),
+      person('M', {families: [fMW, fMD]}),
+      person('D', {primary_parent_family: fHW, families: [fMD]}),
+    ])
+    const model = relationshipModel(tree)
+    const dot = relationshipDot(model)
+    const node = handle =>
+      dot.indexOf(`"group${model.groupOfPerson.get(handle).index}" [label`)
+    expect(node('W')).toBeLessThan(node('E1'))
+    expect(node('E1')).toBeLessThan(node('E2'))
+  })
 })
 
 describe('layoutRelationships', () => {
@@ -323,6 +373,28 @@ describe('layoutRelationships', () => {
     const node = key => layout.nodes.find(n => n.key === key)
     expect(node('person:F').y).toBeLessThan(node('person:R').y)
     expect(node('person:R').y).toBeLessThan(node('person:K').y)
+  })
+
+  it('draws children in the order of their family, whatever the fetch order', async () => {
+    const children = ['C1', 'C2', 'C3', 'C4']
+    const fP = family(
+      'fP',
+      'P',
+      'Q',
+      children.map(c => childRef(c))
+    )
+    const tree = new FamilyGraph([
+      ...[...children]
+        .reverse()
+        .map(c => person(c, {primary_parent_family: fP})),
+      person('P', {families: [fP]}),
+      person('Q', {families: [fP]}),
+    ])
+    const layout = await layoutRelationships(tree, 'P')
+    const x = handle =>
+      layout.nodes.find(node => node.key === `person:${handle}`).x
+    const xs = children.map(x)
+    expect(xs).toEqual([...xs].sort((a, b) => a - b))
   })
 
   it('links children with their relation', async () => {
