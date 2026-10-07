@@ -1130,8 +1130,10 @@ export class GrampsJs extends LitElement {
     }
   }
 
+  // Goes to `path`, which adds an entry to the browser history, or with
+  // `replace`, replaces the current one
   _handleNav(e) {
-    const {path} = e.detail
+    const {path, replace = false} = e.detail
     const page = path.split('/')[0]
     const pageId = path.split('/')[1]
     const pageId2 = path.split('/')[2]
@@ -1143,7 +1145,11 @@ export class GrampsJs extends LitElement {
     ) {
       const href = `${BASE_DIR}/${path}`
       this._loadPage(href)
-      window.history.pushState({}, '', href)
+      if (replace) {
+        window.history.replaceState({}, '', href)
+      } else {
+        window.history.pushState({}, '', href)
+      }
       this._disableEditMode()
     }
   }

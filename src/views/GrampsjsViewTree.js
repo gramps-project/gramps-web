@@ -50,6 +50,7 @@ import {
   DEFAULT_TREE_VIEW,
   TREE_VIEWS,
   getTreeViewTabIndex,
+  treeViewPath,
 } from '../treeDefaults.js'
 
 // Zoom factor of one zoom step, distance of one pan step in pixels, and the
@@ -325,6 +326,9 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   willUpdate(changed) {
     super.willUpdate(changed)
+    if (this.active) {
+      this._readPath()
+    }
     // The history gets each newly selected person, also one selected while
     // the view was not active
     if (this.grampsId && this.grampsId !== this._history.at(-1)) {
@@ -348,9 +352,6 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   update(changed) {
     super.update(changed)
-    if (this.active && (changed.has('active') || changed.has('settings'))) {
-      this._applyPreferredTabIfNeeded()
-    }
     // A chart that changed during this update fetches in the next one
     if (this.chart === this._dataChart) {
       this._fetchIfNeeded()
@@ -359,6 +360,9 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   updated(changed) {
     super.updated(changed)
+    if (this.active) {
+      this._completePath()
+    }
     if (changed.has('_currentTabId')) {
       fireEvent(this, 'edit-mode:off', {})
     }
@@ -431,7 +435,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _handleTabChange(e) {
-    this._currentTabId = getTreeViewTabIndex(e.detail.value)
+    this._navigate(e.detail.value, this.grampsId)
   }
 
   // A segmented control to switch between the charts
@@ -867,12 +871,44 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _prevPerson() {
-    this._history.pop()
-    this.grampsId = this._history.pop()
+    this._history = this._history.slice(0, -1)
+    this._navigate(this.chart, this._history.at(-1))
   }
 
   _backToHomePerson() {
-    this.grampsId = this.settings.homePerson
+    this._navigate(this.chart, this.settings.homePerson)
+  }
+
+  // Shows `grampsId` in `chart` by going to its URL, which adds an entry to
+  // the browser history, or with `replace`, replaces the current one
+  _navigate(chart, grampsId, replace = false) {
+    fireEvent(this, 'nav', {path: treeViewPath(chart, grampsId), replace})
+  }
+
+  // Reads the chart and the person from the URL, /tree/<chart>/<grampsId>. A
+  // part the URL leaves out keeps what the view shows, which at first is the
+  // preferred chart and the home person. The preferred chart is also used
+  // when it changes while the URL names no chart.
+  _readPath() {
+    const {pageId, pageId2} = this.appState?.path ?? {}
+    const preferredView = this.settings?.treeDefaultView ?? DEFAULT_TREE_VIEW
+    if (TREE_VIEWS.includes(pageId)) {
+      this._currentTabId = getTreeViewTabIndex(pageId)
+      this._appliedTreeDefaultView = preferredView
+    } else if (preferredView !== this._appliedTreeDefaultView) {
+      this._currentTabId = getTreeViewTabIndex(preferredView)
+      this._appliedTreeDefaultView = preferredView
+    }
+    this.grampsId = pageId2 || this.grampsId || this.settings?.homePerson || ''
+  }
+
+  // Replaces a URL that does not name the shown chart and person with one
+  // that does
+  _completePath() {
+    const {pageId = '', pageId2 = ''} = this.appState?.path ?? {}
+    if (pageId !== this.chart || pageId2 !== this.grampsId) {
+      this._navigate(this.chart, this.grampsId, true)
+    }
   }
 
   // Opens the page of the person shown below the controls bar, who is the
@@ -882,21 +918,15 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     fireEvent(this, 'nav', {path: `person/${grampsId}`})
   }
 
-  _applyPreferredTabIfNeeded() {
-    const preferredView = this.settings?.treeDefaultView ?? DEFAULT_TREE_VIEW
-    if (preferredView === this._appliedTreeDefaultView) {
-      return
-    }
-    const preferredIndex = getTreeViewTabIndex(preferredView)
-    this._appliedTreeDefaultView = preferredView
-    if (this._currentTabId !== preferredIndex) {
-      this._currentTabId = preferredIndex
-    }
-  }
-
-  async _selectPerson(event) {
+  // A person selected while the view is not active, such as from a person's
+  // page, is shown when the view is next opened without a person in the URL
+  _selectPerson(event) {
     const {grampsId} = event.detail
-    this.grampsId = grampsId
+    if (this.active) {
+      this._navigate(this.chart, grampsId)
+    } else {
+      this.grampsId = grampsId
+    }
   }
 }
 

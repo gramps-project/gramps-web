@@ -15,3 +15,9 @@ export function getTreeViewTabIndex(view) {
   }
   return TREE_VIEWS.indexOf(DEFAULT_TREE_VIEW)
 }
+
+// The app path of the tree view showing `grampsId` in `chart`, without the
+// person when there is none
+export function treeViewPath(chart, grampsId) {
+  return ['tree', chart, grampsId].filter(Boolean).join('/')
+}
