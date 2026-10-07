@@ -104,7 +104,7 @@ describe('RelationshipChart', () => {
     expect(dashed.map(path => path.__data__.source.key)).toEqual(['family:fA'])
   })
 
-  it('starts the links of a family at its marker', async () => {
+  it('starts the trunk of a family at its marker', async () => {
     const chart = new RelationshipChart()
     chart.update(await layoutRelationships(graph, 'R'), size)
     const marker = nodeWithKey(chart, 'family:fRT')
@@ -112,9 +112,9 @@ describe('RelationshipChart', () => {
     const ring = marker.querySelector('circle.married')
     const [cx, cy] = ['cx', 'cy'].map(name => Number(ring.getAttribute(name)))
     const link = [...chart.node.querySelectorAll('path.link')].find(
-      path => path.__data__.source.key === 'family:fRT'
+      path => path.__data__.key === 'trunk:family:fRT'
     )
-    const [, startX, startY] = /^M([^,]+),([^C]+)/.exec(link.getAttribute('d'))
+    const [, startX, startY] = /^M([^,]+),([^V]+)/.exec(link.getAttribute('d'))
     expectClose([Number(startX), Number(startY)], [x + cx, y + cy])
   })
 
@@ -212,9 +212,9 @@ describe('RelationshipChart', () => {
     const ring = marker.querySelector('circle.married')
     const [cx, cy] = ['cx', 'cy'].map(name => Number(ring.getAttribute(name)))
     const link = [...chart.node.querySelectorAll('path.link')].find(
-      path => path.__data__.source.key === 'family:fRW'
+      path => path.__data__.key === 'trunk:family:fRW'
     )
-    const [, startX, startY] = /^M([^,]+),([^C]+)/.exec(link.getAttribute('d'))
+    const [, startX, startY] = /^M([^,]+),([^V]+)/.exec(link.getAttribute('d'))
     expectClose([Number(startX), Number(startY)], [x + cx, y + cy])
     expect(brackets[0].getAttribute('d')).toContain(`V${cy}`)
   })
@@ -244,9 +244,11 @@ describe('RelationshipChart', () => {
     const [h] = translateOf(nodeWithKey(chart, 'person:H'))
     expect(d).toBeGreaterThan(h)
     // Up from the marker, across above the cards and down into D's card
-    expect(link.getAttribute('d')).toMatch(
-      new RegExp(`^M[^,]+,35V-65H${d}V-45$`)
-    )
+    const numbers = /^M[^,]+,([^V]+)V([^H]+)H([^V]+)V(.+)$/
+      .exec(link.getAttribute('d'))
+      .slice(1)
+      .map(Number)
+    expectClose(numbers, [35, -65, d, -45])
   })
 
   it('keeps one link from a single parent of several families', async () => {
@@ -259,15 +261,79 @@ describe('RelationshipChart', () => {
     ])
     const chart = new RelationshipChart()
     chart.update(await layoutRelationships(single, 'M'), size)
-    const [link, ...others] = chart.node.querySelectorAll('path.link')
+    const branches = () =>
+      [...chart.node.querySelectorAll('path.link')].filter(
+        path => path.__data__.kind === 'child'
+      )
+    const [link, ...others] = branches()
     expect(others).toHaveLength(0)
     expect(link.getAttribute('stroke-dasharray')).toBeNull()
     chart.update(await layoutRelationships(single, 'C'), {
       ...size,
       duration: 100,
     })
-    expect([...chart.node.querySelectorAll('path.link')]).toEqual([link])
+    expect(branches()).toHaveLength(1)
     select(chart.node).selectAll('*').interrupt()
+  })
+
+  it('fades the links of a new layout in while the old ones fade out', async () => {
+    const chart = new RelationshipChart()
+    chart.update(await layoutRelationships(graph, 'R'), size)
+    const before = [...chart.node.querySelectorAll('path.link')]
+    chart.update(await layoutRelationships(graph, 'K'), {
+      ...size,
+      duration: 100,
+    })
+    const after = [...chart.node.querySelectorAll('path.link')]
+    expect(after.length).toBe(before.length)
+    expect(after.some(path => before.includes(path))).toBe(false)
+    // The old links stay until they have faded out
+    expect(before.every(path => path.parentNode !== null)).toBe(true)
+    expect(after.every(path => path.style.opacity === '0')).toBe(true)
+    select(chart.node).selectAll('*').interrupt()
+  })
+
+  it('draws the bar of a family once and dashes only the line to an adopted child', async () => {
+    // F and M have a birth child B and an adopted child A
+    const fFM = family('fFM', 'F', 'M', [
+      childRef('B'),
+      childRef('A', 'Adopted', 'Adopted'),
+    ])
+    const chart = new RelationshipChart()
+    chart.update(
+      await layoutRelationships(
+        new FamilyGraph([
+          person('F', {families: [fFM]}),
+          person('M', {families: [fFM]}),
+          person('B', {primary_parent_family: fFM}),
+          person('A', {primary_parent_family: fFM}),
+        ]),
+        'F'
+      ),
+      size
+    )
+    const paths = [...chart.node.querySelectorAll('path.link')]
+    const kinds = paths.map(path => path.__data__.kind).sort()
+    expect(kinds).toEqual(['child', 'child', 'trunk'])
+    const trunk = paths.find(path => path.__data__.kind === 'trunk')
+    expect(trunk.getAttribute('stroke-dasharray')).toBeNull()
+    // The trunk's bar spans both children
+    const [, barY, left, right] = /^M[^,]+,[^V]+V([^M]+)M([^,]+),[^H]+H(.+)$/
+      .exec(trunk.getAttribute('d'))
+      .map(Number)
+    const childX = key => translateOf(nodeWithKey(chart, key))[0]
+    expectClose(
+      [left, right],
+      [
+        Math.min(childX('person:A'), childX('person:B')),
+        Math.max(childX('person:A'), childX('person:B')),
+      ]
+    )
+    // The dashed line starts on the bar
+    const adopted = paths.find(path => path.__data__.target?.key === 'person:A')
+    expect(adopted.getAttribute('stroke-dasharray')).not.toBeNull()
+    const [, startY] = /^M[^,]+,([^V]+)/.exec(adopted.getAttribute('d'))
+    expect(Number(startY)).toBeCloseTo(barY)
   })
 
   it('fits the whole chart into the view when asked', async () => {

@@ -36,11 +36,14 @@ export const place = node => [node.x, node.y]
 // - `isRootPerson(node)`: whether the node is the root person's card, which
 //   gets a shadow.
 // - `linkEnds(link)`: the start and end of a link, which move with its source
-//   and target node, and `linkPath(ends)`: the path between them.
+//   and target node, and `linkPath(ends, link)`: the path of the link between
+//   them.
 // - `styleLinks(links, palette)`: the stroke of the links.
 // - Optionally `drawnNodes(layout)` and `drawnLinks(layout)`: the nodes and
-//   links to draw, `isPerson(node)`, and `drawExtras(nodes, options)`: whatever
-//   else the nodes show.
+//   links to draw, `isPerson(node)`, `drawExtras(nodes, options)`: whatever
+//   else the nodes show, and `fadesLinks`: whether the links of a new layout
+//   fade in where they end up, while the old ones fade out, instead of moving
+//   with their nodes.
 export class ChartCanvas {
   constructor() {
     this._svg = create('svg')
@@ -160,22 +163,31 @@ export class ChartCanvas {
 
   drawExtras() {}
 
+  get fadesLinks() {
+    return false
+  }
+
   _joinLinks(layout, {previous, shift, duration}, palette) {
+    const fade = duration > 0 && this.fadesLinks
     const links = joinWithTransitions(
       this._links,
       '.link',
       this.drawnLinks(layout),
       {
         key: link => this.linkKey(link),
+        // Fading links all leave and enter again
+        previousKey: fade ? () => undefined : undefined,
         enter: enter => enter.append('path').attr('class', 'link'),
         exit: exit =>
-          exit.attr('d', link => this.linkPath(this.linkEnds(link).map(shift))),
+          exit.attr('d', link =>
+            this.linkPath(this.linkEnds(link).map(shift), link)
+          ),
         duration,
       }
     )
     this.styleLinks(links, palette)
 
-    if (duration > 0) {
+    if (duration > 0 && !fade) {
       // The ends of a link move with the nodes they belong to
       const startOf = (point, node) => {
         const [x, y] = previous(this.nodeKey(node), place(node))
@@ -188,10 +200,10 @@ export class ChartCanvas {
           const [start, end] = this.linkEnds(link)
           const from = interpolatePoint(startOf(start, link.source), start)
           const to = interpolatePoint(startOf(end, link.target), end)
-          return t => this.linkPath([from(t), to(t)])
+          return t => this.linkPath([from(t), to(t)], link)
         })
     } else {
-      links.attr('d', link => this.linkPath(this.linkEnds(link)))
+      links.attr('d', link => this.linkPath(this.linkEnds(link), link))
     }
   }
 
