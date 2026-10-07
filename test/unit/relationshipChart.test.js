@@ -79,20 +79,19 @@ describe('RelationshipChart', () => {
     chart.update(await layoutRelationships(graph, 'R'), size)
     const people = [...chart.node.querySelectorAll('.node.person')]
     expect(people.map(node => node.__data__.key).sort()).toEqual([
-      'fA:A1',
-      'fA:A2',
-      'fFM:F',
-      'fFM:M',
-      'fRS:R',
-      'fRS:S',
-      'fRT:R',
-      'fRT:T',
-      'p_K:K',
-      'p_L:L',
+      'person:A1',
+      'person:A2',
+      'person:F',
+      'person:K',
+      'person:L',
+      'person:M',
+      'person:R',
+      'person:S',
+      'person:T',
     ])
     expect(
       people.filter(node => node.style.filter).map(node => node.__data__.key)
-    ).toEqual(['fRS:R', 'fRT:R'])
+    ).toEqual(['person:R'])
     expect(people.every(node => node.querySelector('text'))).toBe(true)
   })
 
@@ -102,10 +101,7 @@ describe('RelationshipChart', () => {
     const dashed = [...chart.node.querySelectorAll('path.link')].filter(path =>
       path.getAttribute('stroke-dasharray')
     )
-    expect(dashed.map(path => path.__data__.source.key)).toEqual([
-      'family:fA',
-      'family:fA',
-    ])
+    expect(dashed.map(path => path.__data__.source.key)).toEqual(['family:fA'])
   })
 
   it('starts the links of a family at its marker', async () => {
@@ -135,8 +131,8 @@ describe('RelationshipChart', () => {
         x + Number(box.getAttribute('x')) + Number(box.getAttribute('width')),
       ]
     }
-    const [, leftEnd] = edges('fRT:R')
-    const [rightStart] = edges('fRT:T')
+    const [, leftEnd] = edges('person:R')
+    const [rightStart] = edges('person:T')
     const marker = nodeWithKey(chart, 'family:fRT')
     const cx = Number(marker.querySelector('circle.married').getAttribute('cx'))
     expect(translateOf(marker)[0] + cx).toBeCloseTo((leftEnd + rightStart) / 2)
@@ -155,28 +151,28 @@ describe('RelationshipChart', () => {
     const chart = new RelationshipChart()
     const layout = await layoutRelationships(graph, 'R')
     chart.update(layout, size)
-    const node = nodeWithKey(chart, 'fRT:T')
+    const node = nodeWithKey(chart, 'person:T')
     const text = node.querySelector('text')
     chart.update(layout, {...size, bboxWidth: 2000})
-    expect(nodeWithKey(chart, 'fRT:T')).toBe(node)
+    expect(nodeWithKey(chart, 'person:T')).toBe(node)
     expect(node.querySelector('text')).toBe(text)
   })
 
-  it('keeps the clicked node of a person with several families in place', async () => {
+  it('keeps the clicked person in place', async () => {
     const chart = new RelationshipChart()
     chart.update(await layoutRelationships(graph, 'F'), size)
-    const before = viewPosition(chart, 'fRT:R')
-    click(nodeWithKey(chart, 'fRT:R'))
-    chart.update(await layoutRelationships(graph, 'R'), size)
-    expectClose(viewPosition(chart, 'fRT:R'), before)
+    const before = viewPosition(chart, 'person:T')
+    click(nodeWithKey(chart, 'person:T'))
+    chart.update(await layoutRelationships(graph, 'T'), size)
+    expectClose(viewPosition(chart, 'person:T'), before)
   })
 
-  it('keeps the first visible node of a new root person in place', async () => {
+  it('keeps a new root person in place', async () => {
     const chart = new RelationshipChart()
     chart.update(await layoutRelationships(graph, 'F'), size)
-    const before = viewPosition(chart, 'fRS:R')
+    const before = viewPosition(chart, 'person:R')
     chart.update(await layoutRelationships(graph, 'R'), size)
-    expectClose(viewPosition(chart, 'fRS:R'), before)
+    expectClose(viewPosition(chart, 'person:R'), before)
   })
 
   it('keeps the root person in place when new data puts them in a family', async () => {
@@ -186,10 +182,71 @@ describe('RelationshipChart', () => {
       graph.people().filter(p => !['S', 'T', 'K', 'L'].includes(p.handle))
     )
     chart.update(await layoutRelationships(withoutPartners, 'R'), size)
-    const before = viewPosition(chart, 'p_R:R')
+    const node = nodeWithKey(chart, 'person:R')
+    const before = viewPosition(chart, 'person:R')
     chart.update(await layoutRelationships(graph, 'R'), size)
-    expect(nodeWithKey(chart, 'p_R:R')).toBeUndefined()
-    expectClose(viewPosition(chart, 'fRS:R'), before)
+    expect(nodeWithKey(chart, 'person:R')).toBe(node)
+    expectClose(viewPosition(chart, 'person:R'), before)
+  })
+
+  it('joins partners who are not next to each other with a bracket', async () => {
+    const fRW = family('fRW', 'R', 'W', [childRef('N')])
+    const more = new FamilyGraph([
+      ...graph.people().filter(p => p.handle !== 'R'),
+      person('R', {
+        primary_parent_family: fFM,
+        parent_families: [fFM, fA],
+        families: [fRS, fRT, fRW],
+      }),
+      person('W', {families: [fRW]}),
+      person('N', {primary_parent_family: fRW}),
+    ])
+    const chart = new RelationshipChart()
+    chart.update(await layoutRelationships(more, 'R'), size)
+    const brackets = [...chart.node.querySelectorAll('path.bracket')]
+    expect(brackets.map(path => path.parentNode.__data__.key)).toEqual([
+      'family:fRW',
+    ])
+    const marker = nodeWithKey(chart, 'family:fRW')
+    const [x, y] = translateOf(marker)
+    const ring = marker.querySelector('circle.married')
+    const [cx, cy] = ['cx', 'cy'].map(name => Number(ring.getAttribute(name)))
+    const link = [...chart.node.querySelectorAll('path.link')].find(
+      path => path.__data__.source.key === 'family:fRW'
+    )
+    const [, startX, startY] = /^M([^,]+),([^C]+)/.exec(link.getAttribute('d'))
+    expectClose([Number(startX), Number(startY)], [x + cx, y + cy])
+    expect(brackets[0].getAttribute('d')).toContain(`V${cy}`)
+  })
+
+  it('draws an arch to a child in the same row as the parents', async () => {
+    // M marries the widow W and later her daughter D
+    const fHW = family('fHW', 'H', 'W', [childRef('D')])
+    const fMW = family('fMW', 'M', 'W', [])
+    const fMD = family('fMD', 'M', 'D', [])
+    const chart = new RelationshipChart()
+    chart.update(
+      await layoutRelationships(
+        new FamilyGraph([
+          person('H', {families: [fHW]}),
+          person('W', {families: [fHW, fMW]}),
+          person('M', {families: [fMW, fMD]}),
+          person('D', {primary_parent_family: fHW, families: [fMD]}),
+        ]),
+        'M'
+      ),
+      size
+    )
+    const link = [...chart.node.querySelectorAll('path.link')].find(
+      path => path.__data__.source.key === 'family:fHW'
+    )
+    const [d] = translateOf(nodeWithKey(chart, 'person:D'))
+    const [h] = translateOf(nodeWithKey(chart, 'person:H'))
+    expect(d).toBeGreaterThan(h)
+    // Up from the marker, across above the cards and down into D's card
+    expect(link.getAttribute('d')).toMatch(
+      new RegExp(`^M[^,]+,35V-65H${d}V-45$`)
+    )
   })
 
   it('fits the whole chart into the view when asked', async () => {
@@ -212,7 +269,7 @@ describe('RelationshipChart', () => {
       ...size,
       interactive: false,
     })
-    const root = nodeWithKey(chart, 'fRS:R')
+    const root = nodeWithKey(chart, 'person:R')
     expect(root.style.filter).toBe('')
     const selected = []
     root.addEventListener('pedigree:person-selected', e =>

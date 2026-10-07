@@ -9,7 +9,7 @@ vi.mock('@hpcc-js/wasm', () => ({Graphviz: {load: vi.fn()}}))
 const graph = new FamilyGraph([{handle: 'X', gramps_id: 'I_X'}])
 const output = {
   bb: '0,0,20,10',
-  objects: [{name: 'node_p_XxX', pos: '10,5'}],
+  objects: [{name: 'group0', pos: '10,5'}],
   edges: [],
 }
 
