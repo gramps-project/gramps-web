@@ -1,6 +1,7 @@
 import {describe, it, expect} from 'vitest'
 import {FamilyGraph} from '../../src/charts/model/FamilyGraph.js'
 import {
+  archHeight,
   layoutRelationships,
   relationshipDot,
   relationshipModel,
@@ -52,31 +53,120 @@ const graph = new FamilyGraph(people)
 
 describe('relationshipModel', () => {
   const model = relationshipModel(graph)
-  const cluster = key => model.clusters.find(c => c.key === key)
+  const groupOf = handle => model.groupOfPerson.get(handle)
 
-  it('gives each family a cluster with its known partners', () => {
-    expect(cluster('fRS').members).toEqual(['R', 'S'])
-    expect(cluster('fFM').members).toEqual(['F', 'M'])
-    expect(cluster('fA').members).toEqual(['A1', 'A2'])
-    expect(cluster('fTV').members).toEqual(['V', 'T'])
-    expect(cluster('p_X').members).toEqual(['X'])
+  it('puts partners, and partners of partners, into one group', () => {
+    expect(groupOf('R').members).toEqual(['S', 'R', 'T', 'V'])
+    expect(groupOf('F').members).toEqual(['F', 'M'])
+    expect(groupOf('A2').members).toEqual(['A1', 'A2'])
+    expect(groupOf('X').members).toEqual(['X'])
+    expect(model.groups.flatMap(group => group.members).sort()).toEqual(
+      people.map(p => p.handle).sort()
+    )
   })
 
-  it('puts a person in one cluster per family', () => {
-    expect([...model.clustersOfPerson.get('R')]).toEqual(['fRS', 'fRT'])
-    expect([...model.clustersOfPerson.get('T')]).toEqual(['fRT', 'fTV'])
+  it('places each family in the gap between its partners', () => {
+    expect(
+      groupOf('R').families.map(({family, left, right, adjacent}) => [
+        family.handle,
+        left,
+        right,
+        adjacent,
+      ])
+    ).toEqual([
+      ['fRS', 0, 1, true],
+      ['fRT', 1, 2, true],
+      ['fTV', 2, 3, true],
+    ])
+  })
+
+  it('puts a person with three partners between the first and the others', () => {
+    const fRW = family('fRW', 'R', 'W')
+    const more = new FamilyGraph([
+      person('R', {families: [fRS, fRT, fRW]}),
+      person('S', {families: [fRS]}),
+      person('T', {families: [fRT]}),
+      person('W', {families: [fRW]}),
+    ])
+    const [group] = relationshipModel(more).groups
+    expect(group.members).toEqual(['S', 'R', 'T', 'W'])
+    expect(group.families.find(f => f.family === fRW)).toMatchObject({
+      left: 1,
+      right: 3,
+      adjacent: false,
+    })
+  })
+
+  it('orders partners by the family list, whoever is fetched first', () => {
+    const fRW = family('fRW', 'R', 'W')
+    const more = new FamilyGraph([
+      person('W', {families: [fRW]}),
+      person('T', {families: [fRT]}),
+      person('R', {families: [fRS, fRT, fRW]}),
+      person('S', {families: [fRS]}),
+    ])
+    expect(relationshipModel(more).groups[0].members).toEqual([
+      'S',
+      'R',
+      'T',
+      'W',
+    ])
+  })
+
+  it('puts the marker of a bracket under the partner with fewer partners', () => {
+    const fRW = family('fRW', 'R', 'W')
+    const more = new FamilyGraph([
+      person('R', {families: [fRS, fRT, fRW]}),
+      person('S', {families: [fRS]}),
+      person('T', {families: [fRT]}),
+      person('W', {families: [fRW]}),
+    ])
+    const [group] = relationshipModel(more).groups
+    expect(group.families.find(f => f.family === fRW).outer).toBe(3)
+  })
+
+  it('links a child once from a single parent of several families', () => {
+    // C is M's birth child without a known father, and M's stepchild with
+    // an unfetched husband; F is fostered and then adopted by M
+    const fA = family('fA', undefined, 'M', [childRef('C')])
+    const fB = family('fB', 'X', 'M', [
+      childRef('C', 'Stepchild', 'Birth'),
+      childRef('F', 'Adopted', 'Adopted'),
+    ])
+    const fF = family('fF', 'Y', 'M', [childRef('F', 'Foster', 'Foster')])
+    const single = new FamilyGraph([
+      person('M', {families: [fA, fB, fF]}),
+      person('C', {primary_parent_family: fA, parent_families: [fA, fB]}),
+      person('F', {primary_parent_family: fF, parent_families: [fF, fB]}),
+    ])
+    expect(
+      relationshipModel(single).edges.map(
+        ({fromPerson, toPerson, relation}) => [fromPerson, toPerson, relation]
+      )
+    ).toEqual([
+      ['M', 'C', 'Birth'],
+      ['M', 'F', 'Foster'],
+    ])
+  })
+
+  it('puts the father of a single couple on the left', () => {
+    const fPQ = family('fPQ', 'P', 'Q')
+    const couple = new FamilyGraph([
+      person('Q', {families: [fPQ]}),
+      person('P', {families: [fPQ]}),
+    ])
+    expect(relationshipModel(couple).groups[0].members).toEqual(['P', 'Q'])
   })
 
   it('links children from all parent families with their relation', () => {
-    const childEdges = model.edges
-      .filter(edge => edge.kind === 'child')
-      .map(({familyKey, fromPerson, toPerson, relation}) => [
-        familyKey,
+    expect(
+      model.edges.map(({family, fromPerson, toPerson, relation}) => [
+        family?.handle,
         fromPerson,
         toPerson,
         relation,
       ])
-    expect(childEdges).toEqual([
+    ).toEqual([
       ['fFM', undefined, 'R', 'Birth'],
       ['fA', undefined, 'R', 'Adopted'],
       ['fRS', undefined, 'K', 'Birth'],
@@ -93,42 +183,30 @@ describe('relationshipModel', () => {
     ])
     const [edge] = relationshipModel(halfKnown).edges
     expect(edge).toMatchObject({
-      familyKey: 'fP',
+      family: undefined,
       fromPerson: 'P',
       toPerson: 'C',
     })
   })
-
-  it('gives a placeholder parent to people without known parents in several families', () => {
-    expect(cluster('p_fakeparentT')).toMatchObject({
-      members: ['fakeparentT'],
-      placeholder: true,
-    })
-    expect(model.edges.filter(edge => edge.kind === 'placeholder')).toEqual([
-      {
-        familyKey: 'p_fakeparentT',
-        fromPerson: 'fakeparentT',
-        toPerson: 'T',
-        kind: 'placeholder',
-      },
-    ])
-    expect(cluster('p_fakeparentS')).toBeUndefined()
-  })
 })
 
 describe('relationshipDot', () => {
-  it('links a child to each of its nodes', () => {
-    const dot = relationshipDot(relationshipModel(graph))
-    expect(dot).toContain('"node_fFM" -> "node_fRSxR"')
-    expect(dot).toContain('"node_fFM" -> "node_fRTxR"')
+  it('makes one node per partner group and links children to their card', () => {
+    const model = relationshipModel(graph)
+    const dot = relationshipDot(model)
+    expect(dot.match(/\[label=</g)).toHaveLength(model.groups.length)
+    expect(dot).not.toContain('cluster')
+    const name = handle => `group${model.groupOfPerson.get(handle).index}`
+    // R is the second card of their group, below the gap between F and M
+    expect(dot).toContain(`"${name('F')}":"g0":s -> "${name('R')}":"p1":n`)
   })
 })
 
 describe('layoutRelationships', () => {
-  it('places the first node of the root person at the origin', async () => {
+  it('places the root person at the origin', async () => {
     const layout = await layoutRelationships(graph, 'R')
     expect(layout.root).toMatchObject({kind: 'person', handle: 'R', x: 0, y: 0})
-    expect(layout.root.key).toBe('fRS:R')
+    expect(layout.root.key).toBe('person:R')
     expect(layout.root.person).toBe(graph.person('R'))
   })
 
@@ -147,39 +225,119 @@ describe('layoutRelationships', () => {
     })
   })
 
-  it('returns person, family and placeholder nodes', async () => {
+  it('returns one node per person and one per family', async () => {
     const layout = await layoutRelationships(graph, 'R')
-    const kinds = kind => layout.nodes.filter(node => node.kind === kind)
-    expect(kinds('person').filter(node => node.handle === 'R')).toHaveLength(2)
-    expect(kinds('family').map(node => node.key)).toContain('family:fA')
-    expect(kinds('placeholder').map(node => node.key)).toEqual([
-      'placeholder:fakeparentT',
+    const keys = kind =>
+      layout.nodes.filter(node => node.kind === kind).map(node => node.key)
+    expect(keys('person').sort()).toEqual(
+      people.map(p => `person:${p.handle}`).sort()
+    )
+    expect(keys('family').sort()).toEqual([
+      'family:fA',
+      'family:fFM',
+      'family:fRS',
+      'family:fRT',
+      'family:fTV',
     ])
-    expect(kinds('person').find(node => node.handle === 'X')).toBeDefined()
+  })
+
+  it('draws partners side by side with their family between them', async () => {
+    const layout = await layoutRelationships(graph, 'R')
+    const node = key => layout.nodes.find(n => n.key === key)
+    const [s, r, t] = ['person:S', 'person:R', 'person:T'].map(node)
+    expect(s.y).toBe(r.y)
+    expect(t.y).toBe(r.y)
+    expect(r.x - s.x).toBeCloseTo(t.x - r.x)
+    expect(r.x - s.x).toBeGreaterThan(190)
+    expect(node('family:fRT')).toMatchObject({x: (r.x + t.x) / 2, y: r.y})
+  })
+
+  it('joins partners who are not next to each other with a bracket', async () => {
+    const fRW = family('fRW', 'R', 'W', [childRef('N')])
+    const more = new FamilyGraph([
+      person('R', {families: [fRS, fRT, fRW]}),
+      person('S', {families: [fRS]}),
+      person('T', {families: [fRT]}),
+      person('W', {families: [fRW]}),
+      person('N', {primary_parent_family: fRW}),
+    ])
+    const layout = await layoutRelationships(more, 'R')
+    const node = key => layout.nodes.find(n => n.key === key)
+    const marker = node('family:fRW')
+    // The bracket runs from R's card to the marker under the left part of
+    // W's card
+    const {left, right, top} = marker.bracket
+    expect(marker.x + left).toBeCloseTo(0)
+    expect(marker.x + right).toBeCloseTo(node('person:W').x - 190 / 4)
+    expect(marker.y + top).toBeCloseTo(45)
+    expect(marker.y).toBeGreaterThan(0)
+    expect(node('family:fRT').bracket).toBeUndefined()
+    expect(node('person:N').y).toBeGreaterThan(marker.y)
+  })
+
+  it('makes room for brackets below the bottom row', async () => {
+    // R has four wives and is in the bottom row with a sister
+    const fP = family('fP', 'F', 'M', [childRef('R'), childRef('Q')])
+    const wives = ['S', 'T', 'W', 'Z']
+    const fams = wives.map(wife => family(`fR${wife}`, 'R', wife))
+    const more = new FamilyGraph([
+      person('F', {families: [fP]}),
+      person('M', {families: [fP]}),
+      person('R', {primary_parent_family: fP, families: fams}),
+      person('Q', {primary_parent_family: fP}),
+      ...wives.map((wife, i) => person(wife, {families: [fams[i]]})),
+    ])
+    const {nodes, bounds} = await layoutRelationships(more, 'R')
+    const node = key => nodes.find(n => n.key === key)
+    expect(node('person:Q').y).toBe(node('person:R').y)
+    const markers = nodes.filter(n => n.bracket)
+    expect(markers).toHaveLength(2)
+    for (const marker of markers) {
+      // The bottom of the ring, relative to the node, is 35 + 6 pixels down
+      expect(marker.y + 41).toBeLessThanOrEqual(bounds.yMax)
+    }
+  })
+
+  it('makes room for an arch above the top row', async () => {
+    // M marries the widow W and later her daughter D
+    const fHW = family('fHW', 'H', 'W', [childRef('D')])
+    const fMW = family('fMW', 'M', 'W')
+    const fMD = family('fMD', 'M', 'D')
+    const {nodes, bounds} = await layoutRelationships(
+      new FamilyGraph([
+        person('H', {families: [fHW]}),
+        person('W', {families: [fHW, fMW]}),
+        person('M', {families: [fMW, fMD]}),
+        person('D', {primary_parent_family: fHW, families: [fMD]}),
+      ]),
+      'M'
+    )
+    const d = nodes.find(n => n.key === 'person:D')
+    expect(d.y - 45 - archHeight).toBeGreaterThanOrEqual(bounds.yMin)
   })
 
   it('draws parents above their children', async () => {
     const layout = await layoutRelationships(graph, 'R')
     const node = key => layout.nodes.find(n => n.key === key)
-    expect(node('fFM:F').y).toBeLessThan(node('fRS:R').y)
-    expect(node('fRS:R').y).toBeLessThan(node('p_K:K').y)
+    expect(node('person:F').y).toBeLessThan(node('person:R').y)
+    expect(node('person:R').y).toBeLessThan(node('person:K').y)
   })
 
   it('links children with their relation', async () => {
     const layout = await layoutRelationships(graph, 'R')
     const adopted = layout.links.filter(link => link.relation === 'Adopted')
     expect(adopted.map(link => [link.source.key, link.target.key])).toEqual([
-      ['family:fA', 'fRS:R'],
-      ['family:fA', 'fRT:R'],
+      ['family:fA', 'person:R'],
     ])
   })
 
-  it('returns the route of each link from its source down to its target', async () => {
+  it('returns the route of each link from its source down to the top of its target', async () => {
     const layout = await layoutRelationships(graph, 'R')
     for (const link of layout.links) {
       expect(link.points.length).toBeGreaterThan(1)
       expect(link.points[0][1]).toBeGreaterThanOrEqual(link.source.y)
-      expect(link.points.at(-1)[1]).toBeLessThanOrEqual(link.target.y)
+      expect(link.points.at(-1)[0]).toBeCloseTo(link.target.x)
+      expect(link.points.at(-1)[1]).toBeCloseTo(link.target.y - 45)
     }
   })
 

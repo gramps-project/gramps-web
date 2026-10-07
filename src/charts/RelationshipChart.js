@@ -1,12 +1,17 @@
 import {linkVertical} from 'd3-shape'
 import {ChartCanvas, place} from './ChartCanvas.js'
 import {appendFamilyMarker, familyMarkerPosition} from './familyMarker.js'
-import {relationshipLayoutDefaults} from './layout/relationshipLayout.js'
+import {
+  archHeight,
+  relationshipLayoutDefaults,
+} from './layout/relationshipLayout.js'
 
 const {boxWidth, boxHeight} = relationshipLayoutDefaults
 
-// A link is drawn as a curve from the start to the end of its route. Links
-// from a family start at its marker.
+// A link runs from the marker of a family, or the bottom of a single
+// parent's card, to the top of the child's card. It is drawn as a curve, or,
+// when the child is not below its start, as an arch over the row that ends
+// `archHeight` pixels above the child.
 const curve = linkVertical()
 const markerPosition = familyMarkerPosition(boxHeight)
 
@@ -45,10 +50,6 @@ export class RelationshipChart extends ChartCanvas {
     return link.key
   }
 
-  drawnNodes(layout) {
-    return layout.nodes.filter(node => node.kind !== 'placeholder')
-  }
-
   drawnLinks(layout) {
     return layout.links.filter(link => link.points.length > 0)
   }
@@ -74,17 +75,21 @@ export class RelationshipChart extends ChartCanvas {
     return this.isPerson(node) && node.handle === this._rootHandle
   }
 
-  linkEnds({source, points}) {
+  linkEnds({source, target}) {
     return [
       source.kind === 'family'
         ? [source.x + markerPosition[0], source.y + markerPosition[1]]
-        : points[0],
-      points[points.length - 1],
+        : [source.x, source.y + boxHeight / 2],
+      [target.x, target.y - boxHeight / 2],
     ]
   }
 
   linkPath([start, end]) {
-    return curve({source: start, target: end})
+    if (end[1] > start[1]) {
+      return curve({source: start, target: end})
+    }
+    const top = end[1] - archHeight
+    return `M${start[0]},${start[1]}V${top}H${end[0]}V${end[1]}`
   }
 
   styleLinks(links, palette) {
@@ -94,12 +99,34 @@ export class RelationshipChart extends ChartCanvas {
     )
   }
 
-  // Family markers are small, so they are redrawn on every update
+  // Family markers are small, so they are redrawn on every update. The
+  // marker of a family whose partners are not next to each other sits on a
+  // bracket that joins the bottoms of their cards.
   drawExtras(nodes, {palette}) {
     const markers = nodes
       .filter(node => node.kind === 'family')
       .select('.family-marker')
     markers.selectChildren().remove()
+    markers
+      .filter(node => node.bracket)
+      .append('path')
+      .attr('class', 'bracket')
+      .attr('fill', 'none')
+      .attr('stroke', palette.relationshipLink)
+      .attr('d', ({bracket: {left, right, top}}) =>
+        [
+          `M${left},${top}`,
+          `V${markerPosition[1]}`,
+          `H${right}`,
+          `V${top}`,
+        ].join('')
+      )
     appendFamilyMarker(markers, {boxHeight, palette})
+    // The bracket reaches the marker from one side only, so the marker's
+    // own line would stick out on the other
+    markers
+      .filter(node => node.bracket)
+      .select('line')
+      .remove()
   }
 }
