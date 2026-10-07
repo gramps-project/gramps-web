@@ -111,11 +111,13 @@ const sameFrame = {scale: 1, offset: 0, shift: 0}
 //
 // When the root person of one layout is an ancestor of the root person of
 // the other, the ancestor's arc in one layout is the full circle in the
-// other. An ancestor with several arcs is related by the arc with
-// `clickedKey` in `previous`, if it is theirs, and otherwise by their arc
-// nearest to the centre. Layouts of different people that are not related
-// this way have no arcs in common.
-export function relateFanLayouts(previous, layout, {clickedKey} = {}) {
+// other, and `lineageArc` of the relation is that arc: the `key` of the arc
+// of the `ancestor` in the layout of the `descendant`, where both are
+// handles. An ancestor with several arcs is related by the arc
+// `lineageArc` of the options if it is about the same two people, and
+// otherwise by their arc nearest to the centre. Layouts of different people
+// that are not related this way have no arcs in common.
+export function relateFanLayouts(previous, layout, {lineageArc} = {}) {
   const unrelated = {
     key: () => undefined,
     frame: sameFrame,
@@ -129,13 +131,24 @@ export function relateFanLayouts(previous, layout, {clickedKey} = {}) {
   if (before.handle === after.handle) {
     return {key: key => key, frame: sameFrame, kind: 'sameRoot'}
   }
+  // Returns the arc of `ancestor` in the layout of `descendant` with `nodes`.
   // The nodes are ordered by generation, so the first arc of an ancestor is
-  // the one nearest to the centre
-  const arcOf = (nodes, handle, preferredKey) =>
-    handle &&
-    (nodes.find(node => node.key === preferredKey && node.handle === handle) ??
-      nodes.find(node => node.generation > 0 && node.handle === handle))
-  const ancestor = arcOf(previous.nodes, after.handle, clickedKey)
+  // the one nearest to the centre.
+  const arcOf = (nodes, descendant, ancestor) => {
+    if (!ancestor) {
+      return undefined
+    }
+    const preferredKey =
+      lineageArc?.descendant === descendant && lineageArc?.ancestor === ancestor
+        ? lineageArc.key
+        : undefined
+    return (
+      nodes.find(
+        node => node.key === preferredKey && node.handle === ancestor
+      ) ?? nodes.find(node => node.generation > 0 && node.handle === ancestor)
+    )
+  }
+  const ancestor = arcOf(previous.nodes, before.handle, after.handle)
   if (ancestor) {
     const scale = (2 * Math.PI) / (ancestor.x1 - ancestor.x0)
     return {
@@ -145,9 +158,14 @@ export function relateFanLayouts(previous, layout, {clickedKey} = {}) {
           : undefined,
       frame: {scale, offset: -ancestor.x0 * scale, shift: -ancestor.y0},
       kind: 'lineage',
+      lineageArc: {
+        descendant: before.handle,
+        ancestor: after.handle,
+        key: ancestor.key,
+      },
     }
   }
-  const previousRoot = arcOf(layout.nodes, before.handle)
+  const previousRoot = arcOf(layout.nodes, after.handle, before.handle)
   if (previousRoot) {
     return {
       key: key => `${previousRoot.key}${key.slice(1)}`,
@@ -157,6 +175,11 @@ export function relateFanLayouts(previous, layout, {clickedKey} = {}) {
         shift: previousRoot.y0,
       },
       kind: 'lineage',
+      lineageArc: {
+        descendant: after.handle,
+        ancestor: before.handle,
+        key: previousRoot.key,
+      },
     }
   }
   return unrelated

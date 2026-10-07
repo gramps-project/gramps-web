@@ -228,6 +228,45 @@ describe('FanChart', () => {
     expect([x - startX - 400, y - startY - 300]).toEqual([50, 30])
   })
 
+  it('blends arc colours, and changes CSS variables at the start', async () => {
+    const chart = drawn()
+    const father = cells(chart)[1].querySelector('.fan-arc')
+    const before = father.getAttribute('d')
+    chart.update(layoutFan(graph, 'F', {depth: 3}), {...size, duration: 1000})
+    await vi.waitFor(() => expect(father.getAttribute('d')).not.toBe(before))
+    expect(father.getAttribute('fill')).toBe(chartPalette.fanRoot)
+    chart.clear()
+  })
+
+  it('goes back into the arc the chart zoomed from', () => {
+    // G is the father of both of R's parents
+    const fF = family('fF', 'G', '', ['F'])
+    const fM = family('fM', 'G', '', ['M'])
+    const collapsed = new FamilyGraph([
+      person('R', 'Smith', {parentFamily: fR}),
+      person('F', 'Smith', {parentFamily: fF, families: [fR]}),
+      person('M', 'Jones', {parentFamily: fM, families: [fR]}),
+      person('G', 'Smith', {families: [fF, fM]}),
+    ])
+    const chart = new FanChart()
+    chart.update(layoutFan(collapsed, 'R', {depth: 3}), size)
+    const viaMother = cells(chart).find(cell => cell.__data__.key === 'pmf')
+    viaMother.dispatchEvent(new MouseEvent('click'))
+    chart.update(layoutFan(collapsed, 'G', {depth: 3}), size)
+    expect(viaMother.__data__.key).toBe('p')
+    chart.update(layoutFan(collapsed, 'R', {depth: 3}), size)
+    expect(viaMother.__data__.key).toBe('pmf')
+  })
+
+  it('does not relate the next layout to a cleared one', () => {
+    const chart = drawn()
+    chart.clear()
+    chart.update(layoutFan(graph, 'F', {depth: 3}), {...size, duration: 1000})
+    // Without a movement, names are drawn at once
+    expect(texts(chart)).toEqual(['Smith', 'GivenF'])
+    chart.clear()
+  })
+
   it('removes the chart and legend on clear', () => {
     const chart = drawn({color: 'surname'})
     chart.clear()

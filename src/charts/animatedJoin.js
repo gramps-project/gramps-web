@@ -1,3 +1,5 @@
+import {color} from 'd3-color'
+import {interpolateRgb} from 'd3-interpolate'
 import {local} from 'd3-selection'
 
 // The key each element was last joined with
@@ -24,6 +26,19 @@ export const translate = ([x, y]) => `translate(${x},${y})`
 // Returns a function that interpolates linearly from point `a` to point `b`
 export const interpolatePoint = (a, b) => t =>
   [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]
+
+// Changes the colour attribute `name` of the elements of `transition` to
+// `value(d)`. Colours blend only when both are colours that d3 can read.
+// Others, such as CSS variables, which d3 would blend as text into names that
+// do not exist, change at the start.
+export function transitionColor(transition, name, value) {
+  transition.attrTween(name, function (d) {
+    const from = color(this.getAttribute(name))
+    const to = value(d)
+    const toColor = color(to)
+    return from && toColor ? interpolateRgb(from, toColor) : () => to
+  })
+}
 
 // Moves each element to `position(d)`. With a `duration`, elements move there
 // from `start(d)`. Interpolating the points keeps the transform in the format

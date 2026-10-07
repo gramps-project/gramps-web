@@ -145,7 +145,7 @@ describe('relateFanLayouts', () => {
     expectArc(placeArc(node(ofFF, 'p'), back.frame), node(ofR, 'pff'))
   })
 
-  it('relates an ancestor with several arcs by the clicked one', () => {
+  describe('an ancestor with several arcs', () => {
     // G is the father of both of R's parents
     const fF = family('fF', 'G', '', ['F'])
     const fM = family('fM', 'G', '', ['M'])
@@ -157,10 +157,36 @@ describe('relateFanLayouts', () => {
     ])
     const ofCollapsedR = layoutFan(collapsed, 'R', {depth: 3})
     const ofG = layoutFan(collapsed, 'G', {depth: 3})
-    expect(relateFanLayouts(ofCollapsedR, ofG).key('pff')).toBe('p')
-    const clicked = relateFanLayouts(ofCollapsedR, ofG, {clickedKey: 'pmf'})
-    expect(clicked.key('pmf')).toBe('p')
-    expect(clicked.key('pff')).toBeUndefined()
+    const viaMother = {descendant: 'R', ancestor: 'G', key: 'pmf'}
+
+    it('is related by their arc nearest to the centre', () => {
+      const relation = relateFanLayouts(ofCollapsedR, ofG)
+      expect(relation.key('pff')).toBe('p')
+      expect(relation.lineageArc).toEqual({
+        descendant: 'R',
+        ancestor: 'G',
+        key: 'pff',
+      })
+    })
+
+    it('is related by the lineage arc of the same two people', () => {
+      const relation = relateFanLayouts(ofCollapsedR, ofG, {
+        lineageArc: viaMother,
+      })
+      expect(relation.key('pmf')).toBe('p')
+      expect(relation.key('pff')).toBeUndefined()
+      expect(relation.lineageArc).toEqual(viaMother)
+      const back = relateFanLayouts(ofG, ofCollapsedR, {lineageArc: viaMother})
+      expect(back.key('p')).toBe('pmf')
+      expect(back.lineageArc).toEqual(viaMother)
+    })
+
+    it('ignores a lineage arc of other people', () => {
+      const relation = relateFanLayouts(ofCollapsedR, ofG, {
+        lineageArc: {...viaMother, descendant: 'F'},
+      })
+      expect(relation.key('pff')).toBe('p')
+    })
   })
 
   it('relates nothing for unrelated root people', () => {

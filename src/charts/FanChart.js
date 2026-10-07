@@ -7,7 +7,7 @@ import {
   schemeCategory10,
 } from 'd3-scale-chromatic'
 import {ChartViewport} from './ChartViewport.js'
-import {joinWithTransitions} from './animatedJoin.js'
+import {joinWithTransitions, transitionColor} from './animatedJoin.js'
 import {invertFrame, placeArc, relateFanLayouts} from './layout/fanLayout.js'
 import {chartPalette} from './palette.js'
 import {LegendCategorical, LegendColorBar, isHoverDevice} from './util.js'
@@ -277,11 +277,15 @@ export class FanChart {
     this._content = this._svg.append('g').attr('id', 'chart-content')
     this._viewport = new ChartViewport(this._svg, this._content)
     this._legend = this._svg.append('g').attr('id', 'legend')
+    // The drawn layout, to which the next one is related
     this._layout = undefined
     // The movement of the arcs while they move: the frame from where they
     // started to the current layout, and how far they have moved
     this._motion = null
-    this._clickedKey = undefined
+    // The arc that last related two root people, or the last clicked arc, as
+    // described for `relateFanLayouts`. It names both people, so it stays
+    // valid when the chart is cleared or the data changes.
+    this._lineageArc = undefined
     this._arcShape = null
     this._nameOptions = {}
   }
@@ -294,10 +298,12 @@ export class FanChart {
     return this._viewport
   }
 
-  // Removes the chart and the legend, keeping the zoom transform
+  // Removes the chart and the legend, keeping the zoom transform. The next
+  // layout is not related to the removed one.
   clear() {
     this._content.interrupt('arc')
     this._motion = null
+    this._layout = undefined
     this._content.selectChildren().remove()
     this._legend.selectChildren().remove()
   }
@@ -326,11 +332,9 @@ export class FanChart {
   ) {
     const newLayout = layout !== this._layout
     const relation = relateFanLayouts(this._layout, layout, {
-      clickedKey: this._clickedKey,
+      lineageArc: this._lineageArc,
     })
-    if (newLayout) {
-      this._clickedKey = undefined
-    }
+    this._lineageArc = relation.lineageArc ?? this._lineageArc
     this._layout = layout
     const [root] = layout.nodes
     // The origin is the centre of both layouts
@@ -352,8 +356,12 @@ export class FanChart {
     this._colorArcs(cells, {scheme, palette, duration})
     setFanInteraction(cells, {
       interactive,
-      onClick: key => {
-        this._clickedKey = key
+      onClick: arc => {
+        this._lineageArc = {
+          descendant: root.handle,
+          ancestor: arc.handle,
+          key: arc.key,
+        }
       },
     })
     const [x, y] = this._viewport.viewStart
@@ -437,9 +445,13 @@ export class FanChart {
         return !this.hasAttribute('fill')
       })
       .attr('fill', scheme.fill)
-    const fill =
-      duration > 0 ? arcs.transition('fill').duration(duration) : arcs
-    fill.attr('fill', scheme.fill).attr('fill-opacity', scheme.opacity)
+    if (duration > 0) {
+      const fill = arcs.transition('fill').duration(duration)
+      transitionColor(fill, 'fill', scheme.fill)
+      fill.attr('fill-opacity', scheme.opacity)
+    } else {
+      arcs.attr('fill', scheme.fill).attr('fill-opacity', scheme.opacity)
+    }
     cells
       .select('.fan-side')
       .attr('display', d => (d.generation > 0 ? null : 'none'))
@@ -485,7 +497,7 @@ export class FanChart {
 }
 
 // Selects the person of an arc when it is clicked, after calling
-// `onClick(key)` with the key of the arc, and shows a preview of the person
+// `onClick(node)` with the node of the arc, and shows a preview of the person
 // while the pointer is on it. Without `interactive`, arcs have no click or
 // hover handling.
 function setFanInteraction(cells, {interactive, onClick}) {
@@ -500,7 +512,7 @@ function setFanInteraction(cells, {interactive, onClick}) {
   cells
     .style('cursor', 'pointer')
     .on('click', function (event, d) {
-      onClick(d.key)
+      onClick(d)
       fireEvent(this, 'pedigree:person-selected', {
         grampsId: d.person?.gramps_id,
       })
