@@ -34,9 +34,13 @@ const bracketDepth = 16
 const markerRadius = 6
 const lineMargin = 2
 
-// Horizontal distance in pixels between the links that reach the top of one
-// card
+// Largest horizontal distance in pixels between the links that reach the
+// top of one card
 const entrySpacing = 20
+
+// Least horizontal distance in pixels between a link that reaches the top of
+// a card and the card's left or right edge
+const entryInset = 12
 
 // Largest horizontal distance in pixels between the start and the end of a
 // link that is drawn straight down
@@ -495,10 +499,15 @@ function readLayout(output, model, graph, rootHandle, options) {
   })
   for (const [handle, indices] of edgesTo) {
     const startX = i => linkStart(sourceOf(model.edges[i]))[0]
+    // Many links share the width of the card, away from its corners
+    const spacing = Math.min(
+      entrySpacing,
+      (options.boxWidth - 2 * entryInset) / Math.max(1, indices.length - 1)
+    )
     indices
       .sort((a, b) => startX(a) - startX(b))
       .forEach((i, k) => {
-        const offset = (k - (indices.length - 1) / 2) * entrySpacing
+        const offset = (k - (indices.length - 1) / 2) * spacing
         const x = people.get(handle).x + offset
         // A link that almost goes straight down does
         endX.set(i, Math.abs(x - startX(i)) < snapDistance ? startX(i) : x)

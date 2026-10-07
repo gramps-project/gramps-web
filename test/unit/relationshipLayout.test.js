@@ -594,6 +594,26 @@ describe('right-angled routes', () => {
     expect(Math.abs(ends[0] - ends[1])).toBe(20)
   })
 
+  it('brings the links of many parent families to a child within its card', async () => {
+    // C has twelve parent families, each with one fetched parent
+    const parents = Array.from({length: 12}, (_, i) => `P${i}`)
+    const fams = parents.map(p =>
+      family(`f${p}`, p, undefined, [childRef('C')])
+    )
+    const layout = await layoutRelationships(
+      new FamilyGraph([
+        ...parents.map((p, i) => person(p, {families: [fams[i]]})),
+        person('C', {primary_parent_family: fams[0], parent_families: fams}),
+      ]),
+      'C'
+    )
+    const ends = layout.links.map(link => link.points.at(-1)[0])
+    expect(new Set(ends).size).toBe(12)
+    for (const x of ends) {
+      expect(Math.abs(x)).toBeLessThanOrEqual(190 / 2 - 12 + 0.01)
+    }
+  })
+
   it('shares one bar among the children of a family', async () => {
     const layout = await layoutRelationships(graph, 'R')
     const bars = layout.links
