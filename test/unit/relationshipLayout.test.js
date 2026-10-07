@@ -1,6 +1,7 @@
 import {describe, it, expect} from 'vitest'
 import {FamilyGraph} from '../../src/charts/model/FamilyGraph.js'
 import {
+  archHeight,
   layoutRelationships,
   relationshipDot,
   relationshipModel,
@@ -248,6 +249,47 @@ describe('layoutRelationships', () => {
     expect(marker.y).toBeGreaterThan(0)
     expect(node('family:fRT').bracket).toBeUndefined()
     expect(node('person:N').y).toBeGreaterThan(marker.y)
+  })
+
+  it('makes room for brackets below the bottom row', async () => {
+    // R has four wives and is in the bottom row with a sister
+    const fP = family('fP', 'F', 'M', [childRef('R'), childRef('Q')])
+    const wives = ['S', 'T', 'W', 'Z']
+    const fams = wives.map(wife => family(`fR${wife}`, 'R', wife))
+    const more = new FamilyGraph([
+      person('F', {families: [fP]}),
+      person('M', {families: [fP]}),
+      person('R', {primary_parent_family: fP, families: fams}),
+      person('Q', {primary_parent_family: fP}),
+      ...wives.map((wife, i) => person(wife, {families: [fams[i]]})),
+    ])
+    const {nodes, bounds} = await layoutRelationships(more, 'R')
+    const node = key => nodes.find(n => n.key === key)
+    expect(node('person:Q').y).toBe(node('person:R').y)
+    const markers = nodes.filter(n => n.bracket)
+    expect(markers).toHaveLength(2)
+    for (const marker of markers) {
+      // The bottom of the ring, relative to the node, is 35 + 6 pixels down
+      expect(marker.y + 41).toBeLessThanOrEqual(bounds.yMax)
+    }
+  })
+
+  it('makes room for an arch above the top row', async () => {
+    // M marries the widow W and later her daughter D
+    const fHW = family('fHW', 'H', 'W', [childRef('D')])
+    const fMW = family('fMW', 'M', 'W')
+    const fMD = family('fMD', 'M', 'D')
+    const {nodes, bounds} = await layoutRelationships(
+      new FamilyGraph([
+        person('H', {families: [fHW]}),
+        person('W', {families: [fHW, fMW]}),
+        person('M', {families: [fMW, fMD]}),
+        person('D', {primary_parent_family: fHW, families: [fMD]}),
+      ]),
+      'M'
+    )
+    const d = nodes.find(n => n.key === 'person:D')
+    expect(d.y - 45 - archHeight).toBeGreaterThanOrEqual(bounds.yMin)
   })
 
   it('draws parents above their children', async () => {

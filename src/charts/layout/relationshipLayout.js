@@ -4,7 +4,8 @@ import {familyMarkerPosition} from '../familyMarker.js'
 // Layout of the relationship chart. Each person is drawn once. People who
 // share a family as partners, directly or through other partners, form a
 // partner group: one Graphviz node, an HTML table with a row of cells for
-// their cards and the gaps between them. Edges run from the gap between two
+// their cards and the gaps between them, and the space for whatever else is
+// drawn above and below the cards. Edges run from the gap between two
 // partners, or from the card of a single parent, to the top of each child's
 // card. The graph is laid out by the dot engine and read back from its JSON
 // output.
@@ -23,6 +24,15 @@ const gapWidth = 14
 // bracket of a family whose partners are not adjacent, and between the
 // brackets of one partner group
 const bracketDepth = 16
+
+// Radius of a family's marker, from `familyMarker.js`, and room for the
+// width of lines
+const markerRadius = 6
+const lineMargin = 2
+
+// Height in pixels of the arch over a partner group that links a child to
+// parents in the same group
+export const archHeight = 20
 
 // Returns the relation of a child to the parents the child is linked from:
 // Birth if it is Birth for all of them, otherwise the first other relation
@@ -207,8 +217,33 @@ export function relationshipModel(graph) {
     }
   }
 
+  // A child in the same group as their parents is linked by an arch
+  for (const edge of edges) {
+    const source = groupOfPerson.get(
+      edge.family ? edge.family.father_handle : edge.fromPerson
+    )
+    if (source === groupOfPerson.get(edge.toPerson)) {
+      source.arch = true
+    }
+  }
+
   return {groups, groupOfPerson, edges}
 }
+
+// Returns the space a partner group needs above and below its cards: room
+// for its brackets below and its arch above. It is the same on both sides,
+// so that the cards of all groups in a row stay aligned.
+function groupMargin(group) {
+  const brackets = group.families.filter(({adjacent}) => !adjacent).length
+  const below =
+    brackets > 0 ? brackets * bracketDepth + markerRadius + lineMargin : 0
+  const above = group.arch ? archHeight + lineMargin : 0
+  return Math.max(below, above)
+}
+
+// Returns the port that edges leave a cell by: the cell itself, or the cell
+// under it in the space below the cards
+const tailPort = (group, port) => (groupMargin(group) > 0 ? `s${port}` : port)
 
 // Returns the cells of a partner group's row: a card for each member and a
 // gap between adjacent cards, with their widths and the x of their left
@@ -266,11 +301,11 @@ function edgeEnds(model, edge, options) {
       ({family}) => family.handle === edge.family.handle
     )
     const {port} = familyStart(groupFamily, options)
-    return {tail: `"${groupName(group)}":"${port}":s`, head}
+    return {tail: `"${groupName(group)}":"${tailPort(group, port)}":s`, head}
   }
   const group = model.groupOfPerson.get(edge.fromPerson)
   const port = `p${group.members.indexOf(edge.fromPerson)}`
-  return {tail: `"${groupName(group)}":"${port}":s`, head}
+  return {tail: `"${groupName(group)}":"${tailPort(group, port)}":s`, head}
 }
 
 // Returns the DOT source for a relationship model, with cards of `boxWidth`
@@ -278,15 +313,28 @@ function edgeEnds(model, edge, options) {
 export function relationshipDot(model, options = relationshipLayoutDefaults) {
   const {boxHeight} = options
   const statements = model.groups.map(group => {
-    const cells = groupCells(group, options)
-      .cells.map(
-        cell =>
-          `<TD PORT="${cell.port}" FIXEDSIZE="TRUE" WIDTH="${cell.width}" HEIGHT="${boxHeight}"></TD>`
-      )
-      .join('')
+    const {cells, width} = groupCells(group, options)
+    const row = (height, prefix = '') =>
+      `<TR>${cells
+        .map(
+          cell =>
+            `<TD PORT="${prefix}${cell.port}" FIXEDSIZE="TRUE" WIDTH="${cell.width}" HEIGHT="${height}"></TD>`
+        )
+        .join('')}</TR>`
+    const margin = groupMargin(group)
+    const rows =
+      margin > 0
+        ? [
+            `<TR><TD COLSPAN="${cells.length}" FIXEDSIZE="TRUE" WIDTH="${width}" HEIGHT="${margin}"></TD></TR>`,
+            row(boxHeight),
+            row(margin, 's'),
+          ]
+        : [row(boxHeight)]
     return `"${groupName(
       group
-    )}" [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0"><TR>${cells}</TR></TABLE>>]`
+    )}" [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">${rows.join(
+      ''
+    )}</TABLE>>]`
   })
   model.edges.forEach((edge, i) => {
     const {tail, head} = edgeEnds(model, edge, options)

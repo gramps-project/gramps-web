@@ -1,7 +1,10 @@
 import {linkVertical} from 'd3-shape'
 import {ChartCanvas, place} from './ChartCanvas.js'
 import {appendFamilyMarker, familyMarkerPosition} from './familyMarker.js'
-import {relationshipLayoutDefaults} from './layout/relationshipLayout.js'
+import {
+  archHeight,
+  relationshipLayoutDefaults,
+} from './layout/relationshipLayout.js'
 
 const {boxWidth, boxHeight} = relationshipLayoutDefaults
 
@@ -11,7 +14,6 @@ const {boxWidth, boxHeight} = relationshipLayoutDefaults
 // `archHeight` pixels above the child.
 const curve = linkVertical()
 const markerPosition = familyMarkerPosition(boxHeight)
-const archHeight = 20
 
 // Draws layouts from `layoutRelationships`. Nodes are matched across layouts
 // by their keys, which stay the same when the root person changes.
