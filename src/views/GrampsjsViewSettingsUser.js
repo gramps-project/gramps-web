@@ -1,4 +1,5 @@
 import {html, css} from 'lit'
+import {keyed} from 'lit/directives/keyed.js'
 
 import '@material/web/button/outlined-button'
 import '@material/web/select/filled-select'
@@ -160,27 +161,32 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
   }
 
   renderLangSelect() {
-    return html`
-      <md-filled-select
-        id="select-language"
-        label="${this._langLoading
-          ? this._('Loading items...')
-          : this._('Language')}"
-        @change="${this._handleLangSelected}"
-        ?disabled="${this._langLoading}"
-      >
-        ${this._translations.map(
-          langObj => html`
-            <md-select-option
-              value="${langObj.language}"
-              ?selected="${langObj.language === this.appState.settings.lang}"
-              >${langObj.native}</md-select-option
-            >
-          `,
-          this
-        )}
-      </md-filled-select>
-    `
+    // md-select only picks up the selected option on its first render, but
+    // the options arrive later, so render it anew once they are loaded.
+    return keyed(
+      this._translations.length,
+      html`
+        <md-filled-select
+          id="select-language"
+          label="${this._langLoading
+            ? this._('Loading items...')
+            : this._('Language')}"
+          @change="${this._handleLangSelected}"
+          ?disabled="${this._langLoading}"
+        >
+          ${this._translations.map(
+            langObj => html`
+              <md-select-option
+                value="${langObj.language}"
+                ?selected="${langObj.language === this.appState.settings.lang}"
+                >${langObj.native}</md-select-option
+              >
+            `,
+            this
+          )}
+        </md-filled-select>
+      `
+    )
   }
 
   _handleLangSelected(event) {
