@@ -913,6 +913,7 @@ export const grampsStrings = [
   'Total size of media objects',
   'Town',
   'Transcript',
+  'Tree direction',
   'Tuesday',
   'Turkey',
   'Turkish',

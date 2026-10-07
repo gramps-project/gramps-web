@@ -1,4 +1,5 @@
 import {describe, it, expect, vi} from 'vitest'
+import {render} from 'lit'
 import {
   chartDataUrl,
   chartDefinitions,
@@ -6,6 +7,7 @@ import {
 } from '../../src/views/treeChartDefinitions.js'
 import {GrampsjsViewTree} from '../../src/views/GrampsjsViewTree.js'
 import {chartNameDisplayFormat} from '../../src/util.js'
+import {TREE_VIEWS} from '../../src/treeDefaults.js'
 
 const rulesOf = url =>
   JSON.parse(decodeURIComponent(/rules=([^&]*)/.exec(url)[1]))
@@ -20,6 +22,7 @@ describe('chart definitions', () => {
     expect(values).toEqual({
       ancestors: 2,
       descendants: 4,
+      orientation: 'horizontal',
       nameDisplayFormat: chartNameDisplayFormat.surnameThenGiven,
     })
   })
@@ -114,6 +117,41 @@ describe('GrampsjsViewTree', () => {
     settings.treeChartAnc = 6
     view._fetchIfNeeded()
     expect(apiGet).toHaveBeenCalledTimes(2)
+  })
+
+  it('gives each setting its own input when the chart changes', () => {
+    // The Material elements call attachInternals() in their constructor,
+    // which happy-dom does not implement
+    if (!HTMLElement.prototype.attachInternals) {
+      HTMLElement.prototype.attachInternals = () => ({
+        setFormValue() {},
+        setValidity() {},
+      })
+    }
+    const {view} = makeView()
+    view._ = s => s
+    const container = document.createElement('div')
+    const inputs = () =>
+      Object.fromEntries(
+        [...container.querySelectorAll('[id^="setting-"]')].map(input => [
+          input.id,
+          input,
+        ])
+      )
+    view._currentTabId = TREE_VIEWS.indexOf('hourglass')
+    render(view.renderControls(), container)
+    const hourglass = inputs()
+    // The descendant chart has one setting less before the orientation
+    view._currentTabId = TREE_VIEWS.indexOf('descendant')
+    render(view.renderControls(), container)
+    const descendant = inputs()
+    expect(Object.keys(descendant)).toEqual([
+      'setting-orientation',
+      'setting-nameDisplayFormat',
+    ])
+    expect(Object.values(hourglass)).not.toContain(
+      descendant['setting-nameDisplayFormat']
+    )
   })
 
   it('records each selected person in the history, also the first one', () => {

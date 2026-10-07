@@ -2,6 +2,7 @@ import {css, html} from 'lit'
 import {ifDefined} from 'lit/directives/if-defined.js'
 import {keyed} from 'lit/directives/keyed.js'
 import {map} from 'lit/directives/map.js'
+import {repeat} from 'lit/directives/repeat.js'
 
 import '@material/mwc-textfield'
 import '@material/web/button/filled-button'
@@ -37,7 +38,7 @@ import {
   chartDefinitions,
   chartSettingValues,
 } from './treeChartDefinitions.js'
-import {chartNameDisplayFormat, fireEvent, isKeyEventInInput} from '../util.js'
+import {fireEvent, isKeyEventInInput} from '../util.js'
 import {chartTransitionDuration, formatChartName} from '../charts/util.js'
 import {renderPersonAvatar} from '../components/personListUtils.js'
 import {iconButtonColorStyles, listAvatarStyles} from '../SharedStyles.js'
@@ -564,7 +565,11 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
       <md-dialog id="menu-controls">
         <div slot="content">
           <table>
-            ${this.definition.settings.map(
+            ${repeat(
+              this.definition.settings,
+              // Each setting has its own input, so that an input does not
+              // keep what it showed for another chart's setting
+              setting => setting.key,
               setting => html`
                 <tr>
                   <td>${this._(setting.label)}</td>
@@ -711,19 +716,19 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _renderSettingInput(setting) {
     const value = this.settingValues[setting.name]
-    if (setting.type === 'nameDisplayFormat') {
+    if (setting.type === 'select') {
       return html`
         <md-filled-select
-          id="name-display-format"
+          id="setting-${setting.name}"
           @change=${e => this._changeSetting(setting, e.target.value)}
         >
           ${map(
-            Object.values(chartNameDisplayFormat),
-            format => html`<md-select-option
-              value="${format}"
-              ?selected="${format === value}"
+            setting.options,
+            option => html`<md-select-option
+              value="${option.value}"
+              ?selected="${option.value === value}"
             >
-              <div slot="headline">${this._(format)}</div>
+              <div slot="headline">${this._(option.label)}</div>
             </md-select-option>`
           )}
         </md-filled-select>
