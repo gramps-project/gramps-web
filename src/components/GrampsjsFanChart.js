@@ -1,21 +1,13 @@
-import {html, css} from 'lit'
+import {html} from 'lit'
 
 import {FanChart} from '../charts/FanChart.js'
+import {layoutFan} from '../charts/layout/fanLayout.js'
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
-import {getTree} from '../charts/util.js'
+
+// Properties that change the layout of the chart
+const layoutProperties = ['data', 'grampsId', 'depth']
 
 class GrampsjsFanChart extends GrampsjsChartBase {
-  static get styles() {
-    return [
-      super.styles,
-      css`
-        svg a {
-          text-decoration: none !important;
-        }
-      `,
-    ]
-  }
-
   static get properties() {
     return {
       grampsId: {type: String},
@@ -30,29 +22,50 @@ class GrampsjsFanChart extends GrampsjsChartBase {
     this.grampsId = ''
     this.depth = 5
     this.color = ''
+    this._chart = new FanChart()
   }
 
-  renderChart() {
-    if (this.data.length === 0 || !this.grampsId) {
-      return ''
+  render() {
+    return html`<div id="container"></div>`
+  }
+
+  firstUpdated() {
+    super.firstUpdated()
+    this.renderRoot.getElementById('container').append(this._chart.node)
+  }
+
+  willUpdate(changed) {
+    super.willUpdate(changed)
+    if (!layoutProperties.some(name => changed.has(name))) {
+      return
     }
+    // A selected person who is not in the data yet is still being fetched, so
+    // the current chart stays until new data arrives. If the new data does not
+    // contain them either, the chart is cleared.
     const {handle} = this._graph.personByGrampsId(this.grampsId) ?? {}
-    if (!handle) {
-      return ''
+    if (handle) {
+      this._layout = layoutFan(this._graph, handle, {depth: this.depth})
+    } else if (changed.has('data')) {
+      this._layout = null
     }
-    const data = getTree(this._graph, handle, this.depth)
-    const arcRadius = 60
-    return html`
-      ${FanChart(data, {
-        depth: this.depth,
-        arcRadius,
-        color: this.color || 'default',
-        bboxWidth: this.containerWidth,
-        bboxHeight: this.containerHeight,
-        nameDisplayFormat: this.nameDisplayFormat,
-        strings: this.appState.i18n.strings,
-      })}
-    `
+  }
+
+  updated() {
+    if (!this._layout) {
+      this._chart.clear()
+      return
+    }
+    this._chart.update(this._layout, this.chartOptions())
+  }
+
+  chartOptions() {
+    return {
+      color: this.color || 'default',
+      nameDisplayFormat: this.nameDisplayFormat,
+      otherLabel: this._('Other'),
+      bboxWidth: this.containerWidth,
+      bboxHeight: this.containerHeight,
+    }
   }
 }
 
