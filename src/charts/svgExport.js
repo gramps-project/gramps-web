@@ -31,11 +31,12 @@ async function imageDataUris(urls, fetchImage) {
   )
 }
 
-// Returns a promise of `layout` drawn by a new `ChartClass` canvas as a
+// Returns a promise of `layout` drawn by a new `ChartClass` chart as a
 // standalone SVG document, sized to the layout's bounds independent of zoom
 // and container size. Colours come from `exportPalette` on a white
-// background, and there are no shadows or interactive elements. `options` are
-// the update options of the live chart. The images from its `getImageUrl` are
+// background, and there are no shadows, interactive elements or content that
+// is placed in the view, such as a legend. `options` are the update options
+// of the live chart. The images from its `getImageUrl`, if it has one, are
 // fetched with `fetchImage` and embedded as data URIs, so no image URL, which
 // can carry the access token, is written to the file. A card whose image
 // cannot be fetched has no image.
@@ -46,8 +47,10 @@ export async function chartSvgDocument(
   {fetchImage = fetchDataUri} = {}
 ) {
   const chart = new ChartClass()
-  const {getImageUrl = () => ''} = options
-  const people = chart.drawnNodes(layout).filter(node => chart.isPerson(node))
+  const {getImageUrl} = options
+  const people = getImageUrl
+    ? chart.drawnNodes(layout).filter(node => chart.isPerson(node))
+    : []
   // Image URLs carry the access token, which can be refreshed while the
   // images are fetched, so each node's URL is read once
   const urls = new Map(people.map(node => [node, getImageUrl(node)]))
@@ -74,6 +77,11 @@ export async function chartSvgDocument(
   svg.setAttribute('viewBox', [x, y, width, height].join(' '))
   svg.setAttribute('font-family', "'Inter var', sans-serif")
   svg.removeAttribute('style')
+  for (const child of [...svg.children]) {
+    if (child.id !== 'chart-content') {
+      child.remove()
+    }
+  }
   svg.querySelector('#chart-content').removeAttribute('transform')
   for (const element of svg.querySelectorAll('[style=""]')) {
     element.removeAttribute('style')

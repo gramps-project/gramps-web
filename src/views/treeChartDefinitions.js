@@ -280,6 +280,7 @@ export const chartDefinitions = {
     ],
     editable: false,
     zoomable: true,
+    exportable: true,
     request: (grampsId, {ancestors}) => ({
       rules: treeRules(grampsId, ancestors + 1, 2),
       extend: treeExtend,
