@@ -354,54 +354,67 @@ function edgeEnds(model, edge, options) {
 }
 
 // Returns the partner groups and the edges in the order dot starts from:
-// breadth first from the groups that no edge reaches, with the edges of a
-// group from left to right and each family's children in order
-function declarationOrder(model) {
+// breadth first from the groups that no other group links to, with the
+// edges of a group from left to right and each family's children in order.
+// Groups that only a cycle of links reaches, which only wrong data makes,
+// start a walk of their own.
+function declarationOrder(model, options) {
   const sourceGroup = edge =>
     model.groupOfPerson.get(
       edge.family ? edge.family.father_handle : edge.fromPerson
     )
-  // Where an edge leaves its group, counted in cards from the left
-  const sourceIndex = edge => {
+  // Where an edge leaves its group, relative to the left edge of the row
+  const startX = edge => {
     const group = sourceGroup(edge)
     if (!edge.family) {
-      return group.members.indexOf(edge.fromPerson)
+      return cardX(group.members.indexOf(edge.fromPerson), options)
     }
-    const {left, right} = group.families.find(
+    const groupFamily = group.families.find(
       ({family}) => family.handle === edge.family.handle
     )
-    return (left + right) / 2
+    return familyStart(groupFamily, options).x
   }
   const edgesOf = new Map()
   model.edges.forEach((edge, i) => {
     const group = sourceGroup(edge)
     edgesOf.set(group, [...(edgesOf.get(group) ?? []), {edge, i}])
   })
+  // A group can link to itself, with an arch over its row
   const reached = new Set(
-    model.edges.map(edge => model.groupOfPerson.get(edge.toPerson))
+    model.edges
+      .map(edge => model.groupOfPerson.get(edge.toPerson))
+      .filter((target, i) => target !== sourceGroup(model.edges[i]))
   )
-  const groups = model.groups.filter(group => !reached.has(group))
-  const seen = new Set(groups)
+  const seeds = [
+    ...model.groups.filter(group => !reached.has(group)),
+    ...model.groups,
+  ]
+  const groups = []
+  const seen = new Set()
   const edges = []
-  for (let g = 0; g < groups.length; g += 1) {
+  const add = group => {
+    if (!seen.has(group)) {
+      seen.add(group)
+      groups.push(group)
+    }
+  }
+  for (let g = 0, next = 0; ; g += 1) {
+    if (g === groups.length) {
+      while (next < seeds.length && seen.has(seeds[next])) {
+        next += 1
+      }
+      if (next === seeds.length) {
+        break
+      }
+      add(seeds[next])
+    }
     // The model's edges of one source are in the order of its children
     const own = (edgesOf.get(groups[g]) ?? []).sort(
-      (a, b) => sourceIndex(a.edge) - sourceIndex(b.edge) || a.i - b.i
+      (a, b) => startX(a.edge) - startX(b.edge) || a.i - b.i
     )
     for (const {edge, i} of own) {
       edges.push({edge, i})
-      const target = model.groupOfPerson.get(edge.toPerson)
-      if (!seen.has(target)) {
-        seen.add(target)
-        groups.push(target)
-      }
-    }
-  }
-  // Groups in cycles of edges, which no root reaches
-  for (const group of model.groups) {
-    if (!seen.has(group)) {
-      groups.push(group)
-      edges.push(...(edgesOf.get(group) ?? []))
+      add(model.groupOfPerson.get(edge.toPerson))
     }
   }
   return {groups, edges}
@@ -411,7 +424,7 @@ function declarationOrder(model) {
 // by `boxHeight` pixels
 export function relationshipDot(model, options = relationshipLayoutDefaults) {
   const {boxHeight} = options
-  const order = declarationOrder(model)
+  const order = declarationOrder(model, options)
   const statements = order.groups.map(group => {
     const {cells, width} = groupCells(group, options)
     const row = (height, prefix = '') =>
