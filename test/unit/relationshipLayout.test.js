@@ -325,6 +325,28 @@ describe('layoutRelationships', () => {
     expect(node('person:R').y).toBeLessThan(node('person:K').y)
   })
 
+  it('draws children in the order of their family, whatever the fetch order', async () => {
+    const children = ['C1', 'C2', 'C3', 'C4']
+    const fP = family(
+      'fP',
+      'P',
+      'Q',
+      children.map(c => childRef(c))
+    )
+    const tree = new FamilyGraph([
+      ...[...children]
+        .reverse()
+        .map(c => person(c, {primary_parent_family: fP})),
+      person('P', {families: [fP]}),
+      person('Q', {families: [fP]}),
+    ])
+    const layout = await layoutRelationships(tree, 'P')
+    const x = handle =>
+      layout.nodes.find(node => node.key === `person:${handle}`).x
+    const xs = children.map(x)
+    expect(xs).toEqual([...xs].sort((a, b) => a - b))
+  })
+
   it('links children with their relation', async () => {
     const layout = await layoutRelationships(graph, 'R')
     const adopted = layout.links.filter(link => link.relation === 'Adopted')

@@ -244,7 +244,23 @@ export function relationshipModel(graph) {
       }
     }
   }
-  const edges = [...edgesByKey.values()]
+  // The edges of each source follow the order of its family's children,
+  // which Gramps users sort by birth
+  const childIndex = edge => {
+    const family =
+      edge.family ??
+      graph
+        .parentFamilies(edge.toPerson)
+        .find(({father_handle: f, mother_handle: m}) =>
+          [f, m].includes(edge.fromPerson)
+        )
+    return (family?.child_ref_list ?? []).findIndex(
+      ({ref}) => ref === edge.toPerson
+    )
+  }
+  const edges = [...edgesByKey.values()].sort(
+    (a, b) => childIndex(a) - childIndex(b)
+  )
 
   // A child in the same group as their parents is linked by an arch
   for (const edge of edges) {
@@ -337,11 +353,66 @@ function edgeEnds(model, edge, options) {
   return {tail: `"${groupName(group)}":"${tailPort(group, port)}":s`, head}
 }
 
+// Returns the partner groups and the edges in the order dot starts from:
+// breadth first from the groups that no edge reaches, with the edges of a
+// group from left to right and each family's children in order
+function declarationOrder(model) {
+  const sourceGroup = edge =>
+    model.groupOfPerson.get(
+      edge.family ? edge.family.father_handle : edge.fromPerson
+    )
+  // Where an edge leaves its group, counted in cards from the left
+  const sourceIndex = edge => {
+    const group = sourceGroup(edge)
+    if (!edge.family) {
+      return group.members.indexOf(edge.fromPerson)
+    }
+    const {left, right} = group.families.find(
+      ({family}) => family.handle === edge.family.handle
+    )
+    return (left + right) / 2
+  }
+  const edgesOf = new Map()
+  model.edges.forEach((edge, i) => {
+    const group = sourceGroup(edge)
+    edgesOf.set(group, [...(edgesOf.get(group) ?? []), {edge, i}])
+  })
+  const reached = new Set(
+    model.edges.map(edge => model.groupOfPerson.get(edge.toPerson))
+  )
+  const groups = model.groups.filter(group => !reached.has(group))
+  const seen = new Set(groups)
+  const edges = []
+  for (let g = 0; g < groups.length; g += 1) {
+    // The model's edges of one source are in the order of its children
+    const own = (edgesOf.get(groups[g]) ?? []).sort(
+      (a, b) => sourceIndex(a.edge) - sourceIndex(b.edge) || a.i - b.i
+    )
+    for (const {edge, i} of own) {
+      edges.push({edge, i})
+      const target = model.groupOfPerson.get(edge.toPerson)
+      if (!seen.has(target)) {
+        seen.add(target)
+        groups.push(target)
+      }
+    }
+  }
+  // Groups in cycles of edges, which no root reaches
+  for (const group of model.groups) {
+    if (!seen.has(group)) {
+      groups.push(group)
+      edges.push(...(edgesOf.get(group) ?? []))
+    }
+  }
+  return {groups, edges}
+}
+
 // Returns the DOT source for a relationship model, with cards of `boxWidth`
 // by `boxHeight` pixels
 export function relationshipDot(model, options = relationshipLayoutDefaults) {
   const {boxHeight} = options
-  const statements = model.groups.map(group => {
+  const order = declarationOrder(model)
+  const statements = order.groups.map(group => {
     const {cells, width} = groupCells(group, options)
     const row = (height, prefix = '') =>
       `<TR>${cells
@@ -365,7 +436,7 @@ export function relationshipDot(model, options = relationshipLayoutDefaults) {
       ''
     )}</TABLE>>]`
   })
-  model.edges.forEach((edge, i) => {
+  order.edges.forEach(({edge, i}) => {
     const {tail, head} = edgeEnds(model, edge, options)
     statements.push(`${tail} -> ${head} [id="e${i}"]`)
   })
