@@ -58,7 +58,7 @@ export class GrampsjsWebPushSettings extends GrampsjsAppStateMixin(LitElement) {
       _status: {type: String},
       _error: {type: String},
       _busy: {type: Boolean},
-      _publicKey: {type: String},
+      publicKey: {type: String},
       _subscription: {type: Object},
       _pendingDeletionEndpoint: {type: String},
     }
@@ -69,7 +69,7 @@ export class GrampsjsWebPushSettings extends GrampsjsAppStateMixin(LitElement) {
     this._status = 'loading'
     this._error = ''
     this._busy = false
-    this._publicKey = ''
+    this.publicKey = ''
     this._subscription = null
     this._pendingDeletionEndpoint = ''
   }
@@ -177,8 +177,7 @@ export class GrampsjsWebPushSettings extends GrampsjsAppStateMixin(LitElement) {
   }
 
   async _registration() {
-    const current = await navigator.serviceWorker.getRegistration()
-    return current || navigator.serviceWorker.ready
+    return navigator.serviceWorker.getRegistration()
   }
 
   async _loadState() {
@@ -190,16 +189,15 @@ export class GrampsjsWebPushSettings extends GrampsjsAppStateMixin(LitElement) {
     }
     this._status = 'loading'
     try {
-      const result = await this.appState.apiGet(PUSH_SUBSCRIPTIONS_ENDPOINT)
-      if ('error' in result) {
-        throw new Error(result.error)
-      }
-      if (!result.data?.public_key) {
+      if (!this.publicKey) {
         this._status = 'unavailable'
         return
       }
-      this._publicKey = result.data.public_key
       const registration = await this._registration()
+      if (!registration?.pushManager) {
+        this._status = 'unsupported'
+        return
+      }
       this._subscription = await registration.pushManager.getSubscription()
       if (this._subscription) {
         const syncResult = await this._saveSubscription(this._subscription)
@@ -241,11 +239,15 @@ export class GrampsjsWebPushSettings extends GrampsjsAppStateMixin(LitElement) {
         return
       }
       const registration = await this._registration()
+      if (!registration?.pushManager) {
+        this._status = 'unsupported'
+        return
+      }
       let subscription = await registration.pushManager.getSubscription()
       if (!subscription) {
         subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(this._publicKey),
+          applicationServerKey: urlBase64ToUint8Array(this.publicKey),
         })
         createdSubscription = subscription
       }
