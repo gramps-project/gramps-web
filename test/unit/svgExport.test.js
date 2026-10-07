@@ -139,6 +139,25 @@ describe('chartSvgDocument', () => {
     expect(fetchOnce).toHaveBeenCalledTimes(1)
   })
 
+  it('embeds images when the access token changes during the fetches', async () => {
+    let token = 0
+    const changingToken = parse(
+      await chartSvgDocument(
+        TreeChart,
+        layout,
+        {
+          ...liveOptions,
+          getImageUrl: node => {
+            token += 1
+            return `https://example.com/${node.handle}?jwt=${token}`
+          },
+        },
+        {fetchImage}
+      )
+    )
+    expect(imageHrefs(changingToken)).toHaveLength(2)
+  })
+
   it('draws cards without images when the chart has none', async () => {
     const fetchNone = vi.fn(fetchImage)
     const noImages = parse(

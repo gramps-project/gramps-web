@@ -48,12 +48,15 @@ export async function chartSvgDocument(
   const chart = new ChartClass()
   const {getImageUrl = () => ''} = options
   const people = chart.drawnNodes(layout).filter(node => chart.isPerson(node))
-  const dataUris = await imageDataUris(people.map(getImageUrl), fetchImage)
+  // Image URLs carry the access token, which can be refreshed while the
+  // images are fetched, so each node's URL is read once
+  const urls = new Map(people.map(node => [node, getImageUrl(node)]))
+  const dataUris = await imageDataUris([...urls.values()], fetchImage)
   chart.update(layout, {
     ...options,
     interactive: false,
     palette: exportPalette,
-    getImageUrl: node => dataUris.get(getImageUrl(node)) ?? '',
+    getImageUrl: node => dataUris.get(urls.get(node)) ?? '',
     duration: 0,
     bboxWidth: 0,
     bboxHeight: 0,
