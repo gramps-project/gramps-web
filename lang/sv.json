@@ -438,5 +438,20 @@
     "Public data from %s": "Offentliga data från %s",
     "Your maps": "Dina kartor",
     "No buildings here": "Inga byggnader här",
-    "The map could not be loaded.": "Kartan kunde inte läsas in."
+    "The map could not be loaded.": "Kartan kunde inte läsas in.",
+    "Desktop sync": "Synkronisering till dator",
+    "Add sync device": "Lägg till synkroniseringsenhet",
+    "Device name": "Enhetsnamn",
+    "Created": "Skapad",
+    "Last used": "Senast använd",
+    "Access token created": "Åtkomsttoken har skapats",
+    "Copy the token now. It will not be shown again.": "Kopiera token nu. Den kommer inte att visas igen.",
+    "Genealogical symbols": "Släktforskningssymboler",
+    "Unicode symbols (∗ † ⚭ ⚮)": "Unicode-symboler (∗ † ⚭ ⚮)",
+    "Text abbreviations (b. d. m. div.)": "Textförkortningar (f. d. g. skild)",
+    "Left out of the export": "Utelämnad från exporten",
+    "The import has completed.": "Importen har slutförts.",
+    "Problems found during the import": "Problem som upptäcktes under importen",
+    "Problems found in this file": "Problem som hittats i den här filen",
+    "Insert image": "Infoga bild"
 }
