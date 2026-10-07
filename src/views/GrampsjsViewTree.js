@@ -29,6 +29,7 @@ import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import '../components/GrampsjsFormSelectObject.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsPillToggle.js'
+import '../components/GrampsjsSvgDownloadButton.js'
 import '../components/GrampsjsTooltip.js'
 import '../components/GrampsjsTreeChartAddPerson.js'
 import {
@@ -144,7 +145,8 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
           }
         }
 
-        #controls md-icon-button {
+        #controls md-icon-button,
+        #controls grampsjs-svg-download-button {
           --md-icon-button-icon-size: 26px;
         }
 
@@ -539,6 +541,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
       ${this.definition.zoomable ? this.renderViewportControls() : ''}
       ${this.definition.renderControls?.(this) ?? ''}
       <span class="divider"></span>
+      ${this.definition.exportable ? this.renderExportControls() : ''}
       <md-icon-button
         id="btn-controls"
         aria-label="${this._('Preferences')}"
@@ -634,14 +637,31 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     `
   }
 
+  // Saves the chart as an SVG file named after the selected person and the
+  // chart
+  renderExportControls() {
+    return html`
+      <grampsjs-svg-download-button
+        filename="${this.grampsId}-${this.chart}.svg"
+        .svgDocument=${() => this._chartComponent()?.svgDocument() ?? null}
+        .appState="${this.appState}"
+      ></grampsjs-svg-download-button>
+    `
+  }
+
+  // The component of the chart with cards
+  _chartComponent() {
+    return this.renderRoot?.querySelector(
+      '#chart grampsjs-tree-chart, #chart grampsjs-relationship-chart'
+    )
+  }
+
   // The viewport of the chart, if it has viewport controls
   _chartViewport() {
     if (!this.definition.zoomable) {
       return undefined
     }
-    return this.renderRoot?.querySelector(
-      '#chart grampsjs-tree-chart, #chart grampsjs-relationship-chart'
-    )?.viewport
+    return this._chartComponent()?.viewport
   }
 
   _runViewportAction(action) {
