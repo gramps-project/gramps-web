@@ -89,15 +89,21 @@ const schemeCategorical = [
 // The colour of a count from 1, with 8 and above sharing the last colour
 const countColor = count => schemeYlOrRd[9][count > 8 ? 8 : count]
 
-// Returns the categories of `values` from most to least frequent
-function categoriesByFrequency(values) {
-  const counter = values
-    .filter(value => value !== undefined)
-    .reduce((acc, value) => {
-      acc[value] = (acc[value] || 0) + 1
-      return acc
-    }, {})
-  return Object.entries(counter)
+// Returns the categories of the people in `nodes` by `categoryOf(person)`,
+// from the largest to the smallest share of the chart. The share of a
+// category is the sum of the angles of its arcs. Each generation fills the
+// circle, so an ancestor's angle is their share of the root person's
+// ancestry, and categories of large branches come before those of many small
+// arcs in the outer generations.
+function categoriesByShare(nodes, categoryOf) {
+  const shares = new Map()
+  for (const node of nodes) {
+    const category = categoryOf(node.person)
+    if (category !== undefined) {
+      shares.set(category, (shares.get(category) ?? 0) + node.x1 - node.x0)
+    }
+  }
+  return [...shares.entries()]
     .sort((a, b) => b[1] - a[1])
     .map(([category]) => category)
 }
@@ -174,7 +180,7 @@ function colorScheme(nodes, color, palette, otherLabel) {
     }
   }
   if (mode.type === 'category') {
-    const categories = categoriesByFrequency(people.map(mode.fct))
+    const categories = categoriesByShare(nodes, mode.fct)
     const legendData = categories.slice(0, 9).map((category, i) => ({
       label: category,
       color: schemeCategorical[i],

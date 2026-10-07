@@ -98,6 +98,46 @@ describe('FanChart', () => {
     expect(drawn().node.querySelector('#legend').childElementCount).toBe(0)
   })
 
+  it('orders categories by their share of the chart', () => {
+    // Brown has three arcs in the outermost generation, which together are
+    // smaller than the one arc of Jones
+    const families = {
+      fR: family('fR', 'F', 'M', ['R']),
+      fF: family('fF', 'FF', 'FM', ['F']),
+      fFF: family('fFF', 'FFF', 'FFM', ['FF']),
+      fFM: family('fFM', 'FMF', '', ['FM']),
+    }
+    const shares = new FamilyGraph([
+      person('R', 'Smith', {parentFamily: families.fR}),
+      person('F', 'Smith', {
+        parentFamily: families.fF,
+        families: [families.fR],
+      }),
+      person('M', 'Jones', {families: [families.fR]}),
+      person('FF', 'Smith', {
+        parentFamily: families.fFF,
+        families: [families.fF],
+      }),
+      person('FM', 'White', {
+        parentFamily: families.fFM,
+        families: [families.fF],
+      }),
+      person('FFF', 'Brown', {families: [families.fFF]}),
+      person('FFM', 'Brown', {families: [families.fFF]}),
+      person('FMF', 'Brown', {families: [families.fFM]}),
+    ])
+    const chart = new FanChart()
+    chart.update(layoutFan(shares, 'R', {depth: 4}), {
+      ...size,
+      color: 'surname',
+    })
+    expect(
+      [...chart.node.querySelectorAll('#legend text')].map(
+        text => text.textContent
+      )
+    ).toEqual(['Smith', 'Jones', 'Brown', 'White'])
+  })
+
   it('takes colours from the palette', () => {
     const chart = drawn({color: 'nEvents', palette: exportPalette})
     expect(chart.node.outerHTML).not.toContain('var(')
