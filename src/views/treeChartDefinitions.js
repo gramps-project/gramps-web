@@ -16,7 +16,8 @@ import {chartNameDisplayFormat, menuSelectionHandler} from '../util.js'
 // A chart definition describes one chart of the tree view:
 // - `settings`: the settings in the settings dialog. Each is stored in the
 //   user settings under `key` and has a `name` in the setting values, a
-//   `label`, a `type` ('number' or 'nameDisplayFormat') and a `default`.
+//   `label`, a `type` and a `default`. A 'number' setting can have a `min`;
+//   a 'select' setting has `options`, each with a `value` and a `label`.
 // - `editable`: whether people can be added to the chart in edit mode.
 // - `zoomable`: whether the chart has zoom and pan controls and keys.
 // - `exportable`: whether the chart can be downloaded as an SVG file. Its
@@ -54,8 +55,30 @@ const nameDisplayFormatSetting = key => ({
   name: 'nameDisplayFormat',
   key,
   label: 'Name Display Format',
-  type: 'nameDisplayFormat',
+  type: 'select',
+  options: Object.values(chartNameDisplayFormat).map(format => ({
+    value: format,
+    label: format,
+  })),
   default: chartNameDisplayFormat.surnameThenGiven,
+})
+
+// Whether generations run in columns or in rows, with ancestors above. As
+// in Gramps, the arrows point where the chart grows: towards the ancestors,
+// or for a chart of descendants only, towards them.
+const orientationSetting = (key, {descendants = false} = {}) => ({
+  name: 'orientation',
+  key,
+  label: 'Tree direction',
+  type: 'select',
+  options: [
+    {
+      value: 'horizontal',
+      label: descendants ? 'Horizontal (←)' : 'Horizontal (→)',
+    },
+    {value: 'vertical', label: descendants ? 'Vertical (↓)' : 'Vertical (↑)'},
+  ],
+  default: 'horizontal',
 })
 
 const ancestorsSetting = (key, defaultValue) => ({
@@ -157,6 +180,7 @@ export const chartDefinitions = {
   ancestor: {
     settings: [
       ancestorsSetting('treeChartAnc', 3),
+      orientationSetting('treeChartOrientation'),
       nameDisplayFormatSetting('treeChartNameDisplayFormat'),
     ],
     editable: true,
@@ -172,6 +196,7 @@ export const chartDefinitions = {
         grampsId=${grampsId}
         nAnc=${values.ancestors + 1}
         nDesc="2"
+        ?vertical=${values.orientation === 'vertical'}
         nameDisplayFormat=${values.nameDisplayFormat}
         ?canEdit="${canEdit}"
         .data=${data}
@@ -184,6 +209,7 @@ export const chartDefinitions = {
   descendant: {
     settings: [
       descendantsSetting('descendantChartDesc', 1),
+      orientationSetting('descendantChartOrientation', {descendants: true}),
       nameDisplayFormatSetting('descendantChartNameDisplayFormat'),
     ],
     editable: true,
@@ -199,6 +225,7 @@ export const chartDefinitions = {
         grampsId=${grampsId}
         nAnc="2"
         nDesc=${values.descendants + 1}
+        ?vertical=${values.orientation === 'vertical'}
         nameDisplayFormat=${values.nameDisplayFormat}
         ?canEdit="${canEdit}"
         .data=${data}
@@ -213,6 +240,7 @@ export const chartDefinitions = {
     settings: [
       ancestorsSetting('hourglassChartAnc', 2),
       descendantsSetting('hourglassChartDesc', 1),
+      orientationSetting('hourglassChartOrientation'),
       nameDisplayFormatSetting('hourglassChartNameDisplayFormat'),
     ],
     editable: true,
@@ -229,6 +257,7 @@ export const chartDefinitions = {
         grampsId=${grampsId}
         nAnc=${values.ancestors + 1}
         nDesc=${values.descendants + 1}
+        ?vertical=${values.orientation === 'vertical'}
         nameDisplayFormat=${values.nameDisplayFormat}
         ?canEdit="${canEdit}"
         .data=${data}

@@ -177,3 +177,41 @@ describe('layoutHourglass', () => {
     expect(shallow.links.every(l => l.source === shallow.nodes[0])).toBe(true)
   })
 })
+
+describe('vertical layouts', () => {
+  const layout = layoutHourglass(graph, 'R', {
+    ancestorDepth: 2,
+    descendantDepth: 2,
+    vertical: true,
+  })
+
+  it('places ancestors in rows above and descendants in rows below', () => {
+    expect(positions(layout)).toEqual([
+      {key: 'p', handle: 'R', generation: 0, x: 0, y: 0},
+      {key: 'pf', handle: 'F', generation: 1, x: -105, y: -130},
+      {key: 'pm', handle: 'M', generation: 1, x: 105, y: -130},
+      {key: 'pc0', handle: 'K1', generation: -1, x: -105, y: 130},
+      {key: 'pc1', handle: 'K2', generation: -1, x: 105, y: 130},
+    ])
+    expect(layout.vertical).toBe(true)
+  })
+
+  it('includes the boxes and vertical padding in the bounds', () => {
+    expect(layout.bounds).toEqual({
+      xMin: -200,
+      xMax: 200,
+      yMin: -195,
+      yMax: 195,
+    })
+  })
+
+  it('places a single chart vertically too', () => {
+    const ancestors = layoutAncestors(graph, 'R', {depth: 2, vertical: true})
+    const descendants = layoutDescendants(graph, 'R', {
+      depth: 2,
+      vertical: true,
+    })
+    expect(ancestors.nodes.slice(1).map(node => node.y)).toEqual([-130, -130])
+    expect(descendants.nodes.slice(1).map(node => node.y)).toEqual([130, 130])
+  })
+})

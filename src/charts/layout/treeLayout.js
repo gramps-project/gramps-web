@@ -6,18 +6,30 @@ import {getDescendantTree, getTree} from '../util.js'
 export const treeLayoutDefaults = {
   boxWidth: 190,
   boxHeight: 90,
-  gapX: 30, // horizontal gap between generations
-  gapY: 5, // vertical gap between people
-  padding: 20, // horizontal padding beyond the outermost generations
+  vertical: false, // generations in rows instead of columns
+  gapX: 30, // gap between generations in columns
+  gapY: 5, // gap between people in a column
+  rowGap: 40, // gap between generations in rows
+  columnGap: 20, // gap between people in a row
+  padding: 20, // padding beyond the outermost generations
 }
 
 // Lays out a tree from `getTree` or `getDescendantTree` with the root person
 // at the origin. Generations are placed in columns to the right for
-// `direction` 1 and to the left for -1.
-function layoutTree(data, direction, {boxWidth, boxHeight, gapX, gapY}) {
+// `direction` 1 and to the left for -1, or with `vertical`, in rows above for
+// `direction` 1 and below for -1.
+function layoutTree(
+  data,
+  direction,
+  {vertical, boxWidth, boxHeight, gapX, gapY, rowGap, columnGap}
+) {
   const root = hierarchy(data)
   tree()
-    .nodeSize([boxHeight + gapY, boxWidth + gapX])
+    .nodeSize(
+      vertical
+        ? [boxWidth + columnGap, boxHeight + rowGap]
+        : [boxHeight + gapY, boxWidth + gapX]
+    )
     .separation(() => 1)(root)
   const nodes = new Map(
     root.descendants().map(d => [
@@ -28,8 +40,9 @@ function layoutTree(data, direction, {boxWidth, boxHeight, gapX, gapY}) {
         person: d.data.person,
         // `|| 0` avoids -0 for the root person
         generation: direction * d.depth || 0,
-        x: direction * d.y || 0,
-        y: d.x,
+        ...(vertical
+          ? {x: d.x, y: -direction * d.y || 0}
+          : {x: direction * d.y || 0, y: d.x}),
       },
     ])
   )
@@ -45,23 +58,26 @@ function layoutTree(data, direction, {boxWidth, boxHeight, gapX, gapY}) {
   }
 }
 
-// Adds the extent of the boxes, with horizontal padding
-function withBounds({nodes, links}, {boxWidth, boxHeight, padding}) {
+// Adds the extent of the boxes, with padding beyond the outermost
+// generations, and whether the layout is `vertical`
+function withBounds({nodes, links}, {vertical, boxWidth, boxHeight, padding}) {
   const [xMin, xMax] = extent(nodes, node => node.x)
   const [yMin, yMax] = extent(nodes, node => node.y)
+  const [padX, padY] = vertical ? [0, padding] : [padding, 0]
   return {
     nodes,
     links,
+    vertical,
     bounds: {
-      xMin: xMin - boxWidth / 2 - padding,
-      xMax: xMax + boxWidth / 2 + padding,
-      yMin: yMin - boxHeight / 2,
-      yMax: yMax + boxHeight / 2,
+      xMin: xMin - boxWidth / 2 - padX,
+      xMax: xMax + boxWidth / 2 + padX,
+      yMin: yMin - boxHeight / 2 - padY,
+      yMax: yMax + boxHeight / 2 + padY,
     },
   }
 }
 
-// The layout functions return `{nodes, links, bounds}`. Each node has a
+// The layout functions return `{nodes, links, bounds, vertical}`. Each node has a
 // unique `key`, the person's `handle` and `person` object, a `generation`
 // that is positive for ancestors and negative for descendants, and the
 // centre `x`, `y` of its box. Each link has a `source` and a `target` node

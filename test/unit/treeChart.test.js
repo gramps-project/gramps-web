@@ -9,7 +9,12 @@ import {
 } from '../../src/charts/layout/treeLayout.js'
 import {chartNameDisplayFormat} from '../../src/util.js'
 import {chartPalette} from '../../src/charts/palette.js'
-import {mdiChevronLeft, mdiChevronRight} from '@mdi/js'
+import {
+  mdiChevronDown,
+  mdiChevronLeft,
+  mdiChevronRight,
+  mdiChevronUp,
+} from '@mdi/js'
 
 const family = (handle, father, mother, children) => ({
   handle,
@@ -150,10 +155,17 @@ describe('TreeChart', () => {
     expect(triangle().getAttribute('transform')).toBe('translate(-127,0)')
     expect(shape().getAttribute('d')).toBe(mdiChevronLeft)
     const element = triangle()
-    chart.update(layout, {...size, childrenTriangle: true, orientation: 'RTL'})
+    chart.update(layout, {...size, childrenTriangle: true, menuSide: 'right'})
     expect(triangle()).toBe(element)
     expect(triangle().getAttribute('transform')).toBe('translate(123,0)')
     expect(shape().getAttribute('d')).toBe(mdiChevronRight)
+    // 8px from the box above and below
+    chart.update(layout, {...size, childrenTriangle: true, menuSide: 'bottom'})
+    expect(triangle().getAttribute('transform')).toBe('translate(0,73)')
+    expect(shape().getAttribute('d')).toBe(mdiChevronDown)
+    chart.update(layout, {...size, childrenTriangle: true, menuSide: 'top'})
+    expect(triangle().getAttribute('transform')).toBe('translate(0,-73)')
+    expect(shape().getAttribute('d')).toBe(mdiChevronUp)
     chart.update(layout, size)
     expect(triangle()).toBeNull()
   })
@@ -445,7 +457,7 @@ describe('TreeChart', () => {
     // to the middle child only the line from the bar
     expect(paths.get('A')).toMatch(/Q/)
     expect(paths.get('C')).toMatch(/Q/)
-    expect(paths.get('B')).toMatch(/^M[^A-Z]+H[^A-Z]+$/)
+    expect(paths.get('B')).toMatch(/^M[^A-Z]+L[^A-Z]+$/)
   })
 
   it('dashes the lines that lead to children who are not birth children only', () => {
@@ -507,6 +519,42 @@ describe('TreeChart', () => {
       ])
     )
     expect(dashes).toEqual({F: '6 4', M: null})
+  })
+
+  it('draws links between rows in a vertical chart', () => {
+    const chart = new TreeChart()
+    chart.update(layoutAncestors(graph, 'R', {depth: 2, vertical: true}), size)
+    const paths = Object.fromEntries(
+      [...chart.node.querySelectorAll('path.link')].map(path => [
+        path.__data__.target.handle,
+        path.getAttribute('d'),
+      ])
+    )
+    // The stem goes up from 10px inside R's card to the middle of the gap,
+    // where the bar to F and M runs
+    expect(paths.F).toMatch(/^M0,-35L0,-65L/)
+    expect(paths.M).toMatch(/^M0,-65L/)
+  })
+
+  it('fades the links when the chart turns between columns and rows', () => {
+    const chart = new TreeChart()
+    const links = () => [...chart.node.querySelectorAll('path.link')]
+    chart.update(layoutAncestors(graph, 'R', {depth: 2}), size)
+    const columns = links()
+    chart.update(layoutAncestors(graph, 'R', {depth: 2, vertical: true}), {
+      ...size,
+      duration: 100,
+    })
+    const rows = links().filter(path => !columns.includes(path))
+    expect(rows).toHaveLength(2)
+    expect(rows.every(path => path.style.opacity === '0')).toBe(true)
+    // A new layout in rows moves the same links
+    chart.update(layoutAncestors(graph, 'R', {depth: 2, vertical: true}), {
+      ...size,
+      duration: 100,
+    })
+    expect(links().filter(path => rows.includes(path))).toHaveLength(2)
+    select(chart.node).selectAll('*').interrupt()
   })
 
   it('clears people and links but keeps the zoom', () => {

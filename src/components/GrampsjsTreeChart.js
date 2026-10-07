@@ -29,6 +29,7 @@ const layoutProperties = [
   'nAnc',
   'nDesc',
   'gapX',
+  'vertical',
 ]
 
 class GrampsjsTreeChart extends GrampsjsChartBase {
@@ -52,6 +53,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       ancestors: {type: Boolean},
       descendants: {type: Boolean},
       gapX: {type: Number},
+      vertical: {type: Boolean},
       nameDisplayFormat: {type: String},
       canEdit: {type: Boolean},
     }
@@ -63,6 +65,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     this.nAnc = 5
     this.nDesc = 5
     this.gapX = 30
+    this.vertical = false
     this._chart = new TreeChart()
   }
 
@@ -112,17 +115,20 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
         ancestorDepth: this.nAnc,
         descendantDepth: this.nDesc,
         gapX: this.gapX,
+        vertical: this.vertical,
       })
     }
     if (this.descendants) {
       return layoutDescendants(this._graph, handle, {
         depth: this.nDesc,
         gapX: this.gapX,
+        vertical: this.vertical,
       })
     }
     return layoutAncestors(this._graph, handle, {
       depth: this.nAnc,
       gapX: this.gapX,
+      vertical: this.vertical,
     })
   }
 
@@ -139,7 +145,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       childrenTriangle: this._relatives().length > 0,
       triangleLabel: this.descendants ? this._('Parents') : this._('Children'),
       getImageUrl: d => getImageUrl(d.person, 100),
-      orientation: this.descendants ? 'RTL' : 'LTR',
+      menuSide: this._menuSide(),
       bboxWidth: this.containerWidth,
       bboxHeight: this.containerHeight,
       nameDisplayFormat: this.nameDisplayFormat,
@@ -147,6 +153,15 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       canEdit: this.canEdit,
       duration: chartTransitionDuration(),
     }
+  }
+
+  // The menu of relatives is on the side of the root person's card that
+  // faces away from the chart
+  _menuSide() {
+    if (this.vertical) {
+      return this.descendants ? 'top' : 'bottom'
+    }
+    return this.descendants ? 'right' : 'left'
   }
 
   // Returns the relatives in the menu of the root person's triangle: the
