@@ -18,6 +18,23 @@ export function serializePushSubscription(subscription) {
   }
 }
 
+export async function removeWebPushSubscription(deleteRemote) {
+  const registration = await navigator.serviceWorker?.getRegistration?.()
+  const subscription = await registration?.pushManager?.getSubscription?.()
+  if (!subscription) return true
+
+  const [local, remote] = await Promise.allSettled([
+    Promise.resolve().then(() => subscription.unsubscribe()),
+    Promise.resolve().then(() => deleteRemote(subscription.endpoint)),
+  ])
+  return Boolean(
+    (local.status === 'fulfilled' && local.value !== false) ||
+      (remote.status === 'fulfilled' &&
+        remote.value &&
+        !('error' in remote.value))
+  )
+}
+
 function safeSameOriginUrl(value, baseUrl) {
   if (typeof value !== 'string' || !value) return undefined
   try {
@@ -59,4 +76,13 @@ export function normalizeWebPushNotification(payload, baseUrl) {
 
 export function webPushTargetUrl(value, baseUrl) {
   return safeSameOriginUrl(value, baseUrl) || baseUrl
+}
+
+export async function focusOrOpenWebPushWindow(clients, targetUrl) {
+  const windowClients = await clients.matchAll({
+    type: 'window',
+    includeUncontrolled: true,
+  })
+  const target = windowClients.find(client => client.url === targetUrl)
+  return target ? target.focus() : clients.openWindow(targetUrl)
 }
