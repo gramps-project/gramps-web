@@ -89,6 +89,8 @@ body {
             var(--md-sys-color-primary) 40%,
             transparent);
     --grampsjs-connection-chart-person-box: #e6e6e6;
+    --grampsjs-chart-person-box: rgb(230, 230, 230);
+    --grampsjs-chart-family-marker-fill: rgb(220, 220, 220);
     --grampsjs-editable-list-hover-background-color: color-mix(in srgb,
             var(--mdc-theme-secondary) 10%,
             transparent);
@@ -199,6 +201,8 @@ body {
     --grampsjs-color-shade-220: rgb(35, 35, 35);
     --grampsjs-color-shade-230: rgb(25, 25, 25);
     --grampsjs-color-shade-240: rgb(15, 15, 15);
+    --grampsjs-chart-person-box: rgb(48, 48, 48);
+    --grampsjs-chart-family-marker-fill: rgb(62, 62, 62);
     --grampsjs-color-shade-255: rgb(0, 0, 0);
     --grampsjs-color-monospace: rgba(255, 100, 100, 0.85);
     --grampsjs-color-drawer-text: #bbb;

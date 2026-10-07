@@ -4,12 +4,12 @@ import {sexColor} from '../util.js'
 // the app theme.
 export const chartPalette = {
   sex: sexColor,
-  personBox: 'var(--grampsjs-color-shade-230)',
+  personBox: 'var(--grampsjs-chart-person-box)',
   text: 'var(--grampsjs-body-font-color-90)',
   link: 'var(--grampsjs-body-font-color-70)',
   relationshipLink: 'var(--grampsjs-body-font-color-40)',
   familyMarker: 'var(--grampsjs-body-font-color-40)',
-  familyMarkerFill: 'var(--grampsjs-color-shade-220)',
+  familyMarkerFill: 'var(--grampsjs-chart-family-marker-fill)',
   triangle: 'var(--grampsjs-body-font-color-35)',
   triangleHover: 'var(--grampsjs-body-font-color-10)',
   shadow: 'var(--grampsjs-body-font-color-30)',

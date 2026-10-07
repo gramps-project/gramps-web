@@ -22,7 +22,7 @@ export function appendFamilyMarker(
     .attr('y1', y)
     .attr('y2', y)
     .attr('stroke', palette.familyMarker)
-    .attr('stroke-width', 1)
+    .attr('stroke-width', 1.5)
   married
     .append('circle')
     .attr('class', 'married')

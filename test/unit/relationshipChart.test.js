@@ -70,6 +70,26 @@ const viewPosition = (chart, key) => {
 const expectClose = (actual, expected) =>
   actual.forEach((value, i) => expect(value).toBeCloseTo(expected[i]))
 
+// Returns the point each command of an SVG path ends at
+const pathPoints = d => {
+  const points = []
+  for (const [, command, args] of d.matchAll(/([MLQHV])([^MLQHV]*)/g)) {
+    const numbers = args
+      .trim()
+      .split(/[\s,]+/)
+      .map(Number)
+    const [x, y] = points.at(-1) ?? [0, 0]
+    if (command === 'H') {
+      points.push([numbers[0], y])
+    } else if (command === 'V') {
+      points.push([x, numbers[0]])
+    } else {
+      points.push(numbers.slice(-2))
+    }
+  }
+  return points
+}
+
 const click = node =>
   node.dispatchEvent(new MouseEvent('click', {bubbles: true}))
 
@@ -101,10 +121,16 @@ describe('RelationshipChart', () => {
     const dashed = [...chart.node.querySelectorAll('path.link')].filter(path =>
       path.getAttribute('stroke-dasharray')
     )
-    expect(dashed.map(path => path.__data__.source.key)).toEqual(['family:fA'])
+    // R is the only child of A1 and A2, so their whole trunk is dashed too
+    expect(
+      dashed.map(path => [path.__data__.kind, path.__data__.source.key]).sort()
+    ).toEqual([
+      ['child', 'family:fA'],
+      ['trunk', 'family:fA'],
+    ])
   })
 
-  it('starts the links of a family at its marker', async () => {
+  it('starts the trunk of a family at its marker', async () => {
     const chart = new RelationshipChart()
     chart.update(await layoutRelationships(graph, 'R'), size)
     const marker = nodeWithKey(chart, 'family:fRT')
@@ -112,10 +138,9 @@ describe('RelationshipChart', () => {
     const ring = marker.querySelector('circle.married')
     const [cx, cy] = ['cx', 'cy'].map(name => Number(ring.getAttribute(name)))
     const link = [...chart.node.querySelectorAll('path.link')].find(
-      path => path.__data__.source.key === 'family:fRT'
+      path => path.__data__.key === 'trunk:family:fRT'
     )
-    const [, startX, startY] = /^M([^,]+),([^C]+)/.exec(link.getAttribute('d'))
-    expectClose([Number(startX), Number(startY)], [x + cx, y + cy])
+    expectClose(pathPoints(link.getAttribute('d'))[0], [x + cx, y + cy])
   })
 
   it('centres the family marker in the gap between the partner cards', async () => {
@@ -212,10 +237,9 @@ describe('RelationshipChart', () => {
     const ring = marker.querySelector('circle.married')
     const [cx, cy] = ['cx', 'cy'].map(name => Number(ring.getAttribute(name)))
     const link = [...chart.node.querySelectorAll('path.link')].find(
-      path => path.__data__.source.key === 'family:fRW'
+      path => path.__data__.key === 'trunk:family:fRW'
     )
-    const [, startX, startY] = /^M([^,]+),([^C]+)/.exec(link.getAttribute('d'))
-    expectClose([Number(startX), Number(startY)], [x + cx, y + cy])
+    expectClose(pathPoints(link.getAttribute('d'))[0], [x + cx, y + cy])
     expect(brackets[0].getAttribute('d')).toContain(`V${cy}`)
   })
 
@@ -244,9 +268,10 @@ describe('RelationshipChart', () => {
     const [h] = translateOf(nodeWithKey(chart, 'person:H'))
     expect(d).toBeGreaterThan(h)
     // Up from the marker, across above the cards and down into D's card
-    expect(link.getAttribute('d')).toMatch(
-      new RegExp(`^M[^,]+,35V-65H${d}V-45$`)
-    )
+    const points = pathPoints(link.getAttribute('d'))
+    expect(points[0][1]).toBeCloseTo(35)
+    expect(Math.min(...points.map(([, y]) => y))).toBeCloseTo(-65)
+    expectClose(points.at(-1), [d, -45])
   })
 
   it('keeps one link from a single parent of several families', async () => {
@@ -259,15 +284,172 @@ describe('RelationshipChart', () => {
     ])
     const chart = new RelationshipChart()
     chart.update(await layoutRelationships(single, 'M'), size)
-    const [link, ...others] = chart.node.querySelectorAll('path.link')
+    const branches = () =>
+      [...chart.node.querySelectorAll('path.link')].filter(
+        path => path.__data__.kind === 'child'
+      )
+    const [link, ...others] = branches()
     expect(others).toHaveLength(0)
     expect(link.getAttribute('stroke-dasharray')).toBeNull()
     chart.update(await layoutRelationships(single, 'C'), {
       ...size,
       duration: 100,
     })
-    expect([...chart.node.querySelectorAll('path.link')]).toEqual([link])
+    expect(branches()).toHaveLength(1)
     select(chart.node).selectAll('*').interrupt()
+  })
+
+  it('fades the links of a new layout in while the old ones fade out', async () => {
+    const chart = new RelationshipChart()
+    chart.update(await layoutRelationships(graph, 'R'), size)
+    const before = [...chart.node.querySelectorAll('path.link')]
+    chart.update(await layoutRelationships(graph, 'K'), {
+      ...size,
+      duration: 100,
+    })
+    const after = [...chart.node.querySelectorAll('path.link')]
+    expect(after.length).toBe(before.length)
+    expect(after.some(path => before.includes(path))).toBe(false)
+    // The old links stay until they have faded out
+    expect(before.every(path => path.parentNode !== null)).toBe(true)
+    expect(after.every(path => path.style.opacity === '0')).toBe(true)
+    select(chart.node).selectAll('*').interrupt()
+  })
+
+  it('dashes only the lines that lead to adopted children alone', async () => {
+    // F and M have a birth child B and an adopted child A
+    const fFM = family('fFM', 'F', 'M', [
+      childRef('B'),
+      childRef('A', 'Adopted', 'Adopted'),
+    ])
+    const chart = new RelationshipChart()
+    chart.update(
+      await layoutRelationships(
+        new FamilyGraph([
+          person('F', {families: [fFM]}),
+          person('M', {families: [fFM]}),
+          person('B', {primary_parent_family: fFM}),
+          person('A', {primary_parent_family: fFM}),
+        ]),
+        'F'
+      ),
+      size
+    )
+    const paths = [...chart.node.querySelectorAll('path.link')]
+    const kinds = paths.map(path => path.__data__.kind).sort()
+    expect(kinds).toEqual(['child', 'child', 'trunk'])
+    const trunk = paths.find(path => path.__data__.kind === 'trunk')
+    expect(trunk.getAttribute('stroke-dasharray')).toBeNull()
+    // The stem and the bar towards B are solid, short of the rounded corner
+    // down to B
+    const [[stemX], , [left, barY], [right]] = pathPoints(
+      trunk.getAttribute('d')
+    )
+    const childX = key => translateOf(nodeWithKey(chart, key))[0]
+    const [a, b] = [childX('person:A'), childX('person:B')]
+    expectClose([left, right], b < a ? [b + 8, stemX] : [stemX, b - 8])
+    // The dashed line to A starts at the stem, runs along the bar and turns
+    // down
+    const adopted = paths.find(path => path.__data__.target?.key === 'person:A')
+    expect(adopted.getAttribute('stroke-dasharray')).not.toBeNull()
+    expect(adopted.getAttribute('d')).toContain('Q')
+    const [start] = pathPoints(adopted.getAttribute('d'))
+    expectClose(start, [stemX, barY])
+  })
+
+  it('dashes the bar beyond the last birth child on a side', async () => {
+    // B is a birth child; A and C are adopted, A beyond B
+    const fFM = family('fFM', 'F', 'M', [
+      childRef('B'),
+      childRef('A', 'Adopted', 'Adopted'),
+      childRef('C', 'Adopted', 'Adopted'),
+    ])
+    const layout = await layoutRelationships(
+      new FamilyGraph([
+        person('F', {families: [fFM]}),
+        person('M', {families: [fFM]}),
+        person('B', {primary_parent_family: fFM}),
+        person('A', {primary_parent_family: fFM}),
+        person('C', {primary_parent_family: fFM}),
+      ]),
+      'F'
+    )
+    // Children at 100, 200 and 300 to the right of the stem: B, C, A
+    const stemX = layout.links[0].points[0][0]
+    const offsets = {'person:B': 100, 'person:C': 200, 'person:A': 300}
+    for (const link of layout.links) {
+      const x = stemX + offsets[link.target.key]
+      link.points = [
+        ...link.points.slice(0, 2),
+        [x, link.points[1][1]],
+        [x, link.points.at(-1)[1]],
+      ]
+    }
+    const chart = new RelationshipChart()
+    chart.update(layout, size)
+    const paths = [...chart.node.querySelectorAll('path.link')]
+    const of = key => paths.find(path => path.__data__.target?.key === key)
+    const trunk = paths.find(path => path.__data__.kind === 'trunk')
+    expect(trunk.getAttribute('stroke-dasharray')).toBeNull()
+    // The solid bar ends at B, A's dashed line runs from there and C's
+    // drops from it
+    const barRight = pathPoints(trunk.getAttribute('d')).at(-1)[0]
+    expect(barRight).toBeCloseTo(stemX + 100)
+    expect(pathPoints(of('person:A').getAttribute('d'))[0][0]).toBeCloseTo(
+      stemX + 100
+    )
+    expect(pathPoints(of('person:C').getAttribute('d'))[0][0]).toBeCloseTo(
+      stemX + 200
+    )
+  })
+
+  it('keeps the stem square where it turns into the bar above a child', async () => {
+    // F and M have a child straight below them and another to one side
+    const fFM = family('fFM', 'F', 'M', [childRef('C'), childRef('D')])
+    const layout = await layoutRelationships(
+      new FamilyGraph([
+        person('F', {families: [fFM]}),
+        person('M', {families: [fFM]}),
+        person('C', {primary_parent_family: fFM}),
+        person('D', {primary_parent_family: fFM}),
+      ]),
+      'C'
+    )
+    // The bar runs from the stem to D only
+    const stemX = layout.links[0].points[0][0]
+    for (const link of layout.links) {
+      link.points[2][0] = link.target.key === 'person:C' ? stemX : stemX + 300
+      link.points[3][0] = link.points[2][0]
+      link.points.at(-1)[0] = link.points[2][0]
+    }
+    const chart = new RelationshipChart()
+    chart.update(layout, size)
+    const trunk = [...chart.node.querySelectorAll('path.link')].find(
+      path => path.__data__.kind === 'trunk'
+    )
+    const [start, corner] = pathPoints(trunk.getAttribute('d'))
+    expect(corner[0]).toBeCloseTo(start[0])
+    expect(trunk.getAttribute('d')).not.toContain('Q')
+  })
+
+  it('meets the bar square where the stem and a child line up', async () => {
+    // F and M have one child, straight below the family
+    const fFM = family('fFM', 'F', 'M', [childRef('C')])
+    const chart = new RelationshipChart()
+    chart.update(
+      await layoutRelationships(
+        new FamilyGraph([
+          person('F', {families: [fFM]}),
+          person('M', {families: [fFM]}),
+          person('C', {primary_parent_family: fFM}),
+        ]),
+        'C'
+      ),
+      size
+    )
+    for (const path of chart.node.querySelectorAll('path.link')) {
+      expect(path.getAttribute('d')).not.toContain('Q')
+    }
   })
 
   it('fits the whole chart into the view when asked', async () => {

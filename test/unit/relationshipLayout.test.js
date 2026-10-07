@@ -6,6 +6,8 @@ import {
   relationshipDot,
   relationshipModel,
 } from '../../src/charts/layout/relationshipLayout.js'
+import {trackSpacing} from '../../src/charts/layout/orthogonalRoutes.js'
+import {familyMarkerPosition} from '../../src/charts/familyMarker.js'
 
 const childRef = (ref, frel = 'Birth', mrel = 'Birth') => ({ref, frel, mrel})
 
@@ -336,7 +338,9 @@ describe('layoutRelationships', () => {
     for (const link of layout.links) {
       expect(link.points.length).toBeGreaterThan(1)
       expect(link.points[0][1]).toBeGreaterThanOrEqual(link.source.y)
-      expect(link.points.at(-1)[0]).toBeCloseTo(link.target.x)
+      expect(Math.abs(link.points.at(-1)[0] - link.target.x)).toBeLessThan(
+        190 / 4
+      )
       expect(link.points.at(-1)[1]).toBeCloseTo(link.target.y - 45)
     }
   })
@@ -349,5 +353,272 @@ describe('layoutRelationships', () => {
       expect(node.y).toBeGreaterThanOrEqual(bounds.yMin)
       expect(node.y).toBeLessThanOrEqual(bounds.yMax)
     }
+  })
+})
+
+// Returns the ways in which the routes of a layout break the rules of
+// right-angled links, as strings, for cards of 190 by 90 pixels
+function routeProblems({nodes, links, bounds}) {
+  const [boxWidth, boxHeight, eps] = [190, 90, 0.01]
+  const problems = []
+  const marker = familyMarkerPosition(boxHeight)
+  const cards = nodes.filter(node => node.kind === 'person')
+  const horizontals = []
+  const verticals = []
+  const inBounds = ([x, y]) =>
+    x >= bounds.xMin - eps &&
+    x <= bounds.xMax + eps &&
+    y >= bounds.yMin - eps &&
+    y <= bounds.yMax + eps
+  for (const link of links) {
+    const {points, source, target, key} = link
+    if (points.length < 4 || points.length % 2 !== 0) {
+      problems.push(`${key} has ${points.length} points`)
+      continue
+    }
+    const start =
+      source.kind === 'family'
+        ? [source.x + marker[0], source.y + marker[1]]
+        : [source.x, source.y + boxHeight / 2]
+    const near = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]) < eps
+    const [endX, endY] = points.at(-1)
+    if (
+      !near(points[0], start) ||
+      Math.abs(endY - (target.y - boxHeight / 2)) > eps ||
+      Math.abs(endX - target.x) > boxWidth / 4
+    ) {
+      problems.push(`${key} does not join its source and target`)
+    }
+    if (!points.every(inBounds)) {
+      problems.push(`${key} leaves the bounds`)
+    }
+    const arch = points[1][1] < points[0][1]
+    for (let i = 1; i < points.length; i += 1) {
+      const [[x0, y0], [x1, y1]] = [points[i - 1], points[i]]
+      const vertical = i % 2 === 1
+      if (vertical ? Math.abs(x1 - x0) > eps : Math.abs(y1 - y0) > eps) {
+        problems.push(`${key} has a slanted line`)
+      }
+      // The line down from a source and the bar below it are shared
+      const owner = i <= 2 && !arch ? source.key : `${key}#${i}`
+      const [lo, hi, at] = vertical
+        ? [Math.min(y0, y1), Math.max(y0, y1), x0]
+        : [Math.min(x0, x1), Math.max(x0, x1), y0]
+      ;(vertical ? verticals : horizontals).push({key, owner, lo, hi, at, i})
+      for (const card of cards) {
+        // An arch from a single parent starts under their own card
+        if (arch && card === source) continue
+        if (
+          Math.min(x0, x1) < card.x + boxWidth / 2 - eps &&
+          Math.max(x0, x1) > card.x - boxWidth / 2 + eps &&
+          Math.min(y0, y1) < card.y + boxHeight / 2 - eps &&
+          Math.max(y0, y1) > card.y - boxHeight / 2 + eps
+        ) {
+          problems.push(`${key} goes through ${card.key}`)
+        }
+      }
+    }
+  }
+  const barY = new Map()
+  for (const {owner, at, i, key} of horizontals) {
+    if (i === 2 && !owner.includes('#')) {
+      if (barY.has(owner) && Math.abs(barY.get(owner) - at) > eps) {
+        problems.push(`${key} leaves the bar of ${owner}`)
+      }
+      barY.set(owner, at)
+    }
+  }
+  // Lines of different owners do not run along each other
+  for (const [lines, spacing] of [
+    [horizontals, trackSpacing],
+    [verticals, 0],
+  ]) {
+    lines.sort((a, b) => a.at - b.at)
+    for (let i = 0; i < lines.length; i += 1) {
+      for (let j = i + 1; j < lines.length; j += 1) {
+        const [a, b] = [lines[i], lines[j]]
+        if (b.at - a.at > eps) break
+        if (a.owner === b.owner || a.hi - a.lo < eps || b.hi - b.lo < eps) {
+          continue
+        }
+        if (a.lo < b.hi + spacing - eps && b.lo < a.hi + spacing - eps) {
+          problems.push(`${a.key} runs along ${b.key}`)
+        }
+      }
+    }
+  }
+  return problems
+}
+
+// Returns a family tree of `generations` generations from one couple, made
+// the same for each `seed`: the first couple has three children and each
+// other couple up to five, some of whom are adopted, and children marry
+// people from outside the tree, some of them more than once, or a cousin
+function generatedTree(generations, seed) {
+  let state = seed
+  const random = () => {
+    state = (state * 16807) % 2147483647
+    return state / 2147483647
+  }
+  const families = []
+  let count = 0
+  const newPerson = () => `P${(count += 1)}`
+  let couples = [[newPerson(), newPerson()]]
+  for (let g = 1; g < generations; g += 1) {
+    const children = []
+    const next = []
+    for (const [father, mother] of couples) {
+      const family = {
+        handle: `F${families.length}`,
+        father,
+        mother,
+        children: [],
+      }
+      families.push(family)
+      const n = g === 1 ? 3 : Math.floor(random() * 6)
+      for (let c = 0; c < n; c += 1) {
+        const child = newPerson()
+        family.children.push([child, random() < 0.1 ? 'Adopted' : 'Birth'])
+        children.push(child)
+      }
+    }
+    for (const child of children) {
+      const r = random()
+      if (r < 0.05 && children.length > 1) {
+        // A cousin or sibling marriage across the generation
+        const other = children[Math.floor(random() * children.length)]
+        if (other !== child) next.push([child, other])
+      } else if (r < 0.75) {
+        next.push([child, newPerson()])
+        if (random() < 0.15) next.push([child, newPerson()])
+      }
+    }
+    couples = next
+  }
+  const familiesOf = new Map()
+  const parentsOf = new Map()
+  const records = families.map(({handle, father, mother, children}) => ({
+    handle,
+    type: 'Married',
+    father_handle: father,
+    mother_handle: mother,
+    child_ref_list: children.map(([ref, rel]) => childRef(ref, rel, rel)),
+  }))
+  for (const record of records) {
+    for (const partner of [record.father_handle, record.mother_handle]) {
+      familiesOf.set(partner, [...(familiesOf.get(partner) ?? []), record])
+    }
+    for (const {ref} of record.child_ref_list) {
+      parentsOf.set(ref, [...(parentsOf.get(ref) ?? []), record])
+    }
+  }
+  const handles = Array.from({length: count}, (_, i) => `P${i + 1}`)
+  return new FamilyGraph(
+    handles.map(handle =>
+      person(handle, {
+        families: familiesOf.get(handle) ?? [],
+        primary_parent_family: parentsOf.get(handle)?.[0],
+        parent_families: parentsOf.get(handle) ?? [],
+      })
+    )
+  )
+}
+
+describe('right-angled routes', () => {
+  const cases = {
+    'the base graph': [graph, 'R'],
+    // A man marries his niece, so his link from his parents passes the row
+    // of hers
+    'an uncle who marries his niece': [
+      (() => {
+        const fG = family('fG', 'G1', 'G2', [childRef('U'), childRef('S')])
+        const fS = family('fS', 'S', 'SW', [childRef('N'), childRef('B')])
+        const fU = family('fU', 'U', 'N', [childRef('K')])
+        return new FamilyGraph([
+          person('G1', {families: [fG]}),
+          person('G2', {families: [fG]}),
+          person('U', {primary_parent_family: fG, families: [fU]}),
+          person('S', {primary_parent_family: fG, families: [fS]}),
+          person('SW', {families: [fS]}),
+          person('N', {primary_parent_family: fS, families: [fU]}),
+          person('B', {primary_parent_family: fS}),
+          person('K', {primary_parent_family: fU}),
+        ])
+      })(),
+      'K',
+    ],
+    // M marries the widow W and later her daughter D
+    'a man who marries his stepdaughter': [
+      (() => {
+        const fHW = family('fHW', 'H', 'W', [childRef('D')])
+        const fMW = family('fMW', 'M', 'W', [childRef('E')])
+        const fMD = family('fMD', 'M', 'D', [childRef('k')])
+        return new FamilyGraph([
+          person('H', {families: [fHW]}),
+          person('W', {families: [fHW, fMW]}),
+          person('M', {families: [fMW, fMD]}),
+          person('D', {primary_parent_family: fHW, families: [fMD]}),
+          person('E', {primary_parent_family: fMW}),
+          person('k', {primary_parent_family: fMD}),
+        ])
+      })(),
+      'M',
+    ],
+  }
+  for (const seed of [1, 2, 3]) {
+    cases[`a generated tree (${seed})`] = [generatedTree(6, seed), 'P1']
+  }
+
+  for (const [name, [tree, root]] of Object.entries(cases)) {
+    it(`routes the links of ${name}`, async () => {
+      const layout = await layoutRelationships(tree, root)
+      expect(layout.links.length).toBeGreaterThan(0)
+      expect(routeProblems(layout)).toEqual([])
+    })
+  }
+
+  it('routes every link of a generated tree', async () => {
+    const tree = generatedTree(6, 1)
+    const layout = await layoutRelationships(tree, 'P1')
+    const edges = relationshipModel(tree).edges
+    expect(layout.links).toHaveLength(edges.length)
+    expect(edges.length).toBeGreaterThan(50)
+  })
+
+  it('brings the links of several parent families to a child side by side', async () => {
+    const layout = await layoutRelationships(graph, 'R')
+    const ends = layout.links
+      .filter(link => link.target.key === 'person:R')
+      .map(link => link.points.at(-1)[0])
+    expect(ends).toHaveLength(2)
+    expect(Math.abs(ends[0] - ends[1])).toBe(20)
+  })
+
+  it('brings the links of many parent families to a child within its card', async () => {
+    // C has twelve parent families, each with one fetched parent
+    const parents = Array.from({length: 12}, (_, i) => `P${i}`)
+    const fams = parents.map(p =>
+      family(`f${p}`, p, undefined, [childRef('C')])
+    )
+    const layout = await layoutRelationships(
+      new FamilyGraph([
+        ...parents.map((p, i) => person(p, {families: [fams[i]]})),
+        person('C', {primary_parent_family: fams[0], parent_families: fams}),
+      ]),
+      'C'
+    )
+    const ends = layout.links.map(link => link.points.at(-1)[0])
+    expect(new Set(ends).size).toBe(12)
+    for (const x of ends) {
+      expect(Math.abs(x)).toBeLessThanOrEqual(190 / 2 - 12 + 0.01)
+    }
+  })
+
+  it('shares one bar among the children of a family', async () => {
+    const layout = await layoutRelationships(graph, 'R')
+    const bars = layout.links
+      .filter(link => link.source.key === 'family:fRS')
+      .map(link => link.points[1][1])
+    expect(new Set(bars).size).toBe(1)
   })
 })
