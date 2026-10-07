@@ -249,6 +249,27 @@ describe('RelationshipChart', () => {
     )
   })
 
+  it('keeps one link from a single parent of several families', async () => {
+    // C is in two families of M whose fathers are not fetched
+    const fA = family('fA', 'X', 'M', [childRef('C')])
+    const fB = family('fB', 'Y', 'M', [childRef('C', 'Stepchild', 'Birth')])
+    const single = new FamilyGraph([
+      person('M', {families: [fA, fB]}),
+      person('C', {primary_parent_family: fA, parent_families: [fA, fB]}),
+    ])
+    const chart = new RelationshipChart()
+    chart.update(await layoutRelationships(single, 'M'), size)
+    const [link, ...others] = chart.node.querySelectorAll('path.link')
+    expect(others).toHaveLength(0)
+    expect(link.getAttribute('stroke-dasharray')).toBeNull()
+    chart.update(await layoutRelationships(single, 'C'), {
+      ...size,
+      duration: 100,
+    })
+    expect([...chart.node.querySelectorAll('path.link')]).toEqual([link])
+    select(chart.node).selectAll('*').interrupt()
+  })
+
   it('fits the whole chart into the view when asked', async () => {
     const chart = new RelationshipChart()
     const layout = await layoutRelationships(graph, 'R')

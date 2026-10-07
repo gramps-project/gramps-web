@@ -125,6 +125,30 @@ describe('relationshipModel', () => {
     expect(group.families.find(f => f.family === fRW).outer).toBe(3)
   })
 
+  it('links a child once from a single parent of several families', () => {
+    // C is M's birth child without a known father, and M's stepchild with
+    // an unfetched husband; F is fostered and then adopted by M
+    const fA = family('fA', undefined, 'M', [childRef('C')])
+    const fB = family('fB', 'X', 'M', [
+      childRef('C', 'Stepchild', 'Birth'),
+      childRef('F', 'Adopted', 'Adopted'),
+    ])
+    const fF = family('fF', 'Y', 'M', [childRef('F', 'Foster', 'Foster')])
+    const single = new FamilyGraph([
+      person('M', {families: [fA, fB, fF]}),
+      person('C', {primary_parent_family: fA, parent_families: [fA, fB]}),
+      person('F', {primary_parent_family: fF, parent_families: [fF, fB]}),
+    ])
+    expect(
+      relationshipModel(single).edges.map(
+        ({fromPerson, toPerson, relation}) => [fromPerson, toPerson, relation]
+      )
+    ).toEqual([
+      ['M', 'C', 'Birth'],
+      ['M', 'F', 'Foster'],
+    ])
+  })
+
   it('puts the father of a single couple on the left', () => {
     const fPQ = family('fPQ', 'P', 'Q')
     const couple = new FamilyGraph([

@@ -94,7 +94,7 @@ function orderGroup(members, partnersOf) {
 // drawn as a bracket below the cards, from the inner partner to its marker
 // under the `outer` one. Each of the `edges` links a child to a
 // parent family: from the family when both parents are known, and from the
-// known parent otherwise.
+// known parent otherwise. No two edges link the same source and child.
 export function relationshipModel(graph) {
   const people = graph.people()
   const known = handle => Boolean(handle) && graph.person(handle) !== undefined
@@ -201,21 +201,34 @@ export function relationshipModel(graph) {
     }
   }
 
-  const edges = []
+  // Families of a child that resolve to the same single parent give one
+  // edge, which is Birth if the child is the parent's birth child in any of
+  // them
+  const edgesByKey = new Map()
   for (const person of people) {
     for (const family of graph.parentFamilies(person.handle)) {
       const parents = [family.father_handle, family.mother_handle].filter(known)
       const couple = seen.has(family.handle)
       if (parents.length > 0) {
-        edges.push({
+        const edge = {
           family: couple ? family : undefined,
           fromPerson: couple ? undefined : parents[0],
           toPerson: person.handle,
           relation: childRelation(family, person.handle, parents),
-        })
+        }
+        const key = `${couple ? family.handle : edge.fromPerson}->${
+          person.handle
+        }`
+        const existing = edgesByKey.get(key)
+        if (!existing) {
+          edgesByKey.set(key, edge)
+        } else if (edge.relation === 'Birth') {
+          existing.relation = 'Birth'
+        }
       }
     }
   }
+  const edges = [...edgesByKey.values()]
 
   // A child in the same group as their parents is linked by an arch
   for (const edge of edges) {
