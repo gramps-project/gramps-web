@@ -27,6 +27,19 @@ describe('chart definitions', () => {
     })
   })
 
+  it('counts a number below the minimum as the minimum', () => {
+    const values = chartSettingValues(chartDefinitions.hourglass, {
+      hourglassChartAnc: 0,
+      hourglassChartDesc: 0,
+    })
+    expect(values.ancestors).toBe(1)
+    expect(values.descendants).toBe(1)
+    const relationship = chartSettingValues(chartDefinitions.relationship, {
+      relationshipChartAnc: 0,
+    })
+    expect(relationship.separation).toBe(0)
+  })
+
   it('fetches one more generation than the settings count', () => {
     const {ancestor, descendant, hourglass, fan} = chartDefinitions
     const generations = (definition, settings) =>
@@ -435,5 +448,80 @@ describe('GrampsjsViewTree', () => {
     await Promise.resolve()
     expect(view._data).toEqual([{handle: 'B'}])
     expect(view.loading).toBe(false)
+  })
+})
+
+describe('expanded branches', () => {
+  const flush = () => new Promise(resolve => setTimeout(resolve))
+
+  // A view of the ancestor chart of R (I1), with R and F (I2)
+  function makeBranchView() {
+    const {view, apiGet} = makeView()
+    view.willUpdate(new Map())
+    view._data = [
+      {handle: 'R', gramps_id: 'I1'},
+      {handle: 'F', gramps_id: 'I2'},
+    ]
+    apiGet.mockResolvedValue({
+      data: [
+        {handle: 'R', gramps_id: 'I1'},
+        {handle: 'F', gramps_id: 'I2'},
+        {handle: 'FF', gramps_id: 'I3'},
+      ],
+    })
+    const expand = (handle, direction = 'ancestors') =>
+      view._expandBranch({detail: {handle, direction}})
+    return {view, apiGet, expand}
+  }
+
+  const lastRules = apiGet => rulesOf(apiGet.mock.calls.at(-1)[0]).rules
+
+  it('fetches the people of the chart with those of the expanded branches', async () => {
+    const {view, apiGet, expand} = makeBranchView()
+    expand('F')
+    expect(lastRules(apiGet)).toEqual([
+      {name: 'IsLessThanNthGenerationAncestorOf', values: ['I1', 4]},
+      {name: 'IsLessThanNthGenerationDescendantOf', values: ['I1', 2]},
+      {name: 'IsLessThanNthGenerationAncestorOf', values: ['I2', 2]},
+    ])
+    // A second click while loading does not fetch again
+    expand('F')
+    expect(apiGet).toHaveBeenCalledTimes(1)
+    // The branch opens with the people it needs
+    expect(view._expanded.size).toBe(0)
+    await flush()
+    expect(view._data.map(person => person.handle)).toEqual(['R', 'F', 'FF'])
+    expect([...view._expanded]).toEqual(['F'])
+  })
+
+  it('fetches children for a branch of descendants', () => {
+    const {apiGet, expand} = makeBranchView()
+    expand('F', 'descendants')
+    expect(lastRules(apiGet).at(-1)).toEqual({
+      name: 'IsLessThanNthGenerationDescendantOf',
+      values: ['I2', 2],
+    })
+  })
+
+  it('keeps the expanded branches when the people are fetched again', async () => {
+    const {view, apiGet, expand} = makeBranchView()
+    expand('F')
+    await flush()
+    view.handleUpdateStaleData()
+    expect(apiGet).toHaveBeenCalledTimes(2)
+    expect(lastRules(apiGet)).toHaveLength(3)
+    await flush()
+    expect([...view._expanded]).toEqual(['F'])
+  })
+
+  it('forgets the branches of another person', async () => {
+    const {view, apiGet, expand} = makeBranchView()
+    expand('F')
+    await flush()
+    view.grampsId = 'I2'
+    view.willUpdate(new Map())
+    expect(view._expanded.size).toBe(0)
+    view._fetchIfNeeded()
+    expect(lastRules(apiGet)).toHaveLength(2)
   })
 })

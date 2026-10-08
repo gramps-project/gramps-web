@@ -110,7 +110,9 @@ describe('RelationshipChart', () => {
       'person:T',
     ])
     expect(
-      people.filter(node => node.style.filter).map(node => node.__data__.key)
+      people
+        .filter(node => node.querySelector('.person-card').style.filter)
+        .map(node => node.__data__.key)
     ).toEqual(['person:R'])
     expect(people.every(node => node.querySelector('text'))).toBe(true)
   })
@@ -473,7 +475,7 @@ describe('RelationshipChart', () => {
       interactive: false,
     })
     const root = nodeWithKey(chart, 'person:R')
-    expect(root.style.filter).toBe('')
+    expect(root.querySelector('.person-card').style.filter).toBe('')
     const selected = []
     root.addEventListener('pedigree:person-selected', e =>
       selected.push(e.detail)
