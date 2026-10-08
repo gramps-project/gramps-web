@@ -27,6 +27,19 @@ describe('chart definitions', () => {
     })
   })
 
+  it('counts a number below the minimum as the minimum', () => {
+    const values = chartSettingValues(chartDefinitions.hourglass, {
+      hourglassChartAnc: 0,
+      hourglassChartDesc: 0,
+    })
+    expect(values.ancestors).toBe(1)
+    expect(values.descendants).toBe(1)
+    const relationship = chartSettingValues(chartDefinitions.relationship, {
+      relationshipChartAnc: 0,
+    })
+    expect(relationship.separation).toBe(0)
+  })
+
   it('fetches one more generation than the settings count', () => {
     const {ancestor, descendant, hourglass, fan} = chartDefinitions
     const generations = (definition, settings) =>

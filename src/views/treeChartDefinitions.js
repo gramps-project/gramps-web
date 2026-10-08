@@ -117,7 +117,7 @@ const descendantsSetting = (key, defaultValue) => ({
   key,
   label: 'Max Descendant Generations',
   type: 'number',
-  min: 0,
+  min: 1,
   default: defaultValue,
 })
 
@@ -358,10 +358,14 @@ export const chartDefinitions = {
 // the defaults
 export function chartSettingValues(definition, settings = {}) {
   return Object.fromEntries(
-    definition.settings.map(setting => [
-      setting.name,
-      settings[setting.key] ?? setting.default,
-    ])
+    definition.settings.map(setting => {
+      const value = settings[setting.key] ?? setting.default
+      // A value stored before the minimum was raised counts as the minimum
+      return [
+        setting.name,
+        setting.min === undefined ? value : Math.max(value, setting.min),
+      ]
+    })
   )
 }
 
