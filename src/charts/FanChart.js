@@ -7,6 +7,11 @@ import {
   schemeCategory10,
 } from 'd3-scale-chromatic'
 import {ChartViewport} from './ChartViewport.js'
+import {
+  buttonRadius,
+  enterChartButtons,
+  styleChartButtons,
+} from './chartButton.js'
 import {joinWithTransitions, transitionColor} from './animatedJoin.js'
 import {invertFrame, placeArc, relateFanLayouts} from './layout/fanLayout.js'
 import {chartPalette} from './palette.js'
@@ -274,6 +279,10 @@ function arcShape(layout, padding) {
 // move in or out of the circle. The origin stays in place if it is in view.
 // A layout of the same root person that arrives while the arcs move, such as
 // one with more ancestors, joins the movement.
+//
+// With the update option `childrenButton`, the disc of the root person gets
+// a menu button labelled `childrenLabel` at its bottom, which fires
+// `pedigree:show-children`.
 export class FanChart {
   constructor() {
     this._svg = create('svg')
@@ -282,6 +291,9 @@ export class FanChart {
       .attr('text-anchor', 'middle')
     this._content = this._svg.append('g').attr('id', 'chart-content')
     this._viewport = new ChartViewport(this._svg, this._content)
+    this._arcs = this._content.append('g')
+    // The menu button lies on the arcs
+    this._buttons = this._content.append('g')
     this._legend = this._svg.append('g').attr('id', 'legend')
     // The drawn layout, to which the next one is related
     this._layout = undefined
@@ -307,10 +319,11 @@ export class FanChart {
   // Removes the chart and the legend, keeping the zoom transform. The next
   // layout is not related to the removed one.
   clear() {
-    this._content.interrupt('arc')
+    this._arcs.interrupt('arc')
     this._motion = null
     this._layout = undefined
-    this._content.selectChildren().remove()
+    this._arcs.selectChildren().remove()
+    this._buttons.selectChildren().remove()
     this._legend.selectChildren().remove()
   }
 
@@ -328,6 +341,8 @@ export class FanChart {
       nameDisplayFormat = chartNameDisplayFormat.surnameThenGiven,
       otherLabel = 'Other',
       interactive = true,
+      childrenButton = false,
+      childrenLabel = '',
       palette = chartPalette,
       padding = 3,
       fit = false,
@@ -370,6 +385,11 @@ export class FanChart {
         }
       },
     })
+    this._updateButton(root, {
+      show: interactive && childrenButton,
+      label: childrenLabel,
+      palette,
+    })
     const [x, y] = this._viewport.viewStart
     this._legend.selectChildren().remove()
     this._legend
@@ -378,6 +398,29 @@ export class FanChart {
         `translate(${x + legendOffset[0]}, ${y + legendOffset[1]})`
       )
       .call(scheme.legend)
+  }
+
+  // Draws the menu button on the disc of the `root` node if `show`. Like the
+  // names, it is hidden while the arcs move.
+  _updateButton(root, {show, label, palette}) {
+    this._buttons.attr('display', this._motion ? 'none' : null)
+    const buttons = this._buttons
+      .selectChildren('.chart-button')
+      .data(show ? [root] : [])
+      .join(enter =>
+        enterChartButtons(
+          enter,
+          function () {
+            fireEvent(this, 'pedigree:show-children', {})
+          },
+          {backdrop: false}
+        )
+      )
+      .attr('class', 'chart-button children-triangle')
+      .attr('id', 'triangle-children')
+      .attr('aria-label', label)
+      .attr('transform', d => `translate(0,${d.y1 - buttonRadius - 4})`)
+    styleChartButtons(buttons, palette, () => 'bottom')
   }
 
   // Joins the arcs of `layout` and moves them. For a layout of the same root
@@ -392,7 +435,7 @@ export class FanChart {
     if (!continues) {
       // Every arc, also one that is leaving, moves from where it is drawn
       const t = this._motion?.t ?? 1
-      this._content.selectChildren('g').each(function () {
+      this._arcs.selectChildren('g').each(function () {
         const {from, to} = arcMotion.get(this)
         const now = interpolateArc(from, to, t)
         arcMotion.set(this, {from: now, to: placeArc(now, frame)})
@@ -402,7 +445,7 @@ export class FanChart {
     const back = invertFrame(frame)
     // Unknown ancestors are not drawn
     const cells = joinWithTransitions(
-      this._content,
+      this._arcs,
       '.fan-cell',
       layout.nodes.filter(node => node.person?.profile),
       {
@@ -433,7 +476,7 @@ export class FanChart {
     } else if (duration > 0 && relation.kind === 'lineage') {
       this._startMotion(frame, duration)
     } else {
-      this._content.interrupt('arc')
+      this._arcs.interrupt('arc')
       this._motion = null
       this._drawArcs(1)
       this._drawNames()
@@ -464,12 +507,12 @@ export class FanChart {
       .attr('fill', d => (d.side === 'mother' ? palette.sex.F : palette.sex.M))
   }
 
-  // Moves the arcs over `duration` milliseconds, and draws the names when
-  // they stop. `frame` maps where the arcs start to the current layout.
+  // Moves the arcs over `duration` milliseconds, and draws the names and
+  // shows the menu button when they stop. `frame` maps where the arcs start to the current layout.
   _startMotion(frame, duration) {
     const motion = {frame, t: 0}
     this._motion = motion
-    this._content
+    this._arcs
       .interrupt('arc')
       .transition('arc')
       .duration(duration)
@@ -480,13 +523,14 @@ export class FanChart {
       .on('end', () => {
         this._motion = null
         this._drawNames()
+        this._buttons.attr('display', null)
       })
   }
 
   // Draws each arc, also those that are leaving, at `t` of its movement
   _drawArcs(t) {
     const {arc, sideStripe} = this._arcShape
-    this._content.selectChildren('g').each(function () {
+    this._arcs.selectChildren('g').each(function () {
       const {from, to} = arcMotion.get(this)
       const clamped = clampArc(interpolateArc(from, to, t))
       const cell = select(this)
@@ -496,7 +540,7 @@ export class FanChart {
   }
 
   _drawNames() {
-    const cells = this._content.selectChildren('.fan-cell')
+    const cells = this._arcs.selectChildren('.fan-cell')
     cells.selectAll('text').remove()
     appendNames(cells, this._nameOptions)
   }

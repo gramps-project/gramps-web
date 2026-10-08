@@ -160,6 +160,44 @@ describe('FanChart', () => {
     expect(chart.node.outerHTML).not.toContain('cursor')
   })
 
+  it('draws a menu button on the disc of the root person', () => {
+    const button = chart => chart.node.querySelector('#triangle-children')
+    expect(button(drawn())).toBeNull()
+    expect(button(drawn({childrenButton: true, interactive: false}))).toBeNull()
+    const chart = drawn({childrenButton: true, childrenLabel: 'Children'})
+    expect(button(chart).getAttribute('aria-label')).toBe('Children')
+    // Inside the disc, below the names
+    const [x, y] = button(chart)
+      .getAttribute('transform')
+      .match(/-?[\d.]+/g)
+      .map(Number)
+    expect(x).toBe(0)
+    expect(y).toBeGreaterThan(0)
+    expect(y).toBeLessThan(layout.nodes[0].y1)
+    const listener = vi.fn()
+    chart.node.addEventListener('pedigree:show-children', listener)
+    button(chart).dispatchEvent(new MouseEvent('click'))
+    expect(listener).toHaveBeenCalledOnce()
+  })
+
+  it('hides the menu button while the arcs move to a new root person', async () => {
+    const chart = drawn({childrenButton: true})
+    const hidden = () =>
+      chart.node
+        .querySelector('#triangle-children')
+        .parentNode.getAttribute('display') === 'none'
+    expect(hidden()).toBe(false)
+    chart.update(layoutFan(graph, 'F', {depth: 3}), {
+      ...size,
+      childrenButton: true,
+      duration: 20,
+    })
+    expect(chart.node.querySelectorAll('#triangle-children')).toHaveLength(1)
+    expect(cells(chart)).toHaveLength(1)
+    expect(hidden()).toBe(true)
+    await vi.waitFor(() => expect(hidden()).toBe(false))
+  })
+
   it('draws into the same SVG on every update', () => {
     const chart = drawn()
     const {node} = chart
