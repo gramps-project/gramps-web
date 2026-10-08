@@ -4,6 +4,7 @@ import {FanChart} from '../charts/FanChart.js'
 import {layoutFan} from '../charts/layout/fanLayout.js'
 import {chartTransitionDuration} from '../charts/util.js'
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
+import {rootRelatives} from './GrampsjsChartRelativesMenu.js'
 
 // Properties that change the layout of the chart
 const layoutProperties = ['data', 'grampsId', 'depth']
@@ -27,7 +28,20 @@ class GrampsjsFanChart extends GrampsjsChartBase {
   }
 
   render() {
-    return html`<div id="container"></div>`
+    return html`
+      <div
+        @pedigree:show-children="${this._openMenu}"
+        style="position:relative;"
+      >
+        <div id="container"></div>
+        <grampsjs-chart-relatives-menu
+          id="relatives-menu"
+          .relatives=${this._children()}
+          nameDisplayFormat=${this.nameDisplayFormat}
+          .appState=${this.appState}
+        ></grampsjs-chart-relatives-menu>
+      </div>
+    `
   }
 
   firstUpdated() {
@@ -64,10 +78,20 @@ class GrampsjsFanChart extends GrampsjsChartBase {
       color: this.color || 'default',
       nameDisplayFormat: this.nameDisplayFormat,
       otherLabel: this._('Other'),
+      childrenButton: this._children().length > 0,
+      childrenLabel: this._('Children'),
       duration: chartTransitionDuration(),
       bboxWidth: this.containerWidth,
       bboxHeight: this.containerHeight,
     }
+  }
+
+  _children() {
+    return rootRelatives(this._graph, this.grampsId, 'children')
+  }
+
+  _openMenu(e) {
+    this.renderRoot.getElementById('relatives-menu').open(e.target)
   }
 }
 

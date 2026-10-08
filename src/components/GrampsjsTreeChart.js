@@ -1,7 +1,4 @@
-import {html, css} from 'lit'
-
-import '@material/web/menu/menu'
-import '@material/web/menu/menu-item'
+import {html} from 'lit'
 
 import {TreeChart} from '../charts/TreeChart.js'
 import {
@@ -10,15 +7,9 @@ import {
   layoutHourglass,
 } from '../charts/layout/treeLayout.js'
 import {GrampsjsChartBase} from './GrampsjsChartBase.js'
-import {
-  chartTransitionDuration,
-  formatChartName,
-  getImageUrl,
-} from '../charts/util.js'
-import {fireEvent, menuSelectionHandler} from '../util.js'
+import {rootRelatives} from './GrampsjsChartRelativesMenu.js'
+import {chartTransitionDuration, getImageUrl} from '../charts/util.js'
 import {getSymbols} from '../symbols.js'
-import {personListItemStyles} from '../SharedStyles.js'
-import {renderPersonAvatar, renderPersonDates} from './personListUtils.js'
 
 // Properties that change the layout of the chart
 const layoutProperties = [
@@ -34,18 +25,6 @@ const layoutProperties = [
 ]
 
 class GrampsjsTreeChart extends GrampsjsChartBase {
-  static get styles() {
-    return [
-      super.styles,
-      personListItemStyles,
-      css`
-        #relatives-menu {
-          min-width: 200px;
-        }
-      `,
-    ]
-  }
-
   static get properties() {
     return {
       grampsId: {type: String},
@@ -80,7 +59,12 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
         style="position:relative;"
       >
         <div id="container"></div>
-        ${this.renderRelativesMenu()}
+        <grampsjs-chart-relatives-menu
+          id="relatives-menu"
+          .relatives=${this._relatives()}
+          nameDisplayFormat=${this.nameDisplayFormat}
+          .appState=${this.appState}
+        ></grampsjs-chart-relatives-menu>
       </div>
     `
   }
@@ -106,7 +90,6 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
 
   updated() {
     this._drawChart()
-    this._updateMenuAnchor()
   }
 
   _computeLayout() {
@@ -177,71 +160,20 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
 
   // Returns the relatives in the menu of the root person's triangle: the
   // parents in a descendant chart and the children in an ancestor
-  // chart. Hourglass charts show both, so they have no menu. People who were
-  // not fetched are left out.
+  // chart. Hourglass charts show both, so they have no menu.
   _relatives() {
     if (this.ancestors && this.descendants) {
       return []
     }
-    const {handle} = this._graph.personByGrampsId(this.grampsId) ?? {}
-    if (!handle) {
-      return []
-    }
-    const handles = this.descendants
-      ? Object.values(this._graph.parents(handle))
-      : this._graph.children(handle)
-    return handles
-      .map(relative => this._graph.person(relative))
-      .filter(person => person?.gramps_id)
+    return rootRelatives(
+      this._graph,
+      this.grampsId,
+      this.descendants ? 'parents' : 'children'
+    )
   }
 
-  renderRelativesMenu() {
-    const relatives = this._relatives()
-    if (relatives.length === 0) {
-      return ''
-    }
-    const symbols = getSymbols(this.appState.settings, s => this._(s))
-    return html`
-      <md-menu
-        id="relatives-menu"
-        positioning="fixed"
-        @close-menu=${menuSelectionHandler(item =>
-          this._selectPerson(item.dataset.grampsId)
-        )}
-      >
-        ${relatives.map(
-          person => html`
-            <md-menu-item data-gramps-id="${person.gramps_id}">
-              ${renderPersonAvatar(person, person.profile?.sex)}
-              <div slot="headline">
-                ${formatChartName(person.profile, this.nameDisplayFormat)}
-              </div>
-              ${renderPersonDates(person.profile, symbols)}
-            </md-menu-item>
-          `
-        )}
-      </md-menu>
-    `
-  }
-
-  _selectPerson(grampsId) {
-    fireEvent(this, 'pedigree:person-selected', {grampsId})
-  }
-
-  _openMenu() {
-    const menu = this.renderRoot.getElementById('relatives-menu')
-    if (menu) {
-      this._updateMenuAnchor()
-      menu.open = true
-    }
-  }
-
-  _updateMenuAnchor() {
-    const menu = this.renderRoot.getElementById('relatives-menu')
-    const triangle = this.renderRoot.getElementById('triangle-children')
-    if (menu && triangle) {
-      menu.anchorElement = triangle
-    }
+  _openMenu(e) {
+    this.renderRoot.getElementById('relatives-menu').open(e.target)
   }
 }
 

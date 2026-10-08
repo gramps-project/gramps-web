@@ -1,11 +1,9 @@
-import {select} from 'd3-selection'
-import {
-  mdiChevronDown,
-  mdiChevronLeft,
-  mdiChevronRight,
-  mdiChevronUp,
-} from '@mdi/js'
 import {fireEvent} from '../util.js'
+import {
+  buttonRadius,
+  enterChartButtons,
+  styleChartButtons,
+} from './chartButton.js'
 import {ChartCanvas, place} from './ChartCanvas.js'
 import {roundedPath, sameX} from './connectors.js'
 import {treeLayoutDefaults} from './layout/treeLayout.js'
@@ -70,11 +68,8 @@ function withSharedParts(links, vertical) {
 }
 
 // The chevron buttons beyond cards: the root person's menu button and the
-// buttons that expand branches. Their radius and gap to the card, in pixels.
-const buttonRadius = 20
+// buttons that expand branches. Their gap to the card, in pixels.
 const buttonGap = 8
-// Radius of the backdrop around the chevron, in pixels
-const backdropRadius = 12
 
 // Returns the position of a button on `side` of the card, relative to its
 // centre, which keeps a gap to the visible edge of the card: the colour
@@ -87,13 +82,6 @@ function buttonPosition(side) {
     top: [0, -(boxHeight / 2 + distance)],
     bottom: [0, boxHeight / 2 + distance],
   }[side]
-}
-
-const chevrons = {
-  left: mdiChevronLeft,
-  right: mdiChevronRight,
-  top: mdiChevronUp,
-  bottom: mdiChevronDown,
 }
 
 // Returns the buttons of a node, each with its `kind`, 'menu' or 'expand',
@@ -288,8 +276,7 @@ export class TreeChart extends ChartCanvas {
     this._updateButtons(nodes, options)
   }
 
-  // A button is a chevron pointing away from the card, in a round area of
-  // `buttonRadius` that is shaded while the pointer is on it or it has focus
+  // A button is a chevron pointing away from the card
   _updateButtons(nodes, options) {
     const {triangleLabel = '', expandLabels = {}, palette} = options
     function activate(e, {kind, node}) {
@@ -301,14 +288,6 @@ export class TreeChart extends ChartCanvas {
           direction: node.expandable,
         })
       }
-      e.stopPropagation()
-      e.preventDefault()
-    }
-    // Shades the button while the pointer is on it or it has focus
-    function shade() {
-      select(this)
-        .select('.shade')
-        .attr('fill-opacity', this.matches(':hover, :focus') ? 1 : 0)
     }
     const buttons = nodes
       .selectChildren('.chart-button')
@@ -320,34 +299,7 @@ export class TreeChart extends ChartCanvas {
           })),
         ({kind}) => kind
       )
-      .join(enter => {
-        const button = enter
-          .append('g')
-          .attr('role', 'button')
-          .attr('tabindex', 0)
-          .style('cursor', 'pointer')
-          .on('click', activate)
-          .on('keydown', function (e, d) {
-            if (e.key === 'Enter' || e.key === ' ') {
-              activate.call(this, e, d)
-            }
-          })
-          .on('mouseenter mouseleave focus blur', shade)
-        // The backdrop fades lines that run under the chevron
-        button
-          .append('circle')
-          .attr('class', 'backdrop')
-          .attr('r', backdropRadius)
-          .attr('fill-opacity', 0.8)
-        button
-          .append('circle')
-          .attr('class', 'shade')
-          .attr('r', buttonRadius)
-          .attr('fill-opacity', 0)
-        // The 24px icon is centred on the button
-        button.append('path').attr('transform', 'translate(-12,-12)')
-        return button
-      })
+      .join(enter => enterChartButtons(enter, activate))
       .attr('class', ({kind}) =>
         kind === 'menu'
           ? 'chart-button children-triangle'
@@ -358,11 +310,6 @@ export class TreeChart extends ChartCanvas {
       .attr('aria-label', ({kind, node}) =>
         kind === 'menu' ? triangleLabel : expandLabels[node.expandable]
       )
-    buttons.select('.backdrop').attr('fill', palette.background)
-    buttons.select('.shade').attr('fill', palette.triangleHover)
-    buttons
-      .select('path')
-      .attr('d', ({side}) => chevrons[side])
-      .attr('fill', palette.triangle)
+    styleChartButtons(buttons, palette, ({side}) => side)
   }
 }
