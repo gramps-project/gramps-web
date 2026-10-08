@@ -33,8 +33,8 @@ export const place = node => [node.x, node.y]
 //   layouts.
 // - `enterNode(selection)`: appends new node elements, with a `.person-card`
 //   group in each person node.
-// - `isRootPerson(node)`: whether the node is the root person's card, which
-//   gets a shadow.
+// - `isRootPerson(node)`: whether the node is the root person's node, whose
+//   card gets a shadow.
 // - `linkEnds(link)`: the start and end of a link, which move with its source
 //   and target node, and `linkPath(ends, link)`: the path of the link between
 //   them.
@@ -221,20 +221,22 @@ export class ChartCanvas {
           }),
         duration,
       }
+    ).on(
+      'click.pin',
+      interactive
+        ? (event, node) => {
+            if (this.isPerson(node)) {
+              this._viewport.rememberClick(node.handle, this.nodeKey(node))
+            }
+          }
+        : null
     )
+    // The root person's card has a shadow, which buttons next to it do not
+    nodes
+      .select('.person-card')
       .style('filter', node =>
         interactive && this.isRootPerson(node)
           ? `drop-shadow(0 3px 8px ${palette.shadow})`
-          : null
-      )
-      .on(
-        'click.pin',
-        interactive
-          ? (event, node) => {
-              if (this.isPerson(node)) {
-                this._viewport.rememberClick(node.handle, this.nodeKey(node))
-              }
-            }
           : null
       )
     moveElements(nodes, {

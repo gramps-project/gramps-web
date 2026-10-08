@@ -40,74 +40,126 @@ export function chartTransitionDuration(duration = 400) {
     : duration
 }
 
+// Returns the node of the tree builders for the person with `handle`, who
+// may not have been fetched, with the path `id` and the generation `depth`
+const treeNode = (graph, handle, id, depth) => {
+  const person = graph.person(handle) ?? {}
+  return {
+    name_given: person?.profile ? person?.profile?.name_given : null,
+    name_surname: person?.profile ? person?.profile?.name_surname : null,
+    id,
+    depth,
+    person,
+  }
+}
+
+// Returns the generations to build from a node of the person with `handle`
+// at the last generation of `depth`, one more for a person in `expanded`, and
+// the expanded people on the path to the node's relatives. A person is
+// expanded once on a path, which ends a loop of people who are their own
+// ancestors. Otherwise the node gets `expandable` when it has relatives who
+// are not shown.
+const branchDepth = (tree, handle, depth, hasRelatives, expanded, onPath) => {
+  if (depth !== 1 || !hasRelatives) {
+    return [depth, onPath]
+  }
+  if (expanded.has(handle) && !onPath.has(handle)) {
+    return [2, new Set([...onPath, handle])]
+  }
+  tree.expandable = true
+  return [depth, onPath]
+}
+
+// Returns the ancestors of the person with `handle` as a tree of `depth`
+// generations, with the father and the mother as the children of each node.
+// A node's `id` is its path from the root, such as `pfm` for the father's
+// mother. Without `includeEmpty`, unknown parents are left out. The people
+// with a handle in `expanded` get one more generation of ancestors.
 export const getTree = (
   graph,
   handle,
   depth,
   includeEmpty = true,
-  i = 0,
-  label = 'p'
+  {expanded = new Set()} = {}
 ) => {
-  if (depth === 0) {
-    return {}
-  }
-  const person = graph.person(handle) ?? {}
-  const tree = {
-    name_given: person?.profile ? person?.profile?.name_given : null,
-    name_surname: person?.profile ? person?.profile?.name_surname : null,
-    id: label,
-    depth: i,
-    person,
-  }
-  if (depth === 1) {
+  const build = (personHandle, generations, i, label, onPath) => {
+    if (generations === 0) {
+      return {}
+    }
+    const tree = treeNode(graph, personHandle, label, i)
+    const {father, mother} = graph.parents(personHandle)
+    const [depthHere, path] = branchDepth(
+      tree,
+      personHandle,
+      generations,
+      Boolean(personHandle && (father || mother)),
+      expanded,
+      onPath
+    )
+    if (depthHere === 1) {
+      return tree
+    }
+    const relations = graph.parentRelations(personHandle)
+    tree.children = []
+    if (father || includeEmpty) {
+      tree.children.push({
+        ...build(father, depthHere - 1, i + 1, `${label}f`, path),
+        relation: relations.father,
+      })
+    }
+    if (mother || includeEmpty) {
+      tree.children.push({
+        ...build(mother, depthHere - 1, i + 1, `${label}m`, path),
+        relation: relations.mother,
+      })
+    }
     return tree
   }
-  const {father, mother} = graph.parents(handle)
-  const relations = graph.parentRelations(handle)
-  tree.children = []
-  if (father || includeEmpty) {
-    tree.children.push({
-      ...getTree(graph, father, depth - 1, includeEmpty, i + 1, `${label}f`),
-      relation: relations.father,
-    })
-  }
-  if (mother || includeEmpty) {
-    tree.children.push({
-      ...getTree(graph, mother, depth - 1, includeEmpty, i + 1, `${label}m`),
-      relation: relations.mother,
-    })
-  }
-  return tree
+  return build(handle, depth, 0, 'p', new Set())
 }
 
-export const getDescendantTree = (graph, handle, depth, i = 0, label = 'p') => {
-  if (depth === 0) {
-    return {}
-  }
-  const person = graph.person(handle) ?? {}
-  const tree = {
-    name_given: person?.profile ? person?.profile?.name_given : null,
-    name_surname: person?.profile ? person?.profile?.name_surname : null,
-    id: label,
-    depth: i,
-    person,
-  }
-  if (depth === 1) {
+// Returns the descendants of the person with `handle` as a tree of `depth`
+// generations. A node's `id` is its path from the root, such as `pc0c2` for
+// the third child of the first child. The people with a handle in `expanded`
+// get one more generation of descendants.
+export const getDescendantTree = (
+  graph,
+  handle,
+  depth,
+  {expanded = new Set()} = {}
+) => {
+  const build = (personHandle, generations, i, label, onPath) => {
+    if (generations === 0) {
+      return {}
+    }
+    const tree = treeNode(graph, personHandle, label, i)
+    const children = graph.childRelations(personHandle)
+    const [depthHere, path] = branchDepth(
+      tree,
+      personHandle,
+      generations,
+      children.length > 0,
+      expanded,
+      onPath
+    )
+    if (depthHere === 1) {
+      return tree
+    }
+    tree.children = children.map(
+      ({handle: childHandle, relation}, childInd) => ({
+        ...build(
+          childHandle,
+          depthHere - 1,
+          i + 1,
+          `${label}c${childInd}`,
+          path
+        ),
+        relation,
+      })
+    )
     return tree
   }
-  tree.children = graph
-    .childRelations(handle)
-    .map(({handle: childHandle, relation}, childInd) => ({
-      ...getDescendantTree(
-        graph,
-        childHandle,
-        depth - 1,
-        i + 1,
-        `${label}c${childInd}`
-      ),
-      relation,
-    }))
-  return tree
+  return build(handle, depth, 0, 'p', new Set())
 }
 
 export const LegendCategorical = (

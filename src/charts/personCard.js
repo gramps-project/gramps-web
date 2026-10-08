@@ -157,6 +157,10 @@ export function setPersonCardInteraction(
         fireEvent(this, 'pedigree:person-selected', {grampsId})
       }
     })
+  // The preview shows while the pointer is on the card itself, so buttons
+  // next to the card in the node do not show it
+  nodes
+    .select('.person-card')
     .on('mouseenter', function (event, d) {
       const grampsId = profile(d)?.gramps_id
       if (canEdit || !grampsId || !isHoverDevice()) {
@@ -270,9 +274,7 @@ export function updatePersonCardInteraction(
 // Removes what `setPersonCardInteraction` added: click and hover handling,
 // cursors and add person buttons
 export function clearPersonCardInteraction(nodes) {
-  nodes
-    .style('cursor', null)
-    .on('click mouseenter mouseleave', null)
-    .selectAll('.add-person-btn')
-    .remove()
+  nodes.style('cursor', null).on('click', null)
+  nodes.select('.person-card').on('mouseenter mouseleave', null)
+  nodes.selectAll('.add-person-btn').remove()
 }

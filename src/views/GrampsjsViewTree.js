@@ -92,6 +92,9 @@ const keyHandlingElements = ['grampsjs-pill-toggle', 'md-menu', 'md-dialog']
 // it needs and edit mode. People are fetched again only when the request
 // changes, and a response that arrives after a newer request was sent is
 // ignored.
+//
+// The branches of a tree chart can grow by one generation at a time. The
+// people of the expanded branches are fetched with the others.
 export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
     return [
@@ -262,6 +265,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
       _history: {type: Array},
       _currentTabId: {type: Number},
       _data: {type: Array},
+      _expanded: {type: Object},
       _editMode: {type: Boolean},
       _chartState: {type: Object},
     }
@@ -278,6 +282,12 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._dataChart = undefined
     this._dataUrl = ''
     this._dataRequest = 0
+    // The expanded branches of the shown chart and person, by the handle of
+    // the person, with their Gramps ID and the direction of the branch
+    this._branches = new Map()
+    this._branchesOf = ''
+    // The handles of the expanded branches that the fetched people include
+    this._expanded = new Set()
     this._selectedPerson = undefined
     this._editMode = false
     this._chartState = {}
@@ -355,6 +365,13 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
       this._dataUrl = ''
       this._chartState = {}
     }
+    // Expanded branches belong to one chart of one person
+    const branchesOf = `${this.chart}:${this.grampsId}`
+    if (branchesOf !== this._branchesOf) {
+      this._branchesOf = branchesOf
+      this._branches = new Map()
+      this._expanded = new Set()
+    }
   }
 
   update(changed) {
@@ -392,7 +409,8 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
       this.definition,
       this.grampsId,
       this.settingValues,
-      this.appState?.i18n?.lang
+      this.appState?.i18n?.lang,
+      [...this._branches.values()]
     )
     if (url !== this._dataUrl) {
       this._dataUrl = url
@@ -403,6 +421,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
   async _fetchData(url) {
     this._dataRequest += 1
     const request = this._dataRequest
+    const expanded = new Set(this._branches.keys())
     this.loading = true
     const data = await this.appState.apiGet(url)
     if (request !== this._dataRequest) {
@@ -412,9 +431,22 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     if ('data' in data) {
       this.error = false
       this._data = data.data
+      this._expanded = expanded
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
+    }
+  }
+
+  // Shows one more generation in a branch of the chart
+  _expandBranch(e) {
+    const {handle, direction} = e.detail
+    const grampsId = this._data.find(
+      person => person.handle === handle
+    )?.gramps_id
+    if (grampsId && !this._branches.has(handle)) {
+      this._branches.set(handle, {grampsId, direction})
+      this._fetchIfNeeded()
     }
   }
 
@@ -427,7 +459,9 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
       <div id="tabs">${this.renderTabs()}</div>
       <div style="position: relative;">
         <div id="controls">${this.renderControls()}</div>
-        <div id="chart">${this.renderChart()}</div>
+        <div id="chart" @pedigree:expand-branch=${this._expandBranch}>
+          ${this.renderChart()}
+        </div>
         ${this.renderSelectedPerson()}
       </div>
       ${editable && this.appState.permissions.canEdit && !this._editMode
@@ -496,6 +530,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
         canEdit: this._editMode,
         appState: this.appState,
         state: this._chartState,
+        expanded: this._expanded,
       })
     )
     if (!definition.editable) {

@@ -69,15 +69,18 @@ function withSharedParts(links, vertical) {
   })
 }
 
-// Radius of the root person's menu button and its gap to the card, in pixels
-const menuButtonRadius = 20
-const menuButtonGap = 8
+// The chevron buttons beyond cards: the root person's menu button and the
+// buttons that expand branches. Their radius and gap to the card, in pixels.
+const buttonRadius = 20
+const buttonGap = 8
+// Radius of the backdrop around the chevron, in pixels
+const backdropRadius = 12
 
-// Returns the position of the root person's menu button on `side` of the
-// card, which keeps a gap to the visible edge of the card: the colour stripe
-// reaches 4px past the box on the left
-function menuButtonPosition(side) {
-  const distance = menuButtonGap + menuButtonRadius
+// Returns the position of a button on `side` of the card, relative to its
+// centre, which keeps a gap to the visible edge of the card: the colour
+// stripe reaches 4px past the box on the left
+function buttonPosition(side) {
+  const distance = buttonGap + buttonRadius
   return {
     left: [-(boxWidth / 2 + 4 + distance), 0],
     right: [boxWidth / 2 + distance, 0],
@@ -86,23 +89,36 @@ function menuButtonPosition(side) {
   }[side]
 }
 
-const menuButtonIcons = {
+const chevrons = {
   left: mdiChevronLeft,
   right: mdiChevronRight,
   top: mdiChevronUp,
   bottom: mdiChevronDown,
 }
 
-// Returns `bounds` widened to include the root person's menu button, which
-// lies outside the layout
-function boundsWithMenuButton(bounds, side) {
-  const [x, y] = menuButtonPosition(side)
-  return {
-    xMin: Math.min(bounds.xMin, x - menuButtonRadius),
-    xMax: Math.max(bounds.xMax, x + menuButtonRadius),
-    yMin: Math.min(bounds.yMin, y - menuButtonRadius),
-    yMax: Math.max(bounds.yMax, y + menuButtonRadius),
+// Returns the buttons of a node, each with its `kind`, 'menu' or 'expand',
+// and the `side` of the card it is on and points to. A branch grows towards
+// the ancestors or the descendants, in columns or in rows.
+function nodeButtons(
+  node,
+  {interactive, childrenTriangle = false, menuSide = 'left'},
+  vertical
+) {
+  if (!interactive) {
+    return []
   }
+  const buttons = []
+  if (childrenTriangle && node.generation === 0) {
+    buttons.push({kind: 'menu', side: menuSide})
+  }
+  if (node.expandable) {
+    const side = {
+      ancestors: vertical ? 'top' : 'right',
+      descendants: vertical ? 'bottom' : 'left',
+    }[node.expandable]
+    buttons.push({kind: 'expand', side})
+  }
+  return buttons
 }
 
 // Returns keys that stay the same for a person across layouts with different
@@ -142,6 +158,10 @@ function assignKey(keys, node, key) {
 // button labelled `triangleLabel` that opens the menu of relatives, on the
 // `menuSide` of the card: 'left', 'right', 'top' or 'bottom'.
 //
+// A node that is `expandable` gets a button labelled with `expandLabels` for
+// its direction, on the side where its branch grows. The button fires
+// `pedigree:expand-branch` with the node's `handle` and `direction`.
+//
 // When a layout runs the other way than the previous one, in rows instead of
 // columns or back, the links fade out and in.
 export class TreeChart extends ChartCanvas {
@@ -161,18 +181,26 @@ export class TreeChart extends ChartCanvas {
     return 'person-node'
   }
 
-  prepare(layout, {interactive, childrenTriangle = false, menuSide = 'left'}) {
+  prepare(layout, options) {
     const vertical = Boolean(layout.vertical)
     this._turned = this._vertical !== undefined && vertical !== this._vertical
     this._vertical = vertical
     const previousKeys = this._keys
     this._keys = joinKeys(layout)
     this._root = layout.nodes.find(node => node.generation === 0)
+    // The bounds include the buttons, which lie outside the layout
+    const bounds = {...layout.bounds}
+    for (const node of layout.nodes) {
+      for (const {side} of nodeButtons(node, options, vertical)) {
+        const [dx, dy] = buttonPosition(side)
+        bounds.xMin = Math.min(bounds.xMin, node.x + dx - buttonRadius)
+        bounds.xMax = Math.max(bounds.xMax, node.x + dx + buttonRadius)
+        bounds.yMin = Math.min(bounds.yMin, node.y + dy - buttonRadius)
+        bounds.yMax = Math.max(bounds.yMax, node.y + dy + buttonRadius)
+      }
+    }
     return {
-      bounds:
-        interactive && childrenTriangle
-          ? boundsWithMenuButton(layout.bounds, menuSide)
-          : layout.bounds,
+      bounds,
       rootHandle: this._root.handle,
       // Any node of the root person in the previous layout can become the
       // root node, which is at the origin
@@ -257,68 +285,84 @@ export class TreeChart extends ChartCanvas {
   }
 
   drawExtras(nodes, options) {
-    this._updateMenuButton(nodes, options)
+    this._updateButtons(nodes, options)
   }
 
-  // The menu button is a chevron pointing away from the root card, in a round
-  // area of `menuButtonRadius` that is shaded while the pointer is on it or it
-  // has focus
-  _updateMenuButton(
-    nodes,
-    {
-      interactive,
-      childrenTriangle = false,
-      triangleLabel = '',
-      menuSide = 'left',
-      palette,
-    }
-  ) {
-    const [x, y] = menuButtonPosition(menuSide)
-    function openMenu(e) {
-      fireEvent(this, 'pedigree:show-children', {})
+  // A button is a chevron pointing away from the card, in a round area of
+  // `buttonRadius` that is shaded while the pointer is on it or it has focus
+  _updateButtons(nodes, options) {
+    const {triangleLabel = '', expandLabels = {}, palette} = options
+    function activate(e, {kind, node}) {
+      if (kind === 'menu') {
+        fireEvent(this, 'pedigree:show-children', {})
+      } else {
+        fireEvent(this, 'pedigree:expand-branch', {
+          handle: node.handle,
+          direction: node.expandable,
+        })
+      }
       e.stopPropagation()
       e.preventDefault()
     }
     // Shades the button while the pointer is on it or it has focus
     function shade() {
       select(this)
-        .select('circle')
+        .select('.shade')
         .attr('fill-opacity', this.matches(':hover, :focus') ? 1 : 0)
     }
     const buttons = nodes
-      .selectChildren('.children-triangle')
-      .data(d =>
-        interactive && childrenTriangle && d.generation === 0 ? [d] : []
+      .selectChildren('.chart-button')
+      .data(
+        node =>
+          nodeButtons(node, options, this._vertical).map(button => ({
+            ...button,
+            node,
+          })),
+        ({kind}) => kind
       )
       .join(enter => {
         const button = enter
           .append('g')
-          .attr('class', 'children-triangle')
-          .attr('id', 'triangle-children')
           .attr('role', 'button')
           .attr('tabindex', 0)
           .style('cursor', 'pointer')
-          .on('click', openMenu)
-          .on('keydown', function (e) {
+          .on('click', activate)
+          .on('keydown', function (e, d) {
             if (e.key === 'Enter' || e.key === ' ') {
-              openMenu.call(this, e)
+              activate.call(this, e, d)
             }
           })
           .on('mouseenter mouseleave focus blur', shade)
+        // The backdrop fades lines that run under the chevron
         button
           .append('circle')
-          .attr('r', menuButtonRadius)
+          .attr('class', 'backdrop')
+          .attr('r', backdropRadius)
+          .attr('fill-opacity', 0.8)
+        button
+          .append('circle')
+          .attr('class', 'shade')
+          .attr('r', buttonRadius)
           .attr('fill-opacity', 0)
         // The 24px icon is centred on the button
         button.append('path').attr('transform', 'translate(-12,-12)')
         return button
       })
-      .attr('transform', `translate(${x},${y})`)
-      .attr('aria-label', triangleLabel)
-    buttons.select('circle').attr('fill', palette.triangleHover)
+      .attr('class', ({kind}) =>
+        kind === 'menu'
+          ? 'chart-button children-triangle'
+          : 'chart-button expand-button'
+      )
+      .attr('id', ({kind}) => (kind === 'menu' ? 'triangle-children' : null))
+      .attr('transform', ({side}) => `translate(${buttonPosition(side)})`)
+      .attr('aria-label', ({kind, node}) =>
+        kind === 'menu' ? triangleLabel : expandLabels[node.expandable]
+      )
+    buttons.select('.backdrop').attr('fill', palette.background)
+    buttons.select('.shade').attr('fill', palette.triangleHover)
     buttons
       .select('path')
-      .attr('d', menuButtonIcons[menuSide])
+      .attr('d', ({side}) => chevrons[side])
       .attr('fill', palette.triangle)
   }
 }

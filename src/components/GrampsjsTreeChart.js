@@ -30,6 +30,7 @@ const layoutProperties = [
   'nDesc',
   'gapX',
   'vertical',
+  'expanded',
 ]
 
 class GrampsjsTreeChart extends GrampsjsChartBase {
@@ -54,6 +55,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
       descendants: {type: Boolean},
       gapX: {type: Number},
       vertical: {type: Boolean},
+      expanded: {type: Object},
       nameDisplayFormat: {type: String},
       canEdit: {type: Boolean},
     }
@@ -66,6 +68,8 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     this.nDesc = 5
     this.gapX = 30
     this.vertical = false
+    // The handles of the people who show one more generation
+    this.expanded = new Set()
     this._chart = new TreeChart()
   }
 
@@ -116,6 +120,7 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
         descendantDepth: this.nDesc,
         gapX: this.gapX,
         vertical: this.vertical,
+        expanded: this.expanded,
       })
     }
     if (this.descendants) {
@@ -123,12 +128,14 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
         depth: this.nDesc,
         gapX: this.gapX,
         vertical: this.vertical,
+        expanded: this.expanded,
       })
     }
     return layoutAncestors(this._graph, handle, {
       depth: this.nAnc,
       gapX: this.gapX,
       vertical: this.vertical,
+      expanded: this.expanded,
     })
   }
 
@@ -144,6 +151,10 @@ class GrampsjsTreeChart extends GrampsjsChartBase {
     return {
       childrenTriangle: this._relatives().length > 0,
       triangleLabel: this.descendants ? this._('Parents') : this._('Children'),
+      expandLabels: {
+        ancestors: this._('Parents'),
+        descendants: this._('Children'),
+      },
       getImageUrl: d => getImageUrl(d.person, 100),
       menuSide: this._menuSide(),
       bboxWidth: this.containerWidth,

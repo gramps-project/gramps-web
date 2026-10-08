@@ -215,3 +215,54 @@ describe('vertical layouts', () => {
     expect(descendants.nodes.slice(1).map(node => node.y)).toEqual([130, 130])
   })
 })
+
+describe('branches', () => {
+  const expandable = layout =>
+    layout.nodes
+      .filter(node => node.expandable)
+      .map(({key, expandable: direction}) => [key, direction])
+
+  it('marks the ends of branches with relatives who are not shown', () => {
+    expect(expandable(layoutAncestors(graph, 'R', {depth: 2}))).toEqual([
+      ['pf', 'ancestors'],
+      ['pm', 'ancestors'],
+    ])
+    // K2 has no children
+    expect(expandable(layoutDescendants(graph, 'R', {depth: 2}))).toEqual([
+      ['pc0', 'descendants'],
+    ])
+  })
+
+  it('shows one more generation in an expanded branch', () => {
+    const layout = layoutAncestors(graph, 'R', {
+      depth: 2,
+      expanded: new Set(['F']),
+    })
+    expect(layout.nodes.map(node => node.key)).toEqual([
+      'p',
+      'pf',
+      'pm',
+      'pff',
+      'pfm',
+    ])
+    // FF and FM have no parents
+    expect(expandable(layout)).toEqual([['pm', 'ancestors']])
+  })
+
+  it('expands branches of both halves of an hourglass', () => {
+    const layout = layoutHourglass(graph, 'R', {
+      ancestorDepth: 2,
+      descendantDepth: 2,
+      expanded: new Set(['M', 'K1']),
+    })
+    expect(layout.nodes.map(node => node.key)).toEqual([
+      'p',
+      'pf',
+      'pm',
+      'pmm',
+      'pc0',
+      'pc1',
+      'pc0c0',
+    ])
+  })
+})

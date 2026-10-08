@@ -13,6 +13,8 @@ export const chartPalette = {
   triangle: 'var(--grampsjs-body-font-color-35)',
   triangleHover: 'var(--grampsjs-body-font-color-10)',
   shadow: 'var(--grampsjs-body-font-color-30)',
+  // The background of the view
+  background: 'var(--md-sys-color-surface)',
   addButton: 'var(--mdc-theme-secondary, #0277bd)',
   addButtonIcon: '#ffffff',
   fanRoot: 'var(--grampsjs-color-shade-120)',
