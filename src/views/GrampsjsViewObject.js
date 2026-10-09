@@ -134,6 +134,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     this._saveButton = false
     this._boundDisableEditMode = this._disableEditMode.bind(this)
     this._boundDeleteSelf = this._deleteSelf.bind(this)
+    this._boundCheckDelete = this._checkDelete.bind(this)
     this._boundToggleEditMode = this._toggleEditMode.bind(this)
     // Reuse one function reference so disconnectedCallback can release it.
     this._boundHandleEditAction = this.handleEditAction.bind(this)
@@ -196,6 +197,19 @@ export class GrampsjsViewObject extends GrampsjsView {
     })
   }
 
+  // resolves to why this object can't be deleted, as {title, message}, or null
+  // eslint-disable-next-line class-methods-use-this
+  async _deleteBlocked() {
+    return null
+  }
+
+  // the app bar asks before offering to delete; only the active view answers
+  _checkDelete(e) {
+    if (this.active && e.detail) {
+      e.detail.blocked = this._deleteBlocked()
+    }
+  }
+
   _disableEditMode() {
     this.edit = false
   }
@@ -219,6 +233,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     super.connectedCallback()
     window.addEventListener('edit-mode:off', this._boundDisableEditMode)
     window.addEventListener('edit-mode:delete', this._boundDeleteSelf)
+    window.addEventListener('edit-mode:delete-check', this._boundCheckDelete)
     window.addEventListener('edit-mode:toggle', this._boundToggleEditMode)
     this.addEventListener('edit:action', this._boundHandleEditAction)
   }
@@ -227,6 +242,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     this.removeEventListener('edit:action', this._boundHandleEditAction)
     window.removeEventListener('edit-mode:off', this._boundDisableEditMode)
     window.removeEventListener('edit-mode:delete', this._boundDeleteSelf)
+    window.removeEventListener('edit-mode:delete-check', this._boundCheckDelete)
     window.removeEventListener('edit-mode:toggle', this._boundToggleEditMode)
     super.disconnectedCallback()
   }

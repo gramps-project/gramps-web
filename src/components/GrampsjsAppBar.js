@@ -285,7 +285,25 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
-  _handleDeleteIcon() {
+  async _handleDeleteIcon() {
+    // the view being edited says whether it can be deleted, at this moment
+    const check = {}
+    fireEvent(this, 'edit-mode:delete-check', check)
+    const blocked = await check.blocked
+    if (blocked) {
+      this.editDialogContent = html`
+        <md-dialog open @cancel="${e => e.preventDefault()}">
+          <div slot="headline">${blocked.title}</div>
+          <div slot="content">${blocked.message}</div>
+          <div slot="actions">
+            <md-text-button @click="${() => this._handleDialogCancel()}">
+              ${this._('OK')}
+            </md-text-button>
+          </div>
+        </md-dialog>
+      `
+      return
+    }
     this.editDialogContent = html`
       <md-dialog open @cancel="${e => e.preventDefault()}">
         <div slot="content">${this._('Delete this object?')}</div>

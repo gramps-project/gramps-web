@@ -109,6 +109,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       _selectionKey: {type: Number},
       _showMergeDialog: {type: Boolean},
       _showDeleteDialog: {type: Boolean},
+      _deleteBlockedInfo: {type: Object},
       _showActionError: {type: Boolean},
       _currentAction: {type: String},
     }
@@ -133,6 +134,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     this._selectionKey = 0
     this._showMergeDialog = false
     this._showDeleteDialog = false
+    this._deleteBlockedInfo = null
     this._showActionError = false
     this._currentAction = ''
   }
@@ -145,6 +147,13 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   // eslint-disable-next-line class-methods-use-this
   get _supportsDelete() {
     return true
+  }
+
+  // resolves to why the selected objects can't be deleted, as
+  // {title, message}, or null
+  // eslint-disable-next-line class-methods-use-this, no-unused-vars
+  async _deleteBlocked(handles) {
+    return null
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -299,11 +308,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         </md-outlined-button>
       </div>
       ${this._renderMergeDialog()} ${this._renderDeleteDialog()}
-      ${this._renderActionErrorDialog()}
+      ${this._renderDeleteBlockedDialog()} ${this._renderActionErrorDialog()}
     `
   }
 
-  _handleApplyAction() {
+  async _handleApplyAction() {
     const action = this._currentAction
     if (action === 'merge') {
       if (this._selectedHandles.length === 2) {
@@ -313,7 +322,10 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       }
     } else if (action === 'delete') {
       if (this._selectedHandles.length >= 1) {
-        this._showDeleteDialog = true
+        this._deleteBlockedInfo = await this._deleteBlocked(
+          this._selectedHandles
+        )
+        this._showDeleteDialog = !this._deleteBlockedInfo
       } else {
         this._showActionError = true
       }
@@ -383,6 +395,30 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
             }}"
           >
             ${this._('Cancel')}
+          </md-text-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  _renderDeleteBlockedDialog() {
+    if (!this._deleteBlockedInfo) return ''
+    return html`
+      <md-dialog
+        open
+        @close="${() => {
+          this._deleteBlockedInfo = null
+        }}"
+      >
+        <div slot="headline">${this._deleteBlockedInfo.title}</div>
+        <div slot="content">${this._deleteBlockedInfo.message}</div>
+        <div slot="actions">
+          <md-text-button
+            @click="${() => {
+              this._deleteBlockedInfo = null
+            }}"
+          >
+            ${this._('OK')}
           </md-text-button>
         </div>
       </md-dialog>

@@ -1,6 +1,7 @@
 import {html} from 'lit'
 
 import {GrampsjsViewObject} from './GrampsjsViewObject.js'
+import {getEnclosingPlaces} from '../util.js'
 import '../components/GrampsjsPlace.js'
 
 export class GrampsjsViewPlace extends GrampsjsViewObject {
@@ -15,6 +16,24 @@ export class GrampsjsViewPlace extends GrampsjsViewObject {
     }&backlinks=true&extend=all&locale=${
       this.appState.i18n.lang || 'en'
     }&profile=all`
+  }
+
+  // asks the server, as backlinks in this view's data can be stale
+  async _deleteBlocked() {
+    const {handle} = this._data
+    if (!handle) {
+      return null
+    }
+    const enclosing = await getEnclosingPlaces(this.appState, [handle])
+    if (enclosing.length === 0) {
+      return null
+    }
+    return {
+      title: this._('Cannot delete place.'),
+      message: this._(
+        'This place is currently referenced by another place. First remove the places it contains.'
+      ),
+    }
   }
 
   renderElement() {
