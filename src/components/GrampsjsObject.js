@@ -835,7 +835,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           .media=${this.data?.extended?.media}
           .mediaRef=${this.data?.media_list}
           ?edit="${this.edit}"
-          ?editRect="${this.appState.permissions.canEdit}"
         ></grampsjs-gallery>`
       case 'metadata':
         return html`

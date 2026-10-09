@@ -1,38 +1,36 @@
 import {html} from 'lit'
 
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
-import './GrampsjsRectContainer.js'
 import './GrampsjsRect.js'
-import {fireEvent, arrayEqual, normalizeRect} from '../util.js'
+import {fireEvent, normalizeRect, rectOverlap} from '../util.js'
 
+// Faces detected in an image, as suggested regions. Meant to be placed inside
+// the grampsjs-rect-container that holds the image.
 export class GrampsjsFaces extends GrampsjsConnectedComponent {
   renderContent() {
-    return html`
-      <grampsjs-rect-container .appState="${this.appState}">
-        <slot></slot>
-        ${this.rectHidden
-          ? ''
-          : this._getFaces().map(obj =>
-              arrayEqual(obj, this.selectedRect) ||
-              this.deletedRects.some(el => arrayEqual(obj, el))
-                ? ''
-                : html`
-                    <grampsjs-rect
-                      muted
-                      .rect="${obj}"
-                      label="?"
-                      target=""
-                      @click="${() => this._handleRectClick(obj)}"
-                    >
-                    </grampsjs-rect>
-                  `
-            )}
-      </grampsjs-rect-container>
-    `
+    if (this.rectHidden) {
+      return ''
+    }
+    return this._getFaces()
+      .filter(
+        face => !this.hiddenRects.some(rect => rectOverlap(face, rect) > 0.5)
+      )
+      .map(
+        face => html`
+          <grampsjs-rect
+            muted
+            .rect="${face}"
+            target=""
+            @rect:clicked="${e => this._handleRectClick(e, face)}"
+          >
+          </grampsjs-rect>
+        `
+      )
   }
 
-  _handleRectClick(obj) {
-    fireEvent(this, 'rect:selected', obj)
+  _handleRectClick(e, face) {
+    e.stopPropagation()
+    fireEvent(this, 'rect:selected', face)
   }
 
   // slightly grow rectangles and make them rectangular
@@ -59,8 +57,8 @@ export class GrampsjsFaces extends GrampsjsConnectedComponent {
   static get properties() {
     return {
       handle: {type: String},
-      selectedRect: {type: Array},
-      deletedRects: {type: Array},
+      // faces overlapping any of these are not shown
+      hiddenRects: {type: Array},
       rectHidden: {type: Boolean},
     }
   }
@@ -68,8 +66,7 @@ export class GrampsjsFaces extends GrampsjsConnectedComponent {
   constructor() {
     super()
     this.handle = ''
-    this.selectedRect = []
-    this.deletedRects = []
+    this.hiddenRects = []
     this.rectHidden = false
     this.renderOnError = true // render even if face detection fails
   }

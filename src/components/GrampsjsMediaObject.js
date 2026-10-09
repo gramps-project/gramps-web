@@ -6,7 +6,7 @@ import {
   mdiDelete,
   mdiPencil,
   mdiSelectDrag,
-  mdiSelectionOff,
+  mdiSelectOff,
   mdiTextRecognition,
 } from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
@@ -18,17 +18,20 @@ import './GrampsjsFormSelectObject.js'
 import './GrampsjsFaces.js'
 import './GrampsjsTextRecognition.js'
 import {
-  arrayEqual,
   emptyDate,
   fireEvent,
-  getNameFromProfile,
+  getMediaRegions,
+  mediaRegionObjectTypes,
   objectIconPath,
+  rectEqual,
 } from '../util.js'
 import {renderIconSvg} from '../icons.js'
 import {iconButtonColorStyles} from '../SharedStyles.js'
 import './GrampsjsIcon.js'
 
 import '@material/web/iconbutton/icon-button.js'
+import '@material/web/dialog/dialog.js'
+import '@material/web/button/text-button.js'
 
 export class GrampsjsMediaObject extends GrampsjsObject {
   static get styles() {
@@ -64,16 +67,18 @@ export class GrampsjsMediaObject extends GrampsjsObject {
         }
 
         .controls {
+          display: flex;
+          align-items: center;
+          gap: 8px;
           margin-top: 1em;
+        }
+
+        .controls grampsjs-form-select-object {
+          margin-right: 8px;
         }
 
         .hidden {
           visibility: hidden;
-        }
-
-        .controls span {
-          display: inline-block;
-          margin-left: 0.6em;
         }
 
         .ocr {
@@ -115,6 +120,27 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     this.dbInfo = {}
     this._drawing = false
     this._ocr = false
+    this._handleKeyDown = this._handleKeyDown.bind(this)
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('keydown', this._handleKeyDown)
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('keydown', this._handleKeyDown)
+    super.disconnectedCallback()
+  }
+
+  // Escape clears the selection and leaves draw mode. An Escape handled
+  // elsewhere, e.g. by a dialog or by cancelling a drag, is ignored.
+  _handleKeyDown(e) {
+    if (e.key !== 'Escape' || e.defaultPrevented) return
+    if (!this.edit || (!this.selectedRect.rect && !this._drawing)) return
+    if (e.composedPath().some(el => el.localName === 'md-dialog')) return
+    this.selectedRect = {}
+    this._drawing = false
   }
 
   renderProfile() {
@@ -184,114 +210,110 @@ export class GrampsjsMediaObject extends GrampsjsObject {
   }
 
   _renderImageEdit() {
-    const noSelection = !this.selectedRect?.rect?.length
+    const selected = this.selectedRect
+    const noSelection = !selected.rect
+    const regions = this._getRectangles()
     return html`
-      <p class="controls">
-        <span style="position: relative; top: 5px;">
-          <grampsjs-form-select-object
-            fixedMenuPosition
-            objectType="person"
-            .appState="${this.appState}"
-            id="face-select"
-            label="${this._('Person')}"
-            ?disabled="${noSelection}"
-            class="edit"
-            @select-object:changed="${this._handleFacePerson}"
-          ></grampsjs-form-select-object>
-        </span>
-        <span>
-          <md-icon-button
-            class="edit"
-            aria-label="${this._('Delete')}"
-            ?disabled="${noSelection}"
-            @click="${this._handleFaceDelete}"
-          >
-            <grampsjs-icon
-              path="${mdiDelete}"
-              color="currentColor"
-            ></grampsjs-icon>
-          </md-icon-button>
-        </span>
-        <span>
-          <md-icon-button
-            class="edit"
-            aria-label="${this._('Clear selection')}"
-            ?disabled="${noSelection && !this._drawing}"
-            @click="${this._handleFaceDeselect}"
-          >
-            <grampsjs-icon
-              path="${mdiSelectionOff}"
-              color="currentColor"
-            ></grampsjs-icon>
-          </md-icon-button>
-          <md-icon-button
-            class="edit"
-            aria-label="${this._('Draw a selection')}"
-            ?disabled="${this._drawing}"
-            @click="${this._handleEnableDraw}"
-          >
-            <grampsjs-icon
-              path="${mdiSelectDrag}"
-              color="currentColor"
-            ></grampsjs-icon>
-          </md-icon-button>
-        </span>
-      </p>
+      <div class="controls">
+        <grampsjs-form-select-object
+          fixedMenuPosition
+          objectType="${mediaRegionObjectTypes.join(',')}"
+          .appState="${this.appState}"
+          id="region-select"
+          label="${this._('Link')}"
+          ?disabled="${noSelection}"
+          class="edit"
+          @select-object:changed="${this._handleRegionLink}"
+        ></grampsjs-form-select-object>
+        <md-icon-button
+          class="edit"
+          aria-label="${this._('Delete')}"
+          ?disabled="${noSelection}"
+          @click="${this._handleRegionDelete}"
+        >
+          <grampsjs-icon
+            path="${mdiDelete}"
+            color="currentColor"
+          ></grampsjs-icon>
+        </md-icon-button>
+        <md-icon-button
+          class="edit"
+          aria-label="${this._('Clear selection')}"
+          ?disabled="${noSelection && !this._drawing}"
+          @click="${this._handleRegionDeselect}"
+        >
+          <grampsjs-icon
+            path="${mdiSelectOff}"
+            color="currentColor"
+          ></grampsjs-icon>
+        </md-icon-button>
+        <md-icon-button
+          class="edit"
+          aria-label="${this._('Draw a selection')}"
+          ?disabled="${this._drawing}"
+          @click="${this._handleEnableDraw}"
+        >
+          <grampsjs-icon
+            path="${mdiSelectDrag}"
+            color="currentColor"
+          ></grampsjs-icon>
+        </md-icon-button>
+      </div>
 
       <grampsjs-rect-container
         .appState="${this.appState}"
         ?draw="${this._drawing}"
-        @rect:draw="${this._handleDrawRec}"
+        @rect:draw="${this._handleDrawRect}"
+        @rect:modify="${this._handleModifyRect}"
+        @rect:modify-end="${this._handleModifyRectEnd}"
       >
+        <grampsjs-img
+          slot="image"
+          handle="${this.data.handle}"
+          size="1000"
+          border
+          mime="${this.data.mime}"
+          checksum="${this.data.checksum}"
+        ></grampsjs-img>
         <grampsjs-faces
           handle="${this.data.handle}"
           ?rectHidden="${this._drawing}"
-          .selectedRect="${this.selectedRect?.rect || []}"
-          .deletedRects="${[
+          .hiddenRects="${[
             ...this.deletedRects,
-            ...this._getRectangles().map(obj => obj.rect),
+            ...regions.map(obj => obj.rect),
+            ...(selected.rect ? [selected.rect] : []),
           ]}"
           .appState="${this.appState}"
           @rect:selected="${this._handleRectSelected}"
-          slot="image"
-        >
-          <grampsjs-img
-            handle="${this.data.handle}"
-            size="1000"
-            border
-            mime="${this.data.mime}"
-            checksum="${this.data.checksum}"
-          ></grampsjs-img>
-          ${this.selectedRect?.rect?.length
-            ? html`<grampsjs-rect
-                selected
-                .rect="${this.selectedRect.rect}"
-                label="?"
-                target=""
-              >
-              </grampsjs-rect>`
-            : ''}
-        </grampsjs-faces>
-
+        ></grampsjs-faces>
         ${this._drawing
           ? ''
-          : this._getRectangles().map(
-              obj => html`
-            <grampsjs-rect
-              .rect="${obj.rect}"
-              label="${obj.label}"
-              target="${obj.type}/${obj.grampsId}"
-              ?selected="${arrayEqual(obj.rect, this.selectedRect?.rect || [])}"
-              ?resizable="${
-                false // arrayEqual(obj.rect, this.selectedRect?.rect || [])
-              }"
-              @rect:clicked="${e => this._handeRectClickedEdit(e, obj)}"
+          : regions
+              .filter(obj => !this._isSelectedRegion(obj))
+              .map(
+                obj => html`
+                  <grampsjs-rect
+                    .rect="${obj.rect}"
+                    label="${obj.label}"
+                    type="${obj.type}"
+                    target="${obj.type}/${obj.grampsId}"
+                    @rect:clicked="${e => this._handleRegionClicked(e, obj)}"
+                  >
+                  </grampsjs-rect>
+                `
+              )}
+        ${selected.rect
+          ? html`<grampsjs-rect
+              selected
+              editable
+              .rect="${selected.rect}"
+              label="${selected.label ?? ''}"
+              type="${selected.type ?? ''}"
+              target=""
+              @rect:clicked="${e => e.stopPropagation()}"
             >
-            </grampsjs-rect>
-          </grampsjs-rect-container>
-
-            `
-            )}
+            </grampsjs-rect>`
+          : ''}
       </grampsjs-rect-container>
 
       ${this._renderReplaceFile()}
@@ -360,6 +382,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
             <grampsjs-rect
               .rect="${obj.rect}"
               label="${obj.label}"
+              type="${obj.type}"
               target="${obj.type}/${obj.grampsId}"
             >
             </grampsjs-rect>
@@ -415,7 +438,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     </div>`
   }
 
-  _handleFaceDeselect(e) {
+  _handleRegionDeselect(e) {
     this.selectedRect = {}
     this._drawing = false
     e.stopPropagation()
@@ -427,25 +450,71 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     e.stopPropagation()
   }
 
-  _handleDrawRec(e) {
-    this.selectedRect = {rect: e.detail.rect}
+  _handleDrawRect(e) {
+    e.stopPropagation()
+    this.selectedRect = e.detail.rect ? {rect: e.detail.rect} : {}
   }
 
-  _handleFaceDelete(e) {
-    if (!('handle' in this.selectedRect)) {
-      // just remove the detected face
-      this.deletedRects = [...this.deletedRects, this.selectedRect.rect]
-    } else {
-      // delete the media reference from the object
-      fireEvent(this, 'rect:delete', {
-        objHandle: this.selectedRect.handle,
-        objType: this.selectedRect.type,
-        mediaHandle: this.data.handle,
-        rect: this.selectedRect.rect,
-      })
-    }
-    this.selectedRect = {}
+  _handleModifyRect(e) {
     e.stopPropagation()
+    this.selectedRect = {...this.selectedRect, rect: e.detail.rect}
+  }
+
+  // A linked region is saved as soon as it is moved or resized
+  _handleModifyRectEnd(e) {
+    e.stopPropagation()
+    const {rect, original} = e.detail
+    const selected = this.selectedRect
+    this.selectedRect = {...selected, rect}
+    if (!selected.handle || rectEqual(rect, original)) {
+      return
+    }
+    fireEvent(this, 'region:update', {
+      objHandle: selected.handle,
+      objType: selected.type,
+      mediaHandle: this.data.handle,
+      oldRect: selected.origRect,
+      rect,
+    })
+    this.selectedRect = {...this.selectedRect, origRect: rect}
+  }
+
+  _handleRegionDelete(e) {
+    e.stopPropagation()
+    const selected = this.selectedRect
+    if (!selected.handle) {
+      // only hide the suggested or drawn region
+      this.deletedRects = [...this.deletedRects, selected.rect]
+      this.selectedRect = {}
+      return
+    }
+    this.dialogContent = html`
+      <md-dialog open @cancel="${this._handleCancelDialog}">
+        <span slot="headline">${this._('Are you sure?')}</span>
+        <div slot="content">${this._('This action cannot be undone.')}</div>
+        <div slot="actions">
+          <md-text-button @click="${this._handleCancelDialog}">
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-text-button
+            @click="${() => this._handleRegionDeleteConfirm(selected)}"
+          >
+            ${this._('Yes')}
+          </md-text-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  _handleRegionDeleteConfirm(selected) {
+    this.dialogContent = ''
+    fireEvent(this, 'rect:delete', {
+      objHandle: selected.handle,
+      objType: selected.type,
+      mediaHandle: this.data.handle,
+      rect: selected.origRect,
+    })
+    this.selectedRect = {}
   }
 
   _handleRectSelected(e) {
@@ -453,23 +522,37 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     e.stopPropagation()
   }
 
-  _handeRectClickedEdit(e, obj) {
-    this.selectedRect = obj
+  _handleRegionClicked(e, obj) {
+    this.selectedRect = {...obj, origRect: obj.rect}
     e.stopPropagation()
   }
 
-  async _handleFacePerson(e) {
+  _isSelectedRegion(obj) {
+    const selected = this.selectedRect
+    return (
+      !!selected.handle &&
+      obj.handle === selected.handle &&
+      obj.type === selected.type &&
+      rectEqual(obj.rect, selected.origRect)
+    )
+  }
+
+  async _handleRegionLink(e) {
     this._drawing = false
     const [obj] = e.detail.objects
     e.stopPropagation()
+    // the selector hides the chosen object, which may be linked again
+    e.target.reset()
     const data = {
-      personHandle: obj.handle,
+      objHandle: obj.handle,
+      objType: obj.object_type,
       mediaHandle: this.data.handle,
       rect: this.selectedRect.rect,
       oldHandle: this.selectedRect.handle,
       oldType: this.selectedRect.type,
+      oldRect: this.selectedRect.origRect,
     }
-    fireEvent(this, 'facetag:add', data)
+    fireEvent(this, 'region:link', data)
     this.selectedRect = {}
   }
 
@@ -524,31 +607,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
   }
 
   _getRectangles() {
-    const backlinks = this.data?.extended?.backlinks || {}
-    const references = this.data?.profile?.references || {}
-    if (Object.keys(backlinks).length === 0) {
-      return []
-    }
-    return Object.keys(backlinks)
-      .map(key =>
-        backlinks[key].map((obj, index) => {
-          const refs = key in references ? references[key] : []
-          const label =
-            refs.length >= index
-              ? getNameFromProfile(refs[index] || {}, key)
-              : '...'
-          return {
-            rect: obj?.media_list?.find(mobj => mobj.ref === this.data.handle)
-              ?.rect,
-            type: key,
-            label,
-            grampsId: obj.gramps_id,
-            handle: obj.handle,
-          }
-        })
-      )
-      .flat()
-      .filter(obj => obj?.rect?.length > 0)
+    return getMediaRegions(this.data)
   }
 
   _handleSaveMap(e) {
@@ -590,6 +649,13 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       this.selectedRect = {}
       this.deletedRects = []
       this._drawing = false
+    } else if (
+      changed.has('data') &&
+      this.selectedRect.handle &&
+      !this._getRectangles().some(obj => this._isSelectedRegion(obj))
+    ) {
+      // the selected region was changed or removed
+      this.selectedRect = {}
     }
   }
 }
