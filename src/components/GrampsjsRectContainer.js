@@ -118,7 +118,9 @@ class GrampsjsRectContainer extends GrampsjsAppStateMixin(LitElement) {
       drag.handle === 'draw'
         ? normalizeRect([x0, y0, x, y])
         : modifyRect(drag.rect, drag.handle, x - x0, y - y0)
-    if (rect === null || rectEqual(rect, drag.current)) return
+    // A draw that shrinks back to zero size clears the region drawn so far
+    // (rect null), so that releasing it does not keep an earlier region
+    if (rect === drag.current || rectEqual(rect, drag.current)) return
     drag.current = rect
     fireEvent(this, drag.handle === 'draw' ? 'rect:draw' : 'rect:modify', {
       rect,

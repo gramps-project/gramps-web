@@ -87,15 +87,19 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
     }
   }
 
+  // Saves one after the other, so that a save reads the media list as the
+  // previous one left it
   async _handleRegionUpdate(e) {
     const data = e.detail
     e.stopPropagation()
-    this.updateMediaRef(
-      data.objHandle,
-      data.objType,
-      data.mediaHandle,
-      data.oldRect,
-      data.rect
+    this._regionSave = (this._regionSave ?? Promise.resolve()).then(() =>
+      this.updateMediaRef(
+        data.objHandle,
+        data.objType,
+        data.mediaHandle,
+        data.oldRect,
+        data.rect
+      )
     )
   }
 

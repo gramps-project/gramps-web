@@ -541,6 +541,8 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     this._drawing = false
     const [obj] = e.detail.objects
     e.stopPropagation()
+    // the selector hides the chosen object, which may be linked again
+    e.target.reset()
     const data = {
       objHandle: obj.handle,
       objType: obj.object_type,
