@@ -452,5 +452,7 @@
     "Genealogical symbols": "Genealogické symboly",
     "Unicode symbols (∗ † ⚭ ⚮)": "Symboly Unicode (∗ † ⚭ ⚮)",
     "Insert image": "Vložit obrázek",
-    "Text abbreviations (b. d. m. div.)": "Textpvé zkratky (nar. úm. sň. rozv.)"
+    "Text abbreviations (b. d. m. div.)": "Textpvé zkratky (nar. úm. sň. rozv.)",
+    "Invalid region coordinates": "Neplatné souřadnice regionu",
+    "Toggle region outlines": "Přepnout obrysy regionů"
 }
