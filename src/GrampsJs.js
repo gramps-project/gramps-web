@@ -1282,6 +1282,13 @@ export class GrampsJs extends LitElement {
     }
     this.appState.auth.unpinTree()
     clearMediaCaches()
+    if (e?.detail?.pushCleanupWarning) {
+      this._showMessage(
+        this._(
+          'Could not turn off browser notifications on this device. Check your browser settings.'
+        )
+      )
+    }
   }
 
   _handleStorage(e) {

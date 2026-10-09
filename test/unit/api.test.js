@@ -431,6 +431,7 @@ describe('Auth.signout', () => {
   afterEach(() => {
     window.removeEventListener('user:loggedout', onLoggedOut)
     localStorage.clear()
+    vi.useRealTimers()
     vi.unstubAllGlobals()
   })
 
@@ -512,6 +513,146 @@ describe('Auth.signout', () => {
 
     expect(fetch).not.toHaveBeenCalled()
     expect(events[0].detail.redirecting).toBe(false)
+  })
+
+  it('removes the browser subscription before clearing credentials', async () => {
+    const subscription = {
+      endpoint: 'https://push.example.test/1',
+      unsubscribe: vi.fn().mockResolvedValue(true),
+    }
+    vi.stubGlobal('navigator', {
+      serviceWorker: {
+        getRegistration: vi.fn().mockResolvedValue({
+          pushManager: {
+            getSubscription: vi.fn().mockResolvedValue(subscription),
+          },
+        }),
+      },
+    })
+    localStorage.setItem('access_token', makeToken({sub: 'alice'}))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(() => {
+        expect(localStorage.getItem('access_token')).not.toBeNull()
+        return Promise.resolve({
+          status: 204,
+          json: () => Promise.reject(new SyntaxError('No body')),
+          headers: {get: () => null},
+        })
+      })
+    )
+
+    await new Auth().signout()
+
+    expect(subscription.unsubscribe).toHaveBeenCalledOnce()
+    expect(fetch).toHaveBeenCalledOnce()
+    const [url, options] = fetch.mock.calls[0]
+    expect(url).toContain('/api/users/-/push-subscriptions/')
+    expect(options.method).to.equal('DELETE')
+    expect(options.headers.Authorization).toMatch(/^Bearer /)
+    expect(JSON.parse(options.body)).to.deep.equal({
+      endpoint: subscription.endpoint,
+    })
+    expect(events[0].detail.pushCleanupWarning).toBe(false)
+    expect(localStorage.getItem('access_token')).toBeNull()
+  })
+
+  it('warns but still signs out when both cleanup methods fail', async () => {
+    const subscription = {
+      endpoint: 'https://push.example.test/1',
+      unsubscribe: vi.fn().mockResolvedValue(false),
+    }
+    vi.stubGlobal('navigator', {
+      serviceWorker: {
+        getRegistration: vi.fn().mockResolvedValue({
+          pushManager: {
+            getSubscription: vi.fn().mockResolvedValue(subscription),
+          },
+        }),
+      },
+    })
+    localStorage.setItem('access_token', makeToken({sub: 'alice'}))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        status: 500,
+        statusText: 'Server Error',
+        json: () => Promise.resolve({error: {message: 'Server Error'}}),
+        headers: {get: () => null},
+      })
+    )
+
+    await new Auth().signout()
+
+    expect(subscription.unsubscribe).toHaveBeenCalledOnce()
+    expect(fetch).toHaveBeenCalledOnce()
+    expect(events[0].detail.pushCleanupWarning).toBe(true)
+    expect(localStorage.getItem('access_token')).toBeNull()
+  })
+
+  it('keeps the warning visible before an OIDC redirect', async () => {
+    vi.useFakeTimers()
+    const subscription = {
+      endpoint: 'https://push.example.test/1',
+      unsubscribe: vi.fn().mockResolvedValue(false),
+    }
+    vi.stubGlobal('navigator', {
+      serviceWorker: {
+        getRegistration: vi.fn().mockResolvedValue({
+          pushManager: {
+            getSubscription: vi.fn().mockResolvedValue(subscription),
+          },
+        }),
+      },
+    })
+    localStorage.setItem('access_token', makeToken({oidc_provider: 'custom'}))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(url =>
+        Promise.resolve(
+          url.includes('/api/oidc/logout/')
+            ? {
+                status: 200,
+                ok: true,
+                json: () =>
+                  Promise.resolve({
+                    logout_url: 'https://auth.example.com/end-session',
+                  }),
+              }
+            : {
+                status: 500,
+                statusText: 'Server Error',
+                json: () => Promise.resolve({error: 'Server Error'}),
+                headers: {get: () => null},
+              }
+        )
+      )
+    )
+
+    const signout = new Auth().signout()
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(events[0].detail.pushCleanupWarning).toBe(true)
+    expect(calls).not.toContain('navigate:https://auth.example.com/end-session')
+
+    await vi.advanceTimersByTimeAsync(5000)
+    await signout
+    expect(calls).toContain('navigate:https://auth.example.com/end-session')
+  })
+
+  it('does not hang logout when service worker lookup stalls', async () => {
+    vi.useFakeTimers()
+    vi.stubGlobal('navigator', {
+      serviceWorker: {getRegistration: () => new Promise(() => {})},
+    })
+    localStorage.setItem('access_token', makeToken({sub: 'alice'}))
+
+    const signout = new Auth().signout()
+    await vi.advanceTimersByTimeAsync(5000)
+    await signout
+
+    expect(events[0].detail.pushCleanupWarning).toBe(true)
+    expect(localStorage.getItem('access_token')).toBeNull()
   })
 })
 

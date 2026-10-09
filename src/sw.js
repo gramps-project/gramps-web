@@ -3,6 +3,11 @@ import {registerRoute, NavigationRoute} from 'workbox-routing'
 import {CacheFirst, NetworkFirst} from 'workbox-strategies'
 import {CacheableResponsePlugin} from 'workbox-cacheable-response'
 import {ExpirationPlugin} from 'workbox-expiration'
+import {
+  focusOrOpenWebPushWindow,
+  normalizeWebPushNotification,
+  webPushTargetUrl,
+} from './webPush.js'
 
 // Skip waiting immediately so the new SW activates without user interaction.
 // clients.claim() fires controllerchange on all open tabs → PwaUpdateAvailable
@@ -23,6 +28,31 @@ self.addEventListener('message', event => {
       Promise.all(MEDIA_CACHES_TO_CLEAR.map(c => caches.delete(c)))
     )
   }
+})
+
+self.addEventListener('push', event => {
+  let payload = {}
+  try {
+    payload = event.data?.json() || {}
+  } catch {
+    payload = {body: event.data?.text() || ''}
+  }
+  const notification = normalizeWebPushNotification(
+    payload,
+    self.registration.scope
+  )
+  event.waitUntil(
+    self.registration.showNotification(notification.title, notification.options)
+  )
+})
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close()
+  const targetUrl = webPushTargetUrl(
+    event.notification.data?.url,
+    self.registration.scope
+  )
+  event.waitUntil(focusOrOpenWebPushWindow(self.clients, targetUrl))
 })
 
 precacheAndRoute(self.__WB_MANIFEST)
