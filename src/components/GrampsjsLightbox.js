@@ -157,7 +157,6 @@ class GrampsjsLightbox extends LitElement {
       _translateX: {type: Number},
       hideLeftArrow: {type: Boolean},
       hideRightArrow: {type: Boolean},
-      disableTouch: {type: Boolean},
     }
   }
 
@@ -167,7 +166,6 @@ class GrampsjsLightbox extends LitElement {
     this._translateX = 0
     this.hideLeftArrow = false
     this.hideRightArrow = false
-    this.disableTouch = false
   }
 
   render() {
@@ -207,11 +205,7 @@ class GrampsjsLightbox extends LitElement {
           @touchmove="${this._handleTouchMove}"
           @touchend="${this._handleTouchEnd}"
         >
-          <slot
-            name="image"
-            @rect:draw-start="${this._handleRectStart}"
-            @rect:draw-end="${this._handleRectEnd}"
-          ></slot>
+          <slot name="image"></slot>
         </div>
         <div id="text" tabindex="0">
           <div id="text-row">
@@ -261,41 +255,23 @@ class GrampsjsLightbox extends LitElement {
     }
   }
 
-  _handleRectStart(e) {
-    this.disableTouch = true
-    e.preventDefault()
-    e.stopPropagation()
-  }
-
-  _handleRectEnd(e) {
-    this.disableTouch = false
-    e.preventDefault()
-    e.stopPropagation()
-  }
-
   _handleTouchStart(e) {
-    if (!this.disableTouch) {
-      this._touchStartX = e.touches[0].pageX
-      this._touchMoveX = this._touchStartX
-    }
+    this._touchStartX = e.touches[0].pageX
+    this._touchMoveX = this._touchStartX
   }
 
   _handleTouchMove(e) {
-    if (!this.disableTouch) {
-      this._touchMoveX = e.touches[0].pageX
-      this._translateX = this._touchMoveX - this._touchStartX
-    }
+    this._touchMoveX = e.touches[0].pageX
+    this._translateX = this._touchMoveX - this._touchStartX
   }
 
   _handleTouchEnd() {
-    if (!this.disableTouch) {
-      this._translateX = 0
-      const movedX = this._touchMoveX - this._touchStartX
-      if (movedX < -10) {
-        this._handleRight()
-      } else if (movedX > 10) {
-        this._handleLeft()
-      }
+    this._translateX = 0
+    const movedX = this._touchMoveX - this._touchStartX
+    if (movedX < -10) {
+      this._handleRight()
+    } else if (movedX > 10) {
+      this._handleLeft()
     }
   }
 

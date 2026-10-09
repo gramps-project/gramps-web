@@ -520,14 +520,6 @@ export class GrampsjsViewObject extends GrampsjsView {
       )
     } else if (e.detail.action === 'addMediaRef') {
       this.addObject(e.detail.data, this._data, this._className, 'media_list')
-    } else if (e.detail.action === 'updateMediaRef') {
-      this.updateObjectByIndex(
-        e.detail.index,
-        e.detail.data,
-        this._data,
-        this._className,
-        'media_list'
-      )
     } else if (e.detail.action === 'updateAttribute') {
       this.updateObjectByIndex(
         e.detail.index,

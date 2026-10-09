@@ -1,12 +1,16 @@
-/* eslint-disable lit-a11y/click-events-have-key-events */
 import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import './GrampsjsFormSelectObjectList.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, modifyRect, normalizeRect, rectEqual} from '../util.js'
 
+// Container for an image (slot "image") and the rectangles on top of it
+// (default slot). In draw mode, dragging on the image draws a new rectangle
+// and fires rect:draw. Dragging an editable rectangle or one of its handles
+// fires rect:modify while dragging and rect:modify-end when released.
+// Escape or a cancelled pointer discards the drag.
 class GrampsjsRectContainer extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
@@ -21,6 +25,7 @@ class GrampsjsRectContainer extends GrampsjsAppStateMixin(LitElement) {
 
         .draw {
           cursor: crosshair;
+          touch-action: none;
         }
       `,
     ]
@@ -29,18 +34,14 @@ class GrampsjsRectContainer extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       draw: {type: Boolean},
-      _drawActive: {type: Boolean},
-      _drawStart: {type: Array},
-      _drawEnd: {type: Array},
     }
   }
 
   constructor() {
     super()
     this.draw = false
-    this._drawActive = false
-    this._drawStart = []
-    this._drawEnd = []
+    this._drag = null
+    this._handleKeyDown = this._handleKeyDown.bind(this)
   }
 
   render() {
@@ -51,64 +52,123 @@ class GrampsjsRectContainer extends GrampsjsAppStateMixin(LitElement) {
         @pointerdown="${this._handleDown}"
         @pointerup="${this._handleUp}"
         @pointermove="${this._handleMove}"
+        @pointercancel="${this._handleCancel}"
+        @lostpointercapture="${this._handleCancel}"
         @dragstart="${this._handleDragStart}"
+        @rect:modify-start="${this._handleModifyStart}"
       >
         <slot name="image"></slot>
-        ${this.draw ? '' : html`<slot></slot>`}
+        <slot></slot>
       </div>
     `
   }
 
+  disconnectedCallback() {
+    window.removeEventListener('keydown', this._handleKeyDown, true)
+    super.disconnectedCallback()
+  }
+
   _handleDown(e) {
-    if (!this.draw) return
+    if (!this.draw || this._drag || e.button !== 0) return
     e.preventDefault()
+    this._startDrag(e.pointerId, {
+      handle: 'draw',
+      start: this._getRelativeCoords(e),
+      rect: null,
+    })
+  }
+
+  _handleModifyStart(e) {
     e.stopPropagation()
-    // Capture the pointer so all subsequent move/up events are delivered to
-    // this element even when the pointer leaves it (fixes Firefox pointerleave
-    // firing on child elements) and suppresses the browser's native image drag
-    // (fixes Chrome stealing the drag).
-    e.currentTarget.setPointerCapture(e.pointerId)
-    this._drawActive = true
-    this._drawStart = this._getRelativeCoords(e)
+    const {handle, rect, pointerId, clientX, clientY} = e.detail
+    if (this._drag) return
+    this._startDrag(pointerId, {
+      handle,
+      start: this._getRelativeCoords({clientX, clientY}),
+      rect,
+    })
+  }
+
+  _startDrag(pointerId, drag) {
+    const container = this.renderRoot.querySelector('#rect-container')
+    // Capturing the pointer delivers all further events to the container,
+    // also when the pointer leaves it, and stops the browser from dragging
+    // the image
+    try {
+      container.setPointerCapture(pointerId)
+    } catch {
+      return
+    }
+    this._drag = {...drag, pointerId, current: drag.rect}
+    // capture phase, so that the drag is cancelled before other Escape
+    // handlers on the window see the event
+    window.addEventListener('keydown', this._handleKeyDown, true)
   }
 
   _handleDragStart(e) {
     if (this.draw) e.preventDefault()
   }
 
-  _handleUp() {
-    if (!this._drawActive) {
-      return
-    }
-    this._drawActive = false
-  }
-
   _handleMove(e) {
-    if (!this._drawActive) {
-      return
-    }
-    const coords = this._getRelativeCoords(e)
-    if (coords && this._drawStart) {
-      const [x1, y1] = coords
-      const [x0, y0] = this._drawStart
-      const left = Math.round(Math.max(0, Math.min(x0, x1)))
-      const right = Math.round(Math.min(Math.max(x0, x1), 100))
-      const top = Math.round(Math.max(0, Math.min(y0, y1)))
-      const bottom = Math.round(Math.min(Math.max(y0, y1), 100))
-      fireEvent(this, 'rect:draw', {rect: [left, top, right, bottom]})
-    }
+    const drag = this._drag
+    if (drag?.pointerId !== e.pointerId) return
+    const [x, y] = this._getRelativeCoords(e)
+    const [x0, y0] = drag.start
+    const rect =
+      drag.handle === 'draw'
+        ? normalizeRect([x0, y0, x, y])
+        : modifyRect(drag.rect, drag.handle, x - x0, y - y0)
+    if (rect === null || rectEqual(rect, drag.current)) return
+    drag.current = rect
+    fireEvent(this, drag.handle === 'draw' ? 'rect:draw' : 'rect:modify', {
+      rect,
+    })
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  _getRelativeCoords(e) {
-    const img = this.renderRoot.querySelector('#rect-container')
-    if (img) {
-      const rect = img.getBoundingClientRect()
-      const x = ((e.clientX - rect.left) / rect.width) * 100
-      const y = ((e.clientY - rect.top) / rect.height) * 100
-      return [x, y]
+  _handleUp(e) {
+    if (this._drag?.pointerId !== e.pointerId) return
+    this._endDrag(false)
+  }
+
+  _handleCancel(e) {
+    if (this._drag?.pointerId !== e.pointerId) return
+    this._endDrag(true)
+  }
+
+  _handleKeyDown(e) {
+    if (e.key !== 'Escape') return
+    e.preventDefault()
+    e.stopPropagation()
+    this._endDrag(true)
+  }
+
+  _endDrag(cancel) {
+    const drag = this._drag
+    this._drag = null
+    window.removeEventListener('keydown', this._handleKeyDown, true)
+    const container = this.renderRoot.querySelector('#rect-container')
+    if (container?.hasPointerCapture(drag.pointerId)) {
+      container.releasePointerCapture(drag.pointerId)
     }
-    return null
+    if (drag.handle === 'draw') {
+      if (cancel && drag.current) {
+        fireEvent(this, 'rect:draw', {rect: null})
+      }
+      return
+    }
+    fireEvent(this, 'rect:modify-end', {
+      rect: cancel ? drag.rect : drag.current,
+      original: drag.rect,
+    })
+  }
+
+  _getRelativeCoords({clientX, clientY}) {
+    const container = this.renderRoot.querySelector('#rect-container')
+    const rect = container.getBoundingClientRect()
+    return [
+      ((clientX - rect.left) / rect.width) * 100,
+      ((clientY - rect.top) / rect.height) * 100,
+    ]
   }
 }
 

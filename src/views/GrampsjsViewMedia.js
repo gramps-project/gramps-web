@@ -5,8 +5,11 @@ import '../components/GrampsjsMediaObject.js'
 
 import {
   objectTypeToEndpoint,
-  arrayEqual,
+  endpointToObjectClass,
   normalizeRect,
+  addMediaRegion,
+  replaceMediaRegion,
+  removeMediaRegion,
   fireEvent,
 } from '../util.js'
 
@@ -37,22 +40,27 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
         .dbInfo=${this.dbInfo}
         ?canEdit="${this.canEdit}"
         ?edit="${this.edit}"
-        @facetag:add="${this._handleFacePerson}"
+        @region:link="${this._handleRegionLink}"
+        @region:update="${this._handleRegionUpdate}"
         @rect:delete="${this._handleDeleteRect}"
         @file:replace="${this._handleUploadFile}"
       ></grampsjs-media-object>
     `
   }
 
-  async _handleFacePerson(e) {
+  async _handleRegionLink(e) {
     const data = e.detail
     e.stopPropagation()
-    if (!('personHandle' in data)) {
+    if (!('objHandle' in data)) {
       return
     }
     if (data.oldHandle) {
-      const added = await this.addMediaRefToPerson(
-        data.personHandle,
+      if (data.oldHandle === data.objHandle && data.oldType === data.objType) {
+        return
+      }
+      const added = await this.addMediaRef(
+        data.objHandle,
+        data.objType,
         data.mediaHandle,
         data.rect,
         false,
@@ -65,13 +73,30 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
         data.oldHandle,
         data.oldType,
         data.mediaHandle,
-        data.rect,
+        data.oldRect,
         false
       )
       this._updateData(false)
     } else {
-      this.addMediaRefToPerson(data.personHandle, data.mediaHandle, data.rect)
+      this.addMediaRef(
+        data.objHandle,
+        data.objType,
+        data.mediaHandle,
+        data.rect
+      )
     }
+  }
+
+  async _handleRegionUpdate(e) {
+    const data = e.detail
+    e.stopPropagation()
+    this.updateMediaRef(
+      data.objHandle,
+      data.objType,
+      data.mediaHandle,
+      data.oldRect,
+      data.rect
+    )
   }
 
   async _handleDeleteRect(e) {
@@ -83,8 +108,9 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
     this.delMediaRef(data.objHandle, data.objType, data.mediaHandle, data.rect)
   }
 
-  async addMediaRefToPerson(
-    personHandle,
+  async addMediaRef(
+    objHandle,
+    objType,
     mediaHandle,
     rect,
     reload = true,
@@ -93,22 +119,23 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
     const normalizedRect = normalizeRect(rect)
     if (!normalizedRect) {
       fireEvent(this, 'grampsjs:error', {
-        message: this._('Invalid face rectangle coordinates'),
+        message: this._('Invalid region coordinates'),
       })
       return false
     }
-    const url = `/api/people/${personHandle}`
+    const endpoint = objectTypeToEndpoint[objType]
+    const url = `/api/${endpoint}/${objHandle}`
     let resp = await this.appState.apiGet(url)
     if ('error' in resp) {
       return false
     }
-    const person = {_class: 'Person', ...resp.data}
-    const data = {ref: mediaHandle, rect: normalizedRect}
-    person.media_list = [
-      ...person.media_list.filter(mobj => mobj.ref !== mediaHandle),
-      data,
-    ]
-    resp = await this.appState.apiPut(url, person, {dbChanged: fireChanged})
+    const obj = {_class: endpointToObjectClass[endpoint], ...resp.data}
+    obj.media_list = addMediaRegion(
+      obj.media_list || [],
+      mediaHandle,
+      normalizedRect
+    )
+    resp = await this.appState.apiPut(url, obj, {dbChanged: fireChanged})
     if ('error' in resp) {
       return false
     }
@@ -118,6 +145,32 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
     return true
   }
 
+  // Reloads even if saving fails, so that the media object shows the
+  // regions as they are stored
+  async updateMediaRef(objHandle, objType, mediaHandle, oldRect, rect) {
+    const normalizedRect = normalizeRect(rect)
+    if (!normalizedRect) {
+      fireEvent(this, 'grampsjs:error', {
+        message: this._('Invalid region coordinates'),
+      })
+      this._updateData(false)
+      return
+    }
+    const url = `/api/${objectTypeToEndpoint[objType]}/${objHandle}`
+    const resp = await this.appState.apiGet(url)
+    if (!('error' in resp)) {
+      const obj = resp.data
+      obj.media_list = replaceMediaRegion(
+        obj.media_list,
+        mediaHandle,
+        oldRect,
+        normalizedRect
+      )
+      await this.appState.apiPut(url, obj)
+    }
+    this._updateData(false)
+  }
+
   async delMediaRef(objHandle, objType, mediaHandle, rect, reload = true) {
     const url = `/api/${objectTypeToEndpoint[objType]}/${objHandle}`
     let resp = await this.appState.apiGet(url)
@@ -125,10 +178,7 @@ export class GrampsjsViewMedia extends GrampsjsViewObject {
       return
     }
     const obj = resp.data
-    obj.media_list = obj.media_list.filter(
-      mediaRef =>
-        !arrayEqual(mediaRef.rect, rect) || mediaRef.ref !== mediaHandle
-    )
+    obj.media_list = removeMediaRegion(obj.media_list, mediaHandle, rect)
     resp = await this.appState.apiPut(url, obj)
     if ('error' in resp) {
       return

@@ -1,10 +1,10 @@
 import {html, css} from 'lit'
 import {
-  mdiAccount,
-  mdiAccountOff,
   mdiDownload,
   mdiMagnifyMinus,
   mdiMagnifyPlus,
+  mdiSelect,
+  mdiSelectOff,
 } from '@mdi/js'
 
 import '@material/web/iconbutton/icon-button.js'
@@ -18,7 +18,7 @@ import '../components/GrampsjsRect.js'
 import '../components/GrampsjsTooltip.js'
 import '../components/GrampsjsIcon.js'
 import {getMediaUrl} from '../api.js'
-import {fireEvent, getNameFromProfile} from '../util.js'
+import {fireEvent, getMediaRegions} from '../util.js'
 
 // Make sure to synchronize this with the CSS variable --grampsjs-lightbox-toolbar-height in GrampsjsLightbox.js
 const LIGHTBOX_TOOLBAR_HEIGHT = 70
@@ -68,11 +68,9 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   static get properties() {
     return {
       handle: {type: String},
-      index: {type: Number},
       _data: {type: Object},
       hideLeftArrow: {type: Boolean},
       hideRightArrow: {type: Boolean},
-      editRect: {type: Boolean},
       rectHidden: {type: Boolean},
       _zoom: {type: Number},
     }
@@ -80,11 +78,9 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
 
   constructor() {
     super()
-    this.index = -1
     this._data = {}
     this.hideLeftArrow = false
     this.hideRightArrow = false
-    this.editRect = false
     this.rectHidden = false
     this._zoom = 1
     this._panX = 0
@@ -119,17 +115,17 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         <span slot="button">
           <md-icon-button
             id="btn-toggle-rect"
-            aria-label="${this._('Toggle person outlines')}"
+            aria-label="${this._('Toggle region outlines')}"
             ?disabled="${this._zoom > 1}"
             @click="${this._handleToggleRectButtonClick}"
           >
             <grampsjs-icon
-              path="${this.rectHidden ? mdiAccount : mdiAccountOff}"
+              path="${this.rectHidden ? mdiSelect : mdiSelectOff}"
               color="var(--mdc-theme-primary)"
             ></grampsjs-icon>
           </md-icon-button>
           <grampsjs-tooltip for="btn-toggle-rect"
-            >${this._('Toggle person outlines')}</grampsjs-tooltip
+            >${this._('Toggle region outlines')}</grampsjs-tooltip
           >
           <md-icon-button
             aria-label="${this._('Zoom in')}"
@@ -226,10 +222,8 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         @pointerup="${this._handlePointerUp}"
       >
         <grampsjs-rect-container
-          ?edit="${this.editRect}"
           .appState="${this.appState}"
           style="${zoomed ? 'pointer-events: none;' : ''}"
-          @rect:save="${this._handleSaveRect}"
         >
           ${this._renderImage()}
           ${this._getRectangles().map(
@@ -238,6 +232,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
                 .rect="${obj.rect}"
                 .hidden="${this.rectHidden || zoomed}"
                 label="${obj.label}"
+                type="${obj.type}"
                 target="${obj.type}/${obj.grampsId}"
               >
               </grampsjs-rect>
@@ -411,33 +406,6 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     this.rectHidden = !this.rectHidden
   }
 
-  _handleSaveRect(e) {
-    const img = this.shadowRoot.querySelector('grampsjs-img')
-    if (img === null) {
-      return
-    }
-    const imgBBox = img.getBBox()
-    const refBBox = e.detail.bbox
-    const left = Math.max(0, (refBBox.left - imgBBox.left) / imgBBox.width)
-    const right = Math.min(1, (refBBox.right - imgBBox.left) / imgBBox.width)
-    const top = Math.max(0, (refBBox.top - imgBBox.top) / imgBBox.height)
-    const bottom = Math.min(1, (refBBox.bottom - imgBBox.top) / imgBBox.height)
-    const rect = [
-      Math.round(100 * left),
-      Math.round(100 * top),
-      Math.round(100 * right),
-      Math.round(100 * bottom),
-    ]
-    if ((rect[2] - rect[0]) * (rect[3] - rect[1]) > 0 && this.index >= 0) {
-      const data = {ref: this.handle, rect}
-      fireEvent(this, 'edit:action', {
-        action: 'updateMediaRef',
-        index: this.index,
-        data,
-      })
-    }
-  }
-
   update(changed) {
     super.update(changed)
     if (changed.has('handle')) {
@@ -468,30 +436,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   }
 
   _getRectangles() {
-    const backlinks = this._data?.extended?.backlinks || {}
-    const references = this._data?.profile?.references || {}
-    if (Object.keys(backlinks).length === 0) {
-      return []
-    }
-    return Object.keys(backlinks)
-      .map(key =>
-        backlinks[key].map((obj, index) => {
-          const refs = key in references ? references[key] : []
-          const label =
-            refs.length >= index
-              ? getNameFromProfile(refs[index] || {}, key)
-              : '...'
-          return {
-            rect: obj?.media_list?.find(mobj => mobj.ref === this._data.handle)
-              ?.rect,
-            type: key,
-            label,
-            grampsId: obj.gramps_id,
-          }
-        })
-      )
-      .flat()
-      .filter(obj => obj.rect?.length > 0)
+    return getMediaRegions(this._data)
   }
 
   connectedCallback() {

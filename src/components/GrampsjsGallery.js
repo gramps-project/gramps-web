@@ -74,7 +74,6 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
       media: {type: Array},
       dialogContent: {type: String},
       edit: {type: Boolean},
-      editRect: {type: Boolean},
       _lightboxSelected: {type: Number},
     }
   }
@@ -84,7 +83,6 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
     this.mediaRef = []
     this.media = []
     this.edit = false
-    this.editRect = false
     this.dialogContent = ''
     this._lightboxSelected = 0
   }
@@ -116,13 +114,11 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
 
       <grampsjs-view-media-lightbox
         active
-        ?editRect="${this.editRect}"
         id="gallery-lightbox-view"
         @lightbox:left="${this._handleLeft}"
         @lightbox:right="${this._handleRight}"
         @rect:clicked="${this._handleRectClick}"
         handle="${this.media[this._lightboxSelected]?.handle}"
-        .index="${this._lightboxSelected}"
         ?hideLeftArrow="${this._lightboxSelected === 0}"
         ?hideRightArrow="${this._lightboxSelected === this.media.length - 1}"
         .appState="${this.appState}"

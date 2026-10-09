@@ -48,10 +48,10 @@ body {
     --mdc-theme-text-icon-on-light: var(--grampsjs-body-font-color);
     --mdc-theme-text-primary-on-background: var(--grampsjs-body-font-color);
     --mdc-theme-text-secondary-on-background: var(--grampsjs-body-font-color-45);
-    --grampsjs-face-rect-border-color: rgba(255, 255, 255, 0.6);
-    --grampsjs-face-rect-border-shadow-color: rgba(0, 0, 0, 0.4);
-    --grampsjs-face-rect-label-background-color: rgba(1, 1, 1, 0.25);
-    --grampsjs-face-rect-label-color: #fff;
+    --grampsjs-rect-border-color: rgba(255, 255, 255, 0.6);
+    --grampsjs-rect-border-shadow-color: rgba(0, 0, 0, 0.4);
+    --grampsjs-rect-label-background-color: rgba(1, 1, 1, 0.25);
+    --grampsjs-rect-label-color: #fff;
     --grampsjs-lightbox-background-color: #000;
     --grampsjs-lightbox-font-color: #fff;
     --grampsjs-lightbox-nav-color: #aaa;
