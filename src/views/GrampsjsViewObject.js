@@ -193,7 +193,13 @@ export class GrampsjsViewObject extends GrampsjsView {
     fireEvent(this, 'edit-mode:on', {
       title: this._(editTitle[this._className] || 'Edit'),
       saveButton: this._saveButton,
+      deleteBlocked: this._deleteBlocked(),
     })
+  }
+
+  // why this object can't be deleted, as {title, message}, or null
+  _deleteBlocked() {
+    return null
   }
 
   _disableEditMode() {
@@ -311,6 +317,11 @@ export class GrampsjsViewObject extends GrampsjsView {
     const {handle} = this._data
     const grampsId = this._data.gramps_id
     const endpoint = objectTypeToEndpoint[this._className]
+    const blocked = this._deleteBlocked()
+    if (blocked) {
+      fireEvent(this, 'grampsjs:error', {message: blocked.message})
+      return
+    }
     if (this.active && endpoint && handle) {
       const url = `/api/${endpoint}/${handle}`
       const data = await this.appState.apiDelete(url, {dbChanged: false})

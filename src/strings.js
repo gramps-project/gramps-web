@@ -1102,4 +1102,6 @@ export const grampsStrings = [
   'Maximum age for an _unmarried person',
   '_Estimate missing or inexact dates',
   '_Identify invalid dates',
+  'Cannot delete place.',
+  'This place is currently referenced by another place. First remove the places it contains.',
 ]

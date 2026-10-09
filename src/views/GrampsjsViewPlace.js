@@ -17,6 +17,20 @@ export class GrampsjsViewPlace extends GrampsjsViewObject {
     }&profile=all`
   }
 
+  // like Gramps desktop: deleting a place that encloses others would leave
+  // them pointing to a place that no longer exists
+  _deleteBlocked() {
+    if (!this._data?.backlinks?.place?.length) {
+      return null
+    }
+    return {
+      title: this._('Cannot delete place.'),
+      message: this._(
+        'This place is currently referenced by another place. First remove the places it contains.'
+      ),
+    }
+  }
+
   renderElement() {
     return html`
       <grampsjs-place
