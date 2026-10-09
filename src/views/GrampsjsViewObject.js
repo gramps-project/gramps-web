@@ -317,12 +317,13 @@ export class GrampsjsViewObject extends GrampsjsView {
     const {handle} = this._data
     const grampsId = this._data.gramps_id
     const endpoint = objectTypeToEndpoint[this._className]
-    const blocked = this._deleteBlocked()
-    if (blocked) {
-      fireEvent(this, 'grampsjs:error', {message: blocked.message})
-      return
-    }
+    // every retained view hears edit-mode:delete; only the active one acts
     if (this.active && endpoint && handle) {
+      const blocked = this._deleteBlocked()
+      if (blocked) {
+        fireEvent(this, 'grampsjs:error', {message: blocked.message})
+        return
+      }
       const url = `/api/${endpoint}/${handle}`
       const data = await this.appState.apiDelete(url, {dbChanged: false})
       if ('data' in data) {
