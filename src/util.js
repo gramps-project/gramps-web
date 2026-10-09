@@ -546,6 +546,21 @@ export function getNameFromProfile(obj, type) {
   }
 }
 
+// Like Gramps desktop, a place that other places are enclosed by can't be
+// deleted, or they would point to a place that no longer exists. Places that
+// are deleted along with it, including itself, don't count.
+export async function getEnclosingPlaces(appState, handles) {
+  const deleted = new Set(handles)
+  const results = await Promise.all(
+    handles.map(handle =>
+      appState.apiGet(`/api/places/${handle}?backlinks=true`)
+    )
+  )
+  return handles.filter((handle, i) =>
+    (results[i]?.data?.backlinks?.place ?? []).some(ref => !deleted.has(ref))
+  )
+}
+
 export function fireEvent(target, name, detail) {
   target.dispatchEvent(
     new CustomEvent(name, {bubbles: true, composed: true, detail})

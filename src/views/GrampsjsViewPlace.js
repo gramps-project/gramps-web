@@ -1,6 +1,7 @@
 import {html} from 'lit'
 
 import {GrampsjsViewObject} from './GrampsjsViewObject.js'
+import {getEnclosingPlaces} from '../util.js'
 import '../components/GrampsjsPlace.js'
 
 export class GrampsjsViewPlace extends GrampsjsViewObject {
@@ -17,10 +18,14 @@ export class GrampsjsViewPlace extends GrampsjsViewObject {
     }&profile=all`
   }
 
-  // like Gramps desktop: deleting a place that encloses others would leave
-  // them pointing to a place that no longer exists
-  _deleteBlocked() {
-    if (!this._data?.backlinks?.place?.length) {
+  // asks the server, as backlinks in this view's data can be stale
+  async _deleteBlocked() {
+    const {handle} = this._data
+    if (!handle) {
+      return null
+    }
+    const enclosing = await getEnclosingPlaces(this.appState, [handle])
+    if (enclosing.length === 0) {
       return null
     }
     return {

@@ -3,7 +3,11 @@ Places list view
 */
 
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
-import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
+import {
+  prettyTimeDiffTimestamp,
+  filterCounts,
+  getEnclosingPlaces,
+} from '../util.js'
 import {
   associationsFilter,
   privacyFilter,
@@ -26,6 +30,19 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
   // eslint-disable-next-line class-methods-use-this
   get _supportsMerge() {
     return true
+  }
+
+  async _deleteBlocked(handles) {
+    const enclosing = await getEnclosingPlaces(this.appState, handles)
+    if (enclosing.length === 0) {
+      return null
+    }
+    return {
+      title: this._('Cannot delete place.'),
+      message: this._(
+        'This place is currently referenced by another place. First remove the places it contains.'
+      ),
+    }
   }
 
   get _fetchUrl() {

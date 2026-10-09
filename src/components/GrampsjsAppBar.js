@@ -94,7 +94,6 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       editDialogContent: {type: String},
       saveButton: {type: Boolean},
       hideDeleteButton: {type: Boolean},
-      deleteBlocked: {type: Object},
       saving: {type: Boolean},
       saveComplete: {type: Boolean},
     }
@@ -107,7 +106,6 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     this.editDialogContent = ''
     this.saveButton = false
     this.hideDeleteButton = false
-    this.deleteBlocked = null
     this.saving = false
     this.saveComplete = false
   }
@@ -287,12 +285,16 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
-  _handleDeleteIcon() {
-    if (this.deleteBlocked) {
+  async _handleDeleteIcon() {
+    // the view being edited says whether it can be deleted, at this moment
+    const check = {}
+    fireEvent(this, 'edit-mode:delete-check', check)
+    const blocked = await check.blocked
+    if (blocked) {
       this.editDialogContent = html`
         <md-dialog open @cancel="${e => e.preventDefault()}">
-          <div slot="headline">${this.deleteBlocked.title}</div>
-          <div slot="content">${this.deleteBlocked.message}</div>
+          <div slot="headline">${blocked.title}</div>
+          <div slot="content">${blocked.message}</div>
           <div slot="actions">
             <md-text-button @click="${() => this._handleDialogCancel()}">
               ${this._('OK')}
@@ -349,7 +351,6 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
     this.editTitle = e.detail.title
     this.saveButton = e.detail?.saveButton || false
     this.hideDeleteButton = e.detail?.hideDeleteButton || false
-    this.deleteBlocked = e.detail?.deleteBlocked || null
   }
 
   _deleteObject() {
