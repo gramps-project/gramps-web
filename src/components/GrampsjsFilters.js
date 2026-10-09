@@ -4,15 +4,18 @@ import {
   mdiAlertCircleOutline,
   mdiChevronRight,
   mdiFilter,
+  mdiFilterCogOutline,
   mdiFilterOff,
 } from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import '@material/web/button/filled-button'
 import '@material/web/button/outlined-button'
+import '@material/web/button/text-button'
 import '@material/web/iconbutton/icon-button'
 import '@material/web/textfield/outlined-text-field'
 
+import './GrampsjsFilterBuilder.js'
 import './GrampsjsFilterCheckboxes.js'
 import './GrampsjsFilterChip.js'
 import './GrampsjsFilterMime.js'
@@ -32,6 +35,7 @@ import {
   sectionRules,
   setSectionRules,
 } from '../filterDefinitions.js'
+import {pillsToTree, treeToFilters, treeToPills} from '../filterBuilder.js'
 
 // section id of the GQL query in the filter panel
 const GQL_SECTION = 'gql'
@@ -125,6 +129,15 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         .section-content {
           padding: 4px 0 16px 22px;
         }
+
+        .advanced {
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin: 8px 0 16px 0;
+          font-size: 14px;
+        }
       `,
     ]
   }
@@ -133,24 +146,34 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     return {
       // sections of the filter panel, see filterDefinitions.js
       definitions: {type: Array},
+      // endpoint name of the list's object type, e.g. 'people'; enables the
+      // condition builder
+      namespace: {type: String},
       open: {type: Boolean},
       query: {type: String},
       errorGql: {type: Boolean},
       _pills: {type: Array},
+      // the filter of the condition builder while the facets can't show it
+      _tree: {type: Object},
     }
   }
 
   constructor() {
     super()
     this.definitions = []
+    this.namespace = ''
     this.open = false
     this.query = ''
     this.errorGql = false
     this._pills = []
+    this._tree = null
   }
 
   // the active rules
   get filters() {
+    if (this._tree !== null) {
+      return treeToFilters(this._tree)
+    }
     return this._pills.map(pill => pill.rule)
   }
 
@@ -182,7 +205,9 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         <md-icon-button
           id="filteroff"
           aria-label="${this._('Clear all filters')}"
-          ?disabled="${this._pills.length === 0 && this.query === ''}"
+          ?disabled="${this._pills.length === 0 &&
+          this._tree === null &&
+          this.query === ''}"
           @click="${this._handleFilterOff}"
         >
           <grampsjs-icon path="${mdiFilterOff}"></grampsjs-icon>
@@ -197,9 +222,39 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
           class="sections"
           @filter-section:change="${this._handleSectionChange}"
         >
-          ${this.definitions.map(section => this._renderSection(section))}
+          ${this._tree === null
+            ? this.definitions.map(section => this._renderSection(section))
+            : this._renderAdvancedNotice()}
           ${this._renderDetails(GQL_SECTION, 'GQL', this._renderGql())}
         </div>
+        ${this.namespace && this._tree === null
+          ? html`<md-text-button @click="${this._openBuilder}">
+              <grampsjs-icon
+                slot="icon"
+                path="${mdiFilterCogOutline}"
+                color="var(--mdc-theme-primary)"
+              ></grampsjs-icon>
+              ${this._('Advanced filter')}
+            </md-text-button>`
+          : nothing}
+      </div>
+      ${this.namespace
+        ? html`<grampsjs-filter-builder
+            .appState="${this.appState}"
+            namespace="${this.namespace}"
+            @filter-builder:apply="${this._handleBuilderApply}"
+          ></grampsjs-filter-builder>`
+        : nothing}
+    `
+  }
+
+  _renderAdvancedNotice() {
+    return html`
+      <div class="advanced">
+        <span>${this._('The filter is edited in the advanced filter.')}</span>
+        <md-outlined-button @click="${this._openBuilder}">
+          ${this._('Edit')}
+        </md-outlined-button>
       </div>
     `
   }
@@ -207,6 +262,14 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
   _renderFilterChips() {
     return html`
       ${this._pills.map((pill, i) => this._renderPill(pill, i))}
+      ${this._tree === null
+        ? nothing
+        : html`
+            <grampsjs-filter-chip
+              label="${this._('Advanced filter')}"
+              @filter-chip:clear="${this._clearTree}"
+            ></grampsjs-filter-chip>
+          `}
       ${this.query
         ? html`
             <grampsjs-filter-chip
@@ -348,6 +411,26 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     this._fireFiltersChanged()
   }
 
+  _openBuilder() {
+    this.renderRoot
+      .querySelector('grampsjs-filter-builder')
+      ?.open(this._tree ?? pillsToTree(this._pills))
+  }
+
+  // Shows the builder's filter in the facets when they can show it
+  _handleBuilderApply(e) {
+    const {tree} = e.detail
+    const pills = treeToPills(tree, this.definitions)
+    this._pills = pills ?? []
+    this._tree = pills === null ? tree : null
+    this._fireFiltersChanged()
+  }
+
+  _clearTree() {
+    this._tree = null
+    this._fireFiltersChanged()
+  }
+
   _handleGqlKey(event) {
     if (event.code === 'Enter') {
       this._applyGql()
@@ -412,6 +495,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
 
   _handleFilterOff() {
     this._pills = []
+    this._tree = null
     this.query = ''
     this._clearGqlForm()
     this._clearGqlError()
