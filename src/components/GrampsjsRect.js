@@ -10,39 +10,37 @@ class GrampsjsRect extends LitElement {
     return [
       sharedStyles,
       css`
+        /* the border is part of the region, so that the box covers
+           exactly the stored rectangle */
         .rect {
-          border-radius: 3px;
-          border: 2px solid var(--grampsjs-rect-border-color);
+          --rect-border-width: 2px;
+          box-sizing: border-box;
+          border-radius: 8px;
+          border: var(--rect-border-width) solid
+            var(--grampsjs-rect-border-color);
           box-shadow: 0 0 1px 1px var(--grampsjs-rect-border-shadow-color);
           position: absolute;
           cursor: pointer;
         }
 
-        .rect .label {
-          background-color: var(--grampsjs-rect-label-background-color);
-          border-radius: 3px;
-          color: var(--grampsjs-rect-label-color);
-          cursor: pointer;
-          display: block;
-          font-size: 0.8em;
-          left: 50%;
-          overflow: hidden;
-          padding: 0.1em 0.5em;
-          position: relative;
-          top: 100%;
-          transform: translate(-50%, 10px);
-          text-align: center;
+        .rect:hover:not(.selected) {
+          border-color: var(--grampsjs-rect-border-hover-color);
         }
 
         .rect.selected {
-          border: 3px solid var(--mdc-theme-secondary);
-          box-shadow: 0px 0px 0px 9999px
-            var(--grampsjs-rect-border-shadow-color);
+          --rect-border-width: 3px;
+          border-color: var(--mdc-theme-secondary);
+          box-shadow: 0 0 0 9999px var(--grampsjs-rect-border-shadow-color);
+          z-index: 1;
         }
 
         .rect.muted {
           border-style: dotted;
-          box-shadow: None;
+          box-shadow: none;
+        }
+
+        .rect.muted:hover {
+          border-color: var(--grampsjs-rect-border-hover-color);
         }
 
         .rect.hidden:not(.selected) {
@@ -59,8 +57,9 @@ class GrampsjsRect extends LitElement {
           outline-offset: 2px;
         }
 
-        .rect.selected {
-          z-index: 1;
+        /* the selection border already shows the focus */
+        .rect.selected:focus-visible {
+          outline: none;
         }
 
         .rect.editable {
@@ -68,11 +67,68 @@ class GrampsjsRect extends LitElement {
           touch-action: none;
         }
 
-        .handle {
+        /* a pill below the box, sized to its text and cut off with an
+           ellipsis when too long */
+        .label {
           position: absolute;
-          width: 10px;
-          height: 10px;
-          border: 2px solid var(--grampsjs-rect-border-color);
+          top: 100%;
+          left: 50%;
+          transform: translate(-50%, 6px);
+          box-sizing: border-box;
+          width: max-content;
+          max-width: 16em;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          height: 20px;
+          padding: 0 8px;
+          border-radius: 10px;
+          background-color: var(--grampsjs-rect-label-background-color);
+          -webkit-backdrop-filter: blur(4px);
+          backdrop-filter: blur(4px);
+          color: var(--grampsjs-rect-label-color);
+          font-size: 12px;
+          line-height: 16px;
+          cursor: pointer;
+        }
+
+        .label grampsjs-icon {
+          flex: none;
+          display: flex;
+        }
+
+        .label-text {
+          min-width: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        /* labels of rectangles at the bottom of the image, which would
+           otherwise be cut off */
+        .label.above {
+          top: auto;
+          bottom: 100%;
+          transform: translate(-50%, -6px);
+        }
+
+        .label.inside {
+          top: auto;
+          bottom: 6px;
+          transform: translateX(-50%);
+        }
+
+        /* centred on the corners of the border */
+        .handle {
+          --handle-size: 14px;
+          --handle-offset: calc(
+            -1 * (var(--handle-size) + var(--rect-border-width)) / 2
+          );
+          position: absolute;
+          box-sizing: border-box;
+          width: var(--handle-size);
+          height: var(--handle-size);
+          border: 2px solid var(--grampsjs-rect-border-hover-color);
           border-radius: 50%;
           background-color: var(--mdc-theme-secondary);
           touch-action: none;
@@ -86,64 +142,27 @@ class GrampsjsRect extends LitElement {
         }
 
         .handle.nw {
-          left: -9px;
-          top: -9px;
+          left: var(--handle-offset);
+          top: var(--handle-offset);
           cursor: nwse-resize;
         }
 
         .handle.ne {
-          right: -9px;
-          top: -9px;
+          right: var(--handle-offset);
+          top: var(--handle-offset);
           cursor: nesw-resize;
         }
 
         .handle.sw {
-          left: -9px;
-          bottom: -9px;
+          left: var(--handle-offset);
+          bottom: var(--handle-offset);
           cursor: nesw-resize;
         }
 
         .handle.se {
-          right: -9px;
-          bottom: -9px;
+          right: var(--handle-offset);
+          bottom: var(--handle-offset);
           cursor: nwse-resize;
-        }
-
-        @media (hover: hover) {
-          .rect .label {
-            background-color: var(--grampsjs-rect-label-background-color);
-            border-radius: 3px;
-            color: var(--grampsjs-rect-label-color);
-            cursor: pointer;
-            display: block;
-            font-size: 0.7em;
-            left: 50%;
-            overflow: hidden;
-            padding: 0 0.5em;
-            position: relative;
-            top: 100%;
-            transform: translate(-50%, 10px);
-          }
-        }
-
-        .label grampsjs-icon {
-          margin-right: 0.3em;
-          vertical-align: -0.15em;
-        }
-
-        .rect.selected .label {
-          display: block;
-        }
-
-        /* labels of rectangles at the bottom of the image, which would
-           otherwise be cut off */
-        .rect .label.above {
-          top: 0;
-          transform: translate(-50%, calc(-100% - 10px));
-        }
-
-        .rect .label.inside {
-          transform: translate(-50%, calc(-100% - 6px));
         }
       `,
     ]
@@ -213,7 +232,7 @@ class GrampsjsRect extends LitElement {
                     height="12"
                     width="12"
                   ></grampsjs-icon>`
-                : ''}${this.label}
+                : ''}<span class="label-text">${this.label}</span>
             </div>`
           : ''}
         ${this.editable
