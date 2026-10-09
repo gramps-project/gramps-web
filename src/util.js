@@ -135,17 +135,17 @@ export function citationTitleFromProfile(citationProfile) {
   if (!citationProfile.source?.title) {
     return ''
   }
-  return `${citationProfile.source?.title || ''}
-          ${citationProfile.page ? ` (${citationProfile.page})` : ''}`
+  const {title} = citationProfile.source
+  return citationProfile.page ? `${title} (${citationProfile.page})` : title
 }
 
 export function eventTitleFromProfile(eventProfile, date = true) {
-  if (eventProfile.summary) {
-    return html`${eventProfile.summary}${date && eventProfile.date
-      ? ` (${eventProfile.date})`
-      : ''}`
+  if (!eventProfile.summary) {
+    return ''
   }
-  return ''
+  return date && eventProfile.date
+    ? `${eventProfile.summary} (${eventProfile.date})`
+    : eventProfile.summary
 }
 
 export function getName(obj, type) {
@@ -522,6 +522,7 @@ export function debounce(func, wait) {
   }
 }
 
+// Name of an object as plain text, from its profile; empty if it has none
 export function getNameFromProfile(obj, type) {
   switch (type) {
     case 'person':
@@ -531,15 +532,15 @@ export function getNameFromProfile(obj, type) {
     case 'family':
       return familyTitleFromProfile(obj)
     case 'place':
-      return obj.name
+      return obj.name || ''
     case 'source':
-      return obj.title
+      return obj.title || ''
     case 'repository':
-      return obj.name
+      return obj.name || ''
     case 'citation':
       return citationTitleFromProfile(obj)
     case 'media':
-      return obj.desc
+      return obj.desc || ''
     default:
       return ''
   }
@@ -813,7 +814,9 @@ export function getMediaRegions(media) {
     backlinks[key].flatMap((obj, index) => {
       const refs = references[key] || []
       const label =
-        refs.length > index ? getNameFromProfile(refs[index] || {}, key) : '...'
+        refs.length > index
+          ? getNameFromProfile(refs[index] || {}, key) || obj.gramps_id
+          : '...'
       return (obj?.media_list || [])
         .filter(mobj => mobj.ref === media.handle && mobj.rect?.length > 0)
         .map(mobj => ({

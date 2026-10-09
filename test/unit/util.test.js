@@ -9,6 +9,7 @@ import {
   reportSelectItemValue,
   familyTitleFromProfile,
   citationTitleFromProfile,
+  eventTitleFromProfile,
   arrayEqual,
   dateIsEmpty,
   getGregorianYears,
@@ -177,16 +178,37 @@ describe('familyTitleFromProfile', () => {
 
 describe('citationTitleFromProfile', () => {
   it('returns source title with page', () => {
-    const result = citationTitleFromProfile({
-      source: {title: 'Census 1900'},
-      page: '42',
-    })
-    expect(result).to.include('Census 1900')
-    expect(result).to.include('42')
+    expect(
+      citationTitleFromProfile({source: {title: 'Census 1900'}, page: '42'})
+    ).to.equal('Census 1900 (42)')
+  })
+
+  it('returns source title without page', () => {
+    expect(citationTitleFromProfile({source: {title: 'Census 1900'}})).to.equal(
+      'Census 1900'
+    )
   })
 
   it('returns empty string when no source title', () => {
     expect(citationTitleFromProfile({source: {}})).to.equal('')
+  })
+})
+
+describe('eventTitleFromProfile', () => {
+  it('returns summary with date', () => {
+    expect(
+      eventTitleFromProfile({summary: 'Birth of John', date: '1900'})
+    ).to.equal('Birth of John (1900)')
+  })
+
+  it('returns summary without date if asked', () => {
+    expect(
+      eventTitleFromProfile({summary: 'Birth of John', date: '1900'}, false)
+    ).to.equal('Birth of John')
+  })
+
+  it('returns empty string without summary', () => {
+    expect(eventTitleFromProfile({date: '1900'})).to.equal('')
   })
 })
 
@@ -388,6 +410,49 @@ describe('getMediaRegions', () => {
 
   it('returns an empty list without backlinks', () => {
     expect(getMediaRegions({handle: 'M1'})).to.deep.equal([])
+  })
+
+  it('labels regions with plain text', () => {
+    const regions = getMediaRegions({
+      handle: 'M1',
+      extended: {
+        backlinks: {
+          event: [
+            {
+              handle: 'E1',
+              gramps_id: 'E0001',
+              media_list: [{ref: 'M1', rect: [0, 0, 5, 5]}],
+            },
+          ],
+          citation: [
+            {
+              handle: 'C1',
+              gramps_id: 'C0001',
+              media_list: [{ref: 'M1', rect: [0, 0, 5, 5]}],
+            },
+          ],
+          family: [
+            {
+              handle: 'F1',
+              gramps_id: 'F0001',
+              media_list: [{ref: 'M1', rect: [0, 0, 5, 5]}],
+            },
+          ],
+        },
+      },
+      profile: {
+        references: {
+          event: [{summary: 'Wedding of A and B', date: '1900-05-01'}],
+          citation: [{source: {title: 'Parish book'}, page: 'p. 4'}],
+          family: [{}],
+        },
+      },
+    })
+    expect(regions.map(r => r.label)).to.deep.equal([
+      'Wedding of A and B (1900-05-01)',
+      'Parish book (p. 4)',
+      'F0001',
+    ])
   })
 })
 
