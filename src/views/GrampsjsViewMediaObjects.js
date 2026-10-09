@@ -224,6 +224,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         @filters:changed="${this._handleFiltersChanged}"
         .appState="${this.appState}"
         .definitions="${this.filterDefinitions}"
+        namespace="${this.filterNamespace}"
         ?errorGql="${this.error}"
       >
       </grampsjs-filters>
