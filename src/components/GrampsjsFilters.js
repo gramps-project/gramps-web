@@ -122,7 +122,6 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
           flex: none;
           font-size: 14px;
           font-weight: 500;
-          text-transform: uppercase;
           color: var(--mdc-theme-primary);
         }
 

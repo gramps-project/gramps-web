@@ -231,7 +231,6 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
         .category {
           font-size: 14px;
           font-weight: 500;
-          text-transform: uppercase;
           color: var(--mdc-theme-primary);
         }
 
