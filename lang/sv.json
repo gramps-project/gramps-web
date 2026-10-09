@@ -453,5 +453,7 @@
     "The import has completed.": "Importen har slutförts.",
     "Problems found during the import": "Problem som upptäcktes under importen",
     "Problems found in this file": "Problem som hittats i den här filen",
-    "Insert image": "Infoga bild"
+    "Insert image": "Infoga bild",
+    "Invalid region coordinates": "Ogiltiga regionkoordinater",
+    "Toggle region outlines": "Visa/dölj regionkonturer"
 }
