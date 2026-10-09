@@ -578,6 +578,8 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
     const data = await this.appState.apiGet('/api/types/')
     if ('data' in data) {
       this._grampsTypes = data.data ?? {}
+    } else if ('error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
     }
   }
 
@@ -585,6 +587,8 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
     const data = await this.appState.apiGet('/api/tags/')
     if ('data' in data) {
       this._tags = (data.data ?? []).map(tag => tag.name)
+    } else if ('error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
     }
   }
 

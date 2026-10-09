@@ -100,6 +100,8 @@ export class GrampsjsFilterParam extends GrampsjsAppStateMixin(LitElement) {
         return this._renderId()
       case 'integer':
         return this._renderTextField('number')
+      // dates are Gramps date strings such as "between 1800 and 1850",
+      // which date inputs can't hold
       default:
         return this._renderTextField('text')
     }
