@@ -85,11 +85,10 @@ describe('first run submit', () => {
   const makeElement = () => {
     const element = document.createElement('grampsjs-first-run')
     element.createRenderRoot()
-    element.appState = {}
+    element.appState = {apiPut: vi.fn()}
     element._submitUser = vi.fn(async () => {
       element.stateUser = 3
     })
-    element._submitConfig = vi.fn()
     return element
   }
 
@@ -123,5 +122,19 @@ describe('first run submit', () => {
 
     expect(createFirstTree).toHaveBeenCalledOnce()
     expect(element._hasTree).to.equal(false)
+  })
+
+  it('stores no server configuration', async () => {
+    // e-mail settings and the base URL are set in the server configuration,
+    // see gramps-project/gramps-web-api#905
+    apiGetTokens.mockImplementation(async () => {
+      localStorage.setItem('access_token', fakeJwt({}))
+      return {}
+    })
+    const element = makeElement()
+
+    await element._submit()
+
+    expect(element.appState.apiPut).not.toHaveBeenCalled()
   })
 })
