@@ -453,5 +453,7 @@
     "Genealogical symbols": "Genealogische symbolen",
     "Unicode symbols (∗ † ⚭ ⚮)": "Unicode-symbolen (∗ † ⚭ ⚮)",
     "Text abbreviations (b. d. m. div.)": "Tekstafkortingen (geb. ovl. huw. sch.)",
-    "Insert image": "Afbeelding invoegen"
+    "Insert image": "Afbeelding invoegen",
+    "Invalid region coordinates": "Ongeldige regiocoördinaten",
+    "Toggle region outlines": "Regio contouren in-/uitschakelen"
 }

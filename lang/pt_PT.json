@@ -454,5 +454,7 @@
     "Genealogical symbols": "Símbolos genealógicos",
     "Unicode symbols (∗ † ⚭ ⚮)": "Símbolos Unicode (∗ † ⚭ ⚮)",
     "Text abbreviations (b. d. m. div.)": "Abreviaturas textuais (b. d. m. div.)",
-    "Insert image": "Inserir imagem"
+    "Insert image": "Inserir imagem",
+    "Invalid region coordinates": "Coordenadas regionais inválidas",
+    "Toggle region outlines": "Alternar os contornos das regiões"
 }

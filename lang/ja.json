@@ -451,5 +451,8 @@
     "Problems found in this file": "このファイルで見つかった問題",
     "Genealogical symbols": "系図記号",
     "Unicode symbols (∗ † ⚭ ⚮)": "Unicode シンボル (∗ † ⚭ ⚮)",
-    "Text abbreviations (b. d. m. div.)": "テキストの略語 (b. d. m. div.)"
+    "Text abbreviations (b. d. m. div.)": "テキストの略語 (b. d. m. div.)",
+    "Insert image": "画像の挿入",
+    "Invalid region coordinates": "無効な地域の座標",
+    "Toggle region outlines": "地域の輪郭の表示を切り替え"
 }
