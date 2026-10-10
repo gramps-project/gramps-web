@@ -32,6 +32,11 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
     return 'new_repository'
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  get filterNamespace() {
+    return 'repositories'
+  }
+
   get filterDefinitions() {
     const _ = s => this._(s)
     return [

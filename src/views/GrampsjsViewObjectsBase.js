@@ -221,6 +221,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         @filters:changed="${this._handleFiltersChanged}"
         .appState="${this.appState}"
         .definitions="${this.filterDefinitions}"
+        namespace="${this.filterNamespace}"
         ?errorGql="${this.error}"
       >
         ${this.appState.permissions.canEdit
@@ -460,6 +461,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   // groups of filters offered in the filter bar, see filterDefinitions.js
   get filterDefinitions() {
     return [tagFilter(s => this._(s))]
+  }
+
+  // endpoint name of the rule catalogue of the condition builder
+  get filterNamespace() {
+    return this._objectsName
   }
 
   renderFab() {
