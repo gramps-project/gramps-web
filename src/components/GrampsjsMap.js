@@ -167,14 +167,39 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     super.connectedCallback()
     this._mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     this._mediaQuery.addEventListener('change', this._onThemeChange)
+    // A map removed on disconnect is created again on reconnect.
+    if (this.hasUpdated && !this._map) {
+      this._createMap()
+      this._syncStyle()
+    }
   }
 
   disconnectedCallback() {
     this._mediaQuery?.removeEventListener('change', this._onThemeChange)
     super.disconnectedCallback()
+    // Frees the WebGL context once the slotted layers, which are disconnected
+    // after this element, have removed themselves from the map. An element
+    // that is only moved is connected again by then and keeps its map.
+    queueMicrotask(() => {
+      if (!this.isConnected) this._removeMap()
+    })
   }
 
   firstUpdated() {
+    this._createMap()
+  }
+
+  _removeMap() {
+    if (!this._map) return
+    this._map.remove()
+    this._map = undefined
+    this._mapInitialLoadFired = false
+    this._appliedStyle = undefined
+    this._appliedKey = undefined
+    this._pendingKey = undefined
+  }
+
+  _createMap() {
     const mapel = this.shadowRoot.getElementById(this.mapid)
     // The style is set by _syncStyle, from updated().
     this._map = new maplibregl.Map({
