@@ -87,7 +87,8 @@ export const GrampsjsNewPersonMixin = superClass =>
           .appState="${this.appState}"
         ></grampsjs-form-select-object-list>
 
-        ${this._renderCitationForm()} ${this._renderTagsForm()}
+        ${this._renderCitationForm()} ${this._renderMediaForm()}
+        ${this._renderTagsForm()}
 
         <div class="spacer"></div>
         <grampsjs-form-private
@@ -105,6 +106,19 @@ export const GrampsjsNewPersonMixin = superClass =>
           multiple
           id="object-citation"
           objectType="citation"
+          .appState="${this.appState}"
+        ></grampsjs-form-select-object-list>
+      `
+    }
+
+    _renderMediaForm() {
+      return html`
+        <h4 class="label">${this._('Media')}</h4>
+
+        <grampsjs-form-select-object-list
+          multiple
+          id="object-media"
+          objectType="media"
           .appState="${this.appState}"
         ></grampsjs-form-select-object-list>
       `

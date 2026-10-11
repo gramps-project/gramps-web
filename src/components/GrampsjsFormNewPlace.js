@@ -20,6 +20,19 @@ export class GrampsjsFormNewPlace extends GrampsjsNewObjectTagsMixin(
     `
   }
 
+  _renderMediaForm() {
+    return html`
+      <h3 class="label">${this._('Media')}</h3>
+
+      <grampsjs-form-select-object-list
+        multiple
+        id="object-media"
+        objectType="media"
+        .appState="${this.appState}"
+      ></grampsjs-form-select-object-list>
+    `
+  }
+
   get isValid() {
     return this.isFormValid
   }
