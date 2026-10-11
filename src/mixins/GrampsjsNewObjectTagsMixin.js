@@ -22,7 +22,7 @@ export const GrampsjsNewObjectTagsMixin = superClass =>
         (this.data.tag_list || []).includes(t.handle)
       )
       return html`
-        <h3>${this._('Tags')}</h3>
+        <h3 class="label">${this._('Tags')}</h3>
         <grampsjs-tags
           .data="${selectedTags}"
           edit

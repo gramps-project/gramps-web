@@ -28,6 +28,14 @@ class _PersonSlotBase extends GrampsjsAppStateMixin(LitElement) {
           flex: 1;
           min-width: 12em;
         }
+
+        /* The slot sits under a section heading of the enclosing view, so its
+           own section headings are rendered as labels. */
+        h3.label {
+          font-family: var(--grampsjs-body-font-family);
+          font-size: 16px;
+          margin: 1.33em 0;
+        }
       `,
     ]
   }

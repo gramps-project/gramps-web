@@ -151,7 +151,7 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
 
   _renderCitationForm() {
     return html`
-      <h3>${this._('Citation')}</h3>
+      <h3 class="label">${this._('Citation')}</h3>
 
       <grampsjs-form-select-object-list
         multiple
@@ -164,7 +164,7 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
 
   _renderMediaForm() {
     return html`
-      <h3>${this._('Media')}</h3>
+      <h3 class="label">${this._('Media')}</h3>
 
       <grampsjs-form-select-object-list
         multiple

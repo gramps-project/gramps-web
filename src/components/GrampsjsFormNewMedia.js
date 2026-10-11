@@ -17,7 +17,7 @@ export class GrampsjsFormNewMedia extends GrampsjsNewMediaMixin(
 
   renderForm() {
     return html`
-      <h4 class="label">${this._('File')}</h4>
+      <h3 class="label">${this._('File')}</h3>
       <p>
         <grampsjs-form-upload
           preview
