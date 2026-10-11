@@ -33,6 +33,19 @@ export class GrampsjsFormNewEvent extends GrampsjsNewObjectTagsMixin(
     `
   }
 
+  _renderMediaForm() {
+    return html`
+      <h4 class="label">${this._('Media')}</h4>
+
+      <grampsjs-form-select-object-list
+        multiple
+        id="object-media"
+        objectType="media"
+        .appState="${this.appState}"
+      ></grampsjs-form-select-object-list>
+    `
+  }
+
   renderForm() {
     return html`
       ${super.renderForm()}

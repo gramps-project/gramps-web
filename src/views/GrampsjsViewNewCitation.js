@@ -69,6 +69,14 @@ export class GrampsjsViewNewCitation extends GrampsjsViewNewObject {
         )}
       </md-filled-select>
 
+      <h4 class="label">${this._('Media')}</h4>
+      <grampsjs-form-select-object-list
+        multiple
+        id="object-media"
+        objectType="media"
+        .appState="${this.appState}"
+      ></grampsjs-form-select-object-list>
+
       ${this._renderTagsForm()}
 
       <div class="spacer"></div>

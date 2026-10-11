@@ -368,6 +368,15 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
         citation_list: e.detail.data ?? [],
       }
     }
+    if (originalTarget.id === 'object-media-list') {
+      this.data = {
+        ...this.data,
+        media_list: (e.detail.data ?? []).map(ref => ({
+          _class: 'MediaRef',
+          ref,
+        })),
+      }
+    }
     if (originalTarget.id === 'citation-select-list') {
       this.data = e.detail
     }

@@ -107,7 +107,8 @@ export const GrampsjsNewPlaceMixin = superClass =>
               ></grampsjs-form-edit-lat-long>
             `
           : ''}
-        ${this._renderCitationForm()} ${this._renderTagsForm()}
+        ${this._renderCitationForm()} ${this._renderMediaForm()}
+        ${this._renderTagsForm()}
 
         <div class="spacer"></div>
         <h3 class="label">${this._('Privacy')}</h3>

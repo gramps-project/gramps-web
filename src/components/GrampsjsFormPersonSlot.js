@@ -122,6 +122,12 @@ export class GrampsjsFormPersonSlot extends GrampsjsNewPersonMixin(
     `
   }
 
+  // Like tags, media are left out of the inline person form.
+  // eslint-disable-next-line class-methods-use-this
+  _renderMediaForm() {
+    return ''
+  }
+
   _renderRelTypes() {
     return html`
       <div class="rel-types">

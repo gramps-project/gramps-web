@@ -70,6 +70,14 @@ class GrampsjsFormNewCitation extends GrampsjsObjectForm {
         )}
       </md-filled-select>
 
+      <h4 class="label">${this._('Media')}</h4>
+      <grampsjs-form-select-object-list
+        multiple
+        id="object-media"
+        objectType="media"
+        .appState="${this.appState}"
+      ></grampsjs-form-select-object-list>
+
       <div class="spacer"></div>
       <grampsjs-form-private
         id="private"
