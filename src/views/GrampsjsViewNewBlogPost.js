@@ -37,7 +37,7 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
     return html`
       <h2>${this._('New Blog Post')}</h2>
 
-      <h4 class="label">${this._('Title')}</h4>
+      <h3 class="label">${this._('Title')}</h3>
       <p>
         <md-outlined-text-field
           required
@@ -47,12 +47,12 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
         ></md-outlined-text-field>
       </p>
 
-      <h4 class="label">${this._('Author')}</h4>
+      <h3 class="label">${this._('Author')}</h3>
       <p>
         <grampsjs-form-string fullwidth id="author"></grampsjs-form-string>
       </p>
 
-      <h4 class="label">${this._('Content')}</h4>
+      <h3 class="label">${this._('Content')}</h3>
       <p>
         <grampsjs-editor
           @formdata:changed="${this.handleEditor}"
@@ -62,7 +62,7 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
         ></grampsjs-editor>
       </p>
 
-      <h4 class="label">${this._('Media')}</h4>
+      <h3 class="label">${this._('Media')}</h3>
       <grampsjs-form-select-object-list
         multiple
         objectType="media"

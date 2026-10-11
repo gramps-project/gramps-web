@@ -29,7 +29,7 @@ class GrampsjsFormNewCitation extends GrampsjsObjectForm {
 
   renderForm() {
     return html`
-      <h4 class="label">${this._('Source')}</h4>
+      <h3 class="label">${this._('Source')}</h3>
       <grampsjs-form-select-object-list
         fixedMenuPosition
         style="min-height: 300px;"
@@ -39,18 +39,18 @@ class GrampsjsFormNewCitation extends GrampsjsObjectForm {
         .appState="${this.appState}"
       ></grampsjs-form-select-object-list>
 
-      <h4 class="label">${this._('Page')}</h4>
+      <h3 class="label">${this._('Page')}</h3>
       <p>
         <grampsjs-form-string fullwidth id="page"></grampsjs-form-string>
       </p>
 
-      <h4 class="label">${this._('Date')}</h4>
+      <h3 class="label">${this._('Date')}</h3>
       <p>
         <grampsjs-form-select-date id="date" .appState="${this.appState}">
         </grampsjs-form-select-date>
       </p>
 
-      <h4 class="label">${this._('Confidence')}</h4>
+      <h3 class="label">${this._('Confidence')}</h3>
       <md-filled-select
         id="select-confidence"
         @change="${this.handleConfidence}"
@@ -70,7 +70,7 @@ class GrampsjsFormNewCitation extends GrampsjsObjectForm {
         )}
       </md-filled-select>
 
-      <h4 class="label">${this._('Media')}</h4>
+      <h3 class="label">${this._('Media')}</h3>
       <grampsjs-form-select-object-list
         multiple
         id="object-media"

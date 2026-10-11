@@ -26,13 +26,13 @@ export const GrampsjsNewPersonMixin = superClass =>
 
     renderForm() {
       return html`
-        <h4 class="label">${this._('Name')}</h4>
+        <h3 class="label">${this._('Name')}</h3>
         <grampsjs-form-name
           id="primary-name"
           .appState="${this.appState}"
         ></grampsjs-form-name>
 
-        <h4 class="label">${this._('Gender')}</h4>
+        <h3 class="label">${this._('Gender')}</h3>
         <md-filled-select id="select-gender" @change="${this.handleGender}">
           ${Object.keys(this.gender).map(
             genderConst => html`
@@ -49,7 +49,7 @@ export const GrampsjsNewPersonMixin = superClass =>
           )}
         </md-filled-select>
 
-        <h4 class="label">${this._('Birth Date')}</h4>
+        <h3 class="label">${this._('Birth Date')}</h3>
 
         <p>
           <grampsjs-form-select-date
@@ -59,7 +59,7 @@ export const GrampsjsNewPersonMixin = superClass =>
           </grampsjs-form-select-date>
         </p>
 
-        <h4 class="label">${this._('Birth Place')}</h4>
+        <h3 class="label">${this._('Birth Place')}</h3>
 
         <grampsjs-form-select-object-list
           id="birth-place"
@@ -68,7 +68,7 @@ export const GrampsjsNewPersonMixin = superClass =>
           .appState="${this.appState}"
         ></grampsjs-form-select-object-list>
 
-        <h4 class="label">${this._('Death Date')}</h4>
+        <h3 class="label">${this._('Death Date')}</h3>
 
         <p>
           <grampsjs-form-select-date
@@ -78,7 +78,7 @@ export const GrampsjsNewPersonMixin = superClass =>
           </grampsjs-form-select-date>
         </p>
 
-        <h4 class="label">${this._('Death Place')}</h4>
+        <h3 class="label">${this._('Death Place')}</h3>
 
         <grampsjs-form-select-object-list
           id="death-place"
@@ -100,7 +100,7 @@ export const GrampsjsNewPersonMixin = superClass =>
 
     _renderCitationForm() {
       return html`
-        <h4 class="label">${this._('Citation')}</h4>
+        <h3 class="label">${this._('Citation')}</h3>
 
         <grampsjs-form-select-object-list
           multiple
@@ -113,7 +113,7 @@ export const GrampsjsNewPersonMixin = superClass =>
 
     _renderMediaForm() {
       return html`
-        <h4 class="label">${this._('Media')}</h4>
+        <h3 class="label">${this._('Media')}</h3>
 
         <grampsjs-form-select-object-list
           multiple

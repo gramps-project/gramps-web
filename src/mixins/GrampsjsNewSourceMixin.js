@@ -30,7 +30,7 @@ export const GrampsjsNewSourceMixin = superClass =>
 
     renderForm() {
       return html`
-        <h4 class="label">${this._('Title')}</h4>
+        <h3 class="label">${this._('Title')}</h3>
         <p>
           <mwc-textfield
             required
@@ -41,22 +41,22 @@ export const GrampsjsNewSourceMixin = superClass =>
           ></mwc-textfield>
         </p>
 
-        <h4 class="label">${this._('Author')}</h4>
+        <h3 class="label">${this._('Author')}</h3>
         <p>
           <grampsjs-form-string fullwidth id="author"></grampsjs-form-string>
         </p>
 
-        <h4 class="label">${this._('Publication info')}</h4>
+        <h3 class="label">${this._('Publication info')}</h3>
         <p>
           <grampsjs-form-string fullwidth id="pubinfo"></grampsjs-form-string>
         </p>
 
-        <h4 class="label">${this._('Abbreviation')}</h4>
+        <h3 class="label">${this._('Abbreviation')}</h3>
         <p>
           <grampsjs-form-string fullwidth id="abbrev"></grampsjs-form-string>
         </p>
 
-        <h4 class="label">${this._('Repository')}</h4>
+        <h3 class="label">${this._('Repository')}</h3>
         <grampsjs-form-select-object-list
           id="reporef"
           objectType="repository"
@@ -64,7 +64,7 @@ export const GrampsjsNewSourceMixin = superClass =>
         ></grampsjs-form-select-object-list>
 
         <div class="${classMap({hidden: !this._hasRepoRef()})}">
-          <h4 class="label">${this._('Call Number')}</h4>
+          <h3 class="label">${this._('Call Number')}</h3>
           <p>
             <grampsjs-form-string
               fullwidth
@@ -74,7 +74,7 @@ export const GrampsjsNewSourceMixin = superClass =>
             ></grampsjs-form-string>
           </p>
 
-          <h4 class="label">${this._('_Media Type:').replace(':', '')}</h4>
+          <h3 class="label">${this._('_Media Type:').replace(':', '')}</h3>
           <grampsjs-form-select-type
             ?disabled="${!this._hasRepoRef()}"
             id="reporef-media-type"
@@ -89,7 +89,7 @@ export const GrampsjsNewSourceMixin = superClass =>
           </grampsjs-form-select-type>
         </div>
 
-        <h4 class="label">${this._('Media')}</h4>
+        <h3 class="label">${this._('Media')}</h3>
         <grampsjs-form-select-object-list
           multiple
           id="object-media"

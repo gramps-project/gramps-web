@@ -23,7 +23,7 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
     return html`
       <h2>${this._('New Repository')}</h2>
 
-      <h4 class="label">${this._('Name')}</h4>
+      <h3 class="label">${this._('Name')}</h3>
       <p>
         <mwc-textfield
           required

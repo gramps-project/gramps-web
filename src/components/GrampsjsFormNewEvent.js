@@ -22,7 +22,7 @@ export class GrampsjsFormNewEvent extends GrampsjsNewObjectTagsMixin(
 
   _renderCitationForm() {
     return html`
-      <h4 class="label">${this._('Citation')}</h4>
+      <h3 class="label">${this._('Citation')}</h3>
 
       <grampsjs-form-select-object-list
         multiple
@@ -35,7 +35,7 @@ export class GrampsjsFormNewEvent extends GrampsjsNewObjectTagsMixin(
 
   _renderMediaForm() {
     return html`
-      <h4 class="label">${this._('Media')}</h4>
+      <h3 class="label">${this._('Media')}</h3>
 
       <grampsjs-form-select-object-list
         multiple

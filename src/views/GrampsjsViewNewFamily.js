@@ -52,7 +52,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
     return html`
       <h2>${this._('New Family')}</h2>
 
-      <h3>${this._('Father')}</h3>
+      <h3 class="label">${this._('Father')}</h3>
 
       <grampsjs-form-person-slot
         id="father-slot"
@@ -62,7 +62,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
         ?loadingTypes="${this.loadingTypes}"
       ></grampsjs-form-person-slot>
 
-      <h3>${this._('Mother')}</h3>
+      <h3 class="label">${this._('Mother')}</h3>
 
       <grampsjs-form-person-slot
         id="mother-slot"
@@ -72,7 +72,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
         ?loadingTypes="${this.loadingTypes}"
       ></grampsjs-form-person-slot>
 
-      <h3>${this._('Children')}</h3>
+      <h3 class="label">${this._('Children')}</h3>
 
       ${this._childKeys.map(
         key => html`
@@ -109,7 +109,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
         ${this._('Add child')}
       </md-outlined-button>
 
-      <h3>${this._('Relationship type:').replace(':', '')}</h3>
+      <h3 class="label">${this._('Relationship type:').replace(':', '')}</h3>
 
       <grampsjs-form-select-type
         noheading

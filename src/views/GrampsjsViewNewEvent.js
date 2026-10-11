@@ -89,7 +89,7 @@ export class GrampsjsViewNewEvent extends GrampsjsNewEventMixin(
 
   _renderParticipantsSection() {
     return html`
-      <h3>${this._('Participants')}</h3>
+      <h3 class="label">${this._('Participants')}</h3>
 
       ${this._participants.length
         ? html`

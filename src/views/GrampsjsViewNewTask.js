@@ -39,7 +39,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
     return html`
       <h2>${this._('New Task')}</h2>
 
-      <h4 class="label">${this._('Title')}</h4>
+      <h3 class="label">${this._('Title')}</h3>
       <p>
         <mwc-textfield
           required
@@ -50,7 +50,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
         ></mwc-textfield>
       </p>
 
-      <h4 class="label">${this._('Description')}</h4>
+      <h3 class="label">${this._('Description')}</h3>
       <p>
         <grampsjs-editor
           @formdata:changed="${this.handleEditor}"
@@ -59,7 +59,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
         ></grampsjs-editor>
       </p>
 
-      <h4 class="label">${this._('Priority')}</h4>
+      <h3 class="label">${this._('Priority')}</h3>
       <p>
         <md-filled-select @change="${this.handlePriority}">
           <md-select-option ?selected="${priority < 4}" value="1">
