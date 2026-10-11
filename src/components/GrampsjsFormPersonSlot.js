@@ -34,6 +34,7 @@ class _PersonSlotBase extends GrampsjsAppStateMixin(LitElement) {
         h3.label {
           font-family: var(--grampsjs-body-font-family);
           font-size: 16px;
+          font-weight: 500;
           margin: 1.33em 0;
         }
       `,
