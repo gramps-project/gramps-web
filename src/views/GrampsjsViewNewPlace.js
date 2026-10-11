@@ -11,6 +11,7 @@ export class GrampsjsViewNewPlace extends GrampsjsNewPlaceMixin(
     this.postUrl = '/api/places/'
     this.itemPath = 'place'
     this.objClass = 'Place'
+    this.allowNewEnclosedBy = true
   }
 
   renderContent() {

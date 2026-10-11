@@ -31,6 +31,7 @@ class GrampsjsFormEditCitationDetails extends GrampsjsObjectForm {
       <grampsjs-form-select-object-list
         id="source"
         objectType="source"
+        allowNew
         .objectsInitial="${this.data.source_handle
           ? [
               {

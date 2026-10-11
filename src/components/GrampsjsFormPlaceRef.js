@@ -29,6 +29,7 @@ class GrampsjsFormPlaceRef extends GrampsjsObjectForm {
           notDeletable
           style="min-height: 300px;"
           objectType="place"
+          allowNew
           .objectsInitial="${this.data.ref
             ? [
                 {

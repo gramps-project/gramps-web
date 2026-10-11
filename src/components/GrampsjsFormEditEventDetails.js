@@ -41,6 +41,7 @@ class GrampsjsFormEditEventDetails extends GrampsjsObjectForm {
           fixedMenuPosition
           style="min-height: 300px;"
           objectType="place"
+          allowNew
           .appState="${this.appState}"
           id="place"
           label="${this._('Select')}"

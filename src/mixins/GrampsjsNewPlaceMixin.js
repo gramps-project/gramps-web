@@ -24,6 +24,9 @@ export const GrampsjsNewPlaceMixin = superClass =>
       super()
       this.data = {_class: 'Place'}
       this._latLongDialogOpen = false
+      // Off in the create dialog of an object selector, so that inline
+      // creation stays one dialog deep.
+      this.allowNewEnclosedBy = false
     }
 
     renderForm() {
@@ -58,6 +61,7 @@ export const GrampsjsNewPlaceMixin = superClass =>
           id="enclosed"
           multiple
           objectType="place"
+          ?allowNew="${this.allowNewEnclosedBy}"
           .appState="${this.appState}"
         ></grampsjs-form-select-object-list>
 
