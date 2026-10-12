@@ -37,7 +37,7 @@ const EXTERNAL_SEARCH_WEBSITES = [
       reqSubscription: false,
     },
     baseUrl: 'https://meta.genealogy.net/search',
-    params: '?lastname={{name_surname}}&place={{place_name}}',
+    params: '?lastname={{name_surname}}&placename={{place_name}}',
   },
   {
     key: 'familySearch',
