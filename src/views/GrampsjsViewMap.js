@@ -1,4 +1,5 @@
 import {html, css} from 'lit'
+import {repeat} from 'lit/directives/repeat.js'
 import '@material/mwc-textfield'
 
 import {GrampsjsView} from './GrampsjsView.js'
@@ -19,6 +20,7 @@ import '../components/GrampsjsMapTimeSlider.js'
 import '../components/GrampsjsPlaceBox.js'
 import '../components/GrampsjsPersonBox.js'
 import '../components/GrampsjsMapTileLayer.js'
+import '../components/GrampsjsMapVectorLayer.js'
 import {
   apiVersionAtLeast,
   getGregorianYears,
@@ -35,6 +37,7 @@ import {
 import {WIKIDATA_MIN_ZOOM, countBuildingsInView} from '../wikidata.ts'
 import {WikidataBuildingsController} from '../wikidataBuildingsController.ts'
 import {countEventTypes, filterPlaces, yearRange} from '../mapFilters.js'
+import {PlaceVectorsController} from '../placeVectorsController.ts'
 
 const EMPTY_ARRAY = []
 
@@ -110,7 +113,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._valueSearch = ''
     this._searchFilter = DEFAULT_SEARCH_FILTER
     // What the details panel shows: null or one of
-    // {type: 'place', handle}
+    // {type: 'place', handle, name}
     // {type: 'person', person, data, placeHandles}, where data and
     //   placeHandles are filled in once the person has loaded
     // {type: 'wikidata', qid, label}
@@ -136,6 +139,12 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._pendingPerson = null
     this._zoom = getMapViewport()?.zoom ?? DEFAULT_ZOOM
     this._wikidata = new WikidataBuildingsController(this)
+    // KML and GeoJSON files of the selected place.
+    this._placeVectors = new PlaceVectorsController(this, {
+      apiGet: endpoint => this.appState.apiGet(endpoint),
+      isHidden: handle => this._hiddenOverlaysHandles.includes(handle),
+      fitBounds: bounds => this._mapEl?.fitBounds(bounds),
+    })
   }
 
   get _searchbox() {
@@ -219,6 +228,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   _select(selection) {
     this._selection = selection
     this._hoveredPlace = ''
+    this._placeVectors.cancel()
   }
 
   get _personSelection() {
@@ -299,7 +309,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         @map:wikidata-clicked="${this._handleWikidataClicked}"
         id="map"
         zoom="${zoom}"
-        >${this._renderLayers()} ${this._renderWikidataLayer()}
+        >${this._renderLayers()} ${this._renderVectorLayers()}
+        ${this._renderWikidataLayer()}
         <grampsjs-map-person-lines-layer
           .events="${personData?.extended?.events ?? EMPTY_ARRAY}"
           .places="${personData ? this._dataPlaces : EMPTY_ARRAY}"
@@ -359,20 +370,10 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     if (selection?.type !== 'place') {
       return ''
     }
-    const {handle} = selection
-    if (
-      this._dataPlaces.length > 0 &&
-      !this._dataPlaces.find(p => p.handle === handle)
-    ) {
-      this._clearSearchBox()
-      return ''
-    }
-    const name =
-      this._dataPlaces.find(p => p.handle === handle)?.profile?.name ?? ''
     return html`
       <grampsjs-place-box
-        handle="${handle}"
-        name="${name}"
+        handle="${selection.handle}"
+        name="${selection.name}"
         .appState="${this.appState}"
       ></grampsjs-place-box>
     `
@@ -448,6 +449,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       ]
     }
     this._saveLayerSettings()
+    if (visible) this._placeVectors.show(overlay.handle)
     if (overlay.handle === WIKIDATA_LAYER_HANDLE) {
       if (visible) {
         this._updateWikidataBuildings({immediate: true})
@@ -579,7 +581,12 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   _handlePlaceSelected(object, {flyTo = true} = {}) {
     this._activeSearchQuery = ''
     this._valueSearch = object.profile.name
-    this._select({type: 'place', handle: object.handle})
+    const selection = {
+      type: 'place',
+      handle: object.handle,
+      name: object.profile.name ?? '',
+    }
+    this._select(selection)
     this._searchbox?.showDetails()
     if (
       flyTo &&
@@ -589,6 +596,20 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     ) {
       this.flyTo(object.profile.lat, object.profile.long)
     }
+    // A place without coordinates is shown by its map files alone.
+    this._loadPlaceVectors(selection, {fit: flyTo && !this._hasCoords(object)})
+  }
+
+  // Draws the KML and GeoJSON files of the selected place. A place that no
+  // longer exists closes the selection.
+  async _loadPlaceVectors(selection, {fit = false} = {}) {
+    const result = await this._placeVectors.load(selection.handle, {fit})
+    if (result === 'missing') this._clearSearchBox()
+  }
+
+  async _reloadPlaceVectors() {
+    const result = await this._placeVectors.reload()
+    if (result === 'missing') this._clearSearchBox()
   }
 
   get _mapEl() {
@@ -637,6 +658,21 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     `
   }
 
+  _renderVectorLayers() {
+    return repeat(
+      this._placeVectors.layers.filter(
+        l => l.data && !this._hiddenOverlaysHandles.includes(l.handle)
+      ),
+      layer => layer.handle,
+      layer => html`
+        <grampsjs-map-vector-layer
+          handle="${layer.handle}"
+          .data="${layer.data}"
+        ></grampsjs-map-vector-layer>
+      `
+    )
+  }
+
   // eslint-disable-next-line class-methods-use-this
   get _wikidataEnabled() {
     return window.grampsjsConfig?.mapWikidata !== false
@@ -676,13 +712,22 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         )
       )
     )
-    const overlays = visibleLayers.map(obj => ({
+    const toOverlay = obj => ({
       handle: obj.handle,
       desc: obj.desc,
       visible: !this._hiddenOverlaysHandles.includes(obj.handle),
       group: 'own',
       thumbnail: {handle: obj.handle, checksum: obj.checksum, mime: obj.mime},
-    }))
+    })
+    // The selected place's files are listed wherever the map is.
+    const overlays = [
+      ...visibleLayers.map(toOverlay),
+      ...this._placeVectors.layers.map(l => ({
+        ...toOverlay(l.media),
+        desc: l.media.desc || l.media.gramps_id,
+        status: l.loading ? this._('Loading...') : '',
+      })),
+    ]
     if (!this._wikidataEnabled) return overlays
     return [
       ...overlays,
@@ -795,6 +840,9 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._fetchPlaces()
     this._fetchDataLayers()
     this._fetchEvents()
+    if (this._selection?.type === 'place') {
+      this._reloadPlaceVectors()
+    }
   }
 
   async _fetchDataSearch(value) {
