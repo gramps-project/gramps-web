@@ -330,6 +330,16 @@ export const chartDefinitions = {
   fan: {
     settings: [
       ancestorsSetting('fanChartAnc', 4),
+      {
+        name: 'ringWidth',
+        key: 'fanChartRingWidth',
+        label: 'Ring Width (px)',
+        type: 'number',
+        min: 40,
+        max: 120,
+        default: 60,
+        size: 4,
+      },
       nameDisplayFormatSetting('fanChartNameDisplayFormat'),
     ],
     editable: false,
@@ -343,6 +353,7 @@ export const chartDefinitions = {
       <grampsjs-fan-chart
         grampsId=${grampsId}
         depth=${values.ancestors + 1}
+        .arcRadius=${values.ringWidth}
         .data=${data}
         .appState="${appState}"
         color="${state.color ?? ''}"
@@ -360,10 +371,12 @@ export function chartSettingValues(definition, settings = {}) {
   return Object.fromEntries(
     definition.settings.map(setting => {
       const value = settings[setting.key] ?? setting.default
-      // A value stored before the minimum was raised counts as the minimum
+      // Values stored before a bound changed stay within the supported range
+      const aboveMin =
+        setting.min === undefined ? value : Math.max(value, setting.min)
       return [
         setting.name,
-        setting.min === undefined ? value : Math.max(value, setting.min),
+        setting.max === undefined ? aboveMin : Math.min(aboveMin, setting.max),
       ]
     })
   )

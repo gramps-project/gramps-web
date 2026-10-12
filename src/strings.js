@@ -747,6 +747,7 @@ export const grampsStrings = [
   'Right paper margin',
   'Right, bottom',
   'Right, top',
+  'Ring Width (px)',
   'Role',
   'roundabout',
   'Run',

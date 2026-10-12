@@ -80,9 +80,13 @@ export function layoutFan(graph, handle, {depth, ...options}) {
   const {arcRadius} = {...fanLayoutDefaults, ...options}
   const data = getTree(graph, handle, Math.max(depth, 1))
   const root = hierarchy(data)
-  // Every arc has the same share of its generation's ring
-  root.count()
+  // A pruned branch still occupies all of its missing ancestor slots.
+  root.sum(d => (d.children?.length ? 0 : 2 ** (depth - d.depth - 1)))
   partition().size([2 * Math.PI, depth * arcRadius])(root)
+  root.each(d => {
+    d.y0 = d.depth * arcRadius
+    d.y1 = (d.depth + 1) * arcRadius
+  })
   const nodes = root.descendants().map(d => ({
     key: d.data.id,
     handle: d.data.person?.handle,

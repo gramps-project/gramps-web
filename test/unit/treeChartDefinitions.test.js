@@ -69,6 +69,26 @@ describe('chart definitions', () => {
     ])
   })
 
+  it('changes fan ring width without changing the people request', () => {
+    const fan = chartDefinitions.fan
+    const defaults = chartSettingValues(fan, {})
+    const wide = chartSettingValues(fan, {fanChartRingWidth: 90})
+    expect(defaults.ringWidth).toBe(60)
+    expect(wide.ringWidth).toBe(90)
+    expect(chartSettingValues(fan, {fanChartRingWidth: 200}).ringWidth).toBe(
+      120
+    )
+    expect(chartDataUrl(fan, 'I1', wide, 'en')).toBe(
+      chartDataUrl(fan, 'I1', defaults, 'en')
+    )
+    const host = document.createElement('div')
+    render(
+      fan.render({grampsId: 'I1', values: wide, data: [], state: {}}),
+      host
+    )
+    expect(host.querySelector('grampsjs-fan-chart').arcRadius).toBe(90)
+  })
+
   it('fetches people by degree of separation with all parent families for the relationship chart', () => {
     const {relationship} = chartDefinitions
     const url = chartDataUrl(

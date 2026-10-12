@@ -586,8 +586,7 @@ function setFanInteraction(cells, {interactive, onClick}) {
     })
 }
 
-// Appends the names of the people: two lines across the centre for the root
-// person, and two lines along the arc for ancestors whose arc is long enough
+// Appends names across the centre, along wide arcs, or radially in narrow arcs
 function appendNames(cells, {nameDisplayFormat, palette, padding}) {
   const surnameFirst =
     nameDisplayFormat === chartNameDisplayFormat.surnameThenGiven
@@ -597,6 +596,35 @@ function appendNames(cells, {nameDisplayFormat, palette, padding}) {
   const [firstWeight, secondWeight] = surnameFirst ? [500, 300] : [300, 500]
 
   const fontSize = d => Math.min(12, (((d.y0 + d.y1) / 2) * (d.x1 - d.x0)) / 10)
+  const arcLength = d => ((d.y0 + d.y1) / 2) * (d.x1 - d.x0)
+  const radialArcWidth = d => d.y0 * (d.x1 - d.x0)
+  const radialFontSize = d => Math.min(8, radialArcWidth(d) - 2)
+  const radialName = d => {
+    const first = firstName(profile(d)) || ''
+    const second = secondName(profile(d)) || ''
+    const primary = first || second
+    const initial = first && second ? Array.from(second.trim())[0] : ''
+    const label = `${primary}${initial ? ` ${initial}.` : ''}`
+    const maxWidth = d.y1 - d.y0 - 10
+    const letterWidth = char =>
+      /[\u2e80-\uffff]/u.test(char)
+        ? radialFontSize(d)
+        : radialFontSize(d) * 0.7
+    if (
+      Array.from(label).reduce((width, char) => width + letterWidth(char), 0) <=
+      maxWidth
+    ) {
+      return label
+    }
+    let clipped = ''
+    let width = letterWidth('…')
+    for (const char of label) {
+      if (width + letterWidth(char) > maxWidth) break
+      clipped += char
+      width += letterWidth(char)
+    }
+    return `${clipped}…`
+  }
   // Shortens `s` to fit the arc of `d`, or the disc of the root person
   const clipString = (s, d, isCenter = false) => {
     const length = isCenter
@@ -635,7 +663,7 @@ function appendNames(cells, {nameDisplayFormat, palette, padding}) {
       : (d.y1 * (d.x1 - d.x0)) / 2 - padding
   const ancestors = cells
     .filter(d => d.generation > 0)
-    .filter(d => ((d.y0 + d.y1) / 2) * (d.x1 - d.x0) > 50)
+    .filter(d => arcLength(d) > 50)
   const lines = [
     {name: firstName, weight: firstWeight, dy: -7, spacing: [20, 10]},
     {name: secondName, weight: secondWeight, dy: 7, spacing: [40, 15]},
@@ -659,4 +687,23 @@ function appendNames(cells, {nameDisplayFormat, palette, padding}) {
       )
       .text(d => clipString(name(profile(d)) || '', d))
   }
+
+  cells
+    .filter(d => d.generation > 0 && arcLength(d) <= 50)
+    .filter(d => radialArcWidth(d) >= 7)
+    .append('text')
+    .attr('class', 'radial-label')
+    .attr('fill', palette.fanText)
+    .attr('font-size', radialFontSize)
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'middle')
+    .attr('transform', d => {
+      const angle = (d.x0 + d.x1) / 2 - Math.PI
+      const radius = (d.y0 + d.y1) / 2
+      const flip = Math.cos(angle) < 0 ? 180 : 0
+      return `translate(${radius * Math.cos(angle)},${
+        radius * Math.sin(angle)
+      }) rotate(${(angle * 180) / Math.PI + flip})`
+    })
+    .text(radialName)
 }

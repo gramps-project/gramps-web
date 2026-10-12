@@ -114,12 +114,16 @@ describe('getTree', () => {
     ])
   })
 
-  it('keeps filling empty nodes down to the depth limit', () => {
+  it('stops an empty branch after its first placeholder', () => {
     const emptyFather = ancestors('M', 3).children[0]
-    expect(emptyFather).toEqual({
-      ...emptyNode('pf', 1),
-      children: [emptyNode('pff', 2), emptyNode('pfm', 2)],
-    })
+    expect(emptyFather).toEqual(emptyNode('pf', 1))
+  })
+
+  it('keeps a sparse deep tree proportional to known people', () => {
+    const tree = ancestors('R', 20)
+    const count = node =>
+      1 + (node.children || []).reduce((sum, child) => sum + count(child), 0)
+    expect(count(tree)).toBeLessThan(20)
   })
 
   it('keeps a parent that was not fetched as an empty person', () => {

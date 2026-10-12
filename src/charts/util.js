@@ -96,7 +96,7 @@ export const getTree = (
       expanded,
       onPath
     )
-    if (depthHere === 1) {
+    if (depthHere === 1 || (includeEmpty && !tree.person.handle)) {
       return tree
     }
     const relations = graph.parentRelations(personHandle)

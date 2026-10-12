@@ -76,6 +76,23 @@ describe('layoutFan', () => {
     const alone = layoutFan(graph, 'FF', {depth: 4})
     expect(alone.bounds).toEqual({xMin: -60, xMax: 60, yMin: -60, yMax: 60})
   })
+
+  it('keeps deep sparse layouts small without moving known ancestor arcs', () => {
+    const deep = layoutFan(graph, 'R', {depth: 20})
+    expect(deep.nodes.length).toBeLessThan(20)
+    expect(deep.nodes.find(n => n.key === 'pf')).toMatchObject({
+      x0: 0,
+      x1: Math.PI,
+      y0: 60,
+      y1: 120,
+    })
+    expect(deep.nodes.find(n => n.key === 'pff')).toMatchObject({
+      x0: 0,
+      x1: Math.PI / 2,
+      y0: 120,
+      y1: 180,
+    })
+  })
 })
 
 describe('relateFanLayouts', () => {

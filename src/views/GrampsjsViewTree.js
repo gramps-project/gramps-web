@@ -774,6 +774,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
         value=${value}
         type="number"
         min=${setting.min}
+        max=${ifDefined(setting.max)}
         size=${ifDefined(setting.size)}
         @change=${e =>
           this._changeSetting(setting, parseInt(e.target.value, 10))}
@@ -782,6 +783,13 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
   }
 
   _changeSetting(setting, value) {
+    if (setting.type === 'number') {
+      if (!Number.isFinite(value)) return
+      value = Math.max(
+        setting.min ?? value,
+        Math.min(setting.max ?? value, value)
+      )
+    }
     this.appState.updateSettings({[setting.key]: value}, false)
   }
 

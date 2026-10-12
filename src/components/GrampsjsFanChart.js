@@ -7,13 +7,14 @@ import {GrampsjsChartBase} from './GrampsjsChartBase.js'
 import {rootRelatives} from './GrampsjsChartRelativesMenu.js'
 
 // Properties that change the layout of the chart
-const layoutProperties = ['data', 'grampsId', 'depth']
+const layoutProperties = ['data', 'grampsId', 'depth', 'arcRadius']
 
 class GrampsjsFanChart extends GrampsjsChartBase {
   static get properties() {
     return {
       grampsId: {type: String},
       depth: {type: Number},
+      arcRadius: {type: Number},
       color: {type: String},
       nameDisplayFormat: {type: String},
     }
@@ -23,6 +24,7 @@ class GrampsjsFanChart extends GrampsjsChartBase {
     super()
     this.grampsId = ''
     this.depth = 5
+    this.arcRadius = 60
     this.color = ''
     this._chart = new FanChart()
   }
@@ -59,7 +61,14 @@ class GrampsjsFanChart extends GrampsjsChartBase {
     // contain them either, the chart is cleared.
     const {handle} = this._graph.personByGrampsId(this.grampsId) ?? {}
     if (handle) {
-      this._layout = layoutFan(this._graph, handle, {depth: this.depth})
+      const arcRadius = Math.max(
+        40,
+        Math.min(120, Number(this.arcRadius) || 60)
+      )
+      this._layout = layoutFan(this._graph, handle, {
+        depth: this.depth,
+        arcRadius,
+      })
     } else if (changed.has('data')) {
       this._layout = null
     }
