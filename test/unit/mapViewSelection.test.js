@@ -1,4 +1,4 @@
-import {describe, it, expect, vi, beforeEach} from 'vitest'
+import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest'
 
 import {GrampsjsViewMap} from '../../src/views/GrampsjsViewMap.js'
 import {WIKIDATA_LAYER_HANDLE} from '../../src/components/GrampsjsMapWikidataLayer.js'
@@ -48,7 +48,7 @@ function makeView() {
   Object.defineProperty(view, '_searchbox', {value: searchbox})
   view.appState = {
     i18n: {lang: 'en', strings: {}},
-    apiGet: vi.fn(),
+    apiGet: vi.fn().mockResolvedValue({data: {}}),
     dbInfo: {},
   }
   view._dataPlaces = PLACES
@@ -71,7 +71,11 @@ describe('map view: places', () => {
   it('selects a place from the search, highlights it and flies there', () => {
     const {view, map, searchbox} = makeView()
     view._handlePlaceSelected(PLACES[0])
-    expect(view._selection).to.deep.equal({type: 'place', handle: 'P1'})
+    expect(view._selection).to.deep.equal({
+      type: 'place',
+      handle: 'P1',
+      name: 'Heidelberg',
+    })
     expect(view._highlightedHandles).to.deep.equal(['P1'])
     expect(view._valueSearch).to.equal('Heidelberg')
     expect(searchbox.showDetails).toHaveBeenCalled()
@@ -81,7 +85,11 @@ describe('map view: places', () => {
   it('selects a clicked marker without flying', () => {
     const {view, map} = makeView()
     view._handleMapMarkerClicked({detail: {handle: 'P2'}})
-    expect(view._selection).to.deep.equal({type: 'place', handle: 'P2'})
+    expect(view._selection).to.deep.equal({
+      type: 'place',
+      handle: 'P2',
+      name: 'Berlin',
+    })
     expect(map.flyTo).not.toHaveBeenCalled()
   })
 
@@ -96,8 +104,190 @@ describe('map view: places', () => {
     const {view} = makeView()
     view._handleExternalPlaceSelected({detail: PLACES[1]})
     await vi.waitFor(() =>
-      expect(view._selection).to.deep.equal({type: 'place', handle: 'P2'})
+      expect(view._selection).to.deep.equal({
+        type: 'place',
+        handle: 'P2',
+        name: 'Berlin',
+      })
     )
+  })
+})
+
+describe('map view: place map files', () => {
+  const KML_MEDIA = {handle: 'M1', mime: 'application/vnd.google-earth.kml+xml'}
+  const IMAGE_MEDIA = {handle: 'M2', mime: 'image/jpeg'}
+  const GEOJSON = {
+    type: 'Feature',
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [8, 49],
+          [9, 49],
+          [9, 50],
+          [8, 49],
+        ],
+      ],
+    },
+    properties: {},
+  }
+  const KML = `<?xml version="1.0"?>
+    <kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark>
+      <name>Parish</name>
+      <LineString><coordinates>8,49 9,50</coordinates></LineString>
+    </Placemark></Document></kml>`
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  function stubPlace(view, media) {
+    view.appState.apiGet.mockResolvedValue({data: {extended: {media}}})
+  }
+
+  function stubFiles(files) {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async url => {
+        const handle = Object.keys(files).find(h => url.includes(`/${h}/`))
+        return handle
+          ? {ok: true, text: async () => files[handle]}
+          : {ok: false, text: async () => ''}
+      })
+    )
+  }
+
+  it('draws the KML files of the selected place', async () => {
+    const {view, map} = makeView()
+    stubPlace(view, [KML_MEDIA, IMAGE_MEDIA, KML_MEDIA])
+    stubFiles({M1: KML})
+    view._handlePlaceSelected(PLACES[0])
+    await vi.waitFor(() => expect(view._vectorLayers[0]?.data).to.be.ok)
+    expect(view._vectorLayers.map(l => l.handle)).to.deep.equal(['M1'])
+    expect(view._vectorLayers[0].data.features[0].properties.name).to.equal(
+      'Parish'
+    )
+    // A place with coordinates is flown to; its files don't move the map.
+    expect(map.flyTo).toHaveBeenCalledWith(49.4, 8.7)
+    expect(map.fitBounds).not.toHaveBeenCalled()
+  })
+
+  it('selects a place without coordinates and fits its files', async () => {
+    const {view, map} = makeView()
+    const geojson = {handle: 'M3', mime: 'application/json', path: 'p.geojson'}
+    stubPlace(view, [geojson])
+    stubFiles({M3: JSON.stringify(GEOJSON)})
+    view._handlePlaceSelected(PLACES[2])
+    await vi.waitFor(() => expect(map.fitBounds).toHaveBeenCalled())
+    expect(map.fitBounds).toHaveBeenCalledWith([
+      [8, 49],
+      [9, 50],
+    ])
+    expect(map.flyTo).not.toHaveBeenCalled()
+    expect(view._selection).to.deep.equal({
+      type: 'place',
+      handle: 'P3',
+      name: 'Nowhere',
+    })
+  })
+
+  it('drops the files when the selection changes', async () => {
+    const {view} = makeView()
+    stubPlace(view, [KML_MEDIA])
+    stubFiles({M1: KML})
+    view._handlePlaceSelected(PLACES[0])
+    await vi.waitFor(() => expect(view._vectorLayers[0]?.data).to.be.ok)
+    view._handleSearchClear()
+    expect(view._vectorLayers).to.deep.equal([])
+  })
+
+  it('ignores files that arrive after another selection', async () => {
+    const {view} = makeView()
+    const request = deferred()
+    view.appState.apiGet.mockReturnValueOnce(request.promise)
+    stubFiles({M1: KML})
+    view._handlePlaceSelected(PLACES[0])
+    view._handlePlaceSelected(PLACES[1])
+    request.resolve({data: {extended: {media: [KML_MEDIA]}}})
+    await flushPromises()
+    expect(view._selection.handle).to.equal('P2')
+    expect(view._vectorLayers).to.deep.equal([])
+  })
+
+  it('lists the files in the layer switcher while loading', async () => {
+    const {view} = makeView()
+    stubPlace(view, [{...KML_MEDIA, desc: 'Parish boundary'}])
+    const download = deferred()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => download.promise)
+    )
+    view._handlePlaceSelected(PLACES[0])
+    await vi.waitFor(() =>
+      expect(view._vectorLayers[0]?.loading).to.equal(true)
+    )
+    const ownOverlays = () =>
+      view._getOverlaysForLayerSwitcher().filter(o => o.group === 'own')
+    expect(ownOverlays()).to.deep.equal([
+      {
+        handle: 'M1',
+        desc: 'Parish boundary',
+        visible: true,
+        group: 'own',
+        thumbnail: {handle: 'M1', checksum: undefined, mime: KML_MEDIA.mime},
+        status: 'Loading...',
+      },
+    ])
+    download.resolve({ok: true, text: async () => KML})
+    await vi.waitFor(() => expect(view._vectorLayers[0].data).to.be.ok)
+    expect(ownOverlays()[0].status).to.equal('')
+  })
+
+  it('downloads a hidden file only once it is switched on', async () => {
+    const {view} = makeView()
+    view._hiddenOverlaysHandles = ['M1']
+    stubPlace(view, [KML_MEDIA])
+    stubFiles({M1: KML})
+    view._handlePlaceSelected(PLACES[0])
+    await vi.waitFor(() => expect(view._vectorLayers).to.have.length(1))
+    await flushPromises()
+    expect(fetch).not.toHaveBeenCalled()
+    expect(view._getOverlaysForLayerSwitcher()[0].visible).to.equal(false)
+
+    view._handleOverlayToggle({
+      detail: {overlay: {handle: 'M1'}, visible: true},
+    })
+    await vi.waitFor(() => expect(view._vectorLayers[0].data).to.be.ok)
+    expect(fetch).toHaveBeenCalledTimes(1)
+    expect(view._hiddenOverlaysHandles).to.deep.equal([])
+  })
+
+  it('remembers a hidden file', () => {
+    const {view} = makeView()
+    view._handleOverlayToggle({
+      detail: {overlay: {handle: 'M1'}, visible: false},
+    })
+    expect(new GrampsjsViewMap()._hiddenOverlaysHandles).to.include('M1')
+  })
+
+  it('does not fit a place without coordinates to hidden files', async () => {
+    const {view, map} = makeView()
+    view._hiddenOverlaysHandles = ['M1']
+    stubPlace(view, [KML_MEDIA])
+    stubFiles({M1: KML})
+    view._handlePlaceSelected(PLACES[2])
+    await vi.waitFor(() => expect(view._vectorLayers).to.have.length(1))
+    await flushPromises()
+    expect(map.fitBounds).not.toHaveBeenCalled()
+  })
+
+  it('closes the selection when the place no longer exists', async () => {
+    const {view, searchbox} = makeView()
+    view.appState.apiGet.mockResolvedValue({error: 'Not found'})
+    view._handlePlaceSelected(PLACES[0])
+    await flushPromises()
+    expect(searchbox.clear).toHaveBeenCalled()
+    expect(view._selection).to.equal(null)
   })
 })
 
@@ -136,7 +326,11 @@ describe('map view: persons', () => {
     view._handlePlaceSelected(PLACES[1])
     request.resolve({data: PERSON_DATA})
     await flushPromises()
-    expect(view._selection).to.deep.equal({type: 'place', handle: 'P2'})
+    expect(view._selection).to.deep.equal({
+      type: 'place',
+      handle: 'P2',
+      name: 'Berlin',
+    })
     expect(map.flyTo).toHaveBeenCalledTimes(1)
     expect(map.flyTo).toHaveBeenCalledWith(52.5, 13.4)
   })
