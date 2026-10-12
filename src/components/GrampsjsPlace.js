@@ -171,7 +171,7 @@ export class GrampsjsPlace extends GrampsjsObject {
         dialogTitle="${this._('Edit place type')}"
         formId="place-type"
         typeName="place_types"
-        @object:save="${this._handleSaveType}"
+        @object:save="${this._handleSavePlaceType}"
         @object:cancel="${this._handleCancelDialog}"
         .appState="${this.appState}"
         .data=${{
@@ -181,6 +181,21 @@ export class GrampsjsPlace extends GrampsjsObject {
       >
       </grampsjs-form-edit-type>
     `
+  }
+
+  // The edit form reads the current value from `type`, so only
+  // `place_type` is passed on to the Place object.
+  _handleSavePlaceType(e) {
+    const {place_type: placeType} = e.detail.data
+    if (placeType !== undefined) {
+      fireEvent(this, 'edit:action', {
+        action: 'updateProp',
+        data: {place_type: placeType},
+      })
+    }
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
   }
 
   _handleSaveName(e) {
