@@ -48,6 +48,51 @@ export function getOhmNameLocales(lang) {
   return OHM_NAME_LOCALES[lang] ?? [lang]
 }
 
+// OpenFreeMap name locales for Gramps languages whose code is not an
+// OpenFreeMap name suffix. The tiles have names in a fixed set of languages
+// without regional variants (name:pt, name:zh-Hans). Other Gramps languages
+// use their code as is.
+const BASE_NAME_LOCALES = {
+  de_AT: ['de'],
+  en_GB: ['en'],
+  nb: ['no'],
+  nn: ['no'],
+  pt_BR: ['pt'],
+  pt_PT: ['pt'],
+  zh_CN: ['zh-Hans', 'zh'],
+  zh_HK: ['zh-Hant', 'zh'],
+  zh_TW: ['zh-Hant', 'zh'],
+}
+
+// Returns the OpenFreeMap name locales for a Gramps language code.
+export function getBaseNameLocales(lang) {
+  return BASE_NAME_LOCALES[lang] ?? [lang]
+}
+
+// Whether an expression reads a name property such as name, name_en or
+// name:latin.
+function readsName(expression) {
+  if (!Array.isArray(expression) || expression[0] === 'literal') return false
+  if (expression[0] === 'get') return /^name([:_]|$)/.test(expression[1])
+  return expression.slice(1).some(readsName)
+}
+
+// Returns a copy of an OpenFreeMap style with labels in the given locales.
+// The style's own labels prefer English names, so each label reading a name
+// is reset to the local name, which Diplomat then localizes.
+export function localizeBaseStyle(style, locales) {
+  const localized = structuredClone(style)
+  localized.layers.forEach(layer => {
+    if (readsName(layer.layout?.['text-field'])) {
+      // eslint-disable-next-line no-param-reassign
+      layer.layout['text-field'] = ['get', 'name']
+    }
+    Diplomat.prepareLayer(layer)
+  })
+  Diplomat.localizeLayers(localized.layers, locales)
+  return localized
+}
+
 // Returns a copy of an OpenHistoricalMap style with labels in the given
 // locales.
 export function localizeOhmStyle(style, locales) {
@@ -380,11 +425,15 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     return Boolean(this._map?.style && this._map.isStyleLoaded())
   }
 
-  get _locales() {
+  // The name locales of the Gramps language in the given style. Without
+  // browser locales, a place lacking a name in the Gramps language shows its
+  // local name.
+  _getLocales(style) {
     const lang = this.appState?.i18n?.lang
-    // Without browser locales, a place lacking a name in the Gramps language
-    // shows its local name.
-    return lang ? getOhmNameLocales(lang) : Diplomat.getLocales()
+    if (!lang) return Diplomat.getLocales()
+    return style === MAP_STYLE_OHM
+      ? getOhmNameLocales(lang)
+      : getBaseNameLocales(lang)
   }
 
   _handleLayerChange(e) {
@@ -418,7 +467,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     const style =
       this.mapStyle === MAP_STYLE_OHM ? MAP_STYLE_OHM : MAP_STYLE_BASE
     const url = this._getStyleUrl(style)
-    const locales = style === MAP_STYLE_OHM ? this._locales : []
+    const locales = this._getLocales(style)
     const key = `${url} ${locales.join(',')}`
     if (key === this._appliedKey) {
       this._pendingKey = undefined
@@ -442,7 +491,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     json =
       style === MAP_STYLE_OHM
         ? localizeOhmStyle(json, locales)
-        : structuredClone(json)
+        : localizeBaseStyle(json, locales)
     // Layers add themselves on the first load; later styles keep them.
     const contributors = this._appliedKey
       ? this._slottedChildren.filter(
