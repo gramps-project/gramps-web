@@ -1,6 +1,10 @@
 import {afterEach, describe, it, expect, vi} from 'vitest'
 
-import {localizeOhmStyle} from '../../src/components/GrampsjsMap.js'
+import {
+  getOhmNameLocales,
+  localizeOhmStyle,
+} from '../../src/components/GrampsjsMap.js'
+import {frontendLanguages} from '../../src/strings.js'
 
 const STYLE = {
   version: 8,
@@ -40,6 +44,34 @@ describe('localizeOhmStyle', () => {
     const textField = JSON.stringify(french.layers[1].layout['text-field'])
     expect(textField).to.contain('name_fr')
     expect(textField).not.to.contain('name_de')
+  })
+})
+
+describe('getOhmNameLocales', () => {
+  it('maps regional languages to name suffixes with fallbacks', () => {
+    expect(getOhmNameLocales('pt_BR')).to.deep.equal(['pt-br', 'pt'])
+    expect(getOhmNameLocales('zh_TW')).to.deep.equal(['zh-hant', 'zh-tw', 'zh'])
+    expect(getOhmNameLocales('nb')).to.deep.equal(['nb', 'no'])
+  })
+
+  it('keeps plain language codes', () => {
+    expect(getOhmNameLocales('de')).to.deep.equal(['de'])
+  })
+
+  it('gives every frontend language valid locale tags', () => {
+    frontendLanguages.forEach(lang => {
+      const locales = getOhmNameLocales(lang)
+      locales.forEach(locale => expect(locale).not.to.contain('_'))
+      // The first locale is the collation locale.
+      expect(() => new Intl.Collator(locales[0])).not.to.throw()
+    })
+  })
+
+  it('localizes the style for a regional language', () => {
+    const localized = localizeOhmStyle(STYLE, getOhmNameLocales('pt_BR'))
+    const textField = JSON.stringify(localized.layers[1].layout['text-field'])
+    expect(textField).to.contain('"name_pt-br"')
+    expect(textField).to.contain('"name_pt"')
   })
 })
 
@@ -108,6 +140,17 @@ describe('map style switching', () => {
     expect(map._appliedStyle).to.equal('ohm')
     expect(applied.map(style => style.name)).to.deep.equal(['base', 'ohm'])
     expect(JSON.stringify(applied[1].layers[1])).to.contain('name_de')
+  })
+
+  it('falls back to the local name, not browser languages', async () => {
+    const ohm = deferred(OHM)
+    ohm.resolve()
+    const {map, applied} = await createBaseMap({ohm, base: deferred(BASE)})
+    await select(map, 'ohm')
+    const textField = JSON.stringify(applied[1].layers[1].layout['text-field'])
+    expect(navigator.languages).to.include('en-US')
+    expect(textField).to.contain('"name_de"')
+    expect(textField).not.to.contain('"name_en')
   })
 
   it('keeps the applied style when it is selected again while loading', async () => {

@@ -27,6 +27,27 @@ const defaultConfig = {
 
 const {maplibregl} = window
 
+// OpenHistoricalMap name locales for Gramps languages whose code is not an
+// OpenHistoricalMap name suffix, most specific first. The suffixes are OSM
+// tags, with lowercase regions (name_pt-br) and fallbacks to the base
+// language. Other Gramps languages use their code as is.
+const OHM_NAME_LOCALES = {
+  de_AT: ['de-at', 'de'],
+  en_GB: ['en-gb', 'en'],
+  nb: ['nb', 'no'],
+  nn: ['nn', 'no'],
+  pt_BR: ['pt-br', 'pt'],
+  pt_PT: ['pt-pt', 'pt'],
+  zh_CN: ['zh-hans', 'zh-cn', 'zh'],
+  zh_HK: ['zh-hk', 'zh-hant', 'zh'],
+  zh_TW: ['zh-hant', 'zh-tw', 'zh'],
+}
+
+// Returns the OpenHistoricalMap name locales for a Gramps language code.
+export function getOhmNameLocales(lang) {
+  return OHM_NAME_LOCALES[lang] ?? [lang]
+}
+
 // Returns a copy of an OpenHistoricalMap style with labels in the given
 // locales.
 export function localizeOhmStyle(style, locales) {
@@ -361,7 +382,9 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
 
   get _locales() {
     const lang = this.appState?.i18n?.lang
-    return lang ? [lang, ...Diplomat.getLocales()] : Diplomat.getLocales()
+    // Without browser locales, a place lacking a name in the Gramps language
+    // shows its local name.
+    return lang ? getOhmNameLocales(lang) : Diplomat.getLocales()
   }
 
   _handleLayerChange(e) {
