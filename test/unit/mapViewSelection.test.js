@@ -162,11 +162,11 @@ describe('map view: place map files', () => {
     stubPlace(view, [KML_MEDIA, IMAGE_MEDIA, KML_MEDIA])
     stubFiles({M1: KML})
     view._handlePlaceSelected(PLACES[0])
-    await vi.waitFor(() => expect(view._vectorLayers[0]?.data).to.be.ok)
-    expect(view._vectorLayers.map(l => l.handle)).to.deep.equal(['M1'])
-    expect(view._vectorLayers[0].data.features[0].properties.name).to.equal(
-      'Parish'
-    )
+    await vi.waitFor(() => expect(view._placeVectors.layers[0]?.data).to.be.ok)
+    expect(view._placeVectors.layers.map(l => l.handle)).to.deep.equal(['M1'])
+    expect(
+      view._placeVectors.layers[0].data.features[0].properties.name
+    ).to.equal('Parish')
     // A place with coordinates is flown to; its files don't move the map.
     expect(map.flyTo).toHaveBeenCalledWith(49.4, 8.7)
     expect(map.fitBounds).not.toHaveBeenCalled()
@@ -196,9 +196,9 @@ describe('map view: place map files', () => {
     stubPlace(view, [KML_MEDIA])
     stubFiles({M1: KML})
     view._handlePlaceSelected(PLACES[0])
-    await vi.waitFor(() => expect(view._vectorLayers[0]?.data).to.be.ok)
+    await vi.waitFor(() => expect(view._placeVectors.layers[0]?.data).to.be.ok)
     view._handleSearchClear()
-    expect(view._vectorLayers).to.deep.equal([])
+    expect(view._placeVectors.layers).to.deep.equal([])
   })
 
   it('ignores files that arrive after another selection', async () => {
@@ -211,7 +211,7 @@ describe('map view: place map files', () => {
     request.resolve({data: {extended: {media: [KML_MEDIA]}}})
     await flushPromises()
     expect(view._selection.handle).to.equal('P2')
-    expect(view._vectorLayers).to.deep.equal([])
+    expect(view._placeVectors.layers).to.deep.equal([])
   })
 
   it('lists the files in the layer switcher while loading', async () => {
@@ -224,7 +224,7 @@ describe('map view: place map files', () => {
     )
     view._handlePlaceSelected(PLACES[0])
     await vi.waitFor(() =>
-      expect(view._vectorLayers[0]?.loading).to.equal(true)
+      expect(view._placeVectors.layers[0]?.loading).to.equal(true)
     )
     const ownOverlays = () =>
       view._getOverlaysForLayerSwitcher().filter(o => o.group === 'own')
@@ -239,7 +239,7 @@ describe('map view: place map files', () => {
       },
     ])
     download.resolve({ok: true, text: async () => KML})
-    await vi.waitFor(() => expect(view._vectorLayers[0].data).to.be.ok)
+    await vi.waitFor(() => expect(view._placeVectors.layers[0].data).to.be.ok)
     expect(ownOverlays()[0].status).to.equal('')
   })
 
@@ -249,7 +249,7 @@ describe('map view: place map files', () => {
     stubPlace(view, [KML_MEDIA])
     stubFiles({M1: KML})
     view._handlePlaceSelected(PLACES[0])
-    await vi.waitFor(() => expect(view._vectorLayers).to.have.length(1))
+    await vi.waitFor(() => expect(view._placeVectors.layers).to.have.length(1))
     await flushPromises()
     expect(fetch).not.toHaveBeenCalled()
     expect(view._getOverlaysForLayerSwitcher()[0].visible).to.equal(false)
@@ -257,7 +257,7 @@ describe('map view: place map files', () => {
     view._handleOverlayToggle({
       detail: {overlay: {handle: 'M1'}, visible: true},
     })
-    await vi.waitFor(() => expect(view._vectorLayers[0].data).to.be.ok)
+    await vi.waitFor(() => expect(view._placeVectors.layers[0].data).to.be.ok)
     expect(fetch).toHaveBeenCalledTimes(1)
     expect(view._hiddenOverlaysHandles).to.deep.equal([])
   })
@@ -276,18 +276,59 @@ describe('map view: place map files', () => {
     stubPlace(view, [KML_MEDIA])
     stubFiles({M1: KML})
     view._handlePlaceSelected(PLACES[2])
-    await vi.waitFor(() => expect(view._vectorLayers).to.have.length(1))
+    await vi.waitFor(() => expect(view._placeVectors.layers).to.have.length(1))
     await flushPromises()
     expect(map.fitBounds).not.toHaveBeenCalled()
   })
 
   it('closes the selection when the place no longer exists', async () => {
     const {view, searchbox} = makeView()
-    view.appState.apiGet.mockResolvedValue({error: 'Not found'})
+    view.appState.apiGet.mockResolvedValue({
+      error: 'Not found',
+      errorDetail: {status: 404},
+    })
     view._handlePlaceSelected(PLACES[0])
     await flushPromises()
     expect(searchbox.clear).toHaveBeenCalled()
     expect(view._selection).to.equal(null)
+  })
+
+  it('keeps the selection when the place fails to load', async () => {
+    const {view, searchbox} = makeView()
+    view.appState.apiGet.mockResolvedValue({
+      error: 'Network error',
+      errorDetail: {},
+    })
+    view._handlePlaceSelected(PLACES[0])
+    await flushPromises()
+    expect(searchbox.clear).not.toHaveBeenCalled()
+    expect(view._selection.handle).to.equal('P1')
+  })
+
+  it('fits a place without coordinates to a file switched on', async () => {
+    const {view, map} = makeView()
+    view._hiddenOverlaysHandles = ['M1']
+    stubPlace(view, [KML_MEDIA])
+    stubFiles({M1: KML})
+    view._handlePlaceSelected(PLACES[2])
+    await vi.waitFor(() => expect(view._placeVectors.layers).to.have.length(1))
+    view._handleOverlayToggle({
+      detail: {overlay: {handle: 'M1'}, visible: true},
+    })
+    await vi.waitFor(() => expect(map.fitBounds).toHaveBeenCalled())
+    expect(map.fitBounds).toHaveBeenCalledWith([
+      [8, 49],
+      [9, 50],
+    ])
+  })
+
+  it('labels a file without description by its Gramps ID', async () => {
+    const {view} = makeView()
+    stubPlace(view, [{...KML_MEDIA, desc: '', gramps_id: 'O0001'}])
+    stubFiles({M1: KML})
+    view._handlePlaceSelected(PLACES[0])
+    await vi.waitFor(() => expect(view._placeVectors.layers).to.have.length(1))
+    expect(view._getOverlaysForLayerSwitcher()[0].desc).to.equal('O0001')
   })
 })
 

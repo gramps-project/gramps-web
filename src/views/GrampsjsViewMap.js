@@ -37,7 +37,7 @@ import {
 import {WIKIDATA_MIN_ZOOM, countBuildingsInView} from '../wikidata.ts'
 import {WikidataBuildingsController} from '../wikidataBuildingsController.ts'
 import {countEventTypes, filterPlaces, yearRange} from '../mapFilters.js'
-import {fetchVector, vectorBounds, vectorFormat} from '../mapVector.js'
+import {PlaceVectorsController} from '../placeVectorsController.ts'
 
 const EMPTY_ARRAY = []
 
@@ -79,7 +79,6 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       _dataEvents: {type: Array},
       _filteredPlaces: {type: Array},
       _dataLayers: {type: Array},
-      _vectorLayers: {type: Array},
       _selected: {type: String},
       _valueSearch: {type: String},
       _searchFilter: {type: String},
@@ -104,9 +103,6 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._dataEvents = []
     this._filteredPlaces = []
     this._dataLayers = []
-    // KML and GeoJSON files of the selected place, as
-    // {handle, media, data, loading}; data is null until downloaded.
-    this._vectorLayers = EMPTY_ARRAY
     const layerSettings = getMapLayerSettings()
     // The Wikidata building layer is off until the user switches it on.
     this._hiddenOverlaysHandles = layerSettings?.hiddenOverlays ?? [
@@ -143,6 +139,12 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._pendingPerson = null
     this._zoom = getMapViewport()?.zoom ?? DEFAULT_ZOOM
     this._wikidata = new WikidataBuildingsController(this)
+    // KML and GeoJSON files of the selected place.
+    this._placeVectors = new PlaceVectorsController(this, {
+      apiGet: endpoint => this.appState.apiGet(endpoint),
+      isHidden: handle => this._hiddenOverlaysHandles.includes(handle),
+      fitBounds: bounds => this._mapEl?.fitBounds(bounds),
+    })
   }
 
   get _searchbox() {
@@ -226,7 +228,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
   _select(selection) {
     this._selection = selection
     this._hoveredPlace = ''
-    this._vectorLayers = EMPTY_ARRAY
+    this._placeVectors.cancel()
   }
 
   get _personSelection() {
@@ -447,7 +449,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       ]
     }
     this._saveLayerSettings()
-    if (visible) this._loadVisibleVectors(this._selection)
+    if (visible) this._placeVectors.show(overlay.handle)
     if (overlay.handle === WIKIDATA_LAYER_HANDLE) {
       if (visible) {
         this._updateWikidataBuildings({immediate: true})
@@ -598,61 +600,16 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._loadPlaceVectors(selection, {fit: flyTo && !this._hasCoords(object)})
   }
 
-  // Lists the KML and GeoJSON files of the selected place and draws those
-  // that are not hidden. A place that no longer exists closes the selection.
+  // Draws the KML and GeoJSON files of the selected place. A place that no
+  // longer exists closes the selection.
   async _loadPlaceVectors(selection, {fit = false} = {}) {
-    const data = await this.appState.apiGet(
-      `/api/places/${selection.handle}?extend=media_list`
-    )
-    if (this._selection !== selection) return
-    if (!('data' in data)) {
-      this._clearSearchBox()
-      return
-    }
-    // A place can reference the same file more than once.
-    const media = new Map(
-      (data.data.extended?.media ?? [])
-        .filter(obj => vectorFormat(obj))
-        .map(obj => [obj.handle, obj])
-    )
-    this._vectorLayers = [...media.values()].map(obj => ({
-      handle: obj.handle,
-      media: obj,
-      data: null,
-      loading: false,
-    }))
-    await this._loadVisibleVectors(selection)
-    if (!fit || this._selection !== selection) return
-    const bounds = vectorBounds(
-      this._vectorLayers.filter(l => l.data).map(l => l.data)
-    )
-    if (bounds) this._mapEl?.fitBounds(bounds)
+    const result = await this._placeVectors.load(selection.handle, {fit})
+    if (result === 'missing') this._clearSearchBox()
   }
 
-  // Downloads the files of visible vector layers that are not loaded yet.
-  async _loadVisibleVectors(selection) {
-    const pending = this._vectorLayers.filter(
-      l =>
-        !l.data && !l.loading && !this._hiddenOverlaysHandles.includes(l.handle)
-    )
-    if (pending.length === 0) return
-    const pendingHandles = new Set(pending.map(l => l.handle))
-    const update = fn => {
-      this._vectorLayers = this._vectorLayers.map(l =>
-        pendingHandles.has(l.handle) ? fn(l) : l
-      )
-    }
-    update(l => ({...l, loading: true}))
-    const results = await Promise.all(pending.map(l => fetchVector(l.media)))
-    if (this._selection !== selection) return
-    const dataByHandle = new Map(
-      results.filter(Boolean).map(r => [r.handle, r.data])
-    )
-    update(l => ({
-      ...l,
-      data: dataByHandle.get(l.handle) ?? null,
-      loading: false,
-    }))
+  async _reloadPlaceVectors() {
+    const result = await this._placeVectors.reload()
+    if (result === 'missing') this._clearSearchBox()
   }
 
   get _mapEl() {
@@ -703,7 +660,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _renderVectorLayers() {
     return repeat(
-      this._vectorLayers.filter(
+      this._placeVectors.layers.filter(
         l => l.data && !this._hiddenOverlaysHandles.includes(l.handle)
       ),
       layer => layer.handle,
@@ -765,8 +722,9 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     // The selected place's files are listed wherever the map is.
     const overlays = [
       ...visibleLayers.map(toOverlay),
-      ...this._vectorLayers.map(l => ({
+      ...this._placeVectors.layers.map(l => ({
         ...toOverlay(l.media),
+        desc: l.media.desc || l.media.gramps_id,
         status: l.loading ? this._('Loading...') : '',
       })),
     ]
@@ -883,7 +841,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._fetchDataLayers()
     this._fetchEvents()
     if (this._selection?.type === 'place') {
-      this._loadPlaceVectors(this._selection)
+      this._reloadPlaceVectors()
     }
   }
 

@@ -93,11 +93,11 @@ export function vectorBounds(featureCollections) {
 }
 
 // Downloads and parses a vector media object: {handle, data}, or null.
-export async function fetchVector(media) {
+export async function fetchVector(media, {signal} = {}) {
   const format = vectorFormat(media)
   if (!format) return null
   try {
-    const res = await fetch(getMediaUrl(media.handle))
+    const res = await fetch(getMediaUrl(media.handle), {signal})
     if (!res.ok) return null
     const data = parseVector(await res.text(), format)
     return data ? {handle: media.handle, data} : null
