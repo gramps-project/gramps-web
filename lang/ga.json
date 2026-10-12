@@ -453,5 +453,7 @@
     "The import has completed.": "Tá an t-iompórtáil críochnaithe.",
     "Problems found during the import": "Fadhbanna a aimsíodh le linn an iompórtála",
     "Problems found in this file": "Fadhbanna aimsithe sa chomhad seo",
-    "Insert image": "Cuir íomhá isteach"
+    "Insert image": "Cuir íomhá isteach",
+    "Invalid region coordinates": "Comhordanáidí réigiúin neamhbhailí",
+    "Toggle region outlines": "Scoránaigh imlínte réigiún"
 }
