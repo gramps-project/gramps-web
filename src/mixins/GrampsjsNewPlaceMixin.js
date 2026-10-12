@@ -27,6 +27,14 @@ export const GrampsjsNewPlaceMixin = superClass =>
       // Off in the create dialog of an object selector, so that inline
       // creation stays one dialog deep.
       this.allowNewEnclosedBy = false
+      this._initialData = this.data
+    }
+
+    // Data an embedder passes in before the first render prefills the name
+    // and type fields. Later changes to data come from the fields themselves.
+    willUpdate(changed) {
+      super.willUpdate(changed)
+      if (!this.hasUpdated) this._initialData = this.data
     }
 
     renderForm() {
@@ -37,6 +45,7 @@ export const GrampsjsNewPlaceMixin = superClass =>
             required
             validationMessage="${this._('This field is mandatory')}"
             style="width:100%;"
+            value="${this._initialData.name?.value ?? ''}"
             @input="${this.handleName}"
             id="place-name"
           ></mwc-textfield>
@@ -49,7 +58,7 @@ export const GrampsjsNewPlaceMixin = superClass =>
           id="select-place-type"
           .appState="${this.appState}"
           ?loadingTypes="${this.loadingTypes}"
-          defaultValue="Unknown"
+          defaultValue="${this._initialData.place_type ?? 'Unknown'}"
           typeName="place_types"
           .types="${this.types}"
           .typesLocale="${this.typesLocale}"

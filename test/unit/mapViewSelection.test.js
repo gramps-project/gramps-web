@@ -427,11 +427,47 @@ describe('map view: other selections', () => {
       type: 'wikidata',
       qid: 'Q1',
       label: 'Old house',
+      lat: null,
+      long: null,
     })
     expect(view._highlightedHandles).to.deep.equal([])
     expect(searchbox.showDetails).toHaveBeenCalled()
     view._handlePlaceSelected(PLACES[0])
     expect(view._selection.type).to.equal('place')
+  })
+
+  it('selects the place created for or linked to a building', () => {
+    const {view, map} = makeView()
+    view._handleWikidataClicked({detail: {qid: 'Q1', label: 'Old house'}})
+    view._handleWikidataPlaceSelected({
+      detail: {handle: 'P1', name: 'Old house'},
+    })
+    expect(view._selection).to.deep.equal({
+      type: 'place',
+      handle: 'P1',
+      name: 'Heidelberg',
+    })
+    expect(map.flyTo).not.toHaveBeenCalled()
+    view._handleWikidataPlaceSelected({detail: {handle: 'NEW', name: 'Mill'}})
+    expect(view._selection).to.deep.equal({
+      type: 'place',
+      handle: 'NEW',
+      name: 'Mill',
+    })
+  })
+
+  it('finds the place at a selected building', () => {
+    const {view} = makeView()
+    view._wikidata.buildings = [
+      {qid: 'Q1', label: 'Old house', lat: 49.4, long: 8.7},
+      {qid: 'Q2', label: 'New house', lat: 49.5, long: 8.7},
+    ]
+    view._handleWikidataClicked({detail: {qid: 'Q1', label: 'Old house'}})
+    expect(view._placeAtBuilding(view._selection)).to.equal('P1')
+    view._handleWikidataClicked({detail: {qid: 'Q2', label: 'New house'}})
+    expect(view._placeAtBuilding(view._selection)).to.equal('')
+    view._handleWikidataClicked({detail: {qid: 'Q3', label: 'Not loaded'}})
+    expect(view._placeAtBuilding(view._selection)).to.equal('')
   })
 
   it('closes a selected building when its layer is switched off', () => {
