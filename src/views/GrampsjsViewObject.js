@@ -1011,9 +1011,18 @@ export class GrampsjsViewObject extends GrampsjsView {
     // eslint-disable-next-line prefer-const
     let {extended, profile, backlinks, formatted, ...objNew} = obj
     objNew = {_class: capitalize(objType), ...objNew}
+    // Places may carry a stray `type` key that older API versions stored;
+    // the API rejects it as an unknown Place key.
+    if (objType === 'place') {
+      delete objNew.type
+    }
     const url = `/api/${objectTypeToEndpoint[objType]}/${obj.handle}`
 
-    this.appState.apiPut(url, updateFunc(objNew)).then(() => {
+    return this.appState.apiPut(url, updateFunc(objNew)).then(data => {
+      if ('error' in data) {
+        fireEvent(this, 'grampsjs:error', {message: data.error})
+        return
+      }
       this._updateData(false)
       // Clear editor drafts after successful save (if prefix provided)
       if (editorDraftPrefix) {
