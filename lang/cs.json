@@ -454,5 +454,7 @@
     "Insert image": "Vložit obrázek",
     "Text abbreviations (b. d. m. div.)": "Textpvé zkratky (nar. úm. sň. rozv.)",
     "Invalid region coordinates": "Neplatné souřadnice regionu",
-    "Toggle region outlines": "Přepnout obrysy regionů"
+    "Toggle region outlines": "Přepnout obrysy regionů",
+    "Save as place": "Uložit jako místo",
+    "Open saved place": "Otevřít uložené místo"
 }
