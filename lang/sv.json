@@ -455,5 +455,7 @@
     "Problems found in this file": "Problem som hittats i den här filen",
     "Insert image": "Infoga bild",
     "Invalid region coordinates": "Ogiltiga regionkoordinater",
-    "Toggle region outlines": "Visa/dölj regionkonturer"
+    "Toggle region outlines": "Visa/dölj regionkonturer",
+    "Save as place": "Spara som plats",
+    "Open saved place": "Öppna sparad plats"
 }
