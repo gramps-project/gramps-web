@@ -448,5 +448,13 @@
     "Left out of the export": "Исключены из экспорта",
     "The import has completed.": "Импорт завершен.",
     "Problems found during the import": "При импорте обнаружены проблемы",
-    "Problems found in this file": "В этом файле обнаружены проблемы"
+    "Problems found in this file": "В этом файле обнаружены проблемы",
+    "Genealogical symbols": "Генеалогические символы",
+    "Unicode symbols (∗ † ⚭ ⚮)": "Символы Юникода (∗ † ⚭ ⚮)",
+    "Text abbreviations (b. d. m. div.)": "Текстовые сокращения (род. ум. бр. разв.)",
+    "Invalid region coordinates": "Неверные координаты области",
+    "Toggle region outlines": "Показать границы области",
+    "Insert image": "Вставить изображение",
+    "Save as place": "Сохранить как место",
+    "Open saved place": "Открыть сохраненное место"
 }
