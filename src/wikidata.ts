@@ -21,6 +21,10 @@ const EXTRA_BUILDING_TYPES = [
   'Q1497364',
 ]
 
+// Direct types for which a new Gramps place gets the type Farm: farm,
+// farmstead, four-sided farm and Meierhof.
+const FARM_TYPES = ['Q131596', 'Q72030539', 'Q2523674', 'Q477195']
+
 const BUILDING = 'Q41176'
 const TYPE_OF_BUILDING = 'Q811102'
 
@@ -120,6 +124,8 @@ export interface WikidataBuildingDetail {
   label: string
   description: string
   types: string[]
+  typeQids: string[]
+  coordinates: {lat: number; long: number} | null
   image: string
   inception: WikidataTime | null
   demolished: WikidataTime | null
@@ -296,7 +302,7 @@ function timeVars(v: string): string {
 // Without the runLast hint, Blazegraph runs the label service before the
 // joins and the query takes over a minute.
 export function buildBuildingDetailQuery(qid: string, lang?: string): string {
-  return `SELECT ?itemLabel ?itemDescription ?typeLabel ?image
+  return `SELECT ?itemLabel ?itemDescription ?type ?typeLabel ?coord ?image
   ${timeVars('inception')} ${timeVars('demolished')}
   ?occupant ?occupantLabel ${timeVars('occupantStart')} ${timeVars(
     'occupantEnd'
@@ -309,6 +315,8 @@ WHERE {
   {
   } UNION {
     ?item wdt:P31 ?type .
+  } UNION {
+    ?item wdt:P625 ?coord .
   } UNION {
     ?item wdt:P18 ?image .
   } UNION {
@@ -376,6 +384,8 @@ export function parseBuildingDetail(
     label: '',
     description: '',
     types: [],
+    typeQids: [],
+    coordinates: null,
     image: '',
     inception: null,
     demolished: null,
@@ -386,6 +396,7 @@ export function parseBuildingDetail(
     genWikiId: '',
   }
   const types = new Set<string>()
+  const typeQids = new Set<string>()
   const occupants = new Map<string, DatedItem>()
   const owners = new Map<string, DatedItem>()
   const addresses = new Map<string, DatedEntry>()
@@ -393,11 +404,14 @@ export function parseBuildingDetail(
     detail.label ||= row.itemLabel?.value ?? ''
     detail.description ||= row.itemDescription?.value ?? ''
     detail.image ||= row.image?.value ?? ''
+    detail.coordinates ??= parseWktPoint(row.coord?.value)
     detail.inception ??= parseTime(row, 'inception')
     detail.demolished ??= parseTime(row, 'demolished')
     detail.govId ||= row.govId?.value ?? ''
     detail.genWikiId ||= row.genWikiId?.value ?? ''
     if (row.typeLabel?.value) types.add(row.typeLabel.value)
+    const typeQid = qidFromUri(row.type?.value)
+    if (typeQid) typeQids.add(typeQid)
     collect(occupants, row, 'occupant')
     collect(owners, row, 'owner')
     const address = row.address?.value
@@ -407,6 +421,7 @@ export function parseBuildingDetail(
     }
   }
   detail.types = [...types]
+  detail.typeQids = [...typeQids]
   detail.occupants = [...occupants.values()].sort(byStartYear)
   detail.owners = [...owners.values()].sort(byStartYear)
   detail.addresses = [...addresses.values()].sort(byStartYear)
@@ -466,6 +481,64 @@ export function getDomusUrl(qid: string): string {
 
 export function getWikidataUrl(qid: string): string {
   return `https://www.wikidata.org/wiki/${qid}`
+}
+
+// Places closer than this to a building, in metres, are taken to be the
+// building itself. A place created from a building has its coordinates.
+const SAME_PLACE_TOLERANCE = 0.1
+
+const METRES_PER_DEGREE = 111320
+
+interface PlaceWithCoords {
+  handle: string
+  profile?: {lat?: number | string | null; long?: number | string | null}
+}
+
+// The handle of a place at the given coordinates, or '' if there is none.
+export function findPlaceAt(
+  places: PlaceWithCoords[],
+  lat: number,
+  long: number
+): string {
+  const longScale = Math.cos((lat * Math.PI) / 180)
+  const place = places.find(({profile}) => {
+    const placeLat = parseFloat(`${profile?.lat}`)
+    const placeLong = parseFloat(`${profile?.long}`)
+    if (Number.isNaN(placeLat) || Number.isNaN(placeLong)) return false
+    const dy = (placeLat - lat) * METRES_PER_DEGREE
+    const dx = (placeLong - long) * METRES_PER_DEGREE * longScale
+    return Math.hypot(dx, dy) <= SAME_PLACE_TOLERANCE
+  })
+  return place?.handle ?? ''
+}
+
+// A new Gramps place for a building, as data for the new place form.
+export function wikidataBuildingToPlace(
+  qid: string,
+  detail: WikidataBuildingDetail
+) {
+  const isFarm = detail.typeQids.some(type => FARM_TYPES.includes(type))
+  const {coordinates} = detail
+  return {
+    _class: 'Place',
+    // The label service falls back to the QID for items without a label.
+    name: {
+      _class: 'PlaceName',
+      value: detail.label === qid ? '' : detail.label,
+    },
+    place_type: isFarm ? 'Farm' : 'Building',
+    lat: coordinates ? `${coordinates.lat}` : '',
+    long: coordinates ? `${coordinates.long}` : '',
+    urls: [
+      {
+        _class: 'Url',
+        path: getWikidataUrl(qid),
+        desc: 'Wikidata',
+        type: 'Web Home',
+        private: false,
+      },
+    ],
+  }
 }
 
 // P18 values are Special:FilePath URLs, which accept a width parameter.

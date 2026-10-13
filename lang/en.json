@@ -448,5 +448,7 @@
   "The import has completed.": "The import has completed.",
   "Problems found during the import": "Problems found during the import",
   "Problems found in this file": "Problems found in this file",
-  "Insert image": "Insert image"
+  "Insert image": "Insert image",
+  "Save as place": "Save as place",
+  "Open saved place": "Open saved place"
 }

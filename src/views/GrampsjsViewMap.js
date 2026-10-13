@@ -34,7 +34,11 @@ import {
   saveMapLayerSettings,
   saveMapViewport,
 } from '../api.js'
-import {WIKIDATA_MIN_ZOOM, countBuildingsInView} from '../wikidata.ts'
+import {
+  WIKIDATA_MIN_ZOOM,
+  countBuildingsInView,
+  findPlaceAt,
+} from '../wikidata.ts'
 import {WikidataBuildingsController} from '../wikidataBuildingsController.ts'
 import {countEventTypes, filterPlaces, yearRange} from '../mapFilters.js'
 import {PlaceVectorsController} from '../placeVectorsController.ts'
@@ -116,7 +120,8 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     // {type: 'place', handle, name}
     // {type: 'person', person, data, placeHandles}, where data and
     //   placeHandles are filled in once the person has loaded
-    // {type: 'wikidata', qid, label}
+    // {type: 'wikidata', qid, label, lat, long}, where lat and long are null
+    //   for a building that is not loaded
     this._selection = null
     // A place the person panel points at while a person is selected.
     this._hoveredPlace = ''
@@ -363,7 +368,9 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         <grampsjs-wikidata-building-box
           qid="${selection.qid}"
           label="${selection.label}"
+          placeHandle="${this._placeAtBuilding(selection)}"
           .appState="${this.appState}"
+          @wikidata:place-selected="${this._handleWikidataPlaceSelected}"
         ></grampsjs-wikidata-building-box>
       `
     }
@@ -570,12 +577,38 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     if (place) this._handlePlaceSelected(place, {flyTo: false})
   }
 
+  // The coordinates come from the loaded buildings, since those of the
+  // clicked map feature are rounded.
   _handleWikidataClicked(e) {
     const {qid, label} = e.detail
+    const building = this._wikidata.buildings.find(b => b.qid === qid)
     this._activeSearchQuery = ''
-    this._select({type: 'wikidata', qid, label})
+    this._select({
+      type: 'wikidata',
+      qid,
+      label,
+      lat: building?.lat ?? null,
+      long: building?.long ?? null,
+    })
     this._valueSearch = label
     this._searchbox?.showDetails()
+  }
+
+  // The tree's place at a selected building, or ''.
+  _placeAtBuilding({lat, long}) {
+    if (lat === null || long === null) return ''
+    return findPlaceAt(this._dataPlaces, lat, long)
+  }
+
+  // A place created for or linked to the selected building. A new place is
+  // missing from the loaded places until they have been fetched again.
+  _handleWikidataPlaceSelected(e) {
+    const {handle, name} = e.detail
+    const place = this._dataPlaces.find(p => p.handle === handle) ?? {
+      handle,
+      profile: {name},
+    }
+    this._handlePlaceSelected(place, {flyTo: false})
   }
 
   _handlePlaceSelected(object, {flyTo = true} = {}) {

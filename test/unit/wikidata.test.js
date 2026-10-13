@@ -6,6 +6,7 @@ import {
   containsBounds,
   countBuildingsInView,
   existedInYears,
+  findPlaceAt,
   formatWikidataTime,
   formatWikidataTimeRange,
   getCommonsThumbnailUrl,
@@ -14,6 +15,7 @@ import {
   parseBuildings,
   parseWktPoint,
   qidFromUri,
+  wikidataBuildingToPlace,
   wikidataLanguages,
   wikidataYear,
 } from '../../src/wikidata.ts'
@@ -186,8 +188,10 @@ describe('parseBuildingDetail', () => {
           itemLabel: literal('Heidelberger Schloss'),
           itemDescription: literal('Schloss in Deutschland'),
         },
-        {typeLabel: literal('Burg')},
-        {typeLabel: literal('Museum')},
+        {type: uri('Q23413'), typeLabel: literal('Burg')},
+        {type: uri('Q33506'), typeLabel: literal('Museum')},
+        {coord: literal('Point(8.715 49.4106)')},
+        {coord: literal('Point(8.7 49.4)')},
         {
           image: literal(
             'http://commons.wikimedia.org/wiki/Special:FilePath/A.jpg'
@@ -230,6 +234,8 @@ describe('parseBuildingDetail', () => {
     expect(detail.label).to.equal('Heidelberger Schloss')
     expect(detail.description).to.equal('Schloss in Deutschland')
     expect(detail.types).to.deep.equal(['Burg', 'Museum'])
+    expect(detail.typeQids).to.deep.equal(['Q23413', 'Q33506'])
+    expect(detail.coordinates).to.deep.equal({lat: 49.4106, long: 8.715})
     expect(detail.image).to.contain('Special:FilePath/A.jpg')
     expect(detail.inception).to.deep.equal({
       time: '1214-01-01T00:00:00Z',
@@ -340,5 +346,71 @@ describe('existedInYears and countBuildingsInView', () => {
     expect(
       countBuildingsInView(buildings, viewport, {year: 1850, span: 25})
     ).to.equal(1)
+  })
+})
+
+describe('findPlaceAt', () => {
+  const places = [
+    {handle: 'H1', profile: {lat: null, long: null}},
+    {handle: 'H2', profile: {lat: '49.41', long: '8.71'}},
+    {handle: 'H3', profile: {lat: 49.42, long: 8.72}},
+  ]
+
+  it('finds a place within 10 cm', () => {
+    expect(findPlaceAt(places, 49.4200004, 8.7200006)).to.equal('H3')
+  })
+
+  it('reads coordinates given as strings', () => {
+    expect(findPlaceAt(places, 49.41, 8.71)).to.equal('H2')
+  })
+
+  it('ignores places a metre away and places without coordinates', () => {
+    expect(findPlaceAt(places, 49.41001, 8.71)).to.equal('')
+  })
+})
+
+describe('wikidataBuildingToPlace', () => {
+  const detail = {
+    label: 'Alte Mühle',
+    typeQids: ['Q185187'],
+    coordinates: {lat: 49.41, long: 8.71},
+  }
+
+  it('fills in name, type, coordinates and the Wikidata link', () => {
+    expect(wikidataBuildingToPlace('Q5', detail)).to.deep.equal({
+      _class: 'Place',
+      name: {_class: 'PlaceName', value: 'Alte Mühle'},
+      place_type: 'Building',
+      lat: '49.41',
+      long: '8.71',
+      urls: [
+        {
+          _class: 'Url',
+          path: 'https://www.wikidata.org/wiki/Q5',
+          desc: 'Wikidata',
+          type: 'Web Home',
+          private: false,
+        },
+      ],
+    })
+  })
+
+  it('makes farms of farm types', () => {
+    const place = wikidataBuildingToPlace('Q5', {
+      ...detail,
+      typeQids: ['Q131596'],
+    })
+    expect(place.place_type).to.equal('Farm')
+  })
+
+  it('leaves out a label that is only the QID and missing coordinates', () => {
+    const place = wikidataBuildingToPlace('Q5', {
+      ...detail,
+      label: 'Q5',
+      coordinates: null,
+    })
+    expect(place.name.value).to.equal('')
+    expect(place.lat).to.equal('')
+    expect(place.long).to.equal('')
   })
 })

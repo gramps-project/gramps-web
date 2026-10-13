@@ -89,6 +89,18 @@ export class GrampsjsPlaceBox extends GrampsjsConnectedComponent {
     return `/api/places/${this.handle}?extend=all&profile=all&backlinks=true&locale=${lang}`
   }
 
+  // The place type, unless unknown, followed by the enclosing places
+  // eslint-disable-next-line class-methods-use-this
+  _renderSubtitle(place) {
+    const {profile} = place
+    const type = place.place_type === 'Unknown' ? '' : profile?.type
+    const parents = (profile?.parent_places ?? [])
+      .map(obj => obj.name)
+      .join(', ')
+    const subtitle = [type, parents].filter(Boolean).join(' · ')
+    return subtitle ? html`<h4>${subtitle}</h4>` : ''
+  }
+
   renderContent() {
     const place = this._data?.data
     if (!place) return ''
@@ -102,11 +114,7 @@ export class GrampsjsPlaceBox extends GrampsjsConnectedComponent {
       !(parseFloat(lat) === 0 && parseFloat(long) === 0)
     return html`
       <h2>${place.name?.value || place.title || this._('Place')}</h2>
-      ${place.profile?.parent_places?.length > 0
-        ? html`<h4>
-            ${place.profile.parent_places.map(obj => obj.name).join(', ')}
-          </h4>`
-        : ''}
+      ${this._renderSubtitle(place)}
       ${hasCoords
         ? ''
         : html`<p class="no-coords">

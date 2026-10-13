@@ -1,12 +1,14 @@
 import {html, css, LitElement} from 'lit'
-import {mdiEarth, mdiOpenInNew} from '@mdi/js'
+import {mdiEarth, mdiMapMarker, mdiOpenInNew, mdiPlus} from '@mdi/js'
 
 import '@material/web/button/text-button.js'
 
+import './GrampsjsFormNewPlace.js'
 import './GrampsjsIcon.js'
 import {BUILDING_COLOR} from './GrampsjsMapWikidataLayer.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {fireEvent, makeHandle} from '../util.js'
 import {
   formatWikidataTime,
   formatWikidataTimeRange,
@@ -14,6 +16,7 @@ import {
   getDomusUrl,
   getWikidataUrl,
   queryWikidataBuilding,
+  wikidataBuildingToPlace,
 } from '../wikidata.ts'
 
 export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
@@ -102,12 +105,21 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
           font-size: 14px;
         }
 
+        /* The external links stay together on the right, also when the
+           place button takes the line above. */
         .right {
-          text-align: right;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
           position: sticky;
           bottom: 0;
           background: var(--md-sys-color-surface-container-high);
           margin-top: 4px;
+        }
+
+        .links {
+          display: flex;
+          margin-left: auto;
         }
       `,
     ]
@@ -117,8 +129,12 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
     return {
       qid: {type: String},
       label: {type: String},
+      // The tree's place that links this building, if any
+      placeHandle: {type: String},
       _detail: {type: Object},
       _loading: {type: Boolean},
+      _newPlaceOpen: {type: Boolean, state: true},
+      _creatingPlace: {type: Boolean, state: true},
     }
   }
 
@@ -126,8 +142,11 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
     super()
     this.qid = ''
     this.label = ''
+    this.placeHandle = ''
     this._detail = null
     this._loading = false
+    this._newPlaceOpen = false
+    this._creatingPlace = false
   }
 
   updated(changed) {
@@ -136,6 +155,7 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
       changed.has('appState') &&
       prevLang !== undefined &&
       prevLang !== this.appState?.i18n?.lang
+    if (changed.has('qid')) this._newPlaceOpen = false
     if (changed.has('qid') || langChanged) {
       this._fetchDetail()
     }
@@ -187,10 +207,103 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
       </p>
       ${this._loading ? this._renderLoading() : this._renderDetail()}
       <div class="right">
-        ${this._renderExternalButton('Wikidata', getWikidataUrl(this.qid))}
-        ${this._renderExternalButton('Domus', getDomusUrl(this.qid))}
+        ${this._renderPlaceButton()}
+        <span class="links">
+          ${this._renderExternalButton('Wikidata', getWikidataUrl(this.qid))}
+          ${this._renderExternalButton('Domus', getDomusUrl(this.qid))}
+        </span>
+      </div>
+      ${this._newPlaceOpen ? this._renderNewPlaceDialog() : ''}
+    `
+  }
+
+  _renderPlaceButton() {
+    if (this.placeHandle) {
+      return html`
+        <md-text-button @click="${this._handleShowPlace}">
+          ${this._('Open saved place')}
+          <grampsjs-icon
+            .path="${mdiMapMarker}"
+            slot="icon"
+            color="var(--mdc-theme-primary)"
+          ></grampsjs-icon>
+        </md-text-button>
+      `
+    }
+    if (!this.appState?.permissions?.canAdd) return ''
+    return html`
+      <md-text-button
+        ?disabled="${!this._detail}"
+        @click="${this._handleAddPlace}"
+      >
+        ${this._('Save as place')}
+        <grampsjs-icon
+          .path="${mdiPlus}"
+          slot="icon"
+          color="var(--mdc-theme-primary)"
+        ></grampsjs-icon>
+      </md-text-button>
+    `
+  }
+
+  _renderNewPlaceDialog() {
+    return html`
+      <div
+        @object:save="${this._handleNewPlaceSave}"
+        @object:cancel="${this._handleNewPlaceCancel}"
+      >
+        <grampsjs-form-new-place
+          noReset
+          .appState="${this.appState}"
+          .data="${this._newPlaceData}"
+          dialogTitle="${this._('New Place')}"
+        ></grampsjs-form-new-place>
       </div>
     `
+  }
+
+  _handleShowPlace() {
+    fireEvent(this, 'wikidata:place-selected', {
+      handle: this.placeHandle,
+      name: this._detail?.label || this.label,
+    })
+  }
+
+  // Computed once, since the form takes its data as the starting values.
+  _handleAddPlace() {
+    this._newPlaceData = wikidataBuildingToPlace(this.qid, this._detail)
+    this._newPlaceOpen = true
+  }
+
+  // The dialog stays open until the place is created, so a failed request
+  // keeps what the user entered.
+  async _handleNewPlaceSave(e) {
+    e.stopPropagation()
+    if (this._creatingPlace) return
+    this._creatingPlace = true
+    const handle = makeHandle()
+    const payload = {...e.detail.data, handle}
+    let data
+    try {
+      data = await this.appState.apiPost('/api/places/', payload)
+    } finally {
+      this._creatingPlace = false
+    }
+    if (!('data' in data)) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+      return
+    }
+    this._newPlaceOpen = false
+    fireEvent(this, 'wikidata:place-selected', {
+      handle,
+      name: payload.name?.value ?? '',
+    })
+  }
+
+  _handleNewPlaceCancel(e) {
+    e.stopPropagation()
+    if (this._creatingPlace) return
+    this._newPlaceOpen = false
   }
 
   // eslint-disable-next-line class-methods-use-this
