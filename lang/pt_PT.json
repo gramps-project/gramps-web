@@ -456,5 +456,7 @@
     "Text abbreviations (b. d. m. div.)": "Abreviaturas textuais (b. d. m. div.)",
     "Insert image": "Inserir imagem",
     "Invalid region coordinates": "Coordenadas regionais inválidas",
-    "Toggle region outlines": "Alternar os contornos das regiões"
+    "Toggle region outlines": "Alternar os contornos das regiões",
+    "Save as place": "Gravar como local",
+    "Open saved place": "Abrir local gravado"
 }
