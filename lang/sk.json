@@ -455,5 +455,7 @@
     "Text abbreviations (b. d. m. div.)": "Textové skratky (nar. zom. sob. rozv.)",
     "Insert image": "Vložiť obrázok",
     "Invalid region coordinates": "Neplatné súradnice regiónu",
-    "Toggle region outlines": "Prepnúť obrysy regiónov"
+    "Toggle region outlines": "Prepnúť obrysy regiónov",
+    "Save as place": "Uložiť ako miesto",
+    "Open saved place": "Otvoriť uložené miesto"
 }
