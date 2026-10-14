@@ -455,5 +455,7 @@
     "Text abbreviations (b. d. m. div.)": "Tekstafkortingen (geb. ovl. huw. sch.)",
     "Insert image": "Afbeelding invoegen",
     "Invalid region coordinates": "Ongeldige regiocoördinaten",
-    "Toggle region outlines": "Regio contouren in-/uitschakelen"
+    "Toggle region outlines": "Regio contouren in-/uitschakelen",
+    "Save as place": "Opslaan als plaats",
+    "Open saved place": "Opgeslagen plaats openen"
 }
