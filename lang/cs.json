@@ -456,5 +456,6 @@
     "Invalid region coordinates": "Neplatné souřadnice regionu",
     "Toggle region outlines": "Přepnout obrysy regionů",
     "Save as place": "Uložit jako místo",
-    "Open saved place": "Otevřít uložené místo"
+    "Open saved place": "Otevřít uložené místo",
+    "Limit": "Limit"
 }
