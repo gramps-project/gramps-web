@@ -1,6 +1,7 @@
 import {describe, it, expect, afterEach} from 'vitest'
 import {
   appStateUpdatePermissions,
+  isTaskActive,
   isTaskInTree,
   shouldSignalTreeMissing,
 } from '../../src/appState.js'
@@ -152,5 +153,19 @@ describe('isTaskInTree', () => {
 
   it('keeps all tasks when the current tree is unknown', () => {
     expect(isTaskInTree({tree: 'tree-b'}, undefined)).to.be.true
+  })
+})
+
+describe('isTaskActive', () => {
+  it('uses the status field when present', () => {
+    expect(isTaskActive({status: 'queued', state: 'PENDING'})).to.be.true
+    expect(isTaskActive({status: 'running', state: 'PROGRESS'})).to.be.true
+    expect(isTaskActive({status: 'lost', state: 'FAILURE'})).to.be.false
+    expect(isTaskActive({status: 'unknown', state: 'PENDING'})).to.be.false
+  })
+
+  it('falls back to the Celery state without a status field', () => {
+    expect(isTaskActive({state: 'STARTED'})).to.be.true
+    expect(isTaskActive({state: 'SUCCESS'})).to.be.false
   })
 })

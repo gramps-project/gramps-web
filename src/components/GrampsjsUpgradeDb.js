@@ -6,6 +6,7 @@ import {sharedStyles} from '../SharedStyles.js'
 
 import {mdiLogout} from '@mdi/js'
 import {fireEvent} from '../util.js'
+import {dispatchErrorMessage} from '../taskResponse.js'
 import '@material/web/button/filled-button.js'
 import '@material/web/button/outlined-button.js'
 import './GrampsjsIcon.js'
@@ -94,7 +95,7 @@ class GrampsjsUpgradeDb extends GrampsjsAppStateMixin(LitElement) {
     const data = await this.appState.apiPost('/api/trees/-/migrate')
     if ('error' in data) {
       prog.setError()
-      prog.errorMessage = data.error
+      prog.errorMessage = dispatchErrorMessage(this.appState, data)
     } else if ('task' in data) {
       const taskId = data.task?.id || ''
       prog.taskId = taskId

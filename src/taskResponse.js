@@ -1,4 +1,21 @@
-import {getTaskResult} from './util.js'
+import {getTaskResult, translate} from './util.js'
+
+const TASK_LOCKED_MESSAGE =
+  'Another task is already running on this tree. Try again once it has finished.'
+
+/**
+ * Returns the message to show for a failed POST that dispatches a background
+ * task. A 409 of type `task_locked` means another task holds the tree's lock;
+ * the active tasks are reloaded so the blocking one shows its progress.
+ */
+export function dispatchErrorMessage(appState, res) {
+  const {status, response} = res.errorDetail ?? {}
+  if (status !== 409 || response?.error?.type !== 'task_locked') {
+    return res.error
+  }
+  appState.loadActiveTasks?.()
+  return translate(appState.i18n?.strings ?? {}, TASK_LOCKED_MESSAGE)
+}
 
 // Resolves with the final status of a task once appState reports it as
 // finished. appState fires these events on window with the task id; the
@@ -32,9 +49,10 @@ export async function awaitTaskResponse(
   {prog, label, taskName}
 ) {
   if ('error' in res) {
+    const error = dispatchErrorMessage(appState, res)
     prog.setError()
-    prog.errorMessage = res.error
-    return {error: res.error}
+    prog.errorMessage = error
+    return {error}
   }
   if (!('task' in res)) {
     prog.setComplete()

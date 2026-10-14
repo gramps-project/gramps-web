@@ -451,5 +451,7 @@
   "Insert image": "Insert image",
   "Save as place": "Save as place",
   "Open saved place": "Open saved place",
-  "Limit": "Limit"
+  "Limit": "Limit",
+  "Another task is already running on this tree. Try again once it has finished.": "Another task is already running on this tree. Try again once it has finished.",
+  "Task completed": "Task completed"
 }
