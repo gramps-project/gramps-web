@@ -455,5 +455,8 @@
     "Problems found in this file": "Fadhbanna aimsithe sa chomhad seo",
     "Insert image": "Cuir íomhá isteach",
     "Invalid region coordinates": "Comhordanáidí réigiúin neamhbhailí",
-    "Toggle region outlines": "Scoránaigh imlínte réigiún"
+    "Toggle region outlines": "Scoránaigh imlínte réigiún",
+    "Save as place": "Sábháil mar áit",
+    "Open saved place": "Oscail an áit shábháilte",
+    "Limit": "Teorainn"
 }
