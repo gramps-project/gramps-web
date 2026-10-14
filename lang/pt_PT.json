@@ -458,5 +458,6 @@
     "Invalid region coordinates": "Coordenadas regionais inválidas",
     "Toggle region outlines": "Alternar os contornos das regiões",
     "Save as place": "Gravar como local",
-    "Open saved place": "Abrir local gravado"
+    "Open saved place": "Abrir local gravado",
+    "Limit": "Limite"
 }
