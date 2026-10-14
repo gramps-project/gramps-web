@@ -1105,4 +1105,56 @@ export function getTaskResult(status) {
   }
 }
 
+const RATE_LIMIT_UNITS = [
+  ['day', 86400],
+  ['hour', 3600],
+  ['minute', 60],
+  ['second', 1],
+]
+
+// Formats a rate limit window in seconds in the largest whole unit, as
+// "day" for a single unit and "2 days" for several.
+function formatRateLimitWindow(seconds, locale) {
+  const [unit, unitSeconds] = RATE_LIMIT_UNITS.find(
+    ([, s]) => seconds % s === 0
+  )
+  const count = seconds / unitSeconds
+  if (count === 1) {
+    return new Intl.DisplayNames(locale, {type: 'dateTimeField'}).of(unit)
+  }
+  return new Intl.NumberFormat(locale, {
+    style: 'unit',
+    unit,
+    unitDisplay: 'long',
+  }).format(count)
+}
+
+// Formats structured rate limits from the metadata endpoint, a list of
+// `{amount, window_seconds}`, as e.g. "1/day, 100/2 hours".
+export function formatRateLimit(limits, lang = 'en') {
+  const valid = (limits ?? []).filter(
+    l =>
+      Number.isInteger(l?.amount) &&
+      Number.isInteger(l?.window_seconds) &&
+      l.window_seconds > 0
+  )
+  if (!valid.length) {
+    return ''
+  }
+  let locale = (lang || 'en').replace('_', '-')
+  try {
+    Intl.getCanonicalLocales(locale)
+  } catch {
+    locale = 'en'
+  }
+  return valid
+    .map(
+      l =>
+        `${new Intl.NumberFormat(locale).format(
+          l.amount
+        )}/${formatRateLimitWindow(l.window_seconds, locale)}`
+    )
+    .join(', ')
+}
+
 //

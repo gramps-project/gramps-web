@@ -8,6 +8,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsImportExportReport.js'
 import {getExporterDownloadUrl, getPermissions} from '../api.js'
+import {formatRateLimit} from '../util.js'
 import {awaitTaskResponse} from '../taskResponse.js'
 
 export class GrampsjsViewExport extends GrampsjsView {
@@ -232,9 +233,20 @@ export class GrampsjsViewExport extends GrampsjsView {
     const prog = this.renderRoot.querySelector('#indicator-media')
     prog.reset()
     prog.open = true
-    const res = await this.appState.apiPost('/api/media/archive/')
+    let res = await this.appState.apiPost('/api/media/archive/')
     if (this._mediaOp !== op) {
       return
+    }
+    // The backend limits media archives per user (RATE_LIMIT_MEDIA_ARCHIVE).
+    if (res.errorDetail?.status === 429) {
+      const limit = formatRateLimit(
+        this.appState.dbInfo?.server?.rate_limit_media_archive,
+        this.appState.i18n?.lang
+      )
+      const message = this._('Too many requests. Please try again later.')
+      res = {
+        error: limit ? `${message} ${this._('Limit')}: ${limit}` : message,
+      }
     }
     const {data} = await awaitTaskResponse(this.appState, res, {
       prog,
