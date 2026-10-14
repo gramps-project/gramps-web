@@ -456,5 +456,8 @@
     "Text abbreviations (b. d. m. div.)": "Textabkürzungen (geb. gest. gesch.)",
     "Insert image": "Bild einfügen",
     "Invalid region coordinates": "Ungültige Bereichskoordinaten",
-    "Toggle region outlines": "Regionskonturen ein-/ausblenden"
+    "Toggle region outlines": "Regionskonturen ein-/ausblenden",
+    "Save as place": "Als Ort speichern",
+    "Open saved place": "Gespeicherten Ort öffnen",
+    "Limit": "Limit"
 }
