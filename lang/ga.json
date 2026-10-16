@@ -458,5 +458,9 @@
     "Toggle region outlines": "Scoránaigh imlínte réigiún",
     "Save as place": "Sábháil mar áit",
     "Open saved place": "Oscail an áit shábháilte",
-    "Limit": "Teorainn"
+    "Limit": "Teorainn",
+    "Profile picture": "Pictiúr próifíle",
+    "Add profile picture": "Cuir pictiúr próifíle leis",
+    "Another task is already running on this tree. Try again once it has finished.": "Tá tasc eile ag rith ar an gcrann seo cheana féin. Bain triail as arís nuair a bheidh sé críochnaithe.",
+    "Task completed": "Tasc críochnaithe"
 }
