@@ -1,29 +1,35 @@
-import {css, html} from 'lit'
+import {css, html, LitElement} from 'lit'
 import '@material/web/button/outlined-button.js'
 import '@material/web/button/filled-button.js'
 import '@material/web/button/text-button.js'
 import '@material/web/dialog/dialog.js'
 import '@material/web/iconbutton/icon-button.js'
 import {
+  mdiAlertOutline,
   mdiBackupRestore,
   mdiDatabaseExport,
   mdiDelete,
   mdiDownload,
 } from '@mdi/js'
 
-import {GrampsjsTableBase} from './GrampsjsTableBase.js'
+import {sharedStyles} from '../SharedStyles.js'
+import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormUpload.js'
 import './GrampsjsTaskProgressIndicator.js'
 import './GrampsjsBackupRestoreDialog.js'
 import './GrampsjsRestoreBackupConfirmDialog.js'
 import './GrampsjsRelogin.js'
+import './GrampsjsTimedelta.js'
+import './GrampsjsTable.js'
+import './GrampsjsTooltip.js'
 import {getExporterDownloadUrl} from '../api.js'
 import {fireEvent, formatBytes, formatRateLimit} from '../util.js'
 import {awaitTaskResponse} from '../taskResponse.js'
 import {
   backupFileType,
   backupRestoreUrl,
+  backupTimestamp,
   formatBackupCount,
   formatBackupDate,
   xmlRestoreUrl,
@@ -35,38 +41,15 @@ import {
  * backup archive or Gramps XML. Backends without backup support only restore
  * from Gramps XML.
  */
-export class GrampsjsBackups extends GrampsjsTableBase {
+export class GrampsjsBackups extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
-      super.styles,
+      sharedStyles,
       css`
         h3 {
           font-size: 1.1em;
           font-weight: 500;
           margin: 2em 0 0.5em;
-        }
-
-        table {
-          width: 100%;
-          margin-top: 0;
-        }
-
-        td.number,
-        th.number {
-          text-align: right;
-        }
-
-        .actions {
-          display: flex;
-          gap: 4px;
-          justify-content: flex-end;
-          align-items: center;
-        }
-
-        .not-restorable {
-          display: block;
-          font-size: 13px;
-          margin-top: 4px;
         }
 
         .small {
@@ -187,7 +170,6 @@ export class GrampsjsBackups extends GrampsjsTableBase {
         ></grampsjs-form-upload>
       </p>
       <p class="small">
-        ${this._('Format:')}
         ${this._archivesSupported
           ? 'Gramps Web (.tar), Gramps XML (.gramps)'
           : 'Gramps XML (.gramps)'}
@@ -243,10 +225,6 @@ export class GrampsjsBackups extends GrampsjsTableBase {
 
   _renderStored() {
     const server = this.appState.dbInfo.server
-    const limit = formatRateLimit(
-      server.rate_limit_backup,
-      this.appState.i18n?.lang
-    )
     return html`
       <p class="button-row">
         <md-outlined-button
@@ -268,15 +246,14 @@ export class GrampsjsBackups extends GrampsjsTableBase {
           @task:complete="${this._handleOtherCreateComplete}"
         ></grampsjs-task-progress-indicator>
       </p>
-      <p class="small">
-        ${server.backup_keep
-          ? this._(
+      ${server.backup_keep
+        ? html`<p class="small">
+            ${this._(
               'The newest %s backups are kept, older ones are deleted automatically.',
               server.backup_keep
-            )
-          : ''}
-        ${limit ? html`${this._('Limit')}: ${limit}` : ''}
-      </p>
+            )}
+          </p>`
+        : ''}
       ${this._renderList()}
     `
   }
@@ -294,80 +271,95 @@ export class GrampsjsBackups extends GrampsjsTableBase {
       return ''
     }
     const lang = this.appState.i18n?.lang
+    const columns = [
+      {name: 'Date', format: backup => this._renderDate(backup)},
+      {name: 'People'},
+      {name: 'Size'},
+      {name: '', format: backup => this._renderActions(backup)},
+    ]
+    const data = this._backups.map(backup => [
+      backup,
+      formatBackupCount(backup.manifest?.object_counts?.people, lang),
+      formatBytes(backup.size ?? 0),
+      backup,
+    ])
     return html`
-      <table>
-        <thead>
-          <tr>
-            <th>${this._('Date')}</th>
-            <th class="number">${this._('People')}</th>
-            <th class="number">${this._('Size')}</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          ${this._backups.map(
-            backup => html`
-              <tr>
-                <td>
-                  ${formatBackupDate(backup.manifest?.created, lang)}
-                  ${backup.restorable
-                    ? ''
-                    : html`<span class="not-restorable warn"
-                        >${this._(
-                          'This backup was made with a newer version and cannot be restored on this server.'
-                        )}</span
-                      >`}
-                </td>
-                <td class="number">
-                  ${formatBackupCount(
-                    backup.manifest?.object_counts?.people,
-                    lang
-                  )}
-                </td>
-                <td class="number">${formatBytes(backup.size ?? 0)}</td>
-                <td>
-                  <div class="actions">
-                    <md-icon-button
-                      aria-label="${this._('Download')}"
-                      title="${this._('Download')}"
-                      @click="${() => this._download(backup)}"
-                    >
-                      <grampsjs-icon
-                        path="${mdiDownload}"
-                        color="var(--mdc-theme-secondary)"
-                      ></grampsjs-icon>
-                    </md-icon-button>
-                    <md-icon-button
-                      aria-label="${this._('Restore')}"
-                      title="${this._('Restore')}"
-                      ?disabled="${!backup.restorable || this._restoring}"
-                      @click="${() => this._startRestore(backup)}"
-                    >
-                      <grampsjs-icon
-                        path="${mdiBackupRestore}"
-                        color="var(--grampsjs-alert-error-font-color)"
-                      ></grampsjs-icon>
-                    </md-icon-button>
-                    <md-icon-button
-                      aria-label="${this._('Delete')}"
-                      title="${this._('Delete')}"
-                      @click="${() => {
-                        this._deleteTarget = backup
-                      }}"
-                    >
-                      <grampsjs-icon
-                        path="${mdiDelete}"
-                        color="var(--mdc-theme-secondary)"
-                      ></grampsjs-icon>
-                    </md-icon-button>
-                  </div>
-                </td>
-              </tr>
-            `
-          )}
-        </tbody>
-      </table>
+      <grampsjs-table
+        .appState="${this.appState}"
+        .columns="${columns}"
+        .data="${data}"
+      ></grampsjs-table>
     `
+  }
+
+  _renderDate(backup) {
+    const timestamp = backupTimestamp(backup.manifest?.created)
+    // rendered inside grampsjs-table, which this component's styles don't
+    // reach, hence the inline styles
+    return html`<span style="display:inline-flex;align-items:center;gap:6px;">
+      ${timestamp === null
+        ? backup.manifest?.created ?? ''
+        : html`<grampsjs-timedelta
+            timestamp="${timestamp}"
+            locale="${this.appState.i18n?.lang}"
+          ></grampsjs-timedelta>`}
+      ${backup.restorable
+        ? ''
+        : html`<span style="display:inline-flex;"
+            ><grampsjs-icon
+              path="${mdiAlertOutline}"
+              color="var(--grampsjs-alert-warn-font-color)"
+              height="18"
+              width="18"
+            ></grampsjs-icon
+            ><grampsjs-tooltip
+              .appState="${this.appState}"
+              content="${this._(
+                'This backup was made with a newer version and cannot be restored on this server.'
+              )}"
+            ></grampsjs-tooltip
+          ></span>`}
+    </span>`
+  }
+
+  _renderActions(backup) {
+    return html`<div
+      style="display:flex;gap:4px;justify-content:flex-end;align-items:center;"
+    >
+      <md-icon-button
+        aria-label="${this._('Download')}"
+        title="${this._('Download')}"
+        @click="${() => this._download(backup)}"
+      >
+        <grampsjs-icon
+          path="${mdiDownload}"
+          color="var(--mdc-theme-secondary)"
+        ></grampsjs-icon>
+      </md-icon-button>
+      <md-icon-button
+        aria-label="${this._('Restore')}"
+        title="${this._('Restore')}"
+        ?disabled="${!backup.restorable || this._restoring}"
+        @click="${() => this._startRestore(backup)}"
+      >
+        <grampsjs-icon
+          path="${mdiBackupRestore}"
+          color="var(--grampsjs-alert-error-font-color)"
+        ></grampsjs-icon>
+      </md-icon-button>
+      <md-icon-button
+        aria-label="${this._('Delete')}"
+        title="${this._('Delete')}"
+        @click="${() => {
+          this._deleteTarget = backup
+        }}"
+      >
+        <grampsjs-icon
+          path="${mdiDelete}"
+          color="var(--mdc-theme-secondary)"
+        ></grampsjs-icon>
+      </md-icon-button>
+    </div>`
   }
 
   _renderDeleteDialog() {

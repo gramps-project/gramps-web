@@ -24,6 +24,13 @@ export function formatBackupDate(created, lang = 'en') {
   })
 }
 
+// A backup's creation time from its manifest as a Unix timestamp in seconds,
+// or null if it can't be parsed.
+export function backupTimestamp(created) {
+  const ms = Date.parse(created ?? '')
+  return Number.isNaN(ms) ? null : ms / 1000
+}
+
 // Formats a count from a backup's manifest.
 export function formatBackupCount(count, lang = 'en') {
   return new Intl.NumberFormat(intlLocale(lang)).format(count ?? 0)

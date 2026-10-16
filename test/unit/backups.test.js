@@ -2,6 +2,7 @@ import {describe, it, expect} from 'vitest'
 import {
   backupFileType,
   backupRestoreUrl,
+  backupTimestamp,
   formatBackupCount,
   formatBackupDate,
   xmlRestoreUrl,
@@ -99,5 +100,16 @@ describe('backupFileType', () => {
     expect(backupFileType('tree.gpkg')).toBe('')
     expect(backupFileType('backup.tar.gz')).toBe('')
     expect(backupFileType(undefined)).toBe('')
+  })
+})
+
+describe('backupTimestamp', () => {
+  it('converts a manifest date to Unix seconds', () => {
+    expect(backupTimestamp('2026-10-14T12:00:00Z')).toBe(1791979200)
+  })
+
+  it('returns null for missing or unparseable dates', () => {
+    expect(backupTimestamp(undefined)).toBe(null)
+    expect(backupTimestamp('garbage')).toBe(null)
   })
 })

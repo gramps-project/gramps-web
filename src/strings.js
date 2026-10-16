@@ -1108,5 +1108,4 @@ export const grampsStrings = [
   'Size',
   'Delete %s?',
   'Make Backup...',
-  'Format:',
 ]

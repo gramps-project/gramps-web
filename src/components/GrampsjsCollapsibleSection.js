@@ -5,7 +5,7 @@ import './GrampsjsIcon.js'
 export class GrampsjsCollapsibleSection extends LitElement {
   static get properties() {
     return {
-      title: {type: String},
+      heading: {type: String},
       description: {type: String},
       open: {type: Boolean},
     }
@@ -13,7 +13,7 @@ export class GrampsjsCollapsibleSection extends LitElement {
 
   constructor() {
     super()
-    this.title = ''
+    this.heading = ''
     this.description = ''
     this.open = false
   }
@@ -89,7 +89,7 @@ export class GrampsjsCollapsibleSection extends LitElement {
               color="var(--md-sys-color-on-surface)"
             ></grampsjs-icon>
           </span>
-          <span class="title">${this.title}</span>
+          <span class="title">${this.heading}</span>
           ${this.description
             ? html`<span class="description">${this.description}</span>`
             : ''}

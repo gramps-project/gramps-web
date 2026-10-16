@@ -259,7 +259,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       </p>
 
       <grampsjs-collapsible-section
-        title="${this._('Data')}"
+        heading="${this._('Data')}"
         description="${this._(
           'Quotas, imports, media, and storage management'
         )}"
@@ -284,7 +284,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
-        title="${this._('Search index')}"
+        heading="${this._('Search index')}"
         description="${this._('Manage and rebuild the search index')}"
       >
         <h3>${this._('Manage search index')}</h3>
@@ -361,7 +361,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
-        title="${this._('Tree settings')}"
+        heading="${this._('Tree settings')}"
         description="${this._('Tree name and researcher information')}"
       >
         <h3>${this._('Family Tree name')}</h3>
@@ -387,7 +387,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
-        title="${this._('Customization')}"
+        heading="${this._('Customization')}"
         description="${this._('Colors, branding, and visual appearance')}"
       >
         <h3>${this._('Theme colors')}</h3>
@@ -543,7 +543,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
-        title="${this._('Family Tree Processing')}"
+        heading="${this._('Family Tree Processing')}"
         description="${this._(
           'Database checks, repairs, and other operations'
         )}"
@@ -599,7 +599,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
-        title="${this._('Tags')}"
+        heading="${this._('Tags')}"
         description="${this._('Organize Tags')}"
       >
         <p>
@@ -621,7 +621,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
-        title="${this._('Backups')}"
+        heading="${this._('Backups')}"
         description="${this._(
           'Create, download, and restore backups of the tree'
         )}"
@@ -633,7 +633,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
-        title="${this._('Danger Zone')}"
+        heading="${this._('Danger Zone')}"
         description="${this._('Irreversible operations on tree data')}"
       >
         <div class="danger-zone">

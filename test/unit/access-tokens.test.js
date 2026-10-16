@@ -119,9 +119,9 @@ describe('access tokens in the user settings view', () => {
     const content = templateMarkup(createView('3.18.0').renderContent())
 
     expect(content).to.match(
-      /title="Account"(?:(?!<\/grampsjs-collapsible-section>)[\s\S])*<h3>Access tokens<\/h3>\s*<grampsjs-access-tokens/
+      /heading="Account"(?:(?!<\/grampsjs-collapsible-section>)[\s\S])*<h3>Access tokens<\/h3>\s*<grampsjs-access-tokens/
     )
-    expect(content).not.to.contain('title="Access tokens"')
+    expect(content).not.to.contain('heading="Access tokens"')
   })
 })
 
