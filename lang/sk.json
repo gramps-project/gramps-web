@@ -462,5 +462,14 @@
     "Profile picture": "Profilový obrázok",
     "Add profile picture": "Pridať profilový obrázok",
     "Another task is already running on this tree. Try again once it has finished.": "Na tomto rodostrome už prebieha iná úloha. Skúste to znova, až sa dokončí.",
-    "Task completed": "Úloha bola dokončená"
+    "Task completed": "Úloha bola dokončená",
+    "A backup contains the family tree data including private records, the tree settings and the users of the tree. Media files are not included.": "Záloha obsahuje údaje o rodokmeni vrátane súkromných záznamov, nastavení rodokmeňa a používateľov rodokmeňa. Mediálne súbory nie sú súčasťou zálohy.",
+    "Create, download, and restore backups of the tree": "Vytvárajte, sťahujte a obnovujte zálohy rodokmeňa",
+    "The newest %s backups are kept, older ones are deleted automatically.": "Uchovávajú sa %s najnovších záloh, staršie sa automaticky vymažú.",
+    "This backup was made with a newer version and cannot be restored on this server.": "Táto záloha bola vytvorená pomocou novšej verzie a na tomto serveri ju nie je možné obnoviť.",
+    "Users": "Používatelia",
+    "Backups": "Zálohy",
+    "Storing backups is not configured on this server.": "Na tomto serveri nie je nastavené ukladanie záloh.",
+    "Added users get a random password, so they can sign in after resetting it.": "Pridaní používatelia dostanú náhodné heslo, aby sa mohli prihlásiť po jeho obnovení.",
+    "The files of %s media objects in the backup are missing on this server.": "Na tomto serveri chýbajú súbory %s mediálnych objektov zo zálohy."
 }
