@@ -1058,7 +1058,7 @@ export class GrampsJs extends LitElement {
     }
 
     if (path.includes('/oidc/complete')) {
-      handleOIDCComplete(msg => this._showError(msg))
+      handleOIDCComplete(msg => this._showError(msg), this.appState)
       return
     }
 

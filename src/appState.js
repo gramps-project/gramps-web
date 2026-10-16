@@ -357,7 +357,13 @@ export function getInitialAppState() {
         activeSaveCount += 1
         notifyCounters()
       }
-      return apiPutPostDelete(auth, 'DELETE', endpoint, {}, options)
+      return apiPutPostDelete(
+        auth,
+        'DELETE',
+        endpoint,
+        options.payload ?? {},
+        options
+      )
         .then(result => (isSave ? completeSave(result) : result))
         .then(checkTreeMissing)
     },
