@@ -8,6 +8,7 @@ import '@material/web/dialog/dialog.js'
 import '@material/web/iconbutton/icon-button.js'
 import {
   mdiAlertCircleOutline,
+  mdiCheckCircleOutline,
   mdiInformationOutline,
   mdiAlertOutline,
   mdiDeleteSweep,
@@ -24,12 +25,14 @@ const TYPE_ICON = {
   error: mdiAlertCircleOutline,
   warning: mdiAlertOutline,
   info: mdiInformationOutline,
+  success: mdiCheckCircleOutline,
 }
 
 const TYPE_COLOR = {
   error: 'var(--md-sys-color-error)',
   warning: 'var(--md-sys-color-tertiary)',
   info: 'var(--md-sys-color-primary)',
+  success: 'var(--grampsjs-alert-success-font-color)',
 }
 
 export class GrampsjsViewNotificationLog extends GrampsjsView {
@@ -238,7 +241,7 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
                       ${n.source === 'task' ? this._(n.message) : n.message}
                     </div>
                     <div slot="supporting-text">
-                      ${this._sourceLabel(n.source)} &middot;
+                      ${this._sourceLabel(n)} &middot;
                       <grampsjs-timedelta
                         timestamp="${n.timestamp.getTime() / 1000}"
                         locale="${this.appState?.i18n?.lang || 'en'}"
@@ -269,14 +272,20 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
                   : this._selectedNotification.message}
               </div>
               <div slot="content">
-                <dl>
-                  ${Object.entries(this._selectedNotification.detail).map(
-                    ([k, v]) => html`
-                      <dt>${k}</dt>
-                      <dd>${typeof v === 'object' ? JSON.stringify(v) : v}</dd>
-                    `
-                  )}
-                </dl>
+                ${this._failureMessage(this._selectedNotification)
+                  ? html`<p>
+                      ${this._failureMessage(this._selectedNotification)}
+                    </p>`
+                  : html`<dl>
+                      ${Object.entries(this._selectedNotification.detail).map(
+                        ([k, v]) => html`
+                          <dt>${k}</dt>
+                          <dd>
+                            ${typeof v === 'object' ? JSON.stringify(v) : v}
+                          </dd>
+                        `
+                      )}
+                    </dl>`}
               </div>
               <div slot="actions">
                 <div class="dialog-actions">
@@ -334,14 +343,36 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
     this._selectedNotification = n
   }
 
-  _sourceLabel(source) {
+  // Finished tasks state their outcome; other entries name their source.
+  _sourceLabel(n) {
+    if (n.source === 'task' && n.type === 'success') {
+      return this._('Task completed')
+    }
+    if (n.source === 'task' && n.type === 'error') {
+      return this._('Task failed')
+    }
     const labels = {
       api: this._('Network'),
       task: this._('Task'),
       save: this._('_Save'),
       browser: this._('Browser'),
     }
-    return labels[source] ?? source
+    return labels[n.source] ?? n.source
+  }
+
+  // The error message of a failed task, shown in place of the raw details
+  // (which stay available via Copy JSON). Empty when the failure carries no
+  // plain-text message.
+  // eslint-disable-next-line class-methods-use-this
+  _failureMessage(n) {
+    if (n.source !== 'task' || n.type !== 'error') {
+      return ''
+    }
+    const {info, result_object: resultObject} = n.detail ?? {}
+    if (typeof info === 'string' && info) {
+      return info
+    }
+    return typeof resultObject === 'string' ? resultObject : ''
   }
 }
 
