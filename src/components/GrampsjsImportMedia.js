@@ -5,6 +5,7 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 import {fireEvent} from '../util.js'
+import {dispatchErrorMessage} from '../taskResponse.js'
 import './GrampsjsFormUpload.js'
 import './GrampsjsTaskProgressIndicator.js'
 
@@ -99,7 +100,7 @@ export class GrampsjsImportMedia extends GrampsjsAppStateMixin(LitElement) {
     )
     if ('error' in res) {
       prog.setError()
-      prog.errorMessage = this._(res.error)
+      prog.errorMessage = this._(dispatchErrorMessage(this.appState, res))
       this._handleCompletedMedia(STATE_ERROR)
     } else if ('task' in res) {
       const taskId = res.task?.id || ''

@@ -456,5 +456,6 @@
     "Invalid region coordinates": "無効な地域の座標",
     "Toggle region outlines": "地域の輪郭の表示を切り替え",
     "Save as place": "場所として保存",
-    "Open saved place": "保存した場所を開く"
+    "Open saved place": "保存した場所を開く",
+    "Limit": "制限"
 }

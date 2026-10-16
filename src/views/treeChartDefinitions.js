@@ -181,6 +181,7 @@ function renderFanColorControls(view) {
       <md-menu
         id="usage-menu"
         anchor="btn-color"
+        positioning="popover"
         skip-restore-focus
         @close-menu=${menuSelectionHandler(item =>
           setColor(item.dataset.value)

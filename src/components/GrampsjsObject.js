@@ -834,6 +834,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           .appState="${this.appState}"
           .media=${this.data?.extended?.media}
           .mediaRef=${this.data?.media_list}
+          ?profilePicture=${this._objectEndpoint === 'people'}
           ?edit="${this.edit}"
         ></grampsjs-gallery>`
       case 'metadata':

@@ -14,6 +14,7 @@ import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
 
 import {fireEvent, makeHandle} from '../util.js'
+import {dispatchErrorMessage} from '../taskResponse.js'
 import {
   TREE_CONFIG_APP_TITLE,
   TREE_CONFIG_PRIMARY_COLOR,
@@ -844,7 +845,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         return
       }
       prog.setError()
-      prog.errorMessage = res.error
+      prog.errorMessage = dispatchErrorMessage(this.appState, res)
       return
     }
     if ('task' in res) {
@@ -907,7 +908,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     })
     if ('error' in data) {
       prog.setError()
-      prog.errorMessage = data.error
+      prog.errorMessage = dispatchErrorMessage(this.appState, data)
     } else if ('task' in data) {
       const taskId = data.task?.id || ''
       if (taskId)
@@ -951,7 +952,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     const data = await this.appState.apiPost(url, undefined, {dbChanged: false})
     if ('error' in data) {
       prog.setError()
-      prog.errorMessage = data.error
+      prog.errorMessage = dispatchErrorMessage(this.appState, data)
       this._doneUpdateSearch(semantic)
     } else if ('task' in data) {
       const taskId = data.task?.id || ''
@@ -1000,7 +1001,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     })
     if ('error' in data) {
       prog.setError()
-      prog.errorMessage = data.error
+      prog.errorMessage = dispatchErrorMessage(this.appState, data)
     } else if ('task' in data) {
       const taskId = data.task?.id || ''
       if (taskId)

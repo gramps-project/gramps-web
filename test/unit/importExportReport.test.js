@@ -3,7 +3,10 @@ import '../../src/components/GrampsjsImportExportReport.js'
 import '../../src/components/GrampsjsImportCounts.js'
 import {GrampsjsImport} from '../../src/components/GrampsjsImport.js'
 import {GrampsjsViewExport} from '../../src/views/GrampsjsViewExport.js'
-import {awaitTaskResponse} from '../../src/taskResponse.js'
+import {
+  awaitTaskResponse,
+  dispatchErrorMessage,
+} from '../../src/taskResponse.js'
 import {fireEvent, getTaskResult} from '../../src/util.js'
 
 const mounted = []
@@ -174,6 +177,39 @@ describe('awaitTaskResponse', () => {
     finishTask('t1', {state: 'FAILURE', info: 'boom'})
 
     expect(await pending).toEqual({error: 'boom'})
+  })
+})
+
+describe('dispatchErrorMessage', () => {
+  const locked = {
+    error: 'Another task is already running on this tree',
+    errorDetail: {
+      status: 409,
+      response: {
+        error: {
+          code: 409,
+          type: 'task_locked',
+          task: {href: '/api/tasks/t9', id: 't9'},
+        },
+      },
+    },
+  }
+
+  it('returns other errors unchanged', () => {
+    const state = {loadActiveTasks: vi.fn(), i18n: {strings: {}}}
+    const res = {error: 'nope', errorDetail: {status: 409, response: {}}}
+
+    expect(dispatchErrorMessage(state, res)).toBe('nope')
+    expect(state.loadActiveTasks).not.toHaveBeenCalled()
+  })
+
+  it('translates a task lock and loads the blocking task', () => {
+    const key =
+      'Another task is already running on this tree. Try again once it has finished.'
+    const state = {loadActiveTasks: vi.fn(), i18n: {strings: {[key]: 'Busy'}}}
+
+    expect(dispatchErrorMessage(state, locked)).toBe('Busy')
+    expect(state.loadActiveTasks).toHaveBeenCalled()
   })
 })
 

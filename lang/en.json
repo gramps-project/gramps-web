@@ -1,4 +1,6 @@
 {
+  "Profile picture": "Profile picture",
+  "Add profile picture": "Add profile picture",
   "Fit to window": "Fit to window",
   "Center on selected person": "Center on selected person",
   "Move the chart": "Move the chart",
@@ -493,5 +495,7 @@
   "Customize": "Customize",
   "Anniversary calendar (ICS)": "Anniversary calendar (ICS)",
   "Subscribe to family anniversaries from your calendar app": "Subscribe to family anniversaries from your calendar app",
-  "Save": "Save"
+  "Save": "Save",
+  "Another task is already running on this tree. Try again once it has finished.": "Another task is already running on this tree. Try again once it has finished.",
+  "Task completed": "Task completed"
 }
