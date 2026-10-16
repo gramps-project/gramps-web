@@ -459,5 +459,9 @@
     "Toggle region outlines": "Regionskonturen ein-/ausblenden",
     "Save as place": "Als Ort speichern",
     "Open saved place": "Gespeicherten Ort öffnen",
-    "Limit": "Limit"
+    "Limit": "Limit",
+    "Profile picture": "Profilbild",
+    "Add profile picture": "Profilbild hinzufügen",
+    "Another task is already running on this tree. Try again once it has finished.": "Auf diesem Baum wird bereits eine andere Aufgabe ausgeführt. Versuch es erneut, sobald diese abgeschlossen ist.",
+    "Task completed": "Aufgabe abgeschlossen"
 }
