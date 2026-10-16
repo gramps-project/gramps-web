@@ -459,5 +459,9 @@
     "Toggle region outlines": "Alternar os contornos das regiões",
     "Save as place": "Gravar como local",
     "Open saved place": "Abrir local gravado",
-    "Limit": "Limite"
+    "Limit": "Limite",
+    "Profile picture": "Forografia do perfil",
+    "Add profile picture": "Adicionar fotografia ao perfil",
+    "Another task is already running on this tree. Try again once it has finished.": "Já está outra tarefa em execução nesta árvore. Tente novamente mais tarde.",
+    "Task completed": "Tarefa concluída"
 }
