@@ -10,11 +10,26 @@ import '@material/web/textfield/filled-text-field'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {__APIHOST__, apiGetOIDCConfig} from '../api.js'
-import {OIDC_LINK_RESULT_KEY} from '../oidc.js'
+import {OIDC_LINK_RESULT_KEY, OIDC_RETURN_PATH_KEY} from '../oidc.js'
 import {fireEvent} from '../util.js'
 import './GrampsjsRelogin.js'
 
 const ACCOUNTS_ENDPOINT = '/api/users/-/oidc-accounts/'
+
+// An action interrupted by signing in again through the provider, which
+// leaves the page; resumed when the settings page loads again.
+const RESUME_KEY = 'oidc_resume_action'
+const RESUME_MAX_AGE_MS = 10 * 60 * 1000
+
+function takeResumeAction() {
+  try {
+    const value = JSON.parse(sessionStorage.getItem(RESUME_KEY))
+    sessionStorage.removeItem(RESUME_KEY)
+    return value && Date.now() - value.at < RESUME_MAX_AGE_MS ? value : null
+  } catch {
+    return null
+  }
+}
 
 // The API returns UTC timestamps without a time zone designator.
 function parseUtcDate(value) {
@@ -240,6 +255,19 @@ export class GrampsjsOidcAccounts extends GrampsjsAppStateMixin(LitElement) {
     this._accounts = Array.isArray(result.data) ? result.data : []
     this._status = 'ready'
     this._reportLinkResult()
+    this._resumeAction()
+  }
+
+  _resumeAction() {
+    const action = takeResumeAction()
+    if (action?.link) {
+      this._link(action.link)
+    } else if (action?.unlink) {
+      const account = this._accounts.find(a => a.id === action.unlink)
+      if (account) {
+        this._requestUnlink(account)
+      }
+    }
   }
 
   _reportLinkResult() {
@@ -265,12 +293,25 @@ export class GrampsjsOidcAccounts extends GrampsjsAppStateMixin(LitElement) {
   }
 
   // Linking and unlinking need a recent login; asks for one first if needed.
-  _whenFresh(action) {
+  // `resume` describes the action, should signing in leave the page.
+  _whenFresh(action, resume) {
     if (this.appState.auth.isTokenFresh()) {
       action()
       return
     }
     this._pendingAction = action
+    if (this.appState.auth.claims?.oidc_provider) {
+      // signing in again goes through the provider, a full page load
+      try {
+        sessionStorage.setItem(
+          RESUME_KEY,
+          JSON.stringify({...resume, at: Date.now()})
+        )
+        sessionStorage.setItem(OIDC_RETURN_PATH_KEY, window.location.pathname)
+      } catch {
+        // then the user starts the action again after signing in
+      }
+    }
     this.renderRoot.querySelector('grampsjs-relogin').show()
   }
 
@@ -281,29 +322,35 @@ export class GrampsjsOidcAccounts extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _link(providerId) {
-    this._whenFresh(async () => {
-      const result = await this.appState.apiPost(
-        '/api/oidc/link/',
-        {provider: providerId},
-        {dbChanged: false, saving: false, requireFresh: true}
-      )
-      if ('error' in result) {
-        fireEvent(this, 'grampsjs:error', {message: result.error})
-        return
-      }
-      const query = new URLSearchParams({
-        provider: providerId,
-        link: result.data.ticket,
-      })
-      window.location.href = `${__APIHOST__}/api/oidc/login/?${query}`
-    })
+    this._whenFresh(
+      async () => {
+        const result = await this.appState.apiPost(
+          '/api/oidc/link/',
+          {provider: providerId},
+          {dbChanged: false, saving: false, requireFresh: true}
+        )
+        if ('error' in result) {
+          fireEvent(this, 'grampsjs:error', {message: result.error})
+          return
+        }
+        const query = new URLSearchParams({
+          provider: providerId,
+          link: result.data.ticket,
+        })
+        window.location.href = `${__APIHOST__}/api/oidc/login/?${query}`
+      },
+      {link: providerId}
+    )
   }
 
   _requestUnlink(account) {
-    this._whenFresh(() => {
-      this._unlinkError = ''
-      this._pendingUnlink = account
-    })
+    this._whenFresh(
+      () => {
+        this._unlinkError = ''
+        this._pendingUnlink = account
+      },
+      {unlink: account.id}
+    )
   }
 
   _cancelUnlink() {

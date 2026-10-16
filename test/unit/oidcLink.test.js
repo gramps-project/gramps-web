@@ -1,5 +1,10 @@
 import {describe, it, expect, vi, beforeEach} from 'vitest'
-import {completeLink, OIDC_LINK_RESULT_KEY} from '../../src/oidc.js'
+import {
+  completeLink,
+  OIDC_LINK_RESULT_KEY,
+  OIDC_RETURN_PATH_KEY,
+  takeReturnPath,
+} from '../../src/oidc.js'
 
 const storedResult = () =>
   JSON.parse(sessionStorage.getItem(OIDC_LINK_RESULT_KEY))
@@ -36,5 +41,28 @@ describe('completing a link from /oidc/complete', () => {
     await completeLink(appState, null, 'link_failed')
     expect(appState.apiPost).not.toHaveBeenCalled()
     expect(storedResult()).toEqual({error: 'link_failed'})
+  })
+})
+
+describe('returning after signing in through the provider', () => {
+  beforeEach(() => {
+    sessionStorage.clear()
+  })
+
+  it('returns to the stored path once', () => {
+    sessionStorage.setItem(OIDC_RETURN_PATH_KEY, '/settings/user')
+    expect(takeReturnPath()).toBe('/settings/user')
+    expect(takeReturnPath()).toBe('/')
+  })
+
+  it('returns home without a stored path', () => {
+    expect(takeReturnPath()).toBe('/')
+  })
+
+  it('never leaves the site', () => {
+    for (const path of ['//evil.example/x', 'https://evil.example/']) {
+      sessionStorage.setItem(OIDC_RETURN_PATH_KEY, path)
+      expect(takeReturnPath()).toBe('/')
+    }
   })
 })

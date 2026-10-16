@@ -61,6 +61,21 @@ export async function handleOIDCCallback(errorCallback) {
 // the browser returns to; see GrampsjsOidcAccounts.
 export const OIDC_LINK_RESULT_KEY = 'oidc_link_result'
 
+// Where a sign-in through the provider returns to instead of the home page,
+// e.g. the settings page after signing in again there.
+export const OIDC_RETURN_PATH_KEY = 'oidc_return_path'
+
+export function takeReturnPath() {
+  try {
+    const path = sessionStorage.getItem(OIDC_RETURN_PATH_KEY)
+    sessionStorage.removeItem(OIDC_RETURN_PATH_KEY)
+    // only paths on this site
+    return path?.startsWith('/') && !path.startsWith('//') ? path : '/'
+  } catch {
+    return '/'
+  }
+}
+
 // A link started in Settings comes back with `link_code` or `error` instead of
 // a login code. Only the user who started it can complete it, with their token.
 export async function completeLink(appState, linkCode, error) {
@@ -136,8 +151,9 @@ export async function handleOIDCComplete(errorCallback, appState) {
 
     storeTokens(data)
 
+    const path = takeReturnPath()
     requestAnimationFrame(() => {
-      window.location.href = '/'
+      window.location.href = path
     })
   } catch (error) {
     errorCallback(`OIDC authentication failed: ${error.message}`)
