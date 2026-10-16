@@ -95,7 +95,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       </p>
 
       <grampsjs-collapsible-section
-        title="${this._('Account')}"
+        heading="${this._('Account')}"
         description="${this._(
           'Profile info, credentials, and account security'
         )}"
@@ -138,7 +138,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
-        title="${this._('Appearance')}"
+        heading="${this._('Appearance')}"
         description="${this._('Display preferences saved on this device')}"
       >
         <h3>${this._('Select language')}</h3>
@@ -152,7 +152,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
-        title="${this._('Developer Tools')}"
+        heading="${this._('Developer Tools')}"
         description="${this._('Access the interactive API documentation')}"
       >
         ${this.renderApiToken()}

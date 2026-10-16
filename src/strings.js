@@ -1105,4 +1105,7 @@ export const grampsStrings = [
   '_Identify invalid dates',
   'Cannot delete place.',
   'This place is currently referenced by another place. First remove the places it contains.',
+  'Size',
+  'Delete %s?',
+  'Make Backup...',
 ]

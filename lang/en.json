@@ -415,7 +415,6 @@
   "Severity": "Severity",
   "Restore from Backup": "Restore from Backup",
   "Reset the tree to match an uploaded Gramps XML backup, adding, updating, and deleting objects as needed. This is a destructive replace, not a merge.": "Reset the tree to match an uploaded Gramps XML backup, adding, updating, and deleting objects as needed. This is a destructive replace, not a merge.",
-  "Preview Restore": "Preview Restore",
   "Preview Restore from Backup": "Preview Restore from Backup",
   "Restore": "Restore",
   "Confirm Restore from Backup": "Confirm Restore from Backup",
@@ -455,5 +454,14 @@
   "Open saved place": "Open saved place",
   "Limit": "Limit",
   "Another task is already running on this tree. Try again once it has finished.": "Another task is already running on this tree. Try again once it has finished.",
-  "Task completed": "Task completed"
+  "Task completed": "Task completed",
+  "A backup contains the family tree data including private records, the tree settings and the users of the tree. Media files are not included.": "A backup contains the family tree data including private records, the tree settings and the users of the tree. Media files are not included.",
+  "Create, download, and restore backups of the tree": "Create, download, and restore backups of the tree",
+  "The newest %s backups are kept, older ones are deleted automatically.": "The newest %s backups are kept, older ones are deleted automatically.",
+  "This backup was made with a newer version and cannot be restored on this server.": "This backup was made with a newer version and cannot be restored on this server.",
+  "Users": "Users",
+  "Backups": "Backups",
+  "Storing backups is not configured on this server.": "Storing backups is not configured on this server.",
+  "Added users get a random password, so they can sign in after resetting it.": "Added users get a random password, so they can sign in after resetting it.",
+  "The files of %s media objects in the backup are missing on this server.": "The files of %s media objects in the backup are missing on this server."
 }

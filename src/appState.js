@@ -306,6 +306,7 @@ export function getInitialAppState() {
       canUseChat: false,
       canUpgradeTree: false,
       canEditTree: false,
+      canManageBackups: false,
       canViewOtherTree: false,
     },
     i18n: {
@@ -447,6 +448,7 @@ export function appStateUpdatePermissions(appState) {
     canUseChat: rawPermissions.includes('UseChat'),
     canUpgradeTree: rawPermissions.includes('UpgradeSchema'),
     canEditTree: rawPermissions.includes('EditTree'),
+    canManageBackups: rawPermissions.includes('ManageBackups'),
     // Granted to server Administrators only, not Owners - used to gate
     // server-wide actions like creating a new tree.
     canViewOtherTree: rawPermissions.includes('ViewOtherTree'),

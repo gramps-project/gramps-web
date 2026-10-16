@@ -4,6 +4,7 @@ import '@material/mwc-linear-progress'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
+import {formatBytes} from '../util.js'
 
 function _getProgress(usage, quota) {
   if (usage === undefined || quota === undefined) {
@@ -16,20 +17,6 @@ function _getProgress(usage, quota) {
     return 0
   }
   return usage / quota
-}
-
-function formatBytes(bytes) {
-  if (bytes === null) {
-    return null
-  }
-  if (bytes === 0) {
-    return '0 B'
-  }
-  const prefixes = ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y']
-  const base = 1000
-  const exponent = Math.floor(Math.log10(bytes) / Math.log10(base))
-
-  return `${(bytes / base ** exponent).toFixed(1)} ${prefixes[exponent]}B`
 }
 
 export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
