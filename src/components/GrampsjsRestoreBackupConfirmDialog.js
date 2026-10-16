@@ -186,8 +186,9 @@ class GrampsjsRestoreBackupConfirmDialog extends GrampsjsAppStateMixin(
 
   _renderContent() {
     const rows = this._rows()
-    const dataChanged =
-      rows.length > (this.treeSettings ? 1 : 0) + (this.users ? 1 : 0)
+    // the note on what a data restore leaves alone only fits a restore of
+    // the data alone
+    const dataOnlyChanged = rows.length > 0 && !this.treeSettings && !this.users
     const totalChanges = rows.reduce(
       (sum, row) => sum + row.add + row.update + row.delete,
       0
@@ -238,7 +239,7 @@ class GrampsjsRestoreBackupConfirmDialog extends GrampsjsAppStateMixin(
                   )}
                 </p>`
               : ''}
-            ${dataChanged
+            ${dataOnlyChanged
               ? html`<p class="small">
                   ${this._(
                     'This restores object data and media references only. Binary media files and tree metadata (default person, bookmarks, name groups) are not affected.'

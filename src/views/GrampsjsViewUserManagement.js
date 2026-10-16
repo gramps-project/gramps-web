@@ -4,11 +4,14 @@ import '@material/web/select/filled-select'
 import '@material/web/select/select-option'
 
 import {GrampsjsView} from './GrampsjsView.js'
+import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import '../components/GrampsjsUsers.js'
 import '../components/GrampsjsShareUrl.js'
 import '../components/GrampsjsChatPermissions.js'
 
-export class GrampsjsViewUserManagement extends GrampsjsView {
+export class GrampsjsViewUserManagement extends GrampsjsStaleDataMixin(
+  GrampsjsView
+) {
   static get styles() {
     return [
       super.styles,
@@ -85,6 +88,11 @@ export class GrampsjsViewUserManagement extends GrampsjsView {
   }
 
   firstUpdated() {
+    this._fetchUserData()
+  }
+
+  // users can be added elsewhere, e.g. by restoring a backup
+  handleUpdateStaleData() {
     this._fetchUserData()
   }
 

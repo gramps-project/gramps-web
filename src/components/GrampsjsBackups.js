@@ -624,7 +624,7 @@ export class GrampsjsBackups extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleRestored(result) {
-    if (result.data) {
+    if (result.data || result.users?.added?.length) {
       fireEvent(this, 'db:changed', {})
     }
     if (result.tree_settings?.changed) {
