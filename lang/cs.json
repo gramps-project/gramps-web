@@ -457,5 +457,18 @@
     "Toggle region outlines": "Zobrazit/skrýt obrysy oblastí",
     "Save as place": "Uložit jako místo",
     "Open saved place": "Otevřít uložené místo",
-    "Limit": "Limit"
+    "Limit": "Limit",
+    "Profile picture": "Profilový obrázek",
+    "Add profile picture": "Přidat profilový obrázek",
+    "Another task is already running on this tree. Try again once it has finished.": "Na tomto stromu již probíhá jiný úkol. Zkuste to znovu, až bude dokončen.",
+    "Task completed": "Úkol dokončen",
+    "A backup contains the family tree data including private records, the tree settings and the users of the tree. Media files are not included.": "Záloha obsahuje data rodokmenu včetně soukromých záznamů, nastavení stromu a uživatelů stromu. Mediální soubory nejsou zahrnuty.",
+    "The newest %s backups are kept, older ones are deleted automatically.": "Nejnovější zálohy v počtu %s se uchovávají, starší jsou automaticky odstraněny.",
+    "Create, download, and restore backups of the tree": "Vytváření, stahování a obnovování záloh stromu",
+    "This backup was made with a newer version and cannot be restored on this server.": "Tato záloha byla vytvořena v novější verzi a nelze ji na tomto serveru obnovit.",
+    "Users": "Uživatelé",
+    "Backups": "Zálohy",
+    "Storing backups is not configured on this server.": "Ukládání záloh není na tomto serveru nakonfigurováno.",
+    "Added users get a random password, so they can sign in after resetting it.": "Přidaní uživatelé obdrží náhodné heslo, aby se mohli přihlásit po jeho resetování.",
+    "The files of %s media objects in the backup are missing on this server.": "Soubory %s mediálních objektů v záloze na tomto serveru chybí."
 }
