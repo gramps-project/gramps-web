@@ -41,6 +41,7 @@ class GrampsjsMapPlacesLayer extends LitElement {
         closeButton: false,
         closeOnClick: false,
         offset: 15,
+        maxWidth: 'none',
         className: 'grampsjs-place-tooltip',
       })
       map.on('click', 'places-layer', e => {
