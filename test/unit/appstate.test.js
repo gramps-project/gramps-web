@@ -55,6 +55,16 @@ describe('appStateUpdatePermissions', () => {
     expect(result.permissions.canViewOtherTree).to.be.true
   })
 
+  it('sets canManageBackups when ManageBackups permission is present', () => {
+    localStorage.setItem(
+      'access_token',
+      makeFakeJwt({permissions: ['ManageBackups'], exp: 9999999999})
+    )
+    const result = appStateUpdatePermissions(BASE_STATE)
+    expect(result.permissions.canManageBackups).to.be.true
+    expect(result.permissions.canEditTree).to.be.false
+  })
+
   it('does not set canViewOtherTree for an owner-level token', () => {
     localStorage.setItem(
       'access_token',
