@@ -457,5 +457,10 @@
     "Invalid region coordinates": "Ogiltiga regionkoordinater",
     "Toggle region outlines": "Visa/dölj regionkonturer",
     "Save as place": "Spara som plats",
-    "Open saved place": "Öppna sparad plats"
+    "Open saved place": "Öppna sparad plats",
+    "Profile picture": "Profilbild",
+    "Add profile picture": "Lägg till profilbild",
+    "Limit": "Begränsa",
+    "Another task is already running on this tree. Try again once it has finished.": "En annan uppgift körs redan på detta träd. Försök igen när den har slutförts.",
+    "Task completed": "Uppgiften slutförd"
 }
