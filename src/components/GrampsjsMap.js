@@ -141,6 +141,8 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
           color: var(--md-sys-color-on-surface);
           box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
           white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .grampsjs-place-tooltip .maplibregl-popup-tip {
           border-top-color: var(
