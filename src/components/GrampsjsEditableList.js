@@ -107,6 +107,7 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
     this.hasEdit = false
     this.hasReorder = false
     this._selectedIndex = -1
+    this._pendingSelection = null
   }
 
   render() {
@@ -216,14 +217,29 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
   updated(changed) {
     if (changed.has('edit')) {
       this._selectedIndex = -1
+      this._pendingSelection = null
       this.dialogContent = ''
+    } else if (changed.has('data') && this._pendingSelection) {
+      // Select the moved item again at its new position once the reordered
+      // data has arrived. If the move failed, another item is there.
+      const {index, item} = this._pendingSelection
+      if (JSON.stringify(this.data?.[index]) === item) {
+        this._selectedIndex = index
+      }
+      this._pendingSelection = null
     }
   }
 
   _updateSelectionAfterReorder(movedUp) {
-    // Clear selection to avoid highlighting wrong item while API call completes.
-    // The movedUp parameter is provided for subclasses that may want to track
-    // and restore selection after the data updates.
+    // Clear selection to avoid highlighting wrong item while API call
+    // completes, and remember the moved item and its new position to
+    // restore the selection afterwards.
+    if (this._selectedIndex !== -1) {
+      this._pendingSelection = {
+        index: movedUp ? this._selectedIndex - 1 : this._selectedIndex + 1,
+        item: JSON.stringify(this.data?.[this._selectedIndex]),
+      }
+    }
     this._selectedIndex = -1
   }
 
