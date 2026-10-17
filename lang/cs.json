@@ -470,5 +470,22 @@
     "Backups": "Zálohy",
     "Storing backups is not configured on this server.": "Ukládání záloh není na tomto serveru nakonfigurováno.",
     "Added users get a random password, so they can sign in after resetting it.": "Přidaní uživatelé obdrží náhodné heslo, aby se mohli přihlásit po jeho resetování.",
-    "The files of %s media objects in the backup are missing on this server.": "Soubory %s mediálních objektů v záloze na tomto serveru chybí."
+    "The files of %s media objects in the backup are missing on this server.": "Soubory %s mediálních objektů v záloze na tomto serveru chybí.",
+    "Advanced filter": "Pokročilý filtr",
+    "The filter is edited in the advanced filter.": "Filtr se upravuje v pokročilém filtru.",
+    "All conditions": "Všechny podmínky",
+    "Any condition": "Libovolná podmínka",
+    "Exactly one condition": "Přesně jedna podmínka",
+    "More options": "Další možnosti",
+    "No conditions": "Žádné podmínky",
+    "Add condition": "Přidat podmínku",
+    "Add group": "Přidat skupinu",
+    "Not": "Ne",
+    "People with association of type <type>": "Lidé s asociací typu <typ>",
+    "Matches people with a certain association type": "Vyhovují lidé s určitým typem asociace",
+    "Media referenced by <type>": "Media, na které odkazuje <typ>",
+    "Matches media objects referenced by a specific object type": "Vyhovují mediální objekty, na které odkazuje specifický typ objektu",
+    "Matching the <GOQL expression>": "Vyhovující <GOQL expression>",
+    "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Vyhovují objekty, pro které je daný výraz v jazyce Gramps Object Query Language (GOQL) pravdivý",
+    "Expression:": "Výraz:"
 }
