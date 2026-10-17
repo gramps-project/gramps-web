@@ -40,6 +40,7 @@ export class GrampsjsFilterCheckboxes extends LitElement {
           <label>
             <md-checkbox
               data-index="${i}"
+              aria-label="${entry.label}"
               .checked="${this.rules.some(rule =>
                 rulesEqual(rule, entry.rule)
               )}"
