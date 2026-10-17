@@ -31,7 +31,7 @@ import '@material/web/textfield/outlined-text-field'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, menuSelectionHandler} from '../util.js'
 import {
   MAX_GROUP_DEPTH,
   addChild,
@@ -295,7 +295,9 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
           <md-menu
             id="group-menu"
             positioning="fixed"
-            @close-menu="${this._handleMenuSelect}"
+            @close-menu="${menuSelectionHandler(item =>
+              this._selectMenuItem(item)
+            )}"
           >
             <md-menu-item data-function="one">
               <div slot="headline">${this._('Exactly one condition')}</div>
@@ -663,8 +665,8 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
     menu.show()
   }
 
-  _handleMenuSelect(e) {
-    const func = e.detail.initiator?.dataset?.function
+  _selectMenuItem(item) {
+    const func = item.dataset?.function
     if (func && getNode(this._tree, this._menuPath)) {
       this._tree = updateNode(this._tree, this._menuPath, group => ({
         ...group,
