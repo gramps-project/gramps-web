@@ -40,6 +40,7 @@ import {
   getNode,
   isComplete,
   isGroup,
+  isRequiredParam,
   localizeRules,
   newCondition,
   newGroup,
@@ -272,6 +273,8 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
     this._tree = newGroup()
     this._catalogue = []
     this._catalogueKey = ''
+    // key of the catalogue being fetched
+    this._catalogueRequest = ''
     this._loading = false
     this._error = ''
     this._pickerPath = null
@@ -437,6 +440,7 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
                         label="${label}"
                         .value="${condition.values[i] ?? ''}"
                         .paramType="${type}"
+                        ?required="${isRequiredParam(type)}"
                         .grampsTypes="${this._grampsTypes}"
                         .tags="${this._tags}"
                         @filter-param:change="${e =>
@@ -457,7 +461,7 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
     return html`
       <div class="picker-header">
         <md-icon-button
-          aria-label="${this._('Back')}"
+          aria-label="${this._('_Back')}"
           @click="${this._closePicker}"
         >
           <grampsjs-icon path="${mdiArrowLeft}"></grampsjs-icon>
@@ -545,10 +549,11 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
   async _fetchCatalogue() {
     const lang = this.appState.i18n.lang || 'en'
     const key = `${this.namespace}:${lang}`
-    if (this._catalogueKey === key) {
+    if (this._catalogueKey === key || this._catalogueRequest === key) {
       return
     }
     const {namespace} = this
+    this._catalogueRequest = key
     this._loading = true
     this._error = ''
     let data = await this.appState.apiGet(
@@ -558,9 +563,11 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
     if (data.errorDetail?.status === 422) {
       data = await this.appState.apiGet(`/api/filters/${namespace}`)
     }
-    if (namespace !== this.namespace) {
+    if (this._catalogueRequest !== key) {
+      // a newer request is running
       return
     }
+    this._catalogueRequest = ''
     this._loading = false
     if ('data' in data) {
       this._catalogue = localizeRules(data.data?.rules ?? [], s => this._(s))
@@ -571,9 +578,6 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
   }
 
   async _fetchGrampsTypes() {
-    if (Object.keys(this._grampsTypes).length > 0) {
-      return
-    }
     const data = await this.appState.apiGet('/api/types/')
     if ('data' in data) {
       this._grampsTypes = data.data ?? {}
@@ -650,9 +654,13 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
 
   _openMenu(e, path) {
     const menu = this.renderRoot.querySelector('#group-menu')
+    if (menu.open && menu.anchorElement === e.currentTarget) {
+      menu.close()
+      return
+    }
     this._menuPath = path
     menu.anchorElement = e.currentTarget
-    menu.open = !menu.open
+    menu.show()
   }
 
   _handleMenuSelect(e) {

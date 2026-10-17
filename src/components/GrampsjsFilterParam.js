@@ -142,6 +142,7 @@ export class GrampsjsFilterParam extends GrampsjsAppStateMixin(LitElement) {
       <md-outlined-select
         label="${this._label}"
         .value="${this.value}"
+        ?required="${this.required}"
         @change="${e => this._change(e.target.value)}"
       >
         ${withEmpty
@@ -198,6 +199,7 @@ export class GrampsjsFilterParam extends GrampsjsAppStateMixin(LitElement) {
         : null
     return html`
       <grampsjs-form-select-object-list
+        fixedMenuPosition
         objectType="${objectType}"
         label="${SELECT_LABELLED_TYPES.includes(objectType)
           ? ''
@@ -238,6 +240,9 @@ export class GrampsjsFilterParam extends GrampsjsAppStateMixin(LitElement) {
       )}&extend=all&profile=all&locale=${this.appState.i18n.lang || 'en'}`
     )
     if (this.value !== grampsId) {
+      if (this._loadingId === grampsId) {
+        this._loadingId = ''
+      }
       return
     }
     // an unknown ID leaves the selector empty

@@ -149,6 +149,16 @@ describe('isComplete', () => {
     expect(isComplete(filled, catalogue)).toBe(true)
   })
 
+  it('requires tags', () => {
+    const tagRule = {...hasTag, types: [{type: 'tag'}]}
+    expect(isComplete(tree('and', condition('HasTag', [''])), [tagRule])).toBe(
+      false
+    )
+    expect(
+      isComplete(tree('and', condition('HasTag', ['ToDo'])), [tagRule])
+    ).toBe(true)
+  })
+
   it('accepts empty text parameters', () => {
     expect(isComplete(tree('and', condition('HasTag', [''])), catalogue)).toBe(
       true
@@ -164,14 +174,6 @@ describe('serialization', () => {
       function: 'and',
       invert: true,
       rules: [{name: 'HasTag', values: ['ToDo']}],
-    })
-  })
-
-  it('keeps the regex flag', () => {
-    expect(serializeNode(condition('HasTag', ['T.*'], {regex: true}))).toEqual({
-      name: 'HasTag',
-      values: ['T.*'],
-      regex: true,
     })
   })
 

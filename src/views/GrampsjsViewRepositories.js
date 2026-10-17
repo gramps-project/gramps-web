@@ -15,6 +15,7 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
       {name: 'Type', key: 'type', sortKey: 'type'},
       {name: 'Last changed', key: 'change', sortKey: 'change'},
     ]
+    this._objectsName = 'repositories'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -30,11 +31,6 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
   // eslint-disable-next-line class-methods-use-this
   _getAddPath() {
     return 'new_repository'
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  get filterNamespace() {
-    return 'repositories'
   }
 
   get filterDefinitions() {

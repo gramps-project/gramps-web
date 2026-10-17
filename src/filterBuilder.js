@@ -5,8 +5,8 @@ The builder edits a tree of nodes:
 
 - group: `{id, kind: 'group', function, invert, children}`, where
   `function` is 'and', 'or' or 'one' as in the backend `rules` JSON
-- condition: `{id, kind: 'condition', name, values, invert, regex}`, one
-  Gramps rule
+- condition: `{id, kind: 'condition', name, values, invert}`, one Gramps
+  rule
 
 The ids only serve to keep rows stable while editing and are not sent.
 Nodes are addressed by paths, arrays of child indices from the top group.
@@ -43,7 +43,7 @@ const PARAM_TYPES = [
 ]
 
 // Parameter types without a meaningful empty value
-const REQUIRED_PARAM_TYPES = ['id', 'integer', 'select']
+const REQUIRED_PARAM_TYPES = ['id', 'integer', 'select', 'tag']
 
 let nextId = 0
 
@@ -69,7 +69,6 @@ export function newCondition(name, values = []) {
     name,
     values,
     invert: false,
-    regex: false,
   }
 }
 
@@ -129,6 +128,11 @@ export function paramType(ruleInfo, index) {
 // The type of each parameter of a catalogue rule
 export function paramTypes(ruleInfo) {
   return (ruleInfo?.labels ?? []).map((_label, i) => paramType(ruleInfo, i))
+}
+
+// Whether a parameter of `type` needs a value
+export function isRequiredParam(type) {
+  return REQUIRED_PARAM_TYPES.includes(type.type)
 }
 
 // Initial values of a new condition for a catalogue rule
@@ -223,9 +227,7 @@ export function findRule(catalogue, name) {
 function isConditionComplete(condition, catalogue) {
   const ruleInfo = findRule(catalogue, condition.name)
   return paramTypes(ruleInfo).every(
-    (type, i) =>
-      !REQUIRED_PARAM_TYPES.includes(type.type) ||
-      (condition.values[i] ?? '') !== ''
+    (type, i) => !isRequiredParam(type) || (condition.values[i] ?? '') !== ''
   )
 }
 
@@ -244,11 +246,9 @@ export function isComplete(tree, catalogue, isTop = true) {
 // A rule in the backend `rules` JSON. Rules without parameters have no
 // values, as in the facet definitions.
 function serializeRule(condition) {
-  const rule =
-    condition.values.length > 0
-      ? {name: condition.name, values: condition.values}
-      : {name: condition.name}
-  return condition.regex ? {...rule, regex: true} : rule
+  return condition.values.length > 0
+    ? {name: condition.name, values: condition.values}
+    : {name: condition.name}
 }
 
 // A node in the backend `rules` JSON. Rules can't be negated, so a negated
@@ -336,7 +336,7 @@ export function treeToPills(tree, sections) {
   }
   const pills = []
   const ok = tree.children.every(node => {
-    if (isGroup(node) || node.invert || node.regex) {
+    if (isGroup(node) || node.invert) {
       return false
     }
     const rule = serializeRule(node)
