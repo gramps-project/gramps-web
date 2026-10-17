@@ -2,7 +2,12 @@ import {html} from 'lit'
 
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 import './GrampsjsRect.js'
-import {fireEvent, normalizeRect, rectOverlap} from '../util.js'
+import {
+  apiVersionAtLeast,
+  fireEvent,
+  normalizeRect,
+  rectOverlap,
+} from '../util.js'
 
 // Faces detected in an image, as suggested regions. Meant to be placed inside
 // the grampsjs-rect-container that holds the image.
@@ -33,10 +38,14 @@ export class GrampsjsFaces extends GrampsjsConnectedComponent {
     fireEvent(this, 'rect:selected', face)
   }
 
-  // slightly grow rectangles and make them rectangular
+  // Gramps Web API 3.24 and newer return head-sized rectangles, older
+  // versions tight face rectangles that are grown here
   _getFaces() {
     if (!this._data.data) {
       return []
+    }
+    if (apiVersionAtLeast(this.appState?.dbInfo, 3, 24)) {
+      return this._data.data.map(normalizeRect).filter(rect => rect !== null)
     }
     return this._data.data
       .map(rect => {
