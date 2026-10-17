@@ -600,8 +600,11 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
   _openPicker(path) {
     this._pickerPath = path
     this._search = ''
-    this.updateComplete.then(() => {
-      this.renderRoot.querySelector('#search')?.focus()
+    this.updateComplete.then(async () => {
+      // the text field focuses its input once that is rendered
+      const search = this.renderRoot.querySelector('#search')
+      await search?.updateComplete
+      search?.focus()
     })
   }
 
