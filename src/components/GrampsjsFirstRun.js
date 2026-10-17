@@ -23,15 +23,6 @@ const STATE_READY = 1
 const STATE_PROGRESS = 2
 const STATE_DONE = 3
 
-const CONFIG_KEYS = {
-  '#email_host': 'EMAIL_HOST',
-  '#email_port': 'EMAIL_PORT',
-  '#email_user': 'EMAIL_HOST_USER',
-  '#email_pw': 'EMAIL_HOST_PASSWORD',
-  '#email_from': 'DEFAULT_FROM_EMAIL',
-  '#base_url': 'BASE_URL',
-}
-
 // True once the confirmation has been typed into and differs from the password.
 // An empty confirmation reports nothing; `required` already covers it.
 export function passwordsMismatch(password, confirmation) {
@@ -89,10 +80,8 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
     return {
       token: {type: String},
       stateUser: {type: Number},
-      stateConfig: {type: Number},
       stateTree: {type: Number},
       _errorUser: {type: String},
-      _errorConfig: {type: String},
       _errorTree: {type: String},
       _tree: {type: String},
       _hasTree: {type: Boolean},
@@ -103,10 +92,8 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.token = ''
     this.stateUser = STATE_INITIAL
-    this.stateConfig = STATE_INITIAL
     this.stateTree = STATE_INITIAL
     this._errorUser = ''
-    this._errorConfig = ''
     this._errorTree = ''
     this._tree = ''
     // True once the owner's login token carries a tree claim, which is the
@@ -214,75 +201,6 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
                   value="${this._('My Family Tree')}"
                 ></mwc-textfield>
               `}
-          ${this._tree
-            ? ''
-            : html`
-                <h3>
-                  ${this._('E-mail settings')}
-                  ${this.stateConfig !== STATE_INITIAL
-                    ? html`
-                        <span class="icon">
-                          ${renderIcon(
-                            mdiCheckCircle,
-                            'var(--grampsjs-alert-success-font-color)'
-                          )}
-                        </span>
-                      `
-                    : ''}
-                </h3>
-
-                <p>
-                  ${this._(
-                    'Optionally, enter existing IMAP credentials to enable e-mail notifications required e.g. for user registration.'
-                  )}
-                </p>
-
-                <mwc-textfield
-                  @input="${this.checkValidity}"
-                  outlined
-                  id="email_host"
-                  label="${this._('SMTP host')}"
-                  type="text"
-                ></mwc-textfield>
-                <mwc-textfield
-                  @input="${this.checkValidity}"
-                  outlined
-                  id="email_port"
-                  label="${this._('SMTP port')}"
-                  type="text"
-                  pattern="[0-9]+"
-                ></mwc-textfield>
-                <mwc-textfield
-                  @input="${this.checkValidity}"
-                  outlined
-                  id="email_user"
-                  label="${this._('SMTP user')}"
-                  type="text"
-                ></mwc-textfield>
-                <mwc-textfield
-                  @input="${this.checkValidity}"
-                  outlined
-                  id="email_pw"
-                  label="${this._('SMTP password')}"
-                  type="password"
-                ></mwc-textfield>
-                <mwc-textfield
-                  @input="${this.checkValidity}"
-                  outlined
-                  id="email_from"
-                  label="${this._('From address')}"
-                  type="email"
-                ></mwc-textfield>
-                <mwc-textfield
-                  @input="${this.checkValidity}"
-                  outlined
-                  id="base_url"
-                  label="${this._('Gramps Web base URL')}"
-                  type="url"
-                  placeholder="https://grampsweb.mydomain.com"
-                ></mwc-textfield>
-              `}
-
           <h3>${this._('Submit')}</h3>
 
           <mwc-button
@@ -308,19 +226,11 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
                   this.stateTree,
                   this._errorTree
                 )}
-            ${this._tree
-              ? ''
-              : this._showProgress(
-                  this._('Storing configuration'),
-                  this.stateConfig,
-                  this._errorConfig
-                )}
           </p>
 
           <div
             style="visibility:${this.stateUser === STATE_DONE &&
-            (this._tree || this._hasTree || this.stateTree === STATE_DONE) &&
-            this.stateConfig !== STATE_PROGRESS
+            (this._tree || this._hasTree || this.stateTree === STATE_DONE)
               ? 'visible'
               : 'hidden'};"
           >
@@ -374,16 +284,6 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
 
     if (!this._tree && !this._hasTree) {
       await this._submitTree()
-      if (this.stateTree === STATE_ERROR) {
-        return
-      }
-    }
-
-    if (this.stateConfig === STATE_READY) {
-      await this._submitConfig()
-      if (this.stateConfig !== STATE_ERROR) {
-        this.stateConfig = STATE_DONE
-      }
     }
   }
 
@@ -445,28 +345,6 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
     this.stateTree = STATE_DONE
   }
 
-  async _submitConfig() {
-    this.stateConfig = STATE_PROGRESS
-    for (const elId of Object.keys(CONFIG_KEYS)) {
-      const key = CONFIG_KEYS[elId]
-      const value = this.shadowRoot.querySelector(elId)
-      if (value && value?.value) {
-        // eslint-disable-next-line no-await-in-loop
-        await this._submitConfigSingle(key, value.value)
-      }
-    }
-  }
-
-  async _submitConfigSingle(key, value) {
-    const res = await this.appState.apiPut(`/api/config/${key}/`, {
-      value,
-    })
-    if ('error' in res) {
-      this.stateConfig = STATE_ERROR
-      this._errorConfig = res.error || ''
-    }
-  }
-
   _done() {
     fireEvent(this, 'firstrun:done')
   }
@@ -476,14 +354,6 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
       this.stateUser = STATE_READY
     } else if (this.stateUser === STATE_READY && !this._checkValidityUser()) {
       this.stateUser = STATE_INITIAL
-    }
-    if (this.stateConfig === STATE_INITIAL && this._checkValidityConfig()) {
-      this.stateConfig = STATE_READY
-    } else if (
-      this.stateConfig === STATE_READY &&
-      !this._checkValidityConfig()
-    ) {
-      this.stateConfig = STATE_INITIAL
     }
   }
 
@@ -499,30 +369,6 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
         password2?.validity?.valid &&
         fullName?.validity?.valid &&
         email?.validity?.valid) ||
-      false
-    )
-  }
-
-  _checkValidityConfig() {
-    const host = this.shadowRoot.getElementById('email_host')
-    const port = this.shadowRoot.getElementById('email_port')
-    const user = this.shadowRoot.getElementById('email_user')
-    const pw = this.shadowRoot.getElementById('email_pw')
-    const from = this.shadowRoot.getElementById('email_from')
-    const url = this.shadowRoot.getElementById('base_url')
-    return (
-      (host?.validity?.valid &&
-        host?.value &&
-        port?.validity?.valid &&
-        port?.value &&
-        user?.validity?.valid &&
-        user?.value &&
-        pw?.validity?.valid &&
-        pw?.value &&
-        from?.validity?.valid &&
-        from?.value &&
-        url?.validity?.valid &&
-        url?.value) ||
       false
     )
   }
