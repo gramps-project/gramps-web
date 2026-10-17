@@ -457,5 +457,18 @@
     "Toggle region outlines": "地域の輪郭の表示を切り替え",
     "Save as place": "場所として保存",
     "Open saved place": "保存した場所を開く",
-    "Limit": "制限"
+    "Limit": "制限",
+    "Profile picture": "プロフィール画像",
+    "Add profile picture": "プロフィール画像の追加",
+    "Another task is already running on this tree. Try again once it has finished.": "このツリーでは、すでに別のタスクが実行中です。そのタスクが完了してから、再度試してください。",
+    "Task completed": "タスク完了",
+    "A backup contains the family tree data including private records, the tree settings and the users of the tree. Media files are not included.": "バックアップには、非公開の記録を含む家系図データ、家系図の設定、およびその家系図のユーザー情報が含まれます。メディアファイルは含まれません。",
+    "Create, download, and restore backups of the tree": "ツリーのバックアップを作成、ダウンロード、復元する",
+    "The newest %s backups are kept, older ones are deleted automatically.": "最新の %s 個のバックアップが保持され、それより古いものは自動的に削除されます。",
+    "This backup was made with a newer version and cannot be restored on this server.": "このバックアップはより新しいバージョンで作成されたものであり、このサーバー上で復元することはできません。",
+    "Users": "ユーザー",
+    "Backups": "バックアップ",
+    "Storing backups is not configured on this server.": "このサーバーでは、バックアップの保存が設定されていません。",
+    "Added users get a random password, so they can sign in after resetting it.": "追加されたユーザーにはランダムなパスワードが割り当てられます。パスワードをリセットすることで、サインインできるようになります。",
+    "The files of %s media objects in the backup are missing on this server.": "バックアップに含まれる %s 個のメディアオブジェクトのファイルが、このサーバー上で見当たりません。"
 }
