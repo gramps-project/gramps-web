@@ -458,5 +458,18 @@
     "Toggle region outlines": "Regio contouren in-/uitschakelen",
     "Save as place": "Opslaan als plaats",
     "Open saved place": "Opgeslagen plaats openen",
-    "Limit": "Limiet"
+    "Limit": "Limiet",
+    "Profile picture": "Profielafbeelding",
+    "Add profile picture": "Profielafbeelding toevoegen",
+    "Another task is already running on this tree. Try again once it has finished.": "Er loopt al een andere taak op deze boom. Probeer het opnieuw wanneer die voltooid is.",
+    "Task completed": "Taak voltooid",
+    "A backup contains the family tree data including private records, the tree settings and the users of the tree. Media files are not included.": "Een back-up bevat de stamboomgegevens, inclusief privégegevens, de boominstellingen en de gebruikers van de boom. Mediabestanden zijn niet inbegrepen.",
+    "Create, download, and restore backups of the tree": "Back-ups van de stamboom maken, downloaden en herstellen",
+    "The newest %s backups are kept, older ones are deleted automatically.": "De nieuwste %s back-ups worden bewaard, oudere worden automatisch verwijderd.",
+    "This backup was made with a newer version and cannot be restored on this server.": "Deze back-up is gemaakt met een nieuwere versie en kan niet worden hersteld op deze server.",
+    "Users": "Gebruikers",
+    "Backups": "Back-ups",
+    "Storing backups is not configured on this server.": "Het opslaan van back-ups is niet geconfigureerd op deze server.",
+    "Added users get a random password, so they can sign in after resetting it.": "Toegevoegde gebruikers krijgen een willekeurig wachtwoord, zodat ze zich kunnen aanmelden nadat ze het opnieuw hebben ingesteld.",
+    "The files of %s media objects in the backup are missing on this server.": "De bestanden van %s media-objecten in de back-up ontbreken op deze server."
 }
