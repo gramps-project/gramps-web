@@ -138,6 +138,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     this._boundToggleEditMode = this._toggleEditMode.bind(this)
     // Reuse one function reference so disconnectedCallback can release it.
     this._boundHandleEditAction = this.handleEditAction.bind(this)
+    this._dataRequestId = 0
   }
 
   get canEdit() {
@@ -261,9 +262,13 @@ export class GrampsjsViewObject extends GrampsjsView {
     ) {
       this._updateData()
     }
+    // Only react to an actual change of the language. The first assignment
+    // of appState has no previous value; the data is fetched via grampsId
+    // or active in that case.
     if (
       changed.has('appState') &&
-      changed.get('appState')?.i18n?.lang !== this.appState.i18n.lang
+      changed.get('appState') !== undefined &&
+      changed.get('appState').i18n?.lang !== this.appState.i18n.lang
     ) {
       this._handleLangChange(this.appState.i18n.lang)
     }
@@ -278,7 +283,14 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._clearData()
       }
       this.loading = true
+      this._dataRequestId += 1
+      const requestId = this._dataRequestId
       this.appState.apiGet(this.getUrl()).then(data => {
+        if (requestId !== this._dataRequestId) {
+          // A newer request was sent in the meantime (e.g. after the
+          // language was loaded); only its response is applied.
+          return
+        }
         this.loading = false
         if ('data' in data) {
           ;[this._data] = data.data
