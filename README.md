@@ -1,11 +1,11 @@
 # Gramps Web &ndash; Frontend
 
-Welcome to **Gramps Web**, a modern, feature-packed, free & open source web app for browsing and collaboratively editing genealogical databases. Fully interoperable with the [Gramps](https://gramps-project.org) desktop application, Gramps Web brings your family history to the web, making it accessible from anywhere and easy to share.
+Welcome to **Gramps Web**, a modern, feature-packed, free & open-source web app for browsing and collaboratively editing genealogical databases. Fully interoperable with the [Gramps](https://gramps-project.org) desktop application, Gramps Web brings your family history to the web, making it accessible from anywhere and easy to share.
 
 
 ## What is Gramps Web?
 
-**Gramps Web** is a web based application, ideally suited for collaborating with others to build your family tree together. It can be accessed from any mobile or portable web-enabled device. Gramps Web is free & open source software, with the privacy and control of your data a top priority.
+**Gramps Web** is a web-based application, ideally suited for collaborating with others to build your family tree together. It can be accessed from any mobile or portable web-enabled device. Gramps Web is free & open source software, with the privacy and control of your data a top priority.
 
 Gramps Web is designed to be a companion to [Gramps Desktop](https://gramps-project.org), the leading open source genealogy desktop application.
 
@@ -66,7 +66,7 @@ We'd love your feedback and contributions! Star this repository, fork it, and jo
 
 ## Reporting issues
 
-Note that this Github repository contains the source code of the Gramps Web user interface (frontend). For issues with the server-side code, please see the [Gramps Web API](https://github.com/gramps-project/gramps-web-api) (backend) repository. See [Get Help](https://www.grampsweb.org/help/help/) for more details.
+Note that this GitHub repository contains the source code of the Gramps Web user interface (frontend). For issues with the server-side code, please see the [Gramps Web API](https://github.com/gramps-project/gramps-web-api) (backend) repository. See [Get Help](https://www.grampsweb.org/help/help/) for more details.
 
 ## Roadmap
 
