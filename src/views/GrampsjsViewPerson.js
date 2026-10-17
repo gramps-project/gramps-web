@@ -70,7 +70,7 @@ export class GrampsjsViewPerson extends GrampsjsViewObject {
   getUrl() {
     return `/api/people/?gramps_id=${this.grampsId}&locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=all&backlinks=true&extend=all&precision=1`
+    }&profile=all&backlinks=true&extend=all&precision=2`
   }
 
   renderElement() {
