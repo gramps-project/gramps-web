@@ -39,6 +39,18 @@ export class GrampsjsButtonToggle extends GrampsjsAppStateMixin(LitElement) {
           --md-filter-chip-selected-hover-state-layer-color: var(
             --md-sys-color-on-primary
           );
+          --md-filter-chip-selected-leading-icon-color: var(
+            --md-sys-color-on-primary
+          );
+          --md-filter-chip-selected-hover-leading-icon-color: var(
+            --md-sys-color-on-primary
+          );
+          --md-filter-chip-selected-focus-leading-icon-color: var(
+            --md-sys-color-on-primary
+          );
+          --md-filter-chip-selected-pressed-leading-icon-color: var(
+            --md-sys-color-on-primary
+          );
         }
       `,
     ]
