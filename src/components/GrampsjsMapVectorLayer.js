@@ -6,9 +6,9 @@ export const VECTOR_COLOR = '#1e88e5'
 
 const isGeometry = types => ['match', ['geometry-type'], types, true, false]
 
-// Draws a GeoJSON FeatureCollection from a KML or GeoJSON media object.
+// Draws a GeoJSON FeatureCollection from a KML, GPX or GeoJSON media object.
 // Features keep their own simplestyle colors (which togeojson derives from
-// KML styles) where they have them.
+// KML styles and GPX line extensions) where they have them.
 class GrampsjsMapVectorLayer extends LitElement {
   static get properties() {
     return {

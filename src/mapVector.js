@@ -1,23 +1,27 @@
-// Vector map files (KML and GeoJSON) stored as media objects.
+// Vector map files (KML, GPX and GeoJSON) stored as media objects.
 
-import {kml} from '@tmcw/togeojson'
+import {gpx, kml} from '@tmcw/togeojson'
 import {getMediaUrl} from './api.js'
 
 const KML_MIMES = ['application/vnd.google-earth.kml+xml']
+const GPX_MIMES = ['application/gpx+xml']
 const GEOJSON_MIMES = ['application/geo+json', 'application/vnd.geo+json']
 
-// 'kml', 'geojson' or null. The backend detects mime types from the file
-// content, which usually labels GeoJSON as plain JSON, so the file extension
-// counts as well.
+// 'kml', 'gpx', 'geojson' or null. The backend detects mime types from the
+// file content, which usually labels GeoJSON as plain JSON and GPX as plain
+// XML, so the file extension counts as well.
 export function vectorFormat(media) {
   const mime = media?.mime ?? ''
   const path = media?.path ?? ''
   if (KML_MIMES.includes(mime) || /\.kml$/i.test(path)) return 'kml'
+  if (GPX_MIMES.includes(mime) || /\.gpx$/i.test(path)) return 'gpx'
   if (GEOJSON_MIMES.includes(mime) || /\.geojson$/i.test(path)) {
     return 'geojson'
   }
   return null
 }
+
+const XML_CONVERTERS = {kml, gpx}
 
 function toFeatureCollection(obj) {
   if (obj?.type === 'FeatureCollection' && Array.isArray(obj.features)) {
@@ -38,10 +42,10 @@ function toFeatureCollection(obj) {
 // A GeoJSON FeatureCollection, or null if the file can't be read.
 export function parseVector(text, format) {
   try {
-    if (format === 'kml') {
+    if (format in XML_CONVERTERS) {
       const doc = new DOMParser().parseFromString(text, 'text/xml')
       if (doc.getElementsByTagName('parsererror').length > 0) return null
-      return toFeatureCollection(kml(doc))
+      return toFeatureCollection(XML_CONVERTERS[format](doc))
     }
     if (format === 'geojson') {
       return toFeatureCollection(JSON.parse(text))
