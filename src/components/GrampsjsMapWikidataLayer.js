@@ -70,7 +70,6 @@ class GrampsjsMapWikidataLayer extends LitElement {
       closeButton: false,
       closeOnClick: false,
       offset: 10,
-      maxWidth: 'none',
       className: 'grampsjs-place-tooltip',
     })
     map.on('click', LAYER_ID, e => {
