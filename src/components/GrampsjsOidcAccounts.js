@@ -13,6 +13,7 @@ import {__APIHOST__, apiGetOIDCConfig} from '../api.js'
 import {OIDC_LINK_RESULT_KEY, OIDC_RETURN_PATH_KEY} from '../oidc.js'
 import {fireEvent} from '../util.js'
 import './GrampsjsRelogin.js'
+import './GrampsjsTimedelta.js'
 
 const ACCOUNTS_ENDPOINT = '/api/users/-/oidc-accounts/'
 
@@ -161,14 +162,20 @@ export class GrampsjsOidcAccounts extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _renderAccount(account) {
-    const details = [
-      account.email,
-      `${this._('Linked')}: ${this._formatDate(account.created_at)}`,
-    ].filter(Boolean)
+    const linkedAt = this._unixTime(account.created_at)
     return html`
       <md-list-item type="text" noninteractive>
         <div slot="headline">${this._providerName(account.provider_id)}</div>
-        <div slot="supporting-text">${details.join(' · ')}</div>
+        <div slot="supporting-text">
+          ${account.email ? html`${account.email} &middot; ` : ''}
+          ${this._('Linked')}:
+          ${linkedAt === null
+            ? account.created_at
+            : html`<grampsjs-timedelta
+                timestamp="${linkedAt}"
+                locale="${this.appState?.i18n?.lang}"
+              ></grampsjs-timedelta>`}
+        </div>
         <md-outlined-button
           slot="end"
           @click="${() => this._requestUnlink(account)}"
@@ -227,12 +234,11 @@ export class GrampsjsOidcAccounts extends GrampsjsAppStateMixin(LitElement) {
     return this._providers.find(p => p.id === providerId)?.name ?? providerId
   }
 
-  _formatDate(value) {
-    if (!value) {
-      return ''
-    }
-    const date = parseUtcDate(value)
-    return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
+  // seconds since the epoch, as grampsjs-timedelta expects, or null
+  // eslint-disable-next-line class-methods-use-this
+  _unixTime(value) {
+    const time = value ? parseUtcDate(value).getTime() : NaN
+    return Number.isNaN(time) ? null : Math.floor(time / 1000)
   }
 
   async _load() {
