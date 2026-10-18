@@ -144,7 +144,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._pendingPerson = null
     this._zoom = getMapViewport()?.zoom ?? DEFAULT_ZOOM
     this._wikidata = new WikidataBuildingsController(this)
-    // KML and GeoJSON files of the selected place.
+    // KML, GPX and GeoJSON files of the selected place.
     this._placeVectors = new PlaceVectorsController(this, {
       apiGet: endpoint => this.appState.apiGet(endpoint),
       isHidden: handle => this._hiddenOverlaysHandles.includes(handle),
@@ -633,7 +633,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._loadPlaceVectors(selection, {fit: flyTo && !this._hasCoords(object)})
   }
 
-  // Draws the KML and GeoJSON files of the selected place. A place that no
+  // Draws the KML, GPX and GeoJSON files of the selected place. A place that no
   // longer exists closes the selection.
   async _loadPlaceVectors(selection, {fit = false} = {}) {
     const result = await this._placeVectors.load(selection.handle, {fit})

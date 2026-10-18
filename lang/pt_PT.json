@@ -463,5 +463,14 @@
     "Profile picture": "Forografia do perfil",
     "Add profile picture": "Adicionar fotografia ao perfil",
     "Another task is already running on this tree. Try again once it has finished.": "Já está outra tarefa em execução nesta árvore. Tente novamente mais tarde.",
-    "Task completed": "Tarefa concluída"
+    "Task completed": "Tarefa concluída",
+    "A backup contains the family tree data including private records, the tree settings and the users of the tree. Media files are not included.": "Uma salvaguarda contém os dados da árvore genealógica, incluindo registos privados, definições da árvore e utilizadores da mesma. A multimédia não está incluída.",
+    "Create, download, and restore backups of the tree": "Criar, transferir e restaurar salvaguardas da árvore",
+    "The newest %s backups are kept, older ones are deleted automatically.": "São mantidas as salvaguardas mais recentes de %s; as outras são eliminadas automaticamente.",
+    "This backup was made with a newer version and cannot be restored on this server.": "Esta salvaguarda foi criada com uma versão mais recente e não pode ser restaurada neste servidor.",
+    "Users": "Utilizadores",
+    "Backups": "Salvaguardas",
+    "Storing backups is not configured on this server.": "Armazenar salvaguardas não está configurado neste servidor.",
+    "Added users get a random password, so they can sign in after resetting it.": "Utilizadores adicionados recebem uma senha aleatória para iniciar sessão após a redefinirem.",
+    "The files of %s media objects in the backup are missing on this server.": "Faltam %s ficheiros da multimédia da salvaguarda neste servidor."
 }

@@ -22,6 +22,15 @@ const KML = `<?xml version="1.0" encoding="UTF-8"?>
   </Document>
 </kml>`
 
+const GPX = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="test" xmlns="http://www.topografix.com/GPX/1/1">
+  <wpt lat="49.5" lon="8.5"><name>Church</name></wpt>
+  <trk><name>Walk</name><trkseg>
+    <trkpt lat="49" lon="8"></trkpt>
+    <trkpt lat="50" lon="9"></trkpt>
+  </trkseg></trk>
+</gpx>`
+
 describe('vectorFormat', () => {
   it('recognises KML and GeoJSON mime types', () => {
     expect(
@@ -37,6 +46,11 @@ describe('vectorFormat', () => {
     expect(
       vectorFormat({mime: 'application/json', path: 'b/parish.geojson'})
     ).to.equal('geojson')
+  })
+
+  it('recognises GPX by mime type or extension', () => {
+    expect(vectorFormat({mime: 'application/gpx+xml'})).to.equal('gpx')
+    expect(vectorFormat({mime: 'text/xml', path: 'a/walk.GPX'})).to.equal('gpx')
   })
 
   it('rejects other files, including plain JSON', () => {
@@ -68,6 +82,16 @@ describe('parseVector', () => {
     const feature = {type: 'Feature', geometry, properties: {name: 'A'}}
     const fromFeature = parseVector(JSON.stringify(feature), 'geojson')
     expect(fromFeature.features).to.deep.equal([feature])
+  })
+
+  it('converts GPX tracks and waypoints', () => {
+    const fc = parseVector(GPX, 'gpx')
+    const types = fc.features.map(f => f.geometry.type).sort()
+    expect(types).to.deep.equal(['LineString', 'Point'])
+    expect(vectorBounds([fc])).to.deep.equal([
+      [8, 49],
+      [9, 50],
+    ])
   })
 
   it('returns null for unreadable files', () => {

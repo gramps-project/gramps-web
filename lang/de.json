@@ -463,5 +463,14 @@
     "Profile picture": "Profilbild",
     "Add profile picture": "Profilbild hinzufügen",
     "Another task is already running on this tree. Try again once it has finished.": "Auf diesem Baum wird bereits eine andere Aufgabe ausgeführt. Versuch es erneut, sobald diese abgeschlossen ist.",
-    "Task completed": "Aufgabe abgeschlossen"
+    "Task completed": "Aufgabe abgeschlossen",
+    "A backup contains the family tree data including private records, the tree settings and the users of the tree. Media files are not included.": "Eine Sicherung enthält die Stammbaumdaten einschließlich privater Datensätze, die Stammbaumeinstellungen und die Benutzer des Stammbaums. Mediendateien sind nicht enthalten.",
+    "Create, download, and restore backups of the tree": "Sicherungskopien des Baums erstellen, herunterladen und wiederherstellen",
+    "The newest %s backups are kept, older ones are deleted automatically.": "Die neuesten %s-Sicherungen werden aufbewahrt, ältere werden automatisch gelöscht.",
+    "This backup was made with a newer version and cannot be restored on this server.": "Diese Sicherung wurde mit einer neueren Version erstellt und kann auf diesem Server nicht wiederhergestellt werden.",
+    "Users": "Benutzer",
+    "Backups": "Sicherungen",
+    "Storing backups is not configured on this server.": "Die Speicherung von Sicherungskopien ist auf diesem Server nicht konfiguriert.",
+    "Added users get a random password, so they can sign in after resetting it.": "Neu hinzugefügte Benutzer erhalten ein zufälliges Passwort, sodass sie sich nach dem Zurücksetzen anmelden können.",
+    "The files of %s media objects in the backup are missing on this server.": "Die Dateien der %s-Medienobjekte aus der Sicherung fehlen auf diesem Server."
 }
