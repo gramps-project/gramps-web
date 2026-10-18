@@ -472,5 +472,22 @@
     "Backups": "Sicherungen",
     "Storing backups is not configured on this server.": "Die Speicherung von Sicherungskopien ist auf diesem Server nicht konfiguriert.",
     "Added users get a random password, so they can sign in after resetting it.": "Neu hinzugefügte Benutzer erhalten ein zufälliges Passwort, sodass sie sich nach dem Zurücksetzen anmelden können.",
-    "The files of %s media objects in the backup are missing on this server.": "Die Dateien der %s-Medienobjekte aus der Sicherung fehlen auf diesem Server."
+    "The files of %s media objects in the backup are missing on this server.": "Die Dateien der %s-Medienobjekte aus der Sicherung fehlen auf diesem Server.",
+    "Advanced filter": "Erweiterter Filter",
+    "The filter is edited in the advanced filter.": "Der Filter wird im erweiterten Filter bearbeitet.",
+    "All conditions": "Alle Bedingungen",
+    "Any condition": "Beliebige Bedingung",
+    "Exactly one condition": "Genau eine Bedingung",
+    "More options": "Weitere Optionen",
+    "No conditions": "Keine Bedingungen",
+    "Add condition": "Bedingung hinzufügen",
+    "Add group": "Gruppe hinzufügen",
+    "Not": "Nicht",
+    "People with association of type <type>": "Personen mit einer Verbindung der Art <Art>",
+    "Matches people with a certain association type": "Findet Personen mit einer bestimmten Art von Verbindung",
+    "Media referenced by <type>": "Medien, auf die mit <Art> verwiesen wird",
+    "Matches media objects referenced by a specific object type": "Gibt Medienobjekte zurück, auf die ein bestimmter Objekttyp verweist",
+    "Matching the <GOQL expression>": "Übereinstimmung mit dem <GOQL-Ausdruck>",
+    "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Liefert Objekte, für die der angegebene GOQL-Ausdruck (Gramps Object Query Language) wahr ist",
+    "Expression:": "Ausdruck:"
 }
