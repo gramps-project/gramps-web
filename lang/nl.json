@@ -471,5 +471,22 @@
     "Backups": "Back-ups",
     "Storing backups is not configured on this server.": "Het opslaan van back-ups is niet geconfigureerd op deze server.",
     "Added users get a random password, so they can sign in after resetting it.": "Toegevoegde gebruikers krijgen een willekeurig wachtwoord, zodat ze zich kunnen aanmelden nadat ze het opnieuw hebben ingesteld.",
-    "The files of %s media objects in the backup are missing on this server.": "De bestanden van %s media-objecten in de back-up ontbreken op deze server."
+    "The files of %s media objects in the backup are missing on this server.": "De bestanden van %s media-objecten in de back-up ontbreken op deze server.",
+    "Advanced filter": "Geavanceerd filter",
+    "The filter is edited in the advanced filter.": "Het filter wordt bewerkt in het geavanceerde filter.",
+    "All conditions": "Alle voorwaarden",
+    "Any condition": "Elke voorwaarde",
+    "Exactly one condition": "Precies één voorwaarde",
+    "More options": "Meer opties",
+    "No conditions": "Geen voorwaarden",
+    "Add condition": "Voorwaarde toevoegen",
+    "Add group": "Groep toevoegen",
+    "Not": "Niet",
+    "People with association of type <type>": "Personen met associatietype <type>",
+    "Matches people with a certain association type": "Komt overeen met mensen met een bepaald associatietype",
+    "Media referenced by <type>": "Media verwezen door <type>",
+    "Matches media objects referenced by a specific object type": "Komt overeen met mediaobjecten waarnaar wordt verwezen door een specifiek objecttype",
+    "Matching the <GOQL expression>": "Overeenkomend met <GOQL expression>",
+    "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Komt overeen met objecten waarvoor de gegeven Gramps Object Query Language (GOQL)-expressie waar is",
+    "Expression:": "Expressie:"
 }
