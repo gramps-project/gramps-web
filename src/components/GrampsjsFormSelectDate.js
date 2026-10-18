@@ -360,7 +360,6 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
     this.data = {
       ...this.data,
       dateval: [d, m, y, false, ...oldval.slice(4)],
-      year: y,
     }
     this.handleChange()
   }
@@ -402,7 +401,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
       ? [...this.data.dateval]
       : [0, 0, 0, false]
     dateval[2] = y
-    this.data = {...this.data, dateval, year: y}
+    this.data = {...this.data, dateval}
     this.handleChange()
   }
 

@@ -15,7 +15,13 @@ import '../components/GrampsjsFormPrivate.js'
 import '../components/GrampsjsFormParticipantRef.js'
 import '../components/GrampsjsIcon.js'
 
-import {emptyDate, objectIconPath, makeHandle, fireEvent} from '../util.js'
+import {
+  emptyDate,
+  objectIconPath,
+  makeHandle,
+  fireEvent,
+  toWritableObject,
+} from '../util.js'
 import '../components/GrampsjsImg.js'
 
 const PRIMARY_ROLES_EN = new Set(['Primary', 'Family'])
@@ -281,7 +287,7 @@ export class GrampsjsViewNewEvent extends GrampsjsNewEventMixin(
       })
       return false
     }
-    const {extended, profile, backlinks, formatted, ...objData} = resp.data
+    const objData = toWritableObject(resp.data)
     objData.event_ref_list = [...(objData.event_ref_list || []), eventRef]
     const putResp = await this.appState.apiPut(
       `/api/${endpoint}/${handle}`,

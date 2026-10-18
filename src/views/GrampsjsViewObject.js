@@ -8,7 +8,12 @@ import '../components/GrampsjsIcon.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 
-import {fireEvent, objectIconPath, objectTypeToEndpoint} from '../util.js'
+import {
+  fireEvent,
+  objectIconPath,
+  objectTypeToEndpoint,
+  toWritableObject,
+} from '../util.js'
 import {clearDraftsWithPrefix} from '../api.js'
 import '../components/GrampsjsBreadcrumbs.js'
 
@@ -745,8 +750,7 @@ export class GrampsjsViewObject extends GrampsjsView {
       const personHandle = this._data.handle
       this.appState.apiGet(`/api/families/${familyHandle}`).then(result => {
         if ('data' in result) {
-          const {extended, profile, backlinks, formatted, ...family} =
-            result.data
+          const family = toWritableObject(result.data)
           // Prevent adding the person as a child to a family where they are already a parent
           if (
             family.father_handle === personHandle ||
@@ -1007,10 +1011,7 @@ export class GrampsjsViewObject extends GrampsjsView {
   }
 
   _updateObject(obj, objType, updateFunc, editorDraftPrefix) {
-    // remove extended, profile, backlinks, formatted keys from object
-    // eslint-disable-next-line prefer-const
-    let {extended, profile, backlinks, formatted, ...objNew} = obj
-    objNew = {_class: capitalize(objType), ...objNew}
+    const objNew = {_class: capitalize(objType), ...toWritableObject(obj)}
     // Places may carry a stray `type` key that older API versions stored;
     // the API rejects it as an unknown Place key.
     if (objType === 'place') {
