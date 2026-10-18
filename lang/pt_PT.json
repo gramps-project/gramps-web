@@ -472,5 +472,22 @@
     "Backups": "Salvaguardas",
     "Storing backups is not configured on this server.": "Armazenar salvaguardas não está configurado neste servidor.",
     "Added users get a random password, so they can sign in after resetting it.": "Utilizadores adicionados recebem uma senha aleatória para iniciar sessão após a redefinirem.",
-    "The files of %s media objects in the backup are missing on this server.": "Faltam %s ficheiros da multimédia da salvaguarda neste servidor."
+    "The files of %s media objects in the backup are missing on this server.": "Faltam %s ficheiros da multimédia da salvaguarda neste servidor.",
+    "Advanced filter": "Filtro avançado",
+    "The filter is edited in the advanced filter.": "O filtro é editado na filtragem avançada.",
+    "All conditions": "Todas as condições",
+    "Any condition": "Qualquer condição",
+    "Exactly one condition": "Só uma condição exacta",
+    "More options": "Mais opções",
+    "No conditions": "Sem condições",
+    "Add condition": "Adicionar condição",
+    "Add group": "Adicionar grupo",
+    "Not": "Não",
+    "People with association of type <type>": "Indivíduos com associação de tipo <tipo>",
+    "Matches people with a certain association type": "Compara indivíduos com um determinado tipo de associação",
+    "Media referenced by <type>": "Multimédia referenciada por <tipo>",
+    "Matches media objects referenced by a specific object type": "Compara objectos multimédia referenciados por um tipo de objecto específico",
+    "Matching the <GOQL expression>": "Cumprem a <expressão GOQL>",
+    "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Identifica os objectos para os quais a expressão GOQL (Gramps Object Query Language) indicada é verdadeira",
+    "Expression:": "Expressão:"
 }
