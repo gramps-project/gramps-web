@@ -122,7 +122,7 @@
   "version": "26.10.1",
   "description": "The frontend for the Gramps Web genealogical research system.",
   "author": "David M. Straub",
-  "license": "AGPL",
+  "license": "AGPL-3.0-or-later",
   "type": "module",
   "dependencies": {
     "@americana/diplomat": "^0.5.0",
