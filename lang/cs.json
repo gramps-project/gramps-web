@@ -487,5 +487,18 @@
     "Matches media objects referenced by a specific object type": "Vyhovují mediální objekty, na které odkazuje specifický typ objektu",
     "Matching the <GOQL expression>": "Vyhovující <výrazu GOQL>",
     "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Vyhovují objekty, pro které je daný výraz v jazyce Gramps Object Query Language (GOQL) pravdivý",
-    "Expression:": "Výraz:"
+    "Expression:": "Výraz:",
+    "Linked sign-in methods": "Propojené metody přihlášení",
+    "The linked sign-in methods could not be loaded.": "Propojené metody přihlášení se nepodařilo načíst.",
+    "You can also sign in with an account from one of these providers once you link it.": "Po propojení se můžete přihlásit také účtem od jednoho z těchto poskytovatelů.",
+    "Link with %s": "Propojit s %s",
+    "Linked": "Propojeno",
+    "Unlink": "Zrušit propojení",
+    "Unlink %s?": "Zrušit propojení s %s?",
+    "You will no longer be able to sign in with this account.": "S tímto účtem se již nebudete moci přihlásit.",
+    "This is your last linked sign-in method. To unlink it, enter your password; you will then sign in with your user name and password.": "Toto je vaše poslední propojená metoda přihlášení. Pro její zrušení zadejte vaše heslo; poté se budete přihlašovat uživatelským jménem a heslem.",
+    "Linked %s": "Propojeno: %s",
+    "This sign-in is already linked to another account.": "Toto přihlášení je již propojeno s jiným účtem.",
+    "Linking failed.": "Propojení selhalo.",
+    "Unlinked %s": "Propojení s %s zrušeno"
 }
