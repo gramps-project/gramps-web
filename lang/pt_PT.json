@@ -489,5 +489,18 @@
     "Matches media objects referenced by a specific object type": "Compara objectos multimédia referenciados por um tipo de objecto específico",
     "Matching the <GOQL expression>": "Cumprem a <expressão GOQL>",
     "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Identifica os objectos para os quais a expressão GOQL (Gramps Object Query Language) indicada é verdadeira",
-    "Expression:": "Expressão:"
+    "Expression:": "Expressão:",
+    "Linked sign-in methods": "Inícios de sessão ligados",
+    "The linked sign-in methods could not be loaded.": "Impossível carregar os início de sessão ligados.",
+    "You can also sign in with an account from one of these providers once you link it.": "Também pode iniciar sessão com uma conta de um destes fornecedores, depois de a ligar.",
+    "Link with %s": "Ligar com %s",
+    "Linked": "Ligado",
+    "Unlink": "Desligar",
+    "Unlink %s?": "Desligar %s?",
+    "You will no longer be able to sign in with this account.": "Já não poderá iniciar sessão com esta conta.",
+    "This is your last linked sign-in method. To unlink it, enter your password; you will then sign in with your user name and password.": "Este é o seu último método de início de sessão ligado. Para o desligar, insira a sua senha; depois iniciará sessão com o seu utilizador e senha.",
+    "Linked %s": "Ligado %s",
+    "This sign-in is already linked to another account.": "Este login já está ligado a outra conta.",
+    "Linking failed.": "Falha ao ligar.",
+    "Unlinked %s": "%s desligado"
 }
