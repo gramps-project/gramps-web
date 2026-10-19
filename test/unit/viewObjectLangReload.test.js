@@ -128,4 +128,47 @@ describe('object view: data requests around the language change', () => {
     expect(view._data).toEqual({gramps_id: 'I0001', lang: 'de'})
     expect(view.loading).toBe(false)
   })
+
+  it('requests the data again on activation after a language change while inactive', async () => {
+    const appState = makeAppState('en')
+    const view = makeView(appState)
+    await view.updateComplete
+    appState.pending[0].resolve({data: [{gramps_id: 'I0001', lang: 'en'}]})
+    await new Promise(resolve => {
+      setTimeout(resolve, 0)
+    })
+
+    view.active = false
+    await view.updateComplete
+    view.appState = {...appState, i18n: {strings: {}, lang: 'de'}}
+    await view.updateComplete
+    expect(appState.apiGet).toHaveBeenCalledTimes(1)
+
+    view.active = true
+    await view.updateComplete
+
+    expect(appState.apiGet).toHaveBeenCalledTimes(2)
+    expect(appState.apiGet).toHaveBeenLastCalledWith(
+      '/api/people/?gramps_id=I0001&locale=de'
+    )
+    // the data in the old language stays visible until the new one arrives
+    expect(view._data).toEqual({gramps_id: 'I0001', lang: 'en'})
+  })
+
+  it('does not request the data again on activation without a language change', async () => {
+    const appState = makeAppState('en')
+    const view = makeView(appState)
+    await view.updateComplete
+    appState.pending[0].resolve({data: [{gramps_id: 'I0001', lang: 'en'}]})
+    await new Promise(resolve => {
+      setTimeout(resolve, 0)
+    })
+
+    view.active = false
+    await view.updateComplete
+    view.active = true
+    await view.updateComplete
+
+    expect(appState.apiGet).toHaveBeenCalledTimes(1)
+  })
 })
