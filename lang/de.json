@@ -497,5 +497,10 @@
     "Linked": "Verlinkt",
     "Unlink": "Verknüpfung aufheben",
     "Unlink %s?": "Verknüpfung zu %s aufheben?",
-    "You will no longer be able to sign in with this account.": "Du kannst dich mit diesem Konto nicht mehr anmelden."
+    "You will no longer be able to sign in with this account.": "Du kannst dich mit diesem Konto nicht mehr anmelden.",
+    "This is your last linked sign-in method. To unlink it, enter your password; you will then sign in with your user name and password.": "Dies ist deine letzte verknüpfte Anmeldemethode. Um die Verknüpfung aufzuheben, gib dein Passwort ein; anschließend meldest du dich mit deinem Benutzernamen und deinem Passwort an.",
+    "Linked %s": "Verlinkt %s",
+    "This sign-in is already linked to another account.": "Diese Anmeldung ist bereits mit einem anderen Konto verknüpft.",
+    "Linking failed.": "Die Verknüpfung ist fehlgeschlagen.",
+    "Unlinked %s": "Nicht verknüpft %s"
 }
