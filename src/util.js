@@ -299,6 +299,13 @@ export const objectTypeToEndpoint = {
   object: 'objects',
 }
 
+// Strip the keys the API adds to an object it returns, leaving the object as
+// Gramps stores it, ready to send back in a PUT
+export function toWritableObject(obj) {
+  const {extended, profile, backlinks, formatted, ...writable} = obj
+  return writable
+}
+
 // Gramps object class names, as used e.g. by the change history API
 export const endpointToObjectClass = {
   people: 'Person',

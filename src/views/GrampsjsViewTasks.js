@@ -7,7 +7,7 @@ import '../components/GrampsjsTasks.js'
 import '../components/GrampsjsIcon.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
-import {fireEvent} from '../util.js'
+import {fireEvent, toWritableObject} from '../util.js'
 
 export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
@@ -116,7 +116,7 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
     const {value} = event.detail
     for (let i = 0; i < event.detail.objects.length; i += 1) {
       const object = event.detail.objects[i]
-      const {extended, profile, ...rest} = object
+      const rest = toWritableObject(object)
       rest.attribute_list = [
         ...rest.attribute_list.filter(att => att.type !== key),
         {type: key, value},

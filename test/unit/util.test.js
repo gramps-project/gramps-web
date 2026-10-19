@@ -28,6 +28,7 @@ import {
   linkUrls,
   isKeyEventInInput,
   fileWithMimeType,
+  toWritableObject,
 } from '../../src/util.js'
 
 // Helpers
@@ -760,5 +761,24 @@ describe('fileWithMimeType', () => {
       }),
     ]
     files.forEach(file => expect(fileWithMimeType(file)).to.equal(file))
+  })
+})
+
+describe('toWritableObject', () => {
+  it('drops the keys the API adds and keeps stored ones', () => {
+    const obj = {
+      _class: 'Family',
+      handle: 'F1',
+      child_ref_list: [{_class: 'ChildRef', ref: 'P1'}],
+      extended: {father: {}},
+      profile: {relationship: 'Married'},
+      backlinks: {event: []},
+      formatted: {father: 'A'},
+    }
+    expect(toWritableObject(obj)).to.deep.equal({
+      _class: 'Family',
+      handle: 'F1',
+      child_ref_list: [{_class: 'ChildRef', ref: 'P1'}],
+    })
   })
 })

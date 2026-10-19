@@ -2,10 +2,7 @@
 // Each function takes appState and the clicked person's full data object
 // (including person.extended from the tree fetch).
 
-function cleanFamily(familyData) {
-  const {extended, profile, backlinks, formatted, ...clean} = familyData
-  return clean
-}
+import {toWritableObject} from '../util.js'
 
 // gender: 0 = Female → mother slot, 1 = Male → father slot
 // Unknown/Other genders fall back to father slot.
@@ -18,7 +15,7 @@ export async function linkParent(appState, personData, parentHandle, role) {
   if (parentFamily?.handle) {
     return appState.apiPut(`/api/families/${parentFamily.handle}`, {
       _class: 'Family',
-      ...cleanFamily(parentFamily),
+      ...toWritableObject(parentFamily),
       [`${role}_handle`]: parentHandle,
     })
   }
@@ -41,7 +38,7 @@ export async function linkChild(appState, personData, childHandle, frel, mrel) {
     const family = existingFamilies[0]
     return appState.apiPut(`/api/families/${family.handle}`, {
       _class: 'Family',
-      ...cleanFamily(family),
+      ...toWritableObject(family),
       child_ref_list: [...(family.child_ref_list ?? []), childRef],
     })
   }
@@ -65,7 +62,7 @@ export async function linkSpouse(appState, personData, spouseHandle, relType) {
     const family = existingFamilies[0]
     return appState.apiPut(`/api/families/${family.handle}`, {
       _class: 'Family',
-      ...cleanFamily(family),
+      ...toWritableObject(family),
       [otherSlot]: spouseHandle,
       ...typeField,
     })
