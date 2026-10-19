@@ -489,5 +489,13 @@
     "Matches media objects referenced by a specific object type": "Gibt Medienobjekte zurück, auf die ein bestimmter Objekttyp verweist",
     "Matching the <GOQL expression>": "Übereinstimmung mit dem <GOQL-Ausdruck>",
     "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Liefert Objekte, für die der angegebene GOQL-Ausdruck (Gramps Object Query Language) wahr ist",
-    "Expression:": "Ausdruck:"
+    "Expression:": "Ausdruck:",
+    "Linked sign-in methods": "Verknüpfte Anmeldemethoden",
+    "The linked sign-in methods could not be loaded.": "Die verknüpften Anmeldemethoden konnten nicht geladen werden.",
+    "You can also sign in with an account from one of these providers once you link it.": "Du kannst dich auch mit einem Konto eines dieser Anbieter anmelden, sobald du es verknüpft hast.",
+    "Link with %s": "Link zu %s",
+    "Linked": "Verlinkt",
+    "Unlink": "Verknüpfung aufheben",
+    "Unlink %s?": "Verknüpfung zu %s aufheben?",
+    "You will no longer be able to sign in with this account.": "Du kannst dich mit diesem Konto nicht mehr anmelden."
 }
