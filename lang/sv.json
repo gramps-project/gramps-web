@@ -488,5 +488,18 @@
     "Matches media objects referenced by a specific object type": "Matchar medieobjekt som refereras av en specifik objekttyp",
     "Matching the <GOQL expression>": "Matchar <GOQL-uttrycket>",
     "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Matchar objekt för vilka det givna Gramps Object Query Language (GOQL)-uttrycket är sant",
-    "Expression:": "Uttryck:"
+    "Expression:": "Uttryck:",
+    "Linked sign-in methods": "Länkade inloggningsmetoder",
+    "The linked sign-in methods could not be loaded.": "De länkade inloggningsmetoderna kunde inte läsas in.",
+    "You can also sign in with an account from one of these providers once you link it.": "Du kan också logga in med ett konto från en av dessa leverantörer när du har kopplat det.",
+    "Link with %s": "Länka med %s",
+    "Linked": "Länkad",
+    "Unlink": "Ta bort länk",
+    "Unlink %s?": "Ta bort länken till %s?",
+    "You will no longer be able to sign in with this account.": "Du kommer inte längre att kunna logga in med det här kontot.",
+    "This is your last linked sign-in method. To unlink it, enter your password; you will then sign in with your user name and password.": "Detta är din sista länkade inloggningsmetod. För att ta bort kopplingen anger du ditt lösenord; därefter loggar du in med ditt användarnamn och lösenord.",
+    "Linked %s": "Länkad %s",
+    "This sign-in is already linked to another account.": "Denna inloggning är redan kopplad till ett annat konto.",
+    "Linking failed.": "Länkningen misslyckades.",
+    "Unlinked %s": "Länk %s borttagen"
 }
