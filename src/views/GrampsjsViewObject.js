@@ -144,6 +144,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     // Reuse one function reference so disconnectedCallback can release it.
     this._boundHandleEditAction = this.handleEditAction.bind(this)
     this._dataRequestId = 0
+    this._dataLang = ''
   }
 
   get canEdit() {
