@@ -486,5 +486,18 @@
     "Matches media objects referenced by a specific object type": "Abbina gli oggetti multimediali referenziati da uno specifico tipo di oggetto",
     "Matching the <GOQL expression>": "Corrispondenti a <GOQL expression>",
     "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Abbina gli oggetti per cui l'espressione GOQL (Gramps Object Query Language) indicata è vera",
-    "Expression:": "Espressione:"
+    "Expression:": "Espressione:",
+    "Linked sign-in methods": "Metodi di accesso collegati",
+    "The linked sign-in methods could not be loaded.": "Impossibile caricare i metodi di accesso collegati.",
+    "You can also sign in with an account from one of these providers once you link it.": "Puoi anche accedere con un account di uno di questi fornitori, dopo averlo collegato.",
+    "Link with %s": "Collega con %s",
+    "Linked": "Collegato",
+    "Unlink": "Scollega",
+    "Unlink %s?": "Scollegare %s?",
+    "You will no longer be able to sign in with this account.": "Non potrai più accedere con questo account.",
+    "This is your last linked sign-in method. To unlink it, enter your password; you will then sign in with your user name and password.": "Questo è il tuo ultimo metodo di accesso collegato. Per scollegarlo, inserisci la tua password: poi accederai con il tuo nome utente e la tua password.",
+    "Linked %s": "%s collegato",
+    "This sign-in is already linked to another account.": "Questo accesso è già collegato a un altro account.",
+    "Linking failed.": "Collegamento non riuscito.",
+    "Unlinked %s": "%s scollegato"
 }
