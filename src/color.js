@@ -36,6 +36,26 @@ export function colorToCss(color, a = 1) {
   )
 }
 
+function supportsRelativeColor() {
+  return (
+    typeof CSS !== 'undefined' &&
+    typeof CSS.supports === 'function' &&
+    CSS.supports('color', 'oklch(from red l c h)')
+  )
+}
+
+/* Tag color as CSS, with its lightness kept within the readable range of
+the current theme (--grampsjs-tag-lightness-min/-max in global.css). Hue and
+chroma are kept, so a black tag shows light grey on the dark theme. Browsers
+without relative color syntax get the plain color. */
+export function tagColorToCss(color, a = 1) {
+  const css = colorToCss(color, a)
+  if (!supportsRelativeColor()) {
+    return css
+  }
+  return `oklch(from ${css} clamp(var(--grampsjs-tag-lightness-min, 0), l, var(--grampsjs-tag-lightness-max, 1)) c h / alpha)`
+}
+
 /* Convert #RRRRGGGGBBBB back to #rrggbb */
 export function hex12ToHex6(hex) {
   const result = /^#?([0-9a-v]{4})([0-9a-v]{4})([0-9a-v]{4})$/i.exec(hex)

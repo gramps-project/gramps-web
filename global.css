@@ -258,6 +258,8 @@ body {
   );
   --grampsjs-note-color: #ccc;
   --grampsjs-note-highlight-strength: 30%;
+  /* keep tag colors readable on dark surfaces (see tagColorToCss) */
+  --grampsjs-tag-lightness-min: 0.7;
   --grampsjs-map-marker-color: #bb1f11;
   /* --md-sys-color-* tokens are set dynamically by applyColors() in theme.js */
   --mdc-select-fill-color: var(--md-sys-color-surface-container-highest);
