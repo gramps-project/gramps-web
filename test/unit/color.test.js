@@ -68,6 +68,31 @@ describe('hex6ToHex12 + hex12ToCss round-trip', () => {
   })
 })
 
+describe('12-digit colors as stored by Gramps', () => {
+  it('reads #RRRRGGGGBBBB as 16 bits per channel', () => {
+    expect(hex12ToCss('#076780873bf0')).to.equal('rgb(7, 128, 60, 1)')
+    expect(hex12ToCss('#efb60c280c28', 0.5)).to.equal('rgb(239, 12, 12, 0.5)')
+    expect(hex12ToCss('#ffffffffffff')).to.equal('rgb(255, 255, 255, 1)')
+    expect(hex12ToCss('#000000000000')).to.equal('rgb(0, 0, 0, 1)')
+  })
+
+  it('converts to #rrggbb for the color picker', () => {
+    expect(hex12ToHex6('#076780873bf0')).to.equal('#07803c')
+    expect(colorForPicker('#efb60c280c28')).to.equal('#ef0c0c')
+    expect(colorForPicker('#ffffffffffff')).to.equal('#ffffff')
+  })
+
+  it('writes 4 hex digits per channel', () => {
+    expect(hex6ToHex12('#ff0000')).to.equal('#ffff00000000')
+    expect(hex6ToHex12('#07803c')).to.equal('#070780803c3c')
+  })
+
+  it('rejects digits that are not hexadecimal', () => {
+    expect(hex12ToCss('#0767808g3bf0')).to.equal(null)
+    expect(hex12ToHex6('#0767808g3bf0')).to.equal(null)
+  })
+})
+
 describe('hex12ToHex6', () => {
   it('round-trips red', () => {
     expect(hex12ToHex6(hex6ToHex12('#ff0000'))).to.equal('#ff0000')
