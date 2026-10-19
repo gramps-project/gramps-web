@@ -11,6 +11,7 @@ import '../components/GrampsjsCollapsibleSection.js'
 import '../components/GrampsjsFormSelectObjectList.js'
 import {userRoles} from '../components/GrampsjsFormUser.js'
 import '../components/GrampsjsIcon.js'
+import '../components/GrampsjsOidcAccounts.js'
 import '../components/GrampsjsShareUrl.js'
 import '../components/GrampsjsSysinfo.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
@@ -135,6 +136,10 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
               ></grampsjs-access-tokens>
             `
           : ''}
+        <grampsjs-oidc-accounts
+          .appState="${this.appState}"
+          username="${this._userInfo?.name || ''}"
+        ></grampsjs-oidc-accounts>
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
@@ -209,6 +214,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         this._fetchDataLang()
       }
       this.renderRoot.querySelector('grampsjs-access-tokens')?.refresh()
+      this.renderRoot.querySelector('grampsjs-oidc-accounts')?.refresh()
     }
   }
 

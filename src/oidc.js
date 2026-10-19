@@ -57,21 +57,66 @@ export async function handleOIDCCallback(errorCallback) {
   }
 }
 
+// Where linking an identity reports its result for the settings page, which
+// the browser returns to; see GrampsjsOidcAccounts.
+export const OIDC_LINK_RESULT_KEY = 'oidc_link_result'
+
+// Where a sign-in through the provider returns to instead of the home page,
+// e.g. the settings page after signing in again there.
+export const OIDC_RETURN_PATH_KEY = 'oidc_return_path'
+
+export function takeReturnPath() {
+  try {
+    const path = sessionStorage.getItem(OIDC_RETURN_PATH_KEY)
+    sessionStorage.removeItem(OIDC_RETURN_PATH_KEY)
+    // only paths on this site
+    return path?.startsWith('/') && !path.startsWith('//') ? path : '/'
+  } catch {
+    return '/'
+  }
+}
+
+// A link started in Settings comes back with `link_code` or `error` instead of
+// a login code. Only the user who started it can complete it, with their token.
+export async function completeLink(appState, linkCode, error) {
+  let result = {error: error || 'link_failed'}
+  if (linkCode) {
+    const res = await appState.apiPost(
+      '/api/oidc/link/complete/',
+      {code: linkCode},
+      {dbChanged: false, saving: false}
+    )
+    result = 'error' in res ? {error: res.error} : {linked: res.data.provider}
+  }
+  try {
+    sessionStorage.setItem(OIDC_LINK_RESULT_KEY, JSON.stringify(result))
+  } catch {
+    // the settings page then just shows the current state
+  }
+  window.location.href = '/settings/user'
+}
+
 // The code is single use, so the exchange must not run twice.
 let oidcCompleteStarted = false
 
-export async function handleOIDCComplete(errorCallback) {
+export async function handleOIDCComplete(errorCallback, appState) {
   if (oidcCompleteStarted) {
     return
   }
   oidcCompleteStarted = true
   try {
-    const code = new URLSearchParams(window.location.hash.slice(1)).get('code')
+    const params = new URLSearchParams(window.location.hash.slice(1))
+    const code = params.get('code')
 
     // Remove the fragment from the address bar before anything can read the
     // code back out of it.
     if (window.location.hash) {
       window.history.replaceState(null, '', window.location.pathname)
+    }
+
+    if (params.has('link_code') || params.has('error')) {
+      await completeLink(appState, params.get('link_code'), params.get('error'))
+      return
     }
 
     const resp = code
@@ -106,8 +151,9 @@ export async function handleOIDCComplete(errorCallback) {
 
     storeTokens(data)
 
+    const path = takeReturnPath()
     requestAnimationFrame(() => {
-      window.location.href = '/'
+      window.location.href = path
     })
   } catch (error) {
     errorCallback(`OIDC authentication failed: ${error.message}`)
