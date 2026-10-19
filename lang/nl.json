@@ -488,5 +488,18 @@
     "Matches media objects referenced by a specific object type": "Komt overeen met mediaobjecten waarnaar wordt verwezen door een specifiek objecttype",
     "Matching the <GOQL expression>": "Overeenkomend met <GOQL expression>",
     "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Komt overeen met objecten waarvoor de gegeven Gramps Object Query Language (GOQL)-expressie waar is",
-    "Expression:": "Expressie:"
+    "Expression:": "Expressie:",
+    "Linked sign-in methods": "Gekoppelde aanmeldingsmethoden",
+    "The linked sign-in methods could not be loaded.": "De gekoppelde aanmeldingsmethoden konden niet worden geladen.",
+    "You can also sign in with an account from one of these providers once you link it.": "U kunt zich ook aanmelden met een account van een van deze providers zodra u deze koppelt.",
+    "Link with %s": "Koppelen met %s",
+    "Linked": "Gekoppeld",
+    "Unlink": "Koppeling opheffen",
+    "Unlink %s?": "Koppeling met %s opheffen?",
+    "You will no longer be able to sign in with this account.": "U kunt zich niet meer aanmelden met dit account.",
+    "This is your last linked sign-in method. To unlink it, enter your password; you will then sign in with your user name and password.": "Dit is uw laatste gekoppelde aanmeldingsmethode. Om het te ontkoppelen, moet u uw wachtwoord invoeren; u meldt zich dan aan met uw gebruikersnaam en wachtwoord.",
+    "Linked %s": "%s gekoppeld",
+    "This sign-in is already linked to another account.": "Deze aanmelding is al gekoppeld aan een ander account.",
+    "Linking failed.": "Koppeling mislukt.",
+    "Unlinked %s": "Koppeling %s opgeheven"
 }
