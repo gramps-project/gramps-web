@@ -1,4 +1,5 @@
 import {html} from 'lit'
+import '@material/web/button/outlined-button'
 
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 import './GrampsjsFilterCheckboxes.js'
@@ -28,6 +29,20 @@ export class GrampsjsFilterTags extends GrampsjsConnectedComponent {
         .rules="${this.rules}"
       ></grampsjs-filter-checkboxes>
     `
+  }
+
+  render() {
+    if (this.error) {
+      return html`
+        <p role="alert">${this._('Could not load tags.')}</p>
+        <md-outlined-button @click="${() => this._updateData()}">
+          ${this._('Retry')}
+        </md-outlined-button>
+      `
+    }
+    if (this.loading)
+      return html`<p aria-live="polite">${this._('Loading...')}</p>`
+    return this.renderContent()
   }
 
   // eslint-disable-next-line class-methods-use-this
