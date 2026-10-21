@@ -1,4 +1,5 @@
-import {describe, it, expect, vi} from 'vitest'
+import {describe, it, expect, vi, afterEach} from 'vitest'
+import * as api from '../../src/api.js'
 import {GrampsjsViewSettingsUser} from '../../src/views/GrampsjsViewSettingsUser.js'
 import {SYMBOL_SET_DEFAULT, SYMBOL_SET_TEXT} from '../../src/symbols.js'
 
@@ -126,6 +127,41 @@ describe('user profile settings', () => {
     expect(element.error).toBe(true)
     expect(element._errorMessage).toBe('This user name is already in use')
     expect(element._fetchOwnUserDetails).not.toHaveBeenCalled()
+  })
+})
+
+describe('password form visibility', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  const localAuthDisabledFor = async config => {
+    vi.spyOn(api, 'apiGetOIDCConfig').mockResolvedValue(config)
+    const element = new GrampsjsViewSettingsUser()
+    await element._fetchAuthConfig()
+    return element._localAuthDisabled
+  }
+
+  it('hides the form when OIDC disables local auth', async () => {
+    expect(
+      await localAuthDisabledFor({enabled: true, disable_local_auth: true})
+    ).toBe(true)
+  })
+
+  it('shows the form when local auth is enabled', async () => {
+    expect(
+      await localAuthDisabledFor({enabled: true, disable_local_auth: false})
+    ).toBe(false)
+  })
+
+  it('shows the form when OIDC is off', async () => {
+    expect(
+      await localAuthDisabledFor({enabled: false, disable_local_auth: true})
+    ).toBe(false)
+  })
+
+  it('shows the form when the config request fails', async () => {
+    expect(await localAuthDisabledFor({error: 'Not Found'})).toBe(false)
   })
 })
 

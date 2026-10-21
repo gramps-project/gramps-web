@@ -22,6 +22,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import {mdiCheck, mdiContentCopy} from '@mdi/js'
 import {
   __APIHOST__,
+  apiGetOIDCConfig,
   TREE_CONFIG_PRIMARY_COLOR,
   TREE_CONFIG_SECONDARY_COLOR,
 } from '../api.js'
@@ -78,6 +79,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       _translations: {type: Array},
       _langLoading: {type: Boolean},
       _tokenCopied: {type: Boolean},
+      _localAuthDisabled: {type: Boolean},
     }
   }
 
@@ -87,6 +89,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     this._translations = []
     this._langLoading = false
     this._tokenCopied = false
+    this._localAuthDisabled = false
   }
 
   renderContent() {
@@ -125,9 +128,12 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
 
         <h3>${this._('Change E-mail')}</h3>
         ${this.renderChangeEmail()}
-
-        <h3>${this._('Change password')}</h3>
-        ${this.renderChangePw()}
+        ${this._localAuthDisabled
+          ? ''
+          : html`
+              <h3>${this._('Change password')}</h3>
+              ${this.renderChangePw()}
+            `}
         ${supportsPersistentAccessTokens(this.appState?.dbInfo)
           ? html`
               <h3>${this._('Access tokens')}</h3>
@@ -205,6 +211,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     if (this.active) {
       this._fetchOwnUserDetails()
     }
+    this._fetchAuthConfig()
   }
 
   update(changed) {
@@ -593,6 +600,14 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       this.error = false
       this._userInfo = data.data
     }
+  }
+
+  // users without local auth have no password to change
+  async _fetchAuthConfig() {
+    const config = await apiGetOIDCConfig()
+    this._localAuthDisabled = Boolean(
+      config?.enabled && config.disable_local_auth
+    )
   }
 }
 
