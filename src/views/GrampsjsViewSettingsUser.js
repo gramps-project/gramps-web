@@ -22,6 +22,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 import {mdiCheck, mdiContentCopy} from '@mdi/js'
 import {
   __APIHOST__,
+  apiGetOIDCConfig,
   TREE_CONFIG_PRIMARY_COLOR,
   TREE_CONFIG_SECONDARY_COLOR,
 } from '../api.js'
@@ -78,6 +79,8 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       _translations: {type: Array},
       _langLoading: {type: Boolean},
       _tokenCopied: {type: Boolean},
+      _localAuthDisabled: {type: Boolean},
+      _hasLinkedAccount: {type: Boolean},
     }
   }
 
@@ -87,6 +90,8 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     this._translations = []
     this._langLoading = false
     this._tokenCopied = false
+    this._localAuthDisabled = false
+    this._hasLinkedAccount = false
   }
 
   renderContent() {
@@ -125,9 +130,12 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
 
         <h3>${this._('Change E-mail')}</h3>
         ${this.renderChangeEmail()}
-
-        <h3>${this._('Change password')}</h3>
-        ${this.renderChangePw()}
+        ${this._localAuthDisabled
+          ? ''
+          : html`
+              <h3>${this._('Change password')}</h3>
+              ${this.renderChangePw()}
+            `}
         ${supportsPersistentAccessTokens(this.appState?.dbInfo)
           ? html`
               <h3>${this._('Access tokens')}</h3>
@@ -137,6 +145,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
             `
           : ''}
         <grampsjs-oidc-accounts
+          @oidc-accounts:changed="${this._handleOidcAccountsChanged}"
           .appState="${this.appState}"
           username="${this._userInfo?.name || ''}"
         ></grampsjs-oidc-accounts>
@@ -205,6 +214,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     if (this.active) {
       this._fetchOwnUserDetails()
     }
+    this._fetchAuthConfig()
   }
 
   update(changed) {
@@ -366,6 +376,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
           id="change-full-name"
           label="${this._('Full Name')}"
           value="${this._userInfo?.full_name || ''}"
+          supporting-text="${this._idpHint()}"
         ></md-filled-text-field>
         <md-outlined-button @click="${this._changeFullName}">
           ${this._('Save')}
@@ -381,6 +392,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
           id="change-email"
           label="${this._('New E-mail')}"
           value="${this._userInfo?.email ? this._userInfo.email : ''}"
+          supporting-text="${this._idpHint()}"
         ></md-filled-text-field>
       </p>
       <p>
@@ -593,6 +605,27 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       this.error = false
       this._userInfo = data.data
     }
+  }
+
+  // the identity provider may overwrite full name and e-mail at each sign-in
+  _idpHint() {
+    return this._hasLinkedAccount
+      ? this._(
+          'Your full name and e-mail address may be updated whenever you sign in with a linked account.'
+        )
+      : ''
+  }
+
+  _handleOidcAccountsChanged(e) {
+    this._hasLinkedAccount = e.detail.count > 0
+  }
+
+  // users without local auth have no password to change
+  async _fetchAuthConfig() {
+    const config = await apiGetOIDCConfig()
+    this._localAuthDisabled = Boolean(
+      config?.enabled && config.disable_local_auth
+    )
   }
 }
 

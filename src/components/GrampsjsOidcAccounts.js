@@ -113,6 +113,12 @@ export class GrampsjsOidcAccounts extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
+  updated(changed) {
+    if (changed.has('_accounts')) {
+      fireEvent(this, 'oidc-accounts:changed', {count: this._accounts.length})
+    }
+  }
+
   // Reloads the accounts, e.g. when the containing view is shown again.
   refresh() {
     if (this._status !== 'hidden') {
