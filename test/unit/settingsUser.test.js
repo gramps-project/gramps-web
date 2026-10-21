@@ -1,5 +1,6 @@
 import {describe, it, expect, vi, afterEach} from 'vitest'
 import * as api from '../../src/api.js'
+import {GrampsjsOidcAccounts} from '../../src/components/GrampsjsOidcAccounts.js'
 import {GrampsjsViewSettingsUser} from '../../src/views/GrampsjsViewSettingsUser.js'
 import {SYMBOL_SET_DEFAULT, SYMBOL_SET_TEXT} from '../../src/symbols.js'
 
@@ -162,6 +163,33 @@ describe('password form visibility', () => {
 
   it('shows the form when the config request fails', async () => {
     expect(await localAuthDisabledFor({error: 'Not Found'})).toBe(false)
+  })
+})
+
+describe('identity provider hint', () => {
+  it('reports the number of linked accounts', () => {
+    const accounts = new GrampsjsOidcAccounts()
+    vi.spyOn(accounts, 'dispatchEvent')
+    accounts._accounts = [{id: 'a'}, {id: 'b'}]
+
+    accounts.updated(new Map([['_accounts', []]]))
+
+    expect(accounts.dispatchEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'oidc-accounts:changed',
+        detail: {count: 2},
+      })
+    )
+  })
+
+  it('shows the hint while an account is linked', () => {
+    const element = new GrampsjsViewSettingsUser()
+
+    element._handleOidcAccountsChanged({detail: {count: 1}})
+    expect(element._idpHint()).not.toBe('')
+
+    element._handleOidcAccountsChanged({detail: {count: 0}})
+    expect(element._idpHint()).toBe('')
   })
 })
 

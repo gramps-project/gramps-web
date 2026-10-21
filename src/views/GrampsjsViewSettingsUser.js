@@ -80,6 +80,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       _langLoading: {type: Boolean},
       _tokenCopied: {type: Boolean},
       _localAuthDisabled: {type: Boolean},
+      _hasLinkedAccount: {type: Boolean},
     }
   }
 
@@ -90,6 +91,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     this._langLoading = false
     this._tokenCopied = false
     this._localAuthDisabled = false
+    this._hasLinkedAccount = false
   }
 
   renderContent() {
@@ -143,6 +145,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
             `
           : ''}
         <grampsjs-oidc-accounts
+          @oidc-accounts:changed="${this._handleOidcAccountsChanged}"
           .appState="${this.appState}"
           username="${this._userInfo?.name || ''}"
         ></grampsjs-oidc-accounts>
@@ -373,6 +376,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
           id="change-full-name"
           label="${this._('Full Name')}"
           value="${this._userInfo?.full_name || ''}"
+          supporting-text="${this._idpHint()}"
         ></md-filled-text-field>
         <md-outlined-button @click="${this._changeFullName}">
           ${this._('Save')}
@@ -388,6 +392,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
           id="change-email"
           label="${this._('New E-mail')}"
           value="${this._userInfo?.email ? this._userInfo.email : ''}"
+          supporting-text="${this._idpHint()}"
         ></md-filled-text-field>
       </p>
       <p>
@@ -600,6 +605,19 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       this.error = false
       this._userInfo = data.data
     }
+  }
+
+  // the identity provider may overwrite full name and e-mail at each sign-in
+  _idpHint() {
+    return this._hasLinkedAccount
+      ? this._(
+          'Your full name and e-mail address may be updated whenever you sign in with a linked account.'
+        )
+      : ''
+  }
+
+  _handleOidcAccountsChanged(e) {
+    this._hasLinkedAccount = e.detail.count > 0
   }
 
   // users without local auth have no password to change
