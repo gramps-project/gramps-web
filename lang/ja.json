@@ -470,5 +470,15 @@
     "Backups": "バックアップ",
     "Storing backups is not configured on this server.": "このサーバーでは、バックアップの保存が設定されていません。",
     "Added users get a random password, so they can sign in after resetting it.": "追加されたユーザーにはランダムなパスワードが割り当てられます。パスワードをリセットすることで、サインインできるようになります。",
-    "The files of %s media objects in the backup are missing on this server.": "バックアップに含まれる %s 個のメディアオブジェクトのファイルが、このサーバー上で見当たりません。"
+    "The files of %s media objects in the backup are missing on this server.": "バックアップに含まれる %s 個のメディアオブジェクトのファイルが、このサーバー上で見当たりません。",
+    "Linked sign-in methods": "連携済みのサインイン方法",
+    "The linked sign-in methods could not be loaded.": "リンクされているサインイン方法を読み込めませんでした。",
+    "You can also sign in with an account from one of these providers once you link it.": "これらのプロバイダーのアカウントを連携させれば、そのアカウントを使ってサインインすることも可能です。",
+    "Link with %s": "%s とリンク",
+    "Linked": "リンク済み",
+    "Unlink": "リンク解除",
+    "Unlink %s?": "%s のリンクを解除しますか？",
+    "You will no longer be able to sign in with this account.": "このアカウントでは、今後サインインできなくなります。",
+    "This is your last linked sign-in method. To unlink it, enter your password; you will then sign in with your user name and password.": "これが、現在リンクされている最後のサインイン方法です。リンクを解除するにはパスワードを入力してください。その後は、ユーザー名とパスワードを使用してサインインすることになります。",
+    "Linked %s": "リンク済み %s"
 }
