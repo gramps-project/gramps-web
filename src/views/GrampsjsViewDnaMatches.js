@@ -1,4 +1,4 @@
-import {html} from 'lit'
+import {css, html} from 'lit'
 import {mdiPencil, mdiPlus} from '@mdi/js'
 
 import '@material/web/select/filled-select'
@@ -10,12 +10,32 @@ import '../components/GrampsjsDnaMatch.js'
 import '../components/GrampsjsFormNewMatch.js'
 import '../components/GrampsjsChromosomeBrowser.js'
 import '../components/GrampsjsBreadcrumbs.js'
+import '../components/GrampsjsSvgDownloadButton.js'
 
 import {GrampsjsViewDnaBase} from './GrampsjsViewDnaBase.js'
 
 import {fireEvent, personDisplayName, toWritableObject} from '../util.js'
 
 export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        .select-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 30px;
+          --grampsjs-icon-button-color: var(--grampsjs-body-font-color-60);
+        }
+
+        .select-row md-filled-select {
+          margin-bottom: 0;
+        }
+      `,
+    ]
+  }
+
   static get properties() {
     return {
       chromosome: {type: Boolean},
@@ -89,18 +109,35 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
       >`
     }
     return html`
-      <md-filled-select @change="${this._handleSelectChange}">
-        ${this._data.map(
-          person => html`
-            <md-select-option
-              value="${person.gramps_id}"
-              ?selected="${person.gramps_id === this.grampsId}"
-              >${personDisplayName(person)}</md-select-option
-            >
-          `
-        )}
-      </md-filled-select>
+      <div class="select-row">
+        <md-filled-select @change="${this._handleSelectChange}">
+          ${this._data.map(
+            person => html`
+              <md-select-option
+                value="${person.gramps_id}"
+                ?selected="${person.gramps_id === this.grampsId}"
+                >${personDisplayName(person)}</md-select-option
+              >
+            `
+          )}
+        </md-filled-select>
+        ${this.chromosome && this._dnaData.data?.length
+          ? html`<grampsjs-svg-download-button
+              filename="${this.grampsId}-chromosomes.svg"
+              .svgDocument=${() => this._chromosomeSvg()}
+              .appState="${this.appState}"
+            ></grampsjs-svg-download-button>`
+          : ''}
+      </div>
     `
+  }
+
+  _chromosomeSvg() {
+    return (
+      this.renderRoot
+        .querySelector('grampsjs-chromosome-browser')
+        ?.svgDocument() ?? null
+    )
   }
 
   _shouldLoadDnaData() {
@@ -119,6 +156,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
     this.dialogContent = html`
       <grampsjs-form-new-match
         .appState="${this.appState}"
+        .sourcePersonInitial="${this.selectedPerson ?? {}}"
         @object:save="${this._handleSaveMatch}"
         @object:cancel="${this._handleCancelDialog}"
         dialogTitle=${this._('Add new DNA match')}

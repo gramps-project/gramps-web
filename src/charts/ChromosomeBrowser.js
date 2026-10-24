@@ -1,7 +1,9 @@
-import {create} from 'd3-selection'
+import {create, select} from 'd3-selection'
 import {scaleBand, scaleLinear, scaleOrdinal} from 'd3-scale'
 import {axisLeft, axisTop} from 'd3-axis'
 import {schemeSet1} from 'd3-scale-chromatic'
+
+import {exportPalette} from './palette.js'
 
 const chromosomeLength = {
   1: 249250621,
@@ -47,6 +49,8 @@ export function matchColor(i) {
   return schemeSet1[i % schemeSet1.length]
 }
 
+const defaultMargin = {top: 24, right: 10, bottom: 0, left: 35}
+
 export function ChromosomeBrowser(
   data,
   {
@@ -55,7 +59,7 @@ export function ChromosomeBrowser(
     fontWeight = 350,
     fontColor = 'var(--grampsjs-body-font-color)',
     width = 800,
-    margin = {top: 24, right: 10, bottom: 0, left: 35},
+    margin = defaultMargin,
     interGroupPadding = 0.2,
     intraGroupPadding = 0.15,
     barHeight = 11,
@@ -209,4 +213,82 @@ export function ChromosomeBrowser(
     .attr('opacity', 0.8)
 
   return svg.node()
+}
+
+// Legend of an exported SVG, in pixels: row height, gap to the chart and an
+// estimate of the average character width, since text can't be measured in a
+// detached SVG
+const legendRowHeight = 22
+const legendGap = 20
+const legendCharWidth = 7.5
+
+// Returns the chart of `data` as a standalone SVG document with colours from
+// `exportPalette` on a white background. `legend` lists the rows to the right
+// of the chart, as in the app, as {index, label, detail}, where `index` is the
+// match's index in `data` and `detail` is shown muted after the label.
+export function chromosomeBrowserSvgDocument(data, legend, {width = 800} = {}) {
+  const svg = select(
+    ChromosomeBrowser(data, {
+      width,
+      fontFamily: "'Inter var', sans-serif",
+      fontWeight: 400,
+      fontColor: exportPalette.text,
+    })
+  )
+  const chartWidth = Number(svg.attr('width'))
+  const chartHeight = Number(svg.attr('height'))
+  const longest = Math.max(
+    0,
+    ...legend.map(d => `${d.label}${d.detail ?? ''}`.length)
+  )
+  const legendWidth = legend.length
+    ? legendGap + 19 + 8 + longest * legendCharWidth + 10
+    : 0
+  const fullWidth = chartWidth + legendWidth
+  const height = Math.max(
+    chartHeight,
+    defaultMargin.top + legend.length * legendRowHeight
+  )
+  svg
+    .attr('xmlns', 'http://www.w3.org/2000/svg')
+    .attr('width', fullWidth)
+    .attr('height', height)
+    .attr('viewBox', [0, 0, fullWidth, height].join(' '))
+    .attr('style', null)
+  svg
+    .insert('rect', ':first-child')
+    .attr('width', fullWidth)
+    .attr('height', height)
+    .attr('fill', exportPalette.background)
+  const rows = svg
+    .append('g')
+    .attr(
+      'transform',
+      `translate(${chartWidth + legendGap}, ${defaultMargin.top})`
+    )
+    .attr('font-size', 14)
+    .selectAll('g')
+    .data(legend)
+    .join('g')
+    .attr('transform', (d, i) => `translate(0, ${i * legendRowHeight})`)
+  rows
+    .append('rect')
+    .attr('y', 4)
+    .attr('width', 11)
+    .attr('height', 11)
+    .attr('rx', 3)
+    .attr('fill', d => matchColor(d.index))
+  const text = rows
+    .append('text')
+    .attr('x', 19)
+    .attr('y', 14)
+    .attr('fill', exportPalette.legendText)
+  text.append('tspan').text(d => d.label)
+  text
+    .append('tspan')
+    .attr('dx', 8)
+    .attr('fill', exportPalette.link)
+    .text(d => d.detail ?? '')
+  const markup = new XMLSerializer().serializeToString(svg.node())
+  return `<?xml version="1.0" encoding="UTF-8"?>\n${markup}\n`
 }

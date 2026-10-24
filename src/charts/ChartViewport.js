@@ -14,7 +14,7 @@ export function viewBoxStart(focus, extentMin, extentMax, viewSize) {
 }
 
 // Space around a chart that is fitted into the view, in pixels
-const fitMargin = 20
+export const fitMargin = 20
 
 // The zoom transform and viewBox of a chart whose layouts place the root
 // person at the origin. The viewBox is as large as the container, so one

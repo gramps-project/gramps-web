@@ -117,6 +117,19 @@ describe('RelationshipChart', () => {
     expect(people.every(node => node.querySelector('text'))).toBe(true)
   })
 
+  it('highlights the people with shadowHandles too', async () => {
+    const chart = new RelationshipChart()
+    chart.update(await layoutRelationships(graph, 'R'), {
+      ...size,
+      shadowHandles: ['K'],
+    })
+    const shadowed = [...chart.node.querySelectorAll('.node.person')]
+      .filter(node => node.querySelector('.person-card').style.filter)
+      .map(node => node.__data__.key)
+      .sort()
+    expect(shadowed).toEqual(['person:K', 'person:R'])
+  })
+
   it('links adopted children with dashes', async () => {
     const chart = new RelationshipChart()
     chart.update(await layoutRelationships(graph, 'R'), size)

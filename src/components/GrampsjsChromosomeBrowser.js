@@ -6,7 +6,11 @@ import {classMap} from 'lit/directives/class-map.js'
 import {select} from 'd3-selection'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {ChromosomeBrowser, matchColor} from '../charts/ChromosomeBrowser.js'
+import {
+  ChromosomeBrowser,
+  chromosomeBrowserSvgDocument,
+  matchColor,
+} from '../charts/ChromosomeBrowser.js'
 import {clickKeyHandler, fireEvent, personDisplayName} from '../util.js'
 
 export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
@@ -225,7 +229,24 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
   }
 
   _totalCm(match) {
-    return (match.segments ?? []).reduce((sum, seg) => sum + (seg.cM || 0), 0)
+    const total = (match.segments ?? []).reduce(
+      (sum, seg) => sum + (seg.cM || 0),
+      0
+    )
+    return `${this._numberFormat({maximumFractionDigits: 1}).format(total)} cM`
+  }
+
+  // The chart as shown, with only the selected match if there is one, as a
+  // standalone SVG document
+  svgDocument() {
+    const legend = this.data
+      .map((obj, index) => ({
+        index,
+        label: this._getNameFromHandle(obj.handle),
+        detail: this._totalCm(obj),
+      }))
+      .filter(({index}) => this.selected < 0 || index === this.selected)
+    return chromosomeBrowserSvgDocument(this._chartData(), legend)
   }
 
   renderLegend() {
@@ -258,10 +279,7 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
           >
             <span class="dot" style="background-color:${matchColor(i)};"></span
             >${this._getNameFromHandle(obj.handle)}<span class="total"
-              >${this._numberFormat({maximumFractionDigits: 1}).format(
-                this._totalCm(obj)
-              )}
-              cM</span
+              >${this._totalCm(obj)}</span
             >
           </li>
         `
