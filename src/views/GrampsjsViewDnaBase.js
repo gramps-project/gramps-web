@@ -71,6 +71,8 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._dnaData = {}
     this._dnaDataLoading = false
     this._selectDataLoading = false
+    this._boundHandleDelete = () => this._handleDelete()
+    this._boundDisableEditMode = () => this._disableEditMode()
   }
 
   render() {
@@ -141,13 +143,18 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
       this._dnaDataLoading = false
       return
     }
+    const {grampsId} = this
     const uri = this._dnaUrl()
     const data = await this.appState.apiGet(uri)
+    // a different person was selected while this one was loading
+    if (grampsId !== this.grampsId) {
+      return
+    }
     this.loading = false
     this._dnaDataLoading = false
     if ('data' in data) {
       this.error = false
-      this._dnaData = {grampsId: this.grampsId, data: data.data}
+      this._dnaData = {grampsId, data: data.data}
     } else if ('error' in data) {
       this.error = true
       this._errorMessage = data.error
@@ -224,8 +231,14 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   connectedCallback() {
     super.connectedCallback()
-    window.addEventListener('edit-mode:delete', () => this._handleDelete())
-    window.addEventListener('edit-mode:off', () => this._disableEditMode())
+    window.addEventListener('edit-mode:delete', this._boundHandleDelete)
+    window.addEventListener('edit-mode:off', this._boundDisableEditMode)
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('edit-mode:delete', this._boundHandleDelete)
+    window.removeEventListener('edit-mode:off', this._boundDisableEditMode)
+    super.disconnectedCallback()
   }
 
   /* Methods to be implemented by child classes */
@@ -264,7 +277,7 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     return ''
   }
 
-  get _dnaUrl() {
+  _dnaUrl() {
     return ''
   }
 }

@@ -43,7 +43,9 @@ export class GrampsjsFormEditYDna extends GrampsjsEditYDnaMixin(
           <md-text-button @click="${this._handleCancelDialog}"
             >${this._('Cancel')}</md-text-button
           >
-          <md-text-button @click="${this._handleClickSaveEditedYDna}"
+          <md-text-button
+            @click="${this._handleClickSaveEditedYDna}"
+            ?disabled="${!this.data.raw_data}"
             >${this._('_Save')}</md-text-button
           >
         </div>
