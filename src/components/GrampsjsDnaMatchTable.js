@@ -23,7 +23,7 @@ function formatSide(side) {
   return 'Unknown'
 }
 
-class GrampsjsDnaMatchTable extends GrampsjsAppStateMixin(LitElement) {
+export class GrampsjsDnaMatchTable extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -52,7 +52,7 @@ class GrampsjsDnaMatchTable extends GrampsjsAppStateMixin(LitElement) {
   }
 
   render() {
-    if (!this.segments.length > 0) {
+    if (!this.segments?.length) {
       return html`
         <p>${this._('No DNA matches detected in the data provided.')}</p>
       `
@@ -71,7 +71,7 @@ class GrampsjsDnaMatchTable extends GrampsjsAppStateMixin(LitElement) {
 
   // eslint-disable-next-line class-methods-use-this
   _formatData(data) {
-    if (!data || !data.length > 0) {
+    if (!data?.length) {
       return []
     }
     return data.map(row => [

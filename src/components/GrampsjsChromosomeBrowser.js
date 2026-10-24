@@ -1,15 +1,17 @@
-import tippy from 'tippy.js'
+import {delegate} from 'tippy.js'
 
-import {html, css, LitElement} from 'lit'
+import {html, css, render, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
-import {schemeSet1} from 'd3-scale-chromatic'
+import {select} from 'd3-selection'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {ChromosomeBrowser} from '../charts/ChromosomeBrowser.js'
-import {clickKeyHandler, personDisplayName} from '../util.js'
+import {ChromosomeBrowser, matchColor} from '../charts/ChromosomeBrowser.js'
+import {clickKeyHandler, fireEvent, personDisplayName} from '../util.js'
 
-class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(LitElement) {
+export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
+  LitElement
+) {
   static get styles() {
     return [
       sharedStyles,
@@ -18,16 +20,21 @@ class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(LitElement) {
           text-decoration: none !important;
         }
 
+        :host {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: flex-start;
+        }
+
         div#container {
-          display: inline-block;
+          flex: 1 1 400px;
+          min-width: 0;
           max-width: 800px;
-          vertical-align: top;
           margin-bottom: 20px;
         }
 
         div#legend {
-          display: inline-block;
-          vertical-align: top;
+          flex: 0 1 auto;
           padding: 0;
           font-size: 15px;
           font-weight: 330;
@@ -48,6 +55,25 @@ class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(LitElement) {
 
         #legend ul li.muted {
           opacity: 0.3;
+        }
+
+        #legend ul li.hovered {
+          border-radius: 4px;
+          background-color: var(--grampsjs-color-shade-230);
+        }
+
+        span.total {
+          margin-left: 6px;
+          color: var(--grampsjs-body-font-color-50);
+        }
+
+        rect.segment {
+          cursor: pointer;
+          transition: opacity 0.15s;
+        }
+
+        rect.segment.dimmed {
+          opacity: 0.15;
         }
 
         span.dot {
@@ -81,10 +107,11 @@ class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       data: {type: Array},
-      width: {type: String},
+      width: {type: Number},
       selected: {type: Number},
       person: {type: Object},
       loading: {type: Boolean},
+      _hovered: {state: true},
     }
   }
 
@@ -95,36 +122,110 @@ class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(LitElement) {
     this.selected = -1
     this.person = {}
     this.loading = false
+    this._hovered = -1
+    this._chart = null
+    this._tippy = null
+    this._resizeObserver = null
+    this._handleChartMouseOver = this._handleChartMouseOver.bind(this)
+    this._handleChartMouseOut = this._handleChartMouseOut.bind(this)
+    this._handleChartClick = this._handleChartClick.bind(this)
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    if (this.hasUpdated) {
+      this._setUpContainer()
+    }
+  }
+
+  disconnectedCallback() {
+    this._tearDownContainer()
+    super.disconnectedCallback()
+  }
+
+  willUpdate(changed) {
+    if (changed.has('data')) {
+      this.selected = -1
+      this._hovered = -1
+    }
+    const rebuild =
+      changed.has('data') ||
+      changed.has('selected') ||
+      changed.has('width') ||
+      this._chart === null
+    if (rebuild) {
+      this._chart = ChromosomeBrowser(this._chartData(), {width: this.width})
+    }
+    if (rebuild || changed.has('_hovered')) {
+      select(this._chart)
+        .selectAll('rect.segment')
+        .classed('dimmed', d => this._hovered > -1 && d.index !== this._hovered)
+    }
   }
 
   render() {
-    return html`${this.renderChart()} `
-  }
-
-  renderChart() {
-    let {data} = this
-    if (this.selected >= 0) {
-      data = data.map((obj, index) =>
-        index === this.selected ? obj : {segments: [], handle: obj.handle}
-      )
-    }
     return html`
       <div id="container" class="${classMap({loading: this.loading})}">
-        ${ChromosomeBrowser(data, {width: this.width})}
+        ${this._chart}
       </div>
       <div id="legend">${this.renderLegend()}</div>
     `
   }
 
+  _chartData() {
+    if (this.selected < 0) {
+      return this.data
+    }
+    return this.data.map((obj, index) =>
+      index === this.selected ? obj : {segments: [], handle: obj.handle}
+    )
+  }
+
   _getNameFromHandle(handle) {
     const people = this.person?.extended?.people || []
-    let person = people.filter(p => p.handle === handle)
-    if (person.length === 0) {
-      return ''
+    const person = people.find(p => p.handle === handle)
+    return person ? personDisplayName(person) : ''
+  }
+
+  _numberFormat(options = {}) {
+    return new Intl.NumberFormat(
+      (this.appState?.i18n?.lang || 'en').replace('_', '-'),
+      options
+    )
+  }
+
+  // The bound datum of the segment rect under a pointer event, if any.
+  static _segmentDatum(event) {
+    const rect = event.target.closest?.('rect.segment')
+    return rect ? select(rect).datum() : null
+  }
+
+  _handleChartMouseOver(event) {
+    const seg = GrampsjsChromosomeBrowser._segmentDatum(event)
+    if (seg) {
+      this._hovered = seg.index
     }
-    // eslint-disable-next-line prefer-destructuring
-    person = person[0]
-    return personDisplayName(person)
+  }
+
+  _handleChartMouseOut(event) {
+    if (GrampsjsChromosomeBrowser._segmentDatum(event)) {
+      this._hovered = -1
+    }
+  }
+
+  _handleChartClick(event) {
+    const seg = GrampsjsChromosomeBrowser._segmentDatum(event)
+    const people = this.person?.extended?.people || []
+    const matchId = people.find(p => p.handle === seg?.handle)?.gramps_id
+    if (matchId && this.person?.gramps_id) {
+      fireEvent(this, 'nav', {
+        path: `dna-matches/${this.person.gramps_id}/${matchId}`,
+      })
+    }
+  }
+
+  _totalCm(match) {
+    return (match.segments ?? []).reduce((sum, seg) => sum + (seg.cM || 0), 0)
   }
 
   renderLegend() {
@@ -134,65 +235,73 @@ class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(LitElement) {
           <li
             @click="${e => this._handleLegendClick(e, i)}"
             @keydown="${clickKeyHandler}"
+            @mouseenter="${() => {
+              this._hovered = i
+            }}"
+            @mouseleave="${() => {
+              this._hovered = -1
+            }}"
+            @focus="${() => {
+              this._hovered = i
+            }}"
+            @blur="${() => {
+              this._hovered = -1
+            }}"
             class="${classMap({
               muted: this.selected > -1 && this.selected !== i,
+              hovered: this._hovered === i,
             })}"
             id="legend-item-${i}"
+            role="button"
+            tabindex="0"
+            aria-pressed="${this.selected === i}"
           >
-            <span class="dot" style="background-color:${schemeSet1[i]};"></span
-            >${this._getNameFromHandle(obj.handle)}
+            <span class="dot" style="background-color:${matchColor(i)};"></span
+            >${this._getNameFromHandle(obj.handle)}<span class="total"
+              >${this._numberFormat({maximumFractionDigits: 1}).format(
+                this._totalCm(obj)
+              )}
+              cM</span
+            >
           </li>
         `
       )}
     </ul> `
   }
 
-  updated(changed) {
-    if (
-      changed.has('data') ||
-      changed.has('selected') ||
-      changed.has('width')
-    ) {
-      this._updateTooltips()
-    }
-  }
-
-  _updateTooltips() {
-    this.data.map(obj =>
-      obj.segments.map(seg => {
-        const id = `rect-segment-${obj.handle}-${seg.start}-${seg.stop}`
-        const el = this.renderRoot.getElementById(id)
-        if (el) {
-          tippy(el, {
-            content: `
-            ${this._getNameFromHandle(obj.handle)}<br/>
-            ${
-              seg.cM
-                ? `<b>${new Intl.NumberFormat().format(seg.cM)} cM</b>`
-                : ''
-            }${seg.cM && seg.SNPs ? ',' : ''}
-            ${seg.SNPs ? `${seg.SNPs} SNPs` : ''}
-            ${seg.cM || seg.SNPs ? '<br/>' : ''}
-            ${new Intl.NumberFormat().format(
-              seg.start
-            )}&ndash;${new Intl.NumberFormat().format(seg.stop)}<br/>
-            ${
-              obj.ancestor_profiles?.length
-                ? `${this._('Common ancestors')}: ${obj.ancestor_profiles
-                    .map(
-                      profile => `${profile.name_given} ${profile.name_surname}`
-                    )
-                    .join(', ')}<br/>`
-                : ''
-            }
-            ${obj.relation ? `${this._('Relationship')}: ${obj.relation}` : ''}
-            `,
-            allowHTML: true,
-          })
-        }
-        return null
-      })
+  _renderTooltip(seg) {
+    const match = this.data[seg.index] ?? {}
+    const numberFormat = this._numberFormat()
+    const stats = [
+      seg.cM ? html`<b>${numberFormat.format(seg.cM)} cM</b>` : '',
+      seg.SNPs ? `${numberFormat.format(seg.SNPs)} SNPs` : '',
+    ].filter(Boolean)
+    const ancestors = (match.ancestor_profiles ?? [])
+      .map(profile =>
+        [profile.name_given, profile.name_surname].filter(Boolean).join(' ')
+      )
+      .filter(Boolean)
+    const content = document.createElement('div')
+    render(
+      html`
+        ${this._getNameFromHandle(seg.handle)}<br />
+        ${stats.length
+          ? html`${stats.map((stat, i) => html`${i ? ', ' : ''}${stat}`)}<br />`
+          : ''}
+        ${this._('Chromosome')} ${seg.chromosome}:
+        ${numberFormat.format(seg.start)}&ndash;${numberFormat.format(
+          seg.stop
+        )}<br />
+        ${ancestors.length
+          ? html`${this._('Common ancestors')}: ${ancestors.join(', ')}<br />`
+          : ''}
+        ${match.relation
+          ? html`${this._('Relationship')}: ${match.relation}`
+          : ''}
+      `,
+      content
     )
+    return content
   }
 
   _handleLegendClick(event, i) {
@@ -202,14 +311,49 @@ class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(LitElement) {
   }
 
   firstUpdated() {
+    this._setUpContainer()
+  }
+
+  _setUpContainer() {
     const container = this.renderRoot.getElementById('container')
+    if (!container || this._tippy) {
+      return
+    }
+    // One delegated instance covers every segment, including those of
+    // charts rendered later.
+    this._tippy = delegate(container, {
+      target: 'rect.segment',
+      // tippy also evaluates content for the container itself
+      content: reference =>
+        reference === container
+          ? ''
+          : this._renderTooltip(select(reference).datum()),
+    })
+    container.addEventListener('mouseover', this._handleChartMouseOver)
+    container.addEventListener('mouseout', this._handleChartMouseOut)
+    container.addEventListener('click', this._handleChartClick)
     this.handleResize()
-    new ResizeObserver(() => this.handleResize()).observe(container)
+    this._resizeObserver = new ResizeObserver(() => this.handleResize())
+    this._resizeObserver.observe(container)
+  }
+
+  _tearDownContainer() {
+    const container = this.renderRoot.getElementById('container')
+    container?.removeEventListener('mouseover', this._handleChartMouseOver)
+    container?.removeEventListener('mouseout', this._handleChartMouseOut)
+    container?.removeEventListener('click', this._handleChartClick)
+    this._resizeObserver?.disconnect()
+    this._resizeObserver = null
+    this._tippy?.destroy()
+    this._tippy = null
   }
 
   handleResize() {
     const container = this.renderRoot.getElementById('container')
-    this.width = container.offsetWidth - 45
+    const width = Math.max(0, container.clientWidth - 45)
+    if (width > 0 && width !== this.width) {
+      this.width = width
+    }
   }
 }
 

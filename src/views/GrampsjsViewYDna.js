@@ -25,6 +25,11 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
           resize: both;
           min-width: 300px;
         }
+
+        .raw-data {
+          white-space: pre-wrap;
+          overflow-wrap: anywhere;
+        }
       `,
     ]
   }
@@ -109,17 +114,20 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
   }
 
   _showRawSnpData() {
+    const rawData = this._dnaData?.data?.raw_data ?? ''
     this.dialogContent = html`
       <md-dialog open @cancel="${this._handleCancelDialog}">
         <div slot="headline">${this._('Raw SNP data')}</div>
-        <div slot="content">${this._dnaData?.data?.raw_data}</div>
+        <div slot="content" class="raw-data">${rawData}</div>
         <div slot="actions">
           <md-text-button @click="${this._handleCancelDialog}"
             >${this._('Close')}</md-text-button
           >
-          <md-text-button @click="${this._editRawSnpData}"
-            >${this._('Edit')}</md-text-button
-          >
+          ${this.appState.permissions.canEdit
+            ? html`<md-text-button @click="${this._editRawSnpData}"
+                >${this._('Edit')}</md-text-button
+              >`
+            : ''}
         </div>
       </md-dialog>
     `

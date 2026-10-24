@@ -1,6 +1,6 @@
 import {create} from 'd3-selection'
 import {scaleBand, scaleLinear, scaleOrdinal} from 'd3-scale'
-import {axisLeft} from 'd3-axis'
+import {axisLeft, axisTop} from 'd3-axis'
 import {schemeSet1} from 'd3-scale-chromatic'
 
 const chromosomeLength = {
@@ -29,6 +29,24 @@ const chromosomeLength = {
   X: 155270560,
 }
 
+// The chromosome key for a raw chromosome label from a match file
+// ("chr7" → "7", "23" → "X"), or null for chromosomes the chart doesn't show.
+export function chromosomeKey(label) {
+  const key = String(label ?? '')
+    .trim()
+    .replace(/^chr/i, '')
+    .toUpperCase()
+  if (key === '23') {
+    return 'X'
+  }
+  return key in chromosomeLength ? key : null
+}
+
+// The color of the match at index i, shared by the chart and its legend.
+export function matchColor(i) {
+  return schemeSet1[i % schemeSet1.length]
+}
+
 export function ChromosomeBrowser(
   data,
   {
@@ -37,11 +55,12 @@ export function ChromosomeBrowser(
     fontWeight = 350,
     fontColor = 'var(--grampsjs-body-font-color)',
     width = 800,
-    margin = {top: 0, right: 10, bottom: 0, left: 35},
+    margin = {top: 24, right: 10, bottom: 0, left: 35},
     interGroupPadding = 0.2,
     intraGroupPadding = 0.15,
     barHeight = 11,
     tickPadding = 13,
+    axisFontSize = 12,
     colorP = '#EEF1F5',
     colorM = '#F9ECEE',
   } = {}
@@ -67,13 +86,10 @@ export function ChromosomeBrowser(
   const svg = create('svg')
     .attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.top + margin.bottom)
-    .attr('style', 'max-width: 100%; height: intrinsic;')
+    .attr('style', 'max-width: 100%; height: auto;')
     .attr('font-family', fontFamily)
     .attr('font-size', fontSize)
     .attr('font-weight', fontWeight)
-
-  const keys = data.map(obj => obj.handle)
-  const colorScale = scaleOrdinal().domain(keys).range(schemeSet1)
 
   svg
     .append('defs')
@@ -88,7 +104,7 @@ export function ChromosomeBrowser(
     .append('rect')
     .attr('width', 4)
     .attr('height', 8)
-    .attr('style', d => `fill:${colorScale(d.handle)}`)
+    .attr('style', (d, i) => `fill:${matchColor(i)}`)
 
   const node = svg
     .append('g')
@@ -109,6 +125,25 @@ export function ChromosomeBrowser(
 
   // Add X axis
   const x = scaleLinear().domain([0, 249250621]).range([0, width])
+
+  // Labels near the right edge would be clipped by the SVG.
+  const xTicks = x
+    .ticks(Math.max(2, Math.floor(width / 90)))
+    .filter(value => x(value) <= width - 20)
+
+  node
+    .append('g')
+    .attr('class', 'position-axis')
+    .call(
+      axisTop(x)
+        .tickValues(xTicks)
+        .tickSize(4)
+        .tickFormat(value => `${value / 1e6} Mb`)
+    )
+    .attr('font-family', fontFamily)
+    .attr('font-size', axisFontSize)
+    .attr('color', fontColor)
+    .call(g => g.select('.domain').remove())
 
   // Another scale for subgroup position?
   const ySubgroup = scaleBand()
@@ -140,37 +175,38 @@ export function ChromosomeBrowser(
   node
     .append('g')
     .selectAll('g')
-    // .data(data.filter(obj => 'handle' in obj))
     .data(data)
     .join('g')
     .selectAll('g')
     .data((d, i) =>
-      d.segments.map(segment => ({...segment, handle: d.handle, index: i}))
+      (d.segments ?? [])
+        .map(segment => ({
+          ...segment,
+          chromosome: chromosomeKey(segment.chromosome),
+          handle: d.handle,
+          index: i,
+        }))
+        .filter(segment => segment.chromosome !== null)
     )
     .join('g')
     .attr('transform', d => `translate(0, ${y(d.chromosome)})`)
     .selectAll('rect')
-    .data((d, i) =>
+    .data(d =>
       subgroups
         .filter(side => side === d.side || (d.side === 'U' && side === 'P'))
-        .map(side => ({
-          ...d,
-          subgroup: side,
-          color: colorScale(d.handle),
-          segmentIndex: i,
-        }))
+        .map(side => ({...d, subgroup: side, color: matchColor(d.index)}))
     )
     .join('rect')
+    .attr('class', 'segment')
     .attr('y', d => ySubgroup(d.subgroup))
-    .attr('x', d => x(d.start))
+    .attr('x', d => x(Math.min(d.start, d.stop)))
     .attr('rx', 2)
-    .attr('width', d => x(d.stop - d.start))
+    .attr('width', d => Math.abs(x(d.stop) - x(d.start)))
     .attr('height', d =>
       d.side === 'U' ? y.bandwidth() : ySubgroup.bandwidth()
     )
     .attr('fill', d => (d.side === 'U' ? `url(#pattern-${d.index})` : d.color))
     .attr('opacity', 0.8)
-    .attr('id', d => `rect-segment-${d.handle}-${d.start}-${d.stop}`)
 
   return svg.node()
 }
