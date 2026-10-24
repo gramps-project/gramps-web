@@ -500,5 +500,6 @@
     "Matches media objects referenced by a specific object type": "Pronalazi medijske objekte na koje se odnosi određena vrsta objekta",
     "Matching the <GOQL expression>": "Pronalazi <GOQL izraz>",
     "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Pronalazi objekte za koje je zadani Gramps Object Query Language (GOQL) izraz istinit",
-    "Expression:": "Izraz:"
+    "Expression:": "Izraz:",
+    "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Tvoje se puno ime i e-mail adresa mogu aktualizirati svaki put kada se prijaviš s povezanim računom."
 }
