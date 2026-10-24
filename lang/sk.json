@@ -501,5 +501,6 @@
     "Linking failed.": "Prepojovanie zlyhalo.",
     "Unlinked %s": "Prepojenie s %s zrušené",
     "You can also sign in with an account from one of these providers once you link it.": "Po prepojení sa môžete prihlásiť aj účtom od jedného z týchto poskytovateľov.",
-    "Unlink %s?": "Zrušiť prepojenie s %s?"
+    "Unlink %s?": "Zrušiť prepojenie s %s?",
+    "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Vaše celé meno a e-mailová adresa sa môžu aktualizovať vždy, keď sa prihlásite prostredníctvom prepojeného účtu."
 }
