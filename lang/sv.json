@@ -501,5 +501,6 @@
     "Linked %s": "Länkad %s",
     "This sign-in is already linked to another account.": "Denna inloggning är redan kopplad till ett annat konto.",
     "Linking failed.": "Länkningen misslyckades.",
-    "Unlinked %s": "Länk %s borttagen"
+    "Unlinked %s": "Länk %s borttagen",
+    "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Ditt fullständiga namn och din e-postadress kan komma att uppdateras varje gång du loggar in med ett kopplat konto."
 }
