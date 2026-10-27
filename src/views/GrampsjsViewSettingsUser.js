@@ -158,6 +158,18 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
                 .appState="${this.appState}"
                 @access-token:changed="${this._handleAccessTokenChanged}"
               ></grampsjs-access-tokens>
+              ${this._supportsAnniversaryIcs()
+                ? html`
+                    <h3>${this._('Anniversary calendar')}</h3>
+                    <grampsjs-anniversary-ics-subscription
+                      .appState="${this.appState}"
+                      .tokenStatus="${this._anniversaryTokenStatus}"
+                      @access-token:changed="${this
+                        ._handleAnniversaryTokenChanged}"
+                      @access-token:refresh="${this._refreshAnniversaryToken}"
+                    ></grampsjs-anniversary-ics-subscription>
+                  `
+                : ''}
             `
           : ''}
       </grampsjs-collapsible-section>
@@ -175,25 +187,6 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         <h3>${this._('Family tree preferences')}</h3>
         ${this.renderTreePreferences()}
       </grampsjs-collapsible-section>
-
-      ${this._supportsAnniversaryIcs()
-        ? html`
-            <grampsjs-collapsible-section
-              title="${this._('Anniversary calendar (ICS)')}"
-              description="${this._(
-                'Subscribe to family anniversaries from your calendar app'
-              )}"
-            >
-              <grampsjs-anniversary-ics-subscription
-                .appState="${this.appState}"
-                .tokenStatus="${this._anniversaryTokenStatus}"
-                @access-token:changed="${this._handleAnniversaryTokenChanged}"
-                @access-token:refresh="${this._refreshAnniversaryToken}"
-                @access-token:manage="${this._showAccessTokenManager}"
-              ></grampsjs-anniversary-ics-subscription>
-            </grampsjs-collapsible-section>
-          `
-        : ''}
 
       <grampsjs-collapsible-section
         title="${this._('Developer Tools')}"
@@ -283,21 +276,6 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     return this.renderRoot
       ?.querySelector('grampsjs-access-tokens')
       ?.refresh('anniversaries_ics')
-  }
-
-  async _showAccessTokenManager() {
-    const manager = this.renderRoot?.querySelector('grampsjs-access-tokens')
-    const section = manager?.closest('grampsjs-collapsible-section')
-    if (!section) return
-    section.open = true
-    await section.updateComplete
-    const target = manager.previousElementSibling || manager
-    target.scrollIntoView({
-      block: 'start',
-      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        ? 'auto'
-        : 'smooth',
-    })
   }
 
   async _fetchDataLang() {
