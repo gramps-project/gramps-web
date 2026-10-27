@@ -61,6 +61,7 @@ import '../views/GrampsjsViewNewTask.js'
 import '../views/GrampsjsViewNewBlogPost.js'
 import '../views/GrampsjsViewHelp.js'
 import '../views/GrampsjsViewTimeline.js'
+import '../views/GrampsjsViewAnniversaryCalendar.js'
 
 class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -430,6 +431,11 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
         ?active=${this.appState.path.page === 'timeline'}
         .appState="${this.appState}"
       ></grampsjs-view-timeline>
+      <grampsjs-view-anniversary-calendar
+        class="page"
+        ?active=${this.appState.path.page === 'anniversaries'}
+        .appState="${this.appState}"
+      ></grampsjs-view-anniversary-calendar>
     `
   }
 }
