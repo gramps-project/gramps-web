@@ -82,7 +82,7 @@ describe('anniversary selection and native filters', () => {
 
     expect(Object.fromEntries(url.searchParams)).toEqual({
       token: 'secret',
-      event_types: 'Birth,Marriage,Death',
+      event_types: 'Birth,Marriage',
       living_only: 'true',
       primary_participants_only: 'true',
       locale: 'en',
@@ -145,19 +145,21 @@ describe('anniversary selection and native filters', () => {
     expect(element.appState.apiPost).not.toHaveBeenCalled()
   })
 
-  it('loads filter catalogs only when Customize is opened', async () => {
+  it('keeps options closed and loads filter catalogs only when opened', async () => {
     const element = createSubscription()
-    element._handleAdvancedToggle({target: {open: false}})
+    expect(element._optionsOpen).toBe(false)
+    expect(markup(element.render())).not.toContain('<md-checkbox')
+    element._handleOptionsToggle({target: {open: false}})
     expect(element.appState.apiGet).not.toHaveBeenCalled()
-    element._handleAdvancedToggle({target: {open: true}})
+    element._handleOptionsToggle({target: {open: true}})
     await vi.waitFor(() =>
       expect(element.appState.apiGet).toHaveBeenCalledTimes(3)
     )
     expect(
       element.appState.apiGet.mock.calls.map(([endpoint]) => endpoint)
     ).toEqual(['/api/filters/people', '/api/filters/events', '/api/types/'])
-    element._handleAdvancedToggle({target: {open: false}})
-    element._handleAdvancedToggle({target: {open: true}})
+    element._handleOptionsToggle({target: {open: false}})
+    element._handleOptionsToggle({target: {open: true}})
     expect(element.appState.apiGet).toHaveBeenCalledTimes(3)
   })
 
@@ -178,7 +180,29 @@ describe('anniversary selection and native filters', () => {
     }
     expect(
       new URL(element._buildUrl('secret')).searchParams.get('event_types')
-    ).toBe('Birth,Marriage,Death,Baptism,Family reunion')
+    ).toBe('Birth,Marriage,Baptism,Family reunion')
+  })
+
+  it('offers death events only after living-only is turned off', () => {
+    const element = createSubscription()
+    element._optionsOpen = true
+    let options = markup(element._renderOptions())
+    expect(options).not.toContain('aria-label="Death"')
+    expect(options).toContain(
+      'Death anniversaries are excluded while Living people only is enabled. Turn it off to include them.'
+    )
+
+    element._handleEventTypeChange('Death', true)
+    expect(element._eventTypes).toEqual(['Birth', 'Marriage'])
+
+    element._setOption('_livingOnly', false)
+    options = markup(element._renderOptions())
+    expect(options).toContain('aria-label="Death"')
+    element._handleEventTypeChange('Death', true)
+    expect(element._eventTypes).toEqual(['Birth', 'Marriage', 'Death'])
+
+    element._setOption('_livingOnly', true)
+    expect(element._eventTypes).toEqual(['Birth', 'Marriage'])
   })
 
   it('loads advanced catalogs lazily and isolates failures and retries', async () => {
@@ -192,9 +216,7 @@ describe('anniversary selection and native filters', () => {
     expect(element._catalogs.person.status).toBe('unavailable')
     expect(element._catalogs.event.status).toBe('idle')
     expect(element._validationMessage()).toBe('')
-    expect(
-      markup(element._renderSavedFilter('person', 'Saved Person filter'))
-    ).toContain('Retry')
+    expect(markup(element._renderSavedFilter('person'))).toContain('Retry')
 
     await element._loadCatalog('person')
     expect(element._catalogs.person.filters).toEqual([{name: 'Family'}])
@@ -342,7 +364,7 @@ describe('private link creation and lifetime', () => {
     const element = createSubscription()
     element._url = element._buildUrl('secret')
     const copy = element._copyUrl()
-    element._handleEventTypeChange('Death', false)
+    element._handleEventTypeChange('Birth', false)
     request.resolve()
     await copy
     expect(element._copied).toBe(false)
@@ -351,21 +373,29 @@ describe('private link creation and lifetime', () => {
 })
 
 describe('integration with the current Account token manager', () => {
-  it('opens Account and scrolls to access tokens without motion when reduced motion is requested', async () => {
-    const heading = {scrollIntoView: vi.fn()}
-    const section = {open: false, updateComplete: Promise.resolve()}
-    const manager = {closest: () => section, previousElementSibling: heading}
+  it('places the ICS subscription below token management inside Account', () => {
     const view = new GrampsjsViewSettingsUser()
-    view.renderRoot = {querySelector: () => manager}
-    vi.spyOn(window, 'matchMedia').mockReturnValue({matches: true})
+    view.appState = appState({dbInfo: {gramps_webapi: {version: '3.22.99'}}})
+    expect(markup(view.renderContent())).not.toContain(
+      'grampsjs-anniversary-ics-subscription'
+    )
 
-    await view._showAccessTokenManager()
+    view.appState = appState({dbInfo: {gramps_webapi: {version: '3.23.0'}}})
+    const content = markup(view.renderContent())
+    const tokensIndex = content.indexOf('<grampsjs-access-tokens')
+    const subscriptionHeading = content.indexOf('<h3>Anniversary calendar</h3>')
+    const subscriptionIndex = content.indexOf(
+      '<grampsjs-anniversary-ics-subscription'
+    )
+    const accountEnd = content.indexOf('</grampsjs-collapsible-section>')
 
-    expect(section.open).toBe(true)
-    expect(heading.scrollIntoView).toHaveBeenCalledWith({
-      block: 'start',
-      behavior: 'auto',
-    })
+    expect(tokensIndex).toBeGreaterThan(content.indexOf('title="Account"'))
+    expect(subscriptionHeading).toBeGreaterThan(tokensIndex)
+    expect(subscriptionIndex).toBeGreaterThan(subscriptionHeading)
+    expect(accountEnd).toBeGreaterThan(subscriptionIndex)
+    expect(content).not.toContain('title="Anniversary calendar (ICS)"')
+    expect(content).not.toContain('access-token:manage')
+    expect(content.indexOf('Appearance')).toBeGreaterThan(subscriptionIndex)
   })
   it('ignores an old status request after rotation and refreshes only the ICS scope', async () => {
     const old = deferred()
@@ -428,20 +458,6 @@ describe('integration with the current Account token manager', () => {
 
     expect(element._url).toBe('')
     expect(manager._states.sync.tokens).toEqual([{id: 1, label: 'Laptop'}])
-  })
-
-  it('shows the section from API 3.23 and places it after Appearance', () => {
-    const view = new GrampsjsViewSettingsUser()
-    view.appState = appState({dbInfo: {gramps_webapi: {version: '3.22.99'}}})
-    expect(markup(view.renderContent())).not.toContain(
-      'Anniversary calendar (ICS)'
-    )
-    view.appState = appState({dbInfo: {gramps_webapi: {version: '3.23.0'}}})
-    const content = markup(view.renderContent())
-    expect(content).toContain('Anniversary calendar (ICS)')
-    expect(content.indexOf('Anniversary calendar (ICS)')).toBeGreaterThan(
-      content.indexOf('Appearance')
-    )
   })
 
   it('clears the URL on deactivation even though inactive views skip their update', async () => {
