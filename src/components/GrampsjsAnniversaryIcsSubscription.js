@@ -154,7 +154,7 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
       _eventRules: {type: Array},
       _catalogs: {type: Object},
       _urlChanged: {type: Boolean},
-      _advancedOpen: {type: Boolean},
+      _optionsOpen: {type: Boolean},
       _additionalType: {type: String},
       _confirmRotation: {type: Boolean},
     }
@@ -167,7 +167,7 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
     this._loading = false
     this._copied = false
     this._errorMessage = ''
-    this._eventTypes = [...EVENT_TYPES]
+    this._eventTypes = ['Birth', 'Marriage']
     this._livingOnly = true
     this._primaryParticipantsOnly = true
     this._personFilter = ''
@@ -181,7 +181,7 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
       ])
     )
     this._urlChanged = false
-    this._advancedOpen = false
+    this._optionsOpen = false
     this._additionalType = ''
     this._confirmRotation = false
     this._generation = 0
@@ -235,55 +235,18 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
       !validationMessage &&
       (this.tokenStatus === 'active' || this.tokenStatus === 'inactive')
     return html`
-      <fieldset>
-        <legend>${this._('Event types')}</legend>
-        <div class="event-type-options">
-          ${EVENT_TYPES.map(
-            type => html`
-              <label>
-                <md-checkbox
-                  aria-label="${this._(type)}"
-                  ?checked="${this._eventTypes.includes(type)}"
-                  @change="${event =>
-                    this._handleEventTypeChange(type, event.target.checked)}"
-                ></md-checkbox>
-                ${this._(type)}
-              </label>
-            `
-          )}
-        </div>
-        ${this._renderSelectedOtherTypes()}
-      </fieldset>
-
-      <label>
-        <md-checkbox
-          id="living-only"
-          aria-label="${this._('Living people only')}"
-          ?checked="${this._livingOnly}"
-          @change="${event =>
-            this._setOption('_livingOnly', event.target.checked)}"
-        ></md-checkbox>
-        ${this._('Living people only')}
-      </label>
-      ${this._livingOnly && this._eventTypes.includes('Death')
-        ? html` <p class="status hint">
-            ${this._('Death anniversaries remain included.')}
-          </p>`
-        : ''}
-
-      <p class="scope status">
-        <span>${this._('People')}: ${this._scopeSummary()}</span>
-        ${!this._wholeTree
-          ? html` <md-text-button
-              aria-label="${this._('Use whole tree')}"
-              @click="${this._clearPersonFilters}"
+      <p class="actions">
+        ${!this._url || validationMessage
+          ? html`<md-filled-button
+              @click="${this._requestGenerateToken}"
+              ?disabled="${!canGenerate}"
             >
-              ${this._('Whole tree')}
-            </md-text-button>`
+              ${this.tokenStatus === 'active'
+                ? this._('Regenerate link')
+                : this._('Generate link')}
+            </md-filled-button>`
           : ''}
       </p>
-
-      ${this._renderAdvancedFilters()}
       ${validationMessage
         ? html`<p class="error" role="alert">${validationMessage}</p>`
         : ''}
@@ -304,27 +267,7 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
                 autocomplete="off"
               ></md-filled-text-field>
             </p>
-            <p class="status hint">
-              ${this._('Copy the link before leaving this page.')}
-            </p>
-          `
-        : ''}
-      ${this._urlChanged && !validationMessage
-        ? html`<p class="status" role="status">
-            ${this._(
-              'Settings changed. Copy the updated URL and replace the subscription in your calendar app.'
-            )}
-          </p>`
-        : ''}
-
-      <p class="status">
-        ${this._(
-          'Keep this link private; full dates are shared with your calendar provider.'
-        )}
-      </p>
-      <p class="actions">
-        ${this._url && !validationMessage
-          ? html`
+            <p class="actions">
               <md-filled-button
                 @click="${this._copyUrl}"
                 ?disabled="${this._loading}"
@@ -342,44 +285,24 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
               >
                 ${this._('Regenerate link')}
               </md-text-button>
-            `
-          : html`<md-filled-button
-              @click="${this._requestGenerateToken}"
-              ?disabled="${!canGenerate}"
-            >
-              ${this.tokenStatus === 'active'
-                ? this._('Regenerate link')
-                : this._('Generate link')}
-            </md-filled-button>`}
-        ${['active', 'unavailable'].includes(this.tokenStatus)
-          ? html` <md-text-button @click="${this._manageToken}">
-              ${this._('Manage in Account')}
-            </md-text-button>`
-          : ''}
-      </p>
-      <details class="help">
-        <summary>${this._('Help')}</summary>
-        <p class="status">
-          ${this._(
-            'Non-death events are limited to living people, and family events require both spouses to be living. Death anniversaries remain included when selected.'
-          )}
-        </p>
-        <p class="status">
-          ${this._(
-            'Only people you can access are included. Only events with an exact date are included.'
-          )}
-        </p>
-        <p class="status">
-          ${this._(
-            'Keep this URL private. Anyone with it can access the selected calendar events. Event dates, including historical years, are sent to your calendar provider.'
-          )}
-        </p>
-        <p class="status">
-          ${this._(
-            'Manage or revoke this subscription under Account, in Access tokens.'
-          )}
-        </p>
-      </details>
+            </p>
+          `
+        : ''}
+      ${this._urlChanged && !validationMessage
+        ? html`<p class="status" role="status">
+            ${this._(
+              'Settings changed. Copy the updated URL and replace the subscription in your calendar app.'
+            )}
+          </p>`
+        : ''}
+      ${this._url
+        ? html`<p class="status">
+            ${this._(
+              'Keep this link private; full dates are shared with your calendar provider.'
+            )}
+          </p>`
+        : ''}
+      ${this._renderOptions()}
       ${this._errorMessage
         ? html`<p class="error" role="alert">${this._errorMessage}</p>`
         : ''}
@@ -406,67 +329,119 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
     `
   }
 
-  _renderAdvancedFilters() {
-    const _ = string => this._(string)
+  _renderOptions() {
     return html`
       <details
-        id="advanced-filters"
-        .open="${this._advancedOpen}"
-        @toggle="${this._handleAdvancedToggle}"
+        id="anniversary-options"
+        .open="${this._optionsOpen}"
+        @toggle="${this._handleOptionsToggle}"
       >
-        <summary>${this._('Customize')}</summary>
-        ${this._advancedOpen
+        <summary>${this._('Options')}</summary>
+        ${this._optionsOpen
           ? html`
-              <p class="status">
-                ${this._(
-                  'Saved filters and rules are combined. An anniversary must match every selected filter.'
-                )}
-              </p>
-              <div class="filter-block">
-                <h4>${this._('Person filters')}</h4>
-                ${this._renderSavedFilter('person', 'Saved Person filter')}
-                <h4>${this._('Person tags')}</h4>
-                <grampsjs-filter-tags
-                  .appState="${this.appState}"
-                  .section="${tagFilter(_)}"
-                  .rules="${this._personRules}"
-                  @filter-section:change="${event =>
-                    this._handleRulesChange('person', event)}"
-                ></grampsjs-filter-tags>
-              </div>
-              <div class="filter-block">
-                <h4>${this._('Event filters')}</h4>
-                ${this._renderSavedFilter('event', 'Saved Event filter')}
-                <h4>${this._('Event tags')}</h4>
-                <grampsjs-filter-tags
-                  .appState="${this.appState}"
-                  .section="${tagFilter(_)}"
-                  .rules="${this._eventRules}"
-                  @filter-section:change="${event =>
-                    this._handleRulesChange('event', event)}"
-                ></grampsjs-filter-tags>
-              </div>
-              ${this._renderOtherTypes()}
+              <fieldset>
+                <legend>${this._('Events')}</legend>
+                <div class="event-type-options">
+                  ${EVENT_TYPES.filter(
+                    type => type !== 'Death' || !this._livingOnly
+                  ).map(
+                    type => html`
+                      <label>
+                        <md-checkbox
+                          aria-label="${this._(type)}"
+                          ?checked="${this._eventTypes.includes(type)}"
+                          @change="${event =>
+                            this._handleEventTypeChange(
+                              type,
+                              event.target.checked
+                            )}"
+                        ></md-checkbox>
+                        ${this._(type)}
+                      </label>
+                    `
+                  )}
+                </div>
+                ${this._livingOnly
+                  ? html`<p class="status">
+                      ${this._(
+                        'Death anniversaries are excluded while Living people only is enabled. Turn it off to include them.'
+                      )}
+                    </p>`
+                  : ''}
+                ${this._renderSelectedOtherTypes()}
+              </fieldset>
+
               <label>
                 <md-checkbox
-                  id="secondary-participants"
-                  aria-label="${this._('Include secondary participants')}"
-                  ?checked="${!this._primaryParticipantsOnly}"
+                  id="living-only"
+                  aria-label="${this._('Living people only')}"
+                  ?checked="${this._livingOnly}"
                   @change="${event =>
-                    this._setOption(
-                      '_primaryParticipantsOnly',
-                      !event.target.checked
-                    )}"
+                    this._setOption('_livingOnly', event.target.checked)}"
                 ></md-checkbox>
-                ${this._('Include secondary participants')}
+                ${this._('Living people only')}
               </label>
+
+              <p class="scope status">
+                <span>${this._('People')}: ${this._scopeSummary()}</span>
+                ${!this._wholeTree
+                  ? html` <md-text-button
+                      aria-label="${this._('Use whole tree')}"
+                      @click="${this._clearPersonFilters}"
+                    >
+                      ${this._('Whole tree')}
+                    </md-text-button>`
+                  : ''}
+              </p>
+              ${this._renderOptionFilters()}
             `
           : ''}
       </details>
     `
   }
 
-  _renderSavedFilter(key, label) {
+  _renderOptionFilters() {
+    const _ = string => this._(string)
+    return html`
+      <div class="filter-block">
+        <h4>${this._('Person')}</h4>
+        ${this._renderSavedFilter('person')}
+        <h4>${this._('Tags')}</h4>
+        <grampsjs-filter-tags
+          .appState="${this.appState}"
+          .section="${tagFilter(_)}"
+          .rules="${this._personRules}"
+          @filter-section:change="${event =>
+            this._handleRulesChange('person', event)}"
+        ></grampsjs-filter-tags>
+      </div>
+      <div class="filter-block">
+        <h4>${this._('Event')}</h4>
+        ${this._renderSavedFilter('event')}
+        <h4>${this._('Tags')}</h4>
+        <grampsjs-filter-tags
+          .appState="${this.appState}"
+          .section="${tagFilter(_)}"
+          .rules="${this._eventRules}"
+          @filter-section:change="${event =>
+            this._handleRulesChange('event', event)}"
+        ></grampsjs-filter-tags>
+      </div>
+      ${this._renderOtherTypes()}
+      <label>
+        <md-checkbox
+          id="secondary-participants"
+          aria-label="${this._('Include secondary participants')}"
+          ?checked="${!this._primaryParticipantsOnly}"
+          @change="${event =>
+            this._setOption('_primaryParticipantsOnly', !event.target.checked)}"
+        ></md-checkbox>
+        ${this._('Include secondary participants')}
+      </label>
+    `
+  }
+
+  _renderSavedFilter(key) {
     const catalog = this._catalogs[key]
     const value = key === 'person' ? this._personFilter : this._eventFilter
     return html`
@@ -474,7 +449,7 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
         ${keyed(
           catalog.status,
           html`<md-filled-select
-            label="${this._(label)}"
+            label="${this._('Filter')}"
             .value="${value}"
             ?disabled="${catalog.status !== 'loaded'}"
             @change="${event => this._handleSavedFilterChange(key, event)}"
@@ -494,21 +469,19 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
             )}
           </md-filled-select>`
         )}
-        ${this._renderCatalogStatus(key, label)}
+        ${this._renderCatalogStatus(key)}
       </div>
     `
   }
 
-  _renderCatalogStatus(key, label) {
+  _renderCatalogStatus(key) {
     const catalog = this._catalogs[key]
     return html`${catalog.status === 'loading'
       ? html`<p class="status">${this._('Loading...')}</p>`
       : ''}
     ${catalog.status === 'unavailable'
       ? html`
-          <p class="error" role="alert">
-            ${this._('Could not load %s.', this._(label))}
-          </p>
+          <p class="error" role="alert">${this._('An error occurred')}</p>
           <md-outlined-button @click="${() => this._loadCatalog(key)}">
             ${this._('Retry')}
           </md-outlined-button>
@@ -530,7 +503,7 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
     )
     return html` <div class="filter-block">
       <h4>${this._('Other event types')}</h4>
-      ${this._renderCatalogStatus('types', 'Other event types')}
+      ${this._renderCatalogStatus('types')}
       ${catalog.status === 'loaded' && available.length
         ? html` <div class="type-picker">
             <grampsjs-form-select-type
@@ -586,9 +559,9 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
     this._additionalType = ''
   }
 
-  _handleAdvancedToggle(event) {
-    this._advancedOpen = event.target.open
-    if (this._advancedOpen) this._loadAdvancedCatalogs()
+  _handleOptionsToggle(event) {
+    this._optionsOpen = event.target.open
+    if (this._optionsOpen) this._loadAdvancedCatalogs()
   }
 
   _loadAdvancedCatalogs() {
@@ -655,6 +628,7 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
   }
 
   _handleEventTypeChange(type, checked) {
+    if (type === 'Death' && this._livingOnly) return
     this._eventTypes = checked
       ? [...new Set([...this._eventTypes, type])]
       : this._eventTypes.filter(current => current !== type)
@@ -663,6 +637,9 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
 
   _setOption(property, value) {
     this[property] = value
+    if (property === '_livingOnly' && value) {
+      this._eventTypes = this._eventTypes.filter(type => type !== 'Death')
+    }
     this._refreshGeneratedUrl()
   }
 
@@ -680,17 +657,13 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
     }
     if (this.tokenStatus === 'active') {
       return this._(
-        'A subscription link is active. Regenerate it to display a new URL.'
+        'For security, subscription links are only shown when created. Regenerate the link if you no longer have it.'
       )
     }
     if (this.tokenStatus === 'inactive') {
       return ''
     }
-    if (this.tokenStatus === 'unavailable') {
-      return this._(
-        'Token status unavailable. Retry under Account, in Access tokens.'
-      )
-    }
+    if (this.tokenStatus === 'unavailable') return ''
     return this._('Loading...')
   }
 
@@ -749,10 +722,6 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
       return
     }
     return this._generateToken()
-  }
-
-  _manageToken() {
-    fireEvent(this, 'access-token:manage', {scope: TOKEN_SCOPE})
   }
 
   _cancelRegenerateToken() {
