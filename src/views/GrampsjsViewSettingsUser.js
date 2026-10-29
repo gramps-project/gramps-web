@@ -22,7 +22,10 @@ import {GrampsjsView} from './GrampsjsView.js'
 import {mdiCheck, mdiContentCopy} from '@mdi/js'
 import {
   __APIHOST__,
+  ACCESS_TOKEN_EXPIRY_MS,
   apiGetOIDCConfig,
+  storeAuthToken,
+  storeRefreshToken,
   TREE_CONFIG_PRIMARY_COLOR,
   TREE_CONFIG_SECONDARY_COLOR,
 } from '../api.js'
@@ -587,6 +590,15 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
           this._errorMessage = data.error
         } else {
           this.error = false
+          // A new password ends every other session; the API hands this one
+          // a new token pair so that it keeps working.
+          if (data.data?.refresh_token) {
+            storeAuthToken(
+              data.data.access_token,
+              Date.now() + ACCESS_TOKEN_EXPIRY_MS
+            )
+            storeRefreshToken(data.data.refresh_token)
+          }
           fireEvent(this, 'grampsjs:notification', {
             message: 'Password successfully updated',
           })
