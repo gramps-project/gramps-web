@@ -3,11 +3,11 @@ import {select} from 'd3-selection'
 import {schemeSet1} from 'd3-scale-chromatic'
 import {
   ChromosomeBrowser,
+  chromosomeBrowserSvgDocument,
   chromosomeKey,
   matchColor,
 } from '../../src/charts/ChromosomeBrowser.js'
 import {GrampsjsChromosomeBrowser} from '../../src/components/GrampsjsChromosomeBrowser.js'
-
 const segment = (chromosome, start, stop, side = 'P') => ({
   chromosome,
   start,
@@ -195,5 +195,54 @@ describe('GrampsjsChromosomeBrowser', () => {
       .dispatchEvent(new MouseEvent('click', {bubbles: true}))
     expect(paths).toEqual(['dna-matches/I0001/I0002'])
     element.remove()
+  })
+})
+
+describe('chromosomeBrowserSvgDocument', () => {
+  const data = [
+    {handle: 'a', segments: [segment('1', 100, 2000000)]},
+    {handle: 'b', segments: [segment('2', 100, 2000000)]},
+  ]
+
+  const parse = content =>
+    new DOMParser().parseFromString(content, 'image/svg+xml').documentElement
+
+  it('is a standalone SVG with a background and fixed colours', () => {
+    const svg = parse(
+      chromosomeBrowserSvgDocument(data, [{index: 0, label: 'Ann'}])
+    )
+    expect(svg.getAttribute('xmlns')).toBe('http://www.w3.org/2000/svg')
+    expect(svg.getAttribute('style')).toBeNull()
+    expect(svg.firstElementChild.getAttribute('fill')).toBe('#ffffff')
+    expect(svg.outerHTML).not.toContain('var(--')
+  })
+
+  it('falls back to sans-serif wherever a font is set', () => {
+    const svg = parse(chromosomeBrowserSvgDocument(data, []))
+    const families = [...svg.querySelectorAll('[font-family]')]
+      .concat(svg)
+      .map(el => el.getAttribute('font-family'))
+    expect(families.every(family => family.endsWith('sans-serif'))).toBe(true)
+  })
+
+  it('adds the legend to the right of the chart', () => {
+    const plain = parse(chromosomeBrowserSvgDocument(data, []))
+    const svg = parse(
+      chromosomeBrowserSvgDocument(data, [
+        {index: 1, label: 'Bob', detail: '12.5 cM'},
+      ])
+    )
+    const plainWidth = Number(plain.getAttribute('width'))
+    expect(Number(svg.getAttribute('width'))).toBeGreaterThan(plainWidth)
+    expect(svg.getAttribute('height')).toBe(plain.getAttribute('height'))
+    const legend = svg.lastElementChild
+    const [x] = legend
+      .getAttribute('transform')
+      .match(/[\d.]+/g)
+      .map(Number)
+    expect(x).toBeGreaterThan(plainWidth)
+    const text = legend.querySelector('text')
+    expect(text.textContent).toBe('Bob12.5 cM')
+    expect(text.previousElementSibling.getAttribute('fill')).toBe(matchColor(1))
   })
 })

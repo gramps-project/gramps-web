@@ -34,13 +34,14 @@ export const place = node => [node.x, node.y]
 // - `enterNode(selection)`: appends new node elements, with a `.person-card`
 //   group in each person node.
 // - `isRootPerson(node)`: whether the node is the root person's node, whose
-//   card gets a shadow.
+//   card gets a shadow unless `hasShadow` says otherwise.
 // - `linkEnds(link)`: the start and end of a link, which move with its source
 //   and target node, and `linkPath(ends, link)`: the path of the link between
 //   them.
 // - `styleLinks(links, palette)`: the stroke of the links.
 // - Optionally `drawnNodes(layout)` and `drawnLinks(layout)`: the nodes and
-//   links to draw, `isPerson(node)`, `drawExtras(nodes, options)`: whatever
+//   links to draw, `isPerson(node)`, `hasShadow(node)`: whether a person's
+//   card gets a shadow, `drawExtras(nodes, options)`: whatever
 //   else the nodes show, and `fadesLinks`: whether the links of a new layout
 //   fade in where they end up, while the old ones fade out, instead of moving
 //   with their nodes.
@@ -161,6 +162,10 @@ export class ChartCanvas {
     return true
   }
 
+  hasShadow(node) {
+    return this.isRootPerson(node)
+  }
+
   drawExtras() {}
 
   get fadesLinks() {
@@ -235,7 +240,7 @@ export class ChartCanvas {
     nodes
       .select('.person-card')
       .style('filter', node =>
-        interactive && this.isRootPerson(node)
+        interactive && this.hasShadow(node)
           ? `drop-shadow(0 3px 8px ${palette.shadow})`
           : null
       )
