@@ -950,9 +950,12 @@ export class GrampsJs extends LitElement {
       (sum, value) => sum + value,
       0
     )
-    // The API builds a missing index in a background task, which shows in
-    // the notifications, and reports it as building until it is done
+    // The API builds a missing index in a background task and reports it as
+    // building until it is done; loading the active tasks shows its progress
     this._searchIndexBuilding = this.appState.dbInfo?.search?.building === true
+    if (this._searchIndexBuilding) {
+      this.appState.loadActiveTasks()
+    }
     this._reindexNeeded =
       !this._searchIndexBuilding && searchCount === 0 && objCount > 0
     // Check if the semantic search index is stale due to a model change
