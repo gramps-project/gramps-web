@@ -395,6 +395,9 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
 
   // eslint-disable-next-line class-methods-use-this
   _formatValue(column, value) {
+    if (value === null || value === undefined) {
+      return ''
+    }
     let returnValue = value
     if (column.format) {
       returnValue = column.format(value)

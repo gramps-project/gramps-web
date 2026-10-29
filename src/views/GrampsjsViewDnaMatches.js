@@ -121,7 +121,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
             `
           )}
         </md-filled-select>
-        ${this.chromosome && this._dnaData.data?.length
+        ${this.chromosome && !this._dnaDataLoading && this._dnaData.data?.length
           ? html`<grampsjs-svg-download-button
               filename="${this.grampsId}-chromosomes.svg"
               .svgDocument=${() => this._chromosomeSvg()}

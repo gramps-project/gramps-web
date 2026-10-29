@@ -4,18 +4,24 @@ import './GrampsjsTable.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 
-// The table columns, with numbers formatted for `locale`
+const columnsByLocale = new Map()
+
+// The table columns, with numbers formatted for `locale`. The same locale
+// gets the same columns, so the table only updates when the locale changes.
 function matchColumns(locale) {
-  const formatCm = new Intl.NumberFormat(locale, {maximumFractionDigits: 1})
-  const formatCount = new Intl.NumberFormat(locale)
-  return [
-    {name: 'Chromosome'},
-    {name: 'Start Position', format: value => formatCount.format(value)},
-    {name: 'End Position', format: value => formatCount.format(value)},
-    {name: 'Side'},
-    {name: 'Length', unit: 'cM', format: value => formatCm.format(value)},
-    {name: 'Number of SNPs', format: value => formatCount.format(value)},
-  ]
+  if (!columnsByLocale.has(locale)) {
+    const formatCm = new Intl.NumberFormat(locale, {maximumFractionDigits: 1})
+    const formatCount = new Intl.NumberFormat(locale)
+    columnsByLocale.set(locale, [
+      {name: 'Chromosome'},
+      {name: 'Start Position', format: value => formatCount.format(value)},
+      {name: 'End Position', format: value => formatCount.format(value)},
+      {name: 'Side'},
+      {name: 'Length', unit: 'cM', format: value => formatCm.format(value)},
+      {name: 'Number of SNPs', format: value => formatCount.format(value)},
+    ])
+  }
+  return columnsByLocale.get(locale)
 }
 
 function formatSide(side) {

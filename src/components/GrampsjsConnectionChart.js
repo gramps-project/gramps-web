@@ -65,7 +65,10 @@ export class GrampsjsConnectionChart extends GrampsjsChartCanvasMixin(
     this.initialHeight = 400
     this.minHeight = 200
     this.maxHeight = 600
-    this._sizedLayout = null
+    // The people the container height was fitted for, and the height of the
+    // container, which the user can change by dragging
+    this._sizedFor = null
+    this._height = null
     this._chart = new RelationshipChart()
     this._otherHandle = null
   }
@@ -78,7 +81,7 @@ export class GrampsjsConnectionChart extends GrampsjsChartCanvasMixin(
     return html`
       <div
         id="container"
-        style="height: ${this.initialHeight}px"
+        style="height: ${this._containerHeight()}"
         @pedigree:person-selected="${e => e.stopPropagation()}"
       ></div>
     `
@@ -87,9 +90,22 @@ export class GrampsjsConnectionChart extends GrampsjsChartCanvasMixin(
   renderLoading() {
     return html` <div
       id="container"
-      style="height: ${this.initialHeight}px"
+      style="height: ${this._containerHeight()}"
       class="skeleton"
     ></div>`
+  }
+
+  _containerHeight() {
+    return this._height ?? `${this.initialHeight}px`
+  }
+
+  // The container is created again after loading, so its height is kept
+  handleResize() {
+    super.handleResize()
+    const height = this.renderRoot?.getElementById('container')?.style.height
+    if (height) {
+      this._height = height
+    }
   }
 
   willUpdate(changed) {
@@ -121,20 +137,28 @@ export class GrampsjsConnectionChart extends GrampsjsChartCanvasMixin(
       this._chart.clear()
       return
     }
-    // A new layout gets a container just high enough for it; after that the
-    // height is the user's to change
-    if (this._layout !== this._sizedLayout && this.containerWidth > 0) {
-      this._sizedLayout = this._layout
+    // The first layout of two people gets a container just high enough for
+    // it, with the chart fitted into it; after that the height is the user's
+    // to change
+    const people = `${this.grampsId1} ${this.grampsId2}`
+    const fit = people !== this._sizedFor && this.containerWidth > 0
+    if (fit) {
+      this._sizedFor = people
       const height = fittedHeight(this._layout.bounds, this.containerWidth, {
         minHeight: this.minHeight,
         maxHeight: this.maxHeight,
       })
-      container.style.height = `${height}px`
+      this._height = `${height}px`
+      container.style.height = this._height
     }
     this._chart.update(this._layout, {
       ...this.chartOptions(),
       bboxHeight: container.offsetHeight,
     })
+    // The viewport keeps the zoom level while the root person stays the same
+    if (fit) {
+      this._chart.viewport.fit()
+    }
   }
 
   chartOptions() {

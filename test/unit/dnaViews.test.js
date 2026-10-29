@@ -1,5 +1,6 @@
 import {describe, it, expect, vi} from 'vitest'
 import {render} from 'lit'
+import {zoomTransform} from 'd3-zoom'
 
 import {fireEvent} from '../../src/util.js'
 
@@ -12,6 +13,8 @@ import {
   GrampsjsConnectionChart,
   fittedHeight,
 } from '../../src/components/GrampsjsConnectionChart.js'
+import {layoutRelationships} from '../../src/charts/layout/relationshipLayout.js'
+import {FamilyGraph} from '../../src/charts/model/FamilyGraph.js'
 
 const clade = (name, formed, mrca) => ({
   name,
@@ -68,6 +71,29 @@ describe('GrampsjsDnaMatchTable', () => {
     const [, start, , , length] = table().columns
     expect(start.format(1234567)).toBe('1.234.567')
     expect(length.format(12.345)).toBe('12,3')
+  })
+
+  it('keeps the columns of the same language', () => {
+    const element = new GrampsjsDnaMatchTable()
+    element.appState = {i18n: {strings: {}, lang: 'de'}}
+    element.segments = [{chromosome: '1', start: 1, stop: 2, side: 'P'}]
+    const root = document.createElement('div')
+    render(element.render(), root)
+    const {columns} = root.querySelector('grampsjs-table')
+    render(element.render(), root)
+    expect(root.querySelector('grampsjs-table').columns).toBe(columns)
+  })
+
+  it('leaves missing numbers empty', () => {
+    const element = new GrampsjsDnaMatchTable()
+    element.appState = {i18n: {strings: {}, lang: 'en'}}
+    element.segments = [{chromosome: '1'}]
+    const root = document.createElement('div')
+    render(element.render(), root)
+    const table = root.querySelector('grampsjs-table')
+    const [, , , , length, snps] = table.columns
+    expect(table._formatValue(length, undefined)).toBe('')
+    expect(table._formatValue(snps, null)).toBe('')
   })
 
   it('renders the empty message without segments', () => {
@@ -178,6 +204,76 @@ describe('GrampsjsConnectionChart', () => {
     window.removeEventListener('pedigree:person-selected', selected)
     root.remove()
     expect(selected).not.toHaveBeenCalled()
+  })
+
+  describe('container height', () => {
+    const family = {
+      handle: 'f',
+      type: 'Married',
+      father_handle: 'F',
+      mother_handle: 'M',
+      child_ref_list: [{ref: 'R', frel: 'Birth', mrel: 'Birth'}],
+    }
+    const person = (handle, extended = {}) => ({
+      handle,
+      gramps_id: `I_${handle}`,
+      profile: {gramps_id: `I_${handle}`, name_surname: handle},
+      extended: {families: [], ...extended},
+    })
+    const graph = new FamilyGraph([
+      person('R', {primary_parent_family: family, parent_families: [family]}),
+      person('F', {families: [family]}),
+      person('M', {families: [family]}),
+    ])
+
+    // A chart in a 300 pixel wide container, whose height is its style
+    const chartElement = () => {
+      const element = new GrampsjsConnectionChart()
+      element.appState = {i18n: {strings: {}, lang: 'en'}}
+      element.grampsId1 = 'I_R'
+      element.grampsId2 = 'I_F'
+      element.loading = false
+      element.containerWidth = 300
+      const host = document.createElement('div')
+      const root = host.attachShadow({mode: 'open'})
+      const container = document.createElement('div')
+      container.id = 'container'
+      Object.defineProperty(container, 'offsetHeight', {
+        get: () => parseFloat(container.style.height),
+      })
+      root.append(container)
+      Object.defineProperty(element, 'renderRoot', {value: root})
+      return {element, container}
+    }
+
+    it('fits the chart of other people with the same root person', async () => {
+      const {element, container} = chartElement()
+      element._layout = await layoutRelationships(graph, 'R')
+      element.updated(new Map())
+      const {k} = zoomTransform(element._chart.node)
+      element._chart.viewport.zoomBy(0.5)
+      expect(zoomTransform(element._chart.node).k).toBeCloseTo(k / 2)
+      container.style.height = '500px'
+      element.grampsId2 = 'I_M'
+      element._layout = await layoutRelationships(graph, 'R')
+      element.updated(new Map())
+      expect(container.style.height).toBe(element._height)
+      expect(zoomTransform(element._chart.node).k).toBeCloseTo(k)
+    })
+
+    it('keeps the height of the same people after loading again', async () => {
+      const {element, container} = chartElement()
+      element._layout = await layoutRelationships(graph, 'R')
+      element.updated(new Map())
+      container.style.height = '550px'
+      element.handleResize()
+      element._layout = await layoutRelationships(graph, 'R')
+      element.updated(new Map())
+      expect(container.style.height).toBe('550px')
+      const root = document.createElement('div')
+      render(element.renderLoading(), root)
+      expect(root.firstElementChild.style.height).toBe('550px')
+    })
   })
 
   it('renders no frame without people', () => {

@@ -5,21 +5,31 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent, personDisplayName} from '../util.js'
 
-// The table columns, with numbers formatted for `locale`
+const columnsByLocale = new Map()
+
+// The table columns, with numbers formatted for `locale`. The same locale
+// gets the same columns, so the table only updates when the locale changes.
 function columns(locale) {
-  const formatCm = new Intl.NumberFormat(locale, {maximumFractionDigits: 1})
-  const formatCount = new Intl.NumberFormat(locale)
-  return [
-    {name: 'Name'},
-    {name: 'Relationship'},
-    {name: 'Shared DNA', unit: 'cM', format: value => formatCm.format(value)},
-    {name: 'Shared Segments', format: value => formatCount.format(value)},
-    {
-      name: 'Largest Segment',
-      unit: 'cM',
-      format: value => formatCm.format(value),
-    },
-  ]
+  if (!columnsByLocale.has(locale)) {
+    const formatCm = new Intl.NumberFormat(locale, {maximumFractionDigits: 1})
+    const formatCount = new Intl.NumberFormat(locale)
+    columnsByLocale.set(locale, [
+      {name: 'Name'},
+      {name: 'Relationship'},
+      {
+        name: 'Shared DNA',
+        unit: 'cM',
+        format: value => formatCm.format(value),
+      },
+      {name: 'Shared Segments', format: value => formatCount.format(value)},
+      {
+        name: 'Largest Segment',
+        unit: 'cM',
+        format: value => formatCm.format(value),
+      },
+    ])
+  }
+  return columnsByLocale.get(locale)
 }
 
 export class GrampsjsDnaMatches extends GrampsjsAppStateMixin(LitElement) {
