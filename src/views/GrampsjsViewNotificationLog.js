@@ -369,6 +369,10 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
       return ''
     }
     const {info, result_object: resultObject} = n.detail ?? {}
+    const errorMessage = resultObject?.error?.message
+    if (typeof errorMessage === 'string' && errorMessage) {
+      return errorMessage
+    }
     if (typeof info === 'string' && info) {
       return info
     }

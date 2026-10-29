@@ -29,6 +29,7 @@ import {
   isKeyEventInInput,
   fileWithMimeType,
   toWritableObject,
+  taskErrorMessage,
 } from '../../src/util.js'
 
 // Helpers
@@ -780,5 +781,27 @@ describe('toWritableObject', () => {
       handle: 'F1',
       child_ref_list: [{_class: 'ChildRef', ref: 'P1'}],
     })
+  })
+})
+
+describe('taskErrorMessage', () => {
+  it('reads the message of an aborted task', () => {
+    expect(
+      taskErrorMessage({
+        state: 'FAILURE',
+        result_object: {error: {code: 500, message: 'Import failed\n\nBad'}},
+        info: '{"error": {"code": 500, "message": "Import failed\\n\\nBad"}}',
+      })
+    ).toBe('Import failed\n\nBad')
+  })
+
+  it('falls back to the status info', () => {
+    expect(
+      taskErrorMessage({state: 'FAILURE', result_object: 'boom', info: 'boom'})
+    ).toBe('boom')
+  })
+
+  it('is empty without a status', () => {
+    expect(taskErrorMessage(undefined)).toBe('')
   })
 })

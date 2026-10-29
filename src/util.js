@@ -1112,6 +1112,12 @@ export function getTaskResult(status) {
   }
 }
 
+// Returns the error message of a failed task: the message an aborted task
+// stores in its result, else the status info
+export function taskErrorMessage(status) {
+  return status?.result_object?.error?.message || status?.info || ''
+}
+
 const RATE_LIMIT_UNITS = [
   ['day', 86400],
   ['hour', 3600],
