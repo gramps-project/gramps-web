@@ -132,7 +132,8 @@ export class GrampsJs extends LitElement {
       _shortcutPressed: {type: String},
       _firstRunToken: {type: String},
       _loadingStrings: {type: Boolean},
-      reindexNeeded: {type: Boolean},
+      _reindexNeeded: {type: Boolean},
+      _searchIndexBuilding: {type: Boolean},
       _semanticIndexStale: {type: Boolean},
     }
   }
@@ -154,6 +155,8 @@ export class GrampsJs extends LitElement {
     this._firstRunToken = ''
     this._loadingStrings = false
     this._reindexNeeded = false
+    this._searchIndexBuilding = false
+    this._searchIndexBuildingTimer = null
     this._semanticIndexStale = false
     this._drawerWasOpen = false
     this._metadataConfirmed = false
@@ -329,6 +332,7 @@ export class GrampsJs extends LitElement {
       ${this.renderContent()} ${this._renderKeyboardShortcuts()}
       <mwc-snackbar id="app-snackbar" leading></mwc-snackbar>
       ${this._reindexNeeded ? this._renderReindexSnackbar() : ''}
+      ${this._searchIndexBuilding ? this._renderSearchBuildingSnackbar() : ''}
       ${this._semanticIndexStale ? this._renderSemanticStaleSnackbar() : ''}
       <grampsjs-undo-transaction
         .appState="${this.appState}"
@@ -367,6 +371,16 @@ export class GrampsJs extends LitElement {
         : ''}
       ></mwc-snackbar
     >`
+  }
+
+  _renderSearchBuildingSnackbar() {
+    return html`<mwc-snackbar
+      id="search-building-snackbar"
+      leading
+      open
+      timeoutMs="-1"
+      labelText="${this._('The search index is being built.')}"
+    ></mwc-snackbar>`
   }
 
   _handleReindexButton(e) {
@@ -936,11 +950,18 @@ export class GrampsJs extends LitElement {
       (sum, value) => sum + value,
       0
     )
-    if (searchCount === 0 && objCount > 0) {
-      this._reindexNeeded = true
-    } else {
-      this._reindexNeeded = false
+    // The API builds a missing index in the background and reports it as
+    // building until it is done
+    this._searchIndexBuilding = this.appState.dbInfo?.search?.building === true
+    clearTimeout(this._searchIndexBuildingTimer)
+    if (this._searchIndexBuilding) {
+      this._searchIndexBuildingTimer = setTimeout(
+        () => this._loadDbInfo(false),
+        15000
+      )
     }
+    this._reindexNeeded =
+      !this._searchIndexBuilding && searchCount === 0 && objCount > 0
     // Check if the semantic search index is stale due to a model change
     const semanticSearch = this.appState.dbInfo?.server?.semantic_search
     if (semanticSearch) {

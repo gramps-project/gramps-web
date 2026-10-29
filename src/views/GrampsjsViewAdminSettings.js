@@ -298,7 +298,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         </p>
         <div class="button-row">
           <md-outlined-button
-            ?disabled=${this._buttonUpdateSearchDisabled}
+            ?disabled=${this._buttonUpdateSearchDisabled ||
+            this.appState.dbInfo?.search?.building === true}
             @click="${() => this._updateSearch(false)}"
             >${this._('Update search index')}</md-outlined-button
           >
@@ -681,6 +682,11 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
   }
 
   _renderSearchStatus(semantic = false) {
+    if (!semantic && this.appState.dbInfo?.search?.building === true) {
+      return html`<p class="small">
+        ${this._('The search index is being built.')}
+      </p>`
+    }
     const property = semantic ? 'count_semantic' : 'count'
     const count = this.appState.dbInfo?.search?.sifts?.[property] ?? -1
     const objCounts = this.appState.dbInfo?.object_counts ?? {}
