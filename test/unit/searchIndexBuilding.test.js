@@ -1,4 +1,4 @@
-import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest'
+import {describe, it, expect, vi} from 'vitest'
 import {GrampsJs} from '../../src/GrampsJs.js'
 
 function makeElement(search) {
@@ -7,19 +7,12 @@ function makeElement(search) {
     dbInfo: {search, object_counts: {people: 10}},
   }
   element._loadDbInfo = vi.fn()
-  element._searchIndexBuildingTimer = null
   return element
 }
 
+const taskDone = taskName => ({detail: {taskId: 't1', status: {taskName}}})
+
 describe('search index check', () => {
-  beforeEach(() => {
-    vi.useFakeTimers()
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
   it('asks for a rebuild when the index is empty', () => {
     const element = makeElement({sifts: {version: '3.24.0', count: 0}})
     element._checkSearch()
@@ -27,7 +20,7 @@ describe('search index check', () => {
     expect(element._searchIndexBuilding).toBe(false)
   })
 
-  it('reports an empty index as building while the API builds it', () => {
+  it('does not ask for a rebuild while the API builds the index', () => {
     const element = makeElement({
       sifts: {version: '3.25.0', count: 0},
       building: true,
@@ -37,24 +30,22 @@ describe('search index check', () => {
     expect(element._searchIndexBuilding).toBe(true)
   })
 
-  it('reloads the metadata until the build is done', () => {
+  it('reloads the metadata once the build task has finished', () => {
     const element = makeElement({
       sifts: {version: '3.25.0', count: 0},
       building: true,
     })
     element._checkSearch()
+    element._handleTaskDone(taskDone('importFile'))
     expect(element._loadDbInfo).not.toHaveBeenCalled()
-    vi.advanceTimersByTime(15000)
+    element._handleTaskDone(taskDone('searchReindexFull'))
     expect(element._loadDbInfo).toHaveBeenCalledWith(false)
+  })
 
-    element.appState.dbInfo.search = {
-      sifts: {version: '3.25.0', count: 10},
-      building: false,
-    }
+  it('ignores search index tasks while no build is reported', () => {
+    const element = makeElement({sifts: {version: '3.25.0', count: 10}})
     element._checkSearch()
-    vi.advanceTimersByTime(60000)
-    expect(element._loadDbInfo).toHaveBeenCalledTimes(1)
-    expect(element._searchIndexBuilding).toBe(false)
-    expect(element._reindexNeeded).toBe(false)
+    element._handleTaskDone(taskDone('searchReindexFull'))
+    expect(element._loadDbInfo).not.toHaveBeenCalled()
   })
 })
