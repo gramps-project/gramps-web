@@ -16,6 +16,21 @@ export const GrampsjsAppStateMixin = superClass =>
       this.appState = {}
     }
 
+    // md-select works out the text of its selected option only when the
+    // selection changes, so after new strings are rendered into the options,
+    // the selects of this component are told to read it again.
+    update(changed) {
+      const stringsChanged =
+        changed.has('appState') &&
+        changed.get('appState')?.i18n?.strings !== this.appState?.i18n?.strings
+      super.update(changed)
+      if (stringsChanged) {
+        this.renderRoot
+          ?.querySelectorAll?.('md-filled-select, md-outlined-select')
+          .forEach(select => select.updateValueAndDisplayText?.())
+      }
+    }
+
     _(s, ...args) {
       if (this.appstate === null || this.appState?.i18n === undefined) {
         // this will only happen if we forgot to set appState on an element!
