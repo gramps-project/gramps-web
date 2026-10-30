@@ -18,9 +18,7 @@ export const TASK_LABELS = {
 
   // --- Search / OCR ---
   search_reindex_full: 'Update search index',
-  search_reindex_full_semantic: 'Regenerate semantic search index',
   search_reindex_incremental: 'Update search index',
-  search_reindex_incremental_semantic: 'Update semantic search index',
   media_ocr: 'Text Recognition',
 
   // --- Database ---
@@ -50,9 +48,7 @@ export const CELERY_TO_TASK_NAME = {
 
   // --- Search / OCR ---
   search_reindex_full: 'searchReindexFull',
-  search_reindex_full_semantic: 'searchReindexFullSemantic',
   search_reindex_incremental: 'searchReindexIncremental',
-  search_reindex_incremental_semantic: 'searchReindexIncrementalSemantic',
   media_ocr: 'runOcr',
 
   // --- Database ---

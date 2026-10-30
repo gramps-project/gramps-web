@@ -10,7 +10,6 @@ import '@material/web/textfield/outlined-text-field'
 import '@material/web/iconbutton/icon-button.js'
 import {mdiMagnify} from '@mdi/js'
 import '../components/GrampsjsIcon.js'
-import '../components/GrampsjsPillToggle.js'
 
 function capitalize(string) {
   return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
@@ -41,11 +40,6 @@ export class GrampsjsViewSearch extends GrampsjsView {
           max-width: 100%;
           min-width: 80%;
           clear: left;
-        }
-
-        .mode-toggle {
-          float: right;
-          --grampsjs-pill-toggle-font-size: 13px;
         }
 
         md-outlined-text-field#search-field {
@@ -90,7 +84,6 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
   static get properties() {
     return {
-      semantic: {type: Boolean},
       dbInfo: {type: Object},
       _data: {type: Array},
       _totalCount: {type: Number},
@@ -102,7 +95,6 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
   constructor() {
     super()
-    this.semantic = false
     this.dbInfo = {}
     this._data = []
     this._totalCount = -1
@@ -115,8 +107,6 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
   renderContent() {
     return html`
-      ${this._semanticEnabled() ? this._renderModeToggle() : ''}
-
       <h2>${this._('Search')}</h2>
 
       <div id="search-field-container">
@@ -169,28 +159,6 @@ export class GrampsjsViewSearch extends GrampsjsView {
     `
   }
 
-  _renderModeToggle() {
-    return html`
-      <div class="mode-toggle">
-        <grampsjs-pill-toggle
-          .options="${[
-            {label: this._('full-text'), value: false},
-            {label: this._('semantic'), value: true},
-          ]}"
-          .selected="${this.semantic}"
-          .appState="${this.appState}"
-          .ariaLabel="${this._('Search mode')}"
-          @pill-toggle:change="${this._handleModeClick}"
-        ></grampsjs-pill-toggle>
-      </div>
-    `
-  }
-
-  async _handleModeClick(e) {
-    this.semantic = e.detail.value
-    this._executeSearch()
-  }
-
   renderFilters() {
     return html`
       <div @grampsjs-button-toggle:toggle="${this._handleFilterToggle}">
@@ -204,14 +172,6 @@ export class GrampsjsViewSearch extends GrampsjsView {
         )}
       </div>
     `
-  }
-
-  _semanticEnabled() {
-    return (
-      !!this.dbInfo?.server?.semantic_search &&
-      !!this.dbInfo?.search?.sifts?.count_semantic &&
-      this.dbInfo?.search?.sifts?.semantic_index_stale !== true
-    )
   }
 
   _handleFilterToggle(e) {
@@ -290,16 +250,10 @@ export class GrampsjsViewSearch extends GrampsjsView {
   }
 
   _executeSearch(page = 1) {
-    let query = this.shadowRoot.getElementById('search-field').value
+    const query = this.shadowRoot.getElementById('search-field').value
     if (query === '') {
       this._clearAll()
       return
-    }
-    // apply object type filter if necessary
-    if (!Object.values(this._objectTypes).every(Boolean)) {
-      if (window._oldSearchBackend) {
-        query = this._filterQueryByObjectType(query)
-      }
     }
     this.loading = true
     this._fetchData(query, page)
@@ -312,11 +266,6 @@ export class GrampsjsViewSearch extends GrampsjsView {
     }
     // at least one filter selected, search for selected only
     return Object.keys(this._objectTypes).filter(key => this._objectTypes[key])
-  }
-
-  _filterQueryByObjectType(query) {
-    const objectTypes = this._getSelectedObjectTypes()
-    return `${query} (${objectTypes.map(key => `type:${key}`).join(' OR ')})`
   }
 
   _pageFirst() {
@@ -336,16 +285,10 @@ export class GrampsjsViewSearch extends GrampsjsView {
   }
 
   async _fetchData(query, page) {
-    let url = `/api/search/?query=${query}&locale=${
+    const objectTypes = this._getSelectedObjectTypes()
+    const url = `/api/search/?query=${query}&locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=all&page=${page}&pagesize=20`
-    if (this._semanticEnabled()) {
-      url = `${url}&semantic=${this.semantic ? 1 : 0}`
-    }
-    if (!window._oldSearchBackend) {
-      const objectTypes = this._getSelectedObjectTypes()
-      url = `${url}&type=${objectTypes.join(',')}`
-    }
+    }&profile=all&page=${page}&pagesize=20&type=${objectTypes.join(',')}`
     const data = await this.appState.apiGet(url)
     this.loading = false
     if ('data' in data) {

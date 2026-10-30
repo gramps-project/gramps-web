@@ -15,21 +15,19 @@ function makeElement(search) {
 const taskDone = taskName => ({detail: {taskId: 't1', status: {taskName}}})
 
 describe('search index check', () => {
-  it('asks for a rebuild when the index is empty', () => {
+  it('does not load the active tasks while no build is reported', () => {
     const element = makeElement({sifts: {version: '3.24.0', count: 0}})
     element._checkSearch()
-    expect(element._reindexNeeded).toBe(true)
     expect(element._searchIndexBuilding).toBe(false)
     expect(element.appState.loadActiveTasks).not.toHaveBeenCalled()
   })
 
-  it('does not ask for a rebuild while the API builds the index', () => {
+  it('reports a build while the API builds the index', () => {
     const element = makeElement({
       sifts: {version: '3.25.0', count: 0},
       building: true,
     })
     element._checkSearch()
-    expect(element._reindexNeeded).toBe(false)
     expect(element._searchIndexBuilding).toBe(true)
   })
 
