@@ -34,13 +34,6 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsConnectedComponent {
   }
 
   getUrl() {
-    if (window._oldSearchBackend) {
-      const query = "change:'-1 year to tomorrow'"
-      return `/api/search/?sort=-change&query=${query}&locale=${
-        this.appState.i18n.lang || 'en'
-      }&profile=all&page=1&pagesize=8`
-    }
-
     const now = Math.floor(Date.now() / 1000)
     // round down to nearest 100k seconds to avoid reloading every second (issue 641)
     const roundedNow = now - (now % 100000)

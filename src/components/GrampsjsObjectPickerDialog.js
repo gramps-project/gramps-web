@@ -534,16 +534,6 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
   _getFetchUrl(value) {
     const typeParam = this._buildTypeParam()
     const lang = this.appState.i18n.lang || 'en'
-    if (window._oldSearchBackend) {
-      const typeClause = this.objectType ? ` AND type:${this.objectType}` : ''
-      return value
-        ? `/api/search/?locale=${lang}&profile=all&query=${encodeURIComponent(
-            `${value}*${typeClause}`
-          )}&page=1&pagesize=20`
-        : `/api/search/?sort=-change&locale=${lang}&profile=all&query=${encodeURIComponent(
-            `type:${this.objectType || '*'}`
-          )}&page=1&pagesize=20`
-    }
     let url = `/api/search/?locale=${lang}&profile=all&page=1&pagesize=20`
     if (value) {
       url = `${url}&query=${encodeURIComponent(`${value}*`)}`
