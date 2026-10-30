@@ -503,5 +503,6 @@
     "This sign-in is already linked to another account.": "Este login já está ligado a outra conta.",
     "Linking failed.": "Falha ao ligar.",
     "Unlinked %s": "%s desligado",
-    "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Pode actualizar o nome completo e endereço electrónico sempre que iniciar sessão com uma conta ligada."
+    "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Pode actualizar o nome completo e endereço electrónico sempre que iniciar sessão com uma conta ligada.",
+    "No connection": "Sem ligação"
 }
