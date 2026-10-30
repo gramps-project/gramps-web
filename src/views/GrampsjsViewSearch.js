@@ -159,6 +159,8 @@ export class GrampsjsViewSearch extends GrampsjsView {
             <grampsjs-pagination
               page="${this._page}"
               pages="${this._pages}"
+              total="${this._totalCount}"
+              pageSize="20"
               .appState="${this.appState}"
               @page:changed="${this._handlePageChanged}"
             ></grampsjs-pagination>
