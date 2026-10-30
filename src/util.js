@@ -557,15 +557,28 @@ export function getNameFromProfile(obj, type) {
 // deleted, or they would point to a place that no longer exists. Places that
 // are deleted along with it, including itself, don't count.
 export async function getEnclosingPlaces(appState, handles) {
-  const deleted = new Set(handles)
   const results = await Promise.all(
     handles.map(handle =>
       appState.apiGet(`/api/places/${handle}?backlinks=true`)
     )
   )
-  return handles.filter((handle, i) =>
-    (results[i]?.data?.backlinks?.place ?? []).some(ref => !deleted.has(ref))
+  return enclosingPlaces(
+    handles.map((handle, i) => ({
+      handle,
+      backlinks: results[i]?.data?.backlinks,
+    }))
   )
+}
+
+// Returns the handles of the places, given with their backlinks, that
+// enclose a place outside of them
+export function enclosingPlaces(places) {
+  const deleted = new Set(places.map(place => place.handle))
+  return places
+    .filter(place =>
+      (place.backlinks?.place ?? []).some(ref => !deleted.has(ref))
+    )
+    .map(place => place.handle)
 }
 
 export function fireEvent(target, name, detail) {

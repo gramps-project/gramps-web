@@ -28,6 +28,7 @@ export const TASK_LABELS = {
   verify_database: 'Verify the Data',
   upgrade_database_schema: 'Upgrade database',
   delete_objects: 'Delete all objects',
+  delete_objects_by_handle_task: 'Delete',
   // process_transactions covers both undo and the Sync addon — use a generic
   // label since we cannot distinguish the two at the Celery task-name level.
   process_transactions: 'Process transactions',
@@ -59,6 +60,7 @@ export const CELERY_TO_TASK_NAME = {
   verify_database: 'verifyDb',
   upgrade_database_schema: 'upgradeDb',
   delete_objects: 'deleteObjects',
+  delete_objects_by_handle_task: 'deleteObjectsByHandle',
   // process_transactions: no single taskName — serves both undo and Sync addon
   // Both kinds of restore show in the same indicator. Previews (dry runs) and
   // real restores share a Celery task and the task list doesn't tell them

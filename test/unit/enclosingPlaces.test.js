@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest'
-import {getEnclosingPlaces} from '../../src/util.js'
+import {enclosingPlaces, getEnclosingPlaces} from '../../src/util.js'
 
 // a fake appState answering GET /api/places/<handle>?backlinks=true
 const appStateWith = enclosed => ({
@@ -30,5 +30,16 @@ describe('getEnclosingPlaces', () => {
   it('does not block when the backlinks cannot be read', async () => {
     const failing = {apiGet: async () => ({error: 'Not found'})}
     expect(await getEnclosingPlaces(failing, ['county'])).toEqual([])
+  })
+})
+
+describe('enclosingPlaces', () => {
+  it('reads the backlinks given with the places', () => {
+    const places = [
+      {handle: 'county', backlinks: {place: ['city', 'village']}},
+      {handle: 'city', backlinks: {place: []}},
+      {handle: 'farm'},
+    ]
+    expect(enclosingPlaces(places)).toEqual(['county'])
   })
 })
