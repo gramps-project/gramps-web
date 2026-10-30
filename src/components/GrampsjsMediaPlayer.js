@@ -35,6 +35,13 @@ class GrampsjsMediaPlayer extends LitElement {
       audio {
         width: 100%;
       }
+
+      /* keep the controls in view on short screens */
+      @media (max-height: 560px) {
+        .audio grampsjs-img {
+          display: none;
+        }
+      }
     `
   }
 
