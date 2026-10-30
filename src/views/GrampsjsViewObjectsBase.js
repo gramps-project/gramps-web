@@ -302,7 +302,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
               ?disabled="${this._selectingAll}"
               @click="${this._selectAllMatching}"
             >
-              ${this._('Select all')} (${this._totalCount})
+              ${this._('Select All')} (${this._totalCount})
             </md-text-button>`
           : ''}
         <md-filled-select
