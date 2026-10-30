@@ -6,11 +6,11 @@ import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 import {ifDefined} from 'lit/directives/if-defined.js'
 import {keyed} from 'lit/directives/keyed.js'
-import {mdiFile, mdiFileMusic, mdiImageBroken} from '@mdi/js'
+import {mdiImageBroken, mdiPlayCircle} from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {getMediaUrl, getThumbnailUrl, getThumbnailUrlCropped} from '../api.js'
-import {normalizeRect} from '../util.js'
+import {hasThumbnail, mediaIconPath, normalizeRect} from '../util.js'
 import './GrampsjsIcon.js'
 
 class GrampsjsImg extends LitElement {
@@ -50,21 +50,47 @@ class GrampsjsImg extends LitElement {
           box-shadow: 0px 0px 4px 0px var(--grampsjs-body-font-color-20);
         }
 
-        img.broken {
-          background-color: var(--md-sys-color-surface-container-highest);
+        .placeholder {
+          display: block;
+          max-width: 100%;
+          height: auto;
+          aspect-ratio: 1;
+          background-color: var(--grampsjs-color-icon-background);
+          fill: var(--grampsjs-color-icon);
         }
 
-        img.file-placeholder {
-          background-color: var(--grampsjs-color-shade-230);
+        .placeholder.cover {
+          width: 100%;
+          height: 100%;
+          aspect-ratio: unset;
         }
 
-        .fallback-icon {
+        .video {
+          position: relative;
+          display: inline-block;
+          vertical-align: top;
+        }
+
+        :host([cover]) .video {
+          display: block;
+          width: 100%;
+          height: 100%;
+        }
+
+        .play {
+          position: absolute;
+          inset: 0;
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 100%;
-          height: 100%;
-          background-color: var(--grampsjs-color-icon-background);
+          pointer-events: none;
+        }
+
+        .play svg {
+          width: 33%;
+          max-width: 72px;
+          fill: rgba(255, 255, 255, 0.85);
+          filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.5));
         }
       `,
     ]
@@ -281,86 +307,62 @@ class GrampsjsImg extends LitElement {
     )
   }
 
-  _renderPlaceholder(iconPath, cssClass, altText = '') {
-    const svgSize = this.displayHeight || Math.min(this.size || 200, 400)
-    const src = `data:image/svg+xml;base64,${btoa(
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -6 36 36" width="${svgSize}" height="${svgSize}"><path fill-opacity=".5" fill="#808080" d="${iconPath}"/></svg>`
-    )}`
-    return html`<img
+  _renderPlaceholder(iconPath, label = '') {
+    const size = this.displayHeight || Math.min(this.size || 200, 400)
+    return html`<svg
       class=${classMap({
-        [cssClass]: true,
+        placeholder: true,
         round: this.circle,
         bordered: this.border,
         cover: this.cover,
       })}
-      height=${ifDefined(this.displayHeight || undefined)}
+      viewBox="-8 -8 40 40"
+      width="${size}"
+      height="${size}"
       style="${this.circle ? '' : `border-radius:${this.radius}px`}"
-      src="${src}"
-      alt="${altText}"
-    />`
+      role="${label ? 'img' : 'presentation'}"
+      aria-label="${ifDefined(label || undefined)}"
+    >
+      <path d="${iconPath}" />
+    </svg>`
   }
 
+  // A caller's fallback icon, else the media type's icon, except for images
+  // and media of unknown type, whose thumbnail should have loaded. Servers
+  // without ffmpeg have no video thumbnails.
   renderBrokenImage() {
     if (this.fallbackIcon) {
-      return html`<div
-        class=${classMap({
-          'fallback-icon': true,
-          round: this.circle,
-          bordered: this.border,
-        })}
-        style="${this.circle ? '' : `border-radius:${this.radius}px`}"
-      >
-        <grampsjs-icon
-          path="${this.fallbackIcon}"
-          color="var(--grampsjs-color-icon)"
-        ></grampsjs-icon>
-      </div>`
+      return this._renderPlaceholder(this.fallbackIcon)
     }
-    return this._renderPlaceholder(mdiImageBroken, 'broken', 'Error')
+    if (!this.mime || this.mime.startsWith('image')) {
+      return this._renderPlaceholder(mdiImageBroken, 'Error')
+    }
+    return this._renderPlaceholder(mediaIconPath(this.mime))
   }
 
   render() {
     if (this._error) {
       return this.renderBrokenImage()
     }
-    if (this.mime.startsWith('audio')) {
-      if (this.square) {
-        return this._renderPlaceholder(mdiFileMusic, 'file-placeholder')
-      }
-      return this._renderAudio()
+    const placeholderIcon = this._placeholderIcon()
+    if (placeholderIcon) {
+      return this._renderPlaceholder(placeholderIcon)
     }
+    const img = this.size === 0 ? this._renderFull() : this._renderThumb()
     if (this.mime.startsWith('video')) {
-      return this._renderVideo()
+      return html`<span class="video"
+        >${img}<span class="play"
+          ><svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="${mdiPlayCircle}" /></svg></span
+      ></span>`
     }
-    if (
-      this.mime !== '' &&
-      !this.mime.startsWith('image') &&
-      this.mime !== 'application/pdf'
-    ) {
-      return this._renderPlaceholder(mdiFile, 'file-placeholder')
-    }
-    return this.size === 0 ? this._renderFull() : this._renderThumb()
+    return img
   }
 
-  _renderAudio() {
-    return html`
-      <audio controls>
-        <source src="${getMediaUrl(this.handle)}" type="${this.mime}" />
-        Your browser does not support the audio element.
-      </audio>
-    `
-  }
-
-  _renderVideo() {
-    return html`
-      <video
-        ?controls=${this.displayHeight === 0}
-        height="${this.displayHeight > 0 ? this.displayHeight : 'auto'}"
-      >
-        <source src="${getMediaUrl(this.handle)}" type="${this.mime}" />
-        Your browser does not support the video element.
-      </video>
-    `
+  // The icon standing in for media without a thumbnail, or '' for media
+  // that have one
+  _placeholderIcon() {
+    return hasThumbnail(this.mime) ? '' : mediaIconPath(this.mime)
   }
 
   _renderThumb() {

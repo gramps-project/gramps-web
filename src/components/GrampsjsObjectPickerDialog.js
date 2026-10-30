@@ -173,6 +173,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
     return {
       objectType: {type: String},
       excludeHandles: {type: Array},
+      filter: {attribute: false},
       _data: {type: Array},
       _mode: {type: String},
       _query: {type: String},
@@ -187,6 +188,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.objectType = ''
     this.excludeHandles = []
+    this.filter = null
     this._data = []
     this._mode = 'changed'
     this._query = ''
@@ -429,9 +431,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
     const data = await this.appState.apiGet(url)
     if (this._fetchId !== fetchId) return
     if ('data' in data) {
-      this._data = data.data.filter(
-        obj => !this.excludeHandles.includes(obj.handle ?? obj.object?.handle)
-      )
+      this._data = data.data.filter(obj => this._isOffered(obj))
     } else if ('error' in data) {
       this._data = []
       this._error = true
@@ -472,9 +472,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
       this._data = this._data
         .map(placeholder => byId[placeholder.object?.gramps_id] ?? placeholder)
         .filter(obj => !obj.loading)
-        .filter(
-          obj => !this.excludeHandles.includes(obj.handle ?? obj.object?.handle)
-        )
+        .filter(obj => this._isOffered(obj))
     } else {
       this._data = []
       this._error = true
@@ -523,12 +521,23 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
         object: data.data,
         handle: data.data.handle,
       }
-      this._data = this._data.map(item =>
-        item.object?.handle === handle ? updated : item
-      )
+      this._data = this._isOffered(updated)
+        ? this._data.map(item =>
+            item.object?.handle === handle ? updated : item
+          )
+        : this._data.filter(item => item.object?.handle !== handle)
     } else {
       this._data = this._data.filter(item => item.object?.handle !== handle)
     }
+  }
+
+  // Whether a loaded result is listed: not excluded, and accepted by
+  // `filter` if one is set
+  _isOffered(obj) {
+    return (
+      !this.excludeHandles.includes(obj.handle ?? obj.object?.handle) &&
+      (!this.filter || this.filter(obj))
+    )
   }
 
   _getFetchUrl(value) {

@@ -1,9 +1,10 @@
 import {describe, it, expect, beforeAll, afterAll, vi} from 'vitest'
-import {mdiImage} from '@mdi/js'
+import {mdiFile, mdiFileMusic, mdiImage} from '@mdi/js'
 import {
   _parseGrampsHref,
   renderInlineImages,
 } from '../../src/components/GrampsjsNoteContent.js'
+import {fireEvent} from '../../src/util.js'
 
 describe('_parseGrampsHref', () => {
   it('parses a resolved person link with leading slash', () => {
@@ -189,5 +190,42 @@ describe('renderInlineImages', () => {
     expect(container.querySelectorAll('img').length).toBe(1)
     expect(container.querySelectorAll('a.inline-image').length).toBe(1)
     expect(container.querySelectorAll('a').length).toBe(2)
+  })
+
+  it('shows the type icon for media without a thumbnail', () => {
+    const container = render('<p><a href="/media/M0003">￼</a></p>', {
+      M0003: {handle: 'mhandle3', desc: 'Interview', mime: 'audio/mpeg'},
+    })
+    const a = container.querySelector('a')
+    expect(a.querySelector('img')).toBeNull()
+    expect(a.querySelector('grampsjs-icon').path).toBe(mdiFileMusic)
+    expect(a.getAttribute('aria-label')).toBe('Interview')
+  })
+
+  it('replaces an image that fails to load by the type icon', () => {
+    const container = render('<p><a href="/media/M0004">￼</a></p>', {
+      M0004: {handle: 'mhandle4', desc: 'Deed', mime: 'application/pdf'},
+    })
+    const a = container.querySelector('a')
+    fireEvent(a.querySelector('img'), 'error')
+    expect(a.querySelector('img')).toBeNull()
+    expect(a.querySelector('.inline-image-caption')).toBeNull()
+    expect(a.classList.contains('inline-image')).toBe(false)
+    expect(a.querySelector('grampsjs-icon').path).toBe(mdiFile)
+  })
+
+  it('turns a video into a player captioned by a link', () => {
+    const container = render('<p><a href="/media/M0005">￼</a></p>', {
+      M0005: {handle: 'mhandle5', desc: '', mime: 'video/mp4'},
+    })
+    const player = container.querySelector(
+      '.inline-image grampsjs-media-player'
+    )
+    expect(player.handle).toBe('mhandle5')
+    expect(player.mime).toBe('video/mp4')
+    expect(player.closest('a')).toBeNull()
+    const caption = container.querySelector('a.inline-image-caption')
+    expect(caption.getAttribute('href')).toBe('/media/M0005')
+    expect(caption.textContent).toBe('M0005')
   })
 })
