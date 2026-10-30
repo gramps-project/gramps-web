@@ -11,6 +11,7 @@ import {
 } from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsImg.js'
+import {isPlayableMime} from './GrampsjsMediaPlayer.js'
 import './GrampsjsFormEditDate.js'
 import './GrampsjsFormEditTitle.js'
 import './GrampsjsFormEditMapLayer.js'
@@ -46,7 +47,8 @@ export class GrampsjsMediaObject extends GrampsjsObject {
           --grampsjs-icon-button-color: var(--mdc-theme-secondary);
         }
 
-        grampsjs-img {
+        grampsjs-img,
+        grampsjs-media-player {
           margin: 30px 0;
         }
 
@@ -346,16 +348,20 @@ export class GrampsjsMediaObject extends GrampsjsObject {
 
   _renderNoImage() {
     return html`
-      <grampsjs-img
-        handle="${this.data.handle}"
-        size="1000"
-        class="link"
-        border
-        mime="${this.data.mime}"
-        checksum="${this.data.checksum}"
-        @click=${this._handleClick}
-      ></grampsjs-img>
-
+      ${isPlayableMime(this.data.mime)
+        ? html`<grampsjs-media-player
+            handle="${this.data.handle}"
+            mime="${this.data.mime}"
+          ></grampsjs-media-player>`
+        : html`<grampsjs-img
+            handle="${this.data.handle}"
+            size="1000"
+            class="link"
+            border
+            mime="${this.data.mime}"
+            checksum="${this.data.checksum}"
+            @click=${this._handleClick}
+          ></grampsjs-img>`}
       ${this.edit ? this._renderReplaceFile() : ''}
     `
   }

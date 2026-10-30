@@ -3,6 +3,7 @@ import '@material/web/button/text-button.js'
 import {sharedStyles} from '../SharedStyles.js'
 
 import './GrampsjsImg.js'
+import {isPlayableMime} from './GrampsjsMediaPlayer.js'
 import './GrampsjsGallery.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsTimedelta.js'
@@ -35,7 +36,8 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
           text-align: center;
         }
 
-        #img-container grampsjs-img {
+        #img-container grampsjs-img,
+        #img-container grampsjs-media-player {
           display: flex;
           justify-content: center;
         }
@@ -169,13 +171,18 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
     const obj = this.source.extended.media[0]
     return html`
       <div id="img-container">
-        <grampsjs-img
-          handle="${obj.handle}"
-          size="1000"
-          .rect="${ref.rect || []}"
-          mime="${obj.mime}"
-          checksum="${obj.checksum}"
-        ></grampsjs-img>
+        ${isPlayableMime(obj.mime)
+          ? html`<grampsjs-media-player
+              handle="${obj.handle}"
+              mime="${obj.mime}"
+            ></grampsjs-media-player>`
+          : html`<grampsjs-img
+              handle="${obj.handle}"
+              size="1000"
+              .rect="${ref.rect || []}"
+              mime="${obj.mime}"
+              checksum="${obj.checksum}"
+            ></grampsjs-img>`}
       </div>
     `
   }

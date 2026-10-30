@@ -48,6 +48,10 @@ import {
   mdiRoad,
   mdiBarn,
   mdiBookOpenVariant,
+  mdiFile,
+  mdiFileMusic,
+  mdiFileVideo,
+  mdiMap,
 } from '@mdi/js'
 import {renderIconSvg, ringsIconPath} from './icons.js'
 import './components/GrampsjsIcon.js'
@@ -746,6 +750,45 @@ const MIME_BY_EXTENSION = {
   gpx: 'application/gpx+xml',
   kml: 'application/vnd.google-earth.kml+xml',
   kmz: 'application/vnd.google-earth.kmz',
+}
+
+const GEODATA_MIMES = [
+  'application/geo+json',
+  'application/gpx+xml',
+  'application/vnd.google-earth.kml+xml',
+  'application/vnd.google-earth.kmz',
+]
+
+export function isGeodataMime(mime) {
+  return GEODATA_MIMES.includes(mime)
+}
+
+// Whether the backend makes thumbnails for media of type `mime`. Media of
+// unknown type count as images.
+export function hasThumbnail(mime) {
+  return (
+    !mime ||
+    mime.startsWith('image') ||
+    mime.startsWith('video') ||
+    mime === 'application/pdf'
+  )
+}
+
+// The icon for media of type `mime`
+export function mediaIconPath(mime) {
+  if (!mime || mime.startsWith('image')) {
+    return objectIconPath.media
+  }
+  if (mime.startsWith('audio')) {
+    return mdiFileMusic
+  }
+  if (mime.startsWith('video')) {
+    return mdiFileVideo
+  }
+  if (isGeodataMime(mime)) {
+    return mdiMap
+  }
+  return mdiFile
 }
 
 export function fileWithMimeType(file) {

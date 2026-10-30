@@ -17,6 +17,7 @@ import '../components/GrampsjsRectContainer.js'
 import '../components/GrampsjsRect.js'
 import '../components/GrampsjsTooltip.js'
 import '../components/GrampsjsIcon.js'
+import {isPlayableMime} from '../components/GrampsjsMediaPlayer.js'
 import {getMediaUrl} from '../api.js'
 import {fireEvent, getMediaRegions} from '../util.js'
 
@@ -205,6 +206,13 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   }
 
   _innerContainerContentFile() {
+    const {handle, mime} = this._data
+    if (isPlayableMime(mime)) {
+      return html`<grampsjs-media-player
+        handle="${handle}"
+        mime="${mime}"
+      ></grampsjs-media-player>`
+    }
     return this._renderImage()
   }
 

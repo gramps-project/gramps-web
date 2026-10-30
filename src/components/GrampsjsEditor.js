@@ -12,6 +12,7 @@ import {
   mdiFormatItalic,
   mdiFormatStrikethrough,
   mdiFormatUnderline,
+  mdiFile,
   mdiImage,
   mdiInformation,
   mdiClose,
@@ -25,7 +26,7 @@ import {
   iconButtonColorStyles,
   buttonColorStyles,
 } from '../SharedStyles.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, hasThumbnail} from '../util.js'
 import {
   charLength,
   charSlice,
@@ -144,6 +145,23 @@ function _inlineImageHtml(str, tags) {
   if (!handle) return null
   const src = _escapeHtml(getThumbnailUrl(handle, 600))
   return `<span class="inline-image" contenteditable="false"><img src="${src}" alt="">${IMAGE_PLACEHOLDER}</span>`
+}
+
+// An inline image whose thumbnail fails to load shows a file icon. The
+// placeholder character stays, so character offsets are unaffected.
+function _replaceFailedInlineImage(e) {
+  const img = e.target
+  if (img.tagName !== 'IMG' || !img.closest('.inline-image')) return
+  const icon = document.createElement('grampsjs-icon')
+  icon.path = mdiFile
+  icon.color = 'var(--grampsjs-body-font-color-50)'
+  img.replaceWith(icon)
+}
+
+// The error event does not bubble, so it is caught in the capture phase
+const inlineImageErrorListener = {
+  handleEvent: _replaceFailedInlineImage,
+  capture: true,
 }
 
 function _applyTags(str, tags) {
@@ -286,6 +304,10 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
           max-width: 100%;
           max-height: 20rem;
           border-radius: 4px;
+        }
+
+        .inline-image grampsjs-icon {
+          display: block;
         }
 
         .draft-banner {
@@ -558,6 +580,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         @compositionend="${this._handleCompositionEnd}"
         @keydown="${this._handleKeydown}"
         @mousedown="${this._handleMouseDown}"
+        @error="${inlineImageErrorListener}"
         .innerHTML="${live(this._html)}"
       ></div>
       ${this._renderLinkDialog()}
@@ -566,6 +589,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
             hideButton
             objectType="media"
             id="image-select"
+            .filter="${obj => hasThumbnail(obj.object?.mime)}"
             .appState="${this.appState}"
             @select-object:changed="${this._handleImageSelected}"
           ></grampsjs-form-select-object>`
