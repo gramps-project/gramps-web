@@ -422,8 +422,11 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
 
   _updateData() {
     if (this.handle !== undefined && this.handle) {
+      const {handle} = this
       this._data = {}
       this.appState.apiGet(this.getUrl()).then(data => {
+        // a response for a media shown earlier must not replace the current one
+        if (handle !== this.handle) return
         if ('data' in data) {
           this.error = false
           this._data = data.data
