@@ -1,6 +1,6 @@
 import {html} from 'lit'
 
-import '@material/mwc-circular-progress'
+import '@material/web/progress/circular-progress.js'
 
 import './GrampsjsDnaMatchTable.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
@@ -22,11 +22,11 @@ class GrampsjsConnectedDnaMatchTable extends GrampsjsConnectedComponent {
 
   // eslint-disable-next-line class-methods-use-this
   renderLoading() {
-    return html`<mwc-circular-progress
+    return html`<md-circular-progress
       indeterminate
-      density="-7"
-      open
-    ></mwc-circular-progress>`
+      style="--md-circular-progress-size: 24px;
+        --md-circular-progress-active-indicator-width: 15; margin: -2px;"
+    ></md-circular-progress>`
   }
 
   // eslint-disable-next-line class-methods-use-this

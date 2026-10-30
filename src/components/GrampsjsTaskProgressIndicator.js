@@ -1,5 +1,3 @@
-import '@material/mwc-circular-progress'
-
 import {fireEvent, taskErrorMessage} from '../util.js'
 import {GrampsjsProgressIndicator} from './GrampsjsProgressIndicator.js'
 

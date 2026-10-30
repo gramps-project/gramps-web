@@ -2,7 +2,6 @@ import {html} from 'lit'
 
 import '@material/web/textfield/filled-text-field.js'
 import '@material/mwc-button'
-import '@material/mwc-circular-progress'
 
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 import '../components/GrampsjsFormSelectObject.js'
