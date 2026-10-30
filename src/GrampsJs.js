@@ -172,6 +172,13 @@ export class GrampsJs extends LitElement {
       css`
         :host {
           height: 100%;
+          --grampsjs-app-bar-height: 64px;
+        }
+
+        @media (max-width: 599px) {
+          :host {
+            --grampsjs-app-bar-height: 56px;
+          }
         }
 
         main {
@@ -207,15 +214,9 @@ export class GrampsJs extends LitElement {
 
         [slot='appContent'] md-linear-progress {
           position: sticky;
-          top: 64px;
+          top: var(--grampsjs-app-bar-height);
           z-index: 4;
           visibility: hidden;
-        }
-
-        @media (max-width: 599px) {
-          [slot='appContent'] md-linear-progress {
-            top: 56px;
-          }
         }
 
         [slot='appContent'] md-linear-progress.active {

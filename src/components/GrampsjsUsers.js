@@ -112,14 +112,16 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     return html`
       ${this._renderButtons()} ${this._renderFilterBar()}
       <table>
-        <tr>
-          <th>${this._('Username: ').replace(':', '')}</th>
-          <th>${this._('Full Name')}</th>
-          <th>${this._('E-mail')}</th>
-          <th>${this._('Role')}</th>
-          <th>${this._('Account Source')}</th>
-          <th></th>
-        </tr>
+        <thead>
+          <tr>
+            <th>${this._('Username: ').replace(':', '')}</th>
+            <th>${this._('Full Name')}</th>
+            <th>${this._('E-mail')}</th>
+            <th>${this._('Role')}</th>
+            <th>${this._('Account Source')}</th>
+            <th></th>
+          </tr>
+        </thead>
         ${filtered.map(
           (obj, index) => html`
             <tr>
