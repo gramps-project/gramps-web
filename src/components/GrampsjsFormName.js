@@ -3,7 +3,6 @@ element for editing a name
 */
 
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-textfield'
 import '@material/web/iconbutton/icon-button.js'
 
 import {
@@ -28,10 +27,6 @@ class GrampsjsFormName extends GrampsjsAppStateMixin(LitElement) {
       sharedStyles,
       iconButtonColorStyles,
       css`
-        mwc-textfield.fullwidth {
-          width: 100%;
-        }
-
         .clear {
           clear: both;
           margin-bottom: 2.5em;

@@ -587,6 +587,17 @@ export function fireEvent(target, name, detail) {
   )
 }
 
+// Shows `message` under a required md text field while it is empty and
+// clears it once the field has a value. Give the field supporting-text="&nbsp;"
+// so the message line keeps its height and the layout does not shift. Focus
+// stays where the user put it, so other fields can be filled in first.
+export function reportRequiredField(field, message) {
+  // eslint-disable-next-line no-param-reassign
+  field.errorText = message
+  // eslint-disable-next-line no-param-reassign
+  field.error = !field.value
+}
+
 function uuidv4() {
   return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
     (

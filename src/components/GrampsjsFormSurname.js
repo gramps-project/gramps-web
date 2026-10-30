@@ -3,7 +3,6 @@ element for editing a name
 */
 
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-textfield'
 
 import {classMap} from 'lit/directives/class-map.js'
 import {sharedStyles} from '../SharedStyles.js'
@@ -16,10 +15,6 @@ class GrampsjsFormSurname extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        mwc-textfield.fullwidth {
-          width: 100%;
-        }
-
         .hide {
           display: none;
         }

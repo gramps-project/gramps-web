@@ -3,7 +3,7 @@ Element for selecting a Gramps type
 */
 
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-textfield'
+import '@material/web/textfield/filled-text-field.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
@@ -14,7 +14,7 @@ class GrampsjsFormString extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        mwc-textfield.fullwidth {
+        md-filled-text-field.fullwidth {
           width: 100%;
         }
       `,
@@ -44,7 +44,7 @@ class GrampsjsFormString extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     return html`
-      <mwc-textfield
+      <md-filled-text-field
         @input="${this.handleChange}"
         label="${this.label}"
         value="${this.value}"
@@ -52,23 +52,23 @@ class GrampsjsFormString extends GrampsjsAppStateMixin(LitElement) {
         ?disabled="${this.disabled}"
         ?required="${this.required}"
         class="${this.fullwidth ? 'fullwidth' : ''}"
-      ></mwc-textfield>
+      ></md-filled-text-field>
     `
   }
 
   reset() {
-    this.shadowRoot.querySelector('mwc-textfield').value = ''
+    this.shadowRoot.querySelector('md-filled-text-field').value = ''
   }
 
   handleChange() {
-    const el = this.shadowRoot.querySelector('mwc-textfield')
+    const el = this.shadowRoot.querySelector('md-filled-text-field')
     if (el !== null) {
       fireEvent(this, 'formdata:changed', {data: el.value})
     }
   }
 
   isValid() {
-    const el = this.shadowRoot.querySelector('mwc-textfield')
+    const el = this.shadowRoot.querySelector('md-filled-text-field')
     if (el !== null) {
       if (el?.validity?.valid) {
         return true

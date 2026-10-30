@@ -1,6 +1,6 @@
 import {html} from 'lit'
 
-import '@material/web/textfield/outlined-text-field'
+import '@material/web/textfield/filled-text-field.js'
 
 import '../components/GrampsjsEditor.js'
 import '../components/GrampsjsFormString.js'
@@ -8,7 +8,7 @@ import '../components/GrampsjsFormPrivate.js'
 import '../components/GrampsjsFormSelectObjectList.js'
 import {GrampsjsViewNewSource} from './GrampsjsViewNewSource.js'
 
-import {makeHandle, fireEvent} from '../util.js'
+import {makeHandle, fireEvent, reportRequiredField} from '../util.js'
 import {clearDraftsWithPrefix} from '../api.js'
 
 const dataDefault = {
@@ -39,12 +39,14 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
 
       <h3 class="label">${this._('Title')}</h3>
       <p>
-        <md-outlined-text-field
+        <md-filled-text-field
           required
+          supporting-text="&nbsp;"
           style="width:100%;"
           @input="${this.handleName}"
+          @blur="${this.handleName}"
           id="source-name"
-        ></md-outlined-text-field>
+        ></md-filled-text-field>
       </p>
 
       <h3 class="label">${this._('Author')}</h3>
@@ -86,6 +88,7 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
   }
 
   handleName(e) {
+    reportRequiredField(e.target, this._('This field is mandatory'))
     this.checkFormValidity()
     this.data = {...this.data, title: e.target.value.trim()}
   }
@@ -116,7 +119,6 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
 
   checkFormValidity() {
     const name = this.shadowRoot.getElementById('source-name')
-    name.reportValidity()
     try {
       this.isFormValid = name?.validity?.valid
     } catch {

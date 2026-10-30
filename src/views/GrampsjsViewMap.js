@@ -1,6 +1,5 @@
 import {html, css} from 'lit'
 import {repeat} from 'lit/directives/repeat.js'
-import '@material/mwc-textfield'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsMap.js'
