@@ -4,10 +4,14 @@ import '@material/web/iconbutton/icon-button.js'
 import '@material/web/icon/icon.js'
 import '@material/web/iconbutton/filled-icon-button'
 import '@material/web/menu/menu'
-import {mdiSort, mdiSortAscending, mdiSortDescending} from '@mdi/js'
+import {
+  mdiArrowDown,
+  mdiArrowUp,
+  mdiSort,
+  mdiSortAscending,
+  mdiSortDescending,
+} from '@mdi/js'
 import {classMap} from 'lit/directives/class-map.js'
-
-import './GrampsjsTooltip.js'
 
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
@@ -25,7 +29,9 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
 
         table {
           border-collapse: collapse;
-          font-weight: 300;
+          font-weight: 350;
+          color: var(--grampsjs-body-font-color-87);
+          font-variant-numeric: tabular-nums;
         }
 
         thead {
@@ -62,12 +68,21 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           font-weight: 400;
         }
 
+        table.linked tbody tr {
+          transition: background-color 100ms ease-out;
+        }
+
         table.linked tbody tr:hover {
           cursor: pointer;
         }
 
         table.linked tbody tr:not(.selected):hover {
           background-color: var(--grampsjs-color-shade-240);
+        }
+
+        table.linked tbody tr:focus-visible {
+          outline: 2px solid var(--md-sys-color-primary);
+          outline-offset: -2px;
         }
 
         /* Wide table */
@@ -78,12 +93,59 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
 
         table.wide thead th {
           text-align: left;
-          padding: 20px 20px;
+          padding: 14px 16px;
           font-size: 14px;
-          color: var(--grampsjs-body-font-color-50);
-          font-weight: 400;
+          color: var(--grampsjs-body-font-color-60);
+          font-weight: 500;
           vertical-align: middle;
           white-space: nowrap;
+          position: sticky;
+          top: var(--grampsjs-app-bar-height, 64px);
+          z-index: 1;
+          background-color: var(--md-sys-color-background);
+          /* Collapsed borders don't move with stuck cells */
+          box-shadow: inset 0 -1px 0 var(--grampsjs-body-font-color-20);
+        }
+
+        th .sort-header {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          margin: -4px -6px;
+          padding: 4px 6px;
+          border: none;
+          border-radius: 4px;
+          background: none;
+          color: inherit;
+          font: inherit;
+          cursor: pointer;
+        }
+
+        th .sort-header:focus-visible {
+          outline: 2px solid var(--md-sys-color-primary);
+        }
+
+        th .sort-header svg {
+          width: 18px;
+          height: 18px;
+          visibility: hidden;
+          opacity: 0.5;
+        }
+
+        th .sort-header:hover svg,
+        th .sort-header:focus-visible svg {
+          visibility: visible;
+        }
+
+        th[aria-sort='ascending'],
+        th[aria-sort='descending'] {
+          color: var(--grampsjs-body-font-color-87);
+        }
+
+        th[aria-sort='ascending'] .sort-header svg,
+        th[aria-sort='descending'] .sort-header svg {
+          visibility: visible;
+          opacity: 1;
         }
 
         table.wide tbody tr {
@@ -92,13 +154,13 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           padding: 0;
         }
 
-        table.wide thead tr {
-          border-bottom: 1px solid var(--grampsjs-body-font-color-10);
+        table.wide tbody tr:first-child {
+          border-top: none;
         }
 
         table.wide tbody td {
           display: table-cell;
-          padding: 14px 20px;
+          padding: 12px 16px;
           border: none;
           font-size: 15px;
         }
@@ -116,17 +178,6 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
 
         table.wide tbody td::before {
           content: none;
-        }
-
-        th {
-          --md-icon-button-icon-size: 18px;
-          --md-icon-button-container-height: 20px;
-          --md-icon-button-container-width: 20px;
-        }
-
-        th md-icon-button {
-          margin-left: 0.5em;
-          vertical-align: middle;
         }
 
         .mobile-sort {
@@ -198,7 +249,6 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
             var(--grampsjs-color-shade-240)
           );
         }
-
         .col-select md-checkbox,
         .narrow-select-all md-checkbox {
           --md-checkbox-outline-color: var(--grampsjs-body-font-color-30);
@@ -290,11 +340,8 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
                     ></md-checkbox>
                   </th>`
                 : ''}
-              ${this.columns.map(
-                (column, columnIndex) => html`<th>
-                  ${this._colLabel(column.name)}
-                  ${this.sortable ? this._renderSortBtn(columnIndex) : ''}
-                </th>`
+              ${this.columns.map((column, columnIndex) =>
+                this._renderHeaderCell(column, columnIndex)
               )}
             </tr>
           </thead>
@@ -408,30 +455,31 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     return returnValue
   }
 
-  _renderSortBtn(columnIndex) {
-    const col = this.columns[columnIndex]
-    if (this.serverSort && !col.sortKey) return ''
+  _renderHeaderCell(column, columnIndex) {
+    const label = this._colLabel(column.name)
+    if (!this.sortable || (this.serverSort && !column.sortKey)) {
+      return html`<th>${label}</th>`
+    }
     const isCurrent = this.serverSort
       ? this._getActiveSortColumn() === columnIndex
       : this.sort === columnIndex
-    const isAscending = this.serverSort
-      ? isCurrent && !this._isSortDescending()
-      : !this.descending
-    return html`
-      <span>
-        <md-icon-button
-          @click="${() => this._toggleSort(columnIndex)}"
-          id="btn-sort-${columnIndex}"
-        >
-          <md-icon>${this._renderSortIcon(isCurrent, isAscending)}</md-icon>
-        </md-icon-button>
-        <grampsjs-tooltip
-          for="btn-sort-${columnIndex}"
-          .strings="${this.strings}"
-          >${this._('Sort')}</grampsjs-tooltip
-        >
-      </span>
-    `
+    const isDescending = this.serverSort
+      ? this._isSortDescending()
+      : this.descending
+    let ariaSort = 'none'
+    if (isCurrent) ariaSort = isDescending ? 'descending' : 'ascending'
+    return html`<th aria-sort="${ariaSort}">
+      <button
+        class="sort-header"
+        @click="${() => this._toggleSort(columnIndex)}"
+      >
+        ${label}
+        ${renderIconSvg(
+          isCurrent && isDescending ? mdiArrowDown : mdiArrowUp,
+          'currentColor'
+        )}
+      </button>
+    </th>`
   }
 
   _toggleSort(columnIndex) {
