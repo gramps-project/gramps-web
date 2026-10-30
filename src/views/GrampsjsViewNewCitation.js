@@ -1,6 +1,5 @@
 import {html} from 'lit'
 
-import '@material/mwc-textfield'
 import '@material/web/select/filled-select.js'
 import '@material/web/select/select-option.js'
 

@@ -1,6 +1,6 @@
 import {html} from 'lit'
 
-import '@material/mwc-textfield'
+import '@material/web/textfield/filled-text-field.js'
 import '@material/mwc-button'
 import '@material/mwc-circular-progress'
 
@@ -9,6 +9,7 @@ import '../components/GrampsjsFormSelectObject.js'
 import '../components/GrampsjsFormObjectList.js'
 import '../components/GrampsjsFormSelectType.js'
 import '../components/GrampsjsFormPrivate.js'
+import {reportRequiredField} from '../util.js'
 
 export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
   constructor() {
@@ -25,13 +26,14 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
 
       <h3 class="label">${this._('Name')}</h3>
       <p>
-        <mwc-textfield
+        <md-filled-text-field
           required
-          validationMessage="${this._('This field is mandatory')}"
+          supporting-text="&nbsp;"
           style="width:100%;"
           @input="${this.handleName}"
+          @blur="${this.handleName}"
           id="repository-name"
-        ></mwc-textfield>
+        ></md-filled-text-field>
       </p>
 
       <grampsjs-form-select-type
@@ -59,6 +61,7 @@ export class GrampsjsViewNewRepository extends GrampsjsViewNewObject {
   }
 
   handleName(e) {
+    reportRequiredField(e.target, this._('This field is mandatory'))
     this.checkFormValidity()
     this.data = {...this.data, name: e.target.value.trim()}
   }

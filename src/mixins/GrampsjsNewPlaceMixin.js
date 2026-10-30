@@ -1,6 +1,6 @@
 import {html} from 'lit'
 
-import '@material/mwc-textfield'
+import '@material/web/textfield/filled-text-field.js'
 import '@material/web/button/outlined-button.js'
 
 import {mdiMapMarker} from '@mdi/js'
@@ -10,6 +10,7 @@ import '../components/GrampsjsFormSelectType.js'
 import '../components/GrampsjsFormPrivate.js'
 import '../components/GrampsjsFormString.js'
 import '../components/GrampsjsFormEditLatLong.js'
+import {reportRequiredField} from '../util.js'
 import '../components/GrampsjsIcon.js'
 
 export const GrampsjsNewPlaceMixin = superClass =>
@@ -41,14 +42,15 @@ export const GrampsjsNewPlaceMixin = superClass =>
       return html`
         <h3 class="label">${this._('Name')}</h3>
         <p>
-          <mwc-textfield
+          <md-filled-text-field
             required
-            validationMessage="${this._('This field is mandatory')}"
+            supporting-text="&nbsp;"
             style="width:100%;"
             value="${this._initialData.name?.value ?? ''}"
             @input="${this.handleName}"
+            @blur="${this.handleName}"
             id="place-name"
-          ></mwc-textfield>
+          ></md-filled-text-field>
         </p>
 
         <h3 class="label">${this._('Type')}</h3>
@@ -129,6 +131,7 @@ export const GrampsjsNewPlaceMixin = superClass =>
     }
 
     handleName(e) {
+      reportRequiredField(e.target, this._('This field is mandatory'))
       this.checkFormValidity()
       this.data = {
         ...this.data,

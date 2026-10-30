@@ -1,10 +1,9 @@
 import {css, html} from 'lit'
-import {ifDefined} from 'lit/directives/if-defined.js'
 import {keyed} from 'lit/directives/keyed.js'
 import {map} from 'lit/directives/map.js'
 import {repeat} from 'lit/directives/repeat.js'
 
-import '@material/mwc-textfield'
+import '@material/web/textfield/filled-text-field.js'
 import '@material/web/button/filled-button'
 import '@material/web/button/outlined-button'
 import '@material/web/button/text-button.js'
@@ -246,7 +245,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
           --md-menu-item-one-line-container-height: 48px;
         }
 
-        #menu-controls mwc-textfield {
+        #menu-controls md-filled-text-field {
           width: 6em;
         }
 
@@ -770,14 +769,13 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
       `
     }
     return html`
-      <mwc-textfield
+      <md-filled-text-field
         value=${value}
         type="number"
         min=${setting.min}
-        size=${ifDefined(setting.size)}
         @change=${e =>
           this._changeSetting(setting, parseInt(e.target.value, 10))}
-      ></mwc-textfield>
+      ></md-filled-text-field>
     `
   }
 

@@ -81,10 +81,12 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
         ].join(', ')
       )
       .forEach(element => element.reset())
-    this.shadowRoot.querySelectorAll('mwc-textfield').forEach(element => {
-      // eslint-disable-next-line no-param-reassign
-      element.value = ''
-    })
+    this.shadowRoot
+      .querySelectorAll('md-filled-text-field')
+      .forEach(element => {
+        // eslint-disable-next-line no-param-reassign
+        element.value = ''
+      })
     this.isFormValid = false
   }
 

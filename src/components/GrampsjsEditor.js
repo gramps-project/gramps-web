@@ -3,7 +3,7 @@ import {live} from 'lit/directives/live.js'
 
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/filled-button.js'
-import '@material/mwc-textfield'
+import '@material/web/textfield/filled-text-field.js'
 import '@material/mwc-button'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/button/text-button.js'
@@ -962,11 +962,11 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         <span slot="headline">${this._('Link')}</span>
         <div slot="content">
           <p>
-            <mwc-textfield
+            <md-filled-text-field
               id="linkurl"
               label="URL"
               style="width:100%"
-            ></mwc-textfield>
+            ></md-filled-text-field>
           </p>
           <p>
             <grampsjs-form-select-object

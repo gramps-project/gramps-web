@@ -21,10 +21,6 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
           text-align: right;
         }
 
-        mwc-textfield.fullwidth {
-          width: 100%;
-        }
-
         .hide {
           display: none;
         }
@@ -103,10 +99,6 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
         ].join(', ')
       )
       .forEach(element => element.reset())
-    this.shadowRoot.querySelectorAll('mwc-textfield').forEach(element => {
-      // eslint-disable-next-line no-param-reassign
-      element.value = ''
-    })
     this.shadowRoot
       .querySelectorAll('md-outlined-text-field')
       .forEach(element => {

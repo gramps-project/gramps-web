@@ -1,6 +1,6 @@
 import {html} from 'lit'
 
-import '@material/mwc-textfield'
+import '@material/web/textfield/filled-text-field.js'
 import '@material/web/select/filled-select.js'
 import '@material/web/select/select-option.js'
 
@@ -9,7 +9,7 @@ import '../components/GrampsjsFormString.js'
 import '../components/GrampsjsFormPrivate.js'
 import {GrampsjsViewNewSource} from './GrampsjsViewNewSource.js'
 
-import {makeHandle, fireEvent} from '../util.js'
+import {makeHandle, fireEvent, reportRequiredField} from '../util.js'
 
 const dataDefault = {
   _class: 'Source',
@@ -41,13 +41,14 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
 
       <h3 class="label">${this._('Title')}</h3>
       <p>
-        <mwc-textfield
+        <md-filled-text-field
           required
-          validationMessage="${this._('This field is mandatory')}"
+          supporting-text="&nbsp;"
           style="width:100%;"
           @input="${this.handleName}"
+          @blur="${this.handleName}"
           id="source-name"
-        ></mwc-textfield>
+        ></md-filled-text-field>
       </p>
 
       <h3 class="label">${this._('Description')}</h3>
@@ -88,6 +89,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
   }
 
   handleName(e) {
+    reportRequiredField(e.target, this._('This field is mandatory'))
     this.checkFormValidity()
     this.data = {...this.data, title: e.target.value.trim()}
   }
@@ -111,7 +113,6 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
 
   checkFormValidity() {
     const name = this.shadowRoot.getElementById('source-name')
-    name.reportValidity()
     try {
       this.isFormValid = name?.validity?.valid
     } catch {
