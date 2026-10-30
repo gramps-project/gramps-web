@@ -179,7 +179,8 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       label: dryRun ? 'Preview Import' : 'Import',
       taskName: 'importFile',
     })
-    if (outcome.error !== undefined) {
+    // a replaced run still reports its outcome, but not its error
+    if (outcome.error !== undefined && this._op === op) {
       prog.errorMessage = outcome.error
       this._importError = outcome.error
     }
