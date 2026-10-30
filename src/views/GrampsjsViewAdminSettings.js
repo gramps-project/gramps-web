@@ -15,6 +15,7 @@ import '../components/GrampsjsTreeQuotas.js'
 
 import {fireEvent, makeHandle} from '../util.js'
 import {dispatchErrorMessage} from '../taskResponse.js'
+import {isTaskActive} from '../appState.js'
 import {
   TREE_CONFIG_APP_TITLE,
   TREE_CONFIG_PRIMARY_COLOR,
@@ -250,6 +251,24 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this._homePageNoteGrampsId = null
     this._homePageImageGrampsId = null
     this._tags = []
+    this._boundHandleTasksChanged = () => this.requestUpdate()
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('tasks:changed', this._boundHandleTasksChanged)
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('tasks:changed', this._boundHandleTasksChanged)
+    super.disconnectedCallback()
+  }
+
+  // Whether a search index build runs, started here or by the API
+  _searchReindexRunning() {
+    return (this.appState?.getActiveTasks?.() ?? []).some(
+      task => task.taskName === 'searchReindexFull' && isTaskActive(task)
+    )
   }
 
   renderContent() {
@@ -298,7 +317,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         </p>
         <div class="button-row">
           <md-outlined-button
-            ?disabled=${this._buttonUpdateSearchDisabled}
+            ?disabled=${this._buttonUpdateSearchDisabled ||
+            this._searchReindexRunning()}
             @click="${() => this._updateSearch(false)}"
             >${this._('Update search index')}</md-outlined-button
           >

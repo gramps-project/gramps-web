@@ -132,7 +132,7 @@ export class GrampsJs extends LitElement {
       _shortcutPressed: {type: String},
       _firstRunToken: {type: String},
       _loadingStrings: {type: Boolean},
-      reindexNeeded: {type: Boolean},
+      _reindexNeeded: {type: Boolean},
       _semanticIndexStale: {type: Boolean},
     }
   }
@@ -154,6 +154,7 @@ export class GrampsJs extends LitElement {
     this._firstRunToken = ''
     this._loadingStrings = false
     this._reindexNeeded = false
+    this._searchIndexBuilding = false
     this._semanticIndexStale = false
     this._drawerWasOpen = false
     this._metadataConfirmed = false
@@ -367,6 +368,17 @@ export class GrampsJs extends LitElement {
         : ''}
       ></mwc-snackbar
     >`
+  }
+
+  // Reloads the metadata once the search index task of a build has finished,
+  // so that it no longer reports the build
+  _handleTaskDone(e) {
+    if (
+      this._searchIndexBuilding &&
+      e.detail?.status?.taskName === 'searchReindexFull'
+    ) {
+      this._loadDbInfo(false)
+    }
   }
 
   _handleReindexButton(e) {
@@ -741,6 +753,8 @@ export class GrampsJs extends LitElement {
       this._handleRequestsChanged.bind(this)
     )
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
+    window.addEventListener('task:complete', e => this._handleTaskDone(e))
+    window.addEventListener('task:error', e => this._handleTaskDone(e))
     window.addEventListener('tree:missing', () => {
       this.loadingState = LOADING_STATE_NO_TREE
     })
@@ -936,11 +950,14 @@ export class GrampsJs extends LitElement {
       (sum, value) => sum + value,
       0
     )
-    if (searchCount === 0 && objCount > 0) {
-      this._reindexNeeded = true
-    } else {
-      this._reindexNeeded = false
+    // The API builds a missing index in a background task and reports it as
+    // building until it is done; loading the active tasks shows its progress
+    this._searchIndexBuilding = this.appState.dbInfo?.search?.building === true
+    if (this._searchIndexBuilding) {
+      this.appState.loadActiveTasks()
     }
+    this._reindexNeeded =
+      !this._searchIndexBuilding && searchCount === 0 && objCount > 0
     // Check if the semantic search index is stale due to a model change
     const semanticSearch = this.appState.dbInfo?.server?.semantic_search
     if (semanticSearch) {
