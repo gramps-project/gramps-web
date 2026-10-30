@@ -1,12 +1,18 @@
 import {html, css, LitElement} from 'lit'
 
-import '@material/mwc-button'
+import '@material/web/iconbutton/icon-button.js'
 
-import {mdiDotsHorizontal} from '@mdi/js'
+import {
+  mdiChevronLeft,
+  mdiChevronRight,
+  mdiPageFirst,
+  mdiPageLast,
+} from '@mdi/js'
 
 import './GrampsjsIcon.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {fireEvent} from '../util.js'
 
 class GrampsjsPagination extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -14,28 +20,30 @@ class GrampsjsPagination extends GrampsjsAppStateMixin(LitElement) {
       sharedStyles,
       css`
         .paging {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+          margin-top: 24px;
+          /* Room to scroll the buttons clear of a list's floating add button,
+             which sits 32px from the bottom and is 56px high */
+          margin-bottom: 88px;
           font-size: 14px;
-          font-size: 14px;
-          margin-top: 50px;
-          text-align: center;
+          font-weight: 400;
+          color: var(--grampsjs-body-font-color-60);
         }
 
-        .span {
-          color: var(--grampsjs-body-font-color-90);
-          padding: 0 0.5em;
+        .range {
+          margin-right: 12px;
+          font-variant-numeric: tabular-nums;
         }
 
-        mwc-button {
-          --mdc-ripple-focus-opacity: 0;
-          --mdc-theme-primary: var(--grampsjs-body-font-color-70);
-        }
-
-        .pagebtn {
-          --mdc-button-horizontal-padding: 0;
-        }
-
-        grampsjs-icon.more {
-          color: var(--grampsjs-body-font-color-20);
+        md-icon-button {
+          --md-icon-button-icon-color: var(--grampsjs-body-font-color-70);
+          --md-icon-button-disabled-icon-color: var(
+            --grampsjs-body-font-color-20
+          );
+          --md-icon-button-disabled-icon-opacity: 1;
         }
       `,
     ]
@@ -45,7 +53,8 @@ class GrampsjsPagination extends GrampsjsAppStateMixin(LitElement) {
     return {
       page: {type: Number},
       pages: {type: Number},
-      link: {type: String},
+      total: {type: Number},
+      pageSize: {type: Number},
     }
   }
 
@@ -53,6 +62,8 @@ class GrampsjsPagination extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.page = 1
     this.pages = -1
+    this.total = -1
+    this.pageSize = -1
   }
 
   render() {
@@ -61,93 +72,67 @@ class GrampsjsPagination extends GrampsjsAppStateMixin(LitElement) {
     }
     return html`
       <div class="paging">
-        ${this._renderPrevBtn()} ${this._renderPageBtn(1)}
-        ${this.pages > 1 ? this._renderPageBtn(2) : ''}
-        ${this.page - 1 > 3
-          ? html`<grampsjs-icon
-              class="more"
-              path="${mdiDotsHorizontal}"
-              color="currentColor"
-            ></grampsjs-icon>`
-          : ''}
-        ${this.page - 1 > 2 && this.page - 1 < this.pages - 1
-          ? this._renderPageBtn(this.page - 1)
-          : ''}
-        ${this.page > 2 && this.page < this.pages - 1
-          ? this._renderPageBtn(this.page)
-          : ''}
-        ${this.page + 1 > 2 && this.page + 1 < this.pages - 1
-          ? this._renderPageBtn(this.page + 1)
-          : ''}
-        ${this.page + 1 < this.pages - 2
-          ? html`<grampsjs-icon
-              class="more"
-              path="${mdiDotsHorizontal}"
-              color="currentColor"
-            ></grampsjs-icon>`
-          : ''}
-        ${this.pages > 3 ? this._renderPageBtn(this.pages - 1) : ''}
-        ${this.pages > 2 ? this._renderPageBtn(this.pages) : ''}
-        ${this._renderNextBtn()}
-        <div></div>
+        <span class="range">${this._renderRange()}</span>
+        ${this._renderButton(mdiPageFirst, '_First', 1, this.page === 1)}
+        ${this._renderButton(
+          mdiChevronLeft,
+          'Previous',
+          this.page - 1,
+          this.page === 1
+        )}
+        ${this._renderButton(
+          mdiChevronRight,
+          'Next',
+          this.page + 1,
+          this.page === this.pages
+        )}
+        ${this._renderButton(
+          mdiPageLast,
+          '_Last',
+          this.pages,
+          this.page === this.pages
+        )}
       </div>
     `
   }
 
-  _renderPageBtn(page) {
+  // "1–24 of 3,214" when the total and page size are known, else "3 of 12"
+  // pages.
+  _renderRange() {
+    const format = new Intl.NumberFormat(
+      (this.appState?.i18n?.lang || 'en').replace('_', '-')
+    ).format
+    let current = format(this.page)
+    let total = format(this.pages)
+    if (this.total > 0 && this.pageSize > 0) {
+      const first = (this.page - 1) * this.pageSize + 1
+      const last = Math.min(this.page * this.pageSize, this.total)
+      current = `${format(first)}–${format(last)}`
+      total = format(this.total)
+    }
+    return this._('%(current)d of %(total)d')
+      .replace('%(current)d', current)
+      .replace('%(total)d', total)
+  }
+
+  _renderButton(path, label, page, disabled) {
     return html`
-      <mwc-button
-        width="30px"
-        class="pagebtn"
-        ?disabled=${this.page === page}
-        ?unelevated=${this.page === page}
+      <md-icon-button
+        aria-label="${this._(label)}"
+        title="${this._(label)}"
+        ?disabled=${disabled}
         @click="${() => this._changePage(page)}"
-        label="${page}"
       >
-      </mwc-button>
-    `
-  }
-
-  _renderPrevBtn() {
-    return html`
-      <mwc-button
-        icon="navigate_before"
-        ?disabled=${this.page === 1}
-        @click="${() => this._changePage(this.page - 1)}"
-        label="${this._('Previous')}"
-      >
-      </mwc-button>
-    `
-  }
-
-  _renderNextBtn() {
-    return html`
-      <mwc-button
-        icon="navigate_next"
-        ?disabled=${this.page === this.pages}
-        @click="${() => this._changePage(this.page + 1)}"
-        label="${this._('Next')}"
-        trailingIcon
-      >
-      </mwc-button>
+        <grampsjs-icon path="${path}" color="currentColor"></grampsjs-icon>
+      </md-icon-button>
     `
   }
 
   _changePage(page) {
     if (page !== this.page) {
       this.page = page
-      this._fireEvent()
+      fireEvent(this, 'page:changed', {page: this.page})
     }
-  }
-
-  _fireEvent() {
-    this.dispatchEvent(
-      new CustomEvent('page:changed', {
-        bubbles: true,
-        composed: true,
-        detail: {page: this.page},
-      })
-    )
   }
 }
 
