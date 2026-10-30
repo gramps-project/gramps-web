@@ -24,7 +24,7 @@ import {
 import {GrampsjsView} from './GrampsjsView.js'
 
 import {renderIconSvg} from '../icons.js'
-import {fireEvent, objectTypeSingular} from '../util.js'
+import {fireEvent, objectTypeSingular, taskErrorMessage} from '../util.js'
 
 export class GrampsjsViewRevision extends GrampsjsView {
   static get styles() {
@@ -432,7 +432,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
   _handleUndoError(e) {
     this._undoTaskRunning = false
     this._undoDialogOpen = false
-    const msg = e.detail?.status?.info || this._('Task failed')
+    const msg = taskErrorMessage(e.detail?.status) || this._('Task failed')
     fireEvent(this, 'grampsjs:error', {message: msg})
   }
 

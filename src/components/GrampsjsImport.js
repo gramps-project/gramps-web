@@ -22,6 +22,10 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
         .hidden {
           display: none;
         }
+
+        .alert.error {
+          white-space: pre-line;
+        }
       `,
     ]
   }
@@ -32,6 +36,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       _busy: {type: Boolean},
       _uploadHint: {type: String},
       _importResult: {type: Object},
+      _importError: {type: String},
     }
   }
 
@@ -42,6 +47,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     this._busy = false
     this._uploadHint = ''
     this._importResult = null
+    this._importError = ''
     // Token of the running preview and import. Selecting another file
     // replaces it, so a run whose task never reports back blocks nothing;
     // the replaced run stops at its next step.
@@ -78,6 +84,9 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
           @task:complete="${this._handleOtherTaskComplete}"
         ></grampsjs-task-progress-indicator>
       </p>
+      ${this._importError
+        ? html`<p class="alert error">${this._importError}</p>`
+        : ''}
       ${this._renderImportResult()}
       <grampsjs-import-preview-dialog
         .appState="${this.appState}"
@@ -115,6 +124,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     this._op = op
     this._busy = true
     this._importResult = null
+    this._importError = ''
 
     const preview = await this._post(op, file, true)
     if (this._op !== op) {
@@ -169,8 +179,10 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       label: dryRun ? 'Preview Import' : 'Import',
       taskName: 'importFile',
     })
-    if (outcome.error !== undefined) {
-      prog.errorMessage = this._(outcome.error)
+    // a replaced run still reports its outcome, but not its error
+    if (outcome.error !== undefined && this._op === op) {
+      prog.errorMessage = outcome.error
+      this._importError = outcome.error
     }
     return outcome
   }
@@ -195,6 +207,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
 
   _handleUploadChanged() {
     const uploadForm = this.shadowRoot.querySelector('#upload-tree')
+    this._importError = ''
     this._op = null
     this._busy = false
     this._file = null

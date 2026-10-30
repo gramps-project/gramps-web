@@ -1,6 +1,6 @@
 import '@material/mwc-circular-progress'
 
-import {fireEvent} from '../util.js'
+import {fireEvent, taskErrorMessage} from '../util.js'
 import {GrampsjsProgressIndicator} from './GrampsjsProgressIndicator.js'
 
 export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
@@ -130,7 +130,7 @@ export class GrampsjsTaskProgressIndicator extends GrampsjsProgressIndicator {
 
   setError() {
     this.error = true
-    this.errorMessage = this.status?.info || ''
+    this.errorMessage = taskErrorMessage(this.status)
     this.closeAfter()
     // Fire task:error for component-level handlers (e.g. _handleUndoError).
     // Notification-log entries are added centrally by appState.startPolling.

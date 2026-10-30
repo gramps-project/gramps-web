@@ -1,4 +1,4 @@
-import {getTaskResult, translate} from './util.js'
+import {getTaskResult, taskErrorMessage, translate} from './util.js'
 
 const TASK_LOCKED_MESSAGE =
   'Another task is already running on this tree. Try again once it has finished.'
@@ -70,5 +70,5 @@ export async function awaitTaskResponse(
   if (status?.state === 'SUCCESS') {
     return {data: getTaskResult(status)}
   }
-  return {error: status?.info || ''}
+  return {error: taskErrorMessage(status)}
 }
