@@ -1,5 +1,6 @@
 import {describe, it, expect, vi} from 'vitest'
 import {GrampsjsViewMediaObjects} from '../../src/views/GrampsjsViewMediaObjects.js'
+import {GrampsjsViewMediaLightbox} from '../../src/views/GrampsjsViewMediaLightbox.js'
 
 const rowsOf = (...handles) => handles.map(handle => ({handle}))
 const fromLightbox = {detail: {id: 'gallery-lightbox'}}
@@ -20,11 +21,11 @@ function makeView({rows = rowsOf('a', 'b', 'c'), page = 1, pages = 1} = {}) {
   return view
 }
 
-// what the view does once the requested page has loaded
+// what the view does before rendering the requested page
 function loadPage(view, rows) {
   view._rawData = rows
   view.loading = false
-  view.updated(new Map([['loading', true]]))
+  view.willUpdate(new Map([['loading', true]]))
 }
 
 describe('browsing media in the lightbox', () => {
@@ -103,5 +104,39 @@ describe('selecting media', () => {
     view._toggleSelected(0)
     expect(view._selectedHandles).toEqual(['b', 'c'])
     expect(view._allMatchingRows).toBe(null)
+  })
+})
+
+describe('loading the media shown in the lightbox', () => {
+  function makeLightbox() {
+    const lightbox = Object.create(GrampsjsViewMediaLightbox.prototype)
+    lightbox.requestUpdate = () => {}
+    const responses = {}
+    lightbox.appState = {
+      i18n: {lang: 'en'},
+      apiGet: vi.fn(
+        url =>
+          new Promise(resolve => {
+            responses[url.split('?')[0].split('/').pop()] = resolve
+          })
+      ),
+    }
+    return {lightbox, responses}
+  }
+
+  function show(lightbox, handle) {
+    lightbox.handle = handle
+    lightbox._updateData()
+  }
+
+  it('ignores a late response for media shown earlier', async () => {
+    const {lightbox, responses} = makeLightbox()
+    show(lightbox, 'a')
+    show(lightbox, 'c')
+    responses.c({data: {handle: 'c'}})
+    responses.a({data: {handle: 'a'}})
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(lightbox._data).toEqual({handle: 'c'})
   })
 })

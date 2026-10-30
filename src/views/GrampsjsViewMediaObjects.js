@@ -596,8 +596,10 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     }
   }
 
-  updated(changed) {
-    super.updated(changed)
+  // Picks the media on a newly loaded page before it renders, so the
+  // lightbox never receives the handle at the previous index
+  willUpdate(changed) {
+    super.willUpdate(changed)
     // the adjacent page has loaded, or failed to load
     if (this._lightboxPending && changed.has('loading') && !this.loading) {
       this._lightboxIndex =
