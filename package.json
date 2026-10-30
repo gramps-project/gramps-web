@@ -130,7 +130,6 @@
     "@hpcc-js/wasm": "^2.22.4",
     "@material/material-color-utilities": "^0.4.0",
     "@material/mwc-drawer": "^0.27.0",
-    "@material/mwc-snackbar": "^0.27.0",
     "@material/mwc-top-app-bar": "^0.27.0",
     "@material/web": "^2.2.0",
     "@mdi/js": "^7.4.47",

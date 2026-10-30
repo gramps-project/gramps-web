@@ -1,84 +1,33 @@
 /*
-The dropdown menu for adding objects in the top app bar
+Offers to undo a transaction in the app snackbar
 */
 
-import {css, html, LitElement} from 'lit'
-import '@material/mwc-snackbar'
-import '@material/web/iconbutton/icon-button.js'
-import '@material/web/button/text-button.js'
-
-import {mdiClose} from '@mdi/js'
+import {LitElement} from 'lit'
 
 import {fireEvent} from '../util.js'
-import './GrampsjsIcon.js'
-
-import {
-  sharedStyles,
-  iconButtonColorStyles,
-  snackbarActionStyles,
-} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
+export const UNDO_TIMEOUT = 8000
+
 class GrampsjsUndoTransaction extends GrampsjsAppStateMixin(LitElement) {
-  static get styles() {
-    return [
-      sharedStyles,
-      iconButtonColorStyles,
-      snackbarActionStyles,
-      css`
-        /* mwc-snackbar styles its dismiss button through
-           ::slotted(mwc-icon-button), which matches by tag name and so skips
-           md-icon-button. Supply the size, colour and spacing here. */
-        md-icon-button[slot='dismiss'] {
-          --md-icon-button-icon-size: 18px;
-          --md-icon-button-state-layer-width: 36px;
-          --md-icon-button-state-layer-height: 36px;
-          --grampsjs-icon-button-color: rgba(255, 255, 255, 0.87);
-          margin-left: 8px;
-          margin-right: 0;
-        }
-      `,
-    ]
-  }
-
-  static get properties() {
-    return {
-      transaction: {type: Array},
-      redirect: {type: String},
-    }
-  }
-
   constructor() {
     super()
-    this.transaction = []
-    this.redirect = ''
     this._boundHandleEvent = this._handleEvent.bind(this)
   }
 
+  // eslint-disable-next-line class-methods-use-this
   render() {
-    return html`
-      <mwc-snackbar leading id="undo-snackbar">
-        <md-text-button slot="action" @click="${this._handleUndo}"
-          >${this._('Undo')}</md-text-button
-        >
-        <md-icon-button slot="dismiss" aria-label="${this._('Close')}">
-          <grampsjs-icon
-            path="${mdiClose}"
-            color="currentColor"
-          ></grampsjs-icon>
-        </md-icon-button>
-      </mwc-snackbar>
-    `
+    return null
   }
 
-  async _handleUndo() {
-    if (this.transaction.length > 0) {
+  async _undo(transaction, redirect) {
+    if (transaction.length > 0) {
       const res = await this.appState.apiPost(
         '/api/transactions/?undo=1',
-        this.transaction
+        transaction
       )
       if ('data' in res) {
-        fireEvent(this, 'nav', {path: this.redirect})
+        fireEvent(this, 'nav', {path: redirect})
       } else if ('error' in res) {
         fireEvent(this, 'grampsjs:error', {message: res.error})
       }
@@ -86,11 +35,18 @@ class GrampsjsUndoTransaction extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleEvent(event) {
-    this.transaction = event.detail.transaction || []
-    this.redirect = event.detail.redirect || ''
-    const snackbar = this.renderRoot.querySelector('mwc-snackbar')
-    snackbar.labelText = this._(event.detail.message)
-    snackbar.show()
+    const transaction = event.detail.transaction || []
+    const redirect = event.detail.redirect || ''
+    fireEvent(this, 'grampsjs:notification', {
+      message: this._(event.detail.message),
+      action: {
+        label: this._('Undo'),
+        handler: () => this._undo(transaction, redirect),
+      },
+      timeout: UNDO_TIMEOUT,
+      dismissible: true,
+      keep: true,
+    })
   }
 
   connectedCallback() {

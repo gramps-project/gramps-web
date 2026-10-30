@@ -597,18 +597,6 @@ export const buttonColorStyles = css`
   }
 `
 
-/* Action buttons in an mwc-snackbar. The snackbar surface is a fixed dark
-   grey in both themes, so the action uses a primary tone that is light in
-   both. */
-export const snackbarActionStyles = [
-  buttonColorStyles,
-  css`
-    mwc-snackbar md-text-button[slot='action'] {
-      --grampsjs-button-color: var(--md-sys-color-primary-fixed-dim);
-    }
-  `,
-]
-
 /* Icon buttons sitting on the app bar inherit its colour, and are 48px so that
    they line up with each other and with the bar's own height. */
 export const appBarIconButtonStyles = [
