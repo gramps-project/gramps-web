@@ -1,6 +1,6 @@
 import {html, css, LitElement} from 'lit'
 
-import '@material/mwc-button'
+import '@material/web/button/filled-button.js'
 import '@material/web/textfield/outlined-text-field.js'
 
 import {mdiCheckCircle} from '@mdi/js'
@@ -67,9 +67,13 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .progress {
-          position: relative;
-          top: 0.2em;
-          margin-left: 0.5em;
+          display: flex;
+          align-items: center;
+          gap: 0.5em;
+        }
+
+        .progress grampsjs-progress-indicator {
+          display: flex;
         }
       `,
     ]
@@ -196,15 +200,13 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
               `}
           <h3>${this._('Submit')}</h3>
 
-          <mwc-button
-            raised
-            label="${this._('Submit')}"
-            type="submit"
+          <md-filled-button
             @click="${this._submit}"
             ?disabled=${this.stateUser !== STATE_READY &&
             this.stateUser !== STATE_ERROR}
           >
-          </mwc-button>
+            ${this._('Submit')}
+          </md-filled-button>
 
           <p>
             ${this._showProgress(
@@ -227,14 +229,9 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
               ? 'visible'
               : 'hidden'};"
           >
-            <mwc-button
-              raised
-              label="start"
-              type="submit"
-              id="start-btn"
-              @click="${this._done}"
-            >
-            </mwc-button>
+            <md-filled-button id="start-btn" @click="${this._done}">
+              ${this._('Start')}
+            </md-filled-button>
           </div>
         </div>
       </div>
@@ -245,9 +242,8 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
   _showProgress(text, status, message) {
     const progress = status === STATE_DONE ? 1 : -1
     return html`
-      <br />
-      ${text}
       <span class="progress">
+        ${text}
         <grampsjs-progress-indicator
           ?open="${status !== STATE_INITIAL && status !== STATE_READY}"
           ?error="${status === STATE_ERROR}"

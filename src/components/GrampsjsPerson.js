@@ -15,6 +15,7 @@ import {
   mdiMap,
 } from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
+import {buttonColorStyles} from '../SharedStyles.js'
 import {getSymbols} from '../symbols.js'
 import './GrampsjsImg.js'
 import './GrampsjsEditGender.js'
@@ -26,6 +27,7 @@ export class GrampsjsPerson extends GrampsjsObject {
   static get styles() {
     return [
       super.styles,
+      buttonColorStyles,
       css`
         .profile-picture-actions {
           position: relative;
@@ -39,10 +41,7 @@ export class GrampsjsPerson extends GrampsjsObject {
           background: transparent;
           color: var(--mdc-theme-secondary);
           --md-text-button-container-shape: 50%;
-          --md-text-button-label-text-color: var(--mdc-theme-secondary);
-          --md-text-button-hover-label-text-color: var(--mdc-theme-secondary);
-          --md-text-button-focus-label-text-color: var(--mdc-theme-secondary);
-          --md-text-button-pressed-label-text-color: var(--mdc-theme-secondary);
+          --grampsjs-button-color: var(--mdc-theme-secondary);
           box-sizing: border-box;
         }
 
@@ -316,7 +315,7 @@ export class GrampsjsPerson extends GrampsjsObject {
               ${this._(btn.label)}
               <grampsjs-icon
                 path="${btn.path}"
-                color="var(--mdc-theme-primary)"
+                color="currentColor"
                 slot="icon"
               ></grampsjs-icon>
             </md-outlined-button>

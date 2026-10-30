@@ -109,7 +109,7 @@ export class GrampsjsPlace extends GrampsjsObject {
               ${this._('Open in map')}
               <grampsjs-icon
                 path="${mdiArrowExpandAll}"
-                color="var(--mdc-theme-primary)"
+                color="currentColor"
                 slot="icon"
               ></grampsjs-icon>
             </md-outlined-button>

@@ -10,7 +10,6 @@ import {
 } from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
 
-import '@material/mwc-button'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/select/outlined-select.js'
 import '@material/web/select/select-option.js'

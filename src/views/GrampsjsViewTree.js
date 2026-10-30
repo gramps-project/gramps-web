@@ -872,7 +872,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
         <grampsjs-icon
           slot="icon"
           path="${mdiPlus}"
-          color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+          color="currentColor"
         ></grampsjs-icon>
         ${this._('New Person')}
       </md-filled-button>
@@ -885,7 +885,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
         <grampsjs-icon
           slot="icon"
           path="${mdiPencil}"
-          color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+          color="currentColor"
         ></grampsjs-icon>
         ${this._('Set _Home Person')}
       </md-outlined-button>

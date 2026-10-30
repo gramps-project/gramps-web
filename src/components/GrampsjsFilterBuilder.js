@@ -368,7 +368,7 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
               <grampsjs-icon
                 slot="icon"
                 path="${mdiPlus}"
-                color="var(--mdc-theme-primary)"
+                color="currentColor"
               ></grampsjs-icon>
               ${this._('Add condition')}
             </md-text-button>
@@ -379,9 +379,7 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
               <grampsjs-icon
                 slot="icon"
                 path="${mdiPlus}"
-                color="${depth >= MAX_GROUP_DEPTH
-                  ? 'var(--md-sys-color-on-surface-variant)'
-                  : 'var(--mdc-theme-primary)'}"
+                color="currentColor"
               ></grampsjs-icon>
               ${this._('Add group')}
             </md-text-button>

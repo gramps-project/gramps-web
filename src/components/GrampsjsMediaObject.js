@@ -25,7 +25,6 @@ import {
   objectIconPath,
   rectEqual,
 } from '../util.js'
-import {renderIconSvg} from '../icons.js'
 import {iconButtonColorStyles} from '../SharedStyles.js'
 import './GrampsjsIcon.js'
 
@@ -393,15 +392,14 @@ export class GrampsjsMediaObject extends GrampsjsObject {
       ${this.dbInfo?.server?.ocr
         ? html`
             <p>
-              <mwc-button raised @click="${this._handleOcrClick}"
-                >${renderIconSvg(
-                  mdiTextRecognition,
-                  'var(--mdc-theme-on-primary)',
-                  0,
-                  'icon'
-                )}
-                ${this._('Text Recognition')}</mwc-button
-              >
+              <md-outlined-button @click="${this._handleOcrClick}">
+                <grampsjs-icon
+                  slot="icon"
+                  path="${mdiTextRecognition}"
+                  color="currentColor"
+                ></grampsjs-icon>
+                ${this._('Text Recognition')}
+              </md-outlined-button>
             </p>
           `
         : ''}

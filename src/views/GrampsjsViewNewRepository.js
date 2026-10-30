@@ -1,7 +1,6 @@
 import {html} from 'lit'
 
 import '@material/web/textfield/filled-text-field.js'
-import '@material/mwc-button'
 
 import {GrampsjsViewNewObject} from './GrampsjsViewNewObject.js'
 import '../components/GrampsjsFormSelectObject.js'

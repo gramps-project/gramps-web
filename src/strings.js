@@ -723,6 +723,7 @@ export const grampsStrings = [
   'Refresh',
   'Region',
   'Regular',
+  'Reload',
   'Relationship Graph',
   'Relationship to _Father:',
   'Relationship to _Mother:',

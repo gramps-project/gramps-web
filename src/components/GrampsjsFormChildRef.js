@@ -4,7 +4,6 @@ relationships (frel/mrel) of an existing child reference.
 */
 
 import {html} from 'lit'
-import '@material/mwc-button'
 
 import './GrampsjsFormSelectType.js'
 import './GrampsjsFormSelectObjectList.js'

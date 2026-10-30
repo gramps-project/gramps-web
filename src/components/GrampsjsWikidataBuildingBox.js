@@ -225,7 +225,7 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
           <grampsjs-icon
             .path="${mdiMapMarker}"
             slot="icon"
-            color="var(--mdc-theme-primary)"
+            color="currentColor"
           ></grampsjs-icon>
         </md-text-button>
       `
@@ -240,7 +240,7 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
         <grampsjs-icon
           .path="${mdiPlus}"
           slot="icon"
-          color="var(--mdc-theme-primary)"
+          color="currentColor"
         ></grampsjs-icon>
       </md-text-button>
     `
@@ -314,7 +314,7 @@ export class GrampsjsWikidataBuildingBox extends GrampsjsAppStateMixin(
         <grampsjs-icon
           .path="${mdiOpenInNew}"
           slot="icon"
-          color="var(--mdc-theme-primary)"
+          color="currentColor"
         ></grampsjs-icon>
       </md-text-button>
     `

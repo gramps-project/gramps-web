@@ -93,7 +93,7 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
           <grampsjs-icon
             .path="${mdiEye}"
             slot="icon"
-            color="var(--md-sys-color-primary)"
+            color="currentColor"
           ></grampsjs-icon>
           ${this._('View')}
         </md-text-button>
@@ -103,7 +103,7 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
                 <grampsjs-icon
                   .path="${mdiPencil}"
                   slot="icon"
-                  color="var(--md-sys-color-primary)"
+                  color="currentColor"
                 ></grampsjs-icon>
                 ${this._('Edit')}
               </md-text-button>

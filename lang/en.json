@@ -485,5 +485,6 @@
   "Matching the <GOQL expression>": "Matching the <GOQL expression>",
   "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true",
   "Expression:": "Expression:",
-  "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Your full name and e-mail address may be updated whenever you sign in with a linked account."
+  "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Your full name and e-mail address may be updated whenever you sign in with a linked account.",
+  "No connection": "No connection"
 }

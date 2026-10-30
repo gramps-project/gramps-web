@@ -99,7 +99,7 @@ export const GrampsjsNewPlaceMixin = superClass =>
             <grampsjs-icon
               slot="icon"
               path="${mdiMapMarker}"
-              color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+              color="currentColor"
             ></grampsjs-icon>
             ${this._('Pick on map')}
           </md-outlined-button>

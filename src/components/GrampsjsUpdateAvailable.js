@@ -1,7 +1,6 @@
 import {PwaUpdateAvailable} from 'pwa-helper-components/pwa-update-available/PwaUpdateAvailable.js'
 
 import '@material/mwc-snackbar'
-import '@material/mwc-button'
 
 export class GrampsjsUpdateAvailable extends PwaUpdateAvailable {
   // Use a fresh registration instead of the stored _newWorker reference, which

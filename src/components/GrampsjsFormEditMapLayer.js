@@ -133,7 +133,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsNominatimSearchMixin(
                 <grampsjs-icon
                   slot="icon"
                   path="${mdiMapMarker}"
-                  color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+                  color="currentColor"
                 ></grampsjs-icon>
                 ${this._('Select a point on the map')}
               </md-filled-button>
@@ -143,7 +143,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsNominatimSearchMixin(
                 <grampsjs-icon
                   slot="icon"
                   path="${mdiMapMarker}"
-                  color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+                  color="currentColor"
                 ></grampsjs-icon>
                 ${this._('Select a point on the map')}
               </md-outlined-button>
@@ -155,7 +155,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsNominatimSearchMixin(
                   <grampsjs-icon
                     slot="icon"
                     path="${mdiMapMarker}"
-                    color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+                    color="currentColor"
                   ></grampsjs-icon>
                   ${this._('Align the image')}
                 </md-filled-button>
@@ -165,7 +165,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsNominatimSearchMixin(
                   <grampsjs-icon
                     slot="icon"
                     path="${mdiMapMarker}"
-                    color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+                    color="currentColor"
                   ></grampsjs-icon>
                   ${this._('Align the image')}
                 </md-outlined-button>

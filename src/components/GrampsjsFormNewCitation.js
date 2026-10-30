@@ -3,7 +3,6 @@ Form for adding a new event reference
 */
 
 import {html} from 'lit'
-import '@material/mwc-button'
 import '@material/web/select/filled-select.js'
 import '@material/web/select/select-option.js'
 
