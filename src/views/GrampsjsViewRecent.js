@@ -72,7 +72,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
         <grampsjs-icon
           slot="icon"
           path="${mdiDeleteSweep}"
-          color="var(--md-outlined-button-label-text-color, var(--md-sys-color-primary))"
+          color="currentColor"
           height="20"
           width="20"
         ></grampsjs-icon>

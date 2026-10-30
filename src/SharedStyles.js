@@ -486,6 +486,129 @@ export const iconButtonColorStyles = css`
   }
 `
 
+/* Drives the colour tokens of md-text-button and md-outlined-button (label,
+   icon, state layer and outline) from one variable. Include these styles and
+   set:
+
+     .danger-button {
+       --grampsjs-button-color: var(--grampsjs-alert-error-font-color);
+     }
+
+   The variable inherits, so setting it on an ancestor recolours every text
+   and outlined button below it. Slotted icons follow the label when they use
+   `color="currentColor"`. Disabled buttons keep md's own colours, and every
+   fallback is md's default, so a button that sets nothing keeps the standard
+   appearance.
+
+   These styles match by tag name, so they stay opt-in. */
+export const buttonColorStyles = css`
+  md-text-button {
+    --md-text-button-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-hover-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-focus-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-pressed-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-hover-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-focus-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-pressed-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-hover-state-layer-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-pressed-state-layer-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+  }
+
+  md-outlined-button {
+    --md-outlined-button-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-hover-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-focus-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-pressed-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-hover-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-focus-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-pressed-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-hover-state-layer-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-pressed-state-layer-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-outline-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-outline)
+    );
+    --md-outlined-button-pressed-outline-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-outline)
+    );
+  }
+`
+
+/* Action buttons in an mwc-snackbar. The snackbar surface is a fixed dark
+   grey in both themes, so the action uses a primary tone that is light in
+   both. */
+export const snackbarActionStyles = [
+  buttonColorStyles,
+  css`
+    mwc-snackbar md-text-button[slot='action'] {
+      --grampsjs-button-color: var(--md-sys-color-primary-fixed-dim);
+    }
+  `,
+]
+
 /* Icon buttons sitting on the app bar inherit its colour, and are 48px so that
    they line up with each other and with the bar's own height. */
 export const appBarIconButtonStyles = [

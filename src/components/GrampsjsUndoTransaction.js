@@ -5,13 +5,18 @@ The dropdown menu for adding objects in the top app bar
 import {css, html, LitElement} from 'lit'
 import '@material/mwc-snackbar'
 import '@material/web/iconbutton/icon-button.js'
+import '@material/web/button/text-button.js'
 
 import {mdiClose} from '@mdi/js'
 
 import {fireEvent} from '../util.js'
 import './GrampsjsIcon.js'
 
-import {sharedStyles, iconButtonColorStyles} from '../SharedStyles.js'
+import {
+  sharedStyles,
+  iconButtonColorStyles,
+  snackbarActionStyles,
+} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 class GrampsjsUndoTransaction extends GrampsjsAppStateMixin(LitElement) {
@@ -19,6 +24,7 @@ class GrampsjsUndoTransaction extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       iconButtonColorStyles,
+      snackbarActionStyles,
       css`
         /* mwc-snackbar styles its dismiss button through
            ::slotted(mwc-icon-button), which matches by tag name and so skips
@@ -52,8 +58,8 @@ class GrampsjsUndoTransaction extends GrampsjsAppStateMixin(LitElement) {
   render() {
     return html`
       <mwc-snackbar leading id="undo-snackbar">
-        <mwc-button slot="action" @click="${this._handleUndo}"
-          >${this._('Undo')}</mwc-button
+        <md-text-button slot="action" @click="${this._handleUndo}"
+          >${this._('Undo')}</md-text-button
         >
         <md-icon-button slot="dismiss" aria-label="${this._('Close')}">
           <grampsjs-icon

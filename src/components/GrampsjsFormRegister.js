@@ -1,6 +1,7 @@
 /* eslint-disable lit-a11y/click-events-have-key-events */
 import {html, css, LitElement} from 'lit'
 import '@material/web/textfield/outlined-text-field'
+import '@material/web/button/filled-button.js'
 
 import {mdiCheckCircle} from '@mdi/js'
 
@@ -120,13 +121,13 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
               label="${this._('Full Name')}"
               type="text"
             ></md-outlined-text-field>
-            <mwc-button
-              raised
-              label="${this._('Register new account')}"
-              type="submit"
+            <md-filled-button
+              type="button"
               @click="${this._register}"
               ?disabled="${!this.isFormValid}"
-            ></mwc-button>
+            >
+              ${this._('Register new account')}
+            </md-filled-button>
           </div>
           <p class="success" id="register-success" style="display:none;">
             <grampsjs-icon

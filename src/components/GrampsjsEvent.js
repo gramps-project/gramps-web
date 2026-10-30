@@ -125,7 +125,7 @@ export class GrampsjsEvent extends GrampsjsObject {
                 ${this._('Show on timeline')}
                 <grampsjs-icon
                   path="${mdiTimelineOutline}"
-                  color="var(--mdc-theme-primary)"
+                  color="currentColor"
                   slot="icon"
                 ></grampsjs-icon>
               </md-outlined-button>

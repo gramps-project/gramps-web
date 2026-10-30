@@ -1,6 +1,6 @@
 import {html, css, LitElement} from 'lit'
+import '@material/web/button/text-button.js'
 import {sharedStyles} from '../SharedStyles.js'
-import '@material/mwc-button'
 
 import './GrampsjsImg.js'
 import './GrampsjsGallery.js'
@@ -133,10 +133,10 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
                 `
               : ''}
 
-            <mwc-button
+            <md-text-button
               id="btn-details"
               @click="${() => this._clickDetails(this.source.gramps_id)}"
-              >Details</mwc-button
+              >${this._('Details')}</md-text-button
             >
           </div>
         </div>

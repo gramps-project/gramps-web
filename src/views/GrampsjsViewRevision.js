@@ -204,7 +204,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
                 <grampsjs-icon
                   slot="icon"
                   path="${mdiUndo}"
-                  color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+                  color="currentColor"
                 ></grampsjs-icon>
                 ${this._('Undo')}
               </md-filled-button>

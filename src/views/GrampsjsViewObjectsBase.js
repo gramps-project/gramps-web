@@ -258,7 +258,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
                   slot="icon"
                   .path="${mdiCheckboxMultipleOutline}"
                   height="20"
-                  color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+                  color="currentColor"
                 ></grampsjs-icon>
                 ${this._('Select')}
               </md-filled-button>`
@@ -270,7 +270,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
                   slot="icon"
                   .path="${mdiCheckboxMultipleOutline}"
                   height="20"
-                  color="var(--mdc-theme-primary)"
+                  color="currentColor"
                 ></grampsjs-icon>
                 ${this._('Select')}
               </md-outlined-button>`

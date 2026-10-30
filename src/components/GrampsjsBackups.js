@@ -12,7 +12,7 @@ import {
   mdiDownload,
 } from '@mdi/js'
 
-import {sharedStyles} from '../SharedStyles.js'
+import {sharedStyles, buttonColorStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormUpload.js'
@@ -45,6 +45,7 @@ export class GrampsjsBackups extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
+      buttonColorStyles,
       css`
         h3 {
           font-size: 1.1em;
@@ -66,21 +67,7 @@ export class GrampsjsBackups extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .danger-button {
-          --md-outlined-button-label-text-color: var(
-            --grampsjs-alert-error-font-color
-          );
-          --md-outlined-button-focus-label-text-color: var(
-            --grampsjs-alert-error-font-color
-          );
-          --md-outlined-button-hover-label-text-color: var(
-            --grampsjs-alert-error-font-color
-          );
-          --md-outlined-button-pressed-label-text-color: var(
-            --grampsjs-alert-error-font-color
-          );
-          --md-outlined-button-outline-color: var(
-            --grampsjs-alert-error-font-color
-          );
+          --grampsjs-button-color: var(--grampsjs-alert-error-font-color);
         }
       `,
     ]
@@ -184,7 +171,7 @@ export class GrampsjsBackups extends GrampsjsAppStateMixin(LitElement) {
           <grampsjs-icon
             slot="icon"
             path="${mdiBackupRestore}"
-            color="var(--grampsjs-alert-error-font-color)"
+            color="currentColor"
           ></grampsjs-icon>
           ${this._('Restore')}
         </md-outlined-button>
@@ -234,7 +221,7 @@ export class GrampsjsBackups extends GrampsjsAppStateMixin(LitElement) {
           <grampsjs-icon
             slot="icon"
             path="${mdiDatabaseExport}"
-            color="var(--mdc-theme-primary)"
+            color="currentColor"
           ></grampsjs-icon>
           ${this._('Make Backup...')}
         </md-outlined-button>

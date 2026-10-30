@@ -1,9 +1,9 @@
-import '@material/mwc-button'
 import '@material/mwc-drawer'
 import '@material/web/progress/linear-progress.js'
 import '@material/mwc-snackbar'
 import '@material/mwc-top-app-bar'
 import '@material/web/button/filled-button.js'
+import '@material/web/button/text-button.js'
 import {mdiLogout} from '@mdi/js'
 import {LitElement, css, html} from 'lit'
 import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
@@ -60,7 +60,7 @@ import './components/GrampsjsUpgradeDb.js'
 import './components/GrampsjsObjectLink.js'
 import './components/GrampsjsObjectPreview.js'
 import '@material/web/dialog/dialog.js'
-import {sharedStyles} from './SharedStyles.js'
+import {sharedStyles, snackbarActionStyles} from './SharedStyles.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from './theme.js'
 import {handleOIDCCallback, handleOIDCComplete} from './oidc.js'
 
@@ -168,6 +168,7 @@ export class GrampsJs extends LitElement {
   static get styles() {
     return [
       sharedStyles,
+      snackbarActionStyles,
       css`
         :host {
           height: 100%;
@@ -219,10 +220,6 @@ export class GrampsJs extends LitElement {
 
         [slot='appContent'] md-linear-progress.active {
           visibility: visible;
-        }
-
-        #user-menu mwc-button {
-          margin: 0.5em 1em;
         }
 
         #app-title:first-letter {
@@ -340,7 +337,7 @@ export class GrampsJs extends LitElement {
           timeoutMs="-1"
           labelText="${this._('A new version of the app is available.')}"
         >
-          <mwc-button slot="action">${this._('Refresh')}</mwc-button>
+          <md-text-button slot="action">${this._('Refresh')}</md-text-button>
         </mwc-snackbar>
       </grampsjs-update-available>
       <grampsjs-object-preview
@@ -360,8 +357,8 @@ export class GrampsJs extends LitElement {
     >
       ${this.appState.permissions.canManageUsers
         ? html`
-            <mwc-button slot="action" @click="${this._handleReindexButton}"
-              >${this._('Settings')}</mwc-button
+            <md-text-button slot="action" @click="${this._handleReindexButton}"
+              >${this._('Settings')}</md-text-button
             >
           `
         : ''}
@@ -399,8 +396,8 @@ export class GrampsJs extends LitElement {
     >
       ${this.appState.permissions.canManageUsers
         ? html`
-            <mwc-button slot="action" @click="${this._handleReindexButton}"
-              >${this._('Settings')}</mwc-button
+            <md-text-button slot="action" @click="${this._handleReindexButton}"
+              >${this._('Settings')}</md-text-button
             >
           `
         : ''}
@@ -530,8 +527,10 @@ export class GrampsJs extends LitElement {
   _renderNoConn() {
     return html`<div class="center-xy">
       <div>
-        No connection<br /><br />
-        <mwc-button raised @click=${this._handleReload}>Reload</mwc-button>
+        ${this._('No connection')}<br /><br />
+        <md-filled-button @click=${this._handleReload}
+          >${this._('Reload')}</md-filled-button
+        >
       </div>
     </div> `
   }
@@ -589,7 +588,7 @@ export class GrampsJs extends LitElement {
           <grampsjs-icon
             slot="icon"
             .path="${mdiLogout}"
-            color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+            color="currentColor"
           ></grampsjs-icon>
           ${this._('Log out')}
         </md-filled-button>

@@ -1,5 +1,6 @@
 import {html, LitElement, css} from 'lit'
 
+import '@material/web/button/filled-button.js'
 import '@material/web/select/outlined-select.js'
 import '@material/web/select/select-option.js'
 
@@ -240,11 +241,10 @@ export class GrampsjsTextRecognition extends GrampsjsAppStateMixin(LitElement) {
         </md-outlined-select>
       </p>
       <p>
-        <mwc-button
-          raised
+        <md-filled-button
           @click="${this._handleRun}"
           ?disabled="${this._isDisabled()}"
-          >${this._('Run')}</mwc-button
+          >${this._('Run')}</md-filled-button
         >
         <grampsjs-task-progress-indicator
           id="indicator-ocr"
@@ -260,8 +260,8 @@ export class GrampsjsTextRecognition extends GrampsjsAppStateMixin(LitElement) {
       ${this._string && this.appState.permissions.canEdit
         ? html`
             <p>
-              <mwc-button raised @click="${this._handleSaveAsNote}"
-                >${this._('Save as Note')}</mwc-button
+              <md-filled-button @click="${this._handleSaveAsNote}"
+                >${this._('Save as Note')}</md-filled-button
               >
             </p>
           `

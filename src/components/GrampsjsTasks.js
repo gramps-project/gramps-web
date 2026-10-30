@@ -24,7 +24,7 @@ import {
 import './GrampsjsFilters.js'
 import './GrampsjsTagsSmall.js'
 import './GrampsjsIcon.js'
-import {sharedStyles} from '../SharedStyles.js'
+import {sharedStyles, buttonColorStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {clickKeyHandler, fireEvent} from '../util.js'
 import {tagFilter} from '../filterDefinitions.js'
@@ -33,6 +33,7 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
+      buttonColorStyles,
       css`
         .tasks-list {
           font-size: 15px;
@@ -155,23 +156,7 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         }
 
         md-outlined-button {
-          --md-outlined-button-outline-color: var(--md-sys-color-secondary);
-          --md-outlined-button-label-text-color: var(--md-sys-color-secondary);
-          --md-outlined-button-hover-outline-color: var(
-            --md-sys-color-secondary
-          );
-          --md-outlined-button-focus-outline-color: var(
-            --md-sys-color-secondary
-          );
-          --md-outlined-button-hover-label-text-color: var(
-            --md-sys-color-secondary
-          );
-          --md-outlined-button-focus-label-text-color: var(
-            --md-sys-color-secondary
-          );
-          --md-outlined-button-pressed-label-text-color: var(
-            --md-sys-color-secondary
-          );
+          --grampsjs-button-color: var(--md-sys-color-secondary);
         }
 
         md-checkbox {

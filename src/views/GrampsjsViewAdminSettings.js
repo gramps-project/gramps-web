@@ -1,6 +1,7 @@
 import {css, html} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
+import {buttonColorStyles} from '../SharedStyles.js'
 import '../components/GrampsjsCollapsibleSection.js'
 import '../components/GrampsjsBackups.js'
 import '../components/GrampsjsResearcher.js'
@@ -71,6 +72,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
   static get styles() {
     return [
       super.styles,
+      buttonColorStyles,
       css`
         .pre {
           white-space: pre-line;
@@ -97,21 +99,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         }
 
         .danger-button {
-          --md-outlined-button-label-text-color: var(
-            --grampsjs-alert-error-font-color
-          );
-          --md-outlined-button-focus-label-text-color: var(
-            --grampsjs-alert-error-font-color
-          );
-          --md-outlined-button-hover-label-text-color: var(
-            --grampsjs-alert-error-font-color
-          );
-          --md-outlined-button-pressed-label-text-color: var(
-            --grampsjs-alert-error-font-color
-          );
-          --md-outlined-button-outline-color: var(
-            --grampsjs-alert-error-font-color
-          );
+          --grampsjs-button-color: var(--grampsjs-alert-error-font-color);
         }
 
         .danger-zone p {
@@ -512,7 +500,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             <grampsjs-icon
               slot="icon"
               path="${mdiDownload}"
-              color="var(--mdc-theme-primary)"
+              color="currentColor"
             ></grampsjs-icon>
             ${this._('Export')}
           </md-outlined-button>
@@ -520,7 +508,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             <grampsjs-icon
               slot="icon"
               path="${mdiUpload}"
-              color="var(--mdc-theme-primary)"
+              color="currentColor"
             ></grampsjs-icon>
             ${this._('Import')}
           </md-outlined-button>
@@ -627,7 +615,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             <grampsjs-icon
               slot="icon"
               path="${mdiPlus}"
-              color="var(--mdc-theme-primary)"
+              color="currentColor"
             ></grampsjs-icon>
             ${this._('New Tag')}
           </md-outlined-button>
@@ -672,7 +660,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                 <grampsjs-icon
                   slot="icon"
                   path="${mdiDeleteForever}"
-                  color="var(--grampsjs-alert-error-font-color)"
+                  color="currentColor"
                 ></grampsjs-icon>
                 ${this._('Delete')}
               </md-outlined-button>

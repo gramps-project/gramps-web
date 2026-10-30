@@ -315,7 +315,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
                         <md-checkbox
                           ?checked="${this._selectedIndices.has(index)}"
                           @change="${() => this._handleSelectRow(index)}"
-                          aria-label="Select row"
+                          aria-label="${this._('Select')}"
                         ></md-checkbox>
                       </td>`
                     : ''}

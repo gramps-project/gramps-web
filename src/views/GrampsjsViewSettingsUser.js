@@ -440,7 +440,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
           <grampsjs-icon
             slot="icon"
             path="${this._tokenCopied ? mdiCheck : mdiContentCopy}"
-            color="var(--mdc-theme-primary)"
+            color="currentColor"
           ></grampsjs-icon>
           ${this._('_Copy')}
         </md-outlined-button>

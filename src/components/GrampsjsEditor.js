@@ -4,7 +4,6 @@ import {live} from 'lit/directives/live.js'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/filled-button.js'
 import '@material/web/textfield/filled-text-field.js'
-import '@material/mwc-button'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/button/text-button.js'
 import {
@@ -21,7 +20,11 @@ import {
   mdiRedo,
 } from '@mdi/js'
 
-import {sharedStyles, iconButtonColorStyles} from '../SharedStyles.js'
+import {
+  sharedStyles,
+  iconButtonColorStyles,
+  buttonColorStyles,
+} from '../SharedStyles.js'
 import {fireEvent} from '../util.js'
 import {
   charLength,
@@ -229,6 +232,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       iconButtonColorStyles,
+      buttonColorStyles,
       css`
         .note {
           font-family: var(
@@ -316,9 +320,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
         .draft-banner md-text-button {
           --md-text-button-label-text-size: 13px;
-          --md-text-button-label-text-color: var(--mdc-theme-secondary);
-          --md-text-button-hover-label-text-color: var(--mdc-theme-secondary);
-          --md-text-button-pressed-label-text-color: var(--mdc-theme-secondary);
+          --grampsjs-button-color: var(--mdc-theme-secondary);
         }
 
         .draft-banner md-icon-button {

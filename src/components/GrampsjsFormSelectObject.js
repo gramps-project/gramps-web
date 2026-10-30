@@ -96,7 +96,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
           <grampsjs-icon
             slot="icon"
             path="${this.iconPath}"
-            color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+            color="currentColor"
           ></grampsjs-icon>
           ${this.label || this._(btnLabel[this.objectType]) || this._('Select')}
         </md-outlined-button>
@@ -109,7 +109,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
                 <grampsjs-icon
                   slot="icon"
                   path="${mdiPlus}"
-                  color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+                  color="currentColor"
                 ></grampsjs-icon>
                 ${this._(newBtnLabel[this.objectType])}
               </md-outlined-button>
