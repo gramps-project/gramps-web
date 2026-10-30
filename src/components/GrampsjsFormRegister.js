@@ -46,10 +46,6 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
           line-height: 1.4em;
           text-align: center;
         }
-
-        mwc-circular-progress {
-          --mdc-theme-primary: var(--mdc-theme-on-primary);
-        }
       `,
     ]
   }
@@ -130,17 +126,7 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
               type="submit"
               @click="${this._register}"
               ?disabled="${!this.isFormValid}"
-            >
-              <span slot="trailingIcon" style="display:none;">
-                <mwc-circular-progress
-                  indeterminate
-                  density="-7"
-                  closed
-                  id="login-progress"
-                >
-                </mwc-circular-progress>
-              </span>
-            </mwc-button>
+            ></mwc-button>
           </div>
           <p class="success" id="register-success" style="display:none;">
             <grampsjs-icon

@@ -2,7 +2,6 @@ import {html, css, LitElement} from 'lit'
 
 import '@material/mwc-button'
 import '@material/web/textfield/outlined-text-field.js'
-import '@material/mwc-circular-progress'
 
 import {mdiCheckCircle} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'

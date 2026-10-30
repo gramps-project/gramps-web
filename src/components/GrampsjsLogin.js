@@ -1,7 +1,7 @@
 /* eslint-disable lit-a11y/click-events-have-key-events */
 import {html, css, LitElement} from 'lit'
 
-import '@material/mwc-circular-progress'
+import '@material/web/progress/circular-progress.js'
 import '@material/web/button/filled-button'
 import '@material/web/button/outlined-button'
 
@@ -140,6 +140,8 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
           --md-filled-button-container-height: var(--button-height);
           --md-filled-button-leading-space: 8px;
           --md-filled-button-trailing-space: 8px;
+          --md-filled-button-with-leading-icon-leading-space: 8px;
+          --md-filled-button-with-leading-icon-trailing-space: 8px;
           --md-filled-button-top-space: 0px;
           --md-filled-button-bottom-space: 0px;
           min-height: var(--button-height);
@@ -172,8 +174,15 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
           text-align: center;
         }
 
-        mwc-circular-progress {
-          --mdc-theme-primary: var(--mdc-theme-on-primary);
+        md-filled-button md-circular-progress {
+          --md-circular-progress-size: 22px;
+          --md-circular-progress-active-indicator-width: 18;
+          --md-circular-progress-active-indicator-color: var(
+            --md-sys-color-on-primary
+          );
+          width: 22px;
+          height: 22px;
+          margin: -2px;
         }
 
         hr {
@@ -191,6 +200,8 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
       credentials: {type: Object},
       tree: {type: String},
       oidcConfig: {type: Object},
+      _loggingIn: {type: Boolean},
+      _oidcProvider: {type: String},
     }
   }
 
@@ -201,10 +212,14 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     this.credentials = {}
     this.tree = ''
     this.oidcConfig = {}
+    this._loggingIn = false
+    this._oidcProvider = ''
+    this._boundHandlePageShow = this._handlePageShow.bind(this)
   }
 
   async connectedCallback() {
     super.connectedCallback()
+    window.addEventListener('pageshow', this._boundHandlePageShow)
     const config = await apiGetOIDCConfig()
     if (!config.error) {
       this.oidcConfig = config
@@ -220,6 +235,20 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
           this._submitOIDCLogin(config.providers[0].id)
         )
       }
+    }
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('pageshow', this._boundHandlePageShow)
+    super.disconnectedCallback()
+  }
+
+  // a page restored from the back/forward cache must not keep showing
+  // a login in progress
+  _handlePageShow(e) {
+    if (e.persisted) {
+      this._loggingIn = false
+      this._oidcProvider = ''
     }
   }
 
@@ -285,17 +314,15 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                         </md-outlined-button>
                       `}
                   <md-filled-button type="submit">
+                    ${this._loggingIn
+                      ? html`<md-circular-progress
+                          slot="icon"
+                          indeterminate
+                        ></md-circular-progress>`
+                      : ''}
                     ${this._('login')}
                   </md-filled-button>
                 </div>
-                <mwc-circular-progress
-                  indeterminate
-                  density="-7"
-                  closed
-                  id="login-progress"
-                  style="display:none; margin-top: 0.5em;"
-                >
-                </mwc-circular-progress>
                 <p class="forgot-password">
                   <span
                     class="link"
@@ -323,6 +350,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
                       provider.name
                     )}"
                     .signingInText="${this._('Signing in...')}"
+                    .loading="${this._oidcProvider === provider.id}"
                   ></grampsjs-oidc-button>
                 `
               )
@@ -413,17 +441,14 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
     const username = this.shadowRoot.getElementById('username')?.value
     const password = this.shadowRoot.getElementById('password')?.value
 
-    if (!username || !password) {
+    if (!username || !password || this._loggingIn) {
       return
     }
 
-    const submitProgress = this.shadowRoot.getElementById('login-progress')
-    submitProgress.style.display = 'block'
-    submitProgress.closed = false
+    this._loggingIn = true
     apiGetTokens(username, password).then(res => {
       if ('error' in res) {
-        submitProgress.style.display = 'none'
-        submitProgress.closed = true
+        this._loggingIn = false
         this._showError(res.error)
       } else {
         document.location.href = '/'
@@ -436,8 +461,10 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
       this._showError('No OIDC provider specified')
       return
     }
+    this._oidcProvider = providerId
     const res = await apiOIDCLogin(providerId)
     if ('error' in res) {
+      this._oidcProvider = ''
       this._showError(res.error)
     }
   }

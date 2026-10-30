@@ -1,5 +1,5 @@
 import {css, html} from 'lit'
-import '@material/mwc-circular-progress'
+import '@material/web/progress/circular-progress.js'
 import '@material/web/dialog/dialog.js'
 
 import {mdiAlertCircle, mdiCheckCircle} from '@mdi/js'
@@ -36,10 +36,13 @@ export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
           margin-right: 1em;
         }
 
-        mwc-circular-progress {
-          top: 3px;
-          position: relative;
-          --mdc-theme-primary: var(--grampsjs-body-font-color-40);
+        md-circular-progress {
+          --md-circular-progress-size: 24px;
+          --md-circular-progress-active-indicator-width: 15;
+          margin: -2px;
+          --md-circular-progress-active-indicator-color: var(
+            --grampsjs-body-font-color-40
+          );
         }
       `,
     ]
@@ -77,10 +80,7 @@ export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
     return html` <h3>${this._('Media file status')}</h3>
       <grampsjs-icon path="${objectIconPath.media}" color="currentColor">
       </grampsjs-icon>
-      <mwc-circular-progress
-        indeterminate
-        density="-7"
-      ></mwc-circular-progress>`
+      <md-circular-progress indeterminate></md-circular-progress>`
   }
 
   errorMessage(objects) {
