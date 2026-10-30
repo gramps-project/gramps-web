@@ -27,6 +27,7 @@ function makeView(response, {selected = ['h1', 'h2']} = {}) {
   view._selectionKey = 0
   view._selectionMode = true
   view._allMatchingRows = null
+  view._selectAllRequest = null
   view.dispatchEvent = vi.fn()
   return {view, prog, filters}
 }
@@ -116,13 +117,50 @@ describe('selecting all matching objects', () => {
   it('drops the result when the filters changed meanwhile', async () => {
     const {view, filters} = pageView({data: [{handle: 'h9'}]})
     view.appState.apiGet = vi.fn(async () => {
+      // changed filters reload the page, which clears the selection
       filters.query = 'gramps_id ~ I1'
+      view._clearSelection()
+      view._handleSelectionChanged({detail: {indices: [0, 1]}})
       return {data: [{handle: 'h9'}]}
     })
     await view._selectAllMatching()
 
     expect(view._selectedHandles).toEqual(['h1', 'h2'])
     expect(view._allMatchingRows).toBe(null)
+  })
+
+  it('drops the result when the page was selected anew meanwhile', async () => {
+    const {view} = pageView({})
+    view.appState.apiGet = vi.fn(async () => {
+      view._toggleSelectionMode()
+      view._toggleSelectionMode()
+      view._handleSelectionChanged({detail: {indices: [0, 1]}})
+      return {data: [{handle: 'h1'}, {handle: 'h2'}, {handle: 'h3'}]}
+    })
+    await view._selectAllMatching()
+
+    expect(view._selectedHandles).toEqual(['h1', 'h2'])
+    expect(view._allMatchingRows).toBe(null)
+    expect(view._selectingAll).toBe(false)
+  })
+
+  it('stops waiting when selection mode is left', async () => {
+    const {view} = pageView({})
+    let respond
+    view.appState.apiGet = vi.fn(
+      () =>
+        new Promise(resolve => {
+          respond = resolve
+        })
+    )
+    const pending = view._selectAllMatching()
+    expect(view._selectingAll).toBe(true)
+    view._toggleSelectionMode()
+    expect(view._selectingAll).toBe(false)
+
+    respond({data: [{handle: 'h1'}, {handle: 'h2'}, {handle: 'h3'}]})
+    await pending
+    expect(view._selectedHandles).toEqual([])
   })
 
   it('ends when the selection changes', async () => {

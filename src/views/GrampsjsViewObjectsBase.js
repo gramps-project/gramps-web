@@ -145,6 +145,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     this._selectingAll = false
     // Rows of all objects matching the filters, while they are all selected
     this._allMatchingRows = null
+    // Token of the pending "select all"
+    this._selectAllRequest = null
     this._deleteBlockedInfo = null
     this._showActionError = false
     this._currentAction = ''
@@ -669,6 +671,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
 
   _handleSelectionChanged(e) {
     const {indices} = e.detail
+    this._cancelSelectAll()
     this._allMatchingRows = null
     this._selectedHandles = indices
       .map(i => this._rawData[i]?.handle)
@@ -676,9 +679,17 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   }
 
   _clearSelection() {
+    this._cancelSelectAll()
     this._allMatchingRows = null
     this._selectedHandles = []
     this._selectionKey += 1
+  }
+
+  // Any change of the selection, including by filter and page changes,
+  // drops a pending "select all"
+  _cancelSelectAll() {
+    this._selectAllRequest = null
+    this._selectingAll = false
   }
 
   _toggleSelectionMode() {
@@ -737,18 +748,15 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   }
 
   async _selectAllMatching() {
+    const request = {}
+    this._selectAllRequest = request
     this._selectingAll = true
-    const url = this._selectAllUrl
-    const data = await this.appState.apiGet(url)
-    this._selectingAll = false
-    // the filters or the selection may have changed in the meantime
-    if (
-      url !== this._selectAllUrl ||
-      !this._selectionMode ||
-      this._selectedHandles.length !== this._rawData.length
-    ) {
+    const data = await this.appState.apiGet(this._selectAllUrl)
+    if (this._selectAllRequest !== request) {
       return
     }
+    this._selectAllRequest = null
+    this._selectingAll = false
     if ('error' in data) {
       fireEvent(this, 'grampsjs:error', {message: data.error})
       return
