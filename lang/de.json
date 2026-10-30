@@ -503,5 +503,6 @@
     "This sign-in is already linked to another account.": "Diese Anmeldung ist bereits mit einem anderen Konto verknüpft.",
     "Linking failed.": "Die Verknüpfung ist fehlgeschlagen.",
     "Unlinked %s": "Nicht verknüpft %s",
-    "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Dein vollständiger Name und deine E-Mail-Adresse können aktualisiert werden, sobald du dich mit einem verknüpften Konto anmeldest."
+    "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Dein vollständiger Name und deine E-Mail-Adresse können aktualisiert werden, sobald du dich mit einem verknüpften Konto anmeldest.",
+    "No connection": "Keine Verbindung"
 }
