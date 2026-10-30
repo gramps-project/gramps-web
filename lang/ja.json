@@ -501,5 +501,6 @@
     "Matching the <GOQL expression>": "<GOQL 式> に一致するもの",
     "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "指定された Gramps オブジェクトクエリ言語 (GOQL) 式が真となるオブジェクトに一致",
     "Expression:": "式:",
-    "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "連携済みアカウントでサインインするたびに、氏名およびメールアドレスが更新される場合があります。"
+    "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "連携済みアカウントでサインインするたびに、氏名およびメールアドレスが更新される場合があります。",
+    "No connection": "接続なし"
 }
