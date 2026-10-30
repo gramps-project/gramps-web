@@ -609,11 +609,18 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   }
 
   // The current selection with endpoints inside this shadow root,
-  // or undefined if there is no selection
+  // or undefined if there is no selection.
+  // Browsers without getComposedRanges (#1543: Firefox 115 ESR, Chromium 127)
+  // fall back to Chromium's shadowRoot.getSelection() or the document
+  // selection, which older Firefox does not retarget to the host.
   _getSelectionRange() {
-    return document
-      .getSelection()
-      ?.getComposedRanges({shadowRoots: [this.shadowRoot]})[0]
+    const selection = document.getSelection()
+    if (!selection) return undefined
+    if (selection.getComposedRanges) {
+      return selection.getComposedRanges({shadowRoots: [this.shadowRoot]})[0]
+    }
+    const legacy = this.shadowRoot.getSelection?.() ?? selection
+    return legacy.rangeCount > 0 ? legacy.getRangeAt(0) : undefined
   }
 
   // Code-point offset of a DOM position in the editor. The trailing zero-width
