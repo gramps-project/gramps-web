@@ -88,6 +88,12 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     this._panY = 0
     this._pinchStartDist = null
     this._pinchStartZoom = 1
+    this._pinchStartPanX = 0
+    this._pinchStartPanY = 0
+    this._pinchStartX = 0
+    this._pinchStartY = 0
+    this._pinchStartOffsetX = 0
+    this._pinchStartOffsetY = 0
     this._touchPanStartX = 0
     this._touchPanStartY = 0
     this._touchPanStartPanX = 0
@@ -285,15 +291,42 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     }
   }
 
-  _setZoom(newZoom) {
-    this._zoom = Math.max(1, Math.min(10, newZoom))
-    if (this._zoom === 1) {
+  // Zooms around the point at (offsetX, offsetY) from the center of the
+  // displayed image, which stays in place on screen.
+  _setZoom(newZoom, offsetX, offsetY) {
+    const zoom = this._clampZoom(newZoom)
+    const factor = 1 - zoom / this._zoom
+    this._setZoomPan(
+      zoom,
+      this._panX + offsetX * factor,
+      this._panY + offsetY * factor
+    )
+  }
+
+  _setZoomPan(zoom, panX, panY) {
+    this._zoom = zoom
+    if (zoom === 1) {
       this._panX = 0
       this._panY = 0
     } else {
+      this._panX = panX
+      this._panY = panY
       this._clampPan()
     }
     this._applyTransform()
+  }
+
+  _clampZoom(zoom) {
+    return Math.max(1, Math.min(10, zoom))
+  }
+
+  // Offset of a screen point from the center of the displayed image
+  _offsetFromImageCenter(wrapper, clientX, clientY) {
+    const rect = wrapper.getBoundingClientRect()
+    return [
+      clientX - (rect.left + rect.width / 2),
+      clientY - (rect.top + rect.height / 2),
+    ]
   }
 
   _clampPan() {
@@ -310,19 +343,24 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     this._panY = 0
   }
 
+  // The buttons zoom around the center of the view, which is offset from the
+  // image center by the negative pan.
   _handleZoomIn() {
-    this._setZoom(this._zoom * 1.5)
+    this._setZoom(this._zoom * 1.5, -this._panX, -this._panY)
   }
 
   _handleZoomOut() {
-    this._setZoom(this._zoom / 1.5)
+    this._setZoom(this._zoom / 1.5, -this._panX, -this._panY)
   }
 
   _handleWheel(e) {
     e.preventDefault()
     e.stopPropagation()
     const factor = e.deltaY > 0 ? 0.9 : 1.1
-    this._setZoom(this._zoom * factor)
+    this._setZoom(
+      this._zoom * factor,
+      ...this._offsetFromImageCenter(e.currentTarget, e.clientX, e.clientY)
+    )
   }
 
   // --- mouse drag pan ---
@@ -355,22 +393,54 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
       e.stopPropagation()
       this._pinchStartDist = this._getPinchDist(e)
       this._pinchStartZoom = this._zoom
+      this._pinchStartPanX = this._panX
+      this._pinchStartPanY = this._panY
+      const [x, y] = this._getPinchCenter(e)
+      const [offsetX, offsetY] = this._offsetFromImageCenter(
+        e.currentTarget,
+        x,
+        y
+      )
+      this._pinchStartX = x
+      this._pinchStartY = y
+      this._pinchStartOffsetX = offsetX
+      this._pinchStartOffsetY = offsetY
     } else if (e.touches.length === 1 && this._zoom > 1) {
       e.stopPropagation()
-      this._touchPanStartX = e.touches[0].clientX
-      this._touchPanStartY = e.touches[0].clientY
-      this._touchPanStartPanX = this._panX
-      this._touchPanStartPanY = this._panY
+      this._startTouchPan(e.touches[0])
     }
   }
 
+  _startTouchPan(touch) {
+    this._touchPanStartX = touch.clientX
+    this._touchPanStartY = touch.clientY
+    this._touchPanStartPanX = this._panX
+    this._touchPanStartPanY = this._panY
+  }
+
+  // The image point under the pinch center at the start of the pinch follows
+  // the pinch center.
   _handleTouchMove(e) {
     if (e.touches.length === 2) {
       e.stopPropagation()
       e.preventDefault()
       if (this._pinchStartDist) {
-        const dist = this._getPinchDist(e)
-        this._setZoom((this._pinchStartZoom * dist) / this._pinchStartDist)
+        const zoom = this._clampZoom(
+          (this._pinchStartZoom * this._getPinchDist(e)) / this._pinchStartDist
+        )
+        const factor = 1 - zoom / this._pinchStartZoom
+        const [x, y] = this._getPinchCenter(e)
+        this._setZoomPan(
+          zoom,
+          this._pinchStartPanX +
+            x -
+            this._pinchStartX +
+            this._pinchStartOffsetX * factor,
+          this._pinchStartPanY +
+            y -
+            this._pinchStartY +
+            this._pinchStartOffsetY * factor
+        )
       }
     } else if (e.touches.length === 1 && this._zoom > 1) {
       e.stopPropagation()
@@ -389,6 +459,10 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     }
     if (this._zoom > 1) {
       e.stopPropagation()
+      // the finger left over from a pinch pans from where the pinch ended
+      if (e.touches.length === 1) {
+        this._startTouchPan(e.touches[0])
+      }
     }
   }
 
@@ -396,6 +470,13 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     const dx = e.touches[0].clientX - e.touches[1].clientX
     const dy = e.touches[0].clientY - e.touches[1].clientY
     return Math.sqrt(dx * dx + dy * dy)
+  }
+
+  _getPinchCenter(e) {
+    return [
+      (e.touches[0].clientX + e.touches[1].clientX) / 2,
+      (e.touches[0].clientY + e.touches[1].clientY) / 2,
+    ]
   }
 
   // --- existing handlers ---
