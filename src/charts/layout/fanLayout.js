@@ -28,44 +28,6 @@ function isRealPerson(treeData) {
   return treeData != null && Object.keys(treeData.person).length > 0
 }
 
-// Returns the bounding box of the arcs of the people in the tree data from
-// `getTree`. `arcLevel` is the generation beyond the root person, starting at
-// -1, and `arcCount` the index of the arc among the 2^arcLevel arcs of that
-// generation.
-function arcBounds(
-  treeData,
-  radius,
-  arcLevel = -1,
-  arcCount = 0,
-  currentBounds = {minX: -radius, minY: -radius, maxX: radius, maxY: radius}
-) {
-  if (!isRealPerson(treeData)) {
-    return currentBounds
-  }
-  if (treeData?.children?.some(isRealPerson)) {
-    return unionBounds(
-      ...treeData.children.map((child, index) =>
-        arcBounds(
-          child,
-          radius,
-          arcLevel + 1,
-          arcCount * 2 + index,
-          currentBounds
-        )
-      )
-    )
-  }
-  // The angle of the arc, such as 2π for the root person and π for parents
-  const arcSweep = Math.PI / 2 ** arcLevel
-  const minAngle = arcSweep * arcCount - Math.PI
-  // The beginning, middle and end of the arc
-  const anglesToCheck = [minAngle, minAngle + arcSweep / 2, minAngle + arcSweep]
-  return unionBounds(
-    currentBounds,
-    ...anglesToCheck.map(theta => angleBounds(radius * (arcLevel + 2), theta))
-  )
-}
-
 // Returns the start and end angle of the arc with the path `key` from
 // `getTree`. Each letter after the root halves the arc, and 'm' takes the
 // second half.
@@ -76,6 +38,35 @@ function arcAngles(key) {
     0
   )
   return {x0: index * sweep, x1: (index + 1) * sweep}
+}
+
+// Returns the bounding box of the arcs of the people in the tree data from
+// `getTree`, where the arcs of a generation are `radius` wide. Each arc is
+// placed by the path `id` of its node.
+function arcBounds(
+  treeData,
+  radius,
+  currentBounds = {minX: -radius, minY: -radius, maxX: radius, maxY: radius}
+) {
+  if (!isRealPerson(treeData)) {
+    return currentBounds
+  }
+  if (treeData?.children?.some(isRealPerson)) {
+    return unionBounds(
+      ...treeData.children.map(child => arcBounds(child, radius, currentBounds))
+    )
+  }
+  // The layout's angles start at the left, the polar angles at the right
+  const {x0, x1} = arcAngles(treeData.id)
+  const minAngle = x0 - Math.PI
+  const arcSweep = x1 - x0
+  // The beginning, middle and end of the arc
+  const anglesToCheck = [minAngle, minAngle + arcSweep / 2, minAngle + arcSweep]
+  const outerRadius = radius * treeData.id.length
+  return unionBounds(
+    currentBounds,
+    ...anglesToCheck.map(theta => angleBounds(outerRadius, theta))
+  )
 }
 
 // Lays out the ancestors of the person with `handle` as rings around them,

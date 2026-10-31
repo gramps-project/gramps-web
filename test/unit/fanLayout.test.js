@@ -97,6 +97,22 @@ describe('layoutFan', () => {
     expect(yMax).toBeCloseTo(120)
   })
 
+  it("bounds the mother's arc when the father is not known", () => {
+    const fRM = family('fRM', '', 'M', ['R'])
+    const motherOnly = new FamilyGraph([
+      person('R', {parentFamily: fRM}),
+      person('M', {families: [fRM]}),
+    ])
+    const {xMin, xMax, yMin, yMax} = layoutFan(motherOnly, 'R', {
+      depth: 3,
+    }).bounds
+    // The mother's arc is the lower half of the ring of radius 120
+    expect(xMin).toBeCloseTo(-120)
+    expect(xMax).toBeCloseTo(120)
+    expect(yMin).toBeCloseTo(-60)
+    expect(yMax).toBeCloseTo(120)
+  })
+
   it('bounds a person without known parents by their disc', () => {
     const alone = layoutFan(graph, 'FF', {depth: 4})
     expect(alone.bounds).toEqual({xMin: -60, xMax: 60, yMin: -60, yMax: 60})
