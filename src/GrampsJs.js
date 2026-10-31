@@ -1,9 +1,7 @@
 import '@material/mwc-drawer'
 import '@material/web/progress/linear-progress.js'
-import '@material/mwc-snackbar'
 import '@material/mwc-top-app-bar'
 import '@material/web/button/filled-button.js'
-import '@material/web/button/text-button.js'
 import {mdiLogout} from '@mdi/js'
 import {LitElement, css, html} from 'lit'
 import {installMediaQueryWatcher} from 'pwa-helpers/media-query.js'
@@ -54,13 +52,14 @@ import './components/GrampsjsLogin.js'
 import './components/GrampsjsMainMenu.js'
 import './components/GrampsjsPages.js'
 import './components/GrampsjsTabBar.js'
+import './components/GrampsjsSnackbar.js'
 import './components/GrampsjsUndoTransaction.js'
 import './components/GrampsjsUpdateAvailable.js'
 import './components/GrampsjsUpgradeDb.js'
 import './components/GrampsjsObjectLink.js'
 import './components/GrampsjsObjectPreview.js'
 import '@material/web/dialog/dialog.js'
-import {sharedStyles, snackbarActionStyles} from './SharedStyles.js'
+import {sharedStyles} from './SharedStyles.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from './theme.js'
 import {handleOIDCCallback, handleOIDCComplete} from './oidc.js'
 
@@ -164,7 +163,6 @@ export class GrampsJs extends LitElement {
   static get styles() {
     return [
       sharedStyles,
-      snackbarActionStyles,
       css`
         :host {
           height: 100%;
@@ -321,20 +319,16 @@ export class GrampsJs extends LitElement {
   render() {
     return html`
       ${this.renderContent()} ${this._renderKeyboardShortcuts()}
-      <mwc-snackbar id="app-snackbar" leading></mwc-snackbar>
+      <grampsjs-snackbar
+        id="app-snackbar"
+        .appState="${this.appState}"
+      ></grampsjs-snackbar>
       <grampsjs-undo-transaction
         .appState="${this.appState}"
       ></grampsjs-undo-transaction>
-      <grampsjs-update-available>
-        <mwc-snackbar
-          leading
-          open
-          timeoutMs="-1"
-          labelText="${this._('A new version of the app is available.')}"
-        >
-          <md-text-button slot="action">${this._('Refresh')}</md-text-button>
-        </mwc-snackbar>
-      </grampsjs-update-available>
+      <grampsjs-update-available
+        @pwa-update-available="${this._handleUpdateAvailable}"
+      ></grampsjs-update-available>
       <grampsjs-object-preview
         .appState="${this.appState}"
       ></grampsjs-object-preview>
@@ -1102,13 +1096,30 @@ export class GrampsJs extends LitElement {
     const {message, silent = false, source = 'api', detail = {}} = e.detail
     this.appState.addNotification({type: 'error', message, source, detail})
     if (!silent) {
-      this._showMessage(`${this._('Error')}: ${message}`)
+      this._showMessage(`${this._('Error')}: ${message}`, {
+        action: {
+          label: this._('Details'),
+          handler: () => fireEvent(this, 'nav', {path: 'notifications'}),
+        },
+      })
     }
   }
 
+  // detail: {message, action, timeout, dismissible}, see grampsjs-snackbar
   _handleNotification(e) {
-    const {message} = e.detail
-    this._showMessage(message)
+    const {message, ...options} = e.detail
+    this._showMessage(message, options)
+  }
+
+  _handleUpdateAvailable(e) {
+    const updateAvailable = e.target
+    this._showMessage(this._('A new version of the app is available.'), {
+      action: {
+        label: this._('Refresh'),
+        handler: () => updateAvailable.applyUpdate(),
+      },
+      timeout: 0,
+    })
   }
 
   _handleDbUpgradeComplete() {
@@ -1201,10 +1212,9 @@ export class GrampsJs extends LitElement {
     this._showMessage(`${this._('Error')}: ${msg}`)
   }
 
-  _showMessage(msg) {
+  _showMessage(message, options = {}) {
     const snackbar = this.shadowRoot.getElementById('app-snackbar')
-    snackbar.labelText = msg
-    snackbar.show()
+    snackbar.show({message, ...options})
   }
 
   _openUserMenu() {
