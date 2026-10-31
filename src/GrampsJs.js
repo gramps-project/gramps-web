@@ -1101,6 +1101,7 @@ export class GrampsJs extends LitElement {
           label: this._('Details'),
           handler: () => fireEvent(this, 'nav', {path: 'notifications'}),
         },
+        dismissible: true,
       })
     }
   }
