@@ -1,6 +1,7 @@
 import {html, css} from 'lit'
 import {
   mdiDownload,
+  mdiFilePdfBox,
   mdiMagnifyMinus,
   mdiMagnifyPlus,
   mdiSelect,
@@ -55,6 +56,28 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
 
         .zoom-wrapper.panning:active {
           cursor: grabbing;
+        }
+
+        .pdf-preview {
+          position: relative;
+          display: block;
+        }
+
+        .pdf-badge {
+          position: absolute;
+          top: 8px;
+          left: 8px;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 4px 8px;
+          border-radius: var(--md-sys-shape-corner-small, 8px);
+          background: var(--md-sys-color-secondary-container);
+          color: var(--md-sys-color-on-secondary-container);
+          font-size: var(--md-sys-typescale-label-medium-size, 12px);
+          line-height: var(--md-sys-typescale-label-medium-line-height, 16px);
+          font-weight: var(--md-sys-typescale-label-medium-weight, 500);
+          letter-spacing: 0.5px;
         }
 
         object > p {
@@ -191,13 +214,33 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     return this._innerContainerContentFile()
   }
 
+  // Browsers without a PDF viewer, such as Chrome on Android, show the
+  // thumbnail of the first page, which opens the file in the system viewer.
   _innerContainerContentPdf() {
+    if (navigator.pdfViewerEnabled === false) {
+      return html`<a
+        class="pdf-preview"
+        href="${getMediaUrl(this._data.handle)}"
+        target="_blank"
+        rel="noopener"
+      >
+        ${this._renderImage()}
+        <span class="pdf-badge">
+          <grampsjs-icon
+            path="${mdiFilePdfBox}"
+            height="18"
+            width="18"
+            color="var(--md-sys-color-on-secondary-container)"
+          ></grampsjs-icon>
+          PDF
+        </span>
+      </a>`
+    }
     return html` <object
       data="${getMediaUrl(this._data.handle)}"
       type="application/pdf"
       title="PDF"
       style="width: 80vw; height: 90vh;"
-      @error=${this._pdfErrorHandler}
     >
       <p>
         ${this._(
@@ -205,10 +248,6 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
         )}
       </p>
     </object>`
-  }
-
-  _pdfErrorHandler() {
-    fireEvent(this, 'grampsjs:error', {message: 'Failed loading PDF file'})
   }
 
   _innerContainerContentFile() {
