@@ -164,6 +164,37 @@ describe('snackbar swipe', () => {
     expect(shown(snackbar)).toBe('Error')
   })
 
+  it('leaves a message alone that replaced the swiped one', () => {
+    const snackbar = makeSnackbar()
+    snackbar.show({message: 'First'})
+    const surface = makeSurface()
+    snackbar._handlePointerDown(pointer('pointerdown', surface, 100))
+    snackbar._handlePointerMove(pointer('pointermove', surface, 200))
+    snackbar.show({message: 'Second'})
+    snackbar._handlePointerMove(pointer('pointermove', surface, 250))
+    snackbar._handlePointerUp(pointer('pointerup', surface, 250))
+    expect(shown(snackbar)).toBe('Second')
+    expect(surface.classList.contains('dragging')).toBe(false)
+  })
+
+  it('clears the swipe position without the Popover API', async () => {
+    const snackbar = makeSnackbar()
+    document.body.appendChild(snackbar)
+    await snackbar.updateComplete
+    const surface = snackbar.renderRoot.querySelector('.surface')
+    surface.showPopover = undefined
+    snackbar.show({message: 'First'})
+    await snackbar.updateComplete
+    surface.style.opacity = '0'
+    surface.style.transform = 'translateX(300px)'
+    snackbar.dismiss()
+    snackbar.show({message: 'Second'})
+    await snackbar.updateComplete
+    expect(surface.style.opacity).toBe('')
+    expect(surface.style.transform).toBe('')
+    snackbar.remove()
+  })
+
   it('treats a small movement as a tap', () => {
     const snackbar = makeSnackbar()
     snackbar.show({message: 'Error'})

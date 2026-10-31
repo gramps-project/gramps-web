@@ -274,13 +274,27 @@ class GrampsjsSnackbar extends GrampsjsAppStateMixin(LitElement) {
   // pixels of movement, so taps on the buttons still work.
   _handlePointerDown(e) {
     if (e.button !== 0 || this._current === null) return
-    this._drag = {pointerId: e.pointerId, startX: e.clientX, dx: 0}
+    this._drag = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      dx: 0,
+      item: this._current,
+    }
+  }
+
+  // A message that replaced the swiped one is left alone
+  _dropStaleDrag(surface) {
+    if (this._drag.item === this._current) return false
+    this._drag = null
+    surface.classList.remove('dragging')
+    return true
   }
 
   _handlePointerMove(e) {
     const drag = this._drag
     if (drag?.pointerId !== e.pointerId) return
     const surface = e.currentTarget
+    if (this._dropStaleDrag(surface)) return
     drag.dx = e.clientX - drag.startX
     if (!drag.swiping) {
       if (Math.abs(drag.dx) < 8) return
@@ -297,9 +311,10 @@ class GrampsjsSnackbar extends GrampsjsAppStateMixin(LitElement) {
   _handlePointerUp(e) {
     const drag = this._drag
     if (drag?.pointerId !== e.pointerId) return
+    const surface = e.currentTarget
+    if (this._dropStaleDrag(surface)) return
     this._drag = null
     if (!drag.swiping) return
-    const surface = e.currentTarget
     surface.classList.remove('dragging')
     const threshold = Math.min(100, surface.offsetWidth / 3)
     if (e.type === 'pointerup' && Math.abs(drag.dx) > threshold) {
@@ -317,16 +332,16 @@ class GrampsjsSnackbar extends GrampsjsAppStateMixin(LitElement) {
   updated(changed) {
     if (!changed.has('_current')) return
     const surface = this.renderRoot.querySelector('.surface')
+    if (surface && this._current !== null) {
+      // Clear the position left by a swipe
+      surface.style.transform = ''
+      surface.style.opacity = ''
+    }
     if (typeof surface?.showPopover !== 'function') return
     // Showing again moves the surface to the top of the top layer, above
     // dialogs opened after the previous message
     if (surface.matches(':popover-open')) surface.hidePopover()
-    if (this._current !== null) {
-      // Clear the position left by a swipe
-      surface.style.transform = ''
-      surface.style.opacity = ''
-      surface.showPopover()
-    }
+    if (this._current !== null) surface.showPopover()
   }
 
   disconnectedCallback() {
