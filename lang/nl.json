@@ -502,5 +502,6 @@
     "This sign-in is already linked to another account.": "Deze aanmelding is al gekoppeld aan een ander account.",
     "Linking failed.": "Koppeling mislukt.",
     "Unlinked %s": "Koppeling %s opgeheven",
-    "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Uw volledige naam en e-mailadres kunnen worden bijgewerkt wanneer u zich aanmeldt met een gekoppeld account."
+    "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Uw volledige naam en e-mailadres kunnen worden bijgewerkt wanneer u zich aanmeldt met een gekoppeld account.",
+    "No connection": "Geen verbinding"
 }
