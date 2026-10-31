@@ -24,6 +24,7 @@ import {
   mdiSourceCommit,
   mdiBell,
   mdiBellBadge,
+  mdiCalendarMonth,
   mdiTimelineOutline,
 } from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
@@ -167,6 +168,14 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       >
         ${this._icon(mdiTimelineOutline, p === 'timeline')}
         ${this._('Timeline')}
+      </md-list-item>
+      <md-list-item
+        type="link"
+        href="${BASE_DIR}/anniversaries"
+        ?selected="${p === 'anniversaries'}"
+      >
+        ${this._icon(mdiCalendarMonth, p === 'anniversaries')}
+        ${this._('Anniversaries')}
       </md-list-item>
       <md-list-item
         type="link"
