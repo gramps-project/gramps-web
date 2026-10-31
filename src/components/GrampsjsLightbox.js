@@ -15,29 +15,6 @@ class GrampsjsLightbox extends LitElement {
           );
         }
 
-        @media (max-width: 600px) {
-          :host {
-            --grampsjs-lightbox-toolbar-height: 96px;
-          }
-
-          #text-row {
-            flex-direction: column;
-            align-items: stretch;
-          }
-
-          #description-container {
-            flex: 1;
-            font-size: 15px;
-            padding: 4px 12px 0;
-          }
-
-          #button-container {
-            height: 48px;
-            justify-content: flex-end;
-            padding: 0 4px;
-          }
-        }
-
         #lightbox-container {
           background-color: var(--grampsjs-lightbox-background-color);
           position: fixed;
@@ -146,6 +123,32 @@ class GrampsjsLightbox extends LitElement {
           width: 100%;
           height: 100%;
           text-align: center;
+        }
+
+        @media (max-width: 600px) {
+          :host {
+            --grampsjs-lightbox-toolbar-height: 88px;
+          }
+
+          #text-row {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          #description-container {
+            flex: 1;
+            font-family: var(--grampsjs-body-font-family);
+            font-size: 16px;
+            line-height: 24px;
+            font-weight: 450;
+            padding: 12px 16px 0;
+          }
+
+          #button-container {
+            height: 48px;
+            justify-content: flex-end;
+            padding: 0 4px;
+          }
         }
       `,
     ]
