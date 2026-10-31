@@ -12,12 +12,14 @@ import {
   yearsFilter,
 } from '../filterDefinitions.js'
 
-function _ageAtDeath(birthDate, deathDate) {
+export function _ageAtDeath(birthDate, deathDate) {
   if (!birthDate || !deathDate) return null
-  const by = String(birthDate).match(/\b(\d{4})\b/)
-  const dy = String(deathDate).match(/\b(\d{4})\b/)
+  const by = String(birthDate).match(/\b(\d{4})(?:-(\d{2})-(\d{2}))?\b/)
+  const dy = String(deathDate).match(/\b(\d{4})(?:-(\d{2})-(\d{2}))?\b/)
   if (!by || !dy) return null
-  const age = parseInt(dy[1], 10) - parseInt(by[1], 10)
+  let age = parseInt(dy[1], 10) - parseInt(by[1], 10)
+  // with both full dates, count only completed years
+  if (by[2] && dy[2] && `${dy[2]}-${dy[3]}` < `${by[2]}-${by[3]}`) age -= 1
   return age >= 0 ? age : null
 }
 
