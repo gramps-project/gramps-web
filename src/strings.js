@@ -767,7 +767,6 @@ export const grampsStrings = [
   'Select a file',
   'Select a person as the father',
   'Select a person as the mother',
-  'Select All',
   'Select an existing media object',
   'Select an existing note',
   'Select an existing person',
