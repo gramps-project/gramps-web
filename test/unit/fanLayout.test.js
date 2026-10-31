@@ -35,7 +35,7 @@ describe('layoutFan', () => {
   const layout = layoutFan(graph, 'R', {depth: 3})
   const node = key => layout.nodes.find(n => n.key === key)
 
-  it('has a node for every place in the fan, known or not', () => {
+  it('has a node for every known person, ordered by generation', () => {
     expect(
       layout.nodes.map(({key, handle, generation, side}) => ({
         key,
@@ -48,11 +48,7 @@ describe('layoutFan', () => {
       {key: 'pf', handle: 'F', generation: 1, side: 'father'},
       {key: 'pm', handle: 'M', generation: 1, side: 'mother'},
       {key: 'pff', handle: 'FF', generation: 2, side: 'father'},
-      {key: 'pfm', handle: undefined, generation: 2, side: 'mother'},
-      {key: 'pmf', handle: undefined, generation: 2, side: 'father'},
-      {key: 'pmm', handle: undefined, generation: 2, side: 'mother'},
     ])
-    expect(node('pfm').person).toEqual({})
   })
 
   it('places the root person in a disc and each generation in a ring', () => {
@@ -60,6 +56,35 @@ describe('layoutFan', () => {
     expect(node('pf')).toMatchObject({x0: 0, x1: Math.PI, y0: 60, y1: 120})
     expect(node('pm')).toMatchObject({x0: Math.PI, x1: 2 * Math.PI})
     expect(node('pff')).toMatchObject({x0: 0, x1: Math.PI / 2, y0: 120})
+    expect(layout.radius).toBe(180)
+  })
+
+  it('keeps the arcs of a known ancestor whose sibling is not known', () => {
+    // M is known, her father MF is not, and her mother MM is
+    const fM = family('fM', '', 'MM', ['M'])
+    const sparse = new FamilyGraph([
+      person('R', {parentFamily: fR}),
+      person('F', {families: [fR]}),
+      person('M', {parentFamily: fM, families: [fR]}),
+      person('MM', {families: [fM]}),
+    ])
+    const pmm = layoutFan(sparse, 'R', {depth: 3}).nodes.find(
+      n => n.key === 'pmm'
+    )
+    expect(pmm).toMatchObject({
+      handle: 'MM',
+      x0: (3 * Math.PI) / 2,
+      x1: 2 * Math.PI,
+      y0: 120,
+      y1: 180,
+    })
+  })
+
+  it('does not grow with the depth beyond the known ancestors', () => {
+    const alone = layoutFan(graph, 'FF', {depth: 19})
+    expect(alone.nodes).toHaveLength(1)
+    expect(alone.nodes[0]).toMatchObject({y0: 0, y1: 60})
+    expect(alone.radius).toBe(19 * 60)
   })
 
   it('bounds the root disc and the arcs of known people', () => {
@@ -111,7 +136,7 @@ describe('relateFanLayouts', () => {
       undefined,
       'pm',
     ])
-    for (const key of ['pf', 'pff', 'pfm']) {
+    for (const key of ['pf', 'pff']) {
       expectArc(
         placeArc(node(ofR, key), relation.frame),
         node(ofF, relation.key(key))
@@ -123,7 +148,7 @@ describe('relateFanLayouts', () => {
     const relation = relateFanLayouts(ofF, ofR)
     expect(relation.kind).toBe('lineage')
     expect(['p', 'pf', 'pmm'].map(relation.key)).toEqual(['pf', 'pff', 'pfmm'])
-    for (const key of ['p', 'pf', 'pm']) {
+    for (const key of ['p', 'pf']) {
       expectArc(
         placeArc(node(ofF, key), relation.frame),
         node(ofR, relation.key(key))

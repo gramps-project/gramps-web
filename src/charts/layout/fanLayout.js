@@ -1,4 +1,4 @@
-import {hierarchy, partition} from 'd3-hierarchy'
+import {hierarchy} from 'd3-hierarchy'
 import {getTree} from '../util.js'
 
 // Dimensions for laying out fan charts, in SVG units
@@ -66,36 +66,52 @@ function arcBounds(
   )
 }
 
+// Returns the start and end angle of the arc with the path `key` from
+// `getTree`. Each letter after the root halves the arc, and 'm' takes the
+// second half.
+function arcAngles(key) {
+  const sweep = (2 * Math.PI) / 2 ** (key.length - 1)
+  const index = [...key.slice(1)].reduce(
+    (sum, letter) => sum * 2 + (letter === 'm' ? 1 : 0),
+    0
+  )
+  return {x0: index * sweep, x1: (index + 1) * sweep}
+}
+
 // Lays out the ancestors of the person with `handle` as rings around them,
 // with `depth` generations including the root person, who is a disc at the
 // origin. Each parent gets half of their child's arc, the father the first
 // half, so the father's side is the upper half and the mother's the lower.
+// Unknown ancestors have no node, and their arcs stay empty.
 //
-// Returns `{nodes, bounds}`. Each node has a unique `key`, the person's
-// `handle` and `person` object, which is empty for an ancestor who is not
-// known, the `generation`, the start and end angle `x0`, `x1` in radians
-// clockwise from the left, the inner and outer radius `y0`, `y1`, and `side`,
-// which is 'father' or 'mother' for ancestors and '' for the root person.
+// Returns `{nodes, bounds, radius}`. The nodes are ordered by generation.
+// Each node has a unique `key`, the person's `handle` and `person` object,
+// which is empty for an ancestor who has not been fetched, the `generation`,
+// the start and end angle `x0`, `x1` in radians clockwise from the left, the
+// inner and outer radius `y0`, `y1`, and `side`, which is 'father' or
+// 'mother' for ancestors and '' for the root person. `radius` is the outer
+// radius of the ring of the last generation.
 export function layoutFan(graph, handle, {depth, ...options}) {
   const {arcRadius} = {...fanLayoutDefaults, ...options}
-  const data = getTree(graph, handle, Math.max(depth, 1))
-  const root = hierarchy(data)
-  // Every arc has the same share of its generation's ring
-  root.count()
-  partition().size([2 * Math.PI, depth * arcRadius])(root)
-  const nodes = root.descendants().map(d => ({
-    key: d.data.id,
-    handle: d.data.person?.handle,
-    person: d.data.person,
-    generation: d.depth,
-    x0: d.x0,
-    x1: d.x1,
-    y0: d.y0,
-    y1: d.y1,
-    side: {f: 'father', m: 'mother'}[d.data.id.slice(-1)] ?? '',
-  }))
+  const data = getTree(graph, handle, Math.max(depth, 1), false)
+  const nodes = hierarchy(data)
+    .descendants()
+    .map(d => ({
+      key: d.data.id,
+      handle: d.data.person?.handle,
+      person: d.data.person,
+      generation: d.depth,
+      ...arcAngles(d.data.id),
+      y0: d.depth * arcRadius,
+      y1: (d.depth + 1) * arcRadius,
+      side: {f: 'father', m: 'mother'}[d.data.id.slice(-1)] ?? '',
+    }))
   const {minX, minY, maxX, maxY} = arcBounds(data, arcRadius)
-  return {nodes, bounds: {xMin: minX, xMax: maxX, yMin: minY, yMax: maxY}}
+  return {
+    nodes,
+    bounds: {xMin: minX, xMax: maxX, yMin: minY, yMax: maxY},
+    radius: Math.max(depth, 1) * arcRadius,
+  }
 }
 
 // The frame of two layouts that share their coordinates

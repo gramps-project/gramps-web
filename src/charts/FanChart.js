@@ -253,8 +253,7 @@ function clampArc({x0, x1, y0, y1}) {
 // between them, and of the stripe in the colour of the side at the inner
 // edge of each arc
 function arcShape(layout, padding) {
-  // The outermost radius of the layout
-  const radius = Math.max(...layout.nodes.map(node => node.y1))
+  const {radius} = layout
   const arcOf = outerRadius =>
     d3arc()
       .startAngle(d => d.x0 - Math.PI / 2)
