@@ -50,6 +50,12 @@ class GrampsjsSnackbar extends GrampsjsAppStateMixin(LitElement) {
           transform: translateY(16px);
           transition: opacity 150ms ease-in, transform 150ms ease-in,
             overlay 150ms allow-discrete, display 150ms allow-discrete;
+          touch-action: pan-y;
+        }
+
+        .surface.dragging {
+          transition: none;
+          user-select: none;
         }
 
         .surface:popover-open,
@@ -130,6 +136,7 @@ class GrampsjsSnackbar extends GrampsjsAppStateMixin(LitElement) {
     this._timer = null
     this._remaining = 0
     this._timerStarted = 0
+    this._drag = null
   }
 
   render() {
@@ -146,6 +153,10 @@ class GrampsjsSnackbar extends GrampsjsAppStateMixin(LitElement) {
         @mouseleave="${this._resume}"
         @focusin="${this._pause}"
         @focusout="${this._resume}"
+        @pointerdown="${this._handlePointerDown}"
+        @pointermove="${this._handlePointerMove}"
+        @pointerup="${this._handlePointerUp}"
+        @pointercancel="${this._handlePointerUp}"
       >
         <span class="label">${item?.message ?? ''}</span>
         ${item?.action
@@ -259,6 +270,50 @@ class GrampsjsSnackbar extends GrampsjsAppStateMixin(LitElement) {
     this._startTimer(Math.max(this._remaining, 1000))
   }
 
+  // Swiping the message sideways dismisses it. The swipe starts after a few
+  // pixels of movement, so taps on the buttons still work.
+  _handlePointerDown(e) {
+    if (e.button !== 0 || this._current === null) return
+    this._drag = {pointerId: e.pointerId, startX: e.clientX, dx: 0}
+  }
+
+  _handlePointerMove(e) {
+    const drag = this._drag
+    if (drag?.pointerId !== e.pointerId) return
+    const surface = e.currentTarget
+    drag.dx = e.clientX - drag.startX
+    if (!drag.swiping) {
+      if (Math.abs(drag.dx) < 8) return
+      drag.swiping = true
+      surface.setPointerCapture?.(e.pointerId)
+      surface.classList.add('dragging')
+      this._pause()
+    }
+    const width = surface.offsetWidth || 1
+    surface.style.transform = `translateX(${drag.dx}px)`
+    surface.style.opacity = `${Math.max(0, 1 - Math.abs(drag.dx) / width)}`
+  }
+
+  _handlePointerUp(e) {
+    const drag = this._drag
+    if (drag?.pointerId !== e.pointerId) return
+    this._drag = null
+    if (!drag.swiping) return
+    const surface = e.currentTarget
+    surface.classList.remove('dragging')
+    const threshold = Math.min(100, surface.offsetWidth / 3)
+    if (e.type === 'pointerup' && Math.abs(drag.dx) > threshold) {
+      const width = surface.offsetWidth
+      surface.style.transform = `translateX(${Math.sign(drag.dx) * width}px)`
+      surface.style.opacity = '0'
+      this.dismiss()
+    } else {
+      surface.style.transform = ''
+      surface.style.opacity = ''
+      this._resume()
+    }
+  }
+
   updated(changed) {
     if (!changed.has('_current')) return
     const surface = this.renderRoot.querySelector('.surface')
@@ -266,7 +321,12 @@ class GrampsjsSnackbar extends GrampsjsAppStateMixin(LitElement) {
     // Showing again moves the surface to the top of the top layer, above
     // dialogs opened after the previous message
     if (surface.matches(':popover-open')) surface.hidePopover()
-    if (this._current !== null) surface.showPopover()
+    if (this._current !== null) {
+      // Clear the position left by a swipe
+      surface.style.transform = ''
+      surface.style.opacity = ''
+      surface.showPopover()
+    }
   }
 
   disconnectedCallback() {
