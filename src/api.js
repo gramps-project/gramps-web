@@ -152,8 +152,6 @@ export function saveMapViewport(lat, lng, zoom) {
   }
 }
 
-// Map style ('base' or 'ohm') and hidden overlay handles of the map view,
-// per tree.
 export function getMapLayerSettings() {
   try {
     const treeId = getTreeId() || 'unknown'
@@ -164,7 +162,15 @@ export function getMapLayerSettings() {
       typeof settings?.style === 'string' &&
       Array.isArray(settings?.hiddenOverlays)
     ) {
-      return settings
+      const {overlayOpacity} = settings
+      return {
+        ...settings,
+        // settings saved before opacity have no overlay opacity
+        overlayOpacity:
+          overlayOpacity && typeof overlayOpacity === 'object'
+            ? overlayOpacity
+            : {},
+      }
     }
   } catch (_) {
     // ignore
@@ -172,12 +178,16 @@ export function getMapLayerSettings() {
   return null
 }
 
-export function saveMapLayerSettings({style, hiddenOverlays}) {
+export function saveMapLayerSettings({
+  style,
+  hiddenOverlays,
+  overlayOpacity = {},
+}) {
   try {
     const treeId = getTreeId() || 'unknown'
     const existing =
       JSON.parse(localStorage.getItem('grampsjs_map_layers')) ?? {}
-    existing[treeId] = {style, hiddenOverlays}
+    existing[treeId] = {style, hiddenOverlays, overlayOpacity}
     localStorage.setItem('grampsjs_map_layers', JSON.stringify(existing))
   } catch (_) {
     // ignore

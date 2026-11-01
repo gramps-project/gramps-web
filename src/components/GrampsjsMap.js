@@ -178,6 +178,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
           year="${this.year}"
           @map:layerchange="${this._handleLayerChange}"
           @map:overlay-toggle="${this._handleOverlayToggle}"
+          @map:overlay-opacity="${this._handleOverlayOpacity}"
         ></grampsjs-map-layer-switcher>
       </div>
     `
@@ -457,6 +458,16 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       .forEach(el => {
         // eslint-disable-next-line no-param-reassign
         el.hidden = !visible
+      })
+  }
+
+  _handleOverlayOpacity(e) {
+    const {overlay, opacity} = e.detail
+    this._slottedChildren
+      .filter(el => overlay.handle && el.handle === overlay.handle)
+      .filter(el => 'opacity' in el)
+      .forEach(el => {
+        el.opacity = opacity
       })
   }
 
