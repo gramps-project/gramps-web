@@ -86,6 +86,26 @@ describe('chart definitions', () => {
     expect(url).toContain('locale=de')
   })
 
+  it('passes the app state to every chart', () => {
+    const appState = {settings: {symbolSet: 'text'}, i18n: {lang: 'en'}}
+    for (const [name, definition] of Object.entries(chartDefinitions)) {
+      const container = document.createElement('div')
+      render(
+        definition.render({
+          grampsId: 'I1',
+          values: chartSettingValues(definition, {}),
+          data: [],
+          canEdit: false,
+          appState,
+          expanded: new Set(),
+          state: {},
+        }),
+        container
+      )
+      expect(container.firstElementChild.appState, name).toBe(appState)
+    }
+  })
+
   it('only allows adding people to the charts that have cards', () => {
     const editable = Object.entries(chartDefinitions)
       .filter(([, definition]) => definition.editable)
