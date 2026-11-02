@@ -87,7 +87,9 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
       source: {type: Object},
       note: {type: Object},
       dialogContent: {type: String},
+      saveNote: {attribute: false},
       _editingNote: {type: Boolean},
+      _savingNote: {type: Boolean},
       _editingGallery: {type: Boolean},
     }
   }
@@ -97,7 +99,10 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
     this.source = {}
     this.note = {}
     this.dialogContent = ''
+    // Saves the note data; resolves to whether the save succeeded
+    this.saveNote = async () => false
     this._editingNote = false
+    this._savingNote = false
     this._editingGallery = false
   }
 
@@ -195,6 +200,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
                       <md-icon-button
                         class="edit"
                         id="btn-save-note"
+                        ?disabled="${this._savingNote}"
                         aria-label="${this._('_Save')}"
                         @click="${this._handleSaveNote}"
                       >
@@ -209,6 +215,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
                       <md-icon-button
                         class="edit"
                         id="btn-cancel-note"
+                        ?disabled="${this._savingNote}"
                         aria-label="${this._('Cancel')}"
                         @click="${this._handleCancelNote}"
                       >
@@ -304,24 +311,31 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
     this._editingNote = true
   }
 
-  _handleSaveNote() {
+  // The editor stays open until the save succeeded and the task is reloaded
+  async _handleSaveNote() {
     const editor = this.renderRoot.querySelector('grampsjs-editor')
     const text = editor.data
     const type = 'To Do'
+    let data = null
     if (this.source.note_list.length > 0) {
-      const note = this.source.extended.notes[0]
-      const data = {...note, text, type}
-      fireEvent(this, 'task:update-note-text', data)
-    } else {
-      const data = {text, type}
-      if (text.string.trim() !== '') {
-        fireEvent(this, 'task:add-note-text', data)
+      data = {...this.source.extended.notes[0], text, type}
+    } else if (text.string.trim() !== '') {
+      data = {text, type}
+    }
+    if (data !== null) {
+      this._savingNote = true
+      const saved = await this.saveNote(data)
+      this._savingNote = false
+      if (!saved) {
+        return
       }
     }
+    editor.discardDraft()
     this._editingNote = false
   }
 
   _handleCancelNote() {
+    this.renderRoot.querySelector('grampsjs-editor').discardDraft()
     this._editingNote = false
   }
 

@@ -2,6 +2,7 @@ import {html} from 'lit'
 
 import '../components/GrampsjsTask.js'
 import {GrampsjsViewSource} from './GrampsjsViewSource.js'
+import {fireEvent} from '../util.js'
 
 export class GrampsjsViewTask extends GrampsjsViewSource {
   constructor() {
@@ -12,8 +13,7 @@ export class GrampsjsViewTask extends GrampsjsViewSource {
   renderElement() {
     return html`
       <grampsjs-task
-        @task:update-note-text="${this._handleUpdateNoteText}"
-        @task:add-note-text="${this._handleAddNoteText}"
+        .saveNote="${data => this._saveNote(data)}"
         .source="${this._data}"
         .appState="${this.appState}"
         ?edit="${this.edit}"
@@ -22,22 +22,22 @@ export class GrampsjsViewTask extends GrampsjsViewSource {
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  async _handleUpdateNoteText(event) {
-    const data = event.detail
-    await this.appState.apiPut(`/api/notes/${data.handle}`, data)
-    this._updateData(false)
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  async _handleAddNoteText(event) {
-    const data = event.detail
-    const res = await this.appState.apiPost('/api/notes/', data)
-    if ('data' in res) {
-      const [obj] = res.data
-      this.addHandle(obj.handle, this._data, this._className, 'note_list')
+  // Updates the task's note, or adds it if `data` has no handle. Resolves to
+  // whether the save succeeded, after the task is reloaded.
+  async _saveNote(data) {
+    const res = data.handle
+      ? await this.appState.apiPut(`/api/notes/${data.handle}`, data)
+      : await this.appState.apiPost('/api/notes/', data)
+    if ('error' in res) {
+      fireEvent(this, 'grampsjs:error', {message: res.error})
+      return false
     }
-    this._updateData(false)
+    if (data.handle) {
+      await this._updateData(false)
+      return true
+    }
+    const [obj] = res.data
+    return this.addHandle(obj.handle, this._data, this._className, 'note_list')
   }
 
   // no FAB

@@ -349,7 +349,8 @@ export function setChatMessageHistoryRaw(blob, onlyIfEquals = undefined) {
 // Editor draft management
 const DRAFT_EXPIRY_DAYS = 7
 
-export function saveDraft(key, data) {
+// `base` is the text the draft was started from
+export function saveDraft(key, data, base) {
   const tree = getTreeId()
   if (!tree || !key) {
     return
@@ -361,6 +362,7 @@ export function saveDraft(key, data) {
 
     treeDrafts[key] = {
       data,
+      base,
       timestamp: Date.now(),
     }
 

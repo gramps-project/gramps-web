@@ -603,18 +603,18 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
   _restoreDraft() {
     const draft = getDraft(this._getStorageKey())
-    if (!draft || !draft.data) {
-      // No draft found, use normal initialization
-      this.reset()
-      return
-    }
-
-    // Only restore if draft is actually different from initial data
-    const draftString = JSON.stringify(draft.data)
     const initialString = JSON.stringify(this.initialData)
-
-    if (draftString === initialString) {
-      clearDraft(this._getStorageKey())
+    // A draft is restored only if it differs from the initial data and was
+    // started from it; otherwise the text has been saved or changed since.
+    if (
+      !draft?.data ||
+      JSON.stringify(draft.data) === initialString ||
+      (draft.base !== undefined && JSON.stringify(draft.base) !== initialString)
+    ) {
+      if (draft) {
+        clearDraft(this._getStorageKey())
+      }
+      this.reset()
       return
     }
 
@@ -1133,8 +1133,18 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     if (!this.data.string || this.data.string.trim() === '') {
       clearDraft(this._getStorageKey())
     } else {
-      saveDraft(this._getStorageKey(), this.data)
+      saveDraft(this._getStorageKey(), this.data, this.initialData)
     }
+  }
+
+  // Drop the pending and the stored draft. Hosts call this after saving or
+  // cancelling the edit.
+  discardDraft() {
+    if (this._draftSaveTimer) {
+      clearTimeout(this._draftSaveTimer)
+      this._draftSaveTimer = null
+    }
+    clearDraft(this._getStorageKey())
   }
 
   _handleBeforeUnload() {
@@ -1150,8 +1160,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     // Reset to original data and dismiss banner
     this.reset()
     this._showDraftBanner = false
-    // Clear the draft from storage so it doesn't come back
-    clearDraft(this._getStorageKey())
+    this.discardDraft()
   }
 
   _insertTag(tagname, range, value = null) {

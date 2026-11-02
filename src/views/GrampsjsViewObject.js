@@ -283,9 +283,10 @@ export class GrampsjsViewObject extends GrampsjsView {
     }
   }
 
+  // Resolves once the response has been handled
   _updateData(clearData = true) {
     if (this._url === '') {
-      return
+      return Promise.resolve()
     }
     if (this.grampsId !== undefined && this.grampsId) {
       if (clearData) {
@@ -295,7 +296,7 @@ export class GrampsjsViewObject extends GrampsjsView {
       this._dataRequestId += 1
       const requestId = this._dataRequestId
       this._dataLang = this.appState.i18n.lang
-      this.appState.apiGet(this.getUrl()).then(data => {
+      return this.appState.apiGet(this.getUrl()).then(data => {
         if (requestId !== this._dataRequestId) {
           // A newer request was sent in the meantime (e.g. after the
           // language was loaded); only its response is applied.
@@ -321,6 +322,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         }
       })
     }
+    return Promise.resolve()
   }
 
   _handleLangChange(lang) {
@@ -1027,6 +1029,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     return this.appState.apiPost(url, obj)
   }
 
+  // Resolves to whether the update succeeded, after the object is reloaded
   _updateObject(obj, objType, updateFunc, editorDraftPrefix) {
     const objNew = {_class: capitalize(objType), ...toWritableObject(obj)}
     // Places may carry a stray `type` key that older API versions stored;
@@ -1039,13 +1042,13 @@ export class GrampsjsViewObject extends GrampsjsView {
     return this.appState.apiPut(url, updateFunc(objNew)).then(data => {
       if ('error' in data) {
         fireEvent(this, 'grampsjs:error', {message: data.error})
-        return
+        return false
       }
-      this._updateData(false)
       // Clear editor drafts after successful save (if prefix provided)
       if (editorDraftPrefix) {
         clearDraftsWithPrefix(editorDraftPrefix)
       }
+      return this._updateData(false).then(() => true)
     })
   }
 }
