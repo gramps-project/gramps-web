@@ -96,6 +96,23 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
 
         .filter-block {
           margin: 1rem 0;
+          min-width: 0;
+        }
+
+        .filter-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          column-gap: 1.5rem;
+        }
+
+        .filter-grid md-filled-select {
+          width: min(100%, 420px);
+        }
+
+        @media (max-width: 720px) {
+          .filter-grid {
+            grid-template-columns: 1fr;
+          }
         }
 
         .filter-block h4 {
@@ -403,29 +420,31 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
   _renderOptionFilters() {
     const _ = string => this._(string)
     return html`
-      <div class="filter-block">
-        <h4>${this._('Person')}</h4>
-        ${this._renderSavedFilter('person')}
-        <h4>${this._('Tags')}</h4>
-        <grampsjs-filter-tags
-          .appState="${this.appState}"
-          .section="${tagFilter(_)}"
-          .rules="${this._personRules}"
-          @filter-section:change="${event =>
-            this._handleRulesChange('person', event)}"
-        ></grampsjs-filter-tags>
-      </div>
-      <div class="filter-block">
-        <h4>${this._('Event')}</h4>
-        ${this._renderSavedFilter('event')}
-        <h4>${this._('Tags')}</h4>
-        <grampsjs-filter-tags
-          .appState="${this.appState}"
-          .section="${tagFilter(_)}"
-          .rules="${this._eventRules}"
-          @filter-section:change="${event =>
-            this._handleRulesChange('event', event)}"
-        ></grampsjs-filter-tags>
+      <div class="filter-grid">
+        <div class="filter-block">
+          <h4>${this._('Person')}</h4>
+          ${this._renderSavedFilter('person')}
+          <h4>${this._('Tags')}</h4>
+          <grampsjs-filter-tags
+            .appState="${this.appState}"
+            .section="${tagFilter(_)}"
+            .rules="${this._personRules}"
+            @filter-section:change="${event =>
+              this._handleRulesChange('person', event)}"
+          ></grampsjs-filter-tags>
+        </div>
+        <div class="filter-block">
+          <h4>${this._('Event')}</h4>
+          ${this._renderSavedFilter('event')}
+          <h4>${this._('Tags')}</h4>
+          <grampsjs-filter-tags
+            .appState="${this.appState}"
+            .section="${tagFilter(_)}"
+            .rules="${this._eventRules}"
+            @filter-section:change="${event =>
+              this._handleRulesChange('event', event)}"
+          ></grampsjs-filter-tags>
+        </div>
       </div>
       ${this._renderOtherTypes()}
       <label>
