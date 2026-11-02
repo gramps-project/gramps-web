@@ -114,6 +114,12 @@ export class GrampsjsViewSearch extends GrampsjsView {
     // Parameters of the latest request, to skip repeating it
     this._lastSearch = ''
     this._debouncedSearch = debounce(() => this._executeSearch(), 300)
+    // Searches while typing; checks the length when it runs
+    this._debouncedLiveSearch = debounce(() => {
+      if (this._query.trim().length >= MIN_LIVE_QUERY_LENGTH) {
+        this._executeSearch()
+      }
+    }, 300)
   }
 
   renderContent() {
@@ -208,8 +214,8 @@ export class GrampsjsViewSearch extends GrampsjsView {
     this._query = event.target.value
     if (this._query.trim() === '') {
       this._clearAll()
-    } else if (this._query.trim().length >= MIN_LIVE_QUERY_LENGTH) {
-      this._debouncedSearch()
+    } else {
+      this._debouncedLiveSearch()
     }
   }
 
@@ -261,6 +267,8 @@ export class GrampsjsViewSearch extends GrampsjsView {
 
   _handleSearchKey(event) {
     if (event.code === 'Enter') {
+      // repeats an unchanged search, to refresh its results
+      this._lastSearch = ''
       this._executeSearch()
     }
     if (event.code === 'Escape') {
@@ -273,13 +281,12 @@ export class GrampsjsViewSearch extends GrampsjsView {
   }
 
   _executeSearch(page = 1) {
-    const query = this._query.trim()
-    if (query === '') {
+    if (this._query.trim() === '') {
       this._clearAll()
       return
     }
     const params = new URLSearchParams({
-      query: prefixSearchQuery(query),
+      query: prefixSearchQuery(this._query),
       locale: this.appState.i18n.lang || 'en',
       profile: 'all',
       page,
