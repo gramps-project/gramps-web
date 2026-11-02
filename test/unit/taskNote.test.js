@@ -51,6 +51,17 @@ describe('GrampsjsTask _handleSaveNote', () => {
     expect(t.editor.discardDraft).not.toHaveBeenCalled()
   })
 
+  it('keeps the editor and the draft when the text changed during the save', async () => {
+    const t = task('New')
+    t.saveNote.mockImplementation(async () => {
+      t.editor.data = text('Newer')
+      return true
+    })
+    await save.call(t)
+    expect(t._editingNote).toBe(true)
+    expect(t.editor.discardDraft).not.toHaveBeenCalled()
+  })
+
   it('adds a note without a handle', async () => {
     const t = task('New', {notes: []})
     await save.call(t)

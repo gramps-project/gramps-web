@@ -326,7 +326,8 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
       this._savingNote = true
       const saved = await this.saveNote(data)
       this._savingNote = false
-      if (!saved) {
+      // Keep editing if the save failed or the text changed in the meantime
+      if (!saved || editor.data !== text) {
         return
       }
     }
