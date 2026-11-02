@@ -17,6 +17,12 @@ export class GrampsjsAssociations extends GrampsjsEditableList {
     }
   }
 
+  constructor() {
+    super()
+    this.hasReorder = true
+    this.listProp = 'person_ref_list'
+  }
+
   row(obj, i) {
     return html`
       <md-list-item

@@ -18,6 +18,8 @@ export class GrampsjsPlaceNames extends GrampsjsEditableList {
     super()
     this.objType = 'PlaceName'
     this.hasEdit = true
+    this.hasReorder = true
+    this.listProp = 'alt_names'
     this.profile = []
   }
 

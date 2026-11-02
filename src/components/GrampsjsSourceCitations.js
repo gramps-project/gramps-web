@@ -95,19 +95,10 @@ export class GrampsjsSourceCitations extends GrampsjsEditableList {
     this.dialogContent = ''
   }
 
-  _handleUp() {
-    const handle = this.data?.[this._selectedIndex]?.handle
+  _handleMove(from, to) {
+    const handle = this.data?.[from]?.handle
     if (handle) {
-      fireEvent(this, 'edit:action', {action: 'upCitation', handle})
-      this._updateSelectionAfterReorder(true)
-    }
-  }
-
-  _handleDown() {
-    const handle = this.data?.[this._selectedIndex]?.handle
-    if (handle) {
-      fireEvent(this, 'edit:action', {action: 'downCitation', handle})
-      this._updateSelectionAfterReorder(false)
+      fireEvent(this, 'edit:action', {action: 'moveCitation', handle, to})
     }
   }
 

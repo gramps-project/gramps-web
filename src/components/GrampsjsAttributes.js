@@ -33,6 +33,8 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
   constructor() {
     super()
     this.attributeCategory = ''
+    this.hasReorder = true
+    this.listProp = 'attribute_list'
   }
 
   row(obj, i) {

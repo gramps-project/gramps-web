@@ -812,6 +812,17 @@ export function arrayEqual(A, B) {
   return A.length === B.length && A.every(e => B.includes(e))
 }
 
+// move the element with index i in the array to index j
+export function moveTo(array, i, j) {
+  if (i < 0 || i >= array.length || j < 0 || j >= array.length || i === j) {
+    return array
+  }
+  const result = [...array]
+  const [element] = result.splice(i, 1)
+  result.splice(j, 0, element)
+  return result
+}
+
 function _toNumber(value) {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : null

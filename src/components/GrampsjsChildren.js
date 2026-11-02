@@ -39,6 +39,7 @@ export class GrampsjsChildren extends GrampsjsEditableList {
     this.hasShare = true
     this.hasEdit = true
     this.hasReorder = true
+    this.listProp = 'child_ref_list'
     this.objType = 'ChildRef'
   }
 
@@ -93,22 +94,6 @@ export class GrampsjsChildren extends GrampsjsEditableList {
     const obj = this.data[this._selectedIndex]
     if (obj) {
       fireEvent(this, 'edit:action', {action: 'delChildRef', handle: obj.ref})
-    }
-  }
-
-  _handleUp() {
-    const obj = this.data[this._selectedIndex]
-    if (obj) {
-      fireEvent(this, 'edit:action', {action: 'upChildRef', handle: obj.ref})
-      this._updateSelectionAfterReorder(true)
-    }
-  }
-
-  _handleDown() {
-    const obj = this.data[this._selectedIndex]
-    if (obj) {
-      fireEvent(this, 'edit:action', {action: 'downChildRef', handle: obj.ref})
-      this._updateSelectionAfterReorder(false)
     }
   }
 
