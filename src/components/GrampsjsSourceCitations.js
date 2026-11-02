@@ -97,9 +97,11 @@ export class GrampsjsSourceCitations extends GrampsjsEditableList {
   }
 
   _handleDelete(e) {
-    const handle = this.data?.[this._selectedIndex]?.handle
-    if (handle) {
-      fireEvent(this, 'edit:action', {action: 'delCitation', handle})
+    if (this.data?.[this._selectedIndex]) {
+      fireEvent(this, 'edit:action', {
+        action: 'delCitation',
+        index: this._selectedIndex,
+      })
     }
     e.preventDefault()
     e.stopPropagation()

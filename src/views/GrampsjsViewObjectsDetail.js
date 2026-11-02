@@ -17,7 +17,7 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
 
   static get properties() {
     return {
-      ids: {type: Array},
+      handles: {type: Array},
       dialogContent: {type: String},
       _data: {type: Array},
       edit: {type: Boolean},
@@ -26,9 +26,7 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
 
   constructor() {
     super()
-    this.ids = []
-    // the property of the fetched objects that `ids` refers to
-    this.idKey = 'gramps_id'
+    this.handles = []
     this.dialogContent = ''
     this._data = []
     this.edit = false
@@ -63,32 +61,33 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
 
   update(changed) {
     super.update(changed)
-    if (this.active && changed.has('ids')) {
-      // ids is an array, so we need to check if its *contents* have changed as well
+    if (this.active && changed.has('handles')) {
+      // handles is an array, so we need to check if its *contents* have changed as well
       if (
-        changed.get('ids') === undefined ||
-        !arrayEqual(this.ids, changed.get('ids'))
+        changed.get('handles') === undefined ||
+        !arrayEqual(this.handles, changed.get('handles'))
       ) {
         this._updateData()
       } else {
-        // same contents in a different order: reorder the existing data
-        this._sortData()
+        // no new handles: arrange the objects already fetched
+        this._arrangeData(this._data)
       }
     }
   }
 
-  _sortData() {
-    this._data = [...this._data].sort(
-      (a, b) =>
-        this.ids.indexOf(a[this.idKey]) - this.ids.indexOf(b[this.idKey])
-    )
+  // one entry per handle, in the order of `handles`, keeping repeated handles
+  _arrangeData(objects) {
+    const byHandle = new Map(objects.map(obj => [obj.handle, obj]))
+    this._data = this.handles
+      .map(handle => byHandle.get(handle))
+      .filter(Boolean)
   }
 
   _updateData() {
     if (this._url === '') {
       return
     }
-    if (this.ids.length === 0) {
+    if (this.handles.length === 0) {
       this._data = []
     } else {
       this._data = []
@@ -97,8 +96,7 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
         this.loading = false
         if ('data' in data) {
           this.error = false
-          this._data = data.data
-          this._sortData()
+          this._arrangeData(data.data)
         } else if ('error' in data) {
           this.error = true
           this._errorMessage = data.error

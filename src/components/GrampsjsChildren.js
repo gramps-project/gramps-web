@@ -91,9 +91,11 @@ export class GrampsjsChildren extends GrampsjsEditableList {
   }
 
   _handleDelete() {
-    const obj = this.data[this._selectedIndex]
-    if (obj) {
-      fireEvent(this, 'edit:action', {action: 'delChildRef', handle: obj.ref})
+    if (this.data[this._selectedIndex]) {
+      fireEvent(this, 'edit:action', {
+        action: 'delChildRef',
+        index: this._selectedIndex,
+      })
     }
   }
 

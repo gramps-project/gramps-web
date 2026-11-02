@@ -16,21 +16,16 @@ export class GrampsjsViewSourceCitations extends GrampsjsViewObjectsDetail {
     ]
   }
 
-  constructor() {
-    super()
-    this.idKey = 'handle'
-  }
-
   getUrl() {
     return `/api/citations/?locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=all&extend=all&handles=${this.ids.join(',')}`
+    }&profile=all&extend=all&handles=${this.handles.join(',')}`
   }
 
   renderLoading() {
     return html`
       <md-list>
-        ${this.ids.map(
+        ${this.handles.map(
           () => html`
             <md-list-item type="text">
               <span class="skeleton" style="width:12em;">&nbsp;</span>
