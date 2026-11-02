@@ -22,6 +22,28 @@ import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 const LONG_PRESS_MS = 400
 const TOUCH_SLOP_PX = 8
 const MOUSE_SLOP_PX = 4
+// wide enough to reach below the app bar at the top of the viewport
+const AUTO_SCROLL_EDGE_PX = 80
+const AUTO_SCROLL_MAX_PX = 12
+
+// the nearest ancestor that scrolls vertically, across shadow roots
+function scrollParent(el) {
+  let node = el
+  while (node) {
+    node = node.assignedSlot ?? node.parentElement ?? node.getRootNode().host
+    if (!node || node === document.body || node === document.documentElement) {
+      break
+    }
+    const {overflowY} = getComputedStyle(node)
+    if (
+      (overflowY === 'auto' || overflowY === 'scroll') &&
+      node.scrollHeight > node.clientHeight
+    ) {
+      return node
+    }
+  }
+  return document.scrollingElement
+}
 
 export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -138,6 +160,8 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
     this._handleDragCancel = this._handleDragCancel.bind(this)
     this._handleDragTouchMove = this._handleDragTouchMove.bind(this)
     this._handleDragKeyDown = this._handleDragKeyDown.bind(this)
+    this._handleDragScroll = this._handleDragScroll.bind(this)
+    this._autoScroll = this._autoScroll.bind(this)
   }
 
   disconnectedCallback() {
@@ -367,6 +391,47 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
     drag.items.forEach((el, i) => {
       el.toggleAttribute(i === drag.from ? 'dragging' : 'drag-shift', true)
     })
+    drag.scroller = scrollParent(drag.list)
+    drag.frame = requestAnimationFrame(this._autoScroll)
+    // capture also catches scrolling inside containers
+    window.addEventListener('scroll', this._handleDragScroll, true)
+  }
+
+  // scroll while the pointer is near the top or bottom edge of the scroller,
+  // the faster the closer it gets to the edge
+  _autoScroll() {
+    const drag = this._drag
+    const {scroller, y} = drag
+    let top = 0
+    let bottom = window.innerHeight
+    if (scroller !== document.scrollingElement) {
+      const rect = scroller.getBoundingClientRect()
+      top = Math.max(top, rect.top)
+      bottom = Math.min(bottom, rect.bottom)
+    }
+    let speed = 0
+    if (y < top + AUTO_SCROLL_EDGE_PX) {
+      speed = -Math.min(
+        1,
+        (top + AUTO_SCROLL_EDGE_PX - y) / AUTO_SCROLL_EDGE_PX
+      )
+    } else if (y > bottom - AUTO_SCROLL_EDGE_PX) {
+      speed = Math.min(
+        1,
+        (y - bottom + AUTO_SCROLL_EDGE_PX) / AUTO_SCROLL_EDGE_PX
+      )
+    }
+    if (speed) {
+      scroller.scrollTop += Math.round(speed * AUTO_SCROLL_MAX_PX)
+    }
+    drag.frame = requestAnimationFrame(this._autoScroll)
+  }
+
+  _handleDragScroll() {
+    // the list moved under the pointer, so the dragged row must follow it
+    if (this._drag?.active) {
+      this._updateDragPosition()
+    }
   }
 
   _handleDragMove(e) {
@@ -473,6 +538,7 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
       return
     }
     clearTimeout(drag.timer)
+    cancelAnimationFrame(drag.frame)
     drag.items.forEach(el => {
       // eslint-disable-next-line no-param-reassign
       el.style.transform = ''
@@ -485,6 +551,7 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
     window.removeEventListener('touchmove', this._handleDragTouchMove)
     window.removeEventListener('contextmenu', this._handleDragTouchMove)
     window.removeEventListener('keydown', this._handleDragKeyDown)
+    window.removeEventListener('scroll', this._handleDragScroll, true)
     this._drag = null
   }
 
