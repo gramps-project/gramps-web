@@ -36,7 +36,7 @@ export class GrampsjsSourceCitations extends GrampsjsEditableList {
   }
 
   _handleClick(grampsId) {
-    if (!this.edit && grampsId !== this.grampsId) {
+    if (!this.edit && grampsId && grampsId !== this.grampsId) {
       this.dispatchEvent(
         new CustomEvent('nav', {
           bubbles: true,

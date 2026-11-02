@@ -45,7 +45,7 @@ export class GrampsjsChildren extends GrampsjsEditableList {
 
   row(obj, i) {
     const p = this.profile[i] || {}
-    const extPerson = this.extended.find(e => e.handle === obj.ref) || null
+    const extPerson = this.extended.find(e => e?.handle === obj.ref) || null
 
     const frel = obj.frel || 'Birth'
     const mrel = obj.mrel || 'Birth'

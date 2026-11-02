@@ -145,10 +145,10 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
         <grampsjs-note-content
           framed
           grampsId="${obj.gramps_id}"
-          content="${obj?.formatted?.html || obj?.text?.string}"
+          content="${obj?.formatted?.html || obj?.text?.string || ''}"
         ></grampsjs-note-content>
       </div>
-      ${this.edit
+      ${this.edit || !obj.gramps_id
         ? ''
         : html`<div class="note-meta">
             <md-text-button href="${BASE_DIR}/note/${obj.gramps_id}">

@@ -75,12 +75,12 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
     }
   }
 
-  // one entry per handle, in the order of `handles`, keeping repeated handles
+  // one entry per handle, in the order of `handles`, keeping repeated handles;
+  // a handle the response lacks gets a placeholder, so that row indices
+  // always match the object's list
   _arrangeData(objects) {
     const byHandle = new Map(objects.map(obj => [obj.handle, obj]))
-    this._data = this.handles
-      .map(handle => byHandle.get(handle))
-      .filter(Boolean)
+    this._data = this.handles.map(handle => byHandle.get(handle) ?? {handle})
   }
 
   _updateData() {
