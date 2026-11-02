@@ -24,6 +24,7 @@ import {
   apiVersionAtLeast,
   getGregorianYears,
   personProfileDisplayName,
+  prefixSearchQuery,
 } from '../util.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import {
@@ -883,7 +884,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       return
     }
     const typeFilter = this._searchFilter || DEFAULT_SEARCH_FILTER
-    const query = encodeURIComponent(`${value}*`)
+    const query = encodeURIComponent(prefixSearchQuery(value))
     const locale = this.appState.i18n.lang || 'en'
     const data = await this.appState.apiGet(
       `/api/search/?query=${query}&locale=${locale}&profile=self&page=1&pagesize=20&type=${typeFilter}`

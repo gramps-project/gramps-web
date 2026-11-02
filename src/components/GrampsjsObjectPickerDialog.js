@@ -15,6 +15,7 @@ import {
   objectIconPath,
   objectTypeToEndpoint,
   objectTypePlural,
+  prefixSearchQuery,
 } from '../util.js'
 import {getRecentObjects, getTreeBookmarks} from '../api.js'
 import './GrampsjsSearchResultList.js'
@@ -545,7 +546,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
     const lang = this.appState.i18n.lang || 'en'
     let url = `/api/search/?locale=${lang}&profile=all&page=1&pagesize=20`
     if (value) {
-      url = `${url}&query=${encodeURIComponent(`${value}*`)}`
+      url = `${url}&query=${encodeURIComponent(prefixSearchQuery(value))}`
     } else {
       url = `${url}&sort=-change&query=${encodeURIComponent('*')}`
     }

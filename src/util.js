@@ -406,6 +406,19 @@ export const noteTypeStrings = {
   27: 'Analysis',
 }
 
+// First line of a note's text, shortened to 100 characters
+function noteFirstLine(note) {
+  const firstLine = note?.text?.string?.match(/[^\r\n]+/)?.[0]?.trim() || ''
+  return firstLine.length > 100 ? `${firstLine.slice(0, 100)}…` : firstLine
+}
+
+// Untranslated note type
+function noteTypeString(note) {
+  return typeof note?.type === 'string'
+    ? note.type
+    : note?.type?.string || noteTypeStrings[note?.type?.value] || ''
+}
+
 export function objectDescription(type, obj, strings) {
   switch (type) {
     case 'person':
@@ -434,12 +447,8 @@ export function objectDescription(type, obj, strings) {
     case 'repository':
       return html`${getName(obj, type) || type}`
     case 'note':
-      return html`${translate(
-        strings,
-        typeof obj.type === 'string'
-          ? obj.type
-          : obj.type.string || noteTypeStrings[obj.type.value] || type
-      )}`
+      return html`${noteFirstLine(obj) ||
+      translate(strings, noteTypeString(obj) || type)}`
     case 'media':
       return html`${getName(obj, type) || translate(strings, 'Media Object')}`
     case 'tag':
@@ -449,21 +458,27 @@ export function objectDescription(type, obj, strings) {
   }
 }
 
+// Event profile as "<symbol> <date>, <place>"; empty without date and place
+function eventSummary(symbol, eventProfile) {
+  const parts = [
+    eventProfile?.date,
+    eventProfile?.place_name || eventProfile?.place,
+  ].filter(Boolean)
+  return parts.length ? `${symbol} ${parts.join(', ')}` : ''
+}
+
 export function objectDetail(type, obj, strings, settings = {}) {
   const symbols = getSymbols(settings, value => translate(strings, value))
   switch (type) {
     case 'person':
-      return `
-    ${
-      obj?.profile?.birth?.date
-        ? `${symbols.birthSymbol} ${obj.profile.birth.date}`
-        : ''
-    }${obj?.profile?.birth?.place && obj?.profile?.birth?.date ? ', ' : ''}${
-        obj?.profile?.birth?.place_name || obj?.profile?.birth?.place || ''
-      }
-    `
-    // case 'family':
-    //   return ''
+      return [
+        eventSummary(symbols.birthSymbol, obj?.profile?.birth),
+        eventSummary(symbols.deathSymbol, obj?.profile?.death),
+      ]
+        .filter(Boolean)
+        .join(' ')
+    case 'family':
+      return eventSummary(symbols.marriageSymbol, obj?.profile?.marriage)
     case 'event':
       return `
     ${obj?.profile?.date || ''}${
@@ -474,10 +489,10 @@ export function objectDetail(type, obj, strings, settings = {}) {
       return `
     ${obj?.profile?.type ? obj.profile.type : ''}
     `
-    // case 'source':
-    //   return ''
-    // case 'citation':
-    //   return ''
+    case 'source':
+      return obj?.author || obj?.profile?.author || ''
+    case 'citation':
+      return obj?.profile?.date || ''
     case 'repository':
       return `
     ${
@@ -490,8 +505,11 @@ export function objectDetail(type, obj, strings, settings = {}) {
     }
     `
     case 'note': {
-      const firstLine = obj?.text?.string?.match(/[^\r\n]+/)?.[0]?.trim() || ''
-      return firstLine.length > 100 ? `${firstLine.slice(0, 100)}…` : firstLine
+      // The type is the title of an empty note; General says nothing
+      const noteType = noteTypeString(obj)
+      return noteFirstLine(obj) && noteType !== 'General'
+        ? translate(strings, noteType)
+        : ''
     }
     case 'media':
       if (obj.mime?.startsWith('audio')) {
@@ -519,6 +537,13 @@ export function prettyTimeDiffTimestamp(timestamp, locale) {
   const dayjsLocale = locale === 'pt_PT' ? 'pt' : locale
   dayjs.locale(dayjsLocale.toLowerCase().replace('_', '-'))
   return dayjs.unix(timestamp).fromNow()
+}
+
+// Search query matching the last word as a prefix. Queries ending in
+// anything but a letter or digit (a wildcard, phrase quote, bracket or
+// space) are sent as typed.
+export function prefixSearchQuery(query) {
+  return /[\p{L}\p{N}]$/u.test(query) ? `${query}*` : query
 }
 
 export function debounce(func, wait) {
