@@ -663,14 +663,6 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._className,
         'citation_list'
       )
-    } else if (e.detail.action === 'moveCitation') {
-      this.moveHandle(
-        e.detail.handle,
-        this._data,
-        this._className,
-        'citation_list',
-        e.detail.to
-      )
     } else if (e.detail.action === 'updateProp') {
       this.updateProp(
         this._data,
@@ -904,14 +896,6 @@ export class GrampsjsViewObject extends GrampsjsView {
   }
 
   // move `handle` to index `to`
-  moveHandle(handle, obj, objType, prop, to) {
-    return this._updateObject(obj, objType, _obj => {
-      const i = (_obj[prop] || []).indexOf(handle)
-      _obj[prop] = moveTo(_obj[prop], i, to)
-      return _obj
-    })
-  }
-
   async _postObject(obj, objType) {
     const url = `/api/${objectTypeToEndpoint[objType]}/`
     return this.appState.apiPost(url, obj)

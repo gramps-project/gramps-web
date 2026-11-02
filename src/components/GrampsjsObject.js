@@ -814,15 +814,13 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           active
           .appState="${this.appState}"
           ?edit="${this.edit}"
-          .grampsIds=${(this.data?.extended?.citations || [])
-            .map(obj => obj.gramps_id)
-            .filter(obj => Boolean(obj))}
+          .ids=${this.data?.citation_list || []}
         ></grampsjs-view-source-citations>`
       case 'notes':
         return html` <grampsjs-view-object-notes
           active
           .appState="${this.appState}"
-          .grampsIds=${(this.data?.extended?.notes || [])
+          .ids=${(this.data?.extended?.notes || [])
             .map(obj => obj.gramps_id)
             .filter(obj => Boolean(obj))}
           ?edit="${this.edit}"

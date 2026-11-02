@@ -17,7 +17,7 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
 
   static get properties() {
     return {
-      grampsIds: {type: Array},
+      ids: {type: Array},
       dialogContent: {type: String},
       _data: {type: Array},
       edit: {type: Boolean},
@@ -26,7 +26,9 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
 
   constructor() {
     super()
-    this.grampsIds = []
+    this.ids = []
+    // the property of the fetched objects that `ids` refers to
+    this.idKey = 'gramps_id'
     this.dialogContent = ''
     this._data = []
     this.edit = false
@@ -61,11 +63,11 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
 
   update(changed) {
     super.update(changed)
-    if (this.active && changed.has('grampsIds')) {
-      // grampsIds is an array, so we need to check if its *contents* have changed as well
+    if (this.active && changed.has('ids')) {
+      // ids is an array, so we need to check if its *contents* have changed as well
       if (
-        changed.get('grampsIds') === undefined ||
-        !arrayEqual(this.grampsIds, changed.get('grampsIds'))
+        changed.get('ids') === undefined ||
+        !arrayEqual(this.ids, changed.get('ids'))
       ) {
         this._updateData()
       } else {
@@ -78,8 +80,7 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
   _sortData() {
     this._data = [...this._data].sort(
       (a, b) =>
-        this.grampsIds.indexOf(a.gramps_id) -
-        this.grampsIds.indexOf(b.gramps_id)
+        this.ids.indexOf(a[this.idKey]) - this.ids.indexOf(b[this.idKey])
     )
   }
 
@@ -87,7 +88,7 @@ export class GrampsjsViewObjectsDetail extends GrampsjsView {
     if (this._url === '') {
       return
     }
-    if (this.grampsIds.length === 0) {
+    if (this.ids.length === 0) {
       this._data = []
     } else {
       this._data = []
