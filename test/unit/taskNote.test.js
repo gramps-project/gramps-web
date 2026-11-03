@@ -68,6 +68,24 @@ describe('GrampsjsTask _handleSaveNote', () => {
     expect(t.saveNote).toHaveBeenCalledWith({text: text('New'), type: 'To Do'})
   })
 
+  it('adds a note when the only note of the task was deleted', async () => {
+    const t = task('New', {notes: []})
+    t.source.note_list = ['deleted']
+    await save.call(t)
+    expect(t.saveNote).toHaveBeenCalledWith({text: text('New'), type: 'To Do'})
+  })
+
+  it('updates the first note that exists', async () => {
+    const t = task('New')
+    t.source.note_list = ['deleted', 'n1']
+    await save.call(t)
+    expect(t.saveNote).toHaveBeenCalledWith({
+      ...NOTE,
+      text: text('New'),
+      type: 'To Do',
+    })
+  })
+
   it('closes without saving when a new note is empty', async () => {
     const t = task('  ', {notes: []})
     await save.call(t)

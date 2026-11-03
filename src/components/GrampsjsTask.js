@@ -8,6 +8,7 @@ import {
   mdiPencil,
   mdiPencilOff,
 } from '@mdi/js'
+import {taskNote} from '../taskConstants.js'
 import {sharedStyles} from '../SharedStyles.js'
 
 import '@material/web/iconbutton/icon-button.js'
@@ -114,6 +115,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
     if (Object.keys(this.source).length === 0) {
       return html``
     }
+    const note = taskNote(this.source)
     return html`
       <grampsjs-breadcrumbs
         .data="${this.source}"
@@ -171,18 +173,18 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
 
       <h3>${this._('Description')}</h3>
       <p>
-        ${this.source?.note_list?.length > 0
+        ${note
           ? html` ${this._editingNote
               ? html`
                   <grampsjs-editor
                     id="task-note-editor"
-                    .initialData=${this.source.extended.notes[0].text}
+                    .initialData=${note.text}
                     .appState="${this.appState}"
                   ></grampsjs-editor>
                 `
               : html`
                   <grampsjs-connected-note
-                    handle="${this.source.note_list[0]}"
+                    handle="${note.handle}"
                     .appState="${this.appState}"
                   ></grampsjs-connected-note>
                 `}`
@@ -316,9 +318,10 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
     const editor = this.renderRoot.querySelector('grampsjs-editor')
     const text = editor.data
     const type = 'To Do'
+    const note = taskNote(this.source)
     let data = null
-    if (this.source.note_list.length > 0) {
-      data = {...this.source.extended.notes[0], text, type}
+    if (note) {
+      data = {...note, text, type}
     } else if (text.string.trim() !== '') {
       data = {text, type}
     }

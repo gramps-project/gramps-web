@@ -10,6 +10,11 @@ import '../components/GrampsjsFormPrivate.js'
 import {GrampsjsViewNewSource} from './GrampsjsViewNewSource.js'
 
 import {makeHandle, fireEvent, reportRequiredField} from '../util.js'
+import {
+  TASK_PRIORITIES,
+  priorityLabel,
+  taskAttribute,
+} from '../taskConstants.js'
 
 const dataDefault = {
   _class: 'Source',
@@ -33,9 +38,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
   }
 
   renderContent() {
-    const priority = this.data.attribute_list.filter(
-      att => att.type === 'Priority'
-    )[0]?.value
+    const priority = taskAttribute(this.data, 'Priority')
     return html`
       <h2>${this._('New Task')}</h2>
 
@@ -63,15 +66,16 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
       <h3 class="label">${this._('Priority')}</h3>
       <p>
         <md-filled-select @change="${this.handlePriority}">
-          <md-select-option ?selected="${priority < 4}" value="1">
-            <span slot="headline">${this._('High')}</span>
-          </md-select-option>
-          <md-select-option ?selected="${priority === '5'}" value="5">
-            <span slot="headline">${this._('Medium')}</span>
-          </md-select-option>
-          <md-select-option ?selected="${priority > 5}" value="9">
-            <span slot="headline">${this._('Low')}</span>
-          </md-select-option>
+          ${TASK_PRIORITIES.map(
+            ({label, value}) => html`
+              <md-select-option
+                ?selected="${priorityLabel(priority) === label}"
+                value="${value}"
+              >
+                <span slot="headline">${this._(label)}</span>
+              </md-select-option>
+            `
+          )}
         </md-filled-select>
       </p>
 
