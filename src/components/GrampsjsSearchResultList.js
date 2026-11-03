@@ -109,8 +109,8 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
               type="${path
                 ? 'link'
                 : this.selectable || this.linked
-                  ? 'button'
-                  : 'text'}"
+                ? 'button'
+                : 'text'}"
               href="${path ? appHref(path) : ''}"
               class="${classMap({
                 selected: this.activatable && i === this._selectedIndex,

@@ -42,7 +42,10 @@ describe('isNewTabClick', () => {
     expect(isNewTabClick(new MouseEvent('click'))).toBe(false)
   })
 
-  it.each([{altKey: true}, {button: 2}])('is true for a click with %o', init => {
-    expect(isNewTabClick(new MouseEvent('click', init))).toBe(true)
-  })
+  it.each([{altKey: true}, {button: 2}])(
+    'is true for a click with %o',
+    init => {
+      expect(isNewTabClick(new MouseEvent('click', init))).toBe(true)
+    }
+  )
 })
