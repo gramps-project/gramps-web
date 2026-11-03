@@ -127,6 +127,8 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
       <grampsjs-pagination
         page="${this._page}"
         pages="${this._pages}"
+        total="${this._totalCount}"
+        pageSize="${this._pageSize}"
         @page:changed="${this._handlePageChanged}"
         .appState="${this.appState}"
       ></grampsjs-pagination>

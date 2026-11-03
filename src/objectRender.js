@@ -11,6 +11,8 @@ import {
   objectIconPath,
   eventTypeStrings,
   noteTypeStrings,
+  hasThumbnail,
+  mediaIconPath,
 } from './util.js'
 import './components/GrampsjsObjectLink.js'
 import './components/GrampsjsImg.js'
@@ -197,7 +199,8 @@ export function renderIcon(obj, slot = 'graphic', iconPath = null) {
   const handle = _getMediaHandle(obj)
   const rect = _getMediaRect(obj)
   const checksum = _getMediaChecksum(obj)
-  if (handle) {
+  const mime = obj.object_type === 'media' ? obj.object?.mime ?? '' : ''
+  if (handle && hasThumbnail(mime)) {
     return html`<grampsjs-img
       handle="${handle}"
       slot="${slot}"
@@ -207,8 +210,17 @@ export function renderIcon(obj, slot = 'graphic', iconPath = null) {
       .rect="${rect}"
       mime=""
       checksum="${checksum}"
-      fallbackIcon="${objectIconPath[obj.object_type]}"
+      fallbackIcon="${obj.object_type === 'media'
+        ? mediaIconPath(mime)
+        : objectIconPath[obj.object_type]}"
     ></grampsjs-img>`
+  }
+  if (obj.object_type === 'media') {
+    return html`<grampsjs-icon
+      slot="${slot}"
+      path="${iconPath || mediaIconPath(mime)}"
+      color="var(--grampsjs-color-icon)"
+    ></grampsjs-icon>`
   }
   if (obj.object_type === 'tag') {
     const color =

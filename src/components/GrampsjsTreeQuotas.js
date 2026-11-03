@@ -1,6 +1,6 @@
 import {css, html} from 'lit'
 
-import '@material/mwc-linear-progress'
+import '@material/web/progress/linear-progress.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
@@ -24,9 +24,6 @@ export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
     return [
       sharedStyles,
       css`
-        mwc-linear-progress {
-        }
-
         span.label {
         }
 
@@ -100,9 +97,7 @@ export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
         <tr>
           <th>${this._('Number of people')}</th>
           <td class="progress">
-            <mwc-linear-progress
-              progress="${progressPeople}"
-            ></mwc-linear-progress>
+            <md-linear-progress value="${progressPeople}"></md-linear-progress>
           </td>
           <td class="numbers">
             ${Math.round(100 * progressPeople)}%
@@ -112,9 +107,7 @@ export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
         <tr>
           <th>${this._('Total size of media objects')}</th>
           <td class="progress">
-            <mwc-linear-progress
-              progress="${progressMedia}"
-            ></mwc-linear-progress>
+            <md-linear-progress value="${progressMedia}"></md-linear-progress>
           </td>
           <td class="numbers">
             ${Math.round(100 * progressMedia)}%
@@ -126,9 +119,9 @@ export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
               <tr>
                 <th>${this._('Chat messages')}</th>
                 <td class="progress">
-                  <mwc-linear-progress
-                    progress="${progressAi}"
-                  ></mwc-linear-progress>
+                  <md-linear-progress
+                    value="${progressAi}"
+                  ></md-linear-progress>
                 </td>
                 <td class="numbers">
                   ${Math.round(100 * progressAi)}%
@@ -147,7 +140,7 @@ export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
         <tr>
           <th>${this._('Number of people')}</th>
           <td class="progress">
-            <mwc-linear-progress indeterminate></mwc-linear-progress>
+            <md-linear-progress indeterminate></md-linear-progress>
           </td>
           <td class="numbers">
             <span class="skeleton" style="width: 6em;">&nbsp;</span>
@@ -156,7 +149,7 @@ export class GrampsjsTreeQuotas extends GrampsjsConnectedComponent {
         <tr>
           <th>${this._('Total size of media objects')}</th>
           <td class="progress">
-            <mwc-linear-progress indeterminate></mwc-linear-progress>
+            <md-linear-progress indeterminate></md-linear-progress>
           </td>
           <td class="numbers">
             <span class="skeleton" style="width: 7em;">&nbsp;</span>

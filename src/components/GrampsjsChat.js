@@ -15,6 +15,7 @@ import {
   setChatMessageHistoryRaw,
   updateTaskStatus,
 } from '../api.js'
+import {stripChatHistoryRaw} from '../chatHistory.js'
 import {fireEvent} from '../util.js'
 
 function delay(ms) {
@@ -262,7 +263,7 @@ class GrampsjsChat extends GrampsjsAppStateMixin(LitElement) {
     }
     const rawHistory = getChatMessageHistoryRaw()
     if (rawHistory) {
-      payload.message_history_raw = rawHistory
+      payload.message_history_raw = stripChatHistoryRaw(rawHistory)
     } else if (this.messages.length > 1) {
       // Fallback for sessions pre-dating message_history_raw; can be removed later.
       payload.history = this.messages.slice(0, this.messages.length - 1)

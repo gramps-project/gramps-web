@@ -424,7 +424,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
     >
       <grampsjs-icon
         path="${mdiAccountMultiple}"
-        color="var(--mdc-theme-primary)"
+        color="currentColor"
         slot="icon"
       ></grampsjs-icon>
       ${this._('Family')}

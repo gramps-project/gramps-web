@@ -1,8 +1,5 @@
-import '@material/mwc-button'
 import '@material/mwc-drawer'
 import '@material/web/progress/linear-progress.js'
-import '@material/mwc-snackbar'
-import '@material/mwc-textfield'
 import '@material/mwc-top-app-bar'
 import '@material/web/button/filled-button.js'
 import {mdiLogout} from '@mdi/js'
@@ -55,6 +52,7 @@ import './components/GrampsjsLogin.js'
 import './components/GrampsjsMainMenu.js'
 import './components/GrampsjsPages.js'
 import './components/GrampsjsTabBar.js'
+import './components/GrampsjsSnackbar.js'
 import './components/GrampsjsUndoTransaction.js'
 import './components/GrampsjsUpdateAvailable.js'
 import './components/GrampsjsUpgradeDb.js'
@@ -132,8 +130,6 @@ export class GrampsJs extends LitElement {
       _shortcutPressed: {type: String},
       _firstRunToken: {type: String},
       _loadingStrings: {type: Boolean},
-      reindexNeeded: {type: Boolean},
-      _semanticIndexStale: {type: Boolean},
     }
   }
 
@@ -153,8 +149,7 @@ export class GrampsJs extends LitElement {
     this._shortcutPressed = ''
     this._firstRunToken = ''
     this._loadingStrings = false
-    this._reindexNeeded = false
-    this._semanticIndexStale = false
+    this._searchIndexBuilding = false
     this._drawerWasOpen = false
     this._metadataConfirmed = false
   }
@@ -171,6 +166,13 @@ export class GrampsJs extends LitElement {
       css`
         :host {
           height: 100%;
+          --grampsjs-app-bar-height: 64px;
+        }
+
+        @media (max-width: 599px) {
+          :host {
+            --grampsjs-app-bar-height: 56px;
+          }
         }
 
         main {
@@ -206,23 +208,13 @@ export class GrampsJs extends LitElement {
 
         [slot='appContent'] md-linear-progress {
           position: sticky;
-          top: 64px;
+          top: var(--grampsjs-app-bar-height);
           z-index: 4;
           visibility: hidden;
         }
 
-        @media (max-width: 599px) {
-          [slot='appContent'] md-linear-progress {
-            top: 56px;
-          }
-        }
-
         [slot='appContent'] md-linear-progress.active {
           visibility: visible;
-        }
-
-        #user-menu mwc-button {
-          margin: 0.5em 1em;
         }
 
         #app-title:first-letter {
@@ -327,74 +319,31 @@ export class GrampsJs extends LitElement {
   render() {
     return html`
       ${this.renderContent()} ${this._renderKeyboardShortcuts()}
-      <mwc-snackbar id="app-snackbar" leading></mwc-snackbar>
-      ${this._reindexNeeded ? this._renderReindexSnackbar() : ''}
-      ${this._semanticIndexStale ? this._renderSemanticStaleSnackbar() : ''}
+      <grampsjs-snackbar
+        id="app-snackbar"
+        .appState="${this.appState}"
+      ></grampsjs-snackbar>
       <grampsjs-undo-transaction
         .appState="${this.appState}"
       ></grampsjs-undo-transaction>
-      <grampsjs-update-available>
-        <mwc-snackbar
-          leading
-          open
-          timeoutMs="-1"
-          labelText="${this._('A new version of the app is available.')}"
-        >
-          <mwc-button slot="action">${this._('Refresh')}</mwc-button>
-        </mwc-snackbar>
-      </grampsjs-update-available>
+      <grampsjs-update-available
+        @pwa-update-available="${this._handleUpdateAvailable}"
+      ></grampsjs-update-available>
       <grampsjs-object-preview
         .appState="${this.appState}"
       ></grampsjs-object-preview>
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  _renderReindexSnackbar() {
-    return html`<mwc-snackbar
-      id="reindex-snackbar"
-      leading
-      open
-      timeoutMs="-1"
-      labelText="${this._('The search index needs to be rebuilt.')}"
-    >
-      ${this.appState.permissions.canManageUsers
-        ? html`
-            <mwc-button slot="action" @click="${this._handleReindexButton}"
-              >${this._('Settings')}</mwc-button
-            >
-          `
-        : ''}
-      ></mwc-snackbar
-    >`
-  }
-
-  _handleReindexButton(e) {
-    fireEvent(this, 'nav', {path: 'settings/administration'})
-    e.preventDefault()
-    e.stopPropagation()
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _renderSemanticStaleSnackbar() {
-    return html`<mwc-snackbar
-      id="semantic-stale-snackbar"
-      leading
-      open
-      timeoutMs="-1"
-      labelText="${this._(
-        'The semantic search index is out of date. A full reindex is required.'
-      )}"
-    >
-      ${this.appState.permissions.canManageUsers
-        ? html`
-            <mwc-button slot="action" @click="${this._handleReindexButton}"
-              >${this._('Settings')}</mwc-button
-            >
-          `
-        : ''}
-      ></mwc-snackbar
-    >`
+  // Reloads the metadata once the search index task of a build has finished,
+  // so that it no longer reports the build
+  _handleTaskDone(e) {
+    if (
+      this._searchIndexBuilding &&
+      e.detail?.status?.taskName === 'searchReindexFull'
+    ) {
+      this._loadDbInfo(false)
+    }
   }
 
   _renderKeyboardShortcuts() {
@@ -519,8 +468,10 @@ export class GrampsJs extends LitElement {
   _renderNoConn() {
     return html`<div class="center-xy">
       <div>
-        No connection<br /><br />
-        <mwc-button raised @click=${this._handleReload}>Reload</mwc-button>
+        ${this._('No connection')}<br /><br />
+        <md-filled-button @click=${this._handleReload}
+          >${this._('Reload')}</md-filled-button
+        >
       </div>
     </div> `
   }
@@ -578,7 +529,7 @@ export class GrampsJs extends LitElement {
           <grampsjs-icon
             slot="icon"
             .path="${mdiLogout}"
-            color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+            color="currentColor"
           ></grampsjs-icon>
           ${this._('Log out')}
         </md-filled-button>
@@ -741,6 +692,8 @@ export class GrampsJs extends LitElement {
       this._handleRequestsChanged.bind(this)
     )
     window.addEventListener('db:changed', () => this._loadDbInfo(false))
+    window.addEventListener('task:complete', e => this._handleTaskDone(e))
+    window.addEventListener('task:error', e => this._handleTaskDone(e))
     window.addEventListener('tree:missing', () => {
       this.loadingState = LOADING_STATE_NO_TREE
     })
@@ -924,30 +877,11 @@ export class GrampsJs extends LitElement {
   }
 
   _checkSearch() {
-    const searchVersion = this.appState.dbInfo?.search?.sifts?.version
-    if (searchVersion === undefined) {
-      window._oldSearchBackend = true
-      return
-    }
-    window._oldSearchBackend = false
-    const searchCount = this.appState.dbInfo?.search?.sifts?.count ?? 0
-    const objCounts = this.appState.dbInfo?.object_counts ?? {}
-    const objCount = Object.values(objCounts).reduce(
-      (sum, value) => sum + value,
-      0
-    )
-    if (searchCount === 0 && objCount > 0) {
-      this._reindexNeeded = true
-    } else {
-      this._reindexNeeded = false
-    }
-    // Check if the semantic search index is stale due to a model change
-    const semanticSearch = this.appState.dbInfo?.server?.semantic_search
-    if (semanticSearch) {
-      this._semanticIndexStale =
-        this.appState.dbInfo?.search?.sifts?.semantic_index_stale === true
-    } else {
-      this._semanticIndexStale = false
+    // The API builds a missing index in a background task and reports it as
+    // building until it is done; loading the active tasks shows its progress
+    this._searchIndexBuilding = this.appState.dbInfo?.search?.building === true
+    if (this._searchIndexBuilding) {
+      this.appState.loadActiveTasks()
     }
   }
 
@@ -1162,13 +1096,31 @@ export class GrampsJs extends LitElement {
     const {message, silent = false, source = 'api', detail = {}} = e.detail
     this.appState.addNotification({type: 'error', message, source, detail})
     if (!silent) {
-      this._showMessage(`${this._('Error')}: ${message}`)
+      this._showMessage(`${this._('Error')}: ${message}`, {
+        action: {
+          label: this._('Details'),
+          handler: () => fireEvent(this, 'nav', {path: 'notifications'}),
+        },
+        dismissible: true,
+      })
     }
   }
 
+  // detail: {message, action, timeout, dismissible}, see grampsjs-snackbar
   _handleNotification(e) {
-    const {message} = e.detail
-    this._showMessage(message)
+    const {message, ...options} = e.detail
+    this._showMessage(message, options)
+  }
+
+  _handleUpdateAvailable(e) {
+    const updateAvailable = e.target
+    this._showMessage(this._('A new version of the app is available.'), {
+      action: {
+        label: this._('Refresh'),
+        handler: () => updateAvailable.applyUpdate(),
+      },
+      timeout: 0,
+    })
   }
 
   _handleDbUpgradeComplete() {
@@ -1261,10 +1213,9 @@ export class GrampsJs extends LitElement {
     this._showMessage(`${this._('Error')}: ${msg}`)
   }
 
-  _showMessage(msg) {
+  _showMessage(message, options = {}) {
     const snackbar = this.shadowRoot.getElementById('app-snackbar')
-    snackbar.labelText = msg
-    snackbar.show()
+    snackbar.show({message, ...options})
   }
 
   _openUserMenu() {

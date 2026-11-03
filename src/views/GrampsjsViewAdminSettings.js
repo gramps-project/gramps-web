@@ -1,6 +1,7 @@
 import {css, html} from 'lit'
 
 import {GrampsjsView} from './GrampsjsView.js'
+import {buttonColorStyles} from '../SharedStyles.js'
 import '../components/GrampsjsCollapsibleSection.js'
 import '../components/GrampsjsBackups.js'
 import '../components/GrampsjsResearcher.js'
@@ -15,6 +16,7 @@ import '../components/GrampsjsTreeQuotas.js'
 
 import {fireEvent, makeHandle} from '../util.js'
 import {dispatchErrorMessage} from '../taskResponse.js'
+import {isTaskActive} from '../appState.js'
 import {
   TREE_CONFIG_APP_TITLE,
   TREE_CONFIG_PRIMARY_COLOR,
@@ -70,6 +72,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
   static get styles() {
     return [
       super.styles,
+      buttonColorStyles,
       css`
         .pre {
           white-space: pre-line;
@@ -96,21 +99,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         }
 
         .danger-button {
-          --md-outlined-button-label-text-color: var(
-            --grampsjs-alert-error-font-color
-          );
-          --md-outlined-button-focus-label-text-color: var(
-            --grampsjs-alert-error-font-color
-          );
-          --md-outlined-button-hover-label-text-color: var(
-            --grampsjs-alert-error-font-color
-          );
-          --md-outlined-button-pressed-label-text-color: var(
-            --grampsjs-alert-error-font-color
-          );
-          --md-outlined-button-outline-color: var(
-            --grampsjs-alert-error-font-color
-          );
+          --grampsjs-button-color: var(--grampsjs-alert-error-font-color);
         }
 
         .danger-zone p {
@@ -219,7 +208,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       _verifyLoading: {type: Boolean},
       _verifyOptions: {type: Object},
       _buttonUpdateSearchDisabled: {type: Boolean},
-      _buttonUpdateSearchSemanticDisabled: {type: Boolean},
       _treeName: {type: String},
       _primaryColor: {type: String},
       _secondaryColor: {type: String},
@@ -241,7 +229,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this._verifyLoading = false
     this._verifyOptions = {...VERIFY_OPTIONS_DEFAULTS}
     this._buttonUpdateSearchDisabled = false
-    this._buttonUpdateSearchSemanticDisabled = false
     this._treeName = ''
     this._primaryColor = DEFAULT_PRIMARY
     this._secondaryColor = DEFAULT_SECONDARY
@@ -250,6 +237,24 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this._homePageNoteGrampsId = null
     this._homePageImageGrampsId = null
     this._tags = []
+    this._boundHandleTasksChanged = () => this.requestUpdate()
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('tasks:changed', this._boundHandleTasksChanged)
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('tasks:changed', this._boundHandleTasksChanged)
+    super.disconnectedCallback()
+  }
+
+  // Whether a search index build runs, started here or by the API
+  _searchReindexRunning() {
+    return (this.appState?.getActiveTasks?.() ?? []).some(
+      task => task.taskName === 'searchReindexFull' && isTaskActive(task)
+    )
   }
 
   renderContent() {
@@ -298,8 +303,9 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         </p>
         <div class="button-row">
           <md-outlined-button
-            ?disabled=${this._buttonUpdateSearchDisabled}
-            @click="${() => this._updateSearch(false)}"
+            ?disabled=${this._buttonUpdateSearchDisabled ||
+            this._searchReindexRunning()}
+            @click="${() => this._updateSearch()}"
             >${this._('Update search index')}</md-outlined-button
           >
           <grampsjs-task-progress-indicator
@@ -307,57 +313,9 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             taskName="searchReindexFull"
             size="20"
             .appState="${this.appState}"
-            @task:complete="${() => this._handleSuccessUpdateSearch(false)}"
+            @task:complete="${() => this._handleSuccessUpdateSearch()}"
           ></grampsjs-task-progress-indicator>
         </div>
-
-        ${this.appState.dbInfo?.server?.semantic_search
-          ? html`
-              <h3>${this._('Manage semantic search index')}</h3>
-
-              ${this._renderSearchStatus(true)}
-
-              <p>
-                ${this._(
-                  'Updating the semantic search index requires substantial time and computational resources. Run this operation only when necessary.'
-                )}
-              </p>
-              <p class="button-row">
-                <md-outlined-button
-                  ?disabled=${this._buttonUpdateSearchSemanticDisabled}
-                  @click="${() => this._updateSearch(true)}"
-                  >${this._(
-                    'Regenerate semantic search index'
-                  )}</md-outlined-button
-                >
-                <grampsjs-task-progress-indicator
-                  id="progress-update-search-semantic"
-                  taskName="searchReindexFullSemantic"
-                  size="20"
-                  .appState="${this.appState}"
-                  @task:complete="${() =>
-                    this._handleSuccessUpdateSearch(true)}"
-                ></grampsjs-task-progress-indicator>
-              </p>
-              <p class="button-row">
-                <md-outlined-button
-                  ?disabled=${this._buttonUpdateSearchSemanticDisabled ||
-                  this.appState.dbInfo?.search?.sifts?.semantic_index_stale ===
-                    true}
-                  @click="${() => this._updateSearch(true, true)}"
-                  >${this._('Update semantic search index')}</md-outlined-button
-                >
-                <grampsjs-task-progress-indicator
-                  id="progress-update-search-semantic-incremental"
-                  taskName="searchReindexIncrementalSemantic"
-                  size="20"
-                  .appState="${this.appState}"
-                  @task:complete="${() =>
-                    this._handleSuccessUpdateSearch(true)}"
-                ></grampsjs-task-progress-indicator>
-              </p>
-            `
-          : ''}
       </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
@@ -492,7 +450,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             <grampsjs-icon
               slot="icon"
               path="${mdiDownload}"
-              color="var(--mdc-theme-primary)"
+              color="currentColor"
             ></grampsjs-icon>
             ${this._('Export')}
           </md-outlined-button>
@@ -500,7 +458,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             <grampsjs-icon
               slot="icon"
               path="${mdiUpload}"
-              color="var(--mdc-theme-primary)"
+              color="currentColor"
             ></grampsjs-icon>
             ${this._('Import')}
           </md-outlined-button>
@@ -607,7 +565,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             <grampsjs-icon
               slot="icon"
               path="${mdiPlus}"
-              color="var(--mdc-theme-primary)"
+              color="currentColor"
             ></grampsjs-icon>
             ${this._('New Tag')}
           </md-outlined-button>
@@ -652,7 +610,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                 <grampsjs-icon
                   slot="icon"
                   path="${mdiDeleteForever}"
-                  color="var(--grampsjs-alert-error-font-color)"
+                  color="currentColor"
                 ></grampsjs-icon>
                 ${this._('Delete')}
               </md-outlined-button>
@@ -680,9 +638,8 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     `
   }
 
-  _renderSearchStatus(semantic = false) {
-    const property = semantic ? 'count_semantic' : 'count'
-    const count = this.appState.dbInfo?.search?.sifts?.[property] ?? -1
+  _renderSearchStatus() {
+    const count = this.appState.dbInfo?.search?.sifts?.count ?? -1
     const objCounts = this.appState.dbInfo?.object_counts ?? {}
     const objCount = Object.values(objCounts).reduce(
       (sum, value) => sum + value,
@@ -698,17 +655,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       path="${mdiCheckCircle}"
       color="currentColor"
     ></grampsjs-icon>`
-    if (
-      semantic &&
-      this.appState.dbInfo?.search?.sifts?.semantic_index_stale === true
-    ) {
-      return html`<p class="alert error">
-        ${iconError}
-        ${this._(
-          'The semantic search index is out of date. A full reindex is required.'
-        )}
-      </p>`
-    }
     const icon = objCount === 0 || count / objCount > 0.98 ? iconOk : iconError
     return html`<p class="small">
       ${icon} ${this._('Status')}:
@@ -764,27 +710,12 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     fireEvent(this, 'db:changed')
   }
 
-  async _updateSearch(semantic = false, incremental = false) {
-    let id
-    if (semantic) {
-      id = incremental
-        ? 'progress-update-search-semantic-incremental'
-        : 'progress-update-search-semantic'
-    } else {
-      id = 'progress-update-search'
-    }
-    const prog = this.renderRoot.querySelector(`#${id}`)
+  async _updateSearch() {
+    const prog = this.renderRoot.querySelector('#progress-update-search')
     prog.reset()
     prog.open = true
-    const params = new URLSearchParams()
-    if (!incremental) params.append('full', '1')
-    if (semantic) params.append('semantic', '1')
-    const url = `/api/search/index/?${params.toString()}`
-    if (semantic) {
-      this._buttonUpdateSearchSemanticDisabled = true
-    } else {
-      this._buttonUpdateSearchDisabled = true
-    }
+    const url = '/api/search/index/?full=1'
+    this._buttonUpdateSearchDisabled = true
     // Search reindex doesn't mutate database records, and the index update
     // happens asynchronously — suppress the automatic db:changed so stale-data
     // refreshes don't fire before the task completes.
@@ -792,42 +723,24 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     if ('error' in data) {
       prog.setError()
       prog.errorMessage = dispatchErrorMessage(this.appState, data)
-      this._doneUpdateSearch(semantic)
+      this._buttonUpdateSearchDisabled = false
     } else if ('task' in data) {
       const taskId = data.task?.id || ''
       if (taskId) {
-        let label
-        let taskName
-        if (!semantic) {
-          label = 'Update search index'
-          taskName = 'searchReindexFull'
-        } else if (incremental) {
-          label = 'Update semantic search index'
-          taskName = 'searchReindexIncrementalSemantic'
-        } else {
-          label = 'Regenerate semantic search index'
-          taskName = 'searchReindexFullSemantic'
-        }
-        this.appState.registerTask(taskId, label, {taskName})
+        this.appState.registerTask(taskId, 'Update search index', {
+          taskName: 'searchReindexFull',
+        })
       }
       prog.taskId = taskId
     } else {
       prog.setComplete()
-      this._handleSuccessUpdateSearch(semantic)
+      this._handleSuccessUpdateSearch()
     }
   }
 
-  _handleSuccessUpdateSearch(semantic = false) {
-    this._doneUpdateSearch(semantic)
+  _handleSuccessUpdateSearch() {
+    this._buttonUpdateSearchDisabled = false
     fireEvent(this, 'db:changed')
-  }
-
-  _doneUpdateSearch(semantic = false) {
-    if (semantic) {
-      this._buttonUpdateSearchSemanticDisabled = false
-    } else {
-      this._buttonUpdateSearchDisabled = false
-    }
   }
 
   async _checkRepair() {

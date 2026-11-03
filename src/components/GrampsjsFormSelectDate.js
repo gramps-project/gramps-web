@@ -3,7 +3,7 @@ Element for selecting a Gramps type
 */
 
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-textfield'
+import '@material/web/textfield/filled-text-field.js'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/select/filled-select.js'
 import '@material/web/select/select-option.js'
@@ -78,7 +78,7 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
           white-space: nowrap;
         }
 
-        span.dateform mwc-textfield,
+        span.dateform md-filled-text-field,
         span.dateform md-filled-select {
           margin-bottom: 10px;
         }
@@ -168,14 +168,14 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
     </p>
     <p>
     <span class="dateform">
-      <mwc-textfield
+      <md-filled-text-field
         @change="${this.handleYear1}"
         id="year1"
         label="${this._('Year')}"
         type="number"
         style="width: 6em;"
         value="${this.data.dateval[2] || ''}"
-      ></mwc-textfield>
+      ></md-filled-text-field>
       <md-filled-select
         @change="${this.handleMonth1}"
         id="month1"
@@ -238,14 +238,14 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
       <span class="dateform">
       &nbsp;&nbsp;&ndash;&nbsp;&nbsp;
 
-      <mwc-textfield
+      <md-filled-text-field
         @change="${this.handleYear2}"
         id="year2"
         label="${this._('Year')}"
         type="number"
         style="width: 6em;"
         value="${this.data.dateval[6] || ''}"
-      ></mwc-textfield>
+      ></md-filled-text-field>
       <md-filled-select
         @change="${this.handleMonth2}"
         id="month2"
@@ -315,10 +315,12 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
 
   reset() {
     this.data = dataDefault
-    this.shadowRoot.querySelectorAll('mwc-textfield').forEach(element => {
-      // eslint-disable-next-line no-param-reassign
-      element.value = ''
-    })
+    this.shadowRoot
+      .querySelectorAll('md-filled-text-field')
+      .forEach(element => {
+        // eslint-disable-next-line no-param-reassign
+        element.value = ''
+      })
     this.shadowRoot.querySelectorAll('md-filled-select').forEach(element => {
       // eslint-disable-next-line no-param-reassign
       element.value = '0'
@@ -474,22 +476,13 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
     const result = validateGrampsDate(this.data)
     const year1 = this.renderRoot.getElementById('year1')
     if (year1) {
-      year1.setCustomValidity(result.date1Invalid ? this._('Invalid date') : '')
-      year1.reportValidity()
+      year1.error = result.date1Invalid
     }
     if (this._hasSecondDate()) {
       const year2 = this.renderRoot.getElementById('year2')
       if (year2) {
-        let err = ''
-        if (result.date2Empty) {
-          err = this._('End date is required')
-        } else if (result.date2Invalid) {
-          err = this._('Invalid date')
-        } else if (result.date2OrderInvalid) {
-          err = this._('End date must be after start date')
-        }
-        year2.setCustomValidity(err)
-        year2.reportValidity()
+        year2.error =
+          result.date2Empty || result.date2Invalid || result.date2OrderInvalid
       }
     }
     const input1 = this.renderRoot.getElementById('input-date1')

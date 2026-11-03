@@ -1,6 +1,5 @@
 import {html, css} from 'lit'
 import {repeat} from 'lit/directives/repeat.js'
-import '@material/mwc-textfield'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsMap.js'
@@ -25,6 +24,7 @@ import {
   apiVersionAtLeast,
   getGregorianYears,
   personProfileDisplayName,
+  prefixSearchQuery,
 } from '../util.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import {
@@ -884,21 +884,10 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       return
     }
     const typeFilter = this._searchFilter || DEFAULT_SEARCH_FILTER
-    const query = encodeURIComponent(
-      `${value}*${
-        window._oldSearchBackend
-          ? ` AND (${typeFilter
-              .split(',')
-              .map(t => `type:${t}`)
-              .join(' OR ')})`
-          : ''
-      }`
-    )
+    const query = encodeURIComponent(prefixSearchQuery(value))
     const locale = this.appState.i18n.lang || 'en'
     const data = await this.appState.apiGet(
-      `/api/search/?query=${query}&locale=${locale}&profile=self&page=1&pagesize=20${
-        window._oldSearchBackend ? '' : `&type=${typeFilter}`
-      }`
+      `/api/search/?query=${query}&locale=${locale}&profile=self&page=1&pagesize=20&type=${typeFilter}`
     )
     this.loading = false
     if ('data' in data) {

@@ -1,4 +1,4 @@
-import {html} from 'lit'
+import {css, html} from 'lit'
 import {mdiPencil, mdiPlus} from '@mdi/js'
 
 import '@material/web/select/filled-select'
@@ -10,12 +10,32 @@ import '../components/GrampsjsDnaMatch.js'
 import '../components/GrampsjsFormNewMatch.js'
 import '../components/GrampsjsChromosomeBrowser.js'
 import '../components/GrampsjsBreadcrumbs.js'
+import '../components/GrampsjsSvgDownloadButton.js'
 
 import {GrampsjsViewDnaBase} from './GrampsjsViewDnaBase.js'
 
 import {fireEvent, personDisplayName, toWritableObject} from '../util.js'
 
 export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        .select-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 30px;
+          --grampsjs-icon-button-color: var(--grampsjs-body-font-color-60);
+        }
+
+        .select-row md-filled-select {
+          margin-bottom: 0;
+        }
+      `,
+    ]
+  }
+
   static get properties() {
     return {
       chromosome: {type: Boolean},
@@ -89,30 +109,42 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
       >`
     }
     return html`
-      <md-filled-select @change="${this._handleSelectChange}">
-        ${this._data.map(
-          person => html`
-            <md-select-option
-              value="${person.gramps_id}"
-              ?selected="${person.gramps_id === this.grampsId}"
-              >${personDisplayName(person)}</md-select-option
-            >
-          `
-        )}
-      </md-filled-select>
+      <div class="select-row">
+        <md-filled-select @change="${this._handleSelectChange}">
+          ${this._data.map(
+            person => html`
+              <md-select-option
+                value="${person.gramps_id}"
+                ?selected="${person.gramps_id === this.grampsId}"
+                >${personDisplayName(person)}</md-select-option
+              >
+            `
+          )}
+        </md-filled-select>
+        ${this.chromosome && !this._dnaDataLoading && this._dnaData.data?.length
+          ? html`<grampsjs-svg-download-button
+              filename="${this.grampsId}-chromosomes.svg"
+              .svgDocument=${() => this._chromosomeSvg()}
+              .appState="${this.appState}"
+            ></grampsjs-svg-download-button>`
+          : ''}
+      </div>
     `
   }
 
+  _chromosomeSvg() {
+    return (
+      this.renderRoot
+        .querySelector('grampsjs-chromosome-browser')
+        ?.svgDocument() ?? null
+    )
+  }
+
   _shouldLoadDnaData() {
-    const grampsIdHasDnaData =
-      Array.isArray(this._dnaData.data) &&
-      this._dnaData.data.some(
-        match => match.handle && match.handle === this.selectedHandle
-      )
     return (
       this._selectDataHasGrampsId() &&
-      !grampsIdHasDnaData &&
-      !this._dnaData.dataLoading
+      this._dnaData.grampsId !== this.grampsId &&
+      !this._dnaDataLoading
     )
   }
 
@@ -124,6 +156,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
     this.dialogContent = html`
       <grampsjs-form-new-match
         .appState="${this.appState}"
+        .sourcePersonInitial="${this.selectedPerson ?? {}}"
         @object:save="${this._handleSaveMatch}"
         @object:cancel="${this._handleCancelDialog}"
         dialogTitle=${this._('Add new DNA match')}
@@ -199,7 +232,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
           .person="${this._data.find(
             person => person.gramps_id === this.grampsId
           )}"
-          ?loading="${this._dnaData.dataLoading}"
+          ?loading="${this._dnaDataLoading}"
           @dna-matches:row-selected="${this._handleRowSelected}"
         ></grampsjs-dna-matches>
       </div>
@@ -220,8 +253,9 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
     const {rowNumber} = e.detail
     const handleMatch = this._dnaData.data[rowNumber].handle
     const match = this._allPeople.find(person => person.handle === handleMatch)
-    const grampsIdMatch = match?.gramps_id
-    this._goTo(`${this.page}/${this.grampsId}/${grampsIdMatch}`)
+    if (match?.gramps_id) {
+      this._goTo(`${this.page}/${this.grampsId}/${match.gramps_id}`)
+    }
   }
 
   _getSelectedMatchHandle() {
@@ -240,7 +274,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
           .person="${this._data.find(
             person => person.gramps_id === this.grampsId
           )}"
-          ?loading="${this._dnaData.dataLoading}"
+          ?loading="${this._dnaDataLoading}"
         ></grampsjs-chromosome-browser>
       </div>
     `
@@ -254,8 +288,16 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
     const sourceHandle = e.detail.data.source_handle
     const targetHandle = e.detail.data.target_handle
     const personData = await this.appState.apiGet(`/api/people/${sourceHandle}`)
+    if ('error' in personData) {
+      fireEvent(this, 'grampsjs:error', {message: personData.error})
+      return
+    }
     const person = toWritableObject(personData.data)
     const noteHandle = await this._createNote(e.detail.data.raw_data[0])
+    // _createNote has already reported the error
+    if (!noteHandle) {
+      return
+    }
     const newPersonRef = {
       _class: 'PersonRef',
       ref: targetHandle,
@@ -266,7 +308,14 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
       ...person,
       person_ref_list: [...person.person_ref_list, newPersonRef],
     }
-    await this.appState.apiPut(`/api/people/${sourceHandle}`, updatedPerson)
+    const result = await this.appState.apiPut(
+      `/api/people/${sourceHandle}`,
+      updatedPerson
+    )
+    if ('error' in result) {
+      fireEvent(this, 'grampsjs:error', {message: result.error})
+      return
+    }
     this.dialogContent = ''
   }
 
@@ -313,8 +362,9 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
       }
       const payload = {
         ...person,
+        // keep other kinds of association with the same person
         person_ref_list: person.person_ref_list.filter(
-          ref => ref.ref !== handleMatch
+          ref => ref.ref !== handleMatch || ref.rel !== 'DNA'
         ),
       }
       const data = await this.appState.apiPut(url, payload, {dbChanged: false})

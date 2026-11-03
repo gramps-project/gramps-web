@@ -152,7 +152,7 @@ export class GrampsjsViewNewEvent extends GrampsjsNewEventMixin(
           <grampsjs-icon
             slot="icon"
             path="${mdiAccountPlus}"
-            color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+            color="currentColor"
           ></grampsjs-icon>
           ${this._('Add Participant')}
         </md-outlined-button>

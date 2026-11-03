@@ -50,6 +50,15 @@ export class GrampsjsFormNewMatch extends GrampsjsEditMatchMixin(
     this.sourcePersonInitial = {}
   }
 
+  // The preselected first person counts as selected, since the person list
+  // only reports changes
+  willUpdate(changed) {
+    super.willUpdate?.(changed)
+    if (changed.has('sourcePersonInitial') && this.sourcePersonInitial.handle) {
+      this.data = {...this.data, source_handle: this.sourcePersonInitial.handle}
+    }
+  }
+
   renderForm() {
     return html`
       <div class="container">

@@ -15,6 +15,7 @@ import {
   objectIconPath,
   objectTypeToEndpoint,
   objectTypePlural,
+  prefixSearchQuery,
 } from '../util.js'
 import {getRecentObjects, getTreeBookmarks} from '../api.js'
 import './GrampsjsSearchResultList.js'
@@ -173,6 +174,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
     return {
       objectType: {type: String},
       excludeHandles: {type: Array},
+      filter: {attribute: false},
       _data: {type: Array},
       _mode: {type: String},
       _query: {type: String},
@@ -187,6 +189,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.objectType = ''
     this.excludeHandles = []
+    this.filter = null
     this._data = []
     this._mode = 'changed'
     this._query = ''
@@ -429,9 +432,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
     const data = await this.appState.apiGet(url)
     if (this._fetchId !== fetchId) return
     if ('data' in data) {
-      this._data = data.data.filter(
-        obj => !this.excludeHandles.includes(obj.handle ?? obj.object?.handle)
-      )
+      this._data = data.data.filter(obj => this._isOffered(obj))
     } else if ('error' in data) {
       this._data = []
       this._error = true
@@ -472,9 +473,7 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
       this._data = this._data
         .map(placeholder => byId[placeholder.object?.gramps_id] ?? placeholder)
         .filter(obj => !obj.loading)
-        .filter(
-          obj => !this.excludeHandles.includes(obj.handle ?? obj.object?.handle)
-        )
+        .filter(obj => this._isOffered(obj))
     } else {
       this._data = []
       this._error = true
@@ -523,30 +522,31 @@ class GrampsjsObjectPickerDialog extends GrampsjsAppStateMixin(LitElement) {
         object: data.data,
         handle: data.data.handle,
       }
-      this._data = this._data.map(item =>
-        item.object?.handle === handle ? updated : item
-      )
+      this._data = this._isOffered(updated)
+        ? this._data.map(item =>
+            item.object?.handle === handle ? updated : item
+          )
+        : this._data.filter(item => item.object?.handle !== handle)
     } else {
       this._data = this._data.filter(item => item.object?.handle !== handle)
     }
   }
 
+  // Whether a loaded result is listed: not excluded, and accepted by
+  // `filter` if one is set
+  _isOffered(obj) {
+    return (
+      !this.excludeHandles.includes(obj.handle ?? obj.object?.handle) &&
+      (!this.filter || this.filter(obj))
+    )
+  }
+
   _getFetchUrl(value) {
     const typeParam = this._buildTypeParam()
     const lang = this.appState.i18n.lang || 'en'
-    if (window._oldSearchBackend) {
-      const typeClause = this.objectType ? ` AND type:${this.objectType}` : ''
-      return value
-        ? `/api/search/?locale=${lang}&profile=all&query=${encodeURIComponent(
-            `${value}*${typeClause}`
-          )}&page=1&pagesize=20`
-        : `/api/search/?sort=-change&locale=${lang}&profile=all&query=${encodeURIComponent(
-            `type:${this.objectType || '*'}`
-          )}&page=1&pagesize=20`
-    }
     let url = `/api/search/?locale=${lang}&profile=all&page=1&pagesize=20`
     if (value) {
-      url = `${url}&query=${encodeURIComponent(`${value}*`)}`
+      url = `${url}&query=${encodeURIComponent(prefixSearchQuery(value))}`
     } else {
       url = `${url}&sort=-change&query=${encodeURIComponent('*')}`
     }

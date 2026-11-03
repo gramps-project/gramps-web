@@ -1,8 +1,8 @@
 /*
-The dropdown menu for adding objects in the top app bar
+The list of tasks with its filters and bulk actions
 */
 
-import {html, css, LitElement} from 'lit'
+import {html, css, LitElement, nothing} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import '@material/web/checkbox/checkbox'
@@ -24,10 +24,39 @@ import {
 import './GrampsjsFilters.js'
 import './GrampsjsTagsSmall.js'
 import './GrampsjsIcon.js'
+import './GrampsjsTooltip.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {clickKeyHandler, fireEvent} from '../util.js'
+import {fireEvent} from '../util.js'
 import {tagFilter} from '../filterDefinitions.js'
+import {
+  TASK_PRIORITIES,
+  TASK_STATUSES,
+  priorityLabel,
+  taskAttribute,
+} from '../taskConstants.js'
+
+const STATUS_ICONS = {
+  Open: {path: mdiRadioboxBlank, color: 'var(--grampsjs-task-open)'},
+  'In Progress': {path: mdiTimelapse, color: 'var(--grampsjs-task-progress)'},
+  Blocked: {
+    path: mdiMinusCircle,
+    color: 'var(--grampsjs-alert-error-font-color)',
+  },
+  Done: {path: mdiCheckCircle, color: 'var(--grampsjs-task-done)'},
+}
+
+const PRIORITY_ICONS = {
+  High: {
+    path: mdiChevronDoubleUp,
+    color: 'var(--grampsjs-alert-error-font-color)',
+  },
+  Medium: {path: mdiAdjust},
+  Low: {
+    path: mdiChevronDoubleDown,
+    color: 'var(--grampsjs-alert-success-font-color)',
+  },
+}
 
 class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -36,6 +65,7 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
       css`
         .tasks-list {
           font-size: 15px;
+          margin-top: 20px;
           margin-bottom: 85px;
         }
 
@@ -53,20 +83,32 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           border-bottom: 1px solid var(--grampsjs-body-font-color-10);
         }
 
-        h4 {
-          font-family: var(--grampsjs-body-font-family);
-          font-size: 14px;
-          font-weight: 450;
-          color: var(--grampsjs-body-font-color-70);
-          text-transform: uppercase;
+        .task-item {
+          cursor: pointer;
         }
 
-        span.link {
+        .task-item:hover {
+          background-color: var(--grampsjs-color-shade-240);
+        }
+
+        .task-item.selected {
+          background-color: var(
+            --md-sys-color-secondary-container,
+            var(--grampsjs-color-shade-240)
+          );
+        }
+
+        .task-item md-checkbox {
+          flex-shrink: 0;
+        }
+
+        a.title-link {
           color: var(--mdc-theme-text-primary-on-background);
-          padding: 0;
         }
 
-        span.link:hover {
+        .task-item:hover a.title-link,
+        a.title-link:focus-visible {
+          color: var(--grampsjs-color-link-hover);
           text-decoration: none;
         }
 
@@ -84,6 +126,10 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           align-items: center;
         }
 
+        .status-icon grampsjs-icon {
+          margin-right: 12px;
+        }
+
         .title {
           white-space: normal;
           overflow-wrap: break-word;
@@ -95,83 +141,36 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           hyphens: auto;
         }
 
-        .tags {
-          flex: auto;
-          white-space: normal;
-          overflow-wrap: break-word;
-          word-wrap: break-word;
-        }
-
-        md-checkbox#select-all {
-          margin-right: 16px;
-        }
-
-        .filters {
-          margin-bottom: 32px;
-        }
-
-        .taskbar {
-          padding-left: 10px;
-          display: flex;
-          align-items: center;
-          margin-bottom: 16px;
-        }
-
-        .status-icon grampsjs-icon {
-          margin-right: 12px;
-        }
-
-        .success {
-          color: var(--grampsjs-alert-success-font-color);
-        }
-
-        .done {
-          color: var(--grampsjs-task-done);
-        }
-
-        .progress {
-          color: var(--grampsjs-task-progress);
-        }
-
-        .open {
-          color: var(--grampsjs-task-open);
-        }
-
-        .error,
-        .blocked {
-          color: var(--grampsjs-alert-error-font-color);
-        }
-
-        .warn {
-          color: var(--grampsjs-alert-warn-font-color);
-        }
-
         .strike {
           text-decoration: line-through !important;
         }
 
-        .taskbar md-outlined-button {
-          margin-right: 8px;
+        .batch-toolbar {
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 12px 24px;
+          /* the select-all checkbox lines up with the checkboxes of the rows */
+          padding: 6px 4px 6px 10px;
+          margin-top: 8px;
         }
 
-        md-outlined-button {
-          --md-outlined-button-outline-color: var(--md-sys-color-secondary);
-          --md-outlined-button-label-text-color: var(--md-sys-color-secondary);
-          --md-outlined-button-hover-outline-color: var(
-            --md-sys-color-secondary
-          );
-          --md-outlined-button-focus-outline-color: var(
-            --md-sys-color-secondary
-          );
-          --md-outlined-button-hover-label-text-color: var(
-            --md-sys-color-secondary
-          );
-          --md-outlined-button-focus-label-text-color: var(
-            --md-sys-color-secondary
-          );
-          --md-outlined-button-pressed-label-text-color: var(
-            --md-sys-color-secondary
-          );
+        .batch-toolbar .selection-count {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 16px;
+          color: var(--grampsjs-body-font-color-70);
+        }
+
+        .batch-actions {
+          display: flex;
+          gap: 8px;
+        }
+
+        .menu-anchor {
+          position: relative;
+          display: inline-block;
         }
 
         md-checkbox {
@@ -192,6 +191,11 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         .task-meta {
           padding-right: 8px;
         }
+
+        .empty {
+          margin-top: 32px;
+          color: var(--grampsjs-body-font-color-60);
+        }
       `,
     ]
   }
@@ -199,229 +203,211 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       data: {type: Array},
-      _selected: {type: Array},
+      loading: {type: Boolean},
+      _selectedHandles: {type: Array},
     }
   }
 
   constructor() {
     super()
     this.data = []
-    this._selected = []
+    this.loading = false
+    this._selectedHandles = []
+  }
+
+  get _canEdit() {
+    return this.appState?.permissions?.canEdit
+  }
+
+  // Selected tasks that are no longer listed, e.g. after a filter change or
+  // a reload, are deselected
+  willUpdate(changed) {
+    if (changed.has('data')) {
+      const handles = this.data.map(task => task.handle)
+      const selected = this._selectedHandles.filter(handle =>
+        handles.includes(handle)
+      )
+      if (selected.length !== this._selectedHandles.length) {
+        this._selectedHandles = selected
+      }
+    }
   }
 
   render() {
     return html`
-      ${this._renderFilters()}
-      ${this.appState.permissions.canEdit ? this._renderTaskBar() : ''}
-      ${this._renderTaskList(this.data)}
+      <grampsjs-filters
+        .appState="${this.appState}"
+        .definitions="${[tagFilter(s => this._(s))]}"
+        namespace="sources"
+      ></grampsjs-filters>
+      ${this._canEdit ? this._renderBatchToolbar() : ''}
+      ${this.data.length === 0 && !this.loading
+        ? html`<p class="empty">${this._('None')}</p>`
+        : html`<div class="tasks-list">
+            ${this.data.map(task => this._renderTask(task))}
+          </div>`}
     `
   }
 
-  _renderFilters() {
+  _renderBatchToolbar() {
+    const count = this._selectedHandles.length
     return html`
-      <div class="filters">
-        <grampsjs-filters
-          .appState="${this.appState}"
-          .definitions="${[tagFilter(s => this._(s))]}"
-        ></grampsjs-filters>
-      </div>
-    `
-  }
-
-  _renderTaskBar() {
-    return html`
-      <div class="taskbar">
-        <md-checkbox
-          id="select-all"
-          @change="${this._handleSelectAll}"
-          ?checked=${this._selected.length > 0}
-        ></md-checkbox>
-        <div style="position: relative; display: inline-block;">
-          <md-outlined-button
-            id="prio-btn"
-            class="edit"
-            ?disabled="${this._selected.length === 0}"
-            @click="${this._handleSetPrioClick}"
-            >${this._('Set Priority')}</md-outlined-button
-          >
-          <md-menu id="prio-menu" anchor="prio-btn">
-            <md-menu-item @click="${() => this._handlePrioSet('1')}">
-              <div slot="headline">${this._('High')}</div>
-            </md-menu-item>
-            <md-menu-item @click="${() => this._handlePrioSet('5')}">
-              <div slot="headline">${this._('Medium')}</div>
-            </md-menu-item>
-            <md-menu-item @click="${() => this._handlePrioSet('9')}">
-              <div slot="headline">${this._('Low')}</div>
-            </md-menu-item>
-          </md-menu>
-        </div>
-        <div style="position: relative; display: inline-block;">
-          <md-outlined-button
-            id="status-btn"
-            class="edit"
-            ?disabled="${this._selected.length === 0}"
-            @click="${this._handleSetStatusClick}"
-            >${this._('Set Status')}</md-outlined-button
-          >
-          <md-menu id="status-menu" anchor="status-btn">
-            <md-menu-item @click="${() => this._handleStatusSet('Open')}">
-              <div slot="headline">${this._('Open')}</div>
-            </md-menu-item>
-            <md-menu-item
-              @click="${() => this._handleStatusSet('In Progress')}"
-            >
-              <div slot="headline">${this._('In Progress')}</div>
-            </md-menu-item>
-            <md-menu-item @click="${() => this._handleStatusSet('Blocked')}">
-              <div slot="headline">${this._('Blocked')}</div>
-            </md-menu-item>
-            <md-menu-item @click="${() => this._handleStatusSet('Done')}">
-              <div slot="headline">${this._('Done')}</div>
-            </md-menu-item>
-          </md-menu>
+      <div class="batch-toolbar">
+        <span class="selection-count">
+          <md-checkbox
+            ?checked="${count > 0 && count === this.data.length}"
+            ?indeterminate="${count > 0 && count < this.data.length}"
+            aria-label="${this._('_Select All')}"
+            @change="${this._handleSelectAll}"
+          ></md-checkbox>
+          <span>${this._('%s selected', count)}</span>
+        </span>
+        <div class="batch-actions">
+          ${this._renderActionMenu(
+            'prio',
+            this._('Set Priority'),
+            TASK_PRIORITIES.map(priority => ({
+              ...priority,
+              icon: PRIORITY_ICONS[priority.label],
+            })),
+            'Priority'
+          )}
+          ${this._renderActionMenu(
+            'status',
+            this._('Set Status'),
+            TASK_STATUSES.map(status => ({
+              label: status,
+              value: status,
+              // done tasks fade in the list, but not the option in the menu
+              icon:
+                status === 'Done'
+                  ? {
+                      ...STATUS_ICONS.Done,
+                      color: 'var(--grampsjs-task-done-solid)',
+                    }
+                  : STATUS_ICONS[status],
+            })),
+            'Status'
+          )}
         </div>
       </div>
     `
   }
 
-  _handlePrioSet(value) {
-    if (value) {
-      this._updateAttributes(this._selected, 'Priority', value)
-    }
-    this._selected = []
-  }
-
-  _handleSetPrioClick() {
-    const menu = this.renderRoot.getElementById('prio-menu')
-    menu.open = true
-  }
-
-  _handleStatusSet(value) {
-    if (value) {
-      this._updateAttributes(this._selected, 'Status', value)
-    }
-    this._selected = []
-  }
-
-  _handleSetStatusClick() {
-    const menu = this.renderRoot.getElementById('status-menu')
-    menu.open = true
-  }
-
-  _renderTaskList(data) {
+  // items are {label, value, icon}, with an icon from STATUS_ICONS or
+  // PRIORITY_ICONS
+  _renderActionMenu(id, label, items, attribute) {
     return html`
-      <div class="tasks-list" id="all-tasks">
-        ${data.map((obj, i) => this._renderTask(obj, i))}
+      <div class="menu-anchor">
+        <md-outlined-button
+          id="${id}-btn"
+          ?disabled="${this._selectedHandles.length === 0}"
+          @click="${() => {
+            this.renderRoot.getElementById(`${id}-menu`).open = true
+          }}"
+          >${label}</md-outlined-button
+        >
+        <md-menu id="${id}-menu" anchor="${id}-btn">
+          ${items.map(
+            item => html`
+              <md-menu-item
+                @click="${() => this._updateAttribute(attribute, item.value)}"
+              >
+                <grampsjs-icon
+                  slot="start"
+                  path="${item.icon.path}"
+                  color="${item.icon.color ?? nothing}"
+                  height="20"
+                  width="20"
+                ></grampsjs-icon>
+                <div slot="headline">${this._(item.label)}</div>
+              </md-menu-item>
+            `
+          )}
+        </md-menu>
       </div>
     `
   }
 
-  _handleItemCheck(e, i) {
-    if (e.target.checked) {
-      if (!this._selected.includes(i)) {
-        this._selected = [...this._selected, i]
-      }
-    } else {
-      this._selected = this._selected.filter(s => s !== i)
-    }
+  _renderTask(task) {
+    const status = taskAttribute(task, 'Status')
+    const selected = this._selectedHandles.includes(task.handle)
+    const content = html`
+      <div class="item-content">
+        <div class="status-icon">${this._statusIcon(status, task.handle)}</div>
+        <div class="title">
+          <a
+            class="${classMap({
+              'title-link': true,
+              strike: status === 'Done',
+            })}"
+            href="/task/${task.gramps_id}"
+            >${task.title}</a
+          >
+          <grampsjs-tags-small
+            .data="${task.extended.tags.filter(tag => tag.name !== 'ToDo')}"
+          ></grampsjs-tags-small>
+        </div>
+      </div>
+      <div class="task-meta">
+        <span class="prio-icon"
+          >${this._priorityIcon(
+            taskAttribute(task, 'Priority'),
+            task.handle
+          )}</span
+        >
+      </div>
+    `
+    // the title link is the keyboard target, so the row needs no key handler
+    // eslint-disable-next-line lit-a11y/click-events-have-key-events
+    return html`<div
+      class="${classMap({'task-item': true, selected})}"
+      @click="${e => this._handleRowClick(e, task)}"
+    >
+      ${this._canEdit
+        ? html`<md-checkbox
+            ?checked="${selected}"
+            aria-label="${task.title}"
+            @change="${() => this._toggleSelected(task.handle)}"
+          ></md-checkbox>`
+        : ''}
+      ${content}
+    </div>`
   }
 
-  _handleSelectAll() {
-    if (this._selected.length === 0) {
-      this._selected = [...Array(this.data.length).keys()]
-    } else {
-      this._selected = []
-    }
-  }
-
-  // eslint-disable-next-line class-methods-use-this
   _statusIcon(status, handle) {
     const id = `status-icon-${handle}`
-    const icons = {
-      Open: html`<grampsjs-icon
-        path="${mdiRadioboxBlank}"
-        color="var(--grampsjs-task-open)"
-        id="${id}"
-        height="20"
-        width="20"
-      ></grampsjs-icon>`,
-      'In Progress': html`<grampsjs-icon
-        path="${mdiTimelapse}"
-        color="var(--grampsjs-task-progress)"
-        id="${id}"
-        height="20"
-        width="20"
-      ></grampsjs-icon>`,
-      Blocked: html`<grampsjs-icon
-        path="${mdiMinusCircle}"
-        color="var(--grampsjs-alert-error-font-color)"
-        id="${id}"
-        height="20"
-        width="20"
-      ></grampsjs-icon>`,
-      Done: html`<grampsjs-icon
-        path="${mdiCheckCircle}"
-        color="var(--grampsjs-task-done)"
-        id="${id}"
-        height="20"
-        width="20"
-      ></grampsjs-icon>`,
-      unknown: html`<grampsjs-icon
-        path="${mdiHelp}"
-        id="${id}"
-        height="20"
-        width="20"
-      ></grampsjs-icon>`,
-    }
-    const icon = icons[status] || icons.unknown
+    const icon = STATUS_ICONS[status] ?? {path: mdiHelp}
     return html`
-      ${icon}
+      <grampsjs-icon
+        path="${icon.path}"
+        color="${icon.color ?? nothing}"
+        id="${id}"
+        height="20"
+        width="20"
+      ></grampsjs-icon>
       <grampsjs-tooltip for="${id}" .appState="${this.appState}"
-        >${this._(status)}</grampsjs-tooltip
+        >${this._(status ?? '')}</grampsjs-tooltip
       >
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _priorityIcon(priority, handle) {
-    const id = `priority-icon-${handle}`
-    let label = ''
-    if (priority > 5) {
-      label = 'Low'
-    } else if (priority === '5') {
-      label = 'Medium'
-    } else if (priority < 5) {
-      label = 'High'
-    } else {
+    const label = priorityLabel(priority)
+    if (!label) {
       return ''
     }
-    const icons = {
-      Low: html`<grampsjs-icon
-        path="${mdiChevronDoubleDown}"
-        color="var(--grampsjs-alert-success-font-color)"
-        id="${id}"
-        height="20"
-        width="20"
-      ></grampsjs-icon>`,
-      Medium: html`<grampsjs-icon
-        path="${mdiAdjust}"
-        id="${id}"
-        height="20"
-        width="20"
-      ></grampsjs-icon>`,
-      High: html`<grampsjs-icon
-        path="${mdiChevronDoubleUp}"
-        color="var(--grampsjs-alert-error-font-color)"
-        id="${id}"
-        height="20"
-        width="20"
-      ></grampsjs-icon>`,
-    }
-    const icon = icons[label]
+    const id = `priority-icon-${handle}`
+    const icon = PRIORITY_ICONS[label]
     return html`
       <span class="priority-label">
-        ${icon}
+        <grampsjs-icon
+          path="${icon.path}"
+          color="${icon.color ?? nothing}"
+          id="${id}"
+          height="20"
+          width="20"
+        ></grampsjs-icon>
         <grampsjs-tooltip for="${id}" .appState="${this.appState}"
           >${this._('Priority')}: ${this._(label)}</grampsjs-tooltip
         >
@@ -429,63 +415,36 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  _getAttribute(obj, key) {
-    return obj.attribute_list.filter(att => att.type === key)[0]?.value
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _renderTask(obj, i) {
-    const status = this._getAttribute(obj, 'Status')
-    const priority = this._getAttribute(obj, 'Priority')
-    return html`
-      <div
-        class="task-item"
-        @keydown="${e => this._handleListKeyDown(e, obj.gramps_id)}"
-      >
-        <md-checkbox
-          ?checked="${this._selected.includes(i)}"
-          @change="${e => this._handleItemCheck(e, i)}"
-        ></md-checkbox>
-        <div class="item-content">
-          <div class="status-icon">${this._statusIcon(status, obj.handle)}</div>
-          <div class="title">
-            <span
-              class="${classMap({
-                link: true,
-                strike: status === 'Done',
-              })}"
-              @click="${e => this._handleTitleClick(e, obj.gramps_id)}"
-              @keydown="${clickKeyHandler}"
-              >${obj.title}</span
-            >
-            <grampsjs-tags-small
-              .data="${obj.extended.tags.filter(tag => tag.name !== 'ToDo')}"
-            ></grampsjs-tags-small>
-          </div>
-        </div>
-        <div class="task-meta">
-          <span class="prio-icon"
-            >${this._priorityIcon(priority, obj.handle)}</span
-          >
-        </div>
-      </div>
-    `
-  }
-
-  _handleTitleClick(e, grampsId) {
-    fireEvent(this, 'nav', {path: `task/${grampsId}`})
-    e.stopPropagation()
-  }
-
-  _handleListKeyDown(e, grampsId) {
-    if (e.key === 'ArrowRight') {
-      fireEvent(this, 'nav', {path: `task/${grampsId}`})
+  // clicks on the title link and the checkbox are left to them
+  _handleRowClick(e, task) {
+    const path = e.composedPath()
+    const inRow = path.slice(0, path.indexOf(e.currentTarget))
+    if (inRow.some(node => ['A', 'MD-CHECKBOX'].includes(node.tagName))) {
+      return
     }
+    fireEvent(this, 'nav', {path: `task/${task.gramps_id}`})
   }
 
-  async _updateAttributes(indices, key, value) {
-    const objects = this.data.filter((obj, ind) => indices.includes(ind))
+  _toggleSelected(handle) {
+    this._selectedHandles = this._selectedHandles.includes(handle)
+      ? this._selectedHandles.filter(h => h !== handle)
+      : [...this._selectedHandles, handle]
+  }
+
+  _handleSelectAll() {
+    this._selectedHandles =
+      this._selectedHandles.length === this.data.length
+        ? []
+        : this.data.map(task => task.handle)
+  }
+
+  // Each update sends the whole task, so a second action before the list
+  // reloads would undo the first; clearing the selection prevents that
+  _updateAttribute(key, value) {
+    const objects = this.data.filter(task =>
+      this._selectedHandles.includes(task.handle)
+    )
+    this._selectedHandles = []
     fireEvent(this, 'tasks:update-attribute', {objects, key, value})
   }
 }

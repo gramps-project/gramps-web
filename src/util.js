@@ -48,6 +48,10 @@ import {
   mdiRoad,
   mdiBarn,
   mdiBookOpenVariant,
+  mdiFile,
+  mdiFileMusic,
+  mdiFileVideo,
+  mdiMap,
 } from '@mdi/js'
 import {renderIconSvg, ringsIconPath} from './icons.js'
 import './components/GrampsjsIcon.js'
@@ -402,6 +406,19 @@ export const noteTypeStrings = {
   27: 'Analysis',
 }
 
+// First line of a note's text, shortened to 100 characters
+function noteFirstLine(note) {
+  const firstLine = note?.text?.string?.match(/[^\r\n]+/)?.[0]?.trim() || ''
+  return firstLine.length > 100 ? `${firstLine.slice(0, 100)}…` : firstLine
+}
+
+// Untranslated note type
+function noteTypeString(note) {
+  return typeof note?.type === 'string'
+    ? note.type
+    : note?.type?.string || noteTypeStrings[note?.type?.value] || ''
+}
+
 export function objectDescription(type, obj, strings) {
   switch (type) {
     case 'person':
@@ -430,12 +447,8 @@ export function objectDescription(type, obj, strings) {
     case 'repository':
       return html`${getName(obj, type) || type}`
     case 'note':
-      return html`${translate(
-        strings,
-        typeof obj.type === 'string'
-          ? obj.type
-          : obj.type.string || noteTypeStrings[obj.type.value] || type
-      )}`
+      return html`${noteFirstLine(obj) ||
+      translate(strings, noteTypeString(obj) || type)}`
     case 'media':
       return html`${getName(obj, type) || translate(strings, 'Media Object')}`
     case 'tag':
@@ -445,21 +458,27 @@ export function objectDescription(type, obj, strings) {
   }
 }
 
+// Event profile as "<symbol> <date>, <place>"; empty without date and place
+function eventSummary(symbol, eventProfile) {
+  const parts = [
+    eventProfile?.date,
+    eventProfile?.place_name || eventProfile?.place,
+  ].filter(Boolean)
+  return parts.length ? `${symbol} ${parts.join(', ')}` : ''
+}
+
 export function objectDetail(type, obj, strings, settings = {}) {
   const symbols = getSymbols(settings, value => translate(strings, value))
   switch (type) {
     case 'person':
-      return `
-    ${
-      obj?.profile?.birth?.date
-        ? `${symbols.birthSymbol} ${obj.profile.birth.date}`
-        : ''
-    }${obj?.profile?.birth?.place && obj?.profile?.birth?.date ? ', ' : ''}${
-        obj?.profile?.birth?.place_name || obj?.profile?.birth?.place || ''
-      }
-    `
-    // case 'family':
-    //   return ''
+      return [
+        eventSummary(symbols.birthSymbol, obj?.profile?.birth),
+        eventSummary(symbols.deathSymbol, obj?.profile?.death),
+      ]
+        .filter(Boolean)
+        .join(' ')
+    case 'family':
+      return eventSummary(symbols.marriageSymbol, obj?.profile?.marriage)
     case 'event':
       return `
     ${obj?.profile?.date || ''}${
@@ -470,10 +489,10 @@ export function objectDetail(type, obj, strings, settings = {}) {
       return `
     ${obj?.profile?.type ? obj.profile.type : ''}
     `
-    // case 'source':
-    //   return ''
-    // case 'citation':
-    //   return ''
+    case 'source':
+      return obj?.author || obj?.profile?.author || ''
+    case 'citation':
+      return obj?.profile?.date || ''
     case 'repository':
       return `
     ${
@@ -486,8 +505,11 @@ export function objectDetail(type, obj, strings, settings = {}) {
     }
     `
     case 'note': {
-      const firstLine = obj?.text?.string?.match(/[^\r\n]+/)?.[0]?.trim() || ''
-      return firstLine.length > 100 ? `${firstLine.slice(0, 100)}…` : firstLine
+      // The type is the title of an empty note; General says nothing
+      const noteType = noteTypeString(obj)
+      return noteFirstLine(obj) && noteType !== 'General'
+        ? translate(strings, noteType)
+        : ''
     }
     case 'media':
       if (obj.mime?.startsWith('audio')) {
@@ -515,6 +537,13 @@ export function prettyTimeDiffTimestamp(timestamp, locale) {
   const dayjsLocale = locale === 'pt_PT' ? 'pt' : locale
   dayjs.locale(dayjsLocale.toLowerCase().replace('_', '-'))
   return dayjs.unix(timestamp).fromNow()
+}
+
+// Search query matching the last word as a prefix. Queries ending in
+// anything but a letter or digit (a wildcard, phrase quote, bracket or
+// space) are sent as typed.
+export function prefixSearchQuery(query) {
+  return /[\p{L}\p{N}]$/u.test(query) ? `${query}*` : query
 }
 
 export function debounce(func, wait) {
@@ -557,15 +586,28 @@ export function getNameFromProfile(obj, type) {
 // deleted, or they would point to a place that no longer exists. Places that
 // are deleted along with it, including itself, don't count.
 export async function getEnclosingPlaces(appState, handles) {
-  const deleted = new Set(handles)
   const results = await Promise.all(
     handles.map(handle =>
       appState.apiGet(`/api/places/${handle}?backlinks=true`)
     )
   )
-  return handles.filter((handle, i) =>
-    (results[i]?.data?.backlinks?.place ?? []).some(ref => !deleted.has(ref))
+  return enclosingPlaces(
+    handles.map((handle, i) => ({
+      handle,
+      backlinks: results[i]?.data?.backlinks,
+    }))
   )
+}
+
+// Returns the handles of the places, given with their backlinks, that
+// enclose a place outside of them
+export function enclosingPlaces(places) {
+  const deleted = new Set(places.map(place => place.handle))
+  return places
+    .filter(place =>
+      (place.backlinks?.place ?? []).some(ref => !deleted.has(ref))
+    )
+    .map(place => place.handle)
 }
 
 export function fireEvent(target, name, detail) {
@@ -594,6 +636,17 @@ export function handleAppLinkClick(e, path) {
   if (isNewTabClick(e)) return
   e.preventDefault()
   fireEvent(e.currentTarget, 'nav', {path})
+}
+
+// Shows `message` under a required md text field while it is empty and
+// clears it once the field has a value. Give the field supporting-text="&nbsp;"
+// so the message line keeps its height and the layout does not shift. Focus
+// stays where the user put it, so other fields can be filled in first.
+export function reportRequiredField(field, message) {
+  // eslint-disable-next-line no-param-reassign
+  field.errorText = message
+  // eslint-disable-next-line no-param-reassign
+  field.error = !field.value
 }
 
 function uuidv4() {
@@ -746,6 +799,45 @@ const MIME_BY_EXTENSION = {
   kmz: 'application/vnd.google-earth.kmz',
 }
 
+const GEODATA_MIMES = [
+  'application/geo+json',
+  'application/gpx+xml',
+  'application/vnd.google-earth.kml+xml',
+  'application/vnd.google-earth.kmz',
+]
+
+export function isGeodataMime(mime) {
+  return GEODATA_MIMES.includes(mime)
+}
+
+// Whether the backend makes thumbnails for media of type `mime`. Media of
+// unknown type count as images.
+export function hasThumbnail(mime) {
+  return (
+    !mime ||
+    mime.startsWith('image') ||
+    mime.startsWith('video') ||
+    mime === 'application/pdf'
+  )
+}
+
+// The icon for media of type `mime`
+export function mediaIconPath(mime) {
+  if (!mime || mime.startsWith('image')) {
+    return objectIconPath.media
+  }
+  if (mime.startsWith('audio')) {
+    return mdiFileMusic
+  }
+  if (mime.startsWith('video')) {
+    return mdiFileVideo
+  }
+  if (isGeodataMime(mime)) {
+    return mdiMap
+  }
+  return mdiFile
+}
+
 export function fileWithMimeType(file) {
   const extension = file.name.split('.').pop().toLowerCase()
   const type = MIME_BY_EXTENSION[extension]
@@ -765,6 +857,17 @@ export const reportCategoryIcon = {
 
 export function arrayEqual(A, B) {
   return A.length === B.length && A.every(e => B.includes(e))
+}
+
+// move the element with index i in the array to index j
+export function moveTo(array, i, j) {
+  if (i < 0 || i >= array.length || j < 0 || j >= array.length || i === j) {
+    return array
+  }
+  const result = [...array]
+  const [element] = result.splice(i, 1)
+  result.splice(j, 0, element)
+  return result
 }
 
 function _toNumber(value) {
@@ -1132,6 +1235,12 @@ export function getTaskResult(status) {
   } catch {
     return {}
   }
+}
+
+// Returns the error message of a failed task: the message an aborted task
+// stores in its result, else the status info
+export function taskErrorMessage(status) {
+  return status?.result_object?.error?.message || status?.info || ''
 }
 
 const RATE_LIMIT_UNITS = [

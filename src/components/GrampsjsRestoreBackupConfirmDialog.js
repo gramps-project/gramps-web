@@ -2,7 +2,7 @@ import {html, css, LitElement} from 'lit'
 import '@material/web/dialog/dialog'
 import '@material/web/button/text-button'
 
-import {sharedStyles} from '../SharedStyles.js'
+import {sharedStyles, buttonColorStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 const namespaceLabels = {
@@ -24,6 +24,7 @@ class GrampsjsRestoreBackupConfirmDialog extends GrampsjsAppStateMixin(
   static get styles() {
     return [
       sharedStyles,
+      buttonColorStyles,
       css`
         /* md-dialog's own :host rule caps max-height at 560px, which forces
            scrolling even on tall screens once the object-type table has
@@ -72,9 +73,7 @@ class GrampsjsRestoreBackupConfirmDialog extends GrampsjsAppStateMixin(
         }
 
         .danger-button {
-          --md-text-button-label-text-color: var(
-            --grampsjs-alert-error-font-color
-          );
+          --grampsjs-button-color: var(--grampsjs-alert-error-font-color);
         }
       `,
     ]

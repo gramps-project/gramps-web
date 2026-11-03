@@ -38,6 +38,9 @@ export default {
         swSrc: 'src/sw.js',
         swDest: path.join(outputDir, 'sw.js'),
         globDirectory: outputDir,
+        // the main bundle is larger than Workbox's default limit of 2 MiB,
+        // which would leave it out of the precache
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         globPatterns: ['**/*.{html,js,css,webmanifest}'],
         globIgnores: [
           'polyfills/*.js',

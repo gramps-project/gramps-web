@@ -1,5 +1,6 @@
 import {html, css, LitElement} from 'lit'
 import '@material/web/button/outlined-button'
+import '@material/web/progress/circular-progress.js'
 import {mdiGoogle, mdiMicrosoft, mdiOpenid} from '@mdi/js'
 
 import './GrampsjsIcon.js'
@@ -20,6 +21,14 @@ class GrampsjsOidcButton extends LitElement {
 
         grampsjs-icon {
           margin-right: 8px;
+        }
+
+        md-circular-progress {
+          --md-circular-progress-size: 22px;
+          --md-circular-progress-active-indicator-width: 18;
+          width: 22px;
+          height: 22px;
+          margin: -2px 6px -2px -2px;
         }
       `,
     ]
@@ -81,9 +90,14 @@ class GrampsjsOidcButton extends LitElement {
     return html`
       <md-outlined-button
         @click="${this._handleClick}"
-        ?disabled="${this.disabled || this.loading}"
+        ?disabled="${this.disabled}"
       >
-        ${this._getProviderIcon()}
+        ${this.loading
+          ? html`<md-circular-progress
+              slot="icon"
+              indeterminate
+            ></md-circular-progress>`
+          : this._getProviderIcon()}
         ${this.loading ? this.signingInText : this.buttonText}
       </md-outlined-button>
     `

@@ -319,10 +319,6 @@ export const sharedStyles = css`
     right: 10px;
   }
 
-  h2.editable:hover {
-    background-color: var(--grampsjs-editable-title-hover-background-color);
-  }
-
   .monospace {
     font-family: var(--grampsjs-mono-font-family);
     border: 1px solid var(--grampsjs-body-font-color-15);
@@ -442,6 +438,27 @@ export const personListItemStyles = [
   `,
 ]
 
+/* Items of a container reordered with DragReorderController, which marks the
+   container with the `reorderable` class */
+export const reorderableStyles = css`
+  .reorderable > * {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .reorderable > [dragging] {
+    position: relative;
+    z-index: 1;
+    cursor: grabbing;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .reorderable > [drag-shift] {
+    transition: transform 0.15s ease;
+  }
+`
+
 /* Drives all six md-icon-button colour tokens from one variable. An inherited
    `color` does not reach the icon, so include these styles and set:
 
@@ -482,6 +499,117 @@ export const iconButtonColorStyles = css`
     --md-icon-button-disabled-icon-opacity: var(
       --grampsjs-icon-button-disabled-opacity,
       0.38
+    );
+  }
+`
+
+/* Drives the colour tokens of md-text-button and md-outlined-button (label,
+   icon, state layer and outline) from one variable. Include these styles and
+   set:
+
+     .danger-button {
+       --grampsjs-button-color: var(--grampsjs-alert-error-font-color);
+     }
+
+   The variable inherits, so setting it on an ancestor recolours every text
+   and outlined button below it. Slotted icons follow the label when they use
+   `color="currentColor"`. Disabled buttons keep md's own colours, and every
+   fallback is md's default, so a button that sets nothing keeps the standard
+   appearance.
+
+   These styles match by tag name, so they stay opt-in. */
+export const buttonColorStyles = css`
+  md-text-button {
+    --md-text-button-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-hover-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-focus-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-pressed-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-hover-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-focus-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-pressed-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-hover-state-layer-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-text-button-pressed-state-layer-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+  }
+
+  md-outlined-button {
+    --md-outlined-button-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-hover-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-focus-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-pressed-label-text-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-hover-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-focus-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-pressed-icon-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-hover-state-layer-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-pressed-state-layer-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-primary)
+    );
+    --md-outlined-button-outline-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-outline)
+    );
+    --md-outlined-button-pressed-outline-color: var(
+      --grampsjs-button-color,
+      var(--md-sys-color-outline)
     );
   }
 `

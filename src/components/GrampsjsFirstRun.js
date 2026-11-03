@@ -1,8 +1,7 @@
 import {html, css, LitElement} from 'lit'
 
-import '@material/mwc-button'
-import '@material/mwc-textfield'
-import '@material/mwc-circular-progress'
+import '@material/web/button/filled-button.js'
+import '@material/web/textfield/outlined-text-field.js'
 
 import {mdiCheckCircle} from '@mdi/js'
 import {sharedStyles} from '../SharedStyles.js'
@@ -43,7 +42,7 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
           padding: 3em 1.5em;
         }
 
-        mwc-textfield {
+        md-outlined-text-field {
           width: 100%;
           margin-bottom: 0.7em;
         }
@@ -68,9 +67,13 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
         }
 
         .progress {
-          position: relative;
-          top: 0.2em;
-          margin-left: 0.5em;
+          display: flex;
+          align-items: center;
+          gap: 0.5em;
+        }
+
+        .progress grampsjs-progress-indicator {
+          display: flex;
         }
       `,
     ]
@@ -140,49 +143,44 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
 
           <p>${this._('Enter the details for the admin user.')}</p>
 
-          <mwc-textfield
+          <md-outlined-text-field
             @input="${this.checkValidity}"
-            outlined
             required
             autocapitalize="off"
             id="username"
             label="${this._('Username')}"
             type="text"
-          ></mwc-textfield>
-          <mwc-textfield
+          ></md-outlined-text-field>
+          <md-outlined-text-field
             @input="${this._handlePasswordInput}"
-            outlined
             required
             autocapitalize="off"
             id="password"
             label="${this._('Password')}"
             type="password"
-          ></mwc-textfield>
-          <mwc-textfield
+          ></md-outlined-text-field>
+          <md-outlined-text-field
             @input="${this._handlePasswordInput}"
-            outlined
             required
             autocapitalize="off"
             id="password2"
             label="${this._('Confirm Password')}"
             type="password"
-          ></mwc-textfield>
-          <mwc-textfield
+          ></md-outlined-text-field>
+          <md-outlined-text-field
             @input="${this.checkValidity}"
-            outlined
             required
             autocapitalize="off"
             id="email"
             label="${this._('E-mail')}"
             type="email"
-          ></mwc-textfield>
-          <mwc-textfield
+          ></md-outlined-text-field>
+          <md-outlined-text-field
             @input="${this.checkValidity}"
-            outlined
             id="full_name"
             label="${this._('Full Name')}"
             type="text"
-          ></mwc-textfield>
+          ></md-outlined-text-field>
 
           ${this._tree
             ? ''
@@ -193,25 +191,22 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
                     'Choose a name for your family tree. You can change this later.'
                   )}
                 </p>
-                <mwc-textfield
-                  outlined
+                <md-outlined-text-field
                   id="tree_name"
                   label="${this._('Tree name')}"
                   type="text"
                   value="${this._('My Family Tree')}"
-                ></mwc-textfield>
+                ></md-outlined-text-field>
               `}
           <h3>${this._('Submit')}</h3>
 
-          <mwc-button
-            raised
-            label="${this._('Submit')}"
-            type="submit"
+          <md-filled-button
             @click="${this._submit}"
             ?disabled=${this.stateUser !== STATE_READY &&
             this.stateUser !== STATE_ERROR}
           >
-          </mwc-button>
+            ${this._('Submit')}
+          </md-filled-button>
 
           <p>
             ${this._showProgress(
@@ -234,14 +229,9 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
               ? 'visible'
               : 'hidden'};"
           >
-            <mwc-button
-              raised
-              label="start"
-              type="submit"
-              id="start-btn"
-              @click="${this._done}"
-            >
-            </mwc-button>
+            <md-filled-button id="start-btn" @click="${this._done}">
+              ${this._('Start')}
+            </md-filled-button>
           </div>
         </div>
       </div>
@@ -252,9 +242,8 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
   _showProgress(text, status, message) {
     const progress = status === STATE_DONE ? 1 : -1
     return html`
-      <br />
-      ${text}
       <span class="progress">
+        ${text}
         <grampsjs-progress-indicator
           ?open="${status !== STATE_INITIAL && status !== STATE_READY}"
           ?error="${status === STATE_ERROR}"

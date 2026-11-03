@@ -110,6 +110,7 @@ export class RelationshipChart extends ChartCanvas {
   constructor() {
     super()
     this._rootHandle = null
+    this._shadowHandles = new Set()
   }
 
   get boxSize() {
@@ -120,8 +121,11 @@ export class RelationshipChart extends ChartCanvas {
     return 'node'
   }
 
-  prepare(layout) {
+  // Besides the root person's card, the cards of the people with
+  // `shadowHandles` get a shadow
+  prepare(layout, {shadowHandles = []} = {}) {
     this._rootHandle = layout.root?.handle ?? null
+    this._shadowHandles = new Set(shadowHandles)
     return {
       bounds: layout.bounds,
       rootHandle: this._rootHandle,
@@ -162,6 +166,13 @@ export class RelationshipChart extends ChartCanvas {
 
   isRootPerson(node) {
     return this.isPerson(node) && node.handle === this._rootHandle
+  }
+
+  hasShadow(node) {
+    return (
+      this.isRootPerson(node) ||
+      (this.isPerson(node) && this._shadowHandles.has(node.handle))
+    )
   }
 
   linkEnds({route}) {

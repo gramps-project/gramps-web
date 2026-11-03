@@ -1,7 +1,5 @@
 import {html} from 'lit'
 
-import '@material/mwc-textfield'
-
 import '../components/GrampsjsFormSelectDate.js'
 import '../components/GrampsjsFormSelectObjectList.js'
 import '../components/GrampsjsFormSelectType.js'

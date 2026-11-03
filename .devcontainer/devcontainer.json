@@ -4,6 +4,9 @@
     "context": "..",
     "dockerfile": "Dockerfile"
   },
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
   "postCreateCommand": "npm install",
   "postStartCommand": "",
   "forwardPorts": [8001],

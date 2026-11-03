@@ -1,12 +1,13 @@
 import {html, css} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
-import '@material/mwc-textfield'
+import '@material/web/textfield/filled-text-field.js'
 
 import '../components/GrampsjsFormSelectObjectList.js'
 import '../components/GrampsjsFormSelectType.js'
 import '../components/GrampsjsFormPrivate.js'
 import '../components/GrampsjsFormString.js'
+import {reportRequiredField} from '../util.js'
 
 const dataDefault = {_class: 'Source', reporef_list: []}
 
@@ -32,13 +33,14 @@ export const GrampsjsNewSourceMixin = superClass =>
       return html`
         <h3 class="label">${this._('Title')}</h3>
         <p>
-          <mwc-textfield
+          <md-filled-text-field
             required
-            validationMessage="${this._('This field is mandatory')}"
+            supporting-text="&nbsp;"
             style="width:100%;"
             @input="${this.handleName}"
+            @blur="${this.handleName}"
             id="source-name"
-          ></mwc-textfield>
+          ></md-filled-text-field>
         </p>
 
         <h3 class="label">${this._('Author')}</h3>
@@ -112,6 +114,7 @@ export const GrampsjsNewSourceMixin = superClass =>
     }
 
     handleName(e) {
+      reportRequiredField(e.target, this._('This field is mandatory'))
       this.checkFormValidity()
       this.data = {...this.data, title: e.target.value.trim()}
     }
@@ -147,7 +150,6 @@ export const GrampsjsNewSourceMixin = superClass =>
 
     checkFormValidity() {
       const name = this.shadowRoot.getElementById('source-name')
-      name?.reportValidity()
       try {
         this.isFormValid = name.validity.valid && !!name.value.trim()
       } catch {

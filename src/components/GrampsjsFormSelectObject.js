@@ -65,6 +65,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
       initialQuery: {type: String},
       iconPath: {type: String},
       allowNew: {type: Boolean},
+      filter: {attribute: false},
       _newObjectDialogOpen: {type: Boolean, state: true},
       _creatingObject: {type: Boolean, state: true},
     }
@@ -81,6 +82,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
     this.initialQuery = ''
     this.iconPath = mdiLinkPlus
     this.allowNew = false
+    this.filter = null
     this._newObjectDialogOpen = false
     this._creatingObject = false
   }
@@ -96,7 +98,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
           <grampsjs-icon
             slot="icon"
             path="${this.iconPath}"
-            color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+            color="currentColor"
           ></grampsjs-icon>
           ${this.label || this._(btnLabel[this.objectType]) || this._('Select')}
         </md-outlined-button>
@@ -109,7 +111,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
                 <grampsjs-icon
                   slot="icon"
                   path="${mdiPlus}"
-                  color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+                  color="currentColor"
                 ></grampsjs-icon>
                 ${this._(newBtnLabel[this.objectType])}
               </md-outlined-button>
@@ -120,6 +122,7 @@ class GrampsjsFormSelectObject extends GrampsjsAppStateMixin(LitElement) {
       <grampsjs-object-picker-dialog
         objectType="${this.objectType}"
         .excludeHandles="${this._handleList()}"
+        .filter="${this.filter}"
         .appState="${this.appState}"
         @select-object:selected="${this._handleSelected}"
       ></grampsjs-object-picker-dialog>

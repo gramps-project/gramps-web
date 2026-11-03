@@ -3,7 +3,6 @@ Element for selecting a Gramps type
 */
 
 import {html, css, LitElement} from 'lit'
-import '@material/mwc-textfield'
 import '@material/web/select/filled-select.js'
 import '@material/web/select/select-option.js'
 
@@ -29,10 +28,6 @@ class GrampsjsFormUser extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
-        mwc-textfield.fullwidth {
-          width: 100%;
-        }
-
         .hide {
           display: none;
         }

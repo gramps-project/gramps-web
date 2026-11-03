@@ -173,7 +173,7 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
           <grampsjs-icon
             slot="icon"
             path="${mdiDeleteSweep}"
-            color="var(--md-outlined-button-label-text-color, var(--md-sys-color-primary))"
+            color="currentColor"
             height="20"
             width="20"
           ></grampsjs-icon>
@@ -369,6 +369,10 @@ export class GrampsjsViewNotificationLog extends GrampsjsView {
       return ''
     }
     const {info, result_object: resultObject} = n.detail ?? {}
+    const errorMessage = resultObject?.error?.message
+    if (typeof errorMessage === 'string' && errorMessage) {
+      return errorMessage
+    }
     if (typeof info === 'string' && info) {
       return info
     }

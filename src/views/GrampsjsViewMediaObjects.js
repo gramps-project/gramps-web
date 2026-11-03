@@ -2,7 +2,7 @@
 Medias list view
 */
 
-import {html, css} from 'lit'
+import {html, css, nothing} from 'lit'
 import {
   mdiViewList,
   mdiViewGrid,
@@ -28,25 +28,17 @@ import {
 } from '../filterDefinitions.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTooltip.js'
+import './GrampsjsViewMediaLightbox.js'
 import '@material/web/select/filled-select'
 import '@material/web/select/select-option'
 import '@material/web/iconbutton/icon-button.js'
+import '@material/web/checkbox/checkbox.js'
 
 export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
   static get styles() {
     return [
       super.styles,
       css`
-        .controls-row {
-          display: flex;
-          align-items: center;
-          flex-wrap: wrap;
-          column-gap: 16px;
-          row-gap: 12px;
-          padding: 12px 0 4px;
-          margin-bottom: 16px;
-        }
-
         .view-switcher {
           display: flex;
           align-items: center;
@@ -61,11 +53,9 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         .sort-control md-filled-select {
           min-width: 180px;
           --md-filled-select-text-field-container-color: transparent;
-        }
-
-        grampsjs-filters {
-          display: block;
-          margin: 28px 0;
+          --md-filled-select-text-field-container-height: 40px;
+          --md-filled-select-text-field-top-space: 0px;
+          --md-filled-select-text-field-bottom-space: 0px;
         }
 
         /* Gallery (grid) view */
@@ -81,22 +71,71 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         }
 
         .tile {
+          position: relative;
           cursor: pointer;
           border-radius: 6px;
           overflow: hidden;
           aspect-ratio: 1;
         }
 
+        .tile:focus-visible {
+          outline: 2px solid var(--mdc-theme-primary);
+          outline-offset: 2px;
+        }
+
         .tile grampsjs-img {
           display: block;
           width: 100%;
           height: 100%;
+          transition: transform 0.1s ease-in-out;
+        }
+
+        .tile.selected {
+          background-color: var(
+            --md-sys-color-secondary-container,
+            var(--grampsjs-color-shade-240)
+          );
+        }
+
+        .tile.selected grampsjs-img {
+          transform: scale(0.88);
+          border-radius: 4px;
+          overflow: hidden;
+        }
+
+        .tile-check {
+          position: absolute;
+          top: 6px;
+          left: 6px;
+          display: flex;
+          border-radius: 4px;
+          background-color: var(--grampsjs-color-shade-255);
+          pointer-events: none;
+        }
+
+        .tile-check md-checkbox,
+        .batch-toolbar md-checkbox,
+        .media-list-item md-checkbox {
+          --md-checkbox-outline-color: var(--grampsjs-body-font-color-30);
+          --md-checkbox-hover-outline-color: var(--grampsjs-body-font-color-50);
+        }
+
+        .media-list-item md-checkbox {
+          flex-shrink: 0;
+          pointer-events: none;
+        }
+
+        .media-list-item.selected {
+          background-color: var(
+            --md-sys-color-secondary-container,
+            var(--grampsjs-color-shade-240)
+          );
         }
 
         /* List view */
 
         .media-list {
-          margin-top: 8px;
+          margin-top: 20px;
         }
 
         .media-list-item {
@@ -172,21 +211,32 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     ]
   }
 
+  static get properties() {
+    return {
+      _lightboxIndex: {type: Number},
+    }
+  }
+
   constructor() {
     super()
-    this.altView = true
+    // position on the current page of the media shown in the lightbox
+    this._lightboxIndex = 0
+    // 'first' or 'last' while the lightbox waits for the adjacent page
+    this._lightboxPending = null
     this._columns = [
       {name: 'Gramps ID', key: 'grampsId', sortKey: 'gramps_id'},
       {name: 'Type', key: 'mime', sortKey: 'mime'},
       {name: 'Description', key: 'desc', sortKey: 'title'},
+      {name: 'Date', key: 'date', sortKey: 'date'},
       {name: 'Last changed', key: 'change', sortKey: 'change'},
     ]
     this._objectsName = 'media'
   }
 
-  // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
-    return '/api/media/?keys=gramps_id,mime,desc,change,handle,checksum,extended&extend=tag_list'
+    return `/api/media/?locale=${
+      this.appState.i18n.lang || 'en'
+    }&profile=self&keys=gramps_id,mime,desc,change,handle,checksum,profile,extended&extend=tag_list`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -203,31 +253,39 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     return html`
       <h2>${this._('Media')}</h2>
       ${this._renderFilter()}
-      ${this.altView ? this.renderAltView() : this._renderMediaList()}
+      ${this._selectionMode ? this._renderBatchToolbar() : ''}
+      ${this._galleryView ? this.renderAltView() : this._renderMediaList()}
       <grampsjs-pagination
         page="${this._page}"
         pages="${this._pages}"
+        total="${this._totalCount}"
+        pageSize="${this._pageSize}"
         @page:changed="${this._handlePageChanged}"
         .appState="${this.appState}"
       ></grampsjs-pagination>
       ${this.canAdd ? this.renderFab() : ''}
+      <grampsjs-view-media-lightbox
+        active
+        @lightbox:left="${this._handleLightboxLeft}"
+        @lightbox:right="${this._handleLightboxRight}"
+        @rect:clicked="${this._handleRectClick}"
+        handle="${this._rawData[this._lightboxIndex]?.handle}"
+        ?hideLeftArrow="${this._lightboxIndex === 0 && this._page <= 1}"
+        ?hideRightArrow="${this._lightboxIndex >= this._rawData.length - 1 &&
+        this._page >= this._pages}"
+        .appState="${this.appState}"
+      ></grampsjs-view-media-lightbox>
     `
   }
 
-  _renderFilter() {
+  _renderToolbarTrailing() {
     return html`
-      <div class="controls-row">
-        <div class="view-switcher">${this._renderViewButton()}</div>
-        <div class="sort-control">${this._renderSortControl()}</div>
+      <div slot="trailing" class="sort-control">
+        ${this._renderSortControl()}
       </div>
-      <grampsjs-filters
-        @filters:changed="${this._handleFiltersChanged}"
-        .appState="${this.appState}"
-        .definitions="${this.filterDefinitions}"
-        namespace="${this.filterNamespace}"
-        ?errorGql="${this.error}"
-      >
-      </grampsjs-filters>
+      <div slot="trailing" class="view-switcher">
+        ${this._renderViewButton()}
+      </div>
     `
   }
 
@@ -249,10 +307,52 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     ]
   }
 
+  _renderSelectPage() {
+    const selected = this._rawData.filter(row =>
+      this._isSelected(row.handle)
+    ).length
+    return html`
+      <md-checkbox
+        ?checked="${selected === this._rawData.length && selected > 0}"
+        ?indeterminate="${selected > 0 && selected < this._rawData.length}"
+        @change="${this._handleSelectPage}"
+        aria-label="${this._('_Select All')}"
+      ></md-checkbox>
+    `
+  }
+
+  _isSelected(handle) {
+    return this._selectedHandles.includes(handle)
+  }
+
+  _selectedIndices() {
+    return this._rawData
+      .map((row, i) => (this._isSelected(row.handle) ? i : -1))
+      .filter(i => i >= 0)
+  }
+
+  _toggleSelected(index) {
+    const indices = this._selectedIndices()
+    this._handleSelectionChanged({
+      detail: {
+        indices: indices.includes(index)
+          ? indices.filter(i => i !== index)
+          : [...indices, index],
+      },
+    })
+  }
+
+  _handleSelectPage() {
+    const allSelected = this._selectedIndices().length === this._rawData.length
+    this._handleSelectionChanged({
+      detail: {indices: allSelected ? [] : this._rawData.map((_, i) => i)},
+    })
+  }
+
   renderAltView() {
     return html`
       <div class="gallery">
-        ${this._rawData.map(row => this._renderTile(row))}
+        ${this._rawData.map((row, i) => this._renderTile(row, i))}
       </div>
     `
   }
@@ -260,24 +360,35 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
   _renderMediaList() {
     return html`
       <div class="media-list">
-        ${this._rawData.map(row => this._renderMediaListItem(row))}
+        ${this._rawData.map((row, i) => this._renderMediaListItem(row, i))}
       </div>
     `
   }
 
-  _renderMediaListItem(row) {
+  _renderMediaListItem(row, index) {
     if (!row) {
       return ''
     }
+    const selected = this._selectionMode && this._isSelected(row.handle)
     return html`
       <div
-        class="media-list-item"
-        role="button"
+        class="media-list-item${selected ? ' selected' : ''}"
+        role="${this._selectionMode ? 'checkbox' : 'button'}"
+        aria-checked="${this._selectionMode ? String(selected) : nothing}"
         tabindex="0"
         @click="${() =>
-          fireEvent(this, 'nav', {path: `media/${row.gramps_id}`})}"
+          this._selectionMode
+            ? this._toggleSelected(index)
+            : fireEvent(this, 'nav', {path: `media/${row.gramps_id}`})}"
         @keydown="${clickKeyHandler}"
       >
+        ${this._selectionMode
+          ? html`<md-checkbox
+              ?checked="${selected}"
+              tabindex="-1"
+              aria-hidden="true"
+            ></md-checkbox>`
+          : ''}
         <div class="media-list-thumb">
           <grampsjs-img
             handle="${row.handle}"
@@ -289,9 +400,12 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         </div>
         <div class="media-list-content">
           <div class="media-list-title">${row.desc || row.gramps_id}</div>
-          <div class="media-list-meta">${row.mime}</div>
+          ${row.profile?.date
+            ? html`<div class="media-list-meta">${row.profile.date}</div>`
+            : ''}
           <div class="media-list-meta">${row.gramps_id}</div>
           <div class="media-list-meta">
+            ${this._('Last changed')}:
             ${prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang)}
           </div>
           ${row.extended?.tags?.length
@@ -315,10 +429,10 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
   _renderSortControl() {
     const sortKey = this._sort ? this._sort.substring(1) : 'change'
     const isAscending = this._sort.startsWith('+')
-    const iconColor = 'var(--grampsjs-color-icon-selected)'
     return html`
       <md-filled-select
-        label="${this._('Sort by')}"
+        aria-label="${this._('Sort by')}"
+        title="${this._('Sort by')}"
         @change="${this._handleSortKeyChange}"
       >
         ${this._columns
@@ -342,7 +456,6 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         <grampsjs-icon
           path="${isAscending ? mdiSortAscending : mdiSortDescending}"
           height="24"
-          color="${iconColor}"
         ></grampsjs-icon>
       </md-icon-button>
       <grampsjs-tooltip for="btn-sort-direction" .appState="${this.appState}">
@@ -363,26 +476,94 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     this._sort = `${direction}${this._sort.substring(1)}`
   }
 
-  _renderTile(row) {
+  _renderTile(row, index) {
     if (!row) {
       return ''
     }
+    const selected = this._selectionMode && this._isSelected(row.handle)
     return html`
-      <div class="tile">
+      <div
+        class="tile${selected ? ' selected' : ''}"
+        role="${this._selectionMode ? 'checkbox' : 'button'}"
+        aria-checked="${this._selectionMode ? String(selected) : nothing}"
+        aria-label="${row.desc || row.gramps_id}"
+        tabindex="0"
+        @click="${() => this._handleTileClick(index)}"
+        @keydown="${clickKeyHandler}"
+      >
         <grampsjs-img
           handle="${row.handle}"
           size="300"
           square
           mime="${row.mime}"
           checksum="${row.checksum}"
-          @click="${() => this._handleImageClick(row)}"
         ></grampsjs-img>
+        ${this._selectionMode
+          ? html`<div class="tile-check">
+              <md-checkbox
+                ?checked="${selected}"
+                tabindex="-1"
+                aria-hidden="true"
+              ></md-checkbox>
+            </div>`
+          : ''}
       </div>
     `
   }
 
-  _handleImageClick(row) {
-    fireEvent(this, 'nav', {path: `media/${row.gramps_id}`})
+  _handleTileClick(index) {
+    if (this._selectionMode) {
+      this._toggleSelected(index)
+      return
+    }
+    this._lightboxIndex = index
+    this.renderRoot.querySelector('grampsjs-view-media-lightbox')?.open()
+  }
+
+  // At either end of the page, the lightbox moves on to the adjacent page
+  _handleLightboxLeft(e) {
+    if (e.detail?.id !== 'gallery-lightbox' || this._lightboxPending) return
+    if (this._lightboxIndex > 0) {
+      this._lightboxIndex -= 1
+    } else if (this._page > 1) {
+      this._lightboxPending = 'last'
+      this._page -= 1
+    }
+  }
+
+  _handleLightboxRight(e) {
+    if (e.detail?.id !== 'gallery-lightbox' || this._lightboxPending) return
+    if (this._lightboxIndex < this._rawData.length - 1) {
+      this._lightboxIndex += 1
+    } else if (this._page < this._pages) {
+      this._lightboxPending = 'first'
+      this._page += 1
+    }
+  }
+
+  // Picks the media on a newly loaded page before it renders, so the
+  // lightbox never receives the handle at the previous index
+  willUpdate(changed) {
+    super.willUpdate(changed)
+    // the adjacent page has loaded, or failed to load
+    if (this._lightboxPending && changed.has('loading') && !this.loading) {
+      this._lightboxIndex =
+        this._lightboxPending === 'first' ? 0 : this._rawData.length - 1
+      this._lightboxPending = null
+    }
+  }
+
+  _handleRectClick(e) {
+    fireEvent(this, 'nav', {path: e.detail.target})
+  }
+
+  // the view mode is a setting of the browser, shared by all trees
+  get _galleryView() {
+    return this.appState?.settings?.mediaView !== 'list'
+  }
+
+  _setGalleryView(gallery) {
+    this.appState.updateSettings({mediaView: gallery ? 'gallery' : 'list'})
   }
 
   _renderViewButton() {
@@ -392,14 +573,12 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
       <md-icon-button
         id="btn-view-grid"
         aria-label="${this._('Gallery view')}"
-        @click="${() => {
-          this.altView = true
-        }}"
+        @click="${() => this._setGalleryView(true)}"
       >
         <grampsjs-icon
           path="${mdiViewGrid}"
           height="28"
-          color="${this.altView ? activeColor : inactiveColor}"
+          color="${this._galleryView ? activeColor : inactiveColor}"
         ></grampsjs-icon>
       </md-icon-button>
       <grampsjs-tooltip for="btn-view-grid" .appState="${this.appState}">
@@ -408,14 +587,12 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
       <md-icon-button
         id="btn-view-list"
         aria-label="${this._('List view')}"
-        @click="${() => {
-          this.altView = false
-        }}"
+        @click="${() => this._setGalleryView(false)}"
       >
         <grampsjs-icon
           path="${mdiViewList}"
           height="28"
-          color="${!this.altView ? activeColor : inactiveColor}"
+          color="${!this._galleryView ? activeColor : inactiveColor}"
         ></grampsjs-icon>
       </md-icon-button>
       <grampsjs-tooltip for="btn-view-list" .appState="${this.appState}">

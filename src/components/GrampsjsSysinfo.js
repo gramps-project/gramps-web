@@ -53,7 +53,6 @@ export class GrampsjsSysinfo extends GrampsjsAppStateMixin(LitElement) {
           Gramps Web API ${data?.gramps_webapi?.version || '?'}<br />
           Gramps Web Frontend ${version}<br />
           Gramps QL ${data?.gramps_ql?.version || '?'}<br />
-          Sifts ${data?.search?.sifts?.version || '?'}<br />
           locale: ${data?.locale?.language}<br />
           multi-tree: ${data?.server?.multi_tree}<br />
           task queue: ${data?.server?.task_queue}<br />

@@ -35,6 +35,14 @@ describe('notification log: task entries', () => {
       log._failureMessage(failed({info: '', result_object: {code: 1}}))
     ).toBe('')
     expect(
+      log._failureMessage(
+        failed({
+          info: '{"error": {"code": 500, "message": "Import failed"}}',
+          result_object: {error: {code: 500, message: 'Import failed'}},
+        })
+      )
+    ).toBe('Import failed')
+    expect(
       log._failureMessage({source: 'api', type: 'error', detail: {info: 'a'}})
     ).toBe('')
   })

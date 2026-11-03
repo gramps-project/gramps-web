@@ -16,10 +16,7 @@ export class GrampsjsMediaFileStatus extends GrampsjsMediaStatus {
 
   // eslint-disable-next-line class-methods-use-this
   renderLoading() {
-    return html` <mwc-circular-progress
-      indeterminate
-      density="-7"
-    ></mwc-circular-progress>`
+    return html`<md-circular-progress indeterminate></md-circular-progress>`
   }
 
   // eslint-disable-next-line class-methods-use-this

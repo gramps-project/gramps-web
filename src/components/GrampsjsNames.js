@@ -1,7 +1,6 @@
 import {html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
-import '@material/mwc-button'
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
 import {fireEvent} from '../util.js'
@@ -32,25 +31,23 @@ export class GrampsjsNames extends GrampsjsEditableList {
   }
 
   row(obj, i) {
-    return html` ${!obj
-      ? ''
-      : html`
-          <md-list-item
-            type="${this.edit ? 'button' : 'text'}"
-            style="height: auto"
-            class="${classMap({selected: i === this._selectedIndex})}"
-            @click="${() => {
-              if (this.edit) {
-                this._handleSelected(i)
-              }
-            }}"
-          >
-            <grampsjs-name
-              .appState="${this.appState}"
-              .data="${obj}"
-            ></grampsjs-name>
-          </md-list-item>
-        `}`
+    return html`
+      <md-list-item
+        type="${this.edit ? 'button' : 'text'}"
+        style="height: auto"
+        class="${classMap({selected: i === this._selectedIndex})}"
+        @click="${() => {
+          if (this.edit) {
+            this._handleSelected(i)
+          }
+        }}"
+      >
+        <grampsjs-name
+          .appState="${this.appState}"
+          .data="${obj}"
+        ></grampsjs-name>
+      </md-list-item>
+    `
   }
 
   _handleAdd() {
@@ -86,20 +83,8 @@ export class GrampsjsNames extends GrampsjsEditableList {
     `
   }
 
-  _handleUp() {
-    fireEvent(this, 'edit:action', {
-      action: 'upName',
-      handle: this._selectedIndex,
-    })
-    this._updateSelectionAfterReorder(true)
-  }
-
-  _handleDown() {
-    fireEvent(this, 'edit:action', {
-      action: 'downName',
-      handle: this._selectedIndex,
-    })
-    this._updateSelectionAfterReorder(false)
+  _handleMove(from, to) {
+    fireEvent(this, 'edit:action', {action: 'moveName', handle: from, to})
   }
 
   _handleEdit() {

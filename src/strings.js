@@ -69,7 +69,10 @@ export async function getFrontendStrings(lang) {
 }
 
 export const grampsStrings = [
+  '%(current)d of %(total)d',
   '_Back',
+  '_First',
+  '_Last',
   '_Bookmarks',
   '_Open',
   '_Copy',
@@ -538,7 +541,9 @@ export const grampsStrings = [
   'Monday',
   'Mother',
   'Move Down',
+  'Move Left',
   'Move Up',
+  'Move right',
   'Multiple birth',
   'Municipality',
   'Name Note',
@@ -720,6 +725,7 @@ export const grampsStrings = [
   'Refresh',
   'Region',
   'Regular',
+  'Reload',
   'Relationship Graph',
   'Relationship to _Father:',
   'Relationship to _Mother:',
@@ -911,6 +917,7 @@ export const grampsStrings = [
   'Top, left',
   'Top, Right',
   'Top',
+  'Total',
   'Total size of media objects',
   'Town',
   'Transcript',

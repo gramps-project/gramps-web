@@ -16,6 +16,7 @@ import '@material/web/select/filled-select.js'
 import '@material/web/select/select-option.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTable.js'
+import '../components/GrampsjsTaskProgressIndicator.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPagination.js'
@@ -24,7 +25,11 @@ import '../components/GrampsjsFilters.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
 import {appHref, fireEvent} from '../util.js'
+import {awaitTaskResponse} from '../taskResponse.js'
 import {tagFilter} from '../filterDefinitions.js'
+
+// Deleting more objects than this runs in a background task
+const BACKGROUND_DELETE_THRESHOLD = 10
 
 export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   GrampsjsView
@@ -47,12 +52,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
           display: none;
         }
 
-        .viewbtn {
-          float: right;
-        }
-
         .batch-toolbar {
-          clear: both;
           display: flex;
           align-items: center;
           flex-wrap: wrap;
@@ -62,6 +62,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         }
 
         .batch-toolbar .selection-count {
+          display: flex;
+          align-items: center;
+          gap: 8px;
           font-size: 16px;
           color: var(--grampsjs-body-font-color-70);
         }
@@ -109,6 +112,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       _selectionKey: {type: Number},
       _showMergeDialog: {type: Boolean},
       _showDeleteDialog: {type: Boolean},
+      _deleting: {type: Boolean},
+      _selectingAll: {type: Boolean},
       _deleteBlockedInfo: {type: Object},
       _showActionError: {type: Boolean},
       _currentAction: {type: String},
@@ -134,6 +139,12 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     this._selectionKey = 0
     this._showMergeDialog = false
     this._showDeleteDialog = false
+    this._deleting = false
+    this._selectingAll = false
+    // Rows of all objects matching the filters, while they are all selected
+    this._allMatchingRows = null
+    // Token of the pending "select all"
+    this._selectAllRequest = null
     this._deleteBlockedInfo = null
     this._showActionError = false
     this._currentAction = ''
@@ -208,6 +219,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       <grampsjs-pagination
         page="${this._page}"
         pages="${this._pages}"
+        total="${this._totalCount}"
+        pageSize="${this._pageSize}"
         @page:changed="${this._handlePageChanged}"
         .appState="${this.appState}"
       ></grampsjs-pagination>
@@ -234,55 +247,70 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         namespace="${this.filterNamespace}"
         ?errorGql="${this.error}"
       >
-        ${this.appState.permissions.canEdit
-          ? this._selectionMode
-            ? html`<md-filled-button
-                slot="leading"
-                @click="${this._toggleSelectionMode}"
-              >
-                <grampsjs-icon
-                  slot="icon"
-                  .path="${mdiCheckboxMultipleOutline}"
-                  height="20"
-                  color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
-                ></grampsjs-icon>
-                ${this._('Select')}
-              </md-filled-button>`
-            : html`<md-outlined-button
-                slot="leading"
-                @click="${this._toggleSelectionMode}"
-              >
-                <grampsjs-icon
-                  slot="icon"
-                  .path="${mdiCheckboxMultipleOutline}"
-                  height="20"
-                  color="var(--mdc-theme-primary)"
-                ></grampsjs-icon>
-                ${this._('Select')}
-              </md-outlined-button>`
-          : ''}
+        ${this.appState.permissions.canEdit ? this._renderSelectButton() : ''}
+        ${this._renderToolbarTrailing()}
       </grampsjs-filters>
-      <div class="viewbtn">
-        ${this._renderViewButton()}
-        <md-icon-button
-          title="${this._('Columns')}"
-          aria-label="${this._('Columns')}"
-          @click="${() => {
-            this._showColumnPicker = true
-          }}"
-        >
-          <grampsjs-icon .path="${mdiCog}" height="22"></grampsjs-icon>
-        </md-icon-button>
-      </div>
     `
+  }
+
+  _renderSelectButton() {
+    const icon = html`<grampsjs-icon
+      slot="icon"
+      .path="${mdiCheckboxMultipleOutline}"
+      height="20"
+      color="currentColor"
+    ></grampsjs-icon>`
+    return this._selectionMode
+      ? html`<md-filled-button
+          slot="leading"
+          @click="${this._toggleSelectionMode}"
+        >
+          ${icon} ${this._('Select')}
+        </md-filled-button>`
+      : html`<md-outlined-button
+          slot="leading"
+          @click="${this._toggleSelectionMode}"
+        >
+          ${icon} ${this._('Select')}
+        </md-outlined-button>`
+  }
+
+  // controls at the end of the toolbar, each with slot="trailing"
+  _renderToolbarTrailing() {
+    return html`
+      <md-icon-button
+        slot="trailing"
+        title="${this._('Columns')}"
+        aria-label="${this._('Columns')}"
+        @click="${() => {
+          this._showColumnPicker = true
+        }}"
+      >
+        <grampsjs-icon .path="${mdiCog}" height="22"></grampsjs-icon>
+      </md-icon-button>
+    `
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _renderSelectPage() {
+    return ''
   }
 
   _renderBatchToolbar() {
     return html`
       <div class="batch-toolbar">
         <span class="selection-count">
-          ${this._('%s selected', this._selectedHandles.length)}
+          ${this._renderSelectPage()}
+          <span>${this._('%s selected', this._selectedHandles.length)}</span>
         </span>
+        ${this._canSelectAllMatching
+          ? html`<md-text-button
+              ?disabled="${this._selectingAll}"
+              @click="${this._selectAllMatching}"
+            >
+              ${this._('_Select All')} (${this._totalCount})
+            </md-text-button>`
+          : ''}
         <md-filled-select
           .value="${this._currentAction}"
           label="${this._('Action')}"
@@ -303,11 +331,19 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
             : ''}
         </md-filled-select>
         <md-outlined-button
-          ?disabled="${!this._currentAction}"
+          ?disabled="${!this._currentAction ||
+          this._deleting ||
+          this._selectingAll}"
           @click="${this._handleApplyAction}"
         >
           ${this._('Apply')}
         </md-outlined-button>
+        <grampsjs-task-progress-indicator
+          id="progress-delete"
+          taskName="deleteObjectsByHandle"
+          size="20"
+          .appState="${this.appState}"
+        ></grampsjs-task-progress-indicator>
       </div>
       ${this._renderMergeDialog()} ${this._renderDeleteDialog()}
       ${this._renderDeleteBlockedDialog()} ${this._renderActionErrorDialog()}
@@ -462,18 +498,36 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     `
   }
 
+  // Deletes more than a few objects in a background task where the API
+  // supports it; older APIs ignore the flag and delete right away
   async _handleDelete() {
     this._showDeleteDialog = false
-    const result = await this.appState.apiPost(
-      '/api/objects/delete-by-handle/',
-      {namespace: this._objectsName, handles: this._selectedHandles}
+    this._deleting = true
+    const prog = this.renderRoot.querySelector('#progress-delete')
+    prog.reset()
+    prog.open = true
+    const handles = this._selectedHandles
+    const query =
+      handles.length > BACKGROUND_DELETE_THRESHOLD ? '?background=1' : ''
+    const res = await this.appState.apiPost(
+      `/api/objects/delete-by-handle/${query}`,
+      {namespace: this._objectsName, handles},
+      {dbChanged: false}
     )
-    if ('error' in result) {
-      fireEvent(this, 'grampsjs:error', {message: result.error})
+    const outcome = await awaitTaskResponse(this.appState, res, {
+      prog,
+      label: 'Delete',
+      taskName: 'deleteObjectsByHandle',
+    })
+    this._deleting = false
+    if (outcome.error !== undefined) {
+      if (outcome.error) {
+        fireEvent(this, 'grampsjs:error', {message: outcome.error})
+      }
       return
     }
-    this._selectionKey += 1
-    this._selectedHandles = []
+    fireEvent(window, 'db:changed')
+    this._clearSelection()
   }
 
   async _handleMerge(phoenix, titanic) {
@@ -486,13 +540,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       fireEvent(this, 'grampsjs:error', {message: result.error})
       return
     }
-    this._selectionKey += 1
-    this._selectedHandles = []
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _renderViewButton() {
-    return ''
+    this._clearSelection()
   }
 
   // groups of filters offered in the filter bar, see filterDefinitions.js
@@ -629,16 +677,31 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
 
   _handleSelectionChanged(e) {
     const {indices} = e.detail
+    this._cancelSelectAll()
+    this._allMatchingRows = null
     this._selectedHandles = indices
       .map(i => this._rawData[i]?.handle)
       .filter(Boolean)
   }
 
+  _clearSelection() {
+    this._cancelSelectAll()
+    this._allMatchingRows = null
+    this._selectedHandles = []
+    this._selectionKey += 1
+  }
+
+  // Any change of the selection, including by filter and page changes,
+  // drops a pending "select all"
+  _cancelSelectAll() {
+    this._selectAllRequest = null
+    this._selectingAll = false
+  }
+
   _toggleSelectionMode() {
     this._selectionMode = !this._selectionMode
     if (!this._selectionMode) {
-      this._selectedHandles = []
-      this._selectionKey += 1
+      this._clearSelection()
     }
   }
 
@@ -655,17 +718,57 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     if (this._sort) {
       url = `${url}&sort=${this._sort}`
     }
+    return `${url}${this._filterQuery}`
+  }
+
+  // The query parameters of the active filters
+  get _filterQuery() {
+    let query = ''
     const {filters} = this._filters
     if (filters.length > 0) {
-      url = `${url}&rules=${encodeURIComponent(
+      query = `${query}&rules=${encodeURIComponent(
         JSON.stringify({rules: filters})
       )}`
     }
     const gql = this._filters.query
     if (gql) {
-      url = `${url}&gql=${encodeURIComponent(gql)}`
+      query = `${query}&gql=${encodeURIComponent(gql)}`
     }
-    return url
+    return query
+  }
+
+  // The URL of all objects matching the filters, with the keys needed to
+  // delete them
+  get _selectAllUrl() {
+    return `/api/${this._objectsName}/?keys=handle${this._filterQuery}`
+  }
+
+  // Whether the whole page is selected and more objects match the filters
+  get _canSelectAllMatching() {
+    return (
+      !this._allMatchingRows &&
+      this._rawData.length > 0 &&
+      this._selectedHandles.length === this._rawData.length &&
+      this._totalCount > this._rawData.length
+    )
+  }
+
+  async _selectAllMatching() {
+    const request = {}
+    this._selectAllRequest = request
+    this._selectingAll = true
+    const data = await this.appState.apiGet(this._selectAllUrl)
+    if (this._selectAllRequest !== request) {
+      return
+    }
+    this._selectAllRequest = null
+    this._selectingAll = false
+    if ('error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+      return
+    }
+    this._allMatchingRows = data.data
+    this._selectedHandles = data.data.map(row => row.handle)
   }
 
   update(changed) {
@@ -680,8 +783,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   }
 
   _fetchData() {
-    this._selectedHandles = []
-    this._selectionKey += 1
+    this._clearSelection()
     this.loading = true
     const url = this._fullUrl
     this._oldUrl = url

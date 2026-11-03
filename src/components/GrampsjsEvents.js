@@ -15,7 +15,6 @@ import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormEventRef.js'
 import './GrampsjsFormNewEvent.js'
 import './GrampsjsObjectForm.js'
-import '@material/mwc-button'
 
 export class GrampsjsEvents extends GrampsjsEditableList {
   static get styles() {
@@ -53,6 +52,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     this.hasAdd = false
     this.hasShare = true
     this.hasReorder = true
+    this.listProp = 'event_ref_list'
     this.defaultRole = 'Primary'
   }
 
@@ -250,28 +250,6 @@ export class GrampsjsEvents extends GrampsjsEditableList {
       action: 'delEvent',
       index: this._selectedIndex,
     })
-  }
-
-  _handleUp() {
-    const handle = this.data?.[this._selectedIndex]?.handle
-    if (handle) {
-      fireEvent(this, 'edit:action', {
-        action: 'upEvent',
-        handle: this.data[this._selectedIndex].handle,
-      })
-      this._updateSelectionAfterReorder(true)
-    }
-  }
-
-  _handleDown() {
-    const handle = this.data?.[this._selectedIndex]?.handle
-    if (handle) {
-      fireEvent(this, 'edit:action', {
-        action: 'downEvent',
-        handle: this.data[this._selectedIndex].handle,
-      })
-      this._updateSelectionAfterReorder(false)
-    }
   }
 
   _handleClick(e, grampsId) {

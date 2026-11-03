@@ -426,6 +426,43 @@ describe('import: preview, confirmation and result', () => {
     expect(element._file).toBe(fileB)
   })
 
+  it('shows the reason of a failed import', async () => {
+    const apiPost = answers({data: preview}, {task: {id: 'i1'}})
+    const {element} = makeImport({apiPost})
+
+    const pending = element._submit()
+    await vi.waitFor(() =>
+      expect(element.appState.registerTask).toHaveBeenCalled()
+    )
+    finishTask('i1', {
+      state: 'FAILURE',
+      result_object: {error: {code: 500, message: 'Import failed\n\nBad'}},
+    })
+    await pending
+
+    expect(element._importError).toBe('Import failed\n\nBad')
+  })
+
+  it('drops the error of an import replaced by another file', async () => {
+    const apiPost = answers({data: preview}, {task: {id: 'i1'}})
+    const {element, upload} = makeImport({apiPost})
+
+    const pending = element._submit()
+    await vi.waitFor(() =>
+      expect(element.appState.registerTask).toHaveBeenCalled()
+    )
+    upload.file = fileB
+    element._handleUploadChanged()
+    finishTask('i1', {
+      state: 'FAILURE',
+      result_object: {error: {code: 500, message: 'Old file is invalid'}},
+    })
+    await pending
+
+    expect(element._importError).toBe('')
+    expect(element._file).toBe(fileB)
+  })
+
   it('accepts a new file while a task never reports back', async () => {
     const apiPost = answers({task: {id: 'p1'}})
     const {element, upload} = makeImport({apiPost})

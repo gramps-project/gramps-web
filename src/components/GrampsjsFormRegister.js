@@ -1,6 +1,7 @@
 /* eslint-disable lit-a11y/click-events-have-key-events */
 import {html, css, LitElement} from 'lit'
 import '@material/web/textfield/outlined-text-field'
+import '@material/web/button/filled-button.js'
 
 import {mdiCheckCircle} from '@mdi/js'
 
@@ -45,10 +46,6 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
           --mdc-icon-size: 1.6em;
           line-height: 1.4em;
           text-align: center;
-        }
-
-        mwc-circular-progress {
-          --mdc-theme-primary: var(--mdc-theme-on-primary);
         }
       `,
     ]
@@ -124,23 +121,13 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
               label="${this._('Full Name')}"
               type="text"
             ></md-outlined-text-field>
-            <mwc-button
-              raised
-              label="${this._('Register new account')}"
-              type="submit"
+            <md-filled-button
+              type="button"
               @click="${this._register}"
               ?disabled="${!this.isFormValid}"
             >
-              <span slot="trailingIcon" style="display:none;">
-                <mwc-circular-progress
-                  indeterminate
-                  density="-7"
-                  closed
-                  id="login-progress"
-                >
-                </mwc-circular-progress>
-              </span>
-            </mwc-button>
+              ${this._('Register new account')}
+            </md-filled-button>
           </div>
           <p class="success" id="register-success" style="display:none;">
             <grampsjs-icon

@@ -11,7 +11,7 @@ import {getImageUrl} from '../charts/util.js'
 import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
 
-class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
+export class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -65,7 +65,9 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
       let year = Math.round(2000 - Number(yearBeforePresentString))
       if (Number.isNaN(year)) return ''
       if (year < 0) year += 1
-      const date = new Date(Date.UTC(year, 0, 1))
+      // Date.UTC would read years 0 to 99 as 1900 to 1999
+      const date = new Date(0)
+      date.setUTCFullYear(year, 0, 1)
       const options = {year: 'numeric', ...(year <= 0 && {era: 'short'})}
       let formatter
       try {
@@ -146,12 +148,13 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
     if (result.length >= 2) {
       const nextToLastIndex = result.length - 2
       const lastClade = this.data[this.data.length - 1]
-      const lastCladeYear = mrcaAdded
+      // clade ages are in years before 2000, birth years are calendar years
+      const lastCladeYbp = mrcaAdded
         ? lastClade?.age_info?.most_recent_common_ancestor
         : lastClade?.age_info?.formed
-      if (lastCladeYear && birthYear) {
+      if (lastCladeYbp && birthYear) {
         const nGen = Math.round(
-          Math.abs(Number(lastCladeYear) - Number(birthYear)) / 20
+          Math.abs(2000 - Number(lastCladeYbp) - Number(birthYear)) / 20
         )
         result[nextToLastIndex].connectorText = this._formatNGenerations(nGen)
       }
@@ -170,8 +173,8 @@ class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
       })
     }
 
-    // Only show expand button if there are more than 4 items total (3 clades + person)
-    const showExpandButton = this.data.length > 3
+    // Collapsed, only the last 2 clades are shown
+    const showExpandButton = this.data.length > 2
 
     return html`
       <div class="container">

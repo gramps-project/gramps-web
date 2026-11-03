@@ -7,6 +7,7 @@ import {
   prettyTimeDiffTimestamp,
   filterCounts,
   getEnclosingPlaces,
+  enclosingPlaces,
 } from '../util.js'
 import {
   associationsFilter,
@@ -32,8 +33,15 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
     return true
   }
 
+  get _selectAllUrl() {
+    return `/api/places/?keys=handle,backlinks&backlinks=true${this._filterQuery}`
+  }
+
   async _deleteBlocked(handles) {
-    const enclosing = await getEnclosingPlaces(this.appState, handles)
+    // all matching places come with their backlinks
+    const enclosing = this._allMatchingRows
+      ? enclosingPlaces(this._allMatchingRows)
+      : await getEnclosingPlaces(this.appState, handles)
     if (enclosing.length === 0) {
       return null
     }

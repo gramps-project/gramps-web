@@ -494,7 +494,7 @@ export class GrampsjsAccessTokens extends GrampsjsAppStateMixin(LitElement) {
             <grampsjs-icon
               slot="icon"
               path="${this._createdTokenCopied ? mdiCheck : mdiContentCopy}"
-              color="var(--mdc-theme-primary)"
+              color="currentColor"
             ></grampsjs-icon>
             ${this._('_Copy')}
           </md-text-button>

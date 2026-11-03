@@ -20,6 +20,7 @@ export class GrampsjsRepositories extends GrampsjsEditableList {
     this.objType = 'Repository'
     this.hasEdit = true
     this.hasReorder = true
+    this.listProp = 'reporef_list'
   }
 
   row(obj, i) {
@@ -120,22 +121,6 @@ export class GrampsjsRepositories extends GrampsjsEditableList {
       action: 'delRepository',
       handle: this._selectedIndex,
     })
-  }
-
-  _handleUp() {
-    fireEvent(this, 'edit:action', {
-      action: 'upRepository',
-      handle: this._selectedIndex,
-    })
-    this._updateSelectionAfterReorder(true)
-  }
-
-  _handleDown() {
-    fireEvent(this, 'edit:action', {
-      action: 'downRepository',
-      handle: this._selectedIndex,
-    })
-    this._updateSelectionAfterReorder(false)
   }
 
   _handleClick(grampsId) {

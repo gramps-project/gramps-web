@@ -16,14 +16,20 @@ import '@material/web/iconbutton/icon-button.js'
 import '@material/web/list/list.js'
 import '@material/web/list/list-item.js'
 
-import {personListItemStyles, sharedStyles} from '../SharedStyles.js'
+import {
+  personListItemStyles,
+  reorderableStyles,
+  sharedStyles,
+} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {DragReorderController} from '../dragReorderController.js'
 
 export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       personListItemStyles,
+      reorderableStyles,
       css`
         md-list.activatable,
         md-list.activatable > * {
@@ -76,6 +82,10 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
         md-icon-button[disabled] {
           color: var(--grampsjs-body-font-color-25);
         }
+
+        md-list.reorderable > [dragging] {
+          background-color: var(--md-sys-color-surface-container-high);
+        }
       `,
     ]
   }
@@ -106,8 +116,18 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
     this.hasShare = false
     this.hasEdit = false
     this.hasReorder = false
+    // the property of the edited object holding the list, for reordering
+    this.listProp = ''
     this._selectedIndex = -1
     this._pendingSelection = null
+    this._dragReorder = new DragReorderController(this, {
+      getContainer: () =>
+        this.edit && this.hasReorder
+          ? this.renderRoot.querySelector('md-list')
+          : null,
+      getCount: () => this.data.length,
+      onMove: (from, to) => this._moveItem(from, to),
+    })
   }
 
   render() {
@@ -116,7 +136,14 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
         ? ''
         : html`
             ${this.edit ? this._renderActionBtns() : ''}
-            <md-list class="${classMap({activatable: this.edit})}">
+            <md-list
+              class="${classMap({
+                activatable: this.edit,
+                reorderable: this.edit && this.hasReorder,
+              })}"
+              @pointerdown="${this._dragReorder.handlePointerDown}"
+              @dragstart="${this._dragReorder.handleDragStart}"
+            >
               ${this.sortData([...this.data]).map((obj, i, arr) =>
                 this.row(obj, i, arr)
               )}
@@ -215,6 +242,10 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
   }
 
   updated(changed) {
+    if (changed.has('edit') || changed.has('data')) {
+      // the rows under an ongoing drag may have changed
+      this._dragReorder.end()
+    }
     if (changed.has('edit')) {
       this._selectedIndex = -1
       this._pendingSelection = null
@@ -230,17 +261,35 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
-  _updateSelectionAfterReorder(movedUp) {
-    // Clear selection to avoid highlighting wrong item while API call
-    // completes, and remember the moved item and its new position to
-    // restore the selection afterwards.
-    if (this._selectedIndex !== -1) {
-      this._pendingSelection = {
-        index: movedUp ? this._selectedIndex - 1 : this._selectedIndex + 1,
-        item: JSON.stringify(this.data?.[this._selectedIndex]),
-      }
+  _handleUp() {
+    this._moveItem(this._selectedIndex, this._selectedIndex - 1)
+  }
+
+  _handleDown() {
+    this._moveItem(this._selectedIndex, this._selectedIndex + 1)
+  }
+
+  _moveItem(from, to) {
+    const n = this.data?.length ?? 0
+    if (from < 0 || from >= n || to < 0 || to >= n || from === to) {
+      return
     }
+    // Clear selection to avoid highlighting the wrong item while the API
+    // call completes, and remember the moved item and its new position to
+    // select it again afterwards.
+    this._pendingSelection = {index: to, item: JSON.stringify(this.data[from])}
     this._selectedIndex = -1
+    this._handleMove(from, to)
+  }
+
+  // fires the edit action that moves the item at index `from` to index `to`
+  _handleMove(from, to) {
+    fireEvent(this, 'edit:action', {
+      action: 'moveListItem',
+      prop: this.listProp,
+      index: from,
+      to,
+    })
   }
 
   _handleActionClick(e, action, handle) {

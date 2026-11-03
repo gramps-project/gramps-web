@@ -1,6 +1,4 @@
 import {html, css, LitElement} from 'lit'
-import {classMap} from 'lit/directives/class-map.js'
-import {live} from 'lit/directives/live.js'
 import {
   mdiClose,
   mdiContentSave,
@@ -8,13 +6,14 @@ import {
   mdiPencil,
   mdiPencilOff,
 } from '@mdi/js'
+import {taskNote} from '../taskConstants.js'
 import {sharedStyles} from '../SharedStyles.js'
 
-import '@material/mwc-button'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/select/outlined-select.js'
 import '@material/web/select/select-option.js'
 
+import './GrampsjsEditableTitle.js'
 import './GrampsjsEditor.js'
 import './GrampsjsIcon.js'
 import './GrampsjsImg.js'
@@ -25,7 +24,7 @@ import './GrampsjsNoteContent.js'
 import './GrampsjsConnectedNote.js'
 import './GrampsjsBreadcrumbs.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {debounce, fireEvent} from '../util.js'
+import {fireEvent} from '../util.js'
 
 export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -34,13 +33,6 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
       css`
         #btn-details {
           margin-top: 2em;
-        }
-
-        h2#title {
-          display: block;
-          border-radius: 5px;
-          padding: 5px 10px;
-          margin-left: -10px;
         }
 
         .dropdowns {
@@ -88,7 +80,9 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
       source: {type: Object},
       note: {type: Object},
       dialogContent: {type: String},
+      saveNote: {attribute: false},
       _editingNote: {type: Boolean},
+      _savingNote: {type: Boolean},
       _editingGallery: {type: Boolean},
     }
   }
@@ -98,7 +92,10 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
     this.source = {}
     this.note = {}
     this.dialogContent = ''
+    // Saves the note data; resolves to whether the save succeeded
+    this.saveNote = async () => false
     this._editingNote = false
+    this._savingNote = false
     this._editingGallery = false
   }
 
@@ -110,6 +107,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
     if (Object.keys(this.source).length === 0) {
       return html``
     }
+    const note = taskNote(this.source)
     return html`
       <grampsjs-breadcrumbs
         .data="${this.source}"
@@ -119,14 +117,14 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
         hideBookmark
         hideLock
       ></grampsjs-breadcrumbs>
-      <h2
-        id="title"
-        class="${classMap({editable: this.canEdit})}"
-        contenteditable="${this.canEdit}"
-        @input="${debounce(() => this._handleEditTitle(), 500)}"
-        .innerText="${live(this.source.title)}"
-      >
-        &nbsp;
+      <h2>
+        <grampsjs-editable-title
+          .value="${this.source.title}"
+          prop="title"
+          required
+          ?editable="${this.canEdit}"
+          .appState="${this.appState}"
+        ></grampsjs-editable-title>
       </h2>
 
       <p class="dropdowns">
@@ -167,18 +165,18 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
 
       <h3>${this._('Description')}</h3>
       <p>
-        ${this.source?.note_list?.length > 0
+        ${note
           ? html` ${this._editingNote
               ? html`
                   <grampsjs-editor
                     id="task-note-editor"
-                    .initialData=${this.source.extended.notes[0].text}
+                    .initialData=${note.text}
                     .appState="${this.appState}"
                   ></grampsjs-editor>
                 `
               : html`
                   <grampsjs-connected-note
-                    handle="${this.source.note_list[0]}"
+                    handle="${note.handle}"
                     .appState="${this.appState}"
                   ></grampsjs-connected-note>
                 `}`
@@ -196,6 +194,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
                       <md-icon-button
                         class="edit"
                         id="btn-save-note"
+                        ?disabled="${this._savingNote}"
                         aria-label="${this._('_Save')}"
                         @click="${this._handleSaveNote}"
                       >
@@ -210,6 +209,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
                       <md-icon-button
                         class="edit"
                         id="btn-cancel-note"
+                        ?disabled="${this._savingNote}"
                         aria-label="${this._('Cancel')}"
                         @click="${this._handleCancelNote}"
                       >
@@ -305,24 +305,33 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
     this._editingNote = true
   }
 
-  _handleSaveNote() {
+  // The editor stays open until the save succeeded and the task is reloaded
+  async _handleSaveNote() {
     const editor = this.renderRoot.querySelector('grampsjs-editor')
     const text = editor.data
     const type = 'To Do'
-    if (this.source.note_list.length > 0) {
-      const note = this.source.extended.notes[0]
-      const data = {...note, text, type}
-      fireEvent(this, 'task:update-note-text', data)
-    } else {
-      const data = {text, type}
-      if (text.string.trim() !== '') {
-        fireEvent(this, 'task:add-note-text', data)
+    const note = taskNote(this.source)
+    let data = null
+    if (note) {
+      data = {...note, text, type}
+    } else if (text.string.trim() !== '') {
+      data = {text, type}
+    }
+    if (data !== null) {
+      this._savingNote = true
+      const saved = await this.saveNote(data)
+      this._savingNote = false
+      // Keep editing if the save failed or the text changed in the meantime
+      if (!saved || editor.data !== text) {
+        return
       }
     }
+    editor.discardDraft()
     this._editingNote = false
   }
 
   _handleCancelNote() {
+    this.renderRoot.querySelector('grampsjs-editor').discardDraft()
     this._editingNote = false
   }
 
@@ -362,15 +371,6 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
       )
       fireEvent(this, 'edit:action', {action: 'updateAttribute', data, index})
     }
-  }
-
-  _handleEditTitle() {
-    const element = this.renderRoot.getElementById('title')
-    const title = element.textContent
-      .replace(/(\r\n|\n|\r)/gm, '') // remove line breaks
-      .trim()
-    element.blur()
-    fireEvent(this, 'edit:action', {action: 'updateProp', data: {title}})
   }
 
   _clickDetails(grampsId) {

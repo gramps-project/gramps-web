@@ -12,6 +12,7 @@ export class GrampsjsSourceCitations extends GrampsjsEditableList {
     super()
     this.objType = 'Citation'
     this.hasReorder = true
+    this.listProp = 'citation_list'
   }
 
   row(obj, i) {
@@ -35,7 +36,7 @@ export class GrampsjsSourceCitations extends GrampsjsEditableList {
   }
 
   _handleClick(grampsId) {
-    if (!this.edit && grampsId !== this.grampsId) {
+    if (!this.edit && grampsId && grampsId !== this.grampsId) {
       this.dispatchEvent(
         new CustomEvent('nav', {
           bubbles: true,
@@ -95,26 +96,12 @@ export class GrampsjsSourceCitations extends GrampsjsEditableList {
     this.dialogContent = ''
   }
 
-  _handleUp() {
-    const handle = this.data?.[this._selectedIndex]?.handle
-    if (handle) {
-      fireEvent(this, 'edit:action', {action: 'upCitation', handle})
-      this._updateSelectionAfterReorder(true)
-    }
-  }
-
-  _handleDown() {
-    const handle = this.data?.[this._selectedIndex]?.handle
-    if (handle) {
-      fireEvent(this, 'edit:action', {action: 'downCitation', handle})
-      this._updateSelectionAfterReorder(false)
-    }
-  }
-
   _handleDelete(e) {
-    const handle = this.data?.[this._selectedIndex]?.handle
-    if (handle) {
-      fireEvent(this, 'edit:action', {action: 'delCitation', handle})
+    if (this.data?.[this._selectedIndex]) {
+      fireEvent(this, 'edit:action', {
+        action: 'delCitation',
+        index: this._selectedIndex,
+      })
     }
     e.preventDefault()
     e.stopPropagation()

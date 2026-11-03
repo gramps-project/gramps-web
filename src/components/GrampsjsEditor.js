@@ -3,8 +3,7 @@ import {live} from 'lit/directives/live.js'
 
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/filled-button.js'
-import '@material/mwc-textfield'
-import '@material/mwc-button'
+import '@material/web/textfield/filled-text-field.js'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/button/text-button.js'
 import {
@@ -13,6 +12,7 @@ import {
   mdiFormatItalic,
   mdiFormatStrikethrough,
   mdiFormatUnderline,
+  mdiFile,
   mdiImage,
   mdiInformation,
   mdiClose,
@@ -21,8 +21,12 @@ import {
   mdiRedo,
 } from '@mdi/js'
 
-import {sharedStyles, iconButtonColorStyles} from '../SharedStyles.js'
-import {fireEvent} from '../util.js'
+import {
+  sharedStyles,
+  iconButtonColorStyles,
+  buttonColorStyles,
+} from '../SharedStyles.js'
+import {fireEvent, hasThumbnail} from '../util.js'
 import {
   charLength,
   charSlice,
@@ -143,6 +147,23 @@ function _inlineImageHtml(str, tags) {
   return `<span class="inline-image" contenteditable="false"><img src="${src}" alt="">${IMAGE_PLACEHOLDER}</span>`
 }
 
+// An inline image whose thumbnail fails to load shows a file icon. The
+// placeholder character stays, so character offsets are unaffected.
+function _replaceFailedInlineImage(e) {
+  const img = e.target
+  if (img.tagName !== 'IMG' || !img.closest('.inline-image')) return
+  const icon = document.createElement('grampsjs-icon')
+  icon.path = mdiFile
+  icon.color = 'var(--grampsjs-body-font-color-50)'
+  img.replaceWith(icon)
+}
+
+// The error event does not bubble, so it is caught in the capture phase
+const inlineImageErrorListener = {
+  handleEvent: _replaceFailedInlineImage,
+  capture: true,
+}
+
 function _applyTags(str, tags) {
   const image = _inlineImageHtml(str, tags)
   if (image !== null) return image
@@ -229,6 +250,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       iconButtonColorStyles,
+      buttonColorStyles,
       css`
         .note {
           font-family: var(
@@ -284,6 +306,10 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
           border-radius: 4px;
         }
 
+        .inline-image grampsjs-icon {
+          display: block;
+        }
+
         .draft-banner {
           background-color: var(--grampsjs-color-shade-230);
           border-radius: 8px;
@@ -316,9 +342,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
         .draft-banner md-text-button {
           --md-text-button-label-text-size: 13px;
-          --md-text-button-label-text-color: var(--mdc-theme-secondary);
-          --md-text-button-hover-label-text-color: var(--mdc-theme-secondary);
-          --md-text-button-pressed-label-text-color: var(--mdc-theme-secondary);
+          --grampsjs-button-color: var(--mdc-theme-secondary);
         }
 
         .draft-banner md-icon-button {
@@ -556,6 +580,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         @compositionend="${this._handleCompositionEnd}"
         @keydown="${this._handleKeydown}"
         @mousedown="${this._handleMouseDown}"
+        @error="${inlineImageErrorListener}"
         .innerHTML="${live(this._html)}"
       ></div>
       ${this._renderLinkDialog()}
@@ -564,6 +589,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
             hideButton
             objectType="media"
             id="image-select"
+            .filter="${obj => hasThumbnail(obj.object?.mime)}"
             .appState="${this.appState}"
             @select-object:changed="${this._handleImageSelected}"
           ></grampsjs-form-select-object>`
@@ -577,18 +603,18 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
 
   _restoreDraft() {
     const draft = getDraft(this._getStorageKey())
-    if (!draft || !draft.data) {
-      // No draft found, use normal initialization
-      this.reset()
-      return
-    }
-
-    // Only restore if draft is actually different from initial data
-    const draftString = JSON.stringify(draft.data)
     const initialString = JSON.stringify(this.initialData)
-
-    if (draftString === initialString) {
-      clearDraft(this._getStorageKey())
+    // A draft is restored only if it differs from the initial data and was
+    // started from it; otherwise the text has been saved or changed since.
+    if (
+      !draft?.data ||
+      JSON.stringify(draft.data) === initialString ||
+      (draft.base !== undefined && JSON.stringify(draft.base) !== initialString)
+    ) {
+      if (draft) {
+        clearDraft(this._getStorageKey())
+      }
+      this.reset()
       return
     }
 
@@ -609,11 +635,18 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
   }
 
   // The current selection with endpoints inside this shadow root,
-  // or undefined if there is no selection
+  // or undefined if there is no selection.
+  // Browsers without getComposedRanges (#1543: Firefox 115 ESR, Chromium 127)
+  // fall back to Chromium's shadowRoot.getSelection() or the document
+  // selection, which older Firefox does not retarget to the host.
   _getSelectionRange() {
-    return document
-      .getSelection()
-      ?.getComposedRanges({shadowRoots: [this.shadowRoot]})[0]
+    const selection = document.getSelection()
+    if (!selection) return undefined
+    if (selection.getComposedRanges) {
+      return selection.getComposedRanges({shadowRoots: [this.shadowRoot]})[0]
+    }
+    const legacy = this.shadowRoot.getSelection?.() ?? selection
+    return legacy.rangeCount > 0 ? legacy.getRangeAt(0) : undefined
   }
 
   // Code-point offset of a DOM position in the editor. The trailing zero-width
@@ -955,11 +988,11 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
         <span slot="headline">${this._('Link')}</span>
         <div slot="content">
           <p>
-            <mwc-textfield
+            <md-filled-text-field
               id="linkurl"
               label="URL"
               style="width:100%"
-            ></mwc-textfield>
+            ></md-filled-text-field>
           </p>
           <p>
             <grampsjs-form-select-object
@@ -1100,8 +1133,18 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     if (!this.data.string || this.data.string.trim() === '') {
       clearDraft(this._getStorageKey())
     } else {
-      saveDraft(this._getStorageKey(), this.data)
+      saveDraft(this._getStorageKey(), this.data, this.initialData)
     }
+  }
+
+  // Drop the pending and the stored draft. Hosts call this after saving or
+  // cancelling the edit.
+  discardDraft() {
+    if (this._draftSaveTimer) {
+      clearTimeout(this._draftSaveTimer)
+      this._draftSaveTimer = null
+    }
+    clearDraft(this._getStorageKey())
   }
 
   _handleBeforeUnload() {
@@ -1117,8 +1160,7 @@ class GrampsjsEditor extends GrampsjsAppStateMixin(LitElement) {
     // Reset to original data and dismiss banner
     this.reset()
     this._showDraftBanner = false
-    // Clear the draft from storage so it doesn't come back
-    clearDraft(this._getStorageKey())
+    this.discardDraft()
   }
 
   _insertTag(tagname, range, value = null) {

@@ -81,10 +81,12 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
         ].join(', ')
       )
       .forEach(element => element.reset())
-    this.shadowRoot.querySelectorAll('mwc-textfield').forEach(element => {
-      // eslint-disable-next-line no-param-reassign
-      element.value = ''
-    })
+    this.shadowRoot
+      .querySelectorAll('md-filled-text-field')
+      .forEach(element => {
+        // eslint-disable-next-line no-param-reassign
+        element.value = ''
+      })
     this.isFormValid = false
   }
 
@@ -130,7 +132,7 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
           <grampsjs-icon
             slot="icon"
             path="${mdiClose}"
-            color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+            color="currentColor"
           ></grampsjs-icon>
           ${this._('Reset')}
         </md-outlined-button>
@@ -141,7 +143,7 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
           <grampsjs-icon
             slot="icon"
             path="${mdiContentSave}"
-            color="var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))"
+            color="currentColor"
           ></grampsjs-icon>
           ${this._('Add')}
         </md-filled-button>

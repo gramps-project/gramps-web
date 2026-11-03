@@ -1,6 +1,5 @@
 import {html, css, LitElement} from 'lit'
 import {sharedStyles} from '../SharedStyles.js'
-import '@material/mwc-button'
 
 import './GrampsjsImg.js'
 import './GrampsjsGallery.js'

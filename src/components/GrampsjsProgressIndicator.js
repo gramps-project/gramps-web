@@ -1,6 +1,6 @@
 import {css, LitElement, html} from 'lit'
 
-import '@material/mwc-circular-progress'
+import '@material/web/progress/circular-progress.js'
 
 import {mdiCheckCircle, mdiCloseCircle} from '@mdi/js'
 
@@ -26,6 +26,15 @@ export class GrampsjsProgressIndicator extends GrampsjsAppStateMixin(
 
         .warn {
           color: var(--grampsjs-alert-warn-font-color);
+        }
+
+        md-circular-progress {
+          margin: -2px;
+        }
+
+        .placeholder {
+          display: inline-block;
+          vertical-align: middle;
         }
       `,
     ]
@@ -75,26 +84,31 @@ export class GrampsjsProgressIndicator extends GrampsjsAppStateMixin(
     return this.renderProgress()
   }
 
-  _getDensity() {
-    return -6 + Math.round((this.size - 24) / 4)
+  // md-circular-progress draws inside a 4px margin, so the element is 4px
+  // larger than the footprint and offset by a negative margin
+  _getProgressStyle() {
+    return `--md-circular-progress-size: ${this.size + 4}px;
+      --md-circular-progress-active-indicator-width: ${250 / (this.size - 4)};`
   }
 
   renderClosed() {
     return html`
-      <mwc-circular-progress closed density="${this._getDensity()}">
-      </mwc-circular-progress>
+      <span
+        class="placeholder"
+        style="width: ${this.size}px; height: ${this.size}px;"
+      ></span>
     `
   }
 
   renderIndeterminate() {
     return html`
-      <mwc-circular-progress
+      <md-circular-progress
         indeterminate
         id="progress-indeterminate"
-        style="--mdc-theme-primary: var(--grampsjs-body-font-color-50);"
-        density="${this._getDensity()}"
+        style="${this._getProgressStyle()}
+          --md-circular-progress-active-indicator-color: var(--grampsjs-body-font-color-50);"
       >
-      </mwc-circular-progress>
+      </md-circular-progress>
       ${this.infoMessage
         ? html` <grampsjs-tooltip
             for="progress-indeterminate"
@@ -106,12 +120,12 @@ export class GrampsjsProgressIndicator extends GrampsjsAppStateMixin(
 
   renderProgress() {
     return html`
-      <mwc-circular-progress
-        progress="${Math.max(this.progress, 0.05)}"
-        density="${this._getDensity()}"
+      <md-circular-progress
+        value="${Math.max(this.progress, 0.05)}"
+        style="${this._getProgressStyle()}"
         id="progress-determinate"
       >
-      </mwc-circular-progress>
+      </md-circular-progress>
       ${this.infoMessage
         ? html` <grampsjs-tooltip
             for="progress-determinate"

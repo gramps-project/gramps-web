@@ -104,7 +104,7 @@ export class GrampsjsViewNewFamily extends GrampsjsViewNewObject {
         <grampsjs-icon
           slot="icon"
           path="${mdiPlus}"
-          color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+          color="currentColor"
         ></grampsjs-icon>
         ${this._('Add child')}
       </md-outlined-button>

@@ -5,19 +5,34 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent, personDisplayName} from '../util.js'
 
-const columns = [
-  {name: 'Name'},
-  {name: 'Relationship'},
-  {name: 'Shared DNA', unit: 'cM', format: value => value.toLocaleString()},
-  {name: 'Shared Segments', format: value => value.toLocaleString()},
-  {
-    name: 'Largest Segment',
-    unit: 'cM',
-    format: value => value.toLocaleString(),
-  },
-]
+const columnsByLocale = new Map()
 
-class GrampsjsDnaMatches extends GrampsjsAppStateMixin(LitElement) {
+// The table columns, with numbers formatted for `locale`. The same locale
+// gets the same columns, so the table only updates when the locale changes.
+function columns(locale) {
+  if (!columnsByLocale.has(locale)) {
+    const formatCm = new Intl.NumberFormat(locale, {maximumFractionDigits: 1})
+    const formatCount = new Intl.NumberFormat(locale)
+    columnsByLocale.set(locale, [
+      {name: 'Name'},
+      {name: 'Relationship'},
+      {
+        name: 'Shared DNA',
+        unit: 'cM',
+        format: value => formatCm.format(value),
+      },
+      {name: 'Shared Segments', format: value => formatCount.format(value)},
+      {
+        name: 'Largest Segment',
+        unit: 'cM',
+        format: value => formatCm.format(value),
+      },
+    ])
+  }
+  return columnsByLocale.get(locale)
+}
+
+export class GrampsjsDnaMatches extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -96,12 +111,16 @@ class GrampsjsDnaMatches extends GrampsjsAppStateMixin(LitElement) {
         sortable
         sort="2"
         descending
-        .columns="${columns}"
+        .columns="${this._columns}"
         .data="${this._computeTableData(this.data)}"
         .appState="${this.appState}"
         @table:row-click="${this._handleRowClick}"
       ></grampsjs-table>
     `
+  }
+
+  get _columns() {
+    return columns((this.appState?.i18n?.lang || 'en').replace('_', '-'))
   }
 
   _handleRowClick(e) {
@@ -117,13 +136,13 @@ class GrampsjsDnaMatches extends GrampsjsAppStateMixin(LitElement) {
     return html`
       <grampsjs-table
         loading
-        .columns="${columns}"
+        .columns="${this._columns}"
         .data="${Array.from({length: numRows}).map(() => [
           'Name Name',
           'Father',
-          '10 cM',
-          '5',
-          '10 cM',
+          10,
+          5,
+          10,
         ])}"
         .appState="${this.appState}"
       ></grampsjs-table>

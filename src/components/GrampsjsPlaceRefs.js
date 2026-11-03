@@ -24,6 +24,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableList {
     this.hasShare = true
     this.hasEdit = true
     this.hasReorder = true
+    this.listProp = 'placeref_list'
     this._places = []
   }
 
@@ -127,24 +128,6 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableList {
       action: 'delPlace',
       index: this._selectedIndex,
     })
-  }
-
-  _handleUp() {
-    if (this._selectedIndex === -1) return
-    fireEvent(this, 'edit:action', {
-      action: 'upPlace',
-      index: this._selectedIndex,
-    })
-    this._updateSelectionAfterReorder(true)
-  }
-
-  _handleDown() {
-    if (this._selectedIndex === -1) return
-    fireEvent(this, 'edit:action', {
-      action: 'downPlace',
-      index: this._selectedIndex,
-    })
-    this._updateSelectionAfterReorder(false)
   }
 
   _handlePlaceRefAdd(e) {

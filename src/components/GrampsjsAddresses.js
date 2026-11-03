@@ -33,6 +33,8 @@ export class GrampsjsAddresses extends GrampsjsEditableList {
     super()
     this.profile = []
     this.hasEdit = true
+    this.hasReorder = true
+    this.listProp = 'address_list'
     this.objType = 'Address'
   }
 

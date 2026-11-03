@@ -59,7 +59,7 @@ export class GrampsjsViewHelp extends GrampsjsView {
             <grampsjs-icon
               .path="${mdiOpenInNew}"
               slot="icon"
-              color="var(--mdc-theme-primary)"
+              color="currentColor"
             ></grampsjs-icon>
           </md-outlined-button>
           <md-outlined-button
@@ -70,7 +70,7 @@ export class GrampsjsViewHelp extends GrampsjsView {
             <grampsjs-icon
               .path="${mdiOpenInNew}"
               slot="icon"
-              color="var(--mdc-theme-primary)"
+              color="currentColor"
             ></grampsjs-icon>
           </md-outlined-button>
         </div>
@@ -86,7 +86,7 @@ export class GrampsjsViewHelp extends GrampsjsView {
           <grampsjs-icon
             .path="${mdiOpenInNew}"
             slot="icon"
-            color="var(--mdc-theme-primary)"
+            color="currentColor"
           ></grampsjs-icon>
         </md-outlined-button>
       </div>

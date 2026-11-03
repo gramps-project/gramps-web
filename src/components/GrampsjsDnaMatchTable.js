@@ -4,14 +4,25 @@ import './GrampsjsTable.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
 
-const matchColumns = [
-  {name: 'Chromosome'},
-  {name: 'Start Position', format: value => value.toLocaleString()},
-  {name: 'End Position', format: value => value.toLocaleString()},
-  {name: 'Side'},
-  {name: 'Length', unit: 'cM'},
-  {name: 'Number of SNPs', format: value => value.toLocaleString()},
-]
+const columnsByLocale = new Map()
+
+// The table columns, with numbers formatted for `locale`. The same locale
+// gets the same columns, so the table only updates when the locale changes.
+function matchColumns(locale) {
+  if (!columnsByLocale.has(locale)) {
+    const formatCm = new Intl.NumberFormat(locale, {maximumFractionDigits: 1})
+    const formatCount = new Intl.NumberFormat(locale)
+    columnsByLocale.set(locale, [
+      {name: 'Chromosome'},
+      {name: 'Start Position', format: value => formatCount.format(value)},
+      {name: 'End Position', format: value => formatCount.format(value)},
+      {name: 'Side'},
+      {name: 'Length', unit: 'cM', format: value => formatCm.format(value)},
+      {name: 'Number of SNPs', format: value => formatCount.format(value)},
+    ])
+  }
+  return columnsByLocale.get(locale)
+}
 
 function formatSide(side) {
   if (side === 'P' || side === 'F') {
@@ -23,7 +34,7 @@ function formatSide(side) {
   return 'Unknown'
 }
 
-class GrampsjsDnaMatchTable extends GrampsjsAppStateMixin(LitElement) {
+export class GrampsjsDnaMatchTable extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
@@ -52,7 +63,7 @@ class GrampsjsDnaMatchTable extends GrampsjsAppStateMixin(LitElement) {
   }
 
   render() {
-    if (!this.segments.length > 0) {
+    if (!this.segments?.length) {
       return html`
         <p>${this._('No DNA matches detected in the data provided.')}</p>
       `
@@ -62,7 +73,9 @@ class GrampsjsDnaMatchTable extends GrampsjsAppStateMixin(LitElement) {
         <grampsjs-table
           sortable
           .data="${this._formatData(this.segments)}"
-          .columns="${matchColumns}"
+          .columns="${matchColumns(
+            (this.appState?.i18n?.lang || 'en').replace('_', '-')
+          )}"
           .appState="${this.appState}"
         ></grampsjs-table>
       </div>
@@ -71,7 +84,7 @@ class GrampsjsDnaMatchTable extends GrampsjsAppStateMixin(LitElement) {
 
   // eslint-disable-next-line class-methods-use-this
   _formatData(data) {
-    if (!data || !data.length > 0) {
+    if (!data?.length) {
       return []
     }
     return data.map(row => [

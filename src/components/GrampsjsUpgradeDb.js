@@ -17,7 +17,7 @@ function renderLogoutButton(appState, _) {
       <grampsjs-icon
         slot="icon"
         .path="${mdiLogout}"
-        color="var(--md-outlined-button-label-text-color, var(--mdc-theme-primary))"
+        color="currentColor"
       ></grampsjs-icon>
       ${_('Log out')}
     </md-outlined-button>

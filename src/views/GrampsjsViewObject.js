@@ -10,6 +10,7 @@ import {GrampsjsView} from './GrampsjsView.js'
 
 import {
   fireEvent,
+  moveTo,
   objectIconPath,
   objectTypeToEndpoint,
   toWritableObject,
@@ -79,27 +80,6 @@ const editTitle = {
 
 function capitalize(string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
-}
-
-// move up the element with index i in the array
-function moveUp(array, i) {
-  if (i <= 0) {
-    return array
-  }
-  return [
-    ...array.slice(0, i - 1),
-    array[i],
-    array[i - 1],
-    ...array.slice(i + 1),
-  ]
-}
-
-// move down the element with index i in the array
-function moveDown(array, i) {
-  if (i >= array.length - 1) {
-    return array
-  }
-  return [...array.slice(0, i), array[i + 1], array[i], ...array.slice(i + 2)]
 }
 
 export class GrampsjsViewObject extends GrampsjsView {
@@ -283,9 +263,10 @@ export class GrampsjsViewObject extends GrampsjsView {
     }
   }
 
+  // Resolves once the response has been handled
   _updateData(clearData = true) {
     if (this._url === '') {
-      return
+      return Promise.resolve()
     }
     if (this.grampsId !== undefined && this.grampsId) {
       if (clearData) {
@@ -295,7 +276,7 @@ export class GrampsjsViewObject extends GrampsjsView {
       this._dataRequestId += 1
       const requestId = this._dataRequestId
       this._dataLang = this.appState.i18n.lang
-      this.appState.apiGet(this.getUrl()).then(data => {
+      return this.appState.apiGet(this.getUrl()).then(data => {
         if (requestId !== this._dataRequestId) {
           // A newer request was sent in the meantime (e.g. after the
           // language was loaded); only its response is applied.
@@ -321,6 +302,7 @@ export class GrampsjsViewObject extends GrampsjsView {
         }
       })
     }
+    return Promise.resolve()
   }
 
   _handleLangChange(lang) {
@@ -540,21 +522,13 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._className,
         'reporef_list'
       )
-    } else if (e.detail.action === 'upRepository') {
+    } else if (e.detail.action === 'moveListItem') {
       this.moveObjectByIndex(
-        e.detail.handle,
+        e.detail.index,
         this._data,
         this._className,
-        'reporef_list',
-        'up'
-      )
-    } else if (e.detail.action === 'downRepository') {
-      this.moveObjectByIndex(
-        e.detail.handle,
-        this._data,
-        this._className,
-        'reporef_list',
-        'down'
+        e.detail.prop,
+        e.detail.to
       )
     } else if (e.detail.action === 'addMediaRef') {
       this.addObject(e.detail.data, this._data, this._className, 'media_list')
@@ -591,7 +565,12 @@ export class GrampsjsViewObject extends GrampsjsView {
         'person_ref_list'
       )
     } else if (e.detail.action === 'delNoteRef') {
-      this.delHandle(e.detail.handle, this._data, this._className, 'note_list')
+      this.delObjectByIndex(
+        e.detail.index,
+        this._data,
+        this._className,
+        'note_list'
+      )
     } else if (e.detail.action === 'delMediaRef') {
       this.delObjectByIndex(
         e.detail.index,
@@ -629,26 +608,8 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._className,
         'person_ref_list'
       )
-    } else if (e.detail.action === 'upMediaRef') {
-      this.moveObjectByIndex(
-        e.detail.index,
-        this._data,
-        this._className,
-        'media_list',
-        'up'
-      )
-    } else if (e.detail.action === 'downMediaRef') {
-      this.moveObjectByIndex(
-        e.detail.index,
-        this._data,
-        this._className,
-        'media_list',
-        'down'
-      )
-    } else if (e.detail.action === 'upName') {
-      this.moveName(e.detail.handle, this._data, 'up')
-    } else if (e.detail.action === 'downName') {
-      this.moveName(e.detail.handle, this._data, 'down')
+    } else if (e.detail.action === 'moveName') {
+      this.moveName(e.detail.handle, this._data, e.detail.to)
     } else if (e.detail.action === 'delName') {
       this.delName(e.detail.data, this._data)
     } else if (e.detail.action === 'addName') {
@@ -678,82 +639,18 @@ export class GrampsjsViewObject extends GrampsjsView {
         'alt_names'
       )
     } else if (e.detail.action === 'delChildRef') {
-      this.delObject(
-        e.detail.handle,
+      this.delObjectByIndex(
+        e.detail.index,
         this._data,
         this._className,
         'child_ref_list'
       )
     } else if (e.detail.action === 'delCitation') {
-      this.delHandle(
-        e.detail.handle,
+      this.delObjectByIndex(
+        e.detail.index,
         this._data,
         this._className,
         'citation_list'
-      )
-    } else if (e.detail.action === 'upEvent') {
-      this.moveObject(
-        e.detail.handle,
-        this._data,
-        this._className,
-        'event_ref_list',
-        'up'
-      )
-    } else if (e.detail.action === 'downEvent') {
-      this.moveObject(
-        e.detail.handle,
-        this._data,
-        this._className,
-        'event_ref_list',
-        'down'
-      )
-    } else if (e.detail.action === 'upPlace') {
-      this.moveObjectByIndex(
-        e.detail.index,
-        this._data,
-        this._className,
-        'placeref_list',
-        'up'
-      )
-    } else if (e.detail.action === 'downPlace') {
-      this.moveObjectByIndex(
-        e.detail.index,
-        this._data,
-        this._className,
-        'placeref_list',
-        'down'
-      )
-    } else if (e.detail.action === 'upChildRef') {
-      this.moveObject(
-        e.detail.handle,
-        this._data,
-        this._className,
-        'child_ref_list',
-        'up'
-      )
-    } else if (e.detail.action === 'downChildRef') {
-      this.moveObject(
-        e.detail.handle,
-        this._data,
-        this._className,
-        'child_ref_list',
-        'down'
-      )
-    } else if (e.detail.action === 'upCitation') {
-      this.moveHandle(
-        e.detail.handle,
-        this._data,
-        this._className,
-        'citation_list',
-        'up'
-      )
-    } else if (e.detail.action === 'downCitation') {
-      this.moveHandle(
-        e.detail.handle,
-        this._data,
-        this._className,
-        'citation_list',
-        'down'
       )
     } else if (e.detail.action === 'updateProp') {
       this.updateProp(
@@ -865,13 +762,6 @@ export class GrampsjsViewObject extends GrampsjsView {
     }
   }
 
-  delObject(handle, obj, objType, prop) {
-    return this._updateObject(obj, objType, _obj => {
-      _obj[prop] = _obj[prop].filter(oRef => oRef.ref !== handle)
-      return _obj
-    })
-  }
-
   delObjectByIndex(index, obj, objType, prop) {
     return this._updateObject(obj, objType, _obj => {
       _obj[prop] = _obj[prop].filter((_el, ind) => ind !== index)
@@ -879,54 +769,24 @@ export class GrampsjsViewObject extends GrampsjsView {
     })
   }
 
-  delHandle(handle, obj, objType, prop) {
+  moveObjectByIndex(index, obj, objType, prop, to) {
     return this._updateObject(obj, objType, _obj => {
-      _obj[prop] = _obj[prop].filter(_handle => _handle !== handle)
+      _obj[prop] = moveTo(_obj[prop], index, to)
       return _obj
     })
   }
 
-  moveObject(handle, obj, objType, prop, upDown) {
-    return this._updateObject(obj, objType, _obj => {
-      const i = (_obj[prop].map(oref => oref.ref) || []).indexOf(handle)
-      if (upDown === 'up') {
-        _obj[prop] = moveUp(_obj[prop], i)
-      } else if (upDown === 'down') {
-        _obj[prop] = moveDown(_obj[prop], i)
-      }
-      return _obj
-    })
-  }
-
-  moveObjectByIndex(index, obj, objType, prop, upDown) {
-    return this._updateObject(obj, objType, _obj => {
-      if (upDown === 'up') {
-        _obj[prop] = moveUp(_obj[prop], index)
-      } else if (upDown === 'down') {
-        _obj[prop] = moveDown(_obj[prop], index)
-      }
-      return _obj
-    })
-  }
-
-  // for this method, 'handle' is the integer index
-  // since names don't have handles!
-  moveName(handle, obj, upDown) {
+  // for this method, 'handle' is the integer index into the primary name
+  // followed by the alternate names, since names don't have handles!
+  moveName(handle, obj, to) {
     return this._updateObject(obj, 'person', _obj => {
-      if (
-        (handle === 0 && upDown === 'down') ||
-        (handle === 1 && upDown === 'up')
-      ) {
-        const primaryName = _obj.primary_name
-        ;[_obj.primary_name] = _obj.alternate_names
-        _obj.alternate_names = [primaryName, ..._obj.alternate_names.slice(1)]
-      } else if (handle >= 1) {
-        if (upDown === 'up') {
-          _obj.alternate_names = moveUp(_obj.alternate_names, handle - 1)
-        } else if (upDown === 'down') {
-          _obj.alternate_names = moveDown(_obj.alternate_names, handle - 1)
-        }
-      }
+      const names = moveTo(
+        [_obj.primary_name, ..._obj.alternate_names],
+        handle,
+        to
+      )
+      ;[_obj.primary_name] = names
+      _obj.alternate_names = names.slice(1)
       return _obj
     })
   }
@@ -1010,23 +870,13 @@ export class GrampsjsViewObject extends GrampsjsView {
     )
   }
 
-  moveHandle(handle, obj, objType, prop, upDown) {
-    return this._updateObject(obj, objType, _obj => {
-      const i = (_obj[prop] || []).indexOf(handle)
-      if (upDown === 'up') {
-        _obj[prop] = moveUp(_obj[prop], i)
-      } else if (upDown === 'down') {
-        _obj[prop] = moveDown(_obj[prop], i)
-      }
-      return _obj
-    })
-  }
-
+  // move `handle` to index `to`
   async _postObject(obj, objType) {
     const url = `/api/${objectTypeToEndpoint[objType]}/`
     return this.appState.apiPost(url, obj)
   }
 
+  // Resolves to whether the update succeeded, after the object is reloaded
   _updateObject(obj, objType, updateFunc, editorDraftPrefix) {
     const objNew = {_class: capitalize(objType), ...toWritableObject(obj)}
     // Places may carry a stray `type` key that older API versions stored;
@@ -1039,13 +889,13 @@ export class GrampsjsViewObject extends GrampsjsView {
     return this.appState.apiPut(url, updateFunc(objNew)).then(data => {
       if ('error' in data) {
         fireEvent(this, 'grampsjs:error', {message: data.error})
-        return
+        return false
       }
-      this._updateData(false)
       // Clear editor drafts after successful save (if prefix provided)
       if (editorDraftPrefix) {
         clearDraftsWithPrefix(editorDraftPrefix)
       }
+      return this._updateData(false).then(() => true)
     })
   }
 }
