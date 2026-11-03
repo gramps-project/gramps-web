@@ -334,7 +334,11 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
         ? html`
             <grampsjs-editor
               id="task-note-editor"
-              .initialData=${note?.text}
+              .initialData=${note?.text ?? {
+                _class: 'StyledText',
+                string: '',
+                tags: [],
+              }}
               .appState="${this.appState}"
             ></grampsjs-editor>
             <div class="controls">

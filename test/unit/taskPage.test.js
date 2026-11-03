@@ -128,6 +128,17 @@ describe('task page for editors', () => {
     expect($(el, '#btn-edit-gallery')).not.toBeNull()
   })
 
+  it('starts a missing description from empty text', async () => {
+    const el = await mount(source())
+    $(el, '#btn-edit-note').click()
+    await el.updateComplete
+    expect($(el, '#task-note-editor').initialData).toEqual({
+      _class: 'StyledText',
+      string: '',
+      tags: [],
+    })
+  })
+
   it('offers an unknown status in the status select', async () => {
     const el = await mount(source({status: 'Waiting'}))
     const values = [
