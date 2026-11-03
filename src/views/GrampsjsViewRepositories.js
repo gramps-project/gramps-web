@@ -4,7 +4,12 @@ Repositories list view
 
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
-import {privacyFilter, tagFilter, textFilter} from '../filterDefinitions.js'
+import {
+  privacyFilter,
+  tagFilter,
+  textFilter,
+  typeFilter,
+} from '../filterDefinitions.js'
 
 export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
   constructor() {
@@ -37,6 +42,13 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
     const _ = s => this._(s)
     return [
       textFilter(_, {label: 'Name', rule: 'MatchesNameSubstringOf'}),
+      typeFilter(_, {
+        label: 'Type',
+        typeName: 'repository_types',
+        rule: 'HasRepo',
+        index: 1,
+        numArgs: 4,
+      }),
       tagFilter(_),
       privacyFilter(_, {rule: 'RepoPrivate'}),
     ]

@@ -244,7 +244,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         .appState="${this.appState}"
         .definitions="${this.filterDefinitions}"
         namespace="${this.filterNamespace}"
-        ?errorGql="${this.error}"
+        ?errorGoql="${this.error}"
       >
         ${this.appState.permissions.canEdit ? this._renderSelectButton() : ''}
         ${this._renderToolbarTrailing()}
@@ -719,18 +719,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
 
   // The query parameters of the active filters
   get _filterQuery() {
-    let query = ''
     const {filters} = this._filters
-    if (filters.length > 0) {
-      query = `${query}&rules=${encodeURIComponent(
-        JSON.stringify({rules: filters})
-      )}`
+    if (filters.length === 0) {
+      return ''
     }
-    const gql = this._filters.query
-    if (gql) {
-      query = `${query}&gql=${encodeURIComponent(gql)}`
-    }
-    return query
+    return `&rules=${encodeURIComponent(JSON.stringify({rules: filters}))}`
   }
 
   // The URL of all objects matching the filters, with the keys needed to

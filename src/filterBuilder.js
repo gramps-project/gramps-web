@@ -304,8 +304,8 @@ function sectionProduces(section, rule) {
         /\d+\D+\d+/.test(values[section.index])
       )
     case 'text':
-      return rule.name === section.rule && onlyIndexSet(section, values)
     case 'type':
+      return rule.name === section.rule && onlyIndexSet(section, values)
     case 'objectType':
     case 'tags':
       return (

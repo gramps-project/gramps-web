@@ -14,6 +14,7 @@ import {
   privacyFilter,
   tagFilter,
   textFilter,
+  typeFilter,
 } from '../filterDefinitions.js'
 
 export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
@@ -71,6 +72,13 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
     const _ = s => this._(s)
     return [
       textFilter(_, {label: 'Name', rule: 'HasData', numArgs: 3}),
+      typeFilter(_, {
+        label: 'Place type:',
+        typeName: 'place_types',
+        rule: 'HasData',
+        index: 1,
+        numArgs: 3,
+      }),
       associationsFilter(_, filterCounts.places),
       tagFilter(_),
       privacyFilter(_, {rule: 'PlacePrivate'}),
