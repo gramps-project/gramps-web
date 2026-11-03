@@ -6,8 +6,8 @@ import '@material/web/iconbutton/icon-button.js'
 import {mdiPencil} from '@mdi/js'
 
 import {GrampsjsObject} from './GrampsjsObject.js'
+import './GrampsjsEditableTitle.js'
 import './GrampsjsIcon.js'
-import './GrampsjsFormEditTitle.js'
 import './GrampsjsFormEditSourceData.js'
 import {fireEvent, linkUrls, objectIconPath} from '../util.js'
 
@@ -23,13 +23,47 @@ export class GrampsjsSource extends GrampsjsObject {
   renderProfile() {
     return html`
       <h2>
-        ${this.data.title || this._('Media Object')}
+        <grampsjs-editable-title
+          .value="${this.data.title}"
+          prop="title"
+          placeholder="${this._('Source')}"
+          required
+          ?editable="${this.edit}"
+          .appState="${this.appState}"
+        ></grampsjs-editable-title>
+      </h2>
+
+      <dl>
+        ${this.data?.abbrev || this.edit
+          ? html`
+              <div>
+                <dt>${this._('Abbreviation')}</dt>
+                <dd>${this.data.abbrev}</dd>
+              </div>
+            `
+          : ''}
+        ${this.data?.author || this.edit
+          ? html`
+              <div>
+                <dt>${this._('Author')}</dt>
+                <dd>${this.data.author}</dd>
+              </div>
+            `
+          : ''}
+        ${this.data?.pubinfo || this.edit
+          ? html`
+              <div>
+                <dt>${this._('Publication info')}</dt>
+                <dd>${linkUrls(this.data.pubinfo ?? '', false)}</dd>
+              </div>
+            `
+          : ''}
         ${this.edit
           ? html`
               <md-icon-button
                 class="edit"
                 aria-label="${this._('Edit')}"
-                @click="${this._handleEditTitle}"
+                @click="${this._handleSourceData}"
               >
                 <grampsjs-icon
                   path="${mdiPencil}"
@@ -38,52 +72,7 @@ export class GrampsjsSource extends GrampsjsObject {
               </md-icon-button>
             `
           : ''}
-      </h2>
-
-      <dl>
-        ${this.data?.abbrev
-          ? html`
-              <div>
-                <dt>${this._('Abbreviation')}</dt>
-                <dd>${this.data.abbrev}</dd>
-              </div>
-            `
-          : ''}
-        ${this.data?.author
-          ? html`
-              <div>
-                <dt>${this._('Author')}</dt>
-                <dd>${this.data.author}</dd>
-              </div>
-            `
-          : ''}
-        ${this.data?.pubinfo
-          ? html`
-              <div>
-                <dt>${this._('Publication info')}</dt>
-                <dd>${linkUrls(this.data.pubinfo, false)}</dd>
-              </div>
-            `
-          : ''}
       </dl>
-      ${this.edit
-        ? html`
-            <div>
-              <dd>
-                <md-icon-button
-                  class="edit"
-                  aria-label="${this._('Edit')}"
-                  @click="${this._handleSourceData}"
-                >
-                  <grampsjs-icon
-                    path="${mdiPencil}"
-                    color="var(--mdc-theme-secondary)"
-                  ></grampsjs-icon>
-                </md-icon-button>
-              </dd>
-            </div>
-          `
-        : ''}
       ${this._renderBlogBtn()}
     `
   }
@@ -108,19 +97,6 @@ export class GrampsjsSource extends GrampsjsObject {
 
   _handleButtonClick() {
     fireEvent(this, 'nav', {path: `blog/${this.data.gramps_id}`})
-  }
-
-  _handleEditTitle() {
-    this.dialogContent = html`
-      <grampsjs-form-edit-title
-        @object:save="${this._handleSaveProps}"
-        @object:cancel="${this._handleCancelDialog}"
-        .appState="${this.appState}"
-        .data=${{title: this.data?.title || ''}}
-        prop="title"
-      >
-      </grampsjs-form-edit-title>
-    `
   }
 
   _handleSaveProps(e) {

@@ -1,6 +1,4 @@
 import {html, css, LitElement} from 'lit'
-import {classMap} from 'lit/directives/class-map.js'
-import {live} from 'lit/directives/live.js'
 import {
   mdiClose,
   mdiContentSave,
@@ -14,6 +12,7 @@ import '@material/web/iconbutton/icon-button.js'
 import '@material/web/select/outlined-select.js'
 import '@material/web/select/select-option.js'
 
+import './GrampsjsEditableTitle.js'
 import './GrampsjsEditor.js'
 import './GrampsjsIcon.js'
 import './GrampsjsImg.js'
@@ -24,7 +23,7 @@ import './GrampsjsNoteContent.js'
 import './GrampsjsConnectedNote.js'
 import './GrampsjsBreadcrumbs.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {debounce, fireEvent} from '../util.js'
+import {fireEvent} from '../util.js'
 
 export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -33,13 +32,6 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
       css`
         #btn-details {
           margin-top: 2em;
-        }
-
-        h2#title {
-          display: block;
-          border-radius: 5px;
-          padding: 5px 10px;
-          margin-left: -10px;
         }
 
         .dropdowns {
@@ -123,14 +115,14 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
         hideBookmark
         hideLock
       ></grampsjs-breadcrumbs>
-      <h2
-        id="title"
-        class="${classMap({editable: this.canEdit})}"
-        contenteditable="${this.canEdit}"
-        @input="${debounce(() => this._handleEditTitle(), 500)}"
-        .innerText="${live(this.source.title)}"
-      >
-        &nbsp;
+      <h2>
+        <grampsjs-editable-title
+          .value="${this.source.title}"
+          prop="title"
+          required
+          ?editable="${this.canEdit}"
+          .appState="${this.appState}"
+        ></grampsjs-editable-title>
       </h2>
 
       <p class="dropdowns">
@@ -376,15 +368,6 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
       )
       fireEvent(this, 'edit:action', {action: 'updateAttribute', data, index})
     }
-  }
-
-  _handleEditTitle() {
-    const element = this.renderRoot.getElementById('title')
-    const title = element.textContent
-      .replace(/(\r\n|\n|\r)/gm, '') // remove line breaks
-      .trim()
-    element.blur()
-    fireEvent(this, 'edit:action', {action: 'updateProp', data: {title}})
   }
 
   _clickDetails(grampsId) {

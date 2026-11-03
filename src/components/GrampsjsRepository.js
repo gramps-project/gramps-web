@@ -1,12 +1,11 @@
 import {html, css} from 'lit'
-import {live} from 'lit/directives/live.js'
-import {classMap} from 'lit/directives/class-map.js'
 import '@material/web/iconbutton/icon-button.js'
 import {mdiPencil} from '@mdi/js'
 import {GrampsjsObject} from './GrampsjsObject.js'
+import './GrampsjsEditableTitle.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormEditRepositoryType.js'
-import {debounce, fireEvent, objectIconPath} from '../util.js'
+import {fireEvent, objectIconPath} from '../util.js'
 
 export class GrampsjsRepository extends GrampsjsObject {
   static get styles() {
@@ -29,14 +28,14 @@ export class GrampsjsRepository extends GrampsjsObject {
 
   renderProfile() {
     return html`
-      <h2
-        id="name"
-        class="${classMap({editable: this.edit})}"
-        contenteditable="${this.edit}"
-        @input="${debounce(() => this._handleEditName(), 500)}"
-        .innerText="${live(this.data.name)}"
-      >
-        &nbsp;
+      <h2>
+        <grampsjs-editable-title
+          .value="${this.data.name}"
+          prop="name"
+          required
+          ?editable="${this.edit}"
+          .appState="${this.appState}"
+        ></grampsjs-editable-title>
       </h2>
       <dl>
         <div>
@@ -65,18 +64,6 @@ export class GrampsjsRepository extends GrampsjsObject {
         </div>
       </dl>
     `
-  }
-
-  _handleEditName() {
-    const element = this.renderRoot.getElementById('name')
-    const name = element.textContent
-      .replace(/(\r\n|\n|\r)/gm, '') // remove line breaks
-      .trim()
-    element.blur()
-    fireEvent(this, 'edit:action', {
-      action: 'updateProp',
-      data: {name},
-    })
   }
 
   _handleRepositoryType() {

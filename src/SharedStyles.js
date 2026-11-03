@@ -319,10 +319,6 @@ export const sharedStyles = css`
     right: 10px;
   }
 
-  h2.editable:hover {
-    background-color: var(--grampsjs-editable-title-hover-background-color);
-  }
-
   .monospace {
     font-family: var(--grampsjs-mono-font-family);
     border: 1px solid var(--grampsjs-body-font-color-15);

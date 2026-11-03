@@ -12,8 +12,8 @@ import {
 import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsImg.js'
 import {isPlayableMime} from './GrampsjsMediaPlayer.js'
+import './GrampsjsEditableTitle.js'
 import './GrampsjsFormEditDate.js'
-import './GrampsjsFormEditTitle.js'
 import './GrampsjsFormEditMapLayer.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFaces.js'
@@ -147,21 +147,13 @@ export class GrampsjsMediaObject extends GrampsjsObject {
   renderProfile() {
     return html`
       <h2>
-        ${this.data.desc || this._('Media Object')}
-        ${this.edit
-          ? html`
-              <md-icon-button
-                class="edit"
-                aria-label="${this._('Edit')}"
-                @click="${this._handleEditTitle}"
-              >
-                <grampsjs-icon
-                  path="${mdiPencil}"
-                  color="currentColor"
-                ></grampsjs-icon>
-              </md-icon-button>
-            `
-          : ''}
+        <grampsjs-editable-title
+          .value="${this.data.desc}"
+          prop="desc"
+          placeholder="${this._('Media Object')}"
+          ?editable="${this.edit}"
+          .appState="${this.appState}"
+        ></grampsjs-editable-title>
       </h2>
 
       <dl>
@@ -560,19 +552,6 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     this.selectedRect = {}
   }
 
-  _handleEditTitle() {
-    this.dialogContent = html`
-      <grampsjs-form-edit-title
-        @object:save="${this._handleSaveTitle}"
-        @object:cancel="${this._handleCancelDialog}"
-        .appState="${this.appState}"
-        .data=${{desc: this.data?.desc || ''}}
-        prop="desc"
-      >
-      </grampsjs-form-edit-title>
-    `
-  }
-
   _handleEditDate() {
     this.dialogContent = html`
     <grampsjs-form-edit-date
@@ -583,13 +562,6 @@ export class GrampsjsMediaObject extends GrampsjsObject {
     >
     </grampsjs-form-edit-title>
     `
-  }
-
-  _handleSaveTitle(e) {
-    fireEvent(this, 'edit:action', {action: 'updateProp', data: e.detail.data})
-    e.preventDefault()
-    e.stopPropagation()
-    this.dialogContent = ''
   }
 
   _handleSaveDate(e) {
