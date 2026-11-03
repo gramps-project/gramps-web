@@ -327,6 +327,17 @@ export class GrampsjsViewObject extends GrampsjsView {
     )
   }
 
+  // the page shown after the object is deleted
+  // eslint-disable-next-line class-methods-use-this
+  get _pathAfterDelete() {
+    return ''
+  }
+
+  // the page of the object, where undoing its deletion returns to
+  _objectPath(grampsId) {
+    return `${this._className}/${grampsId}`
+  }
+
   async _deleteSelf() {
     const {handle} = this._data
     const grampsId = this._data.gramps_id
@@ -342,11 +353,11 @@ export class GrampsjsViewObject extends GrampsjsView {
         // the deleted object fetch data for a handle that no longer exists
         await this._renderComplete()
         fireEvent(this, 'db:changed')
-        fireEvent(this, 'nav', {path: ''})
+        fireEvent(this, 'nav', {path: this._pathAfterDelete})
         fireEvent(this, 'transaction:undo', {
           message: this._('Object %s deleted.', grampsId),
           transaction: data.data,
-          redirect: `${this._className}/${grampsId}`,
+          redirect: this._objectPath(grampsId),
         })
       } else if ('error' in data) {
         fireEvent(this, 'grampsjs:error', {message: data.error})

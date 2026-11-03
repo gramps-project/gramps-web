@@ -1,16 +1,18 @@
-import {html} from 'lit'
+import {html, nothing} from 'lit'
 
 import '@material/web/textfield/filled-text-field.js'
-import '@material/web/select/filled-select.js'
+import '@material/web/select/outlined-select.js'
 import '@material/web/select/select-option.js'
 
 import '../components/GrampsjsEditor.js'
+import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsFormString.js'
 import '../components/GrampsjsFormPrivate.js'
 import {GrampsjsViewNewSource} from './GrampsjsViewNewSource.js'
 
 import {makeHandle, fireEvent, reportRequiredField} from '../util.js'
 import {
+  PRIORITY_ICONS,
   TASK_PRIORITIES,
   priorityLabel,
   taskAttribute,
@@ -54,6 +56,26 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
         ></md-filled-text-field>
       </p>
 
+      <p>
+        <md-outlined-select
+          label="${this._('Priority')}"
+          @change="${this.handlePriority}"
+        >
+          ${this._renderPriorityIcon(priorityLabel(priority), 'leading-icon')}
+          ${TASK_PRIORITIES.map(
+            ({label, value}) => html`
+              <md-select-option
+                ?selected="${priorityLabel(priority) === label}"
+                value="${value}"
+              >
+                ${this._renderPriorityIcon(label, 'start')}
+                <span slot="headline">${this._(label)}</span>
+              </md-select-option>
+            `
+          )}
+        </md-outlined-select>
+      </p>
+
       <h3 class="label">${this._('Description')}</h3>
       <p>
         <grampsjs-editor
@@ -63,23 +85,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
         ></grampsjs-editor>
       </p>
 
-      <h3 class="label">${this._('Priority')}</h3>
-      <p>
-        <md-filled-select @change="${this.handlePriority}">
-          ${TASK_PRIORITIES.map(
-            ({label, value}) => html`
-              <md-select-option
-                ?selected="${priorityLabel(priority) === label}"
-                value="${value}"
-              >
-                <span slot="headline">${this._(label)}</span>
-              </md-select-option>
-            `
-          )}
-        </md-filled-select>
-      </p>
-
-      ${this._renderTagsForm()}
+      ${this._renderMediaForm('Attachments')} ${this._renderTagsForm()}
 
       <div class="spacer"></div>
       <grampsjs-form-private
@@ -89,7 +95,21 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
 
       ${this.renderButtons()}
     `
-    // <pre>${JSON.stringify(this.data, null, 2)}</pre>
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _renderPriorityIcon(label, slot) {
+    const icon = PRIORITY_ICONS[label]
+    if (!icon) {
+      return ''
+    }
+    return html`<grampsjs-icon
+      slot="${slot}"
+      path="${icon.path}"
+      color="${icon.color ?? nothing}"
+      height="20"
+      width="20"
+    ></grampsjs-icon>`
   }
 
   handleName(e) {
@@ -180,6 +200,8 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
     ]
   }
 
+  // Finds the ToDo tag, or creates it, on submit: opening the form does not
+  // change the database
   async _fetchTodoTagHandle(retry = true) {
     const lang = this.appState?.i18n?.lang || 'en'
     const data = await this.appState.apiGet(
@@ -198,10 +220,6 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
         }
       }
     }
-  }
-
-  firstUpdated() {
-    this._fetchTodoTagHandle()
   }
 
   async _submit() {

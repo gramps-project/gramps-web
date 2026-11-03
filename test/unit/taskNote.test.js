@@ -65,14 +65,22 @@ describe('GrampsjsTask _handleSaveNote', () => {
   it('adds a note without a handle', async () => {
     const t = task('New', {notes: []})
     await save.call(t)
-    expect(t.saveNote).toHaveBeenCalledWith({text: text('New'), type: 'To Do'})
+    expect(t.saveNote).toHaveBeenCalledWith({
+      text: text('New'),
+      type: 'To Do',
+      tag_list: [],
+    })
   })
 
   it('adds a note when the only note of the task was deleted', async () => {
     const t = task('New', {notes: []})
     t.source.note_list = ['deleted']
     await save.call(t)
-    expect(t.saveNote).toHaveBeenCalledWith({text: text('New'), type: 'To Do'})
+    expect(t.saveNote).toHaveBeenCalledWith({
+      text: text('New'),
+      type: 'To Do',
+      tag_list: [],
+    })
   })
 
   it('updates the first note that exists', async () => {
@@ -84,6 +92,24 @@ describe('GrampsjsTask _handleSaveNote', () => {
       text: text('New'),
       type: 'To Do',
     })
+  })
+
+  it('gives a new note the tags of the task', async () => {
+    const t = task('New', {notes: []})
+    t.source.tag_list = ['todo', 'urgent']
+    await save.call(t)
+    expect(t.saveNote).toHaveBeenCalledWith({
+      text: text('New'),
+      type: 'To Do',
+      tag_list: ['todo', 'urgent'],
+    })
+  })
+
+  it('keeps the type of an existing note', async () => {
+    const general = {...NOTE, type: 'General'}
+    const t = task('New', {notes: [general]})
+    await save.call(t)
+    expect(t.saveNote).toHaveBeenCalledWith({...general, text: text('New')})
   })
 
   it('closes without saving when a new note is empty', async () => {
