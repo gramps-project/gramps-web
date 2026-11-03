@@ -5,6 +5,7 @@ import '../components/GrampsjsBreadcrumbs.js'
 import '../components/GrampsjsTask.js'
 import {GrampsjsViewSource} from './GrampsjsViewSource.js'
 import {fireEvent} from '../util.js'
+import {taskNote} from '../taskConstants.js'
 
 // The page of a task, edited in place. It has no edit mode, so the FAB and
 // the edit mode shortcut do nothing; the page deletes the task itself.
@@ -22,8 +23,8 @@ export class GrampsjsViewTask extends GrampsjsViewSource {
         .appState="${this.appState}"
         objectsName="Tasks"
         .objectIcon="${mdiFormatListChecks}"
+        ?edit="${this.canEdit}"
         hideBookmark
-        hideLock
       ></grampsjs-breadcrumbs>
     `
   }
@@ -65,6 +66,28 @@ export class GrampsjsViewTask extends GrampsjsViewSource {
   // eslint-disable-next-line class-methods-use-this
   _objectPath(grampsId) {
     return `task/${grampsId}`
+  }
+
+  // The note with the description gets the privacy of the task
+  async handleEditAction(e) {
+    const isPrivate = e.detail.data?.private
+    const note = taskNote(this._data)
+    if (
+      e.detail.action === 'updateProp' &&
+      isPrivate !== undefined &&
+      note &&
+      Boolean(note.private) !== isPrivate
+    ) {
+      const res = await this.appState.apiPut(`/api/notes/${note.handle}`, {
+        ...note,
+        private: isPrivate,
+      })
+      if ('error' in res) {
+        fireEvent(this, 'grampsjs:error', {message: res.error})
+        return
+      }
+    }
+    super.handleEditAction(e)
   }
 
   // eslint-disable-next-line class-methods-use-this

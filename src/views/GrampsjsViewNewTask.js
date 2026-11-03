@@ -196,6 +196,7 @@ export class GrampsjsViewNewTask extends GrampsjsViewNewSource {
         handle: handleNote,
         tag_list: tagList,
         type: 'To Do',
+        private: Boolean(source.private),
       },
     ]
   }

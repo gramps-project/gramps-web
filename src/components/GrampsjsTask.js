@@ -481,7 +481,12 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
     if (note) {
       data = {...note, text}
     } else if (text.string.trim() !== '') {
-      data = {text, type: 'To Do', tag_list: this.source.tag_list ?? []}
+      data = {
+        text,
+        type: 'To Do',
+        tag_list: this.source.tag_list ?? [],
+        private: Boolean(this.source.private),
+      }
     }
     if (data !== null) {
       this._savingNote = true
