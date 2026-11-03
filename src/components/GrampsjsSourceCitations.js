@@ -2,7 +2,7 @@ import {html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
-import {fireEvent, makeHandle} from '../util.js'
+import {appHref, fireEvent, handleAppLinkClick, makeHandle} from '../util.js'
 import {renderIcon} from '../objectRender.js'
 import './GrampsjsFormCitation.js'
 import './GrampsjsFormNewCitation.js'
@@ -16,15 +16,17 @@ export class GrampsjsSourceCitations extends GrampsjsEditableList {
   }
 
   row(obj, i) {
+    const isLink = !this.edit && obj.gramps_id !== this.grampsId
     return html`
       <md-list-item
-        type="button"
+        type="${isLink ? 'link' : 'button'}"
+        href="${isLink ? appHref(this._getItemPath(obj.gramps_id)) : ''}"
         class="${classMap({selected: i === this._selectedIndex})}"
-        @click="${() => {
+        @click="${e => {
           if (this.edit) {
             this._handleSelected(i)
           } else {
-            this._handleClick(obj.gramps_id)
+            this._handleClick(e, obj.gramps_id)
           }
         }}"
       >
@@ -35,15 +37,9 @@ export class GrampsjsSourceCitations extends GrampsjsEditableList {
     `
   }
 
-  _handleClick(grampsId) {
+  _handleClick(e, grampsId) {
     if (!this.edit && grampsId && grampsId !== this.grampsId) {
-      this.dispatchEvent(
-        new CustomEvent('nav', {
-          bubbles: true,
-          composed: true,
-          detail: {path: this._getItemPath(grampsId)},
-        })
-      )
+      handleAppLinkClick(e, this._getItemPath(grampsId))
     }
   }
 

@@ -7,7 +7,13 @@ import '@material/web/list/list.js'
 import '@material/web/list/list-item.js'
 import '@material/web/divider/divider.js'
 
-import {objectDescription, fireEvent, objectDetail} from '../util.js'
+import {
+  appHref,
+  objectDescription,
+  fireEvent,
+  handleAppLinkClick,
+  objectDetail,
+} from '../util.js'
 import {renderIcon} from '../objectRender.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsImg.js'
@@ -97,13 +103,19 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
             obj.object,
             this.appState.i18n.strings
           )
+          const path = this._getPath(obj)
           return html`
             <md-list-item
-              type="${this.selectable || this.linked ? 'button' : 'text'}"
+              type="${path
+                ? 'link'
+                : this.selectable || this.linked
+                  ? 'button'
+                  : 'text'}"
+              href="${path ? appHref(path) : ''}"
               class="${classMap({
                 selected: this.activatable && i === this._selectedIndex,
               })}"
-              @click="${() => this._handleClick(obj, i)}"
+              @click="${e => this._handleClick(e, obj, i)}"
               @keydown="${this._handleKeyDown}"
             >
               ${renderIcon(obj, 'start')}
@@ -189,14 +201,21 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
     })
   }
 
-  _handleClick(obj, i) {
+  // The path of the page of the object, if the list links to it
+  _getPath(obj) {
+    return this.linked && obj.object_type && obj.object?.gramps_id
+      ? `${obj.object_type}/${obj.object.gramps_id}`
+      : ''
+  }
+
+  _handleClick(e, obj, i) {
     if (this.activatable) {
       this._selectedIndex = i
       fireEvent(this, 'action', {index: i})
     }
-    if (this.linked && obj.object_type && obj.object?.gramps_id) {
-      const path = `${obj.object_type}/${obj.object?.gramps_id}`
-      fireEvent(this, 'nav', {path})
+    const path = this._getPath(obj)
+    if (path) {
+      handleAppLinkClick(e, path)
     }
     fireEvent(this, 'search-result:clicked', obj)
   }

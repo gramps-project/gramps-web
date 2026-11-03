@@ -598,9 +598,11 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleRowClick(e, originalIndex) {
-    // Clicks on the row link that open a new tab are left to the browser
-    if (this.rowHref && isNewTabClick(e)) return
-    e.preventDefault()
+    if (this.rowHref) {
+      // Clicks on the row link that open a new tab are left to the browser
+      if (isNewTabClick(e)) return
+      e.preventDefault()
+    }
     fireEvent(this, 'table:row-click', {rowNumber: originalIndex})
   }
 

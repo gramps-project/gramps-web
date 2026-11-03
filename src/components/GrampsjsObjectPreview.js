@@ -1,4 +1,5 @@
 import {LitElement, css, html, nothing} from 'lit'
+import {ifDefined} from 'lit/directives/if-defined.js'
 import {mdiOpenInNew} from '@mdi/js'
 
 import '@material/web/iconbutton/icon-button.js'
@@ -446,7 +447,7 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
       >
         <md-icon-button
           id="open-btn"
-          href="${appHref(this._path)}"
+          href="${ifDefined(this._grampsId ? appHref(this._path) : undefined)}"
           @click="${this._handleOpen}"
           title="${this._('_Open')}"
           aria-label="${this._('_Open')}"
