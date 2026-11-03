@@ -27,7 +27,7 @@ import './GrampsjsFilterYears.js'
 import './GrampsjsIcon.js'
 import {renderIconSvg} from '../icons.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {fireEvent, clickKeyHandler} from '../util.js'
+import {apiVersionAtLeast, fireEvent, clickKeyHandler} from '../util.js'
 import {
   findSection,
   indexedRule,
@@ -184,9 +184,16 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     this._tree = null
   }
 
-  // the view's sections and the GOQL section
+  // whether the backend has the MatchesQuery rule
+  get _hasGoql() {
+    return apiVersionAtLeast(this.appState?.dbInfo, 3, 24)
+  }
+
+  // the view's sections and, if supported, the GOQL section
   get _sections() {
-    return [...this.definitions, GOQL_SECTION]
+    return this._hasGoql
+      ? [...this.definitions, GOQL_SECTION]
+      : this.definitions
   }
 
   // the active rules
@@ -247,11 +254,13 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
             ? html`${this.definitions.map(section =>
                 this._renderSection(section)
               )}
-              ${this._renderDetails(
-                GOQL_SECTION.id,
-                GOQL_SECTION.label,
-                this._renderGoql()
-              )}`
+              ${this._hasGoql
+                ? this._renderDetails(
+                    GOQL_SECTION.id,
+                    GOQL_SECTION.label,
+                    this._renderGoql()
+                  )
+                : nothing}`
             : this._renderAdvancedNotice()}
         </div>
         ${this.namespace && this._tree === null
