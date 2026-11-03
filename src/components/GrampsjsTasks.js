@@ -6,7 +6,6 @@ import {html, css, LitElement, nothing} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import '@material/web/checkbox/checkbox'
-import '@material/web/button/filled-button'
 import '@material/web/button/outlined-button'
 import '@material/web/menu/menu'
 import '@material/web/menu/menu-item'
@@ -16,7 +15,6 @@ import {
   mdiTimelapse,
   mdiMinusCircle,
   mdiCheckCircle,
-  mdiCheckboxMultipleOutline,
   mdiHelp,
   mdiChevronDoubleDown,
   mdiAdjust,
@@ -29,7 +27,7 @@ import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {clickKeyHandler, fireEvent} from '../util.js'
+import {fireEvent} from '../util.js'
 import {tagFilter} from '../filterDefinitions.js'
 import {
   TASK_PRIORITIES,
@@ -85,19 +83,12 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           border-bottom: 1px solid var(--grampsjs-body-font-color-10);
         }
 
-        .task-item.selectable,
-        .task-item.clickable {
+        .task-item {
           cursor: pointer;
         }
 
-        .task-item.selectable:hover,
-        .task-item.clickable:hover {
+        .task-item:hover {
           background-color: var(--grampsjs-color-shade-240);
-        }
-
-        .task-item.selectable:focus-visible {
-          outline: 2px solid var(--mdc-theme-primary);
-          outline-offset: -2px;
         }
 
         .task-item.selected {
@@ -109,14 +100,13 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
 
         .task-item md-checkbox {
           flex-shrink: 0;
-          pointer-events: none;
         }
 
         a.title-link {
           color: var(--mdc-theme-text-primary-on-background);
         }
 
-        .task-item.clickable:hover a.title-link,
+        .task-item:hover a.title-link,
         a.title-link:focus-visible {
           color: var(--grampsjs-color-link-hover);
           text-decoration: none;
@@ -160,7 +150,8 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           align-items: center;
           flex-wrap: wrap;
           gap: 12px 24px;
-          padding: 6px 4px;
+          /* the select-all checkbox lines up with the checkboxes of the rows */
+          padding: 6px 4px 6px 10px;
           margin-top: 8px;
         }
 
@@ -213,7 +204,6 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
     return {
       data: {type: Array},
       loading: {type: Boolean},
-      _selectionMode: {type: Boolean},
       _selectedHandles: {type: Array},
     }
   }
@@ -222,7 +212,6 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.data = []
     this.loading = false
-    this._selectionMode = false
     this._selectedHandles = []
   }
 
@@ -233,15 +222,6 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
   // Selected tasks that are no longer listed, e.g. after a filter change or
   // a reload, are deselected
   willUpdate(changed) {
-    if (!this._canEdit) {
-      this._selectionMode = false
-    }
-    if (!this._selectionMode) {
-      if (this._selectedHandles.length > 0) {
-        this._selectedHandles = []
-      }
-      return
-    }
     if (changed.has('data')) {
       const handles = this.data.map(task => task.handle)
       const selected = this._selectedHandles.filter(handle =>
@@ -259,38 +239,14 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         .appState="${this.appState}"
         .definitions="${[tagFilter(s => this._(s))]}"
         namespace="sources"
-      >
-        ${this._canEdit ? this._renderSelectButton() : ''}
-      </grampsjs-filters>
-      ${this._selectionMode ? this._renderBatchToolbar() : ''}
+      ></grampsjs-filters>
+      ${this._canEdit ? this._renderBatchToolbar() : ''}
       ${this.data.length === 0 && !this.loading
         ? html`<p class="empty">${this._('None')}</p>`
         : html`<div class="tasks-list">
             ${this.data.map(task => this._renderTask(task))}
           </div>`}
     `
-  }
-
-  _renderSelectButton() {
-    const icon = html`<grampsjs-icon
-      slot="icon"
-      .path="${mdiCheckboxMultipleOutline}"
-      height="20"
-      color="currentColor"
-    ></grampsjs-icon>`
-    return this._selectionMode
-      ? html`<md-filled-button
-          slot="leading"
-          @click="${this._toggleSelectionMode}"
-        >
-          ${icon} ${this._('Select')}
-        </md-filled-button>`
-      : html`<md-outlined-button
-          slot="leading"
-          @click="${this._toggleSelectionMode}"
-        >
-          ${icon} ${this._('Select')}
-        </md-outlined-button>`
   }
 
   _renderBatchToolbar() {
@@ -310,13 +266,27 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           ${this._renderActionMenu(
             'prio',
             this._('Set Priority'),
-            TASK_PRIORITIES,
+            TASK_PRIORITIES.map(priority => ({
+              ...priority,
+              icon: PRIORITY_ICONS[priority.label],
+            })),
             'Priority'
           )}
           ${this._renderActionMenu(
             'status',
             this._('Set Status'),
-            TASK_STATUSES.map(status => ({label: status, value: status})),
+            TASK_STATUSES.map(status => ({
+              label: status,
+              value: status,
+              // done tasks fade in the list, but not the option in the menu
+              icon:
+                status === 'Done'
+                  ? {
+                      ...STATUS_ICONS.Done,
+                      color: 'var(--grampsjs-task-done-solid)',
+                    }
+                  : STATUS_ICONS[status],
+            })),
             'Status'
           )}
         </div>
@@ -324,6 +294,8 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
+  // items are {label, value, icon}, with an icon from STATUS_ICONS or
+  // PRIORITY_ICONS
   _renderActionMenu(id, label, items, attribute) {
     return html`
       <div class="menu-anchor">
@@ -341,6 +313,13 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
               <md-menu-item
                 @click="${() => this._updateAttribute(attribute, item.value)}"
               >
+                <grampsjs-icon
+                  slot="start"
+                  path="${item.icon.path}"
+                  color="${item.icon.color ?? nothing}"
+                  height="20"
+                  width="20"
+                ></grampsjs-icon>
                 <div slot="headline">${this._(item.label)}</div>
               </md-menu-item>
             `
@@ -357,18 +336,14 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
       <div class="item-content">
         <div class="status-icon">${this._statusIcon(status, task.handle)}</div>
         <div class="title">
-          ${this._selectionMode
-            ? html`<span class="${classMap({strike: status === 'Done'})}"
-                >${task.title}</span
-              >`
-            : html`<a
-                class="${classMap({
-                  'title-link': true,
-                  strike: status === 'Done',
-                })}"
-                href="/task/${task.gramps_id}"
-                >${task.title}</a
-              >`}
+          <a
+            class="${classMap({
+              'title-link': true,
+              strike: status === 'Done',
+            })}"
+            href="/task/${task.gramps_id}"
+            >${task.title}</a
+          >
           <grampsjs-tags-small
             .data="${task.extended.tags.filter(tag => tag.name !== 'ToDo')}"
           ></grampsjs-tags-small>
@@ -383,33 +358,21 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         >
       </div>
     `
-    if (!this._selectionMode) {
-      // the title link is the keyboard target, so the row needs no key handler
-      // eslint-disable-next-line lit-a11y/click-events-have-key-events
-      return html`<div
-        class="task-item clickable"
-        @click="${e => this._handleRowClick(e, task)}"
-      >
-        ${content}
-      </div>`
-    }
-    return html`
-      <div
-        class="${classMap({'task-item': true, selectable: true, selected})}"
-        role="checkbox"
-        aria-checked="${String(selected)}"
-        tabindex="0"
-        @click="${() => this._toggleSelected(task.handle)}"
-        @keydown="${clickKeyHandler}"
-      >
-        <md-checkbox
-          ?checked="${selected}"
-          tabindex="-1"
-          aria-hidden="true"
-        ></md-checkbox>
-        ${content}
-      </div>
-    `
+    // the title link is the keyboard target, so the row needs no key handler
+    // eslint-disable-next-line lit-a11y/click-events-have-key-events
+    return html`<div
+      class="${classMap({'task-item': true, selected})}"
+      @click="${e => this._handleRowClick(e, task)}"
+    >
+      ${this._canEdit
+        ? html`<md-checkbox
+            ?checked="${selected}"
+            aria-label="${task.title}"
+            @change="${() => this._toggleSelected(task.handle)}"
+          ></md-checkbox>`
+        : ''}
+      ${content}
+    </div>`
   }
 
   _statusIcon(status, handle) {
@@ -452,18 +415,14 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  // clicks on the title link are left to the link
+  // clicks on the title link and the checkbox are left to them
   _handleRowClick(e, task) {
     const path = e.composedPath()
     const inRow = path.slice(0, path.indexOf(e.currentTarget))
-    if (inRow.some(node => node.tagName === 'A')) {
+    if (inRow.some(node => ['A', 'MD-CHECKBOX'].includes(node.tagName))) {
       return
     }
     fireEvent(this, 'nav', {path: `task/${task.gramps_id}`})
-  }
-
-  _toggleSelectionMode() {
-    this._selectionMode = !this._selectionMode
   }
 
   _toggleSelected(handle) {
@@ -479,10 +438,13 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         : this.data.map(task => task.handle)
   }
 
+  // Each update sends the whole task, so a second action before the list
+  // reloads would undo the first; clearing the selection prevents that
   _updateAttribute(key, value) {
     const objects = this.data.filter(task =>
       this._selectedHandles.includes(task.handle)
     )
+    this._selectedHandles = []
     fireEvent(this, 'tasks:update-attribute', {objects, key, value})
   }
 }

@@ -119,16 +119,10 @@ afterEach(() => {
 const $ = (el, selector) => el.shadowRoot.querySelector(selector)
 const $$ = (el, selector) => [...el.shadowRoot.querySelectorAll(selector)]
 const rows = el => $$(el, '.task-item')
-const selectButton = el =>
-  $$(el, '[slot="leading"]').find(b => b.textContent.includes('Select'))
+const rowCheckbox = (el, index) => rows(el)[index].querySelector('md-checkbox')
 
-async function startSelecting(el) {
-  selectButton(el).click()
-  await el.updateComplete
-}
-
-async function clickRow(el, index) {
-  rows(el)[index].click()
+async function check(el, index) {
+  rowCheckbox(el, index).dispatchEvent(new Event('change'))
   await el.updateComplete
 }
 
@@ -165,33 +159,52 @@ describe('GrampsjsTasks', () => {
 
   it('offers selection only to editors', async () => {
     const el = await mount({data, appState: appStateFor({canEdit: false})})
-    expect(selectButton(el)).toBeUndefined()
     expect($(el, 'md-checkbox')).toBeNull()
+    expect($(el, '.batch-toolbar')).toBeNull()
   })
 
-  it('shows checkboxes only while selecting', async () => {
+  it('shows a checkbox on every row and the bulk actions to editors', async () => {
     const el = await mount({data})
-    expect($(el, '.task-item md-checkbox')).toBeNull()
-    await startSelecting(el)
     expect($$(el, '.task-item md-checkbox')).toHaveLength(3)
-    expect($(el, '.task-item a')).toBeNull()
+    const actions = $$(el, '.batch-actions md-outlined-button')
+    expect(actions).toHaveLength(2)
+    expect(actions.every(button => button.disabled)).toBe(true)
   })
 
-  it('selects by clicking rows and shows a partial select-all', async () => {
+  it('selects with the checkbox and shows a partial select-all', async () => {
     const el = await mount({data})
-    await startSelecting(el)
-    await clickRow(el, 1)
+    await check(el, 1)
     expect(el._selectedHandles).toEqual(['b'])
     const all = $(el, '.batch-toolbar md-checkbox')
     expect(all.indeterminate).toBe(true)
     expect(all.checked).toBe(false)
-    expect(rows(el)[1].getAttribute('aria-checked')).toBe('true')
+    expect(rows(el)[1].classList.contains('selected')).toBe(true)
+    const actions = $$(el, '.batch-actions md-outlined-button')
+    expect(actions.some(button => button.disabled)).toBe(false)
+  })
+
+  it('shows the icons of the priorities and statuses in the menus', async () => {
+    const el = await mount({data})
+    const icons = id =>
+      $$(el, `#${id}-menu md-menu-item grampsjs-icon[slot="start"]`)
+    expect(icons('prio')).toHaveLength(3)
+    expect(icons('status')).toHaveLength(4)
+    expect(icons('status')[3].getAttribute('color')).toBe(
+      'var(--grampsjs-task-done-solid)'
+    )
+  })
+
+  it('leaves clicks on the checkbox to the checkbox', async () => {
+    const el = await mount({data})
+    const paths = []
+    el.addEventListener('nav', e => paths.push(e.detail.path))
+    rowCheckbox(el, 0).click()
+    expect(paths).toEqual([])
   })
 
   it('selects all, then none', async () => {
     const el = await mount({data})
-    await startSelecting(el)
-    await clickRow(el, 0)
+    await check(el, 0)
     el._handleSelectAll()
     expect(el._selectedHandles).toEqual(['a', 'b', 'c'])
     el._handleSelectAll()
@@ -200,33 +213,23 @@ describe('GrampsjsTasks', () => {
 
   it('updates the selected tasks after the list reloads in a new order', async () => {
     const el = await mount({data})
-    await startSelecting(el)
-    await clickRow(el, 0)
+    await check(el, 0)
     el.data = [task('b'), task('a'), task('c')]
     await el.updateComplete
     el._updateAttribute('Status', 'Done')
     expect(el.updates).toHaveLength(1)
     expect(el.updates[0].objects.map(t => t.handle)).toEqual(['a'])
     expect(el.updates[0]).toMatchObject({key: 'Status', value: 'Done'})
+    expect(el._selectedHandles).toEqual([])
   })
 
   it('drops selected tasks that are no longer listed', async () => {
     const el = await mount({data})
-    await startSelecting(el)
-    await clickRow(el, 0)
-    await clickRow(el, 1)
+    await check(el, 0)
+    await check(el, 1)
     el.data = [task('b'), task('c')]
     await el.updateComplete
     expect(el._selectedHandles).toEqual(['b'])
-  })
-
-  it('clears the selection when selecting ends', async () => {
-    const el = await mount({data})
-    await startSelecting(el)
-    await clickRow(el, 0)
-    await startSelecting(el)
-    expect(el._selectedHandles).toEqual([])
-    expect($(el, '.batch-toolbar')).toBeNull()
   })
 
   it('says so when there are no tasks', async () => {

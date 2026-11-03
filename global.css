@@ -86,7 +86,12 @@ body {
   --grampsjs-alert-success-font-color: #41ad49;
   --grampsjs-task-open: #007bff;
   --grampsjs-task-progress: #ff9800;
-  --grampsjs-task-done: rgba(65, 173, 73, 0.4);
+  --grampsjs-task-done-solid: rgb(65, 173, 73);
+  --grampsjs-task-done: color-mix(
+    in srgb,
+    var(--grampsjs-task-done-solid) 40%,
+    transparent
+  );
   --grampsjs-editable-title-hover-background-color: color-mix(
     in srgb,
     var(--mdc-theme-secondary) 20%,
