@@ -52,12 +52,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
           display: none;
         }
 
-        .viewbtn {
-          float: right;
-        }
-
         .batch-toolbar {
-          clear: both;
           display: flex;
           align-items: center;
           flex-wrap: wrap;
@@ -67,6 +62,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         }
 
         .batch-toolbar .selection-count {
+          display: flex;
+          align-items: center;
+          gap: 8px;
           font-size: 16px;
           color: var(--grampsjs-body-font-color-70);
         }
@@ -248,54 +246,61 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         namespace="${this.filterNamespace}"
         ?errorGql="${this.error}"
       >
-        ${this.appState.permissions.canEdit
-          ? this._selectionMode
-            ? html`<md-filled-button
-                slot="leading"
-                @click="${this._toggleSelectionMode}"
-              >
-                <grampsjs-icon
-                  slot="icon"
-                  .path="${mdiCheckboxMultipleOutline}"
-                  height="20"
-                  color="currentColor"
-                ></grampsjs-icon>
-                ${this._('Select')}
-              </md-filled-button>`
-            : html`<md-outlined-button
-                slot="leading"
-                @click="${this._toggleSelectionMode}"
-              >
-                <grampsjs-icon
-                  slot="icon"
-                  .path="${mdiCheckboxMultipleOutline}"
-                  height="20"
-                  color="currentColor"
-                ></grampsjs-icon>
-                ${this._('Select')}
-              </md-outlined-button>`
-          : ''}
+        ${this.appState.permissions.canEdit ? this._renderSelectButton() : ''}
+        ${this._renderToolbarTrailing()}
       </grampsjs-filters>
-      <div class="viewbtn">
-        ${this._renderViewButton()}
-        <md-icon-button
-          title="${this._('Columns')}"
-          aria-label="${this._('Columns')}"
-          @click="${() => {
-            this._showColumnPicker = true
-          }}"
-        >
-          <grampsjs-icon .path="${mdiCog}" height="22"></grampsjs-icon>
-        </md-icon-button>
-      </div>
     `
+  }
+
+  _renderSelectButton() {
+    const icon = html`<grampsjs-icon
+      slot="icon"
+      .path="${mdiCheckboxMultipleOutline}"
+      height="20"
+      color="currentColor"
+    ></grampsjs-icon>`
+    return this._selectionMode
+      ? html`<md-filled-button
+          slot="leading"
+          @click="${this._toggleSelectionMode}"
+        >
+          ${icon} ${this._('Select')}
+        </md-filled-button>`
+      : html`<md-outlined-button
+          slot="leading"
+          @click="${this._toggleSelectionMode}"
+        >
+          ${icon} ${this._('Select')}
+        </md-outlined-button>`
+  }
+
+  // controls at the end of the toolbar, each with slot="trailing"
+  _renderToolbarTrailing() {
+    return html`
+      <md-icon-button
+        slot="trailing"
+        title="${this._('Columns')}"
+        aria-label="${this._('Columns')}"
+        @click="${() => {
+          this._showColumnPicker = true
+        }}"
+      >
+        <grampsjs-icon .path="${mdiCog}" height="22"></grampsjs-icon>
+      </md-icon-button>
+    `
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _renderSelectPage() {
+    return ''
   }
 
   _renderBatchToolbar() {
     return html`
       <div class="batch-toolbar">
         <span class="selection-count">
-          ${this._('%s selected', this._selectedHandles.length)}
+          ${this._renderSelectPage()}
+          <span>${this._('%s selected', this._selectedHandles.length)}</span>
         </span>
         ${this._canSelectAllMatching
           ? html`<md-text-button
@@ -535,11 +540,6 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       return
     }
     this._clearSelection()
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _renderViewButton() {
-    return ''
   }
 
   // groups of filters offered in the filter bar, see filterDefinitions.js

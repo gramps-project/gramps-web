@@ -8,7 +8,6 @@ import {
   mdiViewGrid,
   mdiSortAscending,
   mdiSortDescending,
-  mdiCheckboxMultipleOutline,
 } from '@mdi/js'
 import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
 import {
@@ -40,16 +39,6 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     return [
       super.styles,
       css`
-        .controls-row {
-          display: flex;
-          align-items: center;
-          flex-wrap: wrap;
-          column-gap: 16px;
-          row-gap: 12px;
-          padding: 12px 0 4px;
-          margin-bottom: 16px;
-        }
-
         .view-switcher {
           display: flex;
           align-items: center;
@@ -64,11 +53,9 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         .sort-control md-filled-select {
           min-width: 180px;
           --md-filled-select-text-field-container-color: transparent;
-        }
-
-        grampsjs-filters {
-          display: block;
-          margin: 28px 0;
+          --md-filled-select-text-field-container-height: 40px;
+          --md-filled-select-text-field-top-space: 0px;
+          --md-filled-select-text-field-bottom-space: 0px;
         }
 
         /* Gallery (grid) view */
@@ -126,18 +113,8 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
           pointer-events: none;
         }
 
-        .select-page {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 4px 4px 4px 8px;
-          margin-top: 16px;
-          font-size: 14px;
-          color: var(--grampsjs-body-font-color-70);
-        }
-
         .tile-check md-checkbox,
-        .select-page md-checkbox,
+        .batch-toolbar md-checkbox,
         .media-list-item md-checkbox {
           --md-checkbox-outline-color: var(--grampsjs-body-font-color-30);
           --md-checkbox-hover-outline-color: var(--grampsjs-body-font-color-50);
@@ -158,7 +135,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         /* List view */
 
         .media-list {
-          margin-top: 8px;
+          margin-top: 20px;
         }
 
         .media-list-item {
@@ -276,9 +253,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     return html`
       <h2>${this._('Media')}</h2>
       ${this._renderFilter()}
-      ${this._selectionMode
-        ? html`${this._renderBatchToolbar()}${this._renderSelectPage()}`
-        : ''}
+      ${this._selectionMode ? this._renderBatchToolbar() : ''}
       ${this._galleryView ? this.renderAltView() : this._renderMediaList()}
       <grampsjs-pagination
         page="${this._page}"
@@ -303,21 +278,14 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     `
   }
 
-  _renderFilter() {
+  _renderToolbarTrailing() {
     return html`
-      <div class="controls-row">
-        <div class="view-switcher">${this._renderViewButton()}</div>
-        <div class="sort-control">${this._renderSortControl()}</div>
-        ${this.appState.permissions.canEdit ? this._renderSelectButton() : ''}
+      <div slot="trailing" class="sort-control">
+        ${this._renderSortControl()}
       </div>
-      <grampsjs-filters
-        @filters:changed="${this._handleFiltersChanged}"
-        .appState="${this.appState}"
-        .definitions="${this.filterDefinitions}"
-        namespace="${this.filterNamespace}"
-        ?errorGql="${this.error}"
-      >
-      </grampsjs-filters>
+      <div slot="trailing" class="view-switcher">
+        ${this._renderViewButton()}
+      </div>
     `
   }
 
@@ -339,39 +307,17 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
     ]
   }
 
-  _renderSelectButton() {
-    const icon = color => html`<grampsjs-icon
-      slot="icon"
-      .path="${mdiCheckboxMultipleOutline}"
-      height="20"
-      color="${color}"
-    ></grampsjs-icon>`
-    return this._selectionMode
-      ? html`<md-filled-button @click="${this._toggleSelectionMode}">
-          ${icon(
-            'var(--md-filled-button-label-text-color, var(--mdc-theme-on-primary))'
-          )}
-          ${this._('Select')}
-        </md-filled-button>`
-      : html`<md-outlined-button @click="${this._toggleSelectionMode}">
-          ${icon('var(--mdc-theme-primary)')} ${this._('Select')}
-        </md-outlined-button>`
-  }
-
   _renderSelectPage() {
     const selected = this._rawData.filter(row =>
       this._isSelected(row.handle)
     ).length
     return html`
-      <div class="select-page">
-        <md-checkbox
-          ?checked="${selected === this._rawData.length && selected > 0}"
-          ?indeterminate="${selected > 0 && selected < this._rawData.length}"
-          @change="${this._handleSelectPage}"
-          aria-label="${this._('_Select All')}"
-        ></md-checkbox>
-        <span>${this._('_Select All')}</span>
-      </div>
+      <md-checkbox
+        ?checked="${selected === this._rawData.length && selected > 0}"
+        ?indeterminate="${selected > 0 && selected < this._rawData.length}"
+        @change="${this._handleSelectPage}"
+        aria-label="${this._('_Select All')}"
+      ></md-checkbox>
     `
   }
 
@@ -483,10 +429,10 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
   _renderSortControl() {
     const sortKey = this._sort ? this._sort.substring(1) : 'change'
     const isAscending = this._sort.startsWith('+')
-    const iconColor = 'var(--grampsjs-color-icon-selected)'
     return html`
       <md-filled-select
-        label="${this._('Sort by')}"
+        aria-label="${this._('Sort by')}"
+        title="${this._('Sort by')}"
         @change="${this._handleSortKeyChange}"
       >
         ${this._columns
@@ -510,7 +456,6 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         <grampsjs-icon
           path="${isAscending ? mdiSortAscending : mdiSortDescending}"
           height="24"
-          color="${iconColor}"
         ></grampsjs-icon>
       </md-icon-button>
       <grampsjs-tooltip for="btn-sort-direction" .appState="${this.appState}">

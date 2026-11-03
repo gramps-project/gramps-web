@@ -52,6 +52,21 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
           gap: 4px 8px;
         }
 
+        slot[name='trailing'] {
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 4px 8px;
+          margin-left: auto;
+        }
+
+        .chips {
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          margin: 12px 0 0 -5px;
+        }
+
         #filteroff {
           --md-icon-button-icon-size: 20px;
         }
@@ -214,8 +229,11 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         <grampsjs-tooltip for="filteroff" .appState="${this.appState}"
           >${this._('Clear all filters')}</grampsjs-tooltip
         >
-        ${this._renderFilterChips()}
+        <slot name="trailing"></slot>
       </div>
+      ${this._hasChips
+        ? html`<div class="chips">${this._renderFilterChips()}</div>`
+        : nothing}
       <div id="filter-container" class="${classMap({hidden: !this.open})}">
         <div
           class="sections"
@@ -256,6 +274,10 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         </md-outlined-button>
       </div>
     `
+  }
+
+  get _hasChips() {
+    return this._pills.length > 0 || this._tree !== null || this.query !== ''
   }
 
   _renderFilterChips() {
