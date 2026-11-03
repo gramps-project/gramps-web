@@ -1,4 +1,5 @@
 import {LitElement, css, html} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 import {
   mdiArrowLeft,
   mdiArrowRight,
@@ -7,7 +8,7 @@ import {
   mdiPlus,
 } from '@mdi/js'
 
-import {sharedStyles} from '../SharedStyles.js'
+import {reorderableStyles, sharedStyles} from '../SharedStyles.js'
 import './GrampsjsImg.js'
 import './GrampsjsIcon.js'
 import '../views/GrampsjsViewMediaLightbox.js'
@@ -16,11 +17,13 @@ import './GrampsjsFormNewMedia.js'
 import '@material/web/iconbutton/icon-button.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {DragReorderController} from '../dragReorderController.js'
 
 export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
+      reorderableStyles,
       css`
         .gallery {
           display: grid;
@@ -38,6 +41,10 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
           overflow: hidden;
           aspect-ratio: 1;
           position: relative;
+        }
+
+        .reorderable > .tile:not([dragging]) {
+          cursor: grab;
         }
 
         .tile grampsjs-img {
@@ -107,24 +114,51 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
     this.profilePicture = false
     this.dialogContent = ''
     this._lightboxSelected = 0
+    this._dragReorder = new DragReorderController(this, {
+      grid: true,
+      getContainer: () =>
+        this.edit ? this.renderRoot.querySelector('.gallery') : null,
+      getCount: () => this.media.length,
+      onMove: (from, to) => this._handleMediaRefMove(from, to),
+    })
+  }
+
+  updated(changed) {
+    if (changed.has('edit') || changed.has('media')) {
+      // the tiles under an ongoing drag may have changed
+      this._dragReorder.end()
+    }
   }
 
   render() {
+    const profilePictureIndex = this._profilePictureIndex()
     return html`
-      <div class="gallery">
-        ${this.media.map((mediaObj, i) => this._renderThumbnail(i))}
+      <div
+        class="${classMap({gallery: true, reorderable: this.edit})}"
+        @pointerdown="${this._dragReorder.handlePointerDown}"
+        @dragstart="${this._dragReorder.handleDragStart}"
+      >
+        ${this.media.map((mediaObj, i) =>
+          this._renderThumbnail(i, profilePictureIndex)
+        )}
       </div>
 
       ${this.edit
         ? html`
             <div class="edit-actions">
-              <md-icon-button @click="${this.openMediaRef}">
+              <md-icon-button
+                aria-label="${this._('Select an existing media object')}"
+                @click="${this.openMediaRef}"
+              >
                 <grampsjs-icon
                   path="${mdiLinkPlus}"
                   color="var(--mdc-theme-secondary)"
                 ></grampsjs-icon>
               </md-icon-button>
-              <md-icon-button @click="${this.openNewMedia}">
+              <md-icon-button
+                aria-label="${this._('Add a new media object')}"
+                @click="${this.openNewMedia}"
+              >
                 <grampsjs-icon
                   path="${mdiPlus}"
                   color="var(--mdc-theme-secondary)"
@@ -150,7 +184,20 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  _renderThumbnail(i) {
+  // the tile that is first once the ongoing drag, if any, is dropped
+  _profilePictureIndex() {
+    const {target} = this._dragReorder
+    if (!target) {
+      return 0
+    }
+    if (target.to === 0) {
+      return target.from
+    }
+    // the second tile moves up when the first one is dragged away
+    return target.from === 0 ? 1 : 0
+  }
+
+  _renderThumbnail(i, profilePictureIndex) {
     const {handle, mime, checksum} = this.media[i]
     const {rect} = this.mediaRef[i]
     return html`
@@ -165,7 +212,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
           checksum="${checksum}"
           @click="${() => this._handleClick(i)}"
         ></grampsjs-img>
-        ${this.edit && this.profilePicture && i === 0
+        ${this.edit && this.profilePicture && i === profilePictureIndex
           ? html`<span class="profile-picture-badge"
               >${this._('Profile picture')}</span
             >`
@@ -176,6 +223,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
                 ${i > 0
                   ? html`
                       <md-icon-button
+                        aria-label="${this._('Move Left')}"
                         @click="${e => {
                           e.stopPropagation()
                           this._handleMediaRefLeft(i)
@@ -191,6 +239,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
                 ${i < this.media.length - 1
                   ? html`
                       <md-icon-button
+                        aria-label="${this._('Move right')}"
                         @click="${e => {
                           e.stopPropagation()
                           this._handleMediaRefRight(i)
@@ -204,6 +253,7 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
                     `
                   : ''}
                 <md-icon-button
+                  aria-label="${this._('Remove')}"
                   @click="${e => {
                     e.stopPropagation()
                     this._handleMediaRefDel(i)
@@ -259,16 +309,25 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
+  _handleMediaRefMove(from, to) {
+    fireEvent(this, 'edit:action', {
+      action: 'moveListItem',
+      prop: 'media_list',
+      index: from,
+      to,
+    })
+  }
+
   _handleMediaRefDel(index) {
     fireEvent(this, 'edit:action', {action: 'delMediaRef', index})
   }
 
   _handleMediaRefLeft(index) {
-    fireEvent(this, 'edit:action', {action: 'upMediaRef', index})
+    this._handleMediaRefMove(index, index - 1)
   }
 
   _handleMediaRefRight(index) {
-    fireEvent(this, 'edit:action', {action: 'downMediaRef', index})
+    this._handleMediaRefMove(index, index + 1)
   }
 
   openNewMedia() {

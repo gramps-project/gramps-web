@@ -608,22 +608,6 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._className,
         'person_ref_list'
       )
-    } else if (e.detail.action === 'upMediaRef') {
-      this.moveObjectByIndex(
-        e.detail.index,
-        this._data,
-        this._className,
-        'media_list',
-        e.detail.index - 1
-      )
-    } else if (e.detail.action === 'downMediaRef') {
-      this.moveObjectByIndex(
-        e.detail.index,
-        this._data,
-        this._className,
-        'media_list',
-        e.detail.index + 1
-      )
     } else if (e.detail.action === 'moveName') {
       this.moveName(e.detail.handle, this._data, e.detail.to)
     } else if (e.detail.action === 'delName') {

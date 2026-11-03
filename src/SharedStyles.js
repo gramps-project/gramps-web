@@ -442,6 +442,27 @@ export const personListItemStyles = [
   `,
 ]
 
+/* Items of a container reordered with DragReorderController, which marks the
+   container with the `reorderable` class */
+export const reorderableStyles = css`
+  .reorderable > * {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .reorderable > [dragging] {
+    position: relative;
+    z-index: 1;
+    cursor: grabbing;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .reorderable > [drag-shift] {
+    transition: transform 0.15s ease;
+  }
+`
+
 /* Drives all six md-icon-button colour tokens from one variable. An inherited
    `color` does not reach the icon, so include these styles and set:
 
