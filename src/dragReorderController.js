@@ -89,13 +89,17 @@ export function gridShifts(rects, from, offsetX, offsetY) {
     Math.max(...rects.map(r => r.top + r.height)) - tile.top - tile.height
   )
   // the target is the cell nearest to the centre of the dragged tile in the
-  // nearest row, so the empty end of the last row means the last position
+  // nearest row, so the empty end of the last row means the last position.
+  // The tiles of a row share their top, but rounding can make their heights
+  // differ by a fraction of a pixel.
   const x = tile.left + dx + tile.width / 2
   const y = tile.top + dy + tile.height / 2
   const rowDistance = r => Math.abs(r.top + r.height / 2 - y)
-  const minRowDistance = Math.min(...rects.map(rowDistance))
+  const nearest = rects.reduce((a, r) =>
+    rowDistance(r) < rowDistance(a) ? r : a
+  )
   const distances = rects.map(r =>
-    rowDistance(r) === minRowDistance
+    Math.abs(r.top - nearest.top) < 1
       ? Math.abs(r.left + r.width / 2 - x)
       : Infinity
   )
@@ -109,6 +113,17 @@ export function gridShifts(rects, from, offsetX, offsetY) {
     return [cell.left - r.left, cell.top - r.top]
   })
   return {to, shifts}
+}
+
+// keeps the click that follows the release of a drag from acting on the item
+// under the pointer
+function suppressNextClick() {
+  const suppressClick = ev => {
+    ev.preventDefault()
+    ev.stopPropagation()
+  }
+  window.addEventListener('click', suppressClick, {capture: true, once: true})
+  setTimeout(() => window.removeEventListener('click', suppressClick, true))
 }
 
 // Reorders the child elements of a container by dragging them with the
@@ -312,16 +327,7 @@ export class DragReorderController {
     const {active, from, to} = this._drag
     this.end()
     if (active) {
-      // the click ending the drag must not act on the item under the pointer
-      const suppressClick = ev => {
-        ev.preventDefault()
-        ev.stopPropagation()
-      }
-      window.addEventListener('click', suppressClick, {
-        capture: true,
-        once: true,
-      })
-      setTimeout(() => window.removeEventListener('click', suppressClick, true))
+      suppressNextClick()
       if (from !== to) {
         this.onMove(from, to)
       }
@@ -345,7 +351,23 @@ export class DragReorderController {
     if (e.key === 'Escape') {
       e.preventDefault()
       e.stopPropagation()
+      const {active, pointerId} = this._drag
       this.end()
+      if (active) {
+        // the release of a cancelled drag must not click the item either
+        const handleRelease = ev => {
+          if (ev.pointerId !== pointerId) {
+            return
+          }
+          window.removeEventListener('pointerup', handleRelease, true)
+          window.removeEventListener('pointercancel', handleRelease, true)
+          if (ev.type === 'pointerup') {
+            suppressNextClick()
+          }
+        }
+        window.addEventListener('pointerup', handleRelease, true)
+        window.addEventListener('pointercancel', handleRelease, true)
+      }
     }
   }
 

@@ -1,5 +1,9 @@
 import {describe, it, expect} from 'vitest'
-import {gridShifts, listShifts} from '../../src/dragReorderController.js'
+import {
+  DragReorderController,
+  gridShifts,
+  listShifts,
+} from '../../src/dragReorderController.js'
 
 // a 3 x 2 grid of 100px cells holding five tiles
 const grid = [0, 1, 2, 3, 4].map(i => ({
@@ -60,6 +64,17 @@ describe('grid drag', () => {
     expect(to).to.equal(4)
     expect(shifts[4]).to.deep.equal([100, 0])
   })
+
+  it('finds every cell of a row with rounded tile sizes', () => {
+    const sizes = [100.328125, 100.328125, 100.34375]
+    const row = sizes.map((size, i) => ({
+      left: sizes.slice(0, i).reduce((a, b) => a + b, 0),
+      top: 0,
+      width: size,
+      height: size,
+    }))
+    expect(gridShifts(row, 0, row[2].left, 0).to).to.equal(2)
+  })
 })
 
 describe('list drag', () => {
@@ -78,5 +93,31 @@ describe('list drag', () => {
     const {to, shifts} = listShifts(list, 0, 500)
     expect(to).to.equal(2)
     expect(shifts[0]).to.deep.equal([0, 100])
+  })
+})
+
+describe('cancelling a drag', () => {
+  it('keeps the release from clicking the item', () => {
+    const host = {addController() {}, requestUpdate() {}}
+    const controller = new DragReorderController(host, {
+      getContainer: () => null,
+      getCount: () => 0,
+      onMove() {},
+    })
+    controller._drag = {pointerId: 1, active: true, items: []}
+    controller._handleKeyDown(new KeyboardEvent('keydown', {key: 'Escape'}))
+    window.dispatchEvent(new PointerEvent('pointerup', {pointerId: 1}))
+    const button = document.createElement('button')
+    document.body.append(button)
+    let clicks = 0
+    button.addEventListener('click', () => {
+      clicks += 1
+    })
+    button.click()
+    expect(clicks).to.equal(0)
+    // only the one click is suppressed
+    button.click()
+    expect(clicks).to.equal(1)
+    button.remove()
   })
 })
