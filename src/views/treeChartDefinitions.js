@@ -16,7 +16,8 @@ import {chartNameDisplayFormat, menuSelectionHandler} from '../util.js'
 // A chart definition describes one chart of the tree view:
 // - `settings`: the settings in the settings dialog. Each is stored in the
 //   user settings under `key` and has a `name` in the setting values, a
-//   `label`, a `type` and a `default`. A 'number' setting can have a `min`;
+//   `label`, a `type` and a `default`. A 'number' setting can have a `min`
+//   and a `max`;
 //   a 'select' setting has `options`, each with a `value` and a `label`.
 // - `editable`: whether people can be added to the chart in edit mode.
 // - `zoomable`: whether the chart has zoom and pan controls and keys.
@@ -302,6 +303,8 @@ export const chartDefinitions = {
         label: 'Max Degree of Separation',
         type: 'number',
         min: 0,
+        // The backend filter gets much slower with each degree
+        max: 6,
         default: 2,
       },
       nameDisplayFormatSetting('relationshipChartNameDisplayFormat'),
@@ -356,16 +359,25 @@ export const chartDefinitions = {
   },
 }
 
+// Returns a number setting's value within its minimum and maximum
+export function clampSettingValue(setting, value) {
+  const atLeastMin =
+    setting.min === undefined ? value : Math.max(value, setting.min)
+  return setting.max === undefined
+    ? atLeastMin
+    : Math.min(atLeastMin, setting.max)
+}
+
 // Returns the values of a chart's settings by name, from the user settings or
 // the defaults
 export function chartSettingValues(definition, settings = {}) {
   return Object.fromEntries(
     definition.settings.map(setting => {
       const value = settings[setting.key] ?? setting.default
-      // A value stored before the minimum was raised counts as the minimum
+      // A stored value outside the limits counts as the nearest limit
       return [
         setting.name,
-        setting.min === undefined ? value : Math.max(value, setting.min),
+        setting.type === 'number' ? clampSettingValue(setting, value) : value,
       ]
     })
   )

@@ -1,4 +1,4 @@
-import {describe, it, expect, vi} from 'vitest'
+import {afterEach, describe, it, expect, vi} from 'vitest'
 import {render} from 'lit'
 import {
   chartDataUrl,
@@ -38,6 +38,16 @@ describe('chart definitions', () => {
       relationshipChartAnc: 0,
     })
     expect(relationship.separation).toBe(0)
+  })
+
+  it('counts a number above the maximum as the maximum', () => {
+    const {relationship} = chartDefinitions
+    expect(
+      chartSettingValues(relationship, {relationshipChartAnc: 20}).separation
+    ).toBe(6)
+    expect(
+      chartSettingValues(relationship, {relationshipChartAnc: 6}).separation
+    ).toBe(6)
   })
 
   it('fetches one more generation than the settings count', () => {
@@ -150,6 +160,69 @@ describe('GrampsjsViewTree', () => {
     settings.treeChartAnc = 6
     view._fetchIfNeeded()
     expect(apiGet).toHaveBeenCalledTimes(2)
+  })
+
+  describe('number settings', () => {
+    const separation = chartDefinitions.relationship.settings[0]
+    const ancestors = chartDefinitions.ancestor.settings[0]
+
+    function makeSettingsView() {
+      vi.useFakeTimers()
+      const {view} = makeView()
+      const updateSettings = vi.fn()
+      view.appState.updateSettings = updateSettings
+      return {view, updateSettings}
+    }
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('saves only the last of quick changes', () => {
+      const {view, updateSettings} = makeSettingsView()
+      for (const value of [3, 4, 5]) {
+        view._changeNumberSetting(separation, value)
+        vi.advanceTimersByTime(200)
+      }
+      expect(updateSettings).not.toHaveBeenCalled()
+      vi.runAllTimers()
+      expect(updateSettings.mock.calls).toEqual([
+        [{relationshipChartAnc: 5}, false],
+      ])
+    })
+
+    it('saves each of two settings changed together', () => {
+      const {view, updateSettings} = makeSettingsView()
+      view._changeNumberSetting(separation, 3)
+      view._changeNumberSetting(ancestors, 7)
+      vi.runAllTimers()
+      expect(updateSettings.mock.calls).toEqual([
+        [{relationshipChartAnc: 3}, false],
+        [{treeChartAnc: 7}, false],
+      ])
+    })
+
+    it('saves a value within the limits and skips an empty field', () => {
+      const {view, updateSettings} = makeSettingsView()
+      view._changeNumberSetting(separation, 40)
+      vi.runAllTimers()
+      view._changeNumberSetting(separation, 3)
+      view._changeNumberSetting(separation, NaN)
+      vi.runAllTimers()
+      expect(updateSettings.mock.calls).toEqual([
+        [{relationshipChartAnc: 6}, false],
+      ])
+    })
+
+    it('drops a waiting change on reset', () => {
+      const {view, updateSettings} = makeSettingsView()
+      view._currentTabId = TREE_VIEWS.indexOf('relationship')
+      view._changeNumberSetting(separation, 4)
+      view._resetSettings()
+      vi.runAllTimers()
+      expect(updateSettings).toHaveBeenCalledOnce()
+      expect(updateSettings.mock.calls[0][0].relationshipChartAnc).toBe(2)
+    })
   })
 
   it('gives each setting its own input when the chart changes', () => {
