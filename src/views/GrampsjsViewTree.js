@@ -778,12 +778,12 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     }
     return html`
       <md-filled-text-field
+        id="setting-${setting.name}"
         value=${value}
         type="number"
         min=${setting.min ?? nothing}
         max=${setting.max ?? nothing}
-        @change=${e =>
-          this._changeNumberSetting(setting, parseInt(e.target.value, 10))}
+        @change=${e => this._changeNumberSetting(setting, e.target)}
       ></md-filled-text-field>
     `
   }
@@ -792,10 +792,12 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     this.appState.updateSettings({[setting.key]: value}, false)
   }
 
-  // Saves a number setting within its limits once it has not changed for
-  // `numberSettingDelay`. An empty field is not saved.
-  _changeNumberSetting(setting, value) {
+  // Saves the value of a number setting's input within its limits once it has
+  // not changed for `numberSettingDelay`, and shows the saved value in the
+  // input. An empty input is not saved.
+  _changeNumberSetting(setting, input) {
     clearTimeout(this._settingTimers.get(setting.key))
+    const value = parseInt(input.value, 10)
     if (Number.isNaN(value)) {
       this._settingTimers.delete(setting.key)
       return
@@ -804,7 +806,11 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
       setting.key,
       setTimeout(() => {
         this._settingTimers.delete(setting.key)
-        this._changeSetting(setting, clampSettingValue(setting, value))
+        const saved = clampSettingValue(setting, value)
+        // The input binding does not update an input whose setting keeps
+        // its value
+        input.value = String(saved)
+        this._changeSetting(setting, saved)
       }, numberSettingDelay)
     )
   }
@@ -815,6 +821,14 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
       clearTimeout(timer)
     }
     this._settingTimers.clear()
+    // The input of a setting whose saved value is the default would keep
+    // showing an unsaved change
+    for (const setting of this.definition.settings) {
+      const input = this.renderRoot?.querySelector?.(`#setting-${setting.name}`)
+      if (setting.type === 'number' && input) {
+        input.value = String(setting.default)
+      }
+    }
     this.appState.updateSettings(
       Object.fromEntries(
         this.definition.settings.map(setting => [setting.key, setting.default])

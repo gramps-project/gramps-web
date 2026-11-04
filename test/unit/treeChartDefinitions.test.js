@@ -178,10 +178,12 @@ describe('GrampsjsViewTree', () => {
       vi.useRealTimers()
     })
 
+    const input = value => ({value: String(value)})
+
     it('saves only the last of quick changes', () => {
       const {view, updateSettings} = makeSettingsView()
       for (const value of [3, 4, 5]) {
-        view._changeNumberSetting(separation, value)
+        view._changeNumberSetting(separation, input(value))
         vi.advanceTimersByTime(200)
       }
       expect(updateSettings).not.toHaveBeenCalled()
@@ -193,8 +195,8 @@ describe('GrampsjsViewTree', () => {
 
     it('saves each of two settings changed together', () => {
       const {view, updateSettings} = makeSettingsView()
-      view._changeNumberSetting(separation, 3)
-      view._changeNumberSetting(ancestors, 7)
+      view._changeNumberSetting(separation, input(3))
+      view._changeNumberSetting(ancestors, input(7))
       vi.runAllTimers()
       expect(updateSettings.mock.calls).toEqual([
         [{relationshipChartAnc: 3}, false],
@@ -202,24 +204,33 @@ describe('GrampsjsViewTree', () => {
       ])
     })
 
-    it('saves a value within the limits and skips an empty field', () => {
+    it('saves and shows a value within the limits and skips an empty field', () => {
       const {view, updateSettings} = makeSettingsView()
-      view._changeNumberSetting(separation, 40)
+      const field = input(40)
+      view._changeNumberSetting(separation, field)
       vi.runAllTimers()
-      view._changeNumberSetting(separation, 3)
-      view._changeNumberSetting(separation, NaN)
+      expect(field.value).toBe('6')
+      view._changeNumberSetting(separation, input(3))
+      view._changeNumberSetting(separation, input(''))
       vi.runAllTimers()
       expect(updateSettings.mock.calls).toEqual([
         [{relationshipChartAnc: 6}, false],
       ])
     })
 
-    it('drops a waiting change on reset', () => {
+    it('drops a waiting change on reset and shows the default', () => {
       const {view, updateSettings} = makeSettingsView()
       view._currentTabId = TREE_VIEWS.indexOf('relationship')
-      view._changeNumberSetting(separation, 4)
+      const field = document.createElement('input')
+      field.id = 'setting-separation'
+      field.value = '3'
+      const root = document.createElement('div')
+      root.append(field)
+      view.renderRoot = root
+      view._changeNumberSetting(separation, field)
       view._resetSettings()
       vi.runAllTimers()
+      expect(field.value).toBe('2')
       expect(updateSettings).toHaveBeenCalledOnce()
       expect(updateSettings.mock.calls[0][0].relationshipChartAnc).toBe(2)
     })
@@ -252,6 +263,7 @@ describe('GrampsjsViewTree', () => {
     render(view.renderControls(), container)
     const descendant = inputs()
     expect(Object.keys(descendant)).toEqual([
+      'setting-descendants',
       'setting-orientation',
       'setting-nameDisplayFormat',
     ])
