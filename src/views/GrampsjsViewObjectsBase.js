@@ -774,6 +774,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   _fetchData() {
     this._clearSelection()
     this.loading = true
+    // reset so that a failure after a failure still reaches the filters
+    this.error = false
     const url = this._fullUrl
     this._oldUrl = url
     this.appState.apiGet(url).then(data => {

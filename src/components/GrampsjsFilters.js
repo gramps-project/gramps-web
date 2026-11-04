@@ -13,7 +13,6 @@ import '@material/web/button/filled-button'
 import '@material/web/button/outlined-button'
 import '@material/web/button/text-button'
 import '@material/web/iconbutton/icon-button'
-import '@material/web/textfield/outlined-text-field'
 
 import './GrampsjsFilterBuilder.js'
 import './GrampsjsFilterCheckboxes.js'
@@ -24,6 +23,7 @@ import './GrampsjsFilterTags.js'
 import './GrampsjsFilterText.js'
 import './GrampsjsFilterType.js'
 import './GrampsjsFilterYears.js'
+import './GrampsjsGoqlInput.js'
 import './GrampsjsIcon.js'
 import {renderIconSvg} from '../icons.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -80,25 +80,13 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         }
 
         #input-goql {
-          --md-outlined-text-field-input-text-font: var(
-            --grampsjs-mono-font-family
-          );
-          --md-outlined-text-field-input-text-size: 15px;
-          --md-outlined-text-field-container-shape: 8px;
-          --md-outlined-text-field-top-space: 9px;
-          --md-outlined-text-field-bottom-space: 9px;
           flex: 1;
           margin-right: 12px;
         }
 
         #input-goql-container span {
-          align-self: flex-start;
           display: flex;
           align-items: center;
-        }
-
-        #input-goql-container md-filled-button {
-          --md-filled-button-container-shape: 8px;
         }
 
         .hidden {
@@ -167,7 +155,10 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
       // condition builder
       namespace: {type: String},
       open: {type: Boolean},
+      // set by the view while its last request failed
       errorGoql: {type: Boolean},
+      // hides the error while the expression is edited
+      _goqlErrorHidden: {type: Boolean},
       _pills: {type: Array},
       // the filter of the condition builder while the facets can't show it
       _tree: {type: Object},
@@ -180,6 +171,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     this.namespace = ''
     this.open = false
     this.errorGoql = false
+    this._goqlErrorHidden = false
     this._pills = []
     this._tree = null
   }
@@ -410,17 +402,18 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
   _renderGoql() {
     return html`
       <div class="section-content" id="input-goql-container">
-        <md-outlined-text-field
+        <grampsjs-goql-input
           id="input-goql"
+          label="${GOQL_SECTION.label}"
           @keydown="${this._handleGoqlKey}"
-          @input="${this._clearGoqlError}"
+          @input="${this._hideGoqlError}"
           .value="${this._goql}"
           ?error="${this._hasGoqlError}"
         >
           ${this._hasGoqlError
             ? renderIconSvg(mdiAlertCircleOutline, null, 0, 'trailing-icon')
             : ''}
-        </md-outlined-text-field>
+        </grampsjs-goql-input>
         <span
           ><md-filled-button
             @click="${this._applyGoql}"
@@ -477,7 +470,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
       this._applyGoql()
     } else if (event.code === 'Escape') {
       this._clearGoqlForm()
-      this._clearGoqlError()
+      this._hideGoqlError()
     }
   }
 
@@ -489,7 +482,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _applyGoql() {
-    this._clearGoqlError()
+    this._goqlErrorHidden = false
     const input = this.renderRoot.querySelector('#input-goql')
     if (input !== null) {
       const value = input.value.trim()
@@ -501,11 +494,19 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
   // Views report any failed request as a GOQL error, which only concerns
   // the GOQL field while an expression is applied
   get _hasGoqlError() {
-    return this.errorGoql && this._goql !== ''
+    return this.errorGoql && !this._goqlErrorHidden && this._goql !== ''
   }
 
-  _clearGoqlError() {
-    this.errorGoql = false
+  _hideGoqlError() {
+    this._goqlErrorHidden = true
+  }
+
+  // every failed request shows the error again
+  willUpdate(changed) {
+    super.willUpdate(changed)
+    if (changed.has('errorGoql') && this.errorGoql) {
+      this._goqlErrorHidden = false
+    }
   }
 
   async _handleFilterButton() {
@@ -531,7 +532,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     this._pills = []
     this._tree = null
     this._clearGoqlForm()
-    this._clearGoqlError()
+    this._hideGoqlError()
     this._fireFiltersChanged()
   }
 
