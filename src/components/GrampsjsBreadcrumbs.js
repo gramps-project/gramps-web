@@ -184,7 +184,13 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
       `
     }
     return html`
-      <span id="privacy-status">
+      <span
+        id="privacy-status"
+        role="img"
+        aria-label="${this.data.private
+          ? this._('Record is private')
+          : this._('Record is public')}"
+      >
         <grampsjs-icon
           .path="${this.data.private
             ? mdiLockOutline

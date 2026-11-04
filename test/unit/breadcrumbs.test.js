@@ -33,6 +33,9 @@ describe('GrampsjsBreadcrumbs privacy', () => {
     expect($(el, '#privacy-status')).not.toBeNull()
     expect($(el, '#btn-private')).toBeNull()
     expect($(el, 'grampsjs-tooltip').content).toBe('Record is private')
+    expect($(el, '#privacy-status').getAttribute('aria-label')).toBe(
+      'Record is private'
+    )
   })
 
   it('toggles the privacy with the button in edit mode', async () => {

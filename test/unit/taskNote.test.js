@@ -154,27 +154,54 @@ describe('GrampsjsViewTask handleEditAction', () => {
     superHandle.mockRestore()
   })
 
-  function view(response, note = NOTE) {
-    return {
-      appState: {apiPut: vi.fn(async () => response)},
+  // `requests` records the note and task updates in order
+  function view(response, note = NOTE, taskSaved = true) {
+    const v = {
+      requests: [],
+      appState: {
+        apiPut: vi.fn(async url => {
+          v.requests.push(url)
+          return response
+        }),
+      },
       _data: {note_list: [note.handle], extended: {notes: [note]}},
+      _className: 'source',
+      updateProp: vi.fn(async () => {
+        v.requests.push('task')
+        return taskSaved
+      }),
+      _updateData: vi.fn(async () => {}),
       dispatchEvent: vi.fn(),
     }
+    return v
   }
 
   const privacy = isPrivate => ({
     detail: {action: 'updateProp', data: {private: isPrivate}},
   })
 
-  it('gives the note the new privacy of the task', async () => {
+  it('makes the note private before the task', async () => {
     const v = view({data: {}})
-    const e = privacy(true)
-    await handle.call(v, e)
+    await handle.call(v, privacy(true))
     expect(v.appState.apiPut).toHaveBeenCalledWith('/api/notes/n1', {
       ...NOTE,
       private: true,
     })
-    expect(superHandle).toHaveBeenCalledWith(e)
+    expect(v.updateProp).toHaveBeenCalledWith(
+      v._data,
+      'source',
+      {private: true},
+      undefined
+    )
+    expect(v.requests).toEqual(['/api/notes/n1', 'task'])
+    expect(superHandle).not.toHaveBeenCalled()
+  })
+
+  it('makes the note public after the task and reloads it', async () => {
+    const v = view({data: {}}, {...NOTE, private: true})
+    await handle.call(v, privacy(false))
+    expect(v.requests).toEqual(['task', '/api/notes/n1'])
+    expect(v._updateData).toHaveBeenCalledWith(false)
   })
 
   it('leaves a note alone that already has the privacy', async () => {
@@ -184,16 +211,22 @@ describe('GrampsjsViewTask handleEditAction', () => {
     expect(superHandle).toHaveBeenCalled()
   })
 
-  it('keeps the task unchanged when the note fails to save', async () => {
+  it('keeps the task public when the note fails to become private', async () => {
     const v = view({error: 'Server error'})
     await handle.call(v, privacy(true))
-    expect(superHandle).not.toHaveBeenCalled()
+    expect(v.updateProp).not.toHaveBeenCalled()
     expect(v.dispatchEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'grampsjs:error',
         detail: {message: 'Server error'},
       })
     )
+  })
+
+  it('keeps the note private when the task fails to become public', async () => {
+    const v = view({data: {}}, {...NOTE, private: true}, false)
+    await handle.call(v, privacy(false))
+    expect(v.requests).toEqual(['task'])
   })
 
   it('passes other actions on', async () => {

@@ -68,26 +68,44 @@ export class GrampsjsViewTask extends GrampsjsViewSource {
     return `task/${grampsId}`
   }
 
-  // The note with the description gets the privacy of the task
+  // The note with the description gets the privacy of the task. It becomes
+  // private before the task and public after it, so a failed request never
+  // leaves the description more public than the task.
   async handleEditAction(e) {
     const isPrivate = e.detail.data?.private
     const note = taskNote(this._data)
     if (
-      e.detail.action === 'updateProp' &&
-      isPrivate !== undefined &&
-      note &&
-      Boolean(note.private) !== isPrivate
+      e.detail.action !== 'updateProp' ||
+      isPrivate === undefined ||
+      !note ||
+      Boolean(note.private) === isPrivate
     ) {
-      const res = await this.appState.apiPut(`/api/notes/${note.handle}`, {
-        ...note,
-        private: isPrivate,
-      })
-      if ('error' in res) {
-        fireEvent(this, 'grampsjs:error', {message: res.error})
-        return
-      }
+      super.handleEditAction(e)
+      return
     }
-    super.handleEditAction(e)
+    const updateTask = () =>
+      this.updateProp(
+        this._data,
+        this._className,
+        e.detail.data,
+        e.detail.editorDraftPrefix
+      )
+    if (!isPrivate && !(await updateTask())) {
+      return
+    }
+    const res = await this.appState.apiPut(`/api/notes/${note.handle}`, {
+      ...note,
+      private: isPrivate,
+    })
+    if ('error' in res) {
+      fireEvent(this, 'grampsjs:error', {message: res.error})
+      return
+    }
+    if (isPrivate) {
+      await updateTask()
+    } else {
+      await this._updateData(false)
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this
