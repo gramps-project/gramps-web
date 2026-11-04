@@ -1,5 +1,6 @@
 import {LitElement} from 'lit'
 import {fireEvent} from '../util.js'
+import * as maplibregl from 'maplibre-gl'
 
 class GrampsjsMapPlacesLayer extends LitElement {
   static get properties() {
@@ -37,7 +38,7 @@ class GrampsjsMapPlacesLayer extends LitElement {
     })
     if (!this._handlersAdded) {
       this._handlersAdded = true
-      this._popup = new window.maplibregl.Popup({
+      this._popup = new maplibregl.Popup({
         closeButton: false,
         closeOnClick: false,
         offset: 15,

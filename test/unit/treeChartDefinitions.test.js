@@ -153,14 +153,6 @@ describe('GrampsjsViewTree', () => {
   })
 
   it('gives each setting its own input when the chart changes', () => {
-    // The Material elements call attachInternals() in their constructor,
-    // which happy-dom does not implement
-    if (!HTMLElement.prototype.attachInternals) {
-      HTMLElement.prototype.attachInternals = () => ({
-        setFormValue() {},
-        setValidity() {},
-      })
-    }
     const {view} = makeView()
     view._ = s => s
     const container = document.createElement('div')

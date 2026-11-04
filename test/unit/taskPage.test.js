@@ -22,14 +22,6 @@ vi.mock(
   stub('grampsjs-form-new-tag')
 )
 
-// The Material selects call attachInternals(), which happy-dom does not
-// implement.
-if (!HTMLElement.prototype.attachInternals) {
-  HTMLElement.prototype.attachInternals = function attachInternals() {
-    return {setFormValue() {}, setValidity() {}}
-  }
-}
-
 // The Material selects and dialogs animate, which happy-dom does not
 // implement.
 if (!HTMLElement.prototype.animate) {

@@ -2,14 +2,6 @@ import {describe, it, expect} from 'vitest'
 import {render} from 'lit'
 import {GrampsjsAddresses} from '../../src/components/GrampsjsAddresses.js'
 
-// The Material list elements call attachInternals() in their constructor,
-// which happy-dom does not implement.
-if (!HTMLElement.prototype.attachInternals) {
-  HTMLElement.prototype.attachInternals = function attachInternals() {
-    return {}
-  }
-}
-
 // Render the component and return one entry per address, holding the summary
 // line and the supporting text below it.
 const renderRows = (data, profile) => {
