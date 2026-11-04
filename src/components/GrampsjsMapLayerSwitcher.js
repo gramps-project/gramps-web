@@ -188,7 +188,7 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
           color: var(--md-sys-color-on-surface-variant);
         }
 
-        /* Opacity slider for a tile overlay*/
+        /* Opacity slider for a tile overlay */
         .opacity {
           display: flex;
           align-items: center;
@@ -390,6 +390,7 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
           labeled
           .value="${Math.round(overlay.opacity * 100)}"
           @input="${e => this._handleOverlayOpacity(e, overlay)}"
+          @change="${e => this._handleOverlayOpacity(e, overlay)}"
         ></md-slider>
       </div>
     `
@@ -427,10 +428,12 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
     })
   }
 
+  // Fires while dragging and once more with final set when the drag ends.
   _handleOverlayOpacity(e, overlay) {
     fireEvent(this, 'map:overlay-opacity', {
       overlay,
       opacity: Number(e.target.value) / 100,
+      final: e.type === 'change',
     })
   }
 

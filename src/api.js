@@ -152,6 +152,8 @@ export function saveMapViewport(lat, lng, zoom) {
   }
 }
 
+// Map style ('base' or 'ohm'), hidden overlay handles and overlay opacity
+// by handle of the map view, per tree.
 export function getMapLayerSettings() {
   try {
     const treeId = getTreeId() || 'unknown'

@@ -80,7 +80,7 @@ describe('map view overlay opacity', () => {
   it('saves changed opacity and restores it in a new view', () => {
     const view = makeView()
     view._handleOverlayOpacity({
-      detail: {overlay: {handle: 'M1'}, opacity: 0.35},
+      detail: {overlay: {handle: 'M1'}, opacity: 0.35, final: true},
     })
     expect(view._getOverlaysForLayerSwitcher()[0].opacity).to.equal(0.35)
     expect(getMapLayerSettings().overlayOpacity).to.deep.equal({M1: 0.35})
@@ -88,5 +88,14 @@ describe('map view overlay opacity', () => {
     const restored = makeView()
     expect(restored._overlayOpacity).to.deep.equal({M1: 0.35})
     expect(restored._getOverlaysForLayerSwitcher()[0].opacity).to.equal(0.35)
+  })
+
+  it('does not store opacity while the slider is dragged', () => {
+    const view = makeView()
+    view._handleOverlayOpacity({
+      detail: {overlay: {handle: 'M1'}, opacity: 0.35, final: false},
+    })
+    expect(view._overlayOpacity).to.deep.equal({})
+    expect(getMapLayerSettings()).to.equal(null)
   })
 })

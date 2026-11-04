@@ -471,9 +471,11 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     }
   }
 
-  //  opacity slider in the layer switcher
+  // GrampsjsMap applies the opacity to the tile layer while the slider is
+  // dragged; the view stores and saves the value the drag ends on.
   _handleOverlayOpacity(event) {
-    const {overlay, opacity} = event.detail
+    const {overlay, opacity, final} = event.detail
+    if (!final) return
     this._overlayOpacity = {...this._overlayOpacity, [overlay.handle]: opacity}
     this._saveLayerSettings()
   }
