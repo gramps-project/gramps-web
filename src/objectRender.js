@@ -18,9 +18,6 @@ import './components/GrampsjsObjectLink.js'
 import './components/GrampsjsImg.js'
 import './components/GrampsjsIcon.js'
 
-// Replaced at build time by rollup
-const BASE_DIR = ''
-
 export function renderPerson(personProfile) {
   return html`
     <span class="event">
@@ -81,7 +78,7 @@ export function showObject(type, obj, strings) {
           path="${objectIconPath.event}"
           color="currentColor"
         ></grampsjs-icon>
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
+        <a href="/${type}/${obj.gramps_id}"
           >${eventTitleFromProfile(obj.profile || {}) ||
           (typeof obj.type === 'string'
             ? obj.type
@@ -106,9 +103,7 @@ export function showObject(type, obj, strings) {
           path="${objectIconPath.source}"
           color="currentColor"
         ></grampsjs-icon>
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${getName(obj, type) || type}
-        </a>
+        <a href="/${type}/${obj.gramps_id}">${getName(obj, type) || type} </a>
       `
     case 'citation':
       return html`
@@ -117,7 +112,7 @@ export function showObject(type, obj, strings) {
           path="${objectIconPath.citation}"
           color="currentColor"
         ></grampsjs-icon>
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
+        <a href="/${type}/${obj.gramps_id}"
           >${citationTitleFromProfile(obj.profile || {}) || type}
         </a>
       `
@@ -128,9 +123,7 @@ export function showObject(type, obj, strings) {
           path="${objectIconPath.repository}"
           color="currentColor"
         ></grampsjs-icon>
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
-          >${getName(obj, type) || type}
-        </a>
+        <a href="/${type}/${obj.gramps_id}">${getName(obj, type) || type} </a>
       `
     case 'note':
       return html`
@@ -139,7 +132,7 @@ export function showObject(type, obj, strings) {
           path="${objectIconPath.note}"
           color="currentColor"
         ></grampsjs-icon>
-        <a href="${BASE_DIR}/${type}/${obj.gramps_id}"
+        <a href="/${type}/${obj.gramps_id}"
           >${translate(
             strings,
             typeof obj.type === 'string'
@@ -155,9 +148,7 @@ export function showObject(type, obj, strings) {
           path="${objectIconPath.media}"
           color="currentColor"
         ></grampsjs-icon>
-        <a href="${BASE_DIR}/media/${obj.gramps_id}"
-          >${getName(obj, type) || type}
-        </a>
+        <a href="/media/${obj.gramps_id}">${getName(obj, type) || type} </a>
       `
     case 'tag':
       return html``

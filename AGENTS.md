@@ -32,7 +32,6 @@ npm run build        # outputs to dist/
 Environment variables used at build time:
 
 - `API_URL` — backend API origin (default: empty string, i.e. same origin). In dev, the hardcoded fallback is `http://localhost:5555`.
-- `BASE_DIR` — base path if the app is not served from `/`
 
 ## Project structure
 

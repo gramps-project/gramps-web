@@ -26,8 +26,6 @@ import {sharedStyles, appBarIconButtonStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsIcon.js'
 
-const BASE_DIR = ''
-
 const menuItems = [
   ['Person', '/new_person', mdiAccount],
   ['Family', '/new_family', mdiAccountMultiple],
@@ -98,7 +96,7 @@ class GrampsjsAddMenu extends GrampsjsAppStateMixin(LitElement) {
 
   _menuItem(title, url, iconPath) {
     return html`
-      <md-menu-item href="${BASE_DIR}${url}" graphic="icon">
+      <md-menu-item href="${url}" graphic="icon">
         <span slot="headline">${this._(title)}</span>
         <grampsjs-icon
           slot="start"

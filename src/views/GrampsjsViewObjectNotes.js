@@ -13,8 +13,6 @@ import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTooltip.js'
 import {fireEvent, makeHandle} from '../util.js'
 
-const BASE_DIR = ''
-
 export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
   static get styles() {
     return [
@@ -61,7 +59,7 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
       return ''
     }
     const options = {
-      link_format: `${BASE_DIR}/{obj_class}/{gramps_id}`,
+      link_format: `/{obj_class}/{gramps_id}`,
     }
     return `/api/notes/?locale=${
       this.appState.i18n.lang || 'en'
@@ -151,7 +149,7 @@ export class GrampsjsViewObjectNotes extends GrampsjsViewObjectsDetail {
       ${this.edit || !obj.gramps_id
         ? ''
         : html`<div class="note-meta">
-            <md-text-button href="${BASE_DIR}/note/${obj.gramps_id}">
+            <md-text-button href="/note/${obj.gramps_id}">
               ${this._('Details')}
             </md-text-button>
           </div>`}
