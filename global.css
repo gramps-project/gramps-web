@@ -210,7 +210,7 @@ body {
   --grampsjs-color-code-number: #098658;
   --grampsjs-color-code-text: #000000;
   --grampsjs-color-code-bracket-1: #0431fa;
-  --grampsjs-color-code-bracket-2: #319331;
+  --grampsjs-color-code-bracket-2: #2b812b;
   --grampsjs-color-code-bracket-3: #7b3814;
   /* --md-sys-color-* tokens are set dynamically by applyColors() in theme.js */
 }
