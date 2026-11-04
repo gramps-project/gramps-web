@@ -7,6 +7,7 @@ import '@material/web/select/select-option'
 import '@material/web/textfield/filled-text-field'
 
 import {supportsPersistentAccessTokens} from '../components/GrampsjsAccessTokens.js'
+import '../components/GrampsjsAnniversaryIcsSubscription.js'
 import '../components/GrampsjsCollapsibleSection.js'
 import '../components/GrampsjsFormSelectObjectList.js'
 import {userRoles} from '../components/GrampsjsFormUser.js'
@@ -29,7 +30,7 @@ import {
   TREE_CONFIG_PRIMARY_COLOR,
   TREE_CONFIG_SECONDARY_COLOR,
 } from '../api.js'
-import {fireEvent} from '../util.js'
+import {apiVersionAtLeast, fireEvent} from '../util.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
 import {DEFAULT_TREE_VIEW, TREE_VIEWS} from '../treeDefaults.js'
 import {SYMBOL_SET_DEFAULT, SYMBOL_SET_OPTIONS} from '../symbols.js'
@@ -84,6 +85,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       _tokenCopied: {type: Boolean},
       _localAuthDisabled: {type: Boolean},
       _hasLinkedAccount: {type: Boolean},
+      _anniversaryTokenStatus: {type: String},
     }
   }
 
@@ -95,6 +97,28 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     this._tokenCopied = false
     this._localAuthDisabled = false
     this._hasLinkedAccount = false
+    this._anniversaryTokenStatus = 'idle'
+    this._clearAnniversarySession = () =>
+      this.renderRoot
+        ?.querySelector('grampsjs-anniversary-ics-subscription')
+        ?.clearSession()
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('user:loggedout', this._clearAnniversarySession)
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('user:loggedout', this._clearAnniversarySession)
+    this._clearAnniversarySession()
+    super.disconnectedCallback()
+  }
+
+  shouldUpdate(changed) {
+    // Inactive views stay mounted and skip update(), so clear the link here.
+    if (changed.has('active') && !this.active) this._clearAnniversarySession()
+    return super.shouldUpdate(changed)
   }
 
   renderContent() {
@@ -144,7 +168,20 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
               <h3>${this._('Access tokens')}</h3>
               <grampsjs-access-tokens
                 .appState="${this.appState}"
+                @access-token:changed="${this._handleAccessTokenChanged}"
               ></grampsjs-access-tokens>
+              ${this._supportsAnniversaryIcs()
+                ? html`
+                    <h3>${this._('Anniversary calendar')}</h3>
+                    <grampsjs-anniversary-ics-subscription
+                      .appState="${this.appState}"
+                      .tokenStatus="${this._anniversaryTokenStatus}"
+                      @access-token:changed="${this
+                        ._handleAnniversaryTokenChanged}"
+                      @access-token:refresh="${this._refreshAnniversaryToken}"
+                    ></grampsjs-anniversary-ics-subscription>
+                  `
+                : ''}
             `
           : ''}
         <grampsjs-oidc-accounts
@@ -229,6 +266,35 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       this.renderRoot.querySelector('grampsjs-access-tokens')?.refresh()
       this.renderRoot.querySelector('grampsjs-oidc-accounts')?.refresh()
     }
+  }
+
+  _supportsAnniversaryIcs() {
+    return apiVersionAtLeast(this.appState?.dbInfo, 3, 23)
+  }
+
+  _handleAccessTokenChanged(event) {
+    const {scope, status} = event.detail
+    if (scope !== 'anniversaries_ics') return
+    this._anniversaryTokenStatus = status
+    const subscription = this.renderRoot?.querySelector(
+      'grampsjs-anniversary-ics-subscription'
+    )
+    if (subscription) subscription.tokenStatus = status
+  }
+
+  _handleAnniversaryTokenChanged(event) {
+    const {scope, status} = event.detail
+    if (scope !== 'anniversaries_ics') return
+    const manager = this.renderRoot?.querySelector('grampsjs-access-tokens')
+    manager?.setScopeStatus(scope, status)
+    this._handleAccessTokenChanged(event)
+    if (status !== 'loading') this._refreshAnniversaryToken()
+  }
+
+  _refreshAnniversaryToken() {
+    return this.renderRoot
+      ?.querySelector('grampsjs-access-tokens')
+      ?.refresh('anniversaries_ics')
   }
 
   async _fetchDataLang() {

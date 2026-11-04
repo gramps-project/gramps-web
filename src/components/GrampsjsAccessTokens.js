@@ -106,6 +106,7 @@ export class GrampsjsAccessTokens extends GrampsjsAppStateMixin(LitElement) {
       ])
     )
     this._fetching = new Set()
+    this._fetchVersions = new Map()
     this._pendingRevocation = null
     this._creatingScope = ''
     this._creating = false
@@ -121,8 +122,30 @@ export class GrampsjsAccessTokens extends GrampsjsAppStateMixin(LitElement) {
   }
 
   // Reloads all scopes, e.g. when the containing view is shown again.
-  refresh() {
+  refresh(scope) {
+    if (scope) {
+      if (
+        !scopeInfo(scope) ||
+        !supportsPersistentAccessTokens(this.appState?.dbInfo)
+      ) {
+        return Promise.resolve()
+      }
+      this._invalidateFetch(scope)
+      return this._fetchStatus(scope)
+    }
     this._loadIfNeeded(true)
+  }
+
+  // A feature can create or rotate a single scoped token outside this manager.
+  setScopeStatus(scope, status) {
+    if (!scopeInfo(scope) || scopeInfo(scope).multiple) return
+    this._invalidateFetch(scope)
+    this._setState(scope, {status, error: ''})
+  }
+
+  _invalidateFetch(scope) {
+    this._fetchVersions.set(scope, (this._fetchVersions.get(scope) || 0) + 1)
+    this._fetching.delete(scope)
   }
 
   render() {
@@ -247,6 +270,7 @@ export class GrampsjsAccessTokens extends GrampsjsAppStateMixin(LitElement) {
 
   _setState(scope, state) {
     this._states = {...this._states, [scope]: state}
+    fireEvent(this, 'access-token:changed', {scope, status: state.status})
   }
 
   _loadIfNeeded(force = false) {
@@ -274,6 +298,7 @@ export class GrampsjsAccessTokens extends GrampsjsAppStateMixin(LitElement) {
       return
     }
     this._fetching.add(scope)
+    const version = this._fetchVersions.get(scope) || 0
     // loaded tokens stay visible while they are refreshed
     if (!['active', 'inactive'].includes(this._states[scope]?.status)) {
       this._setState(scope, {status: 'loading', error: ''})
@@ -281,6 +306,7 @@ export class GrampsjsAccessTokens extends GrampsjsAppStateMixin(LitElement) {
     const multiple = scopeInfo(scope)?.multiple
     try {
       const result = await this.appState.apiGet(accessTokenEndpoint(scope))
+      if (version !== (this._fetchVersions.get(scope) || 0)) return
       if ('error' in result) {
         const unsupported = multiple && result.errorDetail?.status === 404
         this._setState(
@@ -305,9 +331,16 @@ export class GrampsjsAccessTokens extends GrampsjsAppStateMixin(LitElement) {
         error: '',
       })
     } catch (error) {
-      this._setState(scope, {status: 'unavailable', error: errorMessage(error)})
+      if (version === (this._fetchVersions.get(scope) || 0)) {
+        this._setState(scope, {
+          status: 'unavailable',
+          error: errorMessage(error),
+        })
+      }
     } finally {
-      this._fetching.delete(scope)
+      if (version === (this._fetchVersions.get(scope) || 0)) {
+        this._fetching.delete(scope)
+      }
     }
   }
 
@@ -357,6 +390,9 @@ export class GrampsjsAccessTokens extends GrampsjsAppStateMixin(LitElement) {
     }
     const {scope, id} = pending
     const multiple = scopeInfo(scope)?.multiple
+    const previousState = this._states[scope]
+    this._invalidateFetch(scope)
+    if (!multiple) this._setState(scope, {status: 'loading', error: ''})
     const endpoint = multiple
       ? `${accessTokenEndpoint(scope)}${encodeURIComponent(id)}/`
       : accessTokenEndpoint(scope)
@@ -373,7 +409,8 @@ export class GrampsjsAccessTokens extends GrampsjsAppStateMixin(LitElement) {
       error = errorMessage(e)
     }
 
-    const state = this._states[scope]
+    const state = multiple ? this._states[scope] : previousState
+    this._invalidateFetch(scope)
     if (error) {
       this._setState(scope, {
         ...state,
@@ -474,6 +511,7 @@ export class GrampsjsAccessTokens extends GrampsjsAppStateMixin(LitElement) {
     }
     const {token, ...info} = result.data ?? {}
     const tokens = [...(this._states[scope]?.tokens ?? []), info]
+    this._invalidateFetch(scope)
     this._setState(scope, {status: 'active', tokens, error: ''})
     this._closeCreation()
     this._createdTokenCopied = false
