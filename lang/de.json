@@ -504,5 +504,6 @@
     "Linking failed.": "Die Verknüpfung ist fehlgeschlagen.",
     "Unlinked %s": "Nicht verknüpft %s",
     "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Dein vollständiger Name und deine E-Mail-Adresse können aktualisiert werden, sobald du dich mit einem verknüpften Konto anmeldest.",
-    "No connection": "Keine Verbindung"
+    "No connection": "Keine Verbindung",
+    "Opacity": "Deckkraft"
 }
