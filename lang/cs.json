@@ -502,5 +502,6 @@
     "Linking failed.": "Propojení selhalo.",
     "Unlinked %s": "Propojení s %s zrušeno",
     "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Vaše celé jméno a e-mailová adresa se mohou aktualizovat při každém přihlášení pomocí propojeného účtu.",
-    "No connection": "Žádné spojení"
+    "No connection": "Žádné spojení",
+    "Opacity": "Neprůhlednost"
 }
