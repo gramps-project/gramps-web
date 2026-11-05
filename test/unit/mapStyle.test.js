@@ -1,7 +1,10 @@
 import {afterEach, describe, it, expect, vi} from 'vitest'
+import {featureFilter} from '@maplibre/maplibre-gl-style-spec'
 
 import {
+  filterOhmStyleByYear,
   getBaseNameLocales,
+  getOhmDates,
   getOhmNameLocales,
   localizeBaseStyle,
   localizeOhmStyle,
@@ -46,6 +49,92 @@ describe('localizeOhmStyle', () => {
     const textField = JSON.stringify(french.layers[1].layout['text-field'])
     expect(textField).to.contain('name_fr')
     expect(textField).not.to.contain('name_de')
+  })
+})
+
+describe('filterOhmStyleByYear', () => {
+  const ROADS = {
+    id: 'roads',
+    type: 'line',
+    source: 'ohm',
+    'source-layer': 'transport_lines',
+    filter: ['==', ['get', 'type'], 'road'],
+  }
+  const YEAR_STYLE = {...STYLE, layers: [...STYLE.layers, ROADS]}
+
+  const defaultState = style =>
+    Object.fromEntries(
+      Object.entries(style.state).map(([name, {default: value}]) => [
+        name,
+        value,
+      ])
+    )
+
+  // Whether a layer shows a feature, evaluated by MapLibre's filter
+  // implementation with the style's default global state.
+  function shows(style, properties, state = defaultState(style), index = 1) {
+    const {filter} = featureFilter(style.layers[index].filter, 'filter', state)
+    return filter({zoom: 10}, {type: 1, properties})
+  }
+
+  it('shows the features that exist in the year', () => {
+    const style = filterOhmStyleByYear(YEAR_STYLE, 1900)
+    expect(shows(style, {start_decdate: 1850.5, end_decdate: 1950})).to.equal(
+      true
+    )
+    expect(shows(style, {start_decdate: 1900.99})).to.equal(true)
+    expect(shows(style, {end_decdate: 1900.01})).to.equal(true)
+    expect(shows(style, {})).to.equal(true)
+  })
+
+  it('hides the features that start later or end earlier', () => {
+    const style = filterOhmStyleByYear(YEAR_STYLE, 1900)
+    expect(shows(style, {start_decdate: 1901})).to.equal(false)
+    expect(shows(style, {end_decdate: 1899.99})).to.equal(false)
+  })
+
+  it('compares ISO dates of features without decimal years', () => {
+    const style = filterOhmStyleByYear(YEAR_STYLE, 1900)
+    expect(shows(style, {start_date: '1900-12', end_date: '1900'})).to.equal(
+      true
+    )
+    expect(shows(style, {start_date: '1901'})).to.equal(false)
+    expect(shows(style, {end_date: '1899-12-31'})).to.equal(false)
+    const early = filterOhmStyleByYear(YEAR_STYLE, 850)
+    expect(shows(early, {start_date: '0800', end_date: '0850-06'})).to.equal(
+      true
+    )
+    expect(shows(early, {end_date: '0849'})).to.equal(false)
+  })
+
+  it('keeps the filters of the layers', () => {
+    const style = filterOhmStyleByYear(YEAR_STYLE, 1900)
+    expect(shows(style, {type: 'road'}, undefined, 2)).to.equal(true)
+    expect(shows(style, {type: 'river'}, undefined, 2)).to.equal(false)
+    expect(
+      shows(style, {type: 'road', start_decdate: 1950}, undefined, 2)
+    ).to.equal(false)
+  })
+
+  it('follows the year in the global state', () => {
+    const style = filterOhmStyleByYear(YEAR_STYLE, 1900)
+    const state = {...defaultState(style), grampsjs_dates: getOhmDates(1960)}
+    expect(shows(style, {start_decdate: 1950}, state)).to.equal(true)
+    expect(shows(style, {end_decdate: 1920}, state)).to.equal(false)
+  })
+
+  it('shows all features without a year', () => {
+    const style = filterOhmStyleByYear(YEAR_STYLE, -1)
+    expect(shows(style, {start_decdate: 2100, end_decdate: 2200})).to.equal(
+      true
+    )
+  })
+
+  it('filters vector layers in a copy', () => {
+    const original = structuredClone(YEAR_STYLE)
+    const style = filterOhmStyleByYear(YEAR_STYLE, 1900)
+    expect(YEAR_STYLE).to.deep.equal(original)
+    expect(style.layers[0]).to.equal(YEAR_STYLE.layers[0])
   })
 })
 
@@ -184,7 +273,12 @@ describe('map style switching', () => {
     }
     Object.defineProperty(map, '_slottedChildren', {value: []})
     const applied = []
-    map._map = {setStyle: style => applied.push(style)}
+    map._map = {
+      setStyle: style => applied.push(style),
+      style: {},
+      isStyleLoaded: () => true,
+      setGlobalStateProperty: vi.fn(),
+    }
     globalThis.fetch = vi.fn(url => {
       const {promise, json} =
         responses[url.includes('openhistoricalmap') ? 'ohm' : 'base']
@@ -290,6 +384,42 @@ describe('map style switching', () => {
     await map._syncStyle()
     expect(applied).to.have.length(3)
     expect(JSON.stringify(applied[2].layers[1])).to.contain('name_fr')
+  })
+
+  it('keeps the selected year when the historical map is relocalized', async () => {
+    const ohm = deferred(OHM)
+    ohm.resolve()
+    const {map, applied} = await createBaseMap({ohm, base: deferred(BASE)})
+    map.year = 1900
+    await select(map, 'ohm')
+    expect(applied[1].state.grampsjs_dates.default).to.deep.equal(
+      getOhmDates(1900)
+    )
+    map.year = 1950
+    map.appState = {...map.appState, i18n: {lang: 'fr', strings: {}}}
+    await map._syncStyle()
+    expect(applied[2].state.grampsjs_dates.default).to.deep.equal(
+      getOhmDates(1950)
+    )
+    expect(JSON.stringify(applied[2].layers[1].filter)).to.contain(
+      'grampsjs_dates'
+    )
+  })
+
+  it('sets the year in the global state of the historical map', async () => {
+    const ohm = deferred(OHM)
+    ohm.resolve()
+    const {map} = await createBaseMap({ohm, base: deferred(BASE)})
+    map.year = 1900
+    map._applyYear()
+    expect(map._map.setGlobalStateProperty).not.toHaveBeenCalled()
+    await select(map, 'ohm')
+    map.year = 1950
+    map._applyYear()
+    expect(map._map.setGlobalStateProperty).toHaveBeenCalledWith(
+      'grampsjs_dates',
+      getOhmDates(1950)
+    )
   })
 
   it('localizes the base map and relocalizes it when the language changes', async () => {

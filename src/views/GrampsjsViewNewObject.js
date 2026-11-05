@@ -164,9 +164,9 @@ export class GrampsjsViewNewObject extends GrampsjsNewObjectTagsMixin(
     `
   }
 
-  _renderMediaForm() {
+  _renderMediaForm(label = 'Media') {
     return html`
-      <h3 class="label">${this._('Media')}</h3>
+      <h3 class="label">${this._(label)}</h3>
 
       <grampsjs-form-select-object-list
         multiple

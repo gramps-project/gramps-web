@@ -51,6 +51,20 @@ describe('new blog post: processed data', () => {
     expect(note.text.string).toBe('Hello')
   })
 
+  it('gives the Note the privacy of the Source', () => {
+    const element = makeElement()
+    element._blogTagHandle = 'blog-tag-handle'
+    const note = {_class: 'Note', text: {_class: 'StyledText', string: 'Hi'}}
+    element.data = {_class: 'Source', title: 'Title', private: true, note}
+    const [privateSource, privateNote] = element._processedData([])
+    expect(privateSource.private).toBe(true)
+    expect(privateNote.private).toBe(true)
+
+    element.data = {_class: 'Source', title: 'Title', note}
+    const [, publicNote] = element._processedData([])
+    expect(publicNote.private).toBe(false)
+  })
+
   it('deduplicates the Blog tag against tags the user already picked', () => {
     const element = makeElement()
     element._blogTagHandle = 'blog-tag-handle'

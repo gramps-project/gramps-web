@@ -1,5 +1,6 @@
 import {LitElement} from 'lit'
 import {fireEvent} from '../util.js'
+import * as maplibregl from 'maplibre-gl'
 import {WIKIDATA_MIN_ZOOM} from '../wikidata.ts'
 
 export const WIKIDATA_LAYER_HANDLE = 'wikidata-buildings'
@@ -66,7 +67,7 @@ class GrampsjsMapWikidataLayer extends LitElement {
   }
 
   _addHandlers(map) {
-    this._popup = new window.maplibregl.Popup({
+    this._popup = new maplibregl.Popup({
       closeButton: false,
       closeOnClick: false,
       offset: 10,

@@ -2,11 +2,12 @@ import {html, css, LitElement} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import '@material/web/iconbutton/icon-button.js'
+import '@material/web/slider/slider.js'
 import '@material/web/switch/switch.js'
 
 import './GrampsjsIcon.js'
 import './GrampsjsImg.js'
-import {mdiLayers} from '@mdi/js'
+import {mdiLayers, mdiCircleOpacity} from '@mdi/js'
 import {fireEvent, objectIconPath} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -187,6 +188,28 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
           color: var(--md-sys-color-on-surface-variant);
         }
 
+        /* Opacity slider for a tile overlay */
+        .opacity {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-top: -8px;
+          padding: 0 0 4px 52px;
+        }
+
+        .opacity grampsjs-icon {
+          flex: none;
+        }
+
+        .opacity md-slider {
+          flex: 1;
+          min-width: 0;
+          --md-slider-handle-height: 16px;
+          --md-slider-handle-width: 16px;
+          --md-slider-active-track-height: 3px;
+          --md-slider-inactive-track-height: 3px;
+        }
+
         md-switch {
           flex: none;
           --md-switch-track-height: 22px;
@@ -343,6 +366,33 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
           @change="${e => this._handleOverlayToggle(e, overlay)}"
         ></md-switch>
       </label>
+      ${overlay.visible && typeof overlay.opacity === 'number'
+        ? this._renderOpacity(overlay)
+        : ''}
+    `
+  }
+
+  // The slider is outside the row's label so it doesn't toggle overlay when clicked
+  _renderOpacity(overlay) {
+    return html`
+      <div class="opacity">
+        <grampsjs-icon
+          path="${mdiCircleOpacity}"
+          color="var(--md-sys-color-on-surface-variant)"
+          height="18"
+          width="18"
+        ></grampsjs-icon>
+        <md-slider
+          aria-label="${this._('Opacity')}"
+          min="10"
+          max="100"
+          step="5"
+          labeled
+          .value="${Math.round(overlay.opacity * 100)}"
+          @input="${e => this._handleOverlayOpacity(e, overlay)}"
+          @change="${e => this._handleOverlayOpacity(e, overlay)}"
+        ></md-slider>
+      </div>
     `
   }
 
@@ -375,6 +425,15 @@ class GrampsjsMapLayerSwitcher extends GrampsjsAppStateMixin(LitElement) {
     fireEvent(this, 'map:overlay-toggle', {
       overlay,
       visible: e.target.selected,
+    })
+  }
+
+  // Fires while dragging and once more with final set when the drag ends.
+  _handleOverlayOpacity(e, overlay) {
+    fireEvent(this, 'map:overlay-opacity', {
+      overlay,
+      opacity: Number(e.target.value) / 100,
+      final: e.type === 'change',
     })
   }
 

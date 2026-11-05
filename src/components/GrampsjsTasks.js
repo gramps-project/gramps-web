@@ -6,20 +6,10 @@ import {html, css, LitElement, nothing} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import '@material/web/checkbox/checkbox'
+import '@material/web/iconbutton/icon-button'
 import '@material/web/button/outlined-button'
 import '@material/web/menu/menu'
 import '@material/web/menu/menu-item'
-
-import {
-  mdiRadioboxBlank,
-  mdiTimelapse,
-  mdiMinusCircle,
-  mdiCheckCircle,
-  mdiHelp,
-  mdiChevronDoubleDown,
-  mdiAdjust,
-  mdiChevronDoubleUp,
-} from '@mdi/js'
 
 import './GrampsjsFilters.js'
 import './GrampsjsTagsSmall.js'
@@ -30,33 +20,13 @@ import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent} from '../util.js'
 import {tagFilter} from '../filterDefinitions.js'
 import {
+  PRIORITY_ICONS,
   TASK_PRIORITIES,
   TASK_STATUSES,
   priorityLabel,
+  statusIcon,
   taskAttribute,
 } from '../taskConstants.js'
-
-const STATUS_ICONS = {
-  Open: {path: mdiRadioboxBlank, color: 'var(--grampsjs-task-open)'},
-  'In Progress': {path: mdiTimelapse, color: 'var(--grampsjs-task-progress)'},
-  Blocked: {
-    path: mdiMinusCircle,
-    color: 'var(--grampsjs-alert-error-font-color)',
-  },
-  Done: {path: mdiCheckCircle, color: 'var(--grampsjs-task-done)'},
-}
-
-const PRIORITY_ICONS = {
-  High: {
-    path: mdiChevronDoubleUp,
-    color: 'var(--grampsjs-alert-error-font-color)',
-  },
-  Medium: {path: mdiAdjust},
-  Low: {
-    path: mdiChevronDoubleDown,
-    color: 'var(--grampsjs-alert-success-font-color)',
-  },
-}
 
 class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -126,8 +96,15 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           align-items: center;
         }
 
-        .status-icon grampsjs-icon {
+        .status-icon > grampsjs-icon {
           margin-right: 12px;
+        }
+
+        /* the icon stays where it is without the button, and the button
+        doesn't make the row taller */
+        .status-icon md-icon-button {
+          --md-icon-button-icon-size: 20px;
+          margin: -10px 0 -10px -10px;
         }
 
         .title {
@@ -205,6 +182,7 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
       data: {type: Array},
       loading: {type: Boolean},
       _selectedHandles: {type: Array},
+      _statusMenuTask: {type: Object},
     }
   }
 
@@ -213,6 +191,8 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
     this.data = []
     this.loading = false
     this._selectedHandles = []
+    // the task whose status icon opened the status menu
+    this._statusMenuTask = null
   }
 
   get _canEdit() {
@@ -246,7 +226,58 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
         : html`<div class="tasks-list">
             ${this.data.map(task => this._renderTask(task))}
           </div>`}
+      ${this._canEdit ? this._renderStatusMenu() : ''}
     `
+  }
+
+  get _statusItems() {
+    return TASK_STATUSES.map(status => ({
+      label: status,
+      value: status,
+      icon: statusIcon(status, {solid: true}),
+    }))
+  }
+
+  get _priorityItems() {
+    return TASK_PRIORITIES.map(priority => ({
+      ...priority,
+      icon: PRIORITY_ICONS[priority.label],
+    }))
+  }
+
+  // the menu of the status icons of the rows, which sets one task's status
+  _renderStatusMenu() {
+    return html`
+      <md-menu
+        id="row-status-menu"
+        positioning="fixed"
+        @closed="${() => {
+          this._statusMenuTask = null
+        }}"
+      >
+        ${this._renderMenuItems(this._statusItems, value =>
+          this._setStatus(this._statusMenuTask, value)
+        )}
+      </md-menu>
+    `
+  }
+
+  // items are {label, value, icon}
+  _renderMenuItems(items, onSelect) {
+    return items.map(
+      item => html`
+        <md-menu-item @click="${() => onSelect(item.value)}">
+          <grampsjs-icon
+            slot="start"
+            path="${item.icon.path}"
+            color="${item.icon.color ?? nothing}"
+            height="20"
+            width="20"
+          ></grampsjs-icon>
+          <div slot="headline">${this._(item.label)}</div>
+        </md-menu-item>
+      `
+    )
   }
 
   _renderBatchToolbar() {
@@ -266,27 +297,13 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           ${this._renderActionMenu(
             'prio',
             this._('Set Priority'),
-            TASK_PRIORITIES.map(priority => ({
-              ...priority,
-              icon: PRIORITY_ICONS[priority.label],
-            })),
+            this._priorityItems,
             'Priority'
           )}
           ${this._renderActionMenu(
             'status',
             this._('Set Status'),
-            TASK_STATUSES.map(status => ({
-              label: status,
-              value: status,
-              // done tasks fade in the list, but not the option in the menu
-              icon:
-                status === 'Done'
-                  ? {
-                      ...STATUS_ICONS.Done,
-                      color: 'var(--grampsjs-task-done-solid)',
-                    }
-                  : STATUS_ICONS[status],
-            })),
+            this._statusItems,
             'Status'
           )}
         </div>
@@ -294,8 +311,6 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  // items are {label, value, icon}, with an icon from STATUS_ICONS or
-  // PRIORITY_ICONS
   _renderActionMenu(id, label, items, attribute) {
     return html`
       <div class="menu-anchor">
@@ -308,21 +323,8 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           >${label}</md-outlined-button
         >
         <md-menu id="${id}-menu" anchor="${id}-btn">
-          ${items.map(
-            item => html`
-              <md-menu-item
-                @click="${() => this._updateAttribute(attribute, item.value)}"
-              >
-                <grampsjs-icon
-                  slot="start"
-                  path="${item.icon.path}"
-                  color="${item.icon.color ?? nothing}"
-                  height="20"
-                  width="20"
-                ></grampsjs-icon>
-                <div slot="headline">${this._(item.label)}</div>
-              </md-menu-item>
-            `
+          ${this._renderMenuItems(items, value =>
+            this._updateAttribute(attribute, value)
           )}
         </md-menu>
       </div>
@@ -334,7 +336,7 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
     const selected = this._selectedHandles.includes(task.handle)
     const content = html`
       <div class="item-content">
-        <div class="status-icon">${this._statusIcon(status, task.handle)}</div>
+        <div class="status-icon">${this._renderStatus(status, task)}</div>
         <div class="title">
           <a
             class="${classMap({
@@ -375,21 +377,47 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
     </div>`
   }
 
-  _statusIcon(status, handle) {
-    const id = `status-icon-${handle}`
-    const icon = STATUS_ICONS[status] ?? {path: mdiHelp}
+  // for editors, the status icon opens the status menu
+  _renderStatus(status, task) {
+    const id = `status-icon-${task.handle}`
+    const icon = statusIcon(status)
+    const iconHtml = html`<grampsjs-icon
+      path="${icon.path}"
+      color="${icon.color ?? nothing}"
+      id="${this._canEdit ? nothing : id}"
+      height="20"
+      width="20"
+    ></grampsjs-icon>`
     return html`
-      <grampsjs-icon
-        path="${icon.path}"
-        color="${icon.color ?? nothing}"
-        id="${id}"
-        height="20"
-        width="20"
-      ></grampsjs-icon>
+      ${this._canEdit
+        ? html`<md-icon-button
+            id="${id}"
+            aria-label="${this._('Set Status')}"
+            @click="${e => this._openStatusMenu(e, task)}"
+            >${iconHtml}</md-icon-button
+          >`
+        : iconHtml}
       <grampsjs-tooltip for="${id}" .appState="${this.appState}"
         >${this._(status ?? '')}</grampsjs-tooltip
       >
     `
+  }
+
+  _openStatusMenu(e, task) {
+    const menu = this.renderRoot.getElementById('row-status-menu')
+    this._statusMenuTask = task
+    menu.anchorElement = e.currentTarget
+    menu.open = true
+  }
+
+  _setStatus(task, value) {
+    if (task && value !== taskAttribute(task, 'Status')) {
+      fireEvent(this, 'tasks:update-attribute', {
+        objects: [task],
+        key: 'Status',
+        value,
+      })
+    }
   }
 
   _priorityIcon(priority, handle) {
@@ -415,11 +443,13 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  // clicks on the title link and the checkbox are left to them
+  // clicks on the title link, the checkbox and the status button are left
+  // to them
   _handleRowClick(e, task) {
     const path = e.composedPath()
     const inRow = path.slice(0, path.indexOf(e.currentTarget))
-    if (inRow.some(node => ['A', 'MD-CHECKBOX'].includes(node.tagName))) {
+    const controls = ['A', 'MD-CHECKBOX', 'MD-ICON-BUTTON']
+    if (inRow.some(node => controls.includes(node.tagName))) {
       return
     }
     fireEvent(this, 'nav', {path: `task/${task.gramps_id}`})

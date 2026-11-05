@@ -1,4 +1,4 @@
-import {css, html} from 'lit'
+import {css, html, nothing} from 'lit'
 import {keyed} from 'lit/directives/keyed.js'
 import {map} from 'lit/directives/map.js'
 import {repeat} from 'lit/directives/repeat.js'
@@ -36,6 +36,7 @@ import {
   chartDataUrl,
   chartDefinitions,
   chartSettingValues,
+  clampSettingValue,
 } from './treeChartDefinitions.js'
 import {fireEvent, isKeyEventInInput} from '../util.js'
 import {chartTransitionDuration, formatChartName} from '../charts/util.js'
@@ -58,6 +59,11 @@ import {
 const zoomStep = 1.25
 const panStep = 100
 const viewportDuration = 300
+
+// Milliseconds a number setting waits after its last change before it is
+// saved, so that clicking through the steps of the field fetches the people
+// of the chart once
+const numberSettingDelay = 600
 
 // Changes of the chart viewport, by name
 const viewportActions = {
@@ -290,6 +296,8 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._selectedPerson = undefined
     this._editMode = false
     this._chartState = {}
+    // The timers of number settings waiting to be saved, by setting key
+    this._settingTimers = new Map()
     this._boundSelectPerson = this._selectPerson.bind(this)
     this._boundToggleEditMode = this._toggleEditMode.bind(this)
     this._boundDisableEditMode = this._disableEditMode.bind(this)
@@ -770,11 +778,12 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     }
     return html`
       <md-filled-text-field
+        id="setting-${setting.name}"
         value=${value}
         type="number"
-        min=${setting.min}
-        @change=${e =>
-          this._changeSetting(setting, parseInt(e.target.value, 10))}
+        min=${setting.min ?? nothing}
+        max=${setting.max ?? nothing}
+        @change=${e => this._changeNumberSetting(setting, e.target)}
       ></md-filled-text-field>
     `
   }
@@ -783,7 +792,43 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     this.appState.updateSettings({[setting.key]: value}, false)
   }
 
+  // Saves the value of a number setting's input within its limits once it has
+  // not changed for `numberSettingDelay`, and shows the saved value in the
+  // input. An empty input is not saved.
+  _changeNumberSetting(setting, input) {
+    clearTimeout(this._settingTimers.get(setting.key))
+    const value = parseInt(input.value, 10)
+    if (Number.isNaN(value)) {
+      this._settingTimers.delete(setting.key)
+      return
+    }
+    this._settingTimers.set(
+      setting.key,
+      setTimeout(() => {
+        this._settingTimers.delete(setting.key)
+        const saved = clampSettingValue(setting, value)
+        // The input binding does not update an input whose setting keeps
+        // its value
+        input.value = String(saved)
+        this._changeSetting(setting, saved)
+      }, numberSettingDelay)
+    )
+  }
+
   _resetSettings() {
+    // A number setting waiting to be saved would undo its reset
+    for (const timer of this._settingTimers.values()) {
+      clearTimeout(timer)
+    }
+    this._settingTimers.clear()
+    // The input of a setting whose saved value is the default would keep
+    // showing an unsaved change
+    for (const setting of this.definition.settings) {
+      const input = this.renderRoot?.querySelector?.(`#setting-${setting.name}`)
+      if (setting.type === 'number' && input) {
+        input.value = String(setting.default)
+      }
+    }
     this.appState.updateSettings(
       Object.fromEntries(
         this.definition.settings.map(setting => [setting.key, setting.default])

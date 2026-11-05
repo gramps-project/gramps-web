@@ -13,6 +13,17 @@ vi.mock('../../src/components/GrampsjsFilters.js', () => {
   return {}
 })
 
+// The Material menus animate opening, which happy-dom does not implement.
+if (!HTMLElement.prototype.animate) {
+  HTMLElement.prototype.animate = function animate() {
+    return {
+      addEventListener() {},
+      cancel() {},
+      finished: Promise.resolve(),
+    }
+  }
+}
+
 // The Material checkboxes call attachInternals(), which happy-dom does not
 // implement.
 if (!HTMLElement.prototype.attachInternals) {
@@ -230,6 +241,38 @@ describe('GrampsjsTasks', () => {
     el.data = [task('b'), task('c')]
     await el.updateComplete
     expect(el._selectedHandles).toEqual(['b'])
+  })
+
+  it('sets the status of one task from its status icon', async () => {
+    const el = await mount({data})
+    const paths = []
+    el.addEventListener('nav', e => paths.push(e.detail.path))
+    const button = $$(el, '.task-item .status-icon md-icon-button')[1]
+    button.click()
+    await el.updateComplete
+    expect(paths).toEqual([])
+    const menu = $(el, '#row-status-menu')
+    expect(menu.anchorElement).toBe(button)
+    const done = [...menu.querySelectorAll('md-menu-item')].find(item =>
+      item.textContent.includes('Done')
+    )
+    done.click()
+    expect(el.updates).toEqual([
+      {objects: [data[1]], key: 'Status', value: 'Done'},
+    ])
+  })
+
+  it('does not update a task to the status it has', async () => {
+    const el = await mount({data})
+    el._setStatus(data[2], 'Done')
+    expect(el.updates).toEqual([])
+  })
+
+  it('shows viewers the status icon without a button', async () => {
+    const el = await mount({data, appState: appStateFor({canEdit: false})})
+    expect($(el, '.status-icon md-icon-button')).toBeNull()
+    expect($(el, '.status-icon grampsjs-icon')).not.toBeNull()
+    expect($(el, '#row-status-menu')).toBeNull()
   })
 
   it('says so when there are no tasks', async () => {

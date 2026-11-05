@@ -10,7 +10,7 @@ function makeView(response, {selected = ['h1', 'h2']} = {}) {
     setComplete: vi.fn(),
     setError: vi.fn(),
   }
-  const filters = {filters: [], query: ''}
+  const filters = {filters: []}
   Object.defineProperty(view, 'renderRoot', {
     value: {
       querySelector: selector =>
@@ -118,7 +118,7 @@ describe('selecting all matching objects', () => {
     const {view, filters} = pageView({data: [{handle: 'h9'}]})
     view.appState.apiGet = vi.fn(async () => {
       // changed filters reload the page, which clears the selection
-      filters.query = 'gramps_id ~ I1'
+      filters.filters = [{name: 'MatchesQuery', values: ['gramps_id ~ I1']}]
       view._clearSelection()
       view._handleSelectionChanged({detail: {indices: [0, 1]}})
       return {data: [{handle: 'h9'}]}

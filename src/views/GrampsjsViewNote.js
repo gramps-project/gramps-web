@@ -3,8 +3,6 @@ import {html} from 'lit'
 import {GrampsjsViewObject} from './GrampsjsViewObject.js'
 import '../components/GrampsjsNote.js'
 
-const BASE_DIR = ''
-
 export class GrampsjsViewNote extends GrampsjsViewObject {
   constructor() {
     super()
@@ -14,7 +12,7 @@ export class GrampsjsViewNote extends GrampsjsViewObject {
 
   getUrl() {
     const options = {
-      link_format: `${BASE_DIR}/{obj_class}/{gramps_id}`,
+      link_format: `/{obj_class}/{gramps_id}`,
     }
     return `/api/notes/?gramps_id=${this.grampsId}&locale=${
       this.appState.i18n.lang || 'en'

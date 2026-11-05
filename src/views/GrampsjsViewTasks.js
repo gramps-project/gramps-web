@@ -35,7 +35,6 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
     super()
     this._data = []
     this._filters = []
-    this._query = ''
     // URI of the latest request of the task list
     this._latestUri = ''
   }
@@ -81,14 +80,11 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
         ...this._filters,
       ],
     }
-    let uri = `/api/sources/?rules=${encodeURIComponent(
+    const uri = `/api/sources/?rules=${encodeURIComponent(
       JSON.stringify(rules)
     )}&locale=${
       this.appState.i18n.lang || 'en'
     }&sort=-gramps_id&extend=tag_list`
-    if (this._query) {
-      uri = `${uri}&gql=${encodeURIComponent(this._query)}`
-    }
     this._latestUri = uri
     const data = await this.appState.apiGet(uri)
     // a later request has replaced this one
@@ -134,7 +130,6 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _handleFiltersChanged(e) {
     this._filters = e.detail.filters
-    this._query = e.detail.query
     e.preventDefault()
     e.stopPropagation()
     this._fetchData()

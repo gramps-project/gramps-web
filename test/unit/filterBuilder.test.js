@@ -23,6 +23,7 @@ import {
   privacyFilter,
   tagFilter,
   textFilter,
+  typeFilter,
   yearsFilter,
 } from '../../src/filterDefinitions.js'
 
@@ -283,6 +284,32 @@ describe('facet conversion', () => {
 
   it('accepts an empty tree', () => {
     expect(treeToPills(tree('and'), sections)).toEqual([])
+  })
+
+  it('tells sections of the same rule apart by parameter slot', () => {
+    const placeSections = [
+      textFilter(_, {label: 'Name', rule: 'HasData', numArgs: 3}),
+      typeFilter(_, {
+        label: 'Place type:',
+        typeName: 'place_types',
+        rule: 'HasData',
+        index: 1,
+        numArgs: 3,
+      }),
+    ]
+    const placePills = [
+      {
+        sectionId: 'HasData:0',
+        rule: {name: 'HasData', values: ['Ber', '', '']},
+      },
+      {
+        sectionId: 'HasData:1',
+        rule: {name: 'HasData', values: ['', 'City', '']},
+      },
+    ]
+    expect(treeToPills(pillsToTree(placePills), placeSections)).toEqual(
+      placePills
+    )
   })
 })
 

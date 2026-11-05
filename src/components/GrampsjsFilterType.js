@@ -5,6 +5,7 @@ import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsFormSelectType.js'
 
 import {fireEvent} from '../util.js'
+import {indexedRule} from '../filterDefinitions.js'
 
 export class GrampsjsFilterType extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -48,7 +49,7 @@ export class GrampsjsFilterType extends GrampsjsAppStateMixin(LitElement) {
         .appState="${this.appState}"
         typeName="${this.section.typeName}"
         defaultValue=""
-        .value="${this.rules[0]?.values?.[0] ?? ''}"
+        .value="${this.rules[0]?.values?.[this.section.index] ?? ''}"
         ?loadingTypes=${this.loadingTypes}
         .types="${this.types}"
         .typesLocale="${this.typesLocale}"
@@ -89,7 +90,7 @@ export class GrampsjsFilterType extends GrampsjsAppStateMixin(LitElement) {
   _handleChange(event) {
     event.stopPropagation()
     const type = event.detail.data
-    const rules = type ? [{name: this.section.rule, values: [type]}] : []
+    const rules = type ? [indexedRule(this.section, type)] : []
     fireEvent(this, 'filter-section:change', {rules})
   }
 }

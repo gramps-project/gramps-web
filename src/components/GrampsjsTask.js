@@ -1,20 +1,25 @@
-import {html, css, LitElement} from 'lit'
+import {html, css, LitElement, nothing} from 'lit'
+import {mdiCheck, mdiClose, mdiContentSave, mdiDelete, mdiPencil} from '@mdi/js'
 import {
-  mdiClose,
-  mdiContentSave,
-  mdiFormatListChecks,
-  mdiPencil,
-  mdiPencilOff,
-} from '@mdi/js'
-import {taskNote} from '../taskConstants.js'
+  PRIORITY_ICONS,
+  TASK_PRIORITIES,
+  TASK_STATUSES,
+  priorityLabel,
+  statusIcon,
+  taskAttribute,
+  taskNote,
+} from '../taskConstants.js'
 import {sharedStyles} from '../SharedStyles.js'
 
+import '@material/web/button/text-button.js'
+import '@material/web/dialog/dialog.js'
 import '@material/web/iconbutton/icon-button.js'
 import '@material/web/select/outlined-select.js'
 import '@material/web/select/select-option.js'
 
 import './GrampsjsEditableTitle.js'
 import './GrampsjsEditor.js'
+import './GrampsjsFormNewTag.js'
 import './GrampsjsIcon.js'
 import './GrampsjsImg.js'
 import './GrampsjsGallery.js'
@@ -22,37 +27,24 @@ import './GrampsjsTags.js'
 import './GrampsjsTooltip.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsConnectedNote.js'
-import './GrampsjsBreadcrumbs.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, objectIconPath} from '../util.js'
 
+// A task, edited in place by editors. Empty sections are hidden from
+// viewers; editors see their headings with the button that fills them.
 export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
-        #btn-details {
-          margin-top: 2em;
+        .page-actions {
+          display: flex;
+          gap: 4px;
+          margin-top: -8px;
         }
 
         .dropdowns {
-          margin-top: 48px;
-          --md-outlined-select-text-field-disabled-outline-color: var(
-            --grampsjs-body-font-color-38
-          );
-          --md-outlined-select-text-field-disabled-outline-opacity: 1;
-          --md-outlined-select-text-field-disabled-input-text-color: var(
-            --grampsjs-body-font-color-87
-          );
-          --md-outlined-select-text-field-disabled-input-text-opacity: 1;
-          --md-outlined-select-text-field-disabled-label-text-color: var(
-            --grampsjs-body-font-color-87
-          );
-          --md-outlined-select-text-field-disabled-label-text-opacity: 1;
-          --md-outlined-select-text-field-disabled-trailing-icon-color: var(
-            --grampsjs-color-shade-255
-          );
-          --md-outlined-select-text-field-disabled-trailing-icon-opacity: 1;
+          margin-top: 36px;
         }
 
         .dropdowns md-outlined-select {
@@ -60,16 +52,37 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
           margin-bottom: 18px;
         }
 
-        h3 {
+        .properties {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px 32px;
+          margin-top: 16px;
+        }
+
+        .property {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .property .label {
+          color: var(--grampsjs-body-font-color-60);
+        }
+
+        .section-heading {
+          display: flex;
+          align-items: center;
+          gap: 4px;
           margin-top: 2em;
+          margin-bottom: 12px;
+        }
+
+        .section-heading h3 {
+          margin: 0;
         }
 
         .controls {
           margin: 0.7em 0;
-        }
-
-        .muted {
-          opacity: 0.4;
         }
       `,
     ]
@@ -78,25 +91,25 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       source: {type: Object},
-      note: {type: Object},
-      dialogContent: {type: String},
       saveNote: {attribute: false},
       _editingNote: {type: Boolean},
       _savingNote: {type: Boolean},
       _editingGallery: {type: Boolean},
+      _showDeleteDialog: {type: Boolean},
+      _dialogContent: {type: String},
     }
   }
 
   constructor() {
     super()
     this.source = {}
-    this.note = {}
-    this.dialogContent = ''
     // Saves the note data; resolves to whether the save succeeded
     this.saveNote = async () => false
     this._editingNote = false
     this._savingNote = false
     this._editingGallery = false
+    this._showDeleteDialog = false
+    this._dialogContent = ''
   }
 
   get canEdit() {
@@ -107,16 +120,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
     if (Object.keys(this.source).length === 0) {
       return html``
     }
-    const note = taskNote(this.source)
     return html`
-      <grampsjs-breadcrumbs
-        .data="${this.source}"
-        .appState="${this.appState}"
-        objectsName="Tasks"
-        .objectIcon="${mdiFormatListChecks}"
-        hideBookmark
-        hideLock
-      ></grampsjs-breadcrumbs>
       <h2>
         <grampsjs-editable-title
           .value="${this.source.title}"
@@ -126,175 +130,336 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
           .appState="${this.appState}"
         ></grampsjs-editable-title>
       </h2>
+      ${this.canEdit ? this._renderPageActions() : ''}
+      ${this.canEdit ? this._renderDropdowns() : this._renderProperties()}
+      ${this._renderDescription()} ${this._renderAttachments()}
+      ${this._renderTags()} ${this._renderDeleteDialog()} ${this._dialogContent}
+    `
+  }
 
+  _renderPageActions() {
+    return html`
+      <div class="page-actions">
+        <md-icon-button
+          id="btn-source"
+          href="/source/${this.source.gramps_id}"
+          aria-label="${this._('Edit Source')}"
+        >
+          <grampsjs-icon
+            path="${objectIconPath.source}"
+            color="var(--mdc-theme-secondary)"
+          ></grampsjs-icon>
+        </md-icon-button>
+        <grampsjs-tooltip for="btn-source" .appState="${this.appState}"
+          >${this._('Edit Source')}</grampsjs-tooltip
+        >
+        <md-icon-button
+          id="btn-delete"
+          aria-label="${this._('_Delete')}"
+          @click="${() => {
+            this._showDeleteDialog = true
+          }}"
+        >
+          <grampsjs-icon
+            path="${mdiDelete}"
+            color="var(--mdc-theme-secondary)"
+          ></grampsjs-icon>
+        </md-icon-button>
+        <grampsjs-tooltip for="btn-delete" .appState="${this.appState}"
+          >${this._('_Delete')}</grampsjs-tooltip
+        >
+      </div>
+    `
+  }
+
+  _renderDeleteDialog() {
+    if (!this._showDeleteDialog) {
+      return ''
+    }
+    const close = () => {
+      this._showDeleteDialog = false
+    }
+    return html`
+      <md-dialog open @cancel="${close}" @close="${close}">
+        <div slot="content">${this._('Delete this object?')}</div>
+        <div slot="actions">
+          <md-text-button @click="${close}">
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-text-button
+            @click="${() => {
+              close()
+              fireEvent(this, 'task:delete')
+            }}"
+          >
+            ${this._('_Delete')}
+          </md-text-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  // a task can have a status outside TASK_STATUSES, e.g. from Gramps
+  // desktop, which the select shows as well
+  _renderDropdowns() {
+    const status = this._status
+    const statuses =
+      status && !TASK_STATUSES.includes(status)
+        ? [...TASK_STATUSES, status]
+        : TASK_STATUSES
+    const priority = priorityLabel(this._priority)
+    return html`
       <p class="dropdowns">
         <md-outlined-select
-          ?disabled="${!this.canEdit}"
           label="${this._('Status')}"
           id="select-status"
           @change="${this._handleStatusChange}"
         >
-          ${['Open', 'In Progress', 'Blocked', 'Done'].map(
-            status => html`
+          ${status
+            ? this._renderIcon(
+                statusIcon(status, {solid: true}),
+                'leading-icon'
+              )
+            : ''}
+          ${statuses.map(
+            value => html`
               <md-select-option
-                value="${status}"
-                ?selected="${this._status === status}"
+                value="${value}"
+                ?selected="${status === value}"
               >
-                <div slot="headline">${this._(status)}</div>
+                ${this._renderIcon(statusIcon(value, {solid: true}), 'start')}
+                <div slot="headline">${this._(value)}</div>
               </md-select-option>
             `
           )}
         </md-outlined-select>
         <md-outlined-select
-          ?disabled="${!this.canEdit}"
           label="${this._('Priority')}"
           id="select-priority"
           @change="${this._handlePrioChange}"
         >
-          <md-select-option value="1" ?selected="${this._priority < 5}">
-            <span slot="headline">${this._('High')}</span>
-          </md-select-option>
-          <md-select-option value="5" ?selected="${this._priority === '5'}">
-            <span slot="headline">${this._('Medium')}</span>
-          </md-select-option>
-          <md-select-option value="9" ?selected="${this._priority > 5}">
-            <span slot="headline">${this._('Low')}</span>
-          </md-select-option>
+          ${priority
+            ? this._renderIcon(PRIORITY_ICONS[priority], 'leading-icon')
+            : ''}
+          ${TASK_PRIORITIES.map(
+            ({label, value}) => html`
+              <md-select-option
+                value="${value}"
+                ?selected="${priority === label}"
+              >
+                ${this._renderIcon(PRIORITY_ICONS[label], 'start')}
+                <div slot="headline">${this._(label)}</div>
+              </md-select-option>
+            `
+          )}
         </md-outlined-select>
       </p>
+    `
+  }
 
-      <h3>${this._('Description')}</h3>
-      <p>
-        ${note
-          ? html` ${this._editingNote
-              ? html`
-                  <grampsjs-editor
-                    id="task-note-editor"
-                    .initialData=${note.text}
-                    .appState="${this.appState}"
-                  ></grampsjs-editor>
-                `
-              : html`
-                  <grampsjs-connected-note
-                    handle="${note.handle}"
-                    .appState="${this.appState}"
-                  ></grampsjs-connected-note>
-                `}`
-          : html`${this._editingNote
-              ? html`<grampsjs-editor
-                  id="task-note-editor"
-                  .appState="${this.appState}"
-                ></grampsjs-editor>`
-              : html`<span class="muted">${this._('None')}</span>`}`}
-        ${this.canEdit
+  // status and priority as text, for viewers
+  _renderProperties() {
+    const status = this._status
+    const priority = priorityLabel(this._priority)
+    return html`
+      <div class="properties">
+        ${status
+          ? html`<span class="property">
+              <span class="label">${this._('Status')}</span>
+              ${this._renderIcon(statusIcon(status, {solid: true}))}
+              ${this._(status)}
+            </span>`
+          : ''}
+        ${priority
+          ? html`<span class="property">
+              <span class="label">${this._('Priority')}</span>
+              ${this._renderIcon(PRIORITY_ICONS[priority])} ${this._(priority)}
+            </span>`
+          : ''}
+      </div>
+    `
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _renderIcon(icon, slot) {
+    return html`<grampsjs-icon
+      slot="${slot ?? nothing}"
+      path="${icon.path}"
+      color="${icon.color ?? nothing}"
+      height="20"
+      width="20"
+    ></grampsjs-icon>`
+  }
+
+  // the heading of a section, with the button that starts editing it
+  _renderHeading(label, id, editing, onEdit) {
+    return html`
+      <div class="section-heading">
+        <h3>${label}</h3>
+        ${this.canEdit && !editing
           ? html`
-              <div class="controls">
-                ${this._editingNote
-                  ? html`
-                      <md-icon-button
-                        class="edit"
-                        id="btn-save-note"
-                        ?disabled="${this._savingNote}"
-                        aria-label="${this._('_Save')}"
-                        @click="${this._handleSaveNote}"
-                      >
-                        <grampsjs-icon
-                          path="${mdiContentSave}"
-                          color="var(--mdc-theme-secondary)"
-                        ></grampsjs-icon>
-                      </md-icon-button>
-                      <grampsjs-tooltip for="btn-save-note"
-                        >${this._('_Save')}</grampsjs-tooltip
-                      >
-                      <md-icon-button
-                        class="edit"
-                        id="btn-cancel-note"
-                        ?disabled="${this._savingNote}"
-                        aria-label="${this._('Cancel')}"
-                        @click="${this._handleCancelNote}"
-                      >
-                        <grampsjs-icon
-                          path="${mdiClose}"
-                          color="var(--mdc-theme-secondary)"
-                        ></grampsjs-icon>
-                      </md-icon-button>
-                      <grampsjs-tooltip for="btn-cancel-note"
-                        >${this._('Cancel')}</grampsjs-tooltip
-                      >
-                    `
-                  : html`
-                      <md-icon-button
-                        id="btn-edit-note"
-                        class="edit"
-                        aria-label="${this._('Edit Note')}"
-                        @click="${this._handleEditNote}"
-                      >
-                        <grampsjs-icon
-                          path="${mdiPencil}"
-                          color="var(--mdc-theme-secondary)"
-                        ></grampsjs-icon>
-                      </md-icon-button>
-                      <grampsjs-tooltip for="btn-edit-note"
-                        >${this._('Edit Note')}</grampsjs-tooltip
-                      >
-                    `}
-              </div>
+              <md-icon-button
+                id="${id}"
+                class="edit"
+                aria-label="${this._('Edit')}"
+                @click="${onEdit}"
+              >
+                <grampsjs-icon
+                  path="${mdiPencil}"
+                  color="var(--mdc-theme-secondary)"
+                ></grampsjs-icon>
+              </md-icon-button>
+              <grampsjs-tooltip for="${id}" .appState="${this.appState}"
+                >${this._('Edit')}</grampsjs-tooltip
+              >
             `
           : ''}
-      </p>
-      <h3>${this._('Attachments')}</h3>
-      ${this.source?.media_list?.length === 0 && !this._editingGallery
-        ? html`<p><span class="muted">${this._('None')}</span></p>`
-        : html`
+      </div>
+    `
+  }
+
+  _renderDescription() {
+    const note = taskNote(this.source)
+    if (!note && !this.canEdit) {
+      return ''
+    }
+    return html`
+      ${this._renderHeading(
+        this._('Description'),
+        'btn-edit-note',
+        this._editingNote,
+        this._handleEditNote
+      )}
+      ${this._editingNote
+        ? html`
+            <grampsjs-editor
+              id="task-note-editor"
+              .initialData=${note?.text ?? {
+                _class: 'StyledText',
+                string: '',
+                tags: [],
+              }}
+              .appState="${this.appState}"
+            ></grampsjs-editor>
+            <div class="controls">
+              <md-icon-button
+                class="edit"
+                id="btn-save-note"
+                ?disabled="${this._savingNote}"
+                aria-label="${this._('_Save')}"
+                @click="${this._handleSaveNote}"
+              >
+                <grampsjs-icon
+                  path="${mdiContentSave}"
+                  color="var(--mdc-theme-secondary)"
+                ></grampsjs-icon>
+              </md-icon-button>
+              <grampsjs-tooltip for="btn-save-note" .appState="${this.appState}"
+                >${this._('_Save')}</grampsjs-tooltip
+              >
+              <md-icon-button
+                class="edit"
+                id="btn-cancel-note"
+                ?disabled="${this._savingNote}"
+                aria-label="${this._('Cancel')}"
+                @click="${this._handleCancelNote}"
+              >
+                <grampsjs-icon
+                  path="${mdiClose}"
+                  color="var(--mdc-theme-secondary)"
+                ></grampsjs-icon>
+              </md-icon-button>
+              <grampsjs-tooltip
+                for="btn-cancel-note"
+                .appState="${this.appState}"
+                >${this._('Cancel')}</grampsjs-tooltip
+              >
+            </div>
+          `
+        : ''}
+      ${note && !this._editingNote
+        ? html`<grampsjs-connected-note
+            handle="${note.handle}"
+            .appState="${this.appState}"
+          ></grampsjs-connected-note>`
+        : ''}
+    `
+  }
+
+  // media are added and removed right away, so editing ends with Done
+  _renderAttachments() {
+    const hasMedia = this.source?.media_list?.length > 0
+    if (!hasMedia && !this.canEdit) {
+      return ''
+    }
+    return html`
+      ${this._renderHeading(
+        this._('Attachments'),
+        'btn-edit-gallery',
+        this._editingGallery,
+        this._handleEditGallery
+      )}
+      ${hasMedia || this._editingGallery
+        ? html`
             <grampsjs-gallery
               ?edit="${this._editingGallery}"
               .appState="${this.appState}"
               .media=${this.source?.extended?.media}
               .mediaRef=${this.source?.media_list}
             ></grampsjs-gallery>
-          `}
-      ${this.canEdit
+          `
+        : ''}
+      ${this._editingGallery
         ? html`
             <div class="controls">
               <md-icon-button
-                id="btn-edit-gallery"
+                id="btn-done-gallery"
                 class="edit"
-                aria-label="${this._('Edit')}"
+                aria-label="${this._('Done')}"
                 @click="${this._handleEditGallery}"
               >
                 <grampsjs-icon
-                  path="${this._editingGallery ? mdiPencilOff : mdiPencil}"
+                  path="${mdiCheck}"
                   color="var(--mdc-theme-secondary)"
                 ></grampsjs-icon>
               </md-icon-button>
-              <grampsjs-tooltip for="btn-edit-gallery"
-                >${this._('Edit')}</grampsjs-tooltip
+              <grampsjs-tooltip
+                for="btn-done-gallery"
+                .appState="${this.appState}"
+                >${this._('Done')}</grampsjs-tooltip
               >
             </div>
           `
         : ''}
+    `
+  }
 
-      <h3>${this._('Tags')}</h3>
+  _renderTags() {
+    const tags = (this.source?.extended?.tags ?? []).filter(
+      tag => tag.name !== 'ToDo'
+    )
+    if (tags.length === 0 && !this.canEdit) {
+      return ''
+    }
+    return html`
+      <div class="section-heading"><h3>${this._('Tags')}</h3></div>
       <grampsjs-tags
         .data="${this.source?.extended?.tags}"
         .hideTags="${['ToDo']}"
+        noHeading
         ?edit="${this.canEdit}"
         .appState="${this.appState}"
         @tag:new="${this._handleNewTag}"
       ></grampsjs-tags>
-
-      ${this.dialogContent}
     `
   }
 
   get _status() {
-    return this.source.attribute_list.filter(att => att.type === 'Status')[0]
-      ?.value
+    return taskAttribute(this.source, 'Status')
   }
 
   get _priority() {
-    return this.source.attribute_list.filter(att => att.type === 'Priority')[0]
-      ?.value
+    return taskAttribute(this.source, 'Priority')
   }
 
   _handleEditGallery() {
@@ -305,17 +470,23 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
     this._editingNote = true
   }
 
-  // The editor stays open until the save succeeded and the task is reloaded
+  // The editor stays open until the save succeeded and the task is reloaded.
+  // An existing note keeps its type; a new one is a To Do note with the tags
+  // of the task, like the note of a new task.
   async _handleSaveNote() {
     const editor = this.renderRoot.querySelector('grampsjs-editor')
     const text = editor.data
-    const type = 'To Do'
     const note = taskNote(this.source)
     let data = null
     if (note) {
-      data = {...note, text, type}
+      data = {...note, text}
     } else if (text.string.trim() !== '') {
-      data = {text, type}
+      data = {
+        text,
+        type: 'To Do',
+        tag_list: this.source.tag_list ?? [],
+        private: Boolean(this.source.private),
+      }
     }
     if (data !== null) {
       this._savingNote = true
@@ -336,53 +507,32 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleStatusChange(e) {
-    const status = `${e.target.value}`
-    if (status === this._status) {
-      return
-    }
-    const data = {
-      type: 'Status',
-      value: `${e.target.value}`,
-    }
-    if (this._status === undefined) {
-      fireEvent(this, 'edit:action', {action: 'addAttribute', data})
-    } else {
-      const index = this.source.attribute_list.findIndex(
-        att => att.type === 'Status'
-      )
-      fireEvent(this, 'edit:action', {action: 'updateAttribute', data, index})
-    }
+    this._setAttribute('Status', `${e.target.value}`)
   }
 
   _handlePrioChange(e) {
-    const prio = `${e.target.value}`
-    if (prio === this._priority) {
+    this._setAttribute('Priority', `${e.target.value}`)
+  }
+
+  _setAttribute(type, value) {
+    const index = this.source.attribute_list.findIndex(att => att.type === type)
+    if (this.source.attribute_list[index]?.value === value) {
       return
     }
-    const data = {
-      type: 'Priority',
-      value: `${e.target.value}`,
-    }
-    if (this._priority === undefined) {
+    const data = {type, value}
+    if (index === -1) {
       fireEvent(this, 'edit:action', {action: 'addAttribute', data})
     } else {
-      const index = this.source.attribute_list.findIndex(
-        att => att.type === 'Priority'
-      )
       fireEvent(this, 'edit:action', {action: 'updateAttribute', data, index})
     }
   }
 
-  _clickDetails(grampsId) {
-    fireEvent(this, 'nav', {path: `source/${grampsId}`})
-  }
-
   _handleCancelDialog() {
-    this.dialogContent = ''
+    this._dialogContent = ''
   }
 
   _handleNewTag() {
-    this.dialogContent = html`
+    this._dialogContent = html`
       <grampsjs-form-new-tag
         .appState="${this.appState}"
         .data="${this.source.tag_list}"
@@ -401,7 +551,7 @@ export class GrampsjsTask extends GrampsjsAppStateMixin(LitElement) {
     })
     e.preventDefault()
     e.stopPropagation()
-    this.dialogContent = ''
+    this._dialogContent = ''
   }
 }
 

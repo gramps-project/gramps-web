@@ -169,6 +169,7 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
         ...note,
         handle: handleNote,
         tag_list: tagList,
+        private: Boolean(source.private),
       },
     ]
   }

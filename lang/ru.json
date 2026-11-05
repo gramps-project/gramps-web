@@ -500,5 +500,7 @@
     "Matches media objects referenced by a specific object type": "Находит медиа, на которые ссылается объект определённого типа",
     "Matching the <GOQL expression>": "Соответствующие выражению <выражение GOQL>",
     "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Находит объекты, для которых заданное Gramps Object Query Language (GOQL) выражение истинно",
-    "Expression:": "Выражение:"
+    "Expression:": "Выражение:",
+    "No connection": "Нет соединения",
+    "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Ваши полное имя и адрес электронной почты могут обновляться при каждом входе через подключённый аккаунт."
 }

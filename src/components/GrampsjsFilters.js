@@ -13,7 +13,6 @@ import '@material/web/button/filled-button'
 import '@material/web/button/outlined-button'
 import '@material/web/button/text-button'
 import '@material/web/iconbutton/icon-button'
-import '@material/web/textfield/outlined-text-field'
 
 import './GrampsjsFilterBuilder.js'
 import './GrampsjsFilterCheckboxes.js'
@@ -24,21 +23,25 @@ import './GrampsjsFilterTags.js'
 import './GrampsjsFilterText.js'
 import './GrampsjsFilterType.js'
 import './GrampsjsFilterYears.js'
+import './GrampsjsGoqlInput.js'
 import './GrampsjsIcon.js'
 import {renderIconSvg} from '../icons.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {fireEvent, clickKeyHandler} from '../util.js'
+import {apiVersionAtLeast, fireEvent, clickKeyHandler} from '../util.js'
 import {
   findSection,
+  indexedRule,
   pillLabel,
   removePill,
   sectionRules,
   setSectionRules,
+  textFilter,
 } from '../filterDefinitions.js'
 import {pillsToTree, treeToFilters, treeToPills} from '../filterBuilder.js'
 
-// section id of the GQL query in the filter panel
-const GQL_SECTION = 'gql'
+// The section of the GOQL expression, which has its own field applied on
+// demand
+const GOQL_SECTION = textFilter(s => s, {label: 'GOQL', rule: 'MatchesQuery'})
 
 export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -71,31 +74,19 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
           --md-icon-button-icon-size: 20px;
         }
 
-        #input-gql-container {
+        #input-goql-container {
           display: flex;
           align-items: center;
         }
 
-        #input-gql {
-          --md-outlined-text-field-input-text-font: var(
-            --grampsjs-mono-font-family
-          );
-          --md-outlined-text-field-input-text-size: 15px;
-          --md-outlined-text-field-container-shape: 8px;
-          --md-outlined-text-field-top-space: 9px;
-          --md-outlined-text-field-bottom-space: 9px;
+        #input-goql {
           flex: 1;
           margin-right: 12px;
         }
 
-        #input-gql-container span {
-          align-self: flex-start;
+        #input-goql-container span {
           display: flex;
           align-items: center;
-        }
-
-        #input-gql-container md-filled-button {
-          --md-filled-button-container-shape: 8px;
         }
 
         .hidden {
@@ -164,8 +155,10 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
       // condition builder
       namespace: {type: String},
       open: {type: Boolean},
-      query: {type: String},
-      errorGql: {type: Boolean},
+      // set by the view while its last request failed
+      errorGoql: {type: Boolean},
+      // hides the error while the expression is edited
+      _goqlErrorHidden: {type: Boolean},
       _pills: {type: Array},
       // the filter of the condition builder while the facets can't show it
       _tree: {type: Object},
@@ -177,10 +170,22 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     this.definitions = []
     this.namespace = ''
     this.open = false
-    this.query = ''
-    this.errorGql = false
+    this.errorGoql = false
+    this._goqlErrorHidden = false
     this._pills = []
     this._tree = null
+  }
+
+  // whether the backend has the MatchesQuery rule
+  get _hasGoql() {
+    return apiVersionAtLeast(this.appState?.dbInfo, 3, 24)
+  }
+
+  // the view's sections and, if supported, the GOQL section
+  get _sections() {
+    return this._hasGoql
+      ? [...this.definitions, GOQL_SECTION]
+      : this.definitions
   }
 
   // the active rules
@@ -219,9 +224,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
         <md-icon-button
           id="filteroff"
           aria-label="${this._('Clear all filters')}"
-          ?disabled="${this._pills.length === 0 &&
-          this._tree === null &&
-          this.query === ''}"
+          ?disabled="${!this._hasChips}"
           @click="${this._handleFilterOff}"
         >
           <grampsjs-icon path="${mdiFilterOff}"></grampsjs-icon>
@@ -240,9 +243,17 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
           @filter-section:change="${this._handleSectionChange}"
         >
           ${this._tree === null
-            ? this.definitions.map(section => this._renderSection(section))
+            ? html`${this.definitions.map(section =>
+                this._renderSection(section)
+              )}
+              ${this._hasGoql
+                ? this._renderDetails(
+                    GOQL_SECTION.id,
+                    GOQL_SECTION.label,
+                    this._renderGoql()
+                  )
+                : nothing}`
             : this._renderAdvancedNotice()}
-          ${this._renderDetails(GQL_SECTION, 'GQL', this._renderGql())}
         </div>
         ${this.namespace && this._tree === null
           ? html`<md-text-button @click="${this._openBuilder}">
@@ -277,7 +288,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
   }
 
   get _hasChips() {
-    return this._pills.length > 0 || this._tree !== null || this.query !== ''
+    return this._pills.length > 0 || this._tree !== null
   }
 
   _renderFilterChips() {
@@ -291,28 +302,24 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
               @filter-chip:clear="${this._clearTree}"
             ></grampsjs-filter-chip>
           `}
-      ${this.query
-        ? html`
-            <grampsjs-filter-chip
-              @filter-chip:clear="${this._clearQuery}"
-              monospace
-              label="${this.query}"
-            ></grampsjs-filter-chip>
-          `
-        : nothing}
     `
   }
 
   _renderPill(pill, i) {
-    const section = findSection(this.definitions, pill.sectionId)
-    return section
-      ? html`
-          <grampsjs-filter-chip
-            label="${pillLabel(s => this._(s), section, pill.rule)}"
-            @filter-chip:clear="${() => this._removePill(i)}"
-          ></grampsjs-filter-chip>
-        `
-      : nothing
+    const section = findSection(this._sections, pill.sectionId)
+    if (!section) {
+      return nothing
+    }
+    const isGoql = section === GOQL_SECTION
+    return html`
+      <grampsjs-filter-chip
+        label="${isGoql
+          ? pill.rule.values[0]
+          : pillLabel(s => this._(s), section, pill.rule)}"
+        ?monospace="${isGoql}"
+        @filter-chip:clear="${() => this._removePill(i)}"
+      ></grampsjs-filter-chip>
+    `
   }
 
   _renderSection(section) {
@@ -392,23 +399,24 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
-  _renderGql() {
+  _renderGoql() {
     return html`
-      <div class="section-content" id="input-gql-container">
-        <md-outlined-text-field
-          id="input-gql"
-          @keydown="${this._handleGqlKey}"
-          @input="${this._handleGqlChange}"
-          value="${this.query}"
-          ?error="${this._hasGqlError}"
+      <div class="section-content" id="input-goql-container">
+        <grampsjs-goql-input
+          id="input-goql"
+          label="${GOQL_SECTION.label}"
+          @keydown="${this._handleGoqlKey}"
+          @input="${this._hideGoqlError}"
+          .value="${this._goql}"
+          ?error="${this._hasGoqlError}"
         >
-          ${this._hasGqlError
+          ${this._hasGoqlError
             ? renderIconSvg(mdiAlertCircleOutline, null, 0, 'trailing-icon')
             : ''}
-        </md-outlined-text-field>
+        </grampsjs-goql-input>
         <span
           ><md-filled-button
-            @click="${this._applyGql}"
+            @click="${this._applyGoql}"
             @keydown="${clickKeyHandler}"
             >${this._('Apply')}</md-filled-button
           ></span
@@ -441,7 +449,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
   // Shows the builder's filter in the facets when they can show it
   _handleBuilderApply(e) {
     const {tree} = e.detail
-    const pills = treeToPills(tree, this.definitions)
+    const pills = treeToPills(tree, this._sections)
     this._pills = pills ?? []
     this._tree = pills === null ? tree : null
     this._fireFiltersChanged()
@@ -452,43 +460,53 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
     this._fireFiltersChanged()
   }
 
-  _handleGqlKey(event) {
+  // the applied GOQL expression
+  get _goql() {
+    return sectionRules(this._pills, GOQL_SECTION.id)[0]?.values?.[0] ?? ''
+  }
+
+  _handleGoqlKey(event) {
     if (event.code === 'Enter') {
-      this._applyGql()
+      this._applyGoql()
     } else if (event.code === 'Escape') {
-      this._clearGqlForm()
-      this._clearGqlError()
+      this._clearGoqlForm()
+      this._hideGoqlError()
     }
   }
 
-  _clearGqlForm() {
-    const input = this.renderRoot.querySelector('#input-gql')
+  _clearGoqlForm() {
+    const input = this.renderRoot.querySelector('#input-goql')
     if (input !== null) {
       input.value = ''
     }
   }
 
-  _handleGqlChange() {
-    this._clearGqlError()
-  }
-
-  _applyGql() {
-    this._clearGqlError()
-    const input = this.renderRoot.querySelector('#input-gql')
+  _applyGoql() {
+    this._goqlErrorHidden = false
+    const input = this.renderRoot.querySelector('#input-goql')
     if (input !== null) {
-      this.query = input.value
-      this._fireFiltersChanged()
+      const value = input.value.trim()
+      const rules = value ? [indexedRule(GOQL_SECTION, value)] : []
+      this._setPills(setSectionRules(this._pills, GOQL_SECTION.id, rules))
     }
   }
 
-  // Views report any failed request as a GQL error, which only concerns
-  // the GQL field while a query is applied
-  get _hasGqlError() {
-    return this.errorGql && this.query !== ''
+  // Views report any failed request as a GOQL error, which only concerns
+  // the GOQL field while an expression is applied
+  get _hasGoqlError() {
+    return this.errorGoql && !this._goqlErrorHidden && this._goql !== ''
   }
 
-  _clearGqlError() {
-    this.errorGql = false
+  _hideGoqlError() {
+    this._goqlErrorHidden = true
+  }
+
+  // every failed request shows the error again
+  willUpdate(changed) {
+    super.willUpdate(changed)
+    if (changed.has('errorGoql') && this.errorGoql) {
+      this._goqlErrorHidden = false
+    }
   }
 
   async _handleFilterButton() {
@@ -503,11 +521,7 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
   _expandActiveSections() {
     this.renderRoot.querySelectorAll('details').forEach(details => {
       const {section} = details.dataset
-      const isActive =
-        section === GQL_SECTION
-          ? this.query !== ''
-          : sectionRules(this._pills, section).length > 0
-      if (isActive) {
+      if (sectionRules(this._pills, section).length > 0) {
         // eslint-disable-next-line no-param-reassign
         details.open = true
       }
@@ -517,24 +531,13 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
   _handleFilterOff() {
     this._pills = []
     this._tree = null
-    this.query = ''
-    this._clearGqlForm()
-    this._clearGqlError()
-    this._fireFiltersChanged()
-  }
-
-  _clearQuery() {
-    this.query = ''
-    this._clearGqlForm()
-    this._clearGqlError()
+    this._clearGoqlForm()
+    this._hideGoqlError()
     this._fireFiltersChanged()
   }
 
   _fireFiltersChanged() {
-    fireEvent(this, 'filters:changed', {
-      filters: this.filters,
-      query: this.query,
-    })
+    fireEvent(this, 'filters:changed', {filters: this.filters})
   }
 }
 

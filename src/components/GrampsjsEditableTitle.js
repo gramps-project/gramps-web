@@ -91,6 +91,8 @@ export class GrampsjsEditableTitle extends GrampsjsAppStateMixin(LitElement) {
     this.required = false
     this._editing = false
     this._invalid = false
+    // the value when editing started
+    this._startValue = ''
   }
 
   willUpdate(changed) {
@@ -153,7 +155,7 @@ export class GrampsjsEditableTitle extends GrampsjsAppStateMixin(LitElement) {
           class="edit"
           aria-label="${this._('_Save')}"
           @mousedown="${e => e.preventDefault()}"
-          @click="${this._save}"
+          @click="${() => this._save()}"
         >
           <grampsjs-icon
             path="${mdiCheck}"
@@ -168,7 +170,7 @@ export class GrampsjsEditableTitle extends GrampsjsAppStateMixin(LitElement) {
           class="edit"
           aria-label="${this._('Cancel')}"
           @mousedown="${e => e.preventDefault()}"
-          @click="${this._cancel}"
+          @click="${() => this._cancel()}"
         >
           <grampsjs-icon
             path="${mdiClose}"
@@ -191,9 +193,10 @@ export class GrampsjsEditableTitle extends GrampsjsAppStateMixin(LitElement) {
   async _handleEdit() {
     this._invalid = false
     this._editing = true
+    this._startValue = this.value ?? ''
     await this.updateComplete
     const input = this._input
-    input.value = this.value ?? ''
+    input.value = this._startValue
     input.focus()
     input.select()
   }
@@ -208,7 +211,11 @@ export class GrampsjsEditableTitle extends GrampsjsAppStateMixin(LitElement) {
     this._invalid = false
   }
 
+  // keys that confirm a character of an input method editor are left to it
   _handleKeyDown(e) {
+    if (e.isComposing) {
+      return
+    }
     if (e.key === 'Enter') {
       e.preventDefault()
       this._save()
@@ -219,19 +226,22 @@ export class GrampsjsEditableTitle extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
-  // A required title left empty is discarded when the input loses focus
+  // A required title left empty is discarded when the input loses focus.
+  // The focus stays where the user moved it.
   _handleBlur() {
     if (!this._editing) {
       return
     }
     if (this.required && this._input.value.trim() === '') {
-      this._cancel()
+      this._cancel({restoreFocus: false})
     } else {
-      this._save()
+      this._save({restoreFocus: false})
     }
   }
 
-  _save() {
+  // An untouched text is not saved, so that it does not overwrite a value
+  // that was reloaded while editing
+  _save({restoreFocus = true} = {}) {
     if (!this._editing) {
       return
     }
@@ -241,23 +251,25 @@ export class GrampsjsEditableTitle extends GrampsjsAppStateMixin(LitElement) {
       this._input.focus()
       return
     }
-    if (value !== (this.value ?? '')) {
+    if (value !== this._startValue && value !== (this.value ?? '')) {
       fireEvent(this, 'edit:action', {
         action: 'updateProp',
         data: {[this.prop]: value},
       })
     }
-    this._finishEditing()
+    this._finishEditing(restoreFocus)
   }
 
-  _cancel() {
-    this._finishEditing()
+  _cancel({restoreFocus = true} = {}) {
+    this._finishEditing(restoreFocus)
   }
 
-  async _finishEditing() {
+  async _finishEditing(restoreFocus) {
     this._editing = false
     await this.updateComplete
-    this.renderRoot.getElementById('btn-edit')?.focus()
+    if (restoreFocus) {
+      this.renderRoot.getElementById('btn-edit')?.focus()
+    }
   }
 }
 

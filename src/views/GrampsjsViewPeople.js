@@ -9,6 +9,7 @@ import {
   privacyFilter,
   propertiesFilter,
   tagFilter,
+  textFilter,
   yearsFilter,
 } from '../filterDefinitions.js'
 
@@ -82,6 +83,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
   get filterDefinitions() {
     const _ = s => this._(s)
     return [
+      textFilter(_, {label: 'Name', rule: 'SearchName'}),
       yearsFilter(_, {label: 'Birth year', rule: 'HasBirth'}),
       yearsFilter(_, {label: 'Death year', rule: 'HasDeath'}),
       propertiesFilter(_, personFilter),

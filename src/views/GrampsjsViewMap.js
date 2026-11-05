@@ -97,6 +97,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       _mapStyle: {type: String},
       _minYear: {type: Number},
       _hiddenOverlaysHandles: {type: Array},
+      _overlayOpacity: {type: Object},
       _zoom: {type: Number},
     }
   }
@@ -113,6 +114,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       WIKIDATA_LAYER_HANDLE,
     ]
     this._mapStyle = layerSettings?.style ?? 'base'
+    this._overlayOpacity = layerSettings?.overlayOpacity ?? {}
     this._selected = ''
     this._valueSearch = ''
     this._searchFilter = DEFAULT_SEARCH_FILTER
@@ -310,6 +312,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         @map:load="${this._handleMapLoad}"
         @map:moveend="${this._handleMoveEnd}"
         @map:overlay-toggle="${this._handleOverlayToggle}"
+        @map:overlay-opacity="${this._handleOverlayOpacity}"
         @map:marker-clicked="${this._handleMapMarkerClicked}"
         @map:wikidata-clicked="${this._handleWikidataClicked}"
         id="map"
@@ -406,6 +409,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     saveMapLayerSettings({
       style: this._mapStyle,
       hiddenOverlays: this._hiddenOverlaysHandles,
+      overlayOpacity: this._overlayOpacity,
     })
   }
 
@@ -465,6 +469,15 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         if (this._selection?.type === 'wikidata') this._clearSearchBox()
       }
     }
+  }
+
+  // GrampsjsMap applies the opacity to the tile layer while the slider is
+  // dragged; the view stores and saves the value the drag ends on.
+  _handleOverlayOpacity(event) {
+    const {overlay, opacity, final} = event.detail
+    if (!final) return
+    this._overlayOpacity = {...this._overlayOpacity, [overlay.handle]: opacity}
+    this._saveLayerSettings()
   }
 
   _handleTimeSliderChange(event) {
@@ -686,6 +699,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         handle="${obj.handle}"
         checksum="${obj.checksum}"
         .bounds="${bounds}"
+        .opacity="${this._overlayOpacity[obj.handle] ?? 1}"
         ?hidden="${this._hiddenOverlaysHandles.includes(obj.handle)}"
       ></grampsjs-map-tile-layer>
     `
@@ -754,7 +768,11 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     })
     // The selected place's files are listed wherever the map is.
     const overlays = [
-      ...visibleLayers.map(toOverlay),
+      // only tile overlays will have the slider
+      ...visibleLayers.map(obj => ({
+        ...toOverlay(obj),
+        opacity: this._overlayOpacity[obj.handle] ?? 1,
+      })),
       ...this._placeVectors.layers.map(l => ({
         ...toOverlay(l.media),
         desc: l.media.desc || l.media.gramps_id,

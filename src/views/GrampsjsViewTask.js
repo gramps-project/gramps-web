@@ -1,13 +1,32 @@
 import {html} from 'lit'
+import {mdiFormatListChecks} from '@mdi/js'
 
+import '../components/GrampsjsBreadcrumbs.js'
 import '../components/GrampsjsTask.js'
 import {GrampsjsViewSource} from './GrampsjsViewSource.js'
 import {fireEvent} from '../util.js'
+import {taskNote} from '../taskConstants.js'
 
+// The page of a task, edited in place. It has no edit mode, so the FAB and
+// the edit mode shortcut do nothing; the page deletes the task itself.
 export class GrampsjsViewTask extends GrampsjsViewSource {
   constructor() {
     super()
     this._className = 'source'
+  }
+
+  // the breadcrumbs lead to the task list, in place of the sources
+  renderBreadcrumbs() {
+    return html`
+      <grampsjs-breadcrumbs
+        .data="${this._data}"
+        .appState="${this.appState}"
+        objectsName="Tasks"
+        .objectIcon="${mdiFormatListChecks}"
+        ?edit="${this.canEdit}"
+        hideBookmark
+      ></grampsjs-breadcrumbs>
+    `
   }
 
   renderElement() {
@@ -16,8 +35,7 @@ export class GrampsjsViewTask extends GrampsjsViewSource {
         .saveNote="${data => this._saveNote(data)}"
         .source="${this._data}"
         .appState="${this.appState}"
-        ?edit="${this.edit}"
-        ?canEdit="${this.canEdit}"
+        @task:delete="${this._deleteSelf}"
       ></grampsjs-task>
     `
   }
@@ -40,11 +58,63 @@ export class GrampsjsViewTask extends GrampsjsViewSource {
     return this.addHandle(obj.handle, this._data, this._className, 'note_list')
   }
 
-  // no FAB
+  // eslint-disable-next-line class-methods-use-this
+  get _pathAfterDelete() {
+    return 'tasks'
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _objectPath(grampsId) {
+    return `task/${grampsId}`
+  }
+
+  // The note with the description gets the privacy of the task. It becomes
+  // private before the task and public after it, so a failed request never
+  // leaves the description more public than the task.
+  async handleEditAction(e) {
+    const isPrivate = e.detail.data?.private
+    const note = taskNote(this._data)
+    if (
+      e.detail.action !== 'updateProp' ||
+      isPrivate === undefined ||
+      !note ||
+      Boolean(note.private) === isPrivate
+    ) {
+      super.handleEditAction(e)
+      return
+    }
+    const updateTask = () =>
+      this.updateProp(
+        this._data,
+        this._className,
+        e.detail.data,
+        e.detail.editorDraftPrefix
+      )
+    if (!isPrivate && !(await updateTask())) {
+      return
+    }
+    const res = await this.appState.apiPut(`/api/notes/${note.handle}`, {
+      ...note,
+      private: isPrivate,
+    })
+    if ('error' in res) {
+      fireEvent(this, 'grampsjs:error', {message: res.error})
+      return
+    }
+    if (isPrivate) {
+      await updateTask()
+    } else {
+      await this._updateData(false)
+    }
+  }
+
   // eslint-disable-next-line class-methods-use-this
   renderFab() {
     return ''
   }
+
+  // eslint-disable-next-line class-methods-use-this
+  _toggleEditMode() {}
 }
 
 window.customElements.define('grampsjs-view-task', GrampsjsViewTask)

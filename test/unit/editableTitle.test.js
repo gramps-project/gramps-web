@@ -142,6 +142,45 @@ describe('grampsjs-editable-title', () => {
     expect(input(el).value).toBe('Typing')
   })
 
+  it('does not save an untouched text over a reloaded value', async () => {
+    const el = await mount({value: 'Old', editable: true})
+    await el._handleEdit()
+    el.value = 'Reloaded'
+    await el.updateComplete
+    input(el).dispatchEvent(new Event('blur'))
+    await el.updateComplete
+    expect(el.actions).toEqual([])
+  })
+
+  it('leaves Enter to an input method editor while composing', async () => {
+    const el = await mount({value: 'Old', editable: true})
+    await edit(el, 'New')
+    input(el).dispatchEvent(
+      new KeyboardEvent('keydown', {key: 'Enter', isComposing: true})
+    )
+    await el.updateComplete
+    expect(input(el)).not.toBeNull()
+    expect(el.actions).toEqual([])
+  })
+
+  it('focuses the edit button after Enter, but not after a blur', async () => {
+    const el = await mount({value: 'Old', editable: true})
+    await edit(el, 'New')
+    await key(el, 'Enter')
+    await el.updateComplete
+    expect(el.shadowRoot.activeElement).toBe(editButton(el))
+
+    const other = document.createElement('input')
+    document.body.appendChild(other)
+    await edit(el, 'Newer')
+    other.focus()
+    input(el)?.dispatchEvent(new Event('blur'))
+    await el.updateComplete
+    await el.updateComplete
+    expect(el.shadowRoot.activeElement).not.toBe(editButton(el))
+    other.remove()
+  })
+
   it('stops editing when it is no longer editable', async () => {
     const el = await mount({value: 'Old', editable: true})
     await edit(el, 'New')

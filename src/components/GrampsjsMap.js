@@ -1,6 +1,5 @@
 import {html, css, LitElement} from 'lit'
-import 'maplibre-gl'
-import '@openhistoricalmap/maplibre-gl-dates'
+import * as maplibregl from 'maplibre-gl'
 import * as Diplomat from '@americana/diplomat'
 
 import '@material/web/iconbutton/icon-button.js'
@@ -24,8 +23,6 @@ const defaultConfig = {
   mapBaseStyleLight: 'https://tiles.openfreemap.org/styles/liberty',
   mapBaseStyleDark: 'https://tiles.openfreemap.org/styles/dark',
 }
-
-const {maplibregl} = window
 
 // OpenHistoricalMap name locales for Gramps languages whose code is not an
 // OpenHistoricalMap name suffix, most specific first. The suffixes are OSM
@@ -109,6 +106,73 @@ export function localizeOhmStyle(style, locales) {
   return localized
 }
 
+// The global state property with the year that the historical map shows, as
+// decimal years and ISO years, which OpenHistoricalMap features carry. It is
+// false to show features of all times, as null resets it to the default.
+const OHM_DATES_STATE = 'grampsjs_dates'
+
+// Returns the global state value of the historical map for a year, which
+// is 0 or less for all times. ISO dates of features compare to the ISO years
+// as strings, which also works for dates without a month or day.
+export function getOhmDates(year) {
+  if (!(year > 0)) return false
+  const isoYear = y => String(y).padStart(4, '0')
+  return {
+    start: year,
+    end: year + 1,
+    startDate: isoYear(year),
+    endDate: isoYear(year + 1),
+  }
+}
+
+const ohmDates = ['global-state', OHM_DATES_STATE]
+
+// Whether a feature exists in the year in the global state. A feature
+// without a start or end date has existed since or lasts forever.
+const OHM_YEAR_FILTER = [
+  'any',
+  ['!', ['to-boolean', ohmDates]],
+  [
+    'all',
+    [
+      'case',
+      ['has', 'start_decdate'],
+      ['<', ['get', 'start_decdate'], ['get', 'end', ohmDates]],
+      ['has', 'start_date'],
+      ['<', ['get', 'start_date'], ['get', 'endDate', ohmDates]],
+      true,
+    ],
+    [
+      'case',
+      ['has', 'end_decdate'],
+      ['>=', ['get', 'end_decdate'], ['get', 'start', ohmDates]],
+      ['has', 'end_date'],
+      ['>=', ['get', 'end_date'], ['get', 'startDate', ohmDates]],
+      true,
+    ],
+  ],
+]
+
+// Returns a copy of an OpenHistoricalMap style that shows the features of a
+// year. The year is the default of a global state property, so later years
+// only change the global state.
+export function filterOhmStyleByYear(style, year) {
+  return {
+    ...style,
+    layers: style.layers.map(layer =>
+      'source-layer' in layer
+        ? {
+            ...layer,
+            filter: layer.filter
+              ? ['all', layer.filter, OHM_YEAR_FILTER]
+              : OHM_YEAR_FILTER,
+          }
+        : layer
+    ),
+    state: {...style.state, [OHM_DATES_STATE]: {default: getOhmDates(year)}},
+  }
+}
+
 class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
@@ -178,6 +242,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
           year="${this.year}"
           @map:layerchange="${this._handleLayerChange}"
           @map:overlay-toggle="${this._handleOverlayToggle}"
+          @map:overlay-opacity="${this._handleOverlayOpacity}"
         ></grampsjs-map-layer-switcher>
       </div>
     `
@@ -315,9 +380,6 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     )
     this._map.on('load', () => {
       this._mapInitialLoadFired = true
-      if (this.year > 0 && this._map.filterByDate) {
-        this._map.filterByDate(`${this.year}`)
-      }
       if (this.latMin !== 0 || this.latMax !== 0) {
         this._map.fitBounds([
           [this.longMin, this.latMin],
@@ -331,15 +393,8 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       this._fireViewport('map:load')
     })
     this._map.on('moveend', () => this._fireViewport('map:moveend'))
-    this._map.on('sourcedata', () => {
-      if (
-        this._appliedStyle === MAP_STYLE_OHM &&
-        this.year > 0 &&
-        typeof this._map.filterByDate === 'function'
-      ) {
-        this._map.filterByDate(`${this.year}`)
-      }
-    })
+    // The year may have changed while the style was loading.
+    this._map.on('style.load', () => this._applyYear())
   }
 
   _fireViewport(eventName) {
@@ -414,17 +469,20 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     if (changed.has('mapStyle') || changed.has('appState')) {
       this._syncStyle()
     }
-    if (changed.has('year') && this.year > 0 && this._isStyleLoaded()) {
-      try {
-        this._map.filterByDate(`${this.year}`)
-      } catch (e) {
-        // Ignore errors if filterByDate fails (e.g. style does not support it)
-      }
+    if (changed.has('year')) {
+      this._applyYear()
     }
   }
 
   _isStyleLoaded() {
     return Boolean(this._map?.style && this._map.isStyleLoaded())
+  }
+
+  // Shows the features of the selected year on the historical map.
+  _applyYear() {
+    if (this._appliedStyle === MAP_STYLE_OHM && this._isStyleLoaded()) {
+      this._map.setGlobalStateProperty(OHM_DATES_STATE, getOhmDates(this.year))
+    }
   }
 
   // The name locales of the Gramps language in the given style. Without
@@ -460,6 +518,16 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
       })
   }
 
+  _handleOverlayOpacity(e) {
+    const {overlay, opacity} = e.detail
+    this._slottedChildren
+      .filter(el => overlay.handle && el.handle === overlay.handle)
+      .filter(el => 'opacity' in el)
+      .forEach(el => {
+        el.opacity = opacity
+      })
+  }
+
   // Brings the map to the style selected by mapStyle, the theme and the
   // language. The style JSON is fetched and localized before setStyle, which
   // then applies it synchronously. A load that finishes after the selection
@@ -492,7 +560,7 @@ class GrampsjsMap extends GrampsjsAppStateMixin(LitElement) {
     // The cached JSON stays untouched; setStyle gets a copy.
     json =
       style === MAP_STYLE_OHM
-        ? localizeOhmStyle(json, locales)
+        ? filterOhmStyleByYear(localizeOhmStyle(json, locales), this.year)
         : localizeBaseStyle(json, locales)
     // Layers add themselves on the first load; later styles keep them.
     const contributors = this._appliedKey

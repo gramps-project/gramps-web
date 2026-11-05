@@ -116,7 +116,7 @@ class GrampsjsFormEditMapLayer extends GrampsjsNominatimSearchMixin(
         step="0.1"
         @input="${this._handleScaleSlider}"
       ></md-slider>
-      Opacity<br />
+      ${this._('Opacity')}<br />
       <md-slider
         value="${this.opacity}"
         min="0.0"

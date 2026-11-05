@@ -60,6 +60,14 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
           display: inline-flex;
         }
 
+        /* The size of the icon buttons next to it */
+        .breadcrumb #privacy-status {
+          width: 28px;
+          height: 28px;
+          align-items: center;
+          justify-content: center;
+        }
+
         .breadcrumb .action-buttons md-icon-button {
           --md-icon-button-icon-size: 16px;
           --md-icon-button-disabled-icon-opacity: 1;
@@ -116,34 +124,7 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
         </grampsjs-icon>
         <span class="dark">${this.data.gramps_id}</span>
         <span class="action-buttons">
-          ${this.hideLock
-            ? ''
-            : html`
-                <span id="wrap-btn-private">
-                  <md-icon-button
-                    ?disabled="${!this.edit}"
-                    @click="${this._handlePrivacyClick}"
-                    @keydown="${clickKeyHandler}"
-                    touch-target="none"
-                    id="btn-private"
-                  >
-                    <grampsjs-icon
-                      .path="${this.data.private
-                        ? mdiLockOutline
-                        : mdiLockOpenVariantOutline}"
-                      color="${this.edit
-                        ? 'var(--mdc-theme-secondary)'
-                        : 'var(--grampsjs-body-font-color-40)'}"
-                    ></grampsjs-icon>
-                  </md-icon-button>
-                  <grampsjs-tooltip
-                    for="wrap-btn-private"
-                    content="${this.data.private
-                      ? this._('Record is private')
-                      : this._('Record is public')}"
-                  ></grampsjs-tooltip>
-                </span>
-              `}
+          ${this._renderPrivacy()}
           ${this.hideBookmark
             ? ''
             : html`
@@ -169,6 +150,61 @@ export class GrampsjsBreadcrumbs extends GrampsjsAppStateMixin(LitElement) {
     }
     // People -> /people etc.
     return this.objectsName.toLowerCase()
+  }
+
+  // A button that toggles the privacy while editing, otherwise an icon that
+  // shows it
+  _renderPrivacy() {
+    if (this.hideLock) {
+      return ''
+    }
+    if (this.edit) {
+      return html`
+        <span id="wrap-btn-private">
+          <md-icon-button
+            @click="${this._handlePrivacyClick}"
+            @keydown="${clickKeyHandler}"
+            touch-target="none"
+            id="btn-private"
+          >
+            <grampsjs-icon
+              .path="${this.data.private
+                ? mdiLockOutline
+                : mdiLockOpenVariantOutline}"
+              color="var(--mdc-theme-secondary)"
+            ></grampsjs-icon>
+          </md-icon-button>
+          <grampsjs-tooltip
+            for="wrap-btn-private"
+            content="${this.data.private
+              ? this._('Record is private')
+              : this._('Record is public')}"
+          ></grampsjs-tooltip>
+        </span>
+      `
+    }
+    return html`
+      <span
+        id="privacy-status"
+        role="img"
+        aria-label="${this.data.private
+          ? this._('Record is private')
+          : this._('Record is public')}"
+      >
+        <grampsjs-icon
+          .path="${this.data.private
+            ? mdiLockOutline
+            : mdiLockOpenVariantOutline}"
+          color="var(--grampsjs-body-font-color-40)"
+        ></grampsjs-icon>
+        <grampsjs-tooltip
+          for="privacy-status"
+          content="${this.data.private
+            ? this._('Record is private')
+            : this._('Record is public')}"
+        ></grampsjs-tooltip>
+      </span>
+    `
   }
 
   _handlePrivacyClick() {

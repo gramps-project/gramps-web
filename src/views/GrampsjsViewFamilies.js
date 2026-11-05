@@ -8,6 +8,7 @@ import {
   associationsFilter,
   privacyFilter,
   tagFilter,
+  textFilter,
   typeFilter,
 } from '../filterDefinitions.js'
 
@@ -50,6 +51,9 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
   get filterDefinitions() {
     const _ = s => this._(s)
     return [
+      textFilter(_, {label: 'Father', rule: 'SearchFatherName'}),
+      textFilter(_, {label: 'Mother', rule: 'SearchMotherName'}),
+      textFilter(_, {label: 'Child', rule: 'SearchChildName'}),
       typeFilter(_, {
         label: 'Relationship type:',
         typeName: 'family_relation_types',

@@ -30,8 +30,6 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsIcon.js'
 
-const BASE_DIR = ''
-
 const selectedColor = 'var(--grampsjs-color-icon-selected)'
 const defaultColor = 'var(--grampsjs-color-icon-default)'
 
@@ -139,40 +137,24 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       'notes',
     ]
     return html` <md-list>
-      <md-list-item
-        type="link"
-        href="${BASE_DIR + '/'}"
-        ?selected="${p === 'home'}"
-      >
+      <md-list-item type="link" href="/" ?selected="${p === 'home'}">
         ${this._icon(mdiHome, p === 'home')} ${this._('Home')}
       </md-list-item>
-      <md-list-item
-        type="link"
-        href="${BASE_DIR}/blog"
-        ?selected="${p === 'blog'}"
-      >
+      <md-list-item type="link" href="/blog" ?selected="${p === 'blog'}">
         ${this._icon(mdiRss, p === 'blog')} ${this._('Blog')}
       </md-list-item>
-      <md-list-item
-        type="link"
-        href="${BASE_DIR}/tree"
-        ?selected="${p === 'tree'}"
-      >
+      <md-list-item type="link" href="/tree" ?selected="${p === 'tree'}">
         ${this._icon(mdiFamilyTree, p === 'tree')} ${this._('Family Tree')}
       </md-list-item>
       <md-list-item
         type="link"
-        href="${BASE_DIR}/timeline"
+        href="/timeline"
         ?selected="${p === 'timeline'}"
       >
         ${this._icon(mdiTimelineOutline, p === 'timeline')}
         ${this._('Timeline')}
       </md-list-item>
-      <md-list-item
-        type="link"
-        href="${BASE_DIR}/map"
-        ?selected="${p === 'map'}"
-      >
+      <md-list-item type="link" href="/map" ?selected="${p === 'map'}">
         ${this._icon(mdiMap, p === 'map')} ${this._('Map')}
       </md-list-item>
       ${this.appState.frontendConfig.hideDNALink
@@ -180,7 +162,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
         : html`
             <md-list-item
               type="link"
-              href="${BASE_DIR}/dna-matches"
+              href="/dna-matches"
               ?selected="${['dna-matches', 'dna-chromosome', 'ydna'].includes(
                 p
               )}"
@@ -194,7 +176,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
           `}
       <md-list-item
         type="link"
-        href="${BASE_DIR}/people"
+        href="/people"
         ?selected="${listsPages.includes(p)}"
       >
         ${this._icon(mdiFormatListBulleted, listsPages.includes(p))}
@@ -202,57 +184,37 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
       </md-list-item>
       <md-list-item
         type="link"
-        href="${BASE_DIR}/medialist"
+        href="/medialist"
         ?selected="${p === 'medialist'}"
       >
         ${this._icon(mdiImage, p === 'medialist')} ${this._('Media')}
       </md-list-item>
       ${this.canUseChat
         ? html`
-            <md-list-item
-              type="link"
-              href="${BASE_DIR}/chat"
-              ?selected="${p === 'chat'}"
-            >
+            <md-list-item type="link" href="/chat" ?selected="${p === 'chat'}">
               ${this._icon(mdiCreation, p === 'chat')} ${this._('Assistant')}
             </md-list-item>
           `
         : ''}
       <md-divider inset></md-divider>
-      <md-list-item
-        type="link"
-        href="${BASE_DIR}/recent"
-        ?selected="${p === 'recent'}"
-      >
+      <md-list-item type="link" href="/recent" ?selected="${p === 'recent'}">
         ${this._icon(mdiHistory, p === 'recent')} ${this._('History')}
       </md-list-item>
       <md-list-item
         type="link"
-        href="${BASE_DIR}/bookmarks"
+        href="/bookmarks"
         ?selected="${p === 'bookmarks'}"
       >
         ${this._icon(mdiBookmark, p === 'bookmarks')} ${this._('_Bookmarks')}
       </md-list-item>
-      <md-list-item
-        type="link"
-        href="${BASE_DIR}/tasks"
-        ?selected="${p === 'tasks'}"
-      >
+      <md-list-item type="link" href="/tasks" ?selected="${p === 'tasks'}">
         ${this._icon(mdiFormatListChecks, p === 'tasks')} ${this._('Tasks')}
       </md-list-item>
-      <md-list-item
-        type="link"
-        href="${BASE_DIR}/reports"
-        ?selected="${p === 'reports'}"
-      >
+      <md-list-item type="link" href="/reports" ?selected="${p === 'reports'}">
         ${this._icon(mdiFileExportOutline, p === 'reports')}
         ${this._('_Reports').replace('_', '')}
       </md-list-item>
-      <md-list-item
-        type="link"
-        href="${BASE_DIR}/export"
-        ?selected="${p === 'export'}"
-      >
+      <md-list-item type="link" href="/export" ?selected="${p === 'export'}">
         ${this._icon(mdiDownload, p === 'export')} ${this._('Export')}
       </md-list-item>
       <md-divider inset></md-divider>
@@ -260,7 +222,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
         ? html`
             <md-list-item
               type="link"
-              href="${BASE_DIR}/revisions"
+              href="/revisions"
               ?selected="${p === 'revisions'}"
             >
               ${this._icon(mdiSourceCommit, p === 'revisions')}
@@ -270,7 +232,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
         : ''}
       <md-list-item
         type="link"
-        href="${BASE_DIR}/notifications"
+        href="/notifications"
         ?selected="${p === 'notifications'}"
       >
         ${this._icon(

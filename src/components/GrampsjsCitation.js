@@ -9,8 +9,6 @@ import './GrampsjsIcon.js'
 import './GrampsjsFormEditCitationDetails.js'
 import {emptyDate, fireEvent, linkUrls, objectIconPath} from '../util.js'
 
-const BASE_DIR = ''
-
 const confidence = {
   0: 'Very Low',
   1: 'Low',
@@ -53,7 +51,7 @@ export class GrampsjsCitation extends GrampsjsObject {
         <div>
           <dt>${this._('Source')}</dt>
           <dd>
-            <a href="${BASE_DIR}/source/${this.data.extended.source.gramps_id}"
+            <a href="/source/${this.data.extended.source.gramps_id}"
               >${this.data.extended.source.title ||
               this.data.extended.source.gramps_id}</a
             >

@@ -63,8 +63,6 @@ import {sharedStyles} from './SharedStyles.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from './theme.js'
 import {handleOIDCCallback, handleOIDCComplete} from './oidc.js'
 
-const BASE_DIR = ''
-
 const MINIMUM_API_VERSION = '3.17.0'
 
 // Pages where the Gramps ID is used as the page title
@@ -996,21 +994,10 @@ export class GrampsJs extends LitElement {
       return
     }
 
-    if (path === '/' || path === `${BASE_DIR}/`) {
+    if (path === '/') {
       this._updateAppState({path: {page: 'home', pageId: '', pageId2: ''}})
-    } else if (BASE_DIR === '') {
-      const pathId = path.slice(1)
-      const page = pathId.split('/')[0]
-      const pageId = pathId.split('/')[1]
-      const pageId2 = pathId.split('/')[2]
-      this._updateAppState({
-        path: {page, pageId: pageId ?? '', pageId2: pageId2 ?? ''},
-      })
-    } else if (path.split('/')[0] === BASE_DIR.split('/')[0]) {
-      const pathId = path.slice(1)
-      const page = pathId.split('/')[1]
-      const pageId = pathId.split('/')[2]
-      const pageId2 = pathId.split('/')[3]
+    } else {
+      const [page, pageId, pageId2] = path.slice(1).split('/')
       this._updateAppState({
         path: {page, pageId: pageId ?? '', pageId2: pageId2 ?? ''},
       })
@@ -1057,7 +1044,7 @@ export class GrampsJs extends LitElement {
 
   _handleTab(page) {
     if (page !== this.appState.path.page) {
-      const href = `${BASE_DIR}/${page}`
+      const href = `/${page}`
       this._loadPage(href)
       window.history.pushState({}, '', href)
       this._disableEditMode()
@@ -1077,7 +1064,7 @@ export class GrampsJs extends LitElement {
       pageId !== appPath.pageId ||
       pageId2 !== appPath.pageId2
     ) {
-      const href = `${BASE_DIR}/${path}`
+      const href = `/${path}`
       this._loadPage(href)
       if (replace) {
         window.history.replaceState({}, '', href)
@@ -1245,7 +1232,7 @@ export class GrampsJs extends LitElement {
       isTreeMismatch(this.appState.auth.tabTreeId, getTreeFromToken(e.newValue))
     ) {
       clearMediaCaches()
-      window.location.href = `${BASE_DIR}/`
+      window.location.href = '/'
       return
     }
     if (e?.key === 'grampsjs_tree_config') {

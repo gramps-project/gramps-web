@@ -198,6 +198,20 @@ body {
   --grampsjs-color-ytree-default-person-icon-background: #bbb;
   --grampsjs-note-color: #333;
   --grampsjs-note-highlight-strength: 45%;
+  /* GOQL syntax highlighting, after VS Code's Light+ theme */
+  --grampsjs-color-code-keyword: #0000ff;
+  --grampsjs-color-code-control: #af00db;
+  --grampsjs-color-code-constant: #0000ff;
+  --grampsjs-color-code-function: #795e26;
+  --grampsjs-color-code-type: #267f99;
+  --grampsjs-color-code-enum: #0070c1;
+  --grampsjs-color-code-variable: #001080;
+  --grampsjs-color-code-string: #a31515;
+  --grampsjs-color-code-number: #098658;
+  --grampsjs-color-code-text: #000000;
+  --grampsjs-color-code-bracket-1: #0431fa;
+  --grampsjs-color-code-bracket-2: #2b812b;
+  --grampsjs-color-code-bracket-3: #7b3814;
   /* --md-sys-color-* tokens are set dynamically by applyColors() in theme.js */
 }
 
@@ -306,4 +320,18 @@ body {
   --mdc-theme-text-icon-on-background: var(--grampsjs-body-font-color-60);
   --mdc-checkbox-unchecked-color: var(--md-sys-color-on-surface-variant);
   --mdc-checkbox-disabled-color: rgba(229, 226, 225, 0.38);
+  /* GOQL syntax highlighting, after VS Code's Dark+ theme */
+  --grampsjs-color-code-keyword: #569cd6;
+  --grampsjs-color-code-control: #c586c0;
+  --grampsjs-color-code-constant: #569cd6;
+  --grampsjs-color-code-function: #dcdcaa;
+  --grampsjs-color-code-type: #4ec9b0;
+  --grampsjs-color-code-enum: #4fc1ff;
+  --grampsjs-color-code-variable: #9cdcfe;
+  --grampsjs-color-code-string: #ce9178;
+  --grampsjs-color-code-number: #b5cea8;
+  --grampsjs-color-code-text: #d4d4d4;
+  --grampsjs-color-code-bracket-1: #ffd700;
+  --grampsjs-color-code-bracket-2: #da70d6;
+  --grampsjs-color-code-bracket-3: #179fff;
 }

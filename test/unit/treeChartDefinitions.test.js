@@ -1,4 +1,4 @@
-import {describe, it, expect, vi} from 'vitest'
+import {afterEach, describe, it, expect, vi} from 'vitest'
 import {render} from 'lit'
 import {
   chartDataUrl,
@@ -38,6 +38,16 @@ describe('chart definitions', () => {
       relationshipChartAnc: 0,
     })
     expect(relationship.separation).toBe(0)
+  })
+
+  it('counts a number above the maximum as the maximum', () => {
+    const {relationship} = chartDefinitions
+    expect(
+      chartSettingValues(relationship, {relationshipChartAnc: 20}).separation
+    ).toBe(6)
+    expect(
+      chartSettingValues(relationship, {relationshipChartAnc: 6}).separation
+    ).toBe(6)
   })
 
   it('fetches one more generation than the settings count', () => {
@@ -152,15 +162,81 @@ describe('GrampsjsViewTree', () => {
     expect(apiGet).toHaveBeenCalledTimes(2)
   })
 
-  it('gives each setting its own input when the chart changes', () => {
-    // The Material elements call attachInternals() in their constructor,
-    // which happy-dom does not implement
-    if (!HTMLElement.prototype.attachInternals) {
-      HTMLElement.prototype.attachInternals = () => ({
-        setFormValue() {},
-        setValidity() {},
-      })
+  describe('number settings', () => {
+    const separation = chartDefinitions.relationship.settings[0]
+    const ancestors = chartDefinitions.ancestor.settings[0]
+
+    function makeSettingsView() {
+      vi.useFakeTimers()
+      const {view} = makeView()
+      const updateSettings = vi.fn()
+      view.appState.updateSettings = updateSettings
+      return {view, updateSettings}
     }
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    const input = value => ({value: String(value)})
+
+    it('saves only the last of quick changes', () => {
+      const {view, updateSettings} = makeSettingsView()
+      for (const value of [3, 4, 5]) {
+        view._changeNumberSetting(separation, input(value))
+        vi.advanceTimersByTime(200)
+      }
+      expect(updateSettings).not.toHaveBeenCalled()
+      vi.runAllTimers()
+      expect(updateSettings.mock.calls).toEqual([
+        [{relationshipChartAnc: 5}, false],
+      ])
+    })
+
+    it('saves each of two settings changed together', () => {
+      const {view, updateSettings} = makeSettingsView()
+      view._changeNumberSetting(separation, input(3))
+      view._changeNumberSetting(ancestors, input(7))
+      vi.runAllTimers()
+      expect(updateSettings.mock.calls).toEqual([
+        [{relationshipChartAnc: 3}, false],
+        [{treeChartAnc: 7}, false],
+      ])
+    })
+
+    it('saves and shows a value within the limits and skips an empty field', () => {
+      const {view, updateSettings} = makeSettingsView()
+      const field = input(40)
+      view._changeNumberSetting(separation, field)
+      vi.runAllTimers()
+      expect(field.value).toBe('6')
+      view._changeNumberSetting(separation, input(3))
+      view._changeNumberSetting(separation, input(''))
+      vi.runAllTimers()
+      expect(updateSettings.mock.calls).toEqual([
+        [{relationshipChartAnc: 6}, false],
+      ])
+    })
+
+    it('drops a waiting change on reset and shows the default', () => {
+      const {view, updateSettings} = makeSettingsView()
+      view._currentTabId = TREE_VIEWS.indexOf('relationship')
+      const field = document.createElement('input')
+      field.id = 'setting-separation'
+      field.value = '3'
+      const root = document.createElement('div')
+      root.append(field)
+      view.renderRoot = root
+      view._changeNumberSetting(separation, field)
+      view._resetSettings()
+      vi.runAllTimers()
+      expect(field.value).toBe('2')
+      expect(updateSettings).toHaveBeenCalledOnce()
+      expect(updateSettings.mock.calls[0][0].relationshipChartAnc).toBe(2)
+    })
+  })
+
+  it('gives each setting its own input when the chart changes', () => {
     const {view} = makeView()
     view._ = s => s
     const container = document.createElement('div')
@@ -179,6 +255,7 @@ describe('GrampsjsViewTree', () => {
     render(view.renderControls(), container)
     const descendant = inputs()
     expect(Object.keys(descendant)).toEqual([
+      'setting-descendants',
       'setting-orientation',
       'setting-nameDisplayFormat',
     ])

@@ -12,6 +12,7 @@ class GrampsjsMapTileLayer extends LitElement {
           JSON.stringify(newVal) !== JSON.stringify(oldVal),
       },
       hidden: {type: Boolean},
+      opacity: {type: Number},
     }
   }
 
@@ -21,6 +22,7 @@ class GrampsjsMapTileLayer extends LitElement {
     this.checksum = ''
     this.bounds = null
     this.hidden = false
+    this.opacity = 1
     this._map = null
     this._onStyleLoad = () => this._syncVisibility()
   }
@@ -76,6 +78,14 @@ class GrampsjsMapTileLayer extends LitElement {
     }
   }
 
+  _syncOpacity() {
+    if (!this._map || !this.handle) return
+    const layerId = this._layerId
+    if (this._map.getLayer(layerId)) {
+      this._map.setPaintProperty(layerId, 'raster-opacity', this.opacity)
+    }
+  }
+
   // Called by GrampsjsMap after initial map load.
   // Imperatively adds the tile source/layer since the initial Map() constructor
   // doesn't use transformStyle.
@@ -95,6 +105,7 @@ class GrampsjsMapTileLayer extends LitElement {
           type: 'raster',
           source: layerId,
           layout: {visibility: this.hidden ? 'none' : 'visible'},
+          paint: {'raster-opacity': this.opacity},
         },
         this._beforeId(map)
       )
@@ -128,6 +139,7 @@ class GrampsjsMapTileLayer extends LitElement {
           type: 'raster',
           source: layerId,
           layout: {visibility: this.hidden ? 'none' : 'visible'},
+          paint: {'raster-opacity': this.opacity},
         },
       ],
     }
@@ -165,6 +177,9 @@ class GrampsjsMapTileLayer extends LitElement {
     }
     if (changed.has('hidden') && this._map) {
       this._syncVisibility()
+    }
+    if (changed.has('opacity') && this._map) {
+      this._syncOpacity()
     }
   }
 }

@@ -47,6 +47,7 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
     const _ = s => this._(s)
     return [
       textFilter(_, {label: 'Title', rule: 'MatchesTitleSubstringOf'}),
+      textFilter(_, {label: 'Author', rule: 'HasSource', index: 1, numArgs: 4}),
       associationsFilter(_, filterCounts.sources),
       tagFilter(_),
       privacyFilter(_, {rule: 'SourcePrivate'}),
