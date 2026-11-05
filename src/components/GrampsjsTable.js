@@ -82,6 +82,14 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           text-decoration: none;
         }
 
+        /* The link covers its whole cell, not only the text, so that the
+           browser offers to open the row in a new tab anywhere in the cell */
+        a.row-link::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+        }
+
         table.linked tbody tr:not(.selected):hover {
           background-color: var(--grampsjs-color-shade-240);
         }
