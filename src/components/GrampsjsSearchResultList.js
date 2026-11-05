@@ -201,9 +201,16 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
     })
   }
 
-  // The path of the page of the object, if the list links to it
+  // The path of the page of the object, if the list links to it. An item can
+  // set the path itself with `path`.
   _getPath(obj) {
-    return this.linked && obj.object_type && obj.object?.gramps_id
+    if (!this.linked) {
+      return ''
+    }
+    if (obj.path) {
+      return obj.path
+    }
+    return obj.object_type && obj.object?.gramps_id
       ? `${obj.object_type}/${obj.object.gramps_id}`
       : ''
   }
