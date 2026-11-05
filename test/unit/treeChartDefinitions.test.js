@@ -450,7 +450,8 @@ describe('GrampsjsViewTree', () => {
     view.willUpdate(new Map())
     const paths = []
     view.addEventListener('nav', e => paths.push(e.detail.path))
-    view._goToPerson()
+    view.addEventListener('click', e => view._goToPerson(e))
+    view.dispatchEvent(new MouseEvent('click', {cancelable: true}))
     expect(paths).toEqual(['person/I1'])
   })
 
