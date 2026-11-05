@@ -503,5 +503,6 @@
     "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Meaitseálann sé réada a fhágann go bhfuil an slonn Gramps Object Query Language (GOQL) tugtha fíor",
     "Expression:": "Slonn:",
     "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Is féidir d’ainm iomlán agus do sheoladh ríomhphoist a nuashonrú gach uair a logálann tú isteach le cuntas nasctha.",
-    "No connection": "Gan nasc"
+    "No connection": "Gan nasc",
+    "Opacity": "Teimhneacht"
 }
