@@ -2,6 +2,8 @@ import {describe, it, expect} from 'vitest'
 import {
   dateToEditorState,
   editorStateToDate,
+  parseDateField,
+  rowsAfterKindSwitch,
   validateEditorState,
 } from '../../src/dateEditor.js'
 import {emptyDate} from '../../src/util.js'
@@ -200,5 +202,78 @@ describe('validateEditorState', () => {
         [0, 99, 0, false],
       ])
     ).toEqual({rowErrors: [false, false], valid: true})
+  })
+
+  it('accepts BC dates', () => {
+    expect(check('regular', [[15, 3, -44, false], EMPTY])).toEqual({
+      rowErrors: [false, false],
+      valid: true,
+    })
+  })
+
+  it('marks the first row of a range without a start', () => {
+    expect(check('range', [EMPTY, [0, 0, 1860, false]])).toEqual({
+      rowErrors: [true, false],
+      valid: false,
+    })
+  })
+
+  it('accepts a span without a start', () => {
+    expect(check('fromto', [EMPTY, [0, 0, 1860, false]])).toEqual({
+      rowErrors: [false, false],
+      valid: true,
+    })
+  })
+})
+
+describe('rowsAfterKindSwitch', () => {
+  const y1850 = [0, 0, 1850, false]
+  const y1860 = [0, 0, 1860, false]
+
+  it('moves the date of a "to" date into the only row', () => {
+    expect(rowsAfterKindSwitch('fromto', 'before', [EMPTY, y1860])).toEqual([
+      y1860,
+      EMPTY,
+    ])
+  })
+
+  it('keeps the rows between kinds with one row', () => {
+    // Range 1850-1860, switched to Regular, year cleared: About stays empty
+    const rows = [EMPTY, y1860]
+    expect(rowsAfterKindSwitch('regular', 'about', rows)).toBe(rows)
+  })
+
+  it('keeps the rows between kinds with two rows', () => {
+    const rows = [EMPTY, y1860]
+    expect(rowsAfterKindSwitch('fromto', 'range', rows)).toBe(rows)
+  })
+
+  it('keeps the rows when the first row is filled in', () => {
+    const rows = [y1850, y1860]
+    expect(rowsAfterKindSwitch('range', 'regular', rows)).toBe(rows)
+  })
+
+  it('keeps the rows of a text-only date', () => {
+    const rows = [EMPTY, y1860]
+    expect(rowsAfterKindSwitch(null, 'regular', rows)).toBe(rows)
+  })
+})
+
+describe('parseDateField', () => {
+  it('reads whole numbers, including negative years', () => {
+    expect(parseDateField('1850')).toBe(1850)
+    expect(parseDateField('-44')).toBe(-44)
+  })
+
+  it('treats an empty field as unspecified', () => {
+    expect(parseDateField('')).toBe(0)
+  })
+
+  it('rejects input the browser could not read', () => {
+    expect(parseDateField('', true)).toBeNaN()
+  })
+
+  it('rejects fractions', () => {
+    expect(parseDateField('1.5')).toBeNaN()
   })
 })

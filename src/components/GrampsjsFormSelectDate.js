@@ -20,8 +20,8 @@ import {CALENDARS} from '../gcalendar.js'
 import {
   dateToEditorState,
   editorStateToDate,
-  kindHasTwoRows,
-  rowIsEmpty,
+  parseDateField,
+  rowsAfterKindSwitch,
   validateEditorState,
 } from '../dateEditor.js'
 
@@ -34,7 +34,6 @@ const kindLabels = {
   fromto: 'Span',
 }
 
-// Labels of the two rows of the kinds with two dates
 // Labels of the date rows of each kind, so that the form shows what the
 // selected chip means
 const rowLabels = {
@@ -93,16 +92,6 @@ function rowToIsoDate(row) {
     2,
     '0'
   )}-${`${d}`.padStart(2, '0')}`
-}
-
-// An empty field is 0; anything that is not a whole number is NaN, which
-// validation reports as an error
-function parseField(value) {
-  if (value === '') {
-    return 0
-  }
-  const n = Number(value)
-  return Number.isInteger(n) ? n : NaN
 }
 
 function fieldValue(n) {
@@ -301,7 +290,6 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
           label="${this._('Year')}"
           type="number"
           inputmode="numeric"
-          min="0"
           .value="${y}"
           ?error="${error}"
           @input="${e => this._handleField(index, 2, e)}"
@@ -394,11 +382,8 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
 
   _handleKind(e) {
     const kind = e.detail.value
-    let rows = this._rows
-    // A "to" date keeps its date in the second row; a kind with one row
-    // takes it over, so switching from "To 1860" to "Before" keeps 1860
-    if (!kindHasTwoRows(kind) && rowIsEmpty(rows[0]) && !rowIsEmpty(rows[1])) {
-      rows = [rows[1], rows[0]]
+    const rows = rowsAfterKindSwitch(this._kind, kind, this._rows)
+    if (rows !== this._rows) {
       this._typed = [this._typed[1], this._typed[0]]
     }
     this._updateDate(kind, rows)
@@ -410,7 +395,10 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
 
   _handleField(index, position, e) {
     const rows = this._rows.map(row => [...row])
-    rows[index][position] = parseField(e.target.value)
+    rows[index][position] = parseDateField(
+      e.target.value,
+      e.target.validity?.badInput
+    )
     this._typed[index][position] = e.target.value
     // Editing a text-only date turns it into a regular one
     this._updateDate(this._kind ?? 'regular', rows)

@@ -103,6 +103,41 @@ export function kindHasTwoRows(kind) {
   return kind === 'range' || kind === 'fromto'
 }
 
+/**
+ * The rows to use after switching from one kind to another. When a kind
+ * with two rows has only its second row filled in, as a "to" date does, a
+ * kind with one row takes that date over. The rows are swapped, so the
+ * returned array differs from `rows` exactly when that happens.
+ */
+export function rowsAfterKindSwitch(fromKind, toKind, rows) {
+  if (
+    kindHasTwoRows(fromKind) &&
+    !kindHasTwoRows(toKind) &&
+    rowIsEmpty(rows[0]) &&
+    !rowIsEmpty(rows[1])
+  ) {
+    return [rows[1], rows[0]]
+  }
+  return rows
+}
+
+/**
+ * The number in a date field. An empty field is 0, meaning unspecified;
+ * input the browser could not read as a number (`badInput`), or that is not
+ * a whole number, is NaN, which validation reports as an error. Negative
+ * years are BC dates.
+ */
+export function parseDateField(value, badInput = false) {
+  if (badInput) {
+    return NaN
+  }
+  if (value === '') {
+    return 0
+  }
+  const n = Number(value)
+  return Number.isInteger(n) ? n : NaN
+}
+
 function maxMonth(calendar) {
   return calendar === CALENDARS.FRENCH || calendar === CALENDARS.HEBREW
     ? 13
@@ -116,8 +151,7 @@ function rowOutOfRange(row, calendar) {
     d < 0 ||
     d > 31 ||
     m < 0 ||
-    m > maxMonth(calendar) ||
-    y < 0
+    m > maxMonth(calendar)
   )
 }
 
@@ -137,13 +171,18 @@ export function validateEditorState(date, kind, rows) {
       result.date2Empty || result.date2Invalid || result.date2OrderInvalid
   }
   const shown = kindHasTwoRows(kind) ? [0, 1] : [0]
-  shown.forEach(i => {
-    if (rowOutOfRange(rows[i], calendar)) {
-      rowErrors[i] = true
-    }
+  const outOfRange = shown.filter(i => rowOutOfRange(rows[i], calendar))
+  outOfRange.forEach(i => {
+    rowErrors[i] = true
   })
+  // A range needs its start; only a span may leave one end open
+  const rangeWithoutStart =
+    kind === 'range' && rowIsEmpty(rows[0]) && !rowIsEmpty(rows[1])
+  if (rangeWithoutStart) {
+    rowErrors[0] = true
+  }
   return {
     rowErrors: rowErrors.map((error, i) => error && shown.includes(i)),
-    valid: result.valid && !shown.some(i => rowOutOfRange(rows[i], calendar)),
+    valid: result.valid && outOfRange.length === 0 && !rangeWithoutStart,
   }
 }
