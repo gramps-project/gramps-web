@@ -7,7 +7,12 @@ import '../components/GrampsjsTasks.js'
 import '../components/GrampsjsIcon.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
-import {fireEvent, toWritableObject} from '../util.js'
+import {
+  appHref,
+  fireEvent,
+  handleAppLinkClick,
+  toWritableObject,
+} from '../util.js'
 import {sortTasks} from '../taskConstants.js'
 
 export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
@@ -55,18 +60,20 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   renderFab() {
     return html`
-      <md-fab variant="secondary" @click=${this._handleClickAdd}>
-        <grampsjs-icon
-          slot="icon"
-          .path="${mdiPlus}"
-          color="var(--mdc-theme-on-secondary)"
-        ></grampsjs-icon>
-      </md-fab>
+      <a href="${appHref('new_task')}" @click=${this._handleClickAdd}>
+        <md-fab variant="secondary">
+          <grampsjs-icon
+            slot="icon"
+            .path="${mdiPlus}"
+            color="var(--mdc-theme-on-secondary)"
+          ></grampsjs-icon>
+        </md-fab>
+      </a>
     `
   }
 
-  _handleClickAdd() {
-    fireEvent(this, 'nav', {path: 'new_task'})
+  _handleClickAdd(e) {
+    handleAppLinkClick(e, 'new_task')
   }
 
   async _fetchData() {

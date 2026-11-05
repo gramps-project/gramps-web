@@ -24,7 +24,7 @@ import '../components/GrampsjsFilterChip.js'
 import '../components/GrampsjsFilters.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
-import {appHref, fireEvent} from '../util.js'
+import {appHref, fireEvent, handleAppLinkClick} from '../util.js'
 import {awaitTaskResponse} from '../taskResponse.js'
 import {tagFilter} from '../filterDefinitions.js'
 
@@ -555,13 +555,15 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
 
   renderFab() {
     return html`
-      <md-fab variant="secondary" @click=${this._handleClickAdd}>
-        <grampsjs-icon
-          slot="icon"
-          .path="${mdiPlus}"
-          color="var(--mdc-theme-on-secondary)"
-        ></grampsjs-icon>
-      </md-fab>
+      <a href="${appHref(this._getAddPath())}" @click=${this._handleClickAdd}>
+        <md-fab variant="secondary">
+          <grampsjs-icon
+            slot="icon"
+            .path="${mdiPlus}"
+            color="var(--mdc-theme-on-secondary)"
+          ></grampsjs-icon>
+        </md-fab>
+      </a>
     `
   }
 
@@ -705,8 +707,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     }
   }
 
-  _handleClickAdd() {
-    fireEvent(this, 'nav', {path: this._getAddPath()})
+  _handleClickAdd(e) {
+    handleAppLinkClick(e, this._getAddPath())
   }
 
   get _filters() {

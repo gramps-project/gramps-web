@@ -8,7 +8,7 @@ import '../components/GrampsjsIcon.js'
 
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
-import {appHref, fireEvent, handleAppLinkClick} from '../util.js'
+import {appHref, handleAppLinkClick} from '../util.js'
 
 export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
@@ -93,18 +93,20 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   renderFab() {
     return html`
-      <md-fab variant="secondary" @click=${this._handleClickAdd}>
-        <grampsjs-icon
-          slot="icon"
-          .path="${mdiPlus}"
-          color="var(--mdc-theme-on-secondary)"
-        ></grampsjs-icon>
-      </md-fab>
+      <a href="${appHref('new_blog_post')}" @click=${this._handleClickAdd}>
+        <md-fab variant="secondary">
+          <grampsjs-icon
+            slot="icon"
+            .path="${mdiPlus}"
+            color="var(--mdc-theme-on-secondary)"
+          ></grampsjs-icon>
+        </md-fab>
+      </a>
     `
   }
 
-  _handleClickAdd() {
-    fireEvent(this, 'nav', {path: 'new_blog_post'})
+  _handleClickAdd(e) {
+    handleAppLinkClick(e, 'new_blog_post')
   }
 
   renderPosts() {
