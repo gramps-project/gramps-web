@@ -3,6 +3,8 @@ A mixin for components that have appState as a property.
 Also makes them translatable.
 */
 
+import {contextKey} from '../strings.js'
+
 export const GrampsjsAppStateMixin = superClass =>
   class extends superClass {
     static get properties() {
@@ -50,6 +52,17 @@ export const GrampsjsAppStateMixin = superClass =>
         t = t.replace('%s', args[i])
       }
       return t
+    }
+
+    // Translate a Gramps string that has a message context, like gettext's
+    // pgettext. Without a translation for the context, it falls back to the
+    // string without context.
+    _p(context, s, ...args) {
+      const key = contextKey(context, s)
+      if (key in (this.appState?.i18n?.strings ?? {})) {
+        return this._(key, ...args)
+      }
+      return this._(s, ...args)
     }
 
     get canUseChat() {
