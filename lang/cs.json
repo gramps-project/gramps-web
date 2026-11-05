@@ -503,5 +503,12 @@
     "Unlinked %s": "Propojení s %s zrušeno",
     "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Vaše celé jméno a e-mailová adresa se mohou aktualizovat při každém přihlášení pomocí propojeného účtu.",
     "No connection": "Žádné spojení",
-    "Opacity": "Neprůhlednost"
+    "Opacity": "Neprůhlednost",
+    "Earliest": "Nejdřívější",
+    "Latest": "Nejpozdější",
+    "A single date somewhere around this one": "Jedno datum přibližně v této době",
+    "A single date some time before this one": "Jedno datum někdy před tímto datem",
+    "A single date some time after this one": "Jedno datum někdy po tomto datu",
+    "A single date somewhere in this range": "Jedno datum někdy v tomto rozmezí",
+    "The whole time from the first date to the second. Either can be left empty.": "Celé období od prvního data do druhého. Kterékoli z nich lze ponechat prázdné."
 }
