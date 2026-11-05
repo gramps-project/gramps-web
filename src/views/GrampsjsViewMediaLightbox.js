@@ -20,7 +20,7 @@ import '../components/GrampsjsTooltip.js'
 import '../components/GrampsjsIcon.js'
 import {isPlayableMime} from '../components/GrampsjsMediaPlayer.js'
 import {getMediaUrl} from '../api.js'
-import {fireEvent, getMediaRegions} from '../util.js'
+import {appHref, getMediaRegions, handleAppLinkClick} from '../util.js'
 
 // Make sure to synchronize this with the CSS variable --grampsjs-lightbox-toolbar-height in GrampsjsLightbox.js
 const LIGHTBOX_TOOLBAR_HEIGHT = 70
@@ -185,7 +185,10 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
               color="var(--mdc-theme-primary)"
             ></grampsjs-icon>
           </md-icon-button>
-          <md-filled-button @click="${this._handleButtonClick}">
+          <md-filled-button
+            href="${appHref(`media/${this._data?.gramps_id}`)}"
+            @click="${this._handleButtonClick}"
+          >
             ${this._('Details')}
           </md-filled-button>
         </span>
@@ -524,10 +527,15 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
     window.location.assign(getMediaUrl(this._data.handle, true))
   }
 
-  _handleButtonClick() {
-    const lightBox = this.shadowRoot.getElementById('gallery-lightbox')
-    lightBox.open = false
-    fireEvent(this, 'nav', {path: `media/${this._data?.gramps_id}`})
+  // Going to the page closes the lightbox, a click that opens a new tab
+  // leaves it open
+  _handleButtonClick(e) {
+    const path = `media/${this._data?.gramps_id}`
+    handleAppLinkClick(e, path)
+    if (e.defaultPrevented) {
+      const lightBox = this.shadowRoot.getElementById('gallery-lightbox')
+      lightBox.open = false
+    }
   }
 
   _handleToggleRectButtonClick() {
