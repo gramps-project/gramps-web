@@ -6,7 +6,7 @@ import './GrampsjsEvents.js'
 import './GrampsjsGallery.js'
 import './GrampsjsIcon.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
-import {fireEvent} from '../util.js'
+import {appHref, handleAppLinkClick} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {mdiMapMarkerOff} from '@mdi/js'
 
@@ -149,7 +149,9 @@ export class GrampsjsPlaceBox extends GrampsjsConnectedComponent {
           `
         : ''}
       <div class="right">
-        <md-text-button @click="${this._handleDetailClick}"
+        <md-text-button
+          href="${appHref(`place/${place.gramps_id}`)}"
+          @click="${this._handleDetailClick}"
           >${this._('Show Details')}</md-text-button
         >
       </div>
@@ -166,9 +168,9 @@ export class GrampsjsPlaceBox extends GrampsjsConnectedComponent {
     `
   }
 
-  _handleDetailClick() {
+  _handleDetailClick(e) {
     const id = this._data?.data?.gramps_id
-    if (id) fireEvent(this, 'nav', {path: `place/${id}`})
+    if (id) handleAppLinkClick(e, `place/${id}`)
   }
 }
 
