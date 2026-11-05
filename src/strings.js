@@ -68,6 +68,13 @@ export async function getFrontendStrings(lang) {
   return frontendStrings[lang] ?? {}
 }
 
+// The key of a Gramps string with a message context (msgctxt). The backend
+// translates it with the context, and `_p` of GrampsjsAppStateMixin looks it
+// up under the same key.
+export function contextKey(context, message) {
+  return `${context}\u0004${message}`
+}
+
 export const grampsStrings = [
   '%(current)d of %(total)d',
   '_Back',
@@ -382,9 +389,9 @@ export const grampsStrings = [
   'Foster',
   'France',
   'French',
-  'French Republican',
   'Friday',
   'Friend',
+  'From',
   'from',
   'FTP',
   'full circle',
@@ -423,7 +430,6 @@ export const grampsStrings = [
   'Graphviz can create very large graphs by spreading the graph across a rectangular array of pages. This controls the number pages in the array horizontally. Only valid for dot and pdf via Ghostscript.',
   'Graphviz can create very large graphs by spreading the graph across a rectangular array of pages. This controls the number pages in the array vertically. Only valid for dot and pdf via Ghostscript.',
   'Greek',
-  'Gregorian',
   'Groom',
   'half circle',
   'Hamlet',
@@ -467,7 +473,6 @@ export const grampsStrings = [
   'Included, and all data',
   'Informant',
   'Inherited',
-  'Islamic',
   'Italian',
   'Italic',
   'Italy',
@@ -476,7 +481,6 @@ export const grampsStrings = [
   'Japan',
   'Japanese',
   'Jewish Holidays',
-  'Julian',
   'Kinship Report',
   'Korean',
   'Landscape',
@@ -657,7 +661,6 @@ export const grampsStrings = [
   'People without a known birth date',
   'People without a known death date',
   'People',
-  'Persian',
   'Person Details',
   'Person Filters',
   'Person Note',
@@ -909,6 +912,7 @@ export const grampsStrings = [
   'Title of report',
   'Title',
   'To Do',
+  'To',
   'to',
   'Tombstone',
   'Top Left',
@@ -1115,4 +1119,11 @@ export const grampsStrings = [
   'Size',
   'Delete %s?',
   'Make Backup...',
+  contextKey('calendar', 'Gregorian'),
+  contextKey('calendar', 'Julian'),
+  contextKey('calendar', 'Hebrew'),
+  contextKey('calendar', 'French Republican'),
+  contextKey('calendar', 'Persian'),
+  contextKey('calendar', 'Islamic'),
+  contextKey('calendar', 'Swedish'),
 ]

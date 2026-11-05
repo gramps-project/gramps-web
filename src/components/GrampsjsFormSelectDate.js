@@ -1,31 +1,58 @@
 /*
-Element for selecting a Gramps type
+Element for editing a Gramps date
 */
 
 import {html, css, LitElement} from 'lit'
 import '@material/web/textfield/filled-text-field.js'
 import '@material/web/iconbutton/icon-button.js'
+import '@material/web/button/text-button.js'
 import '@material/web/select/filled-select.js'
 import '@material/web/select/select-option.js'
 
-import {mdiCalendar} from '@mdi/js'
+import {mdiCalendar, mdiChevronDown} from '@mdi/js'
 
 import './GrampsjsIcon.js'
+import './GrampsjsChipChoice.js'
 import {sharedStyles, iconButtonColorStyles} from '../SharedStyles.js'
-import {dateIsEmpty, emptyDate} from '../util.js'
+import {dateIsEmpty, emptyDate, fireEvent} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {CALENDARS, validateGrampsDate} from '../gcalendar.js'
+import {CALENDARS} from '../gcalendar.js'
+import {
+  dateToEditorState,
+  editorStateToDate,
+  parseDateField,
+  rowsAfterKindSwitch,
+  validateEditorState,
+} from '../dateEditor.js'
 
-const modifiers = {
-  0: 'Regular',
-  1: 'before',
-  2: 'after',
-  3: 'about',
-  4: 'Range',
-  5: 'Span',
-  //  6: 'Text only'
-  7: 'from',
-  8: 'to',
+const kindLabels = {
+  regular: 'Regular',
+  about: 'About',
+  before: 'Before',
+  after: 'After',
+  range: 'Range',
+  fromto: 'Span',
+}
+
+// Labels of the date rows of each kind, so that the form shows what the
+// selected chip means
+const rowLabels = {
+  regular: ['Date'],
+  about: ['About'],
+  before: ['Before'],
+  after: ['After'],
+  range: ['Earliest', 'Latest'],
+  fromto: ['From', 'To'],
+}
+
+// Explains each kind but the default one
+const kindHints = {
+  about: 'A single date somewhere around this one',
+  before: 'A single date some time before this one',
+  after: 'A single date some time after this one',
+  range: 'A single date somewhere in this range',
+  fromto:
+    'The whole time from the first date to the second. Either can be left empty.',
 }
 
 const qualifiers = {
@@ -46,7 +73,7 @@ const calendars = {
 
 const dataDefault = {...emptyDate}
 
-function parseDate(s) {
+function parseIsoDate(s) {
   if (!s) {
     return [0, 0, 0]
   }
@@ -56,14 +83,31 @@ function parseDate(s) {
   return [y, m, d]
 }
 
+function rowToIsoDate(row) {
+  const [d, m, y] = row
+  if (!y || !m || !d) {
+    return ''
+  }
+  return `${`${y}`.padStart(4, '0')}-${`${m}`.padStart(
+    2,
+    '0'
+  )}-${`${d}`.padStart(2, '0')}`
+}
+
+function fieldValue(n) {
+  return Number.isNaN(n) || !n ? '' : `${n}`
+}
+
+const ROW_SIZE = 3
+
 class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       iconButtonColorStyles,
       css`
-        p {
-          margin: 7px 0;
+        :host {
+          display: block;
         }
 
         md-icon-button {
@@ -74,20 +118,79 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
           --grampsjs-icon-button-disabled-opacity: 1;
         }
 
-        span.dateform {
-          white-space: nowrap;
+        grampsjs-chip-choice {
+          display: block;
+          margin: 8px 0 16px;
         }
 
-        span.dateform md-filled-text-field,
-        span.dateform md-filled-select {
-          margin-bottom: 10px;
+        /* Material's label style, also used by the chips and text buttons */
+        .row-label {
+          font-family: var(
+            --md-sys-typescale-label-large-font,
+            var(--md-ref-typeface-plain, Roboto)
+          );
+          font-size: var(--md-sys-typescale-label-large-size, 0.875rem);
+          line-height: var(--md-sys-typescale-label-large-line-height, 1.25rem);
+          font-weight: var(
+            --md-sys-typescale-label-large-weight,
+            var(--md-ref-typeface-weight-medium, 500)
+          );
+          color: var(--md-sys-color-on-surface-variant);
+          margin: 0 0 6px;
         }
 
-        /* md-filled-select defaults to min-width: 210px, which would blow out
-           the narrow month and day fields. */
-        md-filled-select.narrow {
-          width: 7em;
-          min-width: 6em;
+        /* Explains the selected chip, in the style of the supporting text of
+           list items */
+        .hint {
+          font-family: var(
+            --md-sys-typescale-body-medium-font,
+            var(--md-ref-typeface-plain, Roboto)
+          );
+          font-size: var(--md-sys-typescale-body-medium-size, 0.875rem);
+          line-height: var(--md-sys-typescale-body-medium-line-height, 1.25rem);
+          font-weight: var(
+            --md-sys-typescale-body-medium-weight,
+            var(--md-ref-typeface-weight-regular, 400)
+          );
+          color: var(--grampsjs-body-font-color-50);
+          margin: -8px 0 16px;
+        }
+
+        .row {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+
+        .row .year {
+          width: 6.5em;
+        }
+
+        .row .month,
+        .row .day {
+          width: 5em;
+        }
+
+        input[type='date'] {
+          visibility: hidden;
+          position: absolute;
+        }
+
+        md-text-button.more grampsjs-icon {
+          transition: transform 0.2s ease;
+        }
+
+        md-text-button.more.open grampsjs-icon {
+          transform: rotate(180deg);
+        }
+
+        .more-fields {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin: 12px 0 8px;
         }
       `,
     ]
@@ -97,6 +200,9 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
     return {
       data: {type: Object},
       disabled: {type: Boolean},
+      _kind: {state: true},
+      _rows: {state: true},
+      _moreOpen: {state: true},
     }
   }
 
@@ -104,411 +210,255 @@ class GrampsjsFormSelectDate extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.data = dataDefault
     this.disabled = false
+    this._kind = 'regular'
+    this._rows = [
+      [0, 0, 0, false],
+      [0, 0, 0, false],
+    ]
+    this._moreOpen = false
+    // The last date this element fired, so that it is not read back into
+    // the editor state when the parent passes it down again
+    this._emitted = null
+    // The text typed into each field, so that re-rendering never replaces
+    // what the user is typing, e.g. an incomplete number
+    this._typed = [Array(ROW_SIZE).fill(null), Array(ROW_SIZE).fill(null)]
+  }
+
+  willUpdate(changed) {
+    if (changed.has('data') && JSON.stringify(this.data) !== this._emitted) {
+      this._syncFromData()
+    }
+  }
+
+  _syncFromData() {
+    const {kind, rows} = dateToEditorState(this.data)
+    this._kind = kind
+    this._rows = rows
+    this._clearTyped(0)
+    this._clearTyped(1)
+    if (this.data?.quality || this.data?.calendar) {
+      this._moreOpen = true
+    }
   }
 
   render() {
+    const {rowErrors} = validateEditorState(this.data, this._kind, this._rows)
     return html`
-    <p>
-      <md-filled-select
-        id="select-modifier"
-        label="${this._('Type')}"
-        @change="${this.handleType}"
-      >
-        ${Object.keys(modifiers).map(
-          modifier => html`
-            <md-select-option
-              value="${modifier}"
-              ?selected="${
-                // eslint-disable-next-line eqeqeq
-                modifier == (this.data.modifier || 0)
-              }"
-            >
-              <div slot="headline">${this._(modifiers[modifier])}</div>
-            </md-select-option>
-          `
-        )}
-      </md-filled-select>
-
-      <md-filled-select
-        id="select-quality"
-        label="${this._('Quality')}"
-        @change="${this.handleQuality}"
-      >
-        ${Object.keys(qualifiers).map(
-          qualifier => html`
-            <md-select-option
-              value="${qualifier}"
-              ?selected="${
-                // eslint-disable-next-line eqeqeq
-                qualifier == (this.data.quality || 0)
-              }"
-            >
-              <div slot="headline">${this._(qualifiers[qualifier])}</div>
-            </md-select-option>
-          `
-        )}
-      </md-filled-select>
-
-      <md-filled-select
-        id="select-calendar"
-        label="${this._('Calendar')}"
-        @change="${this.handleCalendar}"
-      >
-        ${Object.keys(calendars).map(
-          calendar => html`
-            <md-select-option
-              value="${calendar}"
-              ?selected="${Number(calendar) === (this.data.calendar || 0)}"
-            >
-              <div slot="headline">${this._(calendars[calendar])}</div>
-            </md-select-option>
-          `
-        )}
-      </md-filled-select>
-    </p>
-    <p>
-    <span class="dateform">
-      <md-filled-text-field
-        @change="${this.handleYear1}"
-        id="year1"
-        label="${this._('Year')}"
-        type="number"
-        style="width: 6em;"
-        value="${this.data.dateval[2] || ''}"
-      ></md-filled-text-field>
-      <md-filled-select
-        @change="${this.handleMonth1}"
-        id="month1"
-        label="${this._('Month')}"
-        class="narrow"
-      >${[...Array(13).keys()].map(
-        idx => html`
-          <md-select-option
-            value="${idx}"
-            ?selected="${
-              // eslint-disable-next-line eqeqeq
-              idx == (this.data.dateval[1] || 0)
-            }"
-          >
-            <div slot="headline">${idx === 0 ? '' : idx}</div>
-          </md-select-option>
+      <grampsjs-chip-choice
+        .ariaLabel="${this._('Type')}"
+        .options="${Object.entries(kindLabels).map(([value, label]) => ({
+          value,
+          label: this._(label),
+        }))}"
+        .selected="${this._kind}"
+        @chip-choice:change="${this._handleKind}"
+      ></grampsjs-chip-choice>
+      ${kindHints[this._kind]
+        ? html`<p class="hint">${this._(kindHints[this._kind])}</p>`
+        : ''}
+      ${(rowLabels[this._kind] ?? [null]).map(
+        (label, index) => html`
+          ${label ? html`<p class="row-label">${this._(label)}</p>` : ''}
+          ${this._renderRow(index, rowErrors[index])}
         `
       )}
-      </md-filled-select>
-      <md-filled-select
-        @change="${this.handleDay1}"
-        id="day1"
-        label="${this._('Day')}"
-        class="narrow"
-      >${[...Array(32).keys()].map(
-        idx => html`
-          <md-select-option
-            value="${idx}"
-            ?selected="${
-              // eslint-disable-next-line eqeqeq
-              idx == (this.data.dateval[0] || 0)
-            }"
-          >
-            <div slot="headline">${idx === 0 ? '' : idx}</div>
-          </md-select-option>
-        `
-      )}
-      </md-filled-select>
-
-      <input
-        type="date"
-        id="input-date1"
-        style="visibility: hidden; position: absolute;"
-        @change="${this.handleDate1}"
+      <md-text-button
+        class="more ${this._moreOpen ? 'open' : ''}"
+        trailing-icon
+        aria-expanded="${this._moreOpen}"
+        @click="${this._toggleMore}"
       >
-      </input>
-
-      <md-icon-button
-        aria-label="${this._('Select date')}"
-        ?disabled="${this.data.calendar !== 0}"
-        @click=${this._openDatePicker1}
-      >
-        <grampsjs-icon path="${mdiCalendar}" color="currentColor"></grampsjs-icon>
-      </md-icon-button>
-      </span>
-
-      ${
-        this._hasSecondDate()
-          ? html`
-      <span class="dateform">
-      &nbsp;&nbsp;&ndash;&nbsp;&nbsp;
-
-      <md-filled-text-field
-        @change="${this.handleYear2}"
-        id="year2"
-        label="${this._('Year')}"
-        type="number"
-        style="width: 6em;"
-        value="${this.data.dateval[6] || ''}"
-      ></md-filled-text-field>
-      <md-filled-select
-        @change="${this.handleMonth2}"
-        id="month2"
-        label="${this._('Month')}"
-        class="narrow"
-      >${[...Array(13).keys()].map(
-        idx => html`
-          <md-select-option
-            value="${idx}"
-            ?selected="${
-              // eslint-disable-next-line eqeqeq
-              idx == (this.data.dateval[5] || 0)
-            }"
-          >
-            <div slot="headline">${idx === 0 ? '' : idx}</div>
-          </md-select-option>
-        `
-      )}
-      </md-filled-select>
-      <md-filled-select
-        @change="${this.handleDay2}"
-        id="day2"
-        label="${this._('Day')}"
-        class="narrow"
-      >${[...Array(32).keys()].map(
-        idx => html`
-          <md-select-option
-            value="${idx}"
-            ?selected="${
-              // eslint-disable-next-line eqeqeq
-              idx == (this.data.dateval[4] || 0)
-            }"
-          >
-            <div slot="headline">${idx === 0 ? '' : idx}</div>
-          </md-select-option>
-        `
-      )}
-      </md-filled-select>
-
-      <input
-        type="date"
-        id="input-date2"
-        style="visibility: hidden; position: absolute;"
-        @change="${this.handleDate2}"
-      >
-      </input>
-
-      <md-icon-button
-        aria-label="${this._('Select date')}"
-        ?disabled="${this.data.calendar !== 0}"
-        @click=${this._openDatePicker2}
-      >
-        <grampsjs-icon path="${mdiCalendar}" color="currentColor"></grampsjs-icon>
-      </md-icon-button>
-      </span>
-    </p>
-      `
-          : ''
-      }
-
-      `
+        ${this._('More options')}
+        <grampsjs-icon
+          slot="icon"
+          path="${mdiChevronDown}"
+          color="currentColor"
+        ></grampsjs-icon>
+      </md-text-button>
+      ${this._moreOpen ? this._renderMore() : ''}
+    `
   }
 
-  _hasSecondDate() {
-    return this.data?.modifier === 4 || this.data?.modifier === 5
+  _renderRow(index, error) {
+    const [d, m, y] = this._rows[index].map(
+      (n, position) => this._typed[index][position] ?? fieldValue(n)
+    )
+    return html`
+      <div class="row">
+        <md-filled-text-field
+          class="year"
+          label="${this._('Year')}"
+          type="number"
+          inputmode="numeric"
+          .value="${y}"
+          ?error="${error}"
+          @input="${e => this._handleField(index, 2, e)}"
+        ></md-filled-text-field>
+        <md-filled-text-field
+          class="month"
+          label="${this._('Month')}"
+          type="number"
+          inputmode="numeric"
+          min="1"
+          max="${this.data?.calendar === CALENDARS.FRENCH ||
+          this.data?.calendar === CALENDARS.HEBREW
+            ? 13
+            : 12}"
+          .value="${m}"
+          ?error="${error}"
+          @input="${e => this._handleField(index, 1, e)}"
+        ></md-filled-text-field>
+        <md-filled-text-field
+          class="day"
+          label="${this._('Day')}"
+          type="number"
+          inputmode="numeric"
+          min="1"
+          max="31"
+          .value="${d}"
+          ?error="${error}"
+          @input="${e => this._handleField(index, 0, e)}"
+        ></md-filled-text-field>
+        <input
+          type="date"
+          id="input-date${index}"
+          .value="${rowToIsoDate(this._rows[index])}"
+          @change="${e => this._handlePicker(index, e)}"
+        />
+        <md-icon-button
+          aria-label="${this._('Select date')}"
+          ?disabled="${(this.data?.calendar ?? 0) !== CALENDARS.GREGORIAN}"
+          @click="${() => this._openPicker(index)}"
+        >
+          <grampsjs-icon
+            path="${mdiCalendar}"
+            color="currentColor"
+          ></grampsjs-icon>
+        </md-icon-button>
+      </div>
+    `
+  }
+
+  _renderMore() {
+    return html`
+      <div class="more-fields">
+        <md-filled-select
+          id="select-quality"
+          label="${this._('Quality')}"
+          @change="${this._handleQuality}"
+        >
+          ${Object.keys(qualifiers).map(
+            qualifier => html`
+              <md-select-option
+                value="${qualifier}"
+                ?selected="${Number(qualifier) === (this.data?.quality || 0)}"
+              >
+                <div slot="headline">${this._(qualifiers[qualifier])}</div>
+              </md-select-option>
+            `
+          )}
+        </md-filled-select>
+        <md-filled-select
+          id="select-calendar"
+          label="${this._('Calendar')}"
+          @change="${this._handleCalendar}"
+        >
+          ${Object.keys(calendars).map(
+            calendar => html`
+              <md-select-option
+                value="${calendar}"
+                ?selected="${Number(calendar) === (this.data?.calendar || 0)}"
+              >
+                <div slot="headline">
+                  ${this._p('calendar', calendars[calendar])}
+                </div>
+              </md-select-option>
+            `
+          )}
+        </md-filled-select>
+      </div>
+    `
+  }
+
+  _handleKind(e) {
+    const kind = e.detail.value
+    const rows = rowsAfterKindSwitch(this._kind, kind, this._rows)
+    if (rows !== this._rows) {
+      this._typed = [this._typed[1], this._typed[0]]
+    }
+    this._updateDate(kind, rows)
+  }
+
+  _clearTyped(index) {
+    this._typed[index] = Array(ROW_SIZE).fill(null)
+  }
+
+  _handleField(index, position, e) {
+    const rows = this._rows.map(row => [...row])
+    rows[index][position] = parseDateField(
+      e.target.value,
+      e.target.validity?.badInput
+    )
+    this._typed[index][position] = e.target.value
+    // Editing a text-only date turns it into a regular one
+    this._updateDate(this._kind ?? 'regular', rows)
+  }
+
+  _handlePicker(index, e) {
+    const [y, m, d] = parseIsoDate(e.target.value)
+    const rows = this._rows.map(row => [...row])
+    rows[index] = [d, m, y, rows[index][3]]
+    this._clearTyped(index)
+    this._updateDate(this._kind ?? 'regular', rows)
+  }
+
+  _openPicker(index) {
+    this.renderRoot.getElementById(`input-date${index}`).showPicker()
+  }
+
+  _toggleMore() {
+    this._moreOpen = !this._moreOpen
+  }
+
+  _handleQuality(e) {
+    this._emit({
+      ...(this.data ?? dataDefault),
+      quality: parseInt(e.target.value, 10) || 0,
+    })
+  }
+
+  _handleCalendar(e) {
+    this._emit({
+      ...(this.data ?? dataDefault),
+      calendar: parseInt(e.target.value, 10) || 0,
+    })
+  }
+
+  _updateDate(kind, rows) {
+    this._kind = kind
+    this._rows = rows
+    this._emit(editorStateToDate(this.data ?? dataDefault, kind, rows))
+  }
+
+  _emit(data) {
+    this.data = data
+    this._emitted = JSON.stringify(data)
+    fireEvent(this, 'formdata:changed', {data})
   }
 
   reset() {
     this.data = dataDefault
-    this.shadowRoot
-      .querySelectorAll('md-filled-text-field')
-      .forEach(element => {
-        // eslint-disable-next-line no-param-reassign
-        element.value = ''
-      })
-    this.shadowRoot.querySelectorAll('md-filled-select').forEach(element => {
-      // eslint-disable-next-line no-param-reassign
-      element.value = '0'
-    })
-  }
-
-  handleType(e) {
-    this.data = {...this.data, modifier: parseInt(e.target.value, 10) || 0}
-    // remove second date from dateval if necessary
-    if (
-      this._hasSecondDate() &&
-      'dateval' in this.data &&
-      this.data.dateval.length < 8
-    ) {
-      this.data = {
-        ...this.data,
-        dateval: [...this.data.dateval.slice(0, 4), 0, 0, 0, false],
-      }
-    }
-    if (!this._hasSecondDate() && 'dateval' in this.data) {
-      this.data = {...this.data, dateval: this.data.dateval.slice(0, 4)}
-    }
-    this.handleChange()
-  }
-
-  handleQuality(e) {
-    this.data = {...this.data, quality: parseInt(e.target.value, 10) || 0}
-    this.handleChange()
-  }
-
-  handleCalendar(e) {
-    this.data = {...this.data, calendar: parseInt(e.target.value, 10) || 0}
-    this.handleChange()
-  }
-
-  handleDate1(e) {
-    const [y, m, d] = parseDate(e.target.value)
-    const oldval = [...this.data?.dateval]
-    this.data = {
-      ...this.data,
-      dateval: [d, m, y, false, ...oldval.slice(4)],
-    }
-    this.handleChange()
-  }
-
-  handleDate2(e) {
-    const [y, m, d] = parseDate(e.target.value)
-    const oldval = [...this.data?.dateval]
-    this.data = {...this.data, dateval: [...oldval.slice(0, 4), d, m, y, false]}
-    this.handleChange()
-  }
-
-  _getValue1() {
-    const val = [...this.data.dateval]
-    if (val === null || val === undefined) {
-      return null
-    }
-    const [d, m, y] = val.slice(0, 3)
-    return `${`${y}`.padStart(4, '0')}-${`${m}`.padStart(
-      2,
-      '0'
-    )}-${`${d}`.padStart(2, '0')}`
-  }
-
-  _getValue2() {
-    const val = [...this.data.dateval]
-    if (val === null || val === undefined || val.length < 6) {
-      return null
-    }
-    const [d, m, y] = val.slice(4, 7)
-    return `${`${y}`.padStart(4, '0')}-${`${m}`.padStart(
-      2,
-      '0'
-    )}-${`${d}`.padStart(2, '0')}`
-  }
-
-  handleYear1(e) {
-    const y = parseInt(e.target.value, 10) || 0
-    const dateval = this.data?.dateval
-      ? [...this.data.dateval]
-      : [0, 0, 0, false]
-    dateval[2] = y
-    this.data = {...this.data, dateval}
-    this.handleChange()
-  }
-
-  handleMonth1(e) {
-    const m = parseInt(e.target.value, 10) || 0
-    const dateval = this.data?.dateval
-      ? [...this.data.dateval]
-      : [0, 0, 0, false]
-    dateval[1] = m
-    this.data = {...this.data, dateval}
-    this.handleChange()
-  }
-
-  handleDay1(e) {
-    const d = parseInt(e.target.value, 10) || 0
-    const dateval = this.data?.dateval
-      ? [...this.data.dateval]
-      : [0, 0, 0, false]
-    dateval[0] = d
-    this.data = {...this.data, dateval}
-    this.handleChange()
-  }
-
-  handleYear2(e) {
-    const y = parseInt(e.target.value, 10) || 0
-    const dateval =
-      this.data.dateval && this.data.dateval.length > 4
-        ? this.data.dateval.slice(4)
-        : [0, 0, 0, false]
-    dateval[2] = y
-    const oldval = this.data?.dateval || [0, 0, 0, false]
-    this.data = {...this.data, dateval: [...oldval.slice(0, 4), ...dateval]}
-    this.handleChange()
-  }
-
-  handleDay2(e) {
-    const d = parseInt(e.target.value, 10) || 0
-    const dateval =
-      this.data.dateval && this.data.dateval.length > 4
-        ? this.data.dateval.slice(4)
-        : [0, 0, 0, false]
-    dateval[0] = d
-    const oldval = this.data?.dateval || [0, 0, 0, false]
-    this.data = {...this.data, dateval: [...oldval.slice(0, 4), ...dateval]}
-    this.handleChange()
-  }
-
-  handleMonth2(e) {
-    const m = parseInt(e.target.value, 10) || 0
-    const dateval =
-      this.data.dateval && this.data.dateval.length > 4
-        ? this.data.dateval.slice(4)
-        : [0, 0, 0, false]
-    dateval[1] = m
-    const oldval = this.data?.dateval
-      ? [...this.data.dateval]
-      : [0, 0, 0, false]
-    this.data = {...this.data, dateval: [...oldval.slice(0, 4), ...dateval]}
-    this.handleChange()
-  }
-
-  handleChange() {
-    this.dispatchEvent(
-      new CustomEvent('formdata:changed', {
-        bubbles: true,
-        composed: true,
-        detail: {data: this.data},
-      })
-    )
-    const result = validateGrampsDate(this.data)
-    const year1 = this.renderRoot.getElementById('year1')
-    if (year1) {
-      year1.error = result.date1Invalid
-    }
-    if (this._hasSecondDate()) {
-      const year2 = this.renderRoot.getElementById('year2')
-      if (year2) {
-        year2.error =
-          result.date2Empty || result.date2Invalid || result.date2OrderInvalid
-      }
-    }
-    const input1 = this.renderRoot.getElementById('input-date1')
-    if (input1) {
-      input1.value = this._getValue1()
-    }
-    const input2 = this.renderRoot.getElementById('input-date2')
-    if (input2) {
-      input2.value = this._getValue2()
-    }
+    this._emitted = null
+    this._syncFromData()
+    this._moreOpen = false
   }
 
   isValid() {
-    return validateGrampsDate(this.data).valid
+    return validateEditorState(this.data, this._kind, this._rows).valid
   }
 
   isEmpty() {
     return dateIsEmpty(this.data)
-  }
-
-  _openDatePicker1() {
-    this.renderRoot.getElementById('input-date1').showPicker()
-  }
-
-  _openDatePicker2() {
-    this.renderRoot.getElementById('input-date2').showPicker()
   }
 }
 
