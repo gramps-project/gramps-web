@@ -512,5 +512,9 @@
     "A single date some time before this one": "Data única antes desta",
     "A single date some time after this one": "Data única depois desta",
     "A single date somewhere in this range": "Data única dentro deste intervalo",
-    "The whole time from the first date to the second. Either can be left empty.": "O período da primeira à segunda data. Qualquer uma pode ficar em branco."
+    "The whole time from the first date to the second. Either can be left empty.": "O período da primeira à segunda data. Qualquer uma pode ficar em branco.",
+    "Try again": "Tente novamente",
+    "Back to login": "Voltar ao início de sessão",
+    "E-mail address": "Endereço electrónico",
+    "Full name": "Nome completo"
 }
