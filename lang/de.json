@@ -514,5 +514,7 @@
     "A single date somewhere in this range": "Ein einzelnes Datum irgendwo in diesem Bereich",
     "The whole time from the first date to the second. Either can be left empty.": "Der gesamte Zeitraum vom ersten bis zum zweiten Datum. Beides kann leer gelassen werden.",
     "Try again": "Versuche es noch einmal",
-    "Back to login": "Zurück zur Anmeldung"
+    "Back to login": "Zurück zur Anmeldung",
+    "E-mail address": "E-Mail-Adresse",
+    "Full name": "Vollständiger Name"
 }
