@@ -510,5 +510,9 @@
     "A single date some time before this one": "Jedno datum někdy před tímto datem",
     "A single date some time after this one": "Jedno datum někdy po tomto datu",
     "A single date somewhere in this range": "Jedno datum někdy v tomto rozmezí",
-    "The whole time from the first date to the second. Either can be left empty.": "Celé období od prvního data do druhého. Kterékoli z nich lze ponechat prázdné."
+    "The whole time from the first date to the second. Either can be left empty.": "Celé období od prvního data do druhého. Kterékoli z nich lze ponechat prázdné.",
+    "Try again": "Zkusit znovu",
+    "Back to login": "Zpět k přihlášení",
+    "E-mail address": "E-mailová adresa",
+    "Full name": "Celé jméno"
 }
