@@ -385,7 +385,7 @@
     "Loading...": "Laden…",
     "No active access tokens.": "Geen actieve toegangstokens.",
     "Some access tokens could not be loaded.": "Sommige toegangstokens konden niet worden geladen.",
-    "Retry": "Opnieuw proberen",
+    "Retry": "Opnieuw",
     "Revoke": "Intrekken",
     "Revoke access token?": "Toegangstoken intrekken?",
     "Revoking this token will immediately stop any application or service using it.": "Door dit token in te trekken, wordt elke toepassing of dienst die het gebruikt onmiddellijk stopgezet.",
@@ -511,5 +511,9 @@
     "A single date some time before this one": "Een enkele datum enige tijd voor deze",
     "A single date some time after this one": "Een enkele datum enige tijd na deze",
     "A single date somewhere in this range": "Een enkele datum ergens in dit bereik",
-    "The whole time from the first date to the second. Either can be left empty.": "De hele tijd vanaf de eerste datum tot de tweede. Beide kunnen leeg blijven."
+    "The whole time from the first date to the second. Either can be left empty.": "De hele tijd vanaf de eerste datum tot de tweede. Beide kunnen leeg blijven.",
+    "Try again": "Opnieuw proberen",
+    "Back to login": "Terug naar login",
+    "E-mail address": "E-mailadres",
+    "Full name": "Volledige naam"
 }
