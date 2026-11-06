@@ -616,12 +616,9 @@ export function fireEvent(target, name, detail) {
   )
 }
 
-// Replaced at build time by rollup
-const BASE_DIR = ''
-
 // Returns the URL of the app page at `path`, e.g. `person/I0001`
 export function appHref(path) {
-  return `${BASE_DIR}/${path}`
+  return `/${path}`
 }
 
 // Returns whether a click on a link is left to the browser, e.g. to open it
