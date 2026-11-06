@@ -505,5 +505,12 @@
     "Unlinked %s": "%s desligado",
     "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Pode actualizar o nome completo e endereço electrónico sempre que iniciar sessão com uma conta ligada.",
     "No connection": "Sem ligação",
-    "Opacity": "Opacidade"
+    "Opacity": "Opacidade",
+    "Earliest": "Mais antigo",
+    "Latest": "Mais recente",
+    "A single date somewhere around this one": "Data única à volta desta",
+    "A single date some time before this one": "Data única antes desta",
+    "A single date some time after this one": "Data única depois desta",
+    "A single date somewhere in this range": "Data única dentro deste intervalo",
+    "The whole time from the first date to the second. Either can be left empty.": "O período da primeira à segunda data. Qualquer uma pode ficar em branco."
 }
