@@ -504,5 +504,12 @@
     "Unlinked %s": "Koppeling %s opgeheven",
     "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Uw volledige naam en e-mailadres kunnen worden bijgewerkt wanneer u zich aanmeldt met een gekoppeld account.",
     "No connection": "Geen verbinding",
-    "Opacity": "Dekking"
+    "Opacity": "Dekking",
+    "Earliest": "Vroegst",
+    "Latest": "Laatst",
+    "A single date somewhere around this one": "Een enkele datum ergens rond deze",
+    "A single date some time before this one": "Een enkele datum enige tijd voor deze",
+    "A single date some time after this one": "Een enkele datum enige tijd na deze",
+    "A single date somewhere in this range": "Een enkele datum ergens in dit bereik",
+    "The whole time from the first date to the second. Either can be left empty.": "De hele tijd vanaf de eerste datum tot de tweede. Beide kunnen leeg blijven."
 }
