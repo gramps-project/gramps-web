@@ -511,5 +511,9 @@
     "A single date some time before this one": "Dáta amháin, tráth éigin roimh an dáta seo",
     "A single date some time after this one": "Dáta amháin, tamall éigin tar éis an dáta seo",
     "A single date somewhere in this range": "Dáta amháin éigin laistigh den raon seo",
-    "The whole time from the first date to the second. Either can be left empty.": "An tréimhse ar fad ón gcéad dáta go dtí an dara dáta. Is féidir ceachtar acu a fhágáil folamh."
+    "The whole time from the first date to the second. Either can be left empty.": "An tréimhse ar fad ón gcéad dáta go dtí an dara dáta. Is féidir ceachtar acu a fhágáil folamh.",
+    "Try again": "Bain triail eile as",
+    "Back to login": "Ar ais chuig an logáil isteach",
+    "E-mail address": "Seoladh ríomhphoist",
+    "Full name": "Ainm iomlán"
 }
