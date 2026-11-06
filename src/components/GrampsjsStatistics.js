@@ -82,7 +82,7 @@ export class GrampsjsStatistics extends GrampsjsTableBase {
               class="${classMap({link: key !== 'tags'})}"
               @click=${e => this._handleClick(e, key)}
             >
-              <td>${this._renderCell(key, this.data[key])}</td>
+              <td>${this._renderCell(key, this.data[key], -1)}</td>
               <th>
                 ${this._renderCell(
                   key,
@@ -96,10 +96,13 @@ export class GrampsjsStatistics extends GrampsjsTableBase {
     `
   }
 
-  _renderCell(key, content) {
+  // Only the link of the label is a tab stop for the keyboard
+  _renderCell(key, content, tabindex = 0) {
     return key === 'tags'
       ? content
-      : html`<a href="${appHref(this._getPath(key))}">${content}</a>`
+      : html`<a href="${appHref(this._getPath(key))}" tabindex="${tabindex}"
+          >${content}</a
+        >`
   }
 
   _handleClick(e, key) {

@@ -106,11 +106,7 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
           const path = this._getPath(obj)
           return html`
             <md-list-item
-              type="${path
-                ? 'link'
-                : this.selectable || this.linked
-                ? 'button'
-                : 'text'}"
+              type="${this._itemType}"
               href="${path ? appHref(path) : ''}"
               class="${classMap({
                 selected: this.activatable && i === this._selectedIndex,
@@ -153,12 +149,11 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
   }
 
   renderLoading() {
-    const type = this.selectable || this.linked ? 'button' : 'text'
     return html`
       <md-list>
         ${Array(this.numberLoading).fill(
           html`
-            <md-list-item type="${type}">
+            <md-list-item type="${this._itemType}">
               <span class="skeleton" style="width:15em;">&nbsp;</span>
               <span slot="supporting-text" class="skeleton" style="width:10em;"
                 >&nbsp;</span
@@ -199,6 +194,14 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
       ...obj,
       sourceElement: e.currentTarget,
     })
+  }
+
+  // The type of all items of the list
+  get _itemType() {
+    if (this.linked) {
+      return 'link'
+    }
+    return this.selectable ? 'button' : 'text'
   }
 
   // The path of the page of the object, if the list links to it. An item can

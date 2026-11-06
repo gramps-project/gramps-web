@@ -90,6 +90,20 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           inset: 0;
         }
 
+        /* In narrow (card) mode the links cover the whole card, with the gaps
+           between its cells. The checkbox stays above them. */
+        table:not(.wide) tbody tr {
+          position: relative;
+        }
+
+        table:not(.wide) tbody td:not(.col-select) {
+          position: static;
+        }
+
+        table:not(.wide) tbody td.col-select {
+          z-index: 1;
+        }
+
         table.linked tbody tr:not(.selected):hover {
           background-color: var(--grampsjs-color-shade-240);
         }

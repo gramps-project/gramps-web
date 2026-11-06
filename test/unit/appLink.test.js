@@ -42,10 +42,15 @@ describe('isNewTabClick', () => {
     expect(isNewTabClick(new MouseEvent('click'))).toBe(false)
   })
 
-  it.each([{altKey: true}, {button: 2}])(
+  it.each([{ctrlKey: true}, {button: 2}])(
     'is true for a click with %o',
     init => {
       expect(isNewTabClick(new MouseEvent('click', init))).toBe(true)
     }
   )
+
+  // The app's router handles a click with Alt as well
+  it('is false for a click with Alt', () => {
+    expect(isNewTabClick(new MouseEvent('click', {altKey: true}))).toBe(false)
+  })
 })

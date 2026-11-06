@@ -91,9 +91,14 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
     `
   }
 
+  // The button stays the tab stop for the keyboard
   renderFab() {
     return html`
-      <a href="${appHref('new_blog_post')}" @click=${this._handleClickAdd}>
+      <a
+        href="${appHref('new_blog_post')}"
+        tabindex="-1"
+        @click=${this._handleClickAdd}
+      >
         <md-fab variant="secondary">
           <grampsjs-icon
             slot="icon"

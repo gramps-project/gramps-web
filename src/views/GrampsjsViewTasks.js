@@ -58,9 +58,14 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
       ${this.appState.permissions.canAdd ? this.renderFab() : ''} `
   }
 
+  // The button stays the tab stop for the keyboard
   renderFab() {
     return html`
-      <a href="${appHref('new_task')}" @click=${this._handleClickAdd}>
+      <a
+        href="${appHref('new_task')}"
+        tabindex="-1"
+        @click=${this._handleClickAdd}
+      >
         <md-fab variant="secondary">
           <grampsjs-icon
             slot="icon"

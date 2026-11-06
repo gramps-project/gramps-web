@@ -563,6 +563,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     return html`
       <a
         href="${appHref(`media/${obj.gramps_id}`)}"
+        aria-label="${this._('Media Object')}"
         @click="${e => this._handleImgClick(e, obj.gramps_id)}"
       >
         <grampsjs-img
