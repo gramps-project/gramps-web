@@ -65,10 +65,14 @@ export const fanColorModes = {
       return (dDeath - dBirth) / 365.25
     },
   },
+  // Surname of the birth name, else of the primary name
   surname: {
     type: 'category',
     fct: person => {
-      const surname = person?.primary_name?.surname_list?.[0]
+      const names = [person?.primary_name, ...(person?.alternate_names ?? [])]
+      const name =
+        names.find(n => n?.type === 'Birth Name') ?? person?.primary_name
+      const surname = name?.surname_list?.[0]
       if (surname === undefined) {
         return undefined
       }

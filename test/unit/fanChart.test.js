@@ -138,6 +138,36 @@ describe('FanChart', () => {
     ).toEqual(['Smith', 'Jones', 'Brown', 'White'])
   })
 
+  it('colours by birth surname, else by primary surname', () => {
+    const married = {
+      ...person('M', 'Ganster', {families: [fR]}),
+      primary_name: {
+        type: 'Married Name',
+        surname_list: [{prefix: '', surname: 'Ganster'}],
+      },
+      alternate_names: [
+        {type: 'Also Known As', surname_list: [{prefix: '', surname: 'Huber'}]},
+        {type: 'Birth Name', surname_list: [{prefix: 'von', surname: 'Berg'}]},
+      ],
+    }
+    const chart = new FanChart()
+    chart.update(
+      layoutFan(
+        new FamilyGraph([
+          person('R', 'Ganster', {parentFamily: fR}),
+          person('F', 'Ganster', {families: [fR]}),
+          married,
+        ]),
+        'R',
+        {depth: 3}
+      ),
+      {...size, color: 'surname'}
+    )
+    expect(
+      [...chart.node.querySelectorAll('#legend text')].map(t => t.textContent)
+    ).toEqual(['Ganster', 'von Berg'])
+  })
+
   it('takes colours from the palette', () => {
     const chart = drawn({color: 'nEvents', palette: exportPalette})
     expect(chart.node.outerHTML).not.toContain('var(')
