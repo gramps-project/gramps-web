@@ -511,5 +511,9 @@
     "The whole time from the first date to the second. Either can be left empty.": "Celé obdobie od prvého dátumu po druhý. Obidve polia môžu zostať prázdne.",
     "Earliest": "Najskorší",
     "A single date somewhere around this one": "Jeden dátum niekde okolo tohto dátumu",
-    "Latest": "Najneskorší"
+    "Latest": "Najneskorší",
+    "Try again": "Skúsiť znova",
+    "Back to login": "Späť na prihlásenie",
+    "E-mail address": "E-mailová adresa",
+    "Full name": "Celé meno"
 }
