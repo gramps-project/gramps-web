@@ -505,11 +505,11 @@
     "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Vaše celé meno a e-mailová adresa sa môžu aktualizovať vždy, keď sa prihlásite prostredníctvom prepojeného účtu.",
     "No connection": "Žiadne pripojenie",
     "Opacity": "Nepriehľadnosť",
-    "A single date some time before this one": "Jeden dátum niekedy pred týmto",
-    "A single date some time after this one": "Jeden dátum niekedy po tomto",
+    "A single date some time before this one": "Jeden dátum niekedy pred týmto dátumom",
+    "A single date some time after this one": "Jeden dátum niekedy po tomto dátume",
     "A single date somewhere in this range": "Jeden dátum niekde v tomto rozmedzí",
     "The whole time from the first date to the second. Either can be left empty.": "Celé obdobie od prvého dátumu po druhý. Obidve polia môžu zostať prázdne.",
     "Earliest": "Najskorší",
-    "A single date somewhere around this one": "Jeden dátum niekedy v tomto období",
+    "A single date somewhere around this one": "Jeden dátum niekde okolo tohto dátumu",
     "Latest": "Najneskorší"
 }
