@@ -16,6 +16,17 @@
   font-named-instance: 'Italic';
 }
 
+/* Genealogical symbols missing from Inter (marriage, divorce),
+   subset from Noto Sans Symbols, see NotoSansSymbols-OFL.txt */
+@font-face {
+  font-family: 'Gramps Symbols';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/NotoSansSymbols-genealogy.woff2?v=2.003') format('woff2');
+  unicode-range: U+26AD-26AE;
+}
+
 @font-face {
   font-style: normal;
   font-family: 'EB Garamond x';

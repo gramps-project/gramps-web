@@ -1,6 +1,5 @@
 import {html} from 'lit'
 
-import {asteriskIcon, crossIcon} from './icons.js'
 import {hex6ToCss, hex12ToCss} from './color.js'
 import {
   familyTitleFromProfile,
@@ -17,34 +16,6 @@ import {
 import './components/GrampsjsObjectLink.js'
 import './components/GrampsjsImg.js'
 import './components/GrampsjsIcon.js'
-
-export function renderPerson(personProfile) {
-  return html`
-    <span class="event">
-      <grampsjs-icon
-        class="inline ${personProfile.sex === 'M' ? 'male' : 'female'}"
-        path="${objectIconPath.person}"
-        color="currentColor"
-      ></grampsjs-icon>
-      <grampsjs-object-link
-        object-type="person"
-        gramps-id="${personProfile.gramps_id}"
-        >${personProfile.name_given || '…'}
-        ${personProfile.name_surname || '…'}</grampsjs-object-link
-      >
-    </span>
-    ${personProfile?.birth?.date
-      ? html` <span class="event"
-          ><i>${asteriskIcon}</i> ${personProfile.birth.date}</span
-        >`
-      : ''}
-    ${personProfile?.death?.date
-      ? html` <span class="event"
-          ><i>${crossIcon}</i> ${personProfile.death.date}</span
-        >`
-      : ''}
-  `
-}
 
 export function showObject(type, obj, strings) {
   switch (type) {

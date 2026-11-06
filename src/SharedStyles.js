@@ -3,10 +3,10 @@ import {css} from 'lit'
 export const sharedStyles = css`
   :host {
     line-height: 1.6;
-    --grampsjs-body-font-family: 'Inter var', sans-serif;
-    --grampsjs-heading-font-family: 'Inter var', sans-serif;
+    --grampsjs-body-font-family: 'Inter var', 'Gramps Symbols', sans-serif;
+    --grampsjs-heading-font-family: 'Inter var', 'Gramps Symbols', sans-serif;
     --grampsjs-mono-font-family: 'Commit Mono', monospace;
-    --md-ref-typeface-plain: 'Inter var', sans-serif;
+    --md-ref-typeface-plain: 'Inter var', 'Gramps Symbols', sans-serif;
     --grampsjs-body-font-size: 17px;
     font-size: var(--grampsjs-body-font-size);
     font-family: var(--grampsjs-body-font-family);
@@ -192,19 +192,8 @@ export const sharedStyles = css`
     margin-right: 1em;
   }
 
-  .event i svg path {
-    fill: var(--grampsjs-body-font-color-40);
-  }
-
-  .event i {
-    color: var(--grampsjs-body-font-color-40);
-    font-size: 16px;
-    font-style: normal;
-  }
-
-  .event i svg {
-    height: 16px;
-    width: auto;
+  .sym {
+    color: var(--grampsjs-body-font-color-50);
   }
 
   .edit {

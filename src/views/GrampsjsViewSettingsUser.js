@@ -32,7 +32,11 @@ import {
 import {fireEvent} from '../util.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
 import {DEFAULT_TREE_VIEW, TREE_VIEWS} from '../treeDefaults.js'
-import {SYMBOL_SET_DEFAULT, SYMBOL_SET_OPTIONS} from '../symbols.js'
+import {
+  SYMBOL_SET_DEFAULT,
+  SYMBOL_SET_OPTIONS,
+  getSymbolSetLabel,
+} from '../symbols.js'
 
 export class GrampsjsViewSettingsUser extends GrampsjsView {
   static get styles() {
@@ -293,9 +297,9 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         @change="${this._handleSymbolsSelected}"
       >
         ${SYMBOL_SET_OPTIONS.map(
-          ({value, label}) => html`
+          value => html`
             <md-select-option value="${value}" ?selected=${value === symbolSet}>
-              ${this._(label)}
+              ${getSymbolSetLabel(value, s => this._(s))}
             </md-select-option>
           `
         )}
@@ -305,7 +309,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
 
   _handleSymbolsSelected(event) {
     const candidate = event.target.value || SYMBOL_SET_DEFAULT
-    const symbolSet = SYMBOL_SET_OPTIONS.some(({value}) => value === candidate)
+    const symbolSet = SYMBOL_SET_OPTIONS.includes(candidate)
       ? candidate
       : SYMBOL_SET_DEFAULT
     this.appState.updateSettings({symbolSet})

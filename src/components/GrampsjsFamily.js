@@ -24,11 +24,6 @@ export class GrampsjsFamily extends GrampsjsObject {
             font-size: 0.85em;
           }
 
-          .sym {
-            font-weight: bold;
-            color: var(--grampsjs-body-font-color-35);
-          }
-
           .parent-row {
             display: flex;
             align-items: center;
