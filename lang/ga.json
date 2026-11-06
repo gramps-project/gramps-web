@@ -504,5 +504,12 @@
     "Expression:": "Slonn:",
     "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Is féidir d’ainm iomlán agus do sheoladh ríomhphoist a nuashonrú gach uair a logálann tú isteach le cuntas nasctha.",
     "No connection": "Gan nasc",
-    "Opacity": "Teimhneacht"
+    "Opacity": "Teimhneacht",
+    "Earliest": "An ceann is luaithe",
+    "Latest": "Is déanaí",
+    "A single date somewhere around this one": "Dáta amháin, áit éigin timpeall an dáta seo",
+    "A single date some time before this one": "Dáta amháin, tráth éigin roimh an dáta seo",
+    "A single date some time after this one": "Dáta amháin, tamall éigin tar éis an dáta seo",
+    "A single date somewhere in this range": "Dáta amháin éigin laistigh den raon seo",
+    "The whole time from the first date to the second. Either can be left empty.": "An tréimhse ar fad ón gcéad dáta go dtí an dara dáta. Is féidir ceachtar acu a fhágáil folamh."
 }
