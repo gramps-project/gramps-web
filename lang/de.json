@@ -506,6 +506,13 @@
     "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Dein vollständiger Name und deine E-Mail-Adresse können aktualisiert werden, sobald du dich mit einem verknüpften Konto anmeldest.",
     "No connection": "Keine Verbindung",
     "Opacity": "Deckkraft",
-    "Earliest": "Frühestes",
-    "Latest": "Spätestes"
+    "Earliest": "Früheste",
+    "Latest": "Neueste",
+    "A single date somewhere around this one": "Ein einzelnes Datum, das ungefähr in diesem Zeitraum liegt",
+    "A single date some time before this one": "Ein einzelnes Datum einige Zeit vor diesem hier",
+    "A single date some time after this one": "Ein einzelnes Datum einige Zeit nach diesem hier",
+    "A single date somewhere in this range": "Ein einzelnes Datum irgendwo in diesem Bereich",
+    "The whole time from the first date to the second. Either can be left empty.": "Der gesamte Zeitraum vom ersten bis zum zweiten Datum. Beides kann leer gelassen werden.",
+    "Try again": "Versuche es noch einmal",
+    "Back to login": "Zurück zur Anmeldung"
 }
