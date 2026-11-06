@@ -486,5 +486,9 @@
   "A single date some time before this one": "A single date some time before this one",
   "A single date some time after this one": "A single date some time after this one",
   "A single date somewhere in this range": "A single date somewhere in this range",
-  "The whole time from the first date to the second. Either can be left empty.": "The whole time from the first date to the second. Either can be left empty."
+  "The whole time from the first date to the second. Either can be left empty.": "The whole time from the first date to the second. Either can be left empty.",
+  "Try again": "Try again",
+  "Back to login": "Back to login",
+  "E-mail address": "E-mail address",
+  "Full name": "Full name"
 }

@@ -422,7 +422,7 @@ class GrampsjsLogin extends GrampsjsAppStateMixin(LitElement) {
               @click="${() => {
                 this.resetpw = false
               }}"
-              >${this._('_Back')}</span
+              >${this._('Back to login')}</span
             >
           </p>
         </form>

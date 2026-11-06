@@ -106,7 +106,7 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
             <md-outlined-text-field
               id="email"
               required
-              label="${this._('E-mail')}"
+              label="${this._('E-mail address')}"
               .value="${this.email}"
               @input="${this.handleEmailInput}"
               ?error="${this.emailError !== ''}"
@@ -118,7 +118,7 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
               outlined
               id="fullname"
               @input="${this._checkFormValid}"
-              label="${this._('Full Name')}"
+              label="${this._('Full name')}"
               type="text"
             ></md-outlined-text-field>
             <md-filled-button
