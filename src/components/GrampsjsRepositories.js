@@ -5,7 +5,7 @@ import {mdiArchive} from '@mdi/js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormRepoRef.js'
-import {fireEvent} from '../util.js'
+import {appHref, fireEvent, handleAppLinkClick} from '../util.js'
 
 export class GrampsjsRepositories extends GrampsjsEditableList {
   static get properties() {
@@ -24,18 +24,19 @@ export class GrampsjsRepositories extends GrampsjsEditableList {
   }
 
   row(obj, i) {
+    const grampsId = this.extended[i]?.gramps_id
     return html`
       <md-list-item
-        type="button"
+        type="${this.edit || !grampsId ? 'button' : 'link'}"
+        href="${this.edit || !grampsId
+          ? ''
+          : appHref(this._getItemPath(grampsId))}"
         class="${classMap({selected: i === this._selectedIndex})}"
-        @click="${() => {
+        @click="${e => {
           if (this.edit) {
             this._handleSelected(i)
-          } else {
-            const grampsId = this.extended[i]?.gramps_id
-            if (grampsId) {
-              this._handleClick(grampsId)
-            }
+          } else if (grampsId) {
+            this._handleClick(e, grampsId)
           }
         }}"
       >
@@ -123,9 +124,9 @@ export class GrampsjsRepositories extends GrampsjsEditableList {
     })
   }
 
-  _handleClick(grampsId) {
+  _handleClick(e, grampsId) {
     if (!this.edit) {
-      fireEvent(this, 'nav', {path: this._getItemPath(grampsId)})
+      handleAppLinkClick(e, this._getItemPath(grampsId))
     }
   }
 

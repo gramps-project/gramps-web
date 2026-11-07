@@ -7,7 +7,8 @@ import './GrampsjsIcon.js'
 import {
   personTitleFromProfile,
   familyTitleFromProfile,
-  fireEvent,
+  appHref,
+  handleAppLinkClick,
 } from '../util.js'
 import {renderIcon} from '../objectRender.js'
 
@@ -108,8 +109,9 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
   row(obj) {
     return html`
       <md-list-item
-        type="button"
-        @click="${() => fireEvent(this, 'nav', {path: obj.path})}"
+        type="link"
+        href="${appHref(obj.path)}"
+        @click="${e => handleAppLinkClick(e, obj.path)}"
       >
         ${obj.title} ${this._roleLabel(obj.role)}
         ${renderIcon(

@@ -1,9 +1,10 @@
 import {LitElement, css, html, nothing} from 'lit'
+import {ifDefined} from 'lit/directives/if-defined.js'
 import {mdiOpenInNew} from '@mdi/js'
 
 import '@material/web/iconbutton/icon-button.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {fireEvent} from '../util.js'
+import {appHref, handleAppLinkClick} from '../util.js'
 import './GrampsjsIcon.js'
 import './GrampsjsPerson.js'
 import './GrampsjsFamily.js'
@@ -360,9 +361,13 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     }, HIDE_DELAY)
   }
 
-  _handleOpen() {
-    this._visible = false
-    fireEvent(this, 'nav', {path: `${this._objectType}/${this._grampsId}`})
+  get _path() {
+    return `${this._objectType}/${this._grampsId}`
+  }
+
+  // Going to the page hides the preview, via the `nav` listener
+  _handleOpen(e) {
+    handleAppLinkClick(e, this._path)
   }
 
   _renderContent() {
@@ -442,6 +447,7 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
       >
         <md-icon-button
           id="open-btn"
+          href="${ifDefined(this._grampsId ? appHref(this._path) : undefined)}"
           @click="${this._handleOpen}"
           title="${this._('_Open')}"
           aria-label="${this._('_Open')}"

@@ -1,7 +1,7 @@
 import {css, html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
-import {fireEvent} from '../util.js'
+import {appHref, fireEvent, handleAppLinkClick} from '../util.js'
 import {renderPersonAvatar, renderPersonDates} from './personListUtils.js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import {getSymbols} from '../symbols.js'
@@ -58,16 +58,17 @@ export class GrampsjsChildren extends GrampsjsEditableList {
 
     return html`
       <md-list-item
-        type="button"
+        type="${this.edit ? 'button' : 'link'}"
+        href="${this.edit ? '' : appHref(`person/${p.gramps_id}`)}"
         class="${classMap({
           selected: i === this._selectedIndex,
           highlight: p.gramps_id === this.highlightId,
         })}"
-        @click="${() => {
+        @click="${e => {
           if (this.edit) {
             this._handleSelected(i)
           } else {
-            this._handleClick(p.gramps_id)
+            this._handleClick(e, p.gramps_id)
           }
         }}"
       >
@@ -84,9 +85,9 @@ export class GrampsjsChildren extends GrampsjsEditableList {
     `
   }
 
-  _handleClick(grampsId) {
+  _handleClick(e, grampsId) {
     if (!this.edit && grampsId) {
-      fireEvent(this, 'nav', {path: `person/${grampsId}`})
+      handleAppLinkClick(e, `person/${grampsId}`)
     }
   }
 

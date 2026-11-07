@@ -15,7 +15,7 @@ import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {clickKeyHandler, fireEvent} from '../util.js'
+import {clickKeyHandler, fireEvent, isNewTabClick} from '../util.js'
 import {renderIconSvg} from '../icons.js'
 
 export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
@@ -74,6 +74,34 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
 
         table.linked tbody tr:hover {
           cursor: pointer;
+        }
+
+        a.row-link,
+        a.row-link:visited {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        /* The link covers its whole cell, not only the text, so that the
+           browser offers to open the row in a new tab anywhere in the cell */
+        a.row-link::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+        }
+
+        /* In narrow (card) mode the links cover the whole card, with the gaps
+           between its cells. The checkbox stays above them. */
+        table:not(.wide) tbody tr {
+          position: relative;
+        }
+
+        table:not(.wide) tbody td:not(.col-select) {
+          position: static;
+        }
+
+        table:not(.wide) tbody td.col-select {
+          z-index: 1;
         }
 
         table.linked tbody tr:not(.selected):hover {
@@ -267,6 +295,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
       breakPoint: {type: Number},
       loading: {type: Boolean},
       linked: {type: Boolean},
+      rowHref: {attribute: false},
       sortable: {type: Boolean},
       sort: {type: Number},
       descending: {type: Boolean},
@@ -288,6 +317,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     this.naturalWidth = false
     this.breakPoint = 600
     this.linked = false
+    this.rowHref = null
     this.sortable = false
     this.sort = -1
     this.descending = false
@@ -350,7 +380,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
               ({item, index}) => html`
                 <tr
                   class="${this._selectedIndices.has(index) ? 'selected' : ''}"
-                  @click="${() => this._handleRowClick(index)}"
+                  @click="${e => this._handleRowClick(e, index)}"
                   @keydown="${clickKeyHandler}"
                   tabindex="${this.linked ? '0' : '-1'}"
                 >
@@ -383,7 +413,13 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
                                   )}</span
                                 ></span
                               >`
-                            : this._formatValue(this.columns[colIndex], value)}
+                            : this._renderCellValue(
+                                this._formatValue(
+                                  this.columns[colIndex],
+                                  value
+                                ),
+                                index
+                              )}
                         </div>
                       </td>
                     `
@@ -438,6 +474,16 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
 
   _colLabel(name) {
     return this._(name).replace(/:$/, '')
+  }
+
+  // A link in each cell lets the browser open the row in a new tab, e.g. with
+  // Ctrl or the middle button, or from the context menu. The row stays the
+  // tab stop for the keyboard.
+  _renderCellValue(value, index) {
+    if (!this.linked || !this.rowHref) return value
+    return html`<a class="row-link" href="${this.rowHref(index)}" tabindex="-1"
+      >${value}</a
+    >`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -573,7 +619,12 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     return indexed
   }
 
-  _handleRowClick(originalIndex) {
+  _handleRowClick(e, originalIndex) {
+    if (this.rowHref) {
+      // Clicks on the row link that open a new tab are left to the browser
+      if (isNewTabClick(e)) return
+      e.preventDefault()
+    }
     fireEvent(this, 'table:row-click', {rowNumber: originalIndex})
   }
 

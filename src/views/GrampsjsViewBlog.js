@@ -8,7 +8,7 @@ import '../components/GrampsjsIcon.js'
 
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
-import {fireEvent, clickKeyHandler} from '../util.js'
+import {appHref, handleAppLinkClick} from '../util.js'
 
 export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
@@ -33,10 +33,18 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
         }
 
         .post {
+          display: block;
           padding: 0.8em 1em;
           cursor: pointer;
           outline: 2px solid var(--grampsjs-body-font-color-0);
           transition: outline-color 0.3s ease-in;
+        }
+
+        a.post:link,
+        a.post:visited,
+        a.post:hover {
+          color: inherit;
+          text-decoration: none;
         }
 
         .post:focus,
@@ -83,20 +91,27 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
     `
   }
 
+  // The button stays the tab stop for the keyboard
   renderFab() {
     return html`
-      <md-fab variant="secondary" @click=${this._handleClickAdd}>
-        <grampsjs-icon
-          slot="icon"
-          .path="${mdiPlus}"
-          color="var(--mdc-theme-on-secondary)"
-        ></grampsjs-icon>
-      </md-fab>
+      <a
+        href="${appHref('new_blog_post')}"
+        tabindex="-1"
+        @click=${this._handleClickAdd}
+      >
+        <md-fab variant="secondary">
+          <grampsjs-icon
+            slot="icon"
+            .path="${mdiPlus}"
+            color="var(--mdc-theme-on-secondary)"
+          ></grampsjs-icon>
+        </md-fab>
+      </a>
     `
   }
 
-  _handleClickAdd() {
-    fireEvent(this, 'nav', {path: 'new_blog_post'})
+  _handleClickAdd(e) {
+    handleAppLinkClick(e, 'new_blog_post')
   }
 
   renderPosts() {
@@ -143,11 +158,10 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
   // eslint-disable-next-line no-dupe-class-members
   renderPost(source) {
     return html`
-      <div
+      <a
         class="post"
-        tabindex="0"
-        @click="${() => this._handlePreviewClick(source.gramps_id)}"
-        @keydown="${clickKeyHandler}"
+        href="${appHref(`blog/${source.gramps_id}`)}"
+        @click="${e => this._handlePreviewClick(e, source.gramps_id)}"
       >
         <div>
           <grampsjs-blog-post-preview
@@ -155,7 +169,7 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
             .appState="${this.appState}"
           ></grampsjs-blog-post-preview>
         </div>
-      </div>
+      </a>
     `
   }
 
@@ -163,8 +177,8 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._fetchData()
   }
 
-  _handlePreviewClick(grampsId) {
-    fireEvent(this, 'nav', {path: `blog/${grampsId}`})
+  _handlePreviewClick(e, grampsId) {
+    handleAppLinkClick(e, `blog/${grampsId}`)
   }
 
   handleUpdateStaleData() {

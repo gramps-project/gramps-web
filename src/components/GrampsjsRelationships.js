@@ -11,7 +11,7 @@ import {
 } from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {fireEvent} from '../util.js'
+import {appHref, fireEvent, handleAppLinkClick} from '../util.js'
 import './GrampsjsConnectedChildren.js'
 import './GrampsjsConnectedParents.js'
 import './GrampsjsFormAddPersonToFamily.js'
@@ -419,7 +419,8 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
   _renderFamilyBtn(grampsId) {
     return html` <md-outlined-button
       class="familybtn"
-      @click="${() => this._handleButtonClick(grampsId)}"
+      href="${appHref(`family/${grampsId}`)}"
+      @click="${e => handleAppLinkClick(e, `family/${grampsId}`)}"
     >
       <grampsjs-icon
         path="${mdiAccountMultiple}"
@@ -428,18 +429,6 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
       ></grampsjs-icon>
       ${this._('Family')}
     </md-outlined-button>`
-  }
-
-  _handleButtonClick(grampsId) {
-    this.dispatchEvent(
-      new CustomEvent('nav', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          path: `family/${grampsId}`,
-        },
-      })
-    )
   }
 
   _renderChildren(profile, childrenTitle) {

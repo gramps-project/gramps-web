@@ -616,6 +616,25 @@ export function fireEvent(target, name, detail) {
   )
 }
 
+// Returns the URL of the app page at `path`, e.g. `person/I0001`
+export function appHref(path) {
+  return `/${path}`
+}
+
+// Returns whether a click on a link is left to the browser, e.g. to open it
+// in a new tab with Ctrl or the middle button, rather than handled by the app
+export function isNewTabClick(e) {
+  return e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey
+}
+
+// Click handler for a link to the app page at `path`: a plain left click goes
+// to the page within the app, any other click is left to the browser
+export function handleAppLinkClick(e, path) {
+  if (isNewTabClick(e)) return
+  e.preventDefault()
+  fireEvent(e.currentTarget, 'nav', {path})
+}
+
 // Shows `message` under a required md text field while it is empty and
 // clears it once the field has a value. Give the field supporting-text="&nbsp;"
 // so the message line keeps its height and the layout does not shift. Focus

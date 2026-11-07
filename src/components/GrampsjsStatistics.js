@@ -2,7 +2,7 @@ import {html, css} from 'lit'
 
 import {classMap} from 'lit/directives/class-map.js'
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'
-import {fireEvent} from '../util.js'
+import {appHref, handleAppLinkClick} from '../util.js'
 
 const _classes = [
   'people',
@@ -45,6 +45,26 @@ export class GrampsjsStatistics extends GrampsjsTableBase {
           color: var(--grampsjs-body-font-color-70);
           font-weight: 450;
         }
+
+        td,
+        th {
+          position: relative;
+        }
+
+        /* The link covers its whole cell, so that the browser offers to open
+           the page in a new tab anywhere in the row */
+        a:link,
+        a:visited,
+        a:hover {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        a::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+        }
       `,
     ]
   }
@@ -60,10 +80,15 @@ export class GrampsjsStatistics extends GrampsjsTableBase {
           return html`
             <tr
               class="${classMap({link: key !== 'tags'})}"
-              @click=${() => this._handleClick(key)}
+              @click=${e => this._handleClick(e, key)}
             >
-              <td>${this.data[key]}</td>
-              <th>${this._(key.charAt(0).toUpperCase() + key.slice(1))}</th>
+              <td>${this._renderCell(key, this.data[key], -1)}</td>
+              <th>
+                ${this._renderCell(
+                  key,
+                  this._(key.charAt(0).toUpperCase() + key.slice(1))
+                )}
+              </th>
             </tr>
           `
         }, this)}
@@ -71,13 +96,26 @@ export class GrampsjsStatistics extends GrampsjsTableBase {
     `
   }
 
-  _handleClick(key) {
+  // Only the link of the label is a tab stop for the keyboard
+  _renderCell(key, content, tabindex = 0) {
+    return key === 'tags'
+      ? content
+      : html`<a href="${appHref(this._getPath(key))}" tabindex="${tabindex}"
+          >${content}</a
+        >`
+  }
+
+  _handleClick(e, key) {
+    // we don't have a tag list
     if (key !== 'tags') {
-      // we don't have a tag list
-      // media is the only case that needs special treatment
-      const path = key === 'media' ? 'medialist' : key
-      fireEvent(this, 'nav', {path})
+      handleAppLinkClick(e, this._getPath(key))
     }
+  }
+
+  // media is the only case that needs special treatment
+  // eslint-disable-next-line class-methods-use-this
+  _getPath(key) {
+    return key === 'media' ? 'medialist' : key
   }
 }
 

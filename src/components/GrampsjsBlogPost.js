@@ -8,6 +8,7 @@ import './GrampsjsGallery.js'
 import './GrampsjsNoteContent.js'
 import './GrampsjsTimedelta.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {appHref, handleAppLinkClick} from '../util.js'
 import {fetchInlineMedia} from '../inlineImages.js'
 
 export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
@@ -137,7 +138,8 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
 
             <md-text-button
               id="btn-details"
-              @click="${() => this._clickDetails(this.source.gramps_id)}"
+              href="${appHref(`source/${this.source.gramps_id}`)}"
+              @click="${e => this._clickDetails(e, this.source.gramps_id)}"
               >${this._('Details')}</md-text-button
             >
           </div>
@@ -156,14 +158,8 @@ export class GrampsjsBlogPost extends GrampsjsAppStateMixin(LitElement) {
     if (note === this.note) this._inlineMedia = inlineMedia
   }
 
-  _clickDetails(grampsId) {
-    this.dispatchEvent(
-      new CustomEvent('nav', {
-        bubbles: true,
-        composed: true,
-        detail: {path: `source/${grampsId}`},
-      })
-    )
+  _clickDetails(e, grampsId) {
+    handleAppLinkClick(e, `source/${grampsId}`)
   }
 
   _renderImage() {

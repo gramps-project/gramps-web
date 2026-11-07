@@ -3,7 +3,12 @@ import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormPlaceRef.js'
-import {fireEvent, placeTypeIconPath} from '../util.js'
+import {
+  appHref,
+  fireEvent,
+  handleAppLinkClick,
+  placeTypeIconPath,
+} from '../util.js'
 import {renderIcon} from '../objectRender.js'
 
 export class GrampsjsPlaceRefs extends GrampsjsEditableList {
@@ -35,13 +40,16 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableList {
     const dateStr = this.profile[i]?.date_str || ''
     return html`
       <md-list-item
-        type="button"
+        type="${this.edit || !place?.gramps_id ? 'button' : 'link'}"
+        href="${this.edit || !place?.gramps_id
+          ? ''
+          : appHref(`place/${place.gramps_id}`)}"
         class="${classMap({selected: i === this._selectedIndex})}"
-        @click="${() => {
+        @click="${e => {
           if (this.edit) {
             this._handleSelected(i)
           } else {
-            this._handleClick(place?.gramps_id)
+            this._handleClick(e, place?.gramps_id)
           }
         }}"
       >
@@ -88,9 +96,9 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableList {
     }&profile=self`
   }
 
-  _handleClick(grampsId) {
+  _handleClick(e, grampsId) {
     if (grampsId) {
-      fireEvent(this, 'nav', {path: `place/${grampsId}`})
+      handleAppLinkClick(e, `place/${grampsId}`)
     }
   }
 

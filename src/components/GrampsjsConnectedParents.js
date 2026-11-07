@@ -1,7 +1,7 @@
 import {css, html} from 'lit'
 
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
-import {fireEvent} from '../util.js'
+import {appHref, handleAppLinkClick} from '../util.js'
 import {renderPersonAvatar, renderPersonDates} from './personListUtils.js'
 import {personListItemStyles} from '../SharedStyles.js'
 import {getSymbols} from '../symbols.js'
@@ -79,11 +79,10 @@ export class GrampsjsConnectedParents extends GrampsjsConnectedComponent {
   _renderParent(personProfile, extPerson) {
     return html`
       <md-list-item
-        type="button"
-        @click="${() =>
-          fireEvent(this, 'nav', {
-            path: `person/${personProfile.gramps_id}`,
-          })}"
+        type="link"
+        href="${appHref(`person/${personProfile.gramps_id}`)}"
+        @click="${e =>
+          handleAppLinkClick(e, `person/${personProfile.gramps_id}`)}"
       >
         ${personProfile.name_given || ''} ${personProfile.name_surname || ''}
         ${renderPersonDates(personProfile, {

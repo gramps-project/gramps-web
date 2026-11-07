@@ -5,7 +5,12 @@ import '@material/web/button/text-button.js'
 import './GrampsjsGallery.js'
 import './GrampsjsEvents.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
-import {fireEvent, personProfileDisplayName} from '../util.js'
+import {
+  appHref,
+  fireEvent,
+  handleAppLinkClick,
+  personProfileDisplayName,
+} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {getSymbols} from '../symbols.js'
 
@@ -139,7 +144,9 @@ export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
           `
         : ''}
       <div class="right">
-        <md-text-button @click="${this._handleDetailClick}"
+        <md-text-button
+          href="${appHref(`person/${person.gramps_id}`)}"
+          @click="${this._handleDetailClick}"
           >${this._('Show Details')}</md-text-button
         >
       </div>
@@ -156,9 +163,9 @@ export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
     `
   }
 
-  _handleDetailClick() {
+  _handleDetailClick(e) {
     const id = (this.personData || this._data?.data)?.gramps_id
-    if (id) fireEvent(this, 'nav', {path: `person/${id}`})
+    if (id) handleAppLinkClick(e, `person/${id}`)
   }
 
   _handlePlaceHover(e) {

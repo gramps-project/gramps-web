@@ -6,7 +6,12 @@ import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditAssociation.js'
 import './GrampsjsIcon.js'
 
-import {personDisplayName, fireEvent} from '../util.js'
+import {
+  appHref,
+  personDisplayName,
+  fireEvent,
+  handleAppLinkClick,
+} from '../util.js'
 
 import '@material/web/list/list-item.js'
 
@@ -26,13 +31,16 @@ export class GrampsjsAssociations extends GrampsjsEditableList {
   row(obj, i) {
     return html`
       <md-list-item
-        type="button"
+        type="${this.edit ? 'button' : 'link'}"
+        href="${this.edit
+          ? ''
+          : appHref(this._getItemPath(this.extended[i]?.gramps_id))}"
         class="${classMap({selected: i === this._selectedIndex})}"
-        @click="${() => {
+        @click="${e => {
           if (this.edit) {
             this._handleSelected(i)
           } else {
-            this._handleClick(this.extended[i])
+            this._handleClick(e, this.extended[i])
           }
         }}"
         >${personDisplayName(this.extended[i])}
@@ -46,9 +54,9 @@ export class GrampsjsAssociations extends GrampsjsEditableList {
     `
   }
 
-  _handleClick(obj) {
+  _handleClick(e, obj) {
     if (!this.edit) {
-      fireEvent(this, 'nav', {path: this._getItemPath(obj.gramps_id)})
+      handleAppLinkClick(e, this._getItemPath(obj.gramps_id))
     }
   }
 

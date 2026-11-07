@@ -9,7 +9,13 @@ import {GrampsjsObject} from './GrampsjsObject.js'
 import './GrampsjsEditableTitle.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormEditSourceData.js'
-import {fireEvent, linkUrls, objectIconPath} from '../util.js'
+import {
+  appHref,
+  fireEvent,
+  handleAppLinkClick,
+  linkUrls,
+  objectIconPath,
+} from '../util.js'
 
 export class GrampsjsSource extends GrampsjsObject {
   constructor() {
@@ -89,14 +95,17 @@ export class GrampsjsSource extends GrampsjsObject {
     }
     if (this.preview) return ''
     return html` <p style="clear: both; padding-top: 1em;">
-      <md-outlined-button @click="${this._handleButtonClick}">
+      <md-outlined-button
+        href="${appHref(`blog/${this.data.gramps_id}`)}"
+        @click="${this._handleButtonClick}"
+      >
         ${this._('Show in blog')}
       </md-outlined-button>
     </p>`
   }
 
-  _handleButtonClick() {
-    fireEvent(this, 'nav', {path: `blog/${this.data.gramps_id}`})
+  _handleButtonClick(e) {
+    handleAppLinkClick(e, `blog/${this.data.gramps_id}`)
   }
 
   _handleSaveProps(e) {

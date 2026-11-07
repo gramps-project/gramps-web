@@ -7,6 +7,8 @@ import {
   objectDetail,
   makeHandle,
   eventTypeIconPath,
+  appHref,
+  handleAppLinkClick,
 } from '../util.js'
 import {renderIcon} from '../objectRender.js'
 import './GrampsjsFormSelectObject.js'
@@ -60,13 +62,14 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     const typeKey = typeof obj.type === 'string' ? obj.type : obj.type?.value
     return html`
       <md-list-item
-        type="button"
+        type="${this.edit ? 'button' : 'link'}"
+        href="${this.edit ? '' : appHref(this._getItemPath(obj.gramps_id))}"
         class="${classMap({selected: i === this._selectedIndex})}"
-        @click="${() => {
+        @click="${e => {
           if (this.edit) {
             this._handleSelected(i)
           } else {
-            this._handleClick(obj.gramps_id)
+            this._handleClick(e, obj.gramps_id)
           }
         }}"
         @mouseenter="${() =>
@@ -249,9 +252,9 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     })
   }
 
-  _handleClick(grampsId) {
+  _handleClick(e, grampsId) {
     if (!this.edit) {
-      fireEvent(this, 'nav', {path: this._getItemPath(grampsId)})
+      handleAppLinkClick(e, this._getItemPath(grampsId))
     }
   }
 
