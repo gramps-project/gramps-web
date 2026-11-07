@@ -310,6 +310,36 @@ export function toWritableObject(obj) {
   return writable
 }
 
+/*
+Change the references to an event in a participant's event list.
+
+`change` is one of
+- `{action: 'add', role}`: add a reference with this role
+- `{action: 'update', occurrence, data}`: merge data into a reference
+- `{action: 'remove', occurrence}`: remove a reference
+
+`occurrence` counts the references to this event in the list, which may
+refer to it more than once. Returns the new list, or null if there is no
+such reference.
+*/
+export function changeParticipantRefs(refList, eventHandle, change) {
+  const list = refList || []
+  if (change.action === 'add') {
+    return [...list, {_class: 'EventRef', ref: eventHandle, role: change.role}]
+  }
+  const indexes = list
+    .map((el, i) => (el?.ref === eventHandle ? i : -1))
+    .filter(i => i !== -1)
+  const index = indexes[change.occurrence]
+  if (index === undefined) {
+    return null
+  }
+  if (change.action === 'remove') {
+    return list.filter((_el, i) => i !== index)
+  }
+  return list.map((el, i) => (i === index ? {...el, ...change.data} : el))
+}
+
 // Gramps object class names, as used e.g. by the change history API
 export const endpointToObjectClass = {
   people: 'Person',
@@ -410,6 +440,11 @@ export const noteTypeStrings = {
 function noteFirstLine(note) {
   const firstLine = note?.text?.string?.match(/[^\r\n]+/)?.[0]?.trim() || ''
   return firstLine.length > 100 ? `${firstLine.slice(0, 100)}…` : firstLine
+}
+
+// Untranslated string of a Gramps type, given as a string or a type object
+export function typeString(type) {
+  return typeof type === 'string' ? type : type?.string || ''
 }
 
 // Untranslated note type

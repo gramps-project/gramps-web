@@ -11,6 +11,7 @@ import {
 import {renderIcon} from '../objectRender.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormEventRef.js'
+import './GrampsjsFormEditEventInContext.js'
 import './GrampsjsFormNewEvent.js'
 import './GrampsjsObjectForm.js'
 
@@ -36,6 +37,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
       sorted: {type: Boolean},
       hideAge: {type: Boolean},
       defaultRole: {type: String},
+      ownerHandle: {type: String},
     }
   }
 
@@ -52,6 +54,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     this.hasReorder = true
     this.listProp = 'event_ref_list'
     this.defaultRole = 'Primary'
+    this.ownerHandle = ''
   }
 
   row(obj, i) {
@@ -182,6 +185,21 @@ export class GrampsjsEvents extends GrampsjsEditableList {
 
   _handleEdit() {
     const data = this.eventRef[this._selectedIndex]
+    const event = this._eventForRef(data)
+    if (event) {
+      this.dialogContent = html`
+        <grampsjs-form-edit-event-in-context
+          @object:save="${this._handleEventInContextSave}"
+          @object:cancel="${this._handleDialogCancel}"
+          .appState="${this.appState}"
+          .event="${event}"
+          ownerHandle="${this.ownerHandle}"
+          dialogTitle=${this._('Edit Event')}
+        >
+        </grampsjs-form-edit-event-in-context>
+      `
+      return
+    }
     this.dialogContent = html`
       <grampsjs-form-eventref
         id="edit-event-ref"
@@ -236,6 +254,25 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     e.preventDefault()
     e.stopPropagation()
     this.dialogContent = ''
+  }
+
+  _handleEventInContextSave(e) {
+    const {data} = e.detail
+    if (data) {
+      fireEvent(this, 'edit:action', {
+        action: 'updateLinkedEvent',
+        event: this._eventForRef(this.eventRef[this._selectedIndex]),
+        data,
+      })
+    }
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  // the event a reference points to, or undefined if it is missing
+  _eventForRef(eventRef) {
+    return (this.data || []).find(ev => ev?.handle === eventRef?.ref)
   }
 
   _handleDialogCancel() {

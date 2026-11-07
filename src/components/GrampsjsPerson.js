@@ -556,6 +556,7 @@ export class GrampsjsPerson extends GrampsjsObject {
           .data=${this.data?.extended?.events}
           .profile=${this.data?.profile?.events}
           .eventRef=${this.data?.event_ref_list}
+          ownerHandle="${this.data?.handle || ''}"
         ></grampsjs-events>
       `
     }

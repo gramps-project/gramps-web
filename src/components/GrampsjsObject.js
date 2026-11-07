@@ -100,7 +100,7 @@ const _allTabs = {
     condition: data =>
       data?.profile?.participants?.people?.length ||
       data?.profile?.participants?.families?.length,
-    conditionEdit: data => false,
+    conditionEdit: data => 'participants' in (data?.profile ?? {}),
   },
   gallery: {
     title: 'Gallery',
@@ -772,6 +772,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           .data=${this.data?.extended?.events}
           .profile=${this.data?.profile?.events}
           .eventRef=${this.data?.event_ref_list}
+          ownerHandle="${this.data?.handle || ''}"
           ?edit="${this.edit}"
         ></grampsjs-events>`
       case 'placeEvents':
@@ -881,6 +882,8 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           .data=${[this.data?.profile?.participants]}
           .backlinksPeople=${this.data?.extended?.backlinks?.person || []}
           .backlinksFamilies=${this.data?.extended?.backlinks?.family || []}
+          eventHandle="${this.data?.handle || ''}"
+          ?edit="${this.edit}"
         ></grampsjs-participants>`
       case 'repositories':
         return html` <grampsjs-repositories

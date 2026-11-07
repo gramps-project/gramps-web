@@ -21,6 +21,7 @@ import {
   makeHandle,
   fireEvent,
   toWritableObject,
+  changeParticipantRefs,
 } from '../util.js'
 import '../components/GrampsjsImg.js'
 
@@ -260,11 +261,12 @@ export class GrampsjsViewNewEvent extends GrampsjsNewEventMixin(
     for (const p of this._participants) {
       const endpoint = p.object_type === 'family' ? 'families' : 'people'
       // eslint-disable-next-line no-await-in-loop
-      const ok = await this._addEventRef(p.handle, endpoint, {
-        _class: 'EventRef',
-        ref: eventHandle,
-        role: p.role,
-      })
+      const ok = await this._addEventRef(
+        p.handle,
+        endpoint,
+        eventHandle,
+        p.role
+      )
       if (ok) anyRefAdded = true
     }
     if (anyRefAdded) {
@@ -279,7 +281,7 @@ export class GrampsjsViewNewEvent extends GrampsjsNewEventMixin(
     this._reset()
   }
 
-  async _addEventRef(handle, endpoint, eventRef) {
+  async _addEventRef(handle, endpoint, eventHandle, role) {
     const resp = await this.appState.apiGet(`/api/${endpoint}/${handle}`)
     if (!('data' in resp)) {
       fireEvent(this, 'grampsjs:error', {
@@ -288,7 +290,11 @@ export class GrampsjsViewNewEvent extends GrampsjsNewEventMixin(
       return false
     }
     const objData = toWritableObject(resp.data)
-    objData.event_ref_list = [...(objData.event_ref_list || []), eventRef]
+    objData.event_ref_list = changeParticipantRefs(
+      objData.event_ref_list,
+      eventHandle,
+      {action: 'add', role}
+    )
     const putResp = await this.appState.apiPut(
       `/api/${endpoint}/${handle}`,
       objData,
