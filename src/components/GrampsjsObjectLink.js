@@ -1,6 +1,6 @@
 import {LitElement, css, html} from 'lit'
 
-import {appHref, handleAppLinkClick} from '../util.js'
+import {handleAppLinkClick} from '../util.js'
 
 const PREVIEWABLE = new Set([
   'person',
@@ -50,7 +50,7 @@ export class GrampsjsObjectLink extends LitElement {
   }
 
   get _href() {
-    return appHref(this._path)
+    return `/${this._path}`
   }
 
   get _canPreview() {

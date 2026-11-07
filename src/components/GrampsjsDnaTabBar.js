@@ -6,7 +6,7 @@ import '@material/web/tabs/tabs'
 import '@material/web/tabs/primary-tab'
 
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {appHref, fireEvent, handleAppLinkClick} from '../util.js'
+import {fireEvent, handleAppLinkClick} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 
 const tabs = {
@@ -62,7 +62,7 @@ class GrampsjsDnaTabBar extends GrampsjsAppStateMixin(LitElement) {
           key => html`
             <md-primary-tab @click=${() => this._goTo(this._getPath(key))}>
               <a
-                href="${appHref(this._getPath(key))}"
+                href="/${this._getPath(key)}"
                 tabindex="-1"
                 @click=${e => this._handleLinkClick(e, key)}
                 >${this._(tabs[key])}</a

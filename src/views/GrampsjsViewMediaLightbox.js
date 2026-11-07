@@ -20,7 +20,7 @@ import '../components/GrampsjsTooltip.js'
 import '../components/GrampsjsIcon.js'
 import {isPlayableMime} from '../components/GrampsjsMediaPlayer.js'
 import {getMediaUrl} from '../api.js'
-import {appHref, getMediaRegions, handleAppLinkClick} from '../util.js'
+import {getMediaRegions, handleAppLinkClick} from '../util.js'
 
 // Make sure to synchronize this with the CSS variable --grampsjs-lightbox-toolbar-height in GrampsjsLightbox.js
 const LIGHTBOX_TOOLBAR_HEIGHT = 70
@@ -186,7 +186,7 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
             ></grampsjs-icon>
           </md-icon-button>
           <md-filled-button
-            href="${appHref(`media/${this._data?.gramps_id}`)}"
+            href="/media/${this._data?.gramps_id}"
             @click="${this._handleButtonClick}"
           >
             ${this._('Details')}

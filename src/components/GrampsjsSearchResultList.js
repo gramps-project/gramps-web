@@ -8,7 +8,6 @@ import '@material/web/list/list-item.js'
 import '@material/web/divider/divider.js'
 
 import {
-  appHref,
   objectDescription,
   fireEvent,
   handleAppLinkClick,
@@ -107,7 +106,7 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
           return html`
             <md-list-item
               type="${this._itemType}"
-              href="${path ? appHref(path) : ''}"
+              href="${path ? `/${path}` : ''}"
               class="${classMap({
                 selected: this.activatable && i === this._selectedIndex,
               })}"

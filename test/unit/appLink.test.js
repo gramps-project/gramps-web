@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest'
-import {appHref, handleAppLinkClick, isNewTabClick} from '../../src/util.js'
+import {handleAppLinkClick, isNewTabClick} from '../../src/util.js'
 
 // Clicks a link with `init` and returns the click event and the `nav` events
 function clickLink(init = {}) {
@@ -29,12 +29,6 @@ describe('handleAppLinkClick', () => {
       expect(navs).toEqual([])
     }
   )
-})
-
-describe('appHref', () => {
-  it('returns the URL of the app page', () => {
-    expect(appHref('person/I0001')).toBe('/person/I0001')
-  })
 })
 
 describe('isNewTabClick', () => {

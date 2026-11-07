@@ -7,12 +7,7 @@ import '../components/GrampsjsTasks.js'
 import '../components/GrampsjsIcon.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
-import {
-  appHref,
-  fireEvent,
-  handleAppLinkClick,
-  toWritableObject,
-} from '../util.js'
+import {fireEvent, handleAppLinkClick, toWritableObject} from '../util.js'
 import {sortTasks} from '../taskConstants.js'
 
 export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
@@ -61,11 +56,7 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
   // The button stays the tab stop for the keyboard
   renderFab() {
     return html`
-      <a
-        href="${appHref('new_task')}"
-        tabindex="-1"
-        @click=${this._handleClickAdd}
-      >
+      <a href="/new_task" tabindex="-1" @click=${this._handleClickAdd}>
         <md-fab variant="secondary">
           <grampsjs-icon
             slot="icon"

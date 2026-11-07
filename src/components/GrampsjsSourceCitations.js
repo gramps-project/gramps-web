@@ -2,7 +2,7 @@ import {html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
-import {appHref, fireEvent, handleAppLinkClick, makeHandle} from '../util.js'
+import {fireEvent, handleAppLinkClick, makeHandle} from '../util.js'
 import {renderIcon} from '../objectRender.js'
 import './GrampsjsFormCitation.js'
 import './GrampsjsFormNewCitation.js'
@@ -20,7 +20,7 @@ export class GrampsjsSourceCitations extends GrampsjsEditableList {
     return html`
       <md-list-item
         type="${isLink ? 'link' : 'button'}"
-        href="${isLink ? appHref(this._getItemPath(obj.gramps_id)) : ''}"
+        href="${isLink ? `/${this._getItemPath(obj.gramps_id)}` : ''}"
         class="${classMap({selected: i === this._selectedIndex})}"
         @click="${e => {
           if (this.edit) {

@@ -3,12 +3,7 @@ import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormPlaceRef.js'
-import {
-  appHref,
-  fireEvent,
-  handleAppLinkClick,
-  placeTypeIconPath,
-} from '../util.js'
+import {fireEvent, handleAppLinkClick, placeTypeIconPath} from '../util.js'
 import {renderIcon} from '../objectRender.js'
 
 export class GrampsjsPlaceRefs extends GrampsjsEditableList {
@@ -43,7 +38,7 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableList {
         type="${this.edit || !place?.gramps_id ? 'button' : 'link'}"
         href="${this.edit || !place?.gramps_id
           ? ''
-          : appHref(`place/${place.gramps_id}`)}"
+          : `/place/${place.gramps_id}`}"
         class="${classMap({selected: i === this._selectedIndex})}"
         @click="${e => {
           if (this.edit) {

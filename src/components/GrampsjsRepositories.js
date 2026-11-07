@@ -5,7 +5,7 @@ import {mdiArchive} from '@mdi/js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormRepoRef.js'
-import {appHref, fireEvent, handleAppLinkClick} from '../util.js'
+import {fireEvent, handleAppLinkClick} from '../util.js'
 
 export class GrampsjsRepositories extends GrampsjsEditableList {
   static get properties() {
@@ -30,7 +30,7 @@ export class GrampsjsRepositories extends GrampsjsEditableList {
         type="${this.edit || !grampsId ? 'button' : 'link'}"
         href="${this.edit || !grampsId
           ? ''
-          : appHref(this._getItemPath(grampsId))}"
+          : `/${this._getItemPath(grampsId)}`}"
         class="${classMap({selected: i === this._selectedIndex})}"
         @click="${e => {
           if (this.edit) {

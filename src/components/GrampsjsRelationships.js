@@ -11,7 +11,7 @@ import {
 } from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
-import {appHref, fireEvent, handleAppLinkClick} from '../util.js'
+import {fireEvent, handleAppLinkClick} from '../util.js'
 import './GrampsjsConnectedChildren.js'
 import './GrampsjsConnectedParents.js'
 import './GrampsjsFormAddPersonToFamily.js'
@@ -419,7 +419,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
   _renderFamilyBtn(grampsId) {
     return html` <md-outlined-button
       class="familybtn"
-      href="${appHref(`family/${grampsId}`)}"
+      href="/family/${grampsId}"
       @click="${e => handleAppLinkClick(e, `family/${grampsId}`)}"
     >
       <grampsjs-icon

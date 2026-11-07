@@ -25,7 +25,6 @@ import {GrampsjsView} from './GrampsjsView.js'
 
 import {renderIconSvg} from '../icons.js'
 import {
-  appHref,
   fireEvent,
   handleAppLinkClick,
   objectTypeSingular,
@@ -267,7 +266,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
         ${objectType && grampsId
           ? html`
               <md-text-button
-                href="${appHref(`${objectType}/${grampsId}`)}"
+                href="/${objectType}/${grampsId}"
                 @click="${e => this._handleOpenObject(e, objectType, grampsId)}"
                 >${renderIconSvg(
                   mdiOpenInNew,

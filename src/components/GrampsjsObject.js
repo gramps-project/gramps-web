@@ -37,7 +37,6 @@ import './GrampsjsObjectRevisions.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 import {
-  appHref,
   fireEvent,
   endpointToObjectClass,
   apiVersionAtLeast,
@@ -562,7 +561,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     const obj = this.data.extended.media[0]
     return html`
       <a
-        href="${appHref(`media/${obj.gramps_id}`)}"
+        href="/media/${obj.gramps_id}"
         aria-label="${this._('Media Object')}"
         @click="${e => this._handleImgClick(e, obj.gramps_id)}"
       >

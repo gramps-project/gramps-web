@@ -10,7 +10,6 @@ import './GrampsjsEditableTitle.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormEditSourceData.js'
 import {
-  appHref,
   fireEvent,
   handleAppLinkClick,
   linkUrls,
@@ -96,7 +95,7 @@ export class GrampsjsSource extends GrampsjsObject {
     if (this.preview) return ''
     return html` <p style="clear: both; padding-top: 1em;">
       <md-outlined-button
-        href="${appHref(`blog/${this.data.gramps_id}`)}"
+        href="/blog/${this.data.gramps_id}"
         @click="${this._handleButtonClick}"
       >
         ${this._('Show in blog')}

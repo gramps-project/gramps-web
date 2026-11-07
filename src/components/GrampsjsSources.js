@@ -5,7 +5,7 @@ import {mdiBookOpenVariant} from '@mdi/js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsIcon.js'
 import './GrampsjsImg.js'
-import {appHref, handleAppLinkClick} from '../util.js'
+import {handleAppLinkClick} from '../util.js'
 import {renderIcon} from '../objectRender.js'
 
 export class GrampsjsSources extends GrampsjsEditableList {
@@ -32,7 +32,7 @@ export class GrampsjsSources extends GrampsjsEditableList {
     return html`
       <md-list-item
         type="${this.edit ? 'button' : 'link'}"
-        href="${this.edit ? '' : appHref(this._getItemPath(obj.gramps_id))}"
+        href="${this.edit ? '' : `/${this._getItemPath(obj.gramps_id)}`}"
         class="${classMap({selected: i === this._selectedIndex})}"
         @click="${e => this._handleClick(e, obj.gramps_id)}"
       >

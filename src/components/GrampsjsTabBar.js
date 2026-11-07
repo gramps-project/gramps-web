@@ -3,7 +3,7 @@ import {html, css, LitElement} from 'lit'
 import '@material/web/tabs/tabs'
 import '@material/web/tabs/primary-tab'
 
-import {appHref, fireEvent, handleAppLinkClick} from '../util.js'
+import {fireEvent, handleAppLinkClick} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -89,7 +89,7 @@ class GrampsjsTabBar extends GrampsjsAppStateMixin(LitElement) {
             html`
               <md-primary-tab @click="${() => this._goTo(key)}"
                 ><a
-                  href="${appHref(this._getPath(key))}"
+                  href="/${this._getPath(key)}"
                   tabindex="-1"
                   @click="${e => this._handleLinkClick(e, key)}"
                   >${this._(currentTabs[key])}</a

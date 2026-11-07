@@ -1,7 +1,7 @@
 import {css, html} from 'lit'
 
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
-import {appHref, handleAppLinkClick} from '../util.js'
+import {handleAppLinkClick} from '../util.js'
 import {renderPersonAvatar, renderPersonDates} from './personListUtils.js'
 import {personListItemStyles} from '../SharedStyles.js'
 import {getSymbols} from '../symbols.js'
@@ -80,7 +80,7 @@ export class GrampsjsConnectedParents extends GrampsjsConnectedComponent {
     return html`
       <md-list-item
         type="link"
-        href="${appHref(`person/${personProfile.gramps_id}`)}"
+        href="/person/${personProfile.gramps_id}"
         @click="${e =>
           handleAppLinkClick(e, `person/${personProfile.gramps_id}`)}"
       >

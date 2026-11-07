@@ -7,7 +7,6 @@ import {
   objectDetail,
   makeHandle,
   eventTypeIconPath,
-  appHref,
   handleAppLinkClick,
 } from '../util.js'
 import {renderIcon} from '../objectRender.js'
@@ -63,7 +62,7 @@ export class GrampsjsEvents extends GrampsjsEditableList {
     return html`
       <md-list-item
         type="${this.edit ? 'button' : 'link'}"
-        href="${this.edit ? '' : appHref(this._getItemPath(obj.gramps_id))}"
+        href="${this.edit ? '' : `/${this._getItemPath(obj.gramps_id)}`}"
         class="${classMap({selected: i === this._selectedIndex})}"
         @click="${e => {
           if (this.edit) {

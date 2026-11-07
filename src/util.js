@@ -616,11 +616,6 @@ export function fireEvent(target, name, detail) {
   )
 }
 
-// Returns the URL of the app page at `path`, e.g. `person/I0001`
-export function appHref(path) {
-  return `/${path}`
-}
-
 // Returns whether a click on a link is left to the browser, e.g. to open it
 // in a new tab with Ctrl or the middle button, rather than handled by the app
 export function isNewTabClick(e) {

@@ -4,7 +4,7 @@ import '@material/web/list/list-item'
 
 import '../components/GrampsjsTimedelta.js'
 import {GrampsjsConnectedComponent} from '../components/GrampsjsConnectedComponent.js'
-import {appHref, eventTitleFromProfile, handleAppLinkClick} from '../util.js'
+import {eventTitleFromProfile, handleAppLinkClick} from '../util.js'
 
 export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
   static get styles() {
@@ -85,7 +85,7 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
     return html`
       <md-list-item
         type="link"
-        href="${appHref(`event/${event.gramps_id}`)}"
+        href="/event/${event.gramps_id}"
         @click="${e => this._handleClick(e, event)}"
         @keydown="${this._handleKeyDown}"
       >

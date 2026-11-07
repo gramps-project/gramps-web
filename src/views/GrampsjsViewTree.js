@@ -38,12 +38,7 @@ import {
   chartSettingValues,
   clampSettingValue,
 } from './treeChartDefinitions.js'
-import {
-  appHref,
-  fireEvent,
-  handleAppLinkClick,
-  isKeyEventInInput,
-} from '../util.js'
+import {fireEvent, handleAppLinkClick, isKeyEventInInput} from '../util.js'
 import {chartTransitionDuration, formatChartName} from '../charts/util.js'
 import {renderPersonAvatar} from '../components/personListUtils.js'
 import {iconButtonColorStyles, listAvatarStyles} from '../SharedStyles.js'
@@ -651,7 +646,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     return html`
       <a
         id="selected-person"
-        href="${appHref(this._selectedPersonPath)}"
+        href="/${this._selectedPersonPath}"
         aria-label="${this._('Person Details')}: ${name}"
         @click=${this._goToPerson}
       >

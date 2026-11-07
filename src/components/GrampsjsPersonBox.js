@@ -6,7 +6,6 @@ import './GrampsjsGallery.js'
 import './GrampsjsEvents.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 import {
-  appHref,
   fireEvent,
   handleAppLinkClick,
   personProfileDisplayName,
@@ -145,7 +144,7 @@ export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
         : ''}
       <div class="right">
         <md-text-button
-          href="${appHref(`person/${person.gramps_id}`)}"
+          href="/person/${person.gramps_id}"
           @click="${this._handleDetailClick}"
           >${this._('Show Details')}</md-text-button
         >

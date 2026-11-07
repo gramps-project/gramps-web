@@ -2,7 +2,6 @@ import {html} from 'lit'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import {
-  appHref,
   handleAppLinkClick,
   objectDescription,
   objectDetail,
@@ -55,7 +54,7 @@ export class GrampsjsReferences extends GrampsjsEditableList {
               return html`
                 <md-list-item
                   type="link"
-                  href="${appHref(this._getItemPath(type, obj.gramps_id))}"
+                  href="/${this._getItemPath(type, obj.gramps_id)}"
                   @click="${e => this._handleClick(e, type, obj.gramps_id)}"
                 >
                   <span>${desc}</span>

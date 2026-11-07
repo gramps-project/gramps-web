@@ -6,7 +6,7 @@ import './GrampsjsEvents.js'
 import './GrampsjsGallery.js'
 import './GrampsjsIcon.js'
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
-import {appHref, handleAppLinkClick} from '../util.js'
+import {handleAppLinkClick} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {mdiMapMarkerOff} from '@mdi/js'
 
@@ -150,7 +150,7 @@ export class GrampsjsPlaceBox extends GrampsjsConnectedComponent {
         : ''}
       <div class="right">
         <md-text-button
-          href="${appHref(`place/${place.gramps_id}`)}"
+          href="/place/${place.gramps_id}"
           @click="${this._handleDetailClick}"
           >${this._('Show Details')}</md-text-button
         >

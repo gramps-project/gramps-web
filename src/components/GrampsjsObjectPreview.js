@@ -4,7 +4,7 @@ import {mdiOpenInNew} from '@mdi/js'
 
 import '@material/web/iconbutton/icon-button.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {appHref, handleAppLinkClick} from '../util.js'
+import {handleAppLinkClick} from '../util.js'
 import './GrampsjsIcon.js'
 import './GrampsjsPerson.js'
 import './GrampsjsFamily.js'
@@ -447,7 +447,7 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
       >
         <md-icon-button
           id="open-btn"
-          href="${ifDefined(this._grampsId ? appHref(this._path) : undefined)}"
+          href="${ifDefined(this._grampsId ? `/${this._path}` : undefined)}"
           @click="${this._handleOpen}"
           title="${this._('_Open')}"
           aria-label="${this._('_Open')}"

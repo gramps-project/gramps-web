@@ -2,7 +2,7 @@ import {html, css} from 'lit'
 
 import {classMap} from 'lit/directives/class-map.js'
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'
-import {appHref, handleAppLinkClick} from '../util.js'
+import {handleAppLinkClick} from '../util.js'
 
 const _classes = [
   'people',
@@ -100,7 +100,7 @@ export class GrampsjsStatistics extends GrampsjsTableBase {
   _renderCell(key, content, tabindex = 0) {
     return key === 'tags'
       ? content
-      : html`<a href="${appHref(this._getPath(key))}" tabindex="${tabindex}"
+      : html`<a href="/${this._getPath(key)}" tabindex="${tabindex}"
           >${content}</a
         >`
   }

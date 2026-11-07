@@ -6,12 +6,7 @@ import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditAssociation.js'
 import './GrampsjsIcon.js'
 
-import {
-  appHref,
-  personDisplayName,
-  fireEvent,
-  handleAppLinkClick,
-} from '../util.js'
+import {personDisplayName, fireEvent, handleAppLinkClick} from '../util.js'
 
 import '@material/web/list/list-item.js'
 
@@ -34,7 +29,7 @@ export class GrampsjsAssociations extends GrampsjsEditableList {
         type="${this.edit ? 'button' : 'link'}"
         href="${this.edit
           ? ''
-          : appHref(this._getItemPath(this.extended[i]?.gramps_id))}"
+          : `/${this._getItemPath(this.extended[i]?.gramps_id)}`}"
         class="${classMap({selected: i === this._selectedIndex})}"
         @click="${e => {
           if (this.edit) {

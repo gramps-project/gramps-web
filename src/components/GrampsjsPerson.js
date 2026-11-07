@@ -23,7 +23,6 @@ import './GrampsjsEditGender.js'
 import './GrampsjsPersonRelationship.js'
 import './GrampsjsFormExternalSearch.js'
 import {
-  appHref,
   fireEvent,
   handleAppLinkClick,
   menuSelectionHandler,
@@ -300,7 +299,7 @@ export class GrampsjsPerson extends GrampsjsObject {
             {
               label: 'DNA matches',
               path: mdiDna,
-              href: appHref(`dna-matches/${this.data.gramps_id}`),
+              href: `/dna-matches/${this.data.gramps_id}`,
               handler: this._handleDnaButtonClick,
             },
           ]

@@ -8,7 +8,7 @@ import '../components/GrampsjsIcon.js'
 
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
-import {appHref, handleAppLinkClick} from '../util.js'
+import {handleAppLinkClick} from '../util.js'
 
 export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
@@ -94,11 +94,7 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
   // The button stays the tab stop for the keyboard
   renderFab() {
     return html`
-      <a
-        href="${appHref('new_blog_post')}"
-        tabindex="-1"
-        @click=${this._handleClickAdd}
-      >
+      <a href="/new_blog_post" tabindex="-1" @click=${this._handleClickAdd}>
         <md-fab variant="secondary">
           <grampsjs-icon
             slot="icon"
@@ -160,7 +156,7 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
     return html`
       <a
         class="post"
-        href="${appHref(`blog/${source.gramps_id}`)}"
+        href="/blog/${source.gramps_id}"
         @click="${e => this._handlePreviewClick(e, source.gramps_id)}"
       >
         <div>
