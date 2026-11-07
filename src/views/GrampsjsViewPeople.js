@@ -57,6 +57,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
   _formatRow(row) {
     const birthDate = row?.profile?.birth?.date
     const deathDate = row?.profile?.death?.date
+    const age = row?.profile?.death?.age ?? ''
     return {
       grampsId: row.gramps_id,
       surname: row?.profile?.name_surname,
@@ -65,7 +66,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       birthPlace: row?.profile?.birth?.place_name,
       death: deathDate,
       deathPlace: row?.profile?.death?.place_name,
-      age: birthDate && deathDate ? row?.profile?.death?.age : '',
+      age: birthDate && deathDate && /\d/.test(age) ? age : '',
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
   }

@@ -25,4 +25,9 @@ describe('People list age at death', () => {
     expect(age('794', '', 'unknown')).toBe('')
     expect(age('', '1098', 'unknown')).toBe('')
   })
+
+  it('stays empty when the backend has no age', () => {
+    expect(age('abt. Michaelmas', '1890', 'unknown')).toBe('')
+    expect(age('1819-05-24', '1901-01-22', undefined)).toBe('')
+  })
 })
