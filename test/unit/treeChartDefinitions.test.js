@@ -442,17 +442,13 @@ describe('GrampsjsViewTree', () => {
     expect(view._selectedPerson.gramps_id).toBe('I2')
   })
 
-  it('opens the page of the shown person while the selected person is loading', () => {
+  it('links to the page of the shown person while the selected person is loading', () => {
     const {view} = makeView()
     view._data = [{gramps_id: 'I1', profile: {name_given: 'Ann'}}]
     view.willUpdate(new Map())
     view.grampsId = 'I2'
     view.willUpdate(new Map())
-    const paths = []
-    view.addEventListener('nav', e => paths.push(e.detail.path))
-    view.addEventListener('click', e => view._goToPerson(e))
-    view.dispatchEvent(new MouseEvent('click', {cancelable: true}))
-    expect(paths).toEqual(['person/I1'])
+    expect(view._selectedPersonPath).toBe('person/I1')
   })
 
   describe('viewport keys', () => {

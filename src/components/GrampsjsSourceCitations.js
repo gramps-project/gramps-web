@@ -2,7 +2,7 @@ import {html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
-import {fireEvent, handleAppLinkClick, makeHandle} from '../util.js'
+import {fireEvent, makeHandle} from '../util.js'
 import {renderIcon} from '../objectRender.js'
 import './GrampsjsFormCitation.js'
 import './GrampsjsFormNewCitation.js'
@@ -22,11 +22,9 @@ export class GrampsjsSourceCitations extends GrampsjsEditableList {
         type="${isLink ? 'link' : 'button'}"
         href="${isLink ? `/${this._getItemPath(obj.gramps_id)}` : ''}"
         class="${classMap({selected: i === this._selectedIndex})}"
-        @click="${e => {
+        @click="${() => {
           if (this.edit) {
             this._handleSelected(i)
-          } else {
-            this._handleClick(e, obj.gramps_id)
           }
         }}"
       >
@@ -35,12 +33,6 @@ export class GrampsjsSourceCitations extends GrampsjsEditableList {
         ${renderIcon({object: obj, object_type: 'citation'}, 'start')}
       </md-list-item>
     `
-  }
-
-  _handleClick(e, grampsId) {
-    if (!this.edit && grampsId && grampsId !== this.grampsId) {
-      handleAppLinkClick(e, this._getItemPath(grampsId))
-    }
   }
 
   // eslint-disable-next-line class-methods-use-this

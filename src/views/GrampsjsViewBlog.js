@@ -8,7 +8,7 @@ import '../components/GrampsjsIcon.js'
 
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
-import {fireEvent, handleAppLinkClick} from '../util.js'
+import {fireEvent} from '../util.js'
 
 export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
   static get styles() {
@@ -152,11 +152,7 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
   // eslint-disable-next-line no-dupe-class-members
   renderPost(source) {
     return html`
-      <a
-        class="post"
-        href="/blog/${source.gramps_id}"
-        @click="${e => this._handlePreviewClick(e, source.gramps_id)}"
-      >
+      <a class="post" href="/blog/${source.gramps_id}">
         <div>
           <grampsjs-blog-post-preview
             .data="${source}"
@@ -169,10 +165,6 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   firstUpdated() {
     this._fetchData()
-  }
-
-  _handlePreviewClick(e, grampsId) {
-    handleAppLinkClick(e, `blog/${grampsId}`)
   }
 
   handleUpdateStaleData() {

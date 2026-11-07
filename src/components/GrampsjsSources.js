@@ -5,7 +5,6 @@ import {mdiBookOpenVariant} from '@mdi/js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsIcon.js'
 import './GrampsjsImg.js'
-import {handleAppLinkClick} from '../util.js'
 import {renderIcon} from '../objectRender.js'
 
 export class GrampsjsSources extends GrampsjsEditableList {
@@ -34,7 +33,6 @@ export class GrampsjsSources extends GrampsjsEditableList {
         type="${this.edit ? 'button' : 'link'}"
         href="${this.edit ? '' : `/${this._getItemPath(obj.gramps_id)}`}"
         class="${classMap({selected: i === this._selectedIndex})}"
-        @click="${e => this._handleClick(e, obj.gramps_id)}"
       >
         ${obj.title}
         ${repoRef.call_number || repoRef.media_type
@@ -51,12 +49,6 @@ export class GrampsjsSources extends GrampsjsEditableList {
         )}
       </md-list-item>
     `
-  }
-
-  _handleClick(e, grampsId) {
-    if (!this.edit) {
-      handleAppLinkClick(e, this._getItemPath(grampsId))
-    }
   }
 
   // eslint-disable-next-line class-methods-use-this

@@ -1,7 +1,7 @@
 import {css, html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 
-import {fireEvent, handleAppLinkClick} from '../util.js'
+import {fireEvent} from '../util.js'
 import {renderPersonAvatar, renderPersonDates} from './personListUtils.js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import {getSymbols} from '../symbols.js'
@@ -64,11 +64,9 @@ export class GrampsjsChildren extends GrampsjsEditableList {
           selected: i === this._selectedIndex,
           highlight: p.gramps_id === this.highlightId,
         })}"
-        @click="${e => {
+        @click="${() => {
           if (this.edit) {
             this._handleSelected(i)
-          } else {
-            this._handleClick(e, p.gramps_id)
           }
         }}"
       >
@@ -83,12 +81,6 @@ export class GrampsjsChildren extends GrampsjsEditableList {
         ${renderPersonAvatar(extPerson, p.sex)}
       </md-list-item>
     `
-  }
-
-  _handleClick(e, grampsId) {
-    if (!this.edit && grampsId) {
-      handleAppLinkClick(e, `person/${grampsId}`)
-    }
   }
 
   _handleDelete() {

@@ -24,12 +24,7 @@ import {
 import {GrampsjsView} from './GrampsjsView.js'
 
 import {renderIconSvg} from '../icons.js'
-import {
-  fireEvent,
-  handleAppLinkClick,
-  objectTypeSingular,
-  taskErrorMessage,
-} from '../util.js'
+import {fireEvent, objectTypeSingular, taskErrorMessage} from '../util.js'
 
 export class GrampsjsViewRevision extends GrampsjsView {
   static get styles() {
@@ -265,9 +260,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
       <div id="detail-buttons">
         ${objectType && grampsId
           ? html`
-              <md-text-button
-                href="/${objectType}/${grampsId}"
-                @click="${e => this._handleOpenObject(e, objectType, grampsId)}"
+              <md-text-button href="/${objectType}/${grampsId}"
                 >${renderIconSvg(
                   mdiOpenInNew,
                   '--md-sys-color-primary',
@@ -289,10 +282,6 @@ export class GrampsjsViewRevision extends GrampsjsView {
         .appState="${this.appState}"
       ></grampsjs-diff-json>
     `
-  }
-
-  _handleOpenObject(e, objectType, grampsId) {
-    handleAppLinkClick(e, `${objectType}/${grampsId}`)
   }
 
   _handleCloseDetail() {

@@ -5,7 +5,7 @@ import {mdiArchive} from '@mdi/js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormRepoRef.js'
-import {fireEvent, handleAppLinkClick} from '../util.js'
+import {fireEvent} from '../util.js'
 
 export class GrampsjsRepositories extends GrampsjsEditableList {
   static get properties() {
@@ -32,11 +32,9 @@ export class GrampsjsRepositories extends GrampsjsEditableList {
           ? ''
           : `/${this._getItemPath(grampsId)}`}"
         class="${classMap({selected: i === this._selectedIndex})}"
-        @click="${e => {
+        @click="${() => {
           if (this.edit) {
             this._handleSelected(i)
-          } else if (grampsId) {
-            this._handleClick(e, grampsId)
           }
         }}"
       >
@@ -122,12 +120,6 @@ export class GrampsjsRepositories extends GrampsjsEditableList {
       action: 'delRepository',
       handle: this._selectedIndex,
     })
-  }
-
-  _handleClick(e, grampsId) {
-    if (!this.edit) {
-      handleAppLinkClick(e, this._getItemPath(grampsId))
-    }
   }
 
   // eslint-disable-next-line class-methods-use-this

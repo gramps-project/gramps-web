@@ -6,7 +6,7 @@ import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditAssociation.js'
 import './GrampsjsIcon.js'
 
-import {personDisplayName, fireEvent, handleAppLinkClick} from '../util.js'
+import {personDisplayName, fireEvent} from '../util.js'
 
 import '@material/web/list/list-item.js'
 
@@ -31,11 +31,9 @@ export class GrampsjsAssociations extends GrampsjsEditableList {
           ? ''
           : `/${this._getItemPath(this.extended[i]?.gramps_id)}`}"
         class="${classMap({selected: i === this._selectedIndex})}"
-        @click="${e => {
+        @click="${() => {
           if (this.edit) {
             this._handleSelected(i)
-          } else {
-            this._handleClick(e, this.extended[i])
           }
         }}"
         >${personDisplayName(this.extended[i])}
@@ -47,12 +45,6 @@ export class GrampsjsAssociations extends GrampsjsEditableList {
         ></grampsjs-icon>
       </md-list-item>
     `
-  }
-
-  _handleClick(e, obj) {
-    if (!this.edit) {
-      handleAppLinkClick(e, this._getItemPath(obj.gramps_id))
-    }
   }
 
   // eslint-disable-next-line class-methods-use-this

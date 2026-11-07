@@ -3,7 +3,7 @@ import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormPlaceRef.js'
-import {fireEvent, handleAppLinkClick, placeTypeIconPath} from '../util.js'
+import {fireEvent, placeTypeIconPath} from '../util.js'
 import {renderIcon} from '../objectRender.js'
 
 export class GrampsjsPlaceRefs extends GrampsjsEditableList {
@@ -40,11 +40,9 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableList {
           ? ''
           : `/place/${place.gramps_id}`}"
         class="${classMap({selected: i === this._selectedIndex})}"
-        @click="${e => {
+        @click="${() => {
           if (this.edit) {
             this._handleSelected(i)
-          } else {
-            this._handleClick(e, place?.gramps_id)
           }
         }}"
       >
@@ -89,12 +87,6 @@ export class GrampsjsPlaceRefs extends GrampsjsEditableList {
     return `/api/places/${handle}?locale=${
       this.appState.i18n.lang || 'en'
     }&profile=self`
-  }
-
-  _handleClick(e, grampsId) {
-    if (grampsId) {
-      handleAppLinkClick(e, `place/${grampsId}`)
-    }
   }
 
   _handleShare() {

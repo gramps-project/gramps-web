@@ -11,7 +11,6 @@ import {
 } from '@mdi/js'
 
 import {GrampsjsView} from './GrampsjsView.js'
-import {handleAppLinkClick} from '../util.js'
 import '../components/GrampsjsIcon.js'
 
 const categoryIconPath = {
@@ -63,20 +62,12 @@ export class GrampsjsViewReports extends GrampsjsView {
     const iconPath = categoryIconPath[report.category] || mdiBookOpenVariant
     return html`
       <md-divider inset></md-divider>
-      <md-list-item
-        type="link"
-        href="/report/${report.id}"
-        @click="${e => this._handleItemClick(e, report.id)}"
-      >
+      <md-list-item type="link" href="/report/${report.id}">
         <grampsjs-icon slot="start" path="${iconPath}"></grampsjs-icon>
         ${this._(report.name)}
         <span slot="supporting-text">${this._(report.description)}</span>
       </md-list-item>
     `
-  }
-
-  _handleItemClick(e, reportId) {
-    handleAppLinkClick(e, `report/${reportId}`)
   }
 
   async _fetchData() {

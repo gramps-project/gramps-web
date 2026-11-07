@@ -7,7 +7,6 @@ import {
   objectDetail,
   makeHandle,
   eventTypeIconPath,
-  handleAppLinkClick,
 } from '../util.js'
 import {renderIcon} from '../objectRender.js'
 import './GrampsjsFormSelectObject.js'
@@ -64,11 +63,9 @@ export class GrampsjsEvents extends GrampsjsEditableList {
         type="${this.edit ? 'button' : 'link'}"
         href="${this.edit ? '' : `/${this._getItemPath(obj.gramps_id)}`}"
         class="${classMap({selected: i === this._selectedIndex})}"
-        @click="${e => {
+        @click="${() => {
           if (this.edit) {
             this._handleSelected(i)
-          } else {
-            this._handleClick(e, obj.gramps_id)
           }
         }}"
         @mouseenter="${() =>
@@ -249,12 +246,6 @@ export class GrampsjsEvents extends GrampsjsEditableList {
       action: 'delEvent',
       index: this._selectedIndex,
     })
-  }
-
-  _handleClick(e, grampsId) {
-    if (!this.edit) {
-      handleAppLinkClick(e, this._getItemPath(grampsId))
-    }
   }
 
   // eslint-disable-next-line class-methods-use-this

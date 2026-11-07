@@ -20,7 +20,7 @@ import '../components/GrampsjsTooltip.js'
 import '../components/GrampsjsIcon.js'
 import {isPlayableMime} from '../components/GrampsjsMediaPlayer.js'
 import {getMediaUrl} from '../api.js'
-import {getMediaRegions, handleAppLinkClick} from '../util.js'
+import {getMediaRegions} from '../util.js'
 
 // Make sure to synchronize this with the CSS variable --grampsjs-lightbox-toolbar-height in GrampsjsLightbox.js
 const LIGHTBOX_TOOLBAR_HEIGHT = 70
@@ -530,12 +530,9 @@ export class GrampsjsViewMediaLightbox extends GrampsjsView {
   // Going to the page closes the lightbox, a click that opens a new tab
   // leaves it open
   _handleButtonClick(e) {
-    const path = `media/${this._data?.gramps_id}`
-    handleAppLinkClick(e, path)
-    if (e.defaultPrevented) {
-      const lightBox = this.shadowRoot.getElementById('gallery-lightbox')
-      lightBox.open = false
-    }
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return
+    const lightBox = this.shadowRoot.getElementById('gallery-lightbox')
+    lightBox.open = false
   }
 
   _handleToggleRectButtonClick() {

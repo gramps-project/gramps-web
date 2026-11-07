@@ -15,7 +15,7 @@ import {classMap} from 'lit/directives/class-map.js'
 
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {clickKeyHandler, fireEvent, isNewTabClick} from '../util.js'
+import {clickKeyHandler, fireEvent} from '../util.js'
 import {renderIconSvg} from '../icons.js'
 
 export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
@@ -619,12 +619,12 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     return indexed
   }
 
+  // Clicks on the link of a row are left to the router, which opens the page
+  // like for any link, so that the browser can also open it in a new tab
   _handleRowClick(e, originalIndex) {
-    if (this.rowHref) {
-      // Clicks on the row link that open a new tab are left to the browser
-      if (isNewTabClick(e)) return
-      e.preventDefault()
-    }
+    const path = e.composedPath()
+    const inRow = path.slice(0, path.indexOf(e.currentTarget))
+    if (inRow.some(node => node.tagName === 'A')) return
     fireEvent(this, 'table:row-click', {rowNumber: originalIndex})
   }
 

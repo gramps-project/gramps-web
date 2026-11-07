@@ -36,12 +36,7 @@ import './GrampsjsObjectToc.js'
 import './GrampsjsObjectRevisions.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
-import {
-  fireEvent,
-  endpointToObjectClass,
-  apiVersionAtLeast,
-  handleAppLinkClick,
-} from '../util.js'
+import {fireEvent, endpointToObjectClass, apiVersionAtLeast} from '../util.js'
 import {getMediaUrl} from '../api.js'
 
 /*
@@ -560,11 +555,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     const ref = this.data.media_list[0]
     const obj = this.data.extended.media[0]
     return html`
-      <a
-        href="/media/${obj.gramps_id}"
-        aria-label="${this._('Media Object')}"
-        @click="${e => this._handleImgClick(e, obj.gramps_id)}"
-      >
+      <a href="/media/${obj.gramps_id}" aria-label="${this._('Media Object')}">
         <grampsjs-img
           handle="${obj.handle}"
           size="200"
@@ -577,10 +568,6 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
         ></grampsjs-img>
       </a>
     `
-  }
-
-  _handleImgClick(e, grampsId) {
-    handleAppLinkClick(e, `media/${grampsId}`)
   }
 
   renderSections() {

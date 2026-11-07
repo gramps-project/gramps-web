@@ -4,11 +4,7 @@ import {mdiStar} from '@mdi/js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsImg.js'
 import './GrampsjsIcon.js'
-import {
-  personTitleFromProfile,
-  familyTitleFromProfile,
-  handleAppLinkClick,
-} from '../util.js'
+import {personTitleFromProfile, familyTitleFromProfile} from '../util.js'
 import {renderIcon} from '../objectRender.js'
 
 const PRIMARY_ROLES_EN = new Set(['Primary', 'Family'])
@@ -107,11 +103,7 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
 
   row(obj) {
     return html`
-      <md-list-item
-        type="link"
-        href="/${obj.path}"
-        @click="${e => handleAppLinkClick(e, obj.path)}"
-      >
+      <md-list-item type="link" href="/${obj.path}">
         ${obj.title} ${this._roleLabel(obj.role)}
         ${renderIcon(
           {object_type: obj.object_type, object: obj.backlink},

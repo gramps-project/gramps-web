@@ -1,6 +1,6 @@
 import {LitElement, css, html} from 'lit'
 
-import {handleAppLinkClick} from '../util.js'
+import {fireEvent} from '../util.js'
 
 const PREVIEWABLE = new Set([
   'person',
@@ -50,7 +50,7 @@ export class GrampsjsObjectLink extends LitElement {
   }
 
   get _href() {
-    return `/${this._path}`
+    return `/${this.objectType}/${this.grampsId}`
   }
 
   get _canPreview() {
@@ -59,12 +59,11 @@ export class GrampsjsObjectLink extends LitElement {
     )
   }
 
-  get _path() {
-    return `${this.objectType}/${this.grampsId}`
-  }
-
   _handleClick(e) {
-    handleAppLinkClick(e, this._path)
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+      return
+    e.preventDefault()
+    fireEvent(this, 'nav', {path: `${this.objectType}/${this.grampsId}`})
   }
 
   _handleMouseEnter() {

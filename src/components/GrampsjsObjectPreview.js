@@ -4,7 +4,6 @@ import {mdiOpenInNew} from '@mdi/js'
 
 import '@material/web/iconbutton/icon-button.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {handleAppLinkClick} from '../util.js'
 import './GrampsjsIcon.js'
 import './GrampsjsPerson.js'
 import './GrampsjsFamily.js'
@@ -365,9 +364,12 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     return `${this._objectType}/${this._grampsId}`
   }
 
-  // Going to the page hides the preview, via the `nav` listener
-  _handleOpen(e) {
-    handleAppLinkClick(e, this._path)
+  // Going to a page from the preview, with its open button or a link in its
+  // content, hides the preview
+  _handleClick(e) {
+    if (e.composedPath().some(node => node.tagName === 'A')) {
+      this._visible = false
+    }
   }
 
   _renderContent() {
@@ -435,28 +437,29 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
   }
 
   render() {
-    return html`
-      <div
-        id="popup"
-        class="${this._visible ? 'visible' : ''}"
-        style="left:${this._x}px;top:${this._y}px;height:${getPopupHeight(
-          this._objectType
-        )}px"
-        @mouseenter="${this._handlePopupMouseEnter}"
-        @mouseleave="${this._handlePopupMouseLeave}"
+    // the links inside are the keyboard targets, so the popup needs no key
+    // handler
+    // eslint-disable-next-line lit-a11y/click-events-have-key-events
+    return html`<div
+      id="popup"
+      class="${this._visible ? 'visible' : ''}"
+      style="left:${this._x}px;top:${this._y}px;height:${getPopupHeight(
+        this._objectType
+      )}px"
+      @mouseenter="${this._handlePopupMouseEnter}"
+      @mouseleave="${this._handlePopupMouseLeave}"
+      @click="${this._handleClick}"
+    >
+      <md-icon-button
+        id="open-btn"
+        href="${ifDefined(this._grampsId ? `/${this._path}` : undefined)}"
+        title="${this._('_Open')}"
+        aria-label="${this._('_Open')}"
       >
-        <md-icon-button
-          id="open-btn"
-          href="${ifDefined(this._grampsId ? `/${this._path}` : undefined)}"
-          @click="${this._handleOpen}"
-          title="${this._('_Open')}"
-          aria-label="${this._('_Open')}"
-        >
-          <grampsjs-icon path="${mdiOpenInNew}"></grampsjs-icon>
-        </md-icon-button>
-        <div id="content">${this._renderContent()}</div>
-      </div>
-    `
+        <grampsjs-icon path="${mdiOpenInNew}"></grampsjs-icon>
+      </md-icon-button>
+      <div id="content">${this._renderContent()}</div>
+    </div> `
   }
 }
 

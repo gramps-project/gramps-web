@@ -38,7 +38,7 @@ import {
   chartSettingValues,
   clampSettingValue,
 } from './treeChartDefinitions.js'
-import {fireEvent, handleAppLinkClick, isKeyEventInInput} from '../util.js'
+import {fireEvent, isKeyEventInInput} from '../util.js'
 import {chartTransitionDuration, formatChartName} from '../charts/util.js'
 import {renderPersonAvatar} from '../components/personListUtils.js'
 import {iconButtonColorStyles, listAvatarStyles} from '../SharedStyles.js'
@@ -648,7 +648,6 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
         id="selected-person"
         href="/${this._selectedPersonPath}"
         aria-label="${this._('Person Details')}: ${name}"
-        @click=${this._goToPerson}
       >
         <span class="avatar"
           >${renderPersonAvatar(this._selectedPerson, profile.sex)}</span
@@ -1014,12 +1013,6 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     if (pageId !== this.chart || pageId2 !== this.grampsId) {
       this._navigate(this.chart, this.grampsId, true)
     }
-  }
-
-  // Opens the page of the person shown below the controls bar, who is the
-  // previous person while a newly selected person is loading
-  _goToPerson(e) {
-    handleAppLinkClick(e, this._selectedPersonPath)
   }
 
   get _selectedPersonPath() {

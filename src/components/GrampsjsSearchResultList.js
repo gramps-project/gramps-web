@@ -7,12 +7,7 @@ import '@material/web/list/list.js'
 import '@material/web/list/list-item.js'
 import '@material/web/divider/divider.js'
 
-import {
-  objectDescription,
-  fireEvent,
-  handleAppLinkClick,
-  objectDetail,
-} from '../util.js'
+import {objectDescription, fireEvent, objectDetail} from '../util.js'
 import {renderIcon} from '../objectRender.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import './GrampsjsImg.js'
@@ -110,7 +105,7 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
               class="${classMap({
                 selected: this.activatable && i === this._selectedIndex,
               })}"
-              @click="${e => this._handleClick(e, obj, i)}"
+              @click="${() => this._handleClick(obj, i)}"
               @keydown="${this._handleKeyDown}"
             >
               ${renderIcon(obj, 'start')}
@@ -217,14 +212,10 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
       : ''
   }
 
-  _handleClick(e, obj, i) {
+  _handleClick(obj, i) {
     if (this.activatable) {
       this._selectedIndex = i
       fireEvent(this, 'action', {index: i})
-    }
-    const path = this._getPath(obj)
-    if (path) {
-      handleAppLinkClick(e, path)
     }
     fireEvent(this, 'search-result:clicked', obj)
   }
