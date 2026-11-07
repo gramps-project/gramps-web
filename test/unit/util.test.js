@@ -68,7 +68,7 @@ describe('translate', () => {
       {symbolSet: 'text'}
     )
     expect(result).to.include('b. 1990')
-    expect(result).not.to.include('∗ 1990')
+    expect(result).not.to.include('* 1990')
   })
 
   it('shows birth and death with places in person detail', () => {
@@ -82,7 +82,7 @@ describe('translate', () => {
       },
       {}
     )
-    expect(result).to.equal('∗ 1850, Paris † 1920, Berlin')
+    expect(result).to.equal('* 1850, Paris † 1920, Berlin')
   })
 
   it('strips leading underscore', () => {

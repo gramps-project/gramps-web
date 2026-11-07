@@ -17,7 +17,9 @@ export class GrampsjsGoqlInput extends MdOutlinedTextField {
       ...super.styles,
       css`
         :host {
-          --md-outlined-text-field-input-text-font: monospace;
+          --md-outlined-text-field-input-text-font: var(
+            --grampsjs-mono-font-family
+          );
           --md-outlined-text-field-input-text-size: 15px;
           --md-outlined-text-field-input-text-color: transparent;
           --md-outlined-text-field-hover-input-text-color: transparent;

@@ -4,12 +4,13 @@ import {
   SYMBOL_SET_DEFAULT,
   SYMBOL_SET_TEXT,
   SYMBOL_SET_OPTIONS,
+  getSymbolSetLabel,
 } from '../../src/symbols.js'
 
 describe('getSymbols', () => {
   it('returns the default unicode symbols when settings is undefined', () => {
     expect(getSymbols(undefined)).toEqual({
-      birthSymbol: '∗',
+      birthSymbol: '*',
       deathSymbol: '†',
       marriageSymbol: '⚭',
       divorceSymbol: '⚮',
@@ -63,9 +64,27 @@ describe('getSymbols', () => {
 })
 
 describe('SYMBOL_SET_OPTIONS', () => {
-  it('has one option per symbol set, with a matching getSymbols() result', () => {
-    SYMBOL_SET_OPTIONS.forEach(({value}) => {
-      expect(getSymbols({symbolSet: value})).toBeTruthy()
-    })
+  it('has one option per symbol set', () => {
+    expect([...SYMBOL_SET_OPTIONS].sort()).toEqual(
+      [SYMBOL_SET_DEFAULT, SYMBOL_SET_TEXT].sort()
+    )
+  })
+})
+
+describe('getSymbolSetLabel', () => {
+  it('lists the unicode symbols', () => {
+    expect(getSymbolSetLabel(SYMBOL_SET_DEFAULT)).toBe('* † ⚭ ⚮')
+  })
+
+  it('lists the translated text abbreviations', () => {
+    const translations = {
+      'birth abbreviation\u0004b.': 'geb.',
+      'death abbreviation\u0004d.': 'gest.',
+      'marriage abbreviation\u0004m.': 'verh.',
+      'Divorce abbreviation\u0004div.': 'gesch.',
+    }
+    expect(
+      getSymbolSetLabel(SYMBOL_SET_TEXT, value => translations[value])
+    ).toBe('geb. gest. verh. gesch.')
   })
 })

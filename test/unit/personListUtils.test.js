@@ -5,7 +5,7 @@ describe('renderPersonDates', () => {
   it('uses the default symbols when none are passed', () => {
     const profile = {birth: {date: '1990'}, death: {date: '2020'}}
     const result = renderPersonDates(profile)
-    expect(result.values).toContain('∗ 1990')
+    expect(result.values).toContain('* 1990')
     expect(result.values[1]).toContain('† 2020')
   })
 

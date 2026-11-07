@@ -48,7 +48,7 @@ export const place = node => [node.x, node.y]
 export class ChartCanvas {
   constructor() {
     this._svg = create('svg')
-      .attr('font-family', 'Inter var')
+      .attr('font-family', "'Inter var', 'Gramps Symbols', sans-serif")
       .attr('font-size', 13)
     const content = this._svg.append('g').attr('id', 'chart-content')
     this._viewport = new ChartViewport(this._svg, content)

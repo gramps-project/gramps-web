@@ -172,13 +172,13 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
             required
             autocapitalize="off"
             id="email"
-            label="${this._('E-mail')}"
+            label="${this._('E-mail address')}"
             type="email"
           ></md-outlined-text-field>
           <md-outlined-text-field
             @input="${this.checkValidity}"
             id="full_name"
-            label="${this._('Full Name')}"
+            label="${this._('Full name')}"
             type="text"
           ></md-outlined-text-field>
 
@@ -230,7 +230,7 @@ class GrampsjsFirstRun extends GrampsjsAppStateMixin(LitElement) {
               : 'hidden'};"
           >
             <md-filled-button id="start-btn" @click="${this._done}">
-              ${this._('Start')}
+              ${this._('Get started')}
             </md-filled-button>
           </div>
         </div>

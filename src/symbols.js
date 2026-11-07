@@ -4,7 +4,7 @@ export const SYMBOL_SET_TEXT = 'text'
 
 export const SYMBOL_SETS = {
   [SYMBOL_SET_DEFAULT]: {
-    birthSymbol: '∗',
+    birthSymbol: '*',
     deathSymbol: '†',
     marriageSymbol: '⚭',
     divorceSymbol: '⚮',
@@ -17,14 +17,8 @@ export const SYMBOL_SETS = {
   },
 }
 
-// Used to populate the <select> in user settings.
-// `label` is a plain English string - passed through `this._()`
-// in the component, following the same pattern as `_treeViewLabel()`
-// in GrampsjsViewSettingsUser.js
-export const SYMBOL_SET_OPTIONS = [
-  {value: SYMBOL_SET_DEFAULT, label: 'Unicode symbols (∗ † ⚭ ⚮)'},
-  {value: SYMBOL_SET_TEXT, label: 'Text abbreviations (b. d. m. div.)'},
-]
+// Options for the <select> in user settings, labelled by the symbols themselves.
+export const SYMBOL_SET_OPTIONS = [SYMBOL_SET_DEFAULT, SYMBOL_SET_TEXT]
 
 const SYMBOL_TRANSLATION_CONTEXTS = {
   birthSymbol: 'birth abbreviation',
@@ -54,4 +48,8 @@ export function getSymbols(settings, translate = value => value) {
       ]
     })
   )
+}
+
+export function getSymbolSetLabel(symbolSet, translate) {
+  return Object.values(getSymbols({symbolSet}, translate)).join(' ')
 }

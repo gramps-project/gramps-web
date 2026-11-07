@@ -468,7 +468,7 @@ export class GrampsJs extends LitElement {
       <div>
         ${this._('No connection')}<br /><br />
         <md-filled-button @click=${this._handleReload}
-          >${this._('Reload')}</md-filled-button
+          >${this._('Try again')}</md-filled-button
         >
       </div>
     </div> `

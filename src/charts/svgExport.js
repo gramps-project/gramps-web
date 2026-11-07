@@ -75,7 +75,7 @@ export async function chartSvgDocument(
   svg.setAttribute('width', width)
   svg.setAttribute('height', height)
   svg.setAttribute('viewBox', [x, y, width, height].join(' '))
-  svg.setAttribute('font-family', "'Inter var', sans-serif")
+  svg.setAttribute('font-family', "'Inter var', 'Gramps Symbols', sans-serif")
   svg.removeAttribute('style')
   for (const child of [...svg.children]) {
     if (child.id !== 'chart-content') {

@@ -233,7 +233,7 @@ export class GrampsjsPerson extends GrampsjsObject {
     const {birthSymbol} = getSymbols(this.appState.settings, s => this._(s))
     return html`
       <span class="event">
-        <i>${birthSymbol}</i>
+        <span class="sym">${birthSymbol}</span>
         ${obj.date || ''} ${obj.place ? this._('in') : ''}
         ${obj.place_name || obj.place || ''}
       </span>
@@ -248,7 +248,7 @@ export class GrampsjsPerson extends GrampsjsObject {
     const {deathSymbol} = getSymbols(this.appState.settings, s => this._(s))
     return html`
       <span class="event">
-        <i>${deathSymbol}</i>
+        <span class="sym">${deathSymbol}</span>
         ${obj.date || ''} ${obj.place ? this._('in') : ''}
         ${obj.place_name || obj.place || ''}
       </span>
