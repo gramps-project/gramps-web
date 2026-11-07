@@ -91,7 +91,6 @@ export class GrampsjsViewBlog extends GrampsjsStaleDataMixin(GrampsjsView) {
     `
   }
 
-  // The button stays the tab stop for the keyboard
   renderFab() {
     return html`
       <md-fab variant="secondary" @click=${this._handleClickAdd}>

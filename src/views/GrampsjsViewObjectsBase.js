@@ -210,7 +210,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
               sortDescriptor="${this._sort}"
               breakPoint="${this._tableBreakPoint}"
               .appState="${this.appState}"
-              .rowHref="${this._getRowHref}"
+              .rowHrefs="${this._data.map(
+                item => `/${this._getItemPath(item)}`
+              )}"
               @table:row-click="${this._handleTableRowClick}"
               @table:sort-changed="${this._handleTableSortChanged}"
               @selection:changed="${this._handleSelectionChanged}"
@@ -553,7 +555,6 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     return this._objectsName
   }
 
-  // The button stays the tab stop for the keyboard
   renderFab() {
     return html`
       <md-fab variant="secondary" @click=${this._handleClickAdd}>
@@ -666,9 +667,6 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     const {rowNumber} = e.detail
     fireEvent(this, 'nav', {path: this._getItemPath(this._data[rowNumber])})
   }
-
-  // Arrow function, so that the table can call it with the right `this`
-  _getRowHref = rowNumber => `/${this._getItemPath(this._data[rowNumber])}`
 
   _handleTableSortChanged(e) {
     const {key, descending} = e.detail

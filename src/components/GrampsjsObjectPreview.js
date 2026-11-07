@@ -1,5 +1,4 @@
 import {LitElement, css, html, nothing} from 'lit'
-import {ifDefined} from 'lit/directives/if-defined.js'
 import {mdiOpenInNew} from '@mdi/js'
 
 import '@material/web/iconbutton/icon-button.js'
@@ -146,9 +145,6 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     this._mouseInPopup = false
     this._boundShow = this._handleShow.bind(this)
     this._boundHide = this._handleHide.bind(this)
-    this._boundNav = () => {
-      this._visible = false
-    }
     this._boundDbChanged = () => {
       this._cache.clear()
     }
@@ -160,7 +156,6 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     super.connectedCallback()
     window.addEventListener('object:preview-show', this._boundShow)
     window.addEventListener('object:preview-hide', this._boundHide)
-    window.addEventListener('nav', this._boundNav)
     window.addEventListener('db:changed', this._boundDbChanged)
     window.addEventListener('pointerdown', this._boundOutsideInput, true)
     window.addEventListener('wheel', this._boundOutsideInput, {
@@ -174,13 +169,21 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     super.disconnectedCallback()
     window.removeEventListener('object:preview-show', this._boundShow)
     window.removeEventListener('object:preview-hide', this._boundHide)
-    window.removeEventListener('nav', this._boundNav)
     window.removeEventListener('db:changed', this._boundDbChanged)
     window.removeEventListener('pointerdown', this._boundOutsideInput, true)
     window.removeEventListener('wheel', this._boundOutsideInput, true)
     window.removeEventListener('keydown', this._boundKeyDown, true)
     clearTimeout(this._showTimer)
     clearTimeout(this._hideTimer)
+  }
+
+  willUpdate(changed) {
+    super.willUpdate(changed)
+    // Going to another page hides the preview
+    const previous = changed.get('appState')
+    if (previous && previous.path !== this.appState.path) {
+      this._visible = false
+    }
   }
 
   _cacheKey(objectType, grampsId) {
@@ -360,18 +363,6 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
     }, HIDE_DELAY)
   }
 
-  get _path() {
-    return `${this._objectType}/${this._grampsId}`
-  }
-
-  // Going to a page from the preview, with its open button or a link in its
-  // content, hides the preview
-  _handleClick(e) {
-    if (e.composedPath().some(node => node.tagName === 'A')) {
-      this._visible = false
-    }
-  }
-
   _renderContent() {
     if (!this._data) return nothing
     switch (this._objectType) {
@@ -437,29 +428,27 @@ export class GrampsjsObjectPreview extends GrampsjsAppStateMixin(LitElement) {
   }
 
   render() {
-    // the links inside are the keyboard targets, so the popup needs no key
-    // handler
-    // eslint-disable-next-line lit-a11y/click-events-have-key-events
-    return html`<div
-      id="popup"
-      class="${this._visible ? 'visible' : ''}"
-      style="left:${this._x}px;top:${this._y}px;height:${getPopupHeight(
-        this._objectType
-      )}px"
-      @mouseenter="${this._handlePopupMouseEnter}"
-      @mouseleave="${this._handlePopupMouseLeave}"
-      @click="${this._handleClick}"
-    >
-      <md-icon-button
-        id="open-btn"
-        href="${ifDefined(this._grampsId ? `/${this._path}` : undefined)}"
-        title="${this._('_Open')}"
-        aria-label="${this._('_Open')}"
+    return html`
+      <div
+        id="popup"
+        class="${this._visible ? 'visible' : ''}"
+        style="left:${this._x}px;top:${this._y}px;height:${getPopupHeight(
+          this._objectType
+        )}px"
+        @mouseenter="${this._handlePopupMouseEnter}"
+        @mouseleave="${this._handlePopupMouseLeave}"
       >
-        <grampsjs-icon path="${mdiOpenInNew}"></grampsjs-icon>
-      </md-icon-button>
-      <div id="content">${this._renderContent()}</div>
-    </div> `
+        <md-icon-button
+          id="open-btn"
+          href="/${this._objectType}/${this._grampsId}"
+          title="${this._('_Open')}"
+          aria-label="${this._('_Open')}"
+        >
+          <grampsjs-icon path="${mdiOpenInNew}"></grampsjs-icon>
+        </md-icon-button>
+        <div id="content">${this._renderContent()}</div>
+      </div>
+    `
   }
 }
 

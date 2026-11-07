@@ -295,7 +295,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
       breakPoint: {type: Number},
       loading: {type: Boolean},
       linked: {type: Boolean},
-      rowHref: {attribute: false},
+      rowHrefs: {attribute: false},
       sortable: {type: Boolean},
       sort: {type: Number},
       descending: {type: Boolean},
@@ -317,7 +317,7 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     this.naturalWidth = false
     this.breakPoint = 600
     this.linked = false
-    this.rowHref = null
+    this.rowHrefs = []
     this.sortable = false
     this.sort = -1
     this.descending = false
@@ -480,10 +480,9 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
   // Ctrl or the middle button, or from the context menu. The row stays the
   // tab stop for the keyboard.
   _renderCellValue(value, index) {
-    if (!this.linked || !this.rowHref) return value
-    return html`<a class="row-link" href="${this.rowHref(index)}" tabindex="-1"
-      >${value}</a
-    >`
+    const href = this.linked && this.rowHrefs[index]
+    if (!href) return value
+    return html`<a class="row-link" href="${href}" tabindex="-1">${value}</a>`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -619,8 +618,8 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     return indexed
   }
 
-  // Clicks on the link of a row are left to the router, which opens the page
-  // like for any link, so that the browser can also open it in a new tab
+  // A click on the link of a row is left to the router, like any link, so
+  // that the browser can also open the row in a new tab
   _handleRowClick(e, originalIndex) {
     const path = e.composedPath()
     const inRow = path.slice(0, path.indexOf(e.currentTarget))
