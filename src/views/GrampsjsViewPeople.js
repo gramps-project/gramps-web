@@ -13,15 +13,6 @@ import {
   yearsFilter,
 } from '../filterDefinitions.js'
 
-function _ageAtDeath(birthDate, deathDate) {
-  if (!birthDate || !deathDate) return null
-  const by = String(birthDate).match(/\b(\d{4})\b/)
-  const dy = String(deathDate).match(/\b(\d{4})\b/)
-  if (!by || !dy) return null
-  const age = parseInt(dy[1], 10) - parseInt(by[1], 10)
-  return age >= 0 ? age : null
-}
-
 export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
   constructor() {
     super()
@@ -50,7 +41,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
   get _fetchUrl() {
     return `/api/people/?locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=self&keys=gramps_id,profile,change,handle`
+    }&profile=self,age&precision=1&keys=gramps_id,profile,change,handle`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -75,7 +66,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       birthPlace: row?.profile?.birth?.place_name,
       death: deathDate,
       deathPlace: row?.profile?.death?.place_name,
-      age: _ageAtDeath(birthDate, deathDate),
+      age: birthDate && deathDate ? row?.profile?.death?.age : '',
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
     }
   }
