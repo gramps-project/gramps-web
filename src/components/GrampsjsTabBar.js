@@ -3,7 +3,7 @@ import {html, css, LitElement} from 'lit'
 import '@material/web/tabs/tabs'
 import '@material/web/tabs/primary-tab'
 
-import {fireEvent, handleAppLinkClick} from '../util.js'
+import {fireEvent} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -39,22 +39,6 @@ class GrampsjsTabBar extends GrampsjsAppStateMixin(LitElement) {
           flex: 0 0 auto;
           width: auto;
         }
-
-        md-primary-tab a:link,
-        md-primary-tab a:visited,
-        md-primary-tab a:hover {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        /* The link covers the whole tab, so that the browser offers to open the
-           page in a new tab anywhere in it. The tab has 16px padding beside the
-           content, which is the containing block of the link. */
-        md-primary-tab a::after {
-          content: '';
-          position: absolute;
-          inset: 0 -16px;
-        }
       `,
     ]
   }
@@ -88,12 +72,7 @@ class GrampsjsTabBar extends GrampsjsAppStateMixin(LitElement) {
           key =>
             html`
               <md-primary-tab @click="${() => this._goTo(key)}"
-                ><a
-                  href="/${this._getPath(key)}"
-                  tabindex="-1"
-                  @click="${e => this._handleLinkClick(e, key)}"
-                  >${this._(currentTabs[key])}</a
-                ></md-primary-tab
+                >${this._(currentTabs[key])}</md-primary-tab
               >
             `
         )}
@@ -119,19 +98,12 @@ class GrampsjsTabBar extends GrampsjsAppStateMixin(LitElement) {
     }
   }
 
-  // The tab clicks itself again for clicks on its content, without the
-  // modifier keys of the click, so the link handles its clicks alone
-  _handleLinkClick(e, key) {
-    e.stopPropagation()
-    handleAppLinkClick(e, this._getPath(key))
-  }
-
   _goTo(key) {
-    fireEvent(this, 'nav', {path: this._getPath(key)})
-  }
-
-  _getPath(key) {
-    return this.appState.path.pageId ? `${this.appState.path.page}/${key}` : key
+    if (this.appState.path.pageId) {
+      fireEvent(this, 'nav', {path: `${this.appState.path.page}/${key}`})
+    } else {
+      fireEvent(this, 'nav', {path: key})
+    }
   }
 }
 

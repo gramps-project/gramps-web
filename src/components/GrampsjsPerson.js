@@ -1,5 +1,4 @@
 import {html, css} from 'lit'
-import {ifDefined} from 'lit/directives/if-defined.js'
 import '@material/web/button/outlined-button'
 import '@material/web/button/text-button.js'
 import '@material/web/iconbutton/outlined-icon-button'
@@ -22,12 +21,7 @@ import './GrampsjsImg.js'
 import './GrampsjsEditGender.js'
 import './GrampsjsPersonRelationship.js'
 import './GrampsjsFormExternalSearch.js'
-import {
-  fireEvent,
-  handleAppLinkClick,
-  menuSelectionHandler,
-  objectIconPath,
-} from '../util.js'
+import {fireEvent, objectIconPath, menuSelectionHandler} from '../util.js'
 
 export class GrampsjsPerson extends GrampsjsObject {
   static get styles() {
@@ -299,7 +293,6 @@ export class GrampsjsPerson extends GrampsjsObject {
             {
               label: 'DNA matches',
               path: mdiDna,
-              href: `/dna-matches/${this.data.gramps_id}`,
               handler: this._handleDnaButtonClick,
             },
           ]
@@ -318,10 +311,7 @@ export class GrampsjsPerson extends GrampsjsObject {
       <p class="button-list labeled">
         ${buttons.map(
           btn => html`
-            <md-outlined-button
-              href="${ifDefined(btn.href)}"
-              @click="${btn.handler}"
-            >
+            <md-outlined-button @click="${btn.handler}">
               ${this._(btn.label)}
               <grampsjs-icon
                 path="${btn.path}"
@@ -336,7 +326,6 @@ export class GrampsjsPerson extends GrampsjsObject {
         ${buttons.map(
           btn => html`
             <md-outlined-icon-button
-              href="${ifDefined(btn.href)}"
               @click="${btn.handler}"
               aria-label="${this._(btn.label)}"
               title="${this._(btn.label)}"
@@ -413,8 +402,8 @@ export class GrampsjsPerson extends GrampsjsObject {
     this.dialogContent = ''
   }
 
-  _handleDnaButtonClick(e) {
-    handleAppLinkClick(e, `dna-matches/${this.data.gramps_id}`)
+  _handleDnaButtonClick() {
+    fireEvent(this, 'nav', {path: `dna-matches/${this.data.gramps_id}`})
   }
 
   _handleFamilyEventsToggle(e) {

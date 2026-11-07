@@ -24,7 +24,7 @@ import '../components/GrampsjsFilterChip.js'
 import '../components/GrampsjsFilters.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
-import {fireEvent, handleAppLinkClick} from '../util.js'
+import {fireEvent} from '../util.js'
 import {awaitTaskResponse} from '../taskResponse.js'
 import {tagFilter} from '../filterDefinitions.js'
 
@@ -556,19 +556,13 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   // The button stays the tab stop for the keyboard
   renderFab() {
     return html`
-      <a
-        href="/${this._getAddPath()}"
-        tabindex="-1"
-        @click=${this._handleClickAdd}
-      >
-        <md-fab variant="secondary">
-          <grampsjs-icon
-            slot="icon"
-            .path="${mdiPlus}"
-            color="var(--mdc-theme-on-secondary)"
-          ></grampsjs-icon>
-        </md-fab>
-      </a>
+      <md-fab variant="secondary" @click=${this._handleClickAdd}>
+        <grampsjs-icon
+          slot="icon"
+          .path="${mdiPlus}"
+          color="var(--mdc-theme-on-secondary)"
+        ></grampsjs-icon>
+      </md-fab>
     `
   }
 
@@ -712,8 +706,8 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     }
   }
 
-  _handleClickAdd(e) {
-    handleAppLinkClick(e, this._getAddPath())
+  _handleClickAdd() {
+    fireEvent(this, 'nav', {path: this._getAddPath()})
   }
 
   get _filters() {

@@ -7,7 +7,7 @@ import '../components/GrampsjsTasks.js'
 import '../components/GrampsjsIcon.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
-import {fireEvent, handleAppLinkClick, toWritableObject} from '../util.js'
+import {fireEvent, toWritableObject} from '../util.js'
 import {sortTasks} from '../taskConstants.js'
 
 export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
@@ -53,23 +53,20 @@ export class GrampsjsViewTasks extends GrampsjsStaleDataMixin(GrampsjsView) {
       ${this.appState.permissions.canAdd ? this.renderFab() : ''} `
   }
 
-  // The button stays the tab stop for the keyboard
   renderFab() {
     return html`
-      <a href="/new_task" tabindex="-1" @click=${this._handleClickAdd}>
-        <md-fab variant="secondary">
-          <grampsjs-icon
-            slot="icon"
-            .path="${mdiPlus}"
-            color="var(--mdc-theme-on-secondary)"
-          ></grampsjs-icon>
-        </md-fab>
-      </a>
+      <md-fab variant="secondary" @click=${this._handleClickAdd}>
+        <grampsjs-icon
+          slot="icon"
+          .path="${mdiPlus}"
+          color="var(--mdc-theme-on-secondary)"
+        ></grampsjs-icon>
+      </md-fab>
     `
   }
 
-  _handleClickAdd(e) {
-    handleAppLinkClick(e, 'new_task')
+  _handleClickAdd() {
+    fireEvent(this, 'nav', {path: 'new_task'})
   }
 
   async _fetchData() {

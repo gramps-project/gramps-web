@@ -6,7 +6,7 @@ import '@material/web/tabs/tabs'
 import '@material/web/tabs/primary-tab'
 
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {fireEvent, handleAppLinkClick} from '../util.js'
+import {fireEvent} from '../util.js'
 import {sharedStyles} from '../SharedStyles.js'
 
 const tabs = {
@@ -31,22 +31,6 @@ class GrampsjsDnaTabBar extends GrampsjsAppStateMixin(LitElement) {
           flex: 0 0 auto;
           width: auto;
         }
-
-        md-primary-tab a:link,
-        md-primary-tab a:visited,
-        md-primary-tab a:hover {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        /* The link covers the whole tab, so that the browser offers to open the
-           page in a new tab anywhere in it. The tab has 16px padding beside the
-           content, which is the containing block of the link. */
-        md-primary-tab a::after {
-          content: '';
-          position: absolute;
-          inset: 0 -16px;
-        }
       `,
     ]
   }
@@ -60,13 +44,15 @@ class GrampsjsDnaTabBar extends GrampsjsAppStateMixin(LitElement) {
       <md-tabs .activeTabIndex=${Object.keys(tabs).indexOf(currentKey)}>
         ${Object.keys(tabs).map(
           key => html`
-            <md-primary-tab @click=${() => this._goTo(this._getPath(key))}>
-              <a
-                href="/${this._getPath(key)}"
-                tabindex="-1"
-                @click=${e => this._handleLinkClick(e, key)}
-                >${this._(tabs[key])}</a
-              >
+            <md-primary-tab
+              @click=${() =>
+                this._goTo(
+                  this.appState?.path?.pageId
+                    ? `${key}/${this.appState?.path?.pageId}`
+                    : key
+                )}
+            >
+              ${this._(tabs[key])}
             </md-primary-tab>
           `
         )}
@@ -75,20 +61,8 @@ class GrampsjsDnaTabBar extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  // The tab clicks itself again for clicks on its content, without the
-  // modifier keys of the click, so the link handles its clicks alone
-  _handleLinkClick(e, key) {
-    e.stopPropagation()
-    handleAppLinkClick(e, this._getPath(key))
-  }
-
   _goTo(path) {
     fireEvent(this, 'nav', {path})
-  }
-
-  _getPath(key) {
-    const {pageId} = this.appState?.path ?? {}
-    return pageId ? `${key}/${pageId}` : key
   }
 }
 
