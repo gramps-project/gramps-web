@@ -424,5 +424,8 @@
     "Preview Restore from Backup": "Forhåndsvisning af genskabelse fra sikkerhedskopi",
     "Restore": "Genskab",
     "Confirm Restore from Backup": "Bekræft genskabelse fra sikkerhedskopi",
-    "This will permanently delete %s existing objects that are not present in the backup.": "Dette vil permanent slette %s eksisterende objekter som ikke findes i sikkerhedskopien."
+    "This will permanently delete %s existing objects that are not present in the backup.": "Dette vil permanent slette %s eksisterende objekter som ikke findes i sikkerhedskopien.",
+    "No changes detected.": "Ingen ændringer fundet.",
+    "Object Type": "Objekttype",
+    "Unchanged": "Uændret"
 }
