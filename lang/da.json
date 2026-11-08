@@ -419,5 +419,10 @@
     "No issues found": "Ingen problemer fundet",
     "issues found": "problemer fundet",
     "Severity": "Alvorlighed",
-    "Restore from Backup": "Genskab fra sikkerhedskopi"
+    "Restore from Backup": "Genskab fra sikkerhedskopi",
+    "Reset the tree to match an uploaded Gramps XML backup, adding, updating, and deleting objects as needed. This is a destructive replace, not a merge.": "Nulstiltræet for at matche en uploaded Gramps XML sikkerhedskopi, og tilføje, opdatere og slette objekter efter behov. Dette er en destruktiv udskiftning, ikke en sammenfletning.",
+    "Preview Restore from Backup": "Forhåndsvisning af genskabelse fra sikkerhedskopi",
+    "Restore": "Genskab",
+    "Confirm Restore from Backup": "Bekræft genskabelse fra sikkerhedskopi",
+    "This will permanently delete %s existing objects that are not present in the backup.": "Dette vil permanent slette %s eksisterende objekter som ikke findes i sikkerhedskopien."
 }
