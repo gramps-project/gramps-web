@@ -10,7 +10,9 @@ import '@material/web/divider/divider.js'
 import {objectDescription, fireEvent, objectDetail} from '../util.js'
 import {renderIcon} from '../objectRender.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {fetchAllTags} from '../tags.js'
 import './GrampsjsImg.js'
+import './GrampsjsTagChips.js'
 import {sharedStyles, listAvatarStyles} from '../SharedStyles.js'
 
 export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
@@ -23,6 +25,12 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
       css`
         md-icon-button {
           --md-icon-button-icon-size: 20px;
+        }
+
+        /* Shared styles hide trailing supporting text on narrow screens;
+           tag chips stay, and collapse to a count by themselves */
+        grampsjs-tag-chips[slot='trailing-supporting-text'] {
+          display: inline-flex;
         }
 
         md-list.activatable md-list-item:hover {
@@ -56,6 +64,8 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
       loading: {type: Boolean},
       numberLoading: {type: Number},
       large: {type: Boolean},
+      showTags: {type: Boolean},
+      _tagsByHandle: {type: Object, state: true},
     }
   }
 
@@ -73,6 +83,41 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
     this.loading = false
     this.numberLoading = 2
     this.large = false
+    this.showTags = false
+    this._tagsByHandle = {}
+  }
+
+  willUpdate(changed) {
+    if (
+      this.showTags &&
+      (changed.has('data') || changed.has('showTags')) &&
+      this.data.some(obj => obj.object?.tag_list?.length)
+    ) {
+      this._loadTags()
+    }
+  }
+
+  async _loadTags() {
+    const res = await fetchAllTags(this.appState)
+    this._tagsByHandle = Object.fromEntries(
+      (res.data ?? []).map(tag => [tag.handle, tag])
+    )
+  }
+
+  _renderTags(obj) {
+    if (!this.showTags) {
+      return ''
+    }
+    const tags = (obj.object?.tag_list ?? [])
+      .map(handle => this._tagsByHandle[handle])
+      .filter(Boolean)
+    if (tags.length === 0) {
+      return ''
+    }
+    return html`<grampsjs-tag-chips
+      slot="trailing-supporting-text"
+      .data="${tags}"
+    ></grampsjs-tag-chips>`
   }
 
   render() {
@@ -128,8 +173,8 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
                     >&nbsp;</span
                   >`
                 : html`<span slot="supporting-text"
-                    >${this._renderSecondary(obj)}</span
-                  >`}
+                      >${this._renderSecondary(obj)}</span
+                    >${this._renderTags(obj)}`}
             </md-list-item>
             ${!this.noSep && arr.length - 1 !== i
               ? html`<md-divider></md-divider>`
@@ -178,6 +223,10 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
     return obj.object_type === 'tag'
       ? this._('Tag')
       : obj.object?.gramps_id || '...'
+  }
+
+  clearSelection() {
+    this._selectedIndex = -1
   }
 
   _handleMetaClick(e, obj) {

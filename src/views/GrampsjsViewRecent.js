@@ -85,6 +85,7 @@ export class GrampsjsViewRecentObject extends GrampsjsView {
             <grampsjs-search-result-list
               .data="${this._searchResult.slice().reverse()}"
               .appState="${this.appState}"
+              showTags
               large
               noSep
               linked

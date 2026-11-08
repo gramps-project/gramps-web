@@ -1,6 +1,6 @@
 import {html} from 'lit'
 
-import {hex6ToCss, hex12ToCss} from './color.js'
+import {tagColorToCss} from './color.js'
 import {
   familyTitleFromProfile,
   eventTitleFromProfile,
@@ -185,15 +185,10 @@ export function renderIcon(obj, slot = 'graphic', iconPath = null) {
     ></grampsjs-icon>`
   }
   if (obj.object_type === 'tag') {
-    const color =
-      obj.object?.color?.length > 7
-        ? hex12ToCss(obj.object.color, 0.6)
-        : hex6ToCss(obj.object.color, 0.6)
     return html`<grampsjs-icon
       slot="${slot}"
       path="${objectIconPath[obj.object_type]}"
-      color="var(--grampsjs-color-icon)"
-      style="background-color:${color};"
+      color="${tagColorToCss(obj.object?.color)}"
     ></grampsjs-icon>`
   }
   return html`<grampsjs-icon

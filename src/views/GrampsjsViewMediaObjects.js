@@ -16,7 +16,6 @@ import {
   filterCounts,
   clickKeyHandler,
 } from '../util.js'
-import {tagColorToCss} from '../color.js'
 import {
   associationsFilter,
   mimeFilter,
@@ -28,6 +27,7 @@ import {
 } from '../filterDefinitions.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTooltip.js'
+import '../components/GrampsjsTagChips.js'
 import './GrampsjsViewMediaLightbox.js'
 import '@material/web/select/filled-select'
 import '@material/web/select/select-option'
@@ -192,20 +192,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
         }
 
         .tags-row {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 4px;
           margin-top: 4px;
-        }
-
-        .tag-chip {
-          display: inline-block;
-          border-radius: var(--md-sys-shape-corner-small, 8px);
-          padding: 1px 8px;
-          font-size: 12px;
-          border: 1px solid var(--tag-color);
-          color: var(--tag-color);
-          background-color: var(--tag-color-bg);
         }
       `,
     ]
@@ -410,15 +397,10 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
           </div>
           ${row.extended?.tags?.length
             ? html`<div class="tags-row">
-                ${row.extended.tags.map(
-                  tag => html`<span
-                    class="tag-chip"
-                    style="--tag-color:${tagColorToCss(
-                      tag.color
-                    )};--tag-color-bg:${tagColorToCss(tag.color, 0.1)}"
-                    >${tag.name}</span
-                  >`
-                )}
+                <grampsjs-tag-chips
+                  dense
+                  .data="${row.extended.tags}"
+                ></grampsjs-tag-chips>
               </div>`
             : ''}
         </div>

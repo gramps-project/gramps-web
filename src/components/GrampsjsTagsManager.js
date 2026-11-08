@@ -9,24 +9,15 @@ import {mdiPencil, mdiDelete} from '@mdi/js'
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormString.js'
+import './GrampsjsTagChips.js'
 import {fireEvent} from '../util.js'
-import {tagColorToCss, colorForPicker} from '../color.js'
+import {colorForPicker} from '../color.js'
 
 export class GrampsjsTagsManager extends GrampsjsTableBase {
   static get styles() {
     return [
       super.styles,
       css`
-        .tag-chip {
-          display: inline-block;
-          border-radius: var(--md-sys-shape-corner-small, 8px);
-          padding: 4px 12px;
-          font-size: 14px;
-          border: 1px solid var(--tag-color);
-          color: var(--tag-color);
-          background-color: var(--tag-color-bg);
-        }
-
         .actions {
           display: flex;
           gap: 4px;
@@ -88,14 +79,10 @@ export class GrampsjsTagsManager extends GrampsjsTableBase {
                   tag => html`
                     <tr>
                       <td>
-                        <span
-                          class="tag-chip"
-                          style="
-                            --tag-color: ${tagColorToCss(tag.color, 0.9)};
-                            --tag-color-bg: ${tagColorToCss(tag.color, 0.12)};
-                          "
-                          >${tag.name}</span
-                        >
+                        <grampsjs-tag-chips
+                          expanded
+                          .data="${[tag]}"
+                        ></grampsjs-tag-chips>
                       </td>
                       <td>
                         <div class="actions">

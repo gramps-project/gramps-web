@@ -175,6 +175,19 @@ export function getName(obj, type) {
   }
 }
 
+// The Gramps primary object types, which have pages of their own
+export const primaryObjectTypes = [
+  'person',
+  'family',
+  'event',
+  'place',
+  'source',
+  'citation',
+  'repository',
+  'note',
+  'media',
+]
+
 export const objectIconPath = {
   person: mdiAccount,
   family: mdiAccountMultiple,

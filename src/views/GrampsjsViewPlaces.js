@@ -2,7 +2,7 @@
 Places list view
 */
 
-import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
+import {GrampsjsViewObjectsBase, tagsColumn} from './GrampsjsViewObjectsBase.js'
 import {
   prettyTimeDiffTimestamp,
   filterCounts,
@@ -24,6 +24,7 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
       {name: 'Gramps ID', key: 'grampsId', sortKey: 'gramps_id'},
       {name: 'Name', key: 'title', sortKey: 'title'},
       {name: 'Place type:', key: 'type'},
+      tagsColumn,
       {name: 'Last changed', key: 'change', sortKey: 'change'},
     ]
     this._objectsName = 'places'
@@ -55,7 +56,7 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
   }
 
   get _fetchUrl() {
-    return '/api/places/?keys=gramps_id,name,place_type,change,handle'
+    return '/api/places/?keys=gramps_id,name,place_type,change,handle,extended&extend=tag_list'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -92,6 +93,7 @@ export class GrampsjsViewPlaces extends GrampsjsViewObjectsBase {
       title: row.name.value,
       type: row?.place_type?.string || row?.place_type || '',
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
+      tags: row?.extended?.tags ?? [],
     }
   }
 }

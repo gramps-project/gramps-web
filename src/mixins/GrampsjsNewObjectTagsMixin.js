@@ -1,6 +1,7 @@
 import {html} from 'lit'
 import '../components/GrampsjsTags.js'
 import '../components/GrampsjsFormNewTag.js'
+import {fetchAllTags} from '../tags.js'
 
 export const GrampsjsNewObjectTagsMixin = superClass =>
   class extends superClass {
@@ -71,10 +72,7 @@ export const GrampsjsNewObjectTagsMixin = superClass =>
     }
 
     async _fetchAllTags() {
-      const lang = this.appState?.i18n?.lang || 'en'
-      const data = await this.appState.apiGet(
-        `/api/tags/?locale=${lang}&pagesize=500`
-      )
+      const data = await fetchAllTags(this.appState)
       if ('data' in data) {
         this._allTags = data.data
       }

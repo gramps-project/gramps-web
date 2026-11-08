@@ -12,7 +12,7 @@ import '@material/web/menu/menu'
 import '@material/web/menu/menu-item'
 
 import './GrampsjsFilters.js'
-import './GrampsjsTagsSmall.js'
+import './GrampsjsTagChips.js'
 import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
 import {sharedStyles} from '../SharedStyles.js'
@@ -161,7 +161,7 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
           top: 2px;
         }
 
-        grampsjs-tags-small {
+        grampsjs-tag-chips {
           margin-left: 1em;
         }
 
@@ -346,9 +346,10 @@ class GrampsjsTasks extends GrampsjsAppStateMixin(LitElement) {
             href="/task/${task.gramps_id}"
             >${task.title}</a
           >
-          <grampsjs-tags-small
+          <grampsjs-tag-chips
+            dense
             .data="${task.extended.tags.filter(tag => tag.name !== 'ToDo')}"
-          ></grampsjs-tags-small>
+          ></grampsjs-tag-chips>
         </div>
       </div>
       <div class="task-meta">

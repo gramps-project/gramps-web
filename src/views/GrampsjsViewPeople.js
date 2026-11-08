@@ -2,7 +2,7 @@
 People list view
 */
 
-import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
+import {GrampsjsViewObjectsBase, tagsColumn} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, personFilter, filterCounts} from '../util.js'
 import {
   associationsFilter,
@@ -29,6 +29,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       },
       {name: 'Death Place', key: 'deathPlace', defaultVisible: false},
       {name: 'Age at death', key: 'age', defaultVisible: false},
+      tagsColumn,
       {name: 'Last changed', key: 'change', sortKey: 'change'},
     ]
     this._objectsName = 'people'
@@ -41,7 +42,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
   get _fetchUrl() {
     return `/api/people/?locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=self,age&precision=1&keys=gramps_id,profile,change,handle`
+    }&profile=self,age&precision=1&keys=gramps_id,profile,change,handle,extended&extend=tag_list`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -69,6 +70,7 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
       deathPlace: row?.profile?.death?.place_name,
       age: birthDate && deathDate && /\d/.test(age) ? age : '',
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
+      tags: row?.extended?.tags ?? [],
     }
   }
 
