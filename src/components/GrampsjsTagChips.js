@@ -73,6 +73,17 @@ export class GrampsjsTagChips extends LitElement {
         display: none;
       }
 
+      /* read by screen readers, which cannot see the title tooltips */
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+
       :host([expanded]) .chips {
         flex-wrap: wrap;
       }
@@ -133,21 +144,17 @@ export class GrampsjsTagChips extends LitElement {
           >`
         )}
         ${rest.length > 0
-          ? html`<span
-              class="chip neutral"
-              title="${restNames}"
-              aria-label="${restNames}"
-              >+${rest.length}</span
+          ? html`<span class="chip neutral" title="${restNames}"
+              ><span aria-hidden="true">+${rest.length}</span
+              ><span class="visually-hidden">${restNames}</span></span
             >`
           : ''}
       </span>
-      <span
-        class="chip neutral count"
-        title="${allNames}"
-        aria-label="${allNames}"
+      <span class="chip neutral count" title="${allNames}"
         ><svg viewBox="0 0 24 24" aria-hidden="true">
           <path fill="currentColor" d="${mdiTagOutline}" /></svg
-        >${tags.length}</span
+        ><span aria-hidden="true">${tags.length}</span
+        ><span class="visually-hidden">${allNames}</span></span
       >
     `
   }

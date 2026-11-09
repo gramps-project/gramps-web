@@ -85,14 +85,32 @@ export class GrampsjsSearchResultList extends GrampsjsAppStateMixin(
     this.large = false
     this.showTags = false
     this._tagsByHandle = {}
+    this._boundHandleDbChanged = this._handleDbChanged.bind(this)
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('db:changed', this._boundHandleDbChanged)
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    window.removeEventListener('db:changed', this._boundHandleDbChanged)
+  }
+
+  get _needsTags() {
+    return this.showTags && this.data.some(obj => obj.object?.tag_list?.length)
   }
 
   willUpdate(changed) {
-    if (
-      this.showTags &&
-      (changed.has('data') || changed.has('showTags')) &&
-      this.data.some(obj => obj.object?.tag_list?.length)
-    ) {
+    if ((changed.has('data') || changed.has('showTags')) && this._needsTags) {
+      this._loadTags()
+    }
+  }
+
+  // tags may have been renamed or recoloured while the data stayed the same
+  _handleDbChanged() {
+    if (this._needsTags) {
       this._loadTags()
     }
   }

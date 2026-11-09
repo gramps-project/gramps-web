@@ -81,7 +81,6 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
   constructor() {
     super()
     this.searchRes = []
-    this._allTags = []
     this._selectedTag = ''
     this._tagName = ''
     this._tagColor = '#1f77b4'
@@ -149,7 +148,6 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
   async _fetchData() {
     const data = await fetchAllTags(this.appState)
     if ('data' in data) {
-      this._allTags = data.data ?? []
       this.searchRes =
         data.data
           ?.map(tag => ({
@@ -205,9 +203,14 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
   }
 
   /* Return the handle of the tag with this name, creating it if no tag has
-  the name yet. Returns null if creating it fails. */
+  the name yet. Returns null if looking up or creating it fails. */
   async _getOrCreateTag(name) {
-    const existing = this._allTags.find(
+    const tags = await fetchAllTags(this.appState)
+    if ('error' in tags) {
+      fireEvent(this, 'grampsjs:error', {message: tags.error})
+      return null
+    }
+    const existing = (tags.data ?? []).find(
       tag => tag.name?.trim().toLowerCase() === name.toLowerCase()
     )
     if (existing) {
