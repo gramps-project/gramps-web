@@ -198,6 +198,24 @@ describe('saving participant changes from the event page', () => {
     ])
   })
 
+  it('changes the event it started on, after moving to another', async () => {
+    const view = makeEventView({handle: 'a', event_ref_list: []})
+    view.appState.apiGet.mockImplementation(async () => {
+      view._data = {...event, handle: 'e2'}
+      return {data: {handle: 'a', event_ref_list: []}}
+    })
+    await view.changeParticipantRef({
+      objectType: 'person',
+      handle: 'a',
+      action: 'add',
+      role: 'Witness',
+    })
+    const [, sent] = view.appState.apiPut.mock.calls[0]
+    expect(sent.event_ref_list).to.deep.equal([
+      {_class: 'EventRef', ref: 'e1', role: 'Witness'},
+    ])
+  })
+
   it('does not save when the reference is gone', async () => {
     const view = makeEventView({handle: 'a', event_ref_list: []})
     await view.changeParticipantRef({
@@ -224,5 +242,17 @@ describe('saving an event edited from a linked person', () => {
     const [url, sent] = view.appState.apiPut.mock.calls[0]
     expect(url).to.equal('/api/events/e1')
     expect(sent).to.deep.equal({...event, description: 'Baptism'})
+  })
+})
+
+describe('selection in the participants list', () => {
+  it('is cleared when a change is saved', () => {
+    const list = document.createElement('grampsjs-participants')
+    const actions = []
+    list.addEventListener('edit:action', e => actions.push(e.detail))
+    list._selectedIndex = 1
+    list._fireChange({action: 'add', objectType: 'person', handle: 'a'})
+    expect(list._selectedIndex).to.equal(-1)
+    expect(actions[0].action).to.equal('changeParticipantRef')
   })
 })

@@ -162,7 +162,9 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
     return this.sortData([...this.data])[this._selectedIndex]
   }
 
+  // the saved change reloads the list, which may reorder the rows
   _fireChange(change) {
+    this._selectedIndex = -1
     fireEvent(this, 'edit:action', {action: 'changeParticipantRef', change})
   }
 
@@ -231,7 +233,6 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
       handle: row.handle,
       occurrence: row.occurrence,
     })
-    this._selectedIndex = -1
   }
 
   _closeDialog(e) {

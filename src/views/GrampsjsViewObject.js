@@ -879,6 +879,8 @@ export class GrampsjsViewObject extends GrampsjsView {
   fetches and saves that object. See changeParticipantRefs for `change`.
   */
   async changeParticipantRef({objectType, handle, ...change}) {
+    // the view may show another event once the fetch returns
+    const eventHandle = this._data.handle
     const endpoint = objectTypeToEndpoint[objectType]
     const res = await this.appState.apiGet(`/api/${endpoint}/${handle}`)
     if ('error' in res) {
@@ -887,7 +889,7 @@ export class GrampsjsViewObject extends GrampsjsView {
     }
     const refList = changeParticipantRefs(
       res.data?.event_ref_list,
-      this._data.handle,
+      eventHandle,
       change
     )
     if (refList === null) {
