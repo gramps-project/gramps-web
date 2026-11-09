@@ -53,6 +53,7 @@ import {
 } from '../filterBuilder.js'
 import './GrampsjsFilterParam.js'
 import './GrampsjsIcon.js'
+import {fetchAllTags} from '../tags.js'
 
 export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -587,7 +588,7 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
   }
 
   async _fetchTags() {
-    const data = await this.appState.apiGet('/api/tags/')
+    const data = await fetchAllTags(this.appState)
     if ('data' in data) {
       this._tags = (data.data ?? []).map(tag => tag.name)
     } else if ('error' in data) {

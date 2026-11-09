@@ -435,6 +435,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
     return html`<grampsjs-search-result-list
       @search-result:clicked=${this._handleEditedClicked}
       selectable
+      showTags
       .data="${this._getChanges(0).map(change => ({
         object_type: change.obj_class?.toLowerCase(),
         object: change.new_data,
@@ -449,6 +450,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
       <grampsjs-search-result-list
         @search-result:clicked=${this._handleEditedClicked}
         selectable
+        showTags
         .data="${this._getChanges(2).map(change => ({
           object_type: change.obj_class?.toLowerCase(),
           object: change.old_data,
@@ -464,6 +466,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
       <grampsjs-search-result-list
         @search-result:clicked=${this._handleEditedClicked}
         selectable
+        showTags
         .data="${this._getChanges(1).map(change => ({
           object_type: change.obj_class?.toLowerCase(),
           object: change.old_data,

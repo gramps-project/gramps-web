@@ -10,7 +10,8 @@ import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import './GrampsjsSearchResultList.js'
 import './GrampsjsFormString.js'
 
-import {makeHandle} from '../util.js'
+import {fireEvent, makeHandle} from '../util.js'
+import {fetchAllTags} from '../tags.js'
 
 class GrampsjsFormNewTag extends GrampsjsObjectForm {
   static get styles() {
@@ -69,7 +70,6 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
   static get properties() {
     return {
       searchRes: {type: Array},
-      disableString: {type: Boolean},
       disableField: {type: Boolean},
       _selectedTag: {type: String},
       _tagName: {type: String},
@@ -81,7 +81,6 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
   constructor() {
     super()
     this.searchRes = []
-    this.disableString = false
     this._selectedTag = ''
     this._tagName = ''
     this._tagColor = '#1f77b4'
@@ -95,7 +94,6 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
       <div class="new-tag-row">
         <grampsjs-form-string
           @formdata:changed="${this._handleString}"
-          ?disabled="${this.disableString}"
           fullwidth
           id="create"
           label="${this._('New Tag')}"
@@ -148,10 +146,7 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
   }
 
   async _fetchData() {
-    const url = `/api/tags/?locale=${
-      this.appState.i18n.lang || 'en'
-    }&pagesize=500`
-    const data = await this.appState.apiGet(url)
+    const data = await fetchAllTags(this.appState)
     if ('data' in data) {
       this.searchRes =
         data.data
@@ -167,8 +162,20 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
     this._loading = false
   }
 
+  get isValid() {
+    return Boolean(this._tagName.trim() || this._selectedTag)
+  }
+
+  // Typing a name and selecting an existing tag exclude each other; the
+  // last of the two wins.
   _handleString(e) {
-    this._tagName = e.detail.data
+    this._tagName = e.detail.data ?? ''
+    if (this._tagName.trim() && this._selectedTag) {
+      this._selectedTag = ''
+      this.renderRoot
+        .querySelector('grampsjs-search-result-list')
+        ?.clearSelection()
+    }
   }
 
   _handleColor(e) {
@@ -176,14 +183,18 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
   }
 
   async _handleDialogSave() {
-    if (this._saving) return
+    if (this._saving || !this.isValid) return
     this._saving = true
     try {
-      if (!this.disableString && this._tagName) {
-        const handle = await this._createNewTag()
+      const handle = this._tagName.trim()
+        ? await this._getOrCreateTag(this._tagName.trim())
+        : this._selectedTag
+      if (!handle) {
+        // creating the tag failed; keep the dialog open
+        return
+      }
+      if (!this.data.includes(handle)) {
         this.data = [...this.data, handle]
-      } else if (this._selectedTag && !this.data.includes(this._selectedTag)) {
-        this.data = [...this.data, this._selectedTag]
       }
       super._handleDialogSave()
     } finally {
@@ -191,23 +202,42 @@ class GrampsjsFormNewTag extends GrampsjsObjectForm {
     }
   }
 
-  async _createNewTag() {
+  /* Return the handle of the tag with this name, creating it if no tag has
+  the name yet. Returns null if looking up or creating it fails. */
+  async _getOrCreateTag(name) {
+    const tags = await fetchAllTags(this.appState)
+    if ('error' in tags) {
+      fireEvent(this, 'grampsjs:error', {message: tags.error})
+      return null
+    }
+    const existing = (tags.data ?? []).find(
+      tag => tag.name?.trim().toLowerCase() === name.toLowerCase()
+    )
+    if (existing) {
+      return existing.handle
+    }
     const obj = {
       _class: 'Tag',
       handle: makeHandle(),
-      name: this._tagName,
+      name,
     }
     if (this._tagColor) {
       obj.color = this._tagColor
     }
-    await this.appState.apiPost('/api/tags/', obj)
+    const res = await this.appState.apiPost('/api/tags/', obj)
+    if ('error' in res) {
+      fireEvent(this, 'grampsjs:error', {message: res.error})
+      return null
+    }
     return obj.handle
   }
 
   _handleSelected(e) {
-    this.disableString = true
-    const obj = e.detail
-    this._selectedTag = obj.handle
+    this._selectedTag = e.detail.handle
+    if (this._tagName) {
+      this._tagName = ''
+      this.renderRoot.querySelector('grampsjs-form-string')?.reset()
+    }
   }
 }
 

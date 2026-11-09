@@ -505,5 +505,10 @@
     "A single date somewhere around this one": "Энэ огнооны орчим дахь нэг огноо",
     "A single date some time before this one": "Энэ огнооноос өмнөх тодорхойгүй нэг огноо",
     "A single date some time after this one": "Энэ огнооноос хойших тодорхойгүй нэг огноо",
-    "A single date somewhere in this range": "Энэ хүрээн дэх тодорхойгүй нэг огноо"
+    "A single date somewhere in this range": "Энэ хүрээн дэх тодорхойгүй нэг огноо",
+    "The whole time from the first date to the second. Either can be left empty.": "Хоёр огнооны хоорондох бүх хугацаа. Аль нэгийг нь хоосон үлдээж болно.",
+    "Try again": "Дахин оролдох",
+    "Back to login": "Нэвтрэх хэсэгт буцах",
+    "E-mail address": "Имэйл хаяг",
+    "Full name": "Бүтэн нэр"
 }

@@ -2,6 +2,7 @@ import {html} from 'lit'
 
 import {GrampsjsConnectedComponent} from '../components/GrampsjsConnectedComponent.js'
 import '../components/GrampsjsSearchResultList.js'
+import {primaryObjectTypes} from '../util.js'
 
 export class GrampsjsViewRecentlyChanged extends GrampsjsConnectedComponent {
   renderContent() {
@@ -14,6 +15,7 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsConnectedComponent {
               large
               .data="${this._data.data}"
               .appState="${this.appState}"
+              showTags
               date
               noSep
             ></grampsjs-search-result-list>
@@ -42,7 +44,7 @@ export class GrampsjsViewRecentlyChanged extends GrampsjsConnectedComponent {
       '*'
     )}&change=${encodeURIComponent(`>${ts}`)}&locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=all&page=1&pagesize=8`
+    }&type=${primaryObjectTypes.join(',')}&profile=all&page=1&pagesize=8`
   }
 }
 

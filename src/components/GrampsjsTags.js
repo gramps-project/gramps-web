@@ -38,7 +38,6 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
         }
 
         md-input-chip {
-          --md-input-chip-container-color: var(--tag-color-bg);
           --md-input-chip-label-text-color: var(--tag-color);
           --md-input-chip-outline-color: var(--tag-color);
           --md-input-chip-icon-color: var(--tag-color);
@@ -57,7 +56,6 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
         }
 
         md-assist-chip {
-          --md-assist-chip-container-color: var(--tag-color-bg);
           --md-assist-chip-label-text-color: var(--tag-color);
           --md-assist-chip-outline-color: var(--tag-color);
           --md-assist-chip-hover-label-text-color: var(--tag-color);
@@ -103,14 +101,12 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
         <md-chip-set>
           ${this.data
             .filter(obj => !this.hideTags.includes(obj.name))
+            .sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0))
             .map(obj =>
               this.edit
                 ? html`<md-input-chip
                     label="${obj.name}"
-                    style="--tag-color:${tagColorToCss(
-                      obj.color,
-                      0.9
-                    )};--tag-color-bg:${tagColorToCss(obj.color, 0.12)}"
+                    style="--tag-color:${tagColorToCss(obj.color)}"
                     @remove=${e => {
                       e.preventDefault()
                       this._handleClear(obj.handle)
@@ -118,10 +114,7 @@ export class GrampsjsTags extends GrampsjsAppStateMixin(LitElement) {
                   ></md-input-chip>`
                 : html`<md-assist-chip
                     label="${obj.name}"
-                    style="--tag-color:${tagColorToCss(
-                      obj.color,
-                      0.9
-                    )};--tag-color-bg:${tagColorToCss(obj.color, 0.12)}"
+                    style="--tag-color:${tagColorToCss(obj.color)}"
                   ></md-assist-chip>`
             )}
         </md-chip-set>

@@ -10,6 +10,7 @@ import {
   objectIconPath,
   debounce,
   prefixSearchQuery,
+  primaryObjectTypes,
 } from '../util.js'
 import '@material/web/textfield/outlined-text-field'
 import '@material/web/iconbutton/icon-button.js'
@@ -20,17 +21,7 @@ function capitalize(string) {
   return `${string.charAt(0).toUpperCase()}${string.slice(1)}`
 }
 
-const filtrableObjectTypes = [
-  'person',
-  'family',
-  'event',
-  'place',
-  'source',
-  'citation',
-  'repository',
-  'note',
-  'media',
-]
+const filtrableObjectTypes = primaryObjectTypes
 
 const PAGE_SIZE = 20
 
@@ -165,6 +156,7 @@ export class GrampsjsViewSearch extends GrampsjsView {
       <grampsjs-search-result-list
         .data="${this._data}"
         .appState="${this.appState}"
+        showTags
         large
         noSep
         linked

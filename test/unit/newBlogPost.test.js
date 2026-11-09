@@ -1,6 +1,7 @@
 import {describe, it, expect, vi, beforeEach} from 'vitest'
 import {clearDraftsWithPrefix} from '../../src/api.js'
 import {GrampsjsViewNewBlogPost} from '../../src/views/GrampsjsViewNewBlogPost.js'
+import {clearTagCache} from '../../src/tags.js'
 
 vi.mock('../../src/api.js', async importActual => {
   const actual = await importActual()
@@ -81,6 +82,10 @@ describe('new blog post: processed data', () => {
 })
 
 describe('new blog post: Blog tag handling', () => {
+  beforeEach(() => {
+    clearTagCache()
+  })
+
   it('reuses an existing Blog tag', async () => {
     const element = makeElement()
     const apiGet = vi.fn().mockResolvedValue({

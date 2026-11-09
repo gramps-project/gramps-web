@@ -503,5 +503,17 @@
     "Linking failed.": "Länkningen misslyckades.",
     "Unlinked %s": "Länk %s borttagen",
     "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Ditt fullständiga namn och din e-postadress kan komma att uppdateras varje gång du loggar in med ett kopplat konto.",
-    "No connection": "Ingen anslutning"
+    "No connection": "Ingen anslutning",
+    "Opacity": "Opacitet",
+    "Earliest": "Tidigast",
+    "Latest": "Senast",
+    "A single date somewhere around this one": "Ett enstaka datum någonstans i närheten av detta",
+    "A single date some time before this one": "Ett enstaka datum någon gång före detta",
+    "A single date some time after this one": "Ett enstaka datum någon gång efter detta",
+    "A single date somewhere in this range": "Ett enskilt datum någonstans inom detta intervall",
+    "The whole time from the first date to the second. Either can be left empty.": "Hela tidsspannet från det första datumet till det andra. Vilket som helst av dem kan lämnas tomt.",
+    "Try again": "Försök igen",
+    "Back to login": "Tillbaka till inloggning",
+    "E-mail address": "E-postadress",
+    "Full name": "Fullständigt namn"
 }

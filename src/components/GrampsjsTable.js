@@ -208,6 +208,11 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
           content: none;
         }
 
+        /* Narrow (card) mode: drop empty cells of columns marked hideWhenEmpty */
+        table:not(.wide) tbody td.empty {
+          display: none;
+        }
+
         .mobile-sort {
           position: relative;
           margin-top: 5px;
@@ -399,6 +404,10 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
                   ${item.map(
                     (value, colIndex) => html`
                       <td
+                        class="${this.columns[colIndex].hideWhenEmpty &&
+                        this._isEmpty(value)
+                          ? 'empty'
+                          : ''}"
                         data-label="${this._colLabel(
                           this.columns[colIndex].name
                         )}"
@@ -483,6 +492,16 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     const href = this.linked && this.rowHrefs[index]
     if (!href) return value
     return html`<a class="row-link" href="${href}" tabindex="-1">${value}</a>`
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  _isEmpty(value) {
+    return (
+      value === null ||
+      value === undefined ||
+      value === '' ||
+      (Array.isArray(value) && value.length === 0)
+    )
   }
 
   // eslint-disable-next-line class-methods-use-this

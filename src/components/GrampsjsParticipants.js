@@ -1,13 +1,63 @@
 import {html, css} from 'lit'
+import {classMap} from 'lit/directives/class-map.js'
 import {mdiStar} from '@mdi/js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsImg.js'
 import './GrampsjsIcon.js'
-import {personTitleFromProfile, familyTitleFromProfile} from '../util.js'
+import './GrampsjsFormEventRef.js'
+import './GrampsjsFormParticipantRef.js'
+import {
+  personTitleFromProfile,
+  familyTitleFromProfile,
+  fireEvent,
+  typeString,
+} from '../util.js'
 import {renderIcon} from '../objectRender.js'
 
 const PRIMARY_ROLES_EN = new Set(['Primary', 'Family'])
+
+/*
+One row per reference to the event, in the order of each participant's
+event list. `occurrence` counts the references of a participant to the
+event, since a participant may refer to it more than once.
+*/
+export function participantRefRows(participants, backlinks, eventHandle) {
+  const byHandle = Object.fromEntries(
+    backlinks.filter(obj => obj?.handle).map(obj => [obj.handle, obj])
+  )
+  const seen = {}
+  const toRow = (objectType, profile, role) => {
+    const handle = profile?.handle
+    const occurrence = seen[handle] ?? 0
+    seen[handle] = occurrence + 1
+    const backlink = byHandle[handle] ?? {}
+    const ref = (backlink.event_ref_list || []).filter(
+      el => el?.ref === eventHandle
+    )[occurrence]
+    return {
+      object_type: objectType,
+      handle,
+      occurrence,
+      role,
+      roleValue: typeString(ref?.role),
+      backlink,
+      title:
+        (objectType === 'family'
+          ? familyTitleFromProfile(profile)
+          : personTitleFromProfile(profile)) || '',
+      path: `${objectType}/${profile?.gramps_id}`,
+    }
+  }
+  return [
+    ...(participants?.families || []).map(obj =>
+      toRow('family', obj.family, obj.role)
+    ),
+    ...(participants?.people || []).map(obj =>
+      toRow('person', obj.person, obj.role)
+    ),
+  ]
+}
 
 export class GrampsjsParticipants extends GrampsjsEditableList {
   static get styles() {
@@ -33,14 +83,19 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
     return {
       backlinksPeople: {type: Array},
       backlinksFamilies: {type: Array},
+      eventHandle: {type: String},
+      noLink: {type: Boolean},
     }
   }
 
   constructor() {
     super()
-    this.hasAdd = false
+    this.hasAdd = true
+    this.hasEdit = true
     this.backlinksPeople = []
     this.backlinksFamilies = []
+    this.eventHandle = ''
+    this.noLink = false
   }
 
   _isPrimaryRole(role) {
@@ -70,40 +125,37 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
   sortData(dataCopy) {
     const participants = dataCopy[0]
     if (!participants || Object.keys(participants).length === 0) return []
-
-    const peopleByGrampsId = Object.fromEntries(
-      this.backlinksPeople.map(p => [p.gramps_id, p])
-    )
-    const familiesByGrampsId = Object.fromEntries(
-      this.backlinksFamilies.map(f => [f.gramps_id, f])
-    )
-
-    const families = (participants.families || []).map(obj => ({
-      object_type: 'family',
-      role: obj.role,
-      backlink: familiesByGrampsId[obj.family.gramps_id] ?? {},
-      title: familyTitleFromProfile(obj.family) || '',
-      path: `family/${obj.family.gramps_id}`,
-    }))
-
-    const people = (participants.people || []).map(obj => ({
-      object_type: 'person',
-      role: obj.role,
-      backlink: peopleByGrampsId[obj.person.gramps_id] ?? {},
-      title: personTitleFromProfile(obj.person) || '',
-      path: `person/${obj.person.gramps_id}`,
-    }))
-
-    return [...families, ...people].sort((a, b) => {
+    return participantRefRows(
+      participants,
+      [...this.backlinksFamilies, ...this.backlinksPeople],
+      this.eventHandle
+    ).sort((a, b) => {
       const aP = this._isPrimaryRole(a.role) ? 0 : 1
       const bP = this._isPrimaryRole(b.role) ? 0 : 1
       return aP - bP
     })
   }
 
-  row(obj) {
+  get _rowType() {
+    if (this.edit) {
+      return 'button'
+    }
+    return this.noLink ? 'text' : 'link'
+  }
+
+  row(obj, i) {
+    const type = this._rowType
     return html`
-      <md-list-item type="link" href="/${obj.path}">
+      <md-list-item
+        type="${type}"
+        href="${type === 'link' ? `/${obj.path}` : ''}"
+        class="${classMap({selected: this.edit && i === this._selectedIndex})}"
+        @click="${() => {
+          if (this.edit) {
+            this._handleSelected(i)
+          }
+        }}"
+      >
         ${obj.title} ${this._roleLabel(obj.role)}
         ${renderIcon(
           {object_type: obj.object_type, object: obj.backlink},
@@ -111,6 +163,93 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
         )}
       </md-list-item>
     `
+  }
+
+  get _selectedRow() {
+    return this.sortData([...this.data])[this._selectedIndex]
+  }
+
+  // the saved change reloads the list, which may reorder the rows
+  _fireChange(change) {
+    this._selectedIndex = -1
+    fireEvent(this, 'edit:action', {action: 'changeParticipantRef', change})
+  }
+
+  _handleAdd() {
+    this.dialogContent = html`
+      <grampsjs-form-participant-ref
+        .appState="${this.appState}"
+        dialogTitle="${this._('Add Participant')}"
+        @object:save="${this._handleAddSave}"
+        @object:cancel="${this._handleDialogCancel}"
+      ></grampsjs-form-participant-ref>
+    `
+  }
+
+  _handleAddSave(e) {
+    const {ref, object_type: objectType, role} = e.detail.data
+    if (ref && objectType) {
+      this._fireChange({
+        action: 'add',
+        objectType,
+        handle: ref,
+        role: typeString(role),
+      })
+    }
+    this._closeDialog(e)
+  }
+
+  _handleEdit() {
+    const row = this._selectedRow
+    if (!row) {
+      return
+    }
+    this.dialogContent = html`
+      <grampsjs-form-eventref
+        .appState="${this.appState}"
+        .data="${{ref: this.eventHandle, role: row.roleValue}}"
+        dialogTitle="${row.title}"
+        @object:save="${e => this._handleEditSave(e, row)}"
+        @object:cancel="${this._handleDialogCancel}"
+      ></grampsjs-form-eventref>
+    `
+  }
+
+  _handleEditSave(e, row) {
+    const role = typeString(e.detail.data?.role)
+    if (role && role !== row.roleValue) {
+      this._fireChange({
+        action: 'update',
+        objectType: row.object_type,
+        handle: row.handle,
+        occurrence: row.occurrence,
+        data: {role},
+      })
+    }
+    this._closeDialog(e)
+  }
+
+  _handleDelete() {
+    const row = this._selectedRow
+    if (!row) {
+      return
+    }
+    this._fireChange({
+      action: 'remove',
+      objectType: row.object_type,
+      handle: row.handle,
+      occurrence: row.occurrence,
+    })
+  }
+
+  _closeDialog(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
+  }
+
+  _handleDialogCancel() {
+    this.dialogContent = ''
   }
 }
 

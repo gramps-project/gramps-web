@@ -13,6 +13,7 @@ import {
   moveTo,
   objectIconPath,
   objectTypeToEndpoint,
+  changeParticipantRefs,
   toWritableObject,
 } from '../util.js'
 import {clearDraftsWithPrefix} from '../api.js'
@@ -388,6 +389,10 @@ export class GrampsjsViewObject extends GrampsjsView {
         this._className,
         'event_ref_list'
       )
+    } else if (e.detail.action === 'updateLinkedEvent') {
+      this.updateLinkedEvent(e.detail.event, e.detail.data)
+    } else if (e.detail.action === 'changeParticipantRef') {
+      this.changeParticipantRef(e.detail.change)
     } else if (e.detail.action === 'addPlaceRef') {
       this.addObject(
         e.detail.data,
@@ -861,6 +866,39 @@ export class GrampsjsViewObject extends GrampsjsView {
       })
       return _obj
     })
+  }
+
+  // update an event linked to the object of this view
+  updateLinkedEvent(event, data) {
+    return this._updateObject(event, 'event', _obj => ({..._obj, ...data}))
+  }
+
+  /*
+  Add, update or remove a reference to the event of this view. The
+  reference is stored on the participating person or family, so this
+  fetches and saves that object. See changeParticipantRefs for `change`.
+  */
+  async changeParticipantRef({objectType, handle, ...change}) {
+    // the view may show another event once the fetch returns
+    const eventHandle = this._data.handle
+    const endpoint = objectTypeToEndpoint[objectType]
+    const res = await this.appState.apiGet(`/api/${endpoint}/${handle}`)
+    if ('error' in res) {
+      fireEvent(this, 'grampsjs:error', {message: res.error})
+      return false
+    }
+    const refList = changeParticipantRefs(
+      res.data?.event_ref_list,
+      eventHandle,
+      change
+    )
+    if (refList === null) {
+      return false
+    }
+    return this._updateObject(res.data, objectType, _obj => ({
+      ..._obj,
+      event_ref_list: refList,
+    }))
   }
 
   // add a handle to a list of handle

@@ -10,6 +10,7 @@ import {GrampsjsViewNewSource} from './GrampsjsViewNewSource.js'
 
 import {makeHandle, fireEvent, reportRequiredField} from '../util.js'
 import {clearDraftsWithPrefix} from '../api.js'
+import {clearTagCache, fetchAllTags} from '../tags.js'
 
 const dataDefault = {
   _class: 'Source',
@@ -175,10 +176,7 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
   }
 
   async _fetchBlogTagHandle() {
-    const lang = this.appState?.i18n?.lang || 'en'
-    const data = await this.appState.apiGet(
-      `/api/tags/?locale=${lang}&pagesize=500`
-    )
+    const data = await fetchAllTags(this.appState)
     if ('data' in data) {
       this._allTags = data.data
       const tags = data.data.filter(tag => tag.name === 'Blog')
@@ -195,6 +193,7 @@ export class GrampsjsViewNewBlogPost extends GrampsjsViewNewSource {
     if ('error' in data) {
       return data.error
     }
+    clearTagCache()
     await this._fetchBlogTagHandle()
     return this._blogTagHandle ? '' : this._('Failed to fetch the Blog tag')
   }

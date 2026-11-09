@@ -2,7 +2,7 @@
 Sources list view
 */
 
-import {GrampsjsViewObjectsBase} from './GrampsjsViewObjectsBase.js'
+import {GrampsjsViewObjectsBase, tagsColumn} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
 import {
   associationsFilter,
@@ -19,6 +19,7 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
       {name: 'Title', key: 'title', sortKey: 'title'},
       {name: 'Author', key: 'author', sortKey: 'author'},
       {name: 'Publication info', key: 'pubinfo', sortKey: 'pubinfo'},
+      tagsColumn,
       {name: 'Last changed', key: 'change', sortKey: 'change'},
     ]
     this._objectsName = 'sources'
@@ -30,7 +31,7 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
   }
 
   get _fetchUrl() {
-    return '/api/sources/?keys=gramps_id,title,author,pubinfo,change,handle'
+    return '/api/sources/?keys=gramps_id,title,author,pubinfo,change,handle,extended&extend=tag_list'
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -62,6 +63,7 @@ export class GrampsjsViewSources extends GrampsjsViewObjectsBase {
       author: row.author,
       pubinfo: row.pubinfo,
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
+      tags: row?.extended?.tags ?? [],
     }
     return formattedRow
   }

@@ -18,6 +18,14 @@ const MAP_STYLE_BASE = 'base'
 const MAP_STYLE_OHM = 'ohm'
 const THEME_DARK = 'dark'
 
+// MapLibre starts a module worker, which browsers refuse unless it is served
+// with a JavaScript MIME type. Many servers send .mjs files as
+// application/octet-stream, so the worker is served as a .js file. The file
+// name stays the same across MapLibre releases, so the version parameter keeps
+// browsers from using a cached worker from an older release.
+const MAPLIBRE_WORKER_URL = `/maplibre-gl-worker.js?v=${maplibregl.getVersion()}`
+maplibregl.setWorkerUrl(MAPLIBRE_WORKER_URL)
+
 const defaultConfig = {
   mapOhmStyle: 'https://www.openhistoricalmap.org/map-styles/main/main.json',
   mapBaseStyleLight: 'https://tiles.openfreemap.org/styles/liberty',

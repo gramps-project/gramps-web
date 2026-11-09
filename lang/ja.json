@@ -503,5 +503,16 @@
     "Expression:": "式:",
     "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "連携済みアカウントでサインインするたびに、氏名およびメールアドレスが更新される場合があります。",
     "No connection": "接続なし",
-    "Opacity": "不透明度"
+    "Opacity": "不透明度",
+    "Earliest": "最も古い",
+    "Latest": "最新",
+    "A single date somewhere around this one": "この時期のどこか、ある一日",
+    "A single date some time before this one": "これより前の、ある一日",
+    "A single date some time after this one": "これより後の、ある特定の日",
+    "A single date somewhere in this range": "この範囲内のどこかにある、ある1つの日付",
+    "The whole time from the first date to the second. Either can be left empty.": "最初の日付から2番目の日付までの全期間。どちらも空欄のままでも構いません。",
+    "Try again": "再試行",
+    "Back to login": "ログイン画面に戻る",
+    "E-mail address": "メールアドレス",
+    "Full name": "氏名"
 }

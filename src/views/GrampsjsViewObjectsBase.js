@@ -16,6 +16,7 @@ import '@material/web/select/filled-select.js'
 import '@material/web/select/select-option.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTable.js'
+import '../components/GrampsjsTagChips.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
@@ -30,6 +31,18 @@ import {tagFilter} from '../filterDefinitions.js'
 
 // Deleting more objects than this runs in a background task
 const BACKGROUND_DELETE_THRESHOLD = 10
+
+/* Column showing the tags of a row, expects `tags` as a list of tag objects
+(from `extend=tag_list`) */
+export const tagsColumn = {
+  name: 'Tags',
+  key: 'tags',
+  hideWhenEmpty: true,
+  format: tags =>
+    tags?.length
+      ? html`<grampsjs-tag-chips dense .data="${tags}"></grampsjs-tag-chips>`
+      : '',
+}
 
 export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   GrampsjsView
