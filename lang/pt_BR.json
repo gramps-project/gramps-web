@@ -498,5 +498,18 @@
     "Matches objects for which the given Gramps Object Query Language (GOQL) expression is true": "Identifica os objetos para os quais a expressão GOQL (Gramps Object Query Language) fornecida é verdadeira",
     "Expression:": "Expressão:",
     "Your full name and e-mail address may be updated whenever you sign in with a linked account.": "Seu nome completo e endereço de e-mail podem ser atualizados sempre que você iniciar sessão com uma conta vinculada.",
-    "No connection": "Sem conexão"
+    "No connection": "Sem conexão",
+    "Opacity": "Opacidade",
+    "Earliest": "Mais antigo",
+    "Latest": "Mais recente",
+    "A single date somewhere around this one": "Uma única data por volta desta",
+    "A single date some time before this one": "Uma única data anterior a esta",
+    "A single date some time after this one": "Uma única data posterior a esta",
+    "A single date somewhere in this range": "Uma única data em algum ponto deste intervalo",
+    "The whole time from the first date to the second. Either can be left empty.": "Todo o período entre a primeira e a segunda data. Qualquer uma delas pode ficar em branco.",
+    "Try again": "Tente novamente",
+    "Back to login": "Voltar ao início de sessão",
+    "E-mail address": "Endereço de e-mail",
+    "Full name": "Nome completo",
+    "Edit for everyone": "Editar para todos"
 }
