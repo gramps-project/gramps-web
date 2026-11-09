@@ -13,11 +13,6 @@ server {
       try_files $uri $uri/ $uri.html /index.html;
   }
 
-  # Module workers need a JavaScript MIME type, which mime.types has only for .js
-  location ~ \.mjs$ {
-      types { application/javascript mjs; }
-  }
-
   location /api {
       add_header       "Access-Control-Allow-Origin" $http_origin;
       proxy_redirect   off;

@@ -14,6 +14,9 @@ export default {
           '/node_modules/@awesome.me/webawesome/dist/styles/'
         )
       }
+      if (ctx.path === '/maplibre-gl-worker.js') {
+        ctx.path = '/node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs'
+      }
       await next()
     },
   ],

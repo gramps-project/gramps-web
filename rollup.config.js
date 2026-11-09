@@ -69,10 +69,11 @@ export default {
           dest: 'dist/webawesome-styles',
         },
         {src: './maplibre-gl.css', dest: 'dist/'},
-        // maplibre-gl loads its worker from next to the bundle
+        // served as .js, see MAPLIBRE_WORKER_URL in GrampsjsMap.js
         {
           src: 'node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs',
           dest: 'dist/',
+          rename: 'maplibre-gl-worker.js',
         },
         {src: './global.css', dest: 'dist/'},
         {src: './tippy.css', dest: 'dist/'},
