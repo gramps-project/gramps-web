@@ -25,7 +25,11 @@ self.addEventListener('message', event => {
   }
 })
 
-precacheAndRoute(self.__WB_MANIFEST)
+// Workbox's default ignored parameters, plus `v`: MapLibre's worker is
+// requested with ?v=<MapLibre version> and precached without it.
+precacheAndRoute(self.__WB_MANIFEST, {
+  ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^v$/],
+})
 
 // Always fetch index.html fresh (cache:'no-cache'). Opaque redirects pass through.
 registerRoute(
