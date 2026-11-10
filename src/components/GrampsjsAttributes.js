@@ -7,6 +7,7 @@ import './GrampsjsFormEditAttribute.js'
 import './GrampsjsIcon.js'
 
 import {fireEvent, linkUrls} from '../util.js'
+import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
 
 export class GrampsjsAttributes extends GrampsjsEditableList {
   static get styles() {
@@ -58,6 +59,7 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
                 : obj.value,
               false
             )}
+        ${renderPrivacyIcon(rowPrivacy(obj), this.appState)}
         <span slot="supporting-text">${this._(obj.type)}</span>
         <grampsjs-icon
           slot="start"

@@ -18,6 +18,7 @@ import '@material/web/iconbutton/icon-button.js'
 import {fireEvent} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {DragReorderController} from '../dragReorderController.js'
+import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
 
 export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -69,6 +70,17 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
           font-weight: var(--md-sys-typescale-label-medium-weight, 500);
           letter-spacing: 0.5px;
           overflow-wrap: anywhere;
+          pointer-events: none;
+        }
+
+        .privacy-badge {
+          position: absolute;
+          top: 4px;
+          right: 4px;
+          display: flex;
+          padding: 4px;
+          border-radius: 50%;
+          background: var(--md-sys-color-surface-container-highest);
           pointer-events: none;
         }
 
@@ -200,6 +212,11 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
   _renderThumbnail(i, profilePictureIndex) {
     const {handle, mime, checksum} = this.media[i]
     const {rect} = this.mediaRef[i]
+    const privacyIcon = renderPrivacyIcon(
+      rowPrivacy(this.media[i], this.mediaRef[i]),
+      this.appState,
+      {inline: false}
+    )
     return html`
       <div class="tile">
         <grampsjs-img
@@ -216,6 +233,9 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
           ? html`<span class="profile-picture-badge"
               >${this._('Profile picture')}</span
             >`
+          : ''}
+        ${privacyIcon
+          ? html`<span class="privacy-badge">${privacyIcon}</span>`
           : ''}
         ${this.edit
           ? html`

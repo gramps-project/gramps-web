@@ -1,4 +1,5 @@
 import {html} from 'lit'
+import {mdiLock, mdiLockOutline} from '@mdi/js'
 
 import {tagColorToCss} from './color.js'
 import {
@@ -195,5 +196,38 @@ export function renderIcon(obj, slot = 'graphic', iconPath = null) {
     slot="${slot}"
     path="${iconPath || objectIconPath[obj.object_type]}"
     color="var(--grampsjs-color-icon)"
+  ></grampsjs-icon>`
+}
+
+/*
+Privacy of a row in a list of secondary objects: 'private' when the item, or
+the object it links to, is private, 'link' when only the link is, '' otherwise.
+*/
+export function rowPrivacy(item, link = null) {
+  if (item?.private) {
+    return 'private'
+  }
+  return link?.private ? 'link' : ''
+}
+
+/*
+Small icon for a row privacy, shown to users who can view private data.
+Inline, it follows the title after a space and a margin, centred on the
+capital height of the surrounding text (about 0.72em) at any font size.
+*/
+export function renderPrivacyIcon(privacy, appState, {inline = true} = {}) {
+  if (!privacy || !appState?.permissions?.canViewPrivate) {
+    return ''
+  }
+  return html`<grampsjs-icon
+    width="16"
+    height="16"
+    style="${inline
+      ? 'vertical-align: calc(0.36em - 8px); margin-left: 3px'
+      : ''}"
+    path="${privacy === 'link' ? mdiLockOutline : mdiLock}"
+    color="var(--grampsjs-body-font-color-30)"
+    role="img"
+    aria-label="${translate(appState.i18n?.strings ?? {}, 'Private')}"
   ></grampsjs-icon>`
 }
