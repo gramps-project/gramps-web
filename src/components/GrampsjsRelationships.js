@@ -19,6 +19,7 @@ import './GrampsjsFormNewParentFamily.js'
 import './GrampsjsFormNewPartnerFamily.js'
 import './GrampsjsIcon.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
+import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
 
 export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -404,7 +405,10 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
     return html`
       <h4>
         ${parentTitle}
-        ${this._renderFamilyBtn(familyProfile.gramps_id)}${reorderButtons}
+        ${this._renderFamilyBtn(
+          familyProfile.gramps_id,
+          this._familyFor(familyProfile)
+        )}${reorderButtons}
       </h4>
       <grampsjs-connected-parents
         familyGrampsId="${familyProfile.gramps_id}"
@@ -416,7 +420,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  _renderFamilyBtn(grampsId) {
+  _renderFamilyBtn(grampsId, family) {
     return html` <md-outlined-button
       class="familybtn"
       @click="${() => this._handleButtonClick(grampsId)}"
@@ -427,6 +431,7 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
         slot="icon"
       ></grampsjs-icon>
       ${this._('Family')}
+      ${renderPrivacyIcon(rowPrivacy(family), this.appState)}
     </md-outlined-button>`
   }
 
@@ -442,9 +447,15 @@ export class GrampsjsRelationships extends GrampsjsAppStateMixin(LitElement) {
     )
   }
 
+  // the family object of a family profile
+  _familyFor(profile) {
+    return [...this.familyList, ...this.parentFamilyList].find(
+      obj => obj?.handle === profile.handle
+    )
+  }
+
   _renderChildren(profile, childrenTitle) {
-    const allFamilies = [...this.familyList, ...this.parentFamilyList]
-    const [family] = allFamilies.filter(obj => obj.handle === profile.handle)
+    const family = this._familyFor(profile)
     return html`
       ${profile?.children?.length
         ? html`

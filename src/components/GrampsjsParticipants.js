@@ -13,7 +13,7 @@ import {
   fireEvent,
   typeString,
 } from '../util.js'
-import {renderIcon} from '../objectRender.js'
+import {renderIcon, renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
 
 const PRIMARY_ROLES_EN = new Set(['Primary', 'Family'])
 
@@ -41,6 +41,7 @@ export function participantRefRows(participants, backlinks, eventHandle) {
       occurrence,
       role,
       roleValue: typeString(ref?.role),
+      privacy: rowPrivacy(backlink, ref),
       backlink,
       title:
         (objectType === 'family'
@@ -149,7 +150,8 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
           }
         }}"
       >
-        ${obj.title} ${this._roleLabel(obj.role)}
+        ${obj.title} ${renderPrivacyIcon(obj.privacy, this.appState)}
+        ${this._roleLabel(obj.role)}
         ${renderIcon(
           {object_type: obj.object_type, object: obj.backlink},
           'start'

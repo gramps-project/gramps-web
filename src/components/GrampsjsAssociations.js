@@ -7,6 +7,7 @@ import './GrampsjsFormEditAssociation.js'
 import './GrampsjsIcon.js'
 
 import {personDisplayName, fireEvent} from '../util.js'
+import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
 
 import '@material/web/list/list-item.js'
 
@@ -36,6 +37,7 @@ export class GrampsjsAssociations extends GrampsjsEditableList {
           }
         }}"
         >${personDisplayName(this.extended[i])}
+        ${renderPrivacyIcon(rowPrivacy(this.extended[i], obj), this.appState)}
         <span slot="supporting-text">${this._(obj.rel)}</span>
         <grampsjs-icon
           slot="start"

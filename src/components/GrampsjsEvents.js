@@ -8,12 +8,29 @@ import {
   makeHandle,
   eventTypeIconPath,
 } from '../util.js'
-import {renderIcon} from '../objectRender.js'
+import {renderIcon, renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
 import './GrampsjsFormSelectObject.js'
 import './GrampsjsFormEventRef.js'
 import './GrampsjsFormEditEventInContext.js'
 import './GrampsjsFormNewEvent.js'
 import './GrampsjsObjectForm.js'
+
+/*
+The ref to the event at index `j`, matched by handle and occurrence, since
+an object may refer to the same event more than once.
+*/
+export function eventRefAt(events, eventRefs, j) {
+  const handle = events?.[j]?.handle
+  if (!handle) {
+    return null
+  }
+  const occurrence = events
+    .slice(0, j)
+    .filter(event => event?.handle === handle).length
+  return (
+    (eventRefs || []).filter(ref => ref?.ref === handle)[occurrence] ?? null
+  )
+}
 
 export class GrampsjsEvents extends GrampsjsEditableList {
   static get styles() {
@@ -84,6 +101,10 @@ export class GrampsjsEvents extends GrampsjsEditableList {
             : undefined}"
       >
         ${this._getPrimaryText(objProfile)}
+        ${renderPrivacyIcon(
+          rowPrivacy(obj, eventRefAt(this.data, this.eventRef, j)),
+          this.appState
+        )}
         <span slot="supporting-text"
           >${this._getSecondaryText(objProfile)}</span
         >

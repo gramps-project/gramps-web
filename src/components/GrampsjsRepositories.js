@@ -6,6 +6,7 @@ import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormRepoRef.js'
 import {fireEvent} from '../util.js'
+import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
 
 export class GrampsjsRepositories extends GrampsjsEditableList {
   static get properties() {
@@ -40,6 +41,7 @@ export class GrampsjsRepositories extends GrampsjsEditableList {
         }}"
       >
         ${this.extended[i]?.name ?? ''}
+        ${renderPrivacyIcon(rowPrivacy(this.extended[i], obj), this.appState)}
         ${obj.call_number || obj.media_type
           ? html`<span slot="supporting-text"
               >${[obj.call_number, this._(obj.media_type ?? '')]

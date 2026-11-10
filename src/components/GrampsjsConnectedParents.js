@@ -5,6 +5,7 @@ import {fireEvent} from '../util.js'
 import {renderPersonAvatar, renderPersonDates} from './personListUtils.js'
 import {personListItemStyles} from '../SharedStyles.js'
 import {getSymbols} from '../symbols.js'
+import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
 import '@material/web/list/list.js'
 import '@material/web/list/list-item.js'
 
@@ -86,6 +87,7 @@ export class GrampsjsConnectedParents extends GrampsjsConnectedComponent {
           })}"
       >
         ${personProfile.name_given || ''} ${personProfile.name_surname || ''}
+        ${renderPrivacyIcon(rowPrivacy(extPerson), this.appState)}
         ${renderPersonDates(personProfile, {
           showAge: false,
           ...getSymbols(this.appState.settings, s => this._(s)),

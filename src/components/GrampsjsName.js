@@ -5,6 +5,7 @@ import './GrampsjsFormEditName.js'
 import './GrampsjsObjectForm.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
+import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
 
 export class GrampsjsName extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -31,7 +32,10 @@ export class GrampsjsName extends GrampsjsAppStateMixin(LitElement) {
 
   render() {
     return html`
-      <h4>${this._(this.data.type)}</h4>
+      <h4>
+        ${this._(this.data.type)}
+        ${renderPrivacyIcon(rowPrivacy(this.data), this.appState)}
+      </h4>
       <dl>
         ${this.data.title
           ? html`
