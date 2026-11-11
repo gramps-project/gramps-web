@@ -8,7 +8,8 @@ import './GrampsjsOidcButton.js'
 
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
-import {apiGetTokens, apiOIDCLogin} from '../api.js'
+import {apiGetOIDCConfig, apiGetTokens, apiOIDCLogin} from '../api.js'
+import {OIDC_RETURN_PATH_KEY, reloginProviders} from '../oidc.js'
 import {fireEvent} from '../util.js'
 
 class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
@@ -16,6 +17,11 @@ class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
     return [
       sharedStyles,
       css`
+        grampsjs-oidc-button {
+          display: block;
+          margin-bottom: 16px;
+        }
+
         md-filled-text-field {
           margin-right: 8px;
           margin-bottom: 12px;
@@ -32,6 +38,9 @@ class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
     return {
       username: {type: String},
       _error: {type: String},
+      _loading: {type: Boolean},
+      _providers: {type: Array},
+      _localAuth: {type: Boolean},
     }
   }
 
@@ -39,14 +48,34 @@ class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.username = ''
     this._error = ''
-  }
-
-  get _oidcProvider() {
-    return this.appState?.auth?.claims?.oidc_provider || ''
+    this._loading = false
+    this._providers = []
+    this._localAuth = true
   }
 
   show() {
     this.renderRoot.querySelector('md-dialog').show()
+    this._loadProviders()
+  }
+
+  // Offers the providers the user has linked now, not the one from the token's
+  // claim, which refreshed tokens don't have.
+  async _loadProviders() {
+    this._loading = true
+    const config = await apiGetOIDCConfig()
+    let accounts = null
+    if (config?.enabled) {
+      const res = await this.appState.apiGet('/api/users/-/oidc-accounts/')
+      // older API versions can't list them
+      accounts = 'error' in res ? null : res.data
+    }
+    this._providers = reloginProviders(
+      config,
+      accounts,
+      this.appState?.auth?.claims?.oidc_provider
+    )
+    this._localAuth = !(config?.enabled && config.disable_local_auth)
+    this._loading = false
   }
 
   render() {
@@ -57,39 +86,14 @@ class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
         @close=${this._handleClose}
       >
         <form slot="content" id="form-id" method="dialog">
-          ${this._oidcProvider
-            ? html`
-                <p>${this._('Please sign in again to continue.')}</p>
-                <grampsjs-oidc-button
-                  .provider="${this._oidcProvider}"
-                  .providerName="${this._oidcProvider}"
-                  .onClick="${() => this._handleOIDCLogin()}"
-                  .buttonText="${this._(
-                    'Continue with %s',
-                    this._oidcProvider
-                  )}"
-                  .signingInText="${this._('Signing in...')}"
-                ></grampsjs-oidc-button>
-              `
-            : html`
-                <p>${this._('Please re-enter your password to continue.')}</p>
-                <md-filled-text-field
-                  label="${this._('Password: ').replace(':', '')}"
-                  type="password"
-                  id="password"
-                >
-                </md-filled-text-field>
-                ${this._error
-                  ? html` <p class="alert error">${this._error}</p>`
-                  : ''}
-              `}
+          ${this._loading ? '' : this._renderContent()}
         </form>
 
         <div slot="actions">
           <md-text-button form="form-id" value="cancel"
             >${this._('Cancel')}</md-text-button
           >
-          ${!this._oidcProvider
+          ${!this._loading && this._localAuth
             ? html`<md-text-button @click="${this._handleClickOk}"
                 >${this._('login')}</md-text-button
               >`
@@ -102,6 +106,40 @@ class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
           ></md-text-button>
         </div>
       </md-dialog>
+    `
+  }
+
+  _renderContent() {
+    return html`
+      ${this._providers.length
+        ? html`
+            <p>${this._('Please sign in again to continue.')}</p>
+            ${this._providers.map(
+              provider => html`
+                <grampsjs-oidc-button
+                  .provider="${provider.id}"
+                  .providerName="${provider.name}"
+                  .onClick="${() => this._handleOIDCLogin(provider.id)}"
+                  .buttonText="${this._('Continue with %s', provider.name)}"
+                  .signingInText="${this._('Signing in...')}"
+                ></grampsjs-oidc-button>
+              `
+            )}
+          `
+        : html`<p>${this._('Please re-enter your password to continue.')}</p>`}
+      ${this._localAuth
+        ? html`
+            <md-filled-text-field
+              label="${this._('Password: ').replace(':', '')}"
+              type="password"
+              id="password"
+            >
+            </md-filled-text-field>
+            ${this._error
+              ? html` <p class="alert error">${this._error}</p>`
+              : ''}
+          `
+        : ''}
     `
   }
 
@@ -118,8 +156,15 @@ class GrampsjsRelogin extends GrampsjsAppStateMixin(LitElement) {
     // click the actual (hidden) OK button
   }
 
-  async _handleOIDCLogin() {
-    const res = await apiOIDCLogin(this._oidcProvider)
+  // Signing in through the provider leaves the page and comes back to it.
+  async _handleOIDCLogin(providerId) {
+    fireEvent(this, 'relogin-redirect')
+    try {
+      sessionStorage.setItem(OIDC_RETURN_PATH_KEY, window.location.pathname)
+    } catch {
+      // then the sign-in ends on the home page
+    }
+    const res = await apiOIDCLogin(providerId)
     if (res?.error) {
       fireEvent(this, 'grampsjs:error', {message: res.error})
     }

@@ -3,6 +3,7 @@ import {
   completeLink,
   OIDC_LINK_RESULT_KEY,
   OIDC_RETURN_PATH_KEY,
+  reloginProviders,
   takeReturnPath,
 } from '../../src/oidc.js'
 
@@ -64,5 +65,49 @@ describe('returning after signing in through the provider', () => {
       sessionStorage.setItem(OIDC_RETURN_PATH_KEY, path)
       expect(takeReturnPath()).toBe('/')
     }
+  })
+})
+
+describe('providers offered for signing in again', () => {
+  const config = {
+    enabled: true,
+    providers: [
+      {id: 'google', name: 'Google'},
+      {id: 'custom', name: 'Company login'},
+    ],
+  }
+
+  it('offers the linked providers, not the claim', () => {
+    const accounts = [{provider_id: 'custom'}, {provider_id: 'custom'}]
+    expect(reloginProviders(config, accounts, 'google')).toEqual([
+      {id: 'custom', name: 'Company login'},
+    ])
+  })
+
+  it('works without a claim, as after a token refresh', () => {
+    const accounts = [{provider_id: 'google'}, {provider_id: 'custom'}]
+    expect(reloginProviders(config, accounts, undefined)).toEqual([
+      {id: 'google', name: 'Google'},
+      {id: 'custom', name: 'Company login'},
+    ])
+  })
+
+  it('skips identities of providers that are no longer configured', () => {
+    expect(reloginProviders(config, [{provider_id: 'gone'}], 'gone')).toEqual(
+      []
+    )
+  })
+
+  it('falls back to the claim if the accounts cannot be listed', () => {
+    expect(reloginProviders(config, null, 'google')).toEqual([
+      {id: 'google', name: 'Google'},
+    ])
+    expect(reloginProviders(config, null, undefined)).toEqual([])
+  })
+
+  it('offers nothing while OIDC is disabled', () => {
+    expect(
+      reloginProviders({enabled: false}, [{provider_id: 'google'}], 'google')
+    ).toEqual([])
   })
 })

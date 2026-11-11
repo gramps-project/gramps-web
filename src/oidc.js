@@ -76,6 +76,28 @@ export function takeReturnPath() {
   }
 }
 
+// The providers to offer for signing in again, as {id, name}: the configured
+// ones the user has linked, or, if `accounts` is null because the API can't
+// list them, the one from the token's `oidc_provider` claim. Tokens from a
+// refresh don't have that claim.
+export function reloginProviders(config, accounts, claimProvider) {
+  if (!config?.enabled) {
+    return []
+  }
+  const configured = config.providers ?? []
+  if (!Array.isArray(accounts)) {
+    if (!claimProvider) {
+      return []
+    }
+    const name = configured.find(p => p.id === claimProvider)?.name
+    return [{id: claimProvider, name: name ?? claimProvider}]
+  }
+  const linked = new Set(accounts.map(account => account.provider_id))
+  return configured
+    .filter(p => linked.has(p.id))
+    .map(p => ({id: p.id, name: p.name ?? p.id}))
+}
+
 // A link started in Settings comes back with `link_code` or `error` instead of
 // a login code. Only the user who started it can complete it, with their token.
 export async function completeLink(appState, linkCode, error) {

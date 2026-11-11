@@ -10,7 +10,7 @@ import '@material/web/textfield/filled-text-field'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {__APIHOST__, apiGetOIDCConfig} from '../api.js'
-import {OIDC_LINK_RESULT_KEY, OIDC_RETURN_PATH_KEY} from '../oidc.js'
+import {OIDC_LINK_RESULT_KEY} from '../oidc.js'
 import {fireEvent} from '../util.js'
 import './GrampsjsRelogin.js'
 import './GrampsjsTimedelta.js'
@@ -102,8 +102,10 @@ export class GrampsjsOidcAccounts extends GrampsjsAppStateMixin(LitElement) {
     this._providers = []
     this._pendingUnlink = null
     this._unlinkError = ''
-    // Non-reactive: the action to retry after a successful relogin.
+    // Non-reactive: the action to retry after a successful relogin, and its
+    // description for resuming it after signing in through a provider.
     this._pendingAction = null
+    this._pendingResume = null
   }
 
   update(changed) {
@@ -163,6 +165,7 @@ export class GrampsjsOidcAccounts extends GrampsjsAppStateMixin(LitElement) {
         .appState="${this.appState}"
         username="${this.username}"
         @relogin="${this._handleRelogin}"
+        @relogin-redirect="${this._saveResumeAction}"
       ></grampsjs-relogin>
     `
   }
@@ -270,11 +273,21 @@ export class GrampsjsOidcAccounts extends GrampsjsAppStateMixin(LitElement) {
     this._resumeAction()
   }
 
-  _resumeAction() {
+  async _resumeAction() {
     const action = takeResumeAction()
-    if (action?.link) {
+    if (!action) {
+      return
+    }
+    // A dialog in a collapsed settings section would be hidden but still
+    // block the page.
+    const section = this.closest('grampsjs-collapsible-section')
+    if (section && !section.open) {
+      section.open = true
+      await section.updateComplete
+    }
+    if (action.link) {
       this._link(action.link)
-    } else if (action?.unlink) {
+    } else if (action.unlink) {
       const account = this._accounts.find(a => a.id === action.unlink)
       if (account) {
         this._requestUnlink(account)
@@ -312,19 +325,21 @@ export class GrampsjsOidcAccounts extends GrampsjsAppStateMixin(LitElement) {
       return
     }
     this._pendingAction = action
-    if (this.appState.auth.claims?.oidc_provider) {
-      // signing in again goes through the provider, a full page load
-      try {
-        sessionStorage.setItem(
-          RESUME_KEY,
-          JSON.stringify({...resume, at: Date.now()})
-        )
-        sessionStorage.setItem(OIDC_RETURN_PATH_KEY, window.location.pathname)
-      } catch {
-        // then the user starts the action again after signing in
-      }
-    }
+    this._pendingResume = resume
     this.renderRoot.querySelector('grampsjs-relogin').show()
+  }
+
+  // Signing in again through a provider leaves the page; the action resumes
+  // when the settings page loads again.
+  _saveResumeAction() {
+    try {
+      sessionStorage.setItem(
+        RESUME_KEY,
+        JSON.stringify({...this._pendingResume, at: Date.now()})
+      )
+    } catch {
+      // then the user starts the action again after signing in
+    }
   }
 
   _handleRelogin() {
