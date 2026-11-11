@@ -40,6 +40,7 @@ import {
   LOADING_STATE_NO_TREE,
   LOADING_STATE_READY,
   selectPreReadyView,
+  treeFromPath,
   OBJECT_PAGES,
   PAGE_TITLES,
   pageTitleDetail,
@@ -427,7 +428,7 @@ export class GrampsJs extends LitElement {
     return html`
       <grampsjs-login
         .appState="${this.appState}"
-        tree="${this.appState.path.pageId}"
+        tree="${treeFromPath(this.appState.path)}"
       ></grampsjs-login>
     `
   }
@@ -436,7 +437,7 @@ export class GrampsJs extends LitElement {
     return html`
       <grampsjs-form-register
         .appState="${this.appState}"
-        tree="${this.appState.path.pageId}"
+        tree="${treeFromPath(this.appState.path)}"
       ></grampsjs-form-register>
     `
   }

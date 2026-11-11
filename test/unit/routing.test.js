@@ -8,6 +8,7 @@ import {
   LOADING_STATE_NO_TREE,
   LOADING_STATE_READY,
   selectPreReadyView,
+  treeFromPath,
 } from '../../src/routing.js'
 
 describe('selectPreReadyView', () => {
@@ -145,5 +146,22 @@ describe('selectPreReadyView', () => {
 
   it('tolerates being called with no options', () => {
     expect(selectPreReadyView(LOADING_STATE_INITIAL)).toEqual({view: 'initial'})
+  })
+})
+
+describe('treeFromPath', () => {
+  it('takes the tree from the login and register pages', () => {
+    expect(treeFromPath({page: 'login', pageId: 'abc'})).toBe('abc')
+    expect(treeFromPath({page: 'register', pageId: 'abc'})).toBe('abc')
+  })
+
+  it('has no tree on the plain login page', () => {
+    expect(treeFromPath({page: 'login', pageId: ''})).toBe('')
+    expect(treeFromPath({page: 'login'})).toBe('')
+  })
+
+  it('ignores the ID of the page the login view replaces', () => {
+    expect(treeFromPath({page: 'settings', pageId: 'users'})).toBe('')
+    expect(treeFromPath({page: 'person', pageId: 'I0001'})).toBe('')
   })
 })

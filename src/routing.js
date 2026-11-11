@@ -68,6 +68,13 @@ export function selectPreReadyView(
   }
 }
 
+// The tree named by /login/<tree> or /register/<tree>. The login view is also
+// shown in place of any other page, e.g. after logging out, and the ID of that
+// page is not a tree.
+export function treeFromPath({page, pageId} = {}) {
+  return ['login', 'register'].includes(page) ? pageId ?? '' : ''
+}
+
 // Pages where the Gramps ID is used as the page title
 export const OBJECT_PAGES = new Set([
   'person',
