@@ -105,6 +105,18 @@ describe('providers offered for signing in again', () => {
     expect(reloginProviders(config, null, undefined)).toEqual([])
   })
 
+  it('falls back to the claim if the configuration cannot be loaded', () => {
+    expect(reloginProviders({error: 'Network error'}, null, 'google')).toEqual([
+      {id: 'google', name: 'google'},
+    ])
+    expect(reloginProviders(undefined, null, 'google')).toEqual([
+      {id: 'google', name: 'google'},
+    ])
+    expect(reloginProviders({error: 'Network error'}, null, undefined)).toEqual(
+      []
+    )
+  })
+
   it('offers nothing while OIDC is disabled', () => {
     expect(
       reloginProviders({enabled: false}, [{provider_id: 'google'}], 'google')

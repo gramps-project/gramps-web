@@ -78,14 +78,15 @@ export function takeReturnPath() {
 
 // The providers to offer for signing in again, as {id, name}: the configured
 // ones the user has linked, or, if `accounts` is null because the API can't
-// list them, the one from the token's `oidc_provider` claim. Tokens from a
-// refresh don't have that claim.
+// list them or the configuration could not be loaded, the one from the
+// token's `oidc_provider` claim. Tokens from a refresh don't have that claim.
 export function reloginProviders(config, accounts, claimProvider) {
-  if (!config?.enabled) {
+  const configLoaded = Boolean(config) && !('error' in config)
+  if (configLoaded && !config.enabled) {
     return []
   }
-  const configured = config.providers ?? []
-  if (!Array.isArray(accounts)) {
+  const configured = (configLoaded && config.providers) || []
+  if (!configLoaded || !Array.isArray(accounts)) {
     if (!claimProvider) {
       return []
     }
