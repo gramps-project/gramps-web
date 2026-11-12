@@ -516,5 +516,6 @@
     "Back to login": "Späť na prihlásenie",
     "E-mail address": "E-mailová adresa",
     "Full name": "Celé meno",
-    "Edit for everyone": "Povoliť úpravy všetkým"
+    "Edit for everyone": "Povoliť úpravy všetkým",
+    "%s changes": "Zmeny: %s"
 }
