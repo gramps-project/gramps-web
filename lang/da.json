@@ -428,5 +428,15 @@
     "No changes detected.": "Ingen ændringer fundet.",
     "Object Type": "Objekttype",
     "Unchanged": "Uændret",
-    "This restores object data and media references only. Binary media files and tree metadata (default person, bookmarks, name groups) are not affected.": "Dette genskaber udelukkende objektdata og mediereferencer. Binæremediefiler og træmetadata (standardperson, bogmærker, navnegrupper) bliver ikke berørt."
+    "This restores object data and media references only. Binary media files and tree metadata (default person, bookmarks, name groups) are not affected.": "Dette genskaber udelukkende objektdata og mediereferencer. Binæremediefiler og træmetadata (standardperson, bogmærker, navnegrupper) bliver ikke berørt.",
+    "Confirm Import": "Bekræft import",
+    "This file contains the following objects, which will be added to your tree:": "Denne fil indeholder de følgende objekter, som vil blive tilføjet dit træ:",
+    "No objects found in this file.": "Ingen objekter fundet i denne fil.",
+    "Preview Import": "Forhåndsvis import",
+    "Select date": "Vælg dato",
+    "Clear selection": "Nulstil valget",
+    "Draw a selection": "Tegn et udvalg",
+    "New Blog Post": "Nyt bloginlæg",
+    "Blog Post": "Bloginlæg",
+    "Failed to fetch the Blog tag": "Kunne ikke hente blogettiketten"
 }
