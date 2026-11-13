@@ -130,7 +130,7 @@ describe('browser notification settings', () => {
 
     element._status = 'unavailable'
     expect(templateMarkup(element._renderFeedback())).to.contain(
-      'Notifications are unavailable in this browser or on this server.'
+      'Notifications are unavailable in this browser.'
     )
   })
 

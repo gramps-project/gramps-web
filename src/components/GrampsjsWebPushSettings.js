@@ -112,9 +112,7 @@ export class GrampsjsWebPushSettings extends GrampsjsAppStateMixin(LitElement) {
     }
     if (this._status === 'unsupported' || this._status === 'unavailable') {
       return html`<p class="status feedback">
-        ${this._(
-          'Notifications are unavailable in this browser or on this server.'
-        )}
+        ${this._('Notifications are unavailable in this browser.')}
       </p>`
     }
     if (this._status === 'denied') {
