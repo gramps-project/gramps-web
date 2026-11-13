@@ -284,7 +284,7 @@ describe('browser notification settings', () => {
     expect(element.appState.apiDelete).toHaveBeenCalledWith(
       PUSH_SUBSCRIPTIONS_ENDPOINT,
       {
-        body: {endpoint: subscription.endpoint},
+        payload: {endpoint: subscription.endpoint},
         saving: false,
         dbChanged: false,
       }

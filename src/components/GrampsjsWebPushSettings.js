@@ -301,7 +301,7 @@ export class GrampsjsWebPushSettings extends GrampsjsAppStateMixin(LitElement) {
 
   _deleteRemoteSubscription(endpoint) {
     return this.appState.apiDelete(PUSH_SUBSCRIPTIONS_ENDPOINT, {
-      body: {endpoint},
+      payload: {endpoint},
       saving: false,
       dbChanged: false,
     })
