@@ -40,6 +40,7 @@
   "No active access tokens.": "No active access tokens.",
   "Some access tokens could not be loaded.": "Some access tokens could not be loaded.",
   "Retry": "Retry",
+  "Notifications are unavailable in this browser.": "Notifications are unavailable in this browser.",
   "Revoke": "Revoke",
   "Revoke access token?": "Revoke access token?",
   "Revoking this token will immediately stop any application or service using it.": "Revoking this token will immediately stop any application or service using it.",
