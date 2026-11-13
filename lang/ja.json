@@ -515,5 +515,14 @@
     "Back to login": "ログイン画面に戻る",
     "E-mail address": "メールアドレス",
     "Full name": "氏名",
-    "Edit for everyone": "全員の編集"
+    "Edit for everyone": "全員の編集",
+    "Supported formats: %s": "対応形式: %s",
+    "ZIP archives cannot be imported.": "ZIPアーカイブはインポートできません。",
+    "If it contains a GEDCOM (.ged) file, unzip it and upload that file.": "GEDCOM (.ged) ファイルが含まれている場合は、それを解凍してからアップロードしてください。",
+    "How to fix this": "修正方法",
+    "Import a family tree file first. The files in the ZIP archive are matched to its media objects.": "まず、家系図ファイルをインポートしてください。ZIPアーカイブ内のファイルは、それぞれのメディアオブジェクトと紐付けられています。",
+    "To start building your family tree, add yourself as a person.": "家系図の作成を始めるには、まず自分自身を「人物」として追加してください。",
+    "%s changes": "%s の変更点",
+    "Applies only to this participant's link to the event.": "この参加者のイベントへのリンクにのみ適用されます。",
+    "No notifications": "通知なし"
 }
