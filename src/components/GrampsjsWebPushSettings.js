@@ -110,20 +110,15 @@ export class GrampsjsWebPushSettings extends GrampsjsAppStateMixin(LitElement) {
         ${this._('Loading...')}
       </p>`
     }
-    if (this._status === 'unsupported' || this._status === 'unavailable') {
+    if (['unsupported', 'unavailable', 'denied'].includes(this._status)) {
       return html`<p class="status feedback">
         ${this._('Notifications are unavailable in this browser.')}
-      </p>`
-    }
-    if (this._status === 'denied') {
-      return html`<p class="status feedback">
-        ${this._('Notifications are blocked in browser settings.')}
       </p>`
     }
     if (this._status === 'error' || this._status === 'cleanup-error') {
       return html`
         <p class="error feedback" role="alert">
-          ${this._('Could not update notifications.')} ${this._error}
+          ${this._('An error occurred')} ${this._error}
           <md-icon-button
             title="${this._('Retry')}"
             aria-label="${this._('Retry')}"

@@ -190,9 +190,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
                     ></grampsjs-web-push-settings>
                   `
                 : html`
-                    <p role="alert">
-                      ${this._('Could not load notification settings.')}
-                    </p>
+                    <p role="alert">${this._('An error occurred')}</p>
                     <md-outlined-button @click="${this._loadWebPushConfig}"
                       >${this._('Retry')}</md-outlined-button
                     >

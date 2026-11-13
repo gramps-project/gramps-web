@@ -121,17 +121,26 @@ describe('browser notification settings', () => {
     )
   })
 
-  it('uses a browser toggle and only shows feedback when needed', () => {
+  it('uses generic feedback for denied and unavailable browser states', () => {
     const element = createElement()
 
     element._status = 'inactive'
     expect(templateMarkup(element.render())).to.contain('<md-switch')
     expect(templateMarkup(element._renderFeedback())).to.equal('')
 
-    element._status = 'unavailable'
+    for (const status of ['unsupported', 'unavailable', 'denied']) {
+      element._status = status
+      expect(templateMarkup(element._renderFeedback())).to.contain(
+        'Notifications are unavailable in this browser.'
+      )
+    }
+
+    element._status = 'error'
+    element._error = 'Network error'
     expect(templateMarkup(element._renderFeedback())).to.contain(
-      'Notifications are unavailable in this browser.'
+      'An error occurred'
     )
+    expect(templateMarkup(element._renderFeedback())).to.contain('Retry')
   })
 
   it('routes browser toggle changes to the matching action', () => {
@@ -192,7 +201,7 @@ describe('browser notification settings', () => {
 
     await view._loadWebPushConfig()
     const markup = templateMarkup(view.renderContent())
-    expect(markup).to.contain('Could not load notification settings.')
+    expect(markup).to.contain('An error occurred')
     expect(markup).to.contain('Retry')
     expect(markup).not.to.contain('<md-switch')
 
