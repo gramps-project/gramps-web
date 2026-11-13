@@ -517,5 +517,13 @@
     "E-mail address": "E-mailová adresa",
     "Full name": "Celé meno",
     "Edit for everyone": "Povoliť úpravy všetkým",
-    "%s changes": "Zmeny: %s"
+    "%s changes": "Zmeny: %s",
+    "Supported formats: %s": "Podporované formáty: %s",
+    "ZIP archives cannot be imported.": "Archívy vo formáte ZIP nie je možné importovať.",
+    "If it contains a GEDCOM (.ged) file, unzip it and upload that file.": "Ak obsahuje súbor GEDCOM (.ged), rozbaľte ho a nahrajte tento súbor.",
+    "How to fix this": "Ako toto napraviť",
+    "Import a family tree file first. The files in the ZIP archive are matched to its media objects.": "Najskôr importujte súbor s rodokmeňom. Súbory v archíve ZIP sú priradené k príslušným mediálnym objektom.",
+    "To start building your family tree, add yourself as a person.": "Ak chcete začať vytvárať svoj rodokmeň, pridajte najskôr seba ako osobu.",
+    "Applies only to this participant's link to the event.": "Platí iba pre odkaz tohto účastníka na udalosť.",
+    "No notifications": "Žiadne oznámenia"
 }
