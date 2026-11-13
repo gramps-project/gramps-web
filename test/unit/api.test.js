@@ -695,8 +695,7 @@ describe('Auth.signout', () => {
     expect(localStorage.getItem('access_token')).toBeNull()
   })
 
-  it('keeps the warning visible before an OIDC redirect', async () => {
-    vi.useFakeTimers()
+  it('does not delay an OIDC redirect after push cleanup fails', async () => {
     const subscription = {
       endpoint: 'https://push.example.test/1',
       unsubscribe: vi.fn().mockResolvedValue(false),
@@ -734,14 +733,8 @@ describe('Auth.signout', () => {
       )
     )
 
-    const signout = new Auth().signout()
-    await vi.advanceTimersByTimeAsync(0)
-
+    await new Auth().signout()
     expect(events[0].detail.pushCleanupWarning).toBe(true)
-    expect(calls).not.toContain('navigate:https://auth.example.com/end-session')
-
-    await vi.advanceTimersByTimeAsync(5000)
-    await signout
     expect(calls).toContain('navigate:https://auth.example.com/end-session')
   })
 

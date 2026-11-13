@@ -1093,9 +1093,6 @@ export class Auth {
     })
 
     if (logoutUrl) {
-      if (pushCleanupWarning) {
-        await new Promise(resolve => setTimeout(resolve, 5000))
-      }
       window.location.href = logoutUrl
     }
   }
