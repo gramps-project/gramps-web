@@ -520,5 +520,11 @@
     "Edit for everyone": "Editar para todos",
     "%s changes": "%s alterações",
     "Applies only to this participant's link to the event.": "Aplica-se apenas à ligação deste participante ao evento.",
-    "No notifications": "Sem notificações"
+    "No notifications": "Sem notificações",
+    "Supported formats: %s": "Formatos suportados: %s",
+    "ZIP archives cannot be imported.": "Impossível importar arquivos ZIP.",
+    "If it contains a GEDCOM (.ged) file, unzip it and upload that file.": "Se contiver um ficheiro Gedcom (.ged), extraia-o e envie-o.",
+    "How to fix this": "Como reparar isto",
+    "Import a family tree file first. The files in the ZIP archive are matched to its media objects.": "Importe um ficheiro de família. Os ficheiros no arquivo ZIP são associados aos seus objectos multimédia.",
+    "To start building your family tree, add yourself as a person.": "Para começar a sua árvore genealógica, adicione a sua própria pessoa."
 }
