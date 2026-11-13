@@ -518,5 +518,7 @@
     "E-mail address": "Endereço electrónico",
     "Full name": "Nome completo",
     "Edit for everyone": "Editar para todos",
-    "%s changes": "%s alterações"
+    "%s changes": "%s alterações",
+    "Applies only to this participant's link to the event.": "Aplica-se apenas à ligação deste participante ao evento.",
+    "No notifications": "Sem notificações"
 }
