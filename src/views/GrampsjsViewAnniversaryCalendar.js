@@ -26,11 +26,13 @@ import {
 import {tagFilter} from '../filterDefinitions.js'
 import {gregorianYmd} from '../gcalendar.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
+import {familyTitleFromProfile, personTitleFromProfile} from '../util.js'
 import {GrampsjsView} from './GrampsjsView.js'
 
 const PAGE_SIZE = 500
 const DEFAULT_EVENT_TYPES = ['Birth', 'Marriage', 'Death']
-const PRIMARY_ROLES = new Set(['Primary', 'Family'])
+const PRIMARY_ROLE = 'Primary'
+const FAMILY_ROLE = 'Family'
 
 function isoDate(value) {
   return [
@@ -166,33 +168,37 @@ function exactGregorianDate(date) {
   }
 }
 
-function participantRecords(
-  event,
-  primaryRoleLabels,
-  translate = value => value
-) {
+function isPrimaryRole(role, objectType, translate) {
+  const primaryRole = objectType === 'family' ? FAMILY_ROLE : PRIMARY_ROLE
+  return role === primaryRole || role === translate(primaryRole)
+}
+
+function participantRecords(event, translate = value => value) {
   const profile = event.profile?.participants ?? {}
   const people = (profile.people ?? []).map(({person, role}) => ({
     object_type: 'person',
     handle: person?.handle,
     gramps_id: person?.gramps_id,
-    name: person?.name_display || person?.gramps_id || '',
+    name: personTitleFromProfile(person || {}) || person?.gramps_id || '',
     person,
     personHandles: person?.handle ? [person.handle] : [],
-    roleIsPrimary: primaryRoleLabels.has(role),
+    roleIsPrimary: isPrimaryRole(role, 'person', translate),
   }))
   const families = (profile.families ?? []).map(({family, role}) => {
     const parents = [family?.father, family?.mother].filter(Boolean)
-    const names = parents.map(person => person.name_display).filter(Boolean)
     return {
       object_type: 'family',
       handle: family?.handle,
       gramps_id: family?.gramps_id,
-      name: names.join(` ${translate('and')} `) || family?.family_surname || '',
+      name:
+        familyTitleFromProfile(family || {}) ||
+        family?.family_surname ||
+        family?.gramps_id ||
+        '',
       family,
       persons: parents,
       personHandles: parents.map(person => person.handle).filter(Boolean),
-      roleIsPrimary: primaryRoleLabels.has(role),
+      roleIsPrimary: isPrimaryRole(role, 'family', translate),
     }
   })
   return [...people, ...families]
@@ -202,8 +208,7 @@ export function buildAnniversaryOccurrences({
   events,
   start,
   end,
-  primaryRoleLabels = PRIMARY_ROLES,
-  translate,
+  translate = value => value,
 }) {
   const startYear = dateParts(start)[0]
   const endYear = dateParts(end)[0]
@@ -218,7 +223,7 @@ export function buildAnniversaryOccurrences({
   for (const event of events) {
     const date = exactGregorianDate(event.date)
     if (!date) continue
-    const participants = participantRecords(event, primaryRoleLabels, translate)
+    const participants = participantRecords(event, translate)
       .filter(participant => participant.roleIsPrimary)
       .map(({personHandles, roleIsPrimary, ...participant}) => participant)
 
@@ -416,6 +421,7 @@ export class GrampsjsViewAnniversaryCalendar extends GrampsjsStaleDataMixin(
       _data: {type: Array},
       _end: {type: String},
       _error: {type: String},
+      _hasLoaded: {type: Boolean},
       _loaded: {type: Boolean},
       _loading: {type: Boolean},
       _mode: {type: String},
@@ -430,6 +436,7 @@ export class GrampsjsViewAnniversaryCalendar extends GrampsjsStaleDataMixin(
     const range = fourWeekRange()
     this._data = []
     this._error = ''
+    this._hasLoaded = false
     this._loaded = false
     this._loading = false
     this._mode = 'list'
@@ -437,6 +444,7 @@ export class GrampsjsViewAnniversaryCalendar extends GrampsjsStaleDataMixin(
     this._start = range.start
     this._end = range.end
     this._isCurrentPeriod = true
+    this._lastRefreshDay = isoDate(new Date())
     this._eventRules = []
     this._eventQuery = ''
   }
@@ -444,7 +452,9 @@ export class GrampsjsViewAnniversaryCalendar extends GrampsjsStaleDataMixin(
   connectedCallback() {
     super.connectedCallback()
     this._boundHandleVisibility = () => {
-      if (!document.hidden && this.active) this._refreshData()
+      if (!document.hidden && isoDate(new Date()) !== this._lastRefreshDay) {
+        this._refreshData()
+      }
     }
     document.addEventListener('visibilitychange', this._boundHandleVisibility)
     this._scheduleDateRefresh()
@@ -473,6 +483,7 @@ export class GrampsjsViewAnniversaryCalendar extends GrampsjsStaleDataMixin(
   }
 
   _refreshData() {
+    this._lastRefreshDay = isoDate(new Date())
     if (this._isCurrentPeriod) {
       const range = fourWeekRange()
       this._start = range.start
@@ -555,11 +566,6 @@ export class GrampsjsViewAnniversaryCalendar extends GrampsjsStaleDataMixin(
         events,
         start: this._start,
         end: this._end,
-        primaryRoleLabels: new Set([
-          ...PRIMARY_ROLES,
-          this._('Primary'),
-          this._('Family'),
-        ]),
         translate: value => this._(value),
       })
     } catch (error) {
@@ -568,7 +574,10 @@ export class GrampsjsViewAnniversaryCalendar extends GrampsjsStaleDataMixin(
         this._error = error.message || this._('Error')
       }
     } finally {
-      if (requestId === this._requestSequence) this._loading = false
+      if (requestId === this._requestSequence) {
+        this._loading = false
+        this._hasLoaded = true
+      }
     }
   }
 
@@ -621,7 +630,7 @@ export class GrampsjsViewAnniversaryCalendar extends GrampsjsStaleDataMixin(
       class="anniversary-row ${isMilestoneOccurrence ? 'milestone' : ''}"
       noninteractive
     >
-      ${person ? renderPersonAvatar(person, person.profile?.sex) : ''}
+      ${person ? renderPersonAvatar(person, person.sex) : ''}
       <span slot="headline">
         ${occurrence.type}:
         ${occurrence.participants.length
@@ -634,7 +643,7 @@ export class GrampsjsViewAnniversaryCalendar extends GrampsjsStaleDataMixin(
         (participant.person
           ? [participant.person]
           : participant.persons || []
-        ).map(personRecord => renderPersonDates(personRecord.profile))
+        ).map(personRecord => renderPersonDates(personRecord))
       )}
       <span slot="supporting-text">${occurrence.event_date}</span>
       <span slot="supporting-text"
@@ -757,7 +766,7 @@ export class GrampsjsViewAnniversaryCalendar extends GrampsjsStaleDataMixin(
             >
           </div>`
         : ''}
-      ${!this._loading && !this._error && !this._data.length
+      ${this._hasLoaded && !this._loading && !this._error && !this._data.length
         ? html`<p class="status">${this._('None')}.</p>`
         : ''}
       ${this._mode === 'list' ? this._renderList() : this._renderGrid()}

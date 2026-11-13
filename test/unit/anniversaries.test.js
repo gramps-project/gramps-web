@@ -18,7 +18,16 @@ function createView() {
 }
 
 function person(handle, grampsId = handle, name = handle) {
-  return {handle, gramps_id: grampsId, name_display: name, profile: {}}
+  const [given, ...surname] = name.split(' ')
+  return {
+    handle,
+    gramps_id: grampsId,
+    name_given: given,
+    name_surname: surname.join(' '),
+    sex: 'M',
+    birth: {date: '1 Jan 1980'},
+    death: {date: '2 Feb 2020', age: '40'},
+  }
 }
 
 function event({
@@ -99,7 +108,8 @@ describe('anniversary date window', () => {
     expect(view._load).toHaveBeenCalledOnce()
   })
 
-  it('reloads when tree data changes or the page becomes visible', () => {
+  it('reloads on tree changes and only refreshes visibility after a date change', () => {
+    vi.useFakeTimers({now: new Date(2026, 8, 24)})
     const view = createView()
     view.active = true
     view._load = vi.fn()
@@ -108,6 +118,10 @@ describe('anniversary date window', () => {
     window.dispatchEvent(new Event('db:changed'))
     document.dispatchEvent(new Event('visibilitychange'))
 
+    expect(view._load).toHaveBeenCalledOnce()
+
+    vi.setSystemTime(new Date(2026, 8, 25))
+    document.dispatchEvent(new Event('visibilitychange'))
     expect(view._load).toHaveBeenCalledTimes(2)
     view.disconnectedCallback()
   })
@@ -202,15 +216,52 @@ describe('recurring occurrences from Gramps events', () => {
   })
 
   it('shows primary participants only', () => {
-    const birth = event({participant: person('primary', 'I0001', 'Ada')})
+    const birth = event({
+      participant: person('primary', 'I0001', 'Ada Example'),
+    })
     birth.profile.participants.people.push({
       role: 'Witness',
       person: person('witness', 'I0002', 'Bea'),
     })
+    birth.profile.participants.people.push({
+      role: 'Family',
+      person: person('mismatched-role', 'I0003', 'Casey'),
+    })
 
     const occurrences = build([birth])
 
-    expect(occurrences[0].participants.map(item => item.name)).toEqual(['Ada'])
+    expect(occurrences[0].participants.map(item => item.name)).toEqual([
+      'Ada Example',
+    ])
+  })
+
+  it('matches translated roles by participant type', () => {
+    const translatedPerson = event({
+      role: 'Principal',
+      participant: person('person', 'I0001', 'Ada Example'),
+    })
+    const translatedFamily = event({
+      handle: 'family-event',
+      type: 'Marriage',
+      role: 'Famille',
+      family: {
+        handle: 'family-1',
+        gramps_id: 'F0001',
+        father: person('father', 'I0002', 'Alex Example'),
+        mother: person('mother', 'I0003', 'Sam Example'),
+      },
+    })
+    const translate = role =>
+      ({Primary: 'Principal', Family: 'Famille'}[role] || role)
+
+    const occurrences = build([translatedPerson, translatedFamily], {translate})
+
+    expect(occurrences[0].participants.map(item => item.name)).toEqual([
+      'Ada Example',
+    ])
+    expect(occurrences[1].participants.map(item => item.name)).toEqual([
+      'Alex Example & Sam Example',
+    ])
   })
 })
 
@@ -232,6 +283,73 @@ describe('anniversaries views', () => {
     expect(container.querySelector('.anniversary-row').textContent).toContain(
       '4/3/2001'
     )
+  })
+
+  it('renders participant dates and colors the avatar from the profile itself', () => {
+    vi.useFakeTimers({now: new Date(2026, 2, 20)})
+    const view = createView()
+    view._data = build([event({month: 3, day: 4, year: 2001})], {
+      start: '2026-03-02',
+      end: '2026-03-29',
+    })
+    const container = document.createElement('div')
+    render(view._renderList(), container)
+
+    expect(
+      container.querySelector('grampsjs-icon[style*="--color-boy"]')
+    ).not.toBeNull()
+    expect(container.querySelector('.anniversary-row').textContent).toContain(
+      '1 Jan 1980'
+    )
+    expect(container.querySelector('.anniversary-row').textContent).toContain(
+      '2 Feb 2020'
+    )
+  })
+
+  it('renders parent dates and avatar for family participants', () => {
+    const view = createView()
+    view._data = build(
+      [
+        event({
+          type: 'Marriage',
+          role: 'Family',
+          family: {
+            handle: 'family-1',
+            gramps_id: 'F0001',
+            father: person('father', 'I0001', 'Alex Example'),
+            mother: person('mother', 'I0002', 'Sam Example'),
+          },
+        }),
+      ],
+      {start: '2026-01-01', end: '2026-12-31'}
+    )
+    const container = document.createElement('div')
+    render(view._renderList(), container)
+
+    expect(
+      container.querySelector('grampsjs-icon[style*="--color-boy"]')
+    ).not.toBeNull()
+    expect(container.querySelector('.anniversary-row').textContent).toContain(
+      '1 Jan 1980'
+    )
+  })
+
+  it('does not show the empty state until loading has completed', () => {
+    const view = createView()
+    const container = document.createElement('div')
+
+    render(view.renderContent(), container)
+    expect(container.textContent).not.toContain('None.')
+
+    view._loading = true
+    render(view.renderContent(), container)
+    expect(container.textContent).toContain('Loading...')
+    expect(container.textContent).not.toContain('None.')
+
+    view._loading = false
+    view._hasLoaded = true
+    render(view.renderContent(), container)
+    expect(container.textContent).toContain('None.')
   })
 
   it('highlights milestones and links grid entries to their participant', () => {
@@ -261,6 +379,7 @@ describe('anniversaries views', () => {
           month: 3,
           day: 4,
           year: 2001,
+          role: 'Family',
           family: {
             handle: 'family-1',
             gramps_id: 'F0001',
