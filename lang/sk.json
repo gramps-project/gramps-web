@@ -525,5 +525,7 @@
     "Import a family tree file first. The files in the ZIP archive are matched to its media objects.": "Najskôr importujte súbor s rodostromom. Súbory v archíve ZIP sú priradené k jeho mediálnym objektom.",
     "To start building your family tree, add yourself as a person.": "Ak chcete začať vytvárať svoj rodostrom, pridajte najskôr seba ako osobu.",
     "Applies only to this participant's link to the event.": "Platí iba pre odkaz tohto účastníka na udalosť.",
-    "No notifications": "Žiadne oznámenia"
+    "No notifications": "Žiadne oznámenia",
+    "The information below applies to this family in this event.": "Nižšie uvedené informácie sa vzťahujú na túto rodinu v tejto udalosti.",
+    "The information below applies to this person in this event.": "Nižšie uvedené informácie sa vzťahujú na túto osobu v tejto udalosti."
 }
