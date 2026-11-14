@@ -806,3 +806,89 @@ describe('apiPutPostDelete success statuses', () => {
     expect(result.data).to.deep.equal({})
   })
 })
+
+describe('apiPutPostDelete upload progress', () => {
+  // An XMLHttpRequest that reports sending half the body, then the whole
+  // body, and answers with `status` and `body`.
+  const fakeXhr = (status, body) =>
+    class {
+      constructor() {
+        this.listeners = {}
+        this.upload = {
+          addEventListener: (name, fn) => {
+            this.uploadProgress = fn
+          },
+        }
+        this.headers = {}
+      }
+
+      open(method, url) {
+        Object.assign(this, {method, url})
+      }
+
+      setRequestHeader(name, value) {
+        this.headers[name] = value
+      }
+
+      addEventListener(name, fn) {
+        this.listeners[name] = fn
+      }
+
+      getResponseHeader() {
+        return null
+      }
+
+      send() {
+        this.uploadProgress({lengthComputable: true, loaded: 5, total: 10})
+        this.uploadProgress({lengthComputable: true, loaded: 10, total: 10})
+        Object.assign(this, {
+          status,
+          statusText: '',
+          responseText: JSON.stringify(body),
+        })
+        this.listeners.load()
+      }
+    }
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('reports the progress and returns the response', async () => {
+    vi.stubGlobal('fetch', vi.fn())
+    vi.stubGlobal('XMLHttpRequest', fakeXhr(202, {task: {id: 't1'}}))
+    const onUploadProgress = vi.fn()
+
+    const result = await apiPutPostDelete(
+      undefined,
+      'POST',
+      '/api/importers/ged/file',
+      new Blob(['0 HEAD']),
+      {isJson: false, dbChanged: false, skipAuth: true, onUploadProgress}
+    )
+
+    expect(fetch).not.toHaveBeenCalled()
+    expect(onUploadProgress.mock.calls).toEqual([[0.5], [1]])
+    expect(result).toEqual({task: {id: 't1'}})
+  })
+
+  it('reports errors like fetch', async () => {
+    vi.stubGlobal('XMLHttpRequest', fakeXhr(413, {}))
+
+    const result = await apiPutPostDelete(
+      undefined,
+      'POST',
+      '/api/importers/ged/file',
+      new Blob(['0 HEAD']),
+      {
+        isJson: false,
+        dbChanged: false,
+        skipAuth: true,
+        onUploadProgress: () => {},
+      }
+    )
+
+    expect(result.error).toBe('Error 413')
+    expect(result.errorDetail.status).toBe(413)
+  })
+})

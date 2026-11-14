@@ -494,5 +494,12 @@
   "Edit for everyone": "Edit for everyone",
   "%s changes": "%s changes",
   "Applies only to this participant's link to the event.": "Applies only to this participant's link to the event.",
-  "No notifications": "No notifications"
+  "No notifications": "No notifications",
+  "The file is too large for the server to accept.": "The file is too large for the server to accept.",
+  "The server is unavailable or did not respond in time. Try again later.": "The server is unavailable or did not respond in time. Try again later.",
+  "Files were found for %s of %s media objects without a file.": "Files were found for %s of %s media objects without a file.",
+  "%s files could not be stored.": "%s files could not be stored.",
+  "The archive has no file for %s media objects.": "The archive has no file for %s media objects.",
+  "Uploading file: %s": "Uploading file: %s",
+  "Your tree already contains people. Importing a file again creates duplicates.": "Your tree already contains people. Importing a file again creates duplicates."
 }

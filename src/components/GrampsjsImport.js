@@ -5,7 +5,7 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 import {fireEvent} from '../util.js'
-import {awaitTaskResponse} from '../taskResponse.js'
+import {awaitTaskResponse, showUploadProgress} from '../taskResponse.js'
 import './GrampsjsFormUpload.js'
 import './GrampsjsTaskProgressIndicator.js'
 import './GrampsjsImportPreviewDialog.js'
@@ -13,6 +13,7 @@ import './GrampsjsImportCounts.js'
 import './GrampsjsImportExportReport.js'
 import './GrampsjsHelpButton.js'
 import './GrampsjsDocButton.js'
+import './GrampsjsHomePerson.js'
 
 const fileExtension = file => file.name.split('.').pop().toLowerCase()
 
@@ -40,6 +41,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       _uploadHint: {type: String},
       _importResult: {type: Object},
       _importError: {type: String},
+      _askHomePerson: {type: Boolean},
     }
   }
 
@@ -51,6 +53,8 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     this._uploadHint = ''
     this._importResult = null
     this._importError = ''
+    // Whether no home person was set when the import finished
+    this._askHomePerson = false
     // Token of the running preview and import. Selecting another file
     // replaces it, so a run whose task never reports back blocks nothing;
     // the replaced run stops at its next step.
@@ -135,13 +139,27 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
           .appState="${this.appState}"
           .counts="${this._importResult}"
         ></grampsjs-import-counts>
+        ${this._renderNextSteps()}
         <grampsjs-import-export-report
           .appState="${this.appState}"
           .messages="${this._importResult.messages}"
           heading="${this._('Problems found during the import')}"
+          collapsed
         ></grampsjs-import-export-report>
       </div>
     `
+  }
+
+  // Without a home person, the family tree chart has no one to start from,
+  // so after importing people the user is asked to choose one.
+  _renderNextSteps() {
+    if (!this._importResult?.people || !this._askHomePerson) {
+      return ''
+    }
+    return html`<grampsjs-home-person
+      .appState="${this.appState}"
+      .homePersonGrampsId="${this.appState.settings?.homePerson ?? ''}"
+    ></grampsjs-home-person>`
   }
 
   // Previews the selected file, asks for confirmation and imports it.
@@ -185,6 +203,7 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
       return
     }
     this._importResult = imported.data ?? null
+    this._askHomePerson = !this.appState.settings?.homePerson
     this._finish()
   }
 
@@ -199,7 +218,17 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     const res = await this.appState.apiPost(
       `/api/importers/${fileExtension(file)}/file${query}`,
       file,
-      {isJson: false, dbChanged: false}
+      {
+        isJson: false,
+        dbChanged: false,
+        // the page shows the import's progress and outcome itself
+        saving: false,
+        onUploadProgress: fraction => {
+          if (this._op === op) {
+            showUploadProgress(this.appState, prog, fraction)
+          }
+        },
+      }
     )
     if (this._op !== op) {
       return null
@@ -211,8 +240,9 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     })
     // a replaced run still reports its outcome, but not its error
     if (outcome.error !== undefined && this._op === op) {
-      prog.errorMessage = outcome.error
-      this._importError = outcome.error
+      const error = outcome.error || this._('Import failed')
+      prog.errorMessage = error
+      this._importError = error
     }
     return outcome
   }
@@ -251,7 +281,8 @@ export class GrampsjsImport extends GrampsjsAppStateMixin(LitElement) {
     }
 
     const ext = fileExtension(uploadForm.file)
-    if (ext === 'zip') {
+    // a GEDZip file (.gdz) is a ZIP archive, too
+    if (ext === 'zip' || ext === 'gdz') {
       this._uploadHint = this._renderZipHint()
       return
     }

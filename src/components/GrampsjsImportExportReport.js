@@ -12,8 +12,10 @@ function formatMessages(text) {
 
 /**
  * Shows the messages an exporter or importer reports, one line per entry.
- * With `warn`, renders as a warning alert. Renders nothing when there are no
- * messages.
+ * With `warn`, renders as a warning alert. With `collapsed`, the messages are
+ * hidden behind a disclosure: an importer's raw report of a file from another
+ * program can run to hundreds of lines.
+ * Renders nothing when there are no messages.
  */
 export class GrampsjsImportExportReport extends GrampsjsAppStateMixin(
   LitElement
@@ -37,6 +39,15 @@ export class GrampsjsImportExportReport extends GrampsjsAppStateMixin(
         h4 {
           margin: 0 0 0.5em 0;
         }
+
+        summary {
+          cursor: pointer;
+          user-select: none;
+        }
+
+        details[open] summary {
+          margin-bottom: 0.5em;
+        }
       `,
     ]
   }
@@ -46,6 +57,7 @@ export class GrampsjsImportExportReport extends GrampsjsAppStateMixin(
       messages: {type: Array},
       heading: {type: String},
       warn: {type: Boolean},
+      collapsed: {type: Boolean},
     }
   }
 
@@ -54,6 +66,7 @@ export class GrampsjsImportExportReport extends GrampsjsAppStateMixin(
     this.messages = []
     this.heading = ''
     this.warn = false
+    this.collapsed = false
   }
 
   render() {
@@ -61,10 +74,17 @@ export class GrampsjsImportExportReport extends GrampsjsAppStateMixin(
     if (lines.length === 0) {
       return ''
     }
+    const text = formatMessages(lines.join('\n'))
+    const messages = html`<div class="messages">${text}</div>`
     return html`
       <div class="${this.warn ? 'alert warn' : 'card'}">
         ${this.heading ? html`<h4>${this.heading}</h4>` : ''}
-        <div class="messages">${formatMessages(lines.join('\n'))}</div>
+        ${this.collapsed
+          ? html`<details>
+              <summary>${this._('Show Details')}</summary>
+              ${messages}
+            </details>`
+          : messages}
       </div>
     `
   }
