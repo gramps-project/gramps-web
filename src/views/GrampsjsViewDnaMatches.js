@@ -54,14 +54,22 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
 
   renderFab() {
     return this.grampsIdMatch
-      ? html`<md-fab variant="primary" @click=${this._handleClickEdit}>
+      ? html`<md-fab
+          variant="primary"
+          @click=${this._handleClickEdit}
+          aria-label="${this._('Edit')}"
+        >
           <grampsjs-icon
             slot="icon"
             .path="${mdiPencil}"
             color="currentColor"
           ></grampsjs-icon>
         </md-fab>`
-      : html`<md-fab variant="primary" @click=${this._handleClickAdd}>
+      : html`<md-fab
+          variant="primary"
+          @click=${this._handleClickAdd}
+          aria-label="${this._('Add')}"
+        >
           <grampsjs-icon
             slot="icon"
             .path="${mdiPlus}"
@@ -109,7 +117,10 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
     }
     return html`
       <div class="select-row">
-        <md-filled-select @change="${this._handleSelectChange}">
+        <md-filled-select
+          aria-label="${this._('Select a person')}"
+          @change="${this._handleSelectChange}"
+        >
           ${this._data.map(
             person => html`
               <md-select-option
