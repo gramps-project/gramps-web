@@ -1,18 +1,22 @@
-import {html} from 'lit'
+import {html, css} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
+import {mdiInformation} from '@mdi/js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsImg.js'
 import './GrampsjsIcon.js'
 import './GrampsjsFormEventRef.js'
 import './GrampsjsFormParticipantRef.js'
+import './GrampsjsRefDetails.js'
 import {
   personTitleFromProfile,
   familyTitleFromProfile,
   fireEvent,
   typeString,
+  objectIconPath,
 } from '../util.js'
-import {renderIcon, renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
+import {rowPrivacy} from '../objectRender.js'
+import {renderParticipantRowContent} from './participantRow.js'
 
 const PRIMARY_ROLES_EN = new Set(['Primary', 'Family'])
 
@@ -41,6 +45,9 @@ export function participantRefRows(participants, backlinks, eventHandle) {
       role,
       roleValue: typeString(ref?.role),
       refPrivate: !!ref?.private,
+      citations: ref?.citation_list ?? [],
+      notes: ref?.note_list ?? [],
+      attributes: ref?.attribute_list ?? [],
       privacy: rowPrivacy(backlink, ref),
       backlink,
       title:
@@ -60,9 +67,15 @@ export function participantRefRows(participants, backlinks, eventHandle) {
   ]
 }
 
+const REF_LISTS = {
+  citation_list: 'citations',
+  note_list: 'notes',
+  attribute_list: 'attributes',
+}
+
 /*
-The role and privacy of a participant's reference that the edit dialog
-changed, or null if it changed neither. An empty role keeps the stored one.
+The fields of a participant's reference that the edit dialog changed, or
+null if it changed none. An empty role keeps the stored one.
 */
 export function participantRefChanges(data, row) {
   const changes = {}
@@ -73,15 +86,54 @@ export function participantRefChanges(data, row) {
   if (!!data.private !== row.refPrivate) {
     changes.private = !!data.private
   }
+  Object.entries(REF_LISTS).forEach(([key, rowKey]) => {
+    if (
+      key in data &&
+      JSON.stringify(data[key] ?? []) !== JSON.stringify(row[rowKey] ?? [])
+    ) {
+      changes[key] = data[key] ?? []
+    }
+  })
   return Object.keys(changes).length ? changes : null
 }
 
 export class GrampsjsParticipants extends GrampsjsEditableList {
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        button.ref-counts {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 4px 8px;
+          border: none;
+          border-radius: 16px;
+          background: none;
+          font: inherit;
+          font-size: 14px;
+          color: var(--grampsjs-body-font-color-60);
+          cursor: pointer;
+        }
+
+        button.ref-counts:hover,
+        button.ref-counts:focus-visible {
+          background-color: var(--grampsjs-body-font-color-5);
+        }
+
+        button.ref-counts span + grampsjs-icon {
+          margin-left: 6px;
+        }
+      `,
+    ]
+  }
+
   static get properties() {
     return {
       backlinksPeople: {type: Array},
       backlinksFamilies: {type: Array},
       eventHandle: {type: String},
+      eventTitle: {type: String},
       noLink: {type: Boolean},
     }
   }
@@ -93,6 +145,7 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
     this.backlinksPeople = []
     this.backlinksFamilies = []
     this.eventHandle = ''
+    this.eventTitle = ''
     this.noLink = false
   }
 
@@ -102,10 +155,6 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
       role === this._('Primary') ||
       role === this._('Family')
     )
-  }
-
-  _roleLabel(role) {
-    return html`<span slot="supporting-text">${this._(role)}</span>`
   }
 
   // Flatten {families, people} into a sorted normalized array for the base render()
@@ -143,13 +192,65 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
           }
         }}"
       >
-        ${obj.title} ${renderPrivacyIcon(obj.privacy, this.appState)}
-        ${this._roleLabel(obj.role)}
-        ${renderIcon(
-          {object_type: obj.object_type, object: obj.backlink},
-          'start'
+        ${renderParticipantRowContent(obj, this.appState, (...args) =>
+          this._(...args)
         )}
+        ${this._renderRefCounts(obj, i)}
       </md-list-item>
+    `
+  }
+
+  // counts of the citations, notes and attributes of the reference, as a
+  // button that opens them
+  _renderRefCounts(obj, i) {
+    const counts = [
+      [objectIconPath.citation, obj.citations.length],
+      [objectIconPath.note, obj.notes.length],
+      [mdiInformation, obj.attributes.length],
+    ].filter(([, n]) => n > 0)
+    if (counts.length === 0) {
+      return ''
+    }
+    return html`
+      <button
+        slot="end"
+        class="ref-counts"
+        aria-label="${this._('Details')}"
+        title="${this._('Details')}"
+        @click="${e => this._handleRefCountsClick(e, obj, i)}"
+      >
+        ${counts.map(
+          ([path, n]) => html`<grampsjs-icon
+              path="${path}"
+              color="currentColor"
+              height="16"
+              width="16"
+            ></grampsjs-icon
+            ><span>${n}</span>`
+        )}
+      </button>
+    `
+  }
+
+  _handleRefCountsClick(e, obj, i) {
+    // the row is a link to the participant
+    e.preventDefault()
+    e.stopPropagation()
+    if (this.edit) {
+      this._selectedIndex = i
+      this._handleEdit()
+      return
+    }
+    this.dialogContent = html`
+      <grampsjs-ref-details
+        .appState="${this.appState}"
+        dialogTitle="${this.eventTitle}"
+        .participant="${obj}"
+        .citations="${obj.citations}"
+        .notes="${obj.notes}"
+        .attributes="${obj.attributes}"
+        @object:cancel="${this._handleDialogCancel}"
+      ></grampsjs-ref-details>
     `
   }
 
@@ -195,13 +296,16 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
     this.dialogContent = html`
       <grampsjs-form-eventref
         .appState="${this.appState}"
-        showPrivate
+        .participant="${row}"
         .data="${{
           ref: this.eventHandle,
           role: row.roleValue,
           private: row.refPrivate,
+          citation_list: row.citations,
+          note_list: row.notes,
+          attribute_list: row.attributes,
         }}"
-        dialogTitle="${row.title}"
+        dialogTitle="${this.eventTitle}"
         @object:save="${e => this._handleEditSave(e, row)}"
         @object:cancel="${this._handleDialogCancel}"
       ></grampsjs-form-eventref>

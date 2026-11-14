@@ -476,6 +476,12 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
     return this._wide
   }
 
+  // the headline of an event page, which has the participants list
+  // eslint-disable-next-line class-methods-use-this
+  _eventTitle() {
+    return ''
+  }
+
   render() {
     if (Object.keys(this.data).length === 0) {
       return html``
@@ -884,6 +890,7 @@ export class GrampsjsObject extends GrampsjsAppStateMixin(LitElement) {
           .backlinksPeople=${this.data?.extended?.backlinks?.person || []}
           .backlinksFamilies=${this.data?.extended?.backlinks?.family || []}
           eventHandle="${this.data?.handle || ''}"
+          eventTitle="${this._eventTitle()}"
           ?edit="${this.edit}"
         ></grampsjs-participants>`
       case 'repositories':

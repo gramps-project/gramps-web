@@ -9,7 +9,10 @@ import {
   participantRefRows,
   participantRefChanges,
 } from '../../src/components/GrampsjsParticipants.js'
-import {emptyDate, changeParticipantRefs} from '../../src/util.js'
+import {emptyDate, changeParticipantRefs, fireEvent} from '../../src/util.js'
+import '../../src/components/GrampsjsAttributes.js'
+import {changeRefAttributes} from '../../src/components/GrampsjsFormEventRef.js'
+import {fetchRefObjects} from '../../src/components/GrampsjsRefDetails.js'
 
 const date = {_class: 'Date', dateval: [1, 2, 1820, false]}
 const event = {
@@ -149,6 +152,29 @@ describe('rows of the participants list', () => {
     ])
   })
 
+  it('reads the citations, notes and attributes of each reference', () => {
+    const attr = {_class: 'Attribute', type: 'Age', value: '34'}
+    const rows = participantRefRows(
+      participants,
+      [
+        {
+          handle: 'a',
+          event_ref_list: [
+            {ref: 'e1', citation_list: ['c1', 'c1'], note_list: ['n1']},
+            {ref: 'e1', attribute_list: [attr]},
+          ],
+        },
+      ],
+      'e1'
+    )
+    expect(rows.map(r => [r.citations, r.notes, r.attributes])).to.deep.equal([
+      [[], [], []],
+      [['c1', 'c1'], ['n1'], []],
+      [[], [], [attr]],
+      [[], [], []],
+    ])
+  })
+
   it('reads the untranslated role from the stored reference', () => {
     const rows = participantRefRows(participants, backlinks, 'e1')
     expect(rows.map(r => r.roleValue)).to.deep.equal([
@@ -188,6 +214,37 @@ describe('editing the reference of a participant', () => {
         row
       )
     ).to.deep.equal({role: 'Witness', private: true})
+  })
+
+  it('reports changed citations, notes and attributes', () => {
+    const attr = {_class: 'Attribute', type: 'Age', value: '34'}
+    const stored = {
+      ...row,
+      citations: ['c1'],
+      notes: ['n1'],
+      attributes: [attr],
+    }
+    expect(
+      participantRefChanges(
+        {
+          role: 'Godfather',
+          private: false,
+          citation_list: ['c1', 'c2'],
+          note_list: ['n1'],
+          attribute_list: [],
+        },
+        stored
+      )
+    ).to.deep.equal({citation_list: ['c1', 'c2'], attribute_list: []})
+  })
+
+  it('reports reordered citations', () => {
+    expect(
+      participantRefChanges(
+        {role: 'Godfather', citation_list: ['c2', 'c1']},
+        {...row, citations: ['c1', 'c2']}
+      )
+    ).to.deep.equal({citation_list: ['c2', 'c1']})
   })
 
   it('keeps the stored role when the role is empty', () => {
@@ -346,5 +403,98 @@ describe('selection in the participants list', () => {
     list._fireChange({action: 'add', objectType: 'person', handle: 'a'})
     expect(list._selectedIndex).to.equal(-1)
     expect(actions[0].action).to.equal('changeParticipantRef')
+  })
+})
+
+describe('editing the attributes of a reference', () => {
+  const age = {_class: 'Attribute', type: 'Age', value: '34'}
+  const occ = {_class: 'Attribute', type: 'Occupation', value: 'Farmer'}
+
+  it('adds an attribute at the end', () => {
+    expect(
+      changeRefAttributes([age], {
+        action: 'addAttribute',
+        data: {type: 'Occupation', value: 'Farmer'},
+      })
+    ).to.deep.equal([age, occ])
+  })
+
+  it('adds the first attribute to a missing list', () => {
+    expect(
+      changeRefAttributes(undefined, {
+        action: 'addAttribute',
+        data: {type: 'Age', value: '34'},
+      })
+    ).to.deep.equal([age])
+  })
+
+  it('updates, removes and moves only the selected attribute', () => {
+    const list = [age, occ, age]
+    expect(
+      changeRefAttributes(list, {
+        action: 'updateAttribute',
+        index: 2,
+        data: {value: '35'},
+      })
+    ).to.deep.equal([age, occ, {...age, value: '35'}])
+    expect(
+      changeRefAttributes(list, {action: 'delAttr', index: 0})
+    ).to.deep.equal([occ, age])
+    expect(
+      changeRefAttributes(list, {action: 'moveListItem', index: 0, to: 1})
+    ).to.deep.equal([occ, age, age])
+  })
+
+  it('ignores an action on an attribute that does not exist', () => {
+    expect(changeRefAttributes([age], {action: 'delAttr', index: 1})).to.equal(
+      null
+    )
+    expect(
+      changeRefAttributes([age], {action: 'moveListItem', index: 0, to: 1})
+    ).to.equal(null)
+  })
+})
+
+describe('fetching the citations of a reference', () => {
+  it('keeps the order and repeated handles, and leaves out missing ones', async () => {
+    const appState = {
+      i18n: {lang: 'de'},
+      apiGet: vi.fn(async url =>
+        url.includes('/missing?')
+          ? {error: 'Not found'}
+          : {data: {handle: url.split('/')[3].split('?')[0]}}
+      ),
+    }
+    const objects = await fetchRefObjects(appState, 'citation', 'citations', [
+      'a',
+      'missing',
+      'b',
+      'a',
+    ])
+    expect(objects.map(obj => obj.handle)).to.deep.equal(['a', 'b', 'a'])
+    expect(objects[0]).to.deep.equal({
+      object_type: 'citation',
+      handle: 'a',
+      object: {handle: 'a'},
+    })
+    expect(appState.apiGet).toHaveBeenCalledTimes(3)
+    expect(appState.apiGet.mock.calls[0][0]).to.equal(
+      '/api/citations/a?extend=all&profile=all&locale=de'
+    )
+  })
+})
+
+describe('cancelling the attribute dialog inside another dialog', () => {
+  it('does not cancel the dialog around the attributes list', () => {
+    const outer = document.createElement('div')
+    const list = document.createElement('grampsjs-attributes')
+    outer.append(list)
+    const cancelled = []
+    outer.addEventListener('object:cancel', () => cancelled.push(true))
+    list.addEventListener('object:cancel', e => list._handleAttrCancel(e))
+    list.dialogContent = 'dialog'
+    fireEvent(list, 'object:cancel')
+    expect(list.dialogContent).to.equal('')
+    expect(cancelled).to.deep.equal([])
   })
 })

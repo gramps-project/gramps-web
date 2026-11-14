@@ -130,7 +130,9 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
     this.dialogContent = ''
   }
 
-  _handleAttrCancel() {
+  // the cancel event stops here, so a dialog around the list stays open
+  _handleAttrCancel(e) {
+    e.stopPropagation()
     this.dialogContent = ''
   }
 }
