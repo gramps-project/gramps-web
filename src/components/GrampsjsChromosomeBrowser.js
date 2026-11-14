@@ -250,7 +250,7 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
   }
 
   renderLegend() {
-    return html`<ul>
+    return html`<ul role="group">
       ${this.data.map(
         (obj, i) => html`
           <li
