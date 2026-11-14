@@ -517,5 +517,13 @@
     "E-mail address": "E-mailadres",
     "Full name": "Volledige naam",
     "Edit for everyone": "Bewerken voor iedereen",
-    "%s changes": "%s wijzigingen"
+    "%s changes": "%s wijzigingen",
+    "Supported formats: %s": "Ondersteunde formaten: %s",
+    "ZIP archives cannot be imported.": "ZIP-archieven kunnen niet worden geïmporteerd.",
+    "If it contains a GEDCOM (.ged) file, unzip it and upload that file.": "Als het een GEDCOM-bestand bevat (.ged), pak deze dan uit en upload dat bestand.",
+    "How to fix this": "Dit verhelpen",
+    "Import a family tree file first. The files in the ZIP archive are matched to its media objects.": "Importeer eerst een stamboombestand. De bestanden in het ZIP-archief worden gekoppeld aan de bijbehorende media-objecten.",
+    "To start building your family tree, add yourself as a person.": "Voeg jezelf toe als persoon om te beginnen met het bouwen van je stamboom.",
+    "Applies only to this participant's link to the event.": "Is alleen van toepassing op de link van deze deelnemer aan het evenement.",
+    "No notifications": "Geen meldingen"
 }
