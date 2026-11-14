@@ -456,6 +456,8 @@ export const grampsStrings = [
   'Image',
   'Immigration',
   'Import Family Tree',
+  'Import failed',
+  'Processing...',
   'Import',
   'Include (birth, marriage, death) dates and places on same line',
   'Include (birth, marriage, death) dates, and places if no dates',

@@ -53,6 +53,19 @@ class GrampsjsImportPreviewDialog extends GrampsjsAppStateMixin(LitElement) {
     })
   }
 
+  // An import adds every person in the file, so importing into a tree that
+  // has people can duplicate them, for example when a file is imported again.
+  _renderDuplicateWarning() {
+    if (!this.counts?.people || !this.appState?.dbInfo?.object_counts?.people) {
+      return ''
+    }
+    return html`<p class="alert warn">
+      ${this._(
+        'Your tree already contains people. Importing a file again creates duplicates.'
+      )}
+    </p>`
+  }
+
   render() {
     const hasObjects = importedObjectTypes(this.counts).length > 0
     return html`
@@ -76,10 +89,12 @@ class GrampsjsImportPreviewDialog extends GrampsjsAppStateMixin(LitElement) {
                 ></grampsjs-import-counts>
               `
             : html`<p>${this._('No objects found in this file.')}</p>`}
+          ${this._renderDuplicateWarning()}
           <grampsjs-import-export-report
             .appState="${this.appState}"
             .messages="${this.messages}"
             heading="${this._('Problems found in this file')}"
+            collapsed
           ></grampsjs-import-export-report>
         </form>
         <div slot="actions">
