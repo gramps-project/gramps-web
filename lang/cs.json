@@ -524,5 +524,7 @@
     "Import a family tree file first. The files in the ZIP archive are matched to its media objects.": "Nejprve importujte soubor rodokmenu. Soubory v archivu ZIP jsou přiřazeny k jeho mediálním objektům.",
     "To start building your family tree, add yourself as a person.": "Chcete-li začít budovat svůj rodokmen, přidejte sebe jako osobu.",
     "Applies only to this participant's link to the event.": "Platí pouze pro odkaz tohoto účastníka k události.",
-    "No notifications": "Žádná oznámení"
+    "No notifications": "Žádná oznámení",
+    "The information below applies to this person in this event.": "Níže uvedené informace platí pro tuto osobu v této události.",
+    "The information below applies to this family in this event.": "Níže uvedené informace platí pro tuto rodinu v této události."
 }
