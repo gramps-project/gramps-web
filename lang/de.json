@@ -526,5 +526,7 @@
     "To start building your family tree, add yourself as a person.": "Um mit der Erstellung deines Stammbaums zu beginnen, füge dich selbst als Person hinzu.",
     "%s changes": "%s Änderungen",
     "Applies only to this participant's link to the event.": "Gilt nur für den Link dieses Teilnehmers zum Ereignis.",
-    "No notifications": "Keine Benachrichtigungen"
+    "No notifications": "Keine Benachrichtigungen",
+    "The information below applies to this family in this event.": "Die folgenden Informationen gelten für diese Familie in diesem Ereignis.",
+    "The information below applies to this person in this event.": "Die folgenden Informationen beziehen sich auf diese Person in diesem Ereignis."
 }
