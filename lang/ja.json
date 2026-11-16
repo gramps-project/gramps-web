@@ -524,5 +524,7 @@
     "To start building your family tree, add yourself as a person.": "家系図の作成を始めるには、まず自分自身を「人物」として追加してください。",
     "%s changes": "%s の変更点",
     "Applies only to this participant's link to the event.": "この参加者のイベントへのリンクにのみ適用されます。",
-    "No notifications": "通知なし"
+    "No notifications": "通知なし",
+    "The information below applies to this family in this event.": "以下の情報は、このイベントでこのファミリーに適用されます。",
+    "The information below applies to this person in this event.": "以下の情報は、このイベントにおいてこの人物に適用されます。"
 }
