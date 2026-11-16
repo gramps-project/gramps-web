@@ -23,6 +23,7 @@ import {
 } from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {DragReorderController} from '../dragReorderController.js'
+import {refCountsStyles, refLists, renderRefCounts} from './refCounts.js'
 
 export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -30,6 +31,7 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
       sharedStyles,
       personListItemStyles,
       reorderableStyles,
+      refCountsStyles,
       css`
         md-list.activatable,
         md-list.activatable > * {
@@ -165,6 +167,47 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
   row(obj, i, arr) {
     return ''
   }
+
+  // count of citations, notes, attributes of the secondary object
+  _renderRefCounts(obj, i) {
+    return renderRefCounts(refLists(obj), this._('Details'), e =>
+      this._handleRefCountsClick(e, obj, i)
+    )
+  }
+
+  _handleRefCountsClick(e, obj, i) {
+    // the row might be a link
+    e.preventDefault()
+    e.stopPropagation()
+    if (this.edit) {
+      this._selectedIndex = i
+      this._handleEdit()
+      return
+    }
+    const {citations, notes, attributes} = refLists(obj)
+    const {title, intro, summary} = this._refDetailsContext(obj, i)
+    this.dialogContent = html`
+      <grampsjs-ref-details
+        .appState="${this.appState}"
+        dialogTitle="${title}"
+        intro="${intro}"
+        .summary="${summary}"
+        .citations="${citations}"
+        .notes="${notes}"
+        .attributes="${attributes}"
+        @object:cancel="${() => {
+          this.dialogContent = ''
+        }}"
+      ></grampsjs-ref-details>
+    `
+  }
+
+  // headline, sentence, summary line of the details dialog of a row
+  _refDetailsContext(obj, i) {
+    return {title: '', intro: '', summary: ''}
+  }
+
+  _handleEdit() {}
 
   _renderActionBtns() {
     return html`

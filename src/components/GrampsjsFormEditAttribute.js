@@ -6,6 +6,7 @@ import {html} from 'lit'
 
 import './GrampsjsFormString.js'
 import './GrampsjsFormSelectType.js'
+import './GrampsjsFormSelectObjectList.js'
 
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
@@ -48,8 +49,15 @@ class GrampsjsFormEditAttribute extends GrampsjsObjectForm {
         value="${this.data?.value || ''}"
       >
       </grampsjs-form-string>
+      ${this.#isSourceAttribute ? '' : this.renderRefCitationsAndNotes()}
       ${this.renderPrivate()}
     `
+  }
+
+  get #isSourceAttribute() {
+    return ['sources', 'citations'].includes(
+      this.attributeCategory.toLowerCase()
+    )
   }
 
   get #typeNameDefault() {

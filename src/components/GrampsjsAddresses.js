@@ -5,6 +5,7 @@ import {mdiMapMarker} from '@mdi/js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditAddress.js'
 import './GrampsjsIcon.js'
+import './GrampsjsRefDetails.js'
 
 import {dateIsEmpty, fireEvent} from '../util.js'
 import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
@@ -61,8 +62,20 @@ export class GrampsjsAddresses extends GrampsjsEditableList {
           path="${mdiMapMarker}"
           color="var(--grampsjs-color-icon)"
         ></grampsjs-icon>
+        ${this._renderRefCounts(obj, i)}
       </md-list-item>
     `
+  }
+
+  _refDetailsContext(obj) {
+    return {
+      title: this._('Address'),
+      intro: this._('The information below applies to this address.'),
+      summary: summaryFields
+        .map(key => obj[key])
+        .filter(value => value)
+        .join(', '),
+    }
   }
 
   // The phone number and the date the address was current, each on its own

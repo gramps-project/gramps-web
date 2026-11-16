@@ -9,6 +9,32 @@ import {sharedStyles} from '../SharedStyles.js'
 import {fireEvent, emptyDate} from '../util.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
+/*
+attribute list after an action of the attributes editor in a dialog
+or null for an action it doesnt handle
+*/
+export function changeRefAttributes(list, {action, data, index, to}) {
+  const attrs = [...(list ?? [])]
+  if (action === 'addAttribute') {
+    return [...attrs, {_class: 'Attribute', ...data}]
+  }
+  if (index === undefined || index < 0 || index >= attrs.length) {
+    return null
+  }
+  if (action === 'updateAttribute') {
+    return attrs.map((attr, i) => (i === index ? {...attr, ...data} : attr))
+  }
+  if (action === 'delAttr') {
+    return attrs.filter((_attr, i) => i !== index)
+  }
+  if (action === 'moveListItem' && to >= 0 && to < attrs.length) {
+    const [moved] = attrs.splice(index, 1)
+    attrs.splice(to, 0, moved)
+    return attrs
+  }
+  return null
+}
+
 export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
@@ -31,6 +57,11 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
           font-size: 16px;
           font-weight: 500;
           margin-top: 1em;
+          margin-bottom: 0;
+        }
+
+        h4.label.ref {
+          margin-top: 24px;
           margin-bottom: 0;
         }
 
@@ -174,12 +205,75 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
+  // pickers for the citations and notes of a secondary object
+  renderRefCitationsAndNotes() {
+    return html`
+      ${this._renderRefObjectList(
+        'citation',
+        'Citations',
+        this.data.citation_list
+      )}
+      ${this._renderRefObjectList('note', 'Notes', this.data.note_list)}
+    `
+  }
+
+  _renderRefObjectList(objectType, heading, handles) {
+    return html`
+      <h4 class="label ref">${this._(heading)}</h4>
+      <grampsjs-form-select-object-list
+        multiple
+        fixedMenuPosition
+        objectType="${objectType}"
+        .appState="${this.appState}"
+        id="ref-${objectType}-select"
+        label="${this._('Select')}"
+        .objectsInitial="${(handles ?? []).map(handle => ({
+          object_type: objectType,
+          object: {},
+          handle,
+        }))}"
+        class="edit"
+      ></grampsjs-form-select-object-list>
+    `
+  }
+
+  // Editor for the attributes of a secondary object
+  renderRefAttributes(attributeCategory) {
+    return html`
+      <h4 class="label ref">${this._('Attributes')}</h4>
+      <grampsjs-attributes
+        edit
+        hasEdit
+        attributeCategory="${attributeCategory}"
+        .appState="${this.appState}"
+        .data="${this.data.attribute_list ?? []}"
+        @edit:action="${this._handleRefAttributeAction}"
+      ></grampsjs-attributes>
+    `
+  }
+
+  _handleRefAttributeAction(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    const list = changeRefAttributes(this.data.attribute_list, e.detail)
+    if (list) {
+      this.data = {...this.data, attribute_list: list}
+    }
+  }
+
   _handleDialogSave() {
     fireEvent(this, 'object:save', {data: this.data})
     if (!this.noReset) this._reset()
   }
 
   _handleDialogKeydown(e) {
+    // escape in a dialog opened from this one closes only that
+    const dialogs = e
+      .composedPath()
+      .filter(el => el.tagName === 'MD-DIALOG').length
+    if (dialogs > 1) {
+      return
+    }
     if (e.key === 'Escape') {
       this._handleDialogCancel()
     }
@@ -384,6 +478,12 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
     }
     if (originalTarget.id === 'citation-select-list') {
       this.data = e.detail
+    }
+    if (originalTarget.id === 'ref-citation-select-list') {
+      this.data = {...this.data, citation_list: e.detail.data ?? []}
+    }
+    if (originalTarget.id === 'ref-note-select-list') {
+      this.data = {...this.data, note_list: e.detail.data ?? []}
     }
     if (originalTarget.id === 'personref-citation-select-list') {
       this.data = {...this.data, citation_list: e.detail.data}

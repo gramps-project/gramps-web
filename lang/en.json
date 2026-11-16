@@ -495,5 +495,10 @@
   "%s changes": "%s changes",
   "The information below applies to this family in this event.": "The information below applies to this family in this event.",
   "The information below applies to this person in this event.": "The information below applies to this person in this event.",
+  "The information below applies to this child in this family.": "The information below applies to this child in this family.",
+  "The information below applies to this name.": "The information below applies to this name.",
+  "The information below applies to this attribute.": "The information below applies to this attribute.",
+  "The information below applies to this address.": "The information below applies to this address.",
+  "The information below applies to this media object on this page.": "The information below applies to this media object on this page.",
   "No notifications": "No notifications"
 }

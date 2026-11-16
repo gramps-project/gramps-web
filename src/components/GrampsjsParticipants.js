@@ -1,6 +1,5 @@
-import {html, css} from 'lit'
+import {html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
-import {mdiInformation} from '@mdi/js'
 
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsImg.js'
@@ -13,10 +12,10 @@ import {
   familyTitleFromProfile,
   fireEvent,
   typeString,
-  objectIconPath,
 } from '../util.js'
 import {rowPrivacy} from '../objectRender.js'
 import {renderParticipantRowContent} from './participantRow.js'
+import {renderRefCounts} from './refCounts.js'
 
 const PRIMARY_ROLES_EN = new Set(['Primary', 'Family'])
 
@@ -98,36 +97,6 @@ export function participantRefChanges(data, row) {
 }
 
 export class GrampsjsParticipants extends GrampsjsEditableList {
-  static get styles() {
-    return [
-      super.styles,
-      css`
-        button.ref-counts {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          padding: 4px 8px;
-          border: none;
-          border-radius: 16px;
-          background: none;
-          font: inherit;
-          font-size: 14px;
-          color: var(--grampsjs-body-font-color-60);
-          cursor: pointer;
-        }
-
-        button.ref-counts:hover,
-        button.ref-counts:focus-visible {
-          background-color: var(--grampsjs-body-font-color-5);
-        }
-
-        button.ref-counts span + grampsjs-icon {
-          margin-left: 6px;
-        }
-      `,
-    ]
-  }
-
   static get properties() {
     return {
       backlinksPeople: {type: Array},
@@ -203,33 +172,9 @@ export class GrampsjsParticipants extends GrampsjsEditableList {
   // counts of the citations, notes and attributes of the reference, as a
   // button that opens them
   _renderRefCounts(obj, i) {
-    const counts = [
-      [objectIconPath.citation, obj.citations.length],
-      [objectIconPath.note, obj.notes.length],
-      [mdiInformation, obj.attributes.length],
-    ].filter(([, n]) => n > 0)
-    if (counts.length === 0) {
-      return ''
-    }
-    return html`
-      <button
-        slot="end"
-        class="ref-counts"
-        aria-label="${this._('Details')}"
-        title="${this._('Details')}"
-        @click="${e => this._handleRefCountsClick(e, obj, i)}"
-      >
-        ${counts.map(
-          ([path, n]) => html`<grampsjs-icon
-              path="${path}"
-              color="currentColor"
-              height="16"
-              width="16"
-            ></grampsjs-icon
-            ><span>${n}</span>`
-        )}
-      </button>
-    `
+    return renderRefCounts(obj, this._('Details'), e =>
+      this._handleRefCountsClick(e, obj, i)
+    )
   }
 
   _handleRefCountsClick(e, obj, i) {

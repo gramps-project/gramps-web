@@ -7,6 +7,8 @@ import {html, css, LitElement} from 'lit'
 
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
+import '@material/web/list/list.js'
+import '@material/web/list/list-item.js'
 
 import './GrampsjsAttributes.js'
 import './GrampsjsSearchResultList.js'
@@ -68,8 +70,12 @@ class GrampsjsRefDetails extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       dialogTitle: {type: String},
-      // a row of participantRefRows
+      // a row of participantRefRows for a participant's link to an event
       participant: {type: Object},
+      // for other secondary objects, the sentence saying what the dialog
+      // applies to and a line identifying the object
+      intro: {type: String},
+      summary: {type: Object},
       citations: {type: Array},
       notes: {type: Array},
       attributes: {type: Array},
@@ -82,7 +88,9 @@ class GrampsjsRefDetails extends GrampsjsAppStateMixin(LitElement) {
   constructor() {
     super()
     this.dialogTitle = ''
-    this.participant = {}
+    this.participant = null
+    this.intro = ''
+    this.summary = ''
     this.citations = []
     this.notes = []
     this.attributes = []
@@ -100,9 +108,13 @@ class GrampsjsRefDetails extends GrampsjsAppStateMixin(LitElement) {
       >
         <div slot="headline">${this.dialogTitle}</div>
         <div slot="content">
-          ${renderParticipantIntro(this.participant, this.appState, (...args) =>
-            this._(...args)
-          )}
+          ${this.participant
+            ? renderParticipantIntro(
+                this.participant,
+                this.appState,
+                (...args) => this._(...args)
+              )
+            : this._renderIntro()}
           ${this.attributes.length
             ? html`
                 <h4 class="label">${this._('Attributes')}</h4>
@@ -125,6 +137,19 @@ class GrampsjsRefDetails extends GrampsjsAppStateMixin(LitElement) {
           </md-text-button>
         </div>
       </md-dialog>
+    `
+  }
+
+  _renderIntro() {
+    return html`
+      ${this.intro ? html`<p class="intro">${this.intro}</p>` : ''}
+      ${this.summary
+        ? html`
+            <md-list class="participant">
+              <md-list-item type="text">${this.summary}</md-list-item>
+            </md-list>
+          `
+        : ''}
     `
   }
 

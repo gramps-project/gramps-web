@@ -5,6 +5,7 @@ import {mdiInformation} from '@mdi/js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditAttribute.js'
 import './GrampsjsIcon.js'
+import './GrampsjsRefDetails.js'
 
 import {fireEvent, linkUrls} from '../util.js'
 import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
@@ -66,8 +67,17 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
           path="${mdiInformation}"
           color="var(--grampsjs-color-icon)"
         ></grampsjs-icon>
+        ${this._renderRefCounts(obj, i)}
       </md-list-item>
     `
+  }
+
+  _refDetailsContext(obj) {
+    return {
+      title: this._(obj.type),
+      intro: this._('The information below applies to this attribute.'),
+      summary: obj.value,
+    }
   }
 
   _handleAdd() {
@@ -89,6 +99,10 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
       type: attr.type || '',
       value: attr.value || '',
       private: !!attr.private,
+      ...('citation_list' in attr
+        ? {citation_list: attr.citation_list ?? []}
+        : {}),
+      ...('note_list' in attr ? {note_list: attr.note_list ?? []} : {}),
     }
     this.dialogContent = html`
       <grampsjs-form-edit-attribute

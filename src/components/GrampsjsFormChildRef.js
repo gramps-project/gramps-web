@@ -9,8 +9,13 @@ import './GrampsjsFormSelectType.js'
 import './GrampsjsFormSelectObjectList.js'
 import './GrampsjsFormString.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
+import {participantIntroStyles} from './participantRow.js'
 
 class GrampsjsFormChildRef extends GrampsjsObjectForm {
+  static get styles() {
+    return [...super.styles, ...participantIntroStyles]
+  }
+
   static get properties() {
     return {
       // hide the switch for the privacy of the reference, where picking a
@@ -37,6 +42,13 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
 
   renderForm() {
     return html`
+      ${this.#isExistingRef
+        ? html`<p class="intro">
+            ${this._(
+              'The information below applies to this child in this family.'
+            )}
+          </p>`
+        : ''}
       ${this.#isExistingRef
         ? ''
         : html`
@@ -76,6 +88,7 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
         .typesLocale="${this.typesLocale}"
       >
       </grampsjs-form-select-type>
+      ${this.#isExistingRef ? this.renderRefCitationsAndNotes() : ''}
       ${this.noPrivate ? '' : this.renderPrivate()}
     `
   }

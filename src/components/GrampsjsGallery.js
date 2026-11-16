@@ -1,13 +1,12 @@
 import {LitElement, css, html} from 'lit'
 import {classMap} from 'lit/directives/class-map.js'
 import {
-  mdiArrowLeft,
-  mdiArrowRight,
   mdiDelete,
   mdiLinkPlus,
   mdiLock,
   mdiLockOpenVariantOutline,
   mdiLockOutline,
+  mdiPencil,
   mdiPlus,
 } from '@mdi/js'
 
@@ -16,6 +15,8 @@ import './GrampsjsImg.js'
 import './GrampsjsIcon.js'
 import '../views/GrampsjsViewMediaLightbox.js'
 import './GrampsjsFormMediaRef.js'
+import './GrampsjsRefDetails.js'
+import {refCountsStyles, refLists, renderRefCounts} from './refCounts.js'
 import './GrampsjsFormNewMedia.js'
 import '@material/web/iconbutton/icon-button.js'
 import {fireEvent} from '../util.js'
@@ -23,11 +24,21 @@ import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {DragReorderController} from '../dragReorderController.js'
 import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
 
+// the citations, notes and attributes of a media link as stored on it
+function refListData(mediaRef) {
+  return {
+    citation_list: mediaRef?.citation_list ?? [],
+    note_list: mediaRef?.note_list ?? [],
+    attribute_list: mediaRef?.attribute_list ?? [],
+  }
+}
+
 export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       reorderableStyles,
+      refCountsStyles,
       css`
         .gallery {
           display: grid;
@@ -108,6 +119,13 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
           --md-icon-button-icon-size: 18px;
           background: rgba(255, 255, 255, 0.5);
           border-radius: 50%;
+        }
+
+        .tile button.ref-counts {
+          position: absolute;
+          bottom: 4px;
+          left: 4px;
+          background: var(--md-sys-color-surface-container-highest);
         }
 
         .edit-actions {
@@ -250,40 +268,28 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
           ? html`<span class="privacy-badge">${privacyIcon}</span>`
           : ''}
         ${this.edit
+          ? ''
+          : renderRefCounts(
+              refLists(this.mediaRef[i]),
+              this._('Details'),
+              e => this._handleRefCountsClick(e, i),
+              ''
+            )}
+        ${this.edit
           ? html`
               <div class="tile-overlay">
-                ${i > 0
-                  ? html`
-                      <md-icon-button
-                        aria-label="${this._('Move Left')}"
-                        @click="${e => {
-                          e.stopPropagation()
-                          this._handleMediaRefLeft(i)
-                        }}"
-                      >
-                        <grampsjs-icon
-                          path="${mdiArrowLeft}"
-                          color="var(--mdc-theme-secondary)"
-                        ></grampsjs-icon>
-                      </md-icon-button>
-                    `
-                  : ''}
-                ${i < this.media.length - 1
-                  ? html`
-                      <md-icon-button
-                        aria-label="${this._('Move right')}"
-                        @click="${e => {
-                          e.stopPropagation()
-                          this._handleMediaRefRight(i)
-                        }}"
-                      >
-                        <grampsjs-icon
-                          path="${mdiArrowRight}"
-                          color="var(--mdc-theme-secondary)"
-                        ></grampsjs-icon>
-                      </md-icon-button>
-                    `
-                  : ''}
+                <md-icon-button
+                  aria-label="${this._('Edit')}"
+                  @click="${e => {
+                    e.stopPropagation()
+                    this._handleMediaRefEdit(i)
+                  }}"
+                >
+                  <grampsjs-icon
+                    path="${mdiPencil}"
+                    color="var(--mdc-theme-secondary)"
+                  ></grampsjs-icon>
+                </md-icon-button>
                 <md-icon-button
                   aria-label="${this._('Remove')}"
                   @click="${e => {
@@ -390,12 +396,47 @@ export class GrampsjsGallery extends GrampsjsAppStateMixin(LitElement) {
     fireEvent(this, 'edit:action', {action: 'delMediaRef', index})
   }
 
-  _handleMediaRefLeft(index) {
-    this._handleMediaRefMove(index, index - 1)
+  _handleRefCountsClick(e, index) {
+    e.stopPropagation()
+    const {citations, notes, attributes} = refLists(this.mediaRef[index])
+    this.dialogContent = html`
+      <grampsjs-ref-details
+        .appState="${this.appState}"
+        dialogTitle="${this.media[index]?.desc || this._('Media')}"
+        intro="${this._(
+          'The information below applies to this media object on this page.'
+        )}"
+        .citations="${citations}"
+        .notes="${notes}"
+        .attributes="${attributes}"
+        @object:cancel="${this._handleMediaRefCancel}"
+      ></grampsjs-ref-details>
+    `
   }
 
-  _handleMediaRefRight(index) {
-    this._handleMediaRefMove(index, index + 1)
+  _handleMediaRefEdit(index) {
+    const mediaRef = this.mediaRef[index]
+    this.dialogContent = html`
+      <grampsjs-form-mediaref
+        @object:save="${e => this._handleMediaRefSaveEdit(e, index)}"
+        @object:cancel="${this._handleMediaRefCancel}"
+        .appState="${this.appState}"
+        .data="${{
+          ref: mediaRef.ref,
+          private: !!mediaRef.private,
+          ...refListData(mediaRef),
+        }}"
+        dialogTitle="${this.media[index]?.desc || this._('Media')}"
+      ></grampsjs-form-mediaref>
+    `
+  }
+
+  _handleMediaRefSaveEdit(e, index) {
+    const {ref, ...data} = e.detail.data
+    fireEvent(this, 'edit:action', {action: 'updateMediaRef', index, data})
+    e.preventDefault()
+    e.stopPropagation()
+    this.dialogContent = ''
   }
 
   openNewMedia() {

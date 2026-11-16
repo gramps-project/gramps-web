@@ -8,6 +8,7 @@ import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import {getSymbols} from '../symbols.js'
 import './GrampsjsFormChildRef.js'
 import './GrampsjsFormNewChild.js'
+import './GrampsjsRefDetails.js'
 
 import '@material/web/list/list-item.js'
 
@@ -80,9 +81,20 @@ export class GrampsjsChildren extends GrampsjsEditableList {
         ${hasNonBirthRel
           ? html`<span slot="supporting-text">${relText}</span>`
           : ''}
-        ${renderPersonAvatar(extPerson, p.sex)}
+        ${renderPersonAvatar(extPerson, p.sex)} ${this._renderRefCounts(obj, i)}
       </md-list-item>
     `
+  }
+
+  _refDetailsContext(obj, i) {
+    const p = this.profile[i] || {}
+    return {
+      title: `${p.name_given || ''} ${p.name_surname || ''}`.trim(),
+      intro: this._(
+        'The information below applies to this child in this family.'
+      ),
+      summary: '',
+    }
   }
 
   _handleDelete() {
