@@ -545,5 +545,12 @@
     "The shared DNA is unlikely for the relationship in the tree.": "Die geteilte DNA lässt nicht auf eine Verwandtschaft im Stammbaum schließen.",
     "Relative of degree %s": "Verwandtschaftsgrad %s",
     "Parent or child": "Elternteil oder Kind",
-    "Full sibling": "Vollgeschwister"
+    "Full sibling": "Vollgeschwister",
+    "Preparing changes...": "Änderungen werden vorbereitet...",
+    "Proposed changes": "Vorgeschlagene Änderungen",
+    "Changes proposed by the assistant": "Vom Assistenten vorgeschlagene Änderungen",
+    "Changes applied": "Änderungen übernommen",
+    "These changes can no longer be applied.": "Diese Änderungen können nicht mehr übernommen werden.",
+    "Attach images": "Bilder anhängen",
+    "Media files are imported separately, under %s.": "Mediendateien werden separat unter %s importiert."
 }
