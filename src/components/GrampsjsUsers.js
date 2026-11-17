@@ -20,6 +20,7 @@ import {
 import {GrampsjsTableBase} from './GrampsjsTableBase.js'
 import {userRoles} from './GrampsjsFormUser.js'
 import {fireEvent} from '../util.js'
+import {mergeTargets} from '../userMerge.js'
 
 import './GrampsjsTooltip.js'
 import './GrampsjsIcon.js'
@@ -79,6 +80,8 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     return {
       dialogContent: {type: String},
       ismulti: {type: Boolean},
+      canmerge: {type: Boolean},
+      ownName: {type: String},
       _downloadUrl: {type: String},
       _userData: {type: Array},
       _filterText: {type: String},
@@ -90,6 +93,9 @@ export class GrampsjsUsers extends GrampsjsTableBase {
     super()
     this.dialogContent = ''
     this.ismulti = false
+    this.canmerge = false
+    this.ownName = ''
+    this._mergeTarget = ''
     this._downloadUrl = ''
     this._userData = []
     this._filterText = ''
@@ -420,6 +426,16 @@ export class GrampsjsUsers extends GrampsjsTableBase {
           ></grampsjs-form-user>
         </div>
         <div slot="actions">
+          ${this._canMerge(user)
+            ? html`
+                <md-text-button
+                  class="merge"
+                  @click="${() => this._handleMergeClick(username)}"
+                >
+                  ${this._('Merge into…')}
+                </md-text-button>
+              `
+            : ''}
           <md-text-button
             @click="${() => {
               this.dialogContent = ''
@@ -433,6 +449,87 @@ export class GrampsjsUsers extends GrampsjsTableBase {
         </div>
       </md-dialog>
     `
+  }
+
+  // Not for the own user, whom the API refuses to merge away.
+  _canMerge(user) {
+    return (
+      this.canmerge &&
+      !!user &&
+      user.name !== this.ownName &&
+      mergeTargets(this.data, user, this.ismulti).length > 0
+    )
+  }
+
+  _handleMergeClick(username) {
+    this._mergeTarget = ''
+    this.dialogContent = this._mergeUserDialog(username)
+  }
+
+  _mergeUserDialog(username) {
+    const [user] = this.data.filter(el => el.name === username)
+    const targets = mergeTargets(this.data, user, this.ismulti)
+    return html`
+      <md-dialog open @cancel="${e => e.preventDefault()}">
+        <span slot="headline"
+          >${this._('Merge into…')} &ndash; ${username}</span
+        >
+        <div slot="content">
+          <p>
+            <md-filled-select
+              label="${this._('Username: ').replace(':', '')}"
+              style="width: 100%;"
+              positioning="fixed"
+              .value="${this._mergeTarget}"
+              @change="${e => {
+                this._mergeTarget = e.target.value
+                this.dialogContent = this._mergeUserDialog(username)
+              }}"
+            >
+              ${targets.map(
+                target => html`
+                  <md-select-option value="${target.name}">
+                    <div slot="headline">${target.name}</div>
+                    ${target.full_name
+                      ? html`<div slot="supporting-text">
+                          ${target.full_name}
+                        </div>`
+                      : ''}
+                  </md-select-option>
+                `
+              )}
+            </md-filled-select>
+          </p>
+          <p>
+            ${this._(
+              'User "%s" will be deleted. Their linked sign-in methods, access tokens and edit history move to the selected user.',
+              username
+            )}
+          </p>
+          <p>${this._('This action cannot be undone.')}</p>
+        </div>
+        <div slot="actions">
+          <md-text-button
+            @click="${() => {
+              this.dialogContent = ''
+            }}"
+          >
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-filled-button
+            ?disabled="${!this._mergeTarget}"
+            @click="${() => this._handleMerge(username)}"
+          >
+            ${this._('Merge')}
+          </md-filled-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  _handleMerge(source) {
+    fireEvent(this, 'user:merge', {source, target: this._mergeTarget})
+    this.dialogContent = ''
   }
 
   _deleteUserDialog(username) {

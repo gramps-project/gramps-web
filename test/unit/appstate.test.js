@@ -65,6 +65,24 @@ describe('appStateUpdatePermissions', () => {
     expect(result.permissions.canEditTree).to.be.false
   })
 
+  it('sets canMergeUsers only with both other-tree user permissions', () => {
+    localStorage.setItem(
+      'access_token',
+      makeFakeJwt({permissions: ['EditOtherTreeUser'], exp: 9999999999})
+    )
+    expect(appStateUpdatePermissions(BASE_STATE).permissions.canMergeUsers).to
+      .be.false
+    localStorage.setItem(
+      'access_token',
+      makeFakeJwt({
+        permissions: ['EditOtherTreeUser', 'DeleteOtherTreeUser'],
+        exp: 9999999999,
+      })
+    )
+    expect(appStateUpdatePermissions(BASE_STATE).permissions.canMergeUsers).to
+      .be.true
+  })
+
   it('does not set canViewOtherTree for an owner-level token', () => {
     localStorage.setItem(
       'access_token',

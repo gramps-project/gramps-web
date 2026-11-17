@@ -295,6 +295,7 @@ export function getInitialAppState() {
       canEdit: false,
       canViewPrivate: false,
       canManageUsers: false,
+      canMergeUsers: false,
       canImport: false,
       canUseChat: false,
       canUpgradeTree: false,
@@ -436,6 +437,10 @@ export function appStateUpdatePermissions(appState) {
     canEdit: rawPermissions.includes('EditObject'),
     canViewPrivate: rawPermissions.includes('ViewPrivate'),
     canManageUsers: rawPermissions.includes('EditOtherUser'),
+    // site admins only, like the API's user merge
+    canMergeUsers:
+      rawPermissions.includes('EditOtherTreeUser') &&
+      rawPermissions.includes('DeleteOtherTreeUser'),
     canImport: rawPermissions.includes('ImportFile'),
     canUseChat: rawPermissions.includes('UseChat'),
     canUpgradeTree: rawPermissions.includes('UpgradeSchema'),

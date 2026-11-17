@@ -5,9 +5,11 @@ import '@material/web/select/select-option'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
+import {apiVersionAtLeast, fireEvent} from '../util.js'
 import '../components/GrampsjsUsers.js'
 import '../components/GrampsjsShareUrl.js'
 import '../components/GrampsjsChatPermissions.js'
+import '../components/GrampsjsRelogin.js'
 
 export class GrampsjsViewUserManagement extends GrampsjsStaleDataMixin(
   GrampsjsView
@@ -40,6 +42,7 @@ export class GrampsjsViewUserManagement extends GrampsjsStaleDataMixin(
     return {
       userData: {type: Array},
       dbInfo: {type: Object},
+      _ownName: {type: String},
     }
   }
 
@@ -47,6 +50,17 @@ export class GrampsjsViewUserManagement extends GrampsjsStaleDataMixin(
     super()
     this.userData = []
     this.dbInfo = {}
+    this._ownName = ''
+    // retried after signing in again
+    this._pendingMerge = null
+  }
+
+  // The merge endpoint is new in API 3.26.0.
+  get _canMerge() {
+    return (
+      !!this.appState?.permissions?.canMergeUsers &&
+      apiVersionAtLeast(this.dbInfo, 3, 26)
+    )
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -78,16 +92,66 @@ export class GrampsjsViewUserManagement extends GrampsjsStaleDataMixin(
         .appState="${this.appState}"
         .data="${this.userData}"
         ?ismulti="${!!this.dbInfo?.server?.multi_tree}"
+        ?canmerge="${this._canMerge}"
+        ownName="${this._ownName}"
         @user:updated="${this._handleUserChanged}"
         @user:added="${this._handleUserAdded}"
         @user:deleted="${this._handleUserDeleted}"
         @user:added-multiple="${this._handleUsersAdded}"
+        @user:merge="${this._handleUserMerge}"
       >
       </grampsjs-users>
+      <grampsjs-relogin
+        .appState="${this.appState}"
+        username="${this._ownName}"
+        @relogin="${this._handleRelogin}"
+      ></grampsjs-relogin>
     `
   }
 
   firstUpdated() {
+    this._fetchUserData()
+    this._fetchOwnName()
+  }
+
+  async _fetchOwnName() {
+    const res = await this.appState.apiGet('/api/users/-/')
+    this._ownName = res?.data?.name ?? ''
+  }
+
+  // Merging needs a fresh token.
+  _handleUserMerge(e) {
+    const {source, target} = e.detail
+    if (this.appState.auth.isTokenFresh()) {
+      this._mergeUser(source, target)
+      return
+    }
+    this._pendingMerge = {source, target}
+    this.renderRoot.querySelector('grampsjs-relogin').show()
+  }
+
+  _handleRelogin() {
+    const merge = this._pendingMerge
+    this._pendingMerge = null
+    if (merge) {
+      this._mergeUser(merge.source, merge.target)
+    }
+  }
+
+  async _mergeUser(source, target) {
+    const res = await this.appState.apiPost(
+      `/api/users/${encodeURIComponent(target)}/merge/`,
+      {source},
+      {dbChanged: false, requireFresh: true}
+    )
+    if ('error' in res) {
+      fireEvent(this, 'grampsjs:error', {message: res.error})
+    } else {
+      fireEvent(this, 'grampsjs:notification', {
+        message: this._('Users merged'),
+      })
+    }
+    // the list may be out of date, e.g. if a user was deleted meanwhile
     this._fetchUserData()
   }
 
