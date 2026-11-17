@@ -550,5 +550,6 @@
     "Changes proposed by the assistant": "Zmeny navrhnuté asistentom",
     "Changes applied": "Zmeny boli aplikované",
     "These changes can no longer be applied.": "Tieto zmeny už nie je možné aplikovať.",
-    "Attach images": "Priložiť obrázky"
+    "Attach images": "Pripojiť obrázky",
+    "Media files are imported separately, under %s.": "Mediálne súbory sa importujú samostatne pod %s."
 }
