@@ -6,10 +6,25 @@ import '@material/web/iconbutton/filled-tonal-icon-button.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {YtreeLineageChart} from '../charts/YtreeLineageChart.js'
-import {personDisplayName} from '../util.js'
+import {fireEvent, personDisplayName} from '../util.js'
 import {getImageUrl} from '../charts/util.js'
 import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
+
+const birthYear = person =>
+  person?.extended?.events?.[person?.birth_ref_index]?.date?.year
+
+// Returns the handle of the father in the first parent family where the
+// person is the father's birth child, who passed on the Y chromosome
+export function biologicalFatherHandle(person) {
+  const family = (person?.extended?.parent_families ?? []).find(
+    ({father_handle: father, child_ref_list: childRefs}) => {
+      const childRef = (childRefs ?? []).find(ref => ref.ref === person.handle)
+      return father && (childRef?.frel || 'Birth') === 'Birth'
+    }
+  )
+  return family?.father_handle ?? null
+}
 
 export class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
@@ -54,6 +69,7 @@ export class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
       data: {type: Array},
       person: {type: Object},
       expanded: {type: Boolean},
+      _ancestors: {state: true},
     }
   }
 
@@ -62,6 +78,8 @@ export class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
     this.data = []
     this.person = {}
     this.expanded = false
+    this._ancestors = []
+    this._ancestorSeq = 0
   }
 
   _formatNGenerations(nGen) {
@@ -145,33 +163,72 @@ export class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
         mrcaAdded = true
       }
     }
-    // person box
-    const birthYear =
-      this.person?.extended?.events?.[this.person?.birth_ref_index]?.date?.year
-    result.push({
-      name: personDisplayName(this.person),
-      year: `${birthYear || ''}`,
-      connectorText: '',
-      person: this.person,
+    // boxes of the documented paternal line, oldest first, and the person
+    const lastCladeIndex = result.length - 1
+    const people = [...this._ancestors].reverse().concat(this.person)
+    people.forEach((person, i) => {
+      result.push({
+        name: personDisplayName(person),
+        year: `${birthYear(person) || ''}`,
+        connectorText: '',
+        documented: i < people.length - 1,
+        person,
+      })
     })
 
-    // Add connector text from next-to-last box to person box
-    if (result.length >= 2) {
-      const nextToLastIndex = result.length - 2
+    // generations from the last clade to the oldest documented ancestor,
+    // counted from the oldest person with a known birth year
+    if (lastCladeIndex >= 0) {
       const lastClade = this.data[this.data.length - 1]
       // clade ages are in years before 2000, birth years are calendar years
-      const lastCladeYbp = mrcaAdded
-        ? lastClade?.age_info?.most_recent_common_ancestor
-        : lastClade?.age_info?.formed
-      if (lastCladeYbp && birthYear) {
-        const nGen = Math.round(
-          Math.abs(2000 - Number(lastCladeYbp) - Number(birthYear)) / 20
-        )
-        result[nextToLastIndex].connectorText = this._formatNGenerations(nGen)
+      const lastCladeYbp = Number(
+        mrcaAdded
+          ? lastClade?.age_info?.most_recent_common_ancestor
+          : lastClade?.age_info?.formed
+      )
+      const datedIndex = people.findIndex(person => birthYear(person))
+      if (lastCladeYbp > 0 && datedIndex >= 0) {
+        const years =
+          Number(birthYear(people[datedIndex])) - (2000 - lastCladeYbp)
+        const nGen = Math.max(0, Math.round(years / 20) - datedIndex)
+        result[lastCladeIndex].connectorText = this._formatNGenerations(nGen)
       }
     }
 
     return result
+  }
+
+  willUpdate(changed) {
+    if (changed.has('person')) {
+      this._ancestors = []
+      this._fetchPaternalAncestors()
+    }
+  }
+
+  // Loads the documented paternal line of the person, father first
+  async _fetchPaternalAncestors() {
+    this._ancestorSeq += 1
+    const seq = this._ancestorSeq
+    const ancestors = []
+    const visited = new Set()
+    let handle = this.person?.handle
+    if (!handle) return
+    while (handle && !visited.has(handle) && ancestors.length < 100) {
+      visited.add(handle)
+      // each generation needs the father found in the previous one
+      // eslint-disable-next-line no-await-in-loop
+      const res = await this.appState.apiGet(
+        `/api/people/${handle}?extend=event_ref_list,parent_family_list`
+      )
+      if (seq !== this._ancestorSeq) return
+      if ('error' in res) {
+        fireEvent(this, 'grampsjs:error', {message: res.error})
+        break
+      }
+      if (handle !== this.person.handle) ancestors.push(res.data)
+      handle = biologicalFatherHandle(res.data)
+    }
+    this._ancestors = ancestors
   }
 
   render() {
@@ -181,6 +238,8 @@ export class GrampsjsYtreeLineage extends GrampsjsAppStateMixin(LitElement) {
     if (chartData.length > 0) {
       svgNode = YtreeLineageChart(chartData, {
         getImageUrl: d => getImageUrl(d?.person || {}, 100),
+        onClick: d =>
+          fireEvent(this, 'nav', {path: `person/${d.person.gramps_id}`}),
       })
     }
 

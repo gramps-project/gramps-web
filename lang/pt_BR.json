@@ -511,5 +511,15 @@
     "Back to login": "Voltar ao início de sessão",
     "E-mail address": "Endereço de e-mail",
     "Full name": "Nome completo",
-    "Edit for everyone": "Editar para todos"
+    "Edit for everyone": "Editar para todos",
+    "Supported formats: %s": "Formatos suportados: %s",
+    "ZIP archives cannot be imported.": "Arquivos ZIP não podem ser importados.",
+    "If it contains a GEDCOM (.ged) file, unzip it and upload that file.": "Se contiver um arquivo Gedcom (.ged), descompacte-o e envie esse arquivo.",
+    "How to fix this": "Como consertar isso",
+    "Import a family tree file first. The files in the ZIP archive are matched to its media objects.": "Importe primeiro um arquivo de árvore genealógica. Os arquivos contidos no ZIP são associados aos respectivos objetos de mídia.",
+    "To start building your family tree, add yourself as a person.": "Para começar a construir sua árvore genealógica, adicione a si mesmo como pessoa.",
+    "%s changes": "%s alterações",
+    "The information below applies to this family in this event.": "As informações abaixo se aplicam a esta família neste evento.",
+    "The information below applies to this person in this event.": "As informações abaixo se aplicam a esta pessoa neste evento.",
+    "No notifications": "Sem notificações"
 }

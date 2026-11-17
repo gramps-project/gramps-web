@@ -57,6 +57,7 @@ export class GrampsjsSysinfo extends GrampsjsAppStateMixin(LitElement) {
           task queue: ${data?.server?.task_queue}<br />
           OCR: ${data?.server?.ocr}<br />
           chat: ${data?.server?.chat}<br />
+          chat vision: ${data?.server?.chat_vision}<br />
         </span>
       </div>
     `

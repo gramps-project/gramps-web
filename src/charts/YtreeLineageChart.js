@@ -17,17 +17,23 @@ const clipString = (s, length) => {
 }
 
 /**
- * Render clade lineage as vertical person boxes connected by a dotted line.
- * @param {Array} chartData - Array of objects {name, year, connectorText, person?}
+ * Render clade lineage as vertical person boxes connected by a dotted line,
+ * or by a short solid line for a documented parent-child link.
+ * @param {Array} chartData - Array of objects
+ *   {name, year, connectorText, documented?, person?}, where `documented`
+ *   marks a documented link to the next box
  * @param {Object} options - Configuration options
  * @param {Function} options.getImageUrl - Function to get image URL for person
+ * @param {Function} options.onClick - Called with the item of a clicked box
+ *   that has a person
  * @returns {SVGElement}
  */
 export function YtreeLineageChart(chartData, options = {}) {
-  const {getImageUrl = null} = options
+  const {getImageUrl = null, onClick = null} = options
   const boxWidth = 250
   const boxHeight = 70
   const gapY = 50
+  const documentedGapY = 24
   const padding = 20
   const imgPadding = 10
   const stroke = 'var(--grampsjs-body-font-color-40)'
@@ -38,8 +44,13 @@ export function YtreeLineageChart(chartData, options = {}) {
 
   const extraLabelSpace = 80
   const svgWidth = boxWidth + 2 * padding + extraLabelSpace
+  const boxY = []
+  chartData.reduce((y, item) => {
+    boxY.push(y)
+    return y + boxHeight + (item.documented ? documentedGapY : gapY)
+  }, padding)
   const svgHeight =
-    chartData.length * boxHeight + (chartData.length - 1) * gapY + 2 * padding
+    chartData.length > 0 ? boxY.at(-1) + boxHeight + padding : 2 * padding
 
   const svg = create('svg')
     .attr('width', svgWidth)
@@ -57,8 +68,11 @@ export function YtreeLineageChart(chartData, options = {}) {
   const boxX = leftPad
 
   chartData.forEach((item, i) => {
-    const y = padding + i * (boxHeight + gapY)
+    const y = boxY[i]
     const group = g.append('g')
+    if (item.person?.gramps_id && onClick) {
+      group.style('cursor', 'pointer').on('click', () => onClick(item))
+    }
     // Draw left blue border
     group
       .append('rect')
@@ -153,7 +167,7 @@ export function YtreeLineageChart(chartData, options = {}) {
     // Draw connector line and label if not last box
     if (i < chartData.length - 1) {
       const lineY1 = y + boxHeight
-      const lineY2 = y + boxHeight + gapY
+      const lineY2 = boxY[i + 1]
       const lineX = boxX + 37
       g.append('line')
         .attr('x1', lineX)
@@ -162,7 +176,7 @@ export function YtreeLineageChart(chartData, options = {}) {
         .attr('y2', lineY2)
         .attr('stroke', stroke)
         .attr('stroke-width', strokeWidth)
-        .attr('stroke-dasharray', strokeDasharray)
+        .attr('stroke-dasharray', item.documented ? null : strokeDasharray)
       g.append('text')
         .attr('x', lineX + 16)
         .attr('y', (lineY1 + lineY2) / 2 + 5)

@@ -284,6 +284,7 @@ export class GrampsjsViewNewEvent extends GrampsjsNewEventMixin(
 
   _reset() {
     super._reset()
+    this.data = {_class: 'Event'}
     this._participants = []
     this._showParticipantDialog = false
   }

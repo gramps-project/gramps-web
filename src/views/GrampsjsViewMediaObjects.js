@@ -25,6 +25,7 @@ import {
   textFilter,
   yearsFilter,
 } from '../filterDefinitions.js'
+import {renderPrivacyIcon} from '../objectRender.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTooltip.js'
 import '../components/GrampsjsTagChips.js'
@@ -180,11 +181,23 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
           min-width: 0;
         }
 
+        /* the lock of private media stays visible after a truncated title */
         .media-list-title {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          margin-bottom: 2px;
+        }
+
+        .media-list-title span {
+          min-width: 0;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          margin-bottom: 2px;
+        }
+
+        .media-list-title grampsjs-icon {
+          flex-shrink: 0;
         }
 
         .media-list-meta {
@@ -227,7 +240,7 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
   get _fetchUrl() {
     return `/api/media/?locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=self&keys=gramps_id,mime,desc,change,handle,checksum,profile,extended&extend=tag_list`
+    }&profile=self&keys=gramps_id,mime,desc,change,handle,private,checksum,profile,extended&extend=tag_list`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -386,7 +399,10 @@ export class GrampsjsViewMediaObjects extends GrampsjsViewObjectsBase {
           ></grampsjs-img>
         </div>
         <div class="media-list-content">
-          <div class="media-list-title">${row.desc || row.gramps_id}</div>
+          <div class="media-list-title">
+            <span>${row.desc || row.gramps_id}</span>
+            ${renderPrivacyIcon(row.private, this.appState, {inline: false})}
+          </div>
           ${row.profile?.date
             ? html`<div class="media-list-meta">${row.profile.date}</div>`
             : ''}

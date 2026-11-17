@@ -1153,12 +1153,55 @@ export async function apiGet(auth, endpoint, {etag} = {}) {
   }
 }
 
+// Sends a request like fetch, with XMLHttpRequest, which reports the upload
+// progress: `onUploadProgress` receives the fraction of the body sent so far,
+// from 0 to 1. Resolves with an object offering the parts of a fetch Response
+// that apiPutPostDelete reads.
+export function sendWithUploadProgress(
+  url,
+  {method, headers, body},
+  onUploadProgress
+) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open(method, url)
+    Object.entries(headers).forEach(([name, value]) =>
+      xhr.setRequestHeader(name, value)
+    )
+    xhr.upload.addEventListener('progress', e => {
+      if (e.lengthComputable && e.total > 0) {
+        onUploadProgress(e.loaded / e.total)
+      }
+    })
+    xhr.addEventListener('load', () =>
+      resolve({
+        status: xhr.status,
+        statusText: xhr.statusText,
+        json: async () => JSON.parse(xhr.responseText),
+        headers: {get: name => xhr.getResponseHeader(name)},
+      })
+    )
+    // fetch rejects with a TypeError on network failures, too
+    const fail = () => reject(new TypeError('Network error'))
+    xhr.addEventListener('error', fail)
+    xhr.addEventListener('abort', fail)
+    xhr.addEventListener('timeout', fail)
+    xhr.send(body)
+  })
+}
+
 export async function apiPutPostDelete(
   auth,
   method,
   endpoint,
   payload,
-  {isJson = true, dbChanged = true, requireFresh = false, skipAuth = false} = {}
+  {
+    isJson = true,
+    dbChanged = true,
+    requireFresh = false,
+    skipAuth = false,
+    onUploadProgress = null,
+  } = {}
 ) {
   let resJson
   let status
@@ -1180,11 +1223,15 @@ export async function apiPutPostDelete(
     if (isJson) {
       headers['Content-Type'] = 'application/json'
     }
-    const resp = await fetch(`${__APIHOST__}${endpoint}`, {
+    const request = {
       method,
       headers,
       body: isJson ? JSON.stringify(payload) : payload,
-    })
+    }
+    const url = `${__APIHOST__}${endpoint}`
+    const resp = onUploadProgress
+      ? await sendWithUploadProgress(url, request, onUploadProgress)
+      : await fetch(url, request)
     try {
       resJson = await resp.json()
     } catch (error) {

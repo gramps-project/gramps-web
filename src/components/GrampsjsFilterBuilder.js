@@ -4,6 +4,11 @@ Condition builder, the advanced tier of the filter panel.
 A dialog editing a tree of groups and conditions (see filterBuilder.js).
 `open(tree)` shows it with a filter. Edits never change the tree passed in;
 Apply fires `filter-builder:apply` with the edited tree.
+
+Filters can be saved on this device (see savedFilters.js) and opened again
+in the builder. Opening one never applies it: conditions with a rule
+missing from the catalogue or an object that doesn't exist are marked and
+keep Apply disabled.
 */
 
 import {LitElement, css, html, nothing} from 'lit'
@@ -12,6 +17,7 @@ import {
   mdiArrowLeft,
   mdiChevronRight,
   mdiClose,
+  mdiDelete,
   mdiDotsVertical,
   mdiMagnify,
   mdiPlus,
@@ -41,16 +47,25 @@ import {
   isComplete,
   isGroup,
   isRequiredParam,
+  isUnknownRule,
   localizeRules,
   newCondition,
   newGroup,
   paramLabel,
   paramType,
   pickableRules,
+  refersToMissing,
   removeNode,
+  rulesToTree,
   searchRules,
+  serializeNode,
   updateNode,
 } from '../filterBuilder.js'
+import {
+  deleteSavedFilter,
+  loadSavedFilters,
+  saveFilter,
+} from '../savedFilters.js'
 import './GrampsjsFilterParam.js'
 import './GrampsjsIcon.js'
 import {fetchAllTags} from '../tags.js'
@@ -249,6 +264,48 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
         md-menu {
           min-width: 200px;
         }
+
+        .error {
+          color: var(--md-sys-color-error);
+        }
+
+        .panel-title {
+          flex: 1;
+          font-size: 16px;
+          font-weight: 500;
+        }
+
+        .hint {
+          font-size: 14px;
+          color: var(--md-sys-color-on-surface-variant);
+          margin: 0 0 12px 0;
+        }
+
+        .saved-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .saved-row md-list-item {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .actions {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+          gap: 8px;
+          width: 100%;
+        }
+
+        .actions-start {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-right: auto;
+        }
       `,
     ]
   }
@@ -265,6 +322,13 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
       _search: {state: true},
       _grampsTypes: {state: true},
       _tags: {state: true},
+      // '' while editing the tree, 'saved' for the list of saved filters,
+      // 'save' for naming the filter to save
+      _panel: {state: true},
+      _savedFilters: {state: true},
+      _saveName: {state: true},
+      // `${namespace}:${id}` of the objects found missing
+      _missingIds: {state: true},
     }
   }
 
@@ -283,6 +347,12 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
     this._grampsTypes = {}
     this._tags = []
     this._menuPath = []
+    this._panel = ''
+    this._savedFilters = []
+    this._saveName = ''
+    // name of the saved filter being edited
+    this._savedName = ''
+    this._missingIds = new Set()
   }
 
   render() {
@@ -290,9 +360,7 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
       <md-dialog>
         <div slot="headline">${this._('Advanced filter')}</div>
         <div slot="content">
-          ${this._pickerPath === null
-            ? this._renderGroup(this._tree, [], 0)
-            : this._renderPicker()}
+          ${this._renderContent()}
           <md-menu
             id="group-menu"
             positioning="fixed"
@@ -305,18 +373,143 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
             </md-menu-item>
           </md-menu>
         </div>
-        <div slot="actions">
+        <div slot="actions">${this._renderActions()}</div>
+      </md-dialog>
+    `
+  }
+
+  _renderContent() {
+    if (this._pickerPath !== null) {
+      return this._renderPicker()
+    }
+    if (this._panel === 'saved') {
+      return this._renderSavedList()
+    }
+    if (this._panel === 'save') {
+      return this._renderSaveForm()
+    }
+    return this._renderGroup(this._tree, [], 0)
+  }
+
+  get _isEditing() {
+    return this._pickerPath === null && this._panel === ''
+  }
+
+  // Whether the tree can be applied: complete, and no condition refers to
+  // an object found missing
+  get _canApply() {
+    return (
+      isComplete(this._tree, this._catalogue) &&
+      !refersToMissing(this._tree, this._catalogue, (namespace, id) =>
+        this._missingIds.has(`${namespace}:${id}`)
+      )
+    )
+  }
+
+  get _canSave() {
+    return this._tree.children.length > 0 && this._canApply
+  }
+
+  _renderActions() {
+    if (this._panel === 'save') {
+      return html`
+        <div class="actions">
           <md-text-button @click="${this.close}"
             >${this._('Cancel')}</md-text-button
           >
           <md-filled-button
-            ?disabled="${this._pickerPath !== null ||
-            !isComplete(this._tree, this._catalogue)}"
-            @click="${this._apply}"
-            >${this._('Apply')}</md-filled-button
+            ?disabled="${this._saveName.trim() === ''}"
+            @click="${this._save}"
+            >${this._('_Save')}</md-filled-button
           >
         </div>
-      </md-dialog>
+      `
+    }
+    return html`
+      <div class="actions">
+        ${this._isEditing
+          ? html`<div class="actions-start">
+              <md-text-button
+                ?disabled="${this._savedFilters.length === 0 ||
+                this._catalogueKey === ''}"
+                @click="${this._openSavedList}"
+                >${this._('Saved filters')}</md-text-button
+              >
+              <md-text-button
+                ?disabled="${!this._canSave}"
+                @click="${this._openSaveForm}"
+                >${this._('_Save')}</md-text-button
+              >
+            </div>`
+          : nothing}
+        <md-text-button @click="${this.close}"
+          >${this._('Cancel')}</md-text-button
+        >
+        <md-filled-button
+          ?disabled="${!this._isEditing || !this._canApply}"
+          @click="${this._apply}"
+          >${this._('Apply')}</md-filled-button
+        >
+      </div>
+    `
+  }
+
+  _renderBackButton() {
+    return html`
+      <md-icon-button
+        aria-label="${this._('_Back')}"
+        @click="${this._closePanel}"
+      >
+        <grampsjs-icon path="${mdiArrowLeft}"></grampsjs-icon>
+      </md-icon-button>
+    `
+  }
+
+  _renderSavedList() {
+    return html`
+      <div class="picker-header">
+        ${this._renderBackButton()}
+        <span class="panel-title">${this._('Saved filters')}</span>
+      </div>
+      <p class="hint">${this._('Saved on this device')}</p>
+      <md-list>
+        ${this._savedFilters.map(
+          filter => html`
+            <div class="saved-row">
+              <md-list-item
+                type="button"
+                @click="${() => this._openSaved(filter)}"
+              >
+                <div slot="headline">${filter.name}</div>
+              </md-list-item>
+              <md-icon-button
+                aria-label="${this._('Delete')}"
+                @click="${() => this._deleteSaved(filter)}"
+              >
+                <grampsjs-icon path="${mdiDelete}"></grampsjs-icon>
+              </md-icon-button>
+            </div>
+          `
+        )}
+      </md-list>
+    `
+  }
+
+  _renderSaveForm() {
+    return html`
+      <div class="picker-header">
+        ${this._renderBackButton()}
+        <md-outlined-text-field
+          id="save-name"
+          label="${this._('Name')}"
+          supporting-text="${this._('Saved on this device')}"
+          .value="${this._saveName}"
+          @input="${e => {
+            this._saveName = e.target.value
+          }}"
+          @keydown="${this._handleSaveKey}"
+        ></md-outlined-text-field>
+      </div>
     `
   }
 
@@ -423,6 +616,9 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
         <div>
           <div class="condition-name">
             <div class="rule-name">${ruleInfo?.name ?? condition.name}</div>
+            ${isUnknownRule(condition, this._catalogue)
+              ? html`<div class="error">${this._('Unknown rule')}</div>`
+              : nothing}
             ${ruleInfo?.description
               ? html`<div class="rule-description">
                   ${ruleInfo.description}
@@ -446,6 +642,8 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
                         .tags="${this._tags}"
                         @filter-param:change="${e =>
                           this._setValue(path, i, e.detail.value)}"
+                        @filter-param:missing="${e =>
+                          this._addMissing(type.namespace, e.detail.value)}"
                       ></grampsjs-filter-param>
                     `
                   })}
@@ -537,6 +735,10 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
     this._tree = tree
     this._pickerPath = null
     this._search = ''
+    this._panel = ''
+    this._savedName = ''
+    this._missingIds = new Set()
+    this._loadSavedFilters()
     this.renderRoot.querySelector('md-dialog')?.show()
     this._fetchCatalogue()
     this._fetchGrampsTypes()
@@ -680,6 +882,80 @@ export class GrampsjsFilterBuilder extends GrampsjsAppStateMixin(LitElement) {
   _apply() {
     fireEvent(this, 'filter-builder:apply', {tree: this._tree})
     this.close()
+  }
+
+  _addMissing(namespace, id) {
+    this._missingIds = new Set([...this._missingIds, `${namespace}:${id}`])
+  }
+
+  // the saved filters of the namespace that the builder can open
+  _loadSavedFilters() {
+    this._savedFilters = loadSavedFilters(this.namespace).filter(
+      filter => rulesToTree(filter.rules) !== null
+    )
+  }
+
+  _closePanel() {
+    this._panel = ''
+  }
+
+  _openSavedList() {
+    this._loadSavedFilters()
+    this._panel = 'saved'
+  }
+
+  _openSaved(filter) {
+    const tree = rulesToTree(filter.rules)
+    if (tree === null) {
+      return
+    }
+    this._tree = tree
+    this._savedName = filter.name
+    this._panel = ''
+  }
+
+  _deleteSaved(filter) {
+    deleteSavedFilter(filter.id)
+    this._loadSavedFilters()
+    if (filter.name === this._savedName) {
+      this._savedName = ''
+    }
+    if (this._savedFilters.length === 0) {
+      this._panel = ''
+    }
+  }
+
+  _openSaveForm() {
+    this._saveName = this._savedName
+    this._panel = 'save'
+    this.updateComplete.then(async () => {
+      const field = this.renderRoot.querySelector('#save-name')
+      await field?.updateComplete
+      field?.focus()
+    })
+  }
+
+  _handleSaveKey(e) {
+    if (e.key === 'Enter' && this._saveName.trim() !== '') {
+      e.preventDefault()
+      this._save()
+    }
+  }
+
+  // Saves the tree under the entered name, replacing a saved filter of the
+  // same name
+  _save() {
+    const name = this._saveName.trim()
+    const saved = saveFilter(this.namespace, name, serializeNode(this._tree))
+    if (saved === null) {
+      fireEvent(this, 'grampsjs:error', {
+        message: this._('The filter could not be saved.'),
+      })
+      return
+    }
+    this._savedName = name
+    this._loadSavedFilters()
+    this._panel = ''
   }
 }
 

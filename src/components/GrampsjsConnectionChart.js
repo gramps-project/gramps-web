@@ -1,4 +1,5 @@
 import {css, html} from 'lit'
+import {select} from 'd3-selection'
 
 import {GrampsjsConnectedComponent} from './GrampsjsConnectedComponent.js'
 import {RelationshipChart} from '../charts/RelationshipChart.js'
@@ -8,6 +9,7 @@ import {GrampsjsResizeContainerMixin} from '../mixins/GrampsjsResizeContainerMix
 import {getImageUrl} from '../charts/util.js'
 import {chartPalette} from '../charts/palette.js'
 import {fitMargin} from '../charts/ChartViewport.js'
+import {fireEvent} from '../util.js'
 
 const palette = {
   ...chartPalette,
@@ -25,6 +27,8 @@ export function fittedHeight(bounds, width, {minHeight, maxHeight}) {
   )
 }
 
+// The chart is part of a scrolling page: it is as high as its content and
+// does not zoom or pan, so that the page scrolls over it
 export class GrampsjsConnectionChart extends GrampsjsChartCanvasMixin(
   GrampsjsResizeContainerMixin(GrampsjsConnectedComponent)
 ) {
@@ -33,16 +37,8 @@ export class GrampsjsConnectionChart extends GrampsjsChartCanvasMixin(
       super.styles,
       css`
         div#container {
-          border: 2px solid var(--grampsjs-connection-chart-border-color);
-          border-radius: 16px;
           overflow: hidden;
           width: 100%;
-          resize: vertical;
-        }
-
-        /* Clicking a card does nothing here */
-        div#container .node {
-          cursor: default !important;
         }
       `,
     ]
@@ -54,7 +50,6 @@ export class GrampsjsConnectionChart extends GrampsjsChartCanvasMixin(
       grampsId2: {type: String},
       initialHeight: {type: Number},
       minHeight: {type: Number},
-      maxHeight: {type: Number},
     }
   }
 
@@ -63,13 +58,12 @@ export class GrampsjsConnectionChart extends GrampsjsChartCanvasMixin(
     this.grampsId1 = ''
     this.grampsId2 = ''
     this.initialHeight = 400
-    this.minHeight = 200
-    this.maxHeight = 600
-    // The people the container height was fitted for, and the height of the
-    // container, which the user can change by dragging
-    this._sizedFor = null
+    this.minHeight = 100
+    // The height of the container, fitted to the chart
     this._height = null
     this._chart = new RelationshipChart()
+    // No zoom or pan with the wheel, mouse or touch
+    select(this._chart.node).on('.zoom', null).style('touch-action', null)
     this._otherHandle = null
   }
 
@@ -77,12 +71,12 @@ export class GrampsjsConnectionChart extends GrampsjsChartCanvasMixin(
     if (this._data?.data?.length === 0 || !this.grampsId1 || !this.grampsId2) {
       return ''
     }
-    // A card click would open the person in the tree view
+    // A card click opens the person's page, like a link
     return html`
       <div
         id="container"
         style="height: ${this._containerHeight()}"
-        @pedigree:person-selected="${e => e.stopPropagation()}"
+        @pedigree:person-selected="${this._handlePersonSelected}"
       ></div>
     `
   }
@@ -95,17 +89,13 @@ export class GrampsjsConnectionChart extends GrampsjsChartCanvasMixin(
     ></div>`
   }
 
-  _containerHeight() {
-    return this._height ?? `${this.initialHeight}px`
+  _handlePersonSelected(e) {
+    e.stopPropagation()
+    fireEvent(this, 'nav', {path: `person/${e.detail.grampsId}`})
   }
 
-  // The container is created again after loading, so its height is kept
-  handleResize() {
-    super.handleResize()
-    const height = this.renderRoot?.getElementById('container')?.style.height
-    if (height) {
-      this._height = height
-    }
+  _containerHeight() {
+    return this._height ?? `${this.initialHeight}px`
   }
 
   willUpdate(changed) {
@@ -137,16 +127,12 @@ export class GrampsjsConnectionChart extends GrampsjsChartCanvasMixin(
       this._chart.clear()
       return
     }
-    // The first layout of two people gets a container just high enough for
-    // it, with the chart fitted into it; after that the height is the user's
-    // to change
-    const people = `${this.grampsId1} ${this.grampsId2}`
-    const fit = people !== this._sizedFor && this.containerWidth > 0
-    if (fit) {
-      this._sizedFor = people
+    // The container is just high enough for the chart at full size, or
+    // zoomed out to fit the width
+    if (this.containerWidth > 0) {
       const height = fittedHeight(this._layout.bounds, this.containerWidth, {
         minHeight: this.minHeight,
-        maxHeight: this.maxHeight,
+        maxHeight: Infinity,
       })
       this._height = `${height}px`
       container.style.height = this._height
@@ -155,10 +141,7 @@ export class GrampsjsConnectionChart extends GrampsjsChartCanvasMixin(
       ...this.chartOptions(),
       bboxHeight: container.offsetHeight,
     })
-    // The viewport keeps the zoom level while the root person stays the same
-    if (fit) {
-      this._chart.viewport.fit()
-    }
+    this._chart.viewport.fit()
   }
 
   chartOptions() {

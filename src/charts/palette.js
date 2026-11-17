@@ -22,6 +22,22 @@ export const chartPalette = {
   legendText: 'var(--grampsjs-body-font-color)',
 }
 
+// Colours of categories, such as matches or event types, in a fixed order.
+// Neighbouring colours stay apart for colour-blind readers.
+export const categoricalColors = [
+  '#2a78d6',
+  '#eb6834',
+  '#1baf7a',
+  '#eda100',
+  '#e87ba4',
+  '#008300',
+  '#6250d6',
+  '#e34948',
+]
+
+// The colour of the remaining categories once the categorical colours run out
+export const categoricalOther = '#999999'
+
 // Colours of exported charts: the light theme as opaque colours on a white
 // background, so a saved file looks the same in any app and theme
 export const exportPalette = {

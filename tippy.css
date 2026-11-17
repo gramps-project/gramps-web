@@ -6,6 +6,18 @@
   max-width: calc(100vw - 10px)
 }
 
+/* GrampsjsTooltip shows tooltips in modal dialogs as popovers; drop the
+   browser's popover box */
+[data-tippy-root][popover] {
+  inset: auto;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  overflow: visible;
+  color: inherit;
+  background: none;
+}
+
 .tippy-box {
   position: relative;
   background-color: #444;

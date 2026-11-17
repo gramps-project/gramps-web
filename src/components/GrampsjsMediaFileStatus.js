@@ -24,7 +24,8 @@ export class GrampsjsMediaFileStatus extends GrampsjsMediaStatus {
 
   // eslint-disable-next-line class-methods-use-this
   getUrl() {
-    return '/api/media/?keys=checksum,gramps_id&sort=gramps_id&filemissing=1'
+    // the path tells users which file to look for
+    return '/api/media/?keys=checksum,gramps_id,path&sort=gramps_id&filemissing=1'
   }
 }
 

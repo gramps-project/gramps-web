@@ -2,7 +2,11 @@
 Citations list view
 */
 
-import {GrampsjsViewObjectsBase, tagsColumn} from './GrampsjsViewObjectsBase.js'
+import {
+  GrampsjsViewObjectsBase,
+  privacyColumn,
+  tagsColumn,
+} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
 import {
   associationsFilter,
@@ -19,6 +23,7 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
       {name: 'Source: Title', key: 'sourceTitle'},
       {name: 'Page', key: 'page'},
       tagsColumn,
+      privacyColumn,
       {name: 'Last changed', key: 'change', sortKey: 'change'},
     ]
     this._objectsName = 'citations'
@@ -30,7 +35,7 @@ export class GrampsjsViewCitations extends GrampsjsViewObjectsBase {
   }
 
   get _fetchUrl() {
-    return '/api/citations/?extend=source_handle,tag_list&keys=gramps_id,extended,page,change,handle'
+    return '/api/citations/?extend=source_handle,tag_list&keys=gramps_id,extended,page,change,handle,private'
   }
 
   // eslint-disable-next-line class-methods-use-this

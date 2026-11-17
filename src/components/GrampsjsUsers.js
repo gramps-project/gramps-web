@@ -23,6 +23,7 @@ import {fireEvent} from '../util.js'
 
 import './GrampsjsTooltip.js'
 import './GrampsjsIcon.js'
+import './GrampsjsHelpButton.js'
 
 const ALL_ROLES = '__all__'
 
@@ -39,6 +40,11 @@ export class GrampsjsUsers extends GrampsjsTableBase {
           gap: 8px;
           margin-top: 16px;
           margin-bottom: 4px;
+        }
+
+        .toolbar {
+          display: flex;
+          align-items: center;
         }
 
         md-filled-text-field {
@@ -234,7 +240,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
 
   _renderButtons() {
     return html`
-      <p>
+      <p class="toolbar">
         <md-icon-button
           class="edit"
           aria-label="${this._('Add a new user')}"
@@ -279,6 +285,10 @@ export class GrampsjsUsers extends GrampsjsTableBase {
         <grampsjs-tooltip for="button-export">
           ${this._('Export user details')}
         </grampsjs-tooltip>
+        <grampsjs-help-button
+          path="administration/users/"
+          .appState="${this.appState}"
+        ></grampsjs-help-button>
         <a
           download="grampsweb-export-users.json"
           href="${this._downloadUrl}"

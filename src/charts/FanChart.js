@@ -1,11 +1,6 @@
 import {arc as d3arc} from 'd3-shape'
 import {create, local, select} from 'd3-selection'
-import {
-  schemePaired,
-  interpolateWarm,
-  schemeYlOrRd,
-  schemeCategory10,
-} from 'd3-scale-chromatic'
+import {schemePaired, interpolateWarm, schemeYlOrRd} from 'd3-scale-chromatic'
 import {ChartViewport} from './ChartViewport.js'
 import {
   buttonRadius,
@@ -14,7 +9,7 @@ import {
 } from './chartButton.js'
 import {joinWithTransitions, transitionColor} from './animatedJoin.js'
 import {invertFrame, placeArc, relateFanLayouts} from './layout/fanLayout.js'
-import {chartPalette} from './palette.js'
+import {categoricalColors, categoricalOther, chartPalette} from './palette.js'
 import {LegendCategorical, LegendColorBar, isHoverDevice} from './util.js'
 import {chartNameDisplayFormat, fireEvent} from '../util.js'
 
@@ -87,13 +82,9 @@ export const fanColorModes = {
   },
 }
 
-// The colours of category10, reordered so that the last one is grey
-const schemeCategorical = [
-  ...schemeCategory10.slice(0, 7),
-  schemeCategory10[9],
-  schemeCategory10[8],
-  schemeCategory10[7],
-]
+// The categorical colours, then the colour of all remaining categories
+const schemeCategorical = [...categoricalColors, categoricalOther]
+const maxCategories = categoricalColors.length
 
 // The colour of a count from 1, with 8 and above sharing the last colour
 const countColor = count => schemeYlOrRd[9][count > 8 ? 8 : count]
@@ -190,12 +181,14 @@ function colorScheme(nodes, color, palette, otherLabel) {
   }
   if (mode.type === 'category') {
     const categories = categoriesByShare(nodes, mode.fct)
-    const legendData = categories.slice(0, 9).map((category, i) => ({
-      label: category,
-      color: schemeCategorical[i],
-    }))
-    if (categories.length > 9) {
-      legendData.push({label: otherLabel, color: schemeCategorical[9]})
+    const legendData = categories
+      .slice(0, maxCategories)
+      .map((category, i) => ({
+        label: category,
+        color: schemeCategorical[i],
+      }))
+    if (categories.length > maxCategories) {
+      legendData.push({label: otherLabel, color: categoricalOther})
     }
     return {
       fill: node => {
@@ -204,7 +197,9 @@ function colorScheme(nodes, color, palette, otherLabel) {
           return palette.fanNoValue
         }
         const index = categories.indexOf(category)
-        return schemeCategorical[index === -1 || index >= 9 ? 9 : index]
+        return schemeCategorical[
+          index === -1 || index >= maxCategories ? maxCategories : index
+        ]
       },
       opacity: 0.3,
       legend: legend =>

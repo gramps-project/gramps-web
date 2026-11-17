@@ -36,6 +36,11 @@ export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
           margin-right: 1em;
         }
 
+        .path {
+          color: var(--grampsjs-body-font-color-60);
+          overflow-wrap: anywhere;
+        }
+
         md-circular-progress {
           --md-circular-progress-size: 24px;
           --md-circular-progress-active-indicator-width: 15;
@@ -95,7 +100,9 @@ export class GrampsjsMediaStatus extends GrampsjsConnectedComponent {
         <div slot="content">
           ${objects.map(
             obj =>
-              html`<a href="/media/${obj.gramps_id}">${obj.gramps_id}</a><br />`
+              html`<a href="/media/${obj.gramps_id}">${obj.gramps_id}</a>
+                ${obj.path ? html`<span class="path">${obj.path}</span>` : ''}
+                <br />`
           )}
         </div>
       </md-dialog>

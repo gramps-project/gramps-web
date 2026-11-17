@@ -2,6 +2,7 @@ import {html, css, LitElement} from 'lit'
 import {GrampsjsEditYDnaMixin} from '../mixins/GrampsjsEditYDnaMixin.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {sharedStyles} from '../SharedStyles.js'
+import './GrampsjsHelpButton.js'
 
 import {fireEvent} from '../util.js'
 
@@ -33,7 +34,13 @@ export class GrampsjsFormEditYDna extends GrampsjsEditYDnaMixin(
   render() {
     return html`
       <md-dialog open @cancel="${e => e.preventDefault()}">
-        <div slot="headline">${this._('Edit Y-DNA data')}</div>
+        <div slot="headline">
+          ${this._('Edit Y-DNA data')}
+          <grampsjs-help-button
+            path="user-guide/y-dna/"
+            .appState="${this.appState}"
+          ></grampsjs-help-button>
+        </div>
         <div slot="content">
           <div @formdata:changed="${this._handleFormData}">
             ${this.renderEditor()}

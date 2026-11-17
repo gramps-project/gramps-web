@@ -7,6 +7,7 @@ import {mdiAlertOutline, mdiDownload} from '@mdi/js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsIcon.js'
+import '../components/GrampsjsHelpButton.js'
 import '../components/GrampsjsImportExportReport.js'
 import {downloadExportFile} from '../api.js'
 import {formatRateLimit} from '../util.js'
@@ -54,7 +55,13 @@ export class GrampsjsViewExport extends GrampsjsView {
 
   renderContent() {
     return html`
-      <h3>${this._('Export your family tree')}</h3>
+      <h3>
+        ${this._('Export your family tree')}
+        <grampsjs-help-button
+          path="administration/export/"
+          .appState="${this.appState}"
+        ></grampsjs-help-button>
+      </h3>
 
       ${this.data.length === 0
         ? html`<md-filled-select

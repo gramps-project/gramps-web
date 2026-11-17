@@ -274,7 +274,6 @@ export const sharedStyles = css`
     border-left: 4px solid var(--grampsjs-alert-border-color);
     border-radius: 5px;
     padding: 0.8em 1em;
-    font-size: 0.8em;
     color: var(--grampsjs-body-font-color);
     margin: 1.5em 0;
   }

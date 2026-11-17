@@ -5,13 +5,73 @@ import {classMap} from 'lit/directives/class-map.js'
 
 import {select} from 'd3-selection'
 import {sharedStyles} from '../SharedStyles.js'
+import './GrampsjsChipChoice.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {
   ChromosomeBrowser,
   chromosomeBrowserSvgDocument,
   matchColor,
+  matchStroke,
+  chromosomeKey,
 } from '../charts/ChromosomeBrowser.js'
 import {clickKeyHandler, fireEvent, personDisplayName} from '../util.js'
+
+// The names of the person profiles, skipping profiles without a name
+function profileNames(profiles) {
+  return (profiles ?? [])
+    .map(profile =>
+      [profile.name_given, profile.name_surname].filter(Boolean).join(' ')
+    )
+    .filter(Boolean)
+}
+
+// The lowest distance of the matches at `members`, Infinity if none has one
+function closestDistance(data, members) {
+  return Math.min(...members.map(i => data[i].distance ?? Infinity))
+}
+
+// Groups the matches in `data` for the colours and the legend. With `by` set
+// to 'ancestor', matches sharing the same set of most recent common ancestors
+// form one group, ordered closest first, with the matches without any last;
+// otherwise each match is a group of its own. Returns the `groups`, each with
+// its `key` ('' for no common ancestors) and the match indices in `members`,
+// and in `groupOf` the group index of each match.
+export function matchGroups(data, by) {
+  if (by !== 'ancestor') {
+    return {
+      groups: data.map((match, i) => ({key: match.handle, members: [i]})),
+      groupOf: data.map((match, i) => i),
+    }
+  }
+  const members = new Map()
+  data.forEach((match, i) => {
+    const key = [...new Set(match.ancestor_handles ?? [])].sort().join(' ')
+    members.set(key, [...(members.get(key) ?? []), i])
+  })
+  const groups = [...members]
+    .map(([key, indices]) => ({
+      key,
+      members: indices,
+      distance: closestDistance(data, indices),
+    }))
+    .sort((a, b) => {
+      if ((a.key === '') !== (b.key === '')) {
+        return a.key === '' ? 1 : -1
+      }
+      if (a.distance === b.distance) {
+        return 0
+      }
+      return a.distance < b.distance ? -1 : 1
+    })
+    .map(({key, members: indices}) => ({key, members: indices}))
+  const groupOf = []
+  groups.forEach((group, index) => {
+    group.members.forEach(i => {
+      groupOf[i] = index
+    })
+  })
+  return {groups, groupOf}
+}
 
 export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
   LitElement
@@ -28,6 +88,7 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
           display: flex;
           flex-wrap: wrap;
           align-items: flex-start;
+          column-gap: 20px;
         }
 
         div#container {
@@ -42,19 +103,30 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
           padding: 0;
           font-size: 15px;
           font-weight: var(--grampsjs-font-weight-body);
-          margin-left: 20px;
         }
 
+        #legend grampsjs-chip-choice {
+          display: block;
+          margin-bottom: 12px;
+        }
+
+        /* The rows' padding holds the hover background; the negative margin
+           aligns their dots with the chips above */
         #legend ul {
           list-style-type: none;
           padding: 0;
-          margin: 0;
+          margin: 0 -4px;
         }
 
         #legend ul li {
           padding: 4px;
           margin: 0;
           cursor: pointer;
+        }
+
+        /* Matches without segments on the chart */
+        #legend ul li.empty {
+          opacity: 0.5;
         }
 
         #legend ul li.muted {
@@ -71,6 +143,11 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
           color: var(--grampsjs-text-secondary-color);
         }
 
+        div.members {
+          margin-left: 19px;
+          color: var(--grampsjs-text-secondary-color);
+        }
+
         rect.segment {
           cursor: pointer;
           transition: opacity 0.15s;
@@ -84,9 +161,10 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
           display: inline-block;
           width: 11px;
           height: 11px;
+          box-sizing: border-box;
+          border: 1px solid;
           border-radius: 3px;
           margin-right: 8px;
-          opacity: 0.9;
         }
 
         @keyframes pulse {
@@ -115,6 +193,7 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
       selected: {type: Number},
       person: {type: Object},
       loading: {type: Boolean},
+      labelBy: {type: String},
       _hovered: {state: true},
     }
   }
@@ -126,7 +205,9 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
     this.selected = -1
     this.person = {}
     this.loading = false
+    this.labelBy = 'match'
     this._hovered = -1
+    this._grouping = {groups: [], groupOf: []}
     this._chart = null
     this._tippy = null
     this._resizeObserver = null
@@ -148,12 +229,14 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
   }
 
   willUpdate(changed) {
-    if (changed.has('data')) {
+    if (changed.has('data') || changed.has('labelBy')) {
       this.selected = -1
       this._hovered = -1
+      this._grouping = matchGroups(this.data, this.labelBy)
     }
     const rebuild =
       changed.has('data') ||
+      changed.has('labelBy') ||
       changed.has('selected') ||
       changed.has('width') ||
       this._chart === null
@@ -163,7 +246,7 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
     if (rebuild || changed.has('_hovered')) {
       select(this._chart)
         .selectAll('rect.segment')
-        .classed('dimmed', d => this._hovered > -1 && d.index !== this._hovered)
+        .classed('dimmed', d => this._hovered > -1 && d.group !== this._hovered)
     }
   }
 
@@ -172,17 +255,66 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
       <div id="container" class="${classMap({loading: this.loading})}">
         ${this._chart}
       </div>
-      <div id="legend">${this.renderLegend()}</div>
+      <div id="legend">
+        <grampsjs-chip-choice
+          .options="${[
+            {value: 'match', label: this._('Matches')},
+            {value: 'ancestor', label: this._('Common ancestors')},
+          ]}"
+          .selected="${this.labelBy}"
+          @chip-choice:change="${this._handleLabelBy}"
+        ></grampsjs-chip-choice>
+        ${this.renderLegend()}
+      </div>
     `
   }
 
+  _handleLabelBy(e) {
+    this.labelBy = e.detail.value
+  }
+
+  // The matches with their colour group, without the segments of matches
+  // outside the selected group
   _chartData() {
-    if (this.selected < 0) {
-      return this.data
-    }
+    const {groupOf} = this._grouping
     return this.data.map((obj, index) =>
-      index === this.selected ? obj : {segments: [], handle: obj.handle}
+      this.selected < 0 || groupOf[index] === this.selected
+        ? {...obj, group: groupOf[index]}
+        : {segments: [], handle: obj.handle, group: groupOf[index]}
     )
+  }
+
+  // Whether any match of the group has a segment on the chart
+  _hasSegments(group) {
+    return group.members.some(i =>
+      (this.data[i].segments ?? []).some(
+        seg => chromosomeKey(seg.chromosome) !== null
+      )
+    )
+  }
+
+  // The legend label of a group: the match, or its common ancestors
+  _groupLabel(group) {
+    if (this.labelBy !== 'ancestor') {
+      return this._getNameFromHandle(this.data[group.members[0]].handle)
+    }
+    if (group.key === '') {
+      return this._('Unknown')
+    }
+    const profiles = this.data[group.members[0]].ancestor_profiles ?? []
+    const names = profileNames(profiles)
+    return (names.length ? names : profiles.map(p => p.gramps_id)).join(', ')
+  }
+
+  // The muted text of a group in the legend: the total cM of a match, or the
+  // matches sharing the common ancestors
+  _groupDetail(group) {
+    if (this.labelBy !== 'ancestor') {
+      return this._totalCm(this.data[group.members[0]])
+    }
+    return group.members
+      .map(i => this._getNameFromHandle(this.data[i].handle))
+      .join(', ')
   }
 
   _getNameFromHandle(handle) {
@@ -207,7 +339,7 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
   _handleChartMouseOver(event) {
     const seg = GrampsjsChromosomeBrowser._segmentDatum(event)
     if (seg) {
-      this._hovered = seg.index
+      this._hovered = seg.group
     }
   }
 
@@ -239,11 +371,11 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
   // The chart as shown, with only the selected match if there is one, as a
   // standalone SVG document
   svgDocument() {
-    const legend = this.data
-      .map((obj, index) => ({
+    const legend = this._grouping.groups
+      .map((group, index) => ({
         index,
-        label: this._getNameFromHandle(obj.handle),
-        detail: this._totalCm(obj),
+        label: this._groupLabel(group),
+        detail: this._groupDetail(group),
       }))
       .filter(({index}) => this.selected < 0 || index === this.selected)
     return chromosomeBrowserSvgDocument(this._chartData(), legend)
@@ -251,8 +383,8 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
 
   renderLegend() {
     return html`<ul role="group">
-      ${this.data.map(
-        (obj, i) => html`
+      ${this._grouping.groups.map(
+        (group, i) => html`
           <li
             @click="${e => this._handleLegendClick(e, i)}"
             @keydown="${clickKeyHandler}"
@@ -271,16 +403,22 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
             class="${classMap({
               muted: this.selected > -1 && this.selected !== i,
               hovered: this._hovered === i,
+              empty: !this._hasSegments(group),
             })}"
             id="legend-item-${i}"
             role="button"
             tabindex="0"
             aria-pressed="${this.selected === i}"
           >
-            <span class="dot" style="background-color:${matchColor(i)};"></span
-            >${this._getNameFromHandle(obj.handle)}<span class="total"
-              >${this._totalCm(obj)}</span
-            >
+            <span
+              class="dot"
+              style="background-color:${matchColor(
+                i
+              )};border-color:${matchStroke(i) ?? matchColor(i)};"
+            ></span
+            >${this._groupLabel(group)}${this.labelBy === 'ancestor'
+              ? html`<div class="members">${this._groupDetail(group)}</div>`
+              : html`<span class="total">${this._groupDetail(group)}</span>`}
           </li>
         `
       )}
@@ -294,11 +432,7 @@ export class GrampsjsChromosomeBrowser extends GrampsjsAppStateMixin(
       seg.cM ? html`<b>${numberFormat.format(seg.cM)} cM</b>` : '',
       seg.SNPs ? `${numberFormat.format(seg.SNPs)} SNPs` : '',
     ].filter(Boolean)
-    const ancestors = (match.ancestor_profiles ?? [])
-      .map(profile =>
-        [profile.name_given, profile.name_surname].filter(Boolean).join(' ')
-      )
-      .filter(Boolean)
+    const ancestors = profileNames(match.ancestor_profiles)
     const content = document.createElement('div')
     render(
       html`
