@@ -532,17 +532,17 @@
     "Saved on this device": "Uložené na tomto zariadení",
     "Unknown rule": "Neznáme pravidlo",
     "The filter could not be saved.": "Filter sa nepodarilo uložiť.",
-    "Remove Tag": "Odstrániť štítok",
+    "Remove Tag": "Odstránenie štítku",
     "The file is too large for the server to accept.": "Súbor je príliš veľký na to, aby ho server prijal.",
-    "The server is unavailable or did not respond in time. Try again later.": "Server nie je dostupný alebo neodpovedal včas. Skúste to neskôr.",
+    "The server is unavailable or did not respond in time. Try again later.": "Server nie je dostupný alebo neodpovedal včas. Skúste to znova neskôr.",
     "Files were found for %s of %s media objects without a file.": "Pre %s z %s mediálnych objektov, ktoré nemali súbor, boli nájdené súbory.",
     "%s files could not be stored.": "%s súborov sa nepodarilo uložiť.",
     "The archive has no file for %s media objects.": "V archíve sa nenachádza žiadny súbor pre % mediálnych objektov.",
     "Uploading file: %s": "Nahrávanie súboru: %s",
-    "Your tree already contains people. Importing a file again creates duplicates.": "Váš rodokmeň už obsahuje osoby. Opätovným importovaním súboru vzniknú duplicitné záznamy.",
-    "Estimated relationship": "Predpokladaný vzťah",
-    "The shared DNA is unlikely for the relationship in the tree.": "Na základe spoločnej DNA je tento vzťah v rodokmeni nepravdepodobný.",
+    "Your tree already contains people. Importing a file again creates duplicates.": "Váš rodostrom už obsahuje osoby. Opätovným importovaním súboru vzniknú duplicitné záznamy.",
+    "Estimated relationship": "Odhadovaný vzťah",
+    "The shared DNA is unlikely for the relationship in the tree.": "Spoločná DNA je pre tento vzťah v rodostrome nepravdepodobná.",
     "Relative of degree %s": "Stupeň príbuznosti %s",
     "Parent or child": "Rodič alebo dieťa",
-    "Full sibling": "Plnohodnotný súrodenec"
+    "Full sibling": "Plnorodný súrodenec"
 }
