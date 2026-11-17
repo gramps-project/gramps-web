@@ -526,5 +526,22 @@
     "Applies only to this participant's link to the event.": "Platí pouze pro odkaz tohoto účastníka k události.",
     "No notifications": "Žádná oznámení",
     "The information below applies to this person in this event.": "Níže uvedené informace platí pro tuto osobu v této události.",
-    "The information below applies to this family in this event.": "Níže uvedené informace platí pro tuto rodinu v této události."
+    "The information below applies to this family in this event.": "Níže uvedené informace platí pro tuto rodinu v této události.",
+    "Saved filters": "Uložené filtry",
+    "Saved on this device": "Uloženo na tomto zařízení",
+    "Unknown rule": "Neznámé pravidlo",
+    "The filter could not be saved.": "Filtr se nepodařilo uložit.",
+    "Remove Tag": "Odstranění štítku",
+    "The file is too large for the server to accept.": "Soubor je příliš velký, než aby jej server přijal.",
+    "The server is unavailable or did not respond in time. Try again later.": "Server je nedostupný nebo neodpověděl včas. Zkuste to znovu později.",
+    "Files were found for %s of %s media objects without a file.": "Soubory byly nalezeny pro %s z %s mediálních objektů, které byly bez souboru.",
+    "%s files could not be stored.": "Soubory v počtu %s se nepodařilo uložit.",
+    "The archive has no file for %s media objects.": "Archiv neobsahuje pro mediální objekty v počtu %s žádný soubor.",
+    "Uploading file: %s": "Nahrávání souboru: %",
+    "Your tree already contains people. Importing a file again creates duplicates.": "Váš rodokmen již obsahuje osoby. Opětovný import souboru vytvoří duplikáty.",
+    "Estimated relationship": "Odhadovaný vztah",
+    "The shared DNA is unlikely for the relationship in the tree.": "Sdílená DNA je pro vztah v rodokmenu nepravděpodobná.",
+    "Relative of degree %s": "Stupeň příbuznosti %s",
+    "Parent or child": "Rodič nebo dítě",
+    "Full sibling": "Plnorodý sourozenec"
 }
