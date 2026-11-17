@@ -527,5 +527,22 @@
     "Applies only to this participant's link to the event.": "Is alleen van toepassing op de link van deze deelnemer aan het evenement.",
     "No notifications": "Geen meldingen",
     "The information below applies to this family in this event.": "Onderstaande gegevens zijn van toepassing op deze familie bij deze gebeurtenis.",
-    "The information below applies to this person in this event.": "Onderstaande gegevens zijn van toepassing op deze persoon bij deze gebeurtenis."
+    "The information below applies to this person in this event.": "Onderstaande gegevens zijn van toepassing op deze persoon bij deze gebeurtenis.",
+    "Saved filters": "Opgeslagen filters",
+    "Saved on this device": "Opgeslagen op dit apparaat",
+    "Unknown rule": "Onbekende regel",
+    "The filter could not be saved.": "Het filter kan niet worden opgeslagen.",
+    "Remove Tag": "Label verwijderen",
+    "The file is too large for the server to accept.": "Het bestand is te groot voor de server om te accepteren.",
+    "The server is unavailable or did not respond in time. Try again later.": "De server is niet beschikbaar of reageerde niet op tijd. Probeer het later nog eens.",
+    "Files were found for %s of %s media objects without a file.": "Bestanden gevonden voor %s van de %s media-objecten zonder bestand.",
+    "%s files could not be stored.": "%s bestanden kunnen niet worden opgeslagen.",
+    "The archive has no file for %s media objects.": "Het archief heeft geen bestand voor %s media-objecten.",
+    "Uploading file: %s": "Bestand uploaden: %s",
+    "Your tree already contains people. Importing a file again creates duplicates.": "Uw stamboom bevat al personen. Bij het opnieuw importeren van een bestand ontstaan duplicaten.",
+    "Estimated relationship": "Geschatte relatie",
+    "The shared DNA is unlikely for the relationship in the tree.": "Het gedeelde DNA is onwaarschijnlijk voor de relatie in de stamboom.",
+    "Relative of degree %s": "Familielid van graad %s",
+    "Parent or child": "Ouder of kind",
+    "Full sibling": "Volle broer of zus"
 }
