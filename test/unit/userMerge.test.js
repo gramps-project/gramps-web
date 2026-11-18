@@ -1,6 +1,10 @@
 import {describe, expect, it} from 'vitest'
 
-import {mergeTargets} from '../../src/userMerge.js'
+import {
+  mergeTargets,
+  saveMergeResume,
+  takeMergeResume,
+} from '../../src/userMerge.js'
 
 const users = [
   {name: 'zoe', role: 2, tree: 'a'},
@@ -24,11 +28,15 @@ describe('mergeTargets', () => {
     ])
   })
 
-  it('ignores the tree in a single-tree setup', () => {
+  it('lets an empty tree match any tree in a single-tree setup', () => {
     expect(names(mergeTargets(users, users[0], false))).to.deep.equal([
       'amy',
-      'eve',
       'sam',
+    ])
+    expect(names(mergeTargets(users, users[4], false))).to.deep.equal([
+      'amy',
+      'eve',
+      'zoe',
     ])
   })
 
@@ -44,5 +52,31 @@ describe('mergeTargets', () => {
 
   it('returns nothing without a source', () => {
     expect(mergeTargets(users, undefined, true)).to.deep.equal([])
+  })
+})
+
+describe('resuming a merge after signing in again', () => {
+  it('returns the saved merge once', () => {
+    sessionStorage.clear()
+    saveMergeResume({source: 'old', target: 'new'})
+    expect(takeMergeResume()).to.deep.equal({source: 'old', target: 'new'})
+    expect(takeMergeResume()).to.equal(null)
+  })
+
+  it('drops a merge saved too long ago', () => {
+    sessionStorage.setItem(
+      'user_merge_resume',
+      JSON.stringify({
+        source: 'old',
+        target: 'new',
+        at: Date.now() - 11 * 60000,
+      })
+    )
+    expect(takeMergeResume()).to.equal(null)
+  })
+
+  it('ignores a damaged entry', () => {
+    sessionStorage.setItem('user_merge_resume', '{')
+    expect(takeMergeResume()).to.equal(null)
   })
 })

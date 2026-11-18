@@ -462,8 +462,18 @@ export class GrampsjsUsers extends GrampsjsTableBase {
   }
 
   _handleMergeClick(username) {
-    this._mergeTarget = ''
-    this.dialogContent = this._mergeUserDialog(username)
+    this.showMergeDialog(username, '')
+  }
+
+  // Also used to confirm a merge again after signing in through a provider.
+  showMergeDialog(source, target) {
+    const [user] = this.data.filter(el => el.name === source)
+    if (!this._canMerge(user)) {
+      return
+    }
+    const targets = mergeTargets(this.data, user, this.ismulti)
+    this._mergeTarget = targets.some(t => t.name === target) ? target : ''
+    this.dialogContent = this._mergeUserDialog(source)
   }
 
   _mergeUserDialog(username) {
@@ -502,7 +512,7 @@ export class GrampsjsUsers extends GrampsjsTableBase {
           </p>
           <p>
             ${this._(
-              'User "%s" will be deleted. Their linked sign-in methods, access tokens and edit history move to the selected user.',
+              'User "%s" will be deleted. Their linked sign-in methods, access tokens and edit history move to the selected user, who keeps their own calendar link if they have one.',
               username
             )}
           </p>

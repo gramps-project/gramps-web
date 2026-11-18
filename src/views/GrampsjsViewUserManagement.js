@@ -6,6 +6,7 @@ import '@material/web/select/select-option'
 import {GrampsjsView} from './GrampsjsView.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import {apiVersionAtLeast, fireEvent} from '../util.js'
+import {saveMergeResume, takeMergeResume} from '../userMerge.js'
 import '../components/GrampsjsUsers.js'
 import '../components/GrampsjsShareUrl.js'
 import '../components/GrampsjsChatPermissions.js'
@@ -105,6 +106,7 @@ export class GrampsjsViewUserManagement extends GrampsjsStaleDataMixin(
         .appState="${this.appState}"
         username="${this._ownName}"
         @relogin="${this._handleRelogin}"
+        @relogin-redirect="${this._saveMerge}"
       ></grampsjs-relogin>
     `
   }
@@ -128,6 +130,23 @@ export class GrampsjsViewUserManagement extends GrampsjsStaleDataMixin(
     }
     this._pendingMerge = {source, target}
     this.renderRoot.querySelector('grampsjs-relogin').show()
+  }
+
+  // Signing in again through a provider leaves the page.
+  _saveMerge() {
+    if (this._pendingMerge) {
+      saveMergeResume(this._pendingMerge)
+    }
+  }
+
+  // Shows the confirmation of an interrupted merge again.
+  _resumeMerge() {
+    const merge = takeMergeResume()
+    if (merge && this._canMerge) {
+      this.renderRoot
+        .querySelector('grampsjs-users')
+        ?.showMergeDialog(merge.source, merge.target)
+    }
   }
 
   _handleRelogin() {
@@ -236,6 +255,7 @@ export class GrampsjsViewUserManagement extends GrampsjsStaleDataMixin(
       if ('data' in data) {
         this.error = false
         this.userData = data.data
+        this.updateComplete.then(() => this._resumeMerge())
       } else if ('error' in data) {
         this.error = true
         this._errorMessage = data.error
