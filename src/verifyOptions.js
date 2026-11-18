@@ -1,7 +1,6 @@
 /*
 Options of the "Verify the Data" tool. Values that differ from the defaults
-are kept in the tree configuration, so they persist between runs and apply
-to everyone who runs the tool on the tree.
+are kept in the settings, so they persist between runs.
 */
 
 export const VERIFY_OPTIONS_DEFAULTS = {
@@ -36,7 +35,7 @@ function isValidOption(key, value) {
 
 // The options to use: the defaults, overridden by the stored values.
 // Unknown keys and values of the wrong type are ignored.
-export function verifyOptionsFromConfig(stored) {
+export function verifyOptionsFromSettings(stored) {
   const options = {...VERIFY_OPTIONS_DEFAULTS}
   if (stored && typeof stored === 'object') {
     for (const [key, value] of Object.entries(stored)) {
@@ -50,7 +49,7 @@ export function verifyOptionsFromConfig(stored) {
 
 // The values to store: only those that differ from the defaults, so that a
 // later change of a default still applies to the options left unchanged.
-export function verifyOptionsToConfig(options) {
+export function verifyOptionsToSettings(options) {
   return Object.fromEntries(
     Object.entries(options).filter(
       ([key, value]) =>

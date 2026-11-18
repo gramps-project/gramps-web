@@ -22,7 +22,6 @@ import {
   TREE_CONFIG_SECONDARY_COLOR,
   TREE_CONFIG_HOME_PAGE_NOTE,
   TREE_CONFIG_HOME_PAGE_IMAGE,
-  TREE_CONFIG_VERIFY_OPTIONS,
 } from '../api.js'
 import {DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
 import {
@@ -48,8 +47,8 @@ import '@material/web/button/outlined-button.js'
 import '@material/web/textfield/filled-text-field.js'
 import '@material/web/switch/switch.js'
 import {
-  verifyOptionsFromConfig,
-  verifyOptionsToConfig,
+  verifyOptionsFromSettings,
+  verifyOptionsToSettings,
 } from '../verifyOptions.js'
 
 export class GrampsjsViewAdminSettings extends GrampsjsView {
@@ -190,7 +189,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       _repairResults: {type: Object},
       _verifyResults: {type: Array},
       _verifyLoading: {type: Boolean},
-      _verifyOptions: {type: Object},
       _buttonUpdateSearchDisabled: {type: Boolean},
       _treeName: {type: String},
       _primaryColor: {type: String},
@@ -211,7 +209,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this._repairResults = {}
     this._verifyResults = null
     this._verifyLoading = false
-    this._verifyOptions = verifyOptionsFromConfig(undefined)
     this._buttonUpdateSearchDisabled = false
     this._treeName = ''
     this._primaryColor = DEFAULT_PRIMARY
@@ -812,16 +809,18 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
-  // The options are kept in the tree configuration, so they persist between
-  // runs.
-  async _setVerifyOption(key, value) {
-    this._verifyOptions = {...this._verifyOptions, [key]: value}
-    const data = await this.appState.updateTreeConfig({
-      [TREE_CONFIG_VERIFY_OPTIONS]: verifyOptionsToConfig(this._verifyOptions),
+  // The options are kept in the settings, so they persist between runs.
+  get _verifyOptions() {
+    return verifyOptionsFromSettings(this.appState?.settings?.verifyOptions)
+  }
+
+  _setVerifyOption(key, value) {
+    this.appState.updateSettings({
+      verifyOptions: verifyOptionsToSettings({
+        ...this._verifyOptions,
+        [key]: value,
+      }),
     })
-    if (data && 'error' in data) {
-      fireEvent(this, 'grampsjs:error', {message: data.error})
-    }
   }
 
   _handleVerifyComplete(e) {
@@ -1209,14 +1208,6 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           this.appState.treeConfig?.[TREE_CONFIG_HOME_PAGE_IMAGE]
       ) {
         this._fetchHomePageGrampsIds()
-      }
-      const verifyOptions =
-        this.appState.treeConfig?.[TREE_CONFIG_VERIFY_OPTIONS]
-      if (
-        JSON.stringify(prev?.treeConfig?.[TREE_CONFIG_VERIFY_OPTIONS]) !==
-        JSON.stringify(verifyOptions)
-      ) {
-        this._verifyOptions = verifyOptionsFromConfig(verifyOptions)
       }
     }
   }

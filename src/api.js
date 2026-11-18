@@ -211,7 +211,6 @@ export const TREE_CONFIG_PRIMARY_COLOR = 'frontend.primaryColor'
 export const TREE_CONFIG_SECONDARY_COLOR = 'frontend.secondaryColor'
 export const TREE_CONFIG_HOME_PAGE_NOTE = 'frontend.homePageNote'
 export const TREE_CONFIG_HOME_PAGE_IMAGE = 'frontend.homePageImage'
-export const TREE_CONFIG_VERIFY_OPTIONS = 'frontend.verifyOptions'
 
 export function getTreeConfig() {
   try {
