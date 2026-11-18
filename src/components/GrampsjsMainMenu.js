@@ -28,6 +28,7 @@ import {
   mdiFileExport,
   mdiFileExportOutline,
   mdiSourceCommit,
+  mdiCalendarMonth,
   mdiTimeline,
   mdiTimelineOutline,
 } from '@mdi/js'
@@ -51,6 +52,12 @@ const GROUPS = [
       href: '/timeline',
       pages: ['timeline'],
       label: 'Timeline',
+    },
+    {
+      id: 'anniversaries',
+      href: '/anniversaries',
+      pages: ['anniversaries'],
+      label: 'Anniversaries',
     },
     {id: 'map', href: '/map', pages: ['map'], label: 'Map'},
     {
@@ -94,6 +101,7 @@ const ICONS = {
   blog: [mdiRss],
   tree: [mdiFamilyTree],
   timeline: [mdiTimelineOutline, mdiTimeline],
+  anniversaries: [mdiCalendarMonth],
   map: [mdiMapOutline, mdiMap],
   dna: [mdiDna],
   lists: [mdiFormatListBulleted],
