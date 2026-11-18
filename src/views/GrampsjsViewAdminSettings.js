@@ -1,4 +1,5 @@
 import {css, html} from 'lit'
+import {keyed} from 'lit/directives/keyed.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import {buttonColorStyles} from '../SharedStyles.js'
@@ -11,6 +12,7 @@ import '../components/GrampsjsDeleteAll.js'
 import '../components/GrampsjsRelogin.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
+import '../components/GrampsjsHelpButton.js'
 
 import {fireEvent, makeHandle} from '../util.js'
 import {dispatchErrorMessage} from '../taskResponse.js'
@@ -45,26 +47,10 @@ import '@awesome.me/webawesome/dist/components/color-picker/color-picker.js'
 import '@material/web/button/outlined-button.js'
 import '@material/web/textfield/filled-text-field.js'
 import '@material/web/switch/switch.js'
-
-const VERIFY_OPTIONS_DEFAULTS = {
-  oldage: 90,
-  hwdif: 30,
-  cspace: 8,
-  cbspan: 25,
-  yngmar: 17,
-  oldmar: 50,
-  oldmom: 48,
-  yngmom: 17,
-  yngdad: 18,
-  olddad: 65,
-  wedder: 3,
-  mxchildmom: 12,
-  mxchilddad: 15,
-  lngwdw: 30,
-  oldunm: 99,
-  estimate_age: false,
-  invdate: true,
-}
+import {
+  verifyOptionsFromSettings,
+  verifyOptionsToSettings,
+} from '../verifyOptions.js'
 
 export class GrampsjsViewAdminSettings extends GrampsjsView {
   static get styles() {
@@ -204,7 +190,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       _repairResults: {type: Object},
       _verifyResults: {type: Array},
       _verifyLoading: {type: Boolean},
-      _verifyOptions: {type: Object},
+      _verifyOptionsResets: {type: Number},
       _buttonUpdateSearchDisabled: {type: Boolean},
       _treeName: {type: String},
       _primaryColor: {type: String},
@@ -225,7 +211,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this._repairResults = {}
     this._verifyResults = null
     this._verifyLoading = false
-    this._verifyOptions = {...VERIFY_OPTIONS_DEFAULTS}
+    this._verifyOptionsResets = 0
     this._buttonUpdateSearchDisabled = false
     this._treeName = ''
     this._primaryColor = DEFAULT_PRIMARY
@@ -293,7 +279,13 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         heading="${this._('Search index')}"
         description="${this._('Manage and rebuild the search index')}"
       >
-        <h3>${this._('Manage search index')}</h3>
+        <h3>
+          ${this._('Manage search index')}
+          <grampsjs-help-button
+            path="administration/search-index/"
+            .appState="${this.appState}"
+          ></grampsjs-help-button>
+        </h3>
 
         ${this._renderSearchStatus()}
 
@@ -507,7 +499,13 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           'Database checks, repairs, and other operations'
         )}"
       >
-        <h3>${this._('Check and Repair')}</h3>
+        <h3>
+          ${this._('Check and Repair')}
+          <grampsjs-help-button
+            path="administration/check-repair/"
+            .appState="${this.appState}"
+          ></grampsjs-help-button>
+        </h3>
         <p>
           ${this._(
             'This tool checks the database for integrity problems, fixing the problems it can.'
@@ -536,15 +534,24 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             </p>`
           : ''}
 
-        <h3>${this._('Verify the Data')}</h3>
+        <h3>
+          ${this._('Verify the Data')}
+          <grampsjs-help-button
+            path="administration/check-repair/"
+            .appState="${this.appState}"
+          ></grampsjs-help-button>
+        </h3>
         <p>${this._('Verifies the data against user-defined tests')}</p>
-        ${this._renderVerifyOptions()}
+        ${keyed(this._verifyOptionsResets, this._renderVerifyOptions())}
         <div class="button-row">
           <md-outlined-button
             ?disabled="${this._verifyLoading}"
             @click="${this._runVerify}"
           >
             ${this._('Verify the Data')}
+          </md-outlined-button>
+          <md-outlined-button @click="${this._resetVerifyOptions}">
+            ${this._('Reset')}
           </md-outlined-button>
           <grampsjs-task-progress-indicator
             id="progress-verify"
@@ -808,6 +815,27 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
+  // The options are kept in the settings, so they persist between runs.
+  get _verifyOptions() {
+    return verifyOptionsFromSettings(this.appState?.settings?.verifyOptions)
+  }
+
+  _setVerifyOption(key, value) {
+    this.appState.updateSettings({
+      verifyOptions: verifyOptionsToSettings({
+        ...this._verifyOptions,
+        [key]: value,
+      }),
+    })
+  }
+
+  // Restores the defaults. The fields are rendered anew, so that a field
+  // holding an entry that was never applied shows its default again.
+  _resetVerifyOptions() {
+    this.appState.updateSettings({verifyOptions: {}})
+    this._verifyOptionsResets += 1
+  }
+
   _handleVerifyComplete(e) {
     const info = e.detail?.status?.info
     if (info !== undefined) {
@@ -865,8 +893,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                 .value="${String(this._verifyOptions[key])}"
                 @change="${e => {
                   const v = parseInt(e.target.value, 10)
-                  if (!Number.isNaN(v))
-                    this._verifyOptions = {...this._verifyOptions, [key]: v}
+                  if (!Number.isNaN(v)) this._setVerifyOption(key, v)
                 }}"
               ></md-filled-text-field>
             </div>
@@ -879,12 +906,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             <label class="verify-option-bool">
               <md-switch
                 ?selected="${this._verifyOptions[key]}"
-                @change="${e => {
-                  this._verifyOptions = {
-                    ...this._verifyOptions,
-                    [key]: e.target.selected,
-                  }
-                }}"
+                @change="${e => this._setVerifyOption(key, e.target.selected)}"
               ></md-switch>
               ${label}
             </label>

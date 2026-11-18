@@ -8,6 +8,14 @@ import '../components/GrampsjsFormNewYDna.js'
 import '../components/GrampsjsFormEditYDna.js'
 import {GrampsjsViewDnaBase} from './GrampsjsViewDnaBase.js'
 import {fireEvent, personDisplayName} from '../util.js'
+import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
+
+// The index of the Y-DNA attribute in `attributes`, or -1 if there is none
+function ydnaAttributeIndex(attributes) {
+  return (attributes ?? []).findIndex(
+    attr => attr.type === 'Y-DNA' || (attr.type && attr.type.string === 'Y-DNA')
+  )
+}
 
 export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
   /* Implemented abstract methods */
@@ -86,7 +94,12 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
         .data="${this._dnaData?.data?.clade_lineage ?? []}"
         .person="${this._data.find(p => p.gramps_id === this.grampsId) || {}}"
       ></grampsjs-ytree-lineage>
-      <h3>${this._('Raw SNP data')}</h3>
+      <h3>
+        ${this._('Raw SNP data')}${renderPrivacyIcon(
+          rowPrivacy(this._ydnaAttribute),
+          this.appState
+        )}
+      </h3>
 
       <p>
         <md-text-button @click="${this._showRawSnpData}">
@@ -113,6 +126,12 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
     `
   }
 
+  // The attribute of the selected person that holds the Y-DNA data
+  get _ydnaAttribute() {
+    const attributes = this.selectedPerson?.attribute_list
+    return attributes?.[ydnaAttributeIndex(attributes)] ?? null
+  }
+
   _showRawSnpData() {
     const rawData = this._dnaData?.data?.raw_data ?? ''
     this.dialogContent = html`
@@ -134,13 +153,16 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
   }
 
   _editRawSnpData() {
-    const currentPerson = this._data.find(p => p.gramps_id === this.grampsId)
+    const currentPerson = this.selectedPerson
     if (!currentPerson) return
 
     this.dialogContent = html`
       <grampsjs-form-edit-ydna
         .appState="${this.appState}"
-        .data="${{raw_data: this._dnaData?.data?.raw_data || ''}}"
+        .data="${{
+          raw_data: this._dnaData?.data?.raw_data || '',
+          private: !!this._ydnaAttribute?.private,
+        }}"
         .personHandle="${currentPerson.handle}"
         @object:save="${this._handleClickSaveYDna}"
         @dialog:cancel="${this._handleCancelDialog}"
@@ -153,7 +175,12 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
   }
 
   _renderNoData() {
-    return html`<div>${this._('No Y-DNA data found.')}</div>`
+    return html`<div>
+      ${this._('No Y-DNA data found.')}
+      ${this.grampsId && this._data.length
+        ? this._('Please select a different person.')
+        : ''}
+    </div>`
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -168,7 +195,10 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
       >`
     }
     return html`
-      <md-filled-select @change="${this._handleSelectChange}">
+      <md-filled-select
+        label="${this._selectLabel}"
+        @change="${this._handleSelectChange}"
+      >
         ${this._data.map(
           person => html`
             <md-select-option
@@ -226,11 +256,12 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
   async _handleClickSaveYDna(e) {
     const personHandle = e?.detail?.data?.person_handle
     const rawSnpData = e?.detail?.data?.raw_data
-    await this._saveYdnaData(personHandle, rawSnpData)
+    const isPrivate = !!e?.detail?.data?.private
+    await this._saveYdnaData(personHandle, rawSnpData, isPrivate)
     this.dialogContent = ''
   }
 
-  async _saveYdnaData(personHandle, rawData) {
+  async _saveYdnaData(personHandle, rawData, isPrivate) {
     if (!rawData || !personHandle) return
 
     // Get the full person data from the API
@@ -244,14 +275,12 @@ export class GrampsjsViewYDna extends GrampsjsViewDnaBase {
 
     // Update the Y-DNA attribute
     const existingAttrs = personData.attribute_list || []
-    const ydnaAttrIndex = existingAttrs.findIndex(
-      attr =>
-        attr.type === 'Y-DNA' || (attr.type && attr.type.string === 'Y-DNA')
-    )
+    const ydnaAttrIndex = ydnaAttributeIndex(existingAttrs)
 
     const ydnaAttribute = {
       type: 'Y-DNA',
       value: rawData,
+      private: isPrivate,
     }
 
     if (ydnaAttrIndex >= 0) {

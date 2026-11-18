@@ -1,9 +1,53 @@
 import {html, css, LitElement} from 'lit'
+import {mdiAlertOutline} from '@mdi/js'
 
 import './GrampsjsTable.js'
 import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {fireEvent, personDisplayName} from '../util.js'
+import {
+  conflictWarning,
+  groupLabel,
+  matchRelationshipEstimate,
+  supportsRelationshipEstimate,
+} from '../dnaRelationship.js'
+import {matchAssociation} from '../dnaMatch.js'
+import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
+
+// A relationship cell is either a plain string or an object with the
+// translated texts of the tree relationship or the DNA estimate
+function renderRelationshipCell(value) {
+  if (typeof value === 'string') {
+    return value
+  }
+  // the cell renders in the shadow root of the table, so it is styled inline
+  return html`${value.warning
+    ? html`<svg
+        role="img"
+        aria-label="${value.warning}"
+        height="18"
+        width="18"
+        viewBox="0 0 24 24"
+        style="vertical-align: text-bottom; margin-right: 4px;"
+      >
+        <title>${value.warning}</title>
+        <path
+          fill="var(--grampsjs-alert-warn-border-color)"
+          d="${mdiAlertOutline}"
+        />
+      </svg>`
+    : ''}${value.estimated
+    ? html`<span style="color: var(--grampsjs-body-font-color-60);"
+        >≈ ${value.text}</span
+      >`
+    : value.text}`
+}
+
+// A name cell is either a plain string or an object with the name and the
+// privacy icon of the match
+function renderNameCell(value) {
+  return typeof value === 'string' ? value : html`${value.text}${value.icon}`
+}
 
 const columnsByLocale = new Map()
 
@@ -14,8 +58,16 @@ function columns(locale) {
     const formatCm = new Intl.NumberFormat(locale, {maximumFractionDigits: 1})
     const formatCount = new Intl.NumberFormat(locale)
     columnsByLocale.set(locale, [
-      {name: 'Name'},
-      {name: 'Relationship'},
+      {
+        name: 'Name',
+        format: value => renderNameCell(value),
+        sortValue: value => (typeof value === 'string' ? value : value.text),
+      },
+      {
+        name: 'Relationship',
+        format: value => renderRelationshipCell(value),
+        sortValue: value => (typeof value === 'string' ? value : value.text),
+      },
       {
         name: 'Shared DNA',
         unit: 'cM',
@@ -86,8 +138,14 @@ export class GrampsjsDnaMatches extends GrampsjsAppStateMixin(LitElement) {
 
   _computeTableData(data) {
     return data.map(match => [
-      this._getNameFromHandle(match.handle),
-      match.relation || this._('Unknown'),
+      {
+        text: this._getNameFromHandle(match.handle),
+        icon: renderPrivacyIcon(
+          rowPrivacy(matchAssociation(this.person, match)),
+          this.appState
+        ),
+      },
+      this._relationshipCell(match),
       match.segments.reduce(
         (accumulator, currentValue) => accumulator + currentValue.cM,
         0
@@ -98,6 +156,37 @@ export class GrampsjsDnaMatches extends GrampsjsAppStateMixin(LitElement) {
         0
       ),
     ])
+  }
+
+  // The relationship in the tree, with a warning if the shared DNA does not
+  // fit it, or else the most probable relationship from the shared DNA
+  _relationshipCell(match) {
+    if (!supportsRelationshipEstimate(this.appState?.dbInfo)) {
+      return match.relation || this._('Unknown')
+    }
+    const {estimate, check} = matchRelationshipEstimate(match)
+    if (match.relation) {
+      return {
+        text: match.relation,
+        estimated: false,
+        warning: check?.conflict
+          ? conflictWarning(check, (...args) => this._(...args), this._locale)
+          : '',
+      }
+    }
+    if (!estimate) {
+      return this._('Unknown')
+    }
+    const [{group}] = estimate.groups
+    return {
+      text: groupLabel(group, (...args) => this._(...args)),
+      estimated: true,
+      warning: '',
+    }
+  }
+
+  get _locale() {
+    return (this.appState?.i18n?.lang || 'en').replace('_', '-')
   }
 
   render() {
@@ -119,7 +208,7 @@ export class GrampsjsDnaMatches extends GrampsjsAppStateMixin(LitElement) {
   }
 
   get _columns() {
-    return columns((this.appState?.i18n?.lang || 'en').replace('_', '-'))
+    return columns(this._locale)
   }
 
   _handleRowClick(e) {

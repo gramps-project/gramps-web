@@ -2,16 +2,16 @@ import {create, select} from 'd3-selection'
 import {scaleTime} from 'd3-scale'
 import {axisBottom} from 'd3-axis'
 import {zoom as d3zoom, zoomIdentity} from 'd3-zoom'
-import {schemeSet1} from 'd3-scale-chromatic'
+import {categoricalColors, categoricalOther} from './palette.js'
 
 const EVENT_TYPE_COLOR = {
-  Birth: schemeSet1[0], // red
-  Death: schemeSet1[1], // blue
-  Marriage: schemeSet1[2], // green
-  Baptism: schemeSet1[3], // purple
-  Burial: schemeSet1[4], // orange
+  Birth: categoricalColors[0],
+  Death: categoricalColors[1],
+  Marriage: categoricalColors[2],
+  Baptism: categoricalColors[3],
+  Burial: categoricalColors[4],
 }
-const COLOR_OTHER = schemeSet1[8] // gray
+const COLOR_OTHER = categoricalOther
 
 function isHollow(event) {
   return (event.modifier ?? 0) === 3 || (event.quality ?? 0) === 1

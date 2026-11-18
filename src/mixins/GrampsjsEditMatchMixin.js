@@ -4,6 +4,7 @@ import '@material/web/icon/icon.js'
 
 import '../components/GrampsjsConnectedDnaMatchTable.js'
 import '../components/GrampsjsTooltip.js'
+import '../components/GrampsjsHelpButton.js'
 import {fireEvent} from '../util.js'
 
 export const GrampsjsEditMatchMixin = superClass =>
@@ -13,19 +14,30 @@ export const GrampsjsEditMatchMixin = superClass =>
         data: {type: Object},
         isFormValid: {type: Boolean},
         _parsedDataOk: {type: Boolean},
+        // Documentation page linked from the heading, if any
+        helpPath: {type: String},
       }
     }
 
     constructor() {
       super()
       this.data = {}
+      this.helpPath = ''
       this.isFormValid = false
       this._parsedDataOk = false
     }
 
     renderEditor() {
       return html`
-        <h4 class="label">${this._('Raw match data')}</h4>
+        <h4 class="label">
+          ${this._('Raw match data')}
+          ${this.helpPath
+            ? html`<grampsjs-help-button
+                path="${this.helpPath}"
+                .appState="${this.appState}"
+              ></grampsjs-help-button>`
+            : ''}
+        </h4>
         <p>
           <md-outlined-text-field
             type="textarea"

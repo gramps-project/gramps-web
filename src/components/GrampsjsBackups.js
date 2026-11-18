@@ -23,6 +23,7 @@ import './GrampsjsRelogin.js'
 import './GrampsjsTimedelta.js'
 import './GrampsjsTable.js'
 import './GrampsjsTooltip.js'
+import './GrampsjsHelpButton.js'
 import {getExporterDownloadUrl} from '../api.js'
 import {fireEvent, formatBytes, formatRateLimit} from '../util.js'
 import {awaitTaskResponse} from '../taskResponse.js'
@@ -138,7 +139,13 @@ export class GrampsjsBackups extends GrampsjsAppStateMixin(LitElement) {
           </p>`
         : ''}
 
-      <h3>${this._('Restore from Backup')}</h3>
+      <h3>
+        ${this._('Restore from Backup')}
+        <grampsjs-help-button
+          path="administration/backups/"
+          .appState="${this.appState}"
+        ></grampsjs-help-button>
+      </h3>
       ${this._archivesSupported
         ? ''
         : html`<p>

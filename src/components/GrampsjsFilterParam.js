@@ -44,6 +44,11 @@ export class GrampsjsFilterParam extends GrampsjsAppStateMixin(LitElement) {
         grampsjs-form-select-type {
           --md-filled-select-text-field-container-shape: 8px;
         }
+
+        .missing {
+          color: var(--md-sys-color-error);
+          margin-top: 8px;
+        }
       `,
     ]
   }
@@ -193,10 +198,8 @@ export class GrampsjsFilterParam extends GrampsjsAppStateMixin(LitElement) {
       return nothing
     }
     const objectType = this._objectType
-    const object =
-      this._object?.gramps_id === this.value && !this._object.missing
-        ? this._object
-        : null
+    const isCurrent = this._object?.gramps_id === this.value
+    const object = isCurrent && this._object.handle ? this._object : null
     return html`
       <grampsjs-form-select-object-list
         fixedMenuPosition
@@ -211,6 +214,9 @@ export class GrampsjsFilterParam extends GrampsjsAppStateMixin(LitElement) {
         @select-object:changed="${this._handleObjectsChanged}"
         @object-list:changed="${this._handleObjectsChanged}"
       ></grampsjs-form-select-object-list>
+      ${this.value && isCurrent && this._object.missing
+        ? html`<div class="missing">${this.value}: ${this._('Not found')}</div>`
+        : nothing}
     `
   }
 
@@ -245,9 +251,17 @@ export class GrampsjsFilterParam extends GrampsjsAppStateMixin(LitElement) {
       }
       return
     }
-    // an unknown ID leaves the selector empty
-    this._object = data?.data?.[0] ?? {gramps_id: grampsId, missing: true}
     this._loadingId = ''
+    if ('data' in data) {
+      // an unknown ID leaves the selector empty
+      this._object = data.data?.[0] ?? {gramps_id: grampsId, missing: true}
+      if (this._object.missing) {
+        fireEvent(this, 'filter-param:missing', {value: grampsId})
+      }
+    } else {
+      // a failed lookup leaves the selector empty without marking the ID
+      this._object = {gramps_id: grampsId}
+    }
   }
 
   _handleObjectsChanged(e) {

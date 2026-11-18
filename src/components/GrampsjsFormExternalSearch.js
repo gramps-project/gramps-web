@@ -26,6 +26,7 @@ import {updateSettings, getSettings} from '../api.js'
 import {clickKeyHandler, makeHandle} from '../util.js'
 import './GrampsjsFormSelectType.js'
 import './GrampsjsIcon.js'
+import './GrampsjsHelpButton.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
 const EXTERNAL_SEARCH_WEBSITES = [
@@ -332,6 +333,10 @@ class GrampsjsFormExternalSearch extends GrampsjsObjectForm {
       <div class="header">
         <span>
           ${this._('Search external services for matching records.')}
+          <grampsjs-help-button
+            path="user-guide/external-search/"
+            .appState="${this.appState}"
+          ></grampsjs-help-button>
         </span>
         <md-icon-button @click="${this._toggleEditMode}">
           <grampsjs-icon

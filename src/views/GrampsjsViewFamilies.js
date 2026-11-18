@@ -2,7 +2,11 @@
 Families list view
 */
 
-import {GrampsjsViewObjectsBase, tagsColumn} from './GrampsjsViewObjectsBase.js'
+import {
+  GrampsjsViewObjectsBase,
+  privacyColumn,
+  tagsColumn,
+} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
 import {
   associationsFilter,
@@ -24,6 +28,7 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
       {name: 'Marriage place', key: 'marriagePlace', defaultVisible: false},
       {name: 'Number of Children', key: 'children', defaultVisible: false},
       tagsColumn,
+      privacyColumn,
       {name: 'Last changed', key: 'change', sortKey: 'change'},
     ]
     this._objectsName = 'families'
@@ -36,7 +41,7 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
   get _fetchUrl() {
     return `/api/families/?locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=self&keys=gramps_id,profile,change,handle,extended&extend=tag_list`
+    }&profile=self&keys=gramps_id,profile,change,handle,private,extended&extend=tag_list`
   }
 
   // eslint-disable-next-line class-methods-use-this

@@ -6,7 +6,7 @@ import '../components/GrampsjsPillToggle.js'
 import {GrampsjsView} from './GrampsjsView.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import {sdnToJsDate} from '../gcalendar.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, personAndFamilyEventHandles} from '../util.js'
 import '../components/GrampsjsTimeline.js'
 import '../components/GrampsjsFormSelectObject.js'
 
@@ -117,6 +117,7 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._filterEventHandles = null
     this._filterPlaceHandles = null
     this._resetClickedState()
+    this._fetchPersonEvents()
   }
 
   _handleExternalEventSelected({detail: {handle}}) {
@@ -152,30 +153,41 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     }
   }
 
-  async _fetchRelationshipEvents() {
-    const grampsId = this._activeFilter?.object?.gramps_id
+  // Loads the events of the filtered person (or their ancestors or
+  // descendants) together with the events of their families.
+  async _fetchPersonEvents() {
+    if (this._activeFilter?.object_type !== 'person') return
+    const person = this._activeFilter.object
     const mode = this._personFilterMode
-    if (!grampsId || mode === 'self') return
     this._relSeq = (this._relSeq ?? 0) + 1
     const seq = this._relSeq
-    const ruleName =
-      mode === 'ancestors'
-        ? 'IsLessThanNthGenerationAncestorOf'
-        : 'IsLessThanNthGenerationDescendantOf'
-    // depth 100 is intentionally large — actual results are bounded by tree size
-    const rules = {rules: [{name: ruleName, values: [grampsId, 100]}]}
-    const result = await this.appState.apiGet(
-      `/api/people/?rules=${encodeURIComponent(
+    const query = 'keys=handle,event_ref_list,extended&extend=family_list'
+    let url
+    if (mode === 'self') {
+      if (!person?.handle) return
+      url = `/api/people/${person.handle}?${query}`
+    } else {
+      if (!person?.gramps_id) return
+      const ruleName =
+        mode === 'ancestors'
+          ? 'IsLessThanNthGenerationAncestorOf'
+          : 'IsLessThanNthGenerationDescendantOf'
+      // depth 100 is intentionally large; actual results are bounded by tree size
+      const rules = {rules: [{name: ruleName, values: [person.gramps_id, 100]}]}
+      url = `/api/people/?rules=${encodeURIComponent(
         JSON.stringify(rules)
-      )}&keys=handle,event_ref_list`
-    )
+      )}&${query}`
+    }
+    const result = await this.appState.apiGet(url)
     if (seq !== this._relSeq) return
     if ('data' in result) {
+      const people = mode === 'self' ? [result.data] : result.data
       this._filterEventHandles = new Set(
-        result.data.flatMap(p => (p.event_ref_list ?? []).map(r => r.ref))
+        people.flatMap(personAndFamilyEventHandles)
       )
     } else if ('error' in result) {
-      this._filterEventHandles = new Set()
+      // Person mode keeps showing the person's own events.
+      this._filterEventHandles = mode === 'self' ? null : new Set()
       fireEvent(this, 'grampsjs:error', {message: result.error})
     }
   }
@@ -232,6 +244,7 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._filterEventHandles = null
     this._filterPlaceHandles = null
     this._resetClickedState()
+    this._fetchPersonEvents()
   }
 
   _clearFilter() {
@@ -248,9 +261,7 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._personFilterMode = e.detail.value
     this._filterEventHandles = null
     this._resetClickedState()
-    if (this._personFilterMode !== 'self') {
-      this._fetchRelationshipEvents()
-    }
+    this._fetchPersonEvents()
   }
 
   _handlePlaceFilterModeChange(e) {
@@ -265,10 +276,11 @@ export class GrampsjsViewTimeline extends GrampsjsStaleDataMixin(GrampsjsView) {
   get _filteredData() {
     if (!this._activeFilter) return this._data
     if (this._activeFilter.object_type === 'person') {
-      if (this._personFilterMode !== 'self') {
-        if (!this._filterEventHandles) return []
+      if (this._filterEventHandles) {
         return this._data.filter(e => this._filterEventHandles.has(e.handle))
       }
+      if (this._personFilterMode !== 'self') return []
+      // The person's own events show until their family events have loaded.
       const obj = this._activeFilter.object
       const handles = new Set(obj?.event_ref_list?.map(r => r.ref) ?? [])
       return this._data.filter(e => handles.has(e.handle))

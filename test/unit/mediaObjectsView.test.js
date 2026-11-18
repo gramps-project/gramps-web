@@ -1,4 +1,5 @@
 import {describe, it, expect, vi} from 'vitest'
+import {mdiLock} from '@mdi/js'
 import {GrampsjsViewMediaObjects} from '../../src/views/GrampsjsViewMediaObjects.js'
 import {GrampsjsViewMediaLightbox} from '../../src/views/GrampsjsViewMediaLightbox.js'
 
@@ -247,5 +248,37 @@ describe('zooming the media in the lightbox', () => {
       stopPropagation: () => {},
     })
     expect([lightbox._zoom, lightbox._panX, lightbox._panY]).toEqual([1, 0, 0])
+  })
+})
+
+describe('the privacy of media in the list', () => {
+  // the strings and values of a template, including nested ones
+  const flatten = value =>
+    value?.strings
+      ? [...value.strings, ...value.values.flatMap(flatten)]
+      : [String(value)]
+
+  function renderItem(row, canViewPrivate = true) {
+    const view = makeView()
+    view.appState = {
+      permissions: {canViewPrivate},
+      i18n: {lang: 'en', strings: {}},
+    }
+    view._ = s => s
+    return flatten(view._renderMediaListItem(row, 0)).join('')
+  }
+
+  const row = {handle: 'a', gramps_id: 'O1', change: 0}
+
+  it('shows a lock after the title of private media', () => {
+    expect(renderItem({...row, private: true})).toContain(mdiLock)
+  })
+
+  it('shows no lock for public media', () => {
+    expect(renderItem({...row, private: false})).not.toContain(mdiLock)
+  })
+
+  it('shows no lock to users who cannot view private records', () => {
+    expect(renderItem({...row, private: true}, false)).not.toContain(mdiLock)
   })
 })

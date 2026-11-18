@@ -103,6 +103,19 @@ export function personProfileDisplayName(profile) {
   )
 }
 
+// Handles of a person's own events and of the events of the families the
+// person is a parent in, without repeats. Family events need
+// `person.extended.families`, i.e. the person fetched with `extend=family_list`.
+export function personAndFamilyEventHandles(person) {
+  const refs = [
+    ...(person?.event_ref_list ?? []),
+    ...(person?.extended?.families ?? []).flatMap(
+      family => family?.event_ref_list ?? []
+    ),
+  ]
+  return [...new Set(refs.map(ref => ref.ref).filter(Boolean))]
+}
+
 function displaySurname(surname) {
   return `${surname.prefix} ${surname.surname} ${surname.connector}`.trim()
 }

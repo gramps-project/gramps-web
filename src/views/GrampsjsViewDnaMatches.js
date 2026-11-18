@@ -9,7 +9,7 @@ import '../components/GrampsjsDnaMatches.js'
 import '../components/GrampsjsDnaMatch.js'
 import '../components/GrampsjsFormNewMatch.js'
 import '../components/GrampsjsChromosomeBrowser.js'
-import '../components/GrampsjsSvgDownloadButton.js'
+import '../components/GrampsjsDownloadButton.js'
 
 import {GrampsjsViewDnaBase} from './GrampsjsViewDnaBase.js'
 
@@ -48,20 +48,29 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
     this.chromosome = false
     this.matches = false
     this.grampsIdMatch = ''
+    this._boundToggleEditMode = () => this._toggleEditMode()
   }
 
   /* Implemented abstract methods */
 
   renderFab() {
     return this.grampsIdMatch
-      ? html`<md-fab variant="primary" @click=${this._handleClickEdit}>
+      ? html`<md-fab
+          variant="primary"
+          @click=${this._handleClickEdit}
+          aria-label="${this._('Edit')}"
+        >
           <grampsjs-icon
             slot="icon"
             .path="${mdiPencil}"
             color="currentColor"
           ></grampsjs-icon>
         </md-fab>`
-      : html`<md-fab variant="primary" @click=${this._handleClickAdd}>
+      : html`<md-fab
+          variant="primary"
+          @click=${this._handleClickAdd}
+          aria-label="${this._('Add')}"
+        >
           <grampsjs-icon
             slot="icon"
             .path="${mdiPlus}"
@@ -109,7 +118,11 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
     }
     return html`
       <div class="select-row">
-        <md-filled-select @change="${this._handleSelectChange}">
+        <md-filled-select
+          aria-label="${this._('DNA Match')}"
+          label="${this._selectLabel}"
+          @change="${this._handleSelectChange}"
+        >
           ${this._data.map(
             person => html`
               <md-select-option
@@ -121,11 +134,12 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
           )}
         </md-filled-select>
         ${this.chromosome && !this._dnaDataLoading && this._dnaData.data?.length
-          ? html`<grampsjs-svg-download-button
+          ? html`<grampsjs-download-button
               filename="${this.grampsId}-chromosomes.svg"
-              .svgDocument=${() => this._chromosomeSvg()}
+              mimeType="image/svg+xml"
+              .content=${() => this._chromosomeSvg()}
               .appState="${this.appState}"
-            ></grampsjs-svg-download-button>`
+            ></grampsjs-download-button>`
           : ''}
       </div>
     `
@@ -162,6 +176,33 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
       >
       </grampsjs-form-new-match>
     `
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('edit-mode:toggle', this._boundToggleEditMode)
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('edit-mode:toggle', this._boundToggleEditMode)
+    super.disconnectedCallback()
+  }
+
+  // The "e" shortcut edits the match that is shown, like the edit button
+  _toggleEditMode() {
+    if (
+      !this.active ||
+      !this.matches ||
+      !this.grampsIdMatch ||
+      !this.appState?.permissions?.canEdit
+    ) {
+      return
+    }
+    if (this.edit) {
+      fireEvent(this, 'edit-mode:close-request')
+    } else {
+      this._handleClickEdit()
+    }
   }
 
   _handleClickEdit() {
@@ -279,10 +320,6 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
     `
   }
 
-  get selectedPerson() {
-    return this._data.find(person => person.gramps_id === this.grampsId)
-  }
-
   async _handleSaveMatch(e) {
     const sourceHandle = e.detail.data.source_handle
     const targetHandle = e.detail.data.target_handle
@@ -292,7 +329,12 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
       return
     }
     const person = toWritableObject(personData.data)
-    const noteHandle = await this._createNote(e.detail.data.raw_data[0])
+    // the association and the note with its segments share the privacy
+    const isPrivate = !!e.detail.data.private
+    const noteHandle = await this._createNote(
+      e.detail.data.raw_data[0],
+      isPrivate
+    )
     // _createNote has already reported the error
     if (!noteHandle) {
       return
@@ -302,6 +344,7 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
       ref: targetHandle,
       rel: 'DNA',
       note_list: [noteHandle],
+      private: isPrivate,
     }
     const updatedPerson = {
       ...person,
@@ -318,10 +361,11 @@ export class GrampsjsViewDnaMatches extends GrampsjsViewDnaBase {
     this.dialogContent = ''
   }
 
-  async _createNote(noteContent) {
+  async _createNote(noteContent, isPrivate) {
     const note = {
       _class: 'Note',
       text: {_class: 'StyledText', string: noteContent},
+      private: isPrivate,
     }
     const data = await this.appState.apiPost('/api/notes/', note, true, false)
     let noteHandle

@@ -1,9 +1,8 @@
 import {create, select} from 'd3-selection'
-import {scaleBand, scaleLinear, scaleOrdinal} from 'd3-scale'
-import {axisLeft, axisTop} from 'd3-axis'
-import {schemeSet1} from 'd3-scale-chromatic'
+import {scaleLinear} from 'd3-scale'
+import {axisTop} from 'd3-axis'
 
-import {exportPalette} from './palette.js'
+import {categoricalColors, exportPalette} from './palette.js'
 
 const chromosomeLength = {
   1: 249250621,
@@ -44,13 +43,102 @@ export function chromosomeKey(label) {
   return key in chromosomeLength ? key : null
 }
 
-// The color of the match at index i, shared by the chart and its legend.
+// The categorical colours, then the same hues as tints drawn with an outline
+// in the full hue
+const matchHues = categoricalColors
+const matchTints = [
+  '#aac9ef',
+  '#f7c3ae',
+  '#a4dfca',
+  '#f8d999',
+  '#f6cadb',
+  '#99cd99',
+  '#c0b9ef',
+  '#f4b6b6',
+]
+
+// The fill of the match at index i, shared by the chart and its legend.
+// Colours repeat after 16 matches.
 export function matchColor(i) {
-  return schemeSet1[i % schemeSet1.length]
+  const slot = i % (2 * matchHues.length)
+  return slot < matchHues.length
+    ? matchHues[slot]
+    : matchTints[slot - matchHues.length]
+}
+
+// The outline of the match at index i, or null for none
+export function matchStroke(i) {
+  const slot = i % (2 * matchHues.length)
+  return slot < matchHues.length ? null : matchHues[slot - matchHues.length]
+}
+
+// The tracks of a chromosome from top to bottom: paternal, unphased and
+// maternal segments
+const tracks = ['P', 'U', 'M']
+
+// The track of a segment by its side
+const trackOf = side => (side === 'P' || side === 'M' ? side : 'U')
+
+// Assigns each segment of one chromosome the lowest lane of its track in which
+// it overlaps no other segment. Returns the lane of each segment, in the order
+// given, and the number of lanes of each track: at least one for the paternal
+// and maternal tracks, and none for the unphased track without segments.
+export function segmentLanes(segments) {
+  const ends = {P: [], U: [], M: []}
+  const lanes = []
+  const order = segments
+    .map((segment, i) => i)
+    .sort(
+      (a, b) =>
+        Math.min(segments[a].start, segments[a].stop) -
+        Math.min(segments[b].start, segments[b].stop)
+    )
+  for (const i of order) {
+    const {start, stop, side} = segments[i]
+    const trackEnds = ends[trackOf(side)]
+    let lane = trackEnds.findIndex(end => end <= Math.min(start, stop))
+    if (lane === -1) {
+      lane = trackEnds.length
+    }
+    trackEnds[lane] = Math.max(start, stop)
+    lanes[i] = lane
+  }
+  return {
+    lanes,
+    count: {
+      P: Math.max(1, ends.P.length),
+      U: ends.U.length,
+      M: Math.max(1, ends.M.length),
+    },
+  }
+}
+
+// The outline of a rectangle with its top corners rounded by `top` and its
+// bottom corners by `bottom`
+function roundedRectPath(width, height, top, bottom) {
+  const t = Math.min(top, width / 2, height / 2)
+  const b = Math.min(bottom, width / 2, height / 2)
+  return [
+    `M0,${t}`,
+    `A${t},${t} 0 0 1 ${t},0`,
+    `H${width - t}`,
+    `A${t},${t} 0 0 1 ${width},${t}`,
+    `V${height - b}`,
+    `A${b},${b} 0 0 1 ${width - b},${height}`,
+    `H${b}`,
+    `A${b},${b} 0 0 1 0,${height - b}`,
+    'Z',
+  ].join('')
 }
 
 const defaultMargin = {top: 24, right: 10, bottom: 0, left: 35}
 
+// Draws the segments of each match in `data`. A match's `group`, an index
+// below `data.length`, picks its colour; it defaults to the match's own index.
+// Each chromosome has a paternal track above a maternal one, with a track for
+// unphased segments between them if there are any. Overlapping segments of a
+// track go into separate, thinner lanes; the paternal lanes grow upwards and
+// the others downwards, so the first lanes sit next to each other.
 export function ChromosomeBrowser(
   data,
   {
@@ -60,33 +148,78 @@ export function ChromosomeBrowser(
     fontColor = 'var(--grampsjs-body-font-color)',
     width = 800,
     margin = defaultMargin,
-    interGroupPadding = 0.2,
-    intraGroupPadding = 0.15,
+    rowGap = 11,
+    trackGap = 2,
+    laneGap = 2,
     barHeight = 11,
+    stackedBarHeight = 7,
+    chromosomeRadius = 4,
     tickPadding = 13,
     axisFontSize = 12,
     colorP = '#EEF1F5',
     colorM = '#F9ECEE',
+    colorU = '#F2F2F2',
   } = {}
 ) {
-  const groups = Object.keys(chromosomeLength)
-  const subgroups = ['P', 'M']
+  const segments = data.flatMap((d, i) =>
+    (d.segments ?? [])
+      .map(segment => ({
+        ...segment,
+        chromosome: chromosomeKey(segment.chromosome),
+        handle: d.handle,
+        index: i,
+        group: d.group ?? i,
+      }))
+      .filter(segment => segment.chromosome !== null)
+  )
 
-  const dataChromo = groups.map(key => ({
-    group: key,
-    P: chromosomeLength[key],
-    M: chromosomeLength[key],
-  }))
+  const trackColor = {P: colorP, U: colorU, M: colorM}
+  let y = rowGap
+  const rows = Object.keys(chromosomeLength).map(key => {
+    const rowSegments = segments.filter(s => s.chromosome === key)
+    const {lanes, count} = segmentLanes(rowSegments)
+    let top = 0
+    const rowTracks = {}
+    tracks
+      .filter(track => count[track] > 0)
+      .forEach(track => {
+        const laneHeight = count[track] > 1 ? stackedBarHeight : barHeight
+        const height = count[track] * (laneHeight + laneGap) - laneGap
+        rowTracks[track] = {
+          track,
+          top,
+          height,
+          laneHeight,
+          color: trackColor[track],
+          key,
+        }
+        top += height + trackGap
+      })
+    const row = {
+      key,
+      y,
+      height: top - trackGap,
+      tracks: Object.values(rowTracks),
+      segments: rowSegments.map((segment, i) => {
+        const track = rowTracks[trackOf(segment.side)]
+        const offset = lanes[i] * (track.laneHeight + laneGap)
+        return {
+          ...segment,
+          lane: lanes[i],
+          y:
+            track.track === 'P'
+              ? track.top + track.height - track.laneHeight - offset
+              : track.top + offset,
+          height: track.laneHeight,
+          color: matchColor(segment.group),
+        }
+      }),
+    }
+    y += row.height + rowGap
+    return row
+  })
+  const height = y
 
-  const groupHeight =
-    (2 + (1 * intraGroupPadding) / (1 - intraGroupPadding)) * barHeight
-
-  const height =
-    (dataChromo.length +
-      ((dataChromo.length + 1) * interGroupPadding) / (1 - interGroupPadding)) *
-    groupHeight
-
-  // append the svg object to the body of the page
   const svg = create('svg')
     .attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.top + margin.bottom)
@@ -108,26 +241,27 @@ export function ChromosomeBrowser(
     .append('rect')
     .attr('width', 4)
     .attr('height', 8)
-    .attr('style', (d, i) => `fill:${matchColor(i)}`)
+    .attr('style', (d, i) => `fill:${matchStroke(i) ?? matchColor(i)}`)
 
   const node = svg
     .append('g')
     .attr('transform', `translate(${margin.left},${margin.top})`)
-  // Add Y axis
-  const y = scaleBand()
-    .domain(groups)
-    .range([0, height])
-    .padding([interGroupPadding])
 
   node
     .append('g')
-    .call(axisLeft(y).tickSize(0).tickPadding(tickPadding))
+    .attr('class', 'chromosome-axis')
     .attr('font-family', fontFamily)
     .attr('font-size', fontSize)
-    .attr('color', fontColor)
-    .attr('stroke-width', 0)
+    .attr('fill', fontColor)
+    .attr('text-anchor', 'end')
+    .selectAll('text')
+    .data(rows)
+    .join('text')
+    .attr('x', -tickPadding)
+    .attr('y', row => row.y + row.height / 2)
+    .attr('dy', '0.32em')
+    .text(row => row.key)
 
-  // Add X axis
   const x = scaleLinear().domain([0, 249250621]).range([0, width])
 
   // Labels near the right edge would be clipped by the SVG.
@@ -149,68 +283,52 @@ export function ChromosomeBrowser(
     .attr('color', fontColor)
     .call(g => g.select('.domain').remove())
 
-  // Another scale for subgroup position?
-  const ySubgroup = scaleBand()
-    .domain(subgroups)
-    .range([0, y.bandwidth()])
-    .paddingInner([intraGroupPadding])
-
-  // color palette = one color per subgroup
-  const color = scaleOrdinal().domain(subgroups).range([colorP, colorM])
-
-  // Show the bars
-  node
+  const rowNodes = node
     .append('g')
     .selectAll('g')
-    // Enter in data = loop group per group
-    .data(dataChromo)
+    .data(rows)
     .join('g')
-    .attr('transform', d => `translate(0, ${y(d.group)})`)
-    .selectAll('rect')
-    .data(d => subgroups.map(key => ({key, value: d[key]})))
-    .join('rect')
-    .attr('y', d => ySubgroup(d.key))
-    .attr('x', 0)
-    .attr('rx', 2)
-    .attr('width', d => x(d.value))
-    .attr('height', ySubgroup.bandwidth())
-    .attr('fill', d => color(d.key))
+    .attr('transform', row => `translate(0, ${row.y})`)
 
-  node
-    .append('g')
-    .selectAll('g')
-    .data(data)
-    .join('g')
-    .selectAll('g')
-    .data((d, i) =>
-      (d.segments ?? [])
-        .map(segment => ({
-          ...segment,
-          chromosome: chromosomeKey(segment.chromosome),
-          handle: d.handle,
-          index: i,
-        }))
-        .filter(segment => segment.chromosome !== null)
+  rowNodes
+    .selectAll('path.chromosome')
+    // Only the outer corners of the chromosome are rounded, so its tracks
+    // read as one bar
+    .data(row =>
+      row.tracks.map((track, i) => ({
+        ...track,
+        topRadius: i === 0 ? chromosomeRadius : 0,
+        bottomRadius: i === row.tracks.length - 1 ? chromosomeRadius : 0,
+      }))
     )
-    .join('g')
-    .attr('transform', d => `translate(0, ${y(d.chromosome)})`)
-    .selectAll('rect')
-    .data(d =>
-      subgroups
-        .filter(side => side === d.side || (d.side === 'U' && side === 'P'))
-        .map(side => ({...d, subgroup: side, color: matchColor(d.index)}))
+    .join('path')
+    .attr('class', 'chromosome')
+    .attr('transform', d => `translate(0, ${d.top})`)
+    .attr('d', d =>
+      roundedRectPath(
+        x(chromosomeLength[d.key]),
+        d.height,
+        d.topRadius,
+        d.bottomRadius
+      )
     )
+    .attr('fill', d => d.color)
+
+  rowNodes
+    .selectAll('rect.segment')
+    .data(row => row.segments)
     .join('rect')
     .attr('class', 'segment')
-    .attr('y', d => ySubgroup(d.subgroup))
+    .attr('y', d => d.y)
     .attr('x', d => x(Math.min(d.start, d.stop)))
     .attr('rx', 2)
     .attr('width', d => Math.abs(x(d.stop) - x(d.start)))
-    .attr('height', d =>
-      d.side === 'U' ? y.bandwidth() : ySubgroup.bandwidth()
+    .attr('height', d => d.height)
+    .attr('fill', d =>
+      trackOf(d.side) === 'U' ? `url(#pattern-${d.group})` : d.color
     )
-    .attr('fill', d => (d.side === 'U' ? `url(#pattern-${d.index})` : d.color))
-    .attr('opacity', 0.8)
+    .attr('stroke', d => matchStroke(d.group))
+    .attr('stroke-width', d => (matchStroke(d.group) ? 1 : null))
 
   return svg.node()
 }
@@ -225,7 +343,7 @@ const legendCharWidth = 7.5
 // Returns the chart of `data` as a standalone SVG document with colours from
 // `exportPalette` on a white background. `legend` lists the rows to the right
 // of the chart, as in the app, as {index, label, detail}, where `index` is the
-// match's index in `data` and `detail` is shown muted after the label.
+// colour index and `detail` is shown muted after the label.
 export function chromosomeBrowserSvgDocument(data, legend, {width = 800} = {}) {
   const svg = select(
     ChromosomeBrowser(data, {
@@ -278,6 +396,7 @@ export function chromosomeBrowserSvgDocument(data, legend, {width = 800} = {}) {
     .attr('height', 11)
     .attr('rx', 3)
     .attr('fill', d => matchColor(d.index))
+    .attr('stroke', d => matchStroke(d.index))
   const text = rows
     .append('text')
     .attr('x', 19)

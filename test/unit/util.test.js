@@ -7,6 +7,7 @@ import {
   prefixSearchQuery,
   personTitleFromProfile,
   personDisplayName,
+  personAndFamilyEventHandles,
   reportSelectItemLabel,
   reportSelectItemValue,
   familyTitleFromProfile,
@@ -861,5 +862,33 @@ describe('taskErrorMessage', () => {
 
   it('is empty without a status', () => {
     expect(taskErrorMessage(undefined)).toBe('')
+  })
+})
+
+describe('personAndFamilyEventHandles', () => {
+  it('returns own and family event handles without repeats', () => {
+    const person = {
+      event_ref_list: [{ref: 'E1'}, {ref: 'E2'}],
+      extended: {
+        families: [
+          {event_ref_list: [{ref: 'E3'}, {ref: 'E1'}]},
+          null,
+          {event_ref_list: [{ref: 'E4'}]},
+        ],
+      },
+    }
+    expect(personAndFamilyEventHandles(person)).toEqual([
+      'E1',
+      'E2',
+      'E3',
+      'E4',
+    ])
+  })
+
+  it('returns own events when families are not loaded', () => {
+    expect(
+      personAndFamilyEventHandles({event_ref_list: [{ref: 'E1'}]})
+    ).toEqual(['E1'])
+    expect(personAndFamilyEventHandles(null)).toEqual([])
   })
 })

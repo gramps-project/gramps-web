@@ -274,6 +274,8 @@ class GrampsjsPages extends GrampsjsAppStateMixin(LitElement) {
               class="page"
               ?active=${this.appState.path.page === 'import'}
               .appState="${this.appState}"
+              .homePersonDetails=${this.homePersonDetails}
+              .homePersonMissing=${this.homePersonMissing}
             ></grampsjs-view-import>
           `
         : ''}

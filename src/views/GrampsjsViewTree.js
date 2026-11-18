@@ -28,7 +28,7 @@ import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import '../components/GrampsjsFormSelectObject.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsPillToggle.js'
-import '../components/GrampsjsSvgDownloadButton.js'
+import '../components/GrampsjsDownloadButton.js'
 import '../components/GrampsjsTooltip.js'
 import '../components/GrampsjsTreeChartAddPerson.js'
 import {
@@ -149,7 +149,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
         }
 
         #controls md-icon-button,
-        #controls grampsjs-svg-download-button {
+        #controls grampsjs-download-button {
           --md-icon-button-icon-size: 26px;
         }
 
@@ -692,11 +692,12 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
   // chart
   renderExportControls() {
     return html`
-      <grampsjs-svg-download-button
+      <grampsjs-download-button
         filename="${this.grampsId}-${this.chart}.svg"
-        .svgDocument=${() => this._chartComponent()?.svgDocument() ?? null}
+        mimeType="image/svg+xml"
+        .content=${() => this._chartComponent()?.svgDocument() ?? null}
         .appState="${this.appState}"
-      ></grampsjs-svg-download-button>
+      ></grampsjs-download-button>
     `
   }
 
@@ -776,7 +777,6 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
         value=${value}
         type="number"
         min=${setting.min ?? nothing}
-        max=${setting.max ?? nothing}
         @change=${e => this._changeNumberSetting(setting, e.target)}
       ></md-filled-text-field>
     `
@@ -786,8 +786,8 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     this.appState.updateSettings({[setting.key]: value}, false)
   }
 
-  // Saves the value of a number setting's input within its limits once it has
-  // not changed for `numberSettingDelay`, and shows the saved value in the
+  // Saves the value of a number setting's input, raised to its minimum, once it
+  // has not changed for `numberSettingDelay`, and shows the saved value in the
   // input. An empty input is not saved.
   _changeNumberSetting(setting, input) {
     clearTimeout(this._settingTimers.get(setting.key))

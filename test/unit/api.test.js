@@ -5,6 +5,7 @@ import {
   apiRegisterUser,
   apiResetPassword,
   apiGetOIDCConfig,
+  apiGetRegistrationEnabled,
   apiOIDCLogin,
   apiPutPostDelete,
   Auth,
@@ -332,6 +333,62 @@ describe('apiRegisterUser error handling', () => {
 
     const result = await apiRegisterUser('user', 'pass', '', '', '')
     expect(result.error).toBe('Internal Server Error')
+  })
+})
+
+describe('apiGetRegistrationEnabled', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  const stubFetch = response => {
+    const fetchMock = vi.fn().mockResolvedValue(response)
+    vi.stubGlobal('fetch', fetchMock)
+    return fetchMock
+  }
+
+  it('reports what the server says', async () => {
+    for (const enabled of [true, false]) {
+      stubFetch({ok: true, status: 200, json: () => Promise.resolve({enabled})})
+      expect(await apiGetRegistrationEnabled()).toBe(enabled)
+    }
+  })
+
+  it('asks about the given tree', async () => {
+    const fetchMock = stubFetch({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({enabled: true}),
+    })
+    await apiGetRegistrationEnabled('tree a')
+    expect(fetchMock.mock.calls[0][0]).toMatch(
+      /\/api\/register\/config\/\?tree=tree\+a$/
+    )
+  })
+
+  it('asks without a tree when none is given', async () => {
+    const fetchMock = stubFetch({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({enabled: true}),
+    })
+    await apiGetRegistrationEnabled()
+    expect(fetchMock.mock.calls[0][0]).toMatch(/\/api\/register\/config\/$/)
+  })
+
+  it('resolves to null for a backend without the endpoint', async () => {
+    stubFetch({ok: false, status: 404, json: () => Promise.resolve({})})
+    expect(await apiGetRegistrationEnabled()).toBeNull()
+  })
+
+  it('resolves to null without a boolean answer', async () => {
+    stubFetch({ok: true, status: 200, json: () => Promise.resolve({})})
+    expect(await apiGetRegistrationEnabled()).toBeNull()
+  })
+
+  it('resolves to null when the request fails', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('offline')))
+    expect(await apiGetRegistrationEnabled()).toBeNull()
   })
 })
 
@@ -804,5 +861,91 @@ describe('apiPutPostDelete success statuses', () => {
 
     expect(result).not.to.have.property('error')
     expect(result.data).to.deep.equal({})
+  })
+})
+
+describe('apiPutPostDelete upload progress', () => {
+  // An XMLHttpRequest that reports sending half the body, then the whole
+  // body, and answers with `status` and `body`.
+  const fakeXhr = (status, body) =>
+    class {
+      constructor() {
+        this.listeners = {}
+        this.upload = {
+          addEventListener: (name, fn) => {
+            this.uploadProgress = fn
+          },
+        }
+        this.headers = {}
+      }
+
+      open(method, url) {
+        Object.assign(this, {method, url})
+      }
+
+      setRequestHeader(name, value) {
+        this.headers[name] = value
+      }
+
+      addEventListener(name, fn) {
+        this.listeners[name] = fn
+      }
+
+      getResponseHeader() {
+        return null
+      }
+
+      send() {
+        this.uploadProgress({lengthComputable: true, loaded: 5, total: 10})
+        this.uploadProgress({lengthComputable: true, loaded: 10, total: 10})
+        Object.assign(this, {
+          status,
+          statusText: '',
+          responseText: JSON.stringify(body),
+        })
+        this.listeners.load()
+      }
+    }
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('reports the progress and returns the response', async () => {
+    vi.stubGlobal('fetch', vi.fn())
+    vi.stubGlobal('XMLHttpRequest', fakeXhr(202, {task: {id: 't1'}}))
+    const onUploadProgress = vi.fn()
+
+    const result = await apiPutPostDelete(
+      undefined,
+      'POST',
+      '/api/importers/ged/file',
+      new Blob(['0 HEAD']),
+      {isJson: false, dbChanged: false, skipAuth: true, onUploadProgress}
+    )
+
+    expect(fetch).not.toHaveBeenCalled()
+    expect(onUploadProgress.mock.calls).toEqual([[0.5], [1]])
+    expect(result).toEqual({task: {id: 't1'}})
+  })
+
+  it('reports errors like fetch', async () => {
+    vi.stubGlobal('XMLHttpRequest', fakeXhr(413, {}))
+
+    const result = await apiPutPostDelete(
+      undefined,
+      'POST',
+      '/api/importers/ged/file',
+      new Blob(['0 HEAD']),
+      {
+        isJson: false,
+        dbChanged: false,
+        skipAuth: true,
+        onUploadProgress: () => {},
+      }
+    )
+
+    expect(result.error).toBe('Error 413')
+    expect(result.errorDetail.status).toBe(413)
   })
 })

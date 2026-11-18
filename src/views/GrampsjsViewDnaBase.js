@@ -128,8 +128,12 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
     }
   }
 
+  get selectedPerson() {
+    return this._data.find(person => person.gramps_id === this.grampsId)
+  }
+
   get selectedHandle() {
-    return this._data.find(person => person.gramps_id === this.grampsId)?.handle
+    return this.selectedPerson?.handle
   }
 
   async _fetchDnaData(clear = false) {
@@ -223,6 +227,14 @@ export class GrampsjsViewDnaBase extends GrampsjsStaleDataMixin(GrampsjsView) {
 
   _selectDataHasGrampsId() {
     return this._data.some(person => person.gramps_id === this.grampsId)
+  }
+
+  // The select asks for a person when the person in the URL has no data on
+  // this page, as after switching tabs, so it does not show up empty
+  get _selectLabel() {
+    return this._data.length && !this._selectDataHasGrampsId()
+      ? this._('Select')
+      : ''
   }
 
   handleUpdateStaleData() {

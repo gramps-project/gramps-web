@@ -5,6 +5,7 @@ import {
   defaultValues,
   getNode,
   isComplete,
+  isUnknownRule,
   localizeRules,
   newCondition,
   newGroup,
@@ -12,7 +13,9 @@ import {
   paramType,
   pickableRules,
   pillsToTree,
+  refersToMissing,
   removeNode,
+  rulesToTree,
   searchRules,
   serializeNode,
   treeToFilters,
@@ -164,6 +167,107 @@ describe('isComplete', () => {
     expect(isComplete(tree('and', condition('HasTag', [''])), catalogue)).toBe(
       true
     )
+  })
+
+  it('rejects rules missing from a loaded catalogue', () => {
+    const t = tree('and', condition('HasGone', ['x']))
+    expect(isUnknownRule(t.children[0], catalogue)).toBe(true)
+    expect(isComplete(t, catalogue)).toBe(false)
+  })
+
+  it('accepts any rule while the catalogue is not loaded', () => {
+    const t = tree('and', condition('HasGone', ['x']))
+    expect(isUnknownRule(t.children[0], [])).toBe(false)
+    expect(isComplete(t, [])).toBe(true)
+  })
+})
+
+describe('refersToMissing', () => {
+  const isMissing = (namespace, id) => namespace === 'Person' && id === 'I9'
+
+  it('finds missing objects in nested ID parameters', () => {
+    const t = tree(
+      'and',
+      condition('HasTag', ['I9']),
+      tree('or', condition('IsAncestorOf', ['I9', '0']))
+    )
+    expect(refersToMissing(t, catalogue, isMissing)).toBe(true)
+  })
+
+  it('ignores existing objects, empty IDs and text parameters', () => {
+    const t = tree(
+      'and',
+      condition('HasTag', ['I9']),
+      condition('IsAncestorOf', ['I1', '0']),
+      condition('IsAncestorOf', ['', '0'])
+    )
+    expect(refersToMissing(t, catalogue, isMissing)).toBe(false)
+  })
+})
+
+describe('rulesToTree', () => {
+  // the tree without ids, for comparing
+  const shape = node =>
+    node.kind === 'group'
+      ? {
+          function: node.function,
+          invert: node.invert,
+          children: node.children.map(shape),
+        }
+      : {name: node.name, values: node.values, invert: node.invert}
+
+  it('restores serialized trees', () => {
+    const t = tree(
+      'or',
+      condition('HasTag', ['ToDo'], {invert: true}),
+      condition('PeoplePrivate', []),
+      {
+        ...tree(
+          'one',
+          condition('IsAncestorOf', ['I1', '1']),
+          tree('and', condition('HasTag', ['A']), condition('HasTag', ['B']))
+        ),
+        invert: true,
+      }
+    )
+    expect(shape(rulesToTree(serializeNode(t)))).toEqual(shape(t))
+  })
+
+  it('keeps a negated top group with a single condition', () => {
+    const t = {...tree('and', condition('HasTag', ['A'])), invert: true}
+    const restored = rulesToTree(serializeNode(t))
+    expect(shape(restored)).toEqual(shape(t))
+  })
+
+  it('reads a negated group of one rule as a negated condition', () => {
+    const restored = rulesToTree({
+      function: 'and',
+      rules: [{function: 'or', invert: true, rules: [{name: 'HasTag'}]}],
+    })
+    expect(shape(restored.children[0])).toEqual({
+      name: 'HasTag',
+      values: [],
+      invert: true,
+    })
+  })
+
+  it('gives each node a new id', () => {
+    const restored = rulesToTree(
+      serializeNode(tree('and', condition('HasTag', ['A']), tree('or')))
+    )
+    const ids = [restored.id, ...restored.children.map(child => child.id)]
+    expect(new Set(ids).size).toBe(3)
+  })
+
+  it('rejects invalid JSON', () => {
+    expect(rulesToTree(null)).toBe(null)
+    expect(rulesToTree([{name: 'HasTag'}])).toBe(null)
+    expect(rulesToTree({name: 'HasTag'})).toBe(null)
+    expect(rulesToTree({function: 'xor', rules: []})).toBe(null)
+    expect(rulesToTree({function: 'and', rules: [{values: []}]})).toBe(null)
+    expect(
+      rulesToTree({function: 'and', rules: [{name: 'HasTag', values: 'x'}]})
+    ).toBe(null)
   })
 })
 

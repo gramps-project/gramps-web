@@ -5,24 +5,33 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
 import {fireEvent} from '../util.js'
-import {dispatchErrorMessage} from '../taskResponse.js'
+import {awaitTaskResponse, showUploadProgress} from '../taskResponse.js'
 import './GrampsjsFormUpload.js'
 import './GrampsjsTaskProgressIndicator.js'
 import './GrampsjsHelpButton.js'
-
-const STATE_ERROR = -1
-const STATE_INITIAL = 0
-const STATE_READY = 1
-const STATE_PROGRESS = 2
-const STATE_DONE = 3
 
 export class GrampsjsImportMedia extends GrampsjsAppStateMixin(LitElement) {
   static get styles() {
     return [
       sharedStyles,
       css`
-        .hidden {
-          display: none;
+        .not-found {
+          max-height: 20em;
+          overflow: auto;
+          margin: 0.5em 0 0 0;
+          padding: 0;
+          list-style: none;
+          line-height: 1.6em;
+        }
+
+        .path {
+          color: var(--grampsjs-body-font-color-60);
+          overflow-wrap: anywhere;
+        }
+
+        summary {
+          cursor: pointer;
+          user-select: none;
         }
       `,
     ]
@@ -30,15 +39,22 @@ export class GrampsjsImportMedia extends GrampsjsAppStateMixin(LitElement) {
 
   static get properties() {
     return {
-      _mediaState: {type: Object},
-      _uploadHint: {type: String},
+      _file: {type: Object},
+      _busy: {type: Boolean},
+      _result: {type: Object},
+      _error: {type: String},
     }
   }
 
   constructor() {
     super()
-    this._mediaState = STATE_INITIAL
-    this._uploadHint = ''
+    // The selected ZIP archive
+    this._file = null
+    this._busy = false
+    // The outcome of the last upload: counts of media objects, see
+    // _renderResult
+    this._result = null
+    this._error = ''
   }
 
   // Whether the tree has no media objects for the files in an archive to be
@@ -72,90 +88,145 @@ export class GrampsjsImportMedia extends GrampsjsAppStateMixin(LitElement) {
       <p>
         <grampsjs-form-upload
           outlined
-          ?disabled=${noMediaObjects}
+          ?disabled=${noMediaObjects || this._busy}
           accept="application/zip"
           id="upload-media"
           .appState="${this.appState}"
           filename
-          @formdata:changed="${this._handleUploadChangedMedia}"
+          @formdata:changed="${this._handleUploadChanged}"
         ></grampsjs-form-upload>
       </p>
       <p class="button-row">
         <md-filled-button
           type="submit"
-          @click="${this._submitMedia}"
-          ?disabled=${noMediaObjects || this._mediaState !== STATE_READY}
+          @click="${this._submit}"
+          ?disabled=${noMediaObjects || !this._file || this._busy}
           >${this._('Import')}</md-filled-button
         >
         <grampsjs-task-progress-indicator
           id="progress-media"
           taskName="importMedia"
-          ?open="${this._mediaState !== STATE_INITIAL &&
-          this._mediaState !== STATE_READY}"
           size="20"
           hideAfter="0"
           pollInterval="0.2"
           .appState="${this.appState}"
-          @task:complete="${this._handleSuccessMedia}"
-          @task:error="${() => this._handleCompletedMedia(STATE_ERROR)}"
+          @task:complete="${this._handleOtherTaskComplete}"
         ></grampsjs-task-progress-indicator>
       </p>
+      ${this._error ? html`<p class="alert error">${this._error}</p>` : ''}
+      ${this._renderResult()}
     `
   }
 
-  async _submitMedia() {
-    if (this._mediaState === STATE_READY) {
-      const uploadForm = this.shadowRoot.querySelector('#upload-media')
-      await this._submitMediaArchive(uploadForm.file)
+  // Backends that send `not_found`, the media objects the archive had no file
+  // for, count media objects: `missing` had no file before the upload,
+  // `uploaded` have one now and `failures` could not be stored. Older ones
+  // count distinct files, which can't be put in relation to media objects.
+  _renderResult() {
+    if (!this._result) {
+      return ''
     }
+    const {missing = 0, failures = 0} = this._result
+    return html`
+      <div class="card">
+        ${'not_found' in this._result && missing
+          ? this._renderMatches()
+          : html`<p>${this._('The import has completed.')}</p>`}
+        ${failures
+          ? html`<p class="alert error">
+              ${this._('%s files could not be stored.', failures)}
+            </p>`
+          : ''}
+      </div>
+    `
   }
 
-  async _submitMediaArchive(file) {
-    this._mediaState = STATE_PROGRESS
+  _renderMatches() {
+    const {missing, uploaded = 0, failures = 0} = this._result
+    const notFound = this._result.not_found
+    const nNotFound = missing - uploaded - failures
+    return html`
+      <p>
+        ${this._(
+          'Files were found for %s of %s media objects without a file.',
+          uploaded,
+          missing
+        )}
+      </p>
+      ${nNotFound > 0
+        ? html`<details>
+            <summary>
+              ${this._(
+                'The archive has no file for %s media objects.',
+                nNotFound
+              )}
+            </summary>
+            <ul class="not-found">
+              ${notFound.map(
+                obj => html`<li>
+                  <a href="/media/${obj.gramps_id}">${obj.gramps_id}</a>
+                  <span class="path">${obj.path}</span>
+                </li>`
+              )}
+            </ul>
+          </details>`
+        : ''}
+    `
+  }
+
+  async _submit() {
+    const file = this._file
+    if (!file || this._busy) {
+      return
+    }
+    this._busy = true
+    this._result = null
+    this._error = ''
     const prog = this.renderRoot.querySelector('#progress-media')
     prog.reset()
     prog.open = true
-
     const res = await this.appState.apiPost(
       '/api/media/archive/upload/zip',
       file,
-      {isJson: false, dbChanged: false}
+      {
+        isJson: false,
+        dbChanged: false,
+        // the page shows the import's progress and outcome itself
+        saving: false,
+        onUploadProgress: fraction =>
+          showUploadProgress(this.appState, prog, fraction),
+      }
     )
-    if ('error' in res) {
-      prog.setError()
-      prog.errorMessage = this._(dispatchErrorMessage(this.appState, res))
-      this._handleCompletedMedia(STATE_ERROR)
-    } else if ('task' in res) {
-      const taskId = res.task?.id || ''
-      if (taskId)
-        this.appState.registerTask(taskId, 'Import Media Files', {
-          taskName: 'importMedia',
-        })
-      prog.taskId = taskId
+    const outcome = await awaitTaskResponse(this.appState, res, {
+      prog,
+      label: 'Import Media Files',
+      taskName: 'importMedia',
+    })
+    if (outcome.error !== undefined) {
+      this._error = outcome.error || this._('Import failed')
+      prog.errorMessage = this._error
     } else {
-      prog.setComplete()
-      this._handleSuccessMedia()
+      this._result = outcome.data ?? null
+      fireEvent(this, 'media:uploaded')
+    }
+    this._busy = false
+    this._file = null
+    this.renderRoot.querySelector('#upload-media').reset()
+  }
+
+  // The indicator also shows media imports this component did not start,
+  // e.g. after a reload. Their files are stored once they complete.
+  _handleOtherTaskComplete() {
+    if (!this._busy) {
+      fireEvent(this, 'media:uploaded')
     }
   }
 
-  _handleSuccessMedia() {
-    this._handleCompletedMedia(STATE_DONE)
-    fireEvent(this, 'media:uploaded')
-  }
-
-  _handleCompletedMedia(state) {
-    this._mediaState = state
-    const uploadForm = this.shadowRoot.querySelector('#upload-media')
-    uploadForm.reset()
-  }
-
-  _handleUploadChangedMedia() {
-    const uploadForm = this.shadowRoot.querySelector('#upload-media')
-    if (!uploadForm.file?.name) {
-      this._mediaState = STATE_INITIAL
-      return
-    }
-    this._mediaState = STATE_READY
+  _handleUploadChanged() {
+    const uploadForm = this.renderRoot.querySelector('#upload-media')
+    this._error = ''
+    this._result = null
+    this._file = uploadForm.file?.name ? uploadForm.file : null
   }
 }
 

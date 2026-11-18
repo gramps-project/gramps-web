@@ -402,6 +402,104 @@ describe('map view: persons', () => {
     expect(view._highlightedHandles).to.deep.equal(['P2'])
   })
 
+  it('includes the places of family events', async () => {
+    const {view} = makeView()
+    const personData = {
+      handle: 'I1',
+      event_ref_list: [{ref: 'E1'}],
+      extended: {
+        events: [{handle: 'E1', place: 'P1'}],
+        families: [{event_ref_list: [{ref: 'E1'}, {ref: 'E2'}]}],
+      },
+    }
+    view.appState.apiGet.mockImplementation(url =>
+      Promise.resolve(
+        url.startsWith('/api/events/')
+          ? {data: [{handle: 'E2', place: 'P2'}]}
+          : {data: personData}
+      )
+    )
+    view._handlePersonSelected(PERSON)
+    await vi.waitFor(() => expect(view._selection?.data).to.equal(personData))
+    expect(view.appState.apiGet).toHaveBeenCalledWith(
+      '/api/events/?handles=E2&profile=self&locale=en'
+    )
+    expect(view._selection.familyEvents).to.deep.equal([
+      {handle: 'E2', place: 'P2'},
+    ])
+    expect(view._selection.events.map(e => e.handle)).to.deep.equal([
+      'E1',
+      'E2',
+    ])
+    expect(view._selection.placeHandles).to.deep.equal(['P1', 'P2'])
+  })
+
+  it('keeps the own events when family events fail to load', async () => {
+    const {view} = makeView()
+    const personData = {
+      handle: 'I1',
+      extended: {
+        events: [{handle: 'E1', place: 'P1'}],
+        families: [{event_ref_list: [{ref: 'E2'}]}],
+      },
+    }
+    view.appState.apiGet.mockImplementation(url =>
+      Promise.resolve(
+        url.startsWith('/api/events/')
+          ? {error: 'Server error'}
+          : {data: personData}
+      )
+    )
+    view._handlePersonSelected(PERSON)
+    await vi.waitFor(() => expect(view._selection?.data).to.equal(personData))
+    expect(view._selection.familyEvents).to.deep.equal([])
+    expect(view._selection.placeHandles).to.deep.equal(['P1'])
+  })
+
+  it('shows the person once their family events have loaded', async () => {
+    const {view} = makeView()
+    const personData = {
+      handle: 'I1',
+      extended: {events: [], families: [{event_ref_list: [{ref: 'E2'}]}]},
+    }
+    const familyRequest = deferred()
+    view.appState.apiGet.mockImplementation(url =>
+      url.startsWith('/api/events/')
+        ? familyRequest.promise
+        : Promise.resolve({data: personData})
+    )
+    view._handlePersonSelected(PERSON)
+    await flushPromises()
+    expect(view._selection.data).to.equal(null)
+    familyRequest.resolve({data: [{handle: 'E2', place: 'P1'}]})
+    await vi.waitFor(() => expect(view._selection?.data).to.equal(personData))
+    expect(view._selection.placeHandles).to.deep.equal(['P1'])
+  })
+
+  it('ignores family events after another selection', async () => {
+    const {view} = makeView()
+    const personData = {
+      handle: 'I1',
+      extended: {events: [], families: [{event_ref_list: [{ref: 'E2'}]}]},
+    }
+    const familyRequest = deferred()
+    view.appState.apiGet.mockImplementation(url =>
+      url.startsWith('/api/events/')
+        ? familyRequest.promise
+        : Promise.resolve({data: personData})
+    )
+    view._handlePersonSelected(PERSON)
+    await flushPromises()
+    view._handlePlaceSelected(PLACES[1])
+    familyRequest.resolve({data: [{handle: 'E2', place: 'P1'}]})
+    await flushPromises()
+    expect(view._selection).to.deep.equal({
+      type: 'place',
+      handle: 'P2',
+      name: 'Berlin',
+    })
+  })
+
   it('selects a person opened from another page', async () => {
     const {view} = makeView()
     view.appState.apiGet.mockResolvedValue({data: PERSON_DATA})

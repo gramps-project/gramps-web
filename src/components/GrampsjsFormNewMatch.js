@@ -48,6 +48,7 @@ export class GrampsjsFormNewMatch extends GrampsjsEditMatchMixin(
   constructor() {
     super()
     this.sourcePersonInitial = {}
+    this.helpPath = 'user-guide/dna-matches/'
   }
 
   // The preselected first person counts as selected, since the person list
@@ -101,7 +102,7 @@ export class GrampsjsFormNewMatch extends GrampsjsEditMatchMixin(
         </div>
       </div>
 
-      ${this.renderEditor()} ${this.renderPreview()}
+      ${this.renderEditor()} ${this.renderPrivate()} ${this.renderPreview()}
     `
   }
 }

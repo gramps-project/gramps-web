@@ -352,7 +352,9 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
   }
 
   // The page's title, from the outermost part, each part but the last leading
-  // to the page it names. With the drawer collapsed, the tree's name comes
+  // to the page it names. The last part is the current page, unless it has a
+  // link of its own, which leads up from the current page. With the drawer
+  // collapsed, the tree's name comes
   // first, since the drawer then does not show it. Small screens have room
   // for the last part only.
   _renderPageTitle() {
@@ -377,7 +379,7 @@ class GrampsjsAppBar extends GrampsjsAppStateMixin(LitElement) {
                 width="18"
               ></grampsjs-icon>`
             : ''}
-          ${isLast
+          ${isLast && !part.href
             ? html`<span class="current" aria-current="page">${title}</span>`
             : html`<a href="${part.href}">${title}</a>`}
         `

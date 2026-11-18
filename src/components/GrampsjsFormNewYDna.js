@@ -27,6 +27,11 @@ export class GrampsjsFormNewYDna extends GrampsjsEditYDnaMixin(
     ]
   }
 
+  constructor() {
+    super()
+    this.helpPath = 'user-guide/y-dna/'
+  }
+
   _handleFormData(e) {
     super._handleFormData(e)
     this.checkFormValidity()
@@ -55,7 +60,7 @@ export class GrampsjsFormNewYDna extends GrampsjsEditYDnaMixin(
         </div>
       </div>
 
-      ${this.renderEditor()}
+      ${this.renderEditor()} ${this.renderPrivate()}
     `
   }
 

@@ -66,6 +66,8 @@ export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
       name: {type: String},
       // Pre-fetched person data from parent; when set, skips the internal fetch.
       personData: {type: Object},
+      // Events of the person's families, with profile, listed with their own.
+      familyEvents: {type: Array},
     }
   }
 
@@ -74,6 +76,7 @@ export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
     this.handle = ''
     this.name = ''
     this.personData = null
+    this.familyEvents = []
   }
 
   getUrl() {
@@ -98,6 +101,7 @@ export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
     const {birthSymbol, deathSymbol} = getSymbols(this.appState.settings, s =>
       this._(s)
     )
+    const events = this._events(person)
     return html`
       <h2>${fullName || this.name || this._('Person')}</h2>
       <div class="dates">
@@ -124,13 +128,13 @@ export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
             ></grampsjs-gallery>
           `
         : ''}
-      ${person.extended?.events?.length
+      ${events.data.length
         ? html`
             <h3>${this._('Events')}</h3>
             <grampsjs-events
               .appState="${this.appState}"
-              .data="${person.extended.events}"
-              .profile="${person.profile?.events || []}"
+              .data="${events.data}"
+              .profile="${events.profile}"
               .eventRef="${person.event_ref_list || []}"
               sorted
               hideAge
@@ -144,6 +148,21 @@ export class GrampsjsPersonBox extends GrampsjsConnectedComponent {
         >
       </div>
     `
+  }
+
+  // The person's own events followed by the family events, with index-aligned
+  // profiles; family events are labelled as on the person page.
+  _events(person) {
+    const own = person.extended?.events || []
+    const ownProfiles = person.profile?.events || []
+    const family = this.familyEvents || []
+    return {
+      data: [...own, ...family],
+      profile: [
+        ...own.map((_, i) => ownProfiles[i]),
+        ...family.map(event => ({...event.profile, context: this._('Family')})),
+      ],
+    }
   }
 
   renderLoading() {

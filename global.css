@@ -102,11 +102,6 @@ body {
     var(--md-sys-color-primary) 32%,
     transparent
   );
-  --grampsjs-connection-chart-border-color: color-mix(
-    in srgb,
-    var(--md-sys-color-primary) 40%,
-    transparent
-  );
   --grampsjs-connection-chart-person-box: #e6e6e6;
   --grampsjs-chart-person-box: rgb(230, 230, 230);
   --grampsjs-chart-link: rgb(153, 153, 153);

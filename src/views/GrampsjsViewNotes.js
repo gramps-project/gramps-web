@@ -2,7 +2,11 @@
 Notes list view
 */
 
-import {GrampsjsViewObjectsBase, tagsColumn} from './GrampsjsViewObjectsBase.js'
+import {
+  GrampsjsViewObjectsBase,
+  privacyColumn,
+  tagsColumn,
+} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
 import {
   privacyFilter,
@@ -20,13 +24,14 @@ export class GrampsjsViewNotes extends GrampsjsViewObjectsBase {
       {name: 'Type', key: 'type', sortKey: 'type'},
       {name: 'Text', key: 'text', sortKey: 'text'},
       tagsColumn,
+      privacyColumn,
       {name: 'Last changed', key: 'change', sortKey: 'change'},
     ]
   }
 
   // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
-    return '/api/notes/?keys=gramps_id,type,text,change,handle,extended&extend=tag_list'
+    return '/api/notes/?keys=gramps_id,type,text,change,handle,private,extended&extend=tag_list'
   }
 
   // eslint-disable-next-line class-methods-use-this

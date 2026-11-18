@@ -100,9 +100,10 @@ export async function chartSvgDocument(
   return `<?xml version="1.0" encoding="UTF-8"?>\n${markup}\n`
 }
 
-// Saves `content` as an SVG file named `filename` in the browser's downloads
-export function downloadSvg(content, filename) {
-  const url = URL.createObjectURL(new Blob([content], {type: 'image/svg+xml'}))
+// Saves `content` as a file of MIME `type` named `filename` in the browser's
+// downloads
+export function downloadFile(content, filename, type) {
+  const url = URL.createObjectURL(new Blob([content], {type}))
   const anchor = document.createElement('a')
   anchor.href = url
   anchor.download = filename
@@ -110,4 +111,9 @@ export function downloadSvg(content, filename) {
   anchor.click()
   anchor.remove()
   URL.revokeObjectURL(url)
+}
+
+// Saves `content` as an SVG file named `filename` in the browser's downloads
+export function downloadSvg(content, filename) {
+  downloadFile(content, filename, 'image/svg+xml')
 }

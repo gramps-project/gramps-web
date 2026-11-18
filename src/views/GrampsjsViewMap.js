@@ -23,6 +23,7 @@ import '../components/GrampsjsMapVectorLayer.js'
 import {
   apiVersionAtLeast,
   getGregorianYears,
+  personAndFamilyEventHandles,
   personProfileDisplayName,
   prefixSearchQuery,
 } from '../util.js'
@@ -121,8 +122,9 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     this._searchFilter = DEFAULT_SEARCH_FILTER
     // What the details panel shows: null or one of
     // {type: 'place', handle, name}
-    // {type: 'person', person, data, placeHandles}, where data and
-    //   placeHandles are filled in once the person has loaded
+    // {type: 'person', person, data, familyEvents, events, placeHandles},
+    //   where all but person are filled in once the person and their family
+    //   events have loaded; events holds both own and family events
     // {type: 'wikidata', qid, label, lat, long}, where lat and long are null
     //   for a building that is not loaded
     this._selection = null
@@ -321,7 +323,7 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
         >${this._renderLayers()} ${this._renderVectorLayers()}
         ${this._renderWikidataLayer()}
         <grampsjs-map-person-lines-layer
-          .events="${personData?.extended?.events ?? EMPTY_ARRAY}"
+          .events="${this._personSelection?.events ?? EMPTY_ARRAY}"
           .places="${personData ? this._dataPlaces : EMPTY_ARRAY}"
         ></grampsjs-map-person-lines-layer>
         <grampsjs-map-places-layer
@@ -390,12 +392,13 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
     `
   }
 
-  _renderPersonBox({person, data}) {
+  _renderPersonBox({person, data, familyEvents}) {
     return html`
       <grampsjs-person-box
         handle="${data ? person.handle : ''}"
         name="${personProfileDisplayName(person.profile)}"
         .personData="${data}"
+        .familyEvents="${familyEvents ?? EMPTY_ARRAY}"
         .appState="${this.appState}"
       ></grampsjs-person-box>
     `
@@ -547,11 +550,38 @@ export class GrampsjsViewMap extends GrampsjsStaleDataMixin(GrampsjsView) {
       return
     }
     const extPerson = data.data
-    const placeHandles = (extPerson.extended?.events || [])
-      .map(event => event.place)
-      .filter(Boolean)
-    this._select({...selection, data: extPerson, placeHandles})
+    const familyEvents = await this._fetchFamilyEvents(extPerson)
+    if (this._selection !== selection) return
+    const events = [
+      ...(extPerson.extended?.events || []).filter(Boolean),
+      ...familyEvents,
+    ]
+    const placeHandles = events.map(event => event.place).filter(Boolean)
+    this._select({
+      ...selection,
+      data: extPerson,
+      familyEvents,
+      events,
+      placeHandles,
+    })
     this._fitPersonPlaces(placeHandles)
+  }
+
+  // The events of the families the person is a parent in that are not also
+  // the person's own events, each with its profile. Empty if they fail to load.
+  async _fetchFamilyEvents(extPerson) {
+    const ownHandles = new Set(
+      (extPerson.event_ref_list || []).map(ref => ref.ref)
+    )
+    const handles = personAndFamilyEventHandles(extPerson).filter(
+      handle => !ownHandles.has(handle)
+    )
+    if (handles.length === 0) return []
+    const lang = this.appState.i18n.lang || 'en'
+    const result = await this.appState.apiGet(
+      `/api/events/?handles=${handles.join(',')}&profile=self&locale=${lang}`
+    )
+    return 'data' in result ? result.data : []
   }
 
   _fitPersonPlaces(handles) {
