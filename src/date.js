@@ -2,7 +2,29 @@
 Date utility functions
 */
 
-export const DATE_FORMAT_API_MIN_VERSION = [3, 25, 4]
+export const DATE_FORMAT_API_MIN_VERSION = [3, 26, 0]
+
+export const DATE_FORMAT_OPTIONS = [
+  {format: 0, label: 'YYYY-MM-DD (ISO)'},
+  {format: 1, label: 'Numerical'},
+  {format: 2, label: 'Month Day, Year'},
+  {format: 3, label: 'Mon Day, Year'},
+  {format: 4, label: 'Day Month Year'},
+  {format: 5, label: 'Day Mon Year'},
+  {format: 6, label: 'Numerisch mit führenden Nullen', language: 'de'},
+]
+
+export function supportsDateFormat(format, lang = '') {
+  if (!Number.isInteger(format) || format < 0) {
+    return false
+  }
+  const option = DATE_FORMAT_OPTIONS.find(item => item.format === format)
+  return Boolean(
+    option &&
+      (!option.language ||
+        new RegExp(`^${option.language}(?:[_-]|$)`).test(lang))
+  )
+}
 
 // eslint-disable-next-line class-methods-use-this
 export function toDate(dateVal) {
@@ -15,7 +37,7 @@ export function toDate(dateVal) {
 
 export function getDateFormat(settings = {}) {
   if ('dateFormat' in settings) {
-    return Number.isInteger(settings.dateFormat) && settings.dateFormat >= 0
+    return supportsDateFormat(settings.dateFormat, settings.lang)
       ? settings.dateFormat
       : null
   }

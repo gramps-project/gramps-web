@@ -209,7 +209,7 @@ describe('appState date format requests', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     const appState = getInitialAppState()
-    appState.setApiVersion('3.25.4')
+    appState.setApiVersion('3.26.0')
     await appState.apiGet('/api/people/?locale=de&profile=all')
 
     expect(fetchMock.mock.calls[0][0]).to.contain('date_format=6')
@@ -228,6 +228,26 @@ describe('appState date format requests', () => {
     const appState = getInitialAppState()
     appState.setApiVersion('3.25.3')
     await appState.apiGet('/api/people/?locale=de&profile=all')
+
+    expect(fetchMock.mock.calls[0][0]).not.to.contain('date_format=')
+  })
+
+  it('does not send an unsupported German-only format for another language', async () => {
+    localStorage.setItem(
+      'grampsjs_settings',
+      JSON.stringify({lang: 'en', dateFormat: 6})
+    )
+    const fetchMock = vi.fn().mockResolvedValue({
+      status: 200,
+      ok: true,
+      json: () => Promise.resolve({}),
+      headers: {get: () => null},
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const appState = getInitialAppState()
+    appState.setApiVersion('3.26.0')
+    await appState.apiGet('/api/people/?profile=all')
 
     expect(fetchMock.mock.calls[0][0]).not.to.contain('date_format=')
   })

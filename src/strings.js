@@ -1150,4 +1150,10 @@ export const grampsStrings = [
   contextKey('calendar', 'Persian'),
   contextKey('calendar', 'Islamic'),
   contextKey('calendar', 'Swedish'),
+  'YYYY-MM-DD (ISO)',
+  contextKey('date format', 'Numerical'),
+  'Month Day, Year',
+  'Mon Day, Year',
+  'Day Month Year',
+  'Day Mon Year',
 ]

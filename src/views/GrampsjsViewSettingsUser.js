@@ -30,7 +30,12 @@ import {
   TREE_CONFIG_SECONDARY_COLOR,
 } from '../api.js'
 import {apiVersionAtLeast, fireEvent} from '../util.js'
-import {DATE_FORMAT_API_MIN_VERSION, getDateFormat} from '../date.js'
+import {
+  DATE_FORMAT_API_MIN_VERSION,
+  DATE_FORMAT_OPTIONS,
+  getDateFormat,
+  supportsDateFormat,
+} from '../date.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
 import {DEFAULT_TREE_VIEW, TREE_VIEWS} from '../treeDefaults.js'
 import {
@@ -225,13 +230,17 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     if (key) {
       this.appState.updateSettings({
         lang: key,
-        dateFormat: getDateFormat({lang: key}),
+        dateFormat: getDateFormat({...this.appState.settings, lang: key}),
       })
+      fireEvent(window, 'date-format:changed')
     }
   }
 
   renderDateFormatSelect() {
     const dateFormat = getDateFormat(this.appState.settings)
+    const options = DATE_FORMAT_OPTIONS.filter(option =>
+      supportsDateFormat(option.format, this.appState.settings.lang)
+    )
     return html`
       <md-filled-select
         id="select-date-format"
@@ -241,20 +250,18 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         <md-select-option value="default" ?selected="${dateFormat === null}"
           >${this._('Use the server default')}</md-select-option
         >
-        <md-select-option value="0" ?selected="${dateFormat === 0}"
-          >${this._('ISO (YYYY-MM-DD)')}</md-select-option
-        >
-        ${Array.from({length: 6}, (_, i) => i + 1).map(
-          format => html`
+        ${options.map(
+          option => html`
             <md-select-option
-              value="${format}"
-              ?selected="${dateFormat === format}"
-              >${this._('Locale format %s', format)}</md-select-option
+              value="${option.format}"
+              ?selected="${dateFormat === option.format}"
+              >${option.format === 1
+                ? this._p('date format', option.label)
+                : this._(option.label)}</md-select-option
             >
           `
         )}
       </md-filled-select>
-      <p>${this._('Higher format numbers are locale-specific.')}</p>
     `
   }
 

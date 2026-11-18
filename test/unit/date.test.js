@@ -1,5 +1,10 @@
 import {describe, it, expect} from 'vitest'
-import {getDateFormat, toDate, withDateFormat} from '../../src/date.js'
+import {
+  getDateFormat,
+  supportsDateFormat,
+  toDate,
+  withDateFormat,
+} from '../../src/date.js'
 
 describe('toDate', () => {
   it('formats a normal date', () => {
@@ -32,6 +37,20 @@ describe('getDateFormat', () => {
   it('respects a saved format or server-default choice', () => {
     expect(getDateFormat({lang: 'de', dateFormat: 0})).to.equal(0)
     expect(getDateFormat({lang: 'de', dateFormat: null})).to.equal(null)
+  })
+
+  it('ignores a saved locale-specific format for unsupported languages', () => {
+    expect(getDateFormat({lang: 'en', dateFormat: 6})).to.equal(null)
+    expect(getDateFormat({lang: 'de_AT', dateFormat: 6})).to.equal(6)
+  })
+})
+
+describe('supportsDateFormat', () => {
+  it('only allows the extra zero-padded numeric format for German locales', () => {
+    expect(supportsDateFormat(6, 'de')).to.be.true
+    expect(supportsDateFormat(6, 'de_AT')).to.be.true
+    expect(supportsDateFormat(6, 'en')).to.be.false
+    expect(supportsDateFormat(7, 'de')).to.be.false
   })
 })
 
