@@ -526,7 +526,7 @@
     "Uploading file: %s": "Datei wird hochgeladen: %s",
     "Your tree already contains people. Importing a file again creates duplicates.": "Dein Stammbaum enthält bereits Personen. Wenn du eine Datei erneut importierst, entstehen Duplikate.",
     "Estimated relationship": "Vermutete Beziehung",
-    "The shared DNA is unlikely for the relationship in the tree.": "Die gemeinsame DNA lässt nicht auf eine Verwandtschaft im Stammbaum schließen.",
+    "The shared DNA is unlikely for the relationship in the tree.": "Die gemeinsame DNA ist für die Verwandtschaft laut Stammbaum unwahrscheinlich.",
     "Relative of degree %s": "Verwandtschaftsgrad %s",
     "Parent or child": "Elternteil oder Kind",
     "Full sibling": "Vollgeschwister",
