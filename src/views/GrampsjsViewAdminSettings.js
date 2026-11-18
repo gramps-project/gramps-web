@@ -22,6 +22,7 @@ import {
   TREE_CONFIG_SECONDARY_COLOR,
   TREE_CONFIG_HOME_PAGE_NOTE,
   TREE_CONFIG_HOME_PAGE_IMAGE,
+  TREE_CONFIG_VERIFY_OPTIONS,
 } from '../api.js'
 import {DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
 import {
@@ -46,26 +47,10 @@ import '@awesome.me/webawesome/dist/components/color-picker/color-picker.js'
 import '@material/web/button/outlined-button.js'
 import '@material/web/textfield/filled-text-field.js'
 import '@material/web/switch/switch.js'
-
-const VERIFY_OPTIONS_DEFAULTS = {
-  oldage: 90,
-  hwdif: 30,
-  cspace: 8,
-  cbspan: 25,
-  yngmar: 17,
-  oldmar: 50,
-  oldmom: 48,
-  yngmom: 17,
-  yngdad: 18,
-  olddad: 65,
-  wedder: 3,
-  mxchildmom: 12,
-  mxchilddad: 15,
-  lngwdw: 30,
-  oldunm: 99,
-  estimate_age: false,
-  invdate: true,
-}
+import {
+  verifyOptionsFromConfig,
+  verifyOptionsToConfig,
+} from '../verifyOptions.js'
 
 export class GrampsjsViewAdminSettings extends GrampsjsView {
   static get styles() {
@@ -226,7 +211,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this._repairResults = {}
     this._verifyResults = null
     this._verifyLoading = false
-    this._verifyOptions = {...VERIFY_OPTIONS_DEFAULTS}
+    this._verifyOptions = verifyOptionsFromConfig(undefined)
     this._buttonUpdateSearchDisabled = false
     this._treeName = ''
     this._primaryColor = DEFAULT_PRIMARY
@@ -827,6 +812,18 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     }
   }
 
+  // The options are kept in the tree configuration, so they persist between
+  // runs.
+  async _setVerifyOption(key, value) {
+    this._verifyOptions = {...this._verifyOptions, [key]: value}
+    const data = await this.appState.updateTreeConfig({
+      [TREE_CONFIG_VERIFY_OPTIONS]: verifyOptionsToConfig(this._verifyOptions),
+    })
+    if (data && 'error' in data) {
+      fireEvent(this, 'grampsjs:error', {message: data.error})
+    }
+  }
+
   _handleVerifyComplete(e) {
     const info = e.detail?.status?.info
     if (info !== undefined) {
@@ -884,8 +881,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
                 .value="${String(this._verifyOptions[key])}"
                 @change="${e => {
                   const v = parseInt(e.target.value, 10)
-                  if (!Number.isNaN(v))
-                    this._verifyOptions = {...this._verifyOptions, [key]: v}
+                  if (!Number.isNaN(v)) this._setVerifyOption(key, v)
                 }}"
               ></md-filled-text-field>
             </div>
@@ -898,12 +894,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             <label class="verify-option-bool">
               <md-switch
                 ?selected="${this._verifyOptions[key]}"
-                @change="${e => {
-                  this._verifyOptions = {
-                    ...this._verifyOptions,
-                    [key]: e.target.selected,
-                  }
-                }}"
+                @change="${e => this._setVerifyOption(key, e.target.selected)}"
               ></md-switch>
               ${label}
             </label>
@@ -1218,6 +1209,14 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           this.appState.treeConfig?.[TREE_CONFIG_HOME_PAGE_IMAGE]
       ) {
         this._fetchHomePageGrampsIds()
+      }
+      const verifyOptions =
+        this.appState.treeConfig?.[TREE_CONFIG_VERIFY_OPTIONS]
+      if (
+        JSON.stringify(prev?.treeConfig?.[TREE_CONFIG_VERIFY_OPTIONS]) !==
+        JSON.stringify(verifyOptions)
+      ) {
+        this._verifyOptions = verifyOptionsFromConfig(verifyOptions)
       }
     }
   }
