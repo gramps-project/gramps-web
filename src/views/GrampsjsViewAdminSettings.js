@@ -1,4 +1,5 @@
 import {css, html} from 'lit'
+import {keyed} from 'lit/directives/keyed.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import {buttonColorStyles} from '../SharedStyles.js'
@@ -189,6 +190,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
       _repairResults: {type: Object},
       _verifyResults: {type: Array},
       _verifyLoading: {type: Boolean},
+      _verifyOptionsResets: {type: Number},
       _buttonUpdateSearchDisabled: {type: Boolean},
       _treeName: {type: String},
       _primaryColor: {type: String},
@@ -209,6 +211,7 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
     this._repairResults = {}
     this._verifyResults = null
     this._verifyLoading = false
+    this._verifyOptionsResets = 0
     this._buttonUpdateSearchDisabled = false
     this._treeName = ''
     this._primaryColor = DEFAULT_PRIMARY
@@ -539,13 +542,16 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           ></grampsjs-help-button>
         </h3>
         <p>${this._('Verifies the data against user-defined tests')}</p>
-        ${this._renderVerifyOptions()}
+        ${keyed(this._verifyOptionsResets, this._renderVerifyOptions())}
         <div class="button-row">
           <md-outlined-button
             ?disabled="${this._verifyLoading}"
             @click="${this._runVerify}"
           >
             ${this._('Verify the Data')}
+          </md-outlined-button>
+          <md-outlined-button @click="${this._resetVerifyOptions}">
+            ${this._('Reset')}
           </md-outlined-button>
           <grampsjs-task-progress-indicator
             id="progress-verify"
@@ -821,6 +827,13 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         [key]: value,
       }),
     })
+  }
+
+  // Restores the defaults. The fields are rendered anew, so that a field
+  // holding an entry that was never applied shows its default again.
+  _resetVerifyOptions() {
+    this.appState.updateSettings({verifyOptions: {}})
+    this._verifyOptionsResets += 1
   }
 
   _handleVerifyComplete(e) {
