@@ -10,12 +10,22 @@ import '@material/web/dialog/dialog.js'
 import '../components/GrampsjsTimedelta.js'
 import '../components/GrampsjsSearchResultList.js'
 import '../components/GrampsjsDiffJson.js'
+import '../components/GrampsjsRecordChanges.js'
 import '../components/GrampsjsObjectActions.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 
-import {mdiClose, mdiUndo, mdiAlertOutline, mdiOpenInNew} from '@mdi/js'
+import {
+  mdiClose,
+  mdiUndo,
+  mdiAlertOutline,
+  mdiOpenInNew,
+  mdiChevronDown,
+  mdiChevronUp,
+} from '@mdi/js'
 import {GrampsjsView} from './GrampsjsView.js'
+
+import {recordChange, revisionItem} from '../chatProposal.js'
 
 import {renderIconSvg} from '../icons.js'
 import {fireEvent, objectTypeSingular, taskErrorMessage} from '../util.js'
@@ -63,6 +73,10 @@ export class GrampsjsViewRevision extends GrampsjsView {
           align-items: center;
           justify-content: space-between;
           margin-bottom: 15px;
+        }
+
+        #json-toggle {
+          margin: 24px 0 8px 0;
         }
 
         @media (min-width: 1200px) {
@@ -142,6 +156,7 @@ export class GrampsjsViewRevision extends GrampsjsView {
       transactionId: {type: Number},
       _data: {type: Object},
       _detailId: {type: Number},
+      _jsonVisible: {type: Boolean},
       _undoDialogOpen: {type: Boolean},
       _forceRequired: {type: Boolean},
       _undoInProgress: {type: Boolean},
@@ -154,6 +169,9 @@ export class GrampsjsViewRevision extends GrampsjsView {
     this.transactionId = -1
     this._data = {}
     this._detailId = -1
+    this._jsonVisible = false
+    this._records = []
+    this._detailChanges = []
     this._undoDialogOpen = false
     this._forceRequired = false
     this._undoInProgress = false
@@ -172,6 +190,22 @@ export class GrampsjsViewRevision extends GrampsjsView {
       }
     }
     return ''
+  }
+
+  // The records the revision changes, which describe references to records
+  // no longer in the database, and the readable change of the record shown
+  willUpdate(changed) {
+    if (changed.has('_data')) {
+      this._records = (this._data.changes ?? [])
+        .filter(change => change.obj_class !== '7')
+        .map(change => change.new_data ?? change.old_data)
+    }
+    if (changed.has('_data') || changed.has('_detailId')) {
+      const change = this._data.changes?.[this._detailId]
+      this._detailChanges = change
+        ? [recordChange(revisionItem(change), {deletedFields: true})]
+        : []
+    }
   }
 
   _getChanges(transType) {
@@ -278,12 +312,39 @@ export class GrampsjsViewRevision extends GrampsjsView {
           ${this._('Close')}</md-text-button
         >
       </div>
-      <grampsjs-diff-json
-        .left="${change.old_data}"
-        .right="${change.new_data}"
+      <grampsjs-record-changes
+        .changes="${this._detailChanges}"
+        .records="${this._records}"
+        applied
         .appState="${this.appState}"
-      ></grampsjs-diff-json>
+      ></grampsjs-record-changes>
+      <md-text-button
+        id="json-toggle"
+        trailing-icon
+        aria-expanded="${this._jsonVisible}"
+        @click="${this._toggleJson}"
+      >
+        <grampsjs-icon
+          slot="icon"
+          path="${this._jsonVisible ? mdiChevronUp : mdiChevronDown}"
+          color="currentColor"
+        ></grampsjs-icon>
+        JSON
+      </md-text-button>
+      ${this._jsonVisible
+        ? html`
+            <grampsjs-diff-json
+              .left="${change.old_data}"
+              .right="${change.new_data}"
+              .appState="${this.appState}"
+            ></grampsjs-diff-json>
+          `
+        : ''}
     `
+  }
+
+  _toggleJson() {
+    this._jsonVisible = !this._jsonVisible
   }
 
   _handleCloseDetail() {

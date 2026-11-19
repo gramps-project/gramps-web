@@ -6,6 +6,8 @@ import {
   markProposalsReported,
   previousProposalStatus,
   proposalChanges,
+  recordChange,
+  revisionItem,
 } from '../../src/chatProposal.js'
 
 const date = (dateval, extra = {}) => ({
@@ -264,6 +266,69 @@ describe('proposalChanges', () => {
   })
 })
 
+describe('recordChange', () => {
+  const deletion = {
+    type: 'delete',
+    _class: 'Event',
+    handle: 'E1',
+    old: event(),
+    new: null,
+  }
+
+  it('shows a deleted record as a whole', () => {
+    expect(recordChange(deletion).rows).toEqual([])
+  })
+
+  it('shows the fields of a deleted record if asked for', () => {
+    expect(recordChange(deletion, {deletedFields: true})).toEqual({
+      type: 'delete',
+      objClass: 'event',
+      handle: 'E1',
+      grampsId: 'E0001',
+      data: deletion.old,
+      rows: [
+        {path: ['Type'], before: label('Birth'), after: null},
+        {
+          path: ['Date'],
+          before: {kind: 'date', date: deletion.old.date},
+          after: null,
+        },
+      ],
+    })
+  })
+})
+
+describe('revisionItem', () => {
+  it('turns a change of a revision into a transaction item', () => {
+    const old = event()
+    const updated = event({description: 'New'})
+    expect(
+      revisionItem({
+        trans_type: 1,
+        obj_class: 'Event',
+        obj_handle: 'E1',
+        old_data: old,
+        new_data: updated,
+      })
+    ).toEqual({
+      type: 'update',
+      _class: 'Event',
+      handle: 'E1',
+      old,
+      new: updated,
+    })
+    expect(
+      revisionItem({trans_type: 0, obj_class: 'Event', obj_handle: 'E1'})
+    ).toEqual({
+      type: 'add',
+      _class: 'Event',
+      handle: 'E1',
+      old: null,
+      new: null,
+    })
+  })
+})
+
 describe('handlesToFetch', () => {
   it('fetches changed and referenced records, but not added ones', () => {
     const changes = proposalChanges([
@@ -287,6 +352,11 @@ describe('handlesToFetch', () => {
       place: ['PL1'],
       person: ['P1'],
       event: ['E3'],
+    })
+    expect(handlesToFetch(changes, {applied: true})).toEqual({
+      event: ['E2', 'E3'],
+      place: ['PL1'],
+      person: ['P1'],
     })
   })
 })

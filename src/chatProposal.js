@@ -1,10 +1,11 @@
 /*
-Readable changes of a transaction proposed by the AI assistant.
+Readable changes of a transaction, as proposed by the AI assistant or recorded
+in a revision.
 
-A proposal's transaction lists every record it adds, changes or deletes, with
-its state before and after, side effects included. Each record becomes a list
-of rows, one per changed field. A row has a path of labels and the values
-before and after, as descriptors the proposal component renders:
+A transaction lists every record it adds, changes or deletes, with its state
+before and after, side effects included. Each record becomes a list of rows,
+one per changed field. A row has a path of labels and the values before and
+after, as descriptors the record changes component renders:
 
 - {kind: 'text', text}: data as entered, shown as is
 - {kind: 'label', text, context}: an English Gramps string, shown translated,
@@ -450,25 +451,45 @@ export function changeRows(before, after) {
 
 const CHANGE_ORDER = {add: 0, update: 1, delete: 2}
 
+// One record a transaction changes, with its rows. Without `deletedFields`, a
+// deleted record has no rows: it goes as a whole.
+export function recordChange(item, {deletedFields = false} = {}) {
+  const objClass = item._class.toLowerCase()
+  const data = item.type === 'delete' ? item.old : item.new
+  return {
+    type: item.type,
+    objClass,
+    handle: item.handle,
+    grampsId: data?.gramps_id ?? '',
+    data,
+    rows:
+      item.type === 'delete' && !deletedFields
+        ? []
+        : changeRows(item.old ?? null, item.new ?? null),
+  }
+}
+
 // The records a transaction changes, additions first and deletions last,
-// each with its rows. A deleted record has no rows: it goes as a whole.
-// Updates that change nothing but bookkeeping are left out.
+// each with its rows. Updates that change nothing but bookkeeping are left
+// out.
 export function proposalChanges(transaction) {
   return (transaction ?? [])
-    .map(item => {
-      const objClass = item._class.toLowerCase()
-      const data = item.type === 'delete' ? item.old : item.new
-      return {
-        type: item.type,
-        objClass,
-        handle: item.handle,
-        grampsId: data?.gramps_id ?? '',
-        data,
-        rows: item.type === 'delete' ? [] : changeRows(item.old, item.new),
-      }
-    })
+    .map(item => recordChange(item))
     .filter(change => change.type !== 'update' || change.rows.length > 0)
     .sort((a, b) => CHANGE_ORDER[a.type] - CHANGE_ORDER[b.type])
+}
+
+const REVISION_CHANGE_TYPES = {0: 'add', 1: 'update', 2: 'delete'}
+
+// A change of a revision as a transaction item
+export function revisionItem(change) {
+  return {
+    type: REVISION_CHANGE_TYPES[change.trans_type],
+    _class: change.obj_class,
+    handle: change.obj_handle,
+    old: change.old_data ?? null,
+    new: change.new_data ?? null,
+  }
 }
 
 // What to tell the assistant about its proposals with the next prompt:
@@ -489,11 +510,12 @@ export function markProposalsReported(messages) {
   })
 }
 
-// Handles of the records the changes refer to or change, by object class,
-// that are not added by the changes themselves and need to be fetched
-export function handlesToFetch(changes) {
+// Handles of the records the changes refer to or change, by object class.
+// Records the changes add are left out unless the changes are applied: only
+// then are they in the database.
+export function handlesToFetch(changes, {applied = false} = {}) {
   const added = new Set(
-    changes.filter(c => c.type === 'add').map(c => c.handle)
+    applied ? [] : changes.filter(c => c.type === 'add').map(c => c.handle)
   )
   const handles = {}
   const add = (objClass, handle) => {
@@ -502,7 +524,7 @@ export function handlesToFetch(changes) {
     handles[objClass].add(handle)
   }
   for (const change of changes) {
-    if (change.type !== 'add') add(change.objClass, change.handle)
+    add(change.objClass, change.handle)
     for (const row of change.rows) {
       for (const value of [...row.path, row.before, row.after]) {
         if (value?.kind === 'ref') add(value.objClass, value.handle)
