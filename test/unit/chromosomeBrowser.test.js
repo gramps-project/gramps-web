@@ -1,13 +1,17 @@
 import {describe, it, expect} from 'vitest'
 import {select} from 'd3-selection'
-import {schemeSet1} from 'd3-scale-chromatic'
 import {
   ChromosomeBrowser,
   chromosomeBrowserSvgDocument,
   chromosomeKey,
   matchColor,
+  matchStroke,
+  segmentLanes,
 } from '../../src/charts/ChromosomeBrowser.js'
-import {GrampsjsChromosomeBrowser} from '../../src/components/GrampsjsChromosomeBrowser.js'
+import {
+  GrampsjsChromosomeBrowser,
+  matchGroups,
+} from '../../src/components/GrampsjsChromosomeBrowser.js'
 const segment = (chromosome, start, stop, side = 'P') => ({
   chromosome,
   start,
@@ -35,10 +39,56 @@ describe('chromosomeKey', () => {
 })
 
 describe('matchColor', () => {
-  it('cycles through the palette', () => {
-    expect(matchColor(0)).toBe(schemeSet1[0])
-    expect(matchColor(schemeSet1.length)).toBe(schemeSet1[0])
-    expect(matchColor(schemeSet1.length + 2)).toBe(schemeSet1[2])
+  const slots = [...Array(16).keys()]
+
+  it('gives 16 matches distinct colours, then repeats', () => {
+    const styles = slots.map(i => `${matchColor(i)} ${matchStroke(i)}`)
+    expect(new Set(styles).size).toBe(16)
+    expect(matchColor(16)).toBe(matchColor(0))
+    expect(matchStroke(17)).toBe(matchStroke(1))
+  })
+
+  it('outlines the tints of the second eight in the hue of the first', () => {
+    expect(slots.slice(0, 8).map(matchStroke)).toEqual(Array(8).fill(null))
+    expect(slots.slice(8).map(matchStroke)).toEqual(
+      slots.slice(0, 8).map(matchColor)
+    )
+  })
+})
+
+describe('segmentLanes', () => {
+  const seg = (start, stop, side = 'P') => ({start, stop, side})
+
+  it('puts overlapping segments of a side in separate lanes', () => {
+    const {lanes, count} = segmentLanes([
+      seg(10, 50),
+      seg(40, 80),
+      seg(60, 90),
+      seg(20, 30, 'M'),
+    ])
+    expect(lanes).toEqual([0, 1, 0, 0])
+    expect(count).toEqual({P: 2, U: 0, M: 1})
+  })
+
+  it('lets touching segments share a lane and handles reversed ranges', () => {
+    const {lanes} = segmentLanes([seg(50, 10), seg(50, 90)])
+    expect(lanes).toEqual([0, 0])
+  })
+
+  it('gives unphased segments a track of their own', () => {
+    const {lanes, count} = segmentLanes([
+      seg(10, 50, 'M'),
+      seg(20, 30, 'U'),
+      seg(5, 15),
+      seg(25, 40, 'U'),
+      seg(1, 60, null),
+    ])
+    expect(lanes).toEqual([0, 1, 0, 2, 0])
+    expect(count).toEqual({P: 1, U: 3, M: 1})
+  })
+
+  it('has one lane per side and no unphased track without segments', () => {
+    expect(segmentLanes([])).toEqual({lanes: [], count: {P: 1, U: 0, M: 1}})
   })
 })
 
@@ -58,13 +108,75 @@ describe('ChromosomeBrowser', () => {
   it('binds each drawn segment to its match index and chromosome', () => {
     const svg = ChromosomeBrowser(data, {width: 500})
     const rects = select(svg).selectAll('rect.segment')
-    expect(rects.size()).toBe(3)
     const bound = rects.data().map(d => [d.index, d.chromosome, d.handle])
     expect(bound).toEqual([
       [0, '1', 'a'],
       [1, '2', 'b'],
       [1, 'X', 'b'],
     ])
+  })
+
+  it('draws paternal, unphased and maternal segments from top to bottom', () => {
+    const svg = ChromosomeBrowser(
+      [
+        {
+          handle: 'a',
+          segments: [
+            segment('1', 1, 2000000, 'M'),
+            segment('1', 1, 2000000, 'U'),
+            segment('1', 1, 2000000, 'P'),
+          ],
+        },
+      ],
+      {width: 500}
+    )
+    const ys = select(svg)
+      .selectAll('rect.segment')
+      .nodes()
+      .map(node => Number(node.getAttribute('y')))
+    expect(ys[2]).toBeLessThan(ys[1])
+    expect(ys[1]).toBeLessThan(ys[0])
+    const tracks = select(svg).selectAll('path.chromosome').data()
+    // three tracks on chromosome 1, two on each of the other 22
+    expect(tracks.length).toBe(3 + 22 * 2)
+    // only the outer corners of a chromosome are rounded
+    expect(
+      tracks.slice(0, 3).map(d => [d.track, d.topRadius, d.bottomRadius])
+    ).toEqual([
+      ['P', 4, 0],
+      ['U', 0, 0],
+      ['M', 0, 4],
+    ])
+  })
+
+  it('stacks overlapping segments and grows their chromosome', () => {
+    const rowHeight = svg =>
+      select(svg)
+        .selectAll('path.chromosome')
+        .data()
+        .slice(0, 2)
+        .reduce((sum, d) => sum + d.height, 0)
+    const single = ChromosomeBrowser([data[0]], {width: 500})
+    const overlapping = ChromosomeBrowser(
+      [data[0], {handle: 'c', segments: [segment('1', 1000, 3000000)]}],
+      {width: 500}
+    )
+    const ys = select(overlapping)
+      .selectAll('rect.segment')
+      .nodes()
+      .map(node => Number(node.getAttribute('y')))
+    expect(ys[0]).not.toBe(ys[1])
+    const heights = select(overlapping)
+      .selectAll('rect.segment')
+      .nodes()
+      .map(node => Number(node.getAttribute('height')))
+    expect(heights[0]).toBeLessThan(
+      Number(select(single).select('rect.segment').attr('height'))
+    )
+    expect(rowHeight(overlapping)).toBeGreaterThan(rowHeight(single))
+    expect(Number(overlapping.getAttribute('height'))).toBeGreaterThan(
+      Number(single.getAttribute('height'))
+    )
   })
 
   it('places every segment on a chromosome row', () => {
@@ -85,6 +197,57 @@ describe('ChromosomeBrowser', () => {
       .nodes()
       .map(node => node.getAttribute('fill'))
     expect(fills).toEqual([matchColor(0), matchColor(1), 'url(#pattern-1)'])
+  })
+
+  it('colors segments by group when the matches have one', () => {
+    const grouped = [
+      {...data[0], group: 1},
+      {...data[1], group: 0},
+    ]
+    const svg = ChromosomeBrowser(grouped, {width: 500})
+    const rects = select(svg).selectAll('rect.segment')
+    expect(rects.data().map(d => [d.index, d.group])).toEqual([
+      [0, 1],
+      [1, 0],
+      [1, 0],
+    ])
+    expect(rects.nodes().map(node => node.getAttribute('fill'))).toEqual([
+      matchColor(1),
+      matchColor(0),
+      'url(#pattern-0)',
+    ])
+  })
+})
+
+describe('matchGroups', () => {
+  const data = [
+    {handle: 'm0', ancestor_handles: [], distance: null},
+    {handle: 'm1', ancestor_handles: ['j', 'm'], distance: 6},
+    {handle: 'm2', ancestor_handles: ['p', 'a'], distance: 4},
+    {handle: 'm3', ancestor_handles: ['m', 'j', 'j'], distance: 7},
+    {handle: 'm4'},
+    {handle: 'm5', ancestor_handles: ['j'], distance: 6},
+  ]
+
+  it('makes each match its own group by default', () => {
+    const {groups, groupOf} = matchGroups(data, 'match')
+    expect(groups.map(g => g.members)).toEqual([[0], [1], [2], [3], [4], [5]])
+    expect(groupOf).toEqual([0, 1, 2, 3, 4, 5])
+  })
+
+  it('groups matches by their set of common ancestors, closest first', () => {
+    const {groups, groupOf} = matchGroups(data, 'ancestor')
+    expect(groups).toEqual([
+      {key: 'a p', members: [2]},
+      {key: 'j m', members: [1, 3]},
+      {key: 'j', members: [5]},
+      {key: '', members: [0, 4]},
+    ])
+    expect(groupOf).toEqual([3, 1, 0, 1, 3, 2])
+  })
+
+  it('handles no matches', () => {
+    expect(matchGroups([], 'ancestor')).toEqual({groups: [], groupOf: []})
   })
 })
 
@@ -155,6 +318,21 @@ describe('GrampsjsChromosomeBrowser', () => {
     element.remove()
   })
 
+  it('dims matches without segments on the chart in the legend', async () => {
+    const element = await createElement()
+    element.data = [
+      match,
+      {...match, handle: 'm2', segments: []},
+      {...match, handle: 'm3', segments: [segment('Y', 1, 2)]},
+    ]
+    await element.updateComplete
+    const empty = [...element.renderRoot.querySelectorAll('#legend li')].map(
+      li => li.classList.contains('empty')
+    )
+    expect(empty).toEqual([false, true, true])
+    element.remove()
+  })
+
   it('shows the total cM of each match in the legend', async () => {
     const element = await createElement()
     element.data = [
@@ -184,6 +362,116 @@ describe('GrampsjsChromosomeBrowser', () => {
         .classList.contains('hovered')
     ).toBe(true)
     element.remove()
+  })
+
+  describe('labelled by common ancestors', () => {
+    const people = ['Ann', 'Bob', 'Cy'].map((name, i) => ({
+      handle: `m${i + 1}`,
+      gramps_id: `I000${i + 2}`,
+      primary_name: {first_name: name, surname_list: []},
+    }))
+    const couple = [
+      {handle: 'j', name_given: 'John', name_surname: 'Doe'},
+      {handle: 'm', name_given: 'Mary', name_surname: 'Roe'},
+    ]
+    const data = [
+      {
+        handle: 'm1',
+        ancestor_handles: ['j', 'm'],
+        ancestor_profiles: couple,
+        distance: 4,
+        segments: [segment('1', 1, 2000000)],
+      },
+      {handle: 'm2', segments: [segment('2', 1, 2000000)]},
+      {
+        handle: 'm3',
+        ancestor_handles: ['m', 'j'],
+        ancestor_profiles: [couple[1], couple[0]],
+        distance: 5,
+        segments: [segment('3', 1, 2000000)],
+      },
+    ]
+
+    const createGrouped = async () => {
+      const element = await createElement()
+      element.person = {...person, extended: {people}}
+      element.data = data
+      element.labelBy = 'ancestor'
+      await element.updateComplete
+      return element
+    }
+
+    const legendText = element =>
+      [...element.renderRoot.querySelectorAll('#legend li')].map(li =>
+        li.textContent.replace(/\s+/g, ' ').trim()
+      )
+
+    it('lists each set of common ancestors with its matches', async () => {
+      const element = await createGrouped()
+      expect(legendText(element)).toEqual([
+        'John Doe, Mary RoeAnn, Cy',
+        'UnknownBob',
+      ])
+      element.remove()
+    })
+
+    it('colors and dims the matches of a group together', async () => {
+      const element = await createGrouped()
+      const rects = () => [
+        ...element.renderRoot.querySelectorAll('rect.segment'),
+      ]
+      expect(rects().map(rect => rect.getAttribute('fill'))).toEqual([
+        matchColor(0),
+        matchColor(1),
+        matchColor(0),
+      ])
+      element.renderRoot
+        .querySelector('#legend-item-0')
+        .dispatchEvent(new Event('mouseenter'))
+      await element.updateComplete
+      expect(rects().map(rect => rect.classList.contains('dimmed'))).toEqual([
+        false,
+        true,
+        false,
+      ])
+      element.remove()
+    })
+
+    it('shows only the selected group', async () => {
+      const element = await createGrouped()
+      element.renderRoot.querySelector('#legend-item-0').click()
+      await element.updateComplete
+      const handles = select(element.renderRoot.querySelector('svg'))
+        .selectAll('rect.segment')
+        .data()
+        .map(d => d.handle)
+      expect(handles).toEqual(['m1', 'm3'])
+      element.remove()
+    })
+
+    it('clears the selection when switching back to matches', async () => {
+      const element = await createGrouped()
+      element.selected = 1
+      await element.updateComplete
+      element.labelBy = 'match'
+      await element.updateComplete
+      expect(element.selected).toBe(-1)
+      expect(legendText(element)).toEqual(['Ann10 cM', 'Bob10 cM', 'Cy10 cM'])
+      element.remove()
+    })
+
+    it('exports the group legend', async () => {
+      const element = await createGrouped()
+      const svg = new DOMParser().parseFromString(
+        element.svgDocument(),
+        'image/svg+xml'
+      ).documentElement
+      const texts = [...svg.lastElementChild.querySelectorAll('text')].map(
+        text => text.textContent
+      )
+      expect(texts).toEqual(['John Doe, Mary RoeAnn, Cy', 'UnknownBob'])
+      element.remove()
+    })
   })
 
   it('opens the match when a segment is clicked', async () => {

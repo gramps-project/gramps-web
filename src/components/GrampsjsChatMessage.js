@@ -10,6 +10,7 @@ import {sharedStyles} from '../SharedStyles.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 import {renderIconSvg} from '../icons.js'
 import './GrampsjsChatToolCalls.js'
+import './GrampsjsChatProposal.js'
 
 marked.use({breaks: true})
 
@@ -85,6 +86,10 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
 
         grampsjs-chat-tool-calls {
           padding-left: 35px;
+        }
+
+        grampsjs-chat-proposal {
+          align-self: stretch;
         }
 
         .container.human {
@@ -181,6 +186,26 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
           font-weight: 600;
         }
 
+        .human-content {
+          flex-grow: 1;
+          min-width: 0;
+        }
+
+        .images {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-bottom: 8px;
+        }
+
+        .images img {
+          height: 120px;
+          max-width: 100%;
+          object-fit: contain;
+          border-radius: 8px;
+          display: block;
+        }
+
         .avatar {
           width: 35px;
           height: 35px;
@@ -200,9 +225,14 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
     return {
       type: {type: String},
       message: {type: String},
+      // thumbnails of the images attached to a question
+      images: {type: Array},
       metadata: {type: Object},
       status: {type: String},
       live: {type: Boolean},
+      proposal: {type: Object},
+      proposalStatus: {type: String},
+      proposalDisabled: {type: Boolean},
     }
   }
 
@@ -210,9 +240,13 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
     super()
     this.type = 'human'
     this.message = ''
+    this.images = []
     this.metadata = null
     this.status = ''
     this.live = false
+    this.proposal = null
+    this.proposalStatus = ''
+    this.proposalDisabled = false
   }
 
   render() {
@@ -248,13 +282,33 @@ class GrampsjsChatMessage extends GrampsjsAppStateMixin(LitElement) {
                   ${renderMarkdown(this.message)}
                 </div>
               </div>
+              ${this.proposal
+                ? html`<grampsjs-chat-proposal
+                    .proposal="${this.proposal}"
+                    status="${this.proposalStatus}"
+                    ?disabled="${this.proposalDisabled}"
+                    .appState="${this.appState}"
+                  ></grampsjs-chat-proposal>`
+                : ''}
             `
           : html`
               <slot name="no-wrap"></slot>
-              <div class="slot-wrap">${this.message}</div>
+              <div class="human-content">
+                ${this._renderImages()}
+                <div class="slot-wrap">${this.message}</div>
+              </div>
             `}
       </div>
     `
+  }
+
+  _renderImages() {
+    if (!this.images?.length) return ''
+    return html`<div class="images">
+      ${this.images.map(
+        src => html`<img src="${src}" alt="${this._('Image')}" />`
+      )}
+    </div>`
   }
 }
 

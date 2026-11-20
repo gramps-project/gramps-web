@@ -610,9 +610,12 @@ export class GrampsjsTable extends GrampsjsAppStateMixin(LitElement) {
     if (!this.serverSort && this.sortable && this.sort >= 0) {
       const col = this.sort
       const dir = this.descending ? -1 : 1
+      const sortValue = this.columns[col]?.sortValue ?? (value => value)
       indexed.sort((a, b) => {
-        if (a.item[col] > b.item[col]) return dir
-        if (a.item[col] < b.item[col]) return -dir
+        const valueA = sortValue(a.item[col])
+        const valueB = sortValue(b.item[col])
+        if (valueA > valueB) return dir
+        if (valueA < valueB) return -dir
         return 0
       })
     }

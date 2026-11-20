@@ -217,6 +217,9 @@ export class GrampsjsSearchBox extends GrampsjsAppStateMixin(LitElement) {
           id="search-input"
           type="search"
           autocomplete="off"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-haspopup="dialog"
           placeholder="${this._('Search')}"
           aria-label="${this._('Search')}"
           aria-expanded="${this._open ? 'true' : 'false'}"
@@ -236,6 +239,8 @@ export class GrampsjsSearchBox extends GrampsjsAppStateMixin(LitElement) {
       <div
         class="panel"
         id="results"
+        role="dialog"
+        aria-labelledby="search-input"
         @click="${this._handlePanelClick}"
         @keydown="${this._handlePanelKey}"
         @focusout="${this._handleFocusOut}"

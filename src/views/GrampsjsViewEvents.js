@@ -2,7 +2,11 @@
 Events list view
 */
 
-import {GrampsjsViewObjectsBase, tagsColumn} from './GrampsjsViewObjectsBase.js'
+import {
+  GrampsjsViewObjectsBase,
+  privacyColumn,
+  tagsColumn,
+} from './GrampsjsViewObjectsBase.js'
 import {
   prettyTimeDiffTimestamp,
   filterCounts,
@@ -31,6 +35,7 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
       {name: 'Participants', key: 'participants'},
       {name: 'Description', key: 'description', defaultVisible: false},
       tagsColumn,
+      privacyColumn,
       {name: 'Last changed', key: 'change', sortKey: 'change'},
     ]
     this._objectsName = 'events'
@@ -43,7 +48,7 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
   get _fetchUrl() {
     return `/api/events/?locale=${
       this.appState.i18n.lang || 'en'
-    }&profile=participants&keys=gramps_id,profile,description,change,handle,extended&extend=tag_list`
+    }&profile=participants&keys=gramps_id,profile,description,change,handle,private,extended&extend=tag_list`
   }
 
   // eslint-disable-next-line class-methods-use-this

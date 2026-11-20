@@ -3,18 +3,58 @@ import {getTaskResult, taskErrorMessage, translate} from './util.js'
 const TASK_LOCKED_MESSAGE =
   'Another task is already running on this tree. Try again once it has finished.'
 
+const SERVER_UNAVAILABLE_MESSAGE =
+  'The server is unavailable or did not respond in time. Try again later.'
+
+// Errors that proxies in front of the backend answer with. They send no
+// message of their own, which leaves only the status code to show.
+const PROXY_ERROR_MESSAGES = {
+  413: 'The file is too large for the server to accept.',
+  502: SERVER_UNAVAILABLE_MESSAGE,
+  503: SERVER_UNAVAILABLE_MESSAGE,
+  504: SERVER_UNAVAILABLE_MESSAGE,
+}
+
 /**
  * Returns the message to show for a failed POST that dispatches a background
  * task. A 409 of type `task_locked` means another task holds the tree's lock;
  * the active tasks are reloaded so the blocking one shows its progress.
+ * Proxy errors without a message from the backend get a readable one.
  */
 export function dispatchErrorMessage(appState, res) {
   const {status, response} = res.errorDetail ?? {}
-  if (status !== 409 || response?.error?.type !== 'task_locked') {
-    return res.error
+  const strings = appState.i18n?.strings ?? {}
+  if (status === 409 && response?.error?.type === 'task_locked') {
+    appState.loadActiveTasks?.()
+    return translate(strings, TASK_LOCKED_MESSAGE)
   }
-  appState.loadActiveTasks?.()
-  return translate(appState.i18n?.strings ?? {}, TASK_LOCKED_MESSAGE)
+  const backendMessage = response?.error?.message || response?.message
+  if (status in PROXY_ERROR_MESSAGES && !backendMessage) {
+    return translate(strings, PROXY_ERROR_MESSAGES[status])
+  }
+  return res.error
+}
+
+/**
+ * Shows the progress of an upload, a fraction from 0 to 1, on the progress
+ * indicator `prog`, with a tooltip saying that the file is being uploaded.
+ * Once the file is sent, the server processes it for an unknown time, so the
+ * indicator turns indeterminate; a full circle would read as done.
+ */
+export function showUploadProgress(appState, prog, fraction) {
+  const strings = appState.i18n?.strings ?? {}
+  /* eslint-disable no-param-reassign */
+  if (fraction < 1) {
+    prog.progress = fraction
+    prog.infoMessage = translate(strings, 'Uploading file: %s').replace(
+      '%s',
+      `${Math.floor(100 * fraction)}%`
+    )
+  } else {
+    prog.progress = -1
+    prog.infoMessage = translate(strings, 'Processing...')
+  }
+  /* eslint-enable no-param-reassign */
 }
 
 // Resolves with the final status of a task once appState reports it as

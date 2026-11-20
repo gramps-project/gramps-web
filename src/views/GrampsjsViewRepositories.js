@@ -2,7 +2,11 @@
 Repositories list view
 */
 
-import {GrampsjsViewObjectsBase, tagsColumn} from './GrampsjsViewObjectsBase.js'
+import {
+  GrampsjsViewObjectsBase,
+  privacyColumn,
+  tagsColumn,
+} from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp} from '../util.js'
 import {
   privacyFilter,
@@ -19,6 +23,7 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
       {name: 'Name', key: 'name', sortKey: 'name'},
       {name: 'Type', key: 'type', sortKey: 'type'},
       tagsColumn,
+      privacyColumn,
       {name: 'Last changed', key: 'change', sortKey: 'change'},
     ]
     this._objectsName = 'repositories'
@@ -26,7 +31,7 @@ export class GrampsjsViewRepositories extends GrampsjsViewObjectsBase {
 
   // eslint-disable-next-line class-methods-use-this
   get _fetchUrl() {
-    return '/api/repositories/?keys=gramps_id,name,type,change,handle,extended&extend=tag_list'
+    return '/api/repositories/?keys=gramps_id,name,type,change,handle,private,extended&extend=tag_list'
   }
 
   // eslint-disable-next-line class-methods-use-this

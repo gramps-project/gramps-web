@@ -3,7 +3,13 @@ Base view for lists of Gramps objects, e.g. people, events, ...
 */
 
 import {html, css} from 'lit'
-import {mdiPlus, mdiCog, mdiCheckboxMultipleOutline} from '@mdi/js'
+import {
+  mdiPlus,
+  mdiCog,
+  mdiCheckboxMultipleOutline,
+  mdiLock,
+  mdiLockOpenVariantOutline,
+} from '@mdi/js'
 
 import '@material/web/fab/fab.js'
 import '@material/web/iconbutton/icon-button.js'
@@ -14,10 +20,13 @@ import '@material/web/button/text-button.js'
 import '@material/web/checkbox/checkbox.js'
 import '@material/web/select/filled-select.js'
 import '@material/web/select/select-option.js'
+import '@material/web/radio/radio.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsTable.js'
 import '../components/GrampsjsTagChips.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
+import '../components/GrampsjsFormNewTag.js'
+import '../components/GrampsjsSearchResultList.js'
 
 import {GrampsjsView} from './GrampsjsView.js'
 import '../components/GrampsjsPagination.js'
@@ -26,12 +35,16 @@ import '../components/GrampsjsFilters.js'
 import '../components/GrampsjsGetStarted.js'
 import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 
-import {fireEvent, treeIsEmpty} from '../util.js'
+import {apiVersionAtLeast, fireEvent, treeIsEmpty} from '../util.js'
 import {awaitTaskResponse} from '../taskResponse.js'
 import {tagFilter} from '../filterDefinitions.js'
+import {fetchAllTags} from '../tags.js'
 
-// Deleting more objects than this runs in a background task
-const BACKGROUND_DELETE_THRESHOLD = 10
+// Deleting or editing more objects than this runs in a background task
+const BACKGROUND_THRESHOLD = 10
+
+// Batch actions that open a dialog to edit the selected objects
+const EDIT_ACTIONS = ['addTag', 'removeTag', 'privacy']
 
 /* Column showing the tags of a row, expects `tags` as a list of tag objects
 (from `extend=tag_list`) */
@@ -43,6 +56,17 @@ export const tagsColumn = {
     tags?.length
       ? html`<grampsjs-tag-chips dense .data="${tags}"></grampsjs-tag-chips>`
       : '',
+}
+
+/* Column showing whether a row is private, offered only to users who can view
+private records. Expects `private` as the rendered icon, which _fetchData adds
+to every row. */
+export const privacyColumn = {
+  name: 'Privacy',
+  key: 'private',
+  sortKey: 'private',
+  defaultVisible: false,
+  viewPrivate: true,
 }
 
 export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
@@ -89,6 +113,35 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
           --md-filled-select-text-field-bottom-space: 0px;
         }
 
+        /* the indicators share one place, _openProgress shows one at a time */
+        .batch-toolbar .progress {
+          display: inline-grid;
+        }
+
+        .batch-toolbar .progress > * {
+          grid-area: 1 / 1;
+        }
+
+        .edit-dialog {
+          /* md-list defaults to --md-sys-color-surface, but md-dialog uses
+             surface-container-high */
+          --md-list-container-color: var(--md-sys-color-surface-container-high);
+        }
+
+        .privacy-options {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          padding: 8px 0;
+        }
+
+        .privacy-options label {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          cursor: pointer;
+        }
+
         .column-picker-row {
           display: flex;
           align-items: center;
@@ -127,6 +180,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       _showMergeDialog: {type: Boolean},
       _showDeleteDialog: {type: Boolean},
       _deleting: {type: Boolean},
+      _editing: {type: Boolean},
+      _editDialog: {type: String},
+      _editTags: {type: Array},
+      _editTagHandle: {type: String},
+      _editPrivate: {type: Boolean},
       _selectingAll: {type: Boolean},
       _deleteBlockedInfo: {type: Object},
       _showActionError: {type: Boolean},
@@ -154,6 +212,17 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     this._showMergeDialog = false
     this._showDeleteDialog = false
     this._deleting = false
+    this._editing = false
+    // The open edit dialog, one of EDIT_ACTIONS, or ''
+    this._editDialog = ''
+    // Handles the open edit dialog applies to. Creating a tag in the dialog
+    // reloads the list, which clears the selection.
+    this._editHandles = []
+    // Tags offered for removal, null while loading
+    this._editTags = null
+    this._editTagHandle = ''
+    // Privacy chosen in the privacy dialog, null until chosen
+    this._editPrivate = null
     this._selectingAll = false
     // Rows of all objects matching the filters, while they are all selected
     this._allMatchingRows = null
@@ -174,6 +243,11 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     return true
   }
 
+  // Tagging and setting the privacy of many objects requires API version 3.26
+  get _supportsEdit() {
+    return apiVersionAtLeast(this.appState?.dbInfo, 3, 26)
+  }
+
   // resolves to why the selected objects can't be deleted, as
   // {title, message}, or null
   // eslint-disable-next-line class-methods-use-this, no-unused-vars
@@ -186,15 +260,22 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
     return rawObj?.gramps_id || ''
   }
 
+  // The columns this user can choose from
+  get _offeredColumns() {
+    const canViewPrivate = this.appState?.permissions?.canViewPrivate
+    return this._columns.filter(col => canViewPrivate || !col.viewPrivate)
+  }
+
   get _visibleColumns() {
+    const columns = this._offeredColumns
     const saved = this.appState?.settings?.columns?.[this._objectsName]
     if (saved && Array.isArray(saved) && saved.length > 0) {
       const filtered = saved
-        .map(key => this._columns.find(col => col.key === key))
+        .map(key => columns.find(col => col.key === key))
         .filter(Boolean)
       if (filtered.length > 0) return filtered
     }
-    return this._columns.filter(col => col.defaultVisible !== false)
+    return columns.filter(col => col.defaultVisible !== false)
   }
 
   get _tableBreakPoint() {
@@ -361,6 +442,17 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
                 ${this._('Merge')}
               </md-select-option>`
             : ''}
+          ${this._supportsEdit
+            ? html`<md-select-option value="addTag">
+                  ${this._('Add Tag')}
+                </md-select-option>
+                <md-select-option value="removeTag">
+                  ${this._('Remove Tag')}
+                </md-select-option>
+                <md-select-option value="privacy">
+                  ${this._('Privacy')}
+                </md-select-option>`
+            : ''}
           ${this._supportsDelete
             ? html`<md-select-option value="delete">
                 ${this._('Delete')}
@@ -370,26 +462,43 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         <md-outlined-button
           ?disabled="${!this._currentAction ||
           this._deleting ||
+          this._editing ||
           this._selectingAll}"
           @click="${this._handleApplyAction}"
         >
           ${this._('Apply')}
         </md-outlined-button>
-        <grampsjs-task-progress-indicator
-          id="progress-delete"
-          taskName="deleteObjectsByHandle"
-          size="20"
-          .appState="${this.appState}"
-        ></grampsjs-task-progress-indicator>
+        <span class="progress">
+          <grampsjs-task-progress-indicator
+            id="progress-delete"
+            taskName="deleteObjectsByHandle"
+            size="20"
+            .appState="${this.appState}"
+          ></grampsjs-task-progress-indicator>
+          <grampsjs-task-progress-indicator
+            id="progress-edit"
+            taskName="editObjectsByHandle"
+            size="20"
+            .appState="${this.appState}"
+          ></grampsjs-task-progress-indicator>
+        </span>
       </div>
       ${this._renderMergeDialog()} ${this._renderDeleteDialog()}
       ${this._renderDeleteBlockedDialog()} ${this._renderActionErrorDialog()}
+      ${this._renderAddTagDialog()} ${this._renderRemoveTagDialog()}
+      ${this._renderPrivacyDialog()}
     `
   }
 
   async _handleApplyAction() {
     const action = this._currentAction
-    if (action === 'merge') {
+    if (EDIT_ACTIONS.includes(action)) {
+      if (this._selectedHandles.length >= 1) {
+        this._openEditDialog(action)
+      } else {
+        this._showActionError = true
+      }
+    } else if (action === 'merge') {
       if (this._selectedHandles.length === 2) {
         this._showMergeDialog = true
       } else {
@@ -540,12 +649,9 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
   async _handleDelete() {
     this._showDeleteDialog = false
     this._deleting = true
-    const prog = this.renderRoot.querySelector('#progress-delete')
-    prog.reset()
-    prog.open = true
+    const prog = this._openProgress('#progress-delete')
     const handles = this._selectedHandles
-    const query =
-      handles.length > BACKGROUND_DELETE_THRESHOLD ? '?background=1' : ''
+    const query = handles.length > BACKGROUND_THRESHOLD ? '?background=1' : ''
     const res = await this.appState.apiPost(
       `/api/objects/delete-by-handle/${query}`,
       {namespace: this._objectsName, handles},
@@ -557,6 +663,185 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       taskName: 'deleteObjectsByHandle',
     })
     this._deleting = false
+    if (outcome.error !== undefined) {
+      if (outcome.error) {
+        fireEvent(this, 'grampsjs:error', {message: outcome.error})
+      }
+      return
+    }
+    fireEvent(window, 'db:changed')
+    this._clearSelection()
+  }
+
+  // Opens the progress indicator, hiding the other one in the same place,
+  // which may still show the outcome of the previous action
+  _openProgress(selector) {
+    const prog = this.renderRoot.querySelector(selector)
+    ;['#progress-delete', '#progress-edit']
+      .filter(other => other !== selector)
+      .forEach(other => {
+        const el = this.renderRoot.querySelector(other)
+        if (el) el.open = false
+      })
+    prog.reset()
+    prog.open = true
+    return prog
+  }
+
+  async _openEditDialog(action) {
+    this._editHandles = this._selectedHandles
+    this._editTagHandle = ''
+    this._editPrivate = null
+    this._editDialog = action
+    if (action === 'removeTag') {
+      this._editTags = null
+      const res = await fetchAllTags(this.appState)
+      if (this._editDialog !== 'removeTag') {
+        return
+      }
+      if ('error' in res) {
+        this._closeEditDialog()
+        fireEvent(this, 'grampsjs:error', {message: res.error})
+        return
+      }
+      this._editTags = res.data ?? []
+    }
+  }
+
+  _closeEditDialog() {
+    this._editDialog = ''
+    this._editHandles = []
+  }
+
+  _renderAddTagDialog() {
+    if (this._editDialog !== 'addTag') return ''
+    return html`
+      <grampsjs-form-new-tag
+        .appState="${this.appState}"
+        .data="${[]}"
+        dialogTitle="${this._('Add Tag')}"
+        @object:save="${this._handleAddTagSave}"
+        @object:cancel="${this._closeEditDialog}"
+      ></grampsjs-form-new-tag>
+    `
+  }
+
+  _handleAddTagSave(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    const [tagHandle] = e.detail.data
+    const handles = this._editHandles
+    this._closeEditDialog()
+    if (!tagHandle) return Promise.resolve()
+    return this._editObjects(handles, [{op: 'add_tag', handle: tagHandle}])
+  }
+
+  _renderRemoveTagDialog() {
+    if (this._editDialog !== 'removeTag') return ''
+    return html`
+      <md-dialog class="edit-dialog" open @close="${this._closeEditDialog}">
+        <div slot="headline">${this._('Remove Tag')}</div>
+        <div slot="content">
+          ${this._editTags
+            ? html`<grampsjs-search-result-list
+                selectable
+                activatable
+                .data="${this._editTags.map(tag => ({
+                  object_type: 'tag',
+                  object: tag,
+                  handle: tag.handle,
+                }))}"
+                .appState="${this.appState}"
+                @search-result:clicked="${e => {
+                  this._editTagHandle = e.detail.handle
+                }}"
+              ></grampsjs-search-result-list>`
+            : ''}
+        </div>
+        <div slot="actions">
+          <md-text-button @click="${this._closeEditDialog}">
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-filled-button
+            ?disabled="${!this._editTagHandle}"
+            @click="${this._handleRemoveTagApply}"
+          >
+            ${this._('Apply')}
+          </md-filled-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  _handleRemoveTagApply() {
+    const handles = this._editHandles
+    const tagHandle = this._editTagHandle
+    this._closeEditDialog()
+    return this._editObjects(handles, [{op: 'remove_tag', handle: tagHandle}])
+  }
+
+  _renderPrivacyDialog() {
+    if (this._editDialog !== 'privacy') return ''
+    const option = (value, label) => html`
+      <label>
+        <md-radio
+          name="privacy"
+          .checked="${this._editPrivate === value}"
+          @change="${() => {
+            this._editPrivate = value
+          }}"
+        ></md-radio>
+        <span>${label}</span>
+      </label>
+    `
+    return html`
+      <md-dialog class="edit-dialog" open @close="${this._closeEditDialog}">
+        <div slot="headline">${this._('Privacy')}</div>
+        <div slot="content">
+          <div class="privacy-options" role="radiogroup">
+            ${option(true, this._('Record is private'))}
+            ${option(false, this._('Record is public'))}
+          </div>
+        </div>
+        <div slot="actions">
+          <md-text-button @click="${this._closeEditDialog}">
+            ${this._('Cancel')}
+          </md-text-button>
+          <md-filled-button
+            ?disabled="${this._editPrivate === null}"
+            @click="${this._handlePrivacyApply}"
+          >
+            ${this._('Apply')}
+          </md-filled-button>
+        </div>
+      </md-dialog>
+    `
+  }
+
+  _handlePrivacyApply() {
+    const handles = this._editHandles
+    const value = this._editPrivate
+    this._closeEditDialog()
+    return this._editObjects(handles, [{op: 'set_private', value}])
+  }
+
+  // Applies the edit operations to the objects, in a background task for
+  // more than a few objects
+  async _editObjects(handles, operations) {
+    this._editing = true
+    const prog = this._openProgress('#progress-edit')
+    const query = handles.length > BACKGROUND_THRESHOLD ? '?background=1' : ''
+    const res = await this.appState.apiPost(
+      `/api/objects/edit-by-handle/${query}`,
+      {namespace: this._objectsName, handles, operations},
+      {dbChanged: false}
+    )
+    const outcome = await awaitTaskResponse(this.appState, res, {
+      prog,
+      label: 'Edit',
+      taskName: 'editObjectsByHandle',
+    })
+    this._editing = false
     if (outcome.error !== undefined) {
       if (outcome.error) {
         fireEvent(this, 'grampsjs:error', {message: outcome.error})
@@ -616,7 +901,7 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
       >
         <div slot="headline">${this._('Columns')}</div>
         <div slot="content">
-          ${this._columns.map(
+          ${this._offeredColumns.map(
             col => html`
               <div class="column-picker-row">
                 <label for="col-${col.key}">
@@ -822,7 +1107,10 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         this._errorMessage = ''
         this.error = false
         this._rawData = data.data
-        this._data = data.data.map(row => this._formatRow(row, this))
+        this._data = data.data.map(row => ({
+          ...this._formatRow(row, this),
+          private: this._renderPrivacyCell(row.private),
+        }))
         this._totalCount = data.total_count
         this._pages = Math.ceil(this._totalCount / this._pageSize)
       } else if ('error' in data) {
@@ -830,6 +1118,20 @@ export class GrampsjsViewObjectsBase extends GrampsjsStaleDataMixin(
         this._errorMessage = data.error
       }
     })
+  }
+
+  // A closed lock for private rows, an open outline lock for public ones
+  _renderPrivacyCell(isPrivate) {
+    const label = isPrivate ? 'Record is private' : 'Record is public'
+    return html`<grampsjs-icon
+      width="18"
+      height="18"
+      path="${isPrivate ? mdiLock : mdiLockOpenVariantOutline}"
+      color="var(--grampsjs-body-font-color-60)"
+      role="img"
+      aria-label="${this._(label)}"
+      title="${this._(label)}"
+    ></grampsjs-icon>`
   }
 
   // eslint-disable-next-line class-methods-use-this

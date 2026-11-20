@@ -11,6 +11,7 @@ import '../components/GrampsjsDeleteAll.js'
 import '../components/GrampsjsRelogin.js'
 import '../components/GrampsjsTaskProgressIndicator.js'
 import '../components/GrampsjsTreeQuotas.js'
+import '../components/GrampsjsHelpButton.js'
 
 import {fireEvent, makeHandle} from '../util.js'
 import {dispatchErrorMessage} from '../taskResponse.js'
@@ -293,7 +294,13 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
         heading="${this._('Search index')}"
         description="${this._('Manage and rebuild the search index')}"
       >
-        <h3>${this._('Manage search index')}</h3>
+        <h3>
+          ${this._('Manage search index')}
+          <grampsjs-help-button
+            path="administration/search-index/"
+            .appState="${this.appState}"
+          ></grampsjs-help-button>
+        </h3>
 
         ${this._renderSearchStatus()}
 
@@ -507,7 +514,13 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
           'Database checks, repairs, and other operations'
         )}"
       >
-        <h3>${this._('Check and Repair')}</h3>
+        <h3>
+          ${this._('Check and Repair')}
+          <grampsjs-help-button
+            path="administration/check-repair/"
+            .appState="${this.appState}"
+          ></grampsjs-help-button>
+        </h3>
         <p>
           ${this._(
             'This tool checks the database for integrity problems, fixing the problems it can.'
@@ -536,7 +549,13 @@ export class GrampsjsViewAdminSettings extends GrampsjsView {
             </p>`
           : ''}
 
-        <h3>${this._('Verify the Data')}</h3>
+        <h3>
+          ${this._('Verify the Data')}
+          <grampsjs-help-button
+            path="administration/check-repair/"
+            .appState="${this.appState}"
+          ></grampsjs-help-button>
+        </h3>
         <p>${this._('Verifies the data against user-defined tests')}</p>
         ${this._renderVerifyOptions()}
         <div class="button-row">

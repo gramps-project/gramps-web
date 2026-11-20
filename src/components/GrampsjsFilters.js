@@ -24,6 +24,7 @@ import './GrampsjsFilterText.js'
 import './GrampsjsFilterType.js'
 import './GrampsjsFilterYears.js'
 import './GrampsjsGoqlInput.js'
+import './GrampsjsHelpButton.js'
 import './GrampsjsIcon.js'
 import {renderIconSvg} from '../icons.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -438,6 +439,10 @@ export class GrampsjsFilters extends GrampsjsAppStateMixin(LitElement) {
             >${this._('Apply')}</md-filled-button
           ></span
         >
+        <grampsjs-help-button
+          path="user-guide/goql/"
+          .appState="${this.appState}"
+        ></grampsjs-help-button>
       </div>
     `
   }

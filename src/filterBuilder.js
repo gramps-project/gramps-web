@@ -224,7 +224,18 @@ export function findRule(catalogue, name) {
   return catalogue.find(ruleInfo => ruleInfo.rule === name)
 }
 
+// Whether `condition` uses a rule missing from a loaded catalogue, as a
+// saved filter can after a backend change. An empty catalogue isn't loaded.
+export function isUnknownRule(condition, catalogue) {
+  return (
+    catalogue.length > 0 && findRule(catalogue, condition.name) === undefined
+  )
+}
+
 function isConditionComplete(condition, catalogue) {
+  if (isUnknownRule(condition, catalogue)) {
+    return false
+  }
   const ruleInfo = findRule(catalogue, condition.name)
   return paramTypes(ruleInfo).every(
     (type, i) => !isRequiredParam(type) || (condition.values[i] ?? '') !== ''
@@ -241,6 +252,24 @@ export function isComplete(tree, catalogue, isTop = true) {
     return false
   }
   return tree.children.every(child => isComplete(child, catalogue, false))
+}
+
+// Whether a condition of the tree has an ID parameter for which
+// `isMissing(namespace, id)` is true, with `namespace` the object type of
+// the parameter type
+export function refersToMissing(tree, catalogue, isMissing) {
+  if (isGroup(tree)) {
+    return tree.children.some(child =>
+      refersToMissing(child, catalogue, isMissing)
+    )
+  }
+  const ruleInfo = findRule(catalogue, tree.name)
+  return paramTypes(ruleInfo).some(
+    (type, i) =>
+      type.type === 'id' &&
+      (tree.values[i] ?? '') !== '' &&
+      isMissing(type.namespace, tree.values[i])
+  )
 }
 
 // A rule in the backend `rules` JSON. Rules without parameters have no
@@ -275,6 +304,71 @@ export function treeToFilters(tree) {
     return tree.children.map(serializeNode)
   }
   return [serializeNode(tree)]
+}
+
+const FUNCTIONS = ['and', 'or', 'one']
+
+function isRuleJson(json) {
+  return (
+    json !== null &&
+    typeof json === 'object' &&
+    typeof json.name === 'string' &&
+    (json.values === undefined || Array.isArray(json.values))
+  )
+}
+
+function isGroupJson(json) {
+  return (
+    json !== null &&
+    typeof json === 'object' &&
+    Array.isArray(json.rules) &&
+    (json.function === undefined || FUNCTIONS.includes(json.function))
+  )
+}
+
+function parseCondition(json, invert = false) {
+  const condition = newCondition(json.name, (json.values ?? []).map(String))
+  condition.invert = invert
+  return condition
+}
+
+// A builder group for a group of the `rules` JSON, or null if invalid
+function parseGroup(json) {
+  const group = newGroup(json.function ?? 'and')
+  group.invert = json.invert === true
+  const children = json.rules.map(parseNode)
+  if (children.includes(null)) {
+    return null
+  }
+  group.children = children
+  return group
+}
+
+// A builder node for a node of the `rules` JSON, or null if invalid. A
+// negated group holding a single rule is a negated condition, as
+// `serializeNode` sends it.
+function parseNode(json) {
+  if (isRuleJson(json) && json.rules === undefined) {
+    return parseCondition(json)
+  }
+  if (!isGroupJson(json)) {
+    return null
+  }
+  if (
+    json.invert === true &&
+    json.rules.length === 1 &&
+    isRuleJson(json.rules[0]) &&
+    json.rules[0].rules === undefined
+  ) {
+    return parseCondition(json.rules[0], true)
+  }
+  return parseGroup(json)
+}
+
+// The builder tree for a top group in the `rules` JSON, as `serializeNode`
+// produces it for a tree, or null if invalid
+export function rulesToTree(json) {
+  return isGroupJson(json) ? parseGroup(json) : null
 }
 
 // The top group for the active facet pills

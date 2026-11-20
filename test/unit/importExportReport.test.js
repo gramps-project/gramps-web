@@ -3,11 +3,17 @@ import '../../src/components/GrampsjsImportExportReport.js'
 import '../../src/components/GrampsjsImportCounts.js'
 import {GrampsjsImport} from '../../src/components/GrampsjsImport.js'
 import {GrampsjsViewExport} from '../../src/views/GrampsjsViewExport.js'
+import {GrampsjsImportMedia} from '../../src/components/GrampsjsImportMedia.js'
+import '../../src/components/GrampsjsImportPreviewDialog.js'
 import {
   awaitTaskResponse,
   dispatchErrorMessage,
+  showUploadProgress,
 } from '../../src/taskResponse.js'
 import {fireEvent, getTaskResult} from '../../src/util.js'
+
+// tippy.js cannot find the tooltip targets in happy-dom
+vi.mock('tippy.js', () => ({default: () => ({setContent() {}})}))
 
 const mounted = []
 
@@ -70,6 +76,16 @@ describe('grampsjs-import-export-report', () => {
     )
   })
 
+  it('hides the messages behind a disclosure with collapsed', async () => {
+    const el = await mount('grampsjs-import-export-report', {
+      messages: ['a'],
+      collapsed: true,
+    })
+    const details = el.shadowRoot.querySelector('details')
+    expect(details.open).toBe(false)
+    expect(details.querySelector('.messages').textContent).toBe('a')
+  })
+
   it('renders as a warning alert with warn', async () => {
     const el = await mount('grampsjs-import-export-report', {
       messages: ['a'],
@@ -77,6 +93,54 @@ describe('grampsjs-import-export-report', () => {
     })
     expect(el.shadowRoot.querySelector('.alert.warn')).not.toBeNull()
     expect(el.shadowRoot.querySelector('.card')).toBeNull()
+  })
+
+  it('offers copying and downloading only with a filename', async () => {
+    const el = await mount('grampsjs-import-export-report', {messages: ['a']})
+    expect(el.shadowRoot.querySelector('#copy-button')).toBeNull()
+    expect(el.shadowRoot.querySelector('grampsjs-download-button')).toBeNull()
+  })
+
+  it('copies and downloads the report as the program wrote it', async () => {
+    const message = 'Could not import a.jpg               Line   144: 1 FILE'
+    const el = await mount('grampsjs-import-export-report', {
+      messages: [message, '', 'b'],
+      heading: 'Report',
+      filename: 'import-report.txt',
+      collapsed: true,
+    })
+    const writeText = vi.fn().mockResolvedValue()
+    vi.stubGlobal('navigator', {clipboard: {writeText}})
+    try {
+      await el._copy()
+    } finally {
+      vi.unstubAllGlobals()
+    }
+    expect(writeText).toHaveBeenCalledWith(`${message}\nb\n`)
+
+    const download = el.shadowRoot.querySelector('grampsjs-download-button')
+    expect(download.filename).toBe('import-report.txt')
+    expect(download.mimeType).toBe('text/plain')
+    expect(download.content()).toBe(`${message}\nb\n`)
+  })
+
+  it('reports a failed copy', async () => {
+    const el = await mount('grampsjs-import-export-report', {
+      messages: ['a'],
+      filename: 'import-report.txt',
+    })
+    const errors = []
+    el.addEventListener('grampsjs:error', e => errors.push(e.detail.message))
+    vi.stubGlobal('navigator', {
+      clipboard: {writeText: vi.fn().mockRejectedValue(new Error('denied'))},
+    })
+    try {
+      await el._copy()
+    } finally {
+      vi.unstubAllGlobals()
+    }
+    expect(errors).toEqual(['Failed to copy to clipboard'])
+    expect(el._copied).toBe(false)
   })
 })
 
@@ -210,6 +274,48 @@ describe('dispatchErrorMessage', () => {
 
     expect(dispatchErrorMessage(state, locked)).toBe('Busy')
     expect(state.loadActiveTasks).toHaveBeenCalled()
+  })
+
+  it('explains proxy errors that carry no message', () => {
+    const state = {i18n: {strings: {}}}
+    const proxyError = status => ({
+      error: `Error ${status}`,
+      errorDetail: {status, response: {}},
+    })
+
+    expect(dispatchErrorMessage(state, proxyError(413))).toBe(
+      'The file is too large for the server to accept.'
+    )
+    expect(dispatchErrorMessage(state, proxyError(504))).toBe(
+      'The server is unavailable or did not respond in time. Try again later.'
+    )
+  })
+
+  it("keeps the backend's message for proxy statuses", () => {
+    const state = {i18n: {strings: {}}}
+    const res = {
+      error: 'Quota exceeded',
+      errorDetail: {
+        status: 413,
+        response: {error: {code: 413, message: 'Quota exceeded'}},
+      },
+    }
+
+    expect(dispatchErrorMessage(state, res)).toBe('Quota exceeded')
+  })
+})
+
+describe('showUploadProgress', () => {
+  it('shows the fraction sent, then waits indeterminately', () => {
+    const appState = {i18n: {strings: {}}}
+    const prog = {progress: -1}
+
+    showUploadProgress(appState, prog, 0.4)
+    expect(prog.progress).toBe(0.4)
+    expect(prog.infoMessage).toBe('Uploading file: 40%')
+    showUploadProgress(appState, prog, 1)
+    expect(prog.progress).toBe(-1)
+    expect(prog.infoMessage).toBe('Processing...')
   })
 })
 
@@ -504,6 +610,74 @@ describe('import: preview, confirmation and result', () => {
     expect(element._importError).toBe('Import failed\n\nBad')
   })
 
+  it('names the failure of a task that reports no reason', async () => {
+    const apiPost = answers({data: preview}, {task: {id: 'i1'}})
+    const {element} = makeImport({apiPost})
+
+    const pending = element._submit()
+    await vi.waitFor(() =>
+      expect(element.appState.registerTask).toHaveBeenCalled()
+    )
+    finishTask('i1', {state: 'FAILURE'})
+    await pending
+
+    expect(element._importError).toBe('Import failed')
+  })
+
+  it('shows the upload progress of the running import only', async () => {
+    const apiPost = answers({data: preview}, {data: imported})
+    const {element} = makeImport({apiPost})
+    const prog = element.renderRoot.querySelector('#progress-tree')
+
+    await element._submit()
+    const {onUploadProgress} = apiPost.mock.calls[1][2]
+    onUploadProgress(0.5)
+    expect(prog.progress).toBeUndefined()
+
+    element._op = {}
+    apiPost.mockResolvedValueOnce({task: {id: 'p2'}})
+    const pending = element._post(element._op, fileA, true)
+    await vi.waitFor(() => expect(apiPost).toHaveBeenCalledTimes(3))
+    apiPost.mock.calls[2][2].onUploadProgress(0.5)
+    expect(prog.progress).toBe(0.5)
+    element._op = null
+    finishTask('p2', {state: 'SUCCESS', result_object: preview})
+    await pending
+  })
+
+  it('asks for a home person only when none is set', async () => {
+    const run = async settings => {
+      const apiPost = answers({data: preview}, {data: imported})
+      const {element} = makeImport({apiPost})
+      element.appState.settings = settings
+      await element._submit()
+      return element._askHomePerson
+    }
+
+    expect(await run({})).toBe(true)
+    expect(await run({homePerson: 'I0001'})).toBe(false)
+  })
+
+  it('points to the media import only after importing media objects', () => {
+    const {element} = makeImport({apiPost: vi.fn()})
+    element._importResult = {people: 2, media: 0}
+    expect(element._renderMediaHint()).toBe('')
+    element._importResult = {people: 2, media: 3}
+    expect(element._renderMediaHint().values).toEqual([
+      'Media files are imported separately, under Import Media Files.',
+    ])
+  })
+
+  it('treats a GEDZip file like a ZIP archive', () => {
+    const {element, upload} = makeImport({apiPost: vi.fn()})
+
+    upload.file = new File(['PK'], 'tree.gdz')
+    element._handleUploadChanged()
+
+    expect(element._file).toBeNull()
+    expect(element._uploadHint).toBeTruthy()
+  })
+
   it('drops the error of an import replaced by another file', async () => {
     const apiPost = answers({data: preview}, {task: {id: 'i1'}})
     const {element, upload} = makeImport({apiPost})
@@ -551,6 +725,64 @@ describe('import: preview, confirmation and result', () => {
     expect(element._busy).toBe(false)
   })
 
+  it('detaches from a replaced preview task before uploading', async () => {
+    const apiPost = answers({task: {id: 'p1'}})
+    const {element, upload} = makeImport({apiPost})
+    const prog = element.renderRoot.querySelector('#progress-tree')
+
+    const first = element._submit()
+    await vi.waitFor(() => expect(prog.taskId).toBe('p1'))
+    upload.file = fileB
+    element._handleUploadChanged()
+    let taskIdAtUpload
+    apiPost.mockImplementationOnce(async () => {
+      taskIdAtUpload = prog.taskId
+      return {error: 'stop'}
+    })
+    await element._submit()
+
+    expect(taskIdAtUpload).toBe('')
+    finishTask('p1', {state: 'SUCCESS', result_object: preview})
+    await first
+  })
+
+  it("passes the app's home person details to the picker", async () => {
+    const details = {handle: 'h1', gramps_id: 'I0001'}
+    const el = await mount('grampsjs-import', {
+      appState: {
+        settings: {homePerson: 'I0001'},
+        i18n: {strings: {}},
+        permissions: {},
+        getActiveTasks: () => [],
+      },
+      homePersonDetails: details,
+      homePersonMissing: false,
+      _importResult: {people: 2, messages: []},
+      _askHomePerson: true,
+    })
+
+    const picker = el.shadowRoot.querySelector('grampsjs-home-person')
+    expect(picker.homePersonDetails).toBe(details)
+    expect(picker.homePersonGrampsId).toBe('I0001')
+  })
+
+  it('stops reconnecting to import tasks by name while busy', async () => {
+    const el = await mount('grampsjs-import', {
+      appState: {
+        settings: {},
+        i18n: {strings: {}},
+        permissions: {},
+        getActiveTasks: () => [],
+      },
+    })
+    const prog = el.shadowRoot.querySelector('#progress-tree')
+    expect(prog.taskName).toBe('importFile')
+
+    el._busy = true
+    await el.updateComplete
+    expect(prog.taskName).toBe('')
+  })
+
   it('refreshes for a task it did not start only when idle', () => {
     const {element} = makeImport({apiPost: vi.fn()})
 
@@ -559,5 +791,127 @@ describe('import: preview, confirmation and result', () => {
     element._handleOtherTaskComplete()
 
     expect(element.refreshes).toBe(1)
+  })
+})
+
+describe('import preview dialog: duplicates', () => {
+  const mountDialog = async treePeople => {
+    const el = await mount('grampsjs-import-preview-dialog', {
+      appState: {
+        i18n: {strings: {}},
+        dbInfo: {object_counts: {people: treePeople}},
+      },
+    })
+    el.counts = {people: 3}
+    await el.updateComplete
+    return el
+  }
+
+  it('warns when the tree already has people', async () => {
+    const el = await mountDialog(5)
+    expect(el.shadowRoot.querySelector('.alert.warn')).not.toBeNull()
+  })
+
+  it('does not warn for an empty tree', async () => {
+    const el = await mountDialog(0)
+    expect(el.shadowRoot.querySelector('.alert.warn')).toBeNull()
+  })
+})
+
+describe('media import: result', () => {
+  const zip = new File(['PK'], 'media.zip')
+
+  const makeMediaImport = apiPost => {
+    const element = new GrampsjsImportMedia()
+    const root = element.createRenderRoot()
+    const upload = document.createElement('div')
+    upload.id = 'upload-media'
+    upload.file = zip
+    upload.reset = vi.fn()
+    root.append(makeProgress('progress-media'), upload)
+    element.renderRoot = root
+    element.appState = {apiPost, registerTask: vi.fn(), i18n: {strings: {}}}
+    element._handleUploadChanged()
+    return element
+  }
+
+  it('keeps the result of a finished media import task', async () => {
+    const result = {
+      missing: 3,
+      uploaded: 1,
+      failures: 0,
+      not_found: [{handle: 'h', gramps_id: 'M0002', path: 'a/b.jpg'}],
+    }
+    const element = makeMediaImport(
+      vi.fn().mockResolvedValue({task: {id: 'm1'}})
+    )
+
+    const pending = element._submit()
+    await vi.waitFor(() =>
+      expect(element.appState.registerTask).toHaveBeenCalled()
+    )
+    finishTask('m1', {state: 'SUCCESS', result_object: result})
+    await pending
+
+    expect(element._result).toEqual(result)
+    expect(element._busy).toBe(false)
+    expect(element._file).toBeNull()
+  })
+
+  it('shows readable upload errors', async () => {
+    const element = makeMediaImport(
+      vi.fn().mockResolvedValue({
+        error: 'Error 413',
+        errorDetail: {status: 413, response: {}},
+      })
+    )
+
+    await element._submit()
+
+    expect(element._error).toBe(
+      'The file is too large for the server to accept.'
+    )
+    expect(element._result).toBeNull()
+  })
+
+  const renderResult = async result => {
+    const el = await mount('grampsjs-import-media', {
+      appState: {
+        i18n: {strings: {}},
+        dbInfo: {object_counts: {media: 4}},
+      },
+    })
+    el._result = result
+    await el.updateComplete
+    return el.shadowRoot.querySelector('.card')
+  }
+
+  it('lists the media objects the archive has no file for', async () => {
+    const card = await renderResult({
+      missing: 3,
+      uploaded: 1,
+      failures: 0,
+      not_found: [
+        {handle: 'h2', gramps_id: 'M0002', path: 'a/b.jpg'},
+        {handle: 'h3', gramps_id: 'M0003', path: 'c.jpg'},
+      ],
+    })
+
+    expect(card.textContent).toContain(
+      'Files were found for 1 of 3 media objects without a file.'
+    )
+    expect(card.querySelector('summary').textContent).toContain(
+      'The archive has no file for 2 media objects.'
+    )
+    expect([...card.querySelectorAll('.path')].map(p => p.textContent)).toEqual(
+      ['a/b.jpg', 'c.jpg']
+    )
+  })
+
+  it("doesn't relate counts of older backends to media objects", async () => {
+    const card = await renderResult({missing: 2, uploaded: 1, failures: 0})
+
+    expect(card.textContent).toContain('The import has completed.')
+    expect(card.textContent).not.toContain('media objects without a file')
   })
 })

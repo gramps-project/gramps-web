@@ -28,7 +28,7 @@ import {GrampsjsStaleDataMixin} from '../mixins/GrampsjsStaleDataMixin.js'
 import '../components/GrampsjsFormSelectObject.js'
 import '../components/GrampsjsIcon.js'
 import '../components/GrampsjsPillToggle.js'
-import '../components/GrampsjsSvgDownloadButton.js'
+import '../components/GrampsjsDownloadButton.js'
 import '../components/GrampsjsTooltip.js'
 import '../components/GrampsjsTreeChartAddPerson.js'
 import {
@@ -149,7 +149,7 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
         }
 
         #controls md-icon-button,
-        #controls grampsjs-svg-download-button {
+        #controls grampsjs-download-button {
           --md-icon-button-icon-size: 26px;
         }
 
@@ -692,11 +692,12 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
   // chart
   renderExportControls() {
     return html`
-      <grampsjs-svg-download-button
+      <grampsjs-download-button
         filename="${this.grampsId}-${this.chart}.svg"
-        .svgDocument=${() => this._chartComponent()?.svgDocument() ?? null}
+        mimeType="image/svg+xml"
+        .content=${() => this._chartComponent()?.svgDocument() ?? null}
         .appState="${this.appState}"
-      ></grampsjs-svg-download-button>
+      ></grampsjs-download-button>
     `
   }
 

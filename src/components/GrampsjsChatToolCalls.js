@@ -7,6 +7,8 @@ import {
   mdiAccountMultiple,
   mdiAccountFilter,
   mdiFilter,
+  mdiPencil,
+  mdiDelete,
 } from '@mdi/js'
 
 import {sharedStyles} from '../SharedStyles.js'
@@ -20,6 +22,8 @@ const TOOL_ICONS = {
   filter_people: mdiAccountFilter,
   filter_events: mdiFilter,
   filter_families: mdiFilter,
+  propose_change: mdiPencil,
+  propose_delete: mdiDelete,
 }
 
 const toolIcon = name => TOOL_ICONS[name] ?? mdiWrench

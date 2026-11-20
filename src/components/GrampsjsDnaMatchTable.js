@@ -13,7 +13,7 @@ function matchColumns(locale) {
     const formatCm = new Intl.NumberFormat(locale, {maximumFractionDigits: 1})
     const formatCount = new Intl.NumberFormat(locale)
     columnsByLocale.set(locale, [
-      {name: 'Chromosome'},
+      {name: 'Chromosome', sortValue: chromosomeOrder},
       {name: 'Start Position', format: value => formatCount.format(value)},
       {name: 'End Position', format: value => formatCount.format(value)},
       {name: 'Side'},
@@ -22,6 +22,42 @@ function matchColumns(locale) {
     ])
   }
   return columnsByLocale.get(locale)
+}
+
+// Sort key of a chromosome label: autosomes by number, then X, then others
+export function chromosomeOrder(chromosome) {
+  const label = String(chromosome).trim().toUpperCase().replace(/^CHR/, '')
+  if (label === 'X' || label === '23') {
+    return 23
+  }
+  const number = Number(label)
+  return Number.isInteger(number) && number > 0 ? number : 24
+}
+
+// Segments by chromosome, then by start position
+export function sortSegments(segments) {
+  return [...segments].sort(
+    (a, b) =>
+      chromosomeOrder(a.chromosome) - chromosomeOrder(b.chromosome) ||
+      Number(a.start) - Number(b.start)
+  )
+}
+
+// The segments as CSV, in a format that the DNA match import reads again
+export function segmentsCsv(segments) {
+  const rows = sortSegments(segments).map(seg =>
+    [
+      seg.chromosome,
+      seg.start,
+      seg.stop,
+      seg.cM,
+      seg.SNPs ?? '',
+      seg.side ?? '',
+    ]
+      .map(value => String(value).replace(/[,\r\n"]/g, ' '))
+      .join(',')
+  )
+  return `${['Chromosome,Start,End,cM,SNPs,Side', ...rows].join('\n')}\n`
 }
 
 function formatSide(side) {
@@ -87,7 +123,7 @@ export class GrampsjsDnaMatchTable extends GrampsjsAppStateMixin(LitElement) {
     if (!data?.length) {
       return []
     }
-    return data.map(row => [
+    return sortSegments(data).map(row => [
       row.chromosome,
       row.start,
       row.stop,

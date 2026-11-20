@@ -105,9 +105,9 @@ export const PAGE_TITLES = {
   map: 'Map',
   timeline: 'Timeline',
   tree: 'Family Tree',
-  'dna-matches': 'DNA',
-  'dna-chromosome': 'DNA',
-  ydna: 'DNA',
+  'dna-matches': 'DNA matches',
+  'dna-chromosome': 'Chromosome Browser',
+  ydna: 'Y-DNA',
   chat: 'Assistant',
   recent: 'History',
   bookmarks: '_Bookmarks',
@@ -179,10 +179,15 @@ export function pageTitleDetail({page, pageId}, pageTitle) {
 // Each is {title, href, literal}: href leads to the page the part names, and
 // a literal title, such as a Gramps ID, is shown without translation. A page
 // in DETAIL_PAGES ends with `detail`, the title its view reported, once known.
-export function pageTitleParts({page, pageId}, detail = '') {
+// A DNA match has the title of the matches page, leading to the matches of
+// the first of its two people; the page names the match itself.
+export function pageTitleParts({page, pageId, pageId2}, detail = '') {
   if (page in DETAIL_PAGES && detail) {
     const [title, path] = DETAIL_PAGES[page]
     return [{title, href: `/${path}`}, {title: detail}]
+  }
+  if (page === 'dna-matches' && pageId && pageId2) {
+    return [{title: PAGE_TITLES[page], href: `/dna-matches/${pageId}`}]
   }
   if (page in OBJECT_LIST_PAGES && pageId) {
     const [title, path] = OBJECT_LIST_PAGES[page]
