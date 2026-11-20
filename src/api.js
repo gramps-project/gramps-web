@@ -588,6 +588,27 @@ export async function apiGetOIDCConfig() {
   }
 }
 
+// Whether new accounts can be registered, in `tree` if given. Resolves to
+// null when the server does not say, e.g. a backend without this endpoint.
+export async function apiGetRegistrationEnabled(tree = '') {
+  try {
+    const query = tree ? `?${new URLSearchParams({tree})}` : ''
+    const resp = await fetch(`${__APIHOST__}/api/register/config/${query}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+    if (!resp.ok) {
+      return null
+    }
+    const {enabled} = await resp.json()
+    return typeof enabled === 'boolean' ? enabled : null
+  } catch {
+    return null
+  }
+}
+
 // `tree` names the tree a new account is created in; multi-tree servers
 // need it for identities that are not linked to an account yet.
 export async function apiOIDCLogin(providerId, tree = '') {

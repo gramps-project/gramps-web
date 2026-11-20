@@ -11,6 +11,8 @@ import {
   matchRelationshipEstimate,
   supportsRelationshipEstimate,
 } from '../dnaRelationship.js'
+import {matchAssociation} from '../dnaMatch.js'
+import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
 
 // A relationship cell is either a plain string or an object with the
 // translated texts of the tree relationship or the DNA estimate
@@ -41,6 +43,12 @@ function renderRelationshipCell(value) {
     : value.text}`
 }
 
+// A name cell is either a plain string or an object with the name and the
+// privacy icon of the match
+function renderNameCell(value) {
+  return typeof value === 'string' ? value : html`${value.text}${value.icon}`
+}
+
 const columnsByLocale = new Map()
 
 // The table columns, with numbers formatted for `locale`. The same locale
@@ -50,7 +58,11 @@ function columns(locale) {
     const formatCm = new Intl.NumberFormat(locale, {maximumFractionDigits: 1})
     const formatCount = new Intl.NumberFormat(locale)
     columnsByLocale.set(locale, [
-      {name: 'Name'},
+      {
+        name: 'Name',
+        format: value => renderNameCell(value),
+        sortValue: value => (typeof value === 'string' ? value : value.text),
+      },
       {
         name: 'Relationship',
         format: value => renderRelationshipCell(value),
@@ -126,7 +138,13 @@ export class GrampsjsDnaMatches extends GrampsjsAppStateMixin(LitElement) {
 
   _computeTableData(data) {
     return data.map(match => [
-      this._getNameFromHandle(match.handle),
+      {
+        text: this._getNameFromHandle(match.handle),
+        icon: renderPrivacyIcon(
+          rowPrivacy(matchAssociation(this.person, match)),
+          this.appState
+        ),
+      },
       this._relationshipCell(match),
       match.segments.reduce(
         (accumulator, currentValue) => accumulator + currentValue.cM,

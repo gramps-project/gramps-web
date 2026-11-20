@@ -777,7 +777,6 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
         value=${value}
         type="number"
         min=${setting.min ?? nothing}
-        max=${setting.max ?? nothing}
         @change=${e => this._changeNumberSetting(setting, e.target)}
       ></md-filled-text-field>
     `
@@ -787,8 +786,8 @@ export class GrampsjsViewTree extends GrampsjsStaleDataMixin(GrampsjsView) {
     this.appState.updateSettings({[setting.key]: value}, false)
   }
 
-  // Saves the value of a number setting's input within its limits once it has
-  // not changed for `numberSettingDelay`, and shows the saved value in the
+  // Saves the value of a number setting's input, raised to its minimum, once it
+  // has not changed for `numberSettingDelay`, and shows the saved value in the
   // input. An empty input is not saved.
   _changeNumberSetting(setting, input) {
     clearTimeout(this._settingTimers.get(setting.key))

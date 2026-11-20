@@ -8,6 +8,7 @@ import {
   GrampsjsYtreeLineage,
   biologicalFatherHandle,
 } from '../../src/components/GrampsjsYtreeLineage.js'
+import {YtreeLineageChart} from '../../src/charts/YtreeLineageChart.js'
 import {GrampsjsDnaMatchTable} from '../../src/components/GrampsjsDnaMatchTable.js'
 import {GrampsjsViewDnaMatches} from '../../src/views/GrampsjsViewDnaMatches.js'
 import {GrampsjsDnaMatches} from '../../src/components/GrampsjsDnaMatches.js'
@@ -18,6 +19,16 @@ import {
 } from '../../src/components/GrampsjsConnectionChart.js'
 import {layoutRelationships} from '../../src/charts/layout/relationshipLayout.js'
 import {FamilyGraph} from '../../src/charts/model/FamilyGraph.js'
+import {GrampsjsFormEditMatch} from '../../src/components/GrampsjsFormEditMatch.js'
+import {GrampsjsFormEditYDna} from '../../src/components/GrampsjsFormEditYDna.js'
+import {GrampsjsViewYDna} from '../../src/views/GrampsjsViewYDna.js'
+import {matchAssociation, matchSegmentNoteHandles} from '../../src/dnaMatch.js'
+
+// A form data event sent by the element with `id`
+const formDataEvent = (id, detail) => ({
+  composedPath: () => [{id}],
+  detail,
+})
 
 const clade = (name, formed, mrca) => ({
   name,
@@ -151,6 +162,26 @@ describe('GrampsjsYtreeLineage', () => {
     ])
   })
 
+  it('links only the clade boxes to YFull', () => {
+    const element = lineage([clade('A', 1000), clade('R-Y13610', 1000, 650)], {
+      handle: 'son',
+    })
+    const chart = element.getChartData()
+    expect(chart.map(box => box.url)).toEqual([
+      'https://yfull.com/tree/A',
+      'https://yfull.com/tree/R-Y13610',
+      undefined, // the MRCA of the clade above
+      undefined, // the person
+    ])
+    const links = YtreeLineageChart(chart).querySelectorAll('a')
+    expect(links).toHaveLength(2)
+    expect(links[1].getAttribute('href')).toBe(
+      'https://yfull.com/tree/R-Y13610'
+    )
+    expect(links[1].getAttribute('target')).toBe('_blank')
+    expect(links[1].getAttribute('aria-label')).toBe('YFull: R-Y13610')
+  })
+
   it('offers the expand button whenever clades are hidden', () => {
     const element = lineage([
       clade('A', 3000),
@@ -246,6 +277,40 @@ describe('GrampsjsViewDnaMatches', () => {
     ])
   })
 
+  it('makes a new match and its note private together', async () => {
+    const view = new GrampsjsViewDnaMatches()
+    const apiPost = vi.fn().mockResolvedValue({data: [{new: {handle: 'n1'}}]})
+    const apiPut = vi.fn().mockResolvedValue({data: []})
+    view.appState = {
+      i18n: {strings: {}},
+      apiGet: vi
+        .fn()
+        .mockResolvedValue({data: {handle: 'p1', person_ref_list: []}}),
+      apiPost,
+      apiPut,
+    }
+    await view._handleSaveMatch({
+      detail: {
+        data: {
+          source_handle: 'p1',
+          target_handle: 'm1',
+          raw_data: ['1,100,200,10,500'],
+          private: true,
+        },
+      },
+    })
+    expect(apiPost.mock.calls[0][1].private).toBe(true)
+    expect(apiPut.mock.calls[0][1].person_ref_list).toEqual([
+      {
+        _class: 'PersonRef',
+        ref: 'm1',
+        rel: 'DNA',
+        note_list: ['n1'],
+        private: true,
+      },
+    ])
+  })
+
   it('reloads DNA data only when another person is selected', () => {
     const view = new GrampsjsViewDnaMatches()
     view._data = [{handle: 'p1', gramps_id: 'I1'}]
@@ -257,6 +322,38 @@ describe('GrampsjsViewDnaMatches', () => {
   })
 })
 
+describe('GrampsjsViewYDna', () => {
+  // A view whose select lists people with Y-DNA data
+  const view = grampsId => {
+    const element = new GrampsjsViewYDna()
+    element.appState = {i18n: {strings: {}}}
+    element._data = [{handle: 'p1', gramps_id: 'I1'}]
+    element.grampsId = grampsId
+    return element
+  }
+
+  it('asks for a person who has data when the URL names another', () => {
+    const element = view('I2')
+    expect(element._selectLabel).toBe('Select')
+    const root = document.createElement('div')
+    render(element._renderNoData(), root)
+    expect(root.textContent).toContain('Please select a different person.')
+  })
+
+  it('shows no select label for a person who has data', () => {
+    expect(view('I1')._selectLabel).toBe('')
+  })
+
+  it('only says there is no data when nobody has any', () => {
+    const element = view('I2')
+    element._data = []
+    expect(element._selectLabel).toBe('')
+    const root = document.createElement('div')
+    render(element._renderNoData(), root)
+    expect(root.textContent).not.toContain('Please select')
+  })
+})
+
 describe('GrampsjsDnaMatches', () => {
   it('formats shared cM for the app language', () => {
     const element = new GrampsjsDnaMatches()
@@ -264,6 +361,238 @@ describe('GrampsjsDnaMatches', () => {
     const [, , shared, segments] = element._columns
     expect(shared.format(1234.56)).toBe('1.234,6')
     expect(segments.format(1234)).toBe('1.234')
+  })
+
+  it('marks private matches and sorts them by name', () => {
+    const element = new GrampsjsDnaMatches()
+    element.appState = {
+      i18n: {strings: {}, lang: 'en'},
+      permissions: {canViewPrivate: true},
+    }
+    element.person = {
+      person_ref_list: [
+        {ref: 'm1', rel: 'DNA', private: true},
+        {ref: 'm2', rel: 'DNA'},
+      ],
+      extended: {people: []},
+    }
+    const match = (handle, index) => ({
+      handle,
+      person_ref_idx: index,
+      segments: [],
+    })
+    const [[first], [second]] = element._computeTableData([
+      match('m1', 0),
+      match('m2', 1),
+    ])
+    expect(first.icon).not.toBe('')
+    expect(second.icon).toBe('')
+    const [name] = element._columns
+    expect(name.sortValue({text: 'Bob', icon: ''})).toBe('Bob')
+    expect(name.sortValue('Bob')).toBe('Bob')
+  })
+})
+
+describe('DNA match association', () => {
+  const match = {handle: 'm1', person_ref_idx: 1, note_handles: ['n1', 'c1']}
+
+  it('is the DNA association at the index of the match', () => {
+    const association = {ref: 'm1', rel: 'DNA'}
+    const person = {person_ref_list: [{ref: 'm1', rel: 'DNA'}, association]}
+    expect(matchAssociation(person, match)).toBe(association)
+  })
+
+  it('is missing when the index points elsewhere', () => {
+    const person = {
+      person_ref_list: [
+        {ref: 'm1', rel: 'DNA'},
+        {ref: 'm1', rel: 'Godfather'},
+      ],
+    }
+    expect(matchAssociation(person, match)).toBeNull()
+    expect(matchAssociation({person_ref_list: []}, match)).toBeNull()
+  })
+
+  it('has only its own notes with segments, each once', () => {
+    // c1 is a note of a citation, n2 has no segments
+    const association = {note_list: ['n1', 'n2', 'n1']}
+    expect(matchSegmentNoteHandles(association, match)).toEqual(['n1'])
+  })
+})
+
+describe('GrampsjsFormEditMatch', () => {
+  const match = {
+    handle: 'm1',
+    person_ref_idx: 0,
+    note_handles: ['n1'],
+    raw_data: ['1,100,200,10,500'],
+  }
+
+  // A form for the match, with a person and notes served by the API
+  // `noteGet` and `notePut` replace the responses for the note
+  const editForm = ({
+    associationPrivate = false,
+    notePrivate = false,
+    noteGet = async () => ({
+      data: {handle: 'n1', private: notePrivate, text: {}},
+    }),
+    notePut = {data: []},
+  } = {}) => {
+    const association = {
+      ref: 'm1',
+      rel: 'DNA',
+      note_list: ['n1'],
+      ...(associationPrivate && {private: true}),
+    }
+    const form = new GrampsjsFormEditMatch()
+    const apiPut = vi.fn(async url =>
+      url.startsWith('/api/notes/') ? notePut : {data: []}
+    )
+    form.appState = {
+      i18n: {strings: {}},
+      apiGet: vi.fn(async url =>
+        url.startsWith('/api/notes/')
+          ? noteGet()
+          : {data: {handle: 'p1', person_ref_list: [association]}}
+      ),
+      apiPut,
+    }
+    form.personHandle = 'p1'
+    form.association = association
+    form.data = match
+    return {form, apiPut}
+  }
+
+  const puts = apiPut =>
+    Object.fromEntries(apiPut.mock.calls.map(([url, body]) => [url, body]))
+
+  it('is private if only a note with the segments is', async () => {
+    const {form} = editForm({notePrivate: true})
+    expect(form._isPrivate).toBe(false)
+    await form._loadNotePrivacy()
+    expect(form._isPrivate).toBe(true)
+  })
+
+  it('makes the association private with its note', async () => {
+    const {form, apiPut} = editForm()
+    form._handleFormData(formDataEvent('private', {checked: true}))
+    await form._save()
+    const bodies = puts(apiPut)
+    expect(bodies['/api/notes/n1'].private).toBe(true)
+    expect(bodies['/api/people/p1'].person_ref_list[0].private).toBe(true)
+  })
+
+  it('makes the note private if only the association is', async () => {
+    const {form, apiPut} = editForm({associationPrivate: true})
+    await form._save()
+    const bodies = puts(apiPut)
+    expect(bodies['/api/notes/n1'].private).toBe(true)
+    expect(bodies['/api/people/p1']).toBeUndefined()
+  })
+
+  it('keeps the raw data when the privacy is switched', () => {
+    const {form} = editForm()
+    form._handleFormData(formDataEvent('private', {checked: true}))
+    expect(form.data.raw_data).toEqual(match.raw_data)
+  })
+
+  it('announces the change only after the last write', async () => {
+    const {form, apiPut} = editForm()
+    form._handleFormData(formDataEvent('private', {checked: true}))
+    const events = []
+    form.addEventListener('edit-mode:off', () => events.push('off'))
+    form.addEventListener('db:changed', () => events.push('changed'))
+    await form._handleSaveButton()
+    expect(apiPut.mock.calls.map(([, , options]) => options)).toEqual([
+      {dbChanged: false},
+      {dbChanged: false},
+    ])
+    expect(events).toEqual(['off', 'changed'])
+  })
+
+  it('keeps a private note private when saved before its lookup', async () => {
+    let resolveLookup
+    const {form, apiPut} = editForm({
+      noteGet: vi
+        .fn()
+        .mockImplementationOnce(
+          () =>
+            new Promise(resolve => {
+              resolveLookup = resolve
+            })
+        )
+        .mockResolvedValue({data: {handle: 'n1', private: true, text: {}}}),
+    })
+    const loading = form._loadNotePrivacy()
+    await form._save()
+    resolveLookup({data: {handle: 'n1', private: true}})
+    await loading
+    const bodies = puts(apiPut)
+    expect(bodies['/api/notes/n1'].private).toBe(true)
+    expect(bodies['/api/people/p1'].person_ref_list[0].private).toBe(true)
+  })
+
+  it('keeps a private note private after its lookup failed', async () => {
+    const {form, apiPut} = editForm({
+      noteGet: vi
+        .fn()
+        .mockResolvedValueOnce({error: 'Network error'})
+        .mockResolvedValue({data: {handle: 'n1', private: true, text: {}}}),
+    })
+    await form._loadNotePrivacy()
+    await form._save()
+    expect(puts(apiPut)['/api/notes/n1'].private).toBe(true)
+  })
+
+  it('writes nothing when a note cannot be read', async () => {
+    const {form, apiPut} = editForm({
+      noteGet: async () => ({error: 'Not found'}),
+    })
+    const errors = vi.fn()
+    form.addEventListener('grampsjs:error', errors)
+    expect(await form._save()).toBe(false)
+    expect(apiPut).not.toHaveBeenCalled()
+    expect(errors).toHaveBeenCalled()
+  })
+
+  it('keeps the association public when a note cannot be made private', async () => {
+    const {form, apiPut} = editForm({notePut: {error: 'Server error'}})
+    form._handleFormData(formDataEvent('private', {checked: true}))
+    const events = []
+    form.addEventListener('grampsjs:error', () => events.push('error'))
+    form.addEventListener('edit-mode:off', () => events.push('off'))
+    form.addEventListener('db:changed', () => events.push('changed'))
+    await form._handleSaveButton()
+    expect(apiPut.mock.calls.map(([url]) => url)).toEqual(['/api/notes/n1'])
+    expect(events).toEqual(['error', 'off'])
+  })
+})
+
+describe('Y-DNA privacy', () => {
+  it('keeps the raw data when the privacy is switched', () => {
+    const form = new GrampsjsFormEditYDna()
+    form.data = {raw_data: 'M269+'}
+    form._handleFormData(formDataEvent('private', {checked: true}))
+    expect(form.data).toEqual({raw_data: 'M269+', private: true})
+  })
+
+  it('saves the privacy of the Y-DNA attribute', async () => {
+    const view = new GrampsjsViewYDna()
+    const apiPut = vi.fn().mockResolvedValue({data: []})
+    view.appState = {
+      i18n: {strings: {}},
+      apiGet: vi.fn().mockResolvedValue({
+        data: {
+          handle: 'p1',
+          attribute_list: [{type: 'Y-DNA', value: 'old', private: true}],
+        },
+      }),
+      apiPut,
+    }
+    await view._saveYdnaData('p1', 'M269+', false)
+    expect(apiPut.mock.calls[0][1].attribute_list).toEqual([
+      {type: 'Y-DNA', value: 'M269+', private: false},
+    ])
   })
 })
 

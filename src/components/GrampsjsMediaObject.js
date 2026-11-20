@@ -575,6 +575,7 @@ export class GrampsjsMediaObject extends GrampsjsObject {
   _handleEditGeo() {
     this.dialogContent = html`
       <grampsjs-form-edit-map-layer
+        dialogTitle="${this._('Edit coordinates')}"
         @object:save="${this._handleSaveMap}"
         @object:cancel="${this._handleCancelDialog}"
         .appState="${this.appState}"

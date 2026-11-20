@@ -543,5 +543,12 @@
     "The shared DNA is unlikely for the relationship in the tree.": "Sdílená DNA je pro vztah v rodokmenu nepravděpodobná.",
     "Relative of degree %s": "Stupeň příbuznosti %s",
     "Parent or child": "Rodič nebo dítě",
-    "Full sibling": "Plnorodý sourozenec"
+    "Full sibling": "Plnorodý sourozenec",
+    "Preparing changes...": "Připravují se změny...",
+    "Proposed changes": "Navrhované změny",
+    "Changes proposed by the assistant": "Změny navržené asistentem",
+    "Changes applied": "Změny byly aplikovány",
+    "These changes can no longer be applied.": "Tyto změny již nelze aplikovat.",
+    "Attach images": "Připojit obrázky",
+    "Media files are imported separately, under %s.": "Mediální soubory se importují samostatně pod %s."
 }

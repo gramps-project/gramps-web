@@ -1,8 +1,9 @@
 /*
-Form for editing a location's geographic coordinates
+Form for placing a media object as an image overlay on the map
 */
 
 import {html, css} from 'lit'
+import {live} from 'lit/directives/live.js'
 
 import '@material/web/button/filled-button.js'
 import '@material/web/button/outlined-button.js'
@@ -10,9 +11,9 @@ import '@material/web/slider/slider.js'
 
 import {mdiMapMarker} from '@mdi/js'
 
+import './GrampsjsIcon.js'
 import './GrampsjsMap.js'
-import './GrampsjsFormSelectDate.js'
-import './GrampsjsFormSelectObjectList.js'
+import './GrampsjsMapMarker.js'
 
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import {getMediaUrl} from '../api.js'
@@ -100,20 +101,53 @@ class GrampsjsFormEditMapLayer extends GrampsjsNominatimSearchMixin(
   _getLogWidth() {
     const bounds = this._getBounds()
     if (bounds.length !== 2) {
-      return Math.round(Math.log(0.1) * 10) / 10
+      return Math.round(Math.log(0.1) * 1000) / 1000
     }
     const w = bounds[1][1] - bounds[0][1]
-    return Math.round(Math.log(w) * 10) / 10
+    return Math.round(Math.log(w) * 1000) / 1000
+  }
+
+  updated(changed) {
+    super.updated?.(changed)
+    if (changed.has('state')) {
+      const map = this.renderRoot.querySelector('grampsjs-map')?._map
+      if (map) {
+        map.getCanvas().style.cursor = this.state ? 'crosshair' : ''
+      }
+    }
+  }
+
+  // A button that is filled while its picking state is active
+  _renderStateButton(state, label, handler) {
+    const content = html`
+      <grampsjs-icon
+        slot="icon"
+        path="${mdiMapMarker}"
+        color="currentColor"
+      ></grampsjs-icon>
+      ${label}
+    `
+    return this.state === state
+      ? html`
+          <md-filled-button @click="${handler}"> ${content} </md-filled-button>
+        `
+      : html`
+          <md-outlined-button @click="${handler}">
+            ${content}
+          </md-outlined-button>
+        `
   }
 
   renderForm() {
+    const hasBounds = this._getBounds().length === 2
     return html`
-      Scale<br />
+      ${this._('Size')}<br />
       <md-slider
-        value="${this._getLogWidth()}"
+        .value="${live(this._getLogWidth())}"
         min="-6.9"
         max="5.2"
-        step="0.1"
+        step="0.001"
+        ?disabled="${!hasBounds}"
         @input="${this._handleScaleSlider}"
       ></md-slider>
       ${this._('Opacity')}<br />
@@ -122,54 +156,23 @@ class GrampsjsFormEditMapLayer extends GrampsjsNominatimSearchMixin(
         min="0.0"
         max="1.0"
         step="0.05"
+        ?disabled="${!hasBounds}"
         @input="${this._handleOpacitySlider}"
       ></md-slider>
       <div style="margin-top:16px;">${this._renderSearchBox()}</div>
       ${this._renderSearchResults()}
       <div style="margin-bottom:16px;display:flex;gap:8px;">
-        ${this.state === 'placeMarker'
-          ? html`
-              <md-filled-button @click="${this._handleClickPinBtn}">
-                <grampsjs-icon
-                  slot="icon"
-                  path="${mdiMapMarker}"
-                  color="currentColor"
-                ></grampsjs-icon>
-                ${this._('Select a point on the map')}
-              </md-filled-button>
-            `
-          : html`
-              <md-outlined-button @click="${this._handleClickPinBtn}">
-                <grampsjs-icon
-                  slot="icon"
-                  path="${mdiMapMarker}"
-                  color="currentColor"
-                ></grampsjs-icon>
-                ${this._('Select a point on the map')}
-              </md-outlined-button>
-            `}
+        ${this._renderStateButton(
+          'placeMarker',
+          this._('Select a point on the map'),
+          this._handleClickPinBtn
+        )}
         ${this.pinCoordinates.length === 2
-          ? this.state === 'alignImage'
-            ? html`
-                <md-filled-button @click="${this._handleClickAlignBtn}">
-                  <grampsjs-icon
-                    slot="icon"
-                    path="${mdiMapMarker}"
-                    color="currentColor"
-                  ></grampsjs-icon>
-                  ${this._('Align the image')}
-                </md-filled-button>
-              `
-            : html`
-                <md-outlined-button @click="${this._handleClickAlignBtn}">
-                  <grampsjs-icon
-                    slot="icon"
-                    path="${mdiMapMarker}"
-                    color="currentColor"
-                  ></grampsjs-icon>
-                  ${this._('Align the image')}
-                </md-outlined-button>
-              `
+          ? this._renderStateButton(
+              'alignImage',
+              this._('Align the image'),
+              this._handleClickAlignBtn
+            )
           : ''}
       </div>
       <grampsjs-map
@@ -291,20 +294,6 @@ class GrampsjsFormEditMapLayer extends GrampsjsNominatimSearchMixin(
       ])
     }
     img.src = url
-  }
-
-  _setTopLeft(lat, long) {
-    const boundsOld = this._getBounds()
-    if (boundsOld.length !== 2) {
-      return
-    }
-    const h = boundsOld[1][0] - boundsOld[0][0]
-    const w = boundsOld[1][1] - boundsOld[0][1]
-    const bounds = [
-      [lat - h, long],
-      [lat, long + w],
-    ]
-    this._setBounds(bounds)
   }
 
   _alignToPin(lat, long) {

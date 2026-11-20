@@ -8,7 +8,12 @@ import {mdiCheckCircle} from '@mdi/js'
 import './GrampsjsIcon.js'
 import {renderOidcButtons} from './GrampsjsOidcButton.js'
 import {sharedStyles} from '../SharedStyles.js'
-import {apiRegisterUser, apiGetOIDCConfig, apiOIDCLogin} from '../api.js'
+import {
+  apiRegisterUser,
+  apiGetOIDCConfig,
+  apiGetRegistrationEnabled,
+  apiOIDCLogin,
+} from '../api.js'
 import {fireEvent} from '../util.js'
 
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
@@ -67,6 +72,7 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
       oidcConfig: {type: Object},
       _oidcProvider: {type: String},
       _registered: {type: Boolean},
+      _registrationEnabled: {type: Boolean},
     }
   }
 
@@ -80,6 +86,8 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
     this.oidcConfig = {}
     this._oidcProvider = ''
     this._registered = false
+    // undefined while loading, null when the server does not say
+    this._registrationEnabled = undefined
     this._boundHandlePageShow = this._handlePageShow.bind(this)
   }
 
@@ -90,6 +98,29 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
     if (!config.error) {
       this.oidcConfig = config
     }
+  }
+
+  willUpdate(changed) {
+    if (changed.has('tree')) {
+      this._loadRegistrationEnabled()
+    }
+  }
+
+  async _loadRegistrationEnabled() {
+    const {tree} = this
+    this._registrationEnabled = undefined
+    const enabled = await apiGetRegistrationEnabled(tree)
+    if (this.tree !== tree) {
+      return
+    }
+    this._registrationEnabled = enabled
+    if (enabled === false && this.isConnected) {
+      fireEvent(this, 'nav', {path: this._loginPath(), replace: true})
+    }
+  }
+
+  _loginPath() {
+    return this.tree ? `login/${this.tree}` : 'login'
   }
 
   disconnectedCallback() {
@@ -106,6 +137,13 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
   }
 
   render() {
+    // empty while loading and while redirecting to the login page
+    if (
+      this._registrationEnabled === undefined ||
+      this._registrationEnabled === false
+    ) {
+      return ''
+    }
     const oidcEnabled =
       this.oidcConfig?.enabled &&
       this.oidcConfig?.providers?.length > 0 &&
@@ -219,7 +257,7 @@ class GrampsjsFormRegister extends GrampsjsAppStateMixin(LitElement) {
 
   _handleClickLogin() {
     this.register = false
-    this._handleNav(this.tree ? `login/${this.tree}` : 'login')
+    this._handleNav(this._loginPath())
   }
 
   _handleNav(path) {
