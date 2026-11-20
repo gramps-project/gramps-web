@@ -775,6 +775,7 @@ export class GrampsJs extends LitElement {
         return
       }
       if ('data' in data) {
+        this.appState.setApiVersion(data.data.gramps_webapi?.version)
         this._updateAppState({dbInfo: data.data})
         this._checkSearch()
         this._checkApiVersion()
