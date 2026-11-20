@@ -244,6 +244,7 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
       <grampsjs-attributes
         edit
         hasEdit
+        nested
         attributeCategory="${attributeCategory}"
         .appState="${this.appState}"
         .data="${this.data.attribute_list ?? []}"
@@ -267,11 +268,8 @@ export class GrampsjsObjectForm extends GrampsjsAppStateMixin(LitElement) {
   }
 
   _handleDialogKeydown(e) {
-    // escape in a dialog opened from this one closes only that
-    const dialogs = e
-      .composedPath()
-      .filter(el => el.tagName === 'MD-DIALOG').length
-    if (dialogs > 1) {
+    const dialog = e.composedPath().find(el => el.tagName === 'MD-DIALOG')
+    if (dialog !== this.renderRoot.querySelector('md-dialog')) {
       return
     }
     if (e.key === 'Escape') {

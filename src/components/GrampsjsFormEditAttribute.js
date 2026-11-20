@@ -14,12 +14,15 @@ class GrampsjsFormEditAttribute extends GrampsjsObjectForm {
   static get properties() {
     return {
       attributeCategory: {type: String},
+      // attribute of a secondary object, edited without citations and notes
+      nested: {type: Boolean},
     }
   }
 
   constructor() {
     super()
     this.attributeCategory = ''
+    this.nested = false
   }
 
   renderForm() {
@@ -49,7 +52,9 @@ class GrampsjsFormEditAttribute extends GrampsjsObjectForm {
         value="${this.data?.value || ''}"
       >
       </grampsjs-form-string>
-      ${this.#isSourceAttribute ? '' : this.renderRefCitationsAndNotes()}
+      ${this.nested || this.#isSourceAttribute
+        ? ''
+        : this.renderRefCitationsAndNotes()}
       ${this.renderPrivate()}
     `
   }

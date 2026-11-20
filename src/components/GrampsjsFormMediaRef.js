@@ -1,6 +1,6 @@
 /*
 Form for linking an existing media object or for editing citations,
-notes, attributes and privacy of an existing media link
+notes and attributes of an existing media link
 */
 
 import {html} from 'lit'
@@ -8,23 +8,32 @@ import {html} from 'lit'
 import './GrampsjsFormSelectObjectList.js'
 import './GrampsjsAttributes.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
-import {participantIntroStyles} from './participantRow.js'
+import {participantIntroStyles, renderRowIntro} from './participantRow.js'
 
 class GrampsjsFormMediaRef extends GrampsjsObjectForm {
   static get styles() {
     return [...super.styles, ...participantIntroStyles]
   }
 
+  static get properties() {
+    return {
+      intro: {type: String},
+      summary: {type: Object},
+    }
+  }
+
+  constructor() {
+    super()
+    this.intro = ''
+    this.summary = ''
+  }
+
   renderForm() {
     if (!this.new) {
       return html`
-        <p class="intro">
-          ${this._(
-            'The information below applies to this media object on this page.'
-          )}
-        </p>
+        ${renderRowIntro(this.intro, this.summary)}
         ${this.renderRefCitationsAndNotes()}
-        ${this.renderRefAttributes('media objects')} ${this.renderPrivate()}
+        ${this.renderRefAttributes('media objects')}
       `
     }
     return html`

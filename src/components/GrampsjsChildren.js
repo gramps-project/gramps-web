@@ -47,7 +47,6 @@ export class GrampsjsChildren extends GrampsjsEditableList {
 
   row(obj, i) {
     const p = this.profile[i] || {}
-    const extPerson = this.extended.find(e => e?.handle === obj.ref) || null
 
     const frel = obj.frel || 'Birth'
     const mrel = obj.mrel || 'Birth'
@@ -72,28 +71,36 @@ export class GrampsjsChildren extends GrampsjsEditableList {
           }
         }}"
       >
-        ${p.name_given || ''} ${p.name_surname || ''}
-        ${renderPrivacyIcon(rowPrivacy(extPerson, obj), this.appState)}
-        ${renderPersonDates(
-          p,
-          getSymbols(this.appState.settings, s => this._(s))
-        )}
+        ${this._rowContent(obj, i)}
         ${hasNonBirthRel
           ? html`<span slot="supporting-text">${relText}</span>`
           : ''}
-        ${renderPersonAvatar(extPerson, p.sex)} ${this._renderRefCounts(obj, i)}
+        ${this._renderRefCounts(obj, i)}
       </md-list-item>
     `
   }
 
-  _refDetailsContext(obj, i) {
+  _rowContent(obj, i) {
     const p = this.profile[i] || {}
+    const extPerson = this.extended.find(e => e?.handle === obj.ref) || null
+    return html`
+      ${p.name_given || ''} ${p.name_surname || ''}
+      ${renderPrivacyIcon(rowPrivacy(extPerson, obj), this.appState)}
+      ${renderPersonDates(
+        p,
+        getSymbols(this.appState.settings, s => this._(s))
+      )}
+      ${renderPersonAvatar(extPerson, p.sex)}
+    `
+  }
+
+  _refDetailsContext(obj, i) {
     return {
-      title: `${p.name_given || ''} ${p.name_surname || ''}`.trim(),
+      title: this._('Child'),
       intro: this._(
         'The information below applies to this child in this family.'
       ),
-      summary: '',
+      summary: this._rowContent(obj, i),
     }
   }
 
@@ -131,8 +138,9 @@ export class GrampsjsChildren extends GrampsjsEditableList {
         @object:cancel="${this._handleDialogCancel}"
         .appState="${this.appState}"
         .data="${childRef}"
+        .summary="${this._rowContent(childRef, this._selectedIndex)}"
         objType="${this.objType}"
-        dialogTitle=${this._('Edit the child reference')}
+        dialogTitle=${this._('Child')}
       >
       </grampsjs-form-childref>
     `

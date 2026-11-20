@@ -496,9 +496,11 @@
   "The information below applies to this family in this event.": "The information below applies to this family in this event.",
   "The information below applies to this person in this event.": "The information below applies to this person in this event.",
   "The information below applies to this child in this family.": "The information below applies to this child in this family.",
-  "The information below applies to this name.": "The information below applies to this name.",
-  "The information below applies to this attribute.": "The information below applies to this attribute.",
-  "The information below applies to this address.": "The information below applies to this address.",
-  "The information below applies to this media object on this page.": "The information below applies to this media object on this page.",
+  "The information below applies to this media object for this person.": "The information below applies to this media object for this person.",
+  "The information below applies to this media object for this family.": "The information below applies to this media object for this family.",
+  "The information below applies to this media object for this event.": "The information below applies to this media object for this event.",
+  "The information below applies to this media object for this place.": "The information below applies to this media object for this place.",
+  "The information below applies to this media object for this source.": "The information below applies to this media object for this source.",
+  "The information below applies to this media object for this citation.": "The information below applies to this media object for this citation.",
   "No notifications": "No notifications"
 }

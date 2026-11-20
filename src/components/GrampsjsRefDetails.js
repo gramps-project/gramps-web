@@ -7,8 +7,6 @@ import {html, css, LitElement} from 'lit'
 
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
-import '@material/web/list/list.js'
-import '@material/web/list/list-item.js'
 
 import './GrampsjsAttributes.js'
 import './GrampsjsSearchResultList.js'
@@ -17,6 +15,7 @@ import {fireEvent} from '../util.js'
 import {
   participantIntroStyles,
   renderParticipantIntro,
+  renderRowIntro,
 } from './participantRow.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -73,7 +72,7 @@ class GrampsjsRefDetails extends GrampsjsAppStateMixin(LitElement) {
       // a row of participantRefRows for a participant's link to an event
       participant: {type: Object},
       // for other secondary objects, the sentence saying what the dialog
-      // applies to and a line identifying the object
+      // applies to and the content of the object's row
       intro: {type: String},
       summary: {type: Object},
       citations: {type: Array},
@@ -114,11 +113,12 @@ class GrampsjsRefDetails extends GrampsjsAppStateMixin(LitElement) {
                 this.appState,
                 (...args) => this._(...args)
               )
-            : this._renderIntro()}
+            : renderRowIntro(this.intro, this.summary)}
           ${this.attributes.length
             ? html`
                 <h4 class="label">${this._('Attributes')}</h4>
                 <grampsjs-attributes
+                  nested
                   .appState="${this.appState}"
                   .data="${this.attributes}"
                 ></grampsjs-attributes>
@@ -137,19 +137,6 @@ class GrampsjsRefDetails extends GrampsjsAppStateMixin(LitElement) {
           </md-text-button>
         </div>
       </md-dialog>
-    `
-  }
-
-  _renderIntro() {
-    return html`
-      ${this.intro ? html`<p class="intro">${this.intro}</p>` : ''}
-      ${this.summary
-        ? html`
-            <md-list class="participant">
-              <md-list-item type="text">${this.summary}</md-list-item>
-            </md-list>
-          `
-        : ''}
     `
   }
 

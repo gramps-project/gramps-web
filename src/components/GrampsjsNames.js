@@ -3,10 +3,16 @@ import {classMap} from 'lit/directives/class-map.js'
 
 import '@material/web/dialog/dialog.js'
 import '@material/web/button/text-button.js'
-import {fireEvent, personDisplayName, typeString} from '../util.js'
+import {
+  fireEvent,
+  objectIconPath,
+  personDisplayName,
+  typeString,
+} from '../util.js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditName.js'
 import './GrampsjsFormSelectObject.js'
+import './GrampsjsIcon.js'
 import './GrampsjsName.js'
 import './GrampsjsObjectForm.js'
 import './GrampsjsRefDetails.js'
@@ -54,9 +60,16 @@ export class GrampsjsNames extends GrampsjsEditableList {
 
   _refDetailsContext(obj) {
     return {
-      title: this._(typeString(obj.type) || 'Name'),
-      intro: this._('The information below applies to this name.'),
-      summary: personDisplayName({primary_name: obj}),
+      title: this._('Name'),
+      summary: html`
+        ${personDisplayName({primary_name: obj})}
+        <span slot="supporting-text">${this._(typeString(obj.type))}</span>
+        <grampsjs-icon
+          slot="start"
+          path="${objectIconPath.person}"
+          color="var(--grampsjs-color-icon)"
+        ></grampsjs-icon>
+      `,
     }
   }
 

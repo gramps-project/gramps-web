@@ -185,7 +185,7 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
       return
     }
     const {citations, notes, attributes} = refLists(obj)
-    const {title, intro, summary} = this._refDetailsContext(obj, i)
+    const {title, intro = '', summary = ''} = this._refDetailsContext(obj, i)
     this.dialogContent = html`
       <grampsjs-ref-details
         .appState="${this.appState}"
@@ -202,7 +202,7 @@ export class GrampsjsEditableList extends GrampsjsAppStateMixin(LitElement) {
     `
   }
 
-  // headline, sentence, summary line of the details dialog of a row
+  // headline, sentence and row content of the details dialog of a row
   _refDetailsContext(obj, i) {
     return {title: '', intro: '', summary: ''}
   }

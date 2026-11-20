@@ -29,12 +29,16 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
   static get properties() {
     return {
       attributeCategory: {type: String},
+      // attributes of a secondary object shown without their own
+      // citations and notes
+      nested: {type: Boolean},
     }
   }
 
   constructor() {
     super()
     this.attributeCategory = ''
+    this.nested = false
     this.hasReorder = true
     this.listProp = 'attribute_list'
   }
@@ -50,40 +54,36 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
           }
         }}"
       >
-        ${this.edit
-          ? obj.value.length > 200
-            ? `${obj.value.slice(0, 200)}…`
-            : obj.value
-          : linkUrls(
-              obj.value.length > 200
-                ? `${obj.value.slice(0, 200)}…`
-                : obj.value,
-              false
-            )}
-        ${renderPrivacyIcon(rowPrivacy(obj), this.appState)}
-        <span slot="supporting-text">${this._(obj.type)}</span>
-        <grampsjs-icon
-          slot="start"
-          path="${mdiInformation}"
-          color="var(--grampsjs-color-icon)"
-        ></grampsjs-icon>
-        ${this._renderRefCounts(obj, i)}
+        ${this._rowContent(obj)}
+        ${this.nested ? '' : this._renderRefCounts(obj, i)}
       </md-list-item>
     `
   }
 
+  _rowContent(obj) {
+    const value =
+      obj.value.length > 200 ? `${obj.value.slice(0, 200)}…` : obj.value
+    return html`
+      ${this.edit ? value : linkUrls(value, false)}
+      ${renderPrivacyIcon(rowPrivacy(obj), this.appState)}
+      <span slot="supporting-text">${this._(obj.type)}</span>
+      <grampsjs-icon
+        slot="start"
+        path="${mdiInformation}"
+        color="var(--grampsjs-color-icon)"
+      ></grampsjs-icon>
+    `
+  }
+
   _refDetailsContext(obj) {
-    return {
-      title: this._(obj.type),
-      intro: this._('The information below applies to this attribute.'),
-      summary: obj.value,
-    }
+    return {title: this._(obj.type), summary: this._rowContent(obj)}
   }
 
   _handleAdd() {
     this.dialogContent = html`
       <grampsjs-form-edit-attribute
         new
+        ?nested="${this.nested}"
         attributeCategory="${this.attributeCategory}"
         @object:save="${this._handleAttrSave}"
         @object:cancel="${this._handleAttrCancel}"
@@ -99,13 +99,16 @@ export class GrampsjsAttributes extends GrampsjsEditableList {
       type: attr.type || '',
       value: attr.value || '',
       private: !!attr.private,
-      ...('citation_list' in attr
+      ...(!this.nested && 'citation_list' in attr
         ? {citation_list: attr.citation_list ?? []}
         : {}),
-      ...('note_list' in attr ? {note_list: attr.note_list ?? []} : {}),
+      ...(!this.nested && 'note_list' in attr
+        ? {note_list: attr.note_list ?? []}
+        : {}),
     }
     this.dialogContent = html`
       <grampsjs-form-edit-attribute
+        ?nested="${this.nested}"
         attributeCategory="${this.attributeCategory}"
         @object:save="${this._handleAttrSaveEdit}"
         @object:cancel="${this._handleAttrCancel}"

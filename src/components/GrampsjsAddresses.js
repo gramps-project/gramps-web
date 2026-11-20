@@ -51,31 +51,29 @@ export class GrampsjsAddresses extends GrampsjsEditableList {
           }
         }}"
       >
-        ${summaryFields
-          .map(key => obj[key])
-          .filter(value => value)
-          .join(', ')}
-        ${renderPrivacyIcon(rowPrivacy(obj), this.appState)}
-        ${this._supportingText(obj, i)}
-        <grampsjs-icon
-          slot="start"
-          path="${mdiMapMarker}"
-          color="var(--grampsjs-color-icon)"
-        ></grampsjs-icon>
-        ${this._renderRefCounts(obj, i)}
+        ${this._rowContent(obj, i)} ${this._renderRefCounts(obj, i)}
       </md-list-item>
     `
   }
 
-  _refDetailsContext(obj) {
-    return {
-      title: this._('Address'),
-      intro: this._('The information below applies to this address.'),
-      summary: summaryFields
+  _rowContent(obj, i) {
+    return html`
+      ${summaryFields
         .map(key => obj[key])
         .filter(value => value)
-        .join(', '),
-    }
+        .join(', ')}
+      ${renderPrivacyIcon(rowPrivacy(obj), this.appState)}
+      ${this._supportingText(obj, i)}
+      <grampsjs-icon
+        slot="start"
+        path="${mdiMapMarker}"
+        color="var(--grampsjs-color-icon)"
+      ></grampsjs-icon>
+    `
+  }
+
+  _refDetailsContext(obj, i) {
+    return {title: this._('Address'), summary: this._rowContent(obj, i)}
   }
 
   // The phone number and the date the address was current, each on its own
