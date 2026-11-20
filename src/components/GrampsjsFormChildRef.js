@@ -9,19 +9,27 @@ import './GrampsjsFormSelectType.js'
 import './GrampsjsFormSelectObjectList.js'
 import './GrampsjsFormString.js'
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
+import {participantIntroStyles, renderRowIntro} from './participantRow.js'
 
 class GrampsjsFormChildRef extends GrampsjsObjectForm {
+  static get styles() {
+    return [...super.styles, ...participantIntroStyles]
+  }
+
   static get properties() {
     return {
       // hide the switch for the privacy of the reference, where picking a
       // person would make it read as the person's privacy
       noPrivate: {type: Boolean},
+      // content of the child row for an existing reference
+      summary: {type: Object},
     }
   }
 
   constructor() {
     super()
     this.noPrivate = false
+    this.summary = ''
   }
 
   // the form edits an existing reference if the data it was opened with
@@ -37,6 +45,14 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
 
   renderForm() {
     return html`
+      ${this.#isExistingRef
+        ? renderRowIntro(
+            this._(
+              'The information below applies to this child in this family.'
+            ),
+            this.summary
+          )
+        : ''}
       ${this.#isExistingRef
         ? ''
         : html`
@@ -76,6 +92,7 @@ class GrampsjsFormChildRef extends GrampsjsObjectForm {
         .typesLocale="${this.typesLocale}"
       >
       </grampsjs-form-select-type>
+      ${this.#isExistingRef ? this.renderRefCitationsAndNotes() : ''}
       ${this.noPrivate ? '' : this.renderPrivate()}
     `
   }

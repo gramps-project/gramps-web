@@ -15,6 +15,7 @@ import {fireEvent} from '../util.js'
 import {
   participantIntroStyles,
   renderParticipantIntro,
+  renderRowIntro,
 } from './participantRow.js'
 import {GrampsjsAppStateMixin} from '../mixins/GrampsjsAppStateMixin.js'
 
@@ -68,8 +69,12 @@ class GrampsjsRefDetails extends GrampsjsAppStateMixin(LitElement) {
   static get properties() {
     return {
       dialogTitle: {type: String},
-      // a row of participantRefRows
+      // a row of participantRefRows for a participant's link to an event
       participant: {type: Object},
+      // for other secondary objects, the sentence saying what the dialog
+      // applies to and the content of the object's row
+      intro: {type: String},
+      summary: {type: Object},
       citations: {type: Array},
       notes: {type: Array},
       attributes: {type: Array},
@@ -82,7 +87,9 @@ class GrampsjsRefDetails extends GrampsjsAppStateMixin(LitElement) {
   constructor() {
     super()
     this.dialogTitle = ''
-    this.participant = {}
+    this.participant = null
+    this.intro = ''
+    this.summary = ''
     this.citations = []
     this.notes = []
     this.attributes = []
@@ -100,13 +107,18 @@ class GrampsjsRefDetails extends GrampsjsAppStateMixin(LitElement) {
       >
         <div slot="headline">${this.dialogTitle}</div>
         <div slot="content">
-          ${renderParticipantIntro(this.participant, this.appState, (...args) =>
-            this._(...args)
-          )}
+          ${this.participant
+            ? renderParticipantIntro(
+                this.participant,
+                this.appState,
+                (...args) => this._(...args)
+              )
+            : renderRowIntro(this.intro, this.summary)}
           ${this.attributes.length
             ? html`
                 <h4 class="label">${this._('Attributes')}</h4>
                 <grampsjs-attributes
+                  nested
                   .appState="${this.appState}"
                   .data="${this.attributes}"
                 ></grampsjs-attributes>

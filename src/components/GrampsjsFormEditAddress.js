@@ -6,6 +6,7 @@ import {html} from 'lit'
 
 import './GrampsjsFormString.js'
 import './GrampsjsFormSelectDate.js'
+import './GrampsjsFormSelectObjectList.js'
 
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 import {emptyDate} from '../util.js'
@@ -53,7 +54,7 @@ class GrampsjsFormEditAddress extends GrampsjsObjectForm {
         >
         </grampsjs-form-select-date>
       </p>
-      ${this.renderPrivate()}
+      ${this.renderRefCitationsAndNotes()} ${this.renderPrivate()}
     `
   }
 

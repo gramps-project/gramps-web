@@ -45,20 +45,27 @@ export const participantIntroStyles = [
   `,
 ]
 
+export function renderRowIntro(intro, rowContent) {
+  return html`
+    ${intro ? html`<p class="intro">${intro}</p>` : ''}
+    ${rowContent
+      ? html`
+          <md-list class="participant">
+            <md-list-item type="text">${rowContent}</md-list-item>
+          </md-list>
+        `
+      : ''}
+  `
+}
+
 // the sentence at the top of the dialogs and the participant below it
 export function renderParticipantIntro(row, appState, translate, options) {
-  return html`
-    <p class="intro">
-      ${translate(
-        row.object_type === 'family'
-          ? 'The information below applies to this family in this event.'
-          : 'The information below applies to this person in this event.'
-      )}
-    </p>
-    <md-list class="participant">
-      <md-list-item type="text">
-        ${renderParticipantRowContent(row, appState, translate, options)}
-      </md-list-item>
-    </md-list>
-  `
+  return renderRowIntro(
+    translate(
+      row.object_type === 'family'
+        ? 'The information below applies to this family in this event.'
+        : 'The information below applies to this person in this event.'
+    ),
+    renderParticipantRowContent(row, appState, translate, options)
+  )
 }

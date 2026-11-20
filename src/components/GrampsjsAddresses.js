@@ -5,6 +5,7 @@ import {mdiMapMarker} from '@mdi/js'
 import {GrampsjsEditableList} from './GrampsjsEditableList.js'
 import './GrampsjsFormEditAddress.js'
 import './GrampsjsIcon.js'
+import './GrampsjsRefDetails.js'
 
 import {dateIsEmpty, fireEvent} from '../util.js'
 import {renderPrivacyIcon, rowPrivacy} from '../objectRender.js'
@@ -50,19 +51,29 @@ export class GrampsjsAddresses extends GrampsjsEditableList {
           }
         }}"
       >
-        ${summaryFields
-          .map(key => obj[key])
-          .filter(value => value)
-          .join(', ')}
-        ${renderPrivacyIcon(rowPrivacy(obj), this.appState)}
-        ${this._supportingText(obj, i)}
-        <grampsjs-icon
-          slot="start"
-          path="${mdiMapMarker}"
-          color="var(--grampsjs-color-icon)"
-        ></grampsjs-icon>
+        ${this._rowContent(obj, i)} ${this._renderRefCounts(obj, i)}
       </md-list-item>
     `
+  }
+
+  _rowContent(obj, i) {
+    return html`
+      ${summaryFields
+        .map(key => obj[key])
+        .filter(value => value)
+        .join(', ')}
+      ${renderPrivacyIcon(rowPrivacy(obj), this.appState)}
+      ${this._supportingText(obj, i)}
+      <grampsjs-icon
+        slot="start"
+        path="${mdiMapMarker}"
+        color="var(--grampsjs-color-icon)"
+      ></grampsjs-icon>
+    `
+  }
+
+  _refDetailsContext(obj, i) {
+    return {title: this._('Address'), summary: this._rowContent(obj, i)}
   }
 
   // The phone number and the date the address was current, each on its own

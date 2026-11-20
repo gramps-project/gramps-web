@@ -6,6 +6,7 @@ import {html} from 'lit'
 
 import './GrampsjsFormName.js'
 import './GrampsjsFormSelectType.js'
+import './GrampsjsFormSelectObjectList.js'
 
 import {GrampsjsObjectForm} from './GrampsjsObjectForm.js'
 
@@ -54,6 +55,7 @@ class GrampsjsFormEditName extends GrampsjsObjectForm {
         .typesLocale="${this.typesLocale}"
       >
       </grampsjs-form-name>
+      ${this.renderRefCitationsAndNotes()}
       ${this.primary ? '' : this.renderPrivate()}
     `
   }
