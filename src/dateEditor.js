@@ -20,6 +20,8 @@ export const DATE_KINDS = [
   'fromto',
 ]
 
+const TEXT_ONLY = 6
+
 const KIND_MODIFIER = {
   regular: 0,
   before: 1,
@@ -64,7 +66,9 @@ export function dateToEditorState(date) {
 /**
  * Build the Gramps date for an editor kind and its rows, keeping all other
  * properties of `base`. A date whose rows in use are all empty becomes an
- * empty regular date, so an untouched field saves nothing.
+ * empty regular date, so an untouched field saves nothing. A text-only date
+ * (modifier 6) given a kind drops its text: that text was the date Gramps
+ * could not parse, which the rows now replace.
  */
 export function editorStateToDate(base, kind, rows) {
   if (kind === null) {
@@ -95,6 +99,9 @@ export function editorStateToDate(base, kind, rows) {
   if (usedRows.every(rowIsEmpty)) {
     modifier = 0
     dateval = [...EMPTY_ROW]
+  }
+  if (base.modifier === TEXT_ONLY) {
+    return {...base, modifier, dateval, text: ''}
   }
   return {...base, modifier, dateval}
 }

@@ -118,6 +118,26 @@ describe('editorStateToDate', () => {
     expect(editorStateToDate(base, null, [EMPTY, EMPTY])).toBe(base)
   })
 
+  it('turns an edited text-only date into a regular one without its text', () => {
+    const base = date(6, EMPTY, {text: '22/4/1946'})
+    const result = editorStateToDate(base, 'regular', [
+      [22, 4, 1946, false],
+      EMPTY,
+    ])
+    expect(result.modifier).toBe(0)
+    expect(result.dateval).toEqual([22, 4, 1946, false])
+    expect(result.text).toBe('')
+  })
+
+  it('keeps the text of a date that was not text-only', () => {
+    const base = date(0, [12, 3, 1850, false], {text: 'from the parish book'})
+    const result = editorStateToDate(base, 'about', [
+      [12, 3, 1850, false],
+      EMPTY,
+    ])
+    expect(result.text).toBe('from the parish book')
+  })
+
   it('round-trips every modifier the editor supports', () => {
     const dates = [
       date(0, [12, 3, 1850, false]),
