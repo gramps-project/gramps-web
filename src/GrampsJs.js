@@ -1164,6 +1164,9 @@ export class GrampsJs extends LitElement {
     }
     this.appState.auth.unpinTree()
     clearMediaCaches()
+    if (e?.detail?.pushCleanupWarning) {
+      this._showMessage(this._('An error occurred'))
+    }
   }
 
   _handleStorage(e) {
