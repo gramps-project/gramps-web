@@ -10,7 +10,12 @@ import {
   updateTaskStatus,
 } from './api.js'
 import {getCurrentTheme} from './theme.js'
-import {fireEvent, makeHandle} from './util.js'
+import {apiVersionAtLeast, fireEvent, makeHandle} from './util.js'
+import {
+  DATE_FORMAT_API_MIN_VERSION,
+  getDateFormat,
+  withDateFormat,
+} from './date.js'
 import {
   getTaskLabel,
   getTaskName,
@@ -23,6 +28,7 @@ export function getInitialAppState() {
   let activeGetCount = 0
   let activeSaveCount = 0
   let lastSaveSucceeded = true
+  let supportsDateFormat = false
 
   // In-memory notification log
   const notifications = []
@@ -313,15 +319,25 @@ export function getInitialAppState() {
     },
     // `background: true` keeps the request out of the progress indicator.
     apiGet: (endpoint, {background = false, ...options} = {}) => {
+      const settings = getSettings()
+      const requestEndpoint = supportsDateFormat
+        ? withDateFormat(endpoint, getDateFormat(settings), settings.lang)
+        : endpoint
       if (background) {
-        return apiGet(auth, endpoint, options)
+        return apiGet(auth, requestEndpoint, options)
       }
       activeGetCount += 1
       notifyCounters()
-      return apiGet(auth, endpoint, options).finally(() => {
+      return apiGet(auth, requestEndpoint, options).finally(() => {
         activeGetCount = Math.max(0, activeGetCount - 1)
         notifyCounters()
       })
+    },
+    setApiVersion: version => {
+      supportsDateFormat = apiVersionAtLeast(
+        {gramps_webapi: {version}},
+        ...DATE_FORMAT_API_MIN_VERSION
+      )
     },
     apiPost: (endpoint, payload, options = {}) => {
       const {saving: isSave = true} = options

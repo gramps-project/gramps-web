@@ -14,16 +14,25 @@ export const GrampsjsStaleDataMixin = superClass =>
       super()
       this._isStale = false
       this._boundHandleDbChanged = this._handleDbChanged.bind(this)
+      this._boundHandleDateFormatChanged = this._handleDbChanged.bind(this)
     }
 
     connectedCallback() {
       super.connectedCallback()
       window.addEventListener('db:changed', this._boundHandleDbChanged)
+      window.addEventListener(
+        'date-format:changed',
+        this._boundHandleDateFormatChanged
+      )
     }
 
     disconnectedCallback() {
       super.disconnectedCallback()
       window.removeEventListener('db:changed', this._boundHandleDbChanged)
+      window.removeEventListener(
+        'date-format:changed',
+        this._boundHandleDateFormatChanged
+      )
     }
 
     _handleDbChanged() {

@@ -29,7 +29,13 @@ import {
   TREE_CONFIG_PRIMARY_COLOR,
   TREE_CONFIG_SECONDARY_COLOR,
 } from '../api.js'
-import {fireEvent} from '../util.js'
+import {apiVersionAtLeast, fireEvent} from '../util.js'
+import {
+  DATE_FORMAT_API_MIN_VERSION,
+  DATE_FORMAT_OPTIONS,
+  getDateFormat,
+  supportsDateFormat,
+} from '../date.js'
 import {applyScheme, DEFAULT_PRIMARY, DEFAULT_SECONDARY} from '../theme.js'
 import {DEFAULT_TREE_VIEW, TREE_VIEWS} from '../treeDefaults.js'
 import {
@@ -164,6 +170,15 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       >
         <h3>${this._('Select language')}</h3>
         ${this.renderLangSelect()}
+        ${apiVersionAtLeast(
+          this.appState.dbInfo,
+          ...DATE_FORMAT_API_MIN_VERSION
+        )
+          ? html`
+              <h3>${this._('Date format')}</h3>
+              ${this.renderDateFormatSelect()}
+            `
+          : ''}
         <h3>${this._('Select theme')}</h3>
         ${this.renderThemeSelect()}
         <h3>${this._('Genealogical symbols')}</h3>
@@ -213,8 +228,48 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
   _handleLangSelected(event) {
     const key = event.target.value
     if (key) {
-      this.appState.updateSettings({lang: key})
+      this.appState.updateSettings({
+        lang: key,
+        dateFormat: getDateFormat({...this.appState.settings, lang: key}),
+      })
+      fireEvent(window, 'date-format:changed')
     }
+  }
+
+  renderDateFormatSelect() {
+    const dateFormat = getDateFormat(this.appState.settings)
+    const options = DATE_FORMAT_OPTIONS.filter(option =>
+      supportsDateFormat(option.format, this.appState.settings.lang)
+    )
+    return html`
+      <md-filled-select
+        id="select-date-format"
+        label="${this._('Date format')}"
+        @change="${this._handleDateFormatSelected}"
+      >
+        <md-select-option value="default" ?selected="${dateFormat === null}"
+          >${this._('Use the server default')}</md-select-option
+        >
+        ${options.map(
+          option => html`
+            <md-select-option
+              value="${option.format}"
+              ?selected="${dateFormat === option.format}"
+              >${option.format === 1
+                ? this._p('date format', option.label)
+                : this._(option.label)}</md-select-option
+            >
+          `
+        )}
+      </md-filled-select>
+    `
+  }
+
+  _handleDateFormatSelected(event) {
+    const value = event.target.value
+    const dateFormat = value === 'default' ? null : Number(value)
+    this.appState.updateSettings({dateFormat})
+    fireEvent(window, 'date-format:changed')
   }
 
   firstUpdated() {
