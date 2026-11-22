@@ -550,5 +550,6 @@
     "Changes applied": "Změny byly aplikovány",
     "These changes can no longer be applied.": "Tyto změny již nelze aplikovat.",
     "Attach images": "Připojit obrázky",
-    "Media files are imported separately, under %s.": "Mediální soubory se importují samostatně pod %s."
+    "Media files are imported separately, under %s.": "Mediální soubory se importují samostatně pod %s.",
+    "Cover image": "Titulní obrázek"
 }
