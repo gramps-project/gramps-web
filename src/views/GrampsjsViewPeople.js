@@ -8,6 +8,7 @@ import {
   tagsColumn,
 } from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, personFilter, filterCounts} from '../util.js'
+import {placeDisplayText} from '../placeDisplay.js'
 import {
   associationsFilter,
   privacyFilter,
@@ -65,14 +66,15 @@ export class GrampsjsViewPeople extends GrampsjsViewObjectsBase {
     const birthDate = row?.profile?.birth?.date
     const deathDate = row?.profile?.death?.date
     const age = row?.profile?.death?.age ?? ''
+    const placeDisplay = this.appState?.settings?.placeDisplay
     return {
       grampsId: row.gramps_id,
       surname: row?.profile?.name_surname,
       given: row?.profile?.name_given,
       birth: birthDate,
-      birthPlace: row?.profile?.birth?.place_name,
+      birthPlace: placeDisplayText(row?.profile?.birth, placeDisplay),
       death: deathDate,
-      deathPlace: row?.profile?.death?.place_name,
+      deathPlace: placeDisplayText(row?.profile?.death, placeDisplay),
       age: birthDate && deathDate && /\d/.test(age) ? age : '',
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
       tags: row?.extended?.tags ?? [],

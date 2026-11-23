@@ -57,6 +57,7 @@ import {renderIconSvg, ringsIconPath} from './icons.js'
 import './components/GrampsjsIcon.js'
 import {frontendLanguages} from './strings.js'
 import {getSymbols} from './symbols.js'
+import {placeDisplayText} from './placeDisplay.js'
 
 dayjs.extend(relativeTime)
 
@@ -530,31 +531,36 @@ export function objectDescription(type, obj, strings) {
 }
 
 // Event profile as "<symbol> <date>, <place>"; empty without date and place
-function eventSummary(symbol, eventProfile) {
+function eventSummary(symbol, eventProfile, placeDisplay) {
   const parts = [
     eventProfile?.date,
-    eventProfile?.place_name || eventProfile?.place,
+    placeDisplayText(eventProfile, placeDisplay),
   ].filter(Boolean)
   return parts.length ? `${symbol} ${parts.join(', ')}` : ''
 }
 
 export function objectDetail(type, obj, strings, settings = {}) {
   const symbols = getSymbols(settings, value => translate(strings, value))
+  const placeDisplay = settings?.placeDisplay
   switch (type) {
     case 'person':
       return [
-        eventSummary(symbols.birthSymbol, obj?.profile?.birth),
-        eventSummary(symbols.deathSymbol, obj?.profile?.death),
+        eventSummary(symbols.birthSymbol, obj?.profile?.birth, placeDisplay),
+        eventSummary(symbols.deathSymbol, obj?.profile?.death, placeDisplay),
       ]
         .filter(Boolean)
         .join(' ')
     case 'family':
-      return eventSummary(symbols.marriageSymbol, obj?.profile?.marriage)
+      return eventSummary(
+        symbols.marriageSymbol,
+        obj?.profile?.marriage,
+        placeDisplay
+      )
     case 'event':
       return `
     ${obj?.profile?.date || ''}${
         obj?.profile?.place && obj?.profile?.date ? ', ' : ''
-      }${obj?.profile?.place_name || obj?.profile?.place || ''}
+      }${placeDisplayText(obj?.profile, placeDisplay)}
     `
     case 'place':
       return `

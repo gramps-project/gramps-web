@@ -5,6 +5,7 @@ import '@material/web/list/list-item'
 import '../components/GrampsjsTimedelta.js'
 import {GrampsjsConnectedComponent} from '../components/GrampsjsConnectedComponent.js'
 import {eventTitleFromProfile} from '../util.js'
+import {placeDisplayText} from '../placeDisplay.js'
 
 export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
   static get styles() {
@@ -99,7 +100,11 @@ export class GrampsjsViewAnniversaries extends GrampsjsConnectedComponent {
             locale="${this.appState.i18n.lang}"
           ></grampsjs-timedelta>
           (${event.profile.date})${event?.profile?.place
-            ? html` · ${event.profile.place_name || event.profile.place}`
+            ? html` ·
+              ${placeDisplayText(
+                event.profile,
+                this.appState?.settings?.placeDisplay
+              )}`
             : ''}
         </span>
       </md-list-item>

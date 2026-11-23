@@ -13,6 +13,7 @@ import {
   personTitleFromProfile,
   familyTitleFromProfile,
 } from '../util.js'
+import {placeDisplayText} from '../placeDisplay.js'
 import {
   associationsFilter,
   privacyFilter,
@@ -100,7 +101,10 @@ export class GrampsjsViewEvents extends GrampsjsViewObjectsBase {
       grampsId: row.gramps_id,
       type: row?.profile?.type,
       date: row?.profile?.date,
-      place: row?.profile?.place_name || row?.profile?.place,
+      place: placeDisplayText(
+        row?.profile,
+        this.appState?.settings?.placeDisplay
+      ),
       participants: [...people, ...families].join(', '),
       description: row?.description,
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),

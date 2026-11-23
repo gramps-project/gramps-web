@@ -8,6 +8,7 @@ import {
   tagsColumn,
 } from './GrampsjsViewObjectsBase.js'
 import {prettyTimeDiffTimestamp, filterCounts} from '../util.js'
+import {placeDisplayText} from '../placeDisplay.js'
 import {
   associationsFilter,
   privacyFilter,
@@ -88,7 +89,10 @@ export class GrampsjsViewFamilies extends GrampsjsViewObjectsBase {
       }`,
       relationship: row?.profile?.relationship,
       marriageDate: row?.profile?.marriage?.date,
-      marriagePlace: row?.profile?.marriage?.place_name,
+      marriagePlace: placeDisplayText(
+        row?.profile?.marriage,
+        this.appState?.settings?.placeDisplay
+      ),
       children: row?.profile?.children?.length,
       change: prettyTimeDiffTimestamp(row.change, this.appState.i18n.lang),
       tags: row?.extended?.tags ?? [],
