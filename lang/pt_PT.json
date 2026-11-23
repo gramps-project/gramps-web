@@ -552,5 +552,6 @@
     "Changes applied": "Alterações aplicadas",
     "These changes can no longer be applied.": "Estas alterações já não podem ser aplicadas.",
     "Attach images": "Anexar imagens",
-    "Media files are imported separately, under %s.": "A multimédia é importada em separado, sob %s."
+    "Media files are imported separately, under %s.": "A multimédia é importada em separado, sob %s.",
+    "Cover image": "Imagem de capa"
 }
