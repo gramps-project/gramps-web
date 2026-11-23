@@ -37,6 +37,11 @@ import {
   SYMBOL_SET_OPTIONS,
   getSymbolSetLabel,
 } from '../symbols.js'
+import {
+  PLACE_DISPLAY_OPTIONS,
+  normalizePlaceDisplay,
+  placeDisplayLabel,
+} from '../placeDisplay.js'
 
 export class GrampsjsViewSettingsUser extends GrampsjsView {
   static get styles() {
@@ -168,6 +173,8 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         ${this.renderThemeSelect()}
         <h3>${this._('Genealogical symbols')}</h3>
         ${this.renderSymbolsSelect()}
+        <h3>${this._('Places')}</h3>
+        ${this.renderPlaceDisplaySelect()}
         <h3>${this._('Family tree preferences')}</h3>
         ${this.renderTreePreferences()}
       </grampsjs-collapsible-section>
@@ -313,6 +320,36 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       ? candidate
       : SYMBOL_SET_DEFAULT
     this.appState.updateSettings({symbolSet})
+  }
+
+  renderPlaceDisplaySelect() {
+    const placeDisplay = normalizePlaceDisplay(
+      this.appState.settings.placeDisplay
+    )
+    return html`
+      <md-filled-select
+        id="select-place-display"
+        label="${this._('Show places as')}"
+        @change="${this._handlePlaceDisplaySelected}"
+      >
+        ${PLACE_DISPLAY_OPTIONS.map(
+          value => html`
+            <md-select-option
+              value="${value}"
+              ?selected=${value === placeDisplay}
+            >
+              ${placeDisplayLabel(value, s => this._(s))}
+            </md-select-option>
+          `
+        )}
+      </md-filled-select>
+    `
+  }
+
+  _handlePlaceDisplaySelected(event) {
+    this.appState.updateSettings({
+      placeDisplay: normalizePlaceDisplay(event.target.value),
+    })
   }
 
   renderTreePreferences() {

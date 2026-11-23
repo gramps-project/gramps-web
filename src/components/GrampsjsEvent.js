@@ -10,6 +10,7 @@ import './GrampsjsFormEditTitle.js'
 import './GrampsjsIcon.js'
 import './GrampsjsTooltip.js'
 import {emptyDate, fireEvent, objectIconPath} from '../util.js'
+import {placeDisplayText} from '../placeDisplay.js'
 import './GrampsjsObjectLink.js'
 
 export class GrampsjsEvent extends GrampsjsObject {
@@ -95,8 +96,10 @@ export class GrampsjsEvent extends GrampsjsObject {
                   <grampsjs-object-link
                     object-type="place"
                     gramps-id="${this.data.extended.place.gramps_id}"
-                    >${this.data.profile.place_name ||
-                    this.data.profile.place}</grampsjs-object-link
+                    >${placeDisplayText(
+                      this.data.profile,
+                      this.appState?.settings?.placeDisplay
+                    )}</grampsjs-object-link
                   >
                 </dd>
               </div>
