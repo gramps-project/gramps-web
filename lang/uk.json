@@ -277,5 +277,17 @@
     "Uploading file %s of %s": "Завантаження файлу %s з %s",
     "Select files": "Вибрати файли",
     "Failed to upload": "Не вдалося завантажити",
-    "Failed to update": "Не вдалося оновити"
+    "Failed to update": "Не вдалося оновити",
+    "Profile picture": "Зображення профілю",
+    "Add profile picture": "Додати зображення профілю",
+    "Fit to window": "Вписати у вікно",
+    "Center on selected person": "Центрувати на обраній особі",
+    "Move the chart": "Перемістити графік",
+    "Zoom in": "Наблизити",
+    "Zoom out": "Віддалити",
+    "Zoom in to see event details": "Наблизити до подробиць події",
+    "App title": "Назва застосунку",
+    "Theme colors": "Кольори теми",
+    "Primary color": "Головний колір",
+    "Accent color": "Акцентний колір"
 }
