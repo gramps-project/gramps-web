@@ -550,5 +550,6 @@
     "Changes applied": "変更が適用されました",
     "These changes can no longer be applied.": "これらの変更は、もはや適用できません。",
     "Attach images": "画像を添付する",
-    "Media files are imported separately, under %s.": "メディアファイルは、%s の下に個別にインポートされます。"
+    "Media files are imported separately, under %s.": "メディアファイルは、%s の下に個別にインポートされます。",
+    "Cover image": "カバー画像"
 }
