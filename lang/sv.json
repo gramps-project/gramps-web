@@ -551,5 +551,6 @@
     "Changes applied": "Ändringar tillämpade",
     "These changes can no longer be applied.": "Dessa ändringar kan inte längre tillämpas.",
     "Attach images": "Bifoga bilder",
-    "Media files are imported separately, under %s.": "Mediefiler importeras separat, under %s."
+    "Media files are imported separately, under %s.": "Mediefiler importeras separat, under %s.",
+    "Cover image": "Omslagsbild"
 }
