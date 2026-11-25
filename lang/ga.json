@@ -551,5 +551,6 @@
     "Changes applied": "Athruithe curtha i bhfeidhm",
     "These changes can no longer be applied.": "Ní féidir na hathruithe seo a chur i bhfeidhm a thuilleadh.",
     "Attach images": "Ceangail íomhánna",
-    "Media files are imported separately, under %s.": "Déantar comhaid mheán a allmhairiú ar leithligh, faoi %s."
+    "Media files are imported separately, under %s.": "Déantar comhaid mheán a allmhairiú ar leithligh, faoi %s.",
+    "Cover image": "Íomhá chlúdaigh"
 }
